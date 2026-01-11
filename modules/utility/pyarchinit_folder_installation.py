@@ -32,275 +32,145 @@ class pyarchinit_Folder_installation(object):
 
     OS_UTILITY = Pyarchinit_OS_Utility()
 
-    def install_dir(self):
-        
-        home_DB_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_DB_folder')
-        self.OS_UTILITY.create_dir(home_DB_path)
+    def _safe_copy(self, src, dst, description=""):
+        """Copy file with error handling - continues even if file is missing/corrupted"""
+        try:
+            self.OS_UTILITY.copy_file(src, dst)
+            return True
+        except Exception as e:
+            print(f"[pyArchInit] Warning: Could not copy {description or src}: {e}")
+            return False
 
+    def _safe_copy_img(self, src, dst, description=""):
+        """Copy file (overwrite) with error handling"""
+        try:
+            self.OS_UTILITY.copy_file_img(src, dst)
+            return True
+        except Exception as e:
+            print(f"[pyArchInit] Warning: Could not copy {description or src}: {e}")
+            return False
+
+    def _safe_extract_zip(self, zip_path, extract_to, description=""):
+        """Extract zip with error handling"""
+        try:
+            if os.path.exists(zip_path) and os.path.getsize(zip_path) > 1000:
+                with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                    zip_ref.extractall(extract_to)
+                return True
+            else:
+                print(f"[pyArchInit] Warning: ZIP file missing or too small: {description or zip_path}")
+                return False
+        except Exception as e:
+            print(f"[pyArchInit] Warning: Could not extract {description or zip_path}: {e}")
+            return False
+
+    def install_dir(self):
+        """Install all pyArchInit directories and copy resource files.
+
+        Creates directories first, then copies files with error handling
+        so installation continues even if some files are missing/corrupted.
+        """
+        # === PHASE 1: Create ALL directories first ===
+        home_DB_path = os.path.join(self.HOME, 'pyarchinit_DB_folder')
+        home_bin_export_path = os.path.join(self.HOME, 'bin')
+        doc_bin_export_path = os.path.join(self.HOME, 'DosCo')
+        home_excel_path = os.path.join(self.HOME, 'pyarchinit_EXCEL_folder')
+        home_PDF_path = os.path.join(self.HOME, 'pyarchinit_PDF_folder')
+        home_MATRIX_path = os.path.join(self.HOME, 'pyarchinit_Matrix_folder')
+        home_THUMBNAILS_path = os.path.join(self.HOME, 'pyarchinit_Thumbnails_folder')
+        home_MAPS_path = os.path.join(self.HOME, 'pyarchinit_MAPS_folder')
+        home_REPORT_path = os.path.join(self.HOME, 'pyarchinit_Report_folder')
+        home_QUANT_path = os.path.join(self.HOME, 'pyarchinit_Quantificazioni_folder')
+        home_TEST_path = os.path.join(self.HOME, 'pyarchinit_Test_folder')
+        home_BACKUP_linux_path = os.path.join(self.HOME, 'pyarchinit_db_backup')
+        home_image_export_path = os.path.join(self.HOME, 'pyarchinit_image_export')
+        home_R_export_path = os.path.join(self.HOME, 'pyarchinit_R_export')
+
+        # Create all directories
+        for dir_path in [home_DB_path, home_bin_export_path, doc_bin_export_path,
+                         home_excel_path, home_PDF_path, home_MATRIX_path,
+                         home_THUMBNAILS_path, home_MAPS_path, home_REPORT_path,
+                         home_QUANT_path, home_TEST_path, home_BACKUP_linux_path,
+                         home_image_export_path, home_R_export_path]:
+            self.OS_UTILITY.create_dir(dir_path)
+
+        # === PHASE 2: Copy files to bin folder (with error handling) ===
+        dbfiles_path = os.path.join(self.RESOURCES_PATH, 'dbfiles')
+
+        # Files to copy to bin folder
+        bin_files = [
+            ('pyarchinit.sqlite', 'pyarchinit.sqlite'),
+            ('EM_palette.graphml', 'EM_palette.graphml'),
+            ('spatialite_convert.exe', 'spatialite_convert.exe'),
+            ('sqldiff.exe', 'sqldiff.exe'),
+            ('sqldiff_linux', 'sqldiff_linux'),
+            ('sqldiff_osx', 'sqldiff_osx'),
+            ('dottoxml.py', 'dottoxml.py'),
+            ('dot.py', 'dot.py'),
+            ('X11Colors.py', 'X11Colors.py'),
+            ('thesaurus_template.csv', 'thesaurus_template.csv'),
+            ('epoche_storiche.csv', 'epoche_storiche.csv'),
+            ('template_report_adarte.docx', 'template_report_adarte.docx'),
+        ]
+
+        for src_name, dst_name in bin_files:
+            src = os.path.join(dbfiles_path, src_name)
+            dst = os.path.join(home_bin_export_path, dst_name)
+            self._safe_copy(src, dst, src_name)
+
+        # === PHASE 3: Copy files to DB folder ===
+        db_files = [
+            ('pyarchinit_db.sqlite', 'pyarchinit_db.sqlite'),
+            ('logo.jpg', 'logo.jpg'),
+            ('logo_2.png', 'logo_2.png'),
+            ('logo_de.jpg', 'logo_de.jpg'),
+        ]
+
+        for src_name, dst_name in db_files:
+            src = os.path.join(dbfiles_path, src_name)
+            dst = os.path.join(home_DB_path, dst_name)
+            self._safe_copy(src, dst, src_name)
+
+        # === PHASE 4: Install config and additional files ===
         self.installConfigFile(home_DB_path)
 
-        home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
-        self.OS_UTILITY.create_dir(home_bin_export_path)
-        
-        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
-        self.OS_UTILITY.create_dir(doc_bin_export_path)
-        
-        # f_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'cambria.ttc')
-        # f_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, f_copy_from_bin_rel)
-        # f_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'cambria.ttc')
-
-        db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
-        db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
-        db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
-
-        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
-        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
-        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
-
-
-        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
-        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
-        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
-
-        w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
-        w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
-        w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
-
-        linux_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_linux')
-        linux_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, linux_copy_from_path_rel)
-        linux_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_linux')
-
-        osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
-        osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
-        osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
-        
-        dottoxml_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dottoxml.py')
-        dottoxml_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dottoxml_copy_from_path_rel)
-        dottoxml_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dottoxml.py')
-        
-        dot_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dot.py')
-        dot_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dot_copy_from_path_rel)
-        dot_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dot.py')
-        
-        X11Colors_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'X11Colors.py')
-        X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
-        X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
-        
-        csv_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'thesaurus_template.csv')
-        csv_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, csv_copy_from_path_rel)
-        csv_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'thesaurus_template.csv')
-
-        epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
-        epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
-        epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
-
-        report_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'template_report_adarte.docx')
-        report_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, report_copy_from_path_rel)
-        report_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'template_report_adarte.docx')
-
-        # self.OS_UTILITY.copy_file(f_copy_from_bin, f_copy_to_bin)
-        self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
-        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
-        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
-        self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
-        self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
-        self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
-        self.OS_UTILITY.copy_file(dottoxml_copy_from_path, dottoxml_copy_to_path)
-        self.OS_UTILITY.copy_file(dot_copy_from_path, dot_copy_to_path)
-        self.OS_UTILITY.copy_file(X11Colors_copy_from_path, X11Colors_copy_to_path)
-        self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
-        self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
-        self.OS_UTILITY.copy_file(report_copy_from_path, report_copy_to_path)
-        #self.OS_UTILITY.copy_file(template_copy_from_path, template_copy_to_path)
-        db_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit_db.sqlite')
-        db_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_path_rel)
-        db_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'pyarchinit_db.sqlite')
-        
-        logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
-        logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
-        logo_copy_to_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        
-        
-        logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
-        logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
-        logo_copy_to_path_adarte = '{}{}{}'.format(home_DB_path, os.sep, 'logo_2.png')
-        
-        ### logo per la versione tedesca
-        logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
-        logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
-        logo_copy_to_path_de = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-        
-        
-        self.OS_UTILITY.copy_file(db_copy_from_path, db_copy_to_path)
-        self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
-        self.OS_UTILITY.copy_file(logo_copy_from_path_adarte, logo_copy_to_path_adarte)   
-        self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)   
-
-        home_excel_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_EXCEL_folder')
-        self.OS_UTILITY.create_dir(home_excel_path)
-		
-        home_PDF_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_PDF_folder')
-        self.OS_UTILITY.create_dir(home_PDF_path)
-
-        home_MATRIX_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_Matrix_folder')
-        self.OS_UTILITY.create_dir(home_MATRIX_path)
-
-        home_THUMBNAILS_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_Thumbnails_folder')
-        self.OS_UTILITY.create_dir(home_THUMBNAILS_path)
-
-        home_MAPS_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_MAPS_folder')
-        self.OS_UTILITY.create_dir(home_MAPS_path)
-
-        home_REPORT_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_Report_folder')
-        self.OS_UTILITY.create_dir(home_REPORT_path)
-
-        home_QUANT_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_Quantificazioni_folder')
-        self.OS_UTILITY.create_dir(home_QUANT_path)
-
-        home_TEST_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_Test_folder')
-        self.OS_UTILITY.create_dir(home_TEST_path)
-
-        home_BACKUP_linux_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_db_backup')
-        self.OS_UTILITY.create_dir(home_BACKUP_linux_path)
-
-        home_image_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_image_export')
-        self.OS_UTILITY.create_dir(home_image_export_path)
-        
-        home_R_export_path = '{}{}{}'.format(self.HOME, os.sep, 'pyarchinit_R_export')
-        self.OS_UTILITY.create_dir(home_R_export_path)
-
-
-
     def installConfigFile(self, path):
-        
-        config_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'config.cfg')
-        config_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, config_copy_from_path_rel)
-        config_copy_to_path = '{}{}{}'.format(path, os.sep, 'config.cfg')
-        self.OS_UTILITY.copy_file(config_copy_from_path, config_copy_to_path)
+        """Install config file and extract ZIP archives with error handling."""
+        dbfiles_path = os.path.join(self.RESOURCES_PATH, 'dbfiles')
+        home_bin_export_path = os.path.join(self.HOME, 'bin')
 
-        logo_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'logo.jpg')
-        logo_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel)
-        logo_copy_to_path = '{}{}{}'.format(path, os.sep, 'logo.jpg')
-        
-        self.OS_UTILITY.copy_file(logo_copy_from_path, logo_copy_to_path)
-        
-        logo_copy_from_path_rel_adarte = os.path.join(os.sep, 'dbfiles', 'logo_2.png')
-        logo_copy_from_path_adarte = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_adarte)
-        logo_copy_to_path_adarte = '{}{}{}'.format(path, os.sep, 'logo_2.png')
-        
-        self.OS_UTILITY.copy_file(logo_copy_from_path_adarte, logo_copy_to_path_adarte)
-        
-        
-        logo_copy_from_path_rel_de = os.path.join(os.sep, 'dbfiles', 'logo_de.jpg')
-        logo_copy_from_path_de = '{}{}'.format(self.RESOURCES_PATH, logo_copy_from_path_rel_de)
-        logo_copy_to_path_de = '{}{}{}'.format(path, os.sep, 'logo_de.jpg')
-        
-        self.OS_UTILITY.copy_file(logo_copy_from_path_de, logo_copy_to_path_de)
+        # Copy config file
+        self._safe_copy(
+            os.path.join(dbfiles_path, 'config.cfg'),
+            os.path.join(path, 'config.cfg'),
+            'config.cfg'
+        )
 
-        home_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'bin')
-        self.OS_UTILITY.create_dir(home_bin_export_path)
-        
-        doc_bin_export_path = '{}{}{}'.format(self.HOME, os.sep, 'DosCo')
-        self.OS_UTILITY.create_dir(doc_bin_export_path)
+        # Copy logo files to DB path
+        for logo_file in ['logo.jpg', 'logo_2.png', 'logo_de.jpg']:
+            self._safe_copy(
+                os.path.join(dbfiles_path, logo_file),
+                os.path.join(path, logo_file),
+                logo_file
+            )
 
-        # f_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'cambria.ttc')
-        # f_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, f_copy_from_bin_rel)
-        # f_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'cambria.ttc')
-        
-        db_copy_from_bin_rel = os.path.join(os.sep, 'dbfiles', 'pyarchinit.sqlite')
-        db_copy_from_bin = '{}{}'.format(self.RESOURCES_PATH, db_copy_from_bin_rel)
-        db_copy_to_bin = '{}{}{}'.format(home_bin_export_path, os.sep, 'pyarchinit.sqlite')
+        # Extract ZIP archives (profile, rscripts, cambria fonts)
+        zip_extracts = [
+            ('profile.zip', 'profile'),
+            ('rscripts.zip', 'rscripts'),
+            ('cambria.zip', 'cambria'),
+        ]
 
-        em_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'EM_palette.graphml')
-        em_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, em_copy_from_path_rel)
-        em_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'EM_palette.graphml')
+        for zip_name, folder_name in zip_extracts:
+            zip_path = os.path.join(dbfiles_path, zip_name)
+            extract_test = os.path.join(home_bin_export_path, folder_name)
+            if not os.path.exists(extract_test):
+                self._safe_extract_zip(zip_path, home_bin_export_path, zip_name)
 
-        wc_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'spatialite_convert.exe')
-        wc_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, wc_copy_from_path_rel)
-        wc_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'spatialite_convert.exe')
-
-        w_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff.exe')
-        w_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, w_copy_from_path_rel)
-        w_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff.exe')
-
-        linux_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_linux')
-        linux_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, linux_copy_from_path_rel)
-        linux_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_linux')
-
-        osx_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'sqldiff_osx')
-        osx_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, osx_copy_from_path_rel)
-        osx_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'sqldiff_osx')
-        
-        dottoxml_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dottoxml.py')
-        dottoxml_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dottoxml_copy_from_path_rel)
-        dottoxml_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dottoxml.py')
-        
-        dot_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'dot.py')
-        dot_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, dot_copy_from_path_rel)
-        dot_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'dot.py')
-        
-        X11Colors_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'X11Colors.py')
-        X11Colors_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, X11Colors_copy_from_path_rel)
-        X11Colors_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'X11Colors.py')
-        
-        csv_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'thesaurus_template.csv')
-        csv_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, csv_copy_from_path_rel)
-        csv_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'thesaurus_template.csv')
-
-        epoche_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'epoche_storiche.csv')
-        epoche_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, epoche_copy_from_path_rel)
-        epoche_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'epoche_storiche.csv')
-
-
-        report_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'template_report_adarte.docx')
-        report_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, report_copy_from_path_rel)
-        report_copy_to_path = '{}{}{}'.format(home_bin_export_path, os.sep, 'template_report_adarte.docx')
-
-
-        profile_zip = os.path.join(os.sep, 'dbfiles', 'profile.zip')
-        profile_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, profile_zip)
-        test=os.path.join(home_bin_export_path,'profile')
-        if not os.path.exists(test):
-            with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
-                zip_ref.extractall(home_bin_export_path)
-        else:
-            pass# with zipfile.ZipFile(profile_zip_copy_from_path, 'r') as zip_ref:
-                # zip_ref.extractall(test)
-
-
-        rs_zip = os.path.join(os.sep, 'dbfiles', 'rscripts.zip')
-        rs_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, rs_zip)
-        test2=os.path.join(home_bin_export_path,'rscripts')
-        if not os.path.exists(test2):
-            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
-                zip1_ref.extractall(home_bin_export_path)
-        else:
-            with zipfile.ZipFile(rs_zip_copy_from_path, 'r') as zip1_ref:
-                zip1_ref.extractall(test2)
-        
-        cambria_zip = os.path.join(os.sep, 'dbfiles', 'cambria.zip')
-        cambria_zip_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, cambria_zip)
-        test3=os.path.join(home_bin_export_path,'cambria')
-        if not os.path.exists(test3):
-            with zipfile.ZipFile(cambria_zip_copy_from_path, 'r') as zip2_ref:
-                zip2_ref.extractall(home_bin_export_path)
-        else:
-            with zipfile.ZipFile(cambria_zip_copy_from_path, 'r') as zip2_ref:
-                zip2_ref.extractall(test3)
-        template_copy_from_path_rel = os.path.join(os.sep, 'dbfiles', 'layout_TimeManager.qpt')
-        template_copy_from_path = '{}{}'.format(self.RESOURCES_PATH, template_copy_from_path_rel)
-        template_copy_to_path = '{}{}{}{}{}'.format(home_bin_export_path, os.sep, 'profile/','template/', 'layout_TimeManager.qpt')
-
-        self.OS_UTILITY.copy_file(db_copy_from_bin, db_copy_to_bin)
-        self.OS_UTILITY.copy_file(em_copy_from_path, em_copy_to_path)
-        self.OS_UTILITY.copy_file(wc_copy_from_path, wc_copy_to_path)
-        self.OS_UTILITY.copy_file(w_copy_from_path, w_copy_to_path)
-        self.OS_UTILITY.copy_file(linux_copy_from_path, linux_copy_to_path)
-        self.OS_UTILITY.copy_file(osx_copy_from_path, osx_copy_to_path)
-        self.OS_UTILITY.copy_file_img(dottoxml_copy_from_path, dottoxml_copy_to_path)
-        self.OS_UTILITY.copy_file_img(dot_copy_from_path, dot_copy_to_path)
-        self.OS_UTILITY.copy_file_img(X11Colors_copy_from_path, X11Colors_copy_to_path)
-        self.OS_UTILITY.copy_file(csv_copy_from_path, csv_copy_to_path)
-        self.OS_UTILITY.copy_file(epoche_copy_from_path, epoche_copy_to_path)
-        self.OS_UTILITY.copy_file(report_copy_from_path, report_copy_to_path)
-        self.OS_UTILITY.copy_file(template_copy_from_path, template_copy_to_path)
+        # Copy template file (after profile extraction)
+        template_src = os.path.join(dbfiles_path, 'layout_TimeManager.qpt')
+        template_dst = os.path.join(home_bin_export_path, 'profile', 'template', 'layout_TimeManager.qpt')
+        # Ensure template directory exists
+        template_dir = os.path.dirname(template_dst)
+        if os.path.exists(template_dir):
+            self._safe_copy(template_src, template_dst, 'layout_TimeManager.qpt')
