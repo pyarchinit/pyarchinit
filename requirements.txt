@@ -1,5 +1,5 @@
-# CRITICAL: numpy must stay <2.0 for QGIS compatibility
-numpy>=1.24.0,<2.0.0
+# CRITICAL: numpy must be exactly 1.26.4 for QGIS compatibility (numpy 2.x breaks QGIS)
+numpy==1.26.4
 SQLAlchemy>=2.0.0
 SQLAlchemy-Utils>=0.41.0
 GeoAlchemy2>=0.14.0
