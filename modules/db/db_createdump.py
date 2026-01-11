@@ -132,7 +132,7 @@ class RestoreSchema(object):
         session = Session()
         conn = engine.connect()
         try:
-            res = conn.execute(sql_query_string)
+            res = conn.execute(text(sql_query_string))
             tables = []
             types = []
             for r in res:
@@ -144,9 +144,12 @@ class RestoreSchema(object):
                     t, ty, crs
                 ))
                 res = conn.execute(sql_queries)
+            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
         except Exception as e:
+            conn.rollback()
             raise e
         finally:
+            conn.close()
             session.close()
         return True
 
@@ -157,13 +160,16 @@ class RestoreSchema(object):
         session = Session()
         conn = engine.connect()
         try:
-            res = conn.execute(sql)
+            res = conn.execute(text(sql))
             for r in res:
                 sql_queries = text("ALTER TABLE public.{} OWNER TO {};".format(r[0], owner))
                 res = conn.execute(sql_queries)
+            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
         except Exception as e:
+            conn.rollback()
             raise e
         finally:
+            conn.close()
             session.close()
         return True
 
@@ -174,7 +180,7 @@ class RestoreSchema(object):
         session = Session()
         conn = engine.connect()
         try:
-            res = conn.execute(sql_query_string)
+            res = conn.execute(text(sql_query_string))
             tables = []
             types_and_geom = []
             for r in res:
@@ -190,9 +196,12 @@ class RestoreSchema(object):
                 # ))
                 conn.execute(sql_queries_1)
                 # conn.execute(sql_queries_2)
+            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
         except Exception as e:
+            conn.rollback()
             raise e
         finally:
+            conn.close()
             session.close()
         return True
 
