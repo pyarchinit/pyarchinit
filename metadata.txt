@@ -31,248 +31,97 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.28 Update 2026-01-09
-  4.9.27 Update 2026-01-09
-  4.9.26 Update 2026-01-09
-  4.9.25 Update 2026-01-09
-  4.9.24 Update 2026-01-09
-  4.9.23 Update 2026-01-08
-  4.9.22 Update 2026-01-07
-  4.9.21 Update 2025-12-28
-  4.9.20 Update 2025-12-28
-  4.9.19 Update 2025-12-28
-  4.9.18 Update 2025-12-28
-  4.9.17 Update 2025-12-28
-  4.9.16 Update 2025-12-28
-  4.9.15 Update 2025-12-18
-  4.9.14 Update 2025-12-14
-  4.9.13 Update 2025-12-14
-  4.9.12 Update 2025-12-14
-  4.9.11 Update 2025-12-13
-  4.9.10 Update 2025-12-13
-  4.9.9 Update 2025-12-13
-  4.9.8 Update 2025-12-10
-  4.9.7 Update 2025-12-10
-  4.9.6 Update 2025-12-10
-  4.9.5 Fix Windows plugin loading issues: improved package version matching logic to check only package names (not versions) preventing false positives for pandas and PyMuPDF. Implemented lazy imports for OpenAI, Langchain, and PyMuPDF to avoid DLL conflicts on Windows startup. Fixed NoneType errors in package metadata checking. Enhanced cross-platform compatibility and plugin startup performance.
-  4.9.4 fix tablewidget rapporti for area and sito during update when you have multiple site
-  4.9.3 Add support for additional archaeological data and validations. Enhanced report generation to include tomb, periodization, and structure data with corresponding validations. Improved handling of images, markdown tables, and large datasets using chunking for efficient processing. Various updates include clean AI output, refined logging, and expanded formatted table outputs.
-  4.9.3 Refactor `pyarchinit_db_manager.py` and `pyarchinit_pyqgis.py` to improve code readability and maintainability. Updated the `query_in_contains` method to support chunking, ensuring compatibility with SQLite depth limitations. These changes enhance the code's clarity,
-  4.9.2 Refactor stratigraphic report generation by cleaning unused globals, restructuring the relationship dictionary, improving error handling, and clarifying logic for empty area detection.
-  4.9.1 Fix update dating, add text2sql local
-  4.9.0 and revise changelog. Bumped the version to 4.9.0 in metadata. Updated the changelog to reflect significant improvements, including table definition refactor, enhanced query handling for SQLite, and overall code maintainability enhancements.
-  4.8.9 Refactor table definitions and query handling. Reorganized and clarified table structure definitions with detailed comments for better readability and maintainability. Improved the `query_in_contains` method to support chunking, ensuring compatibility with SQLite depth limitations. These changes enhance the code's clarity, functionality, and maintainability across modules.
-  4.8.8 Refactor PDF export and dialog UI, add excavation year and US range filters, and enhance archeological report generation with detailed US formatting.
-  4.8.7 Refactor handling of `serch_dict_rapp` and cleanup commented code. Updated `serch_dict_rapp` assignments to ensure consistency based on `test_conn` value. Removed commented-out code to improve readability and maintainability.
-  4.8.6 Add new query method and enhance GIS layer styling Introduced a new query method `query_bool_new` in `pyarchinit_db_manager.py` and improved styling logic for GIS layers in `pyarchinit_pyqgis.py`. Enhanced the `create_style.py` to support loading styles from the database and applying temporary styles more effectively. Additionally, improved error handling and interface elements in `Periodizzazione.py` and `US_USM.py`.
-  4.8.5 Refactor style application logic to improve modularity and support dynamic user interactions with custom styles in PyQGIS.
-  4.8.4 Removed redundant prompt instructions and unused variables in `US_USM.py`. Added functionality to save descriptions text to a file on the desktop and provided checks to manage "Area non trovata" in stratigraphic relationships. This improves code readability and functionality.
-  4.8.3 Implement file copy functionality for report template and refine report generation logic to include a default template option.
-  4.8.2 Add Report Generation Dialog. Introduced a new dialog class for report generation, allowing users to select multiple tables. Refactored and streamlined report generation logic using the selected tables, enhancing modularity and usability.
-  4.8.1 Add report generation feature with OpenAI API integration. This update introduces a threaded report generation using the OpenAI API and a new dialog for displaying and saving the report. Additionally, label name extraction and graph node plotting logic have been improved by removing unnecessary prefixes in `pyarchinit_matrix_exp.py`.
-  4.8.0 update gpt sketch
-  4.7.9 fix bug
-  4.7.8 add image viewer 3D, add video player , fix bug
-  4.7.7 Update `US_USM.py` and `US_USM.ui` to fix various UI elements, import statements, and control properties for better user interface and functionality. for mac
-  4.7.6 fix expotr biblio in finds report
-  4.7.5 fix bug error
-  4.7.4 Update
-  4.7.3 Update application dependencies and improve GPT functionality
-  4.7.2 fix pkg installation
-  4.7.1 mayor fix bug and change order by in us-usm view
-  4.7.0 Refactor matrix generation and presentation code, Add query for boolean-like operation and improve code functionality, Uncomment database structure metadata and definition Refactor table definition across db module classes, Add functionality to update 'rapporti' column.
-  4.6.9 #601
-  4.6.8 Refactor US_USM.py to add functionality for filtering and updating the list widget based on search text.
-  4.6.7 Update subcontrol position and margin values in QgsCollapsibleGroupBoxBasic title class. Refactor the styling of QgsCollapsibleGroupBox::title and QgsCollapsibleGroupBoxBasic::title to have a consistent margin and position. Adjust top position of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title. Update margin and position for QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Refactor subcontrol-origin and subcontrol-position CSS properties, adjusting the margin and position values for QgsCollapsibleGroupBoxBasic::title and QgsCollapsibleGroupBox::title. Update QgsCollapsibleGroupBox title styling for margin and position. Update subcontrol-position and top values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox::title. Update the styling for the collapsible group box titles to have a margin-left of 20px, margin-right of 5px, and a top position of 2px. Update the background color of QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox title to rgb(180, 180, 180). Adjust margins and positioning of QgsCollapsibleGroupBox title elements. Update subcontrol position and top margin values in QgsCollapsibleGroupBoxBasic and QgsCollapsibleGroupBox titles. Adjust the subcontrol positioning and margins for QgsCollapsibleGroupBox title.
-  4.6.6 Add the institution code to the label "ENTE RESPONSABILE" for the US sheet PDF export.
-  4.6.5 [Description of changes]
-  4.6.4 Add query_all_us method to db_manager and refactor related UI components.
-  4.6.3 Implement automatic 'Dating' field update in US_USM module and adjust related field mappings.
-  4.6.2 Correct typographical errors, update file paths in workspace.xml.
-  4.6.1 Fix bug import data on postgis.
-  4.6.0 Fix bug us scheda.
-  4.5.9 Fix epsg bugs in pyarchinit plugin config.
-  4.5.8 #544.
-  4.5.7 Update gpt-3-turbo-16k and add to periodizzazione form gpt-3-turbo-16k.
-  4.5.6 Add csv periodizzazione per la scheda periodizzazione.
-  4.5.5 Fix bug.
-  4.5.4 Fix bug search text images tagged.
-  4.5.3 Preview matrix.
-  4.5.2 Fix bug.
-  4.5.1 Add remove and assign tags in US, Artefact, Pottery, and Tomb forms.
-  4.5.0 Add drag and drop image function.
-  4.4.7 Fix issues #553, #553, #551, UPDATE EXPORT IMAGE DIRECTORY.
-  4.4.6 Fix issues fix minor bugs.
-  4.4.5 Fix issues #547.
-  4.4.4 Fix issues #531, #533, #535, #383, #536, #537, #540, #541, ##543, #546, #542.
-  4.4.3 Add image in report artefact PDF.
-  4.4.2 Fix bug matrix export without period.
-  4.4.1 Fix bug on schedatore fields.
-  4.4.0 #525, update tablwwidget_rapporti Allow only numer in the SU column.
-  4.3.9 Updated map preview into us form, #523.
-  4.3.8 Add function remove image from folder path.
-  4.3.7 Update documentation form #522.
-  4.3.6 Add pottery for import tool, add pottery for export image, add pottery for import media manager, add quantpanel main pottery, fixed bug inv_Materiali_ui, fixed minor bugs.
-  4.3.5 Add pottery table and form.
-  4.3.4 Add negative symbol for SU into the matrix.
-  4.3.3 Fix update tablewidget relationships for EM(set same rows), fix template csv thesaurus.
-  4.3.2 Import csv to thesaurus, template csv thesaurus.
-  4.3.1 Update info.
-  4.3.0 #509 issue.
-  4.2.0 #507 issue, #508 issue.
-  4.1.0 Validazione e inserimento rapporti per EM.
-  4.0.9 Validazione e inserimento rapporti inversi.
-  4.0.8 Update matrix codice periodo.
-  4.0.7 Fix issue #498, system backup and restore postgres db.
-  4.0.6 Fixed system backup to postgres.
-  4.0.5 Update cont_per to postgres.
-  4.0.4 Fix bug #486.
-  4.0.3 Update package.
-  4.0.2 Fix bug for mac.
-  4.0.1 Fix minor bug gui matrix.
-  4.0.0 Create ext-libs.
-  3.9.19 Create ext-libs.
-  3.9.18 Fix #460, pyarchinit_tomba_view.
-  3.9.17 Fix bug #458 #459, fix bug #459.
-  3.9.16 Fix bug #456, fix bug #458.
-  3.9.15 Fixed minor bug.
-  3.9.14 Fixed export matrix to ED.
-  3.9.13 Fixed svg symbol for EM, add unita_tipo column into pyunitastartigrafiche, pyunitastartigrafiche_usm e pyarchinit_quote, pyarchinit_quote_usm.
-  3.9.12 Add vocabulary online into thesaurus form, update matrix for EM.
-  3.9.11 Fix quote export pdf.
-  3.9.10 Add option autoincrement invetario materiali, fix minor bugs.
-  3.9.9 Update export form pdf.
-  3.9.8.18 Add totalopenstaion2pyarchinit form.
-  3.9.8.17 Add wms igm 25000, update pregressbar in media manager, fix combox_sito in config form.
-  3.9.8.16 Update wms vincoli on base of the comune attribute.
-  3.9.8.15 Fix install python packages.
-  3.9.8.14 Fix export matrix to ED, update sqlalchemy to 1.4.27, fix update database to import data.
-  3.9.8.9 Add form to export to gpkg (vector and raster), ui gpkg on the top, change background color ui.
-  3.9.8.7 Update table widget rapporti.
-  3.9.8.6 Change table widget rapporti.
-  3.9.8.5 Rscript update.
-  3.9.8.4 Fix bug rapport check.
-  3.9.8.3 Fix bug inventario materiali.
-  3.9.8.2 Add r script to least cost path.
-  3.9.8.1 Remove tkinter module, update folder installation add spatialite_convert and EM_palette.
-  3.9.8 Add tkinter module.
-  3.9.7 Function for convert db for spatialite 5.
-  3.9.5 Fix database issues for SQLite.
-  3.9.4 Update database for SQLite/Postgres, add layer pyunitastartigrafiche_usm and pyarchinit_quote_usm, add view pyarchinit_usm_view and pyarchinit_quote_usm_view, update groups layer.
-  3.9.3 Fix bug in exportation of PDF for USM.
-  3.9.2 Add WMS for archaeological constraints.
-  3.9.1 Update connection settings.
-  3.9 Update area management, timeout settings for basemap.
-  3.8.3 Update area management, timeout settings for basemap.
-  3.8.2 Add base map, add WMS map.
-  3.8.1 Make combobox for active site uneditable.
-  3.8 New icon, update QPT template, fix bug in creating view for Postgres.
-  3.7 New icon, update site form, update pyarchinit_pyqgis.
-  3.6 Remove 'area' from periodizzazione form.
-  3.5 Add print map dialog.
-  3.4 Fix bugs in structure and periods view, fix bug in Postgres update.
-  3.3 Update QPT template, view all periods in subfolder, fix bug in structure view, view structures.
-  3.2 Add QPT template, create your own map system.
-  3.1 Add subgroup layer, group view period and phase.
-  3.0 Add group layer.
-  2.5.5 Update Postgres database.
-  2.5.4 Update trigger settings.
-  2.5.3 Update dbname in connection parameters.
-  2.5.2 Issue #418 resolved.
-  2.5.1 Issue #417 resolved.
-  2.5.0 Issue #413 resolved.
-  2.4.9 Issue #413 resolved.
-  2.4.8 Add abort system into config parameters.
-  2.4.7 Reperti fixed index numero reperto.
-  2.4.6 Reperti fixed index numero reperto.
-  2.4.5 Tomba view, research tomba, config file, export image directories.
-  2.4.4 Update.
-  2.4.3 Update.
-  2.4.2 Update.
-  2.4.1 Update.
-  2.4.0 Update.
-  2.3.2 Update.
-  2.3.1 Update.
-  2.3.0 Update matrix.
-  2.2.9 Update order layer.
-  2.2.8 Update lang export all forms.
-  2.2.7 Update lang export all forms.
-  2.2.5 Update lang scheda indv.
-  2.2.4 Update lang scheda indv.
-  2.2.3 Update lang image viewer.
-  2.2.2 Update.
-  2.2.1 Matrix settings, add EN and DE language support.
-  2.2.0 Matrix settings.
-  2.1.9 Fix bug in import reperti.
-  2.1.8 Fix bug in import reperti.
-  2.1.7 Fix bug in save function.
-  2.1.6 Fix bug in thesaurus.
-  2.1.5 Update US form.
-  2.1.4 Export USM.
-  2.1.3 Update matrix.
-  2.1.2 Update reperti UI.
-  2.1.1 Update US UI.
-  2.1.0 Update matrix exportation, update US UI.
-  2.0.9 Update matrix exportation.
-  2.0.8 Add area field to periodization table.
-  2.0.7 Print map dialog.
-  2.0.6 Connection with struttura table.
-  2.0.5 Resize image viewer.
-  2.0.4 Update barra di ricerca in image view.
-  2.0.3 Changed view exp PDF US and list.
-  2.0.2 Add order by on exp PDF list photo.
-  2.0.1 Add option exp photo without thumbnail.
-  2.0.0 New features, fix bug, add new field, new icons, set all layout.
-  1.1.13 Fix bug.
-  1.1.12 Fix bug.
-  1.1.10 Update pyarchinit config, insert automatic enumerate n inv, fix bug.
-  1.1.9 Update pyarchinit config.
-  1.1.8 Update trigger db SQLite.
-  1.1.7 Update db, update UI inv materiali, auto increment n_reperto.
-  1.1.6 Update db.
-  1.1.5 Update db, add position, update form US UI.
-  1.1.4 Export USM.
-  1.1.3 Update matrix.
-  1.1.2 Update reperti UI.
-  1.1.1 Update US UI.
-  1.1.0 Update matrix exportation, update US UI.
-  1.0.9 Update matrix exportation.
-  1.0.8 Raggruppamento US during photo export.
-  1.0.7 UI improvements, fix installation on Mac.
-  1.0.6 Fixed bug save data tablewidget.
-  1.0.5 Export ICCD US.
-  1.0.4 Fix bug to export list photo thumb to PG.
-  1.0.3 Fix query pyarchinit config dialog.
-  1.0.1 Aggiornamento update file di configurazione.
-  1.0.0 Aggiornamento installazione e update db postgres, video manager, list site from config form, list US in tableview.
-  0.8.6 Aggiornamento installazione e update db postgres.
-  0.8.5 Aggiornamento installazione e update db postgres.
-  0.8.3 Aggiornamento db SQLite aggiorna il db con l'apposita funzione, è stato cambiato il campo area da integer a text.
-  0.8.2 Fixed bug per visualizzazione media preview e grafico statistica in inventario materiali.
-  0.8.1 Esportazione foto order by media name.
-  0.8.0 Raggruppamento US durante esportazione foto.
-  0.7.5 Fixed minor bug, fix installation on Mac.
-  0.7.4 Fixed bug save data tablewidget.
-  0.7.3 Fixed bug import layer from site form, update db SQLite.
-  0.7.2 Add into import layers Media.
-  0.7.1 Fix bug image view split function.
-  0.7.0 Image view auto fill tablewidget US TAG from selected image.
-  0.6.9 Vector search function.
-  0.6.8 Connection with struttura table.
-  0.6.7 Minor bug fix.
-  0.6.6 Resize image view.
-  0.6.5 Update barra di ricerca in image view.
-  0.6.4 Changed view exp PDF US and list, add order by on exp PDF list photo, add option exp photo without thumbnail.
-  0.6.3 Bug fix export PDF US.
-  0.6.2 Bug fix, image view update, image view update reperti.
-  0.6.1 Fix bug.
-  0.6 Image view update.
-  0.5 Fix bug export PDF US, add print PDF photo list, add list widget move from US form.
-  0.4 Fix bug export PDF US, add print PDF photo list, add list widget move from US form.
-  0.3.9 Fix bug toolbar image viewer.
-  0.3.7 UI Improvements, update SQL.
-  0.3.6 UI Improvements, update database, minor bug fixed.
-  0.3.5 UI Improvements, more languages support English, Deutsch, minor bug fixed.
+changelog=4.9.28 (2026-01-09):
+    - Fix: handle duplicate column errors in all supported languages
+    - Fix: SQLAlchemy 2.0 compatibility for database schema updates
+  4.9.27 (2026-01-09):
+    - Fix: handle duplicate column errors in database update
+    - Fix: remove shlex_quote from subprocess calls
+  4.9.26 (2026-01-09):
+    - Fix: remove debug prints and improve Windows QGIS detection
+    - Fix: splash screen no longer blocks package installation dialog
+  4.9.25 (2026-01-09):
+    - Chore: comment out unused pyper dependency in requirements.txt
+  4.9.24 (2026-01-08):
+    - Fix: add missing tableInsertData method and ast import to Inv_Materiali
+    - Fix: restore original loadMediaPreview with mode parameter
+    - Fix: simplify Inv_Materiali loadMediaPreview to match Pottery
+  4.9.23 (2026-01-07):
+    - Feat: add new pyarchinit_splash.py file for splash screen functionality
+    - Fix: update Pottery UI palette in Qt Designer for Qt6 compatibility
+    - Fix: ensure labels are readable in Qt6 for Pottery form
+  4.9.22 (2025-12-28):
+    - Fix: restore missing methods and fix integer fields in Inv_Materiali.py
+    - Fix: convert empty strings to NULL for numeric columns in SQLite sync
+    - Feat: add comprehensive translations for all 7 languages
+    - Feat: add missing translations for UI forms (7 languages)
+    - Feat: add concurrency columns and missing tables to SQLite template
+    - Fix: sync between PostgreSQL and SQLite with different columns
+    - Fix: find mod_spatialite in QGIS internal paths on macOS
+    - Feat: add SQLite support to database synchronization
+    - Feat: add connection profiles to DB Settings tab
+  4.9.21 (2025-12-28):
+    - Feat: enhance splash screen with larger gears and update metadata
+    - Feat: update splash screen with Archeoimagineers logo and pyArchInit 5 title
+    - Feat: show splash screen during plugin load/reload
+    - Feat: add animated splash screen for package installation
+    - Feat: update toolbar icons with modern colorful design
+  4.9.20 (2025-12-28):
+    - Feat: Add UT geometry tables, Fauna search, and Thesaurus support
+    - Feat: add Fauna tab and move UT to non-experimental features
+    - Fix: convert remaining Qt6 scoped enum patterns
+    - Fix: convert all Qt6-style enum syntax to PyQt5-compatible format
+    - Fix: restore missing methods and fix form loading for Qt6 migration
+    - Feat: Qt6/PyQt6 migration and major refactoring (v5.0)
+  4.9.15 (2025-12-18):
+    - Feat: Image Search - dedicated dialog for global image search
+    - Feat: Image Search - search by text, entity type, site, area, US
+    - Feat: Image Search - navigate directly to associated records (goto_record)
+    - Feat: Image Search - export functionality for images
+    - Feat: ImageViewer - export button for saving displayed images
+    - Fix: database connection using singleton pattern
+    - Fix: image path construction using thumb_resize + path_resize
+    - Docs: add changelog for feature/cloudinary-integration branch
+  4.9.14 (2025-12-14):
+    - Feat: SAM stone segmentation tool with local and cloud API support
+    - Feat: SAM - interactive click and box modes for segmentation
+    - Feat: Pottery - KhutmML-CLIP fine-tuning and similarity search
+    - Feat: Pottery - auto-rebuild indexes after training
+    - Feat: Pottery - model export/import and tips
+  4.9.13 (2025-12-14):
+    - Feat: database - add automatic GRANT sync when tables are recreated
+    - Feat: Pottery - add year filter to PotteryFilterDialog
+  4.9.12 (2025-12-14):
+    - Feat: Pottery - add ID Number filter dialog with checkboxes
+  4.9.11 (2025-12-13):
+    - Feat: Pottery - add decoration fields and fix Thesaurus bugs
+    - Feat: Pottery - add decoration crosstabs and fix chart type switching
+    - Feat: Pottery - enhance statistics with specific_form, new charts
+  4.9.10 (2025-12-13):
+    - Feat: Inventario - add filter dialog for numero_inventario, n_reperto and years
+    - Feat: PDF - add photo_id and drawing_id to inventory and pottery lists
+    - Fix: Inventario - use query() instead of query_all() for mapper class
+  4.9.9 (2025-12-13):
+    - Feat: SAM - enhance segmentation with local model support
+    - Fix: SAM - fix interactive modes and make cloud API default
+    - Fix: Report - process image tags BEFORE markdown formatting
+    - Fix: Report - handle missing database tables gracefully
+  4.9.8 (2025-12-10):
+    - Feat: AI visual similarity search with Cloudinary support
+    - Feat: DINOv2 support with improved decoration preprocessing
+    - Feat: Import/Export indexes for sharing between PCs
+    - Feat: Excel export with thumbnails and chart
+  4.9.7 (2025-12-10):
+    - Feat: AI Query Database - standalone toolbar button
+    - Feat: AI Query - FAISS vectorstore persistent storage
+    - Feat: AI Query - auto-load for all pyarchinit vector views
+    - Feat: US_USM - auto-sync ref_ra/ref_n with inventory and pottery
+  4.9.6 (2025-12-10):
+    - Feat: Cloudinary CDN integration with AI features
+    - Feat: Remote storage support for thumbnails and images
+    - Feat: Pottery - visual similarity search with multi-image support
+    - Feat: UI - update icons and modern colorful design
+  4.9.5 Fix Windows plugin loading issues, lazy imports for OpenAI/Langchain/PyMuPDF.
 
 tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite, sqlite, archeologia, funerary archaeology, pottery, bones, excavations, scavi, archeologici, siti, carte, archeologiche, carta di potenzialita, strutture, antiche, tempio, medioevo, romana, preistoria, roman, medieval, prehistoric
 
