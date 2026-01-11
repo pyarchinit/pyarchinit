@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.36
+version=4.9.37
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,10 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.36 (2026-01-11):
+changelog=4.9.37 (2026-01-11):
+    - Chore:  update opencv-python to 4.12.0.88
+    - Fix:  robust folder installation with error handling
+  4.9.36 (2026-01-11):
     - Fix:  SQLAlchemy 2.0 compatibility for db_createdump.py
   4.9.35 (2026-01-11):
     - Chore: deps: pin opencv-python to version 4.10.0.84 in requirements.txt
