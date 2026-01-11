@@ -68,8 +68,8 @@ else:
 
 
 for p in packages:
-    
-    subprocess.call(['python','-m','pip', 'install', p, '--user' ], shell=True)
+    # Use --upgrade to ensure exact versions (==) are installed even if older version exists
+    subprocess.call(['python', '-m', 'pip', 'install', '--upgrade', p, '--user'], shell=True)
 for t in l:    
     if platform.system() == 'Windows':
         cmd = '{}\python'.format(python_path)
