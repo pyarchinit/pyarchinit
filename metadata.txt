@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.28
+version=4.9.29
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,10 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.28 (2026-01-09):
+changelog=4.9.29 (2026-01-11):
+- Docs:  update changelog with detailed descriptions from 4.9.6 to 4.9.28
+    - Docs:  add GitHub development repository URL to README
+  4.9.28 (2026-01-09):
     - Fix: handle duplicate column errors in all supported languages
     - Fix: SQLAlchemy 2.0 compatibility for database schema updates
   4.9.27 (2026-01-09):
