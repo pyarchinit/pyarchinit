@@ -70,8 +70,14 @@ Core dependencies are automatically installed on first run:
 2. In QGIS: **Plugins > Manage and Install Plugins > Install from ZIP**
 3. Select the downloaded ZIP file
 
-### From Repository URL
-Add this URL in QGIS Plugin Manager settings:
+### From Repository URL (Development/Beta versions)
+Add this URL in QGIS Plugin Manager settings to get the latest development versions:
+```
+https://raw.githubusercontent.com/enzococca/pyarchinit-repo/main/plugins.xml
+```
+
+### From Official Repository URL
+For stable releases, you can also use:
 ```
 http://pyarchinit.org/pyarchinit_repository
 ```
