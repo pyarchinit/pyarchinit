@@ -1482,7 +1482,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
                 try:
                     raise ValueError(str(e))
                 except ValueError as s:
-                    print(s, file=fh)
+                    pass
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)

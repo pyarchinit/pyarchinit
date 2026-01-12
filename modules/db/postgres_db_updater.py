@@ -10,7 +10,7 @@ from datetime import datetime
 
 try:
     from qgis.PyQt.QtWidgets import QMessageBox
-    from qgis.core import Qgis
+    from qgis.core import Qgis, QgsMessageLog
     QGIS_AVAILABLE = True
 except:
     QGIS_AVAILABLE = False
@@ -30,8 +30,9 @@ class PostgresDbUpdater:
         self.updates_made = []
 
     def log_message(self, message, level=None):
-        """Log dei messaggi"""
-        print(message)
+        """Log dei messaggi tramite QgsMessageLog"""
+        if QGIS_AVAILABLE:
+            QgsMessageLog.logMessage(message, "PyArchInit DB Updater", level or Qgis.Info)
         self.updates_made.append(message)
 
     def check_and_update_database(self):
@@ -66,7 +67,8 @@ class PostgresDbUpdater:
             # Aggiorna inventario_materiali_table con nuovi campi photo_id e drawing_id
             self.update_inventario_materiali_table()
 
-            # Altri aggiornamenti possono essere aggiunti qui in futuro
+            # Crea indici di performance per query frequenti
+            self.create_performance_indexes()
 
             if self.updates_made:
                 message = f"Database PostgreSQL aggiornato con successo!\n\nModifiche effettuate:\n" + \
@@ -960,6 +962,83 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della tabella inventario_materiali: {e}")
+
+    def create_performance_indexes(self):
+        """Crea indici di performance per query frequenti"""
+        self.log_message("Controllo indici di performance...")
+
+        try:
+            from sqlalchemy import text
+
+            # Lista degli indici da creare con formato: (nome_indice, tabella, colonne)
+            indexes = [
+                # Indici principali per ricerche per sito
+                ('idx_us_table_sito', 'us_table', 'sito'),
+                ('idx_inventario_sito', 'inventario_materiali_table', 'sito'),
+                ('idx_site_table_sito', 'site_table', 'sito'),
+                ('idx_thesaurus_tipologia', 'pyarchinit_thesaurus_sigle', 'tipologia_sigla'),
+                ('idx_quote_sito', 'pyarchinit_quote', 'sito_q, area_q, us_q'),
+                ('idx_reperti_siti', 'pyarchinit_reperti', 'siti'),
+
+                # Indici aggiuntivi per query comuni
+                ('idx_us_table_area', 'us_table', 'area'),
+                ('idx_us_table_sito_area', 'us_table', 'sito, area'),
+                ('idx_inventario_area', 'inventario_materiali_table', 'area'),
+                ('idx_tomba_sito', 'tomba_table', 'sito'),
+                ('idx_periodizzazione_sito', 'periodizzazione_table', 'sito'),
+                ('idx_struttura_sito', 'struttura_table', 'sito'),
+                ('idx_documentazione_sito', 'documentazione_table', 'sito'),
+                ('idx_campioni_sito', 'campioni_table', 'sito'),
+            ]
+
+            indexes_created = 0
+
+            with self.db_manager.engine.connect() as conn:
+                for idx_name, table_name, columns in indexes:
+                    try:
+                        # Verifica se la tabella esiste
+                        check_table = text("""
+                            SELECT 1 FROM information_schema.tables
+                            WHERE table_name = :table_name AND table_schema = 'public'
+                        """)
+                        result = conn.execute(check_table, {'table_name': table_name})
+                        if not result.fetchone():
+                            continue  # Tabella non esiste, skip
+
+                        # Verifica se l'indice esiste già
+                        check_idx = text("""
+                            SELECT 1 FROM pg_indexes
+                            WHERE indexname = :idx_name AND schemaname = 'public'
+                        """)
+                        result = conn.execute(check_idx, {'idx_name': idx_name})
+                        if result.fetchone():
+                            continue  # Indice già esiste, skip
+
+                        # Crea l'indice
+                        create_sql = f"CREATE INDEX {idx_name} ON {table_name}({columns})"
+                        conn.execute(text(create_sql))
+                        indexes_created += 1
+
+                    except Exception as idx_error:
+                        # Ignora errori per singoli indici (es. colonna non esiste)
+                        pass
+
+                if indexes_created > 0:
+                    conn.execute(text("COMMIT"))
+                    self.log_message(f"Creati {indexes_created} indici di performance")
+
+                    # Esegui ANALYZE sulle tabelle principali
+                    analyze_tables = ['us_table', 'inventario_materiali_table', 'site_table',
+                                     'pyarchinit_thesaurus_sigle', 'tomba_table', 'periodizzazione_table']
+                    for table in analyze_tables:
+                        try:
+                            conn.execute(text(f"ANALYZE {table}"))
+                        except:
+                            pass
+                    conn.execute(text("COMMIT"))
+
+        except Exception as e:
+            self.log_message(f"Errore creando indici di performance: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):
