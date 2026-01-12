@@ -31,9 +31,8 @@ class SQLiteDBUpdater:
         
     def log_message(self, message, level=None):
         """Log message to QGIS if available"""
-        if QGIS_AVAILABLE and level is not None:
-            QgsMessageLog.logMessage(message, "PyArchInit SQLite Updater", level)
-        print(message)
+        if QGIS_AVAILABLE:
+            QgsMessageLog.logMessage(message, "PyArchInit SQLite Updater", level or Qgis.Info)
     
     def check_and_update_database(self):
         """Verifica e aggiorna il database se necessario"""
@@ -295,7 +294,10 @@ class SQLiteDBUpdater:
 
             # Fix vector layer views
             self.fix_vector_layer_views()
-            
+
+            # Create performance indexes
+            self.create_performance_indexes()
+
             # Commit changes
             self.conn.commit()
             self.conn.close()
@@ -1348,6 +1350,56 @@ class SQLiteDBUpdater:
             ''')
             self.log_message("Creata tabella pyarchinit_ripartizioni_temporali")
             self.updates_made.append("CREATE TABLE pyarchinit_ripartizioni_temporali")
+
+    def create_performance_indexes(self):
+        """Crea indici di performance per query frequenti"""
+        self.log_message("Creazione indici di performance...")
+
+        # Lista degli indici da creare con formato: (nome_indice, tabella, colonne)
+        indexes = [
+            # Indici principali per ricerche per sito
+            ('idx_us_table_sito', 'us_table', 'sito'),
+            ('idx_inventario_sito', 'inventario_materiali_table', 'sito'),
+            ('idx_site_table_sito', 'site_table', 'sito'),
+            ('idx_thesaurus_tipologia', 'pyarchinit_thesaurus_sigle', 'tipologia_sigla'),
+            ('idx_quote_sito', 'pyarchinit_quote', 'sito_q, area_q, us_q'),
+            ('idx_reperti_siti', 'pyarchinit_reperti', 'siti'),
+
+            # Indici aggiuntivi per query comuni
+            ('idx_us_table_area', 'us_table', 'area'),
+            ('idx_us_table_sito_area', 'us_table', 'sito, area'),
+            ('idx_inventario_area', 'inventario_materiali_table', 'area'),
+            ('idx_tomba_sito', 'tomba_table', 'sito'),
+            ('idx_periodizzazione_sito', 'periodizzazione_table', 'sito'),
+            ('idx_struttura_sito', 'struttura_table', 'sito'),
+            ('idx_documentazione_sito', 'documentazione_table', 'sito'),
+            ('idx_campioni_sito', 'campioni_table', 'sito'),
+        ]
+
+        indexes_created = 0
+
+        for idx_name, table_name, columns in indexes:
+            try:
+                # Verifica se la tabella esiste
+                if not self.table_exists(table_name):
+                    continue
+
+                # SQLite supporta CREATE INDEX IF NOT EXISTS
+                self.cursor.execute(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {table_name}({columns})")
+                indexes_created += 1
+
+            except Exception as e:
+                # Ignora errori per singoli indici (es. colonna non esiste)
+                pass
+
+        if indexes_created > 0:
+            self.log_message(f"Creati/verificati {indexes_created} indici di performance")
+
+            # Esegui ANALYZE per aggiornare le statistiche
+            try:
+                self.cursor.execute("ANALYZE")
+            except:
+                pass
 
 
 def check_and_update_sqlite_db(db_path, parent=None):

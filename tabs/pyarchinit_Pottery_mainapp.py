@@ -4021,6 +4021,9 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
+        # Bounds check to prevent IndexError
+        if not self.DATA_LIST or self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
+            return
         for i in self.TABLE_FIELDS:
             # Use getattr with default None to handle missing attributes (backward compatibility)
             value = getattr(self.DATA_LIST[self.REC_CORR], i, None)

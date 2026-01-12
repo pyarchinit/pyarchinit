@@ -24,12 +24,16 @@ import os
 from datetime import date
 import requests
 import urllib
+
+from ..modules.utility.debug_config import DEBUG
 #from pyper import *
 from qgis.PyQt.QtGui import *
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import *
 from qgis.core import *
+
+from ..modules.utility.debug_config import DEBUG
 #from qgis.gui import QgsMapLayerComboBox
 from distutils.dir_util import copy_tree
 from processing.tools.system import mkdir, userFolder
@@ -50,6 +54,8 @@ from .PlaceSelectionDialog import PlaceSelectionDialog
 from .networkaccessmanager import NetworkAccessManager
 import sys,  json
 
+
+from ..modules.utility.debug_config import DEBUG
 NAM = NetworkAccessManager()
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Site.ui'))
 

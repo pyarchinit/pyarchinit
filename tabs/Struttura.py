@@ -3212,10 +3212,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             
             
                 self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
-    
+
         except Exception as e:
-            print(str(e))  
-    
+            pass
+
     def update_if(self, msg):
         rec_corr = self.REC_CORR
         if msg == QMessageBox.StandardButton.Ok:
@@ -3288,7 +3288,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 try:
                     raise ValueError(str(e))
                 except ValueError as s:
-                    print(s, file=fh)
+                    pass
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
