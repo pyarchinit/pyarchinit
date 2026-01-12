@@ -50,6 +50,26 @@ from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
+# Use a fixed key in sys.modules to store check state
+# This persists across module reloads within the same QGIS session
+import sys
+_DB_CHECKED_MODULE_KEY = '_pyarchinit_global_db_checked'
+
+# Create the storage module if it doesn't exist
+if _DB_CHECKED_MODULE_KEY not in sys.modules:
+    import types
+    _storage = types.ModuleType(_DB_CHECKED_MODULE_KEY)
+    _storage.checked = {}
+    sys.modules[_DB_CHECKED_MODULE_KEY] = _storage
+
+def _get_db_checked():
+    """Get the persistent db checked dictionary"""
+    return sys.modules[_DB_CHECKED_MODULE_KEY].checked
+
+def _set_db_checked(key, value):
+    """Set a value in the persistent db checked dictionary"""
+    sys.modules[_DB_CHECKED_MODULE_KEY].checked[key] = value
+
 
 class DbConnectionSingleton:
     """Singleton per gestire connessioni database globali"""
@@ -79,7 +99,8 @@ class DbConnectionSingleton:
     
     @classmethod
     def clear_instances(cls):
-        """Pulisci tutte le istanze (per reset/disconnessione)"""
+        """Pulisci tutte le istanze (per reset/disconnessione)
+        NON resetta _db_checked per evitare controlli ripetuti durante la stessa sessione"""
         for instance in cls._instances.values():
             try:
                 if hasattr(instance, 'engine') and instance.engine:
@@ -87,6 +108,11 @@ class DbConnectionSingleton:
             except:
                 pass
         cls._instances.clear()
+
+    @classmethod
+    def force_db_recheck(cls):
+        """Forza un nuovo controllo del database alla prossima connessione"""
+        _get_db_checked().clear()
 
 
 def get_db_manager(conn_str, use_singleton=True):
@@ -313,8 +339,11 @@ class Pyarchinit_db_management(object):
                 log_debug("Creating SQLite engine")
                 
                 # Check and update SQLite database if needed
+                # Only run once per session per database file
                 db_path = self.conn_str.replace('sqlite:///', '')
-                if os.path.exists(db_path):
+                db_check_key = f"sqlite_{db_path}"
+                db_checked = _get_db_checked()
+                if db_check_key not in db_checked and os.path.exists(db_path):
                     log_debug(f"Checking SQLite database for updates: {db_path}")
                     try:
                         from .sqlite_db_updater import check_and_update_sqlite_db
@@ -323,9 +352,13 @@ class Pyarchinit_db_management(object):
                             log_debug("SQLite database updated successfully")
                         else:
                             log_debug("SQLite database update not needed or failed")
+                        _set_db_checked(db_check_key, True)
                     except Exception as e:
                         log_debug(f"Error checking SQLite database updates: {e}")
-                        # Continue anyway - don't block connection
+                        # Mark as checked even on error to avoid repeated failures
+                        _set_db_checked(db_check_key, True)
+                elif db_check_key in db_checked:
+                    log_debug("SQLite database already checked this session, skipping")
                 
                 # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(
@@ -370,17 +403,27 @@ class Pyarchinit_db_management(object):
                     )
                 
                 # Check and update PostgreSQL database if needed
-                # Always run for PostgreSQL databases (local or remote)
-                log_debug("Checking PostgreSQL database for updates")
-                try:
-                    from .postgres_db_updater import check_and_update_postgres_db
-                    if check_and_update_postgres_db(self):
-                        log_debug("PostgreSQL database updated successfully")
-                    else:
-                        log_debug("PostgreSQL database update not needed or failed")
-                except Exception as e:
-                    log_debug(f"Error checking PostgreSQL database updates: {e}")
-                    # Continue anyway - don't block connection
+                # Only run once per session per connection string
+                db_check_key = f"pg_{self.conn_str}"
+                db_checked = _get_db_checked()
+                log_debug(f"DB check key: {db_check_key[:80]}...")
+                log_debug(f"Already checked keys: {list(db_checked.keys())}")
+                log_debug(f"Key in dict: {db_check_key in db_checked}")
+                if db_check_key not in db_checked:
+                    log_debug("Checking PostgreSQL database for updates")
+                    try:
+                        from .postgres_db_updater import check_and_update_postgres_db
+                        if check_and_update_postgres_db(self):
+                            log_debug("PostgreSQL database updated successfully")
+                        else:
+                            log_debug("PostgreSQL database update not needed or failed")
+                        _set_db_checked(db_check_key, True)
+                    except Exception as e:
+                        log_debug(f"Error checking PostgreSQL database updates: {e}")
+                        # Mark as checked even on error to avoid repeated failures
+                        _set_db_checked(db_check_key, True)
+                else:
+                    log_debug("PostgreSQL database already checked this session, skipping")
 
             log_debug("Creating metadata")
             self.metadata = MetaData()
