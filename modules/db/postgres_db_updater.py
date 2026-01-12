@@ -93,13 +93,14 @@ class PostgresDbUpdater:
         """Verifica se una colonna esiste nella tabella"""
         try:
             from sqlalchemy import text
-            query = text("""
-                SELECT column_name 
-                FROM information_schema.columns 
-                WHERE table_name = :table_name 
-                AND column_name = :column_name
+            # Use direct query with values interpolated (safe for known table/column names)
+            query = text(f"""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = '{table_name}'
+                AND column_name = '{column_name}'
             """)
-            result = self.db_manager._execute_sql(query, {'table_name': table_name, 'column_name': column_name})
+            result = self.db_manager._execute_sql(query)
             return result.fetchone() is not None
         except Exception as e:
             self.log_message(f"Errore verificando colonna {column_name} in {table_name}: {e}")
@@ -130,13 +131,14 @@ class PostgresDbUpdater:
         """Restituisce la posizione ordinale di una colonna"""
         try:
             from sqlalchemy import text
-            query = text("""
+            # Use direct query with values interpolated (safe for known table/column names)
+            query = text(f"""
                 SELECT ordinal_position
                 FROM information_schema.columns
-                WHERE table_name = :table_name
-                AND column_name = :column_name
+                WHERE table_name = '{table_name}'
+                AND column_name = '{column_name}'
             """)
-            result = self.db_manager._execute_sql(query, {'table_name': table_name, 'column_name': column_name})
+            result = self.db_manager._execute_sql(query)
             row = result.fetchone()
             return row[0] if row else None
         except Exception as e:
@@ -643,6 +645,7 @@ class PostgresDbUpdater:
 
         try:
             import os
+            import re
             from sqlalchemy import text
 
             # Path to trigger SQL file
@@ -653,24 +656,25 @@ class PostgresDbUpdater:
                 self.log_message(f"File trigger non trovato: {trigger_file}")
                 return
 
-            # Read and execute the trigger SQL
+            # Read the trigger SQL file
             with open(trigger_file, 'r', encoding='utf-8') as f:
                 trigger_sql = f.read()
 
-            # Execute the SQL script
-            # Split by statements for proper execution
-            statements = trigger_sql.split(';')
-            for stmt in statements:
-                stmt = stmt.strip()
-                if stmt and not stmt.startswith('--'):
-                    try:
-                        self.db_manager._execute_sql(text(stmt))
-                    except Exception as stmt_error:
-                        # Skip errors for already existing objects
-                        if 'already exists' not in str(stmt_error).lower():
-                            self.log_message(f"Warning eseguendo statement trigger: {str(stmt_error)[:100]}")
-
-            self.log_message("Trigger per tracking attività installati/aggiornati")
+            # Execute the entire SQL file as a single transaction
+            # PL/pgSQL functions use $$ delimiters so we can't split by ;
+            with self.db_manager.engine.connect() as conn:
+                try:
+                    # Execute the entire script at once
+                    conn.execute(text(trigger_sql))
+                    conn.execute(text("COMMIT"))
+                    self.log_message("Trigger per tracking attività installati/aggiornati")
+                except Exception as exec_error:
+                    error_str = str(exec_error).lower()
+                    # Ignore "already exists" errors
+                    if 'already exists' in error_str or 'già esiste' in error_str:
+                        self.log_message("Trigger per tracking attività già presenti")
+                    else:
+                        self.log_message(f"Warning eseguendo trigger: {str(exec_error)[:200]}")
 
         except Exception as e:
             self.log_message(f"Errore installando trigger attività: {e}")
