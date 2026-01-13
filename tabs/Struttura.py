@@ -2553,6 +2553,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     self.empty_fields()
                     self.SORT_STATUS = "n"
                     self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+
+                    # Force refresh of connection pool to get fresh data
+                    if hasattr(self.DB_MANAGER, 'engine') and self.DB_MANAGER.engine:
+                        self.DB_MANAGER.engine.dispose()
+
                     self.charge_records()
                     self.charge_list()
                     self.set_sito()
@@ -2569,6 +2574,13 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
                     self.fill_fields(self.REC_CORR)
                     self.enable_button(1)
+
+                    if self.L=='it':
+                        QMessageBox.information(self, "Messaggio", "Record inserito con successo!", QMessageBox.StandardButton.Ok)
+                    elif self.L=='de':
+                        QMessageBox.information(self, "Nachricht", "Datensatz erfolgreich eingefügt!", QMessageBox.StandardButton.Ok)
+                    else:
+                        QMessageBox.information(self, "Message", "Record inserted successfully!", QMessageBox.StandardButton.Ok)
             else:
                     if self.L=='it':
                         QMessageBox.warning(self, "ATTENZIONE", "Problema nell'inserimento dati", QMessageBox.StandardButton.Ok)
