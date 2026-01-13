@@ -2211,6 +2211,63 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_tot.setText(str(self.rec_tot))
         self.label_rec_corrente.setText(str(self.rec_corr))
 
+    def set_LIST_REC_TEMP(self):
+        # Get periodo values
+        if not self.comboBox_per_iniz.currentText():
+            periodo_iniziale = None
+        else:
+            periodo_iniziale = str(self.comboBox_per_iniz.currentText())
+
+        if not self.comboBox_fas_iniz.currentText():
+            fase_iniziale = None
+        else:
+            fase_iniziale = str(self.comboBox_fas_iniz.currentText())
+
+        if not self.comboBox_per_fin.currentText():
+            periodo_finale = None
+        else:
+            periodo_finale = str(self.comboBox_per_fin.currentText())
+
+        if not self.comboBox_fas_fin.currentText():
+            fase_finale = None
+        else:
+            fase_finale = str(self.comboBox_fas_fin.currentText())
+
+        # Build temporary record list matching TABLE_FIELDS order
+        self.DATA_LIST_REC_TEMP = [
+            str(self.comboBox_sito.currentText()),  # sito
+            str(self.comboBox_sigla_struttura.currentText()),  # sigla_struttura
+            str(self.numero_struttura.text()),  # numero_struttura
+            str(self.comboBox_categoria_struttura.currentText()),  # categoria_struttura
+            str(self.comboBox_tipologia_struttura.currentText()),  # tipologia_struttura
+            str(self.comboBox_definizione_struttura.currentText()),  # definizione_struttura
+            str(self.textEdit_descrizione_struttura.toPlainText()),  # descrizione
+            str(self.textEdit_interpretazione_struttura.toPlainText()),  # interpretazione
+            str(periodo_iniziale),  # periodo_iniziale
+            str(fase_iniziale),  # fase_iniziale
+            str(periodo_finale),  # periodo_finale
+            str(fase_finale),  # fase_finale
+            str(self.comboBox_datazione_estesa.currentText()),  # datazione_estesa
+            str(self.table2dict("self.tableWidget_materiali_impiegati")),  # materiali_impiegati
+            str(self.table2dict("self.tableWidget_elementi_strutturali")),  # elementi_strutturali
+            str(self.table2dict("self.tableWidget_rapporti")),  # rapporti_struttura
+            str(self.table2dict("self.tableWidget_misurazioni"))  # misure_struttura
+        ]
+
+    def set_LIST_REC_CORR(self):
+        self.DATA_LIST_REC_CORR = []
+        for i in self.TABLE_FIELDS:
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
+
+    def records_equal_check(self):
+        self.set_LIST_REC_TEMP()
+        self.set_LIST_REC_CORR()
+
+        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+            return 0
+        else:
+            return 1
+
     def charge_periodo_iniz_list(self):
         sito = str(self.comboBox_sito.currentText())
         # sitob = sito.decode('utf-8')
