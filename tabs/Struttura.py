@@ -2097,6 +2097,45 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     widget.setEnabled(v == "True")
 
+    def tableInsertData(self, t, d):
+        """Set the value into table widget"""
+        self.table_name = t
+        self.data_list = eval(d) if isinstance(d, str) else d
+        if self.data_list:
+            self.data_list.sort()
+
+        # Get table widget
+        table_widget = getattr(self, self.table_name.replace("self.", "") if self.table_name.startswith("self.") else self.table_name)
+        table_col_count = table_widget.columnCount()
+
+        # Clear table
+        table_widget.clearContents()
+        table_widget.setRowCount(0)
+
+        if self.data_list:
+            for row in range(len(self.data_list)):
+                table_widget.insertRow(row)
+                for col in range(len(self.data_list[row])):
+                    item = QTableWidgetItem(str(self.data_list[row][col]))
+                    table_widget.setItem(row, col, item)
+
+    def table2dict(self, n):
+        """Convert a QTableWidget to a list of lists"""
+        self.tablename = n
+        table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
+        row = table.rowCount()
+        col = table.columnCount()
+        lista = []
+        for r in range(row):
+            sub_list = []
+            for c in range(col):
+                value = table.item(r, c)
+                if bool(value):
+                    sub_list.append(str(value.text()))
+            if sub_list:  # Only add non-empty rows
+                lista.append(sub_list)
+        return lista
+
     def empty_fields_nosite(self):
         """Clear all fields except sito"""
         self.comboBox_sigla_struttura.setEditText("")
