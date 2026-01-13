@@ -2091,7 +2091,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             widget_name = fn.replace('self.', '') if fn.startswith('self.') else fn
             widget = getattr(self, widget_name, None)
             if widget is not None:
-                widget.setEnabled(v == "True")
+                # Handle both boolean and string values
+                if isinstance(v, bool):
+                    widget.setEnabled(v)
+                else:
+                    widget.setEnabled(v == "True")
 
     def empty_fields_nosite(self):
         """Clear all fields except sito"""
