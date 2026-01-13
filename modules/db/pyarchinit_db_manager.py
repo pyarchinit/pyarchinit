@@ -168,6 +168,13 @@ class Pyarchinit_db_management(object):
         import time
         self._local_cache[cache_key] = (result, time.time())
 
+    def clear_cache(self):
+        """Clear all cached query results. Call this after insert/update/delete operations."""
+        self._local_cache.clear()
+        # Also clear class-level cache if it exists
+        if hasattr(self.__class__, '_query_cache'):
+            self.__class__._query_cache.clear()
+
     def _execute_sql(self, sql, **params):
         """SQLAlchemy 2.0 compatible execute wrapper.
 
@@ -2232,12 +2239,13 @@ class Pyarchinit_db_management(object):
 
     def query(self, n):
         class_name = eval(n)
-        # Usa session factory ottimizzata ma mantieni compatibilità
-        session = self.get_session()
+        # Create a fresh session directly from engine to avoid any cached state
+        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
+        session = Session()
         try:
-            # Expire all cached objects to get fresh data from DB
-            session.expire_all()
-            query = session.query(class_name)
+            # Use populate_existing=True to force re-reading from database
+            # This bypasses the identity map cache
+            query = session.query(class_name).execution_options(populate_existing=True)
             res = query.all()
             return res
         finally:
@@ -2755,6 +2763,8 @@ class Pyarchinit_db_management(object):
                 if hasattr(e, 'orig'):
                     pass  # Previously had debug print here
                 raise
+        # Clear cache to ensure fresh data on next query
+        self.clear_cache()
         # Force refresh of connection pool and session factory to ensure fresh data on next query
         if self.engine:
             self.engine.dispose()
@@ -2766,6 +2776,9 @@ class Pyarchinit_db_management(object):
             session.begin_nested()
             session.merge(data)
             # session_scope handles commit
+        # Clear cache to ensure fresh data on next query
+        self.clear_cache()
+
     def update(self, table_class_str, id_table_str, value_id_list, columns_name_list, values_update_list):
         """
         Receives 5 values then putted in a list. The values must be passed
@@ -2828,9 +2841,11 @@ class Pyarchinit_db_management(object):
         session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
         self.table_class_str, self.table_class_str, self.id_table_str, id_value, changes_dict)
 
-        
+
         eval(session_exec_str)
         session.close()
+        # Clear cache to ensure fresh data on next query
+        self.clear_cache()
 
     def update_tomba_dating_from_periodizzazione(self, site_name):
         # Reflect the tables from the database
@@ -3070,7 +3085,10 @@ class Pyarchinit_db_management(object):
             # Log how many rows were deleted
             if hasattr(result, 'rowcount'):
                 print(f"Deleted {result.rowcount} row(s) from {self.table_name}")
-    
+
+        # Clear cache to ensure fresh data on next query
+        self.clear_cache()
+
     def delete_record_by_field(self, table_name, field_name, field_value):
         """Delete records from a table where field matches value"""
         try:
@@ -3203,19 +3221,17 @@ class Pyarchinit_db_management(object):
             else:
                 order_by_list.append(asc(column_attr))
 
-        Session = sessionmaker(bind=self.engine, autoflush=True)
+        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
         session = Session()
 
         try:
-            # Expire all cached objects to get fresh data from DB
-            session.expire_all()
-
             # Costruisci ed esegui la query
+            # Use populate_existing=True to force re-reading from database
             id_column = getattr(table_class_obj, self.id_name)
 
             query = session.query(table_class_obj).filter(
                 id_column.in_(id_list)
-            ).order_by(*order_by_list)
+            ).order_by(*order_by_list).execution_options(populate_existing=True)
 
             result = query.all()
 
