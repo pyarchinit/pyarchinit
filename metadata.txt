@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.44
+version=4.9.45
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.44 (2026-01-13):
+changelog=4.9.45 (2026-01-13):
+    - Fix:  ensure record counter updates after insert/update/delete
+    - Fix:  use correct button name pushButton_view_all_2 in Inv_Materiali
+    - Fix:  add enable_button method to Inv_Materiali and recreate Session factory after insert
+  4.9.44 (2026-01-13):
     - Fix:  centralize connection pool refresh in insert_data_session
     - Fix:  force connection pool refresh after insert in Struttura form
     - Fix:  add expire_all to query_sort for fresh data after insert
