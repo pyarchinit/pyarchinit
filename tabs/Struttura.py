@@ -2093,6 +2093,30 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             if widget is not None:
                 widget.setEnabled(v == "True")
 
+    def empty_fields_nosite(self):
+        """Clear all fields except sito"""
+        self.comboBox_sigla_struttura.setEditText("")
+        self.numero_struttura.clear()
+        self.comboBox_categoria_struttura.setEditText("")
+        self.comboBox_tipologia_struttura.setEditText("")
+        self.comboBox_definizione_struttura.setEditText("")
+        self.textEdit_descrizione_struttura.clear()
+        self.textEdit_interpretazione_struttura.clear()
+        self.comboBox_datazione_estesa.setEditText("")
+        self.comboBox_per_iniz.setEditText("")
+        self.comboBox_fas_iniz.setEditText("")
+        self.comboBox_per_fin.setEditText("")
+        self.comboBox_fas_fin.setEditText("")
+        self.tableWidget_materiali_impiegati.setRowCount(0)
+        self.tableWidget_elementi_strutturali.setRowCount(0)
+        self.tableWidget_rapporti.setRowCount(0)
+        self.tableWidget_misurazioni.setRowCount(0)
+
+    def empty_fields(self):
+        """Clear all fields including sito"""
+        self.comboBox_sito.setEditText("")
+        self.empty_fields_nosite()
+
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
