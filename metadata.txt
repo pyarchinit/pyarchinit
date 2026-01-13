@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.43
+version=4.9.44
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,18 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.43 (2026-01-13):
+changelog=4.9.44 (2026-01-13):
+    - Fix:  centralize connection pool refresh in insert_data_session
+    - Fix:  force connection pool refresh after insert in Struttura form
+    - Fix:  add expire_all to query_sort for fresh data after insert
+    - Fix:  expire session cache before query to get fresh data after delete
+    - Fix:  ensure proper type casting and fresh metadata in delete_one_record
+    - Fix:  update delete_one_record for SQLAlchemy 2.0 compatibility
+    - Fix:  add missing record comparison methods to Struttura form
+    - Fix:  add missing table2dict and tableInsertData methods to Struttura
+    - Fix:  handle boolean values in setComboBoxEnable for Struttura form
+    - Fix:  add missing empty_fields_nosite method to Struttura form
+  4.9.43 (2026-01-13):
     - Fix: ui: adjust window and widget dimensions in Inv_Materiali.ui
   4.9.42 (2026-01-12):
     - perf: prevent duplicate database checks during QGIS session
