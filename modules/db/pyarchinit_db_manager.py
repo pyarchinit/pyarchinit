@@ -3048,15 +3048,20 @@ class Pyarchinit_db_management(object):
         """Delete a single record from a table - SQLAlchemy 2.0 compatible"""
         self.table_name = tn
         self.id_column = id_col
-        self.id_rec = id_rec
+        # Ensure id_rec is an integer for proper comparison
+        self.id_rec = int(id_rec) if id_rec is not None else id_rec
 
-        # SQLAlchemy 2.0: use autoload_with instead of autoload
-        table = Table(self.table_name, self.metadata, autoload_with=self.engine)
+        # SQLAlchemy 2.0: use fresh metadata for reflection
+        metadata = MetaData()
+        table = Table(self.table_name, metadata, autoload_with=self.engine)
 
         # SQLAlchemy 2.0: use connection context manager with explicit commit
         with self.engine.begin() as conn:
             delete_stmt = table.delete().where(table.c[self.id_column] == self.id_rec)
-            conn.execute(delete_stmt)
+            result = conn.execute(delete_stmt)
+            # Log how many rows were deleted
+            if hasattr(result, 'rowcount'):
+                print(f"Deleted {result.rowcount} row(s) from {self.table_name}")
     
     def delete_record_by_field(self, table_name, field_name, field_value):
         """Delete records from a table where field matches value"""
