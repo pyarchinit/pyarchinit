@@ -2755,6 +2755,10 @@ class Pyarchinit_db_management(object):
                 if hasattr(e, 'orig'):
                     pass  # Previously had debug print here
                 raise
+        # Force refresh of connection pool to ensure fresh data on next query
+        if self.engine:
+            self.engine.dispose()
+
     def insert_data_conflict(self, data):
         with self.session_scope() as session:
             session.begin_nested()
