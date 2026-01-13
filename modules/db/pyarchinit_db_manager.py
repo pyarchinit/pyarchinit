@@ -2235,6 +2235,8 @@ class Pyarchinit_db_management(object):
         # Usa session factory ottimizzata ma mantieni compatibilità
         session = self.get_session()
         try:
+            # Expire all cached objects to get fresh data from DB
+            session.expire_all()
             query = session.query(class_name)
             res = query.all()
             return res
