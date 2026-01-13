@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.42
+version=4.9.43
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.42 (2026-01-12):
+changelog=4.9.43 (2026-01-13):
+    - Fix: ui: adjust window and widget dimensions in Inv_Materiali.ui
+  4.9.42 (2026-01-12):
     - perf: prevent duplicate database checks during QGIS session
   4.9.41 (2026-01-12):
     - Fix:  drop view before recreating to allow column name changes
