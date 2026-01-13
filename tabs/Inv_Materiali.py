@@ -5714,6 +5714,33 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_struttura.setEditText("")
         self.comboBox_year.setEditText("")
 
+    def enable_button(self, n):
+        """Enable/disable navigation and action buttons"""
+        self.pushButton_connect.setEnabled(n)
+        self.pushButton_new_rec.setEnabled(n)
+        self.pushButton_view_all.setEnabled(n)
+        self.pushButton_first_rec.setEnabled(n)
+        self.pushButton_last_rec.setEnabled(n)
+        self.pushButton_prev_rec.setEnabled(n)
+        self.pushButton_next_rec.setEnabled(n)
+        self.pushButton_delete.setEnabled(n)
+        self.pushButton_new_search.setEnabled(n)
+        self.pushButton_search_go.setEnabled(n)
+        self.pushButton_sort.setEnabled(n)
+
+    def enable_button_search(self, n):
+        """Enable/disable buttons during search mode"""
+        self.pushButton_connect.setEnabled(n)
+        self.pushButton_new_rec.setEnabled(n)
+        self.pushButton_view_all.setEnabled(n)
+        self.pushButton_first_rec.setEnabled(n)
+        self.pushButton_last_rec.setEnabled(n)
+        self.pushButton_prev_rec.setEnabled(n)
+        self.pushButton_next_rec.setEnabled(n)
+        self.pushButton_delete.setEnabled(n)
+        self.pushButton_save.setEnabled(n)
+        self.pushButton_sort.setEnabled(n)
+
     def setComboBoxEnable(self, f, v):
         """Set enabled state for widgets"""
         for fn in f:
