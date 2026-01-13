@@ -5718,7 +5718,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         """Enable/disable navigation and action buttons"""
         self.pushButton_connect.setEnabled(n)
         self.pushButton_new_rec.setEnabled(n)
-        self.pushButton_view_all.setEnabled(n)
+        self.pushButton_view_all_2.setEnabled(n)
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
@@ -5732,7 +5732,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         """Enable/disable buttons during search mode"""
         self.pushButton_connect.setEnabled(n)
         self.pushButton_new_rec.setEnabled(n)
-        self.pushButton_view_all.setEnabled(n)
+        self.pushButton_view_all_2.setEnabled(n)
         self.pushButton_first_rec.setEnabled(n)
         self.pushButton_last_rec.setEnabled(n)
         self.pushButton_prev_rec.setEnabled(n)
