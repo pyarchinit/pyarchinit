@@ -3201,6 +3201,9 @@ class Pyarchinit_db_management(object):
         session = Session()
 
         try:
+            # Expire all cached objects to get fresh data from DB
+            session.expire_all()
+
             # Costruisci ed esegui la query
             id_column = getattr(table_class_obj, self.id_name)
 
