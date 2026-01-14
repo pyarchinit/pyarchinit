@@ -325,9 +325,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         html_string += "</body></html>"
         vista=html_string
         QMessageBox.information(self, 'testo', str(html_string))
-        # Display the HTML in a QWebView widget
-        url=QUrl("about:blank")
-        self.webView_adarte.setHtml(vista,url)
+        # Display the HTML in the QTextBrowser widget
+        self.webView_adarte.setHtml(vista)
 
 
         # Show the QWebView widget
@@ -358,8 +357,14 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             uri= 'https://vast-lab.org/thesaurus/ra/vocab/index.php?ws=t&xstring='+ self.comboBox_sigla_estesa.currentText()+'&hasTopTerm=&hasNote=NA&fromDate=&termDeep=&boton=Conferma&xsearch=1#xstring'
             self.comboBox_sigla_estesa.completer().setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
             self.comboBox_sigla_estesa.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
-        # Open URL in external browser since QTextBrowser doesn't support load()
-        webbrowser.open(uri)
+        # Load URL content in the internal webView_adarte widget
+        try:
+            response = requests.get(uri, timeout=10)
+            response.raise_for_status()
+            self.webView_adarte.setHtml(response.text)
+            self.webView_adarte.show()
+        except requests.RequestException as e:
+            QMessageBox.warning(self, "Thesaurus", f"Errore nel caricamento: {str(e)}", QMessageBox.StandardButton.Ok)
     
 
     def  on_pushButton_import_csvthesaurus_pressed(self):
