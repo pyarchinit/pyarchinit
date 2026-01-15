@@ -20,6 +20,8 @@ __pycache__/
 /.claude/
 /.docugenius/
 /.qodo/
-/docs/
+/docs/*
+!/docs/tutorials/
+/docs/tutorials/_build/
 /examples/
 /export/

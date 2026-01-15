@@ -1,0 +1,33 @@
+# Sphinx Documentation Dependencies
+# Install with: pip install -r requirements.txt
+
+# Sphinx core
+sphinx>=7.0.0
+
+# Markdown support
+myst-parser>=2.0.0
+
+# Theme
+sphinx-rtd-theme>=2.0.0
+
+# URL linking support
+linkify-it-py>=2.0.0
+
+# Optional: for better code highlighting
+pygments>=2.15.0
+
+# LaTeX/PDF generation (system requirements):
+# - xelatex (from texlive-xetex or MacTeX)
+# - latexmk
+# - Various LaTeX packages (usually included in texlive-full)
+#
+# On Ubuntu/Debian:
+#   sudo apt-get install texlive-xetex texlive-fonts-recommended texlive-latex-extra latexmk
+#
+# On macOS with Homebrew:
+#   brew install --cask mactex
+#   # Or minimal version:
+#   brew install --cask basictex && sudo tlmgr install collection-fontsrecommended
+#
+# On Windows:
+#   Install MiKTeX from https://miktex.org/
