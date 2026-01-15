@@ -56,6 +56,7 @@ from .tabs.gpkg_export import pyarchinit_GPKG
 from .tabs.tops_pyarchinit import pyarchinit_TOPS
 from .tabs.pyarchinit_Pottery_mainapp import pyarchinit_Pottery
 from .tabs.Pottery_tools import PotteryToolsDialog
+from .tabs.Tutorial_viewer import TutorialViewerDialog
 from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .gui.dbmanagment import pyarchinit_dbmanagment
 from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
@@ -295,6 +296,14 @@ class PyArchInitPlugin(object):
             self.toolBar = self.iface.addToolBar("pyArchInit")
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
+
+            # Tutorial button - before SAM Segmentation
+            icon_tutorials = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tutorials.png'))
+            self.actionTutorials = QAction(QIcon(icon_tutorials), "Tutorial e Documentazione", self.iface.mainWindow())
+            self.actionTutorials.setWhatsThis("Apri la documentazione e i tutorial di PyArchInit")
+            self.actionTutorials.setToolTip("Tutorial e Documentazione - Guide complete per l'utilizzo di PyArchInit")
+            self.actionTutorials.triggered.connect(self.runTutorials)
+            self.toolBar.addAction(self.actionTutorials)
 
             # SAM Stone Segmentation button - before AI Query
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
@@ -608,6 +617,14 @@ class PyArchInitPlugin(object):
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
 
+            # Tutorial button - before SAM Segmentation
+            icon_tutorials = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tutorials.png'))
+            self.actionTutorials = QAction(QIcon(icon_tutorials), "Tutorials & Documentation", self.iface.mainWindow())
+            self.actionTutorials.setWhatsThis("Open PyArchInit documentation and tutorials")
+            self.actionTutorials.setToolTip("Tutorials & Documentation - Complete guides for using PyArchInit")
+            self.actionTutorials.triggered.connect(self.runTutorials)
+            self.toolBar.addAction(self.actionTutorials)
+
             # SAM Stone Segmentation button - before AI Query
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
             self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stone Segmentation", self.iface.mainWindow())
@@ -918,6 +935,14 @@ class PyArchInitPlugin(object):
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
 
+            # Tutorial button - before SAM Segmentation
+            icon_tutorials = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tutorials.png'))
+            self.actionTutorials = QAction(QIcon(icon_tutorials), "Tutorials & Dokumentation", self.iface.mainWindow())
+            self.actionTutorials.setWhatsThis("PyArchInit Dokumentation und Tutorials öffnen")
+            self.actionTutorials.setToolTip("Tutorials & Dokumentation - Vollständige Anleitungen für PyArchInit")
+            self.actionTutorials.triggered.connect(self.runTutorials)
+            self.toolBar.addAction(self.actionTutorials)
+
             # SAM Stone Segmentation button - before AI Query
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
             self.actionSamSegmentation = QAction(QIcon(icon_sam), "SAM Stein-Segmentierung", self.iface.mainWindow())
@@ -1219,6 +1244,14 @@ class PyArchInitPlugin(object):
             self.toolBar = self.iface.addToolBar("pyArchInit")
             self.toolBar.setObjectName("pyArchInit")
             self.toolBar.addAction(self.action)
+
+            # Tutorial button - before SAM Segmentation
+            icon_tutorials = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'tutorials.png'))
+            self.actionTutorials = QAction(QIcon(icon_tutorials), "Tutorials & Documentation", self.iface.mainWindow())
+            self.actionTutorials.setWhatsThis("Open PyArchInit documentation and tutorials")
+            self.actionTutorials.setToolTip("Tutorials & Documentation - Complete guides for using PyArchInit")
+            self.actionTutorials.triggered.connect(self.runTutorials)
+            self.toolBar.addAction(self.actionTutorials)
 
             # SAM Stone Segmentation button - before AI Query
             icon_sam = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'sam_stones.png'))
@@ -1552,6 +1585,18 @@ class PyArchInitPlugin(object):
                 self.iface.mainWindow(),
                 "Error",
                 f"Errore nell'apertura del dialogo AI Query:\n{str(e)}"
+            )
+
+    def runTutorials(self):
+        """Open the Tutorials and Documentation viewer dialog"""
+        try:
+            dialog = TutorialViewerDialog(parent=self.iface.mainWindow())
+            dialog.exec()
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Error",
+                f"Error opening Tutorials dialog:\n{str(e)}"
             )
 
     def runSamSegmentation(self):
