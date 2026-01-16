@@ -22,8 +22,9 @@ from __future__ import absolute_import
 import os
 
 from qgis.PyQt.uic import loadUiType
-from qgis.PyQt.QtCore import QUrl
-from qgis.PyQt.QtWidgets import QVBoxLayout
+from qgis.PyQt.QtCore import QUrl, Qt
+from qgis.PyQt.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
+                                  QTextBrowser, QSplitter, QComboBox, QLabel, QWidget)
 from qgis.gui import QgsDockWidget
 from qgis.core import QgsSettings
 
@@ -60,7 +61,58 @@ MAIN_DIALOG_CLASS, _ = loadUiType(os.path.abspath(
 class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
     # Supported languages
-    SUPPORTED_LANGUAGES = ['it', 'en', 'de', 'fr', 'es', 'ar', 'ca']
+    SUPPORTED_LANGUAGES = {
+        'it': 'Italiano',
+        'en': 'English',
+        'de': 'Deutsch',
+        'fr': 'Français',
+        'es': 'Español',
+        'ar': 'العربية',
+        'ca': 'Català'
+    }
+
+    # Tutorial metadata per language
+    TUTORIALS_METADATA = {
+        'it': [
+            ("01_configurazione.md", "Configurazione", "Setup iniziale e database"),
+            ("02_scheda_sito.md", "Scheda Sito", "Gestione siti archeologici"),
+            ("03_scheda_us.md", "Scheda US/USM", "Unità Stratigrafiche"),
+            ("04_scheda_periodizzazione.md", "Periodizzazione", "Fasi cronologiche"),
+            ("05_scheda_struttura.md", "Struttura", "Documentazione strutture"),
+            ("06_scheda_tomba.md", "Tomba", "Sepolture e corredi"),
+            ("07_scheda_individui.md", "Individui", "Antropologia fisica"),
+            ("08_scheda_inventario_materiali.md", "Materiali", "Gestione reperti"),
+            ("11_matrix_harris.md", "Matrix Harris", "Diagrammi stratigrafici"),
+            ("12_report_stampe.md", "Report PDF", "Documentazione PDF"),
+            ("14_gis_cartografia.md", "GIS", "Integrazione QGIS"),
+        ],
+        'en': [
+            ("01_configurazione.md", "Configuration", "Initial setup and database"),
+            ("02_scheda_sito.md", "Site Form", "Archaeological site management"),
+            ("03_scheda_us.md", "SU/WSU Form", "Stratigraphic Units"),
+            ("04_scheda_periodizzazione.md", "Periodization", "Chronological phases"),
+            ("05_scheda_struttura.md", "Structure", "Structure documentation"),
+            ("06_scheda_tomba.md", "Burial", "Burials and grave goods"),
+            ("07_scheda_individui.md", "Individuals", "Physical anthropology"),
+            ("08_scheda_inventario_materiali.md", "Finds", "Artefact management"),
+            ("11_matrix_harris.md", "Harris Matrix", "Stratigraphic diagrams"),
+            ("12_report_stampe.md", "PDF Reports", "PDF documentation"),
+            ("14_gis_cartografia.md", "GIS", "QGIS integration"),
+        ],
+        'de': [
+            ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung und Datenbank"),
+            ("02_fundort_formular.md", "Fundstelle", "Archäologische Fundstellen"),
+            ("03_se_formular.md", "SE/MSE", "Stratigraphische Einheiten"),
+            ("04_periodisierung.md", "Periodisierung", "Chronologische Phasen"),
+            ("05_struktur_formular.md", "Struktur", "Strukturdokumentation"),
+            ("06_grab_formular.md", "Grab", "Bestattungen"),
+            ("07_individuen_formular.md", "Individuen", "Physische Anthropologie"),
+            ("08_fundinventar_formular.md", "Funde", "Artefaktverwaltung"),
+            ("11_harris_matrix.md", "Harris-Matrix", "Stratigraphische Diagramme"),
+            ("12_berichte_pdf.md", "PDF-Berichte", "PDF-Dokumentation"),
+            ("14_gis_kartographie.md", "GIS", "QGIS-Integration"),
+        ]
+    }
 
     def __init__(self, iface):
         super(PyarchinitPluginDialog, self).__init__()
@@ -68,13 +120,17 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
         self.iface = iface
         self.plugin_dir = os.path.dirname(__file__)
+        self.tutorials_base_path = os.path.join(self.plugin_dir, "docs", "tutorials")
 
         # Detect current language
         self.current_lang = self.detect_language()
 
-        # Initialize web views
+        # Initialize web views and UI enhancements
         self.setup_webviews()
+        self.setup_tutorial_tab()
+        self.setup_modern_diagrams()
 
+        # Connect buttons
         self.btnUStable.clicked.connect(self.runUS)
         self.btnUStable_2.clicked.connect(self.runUS)
 
@@ -94,148 +150,130 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.btnPDFmen.clicked.connect(self.runPDFadministrator)
         self.btnUTtable.clicked.connect(self.runUT)
 
-        # Setup tooltips for relationship diagram buttons
+        # Setup tooltips
         self.setup_button_tooltips()
 
     def runSite(self):
         pluginGui = pyarchinit_Site(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runPer(self):
         pluginGui = pyarchinit_Periodizzazione(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runStruttura(self):
         pluginGui = pyarchinit_Struttura(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runUS(self):
         pluginGui = pyarchinit_US(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runInr(self):
         pluginGui = pyarchinit_Inventario_reperti(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runGisTimeController(self):
         pluginGui = pyarchinit_Gis_Time_Controller(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runUpd(self):
         pluginGui = pyarchinit_Upd_Values(self.iface)
         pluginGui.show()
-        self.pluginGui = pluginGui  # save
+        self.pluginGui = pluginGui
 
     def runConf(self):
         pluginConfGui = pyArchInitDialog_Config()
         pluginConfGui.show()
-        self.pluginGui = pluginConfGui  # save
+        self.pluginGui = pluginConfGui
 
     def runInfo(self):
         pluginInfoGui = pyArchInitDialog_Info()
         pluginInfoGui.show()
-        self.pluginGui = pluginInfoGui  # save
+        self.pluginGui = pluginInfoGui
 
     def runImageViewer(self):
         pluginImageView = Main()
         pluginImageView.show()
-        self.pluginGui = pluginImageView  # save
+        self.pluginGui = pluginImageView
 
     def runImages_directory_export(self):
         pluginImage_directory_export = pyarchinit_Images_directory_export()
         pluginImage_directory_export.show()
-        self.pluginGui = pluginImage_directory_export  # save
+        self.pluginGui = pluginImage_directory_export
 
     def runTomba(self):
         pluginTomba = pyarchinit_Tomba(self.iface)
         pluginTomba.show()
-        self.pluginGui = pluginTomba  # save
+        self.pluginGui = pluginTomba
 
     def runSchedaind(self):
         pluginIndividui = pyarchinit_Schedaind(self.iface)
         pluginIndividui.show()
-        self.pluginGui = pluginIndividui  # save
+        self.pluginGui = pluginIndividui
 
     def runDetsesso(self):
         pluginSesso = pyarchinit_Detsesso(self.iface)
         pluginSesso.show()
-        self.pluginGui = pluginSesso  # save
+        self.pluginGui = pluginSesso
 
     def runDeteta(self):
         pluginEta = pyarchinit_Deteta(self.iface)
         pluginEta.show()
-        self.pluginGui = pluginEta  # save
-
-    # def runArcheozoology(self):
-        # pluginArchezoology = pyarchinit_Archeozoology(self.iface)
-        # pluginArchezoology.show()
-        # self.pluginGui = pluginArchezoology  # save
+        self.pluginGui = pluginEta
 
     def runUT(self):
         pluginUT = pyarchinit_UT(self.iface)
         pluginUT.show()
-        self.pluginGui = pluginUT  # save
+        self.pluginGui = pluginUT
 
     def runPDFadministrator(self):
         pluginPDFadmin = pyarchinit_pdf_export(self.iface)
         pluginPDFadmin.show()
-        self.pluginGui = pluginPDFadmin  # save
+        self.pluginGui = pluginPDFadmin
 
     def detect_language(self):
         """Detect QGIS locale and return language code"""
         locale = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if locale in self.SUPPORTED_LANGUAGES:
             return locale
-        return 'it'  # Default to Italian
+        return 'it'
 
     def setup_button_tooltips(self):
         """Setup descriptive tooltips for relationship diagram buttons"""
         tooltips = {
             'it': {
-                'site': 'Scheda Sito\n━━━━━━━━━━━\nTabella principale del sito archeologico\n\nRelazioni:\n• 1:N → US/USM (Unità Stratigrafiche)\n• 1:N → Periodizzazione\n• 1:N → UT (Unità Topografiche)',
-                'us': 'Scheda US/USM\n━━━━━━━━━━━━\nUnità Stratigrafiche e Murarie\n\nRelazioni:\n• N:1 ← Sito\n• 1:N → Reperti\n• N:N ↔ Struttura\n• 1:N → Campioni\n• N:1 ← Periodizzazione',
+                'site': 'Scheda Sito\n━━━━━━━━━━━\nTabella principale del sito archeologico\n\nRelazioni:\n• 1:N → US/USM\n• 1:N → Periodizzazione\n• 1:N → UT',
+                'us': 'Scheda US/USM\n━━━━━━━━━━━━\nUnità Stratigrafiche e Murarie\n\nRelazioni:\n• N:1 ← Sito\n• 1:N → Reperti\n• N:N ↔ Struttura',
                 'periodo': 'Periodizzazione\n━━━━━━━━━━━━\nFasi e periodi cronologici\n\nRelazioni:\n• N:1 ← Sito\n• 1:N → US/USM',
-                'struttura': 'Scheda Struttura\n━━━━━━━━━━━━━━\nStrutture archeologiche\n\nRelazioni:\n• N:N ↔ US/USM\n• N:1 ← Sito',
-                'reperti': 'Inventario Materiali\n━━━━━━━━━━━━━━━━\nReperti e materiali archeologici\n\nRelazioni:\n• N:1 ← US/USM\n• N:N ↔ Media',
-                'ut': 'Scheda UT\n━━━━━━━━━\nUnità Topografiche (Survey)\n\nRelazioni:\n• N:1 ← Sito\n• 1:N → Reperti',
-                'media': 'Media Manager\n━━━━━━━━━━━━\nGestione foto e documenti\n\nRelazioni:\n• N:N ↔ US/USM\n• N:N ↔ Reperti',
-                'export': 'Export Immagini\n━━━━━━━━━━━━━━\nEsporta immagini per cartella',
-                'pdf': 'PDF Export\n━━━━━━━━━━\nGenera documentazione PDF'
+                'struttura': 'Scheda Struttura\n━━━━━━━━━━━━━━\nStrutture archeologiche\n\nRelazioni:\n• N:N ↔ US/USM',
+                'reperti': 'Inventario Materiali\n━━━━━━━━━━━━━━━━\nReperti archeologici\n\nRelazioni:\n• N:1 ← US/USM\n• N:N ↔ Media',
+                'ut': 'Scheda UT\n━━━━━━━━━\nUnità Topografiche\n\nRelazioni:\n• N:1 ← Sito\n• 1:N → Reperti',
+                'media': 'Media Manager\n━━━━━━━━━━━━\nGestione foto e documenti',
+                'export': 'Export Immagini',
+                'pdf': 'PDF Export'
             },
             'en': {
-                'site': 'Site Form\n━━━━━━━━━\nMain archaeological site table\n\nRelationships:\n• 1:N → SU/WSU (Stratigraphic Units)\n• 1:N → Periodization\n• 1:N → TU (Topographic Units)',
-                'us': 'SU/WSU Form\n━━━━━━━━━━━\nStratigraphic and Wall Units\n\nRelationships:\n• N:1 ← Site\n• 1:N → Finds\n• N:N ↔ Structure\n• 1:N → Samples\n• N:1 ← Periodization',
-                'periodo': 'Periodization\n━━━━━━━━━━━━\nChronological phases and periods\n\nRelationships:\n• N:1 ← Site\n• 1:N → SU/WSU',
-                'struttura': 'Structure Form\n━━━━━━━━━━━━━\nArchaeological structures\n\nRelationships:\n• N:N ↔ SU/WSU\n• N:1 ← Site',
-                'reperti': 'Finds Inventory\n━━━━━━━━━━━━━━\nArtefacts and materials\n\nRelationships:\n• N:1 ← SU/WSU\n• N:N ↔ Media',
-                'ut': 'TU Form\n━━━━━━━━\nTopographic Units (Survey)\n\nRelationships:\n• N:1 ← Site\n• 1:N → Finds',
-                'media': 'Media Manager\n━━━━━━━━━━━━\nPhoto and document management\n\nRelationships:\n• N:N ↔ SU/WSU\n• N:N ↔ Finds',
-                'export': 'Image Export\n━━━━━━━━━━━━\nExport images by folder',
-                'pdf': 'PDF Export\n━━━━━━━━━━\nGenerate PDF documentation'
-            },
-            'de': {
-                'site': 'Fundstelle\n━━━━━━━━━━\nHaupttabelle archäologische Fundstelle\n\nBeziehungen:\n• 1:N → SE/MSE (Stratigraphische Einheiten)\n• 1:N → Periodisierung\n• 1:N → TE (Topographische Einheiten)',
-                'us': 'SE/MSE Formular\n━━━━━━━━━━━━━━\nStratigraphische und Mauereinheiten\n\nBeziehungen:\n• N:1 ← Fundstelle\n• 1:N → Funde\n• N:N ↔ Struktur\n• 1:N → Proben\n• N:1 ← Periodisierung',
-                'periodo': 'Periodisierung\n━━━━━━━━━━━━\nChronologische Phasen\n\nBeziehungen:\n• N:1 ← Fundstelle\n• 1:N → SE/MSE',
-                'struttura': 'Struktur Formular\n━━━━━━━━━━━━━━━\nArchäologische Strukturen\n\nBeziehungen:\n• N:N ↔ SE/MSE\n• N:1 ← Fundstelle',
-                'reperti': 'Fundinventar\n━━━━━━━━━━━━\nArtefakte und Materialien\n\nBeziehungen:\n• N:1 ← SE/MSE\n• N:N ↔ Medien',
-                'ut': 'TE Formular\n━━━━━━━━━━━\nTopographische Einheiten\n\nBeziehungen:\n• N:1 ← Fundstelle\n• 1:N → Funde',
-                'media': 'Medien-Manager\n━━━━━━━━━━━━━━\nFoto- und Dokumentenverwaltung\n\nBeziehungen:\n• N:N ↔ SE/MSE\n• N:N ↔ Funde',
-                'export': 'Bildexport\n━━━━━━━━━━\nBilder nach Ordner exportieren',
-                'pdf': 'PDF-Export\n━━━━━━━━━━\nPDF-Dokumentation erstellen'
+                'site': 'Site Form\n━━━━━━━━━\nMain site table\n\nRelationships:\n• 1:N → SU/WSU\n• 1:N → Periodization\n• 1:N → TU',
+                'us': 'SU/WSU Form\n━━━━━━━━━━━\nStratigraphic Units\n\nRelationships:\n• N:1 ← Site\n• 1:N → Finds\n• N:N ↔ Structure',
+                'periodo': 'Periodization\n━━━━━━━━━━━━\nChronological phases\n\nRelationships:\n• N:1 ← Site\n• 1:N → SU/WSU',
+                'struttura': 'Structure Form\n━━━━━━━━━━━━━\nArchaeological structures\n\nRelationships:\n• N:N ↔ SU/WSU',
+                'reperti': 'Finds Inventory\n━━━━━━━━━━━━━━\nArtefacts\n\nRelationships:\n• N:1 ← SU/WSU\n• N:N ↔ Media',
+                'ut': 'TU Form\n━━━━━━━━\nTopographic Units\n\nRelationships:\n• N:1 ← Site\n• 1:N → Finds',
+                'media': 'Media Manager\n━━━━━━━━━━━━\nPhoto management',
+                'export': 'Image Export',
+                'pdf': 'PDF Export'
             }
         }
 
-        # Get tooltips for current language, fallback to Italian
         tips = tooltips.get(self.current_lang, tooltips['it'])
 
-        # Apply tooltips to buttons
         self.btnSitotable.setToolTip(tips['site'])
         self.btnSitotable_2.setToolTip(tips['site'])
         self.btnUStable.setToolTip(tips['us'])
@@ -251,29 +289,307 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.btnPDFmen.setToolTip(tips['pdf'])
 
     def setup_webviews(self):
-        """Setup web views for pyarchinit and tutorial tabs"""
-        # Setup pyarchinit.org in tab_5 (webView_adarte)
+        """Setup pyarchinit.org in the main tab"""
         if HAS_WEBENGINE:
-            # Replace QTextBrowser with QWebEngineView for better web rendering
-            # Get the parent layout
             parent_widget = self.webView_adarte.parentWidget()
             layout = parent_widget.layout()
-
-            # Create new QWebEngineView
             self.web_engine_pyarchinit = QWebEngineView()
             self.web_engine_pyarchinit.setUrl(QUrl("https://www.pyarchinit.org"))
-
-            # Replace the old widget
             layout.replaceWidget(self.webView_adarte, self.web_engine_pyarchinit)
             self.webView_adarte.deleteLater()
             self.webView_adarte = self.web_engine_pyarchinit
         else:
-            # Fallback: show a message with link
             self.webView_adarte.setHtml(self.get_pyarchinit_fallback_html())
             self.webView_adarte.setOpenExternalLinks(True)
 
-        # Setup tutorial in tab_4 (webView)
-        self.load_tutorial_content()
+    def setup_tutorial_tab(self):
+        """Setup embedded tutorial viewer in tutorial tab"""
+        # Get the tutorial tab (tab_4) and its layout
+        parent_widget = self.webView.parentWidget()
+        layout = parent_widget.layout()
+
+        # Create new container widget for tutorial viewer
+        tutorial_container = QWidget()
+        tutorial_layout = QVBoxLayout(tutorial_container)
+        tutorial_layout.setContentsMargins(5, 5, 5, 5)
+        tutorial_layout.setSpacing(5)
+
+        # Language selector
+        lang_layout = QHBoxLayout()
+        lang_label = QLabel("🌍")
+        self.tutorial_lang_combo = QComboBox()
+        self.tutorial_lang_combo.setMaximumWidth(120)
+        for code, name in self.SUPPORTED_LANGUAGES.items():
+            self.tutorial_lang_combo.addItem(name, code)
+        index = self.tutorial_lang_combo.findData(self.current_lang)
+        if index >= 0:
+            self.tutorial_lang_combo.setCurrentIndex(index)
+        self.tutorial_lang_combo.currentIndexChanged.connect(self.on_tutorial_language_changed)
+        lang_layout.addWidget(lang_label)
+        lang_layout.addWidget(self.tutorial_lang_combo)
+        lang_layout.addStretch()
+        tutorial_layout.addLayout(lang_layout)
+
+        # Splitter for list and content
+        self.tutorial_splitter = QSplitter(Qt.Orientation.Vertical)
+
+        # Tutorial list
+        self.tutorial_list = QListWidget()
+        self.tutorial_list.setMaximumHeight(200)
+        self.tutorial_list.setStyleSheet("""
+            QListWidget {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+                font-size: 11px;
+            }
+            QListWidget::item {
+                padding: 5px;
+                border-bottom: 1px solid #e9ecef;
+            }
+            QListWidget::item:selected {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            QListWidget::item:hover {
+                background: #e9ecef;
+            }
+        """)
+        self.tutorial_list.currentItemChanged.connect(self.on_tutorial_selected)
+        self.tutorial_splitter.addWidget(self.tutorial_list)
+
+        # Content browser
+        if HAS_WEBENGINE:
+            self.tutorial_content = QWebEngineView()
+        else:
+            self.tutorial_content = QTextBrowser()
+            self.tutorial_content.setOpenExternalLinks(True)
+        self.tutorial_splitter.addWidget(self.tutorial_content)
+
+        # Set splitter sizes
+        self.tutorial_splitter.setSizes([150, 400])
+
+        tutorial_layout.addWidget(self.tutorial_splitter)
+
+        # Replace old webView with new container
+        layout.replaceWidget(self.webView, tutorial_container)
+        self.webView.deleteLater()
+        self.webView = tutorial_container
+
+        # Load tutorial list
+        self.load_tutorial_list()
+
+    def load_tutorial_list(self):
+        """Load tutorials for current language"""
+        self.tutorial_list.clear()
+        tutorials = self.TUTORIALS_METADATA.get(self.current_lang, self.TUTORIALS_METADATA['it'])
+
+        for filename, title, description in tutorials:
+            item = QListWidgetItem(f"📖 {title}")
+            item.setToolTip(description)
+            item.setData(Qt.ItemDataRole.UserRole, filename)
+            self.tutorial_list.addItem(item)
+
+        # Select first item
+        if self.tutorial_list.count() > 0:
+            self.tutorial_list.setCurrentRow(0)
+
+    def on_tutorial_language_changed(self, index):
+        """Handle tutorial language change"""
+        self.current_lang = self.tutorial_lang_combo.itemData(index)
+        self.load_tutorial_list()
+
+    def on_tutorial_selected(self, current, previous):
+        """Load selected tutorial content"""
+        if current is None:
+            return
+
+        filename = current.data(Qt.ItemDataRole.UserRole)
+        tutorials_path = os.path.join(self.tutorials_base_path, self.current_lang)
+        filepath = os.path.join(tutorials_path, filename)
+
+        # Fallback to Italian
+        if not os.path.exists(filepath):
+            filepath = os.path.join(self.tutorials_base_path, 'it', filename)
+
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                html = self.markdown_to_html(content)
+                if HAS_WEBENGINE:
+                    self.tutorial_content.setHtml(html, QUrl.fromLocalFile(tutorials_path + '/'))
+                else:
+                    self.tutorial_content.setHtml(html)
+            except Exception as e:
+                self.show_tutorial_error(str(e))
+        else:
+            self.show_tutorial_placeholder()
+
+    def markdown_to_html(self, md_content):
+        """Convert markdown to styled HTML"""
+        import re
+
+        # Basic markdown conversion
+        html = md_content
+
+        # Headers
+        html = re.sub(r'^### (.+)$', r'<h3>\1</h3>', html, flags=re.MULTILINE)
+        html = re.sub(r'^## (.+)$', r'<h2>\1</h2>', html, flags=re.MULTILINE)
+        html = re.sub(r'^# (.+)$', r'<h1>\1</h1>', html, flags=re.MULTILINE)
+
+        # Bold and italic
+        html = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', html)
+        html = re.sub(r'\*(.+?)\*', r'<em>\1</em>', html)
+
+        # Code blocks
+        html = re.sub(r'```(\w+)?\n(.*?)```', r'<pre><code>\2</code></pre>', html, flags=re.DOTALL)
+        html = re.sub(r'`(.+?)`', r'<code>\1</code>', html)
+
+        # Lists
+        html = re.sub(r'^- (.+)$', r'<li>\1</li>', html, flags=re.MULTILINE)
+        html = re.sub(r'(<li>.*</li>\n)+', r'<ul>\g<0></ul>', html)
+
+        # Links
+        html = re.sub(r'\[(.+?)\]\((.+?)\)', r'<a href="\2">\1</a>', html)
+
+        # Images
+        html = re.sub(r'!\[(.+?)\]\((.+?)\)', r'<img src="\2" alt="\1" style="max-width:100%">', html)
+
+        # Paragraphs
+        html = re.sub(r'\n\n', '</p><p>', html)
+
+        direction = 'rtl' if self.current_lang == 'ar' else 'ltr'
+
+        return f"""
+        <!DOCTYPE html>
+        <html dir="{direction}">
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-size: 13px;
+                    line-height: 1.6;
+                    padding: 15px;
+                    background: #fff;
+                    color: #333;
+                    direction: {direction};
+                }}
+                h1 {{ color: #667eea; font-size: 20px; border-bottom: 2px solid #667eea; padding-bottom: 8px; }}
+                h2 {{ color: #764ba2; font-size: 16px; margin-top: 20px; }}
+                h3 {{ color: #555; font-size: 14px; }}
+                code {{ background: #f1f3f4; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; }}
+                pre {{ background: #282c34; color: #abb2bf; padding: 12px; border-radius: 8px; overflow-x: auto; }}
+                pre code {{ background: none; color: inherit; }}
+                a {{ color: #667eea; }}
+                ul {{ padding-left: 20px; }}
+                li {{ margin: 5px 0; }}
+                img {{ border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 10px 0; }}
+            </style>
+        </head>
+        <body><p>{html}</p></body>
+        </html>
+        """
+
+    def show_tutorial_placeholder(self):
+        """Show placeholder when tutorial not found"""
+        html = """
+        <html>
+        <body style="font-family: sans-serif; padding: 20px; text-align: center; color: #666;">
+            <p style="font-size: 40px;">📚</p>
+            <p>Tutorial not available yet.</p>
+            <p><a href="https://pyarchinitdoc.readthedocs.io/" target="_blank">View online documentation</a></p>
+        </body>
+        </html>
+        """
+        if HAS_WEBENGINE:
+            self.tutorial_content.setHtml(html)
+        else:
+            self.tutorial_content.setHtml(html)
+
+    def show_tutorial_error(self, error):
+        """Show error message"""
+        html = f"<html><body><p style='color:red;'>Error: {error}</p></body></html>"
+        if HAS_WEBENGINE:
+            self.tutorial_content.setHtml(html)
+        else:
+            self.tutorial_content.setHtml(html)
+
+    def setup_modern_diagrams(self):
+        """Setup modern HTML diagrams in service tabs"""
+        # We'll inject modern styling into the existing tabs via stylesheets
+        # The actual relationship buttons remain clickable
+
+        # Apply modern styling to service tab buttons
+        modern_button_style = """
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #667eea, stop:1 #764ba2);
+                border: none;
+                border-radius: 8px;
+                padding: 8px;
+                color: white;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #5a6fd6, stop:1 #6a4190);
+            }
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #4e5fc2, stop:1 #5e3780);
+            }
+        """
+
+        # Apply to all main buttons
+        for btn in [self.btnSitotable, self.btnSitotable_2, self.btnUStable, self.btnUStable_2,
+                    self.btnPeriodotable, self.btnStrutturatable, self.btnReptable,
+                    self.btnReptable_2, self.btnReptable_3, self.btnUTtable,
+                    self.btnMedtable, self.btnExptable, self.btnPDFmen]:
+            btn.setStyleSheet(modern_button_style)
+
+        # Style the relationship labels for better visibility
+        label_style = """
+            QLabel {
+                background: rgba(102, 126, 234, 0.1);
+                border-radius: 4px;
+                padding: 2px 4px;
+                font-weight: bold;
+                color: #667eea;
+            }
+        """
+
+        # Apply to relationship labels if they exist
+        for widget in self.findChildren(QLabel):
+            text = widget.text()
+            if text in ['1:N', 'N:N', 'N:1', '1:1']:
+                widget.setStyleSheet(label_style)
+
+        # Style the tab widget
+        tab_style = """
+            QTabWidget::pane {
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                background: #f8f9fa;
+            }
+            QTabBar::tab {
+                background: #e9ecef;
+                border: 1px solid #dee2e6;
+                padding: 8px 12px;
+                margin-right: 2px;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+            }
+            QTabBar::tab:selected {
+                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #667eea, stop:1 #764ba2);
+                color: white;
+            }
+            QTabBar::tab:hover:!selected {
+                background: #dee2e6;
+            }
+        """
+        self.tabWidget.setStyleSheet(tab_style)
 
     def get_pyarchinit_fallback_html(self):
         """Return HTML content for when QWebEngine is not available"""
@@ -286,30 +602,39 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 body {
                     font-family: 'Segoe UI', Arial, sans-serif;
                     padding: 20px;
-                    background-color: #f5f5f5;
-                    text-align: center;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    min-height: 100vh;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .container {
-                    max-width: 600px;
-                    margin: 50px auto;
-                    padding: 30px;
+                    max-width: 400px;
+                    padding: 40px;
                     background: white;
-                    border-radius: 10px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    border-radius: 20px;
+                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                    text-align: center;
                 }
-                h1 { color: #2c5282; }
+                h1 { color: #333; margin-bottom: 10px; }
+                p { color: #666; }
                 a {
                     display: inline-block;
                     margin-top: 20px;
-                    padding: 15px 30px;
-                    background-color: #4299e1;
+                    padding: 15px 40px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
                     text-decoration: none;
-                    border-radius: 5px;
-                    font-size: 18px;
+                    border-radius: 30px;
+                    font-weight: bold;
+                    transition: transform 0.3s, box-shadow 0.3s;
                 }
-                a:hover { background-color: #3182ce; }
-                .logo { font-size: 48px; margin-bottom: 20px; }
+                a:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+                }
+                .logo { font-size: 60px; margin-bottom: 20px; }
             </style>
         </head>
         <body>
@@ -320,176 +645,6 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 <a href="https://www.pyarchinit.org" target="_blank">
                     Visit pyarchinit.org
                 </a>
-            </div>
-        </body>
-        </html>
-        """
-
-    def load_tutorial_content(self):
-        """Load tutorial content based on current language"""
-        # Path to tutorial HTML files
-        tutorial_html_path = os.path.join(
-            self.plugin_dir, 'tabs', f'tutorial_{self.current_lang}.html'
-        )
-
-        # Fallback to Italian if language file doesn't exist
-        if not os.path.exists(tutorial_html_path):
-            tutorial_html_path = os.path.join(
-                self.plugin_dir, 'tabs', 'tutorial_it.html'
-            )
-
-        # If tutorial HTML exists, load it
-        if os.path.exists(tutorial_html_path):
-            if HAS_WEBENGINE:
-                # Replace QTextBrowser with QWebEngineView
-                parent_widget = self.webView.parentWidget()
-                layout = parent_widget.layout()
-
-                self.web_engine_tutorial = QWebEngineView()
-                self.web_engine_tutorial.setUrl(QUrl.fromLocalFile(tutorial_html_path))
-
-                layout.replaceWidget(self.webView, self.web_engine_tutorial)
-                self.webView.deleteLater()
-                self.webView = self.web_engine_tutorial
-            else:
-                with open(tutorial_html_path, 'r', encoding='utf-8') as f:
-                    html_content = f.read()
-                self.webView.setHtml(html_content)
-                self.webView.setOpenExternalLinks(True)
-        else:
-            # Show tutorial overview with links to documentation
-            self.webView.setHtml(self.get_tutorial_html())
-            self.webView.setOpenExternalLinks(True)
-
-    def get_tutorial_html(self):
-        """Generate tutorial HTML content based on current language"""
-        tutorials_info = {
-            'it': {
-                'title': 'Tutorial pyArchInit',
-                'subtitle': 'Guida all\'uso del plugin',
-                'description': 'Seleziona un argomento per visualizzare il tutorial:',
-                'open_viewer': 'Apri Tutorial Viewer',
-                'docs_link': 'Documentazione Online'
-            },
-            'en': {
-                'title': 'pyArchInit Tutorial',
-                'subtitle': 'Plugin User Guide',
-                'description': 'Select a topic to view the tutorial:',
-                'open_viewer': 'Open Tutorial Viewer',
-                'docs_link': 'Online Documentation'
-            },
-            'de': {
-                'title': 'pyArchInit Tutorial',
-                'subtitle': 'Plugin-Benutzerhandbuch',
-                'description': 'Wählen Sie ein Thema aus, um das Tutorial anzuzeigen:',
-                'open_viewer': 'Tutorial-Viewer öffnen',
-                'docs_link': 'Online-Dokumentation'
-            },
-            'fr': {
-                'title': 'Tutoriel pyArchInit',
-                'subtitle': 'Guide d\'utilisation du plugin',
-                'description': 'Sélectionnez un sujet pour afficher le tutoriel:',
-                'open_viewer': 'Ouvrir le visualiseur de tutoriels',
-                'docs_link': 'Documentation en ligne'
-            },
-            'es': {
-                'title': 'Tutorial pyArchInit',
-                'subtitle': 'Guía de uso del plugin',
-                'description': 'Seleccione un tema para ver el tutorial:',
-                'open_viewer': 'Abrir visor de tutoriales',
-                'docs_link': 'Documentación en línea'
-            },
-            'ar': {
-                'title': 'دليل pyArchInit',
-                'subtitle': 'دليل استخدام الإضافة',
-                'description': 'اختر موضوعًا لعرض الدليل:',
-                'open_viewer': 'فتح عارض الدليل',
-                'docs_link': 'التوثيق عبر الإنترنت'
-            },
-            'ca': {
-                'title': 'Tutorial pyArchInit',
-                'subtitle': 'Guia d\'ús del plugin',
-                'description': 'Seleccioneu un tema per veure el tutorial:',
-                'open_viewer': 'Obrir visualitzador de tutorials',
-                'docs_link': 'Documentació en línia'
-            }
-        }
-
-        info = tutorials_info.get(self.current_lang, tutorials_info['it'])
-        direction = 'rtl' if self.current_lang == 'ar' else 'ltr'
-
-        return f"""
-        <!DOCTYPE html>
-        <html dir="{direction}">
-        <head>
-            <meta charset="UTF-8">
-            <style>
-                body {{
-                    font-family: 'Segoe UI', Arial, sans-serif;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    min-height: 100vh;
-                    margin: 0;
-                    direction: {direction};
-                }}
-                .container {{
-                    max-width: 600px;
-                    margin: 30px auto;
-                    padding: 30px;
-                    background: white;
-                    border-radius: 15px;
-                    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-                }}
-                h1 {{
-                    color: #4a5568;
-                    margin-bottom: 5px;
-                    font-size: 28px;
-                }}
-                h2 {{
-                    color: #718096;
-                    font-weight: normal;
-                    margin-top: 0;
-                    font-size: 16px;
-                }}
-                p {{ color: #4a5568; line-height: 1.6; }}
-                .btn {{
-                    display: inline-block;
-                    margin: 10px 5px;
-                    padding: 12px 24px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    color: white;
-                    text-decoration: none;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    transition: transform 0.2s, box-shadow 0.2s;
-                }}
-                .btn:hover {{
-                    transform: translateY(-2px);
-                    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-                }}
-                .icon {{ font-size: 48px; margin-bottom: 15px; }}
-                .note {{
-                    background: #f7fafc;
-                    padding: 15px;
-                    border-radius: 8px;
-                    margin-top: 20px;
-                    font-size: 13px;
-                    color: #718096;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="icon">📚</div>
-                <h1>{info['title']}</h1>
-                <h2>{info['subtitle']}</h2>
-                <p>{info['description']}</p>
-                <a href="https://pyarchinitdoc.readthedocs.io/{self.current_lang}/latest/" class="btn" target="_blank">
-                    {info['docs_link']}
-                </a>
-                <div class="note">
-                    💡 Use the <strong>Tutorial Viewer</strong> from the PyArchInit menu for comprehensive tutorials.
-                </div>
             </div>
         </body>
         </html>
