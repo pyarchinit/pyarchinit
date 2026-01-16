@@ -22,7 +22,8 @@ from __future__ import absolute_import
 import os
 
 from qgis.PyQt.uic import loadUiType
-from qgis.PyQt.QtCore import QUrl, Qt
+from qgis.PyQt.QtCore import QUrl, Qt, QSize
+from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
                                   QTextBrowser, QSplitter, QComboBox, QLabel, QWidget,
                                   QPushButton, QFrame, QGridLayout, QScrollArea, QSizePolicy)
@@ -186,6 +187,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Initialize web views and UI enhancements
         self.setup_webviews()
         self.setup_tutorial_tab()
+        self.remove_old_tabs()  # Remove old tabs before adding new workflow tabs
         self.setup_workflow_tabs()
         self.setup_modern_diagrams()
 
@@ -303,6 +305,29 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         if locale in self.SUPPORTED_LANGUAGES:
             return locale
         return 'it'
+
+    def get_icon(self, icon_name):
+        """Get QIcon from resources/icons folder"""
+        icon_path = os.path.join(os.path.dirname(__file__), 'resources', 'icons', icon_name)
+        if os.path.exists(icon_path):
+            return QIcon(icon_path)
+        return QIcon()
+
+    def remove_old_tabs(self):
+        """Remove old tabs that are replaced by workflow tabs"""
+        # Find and remove tabs by their object names
+        tabs_to_remove = ['services', 'tab', 'tab_2', 'tab_3', 'account']
+
+        # We need to remove tabs by index, so we'll find them first
+        indices_to_remove = []
+        for i in range(self.tabWidget.count()):
+            widget = self.tabWidget.widget(i)
+            if widget and widget.objectName() in tabs_to_remove:
+                indices_to_remove.append(i)
+
+        # Remove in reverse order to maintain correct indices
+        for index in sorted(indices_to_remove, reverse=True):
+            self.tabWidget.removeTab(index)
 
     def setup_button_tooltips(self):
         """Setup descriptive tooltips for relationship diagram buttons"""
@@ -472,13 +497,16 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
         # Fallback to Italian
         if not os.path.exists(filepath):
-            filepath = os.path.join(self.tutorials_base_path, 'it', filename)
+            tutorials_path = os.path.join(self.tutorials_base_path, 'it')
+            filepath = os.path.join(tutorials_path, filename)
 
         if os.path.exists(filepath):
             try:
                 with open(filepath, 'r', encoding='utf-8') as f:
                     content = f.read()
-                html = self.markdown_to_html(content)
+                # Store the tutorial directory for image path resolution
+                self.current_tutorial_dir = tutorials_path
+                html = self.markdown_to_html(content, tutorials_path)
                 if HAS_WEBENGINE:
                     self.tutorial_content.setHtml(html, QUrl.fromLocalFile(tutorials_path + '/'))
                 else:
@@ -488,9 +516,10 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         else:
             self.show_tutorial_placeholder()
 
-    def markdown_to_html(self, md_content):
-        """Convert markdown to styled HTML"""
+    def markdown_to_html(self, md_content, base_path=None):
+        """Convert markdown to styled HTML with proper image handling"""
         import re
+        import base64
 
         # Basic markdown conversion
         html = md_content
@@ -512,11 +541,47 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         html = re.sub(r'^- (.+)$', r'<li>\1</li>', html, flags=re.MULTILINE)
         html = re.sub(r'(<li>.*</li>\n)+', r'<ul>\g<0></ul>', html)
 
-        # Links
-        html = re.sub(r'\[(.+?)\]\((.+?)\)', r'<a href="\2">\1</a>', html)
+        # Images - handle before links to avoid conflicts
+        def replace_image(match):
+            alt_text = match.group(1)
+            img_path = match.group(2)
 
-        # Images
-        html = re.sub(r'!\[(.+?)\]\((.+?)\)', r'<img src="\2" alt="\1" style="max-width:100%">', html)
+            # For QTextBrowser (no WebEngine), convert images to base64
+            if not HAS_WEBENGINE and base_path:
+                # Resolve relative path
+                if not os.path.isabs(img_path):
+                    abs_path = os.path.normpath(os.path.join(base_path, img_path))
+                else:
+                    abs_path = img_path
+
+                if os.path.exists(abs_path):
+                    try:
+                        # Determine mime type
+                        ext = os.path.splitext(abs_path)[1].lower()
+                        mime_types = {
+                            '.png': 'image/png',
+                            '.jpg': 'image/jpeg',
+                            '.jpeg': 'image/jpeg',
+                            '.gif': 'image/gif',
+                            '.webp': 'image/webp'
+                        }
+                        mime_type = mime_types.get(ext, 'image/png')
+
+                        # Read and encode image
+                        with open(abs_path, 'rb') as f:
+                            img_data = base64.b64encode(f.read()).decode('utf-8')
+
+                        return f'<div style="text-align:center; margin: 15px 0;"><img src="data:{mime_type};base64,{img_data}" alt="{alt_text}" style="max-width:100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"><p style="color:#666; font-size:12px; margin-top:5px;"><em>{alt_text}</em></p></div>'
+                    except Exception:
+                        pass
+
+            # For WebEngine or fallback, use relative path
+            return f'<div style="text-align:center; margin: 15px 0;"><img src="{img_path}" alt="{alt_text}" style="max-width:100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"><p style="color:#666; font-size:12px; margin-top:5px;"><em>{alt_text}</em></p></div>'
+
+        html = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', replace_image, html)
+
+        # Links (after images to avoid capturing image syntax)
+        html = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', html)
 
         # Paragraphs
         html = re.sub(r'\n\n', '</p><p>', html)
@@ -547,7 +612,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 a {{ color: #667eea; }}
                 ul {{ padding-left: 20px; }}
                 li {{ margin: 5px 0; }}
-                img {{ border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin: 10px 0; }}
+                img {{ max-width: 100%; }}
             </style>
         </head>
         <body><p>{html}</p></body>
@@ -615,13 +680,38 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         }
         l = labels.get(self.current_lang, labels['it'])
 
+        # Icon mapping
+        icons = {
+            'site': self.get_icon('iconSite.png'),
+            'us': self.get_icon('iconsus.png'),
+            'period': self.get_icon('iconPER.png'),
+            'struct': self.get_icon('iconStrutt.png'),
+            'tomb': self.get_icon('iconGrave.png'),
+            'finds': self.get_icon('iconFinds.png'),
+            'samples': self.get_icon('champion.png'),
+            'indiv': self.get_icon('iconIND.png'),
+            'doc': self.get_icon('icondoc.png'),
+            'media': self.get_icon('photo.png'),
+            'pdf': self.get_icon('pdf-icon.png'),
+            'ut': self.get_icon('iconUT.png'),
+            'sex': self.get_icon('iconSex.png'),
+            'age': self.get_icon('iconEta.png'),
+            'pottery': self.get_icon('pottery.png'),
+            'fauna': self.get_icon('iconZoo.png'),
+            'excavation': self.get_icon('pai_us.png'),
+            'anthropology': self.get_icon('iconIND.png'),
+            'survey': self.get_icon('site_point.png'),
+        }
+
+        icon_size = QSize(24, 24)
+
         # Common button style
         btn_style = """
             QPushButton {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #667eea, stop:1 #764ba2);
                 border: none; border-radius: 8px; padding: 10px 15px;
                 color: white; font-weight: bold; font-size: 11px;
-                min-width: 80px; min-height: 35px;
+                min-width: 100px; min-height: 40px;
             }
             QPushButton:hover {
                 background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #5a6fd6, stop:1 #6a4190);
@@ -639,6 +729,16 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         rel_style = "QLabel { background: rgba(102,126,234,0.15); color: #667eea; font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 10px; }"
         title_style = "QLabel { color: #333; font-size: 14px; font-weight: bold; background: transparent; padding: 10px; }"
 
+        def create_button(label_key, style, tooltip=""):
+            """Helper to create button with icon"""
+            btn = QPushButton(l[label_key])
+            btn.setIcon(icons.get(label_key, QIcon()))
+            btn.setIconSize(icon_size)
+            btn.setStyleSheet(style)
+            if tooltip:
+                btn.setToolTip(tooltip)
+            return btn
+
         # ========== TAB 1: SCAVO (Excavation) ==========
         excavation_tab = QWidget()
         excavation_layout = QVBoxLayout(excavation_tab)
@@ -646,7 +746,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         excavation_layout.setContentsMargins(10, 10, 10, 10)
 
         # Title
-        title1 = QLabel(f"⛏️ {l['excavation']} Workflow")
+        title1 = QLabel(f"{l['excavation']} Workflow")
         title1.setStyleSheet(title_style)
         title1.setAlignment(Qt.AlignmentFlag.AlignCenter)
         excavation_layout.addWidget(title1)
@@ -654,10 +754,8 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Row 1: Site
         row1 = QHBoxLayout()
         row1.addStretch()
-        btn_site = QPushButton(f"🏛️ {l['site']}")
-        btn_site.setStyleSheet(btn_style_main)
+        btn_site = create_button('site', btn_style_main, "1:N → US, Periodo, UT")
         btn_site.clicked.connect(self.runSite)
-        btn_site.setToolTip("1:N → US, Periodo, UT")
         row1.addWidget(btn_site)
         row1.addStretch()
         excavation_layout.addLayout(row1)
@@ -672,8 +770,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         row2 = QHBoxLayout()
         row2.addStretch()
 
-        btn_period = QPushButton(f"📅 {l['period']}")
-        btn_period.setStyleSheet(btn_style)
+        btn_period = create_button('period', btn_style)
         btn_period.clicked.connect(self.runPer)
         row2.addWidget(btn_period)
 
@@ -681,8 +778,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         lbl_rel1.setStyleSheet(rel_style)
         row2.addWidget(lbl_rel1)
 
-        btn_us = QPushButton(f"🔲 {l['us']}")
-        btn_us.setStyleSheet(btn_style_secondary)
+        btn_us = create_button('us', btn_style_secondary)
         btn_us.clicked.connect(self.runUS)
         row2.addWidget(btn_us)
 
@@ -690,8 +786,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         lbl_rel2.setStyleSheet(rel_style)
         row2.addWidget(lbl_rel2)
 
-        btn_struct = QPushButton(f"🏗️ {l['struct']}")
-        btn_struct.setStyleSheet(btn_style)
+        btn_struct = create_button('struct', btn_style)
         btn_struct.clicked.connect(self.runStruttura)
         row2.addWidget(btn_struct)
 
@@ -708,18 +803,15 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         row3 = QHBoxLayout()
         row3.addStretch()
 
-        btn_finds = QPushButton(f"⚱️ {l['finds']}")
-        btn_finds.setStyleSheet(btn_style_tertiary)
+        btn_finds = create_button('finds', btn_style_tertiary)
         btn_finds.clicked.connect(self.runInr)
         row3.addWidget(btn_finds)
 
-        btn_samples = QPushButton(f"🧪 {l['samples']}")
-        btn_samples.setStyleSheet(btn_style_tertiary)
+        btn_samples = create_button('samples', btn_style_tertiary)
         btn_samples.clicked.connect(self.runInr)  # TODO: connect to samples form
         row3.addWidget(btn_samples)
 
-        btn_tomb = QPushButton(f"⚰️ {l['tomb']}")
-        btn_tomb.setStyleSheet(btn_style_tertiary)
+        btn_tomb = create_button('tomb', btn_style_tertiary)
         btn_tomb.clicked.connect(self.runTomba)
         row3.addWidget(btn_tomb)
 
@@ -736,18 +828,15 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         row4 = QHBoxLayout()
         row4.addStretch()
 
-        btn_doc = QPushButton(f"📸 {l['doc']}")
-        btn_doc.setStyleSheet(btn_style)
+        btn_doc = create_button('doc', btn_style)
         btn_doc.clicked.connect(self.runImageViewer)
         row4.addWidget(btn_doc)
 
-        btn_media = QPushButton(f"🖼️ {l['media']}")
-        btn_media.setStyleSheet(btn_style)
+        btn_media = create_button('media', btn_style)
         btn_media.clicked.connect(self.runImageViewer)
         row4.addWidget(btn_media)
 
-        btn_pdf = QPushButton(f"📄 {l['pdf']}")
-        btn_pdf.setStyleSheet(btn_style)
+        btn_pdf = create_button('pdf', btn_style)
         btn_pdf.clicked.connect(self.runPDFadministrator)
         row4.addWidget(btn_pdf)
 
@@ -755,7 +844,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         excavation_layout.addLayout(row4)
 
         excavation_layout.addStretch()
-        self.tabWidget.addTab(excavation_tab, f"⛏️ {l['excavation']}")
+        self.tabWidget.addTab(excavation_tab, icons['excavation'], l['excavation'])
 
         # ========== TAB 2: ANTROPOLOGIA (Anthropology) ==========
         anthro_tab = QWidget()
@@ -763,7 +852,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         anthro_layout.setSpacing(8)
         anthro_layout.setContentsMargins(10, 10, 10, 10)
 
-        title2 = QLabel(f"👤 {l['anthropology']} Workflow")
+        title2 = QLabel(f"{l['anthropology']} Workflow")
         title2.setStyleSheet(title_style)
         title2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         anthro_layout.addWidget(title2)
@@ -771,8 +860,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Row 1: Site
         arow1 = QHBoxLayout()
         arow1.addStretch()
-        abtn_site = QPushButton(f"🏛️ {l['site']}")
-        abtn_site.setStyleSheet(btn_style_main)
+        abtn_site = create_button('site', btn_style_main)
         abtn_site.clicked.connect(self.runSite)
         arow1.addWidget(abtn_site)
         arow1.addStretch()
@@ -787,8 +875,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         arow2 = QHBoxLayout()
         arow2.addStretch()
 
-        abtn_us = QPushButton(f"🔲 {l['us']}")
-        abtn_us.setStyleSheet(btn_style_secondary)
+        abtn_us = create_button('us', btn_style_secondary)
         abtn_us.clicked.connect(self.runUS)
         arow2.addWidget(abtn_us)
 
@@ -796,8 +883,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         albl1.setStyleSheet(rel_style)
         arow2.addWidget(albl1)
 
-        abtn_tomb = QPushButton(f"⚰️ {l['tomb']}")
-        abtn_tomb.setStyleSheet(btn_style_tertiary)
+        abtn_tomb = create_button('tomb', btn_style_tertiary)
         abtn_tomb.clicked.connect(self.runTomba)
         arow2.addWidget(abtn_tomb)
 
@@ -813,8 +899,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         arow3 = QHBoxLayout()
         arow3.addStretch()
 
-        abtn_indiv = QPushButton(f"👤 {l['indiv']}")
-        abtn_indiv.setStyleSheet(btn_style_main)
+        abtn_indiv = create_button('indiv', btn_style_main)
         abtn_indiv.clicked.connect(self.runSchedaind)
         arow3.addWidget(abtn_indiv)
 
@@ -830,13 +915,11 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         arow4 = QHBoxLayout()
         arow4.addStretch()
 
-        abtn_sex = QPushButton(f"⚥ {l['sex']}")
-        abtn_sex.setStyleSheet(btn_style)
+        abtn_sex = create_button('sex', btn_style)
         abtn_sex.clicked.connect(self.runDetsesso)
         arow4.addWidget(abtn_sex)
 
-        abtn_age = QPushButton(f"📊 {l['age']}")
-        abtn_age.setStyleSheet(btn_style)
+        abtn_age = create_button('age', btn_style)
         abtn_age.clicked.connect(self.runDeteta)
         arow4.addWidget(abtn_age)
 
@@ -852,8 +935,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         arow5 = QHBoxLayout()
         arow5.addStretch()
 
-        abtn_finds = QPushButton(f"⚱️ {l['finds']}")
-        abtn_finds.setStyleSheet(btn_style_tertiary)
+        abtn_finds = create_button('finds', btn_style_tertiary)
         abtn_finds.clicked.connect(self.runInr)
         arow5.addWidget(abtn_finds)
 
@@ -861,7 +943,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         anthro_layout.addLayout(arow5)
 
         anthro_layout.addStretch()
-        self.tabWidget.addTab(anthro_tab, f"👤 {l['anthropology']}")
+        self.tabWidget.addTab(anthro_tab, icons['anthropology'], l['anthropology'])
 
         # ========== TAB 3: RICOGNIZIONE (Survey) ==========
         survey_tab = QWidget()
@@ -869,7 +951,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         survey_layout.setSpacing(8)
         survey_layout.setContentsMargins(10, 10, 10, 10)
 
-        title3 = QLabel(f"🗺️ {l['survey']} Workflow")
+        title3 = QLabel(f"{l['survey']} Workflow")
         title3.setStyleSheet(title_style)
         title3.setAlignment(Qt.AlignmentFlag.AlignCenter)
         survey_layout.addWidget(title3)
@@ -877,8 +959,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Row 1: Site
         srow1 = QHBoxLayout()
         srow1.addStretch()
-        sbtn_site = QPushButton(f"🏛️ {l['site']}")
-        sbtn_site.setStyleSheet(btn_style_main)
+        sbtn_site = create_button('site', btn_style_main)
         sbtn_site.clicked.connect(self.runSite)
         srow1.addWidget(sbtn_site)
         srow1.addStretch()
@@ -893,8 +974,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         srow2 = QHBoxLayout()
         srow2.addStretch()
 
-        sbtn_ut = QPushButton(f"📍 {l['ut']}")
-        sbtn_ut.setStyleSheet(btn_style_secondary)
+        sbtn_ut = create_button('ut', btn_style_secondary)
         sbtn_ut.clicked.connect(self.runUT)
         srow2.addWidget(sbtn_ut)
 
@@ -910,8 +990,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         srow3 = QHBoxLayout()
         srow3.addStretch()
 
-        sbtn_finds = QPushButton(f"⚱️ {l['finds']}")
-        sbtn_finds.setStyleSheet(btn_style_tertiary)
+        sbtn_finds = create_button('finds', btn_style_tertiary)
         sbtn_finds.clicked.connect(self.runInr)
         srow3.addWidget(sbtn_finds)
 
@@ -927,13 +1006,11 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         srow4 = QHBoxLayout()
         srow4.addStretch()
 
-        sbtn_doc = QPushButton(f"📸 {l['doc']}")
-        sbtn_doc.setStyleSheet(btn_style)
+        sbtn_doc = create_button('doc', btn_style)
         sbtn_doc.clicked.connect(self.runImageViewer)
         srow4.addWidget(sbtn_doc)
 
-        sbtn_pdf = QPushButton(f"📄 {l['pdf']}")
-        sbtn_pdf.setStyleSheet(btn_style)
+        sbtn_pdf = create_button('pdf', btn_style)
         sbtn_pdf.clicked.connect(self.runPDFadministrator)
         srow4.addWidget(sbtn_pdf)
 
@@ -941,7 +1018,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         survey_layout.addLayout(srow4)
 
         survey_layout.addStretch()
-        self.tabWidget.addTab(survey_tab, f"🗺️ {l['survey']}")
+        self.tabWidget.addTab(survey_tab, icons['survey'], l['survey'])
 
     def setup_modern_diagrams(self):
         """Setup modern HTML diagrams in service tabs"""
