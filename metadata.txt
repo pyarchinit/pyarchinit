@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.48
+version=4.9.49
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.48 (2026-01-15):
+changelog=4.9.49 (2026-01-16):
+    - Feature:  add multilingual thesaurus code documentation
+  4.9.48 (2026-01-15):
     - Feature:  add multilingual tutorial documentation
     - Feature:  add Tutorial Viewer with multilingual support
   4.9.47 (2026-01-14):
