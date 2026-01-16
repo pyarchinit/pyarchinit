@@ -671,26 +671,29 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
     def add_workflow_to_services_tab(self):
         """Add a visual workflow diagram header to the services tab"""
+        from qgis.PyQt.QtWidgets import QGridLayout
+
+        # Helper function to add widget to any layout type
+        def add_to_layout(layout, widget):
+            if isinstance(layout, QGridLayout):
+                # For grid layout, add at row 0, spanning all columns
+                # First shift all existing items down
+                layout.addWidget(widget, 0, 0, 1, layout.columnCount() or 1)
+            else:
+                # For other layouts (VBox, HBox), use insertWidget
+                layout.insertWidget(0, widget)
+
         # Find the services tab (Scavo archeologico)
         services_tab = self.services
         if services_tab:
-            # Get the existing layout
             existing_layout = services_tab.layout()
             if existing_layout:
-                # Create workflow browser
                 workflow_browser = QTextBrowser()
                 workflow_browser.setMaximumHeight(180)
                 workflow_browser.setOpenExternalLinks(False)
-                workflow_browser.setStyleSheet("""
-                    QTextBrowser {
-                        border: none;
-                        background: transparent;
-                    }
-                """)
+                workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
                 workflow_browser.setHtml(self.get_excavation_workflow_html())
-
-                # Insert at the top of the layout
-                existing_layout.insertWidget(0, workflow_browser)
+                add_to_layout(existing_layout, workflow_browser)
 
         # Add workflow to Ricognizione tab
         ricognizione_tab = self.tab
@@ -701,19 +704,18 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 workflow_browser.setMaximumHeight(150)
                 workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
                 workflow_browser.setHtml(self.get_survey_workflow_html())
-                existing_layout.insertWidget(0, workflow_browser)
+                add_to_layout(existing_layout, workflow_browser)
 
         # Add workflow to Media tab
         media_tab = self.tab_2
         if media_tab:
             layout = media_tab.layout()
-            if not layout:
-                layout = QVBoxLayout(media_tab)
-            workflow_browser = QTextBrowser()
-            workflow_browser.setMaximumHeight(120)
-            workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
-            workflow_browser.setHtml(self.get_media_workflow_html())
-            layout.insertWidget(0, workflow_browser)
+            if layout:
+                workflow_browser = QTextBrowser()
+                workflow_browser.setMaximumHeight(120)
+                workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
+                workflow_browser.setHtml(self.get_media_workflow_html())
+                add_to_layout(layout, workflow_browser)
 
     def get_excavation_workflow_html(self):
         """Generate HTML workflow diagram for excavation"""
