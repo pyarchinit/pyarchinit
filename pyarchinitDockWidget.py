@@ -24,7 +24,8 @@ import os
 from qgis.PyQt.uic import loadUiType
 from qgis.PyQt.QtCore import QUrl, Qt
 from qgis.PyQt.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
-                                  QTextBrowser, QSplitter, QComboBox, QLabel, QWidget)
+                                  QTextBrowser, QSplitter, QComboBox, QLabel, QWidget,
+                                  QPushButton, QFrame, QGridLayout, QScrollArea, QSizePolicy)
 from qgis.gui import QgsDockWidget
 from qgis.core import QgsSettings
 
@@ -185,6 +186,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Initialize web views and UI enhancements
         self.setup_webviews()
         self.setup_tutorial_tab()
+        self.setup_workflow_tabs()
         self.setup_modern_diagrams()
 
         # Connect buttons
@@ -575,6 +577,371 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             self.tutorial_content.setHtml(html)
         else:
             self.tutorial_content.setHtml(html)
+
+    def setup_workflow_tabs(self):
+        """Create new tabs with interactive workflow diagrams"""
+        # Labels for different languages
+        labels = {
+            'it': {
+                'excavation': 'Scavo',
+                'survey': 'Ricognizione',
+                'anthropology': 'Antropologia',
+                'site': 'Sito', 'us': 'US/USM', 'period': 'Periodizzazione',
+                'struct': 'Struttura', 'tomb': 'Tomba', 'finds': 'Reperti',
+                'samples': 'Campioni', 'indiv': 'Individui', 'doc': 'Documentazione',
+                'ut': 'UT', 'media': 'Media', 'sex': 'Det. Sesso', 'age': 'Det. Età',
+                'pdf': 'PDF Export', 'pottery': 'Ceramica', 'fauna': 'Archeozoologia'
+            },
+            'en': {
+                'excavation': 'Excavation',
+                'survey': 'Survey',
+                'anthropology': 'Anthropology',
+                'site': 'Site', 'us': 'SU/WSU', 'period': 'Periodization',
+                'struct': 'Structure', 'tomb': 'Burial', 'finds': 'Finds',
+                'samples': 'Samples', 'indiv': 'Individuals', 'doc': 'Documentation',
+                'ut': 'TU', 'media': 'Media', 'sex': 'Sex Det.', 'age': 'Age Det.',
+                'pdf': 'PDF Export', 'pottery': 'Pottery', 'fauna': 'Archaeozoology'
+            },
+            'de': {
+                'excavation': 'Grabung',
+                'survey': 'Survey',
+                'anthropology': 'Anthropologie',
+                'site': 'Fundstelle', 'us': 'SE/MSE', 'period': 'Periodisierung',
+                'struct': 'Struktur', 'tomb': 'Grab', 'finds': 'Funde',
+                'samples': 'Proben', 'indiv': 'Individuen', 'doc': 'Dokumentation',
+                'ut': 'TE', 'media': 'Medien', 'sex': 'Geschlecht', 'age': 'Alter',
+                'pdf': 'PDF-Export', 'pottery': 'Keramik', 'fauna': 'Archäozoologie'
+            }
+        }
+        l = labels.get(self.current_lang, labels['it'])
+
+        # Common button style
+        btn_style = """
+            QPushButton {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #667eea, stop:1 #764ba2);
+                border: none; border-radius: 8px; padding: 10px 15px;
+                color: white; font-weight: bold; font-size: 11px;
+                min-width: 80px; min-height: 35px;
+            }
+            QPushButton:hover {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #5a6fd6, stop:1 #6a4190);
+            }
+            QPushButton:pressed {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #4e5fc2, stop:1 #5e3780);
+            }
+        """
+
+        btn_style_main = btn_style.replace('#667eea', '#f093fb').replace('#764ba2', '#f5576c').replace('#5a6fd6', '#e080e8').replace('#6a4190', '#e04a5e').replace('#4e5fc2', '#d070d8').replace('#5e3780', '#d03e50')
+        btn_style_secondary = btn_style.replace('#667eea', '#4facfe').replace('#764ba2', '#00f2fe').replace('#5a6fd6', '#3d9ae8').replace('#6a4190', '#00d8e8').replace('#4e5fc2', '#2b88d8').replace('#5e3780', '#00bed8')
+        btn_style_tertiary = btn_style.replace('#667eea', '#43e97b').replace('#764ba2', '#38f9d7').replace('#5a6fd6', '#35d56b').replace('#6a4190', '#2ee0c5').replace('#4e5fc2', '#28c15b').replace('#5e3780', '#25c8b3')
+
+        arrow_style = "QLabel { color: #667eea; font-size: 18px; font-weight: bold; background: transparent; }"
+        rel_style = "QLabel { background: rgba(102,126,234,0.15); color: #667eea; font-size: 9px; font-weight: bold; padding: 3px 8px; border-radius: 10px; }"
+        title_style = "QLabel { color: #333; font-size: 14px; font-weight: bold; background: transparent; padding: 10px; }"
+
+        # ========== TAB 1: SCAVO (Excavation) ==========
+        excavation_tab = QWidget()
+        excavation_layout = QVBoxLayout(excavation_tab)
+        excavation_layout.setSpacing(8)
+        excavation_layout.setContentsMargins(10, 10, 10, 10)
+
+        # Title
+        title1 = QLabel(f"⛏️ {l['excavation']} Workflow")
+        title1.setStyleSheet(title_style)
+        title1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        excavation_layout.addWidget(title1)
+
+        # Row 1: Site
+        row1 = QHBoxLayout()
+        row1.addStretch()
+        btn_site = QPushButton(f"🏛️ {l['site']}")
+        btn_site.setStyleSheet(btn_style_main)
+        btn_site.clicked.connect(self.runSite)
+        btn_site.setToolTip("1:N → US, Periodo, UT")
+        row1.addWidget(btn_site)
+        row1.addStretch()
+        excavation_layout.addLayout(row1)
+
+        # Arrow
+        arr1 = QLabel("↓")
+        arr1.setStyleSheet(arrow_style)
+        arr1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        excavation_layout.addWidget(arr1)
+
+        # Row 2: Period, US, Structure
+        row2 = QHBoxLayout()
+        row2.addStretch()
+
+        btn_period = QPushButton(f"📅 {l['period']}")
+        btn_period.setStyleSheet(btn_style)
+        btn_period.clicked.connect(self.runPer)
+        row2.addWidget(btn_period)
+
+        lbl_rel1 = QLabel("1:N")
+        lbl_rel1.setStyleSheet(rel_style)
+        row2.addWidget(lbl_rel1)
+
+        btn_us = QPushButton(f"🔲 {l['us']}")
+        btn_us.setStyleSheet(btn_style_secondary)
+        btn_us.clicked.connect(self.runUS)
+        row2.addWidget(btn_us)
+
+        lbl_rel2 = QLabel("N:N")
+        lbl_rel2.setStyleSheet(rel_style)
+        row2.addWidget(lbl_rel2)
+
+        btn_struct = QPushButton(f"🏗️ {l['struct']}")
+        btn_struct.setStyleSheet(btn_style)
+        btn_struct.clicked.connect(self.runStruttura)
+        row2.addWidget(btn_struct)
+
+        row2.addStretch()
+        excavation_layout.addLayout(row2)
+
+        # Arrow
+        arr2 = QLabel("↓")
+        arr2.setStyleSheet(arrow_style)
+        arr2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        excavation_layout.addWidget(arr2)
+
+        # Row 3: Finds, Samples, Tomb
+        row3 = QHBoxLayout()
+        row3.addStretch()
+
+        btn_finds = QPushButton(f"⚱️ {l['finds']}")
+        btn_finds.setStyleSheet(btn_style_tertiary)
+        btn_finds.clicked.connect(self.runInr)
+        row3.addWidget(btn_finds)
+
+        btn_samples = QPushButton(f"🧪 {l['samples']}")
+        btn_samples.setStyleSheet(btn_style_tertiary)
+        btn_samples.clicked.connect(self.runInr)  # TODO: connect to samples form
+        row3.addWidget(btn_samples)
+
+        btn_tomb = QPushButton(f"⚰️ {l['tomb']}")
+        btn_tomb.setStyleSheet(btn_style_tertiary)
+        btn_tomb.clicked.connect(self.runTomba)
+        row3.addWidget(btn_tomb)
+
+        row3.addStretch()
+        excavation_layout.addLayout(row3)
+
+        # Arrow
+        arr3 = QLabel("↓")
+        arr3.setStyleSheet(arrow_style)
+        arr3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        excavation_layout.addWidget(arr3)
+
+        # Row 4: Documentation, Media
+        row4 = QHBoxLayout()
+        row4.addStretch()
+
+        btn_doc = QPushButton(f"📸 {l['doc']}")
+        btn_doc.setStyleSheet(btn_style)
+        btn_doc.clicked.connect(self.runImageViewer)
+        row4.addWidget(btn_doc)
+
+        btn_media = QPushButton(f"🖼️ {l['media']}")
+        btn_media.setStyleSheet(btn_style)
+        btn_media.clicked.connect(self.runImageViewer)
+        row4.addWidget(btn_media)
+
+        btn_pdf = QPushButton(f"📄 {l['pdf']}")
+        btn_pdf.setStyleSheet(btn_style)
+        btn_pdf.clicked.connect(self.runPDFadministrator)
+        row4.addWidget(btn_pdf)
+
+        row4.addStretch()
+        excavation_layout.addLayout(row4)
+
+        excavation_layout.addStretch()
+        self.tabWidget.addTab(excavation_tab, f"⛏️ {l['excavation']}")
+
+        # ========== TAB 2: ANTROPOLOGIA (Anthropology) ==========
+        anthro_tab = QWidget()
+        anthro_layout = QVBoxLayout(anthro_tab)
+        anthro_layout.setSpacing(8)
+        anthro_layout.setContentsMargins(10, 10, 10, 10)
+
+        title2 = QLabel(f"👤 {l['anthropology']} Workflow")
+        title2.setStyleSheet(title_style)
+        title2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        anthro_layout.addWidget(title2)
+
+        # Row 1: Site
+        arow1 = QHBoxLayout()
+        arow1.addStretch()
+        abtn_site = QPushButton(f"🏛️ {l['site']}")
+        abtn_site.setStyleSheet(btn_style_main)
+        abtn_site.clicked.connect(self.runSite)
+        arow1.addWidget(abtn_site)
+        arow1.addStretch()
+        anthro_layout.addLayout(arow1)
+
+        aarr1 = QLabel("↓")
+        aarr1.setStyleSheet(arrow_style)
+        aarr1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        anthro_layout.addWidget(aarr1)
+
+        # Row 2: US -> Tomb
+        arow2 = QHBoxLayout()
+        arow2.addStretch()
+
+        abtn_us = QPushButton(f"🔲 {l['us']}")
+        abtn_us.setStyleSheet(btn_style_secondary)
+        abtn_us.clicked.connect(self.runUS)
+        arow2.addWidget(abtn_us)
+
+        albl1 = QLabel("1:N")
+        albl1.setStyleSheet(rel_style)
+        arow2.addWidget(albl1)
+
+        abtn_tomb = QPushButton(f"⚰️ {l['tomb']}")
+        abtn_tomb.setStyleSheet(btn_style_tertiary)
+        abtn_tomb.clicked.connect(self.runTomba)
+        arow2.addWidget(abtn_tomb)
+
+        arow2.addStretch()
+        anthro_layout.addLayout(arow2)
+
+        aarr2 = QLabel("↓")
+        aarr2.setStyleSheet(arrow_style)
+        aarr2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        anthro_layout.addWidget(aarr2)
+
+        # Row 3: Individuals
+        arow3 = QHBoxLayout()
+        arow3.addStretch()
+
+        abtn_indiv = QPushButton(f"👤 {l['indiv']}")
+        abtn_indiv.setStyleSheet(btn_style_main)
+        abtn_indiv.clicked.connect(self.runSchedaind)
+        arow3.addWidget(abtn_indiv)
+
+        arow3.addStretch()
+        anthro_layout.addLayout(arow3)
+
+        aarr3 = QLabel("↓")
+        aarr3.setStyleSheet(arrow_style)
+        aarr3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        anthro_layout.addWidget(aarr3)
+
+        # Row 4: Sex, Age determination
+        arow4 = QHBoxLayout()
+        arow4.addStretch()
+
+        abtn_sex = QPushButton(f"⚥ {l['sex']}")
+        abtn_sex.setStyleSheet(btn_style)
+        abtn_sex.clicked.connect(self.runDetsesso)
+        arow4.addWidget(abtn_sex)
+
+        abtn_age = QPushButton(f"📊 {l['age']}")
+        abtn_age.setStyleSheet(btn_style)
+        abtn_age.clicked.connect(self.runDeteta)
+        arow4.addWidget(abtn_age)
+
+        arow4.addStretch()
+        anthro_layout.addLayout(arow4)
+
+        aarr4 = QLabel("↓")
+        aarr4.setStyleSheet(arrow_style)
+        aarr4.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        anthro_layout.addWidget(aarr4)
+
+        # Row 5: Finds (grave goods)
+        arow5 = QHBoxLayout()
+        arow5.addStretch()
+
+        abtn_finds = QPushButton(f"⚱️ {l['finds']}")
+        abtn_finds.setStyleSheet(btn_style_tertiary)
+        abtn_finds.clicked.connect(self.runInr)
+        arow5.addWidget(abtn_finds)
+
+        arow5.addStretch()
+        anthro_layout.addLayout(arow5)
+
+        anthro_layout.addStretch()
+        self.tabWidget.addTab(anthro_tab, f"👤 {l['anthropology']}")
+
+        # ========== TAB 3: RICOGNIZIONE (Survey) ==========
+        survey_tab = QWidget()
+        survey_layout = QVBoxLayout(survey_tab)
+        survey_layout.setSpacing(8)
+        survey_layout.setContentsMargins(10, 10, 10, 10)
+
+        title3 = QLabel(f"🗺️ {l['survey']} Workflow")
+        title3.setStyleSheet(title_style)
+        title3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        survey_layout.addWidget(title3)
+
+        # Row 1: Site
+        srow1 = QHBoxLayout()
+        srow1.addStretch()
+        sbtn_site = QPushButton(f"🏛️ {l['site']}")
+        sbtn_site.setStyleSheet(btn_style_main)
+        sbtn_site.clicked.connect(self.runSite)
+        srow1.addWidget(sbtn_site)
+        srow1.addStretch()
+        survey_layout.addLayout(srow1)
+
+        sarr1 = QLabel("↓ 1:N")
+        sarr1.setStyleSheet(arrow_style)
+        sarr1.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        survey_layout.addWidget(sarr1)
+
+        # Row 2: UT
+        srow2 = QHBoxLayout()
+        srow2.addStretch()
+
+        sbtn_ut = QPushButton(f"📍 {l['ut']}")
+        sbtn_ut.setStyleSheet(btn_style_secondary)
+        sbtn_ut.clicked.connect(self.runUT)
+        srow2.addWidget(sbtn_ut)
+
+        srow2.addStretch()
+        survey_layout.addLayout(srow2)
+
+        sarr2 = QLabel("↓ 1:N")
+        sarr2.setStyleSheet(arrow_style)
+        sarr2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        survey_layout.addWidget(sarr2)
+
+        # Row 3: Finds
+        srow3 = QHBoxLayout()
+        srow3.addStretch()
+
+        sbtn_finds = QPushButton(f"⚱️ {l['finds']}")
+        sbtn_finds.setStyleSheet(btn_style_tertiary)
+        sbtn_finds.clicked.connect(self.runInr)
+        srow3.addWidget(sbtn_finds)
+
+        srow3.addStretch()
+        survey_layout.addLayout(srow3)
+
+        sarr3 = QLabel("↓")
+        sarr3.setStyleSheet(arrow_style)
+        sarr3.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        survey_layout.addWidget(sarr3)
+
+        # Row 4: Documentation
+        srow4 = QHBoxLayout()
+        srow4.addStretch()
+
+        sbtn_doc = QPushButton(f"📸 {l['doc']}")
+        sbtn_doc.setStyleSheet(btn_style)
+        sbtn_doc.clicked.connect(self.runImageViewer)
+        srow4.addWidget(sbtn_doc)
+
+        sbtn_pdf = QPushButton(f"📄 {l['pdf']}")
+        sbtn_pdf.setStyleSheet(btn_style)
+        sbtn_pdf.clicked.connect(self.runPDFadministrator)
+        srow4.addWidget(sbtn_pdf)
+
+        srow4.addStretch()
+        survey_layout.addLayout(srow4)
+
+        survey_layout.addStretch()
+        self.tabWidget.addTab(survey_tab, f"🗺️ {l['survey']}")
 
     def setup_modern_diagrams(self):
         """Setup modern HTML diagrams in service tabs"""
