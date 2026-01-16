@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - رموز القاموس (AR)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+            direction: rtl;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: right; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+            direction: ltr;
+            display: inline-block;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>رموز قاموس PyArchInit</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">اللغة: <strong>العربية (AR)</strong></p>
+
+    <div class="nav">
+        <a href="#site">الموقع</a>
+        <a href="#us">الوحدة الطبقية</a>
+        <a href="#struttura">الهيكل</a>
+        <a href="#tomba">القبر</a>
+        <a href="#materiali">جرد المواد</a>
+        <a href="#campioni">العينات</a>
+        <a href="#individui">الافراد</a>
+        <a href="#documentazione">التوثيق</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">الفخار</a>
+        <a href="#ut">UT</a>
+        <a href="#fauna">الحيوانات</a>
+    </div>
+
+    <!-- الموقع -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>بطاقة الموقع (site_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>تعريف الموقع</td><td>نوع التدخل او تعريف الموقع الاثري</td><td class="example">حفر طبقي، سبر، مسح</td></tr>
+        </table>
+    </div>
+
+    <!-- الوحدة الطبقية -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>بطاقة الوحدة الطبقية (us_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>القطاع</td><td>قطاع الحفر</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>الهيئة المشرفة</td><td>الجهة المرجعية</td><td class="example">SABAP-Marche</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>التعريف الطبقي</td><td>التعريف الفيزيائي للطبقة</td><td class="example">طبقة، قطع، ملء، ترسب</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>التعريف المفسر</td><td>التفسير الوظيفي</td><td class="example">انهيار، ارضية، اساس</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>الوظيفة الثابتة</td><td>الوظيفة الهيكلية للجدران</td><td class="example">حامل، فاصل، اساس</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>قوام الرابط</td><td>قوام الرابط في الجدران</td><td class="example">متماسك، هش، لدن</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>القوام/النسيج</td><td>نسيج الطبقة</td><td class="example">مضغوط، سائب، رملي</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>طريقة الحفر</td><td>تقنية الحفر المستخدمة</td><td class="example">طبقي، يدوي، ميكانيكي</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>التكوين</td><td>اصل الطبقة</td><td class="example">طبيعي، بشري، اصطناعي</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>طريقة التكوين</td><td>عملية التكوين</td><td class="example">تراكم، ازالة، بناء</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>القوام</td><td>قوام الطبقة</td><td class="example">مضغوط، هش، لدن، سائب</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>حالة الحفظ</td><td>حفظ الطبقة</td><td class="example">جيد، متوسط، ضعيف، سيء جدا</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>العينات</td><td>انواع العينات المجمعة</td><td class="example">فحم، تربة، رخويات</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>المكونات العضوية</td><td>المواد العضوية الموجودة</td><td class="example">عظام، خشب، بذور، فحم</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>الشوائب</td><td>المواد المتضمنة في الطبقة</td><td class="example">طوب، فخار، حجارة، ملاط</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>المسجل</td><td>اسم المسجل</td><td class="example">اسم المشغل</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>المساح</td><td>اسم المساح</td><td class="example">اسم المشغل</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>المسؤول</td><td>المسؤول العلمي</td><td class="example">اسم المسؤول</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>التوثيق</td><td>نوع التوثيق</td><td class="example">صورة، مخطط، مقطع، واجهة</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>اللون</td><td>لون الطبقة</td><td class="example">بني، رمادي، اسود، اصفر</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>الركام</td><td>انواع الركام في الرابط</td><td class="example">رمل، جير، طوب</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>محفور</td><td>الوحدة الطبقية محفورة بالكامل</td><td class="example">نعم، لا</td></tr>
+        </table>
+    </div>
+
+    <!-- الهيكل -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>بطاقة الهيكل (struttura_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>رمز الهيكل</td><td>رمز التعريف</td><td class="example">MUR, PAV, TB, VAS, PIL</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>فئة الهيكل</td><td>الفئة العامة</td><td class="example">عام، خاص، كنسي</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>نوع الهيكل</td><td>النوع المحدد</td><td class="example">مبنى، قبر، طريق، بئر</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>التعريف</td><td>تعريف الهيكل</td><td class="example">جدار، ارضية، حنية</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>المواد المستخدمة</td><td>مواد البناء</td><td class="example">طوب، حجر، ملاط، حصى</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>العناصر الهيكلية</td><td>المكونات الهيكلية</td><td class="example">فتحة، موقد، ممر</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>وحدة القياس</td><td>وحدة القياس</td><td class="example">م، سم</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>وحدة الابعاد</td><td>وحدة الابعاد</td><td class="example">امتار</td></tr>
+        </table>
+    </div>
+
+    <!-- القبر -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>بطاقة القبر (tomba_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>الطقس</td><td>الطقس الجنائزي</td><td class="example">دفن، حرق</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>الاتجاه</td><td>اتجاه القبر</td><td class="example">شمال-جنوب، شرق-غرب</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>الغطاء</td><td>نوع الغطاء</td><td class="example">بلاط، لوح، كابوتشينا</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>نوع القبر</td><td>تصنيف الدفن</td><td class="example">كابوتشينا، صندوق، انكيتريسموس</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>العلامة</td><td>وجود علامة القبر</td><td class="example">شاهد، لوح</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>الدفن</td><td>نوع الدفن</td><td class="example">اولي، ثانوي</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>عدد الدفنات</td><td>كمية الدفنات</td><td class="example">مفرد، مزدوج، متعدد</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>الفترة</td><td>الفترة الزمنية</td><td class="example">روماني، وسيط</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>خال</td><td>القبر خال من الاشياء</td><td class="example">نعم، لا</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>اللوازم الجنائزية</td><td>وجود لوازم جنائزية</td><td class="example">نعم، لا</td></tr>
+        </table>
+    </div>
+
+    <!-- جرد المواد -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>بطاقة جرد المواد (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>فئة المادة</td><td>الفئة العامة للقطعة</td><td class="example">فخاري، معدني، زجاجي، حجري</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>نوع المادة</td><td>النوع المحدد</td><td class="example">فخار شائع، سيجيلاتا، زجاج</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>الشكل</td><td>شكل القطعة</td><td class="example">امفورا، كوب، صحن، جرة</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>الكمية</td><td>عدد الكسر</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>نوع القياس</td><td>نوع القياس</td><td class="example">طول، قطر، سمك</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>وحدة القياس</td><td>الوحدات المترية</td><td class="example">مم، سم</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>حالة الحفظ</td><td>حفظ القطعة</td><td class="example">كامل، مجزأ</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>التاريخ</td><td>تاريخ القطعة</td><td class="example">القرن الاول م، القرن 4-5</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>المدون</td><td>اسم المدون</td><td class="example">اسم المشغل</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>كامل</td><td>القطعة كاملة</td><td class="example">نعم، لا</td></tr>
+        </table>
+    </div>
+
+    <!-- العينات -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>بطاقة العينات (campioni_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>نوع العينة</td><td>نوع العينة المجمعة</td><td class="example">فحم، تربة، رخويات، حبوب لقاح</td></tr>
+        </table>
+    </div>
+
+    <!-- الافراد -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>بطاقة الافراد (individui_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>وضع الجمجمة</td><td>وضع الجمجمة</td><td class="example">يمين، يسار، مستلق، منبطح</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>وضع الهيكل</td><td>الوضع العام للهيكل</td><td class="example">مستلق، منبطح، جانبي</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>اتجاه المحور</td><td>اتجاه محور الجسم</td><td class="example">شمال-جنوب، شرق-غرب</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>الاطراف العليا</td><td>وضع الاطراف العليا</td><td class="example">ممدودة، مثنية، على الحوض</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>الاطراف السفلى</td><td>وضع الاطراف السفلى</td><td class="example">ممدودة، مثنية</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>المنطقة</td><td>منطقة الحفر</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>نعم/لا</td><td>قيم منطقية (مضطرب، كامل، متصل)</td><td class="example">نعم، لا</td></tr>
+        </table>
+    </div>
+
+    <!-- التوثيق -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>بطاقة التوثيق (documentazione_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>نوع الوثيقة</td><td>نوع الوثيقة</td><td class="example">صورة، رسم، مسح</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>المقياس</td><td>مقياس التوثيق</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>بطاقة TMA (tma_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>تسمية الموقع</td><td>مكان الحفظ</td><td class="example">متحف، مستودع</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>المحلة</td><td>محلة المصدر</td><td class="example">اسم المحلة</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>التعريف</td><td>تعريف الشيء</td><td class="example">مزهرية، تمثال، عملة</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>التصنيف</td><td>تصنيف الشيء</td><td class="example">نوع محدد</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>التسلسل الزمني</td><td>الفترة الزمنية</td><td class="example">القرن 1-2 م</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>وحدة النوع</td><td>الوحدة التصنيفية</td><td class="example">نوع A، نوع B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>المنطقة</td><td>منطقة المصدر</td><td class="example">منطقة 1، قطاع A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>الفئة</td><td>فئة المادة</td><td class="example">فخار، معدن</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>الصنف</td><td>صنف الشيء</td><td class="example">اوان، ادوات</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>حالة الحفظ</td><td>الحفظ</td><td class="example">كامل، مجزأ</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>الوحدة الطبقية</td><td>الوحدة الطبقية</td><td class="example">وط 1، وط 25</td></tr>
+        </table>
+    </div>
+
+    <!-- الفخار -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>بطاقة الفخار (pottery_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>العجينة</td><td>نوع العجينة</td><td class="example">ناعمة، خشنة</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>النسبة</td><td>نسبة الشوائب</td><td class="example">5%، 10%، 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>المادة</td><td>المادة الفخارية</td><td class="example">طين، كاولين</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>الشكل</td><td>شكل الوعاء</td><td class="example">مفتوح، مغلق</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>الشكل المحدد</td><td>الشكل المحدد</td><td class="example">كوب، جرة، امفورا</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>نوع الفخار</td><td>نوع الفخار</td><td class="example">سيجيلاتا، شائع</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>مونسيل</td><td>لون مونسيل</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>معالجة السطح</td><td>معالجة السطح</td><td class="example">مصقول، مطلي</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>الزخرفة الخارجية</td><td>الزخرفة الخارجية</td><td class="example">مرسومة، محفورة</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>الزخرفة الداخلية</td><td>الزخرفة الداخلية</td><td class="example">مرسومة، مصقولة</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>الدولاب</td><td>صنع بالدولاب</td><td class="example">نعم، لا</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>بطاقة UT (ut_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>نوع المسح</td><td>نوع المسح</td><td class="example">منهجي، مكثف</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>الغطاء النباتي</td><td>الغطاء النباتي</td><td class="example">محروث، بور، غابة</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>طريقة GPS</td><td>طريقة المسح</td><td class="example">RTK, DGPS، محمول</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>السطح</td><td>حالة السطح</td><td class="example">مرئي، مغطى</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>سهولة الوصول</td><td>سهولة الوصول للمنطقة</td><td class="example">جيدة، محدودة</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>الاحوال الجوية</td><td>الاحوال الجوية</td><td class="example">صاف، غائم</td></tr>
+        </table>
+    </div>
+
+    <!-- الحيوانات -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>بطاقة الحيوانات (fauna_table)</h2></div>
+        <table>
+            <tr><th>الرمز</th><th>الحقل</th><th>الوصف</th><th>امثلة</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>السياق</td><td>سياق الاكتشاف</td><td class="example">حفرة، طبقة، ملء</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>طريقة الاستخراج</td><td>طريقة الاستخراج</td><td class="example">يدوي، غربلة</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>نوع التراكم</td><td>نوع تراكم العظام</td><td class="example">اولي، ثانوي</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>نوع الترسب</td><td>نوع الترسب</td><td class="example">متعمد، عرضي</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>التكسر</td><td>درجة التكسر</td><td class="example">منخفض، متوسط، عالي</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>حالة الحفظ</td><td>حفظ العظام</td><td class="example">جيد، متوسط، ضعيف</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>الموثوقية</td><td>موثوقية التحديد</td><td class="example">مؤكد، محتمل، غير مؤكد</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>الاحتراق</td><td>وجود احتراق</td><td class="example">نعم، لا</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>نوع الاحتراق</td><td>نوع الاحتراق</td><td class="example">جزئي، كامل</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>الاتصال التشريحي</td><td>وجود اتصال تشريحي</td><td class="example">نعم، لا، جزئي</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - وثائق رموز القاموس v4.9</p>
+    </footer>
+</body>
+</html>

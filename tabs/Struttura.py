@@ -1884,7 +1884,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         valuesUnitaMis = []
 
         for i in range(len(elUnitaMis)):
-            valuesUnitaMis.append(elUnitaMis[i].sigla)
+            valuesUnitaMis.append(elUnitaMis[i].sigla_estesa)
 
         valuesUnitaMis.sort()
 
@@ -1905,7 +1905,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         valuesSig = []
 
         for i in range(len(elSig)):
-            valuesSig.append(elSig[i].sigla)
+            valuesSig.append(elSig[i].sigla_estesa)
 
         valuesSig.sort()
 

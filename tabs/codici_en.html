@@ -1,2 +1,289 @@
-<!DOCTYPE  html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>codici_en</title></head><frameset cols="189pt,*" rows="94%"><frame src="codici_en_files/headings.htm" name="headings"/><frame src="codici_en_files/content.htm" name="content"/></frameset></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - Thesaurus Codes (EN)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>PyArchInit Thesaurus Codes</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">Language: <strong>English (EN)</strong></p>
+
+    <div class="nav">
+        <a href="#site">Site</a>
+        <a href="#us">SU/WSU</a>
+        <a href="#struttura">Structure</a>
+        <a href="#tomba">Burial</a>
+        <a href="#materiali">Finds Inv.</a>
+        <a href="#campioni">Samples</a>
+        <a href="#individui">Individuals</a>
+        <a href="#documentazione">Documentation</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">Pottery</a>
+        <a href="#ut">UT</a>
+        <a href="#fauna">Fauna</a>
+    </div>
+
+    <!-- SITE -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>Site Form (site_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>Site definition</td><td>Type of intervention or archaeological site definition</td><td class="example">Stratigraphic excavation, Test pit, Survey</td></tr>
+        </table>
+    </div>
+
+    <!-- SU/WSU -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>SU/WSU Form (us_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>Sector</td><td>Excavation sector</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>Superintendence</td><td>Reference authority</td><td class="example">SABAP-Marche, SABAP-Umbria</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>Stratigraphic definition</td><td>Physical definition of the layer</td><td class="example">Layer, Cut, Fill, Deposit</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>Interpreted definition</td><td>Functional interpretation</td><td class="example">Collapse, Floor, Foundation</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>Static function (WSU)</td><td>Structural function for walls</td><td class="example">Load-bearing, Partition, Foundation</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>Binder consistency (WSU)</td><td>Consistency of binder in walls</td><td class="example">Tenacious, Friable, Plastic</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>Consistency/Texture</td><td>Layer texture</td><td class="example">Compact, Loose, Sandy</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>Excavation method</td><td>Excavation technique used</td><td class="example">Stratigraphic, Manual, Mechanical</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>Formation</td><td>Layer origin</td><td class="example">Natural, Anthropic, Artificial</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>Formation mode</td><td>Formation process</td><td class="example">Accumulation, Removal, Construction</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>Consistency</td><td>Layer consistency</td><td class="example">Compact, Friable, Plastic, Loose</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>State of preservation</td><td>Layer preservation</td><td class="example">Good, Fair, Poor, Very poor</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>Samples</td><td>Types of samples collected</td><td class="example">Charcoal, Soil, Malacofauna</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>Organic components</td><td>Organic material present</td><td class="example">Bones, Wood, Seeds, Charcoal</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>Inclusions</td><td>Materials included in layer</td><td class="example">Bricks, Pottery, Stones, Mortar</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>Recorder</td><td>Recorder name</td><td class="example">Operator name</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>Surveyor</td><td>Surveyor name</td><td class="example">Operator name</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>Supervisor</td><td>Scientific supervisor</td><td class="example">Supervisor name</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>Documentation</td><td>Type of documentation</td><td class="example">Photo, Plan, Section, Elevation</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>Color</td><td>Layer color</td><td class="example">Brown, Grey, Black, Yellow</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>Aggregates</td><td>Types of aggregates in binder</td><td class="example">Sand, Lime, Bricks</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>Excavated</td><td>SU completely excavated</td><td class="example">Yes, No</td></tr>
+        </table>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>Structure Form (struttura_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>Structure code</td><td>Identification code</td><td class="example">WAL, FLR, TB, VES, PIL</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>Structure category</td><td>General category</td><td class="example">Public, Private, Ecclesiastical</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>Structure typology</td><td>Specific type</td><td class="example">Building, Tomb, Road, Well</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>Definition</td><td>Structure definition</td><td class="example">Wall, Floor, Apse</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>Materials used</td><td>Construction materials</td><td class="example">Bricks, Stone, Mortar, Pebbles</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>Structural elements</td><td>Structural components</td><td class="example">Opening, Hearth, Corridor</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>Unit of measure</td><td>Unit of measurement</td><td class="example">m, cm</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>Dimension unit</td><td>Unit for dimensions</td><td class="example">Meters</td></tr>
+        </table>
+    </div>
+
+    <!-- BURIAL -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>Burial Form (tomba_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>Rite</td><td>Funerary rite</td><td class="example">Inhumation, Cremation</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>Orientation</td><td>Burial orientation</td><td class="example">N-S, E-W, NE-SW</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>Cover</td><td>Type of cover</td><td class="example">Tiles, Slab, Cappuccina</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>Tomb type</td><td>Burial typology</td><td class="example">Cappuccina, Cist, Enchytrismos</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>Marker</td><td>Presence of grave marker</td><td class="example">Cippus, Stele</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>Deposition</td><td>Type of deposition</td><td class="example">Primary, Secondary</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>Number of depositions</td><td>Quantity of depositions</td><td class="example">Single, Double, Multiple</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>Period</td><td>Chronological period</td><td class="example">Roman, Medieval</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>Free presence</td><td>Tomb free from objects</td><td class="example">Yes, No</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>Grave goods</td><td>Presence of grave goods</td><td class="example">Yes, No</td></tr>
+        </table>
+    </div>
+
+    <!-- FINDS INVENTORY -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>Finds Inventory Form (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>Material class</td><td>General class of find</td><td class="example">Ceramic, Metal, Glass, Stone</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>Material type</td><td>Specific type</td><td class="example">Common ware, Sigillata, Glass</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>Shape</td><td>Find shape</td><td class="example">Amphora, Cup, Plate, Jar</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>Quantity</td><td>Number of fragments</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>Measurement type</td><td>Type of measurement</td><td class="example">Length, Diameter, Thickness</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>Unit of measure</td><td>Metric units</td><td class="example">mm, cm</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>State of preservation</td><td>Find preservation</td><td class="example">Complete, Fragmentary</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>Dating</td><td>Find dating</td><td class="example">1st c. AD, 4th-5th c.</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>Compiler</td><td>Compiler name</td><td class="example">Operator name</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>Complete</td><td>Find complete</td><td class="example">Yes, No</td></tr>
+        </table>
+    </div>
+
+    <!-- SAMPLES -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>Samples Form (campioni_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>Sample type</td><td>Type of sample collected</td><td class="example">Charcoal, Soil, Malacofauna, Pollen</td></tr>
+        </table>
+    </div>
+
+    <!-- INDIVIDUALS -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>Individuals Form (individui_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>Skull position</td><td>Position of skull</td><td class="example">Right, Left, Supine, Prone</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>Skeleton position</td><td>General skeleton position</td><td class="example">Supine, Prone, Lateral</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>Axis orientation</td><td>Body axis orientation</td><td class="example">N-S, E-W, NE-SW</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>Upper limbs</td><td>Position of upper limbs</td><td class="example">Extended, Flexed, On pelvis</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>Lower limbs</td><td>Position of lower limbs</td><td class="example">Extended, Flexed</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>Area</td><td>Excavation area</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>Yes/No</td><td>Boolean values (Disturbed, Complete, Articulated)</td><td class="example">Yes, No</td></tr>
+        </table>
+    </div>
+
+    <!-- DOCUMENTATION -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>Documentation Form (documentazione_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>Document type</td><td>Document typology</td><td class="example">Photo, Drawing, Survey</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>Scale</td><td>Documentation scale</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>TMA Form (tma_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>Location name</td><td>Conservation location</td><td class="example">Museum, Storage</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>Locality</td><td>Provenance locality</td><td class="example">Locality name</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>Definition</td><td>Object definition</td><td class="example">Vase, Statue, Coin</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>Typology</td><td>Object typology</td><td class="example">Specific type</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>Chronology</td><td>Chronological period</td><td class="example">1st-2nd c. AD</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>Type unit</td><td>Typological unit</td><td class="example">Type A, Type B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>Area</td><td>Provenance area</td><td class="example">Area 1, Sector A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>Class</td><td>Material class</td><td class="example">Ceramic, Metal</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>Category</td><td>Object category</td><td class="example">Vessels, Tools</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>State of preservation</td><td>Preservation</td><td class="example">Complete, Fragmentary</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>SU</td><td>Stratigraphic unit</td><td class="example">SU 1, SU 25</td></tr>
+        </table>
+    </div>
+
+    <!-- POTTERY -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>Pottery Form (pottery_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>Fabric</td><td>Fabric type</td><td class="example">Fine, Coarse</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>Percent</td><td>Inclusions percentage</td><td class="example">5%, 10%, 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>Material</td><td>Ceramic material</td><td class="example">Clay, Kaolin</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>Shape</td><td>Vessel shape</td><td class="example">Open, Closed</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>Specific shape</td><td>Specific shape</td><td class="example">Cup, Jar, Amphora</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>Ware</td><td>Ceramic type</td><td class="example">Terra sigillata, Common ware</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>Munsell</td><td>Munsell color</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>Surface treatment</td><td>Surface treatment</td><td class="example">Smoothed, Slipped</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>External decoration</td><td>External decoration</td><td class="example">Painted, Incised</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>Internal decoration</td><td>Internal decoration</td><td class="example">Painted, Smoothed</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>Wheel</td><td>Wheel-made</td><td class="example">Yes, No</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>UT Form (ut_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>Survey type</td><td>Type of survey</td><td class="example">Systematic, Intensive</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>Vegetation</td><td>Vegetation cover</td><td class="example">Plowed, Fallow, Forest</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>GPS method</td><td>Survey method</td><td class="example">RTK, DGPS, Handheld</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>Surface</td><td>Surface conditions</td><td class="example">Visible, Covered</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>Accessibility</td><td>Area accessibility</td><td class="example">Good, Limited</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>Weather conditions</td><td>Weather conditions</td><td class="example">Clear, Cloudy</td></tr>
+        </table>
+    </div>
+
+    <!-- FAUNA -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>Fauna Form (fauna_table)</h2></div>
+        <table>
+            <tr><th>Code</th><th>Field</th><th>Description</th><th>Examples</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>Context</td><td>Discovery context</td><td class="example">Pit, Layer, Fill</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>Recovery method</td><td>Recovery method</td><td class="example">Manual, Sieving</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>Accumulation type</td><td>Bone accumulation type</td><td class="example">Primary, Secondary</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>Deposition type</td><td>Type of deposition</td><td class="example">Intentional, Casual</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>Fragmentation</td><td>Fragmentation degree</td><td class="example">Low, Medium, High</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>State of preservation</td><td>Bone preservation</td><td class="example">Good, Fair, Poor</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>Reliability</td><td>Determination reliability</td><td class="example">Certain, Probable, Uncertain</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>Combustion</td><td>Presence of combustion</td><td class="example">Yes, No</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>Combustion type</td><td>Type of combustion</td><td class="example">Partial, Total</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>Anatomical connection</td><td>Presence of articulation</td><td class="example">Yes, No, Partial</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - Thesaurus Codes Documentation v4.9</p>
+    </footer>
+</body>
+</html>

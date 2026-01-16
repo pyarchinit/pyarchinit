@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - Codis Thesaurus (CA)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>Codis Thesaurus PyArchInit</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">Llengua: <strong>Catala (CA)</strong></p>
+
+    <div class="nav">
+        <a href="#site">Jaciment</a>
+        <a href="#us">UE/UEM</a>
+        <a href="#struttura">Estructura</a>
+        <a href="#tomba">Tomba</a>
+        <a href="#materiali">Inv. Materials</a>
+        <a href="#campioni">Mostres</a>
+        <a href="#individui">Individus</a>
+        <a href="#documentazione">Documentacio</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">Ceramica</a>
+        <a href="#ut">UT</a>
+        <a href="#fauna">Fauna</a>
+    </div>
+
+    <!-- JACIMENT -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>Fitxa Jaciment (site_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>Definicio del jaciment</td><td>Tipus d'intervencio o definicio del jaciment</td><td class="example">Excavacio estratigrafica, Sondeig, Prospeccio</td></tr>
+        </table>
+    </div>
+
+    <!-- UE/UEM -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>Fitxa UE/UEM (us_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>Sector</td><td>Sector d'excavacio</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>Superintendencia</td><td>Entitat de referencia</td><td class="example">SABAP-Marche, SABAP-Umbria</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>Definicio estratigrafica</td><td>Definicio fisica de l'estrat</td><td class="example">Estrat, Tall, Rebliment, Diposit</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>Definicio interpretada</td><td>Interpretacio funcional</td><td class="example">Enderroc, Paviment, Fonamentacio</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>Funcio estatica (UEM)</td><td>Funcio estructural per a murs</td><td class="example">Portant, Divisori, Fonamentacio</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>Consistencia lligant (UEM)</td><td>Consistencia del lligant en murs</td><td class="example">Tenas, Friable, Plastica</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>Consistencia/Textura</td><td>Textura de l'estrat</td><td class="example">Compacta, Solta, Sorrenca</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>Metode d'excavacio</td><td>Tecnica d'excavacio utilitzada</td><td class="example">Estratigrafic, Manual, Mecanic</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>Formacio</td><td>Origen de l'estrat</td><td class="example">Natural, Antropica, Artificial</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>Mode de formacio</td><td>Proces de formacio</td><td class="example">Acumulacio, Extraccio, Construccio</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>Consistencia</td><td>Consistencia de l'estrat</td><td class="example">Compacta, Friable, Plastica, Solta</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>Estat de conservacio</td><td>Conservacio de l'estrat</td><td class="example">Bo, Discret, Escas, Pessim</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>Mostres</td><td>Tipus de mostres recollides</td><td class="example">Carbo, Terra, Malacofauna</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>Components organics</td><td>Material organic present</td><td class="example">Ossos, Fusta, Llavors, Carbons</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>Inclusions</td><td>Materials inclosos a l'estrat</td><td class="example">Rajoles, Ceramica, Pedres, Morter</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>Registrador</td><td>Nom del registrador</td><td class="example">Nom operador</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>Topograf</td><td>Nom del topograf</td><td class="example">Nom operador</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>Responsable</td><td>Responsable cientific</td><td class="example">Nom responsable</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>Documentacio</td><td>Tipus de documentacio</td><td class="example">Foto, Planta, Seccio, Alcat</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>Color</td><td>Color de l'estrat</td><td class="example">Marro, Gris, Negre, Groc</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>Agregats</td><td>Tipus d'agregats en el lligant</td><td class="example">Sorra, Calc, Rajoles</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>Excavat</td><td>UE completament excavada</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- ESTRUCTURA -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>Fitxa Estructura (struttura_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>Sigla estructura</td><td>Sigla identificativa</td><td class="example">MUR, PAV, TB, VAS, PIL</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>Categoria estructura</td><td>Categoria general</td><td class="example">Publica, Privada, Eclesiastica</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>Tipologia estructura</td><td>Tipus especific</td><td class="example">Edifici, Tomba, Cami, Pou</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>Definicio</td><td>Definicio de l'estructura</td><td class="example">Mur, Paviment, Absis</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>Materials emprats</td><td>Materials constructius</td><td class="example">Rajoles, Pedra, Morter, Codols</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>Elements estructurals</td><td>Components estructurals</td><td class="example">Obertura, Llar de foc, Corredor</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>Unitat de mesura</td><td>Unitat de mesura</td><td class="example">m, cm</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>Unitat dimensions</td><td>Unitat per dimensions</td><td class="example">Metres</td></tr>
+        </table>
+    </div>
+
+    <!-- TOMBA -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>Fitxa Tomba (tomba_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>Ritu</td><td>Ritu funerari</td><td class="example">Inhumacio, Cremacio</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>Orientacio</td><td>Orientacio de la tomba</td><td class="example">N-S, E-O, NE-SO</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>Coberta</td><td>Tipus de coberta</td><td class="example">Teules, Llosa, Cappuccina</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>Tipus tomba</td><td>Tipologia sepulcral</td><td class="example">Cappuccina, Caixa, Enchytrismos</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>Senyalitzacio</td><td>Presencia de senyalitzacio</td><td class="example">Cip, Estela</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>Deposicio</td><td>Tipus de deposicio</td><td class="example">Primaria, Secundaria</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>Nombre deposicions</td><td>Quantitat de deposicions</td><td class="example">Simple, Doble, Multiple</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>Periode</td><td>Periode cronologic</td><td class="example">Roma, Medieval</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>Presencia lliure</td><td>Tomba lliure d'objectes</td><td class="example">Si, No</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>Aixovar</td><td>Presencia d'aixovar</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- INVENTARI MATERIALS -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>Fitxa Inventari Materials (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>Classe material</td><td>Classe general de la troballa</td><td class="example">Ceramic, Metal-lic, Vitri, Lapidi</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>Tipus material</td><td>Tipus especific</td><td class="example">Ceramica comuna, Sigil-lada, Vidre</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>Forma</td><td>Forma de la troballa</td><td class="example">Amfora, Copa, Plat, Olla</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>Quantitat</td><td>Nombre de fragments</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>Tipus mesura</td><td>Tipus de mesura</td><td class="example">Longitud, Diametre, Gruix</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>Unitat de mesura</td><td>Unitats metriques</td><td class="example">mm, cm</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>Estat conservacio</td><td>Conservacio de la troballa</td><td class="example">Integre, Fragmentari</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>Datacio</td><td>Datacio de la troballa</td><td class="example">S. I d.C., S. IV-V</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>Compilador</td><td>Nom del compilador</td><td class="example">Nom operador</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>Integre</td><td>Troballa integra</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- MOSTRES -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>Fitxa Mostres (campioni_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>Tipus mostra</td><td>Tipologia de la mostra recollida</td><td class="example">Carbo, Terra, Malacofauna, Pol-len</td></tr>
+        </table>
+    </div>
+
+    <!-- INDIVIDUS -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>Fitxa Individus (individui_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>Posicio crani</td><td>Posicio del crani</td><td class="example">Dreta, Esquerra, Supi, Prone</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>Posicio esquelet</td><td>Posicio general de l'esquelet</td><td class="example">Supi, Prone, Lateral</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>Orientacio eix</td><td>Orientacio de l'eix corporal</td><td class="example">N-S, E-O, NE-SO</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>Extremitats superiors</td><td>Posicio de les extremitats superiors</td><td class="example">Estesos, Flexionats, Sobre la pelvis</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>Extremitats inferiors</td><td>Posicio de les extremitats inferiors</td><td class="example">Estesos, Flexionats</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>Area</td><td>Area d'excavacio</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>Si/No</td><td>Valors booleans (Alterat, Complet, En connexio)</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- DOCUMENTACIO -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>Fitxa Documentacio (documentazione_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>Tipus document</td><td>Tipologia documental</td><td class="example">Foto, Dibuix, Aixecament</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>Escala</td><td>Escala de la documentacio</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>Fitxa TMA (tma_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>Denominacio ubicacio</td><td>Lloc de conservacio</td><td class="example">Museu, Diposit</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>Localitat</td><td>Localitat de procedencia</td><td class="example">Nom localitat</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>Definicio</td><td>Definicio de l'objecte</td><td class="example">Vas, Estatua, Moneda</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>Tipologia</td><td>Tipologia de l'objecte</td><td class="example">Tipus especific</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>Cronologia</td><td>Periode cronologic</td><td class="example">S. I-II d.C.</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>Unitat tipus</td><td>Unitat tipologica</td><td class="example">Tipus A, Tipus B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>Area</td><td>Area de procedencia</td><td class="example">Area 1, Sector A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>Classe</td><td>Classe material</td><td class="example">Ceramica, Metall</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>Categoria</td><td>Categoria de l'objecte</td><td class="example">Vasos, Eines</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>Estat conservacio</td><td>Conservacio</td><td class="example">Integre, Fragmentari</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>UE</td><td>Unitat estratigrafica</td><td class="example">UE 1, UE 25</td></tr>
+        </table>
+    </div>
+
+    <!-- CERAMICA -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>Fitxa Ceramica (pottery_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>Pasta</td><td>Tipus de pasta</td><td class="example">Fina, Grollera</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>Percentatge</td><td>Percentatge d'inclusions</td><td class="example">5%, 10%, 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>Material</td><td>Material ceramic</td><td class="example">Argila, Caoli</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>Forma</td><td>Forma vascular</td><td class="example">Oberta, Tancada</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>Forma especifica</td><td>Forma especifica</td><td class="example">Copa, Olla, Amfora</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>Produccio</td><td>Tipus ceramic</td><td class="example">Terra sigil-lada, Comuna</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>Munsell</td><td>Color Munsell</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>Tractament superficie</td><td>Tractament superficial</td><td class="example">Allisat, Engalbat</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>Decoracio externa</td><td>Decoracio externa</td><td class="example">Pintada, Incisa</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>Decoracio interna</td><td>Decoracio interna</td><td class="example">Pintada, Allisada</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>Torn</td><td>Elaboracio a torn</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>Fitxa UT (ut_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>Tipus prospeccio</td><td>Tipus de prospeccio</td><td class="example">Sistematica, Intensiva</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>Vegetacio</td><td>Cobertura vegetal</td><td class="example">Llaurada, Guaret, Bosc</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>Metode GPS</td><td>Metode d'aixecament</td><td class="example">RTK, DGPS, Portatil</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>Superficie</td><td>Condicions de superficie</td><td class="example">Visible, Coberta</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>Accessibilitat</td><td>Accessibilitat de l'area</td><td class="example">Bona, Limitada</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>Condicions meteo</td><td>Condicions meteorologiques</td><td class="example">Clar, Ennuvolat</td></tr>
+        </table>
+    </div>
+
+    <!-- FAUNA -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>Fitxa Fauna (fauna_table)</h2></div>
+        <table>
+            <tr><th>Codi</th><th>Camp</th><th>Descripcio</th><th>Exemples</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>Context</td><td>Context de descoberta</td><td class="example">Fossa, Estrat, Rebliment</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>Metodologia recuperacio</td><td>Metode de recuperacio</td><td class="example">Manual, Garbell</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>Tipus acumulacio</td><td>Tipus d'acumulacio ossia</td><td class="example">Primari, Secundari</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>Tipus deposicio</td><td>Tipus de deposicio</td><td class="example">Intencional, Casual</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>Fragmentacio</td><td>Grau de fragmentacio</td><td class="example">Baixa, Mitjana, Alta</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>Estat conservacio</td><td>Conservacio dels ossos</td><td class="example">Bo, Mitja, Escas</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>Fiabilitat</td><td>Fiabilitat de determinacio</td><td class="example">Certa, Probable, Incerta</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>Combustio</td><td>Presencia de combustio</td><td class="example">Si, No</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>Tipus combustio</td><td>Tipus de combustio</td><td class="example">Parcial, Total</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>Connexio anatomica</td><td>Presencia de connexio</td><td class="example">Si, No, Parcial</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - Documentacio Codis Thesaurus v4.9</p>
+    </footer>
+</body>
+</html>
