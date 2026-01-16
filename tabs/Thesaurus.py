@@ -1864,18 +1864,32 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def on_pushButton_sigle_pressed(self):
-        if self.L=='it':
-            filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_it.html')
-            webbrowser.open('file://' + filepath)
-        elif self.L=='de':
-            filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_de.html')
-            webbrowser.open('file://' + filepath)
-        else:
-            filepath = os.path.dirname(__file__)
-            filepath = os.path.join(filepath, 'codici_en.html')
-            webbrowser.open('file://' + filepath)
+        """Load thesaurus codes documentation in webView_adarte"""
+        filepath = os.path.dirname(__file__)
+        # Map language codes to file names
+        lang_files = {
+            'it': 'codici_it.html',
+            'de': 'codici_de.html',
+            'en': 'codici_en.html',
+            'es': 'codici_es.html',
+            'fr': 'codici_fr.html',
+            'ar': 'codici_ar.html',
+            'ca': 'codici_ca.html',
+        }
+        # Get the file for current language, default to English
+        filename = lang_files.get(self.L, 'codici_en.html')
+        filepath = os.path.join(filepath, filename)
+        # Check if file exists, fallback to English if not
+        if not os.path.exists(filepath):
+            filepath = os.path.join(os.path.dirname(__file__), 'codici_en.html')
+        # Read HTML content and display in webView_adarte
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                html_content = f.read()
+            self.webView_adarte.setHtml(html_content)
+            self.webView_adarte.show()
+        except Exception as e:
+            QMessageBox.warning(self, "Thesaurus", f"Errore nel caricamento: {str(e)}", QMessageBox.StandardButton.Ok)
     def on_pushButton_new_search_pressed(self):
         if self.check_record_state() == 1:
             pass

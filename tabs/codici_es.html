@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - Codigos Thesaurus (ES)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>Codigos Thesaurus PyArchInit</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">Idioma: <strong>Espanol (ES)</strong></p>
+
+    <div class="nav">
+        <a href="#site">Yacimiento</a>
+        <a href="#us">UE/UEM</a>
+        <a href="#struttura">Estructura</a>
+        <a href="#tomba">Tumba</a>
+        <a href="#materiali">Inv. Materiales</a>
+        <a href="#campioni">Muestras</a>
+        <a href="#individui">Individuos</a>
+        <a href="#documentazione">Documentacion</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">Ceramica</a>
+        <a href="#ut">UT</a>
+        <a href="#fauna">Fauna</a>
+    </div>
+
+    <!-- YACIMIENTO -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>Ficha Yacimiento (site_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>Definicion del yacimiento</td><td>Tipo de intervencion o definicion del yacimiento</td><td class="example">Excavacion estratigrafica, Sondeo, Prospeccion</td></tr>
+        </table>
+    </div>
+
+    <!-- UE/UEM -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>Ficha UE/UEM (us_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>Sector</td><td>Sector de excavacion</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>Superintendencia</td><td>Entidad de referencia</td><td class="example">SABAP-Marche, SABAP-Umbria</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>Definicion estratigrafica</td><td>Definicion fisica del estrato</td><td class="example">Estrato, Corte, Relleno, Deposito</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>Definicion interpretada</td><td>Interpretacion funcional</td><td class="example">Derrumbe, Pavimento, Cimentacion</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>Funcion estatica (UEM)</td><td>Funcion estructural para muros</td><td class="example">Portante, Divisorio, Cimentacion</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>Consistencia ligante (UEM)</td><td>Consistencia del ligante en muros</td><td class="example">Tenaz, Friable, Plastica</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>Consistencia/Textura</td><td>Textura del estrato</td><td class="example">Compacta, Suelta, Arenosa</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>Metodo de excavacion</td><td>Tecnica de excavacion utilizada</td><td class="example">Estratigrafico, Manual, Mecanico</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>Formacion</td><td>Origen del estrato</td><td class="example">Natural, Antropica, Artificial</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>Modo de formacion</td><td>Proceso de formacion</td><td class="example">Acumulacion, Extraccion, Construccion</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>Consistencia</td><td>Consistencia del estrato</td><td class="example">Compacta, Friable, Plastica, Suelta</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>Estado de conservacion</td><td>Conservacion del estrato</td><td class="example">Bueno, Discreto, Escaso, Pesimo</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>Muestras</td><td>Tipos de muestras recogidas</td><td class="example">Carbon, Tierra, Malacofauna</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>Componentes organicos</td><td>Material organico presente</td><td class="example">Huesos, Madera, Semillas, Carbones</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>Inclusiones</td><td>Materiales incluidos en el estrato</td><td class="example">Ladrillos, Ceramica, Piedras, Mortero</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>Registrador</td><td>Nombre del registrador</td><td class="example">Nombre operador</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>Topografo</td><td>Nombre del topografo</td><td class="example">Nombre operador</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>Responsable</td><td>Responsable cientifico</td><td class="example">Nombre responsable</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>Documentacion</td><td>Tipo de documentacion</td><td class="example">Foto, Planta, Seccion, Alzado</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>Color</td><td>Color del estrato</td><td class="example">Marron, Gris, Negro, Amarillo</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>Agregados</td><td>Tipos de agregados en el ligante</td><td class="example">Arena, Cal, Ladrillos</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>Excavado</td><td>UE completamente excavada</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- ESTRUCTURA -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>Ficha Estructura (struttura_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>Sigla estructura</td><td>Sigla identificativa</td><td class="example">MUR, PAV, TB, VAS, PIL</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>Categoria estructura</td><td>Categoria general</td><td class="example">Publica, Privada, Eclesiastica</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>Tipologia estructura</td><td>Tipo especifico</td><td class="example">Edificio, Tumba, Camino, Pozo</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>Definicion</td><td>Definicion de la estructura</td><td class="example">Muro, Pavimento, Abside</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>Materiales empleados</td><td>Materiales constructivos</td><td class="example">Ladrillos, Piedra, Mortero, Cantos</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>Elementos estructurales</td><td>Componentes estructurales</td><td class="example">Apertura, Hogar, Corredor</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>Unidad de medida</td><td>Unidad de medida</td><td class="example">m, cm</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>Unidad dimensiones</td><td>Unidad para dimensiones</td><td class="example">Metros</td></tr>
+        </table>
+    </div>
+
+    <!-- TUMBA -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>Ficha Tumba (tomba_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>Rito</td><td>Rito funerario</td><td class="example">Inhumacion, Cremacion</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>Orientacion</td><td>Orientacion de la tumba</td><td class="example">N-S, E-O, NE-SO</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>Cubierta</td><td>Tipo de cubierta</td><td class="example">Tejas, Losa, Cappuccina</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>Tipo tumba</td><td>Tipologia sepulcral</td><td class="example">Cappuccina, Cista, Enchytrismos</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>Senalizacion</td><td>Presencia de senalizacion</td><td class="example">Cipo, Estela</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>Deposicion</td><td>Tipo de deposicion</td><td class="example">Primaria, Secundaria</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>Numero deposiciones</td><td>Cantidad de deposiciones</td><td class="example">Simple, Doble, Multiple</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>Periodo</td><td>Periodo cronologico</td><td class="example">Romano, Medieval</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>Presencia libre</td><td>Tumba libre de objetos</td><td class="example">Si, No</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>Ajuar</td><td>Presencia de ajuar</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- INVENTARIO MATERIALES -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>Ficha Inventario Materiales (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>Clase material</td><td>Clase general del hallazgo</td><td class="example">Ceramico, Metalico, Vitreo, Lapideo</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>Tipo material</td><td>Tipo especifico</td><td class="example">Ceramica comun, Sigillata, Vidrio</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>Forma</td><td>Forma del hallazgo</td><td class="example">Anfora, Copa, Plato, Olla</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>Cantidad</td><td>Numero de fragmentos</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>Tipo medida</td><td>Tipo de medicion</td><td class="example">Longitud, Diametro, Espesor</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>Unidad de medida</td><td>Unidades metricas</td><td class="example">mm, cm</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>Estado conservacion</td><td>Conservacion del hallazgo</td><td class="example">Integro, Fragmentario</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>Datacion</td><td>Datacion del hallazgo</td><td class="example">S. I d.C., S. IV-V</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>Compilador</td><td>Nombre del compilador</td><td class="example">Nombre operador</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>Integro</td><td>Hallazgo integro</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- MUESTRAS -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>Ficha Muestras (campioni_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>Tipo muestra</td><td>Tipologia de la muestra recogida</td><td class="example">Carbon, Tierra, Malacofauna, Polen</td></tr>
+        </table>
+    </div>
+
+    <!-- INDIVIDUOS -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>Ficha Individuos (individui_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>Posicion craneo</td><td>Posicion del craneo</td><td class="example">Dcha, Izq, Supino, Prono</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>Posicion esqueleto</td><td>Posicion general del esqueleto</td><td class="example">Supino, Prono, Lateral</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>Orientacion eje</td><td>Orientacion del eje corporal</td><td class="example">N-S, E-O, NE-SO</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>Extremidades superiores</td><td>Posicion de extremidades superiores</td><td class="example">Extendidos, Flexionados, Sobre pelvis</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>Extremidades inferiores</td><td>Posicion de extremidades inferiores</td><td class="example">Extendidos, Flexionados</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>Area</td><td>Area de excavacion</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>Si/No</td><td>Valores booleanos (Alterado, Completo, En conexion)</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- DOCUMENTACION -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>Ficha Documentacion (documentazione_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>Tipo documento</td><td>Tipologia documental</td><td class="example">Foto, Dibujo, Levantamiento</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>Escala</td><td>Escala de la documentacion</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>Ficha TMA (tma_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>Denominacion ubicacion</td><td>Lugar de conservacion</td><td class="example">Museo, Deposito</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>Localidad</td><td>Localidad de procedencia</td><td class="example">Nombre localidad</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>Definicion</td><td>Definicion del objeto</td><td class="example">Vaso, Estatua, Moneda</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>Tipologia</td><td>Tipologia del objeto</td><td class="example">Tipo especifico</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>Cronologia</td><td>Periodo cronologico</td><td class="example">S. I-II d.C.</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>Unidad tipo</td><td>Unidad tipologica</td><td class="example">Tipo A, Tipo B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>Area</td><td>Area de procedencia</td><td class="example">Area 1, Sector A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>Clase</td><td>Clase material</td><td class="example">Ceramica, Metal</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>Categoria</td><td>Categoria del objeto</td><td class="example">Vasos, Herramientas</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>Estado conservacion</td><td>Conservacion</td><td class="example">Integro, Fragmentario</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>UE</td><td>Unidad estratigrafica</td><td class="example">UE 1, UE 25</td></tr>
+        </table>
+    </div>
+
+    <!-- CERAMICA -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>Ficha Ceramica (pottery_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>Pasta</td><td>Tipo de pasta</td><td class="example">Fina, Gruesa</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>Porcentaje</td><td>Porcentaje de inclusiones</td><td class="example">5%, 10%, 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>Material</td><td>Material ceramico</td><td class="example">Arcilla, Caolin</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>Forma</td><td>Forma vascular</td><td class="example">Abierta, Cerrada</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>Forma especifica</td><td>Forma especifica</td><td class="example">Copa, Olla, Anfora</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>Ware</td><td>Tipo ceramico</td><td class="example">Terra sigillata, Comun</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>Munsell</td><td>Color Munsell</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>Tratamiento superficie</td><td>Tratamiento superficial</td><td class="example">Alisado, Engobado</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>Decoracion externa</td><td>Decoracion externa</td><td class="example">Pintada, Incisa</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>Decoracion interna</td><td>Decoracion interna</td><td class="example">Pintada, Alisada</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>Torno</td><td>Elaboracion a torno</td><td class="example">Si, No</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>Ficha UT (ut_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>Tipo prospeccion</td><td>Tipo de prospeccion</td><td class="example">Sistematica, Intensiva</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>Vegetacion</td><td>Cobertura vegetal</td><td class="example">Arado, Barbecho, Bosque</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>Metodo GPS</td><td>Metodo de levantamiento</td><td class="example">RTK, DGPS, Portatil</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>Superficie</td><td>Condiciones de superficie</td><td class="example">Visible, Cubierta</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>Accesibilidad</td><td>Accesibilidad del area</td><td class="example">Buena, Limitada</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>Condiciones meteo</td><td>Condiciones meteorologicas</td><td class="example">Despejado, Nublado</td></tr>
+        </table>
+    </div>
+
+    <!-- FAUNA -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>Ficha Fauna (fauna_table)</h2></div>
+        <table>
+            <tr><th>Codigo</th><th>Campo</th><th>Descripcion</th><th>Ejemplos</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>Contexto</td><td>Contexto de hallazgo</td><td class="example">Fosa, Estrato, Relleno</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>Metodologia recuperacion</td><td>Metodo de recuperacion</td><td class="example">Manual, Cribado</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>Tipo acumulacion</td><td>Tipo de acumulacion osea</td><td class="example">Primario, Secundario</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>Tipo deposicion</td><td>Tipo de deposicion</td><td class="example">Intencional, Casual</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>Fragmentacion</td><td>Grado de fragmentacion</td><td class="example">Baja, Media, Alta</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>Estado conservacion</td><td>Conservacion de huesos</td><td class="example">Bueno, Medio, Escaso</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>Fiabilidad</td><td>Fiabilidad de determinacion</td><td class="example">Cierta, Probable, Incierta</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>Combustion</td><td>Presencia de combustion</td><td class="example">Si, No</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>Tipo combustion</td><td>Tipo de combustion</td><td class="example">Parcial, Total</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>Conexion anatomica</td><td>Presencia de conexion</td><td class="example">Si, No, Parcial</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - Documentacion Codigos Thesaurus v4.9</p>
+    </footer>
+</body>
+</html>
