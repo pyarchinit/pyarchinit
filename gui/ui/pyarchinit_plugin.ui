@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>629</height>
+    <height>660</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@ background-color: rgb(168, 168, 168);</string>
    <bool>false</bool>
   </property>
   <property name="features">
-   <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
+   <set>QDockWidget::AllDockWidgetFeatures</set>
   </property>
   <property name="windowTitle">
    <string>pyArchInit - Archaeological Data Management</string>
@@ -67,8 +67,8 @@ background-color: rgb(168, 168, 168);</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>326</width>
-         <height>579</height>
+         <width>324</width>
+         <height>930</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_6">
@@ -132,7 +132,7 @@ selection-color: rgb(140, 140, 105);</string>
           </property>
           <widget class="QWidget" name="tab_5">
            <attribute name="title">
-            <string>adArtesrl</string>
+            <string>pyArchInit</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_2">
             <item row="0" column="0">
@@ -1181,8 +1181,6 @@ p, li { white-space: pre-wrap; }
    </layout>
   </widget>
  </widget>
- <customwidgets>
- </customwidgets>
  <resources>
   <include location="../../resources/resources.qrc"/>
  </resources>
