@@ -71,46 +71,103 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         'ca': 'Català'
     }
 
-    # Tutorial metadata per language
+    # Tutorial metadata per language - Complete list of all 30 tutorials
     TUTORIALS_METADATA = {
         'it': [
             ("01_configurazione.md", "Configurazione", "Setup iniziale e database"),
             ("02_scheda_sito.md", "Scheda Sito", "Gestione siti archeologici"),
-            ("03_scheda_us.md", "Scheda US/USM", "Unità Stratigrafiche"),
-            ("04_scheda_periodizzazione.md", "Periodizzazione", "Fasi cronologiche"),
-            ("05_scheda_struttura.md", "Struttura", "Documentazione strutture"),
-            ("06_scheda_tomba.md", "Tomba", "Sepolture e corredi"),
-            ("07_scheda_individui.md", "Individui", "Antropologia fisica"),
-            ("08_scheda_inventario_materiali.md", "Materiali", "Gestione reperti"),
+            ("03_scheda_us.md", "Scheda US/USM", "Unità Stratigrafiche e Murarie"),
+            ("04_scheda_periodizzazione.md", "Periodizzazione", "Fasi e periodi cronologici"),
+            ("05_scheda_struttura.md", "Scheda Struttura", "Documentazione strutture"),
+            ("06_scheda_tomba.md", "Scheda Tomba", "Sepolture e corredi"),
+            ("07_scheda_individui.md", "Scheda Individui", "Antropologia fisica"),
+            ("08_scheda_inventario_materiali.md", "Inventario Materiali", "Gestione reperti"),
+            ("09_scheda_campioni.md", "Scheda Campioni", "Campionature"),
+            ("10_scheda_documentazione.md", "Documentazione", "Foto, disegni, rilievi"),
             ("11_matrix_harris.md", "Matrix Harris", "Diagrammi stratigrafici"),
-            ("12_report_stampe.md", "Report PDF", "Documentazione PDF"),
-            ("14_gis_cartografia.md", "GIS", "Integrazione QGIS"),
+            ("12_report_stampe.md", "Report e Stampe", "Generazione PDF"),
+            ("13_thesaurus.md", "Thesaurus", "Vocabolari controllati"),
+            ("14_gis_cartografia.md", "GIS e Cartografia", "Integrazione QGIS"),
+            ("15_archeozoologia.md", "Archeozoologia", "Analisi faunistiche"),
+            ("16_scheda_pottery.md", "Scheda Pottery", "Ceramica specialistica"),
+            ("17_tma.md", "TMA", "Tabelle Materiali Archeologici"),
+            ("18_backup.md", "Backup e Restore", "Gestione backup"),
+            ("19_multiutente.md", "Multi-utente", "Lavoro collaborativo"),
+            ("20_pubblicazione_web.md", "Pubblicazione Web", "Export e Lizmap"),
+            ("21_scheda_ut.md", "Scheda UT", "Unità Topografiche"),
+            ("22_media_manager.md", "Media Manager", "Gestione multimedia"),
+            ("23_ricerca_immagini.md", "Ricerca Immagini", "Ricerca globale"),
+            ("24_esporta_immagini.md", "Esporta Immagini", "Export per US/Fase"),
+            ("25_time_manager.md", "Time Manager", "Navigazione temporale"),
+            ("26_pottery_tools.md", "Pottery Tools", "Strumenti ceramica"),
+            ("27_tops.md", "TOPS", "Total Open Station"),
+            ("28_geopackage_export.md", "GeoPackage Export", "Export GeoPackage"),
+            ("29_make_your_map.md", "Make Your Map", "Generazione mappe"),
+            ("30_ai_query_database.md", "AI Query", "Query con AI"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup and database"),
             ("02_scheda_sito.md", "Site Form", "Archaeological site management"),
-            ("03_scheda_us.md", "SU/WSU Form", "Stratigraphic Units"),
-            ("04_scheda_periodizzazione.md", "Periodization", "Chronological phases"),
-            ("05_scheda_struttura.md", "Structure", "Structure documentation"),
-            ("06_scheda_tomba.md", "Burial", "Burials and grave goods"),
-            ("07_scheda_individui.md", "Individuals", "Physical anthropology"),
-            ("08_scheda_inventario_materiali.md", "Finds", "Artefact management"),
+            ("03_scheda_us.md", "SU/WSU Form", "Stratigraphic and Wall Units"),
+            ("04_scheda_periodizzazione.md", "Periodization", "Phases and periods"),
+            ("05_scheda_struttura.md", "Structure Form", "Structure documentation"),
+            ("06_scheda_tomba.md", "Burial Form", "Burials and grave goods"),
+            ("07_scheda_individui.md", "Individuals Form", "Physical anthropology"),
+            ("08_scheda_inventario_materiali.md", "Finds Inventory", "Artefact management"),
+            ("09_scheda_campioni.md", "Samples Form", "Sampling"),
+            ("10_scheda_documentazione.md", "Documentation", "Photos, drawings"),
             ("11_matrix_harris.md", "Harris Matrix", "Stratigraphic diagrams"),
-            ("12_report_stampe.md", "PDF Reports", "PDF documentation"),
-            ("14_gis_cartografia.md", "GIS", "QGIS integration"),
+            ("12_report_stampe.md", "Reports & Print", "PDF generation"),
+            ("13_thesaurus.md", "Thesaurus", "Controlled vocabularies"),
+            ("14_gis_cartografia.md", "GIS & Cartography", "QGIS integration"),
+            ("15_archeozoologia.md", "Archaeozoology", "Faunal analysis"),
+            ("16_scheda_pottery.md", "Pottery Form", "Specialist ceramics"),
+            ("17_tma.md", "TMA", "Archaeological Materials Tables"),
+            ("18_backup.md", "Backup & Restore", "Backup management"),
+            ("19_multiutente.md", "Multi-user", "Collaborative work"),
+            ("20_pubblicazione_web.md", "Web Publishing", "Export and Lizmap"),
+            ("21_scheda_ut.md", "TU Form", "Topographic Units"),
+            ("22_media_manager.md", "Media Manager", "Multimedia management"),
+            ("23_ricerca_immagini.md", "Image Search", "Global search"),
+            ("24_esporta_immagini.md", "Export Images", "Export by SU/Phase"),
+            ("25_time_manager.md", "Time Manager", "Temporal navigation"),
+            ("26_pottery_tools.md", "Pottery Tools", "Ceramic tools"),
+            ("27_tops.md", "TOPS", "Total Open Station"),
+            ("28_geopackage_export.md", "GeoPackage Export", "GeoPackage export"),
+            ("29_make_your_map.md", "Make Your Map", "Map generation"),
+            ("30_ai_query_database.md", "AI Query", "AI database query"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung und Datenbank"),
             ("02_fundort_formular.md", "Fundstelle", "Archäologische Fundstellen"),
-            ("03_se_formular.md", "SE/MSE", "Stratigraphische Einheiten"),
-            ("04_periodisierung.md", "Periodisierung", "Chronologische Phasen"),
-            ("05_struktur_formular.md", "Struktur", "Strukturdokumentation"),
-            ("06_grab_formular.md", "Grab", "Bestattungen"),
+            ("03_se_formular.md", "SE/MSE Formular", "Stratigraphische Einheiten"),
+            ("04_periodisierung.md", "Periodisierung", "Phasen und Perioden"),
+            ("05_struktur_formular.md", "Struktur Formular", "Strukturdokumentation"),
+            ("06_grab_formular.md", "Grab Formular", "Bestattungen"),
             ("07_individuen_formular.md", "Individuen", "Physische Anthropologie"),
-            ("08_fundinventar_formular.md", "Funde", "Artefaktverwaltung"),
+            ("08_fundinventar_formular.md", "Fundinventar", "Artefaktverwaltung"),
+            ("09_proben_formular.md", "Proben Formular", "Probenentnahme"),
+            ("10_dokumentation_formular.md", "Dokumentation", "Fotos, Zeichnungen"),
             ("11_harris_matrix.md", "Harris-Matrix", "Stratigraphische Diagramme"),
-            ("12_berichte_pdf.md", "PDF-Berichte", "PDF-Dokumentation"),
-            ("14_gis_kartographie.md", "GIS", "QGIS-Integration"),
+            ("12_berichte_pdf.md", "Berichte & Druck", "PDF-Erstellung"),
+            ("13_thesaurus.md", "Thesaurus", "Kontrollierte Vokabulare"),
+            ("14_gis_kartographie.md", "GIS & Kartographie", "QGIS-Integration"),
+            ("15_archaeozoologie.md", "Archäozoologie", "Faunistische Analyse"),
+            ("16_keramik_formular.md", "Keramik Formular", "Spezialisierte Keramik"),
+            ("17_tma.md", "TMA", "Archäologische Materialtabellen"),
+            ("18_backup.md", "Backup & Restore", "Backup-Verwaltung"),
+            ("19_mehrbenutzerbetrieb.md", "Mehrbenutzerbetrieb", "Kollaboratives Arbeiten"),
+            ("20_webveroeffentlichung.md", "Web-Veröffentlichung", "Export und Lizmap"),
+            ("21_ut_formular.md", "TE Formular", "Topographische Einheiten"),
+            ("22_medien_manager.md", "Medien-Manager", "Multimedia-Verwaltung"),
+            ("23_bildersuche.md", "Bildsuche", "Globale Suche"),
+            ("24_bilder_exportieren.md", "Bilder exportieren", "Export nach SE/Phase"),
+            ("25_time_manager.md", "Zeit-Manager", "Zeitliche Navigation"),
+            ("26_keramik_werkzeuge.md", "Keramik-Werkzeuge", "Keramikwerkzeuge"),
+            ("27_tops.md", "TOPS", "Total Open Station"),
+            ("28_geopackage_export.md", "GeoPackage-Export", "GeoPackage-Export"),
+            ("29_karte_erstellen.md", "Karte erstellen", "Kartenerstellung"),
+            ("30_ki_datenbankabfrage.md", "KI-Abfrage", "KI-Datenbankabfrage"),
         ]
     }
 
@@ -335,24 +392,27 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
         # Tutorial list
         self.tutorial_list = QListWidget()
-        self.tutorial_list.setMaximumHeight(200)
+        self.tutorial_list.setMaximumHeight(250)
         self.tutorial_list.setStyleSheet("""
             QListWidget {
                 background: #f8f9fa;
                 border: 1px solid #dee2e6;
                 border-radius: 5px;
                 font-size: 11px;
+                color: #333333;
             }
             QListWidget::item {
-                padding: 5px;
+                padding: 6px 8px;
                 border-bottom: 1px solid #e9ecef;
+                color: #333333;
             }
             QListWidget::item:selected {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #667eea, stop:1 #764ba2);
                 color: white;
             }
-            QListWidget::item:hover {
+            QListWidget::item:hover:!selected {
                 background: #e9ecef;
+                color: #333333;
             }
         """)
         self.tutorial_list.currentItemChanged.connect(self.on_tutorial_selected)
@@ -518,9 +578,6 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
 
     def setup_modern_diagrams(self):
         """Setup modern HTML diagrams in service tabs"""
-        # We'll inject modern styling into the existing tabs via stylesheets
-        # The actual relationship buttons remain clickable
-
         # Apply modern styling to service tab buttons
         modern_button_style = """
             QPushButton {
@@ -551,19 +608,35 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Style the relationship labels for better visibility
         label_style = """
             QLabel {
-                background: rgba(102, 126, 234, 0.1);
+                background: rgba(102, 126, 234, 0.15);
                 border-radius: 4px;
-                padding: 2px 4px;
+                padding: 2px 6px;
                 font-weight: bold;
                 color: #667eea;
+                font-size: 9px;
             }
         """
 
-        # Apply to relationship labels if they exist
+        # Apply to relationship labels
         for widget in self.findChildren(QLabel):
             text = widget.text()
             if text in ['1:N', 'N:N', 'N:1', '1:1']:
                 widget.setStyleSheet(label_style)
+
+        # Style section titles
+        title_style = """
+            QLabel {
+                color: #333333;
+                font-weight: bold;
+                font-size: 12px;
+                padding: 5px;
+                background: transparent;
+            }
+        """
+        for widget in self.findChildren(QLabel):
+            text = widget.text()
+            if text in ['Scavo Archeologico', 'Ricognizione del territorio', 'Supporto online']:
+                widget.setStyleSheet(title_style)
 
         # Style the tab widget
         tab_style = """
@@ -575,10 +648,12 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             QTabBar::tab {
                 background: #e9ecef;
                 border: 1px solid #dee2e6;
-                padding: 8px 12px;
+                padding: 6px 10px;
                 margin-right: 2px;
                 border-top-left-radius: 6px;
                 border-top-right-radius: 6px;
+                color: #333333;
+                font-size: 10px;
             }
             QTabBar::tab:selected {
                 background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
@@ -590,6 +665,202 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             }
         """
         self.tabWidget.setStyleSheet(tab_style)
+
+        # Add workflow diagram to services tab
+        self.add_workflow_to_services_tab()
+
+    def add_workflow_to_services_tab(self):
+        """Add a visual workflow diagram header to the services tab"""
+        # Find the services tab (Scavo archeologico)
+        services_tab = self.services
+        if services_tab:
+            # Get the existing layout
+            existing_layout = services_tab.layout()
+            if existing_layout:
+                # Create workflow browser
+                workflow_browser = QTextBrowser()
+                workflow_browser.setMaximumHeight(180)
+                workflow_browser.setOpenExternalLinks(False)
+                workflow_browser.setStyleSheet("""
+                    QTextBrowser {
+                        border: none;
+                        background: transparent;
+                    }
+                """)
+                workflow_browser.setHtml(self.get_excavation_workflow_html())
+
+                # Insert at the top of the layout
+                existing_layout.insertWidget(0, workflow_browser)
+
+        # Add workflow to Ricognizione tab
+        ricognizione_tab = self.tab
+        if ricognizione_tab:
+            existing_layout = ricognizione_tab.layout()
+            if existing_layout:
+                workflow_browser = QTextBrowser()
+                workflow_browser.setMaximumHeight(150)
+                workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
+                workflow_browser.setHtml(self.get_survey_workflow_html())
+                existing_layout.insertWidget(0, workflow_browser)
+
+        # Add workflow to Media tab
+        media_tab = self.tab_2
+        if media_tab:
+            layout = media_tab.layout()
+            if not layout:
+                layout = QVBoxLayout(media_tab)
+            workflow_browser = QTextBrowser()
+            workflow_browser.setMaximumHeight(120)
+            workflow_browser.setStyleSheet("QTextBrowser { border: none; background: transparent; }")
+            workflow_browser.setHtml(self.get_media_workflow_html())
+            layout.insertWidget(0, workflow_browser)
+
+    def get_excavation_workflow_html(self):
+        """Generate HTML workflow diagram for excavation"""
+        labels = {
+            'it': {'title': 'Flusso di Lavoro - Scavo', 'site': 'Sito', 'us': 'US/USM', 'period': 'Periodo',
+                   'struct': 'Struttura', 'tomb': 'Tomba', 'finds': 'Reperti', 'samples': 'Campioni',
+                   'indiv': 'Individui', 'doc': 'Documentazione'},
+            'en': {'title': 'Excavation Workflow', 'site': 'Site', 'us': 'SU/WSU', 'period': 'Period',
+                   'struct': 'Structure', 'tomb': 'Burial', 'finds': 'Finds', 'samples': 'Samples',
+                   'indiv': 'Individuals', 'doc': 'Documentation'},
+            'de': {'title': 'Grabungs-Workflow', 'site': 'Fundstelle', 'us': 'SE/MSE', 'period': 'Periode',
+                   'struct': 'Struktur', 'tomb': 'Grab', 'finds': 'Funde', 'samples': 'Proben',
+                   'indiv': 'Individuen', 'doc': 'Dokumentation'}
+        }
+        l = labels.get(self.current_lang, labels['it'])
+
+        return f"""
+        <html>
+        <head><style>
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 8px; background: transparent; }}
+            .workflow {{ display: flex; flex-direction: column; gap: 8px; }}
+            .row {{ display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; }}
+            .node {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; padding: 6px 12px; border-radius: 20px; font-size: 10px;
+                font-weight: 500; text-align: center; white-space: nowrap;
+                box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+            }}
+            .node.main {{ background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }}
+            .node.secondary {{ background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }}
+            .node.tertiary {{ background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }}
+            .arrow {{ color: #667eea; font-size: 14px; font-weight: bold; }}
+            .rel {{ font-size: 8px; color: #764ba2; background: rgba(102,126,234,0.1);
+                    padding: 2px 5px; border-radius: 8px; }}
+            .title {{ font-size: 11px; font-weight: 600; color: #333; margin-bottom: 8px; text-align: center; }}
+        </style></head>
+        <body>
+            <div class="title">{l['title']}</div>
+            <div class="workflow">
+                <div class="row">
+                    <span class="node main">🏛️ {l['site']}</span>
+                </div>
+                <div class="row">
+                    <span class="arrow">↓</span><span class="rel">1:N</span>
+                </div>
+                <div class="row">
+                    <span class="node">📋 {l['period']}</span>
+                    <span class="arrow">←</span>
+                    <span class="node secondary">🔲 {l['us']}</span>
+                    <span class="arrow">→</span>
+                    <span class="node">🏗️ {l['struct']}</span>
+                </div>
+                <div class="row">
+                    <span class="rel">1:N</span>
+                    <span style="width:40px"></span>
+                    <span class="arrow">↓</span><span class="rel">1:N</span>
+                    <span style="width:40px"></span>
+                    <span class="rel">N:N</span>
+                </div>
+                <div class="row">
+                    <span class="node tertiary">⚱️ {l['finds']}</span>
+                    <span class="node tertiary">🧪 {l['samples']}</span>
+                    <span class="node tertiary">⚰️ {l['tomb']}</span>
+                    <span class="node tertiary">👤 {l['indiv']}</span>
+                </div>
+                <div class="row">
+                    <span class="arrow">↓</span>
+                </div>
+                <div class="row">
+                    <span class="node" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">📸 {l['doc']}</span>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+    def get_survey_workflow_html(self):
+        """Generate HTML workflow diagram for survey/reconnaissance"""
+        labels = {
+            'it': {'title': 'Flusso - Ricognizione', 'site': 'Sito', 'ut': 'UT', 'finds': 'Reperti'},
+            'en': {'title': 'Survey Workflow', 'site': 'Site', 'ut': 'TU', 'finds': 'Finds'},
+            'de': {'title': 'Survey-Workflow', 'site': 'Fundstelle', 'ut': 'TE', 'finds': 'Funde'}
+        }
+        l = labels.get(self.current_lang, labels['it'])
+
+        return f"""
+        <html>
+        <head><style>
+            body {{ font-family: -apple-system, sans-serif; margin: 0; padding: 8px; background: transparent; }}
+            .workflow {{ display: flex; flex-direction: column; align-items: center; gap: 6px; }}
+            .node {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; padding: 6px 14px; border-radius: 20px; font-size: 10px;
+                font-weight: 500; box-shadow: 0 2px 8px rgba(102,126,234,0.3);
+            }}
+            .arrow {{ color: #667eea; font-size: 12px; }}
+            .rel {{ font-size: 8px; color: #764ba2; background: rgba(102,126,234,0.1); padding: 2px 5px; border-radius: 8px; }}
+            .title {{ font-size: 11px; font-weight: 600; color: #333; margin-bottom: 6px; }}
+        </style></head>
+        <body>
+            <div class="title">{l['title']}</div>
+            <div class="workflow">
+                <span class="node">🏛️ {l['site']}</span>
+                <span class="arrow">↓</span><span class="rel">1:N</span>
+                <span class="node">📍 {l['ut']}</span>
+                <span class="arrow">↓</span><span class="rel">1:N</span>
+                <span class="node">⚱️ {l['finds']}</span>
+            </div>
+        </body>
+        </html>
+        """
+
+    def get_media_workflow_html(self):
+        """Generate HTML workflow diagram for media management"""
+        labels = {
+            'it': {'title': 'Gestione Media', 'us': 'US/USM', 'finds': 'Reperti', 'media': 'Media'},
+            'en': {'title': 'Media Management', 'us': 'SU/WSU', 'finds': 'Finds', 'media': 'Media'},
+            'de': {'title': 'Medien-Verwaltung', 'us': 'SE/MSE', 'finds': 'Funde', 'media': 'Medien'}
+        }
+        l = labels.get(self.current_lang, labels['it'])
+
+        return f"""
+        <html>
+        <head><style>
+            body {{ font-family: -apple-system, sans-serif; margin: 0; padding: 8px; background: transparent; }}
+            .row {{ display: flex; align-items: center; justify-content: center; gap: 8px; }}
+            .node {{
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white; padding: 5px 12px; border-radius: 15px; font-size: 10px;
+                box-shadow: 0 2px 6px rgba(102,126,234,0.3);
+            }}
+            .arrow {{ color: #667eea; font-size: 12px; }}
+            .rel {{ font-size: 8px; color: #764ba2; background: rgba(102,126,234,0.1); padding: 2px 5px; border-radius: 8px; }}
+            .title {{ font-size: 11px; font-weight: 600; color: #333; margin-bottom: 8px; text-align: center; }}
+        </style></head>
+        <body>
+            <div class="title">{l['title']}</div>
+            <div class="row">
+                <span class="node">🔲 {l['us']}</span>
+                <span class="arrow">↔</span><span class="rel">N:N</span>
+                <span class="node" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">📸 {l['media']}</span>
+                <span class="arrow">↔</span><span class="rel">N:N</span>
+                <span class="node">⚱️ {l['finds']}</span>
+            </div>
+        </body>
+        </html>
+        """
 
     def get_pyarchinit_fallback_html(self):
         """Return HTML content for when QWebEngine is not available"""
