@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.49
+version=4.9.50
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,15 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.49 (2026-01-16):
+changelog=4.9.50 (2026-01-16):
+    - Feature:  use form icons in workflow tabs and fix tutorial images
+    - Feature:  add interactive workflow tabs with clickable buttons
+    - Fix:  remove overlapping workflow diagrams from existing tabs
+    - Fix:  handle QGridLayout in workflow diagram insertion
+    - Feature:  complete tutorial list, fix text colors, add workflow diagrams
+    - Feature:  embed tutorial viewer and modern UI in dock widget
+    - Feature:  enhance PyArchInit dock widget with web views and tooltips
+  4.9.49 (2026-01-16):
     - Feature:  add multilingual thesaurus code documentation
   4.9.48 (2026-01-15):
     - Feature:  add multilingual tutorial documentation
