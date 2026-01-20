@@ -93,16 +93,12 @@ class RemoteImageLoader:
             )
             if backend.connect():
                 cls._unibo_backends[project_code] = backend
-                print(f"[UNIBO DEBUG] Connected to project {project_code}, project_id={backend._project_id}")
                 return backend
             else:
-                print(f"[UNIBO DEBUG] Failed to connect to backend for {project_code}")
                 return None
-        except ImportError as e:
-            print(f"[UNIBO DEBUG] Failed to import UniboFileManagerBackend: {e}")
+        except ImportError:
             return None
-        except Exception as e:
-            print(f"[UNIBO DEBUG] Failed to create Unibo backend: {e}")
+        except Exception:
             return None
 
     @classmethod
@@ -119,54 +115,38 @@ class RemoteImageLoader:
         if not unibo_path or not cls.is_unibo_path(unibo_path):
             return None
 
-        print(f"[UNIBO DEBUG] Downloading from: {unibo_path}")
-
         # Parse unibo:// path
         # Format: unibo://project_code/folder/path/filename.ext
         path_part = unibo_path[len('unibo://'):].strip('/')
         parts = path_part.split('/')
 
         if len(parts) < 2:
-            print(f"[UNIBO DEBUG] Invalid path format: {unibo_path}")
             return None
 
         # Extract project code and the remaining path (folder + filename)
         project_code = parts[0]
         remaining_path = '/'.join(parts[1:])  # e.g., "KTM2025/photolog/original/image.png"
 
-        print(f"[UNIBO DEBUG] project_code={project_code}, remaining_path={remaining_path}")
-
         try:
             # Try loading credentials if not set
             if not cls._unibo_credentials:
-                print(f"[UNIBO DEBUG] No credentials, trying to load from QGIS")
                 load_unibo_credentials_from_qgis()
 
             if not cls._unibo_credentials:
-                print(f"[UNIBO DEBUG] Still no credentials available")
                 return None
 
             # Get or create backend for this project
             backend = cls._get_unibo_backend(project_code)
 
             if backend is None:
-                print(f"[UNIBO DEBUG] No backend available")
                 return None
 
             # Pass the full remaining path to read()
             # The backend's read() method will resolve folders and find the file
             data = backend.read(remaining_path)
-            if data:
-                print(f"[UNIBO DEBUG] Successfully downloaded {len(data)} bytes")
-            else:
-                print(f"[UNIBO DEBUG] Failed to download file")
-
             return data
 
-        except Exception as e:
-            print(f"[UNIBO DEBUG] Error downloading from Unibo: {e}")
-            import traceback
-            traceback.print_exc()
+        except Exception:
             return None
 
     @classmethod
@@ -245,15 +225,11 @@ class RemoteImageLoader:
         Returns:
             Full HTTPS URL to the image on Cloudinary
         """
-        print(f"[CLOUDINARY DEBUG] Input path: {cloudinary_path}")
-
         if not cloudinary_path or not cls.is_cloudinary_path(cloudinary_path):
-            print(f"[CLOUDINARY DEBUG] Not a cloudinary path, returning as-is")
             return cloudinary_path
 
         # Remove cloudinary:// prefix
         path_part = cloudinary_path[len('cloudinary://'):]
-        print(f"[CLOUDINARY DEBUG] After removing prefix: {path_part}")
 
         # Clean up path
         path_part = path_part.strip('/')
@@ -262,11 +238,9 @@ class RemoteImageLoader:
         # Example: 2446_DSC02076_thumb.png -> 2446_DSC02076.png
         import re
         path_part = re.sub(r'_thumb(\.[^.]+)$', r'\1', path_part)
-        print(f"[CLOUDINARY DEBUG] After removing _thumb: {path_part}")
 
         # Build full URL
         full_url = f"{CLOUDINARY_BASE_URL}/{path_part}"
-        print(f"[CLOUDINARY DEBUG] Final URL: {full_url}")
 
         return full_url
 
@@ -430,10 +404,7 @@ class RemoteImageLoader:
         Returns:
             Full path or URL
         """
-        print(f"[CLOUDINARY DEBUG] get_image_path called: base_path={base_path}, filename={filename}")
-
         if not base_path or not filename:
-            print(f"[CLOUDINARY DEBUG] Empty base_path or filename, returning empty")
             return ""
 
         # Clean up paths
@@ -442,14 +413,10 @@ class RemoteImageLoader:
 
         if cls.is_cloudinary_path(base_path) or cls.is_remote_url(base_path):
             # URL or Cloudinary path - use forward slash
-            result = f"{base_path}/{filename}"
-            print(f"[CLOUDINARY DEBUG] Remote/Cloudinary path result: {result}")
-            return result
+            return f"{base_path}/{filename}"
         else:
             # Local path - use os.path.join
-            result = os.path.join(base_path, filename)
-            print(f"[CLOUDINARY DEBUG] Local path result: {result}")
-            return result
+            return os.path.join(base_path, filename)
 
 
 # Convenience functions for easy import
@@ -525,7 +492,6 @@ def load_unibo_credentials_from_qgis():
 
         if credentials and 'server_url' in credentials and 'username' in credentials:
             RemoteImageLoader.set_unibo_credentials(credentials)
-            print(f"[UNIBO DEBUG] Loaded credentials for server: {server_url}")
             return True
 
         return False
