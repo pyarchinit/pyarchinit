@@ -372,21 +372,262 @@ class UniboFileManagerBackend(StorageBackend):
             traceback.print_exc()
             return None
 
-    def write(self, filename: str, data: Union[bytes, BinaryIO]) -> bool:
+    def _create_folder(self, folder_name: str, parent_folder_id: int = None) -> Optional[int]:
         """
-        Upload a file to the File Manager (not fully implemented).
+        Create a folder in the project.
 
         Args:
-            filename: Filename
-            data: File contents
+            folder_name: Name of the folder to create
+            parent_folder_id: Parent folder ID (None for root)
+
+        Returns:
+            New folder ID or None if failed
+        """
+        if not self._project_id:
+            return None
+
+        try:
+            url = f"{self.api_base}projects/{self._project_id}/folders"
+            json_data = {'name': folder_name}
+            if parent_folder_id:
+                json_data['parent_id'] = parent_folder_id
+
+            response = self._json_request(url, method='POST', json_data=json_data)
+            if response and 'id' in response:
+                print(f"UniboFileManager: Created folder '{folder_name}' with ID {response['id']}")
+                return response['id']
+            else:
+                print(f"UniboFileManager: Failed to create folder '{folder_name}'")
+                return None
+
+        except Exception as e:
+            print(f"UniboFileManager: Error creating folder: {e}")
+            return None
+
+    def _ensure_folder_path(self, folder_path: str) -> Optional[int]:
+        """
+        Ensure a folder path exists, creating folders as needed.
+
+        Args:
+            folder_path: Full folder path (e.g., "KTM2025/photolog/original")
+
+        Returns:
+            Folder ID of the final folder, or None if failed
+        """
+        if not self._project_id:
+            return None
+
+        if not folder_path:
+            return self._folder_id
+
+        parts = folder_path.strip('/').split('/')
+        current_parent_id = None
+
+        for folder_name in parts:
+            if not folder_name:
+                continue
+
+            # List folders at current level
+            url = f"{self.api_base}projects/{self._project_id}/folders"
+            params = {}
+            if current_parent_id:
+                params['parent_id'] = current_parent_id
+
+            folders = self._json_request(url, params=params)
+
+            # Check if folder exists
+            found = False
+            if folders:
+                for folder in folders:
+                    if folder.get('name') == folder_name:
+                        current_parent_id = folder.get('id')
+                        found = True
+                        break
+
+            # Create folder if not found
+            if not found:
+                new_id = self._create_folder(folder_name, current_parent_id)
+                if new_id:
+                    current_parent_id = new_id
+                else:
+                    return None
+
+        return current_parent_id
+
+    def _build_multipart_body(self, fields: dict, files: dict) -> tuple:
+        """
+        Build multipart/form-data body for file upload.
+
+        Args:
+            fields: Dict of form fields (name: value)
+            files: Dict of files (field_name: (filename, data, content_type))
+
+        Returns:
+            Tuple of (body_bytes, content_type_header)
+        """
+        import uuid
+        boundary = f'----PyArchInitBoundary{uuid.uuid4().hex}'
+        lines = []
+
+        # Add form fields
+        for name, value in fields.items():
+            lines.append(f'--{boundary}'.encode())
+            lines.append(f'Content-Disposition: form-data; name="{name}"'.encode())
+            lines.append(b'')
+            lines.append(str(value).encode() if not isinstance(value, bytes) else value)
+
+        # Add files
+        for field_name, (filename, data, content_type) in files.items():
+            lines.append(f'--{boundary}'.encode())
+            lines.append(f'Content-Disposition: form-data; name="{field_name}"; filename="{filename}"'.encode())
+            lines.append(f'Content-Type: {content_type}'.encode())
+            lines.append(b'')
+            lines.append(data if isinstance(data, bytes) else data.read())
+
+        lines.append(f'--{boundary}--'.encode())
+        lines.append(b'')
+
+        body = b'\r\n'.join(lines)
+        content_type = f'multipart/form-data; boundary={boundary}'
+
+        return body, content_type
+
+    def _get_mime_type(self, filename: str) -> str:
+        """Get MIME type from filename extension"""
+        ext = os.path.splitext(filename)[1].lower()
+        mime_types = {
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.png': 'image/png',
+            '.gif': 'image/gif',
+            '.tif': 'image/tiff',
+            '.tiff': 'image/tiff',
+            '.bmp': 'image/bmp',
+            '.webp': 'image/webp',
+            '.mp4': 'video/mp4',
+            '.avi': 'video/x-msvideo',
+            '.mov': 'video/quicktime',
+            '.mkv': 'video/x-matroska',
+            '.flv': 'video/x-flv',
+            '.obj': 'model/obj',
+            '.stl': 'model/stl',
+            '.ply': 'model/ply',
+            '.fbx': 'application/octet-stream',
+            '.3ds': 'application/octet-stream',
+            '.pdf': 'application/pdf',
+        }
+        return mime_types.get(ext, 'application/octet-stream')
+
+    def write(self, filename: str, data: Union[bytes, BinaryIO], folder_path: str = None) -> bool:
+        """
+        Upload a file to the File Manager.
+
+        Args:
+            filename: Filename (can include subfolder path)
+            data: File contents as bytes or file-like object
+            folder_path: Optional folder path override
 
         Returns:
             True if successful
         """
-        # Note: File upload requires multipart form data which is complex with urllib
-        # For now, return False - this can be implemented if needed
-        print("UniboFileManager: Write operation not implemented for urllib backend")
-        return False
+        if not self._project_id:
+            print("UniboFileManager: No project_id set for upload")
+            return False
+
+        try:
+            # Handle paths with subdirectories in filename
+            if '/' in filename:
+                parts = filename.rsplit('/', 1)
+                subfolder = parts[0]
+                actual_filename = parts[1]
+                target_folder_path = f"{self.folder_path}/{subfolder}" if self.folder_path else subfolder
+            else:
+                actual_filename = filename
+                target_folder_path = folder_path or self.folder_path
+
+            # Ensure target folder exists
+            if target_folder_path:
+                target_folder_id = self._ensure_folder_path(target_folder_path)
+                if target_folder_id is None:
+                    print(f"UniboFileManager: Failed to ensure folder path: {target_folder_path}")
+                    return False
+            else:
+                target_folder_id = self._folder_id
+
+            # Read data if it's a file-like object
+            if hasattr(data, 'read'):
+                file_data = data.read()
+            else:
+                file_data = data
+
+            # Build multipart request
+            fields = {}
+            if target_folder_id:
+                fields['folder_id'] = target_folder_id
+
+            mime_type = self._get_mime_type(actual_filename)
+            files = {
+                'file': (actual_filename, file_data, mime_type)
+            }
+
+            body, content_type = self._build_multipart_body(fields, files)
+
+            # Upload file
+            url = f"{self.api_base}projects/{self._project_id}/files"
+            headers = {
+                'Content-Type': content_type,
+            }
+            if self._token:
+                headers['Authorization'] = f'Bearer {self._token}'
+
+            request = Request(url, data=body, headers=headers, method='POST')
+
+            with urlopen(request, context=SSL_CONTEXT, timeout=self.DEFAULT_TIMEOUT * 3) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                if result and 'id' in result:
+                    print(f"UniboFileManager: Successfully uploaded '{actual_filename}' (ID: {result['id']})")
+                    return True
+
+            return False
+
+        except HTTPError as e:
+            print(f"UniboFileManager: HTTP error uploading file: {e.code} - {e.reason}")
+            try:
+                error_body = e.read().decode('utf-8')
+                print(f"UniboFileManager: Error details: {error_body}")
+            except:
+                pass
+            return False
+        except Exception as e:
+            print(f"UniboFileManager: Error uploading file: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def upload_local_file(self, local_path: str, remote_filename: str = None) -> bool:
+        """
+        Upload a local file to the File Manager.
+
+        Args:
+            local_path: Path to local file
+            remote_filename: Remote filename (defaults to local filename)
+
+        Returns:
+            True if successful
+        """
+        if not os.path.exists(local_path):
+            print(f"UniboFileManager: Local file not found: {local_path}")
+            return False
+
+        try:
+            filename = remote_filename or os.path.basename(local_path)
+
+            with open(local_path, 'rb') as f:
+                return self.write(filename, f)
+
+        except Exception as e:
+            print(f"UniboFileManager: Error uploading local file: {e}")
+            return False
 
     def exists(self, filename: str) -> bool:
         """

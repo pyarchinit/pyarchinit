@@ -2134,13 +2134,55 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
         # Get next media ID
         media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media') + 1
 
-        # Copy file to media folder
-        home = os.environ['PYARCHINIT_HOME']
-        media_path = os.path.join(home, 'pyarchinit_Media_folder')
-        if not os.path.exists(media_path):
-            os.makedirs(media_path)
-        dest_path = os.path.join(media_path, filename)
-        shutil.copy2(path, dest_path)
+        # Check if remote storage is configured (UNIBO or other)
+        is_remote_storage = thumb_resize_str.startswith(('unibo://', 'gdrive://', 'dropbox://', 's3://', 'webdav://'))
+
+        if is_remote_storage:
+            # Upload to remote storage
+            try:
+                from ..modules.utility.pyarchinit_media_utility import get_storage_manager
+                storage = get_storage_manager()
+                if storage:
+                    remote_original_path = f"{thumb_resize_str}{filename}"
+                    backend = storage.get_backend(remote_original_path)
+                    with open(path, 'rb') as f:
+                        file_data = f.read()
+                    _, _, relative_path = storage.parse_path(remote_original_path)
+                    upload_filename = relative_path if relative_path else filename
+                    if backend.write(upload_filename, file_data):
+                        dest_path = remote_original_path
+                        print(f"Uploaded original file to: {remote_original_path}")
+                    else:
+                        # Fallback to local
+                        home = os.environ['PYARCHINIT_HOME']
+                        media_path = os.path.join(home, 'pyarchinit_Media_folder')
+                        if not os.path.exists(media_path):
+                            os.makedirs(media_path)
+                        dest_path = os.path.join(media_path, filename)
+                        shutil.copy2(path, dest_path)
+                else:
+                    home = os.environ['PYARCHINIT_HOME']
+                    media_path = os.path.join(home, 'pyarchinit_Media_folder')
+                    if not os.path.exists(media_path):
+                        os.makedirs(media_path)
+                    dest_path = os.path.join(media_path, filename)
+                    shutil.copy2(path, dest_path)
+            except Exception as e:
+                print(f"Error uploading to remote storage: {e}")
+                home = os.environ['PYARCHINIT_HOME']
+                media_path = os.path.join(home, 'pyarchinit_Media_folder')
+                if not os.path.exists(media_path):
+                    os.makedirs(media_path)
+                dest_path = os.path.join(media_path, filename)
+                shutil.copy2(path, dest_path)
+        else:
+            # Copy file to media folder (local)
+            home = os.environ['PYARCHINIT_HOME']
+            media_path = os.path.join(home, 'pyarchinit_Media_folder')
+            if not os.path.exists(media_path):
+                os.makedirs(media_path)
+            dest_path = os.path.join(media_path, filename)
+            shutil.copy2(path, dest_path)
 
         # Create thumbnail
         thumb_filename = f"thumb_{media_max_num_id}_{filename}"

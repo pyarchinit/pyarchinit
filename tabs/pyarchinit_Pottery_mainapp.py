@@ -1409,12 +1409,43 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
                     return
                 else:
-                    # mediatype = 'image'
-                    self.insert_record_media(mediatype, filename, filetype, filepath)
                     MU = Media_utility()
                     MUR = Media_utility_resize()
                     MU_video = Video_utility()
                     MUR_video = Video_utility_resize()
+                    thumb_path_check = conn.thumb_path()
+                    thumb_resize_check = conn.thumb_resize()
+                    thumb_resize_str_check = thumb_resize_check['thumb_resize']
+
+                    # Check if remote storage is configured (UNIBO or other)
+                    is_remote_storage = thumb_resize_str_check.startswith(('unibo://', 'gdrive://', 'dropbox://', 's3://', 'webdav://'))
+
+                    # Determine the filepath to store in database
+                    if is_remote_storage:
+                        try:
+                            from ..modules.utility.pyarchinit_media_utility import get_storage_manager
+                            storage = get_storage_manager()
+                            if storage:
+                                remote_original_path = f"{thumb_resize_str_check}{filename}.{filetype}"
+                                backend = storage.get_backend(remote_original_path)
+                                with open(filepath, 'rb') as f:
+                                    file_data = f.read()
+                                _, _, relative_path = storage.parse_path(remote_original_path)
+                                upload_filename = relative_path if relative_path else f"{filename}.{filetype}"
+                                if backend.write(upload_filename, file_data):
+                                    filepath_for_db = remote_original_path
+                                    print(f"Uploaded original file to: {remote_original_path}")
+                                else:
+                                    filepath_for_db = filepath
+                            else:
+                                filepath_for_db = filepath
+                        except Exception as e:
+                            print(f"Error uploading to remote storage: {e}")
+                            filepath_for_db = filepath
+                    else:
+                        filepath_for_db = filepath
+
+                    self.insert_record_media(mediatype, filename, filetype, filepath_for_db)
                     media_max_num_id = self.DB_MANAGER.max_num_id('MEDIA', 'id_media')
                     thumb_path = conn.thumb_path()
                     thumb_path_str = thumb_path['thumb_path']
