@@ -126,20 +126,14 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
 
                 # Load using remote loader
                 pic = remote_load_pixmap(path)
-
-                if pic.isNull():
-                else:
             else:
                 # Local path
                 if os.path.exists(path):
                     pic.load(path)
-                else:
         else:
             # Fallback to direct QPixmap loading
             if path and os.path.exists(path):
                 pic.load(path)
-
-        if pic.isNull():
 
         grview = ImageViewClass(origPixmap=pic)
 
