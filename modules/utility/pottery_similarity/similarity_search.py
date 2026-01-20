@@ -271,7 +271,6 @@ class PotterySimilaritySearchEngine:
             print(f"No images found for pottery {pottery_id}")
             return []
 
-        print(f"[DEBUG] Found {len(all_images)} images for pottery {pottery_id}")
 
         # Search with each image and collect all results
         all_results = {}  # pottery_id -> best result
@@ -284,10 +283,8 @@ class PotterySimilaritySearchEngine:
             # Build full path
             image_path = self._build_image_path(relative_path)
             if not os.path.exists(image_path):
-                print(f"[DEBUG] Image not found: {image_path}")
                 continue
 
-            print(f"[DEBUG] Searching with image: {img_info.get('filename', relative_path)}")
 
             # Search
             results = self.search_similar(image_path, model_name, search_type, threshold)
@@ -305,7 +302,6 @@ class PotterySimilaritySearchEngine:
         final_results = list(all_results.values())
         final_results.sort(key=lambda x: x['similarity'], reverse=True)
 
-        print(f"[DEBUG] Total unique matches: {len(final_results)}")
 
         return final_results
 
@@ -473,8 +469,6 @@ class PotterySimilaritySearchEngine:
 
         # Log base path for debugging
         base_path = self._get_thumb_resize_path()
-        print(f"[DEBUG] THUMB_RESIZE base path: {base_path}")
-        print(f"[DEBUG] Total pottery images from DB: {total}")
 
         for i, item in enumerate(pottery_images):
             if progress_callback:
@@ -491,7 +485,6 @@ class PotterySimilaritySearchEngine:
             if not os.path.exists(image_path):
                 skipped_not_exists += 1
                 if skipped_not_exists <= 3:  # Log first few missing files
-                    print(f"[DEBUG] File not found: {image_path}")
                 continue
 
             # Generate embedding
@@ -508,9 +501,7 @@ class PotterySimilaritySearchEngine:
             else:
                 errors += 1
                 if errors <= 3:
-                    print(f"[DEBUG] Embedding generation failed for: {image_path}")
 
-        print(f"[DEBUG] Build complete: {len(embeddings)} embeddings, {skipped_no_path} no path, {skipped_not_exists} not exists, {errors} errors")
 
         # Rebuild index with all embeddings
         success = self.index_manager.rebuild_index(model_name, search_type, embeddings)

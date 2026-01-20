@@ -65,7 +65,6 @@ class Pyarchinit_OS_Utility(object):
                     is_unibo_path
                 )
 
-                print(f"[copy_file_img DEBUG] Downloading remote file: {f}")
 
                 # Load credentials if needed
                 if is_unibo_path(f):
@@ -95,17 +94,13 @@ class Pyarchinit_OS_Utility(object):
                     with open(dest_file, 'wb') as out_file:
                         out_file.write(data)
 
-                    print(f"[copy_file_img DEBUG] Successfully saved to: {dest_file}")
                     return 0
                 else:
-                    print(f"[copy_file_img DEBUG] Failed to download: {f}")
                     return -1
 
             except ImportError as e:
-                print(f"[copy_file_img DEBUG] RemoteImageLoader not available: {e}")
                 return -1
             except Exception as e:
-                print(f"[copy_file_img DEBUG] Error copying remote file: {e}")
                 return -1
         else:
             # Local file - use original method

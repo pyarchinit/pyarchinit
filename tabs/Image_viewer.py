@@ -1712,12 +1712,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
 
-        print(f"[openWide_image DEBUG] thumb_resize_str = {thumb_resize_str}")
 
         for item in items:
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
-            print(f"[openWide_image DEBUG] Selected item: {id_orig_item}")
 
             search_dict = {'media_filename': "'" + str(id_orig_item) + "'", 'mediatype': "'" + 'video' + "'"}
             u = Utility()
@@ -1739,7 +1737,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             res_3 = self.DB_MANAGER.query_bool(search_dict_3, "MEDIA_THUMB")
 
             file_path_3 = str(res_3[0].path_resize)
-            print(f"[openWide_image DEBUG] path_resize from DB = {file_path_3}")
 
             # Check if path_resize is already a full path (starts with protocol)
             if file_path_3.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
@@ -1752,7 +1749,6 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                 # Local path
                 full_path = str(thumb_resize_str + file_path_3)
 
-            print(f"[openWide_image DEBUG] Final full_path = {full_path}")
 
             if bool(res):
                 if platform.system=='Windows':
