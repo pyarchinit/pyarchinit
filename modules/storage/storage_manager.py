@@ -48,6 +48,7 @@ class StorageManager:
         'https': StorageType.HTTP,
         'sftp': StorageType.SFTP,
         'cloudinary': StorageType.CLOUDINARY,
+        'unibo': StorageType.UNIBO,  # Unibo File Manager
     }
 
     # Registry of backend classes
@@ -170,6 +171,14 @@ class StorageManager:
             relative_path = parsed.path.lstrip('/')
             return storage_type, base_folder, relative_path
 
+        if storage_type == StorageType.UNIBO:
+            # Format: unibo://project_code/folder/path
+            # Example: unibo://Al-Khutm/KTM2025/photolog/original
+            project_code = parsed.netloc or ""
+            folder_path = parsed.path.lstrip('/')
+            base_path = f"{project_code}/{folder_path}" if folder_path else project_code
+            return storage_type, base_path, ""
+
         return storage_type, path, ""
 
     def get_backend(self, path: str, connect: bool = True) -> StorageBackend:
@@ -265,6 +274,10 @@ class StorageManager:
             elif storage_type == StorageType.CLOUDINARY:
                 from .cloudinary_backend import CloudinaryBackend
                 self.register_backend(StorageType.CLOUDINARY, CloudinaryBackend)
+
+            elif storage_type == StorageType.UNIBO:
+                from .unibo_filemanager_backend import UniboFileManagerBackend
+                self.register_backend(StorageType.UNIBO, UniboFileManagerBackend)
 
         except ImportError as e:
             # Backend not available (missing dependencies)

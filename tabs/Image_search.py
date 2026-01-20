@@ -470,7 +470,15 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
             if thumb_data:
                 # Get path_resize and build full path
                 path_resize = str(thumb_data[0].path_resize)
-                full_path = os.path.join(thumb_resize_str, path_resize) if thumb_resize_str else path_resize
+                # Check if path_resize is already a full path
+                if path_resize.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                    full_path = path_resize
+                elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                    full_path = thumb_resize_str.rstrip('/') + '/' + path_resize.lstrip('/')
+                elif thumb_resize_str:
+                    full_path = os.path.join(thumb_resize_str, path_resize)
+                else:
+                    full_path = path_resize
                 return full_path
         except Exception as e:
             print(f"Error getting resize filepath: {e}")

@@ -43,6 +43,10 @@ class RemoteImageLoader:
     _storage_backend = None
     _storage_credentials = None
 
+    # Unibo backend instance (shared)
+    _unibo_backend = None
+    _unibo_credentials = None
+
     @classmethod
     def set_storage_credentials(cls, credentials: dict):
         """
@@ -53,6 +57,117 @@ class RemoteImageLoader:
         """
         cls._storage_credentials = credentials
         cls._storage_backend = None  # Reset backend to use new credentials
+
+    @classmethod
+    def set_unibo_credentials(cls, credentials: dict):
+        """
+        Set credentials for Unibo File Manager backend.
+
+        Args:
+            credentials: Dict with 'server_url', 'username', 'password'
+        """
+        cls._unibo_credentials = credentials
+        cls._unibo_backend = None  # Reset backend to use new credentials
+
+    # Cache for Unibo backends by project code
+    _unibo_backends: Dict[str, object] = {}
+
+    @classmethod
+    def _get_unibo_backend(cls, project_code: str):
+        """Get or create Unibo File Manager backend for a project."""
+        if not cls._unibo_credentials:
+            return None
+
+        # Check if we have a cached backend for this project
+        if project_code in cls._unibo_backends:
+            return cls._unibo_backends[project_code]
+
+        try:
+            from ..storage.unibo_filemanager_backend import UniboFileManagerBackend
+
+            # Create backend with just project code (no folder path)
+            # This allows us to access any folder in the project via read()
+            backend = UniboFileManagerBackend(
+                base_path=project_code,
+                credentials=cls._unibo_credentials
+            )
+            if backend.connect():
+                cls._unibo_backends[project_code] = backend
+                print(f"[UNIBO DEBUG] Connected to project {project_code}, project_id={backend._project_id}")
+                return backend
+            else:
+                print(f"[UNIBO DEBUG] Failed to connect to backend for {project_code}")
+                return None
+        except ImportError as e:
+            print(f"[UNIBO DEBUG] Failed to import UniboFileManagerBackend: {e}")
+            return None
+        except Exception as e:
+            print(f"[UNIBO DEBUG] Failed to create Unibo backend: {e}")
+            return None
+
+    @classmethod
+    def _download_from_unibo(cls, unibo_path: str) -> Optional[bytes]:
+        """
+        Download an image from Unibo File Manager.
+
+        Args:
+            unibo_path: Path starting with unibo://
+
+        Returns:
+            Image data as bytes, or None if download failed
+        """
+        if not unibo_path or not cls.is_unibo_path(unibo_path):
+            return None
+
+        print(f"[UNIBO DEBUG] Downloading from: {unibo_path}")
+
+        # Parse unibo:// path
+        # Format: unibo://project_code/folder/path/filename.ext
+        path_part = unibo_path[len('unibo://'):].strip('/')
+        parts = path_part.split('/')
+
+        if len(parts) < 2:
+            print(f"[UNIBO DEBUG] Invalid path format: {unibo_path}")
+            return None
+
+        # Extract project code and the remaining path (folder + filename)
+        project_code = parts[0]
+        remaining_path = '/'.join(parts[1:])  # e.g., "KTM2025/photolog/original/image.png"
+
+        print(f"[UNIBO DEBUG] project_code={project_code}, remaining_path={remaining_path}")
+
+        try:
+            # Try loading credentials if not set
+            if not cls._unibo_credentials:
+                print(f"[UNIBO DEBUG] No credentials, trying to load from QGIS")
+                load_unibo_credentials_from_qgis()
+
+            if not cls._unibo_credentials:
+                print(f"[UNIBO DEBUG] Still no credentials available")
+                return None
+
+            # Get or create backend for this project
+            backend = cls._get_unibo_backend(project_code)
+
+            if backend is None:
+                print(f"[UNIBO DEBUG] No backend available")
+                return None
+
+            # Pass the full remaining path to read()
+            # The backend's read() method will resolve folders and find the file
+            data = backend.read(remaining_path)
+            if data:
+                print(f"[UNIBO DEBUG] Successfully downloaded {len(data)} bytes")
+            else:
+                print(f"[UNIBO DEBUG] Failed to download file")
+
+            return data
+
+        except Exception as e:
+            print(f"[UNIBO DEBUG] Error downloading from Unibo: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
 
     @classmethod
     def _get_storage_backend(cls, base_url: str):
@@ -72,7 +187,7 @@ class RemoteImageLoader:
     @classmethod
     def is_remote_url(cls, path: str) -> bool:
         """
-        Check if a path is a remote URL (HTTP, HTTPS, or Cloudinary).
+        Check if a path is a remote URL (HTTP, HTTPS, Cloudinary, or Unibo).
 
         Args:
             path: File path or URL
@@ -82,7 +197,22 @@ class RemoteImageLoader:
         """
         if not path:
             return False
-        return path.lower().startswith(('http://', 'https://', 'cloudinary://'))
+        return path.lower().startswith(('http://', 'https://', 'cloudinary://', 'unibo://'))
+
+    @classmethod
+    def is_unibo_path(cls, path: str) -> bool:
+        """
+        Check if a path is a Unibo File Manager path.
+
+        Args:
+            path: File path or URL
+
+        Returns:
+            True if path starts with unibo://
+        """
+        if not path:
+            return False
+        return path.lower().startswith('unibo://')
 
     @classmethod
     def is_cloudinary_path(cls, path: str) -> bool:
@@ -192,10 +322,10 @@ class RemoteImageLoader:
     @classmethod
     def load_pixmap(cls, path: str) -> QPixmap:
         """
-        Load an image as QPixmap from local path, remote URL, or Cloudinary path.
+        Load an image as QPixmap from local path, remote URL, Cloudinary, or Unibo path.
 
         Args:
-            path: Local file path, HTTP/HTTPS URL, or cloudinary:// path
+            path: Local file path, HTTP/HTTPS URL, cloudinary://, or unibo:// path
 
         Returns:
             QPixmap (may be null if loading failed)
@@ -208,17 +338,22 @@ class RemoteImageLoader:
             return cls._cache[path]
 
         pixmap = QPixmap()
+        data = None
 
-        # Convert cloudinary:// to HTTPS URL
-        download_url = path
-        if cls.is_cloudinary_path(path):
+        # Handle different path types
+        if cls.is_unibo_path(path):
+            # Download from Unibo File Manager
+            data = cls._download_from_unibo(path)
+        elif cls.is_cloudinary_path(path):
+            # Convert cloudinary:// to HTTPS URL and download
             download_url = cls.cloudinary_to_url(path)
-
-        if cls.is_remote_url(path):
-            # Download from URL (cloudinary paths are converted to HTTPS)
             data = cls._download_image(download_url)
-            if data:
-                pixmap.loadFromData(QByteArray(data))
+        elif cls.is_remote_url(path):
+            # Download from HTTP/HTTPS URL
+            data = cls._download_image(path)
+
+        if data:
+            pixmap.loadFromData(QByteArray(data))
         else:
             # Load from local path
             if os.path.exists(path):
@@ -338,6 +473,11 @@ def is_cloudinary_path(path: str) -> bool:
     return RemoteImageLoader.is_cloudinary_path(path)
 
 
+def is_unibo_path(path: str) -> bool:
+    """Check if path is a Unibo File Manager path."""
+    return RemoteImageLoader.is_unibo_path(path)
+
+
 def cloudinary_to_url(cloudinary_path: str) -> str:
     """Convert cloudinary:// path to HTTPS URL."""
     return RemoteImageLoader.cloudinary_to_url(cloudinary_path)
@@ -351,6 +491,46 @@ def get_image_path(base_path: str, filename: str) -> str:
 def set_storage_credentials(credentials: dict):
     """Set credentials for remote storage access."""
     RemoteImageLoader.set_storage_credentials(credentials)
+
+
+def set_unibo_credentials(credentials: dict):
+    """Set credentials for Unibo File Manager access."""
+    RemoteImageLoader.set_unibo_credentials(credentials)
+
+
+def load_unibo_credentials_from_qgis():
+    """
+    Load Unibo File Manager credentials from QGIS settings.
+
+    Call this function once when the plugin initializes to enable
+    authenticated access to Unibo File Manager storage.
+    """
+    try:
+        from qgis.core import QgsSettings
+        settings = QgsSettings()
+
+        credentials = {}
+
+        # Load Unibo storage credentials
+        server_url = settings.value("pyarchinit/storage/unibo/server_url", "")
+        username = settings.value("pyarchinit/storage/unibo/username", "")
+        password = settings.value("pyarchinit/storage/unibo/password", "")
+
+        if server_url:
+            credentials['server_url'] = server_url
+        if username:
+            credentials['username'] = username
+        if password:
+            credentials['password'] = password
+
+        if credentials and 'server_url' in credentials and 'username' in credentials:
+            RemoteImageLoader.set_unibo_credentials(credentials)
+            print(f"[UNIBO DEBUG] Loaded credentials for server: {server_url}")
+            return True
+
+        return False
+    except ImportError:
+        return False
 
 
 def load_credentials_from_qgis():
@@ -397,3 +577,41 @@ def initialize():
     This should be called once when the plugin loads.
     """
     load_credentials_from_qgis()
+    load_unibo_credentials_from_qgis()
+
+
+def join_path(base_path: str, *parts: str) -> str:
+    """
+    Join path components correctly for both local and remote paths.
+
+    For remote paths (unibo://, http://, https://, cloudinary://),
+    uses forward slash. For local paths, uses os.path.join.
+
+    Args:
+        base_path: Base path (local or remote URL)
+        *parts: Additional path components to join
+
+    Returns:
+        Joined path
+
+    Example:
+        join_path('unibo://project', 'folder', 'file.jpg')
+        # Returns: 'unibo://project/folder/file.jpg'
+
+        join_path('/local/path', 'folder', 'file.jpg')
+        # Returns: '/local/path/folder/file.jpg' (OS-appropriate)
+    """
+    if not base_path:
+        return os.path.join('', *parts) if parts else ''
+
+    # Check if it's a remote URL
+    if base_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+        # Use forward slash for URLs
+        result = base_path.rstrip('/')
+        for part in parts:
+            if part:
+                result = result + '/' + str(part).lstrip('/')
+        return result
+    else:
+        # Use os.path.join for local paths
+        return os.path.join(base_path, *parts)

@@ -41,9 +41,64 @@ class pyarchinit_OS_Utility:
                 raise
 
     def copy_file_img(self, f, d):
-        file_path = f
-        destination = d
-        shutil.copy(file_path, destination)
+        """
+        Copy an image file to destination.
+        Supports local paths and remote URLs (unibo://, http://, https://, cloudinary://).
+        """
+        # Check if source is a remote URL
+        is_remote = f and f.startswith(('unibo://', 'http://', 'https://', 'cloudinary://'))
+
+        if is_remote:
+            # Handle remote files by downloading them first
+            try:
+                from ..utility.remote_image_loader import (
+                    RemoteImageLoader,
+                    load_unibo_credentials_from_qgis,
+                    is_unibo_path
+                )
+
+                print(f"[copy_file_img DEBUG] Downloading remote file: {f}")
+
+                # Load credentials if needed
+                if is_unibo_path(f):
+                    load_unibo_credentials_from_qgis()
+
+                # Download file data
+                if f.startswith('unibo://'):
+                    data = RemoteImageLoader._download_from_unibo(f)
+                elif f.startswith('cloudinary://'):
+                    url = RemoteImageLoader.cloudinary_to_url(f)
+                    data = RemoteImageLoader._download_image(url)
+                else:
+                    data = RemoteImageLoader._download_image(f)
+
+                if data:
+                    # Get filename from source path
+                    filename = f.split('/')[-1]
+
+                    # Determine full destination path
+                    if os.path.isdir(d):
+                        dest_file = os.path.join(d, filename)
+                    else:
+                        dest_file = d
+
+                    # Write downloaded data to destination
+                    with open(dest_file, 'wb') as out_file:
+                        out_file.write(data)
+
+                    print(f"[copy_file_img DEBUG] Successfully saved to: {dest_file}")
+                else:
+                    print(f"[copy_file_img DEBUG] Failed to download: {f}")
+
+            except ImportError as e:
+                print(f"[copy_file_img DEBUG] RemoteImageLoader not available: {e}")
+            except Exception as e:
+                print(f"[copy_file_img DEBUG] Error copying remote file: {e}")
+        else:
+            # Local file - use original method
+            file_path = f
+            destination = d
+            shutil.copy(file_path, destination)
 
     def copy_file(self, f, d):
         file_path = f

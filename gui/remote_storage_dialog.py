@@ -60,7 +60,8 @@ class RemoteStorageDialog(QDialog):
         layout.addWidget(self.tab_widget)
 
         # Add tabs for each backend
-        self.setup_cloudinary_tab()  # Cloudinary first (most commonly used)
+        self.setup_api_storage_tab()  # API Storage first (for File Manager servers)
+        self.setup_cloudinary_tab()
         self.setup_gdrive_tab()
         self.setup_dropbox_tab()
         self.setup_s3_tab()
@@ -347,8 +348,90 @@ class RemoteStorageDialog(QDialog):
 
         self.tab_widget.addTab(tab, "HTTP/HTTPS")
 
+    def setup_api_storage_tab(self):
+        """Set up API Storage (File Manager) configuration tab"""
+        tab = QWidget()
+        layout = QVBoxLayout(tab)
+
+        # Instructions
+        instructions = QLabel(
+            "<b>API Storage (File Manager)</b><br>"
+            "Configure connection to File Manager servers with JWT authentication.<br>"
+            "Compatible with servers that use REST API with login/token authentication.<br><br>"
+            "<b>Path format:</b> <code>unibo://project_code/folder/path</code><br>"
+            "<b>Example:</b> <code>unibo://Al-Khutm/KTM2025/photolog/original</code>"
+        )
+        instructions.setWordWrap(True)
+        layout.addWidget(instructions)
+
+        # Server Connection group
+        server_group = QGroupBox("Server Connection")
+        server_layout = QFormLayout(server_group)
+
+        self.api_server_url = QLineEdit()
+        self.api_server_url.setPlaceholderText("https://server-address:port")
+        self.api_server_url.setToolTip("Server URL (e.g., https://137.204.128.220)")
+        server_layout.addRow("Server URL:", self.api_server_url)
+
+        self.api_username = QLineEdit()
+        self.api_username.setPlaceholderText("Username for authentication")
+        self.api_username.setToolTip("Username for JWT authentication")
+        server_layout.addRow("Username:", self.api_username)
+
+        self.api_password = QLineEdit()
+        self.api_password.setEchoMode(QLineEdit.Password)
+        self.api_password.setPlaceholderText("Password for authentication")
+        self.api_password.setToolTip("Password for JWT authentication")
+        server_layout.addRow("Password:", self.api_password)
+
+        layout.addWidget(server_group)
+
+        # Default Path group (optional)
+        path_group = QGroupBox("Default Path (Optional)")
+        path_layout = QFormLayout(path_group)
+
+        self.api_project_code = QLineEdit()
+        self.api_project_code.setPlaceholderText("Project code or name")
+        self.api_project_code.setToolTip("Default project code to use (e.g., Al-Khutm)")
+        path_layout.addRow("Project Code:", self.api_project_code)
+
+        self.api_base_folder = QLineEdit()
+        self.api_base_folder.setPlaceholderText("folder/subfolder/path")
+        self.api_base_folder.setToolTip("Default folder path within the project")
+        path_layout.addRow("Base Folder:", self.api_base_folder)
+
+        layout.addWidget(path_group)
+
+        # SSL Options group
+        ssl_group = QGroupBox("SSL Options")
+        ssl_layout = QFormLayout(ssl_group)
+
+        self.api_verify_ssl = QComboBox()
+        self.api_verify_ssl.addItems(["No (Self-signed certificates)", "Yes (Verify certificates)"])
+        self.api_verify_ssl.setToolTip("Disable SSL verification for self-signed certificates")
+        ssl_layout.addRow("Verify SSL:", self.api_verify_ssl)
+
+        layout.addWidget(ssl_group)
+        layout.addStretch()
+
+        self.tab_widget.addTab(tab, "API Storage")
+
     def load_settings(self):
         """Load settings from QGIS settings"""
+        # API Storage
+        self.api_server_url.setText(
+            self.settings.value("pyarchinit/storage/unibo/server_url", ""))
+        self.api_username.setText(
+            self.settings.value("pyarchinit/storage/unibo/username", ""))
+        self.api_password.setText(
+            self.settings.value("pyarchinit/storage/unibo/password", ""))
+        self.api_project_code.setText(
+            self.settings.value("pyarchinit/storage/unibo/project_code", ""))
+        self.api_base_folder.setText(
+            self.settings.value("pyarchinit/storage/unibo/base_folder", ""))
+        verify_ssl = self.settings.value("pyarchinit/storage/unibo/verify_ssl", "false")
+        self.api_verify_ssl.setCurrentIndex(1 if verify_ssl.lower() in ('true', '1', 'yes') else 0)
+
         # Cloudinary
         self.cloudinary_cloud_name.setText(
             self.settings.value("pyarchinit/storage/cloudinary/cloud_name", ""))
@@ -407,6 +490,20 @@ class RemoteStorageDialog(QDialog):
 
     def save_settings(self):
         """Save settings to QGIS settings"""
+        # API Storage
+        self.settings.setValue("pyarchinit/storage/unibo/server_url",
+                               self.api_server_url.text())
+        self.settings.setValue("pyarchinit/storage/unibo/username",
+                               self.api_username.text())
+        self.settings.setValue("pyarchinit/storage/unibo/password",
+                               self.api_password.text())
+        self.settings.setValue("pyarchinit/storage/unibo/project_code",
+                               self.api_project_code.text())
+        self.settings.setValue("pyarchinit/storage/unibo/base_folder",
+                               self.api_base_folder.text())
+        self.settings.setValue("pyarchinit/storage/unibo/verify_ssl",
+                               "true" if self.api_verify_ssl.currentIndex() == 1 else "false")
+
         # Cloudinary
         self.settings.setValue("pyarchinit/storage/cloudinary/cloud_name",
                                self.cloudinary_cloud_name.text())
@@ -472,6 +569,11 @@ class RemoteStorageDialog(QDialog):
         current_tab = self.tab_widget.currentIndex()
         tab_name = self.tab_widget.tabText(current_tab)
 
+        # Special handling for API Storage tab (index 0)
+        if current_tab == 0:  # API Storage
+            self._test_api_storage_connection()
+            return
+
         try:
             from modules.storage import StorageManager, CredentialsManager
             from modules.storage.base_backend import StorageType
@@ -482,24 +584,24 @@ class RemoteStorageDialog(QDialog):
             creds_manager = CredentialsManager()
             storage = StorageManager(credentials_manager=creds_manager)
 
-            # Test based on current tab
-            if current_tab == 0:  # Cloudinary
+            # Test based on current tab (shifted by 1 due to API Storage at index 0)
+            if current_tab == 1:  # Cloudinary
                 storage_type = StorageType.CLOUDINARY
                 test_path = "cloudinary://test"
-            elif current_tab == 1:  # Google Drive
+            elif current_tab == 2:  # Google Drive
                 storage_type = StorageType.GOOGLE_DRIVE
                 test_path = "gdrive://test"
-            elif current_tab == 2:  # Dropbox
+            elif current_tab == 3:  # Dropbox
                 storage_type = StorageType.DROPBOX
                 test_path = "dropbox://test"
-            elif current_tab == 3:  # S3
+            elif current_tab == 4:  # S3
                 storage_type = StorageType.S3
                 bucket = "test-bucket"
                 test_path = f"s3://{bucket}"
-            elif current_tab == 4:  # WebDAV
+            elif current_tab == 5:  # WebDAV
                 storage_type = StorageType.WEBDAV
                 test_path = "webdav://test"
-            else:  # HTTP
+            else:  # HTTP (index 6)
                 storage_type = StorageType.HTTP
                 test_path = "https://example.com"
 
@@ -530,6 +632,82 @@ class RemoteStorageDialog(QDialog):
                 f"Error testing {tab_name} connection:\n{str(e)}"
             )
 
+    def _test_api_storage_connection(self):
+        """Test connection to API Storage (File Manager) server"""
+        server_url = self.api_server_url.text().strip()
+        username = self.api_username.text().strip()
+        password = self.api_password.text()
+
+        # Validate required fields
+        if not server_url:
+            QMessageBox.warning(self, "Missing Field", "Server URL is required.")
+            return
+        if not username:
+            QMessageBox.warning(self, "Missing Field", "Username is required.")
+            return
+        if not password:
+            QMessageBox.warning(self, "Missing Field", "Password is required.")
+            return
+
+        try:
+            from modules.storage.unibo_filemanager_backend import UniboFileManagerBackend
+
+            # Build the base path from project code and folder
+            project_code = self.api_project_code.text().strip()
+            base_folder = self.api_base_folder.text().strip()
+
+            if project_code and base_folder:
+                base_path = f"{project_code}/{base_folder}"
+            elif project_code:
+                base_path = project_code
+            else:
+                base_path = ""
+
+            # Create credentials dict
+            credentials = {
+                'username': username,
+                'password': password,
+                'server_url': server_url
+            }
+
+            # Create backend and test connection
+            backend = UniboFileManagerBackend(base_path=base_path, credentials=credentials)
+
+            if backend.connect():
+                # Build success message
+                msg = "Connection successful!\n\n"
+                if backend._project_id:
+                    msg += f"Project ID: {backend._project_id}\n"
+                if backend._folder_id:
+                    msg += f"Folder ID: {backend._folder_id}\n"
+
+                # Try to list files
+                try:
+                    files = backend.list()
+                    msg += f"\nFound {len(files)} items in the folder."
+                except Exception:
+                    pass
+
+                backend.disconnect()
+                QMessageBox.information(self, "Connection Test", msg)
+            else:
+                QMessageBox.warning(
+                    self, "Connection Failed",
+                    "Could not connect to the server.\n"
+                    "Please check your credentials and server URL."
+                )
+
+        except ImportError as e:
+            QMessageBox.warning(
+                self, "Module Not Found",
+                f"API Storage module not available: {str(e)}"
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self, "Connection Error",
+                f"Error testing connection:\n{str(e)}"
+            )
+
     def save_settings_temp(self):
         """Temporarily save settings for testing"""
         # This saves settings immediately so the credentials manager can read them
@@ -537,6 +715,20 @@ class RemoteStorageDialog(QDialog):
 
         # Actually save the current values
         settings = QgsSettings()
+
+        # API Storage
+        settings.setValue("pyarchinit/storage/unibo/server_url",
+                          self.api_server_url.text())
+        settings.setValue("pyarchinit/storage/unibo/username",
+                          self.api_username.text())
+        settings.setValue("pyarchinit/storage/unibo/password",
+                          self.api_password.text())
+        settings.setValue("pyarchinit/storage/unibo/project_code",
+                          self.api_project_code.text())
+        settings.setValue("pyarchinit/storage/unibo/base_folder",
+                          self.api_base_folder.text())
+        settings.setValue("pyarchinit/storage/unibo/verify_ssl",
+                          "true" if self.api_verify_ssl.currentIndex() == 1 else "false")
 
         # Cloudinary
         settings.setValue("pyarchinit/storage/cloudinary/cloud_name",

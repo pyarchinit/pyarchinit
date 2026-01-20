@@ -2390,7 +2390,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             res = query_media(search_dict)
 
             if res:
-                file_path = process_file_path(os.path.join(thumb_resize_str, str(res[0].path_resize)))
+                # Construct path properly for remote URLs
+                path_resize = str(res[0].path_resize)
+                # Check if path_resize is already a full path
+                if path_resize.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                    file_path = process_file_path(path_resize)
+                elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                    file_path = process_file_path(thumb_resize_str.rstrip('/') + '/' + path_resize.lstrip('/'))
+                else:
+                    file_path = process_file_path(os.path.join(thumb_resize_str, path_resize))
                 media_type = res[0].mediatype
 
                 if media_type == 'image':
@@ -2876,7 +2884,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.video_player.show()
 
         def show_media(file_path, media_type):
-            full_path = os.path.join(thumb_resize_str, file_path)
+            # Check if file_path is already a full path (starts with protocol)
+            if file_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                full_path = file_path
+            elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                full_path = thumb_resize_str.rstrip('/') + '/' + file_path.lstrip('/')
+            else:
+                full_path = os.path.join(thumb_resize_str, file_path)
+
+            print(f"[Inv_Materiali openWide_image DEBUG] thumb_resize_str={thumb_resize_str}, file_path={file_path}, full_path={full_path}")
+
             if media_type == 'video':
                 show_video(full_path)
             elif media_type == 'image':
@@ -2899,8 +2916,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             res = query_media(search_dict)
 
             if res:
-
-                file_path = process_file_path(os.path.join(thumb_resize_str, str(res[0].path_resize)))
+                # Construct path properly for remote URLs
+                path_resize = str(res[0].path_resize)
+                # Check if path_resize is already a full path
+                if path_resize.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                    file_path = process_file_path(path_resize)
+                elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                    file_path = process_file_path(thumb_resize_str.rstrip('/') + '/' + path_resize.lstrip('/'))
+                else:
+                    file_path = process_file_path(os.path.join(thumb_resize_str, path_resize))
 
                 media_type = res[0].mediatype
 
