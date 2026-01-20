@@ -638,7 +638,7 @@ class ReportDialog(QDialog):
                 scrollbar = self.text_edit.verticalScrollBar()
                 scrollbar.setValue(scrollbar.maximum())
         except Exception as e:
-            print(f"Errore nell'aggiornamento del contenuto: {str(e)}")
+            pass
 
     def append_streaming_token(self, token):
         """Append a streaming token to the content"""
@@ -657,8 +657,8 @@ class ReportDialog(QDialog):
             # Process events to update UI in real-time
             QApplication.processEvents()
         except Exception as e:
-            print(f"Error appending streaming token: {str(e)}")
 
+            pass
     def handle_mouse_press(self, event):
         """Gestisce il click del mouse nel text edit"""
         if event.button() == Qt.MouseButton.LeftButton:
@@ -668,10 +668,6 @@ class ReportDialog(QDialog):
                 url = format.anchorHref()
                 if url:
                     try:
-                        # Aggiungi log per debug
-                        if DEBUG:
-                            print(f"URL clicked: {url}")
-
                         # Se l'URL è già un file path completo
                         if os.path.exists(url):
                             qurl = QUrl.fromLocalFile(url)
@@ -918,7 +914,6 @@ class ReportDialog(QDialog):
 
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Error saving report: {str(e)}")
-            print(f"Detailed error: {str(e)}")  # Per debug
 
     def process_html_content(self, soup, doc, figure_counter):
         """Process HTML content and convert it to Word document format"""
@@ -1021,13 +1016,11 @@ class ReportDialog(QDialog):
             # IMPORTANT: Check for image tags FIRST, before markdown processing
             # This ensures images are not skipped when text also contains asterisks
             if '[IMMAGINE' in text and ']' in text:
-                if DEBUG:
                 # Extract and process all image references in the text
                 img_pattern = r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]'
                 matches = list(re.finditer(img_pattern, text))
 
                 if matches:
-                    if DEBUG:
                     last_end = 0
                     for match in matches:
                         # Add text before the image
@@ -1047,7 +1040,6 @@ class ReportDialog(QDialog):
                         import urllib.parse
                         img_path = urllib.parse.unquote(img_path)
 
-                        if DEBUG:
 
                         try:
                             if os.path.exists(img_path):
@@ -1075,11 +1067,9 @@ class ReportDialog(QDialog):
                                 caption_run.italic = True
                                 caption_run.font.size = Pt(9)
                                 caption_run.font.name = 'Calibri'
-                                if DEBUG:
                             else:
                                 # If image doesn't exist, add a placeholder
                                 doc.add_paragraph(f"[Immagine non trovata: {caption}]")
-                                if DEBUG:
                         except Exception as e:
                             doc.add_paragraph(f"[Errore immagine: {str(e)}]")
 
@@ -1094,7 +1084,6 @@ class ReportDialog(QDialog):
                     return  # Done processing this element
                 else:
                     # No regex match - try manual fallback
-                    if DEBUG:
                     try:
                         start_idx = text.find(':') + 1
                         comma_idx = text.rfind(',')
@@ -1122,9 +1111,9 @@ class ReportDialog(QDialog):
                                 caption_run = caption_para.add_run(fallback_caption)
                                 caption_run.italic = True
                                 caption_run.font.size = Pt(9)
-                                if DEBUG:
                                 return
                     except Exception as e:
+                        pass
 
             # Process markdown formatting (bold and italic)
             # Check if text contains markdown formatting
@@ -1299,11 +1288,8 @@ class ReportDialog(QDialog):
                             else:
                                 # If image doesn't exist, add a placeholder
                                 doc.add_paragraph(f"[Immagine non trovata: {caption}]")
-                                if DEBUG:
-                                    print(f"Image not found: {img_path}")
                         except Exception as e:
                             doc.add_paragraph(f"[Errore immagine: {str(e)}]")
-                            print(f"Error processing image {img_path}: {e}")
 
                         last_end = match.end()
 
@@ -1315,8 +1301,6 @@ class ReportDialog(QDialog):
                         run.bold = False
                 else:
                     # No regex match - try manual fallback extraction
-                    if DEBUG:
-                        print(f"WARNING: No regex match for image tag, trying fallback: {text[:100]}")
                     try:
                         start_idx = text.find(':') + 1
                         comma_idx = text.rfind(',')
@@ -1328,8 +1312,6 @@ class ReportDialog(QDialog):
                             fallback_path = urllib.parse.unquote(fallback_path)
 
                             if fallback_path and fallback_caption and os.path.exists(fallback_path):
-                                if DEBUG:
-                                    print(f"Fallback extraction succeeded: {fallback_path}")
                                 picture = doc.add_picture(fallback_path)
                                 max_width_px = 450
                                 width = picture.width
@@ -1347,8 +1329,6 @@ class ReportDialog(QDialog):
                                 caption_run.italic = True
                                 caption_run.font.size = Pt(9)
                             else:
-                                if DEBUG:
-                                    print(f"Fallback path not found: {fallback_path}")
                                 p = doc.add_paragraph()
                                 run = p.add_run(f"[Immagine non trovata: {fallback_caption}]")
                                 run.bold = False
@@ -1416,8 +1396,8 @@ class ReportDialog(QDialog):
                             border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
                             tcBorders.append(border)
             except Exception as border_error:
-                print(f"Error applying borders: {str(border_error)}")
 
+                pass
         # Fill table with data
         for i, row in enumerate(rows):
             cells = row.find_all(['th', 'td'])
@@ -1480,7 +1460,6 @@ class ReportDialog(QDialog):
 
         except Exception as e:
             self.log_to_terminal(f"Errore con l'immagine {src}: {str(e)}", "error")
-            print(f"Dettaglio errore: {str(e)}")  # per debug
 
 
 
@@ -1905,8 +1884,6 @@ class GenerateReportThread(QThread):
                 full_match = match.group(0)  # Il match completo
 
             # Debug print
-            if DEBUG:
-                print(f"Match trovato: {full_match}")
 
             # Check if this is a list item with an image reference
             is_list_item = full_match.startswith('- [IMMAGINE')
@@ -1931,22 +1908,14 @@ class GenerateReportThread(QThread):
                 # Check if this image has already been used
                 image_key = f"{number}_{path}"
                 if image_key in used_images:
-                    if DEBUG:
-                        print(f"Skipping duplicate image: {image_key}")
                     return ""  # Skip duplicate images
 
                 # Mark this image as used
                 used_images[image_key] = True
 
-                # Debug print
-                if DEBUG:
-                    print(f"Processando immagine: numero={number}, path={path}, caption={caption}")
-
                 # Check if file exists first
                 import os
                 if not os.path.exists(path):
-                    if DEBUG:
-                        print(f"ERRORE: File non trovato: {path}")
                     return f'''
                         <div style="margin: 10px 0; text-align: center; color: red;">
                             <p>[Immagine non trovata: {caption}]</p>
@@ -1981,8 +1950,6 @@ class GenerateReportThread(QThread):
                         scaled_image.save(temp_path)
                 else:
                     # Fallback: try with PIL
-                    if DEBUG:
-                        print(f"QImage fallito, provo con PIL...")
                     try:
                         from PIL import Image as PILImage
                         pil_img = PILImage.open(path)
@@ -1991,10 +1958,7 @@ class GenerateReportThread(QThread):
                         import tempfile
                         temp_path = os.path.join(tempfile.gettempdir(), f"pyarchinit_report_{os.path.basename(path)}")
                         pil_img.save(temp_path)
-                        if DEBUG:
-                            print(f"PIL caricamento riuscito: {temp_path}")
                     except Exception as e:
-                        print(f"Anche PIL fallito: {e}")
                         return f'''
                             <div style="margin: 10px 0; text-align: center; color: orange;">
                                 <p>[Impossibile caricare immagine: {caption}]</p>
@@ -4271,8 +4235,6 @@ class RAGQueryDialog(QDialog):
         """Handle rebuild errors"""
         self.progress_bar.setVisible(False)
         self.status_label.setText(f"Errore controllo RAG: {error_msg}")
-        if DEBUG:
-            print(f"[AI Query] RAG rebuild error: {error_msg}")
 
     def force_rebuild_rag(self):
         """Force a complete rebuild of the RAG vectorstore"""
@@ -4310,16 +4272,8 @@ class RAGQueryDialog(QDialog):
                     with open(path_key, 'r') as f:
                         api_key = f.read().strip()
             except Exception as e:
-                print(f"[AI Query] Error reading API key from file: {e}")
+                pass
 
-        if api_key:
-            if DEBUG:
-                print(f"[AI Query] API key retrieved: {api_key[:20]}...{api_key[-10:]}")
-            if DEBUG:
-                print(f"[AI Query] API key length: {len(api_key)}")
-        else:
-            if DEBUG:
-                print("[AI Query] API key is None or empty")
         if not api_key:
             QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in ~/pyarchinit/bin/gpt_api_key.txt")
             return
@@ -5096,8 +5050,8 @@ class RAGQueryDialog(QDialog):
                 # Refresh canvas
                 iface.mapCanvas().refresh()
         except Exception as e:
-            print(f"[AI Query] Error highlighting US: {e}")
 
+            pass
     def clear_highlights(self):
         """Clear all highlights from the map"""
         try:
@@ -5112,8 +5066,8 @@ class RAGQueryDialog(QDialog):
 
             self.status_label.setText("Evidenziazione rimossa")
         except Exception as e:
-            print(f"[AI Query] Error clearing highlights: {e}")
 
+            pass
     def show_dedicated_map_window(self, us_numbers):
         """Show query results in a dedicated map window"""
         try:
@@ -5282,8 +5236,6 @@ class RAGQueryDialog(QDialog):
 
             config = self.PYARCHINIT_LAYER_CONFIG.get(layer_type.upper())
             if not config:
-                if DEBUG:
-                    print(f"[AI Query] Unknown layer type: {layer_type}")
                 return None
 
             layer_names = config['layer_names']
@@ -5297,15 +5249,13 @@ class RAGQueryDialog(QDialog):
                         return layer
 
             # Layer not found - try to load the view automatically
-            if DEBUG:
-                print(f"[AI Query] {layer_type} layer not found in TOC, attempting to load {config['view_name']}...")
             loaded_layer = self._load_view_layer(layer_type)
             if loaded_layer:
                 return loaded_layer
 
         except Exception as e:
-            print(f"[AI Query] Error finding {layer_type} layer: {e}")
 
+            pass
         return None
 
     def _find_us_layer(self):
@@ -5320,16 +5270,12 @@ class RAGQueryDialog(QDialog):
 
             config = self.PYARCHINIT_LAYER_CONFIG.get(layer_type.upper())
             if not config:
-                if DEBUG:
-                    print(f"[AI Query] Unknown layer type: {layer_type}")
                 return None
 
             conn = Connection()
             conn_str = conn.conn_str()
 
             if not conn_str:
-                if DEBUG:
-                    print("[AI Query] No connection string available")
                 return None
 
             uri = QgsDataSourceUri()
@@ -5347,8 +5293,6 @@ class RAGQueryDialog(QDialog):
                     uri.setDataSource("public", view_name, geom_column, "", config['pk_column_pg'])
                     provider = "postgres"
                 else:
-                    if DEBUG:
-                        print("[AI Query] Could not parse PostgreSQL connection string")
                     return None
             elif 'sqlite' in conn_str:
                 # SQLite connection
@@ -5357,8 +5301,6 @@ class RAGQueryDialog(QDialog):
                 uri.setDataSource('', view_name, geom_column, '', config['pk_column_sqlite'])
                 provider = "spatialite"
             else:
-                if DEBUG:
-                    print(f"[AI Query] Unknown database type in connection")
                 return None
 
             # Create and add layer
@@ -5367,14 +5309,10 @@ class RAGQueryDialog(QDialog):
 
             if layer.isValid():
                 QgsProject.instance().addMapLayer(layer)
-                if DEBUG:
-                    print(f"[AI Query] Successfully loaded {display_name}")
                 if hasattr(self, 'status_label'):
                     self.status_label.setText(f"Layer '{display_name}' caricato automaticamente")
                 return layer
             else:
-                if DEBUG:
-                    print(f"[AI Query] Layer not valid: {view_name}")
                 return None
 
         except Exception as e:
@@ -5414,15 +5352,11 @@ class RAGQueryDialog(QDialog):
             import shutil
             if os.path.exists(faiss_path):
                 shutil.rmtree(faiss_path)
-                if DEBUG:
-                    print(f"[AI Query] Deleted FAISS index: {faiss_path}")
             if os.path.exists(hash_file):
                 os.remove(hash_file)
-                if DEBUG:
-                    print(f"[AI Query] Deleted hash file: {hash_file}")
         except Exception as e:
-            print(f"[AI Query] Error deleting cache files: {e}")
 
+            pass
         self.status_label.setText("Cache cancellata! La prossima query ricostruirà il vectorstore.")
         QMessageBox.information(self, "Cache Cancellata",
             "La cache del vectorstore è stata cancellata.\n\n"
@@ -5592,8 +5526,6 @@ class RAGQueryWorker(QThread):
             conn = Connection()
             self._thumb_path = conn.thumb_path().get('thumb_path', '')
             self._thumb_resize = conn.thumb_resize().get('thumb_resize', '')
-            if DEBUG:
-                print(f"[AI Query] Media paths loaded - thumb: {self._thumb_path}, resize: {self._thumb_resize}")
         except Exception as e:
             print(f"[AI Query] Error loading media paths: {e}")
             self._thumb_path = ''
@@ -5612,8 +5544,6 @@ class RAGQueryWorker(QThread):
             with open(self.FAISS_HASH_FILE, 'w') as f:
                 f.write(data_hash)
 
-            if DEBUG:
-                print(f"[AI Query] Vectorstore saved to disk: {self.FAISS_INDEX_PATH}")
             return True
         except Exception as e:
             print(f"[AI Query] Error saving vectorstore to disk: {e}")
@@ -5626,8 +5556,6 @@ class RAGQueryWorker(QThread):
 
             # Check if index exists
             if not os.path.exists(self.FAISS_INDEX_PATH):
-                if DEBUG:
-                    print(f"[AI Query] No saved vectorstore found at {self.FAISS_INDEX_PATH}")
                 return None
 
             # Check hash if provided
@@ -5635,8 +5563,6 @@ class RAGQueryWorker(QThread):
                 with open(self.FAISS_HASH_FILE, 'r') as f:
                     saved_hash = f.read().strip()
                 if saved_hash != expected_hash:
-                    if DEBUG:
-                        print(f"[AI Query] Saved vectorstore hash mismatch, will rebuild")
                     return None
 
             # Load the vectorstore
@@ -5651,8 +5577,6 @@ class RAGQueryWorker(QThread):
                 with open(self.FAISS_HASH_FILE, 'r') as f:
                     RAGQueryWorker._cached_data_hash = f.read().strip()
 
-            if DEBUG:
-                print(f"[AI Query] Vectorstore loaded from disk: {self.FAISS_INDEX_PATH}")
             return vectorstore
         except Exception as e:
             print(f"[AI Query] Error loading vectorstore from disk: {e}")
@@ -5690,8 +5614,8 @@ class RAGQueryWorker(QThread):
                 thumb_filename = f"{base}_thumb{ext}"
                 return os.path.join(self._thumb_path, thumb_filename)
         except Exception as e:
-            print(f"[AI Query] Error getting thumbnail path: {e}")
 
+            pass
         return None
 
     def get_media_resize_path(self, media_record):
@@ -5726,8 +5650,8 @@ class RAGQueryWorker(QThread):
                     base = base[:-6]
                 return os.path.join(self._thumb_resize, f"{base}{ext}")
         except Exception as e:
-            print(f"[AI Query] Error getting resize path: {e}")
 
+            pass
         return None
 
     def run(self):
@@ -5801,10 +5725,6 @@ class RAGQueryWorker(QThread):
                         self.progress_update.emit("Creazione vectorstore (dati aggiornati)...")
 
                         # Debug API key
-                        if DEBUG:
-                            print(f"[RAGQueryWorker] API key in worker: {self.api_key[:20] if self.api_key else 'None'}...{self.api_key[-10:] if self.api_key else ''}")
-                        if DEBUG:
-                            print(f"[RAGQueryWorker] API key length in worker: {len(self.api_key) if self.api_key else 0}")
 
                         texts = self.prepare_texts(data)
 
@@ -6039,8 +5959,6 @@ class RAGQueryWorker(QThread):
                                         # Cerca pottery per questa US nei raw_data
                                         pottery_data = self.raw_data.get('pottery', [])
                                         us_pottery = [p for p in pottery_data if str(p.get('us', '')) == us_num]
-                                        if DEBUG:
-                                            print(f"[AI Query] Found {len(us_pottery)} pottery records for US {us_num} in raw_data")
                                         if us_pottery:
                                             pottery_lines = []
                                             for p in us_pottery:
@@ -6050,8 +5968,6 @@ class RAGQueryWorker(QThread):
                                         # Cerca inventario per questa US nei raw_data
                                         inv_data = self.raw_data.get('inventario_materiali', [])
                                         us_inv = [i for i in inv_data if str(i.get('us', '')) == us_num]
-                                        if DEBUG:
-                                            print(f"[AI Query] Found {len(us_inv)} inventory records for US {us_num} in raw_data")
                                         if us_inv:
                                             inv_lines = []
                                             for i in us_inv:
@@ -6071,8 +5987,6 @@ class RAGQueryWorker(QThread):
                                             us_mte = mediatoentity_by_entity.get(('US', us_id), [])
                                             for mte in us_mte:
                                                 us_media_ids.add(mte.get('id_media'))
-                                            if DEBUG:
-                                                print(f"[AI Query] Found {len(us_mte)} direct media links for US {us_num}")
 
                                         # Find media linked to pottery of this US
                                         pottery_media_count = 0
@@ -6083,8 +5997,6 @@ class RAGQueryWorker(QThread):
                                                 for mte in pot_mte:
                                                     us_media_ids.add(mte.get('id_media'))
                                                     pottery_media_count += 1
-                                        if DEBUG:
-                                            print(f"[AI Query] Found {pottery_media_count} media links for pottery of US {us_num}")
 
                                         # Find media linked to inventory of this US
                                         inv_media_count = 0
@@ -6095,11 +6007,7 @@ class RAGQueryWorker(QThread):
                                                 for mte in inv_mte:
                                                     us_media_ids.add(mte.get('id_media'))
                                                     inv_media_count += 1
-                                        if DEBUG:
-                                            print(f"[AI Query] Found {inv_media_count} media links for inventory of US {us_num}")
 
-                                        if DEBUG:
-                                            print(f"[AI Query] Total {len(us_media_ids)} unique media IDs for US {us_num}")
                                         if us_media_ids:
                                             media_lines = []
                                             for m in media_data:
@@ -6294,8 +6202,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                 current_site = str(self.parent.comboBox_sito.currentText()).strip()
                 if current_site:
                     search_dict = {'sito': current_site}
-                    if DEBUG:
-                        print(f"[AI Query] Loading data for site: {current_site}")
 
         total_records = 0
 
@@ -6337,19 +6243,15 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
 
                                 data[data_key].append(row_dict)
                         except Exception as e:
-                            print(f"Error converting row in {query_name}: {e}")
 
+                            pass
                     record_count = len(data[data_key])
                     total_records += record_count
-                    if DEBUG:
-                        print(f"[AI Query] Loaded {record_count} {query_name} records")
 
             except Exception as e:
                 print(f"[AI Query] Error loading {query_name}: {e}")
                 data[table_key.lower()] = []
 
-        if DEBUG:
-            print(f"[AI Query] Total records loaded: {total_records}")
         return data
 
     def _row_to_dict(self, row):
@@ -6407,8 +6309,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                         if id_us and us_number:
                             related_data['us_number_to_id'][str(us_number)] = id_us
                             related_data['us_id_to_number'][id_us] = str(us_number)
-                if DEBUG:
-                    print(f"[AI Query] Built US mapping: {len(related_data['us_number_to_id'])} entries")
 
             # Load POTTERY records for id_rep <-> id_number mapping
             self.progress_update.emit("Caricamento mapping Ceramica...")
@@ -6424,8 +6324,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                         if id_rep and id_number:
                             related_data['pottery_number_to_id'][str(id_number)] = id_rep
                             related_data['pottery_id_to_number'][id_rep] = str(id_number)
-                if DEBUG:
-                    print(f"[AI Query] Built POTTERY mapping: {len(related_data['pottery_number_to_id'])} entries")
 
             # Load INVENTARIO_MATERIALI records for id_invmat <-> numero_inventario mapping
             self.progress_update.emit("Caricamento mapping Inventario...")
@@ -6441,8 +6339,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                         if id_invmat and num_inv:
                             related_data['inventory_number_to_id'][str(num_inv)] = id_invmat
                             related_data['inventory_id_to_number'][id_invmat] = str(num_inv)
-                if DEBUG:
-                    print(f"[AI Query] Built INVENTORY mapping: {len(related_data['inventory_number_to_id'])} entries")
 
             # Load ALL MEDIATOENTITY records in one query
             self.progress_update.emit("Caricamento relazioni media...")
@@ -6483,10 +6379,7 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                                 related_data['mediatoentity_by_entity'][key] = []
                             related_data['mediatoentity_by_entity'][key].append(mte_dict)
 
-                if DEBUG:
                     print(f"[AI Query] Pre-loaded MEDIATOENTITY: {len(related_data['mediatoentity'])} media with links")
-                if DEBUG:
-                    print(f"[AI Query] Indexed by entity: {len(related_data['mediatoentity_by_entity'])} entity-media pairs")
 
             # Load ALL TMA_MATERIALI records in one query
             self.progress_update.emit("Caricamento materiali TMA...")
@@ -6502,8 +6395,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                             if tma_id not in related_data['tma_materiali']:
                                 related_data['tma_materiali'][tma_id] = []
                             related_data['tma_materiali'][tma_id].append(mat_dict)
-                if DEBUG:
-                    print(f"[AI Query] Pre-loaded TMA_MATERIALI: {len(related_data['tma_materiali'])} TMA with materials")
 
         except Exception as e:
             print(f"[AI Query] Error in bulk load related data: {e}")
@@ -6536,8 +6427,8 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
                     row_dict['linked_entities'] = []
 
         except Exception as e:
-            print(f"Error attaching related data for {table_key}: {e}")
 
+            pass
         return row_dict
 
     def _load_related_data(self, row, row_dict, table_key, related_table):
@@ -6582,14 +6473,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
 
                 if text and len(text) > len(f"Tabella: {display_name}\n"):
                     texts.append(text)
-
-        # Log how many texts were prepared
-        if DEBUG:
-            print(f"Prepared {len(texts)} text entries for vectorstore")
-        for table_name in data:
-            if data[table_name]:
-                if DEBUG:
-                    print(f"  - {table_name}: {len(data[table_name])} records")
 
         return texts
 
@@ -6751,8 +6634,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
             entity_type_upper = 'REPERTO'  # Normalize
 
         if not internal_id:
-            if DEBUG:
-                print(f"[AI Query] No internal ID found for {entity_type} {entity_id}")
             # Try direct lookup as fallback (maybe entity_id is already the internal ID)
             internal_id = int(entity_id_str) if entity_id_str.isdigit() else None
 
@@ -6762,8 +6643,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
             key = (entity_type_upper, internal_id)
 
             matching_mte = mediatoentity_by_entity.get(key, [])
-            if DEBUG:
-                print(f"[AI Query] Found {len(matching_mte)} media links for {entity_type} {entity_id} (internal ID: {internal_id})")
 
             # Get the actual media records for these links
             for mte in matching_mte:
@@ -7135,8 +7014,6 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
         media_refs = self.extract_media_from_response(response_text, data)
         if media_refs:
             results['media'] = media_refs
-            if DEBUG:
-                print(f"[AI Query] Found {len(media_refs)} media references in response")
 
         # Also include media paths for display
         results['thumb_path'] = self._thumb_path
@@ -8045,12 +7922,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 if item and item.widget() == self.lineEditOrderLayer:
                                     parent_layout.insertWidget(i, self.checkBox_reverse_order)
                                     added = True
-                                    if DEBUG:
-                                        print("Order layer checkbox added before lineEditOrderLayer")
                                     break
                     except Exception as e:
-                        print(f"Strategy 1 failed: {e}")
 
+                        pass
                 # Strategy 2: Try to find a QGridLayout and add in a new row
                 if not added and hasattr(self, 'pushButton_orderLayers'):
                     try:
@@ -8064,27 +7939,21 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                     row_count = layout.rowCount()
                                     layout.addWidget(self.checkBox_reverse_order, row_count, 0, 1, 2)
                                     added = True
-                                    if DEBUG:
-                                        print(f"Order layer checkbox added to QGridLayout at row {row_count}")
                                     break
                             widget = parent
                     except Exception as e:
-                        print(f"Strategy 2 failed: {e}")
 
+                        pass
                 # Strategy 3: Add to main layout as fallback
                 if not added:
                     try:
                         if hasattr(self, 'layout') and self.layout():
                             self.layout().addWidget(self.checkBox_reverse_order)
                             added = True
-                            if DEBUG:
-                                print("Order layer checkbox added to main layout")
                     except Exception as e:
-                        print(f"Strategy 3 failed: {e}")
-
+                        pass
                 if not added:
-                    if DEBUG:
-                        print("Warning: Could not add checkbox to any layout")
+                    pass
 
         except Exception as e:
             print(f"Error creating order layer checkbox: {e}")
@@ -8106,13 +7975,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         "Export Extended Matrix with s3dgraphy + yEd integration\n"
                         "Combines s3dgraphy processing with DOT/GraphML output"
                     )
-                    if DEBUG:
-                        print("S3DGraphy Extended Matrix button connected with INTEGRATED export")
                 else:
                     # Use original s3dgraphy-only export
                     self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_pressed)
-                    if DEBUG:
-                        print("S3DGraphy Extended Matrix button connected with standard export")
 
         except Exception as e:
             print(f"Error creating S3DGraphy button: {e}")
@@ -8327,8 +8192,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                                 layout.addWidget(self.pushButton_rag_query)
                                 button_added = True
                     except Exception as e:
-                        print(f"Approach 1 failed: {e}")
 
+                        pass
                 # Approach 2: Add to toolBox if exists
                 if hasattr(self, 'toolBox') and not button_added:
                     try:
@@ -8345,18 +8210,16 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                         self.toolBox.addItem(container, "AI Query")
                         button_added = True
                     except Exception as e:
-                        print(f"Approach 2 failed: {e}")
 
+                        pass
                 if button_added:
-                    if DEBUG:
-                        print("RAG Query button successfully added")
+                    pass
                 else:
-                    if DEBUG:
-                        print("Could not add RAG Query button to UI")
+                    pass
 
         except Exception as e:
-            print(f"Error setting up RAG query button: {e}")
 
+            pass
         # Definizione completa degli analysis steps
         self.analysis_steps = []
 
@@ -9855,8 +9718,6 @@ DATABASE SCHEMA KNOWLEDGE:
                         """Direct LLM invocation that simulates agent behavior"""
                         try:
                             prompt = input_dict.get("input", "")
-                            if DEBUG:
-                                print(f"[GPT5DirectWrapper] Received prompt: {prompt[:100]}...")
 
                             # Add system context if available
                             if self.system_message:
@@ -9868,12 +9729,8 @@ DATABASE SCHEMA KNOWLEDGE:
                             callbacks = []
                             if config and 'callbacks' in config:
                                 callbacks = config['callbacks']
-                                if DEBUG:
-                                    print(f"[GPT5DirectWrapper] Found {len(callbacks)} callbacks")
 
                             # Since GPT-5 doesn't support streaming, generate response
-                            if DEBUG:
-                                print("[GPT5DirectWrapper] Invoking LLM...")
                             response = self.llm.invoke(full_prompt)
 
                             # Format response
@@ -9882,15 +9739,11 @@ DATABASE SCHEMA KNOWLEDGE:
                             else:
                                 output = str(response)
 
-                            if DEBUG:
-                                print(f"[GPT5DirectWrapper] Got response: {len(output)} characters")
 
                             # CRITICAL: Emit the response through callbacks for widget display
                             if callbacks:
                                 for callback in callbacks:
                                     if hasattr(callback, 'on_llm_new_token'):
-                                        if DEBUG:
-                                            print("[GPT5DirectWrapper] Emitting response chunks to callback...")
                                         # Since GPT-5 doesn't support streaming, we simulate it
                                         # by emitting the response in chunks
                                         chunk_size = 100  # Characters per chunk
@@ -9952,17 +9805,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 return
 
     def on_report_generated(self, report_text, report_data):
-        if DEBUG:
-            print("\n==== REPORT GENERATION PROCESS STARTED ====")
-        if DEBUG:
-            print(f"Report text length: {len(report_text) if report_text else 0} characters")
-        if DEBUG:
-            print(f"Report data keys: {', '.join(report_data.keys())}")
-
         # Check if report is empty
         if not report_text or report_text.strip() == "":
-            if DEBUG:
-                print("WARNING: Empty report text received")
             QMessageBox.warning(
                 self,
                 "Report Vuoto",
@@ -9980,8 +9824,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # If user selects No or closes dialog, just return
         if response != QMessageBox.StandardButton.Yes:
-            if DEBUG:
-                print("User chose not to use template, exiting")
             return
 
         # Get save location
@@ -9993,29 +9835,19 @@ DATABASE SCHEMA KNOWLEDGE:
         )
 
         if not output_path:
-            if DEBUG:
-                print("No output path selected, exiting")
             return
 
         if not output_path.lower().endswith('.docx'):
             output_path += '.docx'
 
-        if DEBUG:
-            print(f"Output path: {output_path}")
 
         # Parse the report text into sections
-        if DEBUG:
-            print("Parsing report text into sections...")
         sections = self.parse_report_into_sections(report_text)
 
         # Update report data with section content from the generated report
         if sections:
-            if DEBUG:
-                print(f"Successfully parsed {len(sections)} sections")
             report_data.update(sections)
         else:
-            if DEBUG:
-                print("WARNING: No sections parsed from report text, using fallback content")
             # Fallback to using analysis steps if parsing fails
             section_content = {
                 "introduzione": ArchaeologicalAnalysis().get_introduction_step()['prompt'],
@@ -10026,8 +9858,6 @@ DATABASE SCHEMA KNOWLEDGE:
                 "conclusioni": ArchaeologicalAnalysis().get_conclusions_step()['prompt']
             }
             report_data.update(section_content)
-            if DEBUG:
-                print("Added fallback content for sections")
 
         # Ensure all required sections have at least some default content
         required_sections = [
@@ -10041,8 +9871,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
         for section in required_sections:
             if section not in report_data or not report_data[section] or report_data[section].strip() == "":
-                if DEBUG:
-                    print(f"Adding default content for missing section: {section}")
                 if section == "introduzione":
                     report_data[section] = "Introduzione al sito archeologico e alla campagna di scavo."
                 elif section == "descrizione_metodologica_ed_esito":
@@ -10057,52 +9885,34 @@ DATABASE SCHEMA KNOWLEDGE:
                     report_data[section] = "Conclusioni e interpretazione complessiva del sito archeologico."
 
         # Add tables data
-        if DEBUG:
-            print("Adding tables data...")
         materials_table = self._format_materials_table()
         if materials_table:
             report_data['materials_table'] = materials_table
-            if DEBUG:
-                print(f"Added materials table with {len(materials_table)} rows")
         else:
-            if DEBUG:
-                print("No materials table data available")
+            pass
 
         pottery_table = self._format_pottery_table()
         if pottery_table:
             report_data['pottery_table'] = pottery_table
-            if DEBUG:
-                print(f"Added pottery table with {len(pottery_table)} rows")
         else:
-            if DEBUG:
-                print("No pottery table data available")
+            pass
 
         try:
             template_path = os.path.join(self.HOME, "bin", "template_report_adarte.docx")
-            if DEBUG:
-                print(f"Template path: {template_path}")
 
             if not os.path.exists(template_path):
-                if DEBUG:
-                    print(f"ERROR: Template not found at {template_path}")
                 QMessageBox.warning(self, "Errore", f"Template non trovato in {template_path}!")
                 return
 
             # Try to open the template to verify it's a valid Word document
             try:
                 test_doc = Document(template_path)
-                if DEBUG:
-                    print(f"Template opened successfully, contains {len(test_doc.paragraphs)} paragraphs")
             except Exception as doc_error:
                 print(f"ERROR: Failed to open template: {str(doc_error)}")
                 QMessageBox.warning(self, "Errore", f"Il template non è un documento Word valido: {str(doc_error)}")
                 return
 
-            if DEBUG:
-                print("Saving report to template...")
             self.save_report_to_template(report_data, template_path, output_path)
-            if DEBUG:
-                print("Report saved successfully")
             QMessageBox.information(self, "Successo", f"Report salvato in {output_path}")
 
         except Exception as e:
@@ -10111,25 +9921,19 @@ DATABASE SCHEMA KNOWLEDGE:
             print(traceback.format_exc())
             QMessageBox.critical(self, "Errore", f"Errore nel salvataggio: {str(e)}")
 
-        if DEBUG:
-            print("==== REPORT GENERATION PROCESS COMPLETED ====\n")
 
     def parse_report_into_sections(self, report_text):
         """Parse the report text into sections based on headings"""
         if not report_text:
-            if DEBUG:
-                print("Warning: Empty report text passed to parse_report_into_sections")
             return {}
 
         # Import and use the text cleaner
         try:
             from modules.utility.report_text_cleaner import ReportTextCleaner
             report_text = ReportTextCleaner.clean_report_text(report_text)
-            if DEBUG:
-                print("Report text cleaned by ReportTextCleaner")
         except ImportError:
-            print("Warning: ReportTextCleaner not available, using raw text")
 
+            pass
         sections = {}
         current_section = None
         current_content = []
@@ -10146,15 +9950,10 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Process the report line by line
         lines = report_text.split('\n')
-        if DEBUG:
-            print(f"Parsing report with {len(lines)} lines")
 
         # Print the first few lines to help debug
-        if DEBUG:
-            print("First 10 lines of report:")
         for i in range(min(10, len(lines))):
-            if DEBUG:
-                print(f"Line {i+1}: {lines[i]}")
+            pass
 
         for i, line in enumerate(lines):
             # Check if this line is a main section heading
@@ -10162,13 +9961,9 @@ DATABASE SCHEMA KNOWLEDGE:
             for heading, key in section_headings.items():
                 # Check for heading with or without markdown formatting
                 if heading in line:
-                    if DEBUG:
-                        print(f"Found section heading: '{heading}' at line {i+1}")
                     # If we were already processing a section, save it
                     if current_section:
                         sections[current_section] = '\n'.join(current_content)
-                        if DEBUG:
-                            print(f"Saved section '{current_section}' with {len(current_content)} lines")
 
                     # Start a new section
                     current_section = key
@@ -10183,11 +9978,7 @@ DATABASE SCHEMA KNOWLEDGE:
         # Save the last section if there is one
         if current_section and current_content:
             sections[current_section] = '\n'.join(current_content)
-            if DEBUG:
-                print(f"Saved final section '{current_section}' with {len(current_content)} lines")
 
-        if DEBUG:
-            print(f"Parsed {len(sections)} sections: {', '.join(sections.keys())}")
         return sections
 
     def save_report_as_plain_doc(self, report_text, output_path):
@@ -10279,8 +10070,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 # Skip empty subsections
                 if not subsection_content or subsection_content.strip() == "":
-                    if DEBUG:
-                        print(f"WARNING: Empty content for subsection '{subsection_key}', adding placeholder text")
                     doc.add_heading(subsection_heading, level=2)
                     doc.add_paragraph("Questa sottosezione è stata omessa a causa della mancanza di dati necessari.")
                     continue
@@ -10410,13 +10199,9 @@ DATABASE SCHEMA KNOWLEDGE:
                 for pattern in img_patterns:
                     img_match = re.search(pattern, line)
                     if img_match:
-                        if DEBUG:
-                            print(f"Image matched with pattern: {pattern}")
                         break
 
                 if not img_match:
-                    if DEBUG:
-                        print(f"WARNING: Could not parse image tag in line: {line[:100]}")
                     # Try manual extraction as last resort
                     try:
                         # Extract path and caption manually
@@ -10427,15 +10212,13 @@ DATABASE SCHEMA KNOWLEDGE:
                             manual_path = line[start_idx:comma_idx].strip()
                             manual_caption = line[comma_idx+1:end_idx].strip()
                             if manual_path and manual_caption:
-                                if DEBUG:
-                                    print(f"Manual extraction: path={manual_path}, caption={manual_caption}")
                                 # Create a fake match result
                                 class FakeMatch:
                                     def group(self, n):
                                         return manual_path if n == 1 else manual_caption
                                 img_match = FakeMatch()
                     except Exception as e:
-                        print(f"Manual extraction failed: {e}")
+                        pass
             else:
                 img_match = None
 
@@ -10466,14 +10249,10 @@ DATABASE SCHEMA KNOWLEDGE:
                             img_path = path
                             break
 
-                if DEBUG:
-                    print(f"Processing image: path={img_path}, exists={os.path.exists(img_path)}, caption={caption}")
 
                 if os.path.exists(img_path):
                     try:
                         # Try to add the image directly - python-docx will validate it
-                        if DEBUG:
-                            print(f"Attempting to add image: {img_path}")
                         doc.add_picture(img_path, width=Inches(6))
                         caption_para = doc.add_paragraph(caption)
                         caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -10484,8 +10263,6 @@ DATABASE SCHEMA KNOWLEDGE:
                             for run in caption_para.runs:
                                 run.font.italic = True
                                 run.font.size = Pt(10)
-                        if DEBUG:
-                            print(f"Successfully added image: {img_path}")
                     except Exception as e:
                         print(f"Error adding image {img_path}: {str(e)}")
                         # Try with PIL as fallback to diagnose the issue
@@ -10494,14 +10271,10 @@ DATABASE SCHEMA KNOWLEDGE:
                             img = Image.open(img_path)
                             img_format = img.format
                             img.close()
-                            if DEBUG:
-                                print(f"PIL can open the image (format: {img_format}), but docx failed")
                         except Exception as pil_error:
-                            print(f"PIL also failed: {pil_error}")
+                            pass
                         doc.add_paragraph(f"[Errore immagine: {caption}]")
                 else:
-                    if DEBUG:
-                        print(f"Image file not found: {img_path}")
                     doc.add_paragraph(f"[Immagine non trovata: {caption}]")
                 i += 1
                 continue
@@ -10604,8 +10377,6 @@ DATABASE SCHEMA KNOWLEDGE:
             if line:
                 # SAFETY CHECK: Catch any remaining image tags that weren't processed
                 if '[IMMAGINE' in line and ']' in line:
-                    if DEBUG:
-                        print(f"WARNING: Unprocessed image tag fell through to regular paragraph: {line[:100]}")
                     # Try one more time to extract and process the image
                     try:
                         start_idx = line.find(':') + 1
@@ -10619,8 +10390,6 @@ DATABASE SCHEMA KNOWLEDGE:
                             import urllib.parse
                             fallback_path = urllib.parse.unquote(fallback_path)
 
-                            if DEBUG:
-                                print(f"Fallback extraction: path={fallback_path}, caption={fallback_caption}")
 
                             if os.path.exists(fallback_path):
                                 try:
@@ -10630,17 +10399,14 @@ DATABASE SCHEMA KNOWLEDGE:
                                     for run in caption_para.runs:
                                         run.font.italic = True
                                         run.font.size = Pt(10)
-                                    if DEBUG:
-                                        print(f"Fallback image added successfully: {fallback_path}")
                                     i += 1
                                     continue
                                 except Exception as e:
-                                    print(f"Fallback image add failed: {e}")
+                                    pass
                             else:
-                                if DEBUG:
-                                    print(f"Fallback path not found: {fallback_path}")
+                                pass
                     except Exception as e:
-                        print(f"Fallback extraction failed: {e}")
+                        pass
                     # If fallback fails, add error message instead of raw tag
                     para = doc.add_paragraph(f"[Immagine non processata correttamente]")
                 else:
@@ -10666,22 +10432,14 @@ DATABASE SCHEMA KNOWLEDGE:
             i += 1
 
     def save_report_to_template(self, report_data, template_path, output_path):
-        if DEBUG:
-            print(f"Starting save_report_to_template with template: {template_path}, output: {output_path}")
-        if DEBUG:
-            print(f"Report data keys: {', '.join(report_data.keys())}")
-
         # Check for section keys
         section_keys = ['introduzione', 'descrizione_metodologica', 'analisi_stratigrafica', 'descrizione_materiali', 'conclusioni']
         for key in section_keys:
             if key in report_data:
                 content = report_data[key]
                 content_preview = content[:100] + "..." if len(content) > 100 else content
-                if DEBUG:
-                    print(f"Section '{key}' found with {len(content)} characters. Preview: {content_preview}")
             else:
-                if DEBUG:
-                    print(f"WARNING: Section '{key}' NOT found in report_data")
+                pass
 
         doc = Document(template_path)
 
@@ -10701,10 +10459,7 @@ DATABASE SCHEMA KNOWLEDGE:
         if not has_table_grid and not any('normal table' in s.name.lower() for s in table_styles):
             table_style_name = 'Table'  # Fallback to most basic table style
 
-        if DEBUG:
             print(f"Using table style: {table_style_name}")
-        if DEBUG:
-            print(f"Document has {len(doc.paragraphs)} paragraphs")
 
         # Mapping for first page metadata fields
         metadata_mapping = {
@@ -10818,8 +10573,6 @@ DATABASE SCHEMA KNOWLEDGE:
             for placeholder, section_info in section_mapping.items():
                 if placeholder in para.text:
                     found_in_this_para = True
-                    if DEBUG:
-                        print(f"Found placeholder {placeholder} in paragraph {para_idx}")
 
                     # Get the section content
                     section_key = section_info["key"]
@@ -10842,8 +10595,6 @@ DATABASE SCHEMA KNOWLEDGE:
                         for alt in alternatives:
                             if alt in para.text:
                                 found_in_this_para = True
-                                if DEBUG:
-                                    print(f"Found alternative placeholder {alt} in paragraph {para_idx}")
 
                                 # Get the section content
                                 section_key = section_info["key"]
@@ -10871,8 +10622,6 @@ DATABASE SCHEMA KNOWLEDGE:
         # Save the document
         try:
             doc.save(output_path)
-            if DEBUG:
-                print(f"Document saved successfully to {output_path}")
             return True
         except Exception as e:
             print(f"Error saving document: {str(e)}")
@@ -10889,8 +10638,6 @@ DATABASE SCHEMA KNOWLEDGE:
         Returns:
             Word table object
         """
-        if DEBUG:
-            print(f"Converting markdown table with {len(table_lines)} lines")
 
         # Parse table data
         rows = []
@@ -10915,8 +10662,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # If we have rows to process
         if rows:
-            if DEBUG:
-                print(f"Table has {len(rows)} rows and max {max(len(row) for row in rows)} columns")
 
             # Determine the number of columns (max width of any row)
             max_cols = max(len(row) for row in rows)
@@ -10926,8 +10671,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
             # Check if 'Table Grid' style exists, if not use a default style
             table_styles = [s.name for s in doc.styles if hasattr(s, 'name') and 'table' in s.name.lower()]
-            if DEBUG:
-                print(f"Available table styles: {', '.join(table_styles)}")
 
             # Try to find the best table style
             if 'Table Grid' in table_styles:
@@ -10945,8 +10688,6 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 table_style_name = 'Table'  # Fallback to most basic table style
 
-            if DEBUG:
-                print(f"Using table style: {table_style_name}")
 
             try:
                 table.style = table_style_name
@@ -10974,8 +10715,8 @@ DATABASE SCHEMA KNOWLEDGE:
                                 border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
                                 tcBorders.append(border)
                 except Exception as border_error:
-                    print(f"Error applying borders: {str(border_error)}")
 
+                    pass
             # Apply table properties for better formatting
             try:
                 table.autofit = True
@@ -10991,8 +10732,8 @@ DATABASE SCHEMA KNOWLEDGE:
                     grid_col = parse_xml(r'<w:gridCol {} w:w="0"/>'.format(nsdecls('w')))
                     tbl_grid.append(grid_col)
             except Exception as prop_error:
-                print(f"Error setting table properties: {str(prop_error)}")
 
+                pass
             # Fill table data
             for row_idx, row_data in enumerate(rows):
                 for col_idx, cell_text in enumerate(row_data):
@@ -11019,8 +10760,8 @@ DATABASE SCHEMA KNOWLEDGE:
                                     # Center align header cells
                                     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
                         except Exception as cell_error:
-                            print(f"Error setting cell text at row {row_idx}, col {col_idx}: {str(cell_error)}")
 
+                            pass
             # Add a paragraph after the table for spacing
             doc.add_paragraph()
 
@@ -11062,12 +10803,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 if placeholder in para.text:
                     placeholder_found = True
                     found_in_this_para = True
-                    if DEBUG:
-                        print(f"Found exact placeholder '{placeholder}' in paragraph {para_idx+1}: '{para.text}'")
                     content = report_data.get(section_info["key"], "")
 
-                    if DEBUG:
-                        print(f"Content for '{section_info['key']}' has {len(content)} characters")
 
                     # Process this section
                     self.process_section_content(doc, section_info, content, report_data)
@@ -11081,12 +10818,8 @@ DATABASE SCHEMA KNOWLEDGE:
                         if alt in para.text:
                             placeholder_found = True
                             found_in_this_para = True
-                            if DEBUG:
-                                print(f"Found alternative placeholder '{alt}' for '{placeholder}' in paragraph {para_idx+1}: '{para.text}'")
                             content = report_data.get(section_info["key"], "")
 
-                            if DEBUG:
-                                print(f"Content for '{section_info['key']}' has {len(content)} characters")
 
                             # Process this section
                             self.process_section_content(doc, section_info, content, report_data)
@@ -11096,8 +10829,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
                     # Handle empty sections with a default message
                     if not content or content.strip() == "":
-                        if DEBUG:
-                            print(f"WARNING: Empty content for section '{section_info['key']}', adding placeholder text")
                         # Add a note that this section has no data
                         doc.add_heading(section_info["heading"], level=1)
                         doc.add_paragraph("Questa sezione contiene informazioni limitate a causa della mancanza di dati completi. Si consiglia di verificare i dati di input e ripetere la generazione del report con dati più completi.")
@@ -11172,8 +10903,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                             if img_path.startswith('file://'):
                                                 img_path = img_path[7:]
 
-                                            if DEBUG:
-                                                print(f"Processing image: path={img_path}, caption={caption}")
 
                                             if os.path.exists(img_path):
                                                 try:
@@ -11185,8 +10914,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                                     print(f"Error adding image {img_path}: {str(e)}")
                                                     doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                                             else:
-                                                if DEBUG:
-                                                    print(f"Image file not found: {img_path}")
                                                 doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                                             j += 1
                                             continue
@@ -11227,8 +10954,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
                             # Skip empty subsections
                             if not subsection_content or subsection_content.strip() == "":
-                                if DEBUG:
-                                    print(f"WARNING: Empty content for subsection '{subsection_key}', adding placeholder text")
                                 doc.add_heading(subsection_heading, level=2)
                                 doc.add_paragraph("Questa sottosezione è stata omessa a causa della mancanza di dati necessari.")
                                 continue
@@ -11279,8 +11004,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                     if img_path.startswith('file://'):
                                         img_path = img_path[7:]
 
-                                    if DEBUG:
-                                        print(f"Processing image: path={img_path}, caption={caption}")
 
                                     if os.path.exists(img_path):
                                         try:
@@ -11292,8 +11015,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                             print(f"Error adding image {img_path}: {str(e)}")
                                             doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                                     else:
-                                        if DEBUG:
-                                            print(f"Image file not found: {img_path}")
                                         doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                                     j += 1
                                     continue
@@ -11369,8 +11090,6 @@ DATABASE SCHEMA KNOWLEDGE:
                             if img_path.startswith('file://'):
                                 img_path = img_path[7:]
 
-                            if DEBUG:
-                                print(f"Processing image: path={img_path}, caption={caption}")
 
                             if os.path.exists(img_path):
                                 try:
@@ -11382,8 +11101,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                     print(f"Error adding image {img_path}: {str(e)}")
                                     doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                             else:
-                                if DEBUG:
-                                    print(f"Image file not found: {img_path}")
                                 doc.add_paragraph(f"[Immagine non disponibile: {caption}]")
                             i += 1
                             continue
@@ -11414,16 +11131,9 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Check if any placeholders were found
         if not placeholder_found:
-            if DEBUG:
-                print("WARNING: No section placeholders found in the template. Adding sections manually.")
-            if DEBUG:
-                print("Expected placeholders: " + ", ".join(section_mapping.keys()))
-
             # Add all sections manually if no placeholders were found
             for placeholder, section_info in section_mapping.items():
                 content = report_data.get(section_info["key"], "")
-                if DEBUG:
-                    print(f"Adding section '{section_info['key']}' manually")
 
                 # Add section heading
                 doc.add_heading(section_info["heading"], level=1)
@@ -11467,8 +11177,6 @@ DATABASE SCHEMA KNOWLEDGE:
         # Add tables for materials, pottery, tombs, periodization, and structures
         # Materials table
         if report_data.get('materials_table'):
-            if DEBUG:
-                print(f"Adding materials table with {len(report_data['materials_table'])} rows")
             doc.add_heading("CATALOGO DEI MATERIALI", level=2)
             table = doc.add_table(rows=1, cols=len(report_data['materials_table'][0]))
             table.style = table_style_name
@@ -11555,22 +11263,14 @@ DATABASE SCHEMA KNOWLEDGE:
         # Final check to ensure document has content
         para_count = len(doc.paragraphs)
         table_count = len(doc.tables)
-        if DEBUG:
-            print(f"Final document has {para_count} paragraphs and {table_count} tables")
 
         if para_count <= 1 and table_count == 0:
-            if DEBUG:
-                print("WARNING: Document appears to be empty or nearly empty!")
             # Add a warning paragraph to the document
             doc.add_paragraph("ATTENZIONE: Il documento sembra essere vuoto. Verifica che il report contenga dati e che il template sia corretto.")
 
         # Save the document
         try:
-            if DEBUG:
-                print(f"Saving document to {output_path}")
             doc.save(output_path)
-            if DEBUG:
-                print("Document saved successfully")
         except Exception as e:
             print(f"ERROR saving document: {str(e)}")
             raise
@@ -11625,8 +11325,6 @@ DATABASE SCHEMA KNOWLEDGE:
         if not table_data:
             return
 
-        if DEBUG:
-            print(f"Adding table to document: {title} with {len(table_data)} rows")
         doc.add_heading(title, level=2)
 
         # Create table
@@ -11634,8 +11332,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # Find the best table style
         table_styles = [s.name for s in doc.styles if hasattr(s, 'name') and 'table' in s.name.lower()]
-        if DEBUG:
-            print(f"Available table styles: {', '.join(table_styles)}")
 
         # Try to find the best table style
         if 'Table Grid' in table_styles:
@@ -11653,8 +11349,6 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             table_style_name = 'Table'  # Fallback to most basic table style
 
-        if DEBUG:
-            print(f"Using table style: {table_style_name}")
 
         try:
             table.style = table_style_name
@@ -11682,8 +11376,8 @@ DATABASE SCHEMA KNOWLEDGE:
                             border = parse_xml(r'<w:{0} {1} w:val="single" w:sz="4" w:space="0" w:color="auto"/>'.format(side, nsdecls('w')))
                             tcBorders.append(border)
             except Exception as border_error:
-                print(f"Error applying borders: {str(border_error)}")
 
+                pass
         # Headers
         for i, header in enumerate(table_data[0]):
             cell = table.rows[0].cells[i]
@@ -12387,8 +12081,6 @@ DATABASE SCHEMA KNOWLEDGE:
                     csv_line[3] = 'property'
                 elif csv_line[2].startswith('.'):
                     csv_line[2] = csv_line[2].replace('.', '')
-                if DEBUG:
-                    print(csv_line[3], csv_line[2])
                 csvfile_writer.writerow(csv_line)
             else:
                 pass
@@ -12524,11 +12216,9 @@ DATABASE SCHEMA KNOWLEDGE:
                         # Delete the record
                         self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, record.id_us)
                         deleted += 1
-                        if DEBUG:
-                            print(f"Deleted US {record.sito}, {record.area}, {record.us} (ID: {record.id_us})")
                     except Exception as e:
-                        print(f"Error deleting record {record.id_us}: {e}")
 
+                        pass
                 # Reload data
                 self.charge_records()
 
@@ -12549,16 +12239,8 @@ DATABASE SCHEMA KNOWLEDGE:
         """Create missing US forms with proper initialization"""
         created_count = 0
 
-        if DEBUG:
-            print(f"\n=== FIX_MISSING_FORMS START ===")
-        if DEBUG:
-            print(f"Total missing forms to create: {len(missing_form_errors)}")
 
         for i, error in enumerate(missing_form_errors):
-            if DEBUG:
-                print(f"\n--- Processing error {i+1}/{len(missing_form_errors)} ---")
-            if DEBUG:
-                print(f"Error string: {error}")
 
             try:
                 # Parse the error to extract site, area, and US
@@ -12567,16 +12249,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 # or "Sito: SITE, Area: AREA, US: US1, US2, US3: Scheda US non esistente"
 
                 parts = error.split(',')
-                if DEBUG:
-                    print(f"Split parts: {parts}")
 
                 sito = parts[0].split(':')[1].strip()
-                if DEBUG:
-                    print(f"Extracted sito: '{sito}'")
 
                 area = parts[1].split(':')[1].strip()
-                if DEBUG:
-                    print(f"Extracted area: '{area}'")
 
                 # Handle the US/USM/SU part - can contain multiple units separated by commas
                 # Find the part that contains unit information (US:, USM:, SU:, etc.)
@@ -12607,10 +12283,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 if not us_section:
                     us_section = parts[2]
 
-                if DEBUG:
                     print(f"US section: '{us_section}'")
-                if DEBUG:
-                    print(f"Unit type found: {unit_type_found}")
 
                 # Extract all unit numbers from the full error string
                 # Build dynamic pattern based on unit type found
@@ -12625,8 +12298,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 if match:
                     us_text = match.group(1).strip()
-                    if DEBUG:
-                        print(f"Extracted US text: '{us_text}'")
 
                     # Split by comma and clean up
                     us_list = []
@@ -12636,8 +12307,6 @@ DATABASE SCHEMA KNOWLEDGE:
                         if item:
                             us_list.append(item)
 
-                    if DEBUG:
-                        print(f"Extracted US list: {us_list}")
                 else:
                     # Fallback to old method - try to find any unit type
                     us_text = None
@@ -12651,19 +12320,13 @@ DATABASE SCHEMA KNOWLEDGE:
                     if us_text:
                         us_text = us_text.replace(': Scheda US non esistente', '').strip()
                         us_list = [u.strip() for u in us_text.split(',') if u.strip()]
-                        if DEBUG:
-                            print(f"Extracted US list (fallback): {us_list}")
                     else:
-                        if DEBUG:
-                            print(f"ERROR: Could not extract unit list from: {us_section}")
                         us_list = []
 
                 # Process each US in the list
                 for us_str in us_list:
                     # Clean up the US string
                     us_str = us_str.strip()
-                    if DEBUG:
-                        print(f"Processing US: '{us_str}'")
 
                     # Remove extra quotes from sito if present
                     if sito.startswith("'") and sito.endswith("'"):
@@ -12675,16 +12338,10 @@ DATABASE SCHEMA KNOWLEDGE:
                         'area': area,
                         'us': us_str  # Use the full string as-is
                     }
-                    if DEBUG:
-                        print(f"Search dict: {search_dict}")
 
                     existing = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                    if DEBUG:
-                        print(f"Existing records found: {len(existing) if existing else 0}")
 
                     if not existing:
-                        if DEBUG:
-                            print(f"US does not exist, creating new record...")
 
                         # Determine unita_tipo based on prefix or pattern
                         unita_tipo = 'US'  # Default value
@@ -12731,35 +12388,20 @@ DATABASE SCHEMA KNOWLEDGE:
                             # For pure numbers, default to US unless we have more context
                             unita_tipo = 'US'
                         
-                        if DEBUG:
-                            print(f"US string: {us_str}, determined unita_tipo: {unita_tipo}")
 
                         # Create new US record with all required fields
                         # The MAPPER_TABLE_CLASS expects many parameters, let's use the full constructor
                         try:
-                            if DEBUG:
-                                print(f"MAPPER_TABLE_CLASS: {self.MAPPER_TABLE_CLASS}")
-                            if DEBUG:
-                                print(f"ID_TABLE: {self.ID_TABLE}")
-
                             # Get next ID - must be recalculated each time!
                             current_max_id = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE)
-                            if DEBUG:
-                                print(f"Current max ID: {current_max_id}")
 
                             next_id = current_max_id + 1
-                            if DEBUG:
-                                print(f"Next ID to use: {next_id}")
 
                             # Create the record with minimal required fields
                             # Most fields will be empty strings or defaults
-                            if DEBUG:
-                                print(f"Creating new record with ID: {next_id}, Sito: {sito}, Area: {area}, US: {us_str}, Type: {unita_tipo}")
 
                             # Use DB_MANAGER.insert_values directly like insert_new_rec does
                             # Pass all parameters individually, not as an object
-                            if DEBUG:
-                                print(f"Attempting to insert record into database using DB_MANAGER.insert_values...")
 
                             insert_result = self.DB_MANAGER.insert_values(
                                 next_id,  # id_us
@@ -12880,20 +12522,14 @@ DATABASE SCHEMA KNOWLEDGE:
                                 '[]',  # 115 - rapporti2 - empty list as string
                                 ''   # 116 - doc_usv (mQgsFileWidget)
                             )
-                            if DEBUG:
-                                print(f"Insert result: {insert_result}")
 
                             # Commit the transaction to save the record
                             try:
                                 self.DB_MANAGER.insert_data_session(insert_result)
-                                if DEBUG:
-                                    print(f"Record committed to database")
                             except Exception as commit_err:
-                                print(f"Error committing record: {commit_err}")
 
+                                pass
                             created_count += 1
-                            if DEBUG:
-                                print(f"✅ Successfully created US form for Sito: {sito}, Area: {area}, US: {us_str}, Type: {unita_tipo}")
 
                         except Exception as e:
                             print(f"❌ Error creating US record: {e}")
@@ -12901,8 +12537,7 @@ DATABASE SCHEMA KNOWLEDGE:
                             import traceback
                             traceback.print_exc()
                     else:
-                        if DEBUG:
-                            print(f"US already exists, skipping: Sito: {sito}, Area: {area}, US: {us_str}")
+                        pass
 
             except Exception as e:
                 print(f"❌ Error parsing missing form error: {error}")
@@ -12910,19 +12545,11 @@ DATABASE SCHEMA KNOWLEDGE:
                 import traceback
                 traceback.print_exc()
 
-        if DEBUG:
             print(f"\n=== FIX_MISSING_FORMS SUMMARY ===")
-        if DEBUG:
             print(f"Total errors processed: {len(missing_form_errors)}")
-        if DEBUG:
-            print(f"Total US forms created: {created_count}")
-        if DEBUG:
-            print(f"=================================\n")
 
         if created_count > 0:
             # Reload the data to include the new records
-            if DEBUG:
-                print(f"Reloading data after creating {created_count} new records...")
             self.charge_records()
             QMessageBox.information(self, 'Info',
                                    f'Create {created_count} schede US con descrizione "Scheda creata automaticamente".\n'
@@ -12946,8 +12573,6 @@ DATABASE SCHEMA KNOWLEDGE:
         QApplication.instance().processEvents()  # Extra call
         
         # Log initial call
-        if DEBUG:
-            print(f"fix_missing_relationships called with {len(relationship_errors)} errors")
         
         for idx, error in enumerate(relationship_errors):
             # Update progress bar
@@ -12959,8 +12584,6 @@ DATABASE SCHEMA KNOWLEDGE:
             try:
                 # Parse the error to extract the relationship info
                 # Format: "Sito: SITE, Area: AREA, US: X tipo_rapporto US: Y Area: AREA: Rapporto reciproco non trovato"
-                if DEBUG:
-                    print(f"Parsing error: {error}")
                 
                 # Use regex to extract the pattern more reliably
                 import re
@@ -13024,11 +12647,9 @@ DATABASE SCHEMA KNOWLEDGE:
                 
                 # Log with unit type if captured
                 if 'unit_type_from' in locals() and 'unit_type_to' in locals():
-                    if DEBUG:
-                        print(f"Extracted - From: {unit_type_from} {us_from}, Type: '{rel_type}', To: {unit_type_to} {us_to}")
+                    pass
                 else:
-                    if DEBUG:
-                        print(f"Extracted - From: Unit {us_from}, Type: '{rel_type}', To: Unit {us_to}")
+                    pass
                 
                 # Find the target US record
                 search_dict = {
@@ -13038,13 +12659,9 @@ DATABASE SCHEMA KNOWLEDGE:
                 
                 target_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 
-                if DEBUG:
-                    print(f"Found {len(target_records) if target_records else 0} target records for US {us_to}")
                 
                 if target_records:
                     target_rec = target_records[0]
-                    if DEBUG:
-                        print(f"Target record found - current rapporti: {target_rec.rapporti}")
                     
                     # Get current relationships - handle various formats
                     current_rapporti = []
@@ -13089,8 +12706,6 @@ DATABASE SCHEMA KNOWLEDGE:
                             # Get the ID value from the record
                             id_value = getattr(target_rec, self.ID_TABLE)
                             
-                            if DEBUG:
-                                print(f"Updating record ID {id_value} with rapporti: {str(current_rapporti)}")
                             
                             # Update method signature: (table_class, id_column, [id_value], [columns], [values])
                             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, 
@@ -13100,8 +12715,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                                  [str(current_rapporti)])
                             
                             fixed_count += 1
-                            if DEBUG:
-                                print(f"Successfully added reciprocal relationship: US {us_to} {reciprocal_type} US {us_from}")
                             
                             # Check if this is the currently displayed US
                             current_us = str(self.lineEdit_us.text())
@@ -13116,11 +12729,9 @@ DATABASE SCHEMA KNOWLEDGE:
                             import traceback
                             traceback.print_exc()
                     else:
-                        if DEBUG:
-                            print(f"Relationship [{reciprocal_type}, {us_from}] already exists in US {us_to}")
+                        pass
                 else:
-                    if DEBUG:
-                        print(f"No target record found for US {us_to}")
+                    pass
                         
             except Exception as e:
                 print(f"Error fixing relationship: {error} - {e}")
@@ -13235,8 +12846,8 @@ DATABASE SCHEMA KNOWLEDGE:
                     orphan_forms.append(orphan_desc)
             
         except Exception as e:
-            print(f"Error finding orphan forms: {str(e)}")
         
+            pass
         return orphan_forms
     
     def delete_orphan_forms(self, orphan_forms):
@@ -13265,18 +12876,16 @@ DATABASE SCHEMA KNOWLEDGE:
                         try:
                             self.DB_MANAGER.delete_one_record(self.TABLE_NAME, self.ID_TABLE, record.id_us)
                             deleted += 1
-                            if DEBUG:
-                                print(f"Deleted orphan US: {site}, {area}, {us}")
                         except Exception as e:
-                            print(f"Error deleting orphan record: {str(e)}")
             
+                            pass
             # Reload data
             if deleted > 0:
                 self.charge_records()
                 
         except Exception as e:
-            print(f"Error in delete_orphan_forms: {str(e)}")
             
+            pass
         return deleted
     
     def fix_incomplete_relationships(self, incomplete_errors):
@@ -13335,8 +12944,8 @@ DATABASE SCHEMA KNOWLEDGE:
                                 fixed_count += 1
                                 
                         except Exception as e:
-                            print(f"Error updating relationships for US {us}: {str(e)}")
             
+                            pass
             if fixed_count > 0:
                 QMessageBox.information(self, 'Info', 
                                       f'Aggiornate {fixed_count} relazioni incomplete.', 
@@ -13519,8 +13128,6 @@ DATABASE SCHEMA KNOWLEDGE:
                 sito = str(self.comboBox_sito.currentText())
                 area = str(self.comboBox_area.currentText())
                 us_current = str(self.lineEdit_us.text())
-                if DEBUG:
-                    print(us_current)
                 unit = str(self.comboBox_unita_tipo.currentText())
                 us_item = self.tableWidget_rapporti.item(rowIndex, 1)
                 us = str(us_item.text())
@@ -13832,8 +13439,8 @@ DATABASE SCHEMA KNOWLEDGE:
             Unit = str(ID_U[0])
             return Unit
         except KeyError as e:
-            print(str(e))
 
+            pass
     def search_rapp(self):
         # Clear current selection.
         #self.tableWidget_rapporti.setCurrentItem(None)
@@ -14593,10 +14200,10 @@ DATABASE SCHEMA KNOWLEDGE:
 
                         self.comboBox_posizione.show()
                     except (IndexError, AttributeError) as e:
-                        print(f"Errore in geometry_unitastratigrafiche: {str(e)}")
+                        pass
         except Exception as e:
-            print(f"Errore in geometry_unitastratigrafiche: {str(e)}")
 
+            pass
     def charge_periodo_iniz_list(self):
         '''
             This function charges the 'Periodo' combobox with the values from the 'Periodizzazione' table.
@@ -14783,8 +14390,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.LIST_REC_TEMP = []
                 self.set_LIST_REC_TEMP()
         except Exception as e:
-            print(f"Error in deferred dating update: {e}")
 
+            pass
     # Funzione rimossa - il campo datazione si aggiorna automaticamente tramite charge_datazione_list()
 
     # Funzione rimossa - usa campi che non esistono nella scheda US
@@ -14810,8 +14417,6 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Check if user has UPDATE permissions before attempting database-wide update
                 if hasattr(self, 'permission_handler'):
                     if not self.permission_handler.has_permission('us_table', 'UPDATE'):
-                        if DEBUG:
-                            print("Skipping database-wide dating update - insufficient permissions")
                         return
 
                 updates_made = self.DB_MANAGER.update_us_dating_from_periodizzazione(self.comboBox_sito.currentText())
@@ -14839,7 +14444,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     pass#QMessageBox.information(self, "No Updates", "No 'Dating' fields needed to be updated.",
                                             #QMessageBox.Ok)
             except Exception as e:
-                print(f"An error occurred while updating 'Dating': {e}")
+                pass
             finally:
                 # Reset the flag
                 self.explicit_dating_update = False
@@ -15943,7 +15548,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                 upload_filename = relative_path if relative_path else f"{filename}.{filetype}"
                                 if backend.write(upload_filename, file_data):
                                     filepath_for_db = remote_original_path
-                                    print(f"Uploaded original file to: {remote_original_path}")
                                 else:
                                     print(f"Failed to upload original file, using local path")
                                     filepath_for_db = filepath
@@ -18787,8 +18391,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
                 plt.show()  # Mostra l'immagine
         except AssertionError as e:
-            print(e)
 
+            pass
     def on_pushButton_export_extended_matrix_integrated(self):
         """
         Export Extended Matrix with integrated s3dgraphy + DOT/GraphML support
@@ -19035,8 +18639,6 @@ DATABASE SCHEMA KNOWLEDGE:
             integration = S3DGraphyIntegration(self.DB_MANAGER)
 
             # Import from PyArchInit
-            if DEBUG:
-                print(f"Importing data for {current_site} - {current_area}...")
             success = integration.import_from_pyarchinit(current_site, current_area)
 
             if not success:
@@ -19101,24 +18703,18 @@ DATABASE SCHEMA KNOWLEDGE:
                 json_path = os.path.join(export_dir, f"{base_name}.json")
                 if integration.export_to_json(json_path):
                     exported_files.append(json_path)
-                    if DEBUG:
-                        print(f"✅ Exported JSON: {json_path}")
 
             # Export GraphML
             if cb_graphml.isChecked():
                 graphml_path = os.path.join(export_dir, f"{base_name}.graphml")
                 if integration.export_to_graphml(graphml_path):
                     exported_files.append(graphml_path)
-                    if DEBUG:
-                        print(f"✅ Exported GraphML: {graphml_path}")
 
             # Export Phased Matrix
             if cb_phased.isChecked():
                 phased_path = os.path.join(export_dir, f"{base_name}_phased.json")
                 if integration.export_phased_matrix(phased_path):
                     exported_files.append(phased_path)
-                    if DEBUG:
-                        print(f"✅ Exported Phased Matrix: {phased_path}")
 
             # Export CIDOC-CRM JSON-LD
             if cb_cidoc_jsonld.isChecked():
@@ -19135,8 +18731,6 @@ DATABASE SCHEMA KNOWLEDGE:
                     jsonld_path = os.path.join(export_dir, f"{base_name}_cidoc.jsonld")
                     if mapper.export_to_cidoc_jsonld(graph_data, jsonld_path):
                         exported_files.append(jsonld_path)
-                        if DEBUG:
-                            print(f"✅ Exported CIDOC-CRM JSON-LD: {jsonld_path}")
 
                     # Clean up temp file
                     os.remove(json_temp)
@@ -19156,8 +18750,6 @@ DATABASE SCHEMA KNOWLEDGE:
                     rdf_path = os.path.join(export_dir, f"{base_name}_cidoc.ttl")
                     if mapper.export_to_rdf_turtle(graph_data, rdf_path):
                         exported_files.append(rdf_path)
-                        if DEBUG:
-                            print(f"✅ Exported CIDOC-CRM RDF/Turtle: {rdf_path}")
 
                     # Clean up temp file
                     if os.path.exists(json_temp):
@@ -19172,8 +18764,6 @@ DATABASE SCHEMA KNOWLEDGE:
                     with open(blender_path, 'w') as f:
                         json.dump(viz_data, f, indent=2)
                     exported_files.append(blender_path)
-                    if DEBUG:
-                        print(f"✅ Exported Blender/EMtools data: {blender_path}")
 
             # Generate graph visualization based on selection
             graph_output_path = None  # Initialize variable
@@ -19182,49 +18772,33 @@ DATABASE SCHEMA KNOWLEDGE:
             if rb_plotly.isChecked():
                 # Use Plotly for interactive visualization
                 try:
-                    if DEBUG:
-                        print("Attempting to generate interactive graph with Plotly...")
                     from ..modules.s3dgraphy.plotly_visualizer import PlotlyMatrixVisualizer, PLOTLY_AVAILABLE
 
                     if PLOTLY_AVAILABLE:
-                        if DEBUG:
-                            print("Using Plotly for interactive visualization...")
                         # Get graph data
                         json_temp = os.path.join(export_dir, f"{base_name}.json")
                         if not os.path.exists(json_temp):
-                            if DEBUG:
-                                print(f"Creating JSON file: {json_temp}")
                             integration.export_to_json(json_temp)
 
                         if os.path.exists(json_temp):
                             import json
                             with open(json_temp, 'r') as f:
                                 graph_data = json.load(f)
-                            if DEBUG:
-                                print(f"Loaded graph data with {len(graph_data.get('nodes', []))} nodes")
 
                             # Create interactive HTML visualization
                             visualizer = PlotlyMatrixVisualizer(qgis_integration=True)
                             graph_output_path = os.path.join(export_dir, f"{base_name}_interactive.html")
-                            if DEBUG:
-                                print(f"Creating interactive graph at: {graph_output_path}")
 
                             if visualizer.create_interactive_graph(graph_data, graph_output_path):
                                 exported_files.append(graph_output_path)
-                                if DEBUG:
-                                    print(f"✅ Generated interactive graph: {graph_output_path}")
 
                                 # Open in browser if requested
                                 if cb_show_graph.isChecked():
                                     import webbrowser
                                     webbrowser.open('file://' + os.path.realpath(graph_output_path))
                             else:
-                                if DEBUG:
-                                    print("❌ Failed to create interactive graph")
                                 graph_output_path = None
                     else:
-                        if DEBUG:
-                            print("Plotly not available. Install with: pip install plotly")
                         QMessageBox.warning(self, "Plotly Not Available",
                                           "Plotly is not installed.\nInstall with: pip install plotly",
                                           QMessageBox.StandardButton.Ok)
@@ -19237,41 +18811,29 @@ DATABASE SCHEMA KNOWLEDGE:
             elif rb_graphviz.isChecked():
                 # Use Graphviz for static visualization
                 try:
-                    if DEBUG:
-                        print("Attempting to generate static graph with Graphviz...")
                     from ..modules.s3dgraphy.graphviz_visualizer import GraphvizVisualizer
 
                     # Get graph data
                     json_temp = os.path.join(export_dir, f"{base_name}.json")
                     if not os.path.exists(json_temp):
-                        if DEBUG:
-                            print(f"Creating JSON file: {json_temp}")
                         integration.export_to_json(json_temp)
 
                     if os.path.exists(json_temp):
                         import json
                         with open(json_temp, 'r') as f:
                             graph_data = json.load(f)
-                        if DEBUG:
-                            print(f"Loaded graph data with {len(graph_data.get('nodes', []))} nodes")
 
                         # Create static PNG visualization
                         visualizer = GraphvizVisualizer()
                         graph_output_path = os.path.join(export_dir, f"{base_name}_matrix_graph.png")
-                        if DEBUG:
-                            print(f"Creating static graph at: {graph_output_path}")
 
                         if visualizer.create_graph_image(graph_data, graph_output_path):
                             exported_files.append(graph_output_path)
-                            if DEBUG:
-                                print(f"✅ Generated static graph: {graph_output_path}")
 
                             # DOT file is also created
                             dot_path = os.path.join(export_dir, f"{base_name}_matrix_graph.dot")
                             if cb_graph_dot.isChecked() and os.path.exists(dot_path):
                                 exported_files.append(dot_path)
-                                if DEBUG:
-                                    print(f"✅ DOT file available: {dot_path}")
 
                             # Show image if requested
                             if cb_show_graph.isChecked() and os.path.exists(graph_output_path):
@@ -19288,8 +18850,6 @@ DATABASE SCHEMA KNOWLEDGE:
                                 except:
                                     pass
                         else:
-                            if DEBUG:
-                                print("❌ Failed to create static graph")
                             graph_output_path = None
 
                 except Exception as e:
@@ -19312,27 +18872,20 @@ DATABASE SCHEMA KNOWLEDGE:
                                 graph_data = json.load(f)
 
                             if blender.send_to_blender(graph_data):
-                                if DEBUG:
-                                    print("✅ Sent data to Blender")
                                 exported_files.append("Data sent to Blender")
                             else:
-                                if DEBUG:
-                                    print("❌ Failed to send data to Blender")
+                                pass
                     else:
-                        if DEBUG:
-                            print("Blender not connected")
 
                         # Save addon script
                         from ..modules.s3dgraphy.blender_integration import BlenderAddonScript
                         addon_path = os.path.join(export_dir, "pyarchinit_blender_addon.py")
                         if BlenderAddonScript.save_addon(addon_path):
-                            if DEBUG:
-                                print(f"✅ Blender addon saved: {addon_path}")
                             exported_files.append(addon_path)
 
                 except Exception as e:
-                    print(f"⚠️ Error with Blender integration: {e}")
 
+                    pass
             # Create QGIS visualization
             if cb_qgis_viz.isChecked():
                 from ..modules.s3dgraphy.matrix_visualizer_qgis import MatrixVisualizerQGIS
@@ -19352,8 +18905,6 @@ DATABASE SCHEMA KNOWLEDGE:
                     layers = visualizer.visualize_extended_matrix(graph_data, chronological_sequence)
 
                     if layers:
-                        if DEBUG:
-                            print(f"✅ Created QGIS visualization layers")
                         exported_files.append("QGIS Layers created")
 
             # Open folder if requested
@@ -19369,8 +18920,8 @@ DATABASE SCHEMA KNOWLEDGE:
                     else:  # Linux
                         subprocess.run(['xdg-open', export_dir], check=False)
                 except Exception as e:
-                    print(f"Could not open folder: {e}")
 
+                    pass
             # Note: graph opening is now handled within each visualizer section above
             # based on cb_show_graph checkbox
 
@@ -19634,8 +19185,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 else:
                     QMessageBox.warning(self, u'WARNING', "Sorting system Complete", QMessageBox.StandardButton.Ok)
             except Exception as e:
-                print(f"{e}")
 
+                pass
     def on_toolButtonPan_toggled(self):
         self.toolPan = QgsMapToolPan(self.mapPreview)
         self.mapPreview.setMapTool(self.toolPan)
@@ -20034,7 +19585,6 @@ DATABASE SCHEMA KNOWLEDGE:
         except AssertionError as e:
             QMessageBox.critical(self, "Error", f"An error occurred while performing the check: {str(e)}",
                                  QMessageBox.StandardButton.Ok)
-            print(f"Error: {str(e)}")
         else:
             success_message = {
                 'it': "Controllo Rapporti Stratigrafici e Definizione Stratigrafica a Rapporti Stratigrafici eseguito con successo",
@@ -22826,7 +22376,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 try:
                     raise ValueError(str(e))
                 except ValueError as s:
-                    print(s, file=fh)
+                    pass
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
@@ -23829,8 +23379,6 @@ DATABASE SCHEMA KNOWLEDGE:
         ]
 
     def set_LIST_REC_CORR(self):
-        if DEBUG:
-            print(f"self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
 
         if self.REC_CORR < 0 or self.REC_CORR >= len(self.DATA_LIST):
             raise IndexError("self.REC_CORR is out of range")
@@ -23860,7 +23408,7 @@ DATABASE SCHEMA KNOWLEDGE:
             print(f"IndexError: {e}")
             return 0
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            pass
         return 0
     def setComboBoxEditable(self, f, n):
         """Set editable state for widgets - uses getattr instead of eval for security"""
