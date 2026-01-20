@@ -336,40 +336,25 @@ class UniboFileManagerBackend(StorageBackend):
 
                 # Resolve subfolder
                 full_path = f"{self.folder_path}/{subfolder_path}" if self.folder_path else subfolder_path
-                print(f"UniboFileManager DEBUG: Resolving folder path: {full_path}")
                 subfolder_id = self._resolve_folder_id(full_path)
-                print(f"UniboFileManager DEBUG: Resolved folder_id: {subfolder_id}")
 
                 if subfolder_id is None:
-                    print(f"UniboFileManager: Could not resolve folder: {full_path}")
                     return None
 
-                print(f"UniboFileManager DEBUG: Looking for file: {actual_filename} in folder_id: {subfolder_id}")
                 file_info = self._find_file_by_name(actual_filename, subfolder_id)
-
-                # Debug: list files in folder if not found
-                if not file_info:
-                    contents = self._get_folder_contents(subfolder_id)
-                    files_list = [f.get('original_filename', 'unknown') for f in contents.get('files', [])[:5]]
-                    print(f"UniboFileManager DEBUG: Files in folder (first 5): {files_list}")
             else:
                 file_info = self._find_file_by_name(filename, self._folder_id)
 
             if not file_info:
-                print(f"UniboFileManager: File not found: {filename}")
                 return None
 
             # Download file
             file_id = file_info.get('id')
             download_url = f"{self.api_base}files/{file_id}/download"
-            print(f"UniboFileManager DEBUG: Downloading from: {download_url}")
 
             return self._make_request(download_url, timeout=self.DEFAULT_TIMEOUT * 2)
 
-        except Exception as e:
-            print(f"UniboFileManager: Error reading file: {e}")
-            import traceback
-            traceback.print_exc()
+        except Exception:
             return None
 
     def _create_folder(self, folder_name: str, parent_folder_id: int = None) -> Optional[int]:
