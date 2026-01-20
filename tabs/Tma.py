@@ -4265,7 +4265,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Language in thesaurus is UPPERCASE
             lang = QgsSettings().value("locale/userLocale", "it")[:2].upper()  # Must be UPPERCASE
-            print(f"DEBUG: Using language: {lang}")
             
             # Map field types to thesaurus categories
             # Using tipologia_sigla codes from the thesaurus database
@@ -4278,7 +4277,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             }
 
             # Debug: print what we're looking for
-            print(f"DEBUG: Loading thesaurus for {field_type} with code {thesaurus_map.get(field_type, 'N/A')}")
             
             if field_type not in thesaurus_map:
                 return []
@@ -4288,7 +4286,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             table_name = 'TMA Materiali Ripetibili'  # Note: capital R in Ripetibili!
 
             # First, let's check what's actually in the thesaurus
-            print(f"DEBUG: Searching thesaurus with:")
             print(f"  - lingua: {lang}")
             print(f"  - nome_tabella: {table_name}")
             print(f"  - tipologia_sigla: {thesaurus_map[field_type]}")
@@ -4303,7 +4300,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
             # If no records found, try without table name to see what's available
             if not thesaurus_records:
-                print(f"DEBUG: No records found. Checking what table names exist for this tipologia_sigla...")
 
                 # First check what table names exist in thesaurus
                 search_dict_check = {
@@ -4319,14 +4315,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                             unique_tables.add(rec.nome_tabella)
                         if hasattr(rec, 'lingua'):
                             unique_langs.add(rec.lingua)
-                    print(f"DEBUG: Found {len(all_records)} records with tipologia_sigla {thesaurus_map[field_type]}")
-                    print(f"DEBUG: Table names in thesaurus: {unique_tables}")
-                    print(f"DEBUG: Languages in thesaurus: {unique_langs}")
 
                     # Now try with the first table name found
                     if unique_tables:
                         first_table = list(unique_tables)[0]
-                        print(f"DEBUG: Retrying with table name: '{first_table}'")
                         search_dict_retry = {
                             'lingua': "'" + str(lang) + "'",
                             'nome_tabella': "'" + str(first_table) + "'",
@@ -4337,7 +4329,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     print(f"DEBUG: No records at all for tipologia_sigla {thesaurus_map[field_type]}")
 
             # DEBUG: Check what was returned
-            print(f"DEBUG: Found {len(thesaurus_records)} records in thesaurus for {field_type}")
             values = []
 
             # Log first few thesaurus values to understand what we're getting
@@ -4345,7 +4336,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 sample_values = []
                 for i, rec in enumerate(thesaurus_records[:5]):  # Show first 5
                     sample_values.append(f"{rec.sigla_estesa}")
-                print(f"DEBUG: Sample values for {field_type}: {sample_values}")
 
 
             for record in thesaurus_records:
@@ -5525,7 +5515,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     casse = [c.strip() for c in casse if c.strip()]
                     if not casse:
                         casse = ['Non specificata']
-                    print(f"DEBUG: Cassetta '{cassetta}' split into: {casse}")
 
                 # Get località from TMA record
                 localita = str(tma_record.localita) if tma_record.localita and str(tma_record.localita) != 'None' else ''
@@ -5549,7 +5538,6 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     magazzino = 'Non specificato'
 
                 # Debug all relevant fields
-                print(f"DEBUG: TMA {tma_record.id}:")
                 print(f"  - ldcn (denom. collocazione): '{tma_record.ldcn if hasattr(tma_record, 'ldcn') else 'N/A'}'")
                 print(f"  - ldct (tipo collocazione): '{tma_record.ldct if hasattr(tma_record, 'ldct') else 'N/A'}'")
                 print(f"  - vecchia_collocazione: '{tma_record.vecchia_collocazione if hasattr(tma_record, 'vecchia_collocazione') else 'N/A'}'")

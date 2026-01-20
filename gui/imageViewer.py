@@ -108,7 +108,6 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
             Returns:
                 None
         """
-        print(f"[ImageViewer DEBUG] show_image called with path: {path}")
 
         # Store the path for export functionality
         self.current_image_path = path
@@ -120,36 +119,27 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
         if REMOTE_LOADER_AVAILABLE and path:
             # Check if it's a remote path (unibo://, cloudinary://, http://, https://)
             if is_remote_url(path) or is_unibo_path(path):
-                print(f"[ImageViewer DEBUG] Detected remote path, using RemoteImageLoader")
 
                 # Ensure credentials are loaded
                 if is_unibo_path(path):
-                    print(f"[ImageViewer DEBUG] Loading Unibo credentials...")
                     load_unibo_credentials_from_qgis()
 
                 # Load using remote loader
                 pic = remote_load_pixmap(path)
 
                 if pic.isNull():
-                    print(f"[ImageViewer DEBUG] RemoteImageLoader returned null pixmap for: {path}")
                 else:
-                    print(f"[ImageViewer DEBUG] Successfully loaded remote image: {pic.width()}x{pic.height()}")
             else:
                 # Local path
-                print(f"[ImageViewer DEBUG] Local path detected")
                 if os.path.exists(path):
                     pic.load(path)
-                    print(f"[ImageViewer DEBUG] Loaded local image: {pic.width()}x{pic.height()}")
                 else:
-                    print(f"[ImageViewer DEBUG] Local file not found: {path}")
         else:
             # Fallback to direct QPixmap loading
-            print(f"[ImageViewer DEBUG] Using direct QPixmap loading (REMOTE_LOADER_AVAILABLE={REMOTE_LOADER_AVAILABLE})")
             if path and os.path.exists(path):
                 pic.load(path)
 
         if pic.isNull():
-            print(f"[ImageViewer DEBUG] WARNING: Failed to load image, pixmap is null")
 
         grview = ImageViewClass(origPixmap=pic)
 

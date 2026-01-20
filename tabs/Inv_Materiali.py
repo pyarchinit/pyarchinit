@@ -2921,7 +2921,6 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 full_path = os.path.join(thumb_resize_str, file_path)
 
-            print(f"[Inv_Materiali openWide_image DEBUG] thumb_resize_str={thumb_resize_str}, file_path={file_path}, full_path={full_path}")
 
             if media_type == 'video':
                 show_video(full_path)

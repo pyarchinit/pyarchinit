@@ -1022,14 +1022,12 @@ class ReportDialog(QDialog):
             # This ensures images are not skipped when text also contains asterisks
             if '[IMMAGINE' in text and ']' in text:
                 if DEBUG:
-                    print(f"DEBUG: Found image tag in paragraph text: {text[:100]}...")
                 # Extract and process all image references in the text
                 img_pattern = r'\[IMMAGINE[^:]*:\s*(.*?),\s*(.*?)\]'
                 matches = list(re.finditer(img_pattern, text))
 
                 if matches:
                     if DEBUG:
-                        print(f"DEBUG: Found {len(matches)} image matches")
                     last_end = 0
                     for match in matches:
                         # Add text before the image
@@ -1050,7 +1048,6 @@ class ReportDialog(QDialog):
                         img_path = urllib.parse.unquote(img_path)
 
                         if DEBUG:
-                            print(f"DEBUG: Processing image - path={img_path}, exists={os.path.exists(img_path)}")
 
                         try:
                             if os.path.exists(img_path):
@@ -1079,15 +1076,12 @@ class ReportDialog(QDialog):
                                 caption_run.font.size = Pt(9)
                                 caption_run.font.name = 'Calibri'
                                 if DEBUG:
-                                    print(f"DEBUG: Successfully added image: {img_path}")
                             else:
                                 # If image doesn't exist, add a placeholder
                                 doc.add_paragraph(f"[Immagine non trovata: {caption}]")
                                 if DEBUG:
-                                    print(f"DEBUG: Image not found: {img_path}")
                         except Exception as e:
                             doc.add_paragraph(f"[Errore immagine: {str(e)}]")
-                            print(f"DEBUG: Error processing image {img_path}: {e}")
 
                         last_end = match.end()
 
@@ -1101,7 +1095,6 @@ class ReportDialog(QDialog):
                 else:
                     # No regex match - try manual fallback
                     if DEBUG:
-                        print(f"DEBUG: No regex match, trying fallback extraction")
                     try:
                         start_idx = text.find(':') + 1
                         comma_idx = text.rfind(',')
@@ -1130,10 +1123,8 @@ class ReportDialog(QDialog):
                                 caption_run.italic = True
                                 caption_run.font.size = Pt(9)
                                 if DEBUG:
-                                    print(f"DEBUG: Fallback image added: {fallback_path}")
                                 return
                     except Exception as e:
-                        print(f"DEBUG: Fallback failed: {e}")
 
             # Process markdown formatting (bold and italic)
             # Check if text contains markdown formatting
@@ -17173,7 +17164,6 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 full_path = os.path.join(thumb_resize_str, file_path)
 
-            print(f"[US_USM openWide_image DEBUG] thumb_resize_str={thumb_resize_str}, file_path={file_path}, full_path={full_path}")
 
             if media_type == 'video':
                 show_video(full_path)

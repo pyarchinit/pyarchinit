@@ -338,18 +338,14 @@ class PotterySimilarityIndexManager:
             True if successful
         """
         if not HAS_FAISS:
-            print("[DEBUG] rebuild_index: FAISS not available")
             return False
 
-        print(f"[DEBUG] rebuild_index called with {len(embeddings)} embeddings")
 
         if not embeddings:
-            print("[DEBUG] rebuild_index: No embeddings to index!")
             return True
 
         try:
             dimension = self._get_dimension(model_name)
-            print(f"[DEBUG] Creating index with dimension {dimension}")
             index = self._create_index(dimension)
             mapping = {}
 
@@ -381,7 +377,6 @@ class PotterySimilarityIndexManager:
             self.id_mappings[key] = mapping
             self._modified_indexes.add(key)
 
-            print(f"[DEBUG] rebuild_index complete: index.ntotal = {index.ntotal}, mapping size = {len(mapping)}")
             return True
 
         except Exception as e:
@@ -398,10 +393,8 @@ class PotterySimilarityIndexManager:
             True if all saves successful
         """
         if not HAS_FAISS:
-            print("[DEBUG] save_indexes: FAISS not available")
             return False
 
-        print(f"[DEBUG] save_indexes: {len(self._modified_indexes)} indexes to save")
 
         success = True
         for key in list(self._modified_indexes):  # Use list() to avoid modification during iteration
@@ -416,8 +409,6 @@ class PotterySimilarityIndexManager:
                     index = self.indexes[key]
                     mapping = self.id_mappings.get(key, {})
 
-                    print(f"[DEBUG] Saving {key}: index.ntotal={index.ntotal}, mapping_len={len(mapping)}")
-                    print(f"[DEBUG] Index path: {index_path}")
 
                     # Save FAISS index
                     faiss.write_index(index, index_path)
@@ -426,7 +417,6 @@ class PotterySimilarityIndexManager:
                     with open(mapping_path, 'wb') as f:
                         pickle.dump(mapping, f)
 
-                    print(f"[DEBUG] Saved {key} successfully")
 
                 except Exception as e:
                     print(f"Error saving index {key}: {e}")

@@ -2585,7 +2585,6 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
                 # Local path: use os.path.join
                 full_path = os.path.join(thumb_resize_str, file_path)
 
-            print(f"[Pottery openWide_image DEBUG] thumb_resize_str={thumb_resize_str}, file_path={file_path}, full_path={full_path}")
 
             if media_type == 'video':
                 show_video(full_path)
