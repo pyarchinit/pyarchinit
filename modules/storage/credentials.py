@@ -83,6 +83,7 @@ class CredentialsManager:
         StorageType.HTTP: [],  # May be empty for public URLs
         StorageType.SFTP: ['username'],  # Password or key
         StorageType.CLOUDINARY: ['cloud_name', 'api_key', 'api_secret'],
+        StorageType.UNIBO: ['server_url', 'username', 'password'],  # API Storage
     }
 
     # Environment variable names for each storage type
@@ -130,6 +131,14 @@ class CredentialsManager:
             'api_secret': 'CLOUDINARY_API_SECRET',
             'folder': 'CLOUDINARY_FOLDER',
             'auto_tagging': 'CLOUDINARY_AUTO_TAGGING',
+        },
+        StorageType.UNIBO: {
+            'server_url': 'API_SERVER_URL',
+            'username': 'API_USERNAME',
+            'password': 'API_PASSWORD',
+            'project_code': 'API_PROJECT_CODE',
+            'base_folder': 'API_BASE_FOLDER',
+            'verify_ssl': 'API_VERIFY_SSL',
         },
     }
 

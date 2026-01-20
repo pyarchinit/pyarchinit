@@ -42,6 +42,7 @@
 
 import os
 import shutil
+import tempfile
 
 from qgis.PyQt.QtGui import QPixmap
 
@@ -52,6 +53,20 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QGraphicsView, QGraphicsSc
 from qgis.PyQt.uic import loadUiType
 
 from qgis.PyQt import QtWidgets
+
+# Import remote image loader for handling unibo://, cloudinary://, http:// paths
+try:
+    from ..modules.utility.remote_image_loader import (
+        RemoteImageLoader,
+        load_pixmap as remote_load_pixmap,
+        is_remote_url,
+        is_unibo_path,
+        load_unibo_credentials_from_qgis
+    )
+    REMOTE_LOADER_AVAILABLE = True
+except ImportError:
+    REMOTE_LOADER_AVAILABLE = False
+    print("[ImageViewer] WARNING: remote_image_loader not available")
 
 IMAGE_VIEWER, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'Image_Viewer.ui'))
 
@@ -84,18 +99,57 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
     def show_image(self, path, flags=Qt.AspectRatioMode.KeepAspectRatioByExpanding):
         """
             Displays an image at the specified path in a QGraphicsView widget.
+            Supports local paths, HTTP/HTTPS URLs, cloudinary://, and unibo:// paths.
 
             Args:
-                path (str): The path to the image file.
+                path (str): The path to the image file (local or remote).
                 flags (Union[Qt.AspectRatioMode, Qt.Transformations], optional): The aspect ratio mode to use when displaying the image. Defaults to Qt.AspectRatioMode.KeepAspectRatioByExpanding.
 
             Returns:
                 None
         """
+        print(f"[ImageViewer DEBUG] show_image called with path: {path}")
+
         # Store the path for export functionality
         self.current_image_path = path
+        self._temp_file = None  # For cleanup of temp files
 
-        pic = QPixmap(path)
+        pic = QPixmap()
+
+        # Check if we need to use remote loader
+        if REMOTE_LOADER_AVAILABLE and path:
+            # Check if it's a remote path (unibo://, cloudinary://, http://, https://)
+            if is_remote_url(path) or is_unibo_path(path):
+                print(f"[ImageViewer DEBUG] Detected remote path, using RemoteImageLoader")
+
+                # Ensure credentials are loaded
+                if is_unibo_path(path):
+                    print(f"[ImageViewer DEBUG] Loading Unibo credentials...")
+                    load_unibo_credentials_from_qgis()
+
+                # Load using remote loader
+                pic = remote_load_pixmap(path)
+
+                if pic.isNull():
+                    print(f"[ImageViewer DEBUG] RemoteImageLoader returned null pixmap for: {path}")
+                else:
+                    print(f"[ImageViewer DEBUG] Successfully loaded remote image: {pic.width()}x{pic.height()}")
+            else:
+                # Local path
+                print(f"[ImageViewer DEBUG] Local path detected")
+                if os.path.exists(path):
+                    pic.load(path)
+                    print(f"[ImageViewer DEBUG] Loaded local image: {pic.width()}x{pic.height()}")
+                else:
+                    print(f"[ImageViewer DEBUG] Local file not found: {path}")
+        else:
+            # Fallback to direct QPixmap loading
+            print(f"[ImageViewer DEBUG] Using direct QPixmap loading (REMOTE_LOADER_AVAILABLE={REMOTE_LOADER_AVAILABLE})")
+            if path and os.path.exists(path):
+                pic.load(path)
+
+        if pic.isNull():
+            print(f"[ImageViewer DEBUG] WARNING: Failed to load image, pixmap is null")
 
         grview = ImageViewClass(origPixmap=pic)
 
@@ -108,13 +162,28 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
         self.gridLayout_2.addWidget(grview)
 
     def export_image(self):
-        """Export the current image to a user-chosen location."""
-        if not self.current_image_path or not os.path.exists(self.current_image_path):
+        """Export the current image to a user-chosen location.
+        Works with both local and remote (unibo://, http://, cloudinary://) paths.
+        """
+        if not self.current_image_path:
             QMessageBox.warning(self, "Attenzione", "Nessuna immagine da esportare.")
             return
 
+        # Check if it's a remote path
+        is_remote = False
+        if REMOTE_LOADER_AVAILABLE:
+            is_remote = is_remote_url(self.current_image_path) or is_unibo_path(self.current_image_path)
+
+        # For local paths, check if file exists
+        if not is_remote and not os.path.exists(self.current_image_path):
+            QMessageBox.warning(self, "Attenzione", f"File non trovato:\n{self.current_image_path}")
+            return
+
         # Get the original filename
-        filename = os.path.basename(self.current_image_path)
+        if '/' in self.current_image_path:
+            filename = self.current_image_path.split('/')[-1]
+        else:
+            filename = os.path.basename(self.current_image_path)
 
         # Ask user for save location
         save_path, _ = QFileDialog.getSaveFileName(
@@ -126,8 +195,23 @@ class ImageViewer(QDialog, IMAGE_VIEWER):
 
         if save_path:
             try:
-                shutil.copy2(self.current_image_path, save_path)
-                QMessageBox.information(self, "Successo", f"Immagine esportata:\n{save_path}")
+                if is_remote:
+                    # For remote images, save from the loaded pixmap
+                    pixmap = remote_load_pixmap(self.current_image_path)
+                    if not pixmap.isNull():
+                        # Determine format from extension
+                        ext = os.path.splitext(save_path)[1].lower()
+                        fmt = 'PNG' if ext == '.png' else 'JPEG' if ext in ('.jpg', '.jpeg') else None
+                        if pixmap.save(save_path, fmt):
+                            QMessageBox.information(self, "Successo", f"Immagine esportata:\n{save_path}")
+                        else:
+                            QMessageBox.critical(self, "Errore", "Errore durante il salvataggio dell'immagine")
+                    else:
+                        QMessageBox.critical(self, "Errore", "Impossibile caricare l'immagine remota")
+                else:
+                    # Local file - copy directly
+                    shutil.copy2(self.current_image_path, save_path)
+                    QMessageBox.information(self, "Successo", f"Immagine esportata:\n{save_path}")
             except Exception as e:
                 QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione:\n{str(e)}")
 

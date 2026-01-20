@@ -27,6 +27,7 @@ class StorageType(Enum):
     HTTP = "http"
     SFTP = "sftp"
     CLOUDINARY = "cloudinary"
+    UNIBO = "unibo"  # University of Bologna File Manager
 
 
 @dataclass

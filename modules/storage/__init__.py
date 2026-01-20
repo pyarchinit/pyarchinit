@@ -13,6 +13,7 @@ Supported backends:
 - WebDAV (webdav://)
 - HTTP/HTTPS (http://, https://)
 - SFTP (sftp://)
+- Unibo File Manager (unibo://) - University of Bologna file storage
 
 Usage:
     from modules.storage import StorageManager

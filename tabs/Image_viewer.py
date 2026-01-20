@@ -1711,39 +1711,59 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         conn_str = conn.conn_str()
         thumb_resize = conn.thumb_resize()
         thumb_resize_str = thumb_resize['thumb_resize']
+
+        print(f"[openWide_image DEBUG] thumb_resize_str = {thumb_resize_str}")
+
         for item in items:
             dlg = ImageViewer()
             id_orig_item = item.text()  # return the name of original file
+            print(f"[openWide_image DEBUG] Selected item: {id_orig_item}")
+
             search_dict = {'media_filename': "'" + str(id_orig_item) + "'", 'mediatype': "'" + 'video' + "'"}
             u = Utility()
             search_dict = u.remove_empty_items_fr_dict(search_dict)
-            
+
             res = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            
-            
+
+
             search_dict_2 = {'media_filename': "'" + str(id_orig_item) + "'", 'mediatype': "'" + 'image' + "'"}
-            
+
             search_dict_2 = u.remove_empty_items_fr_dict(search_dict_2)
-            
+
             res_2 = self.DB_MANAGER.query_bool(search_dict_2, "MEDIA_THUMB")
-            
-            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}  
-            
+
+            search_dict_3 = {'media_filename': "'" + str(id_orig_item) + "'"}
+
             search_dict_3 = u.remove_empty_items_fr_dict(search_dict_3)
-            
+
             res_3 = self.DB_MANAGER.query_bool(search_dict_3, "MEDIA_THUMB")
-            
+
             file_path_3 = str(res_3[0].path_resize)
+            print(f"[openWide_image DEBUG] path_resize from DB = {file_path_3}")
+
+            # Check if path_resize is already a full path (starts with protocol)
+            if file_path_3.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                # path_resize is already a full path, use it directly
+                full_path = file_path_3
+            elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                # URL path: use forward slash
+                full_path = thumb_resize_str.rstrip('/') + '/' + file_path_3.lstrip('/')
+            else:
+                # Local path
+                full_path = str(thumb_resize_str + file_path_3)
+
+            print(f"[openWide_image DEBUG] Final full_path = {full_path}")
+
             if bool(res):
                 if platform.system=='Windows':
-                    os.startfile(str(thumb_resize_str+file_path_3))
-            
+                    os.startfile(full_path)
+
                 else:
-                    os.system('open ' + str(thumb_resize_str+file_path_3))
+                    os.system('open ' + full_path)
             else:
                 pass
             if bool(res_2):
-                dlg.show_image(str(thumb_resize_str+file_path_3))  
+                dlg.show_image(full_path)
                 dlg.exec()
             else:
                 pass

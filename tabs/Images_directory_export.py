@@ -44,6 +44,23 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
     DB_MANAGER = ""
     HOME = os.environ['PYARCHINIT_HOME']
 
+    @staticmethod
+    def build_media_path(base_path, path_resize):
+        """
+        Build full media path handling both local and remote paths.
+        If path_resize is already a full path (unibo://, http://, etc.), use it directly.
+        """
+        path_resize_str = str(path_resize)
+        # Check if path_resize is already a full path
+        if path_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+            return path_resize_str
+        elif path_resize_str.startswith('/'):
+            return path_resize_str
+        elif base_path and base_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+            return base_path.rstrip('/') + '/' + path_resize_str.lstrip('/')
+        else:
+            return str(base_path) + str(path_resize_str)
+
     def __init__(self, parent=None, db=None):
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
@@ -203,7 +220,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                         self.OS_UTILITY.create_dir(sing_US_path)
                         for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                            self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                           sing_US_path)
 
                         images_found = True
@@ -281,7 +298,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                         self.OS_UTILITY.create_dir(sing_REPERTI_path)
                         for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                            self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                           sing_REPERTI_path)
                         images_found = True
                 #################################Tombe####################################################
@@ -354,7 +371,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                         self.OS_UTILITY.create_dir(sing_TOMBA_path)
                         for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                            self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                           sing_TOMBA_path)
 
                         images_found=True
@@ -428,7 +445,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                         self.OS_UTILITY.create_dir(sing_Fase_path)
                         self.OS_UTILITY.create_dir(sing_ST_path)
                         for sing_media in search_images_res:
-                            self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                            self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                           sing_ST_path)
 
                         images_found = True
@@ -502,7 +519,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_REPERTI_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_REPERTI_path)
                             images_found=True
 
@@ -609,7 +626,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found=True
@@ -682,7 +699,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
 
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -750,7 +767,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             # self.OS_UTILITY.create_dir(sing_def_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found=True
@@ -818,7 +835,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_def_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -888,7 +905,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_def_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -954,7 +971,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             #self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
                             images_found = True
                     if images_found:
@@ -1024,7 +1041,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             #self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -1118,7 +1135,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_tipo_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -1186,7 +1203,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             #self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -1287,7 +1304,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
 
                             images_found = True
@@ -1346,7 +1363,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             #self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
                             images_found = True
                     if images_found:
@@ -1436,7 +1453,7 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
                             self.OS_UTILITY.create_dir(sing_Fase_path)
                             self.OS_UTILITY.create_dir(sing_US_path)
                             for sing_media in search_images_res:
-                                self.OS_UTILITY.copy_file_img(thumb_resize_str + str(sing_media.path_resize),
+                                self.OS_UTILITY.copy_file_img(self.build_media_path(thumb_resize_str, sing_media.path_resize),
                                                               sing_US_path)
                             images_found = True
                     if images_found:
