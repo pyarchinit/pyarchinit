@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.50
+version=4.9.51
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.50 (2026-01-16):
+changelog=4.9.51 (2026-01-20):
+    - Feature:  add UNIBO file upload support for drag&drop media
+    - Feature:  add UNIBO File Manager storage backend integration
+    - Feature:  add initial implementation of unibo file manager backend and storage tests
+  4.9.50 (2026-01-16):
     - Feature:  use form icons in workflow tabs and fix tutorial images
     - Feature:  add interactive workflow tabs with clickable buttons
     - Fix:  remove overlapping workflow diagrams from existing tabs
