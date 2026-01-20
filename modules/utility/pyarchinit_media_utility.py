@@ -53,7 +53,8 @@ def is_remote_path(path):
     if not path:
         return False
     remote_prefixes = ('gdrive://', 'dropbox://', 's3://', 'r2://',
-                       'webdav://', 'http://', 'https://', 'sftp://', 'cloudinary://')
+                       'webdav://', 'http://', 'https://', 'sftp://', 'cloudinary://',
+                       'unibo://')
     return any(path.lower().startswith(prefix) for prefix in remote_prefixes)
 
 
