@@ -85,10 +85,10 @@ class pyarchinit_OS_Utility:
                     with open(dest_file, 'wb') as out_file:
                         out_file.write(data)
 
-                else:
-
             except ImportError as e:
+                pass
             except Exception as e:
+                pass
         else:
             # Local file - use original method
             file_path = f

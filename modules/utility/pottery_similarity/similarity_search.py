@@ -484,7 +484,6 @@ class PotterySimilaritySearchEngine:
             image_path = self._build_image_path(relative_path)
             if not os.path.exists(image_path):
                 skipped_not_exists += 1
-                if skipped_not_exists <= 3:  # Log first few missing files
                 continue
 
             # Generate embedding
@@ -500,8 +499,6 @@ class PotterySimilaritySearchEngine:
                 ))
             else:
                 errors += 1
-                if errors <= 3:
-
 
         # Rebuild index with all embeddings
         success = self.index_manager.rebuild_index(model_name, search_type, embeddings)
