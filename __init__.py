@@ -236,20 +236,17 @@ class PackageManager:
         # Special handling for Pillow on macOS
         package_base = package.split('==')[0].split('>=')[0]
         if package_base == 'Pillow' and platform.system() == 'Darwin':
-            # First attempt to uninstall any existing Pillow
-            for qgis_type in ['standard', 'ltr']:
-                try:
-                    python_executable = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    # Try to uninstall existing Pillow first
-                    subprocess.run([python_executable, "-m", "pip", "uninstall", "-y", "Pillow"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # Then install the requested version
-                    subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--force-reinstall", package],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    break
-                except Exception as e:
-                    print(f"Error reinstalling Pillow on {qgis_type}: {e}")
+            # Use sys.executable for consistent Python version
+            try:
+                # Try to uninstall existing Pillow first
+                subprocess.run([sys.executable, "-m", "pip", "uninstall", "-y", "Pillow"],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # Then install the requested version
+                subprocess.run(
+                    [sys.executable, "-m", "pip", "install", "--force-reinstall", package],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+            except Exception as e:
+                print(f"Error reinstalling Pillow: {e}")
             return
 
         # Regular installation process
@@ -280,14 +277,57 @@ class PackageManager:
                 subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
-            for qgis_type in ['standard', 'ltr']:
+            # On macOS, try multiple strategies to install the package
+            installed = False
+            last_error = None
+
+            # Strategy 1: Use sys.executable (the actual Python running QGIS)
+            try:
+                result = subprocess.run(
+                    [sys.executable, "-m", "pip", "install", package],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+                )
+                installed = True
+            except subprocess.CalledProcessError as e:
+                last_error = e.stderr.decode() if e.stderr else str(e)
+                # Strategy 2: Try with --user flag
                 try:
+                    result = subprocess.run(
+                        [sys.executable, "-m", "pip", "install", package, "--user"],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+                    )
+                    installed = True
+                except subprocess.CalledProcessError as e2:
+                    last_error = e2.stderr.decode() if e2.stderr else str(e2)
+
+            # Strategy 3: Try using QGIS paths if sys.executable didn't work
+            if not installed:
+                for qgis_type in ['standard', 'ltr']:
                     python_executable = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    subprocess.run([python_executable, "-m", "pip", "install", package],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    break
-                except Exception as e:
-                    print(f"Error installing {package} on {qgis_type}: {e}")
+                    if not os.path.exists(python_executable):
+                        continue
+                    try:
+                        result = subprocess.run(
+                            [python_executable, "-m", "pip", "install", package],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+                        )
+                        installed = True
+                        break
+                    except subprocess.CalledProcessError as e:
+                        last_error = e.stderr.decode() if e.stderr else str(e)
+                        # Try with --user flag
+                        try:
+                            result = subprocess.run(
+                                [python_executable, "-m", "pip", "install", package, "--user"],
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+                            )
+                            installed = True
+                            break
+                        except subprocess.CalledProcessError as e2:
+                            last_error = e2.stderr.decode() if e2.stderr else str(e2)
+
+            if not installed and last_error:
+                print(f"Error installing {package} on macOS: {last_error}")
 
     @staticmethod
     def remove_opencv_directories() -> None:

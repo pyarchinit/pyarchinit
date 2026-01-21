@@ -38,10 +38,10 @@ s3dgraphy==0.1.25
 cloudinary==1.44.1
 # Google Drive (optional - may have issues on Apple Silicon Macs)
 # pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-#google-auth==2.47.0
-#google-auth-oauthlib==1.2.3
-#google-auth-httplib2==0.3.0
-#google-api-python-client==2.187.0
+google-auth>=2.37.0
+google-auth-oauthlib>=1.2.1
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.159.0
 dropbox==12.0.2
 boto3==1.42.25
 webdavclient3==3.14.6
