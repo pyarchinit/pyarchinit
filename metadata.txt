@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.54
+version=4.9.55
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.54 (2026-01-21):
+changelog=4.9.55 (2026-01-21):
+    - Fix:  check package versions, not just names, for updates
+    - Chore:  update google packages to latest versions
+    - Fix:  use sys.prefix instead of sys.executable for macOS pip
+  4.9.54 (2026-01-21):
     - Fix:  improve macOS package installation reliability
     - Fix:  resolve macOS spatialite and google-auth installation issues
   4.9.53 (2026-01-21):
