@@ -362,23 +362,24 @@ class PackageManager:
     @staticmethod
     def check_required_packages(requirements_path: str) -> List[str]:
         """
-        Check which required packages are missing or have wrong versions.
+        Check which required packages are missing.
 
         Args:
             requirements_path: Path to the requirements.txt file
 
         Returns:
-            List of missing or outdated packages
+            List of missing packages
         """
-        # Get installed packages with their versions (normalized to lowercase for comparison)
-        installed_packages = {}  # name -> version
+        # Get installed package names (normalized to lowercase for comparison)
+        # Note: We only check if package is installed, not the version,
+        # because QGIS and user site-packages may have different versions
+        installed_package_names = set()
         for pkg in distributions():
             try:
                 name = pkg.metadata.get('Name')
-                version = pkg.metadata.get('Version')
                 if name:
                     # Normalize to lowercase for case-insensitive comparison
-                    installed_packages[name.lower()] = version
+                    installed_package_names.add(name.lower())
             except Exception:
                 # Skip packages with incomplete metadata
                 continue
@@ -391,26 +392,13 @@ class PackageManager:
                 if not line or line.startswith('#'):
                     continue
 
+                # Extract package name (everything before ==, >=, <=, etc.)
                 package_spec = line
+                package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
 
-                # Check for exact version requirement (==)
-                if '==' in line:
-                    package_name, required_version = line.split('==', 1)
-                    package_name = package_name.strip().lower()
-                    required_version = required_version.strip()
-
-                    installed_version = installed_packages.get(package_name)
-                    if installed_version is None:
-                        # Package not installed
-                        missing_packages.append(package_spec)
-                    elif installed_version != required_version:
-                        # Package installed but wrong version
-                        missing_packages.append(package_spec)
-                else:
-                    # For >=, <=, etc., just check if package is installed
-                    package_name = line.split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
-                    if package_name.lower() not in installed_packages:
-                        missing_packages.append(package_spec)
+                # Check if package is installed (case-insensitive)
+                if package_name.lower() not in installed_package_names:
+                    missing_packages.append(package_spec)
 
         return missing_packages
 
