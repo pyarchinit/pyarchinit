@@ -253,10 +253,16 @@ class PackageManager:
                     # Try to uninstall existing Pillow first
                     subprocess.run([python_executable, "-m", "pip", "uninstall", "-y", "Pillow"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # Then install the requested version with --user flag
-                    subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--force-reinstall", package, "--user"],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    # Then install the requested version (try without --user first)
+                    try:
+                        subprocess.run(
+                            [python_executable, "-m", "pip", "install", "--force-reinstall", package],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    except subprocess.CalledProcessError:
+                        # Fallback with --user
+                        subprocess.run(
+                            [python_executable, "-m", "pip", "install", "--force-reinstall", package, "--user"],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
                 except Exception as e:
                     print(f"Error reinstalling Pillow: {e}")
             return
@@ -310,20 +316,20 @@ class PackageManager:
 
             # Try each Python executable
             for python_executable in python_paths:
-                # First try with --user flag (more likely to succeed on Mac)
+                # First try WITHOUT --user (installs to QGIS site-packages)
                 try:
                     result = subprocess.run(
-                        [python_executable, "-m", "pip", "install", package, "--user"],
+                        [python_executable, "-m", "pip", "install", "--upgrade", package],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
                     )
                     installed = True
                     break
                 except subprocess.CalledProcessError as e:
                     last_error = e.stderr.decode() if e.stderr else str(e)
-                    # Try without --user flag
+                    # Fallback: try with --user flag
                     try:
                         result = subprocess.run(
-                            [python_executable, "-m", "pip", "install", package],
+                            [python_executable, "-m", "pip", "install", "--upgrade", package, "--user"],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
                         )
                         installed = True
