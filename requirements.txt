@@ -1,5 +1,5 @@
 # CRITICAL: numpy must be exactly 1.26.4 for QGIS compatibility (numpy 2.x breaks QGIS)
-numpy==1.26.4
+#numpy==1.26.4
 SQLAlchemy==2.0.45
 SQLAlchemy-Utils==0.42.1
 GeoAlchemy2==0.18.1
@@ -36,10 +36,12 @@ s3dgraphy==0.1.25
 #pyper>=1.1.2
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary==1.44.1
-google-auth==2.47.0
-google-auth-oauthlib==1.2.3
-google-auth-httplib2==0.3.0
-google-api-python-client==2.187.0
+# Google Drive (optional - may have issues on Apple Silicon Macs)
+# pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+#google-auth==2.47.0
+#google-auth-oauthlib==1.2.3
+#google-auth-httplib2==0.3.0
+#google-api-python-client==2.187.0
 dropbox==12.0.2
 boto3==1.42.25
 webdavclient3==3.14.6

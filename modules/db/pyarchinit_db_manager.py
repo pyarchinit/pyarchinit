@@ -269,25 +269,56 @@ class Pyarchinit_db_management(object):
                 pass
 
             if not loaded:
-                # Search in common paths including QGIS internal paths
+                # Try to find spatialite using QGIS's Python sys.prefix
+                import sys
                 import glob
-                spatialite_paths = [
-                    # QGIS internal paths (most common on macOS)
+
+                # Build paths based on QGIS installation
+                qgis_prefix = sys.prefix  # e.g., /Applications/QGIS.app/Contents/MacOS
+
+                spatialite_paths = []
+
+                # Add paths relative to QGIS prefix (most reliable on Mac)
+                if qgis_prefix:
+                    spatialite_paths.extend([
+                        os.path.join(qgis_prefix, 'lib', 'mod_spatialite.dylib'),
+                        os.path.join(qgis_prefix, 'lib', 'mod_spatialite.so'),
+                        os.path.join(qgis_prefix, 'lib', 'mod_spatialite.7.dylib'),
+                        os.path.join(qgis_prefix, 'lib', 'mod_spatialite.7.so'),
+                        os.path.join(os.path.dirname(qgis_prefix), 'Frameworks', 'mod_spatialite.dylib'),
+                        os.path.join(os.path.dirname(qgis_prefix), 'Frameworks', 'libspatialite.dylib'),
+                    ])
+
+                # Add static paths for QGIS installations
+                spatialite_paths.extend([
+                    # QGIS internal paths - dylib first (preferred on macOS)
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.dylib',
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.7.dylib',
                     '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
                     '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.7.so',
+                    '/Applications/QGIS.app/Contents/Frameworks/mod_spatialite.dylib',
+                    '/Applications/QGIS.app/Contents/Frameworks/libspatialite.dylib',
+                    # QGIS-LTR paths
+                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.dylib',
                     '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
-                    # Homebrew paths
+                    '/Applications/QGIS-LTR.app/Contents/Frameworks/mod_spatialite.dylib',
+                    # Homebrew paths (Apple Silicon and Intel)
                     '/opt/homebrew/lib/mod_spatialite.dylib',
                     '/opt/homebrew/lib/mod_spatialite.so',
+                    '/opt/homebrew/opt/libspatialite/lib/mod_spatialite.dylib',
                     '/usr/local/lib/mod_spatialite.dylib',
                     '/usr/local/lib/mod_spatialite.so',
+                    '/usr/local/opt/libspatialite/lib/mod_spatialite.dylib',
                     # MacPorts path
                     '/opt/local/lib/mod_spatialite.dylib',
                     '/opt/local/lib/mod_spatialite.so',
-                ]
+                ])
 
-                # Also search for any QGIS version
-                qgis_patterns = glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.so')
+                # Also search for any QGIS version with glob (both .dylib and .so)
+                qgis_patterns = glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.dylib')
+                qgis_patterns += glob.glob('/Applications/QGIS*.app/Contents/MacOS/lib/mod_spatialite*.so')
+                qgis_patterns += glob.glob('/Applications/QGIS*.app/Contents/Frameworks/mod_spatialite*.dylib')
+                qgis_patterns += glob.glob('/Applications/QGIS*.app/Contents/Frameworks/libspatialite*.dylib')
                 spatialite_paths = qgis_patterns + spatialite_paths
 
                 for path in spatialite_paths:
@@ -300,8 +331,12 @@ class Pyarchinit_db_management(object):
                             continue
 
             if not loaded:
-                # Final fallback - try without path
-                dbapi_conn.load_extension('mod_spatialite')
+                # On hardened macOS, relative paths are not allowed
+                # Raise a helpful error message
+                raise sqlite3.OperationalError(
+                    "Could not find mod_spatialite library. Please ensure QGIS is properly installed "
+                    "or install libspatialite via Homebrew: brew install libspatialite"
+                )
         else:
             # Linux
             dbapi_conn.load_extension('mod_spatialite.so')
