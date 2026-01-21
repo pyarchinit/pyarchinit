@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.52
+version=4.9.53
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.52 (2026-01-20):
+changelog=4.9.53 (2026-01-21):
+    - Miglioramenti e correzioni varie
+  4.9.52 (2026-01-20):
     - Fix:  repair broken code structure after debug removal
     - Fix:  repair broken code structure in imageViewer.py
     - perf: remove debug prints from forms and utilities
