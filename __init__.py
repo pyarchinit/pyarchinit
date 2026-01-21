@@ -236,33 +236,28 @@ class PackageManager:
         # Special handling for Pillow on macOS
         package_base = package.split('==')[0].split('>=')[0]
         if package_base == 'Pillow' and platform.system() == 'Darwin':
-            # Find Python executable from sys.prefix or QGIS paths
-            python_executable = None
-            if sys.prefix:
-                prefix_python = os.path.join(sys.prefix, 'bin', 'python3')
-                if os.path.exists(prefix_python):
-                    python_executable = prefix_python
-            if not python_executable:
-                for qgis_type in ['standard', 'ltr']:
-                    qgis_python = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    if os.path.exists(qgis_python):
-                        python_executable = qgis_python
-                        break
-            if python_executable:
+            # Get Python version for path
+            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+
+            # Find QGIS Python and site-packages
+            for qgis_type in ['standard', 'ltr']:
+                qgis_base = QGIS_PATHS[qgis_type]
+                qgis_python = os.path.join(qgis_base, 'bin', 'python3')
+                qgis_site_packages = os.path.join(qgis_base, 'lib', f'python{python_version}', 'site-packages')
+
+                if not os.path.exists(qgis_python) or not os.path.exists(qgis_site_packages):
+                    continue
+
                 try:
                     # Try to uninstall existing Pillow first
-                    subprocess.run([python_executable, "-m", "pip", "uninstall", "-y", "Pillow"],
+                    subprocess.run([qgis_python, "-m", "pip", "uninstall", "-y", "Pillow"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # Then install the requested version (try without --user first)
-                    try:
-                        subprocess.run(
-                            [python_executable, "-m", "pip", "install", "--force-reinstall", package],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    except subprocess.CalledProcessError:
-                        # Fallback with --user
-                        subprocess.run(
-                            [python_executable, "-m", "pip", "install", "--force-reinstall", package, "--user"],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    # Install with --target to QGIS site-packages
+                    subprocess.run(
+                        [qgis_python, "-m", "pip", "install", "--force-reinstall",
+                         "--target", qgis_site_packages, package],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    break
                 except Exception as e:
                     print(f"Error reinstalling Pillow: {e}")
             return
@@ -295,47 +290,35 @@ class PackageManager:
                 subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
-            # On macOS, find the correct Python executable for QGIS
+            # On macOS, install directly to QGIS site-packages using --target
             installed = False
             last_error = None
 
-            # Build list of Python paths to try
-            python_paths = []
+            # Get Python version for path (e.g., "3.9", "3.12")
+            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
 
-            # First, try to find Python from sys.prefix (the running QGIS environment)
-            if sys.prefix:
-                prefix_python = os.path.join(sys.prefix, 'bin', 'python3')
-                if os.path.exists(prefix_python):
-                    python_paths.append(prefix_python)
-
-            # Add both QGIS standard and LTR paths
+            # Find QGIS Python and site-packages
             for qgis_type in ['standard', 'ltr']:
-                qgis_python = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                if os.path.exists(qgis_python) and qgis_python not in python_paths:
-                    python_paths.append(qgis_python)
+                qgis_base = QGIS_PATHS[qgis_type]
+                qgis_python = os.path.join(qgis_base, 'bin', 'python3')
+                qgis_site_packages = os.path.join(qgis_base, 'lib', f'python{python_version}', 'site-packages')
 
-            # Try each Python executable
-            for python_executable in python_paths:
-                # First try WITHOUT --user (installs to QGIS site-packages)
+                if not os.path.exists(qgis_python):
+                    continue
+                if not os.path.exists(qgis_site_packages):
+                    continue
+
+                # Try to install with --target to QGIS site-packages
                 try:
                     result = subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--upgrade", package],
+                        [qgis_python, "-m", "pip", "install", "--upgrade",
+                         "--target", qgis_site_packages, package],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
                     )
                     installed = True
                     break
                 except subprocess.CalledProcessError as e:
                     last_error = e.stderr.decode() if e.stderr else str(e)
-                    # Fallback: try with --user flag
-                    try:
-                        result = subprocess.run(
-                            [python_executable, "-m", "pip", "install", "--upgrade", package, "--user"],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-                        )
-                        installed = True
-                        break
-                    except subprocess.CalledProcessError as e2:
-                        last_error = e2.stderr.decode() if e2.stderr else str(e2)
 
             if not installed and last_error:
                 print(f"Error installing {package} on macOS: {last_error}")
