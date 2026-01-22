@@ -35,10 +35,27 @@ class PostgresDbUpdater:
             QgsMessageLog.logMessage(message, "PyArchInit DB Updater", level or Qgis.Info)
         self.updates_made.append(message)
 
+    def run_essential_migrations(self):
+        """
+        Esegue migrazioni essenziali (leggere) necessarie per evitare errori.
+        Questa funzione è pensata per essere veloce e sicura da eseguire ad ogni connessione.
+        """
+        try:
+            # Aggiorna struttura_table con nuovi campi AR
+            self.update_struttura_table()
+            # Aggiorna la view pyarchinit_strutture_view con i nuovi campi
+            self.update_strutture_view()
+        except Exception as e:
+            self.log_message(f"Errore durante migrazioni essenziali: {e}")
+
     def check_and_update_database(self):
         """Controlla e aggiorna il database PostgreSQL"""
         try:
-            # PERFORMANCE FIX: Skip all heavy checks on connection
+            # FAST PATH: Run essential column migrations only (lightweight)
+            # These are needed to prevent errors when accessing forms
+            self.run_essential_migrations()
+
+            # PERFORMANCE FIX: Skip heavy checks on connection
             # These should only run on explicit user request (menu "Update Database")
             self.log_message("Database check skipped for performance - use 'Update Database' menu if needed")
             return True
@@ -90,6 +107,9 @@ class PostgresDbUpdater:
 
             # Aggiorna inventario_materiali_table con nuovi campi photo_id e drawing_id
             self.update_inventario_materiali_table()
+
+            # Aggiorna struttura_table con nuovi campi Architettura Rupestre
+            self.update_struttura_table()
 
             # Crea indici di performance per query frequenti
             self.create_performance_indexes()
@@ -990,6 +1010,160 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della tabella inventario_materiali: {e}")
+
+    def update_struttura_table(self):
+        """Aggiorna la tabella struttura_table con i nuovi campi Architettura Rupestre (AR)"""
+        self.log_message("Controllo tabella struttura_table...")
+
+        try:
+            # Verifica se la tabella esiste
+            from sqlalchemy import text
+            query = text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name = 'struttura_table'
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager._execute_sql(query).fetchone()
+
+            if not result:
+                self.log_message("Tabella struttura_table non trovata, skip")
+                return
+
+            # Aggiungi nuove colonne Architettura Rupestre (AR) se mancanti
+            updated = False
+
+            # Campi generali
+            updated |= self.add_column_if_missing('struttura_table', 'data_compilazione', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'nome_compilatore', 'TEXT')
+
+            # Stato conservazione (JSON: [[stato, grado, fattori_agenti], ...])
+            updated |= self.add_column_if_missing('struttura_table', 'stato_conservazione', 'TEXT')
+
+            # Dati generali architettura
+            updated |= self.add_column_if_missing('struttura_table', 'quota', 'REAL')
+            updated |= self.add_column_if_missing('struttura_table', 'relazione_topografica', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'prospetto_ingresso', 'TEXT')  # JSON
+            updated |= self.add_column_if_missing('struttura_table', 'orientamento_ingresso', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'articolazione', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'n_ambienti', 'INTEGER')
+            updated |= self.add_column_if_missing('struttura_table', 'orientamento_ambienti', 'TEXT')  # JSON
+            updated |= self.add_column_if_missing('struttura_table', 'sviluppo_planimetrico', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'elementi_costitutivi', 'TEXT')  # JSON
+            updated |= self.add_column_if_missing('struttura_table', 'motivo_decorativo', 'TEXT')
+
+            # Dati archeologici
+            updated |= self.add_column_if_missing('struttura_table', 'potenzialita_archeologica', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'manufatti', 'TEXT')  # JSON
+            updated |= self.add_column_if_missing('struttura_table', 'elementi_datanti', 'TEXT')
+            updated |= self.add_column_if_missing('struttura_table', 'fasi_funzionali', 'TEXT')  # JSON
+
+            if updated:
+                self.log_message("Tabella struttura_table aggiornata con nuovi campi Architettura Rupestre")
+                self.updates_made.append("struttura_table: campi AR aggiunti")
+            else:
+                self.log_message("Tabella struttura_table già aggiornata")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella struttura: {e}")
+
+    def update_strutture_view(self):
+        """Aggiorna/ricrea la view pyarchinit_strutture_view con i nuovi campi AR"""
+        self.log_message("Controllo view pyarchinit_strutture_view...")
+
+        try:
+            from sqlalchemy import text
+
+            # Verifica se la view esiste e se ha i nuovi campi AR
+            check_query = text("""
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'pyarchinit_strutture_view'
+                AND column_name = 'data_compilazione'
+            """)
+            result = self.db_manager._execute_sql(check_query).fetchone()
+
+            if result:
+                self.log_message("View pyarchinit_strutture_view già aggiornata con campi AR")
+                return
+
+            # Verifica se le tabelle necessarie esistono
+            check_tables = text("""
+                SELECT COUNT(*) FROM information_schema.tables
+                WHERE table_name IN ('pyarchinit_strutture_ipotesi', 'struttura_table')
+                AND table_schema = 'public'
+            """)
+            table_count = self.db_manager._execute_sql(check_tables).scalar()
+
+            if table_count < 2:
+                self.log_message("Tabelle necessarie per la view non trovate, skip")
+                return
+
+            # Ricrea la view con i nuovi campi AR
+            create_view_sql = text("""
+                CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
+                SELECT a.gid,
+                    a.sito,
+                    a.id_strutt,
+                    a.per_iniz,
+                    a.per_fin,
+                    a.dataz_ext,
+                    a.fase_iniz,
+                    a.fase_fin,
+                    a.descrizione,
+                    a.the_geom,
+                    a.sigla_strut,
+                    a.nr_strut,
+                    b.id_struttura,
+                    b.sito AS sito_1,
+                    b.sigla_struttura,
+                    b.numero_struttura,
+                    b.categoria_struttura,
+                    b.tipologia_struttura,
+                    b.definizione_struttura,
+                    b.descrizione AS descrizione_1,
+                    b.interpretazione,
+                    b.periodo_iniziale,
+                    b.fase_iniziale,
+                    b.periodo_finale,
+                    b.fase_finale,
+                    b.datazione_estesa,
+                    b.materiali_impiegati,
+                    b.elementi_strutturali,
+                    b.rapporti_struttura,
+                    b.misure_struttura,
+                    b.data_compilazione,
+                    b.nome_compilatore,
+                    b.stato_conservazione,
+                    b.quota,
+                    b.relazione_topografica,
+                    b.prospetto_ingresso,
+                    b.orientamento_ingresso,
+                    b.articolazione,
+                    b.n_ambienti,
+                    b.orientamento_ambienti,
+                    b.sviluppo_planimetrico,
+                    b.elementi_costitutivi,
+                    b.motivo_decorativo,
+                    b.potenzialita_archeologica,
+                    b.manufatti,
+                    b.elementi_datanti,
+                    b.fasi_funzionali
+                FROM pyarchinit_strutture_ipotesi a
+                JOIN struttura_table b ON a.sito::text = b.sito
+                    AND a.sigla_strut::text = b.sigla_struttura
+                    AND a.nr_strut = b.numero_struttura
+            """)
+
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_view_sql)
+                conn.execute(text("COMMIT"))
+
+            self.log_message("View pyarchinit_strutture_view aggiornata con campi AR")
+            self.updates_made.append("pyarchinit_strutture_view: aggiornata con campi AR")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della view strutture: {e}")
 
     def create_performance_indexes(self):
         """Crea indici di performance per query frequenti"""

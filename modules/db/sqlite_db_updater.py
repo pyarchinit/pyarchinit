@@ -133,6 +133,19 @@ class SQLiteDBUpdater:
                     if col not in columns:
                         return True
 
+            # Check if struttura_table has AR fields
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master
+                WHERE type='table' AND name='struttura_table'
+            """)
+            if self.cursor.fetchone():
+                self.cursor.execute("PRAGMA table_info(struttura_table)")
+                columns = [column[1] for column in self.cursor.fetchall()]
+                required_struttura_columns = ['data_compilazione', 'stato_conservazione', 'fasi_funzionali']
+                for col in required_struttura_columns:
+                    if col not in columns:
+                        return True
+
             # Check if pyarchinit_us_view exists and has order_layer field
             self.cursor.execute("""
                 SELECT name FROM sqlite_master 
@@ -282,6 +295,7 @@ class SQLiteDBUpdater:
             self.update_ut_table()
             self.update_fauna_table()
             self.update_other_tables()
+            self.update_struttura_table()
 
             # Add concurrency columns for sync with PostgreSQL (v5.0+)
             self.add_concurrency_columns()
@@ -530,7 +544,124 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('pyarchinit_reperti', 'quota', 'REAL')
             # Ricrea la view con il nuovo campo quota
             self._recreate_reperti_view()
-    
+
+    def update_struttura_table(self):
+        """Aggiorna la tabella struttura_table con i nuovi campi per scheda AR"""
+        if self.table_exists('struttura_table'):
+            # Campi generali
+            self.add_column_if_missing('struttura_table', 'data_compilazione', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'nome_compilatore', 'TEXT')
+            # Stato conservazione
+            self.add_column_if_missing('struttura_table', 'stato_conservazione', 'TEXT')
+            # Dati generali architettura
+            self.add_column_if_missing('struttura_table', 'quota', 'REAL')
+            self.add_column_if_missing('struttura_table', 'relazione_topografica', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'prospetto_ingresso', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'orientamento_ingresso', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'articolazione', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'n_ambienti', 'INTEGER')
+            self.add_column_if_missing('struttura_table', 'orientamento_ambienti', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'sviluppo_planimetrico', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'elementi_costitutivi', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'motivo_decorativo', 'TEXT')
+            # Dati archeologici
+            self.add_column_if_missing('struttura_table', 'potenzialita_archeologica', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'manufatti', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'elementi_datanti', 'TEXT')
+            self.add_column_if_missing('struttura_table', 'fasi_funzionali', 'TEXT')
+
+            # Aggiorna la view pyarchinit_strutture_view
+            self._update_strutture_view()
+
+    def _update_strutture_view(self):
+        """Aggiorna/ricrea la view pyarchinit_strutture_view con i nuovi campi AR"""
+        try:
+            # Verifica se la view esiste e se ha i nuovi campi AR
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master
+                WHERE type='view' AND name='pyarchinit_strutture_view'
+            """)
+            view_exists = self.cursor.fetchone() is not None
+
+            # Verifica se le tabelle necessarie esistono
+            geo_exists = self.table_exists('pyarchinit_strutture_ipotesi')
+            if not geo_exists or not self.table_exists('struttura_table'):
+                self.log_message("Tabelle necessarie per pyarchinit_strutture_view non trovate, skip")
+                return
+
+            # Controlla se la view ha già i campi AR
+            if view_exists:
+                try:
+                    self.cursor.execute("SELECT data_compilazione FROM pyarchinit_strutture_view LIMIT 1")
+                    self.log_message("View pyarchinit_strutture_view già aggiornata con campi AR")
+                    return
+                except:
+                    pass  # La view non ha i campi, dobbiamo ricrearla
+
+            # Drop e ricrea la view
+            self.cursor.execute("DROP VIEW IF EXISTS pyarchinit_strutture_view")
+
+            create_view_sql = """
+                CREATE VIEW pyarchinit_strutture_view AS
+                SELECT a.gid,
+                    a.sito,
+                    a.id_strutt,
+                    a.per_iniz,
+                    a.per_fin,
+                    a.dataz_ext,
+                    a.fase_iniz,
+                    a.fase_fin,
+                    a.descrizione,
+                    a.the_geom,
+                    a.sigla_strut,
+                    a.nr_strut,
+                    b.id_struttura,
+                    b.sito AS sito_1,
+                    b.sigla_struttura,
+                    b.numero_struttura,
+                    b.categoria_struttura,
+                    b.tipologia_struttura,
+                    b.definizione_struttura,
+                    b.descrizione AS descrizione_1,
+                    b.interpretazione,
+                    b.periodo_iniziale,
+                    b.fase_iniziale,
+                    b.periodo_finale,
+                    b.fase_finale,
+                    b.datazione_estesa,
+                    b.materiali_impiegati,
+                    b.elementi_strutturali,
+                    b.rapporti_struttura,
+                    b.misure_struttura,
+                    b.data_compilazione,
+                    b.nome_compilatore,
+                    b.stato_conservazione,
+                    b.quota,
+                    b.relazione_topografica,
+                    b.prospetto_ingresso,
+                    b.orientamento_ingresso,
+                    b.articolazione,
+                    b.n_ambienti,
+                    b.orientamento_ambienti,
+                    b.sviluppo_planimetrico,
+                    b.elementi_costitutivi,
+                    b.motivo_decorativo,
+                    b.potenzialita_archeologica,
+                    b.manufatti,
+                    b.elementi_datanti,
+                    b.fasi_funzionali
+                FROM pyarchinit_strutture_ipotesi a
+                JOIN struttura_table b ON a.sito = b.sito
+                    AND a.sigla_strut = b.sigla_struttura
+                    AND a.nr_strut = b.numero_struttura
+            """
+            self.cursor.execute(create_view_sql)
+            self.log_message("View pyarchinit_strutture_view aggiornata con campi AR")
+            self.updates_made.append("pyarchinit_strutture_view: aggiornata con campi AR")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della view strutture: {e}")
+
     def restore_tables_from_backups(self):
         """Ripristina tabelle mancanti dai backup se necessario"""
         # Lista delle tabelle che potrebbero dover essere ripristinate

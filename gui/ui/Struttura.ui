@@ -1124,33 +1124,6 @@
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <layout class="QGridLayout" name="gridLayout_18">
-       <item row="1" column="2">
-        <widget class="QLineEdit" name="numero_struttura">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>61</width>
-           <height>21</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>71</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>8</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QComboBox" name="comboBox_sigla_struttura">
          <property name="enabled">
@@ -1181,6 +1154,19 @@
          </property>
          <property name="currentText">
           <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Sito </string>
          </property>
         </widget>
        </item>
@@ -1217,8 +1203,8 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label">
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_3">
          <property name="font">
           <font>
            <family>Times New Roman</family>
@@ -1226,7 +1212,34 @@
           </font>
          </property>
          <property name="text">
-          <string>Sito </string>
+          <string>N°</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLineEdit" name="numero_struttura">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>61</width>
+           <height>21</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>71</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
          </property>
         </widget>
        </item>
@@ -1240,19 +1253,6 @@
          </property>
          <property name="text">
           <string>Sigla struttura</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QLabel" name="label_3">
-         <property name="font">
-          <font>
-           <family>Times New Roman</family>
-           <pointsize>8</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>N°</string>
          </property>
         </widget>
        </item>
@@ -1341,6 +1341,62 @@
          </property>
          <property name="editable">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_compilazione">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_data_compilazione">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Data compilazione</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_nome_compilatore">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Nome compilatore</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QDateEdit" name="dateEdit_data_compilazione">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="displayFormat">
+          <string>dd/MM/yyyy</string>
+         </property>
+         <property name="calendarPopup">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEdit_nome_compilatore">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+          </font>
          </property>
         </widget>
        </item>
@@ -1730,11 +1786,52 @@ p, li { white-space: pre-wrap; }
         <rect>
          <x>9</x>
          <y>9</y>
-         <width>602</width>
+         <width>651</width>
          <height>481</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_12">
+        <item row="2" column="2">
+         <layout class="QGridLayout" name="gridLayout_14"/>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_remove_row_materiali">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>-</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="pushButton_insert_row_materiali">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Times New Roman</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>+</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="2">
          <widget class="QTableWidget" name="tableWidget_materiali_impiegati">
           <property name="frameShape">
@@ -1783,47 +1880,6 @@ p, li { white-space: pre-wrap; }
           </property>
           <property name="text">
            <string>Materiali impiegati</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QPushButton" name="pushButton_insert_row_materiali">
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Times New Roman</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <layout class="QGridLayout" name="gridLayout_14"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="QPushButton" name="pushButton_remove_row_materiali">
-          <property name="maximumSize">
-           <size>
-            <width>20</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="font">
-           <font>
-            <family>Times New Roman</family>
-            <pointsize>9</pointsize>
-           </font>
-          </property>
-          <property name="text">
-           <string>-</string>
           </property>
          </widget>
         </item>
@@ -2219,7 +2275,7 @@ p, li { white-space: pre-wrap; }
           <enum>Qt::ScrollBarAlwaysOn</enum>
          </property>
          <property name="horizontalScrollBarPolicy">
-          <enum>Qt::ScrollBarAlwaysOff</enum>
+          <enum>Qt::ScrollBarAsNeeded</enum>
          </property>
          <property name="editTriggers">
           <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
@@ -2231,12 +2287,22 @@ p, li { white-space: pre-wrap; }
           <number>1</number>
          </property>
          <property name="columnCount">
-          <number>3</number>
+          <number>5</number>
          </property>
          <attribute name="horizontalHeaderDefaultSectionSize">
-          <number>265</number>
+          <number>160</number>
          </attribute>
          <row/>
+         <column>
+          <property name="text">
+           <string>Ubicazione</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Elementi architettonici</string>
+          </property>
+         </column>
          <column>
           <property name="text">
            <string>Tipo misura</string>
@@ -2334,6 +2400,531 @@ p, li { white-space: pre-wrap; }
          <property name="icon">
           <iconset resource="../../resources/resources.qrc">
            <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_stato_conservazione">
+      <attribute name="title">
+       <string>Stato conservazione</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_stato">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_stato_conservazione">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Stato di conservazione</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="pushButton_insert_row_stato">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="pushButton_remove_row_stato">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QTableWidget" name="tableWidget_stato_conservazione">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>3</number>
+         </property>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>250</number>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Stato</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Grado</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Fattori agenti</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_dati_architettura">
+      <attribute name="title">
+       <string>Dati architettura</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_architettura">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_n_ambienti">
+         <property name="text">
+          <string>N. ambienti</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="7">
+        <widget class="QLabel" name="label_sviluppo_planimetrico">
+         <property name="text">
+          <string>Sviluppo planimetrico</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_elementi_costitutivi">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Elementi costitutivi</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="5">
+        <widget class="QSpinBox" name="spinBox_n_ambienti">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QPushButton" name="pushButton_remove_row_prospetto">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="8">
+        <widget class="QTableWidget" name="tableWidget_orientamento_ambienti">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <column>
+          <property name="text">
+           <string>Orientamento</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_prospetto_ingresso">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Prospetto ingresso</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="8">
+        <layout class="QHBoxLayout" name="horizontalLayout_orient_amb">
+         <item>
+          <widget class="QLabel" name="label_orientamento_ambienti">
+           <property name="font">
+            <font>
+             <family>Times New Roman</family>
+             <pointsize>8</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Orientamento ambienti</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_insert_row_orient_amb">
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_remove_row_orient_amb">
+           <property name="maximumSize">
+            <size>
+             <width>20</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="8">
+        <widget class="QLineEdit" name="lineEdit_relazione_topografica"/>
+       </item>
+       <item row="1" column="5">
+        <widget class="QComboBox" name="comboBox_orientamento_ingresso">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="8">
+        <widget class="QLineEdit" name="lineEdit_motivo_decorativo"/>
+       </item>
+       <item row="0" column="7">
+        <widget class="QLabel" name="label_relazione_topografica">
+         <property name="text">
+          <string>Relazione topografica</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="8">
+        <widget class="QTableWidget" name="tableWidget_prospetto_ingresso">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <column>
+          <property name="text">
+           <string>Prospetto</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QPushButton" name="pushButton_insert_row_prospetto">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0" colspan="9">
+        <widget class="QTableWidget" name="tableWidget_elementi_costitutivi">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <column>
+          <property name="text">
+           <string>Elemento</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLineEdit" name="lineEdit_quota">
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QComboBox" name="comboBox_articolazione">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
+        <widget class="QLabel" name="label_articolazione">
+         <property name="text">
+          <string>Articolazione</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_quota">
+         <property name="text">
+          <string>Quota</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_orientamento_ingresso">
+         <property name="text">
+          <string>Orientamento ingresso</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_motivo_decorativo">
+         <property name="text">
+          <string>Motivo decorativo</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="8">
+        <widget class="QComboBox" name="comboBox_sviluppo_planimetrico">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QPushButton" name="pushButton_insert_row_elementi_cost">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="3">
+        <widget class="QPushButton" name="pushButton_remove_row_elementi_cost">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_dati_archeologici">
+      <attribute name="title">
+       <string>Dati archeologici</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_archeologici">
+       <item row="0" column="3">
+        <widget class="QComboBox" name="comboBox_potenzialita_archeologica">
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_potenzialita">
+         <property name="text">
+          <string>Potenzialita' archeologica</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_fasi_funzionali">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Fasi funzionali</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="6">
+        <widget class="QTableWidget" name="tableWidget_manufatti">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>1</number>
+         </property>
+         <column>
+          <property name="text">
+           <string>Manufatto</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="pushButton_remove_row_manufatti">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QLineEdit" name="lineEdit_elementi_datanti"/>
+       </item>
+       <item row="4" column="0" colspan="6">
+        <widget class="QTableWidget" name="tableWidget_fasi_funzionali">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="rowCount">
+          <number>0</number>
+         </property>
+         <property name="columnCount">
+          <number>3</number>
+         </property>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>250</number>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Ambiente</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Periodizzazione</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Definizione e fasi funzionali</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_manufatti">
+         <property name="font">
+          <font>
+           <family>Times New Roman</family>
+           <pointsize>8</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Manufatti</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="label_elementi_datanti">
+         <property name="text">
+          <string>Elementi datanti</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QPushButton" name="pushButton_insert_row_manufatti">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QPushButton" name="pushButton_remove_row_fasi">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QPushButton" name="pushButton_insert_row_fasi">
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
          </property>
         </widget>
        </item>
