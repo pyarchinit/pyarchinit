@@ -191,6 +191,7 @@ class pyarchinit_Fauna(QDialog):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         # Load initial data
         self.charge_list()

@@ -65,6 +65,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()
@@ -444,6 +445,7 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()
@@ -633,6 +635,7 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()

@@ -66,6 +66,7 @@ class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.DOC_STR = docstr
 
