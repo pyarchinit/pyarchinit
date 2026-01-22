@@ -5985,6 +5985,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         else:
             years = self.comboBox_year.currentText()
 
+        # Handle nr_cassa - convert empty string to None for bigint field
+        if self.lineEdit_nr_cassa.text() == "":
+            nr_cassa = None
+        else:
+            nr_cassa = self.lineEdit_nr_cassa.text()
+
         # TableWidgets
         elementi_reperto = self.table2dict("self.tableWidget_elementi_reperto")
         misurazioni = self.table2dict("self.tableWidget_misurazioni")
@@ -6001,7 +6007,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_area.currentText()),                    # 6 - area
             str(self.lineEdit_us.text()),                             # 7 - us
             str(self.comboBox_lavato.currentText()),                  # 8 - lavato
-            str(self.lineEdit_nr_cassa.text()),                       # 9 - nr_cassa
+            nr_cassa,                                                  # 9 - nr_cassa (bigint)
             str(self.comboBox_magazzino.currentText()),               # 10 - luogo_conservazione
             str(self.comboBox_conservazione.currentText()),           # 11 - stato_conservazione
             str(self.comboBox_datazione.currentText()),               # 12 - datazione_reperto
