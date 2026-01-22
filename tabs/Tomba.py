@@ -49,6 +49,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tomba.ui'))
 
 
@@ -354,6 +355,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
         self.mDockWidget_export.setHidden(True)
         self.mDockWidget_3.setHidden(True)

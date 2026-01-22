@@ -25,6 +25,7 @@ from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtWidgets import *
 from qgis.PyQt.uic import loadUiType
 from qgis.core import *
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'gpkg_export.ui'))
 class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
@@ -43,6 +44,10 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         QDialog.__init__(self, None,Qt.WindowType.WindowStaysOnTopHint)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.toolButton.clicked.connect(self.setPath)
     def setPath(self):
         s = QgsSettings()

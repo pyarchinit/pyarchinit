@@ -56,6 +56,7 @@ from qgis.PyQt.QtCore import QSize, QVariant
 from qgis.gui import QgsMapCanvas
 from ..gui.imageViewer import ImageViewer
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 import urllib.parse
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tma.ui'))
@@ -204,6 +205,10 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
 
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
 
         # Flag to track if materials have been loaded for current record
@@ -2885,9 +2890,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                                 if updated_record:
                                     self.DATA_LIST[self.REC_CORR] = updated_record[0]
                                     self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[self.REC_CORR]
-                                    # Just update the temp record without reloading UI
+                                    # Update the temp record and reload materials table to show updated data
                                     self.set_LIST_REC_TEMP()
                                     self.set_LIST_REC_CORR()
+                                    # Reload materials table to display updated data
+                                    self.load_materials_table()
                                 QMessageBox.information(self, "Info", "Record aggiornato con successo", QMessageBox.StandardButton.Ok)
                                 # If we're in filtered data (single record after search), allow new search
                                 if len(self.DATA_LIST) == 1:

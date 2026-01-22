@@ -79,7 +79,7 @@ try:
 except ImportError:
     HAS_REMOTE_LOADER = False
 
-
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_Pottery_ui.ui'))
@@ -311,13 +311,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
         self.setupUi(self)
 
-        # Fix Qt6 label visibility - set palette with black text
-        from qgis.PyQt.QtGui import QPalette, QColor
-        palette = self.palette()
-        palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
-        palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
-        self.setPalette(palette)
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         self.mDockWidget_4.setHidden(True)
         self.mDockWidget_export.setHidden(True)

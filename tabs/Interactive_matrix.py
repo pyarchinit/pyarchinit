@@ -38,6 +38,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import *
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 import re
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Interactive_matrix.ui'))
@@ -61,6 +62,9 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = data_list
         self.ID_US_DICT = id_us_dict
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()
@@ -438,6 +442,9 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
         self.ID_US_DICT = id_us_dict
         self.setupUi(self)
 
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()
         try:
@@ -623,6 +630,9 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST = data_list
         self.ID_US_DICT = id_us_dict
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         ##      self.textbox.setText('1 2 3 4')
         # self.on_draw()

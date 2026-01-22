@@ -43,6 +43,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.pyarchinit_exp_Faunasheet_pdf import generate_fauna_pdf
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 
 class pyarchinit_Fauna(QDialog):
@@ -187,6 +188,9 @@ class pyarchinit_Fauna(QDialog):
 
         # Setup UI
         self.setup_ui()
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         # Load initial data
         self.charge_list()

@@ -32,6 +32,7 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 filepath = os.path.dirname(__file__)
 
@@ -65,6 +66,10 @@ class Comparision(QDialog, MAIN_DIALOG_CLASS):
     def __init__(self):
         QDialog.__init__(self)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.setWindowTitle("pyArchInit - Images Comparision Tools")
         QMessageBox.warning(self, "Alert", "Sistema sperimentale solo per lo sviluppo", QMessageBox.StandardButton.Ok)
 

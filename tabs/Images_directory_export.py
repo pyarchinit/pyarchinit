@@ -32,6 +32,7 @@ from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Images_directory_export.ui'))
@@ -65,6 +66,9 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         QDialog.__init__(self, parent)
         # Set up the user interface from Designer.
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         try:
             self.connect()

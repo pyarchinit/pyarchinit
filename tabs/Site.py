@@ -52,6 +52,7 @@ from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .PlaceSelectionDialog import PlaceSelectionDialog
 from .networkaccessmanager import NetworkAccessManager
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 import sys,  json
 
 
@@ -210,6 +211,13 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
+        # Add theme toggle button (positioned in top-right corner)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
+
         self.mDockWidget.setHidden(True)
         
         self.canvas = iface.mapCanvas()
