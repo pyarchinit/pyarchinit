@@ -68,6 +68,7 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.mDockWidget.setHidden(True)
         self.plugin_dir = os.path.dirname(__file__)

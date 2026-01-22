@@ -477,6 +477,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.currentLayerId = None
         self.HOME = os.environ['PYARCHINIT_HOME']

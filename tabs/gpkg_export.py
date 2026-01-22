@@ -47,6 +47,7 @@ class pyarchinit_GPKG(QDialog, MAIN_DIALOG_CLASS):
 
         # Apply theme
         ThemeManager.apply_theme(self)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.toolButton.clicked.connect(self.setPath)
     def setPath(self):
