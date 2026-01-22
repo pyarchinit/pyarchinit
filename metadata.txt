@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.59
+version=4.9.60
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,15 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.59 (2026-01-22):
+changelog=4.9.60 (2026-01-22):
+    - Fix:  convert empty nr_cassa to None for PostgreSQL bigint field
+    - Fix:  revert lineEdit_materiale changes, keep only inventario sync
+    - Fix:  sync TMA inventario/materiale fields with inventario_materiali table
+    - Fix:  make PyPDF2 import optional in tma_import_parser
+    - Fix:  add missing setTableEnable method to Inv_Materiali
+    - Feature:  add theme toggle button to all forms
+    - Feature:  apply theme to configuration dialog
+  4.9.59 (2026-01-22):
     - Fix:  prevent double row insertion in TMA foto/disegno tables
   4.9.58 (2026-01-22):
     - Feature:  add centralized theme manager with dark/light mode support
