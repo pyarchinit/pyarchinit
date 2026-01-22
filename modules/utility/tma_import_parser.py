@@ -16,7 +16,11 @@ from abc import ABC, abstractmethod
 import openpyxl
 import xml.etree.ElementTree as ET
 from docx import Document
-import PyPDF2
+try:
+    import PyPDF2
+    PYPDF2_AVAILABLE = True
+except ImportError:
+    PYPDF2_AVAILABLE = False
 import logging
 
 # Import del parser Festos se disponibile
