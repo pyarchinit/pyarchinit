@@ -53,6 +53,7 @@ from modules.db.database_sync import DatabaseSyncManager, get_sync_config_from_s
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.db.media_migration_mapper import MediaMigrationMapper
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from modules.utility.pyarchinit_theme_manager import ThemeManager
 
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'pyarchinitConfigDialog.ui'))
@@ -132,6 +133,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Set up the user interface from Designer.
 
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         # Setup Supabase Sync tab
         self.setup_supabase_sync_tab()
