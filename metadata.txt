@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.57
+version=4.9.58
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.57 (2026-01-22):
+changelog=4.9.58 (2026-01-22):
+    - Feature:  add centralized theme manager with dark/light mode support
+    - Fix:  add missing session.commit() in DB_MANAGER.update() method
+    - Feature: struttura: add Rock-cut Architecture (AR) fields and multilingual thesaurus
+  4.9.57 (2026-01-22):
     - Fix:  optimize media loading with local/remote detection and PyQt5/PyQt6 compatibility
   4.9.56 (2026-01-21):
     - Fix:  install packages to QGIS site-packages with --target
