@@ -48,7 +48,7 @@ from ..modules.utility.pyarchinit_exp_Tombasheet_pdf import generate_tomba_pdf
 from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
-from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Tomba.ui'))
 
 
@@ -633,6 +633,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
         self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
+
+        # Setup toolButtonPreviewMedia visibility based on remote/local media path
+        self.update_media_button_visibility()
+
         # comboBox customizations
         self.setComboBoxEditable(["self.comboBox_sigla_struttura"], 1)
         self.setComboBoxEditable(["self.comboBox_nr_struttura"], 1)
@@ -1536,32 +1540,124 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
             # aggiungi l'elemento al QListWidget
             self.iconListWidget.addItem(list_item)
-    def loadMediaPreview(self):
+    def is_media_path_remote(self):
+        """Check if the configured media thumbnail path is remote."""
+        try:
+            conn = Connection()
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path.get('thumb_path', '')
+            return is_remote_url(thumb_path_str)
+        except Exception:
+            return False
+
+    def update_media_button_visibility(self):
+        """
+        Show/hide toolButtonPreviewMedia based on media path type.
+        - Remote media: show button (user clicks to load)
+        - Local media: hide button (auto-load)
+        """
+        if hasattr(self, 'toolButtonPreviewMedia'):
+            is_remote = self.is_media_path_remote()
+            self.toolButtonPreviewMedia.setVisible(is_remote)
+            self.toolButtonPreviewMedia.setEnabled(is_remote)
+
+    def on_toolButtonPreviewMedia_toggled(self):
+        """Handler per caricare i media quando l'utente clicca il bottone"""
+        if self.toolButtonPreviewMedia.isChecked():
+            self.loadMediaPreview()
+        else:
+            self.iconListWidget.clear()
+
+    def loadMediaPreviewLocal(self):
+        """Carica media per path locali (veloce, senza progress bar)."""
         self.iconListWidget.clear()
         conn = Connection()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        # if mode == 0:
-        # """ if has geometry column load to map canvas """
-        rec_list = self.ID_TABLE + " = " + str(
-            getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
+
+        if not self.DATA_LIST or self.REC_CORR < 0:
+            return
+
         search_dict = {
             'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
             'entity_type': "'TOMBA'"}
-        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        for i in record_us_list:
-            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
-            item = QListWidgetItem(str(i.media_name))
-            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
-            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
-            item.setIcon(icon)
-            self.iconListWidget.addItem(item)
-        # elif mode == 1:
-            # self.iconListWidget.clear()
+        record_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+
+        if not record_list:
+            return
+
+        # BATCH LOAD
+        id_media_list = [str(i.id_media) for i in record_list]
+        thumb_dict = self.DB_MANAGER.query_media_thumb_batch(id_media_list)
+
+        for i in record_list:
+            media_id = str(i.id_media)
+            mediathumb_data = thumb_dict.get(media_id)
+            if mediathumb_data:
+                thumb_filepath = str(mediathumb_data.filepath)
+                item = QListWidgetItem(str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                icon = load_icon(get_image_path(thumb_path_str, thumb_filepath))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
+
+    def loadMediaPreview(self):
+        """Carica media per path remoti (con progress bar)."""
+        self.iconListWidget.clear()
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+
+        if not self.DATA_LIST or self.REC_CORR < 0:
+            return
+
+        search_dict = {
+            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
+            'entity_type': "'TOMBA'"}
+        record_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+
+        if not record_list:
+            return
+
+        # BATCH LOAD
+        id_media_list = [str(i.id_media) for i in record_list]
+        thumb_dict = self.DB_MANAGER.query_media_thumb_batch(id_media_list)
+
+        total = len(record_list)
+        if total > 0:
+            progress = QProgressDialog("Caricamento media...", "Annulla", 0, total, self)
+            progress.setWindowTitle("Carica Media")
+            progress.setWindowModality(Qt.WindowModality.WindowModal)
+            progress.setMinimumDuration(0)
+            progress.setValue(0)
+
+            import time
+            start_time = time.time()
+
+            for idx, i in enumerate(record_list):
+                if progress.wasCanceled():
+                    break
+
+                media_id = str(i.id_media)
+                mediathumb_data = thumb_dict.get(media_id)
+                if mediathumb_data:
+                    thumb_filepath = str(mediathumb_data.filepath)
+                    item = QListWidgetItem(str(i.media_name))
+                    item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_filepath))
+                    item.setIcon(icon)
+                    self.iconListWidget.addItem(item)
+
+                progress.setValue(idx + 1)
+                elapsed = time.time() - start_time
+                if idx > 0:
+                    avg_time = elapsed / (idx + 1)
+                    remaining = avg_time * (total - idx - 1)
+                    progress.setLabelText(f"Caricamento media... {idx + 1}/{total}\nTempo rimanente: {remaining:.1f}s")
+
+                QApplication.processEvents()
+
+            progress.close()
     def openWide_image(self):
         items = self.iconListWidget.selectedItems()
         conn = Connection()
@@ -3186,21 +3282,8 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         # custom functions
 
     def charge_records(self):
-        self.DATA_LIST = []
-
-        if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                self.DATA_LIST.append(i)
-        else:
-            id_list = []
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(getattr(i, self.ID_TABLE))
-
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                        self.ID_TABLE)
-
-            for i in temp_data_list:
-                self.DATA_LIST.append(i)
+        # Single ordered query - replaces double query pattern for better performance
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
 
     def datestrfdate(self):
         now = date.today()
@@ -3345,6 +3428,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.iconListWidget.clear()
     def fill_fields(self, n=0):
         self.rec_num = n
+
+        # Clear media widget when changing record (important for remote media)
+        self.iconListWidget.clear()
+
         #if bool(self.DATA_LIST):
         try:
 
@@ -3396,7 +3483,16 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_datazione.setText(str(self.DATA_LIST[self.rec_num].datazione_estesa))
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
-            if self.toolButtonPreviewMedia.isChecked():
+            # ============================================================
+            # Media loading: auto-load only for local paths
+            # Se path locale: auto-caricamento (veloce)
+            # Se path remoto: solo se bottone premuto (lento)
+            # ============================================================
+            if not self.is_media_path_remote():
+                # Path locale: auto-caricamento senza progress (veloce)
+                self.loadMediaPreviewLocal()
+            elif self.toolButtonPreviewMedia.isChecked():
+                # Path remoto: caricamento manuale con progress
                 self.loadMediaPreview()
         except :#Exception as e:
             pass#QMessageBox.warning(self, "Errore fill", str(e), QMessageBox.Ok)

@@ -1636,21 +1636,8 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                                     "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)       
 
     def charge_records(self):
-        self.DATA_LIST = []
-
-        if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                self.DATA_LIST.append(i)
-        else:
-            id_list = []
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(getattr(i, self.ID_TABLE))
-
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                        self.ID_TABLE)
-
-            for i in temp_data_list:
-                self.DATA_LIST.append(i)
+        # Single ordered query - replaces double query pattern for better performance
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
 
     def datestrfdate(self):
         now = date.today()

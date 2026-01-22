@@ -25,7 +25,7 @@ class VersioningSupport:
 
     def __init__(self):
         self.conn = Connection()
-        self.engine = create_engine(self.conn.conn_str(), echo=True)
+        self.engine = create_engine(self.conn.conn_str(), echo=False)
         self.metadata = MetaData()
         self.inspector = inspect(self.engine)
 

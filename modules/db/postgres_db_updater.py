@@ -38,7 +38,27 @@ class PostgresDbUpdater:
     def check_and_update_database(self):
         """Controlla e aggiorna il database PostgreSQL"""
         try:
+            # PERFORMANCE FIX: Skip all heavy checks on connection
+            # These should only run on explicit user request (menu "Update Database")
+            self.log_message("Database check skipped for performance - use 'Update Database' menu if needed")
+            return True
+
+            # === DISABLED FOR PERFORMANCE ===
+            # All the code below is disabled to speed up connection
+            # Uncomment if you need to force database updates
+
             self.log_message("Controllo database PostgreSQL per aggiornamenti necessari...")
+
+            # Quick check if views already exist with correct columns - skip heavy operations
+            from sqlalchemy import text
+            try:
+                us_view_check = text("SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'pyarchinit_us_view'")
+                usm_view_check = text("SELECT COUNT(*) FROM information_schema.columns WHERE table_name = 'pyarchinit_usm_view'")
+                us_cols = self.db_manager._execute_sql(us_view_check).scalar() or 0
+                usm_cols = self.db_manager._execute_sql(usm_view_check).scalar() or 0
+                views_exist = us_cols >= 80 and usm_cols >= 60  # Views have ~85 and ~66 columns
+            except:
+                views_exist = False
 
             # Aggiorna la tabella thesaurus
             self.update_thesaurus_table()
@@ -46,11 +66,15 @@ class PostgresDbUpdater:
             # Aggiorna la tabella reperti
             self.update_reperti_table()
 
-            # Aggiorna la view pyarchinit_us_view
-            self.update_us_view()
+            # Skip heavy VIEW operations if they already exist
+            if not views_exist:
+                # Aggiorna la view pyarchinit_us_view
+                self.update_us_view()
 
-            # Aggiorna la view pyarchinit_usm_view
-            self.update_usm_view()
+                # Aggiorna la view pyarchinit_usm_view
+                self.update_usm_view()
+            else:
+                self.log_message("Views già esistenti e aggiornate - skip ricreazione")
 
             # Installa/aggiorna i trigger per il tracking delle attività
             self.update_activity_triggers()

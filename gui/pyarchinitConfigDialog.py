@@ -3141,7 +3141,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             
             
             
-            engine = create_engine(db_url, echo=True)
+            engine = create_engine(db_url, echo=False)
 
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()
@@ -4385,7 +4385,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         test_conn = db_url.find('sqlite')
         if test_conn == 0:
             try:
-                engine = create_engine(db_url, echo=True)
+                engine = create_engine(db_url, echo=False)
 
                 listen(engine, 'connect', self.load_spatialite)
                 c = engine.connect()
@@ -5916,7 +5916,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         db_url = conn.conn_str()
 
         try:
-            engine = create_engine(db_url, echo=True)
+            engine = create_engine(db_url, echo=False)
 
             listen(engine, 'connect', self.load_spatialite)
             c = engine.connect()

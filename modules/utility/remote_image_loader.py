@@ -399,20 +399,28 @@ class RemoteImageLoader:
 
         Args:
             base_path: Base directory path, URL, or cloudinary:// path
-            filename: Filename to append
+            filename: Filename to append (can also be a full URL)
 
         Returns:
             Full path or URL
         """
-        if not base_path or not filename:
+        if not filename:
             return ""
+
+        # If filename is already a full URL or special path, return it directly
+        # This handles cases where path_resize/filepath already contains full URLs
+        if cls.is_remote_url(filename) or cls.is_cloudinary_path(filename) or cls.is_unibo_path(filename):
+            return filename
+
+        if not base_path:
+            return filename
 
         # Clean up paths
         base_path = base_path.rstrip('/\\')
         filename = filename.lstrip('/\\')
 
-        if cls.is_cloudinary_path(base_path) or cls.is_remote_url(base_path):
-            # URL or Cloudinary path - use forward slash
+        if cls.is_cloudinary_path(base_path) or cls.is_remote_url(base_path) or cls.is_unibo_path(base_path):
+            # URL or Cloudinary/Unibo path - use forward slash
             return f"{base_path}/{filename}"
         else:
             # Local path - use os.path.join

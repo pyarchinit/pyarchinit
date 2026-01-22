@@ -25,6 +25,21 @@ import time
 import traceback
 import sqlite3
 from datetime import datetime
+
+# Performance logging
+_PERF_LOG_ENABLED = True
+_perf_start_time = None
+
+def _perf_log(msg):
+    """Log performance message with timestamp"""
+    global _perf_start_time
+    if not _PERF_LOG_ENABLED:
+        return
+    now = time.time()
+    if _perf_start_time is None:
+        _perf_start_time = now
+    elapsed = now - _perf_start_time
+    print(f"[PERF {elapsed:.2f}s] {msg}")
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QMessageBox
 from qgis.PyQt.QtWidgets import QProgressBar, QApplication
@@ -78,23 +93,9 @@ class DbConnectionSingleton:
     @classmethod
     def get_instance(cls, conn_str):
         """Ottieni istanza singleton per una specifica connection string"""
-        import datetime
-        log_file = '/Users/enzo/pyarchinit_debug.log'
-        def log_debug(msg):
-            try:
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-                with open(log_file, 'a', encoding='utf-8') as f:
-                    f.write(f"[{timestamp}] [SINGLETON] {msg}\n")
-                    f.flush()
-            except:
-                pass
-        
         if conn_str not in cls._instances:
-            log_debug(f"Creating NEW singleton instance for conn_str")
             cls._instances[conn_str] = Pyarchinit_db_management(conn_str, _singleton=True)
             cls._instances[conn_str].connection()
-        else:
-            log_debug(f"Reusing EXISTING singleton instance")
         return cls._instances[conn_str]
     
     @classmethod
@@ -134,10 +135,11 @@ class Pyarchinit_db_management(object):
     Session = None  # Session factory
     _query_cache = {}  # Cache per query frequenti
 
-    if os.name == 'posix':
-        boolean = True
-    elif os.name == 'nt':
-        boolean = True
+    # echo=False by default for performance - set to True only for debugging
+    # if os.name == 'posix':
+    #     boolean = True
+    # elif os.name == 'nt':
+    #     boolean = True
     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
     def __init__(self, c, _singleton=False):
@@ -348,68 +350,42 @@ class Pyarchinit_db_management(object):
 
 
     def connection(self):
-        # Add debug logging
-        import datetime
-        log_file = '/Users/enzo/pyarchinit_debug.log'
-        def log_debug(msg):
-            try:
-                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
-                with open(log_file, 'a', encoding='utf-8') as f:
-                    f.write(f"[{timestamp}] [DB_MANAGER] {msg}\n")
-                    f.flush()
-            except:
-                pass
-        
+        _perf_log("connection() START")
         # Se è un singleton e già connesso, non rifarlo
-        log_debug(f"connection() called - singleton: {getattr(self, '_is_singleton', False)}, has_engine: {hasattr(self, 'engine')}, engine_valid: {bool(getattr(self, 'engine', None))}")
-        
         if getattr(self, '_is_singleton', False) and hasattr(self, 'engine') and self.engine:
-            log_debug("Reusing existing singleton connection")
+            _perf_log("connection() - using existing singleton")
             return True
-            
-        # Continue with new connection
-        log_debug("connection() method started")
+
         conn = None
         test = True
 
         try:
             if self.conn_str is None:
                 raise Exception("Connection string is not configured")
-            log_debug(f"Connection string: {self.conn_str[:50]}...")
             test_conn = self.conn_str.find("sqlite")
             if test_conn == 0:
-                log_debug("Creating SQLite engine")
-                
                 # Check and update SQLite database if needed
                 # Only run once per session per database file
                 db_path = self.conn_str.replace('sqlite:///', '')
                 db_check_key = f"sqlite_{db_path}"
                 db_checked = _get_db_checked()
                 if db_check_key not in db_checked and os.path.exists(db_path):
-                    log_debug(f"Checking SQLite database for updates: {db_path}")
                     try:
                         from .sqlite_db_updater import check_and_update_sqlite_db
                         # Run updater silently (no parent widget for background operation)
-                        if check_and_update_sqlite_db(db_path):
-                            log_debug("SQLite database updated successfully")
-                        else:
-                            log_debug("SQLite database update not needed or failed")
+                        check_and_update_sqlite_db(db_path)
                         _set_db_checked(db_check_key, True)
                     except Exception as e:
-                        log_debug(f"Error checking SQLite database updates: {e}")
                         # Mark as checked even on error to avoid repeated failures
                         _set_db_checked(db_check_key, True)
-                elif db_check_key in db_checked:
-                    log_debug("SQLite database already checked this session, skipping")
-                
+
                 # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(
-                    self.conn_str, 
+                    self.conn_str,
                     echo=self.boolean
                 )
                 listen(self.engine, 'connect', self.load_spatialite)
             else:
-                log_debug("Creating PostgreSQL engine")
                 # Ottimizzazioni specifiche per database remoti
                 is_remote_db = any(host in self.conn_str for host in [
                     'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
@@ -448,139 +424,109 @@ class Pyarchinit_db_management(object):
                 # Only run once per session per connection string
                 db_check_key = f"pg_{self.conn_str}"
                 db_checked = _get_db_checked()
-                log_debug(f"DB check key: {db_check_key[:80]}...")
-                log_debug(f"Already checked keys: {list(db_checked.keys())}")
-                log_debug(f"Key in dict: {db_check_key in db_checked}")
                 if db_check_key not in db_checked:
-                    log_debug("Checking PostgreSQL database for updates")
                     try:
                         from .postgres_db_updater import check_and_update_postgres_db
-                        if check_and_update_postgres_db(self):
-                            log_debug("PostgreSQL database updated successfully")
-                        else:
-                            log_debug("PostgreSQL database update not needed or failed")
+                        check_and_update_postgres_db(self)
                         _set_db_checked(db_check_key, True)
                     except Exception as e:
-                        log_debug(f"Error checking PostgreSQL database updates: {e}")
                         # Mark as checked even on error to avoid repeated failures
                         _set_db_checked(db_check_key, True)
-                else:
-                    log_debug("PostgreSQL database already checked this session, skipping")
 
-            log_debug("Creating metadata")
             self.metadata = MetaData()
-            
+
             # Create session factory once
-            log_debug("Creating session factory")
             self.Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
-            
-            log_debug("Connecting to database")
+
             conn = self.engine.connect()
-            log_debug("Connection successful")
 
         except Exception as e:
-            log_debug(f"Connection failed: {e}")
             error_message = f"Error. Problema nella connessione con il db: {e}\nTraceback: {traceback.format_exc()}"
             QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
         finally:
             if conn:
-                log_debug("Closing initial connection")
                 conn.close()
 
         # If connection failed, return early
         if not test:
-            log_debug("Connection failed, returning early")
             return test
 
-        # Skip DB_update for remote databases to avoid slow operations
-        is_remote_db = any(host in self.conn_str for host in [
-            'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
-            'heroku.com', 'planetscale.com', 'neon.tech'
-        ])
-        
-        if not is_remote_db:
-            try:
-                log_debug("Starting DB_update")
-                db_upd = DB_update(self.conn_str)
-                log_debug("Calling update_table()")
-                db_upd.update_table()
-                log_debug("DB_update completed")
-            except Exception as e:
-                error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
-                QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
-                test = False
-        else:
-            log_debug("Skipping DB_update for remote/cloud database")
-        
+        # PERFORMANCE FIX: Skip ALL DB_update operations on connection
+        # These heavy schema checks should only run on explicit user request
+        # The checks add columns, triggers, etc. which is very slow on remote DBs
+        _perf_log("Skipping DB_update for performance")
+
+        # DISABLED - uncomment only if you need to force schema updates
+        # is_remote_db = any(host in self.conn_str for host in [
+        #     'supabase.com', 'amazonaws.com', 'azure.com', 'cloud.google.com',
+        #     'heroku.com', 'planetscale.com', 'neon.tech'
+        # ])
+        #
+        # if not is_remote_db:
+        #     try:
+        #         db_upd = DB_update(self.conn_str)
+        #         db_upd.update_table()
+        #     except Exception as e:
+        #         error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
+        #         QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
+        #         test = False
+
         # If DB update failed, return early
         if not test:
-            log_debug("DB update failed, returning early")
             return test
-            
-        try:
 
-            # Skip trigger updates for remote databases
-            if not is_remote_db:
-                # Update triggers for multi-user permission compatibility
-                try:
-                    log_debug("Starting trigger update check")
-                    from .db_updater import DatabaseUpdater
-                    updater = DatabaseUpdater(self)
-                    updater.check_and_update_triggers()
-                    log_debug("Trigger update check completed")
-                except Exception as e:
-                    log_debug(f"Trigger update check failed (non-critical): {e}")
-                
-                # After database update, we need to refresh metadata to reflect the changes
-                # Only if we have a valid engine
-                if hasattr(self, 'engine') and self.engine:
-                    # Clear existing metadata if it's a MetaData object
-                    if hasattr(self, 'metadata') and hasattr(self.metadata, 'clear'):
-                        self.metadata.clear()
-                    
-                    # Recreate metadata with updated table structures
-                    self.metadata = MetaData()
-                    
-                    # Force metadata to reflect all tables
-                    self.metadata.reflect(bind=self.engine)
-                
-                print("Database metadata refreshed after update")
-            else:
-                log_debug("Skipping trigger update check for remote/cloud database")
-                # For remote databases, skip metadata reflection for faster startup
-                # Metadata will be loaded on-demand when needed
-                pass
-            
-        except Exception as e:
-            error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
-            QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
-            test = False
-            
-        # Force creation of TMA tables
-        try:
-            self.ensure_tma_tables_exist()
-        except Exception as e:
-            print(f"Error ensuring TMA tables exist: {e}")
+        # PERFORMANCE FIX: Skip ALL trigger updates and metadata reflection
+        # These operations are very slow on remote databases
+        _perf_log("Skipping trigger updates and metadata reflection for performance")
 
-        # Force creation of Fauna table
-        try:
-            self.ensure_fauna_table_exists()
-        except Exception as e:
-            print(f"Error ensuring Fauna table exists: {e}")
+        # DISABLED FOR PERFORMANCE - uncomment only if needed
+        # try:
+        #     # Update triggers for multi-user permission compatibility
+        #     try:
+        #         from .db_updater import DatabaseUpdater
+        #         updater = DatabaseUpdater(self)
+        #         updater.check_and_update_triggers()
+        #     except Exception:
+        #         pass  # Trigger update is non-critical
+        #
+        #     # After database update, we need to refresh metadata
+        #     if hasattr(self, 'engine') and self.engine:
+        #         if hasattr(self, 'metadata') and hasattr(self.metadata, 'clear'):
+        #             self.metadata.clear()
+        #         self.metadata = MetaData()
+        #         self.metadata.reflect(bind=self.engine)
+        #
+        # except Exception as e:
+        #     error_message = f"Error. problema nell' aggiornamento del db: {e}"
+        #     QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
+        #     test = False
 
-        # Force creation of UT geometry tables
-        try:
-            self.ensure_ut_geometry_tables_exist()
-        except Exception as e:
-            print(f"Error ensuring UT geometry tables exist: {e}")
+        # DISABLED FOR PERFORMANCE - TMA tables check
+        # try:
+        #     self.ensure_tma_tables_exist()
+        # except Exception as e:
+        #     print(f"Error ensuring TMA tables exist: {e}")
 
-        # Fix macc field for SQLite databases
-        try:
-            self.fix_macc_field_sqlite()
-        except Exception as e:
-            print(f"Error fixing macc field: {e}")
+        # DISABLED FOR PERFORMANCE - Fauna table check
+        # try:
+        #     self.ensure_fauna_table_exists()
+        # except Exception as e:
+        #     print(f"Error ensuring Fauna table exists: {e}")
 
+        # DISABLED FOR PERFORMANCE - UT geometry tables check
+        # try:
+        #     self.ensure_ut_geometry_tables_exist()
+        # except Exception as e:
+        #     print(f"Error ensuring UT geometry tables exist: {e}")
+
+        # DISABLED FOR PERFORMANCE - macc field fix
+        # try:
+        #     self.fix_macc_field_sqlite()
+        # except Exception as e:
+        #     print(f"Error fixing macc field: {e}")
+
+        _perf_log("connection() END")
         return test
     
     @contextmanager
@@ -2273,6 +2219,7 @@ class Pyarchinit_db_management(object):
             return 0
 
     def query(self, n):
+        _perf_log(f"query({n}) START")
         class_name = eval(n)
         # Create a fresh session directly from engine to avoid any cached state
         Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
@@ -2282,6 +2229,37 @@ class Pyarchinit_db_management(object):
             # This bypasses the identity map cache
             query = session.query(class_name).execution_options(populate_existing=True)
             res = query.all()
+            _perf_log(f"query({n}) END - {len(res)} records")
+            return res
+        finally:
+            session.close()
+
+    def query_ordered(self, table_class_name, order_column, order_dir='asc'):
+        """
+        Single query with ORDER BY - replaces the double query pattern.
+
+        Args:
+            table_class_name: Name of the entity class (e.g., 'US', 'SITE')
+            order_column: Column name to order by (e.g., 'id_us')
+            order_dir: 'asc' or 'desc'
+
+        Returns:
+            List of records ordered by the specified column
+        """
+        _perf_log(f"query_ordered({table_class_name}) START")
+        class_name = eval(table_class_name)
+        Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
+        session = Session()
+        try:
+            order_attr = getattr(class_name, order_column)
+            if order_dir.lower() == 'desc':
+                order_attr = order_attr.desc()
+            else:
+                order_attr = order_attr.asc()
+
+            query = session.query(class_name).order_by(order_attr).execution_options(populate_existing=True)
+            res = query.all()
+            _perf_log(f"query_ordered({table_class_name}) END - {len(res)} records")
             return res
         finally:
             session.close()
@@ -2453,11 +2431,138 @@ class Pyarchinit_db_management(object):
                 session.close()
             return None
 
+    def query_thesaurus_batch(self, nome_tabella, lingua):
+        """
+        Carica TUTTI i valori del thesaurus per una tabella in UNA sola query.
+        Ritorna un dizionario: {tipologia_sigla: [lista di risultati]}
+
+        Questo metodo è MOLTO più veloce rispetto a chiamare query_bool 40+ volte.
+        """
+        _perf_log(f"query_thesaurus_batch({nome_tabella}, {lingua}) START")
+
+        # Cache key per questo batch
+        cache_key = self._get_cache_key('query_thesaurus_batch', nome_tabella, lingua)
+        cached_result = self._get_cached_result(cache_key, cache_timeout=600)  # 10 minuti
+        if cached_result is not None:
+            _perf_log(f"query_thesaurus_batch({nome_tabella}) CACHED - {len(cached_result)} tipologie")
+            return cached_result
+
+        try:
+            Session = sessionmaker(bind=self.engine)
+            session = Session()
+
+            # Clean lingua value
+            if lingua.startswith("'") and lingua.endswith("'"):
+                lingua = lingua.strip("'")
+
+            # Handle compatible table names
+            table_names = [nome_tabella]
+            try:
+                from modules.utility.pyarchinit_thesaurus_compatibility import get_compatible_names
+                table_names = get_compatible_names(nome_tabella)
+            except ImportError:
+                pass
+
+            # Build query for all compatible table names
+            conditions = [PYARCHINIT_THESAURUS_SIGLE.lingua == lingua]
+
+            if len(table_names) == 1:
+                conditions.append(PYARCHINIT_THESAURUS_SIGLE.nome_tabella == table_names[0])
+            else:
+                conditions.append(or_(*[PYARCHINIT_THESAURUS_SIGLE.nome_tabella == tn for tn in table_names]))
+
+            query = session.query(PYARCHINIT_THESAURUS_SIGLE).filter(and_(*conditions))
+            results = query.all()
+
+            session.close()
+
+            # Organizza per tipologia_sigla
+            thesaurus_dict = {}
+            for row in results:
+                tip = row.tipologia_sigla
+                if tip not in thesaurus_dict:
+                    thesaurus_dict[tip] = []
+                thesaurus_dict[tip].append(row)
+
+            # Cache the result
+            self._set_cached_result(cache_key, thesaurus_dict)
+
+            _perf_log(f"query_thesaurus_batch({nome_tabella}) DONE - {len(thesaurus_dict)} tipologie, {len(results)} righe totali")
+            return thesaurus_dict
+
+        except Exception as e:
+            _perf_log(f"query_thesaurus_batch ERROR: {e}")
+            if 'session' in locals():
+                session.close()
+            return {}
+
+    def query_media_thumb_batch(self, id_media_list):
+        """
+        Carica TUTTI i MEDIA_THUMB per una lista di id_media in UNA sola query.
+        Ritorna un dizionario: {id_media: record_media_thumb}
+
+        Questo metodo è MOLTO più veloce rispetto a fare N query separate.
+        """
+        if not id_media_list:
+            return {}
+
+        _perf_log(f"query_media_thumb_batch({len(id_media_list)} ids) START")
+
+        # Cache key per questo batch
+        cache_key = self._get_cache_key('query_media_thumb_batch', tuple(sorted(id_media_list)))
+        cached_result = self._get_cached_result(cache_key, cache_timeout=300)  # 5 minuti
+        if cached_result is not None:
+            _perf_log(f"query_media_thumb_batch CACHED - {len(cached_result)} results")
+            return cached_result
+
+        try:
+            Session = sessionmaker(bind=self.engine)
+            session = Session()
+
+            # Converti gli id in interi se sono stringhe
+            clean_ids = []
+            for id_val in id_media_list:
+                if isinstance(id_val, str):
+                    id_val = id_val.strip("'")
+                try:
+                    clean_ids.append(int(id_val))
+                except (ValueError, TypeError):
+                    continue
+
+            if not clean_ids:
+                session.close()
+                return {}
+
+            # Query con IN clause - una sola query per tutti gli ID
+            query = session.query(MEDIA_THUMB).filter(MEDIA_THUMB.id_media.in_(clean_ids))
+            results = query.all()
+
+            session.close()
+
+            # Organizza per id_media
+            thumb_dict = {}
+            for row in results:
+                thumb_dict[str(row.id_media)] = row
+
+            # Cache the result
+            self._set_cached_result(cache_key, thumb_dict)
+
+            _perf_log(f"query_media_thumb_batch DONE - {len(thumb_dict)} results")
+            return thumb_dict
+
+        except Exception as e:
+            _perf_log(f"query_media_thumb_batch ERROR: {e}")
+            if 'session' in locals():
+                session.close()
+            return {}
+
     def query_bool(self, params, table_class_name):
+        _perf_log(f"query_bool({table_class_name}, {params}) START")
         # Cache per query_bool (molto usato nelle schede)
         cache_key = self._get_cache_key('query_bool', params, table_class_name)
         cached_result = self._get_cached_result(cache_key, cache_timeout=300)  # 5 minuti
         if cached_result is not None:
+            _perf_log(f"query_bool({table_class_name}) CACHED")
             return cached_result
         
         u = Utility()
@@ -2605,6 +2710,7 @@ class Pyarchinit_db_management(object):
 
         # Salva nella cache
         self._set_cached_result(cache_key, res)
+        _perf_log(f"query_bool({table_class_name}) END - {len(res)} records")
         return res
 
     def select_mediapath_from_id(self, media_id):
@@ -3307,10 +3413,12 @@ class Pyarchinit_db_management(object):
 
     def group_by(self, tn, fn, CD):
         """Group by the values by table name - string, field name - string, table class DB from mapper - string"""
+        _perf_log(f"group_by({tn}, {fn}, {CD}) START")
         # Aggiungi caching per group_by (spesso usato per dropdown)
         cache_key = self._get_cache_key('group_by', tn, fn, CD)
         cached_result = self._get_cached_result(cache_key, cache_timeout=600)  # 10 minuti
         if cached_result is not None:
+            _perf_log(f"group_by({CD}) CACHED")
             return cached_result
 
         self.table_name = tn
@@ -3358,6 +3466,7 @@ class Pyarchinit_db_management(object):
 
             # Salva nella cache
             self._set_cached_result(cache_key, result)
+            _perf_log(f"group_by({CD}) END - {len(result)} records")
             return result
         finally:
             session.close()

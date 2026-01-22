@@ -38,7 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
-from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
 # GPTWindow is imported lazily in on_pushButton_gptsketch_pressed to avoid PyMuPDF DLL conflicts on Windows
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
@@ -2129,6 +2129,15 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             if bool(sub_list):
                 lista.append(sub_list)
         return lista
+    def is_media_path_remote(self):
+        """Check if the configured media thumbnail path is remote."""
+        try:
+            thumb_path_config = conn.thumb_path()
+            thumb_path_str = thumb_path_config.get('thumb_path', '')
+            return is_remote_url(thumb_path_str)
+        except Exception:
+            return False
+
     def charge_data(self):
         self.DATA = self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb)
         self.open_images()
@@ -2146,15 +2155,38 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         elif self.NUM_DATA_BEGIN<= data_len:
             # indica che non sono state visualizzate tutte le immagini
             data = self.DATA[self.NUM_DATA_BEGIN:self.NUM_DATA_END]
+
+            # Check if remote and show progress for remote loading
+            is_remote = self.is_media_path_remote()
+            progress = None
+            if is_remote and len(data) > 0:
+                if self.L == 'it':
+                    progress = QProgressDialog("Caricamento thumbnails...", "Annulla", 0, len(data), self)
+                elif self.L == 'de':
+                    progress = QProgressDialog("Thumbnails laden...", "Abbrechen", 0, len(data), self)
+                else:
+                    progress = QProgressDialog("Loading thumbnails...", "Cancel", 0, len(data), self)
+                progress.setWindowModality(Qt.WindowModality.WindowModal)
+                progress.setMinimumDuration(500)  # Show only if loading takes more than 500ms
+
             for i in range(len(data)):
+                if progress and progress.wasCanceled():
+                    break
+
                 item = QListWidgetItem(str(data[i].media_filename)) ###############visualizzo nome file
-                # data_for_thumb = self.db_search_check(self.MAPPER_TABLE_CLASS_thumb, 'id_media', id_media) # recupera i valori della thumb in base al valore id_media del file originale
-                thumb_path = data[i].filepath
-                # QMessageBox.warning(self, "Errore",str(thumb_path),  QMessageBox.Ok)
+                # Use path_resize for better performance (smaller files)
+                thumb_filepath = str(data[i].filepath)
                 item.setData(Qt.ItemDataRole.UserRole, str(data[i].media_filename ))
-                icon = load_icon(get_image_path(thumb_path_str, thumb_path))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
+                icon = load_icon(get_image_path(thumb_path_str, thumb_filepath))  # os.path.join('%s/%s' % (directory.toUtf8(), image)))
                 item.setIcon(icon)
                 self.iconListWidget.addItem(item)
+
+                if progress:
+                    progress.setValue(i + 1)
+                    QApplication.processEvents()
+
+            if progress:
+                progress.close()
                 # Button utility
     def on_pushButton_dir_video_pressed(self):
         self.getDirectoryVideo()
@@ -2764,18 +2796,9 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
                     self.tableWidget_tags.removeRow(0)
             items = []
     def charge_records(self):
-        self.DATA_LIST = []
-        id_list = []
-        if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                id_list.append(eval("i."+ 'media_filename'))#for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                #self.DATA_LIST.append(i)
-        else:
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS_thumb):
-                id_list.append(eval("i."+ 'media_filename'))
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, ['media_filename'], 'asc', self.MAPPER_TABLE_CLASS_thumb, 'media_filename')
-            for i in temp_data_list:
-                self.DATA_LIST.append(i)
+        # Single ordered query - replaces double query pattern for better performance
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS_thumb, 'media_filename', 'asc')
+
     def datestrfdate(self):
         now = date.today()
         today = now.strftime("%d-%m-%Y")

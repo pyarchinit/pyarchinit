@@ -509,14 +509,8 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
                 # custom functions
 
     def charge_records(self):
-        self.DATA_LIST = []
-        id_list = []
-        for i in self.DB_MANAGER.query(eval(self.MAPPER_TABLE_CLASS)):
-            id_list.append(getattr(i, self.ID_TABLE))
-        temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                    self.ID_TABLE)
-        for i in temp_data_list:
-            self.DATA_LIST.append(i)
+        # Single ordered query - replaces double query pattern for better performance
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
 
     def datestrfdate(self):
         now = date.today()
