@@ -1626,7 +1626,25 @@ class Pyarchinit_db_management(object):
                               arg[14],
                               arg[15],
                               arg[16],
-                              arg[17])
+                              arg[17],
+                              # Nuovi campi per scheda struttura AR
+                              arg[18] if len(arg) > 18 else None,  # data_compilazione
+                              arg[19] if len(arg) > 19 else None,  # nome_compilatore
+                              arg[20] if len(arg) > 20 else None,  # stato_conservazione
+                              arg[21] if len(arg) > 21 else None,  # quota
+                              arg[22] if len(arg) > 22 else None,  # relazione_topografica
+                              arg[23] if len(arg) > 23 else None,  # prospetto_ingresso
+                              arg[24] if len(arg) > 24 else None,  # orientamento_ingresso
+                              arg[25] if len(arg) > 25 else None,  # articolazione
+                              arg[26] if len(arg) > 26 else None,  # n_ambienti
+                              arg[27] if len(arg) > 27 else None,  # orientamento_ambienti
+                              arg[28] if len(arg) > 28 else None,  # sviluppo_planimetrico
+                              arg[29] if len(arg) > 29 else None,  # elementi_costitutivi
+                              arg[30] if len(arg) > 30 else None,  # motivo_decorativo
+                              arg[31] if len(arg) > 31 else None,  # potenzialita_archeologica
+                              arg[32] if len(arg) > 32 else None,  # manufatti
+                              arg[33] if len(arg) > 33 else None,  # elementi_datanti
+                              arg[34] if len(arg) > 34 else None)  # fasi_funzionali
 
         return struttura
 

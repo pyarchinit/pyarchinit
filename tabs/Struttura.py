@@ -213,7 +213,25 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         "materiali_impiegati",
         "elementi_strutturali",
         "rapporti_struttura",
-        "misure_struttura"
+        "misure_struttura",
+        # Nuovi campi per scheda struttura AR
+        "data_compilazione",
+        "nome_compilatore",
+        "stato_conservazione",
+        "quota",
+        "relazione_topografica",
+        "prospetto_ingresso",
+        "orientamento_ingresso",
+        "articolazione",
+        "n_ambienti",
+        "orientamento_ambienti",
+        "sviluppo_planimetrico",
+        "elementi_costitutivi",
+        "motivo_decorativo",
+        "potenzialita_archeologica",
+        "manufatti",
+        "elementi_datanti",
+        "fasi_funzionali"
     ]
 
     LANG = {
@@ -285,6 +303,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.customize_GUI()
         self.set_sito()
         self.msg_sito()
+
+        # Carica inizialmente le liste periodo/fase dalla tabella periodizzazione
+        self.charge_periodo_iniz_list()
+        self.charge_periodo_fin_list()
         init_remote_loader()
 
     def is_media_path_remote(self):
@@ -2053,6 +2075,175 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.delegateSig.def_editable('False')
         self.tableWidget_rapporti.setItemDelegateForColumn(2, self.delegateSig)
 
+        # Setup nuovi table widget AR
+        self.tableWidget_misurazioni.setColumnWidth(0, 120)  # Ubicazione
+        self.tableWidget_misurazioni.setColumnWidth(1, 180)  # Elementi architettonici
+        self.tableWidget_misurazioni.setColumnWidth(2, 180)  # Tipo misura
+        self.tableWidget_misurazioni.setColumnWidth(3, 120)  # Unita' di misura
+        self.tableWidget_misurazioni.setColumnWidth(4, 100)  # Valore
+
+        # Delegate Ubicazione (colonna 0 misurazioni)
+        valuesUbicazione = ["ESTERNO", "INTERNO", ""]
+        self.delegateUbicazione = ComboBoxDelegate()
+        self.delegateUbicazione.def_values(valuesUbicazione)
+        self.delegateUbicazione.def_editable('False')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(0, self.delegateUbicazione)
+
+        # Delegate Elementi Architettonici (colonna 1 misurazioni) - da thesaurus 6.9
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.9' + "'"
+        }
+        elArch = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesElArch = []
+        for i in range(len(elArch)):
+            valuesElArch.append(elArch[i].sigla_estesa)
+        valuesElArch.sort()
+        self.delegateElArch = ComboBoxDelegate()
+        self.delegateElArch.def_values(valuesElArch)
+        self.delegateElArch.def_editable('True')
+        self.tableWidget_misurazioni.setItemDelegateForColumn(1, self.delegateElArch)
+
+        # Riassegna delegate per tipo misura e unita alla nuova posizione (colonne 2 e 3)
+        self.tableWidget_misurazioni.setItemDelegateForColumn(2, self.delegateTipoMis)
+        self.tableWidget_misurazioni.setItemDelegateForColumn(3, self.delegateUnitaMis)
+
+        # Stato conservazione table widget - setup colonne
+        self.tableWidget_stato_conservazione.setColumnWidth(0, 200)
+        self.tableWidget_stato_conservazione.setColumnWidth(1, 200)
+        self.tableWidget_stato_conservazione.setColumnWidth(2, 300)
+
+        # Delegate Stato (colonna 0)
+        valuesStato = ["CONSERVAZIONE", "VISIBILITA'", "ACCESSIBILITA'", ""]
+        self.delegateStato = ComboBoxDelegate()
+        self.delegateStato.def_values(valuesStato)
+        self.delegateStato.def_editable('False')
+        self.tableWidget_stato_conservazione.setItemDelegateForColumn(0, self.delegateStato)
+
+        # Delegate Grado (colonna 1)
+        valuesGrado = ["OTTIMO", "BUONO", "DISCRETO", "SCARSO", "PESSIMO", "NON RILEVABILE", ""]
+        self.delegateGrado = ComboBoxDelegate()
+        self.delegateGrado.def_values(valuesGrado)
+        self.delegateGrado.def_editable('False')
+        self.tableWidget_stato_conservazione.setItemDelegateForColumn(1, self.delegateGrado)
+
+        # Delegate Fattori Agenti (colonna 2) - da thesaurus 6.10
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.10' + "'"
+        }
+        elFattori = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesFattori = []
+        for i in range(len(elFattori)):
+            valuesFattori.append(elFattori[i].sigla_estesa)
+        valuesFattori.sort()
+        self.delegateFattori = ComboBoxDelegate()
+        self.delegateFattori.def_values(valuesFattori)
+        self.delegateFattori.def_editable('True')
+        self.tableWidget_stato_conservazione.setItemDelegateForColumn(2, self.delegateFattori)
+
+        # Prospetto ingresso table widget - delegate da thesaurus 6.11
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.11' + "'"
+        }
+        elProspetto = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesProspetto = []
+        for i in range(len(elProspetto)):
+            valuesProspetto.append(elProspetto[i].sigla_estesa)
+        valuesProspetto.sort()
+        self.delegateProspetto = ComboBoxDelegate()
+        self.delegateProspetto.def_values(valuesProspetto)
+        self.delegateProspetto.def_editable('True')
+        self.tableWidget_prospetto_ingresso.setItemDelegateForColumn(0, self.delegateProspetto)
+
+        # Orientamento ambienti table widget - delegate
+        valuesOrientamento = ["N", "NE", "E", "SE", "S", "SO", "O", "NO", ""]
+        self.delegateOrientamentoAmb = ComboBoxDelegate()
+        self.delegateOrientamentoAmb.def_values(valuesOrientamento)
+        self.delegateOrientamentoAmb.def_editable('False')
+        self.tableWidget_orientamento_ambienti.setItemDelegateForColumn(0, self.delegateOrientamentoAmb)
+
+        # Elementi costitutivi table widget - delegate da thesaurus 6.12
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.12' + "'"
+        }
+        elCost = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesElCost = []
+        for i in range(len(elCost)):
+            valuesElCost.append(elCost[i].sigla_estesa)
+        valuesElCost.sort()
+        self.delegateElCost = ComboBoxDelegate()
+        self.delegateElCost.def_values(valuesElCost)
+        self.delegateElCost.def_editable('True')
+        self.tableWidget_elementi_costitutivi.setItemDelegateForColumn(0, self.delegateElCost)
+
+        # Manufatti table widget - delegate da thesaurus 6.13
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.13' + "'"
+        }
+        elManuf = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesManuf = []
+        for i in range(len(elManuf)):
+            valuesManuf.append(elManuf[i].sigla_estesa)
+        valuesManuf.sort()
+        self.delegateManuf = ComboBoxDelegate()
+        self.delegateManuf.def_values(valuesManuf)
+        self.delegateManuf.def_editable('True')
+        self.tableWidget_manufatti.setItemDelegateForColumn(0, self.delegateManuf)
+
+        # Fasi funzionali table widget - setup colonne e delegate
+        self.tableWidget_fasi_funzionali.setColumnWidth(0, 200)
+        self.tableWidget_fasi_funzionali.setColumnWidth(1, 200)
+        self.tableWidget_fasi_funzionali.setColumnWidth(2, 300)
+
+        # Delegate Definizione fasi funzionali (colonna 2) - da thesaurus 6.14
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.14' + "'"
+        }
+        elDefFasi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        valuesDefFasi = []
+        for i in range(len(elDefFasi)):
+            valuesDefFasi.append(elDefFasi[i].sigla_estesa)
+        valuesDefFasi.sort()
+        self.delegateDefFasi = ComboBoxDelegate()
+        self.delegateDefFasi.def_values(valuesDefFasi)
+        self.delegateDefFasi.def_editable('True')
+        self.tableWidget_fasi_funzionali.setItemDelegateForColumn(2, self.delegateDefFasi)
+
+        # Connessioni manuali per i pulsanti delle table widget
+        # (I nomi dei metodi NON seguono la convenzione Qt on_<objectname>_<signal>
+        # per evitare duplicazioni con auto-connect)
+        self.pushButton_insert_row_stato.clicked.connect(self.insert_row_stato)
+        self.pushButton_remove_row_stato.clicked.connect(self.remove_row_stato)
+        self.pushButton_insert_row_prospetto.clicked.connect(self.insert_row_prospetto)
+        self.pushButton_remove_row_prospetto.clicked.connect(self.remove_row_prospetto)
+        self.pushButton_insert_row_elementi_cost.clicked.connect(self.insert_row_elementi_cost)
+        self.pushButton_remove_row_elementi_cost.clicked.connect(self.remove_row_elementi_cost)
+        self.pushButton_insert_row_manufatti.clicked.connect(self.insert_row_manufatti)
+        self.pushButton_remove_row_manufatti.clicked.connect(self.remove_row_manufatti)
+        self.pushButton_insert_row_fasi.clicked.connect(self.insert_row_fasi)
+        self.pushButton_remove_row_fasi.clicked.connect(self.remove_row_fasi)
+        self.pushButton_insert_row_rapporti.clicked.connect(self.insert_row_rapporti)
+        self.pushButton_remove_row_rapporti.clicked.connect(self.remove_row_rapporti)
+        self.pushButton_insert_row_materiali.clicked.connect(self.insert_row_materiali)
+        self.pushButton_remove_row_materiali.clicked.connect(self.remove_row_materiali)
+        self.pushButton_insert_row_elementi.clicked.connect(self.insert_row_elementi)
+        self.pushButton_remove_row_elementi.clicked.connect(self.remove_row_elementi)
+        self.pushButton_insert_row_misurazioni.clicked.connect(self.insert_row_misurazioni)
+        self.pushButton_remove_row_misurazioni.clicked.connect(self.remove_row_misurazioni)
+        self.pushButton_insert_row_orient_amb.clicked.connect(self.insert_row_orient_amb)
+        self.pushButton_remove_row_orient_amb.clicked.connect(self.remove_row_orient_amb)
+
     def charge_list(self):
 
         #lista sito
@@ -2152,6 +2343,37 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         definizione_struttura_vl.sort()
         self.comboBox_definizione_struttura.addItems(definizione_struttura_vl)
+
+        # Nuovi combobox AR
+
+        # orientamento ingresso
+        self.comboBox_orientamento_ingresso.clear()
+        orientamento_values = ["", "N", "NE", "E", "SE", "S", "SO", "O", "NO"]
+        self.comboBox_orientamento_ingresso.addItems(orientamento_values)
+
+        # articolazione
+        self.comboBox_articolazione.clear()
+        articolazione_values = ["", "AMBIENTE UNICO", "AMBIENTE COMPOSITO"]
+        self.comboBox_articolazione.addItems(articolazione_values)
+
+        # sviluppo planimetrico - da thesaurus 6.15
+        self.comboBox_sviluppo_planimetrico.clear()
+        search_dict = {
+            'lingua': lang,
+            'nome_tabella': "'" + 'struttura_table' + "'",
+            'tipologia_sigla': "'" + '6.15' + "'"
+        }
+        sviluppo_plan = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+        sviluppo_plan_vl = [""]
+        for i in range(len(sviluppo_plan)):
+            sviluppo_plan_vl.append(sviluppo_plan[i].sigla_estesa)
+        sviluppo_plan_vl.sort()
+        self.comboBox_sviluppo_planimetrico.addItems(sviluppo_plan_vl)
+
+        # potenzialita archeologica
+        self.comboBox_potenzialita_archeologica.clear()
+        potenzialita_values = ["", "NULLA", "BASSA", "MEDIA", "ALTA"]
+        self.comboBox_potenzialita_archeologica.addItems(potenzialita_values)
 
     def msg_sito(self):
         #self.model_a.database().close()
@@ -2293,6 +2515,24 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.tableWidget_elementi_strutturali.setRowCount(0)
         self.tableWidget_rapporti.setRowCount(0)
         self.tableWidget_misurazioni.setRowCount(0)
+        # Nuovi campi AR
+        self.dateEdit_data_compilazione.setDate(self.dateEdit_data_compilazione.minimumDate())
+        self.lineEdit_nome_compilatore.clear()
+        self.tableWidget_stato_conservazione.setRowCount(0)
+        self.lineEdit_quota.clear()
+        self.lineEdit_relazione_topografica.clear()
+        self.tableWidget_prospetto_ingresso.setRowCount(0)
+        self.comboBox_orientamento_ingresso.setEditText("")
+        self.comboBox_articolazione.setEditText("")
+        self.spinBox_n_ambienti.setValue(0)
+        self.tableWidget_orientamento_ambienti.setRowCount(0)
+        self.comboBox_sviluppo_planimetrico.setEditText("")
+        self.tableWidget_elementi_costitutivi.setRowCount(0)
+        self.lineEdit_motivo_decorativo.clear()
+        self.comboBox_potenzialita_archeologica.setEditText("")
+        self.tableWidget_manufatti.setRowCount(0)
+        self.lineEdit_elementi_datanti.clear()
+        self.tableWidget_fasi_funzionali.setRowCount(0)
 
     def empty_fields(self):
         """Clear all fields including sito"""
@@ -2340,6 +2580,64 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(str(self.DATA_LIST[self.rec_num].fase_finale))
+
+            # Nuovi campi AR
+            if hasattr(self.DATA_LIST[self.rec_num], 'data_compilazione') and self.DATA_LIST[self.rec_num].data_compilazione:
+                from qgis.PyQt.QtCore import QDate
+                try:
+                    date_parts = self.DATA_LIST[self.rec_num].data_compilazione.split('/')
+                    if len(date_parts) == 3:
+                        self.dateEdit_data_compilazione.setDate(QDate(int(date_parts[2]), int(date_parts[1]), int(date_parts[0])))
+                except:
+                    pass
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'nome_compilatore') and self.DATA_LIST[self.rec_num].nome_compilatore:
+                self.lineEdit_nome_compilatore.setText(str(self.DATA_LIST[self.rec_num].nome_compilatore))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'stato_conservazione') and self.DATA_LIST[self.rec_num].stato_conservazione:
+                self.tableInsertData("self.tableWidget_stato_conservazione", self.DATA_LIST[self.rec_num].stato_conservazione)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'quota') and self.DATA_LIST[self.rec_num].quota is not None:
+                self.lineEdit_quota.setText(str(self.DATA_LIST[self.rec_num].quota))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'relazione_topografica') and self.DATA_LIST[self.rec_num].relazione_topografica:
+                self.lineEdit_relazione_topografica.setText(str(self.DATA_LIST[self.rec_num].relazione_topografica))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'prospetto_ingresso') and self.DATA_LIST[self.rec_num].prospetto_ingresso:
+                self.tableInsertData("self.tableWidget_prospetto_ingresso", self.DATA_LIST[self.rec_num].prospetto_ingresso)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'orientamento_ingresso') and self.DATA_LIST[self.rec_num].orientamento_ingresso:
+                self.comboBox_orientamento_ingresso.setEditText(str(self.DATA_LIST[self.rec_num].orientamento_ingresso))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'articolazione') and self.DATA_LIST[self.rec_num].articolazione:
+                self.comboBox_articolazione.setEditText(str(self.DATA_LIST[self.rec_num].articolazione))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'n_ambienti') and self.DATA_LIST[self.rec_num].n_ambienti is not None:
+                self.spinBox_n_ambienti.setValue(int(self.DATA_LIST[self.rec_num].n_ambienti))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'orientamento_ambienti') and self.DATA_LIST[self.rec_num].orientamento_ambienti:
+                self.tableInsertData("self.tableWidget_orientamento_ambienti", self.DATA_LIST[self.rec_num].orientamento_ambienti)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'sviluppo_planimetrico') and self.DATA_LIST[self.rec_num].sviluppo_planimetrico:
+                self.comboBox_sviluppo_planimetrico.setEditText(str(self.DATA_LIST[self.rec_num].sviluppo_planimetrico))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'elementi_costitutivi') and self.DATA_LIST[self.rec_num].elementi_costitutivi:
+                self.tableInsertData("self.tableWidget_elementi_costitutivi", self.DATA_LIST[self.rec_num].elementi_costitutivi)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'motivo_decorativo') and self.DATA_LIST[self.rec_num].motivo_decorativo:
+                self.lineEdit_motivo_decorativo.setText(str(self.DATA_LIST[self.rec_num].motivo_decorativo))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'potenzialita_archeologica') and self.DATA_LIST[self.rec_num].potenzialita_archeologica:
+                self.comboBox_potenzialita_archeologica.setEditText(str(self.DATA_LIST[self.rec_num].potenzialita_archeologica))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'manufatti') and self.DATA_LIST[self.rec_num].manufatti:
+                self.tableInsertData("self.tableWidget_manufatti", self.DATA_LIST[self.rec_num].manufatti)
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'elementi_datanti') and self.DATA_LIST[self.rec_num].elementi_datanti:
+                self.lineEdit_elementi_datanti.setText(str(self.DATA_LIST[self.rec_num].elementi_datanti))
+
+            if hasattr(self.DATA_LIST[self.rec_num], 'fasi_funzionali') and self.DATA_LIST[self.rec_num].fasi_funzionali:
+                self.tableInsertData("self.tableWidget_fasi_funzionali", self.DATA_LIST[self.rec_num].fasi_funzionali)
 
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
@@ -2403,7 +2701,25 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             str(self.table2dict("self.tableWidget_materiali_impiegati")),  # materiali_impiegati
             str(self.table2dict("self.tableWidget_elementi_strutturali")),  # elementi_strutturali
             str(self.table2dict("self.tableWidget_rapporti")),  # rapporti_struttura
-            str(self.table2dict("self.tableWidget_misurazioni"))  # misure_struttura
+            str(self.table2dict("self.tableWidget_misurazioni")),  # misure_struttura
+            # Nuovi campi AR
+            str(self.dateEdit_data_compilazione.date().toString("dd/MM/yyyy")),  # data_compilazione
+            str(self.lineEdit_nome_compilatore.text()),  # nome_compilatore
+            str(self.table2dict("self.tableWidget_stato_conservazione")),  # stato_conservazione
+            str(self.lineEdit_quota.text()),  # quota
+            str(self.lineEdit_relazione_topografica.text()),  # relazione_topografica
+            str(self.table2dict("self.tableWidget_prospetto_ingresso")),  # prospetto_ingresso
+            str(self.comboBox_orientamento_ingresso.currentText()),  # orientamento_ingresso
+            str(self.comboBox_articolazione.currentText()),  # articolazione
+            str(self.spinBox_n_ambienti.value()),  # n_ambienti
+            str(self.table2dict("self.tableWidget_orientamento_ambienti")),  # orientamento_ambienti
+            str(self.comboBox_sviluppo_planimetrico.currentText()),  # sviluppo_planimetrico
+            str(self.table2dict("self.tableWidget_elementi_costitutivi")),  # elementi_costitutivi
+            str(self.lineEdit_motivo_decorativo.text()),  # motivo_decorativo
+            str(self.comboBox_potenzialita_archeologica.currentText()),  # potenzialita_archeologica
+            str(self.table2dict("self.tableWidget_manufatti")),  # manufatti
+            str(self.lineEdit_elementi_datanti.text()),  # elementi_datanti
+            str(self.table2dict("self.tableWidget_fasi_funzionali"))  # fasi_funzionali
         ]
 
     def set_LIST_REC_CORR(self):
@@ -2568,6 +2884,88 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             except:
                 pass
     
+    # Funzioni per pulsanti +/- delle table widget
+    # (Nomi senza prefisso on_ per evitare auto-connect Qt)
+    def insert_row_stato(self):
+        self.tableWidget_stato_conservazione.insertRow(self.tableWidget_stato_conservazione.rowCount())
+
+    def remove_row_stato(self):
+        row = self.tableWidget_stato_conservazione.currentRow()
+        if row >= 0:
+            self.tableWidget_stato_conservazione.removeRow(row)
+
+    def insert_row_prospetto(self):
+        self.tableWidget_prospetto_ingresso.insertRow(self.tableWidget_prospetto_ingresso.rowCount())
+
+    def remove_row_prospetto(self):
+        row = self.tableWidget_prospetto_ingresso.currentRow()
+        if row >= 0:
+            self.tableWidget_prospetto_ingresso.removeRow(row)
+
+    def insert_row_elementi_cost(self):
+        self.tableWidget_elementi_costitutivi.insertRow(self.tableWidget_elementi_costitutivi.rowCount())
+
+    def remove_row_elementi_cost(self):
+        row = self.tableWidget_elementi_costitutivi.currentRow()
+        if row >= 0:
+            self.tableWidget_elementi_costitutivi.removeRow(row)
+
+    def insert_row_manufatti(self):
+        self.tableWidget_manufatti.insertRow(self.tableWidget_manufatti.rowCount())
+
+    def remove_row_manufatti(self):
+        row = self.tableWidget_manufatti.currentRow()
+        if row >= 0:
+            self.tableWidget_manufatti.removeRow(row)
+
+    def insert_row_fasi(self):
+        self.tableWidget_fasi_funzionali.insertRow(self.tableWidget_fasi_funzionali.rowCount())
+
+    def remove_row_fasi(self):
+        row = self.tableWidget_fasi_funzionali.currentRow()
+        if row >= 0:
+            self.tableWidget_fasi_funzionali.removeRow(row)
+
+    def insert_row_rapporti(self):
+        self.tableWidget_rapporti.insertRow(self.tableWidget_rapporti.rowCount())
+
+    def remove_row_rapporti(self):
+        row = self.tableWidget_rapporti.currentRow()
+        if row >= 0:
+            self.tableWidget_rapporti.removeRow(row)
+
+    def insert_row_materiali(self):
+        self.tableWidget_materiali_impiegati.insertRow(self.tableWidget_materiali_impiegati.rowCount())
+
+    def remove_row_materiali(self):
+        row = self.tableWidget_materiali_impiegati.currentRow()
+        if row >= 0:
+            self.tableWidget_materiali_impiegati.removeRow(row)
+
+    def insert_row_elementi(self):
+        self.tableWidget_elementi_strutturali.insertRow(self.tableWidget_elementi_strutturali.rowCount())
+
+    def remove_row_elementi(self):
+        row = self.tableWidget_elementi_strutturali.currentRow()
+        if row >= 0:
+            self.tableWidget_elementi_strutturali.removeRow(row)
+
+    def insert_row_misurazioni(self):
+        self.tableWidget_misurazioni.insertRow(self.tableWidget_misurazioni.rowCount())
+
+    def remove_row_misurazioni(self):
+        row = self.tableWidget_misurazioni.currentRow()
+        if row >= 0:
+            self.tableWidget_misurazioni.removeRow(row)
+
+    def insert_row_orient_amb(self):
+        self.tableWidget_orientamento_ambienti.insertRow(self.tableWidget_orientamento_ambienti.rowCount())
+
+    def remove_row_orient_amb(self):
+        row = self.tableWidget_orientamento_ambienti.currentRow()
+        if row >= 0:
+            self.tableWidget_orientamento_ambienti.removeRow(row)
+
     def on_pushButton_sort_pressed(self):
         if self.check_record_state() == 1:
             pass
@@ -2640,6 +3038,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                             # set the GUI for a new record
         if self.BROWSE_STATUS != "n":
             if bool(self.comboBox_sito.currentText()) and self.comboBox_sito.currentText()==sito_set_str:
+                # Carica le liste periodo/fase dalla tabella periodizzazione
+                self.charge_periodo_iniz_list()
+                self.charge_periodo_fin_list()
+
                 self.BROWSE_STATUS = "n"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.empty_fields_nosite()
@@ -2664,6 +3066,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.comboBox_sito"], True)
                 self.setComboBoxEnable(["self.comboBox_sigla_struttura"], True)
                 self.setComboBoxEnable(["self.numero_struttura"], True)
+
+                # Carica le liste periodo/fase dalla tabella periodizzazione
+                self.charge_periodo_iniz_list()
+                self.charge_periodo_fin_list()
 
                 self.set_rec_counter('', '')
             self.enable_button(0)
@@ -2811,6 +3217,13 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         rapporti_struttura = self.table2dict("self.tableWidget_rapporti")
         ##Misurazioni
         misurazioni = self.table2dict("self.tableWidget_misurazioni")
+        # Nuovi table widget AR
+        stato_conservazione = self.table2dict("self.tableWidget_stato_conservazione")
+        prospetto_ingresso = self.table2dict("self.tableWidget_prospetto_ingresso")
+        orientamento_ambienti = self.table2dict("self.tableWidget_orientamento_ambienti")
+        elementi_costitutivi = self.table2dict("self.tableWidget_elementi_costitutivi")
+        manufatti = self.table2dict("self.tableWidget_manufatti")
+        fasi_funzionali = self.table2dict("self.tableWidget_fasi_funzionali")
 
         if self.comboBox_per_iniz.currentText() == "":
             per_iniz = None
@@ -2832,6 +3245,15 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         else:
             fas_fin = int(self.comboBox_fas_fin.currentText())
 
+        # Nuovi campi AR
+        data_compilazione = self.dateEdit_data_compilazione.date().toString("dd/MM/yyyy")
+        nome_compilatore = self.lineEdit_nome_compilatore.text()
+
+        quota_str = self.lineEdit_quota.text()
+        quota = float(quota_str) if quota_str else None
+
+        n_ambienti = self.spinBox_n_ambienti.value() if self.spinBox_n_ambienti.value() > 0 else None
+
         try:
             data = self.DB_MANAGER.insert_struttura_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0
@@ -2851,7 +3273,25 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 str(materiali_impiegati),  # 14 - materiali impiegati
                 str(elementi_strutturali),  # 15 - elementi_strutturali
                 str(rapporti_struttura),  # 16 - rapporti struttura
-                str(misurazioni))  # 17 - misurazioni
+                str(misurazioni),  # 17 - misurazioni
+                # Nuovi campi AR
+                data_compilazione,  # 18 - data_compilazione
+                nome_compilatore,  # 19 - nome_compilatore
+                str(stato_conservazione),  # 20 - stato_conservazione
+                quota,  # 21 - quota
+                str(self.lineEdit_relazione_topografica.text()),  # 22 - relazione_topografica
+                str(prospetto_ingresso),  # 23 - prospetto_ingresso
+                str(self.comboBox_orientamento_ingresso.currentText()),  # 24 - orientamento_ingresso
+                str(self.comboBox_articolazione.currentText()),  # 25 - articolazione
+                n_ambienti,  # 26 - n_ambienti
+                str(orientamento_ambienti),  # 27 - orientamento_ambienti
+                str(self.comboBox_sviluppo_planimetrico.currentText()),  # 28 - sviluppo_planimetrico
+                str(elementi_costitutivi),  # 29 - elementi_costitutivi
+                str(self.lineEdit_motivo_decorativo.text()),  # 30 - motivo_decorativo
+                str(self.comboBox_potenzialita_archeologica.currentText()),  # 31 - potenzialita_archeologica
+                str(manufatti),  # 32 - manufatti
+                str(self.lineEdit_elementi_datanti.text()),  # 33 - elementi_datanti
+                str(fasi_funzionali))  # 34 - fasi_funzionali
 
             try:
                 self.DB_MANAGER.insert_data_session(data)
@@ -3540,6 +3980,10 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             widget = getattr(self, widget_name, None)
             if widget is not None:
                 widget.setEditable(bool(n))
+
+    def rec_toupdate(self):
+        rec_to_update = self.UTILITY.pos_none_in_list(self.DATA_LIST_REC_TEMP)
+        return rec_to_update
 
     def update_record(self):
         

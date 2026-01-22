@@ -600,176 +600,181 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_tipologia_sigla.clear()
         self.comboBox_tipologia_sigla.update()
         
-        # Define code descriptions for each table
+        # Define code descriptions for each table - multilingual support
         code_descriptions = {
             'site_table': {
-                '1.1': 'Definizione sito'
+                '1.1': {'it': 'Definizione sito', 'en': 'Site definition', 'de': 'Fundortdefinition', 'es': 'Definición del sitio', 'fr': 'Définition du site', 'ar': 'تعريف الموقع'}
             },
             'us_table': {
-                '2.1': 'Settore',
-                '2.2': 'Soprintendenza',
-                '2.43': 'Area',
-                '2.3': 'Definizione stratigrafica',
-                '2.4': 'Definizione interpretata',
-                '2.5': 'Funzione statica',
-                '2.6': 'Consistenza legante usm',
-                '2.7': 'Consistenza/texture',
-                '2.8': 'Metodo di scavo',
-                '2.9': 'Formazione',
-                '2.10': 'Modo formazione',
-                '2.11': 'Consistenza',
-                '2.12': 'Stato di conservazione',
-                '2.13': 'Campioni',
-                '2.14': 'Componenti organici',
-                '2.15': 'Componenti inorganici',
-                '2.16': 'Schedatore',
-                '2.17': 'Direttore us',
-                '2.18': 'Responsabile us',
-                '2.19': 'Tipo documentazione',
-                '2.20': 'Tipologia dell\'opera',
-                '2.21': 'Sezione muraria',
-                '2.22': 'Superficie analizzata',
-                '2.23': 'Orientamento',
-                '2.24': 'Materiali laterizi',
-                '2.25': 'Lavorazione laterizi',
-                '2.26': 'Consistenza laterizi',
-                '2.27': 'Forma laterizi',
-                '2.28': 'Colore laterizi',
-                '2.29': 'Impasto laterizi',
-                '2.30': 'Materiali litici',
-                '2.31': 'Consistenza materiali litici',
-                '2.32': 'Forma materiali litici',
-                '2.33': 'Colore materiali litici',
-                '2.34': 'Taglio',
-                '2.35': 'Posa opera materiali litici',
-                '2.36': 'Posa in opera laterizi',
-                '2.37': 'Tecniche costruttive',
-                '2.38': 'Modulo',
-                '2.39': 'Inerti',
-                '2.40': 'Tipologia legante',
-                '2.41': 'Rifinitura',
-                '2.42': 'Lavorazione litica',
-                '201.201': 'Colore legante',
-                '202.202': 'Inclusi', 
-                '203.203': 'Valori sì/no'
+                '2.1': {'it': 'Settore', 'en': 'Sector', 'de': 'Sektor', 'es': 'Sector', 'fr': 'Secteur', 'ar': 'القطاع'},
+                '2.2': {'it': 'Soprintendenza', 'en': 'Superintendence', 'de': 'Aufsichtsbehörde', 'es': 'Superintendencia', 'fr': 'Surintendance', 'ar': 'الإشراف'},
+                '2.43': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '2.3': {'it': 'Definizione stratigrafica', 'en': 'Stratigraphic definition', 'de': 'Stratigraphische Definition', 'es': 'Definición estratigráfica', 'fr': 'Définition stratigraphique', 'ar': 'التعريف الطبقي'},
+                '2.4': {'it': 'Definizione interpretata', 'en': 'Interpreted definition', 'de': 'Interpretierte Definition', 'es': 'Definición interpretada', 'fr': 'Définition interprétée', 'ar': 'التعريف المفسر'},
+                '2.5': {'it': 'Funzione statica', 'en': 'Static function', 'de': 'Statische Funktion', 'es': 'Función estática', 'fr': 'Fonction statique', 'ar': 'الوظيفة الثابتة'},
+                '2.6': {'it': 'Consistenza legante usm', 'en': 'USM binder consistency', 'de': 'USM Bindemittelkonsistenz', 'es': 'Consistencia del aglutinante USM', 'fr': 'Consistance du liant USM', 'ar': 'اتساق رابط USM'},
+                '2.7': {'it': 'Consistenza/texture', 'en': 'Consistency/texture', 'de': 'Konsistenz/Textur', 'es': 'Consistencia/textura', 'fr': 'Consistance/texture', 'ar': 'الاتساق/الملمس'},
+                '2.8': {'it': 'Metodo di scavo', 'en': 'Excavation method', 'de': 'Grabungsmethode', 'es': 'Método de excavación', 'fr': 'Méthode de fouille', 'ar': 'طريقة الحفر'},
+                '2.9': {'it': 'Formazione', 'en': 'Formation', 'de': 'Formation', 'es': 'Formación', 'fr': 'Formation', 'ar': 'التكوين'},
+                '2.10': {'it': 'Modo formazione', 'en': 'Formation mode', 'de': 'Bildungsmodus', 'es': 'Modo de formación', 'fr': 'Mode de formation', 'ar': 'نمط التكوين'},
+                '2.11': {'it': 'Consistenza', 'en': 'Consistency', 'de': 'Konsistenz', 'es': 'Consistencia', 'fr': 'Consistance', 'ar': 'الاتساق'},
+                '2.12': {'it': 'Stato di conservazione', 'en': 'Conservation state', 'de': 'Erhaltungszustand', 'es': 'Estado de conservación', 'fr': 'État de conservation', 'ar': 'حالة الحفظ'},
+                '2.13': {'it': 'Campioni', 'en': 'Samples', 'de': 'Proben', 'es': 'Muestras', 'fr': 'Échantillons', 'ar': 'العينات'},
+                '2.14': {'it': 'Componenti organici', 'en': 'Organic components', 'de': 'Organische Komponenten', 'es': 'Componentes orgánicos', 'fr': 'Composants organiques', 'ar': 'المكونات العضوية'},
+                '2.15': {'it': 'Componenti inorganici', 'en': 'Inorganic components', 'de': 'Anorganische Komponenten', 'es': 'Componentes inorgánicos', 'fr': 'Composants inorganiques', 'ar': 'المكونات غير العضوية'},
+                '2.16': {'it': 'Schedatore', 'en': 'Recorder', 'de': 'Erfasser', 'es': 'Registrador', 'fr': 'Enregistreur', 'ar': 'المسجل'},
+                '2.17': {'it': 'Direttore us', 'en': 'SU director', 'de': 'SE Direktor', 'es': 'Director US', 'fr': 'Directeur US', 'ar': 'مدير الوحدة'},
+                '2.18': {'it': 'Responsabile us', 'en': 'SU responsible', 'de': 'SE Verantwortlicher', 'es': 'Responsable US', 'fr': 'Responsable US', 'ar': 'المسؤول عن الوحدة'},
+                '2.19': {'it': 'Tipo documentazione', 'en': 'Documentation type', 'de': 'Dokumentationstyp', 'es': 'Tipo de documentación', 'fr': 'Type de documentation', 'ar': 'نوع التوثيق'},
+                '2.20': {'it': 'Tipologia dell\'opera', 'en': 'Work typology', 'de': 'Werktypologie', 'es': 'Tipología de la obra', 'fr': 'Typologie de l\'ouvrage', 'ar': 'تصنيف العمل'},
+                '2.21': {'it': 'Sezione muraria', 'en': 'Wall section', 'de': 'Mauerquerschnitt', 'es': 'Sección de muro', 'fr': 'Section murale', 'ar': 'مقطع الجدار'},
+                '2.22': {'it': 'Superficie analizzata', 'en': 'Analyzed surface', 'de': 'Analysierte Oberfläche', 'es': 'Superficie analizada', 'fr': 'Surface analysée', 'ar': 'السطح المحلل'},
+                '2.23': {'it': 'Orientamento', 'en': 'Orientation', 'de': 'Orientierung', 'es': 'Orientación', 'fr': 'Orientation', 'ar': 'التوجه'},
+                '2.24': {'it': 'Materiali laterizi', 'en': 'Brick materials', 'de': 'Ziegelmaterialien', 'es': 'Materiales de ladrillo', 'fr': 'Matériaux en brique', 'ar': 'مواد الطوب'},
+                '2.25': {'it': 'Lavorazione laterizi', 'en': 'Brick processing', 'de': 'Ziegelbearbeitung', 'es': 'Procesamiento de ladrillos', 'fr': 'Traitement des briques', 'ar': 'معالجة الطوب'},
+                '2.26': {'it': 'Consistenza laterizi', 'en': 'Brick consistency', 'de': 'Ziegelkonsistenz', 'es': 'Consistencia de ladrillos', 'fr': 'Consistance des briques', 'ar': 'اتساق الطوب'},
+                '2.27': {'it': 'Forma laterizi', 'en': 'Brick shape', 'de': 'Ziegelform', 'es': 'Forma de ladrillos', 'fr': 'Forme des briques', 'ar': 'شكل الطوب'},
+                '2.28': {'it': 'Colore laterizi', 'en': 'Brick color', 'de': 'Ziegelfarbe', 'es': 'Color de ladrillos', 'fr': 'Couleur des briques', 'ar': 'لون الطوب'},
+                '2.29': {'it': 'Impasto laterizi', 'en': 'Brick fabric', 'de': 'Ziegelteig', 'es': 'Pasta de ladrillos', 'fr': 'Pâte des briques', 'ar': 'عجينة الطوب'},
+                '2.30': {'it': 'Materiali litici', 'en': 'Lithic materials', 'de': 'Steinmaterialien', 'es': 'Materiales líticos', 'fr': 'Matériaux lithiques', 'ar': 'المواد الحجرية'},
+                '2.31': {'it': 'Consistenza materiali litici', 'en': 'Lithic materials consistency', 'de': 'Steinmaterialkonsistenz', 'es': 'Consistencia de materiales líticos', 'fr': 'Consistance des matériaux lithiques', 'ar': 'اتساق المواد الحجرية'},
+                '2.32': {'it': 'Forma materiali litici', 'en': 'Lithic materials shape', 'de': 'Steinmaterialform', 'es': 'Forma de materiales líticos', 'fr': 'Forme des matériaux lithiques', 'ar': 'شكل المواد الحجرية'},
+                '2.33': {'it': 'Colore materiali litici', 'en': 'Lithic materials color', 'de': 'Steinmaterialfarbe', 'es': 'Color de materiales líticos', 'fr': 'Couleur des matériaux lithiques', 'ar': 'لون المواد الحجرية'},
+                '2.34': {'it': 'Taglio', 'en': 'Cut', 'de': 'Schnitt', 'es': 'Corte', 'fr': 'Coupe', 'ar': 'القطع'},
+                '2.35': {'it': 'Posa opera materiali litici', 'en': 'Lithic materials laying', 'de': 'Steinmaterialverlegung', 'es': 'Colocación de materiales líticos', 'fr': 'Pose des matériaux lithiques', 'ar': 'وضع المواد الحجرية'},
+                '2.36': {'it': 'Posa in opera laterizi', 'en': 'Brick laying', 'de': 'Ziegelverlegung', 'es': 'Colocación de ladrillos', 'fr': 'Pose des briques', 'ar': 'وضع الطوب'},
+                '2.37': {'it': 'Tecniche costruttive', 'en': 'Construction techniques', 'de': 'Bautechniken', 'es': 'Técnicas constructivas', 'fr': 'Techniques de construction', 'ar': 'تقنيات البناء'},
+                '2.38': {'it': 'Modulo', 'en': 'Module', 'de': 'Modul', 'es': 'Módulo', 'fr': 'Module', 'ar': 'الوحدة'},
+                '2.39': {'it': 'Inerti', 'en': 'Aggregates', 'de': 'Zuschlagstoffe', 'es': 'Áridos', 'fr': 'Agrégats', 'ar': 'الركام'},
+                '2.40': {'it': 'Tipologia legante', 'en': 'Binder typology', 'de': 'Bindemitteltypologie', 'es': 'Tipología del aglutinante', 'fr': 'Typologie du liant', 'ar': 'تصنيف الرابط'},
+                '2.41': {'it': 'Rifinitura', 'en': 'Finishing', 'de': 'Endbearbeitung', 'es': 'Acabado', 'fr': 'Finition', 'ar': 'التشطيب'},
+                '2.42': {'it': 'Lavorazione litica', 'en': 'Lithic processing', 'de': 'Steinbearbeitung', 'es': 'Procesamiento lítico', 'fr': 'Traitement lithique', 'ar': 'المعالجة الحجرية'},
+                '201.201': {'it': 'Colore legante', 'en': 'Binder color', 'de': 'Bindemittelfarbe', 'es': 'Color del aglutinante', 'fr': 'Couleur du liant', 'ar': 'لون الرابط'},
+                '202.202': {'it': 'Inclusi', 'en': 'Inclusions', 'de': 'Einschlüsse', 'es': 'Inclusiones', 'fr': 'Inclusions', 'ar': 'الشوائب'},
+                '203.203': {'it': 'Valori sì/no', 'en': 'Yes/No values', 'de': 'Ja/Nein-Werte', 'es': 'Valores sí/no', 'fr': 'Valeurs oui/non', 'ar': 'قيم نعم/لا'}
             },
             'inventario_materiali_table': {
-                '3.1': 'Tipo reperto',
-                '3.2': 'Classe materiale',
-                '3.3': 'Definizione reperto',
-                '3.4': 'Elemento rinvenuto',
-                '3.5': 'Tipo di misura',
-                '3.6': 'Misurazioni - Unita di misura',
-                '3.7': 'Tipo tecnologia',
-                '3.8': 'Posizione',
-                '3.9': 'Tipo quantita',
-                '3.10': 'Tecnologie - Unita di misura',
-                '3.11': 'Area',
-                '3.41': 'Tipologia',
-                '3.13': 'Anno',
-                '301.301': 'Valori sì/no'
+                '3.1': {'it': 'Tipo reperto', 'en': 'Find type', 'de': 'Fundtyp', 'es': 'Tipo de hallazgo', 'fr': 'Type de trouvaille', 'ar': 'نوع المكتشف'},
+                '3.2': {'it': 'Classe materiale', 'en': 'Material class', 'de': 'Materialklasse', 'es': 'Clase de material', 'fr': 'Classe de matériau', 'ar': 'فئة المادة'},
+                '3.3': {'it': 'Definizione reperto', 'en': 'Find definition', 'de': 'Funddefinition', 'es': 'Definición del hallazgo', 'fr': 'Définition de la trouvaille', 'ar': 'تعريف المكتشف'},
+                '3.4': {'it': 'Elemento rinvenuto', 'en': 'Found element', 'de': 'Gefundenes Element', 'es': 'Elemento encontrado', 'fr': 'Élément trouvé', 'ar': 'العنصر المكتشف'},
+                '3.5': {'it': 'Tipo di misura', 'en': 'Measurement type', 'de': 'Messungstyp', 'es': 'Tipo de medida', 'fr': 'Type de mesure', 'ar': 'نوع القياس'},
+                '3.6': {'it': 'Misurazioni - Unità di misura', 'en': 'Measurements - Unit of measure', 'de': 'Messungen - Maßeinheit', 'es': 'Mediciones - Unidad de medida', 'fr': 'Mesures - Unité de mesure', 'ar': 'القياسات - وحدة القياس'},
+                '3.7': {'it': 'Tipo tecnologia', 'en': 'Technology type', 'de': 'Technologietyp', 'es': 'Tipo de tecnología', 'fr': 'Type de technologie', 'ar': 'نوع التقنية'},
+                '3.8': {'it': 'Posizione', 'en': 'Position', 'de': 'Position', 'es': 'Posición', 'fr': 'Position', 'ar': 'الموقع'},
+                '3.9': {'it': 'Tipo quantità', 'en': 'Quantity type', 'de': 'Mengentyp', 'es': 'Tipo de cantidad', 'fr': 'Type de quantité', 'ar': 'نوع الكمية'},
+                '3.10': {'it': 'Tecnologie - Unità di misura', 'en': 'Technologies - Unit of measure', 'de': 'Technologien - Maßeinheit', 'es': 'Tecnologías - Unidad de medida', 'fr': 'Technologies - Unité de mesure', 'ar': 'التقنيات - وحدة القياس'},
+                '3.11': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '3.41': {'it': 'Tipologia', 'en': 'Typology', 'de': 'Typologie', 'es': 'Tipología', 'fr': 'Typologie', 'ar': 'التصنيف'},
+                '3.13': {'it': 'Anno', 'en': 'Year', 'de': 'Jahr', 'es': 'Año', 'fr': 'Année', 'ar': 'السنة'},
+                '301.301': {'it': 'Valori sì/no', 'en': 'Yes/No values', 'de': 'Ja/Nein-Werte', 'es': 'Valores sí/no', 'fr': 'Valeurs oui/non', 'ar': 'قيم نعم/لا'}
             },
             'campioni_table': {
-                '4.1': 'Tipo campione'
+                '4.1': {'it': 'Tipo campione', 'en': 'Sample type', 'de': 'Probentyp', 'es': 'Tipo de muestra', 'fr': 'Type d\'échantillon', 'ar': 'نوع العينة'}
             },
             'inventario_lapidei_table': {
-                '5.1': 'Tipologia',
-                '5.2': 'Materiale',
-                '5.3': 'Oggetto'
+                '5.1': {'it': 'Tipologia', 'en': 'Typology', 'de': 'Typologie', 'es': 'Tipología', 'fr': 'Typologie', 'ar': 'التصنيف'},
+                '5.2': {'it': 'Materiale', 'en': 'Material', 'de': 'Material', 'es': 'Material', 'fr': 'Matériau', 'ar': 'المادة'},
+                '5.3': {'it': 'Oggetto', 'en': 'Object', 'de': 'Objekt', 'es': 'Objeto', 'fr': 'Objet', 'ar': 'الكائن'}
             },
             'struttura_table': {
-                '6.1': 'Sigla struttura',
-                '6.2': 'Categoria',
-                '6.3': 'Tipologia',
-                '6.4': 'Definizione',
-                '6.5': 'Materiali',
-                '6.6': 'Tipologia elemento',
-                '6.7': 'Tipo misura',
-                '6.8': 'Unita di misura'
+                '6.1': {'it': 'Sigla struttura', 'en': 'Structure code', 'de': 'Strukturkürzel', 'es': 'Código estructura', 'fr': 'Code structure', 'ar': 'رمز الهيكل'},
+                '6.2': {'it': 'Categoria', 'en': 'Category', 'de': 'Kategorie', 'es': 'Categoría', 'fr': 'Catégorie', 'ar': 'الفئة'},
+                '6.3': {'it': 'Tipologia', 'en': 'Typology', 'de': 'Typologie', 'es': 'Tipología', 'fr': 'Typologie', 'ar': 'التصنيف'},
+                '6.4': {'it': 'Definizione', 'en': 'Definition', 'de': 'Definition', 'es': 'Definición', 'fr': 'Définition', 'ar': 'التعريف'},
+                '6.5': {'it': 'Materiali impiegati', 'en': 'Materials used', 'de': 'Verwendete Materialien', 'es': 'Materiales utilizados', 'fr': 'Matériaux utilisés', 'ar': 'المواد المستخدمة'},
+                '6.6': {'it': 'Tipologia elemento strutturale', 'en': 'Structural element type', 'de': 'Strukturelementtyp', 'es': 'Tipo de elemento estructural', 'fr': 'Type d\'élément structurel', 'ar': 'نوع العنصر الهيكلي'},
+                '6.7': {'it': 'Tipo misura', 'en': 'Measurement type', 'de': 'Messungstyp', 'es': 'Tipo de medida', 'fr': 'Type de mesure', 'ar': 'نوع القياس'},
+                '6.8': {'it': 'Unità di misura', 'en': 'Unit of measure', 'de': 'Maßeinheit', 'es': 'Unidad de medida', 'fr': 'Unité de mesure', 'ar': 'وحدة القياس'},
+                '6.9': {'it': 'Elementi architettonici AR', 'en': 'AR architectural elements', 'de': 'AR architektonische Elemente', 'es': 'Elementos arquitectónicos AR', 'fr': 'Éléments architecturaux AR', 'ar': 'العناصر المعمارية AR'},
+                '6.10': {'it': 'Fattori agenti', 'en': 'Acting factors', 'de': 'Einwirkende Faktoren', 'es': 'Factores agentes', 'fr': 'Facteurs agissants', 'ar': 'العوامل المؤثرة'},
+                '6.11': {'it': 'Prospetto ingresso', 'en': 'Entrance facade', 'de': 'Eingangsfassade', 'es': 'Fachada de entrada', 'fr': 'Façade d\'entrée', 'ar': 'واجهة المدخل'},
+                '6.12': {'it': 'Elementi costitutivi', 'en': 'Constituent elements', 'de': 'Bauteile', 'es': 'Elementos constitutivos', 'fr': 'Éléments constitutifs', 'ar': 'العناصر المكونة'},
+                '6.13': {'it': 'Manufatti', 'en': 'Artifacts', 'de': 'Artefakte', 'es': 'Artefactos', 'fr': 'Artefacts', 'ar': 'القطع الأثرية'},
+                '6.14': {'it': 'Definizione fasi funzionali', 'en': 'Functional phases definition', 'de': 'Funktionsphasen Definition', 'es': 'Definición fases funcionales', 'fr': 'Définition phases fonctionnelles', 'ar': 'تعريف المراحل الوظيفية'},
+                '6.15': {'it': 'Sviluppo planimetrico', 'en': 'Planimetric development', 'de': 'Planimetrische Entwicklung', 'es': 'Desarrollo planimétrico', 'fr': 'Développement planimétrique', 'ar': 'التطور المستوي'}
             },
             'tomba_table': {
-                '7.1': 'Tipo rituale',
-                '7.2': 'Stato di conservazione',
-                '7.3': 'Tipo copertura',
-                '7.4': 'Tipo tomba',
-                '7.5': 'Corredo',
-                '7.6': 'Tipo deposizione',
-                '7.7': 'Tipo sepoltura',
-                '7.8': 'Area',
-                '701.701': 'Segnacoli / Canale libatorio',
-                '702.702': 'Presenza Corredo'
+                '7.1': {'it': 'Tipo rituale', 'en': 'Ritual type', 'de': 'Ritualtyp', 'es': 'Tipo de ritual', 'fr': 'Type de rituel', 'ar': 'نوع الطقس'},
+                '7.2': {'it': 'Stato di conservazione', 'en': 'Conservation state', 'de': 'Erhaltungszustand', 'es': 'Estado de conservación', 'fr': 'État de conservation', 'ar': 'حالة الحفظ'},
+                '7.3': {'it': 'Tipo copertura', 'en': 'Cover type', 'de': 'Abdeckungstyp', 'es': 'Tipo de cubierta', 'fr': 'Type de couverture', 'ar': 'نوع الغطاء'},
+                '7.4': {'it': 'Tipo tomba', 'en': 'Tomb type', 'de': 'Grabtyp', 'es': 'Tipo de tumba', 'fr': 'Type de tombe', 'ar': 'نوع القبر'},
+                '7.5': {'it': 'Corredo', 'en': 'Grave goods', 'de': 'Grabbeigaben', 'es': 'Ajuar funerario', 'fr': 'Mobilier funéraire', 'ar': 'المرفقات الجنائزية'},
+                '7.6': {'it': 'Tipo deposizione', 'en': 'Deposition type', 'de': 'Bestattungstyp', 'es': 'Tipo de deposición', 'fr': 'Type de dépôt', 'ar': 'نوع الإيداع'},
+                '7.7': {'it': 'Tipo sepoltura', 'en': 'Burial type', 'de': 'Bestattungsart', 'es': 'Tipo de sepultura', 'fr': 'Type de sépulture', 'ar': 'نوع الدفن'},
+                '7.8': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '701.701': {'it': 'Segnacoli / Canale libatorio', 'en': 'Markers / Libation channel', 'de': 'Markierungen / Libationskanal', 'es': 'Señalizadores / Canal de libación', 'fr': 'Marqueurs / Canal de libation', 'ar': 'العلامات / قناة السكب'},
+                '702.702': {'it': 'Presenza Corredo', 'en': 'Grave goods presence', 'de': 'Grabbeigaben vorhanden', 'es': 'Presencia de ajuar', 'fr': 'Présence de mobilier', 'ar': 'وجود المرفقات'}
             },
             'individui_table': {
-                '8.1': 'Tipo rituale',
-                '8.2': 'Stato di conservazione',
-                '8.3': 'Tipo copertura',
-                '8.4': 'Tipo tomba',
-                '8.5': 'Corredo',
-                '8.6': 'Area',
-                '801.801': 'Segnacoli / Canale libatorio'
+                '8.1': {'it': 'Tipo rituale', 'en': 'Ritual type', 'de': 'Ritualtyp', 'es': 'Tipo de ritual', 'fr': 'Type de rituel', 'ar': 'نوع الطقس'},
+                '8.2': {'it': 'Stato di conservazione', 'en': 'Conservation state', 'de': 'Erhaltungszustand', 'es': 'Estado de conservación', 'fr': 'État de conservation', 'ar': 'حالة الحفظ'},
+                '8.3': {'it': 'Tipo copertura', 'en': 'Cover type', 'de': 'Abdeckungstyp', 'es': 'Tipo de cubierta', 'fr': 'Type de couverture', 'ar': 'نوع الغطاء'},
+                '8.4': {'it': 'Tipo tomba', 'en': 'Tomb type', 'de': 'Grabtyp', 'es': 'Tipo de tumba', 'fr': 'Type de tombe', 'ar': 'نوع القبر'},
+                '8.5': {'it': 'Corredo', 'en': 'Grave goods', 'de': 'Grabbeigaben', 'es': 'Ajuar funerario', 'fr': 'Mobilier funéraire', 'ar': 'المرفقات الجنائزية'},
+                '8.6': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '801.801': {'it': 'Segnacoli / Canale libatorio', 'en': 'Markers / Libation channel', 'de': 'Markierungen / Libationskanal', 'es': 'Señalizadores / Canal de libación', 'fr': 'Marqueurs / Canal de libation', 'ar': 'العلامات / قناة السكب'}
             },
             'documentazione_table': {
-                '9.1': 'Tipo Documentazione',
-                '9.2': 'Sorgente'
+                '9.1': {'it': 'Tipo Documentazione', 'en': 'Documentation type', 'de': 'Dokumentationstyp', 'es': 'Tipo de documentación', 'fr': 'Type de documentation', 'ar': 'نوع التوثيق'},
+                '9.2': {'it': 'Sorgente', 'en': 'Source', 'de': 'Quelle', 'es': 'Fuente', 'fr': 'Source', 'ar': 'المصدر'}
             },
             'tma_materiali_archeologici': {
-                '10.1': 'Denominazione collocazione',
-                '10.2': 'Tipologia Collocazione',
-                '10.3': 'Località',  # Changed from Vano/Locus
-                '10.4': 'Fascia Cronologica',
-                '10.5': 'Denominazione Scavo',
-                '10.6': 'Tipologia Acquisizione',
-                '10.7': 'Area',
-                '10.8': 'Tipo foto',
-                '10.9': 'Tipo disegno',
-                '10.15': 'Settore',
-
+                '10.1': {'it': 'Denominazione collocazione', 'en': 'Location name', 'de': 'Standortbezeichnung', 'es': 'Nombre de ubicación', 'fr': 'Nom de l\'emplacement', 'ar': 'اسم الموقع'},
+                '10.2': {'it': 'Tipologia Collocazione', 'en': 'Location typology', 'de': 'Standorttypologie', 'es': 'Tipología de ubicación', 'fr': 'Typologie d\'emplacement', 'ar': 'تصنيف الموقع'},
+                '10.3': {'it': 'Località', 'en': 'Locality', 'de': 'Ortschaft', 'es': 'Localidad', 'fr': 'Localité', 'ar': 'المحلية'},
+                '10.4': {'it': 'Fascia Cronologica', 'en': 'Chronological range', 'de': 'Chronologischer Bereich', 'es': 'Rango cronológico', 'fr': 'Plage chronologique', 'ar': 'النطاق الزمني'},
+                '10.5': {'it': 'Denominazione Scavo', 'en': 'Excavation name', 'de': 'Grabungsbezeichnung', 'es': 'Nombre de excavación', 'fr': 'Nom de la fouille', 'ar': 'اسم الحفرية'},
+                '10.6': {'it': 'Tipologia Acquisizione', 'en': 'Acquisition typology', 'de': 'Erwerbstypologie', 'es': 'Tipología de adquisición', 'fr': 'Typologie d\'acquisition', 'ar': 'تصنيف الاستحواذ'},
+                '10.7': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '10.8': {'it': 'Tipo foto', 'en': 'Photo type', 'de': 'Fototyp', 'es': 'Tipo de foto', 'fr': 'Type de photo', 'ar': 'نوع الصورة'},
+                '10.9': {'it': 'Tipo disegno', 'en': 'Drawing type', 'de': 'Zeichnungstyp', 'es': 'Tipo de dibujo', 'fr': 'Type de dessin', 'ar': 'نوع الرسم'},
+                '10.15': {'it': 'Settore', 'en': 'Sector', 'de': 'Sektor', 'es': 'Sector', 'fr': 'Secteur', 'ar': 'القطاع'}
             },
             'tma_materiali_ripetibili': {
-
-                '10.10': 'Categoria',
-                '10.11': 'Classe',
-                '10.12': 'Precisazione tipologica',
-                '10.13': 'Definizione',
-                '10.4': 'Cronologia'
+                '10.10': {'it': 'Categoria', 'en': 'Category', 'de': 'Kategorie', 'es': 'Categoría', 'fr': 'Catégorie', 'ar': 'الفئة'},
+                '10.11': {'it': 'Classe', 'en': 'Class', 'de': 'Klasse', 'es': 'Clase', 'fr': 'Classe', 'ar': 'الصنف'},
+                '10.12': {'it': 'Precisazione tipologica', 'en': 'Typological specification', 'de': 'Typologische Präzisierung', 'es': 'Precisión tipológica', 'fr': 'Précision typologique', 'ar': 'التحديد التصنيفي'},
+                '10.13': {'it': 'Definizione', 'en': 'Definition', 'de': 'Definition', 'es': 'Definición', 'fr': 'Définition', 'ar': 'التعريف'},
+                '10.4': {'it': 'Cronologia', 'en': 'Chronology', 'de': 'Chronologie', 'es': 'Cronología', 'fr': 'Chronologie', 'ar': 'التسلسل الزمني'}
             },
             'pottery_table': {
-                '11.1': 'Fabric (Impasto)',
-                '11.2': 'Percent (Percentuale)',
-                '11.3': 'Material (Materiale)',
-                '11.4': 'Form (Forma)',
-                '11.5': 'Specific Form/Part (Forma specifica)',
-                '11.6': 'Ware Type (Tipo ceramica)',
-                '11.7': 'Munsell Color (Colore Munsell)',
-                '11.8': 'Surface Treatment (Trattamento superficie)',
-                '11.9': 'External Decoration (Decorazione esterna)',
-                '11.10': 'Internal Decoration (Decorazione interna)',
-                '11.11': 'Wheel Made (Tornio)',
-                '11.12': 'Specific Shape (Forma specifica)',
-                '11.13': 'Area',
-                '11.14': 'Decoration Type (Tipo decorazione)',
-                '11.15': 'Decoration Motif (Motivo decorazione)',
-                '11.16': 'Decoration Position (Posizione decorazione)'
+                '11.1': {'it': 'Impasto', 'en': 'Fabric', 'de': 'Ton', 'es': 'Pasta', 'fr': 'Pâte', 'ar': 'العجينة'},
+                '11.2': {'it': 'Percentuale', 'en': 'Percent', 'de': 'Prozent', 'es': 'Porcentaje', 'fr': 'Pourcentage', 'ar': 'النسبة المئوية'},
+                '11.3': {'it': 'Materiale', 'en': 'Material', 'de': 'Material', 'es': 'Material', 'fr': 'Matériau', 'ar': 'المادة'},
+                '11.4': {'it': 'Forma', 'en': 'Form', 'de': 'Form', 'es': 'Forma', 'fr': 'Forme', 'ar': 'الشكل'},
+                '11.5': {'it': 'Forma specifica', 'en': 'Specific form/part', 'de': 'Spezifische Form/Teil', 'es': 'Forma específica', 'fr': 'Forme spécifique', 'ar': 'الشكل المحدد'},
+                '11.6': {'it': 'Tipo ceramica', 'en': 'Ware type', 'de': 'Keramiktyp', 'es': 'Tipo de cerámica', 'fr': 'Type de céramique', 'ar': 'نوع الفخار'},
+                '11.7': {'it': 'Colore Munsell', 'en': 'Munsell color', 'de': 'Munsell-Farbe', 'es': 'Color Munsell', 'fr': 'Couleur Munsell', 'ar': 'لون مونسل'},
+                '11.8': {'it': 'Trattamento superficie', 'en': 'Surface treatment', 'de': 'Oberflächenbehandlung', 'es': 'Tratamiento de superficie', 'fr': 'Traitement de surface', 'ar': 'معالجة السطح'},
+                '11.9': {'it': 'Decorazione esterna', 'en': 'External decoration', 'de': 'Außendekoration', 'es': 'Decoración externa', 'fr': 'Décoration externe', 'ar': 'الزخرفة الخارجية'},
+                '11.10': {'it': 'Decorazione interna', 'en': 'Internal decoration', 'de': 'Innendekoration', 'es': 'Decoración interna', 'fr': 'Décoration interne', 'ar': 'الزخرفة الداخلية'},
+                '11.11': {'it': 'Tornio', 'en': 'Wheel made', 'de': 'Drehscheibe', 'es': 'Torno', 'fr': 'Tour', 'ar': 'الدولاب'},
+                '11.12': {'it': 'Forma specifica', 'en': 'Specific shape', 'de': 'Spezifische Form', 'es': 'Forma específica', 'fr': 'Forme spécifique', 'ar': 'الشكل المحدد'},
+                '11.13': {'it': 'Area', 'en': 'Area', 'de': 'Bereich', 'es': 'Área', 'fr': 'Zone', 'ar': 'المنطقة'},
+                '11.14': {'it': 'Tipo decorazione', 'en': 'Decoration type', 'de': 'Dekorationstyp', 'es': 'Tipo de decoración', 'fr': 'Type de décoration', 'ar': 'نوع الزخرفة'},
+                '11.15': {'it': 'Motivo decorazione', 'en': 'Decoration motif', 'de': 'Dekorationsmotiv', 'es': 'Motivo de decoración', 'fr': 'Motif de décoration', 'ar': 'زخرفة الزخرفة'},
+                '11.16': {'it': 'Posizione decorazione', 'en': 'Decoration position', 'de': 'Dekorationsposition', 'es': 'Posición de decoración', 'fr': 'Position de décoration', 'ar': 'موقع الزخرفة'}
             },
             'ut_table': {
-                '12.1': 'Survey Type (Tipo ricognizione)',
-                '12.2': 'Vegetation Coverage (Copertura vegetazione)',
-                '12.3': 'GPS Method (Metodo GPS)',
-                '12.4': 'Surface Condition (Condizione superficie)',
-                '12.5': 'Accessibility (Accessibilità)',
-                '12.6': 'Weather Conditions (Condizioni meteo)'
+                '12.1': {'it': 'Tipo ricognizione', 'en': 'Survey type', 'de': 'Prospektionstyp', 'es': 'Tipo de prospección', 'fr': 'Type de prospection', 'ar': 'نوع المسح'},
+                '12.2': {'it': 'Copertura vegetazione', 'en': 'Vegetation coverage', 'de': 'Vegetationsbedeckung', 'es': 'Cobertura de vegetación', 'fr': 'Couverture végétale', 'ar': 'الغطاء النباتي'},
+                '12.3': {'it': 'Metodo GPS', 'en': 'GPS method', 'de': 'GPS-Methode', 'es': 'Método GPS', 'fr': 'Méthode GPS', 'ar': 'طريقة GPS'},
+                '12.4': {'it': 'Condizione superficie', 'en': 'Surface condition', 'de': 'Oberflächenzustand', 'es': 'Condición de superficie', 'fr': 'État de surface', 'ar': 'حالة السطح'},
+                '12.5': {'it': 'Accessibilità', 'en': 'Accessibility', 'de': 'Zugänglichkeit', 'es': 'Accesibilidad', 'fr': 'Accessibilité', 'ar': 'إمكانية الوصول'},
+                '12.6': {'it': 'Condizioni meteo', 'en': 'Weather conditions', 'de': 'Wetterbedingungen', 'es': 'Condiciones meteorológicas', 'fr': 'Conditions météorologiques', 'ar': 'الظروف الجوية'}
             },
             'fauna_table': {
-                '13.1': 'Contesto (Context)',
-                '13.2': 'Metodologia Recupero (Recovery Methodology)',
-                '13.3': 'Tipologia Accumulo (Accumulation Type)',
-                '13.4': 'Deposizione (Deposition)',
-                '13.5': 'Stato Frammentazione (Fragmentation State)',
-                '13.6': 'Stato Conservazione (Conservation State)',
-                '13.7': 'Affidabilità Stratigrafica (Stratigraphic Reliability)',
-                '13.8': 'Tracce Combustione (Burning Traces)',
-                '13.9': 'Tipo Combustione (Combustion Type)',
-                '13.10': 'Connessione Anatomica (Anatomical Connection)'
+                '13.1': {'it': 'Contesto', 'en': 'Context', 'de': 'Kontext', 'es': 'Contexto', 'fr': 'Contexte', 'ar': 'السياق'},
+                '13.2': {'it': 'Metodologia Recupero', 'en': 'Recovery methodology', 'de': 'Bergungsmethodik', 'es': 'Metodología de recuperación', 'fr': 'Méthodologie de récupération', 'ar': 'منهجية الاسترداد'},
+                '13.3': {'it': 'Tipologia Accumulo', 'en': 'Accumulation type', 'de': 'Akkumulationstyp', 'es': 'Tipo de acumulación', 'fr': 'Type d\'accumulation', 'ar': 'نوع التراكم'},
+                '13.4': {'it': 'Deposizione', 'en': 'Deposition', 'de': 'Ablagerung', 'es': 'Deposición', 'fr': 'Dépôt', 'ar': 'الترسب'},
+                '13.5': {'it': 'Stato Frammentazione', 'en': 'Fragmentation state', 'de': 'Fragmentierungszustand', 'es': 'Estado de fragmentación', 'fr': 'État de fragmentation', 'ar': 'حالة التجزئة'},
+                '13.6': {'it': 'Stato Conservazione', 'en': 'Conservation state', 'de': 'Erhaltungszustand', 'es': 'Estado de conservación', 'fr': 'État de conservation', 'ar': 'حالة الحفظ'},
+                '13.7': {'it': 'Affidabilità Stratigrafica', 'en': 'Stratigraphic reliability', 'de': 'Stratigraphische Zuverlässigkeit', 'es': 'Fiabilidad estratigráfica', 'fr': 'Fiabilité stratigraphique', 'ar': 'الموثوقية الطبقية'},
+                '13.8': {'it': 'Tracce Combustione', 'en': 'Burning traces', 'de': 'Verbrennungsspuren', 'es': 'Trazas de combustión', 'fr': 'Traces de combustion', 'ar': 'آثار الاحتراق'},
+                '13.9': {'it': 'Tipo Combustione', 'en': 'Combustion type', 'de': 'Verbrennungstyp', 'es': 'Tipo de combustión', 'fr': 'Type de combustion', 'ar': 'نوع الاحتراق'},
+                '13.10': {'it': 'Connessione Anatomica', 'en': 'Anatomical connection', 'de': 'Anatomische Verbindung', 'es': 'Conexión anatómica', 'fr': 'Connexion anatomique', 'ar': 'الاتصال التشريحي'}
             }
         }
         
@@ -780,12 +785,27 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         if current_table in code_descriptions:
             self.comboBox_tipologia_sigla.clear()
             codes = list(code_descriptions[current_table].keys())
-            
+
+            # Get current language - use self.L which is set from QGIS locale
+            # Map QGIS locale to PyArchInit supported languages
+            lang = self.L.lower() if hasattr(self, 'L') else 'it'
+            # Fallback to 'it' if language not supported
+            supported_langs = ['it', 'en', 'de', 'es', 'fr', 'ar']
+            if lang not in supported_langs:
+                lang = 'it'
+
             # Add codes with tooltips
             for code in codes:
                 self.comboBox_tipologia_sigla.addItem(code)
                 index = self.comboBox_tipologia_sigla.count() - 1
-                description = code_descriptions[current_table][code]
+                desc_value = code_descriptions[current_table][code]
+
+                # Handle both old format (string) and new format (dict with language keys)
+                if isinstance(desc_value, dict):
+                    description = desc_value.get(lang, desc_value.get('it', str(desc_value)))
+                else:
+                    description = str(desc_value)
+
                 self.comboBox_tipologia_sigla.setItemData(index, description, Qt.ItemDataRole.ToolTipRole)
                 
         # Show hierarchy management widgets for TMA materials
