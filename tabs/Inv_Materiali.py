@@ -5909,6 +5909,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if widget is not None:
                 widget.setEditable(bool(n))
 
+    def setTableEnable(self, t, v):
+        """Set enabled state for table widgets - uses getattr instead of eval"""
+        for tn in t:
+            widget_name = tn.replace('self.', '') if tn.startswith('self.') else tn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
+
     def table2dict(self, n):
         """Convert table widget data to list - uses getattr instead of eval for security"""
         self.tablename = n
