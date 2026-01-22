@@ -4233,20 +4233,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if inventory_materials:
                 # Extract RA numbers (n_reperto) and join with semicolon
                 ra_numbers = []
-                total_quantity = 0
                 for mat in inventory_materials:
                     # Check for n_reperto and exclude None values
                     if hasattr(mat, 'n_reperto') and mat.n_reperto is not None and str(mat.n_reperto) not in ['None', '', 'NULL']:
                         ra_numbers.append(str(mat.n_reperto))
                         QgsMessageLog.logMessage(f"TMA update_inventory_field: Added n_reperto: {mat.n_reperto}", "PyArchInit", Qgis.Info)
-                    # Sum up quantities (totale_frammenti or count as 1)
-                    if hasattr(mat, 'totale_frammenti') and mat.totale_frammenti:
-                        try:
-                            total_quantity += int(mat.totale_frammenti)
-                        except (ValueError, TypeError):
-                            total_quantity += 1
-                    else:
-                        total_quantity += 1
 
                 # Sort the RA numbers for better display
                 ra_numbers.sort()
@@ -4257,14 +4248,8 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                     QgsMessageLog.logMessage(f"TMA update_inventory_field: Set inventory field to: {'; '.join(ra_numbers)}", "PyArchInit", Qgis.Info)
                 else:
                     QgsMessageLog.logMessage("TMA update_inventory_field: No valid n_reperto values found", "PyArchInit", Qgis.Info)
-
-                # Update the materiale field with quantity
-                self.lineEdit_materiale.setText(str(total_quantity))
-                QgsMessageLog.logMessage(f"TMA update_inventory_field: Set materiale field to: {total_quantity}", "PyArchInit", Qgis.Info)
             else:
                 QgsMessageLog.logMessage("TMA update_inventory_field: No inventory materials found matching criteria", "PyArchInit", Qgis.Info)
-                # Clear fields if no materials found
-                self.lineEdit_materiale.clear()
 
         except Exception as e:
             QgsMessageLog.logMessage(f"TMA update_inventory_field error: {str(e)}", "PyArchInit", Qgis.Warning)
