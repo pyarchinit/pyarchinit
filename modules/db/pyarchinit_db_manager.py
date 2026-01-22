@@ -3002,6 +3002,7 @@ class Pyarchinit_db_management(object):
 
 
         eval(session_exec_str)
+        session.commit()
         session.close()
         # Clear cache to ensure fresh data on next query
         self.clear_cache()
