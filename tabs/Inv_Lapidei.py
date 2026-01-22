@@ -40,6 +40,7 @@ from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import generate_reperti_pd
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Lapidei.ui'))
 
 
@@ -289,6 +290,10 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()

@@ -41,6 +41,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 # MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Periodizzazionesheet_pdf import generate_Periodizzazione_pdf
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Periodizzazione.ui'))
 
@@ -175,6 +176,10 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
 
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()

@@ -45,6 +45,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 # MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
 from ..gui.sortpanelmain import SortPanelMain
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Thesaurus.ui'))
 
@@ -177,6 +178,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
         
         # Create hierarchy widgets after UI setup

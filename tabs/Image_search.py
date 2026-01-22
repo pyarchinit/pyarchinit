@@ -36,6 +36,7 @@ from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ..modules.utility.remote_image_loader import load_icon, get_image_path
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 # Load UI
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -60,6 +61,10 @@ class pyarchinit_Image_Search(QDialog, MAIN_DIALOG_CLASS):
         super().__init__(parent)
         self.iface = iface
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.setWindowTitle("pyArchInit - Ricerca Immagini")
 
         # Utilities

@@ -41,6 +41,7 @@ from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttu
 from ..modules.utility.pyarchinit_exp_Tombasheet_pdf import generate_tomba_pdf
 from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_export.ui'))
 
 
@@ -68,6 +69,9 @@ class pyarchinit_pdf_export(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         # Set up the user interface from Designer.
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         self.iface = iface
 

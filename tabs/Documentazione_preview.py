@@ -34,6 +34,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Documentazione_preview.ui'))
@@ -62,6 +63,10 @@ class pyarchinit_doc_preview(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.DOC_STR = docstr
 
         self.mapPreview = QgsMapCanvas(self)

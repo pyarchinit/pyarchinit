@@ -51,6 +51,8 @@ try:
 except ImportError:
     pass  # Qt6 compatibility - resources loaded from disk
 
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Print_map.ui'))
 class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
@@ -63,6 +65,10 @@ class pyarchinit_PRINTMAP(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         self.iface = iface
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.mDockWidget.setHidden(True)
         self.plugin_dir = os.path.dirname(__file__)
         self.listWidget.itemClicked.connect(self.suggestLayoutName)

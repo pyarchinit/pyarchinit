@@ -50,6 +50,8 @@ try:
 except ImportError:
     R_AVAILABLE = False
 
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+
 # Load UI from file
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Archeozoology.ui'))
@@ -174,6 +176,10 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(self.iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
 
         # Initialize R integration

@@ -38,6 +38,7 @@ from ..modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_do
 from ..gui.sortpanelmain import SortPanelMain
 from ..tabs.Documentazione_preview import pyarchinit_doc_preview
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Documentazione.ui'))
 
 
@@ -190,13 +191,17 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         self.iface = iface
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.currentLayerId = None
         try:
             self.on_pushButton_connect_pressed()
         except Exception as e:
             QMessageBox.warning(self, "Connection System", str(e), QMessageBox.StandardButton.Ok)
         self.fill_fields()
-        
+
         self.set_sito()
         self.msg_sito()
     def enable_button(self, n):

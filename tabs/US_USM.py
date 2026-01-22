@@ -116,6 +116,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer
 
@@ -7887,6 +7888,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
 
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
+        # Add theme toggle button (positioned in top-right corner)
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
+
         self.setAcceptDrops(True)
 
         # Add checkbox for order layer direction (reverse or not)

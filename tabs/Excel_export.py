@@ -41,6 +41,7 @@ from ..modules.db.pyarchinit_utility import *
 
 
 from ..modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Excel_export.ui'))
 
 
@@ -68,6 +69,9 @@ class pyarchinit_excel_export(QDialog, MAIN_DIALOG_CLASS):
         super().__init__()
         # Set up the user interface from Designer.
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
 
         self.iface = iface
 

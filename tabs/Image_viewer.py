@@ -39,6 +39,7 @@ from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 # GPTWindow is imported lazily in on_pushButton_gptsketch_pressed to avoid PyMuPDF DLL conflicts on Windows
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
@@ -111,6 +112,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         QDialog.__init__(self)
         self.connection()
         self.setupUi(self)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+
         self.customize_gui()
         self.mDockWidget.setHidden(True)      
         #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
