@@ -385,11 +385,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Add custom buttons to the toolbar
         self.add_custom_toolbar_buttons()
 
-        # Connect table buttons (ora definiti nel file UI)
-        self.pushButton_add_foto.clicked.connect(self.on_pushButton_add_foto_pressed)
-        self.pushButton_remove_foto.clicked.connect(self.on_pushButton_remove_foto_pressed)
-        self.pushButton_add_disegno.clicked.connect(self.on_pushButton_add_disegno_pressed)
-        self.pushButton_remove_disegno.clicked.connect(self.on_pushButton_remove_disegno_pressed)
+        # Connect table buttons for foto and disegno
+        self.pushButton_add_foto.clicked.connect(self.add_foto_row)
+        self.pushButton_remove_foto.clicked.connect(self.remove_foto_row)
+        self.pushButton_add_disegno.clicked.connect(self.add_disegno_row)
+        self.pushButton_remove_disegno.clicked.connect(self.remove_disegno_row)
         
         # Connect materials table buttons - disconnect first to avoid duplicates
         try:
@@ -3339,23 +3339,23 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         self.label_sort.setText(self.SORTED_ITEMS["n"])
 
     # Table widget handlers
-    def on_pushButton_add_foto_pressed(self):
+    def add_foto_row(self):
         """Add a photo row to the documentation table."""
         row_position = self.tableWidget_foto.rowCount()
         self.tableWidget_foto.insertRow(row_position)
 
-    def on_pushButton_remove_foto_pressed(self):
+    def remove_foto_row(self):
         """Remove selected photo row from documentation table."""
         row = self.tableWidget_foto.currentRow()
         if row >= 0:
             self.tableWidget_foto.removeRow(row)
 
-    def on_pushButton_add_disegno_pressed(self):
+    def add_disegno_row(self):
         """Add a drawing row to the documentation table."""
         row_position = self.tableWidget_disegni.rowCount()
         self.tableWidget_disegni.insertRow(row_position)
 
-    def on_pushButton_remove_disegno_pressed(self):
+    def remove_disegno_row(self):
         """Remove selected drawing row from documentation table."""
         row = self.tableWidget_disegni.currentRow()
         if row >= 0:
