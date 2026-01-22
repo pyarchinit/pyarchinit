@@ -15581,6 +15581,42 @@ p, li { white-space: pre-wrap; }
            </item>
           </widget>
          </item>
+         <item row="6" column="2">
+          <layout class="QHBoxLayout" name="horizontalLayout_sync_buttons">
+           <item>
+            <widget class="QPushButton" name="pushButton_sync_record">
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Sincronizza i campi TM, RA e N per questo record</string>
+             </property>
+             <property name="text">
+              <string>Sincronizza Record</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_sync_all">
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Sincronizza TM, RA e N per tutti i record del sito</string>
+             </property>
+             <property name="text">
+              <string>Sincronizza Tutto DB</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
          <item row="7" column="2">
           <widget class="QLabel" name="label_82">
            <property name="font">
@@ -19410,6 +19446,22 @@ p, li { white-space: pre-wrap; }
              <property name="icon">
               <iconset resource="../../resources/resources.qrc">
                <normaloff>:/icons/search.png</normaloff>:/icons/search.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="pushButton_load_media">
+             <property name="font">
+              <font>
+               <family>Damascus</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="toolTip">
+              <string>Carica le anteprime media per questo record</string>
+             </property>
+             <property name="text">
+              <string>Carica Media</string>
              </property>
             </widget>
            </item>

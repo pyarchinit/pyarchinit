@@ -115,7 +115,7 @@ from ..searchLayers import SearchLayers
 from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
-from ..modules.utility.remote_image_loader import load_icon, get_image_path, initialize as init_remote_loader
+from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer
 
@@ -8065,10 +8065,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.toolButton_file_doc.clicked.connect(self.setDoc_ref)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
         self.progressBar.setTextVisible(True)
+
+        # Block signals during initialization to prevent cascade of DB queries
+        self.comboBox_sito.blockSignals(True)
+        self.comboBox_area.blockSignals(True)
+        self.comboBox_unita_tipo.blockSignals(True)
+        self.comboBox_per_iniz.blockSignals(True)
+        self.comboBox_per_fin.blockSignals(True)
+        self.lineEdit_us.blockSignals(True)
+
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.fill_fields()
         self.customize_GUI()
+
+        # Unblock signals after initialization
+        self.comboBox_sito.blockSignals(False)
+        self.comboBox_area.blockSignals(False)
+        self.comboBox_unita_tipo.blockSignals(False)
+        self.comboBox_per_iniz.blockSignals(False)
+        self.comboBox_per_fin.blockSignals(False)
+        self.lineEdit_us.blockSignals(False)
 
         self.set_sito()
         self.msg_sito()
@@ -13655,6 +13672,147 @@ DATABASE SCHEMA KNOWLEDGE:
         """Legacy function - pottery is now handled by sync_n_from_pottery for ref_n field"""
         pass
 
+    def sync_current_record(self):
+        """
+        Sincronizza i campi TM, RA e N per il record corrente.
+        Chiamato quando l'utente clicca 'Sincronizza Record'.
+        """
+        try:
+            self.sync_tm_from_tma()
+            self.sync_ra_from_inventario()
+            self.sync_n_from_pottery()
+
+            if self.L == 'it':
+                QMessageBox.information(self, "Sincronizzazione",
+                    "Record sincronizzato correttamente.", QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "Synchronisation",
+                    "Datensatz erfolgreich synchronisiert.", QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.information(self, "Sync",
+                    "Record synchronized successfully.", QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Sync error: {str(e)}", QMessageBox.StandardButton.Ok)
+
+    def sync_all_records(self):
+        """
+        Sincronizza i campi TM, RA e N per TUTTI i record del sito corrente.
+        Mostra una progress bar durante l'operazione.
+        """
+        sito = str(self.comboBox_sito.currentText())
+        if not sito:
+            QMessageBox.warning(self, "Warning", "Seleziona prima un sito.", QMessageBox.StandardButton.Ok)
+            return
+
+        # Conferma dall'utente
+        if self.L == 'it':
+            msg = f"Vuoi sincronizzare TUTTI i record del sito '{sito}'?\nQuesta operazione potrebbe richiedere tempo."
+            title = "Conferma Sincronizzazione"
+        elif self.L == 'de':
+            msg = f"Möchten Sie ALLE Datensätze der Stätte '{sito}' synchronisieren?\nDieser Vorgang kann einige Zeit dauern."
+            title = "Synchronisation bestätigen"
+        else:
+            msg = f"Do you want to sync ALL records for site '{sito}'?\nThis operation may take some time."
+            title = "Confirm Sync"
+
+        reply = QMessageBox.question(self, title, msg,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        # Query tutti i record del sito
+        search_dict = {'sito': "'" + sito + "'"}
+        all_records = self.DB_MANAGER.query_bool(search_dict, 'US')
+
+        if not all_records:
+            QMessageBox.information(self, "Info", "Nessun record trovato.", QMessageBox.StandardButton.Ok)
+            return
+
+        total = len(all_records)
+
+        # Crea progress dialog
+        progress = QtWidgets.QProgressDialog("Sincronizzazione in corso...", "Annulla", 0, total, self)
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
+        progress.setMinimumDuration(0)
+        progress.setValue(0)
+
+        synced = 0
+        errors = 0
+
+        for i, record in enumerate(all_records):
+            if progress.wasCanceled():
+                break
+
+            try:
+                # Sincronizza per questo record specifico
+                rec_sito = record.sito
+                rec_area = record.area
+                rec_us = record.us
+
+                # TMA sync
+                tma_search = {'sito': "'" + rec_sito + "'", 'area': "'" + rec_area + "'", 'dscu': "'" + rec_us + "'"}
+                tma_res = self.DB_MANAGER.query_bool(tma_search, 'TMA')
+                ref_tm = ''
+                if tma_res and tma_res[0].cassetta:
+                    ref_tm = str(tma_res[0].cassetta)
+
+                # Inventario sync
+                inv_search = {'sito': "'" + rec_sito + "'", 'area': "'" + rec_area + "'", 'us': "'" + rec_us + "'"}
+                inv_res = self.DB_MANAGER.query_bool(inv_search, 'INVENTARIO_MATERIALI')
+                inv_numbers = []
+                if inv_res:
+                    for item in inv_res:
+                        if hasattr(item, 'n_reperto') and item.n_reperto:
+                            inv_numbers.append(str(item.n_reperto))
+                ref_ra = ', '.join(sorted(set(inv_numbers), key=lambda x: int(x) if x.isdigit() else x))
+
+                # Pottery sync
+                pottery_res = self.DB_MANAGER.query_bool(inv_search, 'POTTERY')
+                pottery_numbers = []
+                if pottery_res:
+                    for item in pottery_res:
+                        if hasattr(item, 'id_number') and item.id_number:
+                            pottery_numbers.append(str(item.id_number))
+                ref_n = ', '.join(sorted(set(pottery_numbers), key=lambda x: int(x) if x.isdigit() else x))
+
+                # Aggiorna il record nel database se ci sono valori da sincronizzare
+                if ref_tm or ref_ra or ref_n:
+                    # Prepara i dati per l'update
+                    update_data = {}
+                    if ref_tm:
+                        update_data['ref_tm'] = ref_tm
+                    if ref_ra:
+                        update_data['ref_ra'] = ref_ra
+                    if ref_n:
+                        update_data['ref_n'] = ref_n
+
+                    if update_data:
+                        self.DB_MANAGER.update('US', update_data,
+                            {'sito': rec_sito, 'area': rec_area, 'us': rec_us})
+
+                synced += 1
+            except Exception as e:
+                errors += 1
+
+            progress.setValue(i + 1)
+            QtWidgets.QApplication.processEvents()
+
+        progress.close()
+
+        # Ricarica il record corrente per mostrare i valori aggiornati
+        if self.REC_CORR >= 0 and self.REC_CORR < len(self.DATA_LIST):
+            self.fill_fields(self.REC_CORR)
+
+        # Mostra risultato
+        if self.L == 'it':
+            msg = f"Sincronizzazione completata.\nRecord elaborati: {synced}\nErrori: {errors}"
+        elif self.L == 'de':
+            msg = f"Synchronisation abgeschlossen.\nVerarbeitete Datensätze: {synced}\nFehler: {errors}"
+        else:
+            msg = f"Sync completed.\nRecords processed: {synced}\nErrors: {errors}"
+
+        QMessageBox.information(self, "Sync", msg, QMessageBox.StandardButton.Ok)
+
     def setup_ref_click_handlers(self):
         """Setup click handlers for ref_ra and ref_n to open related records"""
         # Install event filter for mouse press events
@@ -15019,7 +15177,99 @@ DATABASE SCHEMA KNOWLEDGE:
         #self.iconListWidget.SelectionMode()  # Removed for Qt6 compatibility
         self.iconListWidget.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.iconListWidget.itemDoubleClicked.connect(self.openWide_image)
-        #self.listWidget_2.itemDoubleClicked.connect(self.opentepmplatePreview)
+
+        # ============================================================
+        # Connetti i bottoni definiti nel file .ui
+        # ============================================================
+        # Bottone "Carica Media" nel tab Media
+        if hasattr(self, 'pushButton_load_media'):
+            self.pushButton_load_media.clicked.connect(self.loadMediaPreview)
+
+        # Bottoni di sincronizzazione nel tab Dati Schedatura
+        if hasattr(self, 'pushButton_sync_record'):
+            self.pushButton_sync_record.clicked.connect(self.sync_current_record)
+        if hasattr(self, 'pushButton_sync_all'):
+            self.pushButton_sync_all.clicked.connect(self.sync_all_records)
+
+        # Imposta visibilità bottone media in base a path locale/remoto
+        self.update_media_button_visibility()
+
+        # ============================================================
+        # Translate tab titles based on language
+        # ============================================================
+        if self.L == 'it':
+            self.tabWidget.setTabText(0, "Dati descrittivi")
+            self.tabWidget.setTabText(1, "Periodizzazione")
+            self.tabWidget.setTabText(2, "Rapporti Stratigrafici")
+            self.tabWidget.setTabText(3, "Rapporti Stratigrafici per EM")
+            self.tabWidget.setTabText(4, "Dati Fisici")
+            self.tabWidget.setTabText(5, "Dati schedatura")
+            self.tabWidget.setTabText(6, "Misure US")
+            self.tabWidget.setTabText(7, "Documentazione")
+            self.tabWidget.setTabText(8, "Tecnica Edilizia USM")
+            self.tabWidget.setTabText(9, "Leganti USM")
+            self.tabWidget.setTabText(10, "Altre caratteristiche USM")
+            self.tabWidget.setTabText(11, "Media")
+            self.tabWidget.setTabText(12, "Aiuto")
+            # Translate buttons
+            if hasattr(self, 'pushButton_load_media'):
+                self.pushButton_load_media.setText("Carica Media")
+                self.pushButton_load_media.setToolTip("Carica le anteprime media per questo record")
+            if hasattr(self, 'pushButton_sync_record'):
+                self.pushButton_sync_record.setText("Sincronizza Record")
+                self.pushButton_sync_record.setToolTip("Sincronizza i campi TM, RA e N per questo record")
+            if hasattr(self, 'pushButton_sync_all'):
+                self.pushButton_sync_all.setText("Sincronizza Tutto DB")
+                self.pushButton_sync_all.setToolTip("Sincronizza TM, RA e N per tutti i record del sito")
+        elif self.L == 'de':
+            self.tabWidget.setTabText(0, "Beschreibende Daten")
+            self.tabWidget.setTabText(1, "Periodisierung")
+            self.tabWidget.setTabText(2, "Stratigraphische Beziehungen")
+            self.tabWidget.setTabText(3, "Stratigraphische Beziehungen EM")
+            self.tabWidget.setTabText(4, "Physikalische Daten")
+            self.tabWidget.setTabText(5, "Aufnahmedaten")
+            self.tabWidget.setTabText(6, "US Messungen")
+            self.tabWidget.setTabText(7, "Dokumentation")
+            self.tabWidget.setTabText(8, "USM Bautechnik")
+            self.tabWidget.setTabText(9, "USM Bindemittel")
+            self.tabWidget.setTabText(10, "Andere USM Eigenschaften")
+            self.tabWidget.setTabText(11, "Medien")
+            self.tabWidget.setTabText(12, "Hilfe")
+            # Translate buttons
+            if hasattr(self, 'pushButton_load_media'):
+                self.pushButton_load_media.setText("Medien laden")
+                self.pushButton_load_media.setToolTip("Lädt Medien-Vorschau für diesen Datensatz")
+            if hasattr(self, 'pushButton_sync_record'):
+                self.pushButton_sync_record.setText("Datensatz synchronisieren")
+                self.pushButton_sync_record.setToolTip("Synchronisiert TM, RA und N für diesen Datensatz")
+            if hasattr(self, 'pushButton_sync_all'):
+                self.pushButton_sync_all.setText("Alle DB synchronisieren")
+                self.pushButton_sync_all.setToolTip("Synchronisiert TM, RA und N für alle Datensätze der Site")
+        else:  # English and other languages
+            self.tabWidget.setTabText(0, "Descriptive Data")
+            self.tabWidget.setTabText(1, "Periodization")
+            self.tabWidget.setTabText(2, "Stratigraphic Relations")
+            self.tabWidget.setTabText(3, "Stratigraphic Relations EM")
+            self.tabWidget.setTabText(4, "Physical Data")
+            self.tabWidget.setTabText(5, "Recording Data")
+            self.tabWidget.setTabText(6, "US Measurements")
+            self.tabWidget.setTabText(7, "Documentation")
+            self.tabWidget.setTabText(8, "USM Building Technique")
+            self.tabWidget.setTabText(9, "USM Binders")
+            self.tabWidget.setTabText(10, "Other USM Characteristics")
+            self.tabWidget.setTabText(11, "Media")
+            self.tabWidget.setTabText(12, "Help")
+            # Translate buttons
+            if hasattr(self, 'pushButton_load_media'):
+                self.pushButton_load_media.setText("Load Media")
+                self.pushButton_load_media.setToolTip("Load media previews for this record")
+            if hasattr(self, 'pushButton_sync_record'):
+                self.pushButton_sync_record.setText("Sync Record")
+                self.pushButton_sync_record.setToolTip("Synchronize TM, RA and N fields for this record")
+            if hasattr(self, 'pushButton_sync_all'):
+                self.pushButton_sync_all.setText("Sync All DB")
+                self.pushButton_sync_all.setToolTip("Synchronize TM, RA and N for all records of the site")
+
         # comboBox customizations
 
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
@@ -15064,13 +15314,26 @@ DATABASE SCHEMA KNOWLEDGE:
         self.delegatesito.def_editable('False')
         self.tableWidget_rapporti.setItemDelegateForColumn(3, self.delegatesito)
 
+        # ============================================================
+        # Usa il thesaurus batch caricato in charge_list() se disponibile
+        # Altrimenti lo carica ora (es. se customize_GUI chiamato prima di charge_list)
+        # ============================================================
+        if not hasattr(self, '_thesaurus_us_table') or self._thesaurus_us_table is None:
+            clean_lang = lang.strip("'") if lang.startswith("'") else lang
+            self._thesaurus_us_table = self.DB_MANAGER.query_thesaurus_batch('us_table', clean_lang)
+
+        def get_thesaurus_values(tipologia, attr='sigla_estesa'):
+            """Helper per estrarre valori dal thesaurus batch"""
+            items = self._thesaurus_us_table.get(tipologia, [])
+            values = []
+            for item in items:
+                val = getattr(item, attr, None)
+                if val and val not in values:
+                    values.append(val)
+            values.sort()
+            return values
+
         # lista tipo documentazione
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.19' + "'"
-        }
-        tipo_di_documentazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
         valuesDoc = []
         if self.L=='it':
             valuesDoc.append("ICCD-Piante")
@@ -15088,153 +15351,63 @@ DATABASE SCHEMA KNOWLEDGE:
             valuesDoc.append("Sections")
             valuesDoc.append("Elevations")
             valuesDoc.append("Photo")
-
-        for i in range(len(tipo_di_documentazione)):
-            valuesDoc.append(tipo_di_documentazione[i].sigla_estesa)
-        #valuesDoc.sort()
+        valuesDoc.extend(get_thesaurus_values('2.19'))
         self.delegateDoc = ComboBoxDelegate()
         self.delegateDoc.def_values(valuesDoc)
         self.delegateDoc.def_editable('False')
         self.tableWidget_documentazione.setItemDelegateForColumn(0, self.delegateDoc)
 
-
-
-
         # lista colore legante usm
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '201.201' + "'"
-        }
-        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesCol = []
-        for i in range(len(colore)):
-            valuesCol.append(colore[i].sigla_estesa)
-        valuesCol.sort()
+        valuesCol = get_thesaurus_values('201.201')
         self.delegateCol = ComboBoxDelegate()
         self.delegateCol.def_values(valuesCol)
         self.delegateCol.def_editable('False')
         self.tableWidget_colore_legante_usm.setItemDelegateForColumn(0, self.delegateCol)
-        # lista colore materiale usm
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '201.201' + "'"
-        }
-        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesCol = []
-        for i in range(len(colore)):
-            valuesCol.append(colore[i].sigla_estesa)
-        valuesCol.sort()
-        self.delegateCol = ComboBoxDelegate()
-        self.delegateCol.def_values(valuesCol)
-        self.delegateCol.def_editable('False')
-        self.tableWidget_colore_materiale_usm.setItemDelegateForColumn(0, self.delegateCol)
-        # lista inclusi leganti usm
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '202.202' + "'"
-        }
-        # inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        # valuesInclusi = []
-        # for i in range(len(inclusi)):
-            # valuesInclusi.append(inclusi[i].sigla_estesa)
-        # valuesCol.sort()
-        # self.delegateInclusi = ComboBoxDelegate()
-        # self.delegateInclusi.def_values(valuesInclusi)
-        # self.delegateInclusi.def_editable('False')
-        # self.tableWidget_inclusi_leganti_usm.setItemDelegateForColumn(0, self.delegateInclusi)
-        # # lista inclusi materiali usm
-        # search_dict = {
-            # 'lingua': lang,
-            # 'nome_tabella': "'" + 'us_table' + "'",
-            # 'tipologia_sigla': "'" + '202.202' + "'"
-        # }
-        inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesInclusi = []
-        for i in range(len(inclusi)):
-            valuesInclusi.append(inclusi[i].sigla_estesa)
-        valuesCol.sort()
+
+        # lista colore materiale usm (stessa tipologia)
+        self.delegateColMat = ComboBoxDelegate()
+        self.delegateColMat.def_values(valuesCol)  # Riutilizza stessi valori
+        self.delegateColMat.def_editable('False')
+        self.tableWidget_colore_materiale_usm.setItemDelegateForColumn(0, self.delegateColMat)
+
+        # lista inclusi materiali usm
+        valuesInclusi = get_thesaurus_values('202.202')
         self.delegateInclusi = ComboBoxDelegate()
         self.delegateInclusi.def_values(valuesInclusi)
         self.delegateInclusi.def_editable('False')
         self.tableWidget_inclusi_materiali_usm.setItemDelegateForColumn(0, self.delegateInclusi)
+
         # lista consistenza/texture materiale usm
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.7' + "'"
-        }
-        constex = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesCTX = []
-        for i in range(len(constex)):
-            valuesCTX.append(constex[i].sigla_estesa)
-        valuesCol.sort()
+        valuesCTX = get_thesaurus_values('2.7')
         self.delegateCons = ComboBoxDelegate()
         self.delegateCons.def_values(valuesCTX)
         self.delegateCons.def_editable('False')
         self.tableWidget_consistenza_texture_mat_usm.setItemDelegateForColumn(0, self.delegateCons)
+
         # lista componenti organici
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.14' + "'"
-        }
-        comporg = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesCOG = []
-        for i in range(len(comporg)):
-            valuesCOG.append(comporg[i].sigla_estesa)
-        valuesCOG.sort()
+        valuesCOG = get_thesaurus_values('2.14')
         self.delegateCOG = ComboBoxDelegate()
         self.delegateCOG.def_values(valuesCOG)
         self.delegateCOG.def_editable('False')
         self.tableWidget_organici.setItemDelegateForColumn(0, self.delegateCOG)
+
         # lista componenti inorganici
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.15' + "'"
-        }
-        compinorg = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesCINOG = []
-        for i in range(len(compinorg)):
-            valuesCINOG.append(compinorg[i].sigla_estesa)
-        valuesCINOG.sort()
+        valuesCINOG = get_thesaurus_values('2.15')
         self.delegateCINOG = ComboBoxDelegate()
         self.delegateCINOG.def_values(valuesCINOG)
         self.delegateCINOG.def_editable('False')
         self.tableWidget_inorganici.setItemDelegateForColumn(0, self.delegateCINOG)
-        #lista campioni
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.13' + "'"
-        }
-        tipo_inclusi_campioni = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesINCL_CAMP = []
-        for i in range(len(tipo_inclusi_campioni)):
-            valuesINCL_CAMP.append(tipo_inclusi_campioni[i].sigla_estesa)
-        valuesINCL_CAMP.sort()
 
+        # lista campioni
+        valuesINCL_CAMP = get_thesaurus_values('2.13')
         self.delegateINCL_CAMP = ComboBoxDelegate()
-        valuesINCL_CAMP.sort()
         self.delegateINCL_CAMP.def_values(valuesINCL_CAMP)
         self.delegateINCL_CAMP.def_editable('False')
         self.tableWidget_campioni.setItemDelegateForColumn(0, self.delegateINCL_CAMP)
-        # lista inclusi
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '202.202' + "'"
-        }
-        tipo_inclusi = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        valuesINCL = []
-        for i in range(len(tipo_inclusi)):
-            valuesINCL.append(tipo_inclusi[i].sigla_estesa)
-        valuesINCL.sort()
+
+        # lista inclusi (stessa tipologia di inclusi_materiali)
         self.delegateINCL = ComboBoxDelegate()
-        self.delegateINCL.def_values(valuesINCL)
+        self.delegateINCL.def_values(valuesInclusi)  # Riutilizza stessi valori
         self.delegateINCL.def_editable('False')
         self.tableWidget_inclusi.setItemDelegateForColumn(0, self.delegateINCL)
 
@@ -16296,33 +16469,131 @@ DATABASE SCHEMA KNOWLEDGE:
             # aggiungi l'elemento al QListWidget
             self.iconListWidget.addItem(list_item)
 
+    def is_media_path_remote(self):
+        """
+        Check if the configured media thumbnail path is remote.
+        Returns True if remote (HTTP, HTTPS, Cloudinary, Unibo), False if local.
+        """
+        try:
+            conn = Connection()
+            thumb_path = conn.thumb_path()
+            thumb_path_str = thumb_path.get('thumb_path', '')
+            return is_remote_url(thumb_path_str)
+        except Exception:
+            return False
+
+    def update_media_button_visibility(self):
+        """
+        Show/hide toolButtonPreviewMedia based on media path type.
+        - Remote media: show button (user clicks to load)
+        - Local media: hide button (auto-load)
+        """
+        if hasattr(self, 'toolButtonPreviewMedia'):
+            is_remote = self.is_media_path_remote()
+            self.toolButtonPreviewMedia.setVisible(is_remote)
+            self.toolButtonPreviewMedia.setEnabled(is_remote)
+
+    def loadMediaPreviewLocal(self):
+        """
+        Carica le anteprime media per path locali (veloce, senza progress bar).
+        Usato per auto-caricamento quando i media sono su disco locale.
+        """
+        self.iconListWidget.clear()
+        conn = Connection()
+        thumb_path = conn.thumb_path()
+        thumb_path_str = thumb_path['thumb_path']
+
+        if not self.DATA_LIST or self.REC_CORR < 0:
+            return
+
+        search_dict = {
+            'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
+            'entity_type': "'US'"}
+        record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
+
+        if not record_us_list:
+            return
+
+        # BATCH LOAD: Carica TUTTI i MEDIA_THUMB in UNA sola query
+        id_media_list = [str(i.id_media) for i in record_us_list]
+        thumb_dict = self.DB_MANAGER.query_media_thumb_batch(id_media_list)
+
+        # Caricamento veloce senza progress bar (path locale)
+        # Usa filepath (thumbnail) per costruire il percorso completo
+        for i in record_us_list:
+            media_id = str(i.id_media)
+            mediathumb_data = thumb_dict.get(media_id)
+            if mediathumb_data:
+                # Usa filepath per costruire il percorso thumbnail
+                thumb_filepath = str(mediathumb_data.filepath)
+                item = QListWidgetItem(str(i.media_name))
+                item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                icon = load_icon(get_image_path(thumb_path_str, thumb_filepath))
+                item.setIcon(icon)
+                self.iconListWidget.addItem(item)
 
     def loadMediaPreview(self):
         self.iconListWidget.clear()
         conn = Connection()
         thumb_path = conn.thumb_path()
         thumb_path_str = thumb_path['thumb_path']
-        # if mode == 0:
-        # """ if has geometry column load to map canvas """
+
         rec_list = self.ID_TABLE + " = " + str(
             getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
         search_dict = {
             'id_entity': "'" + str(getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE)) + "'",
             'entity_type': "'US'"}
         record_us_list = self.DB_MANAGER.query_bool(search_dict, 'MEDIATOENTITY')
-        for i in record_us_list:
-            search_dict = {'id_media': "'" + str(i.id_media) + "'"}
-            u = Utility()
-            search_dict = u.remove_empty_items_fr_dict(search_dict)
-            mediathumb_data = self.DB_MANAGER.query_bool(search_dict, "MEDIA_THUMB")
-            thumb_path = str(mediathumb_data[0].filepath)
-            item = QListWidgetItem(str(i.media_name))
-            item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
-            icon = load_icon(get_image_path(thumb_path_str, thumb_path))
-            item.setIcon(icon)
-            self.iconListWidget.addItem(item)
-        # elif mode == 1:
-            # self.iconListWidget.clear()
+
+        if not record_us_list:
+            return
+
+        # ============================================================
+        # BATCH LOAD: Carica TUTTI i MEDIA_THUMB in UNA sola query
+        # invece di N query separate (una per ogni media)
+        # ============================================================
+        id_media_list = [str(i.id_media) for i in record_us_list]
+        thumb_dict = self.DB_MANAGER.query_media_thumb_batch(id_media_list)
+
+        # ============================================================
+        # Progress bar per il caricamento delle immagini
+        # ============================================================
+        total = len(record_us_list)
+        if total > 0:
+            progress = QtWidgets.QProgressDialog("Caricamento media...", "Annulla", 0, total, self)
+            progress.setWindowTitle("Carica Media")
+            progress.setWindowModality(Qt.WindowModality.WindowModal)
+            progress.setMinimumDuration(0)
+            progress.setValue(0)
+
+            start_time = time.time()
+
+            for idx, i in enumerate(record_us_list):
+                if progress.wasCanceled():
+                    break
+
+                media_id = str(i.id_media)
+                mediathumb_data = thumb_dict.get(media_id)
+                if mediathumb_data:
+                    # Usa filepath per costruire il percorso thumbnail
+                    thumb_filepath = str(mediathumb_data.filepath)
+                    item = QListWidgetItem(str(i.media_name))
+                    item.setData(Qt.ItemDataRole.UserRole, str(i.media_name))
+                    icon = load_icon(get_image_path(thumb_path_str, thumb_filepath))
+                    item.setIcon(icon)
+                    self.iconListWidget.addItem(item)
+
+                # Update progress with time estimate
+                progress.setValue(idx + 1)
+                elapsed = time.time() - start_time
+                if idx > 0:
+                    avg_time = elapsed / (idx + 1)
+                    remaining = avg_time * (total - idx - 1)
+                    progress.setLabelText(f"Caricamento media... {idx + 1}/{total}\nTempo rimanente: {remaining:.1f}s")
+
+                QtWidgets.QApplication.processEvents()
+
+            progress.close()
 
 
     def load_and_process_3d_model(self, filepath):
@@ -16831,7 +17102,7 @@ DATABASE SCHEMA KNOWLEDGE:
         for key, values in self.LANG.items():
             if values.__contains__(l):
                 lang = str(key)
-        lang = "'" + lang + "'"
+
         # lista sito
         sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
         try:
@@ -16844,601 +17115,189 @@ DATABASE SCHEMA KNOWLEDGE:
         self.comboBox_sito.addItems(sito_vl)
         self.comboBox_sito_rappcheck.addItems(sito_vl)
 
+        # ============================================================
+        # BATCH LOAD: Carica TUTTO il thesaurus per us_table in UNA query
+        # Invece di 43+ query separate, una sola query batch
+        # ============================================================
+        thesaurus = self.DB_MANAGER.query_thesaurus_batch('us_table', lang)
+        # Salva il thesaurus e la lingua per riutilizzarlo in customize_GUI()
+        self._thesaurus_us_table = thesaurus
+        self._thesaurus_lang = lang
+
+        def get_thesaurus_values(tipologia, attr='sigla_estesa', unique=True):
+            """Helper per estrarre valori dal thesaurus batch"""
+            items = thesaurus.get(tipologia, [])
+            values = []
+            for item in items:
+                val = getattr(item, attr, None)
+                if val and (not unique or val not in values):
+                    values.append(val)
+            values.sort()
+            return values
+
         # lista area
         self.comboBox_area.clear()
         self.comboBox_area_rappcheck.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.43' + "'"
-        }
-        area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        area_vl = []
-        for i in range(len(area_vl_thesaurus)):
-            area_vl.append(area_vl_thesaurus[i].sigla_estesa)
-        area_vl.sort()
+        area_vl = get_thesaurus_values('2.43')
         self.comboBox_area.addItems(area_vl)
         self.comboBox_area_rappcheck.addItems(area_vl)
 
-        # responsabile_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'schedatore', 'US'))
-        # try:
-        #     responsabile_vl.remove('')
-        # except:
-        #     pass
-        #
-        # self.comboBox_schedatore.clear()
-        # responsabile_vl.sort()
-        # self.comboBox_schedatore.addItems(responsabile_vl)
-        #
-        #
-        # responsabile2_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'direttore_us', 'US'))
-        # try:
-        #     responsabile2_vl.remove('')
-        # except:
-        #     pass
-        #
-        # self.comboBox_direttore_us.clear()
-        # responsabile2_vl.sort()
-        # self.comboBox_direttore_us.addItems(responsabile2_vl)
-        #
-        #
-        # responsabile3_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'responsabile_us', 'US'))
-        # try:
-        #     responsabile3_vl.remove('')
-        # except:
-        #     pass
-        #
-        # self.comboBox_responsabile_us.clear()
-        # responsabile3_vl.sort()
-        # self.comboBox_responsabile_us.addItems(responsabile3_vl)
-        #
-
-
-
-
+        # lista settore (usa 'sigla' invece di 'sigla_estesa')
         self.comboBox_settore.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.1' + "'"
-        }
-        settore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        settore_vl = []
-        for i in range(len(settore)):
-            settore_vl.append(settore[i].sigla)
-        settore_vl.sort()
-        self.comboBox_settore.addItems(settore_vl)
+        self.comboBox_settore.addItems(get_thesaurus_values('2.1', attr='sigla'))
+
         # lista soprintendenza
         self.comboBox_soprintendenza.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.2' + "'"
-        }
-        soprintendenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        soprintendenza_vl = []
-        for i in range(len(soprintendenza)):
-            soprintendenza_vl.append(soprintendenza[i].sigla_estesa)
-        soprintendenza_vl.sort()
-        self.comboBox_soprintendenza.addItems(soprintendenza_vl)
+        self.comboBox_soprintendenza.addItems(get_thesaurus_values('2.2'))
+
         # lista definizione_stratigrafica
         self.comboBox_def_strat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.3' + "'"
-        }
-        d_stratigrafica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        d_stratigrafica_vl = []
-        for i in range(len(d_stratigrafica)):
-            d_stratigrafica_vl.append(d_stratigrafica[i].sigla_estesa)
-        d_stratigrafica_vl.sort()
-        self.comboBox_def_strat.addItems(d_stratigrafica_vl)
+        self.comboBox_def_strat.addItems(get_thesaurus_values('2.3'))
+
         # lista definizione interpretata
         self.comboBox_def_intepret.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.4' + "'"
-        }
-        d_interpretativa = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        d_interpretativa_vl = []
-        for i in range(len(d_interpretativa)):
-            d_interpretativa_vl.append(d_interpretativa[i].sigla_estesa)
-        d_interpretativa_vl.sort()
-        self.comboBox_def_intepret.addItems(d_interpretativa_vl)
+        self.comboBox_def_intepret.addItems(get_thesaurus_values('2.4'))
+
         # lista funzione statica
         self.comboBox_funz_statica_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.5' + "'"
-        }
-        funz_statica = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        funz_statica_vl = []
-        for i in range(len(funz_statica)):
-            if funz_statica[i].sigla_estesa not in funz_statica_vl:
-                funz_statica_vl.append(funz_statica[i].sigla_estesa)
-        funz_statica_vl.sort()
-        self.comboBox_funz_statica_usm.addItems(funz_statica_vl)
-        #lista consistenza legante usm
+        self.comboBox_funz_statica_usm.addItems(get_thesaurus_values('2.5'))
+
+        # lista consistenza legante usm
         self.comboBox_consistenza_legante_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.6' + "'"
-        }
-        consistenza_legante_usm = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        consistenza_legante_usm_vl = []
-        for i in range(len(consistenza_legante_usm)):
-            if consistenza_legante_usm[i].sigla_estesa not in consistenza_legante_usm_vl:
-                consistenza_legante_usm_vl.append(consistenza_legante_usm[i].sigla_estesa)
-        consistenza_legante_usm_vl.sort()
-        self.comboBox_consistenza_legante_usm.addItems(consistenza_legante_usm_vl)
+        self.comboBox_consistenza_legante_usm.addItems(get_thesaurus_values('2.6'))
+
         # lista scavato
         self.comboBox_scavato.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '203.203' + "'"
-        }
-        scavato = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        scavato_vl = []
-        for i in range(len(scavato)):
-            if scavato[i].sigla_estesa not in scavato_vl:
-                scavato_vl.append(scavato[i].sigla_estesa)
-        scavato_vl.sort()
-        self.comboBox_scavato.addItems(scavato_vl)
+        self.comboBox_scavato.addItems(get_thesaurus_values('203.203'))
+
         # lista metodo di scavo
         self.comboBox_metodo.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.8' + "'"
-        }
-        metodo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        metodo_vl = []
-        for i in range(len(metodo)):
-            if metodo[i].sigla_estesa not in metodo_vl:
-                metodo_vl.append(metodo[i].sigla_estesa)
-        metodo_vl.sort()
-        self.comboBox_metodo.addItems(metodo_vl)
+        self.comboBox_metodo.addItems(get_thesaurus_values('2.8'))
+
         # lista formazione
         self.comboBox_formazione.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.9' + "'"
-        }
-        formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        formazione_vl = []
-        for i in range(len(formazione)):
-            if formazione[i].sigla_estesa not in formazione_vl:
-                formazione_vl.append(formazione[i].sigla_estesa)
-        formazione_vl.sort()
-        self.comboBox_formazione.addItems(formazione_vl)
+        self.comboBox_formazione.addItems(get_thesaurus_values('2.9'))
+
         # lista modo formazione
         self.comboBox_modo_formazione.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.10' + "'"
-        }
-        modo_formazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        modo_formazione_vl = []
-        for i in range(len(modo_formazione)):
-            if modo_formazione[i].sigla_estesa not in modo_formazione_vl:
-                modo_formazione_vl.append(modo_formazione[i].sigla_estesa)
-        modo_formazione_vl.sort()
-        self.comboBox_modo_formazione.addItems(modo_formazione_vl)
+        self.comboBox_modo_formazione.addItems(get_thesaurus_values('2.10'))
+
         # lista colore
         self.comboBox_colore.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '201.201' + "'"
-        }
-        colore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        colore_vl = []
-        for i in range(len(colore)):
-            if colore[i].sigla_estesa not in colore_vl:
-                colore_vl.append(colore[i].sigla_estesa)
-        colore_vl.sort()
-        self.comboBox_colore.addItems(colore_vl)
+        self.comboBox_colore.addItems(get_thesaurus_values('201.201'))
+
         # lista consistenza
         self.comboBox_consistenza.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.11' + "'"
-        }
-        consistenza = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        consistenza_vl = []
-        for i in range(len(consistenza)):
-            if consistenza[i].sigla_estesa not in consistenza_vl:
-                consistenza_vl.append(consistenza[i].sigla_estesa)
-        consistenza_vl.sort()
-        self.comboBox_consistenza.addItems(consistenza_vl)
+        self.comboBox_consistenza.addItems(get_thesaurus_values('2.11'))
+
         # lista stato di conservazione
         self.comboBox_conservazione.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.12' + "'"
-        }
-        conservazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        conservazione_vl = []
-        for i in range(len(conservazione)):
-            if conservazione[i].sigla_estesa not in conservazione_vl:
-                conservazione_vl.append(conservazione[i].sigla_estesa)
-        conservazione_vl.sort()
-        self.comboBox_conservazione.addItems(conservazione_vl)
+        self.comboBox_conservazione.addItems(get_thesaurus_values('2.12'))
+
         # lista schedatore
         self.comboBox_schedatore.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.16' + "'"
-        }
-        schedatore = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        schedatore_vl = []
-        for i in range(len(schedatore)):
-            if schedatore[i].sigla_estesa not in schedatore_vl:
-                schedatore_vl.append(schedatore[i].sigla_estesa)
-        schedatore_vl.sort()
-        self.comboBox_schedatore.addItems(schedatore_vl)
-        #lista direttore us
+        self.comboBox_schedatore.addItems(get_thesaurus_values('2.16'))
+
+        # lista direttore us
         self.comboBox_direttore_us.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.17' + "'"
-        }
-        direttore_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        direttore_us_vl = []
-        for i in range(len(direttore_us)):
-            if direttore_us[i].sigla_estesa not in direttore_us_vl:
-                direttore_us_vl.append(direttore_us[i].sigla_estesa)
-        direttore_us_vl.sort()
-        self.comboBox_direttore_us.addItems(direttore_us_vl)
-        # # lista responsabile us
+        self.comboBox_direttore_us.addItems(get_thesaurus_values('2.17'))
+
+        # lista responsabile us
         self.comboBox_responsabile_us.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.18' + "'"
-        }
-        responsabile_us = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        responsabile_us_vl = []
-        for i in range(len(responsabile_us)):
-            if responsabile_us[i].sigla_estesa not in responsabile_us_vl:
-                responsabile_us_vl.append(responsabile_us[i].sigla_estesa)
-        responsabile_us_vl.sort()
-        self.comboBox_responsabile_us.addItems(responsabile_us_vl)
+        self.comboBox_responsabile_us.addItems(get_thesaurus_values('2.18'))
 
 
-        # # lista tipologia_opera
+        # lista tipologia_opera
         self.comboBox_tipologia_opera.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.20' + "'"
-        }
-        tipologia_opera = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        tipologia_opera_us_vl = []
-        for i in range(len(tipologia_opera)):
-            if tipologia_opera[i].sigla_estesa not in tipologia_opera_us_vl:
-                tipologia_opera_us_vl.append(tipologia_opera[i].sigla_estesa)
-        tipologia_opera_us_vl.sort()
-        self.comboBox_tipologia_opera.addItems(tipologia_opera_us_vl)
+        self.comboBox_tipologia_opera.addItems(get_thesaurus_values('2.20'))
+
         # lista sezione muraria
         self.comboBox_sezione_muraria.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.21' + "'"
-        }
-        sezione_muraria = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        sezione_muraria_us_vl = []
-        for i in range(len(sezione_muraria)):
-            if sezione_muraria[i].sigla_estesa not in sezione_muraria_us_vl:
-                sezione_muraria_us_vl.append(sezione_muraria[i].sigla_estesa)
-        sezione_muraria_us_vl.sort()
-        self.comboBox_sezione_muraria.addItems(sezione_muraria_us_vl)
+        self.comboBox_sezione_muraria.addItems(get_thesaurus_values('2.21'))
+
         # lista superficie_analizzata
         self.comboBox_superficie_analizzata.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.22' + "'"
-        }
-        sup_analiz = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        sup_analiz_vl = []
-        for i in range(len(sezione_muraria)):
-            if sup_analiz[i].sigla_estesa not in sup_analiz_vl:
-                sup_analiz_vl.append(sup_analiz[i].sigla_estesa)
-        sezione_muraria_us_vl.sort()
-        self.comboBox_superficie_analizzata.addItems(sup_analiz_vl)
+        self.comboBox_superficie_analizzata.addItems(get_thesaurus_values('2.22'))
+
         # lista orientamento
         self.comboBox_orientamento.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.23' + "'"
-        }
-        orientamento = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        orientamento_us_vl = []
-        for i in range(len(orientamento)):
-            if orientamento[i].sigla_estesa not in orientamento_us_vl:
-                orientamento_us_vl.append(orientamento[i].sigla_estesa)
-        orientamento_us_vl.sort()
-        self.comboBox_orientamento.addItems(orientamento_us_vl)
+        self.comboBox_orientamento.addItems(get_thesaurus_values('2.23'))
+
         # lista materiali_laterizi
         self.comboBox_materiali_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.24' + "'"
-        }
-        materiali_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        materiali_lat_us_vl = []
-        for i in range(len(materiali_lat)):
-            if materiali_lat[i].sigla_estesa not in materiali_lat_us_vl:
-                materiali_lat_us_vl.append(materiali_lat[i].sigla_estesa)
-        materiali_lat_us_vl.sort()
-        self.comboBox_materiali_lat.addItems(materiali_lat_us_vl)
+        self.comboBox_materiali_lat.addItems(get_thesaurus_values('2.24'))
+
         # lista lavorazione laterizi
         self.comboBox_lavorazione_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.25' + "'"
-        }
-        lavorazione_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        lavorazione_lat_us_vl = []
-        for i in range(len(lavorazione_lat)):
-            if lavorazione_lat[i].sigla_estesa not in lavorazione_lat_us_vl:
-                lavorazione_lat_us_vl.append(lavorazione_lat[i].sigla_estesa)
-        lavorazione_lat_us_vl.sort()
-        self.comboBox_lavorazione_lat.addItems(lavorazione_lat_us_vl)
+        self.comboBox_lavorazione_lat.addItems(get_thesaurus_values('2.25'))
+
         # lista consistenza laterizi
         self.comboBox_consistenza_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.26' + "'"
-        }
-        consistenza_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        consistenza_lat_us_vl = []
-        for i in range(len(consistenza_lat)):
-            if consistenza_lat[i].sigla_estesa not in consistenza_lat_us_vl:
-                consistenza_lat_us_vl.append(consistenza_lat[i].sigla_estesa)
-        consistenza_lat_us_vl.sort()
-        self.comboBox_consistenza_lat.addItems(consistenza_lat_us_vl)
+        self.comboBox_consistenza_lat.addItems(get_thesaurus_values('2.26'))
+
         # lista forma laterizi
         self.comboBox_forma_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.27' + "'"
-        }
-        forma_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        forma_lat_us_vl = []
-        for i in range(len(forma_lat)):
-            if forma_lat[i].sigla_estesa not in forma_lat_us_vl:
-                forma_lat_us_vl.append(forma_lat[i].sigla_estesa)
-        forma_lat_us_vl.sort()
-        self.comboBox_forma_lat.addItems(forma_lat_us_vl)
+        self.comboBox_forma_lat.addItems(get_thesaurus_values('2.27'))
+
         # lista colore laterizi
         self.comboBox_colore_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.28' + "'"
-        }
-        colore_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        colore_lat_us_vl = []
-        for i in range(len(colore_lat)):
-            if colore_lat[i].sigla_estesa not in colore_lat_us_vl:
-                colore_lat_us_vl.append(colore_lat[i].sigla_estesa)
-        colore_lat_us_vl.sort()
-        self.comboBox_colore_lat.addItems(colore_lat_us_vl)
+        self.comboBox_colore_lat.addItems(get_thesaurus_values('2.28'))
+
         # lista impasto laterizi
         self.comboBox_impasto_lat.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.29' + "'"
-        }
-        impasto_lat = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        impasto_lat_us_vl = []
-        for i in range(len(impasto_lat)):
-            if impasto_lat[i].sigla_estesa not in impasto_lat_us_vl:
-                impasto_lat_us_vl.append(impasto_lat[i].sigla_estesa)
-        impasto_lat_us_vl.sort()
-        self.comboBox_impasto_lat.addItems(impasto_lat_us_vl)
+        self.comboBox_impasto_lat.addItems(get_thesaurus_values('2.29'))
+
         # lista materiali litici
         self.comboBox_materiale_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.30' + "'"
-        }
-        materiale_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        materiale_p_us_vl = []
-        for i in range(len(materiale_p)):
-            if materiale_p[i].sigla_estesa not in materiale_p_us_vl:
-                materiale_p_us_vl.append(materiale_p[i].sigla_estesa)
-        materiale_p_us_vl.sort()
-        self.comboBox_materiale_p.addItems(materiale_p_us_vl)
+        self.comboBox_materiale_p.addItems(get_thesaurus_values('2.30'))
+
         # lista consistenza materiali litici
         self.comboBox_consistenza_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.31' + "'"
-        }
-        consistenza_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        consistenza_p_us_vl = []
-        for i in range(len(consistenza_p)):
-            if consistenza_p[i].sigla_estesa not in consistenza_p_us_vl:
-                consistenza_p_us_vl.append(consistenza_p[i].sigla_estesa)
-        consistenza_p_us_vl.sort()
-        self.comboBox_consistenza_p.addItems(consistenza_p_us_vl)
+        self.comboBox_consistenza_p.addItems(get_thesaurus_values('2.31'))
+
         # lista forma materiali litici
         self.comboBox_forma_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.32' + "'"
-        }
-        forma_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        forma_p_us_vl = []
-        for i in range(len(forma_p)):
-            if forma_p[i].sigla_estesa not in forma_p_us_vl:
-                forma_p_us_vl.append(forma_p[i].sigla_estesa)
-        forma_p_us_vl.sort()
-        self.comboBox_forma_p.addItems(forma_p_us_vl)
+        self.comboBox_forma_p.addItems(get_thesaurus_values('2.32'))
+
         # lista colore materiali litici
         self.comboBox_colore_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.33' + "'"
-        }
-        colore_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        colore_p_us_vl = []
-        for i in range(len(colore_p)):
-            if colore_p[i].sigla_estesa not in colore_p_us_vl:
-                colore_p_us_vl.append(colore_p[i].sigla_estesa)
-        colore_p_us_vl.sort()
-        self.comboBox_colore_p.addItems(colore_p_us_vl)
+        self.comboBox_colore_p.addItems(get_thesaurus_values('2.33'))
+
         # lista taglio materiali litici
         self.comboBox_taglio_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.34' + "'"
-        }
-        taglio_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        taglio_p_us_vl = []
-        for i in range(len(taglio_p)):
-            if taglio_p[i].sigla_estesa not in taglio_p_us_vl:
-                taglio_p_us_vl.append(taglio_p[i].sigla_estesa)
-        taglio_p_us_vl.sort()
-        self.comboBox_taglio_p.addItems(taglio_p_us_vl)
+        self.comboBox_taglio_p.addItems(get_thesaurus_values('2.34'))
+
         # lista posa opera materiali litici
         self.comboBox_posa_opera_p.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.35' + "'"
-        }
-        posa_opera_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        posa_opera_p_us_vl = []
-        for i in range(len(posa_opera_p)):
-            if posa_opera_p[i].sigla_estesa not in posa_opera_p_us_vl:
-                posa_opera_p_us_vl.append(posa_opera_p[i].sigla_estesa)
-        posa_opera_p_us_vl.sort()
-        self.comboBox_posa_opera_p.addItems(posa_opera_p_us_vl)
+        self.comboBox_posa_opera_p.addItems(get_thesaurus_values('2.35'))
+
         # lista posa opera materiali laterizi
         self.comboBox_posa_in_opera_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.36' + "'"
-        }
-        posa_opera_usm = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        posa_opera_usm_us_vl = []
-        for i in range(len(posa_opera_usm)):
-            if posa_opera_usm[i].sigla_estesa not in posa_opera_usm_us_vl:
-                posa_opera_usm_us_vl.append(posa_opera_usm[i].sigla_estesa)
-        posa_opera_usm_us_vl.sort()
-        self.comboBox_posa_in_opera_usm.addItems(posa_opera_usm_us_vl)
+        self.comboBox_posa_in_opera_usm.addItems(get_thesaurus_values('2.36'))
+
         # lista tecniche costruttive
         self.comboBox_tecnica_muraria_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.37' + "'"
-        }
-        t_costruttiva = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        t_costruttiva_us_vl = []
-        for i in range(len(t_costruttiva)):
-            if t_costruttiva[i].sigla_estesa not in t_costruttiva_us_vl:
-                t_costruttiva_us_vl.append(t_costruttiva[i].sigla_estesa)
-        t_costruttiva_us_vl.sort()
-        self.comboBox_tecnica_muraria_usm.addItems(t_costruttiva_us_vl)
+        self.comboBox_tecnica_muraria_usm.addItems(get_thesaurus_values('2.37'))
+
         # lista modulo
         self.comboBox_modulo_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.38' + "'"
-        }
-        modulo = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        modulo_us_vl = []
-        for i in range(len(modulo)):
-            if modulo[i].sigla_estesa not in modulo_us_vl:
-                modulo_us_vl.append(modulo[i].sigla_estesa)
-        modulo_us_vl.sort()
-        self.comboBox_modulo_usm.addItems(modulo_us_vl)
+        self.comboBox_modulo_usm.addItems(get_thesaurus_values('2.38'))
+
         # lista inerti
         self.comboBox_inerti_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.39' + "'"
-        }
-        inerti = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        inerti_us_vl = []
-        for i in range(len(inerti)):
-            if inerti[i].sigla_estesa not in inerti_us_vl:
-                inerti_us_vl.append(inerti[i].sigla_estesa)
-        inerti_us_vl.sort()
-        self.comboBox_inerti_usm.addItems(inerti_us_vl)
+        self.comboBox_inerti_usm.addItems(get_thesaurus_values('2.39'))
+
         # lista tipologia legante
         self.comboBox_tipo_legante_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.40' + "'"
-        }
-        tipo_legante = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        tipo_legante_us_vl = []
-        for i in range(len(tipo_legante)):
-            if tipo_legante[i].sigla_estesa not in tipo_legante_us_vl:
-                tipo_legante_us_vl.append(tipo_legante[i].sigla_estesa)
-        tipo_legante_us_vl.sort()
-        self.comboBox_tipo_legante_usm.addItems(tipo_legante_us_vl)
+        self.comboBox_tipo_legante_usm.addItems(get_thesaurus_values('2.40'))
+
         # lista rifinitura
         self.comboBox_rifinitura_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.41' + "'"
-        }
-        rifinitura = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        rifinitura_us_vl = []
-        for i in range(len(rifinitura)):
-            if rifinitura[i].sigla_estesa not in rifinitura_us_vl:
-                rifinitura_us_vl.append(rifinitura[i].sigla_estesa)
-        rifinitura_us_vl.sort()
-        self.comboBox_rifinitura_usm.addItems(rifinitura_us_vl)
+        self.comboBox_rifinitura_usm.addItems(get_thesaurus_values('2.41'))
+
         # lista lavorazione litica
         self.comboBox_lavorazione_usm.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'us_table' + "'",
-            'tipologia_sigla': "'" + '2.42' + "'"
-        }
-        lavorazione_p = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        lavorazione_p_us_vl = []
-        for i in range(len(lavorazione_p)):
-            if lavorazione_p[i].sigla_estesa not in lavorazione_p_us_vl:
-                lavorazione_p_us_vl.append(lavorazione_p[i].sigla_estesa)
-        lavorazione_p_us_vl.sort()
-        self.comboBox_lavorazione_usm.addItems(lavorazione_p_us_vl)
+        self.comboBox_lavorazione_usm.addItems(get_thesaurus_values('2.42'))
 
     def msg_sito(self):
         #self.model_a.database().close()
@@ -19327,6 +19186,13 @@ DATABASE SCHEMA KNOWLEDGE:
             else:
                 self.tabWidget.setCurrentIndex(0)
                 self.loadMapPreview(1)
+
+    def on_toolButtonPreviewMedia_toggled(self):
+        """Handler per caricare i media quando l'utente clicca il bottone"""
+        if self.toolButtonPreviewMedia.isChecked():
+            self.loadMediaPreview()
+        else:
+            self.iconListWidget.clear()
 
     def on_pushButton_addRaster_pressed(self):
         if self.toolButtonGis.isChecked():
@@ -22400,18 +22266,8 @@ DATABASE SCHEMA KNOWLEDGE:
         # custom functions
 
     def charge_records(self):
-        self.DATA_LIST = []
-        if self.DB_SERVER == 'sqlite':
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                self.DATA_LIST.append(i)
-        else:
-            id_list = []
-            for i in self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
-                id_list.append(getattr(i, self.ID_TABLE))
-            temp_data_list = self.DB_MANAGER.query_sort(id_list, [self.ID_TABLE], 'asc', self.MAPPER_TABLE_CLASS,
-                                                        self.ID_TABLE)
-            for i in temp_data_list:
-                self.DATA_LIST.append(i)
+        # Single ordered query - replaces double query pattern for better performance
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
 
     def charge_records_n(self):
         self.DATA_LIST = []
@@ -22836,8 +22692,16 @@ DATABASE SCHEMA KNOWLEDGE:
     def fill_fields(self, n=0):
         self.rec_num = n
         try:
-            # Block signals for unita_tipo to prevent unwanted modifications during fill
+            # Block ALL signals during fill to prevent cascade of DB queries
+            self.comboBox_sito.blockSignals(True)
+            self.comboBox_area.blockSignals(True)
             self.comboBox_unita_tipo.blockSignals(True)
+            self.comboBox_per_iniz.blockSignals(True)
+            self.comboBox_per_fin.blockSignals(True)
+            self.lineEdit_us.blockSignals(True)
+
+            # Clear media widget when changing records
+            self.iconListWidget.clear()
 
             str(self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito))  # 1 - Sito
             str(self.comboBox_area.setEditText(self.DATA_LIST[self.rec_num].area))  # 2 - Area
@@ -23019,20 +22883,41 @@ DATABASE SCHEMA KNOWLEDGE:
             # gestione tool
             if self.toolButtonPreview.isChecked():
                 self.loadMapPreview()
-            if self.toolButtonPreviewMedia.isChecked() == False:
+            # ============================================================
+            # MEDIA: Auto-load se locale, manuale se remoto
+            # Se path locale: carica automaticamente (veloce)
+            # Se path remoto: solo se bottone premuto (lento)
+            # ============================================================
+            if not self.is_media_path_remote():
+                # Path locale: auto-caricamento senza progress (veloce)
+                self.loadMediaPreviewLocal()
+            elif self.toolButtonPreviewMedia.isChecked():
+                # Path remoto: caricamento manuale con progress
                 self.loadMediaPreview()
 
-            # Sync TM, RA and N fields automatically
-            self.sync_tm_from_tma()
-            self.charge_insert_ra()
-            self.sync_ra_from_inventario()  # Auto-populate ref_ra with inventario_materiali numbers
-            self.sync_n_from_pottery()  # Auto-populate ref_n with pottery numbers
+            # ============================================================
+            # PERFORMANCE: Sync disabilitato per navigazione veloce
+            # Queste funzioni fanno 3-4 query extra per ogni record
+            # I campi ref_tm, ref_ra, ref_n verranno popolati on-demand
+            # ============================================================
+            # self.sync_tm_from_tma()
+            # self.charge_insert_ra()
+            # self.sync_ra_from_inventario()
+            # self.sync_n_from_pottery()
 
             # Reset the comparison after loading to avoid false positives
             if self.BROWSE_STATUS == "b":
                 self.set_LIST_REC_TEMP()
         except:
             pass
+        finally:
+            # Unblock signals after fill
+            self.comboBox_sito.blockSignals(False)
+            self.comboBox_area.blockSignals(False)
+            self.comboBox_unita_tipo.blockSignals(False)
+            self.comboBox_per_iniz.blockSignals(False)
+            self.comboBox_per_fin.blockSignals(False)
+            self.lineEdit_us.blockSignals(False)
 
         # Track version number and record ID for concurrency
         if hasattr(self, 'concurrency_manager'):
