@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.65
+version=4.9.66
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.65 (2026-01-23):
+changelog=4.9.66 (2026-01-23):
+    - Fix:  thesaurus nome_tabella bug and add Struttura PDF translations
+    - Fix:  resolve Fauna form update and navigation issues
+    - Fix:  resolve Fauna form SQLite errors and thesaurus issues
+  4.9.65 (2026-01-23):
     - Feature:  add PDF export for Struttura form with improved layout
   4.9.64 (2026-01-23):
     - Miglioramenti e correzioni varie
