@@ -287,6 +287,37 @@ Gestisce la cronologia dell'unita stratigrafica.
 | **Scavato** | Stato di scavo | Si / No |
 | **Metodo di scavo** | Modalita di scavo | Meccanico / Stratigrafico |
 
+### Campo Struttura - Collegamento con Scheda Struttura
+
+Il campo **Struttura** permette di associare una o piu strutture all'unita stratigrafica corrente. E un campo a selezione multipla (checkbox).
+
+#### Come funziona la sincronizzazione
+
+1. **Prima** creare le strutture nella **Scheda Struttura**
+2. Nella Scheda Struttura compilare: **Sito** (stesso dell'US), **Sigla** (es. "MUR"), **Numero** (es. 1)
+3. Nella Scheda US, il campo Struttura mostrera le strutture disponibili nel formato `SIGLA-NUMERO`
+
+#### Selezionare strutture
+
+1. Cliccare sul campo **Struttura** per aprire il menu a tendina
+2. Spuntare le checkbox delle strutture da associare
+3. E possibile selezionare **piu strutture** contemporaneamente
+4. Salvare il record
+
+#### Rimuovere una singola struttura
+
+1. Cliccare sul campo **Struttura** per aprire il menu a tendina
+2. **Togliere la spunta** dalla checkbox della struttura da rimuovere
+3. Salvare il record
+
+#### Rimuovere tutte le strutture (Svuota campo)
+
+1. Fare **click destro** sul campo Struttura
+2. Selezionare "**Svuota campo Struttura**" dal menu contestuale
+3. Salvare il record per confermare la modifica
+
+> **Nota**: La funzione "Svuota campo" rimuove TUTTE le strutture associate. Per rimuoverne solo una, usare le checkbox.
+
 ---
 
 ## Tab Rapporti Stratigrafici
@@ -656,6 +687,70 @@ Contiene strumenti avanzati per il controllo e l'esportazione.
 | **Crea Codice Periodo** | Genera codici periodo |
 | **csv2us** | Importa US da CSV |
 | **Graphml2csv** | Esporta GraphML in CSV |
+
+---
+
+## Ordinamento Stratigrafico (Order Layer)
+
+Il sistema di **Ordinamento Stratigrafico** calcola automaticamente la sequenza delle US basandosi sui rapporti stratigrafici inseriti. E un calcolo automatico che assegna un valore numerico progressivo a ogni US in base alla sua posizione nella sequenza stratigrafica.
+
+### Come funziona
+
+Il sistema analizza i rapporti stratigrafici (copre/coperto da, taglia/tagliato da, ecc.) e costruisce un grafo diretto. Poi calcola l'ordine topologico, assegnando:
+- **Livello 0**: US piu antiche (alla base della stratigrafia)
+- **Livello 1, 2, 3...**: US progressivamente piu recenti
+- **Livello N**: US piu recenti (in cima alla stratigrafia)
+
+### Requisiti per l'ordinamento
+
+1. **Rapporti completi**: Tutte le US devono avere i rapporti stratigrafici inseriti
+2. **Nessun paradosso**: Non devono esistere cicli nei rapporti (es. US1 copre US2 e US2 copre US1)
+3. **Rapporti inversi**: Tutti i rapporti devono avere il loro inverso
+
+### Come eseguire l'ordinamento
+
+1. Effettuare una **ricerca** per Sito e Area (il sistema lavora su singolo sito/area)
+2. Andare su **Tab Help** → **Tool Box**
+3. Cliccare **Ordine stratigrafico**
+4. Confermare l'operazione
+5. Attendere il completamento
+
+### Formato dell'ordinamento
+
+L'ordinamento e **sempre numerico sequenziale**:
+```
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+```
+
+**Regole:**
+- I numeri sono **sempre consecutivi** (mai 1, 2, 5, 8 - sempre 1, 2, 3, 4)
+- Non ci sono salti nella sequenza
+- US allo stesso livello stratigrafico hanno lo stesso numero
+- L'ordine puo essere **inverso** (checkbox "Ordine: Antico → Recente"):
+  - **Attivo**: 0 = piu antico, N = piu recente
+  - **Disattivo**: 0 = piu recente, N = piu antico
+
+### Campo Order Layer
+
+Il risultato viene salvato nel campo **Order Layer** (lineEditOrderLayer) di ogni US. Questo campo:
+- E **calcolato automaticamente** dal sistema
+- Puo essere **modificato manualmente** se necessario
+- Viene usato per ordinare le US nella visualizzazione
+
+### Errori comuni
+
+| Errore | Causa | Soluzione |
+|--------|-------|-----------|
+| "Paradosso stratigrafico" | Ciclo nei rapporti | Verificare e correggere i rapporti |
+| "US mancanti" | US riferite ma non esistenti | Creare le US mancanti |
+| "Rapporto mancante" | Rapporto senza tipo o numero | Completare i rapporti |
+
+### Visualizzazione
+
+Una volta calcolato l'ordine, e possibile:
+- **Ordinare** i record per Order Layer
+- **Filtrare** per livelli specifici
+- **Esportare** il Matrix con i livelli
 
 ### Funzioni GIS
 
