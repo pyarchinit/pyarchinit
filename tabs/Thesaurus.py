@@ -780,7 +780,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '13.7': {'it': 'Affidabilità Stratigrafica', 'en': 'Stratigraphic reliability', 'de': 'Stratigraphische Zuverlässigkeit', 'es': 'Fiabilidad estratigráfica', 'fr': 'Fiabilité stratigraphique', 'ar': 'الموثوقية الطبقية'},
                 '13.8': {'it': 'Tracce Combustione', 'en': 'Burning traces', 'de': 'Verbrennungsspuren', 'es': 'Trazas de combustión', 'fr': 'Traces de combustion', 'ar': 'آثار الاحتراق'},
                 '13.9': {'it': 'Tipo Combustione', 'en': 'Combustion type', 'de': 'Verbrennungstyp', 'es': 'Tipo de combustión', 'fr': 'Type de combustion', 'ar': 'نوع الاحتراق'},
-                '13.10': {'it': 'Connessione Anatomica', 'en': 'Anatomical connection', 'de': 'Anatomische Verbindung', 'es': 'Conexión anatómica', 'fr': 'Connexion anatomique', 'ar': 'الاتصال التشريحي'}
+                '13.10': {'it': 'Connessione Anatomica', 'en': 'Anatomical connection', 'de': 'Anatomische Verbindung', 'es': 'Conexión anatómica', 'fr': 'Connexion anatomique', 'ar': 'الاتصال التشريحي'},
+                '13.11': {'it': 'Specie', 'en': 'Species', 'de': 'Spezies', 'es': 'Especie', 'fr': 'Espèce', 'ar': 'النوع'},
+                '13.12': {'it': 'Parti Scheletriche (PSI)', 'en': 'Skeletal Parts (PSI)', 'de': 'Skelettteile (PSI)', 'es': 'Partes esqueléticas (PSI)', 'fr': 'Parties squelettiques (PSI)', 'ar': 'أجزاء الهيكل العظمي'},
+                '13.13': {'it': 'Elemento Anatomico', 'en': 'Anatomical Element', 'de': 'Anatomisches Element', 'es': 'Elemento anatómico', 'fr': 'Élément anatomique', 'ar': 'العنصر التشريحي'}
             }
         }
         
