@@ -7235,6 +7235,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             "Sigla struttura": "struttura",
             "Scavato": "scavato",
             "Codice periodo": "cont_per",
+            "Indice di ordinamento": "order_layer",
             "Tipo unità": "unita_tipo",  # nuovi campi per USM
             "Settore": "settore",
             "Quadrato-Parete": "quad_par",
@@ -7322,6 +7323,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             "Strukturcode": "struttura",
             "Ausgegraben": "scavato",
             "Periodencode erstellen": "cont_per",
+            "Sortierindex": "order_layer",
             "Einheit eingeben": "unita_tipo",  # nuovi campi per USM
             "Sektor": "settore",
             "Quadrat / Wand": "quad_par",
@@ -7409,6 +7411,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             "Structure code": "struttura",
             "Excavated": "scavato",
             "Period code": "cont_per",
+            "Sorting index": "order_layer",
             "Unit type": "unita_tipo",  # nuovi campi per USM
             "Sector": "settore",
             "Square-profile": "quad_par",
@@ -7583,6 +7586,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             "Strukturcode",
             "Ausgegraben",
             "Periodencode erstellen",
+            "Sortierindex",
             "Einheit eingeben",
             "Sektor",
             "Quadrat / Wand",
