@@ -558,6 +558,35 @@ El botón PDF abre un panel con opciones de exportación:
 
 ---
 
+## Sincronización con la Ficha UE
+
+Cuando se crea una estructura en la Ficha de Estructura, aparece automáticamente en la lista desplegable del campo **Estructura** de la Ficha UE.
+
+### Campos Requeridos para la Sincronización
+
+Para que una estructura aparezca en la lista desplegable de UE:
+1. **Sitio**: Debe coincidir con el sitio de la UE
+2. **Sigla Estructura**: Debe estar rellenado (ej. MR, ST, PV)
+3. **Número Estructura**: Debe estar rellenado
+
+### Flujo de Trabajo
+
+1. **Crear la estructura**: Rellenar sitio, sigla y número
+2. **Guardar**: El registro debe guardarse
+3. **En la Ficha UE**: La estructura ahora aparece en el desplegable del campo Estructura
+4. **Asignar**: Seleccionar la(s) estructura(s) para la UE
+5. **Sincronización**: Los datos quedan vinculados entre las fichas
+
+### Eliminar Estructuras de una UE
+
+Para eliminar todas las estructuras de una UE:
+1. Abrir la Ficha UE
+2. **Clic derecho** en el campo Estructura
+3. Seleccionar **"Vaciar campo Estructura"**
+4. Guardar el registro
+
+---
+
 ## Relaciones con Otras Fichas
 
 | Ficha | Relación |

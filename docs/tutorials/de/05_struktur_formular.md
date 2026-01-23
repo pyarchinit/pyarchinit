@@ -560,6 +560,35 @@ Erweiterte Funktion zur Konvertierung generierter PDFs in bearbeitbare Word-Doku
 
 ---
 
+## Synchronisation mit SE-Formular
+
+Wenn eine Struktur im Strukturformular erstellt wird, erscheint sie automatisch in der Dropdown-Liste des Feldes **Struktur** im SE-Formular.
+
+### Erforderliche Felder für die Synchronisation
+
+Damit eine Struktur in der SE-Dropdown-Liste erscheint:
+1. **Fundort**: Muss mit dem Fundort der SE übereinstimmen
+2. **Strukturkürzel**: Muss ausgefüllt sein (z.B. MR, ST, PV)
+3. **Strukturnummer**: Muss ausgefüllt sein
+
+### Arbeitsablauf
+
+1. **Struktur erstellen**: Füllen Sie Fundort, Kürzel und Nummer aus
+2. **Speichern**: Der Datensatz muss gespeichert werden
+3. **Im SE-Formular**: Die Struktur erscheint jetzt in der Dropdown-Liste des Strukturfeldes
+4. **Zuweisen**: Wählen Sie die Struktur(en) für die SE aus
+5. **Synchronisierung**: Die Daten werden zwischen den Formularen verknüpft
+
+### Strukturen von SE entfernen
+
+Um alle Strukturen von einer SE zu entfernen:
+1. Öffnen Sie das SE-Formular
+2. **Rechtsklick** auf das Feld Struktur
+3. Wählen Sie **"Feld Struktur leeren"**
+4. Speichern Sie den Datensatz
+
+---
+
 ## Referenzen
 
 ### Datenbank

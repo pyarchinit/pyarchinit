@@ -246,6 +246,56 @@ Gestiona la cronologia de la unitat estratigràfica.
 | **Excavat** | Estat d'excavació | Sí / No |
 | **Mètode d'excavació** | Modalitat d'excavació | Mecànic / Estratigràfic |
 
+### Camp Estructura
+
+El camp **Estructura** (`comboBox_struttura`) és un camp de selecció múltiple sincronitzat amb la Fitxa Estructura.
+
+**Característiques importants:**
+- El camp mostra totes les estructures definides a la Fitxa Estructura per al lloc actual
+- Podeu seleccionar múltiples estructures marcant les caselles corresponents
+- Després de desar, les dades es sincronitzen entre US i Estructura
+
+**Com assignar estructures:**
+1. Feu clic al camp Estructura per obrir el desplegable
+2. Seleccioneu les estructures desitjades marcant les caselles
+3. Deseu el registre
+
+**Com eliminar totes les estructures:**
+1. **Clic dret** al camp Estructura
+2. Seleccioneu **"Clear Structure field"** al menú contextual
+3. Totes les seleccions s'eliminaran
+4. Deseu el registre per confirmar el canvi
+
+> **Nota**: Buidar el camp elimina les seleccions al registre actual. Per desseleccionar només algunes estructures, desmarqueu manualment les caselles al desplegable.
+
+### Camp Ordre de Capa
+
+El camp **Ordre de Capa** (`order_layer`) defineix la posició de l'US a la seqüència estratigràfica.
+
+**Regles importants:**
+- L'ordre ha de ser **sempre seqüencial**: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **No es permeten salts**: no podeu tenir 1, 2, 5, 8 (falten 3, 4, 6, 7)
+- **Sense duplicats**: cada US ha de tenir un número d'ordre únic
+- Si feu servir ordre alfabètic: A, B, C, D, E, F... (tampoc es permeten salts)
+
+**Càlcul automàtic:**
+L'ordre de capa es calcula automàticament a partir de les relacions estratigràfiques. El sistema analitza les relacions entre les US (cobreix, cobert per, talla, etc.) i assigna un número d'ordre seqüencial a cada una.
+
+**Exemple d'ordre correcte:**
+| US | Ordre de capa |
+|----|---------------|
+| US 1 | 1 |
+| US 2 | 2 |
+| US 3 | 3 |
+| US 4 | 4 |
+
+**Exemple d'ordre incorrecte (evitar):**
+| US | Ordre de capa |
+|----|---------------|
+| US 1 | 1 |
+| US 2 | 3 | ← Incorrecte, falta 2 |
+| US 3 | 7 | ← Incorrecte, falten 4, 5, 6 |
+
 ---
 
 ## Pestanya Relacions Estratigràfiques

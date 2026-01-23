@@ -665,6 +665,35 @@ Funcionalitat avançada per convertir els PDF generats en documents Word editabl
 
 ---
 
+## Sincronització amb la Fitxa US
+
+Quan es crea una estructura a la Fitxa Estructura, apareix automàticament a la llista desplegable del camp **Estructura** de la Fitxa US.
+
+### Camps Requerits per a la Sincronització
+
+Perquè una estructura aparegui a la llista desplegable d'US:
+1. **Lloc**: Ha de coincidir amb el lloc de l'US
+2. **Sigla Estructura**: Ha d'estar emplenat (ex. MR, ST, PV)
+3. **Número Estructura**: Ha d'estar emplenat
+
+### Flux de Treball
+
+1. **Crear l'estructura**: Emplenar lloc, sigla i número
+2. **Desar**: El registre s'ha de desar
+3. **A la Fitxa US**: L'estructura ara apareix al desplegable del camp Estructura
+4. **Assignar**: Seleccioneu l'estructura/es per a l'US
+5. **Sincronització**: Les dades queden vinculades entre les fitxes
+
+### Eliminar Estructures d'una US
+
+Per eliminar totes les estructures d'una US:
+1. Obriu la Fitxa US
+2. **Clic dret** al camp Estructura
+3. Seleccioneu **"Clear Structure field"**
+4. Deseu el registre
+
+---
+
 ## Relacions amb Altres Fitxes
 
 | Fitxa | Relació |

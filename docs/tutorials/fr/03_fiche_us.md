@@ -144,6 +144,56 @@ fragmentés suggère un effondrement partiel des structures.
 | **Datation** | Date absolue ou intervalle |
 | **Année** | Année de fouille |
 
+### Champ Structure
+
+Le champ **Structure** (`comboBox_struttura`) est un champ à sélection multiple synchronisé avec la fiche Structure.
+
+**Caractéristiques importantes :**
+- Le champ affiche toutes les structures définies dans la fiche Structure pour le site actuel
+- Vous pouvez sélectionner plusieurs structures en cochant les cases correspondantes
+- Après sauvegarde, les données sont synchronisées entre US et Structure
+
+**Comment attribuer des structures :**
+1. Cliquer sur le champ Structure pour ouvrir le menu déroulant
+2. Sélectionner les structures souhaitées en cochant les cases
+3. Sauvegarder l'enregistrement
+
+**Comment supprimer toutes les structures :**
+1. **Clic droit** sur le champ Structure
+2. Sélectionner **"Vider le champ Structure"** dans le menu contextuel
+3. Toutes les sélections seront supprimées
+4. Sauvegarder l'enregistrement pour confirmer la modification
+
+> **Note** : Vider le champ supprime les sélections dans l'enregistrement actuel. Pour désélectionner uniquement certaines structures, décocher manuellement les cases dans le menu déroulant.
+
+### Champ Ordre de Couche
+
+Le champ **Ordre de Couche** (`order_layer`) définit la position de l'US dans la séquence stratigraphique.
+
+**Règles importantes :**
+- L'ordre doit être **toujours séquentiel** : 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Aucun saut autorisé** : vous ne pouvez pas avoir 1, 2, 5, 8 (3, 4, 6, 7 manquants)
+- **Pas de doublons** : chaque US doit avoir un numéro d'ordre unique
+- Si vous utilisez un ordre alphabétique : A, B, C, D, E, F... (également sans sauts)
+
+**Calcul automatique :**
+L'ordre de couche est calculé automatiquement à partir des relations stratigraphiques. Le système analyse les relations entre les US (couvre, couvert par, coupe, etc.) et attribue un numéro d'ordre séquentiel à chacune.
+
+**Exemple d'ordre correct :**
+| US | Ordre de couche |
+|----|-----------------|
+| US 1 | 1 |
+| US 2 | 2 |
+| US 3 | 3 |
+| US 4 | 4 |
+
+**Exemple d'ordre incorrect (à éviter) :**
+| US | Ordre de couche |
+|----|-----------------|
+| US 1 | 1 |
+| US 2 | 3 | ← Incorrect, 2 manquant |
+| US 3 | 7 | ← Incorrect, 4, 5, 6 manquants |
+
 ---
 
 ## Onglet Relations Stratigraphiques
