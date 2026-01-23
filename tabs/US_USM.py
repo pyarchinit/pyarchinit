@@ -19184,6 +19184,19 @@ DATABASE SCHEMA KNOWLEDGE:
             self.DATA_LIST = []
             temp_data_list = self.DB_MANAGER.query_sort(id_list, self.SORT_ITEMS_CONVERTED, self.SORT_MODE,
                                                         self.MAPPER_TABLE_CLASS, self.ID_TABLE)
+
+            # Apply natural sorting if 'us' field is in sort parameters
+            # Natural sorting handles alphanumeric values correctly: 1, 2, 10 instead of 1, 10, 2
+            if 'us' in self.SORT_ITEMS_CONVERTED:
+                # Determine if ascending or descending
+                reverse_order = self.SORT_MODE.lower() == 'desc'
+                # Apply natural sort using the static method
+                temp_data_list = sorted(
+                    temp_data_list,
+                    key=lambda x: self.natural_sort_key(str(x.us)),
+                    reverse=reverse_order
+                )
+
             for i in temp_data_list:
                 self.DATA_LIST.append(i)
             self.BROWSE_STATUS = 'b'
