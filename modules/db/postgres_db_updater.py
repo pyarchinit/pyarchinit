@@ -45,6 +45,12 @@ class PostgresDbUpdater:
             self.update_struttura_table()
             # Aggiorna la view pyarchinit_strutture_view con i nuovi campi
             self.update_strutture_view()
+            # Crea fauna_table se non esiste
+            self.update_fauna_table()
+            # Aggiunge voci thesaurus per fauna_table
+            self.update_fauna_thesaurus()
+            # Fix thesaurus entries with display names instead of table names
+            self.fix_thesaurus_nome_tabella()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1164,6 +1170,270 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della view strutture: {e}")
+
+    def table_exists(self, table_name):
+        """Verifica se una tabella esiste nel database"""
+        try:
+            from sqlalchemy import text
+            query = text(f"""
+                SELECT 1 FROM information_schema.tables
+                WHERE table_name = '{table_name}' AND table_schema = 'public'
+            """)
+            result = self.db_manager._execute_sql(query)
+            return result.fetchone() is not None
+        except Exception as e:
+            self.log_message(f"Errore verificando esistenza tabella {table_name}: {e}")
+            return False
+
+    def update_fauna_table(self):
+        """Crea fauna_table se non esiste (v4.9.21+)"""
+        if self.table_exists('fauna_table'):
+            return
+
+        self.log_message("Creazione tabella fauna_table...")
+
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS fauna_table (
+                    id_fauna BIGSERIAL PRIMARY KEY,
+                    id_us BIGINT,
+                    sito TEXT,
+                    area TEXT,
+                    saggio TEXT,
+                    us TEXT,
+                    datazione_us TEXT,
+                    responsabile_scheda TEXT,
+                    data_compilazione DATE,
+                    documentazione_fotografica TEXT,
+                    metodologia_recupero TEXT,
+                    contesto TEXT,
+                    descrizione_contesto TEXT,
+                    resti_connessione_anatomica TEXT,
+                    tipologia_accumulo TEXT,
+                    deposizione TEXT,
+                    numero_stimato_resti TEXT,
+                    numero_minimo_individui INTEGER,
+                    specie TEXT,
+                    parti_scheletriche TEXT,
+                    specie_psi TEXT,
+                    misure_ossa TEXT,
+                    stato_frammentazione TEXT,
+                    tracce_combustione TEXT,
+                    combustione_altri_materiali_us BOOLEAN,
+                    tipo_combustione TEXT,
+                    segni_tafonomici_evidenti TEXT,
+                    caratterizzazione_segni_tafonomici TEXT,
+                    stato_conservazione TEXT,
+                    alterazioni_morfologiche TEXT,
+                    note_terreno_giacitura TEXT,
+                    campionature_effettuate TEXT,
+                    affidabilita_stratigrafica TEXT,
+                    classi_reperti_associazione TEXT,
+                    osservazioni TEXT,
+                    interpretazione TEXT,
+                    UNIQUE (sito, area, us, id_fauna)
+                )
+            """)
+
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+
+            self.log_message("Tabella fauna_table creata con successo")
+            self.updates_made.append("CREATE TABLE fauna_table")
+
+        except Exception as e:
+            self.log_message(f"Errore creando fauna_table: {e}")
+
+    def update_fauna_thesaurus(self):
+        """Installa/aggiorna le voci thesaurus per la tabella fauna_table (v4.9.21+)"""
+        try:
+            from sqlalchemy import text
+
+            # Check if fauna thesaurus entries exist
+            check_query = text("""
+                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
+                WHERE nome_tabella = 'fauna_table'
+            """)
+            result = self.db_manager._execute_sql(check_query)
+            fauna_count = result.fetchone()[0]
+
+            if fauna_count >= 50:  # Expected ~65 entries for fauna fields
+                return
+
+            self.log_message("Aggiunta voci thesaurus per fauna_table...")
+
+            # Fauna thesaurus entries
+            fauna_entries = [
+                # 13.1 - Contesto
+                ('fauna_table', 'DOMESTICO', 'Contesto domestico', 'Contesto residenziale/abitativo', '13.1', 'IT'),
+                ('fauna_table', 'RITUALE', 'Contesto rituale', 'Contesto cerimoniale/rituale', '13.1', 'IT'),
+                ('fauna_table', 'FUNERARIO', 'Contesto funerario', 'Contesto sepolcrale/funerario', '13.1', 'IT'),
+                ('fauna_table', 'PRODUTTIVO', 'Contesto produttivo', 'Contesto artigianale/industriale', '13.1', 'IT'),
+                ('fauna_table', 'RIFIUTI', 'Deposito rifiuti', 'Scarico/deposito di rifiuti', '13.1', 'IT'),
+                # 13.2 - Metodologia Recupero
+                ('fauna_table', 'MANUALE', 'Raccolta manuale', 'Recupero manuale durante lo scavo', '13.2', 'IT'),
+                ('fauna_table', 'SETACCIO', 'Setacciatura', 'Recupero mediante setacciatura', '13.2', 'IT'),
+                ('fauna_table', 'FLOTTAZIONE', 'Flottazione', 'Recupero mediante flottazione', '13.2', 'IT'),
+                # 13.3 - Tipologia Accumulo
+                ('fauna_table', 'NATURALE', 'Accumulo naturale', 'Accumulo per cause naturali', '13.3', 'IT'),
+                ('fauna_table', 'ANTROPICO', 'Accumulo antropico', 'Accumulo per attività umana', '13.3', 'IT'),
+                ('fauna_table', 'MISTO', 'Accumulo misto', 'Accumulo di origine mista', '13.3', 'IT'),
+                # 13.4 - Deposizione
+                ('fauna_table', 'PRIMARIA', 'Deposizione primaria', 'Deposizione in situ', '13.4', 'IT'),
+                ('fauna_table', 'SECONDARIA', 'Deposizione secondaria', 'Deposizione dopo spostamento', '13.4', 'IT'),
+                ('fauna_table', 'RIMANEGGIATA', 'Deposizione rimaneggiata', 'Deposizione disturbata', '13.4', 'IT'),
+                # 13.5 - Stato Frammentazione
+                ('fauna_table', 'INTEGRO', 'Integro', 'Osso completo', '13.5', 'IT'),
+                ('fauna_table', 'FRAMMENTATO', 'Frammentato', 'Osso frammentato', '13.5', 'IT'),
+                ('fauna_table', 'PARZIALE', 'Parziale', 'Osso parzialmente conservato', '13.5', 'IT'),
+                # 13.6 - Stato Conservazione
+                ('fauna_table', 'BUONO', 'Buono', 'Buono stato di conservazione', '13.6', 'IT'),
+                ('fauna_table', 'MEDIOCRE', 'Mediocre', 'Stato di conservazione mediocre', '13.6', 'IT'),
+                ('fauna_table', 'CATTIVO', 'Cattivo', 'Cattivo stato di conservazione', '13.6', 'IT'),
+                # 13.7 - Affidabilità Stratigrafica
+                ('fauna_table', 'ALTA', 'Alta affidabilità', 'Alta affidabilità stratigrafica', '13.7', 'IT'),
+                ('fauna_table', 'MEDIA', 'Media affidabilità', 'Media affidabilità stratigrafica', '13.7', 'IT'),
+                ('fauna_table', 'BASSA', 'Bassa affidabilità', 'Bassa affidabilità stratigrafica', '13.7', 'IT'),
+                # 13.8 - Tracce Combustione
+                ('fauna_table', 'ASSENTI', 'Assenti', 'Nessuna traccia di combustione', '13.8', 'IT'),
+                ('fauna_table', 'PRESENTI', 'Presenti', 'Tracce di combustione presenti', '13.8', 'IT'),
+                ('fauna_table', 'DIFFUSE', 'Diffuse', 'Tracce di combustione diffuse', '13.8', 'IT'),
+                # 13.9 - Tipo Combustione
+                ('fauna_table', 'CARBONIZZAZIONE', 'Carbonizzazione', 'Combustione con carbonizzazione', '13.9', 'IT'),
+                ('fauna_table', 'CALCINAZIONE', 'Calcinazione', 'Combustione con calcinazione', '13.9', 'IT'),
+                ('fauna_table', 'PARZIALE', 'Parziale', 'Combustione parziale', '13.9', 'IT'),
+                # 13.10 - Connessione Anatomica
+                ('fauna_table', 'SI', 'In connessione', 'Ossa in connessione anatomica', '13.10', 'IT'),
+                ('fauna_table', 'NO', 'Non in connessione', 'Ossa disarticolate', '13.10', 'IT'),
+                ('fauna_table', 'PARZIALE', 'Parziale', 'Connessione anatomica parziale', '13.10', 'IT'),
+                # 13.11 - Specie
+                ('fauna_table', 'BOS_TAURUS', 'Bos taurus', 'Bovino domestico', '13.11', 'IT'),
+                ('fauna_table', 'OVIS_ARIES', 'Ovis aries', 'Pecora domestica', '13.11', 'IT'),
+                ('fauna_table', 'CAPRA_HIRCUS', 'Capra hircus', 'Capra domestica', '13.11', 'IT'),
+                ('fauna_table', 'SUS_DOMESTICUS', 'Sus domesticus', 'Maiale domestico', '13.11', 'IT'),
+                ('fauna_table', 'OVIS_CAPRA', 'Ovis/Capra', 'Ovicaprino indeterminato', '13.11', 'IT'),
+                ('fauna_table', 'CERVUS_ELAPHUS', 'Cervus elaphus', 'Cervo', '13.11', 'IT'),
+                ('fauna_table', 'EQUUS_CABALLUS', 'Equus caballus', 'Cavallo', '13.11', 'IT'),
+                ('fauna_table', 'CANIS_FAMILIARIS', 'Canis familiaris', 'Cane domestico', '13.11', 'IT'),
+                ('fauna_table', 'INDET', 'Indeterminato', 'Specie indeterminata', '13.11', 'IT'),
+                # 13.12 - Parti Scheletriche (PSI)
+                ('fauna_table', 'CRANIO', 'Cranio', 'Cranio/elementi craniali', '13.12', 'IT'),
+                ('fauna_table', 'MANDIBOLA', 'Mandibola', 'Mandibola/mascella', '13.12', 'IT'),
+                ('fauna_table', 'VERTEBRE', 'Vertebre', 'Elementi vertebrali', '13.12', 'IT'),
+                ('fauna_table', 'COSTE', 'Coste', 'Costole', '13.12', 'IT'),
+                ('fauna_table', 'SCAPOLA', 'Scapola', 'Scapola', '13.12', 'IT'),
+                ('fauna_table', 'OMERO', 'Omero', 'Omero', '13.12', 'IT'),
+                ('fauna_table', 'RADIO', 'Radio', 'Radio', '13.12', 'IT'),
+                ('fauna_table', 'ULNA', 'Ulna', 'Ulna', '13.12', 'IT'),
+                ('fauna_table', 'PELVI', 'Pelvi', 'Bacino', '13.12', 'IT'),
+                ('fauna_table', 'FEMORE', 'Femore', 'Femore', '13.12', 'IT'),
+                ('fauna_table', 'TIBIA', 'Tibia', 'Tibia', '13.12', 'IT'),
+                ('fauna_table', 'METAPODIO', 'Metapodio', 'Metacarpo/Metatarso', '13.12', 'IT'),
+                ('fauna_table', 'FALANGI', 'Falangi', 'Falangi', '13.12', 'IT'),
+                # 13.13 - Elemento Anatomico
+                ('fauna_table', 'HUM', 'Humerus', 'Omero', '13.13', 'IT'),
+                ('fauna_table', 'RAD', 'Radius', 'Radio', '13.13', 'IT'),
+                ('fauna_table', 'FEM', 'Femur', 'Femore', '13.13', 'IT'),
+                ('fauna_table', 'TIB', 'Tibia', 'Tibia', '13.13', 'IT'),
+                ('fauna_table', 'MTC', 'Metacarpus', 'Metacarpo', '13.13', 'IT'),
+                ('fauna_table', 'MTT', 'Metatarsus', 'Metatarso', '13.13', 'IT'),
+                ('fauna_table', 'AST', 'Astragalus', 'Astragalo', '13.13', 'IT'),
+                ('fauna_table', 'CAL', 'Calcaneus', 'Calcagno', '13.13', 'IT'),
+                ('fauna_table', 'PHI', 'Phalanx I', 'Prima falange', '13.13', 'IT'),
+                ('fauna_table', 'PHII', 'Phalanx II', 'Seconda falange', '13.13', 'IT'),
+                ('fauna_table', 'PHIII', 'Phalanx III', 'Terza falange', '13.13', 'IT'),
+            ]
+
+            inserted_count = 0
+            with self.db_manager.engine.connect() as conn:
+                for entry in fauna_entries:
+                    try:
+                        insert_sql = text("""
+                            INSERT INTO pyarchinit_thesaurus_sigle
+                            (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
+                            VALUES (:nome_tabella, :sigla, :sigla_estesa, :descrizione, :tipologia_sigla, :lingua)
+                            ON CONFLICT DO NOTHING
+                        """)
+                        conn.execute(insert_sql, {
+                            'nome_tabella': entry[0],
+                            'sigla': entry[1],
+                            'sigla_estesa': entry[2],
+                            'descrizione': entry[3],
+                            'tipologia_sigla': entry[4],
+                            'lingua': entry[5]
+                        })
+                        inserted_count += 1
+                    except Exception as e:
+                        pass  # Ignore duplicates
+
+                conn.execute(text("COMMIT"))
+
+            if inserted_count > 0:
+                self.log_message(f"Voci thesaurus fauna_table inserite ({inserted_count} voci)")
+                self.updates_made.append(f"fauna_table thesaurus ({inserted_count} voci)")
+
+        except Exception as e:
+            self.log_message(f"Errore aggiungendo voci thesaurus fauna: {e}")
+
+    def fix_thesaurus_nome_tabella(self):
+        """Fix thesaurus entries that have display names instead of actual table names.
+
+        This migration fixes a bug where the Thesaurus form was saving entries with
+        display names (e.g., 'Fauna') instead of actual table names (e.g., 'fauna_table').
+        Forms query using actual table names, so entries with display names were not found.
+        """
+        try:
+            from sqlalchemy import text
+
+            # Mapping from display names to actual table names
+            display_to_table = {
+                'Fauna': 'fauna_table',
+                'US': 'us_table',
+                'USM': 'us_table_usm',
+                'Sito': 'site_table',
+                'Periodizzazione': 'periodizzazione_table',
+                'Inventario Materiali': 'inventario_materiali_table',
+                'Inventario Lapidei': 'inventario_lapidei_table',
+                'Struttura': 'struttura_table',
+                'Tomba': 'tomba_table',
+                'Campioni': 'campioni_table',
+                'UT': 'ut_table',
+                'Tafonomia': 'tafonomia_table',
+                'Individui': 'individui_table',
+                'Pottery': 'pottery_table',
+                'Archeozoologia': 'archeozoo_table',
+            }
+
+            total_fixed = 0
+            with self.db_manager.engine.connect() as conn:
+                for display_name, table_name in display_to_table.items():
+                    try:
+                        update_sql = text("""
+                            UPDATE pyarchinit_thesaurus_sigle
+                            SET nome_tabella = :table_name
+                            WHERE nome_tabella = :display_name
+                        """)
+                        result = conn.execute(update_sql, {
+                            'table_name': table_name,
+                            'display_name': display_name
+                        })
+                        rows_updated = result.rowcount
+                        if rows_updated > 0:
+                            total_fixed += rows_updated
+                            self.log_message(f"Fixed {rows_updated} thesaurus entries: '{display_name}' -> '{table_name}'")
+                    except Exception as e:
+                        self.log_message(f"Error fixing '{display_name}': {e}")
+
+                conn.execute(text("COMMIT"))
+
+            if total_fixed > 0:
+                self.log_message(f"Thesaurus nome_tabella fix: {total_fixed} entries corrected")
+                self.updates_made.append(f"thesaurus nome_tabella fix ({total_fixed} voci)")
+
+        except Exception as e:
+            self.log_message(f"Error fixing thesaurus nome_tabella: {e}")
 
     def create_performance_indexes(self):
         """Crea indici di performance per query frequenti"""

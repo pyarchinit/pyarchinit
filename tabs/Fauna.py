@@ -701,6 +701,8 @@ class pyarchinit_Fauna(QDialog):
         }
         lang = lang_mapping.get(self.L, "'EN'")
 
+        print(f"[Fauna DEBUG] charge_combo_thesaurus: L={self.L}, lang={lang}")
+
         # Helper function to load thesaurus values
         def load_thesaurus(tipologia_sigla, use_sigla=False):
             search_dict = {
@@ -709,7 +711,20 @@ class pyarchinit_Fauna(QDialog):
                 'tipologia_sigla': "'" + tipologia_sigla + "'"
             }
             try:
+                print(f"[Fauna DEBUG] Loading thesaurus for {tipologia_sigla} with search_dict: {search_dict}")
                 thesaurus_data = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
+                print(f"[Fauna DEBUG] Thesaurus query returned {len(thesaurus_data) if thesaurus_data else 0} items")
+
+                # If no results with language filter, try without language filter
+                if not thesaurus_data:
+                    print(f"[Fauna DEBUG] No results with language filter, trying without language...")
+                    search_dict_no_lang = {
+                        'nome_tabella': "'fauna_table'",
+                        'tipologia_sigla': "'" + tipologia_sigla + "'"
+                    }
+                    thesaurus_data = self.DB_MANAGER.query_bool(search_dict_no_lang, 'PYARCHINIT_THESAURUS_SIGLE')
+                    print(f"[Fauna DEBUG] Thesaurus query without lang returned {len(thesaurus_data) if thesaurus_data else 0} items")
+
                 values = []
                 for item in thesaurus_data:
                     if use_sigla:
@@ -719,9 +734,13 @@ class pyarchinit_Fauna(QDialog):
                     if val and val not in values:
                         values.append(val)
                 values.sort()
+                print(f"[Fauna DEBUG] Thesaurus values for {tipologia_sigla}: {values}")
                 return values
             except Exception as e:
                 # If thesaurus table doesn't exist or other error, return empty list
+                print(f"[Fauna DEBUG] Thesaurus error for {tipologia_sigla}: {e}")
+                import traceback
+                traceback.print_exc()
                 return []
 
         # 13.1 - Contesto
@@ -1144,11 +1163,20 @@ class pyarchinit_Fauna(QDialog):
             pass
 
     def set_rec_counter(self, t, c):
-        """Update record counter display."""
+        """Update record counter display.
+
+        Args:
+            t: Total number of records
+            c: Current record number (1-based for display)
+
+        Note: REC_CORR is 0-based index, c is 1-based display value.
+        This method only updates display labels, not REC_CORR.
+        """
         self.REC_TOT = t
-        self.REC_CORR = c
+        # Don't modify REC_CORR here - it's a 0-based index
+        # c is the 1-based display value
         self.label_rec_tot.setText(str(self.REC_TOT))
-        self.label_rec_corrente.setText(str(self.REC_CORR))
+        self.label_rec_corrente.setText(str(c))
 
     # ========== GESTIONE TABELLE SPECIE/PSI E MISURE ==========
 
@@ -2990,17 +3018,34 @@ class pyarchinit_Fauna(QDialog):
         """Handle update confirmation."""
         if msg == QMessageBox.StandardButton.Ok:
             try:
+                print(f"[Fauna DEBUG] update_if: REC_CORR={self.REC_CORR}, DATA_LIST length={len(self.DATA_LIST)}")
+
+                # Ensure REC_CORR is within valid range
+                if self.REC_CORR >= len(self.DATA_LIST):
+                    self.REC_CORR = len(self.DATA_LIST) - 1
+                    print(f"[Fauna DEBUG] update_if: Adjusted REC_CORR to {self.REC_CORR}")
+                if self.REC_CORR < 0:
+                    self.REC_CORR = 0
+
                 id_to_update = int(self.DATA_LIST[self.REC_CORR].id_fauna)
+                print(f"[Fauna DEBUG] update_if: id_to_update={id_to_update}")
                 self.update_record(id_to_update)
+                print(f"[Fauna DEBUG] update_if: update_record completed successfully")
 
                 # Refresh data after successful update
                 self.charge_records()
+                print(f"[Fauna DEBUG] update_if: charge_records completed, DATA_LIST length={len(self.DATA_LIST)}")
                 self.charge_list()
+                print(f"[Fauna DEBUG] update_if: charge_list completed")
 
-                # Restore position
-                if self.REC_CORR < len(self.DATA_LIST):
+                # Restore position - ensure REC_CORR is still valid after refresh
+                if self.REC_CORR >= len(self.DATA_LIST):
+                    self.REC_CORR = len(self.DATA_LIST) - 1 if self.DATA_LIST else 0
+
+                if self.DATA_LIST and self.REC_CORR < len(self.DATA_LIST):
                     self.fill_fields(self.REC_CORR)
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    print(f"[Fauna DEBUG] update_if: fill_fields completed for REC_CORR={self.REC_CORR}")
 
                 if self.L == 'it':
                     QMessageBox.information(self, "Successo", "Record aggiornato correttamente")
@@ -3022,23 +3067,34 @@ class pyarchinit_Fauna(QDialog):
     def update_record(self, id_fauna):
         """Update record in database."""
         try:
+            values = self.rec_toupdate()
+            print(f"[Fauna DEBUG] update_record: id_fauna={id_fauna}")
+            print(f"[Fauna DEBUG] update_record: TABLE_FIELDS count={len(self.TABLE_FIELDS)}")
+            print(f"[Fauna DEBUG] update_record: values count={len(values)}")
+            print(f"[Fauna DEBUG] update_record: TABLE_FIELDS={self.TABLE_FIELDS}")
+            print(f"[Fauna DEBUG] update_record: values={values}")
             self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
                                    self.ID_TABLE,
                                    [int(id_fauna)],
                                    self.TABLE_FIELDS,
-                                   self.rec_toupdate())
+                                   values)
+            print(f"[Fauna DEBUG] update_record: DB_MANAGER.update completed")
         except Exception as e:
+            print(f"[Fauna DEBUG] update_record: EXCEPTION={str(e)}")
+            import traceback
+            traceback.print_exc()
             raise Exception(f"Update failed: {str(e)}")
 
     def rec_toupdate(self):
         """Return list of current field values for update."""
-        from datetime import date as python_date
+        import datetime
 
-        # Get date - convert to Python date object for SQLite compatibility
+        # Get date as Python date object for SQLite compatibility
         data_compilazione = None
         if self.dateEdit_compilazione.date().isValid():
             qdate = self.dateEdit_compilazione.date()
-            data_compilazione = python_date(qdate.year(), qdate.month(), qdate.day())
+            # Create Python date object (not datetime.datetime.date!)
+            data_compilazione = datetime.date(qdate.year(), qdate.month(), qdate.day())
 
         return [
             None,  # id_us
@@ -3080,7 +3136,8 @@ class pyarchinit_Fauna(QDialog):
 
     def insert_new_rec(self):
         """Insert new record into database."""
-        from datetime import date as python_date
+        import datetime
+
         try:
             # Get next ID
             if self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
@@ -3088,11 +3145,11 @@ class pyarchinit_Fauna(QDialog):
             else:
                 id_fauna = 1
 
-            # Get date - convert to Python date object for SQLite compatibility
+            # Get date as Python date object for SQLite compatibility
             data_compilazione = None
             if self.dateEdit_compilazione.date().isValid():
                 qdate = self.dateEdit_compilazione.date()
-                data_compilazione = python_date(qdate.year(), qdate.month(), qdate.day())
+                data_compilazione = datetime.date(qdate.year(), qdate.month(), qdate.day())
 
             # Create fauna record
             data = self.DB_MANAGER.insert_values_fauna(

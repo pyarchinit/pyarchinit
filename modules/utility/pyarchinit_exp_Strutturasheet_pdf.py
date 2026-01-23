@@ -242,7 +242,104 @@ class Struttura_index_pdf_sheet(object):
                 datazione_estesa
                 ]
 
-        return data 
+        return data
+
+    def getTable_fr(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        sigla = Paragraph("<b>Code</b><br/>" + str(self.sigla_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N° structure</b><br/>" + str(self.numero_struttura), styNormal)
+        categoria_struttura = Paragraph("<b>Catégorie</b><br/>" + str(self.categoria_struttura), styNormal)
+        tipologia_struttura = Paragraph("<b>Typologie</b><br/>" + str(self.tipologia_struttura), styNormal)
+        definizione_struttura = Paragraph("<b>Définition</b><br/>" + str(self.definizione_struttura), styNormal)
+        periodo_iniziale = Paragraph("<b>Période initiale</b><br/>" + str(self.periodo_iniziale), styNormal)
+        fase_iniziale = Paragraph("<b>Phase initiale</b><br/>" + str(self.fase_iniziale), styNormal)
+        periodo_finale = Paragraph("<b>Période finale</b><br/>" + str(self.periodo_finale), styNormal)
+        fase_finale = Paragraph("<b>Phase finale</b><br/>" + str(self.fase_finale), styNormal)
+        datazione_estesa = Paragraph("<b>Datation étendue</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [sigla, nr_struttura, categoria_struttura, tipologia_struttura, definizione_struttura,
+                periodo_iniziale, fase_iniziale, periodo_finale, fase_finale, datazione_estesa]
+        return data
+
+    def getTable_es(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        sigla = Paragraph("<b>Código</b><br/>" + str(self.sigla_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N° estructura</b><br/>" + str(self.numero_struttura), styNormal)
+        categoria_struttura = Paragraph("<b>Categoría</b><br/>" + str(self.categoria_struttura), styNormal)
+        tipologia_struttura = Paragraph("<b>Tipología</b><br/>" + str(self.tipologia_struttura), styNormal)
+        definizione_struttura = Paragraph("<b>Definición</b><br/>" + str(self.definizione_struttura), styNormal)
+        periodo_iniziale = Paragraph("<b>Período inicial</b><br/>" + str(self.periodo_iniziale), styNormal)
+        fase_iniziale = Paragraph("<b>Fase inicial</b><br/>" + str(self.fase_iniziale), styNormal)
+        periodo_finale = Paragraph("<b>Período final</b><br/>" + str(self.periodo_finale), styNormal)
+        fase_finale = Paragraph("<b>Fase final</b><br/>" + str(self.fase_finale), styNormal)
+        datazione_estesa = Paragraph("<b>Datación extendida</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [sigla, nr_struttura, categoria_struttura, tipologia_struttura, definizione_struttura,
+                periodo_iniziale, fase_iniziale, periodo_finale, fase_finale, datazione_estesa]
+        return data
+
+    def getTable_ar(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        sigla = Paragraph("<b>Code</b><br/>" + str(self.sigla_struttura), styNormal)
+        nr_struttura = Paragraph("<b>Structure Nr.</b><br/>" + str(self.numero_struttura), styNormal)
+        categoria_struttura = Paragraph("<b>Category</b><br/>" + str(self.categoria_struttura), styNormal)
+        tipologia_struttura = Paragraph("<b>Typology</b><br/>" + str(self.tipologia_struttura), styNormal)
+        definizione_struttura = Paragraph("<b>Definition</b><br/>" + str(self.definizione_struttura), styNormal)
+        periodo_iniziale = Paragraph("<b>Starting Period</b><br/>" + str(self.periodo_iniziale), styNormal)
+        fase_iniziale = Paragraph("<b>Starting Phase</b><br/>" + str(self.fase_iniziale), styNormal)
+        periodo_finale = Paragraph("<b>Final Period</b><br/>" + str(self.periodo_finale), styNormal)
+        fase_finale = Paragraph("<b>Final Phase</b><br/>" + str(self.fase_finale), styNormal)
+        datazione_estesa = Paragraph("<b>Extended Dating</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [sigla, nr_struttura, categoria_struttura, tipologia_struttura, definizione_struttura,
+                periodo_iniziale, fase_iniziale, periodo_finale, fase_finale, datazione_estesa]
+        return data
+
+    def getTable_ca(self):
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        sigla = Paragraph("<b>Codi</b><br/>" + str(self.sigla_struttura), styNormal)
+        nr_struttura = Paragraph("<b>N° estructura</b><br/>" + str(self.numero_struttura), styNormal)
+        categoria_struttura = Paragraph("<b>Categoria</b><br/>" + str(self.categoria_struttura), styNormal)
+        tipologia_struttura = Paragraph("<b>Tipologia</b><br/>" + str(self.tipologia_struttura), styNormal)
+        definizione_struttura = Paragraph("<b>Definició</b><br/>" + str(self.definizione_struttura), styNormal)
+        periodo_iniziale = Paragraph("<b>Període inicial</b><br/>" + str(self.periodo_iniziale), styNormal)
+        fase_iniziale = Paragraph("<b>Fase inicial</b><br/>" + str(self.fase_iniziale), styNormal)
+        periodo_finale = Paragraph("<b>Període final</b><br/>" + str(self.periodo_finale), styNormal)
+        fase_finale = Paragraph("<b>Fase final</b><br/>" + str(self.fase_finale), styNormal)
+        datazione_estesa = Paragraph("<b>Datació estesa</b><br/>" + str(self.datazione_estesa), styNormal)
+
+        data = [sigla, nr_struttura, categoria_struttura, tipologia_struttura, definizione_struttura,
+                periodo_iniziale, fase_iniziale, periodo_finale, fase_finale, datazione_estesa]
+        return data
+
     def makeStyles(self):
         styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
                              ])  # finale
@@ -1013,28 +1110,760 @@ class single_Struttura_pdf_sheet(object):
         return t
 
     def create_sheet_fr(self):
-        """French version of Struttura sheet - uses English structure.
-        TODO: Add proper French translations for all labels.
-        """
-        return self.create_sheet_en()
+        """French version of Struttura sheet"""
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 7
+        styDescrizione.fontName = 'Cambria'
+
+        # 0 row
+        intestazione = Paragraph("<b>FICHE STRUCTURE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # 1 row
+        sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
+        sigla_struttura = Paragraph("<b>Code/N°</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
+
+        # 2 row
+        categoria = Paragraph("<b>Catégorie</b><br/>" + self.categoria_struttura, styNormal)
+        tipologia = Paragraph("<b>Typologie</b><br/>" + self.tipologia_struttura, styNormal)
+        definizione = Paragraph("<b>Définition</b><br/>" + self.definizione_struttura, styNormal)
+
+        # 3 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Description</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+        interpretazione = ''
+        try:
+            interpretazione = Paragraph("<b>Interprétation</b><br/>" + str(self.interpretazione), styDescrizione)
+        except:
+            pass
+
+        # 4 row
+        periodizzazione = Paragraph("<b>PÉRIODISATION</b><br/>", styNormal)
+
+        # 5 row
+        iniziale = Paragraph("<b>INITIALE</b>", styNormal)
+        if self.periodo_iniziale == "None":
+            periodo_iniziale = Paragraph("<b>Période</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Période</b><br/>" + self.periodo_iniziale, styNormal)
+        if self.fase_iniziale == "None":
+            fase_iniziale = Paragraph("<b>Phase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Phase</b><br/>" + self.fase_iniziale, styNormal)
+
+        finale = Paragraph("<b>FINALE</b>", styNormal)
+
+        if self.periodo_finale == "None":
+            periodo_finale = Paragraph("<b>Période</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Période</b><br/>" + self.periodo_finale, styNormal)
+        if self.fase_finale == "None":
+            fase_finale = Paragraph("<b>Phase</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Phase</b><br/>" + self.fase_finale, styNormal)
+
+        # 6 row
+        datazione_estesa = Paragraph("<b>DATATION ÉTENDUE</b><br/>" + self.datazione_estesa, styNormal)
+
+        # 7 row
+        materiali_impiegati = ''
+        if eval(self.materiali_impiegati):
+            for i in eval(self.materiali_impiegati):
+                if materiali_impiegati == '':
+                    try:
+                        materiali_impiegati += ("%s") % (str(i[0]))
+                    except:
+                        pass
+                else:
+                    try:
+                        materiali_impiegati += (", %s") % (str(i[0]))
+                    except:
+                        pass
+        materiali_impiegati = Paragraph("<b>Matériaux utilisés</b><br/>" + materiali_impiegati, styNormal)
+
+        # 8 row
+        elementi_strutturali = ''
+        if eval(self.elementi_strutturali):
+            for i in eval(self.elementi_strutturali):
+                if elementi_strutturali == '':
+                    try:
+                        elementi_strutturali += ("Type d'élément: %s, quantité: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        elementi_strutturali += ("<br/>Type d'élément: %s, quantité: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+        elementi_strutturali = Paragraph("<b>Éléments structurels</b><br/>" + elementi_strutturali, styNormal)
+
+        # 9 row
+        rapporti_struttura = ''
+        if eval(self.rapporti_struttura):
+            for i in eval(self.rapporti_struttura):
+                if rapporti_struttura == '':
+                    try:
+                        rapporti_struttura += ("Type de rapport: %s, site: %s, code: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+                else:
+                    try:
+                        rapporti_struttura += ("<br/>Type de rapport: %s, site: %s, code: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+        rapporti_struttura = Paragraph("<b>Rapports structure</b><br/>" + rapporti_struttura, styNormal)
+
+        # 10 row
+        misure_struttura = ''
+        if eval(self.misure_struttura):
+            for i in eval(self.misure_struttura):
+                if misure_struttura == '':
+                    try:
+                        misure_struttura += ("Type de mesure: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        misure_struttura += ("<br/>Type de mesure: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+        misure_struttura = Paragraph("<b>Mesures</b><br/>" + misure_struttura, styNormal)
+
+        # 19 row
+        quote_struttura = Paragraph("<b>ALTITUDES</b><br/>", styNormal)
+
+        # 20 row
+        quota_min = Paragraph("<b>Alt. min</b><br/>" + str(self.quota_min), styNormal)
+        quota_max = Paragraph("<b>Alt. max</b><br/>" + str(self.quota_max), styNormal)
+
+        # schema
+        cell_schema = [
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
+            [sito, '01', '02', '03', '04', '05', '06', '07', sigla_struttura, '09'],
+            [categoria, '01', '02', '03', tipologia, '05', '06', '07', definizione, '09'],
+            [descrizione, '01', '02', '03', '04', interpretazione, '06', '07', '08', '09'],
+            [periodizzazione, '02', '03', '04', '05', '06', '06', '07', '08', '09'],
+            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],
+            [datazione_estesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [rapporti_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [materiali_impiegati, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [elementi_strutturali, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [misure_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [quote_struttura, '01', '02', '03', '04', '07', '06', '07', '08', '09'],
+            [quota_min, '01', '02', '03', quota_max, '06', '07', '08', '09']
+        ]
+
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
+            ('SPAN', (0, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
+            ('SPAN', (0, 2), (3, 2)), ('SPAN', (4, 2), (7, 2)), ('SPAN', (8, 2), (9, 2)),
+            ('SPAN', (0, 3), (4, 3)), ('SPAN', (5, 3), (9, 3)),
+            ('SPAN', (0, 4), (9, 4)),
+            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (5, 5), (6, 5)), ('SPAN', (7, 5), (8, 5)),
+            ('VALIGN', (0, 5), (0, 5), 'TOP'), ('VALIGN', (5, 5), (5, 5), 'TOP'),
+            ('SPAN', (0, 6), (9, 6)), ('SPAN', (0, 7), (9, 7)), ('SPAN', (0, 8), (9, 8)),
+            ('SPAN', (0, 9), (9, 9)), ('SPAN', (0, 10), (9, 10)), ('SPAN', (0, 11), (9, 11)),
+            ('SPAN', (0, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+        return t
 
     def create_sheet_es(self):
-        """Spanish version of Struttura sheet - uses English structure.
-        TODO: Add proper Spanish translations for all labels.
-        """
-        return self.create_sheet_en()
+        """Spanish version of Struttura sheet"""
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 7
+        styDescrizione.fontName = 'Cambria'
+
+        # 0 row
+        intestazione = Paragraph("<b>FICHA ESTRUCTURA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # 1 row
+        sito = Paragraph("<b>Sitio</b><br/>" + str(self.sito), styNormal)
+        sigla_struttura = Paragraph("<b>Código/N°</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
+
+        # 2 row
+        categoria = Paragraph("<b>Categoría</b><br/>" + self.categoria_struttura, styNormal)
+        tipologia = Paragraph("<b>Tipología</b><br/>" + self.tipologia_struttura, styNormal)
+        definizione = Paragraph("<b>Definición</b><br/>" + self.definizione_struttura, styNormal)
+
+        # 3 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Descripción</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+        interpretazione = ''
+        try:
+            interpretazione = Paragraph("<b>Interpretación</b><br/>" + str(self.interpretazione), styDescrizione)
+        except:
+            pass
+
+        # 4 row
+        periodizzazione = Paragraph("<b>PERIODIZACIÓN</b><br/>", styNormal)
+
+        # 5 row
+        iniziale = Paragraph("<b>INICIAL</b>", styNormal)
+        if self.periodo_iniziale == "None":
+            periodo_iniziale = Paragraph("<b>Período</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Período</b><br/>" + self.periodo_iniziale, styNormal)
+        if self.fase_iniziale == "None":
+            fase_iniziale = Paragraph("<b>Fase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Fase</b><br/>" + self.fase_iniziale, styNormal)
+
+        finale = Paragraph("<b>FINAL</b>", styNormal)
+
+        if self.periodo_finale == "None":
+            periodo_finale = Paragraph("<b>Período</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Período</b><br/>" + self.periodo_finale, styNormal)
+        if self.fase_finale == "None":
+            fase_finale = Paragraph("<b>Fase</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Fase</b><br/>" + self.fase_finale, styNormal)
+
+        # 6 row
+        datazione_estesa = Paragraph("<b>DATACIÓN EXTENDIDA</b><br/>" + self.datazione_estesa, styNormal)
+
+        # 7 row
+        materiali_impiegati = ''
+        if eval(self.materiali_impiegati):
+            for i in eval(self.materiali_impiegati):
+                if materiali_impiegati == '':
+                    try:
+                        materiali_impiegati += ("%s") % (str(i[0]))
+                    except:
+                        pass
+                else:
+                    try:
+                        materiali_impiegati += (", %s") % (str(i[0]))
+                    except:
+                        pass
+        materiali_impiegati = Paragraph("<b>Materiales utilizados</b><br/>" + materiali_impiegati, styNormal)
+
+        # 8 row
+        elementi_strutturali = ''
+        if eval(self.elementi_strutturali):
+            for i in eval(self.elementi_strutturali):
+                if elementi_strutturali == '':
+                    try:
+                        elementi_strutturali += ("Tipo de elemento: %s, cantidad: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        elementi_strutturali += ("<br/>Tipo de elemento: %s, cantidad: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+        elementi_strutturali = Paragraph("<b>Elementos estructurales</b><br/>" + elementi_strutturali, styNormal)
+
+        # 9 row
+        rapporti_struttura = ''
+        if eval(self.rapporti_struttura):
+            for i in eval(self.rapporti_struttura):
+                if rapporti_struttura == '':
+                    try:
+                        rapporti_struttura += ("Tipo de relación: %s, sitio: %s, código: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+                else:
+                    try:
+                        rapporti_struttura += ("<br/>Tipo de relación: %s, sitio: %s, código: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+        rapporti_struttura = Paragraph("<b>Relaciones estructura</b><br/>" + rapporti_struttura, styNormal)
+
+        # 10 row
+        misure_struttura = ''
+        if eval(self.misure_struttura):
+            for i in eval(self.misure_struttura):
+                if misure_struttura == '':
+                    try:
+                        misure_struttura += ("Tipo de medida: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        misure_struttura += ("<br/>Tipo de medida: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+        misure_struttura = Paragraph("<b>Mediciones</b><br/>" + misure_struttura, styNormal)
+
+        # 19 row
+        quote_struttura = Paragraph("<b>COTAS</b><br/>", styNormal)
+
+        # 20 row
+        quota_min = Paragraph("<b>Cota mín</b><br/>" + str(self.quota_min), styNormal)
+        quota_max = Paragraph("<b>Cota máx</b><br/>" + str(self.quota_max), styNormal)
+
+        # schema
+        cell_schema = [
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
+            [sito, '01', '02', '03', '04', '05', '06', '07', sigla_struttura, '09'],
+            [categoria, '01', '02', '03', tipologia, '05', '06', '07', definizione, '09'],
+            [descrizione, '01', '02', '03', '04', interpretazione, '06', '07', '08', '09'],
+            [periodizzazione, '02', '03', '04', '05', '06', '06', '07', '08', '09'],
+            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],
+            [datazione_estesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [rapporti_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [materiali_impiegati, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [elementi_strutturali, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [misure_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [quote_struttura, '01', '02', '03', '04', '07', '06', '07', '08', '09'],
+            [quota_min, '01', '02', '03', quota_max, '06', '07', '08', '09']
+        ]
+
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
+            ('SPAN', (0, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
+            ('SPAN', (0, 2), (3, 2)), ('SPAN', (4, 2), (7, 2)), ('SPAN', (8, 2), (9, 2)),
+            ('SPAN', (0, 3), (4, 3)), ('SPAN', (5, 3), (9, 3)),
+            ('SPAN', (0, 4), (9, 4)),
+            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (5, 5), (6, 5)), ('SPAN', (7, 5), (8, 5)),
+            ('VALIGN', (0, 5), (0, 5), 'TOP'), ('VALIGN', (5, 5), (5, 5), 'TOP'),
+            ('SPAN', (0, 6), (9, 6)), ('SPAN', (0, 7), (9, 7)), ('SPAN', (0, 8), (9, 8)),
+            ('SPAN', (0, 9), (9, 9)), ('SPAN', (0, 10), (9, 10)), ('SPAN', (0, 11), (9, 11)),
+            ('SPAN', (0, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+        return t
 
     def create_sheet_ar(self):
-        """Arabic version of Struttura sheet - uses English structure.
-        TODO: Add proper Arabic translations for all labels.
-        """
-        return self.create_sheet_en()
+        """Arabic version of Struttura sheet - uses English labels as Arabic fonts may not be available"""
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 7
+        styDescrizione.fontName = 'Cambria'
+
+        # 0 row
+        intestazione = Paragraph("<b>STRUCTURE FORM<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # 1 row
+        sito = Paragraph("<b>Site</b><br/>" + str(self.sito), styNormal)
+        sigla_struttura = Paragraph("<b>Code/Nr.</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
+
+        # 2 row
+        categoria = Paragraph("<b>Category</b><br/>" + self.categoria_struttura, styNormal)
+        tipologia = Paragraph("<b>Typology</b><br/>" + self.tipologia_struttura, styNormal)
+        definizione = Paragraph("<b>Definition</b><br/>" + self.definizione_struttura, styNormal)
+
+        # 3 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Description</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+        interpretazione = ''
+        try:
+            interpretazione = Paragraph("<b>Interpretation</b><br/>" + str(self.interpretazione), styDescrizione)
+        except:
+            pass
+
+        # 4 row
+        periodizzazione = Paragraph("<b>PERIODIZATION</b><br/>", styNormal)
+
+        # 5 row
+        iniziale = Paragraph("<b>STARTING</b>", styNormal)
+        if self.periodo_iniziale == "None":
+            periodo_iniziale = Paragraph("<b>Period</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Period</b><br/>" + self.periodo_iniziale, styNormal)
+        if self.fase_iniziale == "None":
+            fase_iniziale = Paragraph("<b>Phase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Phase</b><br/>" + self.fase_iniziale, styNormal)
+
+        finale = Paragraph("<b>FINAL</b>", styNormal)
+
+        if self.periodo_finale == "None":
+            periodo_finale = Paragraph("<b>Period</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Period</b><br/>" + self.periodo_finale, styNormal)
+        if self.fase_finale == "None":
+            fase_finale = Paragraph("<b>Phase</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Phase</b><br/>" + self.fase_finale, styNormal)
+
+        # 6 row
+        datazione_estesa = Paragraph("<b>EXTENDED DATING</b><br/>" + self.datazione_estesa, styNormal)
+
+        # 7 row
+        materiali_impiegati = ''
+        if eval(self.materiali_impiegati):
+            for i in eval(self.materiali_impiegati):
+                if materiali_impiegati == '':
+                    try:
+                        materiali_impiegati += ("%s") % (str(i[0]))
+                    except:
+                        pass
+                else:
+                    try:
+                        materiali_impiegati += (", %s") % (str(i[0]))
+                    except:
+                        pass
+        materiali_impiegati = Paragraph("<b>Used materials</b><br/>" + materiali_impiegati, styNormal)
+
+        # 8 row
+        elementi_strutturali = ''
+        if eval(self.elementi_strutturali):
+            for i in eval(self.elementi_strutturali):
+                if elementi_strutturali == '':
+                    try:
+                        elementi_strutturali += ("Element type: %s, quantity: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        elementi_strutturali += ("<br/>Element type: %s, quantity: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+        elementi_strutturali = Paragraph("<b>Structural elements</b><br/>" + elementi_strutturali, styNormal)
+
+        # 9 row
+        rapporti_struttura = ''
+        if eval(self.rapporti_struttura):
+            for i in eval(self.rapporti_struttura):
+                if rapporti_struttura == '':
+                    try:
+                        rapporti_struttura += ("Relation type: %s, site: %s, code: %s, nr.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+                else:
+                    try:
+                        rapporti_struttura += ("<br/>Relation type: %s, site: %s, code: %s, nr.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+        rapporti_struttura = Paragraph("<b>Structure relationships</b><br/>" + rapporti_struttura, styNormal)
+
+        # 10 row
+        misure_struttura = ''
+        if eval(self.misure_struttura):
+            for i in eval(self.misure_struttura):
+                if misure_struttura == '':
+                    try:
+                        misure_struttura += ("Measure type: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        misure_struttura += ("<br/>Measure type: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+        misure_struttura = Paragraph("<b>Measurements</b><br/>" + misure_struttura, styNormal)
+
+        # 19 row
+        quote_struttura = Paragraph("<b>ELEVATIONS</b><br/>", styNormal)
+
+        # 20 row
+        quota_min = Paragraph("<b>Elev. min</b><br/>" + str(self.quota_min), styNormal)
+        quota_max = Paragraph("<b>Elev. max</b><br/>" + str(self.quota_max), styNormal)
+
+        # schema
+        cell_schema = [
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
+            [sito, '01', '02', '03', '04', '05', '06', '07', sigla_struttura, '09'],
+            [categoria, '01', '02', '03', tipologia, '05', '06', '07', definizione, '09'],
+            [descrizione, '01', '02', '03', '04', interpretazione, '06', '07', '08', '09'],
+            [periodizzazione, '02', '03', '04', '05', '06', '06', '07', '08', '09'],
+            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],
+            [datazione_estesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [rapporti_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [materiali_impiegati, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [elementi_strutturali, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [misure_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [quote_struttura, '01', '02', '03', '04', '07', '06', '07', '08', '09'],
+            [quota_min, '01', '02', '03', quota_max, '06', '07', '08', '09']
+        ]
+
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
+            ('SPAN', (0, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
+            ('SPAN', (0, 2), (3, 2)), ('SPAN', (4, 2), (7, 2)), ('SPAN', (8, 2), (9, 2)),
+            ('SPAN', (0, 3), (4, 3)), ('SPAN', (5, 3), (9, 3)),
+            ('SPAN', (0, 4), (9, 4)),
+            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (5, 5), (6, 5)), ('SPAN', (7, 5), (8, 5)),
+            ('VALIGN', (0, 5), (0, 5), 'TOP'), ('VALIGN', (5, 5), (5, 5), 'TOP'),
+            ('SPAN', (0, 6), (9, 6)), ('SPAN', (0, 7), (9, 7)), ('SPAN', (0, 8), (9, 8)),
+            ('SPAN', (0, 9), (9, 9)), ('SPAN', (0, 10), (9, 10)), ('SPAN', (0, 11), (9, 11)),
+            ('SPAN', (0, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+        return t
 
     def create_sheet_ca(self):
-        """Catalan version of Struttura sheet - uses English structure.
-        TODO: Add proper Catalan translations for all labels.
-        """
-        return self.create_sheet_en()
+        """Catalan version of Struttura sheet"""
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styNormal.spaceBefore = 20
+        styNormal.spaceAfter = 20
+        styNormal.alignment = 0  # LEFT
+        styNormal.fontSize = 7
+        styNormal.fontName = 'Cambria'
+
+        styleSheet = getSampleStyleSheet()
+        styDescrizione = styleSheet['Normal']
+        styDescrizione.spaceBefore = 20
+        styDescrizione.spaceAfter = 20
+        styDescrizione.alignment = 4  # Justified
+        styDescrizione.fontSize = 7
+        styDescrizione.fontName = 'Cambria'
+
+        # 0 row
+        intestazione = Paragraph("<b>FITXA ESTRUCTURA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+
+        # 1 row
+        sito = Paragraph("<b>Jaciment</b><br/>" + str(self.sito), styNormal)
+        sigla_struttura = Paragraph("<b>Codi/N°</b><br/> %s%s" % (str(self.sigla_struttura), str(self.numero_struttura)), styNormal)
+
+        # 2 row
+        categoria = Paragraph("<b>Categoria</b><br/>" + self.categoria_struttura, styNormal)
+        tipologia = Paragraph("<b>Tipologia</b><br/>" + self.tipologia_struttura, styNormal)
+        definizione = Paragraph("<b>Definició</b><br/>" + self.definizione_struttura, styNormal)
+
+        # 3 row
+        descrizione = ''
+        try:
+            descrizione = Paragraph("<b>Descripció</b><br/>" + str(self.descrizione), styDescrizione)
+        except:
+            pass
+
+        interpretazione = ''
+        try:
+            interpretazione = Paragraph("<b>Interpretació</b><br/>" + str(self.interpretazione), styDescrizione)
+        except:
+            pass
+
+        # 4 row
+        periodizzazione = Paragraph("<b>PERIODITZACIÓ</b><br/>", styNormal)
+
+        # 5 row
+        iniziale = Paragraph("<b>INICIAL</b>", styNormal)
+        if self.periodo_iniziale == "None":
+            periodo_iniziale = Paragraph("<b>Període</b><br/>", styNormal)
+        else:
+            periodo_iniziale = Paragraph("<b>Període</b><br/>" + self.periodo_iniziale, styNormal)
+        if self.fase_iniziale == "None":
+            fase_iniziale = Paragraph("<b>Fase</b><br/>", styNormal)
+        else:
+            fase_iniziale = Paragraph("<b>Fase</b><br/>" + self.fase_iniziale, styNormal)
+
+        finale = Paragraph("<b>FINAL</b>", styNormal)
+
+        if self.periodo_finale == "None":
+            periodo_finale = Paragraph("<b>Període</b><br/>", styNormal)
+        else:
+            periodo_finale = Paragraph("<b>Període</b><br/>" + self.periodo_finale, styNormal)
+        if self.fase_finale == "None":
+            fase_finale = Paragraph("<b>Fase</b><br/>", styNormal)
+        else:
+            fase_finale = Paragraph("<b>Fase</b><br/>" + self.fase_finale, styNormal)
+
+        # 6 row
+        datazione_estesa = Paragraph("<b>DATACIÓ ESTESA</b><br/>" + self.datazione_estesa, styNormal)
+
+        # 7 row
+        materiali_impiegati = ''
+        if eval(self.materiali_impiegati):
+            for i in eval(self.materiali_impiegati):
+                if materiali_impiegati == '':
+                    try:
+                        materiali_impiegati += ("%s") % (str(i[0]))
+                    except:
+                        pass
+                else:
+                    try:
+                        materiali_impiegati += (", %s") % (str(i[0]))
+                    except:
+                        pass
+        materiali_impiegati = Paragraph("<b>Materials emprats</b><br/>" + materiali_impiegati, styNormal)
+
+        # 8 row
+        elementi_strutturali = ''
+        if eval(self.elementi_strutturali):
+            for i in eval(self.elementi_strutturali):
+                if elementi_strutturali == '':
+                    try:
+                        elementi_strutturali += ("Tipus d'element: %s, quantitat: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        elementi_strutturali += ("<br/>Tipus d'element: %s, quantitat: %s") % (str(i[0]), str(i[1]))
+                    except:
+                        pass
+        elementi_strutturali = Paragraph("<b>Elements estructurals</b><br/>" + elementi_strutturali, styNormal)
+
+        # 9 row
+        rapporti_struttura = ''
+        if eval(self.rapporti_struttura):
+            for i in eval(self.rapporti_struttura):
+                if rapporti_struttura == '':
+                    try:
+                        rapporti_struttura += ("Tipus de relació: %s, jaciment: %s, codi: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+                else:
+                    try:
+                        rapporti_struttura += ("<br/>Tipus de relació: %s, jaciment: %s, codi: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
+                    except:
+                        pass
+        rapporti_struttura = Paragraph("<b>Relacions estructura</b><br/>" + rapporti_struttura, styNormal)
+
+        # 10 row
+        misure_struttura = ''
+        if eval(self.misure_struttura):
+            for i in eval(self.misure_struttura):
+                if misure_struttura == '':
+                    try:
+                        misure_struttura += ("Tipus de mesura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+                else:
+                    try:
+                        misure_struttura += ("<br/>Tipus de mesura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
+                    except:
+                        pass
+        misure_struttura = Paragraph("<b>Mesures</b><br/>" + misure_struttura, styNormal)
+
+        # 19 row
+        quote_struttura = Paragraph("<b>COTES</b><br/>", styNormal)
+
+        # 20 row
+        quota_min = Paragraph("<b>Cota mín</b><br/>" + str(self.quota_min), styNormal)
+        quota_max = Paragraph("<b>Cota màx</b><br/>" + str(self.quota_max), styNormal)
+
+        # schema
+        cell_schema = [
+            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
+            [sito, '01', '02', '03', '04', '05', '06', '07', sigla_struttura, '09'],
+            [categoria, '01', '02', '03', tipologia, '05', '06', '07', definizione, '09'],
+            [descrizione, '01', '02', '03', '04', interpretazione, '06', '07', '08', '09'],
+            [periodizzazione, '02', '03', '04', '05', '06', '06', '07', '08', '09'],
+            [iniziale, '01', periodo_iniziale, '03', fase_iniziale, finale, '06', periodo_finale, '08', fase_finale],
+            [datazione_estesa, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [rapporti_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [materiali_impiegati, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [elementi_strutturali, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [misure_struttura, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+            [quote_struttura, '01', '02', '03', '04', '07', '06', '07', '08', '09'],
+            [quota_min, '01', '02', '03', quota_max, '06', '07', '08', '09']
+        ]
+
+        table_style = [
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
+            ('SPAN', (0, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
+            ('SPAN', (0, 2), (3, 2)), ('SPAN', (4, 2), (7, 2)), ('SPAN', (8, 2), (9, 2)),
+            ('SPAN', (0, 3), (4, 3)), ('SPAN', (5, 3), (9, 3)),
+            ('SPAN', (0, 4), (9, 4)),
+            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (5, 5), (6, 5)), ('SPAN', (7, 5), (8, 5)),
+            ('VALIGN', (0, 5), (0, 5), 'TOP'), ('VALIGN', (5, 5), (5, 5), 'TOP'),
+            ('SPAN', (0, 6), (9, 6)), ('SPAN', (0, 7), (9, 7)), ('SPAN', (0, 8), (9, 8)),
+            ('SPAN', (0, 9), (9, 9)), ('SPAN', (0, 10), (9, 10)), ('SPAN', (0, 11), (9, 11)),
+            ('SPAN', (0, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP')
+        ]
+
+        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
+        return t
 
 
 class generate_struttura_pdf(object):
@@ -1276,6 +2105,198 @@ class generate_struttura_pdf(object):
         # lst.append(Spacer(0,2))
 
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'structure_list.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_STRUTTURAindex)
+
+        f.close()
+
+    def build_index_Struttura_fr(self, records, sito):
+        """French version of structure index"""
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styH1 = styleSheet['Heading3']
+        styH1.fontName = 'Cambria'
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>LISTE DES STRUCTURES</b><br/><b>Site: %s, Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Struttura_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_fr())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 80, 80, 80, 50, 50, 50, 50, 100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'liste_structures.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_STRUTTURAindex)
+
+        f.close()
+
+    def build_index_Struttura_es(self, records, sito):
+        """Spanish version of structure index"""
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styH1 = styleSheet['Heading3']
+        styH1.fontName = 'Cambria'
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>LISTA DE ESTRUCTURAS</b><br/><b>Sitio: %s, Fecha: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Struttura_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_es())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 80, 80, 80, 50, 50, 50, 50, 100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'lista_estructuras.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_STRUTTURAindex)
+
+        f.close()
+
+    def build_index_Struttura_ar(self, records, sito):
+        """Arabic version of structure index - uses English labels"""
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styH1 = styleSheet['Heading3']
+        styH1.fontName = 'Cambria'
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>STRUCTURE LIST</b><br/><b>Site: %s, Date: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Struttura_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_ar())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 80, 80, 80, 50, 50, 50, 50, 100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'structure_list_ar.pdf')
+        f = open(filename, "wb")
+
+        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
+        doc.build(lst, canvasmaker=NumberedCanvas_STRUTTURAindex)
+
+        f.close()
+
+    def build_index_Struttura_ca(self, records, sito):
+        """Catalan version of structure index"""
+        home = os.environ['PYARCHINIT_HOME']
+        conn = Connection()
+        lo_path = conn.logo_path()
+        lo_path_str = lo_path['logo']
+        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+        if not bool(lo_path_str):
+            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+        else:
+            logo_path = lo_path_str
+
+        logo = Image(logo_path)
+        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
+        logo.drawWidth = 1.5 * inch
+        logo.hAlign = "LEFT"
+
+        styleSheet = getSampleStyleSheet()
+        styNormal = styleSheet['Normal']
+        styH1 = styleSheet['Heading3']
+        styH1.fontName = 'Cambria'
+        data = self.datestrfdate()
+
+        lst = []
+        lst.append(logo)
+        lst.append(Paragraph("<b>LLISTA D'ESTRUCTURES</b><br/><b>Jaciment: %s, Data: %s</b>" % (sito, data), styH1))
+
+        table_data = []
+        for i in range(len(records)):
+            exp_index = Struttura_index_pdf_sheet(records[i])
+            table_data.append(exp_index.getTable_ca())
+
+        styles = exp_index.makeStyles()
+        colWidths = [60, 60, 80, 80, 80, 50, 50, 50, 50, 100]
+
+        table_data_formatted = Table(table_data, colWidths, style=styles)
+        table_data_formatted.hAlign = "LEFT"
+
+        lst.append(table_data_formatted)
+
+        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'llista_estructures.pdf')
         f = open(filename, "wb")
 
         doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0)
