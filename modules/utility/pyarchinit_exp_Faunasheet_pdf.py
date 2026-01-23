@@ -29,6 +29,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import (A4, A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
 from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
 from reportlab.platypus.paragraph import Paragraph
@@ -45,6 +46,21 @@ registerFontFamily('Cambria', normal='Cambria')
 
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
+
+# Page dimensions and margins for A4
+PAGE_WIDTH, PAGE_HEIGHT = A4
+MARGIN_LEFT = 1.5 * cm
+MARGIN_RIGHT = 1.5 * cm
+MARGIN_TOP = 1.5 * cm
+MARGIN_BOTTOM = 2 * cm
+USABLE_WIDTH = PAGE_WIDTH - MARGIN_LEFT - MARGIN_RIGHT
+
+# Colors for professional look
+HEADER_BG = colors.HexColor('#2C3E50')  # Dark blue-gray
+SECTION_BG = colors.HexColor('#3498DB')  # Blue
+SUBSECTION_BG = colors.HexColor('#ECF0F1')  # Light gray
+LABEL_BG = colors.HexColor('#F8F9FA')  # Very light gray
+BORDER_COLOR = colors.HexColor('#BDC3C7')  # Medium gray
 
 
 class NumberedCanvas_Faunasheet(canvas.Canvas):
@@ -105,6 +121,7 @@ class single_Fauna_pdf_sheet(object):
     """
     Single Fauna record PDF sheet generator.
     Supports multiple languages: IT, DE, EN, FR, ES, AR, CA
+    Professional full-page layout with organized sections.
     """
 
     def __init__(self, data):
@@ -150,28 +167,75 @@ class single_Fauna_pdf_sheet(object):
         today = now.strftime("%d-%m-%Y")
         return today
 
-    def create_sheet(self):
-        """Italian version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0  # LEFT
+    def _get_styles(self):
+        """Create professional styles for the PDF"""
+        styles = {}
 
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4  # Justified
+        # Title style - large, centered, white on dark background
+        styles['title'] = ParagraphStyle(
+            'Title',
+            fontName='Cambria',
+            fontSize=14,
+            leading=18,
+            alignment=TA_CENTER,
+            textColor=colors.white,
+            spaceAfter=0,
+            spaceBefore=0
+        )
 
-        # Header
-        intestazione = Paragraph("<b>SCHEDA FAUNA ARCHEOLOGICA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
+        # Section header style - medium, white on blue
+        styles['section'] = ParagraphStyle(
+            'Section',
+            fontName='Cambria',
+            fontSize=10,
+            leading=14,
+            alignment=TA_LEFT,
+            textColor=colors.white,
+            spaceAfter=0,
+            spaceBefore=0,
+            leftIndent=3
+        )
 
-        # Logo
+        # Label style - bold, small
+        styles['label'] = ParagraphStyle(
+            'Label',
+            fontName='Cambria',
+            fontSize=7,
+            leading=9,
+            alignment=TA_LEFT,
+            textColor=colors.HexColor('#2C3E50'),
+            spaceAfter=1,
+            spaceBefore=1
+        )
+
+        # Value style - normal text
+        styles['value'] = ParagraphStyle(
+            'Value',
+            fontName='Cambria',
+            fontSize=8,
+            leading=10,
+            alignment=TA_LEFT,
+            textColor=colors.black,
+            spaceAfter=2,
+            spaceBefore=0
+        )
+
+        # Long text style - justified
+        styles['longtext'] = ParagraphStyle(
+            'LongText',
+            fontName='Cambria',
+            fontSize=8,
+            leading=10,
+            alignment=TA_JUSTIFY,
+            textColor=colors.black,
+            spaceAfter=2,
+            spaceBefore=0
+        )
+
+        return styles
+
+    def _get_logo(self):
+        """Get the logo image"""
         home = os.environ['PYARCHINIT_HOME']
         conn = Connection()
         lo_path = conn.logo_path()
@@ -181,758 +245,622 @@ class single_Fauna_pdf_sheet(object):
             logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
         else:
             logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        logo.hAlign = 'CENTER'
 
-        # Labels
-        id_fauna = Paragraph("<b>ID SCHEDA</b><br/>" + str(self.id_fauna), styNormal)
-        sito = Paragraph("<b>SITO</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>AREA</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>SAGGIO</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>DATAZIONE US</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>RESPONSABILE</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>DATA COMPILAZIONE</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>DOC. FOTOGRAFICA</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>METODOLOGIA RECUPERO</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>CONTESTO</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>DESCRIZIONE CONTESTO</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>RESTI IN CONNESSIONE</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>TIPOLOGIA ACCUMULO</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>DEPOSIZIONE</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>N. STIMATO RESTI</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>NMI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>SPECIE</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>PARTI SCHELETRICHE</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>SPECIE PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>MISURE OSSA</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>STATO FRAMMENTAZIONE</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>TRACCE COMBUSTIONE</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>COMBUSTIONE ALTRI MAT.</b><br/>" + ("Si" if self.combustione_altri_materiali_us else "No"), styNormal)
-        tipo_combustione = Paragraph("<b>TIPO COMBUSTIONE</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>SEGNI TAFONOMICI</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>CARATTERIZZAZIONE SEGNI</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>STATO CONSERVAZIONE</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>ALTERAZIONI MORFOLOGICHE</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>NOTE TERRENO/GIACITURA</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>CAMPIONATURE</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>AFFIDABILIT&Agrave; STRAT.</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>CLASSI REPERTI ASSOC.</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>OSSERVAZIONI</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPRETAZIONE</b><br/>" + str(self.interpretazione), styDescrizione)
+        if os.path.exists(logo_path):
+            logo = Image(logo_path)
+            logo.drawHeight = 1.2 * inch * logo.drawHeight / logo.drawWidth
+            logo.drawWidth = 1.2 * inch
+            logo.hAlign = 'CENTER'
+            return logo
+        return None
 
-        # Schema table
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
+    def _make_field(self, label, value, styles, long=False):
+        """Create a field paragraph with label and value"""
+        style = styles['longtext'] if long else styles['value']
+        val_str = str(value) if value else '-'
+        return Paragraph(f"<b>{label}:</b> {val_str}", style)
+
+    def _create_professional_sheet(self, labels):
+        """
+        Create a professional full-page layout.
+        labels: dictionary with all field labels in the target language
+        """
+        styles = self._get_styles()
+        logo = self._get_logo()
+
+        # Calculate column widths for full page (4 columns)
+        col_width = USABLE_WIDTH / 4
+        full_width = USABLE_WIDTH
+        half_width = USABLE_WIDTH / 2
+        third_width = USABLE_WIDTH / 3
+
+        elements = []
+
+        # ==================== HEADER ====================
+        header_data = [
+            [Paragraph(f"<b>{labels['title']}</b>", styles['title']),
+             '', '',
+             logo if logo else '']
         ]
+        header_table = Table(header_data, colWidths=[col_width*3, 0, 0, col_width])
+        header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (2, 0), HEADER_BG),
+            ('BACKGROUND', (3, 0), (3, 0), colors.white),
+            ('SPAN', (0, 0), (2, 0)),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (3, 0), (3, 0), 'CENTER'),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('BOX', (0, 0), (-1, -1), 1, BORDER_COLOR),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 3*mm))
 
-        # Table style
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            # Row 0 - header
-            ('SPAN', (0, 0), (5, 0)),
-            ('SPAN', (6, 0), (8, 0)),
-            # Row 1 - sito, area, saggio, us, datazione
+        # ==================== RECORD INFO ====================
+        record_header = [[Paragraph(f"<b>{labels['section_record']}</b>", styles['section'])]]
+        record_header_table = Table(record_header, colWidths=[full_width])
+        record_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(record_header_table)
+
+        record_data = [
+            [self._make_field(labels['id'], self.id_fauna, styles),
+             self._make_field(labels['site'], self.sito, styles),
+             self._make_field(labels['area'], self.area, styles),
+             self._make_field(labels['trench'], self.saggio, styles)],
+            [self._make_field(labels['su'], self.us, styles),
+             self._make_field(labels['su_dating'], self.datazione_us, styles),
+             self._make_field(labels['recorder'], self.responsabile_scheda, styles),
+             self._make_field(labels['date'], self.data_compilazione, styles)]
+        ]
+        record_table = Table(record_data, colWidths=[col_width]*4)
+        record_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(record_table)
+        elements.append(Spacer(1, 3*mm))
+
+        # ==================== CONTEXT & METHODOLOGY ====================
+        context_header = [[Paragraph(f"<b>{labels['section_context']}</b>", styles['section'])]]
+        context_header_table = Table(context_header, colWidths=[full_width])
+        context_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(context_header_table)
+
+        context_data = [
+            [self._make_field(labels['recovery_method'], self.metodologia_recupero, styles),
+             self._make_field(labels['context'], self.contesto, styles),
+             self._make_field(labels['photo_doc'], self.documentazione_fotografica, styles),
+             ''],
+            [Paragraph(f"<b>{labels['context_desc']}:</b> {self.descrizione_contesto or '-'}", styles['longtext']), '', '', '']
+        ]
+        context_table = Table(context_data, colWidths=[col_width]*4)
+        context_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('SPAN', (0, 1), (3, 1)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(context_table)
+        elements.append(Spacer(1, 3*mm))
+
+        # ==================== DEPOSIT CHARACTERISTICS ====================
+        deposit_header = [[Paragraph(f"<b>{labels['section_deposit']}</b>", styles['section'])]]
+        deposit_header_table = Table(deposit_header, colWidths=[full_width])
+        deposit_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(deposit_header_table)
+
+        deposit_data = [
+            [self._make_field(labels['anatomical_conn'], self.resti_connessione_anatomica, styles),
+             self._make_field(labels['accumulation_type'], self.tipologia_accumulo, styles),
+             self._make_field(labels['deposition'], self.deposizione, styles),
+             ''],
+            [self._make_field(labels['estimated_number'], self.numero_stimato_resti, styles),
+             self._make_field(labels['mni'], self.numero_minimo_individui, styles),
+             self._make_field(labels['reliability'], self.affidabilita_stratigrafica, styles),
+             '']
+        ]
+        deposit_table = Table(deposit_data, colWidths=[col_width]*4)
+        deposit_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(deposit_table)
+        elements.append(Spacer(1, 3*mm))
+
+        # ==================== TAXONOMIC DATA ====================
+        taxo_header = [[Paragraph(f"<b>{labels['section_taxonomy']}</b>", styles['section'])]]
+        taxo_header_table = Table(taxo_header, colWidths=[full_width])
+        taxo_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(taxo_header_table)
+
+        taxo_data = [
+            [Paragraph(f"<b>{labels['species']}:</b> {self.specie or '-'}", styles['longtext']), ''],
+            [Paragraph(f"<b>{labels['skeletal_parts']}:</b> {self.parti_scheletriche or '-'}", styles['longtext']), ''],
+            [self._make_field(labels['species_psi'], self.specie_psi, styles),
+             self._make_field(labels['bone_measurements'], self.misure_ossa, styles)]
+        ]
+        taxo_table = Table(taxo_data, colWidths=[half_width, half_width])
+        taxo_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('SPAN', (0, 0), (1, 0)),
             ('SPAN', (0, 1), (1, 1)),
-            ('SPAN', (4, 1), (5, 1)),
-            ('SPAN', (6, 1), (8, 1)),
-            # Row 2 - responsabile, data, doc foto
-            ('SPAN', (0, 2), (2, 2)),
-            ('SPAN', (3, 2), (4, 2)),
-            ('SPAN', (5, 2), (8, 2)),
-            # Row 3 - metodologia, contesto, descrizione
-            ('SPAN', (0, 3), (1, 3)),
-            ('SPAN', (2, 3), (4, 3)),
-            ('SPAN', (5, 3), (8, 3)),
-            # Row 4 - resti, tipologia, deposizione
-            ('SPAN', (0, 4), (1, 4)),
-            ('SPAN', (2, 4), (3, 4)),
-            ('SPAN', (4, 4), (8, 4)),
-            # Row 5 - numero stimato, nmi, specie
-            ('SPAN', (0, 5), (1, 5)),
-            ('SPAN', (2, 5), (3, 5)),
-            ('SPAN', (4, 5), (8, 5)),
-            # Row 6 - parti scheletriche
-            ('SPAN', (0, 6), (8, 6)),
-            # Row 7 - specie_psi, misure, frammentazione
-            ('SPAN', (0, 7), (1, 7)),
-            ('SPAN', (2, 7), (3, 7)),
-            ('SPAN', (4, 7), (8, 7)),
-            # Row 8 - tracce combustione
-            ('SPAN', (0, 8), (1, 8)),
-            ('SPAN', (2, 8), (3, 8)),
-            ('SPAN', (4, 8), (8, 8)),
-            # Row 9 - segni tafonomici
-            ('SPAN', (0, 9), (1, 9)),
-            ('SPAN', (2, 9), (8, 9)),
-            # Row 10 - stato conservazione, alterazioni
-            ('SPAN', (0, 10), (1, 10)),
-            ('SPAN', (2, 10), (8, 10)),
-            # Row 11 - note terreno
-            ('SPAN', (0, 11), (8, 11)),
-            # Row 12 - campionature, affidabilita
-            ('SPAN', (0, 12), (2, 12)),
-            ('SPAN', (3, 12), (8, 12)),
-            # Row 13 - classi reperti
-            ('SPAN', (0, 13), (8, 13)),
-            # Row 14 - osservazioni
-            ('SPAN', (0, 14), (8, 14)),
-            # Row 15 - interpretazione
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(taxo_table)
+        elements.append(Spacer(1, 3*mm))
 
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        # ==================== TAPHONOMY & PRESERVATION ====================
+        tafo_header = [[Paragraph(f"<b>{labels['section_taphonomy']}</b>", styles['section'])]]
+        tafo_header_table = Table(tafo_header, colWidths=[full_width])
+        tafo_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(tafo_header_table)
+
+        combustion_other = labels['yes'] if self.combustione_altri_materiali_us else labels['no']
+        tafo_data = [
+            [self._make_field(labels['fragmentation'], self.stato_frammentazione, styles),
+             self._make_field(labels['preservation'], self.stato_conservazione, styles),
+             self._make_field(labels['alterations'], self.alterazioni_morfologiche, styles),
+             ''],
+            [self._make_field(labels['burning_traces'], self.tracce_combustione, styles),
+             self._make_field(labels['burning_type'], self.tipo_combustione, styles),
+             self._make_field(labels['other_burned'], combustion_other, styles),
+             ''],
+            [self._make_field(labels['taphonomic_signs'], self.segni_tafonomici_evidenti, styles),
+             Paragraph(f"<b>{labels['taphonomic_char']}:</b> {self.caratterizzazione_segni_tafonomici or '-'}", styles['longtext']),
+             '', '']
+        ]
+        tafo_table = Table(tafo_data, colWidths=[col_width]*4)
+        tafo_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('SPAN', (1, 2), (3, 2)),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(tafo_table)
+        elements.append(Spacer(1, 3*mm))
+
+        # ==================== NOTES & INTERPRETATION ====================
+        notes_header = [[Paragraph(f"<b>{labels['section_notes']}</b>", styles['section'])]]
+        notes_header_table = Table(notes_header, colWidths=[full_width])
+        notes_header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), SECTION_BG),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(notes_header_table)
+
+        notes_data = [
+            [Paragraph(f"<b>{labels['position_notes']}:</b> {self.note_terreno_giacitura or '-'}", styles['longtext'])],
+            [Paragraph(f"<b>{labels['sampling']}:</b> {self.campionature_effettuate or '-'}", styles['value'])],
+            [Paragraph(f"<b>{labels['associated_finds']}:</b> {self.classi_reperti_associazione or '-'}", styles['longtext'])],
+            [Paragraph(f"<b>{labels['observations']}:</b> {self.osservazioni or '-'}", styles['longtext'])],
+            [Paragraph(f"<b>{labels['interpretation']}:</b> {self.interpretazione or '-'}", styles['longtext'])]
+        ]
+        notes_table = Table(notes_data, colWidths=[full_width])
+        notes_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        elements.append(notes_table)
+
+        # ==================== FOOTER ====================
+        elements.append(Spacer(1, 5*mm))
+        footer_style = ParagraphStyle('Footer', fontName='Cambria', fontSize=7,
+                                       alignment=TA_RIGHT, textColor=colors.gray)
+        footer = Paragraph(f"{labels['generated']} {self.datestrfdate()} - PyArchInit", footer_style)
+        elements.append(footer)
+
+        # Create main table containing all elements
+        main_data = [[e] for e in elements]
+        main_table = Table(main_data, colWidths=[full_width])
+        main_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ]))
+
+        return main_table
+
+    def create_sheet(self):
+        """Italian version of the sheet"""
+        labels = {
+            'title': 'SCHEDA FAUNA ARCHEOLOGICA',
+            'section_record': 'DATI IDENTIFICATIVI',
+            'section_context': 'CONTESTO E METODOLOGIA',
+            'section_deposit': 'CARATTERISTICHE DEL DEPOSITO',
+            'section_taxonomy': 'DATI TASSONOMICI',
+            'section_taphonomy': 'TAFONOMIA E CONSERVAZIONE',
+            'section_notes': 'NOTE E INTERPRETAZIONE',
+            'id': 'ID Scheda',
+            'site': 'Sito',
+            'area': 'Area',
+            'trench': 'Saggio',
+            'su': 'US',
+            'su_dating': 'Datazione US',
+            'recorder': 'Responsabile',
+            'date': 'Data Compilazione',
+            'recovery_method': 'Metodologia Recupero',
+            'context': 'Contesto',
+            'context_desc': 'Descrizione Contesto',
+            'photo_doc': 'Doc. Fotografica',
+            'anatomical_conn': 'Connessione Anatomica',
+            'accumulation_type': 'Tipologia Accumulo',
+            'deposition': 'Deposizione',
+            'estimated_number': 'N. Stimato Resti',
+            'mni': 'NMI',
+            'reliability': 'Affidabilit\u00e0 Strat.',
+            'species': 'Specie',
+            'skeletal_parts': 'Parti Scheletriche',
+            'species_psi': 'Specie PSI',
+            'bone_measurements': 'Misure Ossa',
+            'fragmentation': 'Frammentazione',
+            'preservation': 'Stato Conservazione',
+            'alterations': 'Alterazioni Morf.',
+            'burning_traces': 'Tracce Combustione',
+            'burning_type': 'Tipo Combustione',
+            'other_burned': 'Altri Mat. Combusti',
+            'taphonomic_signs': 'Segni Tafonomici',
+            'taphonomic_char': 'Caratterizzazione Tafonomica',
+            'position_notes': 'Note Terreno/Giacitura',
+            'sampling': 'Campionature Effettuate',
+            'associated_finds': 'Classi Reperti Associati',
+            'observations': 'Osservazioni',
+            'interpretation': 'Interpretazione',
+            'generated': 'Generato il',
+            'yes': 'S\u00ec',
+            'no': 'No'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_de(self):
         """German version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4
-
-        intestazione = Paragraph("<b>ARCH&Auml;OLOGISCHE FAUNA FORMULAR<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        id_fauna = Paragraph("<b>FORMULAR-ID</b><br/>" + str(self.id_fauna), styNormal)
-        sito = Paragraph("<b>FUNDSTELLE</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>BEREICH</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>SCHNITT</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>DATIERUNG SE</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>BEARBEITER</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>ERSTELLUNGSDATUM</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>FOTO-DOK.</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>BERGUNGSMETHODE</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>KONTEXT</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>KONTEXTBESCHREIBUNG</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>VERBUNDENE RESTE</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>AKKUMULATIONSTYP</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>ABLAGERUNG</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>GESCH&Auml;TZTE ANZAHL</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>MNI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>SPEZIES</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>SKELETTELEMENTE</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>SPEZIES PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>KNOCHENMASSE</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>FRAGMENTIERUNG</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>BRANDSPUREN</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>BRAND ANDERER MAT.</b><br/>" + ("Ja" if self.combustione_altri_materiali_us else "Nein"), styNormal)
-        tipo_combustione = Paragraph("<b>BRANDTYP</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>TAPHONOMISCHE ZEICHEN</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>TAPH. CHARAKTERISIERUNG</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>ERHALTUNGSZUSTAND</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>MORPH. VER&Auml;NDERUNGEN</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>ANMERKUNGEN LAGE</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>PROBENAHMEN</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>STRAT. ZUVERL&Auml;SSIGKEIT</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>ASSOZIIERTE FUNDE</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>BEOBACHTUNGEN</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPRETATION</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': 'ARCH\u00c4OLOGISCHES FAUNA FORMULAR',
+            'section_record': 'IDENTIFIKATIONSDATEN',
+            'section_context': 'KONTEXT UND METHODIK',
+            'section_deposit': 'ABLAGERUNGSEIGENSCHAFTEN',
+            'section_taxonomy': 'TAXONOMISCHE DATEN',
+            'section_taphonomy': 'TAPHONOMIE UND ERHALTUNG',
+            'section_notes': 'ANMERKUNGEN UND INTERPRETATION',
+            'id': 'Formular-ID',
+            'site': 'Fundstelle',
+            'area': 'Bereich',
+            'trench': 'Schnitt',
+            'su': 'SE',
+            'su_dating': 'Datierung SE',
+            'recorder': 'Bearbeiter',
+            'date': 'Erstellungsdatum',
+            'recovery_method': 'Bergungsmethode',
+            'context': 'Kontext',
+            'context_desc': 'Kontextbeschreibung',
+            'photo_doc': 'Foto-Dok.',
+            'anatomical_conn': 'Anatomischer Verbund',
+            'accumulation_type': 'Akkumulationstyp',
+            'deposition': 'Ablagerung',
+            'estimated_number': 'Gesch\u00e4tzte Anzahl',
+            'mni': 'MNI',
+            'reliability': 'Strat. Zuverl\u00e4ssigkeit',
+            'species': 'Spezies',
+            'skeletal_parts': 'Skelettelemente',
+            'species_psi': 'Spezies PSI',
+            'bone_measurements': 'Knochenma\u00dfe',
+            'fragmentation': 'Fragmentierung',
+            'preservation': 'Erhaltungszustand',
+            'alterations': 'Morph. Ver\u00e4nderungen',
+            'burning_traces': 'Brandspuren',
+            'burning_type': 'Brandtyp',
+            'other_burned': 'Andere verbr. Mat.',
+            'taphonomic_signs': 'Taphonomische Zeichen',
+            'taphonomic_char': 'Taphonomische Charakterisierung',
+            'position_notes': 'Anmerkungen zur Lage',
+            'sampling': 'Probenahmen',
+            'associated_finds': 'Assoziierte Funde',
+            'observations': 'Beobachtungen',
+            'interpretation': 'Interpretation',
+            'generated': 'Erstellt am',
+            'yes': 'Ja',
+            'no': 'Nein'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_en(self):
         """English version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4
-
-        intestazione = Paragraph("<b>ARCHAEOLOGICAL FAUNA RECORD<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        id_fauna = Paragraph("<b>RECORD ID</b><br/>" + str(self.id_fauna), styNormal)
-        sito = Paragraph("<b>SITE</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>AREA</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>TRENCH</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>SU DATING</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>RECORDER</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>RECORDING DATE</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>PHOTO DOC.</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>RECOVERY METHOD</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>CONTEXT</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>CONTEXT DESCRIPTION</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>ANATOMICAL CONNECTION</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>ACCUMULATION TYPE</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>DEPOSITION</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>ESTIMATED NUMBER</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>MNI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>SPECIES</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>SKELETAL ELEMENTS</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>SPECIES PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>BONE MEASUREMENTS</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>FRAGMENTATION</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>BURNING TRACES</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>OTHER BURNED MAT.</b><br/>" + ("Yes" if self.combustione_altri_materiali_us else "No"), styNormal)
-        tipo_combustione = Paragraph("<b>BURNING TYPE</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>TAPHONOMIC SIGNS</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>TAPH. CHARACTERIZATION</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>PRESERVATION STATE</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>MORPH. ALTERATIONS</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>NOTES ON POSITION</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>SAMPLING</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>STRAT. RELIABILITY</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>ASSOCIATED FINDS</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>OBSERVATIONS</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPRETATION</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': 'ARCHAEOLOGICAL FAUNA RECORD',
+            'section_record': 'IDENTIFICATION DATA',
+            'section_context': 'CONTEXT AND METHODOLOGY',
+            'section_deposit': 'DEPOSIT CHARACTERISTICS',
+            'section_taxonomy': 'TAXONOMIC DATA',
+            'section_taphonomy': 'TAPHONOMY AND PRESERVATION',
+            'section_notes': 'NOTES AND INTERPRETATION',
+            'id': 'Record ID',
+            'site': 'Site',
+            'area': 'Area',
+            'trench': 'Trench',
+            'su': 'SU',
+            'su_dating': 'SU Dating',
+            'recorder': 'Recorder',
+            'date': 'Recording Date',
+            'recovery_method': 'Recovery Method',
+            'context': 'Context',
+            'context_desc': 'Context Description',
+            'photo_doc': 'Photo Doc.',
+            'anatomical_conn': 'Anatomical Connection',
+            'accumulation_type': 'Accumulation Type',
+            'deposition': 'Deposition',
+            'estimated_number': 'Estimated Number',
+            'mni': 'MNI',
+            'reliability': 'Strat. Reliability',
+            'species': 'Species',
+            'skeletal_parts': 'Skeletal Elements',
+            'species_psi': 'Species PSI',
+            'bone_measurements': 'Bone Measurements',
+            'fragmentation': 'Fragmentation',
+            'preservation': 'Preservation State',
+            'alterations': 'Morph. Alterations',
+            'burning_traces': 'Burning Traces',
+            'burning_type': 'Burning Type',
+            'other_burned': 'Other Burned Mat.',
+            'taphonomic_signs': 'Taphonomic Signs',
+            'taphonomic_char': 'Taphonomic Characterization',
+            'position_notes': 'Notes on Position',
+            'sampling': 'Sampling',
+            'associated_finds': 'Associated Finds',
+            'observations': 'Observations',
+            'interpretation': 'Interpretation',
+            'generated': 'Generated on',
+            'yes': 'Yes',
+            'no': 'No'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_fr(self):
         """French version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4
-
-        intestazione = Paragraph("<b>FICHE FAUNE ARCH&Eacute;OLOGIQUE<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        sito = Paragraph("<b>SITE</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>ZONE</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>SONDAGE</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>DATATION US</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>RESPONSABLE</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>DATE DE COMPILATION</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>DOC. PHOTO</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>M&Eacute;THODE DE R&Eacute;CUP.</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>CONTEXTE</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>DESCRIPTION CONTEXTE</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>CONNEXION ANATOMIQUE</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>TYPE D'ACCUMULATION</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>D&Eacute;POSITION</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>NOMBRE ESTIM&Eacute;</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>NMI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>ESP&Egrave;CE</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>&Eacute;L&Eacute;MENTS SQUELETTIQUES</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>ESP&Egrave;CE PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>MESURES OSSEUSES</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>FRAGMENTATION</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>TRACES DE COMBUSTION</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>AUTRES MAT. BR&Ucirc;L&Eacute;S</b><br/>" + ("Oui" if self.combustione_altri_materiali_us else "Non"), styNormal)
-        tipo_combustione = Paragraph("<b>TYPE DE COMBUSTION</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>SIGNES TAPHONOMIQUES</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>CARACT. TAPHONOMIQUE</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>&Eacute;TAT DE CONSERVATION</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>ALT&Eacute;RATIONS MORPH.</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>NOTES SUR LA POSITION</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>&Eacute;CHANTILLONNAGES</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>FIABILIT&Eacute; STRAT.</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>MOBILIER ASSOCI&Eacute;</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>OBSERVATIONS</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPR&Eacute;TATION</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': 'FICHE FAUNE ARCH\u00c9OLOGIQUE',
+            'section_record': 'DONN\u00c9ES D\'IDENTIFICATION',
+            'section_context': 'CONTEXTE ET M\u00c9THODOLOGIE',
+            'section_deposit': 'CARACT\u00c9RISTIQUES DU D\u00c9P\u00d4T',
+            'section_taxonomy': 'DONN\u00c9ES TAXONOMIQUES',
+            'section_taphonomy': 'TAPHONOMIE ET CONSERVATION',
+            'section_notes': 'NOTES ET INTERPR\u00c9TATION',
+            'id': 'ID Fiche',
+            'site': 'Site',
+            'area': 'Zone',
+            'trench': 'Sondage',
+            'su': 'US',
+            'su_dating': 'Datation US',
+            'recorder': 'Responsable',
+            'date': 'Date de Compilation',
+            'recovery_method': 'M\u00e9thode de R\u00e9cup\u00e9ration',
+            'context': 'Contexte',
+            'context_desc': 'Description du Contexte',
+            'photo_doc': 'Doc. Photo',
+            'anatomical_conn': 'Connexion Anatomique',
+            'accumulation_type': 'Type d\'Accumulation',
+            'deposition': 'D\u00e9position',
+            'estimated_number': 'Nombre Estim\u00e9',
+            'mni': 'NMI',
+            'reliability': 'Fiabilit\u00e9 Strat.',
+            'species': 'Esp\u00e8ce',
+            'skeletal_parts': '\u00c9l\u00e9ments Squelettiques',
+            'species_psi': 'Esp\u00e8ce PSI',
+            'bone_measurements': 'Mesures Osseuses',
+            'fragmentation': 'Fragmentation',
+            'preservation': '\u00c9tat de Conservation',
+            'alterations': 'Alt\u00e9rations Morph.',
+            'burning_traces': 'Traces de Combustion',
+            'burning_type': 'Type de Combustion',
+            'other_burned': 'Autres Mat. Br\u00fbl\u00e9s',
+            'taphonomic_signs': 'Signes Taphonomiques',
+            'taphonomic_char': 'Caract\u00e9risation Taphonomique',
+            'position_notes': 'Notes sur la Position',
+            'sampling': '\u00c9chantillonnages',
+            'associated_finds': 'Mobilier Associ\u00e9',
+            'observations': 'Observations',
+            'interpretation': 'Interpr\u00e9tation',
+            'generated': 'G\u00e9n\u00e9r\u00e9 le',
+            'yes': 'Oui',
+            'no': 'Non'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_es(self):
         """Spanish version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4
-
-        intestazione = Paragraph("<b>FICHA DE FAUNA ARQUEOL&Oacute;GICA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        sito = Paragraph("<b>SITIO</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>&Aacute;REA</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>SONDEO</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>UE</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>DATACI&Oacute;N UE</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>RESPONSABLE</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>FECHA COMPILACI&Oacute;N</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>DOC. FOTOGR&Aacute;FICA</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>M&Eacute;TODO RECUPERACI&Oacute;N</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>CONTEXTO</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>DESCRIPCI&Oacute;N CONTEXTO</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>CONEXI&Oacute;N ANAT&Oacute;MICA</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>TIPO ACUMULACI&Oacute;N</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>DEPOSICI&Oacute;N</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>N&Uacute;MERO ESTIMADO</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>NMI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>ESPECIE</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>ELEMENTOS ESQUEL&Eacute;TICOS</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>ESPECIE PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>MEDIDAS &Oacute;SEAS</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>FRAGMENTACI&Oacute;N</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>TRAZAS COMBUSTI&Oacute;N</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>OTROS MAT. QUEMADOS</b><br/>" + ("S&iacute;" if self.combustione_altri_materiali_us else "No"), styNormal)
-        tipo_combustione = Paragraph("<b>TIPO COMBUSTI&Oacute;N</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>SE&Ntilde;ALES TAFON&Oacute;MICAS</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>CARACT. TAFON&Oacute;MICA</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>ESTADO CONSERVACI&Oacute;N</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>ALTERACIONES MORF.</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>NOTAS POSICI&Oacute;N</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>MUESTREOS</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>FIABILIDAD ESTRAT.</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>MATERIALES ASOCIADOS</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>OBSERVACIONES</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPRETACI&Oacute;N</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': 'FICHA DE FAUNA ARQUEOL\u00d3GICA',
+            'section_record': 'DATOS DE IDENTIFICACI\u00d3N',
+            'section_context': 'CONTEXTO Y METODOLOG\u00cdA',
+            'section_deposit': 'CARACTER\u00cdSTICAS DEL DEP\u00d3SITO',
+            'section_taxonomy': 'DATOS TAXON\u00d3MICOS',
+            'section_taphonomy': 'TAFONOMÍA Y CONSERVACI\u00d3N',
+            'section_notes': 'NOTAS E INTERPRETACI\u00d3N',
+            'id': 'ID Ficha',
+            'site': 'Sitio',
+            'area': '\u00c1rea',
+            'trench': 'Sondeo',
+            'su': 'UE',
+            'su_dating': 'Dataci\u00f3n UE',
+            'recorder': 'Responsable',
+            'date': 'Fecha Compilaci\u00f3n',
+            'recovery_method': 'M\u00e9todo Recuperaci\u00f3n',
+            'context': 'Contexto',
+            'context_desc': 'Descripci\u00f3n Contexto',
+            'photo_doc': 'Doc. Fotogr\u00e1fica',
+            'anatomical_conn': 'Conexi\u00f3n Anat\u00f3mica',
+            'accumulation_type': 'Tipo Acumulaci\u00f3n',
+            'deposition': 'Deposici\u00f3n',
+            'estimated_number': 'N\u00famero Estimado',
+            'mni': 'NMI',
+            'reliability': 'Fiabilidad Estrat.',
+            'species': 'Especie',
+            'skeletal_parts': 'Elementos Esquel\u00e9ticos',
+            'species_psi': 'Especie PSI',
+            'bone_measurements': 'Medidas \u00d3seas',
+            'fragmentation': 'Fragmentaci\u00f3n',
+            'preservation': 'Estado Conservaci\u00f3n',
+            'alterations': 'Alteraciones Morf.',
+            'burning_traces': 'Trazas Combusti\u00f3n',
+            'burning_type': 'Tipo Combusti\u00f3n',
+            'other_burned': 'Otros Mat. Quemados',
+            'taphonomic_signs': 'Se\u00f1ales Tafon\u00f3micas',
+            'taphonomic_char': 'Caracterizaci\u00f3n Tafon\u00f3mica',
+            'position_notes': 'Notas Posici\u00f3n',
+            'sampling': 'Muestreos',
+            'associated_finds': 'Materiales Asociados',
+            'observations': 'Observaciones',
+            'interpretation': 'Interpretaci\u00f3n',
+            'generated': 'Generado el',
+            'yes': 'S\u00ed',
+            'no': 'No'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_ar(self):
         """Arabic version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 2  # RIGHT for Arabic
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 2
-
-        intestazione = Paragraph("<b>بطاقة الحيوانات الأثرية<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        sito = Paragraph("<b>الموقع</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>المنطقة</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>المجس</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>و.ط</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>تأريخ و.ط</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>المسؤول</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>تاريخ التجميع</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>التوثيق الفوتوغرافي</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>طريقة الاسترداد</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>السياق</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>وصف السياق</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>الاتصال التشريحي</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>نوع التراكم</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>الترسيب</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>العدد المقدر</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>الحد الأدنى للأفراد</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>الأنواع</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>عناصر الهيكل العظمي</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>أنواع PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>قياسات العظام</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>التجزئة</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>آثار الاحتراق</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>مواد محترقة أخرى</b><br/>" + ("نعم" if self.combustione_altri_materiali_us else "لا"), styNormal)
-        tipo_combustione = Paragraph("<b>نوع الاحتراق</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>علامات التافونومية</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>وصف التافونومية</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>حالة الحفظ</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>التغيرات المورفولوجية</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>ملاحظات الموقع</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>أخذ العينات</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>الموثوقية الطبقية</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>اللقى المرتبطة</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>الملاحظات</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>التفسير</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': '\u0628\u0637\u0627\u0642\u0629 \u0627\u0644\u062d\u064a\u0648\u0627\u0646\u0627\u062a \u0627\u0644\u0623\u062b\u0631\u064a\u0629',
+            'section_record': '\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u062a\u0639\u0631\u064a\u0641',
+            'section_context': '\u0627\u0644\u0633\u064a\u0627\u0642 \u0648\u0627\u0644\u0645\u0646\u0647\u062c\u064a\u0629',
+            'section_deposit': '\u062e\u0635\u0627\u0626\u0635 \u0627\u0644\u0631\u0648\u0627\u0633\u0628',
+            'section_taxonomy': '\u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u0627\u0644\u062a\u0635\u0646\u064a\u0641\u064a\u0629',
+            'section_taphonomy': '\u0627\u0644\u062a\u0627\u0641\u0648\u0646\u0648\u0645\u064a\u0627 \u0648\u0627\u0644\u062d\u0641\u0638',
+            'section_notes': '\u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0648\u0627\u0644\u062a\u0641\u0633\u064a\u0631',
+            'id': '\u0631\u0642\u0645 \u0627\u0644\u0628\u0637\u0627\u0642\u0629',
+            'site': '\u0627\u0644\u0645\u0648\u0642\u0639',
+            'area': '\u0627\u0644\u0645\u0646\u0637\u0642\u0629',
+            'trench': '\u0627\u0644\u0645\u062c\u0633',
+            'su': '\u0648.\u0637',
+            'su_dating': '\u062a\u0623\u0631\u064a\u062e \u0648.\u0637',
+            'recorder': '\u0627\u0644\u0645\u0633\u0624\u0648\u0644',
+            'date': '\u062a\u0627\u0631\u064a\u062e \u0627\u0644\u062a\u062c\u0645\u064a\u0639',
+            'recovery_method': '\u0637\u0631\u064a\u0642\u0629 \u0627\u0644\u0627\u0633\u062a\u0631\u062f\u0627\u062f',
+            'context': '\u0627\u0644\u0633\u064a\u0627\u0642',
+            'context_desc': '\u0648\u0635\u0641 \u0627\u0644\u0633\u064a\u0627\u0642',
+            'photo_doc': '\u0627\u0644\u062a\u0648\u062b\u064a\u0642 \u0627\u0644\u0641\u0648\u062a\u0648\u063a\u0631\u0627\u0641\u064a',
+            'anatomical_conn': '\u0627\u0644\u0627\u062a\u0635\u0627\u0644 \u0627\u0644\u062a\u0634\u0631\u064a\u062d\u064a',
+            'accumulation_type': '\u0646\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645',
+            'deposition': '\u0627\u0644\u062a\u0631\u0633\u064a\u0628',
+            'estimated_number': '\u0627\u0644\u0639\u062f\u062f \u0627\u0644\u0645\u0642\u062f\u0631',
+            'mni': '\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649',
+            'reliability': '\u0627\u0644\u0645\u0648\u062b\u0648\u0642\u064a\u0629 \u0627\u0644\u0637\u0628\u0642\u064a\u0629',
+            'species': '\u0627\u0644\u0623\u0646\u0648\u0627\u0639',
+            'skeletal_parts': '\u0639\u0646\u0627\u0635\u0631 \u0627\u0644\u0647\u064a\u0643\u0644 \u0627\u0644\u0639\u0638\u0645\u064a',
+            'species_psi': '\u0623\u0646\u0648\u0627\u0639 PSI',
+            'bone_measurements': '\u0642\u064a\u0627\u0633\u0627\u062a \u0627\u0644\u0639\u0638\u0627\u0645',
+            'fragmentation': '\u0627\u0644\u062a\u062c\u0632\u0626\u0629',
+            'preservation': '\u062d\u0627\u0644\u0629 \u0627\u0644\u062d\u0641\u0638',
+            'alterations': '\u0627\u0644\u062a\u063a\u064a\u0631\u0627\u062a \u0627\u0644\u0645\u0648\u0631\u0641\u0648\u0644\u0648\u062c\u064a\u0629',
+            'burning_traces': '\u0622\u062b\u0627\u0631 \u0627\u0644\u0627\u062d\u062a\u0631\u0627\u0642',
+            'burning_type': '\u0646\u0648\u0639 \u0627\u0644\u0627\u062d\u062a\u0631\u0627\u0642',
+            'other_burned': '\u0645\u0648\u0627\u062f \u0645\u062d\u062a\u0631\u0642\u0629 \u0623\u062e\u0631\u0649',
+            'taphonomic_signs': '\u0639\u0644\u0627\u0645\u0627\u062a \u0627\u0644\u062a\u0627\u0641\u0648\u0646\u0648\u0645\u064a\u0629',
+            'taphonomic_char': '\u0648\u0635\u0641 \u0627\u0644\u062a\u0627\u0641\u0648\u0646\u0648\u0645\u064a\u0629',
+            'position_notes': '\u0645\u0644\u0627\u062d\u0638\u0627\u062a \u0627\u0644\u0645\u0648\u0642\u0639',
+            'sampling': '\u0623\u062e\u0630 \u0627\u0644\u0639\u064a\u0646\u0627\u062a',
+            'associated_finds': '\u0627\u0644\u0644\u0642\u0649 \u0627\u0644\u0645\u0631\u062a\u0628\u0637\u0629',
+            'observations': '\u0627\u0644\u0645\u0644\u0627\u062d\u0638\u0627\u062a',
+            'interpretation': '\u0627\u0644\u062a\u0641\u0633\u064a\u0631',
+            'generated': '\u062a\u0645 \u0625\u0646\u0634\u0627\u0624\u0647 \u0641\u064a',
+            'yes': '\u0646\u0639\u0645',
+            'no': '\u0644\u0627'
+        }
+        return self._create_professional_sheet(labels)
 
     def create_sheet_ca(self):
         """Catalan version of the sheet"""
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName = 'Cambria'
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName = 'Cambria'
-        styDescrizione.alignment = 4
-
-        intestazione = Paragraph("<b>FITXA DE FAUNA ARQUEOL&Ograve;GICA<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-
-        home = os.environ['PYARCHINIT_HOME']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        sito = Paragraph("<b>JACIMENT</b><br/>" + str(self.sito), styNormal)
-        area = Paragraph("<b>&Agrave;REA</b><br/>" + str(self.area), styNormal)
-        saggio = Paragraph("<b>SONDEIG</b><br/>" + str(self.saggio), styNormal)
-        us = Paragraph("<b>UE</b><br/>" + str(self.us), styNormal)
-        datazione_us = Paragraph("<b>DATACI&Oacute; UE</b><br/>" + str(self.datazione_us), styNormal)
-        responsabile_scheda = Paragraph("<b>RESPONSABLE</b><br/>" + str(self.responsabile_scheda), styNormal)
-        data_compilazione = Paragraph("<b>DATA COMPILACI&Oacute;</b><br/>" + str(self.data_compilazione), styNormal)
-        documentazione_fotografica = Paragraph("<b>DOC. FOTOGR&Agrave;FICA</b><br/>" + str(self.documentazione_fotografica), styNormal)
-        metodologia_recupero = Paragraph("<b>M&Egrave;TODE RECUPERACI&Oacute;</b><br/>" + str(self.metodologia_recupero), styNormal)
-        contesto = Paragraph("<b>CONTEXT</b><br/>" + str(self.contesto), styNormal)
-        descrizione_contesto = Paragraph("<b>DESCRIPCI&Oacute; CONTEXT</b><br/>" + str(self.descrizione_contesto), styDescrizione)
-        resti_connessione = Paragraph("<b>CONNEXI&Oacute; ANAT&Ograve;MICA</b><br/>" + str(self.resti_connessione_anatomica), styNormal)
-        tipologia_accumulo = Paragraph("<b>TIPUS ACUMULACI&Oacute;</b><br/>" + str(self.tipologia_accumulo), styNormal)
-        deposizione = Paragraph("<b>DEPOSICI&Oacute;</b><br/>" + str(self.deposizione), styNormal)
-        numero_stimato = Paragraph("<b>NOMBRE ESTIMAT</b><br/>" + str(self.numero_stimato_resti), styNormal)
-        nmi = Paragraph("<b>NMI</b><br/>" + str(self.numero_minimo_individui), styNormal)
-        specie = Paragraph("<b>ESP&Egrave;CIE</b><br/>" + str(self.specie), styDescrizione)
-        parti_scheletriche = Paragraph("<b>ELEMENTS ESQUEL&Egrave;TICS</b><br/>" + str(self.parti_scheletriche), styDescrizione)
-        specie_psi = Paragraph("<b>ESP&Egrave;CIE PSI</b><br/>" + str(self.specie_psi), styNormal)
-        misure_ossa = Paragraph("<b>MESURES &Ograve;SSIES</b><br/>" + str(self.misure_ossa), styNormal)
-        stato_frammentazione = Paragraph("<b>FRAGMENTACI&Oacute;</b><br/>" + str(self.stato_frammentazione), styNormal)
-        tracce_combustione = Paragraph("<b>TRACES DE COMBUSTI&Oacute;</b><br/>" + str(self.tracce_combustione), styNormal)
-        combustione_altri = Paragraph("<b>ALTRES MAT. CREMATS</b><br/>" + ("S&iacute;" if self.combustione_altri_materiali_us else "No"), styNormal)
-        tipo_combustione = Paragraph("<b>TIPUS COMBUSTI&Oacute;</b><br/>" + str(self.tipo_combustione), styNormal)
-        segni_tafonomici = Paragraph("<b>SENYALS TAFON&Ograve;MIQUES</b><br/>" + str(self.segni_tafonomici_evidenti), styNormal)
-        caratterizzazione_tafo = Paragraph("<b>CARACT. TAFON&Ograve;MICA</b><br/>" + str(self.caratterizzazione_segni_tafonomici), styDescrizione)
-        stato_conservazione = Paragraph("<b>ESTAT CONSERVACI&Oacute;</b><br/>" + str(self.stato_conservazione), styNormal)
-        alterazioni = Paragraph("<b>ALTERACIONS MORF.</b><br/>" + str(self.alterazioni_morfologiche), styNormal)
-        note_terreno = Paragraph("<b>NOTES POSICI&Oacute;</b><br/>" + str(self.note_terreno_giacitura), styDescrizione)
-        campionature = Paragraph("<b>MOSTREIGS</b><br/>" + str(self.campionature_effettuate), styNormal)
-        affidabilita = Paragraph("<b>FIABILITAT ESTRAT.</b><br/>" + str(self.affidabilita_stratigrafica), styNormal)
-        classi_reperti = Paragraph("<b>MATERIALS ASSOCIATS</b><br/>" + str(self.classi_reperti_associazione), styDescrizione)
-        osservazioni = Paragraph("<b>OBSERVACIONS</b><br/>" + str(self.osservazioni), styDescrizione)
-        interpretazione = Paragraph("<b>INTERPRETACI&Oacute;</b><br/>" + str(self.interpretazione), styDescrizione)
-
-        cell_schema = [
-            [intestazione, '', '', '', '', '', logo, '', ''],
-            [sito, '', area, saggio, us, '', datazione_us, '', ''],
-            [responsabile_scheda, '', '', data_compilazione, '', documentazione_fotografica, '', '', ''],
-            [metodologia_recupero, '', contesto, '', '', descrizione_contesto, '', '', ''],
-            [resti_connessione, '', tipologia_accumulo, '', deposizione, '', '', '', ''],
-            [numero_stimato, '', nmi, '', specie, '', '', '', ''],
-            [parti_scheletriche, '', '', '', '', '', '', '', ''],
-            [specie_psi, '', misure_ossa, '', stato_frammentazione, '', '', '', ''],
-            [tracce_combustione, '', combustione_altri, '', tipo_combustione, '', '', '', ''],
-            [segni_tafonomici, '', caratterizzazione_tafo, '', '', '', '', '', ''],
-            [stato_conservazione, '', alterazioni, '', '', '', '', '', ''],
-            [note_terreno, '', '', '', '', '', '', '', ''],
-            [campionature, '', '', affidabilita, '', '', '', '', ''],
-            [classi_reperti, '', '', '', '', '', '', '', ''],
-            [osservazioni, '', '', '', '', '', '', '', ''],
-            [interpretazione, '', '', '', '', '', '', '', '']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (5, 0)), ('SPAN', (6, 0), (8, 0)),
-            ('SPAN', (0, 1), (1, 1)), ('SPAN', (4, 1), (5, 1)), ('SPAN', (6, 1), (8, 1)),
-            ('SPAN', (0, 2), (2, 2)), ('SPAN', (3, 2), (4, 2)), ('SPAN', (5, 2), (8, 2)),
-            ('SPAN', (0, 3), (1, 3)), ('SPAN', (2, 3), (4, 3)), ('SPAN', (5, 3), (8, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (8, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (8, 5)),
-            ('SPAN', (0, 6), (8, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (8, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (8, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (8, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (8, 10)),
-            ('SPAN', (0, 11), (8, 11)),
-            ('SPAN', (0, 12), (2, 12)), ('SPAN', (3, 12), (8, 12)),
-            ('SPAN', (0, 13), (8, 13)),
-            ('SPAN', (0, 14), (8, 14)),
-            ('SPAN', (0, 15), (8, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=55, rowHeights=None, style=table_style)
-        return t
+        labels = {
+            'title': 'FITXA DE FAUNA ARQUEOL\u00d2GICA',
+            'section_record': 'DADES D\'IDENTIFICACI\u00d3',
+            'section_context': 'CONTEXT I METODOLOGIA',
+            'section_deposit': 'CARACTER\u00cdSTIQUES DEL DIP\u00d2SIT',
+            'section_taxonomy': 'DADES TAXON\u00d2MIQUES',
+            'section_taphonomy': 'TAFONOMIA I CONSERVACI\u00d3',
+            'section_notes': 'NOTES I INTERPRETACI\u00d3',
+            'id': 'ID Fitxa',
+            'site': 'Jaciment',
+            'area': '\u00c0rea',
+            'trench': 'Sondeig',
+            'su': 'UE',
+            'su_dating': 'Dataci\u00f3 UE',
+            'recorder': 'Responsable',
+            'date': 'Data Compilaci\u00f3',
+            'recovery_method': 'M\u00e8tode Recuperaci\u00f3',
+            'context': 'Context',
+            'context_desc': 'Descripci\u00f3 Context',
+            'photo_doc': 'Doc. Fotogr\u00e0fica',
+            'anatomical_conn': 'Connexi\u00f3 Anat\u00f2mica',
+            'accumulation_type': 'Tipus Acumulaci\u00f3',
+            'deposition': 'Deposici\u00f3',
+            'estimated_number': 'Nombre Estimat',
+            'mni': 'NMI',
+            'reliability': 'Fiabilitat Estrat.',
+            'species': 'Esp\u00e8cie',
+            'skeletal_parts': 'Elements Esquel\u00e8tics',
+            'species_psi': 'Esp\u00e8cie PSI',
+            'bone_measurements': 'Mesures \u00d2ssies',
+            'fragmentation': 'Fragmentaci\u00f3',
+            'preservation': 'Estat Conservaci\u00f3',
+            'alterations': 'Alteracions Morf.',
+            'burning_traces': 'Traces de Combusti\u00f3',
+            'burning_type': 'Tipus Combusti\u00f3',
+            'other_burned': 'Altres Mat. Cremats',
+            'taphonomic_signs': 'Senyals Tafon\u00f2miques',
+            'taphonomic_char': 'Caracteritzaci\u00f3 Tafon\u00f2mica',
+            'position_notes': 'Notes Posici\u00f3',
+            'sampling': 'Mostreigs',
+            'associated_finds': 'Materials Associats',
+            'observations': 'Observacions',
+            'interpretation': 'Interpretaci\u00f3',
+            'generated': 'Generat el',
+            'yes': 'S\u00ed',
+            'no': 'No'
+        }
+        return self._create_professional_sheet(labels)
 
 
 class generate_fauna_pdf(object):
@@ -955,8 +883,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'scheda_Fauna.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -974,8 +903,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'Fauna_formular.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -993,8 +923,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'Fauna_record.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -1012,8 +943,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'fiche_Faune.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -1031,8 +963,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'ficha_Fauna.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -1050,8 +983,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'fauna_bitaqa.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
@@ -1069,8 +1003,9 @@ class generate_fauna_pdf(object):
         filename = '{}{}{}'.format(home_DB_path, os.sep, 'fitxa_Fauna.pdf')
 
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=A4)
-        doc.pagesize = A4
+        doc = SimpleDocTemplate(f, pagesize=A4,
+                                leftMargin=MARGIN_LEFT, rightMargin=MARGIN_RIGHT,
+                                topMargin=MARGIN_TOP, bottomMargin=MARGIN_BOTTOM)
 
         story = []
         for i in range(len(records)):
