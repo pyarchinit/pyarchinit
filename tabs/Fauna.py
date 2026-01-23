@@ -2993,6 +2993,15 @@ class pyarchinit_Fauna(QDialog):
                 id_to_update = int(self.DATA_LIST[self.REC_CORR].id_fauna)
                 self.update_record(id_to_update)
 
+                # Refresh data after successful update
+                self.charge_records()
+                self.charge_list()
+
+                # Restore position
+                if self.REC_CORR < len(self.DATA_LIST):
+                    self.fill_fields(self.REC_CORR)
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+
                 if self.L == 'it':
                     QMessageBox.information(self, "Successo", "Record aggiornato correttamente")
                 elif self.L == 'de':
