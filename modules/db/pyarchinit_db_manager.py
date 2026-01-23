@@ -2991,7 +2991,7 @@ class Pyarchinit_db_management(object):
         # Ensure the ID value is properly typed
         id_value = self.value_id_list[0]
         # If it's a numeric ID field and the value is a string, convert to int
-        if self.id_table_str.lower() in ['id', 'id_tma', 'id_us', 'id_site', 'id_invmat', 'id_media']:
+        if self.id_table_str.lower() in ['id', 'id_tma', 'id_us', 'id_site', 'id_invmat', 'id_media', 'id_fauna', 'id_struttura', 'id_tomba']:
             try:
                 id_value = int(id_value)
             except (ValueError, TypeError):
