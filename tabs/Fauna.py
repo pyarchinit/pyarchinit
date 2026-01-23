@@ -56,7 +56,11 @@ class pyarchinit_Fauna(QDialog):
     - Support for both SQLite and PostgreSQL
     """
 
-    L = QgsSettings().value("locale/userLocale", "it")[0:2]
+    # Supported languages: IT, EN, DE, ES, FR, AR, CA
+    # Default to Italian if language not supported
+    SUPPORTED_LANGUAGES = ['it', 'en', 'de', 'es', 'fr', 'ar', 'ca']
+    _raw_locale = QgsSettings().value("locale/userLocale", "it")[0:2]
+    L = _raw_locale if _raw_locale in SUPPORTED_LANGUAGES else 'it'
 
     # Localized messages
     if L == 'it':
@@ -75,7 +79,15 @@ class pyarchinit_Fauna(QDialog):
         MSG_BOX_TITLE = "PyArchInit - Ficha Fauna"
         STATUS_ITEMS = {"b": "Usar", "f": "Buscar", "n": "Nuevo Registro", "x": "Sin registro"}
         SORTED_ITEMS = {"n": "No ordenados", "o": "Ordenados"}
-    else:
+    elif L == 'ar':
+        MSG_BOX_TITLE = "PyArchInit - استمارة الحيوانات"
+        STATUS_ITEMS = {"b": "استخدام", "f": "بحث", "n": "سجل جديد", "x": "لا يوجد سجل"}
+        SORTED_ITEMS = {"n": "غير مرتب", "o": "مرتب"}
+    elif L == 'ca':
+        MSG_BOX_TITLE = "PyArchInit - Fitxa Fauna"
+        STATUS_ITEMS = {"b": "Usar", "f": "Cercar", "n": "Nou Registre", "x": "Sense registre"}
+        SORTED_ITEMS = {"n": "No ordenats", "o": "Ordenats"}
+    else:  # English as fallback for supported languages
         MSG_BOX_TITLE = "PyArchInit - Fauna Form"
         STATUS_ITEMS = {"b": "Use", "f": "Find", "n": "New Record", "x": "No record"}
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
@@ -431,14 +443,63 @@ class pyarchinit_Fauna(QDialog):
         self.spinBox_nmi.setMaximum(9999)
         form.addRow("NMI:", self.spinBox_nmi)
 
-        self.comboBox_specie = QComboBox()
-        self.comboBox_specie.setEditable(True)
-        form.addRow(self.tr("Specie") + ":", self.comboBox_specie)
-
-        self.lineEdit_parti_scheletriche = QLineEdit()
-        form.addRow(self.tr("Parti Scheletriche") + ":", self.lineEdit_parti_scheletriche)
-
         layout.addLayout(form)
+
+        # ========== TABELLA SPECIE E PSI ==========
+        label_specie = QLabel("<b>" + self.tr("Specie e Parti Scheletriche (PSI)") + ":</b>")
+        layout.addWidget(label_specie)
+
+        # Toolbar per tabella specie/PSI
+        toolbar_specie = QToolBar()
+        toolbar_specie.setMovable(False)
+        btn_add_specie = QPushButton("+ " + self.tr("Aggiungi Riga"))
+        btn_add_specie.clicked.connect(self.add_specie_psi_row)
+        toolbar_specie.addWidget(btn_add_specie)
+        btn_remove_specie = QPushButton("- " + self.tr("Rimuovi Riga"))
+        btn_remove_specie.clicked.connect(self.remove_specie_psi_row)
+        toolbar_specie.addWidget(btn_remove_specie)
+        layout.addWidget(toolbar_specie)
+
+        # Tabella Specie e PSI
+        self.tableWidget_specie_psi = QTableWidget()
+        self.tableWidget_specie_psi.setColumnCount(2)
+        self.tableWidget_specie_psi.setHorizontalHeaderLabels([self.tr("Specie"), self.tr("PSI (Parti Scheletriche)")])
+        self.tableWidget_specie_psi.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget_specie_psi.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+        self.tableWidget_specie_psi.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
+        self.tableWidget_specie_psi.setMinimumHeight(120)
+        self.tableWidget_specie_psi.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        layout.addWidget(self.tableWidget_specie_psi)
+
+        # ========== TABELLA MISURE OSSA ==========
+        label_misure = QLabel("<b>" + self.tr("Misure Ossa") + ":</b>")
+        layout.addWidget(label_misure)
+
+        # Toolbar per tabella misure
+        toolbar_misure = QToolBar()
+        toolbar_misure.setMovable(False)
+        btn_add_misura = QPushButton("+ " + self.tr("Aggiungi Riga"))
+        btn_add_misura.clicked.connect(self.add_misura_row)
+        toolbar_misure.addWidget(btn_add_misura)
+        btn_remove_misura = QPushButton("- " + self.tr("Rimuovi Riga"))
+        btn_remove_misura.clicked.connect(self.remove_misura_row)
+        toolbar_misure.addWidget(btn_remove_misura)
+        layout.addWidget(toolbar_misure)
+
+        # Tabella Misure (6 colonne)
+        self.tableWidget_misure = QTableWidget()
+        self.tableWidget_misure.setColumnCount(6)
+        self.tableWidget_misure.setHorizontalHeaderLabels([
+            self.tr("Elemento Anatomico"), self.tr("Specie"),
+            "GL (mm)", "GB (mm)", "Bp (mm)", "Bd (mm)"
+        ])
+        self.tableWidget_misure.horizontalHeader().setStretchLastSection(True)
+        for i in range(6):
+            self.tableWidget_misure.horizontalHeader().setSectionResizeMode(i, QHeaderView.Stretch)
+        self.tableWidget_misure.setMinimumHeight(120)
+        self.tableWidget_misure.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        layout.addWidget(self.tableWidget_misure)
+
         layout.addStretch()
 
         return widget
@@ -480,7 +541,6 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_conservazione = QComboBox()
         self.comboBox_conservazione.setEditable(True)
-        self.comboBox_conservazione.addItems(["", "0", "1", "2", "3", "4", "5"])
         form.addRow(self.tr("Stato Conservazione") + ":", self.comboBox_conservazione)
 
         self.textEdit_alterazioni = QTextEdit()
@@ -743,6 +803,15 @@ class pyarchinit_Fauna(QDialog):
                 self.comboBox_connessione.addItem("")
                 self.comboBox_connessione.addItems(conn_vl)
 
+        # 13.11 - Specie (for tableWidget_specie_psi)
+        self.thesaurus_specie = load_thesaurus('13.11') or []
+
+        # 13.12 - Parti Scheletriche / PSI (for tableWidget_specie_psi)
+        self.thesaurus_psi = load_thesaurus('13.12') or []
+
+        # 13.13 - Elemento Anatomico (for tableWidget_misure)
+        self.thesaurus_elemento = load_thesaurus('13.13') or []
+
     def charge_us_combo(self, sito=None, area=None):
         """Load US data into comboBox_us_select with format 'sito - area - us'"""
         if not self.DB_MANAGER:
@@ -917,8 +986,8 @@ class pyarchinit_Fauna(QDialog):
         if self.comboBox_contesto.currentText():
             search_dict['contesto'] = "'" + self.comboBox_contesto.currentText() + "'"
 
-        if self.comboBox_specie.currentText():
-            search_dict['specie'] = "'" + self.comboBox_specie.currentText() + "'"
+        # Note: specie search is now done via tableWidget_specie_psi (JSON field)
+        # Search by specie is available in the specie_psi JSON field
 
         if self.comboBox_metodologia.currentText():
             search_dict['metodologia_recupero'] = "'" + self.comboBox_metodologia.currentText() + "'"
@@ -1029,8 +1098,30 @@ class pyarchinit_Fauna(QDialog):
             self.comboBox_deposizione.setEditText(str(rec.deposizione) if rec.deposizione else "")
             self.lineEdit_num_stimato.setText(str(rec.numero_stimato_resti) if rec.numero_stimato_resti else "")
             self.spinBox_nmi.setValue(int(rec.numero_minimo_individui) if rec.numero_minimo_individui else 0)
-            self.comboBox_specie.setEditText(str(rec.specie) if rec.specie else "")
-            self.lineEdit_parti_scheletriche.setText(str(rec.parti_scheletriche) if rec.parti_scheletriche else "")
+
+            # Populate tableWidget_specie_psi from JSON
+            if hasattr(self, 'tableWidget_specie_psi'):
+                specie_psi_json = getattr(rec, 'specie_psi', '') or ''
+                if specie_psi_json and str(specie_psi_json).strip():
+                    try:
+                        specie_psi_data = json.loads(specie_psi_json)
+                        self.set_specie_psi_data(specie_psi_data)
+                    except:
+                        self.tableWidget_specie_psi.setRowCount(0)
+                else:
+                    self.tableWidget_specie_psi.setRowCount(0)
+
+            # Populate tableWidget_misure from JSON
+            if hasattr(self, 'tableWidget_misure'):
+                misure_ossa_json = getattr(rec, 'misure_ossa', '') or ''
+                if misure_ossa_json and str(misure_ossa_json).strip():
+                    try:
+                        misure_ossa_data = json.loads(misure_ossa_json)
+                        self.set_misure_data(misure_ossa_data)
+                    except:
+                        self.tableWidget_misure.setRowCount(0)
+                else:
+                    self.tableWidget_misure.setRowCount(0)
 
             self.comboBox_frammentazione.setEditText(str(rec.stato_frammentazione) if rec.stato_frammentazione else "")
             self.comboBox_combustione.setEditText(str(rec.tracce_combustione) if rec.tracce_combustione else "")
@@ -1058,6 +1149,173 @@ class pyarchinit_Fauna(QDialog):
         self.label_rec_tot.setText(str(self.REC_TOT))
         self.label_rec_corrente.setText(str(self.REC_CORR))
 
+    # ========== GESTIONE TABELLE SPECIE/PSI E MISURE ==========
+
+    def add_specie_psi_row(self):
+        """Aggiunge una riga alla tabella Specie/PSI"""
+        row_position = self.tableWidget_specie_psi.rowCount()
+        self.tableWidget_specie_psi.insertRow(row_position)
+
+        # Combo Specie (with thesaurus values from 13.11)
+        combo_specie = QComboBox()
+        combo_specie.setEditable(True)
+        combo_specie.addItem("")
+        if hasattr(self, 'thesaurus_specie') and self.thesaurus_specie:
+            combo_specie.addItems(self.thesaurus_specie)
+        self.tableWidget_specie_psi.setCellWidget(row_position, 0, combo_specie)
+
+        # Combo PSI (with thesaurus values from 13.12)
+        combo_psi = QComboBox()
+        combo_psi.setEditable(True)
+        combo_psi.addItem("")
+        if hasattr(self, 'thesaurus_psi') and self.thesaurus_psi:
+            combo_psi.addItems(self.thesaurus_psi)
+        self.tableWidget_specie_psi.setCellWidget(row_position, 1, combo_psi)
+
+    def remove_specie_psi_row(self):
+        """Rimuove la riga selezionata dalla tabella Specie/PSI"""
+        current_row = self.tableWidget_specie_psi.currentRow()
+        if current_row >= 0:
+            self.tableWidget_specie_psi.removeRow(current_row)
+
+    def get_specie_psi_data(self) -> list:
+        """Estrae i dati dalla tabella Specie/PSI come lista di liste"""
+        data = []
+        for row in range(self.tableWidget_specie_psi.rowCount()):
+            specie_widget = self.tableWidget_specie_psi.cellWidget(row, 0)
+            psi_widget = self.tableWidget_specie_psi.cellWidget(row, 1)
+
+            if specie_widget and psi_widget:
+                specie = specie_widget.currentText()
+                psi = psi_widget.currentText()
+                if specie or psi:  # Include solo righe non vuote
+                    data.append([specie, psi])
+        return data
+
+    def set_specie_psi_data(self, data: list):
+        """Popola la tabella Specie/PSI da una lista di liste"""
+        # Svuota la tabella
+        self.tableWidget_specie_psi.setRowCount(0)
+
+        # Aggiungi righe con i dati
+        for row_data in data:
+            if len(row_data) >= 2:
+                row_position = self.tableWidget_specie_psi.rowCount()
+                self.tableWidget_specie_psi.insertRow(row_position)
+
+                # Combo Specie (with thesaurus values from 13.11)
+                combo_specie = QComboBox()
+                combo_specie.setEditable(True)
+                combo_specie.addItem("")
+                if hasattr(self, 'thesaurus_specie') and self.thesaurus_specie:
+                    combo_specie.addItems(self.thesaurus_specie)
+                combo_specie.setCurrentText(str(row_data[0]) if row_data[0] else "")
+                self.tableWidget_specie_psi.setCellWidget(row_position, 0, combo_specie)
+
+                # Combo PSI (with thesaurus values from 13.12)
+                combo_psi = QComboBox()
+                combo_psi.setEditable(True)
+                combo_psi.addItem("")
+                if hasattr(self, 'thesaurus_psi') and self.thesaurus_psi:
+                    combo_psi.addItems(self.thesaurus_psi)
+                combo_psi.setCurrentText(str(row_data[1]) if row_data[1] else "")
+                self.tableWidget_specie_psi.setCellWidget(row_position, 1, combo_psi)
+
+    def add_misura_row(self):
+        """Aggiunge una riga alla tabella Misure"""
+        row_position = self.tableWidget_misure.rowCount()
+        self.tableWidget_misure.insertRow(row_position)
+
+        # Combo Elemento Anatomico (with thesaurus values from 13.13)
+        combo_elemento = QComboBox()
+        combo_elemento.setEditable(True)
+        combo_elemento.addItem("")
+        if hasattr(self, 'thesaurus_elemento') and self.thesaurus_elemento:
+            combo_elemento.addItems(self.thesaurus_elemento)
+        self.tableWidget_misure.setCellWidget(row_position, 0, combo_elemento)
+
+        # Combo Specie (with thesaurus values from 13.11)
+        combo_specie = QComboBox()
+        combo_specie.setEditable(True)
+        combo_specie.addItem("")
+        if hasattr(self, 'thesaurus_specie') and self.thesaurus_specie:
+            combo_specie.addItems(self.thesaurus_specie)
+        self.tableWidget_misure.setCellWidget(row_position, 1, combo_specie)
+
+        # Line edit per misure (GL, GB, Bp, Bd)
+        for col in range(2, 6):
+            line_edit = QLineEdit()
+            line_edit.setPlaceholderText("0.00")
+            self.tableWidget_misure.setCellWidget(row_position, col, line_edit)
+
+    def remove_misura_row(self):
+        """Rimuove la riga selezionata dalla tabella Misure"""
+        current_row = self.tableWidget_misure.currentRow()
+        if current_row >= 0:
+            self.tableWidget_misure.removeRow(current_row)
+
+    def get_misure_data(self) -> list:
+        """Estrae i dati dalla tabella Misure come lista di liste"""
+        data = []
+        for row in range(self.tableWidget_misure.rowCount()):
+            elemento_widget = self.tableWidget_misure.cellWidget(row, 0)
+            specie_widget = self.tableWidget_misure.cellWidget(row, 1)
+
+            if elemento_widget and specie_widget:
+                elemento = elemento_widget.currentText()
+                specie = specie_widget.currentText()
+
+                # Leggi misure (GL, GB, Bp, Bd)
+                misure = []
+                for col in range(2, 6):
+                    widget = self.tableWidget_misure.cellWidget(row, col)
+                    if widget:
+                        text = widget.text().strip()
+                        misure.append(text if text else "")
+                    else:
+                        misure.append("")
+
+                # Include solo righe con almeno elemento o specie
+                if elemento or specie or any(misure):
+                    data.append([elemento, specie] + misure)
+        return data
+
+    def set_misure_data(self, data: list):
+        """Popola la tabella Misure da una lista di liste"""
+        # Svuota la tabella
+        self.tableWidget_misure.setRowCount(0)
+
+        # Aggiungi righe con i dati
+        for row_data in data:
+            if len(row_data) >= 6:
+                row_position = self.tableWidget_misure.rowCount()
+                self.tableWidget_misure.insertRow(row_position)
+
+                # Combo Elemento Anatomico (with thesaurus values from 13.13)
+                combo_elemento = QComboBox()
+                combo_elemento.setEditable(True)
+                combo_elemento.addItem("")
+                if hasattr(self, 'thesaurus_elemento') and self.thesaurus_elemento:
+                    combo_elemento.addItems(self.thesaurus_elemento)
+                combo_elemento.setCurrentText(str(row_data[0]) if row_data[0] else "")
+                self.tableWidget_misure.setCellWidget(row_position, 0, combo_elemento)
+
+                # Combo Specie (with thesaurus values from 13.11)
+                combo_specie = QComboBox()
+                combo_specie.setEditable(True)
+                combo_specie.addItem("")
+                if hasattr(self, 'thesaurus_specie') and self.thesaurus_specie:
+                    combo_specie.addItems(self.thesaurus_specie)
+                combo_specie.setCurrentText(str(row_data[1]) if row_data[1] else "")
+                self.tableWidget_misure.setCellWidget(row_position, 1, combo_specie)
+
+                # Line edit per misure (GL, GB, Bp, Bd)
+                for col in range(2, 6):
+                    line_edit = QLineEdit()
+                    line_edit.setPlaceholderText("0.00")
+                    line_edit.setText(str(row_data[col]) if row_data[col] else "")
+                    self.tableWidget_misure.setCellWidget(row_position, col, line_edit)
+
     def empty_fields(self):
         """Clear all form fields."""
         self.lineEdit_id_fauna.clear()
@@ -1080,8 +1338,12 @@ class pyarchinit_Fauna(QDialog):
         self.comboBox_deposizione.setEditText("")
         self.lineEdit_num_stimato.clear()
         self.spinBox_nmi.setValue(0)
-        self.comboBox_specie.setEditText("")
-        self.lineEdit_parti_scheletriche.clear()
+
+        # Clear tableWidgets for specie/PSI and misure
+        if hasattr(self, 'tableWidget_specie_psi'):
+            self.tableWidget_specie_psi.setRowCount(0)
+        if hasattr(self, 'tableWidget_misure'):
+            self.tableWidget_misure.setRowCount(0)
 
         self.comboBox_frammentazione.setEditText("")
         self.comboBox_combustione.setEditText("")
@@ -1414,44 +1676,376 @@ class pyarchinit_Fauna(QDialog):
             print(f"Error getting fauna records: {str(e)}")
             return []
 
+    def _get_stats_labels(self):
+        """Return localized statistics labels for all 7 supported languages."""
+        labels = {
+            'it': {
+                'title': "STATISTICHE RIEPILOGATIVE - SCHEDE FAUNA",
+                'general_stats': "STATISTICHE GENERALI",
+                'total_records': "Numero totale record",
+                'unique_sites': "Numero siti univoci",
+                'sites': "Siti",
+                'unique_areas': "Numero aree univoche",
+                'unique_trenches': "Numero saggi univoci",
+                'unique_su': "Numero US univoche",
+                'unique_combinations': "Numero combinazioni Sito+Area+Saggio+US univoche",
+                'numeric_stats': "STATISTICHE NUMERICHE - RIEPILOGO GENERALE",
+                'nmi': "Numero Minimo Individui (NMI)",
+                'records_with_nmi': "Totale record con NMI",
+                'average': "Media",
+                'minimum': "Minimo",
+                'maximum': "Massimo",
+                'total_sum': "Somma totale",
+                'skeletal_parts': "Parti Scheletriche (PSI) - Distribuzione",
+                'total_parts': "Totale parti identificate",
+                'unique_parts': "Tipi di parti univoche",
+                'measurements': "Misure Ossa (mm) - Riepilogo",
+                'total_measurements': "Totale misurazioni",
+                'stats_by_site': "STATISTICHE PER SITO",
+                'site': "SITO",
+                'total_records_site': "Totale record",
+                'of_total': "del totale generale",
+                'num_areas': "Numero aree",
+                'num_trenches': "Numero saggi",
+                'num_su': "Numero US",
+                'main_species': "Specie principali",
+                'records_label': "record",
+                'nmi_total_site': "NMI totale sito",
+                'nmi_average': "NMI medio",
+                'main_skeletal_parts': "Parti scheletriche principali",
+                'category_distribution': "DISTRIBUZIONE PER CATEGORIE - RIEPILOGO GENERALE",
+                'species_top10': "Specie (Top 10)",
+                'no_data': "Nessun dato",
+                'context': "Contesto",
+                'preservation': "Stato di Conservazione",
+                'combustion': "Tracce di Combustione",
+                'fragmentation': "Stato di Frammentazione",
+                'anatomical_connection': "Resti in Connessione Anatomica",
+                'descriptive_summary': "SOMMARIO DESCRITTIVO",
+                'report_generated': "Report generato il",
+                'error_stats': "Errore nel calcolo delle statistiche"
+            },
+            'en': {
+                'title': "SUMMARY STATISTICS - FAUNA RECORDS",
+                'general_stats': "GENERAL STATISTICS",
+                'total_records': "Total number of records",
+                'unique_sites': "Number of unique sites",
+                'sites': "Sites",
+                'unique_areas': "Number of unique areas",
+                'unique_trenches': "Number of unique trenches",
+                'unique_su': "Number of unique SU",
+                'unique_combinations': "Number of unique Site+Area+Trench+SU combinations",
+                'numeric_stats': "NUMERIC STATISTICS - GENERAL SUMMARY",
+                'nmi': "Minimum Number of Individuals (MNI)",
+                'records_with_nmi': "Total records with MNI",
+                'average': "Average",
+                'minimum': "Minimum",
+                'maximum': "Maximum",
+                'total_sum': "Total sum",
+                'skeletal_parts': "Skeletal Parts (PSI) - Distribution",
+                'total_parts': "Total identified parts",
+                'unique_parts': "Unique part types",
+                'measurements': "Bone Measurements (mm) - Summary",
+                'total_measurements': "Total measurements",
+                'stats_by_site': "STATISTICS BY SITE",
+                'site': "SITE",
+                'total_records_site': "Total records",
+                'of_total': "of total",
+                'num_areas': "Number of areas",
+                'num_trenches': "Number of trenches",
+                'num_su': "Number of SU",
+                'main_species': "Main species",
+                'records_label': "records",
+                'nmi_total_site': "Total MNI for site",
+                'nmi_average': "Average MNI",
+                'main_skeletal_parts': "Main skeletal parts",
+                'category_distribution': "DISTRIBUTION BY CATEGORIES - GENERAL SUMMARY",
+                'species_top10': "Species (Top 10)",
+                'no_data': "No data",
+                'context': "Context",
+                'preservation': "Preservation State",
+                'combustion': "Combustion Traces",
+                'fragmentation': "Fragmentation State",
+                'anatomical_connection': "Anatomical Connection Remains",
+                'descriptive_summary': "DESCRIPTIVE SUMMARY",
+                'report_generated': "Report generated on",
+                'error_stats': "Error calculating statistics"
+            },
+            'de': {
+                'title': "ZUSAMMENFASSENDE STATISTIKEN - FAUNA-DATENSÄTZE",
+                'general_stats': "ALLGEMEINE STATISTIKEN",
+                'total_records': "Gesamtzahl der Datensätze",
+                'unique_sites': "Anzahl einzigartiger Fundorte",
+                'sites': "Fundorte",
+                'unique_areas': "Anzahl einzigartiger Bereiche",
+                'unique_trenches': "Anzahl einzigartiger Schnitte",
+                'unique_su': "Anzahl einzigartiger SE",
+                'unique_combinations': "Anzahl einzigartiger Fundort+Bereich+Schnitt+SE Kombinationen",
+                'numeric_stats': "NUMERISCHE STATISTIKEN - ALLGEMEINE ZUSAMMENFASSUNG",
+                'nmi': "Mindestindividuenzahl (MIZ)",
+                'records_with_nmi': "Gesamtdatensätze mit MIZ",
+                'average': "Durchschnitt",
+                'minimum': "Minimum",
+                'maximum': "Maximum",
+                'total_sum': "Gesamtsumme",
+                'skeletal_parts': "Skelettteile (PSI) - Verteilung",
+                'total_parts': "Gesamtzahl identifizierter Teile",
+                'unique_parts': "Einzigartige Teiletypen",
+                'measurements': "Knochenmaße (mm) - Zusammenfassung",
+                'total_measurements': "Gesamtmessungen",
+                'stats_by_site': "STATISTIKEN NACH FUNDORT",
+                'site': "FUNDORT",
+                'total_records_site': "Gesamtdatensätze",
+                'of_total': "vom Gesamtergebnis",
+                'num_areas': "Anzahl Bereiche",
+                'num_trenches': "Anzahl Schnitte",
+                'num_su': "Anzahl SE",
+                'main_species': "Hauptarten",
+                'records_label': "Datensätze",
+                'nmi_total_site': "Gesamt-MIZ für Fundort",
+                'nmi_average': "Durchschnittliche MIZ",
+                'main_skeletal_parts': "Haupt-Skelettteile",
+                'category_distribution': "VERTEILUNG NACH KATEGORIEN - ALLGEMEINE ZUSAMMENFASSUNG",
+                'species_top10': "Arten (Top 10)",
+                'no_data': "Keine Daten",
+                'context': "Kontext",
+                'preservation': "Erhaltungszustand",
+                'combustion': "Brandspuren",
+                'fragmentation': "Fragmentierungszustand",
+                'anatomical_connection': "Anatomische Verbindungsreste",
+                'descriptive_summary': "BESCHREIBENDE ZUSAMMENFASSUNG",
+                'report_generated': "Bericht erstellt am",
+                'error_stats': "Fehler bei der Statistikberechnung"
+            },
+            'es': {
+                'title': "ESTADISTICAS RESUMIDAS - REGISTROS DE FAUNA",
+                'general_stats': "ESTADISTICAS GENERALES",
+                'total_records': "Numero total de registros",
+                'unique_sites': "Numero de sitios unicos",
+                'sites': "Sitios",
+                'unique_areas': "Numero de areas unicas",
+                'unique_trenches': "Numero de sondeos unicos",
+                'unique_su': "Numero de UE unicas",
+                'unique_combinations': "Numero de combinaciones Sitio+Area+Sondeo+UE unicas",
+                'numeric_stats': "ESTADISTICAS NUMERICAS - RESUMEN GENERAL",
+                'nmi': "Numero Minimo de Individuos (NMI)",
+                'records_with_nmi': "Total registros con NMI",
+                'average': "Media",
+                'minimum': "Minimo",
+                'maximum': "Maximo",
+                'total_sum': "Suma total",
+                'skeletal_parts': "Partes Esqueleticas (PSI) - Distribucion",
+                'total_parts': "Total partes identificadas",
+                'unique_parts': "Tipos de partes unicas",
+                'measurements': "Medidas Oseas (mm) - Resumen",
+                'total_measurements': "Total mediciones",
+                'stats_by_site': "ESTADISTICAS POR SITIO",
+                'site': "SITIO",
+                'total_records_site': "Total registros",
+                'of_total': "del total",
+                'num_areas': "Numero de areas",
+                'num_trenches': "Numero de sondeos",
+                'num_su': "Numero de UE",
+                'main_species': "Especies principales",
+                'records_label': "registros",
+                'nmi_total_site': "NMI total del sitio",
+                'nmi_average': "NMI promedio",
+                'main_skeletal_parts': "Partes esqueleticas principales",
+                'category_distribution': "DISTRIBUCION POR CATEGORIAS - RESUMEN GENERAL",
+                'species_top10': "Especies (Top 10)",
+                'no_data': "Sin datos",
+                'context': "Contexto",
+                'preservation': "Estado de Conservacion",
+                'combustion': "Trazas de Combustion",
+                'fragmentation': "Estado de Fragmentacion",
+                'anatomical_connection': "Restos en Conexion Anatomica",
+                'descriptive_summary': "RESUMEN DESCRIPTIVO",
+                'report_generated': "Informe generado el",
+                'error_stats': "Error al calcular estadisticas"
+            },
+            'fr': {
+                'title': "STATISTIQUES RECAPITULATIVES - FICHES FAUNE",
+                'general_stats': "STATISTIQUES GENERALES",
+                'total_records': "Nombre total d'enregistrements",
+                'unique_sites': "Nombre de sites uniques",
+                'sites': "Sites",
+                'unique_areas': "Nombre de zones uniques",
+                'unique_trenches': "Nombre de sondages uniques",
+                'unique_su': "Nombre d'US uniques",
+                'unique_combinations': "Nombre de combinaisons Site+Zone+Sondage+US uniques",
+                'numeric_stats': "STATISTIQUES NUMERIQUES - RESUME GENERAL",
+                'nmi': "Nombre Minimum d'Individus (NMI)",
+                'records_with_nmi': "Total enregistrements avec NMI",
+                'average': "Moyenne",
+                'minimum': "Minimum",
+                'maximum': "Maximum",
+                'total_sum': "Somme totale",
+                'skeletal_parts': "Parties Squelettiques (PSI) - Distribution",
+                'total_parts': "Total parties identifiees",
+                'unique_parts': "Types de parties uniques",
+                'measurements': "Mesures Osseuses (mm) - Resume",
+                'total_measurements': "Total mesures",
+                'stats_by_site': "STATISTIQUES PAR SITE",
+                'site': "SITE",
+                'total_records_site': "Total enregistrements",
+                'of_total': "du total",
+                'num_areas': "Nombre de zones",
+                'num_trenches': "Nombre de sondages",
+                'num_su': "Nombre d'US",
+                'main_species': "Especes principales",
+                'records_label': "enregistrements",
+                'nmi_total_site': "NMI total du site",
+                'nmi_average': "NMI moyen",
+                'main_skeletal_parts': "Parties squelettiques principales",
+                'category_distribution': "DISTRIBUTION PAR CATEGORIES - RESUME GENERAL",
+                'species_top10': "Especes (Top 10)",
+                'no_data': "Pas de donnees",
+                'context': "Contexte",
+                'preservation': "Etat de Conservation",
+                'combustion': "Traces de Combustion",
+                'fragmentation': "Etat de Fragmentation",
+                'anatomical_connection': "Restes en Connexion Anatomique",
+                'descriptive_summary': "RESUME DESCRIPTIF",
+                'report_generated': "Rapport genere le",
+                'error_stats': "Erreur lors du calcul des statistiques"
+            },
+            'ar': {
+                'title': "إحصائيات ملخصة - سجلات الحيوانات",
+                'general_stats': "إحصائيات عامة",
+                'total_records': "إجمالي عدد السجلات",
+                'unique_sites': "عدد المواقع الفريدة",
+                'sites': "المواقع",
+                'unique_areas': "عدد المناطق الفريدة",
+                'unique_trenches': "عدد الحفريات الفريدة",
+                'unique_su': "عدد الوحدات الطبقية الفريدة",
+                'unique_combinations': "عدد التركيبات الفريدة",
+                'numeric_stats': "إحصائيات رقمية - ملخص عام",
+                'nmi': "الحد الأدنى لعدد الأفراد",
+                'records_with_nmi': "إجمالي السجلات مع الحد الأدنى",
+                'average': "المتوسط",
+                'minimum': "الحد الأدنى",
+                'maximum': "الحد الأقصى",
+                'total_sum': "المجموع الكلي",
+                'skeletal_parts': "الأجزاء الهيكلية - التوزيع",
+                'total_parts': "إجمالي الأجزاء المحددة",
+                'unique_parts': "أنواع الأجزاء الفريدة",
+                'measurements': "قياسات العظام (مم) - ملخص",
+                'total_measurements': "إجمالي القياسات",
+                'stats_by_site': "إحصائيات حسب الموقع",
+                'site': "الموقع",
+                'total_records_site': "إجمالي السجلات",
+                'of_total': "من الإجمالي",
+                'num_areas': "عدد المناطق",
+                'num_trenches': "عدد الحفريات",
+                'num_su': "عدد الوحدات الطبقية",
+                'main_species': "الأنواع الرئيسية",
+                'records_label': "سجلات",
+                'nmi_total_site': "إجمالي الحد الأدنى للموقع",
+                'nmi_average': "متوسط الحد الأدنى",
+                'main_skeletal_parts': "الأجزاء الهيكلية الرئيسية",
+                'category_distribution': "التوزيع حسب الفئات - ملخص عام",
+                'species_top10': "الأنواع (أعلى 10)",
+                'no_data': "لا توجد بيانات",
+                'context': "السياق",
+                'preservation': "حالة الحفظ",
+                'combustion': "آثار الاحتراق",
+                'fragmentation': "حالة التجزئة",
+                'anatomical_connection': "بقايا في اتصال تشريحي",
+                'descriptive_summary': "ملخص وصفي",
+                'report_generated': "تم إنشاء التقرير في",
+                'error_stats': "خطأ في حساب الإحصائيات"
+            },
+            'ca': {
+                'title': "ESTADISTIQUES RESUMIDES - FITXES FAUNA",
+                'general_stats': "ESTADISTIQUES GENERALS",
+                'total_records': "Nombre total de registres",
+                'unique_sites': "Nombre de jaciments unics",
+                'sites': "Jaciments",
+                'unique_areas': "Nombre d'arees uniques",
+                'unique_trenches': "Nombre de sondeigs unics",
+                'unique_su': "Nombre d'UE uniques",
+                'unique_combinations': "Nombre de combinacions Jaciment+Area+Sondeig+UE uniques",
+                'numeric_stats': "ESTADISTIQUES NUMERIQUES - RESUM GENERAL",
+                'nmi': "Nombre Minim d'Individus (NMI)",
+                'records_with_nmi': "Total registres amb NMI",
+                'average': "Mitjana",
+                'minimum': "Minim",
+                'maximum': "Maxim",
+                'total_sum': "Suma total",
+                'skeletal_parts': "Parts Esqueletiques (PSI) - Distribucio",
+                'total_parts': "Total parts identificades",
+                'unique_parts': "Tipus de parts uniques",
+                'measurements': "Mesures Ossies (mm) - Resum",
+                'total_measurements': "Total mesures",
+                'stats_by_site': "ESTADISTIQUES PER JACIMENT",
+                'site': "JACIMENT",
+                'total_records_site': "Total registres",
+                'of_total': "del total",
+                'num_areas': "Nombre d'arees",
+                'num_trenches': "Nombre de sondeigs",
+                'num_su': "Nombre d'UE",
+                'main_species': "Especies principals",
+                'records_label': "registres",
+                'nmi_total_site': "NMI total del jaciment",
+                'nmi_average': "NMI mitja",
+                'main_skeletal_parts': "Parts esqueletiques principals",
+                'category_distribution': "DISTRIBUCIO PER CATEGORIES - RESUM GENERAL",
+                'species_top10': "Especies (Top 10)",
+                'no_data': "Sense dades",
+                'context': "Context",
+                'preservation': "Estat de Conservacio",
+                'combustion': "Traces de Combustio",
+                'fragmentation': "Estat de Fragmentacio",
+                'anatomical_connection': "Restes en Connexio Anatomica",
+                'descriptive_summary': "RESUM DESCRIPTIU",
+                'report_generated': "Informe generat el",
+                'error_stats': "Error en calcular estadistiques"
+            }
+        }
+        # Return Italian labels as fallback if language not found
+        return labels.get(self.L, labels['it'])
+
     def update_statistics(self):
         """Calculate and display comprehensive statistics."""
         try:
             records = self.get_all_fauna_records()
+            lbl = self._get_stats_labels()  # Get translated labels
 
             if not records:
                 no_data_msg = {
                     'it': "Nessun record presente nel database.",
+                    'en': "No records in the database.",
                     'de': "Keine Datensätze in der Datenbank.",
-                    'fr': "Aucun enregistrement dans la base de données.",
                     'es': "No hay registros en la base de datos.",
-                    'en': "No records in the database."
+                    'fr': "Aucun enregistrement dans la base de données.",
+                    'ar': "لا توجد سجلات في قاعدة البيانات.",
+                    'ca': "No hi ha registres a la base de dades."
                 }
-                self.txt_statistiche.setText(no_data_msg.get(self.L, no_data_msg['en']))
+                self.txt_statistiche.setText(no_data_msg.get(self.L, no_data_msg['it']))
                 return
 
             stats_text = []
             stats_text.append("=" * 100)
-            stats_text.append("STATISTICHE RIEPILOGATIVE - SCHEDE FAUNA")
+            stats_text.append(lbl['title'])
             stats_text.append("=" * 100)
             stats_text.append("")
 
             # === GENERAL STATISTICS ===
-            stats_text.append("STATISTICHE GENERALI")
+            stats_text.append(lbl['general_stats'])
             stats_text.append("-" * 100)
-            stats_text.append(f"Numero totale record: {len(records)}")
+            stats_text.append(f"{lbl['total_records']}: {len(records)}")
 
             siti = set(r.get('sito', '') for r in records if r.get('sito'))
             aree = set(r.get('area', '') for r in records if r.get('area'))
             saggi = set(r.get('saggio', '') for r in records if r.get('saggio'))
             us_list = set(r.get('us', '') for r in records if r.get('us'))
 
-            stats_text.append(f"Numero siti univoci: {len(siti)}")
+            stats_text.append(f"{lbl['unique_sites']}: {len(siti)}")
             if siti:
-                stats_text.append(f"  Siti: {', '.join(sorted(str(s) for s in siti))}")
-            stats_text.append(f"Numero aree univoche: {len(aree)}")
-            stats_text.append(f"Numero saggi univoci: {len(saggi)}")
-            stats_text.append(f"Numero US univoche: {len(us_list)}")
+                stats_text.append(f"  {lbl['sites']}: {', '.join(sorted(str(s) for s in siti))}")
+            stats_text.append(f"{lbl['unique_areas']}: {len(aree)}")
+            stats_text.append(f"{lbl['unique_trenches']}: {len(saggi)}")
+            stats_text.append(f"{lbl['unique_su']}: {len(us_list)}")
 
             # Unique combinations
             combinazioni = set()
@@ -1462,22 +2056,22 @@ class pyarchinit_Fauna(QDialog):
                 us = r.get('us', '')
                 if sito and area and saggio and us:
                     combinazioni.add((sito, area, saggio, us))
-            stats_text.append(f"Numero combinazioni Sito+Area+Saggio+US univoche: {len(combinazioni)}")
+            stats_text.append(f"{lbl['unique_combinations']}: {len(combinazioni)}")
             stats_text.append("")
 
             # === NUMERIC STATISTICS ===
-            stats_text.append("STATISTICHE NUMERICHE - RIEPILOGO GENERALE")
+            stats_text.append(lbl['numeric_stats'])
             stats_text.append("-" * 100)
 
             nmi_values = [int(r['numero_minimo_individui']) for r in records
                          if r.get('numero_minimo_individui') not in (None, '', 0)]
             if nmi_values:
-                stats_text.append(f"Numero Minimo Individui (NMI):")
-                stats_text.append(f"  Totale record con NMI: {len(nmi_values)}")
-                stats_text.append(f"  Media: {sum(nmi_values)/len(nmi_values):.1f}")
-                stats_text.append(f"  Minimo: {min(nmi_values)}")
-                stats_text.append(f"  Massimo: {max(nmi_values)}")
-                stats_text.append(f"  Somma totale: {sum(nmi_values)}")
+                stats_text.append(f"{lbl['nmi']}:")
+                stats_text.append(f"  {lbl['records_with_nmi']}: {len(nmi_values)}")
+                stats_text.append(f"  {lbl['average']}: {sum(nmi_values)/len(nmi_values):.1f}")
+                stats_text.append(f"  {lbl['minimum']}: {min(nmi_values)}")
+                stats_text.append(f"  {lbl['maximum']}: {max(nmi_values)}")
+                stats_text.append(f"  {lbl['total_sum']}: {sum(nmi_values)}")
 
             # Skeletal Parts (PSI) distribution
             all_psi = {}
@@ -1488,9 +2082,9 @@ class pyarchinit_Fauna(QDialog):
                         all_psi[psi] = all_psi.get(psi, 0) + 1
 
             if all_psi:
-                stats_text.append(f"\nParti Scheletriche (PSI) - Distribuzione:")
-                stats_text.append(f"  Totale parti identificate: {sum(all_psi.values())}")
-                stats_text.append(f"  Tipi di parti univoche: {len(all_psi)}")
+                stats_text.append(f"\n{lbl['skeletal_parts']}:")
+                stats_text.append(f"  {lbl['total_parts']}: {sum(all_psi.values())}")
+                stats_text.append(f"  {lbl['unique_parts']}: {len(all_psi)}")
                 sorted_psi = sorted(all_psi.items(), key=lambda x: x[1], reverse=True)[:10]
                 for psi, cnt in sorted_psi:
                     pct = (cnt / sum(all_psi.values())) * 100
@@ -1503,17 +2097,17 @@ class pyarchinit_Fauna(QDialog):
                 misure_values.extend(measurements)
 
             if misure_values:
-                stats_text.append(f"\nMisure Ossa (mm) - Riepilogo:")
-                stats_text.append(f"  Totale misurazioni: {len(misure_values)}")
-                stats_text.append(f"  Media: {sum(misure_values)/len(misure_values):.2f} mm")
-                stats_text.append(f"  Minimo: {min(misure_values):.2f} mm")
-                stats_text.append(f"  Massimo: {max(misure_values):.2f} mm")
+                stats_text.append(f"\n{lbl['measurements']}:")
+                stats_text.append(f"  {lbl['total_measurements']}: {len(misure_values)}")
+                stats_text.append(f"  {lbl['average']}: {sum(misure_values)/len(misure_values):.2f} mm")
+                stats_text.append(f"  {lbl['minimum']}: {min(misure_values):.2f} mm")
+                stats_text.append(f"  {lbl['maximum']}: {max(misure_values):.2f} mm")
 
             stats_text.append("")
 
             # === STATISTICS BY SITE ===
             if siti and len(siti) > 0:
-                stats_text.append("STATISTICHE PER SITO")
+                stats_text.append(lbl['stats_by_site'])
                 stats_text.append("=" * 100)
 
                 for sito in sorted(str(s) for s in siti):
@@ -1521,18 +2115,18 @@ class pyarchinit_Fauna(QDialog):
                     sito_pct = (len(sito_records) / len(records)) * 100
 
                     stats_text.append(f"\n{'#' * 100}")
-                    stats_text.append(f"SITO: {sito}")
+                    stats_text.append(f"{lbl['site']}: {sito}")
                     stats_text.append(f"{'#' * 100}")
-                    stats_text.append(f"Totale record: {len(sito_records)} ({sito_pct:.1f}% del totale generale)")
+                    stats_text.append(f"{lbl['total_records_site']}: {len(sito_records)} ({sito_pct:.1f}% {lbl['of_total']})")
 
                     # Areas, trenches, SU in the site
                     sito_aree = set(r.get('area', '') for r in sito_records if r.get('area'))
                     sito_saggi = set(r.get('saggio', '') for r in sito_records if r.get('saggio'))
                     sito_us = set(r.get('us', '') for r in sito_records if r.get('us'))
 
-                    stats_text.append(f"Numero aree: {len(sito_aree)}")
-                    stats_text.append(f"Numero saggi: {len(sito_saggi)}")
-                    stats_text.append(f"Numero US: {len(sito_us)}")
+                    stats_text.append(f"{lbl['num_areas']}: {len(sito_aree)}")
+                    stats_text.append(f"{lbl['num_trenches']}: {len(sito_saggi)}")
+                    stats_text.append(f"{lbl['num_su']}: {len(sito_us)}")
 
                     # Main species in the site
                     sito_species = {}
@@ -1544,17 +2138,17 @@ class pyarchinit_Fauna(QDialog):
 
                     if sito_species:
                         top_species = sorted(sito_species.items(), key=lambda x: x[1], reverse=True)[:5]
-                        stats_text.append(f"\nSpecie principali:")
+                        stats_text.append(f"\n{lbl['main_species']}:")
                         for sp, cnt in top_species:
                             sp_pct = (cnt / len(sito_records)) * 100
-                            stats_text.append(f"  - {sp}: {cnt} record ({sp_pct:.1f}%)")
+                            stats_text.append(f"  - {sp}: {cnt} {lbl['records_label']} ({sp_pct:.1f}%)")
 
                     # NMI total for site
                     sito_nmi = [int(r['numero_minimo_individui']) for r in sito_records
                                if r.get('numero_minimo_individui') not in (None, '', 0)]
                     if sito_nmi:
-                        stats_text.append(f"\nNMI totale sito: {sum(sito_nmi)}")
-                        stats_text.append(f"NMI medio: {sum(sito_nmi)/len(sito_nmi):.1f}")
+                        stats_text.append(f"\n{lbl['nmi_total_site']}: {sum(sito_nmi)}")
+                        stats_text.append(f"{lbl['nmi_average']}: {sum(sito_nmi)/len(sito_nmi):.1f}")
 
                     # PSI for site
                     sito_psi = {}
@@ -1565,14 +2159,14 @@ class pyarchinit_Fauna(QDialog):
                                 sito_psi[psi] = sito_psi.get(psi, 0) + 1
                     if sito_psi:
                         top_psi = sorted(sito_psi.items(), key=lambda x: x[1], reverse=True)[:5]
-                        stats_text.append(f"\nParti scheletriche principali:")
+                        stats_text.append(f"\n{lbl['main_skeletal_parts']}:")
                         for psi, cnt in top_psi:
                             stats_text.append(f"  - {psi}: {cnt}")
 
                 stats_text.append(f"\n{'=' * 100}\n")
 
             # === DISTRIBUTION BY CATEGORIES ===
-            stats_text.append("DISTRIBUZIONE PER CATEGORIE - RIEPILOGO GENERALE")
+            stats_text.append(lbl['category_distribution'])
             stats_text.append("-" * 100)
 
             def count_values(field_name, label, top_n=10):
@@ -1589,7 +2183,7 @@ class pyarchinit_Fauna(QDialog):
                         percentage = (count / len(records)) * 100
                         stats_text.append(f"  {val}: {count} ({percentage:.1f}%)")
                 else:
-                    stats_text.append(f"\n{label}: Nessun dato")
+                    stats_text.append(f"\n{label}: {lbl['no_data']}")
 
             # Species
             all_species = {}
@@ -1599,25 +2193,25 @@ class pyarchinit_Fauna(QDialog):
                     if sp and str(sp).strip():
                         all_species[sp] = all_species.get(sp, 0) + 1
             if all_species:
-                stats_text.append(f"\nSpecie (Top 10):")
+                stats_text.append(f"\n{lbl['species_top10']}:")
                 sorted_species = sorted(all_species.items(), key=lambda x: x[1], reverse=True)
                 for val, count in sorted_species[:10]:
                     percentage = (count / len(records)) * 100
                     stats_text.append(f"  {val}: {count} ({percentage:.1f}%)")
             else:
-                stats_text.append(f"\nSpecie (Top 10): Nessun dato")
+                stats_text.append(f"\n{lbl['species_top10']}: {lbl['no_data']}")
 
-            count_values('contesto', 'Contesto')
-            count_values('stato_conservazione', 'Stato di Conservazione')
-            count_values('tracce_combustione', 'Tracce di Combustione')
-            count_values('stato_frammentazione', 'Stato di Frammentazione')
-            count_values('resti_connessione_anatomica', 'Resti in Connessione Anatomica')
+            count_values('contesto', lbl['context'])
+            count_values('stato_conservazione', lbl['preservation'])
+            count_values('tracce_combustione', lbl['combustion'])
+            count_values('stato_frammentazione', lbl['fragmentation'])
+            count_values('resti_connessione_anatomica', lbl['anatomical_connection'])
 
             stats_text.append("")
 
             # === DESCRIPTIVE SUMMARY ===
             stats_text.append("=" * 100)
-            stats_text.append("SOMMARIO DESCRITTIVO")
+            stats_text.append(lbl['descriptive_summary'])
             stats_text.append("=" * 100)
             stats_text.append("")
 
@@ -1627,7 +2221,7 @@ class pyarchinit_Fauna(QDialog):
 
             stats_text.append("")
             stats_text.append("=" * 100)
-            stats_text.append(f"Report generato il: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+            stats_text.append(f"{lbl['report_generated']}: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
             stats_text.append("=" * 100)
 
             # Save for export
@@ -1647,8 +2241,9 @@ class pyarchinit_Fauna(QDialog):
             self.txt_statistiche.setText("\n".join(stats_text))
 
         except Exception as e:
-            error_msg = f"Errore nel calcolo delle statistiche:\n{str(e)}" if self.L == 'it' else f"Error calculating statistics:\n{str(e)}"
-            QMessageBox.critical(self, "Errore" if self.L == 'it' else "Error", error_msg)
+            error_labels = self._get_stats_labels()
+            error_msg = f"{error_labels['error_stats']}:\n{str(e)}"
+            QMessageBox.critical(self, "Error", error_msg)
             import traceback
             traceback.print_exc()
 
@@ -1728,18 +2323,132 @@ class pyarchinit_Fauna(QDialog):
         except (ValueError, TypeError):
             return 0.0
 
+    def _get_summary_texts(self):
+        """Return localized summary texts for all 7 supported languages."""
+        texts = {
+            'it': {
+                'intro': "L'analisi del dataset faunistico comprende {records} record archeologici distribuiti su {sites} siti, {areas} aree, {trenches} saggi e {su} unita stratigrafiche.",
+                'site_distribution': "DISTRIBUZIONE PER SITO:",
+                'dominant_site': "Il sito piu rappresentato e '{site}' con {count} record ({pct}% del totale).",
+                'other_sites': "Gli altri {count} siti contribuiscono con il restante {pct}% dei dati.",
+                'species_analysis': "ANALISI DELLE SPECIE:",
+                'species_identified': "Sono state identificate {count} specie diverse. Le specie predominanti sono:",
+                'species_present': "  - {species}: presente in {count} record ({pct}% del totale)",
+                'nmi_title': "NUMERO MINIMO DI INDIVIDUI (NMI):",
+                'nmi_text': "Il numero minimo totale di individui e {total}, con una media di {avg} individui per record. Il valore minimo registrato e {min}, mentre il massimo e {max}.",
+                'context_title': "CONTESTI ARCHEOLOGICI:",
+                'context_text': "Il contesto prevalente e '{context}' con {count} occorrenze ({pct}% del totale).",
+                'conclusion_title': "CONCLUSIONI:",
+                'conclusion_text': "Il dataset rappresenta un campione significativo per l'analisi archeozoologica del sito. I dati raccolti permettono di ricostruire aspetti legati all'economia, all'alimentazione e alle pratiche cultuali delle popolazioni antiche che hanno abitato l'area."
+            },
+            'en': {
+                'intro': "The faunal dataset analysis comprises {records} archaeological records distributed across {sites} sites, {areas} areas, {trenches} trenches and {su} stratigraphic units.",
+                'site_distribution': "DISTRIBUTION BY SITE:",
+                'dominant_site': "The most represented site is '{site}' with {count} records ({pct}% of total).",
+                'other_sites': "The other {count} sites contribute the remaining {pct}% of the data.",
+                'species_analysis': "SPECIES ANALYSIS:",
+                'species_identified': "{count} different species have been identified. The predominant species are:",
+                'species_present': "  - {species}: present in {count} records ({pct}% of total)",
+                'nmi_title': "MINIMUM NUMBER OF INDIVIDUALS (MNI):",
+                'nmi_text': "The total minimum number of individuals is {total}, with an average of {avg} individuals per record. The minimum value recorded is {min}, while the maximum is {max}.",
+                'context_title': "ARCHAEOLOGICAL CONTEXTS:",
+                'context_text': "The prevalent context is '{context}' with {count} occurrences ({pct}% of total).",
+                'conclusion_title': "CONCLUSIONS:",
+                'conclusion_text': "The dataset represents a significant sample for the archaeozoological analysis of the site. The collected data allow reconstruction of aspects related to economy, diet, and cultic practices of the ancient populations that inhabited the area."
+            },
+            'de': {
+                'intro': "Die Analyse des Faunadatensatzes umfasst {records} archaeologische Datensatze, verteilt auf {sites} Fundorte, {areas} Bereiche, {trenches} Schnitte und {su} stratigraphische Einheiten.",
+                'site_distribution': "VERTEILUNG NACH FUNDORT:",
+                'dominant_site': "Der am meisten vertretene Fundort ist '{site}' mit {count} Datensatzen ({pct}% der Gesamtzahl).",
+                'other_sites': "Die anderen {count} Fundorte tragen die restlichen {pct}% der Daten bei.",
+                'species_analysis': "ARTENANALYSE:",
+                'species_identified': "Es wurden {count} verschiedene Arten identifiziert. Die vorherrschenden Arten sind:",
+                'species_present': "  - {species}: in {count} Datensatzen vorhanden ({pct}% der Gesamtzahl)",
+                'nmi_title': "MINDESTINDIVIDUENZAHL (MIZ):",
+                'nmi_text': "Die Gesamtmindestindividuenzahl betragt {total}, mit einem Durchschnitt von {avg} Individuen pro Datensatz. Der minimale Wert ist {min}, der maximale ist {max}.",
+                'context_title': "ARCHAOLOGISCHE KONTEXTE:",
+                'context_text': "Der vorherrschende Kontext ist '{context}' mit {count} Vorkommen ({pct}% der Gesamtzahl).",
+                'conclusion_title': "SCHLUSSFOLGERUNGEN:",
+                'conclusion_text': "Der Datensatz stellt eine bedeutende Stichprobe fur die archaozoologische Analyse des Fundortes dar. Die gesammelten Daten ermoglichen die Rekonstruktion von Aspekten der Wirtschaft, Ernahrung und kultischen Praktiken der antiken Bevolkerungen."
+            },
+            'es': {
+                'intro': "El analisis del conjunto de datos faunisticos comprende {records} registros arqueologicos distribuidos en {sites} sitios, {areas} areas, {trenches} sondeos y {su} unidades estratigraficas.",
+                'site_distribution': "DISTRIBUCION POR SITIO:",
+                'dominant_site': "El sitio mas representado es '{site}' con {count} registros ({pct}% del total).",
+                'other_sites': "Los otros {count} sitios contribuyen con el {pct}% restante de los datos.",
+                'species_analysis': "ANALISIS DE ESPECIES:",
+                'species_identified': "Se han identificado {count} especies diferentes. Las especies predominantes son:",
+                'species_present': "  - {species}: presente en {count} registros ({pct}% del total)",
+                'nmi_title': "NUMERO MINIMO DE INDIVIDUOS (NMI):",
+                'nmi_text': "El numero minimo total de individuos es {total}, con un promedio de {avg} individuos por registro. El valor minimo registrado es {min}, mientras que el maximo es {max}.",
+                'context_title': "CONTEXTOS ARQUEOLOGICOS:",
+                'context_text': "El contexto prevalente es '{context}' con {count} ocurrencias ({pct}% del total).",
+                'conclusion_title': "CONCLUSIONES:",
+                'conclusion_text': "El conjunto de datos representa una muestra significativa para el analisis arqueozoologico del sitio. Los datos recopilados permiten reconstruir aspectos relacionados con la economia, la alimentacion y las practicas cultuales de las poblaciones antiguas."
+            },
+            'fr': {
+                'intro': "L'analyse du jeu de donnees fauniques comprend {records} enregistrements archeologiques repartis sur {sites} sites, {areas} zones, {trenches} sondages et {su} unites stratigraphiques.",
+                'site_distribution': "DISTRIBUTION PAR SITE:",
+                'dominant_site': "Le site le plus represente est '{site}' avec {count} enregistrements ({pct}% du total).",
+                'other_sites': "Les {count} autres sites contribuent aux {pct}% restants des donnees.",
+                'species_analysis': "ANALYSE DES ESPECES:",
+                'species_identified': "{count} especes differentes ont ete identifiees. Les especes predominantes sont:",
+                'species_present': "  - {species}: present dans {count} enregistrements ({pct}% du total)",
+                'nmi_title': "NOMBRE MINIMUM D'INDIVIDUS (NMI):",
+                'nmi_text': "Le nombre minimum total d'individus est de {total}, avec une moyenne de {avg} individus par enregistrement. La valeur minimale enregistree est {min}, tandis que la maximale est {max}.",
+                'context_title': "CONTEXTES ARCHEOLOGIQUES:",
+                'context_text': "Le contexte prevalent est '{context}' avec {count} occurrences ({pct}% du total).",
+                'conclusion_title': "CONCLUSIONS:",
+                'conclusion_text': "Le jeu de donnees represente un echantillon significatif pour l'analyse archeozoologique du site. Les donnees collectees permettent de reconstituer des aspects lies a l'economie, l'alimentation et les pratiques cultuelles des populations anciennes."
+            },
+            'ar': {
+                'intro': "يشمل تحليل بيانات الحيوانات {records} سجلاً أثرياً موزعة على {sites} مواقع، {areas} مناطق، {trenches} حفريات و{su} وحدات طبقية.",
+                'site_distribution': "التوزيع حسب الموقع:",
+                'dominant_site': "الموقع الأكثر تمثيلاً هو '{site}' بـ {count} سجل ({pct}% من الإجمالي).",
+                'other_sites': "تساهم المواقع الأخرى البالغ عددها {count} بنسبة {pct}% المتبقية من البيانات.",
+                'species_analysis': "تحليل الأنواع:",
+                'species_identified': "تم تحديد {count} نوعاً مختلفاً. الأنواع السائدة هي:",
+                'species_present': "  - {species}: موجود في {count} سجل ({pct}% من الإجمالي)",
+                'nmi_title': "الحد الأدنى لعدد الأفراد:",
+                'nmi_text': "إجمالي الحد الأدنى لعدد الأفراد هو {total}، بمتوسط {avg} فرد لكل سجل. القيمة الدنيا المسجلة هي {min}، بينما القصوى هي {max}.",
+                'context_title': "السياقات الأثرية:",
+                'context_text': "السياق السائد هو '{context}' بـ {count} حالة ({pct}% من الإجمالي).",
+                'conclusion_title': "الاستنتاجات:",
+                'conclusion_text': "تمثل مجموعة البيانات عينة مهمة للتحليل الأثري الحيواني للموقع. تسمح البيانات المجمعة بإعادة بناء جوانب تتعلق بالاقتصاد والتغذية والممارسات الطقوسية للسكان القدماء."
+            },
+            'ca': {
+                'intro': "L'analisi del conjunt de dades faunistiques compren {records} registres arqueologics distribuits en {sites} jaciments, {areas} arees, {trenches} sondeigs i {su} unitats estratigrafiques.",
+                'site_distribution': "DISTRIBUCIO PER JACIMENT:",
+                'dominant_site': "El jaciment mes representat es '{site}' amb {count} registres ({pct}% del total).",
+                'other_sites': "Els altres {count} jaciments contribueixen amb el {pct}% restant de les dades.",
+                'species_analysis': "ANALISI D'ESPECIES:",
+                'species_identified': "S'han identificat {count} especies diferents. Les especies predominants son:",
+                'species_present': "  - {species}: present en {count} registres ({pct}% del total)",
+                'nmi_title': "NOMBRE MINIM D'INDIVIDUS (NMI):",
+                'nmi_text': "El nombre minim total d'individus es {total}, amb una mitjana de {avg} individus per registre. El valor minim registrat es {min}, mentre que el maxim es {max}.",
+                'context_title': "CONTEXTOS ARQUEOLOGICS:",
+                'context_text': "El context prevalent es '{context}' amb {count} ocurrencies ({pct}% del total).",
+                'conclusion_title': "CONCLUSIONS:",
+                'conclusion_text': "El conjunt de dades representa una mostra significativa per a l'analisi arqueozoologica del jaciment. Les dades recollides permeten reconstruir aspectes relacionats amb l'economia, l'alimentacio i les practiques cultuals de les poblacions antigues."
+            }
+        }
+        return texts.get(self.L, texts['it'])
+
     def _generate_descriptive_summary(self, records, nmi_values, misure_values, siti, aree, saggi, us_list):
         """Generate a descriptive summary of the statistics."""
         summary = []
+        txt = self._get_summary_texts()
 
         # Introduction
-        summary.append(f"L'analisi del dataset faunistico comprende {len(records)} record archeologici ")
-        summary.append(f"distribuiti su {len(siti)} siti, {len(aree)} aree, {len(saggi)} saggi e {len(us_list)} unita stratigrafiche.")
+        summary.append(txt['intro'].format(
+            records=len(records), sites=len(siti), areas=len(aree),
+            trenches=len(saggi), su=len(us_list)
+        ))
         summary.append("")
 
         # Analysis by site
         if len(siti) > 0:
-            summary.append("DISTRIBUZIONE PER SITO:")
+            summary.append(txt['site_distribution'])
             site_records = {}
             for r in records:
                 site = r.get('sito', '')
@@ -1754,10 +2463,14 @@ class pyarchinit_Fauna(QDialog):
                 dominant_site = sorted_sites[0]
                 pct = (len(dominant_site[1]) / len(records)) * 100
 
-                summary.append(f"Il sito piu rappresentato e '{dominant_site[0]}' con {len(dominant_site[1])} record ({pct:.1f}% del totale).")
+                summary.append(txt['dominant_site'].format(
+                    site=dominant_site[0], count=len(dominant_site[1]), pct=f"{pct:.1f}"
+                ))
 
                 if len(siti) > 1:
-                    summary.append(f"Gli altri {len(siti) - 1} siti contribuiscono con il restante {100 - pct:.1f}% dei dati.")
+                    summary.append(txt['other_sites'].format(
+                        count=len(siti) - 1, pct=f"{100 - pct:.1f}"
+                    ))
 
             summary.append("")
 
@@ -1771,12 +2484,14 @@ class pyarchinit_Fauna(QDialog):
 
         if species_count:
             top_3_species = sorted(species_count.items(), key=lambda x: x[1], reverse=True)[:3]
-            summary.append("ANALISI DELLE SPECIE:")
-            summary.append(f"Sono state identificate {len(species_count)} specie diverse. Le specie predominanti sono:")
+            summary.append(txt['species_analysis'])
+            summary.append(txt['species_identified'].format(count=len(species_count)))
 
             for sp, count in top_3_species:
                 pct = (count / len(records)) * 100
-                summary.append(f"  - {sp}: presente in {count} record ({pct:.1f}% del totale)")
+                summary.append(txt['species_present'].format(
+                    species=sp, count=count, pct=f"{pct:.1f}"
+                ))
 
             summary.append("")
 
@@ -1784,9 +2499,11 @@ class pyarchinit_Fauna(QDialog):
         if nmi_values:
             total_nmi = sum(nmi_values)
             avg_nmi = total_nmi / len(nmi_values)
-            summary.append("NUMERO MINIMO DI INDIVIDUI (NMI):")
-            summary.append(f"Il numero minimo totale di individui e {total_nmi}, con una media di {avg_nmi:.1f} individui ")
-            summary.append(f"per record. Il valore minimo registrato e {min(nmi_values)}, mentre il massimo e {max(nmi_values)}.")
+            summary.append(txt['nmi_title'])
+            summary.append(txt['nmi_text'].format(
+                total=total_nmi, avg=f"{avg_nmi:.1f}",
+                min=min(nmi_values), max=max(nmi_values)
+            ))
             summary.append("")
 
         # Context analysis
@@ -1799,16 +2516,15 @@ class pyarchinit_Fauna(QDialog):
         if context_count:
             dominant_context = max(context_count.items(), key=lambda x: x[1])
             pct = (dominant_context[1] / len(records)) * 100
-            summary.append("CONTESTI ARCHEOLOGICI:")
-            summary.append(f"Il contesto prevalente e '{dominant_context[0]}' con {dominant_context[1]} occorrenze ")
-            summary.append(f"({pct:.1f}% del totale).")
+            summary.append(txt['context_title'])
+            summary.append(txt['context_text'].format(
+                context=dominant_context[0], count=dominant_context[1], pct=f"{pct:.1f}"
+            ))
             summary.append("")
 
         # Conclusion
-        summary.append("CONCLUSIONI:")
-        summary.append("Il dataset rappresenta un campione significativo per l'analisi archeozoologica del sito.")
-        summary.append("I dati raccolti permettono di ricostruire aspetti legati all'economia, all'alimentazione e ")
-        summary.append("alle pratiche cultuali delle popolazioni antiche che hanno abitato l'area.")
+        summary.append(txt['conclusion_title'])
+        summary.append(txt['conclusion_text'])
 
         return summary
 
@@ -2008,8 +2724,52 @@ class pyarchinit_Fauna(QDialog):
             return
 
         try:
+            import os
+
+            # Get PYARCHINIT_HOME
+            pyarchinit_home = os.environ.get('PYARCHINIT_HOME', '')
+            if not pyarchinit_home:
+                raise Exception("PYARCHINIT_HOME environment variable is not set")
+
+            # Determine the filename based on language
+            pdf_filenames = {
+                'it': 'scheda_Fauna.pdf',
+                'de': 'Fauna_formular.pdf',
+                'fr': 'fiche_Faune.pdf',
+                'es': 'ficha_Fauna.pdf',
+                'ar': 'fauna_bitaqa.pdf',
+                'ca': 'fitxa_Fauna.pdf',
+                'en': 'Fauna_record.pdf'
+            }
+            pdf_filename = pdf_filenames.get(self.L, pdf_filenames['en'])
+            pdf_folder = os.path.join(pyarchinit_home, 'pyarchinit_PDF_folder')
+            pdf_path = os.path.join(pdf_folder, pdf_filename)
+
+            # Ensure the PDF folder exists
+            if not os.path.exists(pdf_folder):
+                os.makedirs(pdf_folder)
+                print(f"Created PDF folder: {pdf_folder}")
+
+            # Check if logo exists (required for PDF generation)
+            db_folder = os.path.join(pyarchinit_home, 'pyarchinit_DB_folder')
+            logo_path = os.path.join(db_folder, 'logo.jpg')
+            if not os.path.exists(logo_path):
+                # Try alternative logo names
+                alt_logos = ['logo.png', 'logo_en.jpg', 'logo_de.jpg']
+                logo_found = False
+                for alt in alt_logos:
+                    alt_path = os.path.join(db_folder, alt)
+                    if os.path.exists(alt_path):
+                        logo_found = True
+                        break
+                if not logo_found:
+                    raise Exception(f"Logo file not found in {db_folder}. Required: logo.jpg")
+
             Fauna_pdf_sheet = generate_fauna_pdf()
             data_list = self.generate_list_pdf()
+
+            print(f"Generating PDF with {len(data_list)} records...")
+            print(f"Target path: {pdf_path}")
 
             if self.L == 'it':
                 Fauna_pdf_sheet.build_Fauna_sheets(data_list)
@@ -2026,8 +2786,30 @@ class pyarchinit_Fauna(QDialog):
             else:
                 Fauna_pdf_sheet.build_Fauna_sheets_en(data_list)
 
-            msg = "Esportazione schede completata" if self.L == 'it' else "Sheet export completed"
-            QMessageBox.information(self, "Successo" if self.L == 'it' else "Success", msg)
+            # Verify file was created
+            if os.path.exists(pdf_path):
+                file_size = os.path.getsize(pdf_path)
+                print(f"PDF created successfully: {pdf_path} ({file_size} bytes)")
+
+                # Show success message with file path
+                if self.L == 'it':
+                    msg = f"Esportazione schede completata!\n\nFile salvato in:\n{pdf_path}\n\nDimensione: {file_size} bytes"
+                elif self.L == 'de':
+                    msg = f"Export abgeschlossen!\n\nDatei gespeichert unter:\n{pdf_path}\n\nGrosse: {file_size} bytes"
+                elif self.L == 'fr':
+                    msg = f"Export termine!\n\nFichier enregistre dans:\n{pdf_path}\n\nTaille: {file_size} bytes"
+                elif self.L == 'es':
+                    msg = f"Exportacion completada!\n\nArchivo guardado en:\n{pdf_path}\n\nTamano: {file_size} bytes"
+                elif self.L == 'ar':
+                    msg = f"اكتمل التصدير!\n\nتم حفظ الملف في:\n{pdf_path}\n\nالحجم: {file_size} bytes"
+                elif self.L == 'ca':
+                    msg = f"Exportacio completada!\n\nFitxer desat a:\n{pdf_path}\n\nMida: {file_size} bytes"
+                else:
+                    msg = f"Sheet export completed!\n\nFile saved to:\n{pdf_path}\n\nSize: {file_size} bytes"
+
+                QMessageBox.information(self, "Success" if self.L != 'it' else "Successo", msg)
+            else:
+                raise Exception(f"PDF file was not created at: {pdf_path}")
 
         except Exception as e:
             error_msg = f"Errore nell'esportazione:\n{str(e)}" if self.L == 'it' else f"Export error:\n{str(e)}"
@@ -2145,8 +2927,8 @@ class pyarchinit_Fauna(QDialog):
             str(self.comboBox_deposizione.currentText()),  # deposizione
             str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
             str(self.spinBox_nmi.value()),  # numero_minimo_individui
-            str(self.comboBox_specie.currentText()),  # specie
-            str(self.lineEdit_parti_scheletriche.text()),  # parti_scheletriche
+            json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',  # specie_psi
+            json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',  # misure_ossa
             str(self.comboBox_frammentazione.currentText()),  # stato_frammentazione
             str(self.comboBox_combustione.currentText()),  # tracce_combustione
             str(1 if self.checkBox_combustione_altri.isChecked() else 0),  # combustione_altri_materiali_us
@@ -2185,8 +2967,8 @@ class pyarchinit_Fauna(QDialog):
                 str(rec.deposizione) if rec.deposizione else '',
                 str(rec.numero_stimato_resti) if rec.numero_stimato_resti else '',
                 str(rec.numero_minimo_individui) if rec.numero_minimo_individui else '0',
-                str(rec.specie) if rec.specie else '',
-                str(rec.parti_scheletriche) if rec.parti_scheletriche else '',
+                str(getattr(rec, 'specie_psi', '') or ''),  # specie_psi
+                str(getattr(rec, 'misure_ossa', '') or ''),  # misure_ossa
                 str(rec.stato_frammentazione) if rec.stato_frammentazione else '',
                 str(rec.tracce_combustione) if rec.tracce_combustione else '',
                 str(rec.combustione_altri_materiali_us) if rec.combustione_altri_materiali_us else '0',
@@ -2251,8 +3033,8 @@ class pyarchinit_Fauna(QDialog):
             'deposizione': str(self.comboBox_deposizione.currentText()),
             'numero_stimato_resti': str(self.lineEdit_num_stimato.text()),
             'numero_minimo_individui': int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,
-            'specie': str(self.comboBox_specie.currentText()),
-            'parti_scheletriche': str(self.lineEdit_parti_scheletriche.text()),
+            'specie_psi': json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',
+            'misure_ossa': json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',
             'stato_frammentazione': str(self.comboBox_frammentazione.currentText()),
             'tracce_combustione': str(self.comboBox_combustione.currentText()),
             'combustione_altri_materiali_us': 1 if self.checkBox_combustione_altri.isChecked() else 0,
@@ -2305,10 +3087,10 @@ class pyarchinit_Fauna(QDialog):
                 str(self.comboBox_deposizione.currentText()),  # deposizione
                 str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
                 int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,  # numero_minimo_individui
-                str(self.comboBox_specie.currentText()),  # specie
-                str(self.lineEdit_parti_scheletriche.text()),  # parti_scheletriche
-                '',  # specie_psi
-                '',  # misure_ossa
+                '',  # specie (deprecated, kept for compatibility)
+                '',  # parti_scheletriche (deprecated, kept for compatibility)
+                json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',  # specie_psi
+                json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',  # misure_ossa
                 str(self.comboBox_frammentazione.currentText()),  # stato_frammentazione
                 str(self.comboBox_combustione.currentText()),  # tracce_combustione
                 1 if self.checkBox_combustione_altri.isChecked() else 0,  # combustione_altri_materiali_us
