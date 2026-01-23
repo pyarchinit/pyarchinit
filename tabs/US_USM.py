@@ -118,7 +118,7 @@ from ..gui.sortpanelmain import SortPanelMain
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
-from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer
+from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer, Qt
 
 # Debug flag - set to True to enable debug output
 DEBUG = False
@@ -8111,6 +8111,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.currentTextChanged.connect(self.check_v)
         self.charge_insert_ra()
         self.charge_struttura_list()
+
+        # Add context menu to comboBox_struttura for clearing the field
+        self.comboBox_struttura.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.comboBox_struttura.customContextMenuRequested.connect(self.show_struttura_context_menu)
+
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
         # L'aggiornamento dating viene ora fatto solo quando si naviga ai record
         # per evitare falsi prompt di salvataggio durante l'inizializzazione
@@ -14234,6 +14239,59 @@ DATABASE SCHEMA KNOWLEDGE:
                 # You might consider logging the error messages to improve
                 # debugging. Replace `print` with a logger as necessary.
                 pass#QMessageBox.warning(self, 'Warning', f"Error setting edit text: {e}")
+
+    def show_struttura_context_menu(self, position):
+        """Show context menu for comboBox_struttura with clear option."""
+        from qgis.PyQt.QtWidgets import QMenu, QAction
+
+        menu = QMenu(self)
+
+        # Clear action
+        if self.L == 'it':
+            clear_text = "Svuota campo Struttura"
+        elif self.L == 'de':
+            clear_text = "Feld Struktur leeren"
+        elif self.L == 'fr':
+            clear_text = "Vider le champ Structure"
+        elif self.L == 'es':
+            clear_text = "Vaciar campo Estructura"
+        else:
+            clear_text = "Clear Structure field"
+
+        clear_action = QAction(clear_text, self)
+        clear_action.triggered.connect(self.clear_struttura_field)
+        menu.addAction(clear_action)
+
+        menu.exec_(self.comboBox_struttura.mapToGlobal(position))
+
+    def clear_struttura_field(self):
+        """Clear the struttura combobox selection."""
+        try:
+            # For QgsCheckableComboBox, use deselectAllOptions or setCheckedItems
+            if hasattr(self.comboBox_struttura, 'deselectAllOptions'):
+                self.comboBox_struttura.deselectAllOptions()
+            elif hasattr(self.comboBox_struttura, 'setCheckedItems'):
+                self.comboBox_struttura.setCheckedItems([])
+
+            # Also clear the edit text
+            self.comboBox_struttura.setEditText("")
+            self.comboBox_struttura.setDefaultText("")
+
+            if self.L == 'it':
+                msg = "Campo Struttura svuotato. Ricorda di salvare il record."
+            elif self.L == 'de':
+                msg = "Feld Struktur geleert. Denken Sie daran, den Datensatz zu speichern."
+            elif self.L == 'fr':
+                msg = "Champ Structure vidé. N'oubliez pas d'enregistrer."
+            elif self.L == 'es':
+                msg = "Campo Estructura vaciado. Recuerda guardar el registro."
+            else:
+                msg = "Structure field cleared. Remember to save the record."
+
+            QMessageBox.information(self, "Info", msg)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Error clearing field: {str(e)}")
 
     def calculate_centroid_from_geometries(self, geometry_records):
         '''
