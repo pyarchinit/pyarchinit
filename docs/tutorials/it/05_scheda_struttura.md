@@ -152,6 +152,46 @@ Numero progressivo della struttura all'interno della sigla.
 
 ---
 
+## Sincronizzazione con la Scheda US
+
+Le strutture create in questa scheda appaiono automaticamente nel campo **Struttura** della **Scheda US** per lo stesso sito.
+
+### Come funziona il collegamento
+
+1. **Creare la struttura** compilando almeno:
+   - **Sito**: il sito archeologico (es. "Roma_Foro")
+   - **Sigla**: il codice della struttura (es. "MUR")
+   - **Numero**: il numero progressivo (es. 1)
+   - Salvare il record
+
+2. **Nella Scheda US** dello stesso sito:
+   - Il campo **Struttura** mostrera la struttura nel formato `SIGLA-NUMERO`
+   - Esempio: "MUR-1", "PV-2", "ST-3"
+
+### Formato di visualizzazione
+
+Le strutture appaiono nella Scheda US nel formato:
+```
+SIGLA_STRUTTURA - NUMERO_STRUTTURA
+```
+
+**Esempi:**
+| Scheda Struttura | Visualizzato in Scheda US |
+|------------------|---------------------------|
+| Sito=Roma, Sigla=MUR, Numero=1 | MUR-1 |
+| Sito=Roma, Sigla=PV, Numero=2 | PV-2 |
+| Sito=Roma, Sigla=ST, Numero=10 | ST-10 |
+
+### Note importanti
+
+- La struttura deve essere **salvata** prima di apparire nella Scheda US
+- Solo le strutture dello **stesso sito** sono visibili
+- Nella Scheda US e possibile **selezionare piu strutture** (selezione multipla con checkbox)
+- Per **rimuovere** una struttura dall'US: aprire il menu a tendina e togliere la spunta
+- Per **svuotare** tutte le strutture: click destro → "Svuota campo Struttura"
+
+---
+
 ## Campi di Classificazione
 
 I campi di classificazione definiscono la natura della struttura.

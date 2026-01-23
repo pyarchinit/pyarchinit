@@ -287,6 +287,37 @@ Manages the chronology of the stratigraphic unit.
 | **Excavated** | Excavation status | Yes / No |
 | **Excavation method** | Excavation mode | Mechanical / Stratigraphic |
 
+### Structure Field - Link with Structure Form
+
+The **Structure** field allows you to associate one or more structures with the current stratigraphic unit. It is a multi-selection field (checkboxes).
+
+#### How synchronization works
+
+1. **First** create structures in the **Structure Form**
+2. In the Structure Form fill in: **Site** (same as SU), **Code** (e.g., "MUR"), **Number** (e.g., 1)
+3. In the SU Form, the Structure field will show available structures in format `CODE-NUMBER`
+
+#### Selecting structures
+
+1. Click on the **Structure** field to open the dropdown menu
+2. Check the boxes of structures to associate
+3. You can select **multiple structures** at once
+4. Save the record
+
+#### Removing a single structure
+
+1. Click on the **Structure** field to open the dropdown menu
+2. **Uncheck** the box of the structure to remove
+3. Save the record
+
+#### Removing all structures (Clear field)
+
+1. **Right-click** on the Structure field
+2. Select "**Clear Structure field**" from the context menu
+3. Save the record to confirm the change
+
+> **Note**: The "Clear field" function removes ALL associated structures. To remove only one, use the checkboxes.
+
 ---
 
 ## Stratigraphic Relationships Tab
@@ -656,6 +687,72 @@ Contains advanced tools for checking and exporting.
 | **Create Period Code** | Generate period codes |
 | **csv2us** | Import SU from CSV |
 | **Graphml2csv** | Export GraphML to CSV |
+
+---
+
+## Stratigraphic Ordering (Order Layer)
+
+The **Stratigraphic Ordering** system automatically calculates the SU sequence based on the entered stratigraphic relationships. It is an automatic calculation that assigns a progressive numeric value to each SU according to its position in the stratigraphic sequence.
+
+### How it works
+
+The system analyzes stratigraphic relationships (covers/covered by, cuts/cut by, etc.) and builds a directed graph. Then it calculates the topological order, assigning:
+- **Level 0**: Oldest SUs (at the base of stratigraphy)
+- **Level 1, 2, 3...**: Progressively more recent SUs
+- **Level N**: Most recent SUs (at the top of stratigraphy)
+
+### Requirements for ordering
+
+1. **Complete relationships**: All SUs must have stratigraphic relationships entered
+2. **No paradoxes**: No cycles must exist in relationships (e.g., SU1 covers SU2 and SU2 covers SU1)
+3. **Inverse relationships**: All relationships must have their inverse
+
+### How to execute ordering
+
+1. Perform a **search** by Site and Area (the system works on single site/area)
+2. Go to **Help Tab** → **Tool Box**
+3. Click **Stratigraphic order**
+4. Confirm the operation
+5. Wait for completion
+
+### Ordering format
+
+The ordering is **always sequential numeric**:
+```
+0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+```
+
+**Rules:**
+- Numbers are **always consecutive** (never 1, 2, 5, 8 - always 1, 2, 3, 4)
+- No gaps in the sequence
+- SUs at the same stratigraphic level have the same number
+- Order can be **reversed** (checkbox "Order: Ancient → Recent"):
+  - **Active**: 0 = oldest, N = most recent
+  - **Inactive**: 0 = most recent, N = oldest
+
+### Order Layer Field
+
+The result is saved in the **Order Layer** field (lineEditOrderLayer) of each SU. This field:
+- Is **automatically calculated** by the system
+- Can be **manually modified** if necessary
+- Is used to sort SUs in the view
+
+### Common errors
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "Stratigraphic paradox" | Cycle in relationships | Verify and correct relationships |
+| "Missing SUs" | Referenced SUs don't exist | Create missing SUs |
+| "Missing relationship" | Relationship without type or number | Complete relationships |
+
+### Visualization
+
+Once the order is calculated, you can:
+- **Sort** records by Order Layer
+- **Filter** by specific levels
+- **Export** Matrix with levels
+
+---
 
 ### GIS Functions
 

@@ -152,6 +152,46 @@ Progressive structure number within the code.
 
 ---
 
+## Synchronization with SU Form
+
+Structures created in this form automatically appear in the **Structure** field of the **SU Form** for the same site.
+
+### How the link works
+
+1. **Create the structure** filling in at least:
+   - **Site**: the archaeological site (e.g., "Rome_Forum")
+   - **Code**: the structure code (e.g., "MUR")
+   - **Number**: the progressive number (e.g., 1)
+   - Save the record
+
+2. **In the SU Form** for the same site:
+   - The **Structure** field will show the structure in format `CODE-NUMBER`
+   - Example: "MUR-1", "PV-2", "ST-3"
+
+### Display format
+
+Structures appear in the SU Form in the format:
+```
+STRUCTURE_CODE - STRUCTURE_NUMBER
+```
+
+**Examples:**
+| Structure Form | Displayed in SU Form |
+|----------------|----------------------|
+| Site=Rome, Code=MUR, Number=1 | MUR-1 |
+| Site=Rome, Code=PV, Number=2 | PV-2 |
+| Site=Rome, Code=ST, Number=10 | ST-10 |
+
+### Important notes
+
+- The structure must be **saved** before appearing in the SU Form
+- Only structures from the **same site** are visible
+- In the SU Form you can **select multiple structures** (multi-selection with checkboxes)
+- To **remove** a structure from the SU: open the dropdown menu and uncheck the box
+- To **clear** all structures: right-click → "Clear Structure field"
+
+---
+
 ## Classification Fields
 
 Classification fields define the nature of the structure.
