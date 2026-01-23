@@ -5,6 +5,7 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Detsesso.py\
 			 tabs/Documentazione.py\
 			 tabs/Documentazione_preview.py\
+			 tabs/Fauna.py\
 			 tabs/Gis_Time_controller.py\
 			 tabs/Image_viewer.py\
 			 tabs/Images_comparison.py\
@@ -15,9 +16,13 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Pdf_administrator.py\
 			 tabs/Pdf_export.py\
 			 tabs/Periodizzazione.py\
+			 tabs/Pottery_tools.py\
+			 tabs/Sam_Segmentation_Dialog.py\
 			 tabs/Schedaind.py\
 			 tabs/Site.py\
 			 tabs/Struttura.py\
+			 tabs/Tafonomia.py\
+			 tabs/Tma.py\
 			 tabs/Tomba.py\
 			 tabs/Thesaurus.py\
 			 tabs/Upd.py\
@@ -117,4 +122,5 @@ TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
                i18n/pyarchinit_plugin_en_US.ts \
 			   i18n/pyarchinit_plugin_fr_FR.ts \
 			   i18n/pyarchinit_plugin_ar_LB.ts \
-			   i18n/pyarchinit_plugin_es_ES.ts 
+			   i18n/pyarchinit_plugin_es_ES.ts \
+			   i18n/pyarchinit_plugin_ca_ES.ts
