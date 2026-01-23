@@ -171,10 +171,14 @@ class Utility:
         # f.write(str(self.list))
         # f.close()
         for i in range(len(self.list)):
-            if str(type(self.list[i])) != "<class 'int'>" and str(type(self.list[i])) != "<class 'float'>":
-                if not self.list[i]:
-                    pass
-                elif self.list[i][0:3] == '"""':
+            item_type = type(self.list[i]).__name__
+            # Skip non-string types: int, float, date, datetime, None, bool, list, dict
+            if item_type in ('int', 'float', 'date', 'datetime', 'NoneType', 'bool', 'list', 'dict'):
+                continue
+            if not self.list[i]:
+                pass
+            elif isinstance(self.list[i], str):
+                if self.list[i][0:3] == '"""':
                     self.list[i] = self.list[i][3:-3]
                 elif self.list[i][0:1] == '"':
                     self.list[i] = self.list[i][1:-1]

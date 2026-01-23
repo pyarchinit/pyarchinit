@@ -2977,6 +2977,10 @@ class Pyarchinit_db_management(object):
         u = Utility()
         update_value_list = u.deunicode_list(self.values_update_list)
 
+        print(f"[DB_MANAGER DEBUG] update: columns_name_list length={len(self.columns_name_list)}")
+        print(f"[DB_MANAGER DEBUG] update: values_update_list length={len(self.values_update_list)}")
+        print(f"[DB_MANAGER DEBUG] update: update_value_list length={len(update_value_list)}")
+
         column_list = []
         for field in self.columns_name_list:
             column_str = ('%s.%s') % (table_class_str, field)
@@ -2984,9 +2988,11 @@ class Pyarchinit_db_management(object):
 
         u.add_item_to_dict(changes_dict, list(zip(self.columns_name_list, update_value_list)))
 
+        print(f"[DB_MANAGER DEBUG] update: changes_dict keys={list(changes_dict.keys())}")
+        print(f"[DB_MANAGER DEBUG] update: changes_dict={changes_dict}")
+
         Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
-        # session.query(SITE).filter(and_(SITE.id_sito == '1')).update(values = {SITE.sito:"updatetest"})
 
         # Ensure the ID value is properly typed
         id_value = self.value_id_list[0]
@@ -2996,14 +3002,20 @@ class Pyarchinit_db_management(object):
                 id_value = int(id_value)
             except (ValueError, TypeError):
                 pass  # Keep original value if conversion fails
-        
-        session_exec_str = 'session.query(%s).filter(and_(%s.%s == %s)).update(values = %s)' % (
-        self.table_class_str, self.table_class_str, self.id_table_str, id_value, changes_dict)
 
-
-        eval(session_exec_str)
-        session.commit()
-        session.close()
+        # Use proper SQLAlchemy update instead of eval
+        try:
+            table_class = eval(self.table_class_str)
+            id_column = getattr(table_class, self.id_table_str)
+            session.query(table_class).filter(id_column == id_value).update(values=changes_dict)
+            session.commit()
+            print(f"[DB_MANAGER DEBUG] update: SUCCESS")
+        except Exception as e:
+            print(f"[DB_MANAGER DEBUG] update: EXCEPTION={str(e)}")
+            session.rollback()
+            raise
+        finally:
+            session.close()
         # Clear cache to ensure fresh data on next query
         self.clear_cache()
 

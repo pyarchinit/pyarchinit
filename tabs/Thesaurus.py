@@ -1557,10 +1557,10 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                     QgsMessageLog.logMessage(f"Still no area parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
                             hierarchy_level = 3
             
-            # Create data with hierarchy fields - use display name for nome_tabella
+            # Create data with hierarchy fields - use actual table name for nome_tabella
             data = self.DB_MANAGER.insert_values_thesaurus(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                display_name,  # 1 - nome tabella (use display name/alias)
+                table_name,  # 1 - nome tabella (use actual table name, e.g., 'fauna_table')
                 str(self.comboBox_sigla.currentText()),  # 2 - sigla
                 str(self.comboBox_sigla_estesa.currentText()),  # 3 - sigla estesa
                 str(self.textEdit_descrizione_sigla.toPlainText()),  # 4 - descrizione
@@ -1581,8 +1581,8 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 tipologia_sigla = str(self.comboBox_tipologia_sigla.currentText())
                 lingua = str(self.comboBox_lingua.currentText())
                 
-                # Synchronize if needed
-                self.synchronize_field_values(sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, display_name)
+                # Synchronize if needed - pass actual table name
+                self.synchronize_field_values(sigla, sigla_estesa, descrizione, tipologia_sigla, lingua, table_name)
                 
                 return 1
             except Exception as e:
@@ -1630,23 +1630,21 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             for target_table, target_code in table_list:
                 if target_table != actual_table_name:  # Don't sync to the same table
                     try:
-                        # Convert target table to display name
-                        target_display_name = self.get_display_name_from_table(target_table)
-                        
+                        # Use actual table name for nome_tabella (not display name)
                         # Check if record already exists
                         search_dict = {
-                            'nome_tabella': "'" + target_display_name + "'",
+                            'nome_tabella': "'" + target_table + "'",
                             'sigla': "'" + sigla + "'",
                             'tipologia_sigla': "'" + target_code + "'",
                             'lingua': "'" + lingua + "'"
                         }
                         existing = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                        
+
                         if not existing:
-                            # Insert new synchronized record using display name
+                            # Insert new synchronized record using actual table name
                             data = self.DB_MANAGER.insert_values_thesaurus(
                                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
-                                target_display_name,  # Use display name
+                                target_table,  # Use actual table name (e.g., 'fauna_table')
                                 sigla,
                                 sigla_estesa,
                                 descrizione + " [Sincronizzato da " + table_name + "]",
