@@ -55,6 +55,7 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
+from ..modules.utility.pyarchinit_exp_Struttura_AR_pdf import generate_struttura_AR_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_remote_url, initialize as init_remote_loader
@@ -306,6 +307,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_fas_iniz.currentIndexChanged.connect(self.charge_datazione_list)
         self.toolButton_pdfpath.clicked.connect(self.setPathpdf)
         self.pbnOpenpdfDirectory.clicked.connect(self.openpdfDir)
+        self.pushButton_pdf_exp.clicked.connect(self.on_pushButton_pdf_exp_pressed)
         sito = self.comboBox_sito.currentText()
         self.comboBox_sito.setEditText(sito)
         self.customize_GUI()
@@ -1546,10 +1548,11 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_print_pressed(self):
         if self.L=='it':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets(data_list)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.StandardButton.Ok)
+                # Use AR layout with extended fields and image support
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets(data_list)
+                QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura (Layout AR)",QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -1568,55 +1571,61 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         elif self.L=='de':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_de(data_list)
-                QMessageBox.warning(self, 'Ok', "Export beendet Struktur-Formular", QMessageBox.StandardButton.Ok)
+                # Use AR layout with extended fields and image support
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets_de(data_list)
+                QMessageBox.warning(self, 'Ok', "Export beendet Struktur-Formular (AR Layout)", QMessageBox.StandardButton.Ok)
             else:
                 pass
 
         elif self.L=='fr':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_fr(data_list)
-                QMessageBox.warning(self, 'Ok', "Exportation terminée Fiche Structure", QMessageBox.StandardButton.Ok)
+                # Use AR layout - falls back to Italian for now
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportation terminée Fiche Structure (Layout AR)", QMessageBox.StandardButton.Ok)
             else:
                 pass
 
         elif self.L=='es':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_es(data_list)
-                QMessageBox.warning(self, 'Ok', "Exportación completada Ficha Estructura", QMessageBox.StandardButton.Ok)
+                # Use AR layout - falls back to Italian for now
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportación completada Ficha Estructura (Layout AR)", QMessageBox.StandardButton.Ok)
             else:
                 pass
 
         elif self.L=='ar':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_ar(data_list)
-                QMessageBox.warning(self, 'Ok', "اكتمل تصدير بطاقة البنية", QMessageBox.StandardButton.Ok)
+                # Use AR layout - falls back to English for now
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets_en(data_list)
+                QMessageBox.warning(self, 'Ok', "اكتمل تصدير بطاقة البنية (Layout AR)", QMessageBox.StandardButton.Ok)
             else:
                 pass
 
         elif self.L=='ca':
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_ca(data_list)
-                QMessageBox.warning(self, 'Ok', "Exportació completada Fitxa Estructura", QMessageBox.StandardButton.Ok)
+                # Use AR layout - falls back to Italian for now
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets(data_list)
+                QMessageBox.warning(self, 'Ok', "Exportació completada Fitxa Estructura (Layout AR)", QMessageBox.StandardButton.Ok)
             else:
                 pass
 
         else:  # English and other languages
             if self.checkBox_s_us.isChecked():
-                Struttura_pdf_sheet = generate_struttura_pdf()
-                data_list = self.generate_list_pdf()
-                Struttura_pdf_sheet.build_Struttura_sheets_en(data_list)
-                QMessageBox.warning(self, 'Ok', "Export finished Structure Form", QMessageBox.StandardButton.Ok)
+                # Use AR layout with extended fields and image support
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+                Struttura_pdf_sheet.build_Struttura_AR_sheets_en(data_list)
+                QMessageBox.warning(self, 'Ok', "Export finished Structure Form (AR Layout)", QMessageBox.StandardButton.Ok)
             else:
                 pass
             if self.checkBox_e_us.isChecked() :
@@ -3764,29 +3773,81 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             # Struttura_index_pdf = generate_struttura_pdf()
             # data_list = self.generate_list_pdf()
             # Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
-    # def on_pushButton_pdf_exp_pressed(self):
-        # if self.L=='it':
-            # if self.checkBox_s_us.isChecked():
-                # Struttura_pdf_sheet = generate_struttura_pdf()  # deve essere importata la classe
-                # data_list = self.generate_list_pdf()  # deve essere aggiunta la funzione
-                # Struttura_pdf_sheet.build_Struttura_sheets(data_list)  # deve essere aggiunto il file per generare i pdf
-                # QMessageBox.warning(self, 'Ok',"Esportazione terminata Schede Struttura",QMessageBox.Ok)
-            # else:   
-                # pass
-            # if self.checkBox_e_us.isChecked() :
-                # Struttura_index_pdf = generate_struttura_pdf()
-                # data_list = self.generate_list_pdf()
-            
-                # try:               
-                    # if bool(data_list):
-                        # Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
-                        # QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Struttura",QMessageBox.Ok)
-                    # else:
-                        # QMessageBox.warning(self, 'ATTENZIONE',"L'elenco Struttura non può essere esportato devi riempire prima la scheda Struttura",QMessageBox.Ok)
-                # except Exception as e :
-                    # QMessageBox.warning(self, 'ATTENZIONE',str(e),QMessageBox.Ok)
-            # else:
-                # pass
+    def on_pushButton_pdf_exp_pressed(self):
+        """Show export dialog"""
+        from qgis.PyQt.QtWidgets import QDialog, QVBoxLayout, QCheckBox, QPushButton, QHBoxLayout
+
+        # Create a simple dialog for export options
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Esportazioni Strutture")
+        dialog.setMinimumWidth(300)
+
+        layout = QVBoxLayout(dialog)
+
+        # Checkboxes
+        self.export_checkBox_e_us = QCheckBox("Elenco Strutture")
+        self.export_checkBox_s_us = QCheckBox("Schede Strutture")
+        self.export_checkBox_s_us.setChecked(True)  # Default checked
+
+        layout.addWidget(self.export_checkBox_e_us)
+        layout.addWidget(self.export_checkBox_s_us)
+
+        # Buttons
+        btn_layout = QHBoxLayout()
+        btn_print = QPushButton("Stampa PDF")
+        btn_print.clicked.connect(lambda: self.do_pdf_export(dialog))
+        btn_cancel = QPushButton("Annulla")
+        btn_cancel.clicked.connect(dialog.reject)
+
+        btn_layout.addWidget(btn_print)
+        btn_layout.addWidget(btn_cancel)
+        layout.addLayout(btn_layout)
+
+        dialog.exec()
+
+    def do_pdf_export(self, dialog):
+        """Execute PDF export based on dialog selections"""
+        export_sheets = self.export_checkBox_s_us.isChecked()
+        export_list = self.export_checkBox_e_us.isChecked()
+
+        dialog.accept()
+
+        if export_sheets:
+            try:
+                # Use AR layout with extended fields and image support
+                Struttura_pdf_sheet = generate_struttura_AR_pdf()
+                data_list = self.generate_list_pdf_ar()
+
+                if self.L == 'it':
+                    Struttura_pdf_sheet.build_Struttura_AR_sheets(data_list)
+                    QMessageBox.information(self, 'Ok', "Esportazione terminata Schede Struttura (Layout AR)", QMessageBox.StandardButton.Ok)
+                elif self.L == 'de':
+                    Struttura_pdf_sheet.build_Struttura_AR_sheets_de(data_list)
+                    QMessageBox.information(self, 'Ok', "Export beendet Struktur-Formular (AR Layout)", QMessageBox.StandardButton.Ok)
+                else:
+                    Struttura_pdf_sheet.build_Struttura_AR_sheets_en(data_list)
+                    QMessageBox.information(self, 'Ok', "Export finished Structure Form (AR Layout)", QMessageBox.StandardButton.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, 'Errore', str(e), QMessageBox.StandardButton.Ok)
+
+        if export_list:
+            try:
+                Struttura_index_pdf = generate_struttura_pdf()
+                data_list = self.generate_list_pdf()
+                if bool(data_list):
+                    if self.L == 'it':
+                        Struttura_index_pdf.build_index_Struttura(data_list, data_list[0][0])
+                        QMessageBox.information(self, 'Ok', "Esportazione terminata Elenco Struttura", QMessageBox.StandardButton.Ok)
+                    elif self.L == 'de':
+                        Struttura_index_pdf.build_index_Struttura_de(data_list, data_list[0][0])
+                        QMessageBox.information(self, 'Ok', "Export beendet Strukturliste", QMessageBox.StandardButton.Ok)
+                    else:
+                        Struttura_index_pdf.build_index_Struttura_en(data_list, data_list[0][0])
+                        QMessageBox.information(self, 'Ok', "Export finished Structure List", QMessageBox.StandardButton.Ok)
+                else:
+                    QMessageBox.warning(self, 'Attenzione', "L'elenco Struttura non può essere esportato, devi riempire prima la scheda Struttura", QMessageBox.StandardButton.Ok)
+            except Exception as e:
+                QMessageBox.warning(self, 'Errore', str(e), QMessageBox.StandardButton.Ok)
             
         
         # else:
@@ -3878,6 +3939,92 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 str(self.DATA_LIST[i].misure_struttura),  # 16 - misure
                 quota_min_strutt,  # 17 - quota min
                 quota_max_strutt  # 18 - quota max
+            ])
+        return data_list
+
+    def generate_list_pdf_ar(self):
+        """Generate data list with all AR (Architettura Rupestre) fields for PDF export"""
+        data_list = []
+
+        for i in range(len(self.DATA_LIST)):
+            sito = str(self.DATA_LIST[i].sito)
+            sigla_st = '{}{}{}'.format(str(self.DATA_LIST[i].sigla_struttura), '-', str(self.DATA_LIST[i].numero_struttura))
+            res_strutt = self.DB_MANAGER.query_bool({"sito": "'" + str(sito) + "'", "struttura": "'" + str(sigla_st) + "'"}, "US")
+            us_strutt_list = []
+            for rs in res_strutt:
+                us_strutt_list.append([str(rs.sito), str(rs.area), int(rs.us)])
+
+            res_quote_strutt = ''
+            quote_strutt = []
+            for sing_us in us_strutt_list:
+                res_quote_strutt = self.DB_MANAGER.select_quote_from_db_sql(sing_us[0], sing_us[1], sing_us[2])
+
+            for sing_us2 in res_quote_strutt:
+                sing_quota_value = str(sing_us2[5])
+                if sing_quota_value[0] == '-':
+                    sing_quota_value = sing_quota_value[:7]
+                else:
+                    sing_quota_value = sing_quota_value[:6]
+                sing_quota = [sing_quota_value, sing_us2[4]]
+                quote_strutt.append(sing_quota)
+            quote_strutt.sort()
+
+            if bool(quote_strutt):
+                quota_min_strutt = '%s %s' % (quote_strutt[0][0], quote_strutt[0][1])
+                quota_max_strutt = '%s %s' % (quote_strutt[-1][0], quote_strutt[-1][1])
+            else:
+                if self.L == 'it':
+                    quota_min_strutt = "Non inserita su GIS"
+                    quota_max_strutt = "Non inserita su GIS"
+                elif self.L == 'de':
+                    quota_min_strutt = "Nicht im GIS einbinden"
+                    quota_max_strutt = "Nicht im GIS einbinden"
+                else:
+                    quota_min_strutt = "Not inserted in GIS"
+                    quota_max_strutt = "Not inserted in GIS"
+
+            # Get extended AR fields with safe attribute access
+            data_item = self.DATA_LIST[i]
+
+            data_list.append([
+                str(data_item.sito.replace('_', ' ')),  # 0 - Sito
+                str(data_item.sigla_struttura),  # 1 - sigla struttura
+                int(data_item.numero_struttura),  # 2 - numero struttura
+                str(data_item.categoria_struttura),  # 3 - categoria
+                str(data_item.tipologia_struttura),  # 4 - tipologia
+                str(data_item.definizione_struttura),  # 5 - definizione
+                str(data_item.descrizione),  # 6 - descrizione
+                str(data_item.interpretazione),  # 7 - interpretazione
+                str(data_item.periodo_iniziale),  # 8 - periodo iniziale
+                str(data_item.fase_iniziale),  # 9 - fase iniziale
+                str(data_item.periodo_finale),  # 10 - periodo finale
+                str(data_item.fase_finale),  # 11 - fase finale
+                str(data_item.datazione_estesa),  # 12 - datazione estesa
+                str(data_item.materiali_impiegati),  # 13 - materiali impiegati
+                str(data_item.elementi_strutturali),  # 14 - elementi strutturali
+                str(data_item.rapporti_struttura),  # 15 - rapporti struttura
+                str(data_item.misure_struttura),  # 16 - misure
+                quota_min_strutt,  # 17 - quota min
+                quota_max_strutt,  # 18 - quota max
+                # Extended AR fields
+                str(getattr(data_item, 'data_compilazione', '') or ''),  # 19 - data compilazione
+                str(getattr(data_item, 'nome_compilatore', '') or ''),  # 20 - nome compilatore
+                str(getattr(data_item, 'stato_conservazione', '[]') or '[]'),  # 21 - stato conservazione
+                str(getattr(data_item, 'quota', '') or ''),  # 22 - quota
+                str(getattr(data_item, 'relazione_topografica', '') or ''),  # 23 - relazione topografica
+                str(getattr(data_item, 'prospetto_ingresso', '[]') or '[]'),  # 24 - prospetto ingresso
+                str(getattr(data_item, 'orientamento_ingresso', '') or ''),  # 25 - orientamento ingresso
+                str(getattr(data_item, 'articolazione', '') or ''),  # 26 - articolazione
+                str(getattr(data_item, 'n_ambienti', '') or ''),  # 27 - n ambienti
+                str(getattr(data_item, 'orientamento_ambienti', '[]') or '[]'),  # 28 - orientamento ambienti
+                str(getattr(data_item, 'sviluppo_planimetrico', '') or ''),  # 29 - sviluppo planimetrico
+                str(getattr(data_item, 'elementi_costitutivi', '[]') or '[]'),  # 30 - elementi costitutivi
+                str(getattr(data_item, 'motivo_decorativo', '') or ''),  # 31 - motivo decorativo
+                str(getattr(data_item, 'potenzialita_archeologica', '') or ''),  # 32 - potenzialita archeologica
+                str(getattr(data_item, 'manufatti', '[]') or '[]'),  # 33 - manufatti
+                str(getattr(data_item, 'elementi_datanti', '') or ''),  # 34 - elementi datanti
+                str(getattr(data_item, 'fasi_funzionali', '[]') or '[]'),  # 35 - fasi funzionali
+                int(data_item.id_struttura),  # 36 - id_struttura for image lookup
             ])
         return data_list
 

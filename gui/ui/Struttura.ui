@@ -2953,22 +2953,6 @@ p, li { white-space: pre-wrap; }
  </resources>
  <connections>
   <connection>
-   <sender>pushButton_pdf_exp</sender>
-   <signal>pressed()</signal>
-   <receiver>mDockWidget_export</receiver>
-   <slot>toggleUserVisible()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>124</x>
-     <y>124</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>384</x>
-     <y>446</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButton_word</sender>
    <signal>pressed()</signal>
    <receiver>mDockWidget_3</receiver>
