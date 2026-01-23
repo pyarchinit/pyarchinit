@@ -398,12 +398,12 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_metodologia = QComboBox()
         self.comboBox_metodologia.setEditable(True)
-        self.comboBox_metodologia.addItems(["", "A MANO", "SETACCIO", "FLOTTAZIONE"])
+        self.comboBox_metodologia.addItem("")  # Empty default, thesaurus will populate
         form_dep.addRow(self.tr("Metodologia Recupero") + ":", self.comboBox_metodologia)
 
         self.comboBox_contesto = QComboBox()
         self.comboBox_contesto.setEditable(True)
-        self.comboBox_contesto.addItems(["", "FUNERARIO", "ABITATIVO", "PRODUTTIVO", "IPOGEO", "CULTUALE", "ALTRO"])
+        self.comboBox_contesto.addItem("")  # Empty default, thesaurus will populate
         form_dep.addRow(self.tr("Contesto") + ":", self.comboBox_contesto)
 
         self.textEdit_desc_contesto = QTextEdit()
@@ -424,7 +424,7 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_connessione = QComboBox()
         self.comboBox_connessione.setEditable(True)
-        self.comboBox_connessione.addItems(["", "SI", "NO", "PARZIALE"])
+        self.comboBox_connessione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Connessione Anatomica") + ":", self.comboBox_connessione)
 
         self.comboBox_tipologia_accumulo = QComboBox()
@@ -433,7 +433,7 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_deposizione = QComboBox()
         self.comboBox_deposizione.setEditable(True)
-        self.comboBox_deposizione.addItems(["", "PRIMARIA", "SECONDARIA", "RIMANEGGIATA"])
+        self.comboBox_deposizione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Deposizione") + ":", self.comboBox_deposizione)
 
         self.lineEdit_num_stimato = QLineEdit()
@@ -513,12 +513,12 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_frammentazione = QComboBox()
         self.comboBox_frammentazione.setEditable(True)
-        self.comboBox_frammentazione.addItems(["", "SI", "NO", "PARZIALE"])
+        self.comboBox_frammentazione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Stato Frammentazione") + ":", self.comboBox_frammentazione)
 
         self.comboBox_combustione = QComboBox()
         self.comboBox_combustione.setEditable(True)
-        self.comboBox_combustione.addItems(["", "SI", "NO", "SCARSE", "DIFFUSE"])
+        self.comboBox_combustione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Tracce Combustione") + ":", self.comboBox_combustione)
 
         self.checkBox_combustione_altri = QCheckBox()
@@ -526,17 +526,17 @@ class pyarchinit_Fauna(QDialog):
 
         self.comboBox_tipo_combustione = QComboBox()
         self.comboBox_tipo_combustione.setEditable(True)
-        self.comboBox_tipo_combustione.addItems(["", "ACCIDENTALE", "INTENZIONALE", "NATURALE", "ANTROPICA"])
+        self.comboBox_tipo_combustione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Tipo Combustione") + ":", self.comboBox_tipo_combustione)
 
         self.comboBox_segni_tafonomici = QComboBox()
         self.comboBox_segni_tafonomici.setEditable(True)
-        self.comboBox_segni_tafonomici.addItems(["", "SI", "NO", "SCARSI", "DIFFUSI"])
+        self.comboBox_segni_tafonomici.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Segni Tafonomici") + ":", self.comboBox_segni_tafonomici)
 
         self.comboBox_caratterizzazione = QComboBox()
         self.comboBox_caratterizzazione.setEditable(True)
-        self.comboBox_caratterizzazione.addItems(["", "ANTROPICA", "NATURALE"])
+        self.comboBox_caratterizzazione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Caratterizzazione") + ":", self.comboBox_caratterizzazione)
 
         self.comboBox_conservazione = QComboBox()
@@ -689,17 +689,17 @@ class pyarchinit_Fauna(QDialog):
     def charge_thesaurus_combos(self):
         """Load thesaurus values for Fauna comboboxes"""
         # Determine language code for thesaurus queries
-        # Database uses uppercase format: EN_US, IT_IT, DE_DE, etc.
+        # Database uses simple format: IT, EN, DE, etc.
         lang_mapping = {
-            'it': "'IT_IT'",
-            'de': "'DE_DE'",
-            'en': "'EN_US'",
-            'es': "'ES_ES'",
-            'fr': "'FR_FR'",
-            'ar': "'AR_LB'",
-            'ca': "'CA_ES'"
+            'it': "'IT'",
+            'de': "'DE'",
+            'en': "'EN'",
+            'es': "'ES'",
+            'fr': "'FR'",
+            'ar': "'AR'",
+            'ca': "'CA'"
         }
-        lang = lang_mapping.get(self.L, "'EN_US'")
+        lang = lang_mapping.get(self.L, "'EN'")
 
         # Helper function to load thesaurus values
         def load_thesaurus(tipologia_sigla, use_sigla=False):
@@ -3012,52 +3012,66 @@ class pyarchinit_Fauna(QDialog):
 
     def update_record(self, id_fauna):
         """Update record in database."""
-        # Get date
-        data_compilazione = self.dateEdit_compilazione.date().toString("yyyy-MM-dd") if self.dateEdit_compilazione.date().isValid() else None
+        try:
+            self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS,
+                                   self.ID_TABLE,
+                                   [int(id_fauna)],
+                                   self.TABLE_FIELDS,
+                                   self.rec_toupdate())
+        except Exception as e:
+            raise Exception(f"Update failed: {str(e)}")
 
-        search_dict = {self.ID_TABLE: "'" + str(id_fauna) + "'"}
+    def rec_toupdate(self):
+        """Return list of current field values for update."""
+        from datetime import date as python_date
 
-        update_dict = {
-            'sito': str(self.comboBox_sito.currentText()),
-            'area': str(self.comboBox_area.currentText()),
-            'saggio': str(self.lineEdit_saggio.text()),
-            'us': str(self.lineEdit_us.text()),
-            'datazione_us': str(self.lineEdit_datazione_us.text()),
-            'responsabile_scheda': str(self.lineEdit_responsabile.text()),
-            'data_compilazione': data_compilazione,
-            'documentazione_fotografica': str(self.lineEdit_doc_foto.text()),
-            'metodologia_recupero': str(self.comboBox_metodologia.currentText()),
-            'contesto': str(self.comboBox_contesto.currentText()),
-            'descrizione_contesto': str(self.textEdit_desc_contesto.toPlainText()),
-            'resti_connessione_anatomica': str(self.comboBox_connessione.currentText()),
-            'tipologia_accumulo': str(self.comboBox_tipologia_accumulo.currentText()),
-            'deposizione': str(self.comboBox_deposizione.currentText()),
-            'numero_stimato_resti': str(self.lineEdit_num_stimato.text()),
-            'numero_minimo_individui': int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,
-            'specie_psi': json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',
-            'misure_ossa': json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',
-            'stato_frammentazione': str(self.comboBox_frammentazione.currentText()),
-            'tracce_combustione': str(self.comboBox_combustione.currentText()),
-            'combustione_altri_materiali_us': 1 if self.checkBox_combustione_altri.isChecked() else 0,
-            'tipo_combustione': str(self.comboBox_tipo_combustione.currentText()),
-            'segni_tafonomici_evidenti': str(self.comboBox_segni_tafonomici.currentText()),
-            'caratterizzazione_segni_tafonomici': str(self.comboBox_caratterizzazione.currentText()),
-            'stato_conservazione': str(self.comboBox_conservazione.currentText()),
-            'alterazioni_morfologiche': str(self.textEdit_alterazioni.toPlainText()),
-            'note_terreno_giacitura': str(self.textEdit_note_terreno.toPlainText()),
-            'campionature_effettuate': str(self.lineEdit_campionature.text()),
-            'affidabilita_stratigrafica': str(self.comboBox_affidabilita.currentText()),
-            'classi_reperti_associazione': str(self.lineEdit_classi_reperti.text()),
-            'osservazioni': str(self.textEdit_osservazioni.toPlainText()),
-            'interpretazione': str(self.textEdit_interpretazione.toPlainText())
-        }
+        # Get date - convert to Python date object for SQLite compatibility
+        data_compilazione = None
+        if self.dateEdit_compilazione.date().isValid():
+            qdate = self.dateEdit_compilazione.date()
+            data_compilazione = python_date(qdate.year(), qdate.month(), qdate.day())
 
-        u = Utility()
-        update_dict = u.remove_empty_items_fr_dict(update_dict)
-        self.DB_MANAGER.update(self.MAPPER_TABLE_CLASS, search_dict, update_dict)
+        return [
+            None,  # id_us
+            str(self.comboBox_sito.currentText()),  # sito
+            str(self.comboBox_area.currentText()),  # area
+            str(self.lineEdit_saggio.text()),  # saggio
+            str(self.lineEdit_us.text()),  # us
+            str(self.lineEdit_datazione_us.text()),  # datazione_us
+            str(self.lineEdit_responsabile.text()),  # responsabile_scheda
+            data_compilazione,  # data_compilazione
+            str(self.lineEdit_doc_foto.text()),  # documentazione_fotografica
+            str(self.comboBox_metodologia.currentText()),  # metodologia_recupero
+            str(self.comboBox_contesto.currentText()),  # contesto
+            str(self.textEdit_desc_contesto.toPlainText()),  # descrizione_contesto
+            str(self.comboBox_connessione.currentText()),  # resti_connessione_anatomica
+            str(self.comboBox_tipologia_accumulo.currentText()),  # tipologia_accumulo
+            str(self.comboBox_deposizione.currentText()),  # deposizione
+            str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
+            int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,  # numero_minimo_individui
+            '',  # specie (deprecated)
+            '',  # parti_scheletriche (deprecated)
+            json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',  # specie_psi
+            json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',  # misure_ossa
+            str(self.comboBox_frammentazione.currentText()),  # stato_frammentazione
+            str(self.comboBox_combustione.currentText()),  # tracce_combustione
+            1 if self.checkBox_combustione_altri.isChecked() else 0,  # combustione_altri_materiali_us
+            str(self.comboBox_tipo_combustione.currentText()),  # tipo_combustione
+            str(self.comboBox_segni_tafonomici.currentText()),  # segni_tafonomici_evidenti
+            str(self.comboBox_caratterizzazione.currentText()),  # caratterizzazione_segni_tafonomici
+            str(self.comboBox_conservazione.currentText()),  # stato_conservazione
+            str(self.textEdit_alterazioni.toPlainText()),  # alterazioni_morfologiche
+            str(self.textEdit_note_terreno.toPlainText()),  # note_terreno_giacitura
+            str(self.lineEdit_campionature.text()),  # campionature_effettuate
+            str(self.comboBox_affidabilita.currentText()),  # affidabilita_stratigrafica
+            str(self.lineEdit_classi_reperti.text()),  # classi_reperti_associazione
+            str(self.textEdit_osservazioni.toPlainText()),  # osservazioni
+            str(self.textEdit_interpretazione.toPlainText())  # interpretazione
+        ]
 
     def insert_new_rec(self):
         """Insert new record into database."""
+        from datetime import date as python_date
         try:
             # Get next ID
             if self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS):
@@ -3065,8 +3079,11 @@ class pyarchinit_Fauna(QDialog):
             else:
                 id_fauna = 1
 
-            # Get date
-            data_compilazione = self.dateEdit_compilazione.date().toString("yyyy-MM-dd") if self.dateEdit_compilazione.date().isValid() else None
+            # Get date - convert to Python date object for SQLite compatibility
+            data_compilazione = None
+            if self.dateEdit_compilazione.date().isValid():
+                qdate = self.dateEdit_compilazione.date()
+                data_compilazione = python_date(qdate.year(), qdate.month(), qdate.day())
 
             # Create fauna record
             data = self.DB_MANAGER.insert_values_fauna(
