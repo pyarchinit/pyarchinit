@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.63
+version=4.9.64
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.63 (2026-01-23):
+changelog=4.9.64 (2026-01-23):
+    - Miglioramenti e correzioni varie
+  4.9.63 (2026-01-23):
     - Fix:  correct thesaurus language format in Fauna form
   4.9.62 (2026-01-23):
     - Feature:  implement natural sorting for US field
