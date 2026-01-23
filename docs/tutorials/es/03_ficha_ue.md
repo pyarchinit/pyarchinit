@@ -246,6 +246,56 @@ Gestiona la cronología de la unidad estratigráfica.
 | **Excavada** | Estado de excavación | Sí / No |
 | **Método de excavación** | Modalidad de excavación | Mecánico / Estratigráfico |
 
+### Campo Estructura
+
+El campo **Estructura** (`comboBox_struttura`) es un campo de selección múltiple sincronizado con la Ficha de Estructura.
+
+**Características importantes:**
+- El campo muestra todas las estructuras definidas en la Ficha de Estructura para el sitio actual
+- Puede seleccionar múltiples estructuras marcando las casillas correspondientes
+- Después de guardar, los datos se sincronizan entre UE y Estructura
+
+**Cómo asignar estructuras:**
+1. Hacer clic en el campo Estructura para abrir el desplegable
+2. Seleccionar las estructuras deseadas marcando las casillas
+3. Guardar el registro
+
+**Cómo eliminar todas las estructuras:**
+1. **Clic derecho** en el campo Estructura
+2. Seleccionar **"Vaciar campo Estructura"** en el menú contextual
+3. Se eliminarán todas las selecciones
+4. Guardar el registro para confirmar el cambio
+
+> **Nota**: Vaciar el campo elimina las selecciones en el registro actual. Para deseleccionar solo algunas estructuras, desmarque manualmente las casillas en el desplegable.
+
+### Campo Orden de Capa
+
+El campo **Orden de Capa** (`order_layer`) define la posición de la UE en la secuencia estratigráfica.
+
+**Reglas importantes:**
+- El orden debe ser **siempre secuencial**: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **No se permiten saltos**: no puede tener 1, 2, 5, 8 (faltan 3, 4, 6, 7)
+- **Sin duplicados**: cada UE debe tener un número de orden único
+- Si usa orden alfabético: A, B, C, D, E, F... (tampoco se permiten saltos)
+
+**Cálculo automático:**
+El orden de capa se calcula automáticamente a partir de las relaciones estratigráficas. El sistema analiza las relaciones entre las UE (cubre, cubierta por, corta, etc.) y asigna un número de orden secuencial a cada una.
+
+**Ejemplo de orden correcto:**
+| UE | Orden de capa |
+|----|---------------|
+| UE 1 | 1 |
+| UE 2 | 2 |
+| UE 3 | 3 |
+| UE 4 | 4 |
+
+**Ejemplo de orden incorrecto (evitar):**
+| UE | Orden de capa |
+|----|---------------|
+| UE 1 | 1 |
+| UE 2 | 3 | ← Incorrecto, falta 2 |
+| UE 3 | 7 | ← Incorrecto, faltan 4, 5, 6 |
+
 ---
 
 ## Pestaña Relaciones Estratigráficas

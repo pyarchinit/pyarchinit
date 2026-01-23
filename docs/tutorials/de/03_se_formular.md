@@ -275,6 +275,56 @@ Verwaltet die Chronologie der stratigraphischen Einheit.
 | **Ausgegraben** | Ausgrabungsstatus | Ja / Nein |
 | **Ausgrabungsmethode** | Ausgrabungsweise | Mechanisch / Stratigraphisch |
 
+### Feld Struktur
+
+Das **Struktur**-Feld (`comboBox_struttura`) ist ein Mehrfachauswahlfeld, das mit dem Strukturformular synchronisiert wird.
+
+**Wichtige Merkmale:**
+- Das Feld zeigt alle im Strukturformular für den aktuellen Fundort definierten Strukturen
+- Sie können mehrere Strukturen auswählen, indem Sie die entsprechenden Kontrollkästchen ankreuzen
+- Nach dem Speichern werden die Daten zwischen SE und Struktur synchronisiert
+
+**Wie man Strukturen zuweist:**
+1. Auf das Strukturfeld klicken, um das Dropdown zu öffnen
+2. Die gewünschten Strukturen durch Ankreuzen der Kontrollkästchen auswählen
+3. Die Datensatz speichern
+
+**Wie man alle Strukturen entfernt:**
+1. **Rechtsklick** auf das Strukturfeld
+2. Im Kontextmenü **"Feld Struktur leeren"** auswählen
+3. Alle Auswahlen werden entfernt
+4. Den Datensatz speichern, um die Änderung zu bestätigen
+
+> **Hinweis**: Das Leeren des Feldes entfernt die Auswahlen im aktuellen Datensatz. Um nur einzelne Strukturen abzuwählen, die Kontrollkästchen im Dropdown manuell deaktivieren.
+
+### Feld Schichtordnung
+
+Das **Schichtordnung**-Feld (`order_layer`) definiert die Position der SE in der stratigraphischen Sequenz.
+
+**Wichtige Regeln:**
+- Die Ordnung muss **immer sequentiell** sein: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Keine Lücken erlaubt**: Sie können nicht 1, 2, 5, 8 haben (3, 4, 6, 7 fehlen)
+- **Keine Duplikate**: Jede SE muss eine eindeutige Ordnungsnummer haben
+- Wenn Sie alphabetische Ordnung verwenden: A, B, C, D, E, F... (auch keine Lücken)
+
+**Automatische Berechnung:**
+Die Schichtordnung wird automatisch aus den stratigraphischen Beziehungen berechnet. Das System analysiert die Beziehungen zwischen den SE (liegt über, liegt unter, schneidet, usw.) und weist jedem eine sequentielle Ordnungsnummer zu.
+
+**Beispiel korrekter Ordnung:**
+| SE | Schichtordnung |
+|-----|---------------|
+| US 1 | 1 |
+| US 2 | 2 |
+| US 3 | 3 |
+| US 4 | 4 |
+
+**Beispiel falscher Ordnung (vermeiden):**
+| SE | Schichtordnung |
+|-----|---------------|
+| US 1 | 1 |
+| US 2 | 3 | ← Falsch, 2 fehlt |
+| US 3 | 7 | ← Falsch, 4, 5, 6 fehlen |
+
 ---
 
 ## Tab Stratigraphische Beziehungen

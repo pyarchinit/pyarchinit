@@ -653,6 +653,35 @@ Fonctionnalité avancée pour convertir les PDF générés en documents Word éd
 
 ---
 
+## Synchronisation avec la Fiche US
+
+Lorsqu'une structure est créée dans la fiche Structure, elle apparaît automatiquement dans la liste déroulante du champ **Structure** de la fiche US.
+
+### Champs Requis pour la Synchronisation
+
+Pour qu'une structure apparaisse dans la liste déroulante US :
+1. **Site** : Doit correspondre au site de l'US
+2. **Sigle Structure** : Doit être rempli (ex. MR, ST, PV)
+3. **Numéro Structure** : Doit être rempli
+
+### Flux de Travail
+
+1. **Créer la structure** : Remplir site, sigle et numéro
+2. **Sauvegarder** : L'enregistrement doit être sauvegardé
+3. **Dans la fiche US** : La structure apparaît maintenant dans le menu déroulant du champ Structure
+4. **Attribuer** : Sélectionner la/les structure(s) pour l'US
+5. **Synchronisation** : Les données sont liées entre les fiches
+
+### Supprimer des Structures d'une US
+
+Pour supprimer toutes les structures d'une US :
+1. Ouvrir la fiche US
+2. **Clic droit** sur le champ Structure
+3. Sélectionner **"Vider le champ Structure"**
+4. Sauvegarder l'enregistrement
+
+---
+
 ## Relations avec d'Autres Fiches
 
 | Fiche | Relation |
