@@ -689,16 +689,17 @@ class pyarchinit_Fauna(QDialog):
     def charge_thesaurus_combos(self):
         """Load thesaurus values for Fauna comboboxes"""
         # Determine language code for thesaurus queries
+        # Database uses uppercase format: EN_US, IT_IT, DE_DE, etc.
         lang_mapping = {
-            'it': "'it_IT'",
-            'de': "'de_DE'",
-            'en': "'en_US'",
-            'es': "'es_ES'",
-            'fr': "'fr_FR'",
-            'ar': "'ar_LB'",
-            'ca': "'ca_ES'"
+            'it': "'IT_IT'",
+            'de': "'DE_DE'",
+            'en': "'EN_US'",
+            'es': "'ES_ES'",
+            'fr': "'FR_FR'",
+            'ar': "'AR_LB'",
+            'ca': "'CA_ES'"
         }
-        lang = lang_mapping.get(self.L, "'en_US'")
+        lang = lang_mapping.get(self.L, "'EN_US'")
 
         # Helper function to load thesaurus values
         def load_thesaurus(tipologia_sigla, use_sigla=False):
