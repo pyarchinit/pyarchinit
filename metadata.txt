@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.61
+version=4.9.62
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,13 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.61 (2026-01-23):
+changelog=4.9.62 (2026-01-23):
+    - Feature:  implement natural sorting for US field
+    - Fix:  add order_layer mapping to CONVERSION_DICT for sorting
+    - Docs:  add Structure field and Order Layer documentation in de/fr/es/ar/ca
+    - Docs:  add Structure field and Order Layer documentation
+    - Feature: i18n: complete translations for Fauna, Struttura and other forms
+  4.9.61 (2026-01-23):
     - Feature: fauna: redesign PDF sheet with professional full-page layout
   4.9.60 (2026-01-22):
     - Fix:  convert empty nr_cassa to None for PostgreSQL bigint field
