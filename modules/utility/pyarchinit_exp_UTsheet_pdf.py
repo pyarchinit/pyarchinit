@@ -724,7 +724,7 @@ class generate_pdf:
             if i < len(records) - 1:
                 elements.append(PageBreak())
 
-        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=lang, **kwargs))
+        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=kwargs.pop('lang', lang), **kwargs))
 
     def build_UT_list(self, records, lang='IT'):
         """Build a list/index of all UT records."""
@@ -842,6 +842,6 @@ class generate_pdf:
         count_text = f"Totale: {len(records)} UT" if lang == 'IT' else f"Total: {len(records)} TU"
         elements.append(Paragraph(count_text, cell_style))
 
-        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=lang, **kwargs))
+        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=kwargs.pop('lang', lang), **kwargs))
 
         return filepath
