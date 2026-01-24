@@ -1682,8 +1682,17 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
     def tableInsertData(self, t, d):
         """Set the value into alls Grid"""
         self.table_name = t
-        self.data_list = eval(d)
-        self.data_list.sort()
+        # Handle empty or None data
+        if not d or d == 'None' or d == '':
+            self.data_list = []
+        else:
+            try:
+                import ast
+                self.data_list = ast.literal_eval(d)
+            except (ValueError, SyntaxError):
+                self.data_list = []
+        if self.data_list:
+            self.data_list.sort()
 
         # column table count
         table_col_count_cmd = ("%s.columnCount()") % (self.table_name)
@@ -2619,14 +2628,22 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             # Add layer to QGIS if available
             if 'layer' in result and result['layer']:
                 QgsProject.instance().addMapLayer(result['layer'])
-                QMessageBox.information(self, "Successo",
-                    f"Heatmap generata con successo!\n\n"
-                    f"Metodo: {method.upper()}\n"
-                    f"Punti: {len(points)}\n"
-                    f"File: {result['raster_path']}")
+                # Build success message
+                msg = f"Heatmap generata con successo!\n\n"
+                msg += f"Metodo: {method.upper()}\n"
+                msg += f"Punti: {len(points)}\n"
+                if 'raster_path' in result:
+                    msg += f"File: {result['raster_path']}"
+                elif 'cell_count' in result:
+                    msg += f"Celle: {result['cell_count']}"
+                QMessageBox.information(self, "Successo", msg)
             else:
-                QMessageBox.information(self, "Successo",
-                    f"Heatmap salvata in:\n{result['raster_path']}")
+                if 'raster_path' in result:
+                    QMessageBox.information(self, "Successo",
+                        f"Heatmap salvata in:\n{result['raster_path']}")
+                else:
+                    QMessageBox.information(self, "Successo",
+                        f"Generata griglia con {result.get('cell_count', 0)} celle")
 
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore durante la generazione: {str(e)}")

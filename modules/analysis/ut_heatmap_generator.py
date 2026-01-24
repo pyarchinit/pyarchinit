@@ -18,8 +18,10 @@ from datetime import datetime
 
 try:
     import numpy as np
+    # Test if numpy array API is working
+    _ = np.array([1, 2, 3])
     NUMPY_AVAILABLE = True
-except ImportError:
+except (ImportError, AttributeError):
     NUMPY_AVAILABLE = False
 
 try:
@@ -31,9 +33,16 @@ except ImportError:
 
 try:
     from osgeo import gdal, osr
+    # Test if GDAL array support is working
+    try:
+        from osgeo import gdal_array
+        GDAL_ARRAY_AVAILABLE = True
+    except ImportError:
+        GDAL_ARRAY_AVAILABLE = False
     GDAL_AVAILABLE = True
 except ImportError:
     GDAL_AVAILABLE = False
+    GDAL_ARRAY_AVAILABLE = False
 
 try:
     from qgis.core import (
@@ -112,10 +121,13 @@ class UTHeatmapGenerator:
         self.has_numpy = NUMPY_AVAILABLE
         self.has_scipy = SCIPY_AVAILABLE
         self.has_gdal = GDAL_AVAILABLE
+        self.has_gdal_array = GDAL_ARRAY_AVAILABLE
         self.has_qgis = QGIS_AVAILABLE
 
         if not self.has_numpy:
-            self.log_message("NumPy not available - heatmap generation disabled")
+            self.log_message("NumPy not available - using simplified heatmap generation")
+        if not self.has_gdal_array:
+            self.log_message("GDAL array not available - using vector-based heatmaps")
 
     def log_message(self, message, level=None):
         """Log message to QGIS if available."""
@@ -152,11 +164,18 @@ class UTHeatmapGenerator:
                 - method: Method used
                 - timestamp: Generation timestamp
         """
-        if not self.has_numpy:
-            return {'error': 'NumPy required for heatmap generation'}
-
         if not points or not values:
             return {'error': 'No points or values provided'}
+
+        # If numpy not available or GDAL array not working, use vector grid approach
+        if not self.has_numpy or not self.has_gdal_array:
+            return self.generate_vector_grid(
+                points, values,
+                cell_size or self.DEFAULT_CELL_SIZE,
+                extent,
+                'score',
+                map_type
+            )
 
         # Convert inputs to numpy arrays
         points = np.array(points)
@@ -513,20 +532,27 @@ class UTHeatmapGenerator:
                 - stats: Statistics dictionary
                 - cell_count: Number of cells with data
         """
-        if not self.has_qgis or not self.has_numpy:
-            return {'error': 'QGIS and NumPy required'}
+        if not self.has_qgis:
+            return {'error': 'QGIS required for vector grid generation'}
 
-        points = np.array(points)
-        values = np.array(values)
+        # Convert to list if numpy arrays
+        if self.has_numpy:
+            import numpy as np
+            if isinstance(points, np.ndarray):
+                points = points.tolist()
+            if isinstance(values, np.ndarray):
+                values = values.tolist()
 
-        # Calculate extent
+        # Calculate extent from points
         if extent is None:
             margin = cell_size * 2
+            x_coords = [p[0] for p in points]
+            y_coords = [p[1] for p in points]
             extent = (
-                points[:, 0].min() - margin,
-                points[:, 1].min() - margin,
-                points[:, 0].max() + margin,
-                points[:, 1].max() + margin
+                min(x_coords) - margin,
+                min(y_coords) - margin,
+                max(x_coords) + margin,
+                max(y_coords) + margin
             )
 
         xmin, ymin, xmax, ymax = extent
@@ -580,8 +606,10 @@ class UTHeatmapGenerator:
             # Create feature
             feat = QgsFeature()
             feat.setGeometry(poly)
+            # Calculate mean without numpy
+            cell_mean = sum(cell_values) / len(cell_values) if cell_values else 0
             feat.setAttributes([
-                float(np.mean(cell_values)),
+                float(cell_mean),
                 len(cell_values),
                 ix,
                 iy
@@ -593,12 +621,12 @@ class UTHeatmapGenerator:
         # Apply styling
         self._style_vector_grid(layer, value_field, map_type)
 
-        # Calculate statistics
+        # Calculate statistics without numpy
         all_values = [v for vals in cell_data.values() for v in vals]
         stats = {
-            'min': float(np.min(all_values)) if all_values else 0,
-            'max': float(np.max(all_values)) if all_values else 0,
-            'mean': float(np.mean(all_values)) if all_values else 0,
+            'min': float(min(all_values)) if all_values else 0,
+            'max': float(max(all_values)) if all_values else 0,
+            'mean': float(sum(all_values) / len(all_values)) if all_values else 0,
             'cells_with_data': len(cell_data)
         }
 
@@ -620,31 +648,45 @@ class UTHeatmapGenerator:
         if not self.has_qgis:
             return
 
-        from qgis.core import (
-            QgsGraduatedSymbolRenderer,
-            QgsRendererRange,
-            QgsSymbol,
-            QgsGradientColorRamp,
-            QgsClassificationJenks
-        )
+        try:
+            from qgis.core import (
+                QgsGraduatedSymbolRenderer,
+                QgsRendererRange,
+                QgsSymbol,
+                QgsStyle,
+                QgsFillSymbol
+            )
 
-        colors = self.POTENTIAL_COLORS if map_type == 'potential' else self.RISK_COLORS
+            colors = self.POTENTIAL_COLORS if map_type == 'potential' else self.RISK_COLORS
 
-        # Create color ramp
-        color_stops = [QgsGradientColorRamp.ColorRampStop(v/100, QColor(c))
-                      for v, c in colors]
-        color_ramp = QgsGradientColorRamp(
-            QColor(colors[0][1]),
-            QColor(colors[-1][1]),
-            False,
-            color_stops
-        )
+            # Create graduated renderer with manual ranges
+            renderer = QgsGraduatedSymbolRenderer(value_field)
 
-        # Create graduated renderer
-        renderer = QgsGraduatedSymbolRenderer(value_field)
-        renderer.setClassificationMethod(QgsClassificationJenks())
-        renderer.updateClasses(layer, 5)  # 5 classes
-        renderer.updateColorRamp(color_ramp)
+            # Create ranges based on color stops
+            ranges = []
+            for i in range(len(colors) - 1):
+                lower_val, lower_color = colors[i]
+                upper_val, upper_color = colors[i + 1]
 
-        layer.setRenderer(renderer)
-        layer.triggerRepaint()
+                symbol = QgsFillSymbol.createSimple({
+                    'color': lower_color,
+                    'outline_color': '#666666',
+                    'outline_width': '0.2'
+                })
+
+                range_obj = QgsRendererRange(
+                    lower_val, upper_val,
+                    symbol,
+                    f'{lower_val}-{upper_val}'
+                )
+                ranges.append(range_obj)
+
+            renderer.setClassAttribute(value_field)
+            for r in ranges:
+                renderer.addClassRange(r)
+
+            layer.setRenderer(renderer)
+            layer.triggerRepaint()
+
+        except Exception as e:
+            self.log_message(f"Error styling vector grid: {e}")
