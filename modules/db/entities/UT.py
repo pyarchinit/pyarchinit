@@ -61,7 +61,14 @@ class UT(object):
                  photo_documentation=None,  # 49
                  weather_conditions=None,  # 50
                  team_members=None,  # 51
-                 foglio_catastale=None  # 52
+                 foglio_catastale=None,  # 52
+                 # Analysis fields (v4.9.67+)
+                 potential_score=None,  # 53 - Archaeological potential score (0-100)
+                 risk_score=None,  # 54 - Archaeological risk score (0-100)
+                 potential_factors=None,  # 55 - JSON with factor breakdown
+                 risk_factors=None,  # 56 - JSON with risk factor breakdown
+                 analysis_date=None,  # 57 - Date of last analysis
+                 analysis_method=None  # 58 - Analysis method used
                  ):
         self.id_ut = id_ut  # 0
         self.progetto = progetto  # 1
@@ -117,6 +124,13 @@ class UT(object):
         self.weather_conditions = weather_conditions  # 50
         self.team_members = team_members  # 51
         self.foglio_catastale = foglio_catastale  # 52
+        # Analysis fields (v4.9.67+)
+        self.potential_score = potential_score  # 53
+        self.risk_score = risk_score  # 54
+        self.potential_factors = potential_factors  # 55
+        self.risk_factors = risk_factors  # 56
+        self.analysis_date = analysis_date  # 57
+        self.analysis_method = analysis_method  # 58
 
     # def __repr__"
     def __repr__(self):

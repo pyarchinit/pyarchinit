@@ -51,6 +51,8 @@ class PostgresDbUpdater:
             self.update_fauna_thesaurus()
             # Fix thesaurus entries with display names instead of table names
             self.fix_thesaurus_nome_tabella()
+            # Aggiorna ut_table con nuovi campi analisi (v4.9.67+)
+            self.update_ut_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1072,6 +1074,46 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della tabella struttura: {e}")
+
+    def update_ut_table(self):
+        """Aggiorna la tabella ut_table con i nuovi campi analisi (v4.9.67+)"""
+        self.log_message("Controllo tabella ut_table per campi analisi...")
+
+        try:
+            from sqlalchemy import text
+
+            # Verifica se la tabella esiste
+            query = text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name = 'ut_table'
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager._execute_sql(query).fetchone()
+
+            if not result:
+                self.log_message("Tabella ut_table non trovata, skip")
+                return
+
+            # Aggiungi nuove colonne analisi se mancanti
+            updated = False
+
+            # Analysis fields (v4.9.67+)
+            updated |= self.add_column_if_missing('ut_table', 'potential_score', 'NUMERIC(5,2)')
+            updated |= self.add_column_if_missing('ut_table', 'risk_score', 'NUMERIC(5,2)')
+            updated |= self.add_column_if_missing('ut_table', 'potential_factors', 'TEXT')
+            updated |= self.add_column_if_missing('ut_table', 'risk_factors', 'TEXT')
+            updated |= self.add_column_if_missing('ut_table', 'analysis_date', 'VARCHAR(100)')
+            updated |= self.add_column_if_missing('ut_table', 'analysis_method', 'VARCHAR(100)')
+
+            if updated:
+                self.log_message("Tabella ut_table aggiornata con nuovi campi analisi")
+                self.updates_made.append("ut_table: campi analisi aggiunti")
+            else:
+                self.log_message("Tabella ut_table già aggiornata con campi analisi")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella ut_table: {e}")
 
     def update_strutture_view(self):
         """Aggiorna/ricrea la view pyarchinit_strutture_view con i nuovi campi AR"""

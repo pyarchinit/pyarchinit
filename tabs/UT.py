@@ -35,6 +35,17 @@ from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_exp_UTsheet_pdf import generate_pdf
 from ..gui.sortpanelmain import SortPanelMain
+# Analysis imports
+try:
+    from ..modules.analysis import (
+        UTAnalysisLabels,
+        UTPotentialCalculator,
+        UTRiskAssessor,
+        UTHeatmapGenerator
+    )
+    ANALYSIS_AVAILABLE = True
+except ImportError:
+    ANALYSIS_AVAILABLE = False
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'UT_ui.ui'))
@@ -490,6 +501,9 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Connection system", str(e), QMessageBox.StandardButton.Ok)
         self.set_sito()
         self.msg_sito()
+
+        # Analysis tab signal connections
+        self._setup_analysis_tab()
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
 
@@ -2382,6 +2396,304 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if media_data:
                 self.insert_mediaToEntity_rec(ut_data[0], ut_data[1], ut_data[2], media_data[0].id_media,
                                               media_data[0].filepath, media_data[0].filename)
+
+    # =========================================================================
+    # ANALYSIS METHODS (v4.9.67+)
+    # =========================================================================
+
+    def _setup_analysis_tab(self):
+        """Setup the analysis tab signals and initial state."""
+        if not ANALYSIS_AVAILABLE:
+            return
+
+        # Connect analysis buttons
+        try:
+            self.pushButton_calculate_analysis.clicked.connect(self.on_pushButton_calculate_analysis_pressed)
+            self.pushButton_generate_heatmap.clicked.connect(self.on_pushButton_generate_heatmap_pressed)
+            self.pushButton_export_analysis_pdf.clicked.connect(self.on_pushButton_export_analysis_pdf_pressed)
+        except AttributeError:
+            # UI elements not yet created
+            pass
+
+        # Initialize tables
+        try:
+            self.tableWidget_potential_factors.setColumnCount(4)
+            self.tableWidget_potential_factors.setHorizontalHeaderLabels(['Fattore', 'Punteggio', 'Peso', 'Contributo'])
+            self.tableWidget_risk_factors.setColumnCount(4)
+            self.tableWidget_risk_factors.setHorizontalHeaderLabels(['Fattore', 'Punteggio', 'Peso', 'Contributo'])
+        except AttributeError:
+            pass
+
+    def on_pushButton_calculate_analysis_pressed(self):
+        """Calculate archaeological potential and risk for current UT record."""
+        if not ANALYSIS_AVAILABLE:
+            QMessageBox.warning(self, "Errore", "Modulo di analisi non disponibile.")
+            return
+
+        if self.BROWSE_STATUS != "b":
+            QMessageBox.warning(self, "Attenzione", "Prima seleziona un record UT.")
+            return
+
+        try:
+            # Get current record data
+            record_data = self._get_current_record_dict()
+
+            # Initialize calculators
+            potential_calc = UTPotentialCalculator(db_manager=self.DB_MANAGER)
+            risk_calc = UTRiskAssessor(db_manager=self.DB_MANAGER, potential_calculator=potential_calc)
+
+            # Calculate scores
+            potential_result = potential_calc.calculate_potential(record_data)
+            risk_result = risk_calc.calculate_risk(record_data)
+
+            # Update UI
+            self._update_potential_ui(potential_result)
+            self._update_risk_ui(risk_result)
+
+            # Build interpretation text
+            interpretation = f"=== POTENZIALE ARCHEOLOGICO ===\n{potential_result.get('interpretation', '')}\n\n"
+            interpretation += f"=== RISCHIO ARCHEOLOGICO ===\n{risk_result.get('interpretation', '')}\n\n"
+
+            if risk_result.get('recommendations'):
+                interpretation += "=== RACCOMANDAZIONI ===\n"
+                for rec in risk_result['recommendations']:
+                    interpretation += f"- {rec}\n"
+
+            self.textEdit_analysis_interpretation.setText(interpretation)
+
+            QMessageBox.information(self, "Analisi Completata",
+                f"Potenziale: {potential_result['total_score']:.1f}/100\n"
+                f"Rischio: {risk_result['total_score']:.1f}/100")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante l'analisi: {str(e)}")
+
+    def _get_current_record_dict(self):
+        """Get current record as a dictionary for analysis."""
+        if not self.DATA_LIST or self.REC_CORR >= len(self.DATA_LIST):
+            return {}
+
+        record = self.DATA_LIST[self.REC_CORR]
+        return {
+            'id_ut': record.id_ut,
+            'progetto': record.progetto,
+            'nr_ut': record.nr_ut,
+            'def_ut': record.def_ut,
+            'descrizione_ut': record.descrizione_ut,
+            'interpretazione_ut': record.interpretazione_ut,
+            'comune': record.comune,
+            'provincia': record.provincia,
+            'regione': record.regione,
+            'andamento_terreno_pendenza': record.andamento_terreno_pendenza,
+            'utilizzo_suolo_vegetazione': record.utilizzo_suolo_vegetazione,
+            'visibility_percent': getattr(record, 'visibility_percent', None),
+            'rep_per_mq': record.rep_per_mq,
+            'periodo_I': record.periodo_I,
+            'datazione_I': record.datazione_I,
+            'periodo_II': record.periodo_II,
+            'datazione_II': record.datazione_II,
+        }
+
+    def _update_potential_ui(self, result):
+        """Update potential score UI elements."""
+        score = result.get('total_score', 0)
+        self.progressBar_potential.setValue(int(score))
+        self.label_potential_value.setText(f"{score:.1f}/100")
+
+        # Update factors table
+        self.tableWidget_potential_factors.setRowCount(0)
+        factor_names = {
+            'site_proximity': 'Prossimità siti',
+            'find_density': 'Densità reperti',
+            'environmental': 'Fattori ambientali',
+            'chronology': 'Cronologia',
+            'structure_presence': 'Strutture'
+        }
+
+        contributions = result.get('factor_contributions', {})
+        for factor_key, data in contributions.items():
+            row = self.tableWidget_potential_factors.rowCount()
+            self.tableWidget_potential_factors.insertRow(row)
+            self.tableWidget_potential_factors.setItem(row, 0, QTableWidgetItem(factor_names.get(factor_key, factor_key)))
+            self.tableWidget_potential_factors.setItem(row, 1, QTableWidgetItem(f"{data['score']:.0f}"))
+            self.tableWidget_potential_factors.setItem(row, 2, QTableWidgetItem(f"{data['weight']*100:.0f}%"))
+            self.tableWidget_potential_factors.setItem(row, 3, QTableWidgetItem(f"{data['contribution']:.1f}"))
+
+    def _update_risk_ui(self, result):
+        """Update risk score UI elements."""
+        score = result.get('total_score', 0)
+        self.progressBar_risk.setValue(int(score))
+        self.label_risk_value.setText(f"{score:.1f}/100")
+
+        # Update factors table
+        self.tableWidget_risk_factors.setRowCount(0)
+        factor_names = {
+            'urban_development': 'Sviluppo urbano',
+            'natural_erosion': 'Erosione naturale',
+            'agricultural_activity': 'Attività agricola',
+            'conservation_state': 'Conservazione',
+            'discovery_probability': 'Prob. scoperta'
+        }
+
+        contributions = result.get('factor_contributions', {})
+        for factor_key, data in contributions.items():
+            row = self.tableWidget_risk_factors.rowCount()
+            self.tableWidget_risk_factors.insertRow(row)
+            self.tableWidget_risk_factors.setItem(row, 0, QTableWidgetItem(factor_names.get(factor_key, factor_key)))
+            self.tableWidget_risk_factors.setItem(row, 1, QTableWidgetItem(f"{data['score']:.0f}"))
+            self.tableWidget_risk_factors.setItem(row, 2, QTableWidgetItem(f"{data['weight']*100:.0f}%"))
+            self.tableWidget_risk_factors.setItem(row, 3, QTableWidgetItem(f"{data['contribution']:.1f}"))
+
+    def on_pushButton_generate_heatmap_pressed(self):
+        """Generate heatmap for all UT records in current project."""
+        if not ANALYSIS_AVAILABLE:
+            QMessageBox.warning(self, "Errore", "Modulo di analisi non disponibile.")
+            return
+
+        try:
+            from qgis.core import QgsProject
+
+            # Get heatmap parameters
+            method_index = self.comboBox_heatmap_method.currentIndex()
+            methods = ['kde', 'idw', 'grid']
+            method = methods[method_index] if method_index < len(methods) else 'kde'
+            cell_size = self.spinBox_cell_size.value()
+
+            # Get all UT records for current project
+            sito = str(self.comboBox_progetto.currentText())
+            if not sito:
+                QMessageBox.warning(self, "Attenzione", "Seleziona prima un progetto.")
+                return
+
+            records = self.DB_MANAGER.query_bool({'progetto': "'" + sito + "'"}, 'UT')
+            if not records:
+                QMessageBox.warning(self, "Attenzione", "Nessun record UT trovato per questo progetto.")
+                return
+
+            # Calculate scores for all records
+            potential_calc = UTPotentialCalculator(db_manager=self.DB_MANAGER)
+
+            points = []
+            values = []
+
+            for record in records:
+                # Get geometry centroid if available
+                try:
+                    coord_piane = record.coord_piane
+                    if coord_piane:
+                        # Try to parse coordinates
+                        parts = str(coord_piane).replace(',', ' ').split()
+                        if len(parts) >= 2:
+                            x, y = float(parts[0]), float(parts[1])
+                            points.append((x, y))
+
+                            # Calculate potential score
+                            record_dict = {k: getattr(record, k, None) for k in dir(record) if not k.startswith('_')}
+                            result = potential_calc.calculate_potential(record_dict)
+                            values.append(result['total_score'])
+                except:
+                    continue
+
+            if len(points) < 2:
+                QMessageBox.warning(self, "Attenzione",
+                    "Servono almeno 2 punti con coordinate valide per generare una heatmap.")
+                return
+
+            # Generate heatmap
+            output_dir = os.path.join(self.HOME, 'pyarchinit_Analysis_folder')
+            os.makedirs(output_dir, exist_ok=True)
+
+            generator = UTHeatmapGenerator(output_dir=output_dir)
+            result = generator.generate_heatmap(
+                points=points,
+                values=values,
+                method=method,
+                cell_size=cell_size,
+                map_type='potential'
+            )
+
+            if 'error' in result:
+                QMessageBox.critical(self, "Errore", f"Errore generazione heatmap: {result['error']}")
+                return
+
+            # Add layer to QGIS if available
+            if 'layer' in result and result['layer']:
+                QgsProject.instance().addMapLayer(result['layer'])
+                QMessageBox.information(self, "Successo",
+                    f"Heatmap generata con successo!\n\n"
+                    f"Metodo: {method.upper()}\n"
+                    f"Punti: {len(points)}\n"
+                    f"File: {result['raster_path']}")
+            else:
+                QMessageBox.information(self, "Successo",
+                    f"Heatmap salvata in:\n{result['raster_path']}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante la generazione: {str(e)}")
+
+    def on_pushButton_export_analysis_pdf_pressed(self):
+        """Export analysis report as PDF."""
+        if not ANALYSIS_AVAILABLE:
+            QMessageBox.warning(self, "Errore", "Modulo di analisi non disponibile.")
+            return
+
+        if self.BROWSE_STATUS != "b":
+            QMessageBox.warning(self, "Attenzione", "Prima seleziona un record UT.")
+            return
+
+        try:
+            from qgis.PyQt.QtWidgets import QFileDialog
+
+            # Get current record data
+            record_data = self._get_current_record_dict()
+
+            # Calculate scores
+            potential_calc = UTPotentialCalculator(db_manager=self.DB_MANAGER)
+            risk_calc = UTRiskAssessor(db_manager=self.DB_MANAGER, potential_calculator=potential_calc)
+
+            potential_result = potential_calc.calculate_potential(record_data)
+            risk_result = risk_calc.calculate_risk(record_data)
+
+            # Ask for save location
+            default_name = f"UT_{record_data.get('nr_ut', 'unknown')}_analysis.pdf"
+            default_path = os.path.join(self.HOME, 'pyarchinit_PDF_folder', default_name)
+
+            file_path, _ = QFileDialog.getSaveFileName(
+                self,
+                "Salva Report PDF",
+                default_path,
+                "PDF Files (*.pdf)"
+            )
+
+            if not file_path:
+                return
+
+            # Generate PDF
+            try:
+                from ..modules.utility.pyarchinit_exp_UT_analysis_pdf import generate_analysis_pdf
+                generate_analysis_pdf(
+                    file_path,
+                    record_data,
+                    potential_result,
+                    risk_result,
+                    lang=self.L
+                )
+                QMessageBox.information(self, "Successo", f"Report PDF salvato in:\n{file_path}")
+            except ImportError:
+                # Fallback: save as text
+                with open(file_path.replace('.pdf', '.txt'), 'w', encoding='utf-8') as f:
+                    f.write(f"UT Analysis Report\n{'='*50}\n\n")
+                    f.write(f"UT: {record_data.get('nr_ut', 'N/A')}\n")
+                    f.write(f"Progetto: {record_data.get('progetto', 'N/A')}\n\n")
+                    f.write(f"Potenziale: {potential_result['total_score']:.1f}/100\n")
+                    f.write(f"{potential_result.get('interpretation', '')}\n\n")
+                    f.write(f"Rischio: {risk_result['total_score']:.1f}/100\n")
+                    f.write(f"{risk_result.get('interpretation', '')}\n")
+                QMessageBox.information(self, "Successo",
+                    f"Report salvato come testo in:\n{file_path.replace('.pdf', '.txt')}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Errore", f"Errore durante l'esportazione: {str(e)}")
 
 
 ## Class end

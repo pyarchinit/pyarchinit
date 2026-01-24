@@ -2162,6 +2162,260 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_analysis">
+      <attribute name="title">
+       <string>Analisi</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_analysis">
+       <item>
+        <widget class="QGroupBox" name="groupBox_potential">
+         <property name="title">
+          <string>Potenziale Archeologico</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_potential">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_potential_score">
+            <property name="text">
+             <string>Punteggio:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QProgressBar" name="progressBar_potential">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_potential_value">
+            <property name="text">
+             <string>0/100</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="QTableWidget" name="tableWidget_potential_factors">
+            <property name="maximumHeight">
+             <number>120</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Fattore</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Punteggio</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Peso</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Contributo</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_risk">
+         <property name="title">
+          <string>Rischio Archeologico</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_risk">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_risk_score">
+            <property name="text">
+             <string>Punteggio:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QProgressBar" name="progressBar_risk">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_risk_value">
+            <property name="text">
+             <string>0/100</string>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <widget class="QTableWidget" name="tableWidget_risk_factors">
+            <property name="maximumHeight">
+             <number>120</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Fattore</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Punteggio</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Peso</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Contributo</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_heatmap">
+         <property name="title">
+          <string>Generazione Mappa di Calore</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_heatmap">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_method">
+            <property name="text">
+             <string>Metodo:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="comboBox_heatmap_method">
+            <item>
+             <property name="text">
+              <string>KDE (Kernel Density)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>IDW (Inverse Distance)</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Grid (Aggregazione)</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_cell_size">
+            <property name="text">
+             <string>Cella (m):</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QSpinBox" name="spinBox_cell_size">
+            <property name="minimum">
+             <number>10</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_analysis_buttons">
+         <item>
+          <widget class="QPushButton" name="pushButton_calculate_analysis">
+           <property name="text">
+            <string>Calcola Analisi</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/charts.png</normaloff>:/icons/charts.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_generate_heatmap">
+           <property name="text">
+            <string>Genera Heatmap</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/Map.png</normaloff>:/icons/Map.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_export_analysis_pdf">
+           <property name="text">
+            <string>Esporta PDF</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../resources/resources.qrc">
+             <normaloff>:/icons/pdf.png</normaloff>:/icons/pdf.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_analysis">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QTextEdit" name="textEdit_analysis_interpretation">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="placeholderText">
+          <string>I risultati dell'analisi appariranno qui...</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item row="1" column="0" colspan="6">

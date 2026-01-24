@@ -1583,7 +1583,25 @@ CREATE TABLE public.struttura_table (
     materiali_impiegati text,
     elementi_strutturali text,
     rapporti_struttura text,
-    misure_struttura text
+    misure_struttura text,
+    -- Nuovi campi Architettura Rupestre (AR)
+    data_compilazione text,
+    nome_compilatore text,
+    stato_conservazione text,
+    quota real,
+    relazione_topografica text,
+    prospetto_ingresso text,
+    orientamento_ingresso text,
+    articolazione text,
+    n_ambienti integer,
+    orientamento_ambienti text,
+    sviluppo_planimetrico text,
+    elementi_costitutivi text,
+    motivo_decorativo text,
+    potenzialita_archeologica text,
+    manufatti text,
+    elementi_datanti text,
+    fasi_funzionali text
 );
 
 
@@ -2421,7 +2439,14 @@ CREATE TABLE public.ut_table (
     photo_documentation INTEGER,
     weather_conditions character varying(255),
     team_members text,
-    foglio_catastale character varying(100)
+    foglio_catastale character varying(100),
+    -- Analysis fields (v4.9.67+)
+    potential_score NUMERIC(5,2),
+    risk_score NUMERIC(5,2),
+    potential_factors TEXT,
+    risk_factors TEXT,
+    analysis_date character varying(100),
+    analysis_method character varying(100)
 );
 
 

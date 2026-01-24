@@ -3,7 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
-from sqlalchemy import Table, Column, Integer, String, Text, Float, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Text, Float, Numeric, MetaData, create_engine, UniqueConstraint
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -68,6 +68,13 @@ class UT_table:
                      Column('weather_conditions', String(255)),  # 50 - Weather during survey
                      Column('team_members', Text),  # 51 - Survey team names
                      Column('foglio_catastale', String(100)),  # 52 - Cadastral sheet
+                     # Analysis fields (v4.9.67+)
+                     Column('potential_score', Numeric(5, 2)),  # 53 - Archaeological potential score (0-100)
+                     Column('risk_score', Numeric(5, 2)),  # 54 - Archaeological risk score (0-100)
+                     Column('potential_factors', Text),  # 55 - JSON with factor breakdown
+                     Column('risk_factors', Text),  # 56 - JSON with risk factor breakdown
+                     Column('analysis_date', String(100)),  # 57 - Date of last analysis
+                     Column('analysis_method', String(100)),  # 58 - Analysis method used
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('progetto', 'nr_ut', 'ut_letterale', name='ID_ut_unico')
