@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.69
+version=4.9.70
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,10 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.69 (2026-01-24):
+changelog=4.9.70 (2026-01-24):
+    - Fix:  resolve duplicate 'lang' keyword argument in PDF canvas
+    - Feature:  comprehensive UT form update with GNA export and analysis
+  4.9.69 (2026-01-24):
     - Docs:  update UT tutorials for DE, ES, FR, CA languages
     - Feature:  add def_ut thesaurus (12.7) and update UT tutorials
     - Fix:  correct Arabic language code in UT thesaurus from ar_AR to ar_LB
