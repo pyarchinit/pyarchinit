@@ -22,7 +22,7 @@ Das **UT-Formular** (Topographische Einheiten) ist das PyArchInit-Modul zur Doku
 
 ### Über Menü
 1. Menü **PyArchInit** in der QGIS-Menüleiste
-2. **UT-Formular** (oder **TU form**) auswählen
+2. **UT-Formular** auswählen
 
 ### Über Toolbar
 1. PyArchInit-Toolbar finden
@@ -32,18 +32,16 @@ Das **UT-Formular** (Topographische Einheiten) ist das PyArchInit-Modul zur Doku
 
 ## Oberflächenübersicht
 
-Das Formular enthält zahlreiche Felder zur Dokumentation aller Aspekte der Prospektion.
+Das Formular ist in mehrere Tabs zur Dokumentation aller Prospektionsaspekte unterteilt.
 
-### Hauptbereiche
+### Haupt-Tabs
 
-| # | Bereich | Beschreibung |
-|---|---------|-------------|
-| 1 | DBMS-Toolbar | Navigation, Suche, Speichern |
-| 2 | Identifikationsfelder | Projekt, UT-Nr. |
-| 3 | Lokalisierung | Geographische und administrative Daten |
-| 4 | Beschreibung | Definition, Beschreibung, Interpretation |
-| 5 | Survey-Daten | Bedingungen, Methodik |
-| 6 | Chronologie | Perioden und Datierungen |
+| # | Tab | Beschreibung |
+|---|-----|-------------|
+| 1 | Identifikation | Projekt, UT-Nr., Lokalisierung |
+| 2 | Beschreibung | Definition, Beschreibung, Interpretation |
+| 3 | UT-Daten | Bedingungen, Methodik, Daten |
+| 4 | Analyse | Archäologisches Potential und Risiko |
 
 ---
 
@@ -51,14 +49,14 @@ Das Formular enthält zahlreiche Felder zur Dokumentation aller Aspekte der Pros
 
 ### Projekt
 
-**Feld**: `lineEdit_progetto`
+**Feld**: `comboBox_progetto`
 **Datenbank**: `progetto`
 
 Name des Prospektionsprojekts.
 
 ### UT-Nummer
 
-**Feld**: `lineEdit_nr_ut`
+**Feld**: `comboBox_nr_ut`
 **Datenbank**: `nr_ut`
 
 Fortlaufende Nummer der Topographischen Einheit.
@@ -68,7 +66,7 @@ Fortlaufende Nummer der Topographischen Einheit.
 **Feld**: `lineEdit_ut_letterale`
 **Datenbank**: `ut_letterale`
 
-Eventuelles alphabetisches Suffix (z.B. UT 15a, 15b).
+Optionales alphabetisches Suffix (z.B. UT 15a, 15b).
 
 ---
 
@@ -103,25 +101,30 @@ Eventuelles alphabetisches Suffix (z.B. UT 15a, 15b).
 | Ebene Koordinaten | `coord_piane` | UTM/Gauß-Krüger |
 | Höhe | `quota` | Höhe ü.NN |
 | Koordinatenpräzision | `coordinate_precision` | GPS-Genauigkeit |
-| GPS-Methode | `gps_method` | Erfassungsart |
 
 ---
 
 ## Beschreibende Felder
 
-### UT-Definition
+### UT-Definition ⭐ NEU
 
 **Feld**: `comboBox_def_ut`
 **Datenbank**: `def_ut`
+**Thesaurus**: Code 12.7
 
-Typologische Klassifikation der UT.
+Typologische Klassifikation der UT. Werte werden aus dem Thesaurus geladen und automatisch in die aktuelle Sprache übersetzt.
 
-**Werte:**
-- Materialkonzentration
-- Fragmentbereich
-- Geländeanomalie
-- Aufgehende Struktur
-- Archäologische Fundstelle
+**Standardwerte:**
+| Code | Deutsch | Italienisch |
+|------|---------|------------|
+| scatter | Materialstreuung | Area di dispersione materiali |
+| site | Archäologische Fundstelle | Sito archeologico |
+| anomaly | Geländeanomalie | Anomalia del terreno |
+| structure | Aufgehende Struktur | Struttura affiorante |
+| concentration | Fundkonzentration | Concentrazione reperti |
+| traces | Anthropogene Spuren | Tracce antropiche |
+| findspot | Einzelfund | Rinvenimento sporadico |
+| negative | Negativer Befund | Esito negativo |
 
 ### UT-Beschreibung
 
@@ -145,138 +148,108 @@ Funktionale/historische Interpretation.
 
 ---
 
-## Umweltdaten
+## Thesaurus Survey-Felder ⭐ NEU
 
-### Geländebeschaffenheit
+Die folgenden Felder nutzen das Thesaurus-System für standardisierte, in 7 Sprachen (DE, IT, EN, ES, FR, AR, CA) übersetzte Terminologie.
 
-**Feld**: `comboBox_terreno`
-**Datenbank**: `andamento_terreno_pendenza`
-
-Morphologie und Neigung.
-
-**Werte:**
-- Eben
-- Leichte Neigung
-- Mittlere Neigung
-- Starke Neigung
-- Terrassiert
-
-### Bodennutzung
-
-**Feld**: `comboBox_suolo`
-**Datenbank**: `utilizzo_suolo_vegetazione`
-
-Bodennutzung zum Zeitpunkt der Prospektion.
-
-**Werte:**
-- Ackerland
-- Wiese/Weide
-- Weinberg
-- Olivenhain
-- Brache
-- Wald
-- Urban
-
-### Bodenbeschreibung
-
-**Feld**: `textEdit_suolo`
-**Datenbank**: `descrizione_empirica_suolo`
-
-Beobachtete pedologische Eigenschaften.
-
-### Ortsbeschreibung
-
-**Feld**: `textEdit_luogo`
-**Datenbank**: `descrizione_luogo`
-
-Landschaftskontext.
-
----
-
-## Survey-Daten
-
-### Prospektionsmethode
-
-**Feld**: `comboBox_metodo`
-**Datenbank**: `metodo_rilievo_e_ricognizione`
-
-Angewandte Methodik.
-
-**Werte:**
-- Systematische Prospektion
-- Extensive Prospektion
-- Gezielte Prospektion
-- Fundmeldungskontrolle
-
-### Survey-Typ
+### Survey-Typ (12.1)
 
 **Feld**: `comboBox_survey_type`
 **Datenbank**: `survey_type`
 
-Prospektionsart.
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| intensive | Intensive Prospektion | Systematische Begehung |
+| extensive | Extensive Prospektion | Übersichtsbegehung |
+| targeted | Gezielte Prospektion | Untersuchung spezifischer Bereiche |
+| random | Zufallsstichprobe | Stichprobenmethodik |
 
-### Sichtbarkeit
+### Vegetationsbedeckung (12.2)
 
-**Feld**: `spinBox_visibility`
-**Datenbank**: `visibility_percent`
-
-Prozentsatz der Bodensichtbarkeit (0-100%).
-
-### Vegetationsbedeckung
-
-**Feld**: `comboBox_vegetation`
+**Feld**: `comboBox_vegetation_coverage`
 **Datenbank**: `vegetation_coverage`
 
-Grad der Vegetationsbedeckung.
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| none | Keine Vegetation | Offener Boden |
+| sparse | Spärliche Vegetation | Bedeckung < 25% |
+| moderate | Mäßige Vegetation | Bedeckung 25-50% |
+| dense | Dichte Vegetation | Bedeckung 50-75% |
+| very_dense | Sehr dichte Vegetation | Bedeckung > 75% |
 
-### Oberflächenzustand
+### GPS-Methode (12.3)
 
-**Feld**: `comboBox_surface`
+**Feld**: `comboBox_gps_method`
+**Datenbank**: `gps_method`
+
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| handheld | Handheld GPS | Handgehaltenes GPS-Gerät |
+| dgps | Differential GPS | DGPS mit Basisstation |
+| rtk | RTK GPS | Echtzeit-Kinematik |
+| total_station | Totalstation | Totalstation-Vermessung |
+
+### Oberflächenzustand (12.4)
+
+**Feld**: `comboBox_surface_condition`
 **Datenbank**: `surface_condition`
 
-Zustand der Oberfläche.
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| ploughed | Gepflügt | Frisch gepflügtes Feld |
+| stubble | Stoppelfeld | Ernterückstände vorhanden |
+| pasture | Weide | Grünland/Weide |
+| woodland | Wald | Bewaldetes Gebiet |
+| urban | Urban | Bebautes Gebiet |
 
-**Werte:**
-- Frisch gepflügt
-- Gepflügt, nicht gefräst
-- Niedriges Gras
-- Hohes Gras
-- Stoppeln
-
-### Zugänglichkeit
+### Zugänglichkeit (12.5)
 
 **Feld**: `comboBox_accessibility`
 **Datenbank**: `accessibility`
 
-Leichtigkeit des Zugangs zum Bereich.
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| easy | Leicht zugänglich | Keine Einschränkungen |
+| moderate_access | Mäßig zugänglich | Einige Schwierigkeiten |
+| difficult | Schwer zugänglich | Erhebliche Probleme |
+| restricted | Eingeschränkter Zugang | Nur mit Genehmigung |
 
-### Datum
+### Wetterbedingungen (12.6)
 
-**Feld**: `dateEdit_data`
-**Datenbank**: `data`
+**Feld**: `comboBox_weather_conditions`
+**Datenbank**: `weather_conditions`
 
-Datum der Prospektion.
+| Code | Deutsch | Beschreibung |
+|------|---------|-------------|
+| sunny | Sonnig | Klar und sonnig |
+| cloudy | Bewölkt | Bedeckte Bedingungen |
+| rainy | Regnerisch | Regen während Prospektion |
+| windy | Windig | Starker Wind |
 
-### Uhrzeit/Wetter
+---
 
-**Feld**: `lineEdit_meteo`
-**Datenbank**: `ora_meteo`
+## Umweltdaten
 
-Wetterbedingungen und Uhrzeit.
+### Sichtbarkeitsprozentsatz
 
-### Verantwortlicher
+**Feld**: `spinBox_visibility_percent`
+**Datenbank**: `visibility_percent`
 
-**Feld**: `comboBox_responsabile`
-**Datenbank**: `responsabile`
+Bodensichtbarkeit in Prozent (0-100%). Numerischer Wert.
 
-Prospektionsverantwortlicher.
+### Geländeneigung
 
-### Team
+**Feld**: `lineEdit_andamento_terreno_pendenza`
+**Datenbank**: `andamento_terreno_pendenza`
 
-**Feld**: `textEdit_team`
-**Datenbank**: `team_members`
+Geländemorphologie und Neigung.
 
-Teammitglieder.
+### Bodennutzung
+
+**Feld**: `lineEdit_utilizzo_suolo_vegetazione`
+**Datenbank**: `utilizzo_suolo_vegetazione`
+
+Bodennutzung zum Zeitpunkt der Prospektion.
 
 ---
 
@@ -284,21 +257,21 @@ Teammitglieder.
 
 ### UT-Abmessungen
 
-**Feld**: `lineEdit_dimensioni`
+**Feld**: `lineEdit_dimensioni_ut`
 **Datenbank**: `dimensioni_ut`
 
-Ausdehnung in qm.
+Flächenausdehnung in qm.
 
 ### Funde pro qm
 
-**Feld**: `lineEdit_rep_mq`
+**Feld**: `lineEdit_rep_per_mq`
 **Datenbank**: `rep_per_mq`
 
-Materialdichte.
+Materialdichte pro Quadratmeter.
 
 ### Datierende Funde
 
-**Feld**: `textEdit_rep_datanti`
+**Feld**: `lineEdit_rep_datanti`
 **Datenbank**: `rep_datanti`
 
 Beschreibung diagnostischer Materialien.
@@ -325,49 +298,78 @@ Beschreibung diagnostischer Materialien.
 
 ---
 
-## Weitere Felder
+## Analyse-Tab ⭐ NEU
 
-### Geometrie
+Der **Analyse**-Tab bietet erweiterte Werkzeuge zur automatischen Berechnung des archäologischen Potentials und Risikos.
 
-**Feld**: `comboBox_geometria`
-**Datenbank**: `geometria`
+### Archäologisches Potential
 
-Form der UT.
+Das System berechnet einen Score von 0 bis 100 basierend auf:
 
-### Bibliographie
+| Faktor | Gewicht | Beschreibung |
+|--------|---------|-------------|
+| UT-Definition | 30% | Art der archäologischen Evidenz |
+| Historische Periode | 25% | Materialchronologie |
+| Funddichte | 20% | Materialien pro qm |
+| Oberflächenzustand | 15% | Sichtbarkeit und Zugänglichkeit |
+| Dokumentation | 10% | Dokumentationsqualität |
 
-**Feld**: `textEdit_bibliografia`
-**Datenbank**: `bibliografia`
+**Anzeige:**
+- Farbiger Fortschrittsbalken (grün = hoch, gelb = mittel, rot = niedrig)
+- Detaillierte Faktorentabelle mit Einzelwerten
+- Automatischer Beschreibungstext mit Interpretation
 
-Bibliographische Verweise.
+### Archäologisches Risiko
 
-### Dokumentation
+Bewertet das Risiko von Beeinträchtigung/Verlust des Kulturguts:
 
-**Feld**: `textEdit_documentazione`
-**Datenbank**: `documentazione`
+| Faktor | Gewicht | Beschreibung |
+|--------|---------|-------------|
+| Zugänglichkeit | 25% | Leichtigkeit des Zugangs |
+| Bodennutzung | 25% | Landwirtschaftliche/bauliche Aktivitäten |
+| Bestehende Auflagen | 20% | Rechtlicher Schutz |
+| Frühere Untersuchungen | 15% | Kenntnisstand |
+| Sichtbarkeit | 15% | Exposition der Fundstelle |
 
-Erstellte Dokumentation (Fotos, Zeichnungen).
+### Heatmap-Generierung
 
-### Foto-Dokumentation
+Die Schaltfläche **Heatmap generieren** erstellt Rasterlayer mit:
+- **Potential-Heatmap**: Räumliche Verteilung des archäologischen Potentials
+- **Risiko-Heatmap**: Gefährdungskarte
 
-**Feld**: `textEdit_photo_doc`
-**Datenbank**: `photo_documentation`
+**Verfügbare Methoden:**
+- Kernel Density Estimation (KDE)
+- Inverse Distance Weighting (IDW)
+- Natural Neighbor
 
-Liste der fotografischen Dokumentation.
+---
 
-### Schutz/Auflagen
+## PDF-Export ⭐ VERBESSERT
 
-**Feld**: `textEdit_vincoli`
-**Datenbank**: `enti_tutela_vincoli`
+### Standard UT-Formular
 
-Auflagen und Schutzbehörden.
+Exportiert das vollständige UT-Formular mit allen ausgefüllten Feldern.
 
-### Voruntersuchungen
+### UT-Analysebericht
 
-**Feld**: `textEdit_indagini`
-**Datenbank**: `indagini_preliminari`
+Generiert einen PDF-Bericht mit:
 
-Bereits durchgeführte Untersuchungen.
+1. **UT-Identifikationsdaten**
+2. **Archäologisches Potential-Sektion**
+   - Score mit grafischer Anzeige
+   - Beschreibender Narrativtext
+   - Faktorentabelle mit Beiträgen
+   - Potential-Heatmap-Bild (falls generiert)
+3. **Archäologisches Risiko-Sektion**
+   - Score mit grafischer Anzeige
+   - Narrativtext mit Empfehlungen
+   - Faktorentabelle mit Beiträgen
+   - Risiko-Heatmap-Bild (falls generiert)
+4. **Methodik-Sektion**
+   - Beschreibung der verwendeten Algorithmen
+   - Hinweise zu Faktorgewichtungen
+
+Der Bericht ist in allen 7 unterstützten Sprachen verfügbar.
 
 ---
 
@@ -397,19 +399,23 @@ Bereits durchgeführte Untersuchungen.
    Höhe: 125 m
    ```
 
-5. **Beschreibung**
+5. **Beschreibung** (mit Thesaurus)
    ```
-   Definition: Materialkonzentration
+   Definition: Fundkonzentration (aus Thesaurus)
    Beschreibung: Elliptischer Bereich von ca. 50x30 m
    mit Konzentration von Keramikfragmenten
    und Ziegeln an südexponiertem Hang...
    ```
 
-6. **Survey-Daten**
+6. **Survey-Daten** (mit Thesaurus)
    ```
-   Methode: Systematische Prospektion
+   Survey-Typ: Intensive Prospektion
+   Vegetationsbedeckung: Spärlich
+   GPS-Methode: Differential GPS
+   Oberflächenzustand: Gepflügt
+   Zugänglichkeit: Leicht zugänglich
+   Wetterbedingungen: Sonnig
    Sichtbarkeit: 80%
-   Zustand: Frisch gepflügt
    Datum: 15.04.2024
    Verantwortlich: Team A
    ```
@@ -426,7 +432,12 @@ Bereits durchgeführte Untersuchungen.
    Interpretation I: Villa rustica
    ```
 
-8. **Speichern**
+8. **Analyse** (Analyse-Tab)
+   - Potential-Score prüfen
+   - Risiko-Score prüfen
+   - Heatmap bei Bedarf generieren
+
+9. **Speichern**
    - Auf "Save" klicken
 
 ---
@@ -438,19 +449,17 @@ Das UT-Formular ist eng mit QGIS integriert:
 - **UT-Layer**: Geometrie-Visualisierung
 - **Verknüpfte Attribute**: Daten aus dem Formular
 - **Auswahl von Karte**: Klick auf Geometrie öffnet Formular
-
----
-
-## PDF-Export
-
-Das Formular unterstützt den PDF-Export für:
-- Einzelne UT-Formulare
-- Listen nach Projekt
-- Survey-Berichte
+- **Heatmap als Layer**: Generierte Karten werden als Rasterlayer gespeichert
 
 ---
 
 ## Best Practices
+
+### Thesaurus-Nutzung
+
+- Immer Thesaurus-Werte für Konsistenz bevorzugen
+- Werte werden automatisch in Benutzersprache übersetzt
+- Für neue Werte, diese zuerst im Thesaurus hinzufügen
 
 ### Nomenklatur
 
@@ -470,15 +479,38 @@ Das Formular unterstützt den PDF-Export für:
 - Planimetrische Skizzen anfertigen
 - Sichtbarkeitsbedingungen erfassen
 
-### Materialien
+### Analyse
 
-- Diagnostische Proben sammeln
-- Dichte pro Fläche schätzen
-- Räumliche Verteilung dokumentieren
+- Berechnete Scores immer verifizieren
+- Heatmaps für vollständige Projekte generieren
+- Berichte zur Dokumentation exportieren
+
+---
+
+## UT Thesaurus-Codes
+
+| Code | Feld | Beschreibung |
+|------|------|-------------|
+| 12.1 | survey_type | Survey-Typ |
+| 12.2 | vegetation_coverage | Vegetationsbedeckung |
+| 12.3 | gps_method | GPS-Methode |
+| 12.4 | surface_condition | Oberflächenzustand |
+| 12.5 | accessibility | Zugänglichkeit |
+| 12.6 | weather_conditions | Wetterbedingungen |
+| 12.7 | def_ut | UT-Definition |
 
 ---
 
 ## Fehlerbehebung
+
+### Problem: Leere Comboboxen
+
+**Ursache**: Thesaurus-Einträge nicht in Datenbank vorhanden.
+
+**Lösung**:
+1. Datenbank über "Update database" aktualisieren
+2. Überprüfen, dass `pyarchinit_thesaurus_sigle` Tabelle Einträge für `ut_table` enthält
+3. Sprachcode in Einstellungen prüfen
 
 ### Problem: Ungültige Koordinaten
 
@@ -498,6 +530,15 @@ Das Formular unterstützt den PDF-Export für:
 2. Prüfen, dass Datensatz Geometrie hat
 3. Layer-Projektion überprüfen
 
+### Problem: Heatmap nicht generiert
+
+**Ursache**: Unzureichende Daten oder Berechnungsfehler.
+
+**Lösung**:
+1. Überprüfen, dass mindestens 3 UTs mit vollständigen Daten existieren
+2. Prüfen, dass Geometrien gültig sind
+3. Verfügbaren Speicherplatz prüfen
+
 ---
 
 ## Referenzen
@@ -513,6 +554,10 @@ Das Formular unterstützt den PDF-Export für:
 - **UI**: `gui/ui/UT_ui.ui`
 - **Controller**: `tabs/UT.py`
 - **PDF-Export**: `modules/utility/pyarchinit_exp_UTsheet_pdf.py`
+- **Analyse-PDF**: `modules/utility/pyarchinit_exp_UT_analysis_pdf.py`
+- **Potential-Berechnung**: `modules/analysis/ut_potential.py`
+- **Risiko-Berechnung**: `modules/analysis/ut_risk.py`
+- **Heatmap-Generator**: `modules/analysis/ut_heatmap_generator.py`
 
 ---
 
@@ -521,20 +566,28 @@ Das Formular unterstützt den PDF-Export für:
 ### Prospektionsdokumentation
 **Dauer**: 15-18 Minuten
 - UT-Erfassung
-- Survey-Daten
+- Survey-Daten mit Thesaurus
 - Geolokalisierung
 
 [Platzhalter Video: video_ut_survey.mp4]
 
-### GIS-Integration Survey
+### Potential- und Risikoanalyse
 **Dauer**: 10-12 Minuten
-- Layer und Attribute
-- Ergebnisvisualisierung
-- Räumliche Analyse
+- Automatische Score-Berechnung
+- Ergebnisinterpretation
+- Heatmap-Generierung
 
-[Platzhalter Video: video_ut_gis.mp4]
+[Platzhalter Video: video_ut_analysis.mp4]
+
+### PDF-Berichtsexport
+**Dauer**: 8-10 Minuten
+- Standard-UT-Formular
+- Analysebericht mit Karten
+- Ausgabe-Anpassung
+
+[Platzhalter Video: video_ut_pdf.mp4]
 
 ---
 
 *Letzte Aktualisierung: Januar 2026*
-*PyArchInit - Archäologisches Datenverwaltungssystem*
+*PyArchInit v4.9.68 - Archäologisches Datenverwaltungssystem*
