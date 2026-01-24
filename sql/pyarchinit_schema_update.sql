@@ -120,6 +120,13 @@ ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS photo_documentation INTEGER;
 ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS weather_conditions VARCHAR(255);
 ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS team_members TEXT;
 ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS foglio_catastale VARCHAR(100);
+-- Analysis fields (v4.9.70+)
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS potential_score NUMERIC(5,2);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS risk_score NUMERIC(5,2);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS potential_factors TEXT;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS risk_factors TEXT;
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS analysis_date VARCHAR(100);
+ALTER TABLE ut_table ADD COLUMN IF NOT EXISTS analysis_method VARCHAR(100);
 
 COMMENT ON COLUMN ut_table.visibility_percent IS 'Percentuale visibilita superficie (0-100)';
 COMMENT ON COLUMN ut_table.vegetation_coverage IS 'Copertura vegetazione';

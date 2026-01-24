@@ -38,7 +38,7 @@ background-color: rgb(168, 168, 168);</string>
    <bool>false</bool>
   </property>
   <property name="features">
-   <set>QDockWidget::AllDockWidgetFeatures</set>
+   <set>QDockWidget::DockWidgetClosable|QDockWidget::DockWidgetMovable|QDockWidget::DockWidgetFloatable</set>
   </property>
   <property name="windowTitle">
    <string>pyArchInit - Archaeological Data Management</string>

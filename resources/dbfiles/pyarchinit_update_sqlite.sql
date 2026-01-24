@@ -24,6 +24,13 @@ ALTER TABLE ut_table ADD COLUMN photo_documentation INTEGER;
 ALTER TABLE ut_table ADD COLUMN weather_conditions VARCHAR(255);
 ALTER TABLE ut_table ADD COLUMN team_members TEXT;
 ALTER TABLE ut_table ADD COLUMN foglio_catastale VARCHAR(100);
+-- Analysis fields (v4.9.70+)
+ALTER TABLE ut_table ADD COLUMN potential_score NUMERIC(5,2);
+ALTER TABLE ut_table ADD COLUMN risk_score NUMERIC(5,2);
+ALTER TABLE ut_table ADD COLUMN potential_factors TEXT;
+ALTER TABLE ut_table ADD COLUMN risk_factors TEXT;
+ALTER TABLE ut_table ADD COLUMN analysis_date VARCHAR(100);
+ALTER TABLE ut_table ADD COLUMN analysis_method VARCHAR(100);
 
 -- =====================================================
 -- FAUNA_TABLE - Create if not exists (v4.9.21+)

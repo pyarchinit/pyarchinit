@@ -46,6 +46,14 @@ try:
     ANALYSIS_AVAILABLE = True
 except ImportError:
     ANALYSIS_AVAILABLE = False
+
+# GNA export imports
+try:
+    from ..modules.gna import GNAExporter
+    from .GNA_export import GNAExportDialog
+    GNA_AVAILABLE = True
+except ImportError:
+    GNA_AVAILABLE = False
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'UT_ui.ui'))
@@ -1988,22 +1996,107 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             return 1
 
     def on_pushButton_pdf_exp_pressed(self):
+        """Export individual UT sheets to PDF."""
+        if not self.DATA_LIST:
+            QMessageBox.warning(
+                self,
+                "PDF Export",
+                "No UT records to export. Please load or search for records first."
+            )
+            return
+
         UT_pdf_sheet = generate_pdf()
         data_list = self.generate_list_pdf()
-        if self.L == 'it':
-            UT_pdf_sheet.build_UT_sheets(data_list)
-        elif self.L == 'de':
-            UT_pdf_sheet.build_UT_sheets_de(data_list)
-        elif self.L == 'fr':
-            UT_pdf_sheet.build_UT_sheets_fr(data_list)
-        elif self.L == 'es':
-            UT_pdf_sheet.build_UT_sheets_es(data_list)
-        elif self.L == 'ar':
-            UT_pdf_sheet.build_UT_sheets_ar(data_list)
-        elif self.L == 'ca':
-            UT_pdf_sheet.build_UT_sheets_ca(data_list)
-        else:
-            UT_pdf_sheet.build_UT_sheets_en(data_list)
+        lang = self.L.upper() if self.L else 'EN'
+
+        # Use unified method with language parameter
+        UT_pdf_sheet.build_UT_sheets(data_list, lang=lang)
+
+        QMessageBox.information(
+            self,
+            "PDF Export",
+            f"PDF sheets exported successfully to pyarchinit_PDF_folder"
+        )
+
+    def on_pushButton_pdf_list_pressed(self):
+        """Export list of all UT records to PDF."""
+        if not self.DATA_LIST:
+            QMessageBox.warning(
+                self,
+                "PDF List Export",
+                "No UT records to export. Please load or search for records first."
+            )
+            return
+
+        UT_pdf_sheet = generate_pdf()
+        data_list = self.generate_list_pdf()
+        lang = self.L.upper() if self.L else 'EN'
+
+        # Export list view
+        UT_pdf_sheet.build_UT_list(data_list, lang=lang)
+
+        QMessageBox.information(
+            self,
+            "PDF List Export",
+            f"PDF list exported successfully to pyarchinit_PDF_folder"
+        )
+
+    def on_pushButton_gna_export_pressed(self):
+        """
+        Open GNA export dialog to export UT data to GNA GeoPackage format.
+
+        Creates a GeoPackage with:
+        - MOPR: Project perimeter
+        - MOSI: Archaeological sites/findings
+        - VRP: Archaeological potential map
+        - VRD: Archaeological risk map
+        """
+        if not GNA_AVAILABLE:
+            QMessageBox.warning(
+                self,
+                "GNA Export",
+                "GNA module not available. Please check the installation."
+            )
+            return
+
+        if not self.DATA_LIST:
+            QMessageBox.warning(
+                self,
+                "GNA Export",
+                "No UT records to export. Please load or search for records first."
+            )
+            return
+
+        # Get current project name
+        project_name = self.comboBox_progetto.currentText() or "PyArchInit_Project"
+
+        # Get iface from QGIS
+        try:
+            from qgis.utils import iface
+        except ImportError:
+            QMessageBox.warning(self, "Error", "QGIS interface not available")
+            return
+
+        # Open GNA export dialog
+        dialog = GNAExportDialog(
+            iface=iface,
+            db_manager=self.DB_MANAGER,
+            ut_records=self.DATA_LIST,
+            project_name=project_name,
+            parent=self
+        )
+
+        if dialog.exec_():
+            result = dialog.get_result()
+            if result and result.get('success'):
+                QMessageBox.information(
+                    self,
+                    "GNA Export",
+                    f"Export completed successfully!\n\n"
+                    f"File: {result['gpkg_path']}\n"
+                    f"Layers: {', '.join(result['layers'])}\n"
+                    f"Records: {result['record_count']}"
+                )
 
     def generate_list_pdf(self):
         data_list = []
@@ -2061,7 +2154,14 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                 self.DATA_LIST[i].photo_documentation if hasattr(self.DATA_LIST[i], 'photo_documentation') else 0,  # 48
                 str(self.DATA_LIST[i].weather_conditions) if hasattr(self.DATA_LIST[i], 'weather_conditions') and self.DATA_LIST[i].weather_conditions else '',  # 49
                 str(self.DATA_LIST[i].team_members) if hasattr(self.DATA_LIST[i], 'team_members') and self.DATA_LIST[i].team_members else '',  # 50
-                str(self.DATA_LIST[i].foglio_catastale) if hasattr(self.DATA_LIST[i], 'foglio_catastale') and self.DATA_LIST[i].foglio_catastale else ''  # 51
+                str(self.DATA_LIST[i].foglio_catastale) if hasattr(self.DATA_LIST[i], 'foglio_catastale') and self.DATA_LIST[i].foglio_catastale else '',  # 51
+                # Analysis fields (v4.9.67+)
+                self.DATA_LIST[i].potential_score if hasattr(self.DATA_LIST[i], 'potential_score') else None,  # 52
+                self.DATA_LIST[i].risk_score if hasattr(self.DATA_LIST[i], 'risk_score') else None,  # 53
+                str(self.DATA_LIST[i].potential_factors) if hasattr(self.DATA_LIST[i], 'potential_factors') and self.DATA_LIST[i].potential_factors else '',  # 54
+                str(self.DATA_LIST[i].risk_factors) if hasattr(self.DATA_LIST[i], 'risk_factors') and self.DATA_LIST[i].risk_factors else '',  # 55
+                str(self.DATA_LIST[i].analysis_date) if hasattr(self.DATA_LIST[i], 'analysis_date') and self.DATA_LIST[i].analysis_date else '',  # 56
+                str(self.DATA_LIST[i].analysis_method) if hasattr(self.DATA_LIST[i], 'analysis_method') and self.DATA_LIST[i].analysis_method else '',  # 57
             ])
         return data_list
 
@@ -2419,6 +2519,12 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
 
     def _setup_analysis_tab(self):
         """Setup the analysis tab signals and initial state."""
+        # Connect GNA export button (independent from ANALYSIS_AVAILABLE)
+        try:
+            self.pushButton_gna_export.clicked.connect(self.on_pushButton_gna_export_pressed)
+        except AttributeError:
+            pass
+
         if not ANALYSIS_AVAILABLE:
             return
 
@@ -2593,21 +2699,39 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             values = []
 
             for record in records:
-                # Get geometry centroid if available
+                # Get coordinates from coord_piane or coord_geografiche
+                x, y = None, None
                 try:
-                    coord_piane = record.coord_piane
+                    # First try coord_piane (projected coordinates)
+                    coord_piane = getattr(record, 'coord_piane', None)
                     if coord_piane:
-                        # Try to parse coordinates
                         parts = str(coord_piane).replace(',', ' ').split()
                         if len(parts) >= 2:
                             x, y = float(parts[0]), float(parts[1])
-                            points.append((x, y))
 
-                            # Calculate potential score
+                    # Fallback to coord_geografiche (lat, lon)
+                    if x is None:
+                        coord_geo = getattr(record, 'coord_geografiche', None)
+                        if coord_geo:
+                            parts = str(coord_geo).replace(' ', '').split(',')
+                            if len(parts) >= 2:
+                                lat, lon = float(parts[0]), float(parts[1])
+                                # Use lon, lat order (x, y)
+                                x, y = lon, lat
+
+                    if x is not None and y is not None:
+                        points.append((x, y))
+
+                        # Calculate potential score or use existing
+                        potential_score = getattr(record, 'potential_score', None)
+                        if potential_score is not None:
+                            values.append(float(potential_score))
+                        else:
+                            # Calculate potential score on the fly
                             record_dict = {k: getattr(record, k, None) for k in dir(record) if not k.startswith('_')}
                             result = potential_calc.calculate_potential(record_dict)
                             values.append(result['total_score'])
-                except:
+                except Exception as e:
                     continue
 
             if len(points) < 2:
@@ -2700,7 +2824,7 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
                     record_data,
                     potential_result,
                     risk_result,
-                    lang=self.L
+                    lang=self.L.upper()  # Convert to uppercase for PDF generator
                 )
                 QMessageBox.information(self, "Successo", f"Report PDF salvato in:\n{file_path}")
             except ImportError:
