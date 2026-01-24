@@ -295,6 +295,7 @@ class SQLiteDBUpdater:
             self.update_ut_table()
             self.update_fauna_table()
             self.update_fauna_thesaurus()
+            self.update_ut_thesaurus()
             self.fix_thesaurus_nome_tabella()
             self.update_other_tables()
             self.update_struttura_table()
@@ -639,6 +640,282 @@ class SQLiteDBUpdater:
 
         except Exception as e:
             self.log_message(f"Errore aggiungendo voci thesaurus fauna: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
+
+    def update_ut_thesaurus(self):
+        """Installa/aggiorna le voci thesaurus per la tabella ut_table in tutte le 7 lingue supportate (v4.9.68+)"""
+        try:
+            # Check if UT thesaurus entries exist
+            self.cursor.execute("""
+                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
+                WHERE nome_tabella = 'ut_table'
+            """)
+            ut_count = self.cursor.fetchone()[0]
+
+            if ut_count >= 100:  # Expected ~150+ entries for all languages
+                self.log_message(f"Voci thesaurus ut_table già presenti ({ut_count} voci)")
+                return
+
+            self.log_message("Aggiunta voci thesaurus per ut_table in tutte le lingue...")
+
+            # UT thesaurus entries in all 7 languages
+            # Format: (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
+            ut_entries = [
+                # ========== 12.1 - Survey Type (Tipo di ricognizione) ==========
+                # Italian
+                ('ut_table', 'intensive', 'Ricognizione intensiva', 'Ricognizione sistematica intensiva del territorio', '12.1', 'IT'),
+                ('ut_table', 'extensive', 'Ricognizione estensiva', 'Ricognizione estensiva a campionamento', '12.1', 'IT'),
+                ('ut_table', 'targeted', 'Ricognizione mirata', 'Indagine mirata su aree specifiche', '12.1', 'IT'),
+                ('ut_table', 'random', 'Campionamento casuale', 'Metodologia a campionamento casuale', '12.1', 'IT'),
+                # English
+                ('ut_table', 'intensive', 'Intensive Survey', 'Intensive systematic field walking survey', '12.1', 'en_US'),
+                ('ut_table', 'extensive', 'Extensive Survey', 'Extensive reconnaissance survey', '12.1', 'en_US'),
+                ('ut_table', 'targeted', 'Targeted Survey', 'Targeted investigation of specific areas', '12.1', 'en_US'),
+                ('ut_table', 'random', 'Random Sampling', 'Random sampling methodology', '12.1', 'en_US'),
+                # German
+                ('ut_table', 'intensive', 'Intensive Begehung', 'Intensive systematische Feldbegehung', '12.1', 'de_DE'),
+                ('ut_table', 'extensive', 'Extensive Begehung', 'Extensive Erkundungsbegehung', '12.1', 'de_DE'),
+                ('ut_table', 'targeted', 'Gezielte Untersuchung', 'Gezielte Untersuchung bestimmter Gebiete', '12.1', 'de_DE'),
+                ('ut_table', 'random', 'Zufallsstichprobe', 'Zufällige Stichprobenmethodik', '12.1', 'de_DE'),
+                # Spanish
+                ('ut_table', 'intensive', 'Prospección intensiva', 'Prospección sistemática intensiva del territorio', '12.1', 'es_ES'),
+                ('ut_table', 'extensive', 'Prospección extensiva', 'Prospección extensiva por muestreo', '12.1', 'es_ES'),
+                ('ut_table', 'targeted', 'Prospección dirigida', 'Investigación dirigida en áreas específicas', '12.1', 'es_ES'),
+                ('ut_table', 'random', 'Muestreo aleatorio', 'Metodología de muestreo aleatorio', '12.1', 'es_ES'),
+                # French
+                ('ut_table', 'intensive', 'Prospection intensive', 'Prospection pédestre systématique intensive', '12.1', 'fr_FR'),
+                ('ut_table', 'extensive', 'Prospection extensive', 'Prospection de reconnaissance extensive', '12.1', 'fr_FR'),
+                ('ut_table', 'targeted', 'Prospection ciblée', 'Investigation ciblée de zones spécifiques', '12.1', 'fr_FR'),
+                ('ut_table', 'random', 'Échantillonnage aléatoire', 'Méthodologie d\'échantillonnage aléatoire', '12.1', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'intensive', 'مسح مكثف', 'مسح ميداني منهجي مكثف', '12.1', 'ar_AR'),
+                ('ut_table', 'extensive', 'مسح موسع', 'مسح استطلاعي موسع', '12.1', 'ar_AR'),
+                ('ut_table', 'targeted', 'مسح موجه', 'تحقيق موجه لمناطق محددة', '12.1', 'ar_AR'),
+                ('ut_table', 'random', 'عينة عشوائية', 'منهجية أخذ العينات العشوائية', '12.1', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'intensive', 'Prospecció intensiva', 'Prospecció sistemàtica intensiva del territori', '12.1', 'ca_ES'),
+                ('ut_table', 'extensive', 'Prospecció extensiva', 'Prospecció extensiva per mostreig', '12.1', 'ca_ES'),
+                ('ut_table', 'targeted', 'Prospecció dirigida', 'Investigació dirigida en àrees específiques', '12.1', 'ca_ES'),
+                ('ut_table', 'random', 'Mostreig aleatori', 'Metodologia de mostreig aleatori', '12.1', 'ca_ES'),
+
+                # ========== 12.2 - Vegetation Coverage (Copertura vegetale) ==========
+                # Italian
+                ('ut_table', 'none', 'Assente', 'Terreno nudo senza vegetazione', '12.2', 'IT'),
+                ('ut_table', 'sparse', 'Rada', 'Copertura vegetale inferiore al 25%', '12.2', 'IT'),
+                ('ut_table', 'moderate', 'Moderata', 'Copertura vegetale tra 25% e 50%', '12.2', 'IT'),
+                ('ut_table', 'dense', 'Densa', 'Copertura vegetale tra 50% e 75%', '12.2', 'IT'),
+                ('ut_table', 'very_dense', 'Molto densa', 'Copertura vegetale superiore al 75%', '12.2', 'IT'),
+                # English
+                ('ut_table', 'none', 'No vegetation', 'Bare ground with no vegetation', '12.2', 'en_US'),
+                ('ut_table', 'sparse', 'Sparse vegetation', 'Less than 25% vegetation coverage', '12.2', 'en_US'),
+                ('ut_table', 'moderate', 'Moderate vegetation', '25-50% vegetation coverage', '12.2', 'en_US'),
+                ('ut_table', 'dense', 'Dense vegetation', '50-75% vegetation coverage', '12.2', 'en_US'),
+                ('ut_table', 'very_dense', 'Very dense vegetation', 'Over 75% vegetation coverage', '12.2', 'en_US'),
+                # German
+                ('ut_table', 'none', 'Keine Vegetation', 'Kahler Boden ohne Vegetation', '12.2', 'de_DE'),
+                ('ut_table', 'sparse', 'Spärliche Vegetation', 'Weniger als 25% Vegetationsbedeckung', '12.2', 'de_DE'),
+                ('ut_table', 'moderate', 'Mäßige Vegetation', '25-50% Vegetationsbedeckung', '12.2', 'de_DE'),
+                ('ut_table', 'dense', 'Dichte Vegetation', '50-75% Vegetationsbedeckung', '12.2', 'de_DE'),
+                ('ut_table', 'very_dense', 'Sehr dichte Vegetation', 'Über 75% Vegetationsbedeckung', '12.2', 'de_DE'),
+                # Spanish
+                ('ut_table', 'none', 'Sin vegetación', 'Suelo desnudo sin vegetación', '12.2', 'es_ES'),
+                ('ut_table', 'sparse', 'Vegetación dispersa', 'Cobertura vegetal inferior al 25%', '12.2', 'es_ES'),
+                ('ut_table', 'moderate', 'Vegetación moderada', 'Cobertura vegetal entre 25% y 50%', '12.2', 'es_ES'),
+                ('ut_table', 'dense', 'Vegetación densa', 'Cobertura vegetal entre 50% y 75%', '12.2', 'es_ES'),
+                ('ut_table', 'very_dense', 'Vegetación muy densa', 'Cobertura vegetal superior al 75%', '12.2', 'es_ES'),
+                # French
+                ('ut_table', 'none', 'Absente', 'Sol nu sans végétation', '12.2', 'fr_FR'),
+                ('ut_table', 'sparse', 'Clairsemée', 'Couverture végétale inférieure à 25%', '12.2', 'fr_FR'),
+                ('ut_table', 'moderate', 'Modérée', 'Couverture végétale entre 25% et 50%', '12.2', 'fr_FR'),
+                ('ut_table', 'dense', 'Dense', 'Couverture végétale entre 50% et 75%', '12.2', 'fr_FR'),
+                ('ut_table', 'very_dense', 'Très dense', 'Couverture végétale supérieure à 75%', '12.2', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'none', 'لا نباتات', 'أرض جرداء بدون نباتات', '12.2', 'ar_AR'),
+                ('ut_table', 'sparse', 'نباتات متناثرة', 'تغطية نباتية أقل من 25%', '12.2', 'ar_AR'),
+                ('ut_table', 'moderate', 'نباتات معتدلة', 'تغطية نباتية بين 25% و50%', '12.2', 'ar_AR'),
+                ('ut_table', 'dense', 'نباتات كثيفة', 'تغطية نباتية بين 50% و75%', '12.2', 'ar_AR'),
+                ('ut_table', 'very_dense', 'نباتات كثيفة جداً', 'تغطية نباتية أكثر من 75%', '12.2', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'none', 'Absent', 'Terreny nu sense vegetació', '12.2', 'ca_ES'),
+                ('ut_table', 'sparse', 'Escassa', 'Cobertura vegetal inferior al 25%', '12.2', 'ca_ES'),
+                ('ut_table', 'moderate', 'Moderada', 'Cobertura vegetal entre 25% i 50%', '12.2', 'ca_ES'),
+                ('ut_table', 'dense', 'Densa', 'Cobertura vegetal entre 50% i 75%', '12.2', 'ca_ES'),
+                ('ut_table', 'very_dense', 'Molt densa', 'Cobertura vegetal superior al 75%', '12.2', 'ca_ES'),
+
+                # ========== 12.3 - GPS Method (Metodo GPS) ==========
+                # Italian
+                ('ut_table', 'handheld', 'GPS portatile', 'Dispositivo GPS portatile', '12.3', 'IT'),
+                ('ut_table', 'dgps', 'GPS differenziale', 'DGPS con correzione da stazione base', '12.3', 'IT'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS cinematico in tempo reale', '12.3', 'IT'),
+                ('ut_table', 'total_station', 'Stazione totale', 'Rilievo con stazione totale', '12.3', 'IT'),
+                # English
+                ('ut_table', 'handheld', 'Handheld GPS', 'Handheld GPS device', '12.3', 'en_US'),
+                ('ut_table', 'dgps', 'Differential GPS', 'DGPS with base station correction', '12.3', 'en_US'),
+                ('ut_table', 'rtk', 'RTK GPS', 'Real-time kinematic GPS', '12.3', 'en_US'),
+                ('ut_table', 'total_station', 'Total Station', 'Total station survey', '12.3', 'en_US'),
+                # German
+                ('ut_table', 'handheld', 'Hand-GPS', 'Tragbares GPS-Gerät', '12.3', 'de_DE'),
+                ('ut_table', 'dgps', 'Differentielles GPS', 'DGPS mit Basisstationskorrektur', '12.3', 'de_DE'),
+                ('ut_table', 'rtk', 'RTK-GPS', 'Echtzeit-kinematisches GPS', '12.3', 'de_DE'),
+                ('ut_table', 'total_station', 'Totalstation', 'Vermessung mit Totalstation', '12.3', 'de_DE'),
+                # Spanish
+                ('ut_table', 'handheld', 'GPS portátil', 'Dispositivo GPS portátil', '12.3', 'es_ES'),
+                ('ut_table', 'dgps', 'GPS diferencial', 'DGPS con corrección de estación base', '12.3', 'es_ES'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS cinemático en tiempo real', '12.3', 'es_ES'),
+                ('ut_table', 'total_station', 'Estación total', 'Levantamiento con estación total', '12.3', 'es_ES'),
+                # French
+                ('ut_table', 'handheld', 'GPS portable', 'Appareil GPS portable', '12.3', 'fr_FR'),
+                ('ut_table', 'dgps', 'GPS différentiel', 'DGPS avec correction de station de base', '12.3', 'fr_FR'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS cinématique en temps réel', '12.3', 'fr_FR'),
+                ('ut_table', 'total_station', 'Station totale', 'Levé avec station totale', '12.3', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'handheld', 'GPS محمول', 'جهاز GPS محمول باليد', '12.3', 'ar_AR'),
+                ('ut_table', 'dgps', 'GPS تفاضلي', 'DGPS مع تصحيح محطة القاعدة', '12.3', 'ar_AR'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS حركي في الوقت الحقيقي', '12.3', 'ar_AR'),
+                ('ut_table', 'total_station', 'محطة كاملة', 'مسح بالمحطة الكاملة', '12.3', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'handheld', 'GPS portàtil', 'Dispositiu GPS portàtil', '12.3', 'ca_ES'),
+                ('ut_table', 'dgps', 'GPS diferencial', 'DGPS amb correcció d\'estació base', '12.3', 'ca_ES'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS cinemàtic en temps real', '12.3', 'ca_ES'),
+                ('ut_table', 'total_station', 'Estació total', 'Aixecament amb estació total', '12.3', 'ca_ES'),
+
+                # ========== 12.4 - Surface Condition (Condizione del suolo) ==========
+                # Italian
+                ('ut_table', 'ploughed', 'Arato', 'Campo arato di recente', '12.4', 'IT'),
+                ('ut_table', 'stubble', 'Stoppie', 'Presenza di stoppie', '12.4', 'IT'),
+                ('ut_table', 'pasture', 'Pascolo', 'Terreno a pascolo/prato', '12.4', 'IT'),
+                ('ut_table', 'woodland', 'Bosco', 'Area boscata', '12.4', 'IT'),
+                ('ut_table', 'urban', 'Urbano', 'Area urbana/edificata', '12.4', 'IT'),
+                # English
+                ('ut_table', 'ploughed', 'Ploughed', 'Recently ploughed field', '12.4', 'en_US'),
+                ('ut_table', 'stubble', 'Stubble', 'Crop stubble present', '12.4', 'en_US'),
+                ('ut_table', 'pasture', 'Pasture', 'Grassland/pasture', '12.4', 'en_US'),
+                ('ut_table', 'woodland', 'Woodland', 'Wooded area', '12.4', 'en_US'),
+                ('ut_table', 'urban', 'Urban', 'Urban/built area', '12.4', 'en_US'),
+                # German
+                ('ut_table', 'ploughed', 'Gepflügt', 'Kürzlich gepflügtes Feld', '12.4', 'de_DE'),
+                ('ut_table', 'stubble', 'Stoppelfeld', 'Stoppeln vorhanden', '12.4', 'de_DE'),
+                ('ut_table', 'pasture', 'Weideland', 'Grünland/Weide', '12.4', 'de_DE'),
+                ('ut_table', 'woodland', 'Waldgebiet', 'Bewaldetes Gebiet', '12.4', 'de_DE'),
+                ('ut_table', 'urban', 'Städtisch', 'Städtisches/bebautes Gebiet', '12.4', 'de_DE'),
+                # Spanish
+                ('ut_table', 'ploughed', 'Arado', 'Campo arado recientemente', '12.4', 'es_ES'),
+                ('ut_table', 'stubble', 'Rastrojo', 'Presencia de rastrojo', '12.4', 'es_ES'),
+                ('ut_table', 'pasture', 'Pasto', 'Pradera/pastizal', '12.4', 'es_ES'),
+                ('ut_table', 'woodland', 'Bosque', 'Zona boscosa', '12.4', 'es_ES'),
+                ('ut_table', 'urban', 'Urbano', 'Zona urbana/edificada', '12.4', 'es_ES'),
+                # French
+                ('ut_table', 'ploughed', 'Labouré', 'Champ labouré récemment', '12.4', 'fr_FR'),
+                ('ut_table', 'stubble', 'Chaume', 'Présence de chaume', '12.4', 'fr_FR'),
+                ('ut_table', 'pasture', 'Pâturage', 'Prairie/pâturage', '12.4', 'fr_FR'),
+                ('ut_table', 'woodland', 'Boisé', 'Zone boisée', '12.4', 'fr_FR'),
+                ('ut_table', 'urban', 'Urbain', 'Zone urbaine/bâtie', '12.4', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'ploughed', 'محروث', 'حقل محروث حديثاً', '12.4', 'ar_AR'),
+                ('ut_table', 'stubble', 'قش', 'وجود بقايا المحاصيل', '12.4', 'ar_AR'),
+                ('ut_table', 'pasture', 'مرعى', 'أرض عشبية/مرعى', '12.4', 'ar_AR'),
+                ('ut_table', 'woodland', 'غابة', 'منطقة حرجية', '12.4', 'ar_AR'),
+                ('ut_table', 'urban', 'حضري', 'منطقة حضرية/مبنية', '12.4', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'ploughed', 'Llautat', 'Camp llautat recentment', '12.4', 'ca_ES'),
+                ('ut_table', 'stubble', 'Rostoll', 'Presència de rostoll', '12.4', 'ca_ES'),
+                ('ut_table', 'pasture', 'Pastura', 'Prat/pastura', '12.4', 'ca_ES'),
+                ('ut_table', 'woodland', 'Bosc', 'Àrea boscosa', '12.4', 'ca_ES'),
+                ('ut_table', 'urban', 'Urbà', 'Àrea urbana/edificada', '12.4', 'ca_ES'),
+
+                # ========== 12.5 - Accessibility (Accessibilità) ==========
+                # Italian
+                ('ut_table', 'easy', 'Facile accesso', 'Nessuna restrizione di accesso', '12.5', 'IT'),
+                ('ut_table', 'moderate_access', 'Accesso moderato', 'Alcune restrizioni o difficoltà', '12.5', 'IT'),
+                ('ut_table', 'difficult', 'Accesso difficile', 'Significativi problemi di accesso', '12.5', 'IT'),
+                ('ut_table', 'restricted', 'Accesso ristretto', 'Accesso solo su autorizzazione', '12.5', 'IT'),
+                # English
+                ('ut_table', 'easy', 'Easy access', 'No restrictions on access', '12.5', 'en_US'),
+                ('ut_table', 'moderate_access', 'Moderate access', 'Some restrictions or difficulties', '12.5', 'en_US'),
+                ('ut_table', 'difficult', 'Difficult access', 'Significant access problems', '12.5', 'en_US'),
+                ('ut_table', 'restricted', 'Restricted access', 'Access by permission only', '12.5', 'en_US'),
+                # German
+                ('ut_table', 'easy', 'Leichter Zugang', 'Keine Zugangsbeschränkungen', '12.5', 'de_DE'),
+                ('ut_table', 'moderate_access', 'Mäßiger Zugang', 'Einige Einschränkungen oder Schwierigkeiten', '12.5', 'de_DE'),
+                ('ut_table', 'difficult', 'Schwieriger Zugang', 'Erhebliche Zugangsprobleme', '12.5', 'de_DE'),
+                ('ut_table', 'restricted', 'Eingeschränkter Zugang', 'Zugang nur mit Genehmigung', '12.5', 'de_DE'),
+                # Spanish
+                ('ut_table', 'easy', 'Acceso fácil', 'Sin restricciones de acceso', '12.5', 'es_ES'),
+                ('ut_table', 'moderate_access', 'Acceso moderado', 'Algunas restricciones o dificultades', '12.5', 'es_ES'),
+                ('ut_table', 'difficult', 'Acceso difícil', 'Problemas significativos de acceso', '12.5', 'es_ES'),
+                ('ut_table', 'restricted', 'Acceso restringido', 'Acceso solo con permiso', '12.5', 'es_ES'),
+                # French
+                ('ut_table', 'easy', 'Accès facile', 'Aucune restriction d\'accès', '12.5', 'fr_FR'),
+                ('ut_table', 'moderate_access', 'Accès modéré', 'Quelques restrictions ou difficultés', '12.5', 'fr_FR'),
+                ('ut_table', 'difficult', 'Accès difficile', 'Problèmes d\'accès importants', '12.5', 'fr_FR'),
+                ('ut_table', 'restricted', 'Accès restreint', 'Accès sur autorisation uniquement', '12.5', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'easy', 'وصول سهل', 'لا قيود على الوصول', '12.5', 'ar_AR'),
+                ('ut_table', 'moderate_access', 'وصول معتدل', 'بعض القيود أو الصعوبات', '12.5', 'ar_AR'),
+                ('ut_table', 'difficult', 'وصول صعب', 'مشاكل وصول كبيرة', '12.5', 'ar_AR'),
+                ('ut_table', 'restricted', 'وصول مقيد', 'الوصول بإذن فقط', '12.5', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'easy', 'Accés fàcil', 'Sense restriccions d\'accés', '12.5', 'ca_ES'),
+                ('ut_table', 'moderate_access', 'Accés moderat', 'Algunes restriccions o dificultats', '12.5', 'ca_ES'),
+                ('ut_table', 'difficult', 'Accés difícil', 'Problemes significatius d\'accés', '12.5', 'ca_ES'),
+                ('ut_table', 'restricted', 'Accés restringit', 'Accés només amb permís', '12.5', 'ca_ES'),
+
+                # ========== 12.6 - Weather Conditions (Condizioni meteo) ==========
+                # Italian
+                ('ut_table', 'sunny', 'Soleggiato', 'Tempo sereno e soleggiato', '12.6', 'IT'),
+                ('ut_table', 'cloudy', 'Nuvoloso', 'Condizioni nuvolose', '12.6', 'IT'),
+                ('ut_table', 'rainy', 'Piovoso', 'Pioggia durante la ricognizione', '12.6', 'IT'),
+                ('ut_table', 'windy', 'Ventoso', 'Vento forte', '12.6', 'IT'),
+                # English
+                ('ut_table', 'sunny', 'Sunny', 'Clear and sunny weather', '12.6', 'en_US'),
+                ('ut_table', 'cloudy', 'Cloudy', 'Overcast conditions', '12.6', 'en_US'),
+                ('ut_table', 'rainy', 'Rainy', 'Rain during survey', '12.6', 'en_US'),
+                ('ut_table', 'windy', 'Windy', 'Strong winds', '12.6', 'en_US'),
+                # German
+                ('ut_table', 'sunny', 'Sonnig', 'Klares und sonniges Wetter', '12.6', 'de_DE'),
+                ('ut_table', 'cloudy', 'Bewölkt', 'Bedeckte Verhältnisse', '12.6', 'de_DE'),
+                ('ut_table', 'rainy', 'Regnerisch', 'Regen während der Begehung', '12.6', 'de_DE'),
+                ('ut_table', 'windy', 'Windig', 'Starker Wind', '12.6', 'de_DE'),
+                # Spanish
+                ('ut_table', 'sunny', 'Soleado', 'Tiempo despejado y soleado', '12.6', 'es_ES'),
+                ('ut_table', 'cloudy', 'Nublado', 'Condiciones nubladas', '12.6', 'es_ES'),
+                ('ut_table', 'rainy', 'Lluvioso', 'Lluvia durante la prospección', '12.6', 'es_ES'),
+                ('ut_table', 'windy', 'Ventoso', 'Vientos fuertes', '12.6', 'es_ES'),
+                # French
+                ('ut_table', 'sunny', 'Ensoleillé', 'Temps clair et ensoleillé', '12.6', 'fr_FR'),
+                ('ut_table', 'cloudy', 'Nuageux', 'Conditions nuageuses', '12.6', 'fr_FR'),
+                ('ut_table', 'rainy', 'Pluvieux', 'Pluie pendant la prospection', '12.6', 'fr_FR'),
+                ('ut_table', 'windy', 'Venteux', 'Vents forts', '12.6', 'fr_FR'),
+                # Arabic
+                ('ut_table', 'sunny', 'مشمس', 'طقس صافٍ ومشمس', '12.6', 'ar_AR'),
+                ('ut_table', 'cloudy', 'غائم', 'ظروف غائمة', '12.6', 'ar_AR'),
+                ('ut_table', 'rainy', 'ممطر', 'أمطار أثناء المسح', '12.6', 'ar_AR'),
+                ('ut_table', 'windy', 'عاصف', 'رياح قوية', '12.6', 'ar_AR'),
+                # Catalan
+                ('ut_table', 'sunny', 'Assolellat', 'Temps clar i assolellat', '12.6', 'ca_ES'),
+                ('ut_table', 'cloudy', 'Ennuvolat', 'Condicions ennuvolades', '12.6', 'ca_ES'),
+                ('ut_table', 'rainy', 'Plujós', 'Pluja durant la prospecció', '12.6', 'ca_ES'),
+                ('ut_table', 'windy', 'Ventós', 'Vents forts', '12.6', 'ca_ES'),
+            ]
+
+            inserted_count = 0
+            for entry in ut_entries:
+                try:
+                    self.cursor.execute("""
+                        INSERT OR IGNORE INTO pyarchinit_thesaurus_sigle
+                        (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """, entry)
+                    if self.cursor.rowcount > 0:
+                        inserted_count += 1
+                except Exception as e:
+                    pass  # Ignore duplicates
+
+            if inserted_count > 0:
+                self.log_message(f"Voci thesaurus ut_table inserite ({inserted_count} voci)")
+                self.updates_made.append(f"ut_table thesaurus ({inserted_count} voci)")
+
+        except Exception as e:
+            self.log_message(f"Errore aggiungendo voci thesaurus UT: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
 
     def fix_thesaurus_nome_tabella(self):
         """Fix thesaurus entries that have display names instead of actual table names.
