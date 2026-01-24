@@ -1468,10 +1468,10 @@ class PostgresDbUpdater:
                 ('ut_table', 'targeted', 'Prospection ciblée', 'Investigation ciblée de zones spécifiques', '12.1', 'fr_FR'),
                 ('ut_table', 'random', 'Échantillonnage aléatoire', "Méthodologie d'échantillonnage aléatoire", '12.1', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'intensive', 'مسح مكثف', 'مسح ميداني منهجي مكثف', '12.1', 'ar_AR'),
-                ('ut_table', 'extensive', 'مسح موسع', 'مسح استطلاعي موسع', '12.1', 'ar_AR'),
-                ('ut_table', 'targeted', 'مسح موجه', 'تحقيق موجه لمناطق محددة', '12.1', 'ar_AR'),
-                ('ut_table', 'random', 'عينة عشوائية', 'منهجية أخذ العينات العشوائية', '12.1', 'ar_AR'),
+                ('ut_table', 'intensive', 'مسح مكثف', 'مسح ميداني منهجي مكثف', '12.1', 'ar_LB'),
+                ('ut_table', 'extensive', 'مسح موسع', 'مسح استطلاعي موسع', '12.1', 'ar_LB'),
+                ('ut_table', 'targeted', 'مسح موجه', 'تحقيق موجه لمناطق محددة', '12.1', 'ar_LB'),
+                ('ut_table', 'random', 'عينة عشوائية', 'منهجية أخذ العينات العشوائية', '12.1', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'intensive', 'Prospecció intensiva', 'Prospecció sistemàtica intensiva del territori', '12.1', 'ca_ES'),
                 ('ut_table', 'extensive', 'Prospecció extensiva', 'Prospecció extensiva per mostreig', '12.1', 'ca_ES'),
@@ -1510,11 +1510,11 @@ class PostgresDbUpdater:
                 ('ut_table', 'dense', 'Dense', 'Couverture végétale entre 50% et 75%', '12.2', 'fr_FR'),
                 ('ut_table', 'very_dense', 'Très dense', 'Couverture végétale supérieure à 75%', '12.2', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'none', 'لا نباتات', 'أرض جرداء بدون نباتات', '12.2', 'ar_AR'),
-                ('ut_table', 'sparse', 'نباتات متناثرة', 'تغطية نباتية أقل من 25%', '12.2', 'ar_AR'),
-                ('ut_table', 'moderate', 'نباتات معتدلة', 'تغطية نباتية بين 25% و50%', '12.2', 'ar_AR'),
-                ('ut_table', 'dense', 'نباتات كثيفة', 'تغطية نباتية بين 50% و75%', '12.2', 'ar_AR'),
-                ('ut_table', 'very_dense', 'نباتات كثيفة جداً', 'تغطية نباتية أكثر من 75%', '12.2', 'ar_AR'),
+                ('ut_table', 'none', 'لا نباتات', 'أرض جرداء بدون نباتات', '12.2', 'ar_LB'),
+                ('ut_table', 'sparse', 'نباتات متناثرة', 'تغطية نباتية أقل من 25%', '12.2', 'ar_LB'),
+                ('ut_table', 'moderate', 'نباتات معتدلة', 'تغطية نباتية بين 25% و50%', '12.2', 'ar_LB'),
+                ('ut_table', 'dense', 'نباتات كثيفة', 'تغطية نباتية بين 50% و75%', '12.2', 'ar_LB'),
+                ('ut_table', 'very_dense', 'نباتات كثيفة جداً', 'تغطية نباتية أكثر من 75%', '12.2', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'none', 'Absent', 'Terreny nu sense vegetació', '12.2', 'ca_ES'),
                 ('ut_table', 'sparse', 'Escassa', 'Cobertura vegetal inferior al 25%', '12.2', 'ca_ES'),
@@ -1549,10 +1549,10 @@ class PostgresDbUpdater:
                 ('ut_table', 'rtk', 'GPS RTK', 'GPS cinématique en temps réel', '12.3', 'fr_FR'),
                 ('ut_table', 'total_station', 'Station totale', 'Levé avec station totale', '12.3', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'handheld', 'GPS محمول', 'جهاز GPS محمول باليد', '12.3', 'ar_AR'),
-                ('ut_table', 'dgps', 'GPS تفاضلي', 'DGPS مع تصحيح محطة القاعدة', '12.3', 'ar_AR'),
-                ('ut_table', 'rtk', 'GPS RTK', 'GPS حركي في الوقت الحقيقي', '12.3', 'ar_AR'),
-                ('ut_table', 'total_station', 'محطة كاملة', 'مسح بالمحطة الكاملة', '12.3', 'ar_AR'),
+                ('ut_table', 'handheld', 'GPS محمول', 'جهاز GPS محمول باليد', '12.3', 'ar_LB'),
+                ('ut_table', 'dgps', 'GPS تفاضلي', 'DGPS مع تصحيح محطة القاعدة', '12.3', 'ar_LB'),
+                ('ut_table', 'rtk', 'GPS RTK', 'GPS حركي في الوقت الحقيقي', '12.3', 'ar_LB'),
+                ('ut_table', 'total_station', 'محطة كاملة', 'مسح بالمحطة الكاملة', '12.3', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'handheld', 'GPS portàtil', 'Dispositiu GPS portàtil', '12.3', 'ca_ES'),
                 ('ut_table', 'dgps', 'GPS diferencial', "DGPS amb correcció d'estació base", '12.3', 'ca_ES'),
@@ -1591,11 +1591,11 @@ class PostgresDbUpdater:
                 ('ut_table', 'woodland', 'Boisé', 'Zone boisée', '12.4', 'fr_FR'),
                 ('ut_table', 'urban', 'Urbain', 'Zone urbaine/bâtie', '12.4', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'ploughed', 'محروث', 'حقل محروث حديثاً', '12.4', 'ar_AR'),
-                ('ut_table', 'stubble', 'قش', 'وجود بقايا المحاصيل', '12.4', 'ar_AR'),
-                ('ut_table', 'pasture', 'مرعى', 'أرض عشبية/مرعى', '12.4', 'ar_AR'),
-                ('ut_table', 'woodland', 'غابة', 'منطقة حرجية', '12.4', 'ar_AR'),
-                ('ut_table', 'urban', 'حضري', 'منطقة حضرية/مبنية', '12.4', 'ar_AR'),
+                ('ut_table', 'ploughed', 'محروث', 'حقل محروث حديثاً', '12.4', 'ar_LB'),
+                ('ut_table', 'stubble', 'قش', 'وجود بقايا المحاصيل', '12.4', 'ar_LB'),
+                ('ut_table', 'pasture', 'مرعى', 'أرض عشبية/مرعى', '12.4', 'ar_LB'),
+                ('ut_table', 'woodland', 'غابة', 'منطقة حرجية', '12.4', 'ar_LB'),
+                ('ut_table', 'urban', 'حضري', 'منطقة حضرية/مبنية', '12.4', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'ploughed', 'Llautat', 'Camp llautat recentment', '12.4', 'ca_ES'),
                 ('ut_table', 'stubble', 'Rostoll', 'Presència de rostoll', '12.4', 'ca_ES'),
@@ -1630,10 +1630,10 @@ class PostgresDbUpdater:
                 ('ut_table', 'difficult', 'Accès difficile', "Problèmes d'accès importants", '12.5', 'fr_FR'),
                 ('ut_table', 'restricted', 'Accès restreint', 'Accès sur autorisation uniquement', '12.5', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'easy', 'وصول سهل', 'لا قيود على الوصول', '12.5', 'ar_AR'),
-                ('ut_table', 'moderate_access', 'وصول معتدل', 'بعض القيود أو الصعوبات', '12.5', 'ar_AR'),
-                ('ut_table', 'difficult', 'وصول صعب', 'مشاكل وصول كبيرة', '12.5', 'ar_AR'),
-                ('ut_table', 'restricted', 'وصول مقيد', 'الوصول بإذن فقط', '12.5', 'ar_AR'),
+                ('ut_table', 'easy', 'وصول سهل', 'لا قيود على الوصول', '12.5', 'ar_LB'),
+                ('ut_table', 'moderate_access', 'وصول معتدل', 'بعض القيود أو الصعوبات', '12.5', 'ar_LB'),
+                ('ut_table', 'difficult', 'وصول صعب', 'مشاكل وصول كبيرة', '12.5', 'ar_LB'),
+                ('ut_table', 'restricted', 'وصول مقيد', 'الوصول بإذن فقط', '12.5', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'easy', 'Accés fàcil', "Sense restriccions d'accés", '12.5', 'ca_ES'),
                 ('ut_table', 'moderate_access', 'Accés moderat', 'Algunes restriccions o dificultats', '12.5', 'ca_ES'),
@@ -1667,10 +1667,10 @@ class PostgresDbUpdater:
                 ('ut_table', 'rainy', 'Pluvieux', 'Pluie pendant la prospection', '12.6', 'fr_FR'),
                 ('ut_table', 'windy', 'Venteux', 'Vents forts', '12.6', 'fr_FR'),
                 # Arabic
-                ('ut_table', 'sunny', 'مشمس', 'طقس صافٍ ومشمس', '12.6', 'ar_AR'),
-                ('ut_table', 'cloudy', 'غائم', 'ظروف غائمة', '12.6', 'ar_AR'),
-                ('ut_table', 'rainy', 'ممطر', 'أمطار أثناء المسح', '12.6', 'ar_AR'),
-                ('ut_table', 'windy', 'عاصف', 'رياح قوية', '12.6', 'ar_AR'),
+                ('ut_table', 'sunny', 'مشمس', 'طقس صافٍ ومشمس', '12.6', 'ar_LB'),
+                ('ut_table', 'cloudy', 'غائم', 'ظروف غائمة', '12.6', 'ar_LB'),
+                ('ut_table', 'rainy', 'ممطر', 'أمطار أثناء المسح', '12.6', 'ar_LB'),
+                ('ut_table', 'windy', 'عاصف', 'رياح قوية', '12.6', 'ar_LB'),
                 # Catalan
                 ('ut_table', 'sunny', 'Assolellat', 'Temps clar i assolellat', '12.6', 'ca_ES'),
                 ('ut_table', 'cloudy', 'Ennuvolat', 'Condicions ennuvolades', '12.6', 'ca_ES'),
