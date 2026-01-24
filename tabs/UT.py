@@ -753,6 +753,13 @@ class pyarchinit_UT(QDialog, MAIN_DIALOG_CLASS):
             if weather_vl:
                 self.comboBox_weather_conditions.addItems(weather_vl)
 
+        # 12.7 - UT Definition
+        if hasattr(self, 'comboBox_def_ut'):
+            self.comboBox_def_ut.clear()
+            def_ut_vl = load_thesaurus('12.7')
+            if def_ut_vl:
+                self.comboBox_def_ut.addItems(def_ut_vl)
+
     # buttons functions
     def msg_sito(self):
         conn = Connection()
