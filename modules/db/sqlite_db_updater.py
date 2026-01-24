@@ -454,9 +454,9 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('site_table', 'geom', 'TEXT')
 
     def update_ut_table(self):
-        """Aggiorna la tabella ut_table con i nuovi campi survey (v4.9.21+)"""
+        """Aggiorna la tabella ut_table con i nuovi campi survey (v4.9.21+) e analisi (v4.9.67+)"""
         if self.table_exists('ut_table'):
-            # New survey fields
+            # New survey fields (v4.9.21+)
             self.add_column_if_missing('ut_table', 'visibility_percent', 'INTEGER')
             self.add_column_if_missing('ut_table', 'vegetation_coverage', 'VARCHAR(255)')
             self.add_column_if_missing('ut_table', 'gps_method', 'VARCHAR(100)')
@@ -468,6 +468,13 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('ut_table', 'weather_conditions', 'VARCHAR(255)')
             self.add_column_if_missing('ut_table', 'team_members', 'TEXT')
             self.add_column_if_missing('ut_table', 'foglio_catastale', 'VARCHAR(100)')
+            # Analysis fields (v4.9.67+)
+            self.add_column_if_missing('ut_table', 'potential_score', 'REAL')
+            self.add_column_if_missing('ut_table', 'risk_score', 'REAL')
+            self.add_column_if_missing('ut_table', 'potential_factors', 'TEXT')
+            self.add_column_if_missing('ut_table', 'risk_factors', 'TEXT')
+            self.add_column_if_missing('ut_table', 'analysis_date', 'TEXT')
+            self.add_column_if_missing('ut_table', 'analysis_method', 'TEXT')
 
     def update_fauna_table(self):
         """Crea o aggiorna la tabella fauna_table (v4.9.21+)"""
