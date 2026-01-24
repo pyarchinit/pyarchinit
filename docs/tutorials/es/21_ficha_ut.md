@@ -2,7 +2,7 @@
 
 ## Introducción
 
-La **Ficha UT** (Unidades Topográficas) es el módulo de PyArchInit dedicado a la documentación de las prospecciones arqueológicas de superficie (survey). Permite registrar los datos relativos a las concentraciones de materiales, anomalías del terreno y sitios identificados durante las prospecciones.
+La **Ficha UT** (Unidades Topográficas) es el módulo de PyArchInit dedicado a la documentación de las prospecciones arqueológicas de superficie. Permite registrar los datos relativos a las concentraciones de materiales, anomalías del terreno y sitios identificados durante las prospecciones.
 
 ### Conceptos Básicos
 
@@ -12,7 +12,7 @@ La **Ficha UT** (Unidades Topográficas) es el módulo de PyArchInit dedicado a 
 - Definida por concentración de materiales o anomalías visibles
 
 **Prospección (Survey):**
-- Prospección sistemática del territorio
+- Exploración sistemática del territorio
 - Recogida de datos sobre presencia antrópica antigua
 - Documentación sin excavación
 
@@ -22,28 +22,26 @@ La **Ficha UT** (Unidades Topográficas) es el módulo de PyArchInit dedicado a 
 
 ### Vía Menú
 1. Menú **PyArchInit** en la barra de menús de QGIS
-2. Seleccionar **Ficha UT** (o **TU form**)
+2. Seleccionar **Ficha UT**
 
-### Vía Toolbar
-1. Localizar la toolbar PyArchInit
+### Vía Barra de Herramientas
+1. Localizar la barra de herramientas PyArchInit
 2. Hacer clic en el icono **UT**
 
 ---
 
 ## Vista General de la Interfaz
 
-La ficha contiene numerosos campos para documentar todos los aspectos de la prospección.
+La ficha está organizada en varias pestañas para documentar todos los aspectos de la prospección.
 
-### Áreas Principales
+### Pestañas Principales
 
-| # | Área | Descripción |
-|---|------|-------------|
-| 1 | Toolbar DBMS | Navegación, búsqueda, guardado |
-| 2 | Campos Identificativos | Proyecto, Nr. UT |
-| 3 | Localización | Datos geográficos y administrativos |
-| 4 | Descripción | Definición, descripción, interpretación |
-| 5 | Datos Survey | Condiciones, metodología |
-| 6 | Cronología | Períodos y dataciones |
+| # | Pestaña | Descripción |
+|---|---------|-------------|
+| 1 | Identificación | Proyecto, Nr. UT, Ubicación |
+| 2 | Descripción | Definición, descripción, interpretación |
+| 3 | Datos UT | Condiciones, metodología, fechas |
+| 4 | Análisis | Potencial y riesgo arqueológico |
 
 ---
 
@@ -51,14 +49,14 @@ La ficha contiene numerosos campos para documentar todos los aspectos de la pros
 
 ### Proyecto
 
-**Campo**: `lineEdit_progetto`
+**Campo**: `comboBox_progetto`
 **Base de datos**: `progetto`
 
 Nombre del proyecto de prospección.
 
 ### Número UT
 
-**Campo**: `lineEdit_nr_ut`
+**Campo**: `comboBox_nr_ut`
 **Base de datos**: `nr_ut`
 
 Número progresivo de la Unidad Topográfica.
@@ -68,7 +66,7 @@ Número progresivo de la Unidad Topográfica.
 **Campo**: `lineEdit_ut_letterale`
 **Base de datos**: `ut_letterale`
 
-Eventual sufijo alfabético (ej. UT 15a, 15b).
+Sufijo alfabético opcional (ej. UT 15a, 15b).
 
 ---
 
@@ -78,14 +76,14 @@ Eventual sufijo alfabético (ej. UT 15a, 15b).
 
 | Campo | Base de datos | Descripción |
 |-------|---------------|-------------|
-| País | `nazione` | Estado |
+| País | `nazione` | País |
 | Región | `regione` | Región administrativa |
 | Provincia | `provincia` | Provincia |
 | Municipio | `comune` | Municipio |
 | Fracción | `frazione` | Fracción/localidad |
 | Localidad | `localita` | Topónimo local |
 | Dirección | `indirizzo` | Calle/carretera |
-| Nr. cívico | `nr_civico` | Número cívico |
+| Nr. | `nr_civico` | Número |
 
 ### Datos Cartográficos
 
@@ -102,26 +100,31 @@ Eventual sufijo alfabético (ej. UT 15a, 15b).
 | Coord. geográficas | `coord_geografiche` | Lat/Long |
 | Coord. planas | `coord_piane` | UTM/Gauss-Boaga |
 | Cota | `quota` | Altitud s.n.m. |
-| Precisión coord. | `coordinate_precision` | Exactitud GPS |
-| Método GPS | `gps_method` | Tipo de levantamiento |
+| Precisión coord. | `coordinate_precision` | Precisión GPS |
 
 ---
 
 ## Campos Descriptivos
 
-### Definición UT
+### Definición UT ⭐ NUEVO
 
 **Campo**: `comboBox_def_ut`
 **Base de datos**: `def_ut`
+**Tesauro**: Código 12.7
 
-Clasificación tipológica de la UT.
+Clasificación tipológica de la UT. Los valores se cargan del tesauro y se traducen automáticamente al idioma actual.
 
-**Valores:**
-- Concentración de materiales
-- Área de fragmentos
-- Anomalía del terreno
-- Estructura aflorante
-- Sitio arqueológico
+**Valores estándar:**
+| Código | Español | Italiano |
+|--------|---------|----------|
+| scatter | Dispersión de materiales | Area di dispersione materiali |
+| site | Yacimiento arqueológico | Sito archeologico |
+| anomaly | Anomalía del terreno | Anomalia del terreno |
+| structure | Estructura aflorante | Struttura affiorante |
+| concentration | Concentración de hallazgos | Concentrazione reperti |
+| traces | Trazas antrópicas | Tracce antropiche |
+| findspot | Hallazgo esporádico | Rinvenimento sporadico |
+| negative | Resultado negativo | Esito negativo |
 
 ### Descripción UT
 
@@ -145,138 +148,108 @@ Interpretación funcional/histórica.
 
 ---
 
-## Datos Ambientales
+## Campos Tesauro Survey ⭐ NUEVO
 
-### Pendiente del Terreno
+Los siguientes campos utilizan el sistema de tesauro para garantizar terminología estandarizada traducida a 7 idiomas (IT, EN, DE, ES, FR, AR, CA).
 
-**Campo**: `comboBox_terreno`
-**Base de datos**: `andamento_terreno_pendenza`
-
-Morfología y pendiente.
-
-**Valores:**
-- Llano
-- Pendiente suave
-- Pendiente media
-- Pendiente fuerte
-- Aterrazado
-
-### Uso del Suelo
-
-**Campo**: `comboBox_suolo`
-**Base de datos**: `utilizzo_suolo_vegetazione`
-
-Uso del suelo en el momento de la prospección.
-
-**Valores:**
-- Arado
-- Prado/pasto
-- Viñedo
-- Olivar
-- Sin cultivar
-- Bosque
-- Urbano
-
-### Descripción del Suelo
-
-**Campo**: `textEdit_suolo`
-**Base de datos**: `descrizione_empirica_suolo`
-
-Características pedológicas observadas.
-
-### Descripción del Lugar
-
-**Campo**: `textEdit_luogo`
-**Base de datos**: `descrizione_luogo`
-
-Contexto paisajístico.
-
----
-
-## Datos de Survey
-
-### Método de Prospección
-
-**Campo**: `comboBox_metodo`
-**Base de datos**: `metodo_rilievo_e_ricognizione`
-
-Metodología adoptada.
-
-**Valores:**
-- Prospección sistemática
-- Prospección extensiva
-- Prospección dirigida
-- Control de señalización
-
-### Tipo de Survey
+### Tipo de Survey (12.1)
 
 **Campo**: `comboBox_survey_type`
 **Base de datos**: `survey_type`
 
-Tipología de prospección.
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| intensive | Prospección intensiva | Batida sistemática intensiva |
+| extensive | Prospección extensiva | Reconocimiento extensivo |
+| targeted | Prospección dirigida | Investigación de áreas específicas |
+| random | Muestreo aleatorio | Metodología de muestreo aleatorio |
 
-### Visibilidad
+### Cobertura Vegetal (12.2)
 
-**Campo**: `spinBox_visibility`
-**Base de datos**: `visibility_percent`
-
-Porcentaje de visibilidad del suelo (0-100%).
-
-### Cobertura de Vegetación
-
-**Campo**: `comboBox_vegetation`
+**Campo**: `comboBox_vegetation_coverage`
 **Base de datos**: `vegetation_coverage`
 
-Grado de cobertura vegetal.
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| none | Sin vegetación | Suelo desnudo |
+| sparse | Vegetación escasa | Cobertura < 25% |
+| moderate | Vegetación moderada | Cobertura 25-50% |
+| dense | Vegetación densa | Cobertura 50-75% |
+| very_dense | Vegetación muy densa | Cobertura > 75% |
 
-### Condición de Superficie
+### Método GPS (12.3)
 
-**Campo**: `comboBox_surface`
+**Campo**: `comboBox_gps_method`
+**Base de datos**: `gps_method`
+
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| handheld | GPS de mano | Dispositivo GPS portátil |
+| dgps | GPS diferencial | DGPS con estación base |
+| rtk | GPS RTK | Cinemático en tiempo real |
+| total_station | Estación total | Levantamiento con estación total |
+
+### Condición de Superficie (12.4)
+
+**Campo**: `comboBox_surface_condition`
 **Base de datos**: `surface_condition`
 
-Estado de la superficie.
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| ploughed | Arado | Campo recién arado |
+| stubble | Rastrojo | Presencia de rastrojos |
+| pasture | Pasto | Pradera/pasto |
+| woodland | Bosque | Área boscosa |
+| urban | Urbano | Área urbana/edificada |
 
-**Valores:**
-- Arado reciente
-- Arado no fresado
-- Hierba baja
-- Hierba alta
-- Rastrojos
-
-### Accesibilidad
+### Accesibilidad (12.5)
 
 **Campo**: `comboBox_accessibility`
 **Base de datos**: `accessibility`
 
-Facilidad de acceso al área.
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| easy | Acceso fácil | Sin restricciones |
+| moderate_access | Acceso moderado | Algunas dificultades |
+| difficult | Acceso difícil | Problemas significativos |
+| restricted | Acceso restringido | Solo con permiso |
 
-### Fecha
+### Condiciones Meteorológicas (12.6)
 
-**Campo**: `dateEdit_data`
-**Base de datos**: `data`
+**Campo**: `comboBox_weather_conditions`
+**Base de datos**: `weather_conditions`
 
-Fecha de la prospección.
+| Código | Español | Descripción |
+|--------|---------|-------------|
+| sunny | Soleado | Despejado y soleado |
+| cloudy | Nublado | Condiciones nubosas |
+| rainy | Lluvioso | Lluvia durante prospección |
+| windy | Ventoso | Vientos fuertes |
 
-### Hora/Meteorología
+---
 
-**Campo**: `lineEdit_meteo`
-**Base de datos**: `ora_meteo`
+## Datos Ambientales
 
-Condiciones meteorológicas y hora.
+### Porcentaje de Visibilidad
 
-### Responsable
+**Campo**: `spinBox_visibility_percent`
+**Base de datos**: `visibility_percent`
 
-**Campo**: `comboBox_responsabile`
-**Base de datos**: `responsabile`
+Porcentaje de visibilidad del suelo (0-100%). Valor numérico.
 
-Responsable de la prospección.
+### Pendiente del Terreno
 
-### Equipo
+**Campo**: `lineEdit_andamento_terreno_pendenza`
+**Base de datos**: `andamento_terreno_pendenza`
 
-**Campo**: `textEdit_team`
-**Base de datos**: `team_members`
+Morfología y pendiente del terreno.
 
-Componentes del grupo.
+### Uso del Suelo
+
+**Campo**: `lineEdit_utilizzo_suolo_vegetazione`
+**Base de datos**: `utilizzo_suolo_vegetazione`
+
+Uso del suelo en el momento de la prospección.
 
 ---
 
@@ -284,21 +257,21 @@ Componentes del grupo.
 
 ### Dimensiones UT
 
-**Campo**: `lineEdit_dimensioni`
+**Campo**: `lineEdit_dimensioni_ut`
 **Base de datos**: `dimensioni_ut`
 
-Extensión en m².
+Extensión del área en m².
 
 ### Hallazgos por m²
 
-**Campo**: `lineEdit_rep_mq`
+**Campo**: `lineEdit_rep_per_mq`
 **Base de datos**: `rep_per_mq`
 
-Densidad de materiales.
+Densidad de materiales por metro cuadrado.
 
 ### Hallazgos Diagnósticos
 
-**Campo**: `textEdit_rep_datanti`
+**Campo**: `lineEdit_rep_datanti`
 **Base de datos**: `rep_datanti`
 
 Descripción de materiales diagnósticos.
@@ -325,58 +298,87 @@ Descripción de materiales diagnósticos.
 
 ---
 
-## Otros Campos
+## Pestaña Análisis ⭐ NUEVO
 
-### Geometría
+La pestaña **Análisis** proporciona herramientas avanzadas para el cálculo automático del potencial y riesgo arqueológico.
 
-**Campo**: `comboBox_geometria`
-**Base de datos**: `geometria`
+### Potencial Arqueológico
 
-Forma de la UT.
+El sistema calcula una puntuación de 0 a 100 basándose en:
 
-### Bibliografía
+| Factor | Peso | Descripción |
+|--------|------|-------------|
+| Definición UT | 30% | Tipo de evidencia arqueológica |
+| Período histórico | 25% | Cronología de materiales |
+| Densidad de hallazgos | 20% | Materiales por m² |
+| Condición superficie | 15% | Visibilidad y accesibilidad |
+| Documentación | 10% | Calidad de documentación |
 
-**Campo**: `textEdit_bibliografia`
-**Base de datos**: `bibliografia`
+**Visualización:**
+- Barra de progreso coloreada (verde = alto, amarillo = medio, rojo = bajo)
+- Tabla detallada de factores con puntuaciones individuales
+- Texto narrativo automático con interpretación
 
-Referencias bibliográficas.
+### Riesgo Arqueológico
 
-### Documentación
+Evalúa el riesgo de impacto/pérdida del patrimonio:
 
-**Campo**: `textEdit_documentazione`
-**Base de datos**: `documentazione`
+| Factor | Peso | Descripción |
+|--------|------|-------------|
+| Accesibilidad | 25% | Facilidad de acceso al área |
+| Uso del suelo | 25% | Actividades agrícolas/constructivas |
+| Restricciones existentes | 20% | Protecciones legales |
+| Investigaciones previas | 15% | Estado del conocimiento |
+| Visibilidad | 15% | Exposición del sitio |
 
-Documentación producida (fotos, dibujos).
+### Generación de Mapas de Calor
 
-### Documentación Fotográfica
+El botón **Generar Mapa de Calor** crea capas ráster que muestran:
+- **Mapa de Potencial**: distribución espacial del potencial arqueológico
+- **Mapa de Riesgo**: mapa de riesgo de impacto
 
-**Campo**: `textEdit_photo_doc`
-**Base de datos**: `photo_documentation`
-
-Lista de documentación fotográfica.
-
-### Organismos de Tutela/Restricciones
-
-**Campo**: `textEdit_vincoli`
-**Base de datos**: `enti_tutela_vincoli`
-
-Restricciones y organismos de tutela.
-
-### Investigaciones Preliminares
-
-**Campo**: `textEdit_indagini`
-**Base de datos**: `indagini_preliminari`
-
-Eventuales investigaciones ya realizadas.
+**Métodos disponibles:**
+- Estimación de Densidad Kernel (KDE)
+- Ponderación por Distancia Inversa (IDW)
+- Vecino Natural
 
 ---
 
-## Workflow Operativo
+## Exportación PDF ⭐ MEJORADO
+
+### Ficha UT Estándar
+
+Exporta la ficha UT completa con todos los campos rellenados.
+
+### Informe de Análisis UT
+
+Genera un informe PDF que incluye:
+
+1. **Datos de identificación UT**
+2. **Sección Potencial Arqueológico**
+   - Puntuación con indicador gráfico
+   - Texto narrativo descriptivo
+   - Tabla de factores con contribuciones
+   - Imagen del mapa de potencial (si se generó)
+3. **Sección Riesgo Arqueológico**
+   - Puntuación con indicador gráfico
+   - Texto narrativo con recomendaciones
+   - Tabla de factores con contribuciones
+   - Imagen del mapa de riesgo (si se generó)
+4. **Sección Metodología**
+   - Descripción de algoritmos utilizados
+   - Notas sobre ponderación de factores
+
+El informe está disponible en los 7 idiomas soportados.
+
+---
+
+## Flujo de Trabajo Operativo
 
 ### Registro de Nueva UT
 
-1. **Apertura de ficha**
-   - Vía menú o toolbar
+1. **Abrir ficha**
+   - Vía menú o barra de herramientas
 
 2. **Nuevo registro**
    - Clic en "New Record"
@@ -397,20 +399,24 @@ Eventuales investigaciones ya realizadas.
    Cota: 125 m
    ```
 
-5. **Descripción**
+5. **Descripción** (usando tesauro)
    ```
-   Definición: Concentración de materiales
+   Definición: Concentración de hallazgos (del tesauro)
    Descripción: Área elíptica de aprox. 50x30 m
    con concentración de fragmentos cerámicos
    y ladrillos en ladera colinar expuesta
    al sur...
    ```
 
-6. **Datos de survey**
+6. **Datos de survey** (usando tesauro)
    ```
-   Método: Prospección sistemática
+   Tipo Survey: Prospección intensiva
+   Cobertura Vegetal: Escasa
+   Método GPS: GPS diferencial
+   Condición Superficie: Arado
+   Accesibilidad: Acceso fácil
+   Condiciones Meteo: Soleado
    Visibilidad: 80%
-   Condición: Arado reciente
    Fecha: 15/04/2024
    Responsable: Equipo A
    ```
@@ -427,7 +433,12 @@ Eventuales investigaciones ya realizadas.
    Interpretación I: Villa rústica
    ```
 
-8. **Guardado**
+8. **Análisis** (pestaña Análisis)
+   - Verificar puntuación Potencial
+   - Verificar puntuación Riesgo
+   - Generar Mapa de Calor si es necesario
+
+9. **Guardar**
    - Clic en "Save"
 
 ---
@@ -439,19 +450,17 @@ La ficha UT está estrechamente integrada con QGIS:
 - **Capa UT**: visualización de geometrías
 - **Atributos conectados**: datos desde la ficha
 - **Selección desde mapa**: clic en geometría abre la ficha
-
----
-
-## Export PDF
-
-La ficha soporta la exportación en PDF para:
-- Fichas UT individuales
-- Listados por proyecto
-- Informes de survey
+- **Mapa de calor como capa**: los mapas generados se guardan como capas ráster
 
 ---
 
 ## Buenas Prácticas
+
+### Uso del Tesauro
+
+- Preferir siempre valores del tesauro para consistencia
+- Los valores se traducen automáticamente al idioma del usuario
+- Para nuevos valores, añadirlos primero al tesauro
 
 ### Nomenclatura
 
@@ -471,15 +480,38 @@ La ficha soporta la exportación en PDF para:
 - Producir croquis planimétricos
 - Registrar condiciones de visibilidad
 
-### Materiales
+### Análisis
 
-- Recoger muestras diagnósticas
-- Estimar densidad por área
-- Documentar distribución espacial
+- Verificar siempre las puntuaciones calculadas
+- Generar mapas de calor para proyectos completos
+- Exportar informes para documentación
+
+---
+
+## Códigos Tesauro UT
+
+| Código | Campo | Descripción |
+|--------|-------|-------------|
+| 12.1 | survey_type | Tipo de survey |
+| 12.2 | vegetation_coverage | Cobertura vegetal |
+| 12.3 | gps_method | Método GPS |
+| 12.4 | surface_condition | Condición de superficie |
+| 12.5 | accessibility | Accesibilidad |
+| 12.6 | weather_conditions | Condiciones meteorológicas |
+| 12.7 | def_ut | Definición UT |
 
 ---
 
 ## Resolución de Problemas
+
+### Problema: Comboboxes vacíos
+
+**Causa**: Entradas del tesauro no presentes en la base de datos.
+
+**Solución**:
+1. Actualizar base de datos vía "Update database"
+2. Verificar que la tabla `pyarchinit_thesaurus_sigle` contenga entradas para `ut_table`
+3. Comprobar código de idioma en configuración
 
 ### Problema: Coordenadas no válidas
 
@@ -499,6 +531,15 @@ La ficha soporta la exportación en PDF para:
 2. Controlar que el registro tenga geometría
 3. Verificar la proyección de la capa
 
+### Problema: Mapa de calor no generado
+
+**Causa**: Datos insuficientes o error de cálculo.
+
+**Solución**:
+1. Verificar que existan al menos 3 UTs con datos completos
+2. Comprobar que las geometrías sean válidas
+3. Verificar espacio en disco disponible
+
 ---
 
 ## Referencias
@@ -514,6 +555,10 @@ La ficha soporta la exportación en PDF para:
 - **UI**: `gui/ui/UT_ui.ui`
 - **Controlador**: `tabs/UT.py`
 - **PDF Export**: `modules/utility/pyarchinit_exp_UTsheet_pdf.py`
+- **PDF Análisis**: `modules/utility/pyarchinit_exp_UT_analysis_pdf.py`
+- **Calculador Potencial**: `modules/analysis/ut_potential.py`
+- **Calculador Riesgo**: `modules/analysis/ut_risk.py`
+- **Generador Mapa Calor**: `modules/analysis/ut_heatmap_generator.py`
 
 ---
 
@@ -522,20 +567,28 @@ La ficha soporta la exportación en PDF para:
 ### Documentación de Prospecciones
 **Duración**: 15-18 minutos
 - Registro de UT
-- Datos de survey
+- Datos de survey con tesauro
 - Geolocalización
 
 [Placeholder video: video_ut_survey.mp4]
 
-### Integración GIS Survey
+### Análisis de Potencial y Riesgo
 **Duración**: 10-12 minutos
-- Capas y atributos
-- Visualización de resultados
-- Análisis espacial
+- Cálculo automático de puntuaciones
+- Interpretación de resultados
+- Generación de mapas de calor
 
-[Placeholder video: video_ut_gis.mp4]
+[Placeholder video: video_ut_analysis.mp4]
+
+### Exportación de Informes PDF
+**Duración**: 8-10 minutos
+- Ficha UT estándar
+- Informe de análisis con mapas
+- Personalización de salida
+
+[Placeholder video: video_ut_pdf.mp4]
 
 ---
 
 *Última actualización: Enero 2026*
-*PyArchInit - Sistema de Gestión de Datos Arqueológicos*
+*PyArchInit v4.9.68 - Sistema de Gestión de Datos Arqueológicos*

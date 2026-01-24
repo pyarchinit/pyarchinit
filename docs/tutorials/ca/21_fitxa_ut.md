@@ -2,7 +2,7 @@
 
 ## Introducció
 
-La **Fitxa UT** (Unitats Topogràfiques) és el mòdul de PyArchInit dedicat a la documentació de les prospeccions arqueològiques de superfície (survey). Permet registrar les dades relatives a les concentracions de materials, anomalies del terreny i llocs identificats durant les prospeccions.
+La **Fitxa UT** (Unitats Topogràfiques) és el mòdul de PyArchInit dedicat a la documentació de les prospeccions arqueològiques de superfície. Permet registrar les dades relatives a les concentracions de materials, anomalies del terreny i llocs identificats durant les prospeccions.
 
 ### Conceptes Bàsics
 
@@ -22,7 +22,7 @@ La **Fitxa UT** (Unitats Topogràfiques) és el mòdul de PyArchInit dedicat a l
 
 ### Via Menú
 1. Menú **PyArchInit** a la barra de menús de QGIS
-2. Seleccionar **Fitxa UT** (o **TU form**)
+2. Seleccionar **Fitxa UT**
 
 ### Via Barra d'Eines
 1. Localitzar la barra d'eines PyArchInit
@@ -32,18 +32,16 @@ La **Fitxa UT** (Unitats Topogràfiques) és el mòdul de PyArchInit dedicat a l
 
 ## Panoràmica de la Interfície
 
-La fitxa és rica en camps per documentar tots els aspectes de la prospecció.
+La fitxa està organitzada en diverses pestanyes per documentar tots els aspectes de la prospecció.
 
-### Àrees Principals
+### Pestanyes Principals
 
-| # | Àrea | Descripció |
-|---|------|------------|
-| 1 | Toolbar DBMS | Navegació, cerca, desament |
-| 2 | Camps Identificatius | Projecte, Nr. UT |
-| 3 | Localització | Dades geogràfiques i administratives |
-| 4 | Descripció | Definició, descripció, interpretació |
-| 5 | Dades Survey | Condicions, metodologia |
-| 6 | Cronologia | Períodes i datacions |
+| # | Pestanya | Descripció |
+|---|----------|------------|
+| 1 | Identificació | Projecte, Nr. UT, Localització |
+| 2 | Descripció | Definició, descripció, interpretació |
+| 3 | Dades UT | Condicions, metodologia, dates |
+| 4 | Anàlisi | Potencial i risc arqueològic |
 
 ---
 
@@ -51,14 +49,14 @@ La fitxa és rica en camps per documentar tots els aspectes de la prospecció.
 
 ### Projecte
 
-**Camp**: `lineEdit_progetto`
+**Camp**: `comboBox_progetto`
 **Base de dades**: `progetto`
 
 Nom del projecte de prospecció.
 
 ### Número UT
 
-**Camp**: `lineEdit_nr_ut`
+**Camp**: `comboBox_nr_ut`
 **Base de dades**: `nr_ut`
 
 Número progressiu de la Unitat Topogràfica.
@@ -68,7 +66,7 @@ Número progressiu de la Unitat Topogràfica.
 **Camp**: `lineEdit_ut_letterale`
 **Base de dades**: `ut_letterale`
 
-Eventual sufix alfabètic (p. ex. UT 15a, 15b).
+Sufix alfabètic opcional (p. ex. UT 15a, 15b).
 
 ---
 
@@ -103,25 +101,30 @@ Eventual sufix alfabètic (p. ex. UT 15a, 15b).
 | Coord. planes | `coord_piane` | UTM/Gauss-Boaga |
 | Cota | `quota` | Altitud s.n.m. |
 | Precisió coord. | `coordinate_precision` | Exactitud GPS |
-| Mètode GPS | `gps_method` | Tipus mesurament |
 
 ---
 
 ## Camps Descriptius
 
-### Definició UT
+### Definició UT ⭐ NOU
 
 **Camp**: `comboBox_def_ut`
 **Base de dades**: `def_ut`
+**Tesaurus**: Codi 12.7
 
-Classificació tipològica de la UT.
+Classificació tipològica de la UT. Els valors es carreguen del tesaurus i es tradueixen automàticament a l'idioma actual.
 
-**Valors:**
-- Concentració materials
-- Àrea de fragments
-- Anomalia del terreny
-- Estructura aflorant
-- Lloc arqueològic
+**Valors estàndard:**
+| Codi | Català | Italià |
+|------|--------|--------|
+| scatter | Dispersió de materials | Area di dispersione materiali |
+| site | Jaciment arqueològic | Sito archeologico |
+| anomaly | Anomalia del terreny | Anomalia del terreno |
+| structure | Estructura aflorant | Struttura affiorante |
+| concentration | Concentració de troballes | Concentrazione reperti |
+| traces | Traces antròpiques | Tracce antropiche |
+| findspot | Troballa esporàdica | Rinvenimento sporadico |
+| negative | Resultat negatiu | Esito negativo |
 
 ### Descripció UT
 
@@ -145,138 +148,108 @@ Interpretació funcional/històrica.
 
 ---
 
-## Dades Ambientals
+## Camps Tesaurus Survey ⭐ NOU
 
-### Pendent Terreny
+Els camps següents utilitzen el sistema de tesaurus per garantir terminologia estandarditzada traduïda a 7 idiomes (IT, EN, DE, ES, FR, AR, CA).
 
-**Camp**: `comboBox_terreno`
-**Base de dades**: `andamento_terreno_pendenza`
-
-Morfologia i pendent.
-
-**Valors:**
-- Pla
-- Pendent lleu
-- Pendent mitjana
-- Pendent fort
-- Terrassat
-
-### Ús del Sòl
-
-**Camp**: `comboBox_suolo`
-**Base de dades**: `utilizzo_suolo_vegetazione`
-
-Ús del sòl en el moment de la prospecció.
-
-**Valors:**
-- Conreu
-- Prat/pastura
-- Vinya
-- Oliverar
-- Erm
-- Bosc
-- Urbà
-
-### Descripció Sòl
-
-**Camp**: `textEdit_suolo`
-**Base de dades**: `descrizione_empirica_suolo`
-
-Característiques pedològiques observades.
-
-### Descripció Lloc
-
-**Camp**: `textEdit_luogo`
-**Base de dades**: `descrizione_luogo`
-
-Context paisatgístic.
-
----
-
-## Dades Survey
-
-### Mètode Prospecció
-
-**Camp**: `comboBox_metodo`
-**Base de dades**: `metodo_rilievo_e_ricognizione`
-
-Metodologia adoptada.
-
-**Valors:**
-- Prospecció sistemàtica
-- Prospecció extensiva
-- Prospecció dirigida
-- Control senyalització
-
-### Tipus Survey
+### Tipus de Survey (12.1)
 
 **Camp**: `comboBox_survey_type`
 **Base de dades**: `survey_type`
 
-Tipologia de prospecció.
+| Codi | Català | Descripció |
+|------|--------|------------|
+| intensive | Prospecció intensiva | Batuda sistemàtica intensiva |
+| extensive | Prospecció extensiva | Reconeixement extensiu |
+| targeted | Prospecció dirigida | Investigació d'àrees específiques |
+| random | Mostreig aleatori | Metodologia de mostreig aleatori |
 
-### Visibilitat
+### Cobertura Vegetal (12.2)
 
-**Camp**: `spinBox_visibility`
-**Base de dades**: `visibility_percent`
-
-Percentatge de visibilitat del sòl (0-100%).
-
-### Cobertura Vegetació
-
-**Camp**: `comboBox_vegetation`
+**Camp**: `comboBox_vegetation_coverage`
 **Base de dades**: `vegetation_coverage`
 
-Grau de cobertura vegetal.
+| Codi | Català | Descripció |
+|------|--------|------------|
+| none | Sense vegetació | Sòl nu |
+| sparse | Vegetació escassa | Cobertura < 25% |
+| moderate | Vegetació moderada | Cobertura 25-50% |
+| dense | Vegetació densa | Cobertura 50-75% |
+| very_dense | Vegetació molt densa | Cobertura > 75% |
 
-### Condició Superfície
+### Mètode GPS (12.3)
 
-**Camp**: `comboBox_surface`
+**Camp**: `comboBox_gps_method`
+**Base de dades**: `gps_method`
+
+| Codi | Català | Descripció |
+|------|--------|------------|
+| handheld | GPS de mà | Dispositiu GPS portàtil |
+| dgps | GPS diferencial | DGPS amb estació base |
+| rtk | GPS RTK | Cinemàtic en temps real |
+| total_station | Estació total | Aixecament amb estació total |
+
+### Condició de Superfície (12.4)
+
+**Camp**: `comboBox_surface_condition`
 **Base de dades**: `surface_condition`
 
-Estat de la superfície.
+| Codi | Català | Descripció |
+|------|--------|------------|
+| ploughed | Llaurada | Camp recentment llaurada |
+| stubble | Rostoll | Presència de rostoll |
+| pasture | Pastura | Prat/pastura |
+| woodland | Bosc | Àrea boscosa |
+| urban | Urbà | Àrea urbana/edificada |
 
-**Valors:**
-- Llaurada de fresc
-- Llaurada no fresada
-- Herba baixa
-- Herba alta
-- Rostoll
-
-### Accessibilitat
+### Accessibilitat (12.5)
 
 **Camp**: `comboBox_accessibility`
 **Base de dades**: `accessibility`
 
-Facilitat d'accés a l'àrea.
+| Codi | Català | Descripció |
+|------|--------|------------|
+| easy | Accés fàcil | Sense restriccions |
+| moderate_access | Accés moderat | Algunes dificultats |
+| difficult | Accés difícil | Problemes significatius |
+| restricted | Accés restringit | Només amb permís |
 
-### Data
+### Condicions Meteorològiques (12.6)
 
-**Camp**: `dateEdit_data`
-**Base de dades**: `data`
+**Camp**: `comboBox_weather_conditions`
+**Base de dades**: `weather_conditions`
 
-Data de la prospecció.
+| Codi | Català | Descripció |
+|------|--------|------------|
+| sunny | Assolellat | Clar i assolellat |
+| cloudy | Ennuvolat | Condicions nuvoloses |
+| rainy | Plujós | Pluja durant prospecció |
+| windy | Ventós | Vents forts |
 
-### Hora/Meteo
+---
 
-**Camp**: `lineEdit_meteo`
-**Base de dades**: `ora_meteo`
+## Dades Ambientals
 
-Condicions meteo i hora.
+### Percentatge de Visibilitat
 
-### Responsable
+**Camp**: `spinBox_visibility_percent`
+**Base de dades**: `visibility_percent`
 
-**Camp**: `comboBox_responsabile`
-**Base de dades**: `responsabile`
+Percentatge de visibilitat del sòl (0-100%). Valor numèric.
 
-Responsable de la prospecció.
+### Pendent del Terreny
 
-### Equip
+**Camp**: `lineEdit_andamento_terreno_pendenza`
+**Base de dades**: `andamento_terreno_pendenza`
 
-**Camp**: `textEdit_team`
-**Base de dades**: `team_members`
+Morfologia i pendent del terreny.
 
-Components del grup.
+### Ús del Sòl
+
+**Camp**: `lineEdit_utilizzo_suolo_vegetazione`
+**Base de dades**: `utilizzo_suolo_vegetazione`
+
+Ús del sòl en el moment de la prospecció.
 
 ---
 
@@ -284,24 +257,24 @@ Components del grup.
 
 ### Dimensions UT
 
-**Camp**: `lineEdit_dimensioni`
+**Camp**: `lineEdit_dimensioni_ut`
 **Base de dades**: `dimensioni_ut`
 
-Extensió en m².
+Extensió de l'àrea en m².
 
 ### Troballes per m²
 
-**Camp**: `lineEdit_rep_mq`
+**Camp**: `lineEdit_rep_per_mq`
 **Base de dades**: `rep_per_mq`
 
-Densitat materials.
+Densitat de materials per metre quadrat.
 
 ### Troballes Datants
 
-**Camp**: `textEdit_rep_datanti`
+**Camp**: `lineEdit_rep_datanti`
 **Base de dades**: `rep_datanti`
 
-Descripció materials diagnòstics.
+Descripció de materials diagnòstics.
 
 ---
 
@@ -325,55 +298,84 @@ Descripció materials diagnòstics.
 
 ---
 
-## Altres Camps
+## Pestanya Anàlisi ⭐ NOU
 
-### Geometria
+La pestanya **Anàlisi** proporciona eines avançades per al càlcul automàtic del potencial i risc arqueològic.
 
-**Camp**: `comboBox_geometria`
-**Base de dades**: `geometria`
+### Potencial Arqueològic
 
-Forma de la UT.
+El sistema calcula una puntuació de 0 a 100 basant-se en:
 
-### Bibliografia
+| Factor | Pes | Descripció |
+|--------|-----|------------|
+| Definició UT | 30% | Tipus d'evidència arqueològica |
+| Període històric | 25% | Cronologia dels materials |
+| Densitat de troballes | 20% | Materials per m² |
+| Condició superfície | 15% | Visibilitat i accessibilitat |
+| Documentació | 10% | Qualitat de la documentació |
 
-**Camp**: `textEdit_bibliografia`
-**Base de dades**: `bibliografia`
+**Visualització:**
+- Barra de progrés acolorida (verd = alt, groc = mitjà, vermell = baix)
+- Taula detallada de factors amb puntuacions individuals
+- Text narratiu automàtic amb interpretació
 
-Referències bibliogràfiques.
+### Risc Arqueològic
 
-### Documentació
+Avalua el risc d'impacte/pèrdua del patrimoni:
 
-**Camp**: `textEdit_documentazione`
-**Base de dades**: `documentazione`
+| Factor | Pes | Descripció |
+|--------|-----|------------|
+| Accessibilitat | 25% | Facilitat d'accés a l'àrea |
+| Ús del sòl | 25% | Activitats agrícoles/constructives |
+| Restriccions existents | 20% | Proteccions legals |
+| Investigacions prèvies | 15% | Estat del coneixement |
+| Visibilitat | 15% | Exposició del lloc |
 
-Documentació produïda (fotos, dibuixos).
+### Generació de Mapa de Calor
 
-### Documentació Foto
+El botó **Generar Mapa de Calor** crea capes ràster que mostren:
+- **Mapa de Potencial**: distribució espacial del potencial arqueològic
+- **Mapa de Risc**: mapa de risc d'impacte
 
-**Camp**: `textEdit_photo_doc`
-**Base de dades**: `photo_documentation`
+**Mètodes disponibles:**
+- Estimació de Densitat Kernel (KDE)
+- Ponderació per Distància Inversa (IDW)
+- Veí Natural
 
-Llistat documentació fotogràfica.
+---
 
-### Ens Tutela/Vincles
+## Exportació PDF ⭐ MILLORAT
 
-**Camp**: `textEdit_vincoli`
-**Base de dades**: `enti_tutela_vincoli`
+### Fitxa UT Estàndard
 
-Vincles i subjectes de tutela.
+Exporta la fitxa UT completa amb tots els camps emplenats.
 
-### Investigacions Preliminars
+### Informe d'Anàlisi UT
 
-**Camp**: `textEdit_indagini`
-**Base de dades**: `indagini_preliminari`
+Genera un informe PDF que inclou:
 
-Eventuals investigacions ja executades.
+1. **Dades d'identificació UT**
+2. **Secció Potencial Arqueològic**
+   - Puntuació amb indicador gràfic
+   - Text narratiu descriptiu
+   - Taula de factors amb contribucions
+   - Imatge del mapa de potencial (si s'ha generat)
+3. **Secció Risc Arqueològic**
+   - Puntuació amb indicador gràfic
+   - Text narratiu amb recomanacions
+   - Taula de factors amb contribucions
+   - Imatge del mapa de risc (si s'ha generat)
+4. **Secció Metodologia**
+   - Descripció dels algorismes utilitzats
+   - Notes sobre ponderació dels factors
+
+L'informe està disponible en els 7 idiomes suportats.
 
 ---
 
 ## Flux de Treball Operatiu
 
-### Registre Nova UT
+### Registre de Nova UT
 
 1. **Obertura fitxa**
    - Via menú o barra d'eines
@@ -397,20 +399,24 @@ Eventuals investigacions ja executades.
    Cota: 125 m
    ```
 
-5. **Descripció**
+5. **Descripció** (usant tesaurus)
    ```
-   Definició: Concentració materials
+   Definició: Concentració de troballes (del tesaurus)
    Descripció: Àrea el·líptica de ca. 50x30 m
    amb concentració de fragments ceràmics
    i material constructiu sobre vessant
    exposat al sud...
    ```
 
-6. **Dades survey**
+6. **Dades survey** (usant tesaurus)
    ```
-   Mètode: Prospecció sistemàtica
+   Tipus Survey: Prospecció intensiva
+   Cobertura Vegetal: Escassa
+   Mètode GPS: GPS diferencial
+   Condició Superfície: Llaurada
+   Accessibilitat: Accés fàcil
+   Condicions Meteo: Assolellat
    Visibilitat: 80%
-   Condició: Llaurada de fresc
    Data: 15/04/2024
    Responsable: Equip A
    ```
@@ -427,7 +433,12 @@ Eventuals investigacions ja executades.
    Interpretació I: Vil·la rústica
    ```
 
-8. **Desament**
+8. **Anàlisi** (pestanya Anàlisi)
+   - Verificar puntuació Potencial
+   - Verificar puntuació Risc
+   - Generar Mapa de Calor si cal
+
+9. **Desament**
    - Clic a "Save"
 
 ---
@@ -436,22 +447,20 @@ Eventuals investigacions ja executades.
 
 La fitxa UT està estretament integrada amb QGIS:
 
-- **Capa UT**: visualització geometries
+- **Capa UT**: visualització de geometries
 - **Atributs connectats**: dades des de la fitxa
 - **Selecció des de mapa**: clic sobre geometria obre fitxa
-
----
-
-## Export PDF
-
-La fitxa suporta l'exportació en PDF per a:
-- Fitxes UT individuals
-- Llistats per projecte
-- Informes de survey
+- **Mapa de calor com a capa**: els mapes generats es desen com a capes ràster
 
 ---
 
 ## Bones Pràctiques
+
+### Ús del Tesaurus
+
+- Preferir sempre valors del tesaurus per coherència
+- Els valors es tradueixen automàticament a l'idioma de l'usuari
+- Per a nous valors, afegir-los primer al tesaurus
 
 ### Nomenclatura
 
@@ -471,15 +480,38 @@ La fitxa suporta l'exportació en PDF per a:
 - Produir esbossos planimètrics
 - Registrar condicions de visibilitat
 
-### Materials
+### Anàlisi
 
-- Recollir mostres diagnòstiques
-- Estimar densitat per àrea
-- Documentar distribució espacial
+- Verificar sempre les puntuacions calculades
+- Generar mapes de calor per a projectes complets
+- Exportar informes per a documentació
+
+---
+
+## Codis Tesaurus UT
+
+| Codi | Camp | Descripció |
+|------|------|------------|
+| 12.1 | survey_type | Tipus de survey |
+| 12.2 | vegetation_coverage | Cobertura vegetal |
+| 12.3 | gps_method | Mètode GPS |
+| 12.4 | surface_condition | Condició de superfície |
+| 12.5 | accessibility | Accessibilitat |
+| 12.6 | weather_conditions | Condicions meteorològiques |
+| 12.7 | def_ut | Definició UT |
 
 ---
 
 ## Resolució de Problemes
+
+### Problema: Comboboxes buits
+
+**Causa**: Entrades del tesaurus no presents a la base de dades.
+
+**Solució**:
+1. Actualitzar base de dades via "Update database"
+2. Verificar que la taula `pyarchinit_thesaurus_sigle` contingui entrades per a `ut_table`
+3. Comprovar codi d'idioma a la configuració
 
 ### Problema: Coordenades no vàlides
 
@@ -499,6 +531,15 @@ La fitxa suporta l'exportació en PDF per a:
 2. Controlar que el registre tingui geometria
 3. Verificar la projecció de la capa
 
+### Problema: Mapa de calor no generat
+
+**Causa**: Dades insuficients o error de càlcul.
+
+**Solució**:
+1. Verificar que existeixin almenys 3 UTs amb dades completes
+2. Comprovar que les geometries siguin vàlides
+3. Verificar espai de disc disponible
+
 ---
 
 ## Referències
@@ -514,6 +555,10 @@ La fitxa suporta l'exportació en PDF per a:
 - **UI**: `gui/ui/UT_ui.ui`
 - **Controller**: `tabs/UT.py`
 - **PDF Export**: `modules/utility/pyarchinit_exp_UTsheet_pdf.py`
+- **PDF Anàlisi**: `modules/utility/pyarchinit_exp_UT_analysis_pdf.py`
+- **Calculador Potencial**: `modules/analysis/ut_potential.py`
+- **Calculador Risc**: `modules/analysis/ut_risk.py`
+- **Generador Mapa Calor**: `modules/analysis/ut_heatmap_generator.py`
 
 ---
 
@@ -522,20 +567,28 @@ La fitxa suporta l'exportació en PDF per a:
 ### Documentació Prospeccions
 **Durada**: 15-18 minuts
 - Registre UT
-- Dades survey
+- Dades survey amb tesaurus
 - Geolocalització
 
 [Placeholder vídeo: video_ut_survey.mp4]
 
-### Integració GIS Survey
+### Anàlisi de Potencial i Risc
 **Durada**: 10-12 minuts
-- Capes i atributs
-- Visualització resultats
-- Anàlisi espacial
+- Càlcul automàtic de puntuacions
+- Interpretació de resultats
+- Generació de mapa de calor
 
-[Placeholder vídeo: video_ut_gis.mp4]
+[Placeholder vídeo: video_ut_analysis.mp4]
+
+### Exportació d'Informes PDF
+**Durada**: 8-10 minuts
+- Fitxa UT estàndard
+- Informe d'anàlisi amb mapes
+- Personalització de sortida
+
+[Placeholder vídeo: video_ut_pdf.mp4]
 
 ---
 
 *Última actualització: Gener 2026*
-*PyArchInit - Sistema de Gestió de Dades Arqueològiques*
+*PyArchInit v4.9.68 - Sistema de Gestió de Dades Arqueològiques*
