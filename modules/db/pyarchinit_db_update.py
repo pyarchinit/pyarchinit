@@ -922,6 +922,25 @@ class DB_update(object):
             if not table_column_names_list.__contains__('foglio_catastale'):
                 self._execute("ALTER TABLE ut_table ADD COLUMN foglio_catastale VARCHAR(100)")
 
+            # Analysis fields (v4.9.70+)
+            if not table_column_names_list.__contains__('potential_score'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN potential_score NUMERIC(5,2)")
+
+            if not table_column_names_list.__contains__('risk_score'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN risk_score NUMERIC(5,2)")
+
+            if not table_column_names_list.__contains__('potential_factors'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN potential_factors TEXT")
+
+            if not table_column_names_list.__contains__('risk_factors'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN risk_factors TEXT")
+
+            if not table_column_names_list.__contains__('analysis_date'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN analysis_date VARCHAR(100)")
+
+            if not table_column_names_list.__contains__('analysis_method'):
+                self._execute("ALTER TABLE ut_table ADD COLUMN analysis_method VARCHAR(100)")
+
         ####archeozoology_table - Add coord_z if missing
         log_debug("Processing archeozoology_table")
         table = safe_load_table("archeozoology_table")

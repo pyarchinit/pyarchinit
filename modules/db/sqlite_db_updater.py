@@ -36,12 +36,15 @@ class SQLiteDBUpdater:
     
     def check_and_update_database(self):
         """Verifica e aggiorna il database se necessario"""
+        print(f"DEBUG [sqlite_db_updater]: check_and_update_database() chiamato")  # DEBUG
         try:
             # SEMPRE controlla se ci sono tabelle da ripristinare dai backup
             self._check_and_restore_backup_tables()
-            
+
             # Check if database needs update
-            if self.needs_update():
+            needs_upd = self.needs_update()
+            print(f"DEBUG [sqlite_db_updater]: needs_update() = {needs_upd}")  # DEBUG
+            if needs_upd:
                 self.log_message(f"Database {os.path.basename(self.db_path)} necessita aggiornamento")
                 
                 if QGIS_AVAILABLE and self.parent:
@@ -144,6 +147,21 @@ class SQLiteDBUpdater:
                 required_struttura_columns = ['data_compilazione', 'stato_conservazione', 'fasi_funzionali']
                 for col in required_struttura_columns:
                     if col not in columns:
+                        return True
+
+            # Check if ut_table has analysis fields (v4.9.67+)
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master
+                WHERE type='table' AND name='ut_table'
+            """)
+            if self.cursor.fetchone():
+                self.cursor.execute("PRAGMA table_info(ut_table)")
+                columns = [column[1] for column in self.cursor.fetchall()]
+                required_ut_columns = ['potential_score', 'risk_score', 'potential_factors',
+                                       'risk_factors', 'analysis_date', 'analysis_method']
+                for col in required_ut_columns:
+                    if col not in columns:
+                        print(f"DEBUG [sqlite_db_updater]: ut_table manca colonna {col}, needs_update=True")  # DEBUG
                         return True
 
             # Check if pyarchinit_us_view exists and has order_layer field
@@ -456,7 +474,9 @@ class SQLiteDBUpdater:
 
     def update_ut_table(self):
         """Aggiorna la tabella ut_table con i nuovi campi survey (v4.9.21+) e analisi (v4.9.67+)"""
+        print("DEBUG [sqlite_db_updater]: update_ut_table() chiamato")  # DEBUG
         if self.table_exists('ut_table'):
+            print("DEBUG [sqlite_db_updater]: ut_table esiste, aggiungo colonne...")  # DEBUG
             # New survey fields (v4.9.21+)
             self.add_column_if_missing('ut_table', 'visibility_percent', 'INTEGER')
             self.add_column_if_missing('ut_table', 'vegetation_coverage', 'VARCHAR(255)')
@@ -1605,9 +1625,10 @@ class SQLiteDBUpdater:
         # Check if column exists
         self.cursor.execute(f"PRAGMA table_info({table_name})")
         columns = [column[1] for column in self.cursor.fetchall()]
-        
+
         if column_name not in columns:
             try:
+                print(f"DEBUG [sqlite_db_updater]: Aggiunta colonna {table_name}.{column_name} {column_type}")  # DEBUG
                 self.cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
                 self.log_message(f"Aggiunta colonna {table_name}.{column_name}")
                 self.updates_made.append(f"{table_name}.{column_name}")
@@ -2052,8 +2073,12 @@ class SQLiteDBUpdater:
 
 def check_and_update_sqlite_db(db_path, parent=None):
     """Funzione helper per verificare e aggiornare un database SQLite"""
+    print(f"DEBUG [sqlite_db_updater]: check_and_update_sqlite_db() chiamato con db_path={db_path}")  # DEBUG
     if not db_path.endswith('.sqlite'):
+        print("DEBUG [sqlite_db_updater]: Non è un file .sqlite, skip")  # DEBUG
         return True
-    
+
     updater = SQLiteDBUpdater(db_path, parent)
-    return updater.check_and_update_database()
+    result = updater.check_and_update_database()
+    print(f"DEBUG [sqlite_db_updater]: check_and_update_database() ritorna {result}")  # DEBUG
+    return result

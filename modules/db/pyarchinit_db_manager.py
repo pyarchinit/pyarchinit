@@ -369,15 +369,21 @@ class Pyarchinit_db_management(object):
                 db_path = self.conn_str.replace('sqlite:///', '')
                 db_check_key = f"sqlite_{db_path}"
                 db_checked = _get_db_checked()
+                print(f"DEBUG [db_manager]: db_check_key={db_check_key}, already_checked={db_check_key in db_checked}")  # DEBUG
                 if db_check_key not in db_checked and os.path.exists(db_path):
                     try:
+                        print("DEBUG [db_manager]: Chiamata check_and_update_sqlite_db...")  # DEBUG
                         from .sqlite_db_updater import check_and_update_sqlite_db
                         # Run updater silently (no parent widget for background operation)
-                        check_and_update_sqlite_db(db_path)
+                        result = check_and_update_sqlite_db(db_path)
+                        print(f"DEBUG [db_manager]: check_and_update_sqlite_db result={result}")  # DEBUG
                         _set_db_checked(db_check_key, True)
                     except Exception as e:
+                        print(f"DEBUG [db_manager]: Errore in check_and_update_sqlite_db: {e}")  # DEBUG
                         # Mark as checked even on error to avoid repeated failures
                         _set_db_checked(db_check_key, True)
+                else:
+                    print("DEBUG [db_manager]: Skip check db (già fatto o file non esiste)")  # DEBUG
 
                 # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(

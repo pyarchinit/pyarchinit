@@ -690,3 +690,536 @@ class UTHeatmapGenerator:
 
         except Exception as e:
             self.log_message(f"Error styling vector grid: {e}")
+
+    # =========================================================================
+    # GNA Polygon-Masked Heatmap Methods
+    # =========================================================================
+
+    def generate_masked_heatmap(self, points, values, mask_polygon,
+                                 method='kde', cell_size=None,
+                                 classification_scheme=None,
+                                 map_type='potential'):
+        """
+        Generate a heatmap masked to an irregular polygon boundary (MOPR).
+
+        This method is designed for GNA export, generating heatmaps that are
+        clipped to the project area polygon and optionally classified into
+        VRP/VRD categories.
+
+        Args:
+            points: List of (x, y) coordinate tuples
+            values: List of values (potential_score or risk_score)
+            mask_polygon: QgsGeometry of the project boundary (MOPR)
+            method: 'kde', 'idw', or 'grid'
+            cell_size: Grid cell size in map units (default 50m)
+            classification_scheme: Dict for VRP/VRD classification:
+                {(min, max): {'code': 'XX', 'label': '...', 'color': '#XXXXXX'}}
+            map_type: 'potential' or 'risk' for styling
+
+        Returns:
+            Dictionary with:
+                - raster_path: Path to masked GeoTIFF
+                - vector_layer: Classified multipolygon layer (if scheme provided)
+                - stats: Statistics dictionary
+                - method: Method used
+        """
+        if not points or not values:
+            return {'error': 'No points or values provided'}
+
+        if not mask_polygon or mask_polygon.isEmpty():
+            return {'error': 'Invalid mask polygon'}
+
+        if not self.has_numpy:
+            return {'error': 'NumPy required for masked heatmap generation'}
+
+        cell_size = cell_size or self.DEFAULT_CELL_SIZE
+
+        # Get extent from polygon bounding box
+        bbox = mask_polygon.boundingBox()
+        extent = (
+            bbox.xMinimum(),
+            bbox.yMinimum(),
+            bbox.xMaximum(),
+            bbox.yMaximum()
+        )
+
+        # Convert to numpy arrays
+        points_array = np.array(points)
+        values_array = np.array(values)
+
+        try:
+            # Generate heatmap grid
+            if method.lower() == 'kde':
+                grid, grid_extent = self._generate_kde(
+                    points_array, values_array, cell_size, 'auto', extent
+                )
+            elif method.lower() == 'idw':
+                grid, grid_extent = self._generate_idw(
+                    points_array, values_array, cell_size,
+                    self.DEFAULT_IDW_POWER, None, extent
+                )
+            elif method.lower() == 'grid':
+                grid, grid_extent = self._generate_grid(
+                    points_array, values_array, cell_size, extent
+                )
+            else:
+                return {'error': f'Unknown method: {method}'}
+
+            # Create mask from polygon
+            mask_array = self._rasterize_polygon(mask_polygon, grid.shape, bbox)
+
+            # Apply mask (values outside polygon become NaN)
+            masked_grid = np.where(mask_array, grid, np.nan)
+
+            # Save masked raster
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"gna_{map_type}_{method}_{timestamp}.tif"
+            raster_path = os.path.join(self.output_dir, filename)
+
+            self._save_geotiff(masked_grid, grid_extent, raster_path, cell_size)
+
+            # Calculate statistics
+            valid_values = masked_grid[~np.isnan(masked_grid)]
+            stats = {
+                'min': float(np.min(valid_values)) if len(valid_values) > 0 else 0,
+                'max': float(np.max(valid_values)) if len(valid_values) > 0 else 0,
+                'mean': float(np.mean(valid_values)) if len(valid_values) > 0 else 0,
+                'std': float(np.std(valid_values)) if len(valid_values) > 0 else 0,
+                'valid_cells': int(np.sum(~np.isnan(masked_grid))),
+                'total_cells': int(masked_grid.size)
+            }
+
+            result = {
+                'raster_path': raster_path,
+                'stats': stats,
+                'method': method,
+                'cell_size': cell_size,
+                'extent': grid_extent,
+                'timestamp': datetime.now().isoformat()
+            }
+
+            # Classify and polygonize if scheme provided
+            if classification_scheme:
+                vector_layer = self._classify_to_multipolygon(
+                    masked_grid, bbox, mask_polygon, classification_scheme, map_type
+                )
+                result['vector_layer'] = vector_layer
+
+            # Create styled raster layer if QGIS available
+            if self.has_qgis:
+                layer = self._create_styled_layer(
+                    raster_path,
+                    f"GNA {map_type.capitalize()} ({method.upper()})",
+                    map_type
+                )
+                result['raster_layer'] = layer
+
+            return result
+
+        except Exception as e:
+            if QGIS_AVAILABLE:
+                self.log_message(f"Masked heatmap error: {e}", Qgis.Warning)
+            else:
+                self.log_message(f"Masked heatmap error: {e}")
+            return {'error': str(e)}
+
+    def _rasterize_polygon(self, polygon, shape, extent):
+        """
+        Convert a QgsGeometry polygon to a boolean raster mask.
+
+        Args:
+            polygon: QgsGeometry polygon
+            shape: Tuple (rows, cols) for output array shape
+            extent: QgsRectangle of the grid extent
+
+        Returns:
+            Boolean numpy array where True = inside polygon
+        """
+        if not self.has_gdal:
+            # Fallback: simple point-in-polygon test
+            return self._rasterize_polygon_simple(polygon, shape, extent)
+
+        from osgeo import gdal, ogr
+
+        ny, nx = shape
+
+        # Create in-memory raster
+        driver = gdal.GetDriverByName('MEM')
+        raster = driver.Create('', nx, ny, 1, gdal.GDT_Byte)
+
+        # Set geotransform
+        pixel_width = (extent.xMaximum() - extent.xMinimum()) / nx
+        pixel_height = (extent.yMaximum() - extent.yMinimum()) / ny
+        raster.SetGeoTransform((
+            extent.xMinimum(), pixel_width, 0,
+            extent.yMaximum(), 0, -pixel_height
+        ))
+
+        # Create in-memory OGR datasource with polygon
+        mem_driver = ogr.GetDriverByName('Memory')
+        mem_ds = mem_driver.CreateDataSource('')
+        mem_layer = mem_ds.CreateLayer('mask', geom_type=ogr.wkbPolygon)
+
+        # Create feature with polygon geometry
+        feat_defn = mem_layer.GetLayerDefn()
+        feat = ogr.Feature(feat_defn)
+
+        # Convert QgsGeometry to OGR geometry
+        wkt = polygon.asWkt()
+        ogr_geom = ogr.CreateGeometryFromWkt(wkt)
+        feat.SetGeometry(ogr_geom)
+        mem_layer.CreateFeature(feat)
+
+        # Rasterize: burn value 1 where polygon exists
+        gdal.RasterizeLayer(raster, [1], mem_layer, burn_values=[1])
+
+        # Read array and convert to boolean
+        band = raster.GetRasterBand(1)
+        mask_array = band.ReadAsArray()
+
+        # Cleanup
+        raster = None
+        mem_ds = None
+
+        return mask_array == 1
+
+    def _rasterize_polygon_simple(self, polygon, shape, extent):
+        """
+        Simple fallback rasterization using point-in-polygon tests.
+
+        Args:
+            polygon: QgsGeometry polygon
+            shape: Tuple (rows, cols) for output array
+            extent: QgsRectangle of the grid extent
+
+        Returns:
+            Boolean numpy array
+        """
+        ny, nx = shape
+        mask = np.zeros((ny, nx), dtype=bool)
+
+        pixel_width = (extent.xMaximum() - extent.xMinimum()) / nx
+        pixel_height = (extent.yMaximum() - extent.yMinimum()) / ny
+
+        for iy in range(ny):
+            for ix in range(nx):
+                # Calculate cell center coordinates
+                x = extent.xMinimum() + (ix + 0.5) * pixel_width
+                y = extent.yMaximum() - (iy + 0.5) * pixel_height
+
+                # Test if point is inside polygon
+                point = QgsGeometry.fromPointXY(QgsPointXY(x, y))
+                if polygon.contains(point):
+                    mask[iy, ix] = True
+
+        return mask
+
+    def _classify_to_multipolygon(self, grid, extent, mask_polygon,
+                                   classification_scheme, map_type='potential'):
+        """
+        Convert a classified raster grid to a multipolygon vector layer.
+
+        Creates polygons for each classification level, clipped to the
+        project boundary.
+
+        Args:
+            grid: 2D numpy array with values
+            extent: QgsRectangle of the grid extent
+            mask_polygon: QgsGeometry of project boundary for clipping
+            classification_scheme: Dict mapping (min, max) to class info
+            map_type: 'potential' or 'risk' for layer naming
+
+        Returns:
+            QgsVectorLayer with classified polygons
+        """
+        if not self.has_qgis:
+            return None
+
+        # Create memory layer
+        crs_string = self.crs.authid() if self.crs else 'EPSG:4326'
+        layer_name = f"GNA_{map_type.upper()}"
+        layer = QgsVectorLayer(
+            f'MultiPolygon?crs={crs_string}',
+            layer_name,
+            'memory'
+        )
+
+        provider = layer.dataProvider()
+
+        # Add GNA-required fields
+        fields = QgsFields()
+        fields.append(QgsField('CLASSE', QVariant.String))
+        fields.append(QgsField('LABEL', QVariant.String))
+        fields.append(QgsField('VALORE_MIN', QVariant.Double))
+        fields.append(QgsField('VALORE_MAX', QVariant.Double))
+        fields.append(QgsField('COLORE', QVariant.String))
+        fields.append(QgsField('AREA_MQ', QVariant.Double))
+        provider.addAttributes(fields)
+        layer.updateFields()
+
+        ny, nx = grid.shape
+        pixel_width = (extent.xMaximum() - extent.xMinimum()) / nx
+        pixel_height = (extent.yMaximum() - extent.yMinimum()) / ny
+
+        # Process each classification level
+        for (min_val, max_val), class_info in classification_scheme.items():
+            # Create mask for this class
+            if max_val == 100:
+                class_mask = (grid >= min_val) & (grid <= max_val) & ~np.isnan(grid)
+            else:
+                class_mask = (grid >= min_val) & (grid < max_val) & ~np.isnan(grid)
+
+            if not np.any(class_mask):
+                continue
+
+            # Polygonize the class mask
+            class_polygons = self._polygonize_mask(class_mask, extent, pixel_width, pixel_height)
+
+            if not class_polygons:
+                continue
+
+            # Merge all polygons for this class into multipolygon
+            merged_geom = None
+            for poly_geom in class_polygons:
+                if merged_geom is None:
+                    merged_geom = poly_geom
+                else:
+                    merged_geom = merged_geom.combine(poly_geom)
+
+            if merged_geom is None or merged_geom.isEmpty():
+                continue
+
+            # Clip to project boundary
+            clipped = merged_geom.intersection(mask_polygon)
+
+            if clipped.isEmpty():
+                continue
+
+            # Create feature
+            feat = QgsFeature()
+            feat.setGeometry(clipped)
+
+            # Calculate area
+            area = clipped.area()
+
+            feat.setAttributes([
+                class_info['code'],
+                class_info['label'],
+                float(min_val),
+                float(max_val),
+                class_info['color'],
+                float(area)
+            ])
+
+            provider.addFeature(feat)
+
+        layer.updateExtents()
+
+        # Apply styling
+        self._style_classified_layer(layer, map_type)
+
+        return layer
+
+    def _polygonize_mask(self, mask, extent, pixel_width, pixel_height):
+        """
+        Convert a boolean mask to polygon geometries.
+
+        Uses a simple cell-based approach: each True cell becomes a polygon,
+        then adjacent polygons are dissolved.
+
+        Args:
+            mask: 2D boolean numpy array
+            extent: QgsRectangle
+            pixel_width: Cell width
+            pixel_height: Cell height
+
+        Returns:
+            List of QgsGeometry polygons
+        """
+        if not self.has_qgis:
+            return []
+
+        polygons = []
+        ny, nx = mask.shape
+
+        # Find connected regions using flood fill approach
+        visited = np.zeros_like(mask, dtype=bool)
+
+        def get_cell_polygon(iy, ix):
+            """Create polygon for a single cell."""
+            x0 = extent.xMinimum() + ix * pixel_width
+            y0 = extent.yMaximum() - (iy + 1) * pixel_height
+            x1 = x0 + pixel_width
+            y1 = y0 + pixel_height
+
+            return QgsGeometry.fromPolygonXY([[
+                QgsPointXY(x0, y0),
+                QgsPointXY(x1, y0),
+                QgsPointXY(x1, y1),
+                QgsPointXY(x0, y1),
+                QgsPointXY(x0, y0)
+            ]])
+
+        # Create polygons for all True cells and dissolve
+        cell_polys = []
+        for iy in range(ny):
+            for ix in range(nx):
+                if mask[iy, ix]:
+                    cell_polys.append(get_cell_polygon(iy, ix))
+
+        if not cell_polys:
+            return []
+
+        # Merge all cell polygons
+        merged = cell_polys[0]
+        for poly in cell_polys[1:]:
+            merged = merged.combine(poly)
+
+        # Simplify to reduce vertex count
+        tolerance = min(pixel_width, pixel_height) * 0.1
+        simplified = merged.simplify(tolerance)
+
+        if simplified and not simplified.isEmpty():
+            return [simplified]
+        elif merged and not merged.isEmpty():
+            return [merged]
+
+        return []
+
+    def _style_classified_layer(self, layer, map_type='potential'):
+        """
+        Apply categorized styling to classified GNA layer.
+
+        Args:
+            layer: QgsVectorLayer with CLASSE and COLORE fields
+            map_type: 'potential' or 'risk'
+        """
+        if not self.has_qgis:
+            return
+
+        try:
+            from qgis.core import (
+                QgsCategorizedSymbolRenderer,
+                QgsRendererCategory,
+                QgsFillSymbol
+            )
+
+            # Create categorized renderer based on CLASSE field
+            renderer = QgsCategorizedSymbolRenderer('CLASSE')
+
+            # Get unique classes from layer
+            classes = set()
+            for feat in layer.getFeatures():
+                classe = feat['CLASSE']
+                color = feat['COLORE']
+                label = feat['LABEL']
+                if classe:
+                    classes.add((classe, color, label))
+
+            # Create category for each class
+            for classe, color, label in classes:
+                symbol = QgsFillSymbol.createSimple({
+                    'color': color,
+                    'outline_color': '#333333',
+                    'outline_width': '0.5'
+                })
+
+                category = QgsRendererCategory(classe, symbol, label)
+                renderer.addCategory(category)
+
+            layer.setRenderer(renderer)
+            layer.triggerRepaint()
+
+        except Exception as e:
+            self.log_message(f"Error styling classified layer: {e}")
+
+    def generate_gna_layers(self, ut_records, mask_polygon,
+                           method='kde', cell_size=None,
+                           vrp_scheme=None, vrd_scheme=None):
+        """
+        Generate complete GNA VRP and VRD layers from UT records.
+
+        Convenience method that generates both potential and risk
+        heatmaps masked to the project polygon.
+
+        Args:
+            ut_records: List of UT records with potential_score and risk_score
+            mask_polygon: QgsGeometry of project boundary
+            method: Interpolation method
+            cell_size: Grid cell size
+            vrp_scheme: VRP classification scheme (or use default)
+            vrd_scheme: VRD classification scheme (or use default)
+
+        Returns:
+            Dictionary with vrp_layer, vrd_layer, vrp_raster, vrd_raster
+        """
+        from .ut_potential_calculator import UTPotentialCalculator
+
+        # Extract points and scores from UT records
+        potential_points = []
+        potential_values = []
+        risk_points = []
+        risk_values = []
+
+        for record in ut_records:
+            # Get coordinates (need to be provided or extracted from geometry)
+            x, y = None, None
+
+            if hasattr(record, 'geometry') and record.geometry:
+                centroid = record.geometry.centroid()
+                x, y = centroid.x(), centroid.y()
+            elif hasattr(record, 'coord_piane') and record.coord_piane:
+                try:
+                    coords = str(record.coord_piane).replace(' ', '').split(',')
+                    x, y = float(coords[0]), float(coords[1])
+                except:
+                    pass
+
+            # Fallback to coord_geografiche (lat, lon format)
+            if x is None and hasattr(record, 'coord_geografiche') and record.coord_geografiche:
+                try:
+                    coords = str(record.coord_geografiche).replace(' ', '').split(',')
+                    lat, lon = float(coords[0]), float(coords[1])
+                    # For heatmap we use lon, lat order (x, y)
+                    x, y = lon, lat
+                except:
+                    pass
+
+            if x is None or y is None:
+                continue
+
+            # Get potential score
+            potential = getattr(record, 'potential_score', None)
+            if potential is not None:
+                potential_points.append((x, y))
+                potential_values.append(float(potential))
+
+            # Get risk score
+            risk = getattr(record, 'risk_score', None)
+            if risk is not None:
+                risk_points.append((x, y))
+                risk_values.append(float(risk))
+
+        result = {}
+
+        # Generate VRP layer
+        if potential_points and vrp_scheme:
+            vrp_result = self.generate_masked_heatmap(
+                potential_points, potential_values, mask_polygon,
+                method=method, cell_size=cell_size,
+                classification_scheme=vrp_scheme,
+                map_type='potential'
+            )
+            result['vrp'] = vrp_result
+
+        # Generate VRD layer
+        if risk_points and vrd_scheme:
+            vrd_result = self.generate_masked_heatmap(
+                risk_points, risk_values, mask_polygon,
+                method=method, cell_size=cell_size,
+                classification_scheme=vrd_scheme,
+                map_type='risk'
+            )
+            result['vrd'] = vrd_result
+
+        return result

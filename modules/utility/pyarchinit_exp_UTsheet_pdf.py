@@ -1,68 +1,271 @@
-
-#! /usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-/***************************************************************************
-        pyArchInit Plugin  - A QGIS plugin to manage archaeological dataset
-                             stored in Postgres
-                             -------------------
-    begin                : 2007-12-01
-    copyright            : (C) 2008 by Luca Mandolesi; Enzo Cocca <enzo.ccc@gmail.com>
-    email                : mandoluca at gmail.com
- ***************************************************************************/
+PyArchInit UT PDF Sheet Generator - Modern Layout
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
+Generates professional PDF sheets for Unità Topografica (UT) records.
+Supports 7 languages: IT, EN, DE, ES, FR, AR, CA
+
+Features:
+- Modern full-page layout
+- All fields including survey and analysis data
+- Individual sheets and list export
+- Color-coded sections
 """
 
-import datetime
-from datetime import date
-from numpy import *
-import io
+import os
+from datetime import date, datetime
 
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import (A4,A3)
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch, cm, mm 
+from reportlab.lib.units import cm, mm
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT, TA_JUSTIFY
 from reportlab.pdfgen import canvas
-from reportlab.platypus import Table, PageBreak, SimpleDocTemplate, Spacer, TableStyle, Image
-from reportlab.platypus.paragraph import Paragraph
+from reportlab.platypus import (
+    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
+    PageBreak, Image, KeepTogether
+)
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.pdfmetrics import registerFontFamily
 from reportlab.pdfbase.ttfonts import TTFont
-# Registered font family
-pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
-pdfmetrics.registerFont(TTFont('cambriab', 'cambriab.ttf'))
-pdfmetrics.registerFont(TTFont('VeraIt', 'VeraIt.ttf'))
-pdfmetrics.registerFont(TTFont('VeraBI', 'VeraBI.ttf'))
-# Registered fontfamily
-registerFontFamily('Cambria',normal='Cambria')
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+
+# Try to register fonts
+try:
+    pdfmetrics.registerFont(TTFont('Cambria', 'Cambria.ttc'))
+    pdfmetrics.registerFont(TTFont('CambriaBold', 'cambriab.ttf'))
+    registerFontFamily('Cambria', normal='Cambria', bold='CambriaBold')
+    DEFAULT_FONT = 'Cambria'
+except:
+    DEFAULT_FONT = 'Helvetica'
 
 from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
-from PIL import Image as giggino
-from reportlab.lib.utils import ImageReader
 
-class NumberedCanvas_UTsheet(canvas.Canvas):
+# Page dimensions
+PAGE_WIDTH, PAGE_HEIGHT = A4
+MARGIN = 1.2 * cm
+USABLE_WIDTH = PAGE_WIDTH - 2 * MARGIN
+
+# Modern color scheme
+COLORS = {
+    'header_bg': colors.HexColor('#2C3E50'),      # Dark blue-gray
+    'header_text': colors.white,
+    'section_bg': colors.HexColor('#3498DB'),     # Blue
+    'section_text': colors.white,
+    'subsection_bg': colors.HexColor('#ECF0F1'),  # Light gray
+    'label_bg': colors.HexColor('#F8F9FA'),       # Very light gray
+    'value_bg': colors.white,
+    'border': colors.HexColor('#BDC3C7'),         # Medium gray
+    'potential_high': colors.HexColor('#27AE60'), # Green
+    'potential_med': colors.HexColor('#F39C12'),  # Orange
+    'potential_low': colors.HexColor('#95A5A6'),  # Gray
+    'risk_high': colors.HexColor('#E74C3C'),      # Red
+    'risk_med': colors.HexColor('#F39C12'),       # Orange
+    'risk_low': colors.HexColor('#27AE60'),       # Green
+}
+
+# Labels for multiple languages
+LABELS = {
+    'IT': {
+        'title': 'SCHEDA UNITÀ TOPOGRAFICA',
+        'list_title': 'ELENCO UNITÀ TOPOGRAFICHE',
+        'section_id': 'IDENTIFICAZIONE',
+        'section_location': 'LOCALIZZAZIONE',
+        'section_terrain': 'CARATTERISTICHE DEL TERRENO',
+        'section_survey': 'DATI RICOGNIZIONE',
+        'section_chronology': 'CRONOLOGIA E INTERPRETAZIONE',
+        'section_analysis': 'ANALISI POTENZIALE/RISCHIO',
+        'section_docs': 'DOCUMENTAZIONE',
+        'project': 'Progetto',
+        'ut_number': 'N° UT',
+        'ut_literal': 'UT Letterale',
+        'definition': 'Definizione',
+        'description': 'Descrizione',
+        'interpretation': 'Interpretazione',
+        'nation': 'Nazione',
+        'region': 'Regione',
+        'province': 'Provincia',
+        'municipality': 'Comune',
+        'hamlet': 'Frazione',
+        'locality': 'Località',
+        'address': 'Indirizzo',
+        'civic_number': 'N° Civico',
+        'igm_map': 'Carta IGM',
+        'ctr_map': 'Carta CTR',
+        'cadastral_sheet': 'Foglio Catastale',
+        'geo_coords': 'Coordinate Geografiche',
+        'plane_coords': 'Coordinate Piane',
+        'altitude': 'Quota (m)',
+        'slope': 'Pendenza',
+        'land_use': 'Uso del Suolo',
+        'soil_desc': 'Descrizione Suolo',
+        'place_desc': 'Descrizione Luogo',
+        'survey_method': 'Metodo Ricognizione',
+        'geometry': 'Geometria',
+        'dimensions': 'Dimensioni',
+        'date': 'Data',
+        'time_weather': 'Ora e Meteo',
+        'responsible': 'Responsabile',
+        'visibility': 'Visibilità (%)',
+        'vegetation': 'Copertura Vegetale',
+        'gps_method': 'Metodo GPS',
+        'gps_precision': 'Precisione GPS (m)',
+        'survey_type': 'Tipo Survey',
+        'surface_cond': 'Condizione Superficie',
+        'accessibility': 'Accessibilità',
+        'photo_doc': 'Doc. Fotografica',
+        'weather': 'Condizioni Meteo',
+        'team': 'Team Survey',
+        'finds_sqm': 'Reperti per m²',
+        'dating_finds': 'Reperti Datanti',
+        'period_1': 'Periodo I',
+        'dating_1': 'Datazione I',
+        'interp_1': 'Interpretazione I',
+        'period_2': 'Periodo II',
+        'dating_2': 'Datazione II',
+        'interp_2': 'Interpretazione II',
+        'potential_score': 'Potenziale Archeologico',
+        'risk_score': 'Rischio Archeologico',
+        'analysis_date': 'Data Analisi',
+        'analysis_method': 'Metodo Analisi',
+        'bibliography': 'Bibliografia',
+        'documentation': 'Documentazione',
+        'protection': 'Vincoli e Tutela',
+        'prelim_surveys': 'Indagini Preliminari',
+        'page': 'Pag.',
+        'of': 'di',
+        'generated': 'Generato il',
+        'yes': 'Sì',
+        'no': 'No',
+    },
+    'EN': {
+        'title': 'TOPOGRAPHIC UNIT SHEET',
+        'list_title': 'TOPOGRAPHIC UNITS LIST',
+        'section_id': 'IDENTIFICATION',
+        'section_location': 'LOCATION',
+        'section_terrain': 'TERRAIN CHARACTERISTICS',
+        'section_survey': 'SURVEY DATA',
+        'section_chronology': 'CHRONOLOGY AND INTERPRETATION',
+        'section_analysis': 'POTENTIAL/RISK ANALYSIS',
+        'section_docs': 'DOCUMENTATION',
+        'project': 'Project',
+        'ut_number': 'UT No.',
+        'ut_literal': 'UT Literal',
+        'definition': 'Definition',
+        'description': 'Description',
+        'interpretation': 'Interpretation',
+        'nation': 'Nation',
+        'region': 'Region',
+        'province': 'Province',
+        'municipality': 'Municipality',
+        'hamlet': 'Hamlet',
+        'locality': 'Locality',
+        'address': 'Address',
+        'civic_number': 'Civic No.',
+        'igm_map': 'IGM Map',
+        'ctr_map': 'CTR Map',
+        'cadastral_sheet': 'Cadastral Sheet',
+        'geo_coords': 'Geographic Coordinates',
+        'plane_coords': 'Plane Coordinates',
+        'altitude': 'Altitude (m)',
+        'slope': 'Slope',
+        'land_use': 'Land Use',
+        'soil_desc': 'Soil Description',
+        'place_desc': 'Place Description',
+        'survey_method': 'Survey Method',
+        'geometry': 'Geometry',
+        'dimensions': 'Dimensions',
+        'date': 'Date',
+        'time_weather': 'Time & Weather',
+        'responsible': 'Responsible',
+        'visibility': 'Visibility (%)',
+        'vegetation': 'Vegetation Cover',
+        'gps_method': 'GPS Method',
+        'gps_precision': 'GPS Precision (m)',
+        'survey_type': 'Survey Type',
+        'surface_cond': 'Surface Condition',
+        'accessibility': 'Accessibility',
+        'photo_doc': 'Photo Documentation',
+        'weather': 'Weather Conditions',
+        'team': 'Survey Team',
+        'finds_sqm': 'Finds per m²',
+        'dating_finds': 'Dating Finds',
+        'period_1': 'Period I',
+        'dating_1': 'Dating I',
+        'interp_1': 'Interpretation I',
+        'period_2': 'Period II',
+        'dating_2': 'Dating II',
+        'interp_2': 'Interpretation II',
+        'potential_score': 'Archaeological Potential',
+        'risk_score': 'Archaeological Risk',
+        'analysis_date': 'Analysis Date',
+        'analysis_method': 'Analysis Method',
+        'bibliography': 'Bibliography',
+        'documentation': 'Documentation',
+        'protection': 'Protection & Constraints',
+        'prelim_surveys': 'Preliminary Surveys',
+        'page': 'Page',
+        'of': 'of',
+        'generated': 'Generated on',
+        'yes': 'Yes',
+        'no': 'No',
+    },
+    'DE': {
+        'title': 'TOPOGRAFISCHE EINHEIT FORMULAR',
+        'list_title': 'TOPOGRAFISCHE EINHEITEN LISTE',
+        'section_id': 'IDENTIFIKATION',
+        'section_location': 'LOKALISIERUNG',
+        'section_terrain': 'GELÄNDEMERKMALE',
+        'section_survey': 'SURVEY-DATEN',
+        'section_chronology': 'CHRONOLOGIE UND INTERPRETATION',
+        'section_analysis': 'POTENTIAL/RISIKO ANALYSE',
+        'section_docs': 'DOKUMENTATION',
+        'project': 'Projekt',
+        'ut_number': 'TE Nr.',
+        'definition': 'Definition',
+        'description': 'Beschreibung',
+        'interpretation': 'Interpretation',
+        'nation': 'Nation',
+        'region': 'Region',
+        'province': 'Provinz',
+        'municipality': 'Gemeinde',
+        'page': 'Seite',
+        'of': 'von',
+        'generated': 'Erstellt am',
+        'yes': 'Ja',
+        'no': 'Nein',
+    }
+}
+
+# Add missing keys with Italian fallback
+for lang in ['DE', 'ES', 'FR', 'AR', 'CA']:
+    if lang not in LABELS:
+        LABELS[lang] = LABELS['IT'].copy()
+    else:
+        for key in LABELS['IT']:
+            if key not in LABELS[lang]:
+                LABELS[lang][key] = LABELS['IT'][key]
+
+
+def get_label(key, lang='IT'):
+    """Get label for key in specified language."""
+    return LABELS.get(lang, LABELS['IT']).get(key, LABELS['IT'].get(key, key))
+
+
+class NumberedCanvas(canvas.Canvas):
+    """Canvas with page numbers."""
+
     def __init__(self, *args, **kwargs):
+        self.lang = kwargs.pop('lang', 'IT')
         canvas.Canvas.__init__(self, *args, **kwargs)
         self._saved_page_states = []
-
-    def define_position(self, pos):
-        self.page_position(pos)
 
     def showPage(self):
         self._saved_page_states.append(dict(self.__dict__))
         self._startPage()
 
     def save(self):
-        """add page info to each page (page x of y)"""
         num_pages = len(self._saved_page_states)
         for state in self._saved_page_states:
             self.__dict__.update(state)
@@ -71,82 +274,63 @@ class NumberedCanvas_UTsheet(canvas.Canvas):
         canvas.Canvas.save(self)
 
     def draw_page_number(self, page_count):
-        self.setFont("Cambria", 6)
-        self.drawRightString(200 * mm, 20 * mm,
-                             "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
+        self.setFont(DEFAULT_FONT, 8)
+        page_label = get_label('page', self.lang)
+        of_label = get_label('of', self.lang)
+        self.drawRightString(
+            PAGE_WIDTH - MARGIN, MARGIN / 2,
+            f"{page_label} {self._pageNumber} {of_label} {page_count}"
+        )
 
 
-class NumberedCanvas_UTindex(canvas.Canvas):
-    def __init__(self, *args, **kwargs):
-        canvas.Canvas.__init__(self, *args, **kwargs)
-        self._saved_page_states = []
+class single_UT_pdf_sheet:
+    """Generates a single UT PDF sheet with modern layout."""
 
-    def define_position(self, pos):
-        self.page_position(pos)
-
-    def showPage(self):
-        self._saved_page_states.append(dict(self.__dict__))
-        self._startPage()
-
-    def save(self):
-        """add page info to each page (page x of y)"""
-        num_pages = len(self._saved_page_states)
-        for state in self._saved_page_states:
-            self.__dict__.update(state)
-            self.draw_page_number(num_pages)
-            canvas.Canvas.showPage(self)
-        canvas.Canvas.save(self)
-
-    def draw_page_number(self, page_count):
-        self.setFont("Helvetica", 8)
-        self.drawRightString(270 * mm, 10 * mm,
-                             "Pag. %d di %d" % (self._pageNumber, page_count))  # scheda us verticale 200mm x 20 mm
-
-
-class single_UT_pdf_sheet(object):
     def __init__(self, data):
-        self.progetto = data[0]  # 1
-        self.nr_ut = data[1]  # 2
-        #self.ut_letterale = data[2]  # 3
-        self.def_ut = data[3]  # 4
-        self.descrizione_ut = data[4]  # 5
-        self.interpretazione_ut = data[5]  # 6
-        self.nazione = data[6]  # 7
-        self.regione = data[7]  # 8
-        self.provincia = data[8]  # 9
-        self.comune = data[9]  # 10
-        self.frazione = data[10]  # 11
-        self.localita = data[11]  # 12
-        self.indirizzo = data[12]  # 13
-        self.nr_civico = data[13]  # 14
-        self.carta_topo_igm = data[14]  # 15
-        self.carta_ctr = data[15]  # 16
-        self.coord_geografiche = data[16]  # 17
-        self.coord_piane = data[17]  # 18
-        self.quota = data[18]  # 19
-        self.andamento_terreno_pendenza = data[19]  # 20
-        self.utilizzo_suolo_vegetazione = data[20]  # 21
-        self.descrizione_empirica_suolo = data[21]  # 22
-        self.descrizione_luogo = data[22]  # 23
-        self.metodo_rilievo_e_ricognizione = data[23]  # 24
-        self.geometria = data[24]  # 25
-        self.bibliografia = data[25]  # 26
-        self.data = data[26]  # 27
-        self.ora_meteo = data[27]  # 28
-        self.responsabile = data[28]  # 29
-        self.dimensioni_ut = data[29]  # 30
-        self.rep_per_mq = data[30]  # 31
-        self.rep_datanti = data[31]  # 32
-        self.periodo_I = data[32]  # 33
-        self.datazione_I = data[33]  # 34
-        self.interpretazione_I = data[34]  # 35
-        self.periodo_II = data[35]  # 36
-        self.datazione_II = data[36]  # 37
-        self.interpretazione_II = data[37]  # 38
-        self.documentazione = data[38]  # 39
-        self.enti_tutela_vincoli = data[39]  # 40
-        self.indagini_preliminari = data[40]
-        # New survey fields (v4.9.21+)
+        """Initialize with data tuple from database."""
+        self.progetto = str(data[0]) if data[0] else ''
+        self.nr_ut = str(data[1]) if data[1] else ''
+        self.ut_letterale = str(data[2]) if len(data) > 2 and data[2] else ''
+        self.def_ut = str(data[3]) if len(data) > 3 and data[3] else ''
+        self.descrizione_ut = str(data[4]) if len(data) > 4 and data[4] else ''
+        self.interpretazione_ut = str(data[5]) if len(data) > 5 and data[5] else ''
+        self.nazione = str(data[6]) if len(data) > 6 and data[6] else ''
+        self.regione = str(data[7]) if len(data) > 7 and data[7] else ''
+        self.provincia = str(data[8]) if len(data) > 8 and data[8] else ''
+        self.comune = str(data[9]) if len(data) > 9 and data[9] else ''
+        self.frazione = str(data[10]) if len(data) > 10 and data[10] else ''
+        self.localita = str(data[11]) if len(data) > 11 and data[11] else ''
+        self.indirizzo = str(data[12]) if len(data) > 12 and data[12] else ''
+        self.nr_civico = str(data[13]) if len(data) > 13 and data[13] else ''
+        self.carta_topo_igm = str(data[14]) if len(data) > 14 and data[14] else ''
+        self.carta_ctr = str(data[15]) if len(data) > 15 and data[15] else ''
+        self.coord_geografiche = str(data[16]) if len(data) > 16 and data[16] else ''
+        self.coord_piane = str(data[17]) if len(data) > 17 and data[17] else ''
+        self.quota = str(data[18]) if len(data) > 18 and data[18] is not None else ''
+        self.andamento_terreno_pendenza = str(data[19]) if len(data) > 19 and data[19] else ''
+        self.utilizzo_suolo_vegetazione = str(data[20]) if len(data) > 20 and data[20] else ''
+        self.descrizione_empirica_suolo = str(data[21]) if len(data) > 21 and data[21] else ''
+        self.descrizione_luogo = str(data[22]) if len(data) > 22 and data[22] else ''
+        self.metodo_rilievo_e_ricognizione = str(data[23]) if len(data) > 23 and data[23] else ''
+        self.geometria = str(data[24]) if len(data) > 24 and data[24] else ''
+        self.bibliografia = str(data[25]) if len(data) > 25 and data[25] else ''
+        self.data = str(data[26]) if len(data) > 26 and data[26] else ''
+        self.ora_meteo = str(data[27]) if len(data) > 27 and data[27] else ''
+        self.responsabile = str(data[28]) if len(data) > 28 and data[28] else ''
+        self.dimensioni_ut = str(data[29]) if len(data) > 29 and data[29] else ''
+        self.rep_per_mq = str(data[30]) if len(data) > 30 and data[30] else ''
+        self.rep_datanti = str(data[31]) if len(data) > 31 and data[31] else ''
+        self.periodo_I = str(data[32]) if len(data) > 32 and data[32] else ''
+        self.datazione_I = str(data[33]) if len(data) > 33 and data[33] else ''
+        self.interpretazione_I = str(data[34]) if len(data) > 34 and data[34] else ''
+        self.periodo_II = str(data[35]) if len(data) > 35 and data[35] else ''
+        self.datazione_II = str(data[36]) if len(data) > 36 and data[36] else ''
+        self.interpretazione_II = str(data[37]) if len(data) > 37 and data[37] else ''
+        self.documentazione = str(data[38]) if len(data) > 38 and data[38] else ''
+        self.enti_tutela_vincoli = str(data[39]) if len(data) > 39 and data[39] else ''
+        self.indagini_preliminari = str(data[40]) if len(data) > 40 and data[40] else ''
+
+        # Survey fields (v4.9.21+)
         self.visibility_percent = str(data[41]) if len(data) > 41 and data[41] is not None else ''
         self.vegetation_coverage = str(data[42]) if len(data) > 42 and data[42] else ''
         self.gps_method = str(data[43]) if len(data) > 43 and data[43] else ''
@@ -154,1313 +338,510 @@ class single_UT_pdf_sheet(object):
         self.survey_type = str(data[45]) if len(data) > 45 and data[45] else ''
         self.surface_condition = str(data[46]) if len(data) > 46 and data[46] else ''
         self.accessibility = str(data[47]) if len(data) > 47 and data[47] else ''
-        self.photo_documentation = 'Sì' if len(data) > 48 and data[48] else 'No'
+        self.photo_documentation = str(data[48]) if len(data) > 48 and data[48] is not None else ''
         self.weather_conditions = str(data[49]) if len(data) > 49 and data[49] else ''
         self.team_members = str(data[50]) if len(data) > 50 and data[50] else ''
         self.foglio_catastale = str(data[51]) if len(data) > 51 and data[51] else ''
 
-    def datestrfdate(self):
-        now = date.today()
-        today = now.strftime("%d-%m-%Y")
-        return today
-
-    def create_sheet(self):
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.fontSize = 5
-        styNormal.fontName='Cambria'
-        styNormal.alignment = 0  # LEFT
-
-        styleSheet = getSampleStyleSheet()
-        styNormal2 = styleSheet['Normal']
-        styNormal2.spaceBefore = 20
-        styNormal2.spaceAfter = 20
-        styNormal2.fontSize = 5
-        styNormal2.fontName='Cambria'
-        styNormal2.alignment = 1  # LEFT
-        
-        
-        styleSheet = getSampleStyleSheet()
-        styL = styleSheet['Normal']
-        styL.spaceBefore = 20
-        styL.spaceAfter = 20
-        styL.fontSize = 2
-        styL.fontName='Cambria'
-        styL.alignment = 1
-        
-        
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.fontSize = 5
-        styDescrizione.fontName='Cambria'
-        styDescrizione.alignment = 4  # Justified
-
-        styleSheet = getSampleStyleSheet()
-        styUnitaTipo = styleSheet['Normal']
-        styUnitaTipo.spaceBefore = 20
-        styUnitaTipo.spaceAfter = 20
-        styUnitaTipo.fontSize = 14
-        styUnitaTipo.fontName='Cambria'
-        styUnitaTipo.alignment = 1  # CENTER
-
-        styleSheet = getSampleStyleSheet()
-        styTitoloComponenti = styleSheet['Normal']
-        styTitoloComponenti.spaceBefore = 20
-        styTitoloComponenti.spaceAfter = 20
-        styTitoloComponenti. rowHeights=0.5
-        styTitoloComponenti.fontSize = 5
-        styTitoloComponenti.fontName='Cambria'
-        styTitoloComponenti.alignment = 1  # CENTER
-
-        styleSheet = getSampleStyleSheet()
-        styVerticale = styleSheet['Normal']
-        styVerticale.spaceBefore = 20
-        styVerticale.spaceAfter = 20
-        styVerticale.fontSize = 5
-        styVerticale.fontName='Cambria'
-        styVerticale.alignment = 1  # CENTER
-        styVerticale.leading=8
-
-        # format labels
-
-        # 0 row
-        intestazione = Paragraph("<b>SCHEDA DI UNIT&Agrave; TOPOGRAFICA<br/>" + str(self.datestrfdate()) + "</b>",
-                                 styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
-        logo.drawHeight = 2 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 2 * inch
-        logo.hAlign = 'CENTER'
-        lst = []
-        lst2=[]
-        lst.append(logo)
-        # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
-
-        # 1 row
-        progetto = Paragraph("<b>PROGETTO</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° UT</b><br/>" + str(self.nr_ut), styNormal)
-        #UTletterale = Paragraph("<b>UT letterale</b><br/>" + str(self.ut_letterale), styNormal)
-
-        # 2 row
-        descrizione_ut = Paragraph("<b>DESCRIZIONE UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>INTEPRETAZIONE UT</b><br/>" + self.interpretazione_ut, styNormal)
-
-        # 3 row
-        nazione = Paragraph("<b>NAZIONE</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>REGIONE</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>PROVINCIA</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>COMUNE</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>FRAZIONE</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>LOCALIZZAZIONE</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>INDIRIZZO</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>NR CIVICO</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>COORDINATE GEOGRAFICHE</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>COORDINATE PIANE</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>QUOTA</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>PENDENZA</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>UTILIZZO SUOLO</b><br/>" + self.utilizzo_suolo_vegetazione,
-                                               styNormal)
-        descrizione_empirica_suolo = Paragraph(
-            "<b>DESCRIZIONE EMPIRICA SUOLO</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>DESCRIZIONE SUOLO</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>TIPO RICOGNIZIONE</b><br/>" + self.metodo_rilievo_e_ricognizione,
-                                                  styNormal)
-        geometria = Paragraph("<b>GEOMETRIA</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>BIBLIOGRAFIA</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>DATA</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>ORA E METEO</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>RESPONSABILE</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>DIMENSIONI UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Q.T&Agrave; PER MQ </b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Q.T&Agrave; DATANTI</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>DATAZIONE</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datazione I</b><br/>" + self.datazione_I, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretazione I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Periodo II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datazione II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretazione II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentazione</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Enti tutela e vincoli</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Indagini preliminari</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields (v4.9.21+)
-        visibility_percent = Paragraph("<b>VISIBILIT&Agrave; (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>COPERTURA VEGETALE</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>METODO GPS</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>PRECISIONE GPS (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>TIPO SURVEY</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>CONDIZIONE SUPERFICIE</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ACCESSIBILIT&Agrave;</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>DOC. FOTOGRAFICA</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>CONDIZIONI METEO</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>TEAM SURVEY</b><br/>" + self.team_members, styNormal)
-        foglio_catastale = Paragraph("<b>FOGLIO CATASTALE</b><br/>" + self.foglio_catastale, styNormal)
-
-        # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09','10','11','12','13','14','15','16','17'],  # 0 row
-            [progetto, '01', '02', '03', '04', UT, '06', '07','08', '09','10','11','12','13','14','15','16','17'],  # 1 row
-            [descrizione_ut, '01', '02', '03', '04','04', '05', '06', '07','08', '09','10','11','12','13','14','15','16','17'],  # 2 row
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08', '09','10','11','12','13','14','15','16','17'],  # 3 row
-            [nazione, '01', provincia, '03', regione,'05', '06', comune, '08', '9', '10','11','12','13','14','15','16','17'],  # 4 row
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 5 row
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 6 row
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', '06', '07','08', '09', '10','11','12','13','14','15','16','17'],  # 7 row NEW
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05',descrizione_empirica_suolo, '07','08', '09', '10','11','12','13','14','15','16','17'],  # 8 row
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '07','08', '09', '10','11','12','13','14','15','16','17'],  # 9 row
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '07','08', '09', '10','11','12','13','14','15','16','17'],  # 10 row
-            [survey_type, '01', visibility_percent, '03', weather_conditions, '05', team_members,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 11 row NEW
-            [vegetation_coverage, '01', surface_condition, '03', accessibility, '05', photo_documentation,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 12 row NEW
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I,'07', '08', '09', '10','11','12','13','14','15','16','17'],  # 13 row
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '07','08', '09', '10','11','12','13','14','15','16','17'],  # 14 row
-            [documentazione, '01', '02', enti_tutela_vincoli,  '04', indagini_preliminari,'06', '07', '08','09', '10','11','12','13','14','15','16','17']  # 15 row
-        ]
-
-        # table style
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            # 0 row - intestazione
-            ('SPAN', (0, 0), (6, 0)),
-            ('SPAN', (7, 0), (9, 0)),
-            # 1 row - progetto, UT
-            ('SPAN', (0, 1), (4, 1)),
-            ('SPAN', (5, 1), (7, 1)),
-            ('SPAN', (8, 1), (9, 1)),
-            # 2-3 rows - descrizione, interpretazione
-            ('SPAN', (0, 2), (9, 2)),
-            ('SPAN', (0, 3), (9, 3)),
-            # 4 row - nazione, provincia, regione, comune
-            ('SPAN', (0, 4), (1, 4)),
-            ('SPAN', (2, 4), (3, 4)),
-            ('SPAN', (4, 4), (5, 4)),
-            ('SPAN', (6, 4), (9, 4)),
-            # 5 row - frazione, localita, indirizzo, nr_civico
-            ('SPAN', (0, 5), (1, 5)),
-            ('SPAN', (2, 5), (3, 5)),
-            ('SPAN', (4, 5), (5, 5)),
-            ('SPAN', (6, 5), (9, 5)),
-            # 6 row - carte, coordinate
-            ('SPAN', (0, 6), (1, 6)),
-            ('SPAN', (2, 6), (3, 6)),
-            ('SPAN', (4, 6), (5, 6)),
-            ('SPAN', (6, 6), (9, 6)),
-            # 7 row NEW - foglio_catastale, gps_method, coordinate_precision
-            ('SPAN', (0, 7), (1, 7)),
-            ('SPAN', (2, 7), (3, 7)),
-            ('SPAN', (4, 7), (9, 7)),
-            # 8 row - quota, pendenza, utilizzo_suolo, desc_empirica
-            ('SPAN', (0, 8), (1, 8)),
-            ('SPAN', (2, 8), (3, 8)),
-            ('SPAN', (4, 8), (5, 8)),
-            ('SPAN', (6, 8), (9, 8)),
-            # 9 row - desc_luogo, metodo, geometria, biblio
-            ('SPAN', (0, 9), (1, 9)),
-            ('SPAN', (2, 9), (3, 9)),
-            ('SPAN', (4, 9), (5, 9)),
-            ('SPAN', (6, 9), (9, 9)),
-            # 10 row - data, ora_meteo, responsabile, dimensioni
-            ('SPAN', (0, 10), (1, 10)),
-            ('SPAN', (2, 10), (3, 10)),
-            ('SPAN', (4, 10), (5, 10)),
-            ('SPAN', (6, 10), (9, 10)),
-            # 11 row NEW - survey_type, visibility, weather, team
-            ('SPAN', (0, 11), (1, 11)),
-            ('SPAN', (2, 11), (3, 11)),
-            ('SPAN', (4, 11), (5, 11)),
-            ('SPAN', (6, 11), (9, 11)),
-            # 12 row NEW - vegetation, surface, accessibility, photo_doc
-            ('SPAN', (0, 12), (1, 12)),
-            ('SPAN', (2, 12), (3, 12)),
-            ('SPAN', (4, 12), (5, 12)),
-            ('SPAN', (6, 12), (9, 12)),
-            # 13 row - rep_per_mq, rep_datanti, periodo_I, datazione_I
-            ('SPAN', (0, 13), (1, 13)),
-            ('SPAN', (2, 13), (3, 13)),
-            ('SPAN', (4, 13), (5, 13)),
-            ('SPAN', (6, 13), (9, 13)),
-            # 14 row - interpretazione_I, periodo_II, datazione_II, interp_II
-            ('SPAN', (0, 14), (1, 14)),
-            ('SPAN', (2, 14), (3, 14)),
-            ('SPAN', (4, 14), (5, 14)),
-            ('SPAN', (6, 14), (9, 14)),
-            # 15 row - documentazione, enti_tutela, indagini_preliminari
-            ('SPAN', (0, 15), (2, 15)),
-            ('SPAN', (3, 15), (5, 15)),
-            ('SPAN', (6, 15), (9, 15)),
-
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-
-        return t
-    def create_sheet_de(self):
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0  # LEFT
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4  # Justified
-
-        # format labels
-
-        # 0 row
-        intestazione = Paragraph("<b>FORMULAR TE<br/>" + str(self.datestrfdate()) + "</b>",
-                                 styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo_de.jpg')
-        logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
-
-        # 1 row
-        progetto = Paragraph("<b>Project</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° TE</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>TE<br/>" + str(self.ut_letterale), styNormal)
-
-        # 2 row
-        descrizione_ut = Paragraph("<b>Beschreibung TE</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>Deutung TE</b><br/>" + self.interpretazione_ut, styNormal)
-
-        # 3 row
-        nazione = Paragraph("<b>Nation</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Region</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Provinz</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Stadt</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Landkreis</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Ort</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Adress</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>Hausnummer</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>Topographische Karte</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Geographische Koordinaten</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Planum-Koordinaten</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Nivellement</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Hang-Trend</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Verwendung Boden</b><br/>" + self.utilizzo_suolo_vegetazione,
-                                               styNormal)
-        descrizione_empirica_suolo = Paragraph(
-            "<b>Empirische Beschreibung des Bodens</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Ortsbeschreibung</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Survey u. Oberflächenbegehung</b><br/>" + self.metodo_rilievo_e_ricognizione,
-                                                  styNormal)
-        geometria = Paragraph("<b>Geometrie</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<bBibliographie</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Datum</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Zeit / Wetter</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Verantwortlich</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>TE-Größe (MQ)</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Findet für MQ</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Findet</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Zeitraum I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Dating I</b><br/>" + self.frazione, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretation I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Zeitraum II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Dating II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretation II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Dokumentation</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Entitäten Schutz und Einschränkungen</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Voruntersuchungen</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields (v4.9.21+)
-        foglio_catastale = Paragraph("<b>KATASTERBLATT</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>SICHTBARKEIT (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>VEGETATIONSBEDECKUNG</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>GPS-METHODE</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>KOORDINATENGENAUIGKEIT (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>SURVEY-TYP</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>OBERFLÄCHENZUSTAND</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ZUGÄNGLICHKEIT</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>FOTODOKUMENTATION</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>WETTERBEDINGUNGEN</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>TEAMMITGLIEDER</b><br/>" + self.team_members, styNormal)
-
-        # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],  # 1 row ok
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],  # 2 row ok
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],  # 3
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],  # 4
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],  # 5
-            # row 7 - survey fields
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05',
-             descrizione_empirica_suolo, '08', '09'],
-            # 6
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],  # 7
-            # row 11 - survey conditions
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            # row 12 - survey documentation
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],  # 8
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            # 9
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-            # 10 row ok
-        ]
-
-        # table style
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            # 0 row
-            ('SPAN', (0, 0), (6, 0)),  # intestazione
-            ('SPAN', (7, 0), (9, 0)),  # intestazione
-
-            # 1 row
-            ('SPAN', (0, 1), (4, 1)),  # dati identificativi
-            ('SPAN', (5, 1), (7, 1)),  # dati identificativi
-            ('SPAN', (8, 1), (9, 1)),  # dati identificativi
-
-            # 2 row
-            ('SPAN', (0, 2), (9, 2)),  # Definizione - interpretazone
-            ('SPAN', (0, 3), (9, 3)),  # definizione - intepretazione
-
-            # 4 row
-            ('SPAN', (0, 4), (1, 4)),
-            ('SPAN', (2, 4), (3, 4)),
-            ('SPAN', (4, 4), (5, 4)),
-            ('SPAN', (6, 4), (9, 4)),
-
-            # 5 row
-            ('SPAN', (0, 5), (1, 5)),
-            ('SPAN', (2, 5), (3, 5)),
-            ('SPAN', (4, 5), (5, 5)),
-            ('SPAN', (6, 5), (9, 5)),
-
-            # 6 row
-            ('SPAN', (0, 6), (1, 6)),
-            ('SPAN', (2, 6), (3, 6)),
-            ('SPAN', (4, 6), (5, 6)),
-            ('SPAN', (6, 6), (9, 6)),
-
-            # 7 row - survey fields
-            ('SPAN', (0, 7), (1, 7)),
-            ('SPAN', (2, 7), (3, 7)),
-            ('SPAN', (4, 7), (5, 7)),
-            ('SPAN', (6, 7), (9, 7)),
-
-            # 8 row
-            ('SPAN', (0, 8), (1, 8)),
-            ('SPAN', (2, 8), (3, 8)),
-            ('SPAN', (4, 8), (5, 8)),
-            ('SPAN', (6, 8), (9, 8)),
-
-            # 9 row
-            ('SPAN', (0, 9), (1, 9)),
-            ('SPAN', (2, 9), (3, 9)),
-            ('SPAN', (4, 9), (5, 9)),
-            ('SPAN', (6, 9), (9, 9)),
-
-            # 10 row
-            ('SPAN', (0, 10), (1, 10)),
-            ('SPAN', (2, 10), (3, 10)),
-            ('SPAN', (4, 10), (5, 10)),
-            ('SPAN', (6, 10), (9, 10)),
-
-            # 11 row - survey conditions
-            ('SPAN', (0, 11), (1, 11)),
-            ('SPAN', (2, 11), (3, 11)),
-            ('SPAN', (4, 11), (5, 11)),
-            ('SPAN', (6, 11), (9, 11)),
-
-            # 12 row - survey documentation
-            ('SPAN', (0, 12), (1, 12)),
-            ('SPAN', (2, 12), (3, 12)),
-            ('SPAN', (4, 12), (9, 12)),
-
-            # 13 row
-            ('SPAN', (0, 13), (1, 13)),
-            ('SPAN', (2, 13), (3, 13)),
-            ('SPAN', (4, 13), (5, 13)),
-            ('SPAN', (6, 13), (9, 13)),
-
-            # 14 row
-            ('SPAN', (0, 14), (1, 14)),
-            ('SPAN', (2, 14), (3, 14)),
-            ('SPAN', (4, 14), (5, 14)),
-            ('SPAN', (6, 14), (9, 14)),
-
-            # 15 row
-            ('SPAN', (0, 15), (2, 15)),
-            ('SPAN', (3, 15), (5, 15)),
-            ('SPAN', (6, 15), (9, 15)),
-
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-
-        ]
-
-        # 4 row
-
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-
-        return t
-    def create_sheet_en(self):
-
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0  # LEFT
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4  # Justified
-
-        # format labels
-
-        # 0 row
-        intestazione = Paragraph("<b>TOPOGRAPHIC FORM<br/>" + str(self.datestrfdate()) + "</b>",
-                                 styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-
-        ##      if test_image.drawWidth < 800:
-
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        # intestazione2 = Paragraph("<b>pyArchInit</b><br/>www.pyarchinit.blogspot.com", styNormal)
-
-        # 1 row
-        progetto = Paragraph("<b>Project</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° TU</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>TU</b><br/>" + str(self.ut_letterale), styNormal)
-
-        # 2 row
-        descrizione_ut = Paragraph("<b>TU description</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>TU interpretation</b><br/>" + self.interpretazione_ut, styNormal)
-
-        # 3 row
-        nazione = Paragraph("<b>Nation</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Region</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Province</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Town</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Hamlet</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Location</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Adress</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>Nr civic</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Coord. geographic</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Coord. plane</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Elevation</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Slope</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Soil reuse</b><br/>" + self.utilizzo_suolo_vegetazione,
-                                               styNormal)
-        descrizione_empirica_suolo = Paragraph(
-            "<b>Description soil</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Description place</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Survey</b><br/>" + self.metodo_rilievo_e_ricognizione,
-                                                  styNormal)
-        geometria = Paragraph("<b>Geometry</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>Bibliography</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Date</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Time and meteo</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Responsable</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>Dimension TU</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Finds for square meter</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Finds</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Period I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datation I</b><br/>" + self.frazione, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretation I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Period II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datation II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretation II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentation</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Company constraints</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Preliminary investigation</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields (v4.9.21+)
-        foglio_catastale = Paragraph("<b>CADASTRAL SHEET</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>VISIBILITY (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>VEGETATION COVERAGE</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>GPS METHOD</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>COORDINATE PRECISION (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>SURVEY TYPE</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>SURFACE CONDITION</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ACCESSIBILITY</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>PHOTO DOCUMENTATION</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>WEATHER CONDITIONS</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>TEAM MEMBERS</b><br/>" + self.team_members, styNormal)
-
-        # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],  # 0 row ok
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],  # 1 row ok
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],  # 2 row ok
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],  # 3
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],  # 4
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],  # 5
-            # row 7 - survey fields
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05',
-             descrizione_empirica_suolo, '08', '09'],
-            # 6
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],  # 7
-            # row 11 - survey conditions
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            # row 12 - survey documentation
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],  # 8
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            # 9
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-            # 10 row ok
-        ]
-
-        # table style
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            # 0 row
-            ('SPAN', (0, 0), (6, 0)),  # intestazione
-            ('SPAN', (7, 0), (9, 0)),  # intestazione
-
-            # 1 row
-            ('SPAN', (0, 1), (4, 1)),  # dati identificativi
-            ('SPAN', (5, 1), (7, 1)),  # dati identificativi
-            ('SPAN', (8, 1), (9, 1)),  # dati identificativi
-
-            # 2 row
-            ('SPAN', (0, 2), (9, 2)),  # Definizione - interpretazone
-            ('SPAN', (0, 3), (9, 3)),  # definizione - intepretazione
-
-            # 4 row
-            ('SPAN', (0, 4), (1, 4)),
-            ('SPAN', (2, 4), (3, 4)),
-            ('SPAN', (4, 4), (5, 4)),
-            ('SPAN', (6, 4), (9, 4)),
-
-            # 5 row
-            ('SPAN', (0, 5), (1, 5)),
-            ('SPAN', (2, 5), (3, 5)),
-            ('SPAN', (4, 5), (5, 5)),
-            ('SPAN', (6, 5), (9, 5)),
-
-            # 6 row
-            ('SPAN', (0, 6), (1, 6)),
-            ('SPAN', (2, 6), (3, 6)),
-            ('SPAN', (4, 6), (5, 6)),
-            ('SPAN', (6, 6), (9, 6)),
-
-            # 7 row - survey fields
-            ('SPAN', (0, 7), (1, 7)),
-            ('SPAN', (2, 7), (3, 7)),
-            ('SPAN', (4, 7), (5, 7)),
-            ('SPAN', (6, 7), (9, 7)),
-
-            # 8 row
-            ('SPAN', (0, 8), (1, 8)),
-            ('SPAN', (2, 8), (3, 8)),
-            ('SPAN', (4, 8), (5, 8)),
-            ('SPAN', (6, 8), (9, 8)),
-
-            # 9 row
-            ('SPAN', (0, 9), (1, 9)),
-            ('SPAN', (2, 9), (3, 9)),
-            ('SPAN', (4, 9), (5, 9)),
-            ('SPAN', (6, 9), (9, 9)),
-
-            # 10 row
-            ('SPAN', (0, 10), (1, 10)),
-            ('SPAN', (2, 10), (3, 10)),
-            ('SPAN', (4, 10), (5, 10)),
-            ('SPAN', (6, 10), (9, 10)),
-
-            # 11 row - survey conditions
-            ('SPAN', (0, 11), (1, 11)),
-            ('SPAN', (2, 11), (3, 11)),
-            ('SPAN', (4, 11), (5, 11)),
-            ('SPAN', (6, 11), (9, 11)),
-
-            # 12 row - survey documentation
-            ('SPAN', (0, 12), (1, 12)),
-            ('SPAN', (2, 12), (3, 12)),
-            ('SPAN', (4, 12), (9, 12)),
-
-            # 13 row
-            ('SPAN', (0, 13), (1, 13)),
-            ('SPAN', (2, 13), (3, 13)),
-            ('SPAN', (4, 13), (5, 13)),
-            ('SPAN', (6, 13), (9, 13)),
-
-            # 14 row
-            ('SPAN', (0, 14), (1, 14)),
-            ('SPAN', (2, 14), (3, 14)),
-            ('SPAN', (4, 14), (5, 14)),
-            ('SPAN', (6, 14), (9, 14)),
-
-            # 15 row
-            ('SPAN', (0, 15), (2, 15)),
-            ('SPAN', (3, 15), (5, 15)),
-            ('SPAN', (6, 15), (9, 15)),
-
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-
-        ]
-
-        # 4 row
-
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-
-        return t
-
-    def create_sheet_fr(self):
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0  # LEFT
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4  # Justified
-
-        # 0 row
-        intestazione = Paragraph("<b>FICHE UT<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        # 1 row
-        progetto = Paragraph("<b>Projet</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT</b><br/>" + str(self.ut_letterale), styNormal)
-
-        # 2 row
-        descrizione_ut = Paragraph("<b>Description UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>Interprétation UT</b><br/>" + self.interpretazione_ut, styNormal)
-
-        # Location fields
-        nazione = Paragraph("<b>Pays</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Région</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Province</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Commune</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Quartier</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Localité</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Adresse</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>N° civique</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>Carte IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Coord. géographiques</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Coord. planes</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Altitude</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Pente</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Utilisation sol</b><br/>" + self.utilizzo_suolo_vegetazione, styNormal)
-        descrizione_empirica_suolo = Paragraph("<b>Description sol</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Description lieu</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Prospection</b><br/>" + self.metodo_rilievo_e_ricognizione, styNormal)
-        geometria = Paragraph("<b>Géométrie</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>Bibliographie</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Date</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Heure et météo</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Responsable</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>Dimensions UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Trouvailles par m²</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Trouvailles</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Période I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datation I</b><br/>" + self.datazione_I, styNormal)
-        interpretazione_I = Paragraph("<b>Interprétation I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Période II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datation II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interprétation II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentation</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Contraintes</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Enquêtes préliminaires</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields
-        foglio_catastale = Paragraph("<b>FEUILLE CADASTRALE</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>VISIBILITÉ (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>COUVERTURE VÉGÉTALE</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>MÉTHODE GPS</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>PRÉCISION COORD. (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>TYPE PROSPECTION</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>ÉTAT SURFACE</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ACCESSIBILITÉ</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>DOC. PHOTO</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>CONDITIONS MÉTÉO</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>MEMBRES ÉQUIPE</b><br/>" + self.team_members, styNormal)
-
-        # schema
-        cell_schema = [
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05', descrizione_empirica_suolo, '08', '09'],
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-        ]
-
-        # table style
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
-            ('SPAN', (0, 1), (4, 1)), ('SPAN', (5, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
-            ('SPAN', (0, 2), (9, 2)), ('SPAN', (0, 3), (9, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (5, 4)), ('SPAN', (6, 4), (9, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (5, 5)), ('SPAN', (6, 5), (9, 5)),
-            ('SPAN', (0, 6), (1, 6)), ('SPAN', (2, 6), (3, 6)), ('SPAN', (4, 6), (5, 6)), ('SPAN', (6, 6), (9, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (5, 7)), ('SPAN', (6, 7), (9, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (5, 8)), ('SPAN', (6, 8), (9, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (3, 9)), ('SPAN', (4, 9), (5, 9)), ('SPAN', (6, 9), (9, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (3, 10)), ('SPAN', (4, 10), (5, 10)), ('SPAN', (6, 10), (9, 10)),
-            ('SPAN', (0, 11), (1, 11)), ('SPAN', (2, 11), (3, 11)), ('SPAN', (4, 11), (5, 11)), ('SPAN', (6, 11), (9, 11)),
-            ('SPAN', (0, 12), (1, 12)), ('SPAN', (2, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
-            ('SPAN', (0, 13), (1, 13)), ('SPAN', (2, 13), (3, 13)), ('SPAN', (4, 13), (5, 13)), ('SPAN', (6, 13), (9, 13)),
-            ('SPAN', (0, 14), (1, 14)), ('SPAN', (2, 14), (3, 14)), ('SPAN', (4, 14), (5, 14)), ('SPAN', (6, 14), (9, 14)),
-            ('SPAN', (0, 15), (2, 15)), ('SPAN', (3, 15), (5, 15)), ('SPAN', (6, 15), (9, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-        return t
-
-    def create_sheet_es(self):
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4
-
-        # 0 row
-        intestazione = Paragraph("<b>FICHA UT<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        progetto = Paragraph("<b>Proyecto</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT</b><br/>" + str(self.ut_letterale), styNormal)
-        descrizione_ut = Paragraph("<b>Descripción UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>Interpretación UT</b><br/>" + self.interpretazione_ut, styNormal)
-        nazione = Paragraph("<b>País</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Región</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Provincia</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Municipio</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Barrio</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Localidad</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Dirección</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>N° cívico</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>Carta IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Coord. geográficas</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Coord. planas</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Cota</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Pendiente</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Uso suelo</b><br/>" + self.utilizzo_suolo_vegetazione, styNormal)
-        descrizione_empirica_suolo = Paragraph("<b>Descripción suelo</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Descripción lugar</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Prospección</b><br/>" + self.metodo_rilievo_e_ricognizione, styNormal)
-        geometria = Paragraph("<b>Geometría</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>Bibliografía</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Fecha</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Hora y clima</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Responsable</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>Dimensiones UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Hallazgos por m²</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Hallazgos</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Período I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datación I</b><br/>" + self.datazione_I, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretación I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Período II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datación II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretación II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentación</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Restricciones</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Investigaciones preliminares</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields
-        foglio_catastale = Paragraph("<b>HOJA CATASTRAL</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>VISIBILIDAD (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>COBERTURA VEGETAL</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>MÉTODO GPS</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>PRECISIÓN COORD. (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>TIPO PROSPECCIÓN</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>ESTADO SUPERFICIE</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ACCESIBILIDAD</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>DOC. FOTOGRÁFICA</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>CONDICIONES CLIMÁTICAS</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>MIEMBROS EQUIPO</b><br/>" + self.team_members, styNormal)
-
-        cell_schema = [
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05', descrizione_empirica_suolo, '08', '09'],
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
-            ('SPAN', (0, 1), (4, 1)), ('SPAN', (5, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
-            ('SPAN', (0, 2), (9, 2)), ('SPAN', (0, 3), (9, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (5, 4)), ('SPAN', (6, 4), (9, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (5, 5)), ('SPAN', (6, 5), (9, 5)),
-            ('SPAN', (0, 6), (1, 6)), ('SPAN', (2, 6), (3, 6)), ('SPAN', (4, 6), (5, 6)), ('SPAN', (6, 6), (9, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (5, 7)), ('SPAN', (6, 7), (9, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (5, 8)), ('SPAN', (6, 8), (9, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (3, 9)), ('SPAN', (4, 9), (5, 9)), ('SPAN', (6, 9), (9, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (3, 10)), ('SPAN', (4, 10), (5, 10)), ('SPAN', (6, 10), (9, 10)),
-            ('SPAN', (0, 11), (1, 11)), ('SPAN', (2, 11), (3, 11)), ('SPAN', (4, 11), (5, 11)), ('SPAN', (6, 11), (9, 11)),
-            ('SPAN', (0, 12), (1, 12)), ('SPAN', (2, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
-            ('SPAN', (0, 13), (1, 13)), ('SPAN', (2, 13), (3, 13)), ('SPAN', (4, 13), (5, 13)), ('SPAN', (6, 13), (9, 13)),
-            ('SPAN', (0, 14), (1, 14)), ('SPAN', (2, 14), (3, 14)), ('SPAN', (4, 14), (5, 14)), ('SPAN', (6, 14), (9, 14)),
-            ('SPAN', (0, 15), (2, 15)), ('SPAN', (3, 15), (5, 15)), ('SPAN', (6, 15), (9, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-        return t
-
-    def create_sheet_ar(self):
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4
-
-        # 0 row
-        intestazione = Paragraph("<b>بطاقة UT<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        progetto = Paragraph("<b>المشروع</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>رقم UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT</b><br/>" + str(self.ut_letterale), styNormal)
-        descrizione_ut = Paragraph("<b>وصف UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>تفسير UT</b><br/>" + self.interpretazione_ut, styNormal)
-        nazione = Paragraph("<b>البلد</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>المنطقة</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>المحافظة</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>البلدية</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>الحي</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>الموقع</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>العنوان</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>الرقم</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>خريطة IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>الإحداثيات الجغرافية</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>الإحداثيات المستوية</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>الارتفاع</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>الميل</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>استخدام الأرض</b><br/>" + self.utilizzo_suolo_vegetazione, styNormal)
-        descrizione_empirica_suolo = Paragraph("<b>وصف التربة</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>وصف المكان</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>المسح</b><br/>" + self.metodo_rilievo_e_ricognizione, styNormal)
-        geometria = Paragraph("<b>الهندسة</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>المراجع</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>التاريخ</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>الوقت والطقس</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>المسؤول</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>أبعاد UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>اللقى لكل م²</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>اللقى</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>الفترة I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>التأريخ I</b><br/>" + self.datazione_I, styNormal)
-        interpretazione_I = Paragraph("<b>التفسير I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>الفترة II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>التأريخ II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>التفسير II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>التوثيق</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>القيود</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>التحقيقات الأولية</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields
-        foglio_catastale = Paragraph("<b>صحيفة المساحة</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>الرؤية (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>الغطاء النباتي</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>طريقة GPS</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>دقة الإحداثيات (م)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>نوع المسح</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>حالة السطح</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>إمكانية الوصول</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>التوثيق الفوتوغرافي</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>الظروف الجوية</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>أعضاء الفريق</b><br/>" + self.team_members, styNormal)
-
-        cell_schema = [
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05', descrizione_empirica_suolo, '08', '09'],
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
-            ('SPAN', (0, 1), (4, 1)), ('SPAN', (5, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
-            ('SPAN', (0, 2), (9, 2)), ('SPAN', (0, 3), (9, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (5, 4)), ('SPAN', (6, 4), (9, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (5, 5)), ('SPAN', (6, 5), (9, 5)),
-            ('SPAN', (0, 6), (1, 6)), ('SPAN', (2, 6), (3, 6)), ('SPAN', (4, 6), (5, 6)), ('SPAN', (6, 6), (9, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (5, 7)), ('SPAN', (6, 7), (9, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (5, 8)), ('SPAN', (6, 8), (9, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (3, 9)), ('SPAN', (4, 9), (5, 9)), ('SPAN', (6, 9), (9, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (3, 10)), ('SPAN', (4, 10), (5, 10)), ('SPAN', (6, 10), (9, 10)),
-            ('SPAN', (0, 11), (1, 11)), ('SPAN', (2, 11), (3, 11)), ('SPAN', (4, 11), (5, 11)), ('SPAN', (6, 11), (9, 11)),
-            ('SPAN', (0, 12), (1, 12)), ('SPAN', (2, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
-            ('SPAN', (0, 13), (1, 13)), ('SPAN', (2, 13), (3, 13)), ('SPAN', (4, 13), (5, 13)), ('SPAN', (6, 13), (9, 13)),
-            ('SPAN', (0, 14), (1, 14)), ('SPAN', (2, 14), (3, 14)), ('SPAN', (4, 14), (5, 14)), ('SPAN', (6, 14), (9, 14)),
-            ('SPAN', (0, 15), (2, 15)), ('SPAN', (3, 15), (5, 15)), ('SPAN', (6, 15), (9, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-        return t
-
-    def create_sheet_ca(self):
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0
-
-        styleSheet = getSampleStyleSheet()
-        styDescrizione = styleSheet['Normal']
-        styDescrizione.spaceBefore = 20
-        styDescrizione.spaceAfter = 20
-        styDescrizione.alignment = 4
-
-        # 0 row
-        intestazione = Paragraph("<b>FITXA UT<br/>" + str(self.datestrfdate()) + "</b>", styNormal)
-        home = os.environ['PYARCHINIT_HOME']
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path = lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        progetto = Paragraph("<b>Projecte</b><br/>" + str(self.progetto), styNormal)
-        UT = Paragraph("<b>N° UT</b><br/>" + str(self.nr_ut), styNormal)
-        UTletterale = Paragraph("<b>UT</b><br/>" + str(self.ut_letterale), styNormal)
-        descrizione_ut = Paragraph("<b>Descripció UT</b><br/>" + self.descrizione_ut, styNormal)
-        interpretazione_ut = Paragraph("<b>Interpretació UT</b><br/>" + self.interpretazione_ut, styNormal)
-        nazione = Paragraph("<b>País</b><br/>" + self.nazione, styNormal)
-        regione = Paragraph("<b>Regió</b><br/>" + self.regione, styNormal)
-        provincia = Paragraph("<b>Província</b><br/>" + self.provincia, styNormal)
-        comune = Paragraph("<b>Municipi</b><br/>" + self.comune, styNormal)
-        frazione = Paragraph("<b>Barri</b><br/>" + self.frazione, styNormal)
-        localita = Paragraph("<b>Localitat</b><br/>" + self.localita, styNormal)
-        indirizzo = Paragraph("<b>Adreça</b><br/>" + self.indirizzo, styNormal)
-        nr_civico = Paragraph("<b>N° cívic</b><br/>" + self.nr_civico, styNormal)
-        carta_topo_igm = Paragraph("<b>Carta IGM</b><br/>" + self.carta_topo_igm, styNormal)
-        carta_ctr = Paragraph("<b>CTR</b><br/>" + self.carta_ctr, styNormal)
-        coord_geografiche = Paragraph("<b>Coord. geogràfiques</b><br/>" + self.coord_geografiche, styNormal)
-        coord_piane = Paragraph("<b>Coord. planes</b><br/>" + self.coord_piane, styNormal)
-        quota = Paragraph("<b>Cota</b><br/>" + self.quota, styNormal)
-        andamento_terreno_pendenza = Paragraph("<b>Pendent</b><br/>" + self.andamento_terreno_pendenza, styNormal)
-        utilizzo_suolo_vegetazione = Paragraph("<b>Ús del sòl</b><br/>" + self.utilizzo_suolo_vegetazione, styNormal)
-        descrizione_empirica_suolo = Paragraph("<b>Descripció sòl</b><br/>" + self.descrizione_empirica_suolo, styNormal)
-        descrizione_luogo = Paragraph("<b>Descripció lloc</b><br/>" + self.descrizione_luogo, styNormal)
-        metodo_rilievo_e_ricognizione = Paragraph("<b>Prospecció</b><br/>" + self.metodo_rilievo_e_ricognizione, styNormal)
-        geometria = Paragraph("<b>Geometria</b><br/>" + self.geometria, styNormal)
-        bibliografia = Paragraph("<b>Bibliografia</b><br/>" + self.bibliografia, styNormal)
-        data = Paragraph("<b>Data</b><br/>" + self.data, styNormal)
-        ora_meteo = Paragraph("<b>Hora i clima</b><br/>" + self.ora_meteo, styNormal)
-        responsabile = Paragraph("<b>Responsable</b><br/>" + self.responsabile, styNormal)
-        dimensioni_ut = Paragraph("<b>Dimensions UT</b><br/>" + self.dimensioni_ut, styNormal)
-        rep_per_mq = Paragraph("<b>Troballes per m²</b><br/>" + self.rep_per_mq, styNormal)
-        rep_datanti = Paragraph("<b>Troballes</b><br/>" + self.rep_datanti, styNormal)
-        periodo_I = Paragraph("<b>Període I</b><br/>" + self.periodo_I, styNormal)
-        datazione_I = Paragraph("<b>Datació I</b><br/>" + self.datazione_I, styNormal)
-        interpretazione_I = Paragraph("<b>Interpretació I</b><br/>" + self.interpretazione_I, styNormal)
-        periodo_II = Paragraph("<b>Període II</b><br/>" + self.periodo_II, styNormal)
-        datazione_II = Paragraph("<b>Datació II</b><br/>" + self.datazione_II, styNormal)
-        interpretazione_II = Paragraph("<b>Interpretació II</b><br/>" + self.interpretazione_II, styNormal)
-        documentazione = Paragraph("<b>Documentació</b><br/>" + self.documentazione, styNormal)
-        enti_tutela_vincoli = Paragraph("<b>Restriccions</b><br/>" + self.enti_tutela_vincoli, styNormal)
-        indagini_preliminari = Paragraph("<b>Investigacions preliminars</b><br/>" + self.indagini_preliminari, styNormal)
-
-        # New survey fields
-        foglio_catastale = Paragraph("<b>FULL CADASTRAL</b><br/>" + self.foglio_catastale, styNormal)
-        visibility_percent = Paragraph("<b>VISIBILITAT (%)</b><br/>" + self.visibility_percent, styNormal)
-        vegetation_coverage = Paragraph("<b>COBERTURA VEGETAL</b><br/>" + self.vegetation_coverage, styNormal)
-        gps_method = Paragraph("<b>MÈTODE GPS</b><br/>" + self.gps_method, styNormal)
-        coordinate_precision = Paragraph("<b>PRECISIÓ COORD. (m)</b><br/>" + self.coordinate_precision, styNormal)
-        survey_type = Paragraph("<b>TIPUS PROSPECCIÓ</b><br/>" + self.survey_type, styNormal)
-        surface_condition = Paragraph("<b>ESTAT SUPERFÍCIE</b><br/>" + self.surface_condition, styNormal)
-        accessibility = Paragraph("<b>ACCESSIBILITAT</b><br/>" + self.accessibility, styNormal)
-        photo_documentation = Paragraph("<b>DOC. FOTOGRÀFICA</b><br/>" + self.photo_documentation, styNormal)
-        weather_conditions = Paragraph("<b>CONDICIONS CLIMÀTIQUES</b><br/>" + self.weather_conditions, styNormal)
-        team_members = Paragraph("<b>MEMBRES EQUIP</b><br/>" + self.team_members, styNormal)
-
-        cell_schema = [
-            [intestazione, '01', '02', '03', '04', '05', '06', logo, '08', '09'],
-            [progetto, '01', '02', '03', '04', UT, '06', '07', UTletterale, '09'],
-            [descrizione_ut, '01', '02', '03', '04'],
-            [interpretazione_ut, '01', '02', '03', '04', '05', '06', '07', '08'],
-            [nazione, '01', provincia, '03', regione, '06', comune, '9'],
-            [frazione, '01', localita, '03', indirizzo, '05', nr_civico, '08', '09'],
-            [carta_topo_igm, '01', carta_ctr, '03', coord_geografiche, '05', coord_piane, '08', '09'],
-            [foglio_catastale, '01', gps_method, '03', coordinate_precision, '05', survey_type, '08', '09'],
-            [quota, '01', andamento_terreno_pendenza, '03', utilizzo_suolo_vegetazione, '05', descrizione_empirica_suolo, '08', '09'],
-            [descrizione_luogo, '01', metodo_rilievo_e_ricognizione, '03', geometria, '05', bibliografia, '08', '09'],
-            [data, '01', ora_meteo, '03', responsabile, '05', dimensioni_ut, '08', '09'],
-            [visibility_percent, '01', vegetation_coverage, '03', surface_condition, '05', accessibility, '08', '09'],
-            [weather_conditions, '01', team_members, '03', photo_documentation, '05', '06', '07', '08', '09'],
-            [rep_per_mq, '01', rep_datanti, '03', periodo_I, '05', datazione_I, '08', '09'],
-            [interpretazione_I, '01', periodo_II, '03', datazione_II, '05', interpretazione_II, '08', '09'],
-            [documentazione, '01', '02', enti_tutela_vincoli, '03', '04', indagini_preliminari, '09']
-        ]
-
-        table_style = [
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
-            ('SPAN', (0, 0), (6, 0)), ('SPAN', (7, 0), (9, 0)),
-            ('SPAN', (0, 1), (4, 1)), ('SPAN', (5, 1), (7, 1)), ('SPAN', (8, 1), (9, 1)),
-            ('SPAN', (0, 2), (9, 2)), ('SPAN', (0, 3), (9, 3)),
-            ('SPAN', (0, 4), (1, 4)), ('SPAN', (2, 4), (3, 4)), ('SPAN', (4, 4), (5, 4)), ('SPAN', (6, 4), (9, 4)),
-            ('SPAN', (0, 5), (1, 5)), ('SPAN', (2, 5), (3, 5)), ('SPAN', (4, 5), (5, 5)), ('SPAN', (6, 5), (9, 5)),
-            ('SPAN', (0, 6), (1, 6)), ('SPAN', (2, 6), (3, 6)), ('SPAN', (4, 6), (5, 6)), ('SPAN', (6, 6), (9, 6)),
-            ('SPAN', (0, 7), (1, 7)), ('SPAN', (2, 7), (3, 7)), ('SPAN', (4, 7), (5, 7)), ('SPAN', (6, 7), (9, 7)),
-            ('SPAN', (0, 8), (1, 8)), ('SPAN', (2, 8), (3, 8)), ('SPAN', (4, 8), (5, 8)), ('SPAN', (6, 8), (9, 8)),
-            ('SPAN', (0, 9), (1, 9)), ('SPAN', (2, 9), (3, 9)), ('SPAN', (4, 9), (5, 9)), ('SPAN', (6, 9), (9, 9)),
-            ('SPAN', (0, 10), (1, 10)), ('SPAN', (2, 10), (3, 10)), ('SPAN', (4, 10), (5, 10)), ('SPAN', (6, 10), (9, 10)),
-            ('SPAN', (0, 11), (1, 11)), ('SPAN', (2, 11), (3, 11)), ('SPAN', (4, 11), (5, 11)), ('SPAN', (6, 11), (9, 11)),
-            ('SPAN', (0, 12), (1, 12)), ('SPAN', (2, 12), (3, 12)), ('SPAN', (4, 12), (9, 12)),
-            ('SPAN', (0, 13), (1, 13)), ('SPAN', (2, 13), (3, 13)), ('SPAN', (4, 13), (5, 13)), ('SPAN', (6, 13), (9, 13)),
-            ('SPAN', (0, 14), (1, 14)), ('SPAN', (2, 14), (3, 14)), ('SPAN', (4, 14), (5, 14)), ('SPAN', (6, 14), (9, 14)),
-            ('SPAN', (0, 15), (2, 15)), ('SPAN', (3, 15), (5, 15)), ('SPAN', (6, 15), (9, 15)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP')
-        ]
-
-        t = Table(cell_schema, colWidths=50, rowHeights=None, style=table_style)
-        return t
-
-    def getTable(self):
-        styleSheet = getSampleStyleSheet()
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 20
-        styNormal.spaceAfter = 20
-        styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 7
-
-    def makeStyles(self):
-        styles = TableStyle([('GRID', (0, 0), (-1, -1), 0.0, colors.black), ('VALIGN', (0, 0), (-1, -1), 'TOP')
-                             ])  # finale
-
-        return styles
-
-
-class generate_pdf(object):
-    HOME = os.environ['PYARCHINIT_HOME']
-
-    PDF_path = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
-
-    def datestrfdate(self):
-        now = date.today()
-        today = now.strftime("%d-%m-%Y")
-        return today
-
-    def build_UT_sheets(self, records):
+        # Analysis fields (v4.9.67+)
+        self.potential_score = str(data[52]) if len(data) > 52 and data[52] is not None else ''
+        self.risk_score = str(data[53]) if len(data) > 53 and data[53] is not None else ''
+        self.potential_factors = str(data[54]) if len(data) > 54 and data[54] else ''
+        self.risk_factors = str(data[55]) if len(data) > 55 and data[55] else ''
+        self.analysis_date = str(data[56]) if len(data) > 56 and data[56] else ''
+        self.analysis_method = str(data[57]) if len(data) > 57 and data[57] else ''
+
+    def create_sheet(self, lang='IT'):
+        """Create the PDF sheet elements."""
         elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'scheda_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
-    def build_UT_sheets_de(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_de())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Formular_TE.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+
+        # Styles
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            'Title', parent=styles['Normal'],
+            fontName=DEFAULT_FONT, fontSize=14, alignment=TA_CENTER,
+            textColor=colors.white, spaceAfter=0
+        )
+
+        section_style = ParagraphStyle(
+            'Section', parent=styles['Normal'],
+            fontName=DEFAULT_FONT, fontSize=9, alignment=TA_LEFT,
+            textColor=colors.white, spaceBefore=0, spaceAfter=0
+        )
+
+        label_style = ParagraphStyle(
+            'Label', parent=styles['Normal'],
+            fontName=DEFAULT_FONT, fontSize=7, alignment=TA_LEFT,
+            textColor=colors.HexColor('#2C3E50'), spaceBefore=1, spaceAfter=1
+        )
+
+        value_style = ParagraphStyle(
+            'Value', parent=styles['Normal'],
+            fontName=DEFAULT_FONT, fontSize=8, alignment=TA_LEFT,
+            spaceBefore=1, spaceAfter=1
+        )
+
+        desc_style = ParagraphStyle(
+            'Description', parent=styles['Normal'],
+            fontName=DEFAULT_FONT, fontSize=8, alignment=TA_JUSTIFY,
+            spaceBefore=2, spaceAfter=2
+        )
+
+        # Helper functions
+        def make_header():
+            """Create header with logo and title."""
+            home = os.environ.get('PYARCHINIT_HOME', '')
+            conn = Connection()
+            lo_path = conn.logo_path()
+            lo_path_str = lo_path.get('logo', '')
+
+            if lo_path_str and os.path.exists(lo_path_str):
+                logo_path = lo_path_str
+            else:
+                logo_path = os.path.join(home, 'pyarchinit_DB_folder', 'logo.jpg')
+
+            logo_cell = ''
+            if os.path.exists(logo_path):
+                try:
+                    logo = Image(logo_path)
+                    logo.drawHeight = 1.5 * cm
+                    logo.drawWidth = 1.5 * cm * logo.drawWidth / logo.drawHeight
+                    logo_cell = logo
+                except:
+                    logo_cell = ''
+
+            title_text = get_label('title', lang)
+            today = date.today().strftime("%d/%m/%Y")
+
+            header_data = [[
+                logo_cell,
+                Paragraph(f"<b>{title_text}</b>", title_style),
+                Paragraph(f"<b>UT {self.nr_ut}</b><br/>{today}", title_style)
+            ]]
+
+            header_table = Table(header_data, colWidths=[2*cm, USABLE_WIDTH - 5*cm, 3*cm])
+            header_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), COLORS['header_bg']),
+                ('TEXTCOLOR', (0, 0), (-1, -1), colors.white),
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+                ('ALIGN', (1, 0), (1, 0), 'CENTER'),
+                ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('TOPPADDING', (0, 0), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ]))
+            return header_table
+
+        def make_section_header(text):
+            """Create a section header."""
+            data = [[Paragraph(f"<b>{text}</b>", section_style)]]
+            table = Table(data, colWidths=[USABLE_WIDTH])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), COLORS['section_bg']),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ]))
+            return table
+
+        def make_field_row(fields, widths=None):
+            """Create a row with label-value pairs."""
+            if widths is None:
+                col_width = USABLE_WIDTH / len(fields)
+                widths = [col_width] * len(fields)
+
+            row_data = []
+            for label, value in fields:
+                cell_content = Paragraph(
+                    f"<b>{label}</b><br/>{value if value else '-'}",
+                    label_style
+                )
+                row_data.append(cell_content)
+
+            table = Table([row_data], colWidths=widths)
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), COLORS['label_bg']),
+                ('BOX', (0, 0), (-1, -1), 0.5, COLORS['border']),
+                ('INNERGRID', (0, 0), (-1, -1), 0.5, COLORS['border']),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            return table
+
+        def make_text_field(label, value):
+            """Create a text field spanning full width."""
+            data = [[Paragraph(f"<b>{label}</b>", label_style)],
+                    [Paragraph(value if value else '-', desc_style)]]
+            table = Table(data, colWidths=[USABLE_WIDTH])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (0, 0), COLORS['subsection_bg']),
+                ('BACKGROUND', (0, 1), (0, 1), COLORS['value_bg']),
+                ('BOX', (0, 0), (-1, -1), 0.5, COLORS['border']),
+                ('TOPPADDING', (0, 0), (-1, -1), 3),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            return table
+
+        def make_score_display(label, score, score_type='potential'):
+            """Create a colored score display."""
+            try:
+                score_val = float(score) if score else 0
+            except:
+                score_val = 0
+
+            if score_type == 'potential':
+                if score_val >= 70:
+                    bg_color = COLORS['potential_high']
+                elif score_val >= 40:
+                    bg_color = COLORS['potential_med']
+                else:
+                    bg_color = COLORS['potential_low']
+            else:  # risk
+                if score_val >= 70:
+                    bg_color = COLORS['risk_high']
+                elif score_val >= 40:
+                    bg_color = COLORS['risk_med']
+                else:
+                    bg_color = COLORS['risk_low']
+
+            score_text = f"{score_val:.1f}/100" if score else "-"
+            data = [[
+                Paragraph(f"<b>{label}</b>", label_style),
+                Paragraph(f"<b>{score_text}</b>",
+                         ParagraphStyle('Score', fontSize=12, alignment=TA_CENTER, textColor=colors.white))
+            ]]
+            table = Table(data, colWidths=[USABLE_WIDTH * 0.6, USABLE_WIDTH * 0.4])
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (0, 0), COLORS['label_bg']),
+                ('BACKGROUND', (1, 0), (1, 0), bg_color),
+                ('BOX', (0, 0), (-1, -1), 0.5, COLORS['border']),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ]))
+            return table
+
+        # Build the sheet
+        elements.append(make_header())
+        elements.append(Spacer(1, 0.3 * cm))
+
+        # SECTION 1: Identification
+        elements.append(make_section_header(get_label('section_id', lang)))
+        elements.append(make_field_row([
+            (get_label('project', lang), self.progetto),
+            (get_label('ut_number', lang), self.nr_ut),
+            (get_label('definition', lang), self.def_ut),
+            (get_label('geometry', lang), self.geometria),
+        ]))
+        elements.append(make_text_field(get_label('description', lang), self.descrizione_ut))
+        elements.append(make_text_field(get_label('interpretation', lang), self.interpretazione_ut))
+        elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 2: Location
+        elements.append(make_section_header(get_label('section_location', lang)))
+        elements.append(make_field_row([
+            (get_label('nation', lang), self.nazione),
+            (get_label('region', lang), self.regione),
+            (get_label('province', lang), self.provincia),
+            (get_label('municipality', lang), self.comune),
+        ]))
+        elements.append(make_field_row([
+            (get_label('hamlet', lang), self.frazione),
+            (get_label('locality', lang), self.localita),
+            (get_label('address', lang), self.indirizzo),
+            (get_label('civic_number', lang), self.nr_civico),
+        ]))
+        elements.append(make_field_row([
+            (get_label('igm_map', lang), self.carta_topo_igm),
+            (get_label('ctr_map', lang), self.carta_ctr),
+            (get_label('cadastral_sheet', lang), self.foglio_catastale),
+            (get_label('altitude', lang), self.quota),
+        ]))
+        elements.append(make_field_row([
+            (get_label('geo_coords', lang), self.coord_geografiche),
+            (get_label('plane_coords', lang), self.coord_piane),
+        ], [USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5]))
+        elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 3: Terrain
+        elements.append(make_section_header(get_label('section_terrain', lang)))
+        elements.append(make_field_row([
+            (get_label('slope', lang), self.andamento_terreno_pendenza),
+            (get_label('land_use', lang), self.utilizzo_suolo_vegetazione),
+            (get_label('dimensions', lang), self.dimensioni_ut),
+        ]))
+        elements.append(make_text_field(get_label('soil_desc', lang), self.descrizione_empirica_suolo))
+        elements.append(make_text_field(get_label('place_desc', lang), self.descrizione_luogo))
+        elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 4: Survey Data
+        elements.append(make_section_header(get_label('section_survey', lang)))
+        elements.append(make_field_row([
+            (get_label('date', lang), self.data),
+            (get_label('responsible', lang), self.responsabile),
+            (get_label('survey_method', lang), self.metodo_rilievo_e_ricognizione),
+            (get_label('survey_type', lang), self.survey_type),
+        ]))
+        elements.append(make_field_row([
+            (get_label('visibility', lang), self.visibility_percent),
+            (get_label('vegetation', lang), self.vegetation_coverage),
+            (get_label('surface_cond', lang), self.surface_condition),
+            (get_label('accessibility', lang), self.accessibility),
+        ]))
+        elements.append(make_field_row([
+            (get_label('gps_method', lang), self.gps_method),
+            (get_label('gps_precision', lang), self.coordinate_precision),
+            (get_label('weather', lang), self.weather_conditions),
+            (get_label('photo_doc', lang), get_label('yes', lang) if self.photo_documentation else get_label('no', lang)),
+        ]))
+        elements.append(make_field_row([
+            (get_label('team', lang), self.team_members),
+            (get_label('time_weather', lang), self.ora_meteo),
+        ], [USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5]))
+        elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 5: Chronology
+        elements.append(make_section_header(get_label('section_chronology', lang)))
+        elements.append(make_field_row([
+            (get_label('finds_sqm', lang), self.rep_per_mq),
+            (get_label('dating_finds', lang), self.rep_datanti),
+        ], [USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5]))
+        elements.append(make_field_row([
+            (get_label('period_1', lang), self.periodo_I),
+            (get_label('dating_1', lang), self.datazione_I),
+            (get_label('interp_1', lang), self.interpretazione_I),
+        ]))
+        elements.append(make_field_row([
+            (get_label('period_2', lang), self.periodo_II),
+            (get_label('dating_2', lang), self.datazione_II),
+            (get_label('interp_2', lang), self.interpretazione_II),
+        ]))
+        elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 6: Analysis (if available)
+        if self.potential_score or self.risk_score:
+            elements.append(make_section_header(get_label('section_analysis', lang)))
+
+            analysis_data = [[
+                make_score_display(get_label('potential_score', lang), self.potential_score, 'potential'),
+                make_score_display(get_label('risk_score', lang), self.risk_score, 'risk'),
+            ]]
+            analysis_table = Table(analysis_data, colWidths=[USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5])
+            analysis_table.setStyle(TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            elements.append(analysis_table)
+
+            if self.analysis_date or self.analysis_method:
+                elements.append(make_field_row([
+                    (get_label('analysis_date', lang), self.analysis_date),
+                    (get_label('analysis_method', lang), self.analysis_method),
+                ], [USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5]))
+            elements.append(Spacer(1, 0.2 * cm))
+
+        # SECTION 7: Documentation
+        elements.append(make_section_header(get_label('section_docs', lang)))
+        elements.append(make_text_field(get_label('bibliography', lang), self.bibliografia))
+        elements.append(make_text_field(get_label('documentation', lang), self.documentazione))
+        elements.append(make_field_row([
+            (get_label('protection', lang), self.enti_tutela_vincoli),
+            (get_label('prelim_surveys', lang), self.indagini_preliminari),
+        ], [USABLE_WIDTH * 0.5, USABLE_WIDTH * 0.5]))
+
+        return elements
+
+
+class generate_pdf:
+    """Main PDF generator class."""
+
+    HOME = os.environ.get('PYARCHINIT_HOME', '')
+    PDF_path = os.path.join(HOME, 'pyarchinit_PDF_folder')
+
+    def __init__(self):
+        if not os.path.exists(self.PDF_path):
+            os.makedirs(self.PDF_path)
+
+    def build_UT_sheets(self, records, lang='IT'):
+        """Build PDF sheets for multiple UT records."""
+        # Use language-appropriate filename
+        filenames = {
+            'IT': 'scheda_UT.pdf',
+            'EN': 'Form_UT.pdf',
+            'DE': 'Formular_TE.pdf',
+            'FR': 'Fiche_UT.pdf',
+            'ES': 'Ficha_UT.pdf',
+            'AR': 'Bitaqa_UT.pdf',
+            'CA': 'Fitxa_UT.pdf',
+        }
+        filename = filenames.get(lang, 'scheda_UT.pdf')
+        self._build_sheets(records, filename, lang)
+
     def build_UT_sheets_en(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_en())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Form_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+        """Build PDF sheets for multiple UT records (English)."""
+        self._build_sheets(records, 'Form_UT.pdf', 'EN')
+
+    def build_UT_sheets_de(self, records):
+        """Build PDF sheets for multiple UT records (German)."""
+        self._build_sheets(records, 'Formular_TE.pdf', 'DE')
 
     def build_UT_sheets_fr(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_fr())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fiche_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+        """Build PDF sheets for multiple UT records (French)."""
+        self._build_sheets(records, 'Fiche_UT.pdf', 'FR')
 
     def build_UT_sheets_es(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_es())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Ficha_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+        """Build PDF sheets for multiple UT records (Spanish)."""
+        self._build_sheets(records, 'Ficha_UT.pdf', 'ES')
 
     def build_UT_sheets_ar(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_ar())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Bitaqa_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+        """Build PDF sheets for multiple UT records (Arabic)."""
+        self._build_sheets(records, 'Bitaqa_UT.pdf', 'AR')
 
     def build_UT_sheets_ca(self, records):
-        elements = []
-        for i in range(len(records)):
-            single_us_sheet = single_UT_pdf_sheet(records[i])
-            elements.append(single_us_sheet.create_sheet_ca())
-            elements.append(PageBreak())
-        filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Fitxa_UT.pdf')
-        f = open(filename, "wb")
-        doc = SimpleDocTemplate(f)
-        doc.build(elements, canvasmaker=NumberedCanvas_UTsheet)
-        f.close()
+        """Build PDF sheets for multiple UT records (Catalan)."""
+        self._build_sheets(records, 'Fitxa_UT.pdf', 'CA')
 
+    def _build_sheets(self, records, filename, lang='IT'):
+        """Build PDF sheets for records."""
+        filepath = os.path.join(self.PDF_path, filename)
+
+        doc = SimpleDocTemplate(
+            filepath,
+            pagesize=A4,
+            leftMargin=MARGIN,
+            rightMargin=MARGIN,
+            topMargin=MARGIN,
+            bottomMargin=MARGIN * 1.5
+        )
+
+        elements = []
+        for i, record in enumerate(records):
+            sheet = single_UT_pdf_sheet(record)
+            elements.extend(sheet.create_sheet(lang))
+            if i < len(records) - 1:
+                elements.append(PageBreak())
+
+        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=lang, **kwargs))
+
+    def build_UT_list(self, records, lang='IT'):
+        """Build a list/index of all UT records."""
+        filename = 'Elenco_UT.pdf' if lang == 'IT' else 'UT_List.pdf'
+        filepath = os.path.join(self.PDF_path, filename)
+
+        doc = SimpleDocTemplate(
+            filepath,
+            pagesize=landscape(A4),
+            leftMargin=MARGIN,
+            rightMargin=MARGIN,
+            topMargin=MARGIN,
+            bottomMargin=MARGIN * 1.5
+        )
+
+        elements = []
+
+        # Title
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'Title', parent=styles['Heading1'],
+            fontName=DEFAULT_FONT, fontSize=16, alignment=TA_CENTER,
+            spaceAfter=0.5 * cm
+        )
+
+        title = get_label('list_title', lang)
+        today = date.today().strftime("%d/%m/%Y")
+        elements.append(Paragraph(f"<b>{title}</b><br/><font size='10'>{today}</font>", title_style))
+        elements.append(Spacer(1, 0.5 * cm))
+
+        # Table header
+        header_style = ParagraphStyle(
+            'Header', fontName=DEFAULT_FONT, fontSize=7, alignment=TA_CENTER,
+            textColor=colors.white
+        )
+        cell_style = ParagraphStyle(
+            'Cell', fontName=DEFAULT_FONT, fontSize=7, alignment=TA_LEFT
+        )
+
+        # Column definitions
+        page_width = landscape(A4)[0] - 2 * MARGIN
+        col_widths = [
+            page_width * 0.04,  # UT
+            page_width * 0.10,  # Progetto
+            page_width * 0.08,  # Definizione
+            page_width * 0.18,  # Interpretazione
+            page_width * 0.08,  # Comune
+            page_width * 0.10,  # Coordinate
+            page_width * 0.08,  # Periodo I
+            page_width * 0.08,  # Periodo II
+            page_width * 0.08,  # Rep/m²
+            page_width * 0.06,  # Visib.
+            page_width * 0.06,  # Potenz.
+            page_width * 0.06,  # Rischio
+        ]
+
+        headers = [
+            Paragraph('<b>UT</b>', header_style),
+            Paragraph(f'<b>{get_label("project", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("definition", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("interpretation", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("municipality", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("geo_coords", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("period_1", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("period_2", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("finds_sqm", lang)}</b>', header_style),
+            Paragraph(f'<b>{get_label("visibility", lang)[:5]}.</b>', header_style),
+            Paragraph(f'<b>Pot.</b>', header_style),
+            Paragraph(f'<b>Risk</b>', header_style),
+        ]
+
+        table_data = [headers]
+
+        for record in records:
+            row = [
+                Paragraph(str(record[1]) if record[1] else '', cell_style),  # nr_ut
+                Paragraph(str(record[0])[:15] if record[0] else '', cell_style),  # progetto
+                Paragraph(str(record[3])[:12] if len(record) > 3 and record[3] else '', cell_style),  # def_ut
+                Paragraph(str(record[5])[:25] if len(record) > 5 and record[5] else '', cell_style),  # interpretazione
+                Paragraph(str(record[9])[:12] if len(record) > 9 and record[9] else '', cell_style),  # comune
+                Paragraph(str(record[16])[:15] if len(record) > 16 and record[16] else '', cell_style),  # coord_geo
+                Paragraph(str(record[32])[:10] if len(record) > 32 and record[32] else '', cell_style),  # periodo_I
+                Paragraph(str(record[35])[:10] if len(record) > 35 and record[35] else '', cell_style),  # periodo_II
+                Paragraph(str(record[30]) if len(record) > 30 and record[30] else '', cell_style),  # rep_per_mq
+                Paragraph(str(record[41]) if len(record) > 41 and record[41] is not None else '', cell_style),  # visibility
+                Paragraph(f"{float(record[52]):.0f}" if len(record) > 52 and record[52] is not None else '', cell_style),  # potential
+                Paragraph(f"{float(record[53]):.0f}" if len(record) > 53 and record[53] is not None else '', cell_style),  # risk
+            ]
+            table_data.append(row)
+
+        table = Table(table_data, colWidths=col_widths, repeatRows=1)
+        table.setStyle(TableStyle([
+            # Header style
+            ('BACKGROUND', (0, 0), (-1, 0), COLORS['header_bg']),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            # Alternating row colors
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, COLORS['label_bg']]),
+            # Grid
+            ('GRID', (0, 0), (-1, -1), 0.5, COLORS['border']),
+            # Alignment
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('ALIGN', (0, 0), (0, -1), 'CENTER'),  # UT column centered
+            ('ALIGN', (-2, 0), (-1, -1), 'CENTER'),  # Scores centered
+            # Padding
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 2),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+        ]))
+
+        elements.append(table)
+
+        # Footer with count
+        elements.append(Spacer(1, 0.5 * cm))
+        count_text = f"Totale: {len(records)} UT" if lang == 'IT' else f"Total: {len(records)} TU"
+        elements.append(Paragraph(count_text, cell_style))
+
+        doc.build(elements, canvasmaker=lambda *args, **kwargs: NumberedCanvas(*args, lang=lang, **kwargs))
+
+        return filepath

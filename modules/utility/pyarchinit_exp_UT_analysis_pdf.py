@@ -726,9 +726,7 @@ def _create_score_section_enhanced(title, result, color, labels, score_type,
     elements.append(Spacer(1, 0.3 * cm))
     narrative = _generate_narrative(result, labels, score_type, lang)
     if narrative:
-        # Convert markdown-style bold to HTML
-        narrative = narrative.replace('**', '<b>').replace('<b>', '</b>', 1)
-        # Fix alternating bold tags
+        # Convert markdown-style bold (**text**) to HTML <b>text</b>
         import re
         narrative = re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', narrative)
         elements.append(Paragraph(narrative, narrative_style))

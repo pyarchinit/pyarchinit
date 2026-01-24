@@ -462,6 +462,13 @@ ALTER TABLE ut_table ADD COLUMN team_members TEXT DEFAULT NULL;
 ALTER TABLE ut_table ADD COLUMN vegetation_coverage TEXT DEFAULT NULL;
 ALTER TABLE ut_table ADD COLUMN visibility_percent INTEGER DEFAULT NULL;
 ALTER TABLE ut_table ADD COLUMN weather_conditions TEXT DEFAULT NULL;
+-- Analysis fields (v4.9.70+)
+ALTER TABLE ut_table ADD COLUMN potential_score REAL DEFAULT NULL;
+ALTER TABLE ut_table ADD COLUMN risk_score REAL DEFAULT NULL;
+ALTER TABLE ut_table ADD COLUMN potential_factors TEXT DEFAULT NULL;
+ALTER TABLE ut_table ADD COLUMN risk_factors TEXT DEFAULT NULL;
+ALTER TABLE ut_table ADD COLUMN analysis_date TEXT DEFAULT NULL;
+ALTER TABLE ut_table ADD COLUMN analysis_method TEXT DEFAULT NULL;
 
 -- Table: pottery_table
 ALTER TABLE pottery_table ADD COLUMN version_number INTEGER DEFAULT 1;
