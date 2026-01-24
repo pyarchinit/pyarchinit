@@ -1,12 +1,12 @@
-# Tutorial 21: Scheda UT - Unita Topografiche
+# Tutorial 21: Scheda UT - Unità Topografiche
 
 ## Introduzione
 
-La **Scheda UT** (Unita Topografiche) e il modulo di PyArchInit dedicato alla documentazione delle ricognizioni archeologiche di superficie (survey). Permette di registrare i dati relativi alle concentrazioni di materiali, anomalie del terreno e siti individuati durante le prospezioni.
+La **Scheda UT** (Unità Topografiche) è il modulo di PyArchInit dedicato alla documentazione delle ricognizioni archeologiche di superficie (survey). Permette di registrare i dati relativi alle concentrazioni di materiali, anomalie del terreno e siti individuati durante le prospezioni.
 
 ### Concetti Base
 
-**Unita Topografica (UT):**
+**Unità Topografica (UT):**
 - Area delimitata con caratteristiche archeologiche omogenee
 - Individuata durante ricognizione di superficie
 - Definita da concentrazione di materiali o anomalie visibili
@@ -32,18 +32,16 @@ La **Scheda UT** (Unita Topografiche) e il modulo di PyArchInit dedicato alla do
 
 ## Panoramica dell'Interfaccia
 
-La scheda e ricca di campi per documentare tutti gli aspetti della ricognizione.
+La scheda è organizzata in più tab per documentare tutti gli aspetti della ricognizione.
 
-### Aree Principali
+### Tab Principali
 
-| # | Area | Descrizione |
-|---|------|-------------|
-| 1 | Toolbar DBMS | Navigazione, ricerca, salvataggio |
-| 2 | Campi Identificativi | Progetto, Nr. UT |
-| 3 | Localizzazione | Dati geografici e amministrativi |
-| 4 | Descrizione | Definizione, descrizione, interpretazione |
-| 5 | Dati Survey | Condizioni, metodologia |
-| 6 | Cronologia | Periodi e datazioni |
+| # | Tab | Descrizione |
+|---|-----|-------------|
+| 1 | Identificazione | Progetto, Nr. UT, Localizzazione |
+| 2 | Descrizione | Definizione, descrizione, interpretazione |
+| 3 | Dati UT | Condizioni, metodologia, date |
+| 4 | Analisi | Potenziale e rischio archeologico |
 
 ---
 
@@ -51,17 +49,17 @@ La scheda e ricca di campi per documentare tutti gli aspetti della ricognizione.
 
 ### Progetto
 
-**Campo**: `lineEdit_progetto`
+**Campo**: `comboBox_progetto`
 **Database**: `progetto`
 
 Nome del progetto di ricognizione.
 
 ### Numero UT
 
-**Campo**: `lineEdit_nr_ut`
+**Campo**: `comboBox_nr_ut`
 **Database**: `nr_ut`
 
-Numero progressivo dell'Unita Topografica.
+Numero progressivo dell'Unità Topografica.
 
 ### UT Letterale
 
@@ -82,8 +80,8 @@ Eventuale suffisso alfabetico (es. UT 15a, 15b).
 | Regione | `regione` | Regione amministrativa |
 | Provincia | `provincia` | Provincia |
 | Comune | `comune` | Comune |
-| Frazione | `frazione` | Frazione/localita |
-| Localita | `localita` | Toponimo locale |
+| Frazione | `frazione` | Frazione/località |
+| Località | `localita` | Toponimo locale |
 | Indirizzo | `indirizzo` | Via/strada |
 | Nr. civico | `nr_civico` | Numero civico |
 
@@ -103,38 +101,43 @@ Eventuale suffisso alfabetico (es. UT 15a, 15b).
 | Coord. piane | `coord_piane` | UTM/Gauss-Boaga |
 | Quota | `quota` | Altitudine s.l.m. |
 | Precisione coord. | `coordinate_precision` | Accuratezza GPS |
-| Metodo GPS | `gps_method` | Tipo rilevamento |
 
 ---
 
 ## Campi Descrittivi
 
-### Definizione UT
+### Definizione UT ⭐ NUOVO
 
 **Campo**: `comboBox_def_ut`
 **Database**: `def_ut`
+**Thesaurus**: Codice 12.7
 
-Classificazione tipologica dell'UT.
+Classificazione tipologica dell'UT. I valori sono caricati dal thesaurus e tradotti automaticamente nella lingua corrente.
 
-**Valori:**
-- Concentrazione materiali
-- Area di frammenti
-- Anomalia del terreno
-- Struttura affiorante
-- Sito archeologico
+**Valori standard:**
+| Sigla | Italiano | Inglese |
+|-------|----------|---------|
+| scatter | Area di dispersione materiali | Material scatter |
+| site | Sito archeologico | Archaeological site |
+| anomaly | Anomalia del terreno | Terrain anomaly |
+| structure | Struttura affiorante | Outcropping structure |
+| concentration | Concentrazione reperti | Finds concentration |
+| traces | Tracce antropiche | Anthropic traces |
+| findspot | Rinvenimento sporadico | Sporadic find |
+| negative | Esito negativo | Negative result |
 
 ### Descrizione UT
 
 **Campo**: `textEdit_descrizione`
 **Database**: `descrizione_ut`
 
-Descrizione dettagliata dell'Unita Topografica.
+Descrizione dettagliata dell'Unità Topografica.
 
 **Contenuti:**
 - Estensione e forma dell'area
-- Densita dei materiali
+- Densità dei materiali
 - Caratteristiche del terreno
-- Visibilita e condizioni
+- Visibilità e condizioni
 
 ### Interpretazione UT
 
@@ -145,138 +148,108 @@ Interpretazione funzionale/storica.
 
 ---
 
-## Dati Ambientali
+## Campi Survey con Thesaurus ⭐ NUOVO
 
-### Andamento Terreno
+I seguenti campi utilizzano il sistema thesaurus per garantire terminologia standardizzata e tradotta in 7 lingue (IT, EN, DE, ES, FR, AR, CA).
 
-**Campo**: `comboBox_terreno`
-**Database**: `andamento_terreno_pendenza`
-
-Morfologia e pendenza.
-
-**Valori:**
-- Pianeggiante
-- Lieve pendenza
-- Media pendenza
-- Forte pendenza
-- Terrazzato
-
-### Utilizzo Suolo
-
-**Campo**: `comboBox_suolo`
-**Database**: `utilizzo_suolo_vegetazione`
-
-Uso del suolo al momento della ricognizione.
-
-**Valori:**
-- Arativo
-- Prato/pascolo
-- Vigneto
-- Oliveto
-- Incolto
-- Bosco
-- Urbano
-
-### Descrizione Suolo
-
-**Campo**: `textEdit_suolo`
-**Database**: `descrizione_empirica_suolo`
-
-Caratteristiche pedologiche osservate.
-
-### Descrizione Luogo
-
-**Campo**: `textEdit_luogo`
-**Database**: `descrizione_luogo`
-
-Contesto paesaggistico.
-
----
-
-## Dati Survey
-
-### Metodo Ricognizione
-
-**Campo**: `comboBox_metodo`
-**Database**: `metodo_rilievo_e_ricognizione`
-
-Metodologia adottata.
-
-**Valori:**
-- Ricognizione sistematica
-- Ricognizione estensiva
-- Ricognizione mirata
-- Controllo segnalazione
-
-### Tipo Survey
+### Tipo Survey (12.1)
 
 **Campo**: `comboBox_survey_type`
 **Database**: `survey_type`
 
-Tipologia di prospezione.
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| intensive | Ricognizione intensiva | Ricognizione sistematica intensiva |
+| extensive | Ricognizione estensiva | Ricognizione a campionamento |
+| targeted | Ricognizione mirata | Indagine su aree specifiche |
+| random | Campionamento casuale | Metodologia casuale |
 
-### Visibilita
+### Copertura Vegetazione (12.2)
 
-**Campo**: `spinBox_visibility`
-**Database**: `visibility_percent`
-
-Percentuale di visibilita del suolo (0-100%).
-
-### Copertura Vegetazione
-
-**Campo**: `comboBox_vegetation`
+**Campo**: `comboBox_vegetation_coverage`
 **Database**: `vegetation_coverage`
 
-Grado di copertura vegetale.
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| none | Assente | Terreno nudo |
+| sparse | Rada | Copertura < 25% |
+| moderate | Moderata | Copertura 25-50% |
+| dense | Densa | Copertura 50-75% |
+| very_dense | Molto densa | Copertura > 75% |
 
-### Condizione Superficie
+### Metodo GPS (12.3)
 
-**Campo**: `comboBox_surface`
+**Campo**: `comboBox_gps_method`
+**Database**: `gps_method`
+
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| handheld | GPS portatile | Dispositivo GPS portatile |
+| dgps | GPS differenziale | DGPS con stazione base |
+| rtk | GPS RTK | Cinematico in tempo reale |
+| total_station | Stazione totale | Rilievo con stazione totale |
+
+### Condizione Superficie (12.4)
+
+**Campo**: `comboBox_surface_condition`
 **Database**: `surface_condition`
 
-Stato della superficie.
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| ploughed | Arato | Campo arato di recente |
+| stubble | Stoppie | Presenza di stoppie |
+| pasture | Pascolo | Terreno a pascolo/prato |
+| woodland | Bosco | Area boscata |
+| urban | Urbano | Area urbana/edificata |
 
-**Valori:**
-- Arato di fresco
-- Arato non fresato
-- Erba bassa
-- Erba alta
-- Stoppie
-
-### Accessibilita
+### Accessibilità (12.5)
 
 **Campo**: `comboBox_accessibility`
 **Database**: `accessibility`
 
-Facilita di accesso all'area.
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| easy | Facile accesso | Nessuna restrizione |
+| moderate_access | Accesso moderato | Alcune difficoltà |
+| difficult | Accesso difficile | Problemi significativi |
+| restricted | Accesso ristretto | Solo su autorizzazione |
 
-### Data
+### Condizioni Meteo (12.6)
 
-**Campo**: `dateEdit_data`
-**Database**: `data`
+**Campo**: `comboBox_weather_conditions`
+**Database**: `weather_conditions`
 
-Data della ricognizione.
+| Sigla | Italiano | Descrizione |
+|-------|----------|-------------|
+| sunny | Soleggiato | Tempo sereno |
+| cloudy | Nuvoloso | Condizioni nuvolose |
+| rainy | Piovoso | Pioggia durante ricognizione |
+| windy | Ventoso | Vento forte |
 
-### Ora/Meteo
+---
 
-**Campo**: `lineEdit_meteo`
-**Database**: `ora_meteo`
+## Dati Ambientali
 
-Condizioni meteo e ora.
+### Visibilità Percentuale
 
-### Responsabile
+**Campo**: `spinBox_visibility_percent`
+**Database**: `visibility_percent`
 
-**Campo**: `comboBox_responsabile`
-**Database**: `responsabile`
+Percentuale di visibilità del suolo (0-100%). Valore numerico.
 
-Responsabile della ricognizione.
+### Andamento Terreno
 
-### Team
+**Campo**: `lineEdit_andamento_terreno_pendenza`
+**Database**: `andamento_terreno_pendenza`
 
-**Campo**: `textEdit_team`
-**Database**: `team_members`
+Morfologia e pendenza del terreno.
 
-Componenti del gruppo.
+### Utilizzo Suolo
+
+**Campo**: `lineEdit_utilizzo_suolo_vegetazione`
+**Database**: `utilizzo_suolo_vegetazione`
+
+Uso del suolo al momento della ricognizione.
 
 ---
 
@@ -284,21 +257,21 @@ Componenti del gruppo.
 
 ### Dimensioni UT
 
-**Campo**: `lineEdit_dimensioni`
+**Campo**: `lineEdit_dimensioni_ut`
 **Database**: `dimensioni_ut`
 
 Estensione in mq.
 
 ### Reperti per mq
 
-**Campo**: `lineEdit_rep_mq`
+**Campo**: `lineEdit_rep_per_mq`
 **Database**: `rep_per_mq`
 
-Densita materiali.
+Densità materiali per metro quadro.
 
 ### Reperti Datanti
 
-**Campo**: `textEdit_rep_datanti`
+**Campo**: `lineEdit_rep_datanti`
 **Database**: `rep_datanti`
 
 Descrizione materiali diagnostici.
@@ -325,49 +298,78 @@ Descrizione materiali diagnostici.
 
 ---
 
-## Altri Campi
+## Tab Analisi ⭐ NUOVO
 
-### Geometria
+Il tab **Analisi** fornisce strumenti avanzati per il calcolo automatico del potenziale e rischio archeologico.
 
-**Campo**: `comboBox_geometria`
-**Database**: `geometria`
+### Potenziale Archeologico
 
-Forma dell'UT.
+Il sistema calcola un punteggio da 0 a 100 basato su:
 
-### Bibliografia
+| Fattore | Peso | Descrizione |
+|---------|------|-------------|
+| Definizione UT | 30% | Tipo di evidenza archeologica |
+| Periodo storico | 25% | Cronologia dei materiali |
+| Densità reperti | 20% | Materiali per mq |
+| Condizione superficie | 15% | Visibilità e accessibilità |
+| Documentazione | 10% | Qualità della documentazione |
 
-**Campo**: `textEdit_bibliografia`
-**Database**: `bibliografia`
+**Visualizzazione:**
+- Barra progressiva colorata (verde = alto, giallo = medio, rosso = basso)
+- Tabella dettagliata dei fattori con punteggio singolo
+- Testo narrativo automatico con interpretazione
 
-Riferimenti bibliografici.
+### Rischio Archeologico
 
-### Documentazione
+Valuta il rischio di impatto/perdita del patrimonio:
 
-**Campo**: `textEdit_documentazione`
-**Database**: `documentazione`
+| Fattore | Peso | Descrizione |
+|---------|------|-------------|
+| Accessibilità | 25% | Facilità di accesso all'area |
+| Uso del suolo | 25% | Attività agricole/edilizie |
+| Vincoli esistenti | 20% | Protezioni legali |
+| Indagini pregresse | 15% | Stato delle conoscenze |
+| Visibilità | 15% | Esposizione del sito |
 
-Documentazione prodotta (foto, disegni).
+### Generazione Heatmap
 
-### Documentazione Foto
+Il pulsante **Genera Heatmap** crea layer raster visualizzando:
+- **Heatmap Potenziale**: distribuzione spaziale del potenziale archeologico
+- **Heatmap Rischio**: mappa del rischio di impatto
 
-**Campo**: `textEdit_photo_doc`
-**Database**: `photo_documentation`
+**Metodi disponibili:**
+- Kernel Density Estimation (KDE)
+- Inverse Distance Weighting (IDW)
+- Natural Neighbor
 
-Elenco documentazione fotografica.
+---
 
-### Enti Tutela/Vincoli
+## Export PDF ⭐ MIGLIORATO
 
-**Campo**: `textEdit_vincoli`
-**Database**: `enti_tutela_vincoli`
+### Scheda UT Standard
 
-Vincoli e soggetti di tutela.
+Esporta la scheda UT completa con tutti i campi compilati.
 
-### Indagini Preliminari
+### Report Analisi UT
 
-**Campo**: `textEdit_indagini`
-**Database**: `indagini_preliminari`
+Genera un report PDF che include:
 
-Eventuali indagini gia eseguite.
+1. **Dati identificativi** dell'UT
+2. **Sezione Potenziale Archeologico**
+   - Punteggio con indicatore grafico
+   - Testo narrativo descrittivo
+   - Tabella fattori con contributi
+   - Immagine heatmap potenziale (se generata)
+3. **Sezione Rischio Archeologico**
+   - Punteggio con indicatore grafico
+   - Testo narrativo con raccomandazioni
+   - Tabella fattori con contributi
+   - Immagine heatmap rischio (se generata)
+4. **Sezione Metodologia**
+   - Descrizione degli algoritmi utilizzati
+   - Note sui pesi dei fattori
+
+Il report è disponibile in tutte le 7 lingue supportate.
 
 ---
 
@@ -392,25 +394,29 @@ Eventuali indagini gia eseguite.
    Regione: Lazio
    Provincia: Roma
    Comune: Fiano Romano
-   Localita: Colle Alto
+   Località: Colle Alto
    Coord.: 42.1234 N, 12.5678 E
    Quota: 125 m
    ```
 
-5. **Descrizione**
+5. **Descrizione** (usando thesaurus)
    ```
-   Definizione: Concentrazione materiali
+   Definizione: Concentrazione reperti (da thesaurus)
    Descrizione: Area ellittica di ca. 50x30 m
    con concentrazione di frammenti ceramici
    e laterizi su versante collinare esposto
    a sud...
    ```
 
-6. **Dati survey**
+6. **Dati survey** (usando thesaurus)
    ```
-   Metodo: Ricognizione sistematica
-   Visibilita: 80%
-   Condizione: Arato di fresco
+   Tipo Survey: Ricognizione intensiva
+   Copertura Vegetazione: Rada
+   Metodo GPS: GPS differenziale
+   Condizione Superficie: Arato
+   Accessibilità: Facile accesso
+   Condizioni Meteo: Soleggiato
+   Visibilità: 80%
    Data: 15/04/2024
    Responsabile: Team A
    ```
@@ -427,31 +433,34 @@ Eventuali indagini gia eseguite.
    Interpretazione I: Villa rustica
    ```
 
-8. **Salvataggio**
+8. **Analisi** (tab Analisi)
+   - Verificare punteggio Potenziale
+   - Verificare punteggio Rischio
+   - Generare Heatmap se necessario
+
+9. **Salvataggio**
    - Click su "Save"
 
 ---
 
 ## Integrazione GIS
 
-La scheda UT e strettamente integrata con QGIS:
+La scheda UT è strettamente integrata con QGIS:
 
 - **Layer UT**: visualizzazione geometrie
 - **Attributi collegati**: dati dalla scheda
 - **Selezione da mappa**: click su geometria apre scheda
-
----
-
-## Export PDF
-
-La scheda supporta l'esportazione in PDF per:
-- Schede UT singole
-- Elenchi per progetto
-- Report di survey
+- **Heatmap come layer**: le mappe generate sono salvate come layer raster
 
 ---
 
 ## Best Practices
+
+### Utilizzo Thesaurus
+
+- Preferire sempre i valori da thesaurus per garantire coerenza
+- I valori sono automaticamente tradotti nella lingua dell'utente
+- Per nuovi valori, aggiungerli prima nel thesaurus
 
 ### Nomenclatura
 
@@ -469,17 +478,40 @@ La scheda supporta l'esportazione in PDF per:
 
 - Fotografare ogni UT
 - Produrre schizzi planimetrici
-- Registrare condizioni di visibilita
+- Registrare condizioni di visibilità
 
-### Materiali
+### Analisi
 
-- Raccogliere campioni diagnostici
-- Stimare densita per area
-- Documentare distribuzione spaziale
+- Verificare sempre i punteggi calcolati
+- Generare heatmap per progetti completi
+- Esportare report per documentazione
+
+---
+
+## Codici Thesaurus UT
+
+| Codice | Campo | Descrizione |
+|--------|-------|-------------|
+| 12.1 | survey_type | Tipo di ricognizione |
+| 12.2 | vegetation_coverage | Copertura vegetale |
+| 12.3 | gps_method | Metodo GPS |
+| 12.4 | surface_condition | Condizione superficie |
+| 12.5 | accessibility | Accessibilità |
+| 12.6 | weather_conditions | Condizioni meteo |
+| 12.7 | def_ut | Definizione UT |
 
 ---
 
 ## Troubleshooting
+
+### Problema: Combobox vuoti
+
+**Causa**: Voci thesaurus non presenti nel database.
+
+**Soluzione**:
+1. Aggiornare il database tramite "Aggiorna database"
+2. Verificare che la tabella `pyarchinit_thesaurus_sigle` contenga le voci per `ut_table`
+3. Controllare il codice lingua nelle impostazioni
 
 ### Problema: Coordinate non valide
 
@@ -499,6 +531,15 @@ La scheda supporta l'esportazione in PDF per:
 2. Controllare che il record abbia geometria
 3. Verificare la proiezione del layer
 
+### Problema: Heatmap non generata
+
+**Causa**: Dati insufficienti o errore nel calcolo.
+
+**Soluzione**:
+1. Verificare che ci siano almeno 3 UT con dati completi
+2. Controllare che le geometrie siano valide
+3. Verificare lo spazio disponibile su disco
+
 ---
 
 ## Riferimenti
@@ -514,6 +555,10 @@ La scheda supporta l'esportazione in PDF per:
 - **UI**: `gui/ui/UT_ui.ui`
 - **Controller**: `tabs/UT.py`
 - **PDF Export**: `modules/utility/pyarchinit_exp_UTsheet_pdf.py`
+- **Analisi PDF**: `modules/utility/pyarchinit_exp_UT_analysis_pdf.py`
+- **Calcolo Potenziale**: `modules/analysis/ut_potential.py`
+- **Calcolo Rischio**: `modules/analysis/ut_risk.py`
+- **Heatmap Generator**: `modules/analysis/ut_heatmap_generator.py`
 
 ---
 
@@ -522,20 +567,28 @@ La scheda supporta l'esportazione in PDF per:
 ### Documentazione Ricognizioni
 **Durata**: 15-18 minuti
 - Registrazione UT
-- Dati survey
+- Dati survey con thesaurus
 - Geolocalizzazione
 
 [Placeholder video: video_ut_survey.mp4]
 
-### Integrazione GIS Survey
+### Analisi Potenziale e Rischio
 **Durata**: 10-12 minuti
-- Layer e attributi
-- Visualizzazione risultati
-- Analisi spaziale
+- Calcolo automatico punteggi
+- Interpretazione risultati
+- Generazione heatmap
 
-[Placeholder video: video_ut_gis.mp4]
+[Placeholder video: video_ut_analysis.mp4]
+
+### Export Report PDF
+**Durata**: 8-10 minuti
+- Scheda UT standard
+- Report analisi con mappe
+- Personalizzazione output
+
+[Placeholder video: video_ut_pdf.mp4]
 
 ---
 
 *Ultimo aggiornamento: Gennaio 2026*
-*PyArchInit - Sistema di Gestione Dati Archeologici*
+*PyArchInit v4.9.68 - Sistema di Gestione Dati Archeologici*

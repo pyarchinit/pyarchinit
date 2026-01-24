@@ -22,7 +22,7 @@ The **TU Form** (Topographic Units) is the PyArchInit module dedicated to docume
 
 ### Via Menu
 1. **PyArchInit** menu in the QGIS menu bar
-2. Select **TU Form** (or **TU form**)
+2. Select **TU Form**
 
 ### Via Toolbar
 1. Locate the PyArchInit toolbar
@@ -32,18 +32,16 @@ The **TU Form** (Topographic Units) is the PyArchInit module dedicated to docume
 
 ## Interface Overview
 
-The form is rich in fields to document all aspects of the survey.
+The form is organized into multiple tabs to document all aspects of the survey.
 
-### Main Areas
+### Main Tabs
 
-| # | Area | Description |
-|---|------|-------------|
-| 1 | DBMS Toolbar | Navigation, search, save |
-| 2 | Identification Fields | Project, TU No. |
-| 3 | Location | Geographic and administrative data |
-| 4 | Description | Definition, description, interpretation |
-| 5 | Survey Data | Conditions, methodology |
-| 6 | Chronology | Periods and dates |
+| # | Tab | Description |
+|---|-----|-------------|
+| 1 | Identification | Project, TU No., Location |
+| 2 | Description | Definition, description, interpretation |
+| 3 | TU Data | Conditions, methodology, dates |
+| 4 | Analysis | Archaeological potential and risk |
 
 ---
 
@@ -51,14 +49,14 @@ The form is rich in fields to document all aspects of the survey.
 
 ### Project
 
-**Field**: `lineEdit_progetto`
+**Field**: `comboBox_progetto`
 **Database**: `progetto`
 
 Survey project name.
 
 ### TU Number
 
-**Field**: `lineEdit_nr_ut`
+**Field**: `comboBox_nr_ut`
 **Database**: `nr_ut`
 
 Progressive Topographic Unit number.
@@ -103,25 +101,30 @@ Optional alphabetic suffix (e.g., TU 15a, 15b).
 | Planar coord. | `coord_piane` | UTM/Gauss-Boaga |
 | Elevation | `quota` | Altitude a.s.l. |
 | Coord. precision | `coordinate_precision` | GPS accuracy |
-| GPS method | `gps_method` | Survey type |
 
 ---
 
 ## Descriptive Fields
 
-### TU Definition
+### TU Definition ⭐ NEW
 
 **Field**: `comboBox_def_ut`
 **Database**: `def_ut`
+**Thesaurus**: Code 12.7
 
-Typological classification of the TU.
+Typological classification of the TU. Values are loaded from the thesaurus and automatically translated to the current language.
 
-**Values:**
-- Material concentration
-- Fragment area
-- Terrain anomaly
-- Emerging structure
-- Archaeological site
+**Standard values:**
+| Code | English | Italian |
+|------|---------|---------|
+| scatter | Material scatter | Area di dispersione materiali |
+| site | Archaeological site | Sito archeologico |
+| anomaly | Terrain anomaly | Anomalia del terreno |
+| structure | Outcropping structure | Struttura affiorante |
+| concentration | Finds concentration | Concentrazione reperti |
+| traces | Anthropic traces | Tracce antropiche |
+| findspot | Sporadic find | Rinvenimento sporadico |
+| negative | Negative result | Esito negativo |
 
 ### TU Description
 
@@ -145,138 +148,108 @@ Functional/historical interpretation.
 
 ---
 
-## Environmental Data
+## Thesaurus Survey Fields ⭐ NEW
 
-### Terrain Slope
+The following fields use the thesaurus system to ensure standardized terminology translated into 7 languages (IT, EN, DE, ES, FR, AR, CA).
 
-**Field**: `comboBox_terreno`
-**Database**: `andamento_terreno_pendenza`
-
-Morphology and slope.
-
-**Values:**
-- Flat
-- Slight slope
-- Medium slope
-- Steep slope
-- Terraced
-
-### Land Use
-
-**Field**: `comboBox_suolo`
-**Database**: `utilizzo_suolo_vegetazione`
-
-Land use at time of survey.
-
-**Values:**
-- Arable
-- Meadow/pasture
-- Vineyard
-- Olive grove
-- Uncultivated
-- Forest
-- Urban
-
-### Soil Description
-
-**Field**: `textEdit_suolo`
-**Database**: `descrizione_empirica_suolo`
-
-Observed pedological characteristics.
-
-### Place Description
-
-**Field**: `textEdit_luogo`
-**Database**: `descrizione_luogo`
-
-Landscape context.
-
----
-
-## Survey Data
-
-### Survey Method
-
-**Field**: `comboBox_metodo`
-**Database**: `metodo_rilievo_e_ricognizione`
-
-Methodology adopted.
-
-**Values:**
-- Systematic survey
-- Extensive survey
-- Targeted survey
-- Verification of report
-
-### Survey Type
+### Survey Type (12.1)
 
 **Field**: `comboBox_survey_type`
 **Database**: `survey_type`
 
-Type of prospection.
+| Code | English | Description |
+|------|---------|-------------|
+| intensive | Intensive Survey | Intensive systematic field walking |
+| extensive | Extensive Survey | Extensive reconnaissance survey |
+| targeted | Targeted Survey | Investigation of specific areas |
+| random | Random Sampling | Random sampling methodology |
 
-### Visibility
+### Vegetation Coverage (12.2)
 
-**Field**: `spinBox_visibility`
-**Database**: `visibility_percent`
-
-Soil visibility percentage (0-100%).
-
-### Vegetation Coverage
-
-**Field**: `comboBox_vegetation`
+**Field**: `comboBox_vegetation_coverage`
 **Database**: `vegetation_coverage`
 
-Degree of vegetation coverage.
+| Code | English | Description |
+|------|---------|-------------|
+| none | No vegetation | Bare ground |
+| sparse | Sparse vegetation | Coverage < 25% |
+| moderate | Moderate vegetation | Coverage 25-50% |
+| dense | Dense vegetation | Coverage 50-75% |
+| very_dense | Very dense vegetation | Coverage > 75% |
 
-### Surface Condition
+### GPS Method (12.3)
 
-**Field**: `comboBox_surface`
+**Field**: `comboBox_gps_method`
+**Database**: `gps_method`
+
+| Code | English | Description |
+|------|---------|-------------|
+| handheld | Handheld GPS | Handheld GPS device |
+| dgps | Differential GPS | DGPS with base station |
+| rtk | RTK GPS | Real-time kinematic |
+| total_station | Total Station | Total station survey |
+
+### Surface Condition (12.4)
+
+**Field**: `comboBox_surface_condition`
 **Database**: `surface_condition`
 
-Surface status.
+| Code | English | Description |
+|------|---------|-------------|
+| ploughed | Ploughed | Recently ploughed field |
+| stubble | Stubble | Crop stubble present |
+| pasture | Pasture | Grassland/pasture |
+| woodland | Woodland | Wooded area |
+| urban | Urban | Urban/built area |
 
-**Values:**
-- Freshly plowed
-- Plowed not harrowed
-- Low grass
-- High grass
-- Stubble
-
-### Accessibility
+### Accessibility (12.5)
 
 **Field**: `comboBox_accessibility`
 **Database**: `accessibility`
 
-Ease of access to the area.
+| Code | English | Description |
+|------|---------|-------------|
+| easy | Easy access | No restrictions |
+| moderate_access | Moderate access | Some difficulties |
+| difficult | Difficult access | Significant problems |
+| restricted | Restricted access | Permission only |
 
-### Date
+### Weather Conditions (12.6)
 
-**Field**: `dateEdit_data`
-**Database**: `data`
+**Field**: `comboBox_weather_conditions`
+**Database**: `weather_conditions`
 
-Survey date.
+| Code | English | Description |
+|------|---------|-------------|
+| sunny | Sunny | Clear and sunny |
+| cloudy | Cloudy | Overcast conditions |
+| rainy | Rainy | Rain during survey |
+| windy | Windy | Strong winds |
 
-### Time/Weather
+---
 
-**Field**: `lineEdit_meteo`
-**Database**: `ora_meteo`
+## Environmental Data
 
-Weather conditions and time.
+### Visibility Percentage
 
-### Responsible
+**Field**: `spinBox_visibility_percent`
+**Database**: `visibility_percent`
 
-**Field**: `comboBox_responsabile`
-**Database**: `responsabile`
+Soil visibility percentage (0-100%). Numeric value.
 
-Survey responsible.
+### Terrain Slope
 
-### Team
+**Field**: `lineEdit_andamento_terreno_pendenza`
+**Database**: `andamento_terreno_pendenza`
 
-**Field**: `textEdit_team`
-**Database**: `team_members`
+Terrain morphology and slope.
 
-Team members.
+### Land Use
+
+**Field**: `lineEdit_utilizzo_suolo_vegetazione`
+**Database**: `utilizzo_suolo_vegetazione`
+
+Land use at time of survey.
 
 ---
 
@@ -284,21 +257,21 @@ Team members.
 
 ### TU Dimensions
 
-**Field**: `lineEdit_dimensioni`
+**Field**: `lineEdit_dimensioni_ut`
 **Database**: `dimensioni_ut`
 
 Area extent in sqm.
 
 ### Finds per sqm
 
-**Field**: `lineEdit_rep_mq`
+**Field**: `lineEdit_rep_per_mq`
 **Database**: `rep_per_mq`
 
-Material density.
+Material density per square meter.
 
 ### Dating Finds
 
-**Field**: `textEdit_rep_datanti`
+**Field**: `lineEdit_rep_datanti`
 **Database**: `rep_datanti`
 
 Description of diagnostic materials.
@@ -325,49 +298,78 @@ Description of diagnostic materials.
 
 ---
 
-## Other Fields
+## Analysis Tab ⭐ NEW
 
-### Geometry
+The **Analysis** tab provides advanced tools for automatic calculation of archaeological potential and risk.
 
-**Field**: `comboBox_geometria`
-**Database**: `geometria`
+### Archaeological Potential
 
-TU shape.
+The system calculates a score from 0 to 100 based on:
 
-### Bibliography
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| TU Definition | 30% | Type of archaeological evidence |
+| Historical Period | 25% | Material chronology |
+| Finds Density | 20% | Materials per sqm |
+| Surface Condition | 15% | Visibility and accessibility |
+| Documentation | 10% | Documentation quality |
 
-**Field**: `textEdit_bibliografia`
-**Database**: `bibliografia`
+**Display:**
+- Colored progress bar (green = high, yellow = medium, red = low)
+- Detailed factors table with individual scores
+- Automatic narrative text with interpretation
 
-Bibliographic references.
+### Archaeological Risk
 
-### Documentation
+Evaluates the risk of impact/loss to heritage:
 
-**Field**: `textEdit_documentazione`
-**Database**: `documentazione`
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| Accessibility | 25% | Ease of access to the area |
+| Land Use | 25% | Agricultural/building activities |
+| Existing Constraints | 20% | Legal protections |
+| Previous Investigations | 15% | State of knowledge |
+| Visibility | 15% | Site exposure |
 
-Documentation produced (photos, drawings).
+### Heatmap Generation
 
-### Photo Documentation
+The **Generate Heatmap** button creates raster layers displaying:
+- **Potential Heatmap**: spatial distribution of archaeological potential
+- **Risk Heatmap**: impact risk map
 
-**Field**: `textEdit_photo_doc`
-**Database**: `photo_documentation`
+**Available methods:**
+- Kernel Density Estimation (KDE)
+- Inverse Distance Weighting (IDW)
+- Natural Neighbor
 
-Photographic documentation list.
+---
 
-### Protection Authorities/Constraints
+## PDF Export ⭐ IMPROVED
 
-**Field**: `textEdit_vincoli`
-**Database**: `enti_tutela_vincoli`
+### Standard TU Form
 
-Constraints and protection authorities.
+Exports the complete TU form with all filled fields.
 
-### Preliminary Investigations
+### TU Analysis Report
 
-**Field**: `textEdit_indagini`
-**Database**: `indagini_preliminari`
+Generates a PDF report including:
 
-Previous investigations if any.
+1. **TU identification data**
+2. **Archaeological Potential Section**
+   - Score with graphic indicator
+   - Descriptive narrative text
+   - Factors table with contributions
+   - Potential heatmap image (if generated)
+3. **Archaeological Risk Section**
+   - Score with graphic indicator
+   - Narrative text with recommendations
+   - Factors table with contributions
+   - Risk heatmap image (if generated)
+4. **Methodology Section**
+   - Description of algorithms used
+   - Notes on factor weights
+
+The report is available in all 7 supported languages.
 
 ---
 
@@ -397,19 +399,23 @@ Previous investigations if any.
    Elevation: 125 m
    ```
 
-5. **Description**
+5. **Description** (using thesaurus)
    ```
-   Definition: Material concentration
+   Definition: Finds concentration (from thesaurus)
    Description: Elliptical area of ca. 50x30 m
    with concentration of ceramic fragments
    and bricks on south-facing hillside...
    ```
 
-6. **Survey data**
+6. **Survey data** (using thesaurus)
    ```
-   Method: Systematic survey
+   Survey Type: Intensive Survey
+   Vegetation Coverage: Sparse
+   GPS Method: Differential GPS
+   Surface Condition: Ploughed
+   Accessibility: Easy access
+   Weather Conditions: Sunny
    Visibility: 80%
-   Condition: Freshly plowed
    Date: 15/04/2024
    Responsible: Team A
    ```
@@ -426,7 +432,12 @@ Previous investigations if any.
    Interpretation I: Rustic villa
    ```
 
-8. **Save**
+8. **Analysis** (Analysis tab)
+   - Check Potential score
+   - Check Risk score
+   - Generate Heatmap if needed
+
+9. **Save**
    - Click on "Save"
 
 ---
@@ -438,19 +449,17 @@ The TU form is closely integrated with QGIS:
 - **TU Layer**: geometry visualization
 - **Linked attributes**: data from form
 - **Map selection**: click on geometry opens form
-
----
-
-## PDF Export
-
-The form supports PDF export for:
-- Single TU forms
-- Project lists
-- Survey reports
+- **Heatmap as layer**: generated maps are saved as raster layers
 
 ---
 
 ## Best Practices
+
+### Thesaurus Usage
+
+- Always prefer thesaurus values for consistency
+- Values are automatically translated to user's language
+- For new values, add them to the thesaurus first
 
 ### Nomenclature
 
@@ -470,15 +479,38 @@ The form supports PDF export for:
 - Produce planimetric sketches
 - Record visibility conditions
 
-### Materials
+### Analysis
 
-- Collect diagnostic samples
-- Estimate density per area
-- Document spatial distribution
+- Always verify calculated scores
+- Generate heatmaps for complete projects
+- Export reports for documentation
+
+---
+
+## UT Thesaurus Codes
+
+| Code | Field | Description |
+|------|-------|-------------|
+| 12.1 | survey_type | Survey type |
+| 12.2 | vegetation_coverage | Vegetation coverage |
+| 12.3 | gps_method | GPS method |
+| 12.4 | surface_condition | Surface condition |
+| 12.5 | accessibility | Accessibility |
+| 12.6 | weather_conditions | Weather conditions |
+| 12.7 | def_ut | TU Definition |
 
 ---
 
 ## Troubleshooting
+
+### Problem: Empty comboboxes
+
+**Cause**: Thesaurus entries not present in database.
+
+**Solution**:
+1. Update database via "Update database"
+2. Verify that `pyarchinit_thesaurus_sigle` table contains entries for `ut_table`
+3. Check language code in settings
 
 ### Problem: Invalid coordinates
 
@@ -498,6 +530,15 @@ The form supports PDF export for:
 2. Check that record has geometry
 3. Verify layer projection
 
+### Problem: Heatmap not generated
+
+**Cause**: Insufficient data or calculation error.
+
+**Solution**:
+1. Verify at least 3 TUs with complete data exist
+2. Check that geometries are valid
+3. Verify available disk space
+
 ---
 
 ## References
@@ -513,6 +554,10 @@ The form supports PDF export for:
 - **UI**: `gui/ui/UT_ui.ui`
 - **Controller**: `tabs/UT.py`
 - **PDF Export**: `modules/utility/pyarchinit_exp_UTsheet_pdf.py`
+- **Analysis PDF**: `modules/utility/pyarchinit_exp_UT_analysis_pdf.py`
+- **Potential Calculator**: `modules/analysis/ut_potential.py`
+- **Risk Calculator**: `modules/analysis/ut_risk.py`
+- **Heatmap Generator**: `modules/analysis/ut_heatmap_generator.py`
 
 ---
 
@@ -521,20 +566,28 @@ The form supports PDF export for:
 ### Survey Documentation
 **Duration**: 15-18 minutes
 - TU recording
-- Survey data
+- Survey data with thesaurus
 - Geolocation
 
 [Video placeholder: video_ut_survey.mp4]
 
-### GIS Survey Integration
+### Potential and Risk Analysis
 **Duration**: 10-12 minutes
-- Layers and attributes
-- Results visualization
-- Spatial analysis
+- Automatic score calculation
+- Results interpretation
+- Heatmap generation
 
-[Video placeholder: video_ut_gis.mp4]
+[Video placeholder: video_ut_analysis.mp4]
+
+### PDF Report Export
+**Duration**: 8-10 minutes
+- Standard TU form
+- Analysis report with maps
+- Output customization
+
+[Video placeholder: video_ut_pdf.mp4]
 
 ---
 
 *Last updated: January 2026*
-*PyArchInit - Archaeological Data Management System*
+*PyArchInit v4.9.68 - Archaeological Data Management System*
