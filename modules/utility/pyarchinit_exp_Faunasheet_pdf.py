@@ -260,6 +260,82 @@ class single_Fauna_pdf_sheet(object):
         val_str = str(value) if value else '-'
         return Paragraph(f"<b>{label}:</b> {val_str}", style)
 
+    def _format_specie_psi(self, specie_psi_str):
+        """Format specie_psi JSON into readable text for species and skeletal parts"""
+        if not specie_psi_str or specie_psi_str == '-':
+            return '-', '-'
+        try:
+            import json
+            import ast
+            # Try JSON first, then ast.literal_eval
+            try:
+                data = json.loads(specie_psi_str)
+            except:
+                data = ast.literal_eval(specie_psi_str)
+
+            if not data or not isinstance(data, list):
+                return '-', '-'
+
+            species = []
+            parts = []
+            for item in data:
+                if isinstance(item, (list, tuple)) and len(item) >= 2:
+                    if item[0]:
+                        species.append(str(item[0]))
+                    if item[1]:
+                        parts.append(str(item[1]))
+
+            species_str = ', '.join(species) if species else '-'
+            parts_str = ', '.join(parts) if parts else '-'
+            return species_str, parts_str
+        except:
+            return '-', '-'
+
+    def _format_misure_ossa(self, misure_str):
+        """Format misure_ossa JSON into readable text with measurement labels"""
+        if not misure_str or misure_str == '-':
+            return '-'
+        try:
+            import json
+            import ast
+            # Try JSON first, then ast.literal_eval
+            try:
+                data = json.loads(misure_str)
+            except:
+                data = ast.literal_eval(misure_str)
+
+            if not data or not isinstance(data, list):
+                return '-'
+
+            formatted_parts = []
+            # Measurement labels: GL (Greatest Length), GB (Greatest Breadth), Bp (Proximal Breadth), Bd (Distal Breadth)
+            labels = ['GL', 'GB', 'Bp', 'Bd']
+
+            for item in data:
+                if isinstance(item, (list, tuple)) and len(item) >= 2:
+                    elemento = item[0] if item[0] else ''
+                    specie = item[1] if len(item) > 1 and item[1] else ''
+
+                    # Get measurements (starting from index 2)
+                    measures = []
+                    for i, label in enumerate(labels):
+                        idx = i + 2
+                        if len(item) > idx and item[idx]:
+                            measures.append(f"{label}={item[idx]}")
+
+                    if elemento or specie:
+                        header = elemento
+                        if specie:
+                            header = f"{elemento} ({specie})" if elemento else specie
+                        if measures:
+                            formatted_parts.append(f"{header}: {', '.join(measures)}")
+                        else:
+                            formatted_parts.append(header)
+
+            return '; '.join(formatted_parts) if formatted_parts else '-'
+        except:
+            return '-'
+
     def _create_professional_sheet(self, labels):
         """
         Create a professional full-page layout.
@@ -400,11 +476,21 @@ class single_Fauna_pdf_sheet(object):
         ]))
         elements.append(taxo_header_table)
 
+        # Extract species and skeletal parts from specie_psi JSON
+        specie_formatted, parti_formatted = self._format_specie_psi(self.specie_psi)
+        # Use legacy fields if specie_psi is empty
+        if specie_formatted == '-' and self.specie:
+            specie_formatted = self.specie
+        if parti_formatted == '-' and self.parti_scheletriche:
+            parti_formatted = self.parti_scheletriche
+
+        # Format bone measurements with labels
+        misure_formatted = self._format_misure_ossa(self.misure_ossa)
+
         taxo_data = [
-            [Paragraph(f"<b>{labels['species']}:</b> {self.specie or '-'}", styles['longtext']), ''],
-            [Paragraph(f"<b>{labels['skeletal_parts']}:</b> {self.parti_scheletriche or '-'}", styles['longtext']), ''],
-            [self._make_field(labels['species_psi'], self.specie_psi, styles),
-             self._make_field(labels['bone_measurements'], self.misure_ossa, styles)]
+            [Paragraph(f"<b>{labels['species']}:</b> {specie_formatted}", styles['longtext']), ''],
+            [Paragraph(f"<b>{labels['skeletal_parts']}:</b> {parti_formatted}", styles['longtext']), ''],
+            [Paragraph(f"<b>{labels['bone_measurements']}:</b> {misure_formatted}", styles['longtext']), '']
         ]
         taxo_table = Table(taxo_data, colWidths=[half_width, half_width])
         taxo_table.setStyle(TableStyle([
@@ -412,6 +498,7 @@ class single_Fauna_pdf_sheet(object):
             ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
             ('SPAN', (0, 0), (1, 0)),
             ('SPAN', (0, 1), (1, 1)),
+            ('SPAN', (0, 2), (1, 2)),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ('TOPPADDING', (0, 0), (-1, -1), 4),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
