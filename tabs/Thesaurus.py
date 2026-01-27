@@ -781,16 +781,19 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 '13.8': {'it': 'Tracce Combustione', 'en': 'Burning traces', 'de': 'Verbrennungsspuren', 'es': 'Trazas de combustión', 'fr': 'Traces de combustion', 'ar': 'آثار الاحتراق'},
                 '13.9': {'it': 'Tipo Combustione', 'en': 'Combustion type', 'de': 'Verbrennungstyp', 'es': 'Tipo de combustión', 'fr': 'Type de combustion', 'ar': 'نوع الاحتراق'},
                 '13.10': {'it': 'Connessione Anatomica', 'en': 'Anatomical connection', 'de': 'Anatomische Verbindung', 'es': 'Conexión anatómica', 'fr': 'Connexion anatomique', 'ar': 'الاتصال التشريحي'},
-                '13.11': {'it': 'Specie', 'en': 'Species', 'de': 'Spezies', 'es': 'Especie', 'fr': 'Espèce', 'ar': 'النوع'},
-                '13.12': {'it': 'Parti Scheletriche (PSI)', 'en': 'Skeletal Parts (PSI)', 'de': 'Skelettteile (PSI)', 'es': 'Partes esqueléticas (PSI)', 'fr': 'Parties squelettiques (PSI)', 'ar': 'أجزاء الهيكل العظمي'},
-                '13.13': {'it': 'Elemento Anatomico', 'en': 'Anatomical Element', 'de': 'Anatomisches Element', 'es': 'Elemento anatómico', 'fr': 'Élément anatomique', 'ar': 'العنصر التشريحي'}
+                '13.11': {'it': 'Specie', 'en': 'Species', 'de': 'Spezies', 'es': 'Especie', 'fr': 'Espèce', 'ar': 'النوع', 'ca': 'Espècie'},
+                '13.12': {'it': 'Parti Scheletriche (PSI)', 'en': 'Skeletal Parts (PSI)', 'de': 'Skelettteile (PSI)', 'es': 'Partes esqueléticas (PSI)', 'fr': 'Parties squelettiques (PSI)', 'ar': 'أجزاء الهيكل العظمي', 'ca': 'Parts esquelètiques (PSI)'},
+                '13.13': {'it': 'Elemento Anatomico', 'en': 'Anatomical Element', 'de': 'Anatomisches Element', 'es': 'Elemento anatómico', 'fr': 'Élément anatomique', 'ar': 'العنصر التشريحي', 'ca': 'Element anatòmic'},
+                '13.14': {'it': 'Segni Tafonomici', 'en': 'Taphonomic Signs', 'de': 'Taphonomische Zeichen', 'es': 'Signos tafonómicos', 'fr': 'Signes taphonomiques', 'ar': 'علامات التافونومية', 'ca': 'Signes tafonòmics'},
+                '13.15': {'it': 'Caratterizzazione Tafonomica', 'en': 'Taphonomic Characterization', 'de': 'Taphonomische Charakterisierung', 'es': 'Caracterización tafonómica', 'fr': 'Caractérisation taphonomique', 'ar': 'وصف التافونومية', 'ca': 'Caracterització tafonòmica'},
+                '13.16': {'it': 'Numero Stimato Resti', 'en': 'Estimated Number of Remains', 'de': 'Geschätzte Anzahl der Reste', 'es': 'Número estimado de restos', 'fr': 'Nombre estimé de restes', 'ar': 'العدد المقدر للبقايا', 'ca': 'Nombre estimat de restes'}
             }
         }
-        
+
         # Convert display name to actual table name
         display_name = self.comboBox_nome_tabella.currentText()
         current_table = self.get_table_name_from_display(display_name)
-        
+
         if current_table in code_descriptions:
             self.comboBox_tipologia_sigla.clear()
             codes = list(code_descriptions[current_table].keys())
@@ -799,7 +802,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             # Map QGIS locale to PyArchInit supported languages
             lang = self.L.lower() if hasattr(self, 'L') else 'it'
             # Fallback to 'it' if language not supported
-            supported_langs = ['it', 'en', 'de', 'es', 'fr', 'ar']
+            supported_langs = ['it', 'en', 'de', 'es', 'fr', 'ar', 'ca']
             if lang not in supported_langs:
                 lang = 'it'
 
