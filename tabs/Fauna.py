@@ -3043,6 +3043,14 @@ class pyarchinit_Fauna(QDialog):
             try:
                 print(f"[Fauna DEBUG] update_if: REC_CORR={self.REC_CORR}, DATA_LIST length={len(self.DATA_LIST)}")
 
+                # Check if DATA_LIST is empty
+                if not self.DATA_LIST:
+                    if self.L == 'it':
+                        QMessageBox.warning(self, "Errore", "Nessun record da aggiornare")
+                    else:
+                        QMessageBox.warning(self, "Error", "No record to update")
+                    return
+
                 # Ensure REC_CORR is within valid range
                 if self.REC_CORR >= len(self.DATA_LIST):
                     self.REC_CORR = len(self.DATA_LIST) - 1
