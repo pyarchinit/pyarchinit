@@ -436,8 +436,10 @@ class pyarchinit_Fauna(QDialog):
         self.comboBox_deposizione.addItem("")  # Empty default, thesaurus will populate
         form.addRow(self.tr("Deposizione") + ":", self.comboBox_deposizione)
 
-        self.lineEdit_num_stimato = QLineEdit()
-        form.addRow(self.tr("Numero Stimato Resti") + ":", self.lineEdit_num_stimato)
+        self.comboBox_num_stimato = QComboBox()
+        self.comboBox_num_stimato.setEditable(True)
+        self.comboBox_num_stimato.addItem("")  # Empty default, thesaurus 13.16 will populate
+        form.addRow(self.tr("Numero Stimato Resti") + ":", self.comboBox_num_stimato)
 
         self.spinBox_nmi = QSpinBox()
         self.spinBox_nmi.setMaximum(9999)
@@ -846,11 +848,12 @@ class pyarchinit_Fauna(QDialog):
             self.comboBox_caratterizzazione.addItem("")
             self.comboBox_caratterizzazione.addItems(caratt_vl)
 
-        # 13.16 - Numero Stimato Resti (optional thesaurus for suggestions)
+        # 13.16 - Numero Stimato Resti
         num_stimato_vl = load_thesaurus('13.16')
-        if num_stimato_vl and hasattr(self, 'lineEdit_num_stimato'):
-            # Convert lineEdit to comboBox for thesaurus support
-            pass  # lineEdit_num_stimato remains a free text field
+        if num_stimato_vl and hasattr(self, 'comboBox_num_stimato'):
+            self.comboBox_num_stimato.clear()
+            self.comboBox_num_stimato.addItem("")
+            self.comboBox_num_stimato.addItems(num_stimato_vl)
 
     def charge_us_combo(self, sito=None, area=None):
         """Load US data into comboBox_us_select with format 'sito - area - us'"""
@@ -1136,7 +1139,7 @@ class pyarchinit_Fauna(QDialog):
             self.comboBox_connessione.setEditText(str(rec.resti_connessione_anatomica) if rec.resti_connessione_anatomica else "")
             self.comboBox_tipologia_accumulo.setEditText(str(rec.tipologia_accumulo) if rec.tipologia_accumulo else "")
             self.comboBox_deposizione.setEditText(str(rec.deposizione) if rec.deposizione else "")
-            self.lineEdit_num_stimato.setText(str(rec.numero_stimato_resti) if rec.numero_stimato_resti else "")
+            self.comboBox_num_stimato.setCurrentText(str(rec.numero_stimato_resti) if rec.numero_stimato_resti else "")
             self.spinBox_nmi.setValue(int(rec.numero_minimo_individui) if rec.numero_minimo_individui else 0)
 
             # Populate tableWidget_specie_psi from JSON
@@ -1385,7 +1388,7 @@ class pyarchinit_Fauna(QDialog):
         self.comboBox_connessione.setEditText("")
         self.comboBox_tipologia_accumulo.setEditText("")
         self.comboBox_deposizione.setEditText("")
-        self.lineEdit_num_stimato.clear()
+        self.comboBox_num_stimato.setCurrentText("")
         self.spinBox_nmi.setValue(0)
 
         # Clear tableWidgets for specie/PSI and misure
@@ -2974,7 +2977,7 @@ class pyarchinit_Fauna(QDialog):
             str(self.comboBox_connessione.currentText()),  # resti_connessione_anatomica
             str(self.comboBox_tipologia_accumulo.currentText()),  # tipologia_accumulo
             str(self.comboBox_deposizione.currentText()),  # deposizione
-            str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
+            str(self.comboBox_num_stimato.currentText()),  # numero_stimato_resti
             str(self.spinBox_nmi.value()),  # numero_minimo_individui
             json.dumps(self.get_specie_psi_data()) if hasattr(self, 'tableWidget_specie_psi') else '',  # specie_psi
             json.dumps(self.get_misure_data()) if hasattr(self, 'tableWidget_misure') else '',  # misure_ossa
@@ -3132,7 +3135,7 @@ class pyarchinit_Fauna(QDialog):
             str(self.comboBox_connessione.currentText()),  # resti_connessione_anatomica
             str(self.comboBox_tipologia_accumulo.currentText()),  # tipologia_accumulo
             str(self.comboBox_deposizione.currentText()),  # deposizione
-            str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
+            str(self.comboBox_num_stimato.currentText()),  # numero_stimato_resti
             int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,  # numero_minimo_individui
             '',  # specie (deprecated)
             '',  # parti_scheletriche (deprecated)
@@ -3189,7 +3192,7 @@ class pyarchinit_Fauna(QDialog):
                 str(self.comboBox_connessione.currentText()),  # resti_connessione_anatomica
                 str(self.comboBox_tipologia_accumulo.currentText()),  # tipologia_accumulo
                 str(self.comboBox_deposizione.currentText()),  # deposizione
-                str(self.lineEdit_num_stimato.text()),  # numero_stimato_resti
+                str(self.comboBox_num_stimato.currentText()),  # numero_stimato_resti
                 int(self.spinBox_nmi.value()) if self.spinBox_nmi.value() else 0,  # numero_minimo_individui
                 '',  # specie (deprecated, kept for compatibility)
                 '',  # parti_scheletriche (deprecated, kept for compatibility)
