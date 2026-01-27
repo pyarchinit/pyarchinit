@@ -832,6 +832,26 @@ class pyarchinit_Fauna(QDialog):
         # 13.13 - Elemento Anatomico (for tableWidget_misure)
         self.thesaurus_elemento = load_thesaurus('13.13') or []
 
+        # 13.14 - Segni Tafonomici
+        segni_taf_vl = load_thesaurus('13.14')
+        if segni_taf_vl and hasattr(self, 'comboBox_segni_tafonomici'):
+            self.comboBox_segni_tafonomici.clear()
+            self.comboBox_segni_tafonomici.addItem("")
+            self.comboBox_segni_tafonomici.addItems(segni_taf_vl)
+
+        # 13.15 - Caratterizzazione Segni Tafonomici
+        caratt_vl = load_thesaurus('13.15')
+        if caratt_vl and hasattr(self, 'comboBox_caratterizzazione'):
+            self.comboBox_caratterizzazione.clear()
+            self.comboBox_caratterizzazione.addItem("")
+            self.comboBox_caratterizzazione.addItems(caratt_vl)
+
+        # 13.16 - Numero Stimato Resti (optional thesaurus for suggestions)
+        num_stimato_vl = load_thesaurus('13.16')
+        if num_stimato_vl and hasattr(self, 'lineEdit_num_stimato'):
+            # Convert lineEdit to comboBox for thesaurus support
+            pass  # lineEdit_num_stimato remains a free text field
+
     def charge_us_combo(self, sito=None, area=None):
         """Load US data into comboBox_us_select with format 'sito - area - us'"""
         if not self.DB_MANAGER:
