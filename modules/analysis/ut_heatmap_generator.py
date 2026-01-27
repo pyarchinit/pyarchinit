@@ -16,31 +16,43 @@ import tempfile
 import json
 from datetime import datetime
 
+# Numpy import with comprehensive error handling
+# The _ARRAY_API error occurs when numpy's C module has version mismatch
+NUMPY_AVAILABLE = False
+np = None
 try:
     import numpy as np
     # Test if numpy array API is working
     _ = np.array([1, 2, 3])
     NUMPY_AVAILABLE = True
-except (ImportError, AttributeError):
+except (ImportError, AttributeError, Exception) as e:
+    # Catch any error including _ARRAY_API issues
     NUMPY_AVAILABLE = False
+    np = None
 
+# Scipy import
+SCIPY_AVAILABLE = False
 try:
-    from scipy import stats
-    from scipy.interpolate import griddata
-    SCIPY_AVAILABLE = True
-except ImportError:
+    if NUMPY_AVAILABLE:
+        from scipy import stats
+        from scipy.interpolate import griddata
+        SCIPY_AVAILABLE = True
+except (ImportError, Exception):
     SCIPY_AVAILABLE = False
 
+# GDAL import with array support check
+GDAL_AVAILABLE = False
+GDAL_ARRAY_AVAILABLE = False
 try:
     from osgeo import gdal, osr
+    GDAL_AVAILABLE = True
     # Test if GDAL array support is working
     try:
         from osgeo import gdal_array
         GDAL_ARRAY_AVAILABLE = True
-    except ImportError:
+    except (ImportError, Exception):
         GDAL_ARRAY_AVAILABLE = False
-    GDAL_AVAILABLE = True
-except ImportError:
+except (ImportError, Exception):
     GDAL_AVAILABLE = False
     GDAL_ARRAY_AVAILABLE = False
 
