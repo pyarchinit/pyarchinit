@@ -260,10 +260,10 @@ class single_Fauna_pdf_sheet(object):
         val_str = str(value) if value else '-'
         return Paragraph(f"<b>{label}:</b> {val_str}", style)
 
-    def _format_specie_psi(self, specie_psi_str):
-        """Format specie_psi JSON into readable text for species and skeletal parts"""
+    def _parse_specie_psi(self, specie_psi_str):
+        """Parse specie_psi JSON into list of [species, skeletal_part] rows"""
         if not specie_psi_str or specie_psi_str == '-':
-            return '-', '-'
+            return []
         try:
             import json
             import ast
@@ -274,27 +274,22 @@ class single_Fauna_pdf_sheet(object):
                 data = ast.literal_eval(specie_psi_str)
 
             if not data or not isinstance(data, list):
-                return '-', '-'
+                return []
 
-            species = []
-            parts = []
+            rows = []
             for item in data:
                 if isinstance(item, (list, tuple)) and len(item) >= 2:
-                    if item[0]:
-                        species.append(str(item[0]))
-                    if item[1]:
-                        parts.append(str(item[1]))
-
-            species_str = ', '.join(species) if species else '-'
-            parts_str = ', '.join(parts) if parts else '-'
-            return species_str, parts_str
+                    species = str(item[0]) if item[0] else '-'
+                    part = str(item[1]) if item[1] else '-'
+                    rows.append([species, part])
+            return rows
         except:
-            return '-', '-'
+            return []
 
-    def _format_misure_ossa(self, misure_str):
-        """Format misure_ossa JSON into readable text with measurement labels"""
+    def _parse_misure_ossa(self, misure_str):
+        """Parse misure_ossa JSON into list of [elemento, specie, GL, GB, Bp, Bd] rows"""
         if not misure_str or misure_str == '-':
-            return '-'
+            return []
         try:
             import json
             import ast
@@ -305,36 +300,153 @@ class single_Fauna_pdf_sheet(object):
                 data = ast.literal_eval(misure_str)
 
             if not data or not isinstance(data, list):
-                return '-'
+                return []
 
-            formatted_parts = []
-            # Measurement labels: GL (Greatest Length), GB (Greatest Breadth), Bp (Proximal Breadth), Bd (Distal Breadth)
-            labels = ['GL', 'GB', 'Bp', 'Bd']
-
+            rows = []
             for item in data:
                 if isinstance(item, (list, tuple)) and len(item) >= 2:
-                    elemento = item[0] if item[0] else ''
-                    specie = item[1] if len(item) > 1 and item[1] else ''
-
-                    # Get measurements (starting from index 2)
-                    measures = []
-                    for i, label in enumerate(labels):
-                        idx = i + 2
-                        if len(item) > idx and item[idx]:
-                            measures.append(f"{label}={item[idx]}")
-
-                    if elemento or specie:
-                        header = elemento
-                        if specie:
-                            header = f"{elemento} ({specie})" if elemento else specie
-                        if measures:
-                            formatted_parts.append(f"{header}: {', '.join(measures)}")
-                        else:
-                            formatted_parts.append(header)
-
-            return '; '.join(formatted_parts) if formatted_parts else '-'
+                    elemento = str(item[0]) if item[0] else '-'
+                    specie = str(item[1]) if len(item) > 1 and item[1] else '-'
+                    gl = str(item[2]) if len(item) > 2 and item[2] else '-'
+                    gb = str(item[3]) if len(item) > 3 and item[3] else '-'
+                    bp = str(item[4]) if len(item) > 4 and item[4] else '-'
+                    bd = str(item[5]) if len(item) > 5 and item[5] else '-'
+                    rows.append([elemento, specie, gl, gb, bp, bd])
+            return rows
         except:
+            return []
+
+    def _format_specie_psi(self, specie_psi_str):
+        """Format specie_psi JSON into readable text for species and skeletal parts (legacy)"""
+        rows = self._parse_specie_psi(specie_psi_str)
+        if not rows:
+            return '-', '-'
+        species = [r[0] for r in rows if r[0] != '-']
+        parts = [r[1] for r in rows if r[1] != '-']
+        species_str = ', '.join(species) if species else '-'
+        parts_str = ', '.join(parts) if parts else '-'
+        return species_str, parts_str
+
+    def _format_misure_ossa(self, misure_str):
+        """Format misure_ossa JSON into readable text with measurement labels (legacy)"""
+        rows = self._parse_misure_ossa(misure_str)
+        if not rows:
             return '-'
+        formatted_parts = []
+        for row in rows:
+            elemento, specie, gl, gb, bp, bd = row
+            measures = []
+            if gl != '-':
+                measures.append(f"GL={gl}")
+            if gb != '-':
+                measures.append(f"GB={gb}")
+            if bp != '-':
+                measures.append(f"Bp={bp}")
+            if bd != '-':
+                measures.append(f"Bd={bd}")
+            if elemento != '-' or specie != '-':
+                header = elemento if elemento != '-' else ''
+                if specie != '-':
+                    header = f"{header} ({specie})" if header else specie
+                if measures:
+                    formatted_parts.append(f"{header}: {', '.join(measures)}")
+                else:
+                    formatted_parts.append(header)
+        return '; '.join(formatted_parts) if formatted_parts else '-'
+
+    def _create_specie_psi_table(self, specie_psi_str, labels, styles):
+        """Create a proper table for specie_psi data with columns"""
+        rows = self._parse_specie_psi(specie_psi_str)
+
+        # Also check legacy fields
+        if not rows and self.specie:
+            # Create single row from legacy data
+            rows = [[self.specie, self.parti_scheletriche or '-']]
+
+        if not rows:
+            return None
+
+        # Table header
+        header_style = ParagraphStyle('TableHeader', fontName='Cambria', fontSize=7,
+                                      leading=9, alignment=TA_CENTER,
+                                      textColor=colors.white)
+        value_style = ParagraphStyle('TableValue', fontName='Cambria', fontSize=7,
+                                     leading=9, alignment=TA_LEFT,
+                                     textColor=colors.black)
+
+        table_data = [
+            [Paragraph(f"<b>{labels['species']}</b>", header_style),
+             Paragraph(f"<b>{labels['skeletal_parts']}</b>", header_style)]
+        ]
+
+        for row in rows:
+            table_data.append([
+                Paragraph(row[0], value_style),
+                Paragraph(row[1], value_style)
+            ])
+
+        col_widths = [USABLE_WIDTH * 0.4, USABLE_WIDTH * 0.6]
+        table = Table(table_data, colWidths=col_widths)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), SECTION_BG),
+            ('BACKGROUND', (0, 1), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        return table
+
+    def _create_misure_table(self, misure_str, labels, styles):
+        """Create a proper table for bone measurements with columns"""
+        rows = self._parse_misure_ossa(misure_str)
+
+        if not rows:
+            return None
+
+        # Table header
+        header_style = ParagraphStyle('TableHeader', fontName='Cambria', fontSize=7,
+                                      leading=9, alignment=TA_CENTER,
+                                      textColor=colors.white)
+        value_style = ParagraphStyle('TableValue', fontName='Cambria', fontSize=7,
+                                     leading=9, alignment=TA_CENTER,
+                                     textColor=colors.black)
+
+        table_data = [
+            [Paragraph(f"<b>{labels.get('element', 'Elemento')}</b>", header_style),
+             Paragraph(f"<b>{labels['species']}</b>", header_style),
+             Paragraph("<b>GL</b>", header_style),
+             Paragraph("<b>GB</b>", header_style),
+             Paragraph("<b>Bp</b>", header_style),
+             Paragraph("<b>Bd</b>", header_style)]
+        ]
+
+        for row in rows:
+            table_data.append([
+                Paragraph(row[0], value_style),
+                Paragraph(row[1], value_style),
+                Paragraph(row[2], value_style),
+                Paragraph(row[3], value_style),
+                Paragraph(row[4], value_style),
+                Paragraph(row[5], value_style)
+            ])
+
+        # Column widths: Elemento and Specie wider, measurements narrower
+        col_widths = [USABLE_WIDTH * 0.25, USABLE_WIDTH * 0.25,
+                      USABLE_WIDTH * 0.125, USABLE_WIDTH * 0.125,
+                      USABLE_WIDTH * 0.125, USABLE_WIDTH * 0.125]
+        table = Table(table_data, colWidths=col_widths)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), SECTION_BG),
+            ('BACKGROUND', (0, 1), (-1, -1), LABEL_BG),
+            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 2),
+        ]))
+        return table
 
     def _create_professional_sheet(self, labels):
         """
@@ -476,35 +588,68 @@ class single_Fauna_pdf_sheet(object):
         ]))
         elements.append(taxo_header_table)
 
-        # Extract species and skeletal parts from specie_psi JSON
-        specie_formatted, parti_formatted = self._format_specie_psi(self.specie_psi)
-        # Use legacy fields if specie_psi is empty
-        if specie_formatted == '-' and self.specie:
-            specie_formatted = self.specie
-        if parti_formatted == '-' and self.parti_scheletriche:
-            parti_formatted = self.parti_scheletriche
+        # Create Species/Skeletal Parts table
+        specie_psi_table = self._create_specie_psi_table(self.specie_psi, labels, styles)
+        if specie_psi_table:
+            # Sub-header for species table
+            specie_subheader = [[Paragraph(f"<b>{labels['species']} / {labels['skeletal_parts']}</b>", styles['label'])]]
+            specie_subheader_table = Table(specie_subheader, colWidths=[full_width])
+            specie_subheader_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), SUBSECTION_BG),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            elements.append(specie_subheader_table)
+            elements.append(specie_psi_table)
+        else:
+            # Fallback: show as text if no data
+            specie_formatted, parti_formatted = self._format_specie_psi(self.specie_psi)
+            if specie_formatted == '-' and self.specie:
+                specie_formatted = self.specie
+            if parti_formatted == '-' and self.parti_scheletriche:
+                parti_formatted = self.parti_scheletriche
+            fallback_data = [[Paragraph(f"<b>{labels['species']}:</b> {specie_formatted} | <b>{labels['skeletal_parts']}:</b> {parti_formatted}", styles['value'])]]
+            fallback_table = Table(fallback_data, colWidths=[full_width])
+            fallback_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+                ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            elements.append(fallback_table)
 
-        # Format bone measurements with labels
-        misure_formatted = self._format_misure_ossa(self.misure_ossa)
+        elements.append(Spacer(1, 2*mm))
 
-        taxo_data = [
-            [Paragraph(f"<b>{labels['species']}:</b> {specie_formatted}", styles['longtext']), ''],
-            [Paragraph(f"<b>{labels['skeletal_parts']}:</b> {parti_formatted}", styles['longtext']), ''],
-            [Paragraph(f"<b>{labels['bone_measurements']}:</b> {misure_formatted}", styles['longtext']), '']
-        ]
-        taxo_table = Table(taxo_data, colWidths=[half_width, half_width])
-        taxo_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
-            ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
-            ('SPAN', (0, 0), (1, 0)),
-            ('SPAN', (0, 1), (1, 1)),
-            ('SPAN', (0, 2), (1, 2)),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-            ('LEFTPADDING', (0, 0), (-1, -1), 4),
-        ]))
-        elements.append(taxo_table)
+        # Create Bone Measurements table
+        misure_table = self._create_misure_table(self.misure_ossa, labels, styles)
+        if misure_table:
+            # Sub-header for measurements table
+            misure_subheader = [[Paragraph(f"<b>{labels['bone_measurements']}</b>", styles['label'])]]
+            misure_subheader_table = Table(misure_subheader, colWidths=[full_width])
+            misure_subheader_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), SUBSECTION_BG),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            elements.append(misure_subheader_table)
+            elements.append(misure_table)
+        else:
+            # Fallback: show as text if no data
+            misure_formatted = self._format_misure_ossa(self.misure_ossa)
+            fallback_data = [[Paragraph(f"<b>{labels['bone_measurements']}:</b> {misure_formatted}", styles['value'])]]
+            fallback_table = Table(fallback_data, colWidths=[full_width])
+            fallback_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), LABEL_BG),
+                ('GRID', (0, 0), (-1, -1), 0.5, BORDER_COLOR),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ]))
+            elements.append(fallback_table)
+
         elements.append(Spacer(1, 3*mm))
 
         # ==================== TAPHONOMY & PRESERVATION ====================
@@ -623,6 +768,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Specie',
             'skeletal_parts': 'Parti Scheletriche',
             'species_psi': 'Specie PSI',
+            'element': 'Elemento',
             'bone_measurements': 'Misure Ossa',
             'fragmentation': 'Frammentazione',
             'preservation': 'Stato Conservazione',
@@ -674,6 +820,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Spezies',
             'skeletal_parts': 'Skelettelemente',
             'species_psi': 'Spezies PSI',
+            'element': 'Element',
             'bone_measurements': 'Knochenma\u00dfe',
             'fragmentation': 'Fragmentierung',
             'preservation': 'Erhaltungszustand',
@@ -725,6 +872,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Species',
             'skeletal_parts': 'Skeletal Elements',
             'species_psi': 'Species PSI',
+            'element': 'Element',
             'bone_measurements': 'Bone Measurements',
             'fragmentation': 'Fragmentation',
             'preservation': 'Preservation State',
@@ -776,6 +924,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Esp\u00e8ce',
             'skeletal_parts': '\u00c9l\u00e9ments Squelettiques',
             'species_psi': 'Esp\u00e8ce PSI',
+            'element': '\u00c9l\u00e9ment',
             'bone_measurements': 'Mesures Osseuses',
             'fragmentation': 'Fragmentation',
             'preservation': '\u00c9tat de Conservation',
@@ -827,6 +976,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Especie',
             'skeletal_parts': 'Elementos Esquel\u00e9ticos',
             'species_psi': 'Especie PSI',
+            'element': 'Elemento',
             'bone_measurements': 'Medidas \u00d3seas',
             'fragmentation': 'Fragmentaci\u00f3n',
             'preservation': 'Estado Conservaci\u00f3n',
@@ -878,6 +1028,7 @@ class single_Fauna_pdf_sheet(object):
             'species': '\u0627\u0644\u0623\u0646\u0648\u0627\u0639',
             'skeletal_parts': '\u0639\u0646\u0627\u0635\u0631 \u0627\u0644\u0647\u064a\u0643\u0644 \u0627\u0644\u0639\u0638\u0645\u064a',
             'species_psi': '\u0623\u0646\u0648\u0627\u0639 PSI',
+            'element': '\u0627\u0644\u0639\u0646\u0635\u0631',
             'bone_measurements': '\u0642\u064a\u0627\u0633\u0627\u062a \u0627\u0644\u0639\u0638\u0627\u0645',
             'fragmentation': '\u0627\u0644\u062a\u062c\u0632\u0626\u0629',
             'preservation': '\u062d\u0627\u0644\u0629 \u0627\u0644\u062d\u0641\u0638',
@@ -929,6 +1080,7 @@ class single_Fauna_pdf_sheet(object):
             'species': 'Esp\u00e8cie',
             'skeletal_parts': 'Elements Esquel\u00e8tics',
             'species_psi': 'Esp\u00e8cie PSI',
+            'element': 'Element',
             'bone_measurements': 'Mesures \u00d2ssies',
             'fragmentation': 'Fragmentaci\u00f3',
             'preservation': 'Estat Conservaci\u00f3',
