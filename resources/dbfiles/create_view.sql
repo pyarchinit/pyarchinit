@@ -169,7 +169,25 @@ CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
     b.materiali_impiegati,
     b.elementi_strutturali,
     b.rapporti_struttura,
-    b.misure_struttura
+    b.misure_struttura,
+    -- Nuovi campi Architettura Rupestre (AR)
+    b.data_compilazione,
+    b.nome_compilatore,
+    b.stato_conservazione,
+    b.quota,
+    b.relazione_topografica,
+    b.prospetto_ingresso,
+    b.orientamento_ingresso,
+    b.articolazione,
+    b.n_ambienti,
+    b.orientamento_ambienti,
+    b.sviluppo_planimetrico,
+    b.elementi_costitutivi,
+    b.motivo_decorativo,
+    b.potenzialita_archeologica,
+    b.manufatti,
+    b.elementi_datanti,
+    b.fasi_funzionali
    FROM pyarchinit_strutture_ipotesi a
      JOIN struttura_table b ON a.sito::text = b.sito AND a.sigla_strut::text = b.sigla_struttura AND a.nr_strut = b.numero_struttura;
 
