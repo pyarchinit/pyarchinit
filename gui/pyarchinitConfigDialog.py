@@ -1846,10 +1846,67 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         except (json.JSONDecodeError, TypeError) as e:
             QMessageBox.warning(self, self.tr("Error"), f"Failed to delete profile: {e}")
 
+    def check_us_field_migration_needed(self):
+        """Check if US, area, nr_cassa fields need migration from INTEGER to TEXT"""
+        try:
+            if not hasattr(self, 'DB_MANAGER') or not self.DB_MANAGER:
+                return False
+
+            # Detect database type from connection string
+            conn_str = str(self.DB_MANAGER.engine.url) if hasattr(self.DB_MANAGER, 'engine') else ''
+            is_sqlite = 'sqlite' in conn_str.lower()
+
+            if is_sqlite:
+                # SQLite: Check using PRAGMA table_info
+                # Check all fields that should be TEXT
+                tables_fields_to_check = [
+                    ('us_table', ['us', 'area']),
+                    ('inventario_materiali_table', ['us', 'area', 'nr_cassa']),
+                    ('campioni_table', ['us', 'area', 'nr_cassa']),
+                    ('pottery_table', ['us', 'area']),
+                    ('tomba_table', ['area']),
+                ]
+                for table_name, fields in tables_fields_to_check:
+                    try:
+                        result = self.DB_MANAGER.execute_sql(f"PRAGMA table_info({table_name})")
+                        if result:
+                            for col in result:
+                                col_name = col[1]
+                                col_type = col[2].upper() if col[2] else ''
+                                if col_name in fields and ('INTEGER' in col_type or 'BIGINT' in col_type or 'VARCHAR' in col_type):
+                                    return True  # Migration needed
+                    except:
+                        continue
+            else:
+                # PostgreSQL: Check using information_schema
+                query = """
+                    SELECT table_name, column_name, data_type
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND (
+                        (column_name = 'us' AND table_name IN ('us_table', 'inventario_materiali_table', 'campioni_table', 'pottery_table'))
+                        OR (column_name = 'area' AND table_name IN ('us_table', 'inventario_materiali_table', 'campioni_table', 'pottery_table', 'tomba_table'))
+                        OR (column_name = 'nr_cassa' AND table_name IN ('inventario_materiali_table', 'campioni_table'))
+                    )
+                    AND data_type IN ('integer', 'bigint', 'character varying')
+                """
+                result = self.DB_MANAGER.execute_sql(query)
+                if result and len(result) > 0:
+                    return True  # Migration needed
+
+            return False  # No migration needed
+        except Exception as e:
+            print(f"Error checking field migration: {e}")
+            return False
+
     def check_if_updates_needed(self):
         """Check if database updates are needed"""
         try:
-            # Check for concurrency columns
+            # First check US field migration (works for both SQLite and PostgreSQL)
+            if self.check_us_field_migration_needed():
+                return True
+
+            # Check for concurrency columns (PostgreSQL only)
             query = """
                 SELECT COUNT(DISTINCT table_name) as tables_with_concurrency
                 FROM information_schema.columns
@@ -1890,93 +1947,172 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             print(f"Error checking update status: {e}")
             return True  # Assume updates needed if check fails
 
+    def update_db_button_style(self):
+        """Update the database update button style based on whether updates are needed"""
+        try:
+            if not hasattr(self, 'update_db_btn'):
+                return
+
+            needs_update = False
+            if hasattr(self, 'DB_MANAGER') and self.DB_MANAGER:
+                needs_update = self.check_if_updates_needed()
+
+            if needs_update:
+                # Red button - update needed
+                self.update_db_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #f44336;
+                        color: white;
+                        font-weight: bold;
+                        padding: 10px;
+                        border-radius: 5px;
+                        border: 2px solid #d32f2f;
+                    }
+                    QPushButton:hover {
+                        background-color: #d32f2f;
+                    }
+                """)
+                self.update_db_btn.setText("⚠️ Aggiorna Schema Database (NECESSARIO)")
+                self.update_db_btn.setToolTip("ATTENZIONE: Il database richiede aggiornamenti!\nClicca per applicare le modifiche necessarie.")
+            else:
+                # Green button - up to date
+                self.update_db_btn.setStyleSheet("""
+                    QPushButton {
+                        background-color: #4CAF50;
+                        color: white;
+                        font-weight: bold;
+                        padding: 10px;
+                        border-radius: 5px;
+                        border: none;
+                    }
+                    QPushButton:hover {
+                        background-color: #388E3C;
+                    }
+                """)
+                self.update_db_btn.setText("🔄 Aggiorna Schema Database")
+                self.update_db_btn.setToolTip("Il database è aggiornato. Clicca per verificare o forzare un aggiornamento.")
+        except Exception as e:
+            print(f"Error updating button style: {e}")
+
     def update_database_schema(self):
-        """Apply all database schema updates"""
+        """Apply all database schema updates for both SQLite and PostgreSQL"""
         try:
             from qgis.PyQt.QtWidgets import QMessageBox
+            import os
+
+            if not hasattr(self, 'DB_MANAGER') or not self.DB_MANAGER:
+                QMessageBox.warning(self, 'Errore', 'Nessuna connessione al database attiva.')
+                return
+
+            # Detect database type
+            conn_str = str(self.DB_MANAGER.engine.url) if hasattr(self.DB_MANAGER, 'engine') else ''
+            is_sqlite = 'sqlite' in conn_str.lower()
 
             # First check if updates are needed
             if not self.check_if_updates_needed():
                 QMessageBox.information(self, 'Database Aggiornato',
                     '✅ Il database è già completamente aggiornato!\n\n'
                     'Tutti i componenti sono già installati:\n'
+                    '• Campi US/area convertiti a TEXT ✓\n'
                     '• Sistema di concorrenza ✓\n'
                     '• Campo quota corretto ✓\n'
                     '• Tabelle gestione utenti ✓\n'
                     '• Protezione duplicati TMA ✓')
                 return
 
-            reply = QMessageBox.question(self, 'Conferma',
-                'Vuoi applicare tutti gli aggiornamenti al database?\n\n'
-                'Questo includerà:\n'
-                '• Correzione campo quota (da min/max a singolo)\n'
-                '• Sistema di concorrenza su tutte le tabelle\n'
-                '• Tabelle gestione utenti\n'
-                '• Protezione duplicati TMA\n'
-                '• Indici di performance\n\n'
-                'Continuare?',
-                QMessageBox.Yes | QMessageBox.No)
+            # Different message based on database type
+            if is_sqlite:
+                reply = QMessageBox.question(self, 'Conferma Aggiornamento SQLite',
+                    'Vuoi applicare tutti gli aggiornamenti al database SQLite?\n\n'
+                    'Questo includerà:\n'
+                    '• Conversione campi US da INTEGER a TEXT\n'
+                    '• Conversione campi area da INTEGER/VARCHAR a TEXT\n'
+                    '• Conversione campi nr_cassa da INTEGER a TEXT\n'
+                    '• Aggiornamento struttura tabelle\n'
+                    '• Creazione indici di performance\n\n'
+                    '⚠️ Si consiglia di fare un backup prima di procedere.\n\n'
+                    'Continuare?',
+                    QMessageBox.Yes | QMessageBox.No)
+            else:
+                reply = QMessageBox.question(self, 'Conferma Aggiornamento PostgreSQL',
+                    'Vuoi applicare tutti gli aggiornamenti al database?\n\n'
+                    'Questo includerà:\n'
+                    '• Conversione campi US da INTEGER a TEXT\n'
+                    '• Correzione campo quota (da min/max a singolo)\n'
+                    '• Sistema di concorrenza su tutte le tabelle\n'
+                    '• Tabelle gestione utenti\n'
+                    '• Protezione duplicati TMA\n'
+                    '• Indici di performance\n\n'
+                    'Continuare?',
+                    QMessageBox.Yes | QMessageBox.No)
 
             if reply == QMessageBox.Yes:
-                # Get the SQL file path
-                import os
-                sql_path = os.path.join(
-                    os.path.dirname(os.path.dirname(__file__)),
-                    'sql',
-                    'update_production_db_safe.sql'
-                )
+                try:
+                    if is_sqlite:
+                        # Use DB_update class for SQLite migration
+                        from modules.db.pyarchinit_db_update import DB_update
 
-                if os.path.exists(sql_path):
-                    # Read SQL file
-                    with open(sql_path, 'r') as f:
-                        sql_content = f.read()
+                        db_upd = DB_update(conn_str)
+                        db_upd.update_table()
 
-                    # Execute SQL
-                    try:
-                        # For database update with functions, use raw psycopg2 connection
-                        import psycopg2
-                        from urllib.parse import urlparse
+                        QMessageBox.information(self, 'Successo',
+                            '✅ Database SQLite aggiornato con successo!\n\n'
+                            'Sono stati applicati tutti gli aggiornamenti necessari:\n'
+                            '• Campi US convertiti a TEXT\n'
+                            '• Campi area convertiti a TEXT\n'
+                            '• Campi nr_cassa convertiti a TEXT\n'
+                            '• Indici creati')
+                    else:
+                        # PostgreSQL: Use SQL file + DB_update
+                        from modules.db.pyarchinit_db_update import DB_update
 
-                        # Parse connection URL
-                        db_url = str(self.DB_MANAGER.engine.url)
-                        parsed = urlparse(db_url.replace('postgresql://', 'http://'))
+                        # First run DB_update for field migrations
+                        db_upd = DB_update(conn_str)
+                        db_upd.update_table()
 
-                        # Create direct psycopg2 connection
-                        conn = psycopg2.connect(
-                            host=parsed.hostname or 'localhost',
-                            port=parsed.port or 5432,
-                            database=parsed.path.lstrip('/'),
-                            user=parsed.username,
-                            password=parsed.password
+                        # Then run additional SQL file if exists
+                        sql_path = os.path.join(
+                            os.path.dirname(os.path.dirname(__file__)),
+                            'sql',
+                            'update_production_db_safe.sql'
                         )
 
-                        # Execute the entire SQL file as one transaction
-                        with conn.cursor() as cursor:
-                            cursor.execute(sql_content)
-                            conn.commit()
+                        if os.path.exists(sql_path):
+                            with open(sql_path, 'r') as f:
+                                sql_content = f.read()
 
-                        conn.close()
-                        success_count = 1
-                        error_count = 0
-                        errors = []
+                            import psycopg2
+                            from urllib.parse import urlparse
 
-                        if error_count == 0:
-                            QMessageBox.information(self, 'Successo',
-                                f'Database aggiornato con successo!\n'
-                                f'{success_count} statement eseguiti.')
-                        else:
-                            QMessageBox.warning(self, 'Aggiornamento Parziale',
-                                f'Aggiornamento completato con alcuni errori.\n'
-                                f'Successi: {success_count}\n'
-                                f'Errori: {error_count}\n\n'
-                                f'Primi errori: {errors[:3]}')
+                            db_url = str(self.DB_MANAGER.engine.url)
+                            parsed = urlparse(db_url.replace('postgresql://', 'http://'))
 
-                    except Exception as e:
-                        QMessageBox.critical(self, 'Errore',
-                            f'Errore durante l\'aggiornamento del database:\n{str(e)}')
-                else:
-                    QMessageBox.warning(self, 'File non trovato',
-                        'Il file SQL di aggiornamento non è stato trovato.')
+                            conn = psycopg2.connect(
+                                host=parsed.hostname or 'localhost',
+                                port=parsed.port or 5432,
+                                database=parsed.path.lstrip('/'),
+                                user=parsed.username,
+                                password=parsed.password
+                            )
+
+                            with conn.cursor() as cursor:
+                                cursor.execute(sql_content)
+                                conn.commit()
+
+                            conn.close()
+
+                        QMessageBox.information(self, 'Successo',
+                            '✅ Database PostgreSQL aggiornato con successo!\n\n'
+                            'Sono stati applicati tutti gli aggiornamenti.')
+
+                    # Update button style after successful update
+                    self.update_db_button_style()
+
+                except Exception as e:
+                    import traceback
+                    QMessageBox.critical(self, 'Errore',
+                        f'Errore durante l\'aggiornamento del database:\n{str(e)}\n\n'
+                        f'Dettagli: {traceback.format_exc()}')
 
         except Exception as e:
             QMessageBox.critical(self, 'Errore', f'Errore: {str(e)}')
@@ -6688,6 +6824,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Verifica che self.DB_MANAGER sia un'istanza della classe DBManager
         if not isinstance(self.DB_MANAGER, Pyarchinit_db_management):
             raise TypeError("self.DB_MANAGER is not an instance of DBManager")
+
+        # Update the database update button style based on whether updates are needed
+        self.update_db_button_style()
 
         try:
             sito_vl = self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('site_table', 'sito', 'SITE'))
