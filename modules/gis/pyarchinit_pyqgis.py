@@ -9179,16 +9179,32 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
     def _build_graph(self):
         """Costruisce il grafo delle relazioni stratigrafiche"""
         try:
-            # Definisci le relazioni per lingua
-            if self.L == 'it':
-                rel_covers = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts', '>>']
-                rel_equals = ['Uguale a', 'Si lega a', 'Same as', 'Connected to']
-            elif self.L == 'de':
-                rel_covers = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf', '>>']
-                rel_equals = ['Entspricht', 'Bindet an']
-            else:
-                rel_covers = ['Covers', 'Fills', 'Cuts', 'Abuts', '>>']
-                rel_equals = ['Same as', 'Connected to']
+            # Definisci le relazioni per TUTTE le lingue (il database può contenere dati in qualsiasi lingua)
+            # Italiano
+            rel_covers_it = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a']
+            rel_equals_it = ['Uguale a', 'Si lega a']
+            # Inglese
+            rel_covers_en = ['Covers', 'Fills', 'Cuts', 'Abuts']
+            rel_equals_en = ['Same as', 'Connected to']
+            # Tedesco
+            rel_covers_de = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf']
+            rel_equals_de = ['Entspricht', 'Bindet an']
+            # Spagnolo
+            rel_covers_es = ['Cubre', 'Rellena', 'Corta', 'Se apoya en']
+            rel_equals_es = ['Igual a', 'Se liga a']
+            # Francese
+            rel_covers_fr = ['Couvre', 'Remplit', 'Coupe', 'S\'appuie sur']
+            rel_equals_fr = ['Égal à', 'Se lie à']
+            # Portoghese
+            rel_covers_pt = ['Cobre', 'Preenche', 'Corta', 'Apoia-se em']
+            rel_equals_pt = ['Igual a', 'Liga-se a']
+
+            # Combina TUTTE le lingue + simbolo universale
+            rel_covers = list(set(rel_covers_it + rel_covers_en + rel_covers_de + rel_covers_es + rel_covers_fr + rel_covers_pt + ['>>']))
+            rel_equals = list(set(rel_equals_it + rel_equals_en + rel_equals_de + rel_equals_es + rel_equals_fr + rel_equals_pt))
+
+            self.logger.info(f"Relazioni di copertura riconosciute: {rel_covers}")
+            self.logger.info(f"Relazioni di uguaglianza riconosciute: {rel_equals}")
 
             # Contatori per log
             rel_count = 0
