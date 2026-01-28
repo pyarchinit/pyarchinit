@@ -144,7 +144,7 @@
       </symbol>
     </profileMarkerSymbol>
   </elevation>
-  <renderer-v2 symbollevels="0" type="singleSymbol" referencescale="-1" enableorderby="0" forceraster="0">
+  <renderer-v2 symbollevels="0" type="singleSymbol" referencescale="-1" enableorderby="1" forceraster="0">
     <symbols>
       <symbol clip_to_extent="1" force_rhr="0" type="fill" alpha="1" is_animated="0" name="0" frame_rate="10">
         <data_defined_properties>
@@ -180,6 +180,10 @@
     </symbols>
     <rotation/>
     <sizescale/>
+    <orderby>
+      <orderByClause asc="1" nullsFirst="0">order_layer</orderByClause>
+      <orderByClause asc="1" nullsFirst="0">stratigraph_index_us</orderByClause>
+    </orderby>
   </renderer-v2>
   <customproperties>
     <Option type="Map">

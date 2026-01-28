@@ -6,7 +6,7 @@
     <Searchable>1</Searchable>
     <Private>0</Private>
   </flags>
-  <renderer-v2 type="RuleRenderer" enableorderby="0" forceraster="0" symbollevels="0">
+  <renderer-v2 type="RuleRenderer" enableorderby="1" forceraster="0" symbollevels="0">
     <rules key="{30b91633-87cc-40c8-8f1d-05c83b96b20f}">
       <rule label="Argilla" symbol="0" filter="(stratigraph_index_us = 1) AND (tipo_us_s = 'argilla')" key="{978f7d02-354f-4bb7-8007-f97a0cad3cfb}"/>
       <rule label="Barba" symbol="1" filter="(stratigraph_index_us = 1) AND (tipo_us_s = 'barba')" key="{3db05480-0823-4399-abde-597ccc2af805}"/>
@@ -5346,6 +5346,10 @@
         </layer>
       </symbol>
     </symbols>
+    <orderby>
+      <orderByClause asc="1" nullsFirst="0">order_layer</orderByClause>
+      <orderByClause asc="1" nullsFirst="0">stratigraph_index_us</orderByClause>
+    </orderby>
   </renderer-v2>
   <customproperties>
     <property value="0" key="embeddedWidgets/count"/>

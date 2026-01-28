@@ -74,7 +74,7 @@
       <widgetv2config IsMultiline="0" fieldEditable="1" constraint="" UseHtml="0" labelOnTop="0" constraintDescription="" notNull="0"/>
     </edittype>
   </edittypes>
-  <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="0">
+  <renderer-v2 forceraster="0" symbollevels="0" type="RuleRenderer" enableorderby="1">
     <rules key="{7d7a5a6c-0859-47fa-a1a2-62f3c454677f}">
       <rule checkstate="0" filter="(stratigraph_index_us = 1) AND (tipo_us_s = 'argilla')" key="{37246709-47a7-448d-9590-7ddb52857d75}" symbol="0" label="Argilla"/>
       <rule filter="(stratigraph_index_us = 1) AND (tipo_us_s = 'barba')" key="{925f3efc-ae15-4a4f-8613-1bffc864a9c1}" symbol="1" label="Barba"/>
@@ -1966,6 +1966,10 @@
         </layer>
       </symbol>
     </symbols>
+    <orderby>
+      <orderByClause asc="1" nullsFirst="0">order_layer</orderByClause>
+      <orderByClause asc="1" nullsFirst="0">stratigraph_index_us</orderByClause>
+    </orderby>
   </renderer-v2>
   <labeling type="simple"/>
   <customproperties>

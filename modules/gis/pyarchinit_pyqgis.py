@@ -1306,6 +1306,9 @@ class Pyarchinit_pyqgis(QDialog):
                 # Applica lo stile al layer
                 styler.apply_style_to_layer(layerUS)
 
+                # Apply feature ordering for correct stratigraphic rendering
+                self._apply_us_feature_ordering(layerUS)
+
                 # Forza l'aggiornamento del layer
                 layerUS.triggerRepaint()
 
@@ -1383,6 +1386,10 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
+
+                # Apply feature ordering for correct stratigraphic rendering
+                self._apply_us_feature_ordering(layerUS)
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
@@ -1535,6 +1542,41 @@ class Pyarchinit_pyqgis(QDialog):
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
+
+    def _apply_us_feature_ordering(self, layer):
+        """
+        Apply feature ordering to the US layer for correct stratigraphic rendering.
+
+        Ordering:
+        - order_layer ASC: features with lower order_layer values are drawn first (underneath)
+        - stratigraph_index_us DESC: within same order_layer, features with stratigraph_index_us=2
+          are drawn before those with stratigraph_index_us=1 (so 1 appears on top)
+        """
+        try:
+            fields = layer.fields()
+
+            # Check if required fields exist
+            if 'order_layer' not in fields.names():
+                print("Campo 'order_layer' non trovato - ordinamento non applicato")
+                return
+            if 'stratigraph_index_us' not in fields.names():
+                print("Campo 'stratigraph_index_us' non trovato - ordinamento non applicato")
+                return
+
+            # Create order by clause
+            order_by = QgsFeatureRequest.OrderBy([
+                QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
+                QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last (2 on top of 1)
+            ])
+
+            # Apply ordering to layer
+            layer.setOrderByEnabled(True)
+            layer.setOrderBy(order_by)
+
+            print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us DESC")
+
+        except Exception as e:
+            print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
 
     def charge_ut_layers(self, data):
         """Load UT (Unità Topografica) geometry layers.

@@ -5,7 +5,7 @@
     <Removable>1</Removable>
     <Searchable>1</Searchable>
   </flags>
-  <renderer-v2 type="RuleRenderer" enableorderby="0" forceraster="0" symbollevels="0">
+  <renderer-v2 type="RuleRenderer" enableorderby="1" forceraster="0" symbollevels="0">
     <rules key="{2e81ee7f-b1a1-456e-97cc-0372d0404e14}">
       <rule label="Argilla" symbol="0" filter="&quot;stratigraph_index_us&quot; = 1 AND &quot;tipo_us_s&quot; = 'argilla'" key="{59211068-3761-4d90-9b79-3843dbac558c}"/>
       <rule label="Barba" symbol="1" filter="&quot;stratigraph_index_us&quot; = 1 AND &quot;tipo_us_s&quot; = 'barba'" key="{9df2a229-45c1-4bb1-bf81-041351eba501}"/>
@@ -5765,6 +5765,10 @@
         </layer>
       </symbol>
     </symbols>
+    <orderby>
+      <orderByClause asc="1" nullsFirst="0">order_layer</orderByClause>
+      <orderByClause asc="1" nullsFirst="0">stratigraph_index_us</orderByClause>
+    </orderby>
   </renderer-v2>
   <customproperties>
     <property value="COALESCE( &quot;gid&quot;, '&lt;NULL>' )" key="dualview/previewExpressions"/>
