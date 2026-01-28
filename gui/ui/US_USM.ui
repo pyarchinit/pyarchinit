@@ -15493,7 +15493,7 @@ p, li { white-space: pre-wrap; }
             <bool>true</bool>
            </property>
            <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);</string>
+            <string notr="true"></string>
            </property>
            <property name="editable">
             <bool>true</bool>
@@ -42656,7 +42656,7 @@ QPushButton:pressed {
          <string>Inserire il tipo di unità</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(255, 255, 255);</string>
+         <string notr="true"></string>
         </property>
         <property name="editable">
          <bool>true</bool>

@@ -504,7 +504,7 @@
       <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true"></string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -577,7 +577,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
        <property name="frame">
         <bool>true</bool>
@@ -636,7 +636,7 @@
         <bool>true</bool>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
        <property name="editable">
         <bool>true</bool>
@@ -694,7 +694,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
        <property name="text">
         <string>2022</string>
@@ -726,7 +726,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
       </widget>
      </item>
@@ -782,7 +782,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
        <property name="editable">
         <bool>true</bool>
@@ -856,7 +856,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
       </widget>
      </item>
@@ -880,7 +880,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
       </widget>
      </item>
@@ -904,7 +904,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
        <property name="editable">
         <bool>true</bool>
@@ -983,7 +983,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <string notr="true"></string>
        </property>
       </widget>
      </item>
@@ -1040,7 +1040,7 @@
       <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true"></string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1113,7 +1113,7 @@
       <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true"></string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1144,7 +1144,7 @@
       <enum>Qt::DefaultContextMenu</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true"></string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -1701,7 +1701,7 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true"></string>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -1739,7 +1739,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -1755,7 +1755,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -1771,7 +1771,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2045,7 +2045,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2061,7 +2061,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2077,7 +2077,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2109,7 +2109,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2143,7 +2143,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2159,7 +2159,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2239,7 +2239,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2293,7 +2293,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2353,7 +2353,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2413,7 +2413,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2479,7 +2479,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2508,7 +2508,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2537,7 +2537,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2556,7 +2556,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2604,7 +2604,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
         </widget>
        </item>
@@ -2636,7 +2636,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2691,7 +2691,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2715,7 +2715,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2753,7 +2753,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2834,7 +2834,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2853,7 +2853,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2904,7 +2904,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -2933,7 +2933,7 @@
           </font>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"></string>
          </property>
          <property name="editable">
           <bool>true</bool>
@@ -3029,7 +3029,7 @@
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color: rgb(255, 255, 255);</string>
+                <string notr="true"></string>
                </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
