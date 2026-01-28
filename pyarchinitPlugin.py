@@ -533,12 +533,17 @@ class PyArchInitPlugin(object):
             self.actionDbmanagment = QAction(QIcon(icon_Dbmanagment), "Gestione database", self.iface.mainWindow())
             self.actionDbmanagment.setWhatsThis("Gestione database")
             self.actionDbmanagment.triggered.connect(self.runDbmanagment)
+            # Database Update action
+            icon_DbUpdate = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'backup.png'))
+            self.actionDbUpdate = QAction(QIcon(icon_DbUpdate), "Aggiorna struttura database", self.iface.mainWindow())
+            self.actionDbUpdate.setWhatsThis("Aggiorna la struttura del database (migrazione campi US, area, etc.)")
+            self.actionDbUpdate.triggered.connect(self.runDbUpdate)
             icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconInfo.png'))
             self.actionInfo = QAction(QIcon(icon_Info), "Plugin info", self.iface.mainWindow())
             self.actionInfo.setWhatsThis("Plugin info")
             self.actionInfo.triggered.connect(self.runInfo)
             self.manageToolButton.addActions(
-                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
+                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionDbUpdate, self.actionInfo])
             self.manageToolButton.setDefaultAction(self.actionConf)
             self.toolBar.addWidget(self.manageToolButton)
             self.toolBar.addSeparator()
@@ -851,12 +856,17 @@ class PyArchInitPlugin(object):
             self.actionDbmanagment = QAction(QIcon(icon_Dbmanagment), "DB manager", self.iface.mainWindow())
             self.actionDbmanagment.setWhatsThis("DB manager")
             self.actionDbmanagment.triggered.connect(self.runDbmanagment)
+            # Database Update action
+            icon_DbUpdate = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'backup.png'))
+            self.actionDbUpdate = QAction(QIcon(icon_DbUpdate), "Update database structure", self.iface.mainWindow())
+            self.actionDbUpdate.setWhatsThis("Update database structure (US, area fields migration, etc.)")
+            self.actionDbUpdate.triggered.connect(self.runDbUpdate)
             icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconInfo.png'))
             self.actionInfo = QAction(QIcon(icon_Info), "Plugin info", self.iface.mainWindow())
             self.actionInfo.setWhatsThis("Plugin info")
             self.actionInfo.triggered.connect(self.runInfo)
             self.manageToolButton.addActions(
-                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
+                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionDbUpdate, self.actionInfo])
             self.manageToolButton.setDefaultAction(self.actionConf)
             self.toolBar.addWidget(self.manageToolButton)
             self.toolBar.addSeparator()
@@ -1162,12 +1172,17 @@ class PyArchInitPlugin(object):
             self.actionDbmanagment = QAction(QIcon(icon_Dbmanagment), "DB manager", self.iface.mainWindow())
             self.actionDbmanagment.setWhatsThis("DB manager")
             self.actionDbmanagment.triggered.connect(self.runDbmanagment)
+            # Database Update action
+            icon_DbUpdate = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'backup.png'))
+            self.actionDbUpdate = QAction(QIcon(icon_DbUpdate), "Update database structure", self.iface.mainWindow())
+            self.actionDbUpdate.setWhatsThis("Update database structure (US, area fields migration, etc.)")
+            self.actionDbUpdate.triggered.connect(self.runDbUpdate)
             icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconInfo.png'))
             self.actionInfo = QAction(QIcon(icon_Info), "Plugin info", self.iface.mainWindow())
             self.actionInfo.setWhatsThis("Plugin info")
             self.actionInfo.triggered.connect(self.runInfo)
             self.manageToolButton.addActions(
-                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
+                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionDbUpdate, self.actionInfo])
             self.manageToolButton.setDefaultAction(self.actionConf)
             self.toolBar.addWidget(self.manageToolButton)
             self.toolBar.addSeparator()
@@ -1479,12 +1494,17 @@ class PyArchInitPlugin(object):
             self.actionDbmanagment = QAction(QIcon(icon_Dbmanagment), "DB manager", self.iface.mainWindow())
             self.actionDbmanagment.setWhatsThis("DB manager")
             self.actionDbmanagment.triggered.connect(self.runDbmanagment)
+            # Database Update action
+            icon_DbUpdate = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'backup.png'))
+            self.actionDbUpdate = QAction(QIcon(icon_DbUpdate), "Update database structure", self.iface.mainWindow())
+            self.actionDbUpdate.setWhatsThis("Update database structure (US, area fields migration, etc.)")
+            self.actionDbUpdate.triggered.connect(self.runDbUpdate)
             icon_Info = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconInfo.png'))
             self.actionInfo = QAction(QIcon(icon_Info), "Plugin info", self.iface.mainWindow())
             self.actionInfo.setWhatsThis("Plugin info")
             self.actionInfo.triggered.connect(self.runInfo)
             self.manageToolButton.addActions(
-                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
+                [self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionDbUpdate, self.actionInfo])
             self.manageToolButton.setDefaultAction(self.actionConf)
             self.toolBar.addWidget(self.manageToolButton)
             self.toolBar.addSeparator()
@@ -1667,6 +1687,13 @@ class PyArchInitPlugin(object):
         pluginConfGui = pyArchInitDialog_Config()
         pluginConfGui.show()
         self.pluginGui = pluginConfGui  # save
+    def runDbUpdate(self):
+        """Open config dialog and trigger database schema update."""
+        pluginConfGui = pyArchInitDialog_Config()
+        pluginConfGui.show()
+        self.pluginGui = pluginConfGui  # save
+        # Trigger the database update
+        pluginConfGui.update_database_schema()
     def runInfo(self):
         pluginInfoGui = pyArchInitDialog_Info()
         pluginInfoGui.show()
