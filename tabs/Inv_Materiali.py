@@ -7006,22 +7006,29 @@ class InventarioFilterDialog(QDialog):
     """Dialog for filtering Inventario Materiali records by numero_inventario, n_reperto, or years with checkboxes"""
     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
-    def __init__(self, db_manager, parent=None):
+    def __init__(self, db_manager, parent=None, site_filter=None):
         super().__init__(parent)
         self.db_manager = db_manager
         self.selected_ids = []
         self.selected_year = None
         self.filter_type = 'numero_inventario'  # default filter type
         self.inv_records = []
+        # Get site filter from parent if not provided
+        if site_filter is None and parent is not None:
+            if hasattr(parent, 'comboBox_sito'):
+                site_filter = parent.comboBox_sito.currentText()
+        self.site_filter = site_filter
         self.initUI()
 
     def initUI(self):
+        # Set window title with site info if filtered
+        site_info = f" - {self.site_filter}" if self.site_filter else ""
         if self.L == 'it':
-            self.setWindowTitle("Filtra Record Inventario Materiali")
+            self.setWindowTitle(f"Filtra Record Inventario Materiali{site_info}")
         elif self.L == 'de':
-            self.setWindowTitle("Inventarmaterialien filtern")
+            self.setWindowTitle(f"Inventarmaterialien filtern{site_info}")
         else:
-            self.setWindowTitle("Filter Inventory Records")
+            self.setWindowTitle(f"Filter Inventory Records{site_info}")
 
         self.setMinimumSize(500, 600)
         layout = QVBoxLayout(self)
@@ -7142,10 +7149,17 @@ class InventarioFilterDialog(QDialog):
             # Get all inventory records
             print(f"[InventarioFilter] Starting populate_data...")
             print(f"[InventarioFilter] db_manager type: {type(self.db_manager)}")
+            print(f"[InventarioFilter] site_filter: {self.site_filter}")
 
             # Use the same approach as the main class
-            self.inv_records = self.db_manager.query('INVENTARIO_MATERIALI')
-            print(f"[InventarioFilter] Got {len(self.inv_records)} records")
+            all_records = self.db_manager.query('INVENTARIO_MATERIALI')
+
+            # Filter by site if site_filter is set
+            if self.site_filter:
+                self.inv_records = [r for r in all_records if str(getattr(r, 'sito', '')) == self.site_filter]
+            else:
+                self.inv_records = all_records
+            print(f"[InventarioFilter] Got {len(self.inv_records)} records (filtered from {len(all_records)})")
 
             # Get unique years and sort them
             unique_years = sorted(

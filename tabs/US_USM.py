@@ -23670,9 +23670,11 @@ DATABASE SCHEMA KNOWLEDGE:
 
     # This method is part of your main application window class
     def on_pushButton_filter_us_pressed(self):
+        # Save the current site BEFORE empty_fields() clears it
+        current_site = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else None
         self.empty_fields()
-        # Create and show the dialog
-        filter_dialog = USFilterDialog(self.DB_MANAGER, self)
+        # Create and show the dialog with the saved site
+        filter_dialog = USFilterDialog(self.DB_MANAGER, self, site_filter=current_site)
         result = filter_dialog.exec()  # Show the dialog and wait for it to close
 
         if result:
@@ -25294,20 +25296,25 @@ class GraphWindow(QDockWidget):
 
 class USFilterDialog(QDialog):
     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
-    def __init__(self, db_manager, parent=None):
+    def __init__(self, db_manager, parent=None, site_filter=None):
         super().__init__(parent)
         self.db_manager = db_manager
         self.selected_us = []
         self.us_records = []  # Store all US records
+        # Get site filter from parent if not provided
+        if site_filter is None and parent is not None:
+            if hasattr(parent, 'comboBox_sito'):
+                site_filter = parent.comboBox_sito.currentText()
+        self.site_filter = site_filter
         self.initUI()
 
     def initUI(self):
-
-        if self.L=='it':
-
-            self.setWindowTitle("Filtro UUSS Records")  # Set the window title
+        # Set window title with site info if filtered
+        site_info = f" - {self.site_filter}" if self.site_filter else ""
+        if self.L == 'it':
+            self.setWindowTitle(f"Filtro UUSS Records{site_info}")
         else:
-            self.setWindowTitle("Filter SU Records")  # Set the window title
+            self.setWindowTitle(f"Filter SU Records{site_info}")
 
         layout = QVBoxLayout(self)
 
@@ -25338,8 +25345,15 @@ class USFilterDialog(QDialog):
         return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', str(text))]
 
     def populate_list_with_us(self):
-        # Fetch US records from the database and sort them
-        self.us_records = sorted(self.db_manager.query_all('us_table'), key=lambda x: self.natural_sort_key(x.us))
+        # Fetch US records from the database, filtered by site if specified
+        all_records = self.db_manager.query_all('us_table')
+
+        # Filter by site if site_filter is set
+        if self.site_filter:
+            all_records = [r for r in all_records if str(getattr(r, 'sito', '')) == self.site_filter]
+
+        # Sort the filtered records
+        self.us_records = sorted(all_records, key=lambda x: self.natural_sort_key(x.us))
         self.update_list_widget(self.us_records)
 
     def update_list_widget(self, records):

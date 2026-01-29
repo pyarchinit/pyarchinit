@@ -520,11 +520,12 @@ class Pyarchinit_db_management(object):
         # except Exception as e:
         #     print(f"Error ensuring Fauna table exists: {e}")
 
-        # DISABLED FOR PERFORMANCE - UT geometry tables check
-        # try:
-        #     self.ensure_ut_geometry_tables_exist()
-        # except Exception as e:
-        #     print(f"Error ensuring UT geometry tables exist: {e}")
+        # UT geometry tables check - only for local SQLite databases
+        if self.conn_str and self.conn_str.startswith("sqlite"):
+            try:
+                self.ensure_ut_geometry_tables_exist()
+            except Exception as e:
+                print(f"Error ensuring UT geometry tables exist: {e}")
 
         # DISABLED FOR PERFORMANCE - macc field fix
         # try:
@@ -786,7 +787,46 @@ class Pyarchinit_db_management(object):
                     conn.commit()
                     QgsMessageLog.logMessage("PyArchInit - UT geometry tables created for SQLite", "PyArchInit", Qgis.Info)
                 else:
-                    QgsMessageLog.logMessage("PyArchInit - UT geometry tables already exist", "PyArchInit", Qgis.Info)
+                    # Tables exist, but ensure views exist too
+                    cursor.execute("SELECT name FROM sqlite_master WHERE type='view' AND name='pyarchinit_ut_point_view'")
+                    if not cursor.fetchone():
+                        QgsMessageLog.logMessage("PyArchInit - Creating missing UT views...", "PyArchInit", Qgis.Info)
+
+                        # Create views
+                        cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_point_view")
+                        cursor.execute("""
+                            CREATE VIEW IF NOT EXISTS pyarchinit_ut_point_view AS
+                            SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
+                                   p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+                                   u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                            FROM pyarchinit_ut_point p
+                            LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
+                        """)
+
+                        cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_line_view")
+                        cursor.execute("""
+                            CREATE VIEW IF NOT EXISTS pyarchinit_ut_line_view AS
+                            SELECT l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+                                   l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
+                                   u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                            FROM pyarchinit_ut_line l
+                            LEFT JOIN ut_table u ON l.sito = u.progetto AND l.nr_ut = u.nr_ut
+                        """)
+
+                        cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_polygon_view")
+                        cursor.execute("""
+                            CREATE VIEW IF NOT EXISTS pyarchinit_ut_polygon_view AS
+                            SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+                                   p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
+                                   u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
+                            FROM pyarchinit_ut_polygon p
+                            LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
+                        """)
+
+                        conn.commit()
+                        QgsMessageLog.logMessage("PyArchInit - UT views created", "PyArchInit", Qgis.Info)
+                    else:
+                        QgsMessageLog.logMessage("PyArchInit - UT geometry tables and views already exist", "PyArchInit", Qgis.Info)
 
                 conn.close()
 
