@@ -25,3 +25,4 @@ __pycache__/
 /docs/tutorials/_build/
 /examples/
 /export/
+modules/gis/logs/*.log
