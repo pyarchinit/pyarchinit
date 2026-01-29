@@ -478,16 +478,29 @@ class USViewStyler:
             print(f"Campo '{category_field}' non trovato nel layer")
             return
 
-        # Get unique combinations of category_field and stratigraph_index_us
-        unique_combinations = set()
+        # Check if order_layer field exists
+        has_order_layer = 'order_layer' in layer.fields().names()
+
+        # Get unique combinations of category_field, stratigraph_index_us, and min order_layer
+        # We use a dict to track the minimum order_layer for each combination
+        unique_combinations = {}
         for feature in layer.getFeatures():
             cat_value = feature[category_field] or "non specificato"
             strat_idx = feature['stratigraph_index_us'] or 1
             tipo_us = feature['tipo_us_s'] or "non specificato"
-            unique_combinations.add((cat_value, strat_idx, tipo_us))
+            order_layer = feature['order_layer'] if has_order_layer else 0
+            if order_layer is None:
+                order_layer = 9999  # Put NULL order_layer at the end
+
+            key = (cat_value, strat_idx, tipo_us)
+            if key not in unique_combinations:
+                unique_combinations[key] = order_layer
+            else:
+                # Keep the minimum order_layer for this category
+                unique_combinations[key] = min(unique_combinations[key], order_layer)
 
         # Create rules for each unique combination
-        for (cat_value, stratigraph_index_us, tipo_us_s) in unique_combinations:
+        for (cat_value, stratigraph_index_us, tipo_us_s), min_order_layer in unique_combinations.items():
             # Create expression for this combination
             if cat_value == "non specificato":
                 expression = f"(\"{category_field}\" IS NULL OR \"{category_field}\" = '') AND \"stratigraph_index_us\" = {stratigraph_index_us}"
@@ -527,11 +540,12 @@ class USViewStyler:
 
             label = f"{cat_value}"
             rule = QgsRuleBasedRenderer.Rule(combined_symbol, 0, 0, expression, label)
-            all_rules.append((stratigraph_index_us, rule))
+            # Store order_layer, stratigraph_index_us, and rule for sorting
+            all_rules.append((min_order_layer, stratigraph_index_us, rule))
 
-        # Sort rules by stratigraph_index_us
-        all_rules.sort(key=lambda x: x[0], reverse=False)
-        for _, rule in all_rules:
+        # Sort rules by order_layer ASC, then stratigraph_index_us ASC
+        all_rules.sort(key=lambda x: (x[0], x[1]), reverse=False)
+        for _, _, rule in all_rules:
             root_rule.appendChild(rule)
 
         renderer = QgsRuleBasedRenderer(root_rule)
