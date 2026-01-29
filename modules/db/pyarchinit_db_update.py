@@ -613,7 +613,7 @@ class DB_update(object):
                             pyunitastratigrafiche.scavo_s = us_table.sito
                             AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT
                             AND pyunitastratigrafiche.us_s = us_table.us
-                        ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
+                        ORDER BY us_table.order_layer ASC
                         """)
                     except:
                         pass
@@ -1397,7 +1397,7 @@ class DB_update(object):
                                     pyunitastratigrafiche.scavo_s = us_table.sito
                                     AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT
                                     AND pyunitastratigrafiche.us_s = us_table.us
-                                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
+                                ORDER BY us_table.order_layer ASC
                                 """)
                             except:
                                 pass
@@ -1979,7 +1979,7 @@ class DB_update(object):
                     pyunitastratigrafiche.scavo_s = us_table.sito
                     AND CAST(pyunitastratigrafiche.area_s AS TEXT) = us_table.area
                     AND CAST(pyunitastratigrafiche.us_s AS TEXT) = us_table.us
-                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+                ORDER BY us_table.order_layer ASC
             """,
 
             'pyarchinit_usm_view': """
@@ -2032,7 +2032,7 @@ class DB_update(object):
                     pyunitastratigrafiche_usm.scavo_s = us_table.sito
                     AND CAST(pyunitastratigrafiche_usm.area_s AS TEXT) = us_table.area
                     AND CAST(pyunitastratigrafiche_usm.us_s AS TEXT) = us_table.us
-                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
+                ORDER BY us_table.order_layer ASC
             """,
 
             'pyarchinit_uscaratterizzazioni_view': """
@@ -3000,7 +3000,7 @@ class DB_update(object):
                 pyunitastratigrafiche.scavo_s = us_table.sito
                 AND pyunitastratigrafiche.area_s = us_table.area
                 AND pyunitastratigrafiche.us_s = us_table.us
-            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+            ORDER BY us_table.order_layer ASC
         """)
         print("    Created pyarchinit_us_view")
 
@@ -3055,7 +3055,7 @@ class DB_update(object):
                 pyunitastratigrafiche_usm.scavo_s = us_table.sito
                 AND pyunitastratigrafiche_usm.area_s = us_table.area
                 AND pyunitastratigrafiche_usm.us_s = us_table.us
-            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
+            ORDER BY us_table.order_layer ASC
         """)
         print("    Created pyarchinit_usm_view")
 
@@ -3166,7 +3166,7 @@ class DB_update(object):
                 pyunitastratigrafiche.scavo_s = us_table.sito
                 AND pyunitastratigrafiche.area_s = us_table.area
                 AND pyunitastratigrafiche.us_s = us_table.us
-            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+            ORDER BY us_table.order_layer ASC
         """)
         print("    Created pyarchinit_us_view")
 
@@ -3220,7 +3220,7 @@ class DB_update(object):
                 pyunitastratigrafiche_usm.scavo_s = us_table.sito
                 AND pyunitastratigrafiche_usm.area_s = us_table.area
                 AND pyunitastratigrafiche_usm.us_s = us_table.us
-            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
+            ORDER BY us_table.order_layer ASC
         """)
         print("    Created pyarchinit_usm_view")
 
