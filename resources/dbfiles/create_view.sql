@@ -413,7 +413,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
 	us_table.uso_primario_usm
    FROM pyunitastratigrafiche
      JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
-  ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid;
+  ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC, pyunitastratigrafiche.gid;
 
 ALTER TABLE public.pyarchinit_us_view
     OWNER TO postgres;
@@ -533,7 +533,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
 	us_table.uso_primario_usm
    FROM pyunitastratigrafiche_usm
      JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s = us_table.us AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
-  ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us DESC, pyunitastratigrafiche_usm.gid;
+  ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us ASC, pyunitastratigrafiche_usm.gid;
 
 ALTER TABLE public.pyarchinit_usm_view
     OWNER TO postgres;
