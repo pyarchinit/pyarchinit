@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.75
+version=4.9.76
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,18 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.75 (2026-01-29):
+changelog=4.9.76 (2026-01-29):
+    - Feature:  apply nested US symbology in multiple layer loading functions
+    - Feature:  apply nested US symbology when loading US/USM views
+    - Feature:  add nested rule-based symbology for US layers
+    - Fix:  remove stratigraph_index_us from ORDER BY in views
+    - Feature:  fix geometry button now also rebuilds tables to fix column types
+    - Feature:  add rebuild geometry tables and use QGIS fix geometries
+    - Fix:  add debug output for SpatiaLite loading and pyspatialite fallback
+    - Fix:  correct SpatiaLite extension paths for QGIS on macOS
+    - Fix:  improve geometry repair with proper SpatiaLite/PostGIS handling
+    - Fix:  fix geometry repair and reorganize UI buttons
+  4.9.75 (2026-01-29):
     - Chore:  add gis logs to gitignore
   4.9.74 (2026-01-29):
     - Fix:  sort legend rules by order_layer in US view styling
