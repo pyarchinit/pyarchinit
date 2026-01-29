@@ -2456,10 +2456,18 @@ class DB_update(object):
             if platform.system() == 'Darwin':  # macOS
                 spatialite_paths = [
                     'mod_spatialite',
+                    # QGIS bundle paths (most common on macOS)
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
+                    '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite',
+                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
+                    '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite',
+                    # Homebrew paths
+                    '/opt/homebrew/lib/mod_spatialite.dylib',
                     '/opt/homebrew/lib/mod_spatialite',
+                    '/usr/local/lib/mod_spatialite.dylib',
                     '/usr/local/lib/mod_spatialite',
-                    '/opt/homebrew/opt/libspatialite/lib/mod_spatialite',
-                    '/usr/local/opt/libspatialite/lib/mod_spatialite',
+                    '/opt/homebrew/opt/libspatialite/lib/mod_spatialite.dylib',
+                    '/usr/local/opt/libspatialite/lib/mod_spatialite.dylib',
                 ]
             elif platform.system() == 'Windows':
                 spatialite_paths = [
