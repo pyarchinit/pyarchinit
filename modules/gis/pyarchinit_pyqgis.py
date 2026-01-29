@@ -375,6 +375,46 @@ class Pyarchinit_pyqgis(QDialog):
             traceback.print_exc()
             return False
 
+    def load_us_view_with_sketched_sketched_sketched(self, db_path, view_name, filter_expr=None, srid=None,
+                                      layer_name=None, use_sketched_sketched_sketched=True):
+        """
+        Load US view (pyarchinit_us_view or pyarchinit_usm_view) with optional nested symbology.
+
+        Args:
+            db_path: Path to database (SQLite)
+            view_name: Name of the view ('pyarchinit_us_view' or 'pyarchinit_usm_view')
+            filter_expr: Optional filter expression
+            srid: Optional SRID
+            layer_name: Name for the layer (defaults to view_name)
+            use_sketched_sketched_sketched: If True, apply nested US symbology
+
+        Returns:
+            QgsVectorLayer or None
+        """
+        if layer_name is None:
+            layer_name = view_name
+
+        # Load the view
+        layer = self._load_spatialite_view(db_path, view_name, filter_expr, srid)
+
+        if layer and layer.isValid():
+            layer.setName(layer_name)
+
+            if use_sketched_sketched_sketched:
+                # Apply nested symbology
+                self.create_us_nested_symbology(layer, filter_expr)
+            else:
+                # Apply default style based on view type
+                if 'usm' in view_name.lower():
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'usm_view.qml')
+                else:
+                    style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                layer.loadNamedStyle(style_path)
+
+            return layer
+
+        return None
+
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
         return 0
@@ -1074,6 +1114,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUS and layerUS.isValid():
                 layerUS.setName(name_layer_s)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, doc_from_us_str)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
@@ -1087,6 +1129,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             if layerUSM and layerUSM.isValid():
                 layerUSM.setName(name_layer_sw)
+                # Applica simbologia nidificata USM/stratigraph_index
+                self.create_us_nested_symbology(layerUSM, doc_from_us_str)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUSM))
                 QgsProject.instance().addMapLayers([layerUSM], False)
 
@@ -2415,12 +2459,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 layerUS.setName('pyarchinit_us_view')
 
-                # Applica lo stile automatico a layerUS
-                d_stratigrafica_field = 'd_stratigrafica'
-                uri = QgsDataSourceUri()
-                uri.setDatabase(db_file_path)
-                thesaurus_mapping = self.get_thesaurus_mapping(uri)
-                styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
+                # Applica la simbologia nidificata per US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
 
                 # Imposta l'opacità per layerUS
                 self.set_layer_opacity(layerUS, 0.6)
