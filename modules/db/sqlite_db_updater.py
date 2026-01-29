@@ -1423,10 +1423,11 @@ class SQLiteDBUpdater:
                     us_table.doc_usv,
                     us_table.datazione
                 FROM pyunitastratigrafiche
-                JOIN us_table ON 
-                    pyunitastratigrafiche.scavo_s = us_table.sito AND 
-                    pyunitastratigrafiche.area_s = us_table.area AND 
+                JOIN us_table ON
+                    pyunitastratigrafiche.scavo_s = us_table.sito AND
+                    pyunitastratigrafiche.area_s = us_table.area AND
                     pyunitastratigrafiche.us_s = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
             '''),
             ('pyarchinit_quote', '''
                 CREATE VIEW pyarchinit_quote AS

@@ -608,10 +608,11 @@ class DB_update(object):
                             us_table.documentazione,
                             us_table.datazione
                         FROM pyunitastratigrafiche
-                        JOIN us_table ON 
-                            pyunitastratigrafiche.scavo_s = us_table.sito 
-                            AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT 
+                        JOIN us_table ON
+                            pyunitastratigrafiche.scavo_s = us_table.sito
+                            AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT
                             AND pyunitastratigrafiche.us_s = us_table.us
+                        ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
                         """)
                     except:
                         pass
@@ -1391,10 +1392,11 @@ class DB_update(object):
                                     us_table.documentazione,
                                     us_table.datazione
                                 FROM pyunitastratigrafiche
-                                JOIN us_table ON 
-                                    pyunitastratigrafiche.scavo_s = us_table.sito 
-                                    AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT 
+                                JOIN us_table ON
+                                    pyunitastratigrafiche.scavo_s = us_table.sito
+                                    AND pyunitastratigrafiche.area_s::TEXT = us_table.area::TEXT
                                     AND pyunitastratigrafiche.us_s = us_table.us
+                                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
                                 """)
                             except:
                                 pass
@@ -1914,12 +1916,13 @@ class DB_update(object):
                     us_table.datazione as datazione,
                     pyunitastratigrafiche.ROWID as ROWID
                 FROM pyunitastratigrafiche
-                JOIN us_table ON 
-                    pyunitastratigrafiche.scavo_s = us_table.sito 
-                    AND pyunitastratigrafiche.area_s = us_table.area 
+                JOIN us_table ON
+                    pyunitastratigrafiche.scavo_s = us_table.sito
+                    AND pyunitastratigrafiche.area_s = us_table.area
                     AND pyunitastratigrafiche.us_s = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
             """,
-            
+
             'pyarchinit_uscaratterizzazioni_view': """
                 CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
                 SELECT 

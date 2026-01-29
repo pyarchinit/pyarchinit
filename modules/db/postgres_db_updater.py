@@ -597,6 +597,7 @@ class PostgresDbUpdater:
                     pyunitastratigrafiche.scavo_s = us_table.sito AND
                     pyunitastratigrafiche.area_s::text = us_table.area AND
                     pyunitastratigrafiche.us_s = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
             """
 
             self.db_manager._execute_sql(text(create_query))
@@ -685,6 +686,7 @@ class PostgresDbUpdater:
                     pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND
                     pyunitastratigrafiche_usm.area_s::text = us_table.area AND
                     pyunitastratigrafiche_usm.us_s = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us ASC
             """
 
             self.db_manager._execute_sql(text(create_query))

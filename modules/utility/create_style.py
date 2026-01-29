@@ -429,9 +429,11 @@ class USViewStyler:
         Apply feature ordering to the layer for correct stratigraphic rendering.
 
         Ordering:
-        - order_layer ASC: features with lower order_layer values are drawn first (underneath)
-        - stratigraph_index_us DESC: within same order_layer, features with stratigraph_index_us=2
-          are drawn before those with stratigraph_index_us=1 (so 1 appears on top)
+        - order_layer ASC: features with lower order_layer values are drawn first (underneath),
+          so older stratigraphic units appear below newer ones
+        - stratigraph_index_us ASC: within same order_layer, features with stratigraph_index_us=1
+          (fill/deposit) are drawn before those with stratigraph_index_us=2 (cut/interface),
+          so the cut boundary appears on top of the fill
         """
         try:
             fields = layer.fields()
@@ -454,7 +456,7 @@ class USViewStyler:
             layer.setOrderByEnabled(True)
             layer.setOrderBy(order_by)
 
-            print(f"Ordinamento feature applicato: order_layer ASC, stratigraph_index_us DESC")
+            print(f"Ordinamento feature applicato: order_layer ASC, stratigraph_index_us ASC")
 
         except Exception as e:
             print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
