@@ -3544,6 +3544,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.currentTextChanged.connect(self.charge_periodo_iniz_list)
         self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
+
+        # Add context menu to comboBox_struttura for clearing the field
+        self.comboBox_struttura.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.comboBox_struttura.customContextMenuRequested.connect(self.show_struttura_context_menu)
+
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
         self.comboBox_sito.currentTextChanged.connect(self.geometry_unitastratigrafiche)### rallenta molto
@@ -7736,6 +7741,44 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # You might consider logging the error messages to improve
                 # debugging. Replace `print` with a logger as necessary.
                 pass#QMessageBox.warning(self, 'Warning', f"Error setting edit text: {e}")
+
+    def show_struttura_context_menu(self, position):
+        """Show context menu for comboBox_struttura with clear option."""
+        from qgis.PyQt.QtWidgets import QMenu, QAction
+
+        menu = QMenu(self)
+
+        # Clear action - only IT, EN, DE
+        if self.L == 'it':
+            clear_text = "Svuota campo Struttura"
+        elif self.L == 'de':
+            clear_text = "Feld Struktur leeren"
+        else:
+            clear_text = "Clear Structure field"
+
+        clear_action = QAction(clear_text, self)
+        clear_action.triggered.connect(self.clear_struttura_field)
+        menu.addAction(clear_action)
+
+        menu.exec_(self.comboBox_struttura.mapToGlobal(position))
+
+    def clear_struttura_field(self):
+        """Clear the struttura combobox selection."""
+        try:
+            # For QgsCheckableComboBox, use deselectAllOptions or setCheckedItems
+            if hasattr(self.comboBox_struttura, 'deselectAllOptions'):
+                self.comboBox_struttura.deselectAllOptions()
+            elif hasattr(self.comboBox_struttura, 'setCheckedItems'):
+                self.comboBox_struttura.setCheckedItems([])
+
+            # Also clear the edit text
+            self.comboBox_struttura.setEditText("")
+            if hasattr(self.comboBox_struttura, 'setDefaultText'):
+                self.comboBox_struttura.setDefaultText("")
+
+            print("Campo struttura svuotato")
+        except Exception as e:
+            print(f"Errore nello svuotamento del campo struttura: {e}")
 
     def geometry_unitastratigrafiche(self):
         '''

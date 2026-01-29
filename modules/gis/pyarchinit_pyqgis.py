@@ -203,6 +203,69 @@ class Pyarchinit_pyqgis(QDialog):
         super().__init__()
         self.iface = iface
 
+    def _load_spatialite_view(self, db_path, view_name, filter_expr=None, srid=None):
+        """
+        Load a SpatiaLite view using OGR provider to avoid schema caching bug.
+
+        The SpatiaLite provider in QGIS has a bug where it caches the view schema
+        from the underlying tables instead of the actual view definition.
+        Using OGR provider avoids this issue.
+
+        Args:
+            db_path: Path to the SpatiaLite database
+            view_name: Name of the view to load
+            filter_expr: Optional SQL filter expression (e.g., "id_us = '55'")
+            srid: Optional SRID for CRS (e.g., 4326)
+
+        Returns:
+            QgsVectorLayer or None if invalid
+        """
+        ogr_uri = f"{db_path}|layername={view_name}"
+        layer = QgsVectorLayer(ogr_uri, '', 'ogr')
+
+        if layer.isValid():
+            if filter_expr:
+                layer.setSubsetString(filter_expr)
+            if srid:
+                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
+                layer.setCrs(crs)
+            return layer
+        return None
+
+    def _apply_us_feature_ordering(self, layer):
+        """
+        Apply feature ordering to the US layer for correct stratigraphic rendering.
+
+        Ordering:
+        - order_layer ASC: features with lower order_layer values are drawn first (underneath)
+        - stratigraph_index_us ASC: within same order_layer, features with stratigraph_index_us=1
+          are drawn before those with stratigraph_index_us=2 (so 2 appears on top)
+        """
+        try:
+            fields = layer.fields()
+
+            # Check if required fields exist
+            if 'order_layer' not in fields.names():
+                print("Campo 'order_layer' non trovato - ordinamento non applicato")
+                return
+            if 'stratigraph_index_us' not in fields.names():
+                print("Campo 'stratigraph_index_us' non trovato - ordinamento non applicato")
+                return
+
+            # Create order by clause
+            order_by = QgsFeatureRequest.OrderBy([
+                QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
+                QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last
+            ])
+
+            # Apply ordering to layer
+            layer.setOrderByEnabled(True)
+            layer.setOrderBy(order_by)
+
+            print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us ASC")
+
+        except Exception as e:
+            print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
 
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
@@ -1260,66 +1323,38 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Load quote view using OGR provider
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
-
-            if layerQUOTE.isValid():
-
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
-                layerQUOTE.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
+            if layerQUOTE and layerQUOTE.isValid():
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
-                QgsProject.instance().addMapLayers([layerQUOTE], False)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Load US view using OGR provider
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
 
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(srid, QgsCoordinateReferenceSystem.EpsgCrsId)
-                layerUS.setCrs(crs)
-                # Applica lo stile automatico
-
+            if layerUS and layerUS.isValid():
                 # Applica lo stile al layer
                 styler.apply_style_to_layer(layerUS)
+
+                # Apply feature ordering for correct stratigraphic rendering
+                self._apply_us_feature_ordering(layerUS)
 
                 # Forza l'aggiornamento del layer
                 layerUS.triggerRepaint()
 
                 print("Stile applicato al layer US")
 
-
-
-
-
-                #else:
-                    #style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
-                    #layerUS.loadNamedStyle(style_path_us)
-
-
-                #style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                #layerUS.loadNamedStyle(style_path)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
@@ -1371,6 +1406,10 @@ class Pyarchinit_pyqgis(QDialog):
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
                 # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 layerUS.loadNamedStyle(style_path)
+
+                # Apply feature ordering for correct stratigraphic rendering
+                self._apply_us_feature_ordering(layerUS)
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
