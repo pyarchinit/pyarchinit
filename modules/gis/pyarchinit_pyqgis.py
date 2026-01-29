@@ -238,8 +238,9 @@ class Pyarchinit_pyqgis(QDialog):
 
         Ordering:
         - order_layer ASC: features with lower order_layer values are drawn first (underneath)
-        - stratigraph_index_us ASC: within same order_layer, features with stratigraph_index_us=1
-          are drawn before those with stratigraph_index_us=2 (so 2 appears on top)
+        - stratigraph_index_us DESC: within same order_layer, features with stratigraph_index_us=2
+          (contorno) are drawn before those with stratigraph_index_us=1 (caratterizzazioni),
+          so caratterizzazioni (1) appears on top of contorno (2)
         """
         try:
             fields = layer.fields()
@@ -255,14 +256,14 @@ class Pyarchinit_pyqgis(QDialog):
             # Create order by clause
             order_by = QgsFeatureRequest.OrderBy([
                 QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
-                QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last
+                QgsFeatureRequest.OrderByClause('stratigraph_index_us', False, False)  # DESC, nulls last (1 on top of 2)
             ])
 
             # Apply ordering to layer
             layer.setOrderByEnabled(True)
             layer.setOrderBy(order_by)
 
-            print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us ASC")
+            print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us DESC")
 
         except Exception as e:
             print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
@@ -8847,16 +8848,30 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
     def _build_graph(self):
         """Costruisce il grafo delle relazioni stratigrafiche"""
         try:
-            # Definisci le relazioni per lingua
-            if self.L == 'it':
-                rel_covers = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a', 'Covers', 'Fills', 'Cuts', 'Abuts', '>>']
-                rel_equals = ['Uguale a', 'Si lega a', 'Same as', 'Connected to']
-            elif self.L == 'de':
-                rel_covers = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf', '>>']
-                rel_equals = ['Entspricht', 'Bindet an']
-            else:
-                rel_covers = ['Covers', 'Fills', 'Cuts', 'Abuts', '>>']
-                rel_equals = ['Same as', 'Connected to']
+            # Definisci le relazioni ATTIVE per TUTTE le lingue (il database può contenere dati in qualsiasi lingua)
+            # Italiano
+            rel_covers_it = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a']
+            rel_equals_it = ['Uguale a', 'Si lega a']
+            # Inglese
+            rel_covers_en = ['Covers', 'Fills', 'Cuts', 'Abuts']
+            rel_equals_en = ['Same as', 'Connected to']
+            # Tedesco
+            rel_covers_de = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf']
+            rel_equals_de = ['Entspricht', 'Bindet an']
+
+            # Combina TUTTE le lingue + simbolo universale
+            rel_covers = list(set(rel_covers_it + rel_covers_en + rel_covers_de + ['>>']))
+            rel_equals = list(set(rel_equals_it + rel_equals_en + rel_equals_de))
+
+            # Relazioni PASSIVE (inverse delle attive) - TUTTE le lingue
+            rel_covered_by_it = ['Coperto da', 'Riempito da', 'Tagliato da', 'Gli si appoggia']
+            rel_covered_by_en = ['Covered by', 'Filled by', 'Cut by', 'Abutted by']
+            rel_covered_by_de = ['Liegt unter', 'Wird verfüllt von', 'Wird geschnitten von', 'Wird gestützt von']
+            rel_covered_by = list(set(rel_covered_by_it + rel_covered_by_en + rel_covered_by_de + ['<<']))
+
+            self.logger.info(f"Relazioni attive riconosciute: {rel_covers}")
+            self.logger.info(f"Relazioni passive riconosciute: {rel_covered_by}")
+            self.logger.info(f"Relazioni di uguaglianza riconosciute: {rel_equals}")
 
             # Contatori per log
             rel_count = 0
@@ -8882,12 +8897,19 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                             # Aggiungi target_us al set di tutti i nodi
                             self.all_us.add(target_us)
 
-                            # Relazioni di copertura (us copre target_us = us viene dopo)
+                            # Relazioni di copertura ATTIVE (us copre target_us = us viene dopo)
                             if rel_type in rel_covers:
                                 self.graph_edges[target_us].add(us)
                                 self.graph_reverse[us].add(target_us)
                                 rel_count += 1
-                                self.logger.debug(f"Aggiunta relazione: {target_us} -> {us} ({rel_type})")
+                                self.logger.debug(f"Aggiunta relazione attiva: {target_us} -> {us} ({rel_type})")
+
+                            # Relazioni di copertura PASSIVE (us è coperto da target_us = target_us viene dopo)
+                            elif rel_type in rel_covered_by:
+                                self.graph_edges[us].add(target_us)
+                                self.graph_reverse[target_us].add(us)
+                                rel_count += 1
+                                self.logger.debug(f"Aggiunta relazione passiva: {us} -> {target_us} ({rel_type})")
 
                             # Relazioni di uguaglianza
                             elif rel_type in rel_equals:

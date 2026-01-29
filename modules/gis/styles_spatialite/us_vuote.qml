@@ -182,7 +182,7 @@
     <sizescale/>
     <orderby>
       <orderByClause asc="1" nullsFirst="0">order_layer</orderByClause>
-      <orderByClause asc="1" nullsFirst="0">stratigraph_index_us</orderByClause>
+      <orderByClause asc="0" nullsFirst="0">stratigraph_index_us</orderByClause>
     </orderby>
   </renderer-v2>
   <labeling type="simple">

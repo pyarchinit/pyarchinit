@@ -773,7 +773,7 @@ class DB_update(object):
                     AND pyunitastratigrafiche.area_s::text = us_table.area::text
                     AND pyunitastratigrafiche.us_s = us_table.us
                     AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
-                ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us, pyunitastratigrafiche.gid
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid
             """)
             print("pyarchinit_us_view recreated successfully")
         except Exception as e:
@@ -822,7 +822,7 @@ class DB_update(object):
                     AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text
                     AND pyunitastratigrafiche_usm.us_s = us_table.us
                     AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
-                ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us, pyunitastratigrafiche_usm.gid
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC, pyunitastratigrafiche_usm.gid
             """)
             print("pyarchinit_usm_view recreated successfully")
         except Exception as e:
@@ -872,7 +872,7 @@ class DB_update(object):
                     AND pyunitastratigrafiche.area_s = us_table.area
                     AND pyunitastratigrafiche.us_s = us_table.us
                     AND pyunitastratigrafiche.unita_tipo_s = us_table.unita_tipo
-                ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us, pyunitastratigrafiche.gid
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC, pyunitastratigrafiche.gid
             """)
             print("pyarchinit_us_view recreated successfully")
         except Exception as e:
@@ -922,7 +922,7 @@ class DB_update(object):
                     AND pyunitastratigrafiche_usm.area_s = us_table.area
                     AND pyunitastratigrafiche_usm.us_s = us_table.us
                     AND pyunitastratigrafiche_usm.unita_tipo_s = us_table.unita_tipo
-                ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us, pyunitastratigrafiche_usm.gid
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC, pyunitastratigrafiche_usm.gid
             """)
             print("pyarchinit_usm_view recreated successfully")
         except Exception as e:
