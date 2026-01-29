@@ -5459,15 +5459,29 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_fix_geometries_pressed(self):
         """
         Handler for fixing invalid geometries in the database.
-        Uses QGIS Processing 'Fix Geometries' algorithm (native:fixgeometries).
+        First rebuilds geometry tables to fix column types (INT->TEXT),
+        then uses QGIS Processing 'Fix Geometries' algorithm (native:fixgeometries).
         """
         try:
             import processing
             from qgis.core import QgsVectorLayer, QgsProject, QgsDataSourceUri
+            from modules.db.pyarchinit_db_update import DB_update
 
             # Get the current connection
             conn = Connection()
             conn_str = conn.conn_str()
+
+            # Step 1: Rebuild geometry tables to fix column types (INT->TEXT)
+            print("\n=== Step 1: Rebuilding geometry tables (fixing column types) ===")
+            try:
+                db_updater = DB_update(conn_str)
+                rebuild_results = db_updater.rebuild_geometry_tables()
+                print(f"Rebuild results: {rebuild_results}")
+            except Exception as e:
+                print(f"Warning: Could not rebuild tables: {str(e)}")
+                # Continue with geometry fix even if rebuild fails
+
+            print("\n=== Step 2: Fixing invalid geometries ===")
 
             # List of geometry tables to fix
             geometry_tables = [
