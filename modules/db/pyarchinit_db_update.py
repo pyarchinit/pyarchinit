@@ -1864,12 +1864,63 @@ class DB_update(object):
                     us_table.order_layer,
                     us_table.datazione
                 FROM pyarchinit_quote
-                JOIN us_table ON 
-                    pyarchinit_quote.sito_q = us_table.sito 
-                    AND pyarchinit_quote.area_q = us_table.area 
-                    AND pyarchinit_quote.us_q = us_table.us
+                JOIN us_table ON
+                    pyarchinit_quote.sito_q = us_table.sito
+                    AND CAST(pyarchinit_quote.area_q AS TEXT) = us_table.area
+                    AND CAST(pyarchinit_quote.us_q AS TEXT) = us_table.us
             """,
-            
+
+            'pyarchinit_quote_usm_view': """
+                CREATE VIEW pyarchinit_quote_usm_view AS
+                SELECT
+                    a.rowid AS rowid,
+                    a.id_us AS id_us,
+                    a.sito AS sito,
+                    a.area AS area,
+                    a.us AS us,
+                    a.d_stratigrafica AS d_stratigrafica,
+                    a.d_interpretativa AS d_interpretativa,
+                    a.descrizione AS descrizione,
+                    a.interpretazione AS interpretazione,
+                    a.periodo_iniziale AS periodo_iniziale,
+                    a.fase_iniziale AS fase_iniziale,
+                    a.periodo_finale AS periodo_finale,
+                    a.fase_finale AS fase_finale,
+                    a.scavato AS scavato,
+                    a.attivita AS attivita,
+                    a.anno_scavo AS anno_scavo,
+                    a.metodo_di_scavo AS metodo_di_scavo,
+                    a.inclusi AS inclusi,
+                    a.campioni AS campioni,
+                    a.rapporti AS rapporti,
+                    a.data_schedatura AS data_schedatura,
+                    a.schedatore AS schedatore,
+                    a.formazione AS formazione,
+                    a.stato_di_conservazione AS stato_di_conservazione,
+                    a.colore AS colore,
+                    a.consistenza AS consistenza,
+                    a.struttura AS struttura,
+                    a.cont_per AS cont_per,
+                    a.order_layer AS order_layer,
+                    a.documentazione AS documentazione,
+                    b.rowid AS rowid_1,
+                    b.sito_q AS sito_q,
+                    b.area_q AS area_q,
+                    b.us_q AS us_q,
+                    b.unita_misu_q AS unita_misu_q,
+                    b.quota_q AS quota_q,
+                    b.data AS data,
+                    b.disegnatore AS disegnatore,
+                    b.rilievo_originale AS rilievo_originale,
+                    b.the_geom AS the_geom
+                FROM us_table AS a
+                JOIN pyarchinit_quote_usm AS b ON
+                    a.sito = b.sito_q
+                    AND a.area = CAST(b.area_q AS TEXT)
+                    AND a.us = CAST(b.us_q AS TEXT)
+                ORDER BY a.order_layer DESC
+            """,
+
             'pyarchinit_us_view': """
                 CREATE VIEW pyarchinit_us_view AS 
                 SELECT 
@@ -1918,9 +1969,62 @@ class DB_update(object):
                 FROM pyunitastratigrafiche
                 JOIN us_table ON
                     pyunitastratigrafiche.scavo_s = us_table.sito
-                    AND pyunitastratigrafiche.area_s = us_table.area
-                    AND pyunitastratigrafiche.us_s = us_table.us
-                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
+                    AND CAST(pyunitastratigrafiche.area_s AS TEXT) = us_table.area
+                    AND CAST(pyunitastratigrafiche.us_s AS TEXT) = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+            """,
+
+            'pyarchinit_usm_view': """
+                CREATE VIEW pyarchinit_usm_view AS
+                SELECT
+                    CAST(pyunitastratigrafiche_usm.gid AS INTEGER) as gid,
+                    pyunitastratigrafiche_usm.the_geom as the_geom,
+                    pyunitastratigrafiche_usm.tipo_us_s as tipo_us_s,
+                    pyunitastratigrafiche_usm.scavo_s as scavo_s,
+                    pyunitastratigrafiche_usm.area_s as area_s,
+                    pyunitastratigrafiche_usm.us_s as us_s,
+                    pyunitastratigrafiche_usm.stratigraph_index_us as stratigraph_index_us,
+                    us_table.id_us as id_us,
+                    us_table.sito as sito,
+                    us_table.area as area,
+                    us_table.us as us,
+                    us_table.struttura as struttura,
+                    us_table.d_stratigrafica as d_stratigrafica,
+                    us_table.d_interpretativa as d_interpretativa,
+                    us_table.descrizione as descrizione,
+                    us_table.interpretazione as interpretazione,
+                    us_table.rapporti as rapporti,
+                    us_table.periodo_iniziale as periodo_iniziale,
+                    us_table.fase_iniziale as fase_iniziale,
+                    us_table.periodo_finale as periodo_finale,
+                    us_table.fase_finale as fase_finale,
+                    us_table.attivita as attivita,
+                    us_table.anno_scavo as anno_scavo,
+                    us_table.metodo_di_scavo as metodo_di_scavo,
+                    us_table.inclusi as inclusi,
+                    us_table.campioni as campioni,
+                    us_table.organici as organici,
+                    us_table.inorganici as inorganici,
+                    us_table.data_schedatura as data_schedatura,
+                    us_table.schedatore as schedatore,
+                    us_table.formazione as formazione,
+                    us_table.stato_di_conservazione as stato_di_conservazione,
+                    us_table.colore as colore,
+                    us_table.consistenza as consistenza,
+                    us_table.unita_tipo as unita_tipo,
+                    us_table.settore as settore,
+                    us_table.scavato as scavato,
+                    us_table.cont_per as cont_per,
+                    us_table.order_layer as order_layer,
+                    us_table.documentazione as documentazione,
+                    us_table.datazione as datazione,
+                    pyunitastratigrafiche_usm.ROWID as ROWID
+                FROM pyunitastratigrafiche_usm
+                JOIN us_table ON
+                    pyunitastratigrafiche_usm.scavo_s = us_table.sito
+                    AND CAST(pyunitastratigrafiche_usm.area_s AS TEXT) = us_table.area
+                    AND CAST(pyunitastratigrafiche_usm.us_s AS TEXT) = us_table.us
+                ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
             """,
 
             'pyarchinit_uscaratterizzazioni_view': """
@@ -2042,9 +2146,58 @@ class DB_update(object):
                     b.nr_scheda,
                     b.the_geom
                 FROM tomba_table a
-                LEFT JOIN pyarchinit_tafonomia b ON 
-                    a.sito = b.sito::text AND 
+                LEFT JOIN pyarchinit_tafonomia b ON
+                    a.sito = b.sito AND
                     a.nr_scheda_taf = b.nr_scheda
+            """,
+
+            'pyarchinit_us_negative_doc_view': """
+                CREATE VIEW pyarchinit_us_negative_doc_view AS
+                SELECT
+                    a.rowid AS rowid,
+                    a.sito_n AS sito_n,
+                    a.area_n AS area_n,
+                    a.us_n AS us_n,
+                    a.tipo_doc_n AS tipo_doc_n,
+                    a.nome_doc_n AS nome_doc_n,
+                    a.the_geom AS the_geom,
+                    b.rowid AS rowid_1,
+                    b.id_us AS id_us,
+                    b.sito AS sito,
+                    b.area AS area,
+                    b.us AS us,
+                    b.d_stratigrafica AS d_stratigrafica,
+                    b.d_interpretativa AS d_interpretativa,
+                    b.descrizione AS descrizione,
+                    b.interpretazione AS interpretazione,
+                    b.periodo_iniziale AS periodo_iniziale,
+                    b.fase_iniziale AS fase_iniziale,
+                    b.periodo_finale AS periodo_finale,
+                    b.fase_finale AS fase_finale,
+                    b.scavato AS scavato,
+                    b.attivita AS attivita,
+                    b.anno_scavo AS anno_scavo,
+                    b.metodo_di_scavo AS metodo_di_scavo,
+                    b.inclusi AS inclusi,
+                    b.campioni AS campioni,
+                    b.rapporti AS rapporti,
+                    b.data_schedatura AS data_schedatura,
+                    b.schedatore AS schedatore,
+                    b.formazione AS formazione,
+                    b.stato_di_conservazione AS stato_di_conservazione,
+                    b.colore AS colore,
+                    b.consistenza AS consistenza,
+                    b.struttura AS struttura,
+                    b.cont_per AS cont_per,
+                    b.order_layer AS order_layer,
+                    b.documentazione AS documentazione,
+                    b.unita_tipo AS unita_tipo,
+                    b.settore AS settore
+                FROM pyarchinit_us_negative_doc AS a
+                JOIN us_table AS b ON
+                    a.sito_n = b.sito
+                    AND a.area_n = b.area
+                    AND CAST(a.us_n AS TEXT) = b.us
             """
         }
         
@@ -2078,10 +2231,26 @@ class DB_update(object):
                     
                     # Register the view (view_rowid must be lowercase)
                     self._execute("""
-                        INSERT INTO views_geometry_columns 
+                        INSERT INTO views_geometry_columns
                         (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
-                        VALUES 
+                        VALUES
                         ('pyarchinit_us_view', 'the_geom', 'rowid', 'pyunitastratigrafiche', 'the_geom', 1)
+                    """)
+                except:
+                    pass
+
+                # Register pyarchinit_usm_view
+                try:
+                    self._execute("""
+                        DELETE FROM views_geometry_columns
+                        WHERE view_name = 'pyarchinit_usm_view'
+                    """)
+
+                    self._execute("""
+                        INSERT INTO views_geometry_columns
+                        (view_name, view_geometry, view_rowid, f_table_name, f_geometry_column, read_only)
+                        VALUES
+                        ('pyarchinit_usm_view', 'the_geom', 'rowid', 'pyunitastratigrafiche_usm', 'the_geom', 1)
                     """)
                 except:
                     pass
@@ -2116,7 +2285,10 @@ class DB_update(object):
                 
                 # Register other geometry views
                 other_views = [
+                    ('pyarchinit_usm_view', 'pyunitastratigrafiche_usm'),
                     ('pyarchinit_quote_view', 'pyarchinit_quote'),
+                    ('pyarchinit_quote_usm_view', 'pyarchinit_quote_usm'),
+                    ('pyarchinit_us_negative_doc_view', 'pyarchinit_us_negative_doc'),
                     ('pyarchinit_uscaratterizzazioni_view', 'pyuscaratterizzazioni'),
                     ('pyarchinit_reperti_view', 'pyarchinit_reperti'),
                     ('pyarchinit_tomba_view', 'pyarchinit_tafonomia')
@@ -2148,19 +2320,28 @@ class DB_update(object):
                 # Register views in geometry_columns_auth
                 views_to_register = [
                     'pyarchinit_us_view',
+                    'pyarchinit_usm_view',
                     'pyarchinit_quote_view',
+                    'pyarchinit_quote_usm_view',
+                    'pyarchinit_us_negative_doc_view',
                     'pyarchinit_uscaratterizzazioni_view',
                     'pyarchinit_reperti_view',
                     'pyarchinit_tomba_view'
                 ]
-                
+
                 for view_name in views_to_register:
                     try:
                         # Get SRID from source table
                         if view_name == 'pyarchinit_us_view':
                             source_table = 'pyunitastratigrafiche'
+                        elif view_name == 'pyarchinit_usm_view':
+                            source_table = 'pyunitastratigrafiche_usm'
                         elif view_name == 'pyarchinit_quote_view':
                             source_table = 'pyarchinit_quote'
+                        elif view_name == 'pyarchinit_quote_usm_view':
+                            source_table = 'pyarchinit_quote_usm'
+                        elif view_name == 'pyarchinit_us_negative_doc_view':
+                            source_table = 'pyarchinit_us_negative_doc'
                         elif view_name == 'pyarchinit_uscaratterizzazioni_view':
                             source_table = 'pyuscaratterizzazioni'
                         elif view_name == 'pyarchinit_reperti_view':
