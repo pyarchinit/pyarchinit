@@ -3545,9 +3545,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_unita_tipo.currentTextChanged.connect(self.charge_struttura_list)
         self.comboBox_sito.currentTextChanged.connect(self.charge_struttura_list)
 
-        # Add context menu to comboBox_struttura for clearing the field
-        self.comboBox_struttura.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.comboBox_struttura.customContextMenuRequested.connect(self.show_struttura_context_menu)
+        # Add event filter to comboBox_struttura for custom context menu
+        self.comboBox_struttura.installEventFilter(self)
 
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_periodo_fin_list)
         self.comboBox_per_iniz.currentIndexChanged.connect(self.charge_fase_iniz_list)
@@ -7742,39 +7741,64 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 # debugging. Replace `print` with a logger as necessary.
                 pass#QMessageBox.warning(self, 'Warning', f"Error setting edit text: {e}")
 
-    def show_struttura_context_menu(self, position):
-        """Show context menu for comboBox_struttura with clear option."""
-        from qgis.PyQt.QtWidgets import QMenu, QAction
+    def eventFilter(self, obj, event):
+        """Event filter to add custom context menu to comboBox_struttura."""
+        if obj == self.comboBox_struttura and event.type() == QtCore.QEvent.ContextMenu:
+            from qgis.PyQt.QtWidgets import QMenu, QAction
 
-        menu = QMenu(self)
+            menu = QMenu(self)
 
-        # Clear action - only IT, EN, DE
-        if self.L == 'it':
-            clear_text = "Svuota campo Struttura"
-        elif self.L == 'de':
-            clear_text = "Feld Struktur leeren"
-        else:
-            clear_text = "Clear Structure field"
+            # Standard actions - IT, EN, DE
+            if self.L == 'it':
+                select_all_text = "Seleziona tutto"
+                deselect_all_text = "Deseleziona tutto"
+                clear_text = "Svuota campo Struttura"
+            elif self.L == 'de':
+                select_all_text = "Alle auswählen"
+                deselect_all_text = "Alle abwählen"
+                clear_text = "Feld Struktur leeren"
+            else:
+                select_all_text = "Select All"
+                deselect_all_text = "Deselect All"
+                clear_text = "Clear Structure field"
 
-        clear_action = QAction(clear_text, self)
-        clear_action.triggered.connect(self.clear_struttura_field)
-        menu.addAction(clear_action)
+            # Select all action
+            select_all_action = QAction(select_all_text, self)
+            select_all_action.triggered.connect(lambda: self.comboBox_struttura.selectAllOptions() if hasattr(self.comboBox_struttura, 'selectAllOptions') else None)
+            menu.addAction(select_all_action)
 
-        menu.exec_(self.comboBox_struttura.mapToGlobal(position))
+            # Deselect all action
+            deselect_all_action = QAction(deselect_all_text, self)
+            deselect_all_action.triggered.connect(lambda: self.comboBox_struttura.deselectAllOptions() if hasattr(self.comboBox_struttura, 'deselectAllOptions') else None)
+            menu.addAction(deselect_all_action)
+
+            menu.addSeparator()
+
+            # Clear action (our custom one)
+            clear_action = QAction(clear_text, self)
+            clear_action.triggered.connect(self.clear_struttura_field)
+            menu.addAction(clear_action)
+
+            menu.exec_(event.globalPos())
+            return True
+
+        return super().eventFilter(obj, event)
 
     def clear_struttura_field(self):
-        """Clear the struttura combobox selection."""
+        """Clear the struttura combobox selection and display text."""
         try:
-            # For QgsCheckableComboBox, use deselectAllOptions or setCheckedItems
+            # For QgsCheckableComboBox, deselect all options
             if hasattr(self.comboBox_struttura, 'deselectAllOptions'):
                 self.comboBox_struttura.deselectAllOptions()
             elif hasattr(self.comboBox_struttura, 'setCheckedItems'):
                 self.comboBox_struttura.setCheckedItems([])
 
-            # Also clear the edit text
-            self.comboBox_struttura.setEditText("")
+            # Clear the display text - this is what actually clears the visible text
             if hasattr(self.comboBox_struttura, 'setDefaultText'):
                 self.comboBox_struttura.setDefaultText("")
+
+            # Force update the display
+            self.comboBox_struttura.lineEdit().clear() if self.comboBox_struttura.lineEdit() else None
 
             print("Campo struttura svuotato")
         except Exception as e:
