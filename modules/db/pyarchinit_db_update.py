@@ -628,9 +628,302 @@ class DB_update(object):
             table_column_names_list.append(str(i.name))
                 
         if not table_column_names_list.__contains__('tipo_doc'):
-            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")   
-        
+            self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN tipo_doc text")
+
         if not table_column_names_list.__contains__('nome_doc'):
             self.engine.execute("ALTER TABLE pyarchinit_sezioni  ADD COLUMN nome_doc text")
-        
-      
+
+        # Update views with ORDER BY for stratigraphic rendering
+        self.update_us_views_order()
+
+    def update_us_views_order(self):
+        """
+        Check and update pyarchinit_us_view and pyarchinit_usm_view to include
+        ORDER BY clause for correct stratigraphic rendering.
+        Works for both PostgreSQL and SQLite.
+        """
+        try:
+            conn_str = str(self.engine.url)
+            is_postgres = 'postgresql' in conn_str
+            is_sqlite = 'sqlite' in conn_str
+
+            if is_postgres:
+                self._update_postgres_us_views()
+            elif is_sqlite:
+                self._update_sqlite_us_views()
+
+        except Exception as e:
+            print(f"Error updating US views: {e}")
+
+    def _update_postgres_us_views(self):
+        """Update views for PostgreSQL database."""
+        try:
+            # Check if view has ORDER BY
+            result = self.engine.execute("""
+                SELECT definition FROM pg_views
+                WHERE viewname = 'pyarchinit_us_view'
+            """)
+            row = result.fetchone()
+
+            if row:
+                view_def = row[0].lower() if row[0] else ''
+                if 'order by' not in view_def or 'order_layer' not in view_def:
+                    print("Updating pyarchinit_us_view with ORDER BY...")
+                    self._recreate_postgres_us_view()
+
+            # Check USM view
+            result = self.engine.execute("""
+                SELECT definition FROM pg_views
+                WHERE viewname = 'pyarchinit_usm_view'
+            """)
+            row = result.fetchone()
+
+            if row:
+                view_def = row[0].lower() if row[0] else ''
+                if 'order by' not in view_def or 'order_layer' not in view_def:
+                    print("Updating pyarchinit_usm_view with ORDER BY...")
+                    self._recreate_postgres_usm_view()
+
+        except Exception as e:
+            print(f"Error checking/updating PostgreSQL views: {e}")
+
+    def _update_sqlite_us_views(self):
+        """Update views for SQLite database."""
+        try:
+            # Check if view has ORDER BY
+            result = self.engine.execute("""
+                SELECT sql FROM sqlite_master
+                WHERE type = 'view' AND name = 'pyarchinit_us_view'
+            """)
+            row = result.fetchone()
+
+            if row:
+                view_def = row[0].lower() if row[0] else ''
+                if 'order by' not in view_def or 'order_layer' not in view_def:
+                    print("Updating pyarchinit_us_view with ORDER BY...")
+                    self._recreate_sqlite_us_view()
+
+            # Check USM view
+            result = self.engine.execute("""
+                SELECT sql FROM sqlite_master
+                WHERE type = 'view' AND name = 'pyarchinit_usm_view'
+            """)
+            row = result.fetchone()
+
+            if row:
+                view_def = row[0].lower() if row[0] else ''
+                if 'order by' not in view_def or 'order_layer' not in view_def:
+                    print("Updating pyarchinit_usm_view with ORDER BY...")
+                    self._recreate_sqlite_usm_view()
+
+        except Exception as e:
+            print(f"Error checking/updating SQLite views: {e}")
+
+    def _recreate_postgres_us_view(self):
+        """Recreate pyarchinit_us_view for PostgreSQL with ORDER BY."""
+        try:
+            self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+            self.engine.execute("""
+                CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
+                SELECT pyunitastratigrafiche.gid,
+                    pyunitastratigrafiche.the_geom,
+                    pyunitastratigrafiche.area_s,
+                    pyunitastratigrafiche.scavo_s,
+                    pyunitastratigrafiche.us_s,
+                    pyunitastratigrafiche.stratigraph_index_us,
+                    pyunitastratigrafiche.tipo_us_s,
+                    pyunitastratigrafiche.rilievo_originale,
+                    pyunitastratigrafiche.disegnatore,
+                    pyunitastratigrafiche.data,
+                    pyunitastratigrafiche.tipo_doc,
+                    pyunitastratigrafiche.nome_doc,
+                    pyunitastratigrafiche.unita_tipo_s,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.scavato,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.metodo_di_scavo,
+                    us_table.inclusi,
+                    us_table.campioni,
+                    us_table.rapporti,
+                    us_table.data_schedatura,
+                    us_table.schedatore,
+                    us_table.formazione,
+                    us_table.stato_di_conservazione,
+                    us_table.colore,
+                    us_table.consistenza,
+                    us_table.struttura,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.documentazione,
+                    us_table.unita_tipo
+                FROM pyunitastratigrafiche
+                JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito
+                    AND pyunitastratigrafiche.area_s::text = us_table.area::text
+                    AND pyunitastratigrafiche.us_s = us_table.us
+                    AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
+                ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us, pyunitastratigrafiche.gid
+            """)
+            print("pyarchinit_us_view recreated successfully")
+        except Exception as e:
+            print(f"Error recreating pyarchinit_us_view: {e}")
+
+    def _recreate_postgres_usm_view(self):
+        """Recreate pyarchinit_usm_view for PostgreSQL with ORDER BY."""
+        try:
+            self.engine.execute("DROP VIEW IF EXISTS pyarchinit_usm_view CASCADE")
+            self.engine.execute("""
+                CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
+                SELECT pyunitastratigrafiche_usm.gid,
+                    pyunitastratigrafiche_usm.the_geom,
+                    pyunitastratigrafiche_usm.area_s,
+                    pyunitastratigrafiche_usm.scavo_s,
+                    pyunitastratigrafiche_usm.us_s,
+                    pyunitastratigrafiche_usm.stratigraph_index_us,
+                    pyunitastratigrafiche_usm.tipo_us_s,
+                    pyunitastratigrafiche_usm.rilievo_originale,
+                    pyunitastratigrafiche_usm.disegnatore,
+                    pyunitastratigrafiche_usm.data,
+                    pyunitastratigrafiche_usm.tipo_doc,
+                    pyunitastratigrafiche_usm.nome_doc,
+                    pyunitastratigrafiche_usm.unita_tipo_s,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.scavato,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.struttura,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.unita_tipo
+                FROM pyunitastratigrafiche_usm
+                JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito
+                    AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text
+                    AND pyunitastratigrafiche_usm.us_s = us_table.us
+                    AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
+                ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us, pyunitastratigrafiche_usm.gid
+            """)
+            print("pyarchinit_usm_view recreated successfully")
+        except Exception as e:
+            print(f"Error recreating pyarchinit_usm_view: {e}")
+
+    def _recreate_sqlite_us_view(self):
+        """Recreate pyarchinit_us_view for SQLite with ORDER BY."""
+        try:
+            self.engine.execute("DROP VIEW IF EXISTS pyarchinit_us_view")
+            self.engine.execute("""
+                CREATE VIEW pyarchinit_us_view AS
+                SELECT pyunitastratigrafiche.ROWID AS ROWID,
+                    pyunitastratigrafiche.gid,
+                    pyunitastratigrafiche.the_geom,
+                    pyunitastratigrafiche.area_s,
+                    pyunitastratigrafiche.scavo_s,
+                    pyunitastratigrafiche.us_s,
+                    pyunitastratigrafiche.stratigraph_index_us,
+                    pyunitastratigrafiche.tipo_us_s,
+                    pyunitastratigrafiche.rilievo_originale,
+                    pyunitastratigrafiche.disegnatore,
+                    pyunitastratigrafiche.data,
+                    pyunitastratigrafiche.tipo_doc,
+                    pyunitastratigrafiche.nome_doc,
+                    pyunitastratigrafiche.unita_tipo_s,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.scavato,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.struttura,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.unita_tipo
+                FROM pyunitastratigrafiche
+                JOIN us_table ON pyunitastratigrafiche.scavo_s = us_table.sito
+                    AND pyunitastratigrafiche.area_s = us_table.area
+                    AND pyunitastratigrafiche.us_s = us_table.us
+                    AND pyunitastratigrafiche.unita_tipo_s = us_table.unita_tipo
+                ORDER BY us_table.order_layer, pyunitastratigrafiche.stratigraph_index_us, pyunitastratigrafiche.gid
+            """)
+            print("pyarchinit_us_view recreated successfully")
+        except Exception as e:
+            print(f"Error recreating pyarchinit_us_view: {e}")
+
+    def _recreate_sqlite_usm_view(self):
+        """Recreate pyarchinit_usm_view for SQLite with ORDER BY."""
+        try:
+            self.engine.execute("DROP VIEW IF EXISTS pyarchinit_usm_view")
+            self.engine.execute("""
+                CREATE VIEW pyarchinit_usm_view AS
+                SELECT pyunitastratigrafiche_usm.ROWID AS ROWID,
+                    pyunitastratigrafiche_usm.gid,
+                    pyunitastratigrafiche_usm.the_geom,
+                    pyunitastratigrafiche_usm.area_s,
+                    pyunitastratigrafiche_usm.scavo_s,
+                    pyunitastratigrafiche_usm.us_s,
+                    pyunitastratigrafiche_usm.stratigraph_index_us,
+                    pyunitastratigrafiche_usm.tipo_us_s,
+                    pyunitastratigrafiche_usm.rilievo_originale,
+                    pyunitastratigrafiche_usm.disegnatore,
+                    pyunitastratigrafiche_usm.data,
+                    pyunitastratigrafiche_usm.tipo_doc,
+                    pyunitastratigrafiche_usm.nome_doc,
+                    pyunitastratigrafiche_usm.unita_tipo_s,
+                    us_table.id_us,
+                    us_table.sito,
+                    us_table.area,
+                    us_table.us,
+                    us_table.d_stratigrafica,
+                    us_table.d_interpretativa,
+                    us_table.descrizione,
+                    us_table.interpretazione,
+                    us_table.periodo_iniziale,
+                    us_table.fase_iniziale,
+                    us_table.periodo_finale,
+                    us_table.fase_finale,
+                    us_table.scavato,
+                    us_table.attivita,
+                    us_table.anno_scavo,
+                    us_table.struttura,
+                    us_table.cont_per,
+                    us_table.order_layer,
+                    us_table.unita_tipo
+                FROM pyunitastratigrafiche_usm
+                JOIN us_table ON pyunitastratigrafiche_usm.scavo_s = us_table.sito
+                    AND pyunitastratigrafiche_usm.area_s = us_table.area
+                    AND pyunitastratigrafiche_usm.us_s = us_table.us
+                    AND pyunitastratigrafiche_usm.unita_tipo_s = us_table.unita_tipo
+                ORDER BY us_table.order_layer, pyunitastratigrafiche_usm.stratigraph_index_us, pyunitastratigrafiche_usm.gid
+            """)
+            print("pyarchinit_usm_view recreated successfully")
+        except Exception as e:
+            print(f"Error recreating pyarchinit_usm_view: {e}")
