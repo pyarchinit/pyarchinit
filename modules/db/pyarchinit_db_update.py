@@ -2402,8 +2402,24 @@ class DB_update(object):
             return self._fix_invalid_geometries_sqlite()
 
     def _fix_invalid_geometries_sqlite(self):
-        """Fix invalid geometries in SQLite/SpatiaLite database"""
+        """Fix invalid geometries in SQLite/SpatiaLite database.
+
+        Uses a raw connection with SpatiaLite extension loaded to ensure
+        spatial functions are available.
+        """
+        import sqlite3
+        import os
+        import platform
+
         results = {}
+
+        # Extract database path from connection string
+        # Format: sqlite:///path/to/db.sqlite
+        db_path = self.conn_str.replace('sqlite:///', '')
+
+        if not os.path.exists(db_path):
+            print(f"Database file not found: {db_path}")
+            return results
 
         # List of geometry tables with their geometry column name
         geometry_tables = [
@@ -2426,75 +2442,172 @@ class DB_update(object):
             ('pyarchinit_strutture_ipotesi', 'the_geom'),
         ]
 
-        for table_name, geom_column in geometry_tables:
-            try:
-                # Check if table exists
-                result = self._execute(f"""
-                    SELECT name FROM sqlite_master
-                    WHERE type='table' AND name='{table_name}'
-                """)
-                if not result.fetchone():
+        conn = None
+        try:
+            # Connect with extension loading enabled
+            conn = sqlite3.connect(db_path)
+            conn.enable_load_extension(True)
+
+            # Try to load SpatiaLite extension
+            spatialite_loaded = False
+            spatialite_paths = []
+
+            # Platform-specific paths for mod_spatialite
+            if platform.system() == 'Darwin':  # macOS
+                spatialite_paths = [
+                    'mod_spatialite',
+                    '/opt/homebrew/lib/mod_spatialite',
+                    '/usr/local/lib/mod_spatialite',
+                    '/opt/homebrew/opt/libspatialite/lib/mod_spatialite',
+                    '/usr/local/opt/libspatialite/lib/mod_spatialite',
+                ]
+            elif platform.system() == 'Windows':
+                spatialite_paths = [
+                    'mod_spatialite',
+                    'mod_spatialite.dll',
+                ]
+            else:  # Linux
+                spatialite_paths = [
+                    'mod_spatialite',
+                    '/usr/lib/x86_64-linux-gnu/mod_spatialite.so',
+                    '/usr/lib/mod_spatialite.so',
+                ]
+
+            for sp_path in spatialite_paths:
+                try:
+                    conn.load_extension(sp_path)
+                    spatialite_loaded = True
+                    print(f"  SpatiaLite loaded from: {sp_path}")
+                    break
+                except Exception:
                     continue
 
-                # Count invalid geometries before fix
-                result = self._execute(f"""
-                    SELECT COUNT(*) FROM {table_name}
-                    WHERE {geom_column} IS NOT NULL
-                    AND ST_IsValid({geom_column}) = 0
-                """)
-                invalid_count = result.fetchone()[0]
+            if not spatialite_loaded:
+                print("  Warning: Could not load SpatiaLite extension, trying with existing functions...")
 
-                if invalid_count > 0:
-                    print(f"  {table_name}: {invalid_count} invalid geometries found, fixing...")
+            cursor = conn.cursor()
 
-                    # Try MakeValid first (SpatiaLite 4.3+)
+            # Check which repair function is available
+            repair_function = None
+            repair_functions_to_try = ['MakeValid', 'ST_MakeValid', 'GUnion']
+
+            for func in repair_functions_to_try:
+                try:
+                    # Test if function exists by calling it on a simple geometry
+                    cursor.execute(f"SELECT {func}(GeomFromText('POINT(0 0)'))")
+                    repair_function = func
+                    print(f"  Using repair function: {repair_function}")
+                    break
+                except Exception:
+                    continue
+
+            for table_name, geom_column in geometry_tables:
+                try:
+                    # Check if table exists
+                    cursor.execute(f"""
+                        SELECT name FROM sqlite_master
+                        WHERE type='table' AND name=?
+                    """, (table_name,))
+                    if not cursor.fetchone():
+                        continue
+
+                    # Check if geometry column exists
+                    cursor.execute(f"PRAGMA table_info({table_name})")
+                    columns = [row[1] for row in cursor.fetchall()]
+                    if geom_column not in columns:
+                        continue
+
+                    # Count invalid geometries before fix
                     try:
-                        self._execute(f"""
-                            UPDATE {table_name}
-                            SET {geom_column} = MakeValid({geom_column})
+                        cursor.execute(f"""
+                            SELECT COUNT(*) FROM {table_name}
                             WHERE {geom_column} IS NOT NULL
                             AND ST_IsValid({geom_column}) = 0
                         """)
-                    except Exception:
-                        # Fallback: try ST_MakeValid (alternative naming)
-                        try:
-                            self._execute(f"""
-                                UPDATE {table_name}
-                                SET {geom_column} = ST_MakeValid({geom_column})
-                                WHERE {geom_column} IS NOT NULL
-                                AND ST_IsValid({geom_column}) = 0
-                            """)
-                        except Exception:
-                            # Last resort: use Buffer(0) trick
+                        invalid_count = cursor.fetchone()[0]
+                    except Exception as e:
+                        print(f"  {table_name}: Could not check validity - {str(e)}")
+                        continue
+
+                    if invalid_count > 0:
+                        print(f"  {table_name}: {invalid_count} invalid geometries found, fixing...")
+
+                        fixed = False
+                        error_msg = None
+
+                        # Try repair function if available
+                        if repair_function:
                             try:
-                                self._execute(f"""
+                                cursor.execute(f"""
+                                    UPDATE {table_name}
+                                    SET {geom_column} = {repair_function}({geom_column})
+                                    WHERE {geom_column} IS NOT NULL
+                                    AND ST_IsValid({geom_column}) = 0
+                                """)
+                                conn.commit()
+                                fixed = True
+                            except Exception as e:
+                                error_msg = str(e)
+                                print(f"    {repair_function} failed: {error_msg}")
+
+                        # Try Buffer(0) as fallback - most reliable method
+                        if not fixed:
+                            try:
+                                cursor.execute(f"""
                                     UPDATE {table_name}
                                     SET {geom_column} = ST_Buffer({geom_column}, 0)
                                     WHERE {geom_column} IS NOT NULL
                                     AND ST_IsValid({geom_column}) = 0
                                 """)
+                                conn.commit()
+                                fixed = True
                             except Exception as e:
-                                print(f"    Warning: Could not fix geometries in {table_name}: {str(e)}")
-                                results[table_name] = {'found': invalid_count, 'fixed': 0, 'error': str(e)}
-                                continue
+                                error_msg = str(e)
+                                print(f"    ST_Buffer(0) failed: {error_msg}")
 
-                    # Count remaining invalid geometries
-                    result = self._execute(f"""
-                        SELECT COUNT(*) FROM {table_name}
-                        WHERE {geom_column} IS NOT NULL
-                        AND ST_IsValid({geom_column}) = 0
-                    """)
-                    remaining = result.fetchone()[0]
-                    fixed = invalid_count - remaining
+                        # Try Buffer with small positive then negative value
+                        if not fixed:
+                            try:
+                                cursor.execute(f"""
+                                    UPDATE {table_name}
+                                    SET {geom_column} = ST_Buffer(ST_Buffer({geom_column}, 0.0001), -0.0001)
+                                    WHERE {geom_column} IS NOT NULL
+                                    AND ST_IsValid({geom_column}) = 0
+                                """)
+                                conn.commit()
+                                fixed = True
+                            except Exception as e:
+                                error_msg = str(e)
+                                print(f"    Double buffer failed: {error_msg}")
 
-                    results[table_name] = {'found': invalid_count, 'fixed': fixed, 'remaining': remaining}
-                    print(f"    Fixed {fixed} geometries, {remaining} still invalid")
-                else:
-                    results[table_name] = {'found': 0, 'fixed': 0}
+                        if not fixed:
+                            results[table_name] = {'found': invalid_count, 'fixed': 0, 'error': error_msg}
+                            continue
 
-            except Exception as e:
-                # Table might not exist or have geometry column
-                pass
+                        # Count remaining invalid geometries
+                        cursor.execute(f"""
+                            SELECT COUNT(*) FROM {table_name}
+                            WHERE {geom_column} IS NOT NULL
+                            AND ST_IsValid({geom_column}) = 0
+                        """)
+                        remaining = cursor.fetchone()[0]
+                        fixed_count = invalid_count - remaining
+
+                        results[table_name] = {'found': invalid_count, 'fixed': fixed_count, 'remaining': remaining}
+                        print(f"    Fixed {fixed_count} geometries, {remaining} still invalid")
+                    else:
+                        results[table_name] = {'found': 0, 'fixed': 0}
+
+                except Exception as e:
+                    print(f"  {table_name}: Error - {str(e)}")
+                    results[table_name] = {'found': 0, 'fixed': 0, 'error': str(e)}
+
+        except Exception as e:
+            print(f"Database connection error: {str(e)}")
+            raise
+        finally:
+            if conn:
+                conn.close()
 
         return results
 
@@ -2532,7 +2645,19 @@ class DB_update(object):
                         WHERE table_name = '{table_name}'
                     )
                 """)
-                if not result.fetchone()[0]:
+                row = result.fetchone()
+                if not row or not row[0]:
+                    continue
+
+                # Check if geometry column exists
+                result = self._execute(f"""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.columns
+                        WHERE table_name = '{table_name}' AND column_name = '{geom_column}'
+                    )
+                """)
+                row = result.fetchone()
+                if not row or not row[0]:
                     continue
 
                 # Count invalid geometries before fix
@@ -2541,18 +2666,45 @@ class DB_update(object):
                     WHERE {geom_column} IS NOT NULL
                     AND NOT ST_IsValid({geom_column})
                 """)
-                invalid_count = result.fetchone()[0]
+                row = result.fetchone()
+                invalid_count = row[0] if row else 0
 
                 if invalid_count > 0:
                     print(f"  {table_name}: {invalid_count} invalid geometries found, fixing...")
 
+                    fixed = False
+                    error_msg = None
+
                     # Use ST_MakeValid (PostGIS 2.0+)
-                    self._execute(f"""
-                        UPDATE {table_name}
-                        SET {geom_column} = ST_MakeValid({geom_column})
-                        WHERE {geom_column} IS NOT NULL
-                        AND NOT ST_IsValid({geom_column})
-                    """)
+                    try:
+                        self._execute(f"""
+                            UPDATE {table_name}
+                            SET {geom_column} = ST_MakeValid({geom_column})
+                            WHERE {geom_column} IS NOT NULL
+                            AND NOT ST_IsValid({geom_column})
+                        """)
+                        fixed = True
+                    except Exception as e:
+                        error_msg = str(e)
+                        print(f"    ST_MakeValid failed: {error_msg}")
+
+                    # Fallback: try ST_Buffer(0)
+                    if not fixed:
+                        try:
+                            self._execute(f"""
+                                UPDATE {table_name}
+                                SET {geom_column} = ST_Buffer({geom_column}, 0)
+                                WHERE {geom_column} IS NOT NULL
+                                AND NOT ST_IsValid({geom_column})
+                            """)
+                            fixed = True
+                        except Exception as e:
+                            error_msg = str(e)
+                            print(f"    ST_Buffer(0) failed: {error_msg}")
+
+                    if not fixed:
+                        results[table_name] = {'found': invalid_count, 'fixed': 0, 'error': error_msg}
+                        continue
 
                     # Count remaining invalid geometries
                     result = self._execute(f"""
@@ -2560,17 +2712,18 @@ class DB_update(object):
                         WHERE {geom_column} IS NOT NULL
                         AND NOT ST_IsValid({geom_column})
                     """)
-                    remaining = result.fetchone()[0]
-                    fixed = invalid_count - remaining
+                    row = result.fetchone()
+                    remaining = row[0] if row else 0
+                    fixed_count = invalid_count - remaining
 
-                    results[table_name] = {'found': invalid_count, 'fixed': fixed, 'remaining': remaining}
-                    print(f"    Fixed {fixed} geometries, {remaining} still invalid")
+                    results[table_name] = {'found': invalid_count, 'fixed': fixed_count, 'remaining': remaining}
+                    print(f"    Fixed {fixed_count} geometries, {remaining} still invalid")
                 else:
                     results[table_name] = {'found': 0, 'fixed': 0}
 
             except Exception as e:
-                # Table might not exist or have geometry column
-                pass
+                print(f"  {table_name}: Error - {str(e)}")
+                results[table_name] = {'found': 0, 'fixed': 0, 'error': str(e)}
 
         return results
 
