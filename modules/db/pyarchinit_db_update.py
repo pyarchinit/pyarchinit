@@ -1623,7 +1623,14 @@ class DB_update(object):
             
             # Recreate views
             self._recreate_sqlite_views()
-            
+
+            # Fix invalid geometries
+            print("Fixing invalid geometries...")
+            fix_results = self.fix_invalid_geometries()
+            total_fixed = sum(r.get('fixed', 0) for r in fix_results.values())
+            if total_fixed > 0:
+                print(f"Fixed {total_fixed} invalid geometries")
+
             # Final cleanup - remove any remaining _new tables
             result = self._execute("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE '%_new'")
             for row in result:
@@ -2381,7 +2388,191 @@ class DB_update(object):
         except Exception as e:
             # Log but don't fail - view registration is not critical
             print(f"Warning: Could not register views in SpatiaLite metadata: {str(e)}")
-    
+
+    def fix_invalid_geometries(self):
+        """
+        Repair invalid geometries in all geometry tables.
+        Uses SpatiaLite's MakeValid() or ST_MakeValid() function.
+        Returns a dict with counts of fixed geometries per table.
+        """
+        if 'postgresql' in self.conn_str.lower():
+            return self._fix_invalid_geometries_postgres()
+        else:
+            return self._fix_invalid_geometries_sqlite()
+
+    def _fix_invalid_geometries_sqlite(self):
+        """Fix invalid geometries in SQLite/SpatiaLite database"""
+        results = {}
+
+        # List of geometry tables with their geometry column name
+        geometry_tables = [
+            ('pyunitastratigrafiche', 'the_geom'),
+            ('pyunitastratigrafiche_usm', 'the_geom'),
+            ('pyarchinit_quote', 'the_geom'),
+            ('pyarchinit_quote_usm', 'the_geom'),
+            ('pyarchinit_us_negative_doc', 'the_geom'),
+            ('pyarchinit_reperti', 'the_geom'),
+            ('pyarchinit_tafonomia', 'the_geom'),
+            ('pyarchinit_campionature', 'the_geom'),
+            ('pyarchinit_linee_rif', 'the_geom'),
+            ('pyarchinit_punti_rif', 'the_geom'),
+            ('pyarchinit_sezioni', 'the_geom'),
+            ('pyarchinit_siti', 'the_geom'),
+            ('pyarchinit_siti_polygonal', 'the_geom'),
+            ('pyarchinit_ripartizioni_spaziali', 'the_geom'),
+            ('pyarchinit_documentazione', 'the_geom'),
+            ('pyarchinit_individui', 'the_geom'),
+            ('pyarchinit_strutture_ipotesi', 'the_geom'),
+        ]
+
+        for table_name, geom_column in geometry_tables:
+            try:
+                # Check if table exists
+                result = self._execute(f"""
+                    SELECT name FROM sqlite_master
+                    WHERE type='table' AND name='{table_name}'
+                """)
+                if not result.fetchone():
+                    continue
+
+                # Count invalid geometries before fix
+                result = self._execute(f"""
+                    SELECT COUNT(*) FROM {table_name}
+                    WHERE {geom_column} IS NOT NULL
+                    AND ST_IsValid({geom_column}) = 0
+                """)
+                invalid_count = result.fetchone()[0]
+
+                if invalid_count > 0:
+                    print(f"  {table_name}: {invalid_count} invalid geometries found, fixing...")
+
+                    # Try MakeValid first (SpatiaLite 4.3+)
+                    try:
+                        self._execute(f"""
+                            UPDATE {table_name}
+                            SET {geom_column} = MakeValid({geom_column})
+                            WHERE {geom_column} IS NOT NULL
+                            AND ST_IsValid({geom_column}) = 0
+                        """)
+                    except Exception:
+                        # Fallback: try ST_MakeValid (alternative naming)
+                        try:
+                            self._execute(f"""
+                                UPDATE {table_name}
+                                SET {geom_column} = ST_MakeValid({geom_column})
+                                WHERE {geom_column} IS NOT NULL
+                                AND ST_IsValid({geom_column}) = 0
+                            """)
+                        except Exception:
+                            # Last resort: use Buffer(0) trick
+                            try:
+                                self._execute(f"""
+                                    UPDATE {table_name}
+                                    SET {geom_column} = ST_Buffer({geom_column}, 0)
+                                    WHERE {geom_column} IS NOT NULL
+                                    AND ST_IsValid({geom_column}) = 0
+                                """)
+                            except Exception as e:
+                                print(f"    Warning: Could not fix geometries in {table_name}: {str(e)}")
+                                results[table_name] = {'found': invalid_count, 'fixed': 0, 'error': str(e)}
+                                continue
+
+                    # Count remaining invalid geometries
+                    result = self._execute(f"""
+                        SELECT COUNT(*) FROM {table_name}
+                        WHERE {geom_column} IS NOT NULL
+                        AND ST_IsValid({geom_column}) = 0
+                    """)
+                    remaining = result.fetchone()[0]
+                    fixed = invalid_count - remaining
+
+                    results[table_name] = {'found': invalid_count, 'fixed': fixed, 'remaining': remaining}
+                    print(f"    Fixed {fixed} geometries, {remaining} still invalid")
+                else:
+                    results[table_name] = {'found': 0, 'fixed': 0}
+
+            except Exception as e:
+                # Table might not exist or have geometry column
+                pass
+
+        return results
+
+    def _fix_invalid_geometries_postgres(self):
+        """Fix invalid geometries in PostgreSQL/PostGIS database"""
+        results = {}
+
+        # List of geometry tables with their geometry column name
+        geometry_tables = [
+            ('pyunitastratigrafiche', 'the_geom'),
+            ('pyunitastratigrafiche_usm', 'the_geom'),
+            ('pyarchinit_quote', 'the_geom'),
+            ('pyarchinit_quote_usm', 'the_geom'),
+            ('pyarchinit_us_negative_doc', 'the_geom'),
+            ('pyarchinit_reperti', 'the_geom'),
+            ('pyarchinit_tafonomia', 'the_geom'),
+            ('pyarchinit_campionature', 'the_geom'),
+            ('pyarchinit_linee_rif', 'the_geom'),
+            ('pyarchinit_punti_rif', 'the_geom'),
+            ('pyarchinit_sezioni', 'the_geom'),
+            ('pyarchinit_siti', 'the_geom'),
+            ('pyarchinit_siti_polygonal', 'the_geom'),
+            ('pyarchinit_ripartizioni_spaziali', 'the_geom'),
+            ('pyarchinit_documentazione', 'the_geom'),
+            ('pyarchinit_individui', 'the_geom'),
+            ('pyarchinit_strutture_ipotesi', 'the_geom'),
+        ]
+
+        for table_name, geom_column in geometry_tables:
+            try:
+                # Check if table exists
+                result = self._execute(f"""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables
+                        WHERE table_name = '{table_name}'
+                    )
+                """)
+                if not result.fetchone()[0]:
+                    continue
+
+                # Count invalid geometries before fix
+                result = self._execute(f"""
+                    SELECT COUNT(*) FROM {table_name}
+                    WHERE {geom_column} IS NOT NULL
+                    AND NOT ST_IsValid({geom_column})
+                """)
+                invalid_count = result.fetchone()[0]
+
+                if invalid_count > 0:
+                    print(f"  {table_name}: {invalid_count} invalid geometries found, fixing...")
+
+                    # Use ST_MakeValid (PostGIS 2.0+)
+                    self._execute(f"""
+                        UPDATE {table_name}
+                        SET {geom_column} = ST_MakeValid({geom_column})
+                        WHERE {geom_column} IS NOT NULL
+                        AND NOT ST_IsValid({geom_column})
+                    """)
+
+                    # Count remaining invalid geometries
+                    result = self._execute(f"""
+                        SELECT COUNT(*) FROM {table_name}
+                        WHERE {geom_column} IS NOT NULL
+                        AND NOT ST_IsValid({geom_column})
+                    """)
+                    remaining = result.fetchone()[0]
+                    fixed = invalid_count - remaining
+
+                    results[table_name] = {'found': invalid_count, 'fixed': fixed, 'remaining': remaining}
+                    print(f"    Fixed {fixed} geometries, {remaining} still invalid")
+                else:
+                    results[table_name] = {'found': 0, 'fixed': 0}
+
+            except Exception as e:
+                # Table might not exist or have geometry column
+                pass
+
+        return results
+
     def _migrate_tma_table(self):
         """Migrate old TMA table structure to new structure with separate materials table"""
         try:
