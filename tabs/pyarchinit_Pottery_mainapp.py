@@ -1075,9 +1075,11 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_filter_pottery_pressed(self):
         """Open the filter dialog for ID Number and Year selection"""
+        # Save the current site BEFORE empty_fields() clears it
+        current_site = self.comboBox_sito.currentText() if hasattr(self, 'comboBox_sito') else None
         self.empty_fields()
-        # Create and show the dialog
-        filter_dialog = PotteryFilterDialog(self.DB_MANAGER, self)
+        # Create and show the dialog with the saved site
+        filter_dialog = PotteryFilterDialog(self.DB_MANAGER, self, site_filter=current_site)
         result = filter_dialog.exec()
 
         if result:
@@ -8644,21 +8646,28 @@ class PotteryFilterDialog(QDialog):
     """Dialog for filtering Pottery records by ID Number and Year with checkboxes"""
     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
-    def __init__(self, db_manager, parent=None):
+    def __init__(self, db_manager, parent=None, site_filter=None):
         super().__init__(parent)
         self.db_manager = db_manager
         self.selected_ids = []
         self.selected_year = None
         self.pottery_records = []
+        # Get site filter from parent if not provided
+        if site_filter is None and parent is not None:
+            if hasattr(parent, 'comboBox_sito'):
+                site_filter = parent.comboBox_sito.currentText()
+        self.site_filter = site_filter
         self.initUI()
 
     def initUI(self):
+        # Set window title with site info if filtered
+        site_info = f" - {self.site_filter}" if self.site_filter else ""
         if self.L == 'it':
-            self.setWindowTitle("Filtra Record Ceramica per Anno e ID Number")
+            self.setWindowTitle(f"Filtra Record Ceramica per Anno e ID Number{site_info}")
         elif self.L == 'de':
-            self.setWindowTitle("Keramikdatensätze nach Jahr und ID-Nummer filtern")
+            self.setWindowTitle(f"Keramikdatensätze nach Jahr und ID-Nummer filtern{site_info}")
         else:
-            self.setWindowTitle("Filter Pottery Records by Year and ID Number")
+            self.setWindowTitle(f"Filter Pottery Records by Year and ID Number{site_info}")
 
         self.setMinimumSize(450, 550)
         layout = QVBoxLayout(self)
@@ -8746,7 +8755,13 @@ class PotteryFilterDialog(QDialog):
         """Fetch pottery records and populate year combobox and ID list"""
         try:
             # Get all pottery records
-            self.pottery_records = self.db_manager.query_all('pottery_table')
+            all_records = self.db_manager.query_all('pottery_table')
+
+            # Filter by site if site_filter is set
+            if self.site_filter:
+                self.pottery_records = [r for r in all_records if str(getattr(r, 'sito', '')) == self.site_filter]
+            else:
+                self.pottery_records = all_records
 
             # Get unique years and sort them
             unique_years = sorted(

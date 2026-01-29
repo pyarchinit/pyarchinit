@@ -215,6 +215,34 @@ class Pyarchinit_pyqgis(QDialog):
         super().__init__()
         self.iface = iface
 
+    def _load_spatialite_view(self, db_path, view_name, filter_expr=None, srid=None):
+        """
+        Load a Sketialite view using OGR provider to avoid schema caching bug.
+
+        The Sketialite provider in QGIS has a bug where it caches the view schema
+        from the underlying tables instead of the actual view definition.
+        Using OGR provider avoids this issue.
+
+        Args:
+            db_path: Path to the Sketialite database
+            view_name: Name of the view to load
+            filter_expr: Optional SQL filter expression (e.g., "id_us = '55'")
+            srid: Optional SRID for CRS (e.g., 4326)
+
+        Returns:
+            QgsVectorLayer or None if invalid
+        """
+        ogr_uri = f"{db_path}|layername={view_name}"
+        layer = QgsVectorLayer(ogr_uri, '', 'ogr')
+
+        if layer.isValid():
+            if filter_expr:
+                layer.setSubsetString(filter_expr)
+            if srid:
+                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
+                layer.setCrs(crs)
+            return layer
+        return None
 
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
@@ -267,31 +295,20 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i]) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
-
-
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
             ###################################################################
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
 
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
+            if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
@@ -394,40 +411,27 @@ class Pyarchinit_pyqgis(QDialog):
             conn.close()
             gidstr = "id_us = '" + str(self.idus) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
-
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
+            if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-            else:
-                pass
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
 
-            if layerUS.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-            else:
-                pass
 
 
 
@@ -558,21 +562,10 @@ class Pyarchinit_pyqgis(QDialog):
                         data[i].tipo_documentazione) + " AND nome_doc = '" + str(data[i].nome_doc) + "')"
             else:
                 pass
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
-
-
-
-
+            # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = "Registro Doc - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
-            uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', docstr, "ROWID")
-            ##          uri.setDataSource('','pyarchinit_doc_view_b', 'the_geom', docstr, "ROWID")
-            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
-            if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPos.setCrs(crs)
-
+            layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_doc_view', docstr, srid)
+            if layerPos and layerPos.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "Layer Registro Documentazione valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
@@ -596,22 +589,14 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
 
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
+            # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_neg = "US Negative - "+str(data[0].sito)+ ": " + str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
-            uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', gdrst, "ROWID")
-            layerNeg = QgsVectorLayer(uri.uri(), layer_name_neg, 'spatialite')
+            layerNeg = self._load_spatialite_view(db_file_path, 'pyarchinit_us_negative_doc_view', gdrst, srid)
 
-
-
-            if layerNeg.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerNeg.setCrs(crs)
+            if layerNeg and layerNeg.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US Negative valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerNeg))
                 QgsProject.instance().addMapLayers([layerNeg], False)
-
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US Negative non valido", QMessageBox.Ok)
@@ -630,39 +615,27 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
 
 
+            # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = "US orizzontali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr, srid)
 
-            uri.setDataSource("public", 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
-
-            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
-
-            if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPos.setCrs(crs)
+            if layerPos and layerPos.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
                 QgsProject.instance().addMapLayers([layerPos], False)
                 self.canvas = QgsMapCanvas()
                 self.canvas.setExtent(layerPos.extent())
 
-
-
-
-
+            # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_verticali = "US Verticali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layerverticali = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', docstr, srid)
 
-            uri.setDataSource("public", 'pyarchinit_usm_view', 'the_geom', docstr, "ROWID")
-
-            layerverticali = QgsVectorLayer(uri.uri(), layer_name_verticali, 'spatialite')
-
-            if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPos.setCrs(crs)
+            if layerverticali and layerverticali.isValid():
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer USM valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerverticali))
                 QgsProject.instance().addMapLayers([layerverticali], False)
                 self.canvas = QgsMapCanvas()
-                self.canvas.setExtent(layerPos.extent())
+                self.canvas.setExtent(layerverticali.extent())
 
             docstr_grezzo = ""
             if len(data) == 1:
@@ -677,18 +650,12 @@ class Pyarchinit_pyqgis(QDialog):
                 pass
 
 
+            # Use OGR provider for views to avoid spatialite schema caching bug
             layer_name_pos = "US Disegno - " + str(data[0].tipo_documentazione)
+            layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr_grezzo if docstr_grezzo else None, srid)
 
-            uri.setDataSource("public", 'pyarchinit_us_view', 'the_geom', docstr_grezzo, "gid")
-
-            layerPos = QgsVectorLayer(uri.uri(), layer_name_pos, 'spatialite')
-
-            if layerPos.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPos.setCrs(crs)
+            if layerPos and layerPos.isValid():
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_vuote.qml')
-
-
                 layerPos.loadNamedStyle(style_path)
                 #QMessageBox.warning(self, "Pyarchinit", "OK Layer US disegno valido", QMessageBox.Ok)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPos))
@@ -951,121 +918,46 @@ class Pyarchinit_pyqgis(QDialog):
             # for i in range(len(data)):
             # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_doc_view', doc_from_us_str, srid)
 
-            uri.setDataSource('', 'pyarchinit_doc_view', 'the_geom', doc_from_us_str, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_d, 'spatialite')
-
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-                # layerUS.loadNamedStyle(style_path)
+            if layerUS and layerUS.isValid():
+                layerUS.setName(name_layer_d)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             doc_from_us_neg_str = "sito_n = '" + sito + "' AND area_n = '" + area + "' AND tipo_doc_n = '" + tipo_documentazione + "' AND nome_doc_n = '" + nome_doc + "'"
-            # if len(data) > 1:
-            # for i in range(len(data)):
-            # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUSneg = self._load_spatialite_view(db_file_path, 'pyarchinit_us_negative_doc_view', doc_from_us_neg_str, srid)
 
-            uri.setDataSource('', 'pyarchinit_us_negative_doc_view', 'the_geom', doc_from_us_neg_str, "ROWID")
-            layerUSneg = QgsVectorLayer(uri.uri(), name_layer_s_n, 'spatialite')
-
-            if layerUSneg.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUSneg.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer US negative valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-                # layerUS.loadNamedStyle(style_path)
+            if layerUSneg and layerUSneg.isValid():
+                layerUSneg.setName(name_layer_s_n)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUSneg))
                 QgsProject.instance().addMapLayers([layerUSneg], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
-            # if len(data) > 1:
-            # for i in range(len(data)):
-            # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', doc_from_us_str, srid)
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', doc_from_us_str, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_s, 'spatialite')
-
-            if layerUS.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-                # layerUS.loadNamedStyle(style_path)
+            if layerUS and layerUS.isValid():
+                layerUS.setName(name_layer_s)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer US non valido", QMessageBox.Ok)
 
-                # implementare sistema per quote se si vogliono visualizzare sulle piante
-
-
-
             doc_from_us_str = "sito = '" + sito + "' AND tipo_doc = '" + tipo_documentazione + "' AND nome_doc = '" + nome_doc + "'"
-            # if len(data) > 1:
-            # for i in range(len(data)):
-            # doc_from_us_str += " OR (sito = '" + str(data[i].sito) +" AND tipo_documentazione = '" + str(data[i].tipo_documentazione) +" AND nome_doc = '"+ str(data[i].nome_doc)
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUSM = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', doc_from_us_str, srid)
 
-            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', doc_from_us_str, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), name_layer_sw, 'spatialite')
-
-            if layerUS.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer valid", QMessageBox.Ok)
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
-                # style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-                # layerUS.loadNamedStyle(style_path)
-                group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
+            if layerUSM and layerUSM.isValid():
+                layerUSM.setName(name_layer_sw)
+                group.insertChildNode(-1, QgsLayerTreeLayer(layerUSM))
+                QgsProject.instance().addMapLayers([layerUSM], False)
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer USM non valido", QMessageBox.Ok)
@@ -1272,37 +1164,23 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
-
-            if layerQUOTE.isValid():
-
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
+            if layerQUOTE and layerQUOTE.isValid():
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 layerQUOTE.loadNamedStyle(style_path)
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
-                QgsProject.instance().addMapLayers([layerQUOTE], False)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
 
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                # Applica lo stile automatico
-
+            if layerUS and layerUS.isValid():
                 # Applica lo stile al layer
                 styler.apply_style_to_layer(layerUS)
 
@@ -1314,27 +1192,10 @@ class Pyarchinit_pyqgis(QDialog):
 
                 print("Stile applicato al layer US")
 
-
-
-
-
-                #else:
-                    #style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
-                    #layerUS.loadNamedStyle(style_path_us)
-
-
-                #style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                #layerUS.loadNamedStyle(style_path)
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
@@ -1448,16 +1309,10 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_usm_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', gidstr, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), '', 'spatialite')
-
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
+            if layerQUOTE and layerQUOTE.isValid():
                 unique_name = self.unique_layer_name(name_layer_q)
                 layerQUOTE.setName(unique_name)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
@@ -1467,27 +1322,16 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer not valid", QMessageBox.Ok)
 
-            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), '', 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', gidstr, srid)
 
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-
-                # self.USLayerId = layerUS.getLayerID()
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                # style_path = QtGui.QFileDialog.getOpenFileName(self, 'Open file',self.LAYER_STYLE_PATH)
-
-
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
-                # originalSubsetString = layerUS.subsetString() 4D dimension
-                # newSubSetString = "%s OR id_us = '0'" % (originalSubsetString) 4D dimension
-
-                # layerUS.setSubsetString(newSubSetString)
 
             else:
                 QMessageBox.warning(self, "Pyarchinit", "Layer not valid", QMessageBox.Ok)
@@ -1637,37 +1481,26 @@ class Pyarchinit_pyqgis(QDialog):
             else:
                 gidstr = "1=1"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
+            # Use OGR provider for views to avoid spatialite schema caching bug
             # Load Point layer
-            uri.setDataSource('', 'pyarchinit_ut_point_view', 'the_geom', gidstr, "ROWID")
-            layerPoint = QgsVectorLayer(uri.uri(), '', 'spatialite')
-            if layerPoint.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPoint.setCrs(crs)
+            layerPoint = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_point_view', gidstr, srid)
+            if layerPoint and layerPoint.isValid():
                 unique_name = self.unique_layer_name(name_layer_point)
                 layerPoint.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPoint))
                 QgsProject.instance().addMapLayers([layerPoint], False)
 
             # Load Line layer
-            uri.setDataSource('', 'pyarchinit_ut_line_view', 'the_geom', gidstr, "ROWID")
-            layerLine = QgsVectorLayer(uri.uri(), '', 'spatialite')
-            if layerLine.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerLine.setCrs(crs)
+            layerLine = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_line_view', gidstr, srid)
+            if layerLine and layerLine.isValid():
                 unique_name = self.unique_layer_name(name_layer_line)
                 layerLine.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerLine))
                 QgsProject.instance().addMapLayers([layerLine], False)
 
             # Load Polygon layer
-            uri.setDataSource('', 'pyarchinit_ut_polygon_view', 'the_geom', gidstr, "ROWID")
-            layerPolygon = QgsVectorLayer(uri.uri(), '', 'spatialite')
-            if layerPolygon.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerPolygon.setCrs(crs)
+            layerPolygon = self._load_spatialite_view(db_file_path, 'pyarchinit_ut_polygon_view', gidstr, srid)
+            if layerPolygon and layerPolygon.isValid():
                 unique_name = self.unique_layer_name(name_layer_polygon)
                 layerPolygon.setName(unique_name)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerPolygon))
@@ -1765,37 +1598,26 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            uri.setDataSource('', 'pyarchinit_quote_view', 'the_geom', cont_per_string, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', cont_per_string, srid)
 
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
+            if layerQUOTE and layerQUOTE.isValid():
+                layerQUOTE.setName(layer_name_label_quote)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_us_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', cont_per_string, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', cont_per_string, srid)
 
-
-
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
+                layerUS.setName(layer_name_label_us)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             else:
@@ -1891,37 +1713,26 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
-
             cont_per_string = "sito = '" + self.sito_p + "' AND (" + " cont_per = '" + self.cont_per + "' OR cont_per LIKE '" + self.cont_per + "/%' OR cont_per LIKE '%/" + self.cont_per + "' OR cont_per LIKE '%/" + self.cont_per + "/%')"
 
-            uri.setDataSource('', 'pyarchinit_quote_usm_view', 'the_geom', cont_per_string, "ROWID")
-            layerQUOTE = QgsVectorLayer(uri.uri(), layer_name_label_quote, 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_usm_view', cont_per_string, srid)
 
-            if layerQUOTE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerQUOTE.setCrs(crs)
-                # self.USLayerId = layerUS.getLayerID()
+            if layerQUOTE and layerQUOTE.isValid():
+                layerQUOTE.setName(layer_name_label_quote)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'quote_view.qml')
                 layerQUOTE.loadNamedStyle(style_path)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerQUOTE))
                 QgsProject.instance().addMapLayers([layerQUOTE], False)
 
-            uri.setDataSource('', 'pyarchinit_usm_view', 'the_geom', cont_per_string, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), layer_name_label_us, 'spatialite')
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', cont_per_string, srid)
 
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
-
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
+                layerUS.setName(layer_name_label_us)
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
                 layerUS.loadNamedStyle(style_path)
-
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             else:
@@ -2365,36 +2176,23 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
 
-            uri_us = QgsDataSourceUri()
-            uri_us.setDatabase(db_file_path)
-
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            uri_us.setDataSource('', 'pyarchinit_us_view', 'the_geom', 'id_us', "ROWID")
-            layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS_us.setCrs(crs)
-                layerUS.setCrs(crs)
-                # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
+            if layerUS and layerUS.isValid():
+                layerUS.setName('pyarchinit_us_view')
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
                 layerUS.loadNamedStyle(style_path)
+                QgsProject.instance().addMapLayers([layerUS], False)
+                layerToSet.append(layerUS)
+
+            if layerUS_us and layerUS_us.isValid():
+                layerUS_us.setName('pyarchinit_us_view')
                 style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
                 layerUS_us.loadNamedStyle(style_path_us)
-                QgsProject.instance().addMapLayers([layerUS], False)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
-
-                layerToSet.append(layerUS)
                 layerToSet.append(layerUS_us)
-            else:
-                pass
-                # QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid",#QMessageBox.Ok)
 
             return layerToSet
 
@@ -2477,27 +2275,28 @@ class Pyarchinit_pyqgis(QDialog):
             srid = cursor.fetchone()[0]
             conn.close()
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
 
-            uri_us = QgsDataSourceUri()
-            uri_us.setDatabase(db_file_path)
-
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            uri_us.setDataSource('', 'pyarchinit_us_view', 'the_geom', 'id_us', "ROWID")
-            layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            if layerUS.isValid():
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS_us.setCrs(crs)
-                layerUS.setCrs(crs)
+            if layerUS and layerUS.isValid():
+                layerUS.setName('pyarchinit_us_view')
 
                 # Applica lo stile automatico a layerUS
                 d_stratigrafica_field = 'd_stratigrafica'
+                uri = QgsDataSourceUri()
+                uri.setDatabase(db_file_path)
                 thesaurus_mapping = self.get_thesaurus_mapping(uri)
                 styler.apply_style_to_layer(layerUS, d_stratigrafica_field, thesaurus_mapping)
+
+                # Imposta l'opacità per layerUS
+                self.set_layer_opacity(layerUS, 0.6)
+
+                QgsProject.instance().addMapLayers([layerUS], False)
+                layerToSet.append(layerUS)
+
+            if layerUS_us and layerUS_us.isValid():
+                layerUS_us.setName('pyarchinit_us_view')
 
                 # Crea un nuovo simbolo personalizzato per layerUS_us
                 symbol = QgsFillSymbol.createSimple({'color': 'transparent', 'outline_color': 'black'})
@@ -2506,7 +2305,7 @@ class Pyarchinit_pyqgis(QDialog):
                 line_layer = QgsSimpleLineSymbolLayer()
                 line_layer.setPenStyle(Qt.DotLine)
                 line_layer.setColor(QColor('black'))
-                line_layer.setWidth(0.5)  # Puoi regolare lo spessore del contorno qui
+                line_layer.setWidth(0.5)
 
                 # Sostituisci il layer di contorno del simbolo con quello punteggiato
                 symbol.changeSymbolLayer(0, line_layer)
@@ -2519,17 +2318,14 @@ class Pyarchinit_pyqgis(QDialog):
 
                 # Imposta l'opacità per layerUS_us
                 self.set_layer_opacity(layerUS_us, 0.6)
-                self.set_layer_opacity(layerUS, 0.6)
 
                 # Forza l'aggiornamento del layer
                 layerUS_us.triggerRepaint()
 
-                QgsProject.instance().addMapLayers([layerUS, layerUS_us], False)
-
-                layerToSet.append(layerUS)
+                QgsProject.instance().addMapLayers([layerUS_us], False)
                 layerToSet.append(layerUS_us)
 
-            else:
+            if not layerToSet:
                 print("Uno o entrambi i layer non sono validi")
 
             return layerToSet
@@ -2674,36 +2470,23 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
+            layerUS_us = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', 'id_us', srid)
 
-            uri_us = QgsDataSourceUri()
-            uri_us.setDatabase(db_file_path)
-
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', gidstr, "ROWID")
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            uri_us.setDataSource('', 'pyarchinit_us_view', 'the_geom', 'id_us', "ROWID")
-            layerUS_us = QgsVectorLayer(uri_us.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS_us.setCrs(crs)
-                layerUS.setCrs(crs)
-                # QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido",   #QMessageBox.Ok)
+            if layerUS and layerUS.isValid():
+                layerUS.setName('pyarchinit_us_view')
                 style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_preview.qml')
                 layerUS.loadNamedStyle(style_path)
+                QgsProject.instance().addMapLayers([layerUS], False)
+                layerToSet.append(layerUS)
+
+            if layerUS_us and layerUS_us.isValid():
+                layerUS_us.setName('pyarchinit_us_view')
                 style_path_us = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view_dot.qml')
                 layerUS_us.loadNamedStyle(style_path_us)
-                QgsProject.instance().addMapLayers([layerUS], False)
                 QgsProject.instance().addMapLayers([layerUS_us], False)
-
-                layerToSet.append(layerUS)
                 layerToSet.append(layerUS_us)
-            else:
-                pass
-                # QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid",#QMessageBox.Ok)
 
             return layerToSet
     def loadMapPreviewDoc(self,docstr):
@@ -2764,29 +2547,15 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr, srid)
 
-            # docstr =  docstr
-            #docstr = ' "nome_doc" = \'A-B\' '
-
-            uri.setDataSource('', 'pyarchinit_us_view', 'the_geom', docstr, "ROWID")
-
-            layerUS = QgsVectorLayer(uri.uri(), 'pyarchinit_us_view', 'spatialite')
-
-            if layerUS.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerUS.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK ayer US valido", QMessageBox.Ok)
-                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##              layerUS.loadNamedStyle(style_path)
+            if layerUS and layerUS.isValid():
+                layerUS.setName('pyarchinit_us_view')
                 QgsProject.instance().addMapLayers([layerUS], False)
                 layerToSet.append(layerUS)
             else:
                 QMessageBox.warning(self, "Pyarchinit", "NOT! Layer US not valid", QMessageBox.Ok)
-
-
 
             return layerToSet
 
@@ -4525,17 +4294,11 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR sito_nome = '" + str(data[i].sito) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerSITE = self._load_spatialite_view(db_file_path, 'pyarchinit_site_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_site_view', 'the_geom', gidstr, "ROWID")
-            layerSITE = QgsVectorLayer(uri.uri(), 'pyarchinit_site_view', 'spatialite')
-
-            if layerSITE.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerSITE.setCrs(crs)
-
+            if layerSITE and layerSITE.isValid():
+                layerSITE.setName('pyarchinit_site_view')
                 self.iface.mapCanvas().setExtent(layerSITE.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSITE))
                 QgsProject.instance().addMapLayers([layerSITE], False)
@@ -4784,19 +4547,11 @@ class Pyarchinit_pyqgis(QDialog):
                 # for i in range(len(data)):
                     # gidstr += " OR id_struttura = '" + str(data[i].id_struttura) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerSTRUTTURA = self._load_spatialite_view(db_file_path, 'pyarchinit_strutture_view', string, srid)
 
-            uri.setDataSource('', 'pyarchinit_strutture_view', 'the_geom', string, "ROWID")
-            layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
-
-            if layerSTRUTTURA.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerSTRUTTURA.setCrs(crs)
-
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
-
+            if layerSTRUTTURA and layerSTRUTTURA.isValid():
+                layerSTRUTTURA.setName('pyarchinit_strutture_view')
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
@@ -4858,18 +4613,11 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_struttura = '" + str(data[i].id_struttura) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerSTRUTTURA = self._load_spatialite_view(db_file_path, 'pyarchinit_strutture_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_strutture_view', 'the_geom', gidstr, "ROWID")
-            layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'spatialite')
-
-            if layerSTRUTTURA.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerSTRUTTURA.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
-
+            if layerSTRUTTURA and layerSTRUTTURA.isValid():
+                layerSTRUTTURA.setName('pyarchinit_strutture_view')
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
@@ -4891,8 +4639,6 @@ class Pyarchinit_pyqgis(QDialog):
             layerSTRUTTURA = QgsVectorLayer(uri.uri(), 'pyarchinit_strutture_view', 'postgres')
 
             if layerSTRUTTURA.isValid():
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Struttura valido", QMessageBox.Ok)
-
                 self.iface.mapCanvas().setExtent(layerSTRUTTURA.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerSTRUTTURA))
                 QgsProject.instance().addMapLayers([layerSTRUTTURA], False)
@@ -4933,21 +4679,11 @@ class Pyarchinit_pyqgis(QDialog):
                 for i in range(len(data)):
                     gidstr += " OR id_scheda_ind = '" + str(data[i].id_scheda_ind) + "'"
 
-            uri = QgsDataSourceUri()
-            uri.setDatabase(db_file_path)
+            # Use OGR provider for views to avoid spatialite schema caching bug
+            layerIndividui = self._load_spatialite_view(db_file_path, 'pyarchinit_individui_view', gidstr, srid)
 
-            uri.setDataSource('', 'pyarchinit_individui_view', 'the_geom', gidstr, "ROWID")
-            layerIndividui = QgsVectorLayer(uri.uri(), 'pyarchinit_individui_view', 'spatialite')
-
-            if layerIndividui.isValid():
-                # Create a CRS using a predefined SRID
-                crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
-                layerIndividui.setCrs(crs)
-                #QMessageBox.warning(self, "Pyarchinit", "OK Layer Individui valido", QMessageBox.Ok)
-
-                # self.USLayerId = layerUS.getLayerID()
-                ##              style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                ##              layerUS.loadNamedStyle(style_path)
+            if layerIndividui and layerIndividui.isValid():
+                layerIndividui.setName('pyarchinit_individui_view')
                 self.iface.mapCanvas().setExtent(layerIndividui.extent())
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerIndividui))
                 QgsProject.instance().addMapLayers([layerIndividui], False)
