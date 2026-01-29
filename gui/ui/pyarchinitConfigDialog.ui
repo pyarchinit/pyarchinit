@@ -975,90 +975,8 @@
            </widget>
           </item>
           <item row="8" column="0" colspan="2">
-           <layout class="QGridLayout" name="gridLayout_10">
-            <item row="0" column="0">
-             <widget class="QPushButton" name="pushButton_upd_postgres">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allineare e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per allinere e aggiornare db postgres&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="../../resources/resources.qrc">
-                <normaloff>:/icons/db_update_postgres.png</normaloff>:/icons/db_update_postgres.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>35</width>
-                <height>35</height>
-               </size>
-              </property>
-              <property name="default">
-               <bool>true</bool>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="pushButton_upd_sqlite">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>150</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="mouseTracking">
-               <bool>true</bool>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Funzione per aggiornare e allineare i database sqlite&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="icon">
-               <iconset resource="../../resources/resources.qrc">
-                <normaloff>:/icons/db_update_sqlite.png</normaloff>:/icons/db_update_sqlite.png</iconset>
-              </property>
-              <property name="iconSize">
-               <size>
-                <width>35</width>
-                <height>35</height>
-               </size>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
+           <layout class="QHBoxLayout" name="hboxLayout_db_tools">
+            <item>
              <widget class="QPushButton" name="pushButton_update_db">
               <property name="enabled">
                <bool>true</bool>
@@ -1069,16 +987,13 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize">
+              <property name="minimumSize">
                <size>
-                <width>150</width>
-                <height>16777215</height>
+                <width>120</width>
+                <height>0</height>
                </size>
               </property>
               <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiorna database esistenti (SQLite/PostgreSQL) senza cancellare dati&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Aggiorna database esistenti (SQLite/PostgreSQL) senza cancellare dati&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
@@ -1090,16 +1005,13 @@
               </property>
               <property name="iconSize">
                <size>
-                <width>35</width>
-                <height>35</height>
+                <width>24</width>
+                <height>24</height>
                </size>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
+            <item>
              <widget class="QPushButton" name="pushButton_fix_geometries">
               <property name="enabled">
                <bool>true</bool>
@@ -1110,17 +1022,14 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize">
+              <property name="minimumSize">
                <size>
-                <width>150</width>
-                <height>16777215</height>
+                <width>120</width>
+                <height>0</height>
                </size>
               </property>
               <property name="toolTip">
                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Correggi geometrie invalide nel database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Correggi geometrie invalide nel database utilizzando MakeValid()&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Fix Geometrie</string>
@@ -1131,41 +1040,41 @@
               </property>
               <property name="iconSize">
                <size>
-                <width>35</width>
-                <height>35</height>
+                <width>24</width>
+                <height>24</height>
                </size>
-              </property>
-              <property name="flat">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="lineEdit_crs">
-              <property name="enabled">
-               <bool>true</bool>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>100</width>
-                <height>16777215</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l'EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="whatsThis">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Inserire l'EPSG del database. funzione da utilizzare quando si deve aggiornare /allineare il database&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="placeholderText">
-               <string>insert epsg code</string>
               </property>
              </widget>
             </item>
            </layout>
+          </item>
+          <!-- Hidden legacy widgets -->
+          <item row="9" column="0">
+           <widget class="QPushButton" name="pushButton_upd_postgres">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="QPushButton" name="pushButton_upd_sqlite">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="0">
+           <widget class="QLineEdit" name="lineEdit_crs">
+            <property name="visible">
+             <bool>false</bool>
+            </property>
+           </widget>
           </item>
           <item row="3" column="1" colspan="3">
            <widget class="QComboBox" name="comboBox_sito">

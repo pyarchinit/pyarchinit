@@ -33,6 +33,7 @@ class DB_update(object):
     # connection string postgres"
     def __init__(self, conn_str):
         # create engine and metadata
+        self.conn_str = conn_str
         self.engine = create_engine(conn_str, echo=False)
         self.metadata = MetaData()
 
