@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.72
+version=4.9.73
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.72 (2026-01-28):
+changelog=4.9.73 (2026-01-29):
+    - Fix:  use OGR provider for SpatiaLite views to avoid schema caching bug
+  4.9.72 (2026-01-28):
     - Fix:  remove hardcoded white backgrounds for dark theme compatibility
     - Feature:  add rock architecture (AR) fields to strutture view
     - Feature:  add stratigraphic layer ordering and multilingual style field selection
