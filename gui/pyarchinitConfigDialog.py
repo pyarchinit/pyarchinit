@@ -5459,53 +5459,113 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_fix_geometries_pressed(self):
         """
         Handler for fixing invalid geometries in the database.
-        Uses SpatiaLite's MakeValid() or PostGIS's ST_MakeValid() function.
+        Uses QGIS Processing 'Fix Geometries' algorithm (native:fixgeometries).
         """
         try:
-            # Import the DB_update class
-            from modules.db.pyarchinit_db_update import DB_update
+            import processing
+            from qgis.core import QgsVectorLayer, QgsProject, QgsDataSourceUri
 
             # Get the current connection
             conn = Connection()
             conn_str = conn.conn_str()
 
-            # Create DB_update instance
-            db_updater = DB_update(conn_str)
+            # List of geometry tables to fix
+            geometry_tables = [
+                'pyunitastratigrafiche',
+                'pyunitastratigrafiche_usm',
+                'pyarchinit_quote',
+                'pyarchinit_quote_usm',
+                'pyarchinit_us_negative_doc',
+                'pyarchinit_reperti',
+                'pyarchinit_tafonomia',
+                'pyarchinit_campionature',
+                'pyarchinit_siti',
+                'pyarchinit_siti_polygonal',
+            ]
 
-            # Show progress message
+            total_fixed = 0
+            tables_processed = []
+
+            # Determine database type
+            is_postgres = 'postgresql' in conn_str.lower()
+
+            for table_name in geometry_tables:
+                try:
+                    # Create layer URI based on database type
+                    if is_postgres:
+                        # PostgreSQL connection
+                        uri = QgsDataSourceUri()
+                        # Parse conn_str: postgresql://user:pass@host:port/dbname
+                        import re
+                        match = re.match(r'postgresql://([^:]+):([^@]+)@([^:]+):(\d+)/(.+)', conn_str)
+                        if match:
+                            uri.setConnection(match.group(3), match.group(4), match.group(5),
+                                            match.group(1), match.group(2))
+                            uri.setDataSource('public', table_name, 'the_geom')
+                            layer = QgsVectorLayer(uri.uri(), table_name, 'postgres')
+                    else:
+                        # SQLite connection
+                        db_path = conn_str.replace('sqlite:///', '')
+                        uri = f"{db_path}|layername={table_name}"
+                        layer = QgsVectorLayer(uri, table_name, 'spatialite')
+
+                    if not layer.isValid():
+                        print(f"  {table_name}: layer not valid, skipping")
+                        continue
+
+                    # Count features before
+                    feature_count = layer.featureCount()
+                    if feature_count == 0:
+                        continue
+
+                    print(f"  Processing {table_name} ({feature_count} features)...")
+
+                    # Run QGIS Fix Geometries algorithm
+                    result = processing.run("native:fixgeometries", {
+                        'INPUT': layer,
+                        'METHOD': 1,  # Structure method (for handling invalid geometries)
+                        'OUTPUT': 'memory:'
+                    })
+
+                    fixed_layer = result['OUTPUT']
+
+                    if fixed_layer and fixed_layer.isValid():
+                        # Update original layer with fixed geometries
+                        layer.startEditing()
+
+                        fixed_features = {f.id(): f for f in fixed_layer.getFeatures()}
+
+                        for feature in layer.getFeatures():
+                            fid = feature.id()
+                            if fid in fixed_features:
+                                fixed_geom = fixed_features[fid].geometry()
+                                if fixed_geom and not fixed_geom.isEmpty():
+                                    if fixed_geom.asWkt() != feature.geometry().asWkt():
+                                        layer.changeGeometry(fid, fixed_geom)
+                                        total_fixed += 1
+
+                        layer.commitChanges()
+                        tables_processed.append(table_name)
+                        print(f"    {table_name}: processed successfully")
+
+                except Exception as e:
+                    print(f"  {table_name}: Error - {str(e)}")
+                    continue
+
+            # Show result message
             if self.L == 'it':
-                QMessageBox.information(self, "INFO", "Correzione geometrie in corso...", QMessageBox.Ok)
-            elif self.L == 'de':
-                QMessageBox.information(self, "INFO", "Geometrien werden korrigiert...", QMessageBox.Ok)
-            else:
-                QMessageBox.information(self, "INFO", "Fixing geometries in progress...", QMessageBox.Ok)
-
-            # Fix geometries
-            results = db_updater.fix_invalid_geometries()
-
-            # Build result message
-            total_found = sum(r.get('found', 0) for r in results.values())
-            total_fixed = sum(r.get('fixed', 0) for r in results.values())
-            total_remaining = sum(r.get('remaining', 0) for r in results.values())
-
-            # Show success message with details
-            if self.L == 'it':
-                msg = f"Correzione completata!\n\nGeometrie invalide trovate: {total_found}\nGeometrie corrette: {total_fixed}"
-                if total_remaining > 0:
-                    msg += f"\nGeometrie ancora invalide: {total_remaining}"
+                msg = f"Correzione completata!\n\nTabelle processate: {len(tables_processed)}\nGeometrie corrette: {total_fixed}"
                 QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
             elif self.L == 'de':
-                msg = f"Korrektur abgeschlossen!\n\nUngültige Geometrien gefunden: {total_found}\nKorrigierte Geometrien: {total_fixed}"
-                if total_remaining > 0:
-                    msg += f"\nNoch ungültige Geometrien: {total_remaining}"
+                msg = f"Korrektur abgeschlossen!\n\nVerarbeitete Tabellen: {len(tables_processed)}\nKorrigierte Geometrien: {total_fixed}"
                 QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
             else:
-                msg = f"Fix completed!\n\nInvalid geometries found: {total_found}\nGeometries fixed: {total_fixed}"
-                if total_remaining > 0:
-                    msg += f"\nStill invalid: {total_remaining}"
+                msg = f"Fix completed!\n\nTables processed: {len(tables_processed)}\nGeometries fixed: {total_fixed}"
                 QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
 
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             # Show error message
             if self.L == 'it':
                 QMessageBox.critical(self, "ERRORE",

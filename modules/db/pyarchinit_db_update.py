@@ -2745,6 +2745,485 @@ class DB_update(object):
 
         return results
 
+    def rebuild_geometry_tables(self):
+        """
+        Rebuild geometry tables with correct column types (TEXT instead of INT).
+        This fixes JOIN issues with views that expect TEXT columns.
+        """
+        if 'postgresql' in self.conn_str.lower():
+            return self._rebuild_geometry_tables_postgres()
+        else:
+            return self._rebuild_geometry_tables_sqlite()
+
+    def _rebuild_geometry_tables_sqlite(self):
+        """Rebuild SQLite geometry tables with correct column types."""
+        import sqlite3
+        import os
+
+        results = {}
+
+        # Extract database path from connection string
+        db_path = self.conn_str.replace('sqlite:///', '')
+
+        if not os.path.exists(db_path):
+            print(f"Database file not found: {db_path}")
+            return results
+
+        # Tables to rebuild with their SRID
+        geometry_tables = [
+            ('pyunitastratigrafiche', 3004),
+            ('pyunitastratigrafiche_usm', 3004),
+        ]
+
+        conn = None
+        try:
+            conn = sqlite3.connect(db_path)
+            conn.enable_load_extension(True)
+
+            # Load SpatiaLite
+            spatialite_paths = [
+                'mod_spatialite',
+                '/Applications/QGIS.app/Contents/MacOS/lib/mod_spatialite.so',
+                '/Applications/QGIS-LTR.app/Contents/MacOS/lib/mod_spatialite.so',
+                '/opt/homebrew/lib/mod_spatialite.dylib',
+                '/usr/local/lib/mod_spatialite.dylib',
+                '/usr/lib/x86_64-linux-gnu/mod_spatialite.so',
+            ]
+
+            spatialite_loaded = False
+            for sp_path in spatialite_paths:
+                try:
+                    conn.load_extension(sp_path)
+                    spatialite_loaded = True
+                    print(f"  SpatiaLite loaded from: {sp_path}")
+                    break
+                except Exception:
+                    continue
+
+            if not spatialite_loaded:
+                print("  ERROR: Could not load SpatiaLite extension")
+                return results
+
+            cursor = conn.cursor()
+
+            for table_name, srid in geometry_tables:
+                try:
+                    # Check if table exists
+                    cursor.execute(f"""
+                        SELECT name FROM sqlite_master
+                        WHERE type='table' AND name=?
+                    """, (table_name,))
+                    if not cursor.fetchone():
+                        print(f"  {table_name}: table does not exist, skipping")
+                        continue
+
+                    print(f"  Rebuilding {table_name}...")
+
+                    # Get current SRID from geometry_columns
+                    cursor.execute("""
+                        SELECT srid FROM geometry_columns
+                        WHERE f_table_name = ?
+                    """, (table_name,))
+                    row = cursor.fetchone()
+                    if row:
+                        srid = row[0]
+                    print(f"    Using SRID: {srid}")
+
+                    # Backup data
+                    cursor.execute(f"SELECT * FROM {table_name}")
+                    data = cursor.fetchall()
+                    print(f"    Backed up {len(data)} records")
+
+                    # Get column names
+                    cursor.execute(f"PRAGMA table_info({table_name})")
+                    columns_info = cursor.fetchall()
+                    column_names = [col[1] for col in columns_info]
+
+                    # Drop spatial index
+                    cursor.execute(f"SELECT DisableSpatialIndex('{table_name}', 'the_geom')")
+                    cursor.execute(f"DROP TABLE IF EXISTS idx_{table_name}_the_geom")
+
+                    # Remove from geometry_columns
+                    cursor.execute(f"SELECT DiscardGeometryColumn('{table_name}', 'the_geom')")
+
+                    # Drop old table
+                    cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+
+                    # Create new table with correct types (TEXT for area_s, us_s, scavo_s)
+                    cursor.execute(f"""
+                        CREATE TABLE {table_name} (
+                            gid INTEGER PRIMARY KEY AUTOINCREMENT,
+                            area_s TEXT,
+                            scavo_s TEXT,
+                            us_s TEXT,
+                            stratigraph_index_us INTEGER,
+                            tipo_us_s TEXT,
+                            rilievo_originale TEXT,
+                            disegnatore TEXT,
+                            data TEXT,
+                            tipo_doc TEXT,
+                            nome_doc TEXT,
+                            coord TEXT,
+                            unita_tipo_s TEXT
+                        )
+                    """)
+
+                    # Add geometry column
+                    cursor.execute(f"""
+                        SELECT AddGeometryColumn('{table_name}', 'the_geom', {srid}, 'MULTIPOLYGON', 'XY')
+                    """)
+
+                    # Restore data with type conversion
+                    if data:
+                        for row in data:
+                            # Convert values, handling the column order
+                            # Original: gid, area_s, scavo_s, us_s, stratigraph_index_us, tipo_us_s,
+                            #           rilievo_originale, disegnatore, data, tipo_doc, nome_doc, coord, the_geom, unita_tipo_s
+                            values = list(row)
+
+                            # Find the_geom position (should be index 12 based on original schema)
+                            geom_idx = column_names.index('the_geom') if 'the_geom' in column_names else -1
+
+                            if geom_idx >= 0 and len(values) > geom_idx:
+                                geom_value = values[geom_idx]
+                                # Remove geometry from values list for separate handling
+                                values_without_geom = values[:geom_idx] + values[geom_idx+1:]
+
+                                # Build column list without the_geom
+                                cols_without_geom = [c for c in column_names if c != 'the_geom']
+
+                                # Insert with geometry
+                                placeholders = ', '.join(['?' for _ in cols_without_geom])
+                                col_list = ', '.join(cols_without_geom)
+
+                                cursor.execute(f"""
+                                    INSERT INTO {table_name} ({col_list}, the_geom)
+                                    VALUES ({placeholders}, ?)
+                                """, values_without_geom + [geom_value])
+                            else:
+                                # No geometry column found, insert all values
+                                placeholders = ', '.join(['?' for _ in values])
+                                cursor.execute(f"""
+                                    INSERT INTO {table_name} VALUES ({placeholders})
+                                """, values)
+
+                        print(f"    Restored {len(data)} records")
+
+                    # Create spatial index
+                    cursor.execute(f"SELECT CreateSpatialIndex('{table_name}', 'the_geom')")
+                    print(f"    Created spatial index")
+
+                    conn.commit()
+                    results[table_name] = {'status': 'success', 'records': len(data)}
+                    print(f"    {table_name} rebuilt successfully!")
+
+                except Exception as e:
+                    conn.rollback()
+                    print(f"  {table_name}: Error - {str(e)}")
+                    results[table_name] = {'status': 'error', 'error': str(e)}
+
+            # Recreate views
+            print("\n  Recreating views...")
+            self._recreate_us_views_sqlite(cursor)
+            conn.commit()
+            print("  Views recreated successfully!")
+
+        except Exception as e:
+            print(f"Database error: {str(e)}")
+            raise
+        finally:
+            if conn:
+                conn.close()
+
+        return results
+
+    def _recreate_us_views_sqlite(self, cursor):
+        """Recreate the US-related views in SQLite."""
+
+        # Drop existing views
+        views_to_recreate = [
+            'pyarchinit_us_view',
+            'pyarchinit_usm_view',
+        ]
+
+        for view_name in views_to_recreate:
+            cursor.execute(f"DROP VIEW IF EXISTS {view_name}")
+
+        # Recreate pyarchinit_us_view
+        cursor.execute("""
+            CREATE VIEW pyarchinit_us_view AS
+            SELECT
+                CAST(pyunitastratigrafiche.gid AS INTEGER) as gid,
+                pyunitastratigrafiche.the_geom as the_geom,
+                pyunitastratigrafiche.tipo_us_s as tipo_us_s,
+                pyunitastratigrafiche.scavo_s as scavo_s,
+                pyunitastratigrafiche.area_s as area_s,
+                pyunitastratigrafiche.us_s as us_s,
+                pyunitastratigrafiche.stratigraph_index_us as stratigraph_index_us,
+                us_table.id_us as id_us,
+                us_table.sito as sito,
+                us_table.area as area,
+                us_table.us as us,
+                us_table.struttura as struttura,
+                us_table.d_stratigrafica as d_stratigrafica,
+                us_table.d_interpretativa as d_interpretativa,
+                us_table.descrizione as descrizione,
+                us_table.interpretazione as interpretazione,
+                us_table.rapporti as rapporti,
+                us_table.periodo_iniziale as periodo_iniziale,
+                us_table.fase_iniziale as fase_iniziale,
+                us_table.periodo_finale as periodo_finale,
+                us_table.fase_finale as fase_finale,
+                us_table.attivita as attivita,
+                us_table.anno_scavo as anno_scavo,
+                us_table.metodo_di_scavo as metodo_di_scavo,
+                us_table.inclusi as inclusi,
+                us_table.campioni as campioni,
+                us_table.organici as organici,
+                us_table.inorganici as inorganici,
+                us_table.data_schedatura as data_schedatura,
+                us_table.schedatore as schedatore,
+                us_table.formazione as formazione,
+                us_table.stato_di_conservazione as stato_di_conservazione,
+                us_table.colore as colore,
+                us_table.consistenza as consistenza,
+                us_table.unita_tipo as unita_tipo,
+                us_table.settore as settore,
+                us_table.scavato as scavato,
+                us_table.cont_per as cont_per,
+                us_table.order_layer as order_layer,
+                us_table.documentazione as documentazione,
+                us_table.datazione as datazione,
+                pyunitastratigrafiche.ROWID as ROWID
+            FROM pyunitastratigrafiche
+            JOIN us_table ON
+                pyunitastratigrafiche.scavo_s = us_table.sito
+                AND pyunitastratigrafiche.area_s = us_table.area
+                AND pyunitastratigrafiche.us_s = us_table.us
+            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+        """)
+        print("    Created pyarchinit_us_view")
+
+        # Recreate pyarchinit_usm_view
+        cursor.execute("""
+            CREATE VIEW pyarchinit_usm_view AS
+            SELECT
+                CAST(pyunitastratigrafiche_usm.gid AS INTEGER) as gid,
+                pyunitastratigrafiche_usm.the_geom as the_geom,
+                pyunitastratigrafiche_usm.tipo_us_s as tipo_us_s,
+                pyunitastratigrafiche_usm.scavo_s as scavo_s,
+                pyunitastratigrafiche_usm.area_s as area_s,
+                pyunitastratigrafiche_usm.us_s as us_s,
+                pyunitastratigrafiche_usm.stratigraph_index_us as stratigraph_index_us,
+                us_table.id_us as id_us,
+                us_table.sito as sito,
+                us_table.area as area,
+                us_table.us as us,
+                us_table.struttura as struttura,
+                us_table.d_stratigrafica as d_stratigrafica,
+                us_table.d_interpretativa as d_interpretativa,
+                us_table.descrizione as descrizione,
+                us_table.interpretazione as interpretazione,
+                us_table.rapporti as rapporti,
+                us_table.periodo_iniziale as periodo_iniziale,
+                us_table.fase_iniziale as fase_iniziale,
+                us_table.periodo_finale as periodo_finale,
+                us_table.fase_finale as fase_finale,
+                us_table.attivita as attivita,
+                us_table.anno_scavo as anno_scavo,
+                us_table.metodo_di_scavo as metodo_di_scavo,
+                us_table.inclusi as inclusi,
+                us_table.campioni as campioni,
+                us_table.organici as organici,
+                us_table.inorganici as inorganici,
+                us_table.data_schedatura as data_schedatura,
+                us_table.schedatore as schedatore,
+                us_table.formazione as formazione,
+                us_table.stato_di_conservazione as stato_di_conservazione,
+                us_table.colore as colore,
+                us_table.consistenza as consistenza,
+                us_table.unita_tipo as unita_tipo,
+                us_table.settore as settore,
+                us_table.scavato as scavato,
+                us_table.cont_per as cont_per,
+                us_table.order_layer as order_layer,
+                us_table.documentazione as documentazione,
+                us_table.datazione as datazione,
+                pyunitastratigrafiche_usm.ROWID as ROWID
+            FROM pyunitastratigrafiche_usm
+            JOIN us_table ON
+                pyunitastratigrafiche_usm.scavo_s = us_table.sito
+                AND pyunitastratigrafiche_usm.area_s = us_table.area
+                AND pyunitastratigrafiche_usm.us_s = us_table.us
+            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
+        """)
+        print("    Created pyarchinit_usm_view")
+
+    def _rebuild_geometry_tables_postgres(self):
+        """Rebuild PostgreSQL geometry tables with correct column types."""
+        results = {}
+
+        # For PostgreSQL, we need to alter the column types
+        geometry_tables = [
+            'pyunitastratigrafiche',
+            'pyunitastratigrafiche_usm',
+        ]
+
+        for table_name in geometry_tables:
+            try:
+                # Check if table exists
+                result = self._execute(f"""
+                    SELECT EXISTS (
+                        SELECT FROM information_schema.tables
+                        WHERE table_name = '{table_name}'
+                    )
+                """)
+                if not result.fetchone()[0]:
+                    continue
+
+                print(f"  Rebuilding {table_name}...")
+
+                # Alter column types to TEXT
+                for col in ['area_s', 'us_s', 'scavo_s']:
+                    try:
+                        self._execute(f"""
+                            ALTER TABLE {table_name}
+                            ALTER COLUMN {col} TYPE TEXT
+                        """)
+                        print(f"    Changed {col} to TEXT")
+                    except Exception as e:
+                        if 'already' not in str(e).lower():
+                            print(f"    Warning changing {col}: {str(e)}")
+
+                results[table_name] = {'status': 'success'}
+                print(f"    {table_name} rebuilt successfully!")
+
+            except Exception as e:
+                print(f"  {table_name}: Error - {str(e)}")
+                results[table_name] = {'status': 'error', 'error': str(e)}
+
+        # Recreate views
+        print("\n  Recreating views...")
+        self._recreate_us_views_postgres()
+        print("  Views recreated successfully!")
+
+        return results
+
+    def _recreate_us_views_postgres(self):
+        """Recreate the US-related views in PostgreSQL."""
+
+        # Drop and recreate views
+        self._execute("DROP VIEW IF EXISTS pyarchinit_us_view CASCADE")
+        self._execute("DROP VIEW IF EXISTS pyarchinit_usm_view CASCADE")
+
+        # Recreate pyarchinit_us_view (same as SQLite version)
+        self._execute("""
+            CREATE VIEW pyarchinit_us_view AS
+            SELECT
+                pyunitastratigrafiche.gid::INTEGER as gid,
+                pyunitastratigrafiche.the_geom as the_geom,
+                pyunitastratigrafiche.tipo_us_s as tipo_us_s,
+                pyunitastratigrafiche.scavo_s as scavo_s,
+                pyunitastratigrafiche.area_s as area_s,
+                pyunitastratigrafiche.us_s as us_s,
+                pyunitastratigrafiche.stratigraph_index_us as stratigraph_index_us,
+                us_table.id_us as id_us,
+                us_table.sito as sito,
+                us_table.area as area,
+                us_table.us as us,
+                us_table.struttura as struttura,
+                us_table.d_stratigrafica as d_stratigrafica,
+                us_table.d_interpretativa as d_interpretativa,
+                us_table.descrizione as descrizione,
+                us_table.interpretazione as interpretazione,
+                us_table.rapporti as rapporti,
+                us_table.periodo_iniziale as periodo_iniziale,
+                us_table.fase_iniziale as fase_iniziale,
+                us_table.periodo_finale as periodo_finale,
+                us_table.fase_finale as fase_finale,
+                us_table.attivita as attivita,
+                us_table.anno_scavo as anno_scavo,
+                us_table.metodo_di_scavo as metodo_di_scavo,
+                us_table.inclusi as inclusi,
+                us_table.campioni as campioni,
+                us_table.organici as organici,
+                us_table.inorganici as inorganici,
+                us_table.data_schedatura as data_schedatura,
+                us_table.schedatore as schedatore,
+                us_table.formazione as formazione,
+                us_table.stato_di_conservazione as stato_di_conservazione,
+                us_table.colore as colore,
+                us_table.consistenza as consistenza,
+                us_table.unita_tipo as unita_tipo,
+                us_table.settore as settore,
+                us_table.scavato as scavato,
+                us_table.cont_per as cont_per,
+                us_table.order_layer as order_layer,
+                us_table.documentazione as documentazione,
+                us_table.datazione as datazione
+            FROM pyunitastratigrafiche
+            JOIN us_table ON
+                pyunitastratigrafiche.scavo_s = us_table.sito
+                AND pyunitastratigrafiche.area_s = us_table.area
+                AND pyunitastratigrafiche.us_s = us_table.us
+            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us DESC
+        """)
+        print("    Created pyarchinit_us_view")
+
+        # Recreate pyarchinit_usm_view
+        self._execute("""
+            CREATE VIEW pyarchinit_usm_view AS
+            SELECT
+                pyunitastratigrafiche_usm.gid::INTEGER as gid,
+                pyunitastratigrafiche_usm.the_geom as the_geom,
+                pyunitastratigrafiche_usm.tipo_us_s as tipo_us_s,
+                pyunitastratigrafiche_usm.scavo_s as scavo_s,
+                pyunitastratigrafiche_usm.area_s as area_s,
+                pyunitastratigrafiche_usm.us_s as us_s,
+                pyunitastratigrafiche_usm.stratigraph_index_us as stratigraph_index_us,
+                us_table.id_us as id_us,
+                us_table.sito as sito,
+                us_table.area as area,
+                us_table.us as us,
+                us_table.struttura as struttura,
+                us_table.d_stratigrafica as d_stratigrafica,
+                us_table.d_interpretativa as d_interpretativa,
+                us_table.descrizione as descrizione,
+                us_table.interpretazione as interpretazione,
+                us_table.rapporti as rapporti,
+                us_table.periodo_iniziale as periodo_iniziale,
+                us_table.fase_iniziale as fase_iniziale,
+                us_table.periodo_finale as periodo_finale,
+                us_table.fase_finale as fase_finale,
+                us_table.attivita as attivita,
+                us_table.anno_scavo as anno_scavo,
+                us_table.metodo_di_scavo as metodo_di_scavo,
+                us_table.inclusi as inclusi,
+                us_table.campioni as campioni,
+                us_table.organici as organici,
+                us_table.inorganici as inorganici,
+                us_table.data_schedatura as data_schedatura,
+                us_table.schedatore as schedatore,
+                us_table.formazione as formazione,
+                us_table.stato_di_conservazione as stato_di_conservazione,
+                us_table.colore as colore,
+                us_table.consistenza as consistenza,
+                us_table.unita_tipo as unita_tipo,
+                us_table.settore as settore,
+                us_table.scavato as scavato,
+                us_table.cont_per as cont_per,
+                us_table.order_layer as order_layer,
+                us_table.documentazione as documentazione,
+                us_table.datazione as datazione
+            FROM pyunitastratigrafiche_usm
+            JOIN us_table ON
+                pyunitastratigrafiche_usm.scavo_s = us_table.sito
+                AND pyunitastratigrafiche_usm.area_s = us_table.area
+                AND pyunitastratigrafiche_usm.us_s = us_table.us
+            ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us DESC
+        """)
+        print("    Created pyarchinit_usm_view")
+
     def _migrate_tma_table(self):
         """Migrate old TMA table structure to new structure with separate materials table"""
         try:
