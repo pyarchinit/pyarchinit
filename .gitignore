@@ -3,3 +3,4 @@
 /train_groq.py
 /copy_excelfile.py
 /t_4707.py
+modules/gis/logs/*.log
