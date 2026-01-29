@@ -244,6 +244,137 @@ class Pyarchinit_pyqgis(QDialog):
             return layer
         return None
 
+    def create_us_nested_symbology(self, layer, site_filter=None):
+        """
+        Create nested rule-based symbology for US layer.
+
+        Creates a hierarchy where:
+        - Parent rules: one per US number (us_s)
+        - Child rules: one per stratigraph_index_us within each US
+
+        This way, toggling a US on/off will toggle all its stratigraph_index variants together.
+
+        Args:
+            layer: QgsVectorLayer to apply symbology to
+            site_filter: Optional site filter expression (e.g., "sito = 'MySite'")
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            from qgis.core import (QgsRuleBasedRenderer, QgsSymbol, QgsFillSymbol,
+                                   QgsSimpleFillSymbolLayer, QgsFeatureRequest)
+            import random
+
+            # Get unique US values from the layer
+            us_field = 'us_s'
+            strat_idx_field = 'stratigraph_index_us'
+
+            # Build filter expression
+            filter_expr = site_filter if site_filter else ''
+
+            # Get unique combinations of (us_s, stratigraph_index_us)
+            us_strat_combinations = {}
+
+            request = QgsFeatureRequest()
+            if filter_expr:
+                request.setFilterExpression(filter_expr)
+
+            for feature in layer.getFeatures(request):
+                us_val = str(feature[us_field]) if feature[us_field] is not None else ''
+                strat_idx = feature[strat_idx_field] if strat_idx_field in feature.fields().names() else None
+
+                if us_val:
+                    if us_val not in us_strat_combinations:
+                        us_strat_combinations[us_val] = set()
+                    if strat_idx is not None:
+                        us_strat_combinations[us_val].add(strat_idx)
+
+            if not us_strat_combinations:
+                print("No US data found for symbology")
+                return False
+
+            # Create root rule
+            root_rule = QgsRuleBasedRenderer.Rule(None)
+
+            # Generate colors for each US (consistent color per US)
+            def generate_us_color(us_val):
+                """Generate a consistent color based on US value"""
+                random.seed(hash(us_val))
+                return (random.randint(50, 230), random.randint(50, 230), random.randint(50, 230))
+
+            # Sort US values numerically if possible
+            try:
+                sorted_us = sorted(us_strat_combinations.keys(), key=lambda x: int(x))
+            except ValueError:
+                sorted_us = sorted(us_strat_combinations.keys())
+
+            for us_val in sorted_us:
+                strat_indices = us_strat_combinations[us_val]
+
+                # Base color for this US
+                base_r, base_g, base_b = generate_us_color(us_val)
+
+                # Create parent rule for this US
+                us_filter = f'"{us_field}" = \'{us_val}\''
+                if site_filter:
+                    us_filter = f"({site_filter}) AND ({us_filter})"
+
+                # Create parent symbol (used if no children match)
+                parent_symbol = QgsFillSymbol.createSimple({
+                    'color': f'{base_r},{base_g},{base_b},200',
+                    'outline_color': '0,0,0,255',
+                    'outline_width': '0.3'
+                })
+
+                parent_rule = QgsRuleBasedRenderer.Rule(parent_symbol, 0, 0, us_filter, f'US {us_val}')
+
+                # Create child rules for each stratigraph_index
+                if len(strat_indices) > 1:
+                    sorted_indices = sorted([idx for idx in strat_indices if idx is not None])
+
+                    for i, strat_idx in enumerate(sorted_indices):
+                        # Vary the color slightly for each stratigraph_index
+                        # Lower index = more saturated, higher index = lighter/different pattern
+                        factor = 1.0 - (i * 0.15)  # Darken progressively
+                        child_r = max(0, min(255, int(base_r * factor)))
+                        child_g = max(0, min(255, int(base_g * factor)))
+                        child_b = max(0, min(255, int(base_b * factor)))
+
+                        # Different fill styles for different indices
+                        fill_styles = ['solid', 'dense4', 'dense5', 'horizontal', 'vertical', 'cross']
+                        fill_style = fill_styles[i % len(fill_styles)]
+
+                        child_filter = f'"{strat_idx_field}" = {strat_idx}'
+
+                        child_symbol = QgsFillSymbol.createSimple({
+                            'color': f'{child_r},{child_g},{child_b},200',
+                            'outline_color': '0,0,0,255',
+                            'outline_width': '0.3',
+                            'style': fill_style
+                        })
+
+                        child_rule = QgsRuleBasedRenderer.Rule(
+                            child_symbol, 0, 0, child_filter, f'Index {strat_idx}'
+                        )
+                        parent_rule.appendChild(child_rule)
+
+                root_rule.appendChild(parent_rule)
+
+            # Apply the renderer
+            renderer = QgsRuleBasedRenderer(root_rule)
+            layer.setRenderer(renderer)
+            layer.triggerRepaint()
+
+            print(f"Created nested symbology for {len(us_strat_combinations)} US units")
+            return True
+
+        except Exception as e:
+            print(f"Error creating nested symbology: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return False
+
     def remove_USlayer_from_registry(self):
         QgsProject.instance().removeMapLayer(self.USLayerId)
         return 0
