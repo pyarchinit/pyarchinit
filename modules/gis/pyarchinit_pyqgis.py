@@ -472,6 +472,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
@@ -507,12 +509,10 @@ class Pyarchinit_pyqgis(QDialog):
 
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
 
-                # self.USLayerId = layerUS.getLayerID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
@@ -599,8 +599,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
-                layerUS.loadNamedStyle(style_path)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
@@ -640,10 +640,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                # self.USLayerId = layerUS.getLayersID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
@@ -1370,6 +1368,8 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             else:
@@ -1418,10 +1418,8 @@ class Pyarchinit_pyqgis(QDialog):
 
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                # self.USLayerId = layerUS.getLayersID()
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                # Applica simbologia nidificata US/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
 
                 # Apply feature ordering for correct stratigraphic rendering
                 self._apply_us_feature_ordering(layerUS)
@@ -1503,9 +1501,9 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH_SPATIALITE, 'us_view.qml')
+                # Applica simbologia nidificata USM/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
-                layerUS.loadNamedStyle(style_path)
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             else:
@@ -1553,10 +1551,8 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                #layerUS.setCrs(srs)
-                style_path = '{}{}'.format(self.LAYER_STYLE_PATH, 'us_caratterizzazioni.qml')
-                # style_path = QFileDialog.getOpenFileName(self, 'Open file', self.LAYER_STYLE_PATH)
-                layerUS.loadNamedStyle(style_path)
+                # Applica simbologia nidificata USM/stratigraph_index
+                self.create_us_nested_symbology(layerUS, gidstr)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
             else:
