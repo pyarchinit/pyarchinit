@@ -5452,8 +5452,72 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     f"Fehler beim Aktualisieren der Datenbank:\n{str(e)}", 
                     QMessageBox.Ok)
             else:
-                QMessageBox.critical(self, "ERROR", 
-                    f"Error updating database:\n{str(e)}", 
+                QMessageBox.critical(self, "ERROR",
+                    f"Error updating database:\n{str(e)}",
+                    QMessageBox.Ok)
+
+    def on_pushButton_fix_geometries_pressed(self):
+        """
+        Handler for fixing invalid geometries in the database.
+        Uses SpatiaLite's MakeValid() or PostGIS's ST_MakeValid() function.
+        """
+        try:
+            # Import the DB_update class
+            from modules.db.pyarchinit_db_update import DB_update
+
+            # Get the current connection
+            conn = Connection()
+            conn_str = conn.conn_str()
+
+            # Create DB_update instance
+            db_updater = DB_update(conn_str)
+
+            # Show progress message
+            if self.L == 'it':
+                QMessageBox.information(self, "INFO", "Correzione geometrie in corso...", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "INFO", "Geometrien werden korrigiert...", QMessageBox.Ok)
+            else:
+                QMessageBox.information(self, "INFO", "Fixing geometries in progress...", QMessageBox.Ok)
+
+            # Fix geometries
+            results = db_updater.fix_invalid_geometries()
+
+            # Build result message
+            total_found = sum(r.get('found', 0) for r in results.values())
+            total_fixed = sum(r.get('fixed', 0) for r in results.values())
+            total_remaining = sum(r.get('remaining', 0) for r in results.values())
+
+            # Show success message with details
+            if self.L == 'it':
+                msg = f"Correzione completata!\n\nGeometrie invalide trovate: {total_found}\nGeometrie corrette: {total_fixed}"
+                if total_remaining > 0:
+                    msg += f"\nGeometrie ancora invalide: {total_remaining}"
+                QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
+            elif self.L == 'de':
+                msg = f"Korrektur abgeschlossen!\n\nUngültige Geometrien gefunden: {total_found}\nKorrigierte Geometrien: {total_fixed}"
+                if total_remaining > 0:
+                    msg += f"\nNoch ungültige Geometrien: {total_remaining}"
+                QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
+            else:
+                msg = f"Fix completed!\n\nInvalid geometries found: {total_found}\nGeometries fixed: {total_fixed}"
+                if total_remaining > 0:
+                    msg += f"\nStill invalid: {total_remaining}"
+                QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
+
+        except Exception as e:
+            # Show error message
+            if self.L == 'it':
+                QMessageBox.critical(self, "ERRORE",
+                    f"Errore durante la correzione delle geometrie:\n{str(e)}",
+                    QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.critical(self, "FEHLER",
+                    f"Fehler beim Korrigieren der Geometrien:\n{str(e)}",
+                    QMessageBox.Ok)
+            else:
+                QMessageBox.critical(self, "ERROR",
+                    f"Error fixing geometries:\n{str(e)}",
                     QMessageBox.Ok)
 
     def tool_ok(self):
