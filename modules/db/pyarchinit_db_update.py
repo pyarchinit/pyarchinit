@@ -2487,11 +2487,21 @@ class DB_update(object):
                     spatialite_loaded = True
                     print(f"  SpatiaLite loaded from: {sp_path}")
                     break
-                except Exception:
+                except Exception as e:
+                    print(f"  Tried {sp_path}: {str(e)}")
                     continue
 
             if not spatialite_loaded:
                 print("  Warning: Could not load SpatiaLite extension, trying with existing functions...")
+                # Try using pyspatialite if available
+                try:
+                    from pyspatialite import dbapi2 as spatialite
+                    conn.close()
+                    conn = spatialite.connect(db_path)
+                    spatialite_loaded = True
+                    print("  Loaded using pyspatialite")
+                except ImportError:
+                    pass
 
             cursor = conn.cursor()
 
