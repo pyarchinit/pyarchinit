@@ -130,7 +130,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 - **Auto-increment** (id\_us, id\_invmat, ecc.) -- **INSTABILE**: cambia tra database diversi
 - **Vincoli compositi** (sito+area+us+unita\_tipo) -- **STABILE**: identifica semanticamente il record
 - **Campi catalogo** (n\_catalogo\_generale, ecc.) -- **STABILE**: standard ICCD, non sempre compilati
-- **UUID persistenti** -- **NON ESISTE**: da implementare
+- **UUID persistenti** -- **IMPLEMENTATO**: `entity_uuid` (UUID v4) su tutte le 19 tabelle, auto-generato all'inserimento
 
 ---
 
@@ -152,7 +152,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Mappatura classi CIDOC-CRM | `[PARZIALE]` | 85% | Presente per US, siti, periodi, reperti. Allineare a specifiche WP3 finali. |
 | Mappatura proprietà CIDOC-CRM | `[PARZIALE]` | 80% | Relazioni stratigrafiche mappate. Verificare completezza con WP3. |
 | Vocabolari controllati StratiGraph | `[PARZIALE]` | 70% | Vocabolari GNA presenti. Aggiungere vocabolari specifici StratiGraph da WP3. |
-| URI persistenti per entità | `[PARZIALE]` | 30% | URI generati nel mapper ma basati su ID instabili. Servono UUID. |
+| URI persistenti per entità | `[FATTO]` | 90% | UUID v4 stabili su tutte le tabelle. URI costruite via `uuid_manager.build_uri()`. |
 | Export JSON-LD conforme | `[PARZIALE]` | 75% | Funziona. Va verificata conformità alle specifiche finali WP3. |
 | Export RDF Turtle conforme | `[PARZIALE]` | 75% | Funziona. Va verificata conformità alle specifiche finali WP3. |
 
@@ -178,7 +178,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Generazione ZIP bundle | `[FATTO]` | 100% | bundle\_creator.py con struttura completa |
 | Versionamento bundle | `[PARZIALE]` | 50% | Schema version presente, versionamento da WP4 |
 
-**File da creare**: `modules/stratigraph/bundle_creator.py`, `modules/stratigraph/bundle_manifest.py`
+**File creati**: `modules/stratigraph/bundle_creator.py`, `modules/stratigraph/bundle_manifest.py`
 **File da estendere**: `modules/report/validation_tools.py`
 
 ---
@@ -195,7 +195,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Report warning/errori | `[FATTO]` | 100% | ValidationResult con ERROR/WARNING/INFO |
 | Validazione dati archeologici | `[FATTO]` | 90% | Già presente per US, siti, materiali, ecc. |
 
-**File da creare**: `modules/stratigraph/bundle_validator.py`
+**File creato**: `modules/stratigraph/bundle_validator.py`
 **File da estendere**: `modules/report/validation_tools.py`
 
 ---
@@ -247,14 +247,27 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
 | UUID v4 per entità core | `[FATTO]` | 100% | Colonna `entity_uuid` aggiunta a 19 tabelle |
-| Generazione UUID automatica | `[FATTO]` | 100% | `uuid_manager.py` con generate/ensure/validate |
+| Generazione UUID automatica | `[FATTO]` | 100% | Auto-generato in entity `__init__` + `uuid_manager.py` |
 | Mappatura UUID → URI | `[FATTO]` | 100% | `build_uri()` in uuid\_manager.py |
 | Preservazione UUID in sync | `[DA FARE]` | 0% | `database_sync.py` deve preservare UUID |
 | Preservazione UUID in export/import | `[DA FARE]` | 0% | Tutti gli export devono includere UUID |
-| Migration dati esistenti | `[FATTO]` | 100% | `add_uuid_support.py` genera UUID per record esistenti |
+| Migration dati esistenti | `[FATTO]` | 100% | `add_uuid_support.py` integrato nel flusso di connessione |
+| Schema SQL aggiornati | `[FATTO]` | 100% | entity\_uuid in schema PostgreSQL, SQLite, views, template DB |
 
-**File da creare**: migration SQL per UUID
-**File da modificare**: `modules/db/structures/` (tutte le tabelle principali), `modules/db/entities/` (tutte le entità), `modules/db/database_sync.py`, `modules/db/pyarchinit_db_manager.py`
+**File creati/modificati**:
+- `modules/db/add_uuid_support.py` — migration automatica al primo avvio
+- `modules/db/pyarchinit_db_manager.py` — hook UUID nel metodo `connection()`
+- `modules/db/entities/*.py` — 19 entità con `entity_uuid=None` + auto-generazione
+- `modules/db/structures/*.py` — 19 strutture con colonna `entity_uuid`
+- `modules/db/structures_metadata/*.py` — 18 strutture metadata aggiornate
+- `resources/dbfiles/pyarchinit_schema_updated.sql` — schema PostgreSQL
+- `resources/dbfiles/pyarchinit_schema_clean.sql` — schema PostgreSQL clean
+- `resources/dbfiles/pyarchinit_update_postgres.sql` — migration PostgreSQL
+- `resources/dbfiles/pyarchinit_update_sqlite.sql` — migration SQLite
+- `resources/dbfiles/create_view.sql` — views con entity\_uuid
+- `resources/dbfiles/create_view_updated.sql` — views aggiornate
+- `resources/dbfiles/pyarchinit.sqlite` — template SQLite
+- `resources/dbfiles/pyarchinit_db.sqlite` — DB esempio SQLite
 
 ---
 
@@ -334,7 +347,7 @@ gui/
   4. Aggiornare `database_sync.py` per preservare UUID
 - **Tabelle coinvolte**: `site_table`, `us_table`, `inventario_materiali_table`, `tomba_table`, `periodizzazione_table`, `struttura_table`, `campioni_table`, `individui_table`, `tafonomia_table`, `pottery_table`, `media_table`, `media_thumb_table`, `media_entity_to_table`, `fauna_table`, `ut_table`, `tma_materiali_ripetibili`, `tma_materiali_archeologici`
 - **Impatto**: BASSO — aggiunge colonna, non modifica logica esistente
-- **Stato**: `[FATTO]` | **90%** (colonne aggiunte a 19 tabelle + migration script. Manca solo integrazione con database_sync.py)
+- **Stato**: `[FATTO]` | **95%** (colonne aggiunte a 19 tabelle, migration automatica al primo avvio, schema SQL/SQLite aggiornati, auto-generazione in entity. Manca solo integrazione con database_sync.py per preservazione UUID in sync)
 
 #### Task 1.2 — Modulo UUID Manager
 
@@ -395,7 +408,7 @@ gui/
   3. Livelli: `ERROR` (blocca export), `WARNING` (segnala, non blocca)
 - **Usa**: `modules/report/validation_tools.py`
 - **Impatto**: BASSO — estende validazione esistente
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 ---
 
@@ -660,7 +673,10 @@ Per i task `[BLOCCATO]`, la strategia è:
 | Data | Autore | Modifica |
 |------|--------|----------|
 | 2026-02-07 | — | Creazione documento. Analisi stato attuale e gap analysis completata. |
-| 2026-02-08 | — | Fase 1 completata: UUID su 19 tabelle, uuid\_manager, bundle\_creator, bundle\_manifest, bundle\_validator. Branch Stratigraph\_00001. |
+| 2026-02-08 | — | Fase 1: UUID su 19 tabelle, uuid\_manager, bundle\_creator, bundle\_manifest, bundle\_validator. Branch Stratigraph\_00001. |
+| 2026-02-08 | — | UUID auto-generazione: entity `__init__` con default `None` + `uuid.uuid4()`. Hook migration in `connection()`. |
+| 2026-02-08 | — | Schema SQL: entity\_uuid in schema PostgreSQL, SQLite, views, template DB. Fix nomi tabelle TMA. |
+| 2026-02-08 | — | Metadata: versione 5.0.1-alpha, experimental=True. Task 1.5 bundle\_validator completato. |
 
 ---
 
@@ -672,8 +688,8 @@ Per i task `[BLOCCATO]`, la strategia è:
 | Vocabolari controllati | 70% |
 | Export semantici (JSON-LD, RDF) | 75% |
 | Sistema Bundle | 95% |
-| Validazione pre-export bundle | 100% |
-| UUID/PID stabili | 70% |
+| Validazione pre-export bundle | 95% |
+| UUID/PID stabili | 85% |
 | Offline-first (state machine) | 0% |
 | Coda sync + orchestratore | 0% |
 | UI pannello sync | 0% |
@@ -682,4 +698,4 @@ Per i task `[BLOCCATO]`, la strategia è:
 | SDK WP4 | 0% (bloccato) |
 | Test conformità CIDOC-CRM | 0% |
 | Performance optimization | 0% |
-| **MEDIA COMPLESSIVA** | **~40%** |
+| **MEDIA COMPLESSIVA** | **~42%** |

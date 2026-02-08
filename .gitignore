@@ -26,3 +26,4 @@ __pycache__/
 /examples/
 /export/
 modules/gis/logs/*.log
+/dev_logs/
