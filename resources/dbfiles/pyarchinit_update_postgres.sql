@@ -1100,3 +1100,24 @@ ALTER TABLE public.inventario_materiali_table ADD COLUMN IF NOT EXISTS drawing_i
 ALTER TABLE public.pyunitastratigrafiche ALTER COLUMN coord TYPE text;
 ALTER TABLE public.pyunitastratigrafiche_usm ALTER COLUMN coord TYPE text;
 
+-- StratiGraph: Add entity_uuid column for persistent identifiers
+ALTER TABLE public.site_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.us_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.inventario_materiali_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.tomba_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.periodizzazione_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.struttura_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.campioni_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.individui_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.pottery_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.media_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.media_thumb_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.media_to_entity_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.fauna_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.ut_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.tma_materiali_archeologici ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.tma_materiali_ripetibili ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.archeozoology_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.documentazione_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+ALTER TABLE public.inventario_lapidei_table ADD COLUMN IF NOT EXISTS entity_uuid text;
+

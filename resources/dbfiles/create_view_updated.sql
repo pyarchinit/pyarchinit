@@ -23,7 +23,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_individui_view AS
     individui_table.eta_min,
     individui_table.eta_max,
     individui_table.classi_eta,
-    individui_table.osservazioni
+    individui_table.osservazioni,
+    individui_table.entity_uuid
    FROM pyarchinit_individui
      JOIN individui_table ON pyarchinit_individui.sito::text = individui_table.sito AND pyarchinit_individui.id_individuo::text = individui_table.nr_individuo::text;
 
@@ -57,7 +58,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
     us_table.anno_scavo,
     us_table.cont_per,
     us_table.order_layer,
-    us_table.datazione
+    us_table.datazione,
+    us_table.entity_uuid
    FROM pyuscarlinee
      JOIN us_table ON pyuscarlinee.sito_l::text = us_table.sito AND pyuscarlinee.area_l::text = us_table.area::text AND pyuscarlinee.us_l::text = us_table.us::text;
 
@@ -93,7 +95,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
     us_table.anno_scavo,
     us_table.cont_per,
     us_table.order_layer,
-    us_table.datazione
+    us_table.datazione,
+    us_table.entity_uuid
    FROM pyarchinit_quote
      JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q::text = us_table.us::text AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -129,7 +132,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
     us_table.anno_scavo,
     us_table.cont_per,
     us_table.order_layer,
-    us_table.datazione
+    us_table.datazione,
+    us_table.entity_uuid
    FROM pyarchinit_quote_usm
      JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q::text = us_table.us::text AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
@@ -187,7 +191,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_strutture_view AS
     b.potenzialita_archeologica,
     b.manufatti,
     b.elementi_datanti,
-    b.fasi_funzionali
+    b.fasi_funzionali,
+    b.entity_uuid
    FROM pyarchinit_strutture_ipotesi a
      JOIN struttura_table b ON a.sito::text = b.sito AND a.sigla_strut::text = b.sigla_struttura AND a.nr_strut = b.numero_struttura;
 
@@ -219,6 +224,7 @@ CREATE OR REPLACE VIEW public.pyarchinit_tomba_view AS
     a.corredo_presenza,
     a.corredo_tipo,
     a.corredo_descrizione,
+    a.entity_uuid,
     b.gid,
     b.id_tafonomia_pk,
     b.sito AS sito_1,
@@ -410,7 +416,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
 	us_table.campioni_pietra_usm,
 	us_table.provenienza_materiali_usm,
 	us_table.criteri_distinzione_usm,
-	us_table.uso_primario_usm
+	us_table.uso_primario_usm,
+	us_table.entity_uuid
    FROM pyunitastratigrafiche
      JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s::text = us_table.us::text AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
   ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC, pyunitastratigrafiche.gid;
@@ -530,7 +537,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
 	us_table.campioni_pietra_usm,
 	us_table.provenienza_materiali_usm,
 	us_table.criteri_distinzione_usm,
-	us_table.uso_primario_usm
+	us_table.uso_primario_usm,
+	us_table.entity_uuid
    FROM pyunitastratigrafiche_usm
      JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s::text = us_table.us::text AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
   ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us ASC, pyunitastratigrafiche_usm.gid;
@@ -574,7 +582,8 @@ CREATE OR REPLACE VIEW pyarchinit_site_view AS
     definizione_sito,
 	gid,
     the_geom,
-    sito_nome
+    sito_nome,
+    site_table.entity_uuid
    FROM site_table
      JOIN pyarchinit_siti ON sito ::text = sito_nome;
 
@@ -591,7 +600,8 @@ CREATE OR REPLACE VIEW pyarchinit_site_polygonal_view AS
     descrizione,
     definizione_sito,
     the_geom,
-    sito_id
+    sito_id,
+    site_table.entity_uuid
    FROM site_table
      JOIN pyarchinit_siti_polygonal ON sito ::text = sito_id;
 
@@ -642,7 +652,8 @@ CREATE OR REPLACE VIEW public.pyarchinit_doc_view_b AS SELECT
 	cont_per AS cont_per,
 	order_layer AS order_layer, 
 	documentazione AS documentazione,
-	datazione AS datazione
+	datazione AS datazione,
+	us_table.entity_uuid
 	FROM pyunitastratigrafiche AS a
 	JOIN us_table ON scavo_s ::text = sito AND area_s ::text = area::text AND us_s ::text = us::text;
 	ALTER VIEW public.pyarchinit_doc_view_b OWNER TO postgres;
@@ -684,8 +695,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_negative_doc_view AS SELECT
 	cont_per ,
 	order_layer ,
 	documentazione,
-	datazione 
-	FROM pyarchinit_us_negative_doc 
+	datazione,
+	us_table.entity_uuid
+	FROM pyarchinit_us_negative_doc
 	JOIN us_table ON  sito_n ::text = sito AND area_n ::text = area::text AND us_n::text = us::text;
 
 ALTER VIEW public.pyarchinit_us_negative_doc_view
@@ -768,7 +780,8 @@ CREATE OR REPLACE VIEW pyarchinit_reperti_view AS
     b.last_modified_by,
     b.version_number,
     b.editing_by,
-    b.editing_since
+    b.editing_since,
+    b.entity_uuid
 	FROM pyarchinit_reperti a
      JOIN inventario_materiali_table b ON a.siti::text = b.sito AND a.id_rep = b.numero_inventario;
 
@@ -885,7 +898,8 @@ SELECT
     u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
     u.nazione, u.regione, u.provincia, u.comune, u.frazione, u.localita,
     u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
-    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent
+    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent,
+    u.entity_uuid
 FROM public.pyarchinit_ut_point p
 LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
 
@@ -898,7 +912,8 @@ SELECT
     l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
     u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
     u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
-    u.responsabile AS responsabile_scheda, u.survey_type
+    u.responsabile AS responsabile_scheda, u.survey_type,
+    u.entity_uuid
 FROM public.pyarchinit_ut_line l
 LEFT JOIN public.ut_table u ON l.sito = u.progetto AND l.nr_ut = u.nr_ut;
 
@@ -911,7 +926,8 @@ SELECT
     p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
     u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut,
     u.metodo_rilievo_e_ricognizione, u.data AS data_schedatura,
-    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent
+    u.responsabile AS responsabile_scheda, u.survey_type, u.visibility_percent,
+    u.entity_uuid
 FROM public.pyarchinit_ut_polygon p
 LEFT JOIN public.ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut;
 

@@ -32,7 +32,8 @@ CREATE TABLE public.archeozoology_table (
     strie BIGINT,
     canidi BIGINT,
     ursidi BIGINT,
-    megacero BIGINT
+    megacero BIGINT,
+    entity_uuid text
 );
 
 
@@ -77,7 +78,8 @@ CREATE TABLE public.campioni_table (
     us TEXT,
     numero_inventario_materiale BIGINT,
     nr_cassa BIGINT,
-    luogo_conservazione text
+    luogo_conservazione text,
+    entity_uuid text
 );
 
 
@@ -302,7 +304,8 @@ CREATE TABLE public.documentazione_table (
     sorgente text,
     scala text,
     disegnatore text,
-    note text
+    note text,
+    entity_uuid text
 );
 
 
@@ -361,7 +364,8 @@ CREATE TABLE public.individui_table (
     posizione_arti_superiori character varying(250),
     posizione_arti_inferiori character varying(250),
 	orientamento_asse text,
-	orientamento_azimut text
+	orientamento_azimut text,
+	entity_uuid text
 	);
 
 
@@ -446,7 +450,8 @@ CREATE TABLE public.inventario_materiali_table (
 	last_modified_by VARCHAR(100),
 	version_number INTEGER DEFAULT 1,
 	editing_by VARCHAR(100),
-	editing_since TIMESTAMP
+	editing_since TIMESTAMP,
+	entity_uuid text
 );
 
 
@@ -562,7 +567,8 @@ CREATE TABLE public.media_table (
     filetype character varying(10),
     filepath text,
     descrizione text,
-    tags text
+    tags text,
+    entity_uuid text
 );
 
 
@@ -605,7 +611,8 @@ CREATE TABLE public.media_thumb_table (
     media_thumb_filename text,
     filetype character varying(10),
     filepath text,
-	path_resize text
+	path_resize text,
+	entity_uuid text
 );
 
 
@@ -647,7 +654,8 @@ CREATE TABLE public.media_to_entity_table (
     table_name text,
     id_media BIGINT,
     filepath text,
-    media_name text
+    media_name text,
+    entity_uuid text
 );
 
 
@@ -769,7 +777,8 @@ CREATE TABLE public.periodizzazione_table (
     descrizione text,
     datazione_estesa character varying(300),
     cont_per BIGINT,
-	area TEXT
+	area TEXT,
+	entity_uuid text
 );
 
 
@@ -839,7 +848,8 @@ CREATE TABLE public.pottery_table (
     decoration_type text,
     decoration_motif text,
     decoration_position text,
-    datazione text
+    datazione text,
+    entity_uuid text
 );
 
 
@@ -1196,7 +1206,8 @@ CREATE TABLE public.us_table (
     materiale_p text DEFAULT ''::text,
     consistenza_p text DEFAULT ''::text,
     rapporti2 text DEFAULT ''::text,
-	doc_usv text DEFAULT ''::text
+	doc_usv text DEFAULT ''::text,
+	entity_uuid text
 );
 
 
@@ -1598,7 +1609,8 @@ CREATE TABLE public.struttura_table (
     potenzialita_archeologica text,
     manufatti text,
     elementi_datanti text,
-    fasi_funzionali text
+    fasi_funzionali text,
+    entity_uuid text
 );
 
 
@@ -1676,7 +1688,8 @@ CREATE TABLE public.tomba_table (
     fase_iniziale BIGINT,
     periodo_finale BIGINT,
     fase_finale BIGINT,
-    datazione_estesa text
+    datazione_estesa text,
+    entity_uuid text
 );
 
 
@@ -2084,7 +2097,8 @@ CREATE TABLE public.site_table (
     descrizione text,
     provincia character varying DEFAULT 'inserici un valore'::character varying,
     definizione_sito character varying DEFAULT 'inserici un valore'::character varying,
-    find_check BIGINT DEFAULT 0
+    find_check BIGINT DEFAULT 0,
+    entity_uuid text
 );
 
 
@@ -2209,7 +2223,8 @@ CREATE TABLE public.tma_materiali_archeologici (
     created_at character varying(50),
     updated_at character varying(50),
     created_by character varying(100),
-    updated_by character varying(100)
+    updated_by character varying(100),
+    entity_uuid text
 );
 
 ALTER TABLE public.tma_materiali_archeologici OWNER TO postgres;
@@ -2465,7 +2480,8 @@ CREATE TABLE public.ut_table (
     potential_factors text,
     risk_factors text,
     analysis_date character varying(100),
-    analysis_method character varying(100)
+    analysis_method character varying(100),
+    entity_uuid text
 );
 
 

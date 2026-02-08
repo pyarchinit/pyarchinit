@@ -73,4 +73,30 @@ CREATE TABLE IF NOT EXISTS fauna_table (
     osservazioni TEXT DEFAULT '',
     interpretazione TEXT DEFAULT '',
     UNIQUE (sito, area, us, id_fauna)
-)
+);
+
+-- =====================================================
+-- StratiGraph: Add entity_uuid column for persistent identifiers
+-- =====================================================
+-- SQLite doesn't support IF NOT EXISTS for ALTER TABLE ADD COLUMN
+-- These will fail silently if columns already exist
+
+ALTER TABLE site_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE us_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE inventario_materiali_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE tomba_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE periodizzazione_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE struttura_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE campioni_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE individui_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE pottery_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE media_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE media_thumb_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE media_to_entity_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE fauna_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE ut_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE tma_materiali_archeologici ADD COLUMN entity_uuid TEXT;
+ALTER TABLE tma_materiali_ripetibili ADD COLUMN entity_uuid TEXT;
+ALTER TABLE archeozoology_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE documentazione_table ADD COLUMN entity_uuid TEXT;
+ALTER TABLE inventario_lapidei_table ADD COLUMN entity_uuid TEXT;
