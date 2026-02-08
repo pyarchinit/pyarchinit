@@ -304,5 +304,5 @@ tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite,
 homepage=https://www.adarteinfo.it
 category=Plugins
 icon=resources/icons/logo_pyarchinit.png
-experimental=True
+experimental=False
 deprecated=False
