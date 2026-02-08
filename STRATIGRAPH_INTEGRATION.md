@@ -35,6 +35,92 @@ L'obiettivo NON è riscrivere PyArchInit, ma estenderlo con moduli aggiuntivi pe
 **Tempistiche**: M1 = Novembre 2025, deadline primo periodo = M18 (Maggio 2027)
 **Risorse**: ~8,5 person-months (4,5 WP5 + 4 WP13)
 
+### 1.1 Architettura del Knowledge Graph StratiGraph
+
+Il progetto StratiGraph **NON** è un sistema di sincronizzazione bidirezionale tra database.
+È un **Knowledge Graph condiviso** — un grafo di conoscenza centralizzato dove confluiscono dati da diversi strumenti archeologici, ciascuno specializzato in un aspetto:
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  PyArchInit  │     │    3DHOP    │     │  ArcheoGrid  │     │   AltroTool  │
+│ (scavo, US,  │     │  (modelli   │     │  (GIS web,   │     │  (analisi,   │
+│  materiali)  │     │   3D, mesh) │     │  survey)     │     │   report)    │
+└──────┬───────┘     └──────┬───────┘     └──────┬───────┘     └──────┬───────┘
+       │                    │                    │                    │
+       │  bundle ZIP        │  bundle ZIP        │  bundle ZIP        │  bundle ZIP
+       │  (CIDOC-CRM)       │  (CIDOC-CRM)       │  (CIDOC-CRM)       │  (CIDOC-CRM)
+       │                    │                    │                    │
+       ▼                    ▼                    ▼                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    StratiGraph Knowledge Graph (WP4)                        │
+│                                                                             │
+│   Server centrale che:                                                      │
+│   - Riceve bundle da tutti gli strumenti                                    │
+│   - Valida la conformità CIDOC-CRM                                          │
+│   - Integra i dati nel grafo di conoscenza                                  │
+│   - Permette query SPARQL trasversali                                       │
+│   - Gestisce i PID (identificatori persistenti)                             │
+│   - Collega dati provenienti da strumenti diversi tramite UUID condivisi    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Flusso dati (unidirezionale)
+
+1. **L'archeologo lavora offline** con PyArchInit (registra US, materiali, foto, relazioni stratigrafiche)
+2. **Esporta un bundle** — PyArchInit impacchetta i dati in formato CIDOC-CRM dentro un file ZIP con manifest e metadati obbligatori (BMD)
+3. **Il bundle viene validato localmente** — si verificano campi obbligatori, hash integrità, UUID coerenti
+4. **Quando c'è connessione**, il bundle viene inviato al server StratiGraph (KG) tramite HTTP POST
+5. **Il server integra** i dati nel Knowledge Graph, collegandoli con dati di altri strumenti (es. modelli 3D da 3DHOP che si riferiscono alle stesse US)
+
+#### Cosa NON è
+
+- **Non è un backup** — non replica il database PyArchInit
+- **Non è un sync bidirezionale** — i dati vanno solo da PyArchInit verso il KG, non viceversa
+- **Non è un server personale** — il KG è gestito da WP4 ed è condiviso tra tutti i partner del progetto
+- **Non sostituisce il database locale** — PyArchInit continua a funzionare normalmente con il suo SQLite/PostgreSQL
+
+#### Perché l'architettura offline-first
+
+Gli archeologi spesso lavorano su scavi in zone senza connessione internet. L'architettura offline-first garantisce che:
+- Il lavoro non si interrompe mai per mancanza di rete
+- I dati vengono accodati localmente e inviati automaticamente al ritorno della connessione
+- In caso di errore nella trasmissione, il sistema ritenta automaticamente con backoff esponenziale
+- L'utente ha sempre visibilità sullo stato della sincronizzazione tramite il pannello UI
+
+### 1.2 Mock Server per Testing Locale
+
+Poiché il server StratiGraph (WP4) non è ancora disponibile, è incluso un **mock server** per testare il flusso di sync completo:
+
+```
+scripts/stratigraph_mock_server.py
+```
+
+Il mock server simula gli endpoint del Knowledge Graph:
+
+| Endpoint | Metodo | Descrizione |
+|----------|--------|-------------|
+| `/health` | GET | Health check (usato dal ConnectivityMonitor) |
+| `/api/v1/bundles` | POST | Riceve bundle ZIP (usato dal SyncOrchestrator) |
+| `/api/v1/bundles` | GET | Lista bundle ricevuti (JSON) |
+| `/` | GET | Pagina web di stato (solo con FastAPI) |
+
+**Come usarlo**:
+
+```bash
+# Modalità completa (richiede: pip install fastapi uvicorn python-multipart)
+python scripts/stratigraph_mock_server.py
+
+# Modalità semplice (nessuna dipendenza esterna)
+python scripts/stratigraph_mock_server.py --simple
+
+# Opzioni
+python scripts/stratigraph_mock_server.py --host 0.0.0.0 --port 9090 --storage /tmp/bundles
+```
+
+Una volta avviato, il ConnectivityMonitor di PyArchInit rileverà il server su `localhost:8080/health` e il pannello mostrerà "Online". A quel punto si può cliccare "Esporta Bundle" e poi "Sincronizza" per verificare il flusso completo.
+
+I bundle ricevuti vengono salvati in `$PYARCHINIT_HOME/stratigraph_mock_received/`.
+
 ---
 
 ## 2. Stato Attuale di PyArchInit
@@ -328,6 +414,9 @@ modules/stratigraph/
 
 gui/
     stratigraph_sync_panel.py  # Fase 2 — dock widget stato sync
+
+scripts/
+    stratigraph_mock_server.py # Testing — mock server KG per test locale
 ```
 
 ---
@@ -666,7 +755,7 @@ gui/
 
 Per i task `[BLOCCATO]`, la strategia è:
 1. **Implementare con interfacce astratte**: definire le API interne di PyArchInit come se le specifiche fossero note, usando valori placeholder e interfacce che saranno facilmente adattabili.
-2. **Mock dei servizi esterni**: creare mock server per testing locale.
+2. **Mock dei servizi esterni**: `scripts/stratigraph_mock_server.py` simula il server KG di WP4 in locale, permettendo di testare il flusso completo (export → validazione → coda → upload) senza dipendere dall'infrastruttura WP4. Vedi sezione 1.2 per dettagli.
 3. **Prioritizzare il lavoro autonomo**: Fase 1 e buona parte di Fase 2 non dipendono da WP3/WP4.
 
 ---
@@ -681,6 +770,7 @@ Per i task `[BLOCCATO]`, la strategia è:
 | 2026-02-08 | — | Schema SQL: entity\_uuid in schema PostgreSQL, SQLite, views, template DB. Fix nomi tabelle TMA. |
 | 2026-02-08 | — | Metadata: versione 5.0.1-alpha, experimental=True. Task 1.5 bundle\_validator completato. |
 | 2026-02-08 | — | Fase 2 completata: sync\_state\_machine, sync\_queue, connectivity\_monitor, sync\_orchestrator, stratigraph\_sync\_panel. Integrato in pyarchinitPlugin.py. |
+| 2026-02-08 | — | Aggiunta sezione 1.1 (architettura KG) e 1.2 (mock server). Creato `scripts/stratigraph_mock_server.py` per testing locale del flusso sync. |
 
 ---
 
