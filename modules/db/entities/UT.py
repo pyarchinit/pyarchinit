@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class UT(object):
@@ -132,7 +133,7 @@ class UT(object):
         self.risk_factors = risk_factors  # 56
         self.analysis_date = analysis_date  # 57
         self.analysis_method = analysis_method  # 58
-        self.entity_uuid = entity_uuid  # 59
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())  # 59
 
     # def __repr__"
     def __repr__(self):

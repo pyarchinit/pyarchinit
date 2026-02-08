@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class US(object):
@@ -125,7 +126,7 @@ class US(object):
                  consistenza_p,
                  rapporti2,
                  doc_usv,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_us = id_us  # 0
         self.sito = sito  # 1
@@ -244,7 +245,7 @@ class US(object):
         self.consistenza_p=consistenza_p
         self.rapporti2=rapporti2
         self.doc_usv=doc_usv
-        self.entity_uuid=entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
     # def __repr__"
     @property
     def __repr__(self):

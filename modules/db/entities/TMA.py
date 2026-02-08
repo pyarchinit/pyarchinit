@@ -24,6 +24,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class TMA(object):
@@ -60,7 +61,7 @@ class TMA(object):
                  updated_at,
                  created_by,
                  updated_by,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id = id  # 0
         self.sito = sito  # 1
@@ -94,7 +95,7 @@ class TMA(object):
         self.updated_at = updated_at  # 28
         self.created_by = created_by  # 29
         self.updated_by = updated_by  # 30
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     def __repr__(self):
         return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

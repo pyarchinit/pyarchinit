@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.76
+version=5.0.1-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,17 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.76 (2026-01-29):
+changelog=5.0.1-alpha (2026-02-08) [StratiGraph / Horizon Europe]:
+    - Feature: add entity_uuid (UUID v4) persistent identifiers to all 19 data tables
+    - Feature: auto-generate UUID for new records on insert (PostgreSQL and SQLite)
+    - Feature: auto-migrate existing databases to add entity_uuid column at startup
+    - Feature: add StratiGraph bundle system (creator, manifest, validator)
+    - Feature: add UUID manager for generation, validation, and URI construction
+    - Feature: add bundle manifest with 6 mandatory BMD metadata fields
+    - Feature: add bundle validator for pre-export integrity checks
+    - Feature: add database migration script for UUID support
+    - Docs: add STRATIGRAPH_INTEGRATION.md reference document
+  4.9.76 (2026-01-29):
     - Feature:  apply nested US symbology in multiple layer loading functions
     - Feature:  apply nested US symbology when loading US/USM views
     - Feature:  add nested rule-based symbology for US layers
@@ -294,5 +304,5 @@ tags=archaeology, analysis, database, digitizing, postgres, postgis, spatialite,
 homepage=https://www.adarteinfo.it
 category=Plugins
 icon=resources/icons/logo_pyarchinit.png
-experimental=False
+experimental=True
 deprecated=False

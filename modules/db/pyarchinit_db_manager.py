@@ -458,6 +458,19 @@ class Pyarchinit_db_management(object):
         if not test:
             return test
 
+        # StratiGraph UUID support: add entity_uuid column to tables if missing
+        # Runs once per session per database, lightweight check via inspector
+        uuid_check_key = f"uuid_{self.conn_str}"
+        if uuid_check_key not in _get_db_checked():
+            try:
+                from .add_uuid_support import UUIDSupport
+                uuid_support = UUIDSupport(engine=self.engine)
+                uuid_support.update_all_tables()
+                _set_db_checked(uuid_check_key, True)
+            except Exception as e:
+                print(f"[StratiGraph] UUID support check failed: {e}")
+                _set_db_checked(uuid_check_key, True)
+
         # PERFORMANCE FIX: Skip ALL DB_update operations on connection
         # These heavy schema checks should only run on explicit user request
         # The checks add columns, triggers, etc. which is very slow on remote DBs

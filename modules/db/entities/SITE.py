@@ -3,6 +3,7 @@ Created on 15 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class SITE(object):
@@ -18,7 +19,7 @@ class SITE(object):
                  definizione_sito,
                  sito_path,
                  find_check,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_sito = id_sito  # 0
         self.sito = sito  # 1
@@ -30,7 +31,7 @@ class SITE(object):
         self.definizione_sito = definizione_sito  # 7
         self.sito_path = sito_path  # 8
         self.find_check = find_check  # 9
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):

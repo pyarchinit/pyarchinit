@@ -3,6 +3,7 @@ Created on 15 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class PERIODIZZAZIONE(object):
@@ -17,7 +18,7 @@ class PERIODIZZAZIONE(object):
                  descrizione,
                  datazione_estesa,
                  cont_per,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_perfas = id_perfas  # 0
         self.sito = sito  # 1
@@ -28,7 +29,7 @@ class PERIODIZZAZIONE(object):
         self.descrizione = descrizione  # 6
         self.datazione_estesa = datazione_estesa  # 7
         self.cont_per = cont_per  # 8
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):

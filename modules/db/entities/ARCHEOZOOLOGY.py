@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class ARCHEOZOOLOGY(object):
@@ -29,7 +30,7 @@ class ARCHEOZOOLOGY(object):
                  canidi,
                  ursidi,
                  megacero,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_archzoo = id_archzoo
         self.sito = sito
@@ -52,7 +53,7 @@ class ARCHEOZOOLOGY(object):
         self.canidi = canidi
         self.ursidi = ursidi
         self.megacero = megacero
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):

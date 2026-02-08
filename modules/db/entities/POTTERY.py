@@ -3,6 +3,7 @@ Created on 05 dic 2022
 
 @author:  Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 
@@ -45,7 +46,7 @@ class POTTERY(object):
 				decoration_motif,
 				decoration_position,
 				datazione,
-				entity_uuid
+				entity_uuid=None
 				):
 		self.id_rep=id_rep
 		self.id_number=id_number
@@ -83,7 +84,7 @@ class POTTERY(object):
 		self.decoration_motif = decoration_motif
 		self.decoration_position = decoration_position
 		self.datazione = datazione
-		self.entity_uuid = entity_uuid
+		self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 	#def __repr__"
 	def __repr__(self):
 		return "<POTTERY('%d','%d','%s','%s',%d,'%d','%s', '%s', '%d', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%r','%d','%r','%r','%r','%r','%s','%d','%s','%s','%s','%s','%s')>" % (

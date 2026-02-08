@@ -4,6 +4,7 @@ Fauna entity for SCHEDA FR (Fauna Record Sheet)
 
 @author: Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class FAUNA(object):
@@ -44,7 +45,7 @@ class FAUNA(object):
                  classi_reperti_associazione,
                  osservazioni,
                  interpretazione,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_fauna = id_fauna
         self.id_us = id_us
@@ -82,7 +83,7 @@ class FAUNA(object):
         self.classi_reperti_associazione = classi_reperti_associazione
         self.osservazioni = osservazioni
         self.interpretazione = interpretazione
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     def __repr__(self):
         return "<FAUNA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

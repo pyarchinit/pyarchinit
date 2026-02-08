@@ -3,6 +3,8 @@ Created on 15 feb 2018
 
 @author: Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
+
 class INVENTARIO_LAPIDEI(object):
     # def __init__"
     def __init__(self,
@@ -26,7 +28,7 @@ class INVENTARIO_LAPIDEI(object):
                  cronologia,
                  bibliografia,
                  compilatore,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_invlap = id_invlap  # 0
         self.sito = sito  # 1
@@ -48,7 +50,7 @@ class INVENTARIO_LAPIDEI(object):
         self.cronologia = cronologia  # 17
         self.bibliografia = bibliografia  # 18
         self.compilatore = compilatore  # 19
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):

@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class TOMBA(object):
@@ -34,7 +35,7 @@ class TOMBA(object):
                  fase_finale,
                  datazione_estesa,
                  misure_tomba,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_tomba = id_tomba  # 0
         self.sito = sito  # 1
@@ -63,7 +64,7 @@ class TOMBA(object):
         self.fase_finale = fase_finale
         self.datazione_estesa = datazione_estesa
         self.misure_tomba = misure_tomba
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
 
     def __repr__(self):

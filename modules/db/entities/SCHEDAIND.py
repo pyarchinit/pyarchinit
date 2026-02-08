@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class SCHEDAIND(object):
@@ -32,7 +33,7 @@ class SCHEDAIND(object):
                  posizione_arti_inferiori,
                  orientamento_asse,
                  orientamento_azimut,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_scheda_ind = id_scheda_ind  # 1
         self.sito = sito  # 2
@@ -58,7 +59,7 @@ class SCHEDAIND(object):
         self.posizione_arti_inferiori=posizione_arti_inferiori
         self.orientamento_asse=orientamento_asse
         self.orientamento_azimut=orientamento_azimut
-        self.entity_uuid=entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):

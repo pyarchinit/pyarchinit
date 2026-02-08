@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class STRUTTURA(object):
@@ -81,7 +82,7 @@ class STRUTTURA(object):
         self.manufatti = manufatti  # 32
         self.elementi_datanti = elementi_datanti  # 33
         self.fasi_funzionali = fasi_funzionali  # 34
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     def __repr__(self):
         return "<STRUTTURA('%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

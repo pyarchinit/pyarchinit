@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class MEDIA_THUMB(object):
@@ -16,7 +17,7 @@ class MEDIA_THUMB(object):
                  filetype,
                  filepath,
                  path_resize,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_media_thumb = id_media_thumb  # 0
         self.id_media = id_media  # 1
@@ -26,7 +27,7 @@ class MEDIA_THUMB(object):
         self.filetype = filetype  # 5
         self.filepath = filepath  # 6
         self.path_resize = path_resize
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
     # def __repr__"
     def __repr__(self):
         return "<MEDIA_THUMB('%d', '%d', '%s', '%s', %s, '%s', '%s','%s')>" % (

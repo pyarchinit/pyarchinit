@@ -57,11 +57,16 @@ TABLES_TO_UPDATE = [
 class UUIDSupport:
     """Add entity_uuid support to database tables."""
 
-    def __init__(self):
-        self.conn = Connection()
-        self.engine = create_engine(self.conn.conn_str(), echo=False)
-        self.inspector = inspect(self.engine)
-        self.is_postgres = 'postgres' in self.conn.conn_str().lower()
+    def __init__(self, engine=None):
+        if engine is not None:
+            self.engine = engine
+            self.inspector = inspect(self.engine)
+            self.is_postgres = 'postgresql' in str(self.engine.url)
+        else:
+            self.conn = Connection()
+            self.engine = create_engine(self.conn.conn_str(), echo=False)
+            self.inspector = inspect(self.engine)
+            self.is_postgres = 'postgres' in self.conn.conn_str().lower()
 
     def get_tables_to_update(self):
         """Get list of existing tables that need UUID support."""

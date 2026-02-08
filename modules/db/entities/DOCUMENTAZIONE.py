@@ -3,6 +3,7 @@ Created on 15 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class DOCUMENTAZIONE(object):
@@ -17,7 +18,7 @@ class DOCUMENTAZIONE(object):
                  scala,  # 6
                  disegnatore,  # 7
                  note,  # 8
-                 entity_uuid,
+                 entity_uuid=None,
                  ):
         self.id_documentazione = id_documentazione  # 0
         self.sito = sito  # 1
@@ -28,7 +29,7 @@ class DOCUMENTAZIONE(object):
         self.scala = scala  # 6
         self.disegnatore = disegnatore  # 7
         self.note = note  # 8
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
         # def __repr__"
 

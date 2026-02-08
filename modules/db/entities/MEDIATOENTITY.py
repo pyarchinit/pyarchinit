@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class MEDIATOENTITY(object):
@@ -14,7 +15,7 @@ class MEDIATOENTITY(object):
                  id_media,
                  filepath,
                  media_name,
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_mediaToEntity = id_mediaToEntity  # 0
         self.id_entity = id_entity
@@ -23,7 +24,7 @@ class MEDIATOENTITY(object):
         self.id_media = id_media
         self.filepath = filepath
         self.media_name = media_name
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     def __repr__(self):
         return "<MEDIATOENTITY('%d', '%d', '%s', '%s', '%d', '%s', '%s')>" % (

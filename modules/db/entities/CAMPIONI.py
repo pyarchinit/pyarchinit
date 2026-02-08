@@ -3,6 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
+import uuid
 
 
 class CAMPIONI(object):
@@ -18,7 +19,7 @@ class CAMPIONI(object):
                  numero_inventario_materiale,  # 7
                  nr_cassa,  # 8
                  luogo_conservazione,  # 9
-                 entity_uuid
+                 entity_uuid=None
                  ):
         self.id_campione = id_campione  # 0
         self.sito = sito  # 1
@@ -30,7 +31,7 @@ class CAMPIONI(object):
         self.numero_inventario_materiale = numero_inventario_materiale  # 7
         self.nr_cassa = nr_cassa  # 8
         self.luogo_conservazione = luogo_conservazione  # 9
-        self.entity_uuid = entity_uuid
+        self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
 
     # def __repr__"
     def __repr__(self):
