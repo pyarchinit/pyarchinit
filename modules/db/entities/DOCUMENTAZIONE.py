@@ -17,6 +17,7 @@ class DOCUMENTAZIONE(object):
                  scala,  # 6
                  disegnatore,  # 7
                  note,  # 8
+                 entity_uuid,
                  ):
         self.id_documentazione = id_documentazione  # 0
         self.sito = sito  # 1
@@ -27,6 +28,7 @@ class DOCUMENTAZIONE(object):
         self.scala = scala  # 6
         self.disegnatore = disegnatore  # 7
         self.note = note  # 8
+        self.entity_uuid = entity_uuid
 
         # def __repr__"
 

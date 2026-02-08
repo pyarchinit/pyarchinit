@@ -23,6 +23,7 @@ class Documentazione_table:
                                  Column('scala', Text),
                                  Column('disegnatore', Text),
                                  Column('note', Text),
+                                 Column('entity_uuid', Text),
 
                                  # explicit/composite unique constraint.  'name' is optional.
                                  UniqueConstraint('sito', 'tipo_documentazione', 'nome_doc', name='ID_invdoc_unico')

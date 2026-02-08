@@ -84,6 +84,9 @@ class SCHEDAIND_table:
                      # Azimuth orientation of the skeleton
                      Column('orientamento_azimut', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and individual number is unique
                      UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')
                      )

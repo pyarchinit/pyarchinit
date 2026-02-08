@@ -38,6 +38,9 @@ class Documentazione_table:
                      # Additional notes about the documentation
                      Column('note', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site, documentation type and document name is unique
                      UniqueConstraint('sito', 'tipo_documentazione', 'nome_doc', name='ID_invdoc_unico')
                      )

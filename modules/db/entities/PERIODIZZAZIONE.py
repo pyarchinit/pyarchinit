@@ -16,7 +16,8 @@ class PERIODIZZAZIONE(object):
                  cron_finale,
                  descrizione,
                  datazione_estesa,
-                 cont_per
+                 cont_per,
+                 entity_uuid
                  ):
         self.id_perfas = id_perfas  # 0
         self.sito = sito  # 1
@@ -27,7 +28,7 @@ class PERIODIZZAZIONE(object):
         self.descrizione = descrizione  # 6
         self.datazione_estesa = datazione_estesa  # 7
         self.cont_per = cont_per  # 8
-        
+        self.entity_uuid = entity_uuid
 
     # def __repr__"
     def __repr__(self):

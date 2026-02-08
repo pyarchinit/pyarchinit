@@ -14,7 +14,8 @@ class MEDIA(object):
                  filetype,
                  filepath,
                  descrizione,
-                 tags
+                 tags,
+                 entity_uuid
                  ):
         self.id_media = id_media  # 0
         self.mediatype = mediatype  # 1
@@ -23,6 +24,7 @@ class MEDIA(object):
         self.filepath = filepath  # 4
         self.descrizione = descrizione  # 5
         self.tags = tags  # 5
+        self.entity_uuid = entity_uuid
 
     # def __repr__"
     def __repr__(self):

@@ -72,6 +72,9 @@ class Inventario_Lapidei_table:
                      # Name of the person who compiled the record
                      Column('compilatore', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and record number is unique
                      UniqueConstraint('sito', 'scheda_numero', name='ID_invlap_unico')
                      )

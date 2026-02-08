@@ -50,6 +50,7 @@ class Struttura_table:
                             Column('manufatti', Text),  # JSON: [[manufatto], ...]
                             Column('elementi_datanti', Text),
                             Column('fasi_funzionali', Text),  # JSON: [[ambiente, periodizzazione, definizione], ...]
+                            Column('entity_uuid', Text),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'sigla_struttura', 'numero_struttura', name='ID_struttura_unico')

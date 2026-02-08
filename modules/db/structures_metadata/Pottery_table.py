@@ -113,6 +113,9 @@ class PotteryTable:
 
                      Column('decoration_position', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and ID number is unique
                      UniqueConstraint('sito', 'id_number', name='ID_rep_unico')
                      )

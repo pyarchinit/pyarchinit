@@ -48,6 +48,7 @@ class Pottery_table:
 					Column('decoration_motif', Text),
 					Column('decoration_position', Text),
 					Column('datazione', Text),
+					Column('entity_uuid', Text),
 					# explicit/composite unique constraint.  'name' is optional.
 					UniqueConstraint('sito','id_number', name='ID_rep_unico')
 					)

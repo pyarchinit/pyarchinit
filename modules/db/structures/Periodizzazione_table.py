@@ -23,6 +23,7 @@ class Periodizzazione_table:
                                   Column('descrizione', Text),
                                   Column('datazione_estesa', String(300)),
                                   Column('cont_per', Integer),
+                                  Column('entity_uuid', Text),
 
                                   # explicit/composite unique constraint.  'name' is optional.
                                   UniqueConstraint('sito', 'periodo', 'fase', name='ID_perfas_unico')

@@ -42,6 +42,9 @@ class Campioni_table:
                      # Storage location of the sample
                      Column('luogo_conservazione', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and sample number is unique
                      UniqueConstraint('sito', 'nr_campione', name='ID_invcamp_unico')
                      )

@@ -43,7 +43,8 @@ class FAUNA(object):
                  affidabilita_stratigrafica,
                  classi_reperti_associazione,
                  osservazioni,
-                 interpretazione
+                 interpretazione,
+                 entity_uuid
                  ):
         self.id_fauna = id_fauna
         self.id_us = id_us
@@ -81,6 +82,7 @@ class FAUNA(object):
         self.classi_reperti_associazione = classi_reperti_associazione
         self.osservazioni = osservazioni
         self.interpretazione = interpretazione
+        self.entity_uuid = entity_uuid
 
     def __repr__(self):
         return "<FAUNA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

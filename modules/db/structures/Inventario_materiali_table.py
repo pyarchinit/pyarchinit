@@ -57,6 +57,7 @@ class Inventario_materiali_table:
                                        Column('unita_misura_quota', String(20)),# unità misura quota
                                        Column('photo_id', Text),# nuovo campo - nomi foto associate
                                        Column('drawing_id', Text),# nuovo campo - nomi disegni associati
+                                       Column('entity_uuid', Text),
 
                                        # explicit/composite unique constraint.  'name' is optional.
                                        

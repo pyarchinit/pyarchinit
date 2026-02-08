@@ -41,7 +41,7 @@ class Tomba_table:
                             Column('periodo_finale', Integer),
                             Column('fase_finale', Integer),
                             Column('datazione_estesa', String(300)),
-                            
+                            Column('entity_uuid', Text),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'nr_scheda_taf', name='ID_tomba_unico')

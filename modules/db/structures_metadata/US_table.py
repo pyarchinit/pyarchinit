@@ -362,6 +362,9 @@ class US_table:
                      # USV documentation
                      Column('doc_usv', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site, area, stratigraphic unit and unit type is unique
                      UniqueConstraint('sito', 'area', 'us', 'unita_tipo', name='ID_us_unico')
                      )

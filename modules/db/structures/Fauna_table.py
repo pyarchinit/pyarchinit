@@ -50,6 +50,7 @@ class Fauna_table:
                         Column('classi_reperti_associazione', Text),  # 33
                         Column('osservazioni', Text),  # 34
                         Column('interpretazione', Text),  # 35
+                        Column('entity_uuid', Text),
 
                         # explicit/composite unique constraint
                         UniqueConstraint('sito', 'area', 'us', 'id_fauna', name='ID_fauna_unico')

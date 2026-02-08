@@ -13,7 +13,8 @@ class MEDIATOENTITY(object):
                  table_name,
                  id_media,
                  filepath,
-                 media_name
+                 media_name,
+                 entity_uuid
                  ):
         self.id_mediaToEntity = id_mediaToEntity  # 0
         self.id_entity = id_entity
@@ -22,6 +23,7 @@ class MEDIATOENTITY(object):
         self.id_media = id_media
         self.filepath = filepath
         self.media_name = media_name
+        self.entity_uuid = entity_uuid
 
     def __repr__(self):
         return "<MEDIATOENTITY('%d', '%d', '%s', '%s', '%d', '%s', '%s')>" % (

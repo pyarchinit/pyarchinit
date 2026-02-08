@@ -124,7 +124,8 @@ class US(object):
                  materiale_p,
                  consistenza_p,
                  rapporti2,
-                 doc_usv
+                 doc_usv,
+                 entity_uuid
                  ):
         self.id_us = id_us  # 0
         self.sito = sito  # 1
@@ -243,6 +244,7 @@ class US(object):
         self.consistenza_p=consistenza_p
         self.rapporti2=rapporti2
         self.doc_usv=doc_usv
+        self.entity_uuid=entity_uuid
     # def __repr__"
     @property
     def __repr__(self):

@@ -36,6 +36,9 @@ class Media_thumb_table:
                      # Path to the resized thumbnail file
                      Column('path_resize', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the thumbnail filename is unique
                      UniqueConstraint('media_thumb_filename', name='ID_media_thumb_unico')
                      )

@@ -50,6 +50,9 @@ class Tma_materiali_table:
                      Column('updated_at', Text),
                      Column('created_by', Text),
                      Column('updated_by', Text),
+
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
                      )
 
    # Table already exists or geometry type not supported

@@ -34,7 +34,8 @@ class TMA_MATERIALI(object):
                  created_at,
                  updated_at,
                  created_by,
-                 updated_by
+                 updated_by,
+                 entity_uuid
                  ):
         self.id = id  # 0
         self.id_tma = id_tma  # 1
@@ -50,6 +51,7 @@ class TMA_MATERIALI(object):
         self.updated_at = updated_at  # 11
         self.created_by = created_by  # 12
         self.updated_by = updated_by  # 13
+        self.entity_uuid = entity_uuid
 
     def __repr__(self):
         return "<TMA_MATERIALI('%d','%d','%s','%s','%s','%s','%s','%s','%s','%f')>" % (

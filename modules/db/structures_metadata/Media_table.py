@@ -32,6 +32,9 @@ class Media_table:
                      # Keywords/tags for searching and categorizing media
                      Column('tags', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the filepath is unique
                      UniqueConstraint('filepath', name='ID_media_unico')
                      )

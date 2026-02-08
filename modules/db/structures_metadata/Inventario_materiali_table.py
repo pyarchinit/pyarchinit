@@ -138,6 +138,9 @@ class Inventario_materiali_table:
                      # Drawing IDs - auto-populated with associated drawing names (starting with D_)
                      Column('drawing_id', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and inventory number is unique
                      UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico')
                      )

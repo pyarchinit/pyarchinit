@@ -84,6 +84,7 @@ class Tma_table:
                       Column('updated_at', Text),
                       Column('created_by', Text),
                       Column('updated_by', Text),
+                      Column('entity_uuid', Text),
 
 
                      )

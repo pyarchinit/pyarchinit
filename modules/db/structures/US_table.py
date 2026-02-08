@@ -131,6 +131,7 @@ class US_table:
                      Column('consistenza_p', Text),  #95 ok
                      Column('rapporti2', Text),  #95 ok
                      Column('doc_usv', Text),  #95 ok
+                     Column('entity_uuid', Text),
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')

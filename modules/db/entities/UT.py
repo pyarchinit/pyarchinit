@@ -68,7 +68,8 @@ class UT(object):
                  potential_factors=None,  # 55 - JSON with factor breakdown
                  risk_factors=None,  # 56 - JSON with risk factor breakdown
                  analysis_date=None,  # 57 - Date of last analysis
-                 analysis_method=None  # 58 - Analysis method used
+                 analysis_method=None,  # 58 - Analysis method used
+                 entity_uuid=None  # 59
                  ):
         self.id_ut = id_ut  # 0
         self.progetto = progetto  # 1
@@ -131,6 +132,7 @@ class UT(object):
         self.risk_factors = risk_factors  # 56
         self.analysis_date = analysis_date  # 57
         self.analysis_method = analysis_method  # 58
+        self.entity_uuid = entity_uuid  # 59
 
     # def __repr__"
     def __repr__(self):

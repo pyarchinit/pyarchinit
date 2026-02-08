@@ -75,6 +75,7 @@ class UT_table:
                      Column('risk_factors', Text),  # 56 - JSON with risk factor breakdown
                      Column('analysis_date', String(100)),  # 57 - Date of last analysis
                      Column('analysis_method', String(100)),  # 58 - Analysis method used
+                     Column('entity_uuid', Text),
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('progetto', 'nr_ut', 'ut_letterale', name='ID_ut_unico')

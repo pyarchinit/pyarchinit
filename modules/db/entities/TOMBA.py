@@ -32,7 +32,9 @@ class TOMBA(object):
                  fase_iniziale,
                  periodo_finale,
                  fase_finale,
-                 datazione_estesa
+                 datazione_estesa,
+                 misure_tomba,
+                 entity_uuid
                  ):
         self.id_tomba = id_tomba  # 0
         self.sito = sito  # 1
@@ -60,8 +62,10 @@ class TOMBA(object):
         self.periodo_finale = periodo_finale
         self.fase_finale = fase_finale
         self.datazione_estesa = datazione_estesa
-        
-        
+        self.misure_tomba = misure_tomba
+        self.entity_uuid = entity_uuid
+
+
     def __repr__(self):
         return "<TOMBA('%d', '%s', '%d', '%d', '%s','%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d','%d','%d','%d','%s')>" % (
             self.id_tomba,

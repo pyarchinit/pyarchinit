@@ -65,6 +65,9 @@ class Struttura_table:
                      # Measurements of the structure
                      Column('misure_struttura', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site, structure abbreviation, and structure number is unique
                      UniqueConstraint('sito', 'sigla_struttura', 'numero_struttura', name='ID_struttura_unico')
                      )

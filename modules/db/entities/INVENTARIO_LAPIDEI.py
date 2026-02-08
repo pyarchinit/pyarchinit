@@ -25,7 +25,8 @@ class INVENTARIO_LAPIDEI(object):
                  confronti,
                  cronologia,
                  bibliografia,
-                 compilatore
+                 compilatore,
+                 entity_uuid
                  ):
         self.id_invlap = id_invlap  # 0
         self.sito = sito  # 1
@@ -47,6 +48,7 @@ class INVENTARIO_LAPIDEI(object):
         self.cronologia = cronologia  # 17
         self.bibliografia = bibliografia  # 18
         self.compilatore = compilatore  # 19
+        self.entity_uuid = entity_uuid
 
     # def __repr__"
     def __repr__(self):

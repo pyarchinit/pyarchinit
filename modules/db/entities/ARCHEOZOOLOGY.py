@@ -28,7 +28,8 @@ class ARCHEOZOOLOGY(object):
                  strie,
                  canidi,
                  ursidi,
-                 megacero
+                 megacero,
+                 entity_uuid
                  ):
         self.id_archzoo = id_archzoo
         self.sito = sito
@@ -51,6 +52,7 @@ class ARCHEOZOOLOGY(object):
         self.canidi = canidi
         self.ursidi = ursidi
         self.megacero = megacero
+        self.entity_uuid = entity_uuid
 
     # def __repr__"
     def __repr__(self):

@@ -39,6 +39,7 @@ class SCHEDAIND_table:
                             Column('posizione_arti_inferiori', String(50)),
                             Column('orientamento_asse', Text),
                             Column('orientamento_azimut',Text),
+                            Column('entity_uuid', Text),
 
                             # explicit/composite unique constraint.  'name' is optional.
                             UniqueConstraint('sito', 'nr_individuo', name='ID_individuo_unico')

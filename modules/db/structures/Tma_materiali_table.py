@@ -18,7 +18,7 @@
  ***************************************************************************/
 """
 
-from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey, MetaData, create_engine
+from sqlalchemy import Table, Column, Integer, String, Float, ForeignKey, MetaData, Text, create_engine
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -51,6 +51,7 @@ class Tma_materiali_table:
                      Column('updated_at', String(50)),
                      Column('created_by', String(100)),
                      Column('updated_by', String(100)),
+                     Column('entity_uuid', Text),
                      )
 
     # DO NOT create tables at module import time!

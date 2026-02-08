@@ -17,7 +17,8 @@ class SITE(object):
                  provincia,
                  definizione_sito,
                  sito_path,
-                 find_check
+                 find_check,
+                 entity_uuid
                  ):
         self.id_sito = id_sito  # 0
         self.sito = sito  # 1
@@ -29,6 +30,7 @@ class SITE(object):
         self.definizione_sito = definizione_sito  # 7
         self.sito_path = sito_path  # 8
         self.find_check = find_check  # 9
+        self.entity_uuid = entity_uuid
 
     # def __repr__"
     def __repr__(self):

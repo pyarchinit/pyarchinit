@@ -59,7 +59,8 @@ class TMA(object):
                  created_at,
                  updated_at,
                  created_by,
-                 updated_by
+                 updated_by,
+                 entity_uuid
                  ):
         self.id = id  # 0
         self.sito = sito  # 1
@@ -93,6 +94,7 @@ class TMA(object):
         self.updated_at = updated_at  # 28
         self.created_by = created_by  # 29
         self.updated_by = updated_by  # 30
+        self.entity_uuid = entity_uuid
 
     def __repr__(self):
         return "<TMA('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

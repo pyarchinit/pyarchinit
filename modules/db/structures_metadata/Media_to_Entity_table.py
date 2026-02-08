@@ -32,6 +32,9 @@ class Media_to_Entity_table:
                      # Name of the media file
                      Column('media_name', Text),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of entity ID, entity type, and media ID is unique
                      UniqueConstraint('id_entity', 'entity_type', 'id_media',
                                       name='ID_mediaToEntity_unico')

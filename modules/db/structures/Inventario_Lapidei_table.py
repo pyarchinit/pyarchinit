@@ -35,6 +35,7 @@ class Inventario_Lapidei_table:
                                      Column('cronologia', Text),
                                      Column('bibliografia', Text),
                                      Column('compilatore', Text),
+                                     Column('entity_uuid', Text),
                                      # explicit/composite unique constraint.  'name' is optional.
                                      UniqueConstraint('sito', 'scheda_numero', name='ID_invlap_unico')
                                      )

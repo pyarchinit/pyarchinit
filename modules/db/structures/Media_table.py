@@ -21,6 +21,7 @@ class Media_table:
                         Column('filepath', Text),
                         Column('descrizione', Text),
                         Column('tags', Text),
+                        Column('entity_uuid', Text),
 
                         # explicit/composite unique constraint.  'name' is optional.
                         UniqueConstraint('filepath', name='ID_media_unico')

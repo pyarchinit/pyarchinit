@@ -41,6 +41,9 @@ class Site_table:
                      # Check for finds at the site (e.g., inventory check)
                      Column('find_check', Integer),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the site name is unique
                      UniqueConstraint('sito', name='ID_sito_unico')
                      )

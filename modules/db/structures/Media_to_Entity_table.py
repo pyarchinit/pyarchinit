@@ -21,6 +21,7 @@ class Media_to_Entity_table:
                                   Column('id_media', Integer),
                                   Column('filepath', Text),
                                   Column('media_name', Text),
+                                  Column('entity_uuid', Text),
 
                                   # explicit/composite unique constraint.  'name' is optional.
                                   UniqueConstraint('id_entity', 'entity_type', 'id_media',

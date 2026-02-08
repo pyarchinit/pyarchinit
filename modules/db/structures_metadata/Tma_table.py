@@ -88,7 +88,8 @@ class Tma_table:
                      Column('created_by', Text),
                      Column('updated_by', Text),
 
-
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
 
                      )
 

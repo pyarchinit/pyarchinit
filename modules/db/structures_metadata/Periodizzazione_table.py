@@ -38,6 +38,9 @@ class Periodizzazione_table:
                      # Period context reference
                      Column('cont_per', Integer),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site, period and phase is unique
                      UniqueConstraint('sito', 'periodo', 'fase', name='ID_perfas_unico')
                      )

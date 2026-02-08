@@ -90,6 +90,9 @@ class Tomba_table:
                      # Extended dating information
                      Column('datazione_estesa', String(300)),
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of site and record sheet number is unique
                      UniqueConstraint('sito', 'nr_scheda_taf', name='ID_tomba_unico')
                      )

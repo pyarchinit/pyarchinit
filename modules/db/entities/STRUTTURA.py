@@ -42,7 +42,8 @@ class STRUTTURA(object):
                  potenzialita_archeologica=None,
                  manufatti=None,
                  elementi_datanti=None,
-                 fasi_funzionali=None
+                 fasi_funzionali=None,
+                 entity_uuid=None
                  ):
         self.id_struttura = id_struttura  # 0
         self.sito = sito  # 1
@@ -80,6 +81,7 @@ class STRUTTURA(object):
         self.manufatti = manufatti  # 32
         self.elementi_datanti = elementi_datanti  # 33
         self.fasi_funzionali = fasi_funzionali  # 34
+        self.entity_uuid = entity_uuid
 
     def __repr__(self):
         return "<STRUTTURA('%d', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')>" % (

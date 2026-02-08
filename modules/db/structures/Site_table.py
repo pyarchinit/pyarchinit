@@ -24,6 +24,7 @@ class Site_table:
                        Column('definizione_sito', Text),
                        Column('sito_path', Text),
                        Column('find_check', Integer),
+                       Column('entity_uuid', Text),
 
                        # explicit/composite unique constraint.  'name' is optional.
                        UniqueConstraint('sito', name='ID_sito_unico')

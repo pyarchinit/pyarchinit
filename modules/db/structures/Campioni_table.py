@@ -24,6 +24,7 @@ class Campioni_table:
                            Column('numero_inventario_materiale', Integer),
                            Column('nr_cassa', Text),
                            Column('luogo_conservazione', Text),
+                           Column('entity_uuid', Text),
 
                            # explicit/composite unique constraint.  'name' is optional.
                            UniqueConstraint('sito', 'nr_campione', name='ID_invcamp_unico')

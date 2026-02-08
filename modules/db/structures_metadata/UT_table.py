@@ -136,6 +136,9 @@ class UT_table:
                      # Preliminary investigations conducted
                      Column('indagini_preliminari', String(100)),  # 41
 
+                     # StratiGraph persistent identifier (UUID v4)
+                     Column('entity_uuid', Text),
+
                      # Unique constraint ensuring the combination of project, UT number, and literal representation is unique
                      UniqueConstraint('progetto', 'nr_ut', 'ut_letterale', name='ID_ut_unico')
                      )

@@ -6,7 +6,6 @@ Created on 19 feb 2018
 
 from sqlalchemy import Table, Column, Integer, BigInteger, Text, Numeric, MetaData, UniqueConstraint
 
-
 class Archeozoology_table:
 
     metadata = MetaData()
@@ -34,6 +33,7 @@ class Archeozoology_table:
                                 Column('canidi', BigInteger),  # 18
                                 Column('ursidi', BigInteger),  # 19
                                 Column('megacero', BigInteger),  # 20
+                                Column('entity_uuid', Text),
 
                                 # explicit/composite unique constraint
                                 UniqueConstraint('sito', 'quadrato', name='ID_archzoo_unico')
