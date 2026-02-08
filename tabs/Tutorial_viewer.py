@@ -70,6 +70,8 @@ class TutorialViewerDialog(QDialog):
             ("28_geopackage_export.md", "GeoPackage Export", "Export dati in GeoPackage"),
             ("29_make_your_map.md", "Make Your Map", "Generazione mappe e stampe"),
             ("30_ai_query_database.md", "AI Query Database", "Query database con AI (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificatori persistenti per il Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronizzazione offline-first con il Knowledge Graph"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup, database connection, paths"),
@@ -102,6 +104,8 @@ class TutorialViewerDialog(QDialog):
             ("28_geopackage_export.md", "GeoPackage Export", "Data export to GeoPackage"),
             ("29_make_your_map.md", "Make Your Map", "Map and print generation"),
             ("30_ai_query_database.md", "AI Query Database", "Database query with AI (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Persistent identifiers for the Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first sync with the Knowledge Graph"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung, Datenbankverbindung, Pfade"),
@@ -134,6 +138,8 @@ class TutorialViewerDialog(QDialog):
             ("28_geopackage_export.md", "GeoPackage-Export", "Datenexport nach GeoPackage"),
             ("29_karte_erstellen.md", "Karte erstellen", "Karten- und Druckerstellung"),
             ("30_ki_datenbankabfrage.md", "KI-Datenbankabfrage", "Datenbankabfrage mit KI (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Persistente Identifikatoren für den Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first Synchronisation mit dem Knowledge Graph"),
         ],
         'fr': [
             ("01_configuration.md", "Configuration", "Configuration initiale, connexion base de données, chemins"),
@@ -166,6 +172,8 @@ class TutorialViewerDialog(QDialog):
             ("28_export_geopackage.md", "Export GeoPackage", "Export de données vers GeoPackage"),
             ("29_creer_votre_carte.md", "Créer une Carte", "Génération de cartes et impressions"),
             ("30_requete_ia_base_donnees.md", "Requête IA Base de Données", "Requête de base de données avec IA (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identifiants persistants pour le Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Synchronisation offline-first avec le Knowledge Graph"),
         ],
         'es': [
             ("01_configuracion.md", "Configuración", "Configuración inicial, conexión de base de datos, rutas"),
@@ -198,6 +206,8 @@ class TutorialViewerDialog(QDialog):
             ("28_geopackage_export.md", "Exportar GeoPackage", "Exportación de datos a GeoPackage"),
             ("29_crear_mapa.md", "Crear tu Mapa", "Generación de mapas e impresiones"),
             ("30_consulta_ai_database.md", "Consulta IA Base de Datos", "Consulta de base de datos con IA (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificadores persistentes para el Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronización offline-first con el Knowledge Graph"),
         ],
         'ar': [
             ("01_التكوين.md", "التكوين", "الإعداد الأولي، اتصال قاعدة البيانات، المسارات"),
@@ -230,6 +240,8 @@ class TutorialViewerDialog(QDialog):
             ("28_تصدير_جيوباكج.md", "تصدير GeoPackage", "تصدير البيانات إلى GeoPackage"),
             ("29_إنشاء_خريطتك.md", "إنشاء خريطتك", "إنشاء الخرائط والطباعة"),
             ("30_استعلام_قاعدة_البيانات_بالذكاء_الاصطناعي.md", "استعلام قاعدة البيانات بالذكاء الاصطناعي", "استعلام قاعدة البيانات بالذكاء الاصطناعي"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "معرفات دائمة لرسم المعرفة"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "مزامنة دون اتصال أولاً مع رسم المعرفة"),
         ],
         'ca': [
             ("01_configuracio.md", "Configuració", "Configuració inicial, connexió de base de dades, camins"),
@@ -262,6 +274,8 @@ class TutorialViewerDialog(QDialog):
             ("28_exportacio_geopackage.md", "Exportar GeoPackage", "Exportació de dades a GeoPackage"),
             ("29_crea_mapa.md", "Crear el teu Mapa", "Generació de mapes i impressions"),
             ("30_consulta_ai_bd.md", "Consulta IA Base de Dades", "Consulta de base de dades amb IA (Text2SQL)"),
+            ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificadors persistents per al Knowledge Graph"),
+            ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronització offline-first amb el Knowledge Graph"),
         ],
     }
 
