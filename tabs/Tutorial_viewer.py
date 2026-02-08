@@ -21,6 +21,7 @@ try:
 except ImportError:
     HAS_WEBENGINE = False
 from qgis.core import QgsSettings
+from modules.utility.pyarchinit_theme_manager import ThemeManager
 
 
 class TutorialViewerDialog(QDialog):
@@ -399,6 +400,12 @@ class TutorialViewerDialog(QDialog):
         self.setup_ui()
         self.load_tutorial_list()
 
+        # Theme support
+        self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
+        # Also reload HTML content on theme toggle to update inner CSS
+        self.theme_toggle_btn.clicked.connect(self._on_theme_toggled)
+        ThemeManager.apply_theme(self)
+
         # Select first tutorial by default
         if self.tutorial_list.count() > 0:
             self.tutorial_list.setCurrentRow(0)
@@ -409,6 +416,12 @@ class TutorialViewerDialog(QDialog):
         if locale in self.SUPPORTED_LANGUAGES:
             return locale
         return 'it'  # Default to Italian
+
+    def _on_theme_toggled(self):
+        """Reload current tutorial content to apply new theme CSS"""
+        current = self.tutorial_list.currentItem()
+        if current:
+            self.on_tutorial_selected(current, None)
 
     def get_tutorials_path(self, lang=None):
         """Get the tutorials path for a specific language"""
@@ -459,7 +472,7 @@ class TutorialViewerDialog(QDialog):
         left_layout.setContentsMargins(0, 0, 0, 0)
 
         self.list_label = QLabel(self.labels['available'])
-        self.list_label.setStyleSheet("font-weight: bold;")
+        self.list_label.setStyleSheet("font-weight: bold; font-size: 13px;")
         left_layout.addWidget(self.list_label)
 
         self.tutorial_list = QListWidget()
@@ -475,7 +488,7 @@ class TutorialViewerDialog(QDialog):
         right_layout.setContentsMargins(0, 0, 0, 0)
 
         self.content_label = QLabel(self.labels['content'])
-        self.content_label.setStyleSheet("font-weight: bold;")
+        self.content_label.setStyleSheet("font-weight: bold; font-size: 13px;")
         right_layout.addWidget(self.content_label)
 
         # Use QWebEngineView if available for better HTML/CSS support
@@ -488,14 +501,7 @@ class TutorialViewerDialog(QDialog):
             self.content_browser.setMouseTracking(True)
             self.content_browser.viewport().setMouseTracking(True)
             self.content_browser.viewport().installEventFilter(self)
-            self.content_browser.setStyleSheet("""
-                QTextBrowser {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-                    font-size: 13px;
-                    line-height: 1.6;
-                    padding: 10px;
-                }
-            """)
+            self.content_browser.setStyleSheet("")
             self.use_webengine = False
             self._hover_popup = None
             self._image_cache = {}
@@ -601,7 +607,10 @@ class TutorialViewerDialog(QDialog):
         # Create or reuse popup
         if not self._hover_popup:
             self._hover_popup = QLabel(None, Qt.WindowType.ToolTip)
-            self._hover_popup.setStyleSheet("background: white; border: 2px solid #333; padding: 5px;")
+            if ThemeManager.is_dark_theme():
+                self._hover_popup.setStyleSheet("background: #2b2b2b; border: 2px solid #555; padding: 5px;")
+            else:
+                self._hover_popup.setStyleSheet("background: white; border: 2px solid #333; padding: 5px;")
 
         # Load image
         img_data = base64.b64decode(self._image_cache[img_path])
@@ -757,10 +766,15 @@ class TutorialViewerDialog(QDialog):
         if os.path.exists(filepath):
             self.load_tutorial_content(filepath)
         else:
+            is_dark = ThemeManager.is_dark_theme()
+            bg = '#1e1e1e' if is_dark else '#ffffff'
+            fg = '#e0e0e0' if is_dark else '#333333'
             self.content_browser.setHtml(
+                f"<html><body style='background:{bg};color:{fg};padding:20px;'>"
                 f"<h2>{self.labels['not_available']}</h2>"
                 f"<p>{self.labels['file_not_found']}</p>"
                 f"<p>{self.labels['path']}: <code>{filepath}</code></p>"
+                f"</body></html>"
             )
 
     def load_tutorial_content(self, filepath):
@@ -784,6 +798,58 @@ class TutorialViewerDialog(QDialog):
 
             # Determine text direction for Arabic
             direction = 'rtl' if self.current_lang == 'ar' else 'ltr'
+            text_align = 'right' if direction == 'rtl' else 'left'
+            border_side = 'right' if direction == 'rtl' else 'left'
+            padding_side = 'right' if direction == 'rtl' else 'left'
+
+            # Theme-aware CSS
+            is_dark = ThemeManager.is_dark_theme()
+            if is_dark:
+                bg_color = '#1e1e1e'
+                text_color = '#e0e0e0'
+                h1_color = '#4da6ff'
+                h2_color = '#7fbbf5'
+                h3_color = '#a0c4e8'
+                h4_color = '#8ab4d9'
+                code_bg = '#2d2d2d'
+                code_color = '#e0e0e0'
+                pre_bg = '#2d2d2d'
+                pre_border = '#444444'
+                table_border = '#444444'
+                th_bg = '#2a6496'
+                th_color = '#ffffff'
+                tr_even_bg = '#252525'
+                tr_hover_bg = '#2a2a2a'
+                blockquote_bg = '#252525'
+                blockquote_border = '#4da6ff'
+                link_color = '#4da6ff'
+                hr_color = '#444444'
+                img_border = '#444444'
+                highlight_bg = '#4a4a00'
+                highlight_color = '#ffff66'
+            else:
+                bg_color = '#ffffff'
+                text_color = '#333333'
+                h1_color = '#2c3e50'
+                h2_color = '#34495e'
+                h3_color = '#555555'
+                h4_color = '#666666'
+                code_bg = '#f0f0f0'
+                code_color = '#333333'
+                pre_bg = '#f5f5f5'
+                pre_border = '#dddddd'
+                table_border = '#dddddd'
+                th_bg = '#3498db'
+                th_color = '#ffffff'
+                tr_even_bg = '#f9f9f9'
+                tr_hover_bg = '#f5f5f5'
+                blockquote_bg = '#ecf0f1'
+                blockquote_border = '#3498db'
+                link_color = '#3498db'
+                hr_color = '#bdc3c7'
+                img_border = '#dddddd'
+                highlight_bg = '#fff3cd'
+                highlight_color = '#333333'
 
             # Add CSS styling
             styled_html = f"""
@@ -795,54 +861,55 @@ class TutorialViewerDialog(QDialog):
                         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
                         font-size: 14px;
                         line-height: 1.6;
-                        color: #333;
+                        color: {text_color};
+                        background-color: {bg_color};
                         max-width: 100%;
                         padding: 10px;
                         direction: {direction};
                     }}
                     h1 {{
-                        color: #2c3e50;
-                        border-bottom: 2px solid #3498db;
+                        color: {h1_color};
+                        border-bottom: 2px solid {link_color};
                         padding-bottom: 10px;
                         font-size: 24px;
                     }}
                     h2 {{
-                        color: #34495e;
-                        border-bottom: 1px solid #bdc3c7;
+                        color: {h2_color};
+                        border-bottom: 1px solid {hr_color};
                         padding-bottom: 5px;
                         margin-top: 25px;
                         font-size: 20px;
                     }}
                     h3 {{
-                        color: #7f8c8d;
+                        color: {h3_color};
                         margin-top: 20px;
                         font-size: 16px;
                     }}
                     h4 {{
-                        color: #95a5a6;
+                        color: {h4_color};
                         font-size: 14px;
                     }}
                     code {{
-                        background-color: #f0f0f0;
-                        color: #333;
+                        background-color: {code_bg};
+                        color: {code_color};
                         padding: 2px 6px;
                         border-radius: 3px;
                         font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
                         font-size: 13px;
                     }}
                     pre {{
-                        background-color: #f5f5f5;
-                        color: #333;
+                        background-color: {pre_bg};
+                        color: {code_color};
                         padding: 15px;
                         border-radius: 5px;
-                        border: 1px solid #ddd;
+                        border: 1px solid {pre_border};
                         overflow-x: auto;
                         font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
                         font-size: 13px;
                     }}
                     pre code {{
                         background-color: transparent;
-                        color: #333;
+                        color: {code_color};
                         padding: 0;
                     }}
                     table {{
@@ -851,36 +918,37 @@ class TutorialViewerDialog(QDialog):
                         margin: 15px 0;
                     }}
                     th, td {{
-                        border: 1px solid #ddd;
+                        border: 1px solid {table_border};
                         padding: 10px;
-                        text-align: {direction == 'rtl' and 'right' or 'left'};
+                        text-align: {text_align};
                     }}
                     th {{
-                        background-color: #3498db;
-                        color: white;
+                        background-color: {th_bg};
+                        color: {th_color};
                     }}
                     tr:nth-child(even) {{
-                        background-color: #f9f9f9;
+                        background-color: {tr_even_bg};
                     }}
                     tr:hover {{
-                        background-color: #f5f5f5;
+                        background-color: {tr_hover_bg};
                     }}
                     blockquote {{
-                        border-{direction == 'rtl' and 'right' or 'left'}: 4px solid #3498db;
+                        border-{border_side}: 4px solid {blockquote_border};
                         margin: 15px 0;
                         padding: 10px 20px;
-                        background-color: #ecf0f1;
+                        background-color: {blockquote_bg};
                         font-style: italic;
+                        color: {text_color};
                     }}
                     ul, ol {{
                         margin: 10px 0;
-                        padding-{direction == 'rtl' and 'right' or 'left'}: 25px;
+                        padding-{padding_side}: 25px;
                     }}
                     li {{
                         margin: 5px 0;
                     }}
                     a {{
-                        color: #3498db;
+                        color: {link_color};
                         text-decoration: none;
                     }}
                     a:hover {{
@@ -888,14 +956,14 @@ class TutorialViewerDialog(QDialog):
                     }}
                     hr {{
                         border: none;
-                        border-top: 1px solid #bdc3c7;
+                        border-top: 1px solid {hr_color};
                         margin: 20px 0;
                     }}
                     img {{
                         max-width: 100%;
                         height: auto;
                         display: block;
-                        border: 1px solid #ddd;
+                        border: 1px solid {img_border};
                         border-radius: 4px;
                     }}
                     .figure {{
@@ -908,6 +976,24 @@ class TutorialViewerDialog(QDialog):
                     }}
                     .figure img {{
                         margin-bottom: 0;
+                    }}
+                    strong {{
+                        color: {text_color};
+                    }}
+                    em {{
+                        color: {text_color};
+                    }}
+                    .highlight {{
+                        background-color: #ffc107;
+                        color: #000000;
+                        padding: 1px 4px;
+                        border-radius: 3px;
+                    }}
+                    .highlight-green {{
+                        background-color: #28a745;
+                        color: #000000;
+                        padding: 1px 4px;
+                        border-radius: 3px;
                     }}
                 </style>
             </head>
@@ -923,10 +1009,15 @@ class TutorialViewerDialog(QDialog):
                 self.content_browser.setHtml(styled_html)
 
         except Exception as e:
+            is_dark = ThemeManager.is_dark_theme()
+            bg = '#1e1e1e' if is_dark else '#ffffff'
+            fg = '#e0e0e0' if is_dark else '#333333'
             error_html = (
+                f"<html><body style='background:{bg};color:{fg};padding:20px;'>"
                 f"<h2>{self.labels['load_error']}</h2>"
                 f"<p>{self.labels['error_loading']}</p>"
                 f"<pre>{str(e)}</pre>"
+                f"</body></html>"
             )
             if self.use_webengine:
                 self.content_browser.setHtml(error_html)
@@ -1017,16 +1108,14 @@ class TutorialViewerDialog(QDialog):
                             self._figure_images.append(img_path)
                             # Display thumbnail with data URI
                             return (f'<p><img src="{thumb_uri}" '
-                                    f'style="vertical-align: middle; border: 2px solid #3498db; '
+                                    f'style="vertical-align: middle; border: 2px solid currentColor; '
                                     f'border-radius: 4px;"> '
-                                    f'<span style="color: #2980b9;">'
-                                    f'<b>{alt_text}</b></span> '
-                                    f'<span style="color: #888; font-size: 11px;">'
-                                    f'(clicca per ingrandire)</span></p>')
+                                    f'<b>{alt_text}</b> '
+                                    f'<small>(clicca per ingrandire)</small></p>')
                         except Exception as e:
-                            return f'<p style="color:red;">[Errore immagine: {e}]</p>'
+                            return f'<p><span class="highlight">[Errore immagine: {e}]</span></p>'
                 else:
-                    return f'<p style="color:orange;">[Image not found: {alt_text}]</p>'
+                    return f'<p><span class="highlight">[Image not found: {alt_text}]</span></p>'
 
             return f'<img src="{img_path}" alt="{alt_text}">'
 
