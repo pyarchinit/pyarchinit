@@ -207,18 +207,18 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Sotto-requisito | Stato | % | Note |
 |-----------------|-------|---|------|
 | Stato 1: cattura/modifica offline | `[FATTO]` | 95% | SQLite locale funziona già offline |
-| Stato 2: esportazione locale | `[PARZIALE]` | 40% | Export funzionano, non integrati nella state machine |
-| Stato 3: validazione locale | `[PARZIALE]` | 50% | Validazione esiste, non integrata nella state machine |
-| Stato 4: coda pronta per sync | `[DA FARE]` | 0% | Tabella `sync_queue` da creare |
-| Stato 5: sincronizzato con successo | `[PARZIALE]` | 30% | Sync engine esiste, manca feedback di stato |
-| Stato 6: sync fallita + retry | `[DA FARE]` | 0% | Retry con backoff da implementare |
-| State machine formale | `[DA FARE]` | 0% | Modulo nuovo |
-| Rilevamento connettività | `[DA FARE]` | 0% | Timer Qt periodico |
-| Feedback visivo transizioni | `[DA FARE]` | 0% | Widget Qt nel pannello principale |
-| Scheduler sync automatica | `[DA FARE]` | 0% | Trigger su ritorno connessione |
+| Stato 2: esportazione locale | `[FATTO]` | 100% | Integrato nella state machine via SyncOrchestrator |
+| Stato 3: validazione locale | `[FATTO]` | 100% | Integrato nella state machine via SyncOrchestrator |
+| Stato 4: coda pronta per sync | `[FATTO]` | 100% | SyncQueue con SQLite dedicato |
+| Stato 5: sincronizzato con successo | `[FATTO]` | 100% | State machine + upload + feedback UI |
+| Stato 6: sync fallita + retry | `[FATTO]` | 100% | Backoff esponenziale [30s, 60s, 120s, 300s, 900s] |
+| State machine formale | `[FATTO]` | 100% | SyncStateMachine a 6 stati con persistenza QgsSettings |
+| Rilevamento connettività | `[FATTO]` | 100% | ConnectivityMonitor con debounce e health check |
+| Feedback visivo transizioni | `[FATTO]` | 100% | StratiGraphSyncPanel dock widget |
+| Scheduler sync automatica | `[FATTO]` | 100% | SyncOrchestrator + ConnectivityMonitor trigger |
 
-**File da creare**: `modules/stratigraph/sync_state_machine.py`, `modules/stratigraph/sync_queue.py`, `modules/stratigraph/connectivity_monitor.py`, `gui/stratigraph_sync_panel.py`
-**File da estendere**: `modules/db/database_sync.py` (hook per state machine)
+**File creati**: `modules/stratigraph/sync_state_machine.py`, `modules/stratigraph/sync_queue.py`, `modules/stratigraph/connectivity_monitor.py`, `modules/stratigraph/sync_orchestrator.py`, `gui/stratigraph_sync_panel.py`
+**File modificati**: `pyarchinitPlugin.py` (initGui/unload), `modules/stratigraph/__init__.py`
 
 ---
 
@@ -233,7 +233,7 @@ File: `modules/db/database_sync.py` (1290 righe)
 | Submit bundle | `[DA FARE]` | 0% | `[BLOCCATO]` — endpoint da WP4 |
 | Query stato sync | `[DA FARE]` | 0% | `[BLOCCATO]` — endpoint da WP4 |
 | Recupero errori validazione | `[DA FARE]` | 0% | `[BLOCCATO]` — formato errori da WP4 |
-| Retry su fallimento | `[DA FARE]` | 0% | Pattern retry con backoff esponenziale |
+| Retry su fallimento | `[FATTO]` | 100% | Backoff esponenziale in SyncOrchestrator |
 
 **File da creare**: `modules/stratigraph/api_client.py`, `modules/stratigraph/auth_stratigraph.py`
 **File da estendere**: `modules/storage/credentials.py` (aggiungere tipo `stratigraph`)
@@ -313,20 +313,21 @@ Tutti i nuovi moduli vanno nella directory `modules/stratigraph/`. Questo isola 
 
 ```
 modules/stratigraph/
-    __init__.py
+    __init__.py                # Exports pubblici Fase 1 + Fase 2
     bundle_creator.py          # Fase 1 — generazione bundle ZIP
     bundle_manifest.py         # Fase 1 — manifest JSON + BMD
     bundle_validator.py        # Fase 1 — validazione pre-export
     uuid_manager.py            # Fase 1 — gestione UUID entità
     sync_state_machine.py      # Fase 2 — macchina a 6 stati
-    sync_queue.py              # Fase 2 — coda operazioni pendenti
+    sync_queue.py              # Fase 2 — coda operazioni pendenti (SQLite)
     connectivity_monitor.py    # Fase 2 — rilevamento connettività
+    sync_orchestrator.py       # Fase 2 — orchestratore automatico
     api_client.py              # Fase 3 — client API StratiGraph
     auth_stratigraph.py        # Fase 3 — autenticazione token
     wp4_sdk_wrapper.py         # Fase 3 — wrapper SDK WP4
 
 gui/
-    stratigraph_sync_panel.py  # Fase 2 — widget stato sync
+    stratigraph_sync_panel.py  # Fase 2 — dock widget stato sync
 ```
 
 ---
@@ -437,7 +438,7 @@ gui/
      - `SYNC_FAILED` → `QUEUED_FOR_SYNC` (retry)
      - `SYNC_SUCCESS` → `OFFLINE_EDITING`
 - **Impatto**: NESSUNO — modulo nuovo
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 #### Task 2.2 — Sync Queue
 
@@ -461,7 +462,7 @@ gui/
      - `retry_failed()` — ri-accoda bundle falliti
      - `cleanup_completed(older_than_days)` — pulizia
 - **Impatto**: BASSO — nuova tabella locale, non tocca tabelle esistenti
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 #### Task 2.3 — Connectivity Monitor
 
@@ -474,31 +475,32 @@ gui/
      - Segnali: `connection_available()`, `connection_lost()`
      - Stato corrente: `is_online` property
      - Debounce: conferma cambio stato dopo N check consecutivi
-  2. Usa `NetworkAccessManager` esistente per i check
+  2. Usa `QgsNetworkAccessManager` per i check HTTP
 - **Impatto**: NESSUNO — modulo nuovo
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 #### Task 2.4 — Pannello UI Stato Sync
 
 - **Cosa**: Widget Qt integrato nel pannello principale PyArchInit
 - **Dove**: `gui/stratigraph_sync_panel.py`
 - **Come**:
-  1. Classe `StratiGraphSyncPanel(QWidget)`:
+  1. Classe `StratiGraphSyncPanel(QDockWidget)`:
      - Indicatore stato corrente (icona + testo)
      - Indicatore connettività (online/offline)
      - Contatore bundle in coda
      - Ultimo sync: timestamp + esito
      - Pulsanti: "Esporta Bundle", "Sincronizza Ora", "Vedi Coda"
      - Log recente transizioni di stato
+     - Dialog modale per visualizzare dettaglio coda
   2. Connesso a segnali di `SyncStateMachine` e `ConnectivityMonitor`
-  3. Integrato come dock widget o tab nel pannello principale
+  3. Integrato come dock widget con toggle da toolbar
 - **Impatto**: BASSO — nuovo widget, non modifica UI esistente
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 #### Task 2.5 — Orchestratore Sync Automatica
 
 - **Cosa**: Coordinamento tra state machine, coda, connectivity e sync engine
-- **Dove**: `modules/stratigraph/sync_orchestrator.py` (aggiungere a struttura)
+- **Dove**: `modules/stratigraph/sync_orchestrator.py`
 - **Come**:
   1. Classe `SyncOrchestrator(QObject)`:
      - Ascolta `connection_available()` dal monitor
@@ -506,9 +508,10 @@ gui/
      - Retry con backoff esponenziale (30s, 1m, 2m, 5m, max 15m)
      - Aggiorna state machine ad ogni transizione
      - Emette segnali per UI
-  2. Usa `database_sync.py` esistente come motore di sync
+     - Upload HTTP POST temporaneo (fino a API WP4)
+  2. Pipeline: export → validate → enqueue → upload
 - **Impatto**: BASSO — orchestra moduli esistenti
-- **Stato**: `[DA FARE]` | **0%**
+- **Stato**: `[FATTO]` | **100%**
 
 ---
 
@@ -677,6 +680,7 @@ Per i task `[BLOCCATO]`, la strategia è:
 | 2026-02-08 | — | UUID auto-generazione: entity `__init__` con default `None` + `uuid.uuid4()`. Hook migration in `connection()`. |
 | 2026-02-08 | — | Schema SQL: entity\_uuid in schema PostgreSQL, SQLite, views, template DB. Fix nomi tabelle TMA. |
 | 2026-02-08 | — | Metadata: versione 5.0.1-alpha, experimental=True. Task 1.5 bundle\_validator completato. |
+| 2026-02-08 | — | Fase 2 completata: sync\_state\_machine, sync\_queue, connectivity\_monitor, sync\_orchestrator, stratigraph\_sync\_panel. Integrato in pyarchinitPlugin.py. |
 
 ---
 
@@ -690,12 +694,12 @@ Per i task `[BLOCCATO]`, la strategia è:
 | Sistema Bundle | 95% |
 | Validazione pre-export bundle | 95% |
 | UUID/PID stabili | 85% |
-| Offline-first (state machine) | 0% |
-| Coda sync + orchestratore | 0% |
-| UI pannello sync | 0% |
+| Offline-first (state machine) | 100% |
+| Coda sync + orchestratore | 100% |
+| UI pannello sync | 100% |
 | Client API StratiGraph | 0% (bloccato) |
 | Auth StratiGraph | 0% (bloccato) |
 | SDK WP4 | 0% (bloccato) |
 | Test conformità CIDOC-CRM | 0% |
 | Performance optimization | 0% |
-| **MEDIA COMPLESSIVA** | **~42%** |
+| **MEDIA COMPLESSIVA** | **~57%** |

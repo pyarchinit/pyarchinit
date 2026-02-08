@@ -84,6 +84,14 @@ Benvingut a la documentació completa de PyArchInit. Aquesta guia cobreix tots e
    20_publicacio_web
    21_fitxa_ut
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Integracio StratiGraph
+   :numbered:
+
+   31_stratigraph_uuid
+   32_stratigraph_sync
+
 ----
 
-*Documentació PyArchInit - Gener 2026*
+*Documentacio PyArchInit - Febrer 2026*

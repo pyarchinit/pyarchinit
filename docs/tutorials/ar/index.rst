@@ -84,6 +84,14 @@ PyArchInit - العربية
    20_النشر_على_الويب
    21_بطاقة_الوحدة_الطبوغرافية
 
+.. toctree::
+   :maxdepth: 2
+   :caption: تكامل StratiGraph
+   :numbered:
+
+   31_stratigraph_uuid
+   32_stratigraph_sync
+
 ----
 
-*وثائق PyArchInit - يناير 2026*
+*وثائق PyArchInit - فبراير 2026*

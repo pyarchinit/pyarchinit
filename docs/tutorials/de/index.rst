@@ -84,6 +84,14 @@ Willkommen zur vollständigen PyArchInit-Dokumentation. Dieser Leitfaden behande
    20_webveroeffentlichung
    21_ut_formular
 
+.. toctree::
+   :maxdepth: 2
+   :caption: StratiGraph-Integration
+   :numbered:
+
+   31_stratigraph_uuid
+   32_stratigraph_sync
+
 ----
 
-*PyArchInit Dokumentation - Januar 2026*
+*PyArchInit Dokumentation - Februar 2026*

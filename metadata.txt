@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.1-alpha
+version=5.0.2-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,16 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.1-alpha (2026-02-08) [StratiGraph / Horizon Europe]:
+changelog=5.0.2-alpha (2026-02-08) [StratiGraph Phase 2 / Horizon Europe]:
+    - Feature: add offline-first sync state machine with 6 states and QgsSettings persistence
+    - Feature: add persistent sync queue backed by dedicated SQLite database
+    - Feature: add connectivity monitor with configurable health check and debounce
+    - Feature: add sync orchestrator with automatic queue processing and exponential backoff retry
+    - Feature: add StratiGraph Sync dock widget panel with status indicators and activity log
+    - Feature: add queue management dialog for inspecting sync entries
+    - Feature: add StratiGraph Sync toolbar button with dedicated icon
+    - Docs: add StratiGraph Sync tutorial in 7 languages (it, en, de, es, fr, ar, ca)
+  5.0.1-alpha (2026-02-08) [StratiGraph Phase 1 / Horizon Europe]:
     - Feature: add entity_uuid (UUID v4) persistent identifiers to all 19 data tables
     - Feature: auto-generate UUID for new records on insert (PostgreSQL and SQLite)
     - Feature: auto-migrate existing databases to add entity_uuid column at startup

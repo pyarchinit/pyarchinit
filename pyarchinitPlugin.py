@@ -608,6 +608,7 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+            self._init_stratigraph_sync()
         elif l == 'en':
             settings = QgsSettings()
             icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pai_us.png'))
@@ -930,7 +931,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
-            menuBar.addMenu(self.menu)  
+            menuBar.addMenu(self.menu)
+            self._init_stratigraph_sync()
         elif l=='de':
             settings = QgsSettings()
             icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pai_us.png'))
@@ -1246,6 +1248,7 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+            self._init_stratigraph_sync()
         else:
             settings = QgsSettings()
             icon_paius = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'pai_us.png'))
@@ -1568,7 +1571,8 @@ class PyArchInitPlugin(object):
             self.menu.addSeparator()
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
-            menuBar.addMenu(self.menu)  
+            menuBar.addMenu(self.menu)
+            self._init_stratigraph_sync()
 
 
     def runSite(self):
@@ -1761,8 +1765,10 @@ class PyArchInitPlugin(object):
         self.pluginGui = pluginExcel  # save
 
     def unload(self):
+        # StratiGraph sync cleanup (locale-independent)
+        self._unload_stratigraph_sync()
         # Remove the plugin
-        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2] 
+        l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSite)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPer)
@@ -2048,3 +2054,52 @@ class PyArchInitPlugin(object):
             self.dockWidget.hide()
         else:
             self.dockWidget.show()
+
+    # ── StratiGraph Sync ────────────────────────────────────────────────
+    def _init_stratigraph_sync(self):
+        """Initialise the StratiGraph offline-first sync subsystem."""
+        try:
+            from .modules.stratigraph.sync_orchestrator import SyncOrchestrator
+            from .gui.stratigraph_sync_panel import StratiGraphSyncPanel
+
+            self.sync_orchestrator = SyncOrchestrator()
+            self.sync_panel = StratiGraphSyncPanel(self.sync_orchestrator)
+            self.iface.addDockWidget(
+                Qt.DockWidgetArea.LeftDockWidgetArea, self.sync_panel)
+            self.sync_panel.hide()  # hidden by default
+
+            # Toolbar toggle action
+            icon_sync = '{}{}'.format(
+                filepath,
+                os.path.join(os.sep, 'resources', 'icons', 'stratigraph_sync.png'))
+            self.actionStratiGraphSync = QAction(
+                QIcon(icon_sync), "StratiGraph Sync",
+                self.iface.mainWindow())
+            self.actionStratiGraphSync.setCheckable(True)
+            self.actionStratiGraphSync.setToolTip(
+                "Show / hide the StratiGraph sync panel")
+            self.actionStratiGraphSync.toggled.connect(
+                self._toggle_sync_panel)
+            self.toolBar.addAction(self.actionStratiGraphSync)
+
+            self.sync_orchestrator.start()
+        except Exception as e:
+            QgsMessageLog.logMessage(
+                f"StratiGraph sync init failed: {e}",
+                "PyArchInit", Qgis.MessageLevel.Warning)
+            self.sync_orchestrator = None
+            self.sync_panel = None
+
+    def _unload_stratigraph_sync(self):
+        """Tear down the StratiGraph sync subsystem."""
+        if getattr(self, 'sync_orchestrator', None) is not None:
+            self.sync_orchestrator.stop()
+        if getattr(self, 'sync_panel', None) is not None:
+            self.sync_panel.setVisible(False)
+            self.iface.removeDockWidget(self.sync_panel)
+        if getattr(self, 'actionStratiGraphSync', None) is not None:
+            self.iface.removeToolBarIcon(self.actionStratiGraphSync)
+
+    def _toggle_sync_panel(self, checked):
+        if self.sync_panel is not None:
+            self.sync_panel.setVisible(checked)
