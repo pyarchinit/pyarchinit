@@ -468,7 +468,13 @@ class Pyarchinit_db_management(object):
                 uuid_support.update_all_tables()
                 _set_db_checked(uuid_check_key, True)
             except Exception as e:
-                print(f"[StratiGraph] UUID support check failed: {e}")
+                try:
+                    from qgis.core import QgsMessageLog, Qgis
+                    QgsMessageLog.logMessage(
+                        f"[UUID] check failed: {e}",
+                        'PyArchInit', Qgis.MessageLevel.Warning)
+                except Exception:
+                    pass
                 _set_db_checked(uuid_check_key, True)
 
         # PERFORMANCE FIX: Skip ALL DB_update operations on connection

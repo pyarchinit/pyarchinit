@@ -130,6 +130,35 @@ I bundle ricevuti vengono salvati in `$PYARCHINIT_HOME/stratigraph_mock_received
 
 ---
 
+### Tutorial Viewer — Embedded Animation Playback
+
+#### `tabs/Tutorial_viewer.py` — RISCRITTO parzialmente
+- **Multi-path import**: QWebEngineView importato tramite fallback chain (`qgis.PyQt.QtWebEngineWidgets` → `PyQt5.QtWebEngineWidgets` → `PyQt6.QtWebEngineWidgets`). Nuovi globali: `HAS_WEBENGINE_ANIM`, `_QWebEngineView`.
+- **Rimossa classe `TutorialWebEnginePage`**: non più necessaria — QTextBrowser gestisce il markdown, QWebEngineView carica le animazioni direttamente via `setUrl()`.
+- **QStackedWidget**: area contenuto ora usa `self.content_stack` con due pagine:
+  - **Pagina 0**: `self.content_browser` (QTextBrowser) — sempre usato per rendering markdown
+  - **Pagina 1**: `self.animation_viewer` (QWebEngineView) — per file HTML5 animazione
+- **`_on_link_clicked()`**: rileva file `.html` locali e li carica nel viewer animazione embedded tramite `_load_animation()` invece di aprire il browser di sistema.
+- **`_load_animation(path)`**: sostituisce `_load_local_html_file()` — switcha lo stack a pagina 1, carica via `setUrl()`, mostra pulsante indietro.
+- **`_on_back_clicked()`**: switcha lo stack a pagina 0, pulisce il viewer animazione.
+- **Gestione immagini**: rimosso branch `use_webengine` — sempre usa thumbnail base64 di QTextBrowser.
+
+#### `pyarchinitDockWidget.py` — RISCRITTO parzialmente
+- **Multi-path import**: stesso pattern di fallback chain. Nuovi globali: `_DockQWebEngineView`, `_dock_log()`.
+- **Rimossa classe `DockTutorialWebPage`**: non più necessaria.
+- **QStackedWidget**: tab tutorial ora usa `self.tutorial_content_stack` con:
+  - **Pagina 0**: `self.tutorial_content` (QTextBrowser) — markdown
+  - **Pagina 1**: `self.tutorial_animation` (QWebEngineView) — animazioni
+- **`_on_tutorial_link_clicked(url)`**: nuovo handler per click su link in QTextBrowser, rileva `.html` e carica nel viewer embedded.
+- **`_load_animation_in_viewer(path)`**: switcha lo stack a pagina 1.
+- **`_on_tutorial_back()`**: switcha lo stack a pagina 0.
+- **Gestione immagini**: sempre converte a base64 (rimossa condizione `not HAS_WEBENGINE`).
+
+#### Degradazione graceful
+Se QWebEngineView non è disponibile da nessun percorso di import, `self.animation_viewer` / `self.tutorial_animation` è `None`, e i link `.html` aprono nel browser di sistema (comportamento precedente).
+
+---
+
 ### UI & Branding
 
 #### Splash Screen — Redesign futuristico (`gui/pyarchinit_splash.py`) — RISCRITTO

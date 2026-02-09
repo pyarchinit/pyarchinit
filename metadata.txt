@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.3-alpha
+version=5.0.4-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,14 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.3-alpha (2026-02-09) [UI & Branding]:
+changelog=5.0.4-alpha (2026-02-09) [Tutorial Viewer]:
+    - Feature: embed HTML5 animation playback inside Tutorial Viewer using QStackedWidget (QTextBrowser for markdown + QWebEngineView for animations)
+    - Feature: multi-path QWebEngineView import (qgis.PyQt, PyQt5, PyQt6) for broader compatibility
+    - Feature: back button to return from animation to tutorial content
+    - Feature: graceful degradation to system browser when QWebEngineView unavailable
+    - Refactor: remove custom QWebEnginePage subclasses (TutorialWebEnginePage, DockTutorialWebPage)
+    - Refactor: DockWidget tutorial tab uses same QStackedWidget architecture
+  5.0.3-alpha (2026-02-09) [UI & Branding]:
     - Feature: redesign splash screen with futuristic deep-space animation (particles, orbital rings, energy nodes, scanning grid)
     - Feature: add typewriter effect and blinking cursor for status messages
     - Feature: add CNR-ISPC and Horizon StratiGraph partner logos to splash screen

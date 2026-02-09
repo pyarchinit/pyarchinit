@@ -23,6 +23,14 @@ import uuid
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.exc import SQLAlchemyError
 
+try:
+    from qgis.core import QgsMessageLog, Qgis
+    def _uuid_log(msg, level=Qgis.MessageLevel.Info):
+        QgsMessageLog.logMessage(f"[UUID] {msg}", 'PyArchInit', level)
+except ImportError:
+    def _uuid_log(msg, level=None):
+        print(f"[UUID] {msg}")
+
 # Add parent directory to path
 parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(parent_dir)
@@ -74,8 +82,6 @@ class UUIDSupport:
         for table_name in TABLES_TO_UPDATE:
             if self.inspector.has_table(table_name):
                 existing.append(table_name)
-            else:
-                print(f"  Table not found (skipping): {table_name}")
         return existing
 
     def add_uuid_column(self, table_name):
@@ -84,7 +90,6 @@ class UUIDSupport:
             columns = [col['name'] for col in self.inspector.get_columns(table_name)]
 
             if 'entity_uuid' in columns:
-                print(f"  {table_name}: entity_uuid already exists, skipping")
                 return True
 
             with self.engine.begin() as conn:
@@ -99,10 +104,8 @@ class UUIDSupport:
                         f"ADD COLUMN entity_uuid TEXT"
                     ))
 
-                print(f"  {table_name}: added entity_uuid column")
-
         except SQLAlchemyError as e:
-            print(f"  {table_name}: ERROR adding column - {e}")
+            _uuid_log(f"  {table_name}: ERROR adding column - {e}")
             return False
 
         return True
@@ -110,14 +113,6 @@ class UUIDSupport:
     def populate_existing_uuids(self, table_name):
         """Generate UUIDs for existing records that don't have one."""
         try:
-            # Get primary key column name
-            pk_cols = self.inspector.get_pk_constraint(table_name)
-            if not pk_cols or not pk_cols.get('constrained_columns'):
-                print(f"  {table_name}: no primary key found, skipping UUID population")
-                return True
-
-            pk_col = pk_cols['constrained_columns'][0]
-
             with self.engine.begin() as conn:
                 # Count records without UUID
                 result = conn.execute(text(
@@ -127,29 +122,60 @@ class UUIDSupport:
                 count = result.scalar()
 
                 if count == 0:
-                    print(f"  {table_name}: all records already have UUIDs")
                     return True
 
-                # Fetch IDs of records without UUID
-                result = conn.execute(text(
-                    f"SELECT {pk_col} FROM {table_name} "
-                    f"WHERE entity_uuid IS NULL OR entity_uuid = ''"
-                ))
-                rows = result.fetchall()
+                # Get primary key column name
+                pk_cols = self.inspector.get_pk_constraint(table_name)
+                has_pk = pk_cols and pk_cols.get('constrained_columns')
 
-                # Update each record with a new UUID
-                for row in rows:
-                    new_uuid = str(uuid.uuid4())
-                    conn.execute(text(
-                        f"UPDATE {table_name} "
-                        f"SET entity_uuid = :uuid "
-                        f"WHERE {pk_col} = :pk_id"
-                    ), {"uuid": new_uuid, "pk_id": row[0]})
+                if has_pk:
+                    pk_col = pk_cols['constrained_columns'][0]
+                    # Fetch IDs of records without UUID
+                    result = conn.execute(text(
+                        f"SELECT {pk_col} FROM {table_name} "
+                        f"WHERE entity_uuid IS NULL OR entity_uuid = ''"
+                    ))
+                    rows = result.fetchall()
 
-                print(f"  {table_name}: generated UUIDs for {count} existing records")
+                    # Update each record with a new UUID
+                    for row in rows:
+                        new_uuid = str(uuid.uuid4())
+                        conn.execute(text(
+                            f"UPDATE {table_name} "
+                            f"SET entity_uuid = :uuid "
+                            f"WHERE {pk_col} = :pk_id"
+                        ), {"uuid": new_uuid, "pk_id": row[0]})
+                elif self.is_postgres:
+                    # No PK — use ctid for PostgreSQL
+                    result = conn.execute(text(
+                        f"SELECT ctid FROM {table_name} "
+                        f"WHERE entity_uuid IS NULL OR entity_uuid = ''"
+                    ))
+                    rows = result.fetchall()
+                    for row in rows:
+                        new_uuid = str(uuid.uuid4())
+                        conn.execute(text(
+                            f"UPDATE {table_name} "
+                            f"SET entity_uuid = :uuid "
+                            f"WHERE ctid = :rid"
+                        ), {"uuid": new_uuid, "rid": row[0]})
+                else:
+                    # No PK — SQLite: use rowid
+                    result = conn.execute(text(
+                        f"SELECT rowid FROM {table_name} "
+                        f"WHERE entity_uuid IS NULL OR entity_uuid = ''"
+                    ))
+                    rows = result.fetchall()
+                    for row in rows:
+                        new_uuid = str(uuid.uuid4())
+                        conn.execute(text(
+                            f"UPDATE {table_name} "
+                            f"SET entity_uuid = :uuid "
+                            f"WHERE rowid = :rid"
+                        ), {"uuid": new_uuid, "rid": row[0]})
 
         except SQLAlchemyError as e:
-            print(f"  {table_name}: ERROR populating UUIDs - {e}")
+            _uuid_log(f"  {table_name}: ERROR populating UUIDs - {e}")
             return False
 
         return True
@@ -160,9 +186,6 @@ class UUIDSupport:
         success_count = 0
         total = len(tables)
 
-        print(f"\nProcessing {total} tables...")
-        print("-" * 50)
-
         for table in tables:
             ok = self.add_uuid_column(table)
             if ok:
@@ -170,8 +193,8 @@ class UUIDSupport:
             if ok:
                 success_count += 1
 
-        print("-" * 50)
-        print(f"Updated {success_count}/{total} tables successfully")
+        if success_count < total:
+            _uuid_log(f"UUID check: {success_count}/{total} tables OK (some failed)")
         return success_count == total
 
 

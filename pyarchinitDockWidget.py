@@ -26,16 +26,34 @@ from qgis.PyQt.QtCore import QUrl, Qt, QSize
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
                                   QTextBrowser, QSplitter, QComboBox, QLabel, QWidget,
-                                  QPushButton, QFrame, QGridLayout, QScrollArea, QSizePolicy)
+                                  QPushButton, QFrame, QGridLayout, QScrollArea, QSizePolicy,
+                                  QStackedWidget)
 from qgis.gui import QgsDockWidget
-from qgis.core import QgsSettings
+from qgis.core import QgsSettings, QgsMessageLog, Qgis
 
-# Try to import QWebEngineView for better web rendering
-try:
-    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
-    HAS_WEBENGINE = True
-except ImportError:
-    HAS_WEBENGINE = False
+def _dock_log(msg):
+    QgsMessageLog.logMessage(str(msg), 'DockWidget', Qgis.MessageLevel.Info)
+
+# Multi-path QWebEngineView import (try qgis wrapper first, then direct PyQt5/6)
+HAS_WEBENGINE = False
+_DockQWebEngineView = None
+
+for _mod_path in [
+    'qgis.PyQt.QtWebEngineWidgets',
+    'PyQt5.QtWebEngineWidgets',
+    'PyQt6.QtWebEngineWidgets',
+]:
+    try:
+        _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
+        _DockQWebEngineView = getattr(_mod, 'QWebEngineView')
+        HAS_WEBENGINE = True
+        _dock_log(f"QWebEngineView found via {_mod_path}")
+        break
+    except (ImportError, AttributeError):
+        continue
+
+if not HAS_WEBENGINE:
+    _dock_log("QWebEngineView NOT available — animations will open in system browser")
 
 #from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Deteta import pyarchinit_Deteta
@@ -377,7 +395,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         if HAS_WEBENGINE:
             parent_widget = self.webView_adarte.parentWidget()
             layout = parent_widget.layout()
-            self.web_engine_pyarchinit = QWebEngineView()
+            self.web_engine_pyarchinit = _DockQWebEngineView()
             self.web_engine_pyarchinit.setUrl(QUrl("https://www.pyarchinit.org"))
             layout.replaceWidget(self.webView_adarte, self.web_engine_pyarchinit)
             self.webView_adarte.deleteLater()
@@ -445,18 +463,39 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.tutorial_list.currentItemChanged.connect(self.on_tutorial_selected)
         self.tutorial_splitter.addWidget(self.tutorial_list)
 
-        # Content browser
+        # Content: QStackedWidget with QTextBrowser (page 0) + QWebEngineView (page 1)
+        self.tutorial_content_stack = QStackedWidget()
+
+        # Page 0: QTextBrowser — always used for markdown
+        self.tutorial_content = QTextBrowser()
+        self.tutorial_content.setOpenExternalLinks(False)
+        self.tutorial_content.anchorClicked.connect(self._on_tutorial_link_clicked)
+        self.tutorial_content_stack.addWidget(self.tutorial_content)  # index 0
+
+        # Page 1: QWebEngineView — for HTML5 animations (if available)
+        self.tutorial_animation = None
         if HAS_WEBENGINE:
-            self.tutorial_content = QWebEngineView()
-        else:
-            self.tutorial_content = QTextBrowser()
-            self.tutorial_content.setOpenExternalLinks(True)
-        self.tutorial_splitter.addWidget(self.tutorial_content)
+            self.tutorial_animation = _DockQWebEngineView()
+            self.tutorial_content_stack.addWidget(self.tutorial_animation)  # index 1
+            _dock_log("Tutorial animation viewer (QWebEngineView) ready as stack page 1")
+
+        self.tutorial_content_stack.setCurrentIndex(0)
+        self.tutorial_splitter.addWidget(self.tutorial_content_stack)
 
         # Set splitter sizes
         self.tutorial_splitter.setSizes([150, 400])
 
         tutorial_layout.addWidget(self.tutorial_splitter)
+
+        # Back button (hidden by default, shown when viewing an animation)
+        self.tutorial_back_button = QPushButton("← Indietro")
+        self.tutorial_back_button.setVisible(False)
+        self.tutorial_back_button.setStyleSheet(
+            "QPushButton { background: #667eea; color: white; border: none; "
+            "padding: 6px 14px; border-radius: 4px; font-weight: bold; }"
+            "QPushButton:hover { background: #764ba2; }")
+        self.tutorial_back_button.clicked.connect(self._on_tutorial_back)
+        tutorial_layout.addWidget(self.tutorial_back_button)
 
         # Replace old webView with new container
         layout.replaceWidget(self.webView, tutorial_container)
@@ -507,10 +546,10 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 # Store the tutorial directory for image path resolution
                 self.current_tutorial_dir = tutorials_path
                 html = self.markdown_to_html(content, tutorials_path)
-                if HAS_WEBENGINE:
-                    self.tutorial_content.setHtml(html, QUrl.fromLocalFile(tutorials_path + '/'))
-                else:
-                    self.tutorial_content.setHtml(html)
+                # Ensure we're showing the markdown page (not animation)
+                self.tutorial_content_stack.setCurrentIndex(0)
+                self.tutorial_back_button.setVisible(False)
+                self.tutorial_content.setHtml(html)
             except Exception as e:
                 self.show_tutorial_error(str(e))
         else:
@@ -546,8 +585,8 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             alt_text = match.group(1)
             img_path = match.group(2)
 
-            # For QTextBrowser (no WebEngine), convert images to base64
-            if not HAS_WEBENGINE and base_path:
+            # Convert images to base64 for QTextBrowser rendering
+            if base_path:
                 # Resolve relative path
                 if not os.path.isabs(img_path):
                     abs_path = os.path.normpath(os.path.join(base_path, img_path))
@@ -575,7 +614,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                     except Exception:
                         pass
 
-            # For WebEngine or fallback, use relative path
+            # Fallback: use relative path (won't display in QTextBrowser but harmless)
             return f'<div style="text-align:center; margin: 15px 0;"><img src="{img_path}" alt="{alt_text}" style="max-width:100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"><p style="color:#666; font-size:12px; margin-top:5px;"><em>{alt_text}</em></p></div>'
 
         html = re.sub(r'!\[([^\]]*)\]\(([^)]+)\)', replace_image, html)
@@ -630,18 +669,49 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         </body>
         </html>
         """
-        if HAS_WEBENGINE:
-            self.tutorial_content.setHtml(html)
-        else:
-            self.tutorial_content.setHtml(html)
+        self.tutorial_content.setHtml(html)
 
     def show_tutorial_error(self, error):
         """Show error message"""
         html = f"<html><body><p style='color:red;'>Error: {error}</p></body></html>"
-        if HAS_WEBENGINE:
-            self.tutorial_content.setHtml(html)
-        else:
-            self.tutorial_content.setHtml(html)
+        self.tutorial_content.setHtml(html)
+
+    def _on_tutorial_link_clicked(self, url):
+        """Handle link clicks in QTextBrowser — load .html animations in embedded viewer."""
+        url_str = url.toString()
+
+        # Resolve relative paths using current tutorial directory
+        if not url.scheme() or url.scheme() == 'file':
+            if hasattr(self, 'current_tutorial_dir') and self.current_tutorial_dir:
+                relative_path = url.toLocalFile() or url_str
+                abs_path = os.path.normpath(os.path.join(self.current_tutorial_dir, relative_path))
+                if os.path.isfile(abs_path):
+                    # If it's an HTML file, try to load in embedded animation viewer
+                    if abs_path.lower().endswith('.html') and self.tutorial_animation is not None:
+                        self._load_animation_in_viewer(abs_path)
+                        return
+                    # Otherwise open in system browser
+                    import webbrowser
+                    webbrowser.open(f'file://{abs_path}')
+                    return
+
+        # External URLs
+        import webbrowser
+        webbrowser.open(url_str)
+
+    def _load_animation_in_viewer(self, file_path):
+        """Load a local HTML animation file into the embedded QWebEngineView."""
+        self.tutorial_back_button.setVisible(True)
+        self.tutorial_animation.setUrl(QUrl.fromLocalFile(file_path))
+        self.tutorial_content_stack.setCurrentIndex(1)
+
+    def _on_tutorial_back(self):
+        """Go back to the current tutorial from an animation view."""
+        self.tutorial_back_button.setVisible(False)
+        self.tutorial_content_stack.setCurrentIndex(0)
+        # Stop any ongoing load in the animation viewer
+        if self.tutorial_animation is not None:
+            self.tutorial_animation.setUrl(QUrl('about:blank'))
 
     def setup_workflow_tabs(self):
         """Create new tabs with interactive workflow diagrams"""

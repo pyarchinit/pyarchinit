@@ -9,17 +9,37 @@ import re
 from qgis.PyQt.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem,
     QTextBrowser, QSplitter, QLineEdit, QPushButton, QLabel, QFrame,
-    QComboBox
+    QComboBox, QStackedWidget
 )
 from qgis.PyQt.QtCore import Qt, QSize, QUrl
 from qgis.PyQt.QtGui import QIcon, QFont
 
-# Try to import QWebEngineView for better HTML rendering
-try:
-    from qgis.PyQt.QtWebEngineWidgets import QWebEngineView
-    HAS_WEBENGINE = True
-except ImportError:
-    HAS_WEBENGINE = False
+from qgis.core import QgsMessageLog, Qgis
+
+def _log_info(msg):
+    QgsMessageLog.logMessage(str(msg), 'TutorialViewer', Qgis.MessageLevel.Info)
+
+# Multi-path QWebEngineView import for animation playback
+HAS_WEBENGINE_ANIM = False
+_QWebEngineView = None
+
+for _mod_path in [
+    'qgis.PyQt.QtWebEngineWidgets',
+    'PyQt5.QtWebEngineWidgets',
+    'PyQt6.QtWebEngineWidgets',
+]:
+    try:
+        _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
+        _QWebEngineView = getattr(_mod, 'QWebEngineView')
+        HAS_WEBENGINE_ANIM = True
+        _log_info(f"QWebEngineView found via {_mod_path} — animation embedding enabled")
+        break
+    except (ImportError, AttributeError):
+        continue
+
+if not HAS_WEBENGINE_ANIM:
+    _log_info("QWebEngineView NOT available from any import path — animations will open in system browser")
+
 from qgis.core import QgsSettings
 from modules.utility.pyarchinit_theme_manager import ThemeManager
 
@@ -289,6 +309,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Tutorial Disponibili:',
             'content': 'Contenuto:',
             'close': 'Chiudi',
+            'back': 'Indietro',
             'language': 'Lingua:',
             'not_available': 'Tutorial non disponibile',
             'file_not_found': 'Il file non è stato trovato.',
@@ -303,6 +324,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Available Tutorials:',
             'content': 'Content:',
             'close': 'Close',
+            'back': 'Back',
             'language': 'Language:',
             'not_available': 'Tutorial not available',
             'file_not_found': 'The file was not found.',
@@ -317,6 +339,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Verfügbare Tutorials:',
             'content': 'Inhalt:',
             'close': 'Schließen',
+            'back': 'Zurück',
             'language': 'Sprache:',
             'not_available': 'Tutorial nicht verfügbar',
             'file_not_found': 'Die Datei wurde nicht gefunden.',
@@ -331,6 +354,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Tutoriels Disponibles:',
             'content': 'Contenu:',
             'close': 'Fermer',
+            'back': 'Retour',
             'language': 'Langue:',
             'not_available': 'Tutoriel non disponible',
             'file_not_found': 'Le fichier n\'a pas été trouvé.',
@@ -345,6 +369,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Tutoriales Disponibles:',
             'content': 'Contenido:',
             'close': 'Cerrar',
+            'back': 'Atrás',
             'language': 'Idioma:',
             'not_available': 'Tutorial no disponible',
             'file_not_found': 'El archivo no fue encontrado.',
@@ -359,6 +384,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'الدروس المتاحة:',
             'content': 'المحتوى:',
             'close': 'إغلاق',
+            'back': 'رجوع',
             'language': 'اللغة:',
             'not_available': 'الدرس غير متاح',
             'file_not_found': 'لم يتم العثور على الملف.',
@@ -373,6 +399,7 @@ class TutorialViewerDialog(QDialog):
             'available': 'Tutorials Disponibles:',
             'content': 'Contingut:',
             'close': 'Tancar',
+            'back': 'Enrere',
             'language': 'Idioma:',
             'not_available': 'Tutorial no disponible',
             'file_not_found': 'El fitxer no s\'ha trobat.',
@@ -491,26 +518,44 @@ class TutorialViewerDialog(QDialog):
         self.content_label.setStyleSheet("font-weight: bold; font-size: 13px;")
         right_layout.addWidget(self.content_label)
 
-        # Use QWebEngineView if available for better HTML/CSS support
-        if HAS_WEBENGINE:
-            self.content_browser = QWebEngineView()
-            self.use_webengine = True
+        # Back button (hidden by default, shown when viewing an animation)
+        self.back_button = QPushButton(self.labels.get('back', 'Back'))
+        self.back_button.setVisible(False)
+        self.back_button.clicked.connect(self._on_back_clicked)
+        right_layout.addWidget(self.back_button)
+
+        # QStackedWidget: page 0 = QTextBrowser (markdown), page 1 = QWebEngineView (animations)
+        self.content_stack = QStackedWidget()
+
+        # Page 0: QTextBrowser — always used for markdown rendering
+        self.content_browser = QTextBrowser()
+        self.content_browser.setOpenExternalLinks(False)
+        self.content_browser.anchorClicked.connect(self._on_link_clicked)
+        self.content_browser.setMouseTracking(True)
+        self.content_browser.viewport().setMouseTracking(True)
+        self.content_browser.viewport().installEventFilter(self)
+        self.content_browser.setStyleSheet("")
+        self.use_webengine = False  # markdown always via QTextBrowser
+        self._hover_popup = None
+        self._image_cache = {}
+        self._figure_images = []
+        self._thumb_to_full = {}
+        self.current_tutorial_dir = None
+        self._last_hover_path = None
+        self._hover_timer = None
+        self.content_stack.addWidget(self.content_browser)  # index 0
+
+        # Page 1: QWebEngineView — for HTML5 animation files (if available)
+        self.animation_viewer = None
+        if HAS_WEBENGINE_ANIM:
+            self.animation_viewer = _QWebEngineView()
+            self.content_stack.addWidget(self.animation_viewer)  # index 1
+            _log_info("Animation viewer (QWebEngineView) ready as stack page 1")
         else:
-            self.content_browser = QTextBrowser()
-            self.content_browser.setOpenExternalLinks(True)  # External links open in browser
-            self.content_browser.setMouseTracking(True)
-            self.content_browser.viewport().setMouseTracking(True)
-            self.content_browser.viewport().installEventFilter(self)
-            self.content_browser.setStyleSheet("")
-            self.use_webengine = False
-            self._hover_popup = None
-            self._image_cache = {}
-            self._figure_images = []
-            self._thumb_to_full = {}  # Maps thumbnail data URI hash to full image path
-            self.current_tutorial_dir = None
-            self._last_hover_path = None
-            self._hover_timer = None
-        right_layout.addWidget(self.content_browser)
+            _log_info("No QWebEngineView — animation links will fall back to system browser")
+
+        self.content_stack.setCurrentIndex(0)
+        right_layout.addWidget(self.content_stack)
 
         splitter.addWidget(right_frame)
 
@@ -547,6 +592,44 @@ class TutorialViewerDialog(QDialog):
                     return True  # Consume the event
 
         return super().eventFilter(obj, event)
+
+    def _on_link_clicked(self, url):
+        """Handle link clicks in QTextBrowser — resolve relative paths,
+        load .html animations in embedded viewer or open in browser."""
+        url_str = url.toString()
+
+        # Resolve relative paths using current tutorial directory
+        if not url.scheme() or url.scheme() == 'file':
+            if hasattr(self, 'current_tutorial_dir') and self.current_tutorial_dir:
+                relative_path = url.toLocalFile() or url_str
+                abs_path = os.path.normpath(os.path.join(self.current_tutorial_dir, relative_path))
+                if os.path.isfile(abs_path):
+                    # If it's an HTML file, try to load in embedded animation viewer
+                    if abs_path.lower().endswith('.html') and self.animation_viewer is not None:
+                        self._load_animation(abs_path)
+                        return
+                    # Otherwise open in system browser
+                    import webbrowser
+                    webbrowser.open(f'file://{abs_path}')
+                    return
+
+        # External URLs
+        import webbrowser
+        webbrowser.open(url_str)
+
+    def _load_animation(self, file_path):
+        """Load a local HTML animation file into the embedded QWebEngineView."""
+        self.back_button.setVisible(True)
+        self.animation_viewer.setUrl(QUrl.fromLocalFile(file_path))
+        self.content_stack.setCurrentIndex(1)
+
+    def _on_back_clicked(self):
+        """Go back to the current tutorial from an animation view."""
+        self.back_button.setVisible(False)
+        self.content_stack.setCurrentIndex(0)
+        # Stop any ongoing load in the animation viewer
+        if self.animation_viewer is not None:
+            self.animation_viewer.setUrl(QUrl('about:blank'))
 
     def get_figure_at_position(self, pos):
         """Check if position is over a figure thumbnail and return image path"""
@@ -1003,10 +1086,10 @@ class TutorialViewerDialog(QDialog):
             </html>
             """
 
-            if self.use_webengine:
-                self.content_browser.setHtml(styled_html, QUrl.fromLocalFile(self.current_tutorial_dir + '/'))
-            else:
-                self.content_browser.setHtml(styled_html)
+            # Ensure we're showing the markdown page (not animation)
+            self.content_stack.setCurrentIndex(0)
+            self.back_button.setVisible(False)
+            self.content_browser.setHtml(styled_html)
 
         except Exception as e:
             is_dark = ThemeManager.is_dark_theme()
@@ -1019,10 +1102,7 @@ class TutorialViewerDialog(QDialog):
                 f"<pre>{str(e)}</pre>"
                 f"</body></html>"
             )
-            if self.use_webengine:
-                self.content_browser.setHtml(error_html)
-            else:
-                self.content_browser.setHtml(error_html)
+            self.content_browser.setHtml(error_html)
 
     def markdown_to_html(self, markdown_text):
         """
@@ -1070,50 +1150,44 @@ class TutorialViewerDialog(QDialog):
             if hasattr(self, 'current_tutorial_dir'):
                 abs_path = os.path.join(self.current_tutorial_dir, img_path)
                 if os.path.exists(abs_path):
-                    # For WebEngine, use relative path (baseUrl is set)
-                    # For QTextBrowser, use base64
-                    if getattr(self, 'use_webengine', False):
-                        # WebEngine: use relative path, CSS handles sizing
-                        return f'<div class="figure"><div class="figure-title"><b>{alt_text}</b></div><img src="{img_path}" alt="{alt_text}"></div>'
-                    else:
-                        # QTextBrowser: show only caption, image on hover
-                        import base64
-                        try:
-                            # Store full image for hover popup
-                            if not hasattr(self, '_image_cache'):
-                                self._image_cache = {}
-                            with open(abs_path, 'rb') as f:
-                                self._image_cache[img_path] = base64.b64encode(f.read()).decode('utf-8')
-                            # Create a small thumbnail for preview
-                            from PIL import Image as PILImage
-                            from io import BytesIO
-                            pil_img = PILImage.open(abs_path)
-                            # Create thumbnail maintaining aspect ratio
-                            max_thumb = 80
-                            ratio = min(max_thumb / pil_img.width, max_thumb / pil_img.height)
-                            thumb_size = (int(pil_img.width * ratio), int(pil_img.height * ratio))
-                            pil_thumb = pil_img.resize(thumb_size, PILImage.LANCZOS)
-                            thumb_buffer = BytesIO()
-                            pil_thumb.save(thumb_buffer, format='PNG')
-                            thumb_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
-                            # Store mapping: hash of thumbnail data URI -> full image path
-                            thumb_uri = f"data:image/png;base64,{thumb_data}"
-                            thumb_key = hash(thumb_uri[:100])
-                            if not hasattr(self, '_thumb_to_full'):
-                                self._thumb_to_full = {}
-                            self._thumb_to_full[thumb_key] = img_path
-                            # Also keep list for backwards compatibility
-                            if not hasattr(self, '_figure_images'):
-                                self._figure_images = []
-                            self._figure_images.append(img_path)
-                            # Display thumbnail with data URI
-                            return (f'<p><img src="{thumb_uri}" '
-                                    f'style="vertical-align: middle; border: 2px solid currentColor; '
-                                    f'border-radius: 4px;"> '
-                                    f'<b>{alt_text}</b> '
-                                    f'<small>(clicca per ingrandire)</small></p>')
-                        except Exception as e:
-                            return f'<p><span class="highlight">[Errore immagine: {e}]</span></p>'
+                    # QTextBrowser: show only caption, image on hover
+                    import base64
+                    try:
+                        # Store full image for hover popup
+                        if not hasattr(self, '_image_cache'):
+                            self._image_cache = {}
+                        with open(abs_path, 'rb') as f:
+                            self._image_cache[img_path] = base64.b64encode(f.read()).decode('utf-8')
+                        # Create a small thumbnail for preview
+                        from PIL import Image as PILImage
+                        from io import BytesIO
+                        pil_img = PILImage.open(abs_path)
+                        # Create thumbnail maintaining aspect ratio
+                        max_thumb = 80
+                        ratio = min(max_thumb / pil_img.width, max_thumb / pil_img.height)
+                        thumb_size = (int(pil_img.width * ratio), int(pil_img.height * ratio))
+                        pil_thumb = pil_img.resize(thumb_size, PILImage.LANCZOS)
+                        thumb_buffer = BytesIO()
+                        pil_thumb.save(thumb_buffer, format='PNG')
+                        thumb_data = base64.b64encode(thumb_buffer.getvalue()).decode('utf-8')
+                        # Store mapping: hash of thumbnail data URI -> full image path
+                        thumb_uri = f"data:image/png;base64,{thumb_data}"
+                        thumb_key = hash(thumb_uri[:100])
+                        if not hasattr(self, '_thumb_to_full'):
+                            self._thumb_to_full = {}
+                        self._thumb_to_full[thumb_key] = img_path
+                        # Also keep list for backwards compatibility
+                        if not hasattr(self, '_figure_images'):
+                            self._figure_images = []
+                        self._figure_images.append(img_path)
+                        # Display thumbnail with data URI
+                        return (f'<p><img src="{thumb_uri}" '
+                                f'style="vertical-align: middle; border: 2px solid currentColor; '
+                                f'border-radius: 4px;"> '
+                                f'<b>{alt_text}</b> '
+                                f'<small>(clicca per ingrandire)</small></p>')
+                    except Exception as e:
+                        return f'<p><span class="highlight">[Errore immagine: {e}]</span></p>'
                 else:
                     return f'<p><span class="highlight">[Image not found: {alt_text}]</span></p>'
 
