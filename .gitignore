@@ -17,7 +17,10 @@ __pycache__/
 .idea/
 /tests/
 
-/.claude/
+/.claude/*
+!/.claude/agents/
+/.claude/agents/*
+!/.claude/agents/stratigraph-changelog.md
 /.docugenius/
 /.qodo/
 /docs/*
@@ -26,4 +29,3 @@ __pycache__/
 /examples/
 /export/
 modules/gis/logs/*.log
-/dev_logs/
