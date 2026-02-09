@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.2-alpha
+version=5.0.3-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,15 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.2-alpha (2026-02-08) [StratiGraph Phase 2 / Horizon Europe]:
+changelog=5.0.3-alpha (2026-02-09) [UI & Branding]:
+    - Feature: redesign splash screen with futuristic deep-space animation (particles, orbital rings, energy nodes, scanning grid)
+    - Feature: add typewriter effect and blinking cursor for status messages
+    - Feature: add CNR-ISPC and Horizon StratiGraph partner logos to splash screen
+    - Feature: add animated corner accents and edge data ticks
+    - Docs: update README with StratiGraph / Horizon Europe integration details
+    - Docs: update project structure with modules/stratigraph/ tree
+    - Docs: add CNR-ISPC, 3DR, ARC partner acknowledgments
+  5.0.2-alpha (2026-02-08) [StratiGraph Phase 2 / Horizon Europe]:
     - Feature: add offline-first sync state machine with 6 states and QgsSettings persistence
     - Feature: add persistent sync queue backed by dedicated SQLite database
     - Feature: add connectivity monitor with configurable health check and debounce

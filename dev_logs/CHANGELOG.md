@@ -130,6 +130,58 @@ I bundle ricevuti vengono salvati in `$PYARCHINIT_HOME/stratigraph_mock_received
 
 ---
 
+### UI & Branding
+
+#### Splash Screen — Redesign futuristico (`gui/pyarchinit_splash.py`) — RISCRITTO
+
+Splash screen completamente riscritto con design futuristico "deep space", sempre in movimento.
+
+**Nuove classi:**
+- `Particle`: singola particella nel campo (usa `__slots__` per performance)
+- `OrbitalRing`: anello orbitale con proiezione 3D
+- `FuturisticSplashWidget(QWidget)`: widget principale con rendering custom via `paintEvent`
+
+**Effetti visivi (tutti in movimento continuo):**
+- **Particle field** (90 particelle): drift orbitale con gravita verso il centro, glow, fade-in/out, palette cyan/blue/orange
+- **4 anelli orbitali 3D**: proiezione prospettica con tilt variabile, punti luminosi, color cycling
+- **5 nodi energetici**: orbiting con trail ghosting (3 posizioni fantasma)
+- **Onde energetiche**: 3 anelli concentrici espandibili dal centro
+- **Griglia di scansione**: linee sottili con sweep line orizzontale animata
+- **Logo centrale**: halo pulsante multi-layer (4 livelli), sfondo circolare scuro con bordo cyan
+- **Titolo "pyArchInit 5"**: letter-spacing, glow cyan pulsante
+- **Testo status**: effetto typewriter (30 chars/sec) con cursore lampeggiante
+- **Accenti angolari**: bracket sui 4 angoli + tick dati mobili sui bordi superiore/inferiore
+- **Sfondo**: gradiente radiale deep-space (15,25,60 -> 3,5,15)
+
+**Loghi partner (in basso, centrati):**
+- Logo CNR-ISPC con glow e pulsazione opacita
+- Logo Horizon StratiGraph (placeholder) con glow
+- Separatore luminoso con gradiente fade
+- Label "in collaboration with" animata
+
+**Compatibilita:**
+- Qt5/Qt6: tutti gli import usano `qgis.PyQt` (version-independent)
+- Enum Qt6 syntax: `Qt.WindowType.FramelessWindowHint`, `Qt.PenStyle.NoPen`, etc.
+- API pubblica invariata: `PyArchInitSplash(parent, message, modal)`, `set_message()`, `show_splash_during_operation()`
+
+**Dimensioni:** 700x500px (da 650x520)
+
+#### Loghi partner — NUOVI
+- `resources/icons/logo_cnr_ispc.png` (258x89px): logo compatto CNR-ISPC scaricato da ispc.cnr.it
+- `resources/icons/logo_horizon_stratigraph.png` (258x89px): placeholder generato programmaticamente — da sostituire con logo ufficiale Horizon
+
+---
+
+### Documentation
+
+#### README.md — Aggiornamento progetto StratiGraph
+- Aggiunta sezione **StratiGraph / Horizon Europe Integration** con: CIDOC-CRM mapping, bundle system, offline-first architecture, UUID, connectivity monitoring, sync dashboard
+- Aggiornato **Project Structure** con albero `modules/stratigraph/` (8 file)
+- Aggiunta sezione **Acknowledgments > StratiGraph - Horizon Europe** con partner (CNR-ISPC, 3DR, ARC) e timeline
+- Link a `STRATIGRAPH_INTEGRATION.md` per dettagli tecnici
+
+---
+
 ## Note
 
 - Tutte le modifiche sono sul branch `Stratigraph_00001`
