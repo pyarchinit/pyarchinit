@@ -1,7 +1,0 @@
-us,area,settore,d_stratigrafica,interpretazione,rapporti
-404,1,"","","",[]
-646,1,"",Cut,"","[['Cuts', '650', '1', 'Al-Khutm'], ['Filled by', '647', '1', 'Al-Khutm']]"
-647,1,"",Filling,"","[['Fills', '646', '1', 'Al-Khutm']]"
-648,1,"",Cut,"","[['Cuts', '650', '1', 'Al-Khutm'], ['Filled by', '649', '1', 'Al-Khutm']]"
-649,1,"",Filling,"","[['Fills', '648', '1', 'Al-Khutm']]"
-650,1,"",Silty-sand layer,"","[['Cut by', '646', '1', 'Al-Khutm'], ['Cut by', '648', '1', 'Al-Khutm']]"
