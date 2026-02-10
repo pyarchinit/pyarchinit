@@ -365,4 +365,4 @@ Para cada tabla, organizar los códigos de forma sistemática:
 
 Explora la animación interactiva para aprender más sobre este tema.
 
-[Abrir Animación Interactiva](../../pyarchinit_thesaurus_animation.html)
+[Abrir Animación Interactiva](../animations/pyarchinit_thesaurus_animation.html)

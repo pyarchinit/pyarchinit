@@ -247,8 +247,8 @@ Configuration for web publishing with Lizmap.
 
 Explore the interactive animation to better understand the installation and configuration process.
 
-[Open Installation Animation](../../pyarchinit_installation_animation.html)
+[Open Installation Animation](../animations/pyarchinit_installation_animation.html)
 
 Explore the interactive animation for remote storage management.
 
-[Open Remote Storage Animation](../../pyarchinit_remote_storage_animation.html)
+[Open Remote Storage Animation](../animations/pyarchinit_remote_storage_animation.html)

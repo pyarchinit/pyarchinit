@@ -104,6 +104,27 @@ Recent additions include LangChain integration for:
 - Data analysis assistance
 - Natural language queries to archaeological data
 
+## Autonomous Agents
+
+The following agents MUST be invoked automatically after relevant work — do NOT wait for the user to request them:
+
+### `stratigraph-changelog` — After ANY code change
+- **When**: After every code modification, feature implementation, bug fix, commit, or refactoring
+- **What it does**: Updates `dev_logs/CHANGELOG.md` with bilingual (IT + EN) entries
+- **Rule**: If you wrote or edited code, invoke this agent before considering the task done
+
+### `tutorial-updater` — After user-facing changes
+- **When**: After adding/modifying UI elements, buttons, forms, workflows, or any feature visible to end users
+- **What it does**: Updates tutorials in all 7 languages (`it`, `en`, `de`, `es`, `fr`, `ar`, `ca`) in `docs/tutorials/<lang>/`
+- **Rule**: If the change affects what the user sees or how they interact with the plugin, invoke this agent
+
+### Invocation order
+When both agents apply (e.g., a new UI feature was implemented):
+1. First invoke `tutorial-updater` (document the feature for users)
+2. Then invoke `stratigraph-changelog` (log the change for developers)
+
+Both can run in parallel if there are no dependencies between them.
+
 ## Important Notes
 
 - Always test database operations on both PostgreSQL and SQLite

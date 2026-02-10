@@ -1,6 +1,6 @@
 ---
 name: tutorial-updater
-description: Use this agent when new features, buttons, UI changes, or functional modifications are added to PyArchInit that require documentation updates. It updates tutorials in all 7 supported languages (it, en, de, es, fr, ar, ca) maintaining the existing structure and style. Examples:
+description: This agent MUST be used proactively whenever new features, buttons, UI changes, or functional modifications are added to PyArchInit. Do NOT wait for the user to ask — invoke this agent automatically after implementing any user-facing change (new UI elements, workflow changes, new features, modified forms). Examples:
 
 <example>
 Context: A new button was added to the US form
@@ -26,6 +26,15 @@ user: "Il flusso di configurazione e cambiato, aggiorna i tutorial"
 assistant: "I'll use the tutorial-updater agent to update the configuration tutorial to reflect the new workflow"
 <commentary>
 Existing tutorials need updating when workflows change.
+</commentary>
+</example>
+
+<example>
+Context: Claude Code just finished adding a new sync panel to the plugin
+user: "Implementa il pannello sync StratiGraph"
+assistant: [implements the panel, then automatically invokes tutorial-updater]
+<commentary>
+The agent is invoked proactively after user-facing changes, without waiting for the user to ask.
 </commentary>
 </example>
 ---

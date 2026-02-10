@@ -210,4 +210,4 @@ El ComboBox **Any** permet:
 
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
-[Obre Animació Interactiva](../../pyarchinit_image_export_animation.html)
+[Obre Animació Interactiva](../animations/pyarchinit_image_export_animation.html)

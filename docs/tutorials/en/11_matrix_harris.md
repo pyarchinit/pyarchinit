@@ -352,4 +352,4 @@ PyArchInit supports export for the s3egraph system:
 
 Explore the interactive animation to learn more about this topic.
 
-[Open Interactive Animation](../../harris_matrix_animation.html)
+[Open Interactive Animation](../animations/harris_matrix_animation.html)

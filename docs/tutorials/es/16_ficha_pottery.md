@@ -706,4 +706,4 @@ Botón para export en formato tabular (CSV/Excel).
 
 Explora la animación interactiva para aprender más sobre este tema.
 
-[Abrir Animación Interactiva](../../pyarchinit_pottery_tools_animation.html)
+[Abrir Animación Interactiva](../animations/pyarchinit_pottery_tools_animation.html)

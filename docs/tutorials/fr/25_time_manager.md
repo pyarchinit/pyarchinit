@@ -263,4 +263,4 @@ Dans le dossier `resources/templates/` :
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../../pyarchinit_timemanager_animation.html)
+[Ouvrir l'Animation Interactive](../animations/pyarchinit_timemanager_animation.html)

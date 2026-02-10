@@ -385,4 +385,4 @@ Per a cada taula, organitzar els codis de manera sistemàtica:
 
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
-[Obre Animació Interactiva](../../pyarchinit_thesaurus_animation.html)
+[Obre Animació Interactiva](../animations/pyarchinit_thesaurus_animation.html)

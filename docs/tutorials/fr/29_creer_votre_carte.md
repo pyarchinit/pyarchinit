@@ -242,4 +242,4 @@ Les modèles QGIS peuvent être modifiés :
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../../pyarchinit_create_map_animation.html)
+[Ouvrir l'Animation Interactive](../animations/pyarchinit_create_map_animation.html)

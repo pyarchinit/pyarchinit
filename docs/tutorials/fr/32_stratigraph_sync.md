@@ -324,4 +324,4 @@ Les UUID (Tutorial 31) fournissent les identifiants stables qui rendent la synch
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../../stratigraph_sync_animation.html)
+[Ouvrir l'Animation Interactive](../animations/stratigraph_sync_animation.html)

@@ -706,4 +706,4 @@ Pulsante per export in formato tabellare (CSV/Excel).
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../../pyarchinit_pottery_tools_animation.html)
+[Apri Animazione Interattiva](../animations/pyarchinit_pottery_tools_animation.html)

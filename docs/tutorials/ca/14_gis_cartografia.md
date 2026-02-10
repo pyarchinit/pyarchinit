@@ -405,4 +405,4 @@ Operacions espacials disponibles:
 
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
-[Obre Animació Interactiva](../../pyarchinit_image_classification_animation.html)
+[Obre Animació Interactiva](../animations/pyarchinit_image_classification_animation.html)

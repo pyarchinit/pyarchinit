@@ -421,4 +421,4 @@ SELECT pg_terminate_backend(pid);
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../../pyarchinit_concurrency_animation.html)
+[Ouvrir l'Animation Interactive](../animations/pyarchinit_concurrency_animation.html)

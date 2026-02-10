@@ -241,4 +241,4 @@ Las plantillas QGIS pueden ser modificadas:
 
 Explora la animación interactiva para aprender más sobre este tema.
 
-[Abrir Animación Interactiva](../../pyarchinit_create_map_animation.html)
+[Abrir Animación Interactiva](../animations/pyarchinit_create_map_animation.html)

@@ -21,11 +21,14 @@ __pycache__/
 !/.claude/agents/
 /.claude/agents/*
 !/.claude/agents/stratigraph-changelog.md
+!/.claude/agents/tutorial-updater.md
+!/.claude/agents/harris-matrix-graph-expert.md
+!/.claude/agents/beppe-txt2sql-expert.md
 /.docugenius/
 /.qodo/
 /docs/*
 !/docs/tutorials/
-!/docs/*_animation.html
+!/docs/animations/
 /docs/tutorials/_build/
 /examples/
 /export/

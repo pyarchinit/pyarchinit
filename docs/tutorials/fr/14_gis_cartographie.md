@@ -406,4 +406,4 @@ Opérations spatiales disponibles :
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../../pyarchinit_image_classification_animation.html)
+[Ouvrir l'Animation Interactive](../animations/pyarchinit_image_classification_animation.html)
