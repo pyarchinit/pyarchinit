@@ -5,6 +5,20 @@
 
 ---
 
+## [5.0.4-alpha] - 2026-02-10
+
+### Fix canvas resize in QtWebKit QWebView / Fix ridimensionamento canvas in QtWebKit QWebView
+
+- **IT**: Risolto bug per cui le animazioni canvas HTML5 scomparivano quando si ridimensionava la finestra del Tutorial Viewer. QtWebKit non genera l'evento `window.resize` quando il widget QWebView padre viene ridimensionato, lasciando il buffer pixel del canvas con le dimensioni precedenti. Fix implementato su due livelli: (1) polling lato HTML ogni 250ms che controlla le dimensioni del container canvas e chiama `resize()` quando cambiano, e (2) bridge lato Python che intercetta `resizeEvent` del QWebView e invoca `resize()` via `evaluateJavaScript()`. Tutti i 12 file HTML delle animazioni aggiornati.
+- **EN**: Fixed bug where HTML5 canvas animations disappeared when resizing the Tutorial Viewer window. QtWebKit does not fire `window.resize` when the parent QWebView widget is resized, leaving the canvas pixel buffer at stale dimensions. Fix implemented at two levels: (1) HTML-side polling every 250ms that checks canvas container dimensions and calls `resize()` when they change, and (2) Python-side bridge that intercepts QWebView `resizeEvent` and invokes `resize()` via `evaluateJavaScript()`. All 12 animation HTML files updated.
+
+#### File modificati / Modified files
+- `docs/animations/*.html` (12 file) — aggiunto polling dimensioni canvas / added canvas dimension polling
+- `tabs/Tutorial_viewer.py` — aggiunto `eventFilter` + `_trigger_animation_resize()` / added resize event filter bridge
+- `pyarchinitDockWidget.py` — aggiunto `eventFilter` + `_trigger_animation_resize()` / added resize event filter bridge
+
+---
+
 ## [5.0.1-alpha] - 2026-02-10
 
 ### Riscrittura animazioni HTML5 per QtWebKit / HTML5 Animation Rewrite for QtWebKit

@@ -494,6 +494,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
                 ws.setAttribute(_DockQWebSettings.LocalContentCanAccessFileUrls, True)
                 ws.setAttribute(_DockQWebSettings.DeveloperExtrasEnabled, True)
             self.tutorial_content_stack.addWidget(self.tutorial_animation)  # index 1
+            self.tutorial_animation.installEventFilter(self)
             _dock_log("Tutorial animation viewer ready as stack page 1")
 
         self.tutorial_content_stack.setCurrentIndex(0)
@@ -721,6 +722,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.tutorial_back_button.setVisible(True)
         self.tutorial_animation.setUrl(QUrl.fromLocalFile(file_path))
         self.tutorial_content_stack.setCurrentIndex(1)
+        self._current_animation_path = file_path
 
     def _on_tutorial_back(self):
         """Go back to the current tutorial from an animation view."""

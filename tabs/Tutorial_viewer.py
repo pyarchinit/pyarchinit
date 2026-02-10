@@ -565,6 +565,7 @@ class TutorialViewerDialog(QDialog):
                 ws.setAttribute(_QWebSettings.LocalContentCanAccessFileUrls, True)
                 ws.setAttribute(_QWebSettings.DeveloperExtrasEnabled, True)
             self.content_stack.addWidget(self.animation_viewer)  # index 1
+            self.animation_viewer.installEventFilter(self)
             _log_info("Animation viewer ready as stack page 1")
         else:
             _log_info("No QWebEngineView — animation links will fall back to system browser")
@@ -633,8 +634,10 @@ class TutorialViewerDialog(QDialog):
         webbrowser.open(url_str)
 
     def _load_animation(self, file_path):
-        """Load a local HTML animation file into the embedded QWebEngineView."""
+        """Load a local HTML animation file into the embedded QWebView."""
+        _log_info("Loading animation: {}".format(file_path))
         self.back_button.setVisible(True)
+        self._current_animation_path = file_path
         self.animation_viewer.setUrl(QUrl.fromLocalFile(file_path))
         self.content_stack.setCurrentIndex(1)
 
@@ -642,7 +645,7 @@ class TutorialViewerDialog(QDialog):
         """Go back to the current tutorial from an animation view."""
         self.back_button.setVisible(False)
         self.content_stack.setCurrentIndex(0)
-        # Stop any ongoing load in the animation viewer
+        self._current_animation_path = None
         if self.animation_viewer is not None:
             self.animation_viewer.setUrl(QUrl('about:blank'))
 
