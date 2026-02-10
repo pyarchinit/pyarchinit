@@ -256,3 +256,11 @@ Dans le dossier `resources/templates/` :
 
 *Dernière mise à jour : Janvier 2026*
 *PyArchInit - Système de Gestion des Données Archéologiques*
+
+---
+
+## Animation Interactive
+
+Explorez l'animation interactive pour en savoir plus sur ce sujet.
+
+[Ouvrir l'Animation Interactive](../../pyarchinit_timemanager_animation.html)

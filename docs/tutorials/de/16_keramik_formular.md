@@ -560,3 +560,11 @@ Schaltfläche für Export im Tabellenformat (CSV/Excel).
 
 *Letzte Aktualisierung: Januar 2026*
 *PyArchInit - Archäologische Keramikanalyse*
+
+---
+
+## Interaktive Animation
+
+Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
+
+[Interaktive Animation öffnen](../../pyarchinit_pottery_tools_animation.html)

@@ -234,3 +234,11 @@ Els templates QGIS es poden modificar:
 ---
 
 *Última actualització: Gener 2026*
+
+---
+
+## Animació Interactiva
+
+Explora l'animació interactiva per aprendre més sobre aquest tema.
+
+[Obre Animació Interactiva](../../pyarchinit_create_map_animation.html)

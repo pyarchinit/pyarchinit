@@ -618,3 +618,11 @@ Button for export in tabular format (CSV/Excel).
 
 *Last updated: January 2026*
 *PyArchInit - Archaeological Pottery Analysis*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to learn more about this topic.
+
+[Open Interactive Animation](../../pyarchinit_pottery_tools_animation.html)

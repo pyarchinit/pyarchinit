@@ -463,3 +463,15 @@ Zeigt in Echtzeit die Datenbankaktivitäten und verbundenen Benutzer an.
 *PyArchInit-Dokumentation - Konfigurationsformular*
 *Version: 4.9.x*
 *Letzte Aktualisierung: Januar 2026*
+
+---
+
+## Interaktive Animation
+
+Erkunden Sie die interaktive Animation, um den Installations- und Konfigurationsprozess besser zu verstehen.
+
+[Installation Animation öffnen](../../pyarchinit_installation_animation.html)
+
+Erkunden Sie die interaktive Animation für die Remote-Speicherverwaltung.
+
+[Remote Storage Animation öffnen](../../pyarchinit_remote_storage_animation.html)

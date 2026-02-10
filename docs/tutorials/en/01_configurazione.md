@@ -240,3 +240,15 @@ Configuration for web publishing with Lizmap.
 ---
 
 *Last updated: January 2026*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to better understand the installation and configuration process.
+
+[Open Installation Animation](../../pyarchinit_installation_animation.html)
+
+Explore the interactive animation for remote storage management.
+
+[Open Remote Storage Animation](../../pyarchinit_remote_storage_animation.html)

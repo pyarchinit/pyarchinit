@@ -317,3 +317,11 @@ Els UUID (Tutorial 31) proporcionen els identificadors estables que fan possible
 *Documentacio PyArchInit - StratiGraph Sync*
 *Versio: 5.0.2-alpha*
 *Ultima actualitzacio: Febrer 2026*
+
+---
+
+## Animació Interactiva
+
+Explora l'animació interactiva per aprendre més sobre aquest tema.
+
+[Obre Animació Interactiva](../../stratigraph_sync_animation.html)

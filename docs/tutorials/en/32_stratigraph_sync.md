@@ -316,3 +316,11 @@ UUIDs (Tutorial 31) provide the stable identifiers that make synchronization pos
 *PyArchInit Documentation - StratiGraph Sync*
 *Version: 5.0.2-alpha*
 *Last update: February 2026*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to learn more about this topic.
+
+[Open Interactive Animation](../../stratigraph_sync_animation.html)

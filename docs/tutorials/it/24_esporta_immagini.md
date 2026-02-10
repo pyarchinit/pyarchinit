@@ -203,3 +203,11 @@ Il ComboBox **Anno** permette di:
 ---
 
 *Ultimo aggiornamento: Gennaio 2026*
+
+---
+
+## Animazione Interattiva
+
+Esplora l'animazione interattiva per approfondire questo argomento.
+
+[Apri Animazione Interattiva](../../pyarchinit_image_export_animation.html)

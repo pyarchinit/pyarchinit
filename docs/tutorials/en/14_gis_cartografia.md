@@ -398,3 +398,11 @@ Available spatial operations:
 ---
 
 *Last updated: January 2026*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to learn more about this topic.
+
+[Open Interactive Animation](../../pyarchinit_image_classification_animation.html)

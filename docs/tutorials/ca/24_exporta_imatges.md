@@ -203,3 +203,11 @@ El ComboBox **Any** permet:
 ---
 
 *Última actualització: Gener 2026*
+
+---
+
+## Animació Interactiva
+
+Explora l'animació interactiva per aprendre més sobre aquest tema.
+
+[Obre Animació Interactiva](../../pyarchinit_image_export_animation.html)

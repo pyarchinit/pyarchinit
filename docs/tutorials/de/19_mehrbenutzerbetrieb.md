@@ -397,3 +397,11 @@ SELECT pg_terminate_backend(pid);
 ---
 
 *Letzte Aktualisierung: Januar 2026*
+
+---
+
+## Interaktive Animation
+
+Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
+
+[Interaktive Animation öffnen](../../pyarchinit_concurrency_animation.html)

@@ -358,3 +358,11 @@ Para cada tabla, organizar los códigos de forma sistemática:
 
 *Última actualización: Enero 2026*
 *PyArchInit - Sistema de Gestión de Datos Arqueológicos*
+
+---
+
+## Animación Interactiva
+
+Explora la animación interactiva para aprender más sobre este tema.
+
+[Abrir Animación Interactiva](../../pyarchinit_thesaurus_animation.html)

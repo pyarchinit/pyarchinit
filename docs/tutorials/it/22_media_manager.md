@@ -219,3 +219,11 @@ Supporto per immagini su server remoti:
 ---
 
 *Ultimo aggiornamento: Gennaio 2026*
+
+---
+
+## Animazione Interattiva
+
+Esplora l'animazione interattiva per approfondire questo argomento.
+
+[Apri Animazione Interattiva](../../pyarchinit_media_manager_animation.html)

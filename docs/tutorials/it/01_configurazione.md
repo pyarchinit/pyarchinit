@@ -653,3 +653,15 @@ Per completare questa documentazione, inserire le seguenti immagini nella cartel
 *Documentazione PyArchInit - Scheda Configurazione*
 *Versione: 4.9.x*
 *Ultimo aggiornamento: Gennaio 2026*
+
+---
+
+## Animazione Interattiva
+
+Esplora l'animazione interattiva per comprendere meglio il processo di installazione e configurazione.
+
+[Apri Animazione Installazione](../../pyarchinit_installation_animation.html)
+
+Esplora l'animazione interattiva per la gestione dello storage remoto.
+
+[Apri Animazione Storage Remoto](../../pyarchinit_remote_storage_animation.html)

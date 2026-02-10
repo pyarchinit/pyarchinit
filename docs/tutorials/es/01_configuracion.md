@@ -382,3 +382,15 @@ Añade el sistema de control de concurrencia para evitar conflictos de modificac
 *Documentación PyArchInit - Ficha Configuración*
 *Versión: 4.9.x*
 *Última actualización: Enero 2026*
+
+---
+
+## Animación Interactiva
+
+Explora la animación interactiva para comprender mejor el proceso de instalación y configuración.
+
+[Abrir Animación de Instalación](../../pyarchinit_installation_animation.html)
+
+Explora la animación interactiva para la gestión del almacenamiento remoto.
+
+[Abrir Animación de Almacenamiento Remoto](../../pyarchinit_remote_storage_animation.html)

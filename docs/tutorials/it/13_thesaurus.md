@@ -378,3 +378,11 @@ Per ogni tabella, organizzare i codici in modo sistematico:
 
 *Ultimo aggiornamento: Gennaio 2026*
 *PyArchInit - Sistema di Gestione Dati Archeologici*
+
+---
+
+## Animazione Interattiva
+
+Esplora l'animazione interattiva per approfondire questo argomento.
+
+[Apri Animazione Interattiva](../../pyarchinit_thesaurus_animation.html)

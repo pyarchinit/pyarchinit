@@ -412,3 +412,11 @@ PyArchInit unterstützt den Export für das s3egraph-System:
 ---
 
 *Letzte Aktualisierung: Januar 2026*
+
+---
+
+## Interaktive Animation
+
+Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
+
+[Interaktive Animation öffnen](../../harris_matrix_animation.html)

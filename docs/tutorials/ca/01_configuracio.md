@@ -422,3 +422,15 @@ A la part superior de la pestanya principal, hi ha una secció per comparar base
 *Documentació PyArchInit - Fitxa Configuració*
 *Versió: 4.9.x*
 *Última actualització: Gener 2026*
+
+---
+
+## Animació Interactiva
+
+Explora l'animació interactiva per comprendre millor el procés d'instal·lació i configuració.
+
+[Obre Animació d'Instal·lació](../../pyarchinit_installation_animation.html)
+
+Explora l'animació interactiva per a la gestió de l'emmagatzematge remot.
+
+[Obre Animació d'Emmagatzematge Remot](../../pyarchinit_remote_storage_animation.html)

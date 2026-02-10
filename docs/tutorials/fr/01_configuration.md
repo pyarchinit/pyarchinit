@@ -236,3 +236,15 @@ Permet de publier les données sur un serveur Lizmap pour la visualisation web.
 
 *Dernière mise à jour : Janvier 2026*
 *PyArchInit - Système de Gestion des Données Archéologiques*
+
+---
+
+## Animation Interactive
+
+Explorez l'animation interactive pour mieux comprendre le processus d'installation et de configuration.
+
+[Ouvrir l'Animation Installation](../../pyarchinit_installation_animation.html)
+
+Explorez l'animation interactive pour la gestion du stockage distant.
+
+[Ouvrir l'Animation Stockage Distant](../../pyarchinit_remote_storage_animation.html)

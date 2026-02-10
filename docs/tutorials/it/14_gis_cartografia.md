@@ -398,3 +398,11 @@ Operazioni spaziali disponibili:
 ---
 
 *Ultimo aggiornamento: Gennaio 2026*
+
+---
+
+## Animazione Interattiva
+
+Esplora l'animazione interattiva per approfondire questo argomento.
+
+[Apri Animazione Interattiva](../../pyarchinit_image_classification_animation.html)

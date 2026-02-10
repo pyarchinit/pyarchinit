@@ -413,3 +413,11 @@ SELECT pg_terminate_backend(pid);
 ---
 
 *Última actualització: Gener 2026*
+
+---
+
+## Animació Interactiva
+
+Explora l'animació interactiva per aprendre més sobre aquest tema.
+
+[Obre Animació Interactiva](../../pyarchinit_concurrency_animation.html)

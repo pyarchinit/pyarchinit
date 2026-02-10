@@ -255,3 +255,11 @@ In `resources/templates/` folder:
 ---
 
 *Last updated: January 2026*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to learn more about this topic.
+
+[Open Interactive Animation](../../pyarchinit_timemanager_animation.html)

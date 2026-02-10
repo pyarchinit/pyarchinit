@@ -203,3 +203,11 @@ The **Year** ComboBox allows:
 ---
 
 *Last updated: January 2026*
+
+---
+
+## Interactive Animation
+
+Explore the interactive animation to learn more about this topic.
+
+[Open Interactive Animation](../../pyarchinit_image_export_animation.html)
