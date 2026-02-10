@@ -262,4 +262,4 @@ Nella cartella `resources/templates/`:
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../animations/pyarchinit_timemanager_animation.html)
+[Apri Animazione Interattiva](../../animations/pyarchinit_timemanager_animation.html)

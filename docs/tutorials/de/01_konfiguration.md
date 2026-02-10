@@ -470,8 +470,8 @@ Zeigt in Echtzeit die Datenbankaktivitäten und verbundenen Benutzer an.
 
 Erkunden Sie die interaktive Animation, um den Installations- und Konfigurationsprozess besser zu verstehen.
 
-[Installation Animation öffnen](../animations/pyarchinit_installation_animation.html)
+[Installation Animation öffnen](../../animations/pyarchinit_installation_animation.html)
 
 Erkunden Sie die interaktive Animation für die Remote-Speicherverwaltung.
 
-[Remote Storage Animation öffnen](../animations/pyarchinit_remote_storage_animation.html)
+[Remote Storage Animation öffnen](../../animations/pyarchinit_remote_storage_animation.html)

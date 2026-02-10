@@ -405,4 +405,4 @@ Verfügbare räumliche Operationen:
 
 Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
 
-[Interaktive Animation öffnen](../animations/pyarchinit_image_classification_animation.html)
+[Interaktive Animation öffnen](../../animations/pyarchinit_image_classification_animation.html)

@@ -384,4 +384,4 @@ For each table, organize codes systematically:
 
 Explore the interactive animation to learn more about this topic.
 
-[Open Interactive Animation](../animations/pyarchinit_thesaurus_animation.html)
+[Open Interactive Animation](../../animations/pyarchinit_thesaurus_animation.html)

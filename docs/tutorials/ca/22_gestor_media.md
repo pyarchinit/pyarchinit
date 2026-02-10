@@ -226,4 +226,4 @@ Suport per a imatges a servidors remots:
 
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
-[Obre Animació Interactiva](../animations/pyarchinit_media_manager_animation.html)
+[Obre Animació Interactiva](../../animations/pyarchinit_media_manager_animation.html)

@@ -241,4 +241,4 @@ I template QGIS possono essere modificati:
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../animations/pyarchinit_create_map_animation.html)
+[Apri Animazione Interattiva](../../animations/pyarchinit_create_map_animation.html)

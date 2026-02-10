@@ -323,4 +323,4 @@ UUIDs (Tutorial 31) provide the stable identifiers that make synchronization pos
 
 Explore the interactive animation to learn more about this topic.
 
-[Open Interactive Animation](../animations/stratigraph_sync_animation.html)
+[Open Interactive Animation](../../animations/stratigraph_sync_animation.html)

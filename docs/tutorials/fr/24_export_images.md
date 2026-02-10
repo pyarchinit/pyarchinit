@@ -211,4 +211,4 @@ Le ComboBox **Année** permet de :
 
 Explorez l'animation interactive pour en savoir plus sur ce sujet.
 
-[Ouvrir l'Animation Interactive](../animations/pyarchinit_image_export_animation.html)
+[Ouvrir l'Animation Interactive](../../animations/pyarchinit_image_export_animation.html)

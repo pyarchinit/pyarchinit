@@ -420,4 +420,4 @@ SELECT pg_terminate_backend(pid);
 
 Explora la animación interactiva para aprender más sobre este tema.
 
-[Abrir Animación Interactiva](../animations/pyarchinit_concurrency_animation.html)
+[Abrir Animación Interactiva](../../animations/pyarchinit_concurrency_animation.html)

@@ -469,6 +469,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Page 0: QTextBrowser — always used for markdown
         self.tutorial_content = QTextBrowser()
         self.tutorial_content.setOpenExternalLinks(False)
+        self.tutorial_content.setOpenLinks(False)
         self.tutorial_content.anchorClicked.connect(self._on_tutorial_link_clicked)
         self.tutorial_content_stack.addWidget(self.tutorial_content)  # index 0
 

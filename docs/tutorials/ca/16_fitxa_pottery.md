@@ -625,4 +625,4 @@ Botó per export en format tabular (CSV/Excel).
 
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
-[Obre Animació Interactiva](../animations/pyarchinit_pottery_tools_animation.html)
+[Obre Animació Interactiva](../../animations/pyarchinit_pottery_tools_animation.html)

@@ -530,6 +530,7 @@ class TutorialViewerDialog(QDialog):
         # Page 0: QTextBrowser — always used for markdown rendering
         self.content_browser = QTextBrowser()
         self.content_browser.setOpenExternalLinks(False)
+        self.content_browser.setOpenLinks(False)
         self.content_browser.anchorClicked.connect(self._on_link_clicked)
         self.content_browser.setMouseTracking(True)
         self.content_browser.viewport().setMouseTracking(True)

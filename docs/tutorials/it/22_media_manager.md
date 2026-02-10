@@ -226,4 +226,4 @@ Supporto per immagini su server remoti:
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../animations/pyarchinit_media_manager_animation.html)
+[Apri Animazione Interattiva](../../animations/pyarchinit_media_manager_animation.html)

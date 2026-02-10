@@ -324,4 +324,4 @@ UUIDs (Tutorial 31) stellen die stabilen Kennungen bereit, die die Synchronisier
 
 Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
 
-[Interaktive Animation öffnen](../animations/stratigraph_sync_animation.html)
+[Interaktive Animation öffnen](../../animations/stratigraph_sync_animation.html)

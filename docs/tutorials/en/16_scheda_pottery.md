@@ -625,4 +625,4 @@ Button for export in tabular format (CSV/Excel).
 
 Explore the interactive animation to learn more about this topic.
 
-[Open Interactive Animation](../animations/pyarchinit_pottery_tools_animation.html)
+[Open Interactive Animation](../../animations/pyarchinit_pottery_tools_animation.html)

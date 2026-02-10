@@ -324,4 +324,4 @@ Gli UUID (Tutorial 31) forniscono gli identificatori stabili che rendono possibi
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../animations/stratigraph_sync_animation.html)
+[Apri Animazione Interattiva](../../animations/stratigraph_sync_animation.html)

@@ -660,8 +660,8 @@ Per completare questa documentazione, inserire le seguenti immagini nella cartel
 
 Esplora l'animazione interattiva per comprendere meglio il processo di installazione e configurazione.
 
-[Apri Animazione Installazione](../animations/pyarchinit_installation_animation.html)
+[Apri Animazione Installazione](../../animations/pyarchinit_installation_animation.html)
 
 Esplora l'animazione interattiva per la gestione dello storage remoto.
 
-[Apri Animazione Storage Remoto](../animations/pyarchinit_remote_storage_animation.html)
+[Apri Animazione Storage Remoto](../../animations/pyarchinit_remote_storage_animation.html)

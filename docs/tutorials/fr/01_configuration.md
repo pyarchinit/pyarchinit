@@ -243,8 +243,8 @@ Permet de publier les données sur un serveur Lizmap pour la visualisation web.
 
 Explorez l'animation interactive pour mieux comprendre le processus d'installation et de configuration.
 
-[Ouvrir l'Animation Installation](../animations/pyarchinit_installation_animation.html)
+[Ouvrir l'Animation Installation](../../animations/pyarchinit_installation_animation.html)
 
 Explorez l'animation interactive pour la gestion du stockage distant.
 
-[Ouvrir l'Animation Stockage Distant](../animations/pyarchinit_remote_storage_animation.html)
+[Ouvrir l'Animation Stockage Distant](../../animations/pyarchinit_remote_storage_animation.html)

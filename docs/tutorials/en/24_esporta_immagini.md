@@ -210,4 +210,4 @@ The **Year** ComboBox allows:
 
 Explore the interactive animation to learn more about this topic.
 
-[Open Interactive Animation](../animations/pyarchinit_image_export_animation.html)
+[Open Interactive Animation](../../animations/pyarchinit_image_export_animation.html)

@@ -226,4 +226,4 @@ Soporte para imágenes en servidores remotos:
 
 Explora la animación interactiva para aprender más sobre este tema.
 
-[Abrir Animación Interactiva](../animations/pyarchinit_media_manager_animation.html)
+[Abrir Animación Interactiva](../../animations/pyarchinit_media_manager_animation.html)

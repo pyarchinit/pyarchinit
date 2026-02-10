@@ -385,4 +385,4 @@ Per ogni tabella, organizzare i codici in modo sistematico:
 
 Esplora l'animazione interattiva per approfondire questo argomento.
 
-[Apri Animazione Interattiva](../animations/pyarchinit_thesaurus_animation.html)
+[Apri Animazione Interattiva](../../animations/pyarchinit_thesaurus_animation.html)

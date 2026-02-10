@@ -324,4 +324,4 @@ curl http://localhost:8080/health
 
 استكشف الرسوم المتحركة التفاعلية لمعرفة المزيد حول هذا الموضوع.
 
-[افتح الرسوم المتحركة التفاعلية](../animations/stratigraph_sync_animation.html)
+[افتح الرسوم المتحركة التفاعلية](../../animations/stratigraph_sync_animation.html)

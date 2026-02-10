@@ -567,4 +567,4 @@ Schaltfläche für Export im Tabellenformat (CSV/Excel).
 
 Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
 
-[Interaktive Animation öffnen](../animations/pyarchinit_pottery_tools_animation.html)
+[Interaktive Animation öffnen](../../animations/pyarchinit_pottery_tools_animation.html)

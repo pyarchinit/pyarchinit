@@ -389,8 +389,8 @@ Añade el sistema de control de concurrencia para evitar conflictos de modificac
 
 Explora la animación interactiva para comprender mejor el proceso de instalación y configuración.
 
-[Abrir Animación de Instalación](../animations/pyarchinit_installation_animation.html)
+[Abrir Animación de Instalación](../../animations/pyarchinit_installation_animation.html)
 
 Explora la animación interactiva para la gestión del almacenamiento remoto.
 
-[Abrir Animación de Almacenamiento Remoto](../animations/pyarchinit_remote_storage_animation.html)
+[Abrir Animación de Almacenamiento Remoto](../../animations/pyarchinit_remote_storage_animation.html)
