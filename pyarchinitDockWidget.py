@@ -34,26 +34,30 @@ from qgis.core import QgsSettings, QgsMessageLog, Qgis
 def _dock_log(msg):
     QgsMessageLog.logMessage(str(msg), 'DockWidget', Qgis.MessageLevel.Info)
 
-# Multi-path QWebEngineView import (try qgis wrapper first, then direct PyQt5/6)
+# Web view import for animation playback — prefer QtWebKit (bundled with QGIS),
+# fall back to QtWebEngine, then graceful degradation to system browser.
 HAS_WEBENGINE = False
-_DockQWebEngineView = None
+_DockWebViewClass = None
 
-for _mod_path in [
-    'qgis.PyQt.QtWebEngineWidgets',
-    'PyQt5.QtWebEngineWidgets',
-    'PyQt6.QtWebEngineWidgets',
-]:
+# Try QtWebKit first (available in most QGIS installations via qgis.PyQt)
+try:
+    from qgis.PyQt.QtWebKitWidgets import QWebView as _DockWebViewClass
+    HAS_WEBENGINE = True
+    _dock_log("QWebView (QtWebKit) available — animation embedding enabled")
+except (ImportError, AttributeError, RuntimeError):
+    pass
+
+# Fall back to QtWebEngine if QtWebKit not available
+if not HAS_WEBENGINE:
     try:
-        _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
-        _DockQWebEngineView = getattr(_mod, 'QWebEngineView')
+        from qgis.PyQt.QtWebEngineWidgets import QWebEngineView as _DockWebViewClass
         HAS_WEBENGINE = True
-        _dock_log(f"QWebEngineView found via {_mod_path}")
-        break
-    except (ImportError, AttributeError):
-        continue
+        _dock_log("QWebEngineView available — animation embedding enabled")
+    except (ImportError, AttributeError, RuntimeError):
+        pass
 
 if not HAS_WEBENGINE:
-    _dock_log("QWebEngineView NOT available — animations will open in system browser")
+    _dock_log("No web view available (QtWebKit/QtWebEngine) — animations will open in system browser")
 
 #from .tabs.Archeozoology import pyarchinit_Archeozoology
 from .tabs.Deteta import pyarchinit_Deteta
@@ -395,7 +399,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         if HAS_WEBENGINE:
             parent_widget = self.webView_adarte.parentWidget()
             layout = parent_widget.layout()
-            self.web_engine_pyarchinit = _DockQWebEngineView()
+            self.web_engine_pyarchinit = _DockWebViewClass()
             self.web_engine_pyarchinit.setUrl(QUrl("https://www.pyarchinit.org"))
             layout.replaceWidget(self.webView_adarte, self.web_engine_pyarchinit)
             self.webView_adarte.deleteLater()
@@ -476,7 +480,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Page 1: QWebEngineView — for HTML5 animations (if available)
         self.tutorial_animation = None
         if HAS_WEBENGINE:
-            self.tutorial_animation = _DockQWebEngineView()
+            self.tutorial_animation = _DockWebViewClass()
             self.tutorial_content_stack.addWidget(self.tutorial_animation)  # index 1
             _dock_log("Tutorial animation viewer (QWebEngineView) ready as stack page 1")
 

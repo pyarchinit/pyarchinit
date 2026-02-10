@@ -19,26 +19,35 @@ from qgis.core import QgsMessageLog, Qgis
 def _log_info(msg):
     QgsMessageLog.logMessage(str(msg), 'TutorialViewer', Qgis.MessageLevel.Info)
 
-# Multi-path QWebEngineView import for animation playback
-HAS_WEBENGINE_ANIM = False
-_QWebEngineView = None
+# Web view import for animation playback — prefer QtWebKit (bundled with QGIS),
+# fall back to QtWebEngine, then graceful degradation to system browser.
+HAS_WEB_VIEW = False
+_WebViewClass = None
 
-for _mod_path in [
-    'qgis.PyQt.QtWebEngineWidgets',
-    'PyQt5.QtWebEngineWidgets',
-    'PyQt6.QtWebEngineWidgets',
-]:
-    try:
-        _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
-        _QWebEngineView = getattr(_mod, 'QWebEngineView')
-        HAS_WEBENGINE_ANIM = True
-        _log_info(f"QWebEngineView found via {_mod_path} — animation embedding enabled")
-        break
-    except (ImportError, AttributeError):
-        continue
+# Try QtWebKit first (available in most QGIS installations via qgis.PyQt)
+try:
+    from qgis.PyQt.QtWebKitWidgets import QWebView as _WebViewClass
+    HAS_WEB_VIEW = True
+    _log_info("QWebView (QtWebKit) available — animation embedding enabled")
+except (ImportError, AttributeError, RuntimeError):
+    pass
 
-if not HAS_WEBENGINE_ANIM:
-    _log_info("QWebEngineView NOT available from any import path — animations will open in system browser")
+# Fall back to QtWebEngine if QtWebKit not available
+if not HAS_WEB_VIEW:
+    for _mod_path in [
+        'qgis.PyQt.QtWebEngineWidgets',
+    ]:
+        try:
+            _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
+            _WebViewClass = getattr(_mod, 'QWebEngineView')
+            HAS_WEB_VIEW = True
+            _log_info(f"QWebEngineView found via {_mod_path} — animation embedding enabled")
+            break
+        except (ImportError, AttributeError, RuntimeError):
+            continue
+
+if not HAS_WEB_VIEW:
+    _log_info("No web view available (QtWebKit/QtWebEngine) — animations will open in system browser")
 
 from qgis.core import QgsSettings
 from modules.utility.pyarchinit_theme_manager import ThemeManager
@@ -548,8 +557,8 @@ class TutorialViewerDialog(QDialog):
 
         # Page 1: QWebEngineView — for HTML5 animation files (if available)
         self.animation_viewer = None
-        if HAS_WEBENGINE_ANIM:
-            self.animation_viewer = _QWebEngineView()
+        if HAS_WEB_VIEW:
+            self.animation_viewer = _WebViewClass()
             self.content_stack.addWidget(self.animation_viewer)  # index 1
             _log_info("Animation viewer (QWebEngineView) ready as stack page 1")
         else:
