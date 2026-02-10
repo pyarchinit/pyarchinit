@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — TimeManager / GIS Time Controller Tutorial</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
+.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
+.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
+.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
+.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.period-list{display:flex;flex-direction:column;gap:3px}
+.per{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
+.per.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
+.per-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.les{display:flex;flex-direction:column;gap:2px}
+.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
+.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
+@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>GIS Time Controller <span>— Temporal Navigation &amp; Period Animation</span></h1>
+    <div class="ctrls">
+      <select id="sel"><option value="0">1. Temporal Navigation</option><option value="1">2. Period-based Filtering</option><option value="2">3. Animation Playback</option><option value="3">4. Layer Temporal Properties</option></select>
+      <div class="g"><button id="bA" class="on">&#9654; Auto</button><button id="bM">&#9998; Manual</button></div>
+      <div class="g"><button class="sp on" data-s="1">1x</button><button class="sp" data-s="2">2x</button><button class="sp" data-s="4">4x</button></div>
+      <button id="bPP">&#10074;&#10074;</button><button id="bPr" disabled>&larr;</button><button id="bNx" disabled>&rarr;</button><button id="bRe">&#8634;</button>
+      <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="side">
+    <div class="w"><h3>Timeline</h3>
+      <div class="period-list" id="perList">
+        <div class="per" data-p="0"><span class="per-dot" style="background:#d29922"></span>Period I / Phase a</div>
+        <div class="per" data-p="1"><span class="per-dot" style="background:#f85149"></span>Period I / Phase b</div>
+        <div class="per" data-p="2"><span class="per-dot" style="background:#58a6ff"></span>Period II / Phase a</div>
+        <div class="per" data-p="3"><span class="per-dot" style="background:#bc8cff"></span>Period II / Phase b</div>
+        <div class="per" data-p="4"><span class="per-dot" style="background:#3fb950"></span>Period III / Phase a</div>
+        <div class="per" data-p="5"><span class="per-dot" style="background:#39d353"></span>Period III / Phase b</div>
+      </div>
+    </div>
+    <div class="w"><h3>Controller Status</h3>
+      <div class="sr"><span class="sl">Current Period</span><span class="sv" id="sPeriod">--</span></div>
+      <div class="sr"><span class="sl">Order Layer</span><span class="sv" id="sOrder">0</span></div>
+      <div class="sr"><span class="sl">Visible US</span><span class="sv" id="sVisible">0</span></div>
+      <div class="sr"><span class="sl">Mode</span><span class="sv" id="sMode">Relative</span></div>
+    </div>
+    <div class="w"><h3>Playback</h3>
+      <div class="sr"><span class="sl">Speed</span><span class="sv" id="sSpeed">1x</span></div>
+      <div class="sr"><span class="sl">Frame</span><span class="sv" id="sFrame">0 / 0</span></div>
+      <div class="sr"><span class="sl">Cumulative</span><span class="sv" id="sCumul">On</span></div>
+    </div>
+  </div>
+  <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlPer:-1,animT:0};
+const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+
+const PER_COLORS=['#d29922','#f85149','#58a6ff','#bc8cff','#3fb950','#39d353'];
+const PER_NAMES=['Period I/a','Period I/b','Period II/a','Period II/b','Period III/a','Period III/b'];
+
+/* =========  FEATURES FOR MAP CANVAS  ========= */
+/* Each feature: {x,y,w,h,period,type,label} where period=0..5 */
+const FEATURES=[
+  {x:.12,y:.65,w:.14,h:.08,period:0,type:'wall',label:'US 101'},
+  {x:.28,y:.58,w:.06,h:.15,period:0,type:'wall',label:'US 102'},
+  {x:.08,y:.38,w:.12,h:.06,period:1,type:'fill',label:'US 110'},
+  {x:.22,y:.35,w:.08,h:.10,period:1,type:'fill',label:'US 111'},
+  {x:.40,y:.50,w:.16,h:.07,period:2,type:'wall',label:'US 201'},
+  {x:.38,y:.32,w:.06,h:.18,period:2,type:'wall',label:'US 202'},
+  {x:.58,y:.55,w:.10,h:.12,period:2,type:'fill',label:'US 203'},
+  {x:.50,y:.25,w:.14,h:.06,period:3,type:'floor',label:'US 210'},
+  {x:.66,y:.30,w:.08,h:.14,period:3,type:'wall',label:'US 211'},
+  {x:.72,y:.50,w:.15,h:.08,period:4,type:'wall',label:'US 301'},
+  {x:.70,y:.60,w:.06,h:.14,period:4,type:'fill',label:'US 302'},
+  {x:.78,y:.28,w:.12,h:.10,period:5,type:'floor',label:'US 310'},
+  {x:.15,y:.22,w:.10,h:.06,period:5,type:'floor',label:'US 311'},
+];
+
+const SC=[
+  {title:'Temporal Navigation',desc:'<strong>Temporal Navigation:</strong> Open the GIS Time Controller and navigate through archaeological periods on the QGIS map canvas using the dial and spinbox.',
+   steps:[
+    {log:'Open GIS Time Controller: toolbar button "Gestione Scavi - Time Controller".',type:'info',per:-1,vis:0,order:0,d:'The Gis_Time_controller.py dialog provides temporal navigation via a dial (QDial) and spinbox linked to order_layer values.'},
+    {log:'Map canvas shows all periods initially. All US features visible across all layers.',type:'info',per:-1,vis:13,order:0,mode:'All Periods',d:'Before filtering, all features from all periods are visible on the QGIS map canvas. The listWidget shows available layers with order_layer fields.'},
+    {log:'Select relevant layers in listWidget: check "US View" and "Quote View" layers.',type:'info',per:-1,vis:13,order:0,d:'Only layers with an order_layer attribute are listed. Check the layers you want the Time Controller to manage.'},
+    {log:'Dial moves to order_layer=1: Period I visible. setSubsetString filters features.',type:'info',per:0,vis:2,order:1,mode:'Period I',d:'The dial_relative_cronology and spinBox_relative_cronology are linked. Moving one updates the other. define_order_layer_value() applies the filter.'},
+    {log:'Dial moves to order_layer=3: Period I + II visible (cumulative mode <= level).',type:'info',per:2,vis:7,order:3,mode:'Period II',d:'In cumulative mode, the filter uses "order_layer <= 3" showing all features from Period I through Period II.'},
+    {log:'Dial moves to order_layer=5: all periods visible up to Period III. Full site stratigraphy.',type:'success',per:4,vis:13,order:5,mode:'Period III',d:'At max order_layer, the entire stratigraphic sequence is visible. The datazione_dict maps each order_layer to its dating information.'},
+  ]},
+  {title:'Period-based Filtering',desc:'<strong>Period Filtering:</strong> Use periodo_iniziale and fase_iniziale attributes to filter features by absolute chronology ranges.',
+   steps:[
+    {log:'Switch to "Absolute cronology system" tab in Time Controller.',type:'info',per:-1,vis:0,order:0,mode:'Absolute',d:'The second tab provides spinBox_cron_iniz and spinBox_cron_fin for absolute chronology range (BC as negative, AD as positive).'},
+    {log:'Set chronology range: spinBox_cron_iniz = -500, spinBox_cron_fin = -200 (500-200 BC).',type:'info',per:0,vis:0,order:0,d:'Enter year range. BC dates use negative numbers (e.g., 268 BC = -268). The system queries periodizzazione_table for matching periods.'},
+    {log:'Query: SELECT FROM periodizzazione WHERE cron_finale >= -500 AND cron_iniziale <= -200.',type:'info',per:1,vis:4,order:2,d:'on_pushButton_visualize_pressed() queries PERIODIZZAZIONE table. Returns periods whose date ranges overlap the specified interval.'},
+    {log:'Filter applied: periodo_iniziale and fase_iniziale drive US filtering. 4 features match.',type:'info',per:1,vis:4,order:2,d:'liststring() builds a SQL filter: "order_layer <= N AND sito IN (...) AND (periodo_iniziale = P AND fase_iniziale = F)". Features matching the period/phase are shown.'},
+    {log:'pyQGIS.charge_vector_layers(us_res_dep): matching US loaded on canvas with styling.',type:'success',per:1,vis:4,order:2,d:'The matched US records are loaded as vector features on the QGIS canvas. Each period can have distinct styling via QML layer styles.'},
+  ]},
+  {title:'Animation Playback',desc:'<strong>Animation:</strong> Auto-play through all order_layer values, exporting each frame as a layout image (Tavola) for publication.',
+   steps:[
+    {log:'Click "Atlas Stampa Tavole Periodo": choose template (.qpt) from dialog.',type:'info',per:-1,vis:0,order:0,d:'generate_images() first calls choose_template() which lists all .qpt files found in the template directories. You can browse for custom templates.'},
+    {log:'Template loaded: layout_Time_Manager. Optional: open Layout Designer to customize.',type:'info',per:-1,vis:0,order:0,d:'load_template() reads the .qpt XML, creates a QgsPrintLayout, and optionally opens the Layout Designer for customization before atlas generation.'},
+    {log:'Auto-play: order_layer 0 -> 1. Tavola_1.jpg exported. Canvas filters to Period I.',type:'info',per:0,vis:2,order:1,speed:'1x',d:'The loop iterates from 0 to max_num_order_layer. For each value: spinBox is set, define_order_layer_value() applies filter, canvas refreshes, layout exports.'},
+    {log:'Auto-play: order_layer 2 -> 3. Tavola_3.jpg exported. Site "builds up" to Period II.',type:'info',per:2,vis:7,order:3,speed:'1x',d:'Each frame adds more stratigraphic layers. The Harris matrix (if checkBox_matrix checked) updates to show only visible US relationships.'},
+    {log:'Atlas complete: 5 tavole generated. Progress: 5/5. Images saved to output folder.',type:'success',per:4,vis:13,order:5,speed:'1x',d:'QgsLayoutExporter.exportToImage() saves each frame as JPG. The progress dialog shows status. Stop button kills the dot process if matrix generation hangs.'},
+  ]},
+  {title:'Layer Temporal Properties',desc:'<strong>Layer Configuration:</strong> Set up QGIS layers with temporal data, linking attributes to period/phase fields and the periodizzazione_table.',
+   steps:[
+    {log:'Configure layers: only layers with "order_layer" field appear in Time Controller listWidget.',type:'info',per:-1,vis:0,order:0,d:'On init, the controller scans all project layers: relevant_layers = [l for l in all_layers if l.fields().indexFromName("order_layer") != -1].'},
+    {log:'Link attributes: order_layer (int) defines stratigraphic sequence. datazione field holds dating text.',type:'info',per:0,vis:2,order:1,d:'set_max_num() builds datazione_dict mapping each order_layer value to its datazione strings. The max value sets dial/spinbox range.'},
+    {log:'periodizzazione_table: periodo, fase, cron_iniziale, cron_finale define absolute date ranges.',type:'info',per:1,vis:4,order:2,d:'The periodizzazione_table links period/phase labels to absolute chronology (BC/AD years). This drives the Absolute Chronology tab filtering.'},
+    {log:'Style per period: QML layer styles can assign different colors to different order_layer ranges.',type:'info',per:2,vis:7,order:3,d:'QGIS categorized or rule-based renderers can style features by period. Walls in red for Period I, blue for Period II, etc.'},
+    {log:'Cumulative mode toggle: checkBox_cumulative switches between "<= level" and "= level" filtering.',type:'success',per:4,vis:13,order:5,d:'When cumulative is ON, filter is "order_layer <= N" (site builds up). When OFF, filter is "order_layer = N" (only exact level shown). Default is non-cumulative.'},
+  ]}
+];
+
+function hlPer(p){A.hlPer=p;document.querySelectorAll('.per').forEach(el=>el.classList.toggle('hl',+el.dataset.p===p));}
+function updStats(o){
+  if(o.period!==undefined)$('sPeriod').textContent=o.period>=0?PER_NAMES[Math.min(o.period,5)]:'--';
+  if(o.order!==undefined)$('sOrder').textContent=o.order;
+  if(o.vis!==undefined)$('sVisible').textContent=o.vis;
+  if(o.mode!==undefined)$('sMode').textContent=o.mode;
+  if(o.speed!==undefined)$('sSpeed').textContent=o.speed;
+  if(o.frame!==undefined)$('sFrame').textContent=o.frame;
+  if(o.cumul!==undefined)$('sCumul').textContent=o.cumul;
+}
+function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML='<span class="le-t">'+ts+'</span><span class="le-i" style="color:'+cl[type]+'">'+ic[type]+'</span><span class="le-x">'+t+'</span>';logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
+function updDots(){dots.innerHTML='';A.steps.forEach(function(_,i){const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
+function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+/* ======== Get which period is "active" for current step ======== */
+function getActivePeriod(){
+  var s=A.steps[A.step];
+  if(!s) return -1;
+  return s.per!==undefined?s.per:-1;
+}
+function getVisibleCount(){
+  var s=A.steps[A.step];
+  if(!s) return 0;
+  return s.vis!==undefined?s.vis:0;
+}
+
+/* ======== DRAW SCENES ======== */
+function drawScene(ts){
+  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);
+  var t=ts*.001;
+  A.animT=t;
+  var sc=A.sc;
+
+  /* common: draw map viewport frame */
+  var mx=W*.03,my=H*.06,mw=W*.94,mh=H*.88;
+  rr(mx,my,mw,mh,6);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+
+  /* map grid lines */
+  ctx.strokeStyle='rgba(48,54,61,.5)';ctx.lineWidth=.5;
+  for(var gx=mx+40;gx<mx+mw;gx+=60){ctx.beginPath();ctx.moveTo(gx,my);ctx.lineTo(gx,my+mh);ctx.stroke();}
+  for(var gy=my+40;gy<my+mh;gy+=60){ctx.beginPath();ctx.moveTo(mx,gy);ctx.lineTo(mx+mw,gy);ctx.stroke();}
+
+  /* map title bar */
+  rr(mx,my,mw,22,6);ctx.fillStyle='rgba(22,27,34,.95)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';
+  ctx.fillText('QGIS Map Canvas - Archaeological Site "Villa Romana"',mx+10,my+15);
+
+  /* north arrow */
+  var nax=mx+mw-20,nay=my+38;
+  ctx.strokeStyle='#8b949e';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(nax,nay+12);ctx.lineTo(nax,nay-12);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(nax-4,nay-6);ctx.lineTo(nax,nay-12);ctx.lineTo(nax+4,nay-6);ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText('N',nax,nay-15);
+
+  /* scale bar */
+  var sbx=mx+mw-80,sby=my+mh-14;
+  ctx.strokeStyle='#8b949e';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sbx,sby);ctx.lineTo(sbx+50,sby);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx,sby-3);ctx.lineTo(sbx,sby+3);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx+50,sby-3);ctx.lineTo(sbx+50,sby+3);ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText('10 m',sbx+25,sby-5);
+
+  var activePer=getActivePeriod();
+  var visCount=getVisibleCount();
+
+  if(sc===0) drawSceneTemporal(W,H,mx,my,mw,mh,t,activePer,visCount);
+  else if(sc===1) drawSceneFiltering(W,H,mx,my,mw,mh,t,activePer,visCount);
+  else if(sc===2) drawSceneAnimation(W,H,mx,my,mw,mh,t,activePer,visCount);
+  else if(sc===3) drawSceneLayerProps(W,H,mx,my,mw,mh,t,activePer,visCount);
+}
+
+function drawFeatures(W,H,mx,my,mw,mh,activePer,visCount,t){
+  var mapX=mx+10,mapY=my+28,mapW=mw-20,mapH=mh-40;
+  FEATURES.forEach(function(f){
+    var visible=false;
+    if(activePer<0 && visCount>=13) visible=true;
+    else if(activePer<0 && visCount===0) visible=false;
+    else if(f.period<=activePer) visible=true;
+    if(!visible) return;
+
+    var fx=mapX+f.x*mapW, fy=mapY+f.y*mapH, fw=f.w*mapW, fh=f.h*mapH;
+    var col=PER_COLORS[f.period];
+    var isCurrent=(f.period===activePer);
+    var alpha=isCurrent?'44':'22';
+    var strokeAlpha=isCurrent?'bb':'55';
+
+    rr(fx,fy,fw,fh,3);
+    ctx.fillStyle=col+alpha;ctx.fill();
+    ctx.strokeStyle=col+strokeAlpha;ctx.lineWidth=isCurrent?2:1;ctx.stroke();
+
+    /* hatch for walls */
+    if(f.type==='wall'){
+      ctx.save();ctx.clip();
+      ctx.strokeStyle=col+'33';ctx.lineWidth=.5;
+      for(var hx=fx-fh;hx<fx+fw;hx+=6){ctx.beginPath();ctx.moveTo(hx,fy+fh);ctx.lineTo(hx+fh,fy);ctx.stroke();}
+      ctx.restore();
+      rr(fx,fy,fw,fh,3);ctx.strokeStyle=col+strokeAlpha;ctx.lineWidth=isCurrent?2:1;ctx.stroke();
+    }
+    /* dots for fill */
+    if(f.type==='fill'){
+      ctx.fillStyle=col+'33';
+      for(var di=0;di<6;di++){
+        var dx=fx+5+Math.random()*(fw-10), dy=fy+5+Math.random()*(fh-10);
+        ctx.beginPath();ctx.arc(dx,dy,1.5,0,Math.PI*2);ctx.fill();
+      }
+    }
+    /* cross-hatch for floor */
+    if(f.type==='floor'){
+      ctx.save();
+      rr(fx,fy,fw,fh,3);ctx.clip();
+      ctx.strokeStyle=col+'22';ctx.lineWidth=.5;
+      for(var lx=fx-fh;lx<fx+fw;lx+=8){ctx.beginPath();ctx.moveTo(lx,fy+fh);ctx.lineTo(lx+fh,fy);ctx.stroke();}
+      for(var lx2=fx;lx2<fx+fw+fh;lx2+=8){ctx.beginPath();ctx.moveTo(lx2,fy);ctx.lineTo(lx2-fh,fy+fh);ctx.stroke();}
+      ctx.restore();
+      rr(fx,fy,fw,fh,3);ctx.strokeStyle=col+strokeAlpha;ctx.lineWidth=isCurrent?2:1;ctx.stroke();
+    }
+
+    /* label */
+    if(isCurrent){
+      ctx.fillStyle='#e6edf3';ctx.font='bold 8px sans-serif';
+    } else {
+      ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+    }
+    ctx.textAlign='center';ctx.fillText(f.label,fx+fw/2,fy+fh/2+3);
+  });
+}
+
+/* ======== Scene 0: Temporal Navigation ======== */
+function drawSceneTemporal(W,H,mx,my,mw,mh,t,activePer,visCount){
+  drawFeatures(W,H,mx,my,mw,mh,activePer,visCount,t);
+
+  /* Dial controller overlay (bottom-left) */
+  var dx=mx+60,dy=my+mh-55,dr=28;
+  ctx.beginPath();ctx.arc(dx,dy,dr,0,Math.PI*2);ctx.fillStyle='rgba(22,27,34,.9)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  /* notches */
+  for(var ni=0;ni<12;ni++){
+    var na=-Math.PI/2+ni*(Math.PI*2/12);
+    ctx.beginPath();ctx.moveTo(dx+Math.cos(na)*(dr-4),dy+Math.sin(na)*(dr-4));ctx.lineTo(dx+Math.cos(na)*(dr-1),dy+Math.sin(na)*(dr-1));ctx.strokeStyle='#8b949e';ctx.lineWidth=1;ctx.stroke();
+  }
+  /* needle */
+  var needleAng=-Math.PI/2+(activePer>=0?((activePer+1)/6):0)*Math.PI*2;
+  ctx.beginPath();ctx.moveTo(dx,dy);ctx.lineTo(dx+Math.cos(needleAng)*(dr-8),dy+Math.sin(needleAng)*(dr-8));ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(dx,dy,3,0,Math.PI*2);ctx.fillStyle='#58a6ff';ctx.fill();
+  /* label */
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText('order_layer',dx,dy+dr+12);
+
+  /* spinbox display */
+  var spx=dx+48,spy=dy-10;
+  rr(spx,spy,40,20,3);ctx.fillStyle='rgba(33,38,45,.9)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#e6edf3';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+  var orderVal=activePer>=0?activePer+1:0;
+  ctx.fillText(String(orderVal),spx+20,spy+14);
+
+  /* legend */
+  var lx=mx+mw-130,ly=my+30;
+  rr(lx,ly,120,80,4);ctx.fillStyle='rgba(13,17,23,.88)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='bold 7px sans-serif';ctx.textAlign='left';ctx.fillText('LEGEND',lx+8,ly+12);
+  var ltypes=[{c:'#d29922',l:'Period I'},{c:'#58a6ff',l:'Period II'},{c:'#3fb950',l:'Period III'}];
+  ltypes.forEach(function(lt,i){
+    ctx.fillStyle=lt.c+'66';rr(lx+8,ly+18+i*18,12,12,2);ctx.fill();ctx.strokeStyle=lt.c;ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#e6edf3';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(lt.l,lx+26,ly+27+i*18);
+  });
+}
+
+/* ======== Scene 1: Period-based Filtering ======== */
+function drawSceneFiltering(W,H,mx,my,mw,mh,t,activePer,visCount){
+  drawFeatures(W,H,mx,my,mw,mh,activePer,visCount,t);
+
+  /* Timeline bar at bottom of map */
+  var tlx=mx+40,tly=my+mh-30,tlw=mw-80,tlh=18;
+  rr(tlx,tly,tlw,tlh,3);ctx.fillStyle='rgba(13,17,23,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+
+  /* Period blocks on timeline */
+  var blockW=tlw/6;
+  for(var bi=0;bi<6;bi++){
+    var bx=tlx+bi*blockW+1;
+    var isVis=(activePer>=0&&bi<=activePer);
+    rr(bx,tly+2,blockW-2,tlh-4,2);
+    ctx.fillStyle=isVis?PER_COLORS[bi]+'44':'rgba(48,54,61,.3)';ctx.fill();
+    ctx.strokeStyle=isVis?PER_COLORS[bi]+'88':'rgba(48,54,61,.5)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle=isVis?'#e6edf3':'#8b949e';ctx.font='bold 6px sans-serif';ctx.textAlign='center';
+    ctx.fillText(bi<2?'P.I':bi<4?'P.II':'P.III',bx+blockW/2-1,tly+12);
+  }
+
+  /* Filter indicator */
+  if(activePer>=0){
+    var fix=tlx,fiw=(activePer+1)*blockW;
+    ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;ctx.setLineDash([4,2]);
+    rr(fix,tly-2,fiw,tlh+4,4);ctx.stroke();
+    ctx.setLineDash([]);
+    /* label */
+    ctx.fillStyle='#58a6ff';ctx.font='bold 7px sans-serif';ctx.textAlign='left';
+    ctx.fillText('FILTER RANGE',fix,tly-6);
+  }
+
+  /* Absolute chronology box (top-right of map) */
+  var abx=mx+mw-160,aby=my+30;
+  rr(abx,aby,150,50,4);ctx.fillStyle='rgba(13,17,23,.9)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#d29922';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('Absolute Chronology',abx+8,aby+14);
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+  ctx.fillText('cron_iniziale: -500 BC',abx+8,aby+28);
+  ctx.fillText('cron_finale:   -200 BC',abx+8,aby+40);
+}
+
+/* ======== Scene 2: Animation Playback ======== */
+function drawSceneAnimation(W,H,mx,my,mw,mh,t,activePer,visCount){
+  /* Animate: cycle period based on time when in auto-play steps */
+  var animPer=activePer;
+  if(A.step>=2&&A.step<=3){
+    animPer=Math.floor((t*0.8)%6);
+    if(animPer>activePer)animPer=activePer;
+  }
+
+  /* Draw features up to animPer */
+  var mapX=mx+10,mapY=my+28,mapW=mw-20,mapH=mh-40;
+  FEATURES.forEach(function(f){
+    if(animPer<0)return;
+    if(f.period>animPer)return;
+    var fx=mapX+f.x*mapW, fy=mapY+f.y*mapH, fw=f.w*mapW, fh=f.h*mapH;
+    var col=PER_COLORS[f.period];
+    var isCurrent=(f.period===animPer);
+    rr(fx,fy,fw,fh,3);
+    ctx.fillStyle=col+(isCurrent?'55':'22');ctx.fill();
+    ctx.strokeStyle=col+(isCurrent?'cc':'55');ctx.lineWidth=isCurrent?2:1;ctx.stroke();
+    if(f.type==='wall'){
+      ctx.save();ctx.clip();ctx.strokeStyle=col+'33';ctx.lineWidth=.5;
+      for(var hx=fx-fh;hx<fx+fw;hx+=6){ctx.beginPath();ctx.moveTo(hx,fy+fh);ctx.lineTo(hx+fh,fy);ctx.stroke();}
+      ctx.restore();rr(fx,fy,fw,fh,3);ctx.strokeStyle=col+(isCurrent?'cc':'55');ctx.lineWidth=isCurrent?2:1;ctx.stroke();
+    }
+    ctx.fillStyle=isCurrent?'#e6edf3':'#8b949e';ctx.font=(isCurrent?'bold ':'')+' 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText(f.label,fx+fw/2,fy+fh/2+3);
+  });
+
+  /* Playback controls overlay */
+  var pcx=mx+mw/2-80,pcy=my+mh-45;
+  rr(pcx,pcy,160,30,15);ctx.fillStyle='rgba(13,17,23,.9)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+
+  /* Play/pause button */
+  var isPlaying=(A.step>=2&&A.step<=3);
+  ctx.fillStyle=isPlaying?'#3fb950':'#8b949e';
+  if(isPlaying){
+    /* pause icon */
+    ctx.fillRect(pcx+14,pcy+8,4,14);ctx.fillRect(pcx+22,pcy+8,4,14);
+  } else {
+    /* play icon */
+    ctx.beginPath();ctx.moveTo(pcx+14,pcy+7);ctx.lineTo(pcx+14,pcy+23);ctx.lineTo(pcx+26,pcy+15);ctx.closePath();ctx.fill();
+  }
+
+  /* Progress bar */
+  var pbx=pcx+38,pby=pcy+12,pbw=80,pbh=6;
+  rr(pbx,pby,pbw,pbh,3);ctx.fillStyle='rgba(48,54,61,.8)';ctx.fill();
+  var prog=animPer>=0?(animPer+1)/6:0;
+  if(prog>0){rr(pbx,pby,pbw*prog,pbh,3);ctx.fillStyle='#58a6ff';ctx.fill();}
+
+  /* Frame counter */
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.textAlign='left';
+  ctx.fillText((animPer>=0?animPer+1:0)+'/6',pcx+125,pcy+18);
+
+  /* Export indicator */
+  if(A.step>=2){
+    var ex=mx+15,ey=my+30;
+    rr(ex,ey,110,20,3);ctx.fillStyle='rgba(63,185,80,.1)';ctx.fill();ctx.strokeStyle='#3fb950';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 7px sans-serif';ctx.textAlign='left';
+    var frame=animPer>=0?animPer+1:0;
+    ctx.fillText('Exporting: Tavola_'+frame+'.jpg',ex+6,ey+13);
+  }
+}
+
+/* ======== Scene 3: Layer Temporal Properties ======== */
+function drawSceneLayerProps(W,H,mx,my,mw,mh,t,activePer,visCount){
+  drawFeatures(W,H,mx,my,mw,mh,activePer,visCount,t);
+
+  /* Layer properties dialog overlay */
+  var dlgX=mx+mw*.15,dlgY=my+20,dlgW=mw*.7,dlgH=mh*.65;
+  rr(dlgX,dlgY,dlgW,dlgH,6);ctx.fillStyle='rgba(13,17,23,.95)';ctx.fill();ctx.strokeStyle='#58a6ff66';ctx.lineWidth=1.5;ctx.stroke();
+
+  /* Title bar */
+  rr(dlgX,dlgY,dlgW,24,6);ctx.fillStyle='rgba(22,27,34,.95)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Layer Properties - Temporal Configuration',dlgX+10,dlgY+16);
+  /* close btn */
+  ctx.fillStyle='#f85149';ctx.font='bold 10px sans-serif';ctx.textAlign='right';ctx.fillText('x',dlgX+dlgW-10,dlgY+16);
+
+  /* Content area */
+  var cy=dlgY+34,cx=dlgX+12,cw=dlgW-24;
+
+  /* Field mapping table */
+  var rows=[
+    {field:'order_layer',map:'Stratigraphic sequence (int)',color:'#58a6ff'},
+    {field:'datazione',map:'Dating text / label',color:'#d29922'},
+    {field:'periodo_iniziale',map:'Initial period (from periodizzazione)',color:'#bc8cff'},
+    {field:'fase_iniziale',map:'Initial phase (from periodizzazione)',color:'#3fb950'},
+    {field:'sito',map:'Site name filter',color:'#f85149'},
+    {field:'area',map:'Area filter',color:'#39d353'},
+  ];
+
+  ctx.fillStyle='#8b949e';ctx.font='bold 7px sans-serif';ctx.textAlign='left';
+  ctx.fillText('ATTRIBUTE',cx,cy+4);ctx.fillText('TEMPORAL MAPPING',cx+cw*.4,cy+4);
+  cy+=10;
+  ctx.strokeStyle='rgba(48,54,61,.5)';ctx.lineWidth=.5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+cw,cy);ctx.stroke();
+  cy+=4;
+
+  var hlRow=-1;
+  if(A.step===1)hlRow=0;else if(A.step===2)hlRow=2;else if(A.step===3)hlRow=0;else if(A.step===4)hlRow=-2;/* -2 = all */
+
+  rows.forEach(function(r,i){
+    var isHL=(hlRow===i)||(hlRow===-2);
+    var ry=cy+i*18;
+    if(isHL){rr(cx-4,ry-2,cw+8,16,3);ctx.fillStyle='rgba(88,166,255,.06)';ctx.fill();ctx.strokeStyle='rgba(88,166,255,.15)';ctx.lineWidth=1;ctx.stroke();}
+    ctx.fillStyle=isHL?r.color:'#8b949e';ctx.font=(isHL?'bold ':'')+'8px monospace';ctx.textAlign='left';
+    ctx.fillText(r.field,cx+2,ry+9);
+    ctx.fillStyle=isHL?'#e6edf3':'#8b949e';ctx.font='8px sans-serif';
+    ctx.fillText(r.map,cx+cw*.4,ry+9);
+    /* connecting line */
+    ctx.strokeStyle=isHL?r.color+'66':'rgba(48,54,61,.3)';ctx.lineWidth=.5;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(cx+cw*.38,ry+5);ctx.lineTo(cx+cw*.4-2,ry+5);ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  /* Periodizzazione table reference */
+  var tblY=cy+rows.length*18+12;
+  rr(cx,tblY,cw,50,4);ctx.fillStyle='rgba(33,38,45,.6)';ctx.fill();ctx.strokeStyle='#bc8cff44';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#bc8cff';ctx.font='bold 8px sans-serif';ctx.textAlign='left';
+  ctx.fillText('periodizzazione_table',cx+8,tblY+14);
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+  ctx.fillText('periodo | fase | cron_iniziale | cron_finale | sito | descrizione',cx+8,tblY+28);
+  ctx.fillText('   I    |  a   |    -500       |    -300     | Villa|  Archaic phase',cx+8,tblY+40);
+
+  /* Cumulative mode indicator */
+  var cmx=dlgX+dlgW-160,cmy=dlgY+dlgH-30;
+  rr(cmx,cmy,148,22,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  /* checkbox */
+  rr(cmx+6,cmy+4,14,14,2);ctx.strokeStyle=(A.step>=4)?'#3fb950':'#8b949e';ctx.lineWidth=1.5;ctx.stroke();
+  if(A.step>=4){ctx.strokeStyle='#3fb950';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(cmx+9,cmy+11);ctx.lineTo(cmx+12,cmy+15);ctx.lineTo(cmx+17,cmy+7);ctx.stroke();}
+  ctx.fillStyle=(A.step>=4)?'#e6edf3':'#8b949e';ctx.font='8px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Cumulative Mode (show <= level)',cmx+24,cmy+15);
+}
+
+/* ======== CONTROL LOGIC ======== */
+function load(i){
+  A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlPer(-1);
+  updStats({period:-1,order:0,vis:0,mode:'Relative',speed:'1x',frame:'0 / '+A.steps.length,cumul:'On'});
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);
+}
+function exec(si){
+  if(si<0||si>=A.steps.length)return;A.step=si;var s=A.steps[si];
+  addLog(s.log,s.type);
+  if(s.per!==undefined)hlPer(s.per);
+  var stats={frame:(si+1)+' / '+A.steps.length};
+  if(s.per!==undefined)stats.period=s.per;
+  if(s.order!==undefined)stats.order=s.order;
+  if(s.vis!==undefined)stats.vis=s.vis;
+  if(s.mode!==undefined)stats.mode=s.mode;
+  if(s.speed!==undefined)stats.speed=s.speed;
+  if(s.cumul!==undefined)stats.cumul=s.cumul;
+  updStats(stats);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);
+  updDots();
+  if(A.mode==='auto'&&A.playing)schedNext();
+}
+function schedNext(){
+  clearTimeout(A.timer);var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto'&&A.looping){var n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
+  if(last)return;var d=2200;var s=A.steps[A.step];if(s.type==='success')d=2500;
+  A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+}
+
+sel.addEventListener('change',function(){load(+sel.value);});
+bA.addEventListener('click',function(){A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
+bM.addEventListener('click',function(){A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',function(){A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPr.addEventListener('click',function(){if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
+bNx.addEventListener('click',function(){if(A.step<A.steps.length-1)exec(A.step+1);});
+bRe.addEventListener('click',function(){A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
+bL.addEventListener('click',function(){A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bSt.addEventListener('click',function(){A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
+spB.forEach(function(b){b.addEventListener('click',function(){spB.forEach(function(x){x.classList.remove('on');});b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();});});
+document.addEventListener('keydown',function(e){if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
+
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>

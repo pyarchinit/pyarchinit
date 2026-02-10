@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — Pottery Tools Tutorial</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
+.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
+.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
+.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
+.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.entity-list{display:flex;flex-direction:column;gap:3px}
+.ent{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
+.ent.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
+.ent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ent-cnt{margin-left:auto;color:var(--muted);font-variant-numeric:tabular-nums;font-size:.72rem}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.les{display:flex;flex-direction:column;gap:2px}
+.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
+.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
+@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>Pottery Tools <span>— Ceramic Recording, Analysis &amp; Drawing</span></h1>
+    <div class="ctrls">
+      <select id="sel"><option value="0">1. Ceramic Recording</option><option value="1">2. Form &amp; Fabric Analysis</option><option value="2">3. Pottery Drawing Tools</option><option value="3">4. Statistical Analysis</option></select>
+      <div class="g"><button id="bA" class="on">&#9654; Auto</button><button id="bM">&#9998; Manual</button></div>
+      <div class="g"><button class="sp on" data-s="1">1x</button><button class="sp" data-s="2">2x</button><button class="sp" data-s="4">4x</button></div>
+      <button id="bPP">&#10074;&#10074;</button><button id="bPr" disabled>&larr;</button><button id="bNx" disabled>&rarr;</button><button id="bRe">&#8634;</button>
+      <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="side">
+    <div class="w"><h3>Ware Types</h3>
+      <div class="entity-list" id="wareList">
+        <div class="ent" data-w="sigillata"><span class="ent-dot" style="background:#f85149"></span>Terra Sigillata<span class="ent-cnt" id="cSig">0</span></div>
+        <div class="ent" data-w="coarseware"><span class="ent-dot" style="background:#d29922"></span>Coarseware<span class="ent-cnt" id="cCoa">0</span></div>
+        <div class="ent" data-w="fineware"><span class="ent-dot" style="background:#58a6ff"></span>Fineware<span class="ent-cnt" id="cFin">0</span></div>
+        <div class="ent" data-w="amphora"><span class="ent-dot" style="background:#3fb950"></span>Amphora<span class="ent-cnt" id="cAmp">0</span></div>
+        <div class="ent" data-w="cooking"><span class="ent-dot" style="background:#bc8cff"></span>Cooking Ware<span class="ent-cnt" id="cCoo">0</span></div>
+        <div class="ent" data-w="lamp"><span class="ent-dot" style="background:#39d353"></span>Lamp<span class="ent-cnt" id="cLam">0</span></div>
+        <div class="ent" data-w="transport"><span class="ent-dot" style="background:#8b949e"></span>Transport<span class="ent-cnt" id="cTra">0</span></div>
+      </div>
+    </div>
+    <div class="w"><h3>Current Record</h3>
+      <div class="sr"><span class="sl">ID</span><span class="sv" id="rId">--</span></div>
+      <div class="sr"><span class="sl">Site</span><span class="sv" id="rSite">--</span></div>
+      <div class="sr"><span class="sl">US</span><span class="sv" id="rUS">--</span></div>
+      <div class="sr"><span class="sl">Ware</span><span class="sv" id="rWare">--</span></div>
+      <div class="sr"><span class="sl">Form</span><span class="sv" id="rForm">--</span></div>
+      <div class="sr"><span class="sl">Date</span><span class="sv" id="rDate">--</span></div>
+    </div>
+    <div class="w"><h3>Classification Stats</h3>
+      <div class="sr"><span class="sl">Total Sherds</span><span class="sv" id="sTot">0</span></div>
+      <div class="sr"><span class="sl">Classified</span><span class="sv" id="sCls">0</span></div>
+      <div class="sr"><span class="sl">Drawn</span><span class="sv" id="sDrw">0</span></div>
+      <div class="sr"><span class="sl">Weight (g)</span><span class="sv" id="sWgt">0</span></div>
+    </div>
+  </div>
+  <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlWare:null};
+const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+
+const WARE_COLORS={sigillata:'#f85149',coarseware:'#d29922',fineware:'#58a6ff',amphora:'#3fb950',cooking:'#bc8cff',lamp:'#39d353',transport:'#8b949e'};
+
+const SC=[
+  {title:'Ceramic Recording',desc:'<strong>Recording:</strong> Open the pyarchinit_Pottery form to record pottery data: fabric, form, decoration, ware, chronology, and photo links.',
+   steps:[
+    {log:'Open Pottery form: toolbar -> pyarchinit_Pottery (Scheda Ceramica).',type:'info',rec:{id:'--',site:'--',us:'--'},d:'The pyarchinit_Pottery class (MAIN_DIALOG_CLASS) provides the primary interface for recording ceramic finds from pottery_table.'},
+    {log:'Record fabric type: "Fabric A - fine clay, red-brown matrix, quartz temper".',type:'info',rec:{id:'POT-001',site:'Pompeii',us:'101',ware:'--',form:'--'},stats:{tot:1},d:'The fabric field in pottery_table stores clay composition. Fields: fabric, material, munsell for color (e.g. 2.5YR 5/8).'},
+    {log:'Record form & decoration: form="Bowl", specific_form="Dragendorff 29", exdeco="Barbotine scroll", surf_trat="Slip".',type:'info',rec:{form:'Bowl (Drag.29)'},ware:'sigillata',wareCnts:{cSig:1},d:'Fields: form, specific_form, specific_shape for typological classification. exdeco/intdeco for exterior/interior decoration. surf_trat for surface treatment.'},
+    {log:'Ware classification: ware="Terra Sigillata Italica" from thesaurus-controlled vocabulary (pottery_thesaurus.sql).',type:'info',rec:{ware:'T.S. Italica'},stats:{cls:1},d:'The ware field uses controlled vocabularies loaded from pottery_thesaurus.sql. Thesaurus ensures standardized, searchable classification across the database.'},
+    {log:'Chronological assignment: datazione="1st century AD" based on Drag.29 typology. Period linked via periodizzazione_table.',type:'info',rec:{date:'1st c. AD'},d:'The datazione field stores the chronological range. Cross-referenced with periodizzazione_table for site-wide phasing consistency.'},
+    {log:'Link photos: photo="POT001_front.jpg", drawing="POT001_profile.png". Images stored via media_to_entity_table.',type:'success',stats:{drw:1},d:'Fields photo and drawing store references. The PotteryToolsDialog (Pottery_tools.py) provides advanced image processing with PotteryInkProcessor for automatic vectorization.'}
+  ]},
+  {title:'Form & Fabric Analysis',desc:'<strong>Analysis:</strong> Fabric petrography, form classification by rim/body/base/handle, standardized recording, and ware statistics.',
+   steps:[
+    {log:'Fabric analysis: temper="quartz + ite", clay_matrix="calcareous", firing="oxidizing" (Munsell 2.5YR 5/8).',type:'info',rec:{id:'POT-002',site:'Pompeii',us:'101',ware:'Coarseware',form:'Jar'},ware:'coarseware',wareCnts:{cCoa:1},stats:{tot:3},d:'Fabric petrographic analysis: the material and munsell fields in pottery_table record clay matrix, temper inclusions, and firing conditions using Munsell color charts.'},
+    {log:'Form classification: form="Jar", specific_form="Olpe", specific_shape="Ovoid body with trefoil rim". Parts: rim(12%), body, base.',type:'info',rec:{form:'Jar (Olpe)'},stats:{cls:2},d:'Three-level hierarchy: form (general), specific_form (typological), specific_shape (morphological detail). The percent field records rim preservation percentage for EVE calculation.'},
+    {log:'Standardized recording: diametro_rim=14.2cm, diametro_bottom=8.5cm, diametro_height=22.1cm, diametro_preserved=45%.',type:'info',stats:{wgt:342},d:'Metric fields in pottery_table: diametro_rim, diametro_bottom, diametro_height, diametro_max, diametro_preserved. All stored as Numeric(7,3) for precision.'},
+    {log:'Measurements complete: wheel_made="Yes", qty=3 joining sherds, bag=14, sector="NE quadrant".',type:'info',wareCnts:{cCoa:2,cSig:3,cFin:2,cAmp:1},stats:{tot:8,cls:5},d:'Additional fields: wheel_made (manufacturing technique), qty (sherd count), bag/box (storage context), sector/area (spatial provenance).'},
+    {log:'Statistical summary generated: 8 sherds total. Sigillata: 3 (37.5%), Coarseware: 2 (25%), Fineware: 2 (25%), Amphora: 1 (12.5%).',type:'success',d:'QuantPanelMain (quantpanelmain_pottery.py) calculates ware counts by period. Exportable as PDF via generate_POTTERY_pdf or CSV via UnicodeWriter.'}
+  ]},
+  {title:'Pottery Drawing Tools',desc:'<strong>Drawing:</strong> Digital pottery drawing integration with PotteryInk vectorization, profile generation, section conventions, and publication export.',
+   steps:[
+    {log:'Digital pottery drawing: PotteryToolsDialog loads images for vectorization via PotteryInkProcessor.',type:'info',rec:{id:'POT-003',site:'Pompeii',us:'205',ware:'Fineware',form:'Plate'},ware:'fineware',wareCnts:{cFin:3},stats:{tot:10},d:'Pottery_tools.py: PotteryToolsDialog integrates PotteryInkProcessor from pottery_utilities.py for AI-assisted vectorization of hand-drawn pottery profiles.'},
+    {log:'Profile generation: rim diameter=24.6cm, wall thickness=0.4cm, base diameter=16.2cm. Axis of rotation calculated.',type:'info',stats:{cls:7},d:'From measurements in pottery_table (diametro_rim, diametro_bottom, diametro_height), profile outlines are generated. The ImageProcessor class handles image manipulation and scaling.'},
+    {log:'Section drawing convention: left=exterior surface, center=section (wall thickness shaded), right=interior. Scale 1:1 at rim, 1:2 for body.',type:'info',d:'Standard archaeological pottery illustration: exterior profile on left, cross-section in center (blackened or hatched), interior on right. LayoutGenerator arranges multiple drawings on a single plate.'},
+    {log:'LayoutGenerator: arranging 6 profiles on A3 plate. Auto-scaling, consistent margins, catalog numbers added.',type:'info',stats:{drw:6},d:'LayoutGenerator from pottery_utilities.py creates publication-ready plates. PDFExtractor handles batch extraction of images from existing PDF publications for comparison.'},
+    {log:'Export complete: plate_US205.pdf (300 DPI), plate_US205.svg (vector). Drawings linked to pottery_table records.',type:'success',d:'Export supports PDF (via ReportLab/generate_POTTERY_pdf) and SVG for vector editing. Each drawing record is linked back to its pottery_table entry through the drawing field.'}
+  ]},
+  {title:'Statistical Analysis',desc:'<strong>Statistics:</strong> Pottery quantification (count, weight, EVE), distribution charts, report generation, and data export.',
+   steps:[
+    {log:'Pottery quantification: Count=47 sherds, Weight=3842g, EVE (Estimated Vessel Equivalents)=4.72.',type:'info',rec:{id:'--',site:'Pompeii',us:'ALL',ware:'All',form:'All'},stats:{tot:47,cls:38,wgt:3842},wareCnts:{cSig:12,cCoa:14,cFin:8,cAmp:6,cCoo:4,cLam:2,cTra:1},d:'EVE is calculated from percent (rim %) field in pottery_table. Sum of rim percentages / 100 = minimum vessel count. QuantPanelMain aggregates count, weight, and EVE by ware type.'},
+    {log:'Distribution by ware: Coarseware 29.8%, Sigillata 25.5%, Fineware 17.0%, Amphora 12.8%, Cooking 8.5%, Lamp 4.3%, Transport 2.1%.',type:'info',ware:'coarseware',d:'QuantPanelMain queries pottery_table grouped by ware field. Distribution can be cross-tabulated by form, period (datazione), area, and US for spatial/temporal analysis.'},
+    {log:'Chart generation: bar chart (ware by count), pie chart (ware by weight), line chart (ware by period). Embedded in PDF report.',type:'info',d:'Charts are generated for inclusion in PDF reports via generate_POTTERY_pdf. Multiple visualization types: bar, pie, stacked bar for chronological trends across periods.'},
+    {log:'Report PDF generated: pottery_report_Pompeii_US101-205.pdf with catalog, statistics, plates, and distribution charts.',type:'info',stats:{drw:12},d:'generate_POTTERY_pdf (pyarchinit_exp_POTTERYsheet_pdf.py) produces complete pottery reports: catalog entries, metric data, statistical tables, distribution charts, and illustration plates.'},
+    {log:'Data exported: pottery_export.xlsx (47 records), pottery_summary.csv. Ready for external analysis in R/SPSS/Excel.',type:'success',d:'UnicodeWriter (csv_writer.py) exports pottery_table records to CSV. Full field export including: sito, area, us, fabric, form, ware, measurements, decoration, datazione, and all metric fields.'}
+  ]}
+];
+
+function hlWare(w){A.hlWare=w;document.querySelectorAll('.ent').forEach(el=>el.classList.toggle('hl',el.dataset.w===w));}
+function updWareCnts(o){if(o){if(o.cSig!==undefined)$('cSig').textContent=o.cSig;if(o.cCoa!==undefined)$('cCoa').textContent=o.cCoa;if(o.cFin!==undefined)$('cFin').textContent=o.cFin;if(o.cAmp!==undefined)$('cAmp').textContent=o.cAmp;if(o.cCoo!==undefined)$('cCoo').textContent=o.cCoo;if(o.cLam!==undefined)$('cLam').textContent=o.cLam;if(o.cTra!==undefined)$('cTra').textContent=o.cTra;}}
+function updRec(o){if(o){if(o.id!==undefined)$('rId').textContent=o.id;if(o.site!==undefined)$('rSite').textContent=o.site;if(o.us!==undefined)$('rUS').textContent=o.us;if(o.ware!==undefined)$('rWare').textContent=o.ware;if(o.form!==undefined)$('rForm').textContent=o.form;if(o.date!==undefined)$('rDate').textContent=o.date;}}
+function updStats(o){if(o){if(o.tot!==undefined)$('sTot').textContent=o.tot;if(o.cls!==undefined)$('sCls').textContent=o.cls;if(o.drw!==undefined)$('sDrw').textContent=o.drw;if(o.wgt!==undefined)$('sWgt').textContent=o.wgt;}}
+function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML='<span class="le-t">'+ts+'</span><span class="le-i" style="color:'+cl[type]+'">'+ic[type]+'</span><span class="le-x">'+t+'</span>';logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
+function updDots(){dots.innerHTML='';A.steps.forEach(function(_,i){const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
+function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+/* ---------- CANVAS DRAWING FUNCTIONS ---------- */
+
+function drawPotteryForm(W,H,t){
+  // Background pottery form panel
+  var fx=W*.04,fy=H*.06,fw=W*.4,fh=H*.82;
+  rr(fx,fy,fw,fh,6);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('pyarchinit_Pottery Form',fx+10,fy+16);
+
+  // Form fields
+  var fields=[
+    {l:'ID Number',v:'POT-001',y:0},
+    {l:'Sito',v:'Pompeii',y:1},
+    {l:'Area / US',v:'A / 101',y:2},
+    {l:'Fabric',v:'Fine clay, quartz',y:3},
+    {l:'Form',v:'Bowl',y:4},
+    {l:'Specific Form',v:'Dragendorff 29',y:5},
+    {l:'Ware',v:'T.S. Italica',y:6},
+    {l:'Munsell',v:'2.5YR 5/8',y:7},
+    {l:'Surf. Treatment',v:'Red slip',y:8},
+    {l:'Ext. Decoration',v:'Barbotine scroll',y:9},
+    {l:'Datazione',v:'1st c. AD',y:10}
+  ];
+  var visibleCount=Math.min(fields.length, Math.floor(A.step/SC[0].steps.length * fields.length * 4) + 3);
+  if(A.sc!==0) visibleCount=fields.length;
+  var startY=fy+28;
+  for(var i=0;i<Math.min(visibleCount,fields.length);i++){
+    var fy2=startY+i*22;
+    if(fy2+18>fy+fh-5)break;
+    rr(fx+8,fy2,fw-16,18,3);
+    ctx.fillStyle=i===Math.min(visibleCount-1,fields.length-1)&&A.sc===0?'rgba(88,166,255,.08)':'rgba(33,38,45,.5)';
+    ctx.fill();ctx.strokeStyle=i===Math.min(visibleCount-1,fields.length-1)&&A.sc===0?'#58a6ff44':'#30363d';ctx.lineWidth=.5;ctx.stroke();
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(fields[i].l,fx+14,fy2+12);
+    ctx.fillStyle='#e6edf3';ctx.font='bold 7px sans-serif';ctx.textAlign='right';ctx.fillText(fields[i].v,fx+fw-14,fy2+12);
+  }
+
+  // Classified sherd illustration (right side)
+  var sx=W*.52,sy=H*.12,sw=W*.42,sh=H*.7;
+  rr(sx,sy,sw,sh,6);ctx.fillStyle='rgba(22,27,34,.6)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Sherd Illustration',sx+10,sy+16);
+
+  // Draw a pottery sherd shape
+  var cx2=sx+sw/2, cy2=sy+sh*.45;
+  var rad=Math.min(sw,sh)*.28;
+  // Outer rim shape (bowl profile view)
+  ctx.beginPath();
+  ctx.moveTo(cx2-rad,cy2-rad*.3);
+  ctx.quadraticCurveTo(cx2-rad*.6,cy2-rad*.9,cx2,cy2-rad*.95);
+  ctx.quadraticCurveTo(cx2+rad*.6,cy2-rad*.9,cx2+rad,cy2-rad*.3);
+  ctx.quadraticCurveTo(cx2+rad*1.05,cy2+rad*.2,cx2+rad*.8,cy2+rad*.5);
+  ctx.quadraticCurveTo(cx2+rad*.3,cy2+rad*.7,cx2,cy2+rad*.65);
+  ctx.quadraticCurveTo(cx2-rad*.3,cy2+rad*.7,cx2-rad*.8,cy2+rad*.5);
+  ctx.quadraticCurveTo(cx2-rad*1.05,cy2+rad*.2,cx2-rad,cy2-rad*.3);
+  ctx.closePath();
+  // Animated fill
+  var pulse=Math.sin(t*2)*.05+.15;
+  ctx.fillStyle='rgba(248,81,73,'+pulse+')';ctx.fill();
+  ctx.strokeStyle='#f85149';ctx.lineWidth=1.5;ctx.stroke();
+
+  // Decoration pattern (barbotine scroll)
+  ctx.strokeStyle='#f8514966';ctx.lineWidth=1;
+  for(var j=0;j<3;j++){
+    var ox=cx2-rad*.4+j*rad*.4;
+    var oy=cy2-rad*.2;
+    ctx.beginPath();
+    ctx.arc(ox,oy,rad*.12,0,Math.PI*1.6);
+    ctx.stroke();
+  }
+
+  // Label
+  ctx.fillStyle='#f85149';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Terra Sigillata Italica',cx2,cy2+rad*.9);
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+  ctx.fillText('Drag. 29 - Bowl',cx2,cy2+rad*1.08);
+  ctx.fillText('1st century AD',cx2,cy2+rad*1.24);
+
+  // Photo link indicator
+  if(A.step>=5||A.sc!==0){
+    var px=sx+sw-60,py=sy+sh-40;
+    rr(px,py,50,30,4);ctx.fillStyle='rgba(63,185,80,.1)';ctx.fill();ctx.strokeStyle='#3fb950';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText('PHOTO',px+25,py+13);
+    ctx.fillStyle='#8b949e';ctx.font='6px sans-serif';ctx.fillText('linked',px+25,py+23);
+  }
+}
+
+function drawFabricAnalysis(W,H,t){
+  // Fabric panel (left)
+  var fx=W*.04,fy=H*.06,fw=W*.42,fh=H*.45;
+  rr(fx,fy,fw,fh,6);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#d29922';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Fabric & Form Analysis',fx+10,fy+16);
+
+  // Fabric properties
+  var fprops=[
+    {l:'Temper',v:'Quartz + lite, medium-coarse',c:'#d29922'},
+    {l:'Clay Matrix',v:'Calcareous, iron-rich',c:'#d29922'},
+    {l:'Firing',v:'Oxidizing (Munsell 2.5YR 5/8)',c:'#d29922'},
+    {l:'Hardness',v:'Mohs 4-5',c:'#8b949e'},
+    {l:'Form',v:'Jar (Olpe)',c:'#58a6ff'},
+    {l:'Rim Type',v:'Trefoil, everted',c:'#58a6ff'},
+    {l:'Body',v:'Ovoid',c:'#58a6ff'},
+    {l:'Base',v:'Flat, 8.5cm diameter',c:'#58a6ff'}
+  ];
+  var vis2=Math.min(fprops.length, Math.max(2, Math.floor((A.step+1)/SC[1].steps.length * fprops.length * 1.5)+1));
+  for(var i=0;i<Math.min(vis2,fprops.length);i++){
+    var py=fy+28+i*20;
+    if(py+16>fy+fh-5)break;
+    rr(fx+8,py,fw-16,16,2);
+    ctx.fillStyle='rgba(33,38,45,.5)';ctx.fill();ctx.strokeStyle=fprops[i].c+'33';ctx.lineWidth=.5;ctx.stroke();
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(fprops[i].l,fx+14,py+11);
+    ctx.fillStyle=fprops[i].c;ctx.font='bold 7px sans-serif';ctx.textAlign='right';ctx.fillText(fprops[i].v,fx+fw-14,py+11);
+  }
+
+  // Pottery profile drawing (right)
+  var px=W*.52,py2=H*.06,pw=W*.42,ph=H*.45;
+  rr(px,py2,pw,ph,6);ctx.fillStyle='rgba(22,27,34,.6)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Profile Drawing',px+10,py2+16);
+
+  // Draw pottery profile with labeled parts
+  var pcx=px+pw/2,pcy=py2+ph*.5;
+  var prad=Math.min(pw,ph)*.35;
+
+  // Axis line
+  ctx.strokeStyle='#30363d';ctx.lineWidth=.5;ctx.setLineDash([3,3]);
+  ctx.beginPath();ctx.moveTo(pcx,py2+30);ctx.lineTo(pcx,py2+ph-10);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Exterior profile (left side)
+  ctx.strokeStyle='#d29922';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(pcx-prad*.7,pcy-prad*.8); // rim top
+  ctx.quadraticCurveTo(pcx-prad*.8,pcy-prad*.6,pcx-prad*.9,pcy-prad*.3); // rim curve
+  ctx.quadraticCurveTo(pcx-prad*1,pcy+prad*.1,pcx-prad*.85,pcy+prad*.4); // body
+  ctx.quadraticCurveTo(pcx-prad*.6,pcy+prad*.7,pcx-prad*.35,pcy+prad*.8); // base
+  ctx.lineTo(pcx-prad*.35,pcy+prad*.85); // base flat
+  ctx.stroke();
+
+  // Interior profile (right side, mirrored)
+  ctx.strokeStyle='#58a6ff';ctx.lineWidth=1.5;
+  ctx.beginPath();
+  ctx.moveTo(pcx+prad*.7,pcy-prad*.8);
+  ctx.quadraticCurveTo(pcx+prad*.8,pcy-prad*.6,pcx+prad*.9,pcy-prad*.3);
+  ctx.quadraticCurveTo(pcx+prad*1,pcy+prad*.1,pcx+prad*.85,pcy+prad*.4);
+  ctx.quadraticCurveTo(pcx+prad*.6,pcy+prad*.7,pcx+prad*.35,pcy+prad*.8);
+  ctx.lineTo(pcx+prad*.35,pcy+prad*.85);
+  ctx.stroke();
+
+  // Section fill (between profiles at top)
+  ctx.fillStyle='rgba(139,148,158,.08)';
+  ctx.beginPath();
+  ctx.moveTo(pcx-prad*.7,pcy-prad*.8);
+  ctx.lineTo(pcx+prad*.7,pcy-prad*.8);
+  ctx.lineTo(pcx+prad*.35,pcy+prad*.85);
+  ctx.lineTo(pcx-prad*.35,pcy+prad*.85);
+  ctx.closePath();ctx.fill();
+
+  // Labels with lines
+  var labels=[
+    {t:'RIM',x:pcx-prad*1.3,y:pcy-prad*.7,tx:pcx-prad*.85,ty:pcy-prad*.65,c:'#f85149'},
+    {t:'BODY',x:pcx-prad*1.3,y:pcy+prad*.1,tx:pcx-prad*.92,ty:pcy+prad*.05,c:'#d29922'},
+    {t:'BASE',x:pcx-prad*1.3,y:pcy+prad*.8,tx:pcx-prad*.5,ty:pcy+prad*.82,c:'#3fb950'},
+    {t:'HANDLE',x:pcx+prad*1.2,y:pcy-prad*.2,tx:pcx+prad*.95,ty:pcy-prad*.15,c:'#bc8cff'}
+  ];
+  var labVis=Math.min(labels.length, A.step+1);
+  for(var j=0;j<labVis;j++){
+    var lb=labels[j];
+    ctx.strokeStyle=lb.c+'66';ctx.lineWidth=.5;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(lb.x+20,lb.y);ctx.lineTo(lb.tx,lb.ty);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle=lb.c;ctx.font='bold 7px sans-serif';ctx.textAlign='left';
+    ctx.fillText(lb.t,lb.x-8,lb.y+3);
+  }
+
+  // Statistics panel (bottom)
+  var bx=W*.04,by=H*.56,bw=W*.9,bh=H*.38;
+  rr(bx,by,bw,bh,6);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Ware Distribution Summary',bx+10,by+16);
+
+  // Mini bar chart
+  var bars=[
+    {l:'Sigillata',v:37.5,c:'#f85149'},
+    {l:'Coarseware',v:25,c:'#d29922'},
+    {l:'Fineware',v:25,c:'#58a6ff'},
+    {l:'Amphora',v:12.5,c:'#3fb950'}
+  ];
+  var barW=(bw-60)/bars.length-8, barMaxH=bh-50, barY=by+bh-12;
+  if(A.step>=4){
+    for(var k=0;k<bars.length;k++){
+      var bxk=bx+30+k*(barW+8);
+      var barH=bars[k].v/100*barMaxH;
+      rr(bxk,barY-barH,barW,barH,2);
+      ctx.fillStyle=bars[k].c+'33';ctx.fill();ctx.strokeStyle=bars[k].c;ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=bars[k].c;ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+      ctx.fillText(bars[k].v+'%',bxk+barW/2,barY-barH-5);
+      ctx.fillStyle='#8b949e';ctx.font='6px sans-serif';
+      ctx.fillText(bars[k].l,bxk+barW/2,barY+10);
+    }
+  }
+}
+
+function drawDrawingTools(W,H,t){
+  // Main drawing area
+  var dx=W*.04,dy=H*.06,dw=W*.56,dh=H*.82;
+  rr(dx,dy,dw,dh,6);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Pottery Cross-Section Drawing',dx+10,dy+16);
+
+  // Cross-section of a plate/bowl
+  var ccx=dx+dw/2, ccy=dy+dh*.48;
+  var crad=Math.min(dw,dh)*.32;
+
+  // Center axis
+  ctx.strokeStyle='#f8514944';ctx.lineWidth=.5;ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(ccx,dy+30);ctx.lineTo(ccx,dy+dh-15);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Scale bar
+  ctx.strokeStyle='#8b949e';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(ccx-crad*.8,dy+dh-25);ctx.lineTo(ccx+crad*.8,dy+dh-25);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ccx-crad*.8,dy+dh-30);ctx.lineTo(ccx-crad*.8,dy+dh-20);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ccx+crad*.8,dy+dh-30);ctx.lineTo(ccx+crad*.8,dy+dh-20);ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='center';
+  ctx.fillText('5 cm',ccx,dy+dh-15);
+
+  // Exterior profile (left half)
+  ctx.strokeStyle='#d29922';ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(ccx-crad*.1,ccy-crad*.9);
+  ctx.quadraticCurveTo(ccx-crad*.3,ccy-crad*.85,ccx-crad*.5,ccy-crad*.7);
+  ctx.quadraticCurveTo(ccx-crad*.8,ccy-crad*.4,ccx-crad*.9,ccy-crad*.05);
+  ctx.quadraticCurveTo(ccx-crad*.95,ccy+crad*.2,ccx-crad*.85,ccy+crad*.45);
+  ctx.quadraticCurveTo(ccx-crad*.65,ccy+crad*.65,ccx-crad*.3,ccy+crad*.7);
+  ctx.stroke();
+
+  // Wall section (hatched fill)
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(ccx-crad*.1,ccy-crad*.9);
+  ctx.quadraticCurveTo(ccx-crad*.3,ccy-crad*.85,ccx-crad*.5,ccy-crad*.7);
+  ctx.quadraticCurveTo(ccx-crad*.8,ccy-crad*.4,ccx-crad*.9,ccy-crad*.05);
+  ctx.quadraticCurveTo(ccx-crad*.95,ccy+crad*.2,ccx-crad*.85,ccy+crad*.45);
+  ctx.quadraticCurveTo(ccx-crad*.65,ccy+crad*.65,ccx-crad*.3,ccy+crad*.7);
+  // inner wall return path
+  ctx.lineTo(ccx-crad*.22,ccy+crad*.62);
+  ctx.quadraticCurveTo(ccx-crad*.55,ccy+crad*.55,ccx-crad*.75,ccy+crad*.38);
+  ctx.quadraticCurveTo(ccx-crad*.83,ccy+crad*.15,ccx-crad*.78,ccy-crad*.05);
+  ctx.quadraticCurveTo(ccx-crad*.68,ccy-crad*.35,ccx-crad*.4,ccy-crad*.62);
+  ctx.quadraticCurveTo(ccx-crad*.2,ccy-crad*.78,ccx-crad*.05,ccy-crad*.82);
+  ctx.closePath();
+  ctx.fillStyle='rgba(139,148,158,.12)';ctx.fill();
+  // Hatching lines
+  ctx.clip();
+  ctx.strokeStyle='#8b949e44';ctx.lineWidth=.5;
+  for(var hi=-40;hi<40;hi++){
+    ctx.beginPath();
+    ctx.moveTo(ccx-crad+hi*5,ccy-crad);
+    ctx.lineTo(ccx-crad+hi*5+crad,ccy+crad);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Interior profile (right half, mirrored)
+  ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;
+  ctx.beginPath();
+  ctx.moveTo(ccx+crad*.1,ccy-crad*.9);
+  ctx.quadraticCurveTo(ccx+crad*.3,ccy-crad*.85,ccx+crad*.5,ccy-crad*.7);
+  ctx.quadraticCurveTo(ccx+crad*.8,ccy-crad*.4,ccx+crad*.9,ccy-crad*.05);
+  ctx.quadraticCurveTo(ccx+crad*.95,ccy+crad*.2,ccx+crad*.85,ccy+crad*.45);
+  ctx.quadraticCurveTo(ccx+crad*.65,ccy+crad*.65,ccx+crad*.3,ccy+crad*.7);
+  ctx.stroke();
+
+  // Measurement lines (animated)
+  if(A.step>=1){
+    // Rim diameter
+    ctx.strokeStyle='#f8514988';ctx.lineWidth=.8;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(ccx-crad*.5,ccy-crad*.7);ctx.lineTo(ccx+crad*.5,ccy-crad*.7);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#f85149';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('D rim = 24.6 cm',ccx,ccy-crad*.75);
+
+    // Arrows at ends
+    ctx.beginPath();ctx.moveTo(ccx-crad*.5,ccy-crad*.72);ctx.lineTo(ccx-crad*.5,ccy-crad*.68);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(ccx+crad*.5,ccy-crad*.72);ctx.lineTo(ccx+crad*.5,ccy-crad*.68);ctx.stroke();
+  }
+  if(A.step>=2){
+    // Height
+    ctx.strokeStyle='#3fb95088';ctx.lineWidth=.8;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(ccx+crad*1.05,ccy-crad*.7);ctx.lineTo(ccx+crad*1.05,ccy+crad*.7);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.save();ctx.translate(ccx+crad*1.12,ccy);ctx.rotate(-Math.PI/2);
+    ctx.fillStyle='#3fb950';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('H = 18.3 cm',0,0);ctx.restore();
+  }
+  if(A.step>=1){
+    // Base diameter
+    ctx.strokeStyle='#bc8cff88';ctx.lineWidth=.8;ctx.setLineDash([2,2]);
+    ctx.beginPath();ctx.moveTo(ccx-crad*.3,ccy+crad*.7);ctx.lineTo(ccx+crad*.3,ccy+crad*.7);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='#bc8cff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('D base = 16.2 cm',ccx,ccy+crad*.78);
+  }
+
+  // Section labels
+  ctx.fillStyle='#d29922';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+  ctx.fillText('EXTERIOR',ccx-crad*.6,dy+dh-35);
+  ctx.fillStyle='#8b949e';ctx.fillText('SECTION',ccx,dy+dh-35);
+  ctx.fillStyle='#58a6ff';ctx.fillText('INTERIOR',ccx+crad*.6,dy+dh-35);
+
+  // Tools panel (right)
+  var tx=W*.64,ty=H*.06,tw=W*.32,th=H*.82;
+  rr(tx,ty,tw,th,6);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#bc8cff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Drawing Tools',tx+10,ty+16);
+
+  var tools=[
+    {l:'PotteryInk Vectorizer',st:'AI-assisted',c:'#bc8cff',step:0},
+    {l:'Profile Generator',st:'From measurements',c:'#58a6ff',step:1},
+    {l:'Section Conventions',st:'Int / Ext / Section',c:'#d29922',step:2},
+    {l:'LayoutGenerator',st:'Publication plates',c:'#3fb950',step:3},
+    {l:'PDF / SVG Export',st:'300 DPI output',c:'#39d353',step:4}
+  ];
+  for(var ti=0;ti<tools.length;ti++){
+    var tly=ty+30+ti*28;
+    var active=A.step>=tools[ti].step;
+    rr(tx+8,tly,tw-16,22,3);
+    ctx.fillStyle=active?tools[ti].c+'11':'rgba(33,38,45,.3)';ctx.fill();
+    ctx.strokeStyle=active?tools[ti].c+'66':'#30363d';ctx.lineWidth=active?1:.5;ctx.stroke();
+    ctx.fillStyle=active?tools[ti].c:'#8b949e';ctx.font=(active?'bold ':'')+'7px sans-serif';ctx.textAlign='left';
+    ctx.fillText(tools[ti].l,tx+14,tly+10);
+    ctx.fillStyle='#8b949e';ctx.font='6px sans-serif';
+    ctx.fillText(tools[ti].st,tx+14,tly+18);
+    if(A.step===tools[ti].step){
+      // Active indicator
+      rr(tx+tw-22,tly+5,12,12,2);
+      ctx.fillStyle=tools[ti].c+'33';ctx.fill();ctx.strokeStyle=tools[ti].c;ctx.lineWidth=1;ctx.stroke();
+      var pulse2=Math.sin(t*3)*.3+.7;
+      ctx.fillStyle=tools[ti].c;ctx.globalAlpha=pulse2;ctx.font='bold 8px sans-serif';ctx.textAlign='center';
+      ctx.fillText('>',tx+tw-16,tly+14);ctx.globalAlpha=1;
+    }
+  }
+}
+
+function drawStatistics(W,H,t){
+  // Bar chart (left)
+  var bx=W*.04,by=H*.06,bw=W*.45,bh=H*.5;
+  rr(bx,by,bw,bh,6);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Sherd Count by Ware Type',bx+10,by+16);
+
+  var wareData=[
+    {l:'Coarseware',v:14,c:'#d29922'},
+    {l:'Sigillata',v:12,c:'#f85149'},
+    {l:'Fineware',v:8,c:'#58a6ff'},
+    {l:'Amphora',v:6,c:'#3fb950'},
+    {l:'Cooking',v:4,c:'#bc8cff'},
+    {l:'Lamp',v:2,c:'#39d353'},
+    {l:'Transport',v:1,c:'#8b949e'}
+  ];
+  var maxV=14, barArea=bh-50, barStartY=by+32;
+  var barW2=(bw-50)/wareData.length-4;
+  // Axis
+  ctx.strokeStyle='#30363d';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(bx+30,barStartY);ctx.lineTo(bx+30,by+bh-15);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(bx+30,by+bh-15);ctx.lineTo(bx+bw-10,by+bh-15);ctx.stroke();
+
+  var animProg=Math.min(1,(A.step+1)/SC[3].steps.length*1.5);
+  for(var i=0;i<wareData.length;i++){
+    var bxi=bx+35+i*(barW2+4);
+    var barH2=wareData[i].v/maxV*barArea*animProg;
+    var barY2=by+bh-15-barH2;
+    rr(bxi,barY2,barW2,barH2,2);
+    ctx.fillStyle=wareData[i].c+'44';ctx.fill();ctx.strokeStyle=wareData[i].c;ctx.lineWidth=1;ctx.stroke();
+    // Value
+    if(animProg>0.5){
+      ctx.fillStyle=wareData[i].c;ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+      ctx.fillText(wareData[i].v,bxi+barW2/2,barY2-4);
+    }
+    // Label (rotated)
+    ctx.save();
+    ctx.translate(bxi+barW2/2,by+bh-8);ctx.rotate(-0.5);
+    ctx.fillStyle='#8b949e';ctx.font='5.5px sans-serif';ctx.textAlign='right';
+    ctx.fillText(wareData[i].l,0,0);ctx.restore();
+  }
+
+  // Pie chart (right)
+  var px=W*.54,py=H*.06,pw=W*.42,ph=H*.5;
+  rr(px,py,pw,ph,6);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#d29922';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Weight Distribution (%)',px+10,py+16);
+
+  var pieData=[
+    {l:'Coarseware',v:29.8,c:'#d29922'},
+    {l:'Sigillata',v:25.5,c:'#f85149'},
+    {l:'Fineware',v:17.0,c:'#58a6ff'},
+    {l:'Amphora',v:12.8,c:'#3fb950'},
+    {l:'Cooking',v:8.5,c:'#bc8cff'},
+    {l:'Lamp',v:4.3,c:'#39d353'},
+    {l:'Transport',v:2.1,c:'#8b949e'}
+  ];
+  var pcx=px+pw*.45,pcy=py+ph*.55,prad2=Math.min(pw,ph)*.32;
+  var startAngle=-Math.PI/2;
+  var hlIdx=-1;
+  if(A.hlWare){
+    var wareMap={coarseware:0,sigillata:1,fineware:2,amphora:3,cooking:4,lamp:5,transport:6};
+    hlIdx=wareMap[A.hlWare]!==undefined?wareMap[A.hlWare]:-1;
+  }
+
+  for(var j=0;j<pieData.length;j++){
+    var sliceAngle=pieData[j].v/100*Math.PI*2*animProg;
+    var endAngle=startAngle+sliceAngle;
+    var isHl=j===hlIdx;
+    var midAngle=(startAngle+endAngle)/2;
+    var offset=isHl?5:0;
+    var ox=Math.cos(midAngle)*offset,oy=Math.sin(midAngle)*offset;
+
+    ctx.beginPath();
+    ctx.moveTo(pcx+ox,pcy+oy);
+    ctx.arc(pcx+ox,pcy+oy,prad2+(isHl?4:0),startAngle,endAngle);
+    ctx.closePath();
+    ctx.fillStyle=pieData[j].c+(isHl?'55':'33');ctx.fill();
+    ctx.strokeStyle=pieData[j].c;ctx.lineWidth=isHl?2:1;ctx.stroke();
+
+    // Label line
+    if(animProg>0.7&&sliceAngle>0.15){
+      var lx=pcx+Math.cos(midAngle)*(prad2+15),ly=pcy+Math.sin(midAngle)*(prad2+15);
+      ctx.strokeStyle=pieData[j].c+'55';ctx.lineWidth=.5;
+      ctx.beginPath();ctx.moveTo(pcx+Math.cos(midAngle)*prad2,pcy+Math.sin(midAngle)*prad2);ctx.lineTo(lx,ly);ctx.stroke();
+      ctx.fillStyle=pieData[j].c;ctx.font='bold 6px sans-serif';ctx.textAlign=lx>pcx?'left':'right';
+      ctx.fillText(pieData[j].v+'%',lx+(lx>pcx?3:-3),ly+3);
+    }
+
+    startAngle=endAngle;
+  }
+
+  // Summary table (bottom)
+  var sx=W*.04,sy=H*.58,sw=W*.92,sh=H*.36;
+  rr(sx,sy,sw,sh,6);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Quantification Summary',sx+10,sy+16);
+
+  // Table headers
+  var headers=['Ware','Count','Weight(g)','EVE','%Count','%Weight'];
+  var colW=sw/headers.length;
+  ctx.fillStyle='#8b949e';ctx.font='bold 7px sans-serif';
+  for(var h=0;h<headers.length;h++){
+    ctx.textAlign='center';
+    ctx.fillText(headers[h],sx+10+h*colW+colW/2,sy+32);
+  }
+  // Separator
+  ctx.strokeStyle='#30363d';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(sx+8,sy+36);ctx.lineTo(sx+sw-8,sy+36);ctx.stroke();
+
+  // Table rows
+  var rows=[
+    ['Coarseware','14','1146','1.82','29.8%','29.8%'],
+    ['Sigillata','12','980','1.24','25.5%','25.5%'],
+    ['Fineware','8','653','0.86','17.0%','17.0%'],
+    ['Amphora','6','492','0.42','12.8%','12.8%'],
+    ['Cooking','4','327','0.22','8.5%','8.5%'],
+    ['Lamp','2','163','0.12','4.3%','4.3%'],
+    ['Transport','1','81','0.04','2.1%','2.1%']
+  ];
+  var rowColors=['#d29922','#f85149','#58a6ff','#3fb950','#bc8cff','#39d353','#8b949e'];
+  var visRows=Math.min(rows.length, Math.max(1, Math.floor(animProg*rows.length*1.3)));
+  for(var ri=0;ri<visRows;ri++){
+    var ry=sy+42+ri*16;
+    if(ry+14>sy+sh-5)break;
+    if(ri%2===0){rr(sx+8,ry-2,sw-16,14,1);ctx.fillStyle='rgba(255,255,255,.015)';ctx.fill();}
+    for(var ci=0;ci<rows[ri].length;ci++){
+      ctx.fillStyle=ci===0?rowColors[ri]:'#e6edf3';
+      ctx.font=ci===0?'bold 7px sans-serif':'7px sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(rows[ri][ci],sx+10+ci*colW+colW/2,ry+9);
+    }
+  }
+
+  // Export indicator
+  if(A.step>=4){
+    var ex2=sx+sw-100,ey2=sy+sh-25;
+    rr(ex2,ey2,90,18,3);
+    var pulse3=Math.sin(t*2.5)*.3+.7;
+    ctx.fillStyle='rgba(63,185,80,'+(.1*pulse3)+')';ctx.fill();
+    ctx.strokeStyle='#3fb950';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('EXPORT .xlsx .csv',ex2+45,ey2+12);
+  }
+}
+
+function drawScene(ts){
+  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);
+  var t=ts*.001;
+
+  // Subtle animated grid
+  ctx.strokeStyle='rgba(48,54,61,.2)';ctx.lineWidth=.5;
+  var gridSize=40;
+  var offsetX=(t*3)%gridSize;
+  for(var gx=offsetX-gridSize;gx<W+gridSize;gx+=gridSize){
+    ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();
+  }
+  for(var gy=0;gy<H;gy+=gridSize){
+    ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();
+  }
+
+  switch(A.sc){
+    case 0: drawPotteryForm(W,H,t); break;
+    case 1: drawFabricAnalysis(W,H,t); break;
+    case 2: drawDrawingTools(W,H,t); break;
+    case 3: drawStatistics(W,H,t); break;
+  }
+}
+
+function load(i){
+  A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlWare(null);
+  updWareCnts({cSig:0,cCoa:0,cFin:0,cAmp:0,cCoo:0,cLam:0,cTra:0});
+  updRec({id:'--',site:'--',us:'--',ware:'--',form:'--',date:'--'});
+  updStats({tot:0,cls:0,drw:0,wgt:0});
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);
+}
+function exec(si){
+  if(si<0||si>=A.steps.length)return;A.step=si;var s=A.steps[si];
+  addLog(s.log,s.type);
+  if(s.ware!==undefined)hlWare(s.ware);
+  if(s.wareCnts)updWareCnts(s.wareCnts);
+  if(s.rec)updRec(s.rec);
+  if(s.stats)updStats(s.stats);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);
+  updDots();
+  if(A.mode==='auto'&&A.playing)schedNext();
+}
+function schedNext(){
+  clearTimeout(A.timer);var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto'&&A.looping){var n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
+  if(last)return;
+  var d=2200;var s=A.steps[A.step];if(s.type==='success')d=2500;
+  A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+}
+
+sel.addEventListener('change',function(){load(+sel.value);});
+bA.addEventListener('click',function(){A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
+bM.addEventListener('click',function(){A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',function(){A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPr.addEventListener('click',function(){if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
+bNx.addEventListener('click',function(){if(A.step<A.steps.length-1)exec(A.step+1);});
+bRe.addEventListener('click',function(){A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
+bL.addEventListener('click',function(){A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bSt.addEventListener('click',function(){A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
+spB.forEach(function(b){b.addEventListener('click',function(){spB.forEach(function(x){x.classList.remove('on');});b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();});});
+document.addEventListener('keydown',function(e){if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>

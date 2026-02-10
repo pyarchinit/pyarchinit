@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StratiGraph Sync Architecture — Interactive Animation</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1923;
+  --bg2: #162230;
+  --bg3: #1c2e40;
+  --text: #e0e8f0;
+  --text-muted: #8899aa;
+  --accent: #4fc3f7;
+  --accent2: #00e5ff;
+  --success: #66bb6a;
+  --warning: #ffa726;
+  --error: #ef5350;
+  --purple: #ab47bc;
+  --state-editing: #42a5f5;
+  --state-export: #ffa726;
+  --state-validation: #ab47bc;
+  --state-queue: #78909c;
+  --state-success: #66bb6a;
+  --state-failed: #ef5350;
+  --radius: 8px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+html { font-size: 14px; }
+body {
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== LAYOUT ===== */
+.app {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  gap: 0;
+}
+.header {
+  grid-column: 1 / -1;
+  background: var(--bg2);
+  border-bottom: 1px solid rgba(79,195,247,0.2);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.header h1 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+.header h1 span { color: var(--text-muted); font-weight: 400; }
+.main-area {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.sidebar {
+  grid-column: 2;
+  grid-row: 2 / 4;
+  background: var(--bg2);
+  border-left: 1px solid rgba(79,195,247,0.15);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.timeline-area {
+  grid-column: 1;
+  background: var(--bg2);
+  border-top: 1px solid rgba(79,195,247,0.15);
+  padding: 12px 24px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+/* ===== CONTROLS ===== */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.controls button {
+  background: var(--bg3);
+  border: 1px solid rgba(79,195,247,0.3);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.controls button:hover { background: rgba(79,195,247,0.15); border-color: var(--accent); }
+.controls button.active { background: var(--accent); color: #000; border-color: var(--accent); }
+.controls button:disabled { opacity: 0.4; cursor: default; }
+.controls select {
+  background: var(--bg3);
+  border: 1px solid rgba(79,195,247,0.3);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.speed-group, .mode-group { display: flex; gap: 2px; }
+.speed-group button, .mode-group button { border-radius: 0; }
+.speed-group button:first-child, .mode-group button:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.speed-group button:last-child, .mode-group button:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+
+/* ===== STATE DIAGRAM (Upper Area) ===== */
+.state-diagram-wrap {
+  flex: 0 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: center;
+}
+.state-diagram-wrap svg { max-width: 100%; height: auto; }
+
+/* ===== SCENE (Central Area) ===== */
+.scene-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+}
+.scene-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ===== SIDEBAR WIDGETS ===== */
+.widget {
+  background: var(--bg3);
+  border-radius: var(--radius);
+  padding: 14px;
+  border: 1px solid rgba(79,195,247,0.1);
+}
+.widget h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+.connectivity-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.wifi-icon {
+  width: 32px; height: 32px;
+  transition: all 0.3s;
+}
+.wifi-icon.online { filter: drop-shadow(0 0 6px var(--success)); }
+.wifi-icon.offline { filter: drop-shadow(0 0 6px var(--error)); }
+.conn-label { transition: color 0.3s; }
+.conn-label.online { color: var(--success); }
+.conn-label.offline { color: var(--error); }
+.debounce-bar {
+  margin-top: 8px;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.debounce-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  width: 0%;
+  transition: width 0.3s;
+  border-radius: 2px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.stat-row:last-child { border-bottom: none; }
+.stat-label { color: var(--text-muted); font-size: 0.85rem; }
+.stat-value { font-weight: 600; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+
+.backoff-display {
+  text-align: center;
+  padding: 8px 0;
+}
+.backoff-timer {
+  font-size: 2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--warning);
+  text-shadow: 0 0 12px rgba(255,167,38,0.3);
+}
+.backoff-label { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+.backoff-intervals {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.backoff-intervals .interval {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: all 0.3s;
+}
+.backoff-intervals .interval.active {
+  background: rgba(255,167,38,0.15);
+  color: var(--warning);
+  border-color: var(--warning);
+}
+.backoff-intervals .interval.done {
+  background: rgba(102,187,106,0.15);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.current-state-display {
+  text-align: center;
+  padding: 8px 0;
+}
+.current-state-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  display: inline-block;
+  transition: all 0.4s;
+}
+
+/* ===== TIMELINE LOG ===== */
+.timeline-area h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.log-entries { display: flex; flex-direction: column; gap: 4px; }
+.log-entry {
+  display: flex;
+  gap: 10px;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  animation: logFadeIn 0.3s ease;
+  align-items: flex-start;
+}
+@keyframes logFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+.log-time {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 50px;
+  flex-shrink: 0;
+}
+.log-icon { flex-shrink: 0; width: 18px; text-align: center; }
+.log-text { flex: 1; }
+.log-entry.info { background: rgba(79,195,247,0.05); }
+.log-entry.success { background: rgba(102,187,106,0.08); }
+.log-entry.warning { background: rgba(255,167,38,0.08); }
+.log-entry.error { background: rgba(239,83,80,0.08); }
+
+/* ===== SCENARIO DESCRIPTION OVERLAY ===== */
+.scenario-desc {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(15,25,35,0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(79,195,247,0.2);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  max-width: 340px;
+  z-index: 5;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  transition: opacity 0.3s;
+}
+.scenario-desc strong { color: var(--accent); }
+
+/* ===== STEP INDICATOR ===== */
+.step-indicator {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+.step-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: all 0.3s;
+}
+.step-dot.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.step-dot.done { background: var(--success); border-color: var(--success); }
+
+/* ===== KG OVERLAY (Scenario 4) ===== */
+.kg-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+.kg-overlay.visible { display: flex; }
+.kg-overlay svg { max-width: 100%; max-height: 100%; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto auto;
+  }
+  .sidebar {
+    grid-column: 1;
+    grid-row: 4;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-left: none;
+    border-top: 1px solid rgba(79,195,247,0.15);
+  }
+  .widget { flex: 1; min-width: 180px; }
+}
+@media (max-width: 600px) {
+  .header { padding: 8px 12px; }
+  .header h1 { font-size: 1rem; }
+  .state-diagram-wrap { padding: 8px 12px; }
+  .timeline-area { padding: 8px 12px; }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes glow { 0%,100% { filter: drop-shadow(0 0 4px currentColor); } 50% { filter: drop-shadow(0 0 12px currentColor); } }
+.state-active { animation: glow 1.5s ease-in-out infinite; }
+@keyframes particleFlow {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>StratiGraph Sync Architecture <span>— Horizon Europe Interactive Demo</span></h1>
+    <div class="controls">
+      <select id="scenarioSelect">
+        <option value="0">1. Normal Flow (Online)</option>
+        <option value="1">2. Offline → Auto-Sync</option>
+        <option value="2">3. Error + Retry (Backoff)</option>
+        <option value="3">4. Knowledge Graph Overview</option>
+      </select>
+      <div class="mode-group">
+        <button id="btnAuto" class="active" title="Auto-play">&#9654; Auto</button>
+        <button id="btnManual" title="Manual step-by-step">&#9998; Manual</button>
+      </div>
+      <div class="speed-group">
+        <button class="speed-btn active" data-speed="1">1x</button>
+        <button class="speed-btn" data-speed="2">2x</button>
+        <button class="speed-btn" data-speed="4">4x</button>
+      </div>
+      <button id="btnPlayPause" title="Play / Pause">&#10074;&#10074; Pause</button>
+      <button id="btnPrev" disabled title="Previous step">&larr; Back</button>
+      <button id="btnNext" disabled title="Next step">Next &rarr;</button>
+      <button id="btnRestart" title="Restart scenario">&#8634; Restart</button>
+      <button id="btnLoop" title="Loop all scenarios continuously (L)">&#8635; Loop</button>
+      <button id="btnStop" title="Stop and reset (S)" style="display:none;">&#9632; Stop</button>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- State Diagram (Upper) -->
+    <div class="state-diagram-wrap">
+      <svg id="stateDiagram" viewBox="0 0 780 130" width="780" height="130">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--accent)" opacity="0.6"/>
+          </marker>
+          <filter id="glowFilter">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Arrows -->
+        <line x1="135" y1="65" x2="183" y2="65" stroke="var(--accent)" stroke-width="1.5" opacity="0.3" marker-end="url(#arrowhead)" class="state-arrow" data-from="0" data-to="1"/>
+        <line x1="265" y1="65" x2="313" y2="65" stroke="var(--accent)" stroke-width="1.5" opacity="0.3" marker-end="url(#arrowhead)" class="state-arrow" data-from="1" data-to="2"/>
+        <line x1="395" y1="65" x2="443" y2="65" stroke="var(--accent)" stroke-width="1.5" opacity="0.3" marker-end="url(#arrowhead)" class="state-arrow" data-from="2" data-to="3"/>
+        <line x1="525" y1="65" x2="573" y2="65" stroke="var(--accent)" stroke-width="1.5" opacity="0.3" marker-end="url(#arrowhead)" class="state-arrow" data-from="3" data-to="4"/>
+        <!-- Fail arrow (queue → failed) -->
+        <path d="M500,90 Q500,120 590,120 Q660,120 660,90" fill="none" stroke="var(--error)" stroke-width="1.5" opacity="0.2" marker-end="url(#arrowhead)" class="state-arrow" data-from="3" data-to="5"/>
+        <!-- Retry arrow (failed → queue) -->
+        <path d="M660,50 Q660,20 590,20 Q500,20 500,50" fill="none" stroke="var(--warning)" stroke-width="1.5" opacity="0.2" stroke-dasharray="4,3" marker-end="url(#arrowhead)" class="state-arrow" data-from="5" data-to="3"/>
+        <!-- Success loop back -->
+        <path d="M650,40 Q700,0 730,0 Q760,0 760,20 Q760,130 50,130 Q20,130 20,100 Q20,65 60,65" fill="none" stroke="var(--success)" stroke-width="1.5" opacity="0.2" marker-end="url(#arrowhead)" class="state-arrow" data-from="4" data-to="0"/>
+
+        <!-- State nodes -->
+        <g class="state-node" data-state="0" transform="translate(95,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-editing)" stroke-width="2.5"/>
+          <!-- Pencil icon -->
+          <path d="M-8,-14 L4,-2 L1,1 L-5,1 L-5,-5 Z M5,-3 L8,-6 L6,-8 L3,-5 Z" fill="none" stroke="var(--state-editing)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">EDITING</text>
+        </g>
+        <g class="state-node" data-state="1" transform="translate(225,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-export)" stroke-width="2.5"/>
+          <!-- Box/package icon -->
+          <rect x="-10" y="-14" width="20" height="16" rx="2" fill="none" stroke="var(--state-export)" stroke-width="1.5"/>
+          <line x1="-10" y1="-8" x2="10" y2="-8" stroke="var(--state-export)" stroke-width="1.5"/>
+          <line x1="0" y1="-14" x2="0" y2="-8" stroke="var(--state-export)" stroke-width="1.5"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">EXPORT</text>
+        </g>
+        <g class="state-node" data-state="2" transform="translate(355,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-validation)" stroke-width="2.5"/>
+          <!-- Shield/check icon -->
+          <path d="M0,-16 L10,-10 L10,-2 C10,6 0,12 0,12 C0,12 -10,6 -10,-2 L-10,-10 Z" fill="none" stroke="var(--state-validation)" stroke-width="1.5"/>
+          <polyline points="-4,-2 -1,2 5,-5" fill="none" stroke="var(--state-validation)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">VALIDATE</text>
+        </g>
+        <g class="state-node" data-state="3" transform="translate(485,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-queue)" stroke-width="2.5"/>
+          <!-- Clock icon -->
+          <circle cx="0" cy="-5" r="11" fill="none" stroke="var(--state-queue)" stroke-width="1.5"/>
+          <polyline points="0,-10 0,-5 5,-2" fill="none" stroke="var(--state-queue)" stroke-width="1.5" stroke-linecap="round"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">QUEUE</text>
+        </g>
+        <g class="state-node" data-state="4" transform="translate(615,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-success)" stroke-width="2.5"/>
+          <!-- Checkmark icon -->
+          <polyline points="-8,-4 -3,4 8,-8" fill="none" stroke="var(--state-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">SUCCESS</text>
+        </g>
+        <g class="state-node" data-state="5" transform="translate(695,65)">
+          <circle r="38" fill="var(--bg3)" stroke="var(--state-failed)" stroke-width="2.5"/>
+          <!-- X icon -->
+          <line x1="-7" y1="-11" x2="7" y2="1" stroke="var(--state-failed)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="7" y1="-11" x2="-7" y2="1" stroke="var(--state-failed)" stroke-width="2.5" stroke-linecap="round"/>
+          <text y="14" text-anchor="middle" fill="var(--text)" font-size="8" font-weight="600">FAILED</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Scene (Central animated area) -->
+    <div class="scene-wrap">
+      <canvas id="sceneCanvas" class="scene-canvas"></canvas>
+      <div class="scenario-desc" id="scenarioDesc"></div>
+      <div class="step-indicator" id="stepIndicator"></div>
+      <!-- KG Overlay for scenario 4 -->
+      <div class="kg-overlay" id="kgOverlay">
+        <svg id="kgSvg" viewBox="0 0 700 400" width="700" height="400"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="widget">
+      <h3>Connectivity</h3>
+      <div class="connectivity-indicator">
+        <svg class="wifi-icon online" id="wifiIcon" viewBox="0 0 24 24">
+          <path id="wifi3" d="M1.5 8.5c5.8-5.8 15.2-5.8 21 0" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/>
+          <path id="wifi2" d="M5.5 12.5c3.6-3.6 9.4-3.6 13 0" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/>
+          <path id="wifi1" d="M9.5 16.5c1.4-1.4 3.6-1.4 5 0" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="20" r="1.5" fill="var(--success)" id="wifiDot"/>
+        </svg>
+        <span class="conn-label online" id="connLabel">ONLINE</span>
+      </div>
+      <div class="debounce-bar"><div class="debounce-bar-fill" id="debounceFill"></div></div>
+      <div style="font-size:0.7rem;color:var(--text-muted);margin-top:4px;" id="debounceText">Debounce: 2 consecutive checks</div>
+    </div>
+
+    <div class="widget">
+      <h3>Queue Status</h3>
+      <div class="stat-row">
+        <span class="stat-label">Bundles in Queue</span>
+        <span class="stat-value" id="queueCount">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Synced Total</span>
+        <span class="stat-value" id="syncedCount">0</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Failed Total</span>
+        <span class="stat-value" id="failedCount">0</span>
+      </div>
+    </div>
+
+    <div class="widget">
+      <h3>Backoff Timer</h3>
+      <div class="backoff-display">
+        <div class="backoff-timer" id="backoffTimer">--</div>
+        <div class="backoff-label" id="backoffLabel">No active retry</div>
+      </div>
+      <div class="backoff-intervals" id="backoffIntervals">
+        <span class="interval" data-i="0">30s</span>
+        <span class="interval" data-i="1">60s</span>
+        <span class="interval" data-i="2">120s</span>
+        <span class="interval" data-i="3">300s</span>
+        <span class="interval" data-i="4">900s</span>
+      </div>
+    </div>
+
+    <div class="widget">
+      <h3>Current State</h3>
+      <div class="current-state-display">
+        <span class="current-state-name" id="currentStateName" style="background:rgba(66,165,245,0.15);color:var(--state-editing);">OFFLINE_EDITING</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE LOG -->
+  <div class="timeline-area">
+    <h3>Event Log</h3>
+    <div class="log-entries" id="logEntries"></div>
+  </div>
+</div>
+
+<script>
+// ===================================================================
+// StratiGraph Sync Animation — Main Application
+// ===================================================================
+
+(function() {
+'use strict';
+
+// ---- Constants ----
+const STATE_NAMES = [
+  'OFFLINE_EDITING', 'LOCAL_EXPORT', 'LOCAL_VALIDATION',
+  'QUEUED_FOR_SYNC', 'SYNC_SUCCESS', 'SYNC_FAILED'
+];
+const STATE_COLORS = ['#42a5f5','#ffa726','#ab47bc','#78909c','#66bb6a','#ef5350'];
+const STATE_POSITIONS = [
+  {x:95,y:65},{x:225,y:65},{x:355,y:65},
+  {x:485,y:65},{x:615,y:65},{x:695,y:65}
+];
+const BACKOFF_INTERVALS = [30, 60, 120, 300, 900];
+
+// ---- State ----
+const app = {
+  scenario: 0,
+  mode: 'auto',       // 'auto' | 'manual'
+  speed: 1,
+  playing: true,
+  currentStep: 0,
+  currentState: 0,    // index into STATE_NAMES
+  online: true,
+  queueCount: 0,
+  syncedCount: 0,
+  failedCount: 0,
+  backoffIndex: -1,
+  backoffRemaining: 0,
+  steps: [],
+  animationTime: 0,
+  lastTimestamp: 0,
+  pendingStepTimer: null,
+  particles: [],
+  bundlePos: null,     // {x,y} or null
+  bundleTarget: null,
+  bundleProgress: 0,
+  sceneObjects: [],
+  logCounter: 0,
+  looping: false,
+};
+
+// ---- DOM refs ----
+const $ = id => document.getElementById(id);
+const scenarioSelect = $('scenarioSelect');
+const btnAuto = $('btnAuto');
+const btnManual = $('btnManual');
+const btnPlayPause = $('btnPlayPause');
+const btnPrev = $('btnPrev');
+const btnNext = $('btnNext');
+const btnRestart = $('btnRestart');
+const btnLoop = $('btnLoop');
+const btnStop = $('btnStop');
+const speedBtns = document.querySelectorAll('.speed-btn');
+const logEntries = $('logEntries');
+const canvas = $('sceneCanvas');
+const ctx = canvas.getContext('2d');
+const scenarioDesc = $('scenarioDesc');
+const stepIndicator = $('stepIndicator');
+const kgOverlay = $('kgOverlay');
+
+// ---- Scenario Definitions ----
+function buildScenarios() {
+  return [
+    // Scenario 0: Normal Flow (Online)
+    {
+      title: 'Normal Flow (Online)',
+      description: '<strong>Normal sync flow:</strong> Archaeologist edits data on-site, exports a bundle, validates locally, queues for sync, and successfully uploads to the cloud.',
+      steps: [
+        { state:0, online:true, log:'Archaeologist opens PyArchInit and begins editing stratigraphic data.', type:'info', desc:'The archaeologist records field data using the QGIS plugin.' },
+        { state:0, online:true, log:'Data entered: US 101 — Wall foundation, Period II, Phase 1.', type:'info', desc:'Detailed archaeological context is recorded.' },
+        { state:1, online:true, log:'Triggering local export: packaging data into a sync bundle (ZIP).', type:'info', desc:'All modified records are serialized into a portable ZIP bundle.' },
+        { state:1, online:true, log:'Bundle created: stratigraph_bundle_20260209_001.zip (2.4 MB)', type:'info', desc:'The bundle contains GeoJSON, metadata, and attachments.' },
+        { state:2, online:true, log:'Running local validation: schema check, referential integrity...', type:'info', desc:'Validation ensures the bundle is well-formed before upload.' },
+        { state:2, online:true, log:'Validation PASSED — bundle is ready for sync.', type:'success', desc:'All checks passed. The bundle can be synced.' },
+        { state:3, online:true, log:'Bundle added to sync queue. Position: 1. Checking connectivity...', type:'info', queue:1, desc:'The bundle enters the sync queue.' },
+        { state:3, online:true, log:'Connectivity confirmed (2/2 checks). Starting upload...', type:'info', desc:'Debounce: two consecutive online checks confirm real connectivity.' },
+        { state:4, online:true, log:'Upload complete. Server acknowledged bundle. SYNC_SUCCESS!', type:'success', queue:0, synced:1, desc:'The cloud server received and processed the bundle.' },
+        { state:0, online:true, log:'Returning to OFFLINE_EDITING. Ready for new data entry.', type:'info', desc:'The cycle is complete. The system is ready for the next edit.' },
+      ]
+    },
+    // Scenario 1: Offline → Auto-Sync
+    {
+      title: 'Offline → Auto-Sync',
+      description: '<strong>Offline scenario:</strong> The archaeologist works without connectivity. When the connection returns, the queued bundle auto-syncs.',
+      steps: [
+        { state:0, online:false, log:'Working offline on-site. No internet available.', type:'warning', desc:'The plugin detects no connectivity and operates in offline mode.' },
+        { state:0, online:false, log:'Recording data: Tomb 14, individual burial, supine position.', type:'info', desc:'Archaeological recording continues without network.' },
+        { state:1, online:false, log:'Exporting bundle locally...', type:'info', desc:'Export works identically offline.' },
+        { state:2, online:false, log:'Local validation running...', type:'info', desc:'Validation is entirely local — no network needed.' },
+        { state:2, online:false, log:'Validation PASSED.', type:'success', desc:'Bundle is valid and ready.' },
+        { state:3, online:false, log:'Bundle queued. No connectivity — waiting for connection...', type:'warning', queue:1, desc:'The bundle sits in the queue until the network returns.' },
+        { state:3, online:false, log:'Connectivity check: OFFLINE. Bundle remains queued.', type:'warning', desc:'Periodic checks detect no network.' },
+        { state:3, online:true, log:'Network detected! Running debounce (check 1/2)...', type:'info', desc:'First connectivity check — need one more to confirm.' },
+        { state:3, online:true, log:'Debounce passed (check 2/2). Auto-syncing queued bundle...', type:'info', desc:'Two consecutive checks confirm stable connectivity.' },
+        { state:4, online:true, log:'AUTO-SYNC complete! Bundle uploaded successfully.', type:'success', queue:0, synced:1, desc:'The queued bundle was automatically synced when connectivity returned.' },
+        { state:0, online:true, log:'Back to OFFLINE_EDITING. All data synchronized.', type:'info', desc:'Seamless transition back to editing.' },
+      ]
+    },
+    // Scenario 2: Error + Retry with Backoff
+    {
+      title: 'Error + Retry (Backoff)',
+      description: '<strong>Error & retry:</strong> Sync fails due to server error. Exponential backoff retries at increasing intervals until success.',
+      steps: [
+        { state:0, online:true, log:'Editing data: updating pottery inventory for Trench B.', type:'info', desc:'Normal editing session.' },
+        { state:1, online:true, log:'Exporting sync bundle...', type:'info', desc:'Bundle creation.' },
+        { state:2, online:true, log:'Validation PASSED.', type:'success', desc:'Bundle is valid.' },
+        { state:3, online:true, log:'Attempting sync... uploading to server...', type:'info', queue:1, desc:'First sync attempt.' },
+        { state:5, online:true, log:'SYNC_FAILED! Server returned 503 (Service Unavailable).', type:'error', failed:1, desc:'The server is temporarily down.' },
+        { state:5, online:true, log:'Exponential backoff: retrying in 30s...', type:'warning', backoff:0, desc:'First backoff interval: 30 seconds.' },
+        { state:3, online:true, log:'Retry #1: re-uploading bundle...', type:'info', desc:'Automatic retry after backoff.' },
+        { state:5, online:true, log:'SYNC_FAILED again! Server returned 503.', type:'error', desc:'Server still unavailable.' },
+        { state:5, online:true, log:'Exponential backoff: retrying in 60s...', type:'warning', backoff:1, desc:'Second backoff interval: 60 seconds (doubled).' },
+        { state:3, online:true, log:'Retry #2: re-uploading bundle...', type:'info', desc:'Another retry attempt.' },
+        { state:4, online:true, log:'SYNC_SUCCESS! Server recovered. Bundle accepted.', type:'success', queue:0, synced:1, desc:'The server came back and accepted the bundle.' },
+        { state:0, online:true, log:'Back to OFFLINE_EDITING. Retry mechanism worked!', type:'info', desc:'Backoff strategy successfully handled transient failure.' },
+      ]
+    },
+    // Scenario 3: Knowledge Graph Overview
+    {
+      title: 'Knowledge Graph Overview',
+      description: '<strong>Knowledge Graph:</strong> Multiple archaeological tools (PyArchInit, GIS, photogrammetry, etc.) feed data into a central Knowledge Graph that enables cross-project queries.',
+      steps: [
+        { state:-1, online:true, log:'Knowledge Graph overview: multiple data sources feed the central KG.', type:'info', kg:'init', desc:'The Horizon Europe architecture uses a central Knowledge Graph.' },
+        { state:-1, online:true, log:'PyArchInit exports stratigraphic data → KG node: Stratigraphy.', type:'info', kg:'pyarchinit', desc:'PyArchInit contributes stratigraphic relationships.' },
+        { state:-1, online:true, log:'GIS exports spatial layers → KG node: Spatial Data.', type:'info', kg:'gis', desc:'Geographic layers are integrated as spatial knowledge.' },
+        { state:-1, online:true, log:'Photogrammetry exports 3D models → KG node: 3D Models.', type:'info', kg:'photo', desc:'3D documentation enriches the knowledge base.' },
+        { state:-1, online:true, log:'Finds database exports artifact records → KG node: Artifacts.', type:'info', kg:'finds', desc:'Material culture data feeds into artifact ontology.' },
+        { state:-1, online:true, log:'Environmental analysis exports results → KG node: Environment.', type:'info', kg:'env', desc:'Environmental and dating analyses are linked.' },
+        { state:-1, online:true, log:'All data interconnected in the KG. Cross-project queries enabled!', type:'success', kg:'all', desc:'The KG allows querying across all domains and projects.' },
+        { state:-1, online:true, log:'Example query: "Find all Phase II walls with associated pottery dating 2nd c. AD"', type:'info', kg:'query', desc:'Semantic queries span multiple data sources via the KG.' },
+      ]
+    }
+  ];
+}
+
+const SCENARIOS = buildScenarios();
+
+// ===================================================================
+// UI Updates
+// ===================================================================
+
+function updateConnectivity(online) {
+  app.online = online;
+  const icon = $('wifiIcon');
+  const label = $('connLabel');
+  const color = online ? 'var(--success)' : 'var(--error)';
+  icon.classList.toggle('online', online);
+  icon.classList.toggle('offline', !online);
+  label.classList.toggle('online', online);
+  label.classList.toggle('offline', !online);
+  label.textContent = online ? 'ONLINE' : 'OFFLINE';
+  ['wifi1','wifi2','wifi3','wifiDot'].forEach(id => {
+    $(id).setAttribute(id === 'wifiDot' ? 'fill' : 'stroke', color);
+    if(id === 'wifiDot') $(id).setAttribute('fill', color);
+  });
+}
+
+function updateQueueCount(n) {
+  if(n !== undefined) app.queueCount = n;
+  $('queueCount').textContent = app.queueCount;
+}
+
+function updateSyncedCount(n) {
+  if(n !== undefined) app.syncedCount += n;
+  $('syncedCount').textContent = app.syncedCount;
+}
+
+function updateFailedCount(n) {
+  if(n !== undefined) app.failedCount += n;
+  $('failedCount').textContent = app.failedCount;
+}
+
+function updateBackoff(index, remaining) {
+  app.backoffIndex = index;
+  app.backoffRemaining = remaining;
+  const timer = $('backoffTimer');
+  const label = $('backoffLabel');
+  const intervals = $('backoffIntervals').children;
+  if(index < 0) {
+    timer.textContent = '--';
+    timer.style.color = 'var(--text-muted)';
+    label.textContent = 'No active retry';
+    for(let i=0;i<intervals.length;i++) {
+      intervals[i].classList.remove('active','done');
+    }
+  } else {
+    timer.textContent = remaining + 's';
+    timer.style.color = 'var(--warning)';
+    label.textContent = 'Retry #' + (index+1) + ' backoff';
+    for(let i=0;i<intervals.length;i++) {
+      intervals[i].classList.toggle('active', i === index);
+      intervals[i].classList.toggle('done', i < index);
+    }
+  }
+}
+
+function updateCurrentState(index) {
+  app.currentState = index;
+  const el = $('currentStateName');
+  if(index < 0) {
+    el.textContent = 'KNOWLEDGE GRAPH';
+    el.style.background = 'rgba(79,195,247,0.15)';
+    el.style.color = 'var(--accent)';
+  } else {
+    el.textContent = STATE_NAMES[index];
+    el.style.background = STATE_COLORS[index] + '22';
+    el.style.color = STATE_COLORS[index];
+  }
+  // Update SVG state diagram highlights
+  document.querySelectorAll('.state-node circle').forEach((circle, i) => {
+    if(i === index) {
+      circle.setAttribute('stroke-width', '4');
+      circle.parentElement.classList.add('state-active');
+      circle.style.filter = 'url(#glowFilter)';
+    } else {
+      circle.setAttribute('stroke-width', '2.5');
+      circle.parentElement.classList.remove('state-active');
+      circle.style.filter = '';
+    }
+  });
+  // Highlight relevant arrows
+  document.querySelectorAll('.state-arrow').forEach(arrow => {
+    const from = parseInt(arrow.dataset.from);
+    const to = parseInt(arrow.dataset.to);
+    const isActive = from === index;
+    arrow.setAttribute('opacity', isActive ? '0.9' : '0.2');
+    arrow.setAttribute('stroke-width', isActive ? '2.5' : '1.5');
+  });
+}
+
+function addLogEntry(text, type) {
+  app.logCounter++;
+  const time = new Date();
+  const ts = time.getMinutes().toString().padStart(2,'0') + ':' + time.getSeconds().toString().padStart(2,'0');
+  const icons = { info:'&#8505;', success:'&#10004;', warning:'&#9888;', error:'&#10008;' };
+  const colors = { info:'var(--accent)', success:'var(--success)', warning:'var(--warning)', error:'var(--error)' };
+  const entry = document.createElement('div');
+  entry.className = 'log-entry ' + type;
+  entry.innerHTML = `<span class="log-time">${ts}</span><span class="log-icon" style="color:${colors[type]}">${icons[type]}</span><span class="log-text">${text}</span>`;
+  logEntries.prepend(entry);
+  // Keep max 30 entries
+  while(logEntries.children.length > 30) logEntries.removeChild(logEntries.lastChild);
+}
+
+function updateStepIndicator() {
+  stepIndicator.innerHTML = '';
+  const steps = app.steps;
+  for(let i = 0; i < steps.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    if(i === app.currentStep) dot.classList.add('active');
+    else if(i < app.currentStep) dot.classList.add('done');
+    stepIndicator.appendChild(dot);
+  }
+}
+
+function updateScenarioDesc(text) {
+  scenarioDesc.innerHTML = text || '';
+  scenarioDesc.style.opacity = text ? '1' : '0';
+}
+
+// ===================================================================
+// Scene Canvas Rendering
+// ===================================================================
+
+const sceneElements = {
+  archaeologist: { x: 0.08, y: 0.55 },
+  laptop: { x: 0.25, y: 0.5 },
+  bundle: { x: 0.45, y: 0.5 },
+  cloud: { x: 0.72, y: 0.3 },
+  server: { x: 0.88, y: 0.5 },
+};
+
+function resizeCanvas() {
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * (window.devicePixelRatio || 1);
+  canvas.height = rect.height * (window.devicePixelRatio || 1);
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.setTransform(window.devicePixelRatio || 1, 0, 0, window.devicePixelRatio || 1, 0, 0);
+}
+
+function drawRoundedRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+function drawScene(time) {
+  const W = canvas.width / (window.devicePixelRatio || 1);
+  const H = canvas.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+
+  if(app.scenario === 3) return; // KG scenario uses SVG overlay
+
+  const t = time * 0.001;
+
+  // Ground line
+  ctx.strokeStyle = 'rgba(79,195,247,0.1)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H*0.78);
+  ctx.lineTo(W, H*0.78);
+  ctx.stroke();
+
+  // Dotted path connecting elements
+  ctx.setLineDash([4,4]);
+  ctx.strokeStyle = 'rgba(79,195,247,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(W*0.12, H*0.55);
+  ctx.lineTo(W*0.88, H*0.55);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw archaeologist (stick figure)
+  const ax = W * 0.08, ay = H * 0.4;
+  ctx.strokeStyle = '#42a5f5';
+  ctx.lineWidth = 2;
+  ctx.fillStyle = '#42a5f5';
+  // Head
+  ctx.beginPath(); ctx.arc(ax, ay, 8, 0, Math.PI*2); ctx.fill();
+  // Body
+  ctx.beginPath(); ctx.moveTo(ax, ay+8); ctx.lineTo(ax, ay+30); ctx.stroke();
+  // Arms
+  ctx.beginPath(); ctx.moveTo(ax-12, ay+16); ctx.lineTo(ax+12, ay+16); ctx.stroke();
+  // Legs
+  ctx.beginPath(); ctx.moveTo(ax, ay+30); ctx.lineTo(ax-8, ay+45); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ax, ay+30); ctx.lineTo(ax+8, ay+45); ctx.stroke();
+  // Label
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = '#8899aa';
+  ctx.textAlign = 'center';
+  ctx.fillText('Archaeologist', ax, ay + 60);
+
+  // Laptop
+  const lx = W * 0.24, ly = H * 0.42;
+  drawRoundedRect(lx-20, ly-12, 40, 28, 3);
+  ctx.fillStyle = app.currentState === 0 ? 'rgba(66,165,245,0.2)' : 'rgba(30,40,50,0.6)';
+  ctx.fill();
+  ctx.strokeStyle = app.currentState === 0 ? '#42a5f5' : '#556677';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // Screen glow
+  if(app.currentState === 0) {
+    ctx.fillStyle = 'rgba(66,165,245,' + (0.3 + 0.15 * Math.sin(t*3)) + ')';
+    drawRoundedRect(lx-16, ly-8, 32, 18, 2);
+    ctx.fill();
+  }
+  // Keyboard base
+  ctx.fillStyle = '#334455';
+  ctx.fillRect(lx-22, ly+17, 44, 4);
+  ctx.fillStyle = '#8899aa';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PyArchInit', lx, ly + 36);
+  ctx.fillText('(QGIS Plugin)', lx, ly + 48);
+
+  // Bundle/ZIP icon
+  const bx = W * 0.44, by = H * 0.38;
+  const bundleVisible = app.currentState >= 1 && app.currentState <= 4;
+  if(bundleVisible || app.currentState === 5) {
+    const bobY = by + 3 * Math.sin(t * 2);
+    ctx.save();
+    // Moving bundle based on state
+    let drawX = bx, drawY = bobY;
+    if(app.bundlePos) {
+      drawX = app.bundlePos.x;
+      drawY = app.bundlePos.y + 3 * Math.sin(t * 2);
+    }
+    drawRoundedRect(drawX-14, drawY-14, 28, 32, 4);
+    const bColor = app.currentState === 5 ? '#ef5350' : (app.currentState === 4 ? '#66bb6a' : '#ffa726');
+    ctx.fillStyle = bColor + '33';
+    ctx.fill();
+    ctx.strokeStyle = bColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // ZIP label
+    ctx.fillStyle = bColor;
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('ZIP', drawX, drawY + 3);
+    // Zipper lines
+    ctx.strokeStyle = bColor + '66';
+    ctx.lineWidth = 0.5;
+    for(let i=0;i<3;i++) {
+      ctx.beginPath();
+      ctx.moveTo(drawX-6, drawY-10+i*6);
+      ctx.lineTo(drawX+6, drawY-10+i*6);
+      ctx.stroke();
+    }
+    ctx.restore();
+    ctx.fillStyle = '#8899aa';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Sync Bundle', bx, by + 32);
+  }
+
+  // Validation check icon
+  if(app.currentState === 2) {
+    const vx = W * 0.36, vy = H * 0.25;
+    ctx.save();
+    ctx.strokeStyle = '#ab47bc';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(vx, vy, 14, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.strokeStyle = '#ab47bc';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(vx-6, vy);
+    ctx.lineTo(vx-1, vy+6);
+    ctx.lineTo(vx+7, vy-5);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Queue visualization
+  if(app.currentState === 3) {
+    const qx = W * 0.56, qy = H * 0.35;
+    ctx.save();
+    ctx.strokeStyle = '#78909c';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3,3]);
+    drawRoundedRect(qx-24, qy-16, 48, 36, 4);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#78909c';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('QUEUE', qx, qy + 32);
+    // Clock icon
+    ctx.beginPath();
+    ctx.arc(qx, qy, 10, 0, Math.PI*2);
+    ctx.strokeStyle = '#78909c';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Clock hands
+    const angle = t * 2;
+    ctx.beginPath();
+    ctx.moveTo(qx, qy);
+    ctx.lineTo(qx + 6*Math.cos(angle - Math.PI/2), qy + 6*Math.sin(angle - Math.PI/2));
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(qx, qy);
+    ctx.lineTo(qx + 4*Math.cos(angle*0.3 - Math.PI/2), qy + 4*Math.sin(angle*0.3 - Math.PI/2));
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Cloud / Server
+  const cx = W * 0.72, cy = H * 0.28;
+  ctx.save();
+  // Cloud shape
+  ctx.fillStyle = app.online ? 'rgba(102,187,106,0.1)' : 'rgba(239,83,80,0.1)';
+  ctx.strokeStyle = app.online ? '#66bb6a' : '#ef5350';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 20, Math.PI*0.9, Math.PI*0.1);
+  ctx.arc(cx+16, cy-6, 14, Math.PI*1.2, Math.PI*0.4);
+  ctx.arc(cx+20, cy+8, 12, Math.PI*1.6, Math.PI*0.7);
+  ctx.arc(cx-16, cy+8, 12, Math.PI*0.3, Math.PI*1.4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#8899aa';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Cloud Server', cx+2, cy + 36);
+  ctx.restore();
+
+  // Server / KG endpoint
+  const sx = W * 0.88, sy = H * 0.35;
+  ctx.save();
+  drawRoundedRect(sx-18, sy-16, 36, 40, 4);
+  ctx.fillStyle = 'rgba(79,195,247,0.1)';
+  ctx.fill();
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  // Server lines
+  ctx.strokeStyle = 'rgba(79,195,247,0.4)';
+  ctx.lineWidth = 0.8;
+  for(let i=0;i<3;i++) {
+    ctx.beginPath();
+    ctx.moveTo(sx-12, sy-8+i*10);
+    ctx.lineTo(sx+12, sy-8+i*10);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(sx-8, sy-5+i*10, 2, 0, Math.PI*2);
+    ctx.fillStyle = i===0 ? '#66bb6a' : (i===1 ? '#ffa726' : '#42a5f5');
+    ctx.fill();
+  }
+  ctx.fillStyle = '#8899aa';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Knowledge', sx, sy + 36);
+  ctx.fillText('Graph', sx, sy + 48);
+  ctx.restore();
+
+  // Connection line between cloud and server
+  ctx.beginPath();
+  ctx.moveTo(cx+30, cy+8);
+  ctx.lineTo(sx-20, sy);
+  ctx.strokeStyle = 'rgba(79,195,247,0.15)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3,3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Animated particles along the path when syncing
+  if(app.currentState === 3 || app.currentState === 4) {
+    drawParticles(t, W, H);
+  }
+
+  // Offline overlay
+  if(!app.online) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(239,83,80,0.06)';
+    ctx.fillRect(W*0.5, 0, W*0.5, H);
+    // "No Signal" text
+    ctx.fillStyle = 'rgba(239,83,80,0.5)';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('NO NETWORK', W*0.72, H*0.75);
+    // Diagonal lines
+    ctx.strokeStyle = 'rgba(239,83,80,0.08)';
+    ctx.lineWidth = 1;
+    for(let i=-10;i<20;i++) {
+      ctx.beginPath();
+      ctx.moveTo(W*0.5 + i*30, 0);
+      ctx.lineTo(W*0.5 + i*30 - H*0.5, H);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Backoff countdown visualization
+  if(app.backoffRemaining > 0 && app.currentState === 5) {
+    const bkx = W*0.56, bky = H*0.2;
+    ctx.save();
+    ctx.fillStyle = 'rgba(255,167,38,0.1)';
+    ctx.beginPath();
+    ctx.arc(bkx, bky, 24, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffa726';
+    ctx.lineWidth = 2;
+    // Arc showing remaining
+    const total = BACKOFF_INTERVALS[app.backoffIndex] || 30;
+    const frac = app.backoffRemaining / total;
+    ctx.beginPath();
+    ctx.arc(bkx, bky, 24, -Math.PI/2, -Math.PI/2 + Math.PI*2*frac);
+    ctx.stroke();
+    ctx.fillStyle = '#ffa726';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(app.backoffRemaining + 's', bkx, bky);
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('BACKOFF', bkx, bky + 38);
+    ctx.restore();
+  }
+
+  // Success celebration effect
+  if(app.currentState === 4) {
+    ctx.save();
+    const sparkles = 8;
+    for(let i=0;i<sparkles;i++) {
+      const a = (Math.PI*2 / sparkles) * i + t * 0.5;
+      const r = 30 + 10 * Math.sin(t*3 + i);
+      const px = cx + Math.cos(a)*r;
+      const py = cy + Math.sin(a)*r;
+      ctx.fillStyle = 'rgba(102,187,106,' + (0.3 + 0.3*Math.sin(t*4+i)) + ')';
+      ctx.beginPath();
+      ctx.arc(px, py, 2, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Error X effect
+  if(app.currentState === 5) {
+    ctx.save();
+    const ex = cx, ey = cy;
+    ctx.strokeStyle = 'rgba(239,83,80,' + (0.3 + 0.3*Math.sin(t*5)) + ')';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(ex-10,ey-10); ctx.lineTo(ex+10,ey+10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ex+10,ey-10); ctx.lineTo(ex-10,ey+10); ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawParticles(t, W, H) {
+  const fromX = W * 0.48, fromY = H * 0.42;
+  const toX = W * 0.70, toY = H * 0.30;
+  const count = 5;
+  for(let i = 0; i < count; i++) {
+    const p = ((t * 0.4 + i / count) % 1);
+    const px = fromX + (toX - fromX) * p;
+    const py = fromY + (toY - fromY) * p - 10 * Math.sin(p * Math.PI);
+    const alpha = p < 0.1 ? p/0.1 : (p > 0.9 ? (1-p)/0.1 : 1);
+    ctx.fillStyle = 'rgba(79,195,247,' + (alpha * 0.8) + ')';
+    ctx.beginPath();
+    ctx.arc(px, py, 2.5, 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+// ===================================================================
+// Knowledge Graph SVG (Scenario 4)
+// ===================================================================
+
+function buildKGSvg() {
+  const svg = $('kgSvg');
+  svg.innerHTML = `
+    <defs>
+      <filter id="kgGlow">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <marker id="kgArrow" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto">
+        <polygon points="0 0, 6 2, 0 4" fill="var(--accent)" opacity="0.5"/>
+      </marker>
+    </defs>
+
+    <!-- Central KG node -->
+    <circle cx="350" cy="200" r="50" fill="rgba(79,195,247,0.1)" stroke="var(--accent)" stroke-width="2" id="kgCenter"/>
+    <text x="350" y="195" text-anchor="middle" fill="var(--accent)" font-size="12" font-weight="bold">Knowledge</text>
+    <text x="350" y="210" text-anchor="middle" fill="var(--accent)" font-size="12" font-weight="bold">Graph</text>
+
+    <!-- Source nodes -->
+    <g class="kg-source" id="kgPyarchinit" opacity="0.2">
+      <line x1="172" y1="96" x2="308" y2="170" stroke="var(--state-editing)" stroke-width="1.5" marker-end="url(#kgArrow)" stroke-dasharray="4,3"/>
+      <circle cx="140" cy="80" r="34" fill="rgba(66,165,245,0.1)" stroke="var(--state-editing)" stroke-width="1.5"/>
+      <text x="140" y="76" text-anchor="middle" fill="var(--state-editing)" font-size="9" font-weight="bold">PyArchInit</text>
+      <text x="140" y="90" text-anchor="middle" fill="var(--text-muted)" font-size="8">Stratigraphy</text>
+    </g>
+    <g class="kg-source" id="kgGis" opacity="0.2">
+      <line x1="148" y1="228" x2="300" y2="208" stroke="var(--state-export)" stroke-width="1.5" marker-end="url(#kgArrow)" stroke-dasharray="4,3"/>
+      <circle cx="115" cy="235" r="34" fill="rgba(255,167,38,0.1)" stroke="var(--state-export)" stroke-width="1.5"/>
+      <text x="115" y="231" text-anchor="middle" fill="var(--state-export)" font-size="9" font-weight="bold">GIS</text>
+      <text x="115" y="245" text-anchor="middle" fill="var(--text-muted)" font-size="8">Spatial Data</text>
+    </g>
+    <g class="kg-source" id="kgPhoto" opacity="0.2">
+      <line x1="195" y1="342" x2="318" y2="240" stroke="var(--state-validation)" stroke-width="1.5" marker-end="url(#kgArrow)" stroke-dasharray="4,3"/>
+      <circle cx="170" cy="360" r="34" fill="rgba(171,71,188,0.1)" stroke="var(--state-validation)" stroke-width="1.5"/>
+      <text x="170" y="356" text-anchor="middle" fill="var(--state-validation)" font-size="9" font-weight="bold">Photogramm.</text>
+      <text x="170" y="370" text-anchor="middle" fill="var(--text-muted)" font-size="8">3D Models</text>
+    </g>
+    <g class="kg-source" id="kgFinds" opacity="0.2">
+      <line x1="528" y1="96" x2="392" y2="170" stroke="var(--state-success)" stroke-width="1.5" marker-end="url(#kgArrow)" stroke-dasharray="4,3"/>
+      <circle cx="560" cy="80" r="34" fill="rgba(102,187,106,0.1)" stroke="var(--state-success)" stroke-width="1.5"/>
+      <text x="560" y="76" text-anchor="middle" fill="var(--state-success)" font-size="9" font-weight="bold">Finds DB</text>
+      <text x="560" y="90" text-anchor="middle" fill="var(--text-muted)" font-size="8">Artifacts</text>
+    </g>
+    <g class="kg-source" id="kgEnv" opacity="0.2">
+      <line x1="552" y1="228" x2="400" y2="208" stroke="var(--state-failed)" stroke-width="1.5" marker-end="url(#kgArrow)" stroke-dasharray="4,3"/>
+      <circle cx="585" cy="235" r="34" fill="rgba(239,83,80,0.1)" stroke="var(--state-failed)" stroke-width="1.5"/>
+      <text x="585" y="231" text-anchor="middle" fill="var(--state-failed)" font-size="9" font-weight="bold">Env. Analysis</text>
+      <text x="585" y="245" text-anchor="middle" fill="var(--text-muted)" font-size="8">Dating / Env</text>
+    </g>
+
+    <!-- Query result indicator -->
+    <g id="kgQuery" opacity="0">
+      <rect x="270" y="280" width="160" height="40" rx="6" fill="rgba(79,195,247,0.1)" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="350" y="302" text-anchor="middle" fill="var(--accent)" font-size="10">&#128269; Cross-project Query</text>
+    </g>
+  `;
+}
+
+function updateKG(step) {
+  if(!step || !step.kg) return;
+  const kgMap = {
+    'pyarchinit': 'kgPyarchinit',
+    'gis': 'kgGis',
+    'photo': 'kgPhoto',
+    'finds': 'kgFinds',
+    'env': 'kgEnv',
+  };
+  if(step.kg === 'init') {
+    // Reset all to dim
+    Object.values(kgMap).forEach(id => {
+      const el = $(id);
+      if(el) el.setAttribute('opacity', '0.2');
+    });
+    $('kgQuery').setAttribute('opacity', '0');
+    $('kgCenter').setAttribute('stroke-width', '2');
+  } else if(step.kg === 'all') {
+    Object.values(kgMap).forEach(id => {
+      const el = $(id);
+      if(el) {
+        el.setAttribute('opacity', '1');
+        el.style.transition = 'opacity 0.5s';
+      }
+    });
+    $('kgCenter').setAttribute('stroke-width', '3');
+    $('kgCenter').setAttribute('filter', 'url(#kgGlow)');
+  } else if(step.kg === 'query') {
+    $('kgQuery').setAttribute('opacity', '1');
+  } else if(kgMap[step.kg]) {
+    const el = $(kgMap[step.kg]);
+    if(el) el.setAttribute('opacity', '1');
+  }
+}
+
+// ===================================================================
+// Animation / Step Engine
+// ===================================================================
+
+function loadScenario(index) {
+  app.scenario = index;
+  app.currentStep = 0;
+  app.steps = SCENARIOS[index].steps;
+  app.queueCount = 0;
+  app.syncedCount = 0;
+  app.failedCount = 0;
+  app.backoffIndex = -1;
+  app.backoffRemaining = 0;
+  app.bundlePos = null;
+
+  clearTimeout(app.pendingStepTimer);
+  app.pendingStepTimer = null;
+
+  // Reset UI
+  updateQueueCount(0);
+  $('syncedCount').textContent = '0';
+  app.syncedCount = 0;
+  $('failedCount').textContent = '0';
+  app.failedCount = 0;
+  updateBackoff(-1, 0);
+  updateConnectivity(true);
+  updateCurrentState(app.steps[0]?.state ?? 0);
+  logEntries.innerHTML = '';
+  app.logCounter = 0;
+  updateStepIndicator();
+  updateScenarioDesc(SCENARIOS[index].description);
+
+  // KG overlay
+  if(index === 3) {
+    kgOverlay.classList.add('visible');
+    buildKGSvg();
+  } else {
+    kgOverlay.classList.remove('visible');
+  }
+
+  // Auto-play first step
+  if(app.playing && app.mode === 'auto') {
+    executeStep(0);
+  } else {
+    executeStep(0);
+  }
+}
+
+function executeStep(stepIndex) {
+  if(stepIndex < 0 || stepIndex >= app.steps.length) return;
+  app.currentStep = stepIndex;
+  const step = app.steps[stepIndex];
+
+  // Apply step effects
+  updateConnectivity(step.online);
+  if(step.state >= 0) updateCurrentState(step.state);
+  else updateCurrentState(-1);
+  addLogEntry(step.log, step.type);
+  if(step.queue !== undefined) updateQueueCount(step.queue);
+  if(step.synced) updateSyncedCount(step.synced);
+  if(step.failed) updateFailedCount(step.failed);
+  if(step.backoff !== undefined) {
+    updateBackoff(step.backoff, BACKOFF_INTERVALS[step.backoff]);
+  } else if(step.state !== 5) {
+    updateBackoff(-1, 0);
+  }
+  if(step.desc) updateScenarioDesc('<strong>' + STATE_NAMES[step.state >= 0 ? step.state : 0] + ':</strong> ' + step.desc);
+  if(step.kg) updateKG(step);
+
+  // Update bundle position for scene
+  if(step.state >= 1 && step.state <= 4) {
+    const W = (canvas.width / (window.devicePixelRatio || 1));
+    const H = (canvas.height / (window.devicePixelRatio || 1));
+    const positions = [
+      null,
+      {x: W*0.30, y: H*0.38},
+      {x: W*0.38, y: H*0.38},
+      {x: W*0.50, y: H*0.38},
+      {x: W*0.65, y: H*0.32},
+    ];
+    app.bundlePos = positions[step.state] || null;
+  } else if(step.state === 5) {
+    const W = (canvas.width / (window.devicePixelRatio || 1));
+    const H = (canvas.height / (window.devicePixelRatio || 1));
+    app.bundlePos = {x: W*0.56, y: H*0.42};
+  } else {
+    app.bundlePos = null;
+  }
+
+  // Debounce fill animation
+  if(step.log && step.log.includes('check 1/2')) {
+    $('debounceFill').style.width = '50%';
+    $('debounceText').textContent = 'Debounce: check 1/2';
+  } else if(step.log && step.log.includes('check 2/2')) {
+    $('debounceFill').style.width = '100%';
+    $('debounceText').textContent = 'Debounce: check 2/2 — CONFIRMED';
+  } else if(step.log && step.log.includes('Debounce passed')) {
+    $('debounceFill').style.width = '100%';
+    $('debounceText').textContent = 'Debounce: PASSED';
+  } else {
+    $('debounceFill').style.width = '0%';
+    $('debounceText').textContent = 'Debounce: 2 consecutive checks';
+  }
+
+  updateStepIndicator();
+
+  // Schedule next step in auto mode
+  if(app.mode === 'auto' && app.playing) {
+    scheduleNextStep();
+  }
+}
+
+function scheduleNextStep() {
+  clearTimeout(app.pendingStepTimer);
+
+  const isLastStep = app.currentStep >= app.steps.length - 1;
+
+  // If last step and looping, schedule transition to next scenario
+  if(isLastStep && app.looping) {
+    const nextScenario = (app.scenario + 1) % SCENARIOS.length;
+    const transDelay = 3000 / app.speed;
+    app.pendingStepTimer = setTimeout(() => {
+      if(app.playing && app.mode === 'auto' && app.looping) {
+        addLogEntry('--- Advancing to scenario: ' + SCENARIOS[nextScenario].title + ' ---', 'info');
+        scenarioSelect.value = nextScenario;
+        loadScenario(nextScenario);
+      }
+    }, transDelay);
+    return;
+  }
+
+  if(isLastStep) return;
+
+  // Base delay depends on step type
+  const step = app.steps[app.currentStep];
+  let delay = 2000; // base 2s per step
+  if(step.backoff !== undefined) delay = 3500; // longer for backoff
+  if(step.type === 'success') delay = 2500;
+  if(app.scenario === 3) delay = 2500; // KG needs reading time
+
+  delay = delay / app.speed;
+
+  app.pendingStepTimer = setTimeout(() => {
+    if(app.playing && app.mode === 'auto') {
+      executeStep(app.currentStep + 1);
+    }
+  }, delay);
+}
+
+function nextStep() {
+  if(app.currentStep < app.steps.length - 1) {
+    executeStep(app.currentStep + 1);
+  }
+}
+
+function prevStep() {
+  if(app.currentStep > 0) {
+    // Re-run from beginning up to previous step to rebuild state
+    const target = app.currentStep - 1;
+    resetState();
+    for(let i = 0; i <= target; i++) {
+      const step = app.steps[i];
+      if(step.online !== undefined) app.online = step.online;
+      if(step.queue !== undefined) app.queueCount = step.queue;
+    }
+    executeStep(target);
+  }
+}
+
+function resetState() {
+  app.queueCount = 0;
+  app.syncedCount = 0;
+  app.failedCount = 0;
+  $('syncedCount').textContent = '0';
+  $('failedCount').textContent = '0';
+  logEntries.innerHTML = '';
+  app.logCounter = 0;
+  updateBackoff(-1, 0);
+}
+
+// ===================================================================
+// Render Loop
+// ===================================================================
+
+function renderLoop(timestamp) {
+  if(!app.lastTimestamp) app.lastTimestamp = timestamp;
+  app.animationTime = timestamp;
+  drawScene(timestamp);
+  requestAnimationFrame(renderLoop);
+}
+
+// ===================================================================
+// Event Bindings
+// ===================================================================
+
+scenarioSelect.addEventListener('change', () => loadScenario(parseInt(scenarioSelect.value)));
+
+btnAuto.addEventListener('click', () => {
+  app.mode = 'auto';
+  btnAuto.classList.add('active');
+  btnManual.classList.remove('active');
+  btnPrev.disabled = true;
+  btnNext.disabled = true;
+  if(app.playing) scheduleNextStep();
+});
+
+btnManual.addEventListener('click', () => {
+  app.mode = 'manual';
+  btnManual.classList.add('active');
+  btnAuto.classList.remove('active');
+  btnPrev.disabled = false;
+  btnNext.disabled = false;
+  clearTimeout(app.pendingStepTimer);
+});
+
+btnPlayPause.addEventListener('click', () => {
+  app.playing = !app.playing;
+  btnPlayPause.innerHTML = app.playing ? '&#10074;&#10074; Pause' : '&#9654; Play';
+  if(app.playing && app.mode === 'auto') scheduleNextStep();
+  else clearTimeout(app.pendingStepTimer);
+});
+
+btnPrev.addEventListener('click', () => prevStep());
+btnNext.addEventListener('click', () => nextStep());
+
+btnRestart.addEventListener('click', () => {
+  app.playing = true;
+  btnPlayPause.innerHTML = '&#10074;&#10074; Pause';
+  loadScenario(app.scenario);
+});
+
+speedBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    speedBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    app.speed = parseInt(btn.dataset.speed);
+    // Re-schedule if auto-playing
+    if(app.playing && app.mode === 'auto') scheduleNextStep();
+  });
+});
+
+btnLoop.addEventListener('click', () => {
+  app.looping = !app.looping;
+  btnLoop.classList.toggle('active', app.looping);
+  btnStop.style.display = app.looping ? '' : 'none';
+  if(app.looping) {
+    btnLoop.innerHTML = '&#8635; Looping';
+    // If we're at the last step and auto-playing, schedule next scenario
+    if(app.playing && app.mode === 'auto' && app.currentStep >= app.steps.length - 1) {
+      scheduleNextStep();
+    }
+  } else {
+    btnLoop.innerHTML = '&#8635; Loop';
+  }
+});
+
+btnStop.addEventListener('click', () => {
+  app.looping = false;
+  app.playing = false;
+  btnLoop.classList.remove('active');
+  btnLoop.innerHTML = '&#8635; Loop';
+  btnStop.style.display = 'none';
+  btnPlayPause.innerHTML = '&#9654; Play';
+  clearTimeout(app.pendingStepTimer);
+  addLogEntry('Loop stopped by user.', 'warning');
+});
+
+// Keyboard controls
+document.addEventListener('keydown', e => {
+  if(e.key === ' ') { e.preventDefault(); btnPlayPause.click(); }
+  if(e.key === 'ArrowRight' && app.mode === 'manual') nextStep();
+  if(e.key === 'ArrowLeft' && app.mode === 'manual') prevStep();
+  if(e.key === 'r' || e.key === 'R') btnRestart.click();
+  if(e.key === 'l' || e.key === 'L') btnLoop.click();
+  if(e.key === 's' || e.key === 'S') { if(app.looping) btnStop.click(); }
+  if(e.key >= '1' && e.key <= '4') {
+    scenarioSelect.value = parseInt(e.key) - 1;
+    loadScenario(parseInt(e.key) - 1);
+  }
+});
+
+// Resize handler
+window.addEventListener('resize', () => { resizeCanvas(); });
+
+// ===================================================================
+// Init
+// ===================================================================
+
+resizeCanvas();
+buildKGSvg();
+requestAnimationFrame(renderLoop);
+loadScenario(0);
+
+})();
+</script>
+</body>
+</html>

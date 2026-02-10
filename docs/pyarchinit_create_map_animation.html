@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — Create Your Map / PRINTMAP Tutorial</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
+.ctrls button:hover{border-color:var(--accent);background:rgba(88,166,255,.1)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3;cursor:default}
+.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
+.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
+.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.layer-list{display:flex;flex-direction:column;gap:3px}
+.lyr{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s;cursor:default}
+.lyr.vis{opacity:1}.lyr.hid{opacity:.35}
+.lyr.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
+.lyr-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.lyr-eye{font-size:9px;margin-left:auto;color:var(--muted)}
+.fmt-list{display:flex;flex-direction:column;gap:3px}
+.fmt{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
+.fmt.sel{background:rgba(63,185,80,.1);border:1px solid var(--green)}
+.fmt-ico{font-size:10px}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.les{display:flex;flex-direction:column;gap:2px}
+.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
+.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
+@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>Crea la tua Mappa <span>— PRINTMAP Create Your Map Tutorial</span></h1>
+    <div class="ctrls">
+      <select id="sel"><option value="0">1. Map Layout Setup</option><option value="1">2. Layer Selection &amp; Styling</option><option value="2">3. Thematic Maps</option><option value="3">4. Export &amp; Print</option></select>
+      <div class="g"><button id="bA" class="on">&#9654; Auto</button><button id="bM">&#9998; Manual</button></div>
+      <div class="g"><button class="sp on" data-s="1">1x</button><button class="sp" data-s="2">2x</button><button class="sp" data-s="4">4x</button></div>
+      <button id="bPP">&#10074;&#10074;</button><button id="bPr" disabled>&larr;</button><button id="bNx" disabled>&rarr;</button><button id="bRe">&#8634;</button>
+      <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="side">
+    <div class="w"><h3>Map Settings</h3>
+      <div class="sr"><span class="sl">Size</span><span class="sv" id="mapSize">--</span></div>
+      <div class="sr"><span class="sl">Orientation</span><span class="sv" id="mapOrient">--</span></div>
+      <div class="sr"><span class="sl">Template</span><span class="sv" id="mapTpl">--</span></div>
+      <div class="sr"><span class="sl">Extent</span><span class="sv" id="mapExtent">--</span></div>
+    </div>
+    <div class="w"><h3>Layers</h3>
+      <div class="layer-list" id="lyrList">
+        <div class="lyr vis" data-l="us"><span class="lyr-dot" style="background:#58a6ff"></span>US Polygons<span class="lyr-eye">&#9673;</span></div>
+        <div class="lyr vis" data-l="structures"><span class="lyr-dot" style="background:#d29922"></span>Structures<span class="lyr-eye">&#9673;</span></div>
+        <div class="lyr vis" data-l="finds"><span class="lyr-dot" style="background:#3fb950"></span>Finds Points<span class="lyr-eye">&#9673;</span></div>
+        <div class="lyr hid" data-l="satellite"><span class="lyr-dot" style="background:#8b949e"></span>Satellite<span class="lyr-eye">&#9675;</span></div>
+        <div class="lyr hid" data-l="topo"><span class="lyr-dot" style="background:#bc8cff"></span>Topographic<span class="lyr-eye">&#9675;</span></div>
+        <div class="lyr hid" data-l="cadastral"><span class="lyr-dot" style="background:#f85149"></span>Cadastral<span class="lyr-eye">&#9675;</span></div>
+      </div>
+    </div>
+    <div class="w"><h3>Export Format</h3>
+      <div class="fmt-list" id="fmtList">
+        <div class="fmt" data-f="pdf"><span class="fmt-ico">&#128196;</span>PDF (Publication)</div>
+        <div class="fmt" data-f="png"><span class="fmt-ico">&#128444;</span>PNG (Presentation)</div>
+        <div class="fmt" data-f="tiff"><span class="fmt-ico">&#128190;</span>TIFF (Archive)</div>
+        <div class="fmt" data-f="print"><span class="fmt-ico">&#128424;</span>Direct Print</div>
+      </div>
+    </div>
+  </div>
+  <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlLyr:null,visLyrs:{}};
+const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+
+const LYR_COLORS={us:'#58a6ff',structures:'#d29922',finds:'#3fb950',satellite:'#8b949e',topo:'#bc8cff',cadastral:'#f85149'};
+
+const SC=[
+  {title:'Map Layout Setup',desc:'<strong>Layout:</strong> Open "Crea la tua Mappa" from the toolbar, select a template, set extent, and configure map elements.',
+   steps:[
+    {log:'Open PyArchInit toolbar: click "Crea la tua Mappa" (Make Your Map) button.',type:'info',map:{extent:'--'},d:'The PRINTMAP dialog (Print_map.ui) opens. It loads .qpt templates from the bin/profile/template/ directory.'},
+    {log:'Select map extent: Current View from QGIS canvas. Canvas extent captured via iface.mapCanvas().extent().',type:'info',map:{extent:'Current View'},d:'The layout loader calls item.zoomToExtent(canvas.extent()) on all map items to match the current QGIS view.'},
+    {log:'Choose template: select from listWidget. Templates are .qpt files (QGIS Print Layout XML).',type:'info',map:{tpl:'A3_Landscape',size:'A3',orient:'Landscape'},d:'Templates are loaded from PYARCHINIT_HOME/bin/profile/template/. Click "Aggiungi Template" to add more.'},
+    {log:'Set map title: txtMapTitle field. Title replaces {{title}} placeholder in template labels.',type:'info',d:'The layoutLoader() method replaces any {{title}} text in layout labels with the entered title string.'},
+    {log:'Layout name auto-generated: template name + map title. Duplicate names get _2, _3 suffix.',type:'info',d:'The suggestLayoutName() method combines template name and title. layout_exists() checks for conflicts.'},
+    {log:'Layout created! QgsPrintLayout loaded from template, added to QgsProject layoutManager.',type:'success',d:'The layout is opened in the QGIS Layout Designer via iface.openLayoutDesigner(). Title, scale bar, legend, and north arrow are part of the template.'},
+  ]},
+  {title:'Layer Selection & Styling',desc:'<strong>Layers:</strong> Select GIS layers for inclusion in the map. Apply QML styles for archaeological visualization.',
+   steps:[
+    {log:'Layer panel: select which layers to include in the map composition.',type:'info',lyr:'us',vis:{us:true},d:'The QGIS layer tree (TOC) controls which layers appear in the print layout map items.'},
+    {log:'Archaeological layers: US polygons loaded from pyarchinit_US view. Styled with QML.',type:'info',lyr:'us',vis:{us:true,structures:false,finds:false},d:'US polygon layers are loaded via pyarchinit_pyqgis.py. Each layer can have QML style files applied.'},
+    {log:'Structures layer: walls, floors, and built features. Distinct symbology per type.',type:'info',lyr:'structures',vis:{us:true,structures:true},d:'Structures are loaded as a separate layer with their own styling rules. Walls, floors, and foundations each have distinct symbols.'},
+    {log:'Finds layer: point data for artifact locations. Symbol size by quantity or type.',type:'info',lyr:'finds',vis:{us:true,structures:true,finds:true},d:'Point symbols for finds can be graduated by count or categorized by material type.'},
+    {log:'Base maps: toggle satellite, topographic, or cadastral background layers.',type:'info',lyr:'satellite',vis:{us:true,structures:true,finds:true,satellite:true},d:'Background layers provide geographic context. Satellite imagery via QuickMapServices or WMS services.'},
+    {log:'Apply QML styles: layer → Properties → Symbology → Load Style (.qml). Thematic rendering active.',type:'success',vis:{us:true,structures:true,finds:true,satellite:true,topo:false,cadastral:false},d:'QML style files define colors, symbols, labels, and rendering rules. PyArchInit includes predefined styles for archaeological layers.'},
+  ]},
+  {title:'Thematic Maps',desc:'<strong>Thematic:</strong> Generate maps color-coded by period, interpretation, or phase using pyarchinit_pyqgis.py layer management.',
+   steps:[
+    {log:'Map by Period: load US layers color-coded by chronological period assignment.',type:'info',vis:{us:true,structures:true},d:'The Periodizzazione form GIS button loads all period layers. Each period gets a distinct color from the QML style.'},
+    {log:'Period I (Archaic): #58a6ff. Period II (Classical): #3fb950. Period III (Medieval): #d29922.',type:'info',d:'Color assignments follow a consistent palette. pyarchinit_pyqgis.py manages layer creation with period-specific QML styles.'},
+    {log:'Map by Interpretation: categorized symbology for walls, floors, pits, fills, cuts.',type:'info',d:'Interpretation-based maps use categorized renderer. Each interpretation type (muro, pavimento, fossa, riempimento, taglio) gets a unique symbol.'},
+    {log:'Map by Phase: highlight specific construction/destruction phases within a period.',type:'info',d:'Phase sub-divisions within periods allow fine-grained chronological mapping. Phase a, b, c shown with graduated opacity.'},
+    {log:'All thematic layers generated. Color-coded map ready for layout composition.',type:'success',d:'Multiple thematic layers can be combined. The print layout captures all visible layers from the QGIS canvas.'},
+  ]},
+  {title:'Export & Print',desc:'<strong>Export:</strong> Export the completed map layout to PDF, PNG, TIFF, or print directly. Publication-ready output with metadata.',
+   steps:[
+    {log:'Open Layout Designer: the generated layout is displayed with all map elements.',type:'info',fmt:'pdf',d:'The layout designer shows the composed map with title, legend, scale bar, north arrow, and map frame.'},
+    {log:'Export to PDF: Layout → Export as PDF. High-resolution 300 DPI for publication.',type:'info',fmt:'pdf',map:{size:'A3',orient:'Landscape'},d:'PDF export produces vector output. Text, lines, and symbols remain crisp at any zoom. Ideal for archaeological reports and publications.'},
+    {log:'Export to PNG/TIFF: Layout → Export as Image. Set DPI (150-600) and dimensions.',type:'info',fmt:'png',d:'Raster export (PNG for presentations, TIFF for archival). Higher DPI = larger file but sharper detail.'},
+    {log:'Print directly: Layout → Print. Select configured printer, paper size, and orientation.',type:'info',fmt:'print',d:'Direct printing sends the layout to any configured system printer. Paper size must match the template format.'},
+    {log:'Metadata included: site name, date, author, scale, CRS. Map exported successfully!',type:'success',d:'The template {{title}} placeholder carries the site/project name. Scale bar and coordinate grid provide spatial reference. Export complete.'},
+  ]}
+];
+
+// -- Sidebar updates --
+function updMap(o){if(o){if(o.size)$('mapSize').textContent=o.size;if(o.orient)$('mapOrient').textContent=o.orient;if(o.tpl)$('mapTpl').textContent=o.tpl;if(o.extent)$('mapExtent').textContent=o.extent;}}
+function hlLyr(name){A.hlLyr=name;document.querySelectorAll('.lyr').forEach(el=>el.classList.toggle('hl',el.dataset.l===name));}
+function updVis(o){if(!o)return;Object.assign(A.visLyrs,o);document.querySelectorAll('.lyr').forEach(el=>{const k=el.dataset.l;if(k in A.visLyrs){el.classList.toggle('vis',A.visLyrs[k]);el.classList.toggle('hid',!A.visLyrs[k]);el.querySelector('.lyr-eye').innerHTML=A.visLyrs[k]?'&#9673;':'&#9675;';}});}
+function selFmt(f){document.querySelectorAll('.fmt').forEach(el=>el.classList.toggle('sel',el.dataset.f===f));}
+function resetSide(){$('mapSize').textContent='--';$('mapOrient').textContent='--';$('mapTpl').textContent='--';$('mapExtent').textContent='--';hlLyr(null);A.visLyrs={us:true,structures:true,finds:true,satellite:false,topo:false,cadastral:false};updVis(A.visLyrs);selFmt(null);}
+
+function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML='<span class="le-t">'+ts+'</span><span class="le-i" style="color:'+cl[type]+'">'+ic[type]+'</span><span class="le-x">'+t+'</span>';logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
+function updDots(){dots.innerHTML='';A.steps.forEach(function(_,i){const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
+function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+// -- Canvas drawing per scenario --
+function drawScene(ts){
+  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);var t=ts*0.001;
+  if(A.sc===0)drawLayout(t,W,H);
+  else if(A.sc===1)drawLayers(t,W,H);
+  else if(A.sc===2)drawThematic(t,W,H);
+  else if(A.sc===3)drawExport(t,W,H);
+}
+
+function drawLayout(t,W,H){
+  // "Crea la tua Mappa" dialog mockup
+  var dx=W*0.05,dy=H*0.06,dw=W*0.44,dh=H*0.82;
+  rr(dx,dy,dw,dh,8);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  // Title bar
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(dx+1,dy+1,dw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Crea la tua Mappa',dx+10,dy+15);
+  // Title field
+  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.fillText('Aggiungi titolo:',dx+10,dy+42);
+  rr(dx+10,dy+47,dw*0.7,18,3);ctx.fillStyle='rgba(255,255,255,.04)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#e6edf3';ctx.font='10px sans-serif';ctx.fillText('Scavo Archeologico - Area Nord',dx+16,dy+60);
+  // Layout name
+  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.fillText('Nome Layout:',dx+10,dy+80);
+  rr(dx+10,dy+85,dw*0.7,18,3);ctx.fillStyle='rgba(255,255,255,.04)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#e6edf3';ctx.font='10px sans-serif';ctx.fillText('A3_Landscape Scavo Archeologico',dx+16,dy+98);
+  // Template list label
+  ctx.fillStyle='#8b949e';ctx.font='bold 9px sans-serif';ctx.fillText('Seleziona il template da usare:',dx+10,dy+118);
+  // Template list
+  var templates=['A0_Landscape','A0_Portrait','A3_Landscape','A3_Portrait','A4_Landscape','A4_Portrait','adArte_A3','adArte_A4'];
+  templates.forEach(function(tp,i){
+    var ty=dy+125+i*18;
+    if(ty+16>dy+dh-10)return;
+    var sel=tp==='A3_Landscape';
+    ctx.fillStyle=sel?'rgba(88,166,255,.12)':'transparent';
+    ctx.fillRect(dx+10,ty,dw*0.55,16);
+    ctx.fillStyle=sel?'#58a6ff':'#8b949e';ctx.font=(sel?'bold ':'')+'9px sans-serif';ctx.textAlign='left';
+    ctx.fillText(tp,dx+16,ty+12);
+  });
+  // Preview area label
+  var px=dx+dw*0.6,py=dy+118;
+  ctx.fillStyle='#8b949e';ctx.font='bold 9px sans-serif';ctx.fillText('Preview del template:',px,py);
+  // Preview box
+  rr(px,py+7,dw*0.35,dh*0.45,4);ctx.fillStyle='rgba(255,255,255,.02)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  // Mini layout preview
+  var mx=px+10,my=py+17,mw=dw*0.35-20,mh=dh*0.45-20;
+  rr(mx,my,mw,mh,2);ctx.fillStyle='rgba(88,166,255,.04)';ctx.fill();ctx.strokeStyle='#58a6ff33';ctx.lineWidth=1;ctx.stroke();
+  // Map area inside preview
+  rr(mx+4,my+12,mw-8,mh-30,1);ctx.fillStyle='rgba(63,185,80,.06)';ctx.fill();ctx.strokeStyle='#3fb95033';ctx.lineWidth=0.5;ctx.stroke();
+  // Title bar in preview
+  ctx.fillStyle='#58a6ff55';ctx.font='6px sans-serif';ctx.textAlign='center';ctx.fillText('{{title}}',mx+mw/2,my+8);
+  // Scale bar in preview
+  ctx.strokeStyle='#8b949e55';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(mx+4,my+mh-12);ctx.lineTo(mx+mw*0.4,my+mh-12);ctx.stroke();
+  ctx.fillStyle='#8b949e55';ctx.font='5px sans-serif';ctx.textAlign='left';ctx.fillText('scale',mx+4,my+mh-6);
+  // North arrow in preview
+  ctx.fillStyle='#8b949e55';ctx.font='8px sans-serif';ctx.textAlign='right';ctx.fillText('N',mx+mw-8,my+mh-8);
+  // Buttons
+  var bx=dx+10,by=dy+dh-32;
+  rr(bx,by,55,22,4);ctx.fillStyle='rgba(63,185,80,.12)';ctx.fill();ctx.strokeStyle='#3fb950';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='center';ctx.fillText('OK',bx+27,by+15);
+  rr(bx+65,by,55,22,4);ctx.fillStyle='rgba(248,81,73,.08)';ctx.fill();ctx.strokeStyle='#f8514966';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#f85149';ctx.font='bold 9px sans-serif';ctx.fillText('Cancel',bx+92,by+15);
+
+  // Right side: Map layout mockup result
+  var lx=W*0.54,ly=H*0.06,lw=W*0.42,lh=H*0.82;
+  rr(lx,ly,lw,lh,8);ctx.fillStyle='rgba(22,27,34,.6)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(lx+1,ly+1,lw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Layout Preview (QgsPrintLayout)',lx+10,ly+15);
+  // Page outline
+  var pgx=lx+15,pgy=ly+30,pgw=lw-30,pgh=lh-45;
+  rr(pgx,pgy,pgw,pgh,3);ctx.fillStyle='rgba(255,255,255,.03)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  // Title block
+  ctx.fillStyle='#e6edf3';ctx.font='bold 11px sans-serif';ctx.textAlign='center';ctx.fillText('Scavo Archeologico - Area Nord',pgx+pgw/2,pgy+16);
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.fillText('Sito: Monte Citorio | Data: 2026-02-09 | Scala: 1:200',pgx+pgw/2,pgy+28);
+  // Map frame
+  var mfx=pgx+8,mfy=pgy+35,mfw=pgw-16,mfh=pgh-80;
+  rr(mfx,mfy,mfw,mfh,2);ctx.fillStyle='rgba(57,211,83,.03)';ctx.fill();ctx.strokeStyle='#39d35333';ctx.lineWidth=1;ctx.stroke();
+  // Draw some "map content" - grid lines
+  ctx.strokeStyle='rgba(88,166,255,.06)';ctx.lineWidth=0.5;
+  for(var gi=1;gi<6;gi++){ctx.beginPath();ctx.moveTo(mfx,mfy+mfh*gi/6);ctx.lineTo(mfx+mfw,mfy+mfh*gi/6);ctx.stroke();ctx.beginPath();ctx.moveTo(mfx+mfw*gi/6,mfy);ctx.lineTo(mfx+mfw*gi/6,mfy+mfh);ctx.stroke();}
+  // Archaeological features in map
+  drawArchFeatures(mfx,mfy,mfw,mfh,t);
+  // Legend
+  var lgx=pgx+8,lgy=pgy+pgh-38;
+  ctx.fillStyle='#8b949e';ctx.font='bold 7px sans-serif';ctx.textAlign='left';ctx.fillText('LEGENDA',lgx,lgy);
+  var legItems=[{c:'#58a6ff',l:'US'},{c:'#d29922',l:'Strutture'},{c:'#3fb950',l:'Reperti'},{c:'#f85149',l:'Tagli'}];
+  legItems.forEach(function(li,idx){
+    ctx.fillStyle=li.c;ctx.fillRect(lgx+idx*50,lgy+4,8,8);
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.fillText(li.l,lgx+idx*50+11,lgy+12);
+  });
+  // Scale bar
+  var sbx=pgx+pgw-120,sby=pgy+pgh-12;
+  ctx.strokeStyle='#e6edf3';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(sbx,sby);ctx.lineTo(sbx+80,sby);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx,sby-3);ctx.lineTo(sbx,sby+3);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx+80,sby-3);ctx.lineTo(sbx+80,sby+3);ctx.stroke();
+  ctx.fillStyle='#e6edf3';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText('0      10m      20m',sbx+40,sby-5);
+  // North arrow
+  ctx.fillStyle='#e6edf3';ctx.font='bold 12px sans-serif';ctx.textAlign='right';ctx.fillText('N',pgx+pgw-12,pgy+pgh-22);
+  ctx.strokeStyle='#e6edf3';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pgx+pgw-16,pgy+pgh-18);ctx.lineTo(pgx+pgw-16,pgy+pgh-33);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(pgx+pgw-19,pgy+pgh-29);ctx.lineTo(pgx+pgw-16,pgy+pgh-33);ctx.lineTo(pgx+pgw-13,pgy+pgh-29);ctx.fill();
+}
+
+function drawArchFeatures(x,y,w,h,t){
+  // Polygons (US)
+  var polys=[
+    {pts:[[0.1,0.2],[0.3,0.15],[0.35,0.35],[0.15,0.4]],c:'#58a6ff'},
+    {pts:[[0.4,0.1],[0.6,0.08],[0.65,0.3],[0.45,0.32]],c:'#58a6ff'},
+    {pts:[[0.2,0.5],[0.4,0.45],[0.42,0.65],[0.18,0.7]],c:'#d29922'},
+    {pts:[[0.55,0.4],[0.75,0.38],[0.78,0.6],[0.52,0.62]],c:'#3fb950'},
+    {pts:[[0.7,0.65],[0.88,0.6],[0.9,0.8],[0.68,0.82]],c:'#58a6ff'},
+    {pts:[[0.05,0.75],[0.25,0.72],[0.28,0.92],[0.08,0.9]],c:'#d29922'},
+  ];
+  polys.forEach(function(p){
+    ctx.beginPath();
+    p.pts.forEach(function(pt,i){var px=x+w*pt[0],py=y+h*pt[1];if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);});
+    ctx.closePath();ctx.fillStyle=p.c+'15';ctx.fill();ctx.strokeStyle=p.c+'55';ctx.lineWidth=1;ctx.stroke();
+  });
+  // Cut lines (dashed)
+  ctx.setLineDash([3,3]);ctx.strokeStyle='#f8514955';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(x+w*0.3,y+h*0.5);ctx.lineTo(x+w*0.5,y+h*0.48);ctx.lineTo(x+w*0.48,y+h*0.7);ctx.stroke();
+  ctx.setLineDash([]);
+  // Find points
+  var findPts=[[0.25,0.28],[0.5,0.2],[0.35,0.55],[0.65,0.5],[0.8,0.72],[0.15,0.82],[0.6,0.75],[0.42,0.38]];
+  findPts.forEach(function(fp){
+    var fx=x+w*fp[0],fy=y+h*fp[1];
+    ctx.beginPath();ctx.arc(fx,fy,2.5,0,Math.PI*2);ctx.fillStyle='#3fb950';ctx.fill();
+    ctx.strokeStyle='#3fb95088';ctx.lineWidth=0.5;ctx.stroke();
+  });
+}
+
+function drawLayers(t,W,H){
+  // Layer panel on left
+  var px=W*0.04,py=H*0.06,pw=W*0.3,ph=H*0.82;
+  rr(px,py,pw,ph,8);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(px+1,py+1,pw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Layers Panel (TOC)',px+10,py+15);
+  // Layer items
+  var layers=[
+    {name:'pyarchinit_US_view',key:'us',c:'#58a6ff',type:'polygon'},
+    {name:'pyarchinit_Strutture',key:'structures',c:'#d29922',type:'polygon'},
+    {name:'pyarchinit_Reperti',key:'finds',c:'#3fb950',type:'point'},
+    {name:'Google Satellite',key:'satellite',c:'#8b949e',type:'raster'},
+    {name:'IGM Topographic',key:'topo',c:'#bc8cff',type:'raster'},
+    {name:'Cadastral Map',key:'cadastral',c:'#f85149',type:'raster'},
+  ];
+  layers.forEach(function(l,i){
+    var ly=py+30+i*30;
+    if(ly+26>py+ph)return;
+    var vis=A.visLyrs[l.key];
+    var hl=A.hlLyr===l.key;
+    rr(px+6,ly,pw-12,26,4);
+    ctx.fillStyle=hl?l.c+'15':vis?'rgba(255,255,255,.02)':'rgba(255,255,255,.01)';ctx.fill();
+    ctx.strokeStyle=hl?l.c:vis?'#30363d':'#21262d';ctx.lineWidth=hl?1.5:1;ctx.stroke();
+    // Eye icon
+    ctx.fillStyle=vis?l.c:'#30363d';ctx.font='10px sans-serif';ctx.textAlign='left';
+    ctx.fillText(vis?'\u25C9':'\u25CB',px+12,ly+17);
+    // Symbol
+    if(l.type==='polygon'){rr(px+26,ly+7,10,12,2);ctx.fillStyle=l.c+'33';ctx.fill();ctx.strokeStyle=l.c+'88';ctx.lineWidth=0.7;ctx.stroke();}
+    else if(l.type==='point'){ctx.beginPath();ctx.arc(px+31,ly+13,4,0,Math.PI*2);ctx.fillStyle=l.c+'33';ctx.fill();ctx.strokeStyle=l.c+'88';ctx.lineWidth=0.7;ctx.stroke();}
+    else{rr(px+26,ly+7,10,12,1);ctx.fillStyle=l.c+'15';ctx.fill();ctx.strokeStyle=l.c+'44';ctx.lineWidth=0.5;ctx.stroke();ctx.strokeStyle=l.c+'22';for(var g=0;g<3;g++){ctx.beginPath();ctx.moveTo(px+27,ly+9+g*4);ctx.lineTo(px+35,ly+9+g*4);ctx.stroke();}}
+    // Name
+    ctx.fillStyle=vis?(hl?'#e6edf3':'#c9d1d9'):'#484f58';ctx.font=(hl?'bold ':'')+'9px sans-serif';ctx.textAlign='left';
+    ctx.fillText(l.name,px+42,ly+17);
+  });
+  // QML style info
+  var sx=px+6,sy=py+ph-70;
+  rr(sx,sy,pw-12,60,4);ctx.fillStyle='rgba(188,140,255,.04)';ctx.fill();ctx.strokeStyle='#bc8cff33';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#bc8cff';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('QML STYLES',sx+8,sy+14);
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
+  ctx.fillText('us_style.qml',sx+8,sy+28);
+  ctx.fillText('strutture_style.qml',sx+8,sy+40);
+  ctx.fillText('reperti_style.qml',sx+8,sy+52);
+
+  // Map canvas on right
+  var mx=W*0.38,my=H*0.06,mw=W*0.58,mh=H*0.82;
+  rr(mx,my,mw,mh,8);ctx.fillStyle='rgba(22,27,34,.6)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(mx+1,my+1,mw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('QGIS Map Canvas',mx+10,my+15);
+  // Map content area
+  var cx=mx+8,cy=my+28,cw=mw-16,ch=mh-36;
+  rr(cx,cy,cw,ch,3);ctx.fillStyle='rgba(255,255,255,.01)';ctx.fill();
+  // Satellite bg if visible
+  if(A.visLyrs.satellite){
+    ctx.fillStyle='rgba(30,60,30,.3)';ctx.fillRect(cx,cy,cw,ch);
+    // Fake satellite texture
+    for(var si=0;si<40;si++){ctx.fillStyle='rgba('+(20+Math.floor(Math.random()*40))+','+(40+Math.floor(Math.random()*50))+','+(20+Math.floor(Math.random()*30))+',0.15)';ctx.fillRect(cx+Math.random()*cw,cy+Math.random()*ch,Math.random()*30+5,Math.random()*20+5);}
+  }
+  // Grid
+  ctx.strokeStyle='rgba(88,166,255,.04)';ctx.lineWidth=0.5;
+  for(var g=1;g<8;g++){ctx.beginPath();ctx.moveTo(cx,cy+ch*g/8);ctx.lineTo(cx+cw,cy+ch*g/8);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+cw*g/8,cy);ctx.lineTo(cx+cw*g/8,cy+ch);ctx.stroke();}
+  // Draw visible archaeological layers
+  if(A.visLyrs.us)drawPolyLayer(cx,cy,cw,ch,'#58a6ff');
+  if(A.visLyrs.structures)drawStructLayer(cx,cy,cw,ch,'#d29922');
+  if(A.visLyrs.finds)drawFindLayer(cx,cy,cw,ch,'#3fb950');
+}
+
+function drawPolyLayer(x,y,w,h,c){
+  var polys=[[0.08,0.15,0.2,0.25],[0.35,0.08,0.18,0.22],[0.6,0.3,0.22,0.2],[0.15,0.5,0.25,0.18],[0.5,0.55,0.2,0.28],[0.75,0.1,0.18,0.3],[0.05,0.78,0.22,0.15],[0.65,0.7,0.25,0.2]];
+  polys.forEach(function(p){rr(x+w*p[0],y+h*p[1],w*p[2],h*p[3],2);ctx.fillStyle=c+'12';ctx.fill();ctx.strokeStyle=c+'55';ctx.lineWidth=1;ctx.stroke();});
+}
+function drawStructLayer(x,y,w,h,c){
+  // Wall lines
+  ctx.strokeStyle=c+'77';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(x+w*0.1,y+h*0.2);ctx.lineTo(x+w*0.1,y+h*0.45);ctx.lineTo(x+w*0.3,y+h*0.45);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+w*0.5,y+h*0.35);ctx.lineTo(x+w*0.7,y+h*0.35);ctx.lineTo(x+w*0.7,y+h*0.6);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(x+w*0.3,y+h*0.7);ctx.lineTo(x+w*0.55,y+h*0.7);ctx.stroke();
+  ctx.lineWidth=1;
+}
+function drawFindLayer(x,y,w,h,c){
+  var pts=[[0.15,0.3],[0.25,0.18],[0.4,0.4],[0.55,0.25],[0.7,0.5],[0.3,0.6],[0.8,0.35],[0.2,0.75],[0.6,0.72],[0.45,0.85],[0.85,0.8],[0.12,0.55]];
+  pts.forEach(function(p){var fx=x+w*p[0],fy=y+h*p[1];ctx.beginPath();ctx.arc(fx,fy,3,0,Math.PI*2);ctx.fillStyle=c+'44';ctx.fill();ctx.strokeStyle=c;ctx.lineWidth=0.8;ctx.stroke();});
+}
+
+function drawThematic(t,W,H){
+  // Full-width thematic map
+  var mx=W*0.04,my=H*0.06,mw=W*0.92,mh=H*0.82;
+  rr(mx,my,mw,mh,8);ctx.fillStyle='rgba(22,27,34,.7)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(mx+1,my+1,mw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Thematic Map — Period/Phase/Interpretation Color Coding',mx+10,my+15);
+
+  var cx=mx+10,cy=my+30,cw=mw-20,ch=mh-80;
+  // Grid
+  ctx.strokeStyle='rgba(88,166,255,.03)';ctx.lineWidth=0.5;
+  for(var g=1;g<10;g++){ctx.beginPath();ctx.moveTo(cx,cy+ch*g/10);ctx.lineTo(cx+cw,cy+ch*g/10);ctx.stroke();ctx.beginPath();ctx.moveTo(cx+cw*g/10,cy);ctx.lineTo(cx+cw*g/10,cy+ch);ctx.stroke();}
+
+  // Color-coded US polygons by period
+  var periodPolys=[
+    // Period I (Archaic) - blue
+    {pts:[[0.05,0.1],[0.18,0.08],[0.2,0.28],[0.07,0.3]],c:'#58a6ff',label:'US 1\nPeriod I'},
+    {pts:[[0.22,0.05],[0.38,0.04],[0.4,0.22],[0.24,0.24]],c:'#58a6ff',label:'US 5\nPeriod I'},
+    {pts:[[0.05,0.55],[0.2,0.52],[0.22,0.72],[0.08,0.74]],c:'#58a6ff',label:'US 12\nPeriod I'},
+    // Period II (Classical) - green
+    {pts:[[0.42,0.08],[0.58,0.06],[0.6,0.26],[0.44,0.28]],c:'#3fb950',label:'US 2\nPeriod II'},
+    {pts:[[0.25,0.32],[0.42,0.3],[0.44,0.5],[0.27,0.52]],c:'#3fb950',label:'US 7\nPeriod II'},
+    {pts:[[0.6,0.6],[0.78,0.58],[0.8,0.78],[0.62,0.8]],c:'#3fb950',label:'US 15\nPeriod II'},
+    // Period III (Medieval) - orange
+    {pts:[[0.62,0.08],[0.8,0.06],[0.82,0.28],[0.64,0.3]],c:'#d29922',label:'US 3\nPeriod III'},
+    {pts:[[0.48,0.35],[0.65,0.33],[0.67,0.55],[0.5,0.57]],c:'#d29922',label:'US 9\nPeriod III'},
+    {pts:[[0.28,0.6],[0.45,0.58],[0.47,0.78],[0.3,0.8]],c:'#d29922',label:'US 11\nPeriod III'},
+    // Period IV (Modern) - purple
+    {pts:[[0.83,0.1],[0.95,0.08],[0.96,0.3],[0.85,0.32]],c:'#bc8cff',label:'US 4\nPeriod IV'},
+    {pts:[[0.7,0.35],[0.88,0.33],[0.9,0.52],[0.72,0.54]],c:'#bc8cff',label:'US 10\nPeriod IV'},
+    {pts:[[0.82,0.62],[0.95,0.6],[0.96,0.8],[0.84,0.82]],c:'#bc8cff',label:'US 16\nPeriod IV'},
+  ];
+
+  periodPolys.forEach(function(p){
+    ctx.beginPath();
+    p.pts.forEach(function(pt,i){
+      var px=cx+cw*pt[0],py=cy+ch*pt[1];
+      if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+    });
+    ctx.closePath();
+    ctx.fillStyle=p.c+'20';ctx.fill();ctx.strokeStyle=p.c+'88';ctx.lineWidth=1.5;ctx.stroke();
+    // Label
+    var centX=0,centY=0;p.pts.forEach(function(pt){centX+=pt[0];centY+=pt[1];});
+    centX=cx+cw*(centX/p.pts.length);centY=cy+ch*(centY/p.pts.length);
+    var lines=p.label.split('\n');
+    ctx.fillStyle=p.c;ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText(lines[0],centX,centY-2);
+    ctx.fillStyle=p.c+'aa';ctx.font='6px sans-serif';
+    ctx.fillText(lines[1],centX,centY+8);
+  });
+
+  // Interpretation symbols overlay
+  // Wall hatching
+  ctx.strokeStyle='#d2992266';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(cx+cw*0.25,cy+ch*0.3);ctx.lineTo(cx+cw*0.25,cy+ch*0.52);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx+cw*0.44,cy+ch*0.28);ctx.lineTo(cx+cw*0.44,cy+ch*0.5);ctx.stroke();
+  // Cut dashed
+  ctx.setLineDash([4,3]);ctx.strokeStyle='#f8514966';ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(cx+cw*0.48,cy+ch*0.55);ctx.lineTo(cx+cw*0.6,cy+ch*0.58);ctx.lineTo(cx+cw*0.62,cy+ch*0.8);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Legend
+  var lx=mx+10,ly=my+mh-42;
+  rr(lx,ly,mw-20,35,4);ctx.fillStyle='rgba(255,255,255,.02)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('PERIOD LEGEND',lx+8,ly+12);
+  var legend=[{c:'#58a6ff',l:'Period I (Archaic)'},{c:'#3fb950',l:'Period II (Classical)'},{c:'#d29922',l:'Period III (Medieval)'},{c:'#bc8cff',l:'Period IV (Modern)'}];
+  legend.forEach(function(lg,i){
+    var lxx=lx+8+i*(mw-20)/4.2;
+    ctx.fillStyle=lg.c;ctx.fillRect(lxx,ly+18,10,10);
+    ctx.fillStyle='#c9d1d9';ctx.font='7px sans-serif';ctx.fillText(lg.l,lxx+14,ly+27);
+  });
+
+  // Interpretation legend row
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+  var intLeg=[{s:'---',l:'Wall (Muro)',c:'#d29922'},{s:'- -',l:'Cut (Taglio)',c:'#f85149'},{s:'\u25A0',l:'Floor (Pavim.)',c:'#3fb950'},{s:'\u25CF',l:'Fill (Riemp.)',c:'#58a6ff'}];
+  // Skip if not enough space
+}
+
+function drawExport(t,W,H){
+  // Layout designer mockup
+  var dx=W*0.04,dy=H*0.06,dw=W*0.55,dh=H*0.82;
+  rr(dx,dy,dw,dh,8);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  // Title bar
+  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(dx+1,dy+1,dw-2,22);
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('QGIS Layout Designer',dx+10,dy+15);
+  // Menu bar
+  ctx.fillStyle='rgba(255,255,255,.03)';ctx.fillRect(dx+1,dy+23,dw-2,16);
+  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
+  var menus=['Layout','Edit','View','Items','Atlas','Settings'];
+  menus.forEach(function(m,i){ctx.fillText(m,dx+10+i*60,dy+35);});
+  // Toolbar icons
+  ctx.fillStyle='rgba(255,255,255,.02)';ctx.fillRect(dx+1,dy+39,dw-2,18);
+  var tools=['\u2B1C','\u2B1B','\u25B6','\u2709','\u2699','\u26F6'];
+  tools.forEach(function(tl,i){ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.fillText(tl,dx+10+i*22,dy+53);});
+
+  // Page mockup
+  var pgx=dx+20,pgy=dy+64,pgw=dw-40,pgh=dh-80;
+  rr(pgx,pgy,pgw,pgh,2);ctx.fillStyle='rgba(255,255,255,.03)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  // Drop shadow
+  ctx.fillStyle='rgba(0,0,0,.15)';ctx.fillRect(pgx+3,pgy+3,pgw,pgh);
+  rr(pgx,pgy,pgw,pgh,2);ctx.fillStyle='rgba(33,38,45,.95)';ctx.fill();ctx.strokeStyle='#484f58';ctx.lineWidth=1;ctx.stroke();
+  // Title
+  ctx.fillStyle='#e6edf3';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Scavo Archeologico - Area Nord',pgx+pgw/2,pgy+14);
+  ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+  ctx.fillText('Sito: Monte Citorio | Autore: Dott. Rossi | Scala: 1:200',pgx+pgw/2,pgy+24);
+  // Map area
+  var mfx=pgx+6,mfy=pgy+30,mfw=pgw-12,mfh=pgh-60;
+  rr(mfx,mfy,mfw,mfh,1);ctx.fillStyle='rgba(255,255,255,.01)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=0.5;ctx.stroke();
+  drawArchFeatures(mfx,mfy,mfw,mfh,t);
+  // Scale bar
+  ctx.strokeStyle='#e6edf3';ctx.lineWidth=0.8;
+  var sbx=pgx+6,sby=pgy+pgh-8;
+  ctx.beginPath();ctx.moveTo(sbx,sby);ctx.lineTo(sbx+60,sby);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx,sby-2);ctx.lineTo(sbx,sby+2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(sbx+60,sby-2);ctx.lineTo(sbx+60,sby+2);ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='5px sans-serif';ctx.textAlign='left';ctx.fillText('0   10m   20m',sbx,sby-4);
+  // North
+  ctx.fillStyle='#e6edf3';ctx.font='bold 9px sans-serif';ctx.textAlign='right';ctx.fillText('N',pgx+pgw-8,pgy+pgh-10);
+
+  // Export dialog on right
+  var ex=W*0.63,ey=H*0.06,ew=W*0.33,eh=H*0.82;
+  rr(ex,ey,ew,eh,8);ctx.fillStyle='rgba(22,27,34,.9)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='rgba(63,185,80,.06)';ctx.fillRect(ex+1,ey+1,ew-2,22);
+  ctx.fillStyle='#3fb950';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
+  ctx.fillText('Export Options',ex+10,ey+15);
+
+  // Format selection
+  var formats=[
+    {label:'PDF (Publication)',icon:'\u{1F4C4}',c:'#f85149',desc:'Vector output, 300 DPI\nIdeal for reports'},
+    {label:'PNG (Presentation)',icon:'\u{1F5BC}',c:'#58a6ff',desc:'Raster, configurable DPI\nFor slideshows'},
+    {label:'TIFF (Archive)',icon:'\u{1F4BE}',c:'#d29922',desc:'Lossless raster, GeoTIFF\nArchival quality'},
+    {label:'Direct Print',icon:'\u{1F5A8}',c:'#3fb950',desc:'Send to system printer\nMatch paper size'},
+  ];
+  formats.forEach(function(f,i){
+    var fy=ey+32+i*55;
+    var sel=document.querySelector('.fmt.sel');
+    var isSel=sel&&sel.dataset.f===['pdf','png','tiff','print'][i];
+    rr(ex+8,fy,ew-16,48,5);
+    ctx.fillStyle=isSel?f.c+'15':'rgba(255,255,255,.02)';ctx.fill();
+    ctx.strokeStyle=isSel?f.c:f.c+'33';ctx.lineWidth=isSel?1.5:1;ctx.stroke();
+    ctx.fillStyle=f.c;ctx.font='14px sans-serif';ctx.textAlign='left';ctx.fillText(f.icon,ex+16,fy+20);
+    ctx.fillStyle=isSel?'#e6edf3':'#c9d1d9';ctx.font='bold 9px sans-serif';ctx.fillText(f.label,ex+36,fy+16);
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+    var lines=f.desc.split('\n');
+    lines.forEach(function(ln,li){ctx.fillText(ln,ex+36,fy+28+li*10);});
+  });
+
+  // Settings
+  var sy=ey+260;
+  rr(ex+8,sy,ew-16,60,4);ctx.fillStyle='rgba(255,255,255,.02)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('EXPORT SETTINGS',ex+16,sy+14);
+  ctx.fillStyle='#c9d1d9';ctx.font='8px sans-serif';
+  ctx.fillText('Resolution: 300 DPI',ex+16,sy+28);
+  ctx.fillText('Color mode: CMYK (PDF) / RGB (Image)',ex+16,sy+40);
+  ctx.fillText('Metadata: site, date, author, CRS',ex+16,sy+52);
+
+  // Metadata preview
+  var my2=sy+68;
+  rr(ex+8,my2,ew-16,80,4);ctx.fillStyle='rgba(88,166,255,.03)';ctx.fill();ctx.strokeStyle='#58a6ff22';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 8px sans-serif';ctx.fillText('METADATA',ex+16,my2+14);
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
+  var meta=['Site: Monte Citorio','Author: Dott. Rossi','Date: 2026-02-09','Scale: 1:200','CRS: EPSG:32633','Template: A3_Landscape'];
+  meta.forEach(function(m,i){ctx.fillText(m,ex+16,my2+28+i*10);});
+
+  // Export button
+  var by=ey+eh-40;
+  rr(ex+8,by,ew-16,28,5);ctx.fillStyle='rgba(63,185,80,.15)';ctx.fill();ctx.strokeStyle='#3fb950';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.fillStyle='#3fb950';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('Export Map',ex+ew/2,by+18);
+}
+
+// -- Engine --
+function load(i){
+  A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);
+  resetSide();logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);
+}
+function exec(si){
+  if(si<0||si>=A.steps.length)return;A.step=si;var s=A.steps[si];
+  addLog(s.log,s.type);
+  if(s.map)updMap(s.map);
+  if(s.lyr!==undefined)hlLyr(s.lyr);
+  if(s.vis)updVis(s.vis);
+  if(s.fmt)selFmt(s.fmt);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);
+  updDots();
+  if(A.mode==='auto'&&A.playing)schedNext();
+}
+function schedNext(){
+  clearTimeout(A.timer);var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto'&&A.looping){var n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
+  if(last)return;
+  var d=2200;var s=A.steps[A.step];if(s.type==='success')d=2500;if(s.type==='warn')d=2800;
+  A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+}
+
+// -- Events --
+sel.addEventListener('change',function(){load(+sel.value);});
+bA.addEventListener('click',function(){A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
+bM.addEventListener('click',function(){A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',function(){A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPr.addEventListener('click',function(){if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
+bNx.addEventListener('click',function(){if(A.step<A.steps.length-1)exec(A.step+1);});
+bRe.addEventListener('click',function(){A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
+bL.addEventListener('click',function(){A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bSt.addEventListener('click',function(){A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
+spB.forEach(function(b){b.addEventListener('click',function(){spB.forEach(function(x){x.classList.remove('on');});b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();});});
+document.addEventListener('keydown',function(e){
+  if(e.key===' '){e.preventDefault();bPP.click();}
+  if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();
+  if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();
+  if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();
+  if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}
+});
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>

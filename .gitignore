@@ -25,6 +25,7 @@ __pycache__/
 /.qodo/
 /docs/*
 !/docs/tutorials/
+!/docs/*_animation.html
 /docs/tutorials/_build/
 /examples/
 /export/

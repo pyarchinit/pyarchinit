@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — Harris Matrix Interactive Animation</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e14;--bg2:#131920;--bg3:#1a2230;--bg4:#253040;
+  --text:#d4dce8;--muted:#6e7f91;--accent:#4ec9b0;--accent2:#6dd5c0;
+  --blue:#4da6ff;--orange:#e8a838;--purple:#c084fc;--red:#f06060;--green:#6dd060;
+  --yellow:#ffe066;--pink:#f472b6;--cyan:#22d3ee;
+  --radius:8px;
+}
+html{font-size:14px}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.header{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.header h1{font-size:1.25rem;font-weight:600;color:var(--accent)}
+.header h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.sidebar{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+.log-area{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 24px;max-height:170px;overflow-y:auto}
+
+.controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.controls button,.controls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-size:.85rem;transition:all .2s}
+.controls button:hover{border-color:var(--accent);background:rgba(78,201,176,.1)}
+.controls button.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.controls button:disabled{opacity:.35;cursor:default}
+.grp{display:flex;gap:1px}
+.grp button{border-radius:0}
+.grp button:first-child{border-radius:var(--radius) 0 0 var(--radius)}
+.grp button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+
+.scene-wrap{flex:1;position:relative;overflow:hidden;min-height:200px}
+.scene-wrap canvas{width:100%;height:100%;display:block}
+.desc-box{position:absolute;top:10px;left:10px;background:rgba(10,14,20,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;transition:opacity .3s}
+.desc-box strong{color:var(--accent)}
+.dots-bar{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dt{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dt.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--accent)}
+.dt.ok{background:var(--green);border-color:var(--green)}
+
+.widget{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(78,201,176,.08)}
+.widget h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.rel-list{display:flex;flex-direction:column;gap:3px}
+.rel-item{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.8rem;transition:all .3s}
+.rel-item.hl{background:rgba(78,201,176,.1);border:1px solid var(--accent)}
+.rel-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pipeline-phase{text-align:center;padding:6px 0}
+.pipeline-label{font-size:1rem;font-weight:700;color:var(--accent);transition:all .3s}
+.pipeline-sub{font-size:.75rem;color:var(--muted);margin-top:2px}
+.stat-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}
+.stat-row:last-child{border:none}
+.stat-l{color:var(--muted)}.stat-v{font-weight:600;font-variant-numeric:tabular-nums}
+
+.log-area h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+.log-entries{display:flex;flex-direction:column;gap:3px}
+.le{display:flex;gap:8px;font-size:.82rem;padding:3px 6px;border-radius:4px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.le-t{color:var(--muted);font-variant-numeric:tabular-nums;min-width:44px;flex-shrink:0}
+.le-i{flex-shrink:0;width:16px;text-align:center}
+.le-x{flex:1}
+.le.info{background:rgba(78,201,176,.04)}
+.le.success{background:rgba(109,208,96,.06)}
+.le.warn{background:rgba(232,168,56,.06)}
+.le.error{background:rgba(240,96,96,.06)}
+
+@media(max-width:900px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}
+  .sidebar{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}
+  .widget{flex:1;min-width:170px}
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>Harris Matrix in PyArchInit <span>— Stratigraphic Relationships &amp; Visualization</span></h1>
+    <div class="controls">
+      <select id="sel">
+        <option value="0">1. Stratigraphic Relationships</option>
+        <option value="1">2. Data Model &amp; Storage</option>
+        <option value="2">3. Graph Construction Pipeline</option>
+        <option value="3">4. Visualization &amp; Export</option>
+        <option value="4">5. Period/Phase Grouping</option>
+        <option value="5">6. Extended Matrix &amp; S3DGraphy</option>
+      </select>
+      <div class="grp">
+        <button id="bAuto" class="active">&#9654; Auto</button>
+        <button id="bMan">&#9998; Manual</button>
+      </div>
+      <div class="grp">
+        <button class="sp active" data-s="1">1x</button>
+        <button class="sp" data-s="2">2x</button>
+        <button class="sp" data-s="4">4x</button>
+      </div>
+      <button id="bPP">&#10074;&#10074; Pause</button>
+      <button id="bPrev" disabled>&larr;</button>
+      <button id="bNext" disabled>&rarr;</button>
+      <button id="bRes">&#8634;</button>
+      <button id="bLoop">&#8635; Loop</button>
+      <button id="bStop" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="scene-wrap">
+      <canvas id="cv"></canvas>
+      <div class="desc-box" id="dbox"></div>
+      <div class="dots-bar" id="dotsB"></div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="widget">
+      <h3>Relationship Types</h3>
+      <div class="rel-list" id="relList">
+        <div class="rel-item" data-r="copre"><span class="rel-dot" style="background:var(--blue)"></span>Copre / Covers</div>
+        <div class="rel-item" data-r="taglia"><span class="rel-dot" style="background:var(--red)"></span>Taglia / Cuts</div>
+        <div class="rel-item" data-r="riempie"><span class="rel-dot" style="background:var(--orange)"></span>Riempie / Fills</div>
+        <div class="rel-item" data-r="appoggia"><span class="rel-dot" style="background:var(--purple)"></span>Si appoggia a / Abuts</div>
+        <div class="rel-item" data-r="lega"><span class="rel-dot" style="background:var(--cyan)"></span>Si lega a / Bonds</div>
+        <div class="rel-item" data-r="uguale"><span class="rel-dot" style="background:var(--green)"></span>Uguale a / Same as</div>
+      </div>
+    </div>
+    <div class="widget">
+      <h3>Pipeline Phase</h3>
+      <div class="pipeline-phase">
+        <div class="pipeline-label" id="phaseLabel">--</div>
+        <div class="pipeline-sub" id="phaseSub"></div>
+      </div>
+    </div>
+    <div class="widget">
+      <h3>Graph Stats</h3>
+      <div class="stat-row"><span class="stat-l">Nodes (US)</span><span class="stat-v" id="sNodes">0</span></div>
+      <div class="stat-row"><span class="stat-l">Edges</span><span class="stat-v" id="sEdges">0</span></div>
+      <div class="stat-row"><span class="stat-l">Periods</span><span class="stat-v" id="sPeriods">0</span></div>
+      <div class="stat-row"><span class="stat-l">Cycles</span><span class="stat-v" id="sCycles" style="color:var(--green)">0</span></div>
+      <div class="stat-row"><span class="stat-l">Format</span><span class="stat-v" id="sFormat">--</span></div>
+    </div>
+    <div class="widget">
+      <h3>Export</h3>
+      <div class="stat-row"><span class="stat-l">DOT</span><span class="stat-v" style="color:var(--accent)">Harris_matrix.dot</span></div>
+      <div class="stat-row"><span class="stat-l">Tred</span><span class="stat-v" style="color:var(--orange)">Harris_matrix_tred.dot</span></div>
+      <div class="stat-row"><span class="stat-l">Image</span><span class="stat-v" style="color:var(--blue)">JPG / PNG</span></div>
+    </div>
+  </div>
+
+  <div class="log-area">
+    <h3>Event Log</h3>
+    <div class="log-entries" id="logE"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const cv=$('cv'),ctx=cv.getContext('2d');
+
+const A={
+  sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],
+  timer:null,looping:false,hlRel:null,logN:0,
+  nodes:0,edges:0,periods:0,cycles:0,format:'--',phase:'--',phaseSub:''
+};
+
+const sel=$('sel'),bAuto=$('bAuto'),bMan=$('bMan'),bPP=$('bPP'),
+  bPrev=$('bPrev'),bNext=$('bNext'),bRes=$('bRes'),bLoop=$('bLoop'),bStop=$('bStop'),
+  logE=$('logE'),dbox=$('dbox'),dotsB=$('dotsB'),
+  spBtns=document.querySelectorAll('.sp');
+
+const REL_COLORS={copre:'#4da6ff',taglia:'#f06060',riempie:'#e8a838',appoggia:'#c084fc',lega:'#22d3ee',uguale:'#6dd060'};
+
+const SC=[
+  // 0: Relationships
+  {title:'Stratigraphic Relationships',
+   desc:'<strong>Harris Matrix Relationships:</strong> 6 relationship types define the temporal and physical ordering of stratigraphic units (US).',
+   steps:[
+    {log:'Harris Matrix: a diagram showing temporal sequence of archaeological strata.',type:'info',d:'The Harris Matrix was developed by Edward C. Harris in 1973. It represents stratigraphic relationships as a directed acyclic graph.',phase:'Introduction',phaseSub:'Harris Matrix theory'},
+    {log:'COPRE (Covers): US 1 covers US 2 → US 1 is LATER than US 2. Inverse: Coperto da.',type:'info',rel:'copre',d:'The most common relationship. If stratum A covers stratum B, A was deposited after B. Drawn as a downward arrow: A → B.',phase:'Ante/Post',phaseSub:'Sequential relationships'},
+    {log:'TAGLIA (Cuts): US 3 cuts US 4 → US 3 is LATER (intrusive). Inverse: Tagliato da.',type:'info',rel:'taglia',d:'A negative relationship. If a pit (US 3) cuts a wall (US 4), the pit is more recent. This is a "negative" feature in the Harris matrix.',phase:'Negative',phaseSub:'Cutting relationships'},
+    {log:'RIEMPIE (Fills): US 5 fills US 6 → US 5 is LATER, fills the cut. Inverse: Riempito da.',type:'info',rel:'riempie',d:'Fill relationships link deposits to the cuts they fill. US 5 is the fill of cut US 6.',phase:'Fill',phaseSub:'Fill relationships'},
+    {log:'SI APPOGGIA A (Abuts): US 7 abuts US 8 → US 7 is LATER, leans against US 8. Inverse: Gli si appoggia.',type:'info',rel:'appoggia',d:'One stratum physically leans against or is built against another. Implies chronological order.',phase:'Physical',phaseSub:'Abutment relationships'},
+    {log:'SI LEGA A (Bonds with): US 9 bonds US 10 → CONTEMPORARY. No direction.',type:'info',rel:'lega',d:'Two strata built at the same time (e.g., two walls bonded together). Shown as dashed, undirected edges.',phase:'Contemporary',phaseSub:'Same-time relationships'},
+    {log:'UGUALE A (Same as): US 11 = US 12 → Same deposit recorded separately. CONTEMPORARY.',type:'info',rel:'uguale',d:'When the same stratum was recorded with different numbers in different trenches. Merge in the matrix.',phase:'Identity',phaseSub:'Equivalence relationships'},
+    {log:'All relationships stored in the "rapporti" field of us_table as structured lists.',type:'success',d:'Each US record has a rapporti column: [["Copre","5","US","Strato","2-a"], ...]. This feeds the matrix builder.',phase:'Storage',phaseSub:'Database field'},
+  ]},
+  // 1: Data Model
+  {title:'Data Model & Storage',
+   desc:'<strong>Data Model:</strong> Relationships are stored as serialized Python lists in the us_table rapporti field, with structure definitions and entity classes.',
+   steps:[
+    {log:'us_table: main stratigraphic units table. 130+ columns per record.',type:'info',d:'Each US record stores geometry, interpretation, dating, relationships, and more. Column 18 = rapporti, Column 132 = rapporti2.',phase:'Schema',phaseSub:'us_table',nodes:0,edges:0},
+    {log:'rapporti field format: [["relationship_type","target_us","unit_type","interpretation","period-phase"], ...]',type:'info',d:'A text field containing a Python list representation. Parsed with eval() when building the matrix.',phase:'Format',phaseSub:'List serialization'},
+    {log:'Example: [["Copre","5","US","Strato","2-a"], ["Taglia","8","US","Fossa","1-b"]]',type:'info',d:'US record covers US 5 (a stratum in Period 2, Phase a) and cuts US 8 (a pit in Period 1, Phase b).',phase:'Example',phaseSub:'Relationship data'},
+    {log:'Entity class: US_table_entity in modules/db/entities/ — SQLAlchemy ORM mapping.',type:'info',d:'Each table has an entity class that maps Python objects to database rows.',phase:'ORM',phaseSub:'SQLAlchemy entity'},
+    {log:'Structure: US_table in modules/db/structures/ — defines column types and constraints.',type:'info',d:'Table structures define the DDL. rapporti is stored as TEXT (VARCHAR for PostgreSQL).',phase:'DDL',phaseSub:'Table structure'},
+    {log:'Query: DB_MANAGER.query_bool(search_dict, "US") returns all US records for a site.',type:'info',d:'The matrix builder queries all US records filtered by site, area, and optionally period.',phase:'Query',phaseSub:'Data retrieval',nodes:12,edges:0},
+    {log:'Relationship parsing: categorize into sequence[], negative[], contemporary[], connection[].',type:'success',d:'5 output lists: sequence (Copre/Taglia/Appoggia), negative (Taglia specifically), contemporary (Si lega/Uguale), connection, connection_to.',phase:'Parsing',phaseSub:'Categorization',edges:18},
+  ]},
+  // 2: Graph Construction
+  {title:'Graph Construction Pipeline',
+   desc:'<strong>Pipeline:</strong> Data flows from database → relationship parsing → Graphviz graph object → DOT file → transitive reduction → image output.',
+   steps:[
+    {log:'Step 1: Create Digraph with Graphviz: G = Digraph(engine="dot", strict=False)',type:'info',d:'A directed graph using the "dot" layout engine (hierarchical, top-to-bottom). strict=False allows parallel edges.',phase:'Graph Init',phaseSub:'Graphviz Digraph',format:'DOT'},
+    {log:'Step 2: Add US nodes. Each node = US number, colored by type (stratum/cut/fill).',type:'info',d:'Nodes are added with attributes: shape (box/circle), color, label. Grouped into subgraphs by period/phase.',phase:'Add Nodes',phaseSub:'US → Graph nodes',nodes:12},
+    {log:'Step 3: Add edges from sequence[] list. Solid arrows: A → B means A is later.',type:'info',d:'Each "Copre", "Taglia", "Si appoggia a" relationship becomes a directed edge with solid line style.',phase:'Add Edges',phaseSub:'Sequential edges',edges:14},
+    {log:'Step 4: Add contemporary edges. Dashed lines, constraint=False (no rank forcing).',type:'info',d:'"Si lega a" and "Uguale a" become dashed bidirectional edges. constraint=False means they do not affect vertical positioning.',phase:'Contemporary',phaseSub:'Dashed edges',edges:18},
+    {log:'Step 5: Cycle detection — check for self-loops and circular dependencies.',type:'warn',d:'The system checks if any US relates to itself (self-loop) and warns if the graph has cycles. Cycles make the matrix invalid.',phase:'Validation',phaseSub:'Cycle detection',cycles:0},
+    {log:'Step 6: Render DOT file → Harris_matrix.dot in pyarchinit_Matrix_folder/.',type:'info',d:'The Graphviz graph object is serialized to DOT format and saved to disk.',phase:'Render DOT',phaseSub:'File output',format:'DOT'},
+    {log:'Step 7: Transitive reduction — tred Harris_matrix.dot > Harris_matrix_tred.dot',type:'info',d:'The "tred" command removes implied edges. If A→B→C and A→C, the A→C edge is removed as it is implied by transitivity.',phase:'Tred',phaseSub:'Minimal graph',format:'DOT (tred)',edges:11},
+    {log:'Step 8: Generate image. DPI auto-adaptive: 150→120→100→75→50 for complex graphs.',type:'success',d:'Graphviz renders the DOT to JPG/PNG. DPI is reduced automatically for very large graphs to prevent memory issues.',phase:'Image',phaseSub:'JPG/PNG output',format:'JPG'},
+  ]},
+  // 3: Visualization
+  {title:'Visualization & Export',
+   desc:'<strong>Visualization:</strong> Multiple rendering backends — Graphviz DOT, Matplotlib/NetworkX, and native QGIS vector layers.',
+   steps:[
+    {log:'Primary: Graphviz/DOT engine. Hierarchical layout with rankdir=TB (top to bottom).',type:'info',d:'The standard Harris Matrix layout: most recent strata at top, oldest at bottom. Graphviz handles automatic positioning.',phase:'Graphviz',phaseSub:'Primary renderer',format:'DOT→JPG'},
+    {log:'Node styling: configurable shapes (box, circle, diamond), colors per relationship type.',type:'info',d:'Settings dialog (Setting_Matrix) controls: combo_box for shapes, colors, edge styles, DPI, period grouping, legend.',phase:'Styling',phaseSub:'Configurable UI'},
+    {log:'Edge styling: solid (sequential), dashed (contemporary), dotted (generic connections).',type:'info',d:'Different line styles visually distinguish temporal relationships from contemporary ones.',phase:'Edge Styles',phaseSub:'Line differentiation'},
+    {log:'Legend generation: color-coded key for ante/post, negative, and contemporary nodes.',type:'info',d:'The legend block shows what each color/shape means, helping non-specialists read the matrix.',phase:'Legend',phaseSub:'Visual key'},
+    {log:'Alternative: Matplotlib + NetworkX for interactive Python-based visualization.',type:'info',d:'The matrix_graph_visualizer.py uses NetworkX for graph algorithms and Matplotlib for rendering. Graceful fallback if not installed.',phase:'NetworkX',phaseSub:'Alt. renderer',format:'PNG (matplotlib)'},
+    {log:'QGIS Native: matrix_visualizer_qgis.py creates vector layers for nodes and edges.',type:'info',d:'The matrix can be visualized directly on the QGIS map canvas as point (node) and line (edge) layers with custom symbology.',phase:'QGIS Layers',phaseSub:'Native integration',format:'QGIS vector'},
+    {log:'Export directory: {PYARCHINIT_HOME}/pyarchinit_Matrix_folder/',type:'success',d:'All outputs (DOT, tred DOT, JPG/PNG) are saved to the dedicated matrix folder in the PyArchInit home directory.',phase:'Export',phaseSub:'File output'},
+  ]},
+  // 4: Period/Phase
+  {title:'Period/Phase Grouping',
+   desc:'<strong>Periodization:</strong> US nodes are organized into subgraphs by Site → Period → Phase, with dating labels from the periodizzazione_table.',
+   steps:[
+    {log:'Query periodizzazione_table: period, phase, datazione_estesa for each chronological group.',type:'info',d:'The periodizzazione_table defines the site chronology: periods (I, II, III...) and phases (a, b, c...) with dating descriptions.',phase:'Query Periods',phaseSub:'periodizzazione_table',periods:3},
+    {log:'Subgraph hierarchy: Site > Period (with dating) > Phase > US nodes.',type:'info',d:'Graphviz subgraphs create visual boxes. Site is the outermost box, periods are nested, phases are innermost.',phase:'Hierarchy',phaseSub:'Nested subgraphs'},
+    {log:'Period I (8th-6th c. BC): Phase a — Foundation. US 10, US 11, US 12.',type:'info',d:'Oldest period at the bottom of the matrix. Contains the earliest strata.',phase:'Period I',phaseSub:'Foundation phase'},
+    {log:'Period II (5th-3rd c. BC): Phase a — Main occupation. US 5, US 6, US 7, US 8, US 9.',type:'info',d:'Middle period with the most activity. Multiple US grouped into one phase box.',phase:'Period II',phaseSub:'Occupation phase'},
+    {log:'Period III (2nd-1st c. BC): Phase a — Destruction. US 1, US 2, US 3, US 4.',type:'info',d:'Most recent period at the top. Contains the latest strata including abandonment layers.',phase:'Period III',phaseSub:'Destruction phase'},
+    {log:'rank="same" constraint: all US within a phase forced to same horizontal level.',type:'info',d:'Graphviz rank constraint ensures contemporary strata within a phase align horizontally.',phase:'Layout',phaseSub:'Same-rank constraint'},
+    {log:'checkBox_period: toggle period grouping ON/OFF in the Settings dialog.',type:'success',d:'Users can choose whether to show period boxes or display a flat matrix without chronological grouping.',phase:'Toggle',phaseSub:'User preference'},
+  ]},
+  // 5: Extended Matrix
+  {title:'Extended Matrix & S3DGraphy',
+   desc:'<strong>Extended Matrix:</strong> S3DGraphy integration maps Harris relationships to semantic types and supports 3D virtual reconstruction of archaeological contexts.',
+   steps:[
+    {log:'S3DGraphy: Extended Matrix system for 3D archaeological visualization.',type:'info',d:'S3DGraphy extends the Harris Matrix with 3D reconstruction capabilities and semantic relationship types.',phase:'S3DGraphy',phaseSub:'Extended Matrix'},
+    {log:'Relationship mapping: "copre" → is_before, "taglia" → is_before, "riempie" → has_same_time.',type:'info',d:'Harris relationships are mapped to S3DGraphy semantic types: is_before (temporal), has_same_time (contemporary), generic_connection.',phase:'Mapping',phaseSub:'Semantic types'},
+    {log:'"si lega a" → has_same_time. Contemporary bonds mapped to same-time semantic.',type:'info',rel:'lega',d:'Bonds and fills both map to has_same_time in the extended model.',phase:'Contemporary',phaseSub:'Same-time mapping'},
+    {log:'Virtual reconstruction: hypothetical/reconstructed units with confidence levels.',type:'info',d:'S3DGraphy supports "virtual_reconstruction" node types with confidence: low, medium, high — based on archaeological evidence.',phase:'Virtual',phaseSub:'Hypothetical units'},
+    {log:'DOT bridge: s3dgraphy_dot_bridge.py converts between Harris DOT and S3DGraphy formats.',type:'info',d:'Bidirectional conversion between standard Graphviz DOT files and S3DGraphy extended format.',phase:'Bridge',phaseSub:'Format conversion',format:'S3DGraphy'},
+    {log:'QGIS integration: matrix_visualizer_qgis.py renders extended matrix as QGIS layers.',type:'info',d:'The extended matrix can be displayed directly in QGIS with custom symbology for virtual/real units.',phase:'QGIS',phaseSub:'Layer integration'},
+    {log:'Graphviz visualizer: graphviz_visualizer.py renders S3DGraphy graph with extended styling.',type:'info',d:'Alternative renderer that uses Graphviz for S3DGraphy output with semantic edge coloring.',phase:'Render',phaseSub:'Extended output'},
+    {log:'Full pipeline: PyArchInit → Harris Matrix → S3DGraphy → 3D Virtual Reconstruction.',type:'success',d:'From field recording in PyArchInit to a full 3D reconstruction of the archaeological site via the Extended Matrix.',phase:'Pipeline',phaseSub:'End-to-end'},
+  ]}
+];
+
+// ── UI ──
+function hlRel(r){
+  A.hlRel=r;
+  document.querySelectorAll('.rel-item').forEach(e=>e.classList.toggle('hl',e.dataset.r===r));
+}
+function updPhase(p,s){
+  A.phase=p||'--';A.phaseSub=s||'';
+  $('phaseLabel').textContent=A.phase;
+  $('phaseSub').textContent=A.phaseSub;
+}
+function updStats(o){
+  if(o.nodes!==undefined){A.nodes=o.nodes;$('sNodes').textContent=A.nodes;}
+  if(o.edges!==undefined){A.edges=o.edges;$('sEdges').textContent=A.edges;}
+  if(o.periods!==undefined){A.periods=o.periods;$('sPeriods').textContent=A.periods;}
+  if(o.cycles!==undefined){A.cycles=o.cycles;$('sCycles').textContent=A.cycles;$('sCycles').style.color=A.cycles?'var(--red)':'var(--green)';}
+  if(o.format!==undefined){A.format=o.format;$('sFormat').textContent=A.format;}
+}
+function addLog(t,type){
+  A.logN++;
+  const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
+  const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};
+  const cl={info:'var(--accent)',success:'var(--green)',warn:'var(--orange)',error:'var(--red)'};
+  const d=document.createElement('div');d.className='le '+type;
+  d.innerHTML=`<span class="le-t">${ts}</span><span class="le-i" style="color:${cl[type]}">${ic[type]}</span><span class="le-x">${t}</span>`;
+  logE.prepend(d);
+  while(logE.children.length>30)logE.removeChild(logE.lastChild);
+}
+function updDots(){
+  dotsB.innerHTML='';
+  A.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dt'+(i===A.step?' on':i<A.step?' ok':'');dotsB.appendChild(d);});
+}
+function updDesc(h){dbox.innerHTML=h||'';dbox.style.opacity=h?'1':'0';}
+
+// ── Canvas ──
+function resize(){
+  const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr;cv.height=r.height*dpr;
+  cv.style.width=r.width+'px';cv.style.height=r.height+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize',resize);
+
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+// Harris Matrix nodes layout
+const HM_NODES=[
+  // Period III (top) — most recent
+  {id:'US 1',x:.22,y:.1,color:'#4da6ff',period:3},
+  {id:'US 2',x:.42,y:.1,color:'#f06060',period:3},
+  {id:'US 3',x:.62,y:.1,color:'#4da6ff',period:3},
+  {id:'US 4',x:.82,y:.1,color:'#e8a838',period:3},
+  // Period II (middle)
+  {id:'US 5',x:.15,y:.35,color:'#4da6ff',period:2},
+  {id:'US 6',x:.35,y:.35,color:'#f06060',period:2},
+  {id:'US 7',x:.55,y:.35,color:'#4da6ff',period:2},
+  {id:'US 8',x:.70,y:.35,color:'#c084fc',period:2},
+  {id:'US 9',x:.85,y:.35,color:'#4da6ff',period:2},
+  // Period I (bottom) — oldest
+  {id:'US 10',x:.25,y:.6,color:'#4da6ff',period:1},
+  {id:'US 11',x:.50,y:.6,color:'#6dd060',period:1},
+  {id:'US 12',x:.75,y:.6,color:'#4da6ff',period:1},
+];
+const HM_EDGES=[
+  // Sequence (solid)
+  {from:0,to:4,type:'copre'},{from:1,to:5,type:'taglia'},{from:2,to:6,type:'copre'},
+  {from:3,to:7,type:'appoggia'},{from:3,to:8,type:'copre'},
+  {from:4,to:9,type:'copre'},{from:5,to:9,type:'taglia'},{from:6,to:10,type:'copre'},
+  {from:7,to:11,type:'copre'},{from:8,to:11,type:'copre'},
+  // Fill
+  {from:3,to:1,type:'riempie'},
+  // Contemporary (dashed)
+  {from:4,to:5,type:'lega'},{from:10,to:11,type:'uguale'},
+];
+const PERIOD_BOXES=[
+  {label:'Period III — 2nd-1st c. BC',y:.02,h:.2,color:'#f0606033'},
+  {label:'Period II — 5th-3rd c. BC',y:.27,h:.2,color:'#e8a83833'},
+  {label:'Period I — 8th-6th c. BC',y:.52,h:.2,color:'#4da6ff33'},
+];
+
+function drawScene(ts){
+  const W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);
+  const t=ts*.001;
+  const marginTop=H*.08,areaH=H*.75;
+
+  // Draw period boxes if scenario 4 or general
+  if(A.sc===4||A.sc===0||A.sc===2||A.sc===3){
+    PERIOD_BOXES.forEach(p=>{
+      const by=marginTop+areaH*p.y,bh=areaH*p.h;
+      rr(W*.04,by,W*.92,bh,6);
+      ctx.fillStyle=p.color;ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#6e7f91';ctx.font='9px sans-serif';ctx.textAlign='left';
+      ctx.fillText(p.label,W*.06,by+12);
+    });
+  }
+
+  // Draw edges
+  HM_EDGES.forEach((e,ei)=>{
+    const fn=HM_NODES[e.from],tn=HM_NODES[e.to];
+    const fx=W*fn.x,fy=marginTop+areaH*fn.y+16;
+    const tx=W*tn.x,ty=marginTop+areaH*tn.y;
+    const hlEdge=A.hlRel===e.type;
+    const eColor=REL_COLORS[e.type]||'#6e7f91';
+
+    ctx.save();
+    ctx.strokeStyle=hlEdge?eColor:eColor+'55';
+    ctx.lineWidth=hlEdge?2.5:1.2;
+    if(e.type==='lega'||e.type==='uguale'){
+      ctx.setLineDash([5,4]);
+    }
+    ctx.beginPath();ctx.moveTo(fx,fy);ctx.lineTo(tx,ty);ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Arrowhead (not for contemporary)
+    if(e.type!=='lega'&&e.type!=='uguale'){
+      const angle=Math.atan2(ty-fy,tx-fx);
+      const ax=tx-8*Math.cos(angle),ay=ty-8*Math.sin(angle);
+      ctx.fillStyle=hlEdge?eColor:eColor+'55';
+      ctx.beginPath();
+      ctx.moveTo(tx,ty);
+      ctx.lineTo(ax-5*Math.cos(angle-Math.PI/2),ay-5*Math.sin(angle-Math.PI/2));
+      ctx.lineTo(ax+5*Math.cos(angle-Math.PI/2),ay+5*Math.sin(angle-Math.PI/2));
+      ctx.closePath();ctx.fill();
+    }
+
+    // Animated particle along edge
+    if(hlEdge){
+      const p=((t*.5+ei*.15)%1);
+      const px2=fx+(tx-fx)*p,py2=fy+(ty-fy)*p;
+      const al=p<.1?p/.1:p>.9?(1-p)/.1:1;
+      ctx.fillStyle=eColor;
+      ctx.globalAlpha=al*.8;
+      ctx.beginPath();ctx.arc(px2,py2,3,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+    }
+    ctx.restore();
+  });
+
+  // Draw nodes
+  HM_NODES.forEach((n,i)=>{
+    const nx=W*n.x,ny=marginTop+areaH*n.y;
+    const active=isNodeRelevant(i);
+
+    rr(nx-22,ny-12,44,28,5);
+    ctx.fillStyle=active?n.color+'22':'rgba(26,34,48,.8)';ctx.fill();
+    ctx.strokeStyle=active?n.color:n.color+'44';
+    ctx.lineWidth=active?2:1;ctx.stroke();
+
+    ctx.fillStyle=active?'#e6edf3':'#6e7f91';
+    ctx.font=(active?'bold ':'')+' 10px sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(n.id,nx,ny+4);
+
+    // Glow on active
+    if(active){
+      ctx.save();
+      ctx.shadowColor=n.color;ctx.shadowBlur=8;
+      ctx.strokeStyle=n.color+'44';ctx.lineWidth=1;
+      rr(nx-24,ny-14,48,32,6);ctx.stroke();
+      ctx.restore();
+    }
+  });
+
+  // Pipeline visualization for scenario 2
+  if(A.sc===2){
+    const py2=marginTop+areaH*.78;
+    const phases=['DB Query','Parse rapporti','Build Graph','Add Edges','Cycle Check','DOT File','tred','Image'];
+    const pw=W/(phases.length+1);
+    ctx.strokeStyle='rgba(78,201,176,.15)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(pw*.5,py2+10);ctx.lineTo(W-pw*.5,py2+10);ctx.stroke();
+    phases.forEach((p,i)=>{
+      const px2=pw*(i+.5)+pw*.25;
+      const isActive=A.phase&&p.toLowerCase().includes(A.phase.toLowerCase().substring(0,4));
+      rr(px2-28,py2,56,22,3);
+      ctx.fillStyle=isActive?'rgba(78,201,176,.12)':'rgba(26,34,48,.6)';ctx.fill();
+      ctx.strokeStyle=isActive?'#4ec9b0':'#253040';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=isActive?'#4ec9b0':'#6e7f91';ctx.font='8px sans-serif';ctx.textAlign='center';
+      ctx.fillText(p,px2,py2+14);
+    });
+  }
+
+  // S3DGraphy overlay for scenario 5
+  if(A.sc===5){
+    const sx=W*.5,sy=marginTop+areaH*.78;
+    rr(sx-120,sy-8,240,28,4);
+    ctx.fillStyle='rgba(78,201,176,.06)';ctx.fill();
+    ctx.strokeStyle='#4ec9b0';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#4ec9b0';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.fillText('S3DGraphy Extended Matrix → 3D Virtual Reconstruction',sx,sy+8);
+  }
+}
+
+function isNodeRelevant(i){
+  // Highlight nodes based on highlighted relationship
+  if(!A.hlRel)return true;
+  return HM_EDGES.some(e=>(e.from===i||e.to===i)&&e.type===A.hlRel);
+}
+
+// ── Engine ──
+function load(i){
+  A.sc=i;A.step=0;A.steps=SC[i].steps;A.hlRel=null;
+  clearTimeout(A.timer);
+  hlRel(null);updPhase('--','');
+  updStats({nodes:0,edges:0,periods:0,cycles:0,format:'--'});
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);
+  exec(0);
+}
+function exec(si){
+  if(si<0||si>=A.steps.length)return;
+  A.step=si;const s=A.steps[si];
+  addLog(s.log,s.type);
+  if(s.rel!==undefined)hlRel(s.rel);
+  if(s.phase)updPhase(s.phase,s.phaseSub||'');
+  const stats={};
+  if(s.nodes!==undefined)stats.nodes=s.nodes;
+  if(s.edges!==undefined)stats.edges=s.edges;
+  if(s.periods!==undefined)stats.periods=s.periods;
+  if(s.cycles!==undefined)stats.cycles=s.cycles;
+  if(s.format!==undefined)stats.format=s.format;
+  if(Object.keys(stats).length)updStats(stats);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);
+  updDots();
+  if(A.mode==='auto'&&A.playing)schedNext();
+}
+function schedNext(){
+  clearTimeout(A.timer);
+  const last=A.step>=A.steps.length-1;
+  if(last&&A.looping){
+    A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto'&&A.looping){const n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);
+    return;
+  }
+  if(last)return;
+  const s=A.steps[A.step];
+  let d=2400;if(s.type==='warn'||s.type==='error')d=3000;if(s.type==='success')d=2600;
+  A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+}
+
+// ── Events ──
+sel.addEventListener('change',()=>load(+sel.value));
+bAuto.addEventListener('click',()=>{A.mode='auto';bAuto.classList.add('active');bMan.classList.remove('active');bPrev.disabled=bNext.disabled=true;if(A.playing)schedNext();});
+bMan.addEventListener('click',()=>{A.mode='manual';bMan.classList.add('active');bAuto.classList.remove('active');bPrev.disabled=bNext.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',()=>{A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074; Pause':'&#9654; Play';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPrev.addEventListener('click',()=>{if(A.step>0){A.hlRel=null;logE.innerHTML='';A.logN=0;exec(A.step-1);}});
+bNext.addEventListener('click',()=>{if(A.step<A.steps.length-1)exec(A.step+1);});
+bRes.addEventListener('click',()=>{A.playing=true;bPP.innerHTML='&#10074;&#10074; Pause';load(A.sc);});
+bLoop.addEventListener('click',()=>{A.looping=!A.looping;bLoop.classList.toggle('active',A.looping);bStop.style.display=A.looping?'':'none';bLoop.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bStop.addEventListener('click',()=>{A.looping=false;A.playing=false;bLoop.classList.remove('active');bLoop.innerHTML='&#8635; Loop';bStop.style.display='none';bPP.innerHTML='&#9654; Play';clearTimeout(A.timer);addLog('Loop stopped.','warn');});
+spBtns.forEach(b=>b.addEventListener('click',()=>{spBtns.forEach(x=>x.classList.remove('active'));b.classList.add('active');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();}));
+document.addEventListener('keydown',e=>{
+  if(e.key===' '){e.preventDefault();bPP.click();}
+  if(e.key==='ArrowRight'&&A.mode==='manual'&&A.step<A.steps.length-1)exec(A.step+1);
+  if(e.key==='ArrowLeft'&&A.mode==='manual'&&A.step>0)exec(A.step-1);
+  if(e.key==='r'||e.key==='R')bRes.click();
+  if(e.key==='l'||e.key==='L')bLoop.click();
+  if((e.key==='s'||e.key==='S')&&A.looping)bStop.click();
+  if(e.key>='1'&&e.key<='6'){sel.value=+e.key-1;load(+e.key-1);}
+});
+
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — Image Export &amp; Search Tutorial</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
+.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
+.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
+.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
+.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.fmt-list{display:flex;flex-direction:column;gap:3px}
+.fmt{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
+.fmt.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
+.fmt-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.les{display:flex;flex-direction:column;gap:2px}
+.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
+.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
+@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>Image Export &amp; Search <span>— Export, Organize &amp; Compare Archaeological Media</span></h1>
+    <div class="ctrls">
+      <select id="sel"><option value="0">1. Single Image Export</option><option value="1">2. Batch Export by Period/Phase</option><option value="2">3. Export by Entity Type</option><option value="3">4. Image Comparison &amp; Search</option></select>
+      <div class="g"><button id="bA" class="on">&#9654; Auto</button><button id="bM">&#9998; Manual</button></div>
+      <div class="g"><button class="sp on" data-s="1">1x</button><button class="sp" data-s="2">2x</button><button class="sp" data-s="4">4x</button></div>
+      <button id="bPP">&#10074;&#10074;</button><button id="bPr" disabled>&larr;</button><button id="bNx" disabled>&rarr;</button><button id="bRe">&#8634;</button>
+      <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="side">
+    <div class="w"><h3>Export Stats</h3>
+      <div class="sr"><span class="sl">Files Exported</span><span class="sv" id="sFiles">0</span></div>
+      <div class="sr"><span class="sl">Total Size</span><span class="sv" id="sSize">0 MB</span></div>
+      <div class="sr"><span class="sl">Folders Created</span><span class="sv" id="sFolders">0</span></div>
+      <div class="sr"><span class="sl">Progress</span><span class="sv" id="sProgress">--</span></div>
+    </div>
+    <div class="w"><h3>Current Criteria</h3>
+      <div class="sr"><span class="sl">Period</span><span class="sv" id="cPeriod">--</span></div>
+      <div class="sr"><span class="sl">Phase</span><span class="sv" id="cPhase">--</span></div>
+      <div class="sr"><span class="sl">Entity</span><span class="sv" id="cEntity">--</span></div>
+      <div class="sr"><span class="sl">Site</span><span class="sv" id="cSite">--</span></div>
+    </div>
+    <div class="w"><h3>Format Options</h3>
+      <div class="fmt-list" id="fmtList">
+        <div class="fmt" data-f="jpg"><span class="fmt-dot" style="background:#58a6ff"></span>JPG (Lossy, small)</div>
+        <div class="fmt" data-f="png"><span class="fmt-dot" style="background:#3fb950"></span>PNG (Lossless)</div>
+        <div class="fmt" data-f="tiff"><span class="fmt-dot" style="background:#d29922"></span>TIFF (Archival)</div>
+      </div>
+    </div>
+  </div>
+  <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlFmt:null,anim:0};
+const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+
+const FMT_COLORS={jpg:'#58a6ff',png:'#3fb950',tiff:'#d29922'};
+
+const SC=[
+  {title:'Single Image Export',desc:'<strong>Single Export:</strong> Select an image from the Media Manager, choose format and destination, export with full metadata.',
+   steps:[
+    {log:'Open Media Manager: navigate to image gallery via toolbar button.',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'--'},cr:{period:'--',phase:'--',entity:'--',site:'--'},fmt:null,d:'The Images_directory_export.py dialog launches from the Media Manager toolbar. It provides export options for individual images and batch operations.'},
+    {log:'Select image: site_photo_001.jpg (4.2 MB) from thumbnail grid.',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'Selecting...'},cr:{entity:'Media',site:'Site Alpha'},fmt:'jpg',d:'Click any thumbnail in the Media Manager gallery to select it for export. The image metadata (size, format, linked records) is displayed.'},
+    {log:'Choose export directory: /exports/Site_Alpha/ and format: JPG with EXIF preservation.',type:'info',op:{files:0,size:'0 MB',folders:1,progress:'Configuring...'},fmt:'jpg',d:'The export dialog lets you pick a target folder and output format. EXIF metadata (GPS, date, camera) can be preserved or stripped.'},
+    {log:'Exporting site_photo_001.jpg with metadata: GPS coords, date=2025-06-15, camera=Canon EOS R5.',type:'info',op:{files:0,size:'0 MB',folders:1,progress:'Exporting...'},d:'Pillow handles format conversion and metadata writing. GPS coordinates from field photos are preserved for georeferencing.'},
+    {log:'Export complete: /exports/Site_Alpha/site_photo_001.jpg (4.2 MB) with full EXIF data.',type:'success',op:{files:1,size:'4.2 MB',folders:1,progress:'Complete'},d:'The exported file includes all original metadata. The file path and export timestamp are logged for audit purposes.'},
+  ]},
+  {title:'Batch Export by Period/Phase',desc:'<strong>Batch Export:</strong> Automatically export and organize all linked media by chronological period and stratigraphic phase.',
+   steps:[
+    {log:'Open Images_directory_export: select site "Site Alpha" and export mode "By Period/Phase".',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'--'},cr:{period:'All',phase:'All',entity:'US (linked)',site:'Site Alpha'},fmt:'jpg',d:'The batch export mode queries all US records and their linked media, then organizes output by the periodizzazione (chronological assignment) of each US.'},
+    {log:'Query: SELECT us.*, p.periodo, p.fase FROM us_table us JOIN periodizzazione_table p ON us.periodo_iniziale=p.periodo WHERE us.sito="Site Alpha".',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'Querying...'},cr:{period:'I, II, III',phase:'a, b'},d:'The system joins us_table with periodizzazione_table to determine which period and phase each US belongs to. All linked media for matching US records are collected.'},
+    {log:'Found 47 images across 3 periods and 5 phases. Creating folder structure...',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'0/47'},cr:{period:'I, II, III',phase:'a, b, c'},d:'The query results are grouped by period and phase. Each unique combination gets its own output folder.'},
+    {log:'Created: Period_I/Phase_a/, Period_I/Phase_b/, Period_II/Phase_a/, Period_II/Phase_b/, Period_III/Phase_c/.',type:'info',op:{files:0,size:'0 MB',folders:5,progress:'0/47'},d:'The folder hierarchy mirrors the chronological structure of the excavation. Period at the top level, phase as subfolders.'},
+    {log:'Copying images: Period_I/Phase_a/US101_photo_001.jpg, US101_photo_002.jpg, US102_detail.jpg...',type:'info',op:{files:23,size:'86.4 MB',folders:5,progress:'23/47'},d:'Images are copied (not moved) to preserve originals. File names include the US number prefix for easy identification within each folder.'},
+    {log:'Batch export complete: 47 files (178.3 MB) organized into 5 folders by period/phase.',type:'success',op:{files:47,size:'178.3 MB',folders:5,progress:'47/47 Done'},d:'The export summary shows total files, size, and folder structure. A CSV manifest is optionally generated listing every exported file and its source record.'},
+  ]},
+  {title:'Export by Entity Type',desc:'<strong>Entity Export:</strong> Export images organized by archaeological entity: US, Tomba, or Inventario Materiali.',
+   steps:[
+    {log:'Export mode: "By Entity" selected. Choose entity type: US / Tomba / Inventario Materiali.',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'--'},cr:{period:'--',phase:'--',entity:'US',site:'Site Alpha'},fmt:'png',d:'Entity-based export creates one folder per record, with all linked media inside. This is useful for creating per-record documentation packages.'},
+    {log:'Export by US: querying media_to_entity_table WHERE entity_type="US". Creating US_001/, US_002/, US_003/...',type:'info',op:{files:0,size:'0 MB',folders:8,progress:'Querying...'},cr:{entity:'US'},fmt:'png',d:'Each US record with linked media gets its own folder. Folder names use zero-padded US numbers (US_001, US_002) for consistent sorting.'},
+    {log:'US export: 32 images into 8 folders. Switching to Tomba: Tomba_T01/, Tomba_T02/, Tomba_T03/...',type:'info',op:{files:32,size:'124.6 MB',folders:12,progress:'32 files'},cr:{entity:'Tomba'},d:'Tomb records follow the same pattern. Folder names use the tomb identifier (T01, T02). Burial photos, plan drawings, and section drawings are all included.'},
+    {log:'Tomba export: 15 images into 4 folders. Switching to Inventario: Ceramica/, Litica/, Metallo/...',type:'info',op:{files:47,size:'182.1 MB',folders:16,progress:'47 files'},cr:{entity:'Inv. Materiali'},fmt:'tiff',d:'Inventory export can be organized by material type (Ceramica, Litica, Metallo, Vetro) rather than individual record numbers, grouping artifacts by category.'},
+    {log:'Entity export complete: 58 files (210.5 MB) in 19 folders across US, Tomba, and Inventario.',type:'success',op:{files:58,size:'210.5 MB',folders:19,progress:'58 files Done'},cr:{entity:'All'},d:'The complete entity export provides a ready-to-archive folder structure. Each entity folder can be delivered independently to specialists or attached to reports.'},
+  ]},
+  {title:'Image Comparison & Search',desc:'<strong>Search &amp; Compare:</strong> Global image search by metadata, entity, or date. Side-by-side comparison with overlay detection.',
+   steps:[
+    {log:'Open Image_search.py: global search across all media records by metadata, entity, and date range.',type:'info',op:{files:0,size:'0 MB',folders:0,progress:'--'},cr:{period:'--',phase:'--',entity:'Search',site:'All Sites'},fmt:null,d:'Image_search.py provides a powerful search interface. Filter by site, entity type, date range, description keywords, or any combination of criteria.'},
+    {log:'Search: entity_type="US", site="Site Alpha", date=2025-06-01 to 2025-06-30. Found 23 results.',type:'info',op:{files:23,size:'--',folders:0,progress:'23 results'},cr:{entity:'US',site:'Site Alpha'},d:'Results appear as a scrollable thumbnail grid. Each thumbnail shows the linked entity ID, date, and a preview. Click any result to open the full archaeological record form.'},
+    {log:'Results displayed as thumbnail grid (6x4). Click thumbnail to jump to linked US/Tomba/Inventario record.',type:'info',op:{progress:'Grid view'},d:'The thumbnail grid supports quick visual scanning. Double-click opens the full-resolution image. Right-click provides options: open record, export, add to comparison.'},
+    {log:'Open Images_comparison: select two images for side-by-side comparison. Overlay mode with opacity slider.',type:'info',op:{progress:'Comparing...'},cr:{entity:'Compare'},d:'Images_comparison.py loads two images and displays them side-by-side or overlaid. The opacity slider blends between images to reveal differences in sequential photos of the same context.'},
+    {log:'Comparison complete: difference overlay highlights changes between US 101 photo (June) vs (July). 12% area changed.',type:'success',op:{progress:'Diff: 12%'},d:'The difference detection computes pixel-level changes between two aligned images. Useful for monitoring excavation progress, wall deterioration, or verifying restoration work.'},
+  ]}
+];
+
+function hlFmt(f){A.hlFmt=f;document.querySelectorAll('.fmt').forEach(el=>el.classList.toggle('hl',el.dataset.f===f));}
+function updStats(o){if(!o)return;if(o.files!==undefined)$('sFiles').textContent=o.files;if(o.size!==undefined)$('sSize').textContent=o.size;if(o.folders!==undefined)$('sFolders').textContent=o.folders;if(o.progress!==undefined)$('sProgress').textContent=o.progress;}
+function updCriteria(o){if(!o)return;if(o.period!==undefined)$('cPeriod').textContent=o.period;if(o.phase!==undefined)$('cPhase').textContent=o.phase;if(o.entity!==undefined)$('cEntity').textContent=o.entity;if(o.site!==undefined)$('cSite').textContent=o.site;}
+function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML='<span class="le-t">'+ts+'</span><span class="le-i" style="color:'+cl[type]+'">'+ic[type]+'</span><span class="le-x">'+t+'</span>';logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
+function updDots(){dots.innerHTML='';A.steps.forEach(function(_,i){const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
+function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+/* ===== Canvas drawing per scenario ===== */
+
+function drawSc0(W,H,t){
+  // Scene 0: Single Image Export - file selection -> export path
+  var step=A.step;
+  // Media Manager panel (left)
+  var mx=W*.04,my=H*.06,mw=W*.38,mh=H*.82;
+  rr(mx,my,mw,mh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Media Manager',mx+10,my+18);
+  // Thumbnail grid
+  var tw=56,th=42,cols=Math.floor((mw-20)/(tw+6)),tStart=my+30;
+  var names=['site_001.jpg','us101_det.jpg','wall_north.jpg','trench_A.png','burial_T01.jpg','pottery_inv.tiff','section_E.jpg','plan_area_B.jpg','mosaic_det.jpg'];
+  for(var i=0;i<9;i++){
+    var col=i%cols,row=Math.floor(i/cols);
+    var tx=mx+10+col*(tw+6),ty=tStart+row*(th+8);
+    if(ty+th>my+mh-10)continue;
+    var selected=(i===0&&step>=1);
+    rr(tx,ty,tw,th,3);
+    var colors=['#58a6ff','#d29922','#3fb950','#bc8cff','#f85149','#d29922','#58a6ff','#3fb950','#bc8cff'];
+    ctx.fillStyle=selected?colors[i]+'30':colors[i]+'10';ctx.fill();
+    ctx.strokeStyle=selected?'#58a6ff':colors[i]+'33';ctx.lineWidth=selected?2:1;ctx.stroke();
+    // Mountain icon inside thumbnail
+    ctx.strokeStyle=colors[i]+'55';ctx.lineWidth=.7;
+    ctx.beginPath();ctx.moveTo(tx+4,ty+th-6);ctx.lineTo(tx+tw*.35,ty+10);ctx.lineTo(tx+tw*.6,ty+th-12);ctx.lineTo(tx+tw-4,ty+8);ctx.stroke();
+    // Label below
+    ctx.fillStyle='#8b949e';ctx.font='6px sans-serif';ctx.textAlign='center';ctx.fillText(names[i]||'img_'+i,tx+tw/2,ty+th+7);
+  }
+  // Selection highlight pulse
+  if(step>=1){
+    var pulse=Math.sin(t*3)*.3+.7;
+    var sx=mx+10,sy=tStart;
+    ctx.strokeStyle='rgba(88,166,255,'+pulse+')';ctx.lineWidth=2;rr(sx-2,sy-2,tw+4,th+4,4);ctx.stroke();
+  }
+  // Arrow and export panel (right side)
+  var ex=W*.52,ey=H*.12,ew=W*.42,eh=H*.7;
+  if(step>=2){
+    rr(ex,ey,ew,eh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Export Configuration',ex+10,ey+18);
+    // Export path
+    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
+    ctx.fillText('Destination:',ex+10,ey+38);
+    rr(ex+10,ey+42,ew-20,22,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.stroke();
+    ctx.fillStyle='#e6edf3';ctx.font='8px monospace';ctx.fillText('/exports/Site_Alpha/',ex+16,ey+56);
+    // Format selector
+    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
+    ctx.fillText('Format:',ex+10,ey+80);
+    var fmts=[{l:'JPG',c:'#58a6ff',x:0},{l:'PNG',c:'#3fb950',x:55},{l:'TIFF',c:'#d29922',x:110}];
+    fmts.forEach(function(f){
+      var fx=ex+10+f.x,fy=ey+84;
+      rr(fx,fy,48,20,3);
+      var sel2=(f.l==='JPG');
+      ctx.fillStyle=sel2?f.c+'22':'rgba(33,38,45,.5)';ctx.fill();
+      ctx.strokeStyle=sel2?f.c:f.c+'44';ctx.lineWidth=sel2?1.5:1;ctx.stroke();
+      ctx.fillStyle=sel2?f.c:'#8b949e';ctx.font=(sel2?'bold ':'')+'8px sans-serif';ctx.textAlign='center';ctx.fillText(f.l,fx+24,fy+13);
+    });
+    ctx.textAlign='left';
+    // Metadata checkbox
+    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.fillText('Preserve EXIF metadata',ex+28,ey+128);
+    rr(ex+10,ey+118,14,14,2);ctx.fillStyle='rgba(63,185,80,.15)';ctx.fill();ctx.strokeStyle='#3fb950';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 10px sans-serif';ctx.fillText('\u2713',ex+13,ey+129);
+  }
+  // Animated arrow from gallery to export
+  if(step>=2){
+    var arrowProgress=Math.min(1,(step>=3)?1:((t%2)/2));
+    ctx.strokeStyle='#58a6ff';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    var ax1=mx+mw+8,ay1=tStart+th/2,ax2=ex-8,ay2=ey+50;
+    ctx.beginPath();ctx.moveTo(ax1,ay1);ctx.bezierCurveTo(ax1+30,ay1,ax2-30,ay2,ax1+(ax2-ax1)*arrowProgress,ay1+(ay2-ay1)*arrowProgress);ctx.stroke();
+    ctx.setLineDash([]);
+    // Arrowhead
+    if(arrowProgress>0.8){
+      ctx.fillStyle='#58a6ff';ctx.beginPath();ctx.moveTo(ax2,ay2);ctx.lineTo(ax2-8,ay2-4);ctx.lineTo(ax2-8,ay2+4);ctx.closePath();ctx.fill();
+    }
+  }
+  // Export progress / result
+  if(step>=3){
+    var py=ey+150;
+    // Progress bar
+    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.textAlign='left';ctx.fillText('Export Progress:',ex+10,py);
+    rr(ex+10,py+4,ew-20,12,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();
+    var prog=(step>=4)?1:((t%3)/3);
+    rr(ex+10,py+4,(ew-20)*prog,12,3);ctx.fillStyle=step>=4?'rgba(63,185,80,.4)':'rgba(88,166,255,.3)';ctx.fill();
+    ctx.fillStyle='#e6edf3';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(Math.round(prog*100)+'%',ex+ew/2,py+13);
+  }
+  if(step>=4){
+    var ry=ey+180;
+    ctx.textAlign='left';
+    // File result
+    rr(ex+10,ry,ew-20,50,4);ctx.fillStyle='rgba(63,185,80,.06)';ctx.fill();ctx.strokeStyle='#3fb95066';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.fillText('\u2713 Export Successful',ex+18,ry+16);
+    ctx.fillStyle='#e6edf3';ctx.font='8px monospace';ctx.fillText('/exports/Site_Alpha/site_photo_001.jpg',ex+18,ry+30);
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.fillText('4.2 MB | EXIF preserved | GPS: 41.8902N, 12.4922E',ex+18,ry+42);
+  }
+}
+
+function drawSc1(W,H,t){
+  // Scene 1: Batch Export by Period/Phase - folder tree being built
+  var step=A.step;
+  // Query panel (top-left)
+  var qx=W*.03,qy=H*.06,qw=W*.35,qh=H*.28;
+  rr(qx,qy,qw,qh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Batch Export - Period/Phase',qx+10,qy+18);
+  // Site selector
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.fillText('Site: Site Alpha',qx+10,qy+34);
+  ctx.fillText('Mode: By Period/Phase',qx+10,qy+48);
+  if(step>=1){
+    ctx.fillStyle='#d29922';ctx.font='7px monospace';ctx.fillText('SELECT us.*, p.periodo, p.fase',qx+10,qy+66);
+    ctx.fillText('FROM us_table us',qx+10,qy+76);
+    ctx.fillText('JOIN periodizzazione_table p ...',qx+10,qy+86);
+  }
+  if(step>=2){
+    ctx.fillStyle='#3fb950';ctx.font='bold 8px sans-serif';ctx.fillText('Found: 47 images, 3 periods, 5 phases',qx+10,qy+104);
+  }
+  // Folder tree visualization (center-right, main area)
+  var fx=W*.42,fy=H*.06,fw=W*.54,fh=H*.86;
+  rr(fx,fy,fw,fh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#d29922';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Export Folder Structure',fx+10,fy+18);
+  // Root folder
+  var ty=fy+32,indent=18,lineH=18;
+  var folderIcon=function(x,y,color,open){
+    ctx.fillStyle=color;ctx.font='10px sans-serif';ctx.fillText(open?'\u{1F4C2}':'\u{1F4C1}',x,y);
+  };
+  var fileIcon=function(x,y){
+    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.fillText('\u{1F5BC}',x,y);
+  };
+  // Tree structure - progressively revealed
+  var tree=[
+    {depth:0,label:'/exports/Site_Alpha/',color:'#e6edf3',type:'folder',minStep:3},
+    {depth:1,label:'Period_I/',color:'#58a6ff',type:'folder',minStep:3},
+    {depth:2,label:'Phase_a/',color:'#3fb950',type:'folder',minStep:3},
+    {depth:3,label:'US101_photo_001.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US101_photo_002.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US102_detail.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:2,label:'Phase_b/',color:'#d29922',type:'folder',minStep:3},
+    {depth:3,label:'US105_section.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US106_plan.png',color:'#8b949e',type:'file',minStep:4},
+    {depth:1,label:'Period_II/',color:'#58a6ff',type:'folder',minStep:3},
+    {depth:2,label:'Phase_a/',color:'#3fb950',type:'folder',minStep:3},
+    {depth:3,label:'US201_photo_001.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US201_photo_002.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US202_mosaic.tiff',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US203_wall.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:2,label:'Phase_b/',color:'#d29922',type:'folder',minStep:3},
+    {depth:3,label:'US210_floor.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:1,label:'Period_III/',color:'#58a6ff',type:'folder',minStep:3},
+    {depth:2,label:'Phase_c/',color:'#bc8cff',type:'folder',minStep:3},
+    {depth:3,label:'US301_surface.jpg',color:'#8b949e',type:'file',minStep:4},
+    {depth:3,label:'US302_pit.jpg',color:'#8b949e',type:'file',minStep:4},
+  ];
+  var visibleItems=0;
+  tree.forEach(function(item,i){
+    if(step<item.minStep)return;
+    // Animate appearance
+    var itemDelay=i*0.12;
+    var alpha=Math.min(1,Math.max(0,(t*2-itemDelay)%20));
+    if(alpha<=0)return;
+    visibleItems++;
+    var ix=fx+14+item.depth*indent;
+    var iy=ty+visibleItems*lineH;
+    if(iy>fy+fh-10)return;
+    // Tree connector lines
+    ctx.strokeStyle='rgba(48,54,61,.7)';ctx.lineWidth=1;
+    if(item.depth>0){
+      ctx.beginPath();ctx.moveTo(ix-indent+8,iy-lineH+6);ctx.lineTo(ix-indent+8,iy-3);ctx.lineTo(ix-4,iy-3);ctx.stroke();
+    }
+    ctx.globalAlpha=alpha;
+    if(item.type==='folder'){
+      ctx.fillStyle=item.color;ctx.font='bold 8px sans-serif';ctx.textAlign='left';
+      ctx.fillText('\u25B6 '+item.label,ix,iy);
+    }else{
+      ctx.fillStyle=item.color;ctx.font='8px sans-serif';ctx.textAlign='left';
+      ctx.fillText('  '+item.label,ix,iy);
+    }
+    ctx.globalAlpha=1;
+  });
+  // Progress bar at bottom of tree panel
+  if(step>=4){
+    var py=fy+fh-30;
+    rr(fx+10,py,fw-20,14,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();
+    var prog=(step>=5)?1:Math.min(1,(t%5)/5);
+    var pw=(fw-20)*prog;
+    if(pw>0){rr(fx+10,py,pw,14,3);ctx.fillStyle='rgba(88,166,255,.3)';ctx.fill();}
+    ctx.fillStyle='#e6edf3';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText(Math.round(prog*47)+'/47 files',fx+fw/2,py+10);
+  }
+  // DB connection diagram (bottom-left)
+  if(step>=1){
+    var dx=qx,dy=qy+qh+14,dw=qw,dh=H*.52;
+    rr(dx,dy,dw,dh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#bc8cff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Database Query Flow',dx+10,dy+16);
+    // DB nodes
+    var nodes=[
+      {label:'us_table',x:dx+dw*.3,y:dy+40,color:'#58a6ff'},
+      {label:'periodizzazione',x:dx+dw*.3,y:dy+80,color:'#d29922'},
+      {label:'media_to_entity',x:dx+dw*.3,y:dy+120,color:'#3fb950'},
+      {label:'media_table',x:dx+dw*.3,y:dy+160,color:'#bc8cff'},
+    ];
+    nodes.forEach(function(n,i){
+      if(step<i+1)return;
+      rr(n.x-42,n.y-10,84,20,3);ctx.fillStyle=n.color+'15';ctx.fill();ctx.strokeStyle=n.color+'55';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=n.color;ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(n.label,n.x,n.y+4);
+      // Connecting arrow
+      if(i>0){
+        ctx.strokeStyle=n.color+'33';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+        ctx.beginPath();ctx.moveTo(n.x,nodes[i-1].y+10);ctx.lineTo(n.x,n.y-10);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle=n.color+'66';ctx.beginPath();ctx.moveTo(n.x,n.y-10);ctx.lineTo(n.x-3,n.y-16);ctx.lineTo(n.x+3,n.y-16);ctx.closePath();ctx.fill();
+      }
+    });
+  }
+}
+
+function drawSc2(W,H,t){
+  // Scene 2: Export by Entity Type - entity-organized folder structure
+  var step=A.step;
+  // Three entity panels side by side
+  var panelW=W*.29,gap=W*.02,startX=W*.04,startY=H*.06;
+  var panels=[
+    {title:'US Folders',color:'#58a6ff',minStep:1,items:[
+      {label:'US_001/',type:'folder',files:['photo_001.jpg','photo_002.jpg','section.png']},
+      {label:'US_002/',type:'folder',files:['detail.jpg','plan.png']},
+      {label:'US_003/',type:'folder',files:['overview.jpg']},
+      {label:'US_101/',type:'folder',files:['wall_N.jpg','wall_S.jpg','detail.tiff','plan.png']},
+    ]},
+    {title:'Tomba Folders',color:'#f85149',minStep:2,items:[
+      {label:'Tomba_T01/',type:'folder',files:['burial_plan.jpg','skeleton.png','goods.jpg']},
+      {label:'Tomba_T02/',type:'folder',files:['burial.jpg','section.png']},
+      {label:'Tomba_T03/',type:'folder',files:['overview.jpg','detail_01.jpg','detail_02.jpg']},
+    ]},
+    {title:'Inventario Folders',color:'#d29922',minStep:3,items:[
+      {label:'Ceramica/',type:'folder',files:['INV_001.tiff','INV_002.tiff','INV_015.tiff']},
+      {label:'Litica/',type:'folder',files:['INV_003.tiff','INV_008.tiff']},
+      {label:'Metallo/',type:'folder',files:['INV_005.tiff']},
+      {label:'Vetro/',type:'folder',files:['INV_012.tiff','INV_013.tiff']},
+    ]},
+  ];
+  panels.forEach(function(panel,pi){
+    var px=startX+pi*(panelW+gap);
+    var ph=H*.82;
+    var visible=(step>=panel.minStep);
+    var alpha=visible?1:0.2;
+    ctx.globalAlpha=alpha;
+    rr(px,startY,panelW,ph,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();
+    ctx.strokeStyle=visible?panel.color+'55':'#30363d';ctx.lineWidth=visible?1.5:1;ctx.stroke();
+    ctx.fillStyle=panel.color;ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText(panel.title,px+10,startY+16);
+    // Folder tree
+    var iy=startY+30;
+    panel.items.forEach(function(item,ii){
+      if(!visible)return;
+      // Folder
+      ctx.fillStyle=panel.color;ctx.font='bold 8px sans-serif';ctx.fillText('\u25B6 '+item.label,px+10,iy);
+      iy+=14;
+      // Files inside
+      item.files.forEach(function(file){
+        ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';
+        ctx.fillText('   '+file,px+22,iy);
+        iy+=12;
+      });
+      iy+=6;
+    });
+    // File count
+    if(visible){
+      var totalFiles=0;
+      panel.items.forEach(function(it){totalFiles+=it.files.length;});
+      ctx.fillStyle=panel.color;ctx.font='bold 8px sans-serif';
+      ctx.fillText(totalFiles+' files in '+panel.items.length+' folders',px+10,startY+ph-12);
+    }
+    ctx.globalAlpha=1;
+  });
+  // Animated progress arrows between panels
+  if(step>=2){
+    var arrowY=startY+H*.4;
+    for(var ai=0;ai<Math.min(step-1,2);ai++){
+      var ax1=startX+(ai+1)*(panelW+gap)-gap/2-10;
+      var ax2=ax1;
+      var pulse=Math.sin(t*3+ai)*.4+.6;
+      ctx.fillStyle='rgba(88,166,255,'+pulse+')';
+      ctx.beginPath();ctx.moveTo(ax1-12,arrowY-6);ctx.lineTo(ax1-12,arrowY+6);ctx.lineTo(ax1-2,arrowY);ctx.closePath();ctx.fill();
+    }
+  }
+  // Summary bar at bottom
+  if(step>=4){
+    var sy=H*.92;
+    rr(startX,sy,W*.92,H*.06,4);ctx.fillStyle='rgba(63,185,80,.08)';ctx.fill();ctx.strokeStyle='#3fb95055';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.fillText('\u2713 Entity export complete: 58 files (210.5 MB) in 19 folders across US, Tomba, and Inventario',W/2,sy+H*.035);
+  }
+}
+
+function drawSc3(W,H,t){
+  // Scene 3: Image Comparison & Search - search results grid + comparison view
+  var step=A.step;
+  // Search panel (top)
+  var sx=W*.03,sy=H*.04,sw=W*.94,sh=H*.12;
+  rr(sx,sy,sw,sh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';ctx.fillText('Image Search (Image_search.py)',sx+10,sy+18);
+  // Search bar
+  if(step>=0){
+    rr(sx+10,sy+26,sw-20,20,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.stroke();
+    ctx.fillStyle=step>=1?'#e6edf3':'#8b949e';ctx.font='8px monospace';ctx.textAlign='left';
+    ctx.fillText(step>=1?'entity_type="US"  site="Site Alpha"  date: 2025-06-01 .. 2025-06-30':'Search by metadata, entity, date...',sx+16,sy+39);
+  }
+  // Results grid (center-left)
+  if(step>=1){
+    var gx=sx,gy=sy+sh+10,gw=W*.55,gh=H*.72;
+    rr(gx,gy,gw,gh,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#d29922';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Search Results: 23 images',gx+10,gy+16);
+    // Thumbnail grid 6x4
+    var tw=Math.floor((gw-30)/6),th=Math.floor((gh-40)/4)-8,cols=6;
+    var thumbColors=['#58a6ff','#3fb950','#d29922','#bc8cff','#f85149','#39d353'];
+    var thumbLabels=['US101-01','US101-02','US102-01','US103-01','US105-01','US105-02',
+                     'US106-01','US107-01','US107-02','US108-01','US110-01','US110-02',
+                     'US111-01','US112-01','US112-02','US113-01','US115-01','US115-02',
+                     'US120-01','US121-01','US122-01','US122-02','US125-01','--'];
+    for(var i=0;i<24;i++){
+      if(i>=23)continue;
+      var col=i%cols,row=Math.floor(i/cols);
+      var tx=gx+8+col*(tw+3),tty=gy+24+row*(th+10);
+      if(tty+th>gy+gh-8)continue;
+      var ci=i%thumbColors.length;
+      var highlighted=(step>=2&&(i===4||i===5));
+      rr(tx,tty,tw,th,2);ctx.fillStyle=highlighted?thumbColors[ci]+'30':thumbColors[ci]+'10';ctx.fill();
+      ctx.strokeStyle=highlighted?'#58a6ff':thumbColors[ci]+'33';ctx.lineWidth=highlighted?2:1;ctx.stroke();
+      // Mini mountain icon
+      ctx.strokeStyle=thumbColors[ci]+'44';ctx.lineWidth=.5;
+      ctx.beginPath();ctx.moveTo(tx+3,tty+th-4);ctx.lineTo(tx+tw*.3,tty+6);ctx.lineTo(tx+tw*.6,tty+th-8);ctx.lineTo(tx+tw-3,tty+5);ctx.stroke();
+      // Label
+      ctx.fillStyle='#8b949e';ctx.font='5px sans-serif';ctx.textAlign='center';
+      ctx.fillText(thumbLabels[i],tx+tw/2,tty+th+7);
+    }
+    // Click indicator
+    if(step>=2){
+      var clickPulse=Math.sin(t*4)*.3+.7;
+      var ci4=4%cols,ri4=Math.floor(4/cols);
+      var cx=gx+8+ci4*(tw+3),cy=gy+24+ri4*(th+10);
+      ctx.strokeStyle='rgba(88,166,255,'+clickPulse+')';ctx.lineWidth=2;rr(cx-1,cy-1,tw+2,th+2,3);ctx.stroke();
+      // Cursor icon
+      ctx.fillStyle='rgba(255,255,255,'+clickPulse+')';ctx.font='12px sans-serif';
+      ctx.fillText('\u{1F446}',cx+tw-4,cy+th+2);
+    }
+  }
+  // Comparison panel (right)
+  if(step>=3){
+    var cx2=sx+W*.58,cy2=sy+sh+10,cw=W*.38,ch2=H*.72;
+    rr(cx2,cy2,cw,ch2,6);ctx.fillStyle='rgba(22,27,34,.85)';ctx.fill();ctx.strokeStyle='#bc8cff55';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#bc8cff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Images Comparison',cx2+10,cy2+16);
+    // Two images side by side
+    var imgW=(cw-30)/2,imgH=ch2*.35;
+    var img1x=cx2+8,img1y=cy2+28;
+    var img2x=cx2+8+imgW+10,img2y=cy2+28;
+    // Image A
+    rr(img1x,img1y,imgW,imgH,3);ctx.fillStyle='#58a6ff10';ctx.fill();ctx.strokeStyle='#58a6ff44';ctx.lineWidth=1;ctx.stroke();
+    ctx.strokeStyle='#58a6ff33';ctx.lineWidth=.7;
+    ctx.beginPath();ctx.moveTo(img1x+5,img1y+imgH-8);ctx.lineTo(img1x+imgW*.3,img1y+12);ctx.lineTo(img1x+imgW*.55,img1y+imgH-14);ctx.lineTo(img1x+imgW-5,img1y+10);ctx.stroke();
+    ctx.fillStyle='#58a6ff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText('June 2025',img1x+imgW/2,img1y+imgH+10);
+    // Image B
+    rr(img2x,img2y,imgW,imgH,3);ctx.fillStyle='#d2992210';ctx.fill();ctx.strokeStyle='#d2992244';ctx.lineWidth=1;ctx.stroke();
+    ctx.strokeStyle='#d2992233';ctx.lineWidth=.7;
+    ctx.beginPath();ctx.moveTo(img2x+5,img2y+imgH-8);ctx.lineTo(img2x+imgW*.35,img2y+14);ctx.lineTo(img2x+imgW*.5,img2y+imgH-10);ctx.lineTo(img2x+imgW-5,img2y+12);ctx.stroke();
+    ctx.fillStyle='#d29922';ctx.font='bold 7px sans-serif';ctx.fillText('July 2025',img2x+imgW/2,img2y+imgH+10);
+    // Overlay / difference panel
+    if(step>=4){
+      var oy=img1y+imgH+24,ow=cw-16,oh=ch2*.32;
+      rr(cx2+8,oy,ow,oh,3);ctx.fillStyle='rgba(22,27,34,.9)';ctx.fill();ctx.strokeStyle='#f8514944';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle='#f85149';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('Difference Overlay',cx2+16,oy+14);
+      // Animated difference heatmap
+      var hx=cx2+16,hy=oy+22,hw=ow-16,hh=oh-34;
+      rr(hx,hy,hw,hh,2);ctx.fillStyle='rgba(13,17,23,.6)';ctx.fill();
+      // Difference "hot spots"
+      var spots=[
+        {x:.2,y:.3,r:18,c:'#f85149'},
+        {x:.5,y:.6,r:14,c:'#d29922'},
+        {x:.75,y:.25,r:10,c:'#f85149'},
+        {x:.35,y:.7,r:8,c:'#d29922'},
+        {x:.8,y:.65,r:12,c:'#f85149'},
+      ];
+      spots.forEach(function(s){
+        var sx2=hx+hw*s.x,sy2=hy+hh*s.y;
+        var pulse=Math.sin(t*2+s.x*10)*.2+.3;
+        var grad=ctx.createRadialGradient(sx2,sy2,0,sx2,sy2,s.r);
+        grad.addColorStop(0,s.c+Math.round(pulse*255).toString(16).padStart(2,'0'));
+        grad.addColorStop(1,s.c+'00');
+        ctx.fillStyle=grad;ctx.beginPath();ctx.arc(sx2,sy2,s.r,0,Math.PI*2);ctx.fill();
+      });
+      // Percentage label
+      ctx.fillStyle='#f85149';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+      ctx.fillText('12% area changed',cx2+8+ow/2,oy+oh-6);
+    }
+    // Opacity slider
+    if(step>=3){
+      var sly=cy2+ch2-20;
+      ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText('Opacity:',cx2+8,sly);
+      rr(cx2+50,sly-6,cw-66,6,3);ctx.fillStyle='rgba(33,38,45,.8)';ctx.fill();
+      var sliderPos=Math.sin(t*1.5)*.5+.5;
+      rr(cx2+50,sly-6,(cw-66)*sliderPos,6,3);ctx.fillStyle='#bc8cff44';ctx.fill();
+      ctx.fillStyle='#bc8cff';ctx.beginPath();ctx.arc(cx2+50+(cw-66)*sliderPos,sly-3,5,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+function drawScene(ts){
+  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);var t=ts*.001;
+  A.anim=t;
+  switch(A.sc){
+    case 0:drawSc0(W,H,t);break;
+    case 1:drawSc1(W,H,t);break;
+    case 2:drawSc2(W,H,t);break;
+    case 3:drawSc3(W,H,t);break;
+  }
+}
+
+function load(i){A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlFmt(null);
+  updStats({files:0,size:'0 MB',folders:0,progress:'--'});
+  updCriteria({period:'--',phase:'--',entity:'--',site:'--'});
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);}
+function exec(si){if(si<0||si>=A.steps.length)return;A.step=si;var s=A.steps[si];
+  addLog(s.log,s.type);if(s.fmt!==undefined)hlFmt(s.fmt);if(s.op)updStats(s.op);if(s.cr)updCriteria(s.cr);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);updDots();if(A.mode==='auto'&&A.playing)schedNext();}
+function schedNext(){clearTimeout(A.timer);var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto'&&A.looping){var n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
+  if(last)return;var d=2200;var s=A.steps[A.step];if(s.type==='success')d=2500;
+  A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);}
+
+sel.addEventListener('change',function(){load(+sel.value);});
+bA.addEventListener('click',function(){A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
+bM.addEventListener('click',function(){A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',function(){A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPr.addEventListener('click',function(){if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
+bNx.addEventListener('click',function(){if(A.step<A.steps.length-1)exec(A.step+1);});
+bRe.addEventListener('click',function(){A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
+bL.addEventListener('click',function(){A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bSt.addEventListener('click',function(){A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
+spB.forEach(function(b){b.addEventListener('click',function(){spB.forEach(function(x){x.classList.remove('on');});b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();});});
+document.addEventListener('keydown',function(e){if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>

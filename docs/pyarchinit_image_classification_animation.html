@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyArchInit — Image Classification Tutorial</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
+.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
+.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
+.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
+.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
+.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
+.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
+.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
+.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
+.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.obj-list{display:flex;flex-direction:column;gap:3px}
+.obj{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
+.obj.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
+.obj-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.conf-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden;margin-top:4px}
+.conf-fill{height:100%;border-radius:3px;transition:width .6s ease,background .3s}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+.les{display:flex;flex-direction:column;gap:2px}
+.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
+.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
+@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <h1>Image Classification <span>— AI-Powered GPT Sketching &amp; SAM Segmentation</span></h1>
+    <div class="ctrls">
+      <select id="sel"><option value="0">1. AI-Based Classification</option><option value="1">2. GPT Sketching</option><option value="2">3. SAM Segmentation</option><option value="3">4. Classification Results &amp; Workflow</option></select>
+      <div class="g"><button id="bA" class="on">&#9654; Auto</button><button id="bM">&#9998; Manual</button></div>
+      <div class="g"><button class="sp on" data-s="1">1x</button><button class="sp" data-s="2">2x</button><button class="sp" data-s="4">4x</button></div>
+      <button id="bPP">&#10074;&#10074;</button><button id="bPr" disabled>&larr;</button><button id="bNx" disabled>&rarr;</button><button id="bRe">&#8634;</button>
+      <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
+    </div>
+  </div>
+  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="side">
+    <div class="w"><h3>Classification Confidence</h3>
+      <div class="sr"><span class="sl">Overall</span><span class="sv" id="confVal">--</span></div>
+      <div class="conf-bar"><div class="conf-fill" id="confBar" style="width:0%;background:#8b949e"></div></div>
+      <div class="sr" style="margin-top:6px"><span class="sl">Model</span><span class="sv" id="modelName">--</span></div>
+      <div class="sr"><span class="sl">Status</span><span class="sv" id="modelStatus" style="color:#8b949e">Idle</span></div>
+    </div>
+    <div class="w"><h3>Detected Objects</h3>
+      <div class="obj-list" id="objList">
+        <div class="obj" data-o="pottery"><span class="obj-dot" style="background:#f85149"></span>Pottery Fragment</div>
+        <div class="obj" data-o="stone"><span class="obj-dot" style="background:#58a6ff"></span>Stone Tool</div>
+        <div class="obj" data-o="bone"><span class="obj-dot" style="background:#d29922"></span>Bone Fragment</div>
+        <div class="obj" data-o="metal"><span class="obj-dot" style="background:#bc8cff"></span>Metal Object</div>
+        <div class="obj" data-o="glass"><span class="obj-dot" style="background:#3fb950"></span>Glass / Bead</div>
+        <div class="obj" data-o="wall"><span class="obj-dot" style="background:#39d353"></span>Wall / Structure</div>
+      </div>
+    </div>
+    <div class="w"><h3>Model Status</h3>
+      <div class="sr"><span class="sl">GPT</span><span class="sv" id="stGPT" style="color:#8b949e">Standby</span></div>
+      <div class="sr"><span class="sl">SAM</span><span class="sv" id="stSAM" style="color:#8b949e">Standby</span></div>
+      <div class="sr"><span class="sl">LangChain</span><span class="sv" id="stLC" style="color:#8b949e">Standby</span></div>
+    </div>
+  </div>
+  <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
+const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlObj:null,conf:0,animT:0};
+const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+
+const OBJ_COLORS={pottery:'#f85149',stone:'#58a6ff',bone:'#d29922',metal:'#bc8cff',glass:'#3fb950',wall:'#39d353'};
+
+const SC=[
+  {title:'AI-Based Classification',desc:'<strong>AI Classification:</strong> Use GPT and LangChain to automatically classify archaeological images from the Media Manager.',
+   steps:[
+    {log:'Open Media Manager: toolbar "Gestione Immagini". Select image for AI classification.',type:'info',model:{name:'--',status:['Idle','Standby','Standby','Standby']},d:'The Image_viewer.py dialog provides access to all media. Right-click or use the AI toolbar button to start classification.'},
+    {log:'Image selected: pottery_fragment_IMG_4021.jpg. Sending to AI analysis pipeline.',type:'info',model:{name:'GPT-4 Vision',status:['Processing','Active','Standby','Initializing']},obj:'pottery',d:'The image is loaded and preprocessed. askgpt.py handles the API communication with OpenAI or Anthropic endpoints.'},
+    {log:'LangChain + OpenAI API: processing image through vision model. Analyzing content...',type:'info',model:{name:'GPT-4 Vision',status:['Analyzing','Active','Standby','Active']},conf:35,d:'LangChain orchestrates the pipeline: image encoding, prompt construction, API call to OpenAI/Anthropic, and response parsing.'},
+    {log:'AI Response: object_type="Pottery", material="Ceramic (Red-slip ware)", period="Roman Imperial (1st-3rd c. AD)", confidence=0.87.',type:'success',model:{name:'GPT-4 Vision',status:['Complete','Active','Standby','Active']},conf:87,obj:'pottery',d:'The AI returns structured data: object type, material composition, period estimate, and a confidence score between 0 and 1.'},
+    {log:'Metadata tags stored: INSERT INTO media_table SET tags="pottery,ceramic,roman,imperial" WHERE id=4021.',type:'info',model:{name:'GPT-4 Vision',status:['Stored','Done','Standby','Done']},conf:87,d:'Classification results are persisted as metadata tags on the media_table record for future queries and filtering.'},
+    {log:'Classification complete. Results visible as overlay on image and in record metadata panel.',type:'success',model:{name:'GPT-4 Vision',status:['Done','Done','Standby','Done']},conf:92,d:'The image now displays bounding box overlays with labels. Tags are searchable across the entire media database.'},
+  ]},
+  {title:'GPT Sketching',desc:'<strong>GPT Sketching:</strong> Draw an approximate shape and let AI match it against known archaeological artifact typologies.',
+   steps:[
+    {log:'GPT Sketch mode: user draws approximate artifact shape on canvas input area.',type:'info',model:{name:'GPT Sketch',status:['Sketch Input','Active','Standby','Standby']},d:'The skatch_gpt_US.py and skatch_gpt_INVMAT.py modules provide sketch-based classification for US and inventory items respectively.'},
+    {log:'Sketch captured: freehand outline resembling amphora handle profile. Encoding to base64.',type:'info',model:{name:'GPT Sketch',status:['Encoding','Active','Standby','Initializing']},conf:20,d:'The user sketch is captured as a canvas image, encoded to base64, and sent alongside a classification prompt to the GPT API.'},
+    {log:'AI matching against known typologies: comparing sketch with artifact type database...',type:'info',model:{name:'GPT Sketch',status:['Matching','Active','Standby','Active']},conf:55,obj:'pottery',d:'GPT analyzes the sketch shape and compares it against known archaeological artifact typologies, considering form, proportions, and diagnostic features.'},
+    {log:'Match results: 1) Amphora handle (Dressel 1) conf=0.82, 2) Jug handle conf=0.61, 3) Lamp handle conf=0.34.',type:'success',model:{name:'GPT Sketch',status:['Results','Done','Standby','Active']},conf:82,obj:'pottery',d:'The AI returns ranked classification suggestions with confidence scores. The user can accept, modify, or reject each suggestion.'},
+    {log:'User accepts top match: Amphora handle (Dressel 1). Classification applied to inventory record INV-2087.',type:'success',model:{name:'GPT Sketch',status:['Applied','Done','Standby','Done']},conf:82,d:'The accepted classification is stored in the inventory record, populating type and form fields automatically.'},
+  ]},
+  {title:'SAM Segmentation',desc:'<strong>SAM Segmentation:</strong> Segment Anything Model for automatic stone, pottery, and artifact outline detection in field photos.',
+   steps:[
+    {log:'Open SAM Segmentation Dialog: SamSegmentationDialog in tabs/Sam_Segmentation_Dialog.py.',type:'info',model:{name:'SAM ViT-H',status:['Standby','Standby','Loading','Standby']},d:'The SamSegmentationDialog provides the UI for SAM-based image segmentation. It loads the SAM model (ViT-H architecture) on first use.'},
+    {log:'SAM model loaded: ViT-H encoder initialized. Image loaded: trench_photo_area_B.jpg.',type:'info',model:{name:'SAM ViT-H',status:['Standby','Standby','Ready','Standby']},d:'SAM (Segment Anything Model) uses a Vision Transformer encoder to generate image embeddings for segmentation.'},
+    {log:'User clicks on stone block in image. SAM generates point prompt at (342, 518).',type:'info',model:{name:'SAM ViT-H',status:['Standby','Standby','Segmenting','Standby']},conf:40,obj:'stone',d:'The user clicks on an object of interest. SAM uses the click point as a prompt to generate segment masks around the indicated region.'},
+    {log:'SAM output: 3 mask proposals. Best mask: stone block outline, IoU=0.94, area=12,847 px.',type:'success',model:{name:'SAM ViT-H',status:['Standby','Standby','Active','Standby']},conf:94,obj:'stone',d:'SAM returns multiple mask proposals ranked by IoU (Intersection over Union). The best mask accurately traces the stone block outline.'},
+    {log:'Batch mode: auto-detect all stones in image. SAM grid sampling generates 47 segment masks.',type:'info',model:{name:'SAM ViT-H',status:['Standby','Standby','Batch','Standby']},conf:88,obj:'wall',d:'In batch mode, SAM samples a grid of points across the image, generating segment masks for all detected objects (stones, pottery fragments, etc.).'},
+    {log:'Export: 47 segmented regions saved as individual PNG images with alpha masks to /exports/segments/.',type:'success',model:{name:'SAM ViT-H',status:['Standby','Standby','Done','Standby']},conf:91,d:'Each segmented region is exported as an individual image with transparent background, ready for cataloguing or further AI classification.'},
+  ]},
+  {title:'Classification Results & Workflow',desc:'<strong>Results Workflow:</strong> Classification results auto-populate inventory records with confidence-based field filling.',
+   steps:[
+    {log:'Classification results integrated into inventory form (inventario_materiali_table).',type:'info',model:{name:'Workflow',status:['Integrating','Done','Done','Active']},d:'AI classification outputs are mapped to database fields: material type, object form, decoration style, and period assignment.'},
+    {log:'Auto-populate fields: materiale="Ceramica", forma="Anfora Dressel 1", decorazione="Red-slip".',type:'info',model:{name:'Workflow',status:['Auto-fill','Done','Done','Active']},obj:'pottery',conf:87,d:'High-confidence results (>0.80) automatically fill the corresponding inventory fields without user intervention.'},
+    {log:'Confidence levels: HIGH (>0.80) auto-fill, MEDIUM (0.50-0.80) suggest with review, LOW (<0.50) manual entry required.',type:'warn',model:{name:'Workflow',status:['Thresholds','Done','Done','Active']},conf:65,d:'The three-tier confidence system ensures accuracy: high confidence auto-fills, medium highlights for review, low flags for manual classification.'},
+    {log:'Batch classification: processing 248 photos from Area B excavation. Progress: 248/248 complete.',type:'info',model:{name:'Workflow',status:['Batch','Active','Active','Active']},conf:79,d:'Batch mode processes entire photo collections. Each image is classified and results are queued for review or auto-applied based on confidence.'},
+    {log:'Workflow complete: 198 auto-filled (HIGH), 37 suggested (MEDIUM), 13 flagged for review (LOW).',type:'success',model:{name:'Workflow',status:['Complete','Done','Done','Done']},conf:92,d:'The batch results summary shows how many records were auto-populated, suggested, or flagged, significantly reducing manual data entry time.'},
+  ]}
+];
+
+function hlObj(o){A.hlObj=o;document.querySelectorAll('.obj').forEach(el=>el.classList.toggle('hl',el.dataset.o===o));}
+function updConf(v){if(v===undefined)return;A.conf=v;const el=$('confVal'),bar=$('confBar');
+  if(v<=0||v==='--'){el.textContent='--';bar.style.width='0%';bar.style.background='#8b949e';return;}
+  el.textContent=v+'%';bar.style.width=v+'%';
+  if(v>=80){bar.style.background='#3fb950';el.style.color='#3fb950';}
+  else if(v>=50){bar.style.background='#d29922';el.style.color='#d29922';}
+  else{bar.style.background='#f85149';el.style.color='#f85149';}}
+function updModel(m){if(!m)return;if(m.name)$('modelName').textContent=m.name;
+  if(m.status){
+    const labels=['modelStatus','stGPT','stSAM','stLC'];
+    const colorMap={'Idle':'#8b949e','Standby':'#8b949e','Active':'#58a6ff','Processing':'#d29922','Analyzing':'#d29922',
+      'Encoding':'#d29922','Matching':'#d29922','Segmenting':'#d29922','Batch':'#d29922','Loading':'#d29922',
+      'Ready':'#3fb950','Done':'#3fb950','Complete':'#3fb950','Applied':'#3fb950','Stored':'#3fb950','Results':'#3fb950',
+      'Initializing':'#bc8cff','Auto-fill':'#58a6ff','Thresholds':'#d29922','Integrating':'#58a6ff',
+      'Sketch Input':'#58a6ff','Batch':'#d29922'};
+    m.status.forEach((s,i)=>{const el=$(labels[i]);if(el){el.textContent=s;el.style.color=colorMap[s]||'#8b949e';}});}}
+function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML=`<span class="le-t">${ts}</span><span class="le-i" style="color:${cl[type]}">${ic[type]}</span><span class="le-x">${t}</span>`;logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
+function updDots(){dots.innerHTML='';A.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
+function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+/* ── Scenario-specific canvas drawing ── */
+
+function drawScenario0(W,H,t){
+  // AI-Based Classification: image placeholder with AI analysis overlay
+  var ix=W*.06,iy=H*.08,iw=W*.42,ih=H*.7;
+  rr(ix,iy,iw,ih,6);ctx.fillStyle='#161b2280';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Image: pottery_fragment_IMG_4021.jpg',ix+10,iy+16);
+  // Fake image content: artifact shapes
+  ctx.strokeStyle='#d2992244';ctx.lineWidth=1;
+  ctx.beginPath();ctx.ellipse(ix+iw*.4,iy+ih*.4,iw*.2,ih*.22,0,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle='#d2992208';ctx.fill();
+  // Small details inside
+  ctx.strokeStyle='#f8514933';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.arc(ix+iw*.35,iy+ih*.35,8,0,Math.PI*2);ctx.stroke();
+  ctx.beginPath();ctx.arc(ix+iw*.5,iy+ih*.45,6,0,Math.PI*2);ctx.stroke();
+  // Bounding boxes (appear based on step)
+  if(A.step>=3){
+    var pulse=Math.sin(t*2)*.15+.85;
+    ctx.strokeStyle='rgba(248,81,73,'+pulse+')';ctx.lineWidth=2;ctx.setLineDash([4,3]);
+    rr(ix+iw*.15,iy+ih*.15,iw*.55,ih*.55,3);ctx.stroke();ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle='rgba(248,81,73,0.9)';rr(ix+iw*.15,iy+ih*.15-16,110,14,2);ctx.fill();
+    ctx.fillStyle='#e6edf3';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('Pottery (87%)',ix+iw*.15+4,iy+ih*.15-6);
+    // Second smaller box
+    ctx.strokeStyle='rgba(210,153,34,'+pulse+')';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+    rr(ix+iw*.6,iy+ih*.55,iw*.25,ih*.25,2);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(210,153,34,0.85)';rr(ix+iw*.6,iy+ih*.55-14,80,12,2);ctx.fill();
+    ctx.fillStyle='#e6edf3';ctx.font='bold 7px sans-serif';ctx.fillText('Rim (72%)',ix+iw*.6+3,iy+ih*.55-5);
+  }
+  // AI pipeline on right
+  var px=W*.56,py=H*.1;
+  var pipeline=[
+    {label:'Image Input',y:0,color:'#58a6ff',active:A.step>=1},
+    {label:'GPT-4 Vision',y:1,color:'#bc8cff',active:A.step>=2},
+    {label:'LangChain',y:2,color:'#d29922',active:A.step>=2},
+    {label:'Classification',y:3,color:'#3fb950',active:A.step>=3},
+    {label:'Metadata Store',y:4,color:'#39d353',active:A.step>=4},
+  ];
+  var pstep=H*.12;
+  pipeline.forEach(function(p,i){
+    var py2=py+p.y*pstep;
+    var a=p.active?1:.3;
+    rr(px,py2,W*.34,pstep*.7,4);
+    ctx.fillStyle=p.color+(p.active?'18':'08');ctx.fill();
+    ctx.strokeStyle=p.color+(p.active?'88':'33');ctx.lineWidth=p.active?1.5:1;ctx.stroke();
+    ctx.fillStyle=p.active?p.color:'#8b949e';ctx.font=(p.active?'bold ':'')+'9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(p.label,px+W*.17,py2+pstep*.42);
+    // Arrow down
+    if(i<pipeline.length-1){
+      ctx.strokeStyle=p.active?p.color+'55':'#30363d';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(px+W*.17,py2+pstep*.7);ctx.lineTo(px+W*.17,py2+pstep);ctx.stroke();
+      // Arrowhead
+      ctx.beginPath();ctx.moveTo(px+W*.17-3,py2+pstep-3);ctx.lineTo(px+W*.17,py2+pstep);ctx.lineTo(px+W*.17+3,py2+pstep-3);ctx.stroke();
+    }
+  });
+  // Tags output area (bottom right)
+  if(A.step>=4){
+    var tx=W*.56,ty=H*.75;
+    rr(tx,ty,W*.36,H*.16,4);ctx.fillStyle='#161b22cc';ctx.fill();ctx.strokeStyle='#3fb95055';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 8px sans-serif';ctx.textAlign='left';ctx.fillText('Metadata Tags:',tx+8,ty+14);
+    var tags=['pottery','ceramic','roman','imperial','red-slip','dressel'];
+    tags.forEach(function(tag,i){
+      var col=i%3,row=Math.floor(i/3);
+      var ttx=tx+8+col*60,tty=ty+24+row*16;
+      rr(ttx,tty,54,12,3);ctx.fillStyle='#58a6ff15';ctx.fill();ctx.strokeStyle='#58a6ff44';ctx.lineWidth=.5;ctx.stroke();
+      ctx.fillStyle='#58a6ff';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText(tag,ttx+27,tty+9);
+    });
+  }
+}
+
+function drawScenario1(W,H,t){
+  // GPT Sketching: sketch input area + AI processing + results
+  var sx=W*.05,sy=H*.08,sw=W*.38,sh=H*.65;
+  rr(sx,sy,sw,sh,6);ctx.fillStyle='#161b2280';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Sketch Canvas',sx+10,sy+16);
+  // Grid lines
+  ctx.strokeStyle='#30363d44';ctx.lineWidth=.5;
+  for(var gx=sx+20;gx<sx+sw-10;gx+=20){ctx.beginPath();ctx.moveTo(gx,sy+24);ctx.lineTo(gx,sy+sh-8);ctx.stroke();}
+  for(var gy=sy+24;gy<sy+sh-8;gy+=20){ctx.beginPath();ctx.moveTo(sx+10,gy);ctx.lineTo(sx+sw-10,gy);ctx.stroke();}
+  // User sketch: amphora handle shape (animated drawing)
+  if(A.step>=1){
+    var progress=A.step>=2?1:Math.min(1,(t%3)/2);
+    ctx.strokeStyle='#e6edf3';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+    var cx2=sx+sw*.5,cy2=sy+sh*.45;
+    var pts=[];
+    for(var a=0;a<Math.PI*2*progress;a+=.15){
+      var r1=sw*.15+Math.sin(a*2)*sw*.04;
+      var r2=sh*.18+Math.cos(a*3)*sh*.03;
+      pts.push([cx2+Math.cos(a)*r1,cy2+Math.sin(a)*r2]);
+    }
+    if(pts.length>1){
+      ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+      for(var pi=1;pi<pts.length;pi++){ctx.lineTo(pts[pi][0],pts[pi][1]);}
+      ctx.stroke();
+    }
+    // Pen cursor
+    if(progress<1){
+      var lastP=pts[pts.length-1];
+      ctx.fillStyle='#e6edf3';ctx.beginPath();ctx.arc(lastP[0],lastP[1],3,0,Math.PI*2);ctx.fill();
+    }
+  }
+  // AI processing area (right side)
+  var ax=W*.5,ay=H*.08;
+  // Sketch → AI arrow
+  if(A.step>=2){
+    ctx.strokeStyle='#58a6ff55';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(sx+sw,sy+sh*.4);ctx.lineTo(ax,ay+H*.15);ctx.stroke();
+    ctx.setLineDash([]);
+    // Arrow head
+    ctx.fillStyle='#58a6ff55';ctx.beginPath();ctx.moveTo(ax,ay+H*.15);ctx.lineTo(ax-6,ay+H*.15-4);ctx.lineTo(ax-4,ay+H*.15+4);ctx.fill();
+  }
+  // AI model box
+  rr(ax,ay,W*.44,H*.25,5);ctx.fillStyle=A.step>=2?'#bc8cff10':'#21262d80';ctx.fill();
+  ctx.strokeStyle=A.step>=2?'#bc8cff66':'#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle=A.step>=2?'#bc8cff':'#8b949e';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('GPT Sketch Matching Engine',ax+W*.22,ay+16);
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
+  ctx.fillText('skatch_gpt_US.py / skatch_gpt_INVMAT.py',ax+W*.22,ay+30);
+  // Processing spinner
+  if(A.step===2){
+    ctx.save();ctx.translate(ax+W*.22,ay+H*.15);ctx.rotate(t*3);
+    for(var si=0;si<8;si++){
+      ctx.rotate(Math.PI/4);ctx.fillStyle='rgba(188,140,255,'+(si/8)+')';
+      rr(-2,-12,4,8,2);ctx.fill();
+    }
+    ctx.restore();
+  }
+  // Results list
+  if(A.step>=3){
+    var ry=H*.42;
+    var results=[
+      {label:'Amphora handle (Dressel 1)',conf:'82%',color:'#3fb950'},
+      {label:'Jug handle (generic)',conf:'61%',color:'#d29922'},
+      {label:'Lamp handle',conf:'34%',color:'#f85149'},
+    ];
+    rr(ax,ry,W*.44,H*.42,5);ctx.fillStyle='#161b22cc';ctx.fill();ctx.strokeStyle='#3fb95044';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Classification Results:',ax+10,ry+16);
+    results.forEach(function(r,i){
+      var ry2=ry+28+i*40;
+      rr(ax+8,ry2,W*.42-16,32,3);
+      ctx.fillStyle=i===0&&A.step>=4?r.color+'22':r.color+'0a';ctx.fill();
+      ctx.strokeStyle=i===0&&A.step>=4?r.color:r.color+'55';ctx.lineWidth=i===0&&A.step>=4?1.5:1;ctx.stroke();
+      ctx.fillStyle='#e6edf3';ctx.font=(i===0?'bold ':'')+'9px sans-serif';ctx.textAlign='left';
+      ctx.fillText((i+1)+'. '+r.label,ax+16,ry2+14);
+      ctx.fillStyle=r.color;ctx.font='bold 9px sans-serif';ctx.textAlign='right';
+      ctx.fillText(r.conf,ax+W*.42-16,ry2+14);
+      // Confidence bar
+      var bw=(W*.42-40)*parseFloat(r.conf)/100;
+      rr(ax+16,ry2+20,W*.42-40,6,3);ctx.fillStyle='#ffffff08';ctx.fill();
+      rr(ax+16,ry2+20,bw,6,3);ctx.fillStyle=r.color+'55';ctx.fill();
+    });
+    // Checkmark on accepted
+    if(A.step>=4){
+      ctx.fillStyle='#3fb950';ctx.font='bold 12px sans-serif';ctx.textAlign='left';
+      ctx.fillText('\u2713',ax+W*.42-30,ry+28+14);
+    }
+  }
+}
+
+function drawScenario2(W,H,t){
+  // SAM Segmentation: image with colored segment overlays
+  var ix=W*.04,iy=H*.06,iw=W*.55,ih=H*.78;
+  rr(ix,iy,iw,ih,6);ctx.fillStyle='#161b2280';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('trench_photo_area_B.jpg  [SAM Segmentation]',ix+10,iy+16);
+  // Stone wall pattern (mock field photo content)
+  var stones=[
+    {x:.12,y:.15,w:.18,h:.14,color:'#58a6ff'},
+    {x:.32,y:.12,w:.15,h:.16,color:'#3fb950'},
+    {x:.08,y:.32,w:.2,h:.13,color:'#d29922'},
+    {x:.3,y:.3,w:.16,h:.15,color:'#bc8cff'},
+    {x:.15,y:.48,w:.22,h:.12,color:'#f85149'},
+    {x:.38,y:.47,w:.14,h:.14,color:'#39d353'},
+    {x:.05,y:.62,w:.19,h:.13,color:'#58a6ff'},
+    {x:.26,y:.63,w:.17,h:.12,color:'#d29922'},
+    {x:.44,y:.6,w:.13,h:.16,color:'#3fb950'},
+  ];
+  stones.forEach(function(s,i){
+    var sx2=ix+iw*s.x,sy2=iy+ih*s.y+24,sw2=iw*s.w,sh2=ih*s.h;
+    // Stone base
+    rr(sx2,sy2,sw2,sh2,2);ctx.fillStyle='#8b949e08';ctx.fill();ctx.strokeStyle='#8b949e33';ctx.lineWidth=.5;ctx.stroke();
+    // SAM segment overlays (appear based on step)
+    if(A.step>=3&&(i===0||(A.step>=4))){
+      var pulse=Math.sin(t*1.5+i*.7)*.1+.25;
+      ctx.fillStyle=s.color+Math.round(pulse*255).toString(16).padStart(2,'0');
+      rr(sx2,sy2,sw2,sh2,2);ctx.fill();
+      ctx.strokeStyle=s.color+'cc';ctx.lineWidth=1.5;ctx.stroke();
+      // Segment label
+      if(i<5||(A.step>=4)){
+        ctx.fillStyle=s.color+'dd';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+        ctx.fillText('S'+(i+1),sx2+sw2*.5,sy2+sh2*.5+3);
+      }
+    }
+  });
+  // Click point indicator
+  if(A.step>=2&&A.step<4){
+    var cpx=ix+iw*.21,cpy=iy+ih*.22+24;
+    ctx.strokeStyle='#e6edf3';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.moveTo(cpx-8,cpy);ctx.lineTo(cpx+8,cpy);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(cpx,cpy-8);ctx.lineTo(cpx,cpy+8);ctx.stroke();
+    ctx.beginPath();ctx.arc(cpx,cpy,5,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#e6edf3';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText('Click (342, 518)',cpx+10,cpy-2);
+  }
+  // SAM model info (right panel)
+  var mx=W*.64,my=H*.08;
+  rr(mx,my,W*.32,H*.35,5);ctx.fillStyle='#161b22cc';ctx.fill();ctx.strokeStyle='#58a6ff33';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('SAM ViT-H',mx+W*.16,my+16);
+  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
+  ctx.fillText('Segment Anything Model',mx+W*.16,my+30);
+  // Mask stats
+  if(A.step>=3){
+    var stats=[
+      {label:'Masks Found',value:A.step>=4?'47':'3',color:'#58a6ff'},
+      {label:'Best IoU',value:'0.94',color:'#3fb950'},
+      {label:'Avg Area',value:'12,847 px',color:'#d29922'},
+    ];
+    stats.forEach(function(s,i){
+      var sy3=my+44+i*22;
+      ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.textAlign='left';ctx.fillText(s.label,mx+10,sy3);
+      ctx.fillStyle=s.color;ctx.font='bold 9px sans-serif';ctx.textAlign='right';ctx.fillText(s.value,mx+W*.32-10,sy3);
+    });
+  }
+  // Export info (bottom right)
+  if(A.step>=5){
+    var ey=H*.52;
+    rr(mx,ey,W*.32,H*.38,5);ctx.fillStyle='#161b22cc';ctx.fill();ctx.strokeStyle='#3fb95044';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Export: /exports/segments/',mx+10,ey+16);
+    // Mini exported images
+    for(var ei=0;ei<6;ei++){
+      var col=ei%3,row=Math.floor(ei/3);
+      var ex2=mx+10+col*(W*.09+4),ey2=ey+26+row*36;
+      rr(ex2,ey2,W*.09,28,2);
+      var ec=stones[ei]?stones[ei].color:'#8b949e';
+      ctx.fillStyle=ec+'15';ctx.fill();ctx.strokeStyle=ec+'55';ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=ec;ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText('S'+(ei+1)+'.png',ex2+W*.045,ey2+17);
+    }
+  }
+}
+
+function drawScenario3(W,H,t){
+  // Results flowing into database form fields
+  // Classification results (left)
+  var rx=W*.04,ry=H*.06,rw=W*.28,rh=H*.78;
+  rr(rx,ry,rw,rh,6);ctx.fillStyle='#161b2280';ctx.fill();ctx.strokeStyle='#3fb95033';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#3fb950';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('AI Classification Results',rx+10,ry+16);
+  var items=[
+    {label:'Material',value:'Ceramica',conf:92,color:'#3fb950'},
+    {label:'Form',value:'Anfora Dressel 1',conf:87,color:'#3fb950'},
+    {label:'Decoration',value:'Red-slip',conf:78,color:'#d29922'},
+    {label:'Period',value:'Roman Imperial',conf:85,color:'#3fb950'},
+    {label:'Date Range',value:'1st-3rd c. AD',conf:70,color:'#d29922'},
+    {label:'Sub-type',value:'Unknown',conf:32,color:'#f85149'},
+  ];
+  items.forEach(function(it,i){
+    var iy=ry+28+i*(rh-40)/items.length;
+    var ih2=(rh-50)/items.length-4;
+    rr(rx+8,iy,rw-16,ih2,3);
+    var tier=it.conf>=80?'#3fb950':it.conf>=50?'#d29922':'#f85149';
+    ctx.fillStyle=tier+'0c';ctx.fill();ctx.strokeStyle=tier+'44';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.textAlign='left';ctx.fillText(it.label,rx+14,iy+10);
+    ctx.fillStyle='#e6edf3';ctx.font='bold 9px sans-serif';ctx.fillText(it.value,rx+14,iy+ih2-6);
+    // Confidence badge
+    ctx.fillStyle=tier;ctx.font='bold 7px sans-serif';ctx.textAlign='right';ctx.fillText(it.conf+'%',rx+rw-14,iy+10);
+    // Tier indicator
+    var tierLabel=it.conf>=80?'AUTO':it.conf>=50?'REVIEW':'MANUAL';
+    rr(rx+rw-50,iy+ih2-14,40,10,2);ctx.fillStyle=tier+'22';ctx.fill();ctx.strokeStyle=tier+'55';ctx.lineWidth=.5;ctx.stroke();
+    ctx.fillStyle=tier;ctx.font='bold 6px sans-serif';ctx.textAlign='center';ctx.fillText(tierLabel,rx+rw-30,iy+ih2-7);
+  });
+  // Flow arrows (center)
+  if(A.step>=1){
+    var arrowProgress=Math.min(1,(A.step-1)/2+Math.sin(t*2)*.05);
+    items.forEach(function(it,i){
+      if(i>=items.length)return;
+      var iy=ry+28+i*(rh-40)/items.length+(rh-50)/items.length*.5;
+      var startX=rx+rw;
+      var endX=W*.38;
+      var curX=startX+(endX-startX)*arrowProgress;
+      var tier=it.conf>=80?'#3fb950':it.conf>=50?'#d29922':'#f85149';
+      ctx.strokeStyle=tier+'55';ctx.lineWidth=1;ctx.setLineDash([3,3]);
+      ctx.beginPath();ctx.moveTo(startX,iy);ctx.lineTo(curX,iy);ctx.stroke();
+      ctx.setLineDash([]);
+      if(arrowProgress>=.9){
+        ctx.fillStyle=tier+'88';ctx.beginPath();ctx.moveTo(curX,iy);ctx.lineTo(curX-4,iy-3);ctx.lineTo(curX-4,iy+3);ctx.fill();
+      }
+    });
+  }
+  // Database form (right)
+  var fx=W*.4,fy=H*.06,fw=W*.55,fh=H*.78;
+  rr(fx,fy,fw,fh,6);ctx.fillStyle='#161b2280';ctx.fill();ctx.strokeStyle='#58a6ff33';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Inventario Materiali - Record INV-2087',fx+10,fy+16);
+  // Form fields
+  var fields=[
+    {label:'Materiale (Material)',value:A.step>=1?'Ceramica':'',color:'#3fb950',fill:A.step>=1},
+    {label:'Forma (Form)',value:A.step>=1?'Anfora Dressel 1':'',color:'#3fb950',fill:A.step>=1},
+    {label:'Decorazione (Decoration)',value:A.step>=2?'Red-slip':'',color:'#d29922',fill:A.step>=2,review:true},
+    {label:'Periodo (Period)',value:A.step>=1?'Roman Imperial':'',color:'#3fb950',fill:A.step>=1},
+    {label:'Datazione (Dating)',value:A.step>=2?'1st-3rd c. AD':'',color:'#d29922',fill:A.step>=2,review:true},
+    {label:'Sub-tipo (Sub-type)',value:'',color:'#f85149',fill:false,manual:true},
+  ];
+  fields.forEach(function(f,i){
+    var fy2=fy+30+i*(fh-44)/fields.length;
+    var fih=(fh-52)/fields.length-4;
+    // Label
+    ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.textAlign='left';ctx.fillText(f.label,fx+10,fy2+10);
+    // Input box
+    rr(fx+10,fy2+14,fw-20,fih-16,3);
+    ctx.fillStyle=f.fill?f.color+'0a':'#21262d80';ctx.fill();
+    ctx.strokeStyle=f.fill?f.color+'66':'#30363d';ctx.lineWidth=f.fill?1.5:1;ctx.stroke();
+    if(f.value){
+      ctx.fillStyle='#e6edf3';ctx.font='bold 9px sans-serif';ctx.textAlign='left';
+      ctx.fillText(f.value,fx+18,fy2+14+(fih-16)*.6);
+    }
+    // Status icon
+    if(f.fill&&f.value){
+      var icon=f.review?'\u26A0':'\u2713';
+      ctx.fillStyle=f.color;ctx.font='bold 10px sans-serif';ctx.textAlign='right';
+      ctx.fillText(icon,fx+fw-16,fy2+14+(fih-16)*.6);
+    }
+    if(f.manual){
+      ctx.fillStyle='#f85149';ctx.font='bold 7px sans-serif';ctx.textAlign='right';
+      ctx.fillText('MANUAL ENTRY REQUIRED',fx+fw-16,fy2+14+(fih-16)*.6);
+    }
+  });
+  // Batch progress (bottom overlay)
+  if(A.step>=3){
+    var by=H*.88;
+    rr(W*.04,by,W*.92,H*.08,4);ctx.fillStyle='#161b22ee';ctx.fill();ctx.strokeStyle='#58a6ff33';ctx.lineWidth=1;ctx.stroke();
+    var batchProgress=A.step>=4?1:.65+Math.sin(t)*.1;
+    var bw2=W*.88*batchProgress;
+    rr(W*.06,by+H*.02,W*.88,H*.04,3);ctx.fillStyle='#21262d';ctx.fill();
+    rr(W*.06,by+H*.02,bw2,H*.04,3);ctx.fillStyle='#58a6ff33';ctx.fill();
+    var count=A.step>=4?248:Math.round(248*batchProgress);
+    ctx.fillStyle='#e6edf3';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Batch Classification: '+count+'/248 photos processed',W*.5,by+H*.05);
+    if(A.step>=4){
+      ctx.fillStyle='#3fb950';ctx.font='bold 8px sans-serif';ctx.textAlign='right';
+      ctx.fillText('198 AUTO | 37 REVIEW | 13 MANUAL',W*.92,by+H*.05);
+    }
+  }
+}
+
+function drawScene(ts){
+  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);var t=ts*.001;
+  A.animT=t;
+  // Subtle background grid
+  ctx.strokeStyle='#21262d44';ctx.lineWidth=.3;
+  for(var gx=0;gx<W;gx+=40){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke();}
+  for(var gy=0;gy<H;gy+=40){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke();}
+  switch(A.sc){
+    case 0:drawScenario0(W,H,t);break;
+    case 1:drawScenario1(W,H,t);break;
+    case 2:drawScenario2(W,H,t);break;
+    case 3:drawScenario3(W,H,t);break;
+  }
+}
+
+function load(i){A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlObj(null);A.conf=0;
+  updConf(0);updModel({name:'--',status:['Idle','Standby','Standby','Standby']});
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);}
+function exec(si){if(si<0||si>=A.steps.length)return;A.step=si;var s=A.steps[si];
+  addLog(s.log,s.type);if(s.obj!==undefined)hlObj(s.obj);if(s.conf!==undefined)updConf(s.conf);if(s.model)updModel(s.model);
+  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);updDots();if(A.mode==='auto'&&A.playing)schedNext();}
+function schedNext(){clearTimeout(A.timer);var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto'&&A.looping){var n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
+  if(last)return;var d=2200;var s=A.steps[A.step];if(s.type==='success')d=2500;
+  A.timer=setTimeout(function(){if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);}
+
+sel.addEventListener('change',function(){load(+sel.value);});
+bA.addEventListener('click',function(){A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
+bM.addEventListener('click',function(){A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
+bPP.addEventListener('click',function(){A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
+bPr.addEventListener('click',function(){if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
+bNx.addEventListener('click',function(){if(A.step<A.steps.length-1)exec(A.step+1);});
+bRe.addEventListener('click',function(){A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
+bL.addEventListener('click',function(){A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
+bSt.addEventListener('click',function(){A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
+spB.forEach(function(b){b.addEventListener('click',function(){spB.forEach(function(x){x.classList.remove('on');});b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();});});
+document.addEventListener('keydown',function(e){if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
+function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
+resize();requestAnimationFrame(renderLoop);load(0);
+})();
+</script>
+</body>
+</html>
