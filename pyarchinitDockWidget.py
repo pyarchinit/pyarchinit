@@ -38,11 +38,15 @@ def _dock_log(msg):
 # fall back to QtWebEngine, then graceful degradation to system browser.
 HAS_WEBENGINE = False
 _DockWebViewClass = None
+_DOCK_USE_WEBKIT = False
+_DockQWebSettings = None
 
 # Try QtWebKit first (available in most QGIS installations via qgis.PyQt)
 try:
     from qgis.PyQt.QtWebKitWidgets import QWebView as _DockWebViewClass
+    from qgis.PyQt.QtWebKit import QWebSettings as _DockQWebSettings
     HAS_WEBENGINE = True
+    _DOCK_USE_WEBKIT = True
     _dock_log("QWebView (QtWebKit) available — animation embedding enabled")
 except (ImportError, AttributeError, RuntimeError):
     pass
@@ -400,6 +404,9 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             parent_widget = self.webView_adarte.parentWidget()
             layout = parent_widget.layout()
             self.web_engine_pyarchinit = _DockWebViewClass()
+            if _DOCK_USE_WEBKIT and _DockQWebSettings:
+                ws = self.web_engine_pyarchinit.settings()
+                ws.setAttribute(_DockQWebSettings.JavascriptEnabled, True)
             self.web_engine_pyarchinit.setUrl(QUrl("https://www.pyarchinit.org"))
             layout.replaceWidget(self.webView_adarte, self.web_engine_pyarchinit)
             self.webView_adarte.deleteLater()
@@ -477,12 +484,17 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.tutorial_content.anchorClicked.connect(self._on_tutorial_link_clicked)
         self.tutorial_content_stack.addWidget(self.tutorial_content)  # index 0
 
-        # Page 1: QWebEngineView — for HTML5 animations (if available)
+        # Page 1: Web view for HTML5 animations (if available)
         self.tutorial_animation = None
         if HAS_WEBENGINE:
             self.tutorial_animation = _DockWebViewClass()
+            if _DOCK_USE_WEBKIT and _DockQWebSettings:
+                ws = self.tutorial_animation.settings()
+                ws.setAttribute(_DockQWebSettings.JavascriptEnabled, True)
+                ws.setAttribute(_DockQWebSettings.LocalContentCanAccessFileUrls, True)
+                ws.setAttribute(_DockQWebSettings.DeveloperExtrasEnabled, True)
             self.tutorial_content_stack.addWidget(self.tutorial_animation)  # index 1
-            _dock_log("Tutorial animation viewer (QWebEngineView) ready as stack page 1")
+            _dock_log("Tutorial animation viewer ready as stack page 1")
 
         self.tutorial_content_stack.setCurrentIndex(0)
         self.tutorial_splitter.addWidget(self.tutorial_content_stack)

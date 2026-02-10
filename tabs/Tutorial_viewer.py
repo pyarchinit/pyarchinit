@@ -23,28 +23,27 @@ def _log_info(msg):
 # fall back to QtWebEngine, then graceful degradation to system browser.
 HAS_WEB_VIEW = False
 _WebViewClass = None
+_USE_WEBKIT = False
+_QWebSettings = None
 
 # Try QtWebKit first (available in most QGIS installations via qgis.PyQt)
 try:
     from qgis.PyQt.QtWebKitWidgets import QWebView as _WebViewClass
+    from qgis.PyQt.QtWebKit import QWebSettings as _QWebSettings
     HAS_WEB_VIEW = True
+    _USE_WEBKIT = True
     _log_info("QWebView (QtWebKit) available — animation embedding enabled")
 except (ImportError, AttributeError, RuntimeError):
     pass
 
 # Fall back to QtWebEngine if QtWebKit not available
 if not HAS_WEB_VIEW:
-    for _mod_path in [
-        'qgis.PyQt.QtWebEngineWidgets',
-    ]:
-        try:
-            _mod = __import__(_mod_path, fromlist=['QWebEngineView'])
-            _WebViewClass = getattr(_mod, 'QWebEngineView')
-            HAS_WEB_VIEW = True
-            _log_info(f"QWebEngineView found via {_mod_path} — animation embedding enabled")
-            break
-        except (ImportError, AttributeError, RuntimeError):
-            continue
+    try:
+        from qgis.PyQt.QtWebEngineWidgets import QWebEngineView as _WebViewClass
+        HAS_WEB_VIEW = True
+        _log_info("QWebEngineView available — animation embedding enabled")
+    except (ImportError, AttributeError, RuntimeError):
+        pass
 
 if not HAS_WEB_VIEW:
     _log_info("No web view available (QtWebKit/QtWebEngine) — animations will open in system browser")
@@ -559,8 +558,14 @@ class TutorialViewerDialog(QDialog):
         self.animation_viewer = None
         if HAS_WEB_VIEW:
             self.animation_viewer = _WebViewClass()
+            # Enable JavaScript and local file access for HTML5 animations
+            if _USE_WEBKIT and _QWebSettings:
+                ws = self.animation_viewer.settings()
+                ws.setAttribute(_QWebSettings.JavascriptEnabled, True)
+                ws.setAttribute(_QWebSettings.LocalContentCanAccessFileUrls, True)
+                ws.setAttribute(_QWebSettings.DeveloperExtrasEnabled, True)
             self.content_stack.addWidget(self.animation_viewer)  # index 1
-            _log_info("Animation viewer (QWebEngineView) ready as stack page 1")
+            _log_info("Animation viewer ready as stack page 1")
         else:
             _log_info("No QWebEngineView — animation links will fall back to system browser")
 
