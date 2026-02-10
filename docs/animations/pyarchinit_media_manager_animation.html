@@ -6,39 +6,47 @@
 <title>PyArchInit — Media Manager Tutorial</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
-html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
-.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
-.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
-.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
-.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
-.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
-.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
-.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
-.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
-.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
-.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
-.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
-.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
-.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
-.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
-.entity-list{display:flex;flex-direction:column;gap:3px}
-.ent{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
-.ent.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
-.ent-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
-.les{display:flex;flex-direction:column;gap:2px}
-.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
-@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+html{font-size:14px}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
+.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.hdr{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.hdr h1{font-size:1.2rem;font-weight:600;color:#58a6ff;margin-right:10px}.hdr h1 span{color:#8b949e;font-weight:400}
+.main-col{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0}
+.side{width:250px;background:#161b22;border-left:1px solid #30363d;padding:14px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.side > *{margin-bottom:12px}
+.log{width:100%;background:#161b22;border-top:1px solid #30363d;padding:10px 20px;max-height:160px;overflow-y:auto;-webkit-order:3;order:3}
+.ctrls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.ctrls > *{margin-right:5px;margin-bottom:5px}
+.ctrls button,.ctrls select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.82rem;-webkit-transition:all .2s;transition:all .2s}
+.ctrls button:hover{border-color:#58a6ff}.ctrls button.on{background:#58a6ff;color:#000;border-color:#58a6ff}.ctrls button:disabled{opacity:.3}
+.g{display:-webkit-flex;display:flex}.g > *{margin-right:0}.g button{border-radius:0}.g button:first-child{border-radius:8px 0 0 8px}.g button:last-child{border-radius:0 8px 8px 0}
+.scene{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:#58a6ff}
+.dots{position:absolute;bottom:10px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-flex;display:flex;z-index:5}
+.dots > *{margin-right:5px}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);-webkit-transition:all .3s;transition:all .3s}
+.dot.on{background:#58a6ff;border-color:#58a6ff;box-shadow:0 0 6px #58a6ff}.dot.ok{background:#3fb950;border-color:#3fb950}
+.w{background:#21262d;border-radius:8px;padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:7px}
+.sr{display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:#8b949e}.sv{font-weight:600;font-variant-numeric:tabular-nums}
+.entity-list{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.entity-list > *{margin-bottom:3px}
+.ent{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;padding:3px 6px;border-radius:4px;font-size:.78rem;-webkit-transition:all .3s;transition:all .3s}
+.ent > *{margin-right:6px}
+.ent.hl{background:rgba(88,166,255,.1);border:1px solid #58a6ff}
+.ent-dot{width:8px;height:8px;border-radius:50%;-webkit-flex-shrink:0;flex-shrink:0}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:5px}
+.les{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.les > *{margin-bottom:2px}
+.le{display:-webkit-flex;display:flex;font-size:.8rem;padding:2px 5px;border-radius:3px;-webkit-animation:fi .3s;animation:fi .3s}
+.le > *{margin-right:6px}
+@-webkit-keyframes fi{from{opacity:0;-webkit-transform:translateY(-3px);transform:translateY(-3px)}to{opacity:1}}
+@keyframes fi{from{opacity:0;-webkit-transform:translateY(-3px);transform:translateY(-3px)}to{opacity:1}}
 .le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
-.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
-@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.le-t{color:#8b949e;min-width:40px;-webkit-flex-shrink:0;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{-webkit-flex-shrink:0;flex-shrink:0;width:14px;text-align:center}.le-x{-webkit-flex:1;flex:1}
+@media(max-width:860px){.app{-webkit-flex-direction:column;flex-direction:column}.side{width:100%;border-left:none;border-top:1px solid #30363d;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap}.w{-webkit-flex:1;flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
 </style>
 </head>
 <body>
@@ -53,7 +61,7 @@ html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont
       <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
     </div>
   </div>
-  <div class="main"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
+  <div class="main-col"><div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div></div>
   <div class="side">
     <div class="w"><h3>Media Stats</h3>
       <div class="sr"><span class="sl">Total Images</span><span class="sv" id="mTotal">0</span></div>
@@ -81,17 +89,25 @@ html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont
 </div>
 <script>
 (function(){
-'use strict';
-const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
-const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlEnt:null};
-const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+var $=function(id){return document.getElementById(id);};
+var cv=$('cv'),ctx=cv.getContext('2d');
+var A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlEnt:null};
+var sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots');
+var spBnodes=document.querySelectorAll('.sp');
+var spB=Array.prototype.slice.call(spBnodes);
 
-const ENT_COLORS={us:'#58a6ff',tomba:'#f85149',individuo:'#bc8cff',materiali:'#d29922',struttura:'#3fb950',sito:'#39d353',doc:'#8b949e'};
+var ENT_COLORS={us:'#58a6ff',tomba:'#f85149',individuo:'#bc8cff',materiali:'#d29922',struttura:'#3fb950',sito:'#39d353',doc:'#8b949e'};
 
-const SC=[
+function padTwo(n){
+  var s=String(n);
+  while(s.length<2){s='0'+s;}
+  return s;
+}
+
+var SC=[
   {title:'Image Upload & Linking',desc:'<strong>Upload:</strong> Add photos and drawings to the Media Manager, then link them to archaeological records.',
    steps:[
-    {log:'Open Media Manager: toolbar → "Gestione Immagini" button.',type:'info',op:{action:'Open'},d:'The Image_viewer.py dialog provides the main interface for media management.'},
+    {log:'Open Media Manager: toolbar \u2192 "Gestione Immagini" button.',type:'info',op:{action:'Open'},d:'The Image_viewer.py dialog provides the main interface for media management.'},
     {log:'Click "Aggiungi Immagini" (Add Images). Select one or more files.',type:'info',op:{action:'Select files'},d:'Supports JPG, PNG, TIFF, and other standard image formats.'},
     {log:'Files selected: site_photo_001.jpg (4.2 MB), us101_detail.jpg (3.8 MB).',type:'info',op:{file:'2 images'},stats:{total:2},d:'Multiple files can be selected at once for batch upload.'},
     {log:'Processing: generating thumbnail for site_photo_001.jpg...',type:'info',op:{action:'Thumbnail gen'},stats:{thumb:1},d:'Pillow generates a scaled-down thumbnail (THUMB_RESIZE setting controls max dimensions).'},
@@ -100,18 +116,18 @@ const SC=[
     {log:'INSERT INTO media_thumb_table: id_media, filepath_thumb, resize_param.',type:'info',d:'The thumbnail path is stored separately for efficient gallery rendering.'},
     {log:'Link to entity: select target record type (US, Tomba, Individuo, etc.).',type:'info',ent:'us',d:'The linking step associates the media with a specific archaeological record.'},
     {log:'INSERT INTO media_to_entity_table: id_media, entity_type="US", id_entity=101.',type:'info',stats:{linked:1},d:'The many-to-many join table connects media records to any entity type.'},
-    {log:'Media uploaded and linked successfully. Visible in US 101 form.',type:'success',stats:{linked:2},op:{action:'Complete'},d:'The image now appears when opening the US 101 record in any form that supports media.'},
+    {log:'Media uploaded and linked successfully. Visible in US 101 form.',type:'success',stats:{linked:2},op:{action:'Complete'},d:'The image now appears when opening the US 101 record in any form that supports media.'}
   ]},
   {title:'Thumbnail Generation',desc:'<strong>Thumbnails:</strong> Automatic thumbnail generation with configurable dimensions, caching, and format handling.',
    steps:[
     {log:'Thumbnail pipeline: Pillow (PIL) handles image processing.',type:'info',d:'The pyarchinit_media_utility.py module uses Pillow for all image manipulation.'},
     {log:'Input: original image at full resolution (e.g., 4000x3000 px, 4.2 MB).',type:'info',op:{file:'4000x3000'},d:'Original photos from cameras are typically 3-10 MB each.'},
     {log:'THUMB_RESIZE setting: max dimensions (e.g., 300x300). Aspect ratio preserved.',type:'info',d:'The thumbnail fits within the max dimensions while maintaining the original aspect ratio.'},
-    {log:'Pillow: Image.open() → thumbnail((300,300), LANCZOS) → save(thumb_path).',type:'info',op:{action:'Resize'},d:'Pillow LANCZOS resampling produces the highest quality thumbnails.'},
+    {log:'Pillow: Image.open() \u2192 thumbnail((300,300), LANCZOS) \u2192 save(thumb_path).',type:'info',op:{action:'Resize'},d:'Pillow LANCZOS resampling produces the highest quality thumbnails.'},
     {log:'Output: thumbnail at 300x225 px, ~15 KB. 99.6% size reduction.',type:'success',op:{file:'300x225'},d:'Thumbnails are tiny compared to originals, enabling fast gallery rendering.'},
     {log:'Cache structure: THUMB_PATH/{site}/{media_id}_thumb.jpg.',type:'info',d:'Thumbnails are organized by site in the cache directory.'},
-    {log:'Remote images: remote_image_loader.py downloads → generates thumbnail → caches.',type:'info',d:'For remote storage backends, images are downloaded on first access and thumbnails are generated locally.'},
-    {log:'Format support: JPG, PNG, TIFF, BMP → thumbnail always saved as JPG.',type:'success',d:'All input formats are normalized to JPG for thumbnails, ensuring consistent display.'},
+    {log:'Remote images: remote_image_loader.py downloads \u2192 generates thumbnail \u2192 caches.',type:'info',d:'For remote storage backends, images are downloaded on first access and thumbnails are generated locally.'},
+    {log:'Format support: JPG, PNG, TIFF, BMP \u2192 thumbnail always saved as JPG.',type:'success',d:'All input formats are normalized to JPG for thumbnails, ensuring consistent display.'}
   ]},
   {title:'Entity Associations',desc:'<strong>Associations:</strong> Media linked to entities via many-to-many tables. One image can link to multiple records.',
    steps:[
@@ -123,7 +139,7 @@ const SC=[
     {log:'Link to Inv. Materiali: artifact photo linked to find record INV-044.',type:'info',ent:'materiali',stats:{linked:4},d:'Each artifact in the inventory can have multiple photos (front, back, detail, etc.).'},
     {log:'Multi-link: same photo linked to US 101 AND Struttura S5 (wall belongs to both).',type:'info',ent:'struttura',stats:{linked:5},d:'A single photo can document multiple records simultaneously.'},
     {log:'Query: SELECT * FROM media_to_entity_table WHERE entity_type="US" AND id_entity=101.',type:'info',d:'Forms query the join table to display all media associated with the current record.'},
-    {log:'All associations stored. Images visible in every linked record form.',type:'success',d:'When opening any linked record, its associated media appear in the media panel.'},
+    {log:'All associations stored. Images visible in every linked record form.',type:'success',d:'When opening any linked record, its associated media appear in the media panel.'}
   ]},
   {title:'Search & Batch Operations',desc:'<strong>Search:</strong> Find images across the entire media database. Batch export by criteria.',
    steps:[
@@ -135,109 +151,291 @@ const SC=[
     {log:'Export by Period/Phase: creates folders Period_I/Phase_a/, Period_II/Phase_b/, etc.',type:'info',d:'Automatically organizes exported images by chronological period and phase.'},
     {log:'Export by US: creates folders US_001/, US_002/, etc. with linked images.',type:'info',d:'Each US folder contains all photos linked to that stratigraphic unit.'},
     {log:'Image comparison tool: side-by-side comparison of two images.',type:'info',op:{action:'Compare'},d:'Images_comparison.py allows overlaying or comparing two images for change detection.'},
-    {log:'Batch operations complete. Media system fully searchable and exportable.',type:'success',d:'The media system supports the full lifecycle: upload, link, search, compare, and export.'},
+    {log:'Batch operations complete. Media system fully searchable and exportable.',type:'success',d:'The media system supports the full lifecycle: upload, link, search, compare, and export.'}
   ]}
 ];
 
-function hlEnt(e){A.hlEnt=e;document.querySelectorAll('.ent').forEach(el=>el.classList.toggle('hl',el.dataset.e===e));}
-function updStats(o){if(o){if(o.total!==undefined)$('mTotal').textContent=o.total;if(o.linked!==undefined)$('mLinked').textContent=o.linked;if(o.thumb!==undefined)$('mThumb').textContent=o.thumb;}}
-function updOp(o){if(o){if(o.action)$('opAction').textContent=o.action;if(o.file)$('opFile').textContent=o.file;}}
-function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML=`<span class="le-t">${ts}</span><span class="le-i" style="color:${cl[type]}">${ic[type]}</span><span class="le-x">${t}</span>`;logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
-function updDots(){dots.innerHTML='';A.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
-function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
-function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
+function hlEnt(e){
+  A.hlEnt=e;
+  var allEnts=Array.prototype.slice.call(document.querySelectorAll('.ent'));
+  for(var i=0;i<allEnts.length;i++){
+    var el=allEnts[i];
+    var elE=el.getAttribute('data-e');
+    if(elE===e){
+      if(!el.className.match(/\bhl\b/)){el.className=el.className+' hl';}
+    }else{
+      el.className=el.className.replace(/\s*\bhl\b/g,'');
+    }
+  }
+}
+
+function updStats(o){
+  if(o){
+    if(o.total!==undefined){$('mTotal').textContent=o.total;}
+    if(o.linked!==undefined){$('mLinked').textContent=o.linked;}
+    if(o.thumb!==undefined){$('mThumb').textContent=o.thumb;}
+  }
+}
+
+function updOp(o){
+  if(o){
+    if(o.action){$('opAction').textContent=o.action;}
+    if(o.file){$('opFile').textContent=o.file;}
+  }
+}
+
+function addLog(t,type){
+  A.logN++;
+  var now=new Date();
+  var ts=padTwo(now.getMinutes())+':'+padTwo(now.getSeconds());
+  var ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};
+  var cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};
+  var d=document.createElement('div');
+  d.className='le '+type;
+  d.innerHTML='<span class="le-t">'+ts+'</span><span class="le-i" style="color:'+cl[type]+'">'+ic[type]+'</span><span class="le-x">'+t+'</span>';
+  if(logE.firstChild){
+    logE.insertBefore(d,logE.firstChild);
+  }else{
+    logE.appendChild(d);
+  }
+  while(logE.children.length>25){logE.removeChild(logE.lastChild);}
+}
+
+function updDots(){
+  dots.innerHTML='';
+  for(var i=0;i<A.steps.length;i++){
+    var d=document.createElement('div');
+    var cls='dot';
+    if(i===A.step){cls=cls+' on';}
+    else if(i<A.step){cls=cls+' ok';}
+    d.className=cls;
+    dots.appendChild(d);
+  }
+}
+
+function updDesc(h){
+  dsc.innerHTML=h||'';
+  dsc.style.opacity=h?'1':'0';
+}
+
+function resize(){
+  var r=cv.parentElement.getBoundingClientRect();
+  var dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr;
+  cv.height=r.height*dpr;
+  cv.style.width=r.width+'px';
+  cv.style.height=r.height+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
 window.addEventListener('resize',resize);
-function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function rr(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
 
 function drawScene(ts){
-  const W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
-  ctx.clearRect(0,0,W,H);const t=ts*.001;
+  var W=cv.width/(window.devicePixelRatio||1);
+  var H=cv.height/(window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);
+  var t=ts*0.001;
   // Media gallery (left area)
-  const gx=W*.05,gy=H*.08,gw=W*.35,gh=H*.75;
+  var gx=W*0.05,gy=H*0.08,gw=W*0.35,gh=H*0.75;
   rr(gx,gy,gw,gh,6);ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
   ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';ctx.fillText('Media Gallery',gx+10,gy+16);
   // Thumbnail grid
-  const tw=50,th=40,cols=Math.floor((gw-20)/((tw+6))),tStart=gy+26;
-  for(let i=0;i<12;i++){
-    const col=i%cols,row=Math.floor(i/cols);
-    const tx=gx+10+col*(tw+6),ty=tStart+row*(th+6);
-    if(ty+th>gy+gh-6)continue;
+  var tw=50,th=40,cols=Math.floor((gw-20)/((tw+6))),tStart=gy+26;
+  var colors=['#58a6ff','#d29922','#3fb950','#bc8cff','#f85149','#39d353'];
+  for(var i=0;i<12;i++){
+    var col=i%cols,row=Math.floor(i/cols);
+    var tx=gx+10+col*(tw+6),ty=tStart+row*(th+6);
+    if(ty+th>gy+gh-6){continue;}
     rr(tx,ty,tw,th,3);
-    const colors=['#58a6ff','#d29922','#3fb950','#bc8cff','#f85149','#39d353'];
     ctx.fillStyle=colors[i%6]+'15';ctx.fill();
     ctx.strokeStyle=colors[i%6]+'44';ctx.lineWidth=1;ctx.stroke();
     // Image placeholder
-    ctx.strokeStyle=colors[i%6]+'66';ctx.lineWidth=.5;
+    ctx.strokeStyle=colors[i%6]+'66';ctx.lineWidth=0.5;
     ctx.beginPath();ctx.moveTo(tx+5,ty+th-5);ctx.lineTo(tx+tw/3,ty+12);ctx.lineTo(tx+tw*2/3,ty+th-10);ctx.lineTo(tx+tw-5,ty+8);ctx.stroke();
   }
   // Association diagram (center-right)
-  const ax=W*.55,ay=H*.15;
+  var ax=W*0.55,ay=H*0.15;
   // Image node
   rr(ax-25,ay,50,40,5);ctx.fillStyle='rgba(88,166,255,.1)';ctx.fill();
   ctx.strokeStyle='#58a6ff';ctx.lineWidth=1.5;ctx.stroke();
   ctx.fillStyle='#58a6ff';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText('IMAGE',ax,ay+15);
   ctx.fillStyle='#8b949e';ctx.font='7px sans-serif';ctx.fillText('.jpg / .png',ax,ay+28);
   // DB tables
-  const tables=[
-    {label:'media_table',x:.55,y:.42,color:'#58a6ff'},
-    {label:'media_thumb',x:.38,y:.55,color:'#d29922'},
-    {label:'media_to_entity',x:.72,y:.55,color:'#3fb950'},
+  var tables=[
+    {label:'media_table',x:0.55,y:0.42,color:'#58a6ff'},
+    {label:'media_thumb',x:0.38,y:0.55,color:'#d29922'},
+    {label:'media_to_entity',x:0.72,y:0.55,color:'#3fb950'}
   ];
-  tables.forEach(tb=>{
-    const tx=W*tb.x,ty=H*tb.y;
-    rr(tx-45,ty,90,24,3);ctx.fillStyle=tb.color+'10';ctx.fill();
+  for(var ti=0;ti<tables.length;ti++){
+    var tb=tables[ti];
+    var tbx=W*tb.x,tby=H*tb.y;
+    rr(tbx-45,tby,90,24,3);ctx.fillStyle=tb.color+'10';ctx.fill();
     ctx.strokeStyle=tb.color+'66';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle=tb.color;ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText(tb.label,tx,ty+15);
-  });
-  // Arrows image → tables
+    ctx.fillStyle=tb.color;ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText(tb.label,tbx,tby+15);
+  }
+  // Arrows image -> tables
   ctx.strokeStyle='rgba(88,166,255,.2)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
-  ctx.beginPath();ctx.moveTo(ax,ay+40);ctx.lineTo(W*.55,H*.42);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(ax-10,ay+40);ctx.lineTo(W*.38,H*.55);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(ax+10,ay+40);ctx.lineTo(W*.72,H*.55);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax,ay+40);ctx.lineTo(W*0.55,H*0.42);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax-10,ay+40);ctx.lineTo(W*0.38,H*0.55);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ax+10,ay+40);ctx.lineTo(W*0.72,H*0.55);ctx.stroke();
   ctx.setLineDash([]);
   // Entity nodes (bottom)
-  const entities=[
-    {label:'US 101',color:'#58a6ff',x:.48},
-    {label:'Tomba T14',color:'#f85149',x:.62},
-    {label:'Inv. 044',color:'#d29922',x:.76},
-    {label:'Sito Alpha',color:'#3fb950',x:.9},
+  var entities=[
+    {label:'US 101',color:'#58a6ff',x:0.48},
+    {label:'Tomba T14',color:'#f85149',x:0.62},
+    {label:'Inv. 044',color:'#d29922',x:0.76},
+    {label:'Sito Alpha',color:'#3fb950',x:0.9}
   ];
-  const ey=H*.74;
-  entities.forEach((e,i)=>{
-    const ex=W*e.x;
-    const hl=A.hlEnt&&(e.label.toLowerCase().includes(A.hlEnt.substring(0,2)));
+  var ey=H*0.74;
+  for(var ei=0;ei<entities.length;ei++){
+    var e=entities[ei];
+    var ex=W*e.x;
+    var hl=A.hlEnt&&(e.label.toLowerCase().indexOf(A.hlEnt.substring(0,2))!==-1);
     rr(ex-30,ey,60,24,3);ctx.fillStyle=hl?e.color+'22':'rgba(33,38,45,.6)';ctx.fill();
     ctx.strokeStyle=hl?e.color:e.color+'44';ctx.lineWidth=hl?1.5:1;ctx.stroke();
     ctx.fillStyle=hl?'#e6edf3':'#8b949e';ctx.font=(hl?'bold ':'')+'8px sans-serif';ctx.textAlign='center';
     ctx.fillText(e.label,ex,ey+15);
     // Arrow from media_to_entity
     ctx.strokeStyle=hl?e.color+'66':'rgba(255,255,255,.06)';ctx.lineWidth=1;ctx.setLineDash([3,3]);
-    ctx.beginPath();ctx.moveTo(W*.72,H*.55+24);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
-  });
+    ctx.beginPath();ctx.moveTo(W*0.72,H*0.55+24);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);
+  }
 }
 
-function load(i){A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlEnt(null);
+function load(i){
+  A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlEnt(null);
   updStats({total:0,linked:0,thumb:0});updOp({action:'--',file:'--'});
-  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);}
-function exec(si){if(si<0||si>=A.steps.length)return;A.step=si;const s=A.steps[si];
-  addLog(s.log,s.type);if(s.ent!==undefined)hlEnt(s.ent);if(s.stats)updStats(s.stats);if(s.op)updOp(s.op);
-  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);updDots();if(A.mode==='auto'&&A.playing)schedNext();}
-function schedNext(){clearTimeout(A.timer);const last=A.step>=A.steps.length-1;
-  if(last&&A.looping){A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto'&&A.looping){const n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
-  if(last)return;let d=2200;const s=A.steps[A.step];if(s.type==='success')d=2500;
-  A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);}
+  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);
+}
 
-sel.addEventListener('change',()=>load(+sel.value));
-bA.addEventListener('click',()=>{A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
-bM.addEventListener('click',()=>{A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
-bPP.addEventListener('click',()=>{A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
-bPr.addEventListener('click',()=>{if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
-bNx.addEventListener('click',()=>{if(A.step<A.steps.length-1)exec(A.step+1);});
-bRe.addEventListener('click',()=>{A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
-bL.addEventListener('click',()=>{A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
-bSt.addEventListener('click',()=>{A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
-spB.forEach(b=>b.addEventListener('click',()=>{spB.forEach(x=>x.classList.remove('on'));b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();}));
-document.addEventListener('keydown',e=>{if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
+function exec(si){
+  if(si<0||si>=A.steps.length){return;}
+  A.step=si;
+  var s=A.steps[si];
+  addLog(s.log,s.type);
+  if(s.ent!==undefined){hlEnt(s.ent);}
+  if(s.stats){updStats(s.stats);}
+  if(s.op){updOp(s.op);}
+  if(s.d){updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);}
+  updDots();
+  if(A.mode==='auto'&&A.playing){schedNext();}
+}
+
+function schedNext(){
+  clearTimeout(A.timer);
+  var last=A.step>=A.steps.length-1;
+  if(last&&A.looping){
+    A.timer=setTimeout(function(){
+      if(A.playing&&A.mode==='auto'&&A.looping){
+        var n=(A.sc+1)%SC.length;
+        sel.value=n;
+        load(n);
+      }
+    },3000/A.speed);
+    return;
+  }
+  if(last){return;}
+  var d=2200;
+  var s=A.steps[A.step];
+  if(s.type==='success'){d=2500;}
+  A.timer=setTimeout(function(){
+    if(A.playing&&A.mode==='auto'){exec(A.step+1);}
+  },d/A.speed);
+}
+
+sel.addEventListener('change',function(){load(+sel.value);});
+
+bA.addEventListener('click',function(){
+  A.mode='auto';
+  bA.className=bA.className.replace(/\s*\bon\b/g,'')+' on';
+  bM.className=bM.className.replace(/\s*\bon\b/g,'');
+  bPr.disabled=true;bNx.disabled=true;
+  if(A.playing){schedNext();}
+});
+
+bM.addEventListener('click',function(){
+  A.mode='manual';
+  bM.className=bM.className.replace(/\s*\bon\b/g,'')+' on';
+  bA.className=bA.className.replace(/\s*\bon\b/g,'');
+  bPr.disabled=false;bNx.disabled=false;
+  clearTimeout(A.timer);
+});
+
+bPP.addEventListener('click',function(){
+  A.playing=!A.playing;
+  bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';
+  if(A.playing&&A.mode==='auto'){schedNext();}
+  else{clearTimeout(A.timer);}
+});
+
+bPr.addEventListener('click',function(){
+  if(A.step>0){logE.innerHTML='';exec(A.step-1);}
+});
+
+bNx.addEventListener('click',function(){
+  if(A.step<A.steps.length-1){exec(A.step+1);}
+});
+
+bRe.addEventListener('click',function(){
+  A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);
+});
+
+bL.addEventListener('click',function(){
+  A.looping=!A.looping;
+  if(A.looping){
+    if(bL.className.indexOf('on')===-1){bL.className=bL.className+' on';}
+  }else{
+    bL.className=bL.className.replace(/\s*\bon\b/g,'');
+  }
+  bSt.style.display=A.looping?'':'none';
+  bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';
+  if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1){schedNext();}
+});
+
+bSt.addEventListener('click',function(){
+  A.looping=false;A.playing=false;
+  bL.className=bL.className.replace(/\s*\bon\b/g,'');
+  bL.innerHTML='&#8635; Loop';
+  bSt.style.display='none';
+  bPP.innerHTML='&#9654;';
+  clearTimeout(A.timer);
+});
+
+for(var si=0;si<spB.length;si++){
+  (function(b){
+    b.addEventListener('click',function(){
+      for(var j=0;j<spB.length;j++){
+        spB[j].className=spB[j].className.replace(/\s*\bon\b/g,'');
+      }
+      b.className=b.className+' on';
+      A.speed=+(b.getAttribute('data-s'));
+      if(A.playing&&A.mode==='auto'){schedNext();}
+    });
+  })(spB[si]);
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key===' '){e.preventDefault();bPP.click();}
+  if(e.key==='ArrowRight'&&A.mode==='manual'){bNx.click();}
+  if(e.key==='ArrowLeft'&&A.mode==='manual'){bPr.click();}
+  if(e.key==='r'||e.key==='R'){bRe.click();}
+  if(e.key==='l'||e.key==='L'){bL.click();}
+  if((e.key==='s'||e.key==='S')&&A.looping){bSt.click();}
+  if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}
+});
+
 function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
 resize();requestAnimationFrame(renderLoop);load(0);
 })();

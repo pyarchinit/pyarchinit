@@ -5,6 +5,56 @@
 
 ---
 
+## [5.0.1-alpha] - 2026-02-10
+
+### Riscrittura animazioni HTML5 per QtWebKit / HTML5 Animation Rewrite for QtWebKit
+
+- **IT**: Riscrittura completa di tutte le 12 animazioni HTML5 in `docs/animations/` per compatibilita con il motore QtWebKit (~2015) integrato in QGIS 3.42.1 su macOS. Il Tutorial Viewer usa `QWebView` (QtWebKit) che supporta solo JavaScript ES5 e CSS3 senza funzionalita moderne.
+- **EN**: Complete rewrite of all 12 HTML5 animations in `docs/animations/` for compatibility with the QtWebKit engine (~2015) bundled with QGIS 3.42.1 on macOS. The Tutorial Viewer uses `QWebView` (QtWebKit) which only supports ES5 JavaScript and CSS3 without modern features.
+
+#### Modifiche JavaScript / JavaScript Changes
+- `const`/`let` sostituiti con `var`
+- Arrow functions `() => {}` sostituite con `function() {}`
+- Template literals sostituite con concatenazione stringhe
+- `String.padStart()` sostituito con funzione manuale `padTwo()`
+- `NodeList.forEach()` sostituito con `Array.prototype.slice.call()` + ciclo `for`
+- `classList.toggle(name, force)` sostituito con manipolazione `className` + `indexOf`/`replace`
+- `element.dataset.xxx` sostituito con `getAttribute('data-xxx')`
+- `String.includes()` sostituito con `indexOf() !== -1`
+- `Array.findIndex()` sostituito con ciclo `for` manuale
+- `ctx.ellipse()` sostituito con `drawEllipse()` custom (save/translate/scale/arc/restore)
+- `.prepend()` sostituito con `insertBefore(el, firstChild)`
+- Unicode escape ES6 `\u{1F3DB}` sostituiti con simboli BMP
+- Optional chaining `?.` e nullish coalescing `??` rimossi
+
+#### Modifiche CSS / CSS Changes
+- Rimosso blocco `:root` e tutti i `var(--name)` — colori hardcoded inline
+- Rimosso `backdrop-filter: blur()`
+- CSS Grid sostituito con Flexbox + prefissi `-webkit-`
+- `gap` sostituito con `margin` sui figli
+- `inset: 0` sostituito con `top:0; right:0; bottom:0; left:0`
+- Aggiunti prefissi `-webkit-` per: flex, transform, transition, animation, box-sizing, box-shadow
+- Aggiunti `@-webkit-keyframes` per tutte le animazioni
+- Rimosso `font-variant-numeric: tabular-nums`
+
+#### File riscritti / Rewritten files
+1. `pyarchinit_remote_storage_animation.html`
+2. `pyarchinit_media_manager_animation.html`
+3. `pyarchinit_installation_animation.html`
+4. `harris_matrix_animation.html`
+5. `pyarchinit_concurrency_animation.html`
+6. `pyarchinit_image_classification_animation.html`
+7. `pyarchinit_thesaurus_animation.html`
+8. `pyarchinit_timemanager_animation.html`
+9. `pyarchinit_image_export_animation.html`
+10. `pyarchinit_create_map_animation.html`
+11. `pyarchinit_pottery_tools_animation.html`
+12. `stratigraph_sync_animation.html`
+
+**Comportamento invariato / Behavior unchanged**: tutte le animazioni mantengono gli stessi scenari, controlli (Auto/Manual, speed, loop, pause, prev/next, restart, keyboard shortcuts), sidebar, event log, e animazioni canvas.
+
+---
+
 ## [5.0.1-alpha] - 2026-02-08
 
 ### Fase 1 - Fondamenta
@@ -208,6 +258,68 @@ Splash screen completamente riscritto con design futuristico "deep space", sempr
 - Aggiornato **Project Structure** con albero `modules/stratigraph/` (8 file)
 - Aggiunta sezione **Acknowledgments > StratiGraph - Horizon Europe** con partner (CNR-ISPC, 3DR, ARC) e timeline
 - Link a `STRATIGRAPH_INTEGRATION.md` per dettagli tecnici
+
+---
+
+### Organizzazione Progetto e Tooling / Project Organization & Tooling
+
+#### Commit `284835e2` — 2026-02-10: Riorganizzazione animazioni, pulizia git, agenti autonomi / Reorganize animations, git cleanup, autonomous agents
+
+##### Riorganizzazione file animazioni / Animation files reorganization
+- IT: Spostati 12 file HTML5 animazione da `docs/` a `docs/animations/` per una struttura directory piu ordinata e manutenibile.
+- EN: Moved 12 HTML5 animation files from `docs/` root to `docs/animations/` for a cleaner, more maintainable directory structure.
+
+##### Aggiornamento riferimenti tutorial / Tutorial references update
+- IT: Aggiornati 84 riferimenti in 77 file tutorial markdown in tutte le 7 lingue (it, en, de, es, fr, ar, ca) per puntare al nuovo percorso `../animations/` invece di `../../`.
+- EN: Updated 84 references across 77 tutorial markdown files in all 7 languages (it, en, de, es, fr, ar, ca) to point to the new path `../animations/` instead of `../../`.
+
+##### Aggiornamento `.gitignore` / `.gitignore` update
+- IT: Aggiornato `.gitignore` per tracciare la directory `docs/animations/` e tutti e 4 i file di configurazione agenti in `.claude/agents/`.
+- EN: Updated `.gitignore` to track the `docs/animations/` directory and all 4 agent config files in `.claude/agents/`.
+
+##### Agenti autonomi in `CLAUDE.md` / Autonomous agents in `CLAUDE.md`
+- IT: Aggiunta sezione "Autonomous Agents" a `CLAUDE.md` con istruzioni per l'invocazione automatica degli agenti `stratigraph-changelog` e `tutorial-updater` dopo ogni modifica al codice o all'interfaccia utente.
+- EN: Added "Autonomous Agents" section to `CLAUDE.md` with instructions for automatic invocation of `stratigraph-changelog` and `tutorial-updater` agents after every code or UI change.
+
+##### Aggiornamento configurazione agenti / Agent configuration update
+- IT: Aggiornati `.claude/agents/stratigraph-changelog.md` (invocazione proattiva, voci bilingui IT+EN) e `.claude/agents/tutorial-updater.md` (invocazione proattiva).
+- EN: Updated `.claude/agents/stratigraph-changelog.md` (proactive invocation, bilingual IT+EN entries) and `.claude/agents/tutorial-updater.md` (proactive invocation).
+
+##### Pulizia cronologia git / Git history cleanup
+- IT: Rimossi tutti i 108 riferimenti `Co-Authored-By: Claude` dalla cronologia git su tutti i branch tramite `git filter-repo` e force push. Tutti i commit risultano ora esclusivamente a nome di Enzo Cocca.
+- EN: Removed all 108 `Co-Authored-By: Claude` lines from git history across all branches via `git filter-repo` and force push. All commits now appear solely under Enzo Cocca's authorship.
+
+#### File modificati / Files modified
+- `docs/animations/` — nuova directory con 12 file HTML5 animazione
+- `docs/tutorials/{it,en,de,es,fr,ar,ca}/*.md` — 77 file, 84 riferimenti aggiornati
+- `.gitignore` — regole per `docs/animations/` e `.claude/agents/`
+- `CLAUDE.md` — sezione Autonomous Agents
+- `.claude/agents/stratigraph-changelog.md` — configurazione aggiornata
+- `.claude/agents/tutorial-updater.md` — configurazione aggiornata
+
+---
+
+### Compatibilita QtWebKit / QtWebKit Compatibility
+
+#### `docs/animations/pyarchinit_remote_storage_animation.html` — RISCRITTO per QtWebKit / REWRITTEN for QtWebKit
+
+##### Description / Descrizione
+- 🇮🇹 **IT**: Riscritta completamente l'animazione HTML5 "Remote Storage" per compatibilita con il vecchio motore QtWebKit (circa 2015) usato dal QWebView di QGIS. Tutte le funzionalita ES6+ sono state sostituite con equivalenti ES5: `const`/`let` → `var`, arrow functions → `function()`, template literals → concatenazione stringhe, `padStart` → funzione manuale `padTwo()`, `classList.toggle(name, force)` → if/else con add/remove via regex, `forEach` su NodeList → `Array.prototype.slice.call()`, `ctx.ellipse()` → funzione `drawEllipse()` con `arc()` + `scale()`. Nel CSS: rimosso `:root` e `var()` con colori hardcoded, rimosso `backdrop-filter`, sostituito CSS Grid con Flexbox + prefissi `-webkit-`, aggiunti `@-webkit-keyframes`, aggiunti prefissi `-webkit-flex`, `-webkit-box-flex`, `-webkit-transform`, etc. Il layout, le animazioni Canvas, l'interattivita e il comportamento visivo sono identici all'originale.
+- 🇬🇧 **EN**: Completely rewrote the "Remote Storage" HTML5 animation for compatibility with the old QtWebKit engine (circa 2015) used by QGIS QWebView. All ES6+ features replaced with ES5 equivalents: `const`/`let` → `var`, arrow functions → `function()`, template literals → string concatenation, `padStart` → manual `padTwo()` function, `classList.toggle(name, force)` → if/else with add/remove via regex, `forEach` on NodeList → `Array.prototype.slice.call()`, `ctx.ellipse()` → `drawEllipse()` function using `arc()` + `scale()`. In CSS: removed `:root` and `var()` with hardcoded colors, removed `backdrop-filter`, replaced CSS Grid with Flexbox + `-webkit-` prefixes, added `@-webkit-keyframes`, added `-webkit-flex`, `-webkit-box-flex`, `-webkit-transform` prefixes, etc. Layout, Canvas animations, interactivity and visual behavior are identical to the original.
+
+##### File modificati / Files modified
+- `docs/animations/pyarchinit_remote_storage_animation.html` — riscrittura completa ES5/QtWebKit
+
+---
+
+#### `docs/animations/pyarchinit_media_manager_animation.html` — RISCRITTO per QtWebKit / REWRITTEN for QtWebKit
+
+##### Description / Descrizione
+- IT: Riscritta completamente l'animazione HTML5 "Media Manager" per compatibilita con il vecchio motore QtWebKit (circa 2015) usato dal QWebView di QGIS. Tutte le funzionalita ES6+ sono state sostituite con equivalenti ES5: `const`/`let` -> `var`, arrow functions -> `function(){}`, template literals -> concatenazione stringhe, `padStart` -> funzione manuale `padTwo()`, `classList.toggle(name, force)` -> if/else con add/remove via regex su `className`, `forEach` su NodeList -> `Array.prototype.slice.call()` + for-loop, `dataset.xxx` -> `getAttribute('data-xxx')`, `String.includes()` -> `indexOf() !== -1`. Nel CSS: rimosso `:root` e `var(--name)` con colori hardcoded inline, rimosso `backdrop-filter`, sostituito CSS Grid con Flexbox + prefissi `-webkit-`, `gap` sostituito con `margin` sui figli, aggiunti `@-webkit-keyframes`, aggiunti prefissi `-webkit-flex`, `-webkit-transform`, `-webkit-transition`, `-webkit-animation`, `-webkit-align-items`, `-webkit-justify-content`, `-webkit-flex-direction`, `-webkit-flex-wrap`, `-webkit-flex-shrink`, `-webkit-order`. Il layout (header, main canvas, sidebar, log), le animazioni Canvas (media gallery, association diagram, entity nodes, dashed arrows), l'interattivita (auto/manual mode, speed, play/pause, loop, prev/next, keyboard shortcuts, scenario select) e il comportamento visivo sono identici all'originale.
+- EN: Completely rewrote the "Media Manager" HTML5 animation for compatibility with the old QtWebKit engine (circa 2015) used by QGIS QWebView. All ES6+ features replaced with ES5 equivalents: `const`/`let` -> `var`, arrow functions -> `function(){}`, template literals -> string concatenation, `padStart` -> manual `padTwo()` function, `classList.toggle(name, force)` -> if/else with add/remove via regex on `className`, `forEach` on NodeList -> `Array.prototype.slice.call()` + for-loop, `dataset.xxx` -> `getAttribute('data-xxx')`, `String.includes()` -> `indexOf() !== -1`. In CSS: removed `:root` and `var(--name)` with hardcoded inline colors, removed `backdrop-filter`, replaced CSS Grid with Flexbox + `-webkit-` prefixes, `gap` replaced with `margin` on children, added `@-webkit-keyframes`, added `-webkit-flex`, `-webkit-transform`, `-webkit-transition`, `-webkit-animation`, `-webkit-align-items`, `-webkit-justify-content`, `-webkit-flex-direction`, `-webkit-flex-wrap`, `-webkit-flex-shrink`, `-webkit-order` prefixes. Layout (header, main canvas, sidebar, log), Canvas animations (media gallery, association diagram, entity nodes, dashed arrows), interactivity (auto/manual mode, speed, play/pause, loop, prev/next, keyboard shortcuts, scenario select) and visual behavior are identical to the original.
+
+##### File modificati / Files modified
+- `docs/animations/pyarchinit_media_manager_animation.html` — riscrittura completa ES5/QtWebKit
 
 ---
 

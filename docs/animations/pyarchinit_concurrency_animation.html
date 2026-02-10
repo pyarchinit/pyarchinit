@@ -6,72 +6,76 @@
 <title>PyArchInit — PostgreSQL Concurrency &amp; User Management</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;
-  --text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--accent2:#79c0ff;
-  --green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;
-  --teal:#2ea043;--pink:#f778ba;
-  --radius:8px;
-}
 html{font-size:14px}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
 
-/* Layout */
-.app{display:grid;grid-template-columns:1fr 260px;grid-template-rows:auto 1fr auto;height:100vh}
-.header{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.header h1{font-size:1.25rem;font-weight:600;color:var(--accent)}
-.header h1 span{color:var(--muted);font-weight:400}
-.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
-.sidebar{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:16px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.log-area{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:12px 24px;max-height:170px;overflow-y:auto}
+/* Layout — flexbox instead of grid */
+.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.header{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.header > *{margin:5px 0}
+.header h1{font-size:1.25rem;font-weight:600;color:#58a6ff}
+.header h1 span{color:#8b949e;font-weight:400}
+.main{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0}
+.sidebar{width:260px;background:#161b22;border-left:1px solid #30363d;padding:16px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.sidebar > *{margin-bottom:14px}
+.sidebar > *:last-child{margin-bottom:0}
+.log-area{width:100%;-webkit-order:4;order:4;background:#161b22;border-top:1px solid #30363d;padding:12px 24px;max-height:170px;overflow-y:auto}
 
 /* Controls */
-.controls{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.controls button,.controls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:6px 12px;border-radius:var(--radius);cursor:pointer;font-size:.85rem;transition:all .2s}
-.controls button:hover{border-color:var(--accent);background:rgba(88,166,255,.1)}
-.controls button.active{background:var(--accent);color:#000;border-color:var(--accent)}
+.controls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.controls > *{margin:3px}
+.controls button,.controls select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:.85rem;-webkit-transition:all .2s;transition:all .2s}
+.controls button:hover{border-color:#58a6ff;background:rgba(88,166,255,.1)}
+.controls button.active{background:#58a6ff;color:#000;border-color:#58a6ff}
 .controls button:disabled{opacity:.35;cursor:default}
-.btn-group{display:flex;gap:1px}
+.btn-group{display:-webkit-flex;display:flex}
+.btn-group > *{margin:0}
 .btn-group button{border-radius:0}
-.btn-group button:first-child{border-radius:var(--radius) 0 0 var(--radius)}
-.btn-group button:last-child{border-radius:0 var(--radius) var(--radius) 0}
+.btn-group button:first-child{border-radius:8px 0 0 8px}
+.btn-group button:last-child{border-radius:0 8px 8px 0}
 
 /* Scene */
-.scene-wrap{flex:1;position:relative;overflow:hidden;min-height:200px}
+.scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}
 .scene-wrap canvas{width:100%;height:100%;display:block}
-.scene-desc{position:absolute;top:12px;left:12px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;transition:opacity .3s}
-.scene-desc strong{color:var(--accent)}
-.step-dots{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
-.step-dots .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);transition:all .3s}
-.step-dots .dot.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px var(--accent)}
-.step-dots .dot.done{background:var(--green);border-color:var(--green)}
+.scene-desc{position:absolute;top:12px;left:12px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;-webkit-transition:opacity .3s;transition:opacity .3s}
+.scene-desc strong{color:#58a6ff}
+.step-dots{position:absolute;bottom:12px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-flex;display:flex;z-index:5}
+.step-dots .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);-webkit-transition:all .3s;transition:all .3s;margin:0 2px}
+.step-dots .dot.active{background:#58a6ff;border-color:#58a6ff;-webkit-box-shadow:0 0 8px #58a6ff;box-shadow:0 0 8px #58a6ff}
+.step-dots .dot.done{background:#3fb950;border-color:#3fb950}
 
 /* Sidebar widgets */
-.widget{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.08)}
-.widget h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
-.stat-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem}
+.widget{background:#21262d;border-radius:8px;padding:12px;border:1px solid rgba(88,166,255,.08)}
+.widget h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:8px}
+.stat-row{display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.85rem}
 .stat-row:last-child{border:none}
-.stat-label{color:var(--muted)}
-.stat-val{font-weight:600;font-variant-numeric:tabular-nums}
+.stat-label{color:#8b949e}
+.stat-val{font-weight:600}
 
-.role-list{display:flex;flex-direction:column;gap:4px}
-.role-item{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:4px;font-size:.8rem;transition:all .3s}
-.role-item.highlight{background:rgba(88,166,255,.12);border:1px solid var(--accent)}
-.role-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.role-list{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.role-list > *{margin-bottom:4px}
+.role-list > *:last-child{margin-bottom:0}
+.role-item{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;padding:4px 8px;border-radius:4px;font-size:.8rem;-webkit-transition:all .3s;transition:all .3s}
+.role-item.highlight{background:rgba(88,166,255,.12);border:1px solid #58a6ff}
+.role-dot{width:8px;height:8px;border-radius:50%;-webkit-flex-shrink:0;flex-shrink:0;margin-right:8px}
 
 .lock-display{text-align:center;padding:6px 0}
-.lock-icon{font-size:2rem;transition:all .4s}
-.lock-label{font-size:.8rem;color:var(--muted);margin-top:4px}
-.lock-version{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.lock-icon{font-size:2rem;-webkit-transition:all .4s;transition:all .4s}
+.lock-label{font-size:.8rem;color:#8b949e;margin-top:4px}
+.lock-version{font-size:1.4rem;font-weight:700;margin-top:2px}
 
 /* Log */
-.log-area h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
-.log-entries{display:flex;flex-direction:column;gap:3px}
-.log-entry{display:flex;gap:8px;font-size:.82rem;padding:3px 6px;border-radius:4px;animation:fadeIn .3s}
-@keyframes fadeIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
-.log-time{color:var(--muted);font-variant-numeric:tabular-nums;min-width:44px;flex-shrink:0}
-.log-icon{flex-shrink:0;width:16px;text-align:center}
-.log-text{flex:1}
+.log-area h3{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:6px}
+.log-entries{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.log-entries > *{margin-bottom:3px}
+.log-entry{display:-webkit-flex;display:flex;font-size:.82rem;padding:3px 6px;border-radius:4px;-webkit-animation:fadeIn .3s;animation:fadeIn .3s}
+.log-entry > *{margin-right:8px}
+.log-entry > *:last-child{margin-right:0}
+@-webkit-keyframes fadeIn{from{opacity:0;-webkit-transform:translateY(-3px)}to{opacity:1;-webkit-transform:none}}
+@keyframes fadeIn{from{opacity:0;-webkit-transform:translateY(-3px);transform:translateY(-3px)}to{opacity:1;-webkit-transform:none;transform:none}}
+.log-time{color:#8b949e;min-width:44px;-webkit-flex-shrink:0;flex-shrink:0}
+.log-icon{-webkit-flex-shrink:0;flex-shrink:0;width:16px;text-align:center}
+.log-text{-webkit-flex:1;flex:1}
 .log-entry.info{background:rgba(88,166,255,.04)}
 .log-entry.success{background:rgba(63,185,80,.06)}
 .log-entry.warn{background:rgba(210,153,34,.06)}
@@ -80,14 +84,15 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 
 /* Responsive */
 @media(max-width:900px){
-  .app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}
-  .sidebar{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}
-  .widget{flex:1;min-width:170px}
+  .app{-webkit-flex-direction:column;flex-direction:column}
+  .sidebar{width:100%;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap;border-left:none;border-top:1px solid #30363d}
+  .widget{-webkit-flex:1;flex:1;min-width:170px}
 }
-@keyframes glow{0%,100%{filter:drop-shadow(0 0 3px currentColor)}50%{filter:drop-shadow(0 0 10px currentColor)}}
+@-webkit-keyframes glow{0%,100%{-webkit-filter:drop-shadow(0 0 3px currentColor)}50%{-webkit-filter:drop-shadow(0 0 10px currentColor)}}
+@keyframes glow{0%,100%{-webkit-filter:drop-shadow(0 0 3px currentColor);filter:drop-shadow(0 0 3px currentColor)}50%{-webkit-filter:drop-shadow(0 0 10px currentColor);filter:drop-shadow(0 0 10px currentColor)}}
 ::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+::-webkit-scrollbar-track{background:#0d1117}
+::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
 </style>
 </head>
 <body>
@@ -135,18 +140,18 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="lock-display">
         <div class="lock-icon" id="lockIcon">&#128275;</div>
         <div class="lock-label" id="lockLabel">No active lock</div>
-        <div class="lock-version" id="lockVer" style="color:var(--accent)">v1</div>
+        <div class="lock-version" id="lockVer" style="color:#58a6ff">v1</div>
       </div>
     </div>
     <div class="widget">
       <h3>Active Users</h3>
       <div class="role-list" id="roleList">
-        <div class="role-item" data-role="admin"><span class="role-dot" style="background:var(--red)"></span>Admin (postgres)</div>
-        <div class="role-item" data-role="responsabile"><span class="role-dot" style="background:var(--orange)"></span>Responsabile</div>
-        <div class="role-item" data-role="archeologo"><span class="role-dot" style="background:var(--accent)"></span>Archeologo A</div>
-        <div class="role-item" data-role="archeologo2"><span class="role-dot" style="background:var(--cyan)"></span>Archeologo B</div>
-        <div class="role-item" data-role="studente"><span class="role-dot" style="background:var(--purple)"></span>Studente</div>
-        <div class="role-item" data-role="guest"><span class="role-dot" style="background:var(--muted)"></span>Guest (read-only)</div>
+        <div class="role-item" data-role="admin"><span class="role-dot" style="background:#f85149"></span>Admin (postgres)</div>
+        <div class="role-item" data-role="responsabile"><span class="role-dot" style="background:#d29922"></span>Responsabile</div>
+        <div class="role-item" data-role="archeologo"><span class="role-dot" style="background:#58a6ff"></span>Archeologo A</div>
+        <div class="role-item" data-role="archeologo2"><span class="role-dot" style="background:#39d353"></span>Archeologo B</div>
+        <div class="role-item" data-role="studente"><span class="role-dot" style="background:#bc8cff"></span>Studente</div>
+        <div class="role-item" data-role="guest"><span class="role-dot" style="background:#8b949e"></span>Guest (read-only)</div>
       </div>
     </div>
     <div class="widget">
@@ -154,14 +159,14 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="stat-row"><span class="stat-label">Pool Size</span><span class="stat-val" id="poolSize">5</span></div>
       <div class="stat-row"><span class="stat-label">Active Conns</span><span class="stat-val" id="poolActive">0</span></div>
       <div class="stat-row"><span class="stat-label">Overflow</span><span class="stat-val" id="poolOverflow">0 / 10</span></div>
-      <div class="stat-row"><span class="stat-label">Pre-Ping</span><span class="stat-val" id="poolPing" style="color:var(--green)">ON</span></div>
+      <div class="stat-row"><span class="stat-label">Pre-Ping</span><span class="stat-val" id="poolPing" style="color:#3fb950">ON</span></div>
       <div class="stat-row"><span class="stat-label">Recycle</span><span class="stat-val" id="poolRecycle">3600s</span></div>
     </div>
     <div class="widget">
       <h3>Session</h3>
-      <div class="stat-row"><span class="stat-label">autoflush</span><span class="stat-val" style="color:var(--red)">OFF</span></div>
-      <div class="stat-row"><span class="stat-label">autocommit</span><span class="stat-val" style="color:var(--red)">OFF</span></div>
-      <div class="stat-row"><span class="stat-label">State</span><span class="stat-val" id="sessState" style="color:var(--green)">IDLE</span></div>
+      <div class="stat-row"><span class="stat-label">autoflush</span><span class="stat-val" style="color:#f85149">OFF</span></div>
+      <div class="stat-row"><span class="stat-label">autocommit</span><span class="stat-val" style="color:#f85149">OFF</span></div>
+      <div class="stat-row"><span class="stat-label">State</span><span class="stat-val" id="sessState" style="color:#3fb950">IDLE</span></div>
     </div>
   </div>
 
@@ -173,37 +178,62 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 
 <script>
 (function(){
-'use strict';
 
-const $=id=>document.getElementById(id);
-const C=$('C'),ctx=C.getContext('2d');
+/* ── Helpers ── */
+function $(id){ return document.getElementById(id); }
+function padTwo(n){
+  var s = String(n);
+  while(s.length < 2) s = '0' + s;
+  return s;
+}
 
-// ── State ──
-const A={
-  scenario:0,mode:'auto',speed:1,playing:true,step:0,steps:[],
-  timer:null,looping:false,version:1,lockUser:null,
-  poolActive:0,sessState:'IDLE',highlightRole:null,logN:0
+var C = $('C'), ctx = C.getContext('2d');
+
+/* ── Custom ellipse for old WebKit ── */
+function drawEllipse(cx, cy, rx, ry, rotation, startAngle, endAngle, anticlockwise){
+  ctx.save();
+  ctx.translate(cx, cy);
+  if(rotation) ctx.rotate(rotation);
+  ctx.scale(1, ry / rx);
+  ctx.beginPath();
+  ctx.arc(0, 0, rx, startAngle, endAngle, !!anticlockwise);
+  ctx.restore();
+}
+
+/* ── State ── */
+var A = {
+  scenario: 0, mode: 'auto', speed: 1, playing: true, step: 0, steps: [],
+  timer: null, looping: false, version: 1, lockUser: null,
+  poolActive: 0, sessState: 'IDLE', highlightRole: null, logN: 0
 };
 
-// ── DOM ──
-const sel=$('scenarioSelect'),btnAuto=$('btnAuto'),btnManual=$('btnManual'),
-  btnPP=$('btnPP'),btnPrev=$('btnPrev'),btnNext=$('btnNext'),
-  btnRestart=$('btnRestart'),btnLoop=$('btnLoop'),btnStop=$('btnStop'),
-  logE=$('logE'),desc=$('desc'),dots=$('dots'),
-  spdBtns=document.querySelectorAll('.spd');
+/* ── DOM ── */
+var sel = $('scenarioSelect'),
+    btnAuto = $('btnAuto'),
+    btnManual = $('btnManual'),
+    btnPP = $('btnPP'),
+    btnPrev = $('btnPrev'),
+    btnNext = $('btnNext'),
+    btnRestart = $('btnRestart'),
+    btnLoop = $('btnLoop'),
+    btnStop = $('btnStop'),
+    logE = $('logE'),
+    desc = $('desc'),
+    dots = $('dots'),
+    spdBtns = Array.prototype.slice.call(document.querySelectorAll('.spd'));
 
-// ── Scenarios ──
-const ROLE_COLORS={admin:'#f85149',responsabile:'#d29922',archeologo:'#58a6ff',archeologo2:'#39d353',studente:'#bc8cff',guest:'#8b949e'};
-const ROLE_PERMS={
-  admin:{insert:true,update:true,delete:true,view:true},
-  responsabile:{insert:true,update:true,delete:false,view:true},
-  archeologo:{insert:true,update:true,delete:false,view:true},
-  studente:{insert:true,update:false,delete:false,view:true},
-  guest:{insert:false,update:false,delete:false,view:true}
+/* ── Scenarios ── */
+var ROLE_COLORS = {admin:'#f85149',responsabile:'#d29922',archeologo:'#58a6ff',archeologo2:'#39d353',studente:'#bc8cff',guest:'#8b949e'};
+var ROLE_PERMS = {
+  admin:{insert:true,update:true,'delete':true,view:true},
+  responsabile:{insert:true,update:true,'delete':false,view:true},
+  archeologo:{insert:true,update:true,'delete':false,view:true},
+  studente:{insert:true,update:false,'delete':false,view:true},
+  guest:{insert:false,update:false,'delete':false,view:true}
 };
 
-const SC=[
-  // 0: Optimistic Locking
+var SC = [
+  /* 0: Optimistic Locking */
   {title:'Optimistic Locking Flow',
    desc:'<strong>Optimistic Locking:</strong> PyArchInit uses a <code>version_number</code> column for conflict detection. No database-level locks — writes succeed if the version matches.',
    steps:[
@@ -214,26 +244,26 @@ const SC=[
     {log:'Version match! UPDATE us_table SET ... version_number = 2 WHERE id=101 AND version_number=1.',type:'success',ver:2,d:'The UPDATE includes a WHERE version_number=1 clause. If it matches, the write succeeds and version increments to 2.'},
     {log:'COMMIT. Soft lock released. editing_by = NULL.',type:'success',lock:null,sess:'IDLE',pool:1,d:'Transaction committed. The soft lock fields are cleared. The record is now at version 2.'},
     {log:'PostgreSQL trigger fires: last_modified_timestamp = NOW(), last_modified_by = "archeologo_a".',type:'info',d:'A BEFORE UPDATE trigger automatically sets audit columns on every write.'},
-    {log:'Record saved successfully. Ready for next edit.',type:'success',d:'The optimistic locking cycle is complete. No other user was blocked during this process.'},
+    {log:'Record saved successfully. Ready for next edit.',type:'success',d:'The optimistic locking cycle is complete. No other user was blocked during this process.'}
   ]},
-  // 1: Version Conflict
+  /* 1: Version Conflict */
   {title:'Version Conflict & Resolution',
    desc:'<strong>Conflict Resolution:</strong> Two archaeologists edit the same record. The second save detects a version mismatch and presents a resolution dialog.',
    steps:[
     {log:'Archeologo A opens US 205. version_number = 3.',type:'info',lock:null,ver:3,role:'archeologo',pool:1,sess:'ACTIVE',d:'User A loads the record. Current version is 3.'},
     {log:'Soft lock: editing_by = "archeologo_a".',type:'lock',lock:'archeologo',d:'Soft lock placed by User A.'},
     {log:'Archeologo B also opens US 205. version_number = 3. Sees warning: "Record being edited by archeologo_a".',type:'warn',role:'archeologo2',pool:2,d:'User B opens the same record. The soft lock generates a WARNING but does NOT prevent opening — this is optimistic locking.'},
-    {log:'Archeologo A saves. version_number 3 → 4. COMMIT OK.',type:'success',ver:4,lock:null,sess:'IDLE',pool:1,d:'User A saves successfully. Version increments to 4. User B still has version 3 in their form.'},
+    {log:'Archeologo A saves. version_number 3 \u2192 4. COMMIT OK.',type:'success',ver:4,lock:null,sess:'IDLE',pool:1,d:'User A saves successfully. Version increments to 4. User B still has version 3 in their form.'},
     {log:'Archeologo B tries to save. Checking version: form=3, DB=4. MISMATCH!',type:'error',role:'archeologo2',sess:'TRANSACTION',d:'User B attempts to save. The system detects version_number in DB (4) differs from the form (3).'},
     {log:'CONFLICT DIALOG shown: "Record modified by archeologo_a at 14:32".',type:'warn',d:'A dialog appears with three options: Reload from DB, Overwrite, or Cancel.'},
-    {log:'Option 1: "Ricarica dal Database" — discards local changes, reloads version 4.',type:'info',d:'The safest option: reload the latest version and re-apply changes manually.'},
-    {log:'Option 2: "Sovrascrivi" — forces save with version_number = 5. User A\'s changes overwritten.',type:'warn',d:'The aggressive option: overwrites the DB version. Use with caution.'},
-    {log:'Option 3: "Annulla" — cancels save, keeps local edits for manual merge.',type:'info',sess:'IDLE',pool:1,d:'The cautious option: cancel and review both versions before deciding.'},
-    {log:'Archeologo B chooses "Ricarica". Form refreshed with version 4 data.',type:'success',ver:4,d:'User B reloads and can now re-apply their specific changes on top of version 4.'},
+    {log:'Option 1: "Ricarica dal Database" \u2014 discards local changes, reloads version 4.',type:'info',d:'The safest option: reload the latest version and re-apply changes manually.'},
+    {log:'Option 2: "Sovrascrivi" \u2014 forces save with version_number = 5. User A\'s changes overwritten.',type:'warn',d:'The aggressive option: overwrites the DB version. Use with caution.'},
+    {log:'Option 3: "Annulla" \u2014 cancels save, keeps local edits for manual merge.',type:'info',sess:'IDLE',pool:1,d:'The cautious option: cancel and review both versions before deciding.'},
+    {log:'Archeologo B chooses "Ricarica". Form refreshed with version 4 data.',type:'success',ver:4,d:'User B reloads and can now re-apply their specific changes on top of version 4.'}
   ]},
-  // 2: User Roles
+  /* 2: User Roles */
   {title:'User Roles & Permissions',
-   desc:'<strong>Role-Based Access:</strong> 5 roles (admin → guest) with table-level PostgreSQL GRANT/REVOKE synchronization.',
+   desc:'<strong>Role-Based Access:</strong> 5 roles (admin \u2192 guest) with table-level PostgreSQL GRANT/REVOKE synchronization.',
    steps:[
     {log:'PyArchInit role hierarchy: admin > responsabile > archeologo > studente > guest.',type:'info',role:'admin',d:'The system defines 5 roles with decreasing privileges. Each maps to PostgreSQL database roles.'},
     {log:'ADMIN (postgres): Full CRUD on all 41+ tables. Can manage users, drop tables, configure system.',type:'info',role:'admin',d:'Admin users are identified by the "postgres" database user or role=admin in pyarchinit_users.'},
@@ -244,9 +274,9 @@ const SC=[
     {log:'Permission sync: GRANT SELECT,INSERT,UPDATE ON us_table TO archeologo_role;',type:'lock',d:'PyArchInit syncs its role definitions to PostgreSQL using GRANT/REVOKE statements on each table.'},
     {log:'Sequence grants: GRANT USAGE ON ALL SEQUENCES for INSERT/UPDATE operations.',type:'info',d:'PostgreSQL requires explicit sequence grants for auto-increment columns. 30+ geometric table sequences managed.'},
     {log:'Permission check: has_table_privilege(user, table, privilege) before each operation.',type:'info',d:'Every CRUD operation calls PostgreSQL has_table_privilege() first. SQLite skips this (no native role system).'},
-    {log:'Access logged: pyarchinit_access_log records user, action, table, timestamp, success/failure.',type:'success',d:'Full audit trail of all database operations for compliance and debugging.'},
+    {log:'Access logged: pyarchinit_access_log records user, action, table, timestamp, success/failure.',type:'success',d:'Full audit trail of all database operations for compliance and debugging.'}
   ]},
-  // 3: Connection Pooling
+  /* 3: Connection Pooling */
   {title:'Connection Pooling & Sessions',
    desc:'<strong>Connection Pool:</strong> SQLAlchemy manages PostgreSQL connections with adaptive pooling — different settings for local vs remote databases.',
    steps:[
@@ -260,401 +290,633 @@ const SC=[
     {log:'Query executes. Connection checked out from pool. Pool active: 1/5.',type:'info',pool:1,d:'The connection pool loans a connection for this session.'},
     {log:'Another user connects. Pool active: 2/5. Still within pool_size.',type:'info',pool:2,d:'Multiple concurrent users each get their own pooled connection.'},
     {log:'Session closed. Connection returned to pool. Pool active: 1/5.',type:'success',pool:1,sess:'IDLE',d:'When the session closes, the connection returns to the pool for reuse — not destroyed.'},
-    {log:'DbConnectionSingleton: one engine per connection string. engine.dispose() for full cleanup.',type:'info',pool:0,d:'The singleton pattern prevents creating duplicate engines for the same database.'},
+    {log:'DbConnectionSingleton: one engine per connection string. engine.dispose() for full cleanup.',type:'info',pool:0,d:'The singleton pattern prevents creating duplicate engines for the same database.'}
   ]},
-  // 4: Monitoring
+  /* 4: Monitoring */
   {title:'Real-Time Monitoring',
    desc:'<strong>Monitoring:</strong> Active editing sessions, access logs, performance tracking, and connection diagnostics — all visible in the admin panel.',
    steps:[
-    {log:'Admin opens User Management → Monitor tab. Auto-refresh every 10 seconds.',type:'info',role:'admin',d:'The monitoring view queries active_editing_sessions and the access log in real time.'},
+    {log:'Admin opens User Management \u2192 Monitor tab. Auto-refresh every 10 seconds.',type:'info',role:'admin',d:'The monitoring view queries active_editing_sessions and the access log in real time.'},
     {log:'Active sessions query: SELECT * FROM us_table WHERE editing_by IS NOT NULL AND editing_since > NOW() - 30min.',type:'info',d:'Shows all records currently being edited, with a 30-minute staleness window.'},
-    {log:'Session status indicators: 🟢 < 5min (active), 🟡 5-30min (in progress), 🔴 > 30min (stalled).',type:'info',d:'Color-coded time indicators help admins identify abandoned edit sessions.'},
-    {log:'Archeologo A editing US 101 — 🟢 active (2 min). Archeologo B editing US 205 — 🟡 in progress (18 min).',type:'info',role:'archeologo',pool:2,d:'Real-time view of who is editing what, for how long.'},
+    {log:'Session status indicators: green < 5min (active), yellow 5-30min (in progress), red > 30min (stalled).',type:'info',d:'Color-coded time indicators help admins identify abandoned edit sessions.'},
+    {log:'Archeologo A editing US 101 \u2014 active (2 min). Archeologo B editing US 205 \u2014 in progress (18 min).',type:'info',role:'archeologo',pool:2,d:'Real-time view of who is editing what, for how long.'},
     {log:'Access log: last 24 hours of operations. Filterable by user, table, operation type.',type:'info',d:'pyarchinit_access_log records: user_id, username, action, table_accessed, operation, record_id, timestamp, success.'},
-    {log:'Connection debug log: ~/pyarchinit_conn_debug.log — timestamps, masked passwords, stack traces.',type:'warn',d:'PyArchInitConnLogger writes detailed connection diagnostics for troubleshooting.'},
+    {log:'Connection debug log: ~/pyarchinit_conn_debug.log \u2014 timestamps, masked passwords, stack traces.',type:'warn',d:'PyArchInitConnLogger writes detailed connection diagnostics for troubleshooting.'},
     {log:'Performance logging (_PERF_LOG_ENABLED): operation timing with elapsed seconds per DB call.',type:'info',d:'Optional perf logging tracks how long each database operation takes.'},
     {log:'Admin can force-release stale locks: UPDATE editing_by=NULL WHERE editing_since < NOW() - 30min.',type:'lock',d:'Admins can clear abandoned soft locks directly from the monitoring panel.'},
-    {log:'Connection reset utility: view active singletons, dispose engines, force reconnect.',type:'info',sess:'IDLE',pool:0,d:'The connection_reset utility helps recover from connection pool exhaustion or stale engines.'},
+    {log:'Connection reset utility: view active singletons, dispose engines, force reconnect.',type:'info',sess:'IDLE',pool:0,d:'The connection_reset utility helps recover from connection pool exhaustion or stale engines.'}
   ]}
 ];
 
-// ── UI Updates ──
-function updLock(user,ver){
-  A.lockUser=user;
-  if(ver!==undefined)A.version=ver;
-  $('lockIcon').innerHTML=user?'&#128274;':'&#128275;';
-  $('lockIcon').style.color=user?ROLE_COLORS[user]||'var(--orange)':'var(--muted)';
-  $('lockLabel').textContent=user?'Locked by '+user:'No active lock';
-  $('lockLabel').style.color=user?ROLE_COLORS[user]||'var(--orange)':'var(--muted)';
-  $('lockVer').textContent='v'+A.version;
-}
-function updPool(n){
-  if(n!==undefined)A.poolActive=n;
-  $('poolActive').textContent=A.poolActive;
-  $('poolActive').style.color=A.poolActive>4?'var(--orange)':'var(--green)';
-}
-function updSess(s){
-  A.sessState=s||'IDLE';
-  $('sessState').textContent=A.sessState;
-  $('sessState').style.color=s==='TRANSACTION'?'var(--orange)':s==='ACTIVE'?'var(--green)':'var(--muted)';
-}
-function updRole(role){
-  A.highlightRole=role;
-  document.querySelectorAll('.role-item').forEach(el=>{
-    el.classList.toggle('highlight',el.dataset.role===role);
-  });
-}
-function addLog(text,type){
-  A.logN++;
-  const t=new Date(),ts=String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0');
-  const icons={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;',lock:'&#128274;'};
-  const colors={info:'var(--accent)',success:'var(--green)',warn:'var(--orange)',error:'var(--red)',lock:'var(--purple)'};
-  const d=document.createElement('div');
-  d.className='log-entry '+type;
-  d.innerHTML=`<span class="log-time">${ts}</span><span class="log-icon" style="color:${colors[type]}">${icons[type]}</span><span class="log-text">${text}</span>`;
-  logE.prepend(d);
-  while(logE.children.length>30)logE.removeChild(logE.lastChild);
-}
-function updDots(){
-  dots.innerHTML='';
-  A.steps.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='dot'+(i===A.step?' active':i<A.step?' done':'');
-    dots.appendChild(d);
-  });
-}
-function updDesc(html){
-  desc.innerHTML=html||'';
-  desc.style.opacity=html?'1':'0';
+/* ── UI Updates ── */
+function updLock(user, ver){
+  A.lockUser = user;
+  if(ver !== undefined) A.version = ver;
+  $('lockIcon').innerHTML = user ? '&#128274;' : '&#128275;';
+  $('lockIcon').style.color = user ? (ROLE_COLORS[user] || '#d29922') : '#8b949e';
+  $('lockLabel').textContent = user ? 'Locked by ' + user : 'No active lock';
+  $('lockLabel').style.color = user ? (ROLE_COLORS[user] || '#d29922') : '#8b949e';
+  $('lockVer').textContent = 'v' + A.version;
 }
 
-// ── Canvas ──
-function resize(){
-  const r=C.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
-  C.width=r.width*dpr;C.height=r.height*dpr;
-  C.style.width=r.width+'px';C.style.height=r.height+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+function updPool(n){
+  if(n !== undefined) A.poolActive = n;
+  $('poolActive').textContent = A.poolActive;
+  $('poolActive').style.color = A.poolActive > 4 ? '#d29922' : '#3fb950';
 }
-window.addEventListener('resize',resize);
+
+function updSess(s){
+  A.sessState = s || 'IDLE';
+  $('sessState').textContent = A.sessState;
+  if(s === 'TRANSACTION'){
+    $('sessState').style.color = '#d29922';
+  } else if(s === 'ACTIVE'){
+    $('sessState').style.color = '#3fb950';
+  } else {
+    $('sessState').style.color = '#8b949e';
+  }
+}
+
+function updRole(role){
+  A.highlightRole = role;
+  var items = Array.prototype.slice.call(document.querySelectorAll('.role-item'));
+  for(var i = 0; i < items.length; i++){
+    var el = items[i];
+    var elRole = el.getAttribute('data-role');
+    if(elRole === role){
+      if(!el.className || el.className.indexOf('highlight') === -1){
+        el.className = 'role-item highlight';
+      }
+    } else {
+      el.className = 'role-item';
+    }
+  }
+}
+
+function addLog(text, type){
+  A.logN++;
+  var t = new Date();
+  var ts = padTwo(t.getMinutes()) + ':' + padTwo(t.getSeconds());
+  var icons = {info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;',lock:'&#128274;'};
+  var colors = {info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149',lock:'#bc8cff'};
+  var d = document.createElement('div');
+  d.className = 'log-entry ' + type;
+  d.innerHTML = '<span class="log-time">' + ts + '</span><span class="log-icon" style="color:' + colors[type] + '">' + icons[type] + '</span><span class="log-text">' + text + '</span>';
+  if(logE.firstChild){
+    logE.insertBefore(d, logE.firstChild);
+  } else {
+    logE.appendChild(d);
+  }
+  while(logE.children.length > 30){
+    logE.removeChild(logE.lastChild);
+  }
+}
+
+function updDots(){
+  dots.innerHTML = '';
+  for(var i = 0; i < A.steps.length; i++){
+    var d = document.createElement('div');
+    var cls = 'dot';
+    if(i === A.step) cls += ' active';
+    else if(i < A.step) cls += ' done';
+    d.className = cls;
+    dots.appendChild(d);
+  }
+}
+
+function updDesc(html){
+  desc.innerHTML = html || '';
+  desc.style.opacity = html ? '1' : '0';
+}
+
+/* ── Canvas ── */
+function resize(){
+  var r = C.parentElement.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  C.width = r.width * dpr;
+  C.height = r.height * dpr;
+  C.style.width = r.width + 'px';
+  C.style.height = r.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
 
 function drawScene(ts){
-  const W=C.width/(window.devicePixelRatio||1),H=C.height/(window.devicePixelRatio||1);
-  ctx.clearRect(0,0,W,H);
-  const t=ts*.001;
+  var W = C.width / (window.devicePixelRatio || 1);
+  var H = C.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+  var t = ts * 0.001;
 
-  // Ground
-  ctx.strokeStyle='rgba(88,166,255,.08)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(0,H*.82);ctx.lineTo(W,H*.82);ctx.stroke();
+  /* Ground */
+  ctx.strokeStyle = 'rgba(88,166,255,.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H * 0.82);
+  ctx.lineTo(W, H * 0.82);
+  ctx.stroke();
 
-  // Draw based on scenario
-  if(A.scenario===0||A.scenario===1) drawLockingScene(t,W,H);
-  else if(A.scenario===2) drawRolesScene(t,W,H);
-  else if(A.scenario===3) drawPoolScene(t,W,H);
-  else if(A.scenario===4) drawMonitorScene(t,W,H);
+  /* Draw based on scenario */
+  if(A.scenario === 0 || A.scenario === 1) drawLockingScene(t, W, H);
+  else if(A.scenario === 2) drawRolesScene(t, W, H);
+  else if(A.scenario === 3) drawPoolScene(t, W, H);
+  else if(A.scenario === 4) drawMonitorScene(t, W, H);
 }
 
-function drawRRect(x,y,w,h,r){
-  ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
-  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
-  ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+function drawRRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
 }
 
-function drawUser(x,y,color,label){
-  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.fillStyle=color;
-  ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.moveTo(x,y+7);ctx.lineTo(x,y+24);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x-10,y+14);ctx.lineTo(x+10,y+14);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x,y+24);ctx.lineTo(x-7,y+36);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x,y+24);ctx.lineTo(x+7,y+36);ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.textAlign='center';
-  ctx.fillText(label,x,y+50);
+function drawUser(x, y, color, label){
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.fillStyle = color;
+  ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(x, y + 7); ctx.lineTo(x, y + 24); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x - 10, y + 14); ctx.lineTo(x + 10, y + 14); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y + 24); ctx.lineTo(x - 7, y + 36); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x, y + 24); ctx.lineTo(x + 7, y + 36); ctx.stroke();
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, x, y + 50);
 }
 
-function drawDB(x,y,w,h,color){
+function drawDB(x, y, w, h, color){
   ctx.save();
-  ctx.strokeStyle=color;ctx.lineWidth=1.5;
-  ctx.fillStyle=color+'18';
-  // Cylinder
-  ctx.beginPath();ctx.ellipse(x,y,w,h*.25,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x-w,y);ctx.lineTo(x-w,y+h*.7);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(x+w,y);ctx.lineTo(x+w,y+h*.7);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(x,y+h*.7,w,h*.25,0,0,Math.PI,false);ctx.stroke();
-  ctx.fillStyle=color+'0d';
-  ctx.fillRect(x-w,y,w*2,h*.7);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.fillStyle = color + '18';
+  /* Cylinder top ellipse */
+  drawEllipse(x, y, w, h * 0.25, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  /* Sides */
+  ctx.beginPath(); ctx.moveTo(x - w, y); ctx.lineTo(x - w, y + h * 0.7); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x + w, y); ctx.lineTo(x + w, y + h * 0.7); ctx.stroke();
+  /* Bottom ellipse (half) */
+  drawEllipse(x, y + h * 0.7, w, h * 0.25, 0, 0, Math.PI, false);
+  ctx.stroke();
+  /* Fill body */
+  ctx.fillStyle = color + '0d';
+  ctx.fillRect(x - w, y, w * 2, h * 0.7);
   ctx.restore();
 }
 
-function drawLockingScene(t,W,H){
-  // User A
-  const highlight=A.highlightRole;
-  drawUser(W*.12,H*.25,highlight==='archeologo'?'#58a6ff':'#58a6ff88','Archeologo A');
-  // User B (visible in conflict scenario)
-  if(A.scenario===1){
-    drawUser(W*.12,H*.55,highlight==='archeologo2'?'#39d353':'#39d35388','Archeologo B');
+function drawLockingScene(t, W, H){
+  var highlight = A.highlightRole;
+  drawUser(W * 0.12, H * 0.25, highlight === 'archeologo' ? '#58a6ff' : '#58a6ff88', 'Archeologo A');
+  /* User B (visible in conflict scenario) */
+  if(A.scenario === 1){
+    drawUser(W * 0.12, H * 0.55, highlight === 'archeologo2' ? '#39d353' : '#39d35388', 'Archeologo B');
   }
-  // Record card
-  const rx=W*.38,ry=H*.28;
-  drawRRect(rx-50,ry-30,100,70,6);
-  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fill();
-  ctx.strokeStyle=A.lockUser?ROLE_COLORS[A.lockUser]||'#d29922':'#30363d';
-  ctx.lineWidth=A.lockUser?2:1.5;ctx.stroke();
-  ctx.fillStyle='#e6edf3';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
-  ctx.fillText('US 101',rx,ry-10);
-  ctx.font='9px sans-serif';ctx.fillStyle='#8b949e';
-  ctx.fillText('version: '+A.version,rx,ry+6);
-  // Lock icon on record
+  /* Record card */
+  var rx = W * 0.38, ry = H * 0.28;
+  drawRRect(rx - 50, ry - 30, 100, 70, 6);
+  ctx.fillStyle = 'rgba(88,166,255,.06)';
+  ctx.fill();
+  ctx.strokeStyle = A.lockUser ? (ROLE_COLORS[A.lockUser] || '#d29922') : '#30363d';
+  ctx.lineWidth = A.lockUser ? 2 : 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#e6edf3';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('US 101', rx, ry - 10);
+  ctx.font = '9px sans-serif';
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText('version: ' + A.version, rx, ry + 6);
+  /* Lock icon on record */
   if(A.lockUser){
-    ctx.fillStyle=ROLE_COLORS[A.lockUser]||'#d29922';
-    ctx.font='16px sans-serif';
-    ctx.fillText('\u{1F512}',rx+40,ry-18);
+    ctx.fillStyle = ROLE_COLORS[A.lockUser] || '#d29922';
+    ctx.font = '16px sans-serif';
+    ctx.fillText('\u{1F512}', rx + 40, ry - 18);
   }
-  // DB
-  drawDB(W*.68,H*.32,35,50,'#58a6ff');
-  ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';ctx.textAlign='center';
-  ctx.fillText('PostgreSQL',W*.68,H*.32+60);
-  ctx.fillText('us_table',W*.68,H*.32+72);
-  // Arrow record → DB
-  ctx.setLineDash([4,3]);ctx.strokeStyle='rgba(88,166,255,.2)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(rx+52,ry);ctx.lineTo(W*.68-38,H*.32);ctx.stroke();
+  /* DB */
+  drawDB(W * 0.68, H * 0.32, 35, 50, '#58a6ff');
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PostgreSQL', W * 0.68, H * 0.32 + 60);
+  ctx.fillText('us_table', W * 0.68, H * 0.32 + 72);
+  /* Arrow record -> DB */
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = 'rgba(88,166,255,.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(rx + 52, ry);
+  ctx.lineTo(W * 0.68 - 38, H * 0.32);
+  ctx.stroke();
   ctx.setLineDash([]);
-  // Version column in DB
-  const vx=W*.68,vy=H*.32+15;
-  ctx.fillStyle='rgba(88,166,255,.15)';
-  drawRRect(vx-28,vy,56,16,3);ctx.fill();
-  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';
-  ctx.fillText('v'+A.version,vx,vy+11);
-  // Trigger indicator
-  ctx.fillStyle='#d29922';ctx.font='8px sans-serif';
-  ctx.fillText('TRIGGER: auto-timestamp',W*.68,H*.32+90);
+  /* Version column in DB */
+  var vx = W * 0.68, vy = H * 0.32 + 15;
+  ctx.fillStyle = 'rgba(88,166,255,.15)';
+  drawRRect(vx - 28, vy, 56, 16, 3);
+  ctx.fill();
+  ctx.fillStyle = '#58a6ff';
+  ctx.font = 'bold 9px sans-serif';
+  ctx.fillText('v' + A.version, vx, vy + 11);
+  /* Trigger indicator */
+  ctx.fillStyle = '#d29922';
+  ctx.font = '8px sans-serif';
+  ctx.fillText('TRIGGER: auto-timestamp', W * 0.68, H * 0.32 + 90);
 }
 
-function drawRolesScene(t,W,H){
-  const roles=[
-    {name:'Admin',color:'#f85149',x:.1,perms:'CRUD + MANAGE'},
-    {name:'Responsabile',color:'#d29922',x:.27,perms:'CRU'},
-    {name:'Archeologo',color:'#58a6ff',x:.44,perms:'CRU'},
-    {name:'Studente',color:'#bc8cff',x:.61,perms:'C + View'},
-    {name:'Guest',color:'#8b949e',x:.78,perms:'View Only'},
+function drawRolesScene(t, W, H){
+  var roles = [
+    {name:'Admin',color:'#f85149',x:0.1,perms:'CRUD + MANAGE'},
+    {name:'Responsabile',color:'#d29922',x:0.27,perms:'CRU'},
+    {name:'Archeologo',color:'#58a6ff',x:0.44,perms:'CRU'},
+    {name:'Studente',color:'#bc8cff',x:0.61,perms:'C + View'},
+    {name:'Guest',color:'#8b949e',x:0.78,perms:'View Only'}
   ];
-  const rn=['admin','responsabile','archeologo','studente','guest'];
-  roles.forEach((r,i)=>{
-    const x=W*r.x,y=H*.2;
-    const active=A.highlightRole===rn[i];
-    drawUser(x,y,active?r.color:r.color+'77',r.name);
-    // Permission badges
-    ctx.font='8px sans-serif';ctx.textAlign='center';
-    ctx.fillStyle=active?r.color:'#8b949e';
-    ctx.fillText(r.perms,x,y+62);
-    // Arrow to DB
+  var rn = ['admin','responsabile','archeologo','studente','guest'];
+  for(var i = 0; i < roles.length; i++){
+    var r = roles[i];
+    var x = W * r.x, y = H * 0.2;
+    var active = A.highlightRole === rn[i];
+    drawUser(x, y, active ? r.color : r.color + '77', r.name);
+    /* Permission badges */
+    ctx.font = '8px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = active ? r.color : '#8b949e';
+    ctx.fillText(r.perms, x, y + 62);
+    /* Arrow to DB */
     if(active){
-      ctx.strokeStyle=r.color+'66';ctx.lineWidth=1.5;
-      ctx.setLineDash([3,3]);
-      ctx.beginPath();ctx.moveTo(x,y+38);ctx.lineTo(W*.5,H*.72);ctx.stroke();
+      ctx.strokeStyle = r.color + '66';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x, y + 38);
+      ctx.lineTo(W * 0.5, H * 0.72);
+      ctx.stroke();
       ctx.setLineDash([]);
     }
-  });
-  // Central DB
-  drawDB(W*.5,H*.62,50,55,'#58a6ff');
-  ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.textAlign='center';
-  ctx.fillText('PostgreSQL — GRANT / REVOKE',W*.5,H*.62+70);
-  // Permission table
-  const tx=W*.5-80,ty=H*.62+78;
-  ctx.fillStyle='rgba(88,166,255,.06)';
-  drawRRect(tx,ty,160,50,4);ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.textAlign='left';
-  ctx.fillText('has_table_privilege(user, table, op)',tx+8,ty+14);
-  ctx.fillText('pyarchinit_permissions → PG roles',tx+8,ty+28);
-  ctx.fillText('pyarchinit_access_log → audit trail',tx+8,ty+42);
-}
-
-function drawPoolScene(t,W,H){
-  // Pool visualization
-  const px=W*.5,py=H*.25,pw=200,ph=120;
-  drawRRect(px-pw/2,py-10,pw,ph,8);
-  ctx.fillStyle='rgba(88,166,255,.04)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
-  ctx.fillText('CONNECTION POOL (SQLAlchemy)',px,py+4);
-  // Pool slots
-  const slots=5,sw=28,gap=8,startX=px-(slots*(sw+gap)-gap)/2;
-  for(let i=0;i<slots;i++){
-    const sx=startX+i*(sw+gap),sy=py+14;
-    drawRRect(sx,sy,sw,36,3);
-    const active=i<A.poolActive;
-    ctx.fillStyle=active?'rgba(63,185,80,.15)':'rgba(255,255,255,.03)';ctx.fill();
-    ctx.strokeStyle=active?'#3fb950':'#30363d';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle=active?'#3fb950':'#8b949e';ctx.font='bold 8px sans-serif';
-    ctx.fillText(active?'BUSY':'FREE',sx+sw/2,sy+22);
   }
-  // Overflow indicator
-  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
-  ctx.fillText('overflow: 0/'+10,px,py+66);
-  ctx.fillText('pre_ping: ON | recycle: 3600s',px,py+80);
-  // Session lifecycle
-  const sy2=H*.62;
-  const phases=[
-    {label:'Session()',x:.15,color:'#58a6ff'},
-    {label:'BEGIN',x:.3,color:'#d29922'},
-    {label:'QUERY',x:.45,color:'#bc8cff'},
-    {label:'COMMIT',x:.6,color:'#3fb950'},
-    {label:'close()',x:.75,color:'#8b949e'},
-  ];
-  // Arrow
-  ctx.strokeStyle='rgba(88,166,255,.15)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(W*.12,sy2+10);ctx.lineTo(W*.82,sy2+10);ctx.stroke();
-  phases.forEach(p=>{
-    const x=W*p.x;
-    ctx.fillStyle=p.color+'22';
-    drawRRect(x-30,sy2-6,60,32,4);ctx.fill();
-    ctx.strokeStyle=p.color;ctx.lineWidth=1.5;ctx.stroke();
-    ctx.fillStyle=p.color;ctx.font='bold 9px sans-serif';ctx.textAlign='center';
-    ctx.fillText(p.label,x,sy2+14);
-  });
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.textAlign='center';
-  ctx.fillText('session_scope(): try → commit | except → rollback | finally → close',W*.5,sy2+42);
-  // Singleton pattern
-  ctx.fillText('DbConnectionSingleton: one engine per connection string',W*.5,sy2+56);
+  /* Central DB */
+  drawDB(W * 0.5, H * 0.62, 50, 55, '#58a6ff');
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PostgreSQL \u2014 GRANT / REVOKE', W * 0.5, H * 0.62 + 70);
+  /* Permission table */
+  var tx = W * 0.5 - 80, ty = H * 0.62 + 78;
+  ctx.fillStyle = 'rgba(88,166,255,.06)';
+  drawRRect(tx, ty, 160, 50, 4);
+  ctx.fill();
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '8px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('has_table_privilege(user, table, op)', tx + 8, ty + 14);
+  ctx.fillText('pyarchinit_permissions \u2192 PG roles', tx + 8, ty + 28);
+  ctx.fillText('pyarchinit_access_log \u2192 audit trail', tx + 8, ty + 42);
 }
 
-function drawMonitorScene(t,W,H){
-  // Dashboard mockup
-  const mx=W*.08,my=H*.08,mw=W*.84,mh=H*.76;
-  drawRRect(mx,my,mw,mh,8);
-  ctx.fillStyle='rgba(33,38,45,.9)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-  // Title bar
-  ctx.fillStyle='rgba(88,166,255,.08)';
-  ctx.fillRect(mx+1,my+1,mw-2,24);
-  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
-  ctx.fillText('User Management — Monitor Tab',mx+12,my+16);
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.textAlign='right';
-  ctx.fillText('Auto-refresh: 10s',mx+mw-12,my+16);
-  // Active sessions table
-  const ty=my+36;
-  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.textAlign='left';
-  ctx.fillText('ACTIVE EDITING SESSIONS',mx+12,ty);
-  // Header
-  const cols=[{l:'User',w:100},{l:'Record',w:80},{l:'Since',w:70},{l:'Status',w:60}];
-  let cx2=mx+12;
-  ctx.fillStyle='rgba(88,166,255,.06)';
-  ctx.fillRect(mx+8,ty+4,mw-16,16);
-  cols.forEach(c=>{ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.fillText(c.l,cx2,ty+14);cx2+=c.w;});
-  // Rows
-  const rows=[
+function drawPoolScene(t, W, H){
+  /* Pool visualization */
+  var px = W * 0.5, py = H * 0.25, pw = 200, ph = 120;
+  drawRRect(px - pw / 2, py - 10, pw, ph, 8);
+  ctx.fillStyle = 'rgba(88,166,255,.04)';
+  ctx.fill();
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#8b949e';
+  ctx.font = 'bold 9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('CONNECTION POOL (SQLAlchemy)', px, py + 4);
+  /* Pool slots */
+  var slots = 5, sw = 28, gap2 = 8, startX = px - (slots * (sw + gap2) - gap2) / 2;
+  for(var i = 0; i < slots; i++){
+    var sx = startX + i * (sw + gap2), sy = py + 14;
+    drawRRect(sx, sy, sw, 36, 3);
+    var isActive = i < A.poolActive;
+    ctx.fillStyle = isActive ? 'rgba(63,185,80,.15)' : 'rgba(255,255,255,.03)';
+    ctx.fill();
+    ctx.strokeStyle = isActive ? '#3fb950' : '#30363d';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = isActive ? '#3fb950' : '#8b949e';
+    ctx.font = 'bold 8px sans-serif';
+    ctx.fillText(isActive ? 'BUSY' : 'FREE', sx + sw / 2, sy + 22);
+  }
+  /* Overflow indicator */
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '8px sans-serif';
+  ctx.fillText('overflow: 0/' + 10, px, py + 66);
+  ctx.fillText('pre_ping: ON | recycle: 3600s', px, py + 80);
+  /* Session lifecycle */
+  var sy2 = H * 0.62;
+  var phases = [
+    {label:'Session()',x:0.15,color:'#58a6ff'},
+    {label:'BEGIN',x:0.3,color:'#d29922'},
+    {label:'QUERY',x:0.45,color:'#bc8cff'},
+    {label:'COMMIT',x:0.6,color:'#3fb950'},
+    {label:'close()',x:0.75,color:'#8b949e'}
+  ];
+  /* Arrow */
+  ctx.strokeStyle = 'rgba(88,166,255,.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(W * 0.12, sy2 + 10);
+  ctx.lineTo(W * 0.82, sy2 + 10);
+  ctx.stroke();
+  for(var j = 0; j < phases.length; j++){
+    var p = phases[j];
+    var phx = W * p.x;
+    ctx.fillStyle = p.color + '22';
+    drawRRect(phx - 30, sy2 - 6, 60, 32, 4);
+    ctx.fill();
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = p.color;
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.label, phx, sy2 + 14);
+  }
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('session_scope(): try \u2192 commit | except \u2192 rollback | finally \u2192 close', W * 0.5, sy2 + 42);
+  /* Singleton pattern */
+  ctx.fillText('DbConnectionSingleton: one engine per connection string', W * 0.5, sy2 + 56);
+}
+
+function drawMonitorScene(t, W, H){
+  /* Dashboard mockup */
+  var mx = W * 0.08, my = H * 0.08, mw = W * 0.84, mh = H * 0.76;
+  drawRRect(mx, my, mw, mh, 8);
+  ctx.fillStyle = 'rgba(33,38,45,.9)';
+  ctx.fill();
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  /* Title bar */
+  ctx.fillStyle = 'rgba(88,166,255,.08)';
+  ctx.fillRect(mx + 1, my + 1, mw - 2, 24);
+  ctx.fillStyle = '#58a6ff';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('User Management \u2014 Monitor Tab', mx + 12, my + 16);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('Auto-refresh: 10s', mx + mw - 12, my + 16);
+  /* Active sessions table */
+  var ty = my + 36;
+  ctx.fillStyle = '#8b949e';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('ACTIVE EDITING SESSIONS', mx + 12, ty);
+  /* Header */
+  var cols = [{l:'User',w:100},{l:'Record',w:80},{l:'Since',w:70},{l:'Status',w:60}];
+  var cx2 = mx + 12;
+  ctx.fillStyle = 'rgba(88,166,255,.06)';
+  ctx.fillRect(mx + 8, ty + 4, mw - 16, 16);
+  for(var ci = 0; ci < cols.length; ci++){
+    ctx.fillStyle = '#8b949e';
+    ctx.font = 'bold 8px sans-serif';
+    ctx.fillText(cols[ci].l, cx2, ty + 14);
+    cx2 += cols[ci].w;
+  }
+  /* Rows */
+  var rows = [
     {user:'archeologo_a',record:'US 101',since:'2 min',status:'active',sColor:'#3fb950'},
     {user:'archeologo_b',record:'US 205',since:'18 min',status:'in progress',sColor:'#d29922'},
-    {user:'studente_1',record:'Inv. 44',since:'45 min',status:'stalled',sColor:'#f85149'},
+    {user:'studente_1',record:'Inv. 44',since:'45 min',status:'stalled',sColor:'#f85149'}
   ];
-  rows.forEach((r,i)=>{
-    const ry=ty+20+i*18;
-    cx2=mx+12;
-    ctx.fillStyle='#e6edf3';ctx.font='9px sans-serif';
-    ctx.fillText(r.user,cx2,ry+10);cx2+=100;
-    ctx.fillText(r.record,cx2,ry+10);cx2+=80;
-    ctx.fillText(r.since,cx2,ry+10);cx2+=70;
-    ctx.fillStyle=r.sColor;
-    ctx.beginPath();ctx.arc(cx2+4,ry+7,3,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#e6edf3';ctx.fillText(r.status,cx2+12,ry+10);
-  });
-  // Access log section
-  const ly=ty+82;
-  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.textAlign='left';
-  ctx.fillText('ACCESS LOG (last 24h)',mx+12,ly);
-  const logs=[
+  for(var ri = 0; ri < rows.length; ri++){
+    var row = rows[ri];
+    var rowY = ty + 20 + ri * 18;
+    cx2 = mx + 12;
+    ctx.fillStyle = '#e6edf3';
+    ctx.font = '9px sans-serif';
+    ctx.fillText(row.user, cx2, rowY + 10); cx2 += 100;
+    ctx.fillText(row.record, cx2, rowY + 10); cx2 += 80;
+    ctx.fillText(row.since, cx2, rowY + 10); cx2 += 70;
+    ctx.fillStyle = row.sColor;
+    ctx.beginPath(); ctx.arc(cx2 + 4, rowY + 7, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e6edf3';
+    ctx.fillText(row.status, cx2 + 12, rowY + 10);
+  }
+  /* Access log section */
+  var ly = ty + 82;
+  ctx.fillStyle = '#8b949e';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('ACCESS LOG (last 24h)', mx + 12, ly);
+  var logs = [
     {ts:'14:32',user:'arch_a',op:'UPDATE',tbl:'us_table',ok:true},
     {ts:'14:30',user:'arch_b',op:'SELECT',tbl:'us_table',ok:true},
     {ts:'14:28',user:'stud_1',op:'INSERT',tbl:'inventario',ok:true},
     {ts:'14:25',user:'arch_b',op:'DELETE',tbl:'us_table',ok:false},
-    {ts:'14:20',user:'arch_a',op:'INSERT',tbl:'tomba_table',ok:true},
+    {ts:'14:20',user:'arch_a',op:'INSERT',tbl:'tomba_table',ok:true}
   ];
-  logs.forEach((l,i)=>{
-    const ly2=ly+8+i*14;
-    ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
-    ctx.fillText(l.ts,mx+12,ly2+10);
-    ctx.fillStyle='#e6edf3';ctx.fillText(l.user,mx+56,ly2+10);
-    ctx.fillStyle=l.op==='DELETE'?'#f85149':l.op==='UPDATE'?'#d29922':'#58a6ff';
-    ctx.fillText(l.op,mx+114,ly2+10);
-    ctx.fillStyle='#8b949e';ctx.fillText(l.tbl,mx+170,ly2+10);
-    ctx.fillStyle=l.ok?'#3fb950':'#f85149';
-    ctx.fillText(l.ok?'OK':'DENIED',mx+260,ly2+10);
-  });
-  // Connection stats
-  const csy=ly+88;
-  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';
-  ctx.fillText('CONNECTION DIAGNOSTICS',mx+12,csy);
-  ctx.font='8px sans-serif';
-  ctx.fillText('Log: ~/pyarchinit_conn_debug.log',mx+12,csy+14);
-  ctx.fillText('Perf logging: _PERF_LOG_ENABLED = True',mx+12,csy+28);
-  ctx.fillText('Singleton engines: 1 active | Password masked in logs',mx+12,csy+42);
+  for(var li = 0; li < logs.length; li++){
+    var logItem = logs[li];
+    var ly2 = ly + 8 + li * 14;
+    ctx.fillStyle = '#8b949e';
+    ctx.font = '8px sans-serif';
+    ctx.fillText(logItem.ts, mx + 12, ly2 + 10);
+    ctx.fillStyle = '#e6edf3';
+    ctx.fillText(logItem.user, mx + 56, ly2 + 10);
+    if(logItem.op === 'DELETE') ctx.fillStyle = '#f85149';
+    else if(logItem.op === 'UPDATE') ctx.fillStyle = '#d29922';
+    else ctx.fillStyle = '#58a6ff';
+    ctx.fillText(logItem.op, mx + 114, ly2 + 10);
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText(logItem.tbl, mx + 170, ly2 + 10);
+    ctx.fillStyle = logItem.ok ? '#3fb950' : '#f85149';
+    ctx.fillText(logItem.ok ? 'OK' : 'DENIED', mx + 260, ly2 + 10);
+  }
+  /* Connection stats */
+  var csy = ly + 88;
+  ctx.fillStyle = '#8b949e';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.fillText('CONNECTION DIAGNOSTICS', mx + 12, csy);
+  ctx.font = '8px sans-serif';
+  ctx.fillText('Log: ~/pyarchinit_conn_debug.log', mx + 12, csy + 14);
+  ctx.fillText('Perf logging: _PERF_LOG_ENABLED = True', mx + 12, csy + 28);
+  ctx.fillText('Singleton engines: 1 active | Password masked in logs', mx + 12, csy + 42);
 }
 
-// ── Step Engine ──
+/* ── Step Engine ── */
 function load(i){
-  A.scenario=i;A.step=0;A.steps=SC[i].steps;
-  A.version=1;A.lockUser=null;A.poolActive=0;A.sessState='IDLE';A.highlightRole=null;
-  clearTimeout(A.timer);A.timer=null;
-  updLock(null,1);updPool(0);updSess('IDLE');updRole(null);
-  logE.innerHTML='';A.logN=0;
-  updDots();updDesc(SC[i].desc);
+  A.scenario = i;
+  A.step = 0;
+  A.steps = SC[i].steps;
+  A.version = 1;
+  A.lockUser = null;
+  A.poolActive = 0;
+  A.sessState = 'IDLE';
+  A.highlightRole = null;
+  clearTimeout(A.timer);
+  A.timer = null;
+  updLock(null, 1);
+  updPool(0);
+  updSess('IDLE');
+  updRole(null);
+  logE.innerHTML = '';
+  A.logN = 0;
+  updDots();
+  updDesc(SC[i].desc);
   exec(0);
 }
+
 function exec(si){
-  if(si<0||si>=A.steps.length)return;
-  A.step=si;
-  const s=A.steps[si];
-  addLog(s.log,s.type);
-  if(s.lock!==undefined)updLock(s.lock,s.ver);
-  else if(s.ver!==undefined){A.version=s.ver;$('lockVer').textContent='v'+A.version;}
-  if(s.pool!==undefined)updPool(s.pool);
-  if(s.sess)updSess(s.sess);
-  if(s.role)updRole(s.role);
-  if(s.d)updDesc('<strong>'+SC[A.scenario].title+':</strong> '+s.d);
+  if(si < 0 || si >= A.steps.length) return;
+  A.step = si;
+  var s = A.steps[si];
+  addLog(s.log, s.type);
+  if(s.lock !== undefined) updLock(s.lock, s.ver);
+  else if(s.ver !== undefined){ A.version = s.ver; $('lockVer').textContent = 'v' + A.version; }
+  if(s.pool !== undefined) updPool(s.pool);
+  if(s.sess) updSess(s.sess);
+  if(s.role) updRole(s.role);
+  if(s.d) updDesc('<strong>' + SC[A.scenario].title + ':</strong> ' + s.d);
   updDots();
-  if(A.mode==='auto'&&A.playing)schedNext();
+  if(A.mode === 'auto' && A.playing) schedNext();
 }
+
 function schedNext(){
   clearTimeout(A.timer);
-  const last=A.step>=A.steps.length-1;
-  if(last&&A.looping){
-    A.timer=setTimeout(()=>{
-      if(A.playing&&A.mode==='auto'&&A.looping){
-        const next=(A.scenario+1)%SC.length;
-        sel.value=next;load(next);
+  var last = A.step >= A.steps.length - 1;
+  if(last && A.looping){
+    A.timer = setTimeout(function(){
+      if(A.playing && A.mode === 'auto' && A.looping){
+        var next = (A.scenario + 1) % SC.length;
+        sel.value = next;
+        load(next);
       }
-    },3000/A.speed);
+    }, 3000 / A.speed);
     return;
   }
-  if(last)return;
-  const s=A.steps[A.step];
-  let d=2200;if(s.type==='error'||s.type==='warn')d=2800;if(s.type==='success')d=2400;
-  A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+  if(last) return;
+  var s = A.steps[A.step];
+  var d = 2200;
+  if(s.type === 'error' || s.type === 'warn') d = 2800;
+  if(s.type === 'success') d = 2400;
+  A.timer = setTimeout(function(){
+    if(A.playing && A.mode === 'auto') exec(A.step + 1);
+  }, d / A.speed);
 }
 
-// ── Events ──
-sel.addEventListener('change',()=>load(+sel.value));
-btnAuto.addEventListener('click',()=>{A.mode='auto';btnAuto.classList.add('active');btnManual.classList.remove('active');btnPrev.disabled=btnNext.disabled=true;if(A.playing)schedNext();});
-btnManual.addEventListener('click',()=>{A.mode='manual';btnManual.classList.add('active');btnAuto.classList.remove('active');btnPrev.disabled=btnNext.disabled=false;clearTimeout(A.timer);});
-btnPP.addEventListener('click',()=>{A.playing=!A.playing;btnPP.innerHTML=A.playing?'&#10074;&#10074; Pause':'&#9654; Play';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
-btnPrev.addEventListener('click',()=>{if(A.step>0){A.version=1;A.lockUser=null;logE.innerHTML='';A.logN=0;exec(A.step-1);}});
-btnNext.addEventListener('click',()=>{if(A.step<A.steps.length-1)exec(A.step+1);});
-btnRestart.addEventListener('click',()=>{A.playing=true;btnPP.innerHTML='&#10074;&#10074; Pause';load(A.scenario);});
-btnLoop.addEventListener('click',()=>{A.looping=!A.looping;btnLoop.classList.toggle('active',A.looping);btnStop.style.display=A.looping?'':'none';btnLoop.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
-btnStop.addEventListener('click',()=>{A.looping=false;A.playing=false;btnLoop.classList.remove('active');btnLoop.innerHTML='&#8635; Loop';btnStop.style.display='none';btnPP.innerHTML='&#9654; Play';clearTimeout(A.timer);addLog('Loop stopped.','warn');});
-spdBtns.forEach(b=>b.addEventListener('click',()=>{spdBtns.forEach(x=>x.classList.remove('active'));b.classList.add('active');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();}));
-document.addEventListener('keydown',e=>{
-  if(e.key===' '){e.preventDefault();btnPP.click();}
-  if(e.key==='ArrowRight'&&A.mode==='manual'&&A.step<A.steps.length-1)exec(A.step+1);
-  if(e.key==='ArrowLeft'&&A.mode==='manual'&&A.step>0)exec(A.step-1);
-  if(e.key==='r'||e.key==='R')btnRestart.click();
-  if(e.key==='l'||e.key==='L')btnLoop.click();
-  if((e.key==='s'||e.key==='S')&&A.looping)btnStop.click();
-  if(e.key>='1'&&e.key<='5'){sel.value=+e.key-1;load(+e.key-1);}
+/* ── Events ── */
+sel.addEventListener('change', function(){ load(+sel.value); });
+
+btnAuto.addEventListener('click', function(){
+  A.mode = 'auto';
+  btnAuto.className = 'active';
+  /* Preserve btn-group context: re-add since className replaces all */
+  btnManual.className = '';
+  btnPrev.disabled = true;
+  btnNext.disabled = true;
+  if(A.playing) schedNext();
 });
 
-// ── Render ──
-function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
-resize();requestAnimationFrame(renderLoop);load(0);
+btnManual.addEventListener('click', function(){
+  A.mode = 'manual';
+  btnManual.className = 'active';
+  btnAuto.className = '';
+  btnPrev.disabled = false;
+  btnNext.disabled = false;
+  clearTimeout(A.timer);
+});
+
+btnPP.addEventListener('click', function(){
+  A.playing = !A.playing;
+  btnPP.innerHTML = A.playing ? '&#10074;&#10074; Pause' : '&#9654; Play';
+  if(A.playing && A.mode === 'auto') schedNext();
+  else clearTimeout(A.timer);
+});
+
+btnPrev.addEventListener('click', function(){
+  if(A.step > 0){
+    A.version = 1;
+    A.lockUser = null;
+    logE.innerHTML = '';
+    A.logN = 0;
+    exec(A.step - 1);
+  }
+});
+
+btnNext.addEventListener('click', function(){
+  if(A.step < A.steps.length - 1) exec(A.step + 1);
+});
+
+btnRestart.addEventListener('click', function(){
+  A.playing = true;
+  btnPP.innerHTML = '&#10074;&#10074; Pause';
+  load(A.scenario);
+});
+
+btnLoop.addEventListener('click', function(){
+  A.looping = !A.looping;
+  if(A.looping){
+    if(btnLoop.className.indexOf('active') === -1) btnLoop.className += ' active';
+  } else {
+    btnLoop.className = btnLoop.className.replace(/\s*active/g, '');
+  }
+  btnStop.style.display = A.looping ? '' : 'none';
+  btnLoop.innerHTML = A.looping ? '&#8635; Looping' : '&#8635; Loop';
+  if(A.looping && A.playing && A.mode === 'auto' && A.step >= A.steps.length - 1) schedNext();
+});
+
+btnStop.addEventListener('click', function(){
+  A.looping = false;
+  A.playing = false;
+  btnLoop.className = btnLoop.className.replace(/\s*active/g, '');
+  btnLoop.innerHTML = '&#8635; Loop';
+  btnStop.style.display = 'none';
+  btnPP.innerHTML = '&#9654; Play';
+  clearTimeout(A.timer);
+  addLog('Loop stopped.', 'warn');
+});
+
+for(var si = 0; si < spdBtns.length; si++){
+  (function(b){
+    b.addEventListener('click', function(){
+      for(var j = 0; j < spdBtns.length; j++){
+        spdBtns[j].className = 'spd';
+      }
+      b.className = 'spd active';
+      A.speed = +(b.getAttribute('data-s'));
+      if(A.playing && A.mode === 'auto') schedNext();
+    });
+  })(spdBtns[si]);
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key === ' '){ e.preventDefault(); btnPP.click(); }
+  if(e.key === 'ArrowRight' && A.mode === 'manual' && A.step < A.steps.length - 1) exec(A.step + 1);
+  if(e.key === 'ArrowLeft' && A.mode === 'manual' && A.step > 0) exec(A.step - 1);
+  if(e.key === 'r' || e.key === 'R') btnRestart.click();
+  if(e.key === 'l' || e.key === 'L') btnLoop.click();
+  if((e.key === 's' || e.key === 'S') && A.looping) btnStop.click();
+  if(e.key >= '1' && e.key <= '5'){ sel.value = +e.key - 1; load(+e.key - 1); }
+});
+
+/* ── Render ── */
+function renderLoop(ts){
+  drawScene(ts);
+  requestAnimationFrame(renderLoop);
+}
+resize();
+requestAnimationFrame(renderLoop);
+load(0);
+
 })();
 </script>
 </body>

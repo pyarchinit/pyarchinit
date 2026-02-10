@@ -5,50 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PyArchInit — Installation &amp; Setup Tutorial</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
+*,*::before,*::after{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
-.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
-.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
-.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
-.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
-.ctrls button:hover{border-color:var(--accent);background:rgba(88,166,255,.1)}
-.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
+.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.hdr{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.hdr>*{margin:5px 0}
+.hdr h1{font-size:1.2rem;font-weight:600;color:#58a6ff}.hdr h1 span{color:#8b949e;font-weight:400}
+.main{-webkit-flex:1;flex:1;min-width:0;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden}
+.side{width:250px;background:#161b22;border-left:1px solid #30363d;padding:14px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.side>*{margin-bottom:12px}
+.log{width:100%;-webkit-flex-shrink:0;flex-shrink:0;-webkit-order:3;order:3;background:#161b22;border-top:1px solid #30363d;padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.ctrls>*{margin:0 2px 2px 0}
+.ctrls button,.ctrls select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.82rem;-webkit-transition:all .2s;transition:all .2s}
+.ctrls button:hover{border-color:#58a6ff;background:rgba(88,166,255,.1)}
+.ctrls button.on{background:#58a6ff;color:#000;border-color:#58a6ff}
 .ctrls button:disabled{opacity:.3;cursor:default}
-.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
-.scene{flex:1;position:relative;overflow:hidden;min-height:200px}
+.g{display:-webkit-flex;display:flex}.g>*{margin:0}.g button{border-radius:0}.g button:first-child{border-radius:8px 0 0 8px}.g button:last-child{border-radius:0 8px 8px 0}
+.scene{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}
 .scene canvas{width:100%;height:100%;display:block}
-.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:360px;font-size:.83rem;line-height:1.5;z-index:5}
-.dsc strong{color:var(--accent)}
-.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
-.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}
-.dot.ok{background:var(--green);border-color:var(--green)}
-.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
-.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
-.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
-.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
-.prog-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:6px}
-.prog-fill{height:100%;background:var(--accent);transition:width .5s;border-radius:3px}
-.dep-list{display:flex;flex-direction:column;gap:3px}
-.dep{display:flex;align-items:center;gap:6px;font-size:.78rem;padding:2px 4px;border-radius:3px;transition:all .3s}
-.dep .ck{width:14px;height:14px;border-radius:3px;border:1px solid var(--bg4);display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .3s}
-.dep.done .ck{background:var(--green);border-color:var(--green);color:#000}
-.dep.err .ck{background:var(--red);border-color:var(--red);color:#fff}
-.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
-.les{display:flex;flex-direction:column;gap:2px}
-.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
-@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:360px;font-size:.83rem;line-height:1.5;z-index:5}
+.dsc strong{color:#58a6ff}
+.dots{position:absolute;bottom:10px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-flex;display:flex;z-index:5}
+.dots>*{margin:0 2px}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);-webkit-transition:all .3s;transition:all .3s}
+.dot.on{background:#58a6ff;border-color:#58a6ff;-webkit-box-shadow:0 0 6px #58a6ff;box-shadow:0 0 6px #58a6ff}
+.dot.ok{background:#3fb950;border-color:#3fb950}
+.w{background:#21262d;border-radius:8px;padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:7px}
+.sr{display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:#8b949e}.sv{font-weight:600}
+.prog-bar{height:6px;background:#30363d;border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;background:#58a6ff;-webkit-transition:width .5s;transition:width .5s;border-radius:3px}
+.dep-list{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.dep-list>*{margin-bottom:3px}
+.dep{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;font-size:.78rem;padding:2px 4px;border-radius:3px;-webkit-transition:all .3s;transition:all .3s}
+.dep .ck{width:14px;height:14px;border-radius:3px;border:1px solid #30363d;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;font-size:9px;-webkit-transition:all .3s;transition:all .3s;margin-right:6px}
+.dep.done .ck{background:#3fb950;border-color:#3fb950;color:#000}
+.dep.err .ck{background:#f85149;border-color:#f85149;color:#fff}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:5px}
+.les{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.les>*{margin-bottom:2px}
+.le{display:-webkit-flex;display:flex;font-size:.8rem;padding:2px 5px;border-radius:3px;-webkit-animation:fi .3s;animation:fi .3s}
+.le>*{margin-right:6px}
+@-webkit-keyframes fi{from{opacity:0;-webkit-transform:translateY(-3px);transform:translateY(-3px)}to{opacity:1;-webkit-transform:none;transform:none}}
+@keyframes fi{from{opacity:0;-webkit-transform:translateY(-3px);transform:translateY(-3px)}to{opacity:1;-webkit-transform:none;transform:none}}
 .le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
-.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}
-.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
-@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.le-t{color:#8b949e;min-width:40px;-webkit-flex-shrink:0;flex-shrink:0}
+.le-i{-webkit-flex-shrink:0;flex-shrink:0;width:14px;text-align:center}.le-x{-webkit-flex:1;flex:1}
+@media(max-width:860px){.app{-webkit-flex-direction:column;flex-direction:column}.side{width:100%;border-left:none;border-top:1px solid #30363d;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap}.w{-webkit-flex:1;flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
 </style>
 </head>
 <body>
@@ -72,7 +79,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
     <div class="w"><h3>Installation Progress</h3>
       <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
       <div class="sr" style="margin-top:6px"><span class="sl">Phase</span><span class="sv" id="phase">--</span></div>
-      <div class="sr"><span class="sl">Status</span><span class="sv" id="status" style="color:var(--muted)">Waiting</span></div>
+      <div class="sr"><span class="sl">Status</span><span class="sv" id="status" style="color:#8b949e">Waiting</span></div>
     </div>
     <div class="w"><h3>Dependencies</h3>
       <div class="dep-list" id="depList">
@@ -87,7 +94,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
     <div class="w"><h3>Database</h3>
       <div class="sr"><span class="sl">Type</span><span class="sv" id="dbType">--</span></div>
       <div class="sr"><span class="sl">Host</span><span class="sv" id="dbHost">--</span></div>
-      <div class="sr"><span class="sl">Status</span><span class="sv" id="dbStatus" style="color:var(--muted)">--</span></div>
+      <div class="sr"><span class="sl">Status</span><span class="sv" id="dbStatus" style="color:#8b949e">--</span></div>
     </div>
     <div class="w"><h3>Config</h3>
       <div class="sr"><span class="sl">Thumbnails</span><span class="sv" id="cfgThumb">--</span></div>
@@ -99,50 +106,71 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 </div>
 <script>
 (function(){
-'use strict';
-const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
-const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0};
-const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+var $ = function(id){ return document.getElementById(id); };
+var cv = $('cv');
+var ctx = cv.getContext('2d');
 
-const SC=[
+var A = {sc:0, mode:'auto', speed:1, playing:true, step:0, steps:[], timer:null, looping:false, logN:0};
+
+var sel = $('sel');
+var bA = $('bA');
+var bM = $('bM');
+var bPP = $('bPP');
+var bPr = $('bPr');
+var bNx = $('bNx');
+var bRe = $('bRe');
+var bL = $('bL');
+var bSt = $('bSt');
+var logE = $('logE');
+var dsc = $('dsc');
+var dots = $('dots');
+var spB = Array.prototype.slice.call(document.querySelectorAll('.sp'));
+
+function padTwo(n) {
+  var s = String(n);
+  while (s.length < 2) { s = '0' + s; }
+  return s;
+}
+
+var SC = [
   {title:'Plugin Installation',desc:'<strong>Installation:</strong> PyArchInit is installed via QGIS Plugin Manager. Dependencies are auto-installed on first launch.',
    steps:[
-    {log:'Open QGIS 3.22+ → Plugins → Manage and Install Plugins.',type:'info',phase:'QGIS Plugin Manager',prog:5,d:'Navigate to the Plugin Manager in QGIS main menu. PyArchInit requires QGIS >= 3.22.'},
+    {log:'Open QGIS 3.22+ \u2192 Plugins \u2192 Manage and Install Plugins.',type:'info',phase:'QGIS Plugin Manager',prog:5,d:'Navigate to the Plugin Manager in QGIS main menu. PyArchInit requires QGIS >= 3.22.'},
     {log:'Search "pyarchinit" in plugin repository. Click "Install Plugin".',type:'info',prog:15,d:'The plugin is available in the official QGIS plugin repository.'},
     {log:'Plugin downloaded and extracted to QGIS profiles/plugins/pyarchinit/.',type:'success',prog:25,d:'QGIS downloads the .zip and extracts it to the user profile plugins directory.'},
     {log:'First launch: __init__.py detects missing dependencies.',type:'warn',prog:30,d:'On first run, the plugin checks for required Python packages.'},
     {log:'Running modules_installer.py: pip install SQLAlchemy...',type:'info',dep:'sqlalchemy',prog:40,d:'Automatic pip install for each required package. This may take a minute.'},
-    {log:'pip install ReportLab — PDF generation engine.',type:'info',dep:'reportlab',prog:50,d:'ReportLab is used for generating archaeological PDF reports and documentation sheets.'},
-    {log:'pip install opencv-python — Image processing.',type:'info',dep:'opencv',prog:60,d:'OpenCV handles image manipulation, classification, and the SAM segmentation features.'},
-    {log:'pip install graphviz — Harris Matrix rendering.',type:'info',dep:'graphviz',prog:70,d:'Graphviz is required for generating Harris Matrix DOT diagrams.'},
-    {log:'pip install numpy — Numerical computations.',type:'info',dep:'numpy',prog:80,d:'NumPy is a core dependency for OpenCV and data processing.'},
-    {log:'pip install Pillow — Image handling.',type:'info',dep:'pillow',prog:88,d:'Pillow handles thumbnail generation, image resizing, and format conversion.'},
+    {log:'pip install ReportLab \u2014 PDF generation engine.',type:'info',dep:'reportlab',prog:50,d:'ReportLab is used for generating archaeological PDF reports and documentation sheets.'},
+    {log:'pip install opencv-python \u2014 Image processing.',type:'info',dep:'opencv',prog:60,d:'OpenCV handles image manipulation, classification, and the SAM segmentation features.'},
+    {log:'pip install graphviz \u2014 Harris Matrix rendering.',type:'info',dep:'graphviz',prog:70,d:'Graphviz is required for generating Harris Matrix DOT diagrams.'},
+    {log:'pip install numpy \u2014 Numerical computations.',type:'info',dep:'numpy',prog:80,d:'NumPy is a core dependency for OpenCV and data processing.'},
+    {log:'pip install Pillow \u2014 Image handling.',type:'info',dep:'pillow',prog:88,d:'Pillow handles thumbnail generation, image resizing, and format conversion.'},
     {log:'Font check: Cambria font required for PDF reports. Installing if missing...',type:'info',prog:93,d:'Platform-specific font installation (Windows/Mac/Linux) for report typography.'},
-    {log:'All dependencies installed. Plugin ready! Restart QGIS to activate.',type:'success',prog:100,status:'Ready',d:'Installation complete. The plugin toolbar will appear after restarting QGIS.'},
+    {log:'All dependencies installed. Plugin ready! Restart QGIS to activate.',type:'success',prog:100,status:'Ready',d:'Installation complete. The plugin toolbar will appear after restarting QGIS.'}
   ]},
   {title:'Database Configuration',desc:'<strong>Database:</strong> Choose between PostgreSQL/PostGIS (multi-user, recommended) or SQLite/Spatialite (single-user, portable).',
    steps:[
-    {log:'Open PyArchInit → Configuration (gear icon in toolbar).',type:'info',phase:'DB Config',prog:0,d:'The configuration dialog manages database connections, paths, and plugin settings.'},
+    {log:'Open PyArchInit \u2192 Configuration (gear icon in toolbar).',type:'info',phase:'DB Config',prog:0,d:'The configuration dialog manages database connections, paths, and plugin settings.'},
     {log:'Choose database backend: PostgreSQL/PostGIS or SQLite/Spatialite.',type:'info',d:'PostgreSQL supports multi-user, roles, and remote access. SQLite is file-based and portable.'},
-    {log:'Option A: PostgreSQL — Host: localhost, Port: 5432, DB: pyarchinit_db.',type:'info',db:{type:'PostgreSQL',host:'localhost',status:'Connecting...'},d:'Enter server credentials. Supports local and remote (Supabase, AWS RDS, Neon...) servers.'},
+    {log:'Option A: PostgreSQL \u2014 Host: localhost, Port: 5432, DB: pyarchinit_db.',type:'info',db:{type:'PostgreSQL',host:'localhost',status:'Connecting...'},d:'Enter server credentials. Supports local and remote (Supabase, AWS RDS, Neon...) servers.'},
     {log:'PostgreSQL: Testing connection... pool_pre_ping=True.',type:'info',d:'The connection is tested with a lightweight ping before being accepted.'},
     {log:'PostgreSQL: Connection successful! Creating schema if needed...',type:'success',db:{status:'Connected'},prog:40,d:'If this is a new database, PyArchInit will create all required tables automatically.'},
-    {log:'Option B: SQLite — File: ~/.pyarchinit_DB_folder/pyarchinit_db.sqlite',type:'info',db:{type:'SQLite',host:'local file',status:'Opening...'},d:'SQLite database is stored as a single file. Great for individual use or field work.'},
+    {log:'Option B: SQLite \u2014 File: ~/.pyarchinit_DB_folder/pyarchinit_db.sqlite',type:'info',db:{type:'SQLite',host:'local file',status:'Opening...'},d:'SQLite database is stored as a single file. Great for individual use or field work.'},
     {log:'SQLite: Database opened. Checking integrity...',type:'info',d:'check_and_fix_sqlite_databases() verifies table structure on every startup.'},
     {log:'SQLite: All tables verified. Ready for use.',type:'success',db:{status:'Ready'},prog:70,d:'SQLite is ready immediately. No server configuration needed.'},
     {log:'Database schema: 41+ data tables, thesaurus tables, media tables, geometric tables.',type:'info',prog:85,d:'The schema includes tables for US, sites, finds, burials, periods, media, and many more.'},
-    {log:'Configuration saved to ~/.pyarchinit_DB_folder/config.cfg.',type:'success',prog:100,status:'Configured',d:'PARAMS_DICT stores SERVER, HOST, DATABASE, PASSWORD, PORT, USER, THUMB_PATH, etc.'},
+    {log:'Configuration saved to ~/.pyarchinit_DB_folder/config.cfg.',type:'success',prog:100,status:'Configured',d:'PARAMS_DICT stores SERVER, HOST, DATABASE, PASSWORD, PORT, USER, THUMB_PATH, etc.'}
   ]},
   {title:'Plugin Settings & Paths',desc:'<strong>Settings:</strong> Configure thumbnail paths, resize settings, locale, and experimental features.',
    steps:[
     {log:'Settings tab: configure paths for thumbnails and media storage.',type:'info',phase:'Paths & Settings',d:'The configuration dialog has multiple tabs for different settings categories.'},
     {log:'THUMB_PATH: set directory for thumbnail cache. Default: ~/.pyarchinit_DB_folder/thumb/',type:'info',cfg:{thumb:'~/.pyarchinit/thumb/'},d:'Thumbnails are cached locally for fast display. Remote storage uses this path too.'},
     {log:'THUMB_RESIZE: set max dimensions for thumbnail generation (e.g., 300x300).',type:'info',d:'Larger thumbnails = better quality but more disk space and slower loading.'},
-    {log:'Locale detection: reading QGIS locale → mapping to PyArchInit language.',type:'info',cfg:{locale:'it_IT'},d:'The plugin auto-detects language from QGIS settings. Supports: it, en, de, fr, es, ar, ca.'},
-    {log:'Locale mapping: it_IT → "it", en_US → "en", de_DE → "de", etc.',type:'info',d:'Short locale codes are used for UI labels, tutorial selection, and relationship names.'},
+    {log:'Locale detection: reading QGIS locale \u2192 mapping to PyArchInit language.',type:'info',cfg:{locale:'it_IT'},d:'The plugin auto-detects language from QGIS settings. Supports: it, en, de, fr, es, ar, ca.'},
+    {log:'Locale mapping: it_IT \u2192 "it", en_US \u2192 "en", de_DE \u2192 "de", etc.',type:'info',d:'Short locale codes are used for UI labels, tutorial selection, and relationship names.'},
     {log:'EXPERIMENTAL: enable/disable experimental features (AI, SAM segmentation).',type:'info',d:'Some features like AI query and image segmentation are marked experimental.'},
     {log:'SITE_SET: select default archaeological site for data filtering.',type:'info',cfg:{site:'Excavation Alpha'},d:'When set, all forms and queries default to this site. Can be changed per-session.'},
-    {log:'All settings saved. Plugin configured and ready to use.',type:'success',status:'Complete',d:'Settings persist across QGIS sessions via config.cfg and QGIS Settings API.'},
+    {log:'All settings saved. Plugin configured and ready to use.',type:'success',status:'Complete',d:'Settings persist across QGIS sessions via config.cfg and QGIS Settings API.'}
   ]},
   {title:'First Project Setup',desc:'<strong>First Project:</strong> Create your first archaeological site, configure coordinate systems, and begin data entry.',
    steps:[
@@ -153,247 +181,458 @@ const SC=[
     {log:'Enter US 1: Type = Stratum, Interpretation = Topsoil, Period = I, Phase = a.',type:'info',d:'Each US record captures physical description, interpretation, and chronological assignment.'},
     {log:'Add relationships: US 1 Copre (Covers) US 2. System auto-creates inverse.',type:'info',d:'When you add "US 1 Copre US 2", PyArchInit automatically adds "US 2 Coperto da US 1".'},
     {log:'Link media: open Media Manager, upload site photos, link to US 1.',type:'info',d:'Media (photos, drawings) are stored in the media system and linked to any record.'},
-    {log:'Generate Harris Matrix: Tools → Interactive Matrix → Generate.',type:'info',d:'The matrix visualizes all stratigraphic relationships as a directed graph.'},
-    {log:'First project setup complete! Ready for full archaeological recording.',type:'success',status:'Ready',d:'Your project is configured. You can now add more US, finds, structures, and burials.'},
+    {log:'Generate Harris Matrix: Tools \u2192 Interactive Matrix \u2192 Generate.',type:'info',d:'The matrix visualizes all stratigraphic relationships as a directed graph.'},
+    {log:'First project setup complete! Ready for full archaeological recording.',type:'success',status:'Ready',d:'Your project is configured. You can now add more US, finds, structures, and burials.'}
   ]}
 ];
 
 // ── UI ──
-function updProg(v){$('progFill').style.width=(v||0)+'%';}
-function updPhase(p){$('phase').textContent=p||'--';}
-function updStatus(s,c){$('status').textContent=s||'--';$('status').style.color=c||'var(--muted)';}
-function updDep(name){document.querySelectorAll('.dep').forEach(d=>{if(d.dataset.d===name){d.classList.add('done');d.querySelector('.ck').textContent='\u2713';}});}
-function resetDeps(){document.querySelectorAll('.dep').forEach(d=>{d.classList.remove('done','err');d.querySelector('.ck').textContent='';});}
-function updDB(o){if(o){if(o.type)$('dbType').textContent=o.type;if(o.host)$('dbHost').textContent=o.host;if(o.status){$('dbStatus').textContent=o.status;$('dbStatus').style.color=o.status==='Connected'||o.status==='Ready'?'var(--green)':'var(--orange)';}}}
-function updCfg(o){if(o){if(o.thumb)$('cfgThumb').textContent=o.thumb;if(o.locale)$('cfgLocale').textContent=o.locale;if(o.site)$('cfgSite').textContent=o.site;}}
-function addLog(t,type){
-  A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');
-  const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};
-  const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};
-  const d=document.createElement('div');d.className='le '+type;
-  d.innerHTML=`<span class="le-t">${ts}</span><span class="le-i" style="color:${cl[type]}">${ic[type]}</span><span class="le-x">${t}</span>`;
-  logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);
+function updProg(v){ $('progFill').style.width = (v || 0) + '%'; }
+function updPhase(p){ $('phase').textContent = p || '--'; }
+function updStatus(s, c){ $('status').textContent = s || '--'; $('status').style.color = c || '#8b949e'; }
+
+function updDep(name){
+  var deps = Array.prototype.slice.call(document.querySelectorAll('.dep'));
+  for (var i = 0; i < deps.length; i++) {
+    var d = deps[i];
+    if (d.getAttribute('data-d') === name) {
+      d.className = 'dep done';
+      var ck = d.querySelector('.ck');
+      if (ck) { ck.textContent = '\u2713'; }
+    }
+  }
 }
-function updDots(){dots.innerHTML='';A.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
-function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
+
+function resetDeps(){
+  var deps = Array.prototype.slice.call(document.querySelectorAll('.dep'));
+  for (var i = 0; i < deps.length; i++) {
+    var d = deps[i];
+    d.className = 'dep';
+    var ck = d.querySelector('.ck');
+    if (ck) { ck.textContent = ''; }
+  }
+}
+
+function updDB(o){
+  if (o) {
+    if (o.type) { $('dbType').textContent = o.type; }
+    if (o.host) { $('dbHost').textContent = o.host; }
+    if (o.status) {
+      $('dbStatus').textContent = o.status;
+      if (o.status === 'Connected' || o.status === 'Ready') {
+        $('dbStatus').style.color = '#3fb950';
+      } else {
+        $('dbStatus').style.color = '#d29922';
+      }
+    }
+  }
+}
+
+function updCfg(o){
+  if (o) {
+    if (o.thumb) { $('cfgThumb').textContent = o.thumb; }
+    if (o.locale) { $('cfgLocale').textContent = o.locale; }
+    if (o.site) { $('cfgSite').textContent = o.site; }
+  }
+}
+
+function addLog(t, type){
+  A.logN++;
+  var now = new Date();
+  var ts = padTwo(now.getMinutes()) + ':' + padTwo(now.getSeconds());
+  var ic = {info:'&#8505;', success:'&#10004;', warn:'&#9888;', error:'&#10008;'};
+  var cl = {info:'#58a6ff', success:'#3fb950', warn:'#d29922', error:'#f85149'};
+  var d = document.createElement('div');
+  d.className = 'le ' + type;
+  d.innerHTML = '<span class="le-t">' + ts + '</span><span class="le-i" style="color:' + cl[type] + '">' + ic[type] + '</span><span class="le-x">' + t + '</span>';
+  if (logE.firstChild) {
+    logE.insertBefore(d, logE.firstChild);
+  } else {
+    logE.appendChild(d);
+  }
+  while (logE.children.length > 25) { logE.removeChild(logE.lastChild); }
+}
+
+function updDots(){
+  dots.innerHTML = '';
+  for (var i = 0; i < A.steps.length; i++) {
+    var d = document.createElement('div');
+    var cls = 'dot';
+    if (i === A.step) { cls += ' on'; }
+    else if (i < A.step) { cls += ' ok'; }
+    d.className = cls;
+    dots.appendChild(d);
+  }
+}
+
+function updDesc(h){ dsc.innerHTML = h || ''; dsc.style.opacity = h ? '1' : '0'; }
 
 // ── Canvas ──
-function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
-window.addEventListener('resize',resize);
-function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function resize(){
+  var r = cv.parentElement.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  cv.width = r.width * dpr;
+  cv.height = r.height * dpr;
+  cv.style.width = r.width + 'px';
+  cv.style.height = r.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+function rr(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// Polyfill for ctx.ellipse using save/translate/scale/arc/restore
+function drawEllipse(cx, cy, rx, ry, rotation, startAngle, endAngle, anticlockwise) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rotation);
+  ctx.scale(rx, ry);
+  ctx.beginPath();
+  ctx.arc(0, 0, 1, startAngle, endAngle, !!anticlockwise);
+  ctx.restore();
+}
 
 function drawScene(ts){
-  const W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
-  ctx.clearRect(0,0,W,H);const t=ts*.001;
-  if(A.sc===0)drawInstall(t,W,H);
-  else if(A.sc===1)drawDatabase(t,W,H);
-  else if(A.sc===2)drawSettings(t,W,H);
-  else if(A.sc===3)drawFirstProject(t,W,H);
+  var W = cv.width / (window.devicePixelRatio || 1);
+  var H = cv.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+  var t = ts * 0.001;
+  if (A.sc === 0) { drawInstall(t, W, H); }
+  else if (A.sc === 1) { drawDatabase(t, W, H); }
+  else if (A.sc === 2) { drawSettings(t, W, H); }
+  else if (A.sc === 3) { drawFirstProject(t, W, H); }
 }
 
-function drawInstall(t,W,H){
+function drawInstall(t, W, H){
   // QGIS window outline
-  rr(W*.05,H*.05,W*.9,H*.85,8);
-  ctx.fillStyle='rgba(22,27,34,.8)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1.5;ctx.stroke();
+  rr(W * 0.05, H * 0.05, W * 0.9, H * 0.85, 8);
+  ctx.fillStyle = 'rgba(22,27,34,.8)'; ctx.fill();
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1.5; ctx.stroke();
   // Title bar
-  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(W*.05+1,H*.05+1,W*.9-2,22);
-  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
-  ctx.fillText('QGIS 3.28 — Plugin Manager',W*.08,H*.05+15);
+  ctx.fillStyle = 'rgba(88,166,255,.06)'; ctx.fillRect(W * 0.05 + 1, H * 0.05 + 1, W * 0.9 - 2, 22);
+  ctx.fillStyle = '#58a6ff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('QGIS 3.28 \u2014 Plugin Manager', W * 0.08, H * 0.05 + 15);
   // Plugin list
-  const plugins=['pyarchinit','QuickMapServices','Processing','GRASS'];
-  plugins.forEach((p,i)=>{
-    const y=H*.05+32+i*24;
-    ctx.fillStyle=i===0?'rgba(88,166,255,.1)':'transparent';
-    ctx.fillRect(W*.08,y,W*.35,20);
-    ctx.fillStyle=i===0?'#58a6ff':'#8b949e';ctx.font=(i===0?'bold ':'')+'10px sans-serif';
-    ctx.fillText(p,W*.1,y+14);
-  });
+  var plugins = ['pyarchinit', 'QuickMapServices', 'Processing', 'GRASS'];
+  for (var i = 0; i < plugins.length; i++) {
+    var y = H * 0.05 + 32 + i * 24;
+    ctx.fillStyle = i === 0 ? 'rgba(88,166,255,.1)' : 'transparent';
+    ctx.fillRect(W * 0.08, y, W * 0.35, 20);
+    ctx.fillStyle = i === 0 ? '#58a6ff' : '#8b949e';
+    ctx.font = (i === 0 ? 'bold ' : '') + '10px sans-serif';
+    ctx.fillText(plugins[i], W * 0.1, y + 14);
+  }
   // Detail panel
-  const dx=W*.48,dy=H*.12;
-  ctx.fillStyle='#e6edf3';ctx.font='bold 14px sans-serif';ctx.fillText('PyArchInit',dx,dy);
-  ctx.fillStyle='#8b949e';ctx.font='10px sans-serif';
-  ctx.fillText('Archaeological data management for QGIS',dx,dy+18);
-  ctx.fillText('Version: 4.x | License: GPL v2',dx,dy+34);
-  ctx.fillText('Author: Luca Mandolesi, Enzo Cocca',dx,dy+50);
+  var dx = W * 0.48, dy = H * 0.12;
+  ctx.fillStyle = '#e6edf3'; ctx.font = 'bold 14px sans-serif'; ctx.fillText('PyArchInit', dx, dy);
+  ctx.fillStyle = '#8b949e'; ctx.font = '10px sans-serif';
+  ctx.fillText('Archaeological data management for QGIS', dx, dy + 18);
+  ctx.fillText('Version: 4.x | License: GPL v2', dx, dy + 34);
+  ctx.fillText('Author: Luca Mandolesi, Enzo Cocca', dx, dy + 50);
   // Install button
-  const bx=dx,by=dy+65;
-  rr(bx,by,120,28,4);
-  ctx.fillStyle='rgba(63,185,80,.15)';ctx.fill();
-  ctx.strokeStyle='#3fb950';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#3fb950';ctx.font='bold 10px sans-serif';ctx.fillText('Install Plugin',bx+24,by+18);
+  var bx = dx, by = dy + 65;
+  rr(bx, by, 120, 28, 4);
+  ctx.fillStyle = 'rgba(63,185,80,.15)'; ctx.fill();
+  ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#3fb950'; ctx.font = 'bold 10px sans-serif'; ctx.fillText('Install Plugin', bx + 24, by + 18);
   // Dependency progress
-  const deps=['SQLAlchemy','ReportLab','OpenCV','Graphviz','NumPy','Pillow'];
-  const py=H*.55;
-  ctx.fillStyle='#8b949e';ctx.font='bold 9px sans-serif';ctx.textAlign='left';
-  ctx.fillText('DEPENDENCY INSTALLATION',dx,py);
-  deps.forEach((d,i)=>{
-    const y=py+14+i*18;
-    const done=document.querySelector(`.dep[data-d="${d.toLowerCase()}"]`)?.classList.contains('done');
-    ctx.fillStyle=done?'#3fb950':'#30363d';
-    rr(dx,y,W*.38,14,3);ctx.fill();
-    ctx.fillStyle=done?'#e6edf3':'#8b949e';ctx.font='9px sans-serif';
-    ctx.fillText((done?'\u2713 ':'\u25CB ')+d,dx+6,y+11);
-  });
+  var deps = ['SQLAlchemy', 'ReportLab', 'OpenCV', 'Graphviz', 'NumPy', 'Pillow'];
+  var py = H * 0.55;
+  ctx.fillStyle = '#8b949e'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('DEPENDENCY INSTALLATION', dx, py);
+  for (var j = 0; j < deps.length; j++) {
+    var yy = py + 14 + j * 18;
+    var depEl = document.querySelector('.dep[data-d="' + deps[j].toLowerCase() + '"]');
+    var done = depEl ? ((' ' + depEl.className + ' ').indexOf(' done ') !== -1) : false;
+    ctx.fillStyle = done ? '#3fb950' : '#30363d';
+    rr(dx, yy, W * 0.38, 14, 3); ctx.fill();
+    ctx.fillStyle = done ? '#e6edf3' : '#8b949e'; ctx.font = '9px sans-serif';
+    ctx.fillText((done ? '\u2713 ' : '\u25CB ') + deps[j], dx + 6, yy + 11);
+  }
 }
 
-function drawDatabase(t,W,H){
+function drawDatabase(t, W, H){
   // Two options side by side
-  const lx=W*.15,rx=W*.58,ty=H*.15;
+  var lx = W * 0.15, rx = W * 0.58, ty = H * 0.15;
+  var ecx, ecy;
   // PostgreSQL box
-  rr(lx-60,ty,W*.35,H*.55,8);
-  ctx.fillStyle='rgba(88,166,255,.04)';ctx.fill();
-  ctx.strokeStyle='#58a6ff55';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#58a6ff';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
-  ctx.fillText('PostgreSQL / PostGIS',lx+W*.115,ty+20);
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
-  const pgFeats=['Multi-user support','Role-based access','Remote connections','pool_pre_ping health check','Recommended for teams'];
-  pgFeats.forEach((f,i)=>{ctx.textAlign='left';ctx.fillText('\u2022 '+f,lx-45,ty+42+i*16);});
-  // DB cylinder
-  ctx.strokeStyle='#58a6ff';ctx.lineWidth=1.5;ctx.fillStyle='rgba(88,166,255,.1)';
-  ctx.beginPath();ctx.ellipse(lx+W*.115,ty+H*.35,25,10,0,0,Math.PI*2);ctx.fill();ctx.stroke();
-  ctx.beginPath();ctx.moveTo(lx+W*.115-25,ty+H*.35);ctx.lineTo(lx+W*.115-25,ty+H*.35+30);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(lx+W*.115+25,ty+H*.35);ctx.lineTo(lx+W*.115+25,ty+H*.35+30);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(lx+W*.115,ty+H*.35+30,25,10,0,0,Math.PI,false);ctx.stroke();
+  rr(lx - 60, ty, W * 0.35, H * 0.55, 8);
+  ctx.fillStyle = 'rgba(88,166,255,.04)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(88,166,255,.33)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#58a6ff'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('PostgreSQL / PostGIS', lx + W * 0.115, ty + 20);
+  ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+  var pgFeats = ['Multi-user support', 'Role-based access', 'Remote connections', 'pool_pre_ping health check', 'Recommended for teams'];
+  for (var i = 0; i < pgFeats.length; i++) {
+    ctx.textAlign = 'left';
+    ctx.fillText('\u2022 ' + pgFeats[i], lx - 45, ty + 42 + i * 16);
+  }
+  // DB cylinder (top ellipse)
+  ecx = lx + W * 0.115;
+  ecy = ty + H * 0.35;
+  ctx.strokeStyle = '#58a6ff'; ctx.lineWidth = 1.5; ctx.fillStyle = 'rgba(88,166,255,.1)';
+  drawEllipse(ecx, ecy, 25, 10, 0, 0, Math.PI * 2, false);
+  ctx.fill(); ctx.stroke();
+  // Cylinder sides
+  ctx.beginPath(); ctx.moveTo(ecx - 25, ecy); ctx.lineTo(ecx - 25, ecy + 30); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ecx + 25, ecy); ctx.lineTo(ecx + 25, ecy + 30); ctx.stroke();
+  // Cylinder bottom half-ellipse
+  drawEllipse(ecx, ecy + 30, 25, 10, 0, 0, Math.PI, false);
+  ctx.stroke();
 
   // SQLite box
-  rr(rx-60,ty,W*.35,H*.55,8);
-  ctx.fillStyle='rgba(63,185,80,.04)';ctx.fill();
-  ctx.strokeStyle='#3fb95055';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#3fb950';ctx.font='bold 12px sans-serif';ctx.textAlign='center';
-  ctx.fillText('SQLite / Spatialite',rx+W*.115,ty+20);
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
-  const sqFeats=['Single-user / field work','No server needed','Portable file-based','Auto integrity check','Great for offline use'];
-  sqFeats.forEach((f,i)=>{ctx.textAlign='left';ctx.fillText('\u2022 '+f,rx-45,ty+42+i*16);});
+  rr(rx - 60, ty, W * 0.35, H * 0.55, 8);
+  ctx.fillStyle = 'rgba(63,185,80,.04)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(63,185,80,.33)'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#3fb950'; ctx.font = 'bold 12px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('SQLite / Spatialite', rx + W * 0.115, ty + 20);
+  ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+  var sqFeats = ['Single-user / field work', 'No server needed', 'Portable file-based', 'Auto integrity check', 'Great for offline use'];
+  for (var k = 0; k < sqFeats.length; k++) {
+    ctx.textAlign = 'left';
+    ctx.fillText('\u2022 ' + sqFeats[k], rx - 45, ty + 42 + k * 16);
+  }
   // File icon
-  rr(rx+W*.115-15,ty+H*.35-10,30,35,3);
-  ctx.fillStyle='rgba(63,185,80,.1)';ctx.fill();
-  ctx.strokeStyle='#3fb950';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#3fb950';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
-  ctx.fillText('.sqlite',rx+W*.115,ty+H*.35+12);
+  rr(rx + W * 0.115 - 15, ty + H * 0.35 - 10, 30, 35, 3);
+  ctx.fillStyle = 'rgba(63,185,80,.1)'; ctx.fill();
+  ctx.strokeStyle = '#3fb950'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#3fb950'; ctx.font = 'bold 8px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('.sqlite', rx + W * 0.115, ty + H * 0.35 + 12);
 
   // OR divider
-  ctx.fillStyle='#8b949e';ctx.font='bold 14px sans-serif';ctx.textAlign='center';
-  ctx.fillText('OR',W*.5,H*.5);
+  ctx.fillStyle = '#8b949e'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText('OR', W * 0.5, H * 0.5);
 }
 
-function drawSettings(t,W,H){
+function drawSettings(t, W, H){
   // Config dialog mockup
-  rr(W*.08,H*.08,W*.84,H*.78,8);
-  ctx.fillStyle='rgba(33,38,45,.9)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='rgba(88,166,255,.06)';ctx.fillRect(W*.08+1,H*.08+1,W*.84-2,22);
-  ctx.fillStyle='#58a6ff';ctx.font='bold 10px sans-serif';ctx.textAlign='left';
-  ctx.fillText('PyArchInit Configuration — Settings',W*.11,H*.08+15);
+  rr(W * 0.08, H * 0.08, W * 0.84, H * 0.78, 8);
+  ctx.fillStyle = 'rgba(33,38,45,.9)'; ctx.fill();
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = 'rgba(88,166,255,.06)'; ctx.fillRect(W * 0.08 + 1, H * 0.08 + 1, W * 0.84 - 2, 22);
+  ctx.fillStyle = '#58a6ff'; ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('PyArchInit Configuration \u2014 Settings', W * 0.11, H * 0.08 + 15);
   // Settings groups
-  const groups=[
-    {label:'Paths',items:['THUMB_PATH: ~/.pyarchinit/thumb/','THUMB_RESIZE: 300x300','Export: ~/pyarchinit_Matrix_folder/']},
-    {label:'Locale',items:['Language: auto-detect from QGIS','Supported: it, en, de, fr, es, ar, ca','Date format: locale-specific']},
-    {label:'Features',items:['EXPERIMENTAL: ON/OFF','AI Features: LangChain + GPT','SAM Segmentation: requires model']},
-    {label:'config.cfg',items:['SERVER, HOST, DATABASE','PASSWORD, PORT, USER','THUMB_PATH, SITE_SET']},
+  var groups = [
+    {label:'Paths', items:['THUMB_PATH: ~/.pyarchinit/thumb/', 'THUMB_RESIZE: 300x300', 'Export: ~/pyarchinit_Matrix_folder/']},
+    {label:'Locale', items:['Language: auto-detect from QGIS', 'Supported: it, en, de, fr, es, ar, ca', 'Date format: locale-specific']},
+    {label:'Features', items:['EXPERIMENTAL: ON/OFF', 'AI Features: LangChain + GPT', 'SAM Segmentation: requires model']},
+    {label:'config.cfg', items:['SERVER, HOST, DATABASE', 'PASSWORD, PORT, USER', 'THUMB_PATH, SITE_SET']}
   ];
-  groups.forEach((g,gi)=>{
-    const gx=W*.12+(gi%2)*(W*.4),gy=H*.18+(gi>=2?H*.35:0);
-    rr(gx,gy,W*.36,H*.28,5);
-    ctx.fillStyle='rgba(255,255,255,.02)';ctx.fill();
-    ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='left';
-    ctx.fillText(g.label,gx+10,gy+16);
-    ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';
-    g.items.forEach((item,ii)=>{ctx.fillText(item,gx+10,gy+34+ii*16);});
-  });
+  for (var gi = 0; gi < groups.length; gi++) {
+    var g = groups[gi];
+    var gx = W * 0.12 + (gi % 2) * (W * 0.4);
+    var gy = H * 0.18 + (gi >= 2 ? H * 0.35 : 0);
+    rr(gx, gy, W * 0.36, H * 0.28, 5);
+    ctx.fillStyle = 'rgba(255,255,255,.02)'; ctx.fill();
+    ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = '#58a6ff'; ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(g.label, gx + 10, gy + 16);
+    ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif';
+    for (var ii = 0; ii < g.items.length; ii++) {
+      ctx.fillText(g.items[ii], gx + 10, gy + 34 + ii * 16);
+    }
+  }
 }
 
-function drawFirstProject(t,W,H){
-  // Workflow steps
-  const steps=[
-    {label:'Create Site',icon:'\u{1F3DB}',color:'#58a6ff',x:.12},
-    {label:'Add US',icon:'\u{1F9F1}',color:'#d29922',x:.3},
-    {label:'Relationships',icon:'\u2194',color:'#bc8cff',x:.48},
-    {label:'Link Media',icon:'\u{1F4F7}',color:'#3fb950',x:.66},
-    {label:'Harris Matrix',icon:'\u{1F4CA}',color:'#f85149',x:.84},
+function drawFirstProject(t, W, H){
+  // Workflow steps - use simple text labels instead of emoji which may not render in old WebKit
+  var steps = [
+    {label:'Create Site', icon:'\u2302', color:'#58a6ff', x:0.12},
+    {label:'Add US', icon:'\u25A3', color:'#d29922', x:0.3},
+    {label:'Relationships', icon:'\u2194', color:'#bc8cff', x:0.48},
+    {label:'Link Media', icon:'\u25A3', color:'#3fb950', x:0.66},
+    {label:'Harris Matrix', icon:'\u2261', color:'#f85149', x:0.84}
   ];
   // Connection line
-  ctx.strokeStyle='rgba(88,166,255,.12)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(W*.14,H*.35);ctx.lineTo(W*.84,H*.35);ctx.stroke();
-  steps.forEach((s,i)=>{
-    const x=W*s.x,y=H*.35;
+  ctx.strokeStyle = 'rgba(88,166,255,.12)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(W * 0.14, H * 0.35); ctx.lineTo(W * 0.84, H * 0.35); ctx.stroke();
+  for (var i = 0; i < steps.length; i++) {
+    var s = steps[i];
+    var x = W * s.x, y = H * 0.35;
     // Circle
-    ctx.beginPath();ctx.arc(x,y,28,0,Math.PI*2);
-    ctx.fillStyle=s.color+'15';ctx.fill();
-    ctx.strokeStyle=s.color;ctx.lineWidth=2;ctx.stroke();
-    ctx.fillStyle=s.color;ctx.font='18px sans-serif';ctx.textAlign='center';
-    ctx.fillText(s.icon,x,y+6);
-    ctx.fillStyle='#e6edf3';ctx.font='bold 9px sans-serif';
-    ctx.fillText(s.label,x,y+46);
+    ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2);
+    ctx.fillStyle = s.color + '15'; ctx.fill();
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = s.color; ctx.font = '18px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(s.icon, x, y + 6);
+    ctx.fillStyle = '#e6edf3'; ctx.font = 'bold 9px sans-serif';
+    ctx.fillText(s.label, x, y + 46);
     // Arrow
-    if(i<steps.length-1){
-      ctx.fillStyle='rgba(88,166,255,.3)';
-      const ax=x+32;
-      ctx.beginPath();ctx.moveTo(ax,y-3);ctx.lineTo(ax+8,y);ctx.lineTo(ax,y+3);ctx.fill();
+    if (i < steps.length - 1) {
+      ctx.fillStyle = 'rgba(88,166,255,.3)';
+      var ax = x + 32;
+      ctx.beginPath(); ctx.moveTo(ax, y - 3); ctx.lineTo(ax + 8, y); ctx.lineTo(ax, y + 3); ctx.fill();
     }
-  });
+  }
   // Details area
-  const dy=H*.6;
-  rr(W*.1,dy,W*.8,H*.3,6);
-  ctx.fillStyle='rgba(255,255,255,.02)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='9px sans-serif';ctx.textAlign='left';
-  ctx.fillText('Workflow: Site → US/USM → Relationships → Media → Harris Matrix → Reports',W*.14,dy+18);
-  ctx.fillText('Each form (scheda) handles a specific archaeological data type.',W*.14,dy+34);
-  ctx.fillText('All data is interconnected through foreign keys and relationship tables.',W*.14,dy+50);
-  ctx.fillText('40+ tabs available: US, Finds, Burials, Pottery, Fauna, Documentation, etc.',W*.14,dy+66);
-  ctx.fillText('GIS integration: spatial data visualized directly on the QGIS map canvas.',W*.14,dy+82);
+  var dy = H * 0.6;
+  rr(W * 0.1, dy, W * 0.8, H * 0.3, 6);
+  ctx.fillStyle = 'rgba(255,255,255,.02)'; ctx.fill();
+  ctx.strokeStyle = '#30363d'; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = '#8b949e'; ctx.font = '9px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText('Workflow: Site \u2192 US/USM \u2192 Relationships \u2192 Media \u2192 Harris Matrix \u2192 Reports', W * 0.14, dy + 18);
+  ctx.fillText('Each form (scheda) handles a specific archaeological data type.', W * 0.14, dy + 34);
+  ctx.fillText('All data is interconnected through foreign keys and relationship tables.', W * 0.14, dy + 50);
+  ctx.fillText('40+ tabs available: US, Finds, Burials, Pottery, Fauna, Documentation, etc.', W * 0.14, dy + 66);
+  ctx.fillText('GIS integration: spatial data visualized directly on the QGIS map canvas.', W * 0.14, dy + 82);
 }
 
 // ── Engine ──
 function load(i){
-  A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);
-  updProg(0);updPhase('--');updStatus('Waiting','var(--muted)');resetDeps();
-  updDB({type:'--',host:'--',status:'--'});updCfg({thumb:'--',locale:'--',site:'--'});
-  logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);
+  A.sc = i; A.step = 0; A.steps = SC[i].steps; clearTimeout(A.timer);
+  updProg(0); updPhase('--'); updStatus('Waiting', '#8b949e'); resetDeps();
+  updDB({type:'--', host:'--', status:'--'}); updCfg({thumb:'--', locale:'--', site:'--'});
+  logE.innerHTML = ''; A.logN = 0; updDots(); updDesc(SC[i].desc); exec(0);
 }
+
 function exec(si){
-  if(si<0||si>=A.steps.length)return;A.step=si;const s=A.steps[si];
-  addLog(s.log,s.type);
-  if(s.prog!==undefined)updProg(s.prog);
-  if(s.phase)updPhase(s.phase);
-  if(s.status)updStatus(s.status,s.type==='success'?'var(--green)':s.type==='error'?'var(--red)':'var(--orange)');
-  if(s.dep)updDep(s.dep);
-  if(s.db)updDB(s.db);
-  if(s.cfg)updCfg(s.cfg);
-  if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);
+  if (si < 0 || si >= A.steps.length) { return; }
+  A.step = si;
+  var s = A.steps[si];
+  addLog(s.log, s.type);
+  if (s.prog !== undefined) { updProg(s.prog); }
+  if (s.phase) { updPhase(s.phase); }
+  if (s.status) {
+    var sc = '#d29922';
+    if (s.type === 'success') { sc = '#3fb950'; }
+    else if (s.type === 'error') { sc = '#f85149'; }
+    updStatus(s.status, sc);
+  }
+  if (s.dep) { updDep(s.dep); }
+  if (s.db) { updDB(s.db); }
+  if (s.cfg) { updCfg(s.cfg); }
+  if (s.d) { updDesc('<strong>' + SC[A.sc].title + ':</strong> ' + s.d); }
   updDots();
-  if(A.mode==='auto'&&A.playing)schedNext();
+  if (A.mode === 'auto' && A.playing) { schedNext(); }
 }
+
 function schedNext(){
-  clearTimeout(A.timer);const last=A.step>=A.steps.length-1;
-  if(last&&A.looping){A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto'&&A.looping){const n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}
-  if(last)return;
-  let d=2200;const s=A.steps[A.step];if(s.type==='success')d=2500;if(s.type==='warn')d=2800;
-  A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);
+  clearTimeout(A.timer);
+  var last = A.step >= A.steps.length - 1;
+  if (last && A.looping) {
+    A.timer = setTimeout(function(){
+      if (A.playing && A.mode === 'auto' && A.looping) {
+        var n = (A.sc + 1) % SC.length;
+        sel.value = n;
+        load(n);
+      }
+    }, 3000 / A.speed);
+    return;
+  }
+  if (last) { return; }
+  var d = 2200;
+  var s = A.steps[A.step];
+  if (s.type === 'success') { d = 2500; }
+  if (s.type === 'warn') { d = 2800; }
+  A.timer = setTimeout(function(){
+    if (A.playing && A.mode === 'auto') { exec(A.step + 1); }
+  }, d / A.speed);
 }
 
 // ── Events ──
-sel.addEventListener('change',()=>load(+sel.value));
-bA.addEventListener('click',()=>{A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
-bM.addEventListener('click',()=>{A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
-bPP.addEventListener('click',()=>{A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
-bPr.addEventListener('click',()=>{if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
-bNx.addEventListener('click',()=>{if(A.step<A.steps.length-1)exec(A.step+1);});
-bRe.addEventListener('click',()=>{A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
-bL.addEventListener('click',()=>{A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
-bSt.addEventListener('click',()=>{A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
-spB.forEach(b=>b.addEventListener('click',()=>{spB.forEach(x=>x.classList.remove('on'));b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();}));
-document.addEventListener('keydown',e=>{
-  if(e.key===' '){e.preventDefault();bPP.click();}
-  if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();
-  if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();
-  if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();
-  if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}
+sel.addEventListener('change', function(){ load(+sel.value); });
+
+bA.addEventListener('click', function(){
+  A.mode = 'auto';
+  bA.className = 'on';
+  bM.className = '';
+  bPr.disabled = true;
+  bNx.disabled = true;
+  if (A.playing) { schedNext(); }
 });
-function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
-resize();requestAnimationFrame(renderLoop);load(0);
+
+bM.addEventListener('click', function(){
+  A.mode = 'manual';
+  bM.className = 'on';
+  bA.className = '';
+  bPr.disabled = false;
+  bNx.disabled = false;
+  clearTimeout(A.timer);
+});
+
+bPP.addEventListener('click', function(){
+  A.playing = !A.playing;
+  bPP.innerHTML = A.playing ? '&#10074;&#10074;' : '&#9654;';
+  if (A.playing && A.mode === 'auto') { schedNext(); }
+  else { clearTimeout(A.timer); }
+});
+
+bPr.addEventListener('click', function(){
+  if (A.step > 0) { logE.innerHTML = ''; exec(A.step - 1); }
+});
+
+bNx.addEventListener('click', function(){
+  if (A.step < A.steps.length - 1) { exec(A.step + 1); }
+});
+
+bRe.addEventListener('click', function(){
+  A.playing = true;
+  bPP.innerHTML = '&#10074;&#10074;';
+  load(A.sc);
+});
+
+bL.addEventListener('click', function(){
+  A.looping = !A.looping;
+  if (A.looping) {
+    bL.className = 'on';
+  } else {
+    bL.className = '';
+  }
+  bSt.style.display = A.looping ? '' : 'none';
+  bL.innerHTML = A.looping ? '&#8635; Looping' : '&#8635; Loop';
+  if (A.looping && A.playing && A.mode === 'auto' && A.step >= A.steps.length - 1) { schedNext(); }
+});
+
+bSt.addEventListener('click', function(){
+  A.looping = false;
+  A.playing = false;
+  bL.className = '';
+  bL.innerHTML = '&#8635; Loop';
+  bSt.style.display = 'none';
+  bPP.innerHTML = '&#9654;';
+  clearTimeout(A.timer);
+});
+
+for (var si = 0; si < spB.length; si++) {
+  (function(b){
+    b.addEventListener('click', function(){
+      for (var j = 0; j < spB.length; j++) {
+        spB[j].className = 'sp';
+      }
+      b.className = 'sp on';
+      A.speed = +b.getAttribute('data-s');
+      if (A.playing && A.mode === 'auto') { schedNext(); }
+    });
+  })(spB[si]);
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === ' ') { e.preventDefault(); bPP.click(); }
+  if (e.key === 'ArrowRight' && A.mode === 'manual') { bNx.click(); }
+  if (e.key === 'ArrowLeft' && A.mode === 'manual') { bPr.click(); }
+  if (e.key === 'r' || e.key === 'R') { bRe.click(); }
+  if (e.key === 'l' || e.key === 'L') { bL.click(); }
+  if ((e.key === 's' || e.key === 'S') && A.looping) { bSt.click(); }
+  if (e.key >= '1' && e.key <= '4') { sel.value = +e.key - 1; load(+e.key - 1); }
+});
+
+function renderLoop(ts){ drawScene(ts); requestAnimationFrame(renderLoop); }
+resize();
+requestAnimationFrame(renderLoop);
+load(0);
 })();
 </script>
 </body>

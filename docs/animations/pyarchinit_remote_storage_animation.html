@@ -6,39 +6,46 @@
 <title>PyArchInit — Remote Storage Tutorial</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--bg4:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--red:#f85149;--orange:#d29922;--purple:#bc8cff;--cyan:#39d353;--radius:8px}
-html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.app{display:grid;grid-template-columns:1fr 250px;grid-template-rows:auto 1fr auto;height:100vh}
-.hdr{grid-column:1/-1;background:var(--bg2);border-bottom:1px solid var(--bg4);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.hdr h1{font-size:1.2rem;font-weight:600;color:var(--accent)}.hdr h1 span{color:var(--muted);font-weight:400}
-.main{grid-column:1;display:flex;flex-direction:column;overflow:hidden}
-.side{grid-column:2;grid-row:2/4;background:var(--bg2);border-left:1px solid var(--bg4);padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
-.log{grid-column:1;background:var(--bg2);border-top:1px solid var(--bg4);padding:10px 20px;max-height:160px;overflow-y:auto}
-.ctrls{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.ctrls button,.ctrls select{background:var(--bg3);border:1px solid var(--bg4);color:var(--text);padding:5px 10px;border-radius:var(--radius);cursor:pointer;font-size:.82rem;transition:all .2s}
-.ctrls button:hover{border-color:var(--accent)}.ctrls button.on{background:var(--accent);color:#000;border-color:var(--accent)}.ctrls button:disabled{opacity:.3}
-.g{display:flex;gap:1px}.g button{border-radius:0}.g button:first-child{border-radius:var(--radius) 0 0 var(--radius)}.g button:last-child{border-radius:0 var(--radius) var(--radius) 0}
-.scene{flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
-.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);backdrop-filter:blur(6px);border:1px solid var(--bg4);border-radius:var(--radius);padding:10px 14px;max-width:360px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:var(--accent)}
-.dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px;z-index:5}
-.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);transition:all .3s}
-.dot.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 6px var(--accent)}.dot.ok{background:var(--green);border-color:var(--green)}
-.w{background:var(--bg3);border-radius:var(--radius);padding:12px;border:1px solid rgba(88,166,255,.06)}
-.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:7px}
-.sr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
-.sl{color:var(--muted)}.sv{font-weight:600;font-variant-numeric:tabular-nums}
-.backend-list{display:flex;flex-direction:column;gap:3px}
-.bk{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:4px;font-size:.78rem;transition:all .3s}
-.bk.hl{background:rgba(88,166,255,.1);border:1px solid var(--accent)}
-.bk-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
-.les{display:flex;flex-direction:column;gap:2px}
-.le{display:flex;gap:6px;font-size:.8rem;padding:2px 5px;border-radius:3px;animation:fi .3s}
+html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
+.app{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.hdr{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.hdr h1{font-size:1.2rem;font-weight:600;color:#58a6ff}.hdr h1 span{color:#8b949e;font-weight:400}
+.main{-webkit-box-flex:1;-webkit-flex:1;flex:1;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0}
+.side{width:250px;background:#161b22;border-left:1px solid #30363d;padding:14px;overflow-y:auto;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.side .w{margin-bottom:12px}
+.log{width:100%;-webkit-box-ordinal-group:5;-webkit-order:4;order:4;background:#161b22;border-top:1px solid #30363d;padding:10px 20px;max-height:160px;overflow-y:auto}
+.ctrls{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
+.ctrls button,.ctrls select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.82rem;-webkit-transition:all .2s;transition:all .2s;margin-left:5px}
+.ctrls button:hover{border-color:#58a6ff}.ctrls button.on{background:#58a6ff;color:#000;border-color:#58a6ff}.ctrls button:disabled{opacity:.3}
+.g{display:-webkit-box;display:-webkit-flex;display:flex}.g button{border-radius:0;margin-left:0;margin-right:-1px}.g button:first-child{border-radius:8px 0 0 8px}.g button:last-child{border-radius:0 8px 8px 0;margin-right:0}
+.scene{-webkit-box-flex:1;-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}.scene canvas{width:100%;height:100%;display:block}
+.dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:360px;font-size:.83rem;line-height:1.5;z-index:5}.dsc strong{color:#58a6ff}
+.dots{position:absolute;bottom:10px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-box;display:-webkit-flex;display:flex;z-index:5}
+.dots .dot{margin-left:5px}
+.dots .dot:first-child{margin-left:0}
+.dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);-webkit-transition:all .3s;transition:all .3s}
+.dot.on{background:#58a6ff;border-color:#58a6ff;-webkit-box-shadow:0 0 6px #58a6ff;box-shadow:0 0 6px #58a6ff}.dot.ok{background:#3fb950;border-color:#3fb950}
+.w{background:#21262d;border-radius:8px;padding:12px;border:1px solid rgba(88,166,255,.06)}
+.w h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:7px}
+.sr{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-justify-content:space-between;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem}.sr:last-child{border:none}
+.sl{color:#8b949e}.sv{font-weight:600}
+.backend-list{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.backend-list .bk{margin-top:3px}
+.backend-list .bk:first-child{margin-top:0}
+.bk{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;padding:3px 6px;border-radius:4px;font-size:.78rem;-webkit-transition:all .3s;transition:all .3s}
+.bk.hl{background:rgba(88,166,255,.1);border:1px solid #58a6ff}
+.bk-dot{width:8px;height:8px;border-radius:50%;-webkit-flex-shrink:0;flex-shrink:0;margin-right:6px}
+.log h3{font-size:.68rem;text-transform:uppercase;letter-spacing:1px;color:#8b949e;margin-bottom:5px}
+.les{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
+.les .le{margin-top:2px}
+.les .le:first-child{margin-top:0}
+.le{display:-webkit-box;display:-webkit-flex;display:flex;font-size:.8rem;padding:2px 5px;border-radius:3px;-webkit-animation:fi .3s;animation:fi .3s}
+@-webkit-keyframes fi{from{opacity:0;-webkit-transform:translateY(-3px)}to{opacity:1;-webkit-transform:none}}
 @keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1}}
 .le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
-.le-t{color:var(--muted);min-width:40px;flex-shrink:0;font-variant-numeric:tabular-nums}.le-i{flex-shrink:0;width:14px;text-align:center}.le-x{flex:1}
-@media(max-width:860px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto}.side{grid-column:1;grid-row:4;flex-direction:row;flex-wrap:wrap;border-left:none;border-top:1px solid var(--bg4)}.w{flex:1;min-width:160px}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.le-t{color:#8b949e;min-width:40px;-webkit-flex-shrink:0;flex-shrink:0}.le-i{-webkit-flex-shrink:0;flex-shrink:0;width:14px;text-align:center;margin-left:6px}.le-x{-webkit-box-flex:1;-webkit-flex:1;flex:1;margin-left:6px}
+@media(max-width:860px){.app{display:block}.side{width:100%;border-left:none;border-top:1px solid #30363d;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap}.w{-webkit-box-flex:1;-webkit-flex:1;flex:1;min-width:160px}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
 </style>
 </head>
 <body>
@@ -69,159 +76,461 @@ html{font-size:14px}body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont
     <div class="w"><h3>Transfer Status</h3>
       <div class="sr"><span class="sl">Backend</span><span class="sv" id="curBk">--</span></div>
       <div class="sr"><span class="sl">Direction</span><span class="sv" id="curDir">--</span></div>
-      <div class="sr"><span class="sl">Status</span><span class="sv" id="curSt" style="color:var(--muted)">Idle</span></div>
+      <div class="sr"><span class="sl">Status</span><span class="sv" id="curSt" style="color:#8b949e">Idle</span></div>
       <div class="sr"><span class="sl">Files</span><span class="sv" id="curFiles">0</span></div>
     </div>
     <div class="w"><h3>Credentials</h3>
       <div class="sr"><span class="sl">Storage</span><span class="sv" id="credStore">QGIS Settings</span></div>
-      <div class="sr"><span class="sl">Encrypted</span><span class="sv" id="credEnc" style="color:var(--green)">Yes</span></div>
+      <div class="sr"><span class="sl">Encrypted</span><span class="sv" id="credEnc" style="color:#3fb950">Yes</span></div>
     </div>
   </div>
   <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
 </div>
 <script>
 (function(){
-'use strict';
-const $=id=>document.getElementById(id),cv=$('cv'),ctx=cv.getContext('2d');
-const A={sc:0,mode:'auto',speed:1,playing:true,step:0,steps:[],timer:null,looping:false,logN:0,hlBk:null};
-const sel=$('sel'),bA=$('bA'),bM=$('bM'),bPP=$('bPP'),bPr=$('bPr'),bNx=$('bNx'),bRe=$('bRe'),bL=$('bL'),bSt=$('bSt'),logE=$('logE'),dsc=$('dsc'),dots=$('dots'),spB=document.querySelectorAll('.sp');
+var $ = function(id) { return document.getElementById(id); };
+var cv = $('cv');
+var ctx = cv.getContext('2d');
 
-const BK_COLORS={cloudinary:'#f85149',gdrive:'#58a6ff',dropbox:'#d29922',s3:'#3fb950',webdav:'#bc8cff',sftp:'#39d353',api:'#8b949e'};
+var A = {sc:0, mode:'auto', speed:1, playing:true, step:0, steps:[], timer:null, looping:false, logN:0, hlBk:null};
 
-const SC=[
-  {title:'Storage Backends Overview',desc:'<strong>Remote Storage:</strong> PyArchInit supports 7 cloud storage backends for media files (photos, drawings, 3D models).',
+var sel = $('sel');
+var bA = $('bA');
+var bM = $('bM');
+var bPP = $('bPP');
+var bPr = $('bPr');
+var bNx = $('bNx');
+var bRe = $('bRe');
+var bL = $('bL');
+var bSt = $('bSt');
+var logE = $('logE');
+var dsc = $('dsc');
+var dots = $('dots');
+var spB = Array.prototype.slice.call(document.querySelectorAll('.sp'));
+
+var BK_COLORS = {cloudinary:'#f85149', gdrive:'#58a6ff', dropbox:'#d29922', s3:'#3fb950', webdav:'#bc8cff', sftp:'#39d353', api:'#8b949e'};
+
+var SC = [
+  {title:'Storage Backends Overview', desc:'<strong>Remote Storage:</strong> PyArchInit supports 7 cloud storage backends for media files (photos, drawings, 3D models).',
    steps:[
-    {log:'PyArchInit remote storage: store media on cloud instead of (or alongside) local disk.',type:'info',d:'The remote_storage_dialog.py configures which backend to use for media files associated with archaeological records.'},
-    {log:'Cloudinary: cloud-based image/video management. Auto-transforms, CDN delivery.',type:'info',bk:'cloudinary',d:'Cloudinary provides automatic image optimization, transformation, and CDN. Popular for web-published archaeological imagery.'},
-    {log:'Google Drive: gdrive:// URIs. Shared folders for team collaboration.',type:'info',bk:'gdrive',d:'Google Drive integration allows teams to share media in a familiar environment. Uses gdrive:// URI scheme.'},
-    {log:'Dropbox: dropbox:// URIs. Sync-based storage for offline+online work.',type:'info',bk:'dropbox',d:'Dropbox provides automatic sync between local and cloud. Good for field-to-office workflows.'},
-    {log:'Amazon S3 / Cloudflare R2: s3:// URIs. Scalable object storage.',type:'info',bk:'s3',d:'S3-compatible storage (AWS, Cloudflare R2, MinIO) for large-scale projects with many media files.'},
-    {log:'WebDAV: standard protocol for remote file management. Works with Nextcloud, ownCloud.',type:'info',bk:'webdav',d:'WebDAV is ideal for institutions running their own file servers (Nextcloud, ownCloud, etc.).'},
-    {log:'SFTP: secure file transfer. Encrypted SSH-based storage access.',type:'info',bk:'sftp',d:'SFTP provides encrypted file access via SSH. Good for university/research institution servers.'},
-    {log:'API Storage: custom REST API for File Manager servers.',type:'info',bk:'api',d:'For custom setups: the API backend communicates with a REST endpoint for file operations.'},
-    {log:'All backends integrate with the Media Manager for seamless upload/download.',type:'success',d:'Regardless of backend, the user experience is the same: upload, link, and retrieve media through the Media Manager.'},
+    {log:'PyArchInit remote storage: store media on cloud instead of (or alongside) local disk.', type:'info', d:'The remote_storage_dialog.py configures which backend to use for media files associated with archaeological records.'},
+    {log:'Cloudinary: cloud-based image/video management. Auto-transforms, CDN delivery.', type:'info', bk:'cloudinary', d:'Cloudinary provides automatic image optimization, transformation, and CDN. Popular for web-published archaeological imagery.'},
+    {log:'Google Drive: gdrive:// URIs. Shared folders for team collaboration.', type:'info', bk:'gdrive', d:'Google Drive integration allows teams to share media in a familiar environment. Uses gdrive:// URI scheme.'},
+    {log:'Dropbox: dropbox:// URIs. Sync-based storage for offline+online work.', type:'info', bk:'dropbox', d:'Dropbox provides automatic sync between local and cloud. Good for field-to-office workflows.'},
+    {log:'Amazon S3 / Cloudflare R2: s3:// URIs. Scalable object storage.', type:'info', bk:'s3', d:'S3-compatible storage (AWS, Cloudflare R2, MinIO) for large-scale projects with many media files.'},
+    {log:'WebDAV: standard protocol for remote file management. Works with Nextcloud, ownCloud.', type:'info', bk:'webdav', d:'WebDAV is ideal for institutions running their own file servers (Nextcloud, ownCloud, etc.).'},
+    {log:'SFTP: secure file transfer. Encrypted SSH-based storage access.', type:'info', bk:'sftp', d:'SFTP provides encrypted file access via SSH. Good for university/research institution servers.'},
+    {log:'API Storage: custom REST API for File Manager servers.', type:'info', bk:'api', d:'For custom setups: the API backend communicates with a REST endpoint for file operations.'},
+    {log:'All backends integrate with the Media Manager for seamless upload/download.', type:'success', d:'Regardless of backend, the user experience is the same: upload, link, and retrieve media through the Media Manager.'}
   ]},
-  {title:'Configuration Flow',desc:'<strong>Setup:</strong> Configure your chosen storage backend with credentials and paths in the Remote Storage dialog.',
+  {title:'Configuration Flow', desc:'<strong>Setup:</strong> Configure your chosen storage backend with credentials and paths in the Remote Storage dialog.',
    steps:[
-    {log:'Open PyArchInit → Configuration → Remote Storage tab.',type:'info',d:'The remote storage settings are in a dedicated tab of the main configuration dialog.'},
-    {log:'Select backend from dropdown: Cloudinary, GDrive, S3, WebDAV, etc.',type:'info',d:'Each backend has different configuration fields that appear dynamically.'},
-    {log:'Cloudinary config: cloud_name, api_key, api_secret, upload_preset.',type:'info',bk:'cloudinary',st:{bk:'Cloudinary',dir:'Config'},d:'Cloudinary requires an account with API credentials from the dashboard.'},
-    {log:'S3 config: bucket_name, access_key, secret_key, region, endpoint_url.',type:'info',bk:'s3',st:{bk:'S3/R2'},d:'For Cloudflare R2, use the R2 endpoint URL. For AWS, use the standard S3 endpoint.'},
-    {log:'WebDAV config: server_url, username, password, remote_path.',type:'info',bk:'webdav',st:{bk:'WebDAV'},d:'WebDAV URLs typically look like: https://cloud.example.com/remote.php/webdav/'},
-    {log:'THUMB_PATH integration: local thumbnails cached for fast display.',type:'info',d:'Even with remote storage, thumbnails are cached locally for performance. The THUMB_PATH setting controls where.'},
-    {log:'Test connection: verify credentials and server accessibility.',type:'info',st:{status:'Testing...'},d:'The dialog includes a "Test Connection" button to validate settings before saving.'},
-    {log:'Configuration saved to QGIS Settings. Credentials encrypted.',type:'success',st:{status:'Connected'},d:'All credentials are stored encrypted in QGIS settings (not plain text config files).'},
+    {log:'Open PyArchInit \u2192 Configuration \u2192 Remote Storage tab.', type:'info', d:'The remote storage settings are in a dedicated tab of the main configuration dialog.'},
+    {log:'Select backend from dropdown: Cloudinary, GDrive, S3, WebDAV, etc.', type:'info', d:'Each backend has different configuration fields that appear dynamically.'},
+    {log:'Cloudinary config: cloud_name, api_key, api_secret, upload_preset.', type:'info', bk:'cloudinary', st:{bk:'Cloudinary', dir:'Config'}, d:'Cloudinary requires an account with API credentials from the dashboard.'},
+    {log:'S3 config: bucket_name, access_key, secret_key, region, endpoint_url.', type:'info', bk:'s3', st:{bk:'S3/R2'}, d:'For Cloudflare R2, use the R2 endpoint URL. For AWS, use the standard S3 endpoint.'},
+    {log:'WebDAV config: server_url, username, password, remote_path.', type:'info', bk:'webdav', st:{bk:'WebDAV'}, d:'WebDAV URLs typically look like: https://cloud.example.com/remote.php/webdav/'},
+    {log:'THUMB_PATH integration: local thumbnails cached for fast display.', type:'info', d:'Even with remote storage, thumbnails are cached locally for performance. The THUMB_PATH setting controls where.'},
+    {log:'Test connection: verify credentials and server accessibility.', type:'info', st:{status:'Testing...'}, d:'The dialog includes a "Test Connection" button to validate settings before saving.'},
+    {log:'Configuration saved to QGIS Settings. Credentials encrypted.', type:'success', st:{status:'Connected'}, d:'All credentials are stored encrypted in QGIS settings (not plain text config files).'}
   ]},
-  {title:'Upload & Download',desc:'<strong>Transfer:</strong> Upload media to remote storage and download when needed. Integrates with the Media Manager.',
+  {title:'Upload & Download', desc:'<strong>Transfer:</strong> Upload media to remote storage and download when needed. Integrates with the Media Manager.',
    steps:[
-    {log:'Media Manager: user uploads a photo of US 101. File sent to configured backend.',type:'info',st:{dir:'Upload',status:'Uploading...'},d:'When a user adds media through the Media Manager, the file is sent to the configured remote backend.'},
-    {log:'Upload flow: local file → thumbnail generation → remote upload → URL stored in DB.',type:'info',d:'The system generates a local thumbnail, uploads the full file, and stores the remote URL in media_table.'},
-    {log:'Cloudinary: POST to upload API. Response: secure_url, public_id, format.',type:'info',bk:'cloudinary',st:{files:'1'},d:'Cloudinary returns a secure URL and metadata. The URL is stored as the media path.'},
-    {log:'S3: PUT object to bucket. Key: pyarchinit/media/{site}/{filename}.',type:'info',bk:'s3',d:'S3 uses a structured key hierarchy: project/media/site/filename for organization.'},
-    {log:'Upload complete. remote_url stored in media_thumb_table.',type:'success',st:{status:'Complete',files:'1'},d:'The database record now points to the remote URL instead of (or in addition to) a local path.'},
-    {log:'Download on demand: when user opens a record, media fetched from remote if not cached.',type:'info',st:{dir:'Download'},d:'The remote_image_loader.py handles fetching images from remote URLs.'},
-    {log:'Caching: downloaded media cached in THUMB_PATH for subsequent fast access.',type:'info',d:'Once downloaded, the image is cached locally. Cache invalidation based on timestamps.'},
-    {log:'Batch operations: bulk upload/download for migration or backup.',type:'success',st:{files:'47'},d:'The system supports batch operations for migrating between backends or creating backups.'},
+    {log:'Media Manager: user uploads a photo of US 101. File sent to configured backend.', type:'info', st:{dir:'Upload', status:'Uploading...'}, d:'When a user adds media through the Media Manager, the file is sent to the configured remote backend.'},
+    {log:'Upload flow: local file \u2192 thumbnail generation \u2192 remote upload \u2192 URL stored in DB.', type:'info', d:'The system generates a local thumbnail, uploads the full file, and stores the remote URL in media_table.'},
+    {log:'Cloudinary: POST to upload API. Response: secure_url, public_id, format.', type:'info', bk:'cloudinary', st:{files:'1'}, d:'Cloudinary returns a secure URL and metadata. The URL is stored as the media path.'},
+    {log:'S3: PUT object to bucket. Key: pyarchinit/media/{site}/{filename}.', type:'info', bk:'s3', d:'S3 uses a structured key hierarchy: project/media/site/filename for organization.'},
+    {log:'Upload complete. remote_url stored in media_thumb_table.', type:'success', st:{status:'Complete', files:'1'}, d:'The database record now points to the remote URL instead of (or in addition to) a local path.'},
+    {log:'Download on demand: when user opens a record, media fetched from remote if not cached.', type:'info', st:{dir:'Download'}, d:'The remote_image_loader.py handles fetching images from remote URLs.'},
+    {log:'Caching: downloaded media cached in THUMB_PATH for subsequent fast access.', type:'info', d:'Once downloaded, the image is cached locally. Cache invalidation based on timestamps.'},
+    {log:'Batch operations: bulk upload/download for migration or backup.', type:'success', st:{files:'47'}, d:'The system supports batch operations for migrating between backends or creating backups.'}
   ]},
-  {title:'Credential Management',desc:'<strong>Security:</strong> Credentials stored encrypted in QGIS Settings. Per-backend isolation.',
+  {title:'Credential Management', desc:'<strong>Security:</strong> Credentials stored encrypted in QGIS Settings. Per-backend isolation.',
    steps:[
-    {log:'Credentials stored in QGIS Settings API — not in plain text config files.',type:'info',d:'QGIS provides a secure settings storage that encrypts sensitive values.'},
-    {log:'Each backend has isolated credential storage: pyarchinit/storage/{backend}/*.',type:'info',d:'Credentials for each backend are stored in separate settings keys, preventing cross-contamination.'},
-    {log:'API keys and secrets are masked in UI (shown as *****).',type:'info',d:'The configuration dialog masks passwords and API secrets in the input fields.'},
-    {log:'Credential validation on save: test connection before accepting new credentials.',type:'info',d:'Invalid credentials are rejected before being saved, preventing broken configurations.'},
-    {log:'Token refresh: OAuth-based backends (GDrive, Dropbox) handle token refresh automatically.',type:'info',bk:'gdrive',d:'Google Drive and Dropbox use OAuth2 tokens that expire. The system handles refresh transparently.'},
-    {log:'Connection debug log: ~/pyarchinit_conn_debug.log — passwords always masked.',type:'warn',d:'Debug logging masks all passwords and secrets. Only connection metadata is logged.'},
-    {log:'Credential rotation: update API keys without re-uploading existing media.',type:'info',d:'Changing credentials only affects future operations. Existing remote URLs remain valid.'},
-    {log:'Security best practice: use least-privilege API keys for each backend.',type:'success',d:'Create dedicated API keys with minimal permissions (upload/download only) for PyArchInit.'},
+    {log:'Credentials stored in QGIS Settings API \u2014 not in plain text config files.', type:'info', d:'QGIS provides a secure settings storage that encrypts sensitive values.'},
+    {log:'Each backend has isolated credential storage: pyarchinit/storage/{backend}/*.', type:'info', d:'Credentials for each backend are stored in separate settings keys, preventing cross-contamination.'},
+    {log:'API keys and secrets are masked in UI (shown as *****).', type:'info', d:'The configuration dialog masks passwords and API secrets in the input fields.'},
+    {log:'Credential validation on save: test connection before accepting new credentials.', type:'info', d:'Invalid credentials are rejected before being saved, preventing broken configurations.'},
+    {log:'Token refresh: OAuth-based backends (GDrive, Dropbox) handle token refresh automatically.', type:'info', bk:'gdrive', d:'Google Drive and Dropbox use OAuth2 tokens that expire. The system handles refresh transparently.'},
+    {log:'Connection debug log: ~/pyarchinit_conn_debug.log \u2014 passwords always masked.', type:'warn', d:'Debug logging masks all passwords and secrets. Only connection metadata is logged.'},
+    {log:'Credential rotation: update API keys without re-uploading existing media.', type:'info', d:'Changing credentials only affects future operations. Existing remote URLs remain valid.'},
+    {log:'Security best practice: use least-privilege API keys for each backend.', type:'success', d:'Create dedicated API keys with minimal permissions (upload/download only) for PyArchInit.'}
   ]}
 ];
 
-function hlBk(b){A.hlBk=b;document.querySelectorAll('.bk').forEach(e=>e.classList.toggle('hl',e.dataset.b===b));}
-function updSt(o){if(o){if(o.bk)$('curBk').textContent=o.bk;if(o.dir)$('curDir').textContent=o.dir;if(o.status){$('curSt').textContent=o.status;$('curSt').style.color=o.status==='Connected'||o.status==='Complete'?'#3fb950':o.status.includes('...')?'#d29922':'#8b949e';}if(o.files)$('curFiles').textContent=o.files;}}
-function addLog(t,type){A.logN++;const now=new Date(),ts=String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0');const ic={info:'&#8505;',success:'&#10004;',warn:'&#9888;',error:'&#10008;'};const cl={info:'#58a6ff',success:'#3fb950',warn:'#d29922',error:'#f85149'};const d=document.createElement('div');d.className='le '+type;d.innerHTML=`<span class="le-t">${ts}</span><span class="le-i" style="color:${cl[type]}">${ic[type]}</span><span class="le-x">${t}</span>`;logE.prepend(d);while(logE.children.length>25)logE.removeChild(logE.lastChild);}
-function updDots(){dots.innerHTML='';A.steps.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===A.step?' on':i<A.step?' ok':'');dots.appendChild(d);});}
-function updDesc(h){dsc.innerHTML=h||'';dsc.style.opacity=h?'1':'0';}
-
-function resize(){const r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;cv.width=r.width*dpr;cv.height=r.height*dpr;cv.style.width=r.width+'px';cv.style.height=r.height+'px';ctx.setTransform(dpr,0,0,dpr,0,0);}
-window.addEventListener('resize',resize);
-function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
-
-function drawScene(ts){
-  const W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
-  ctx.clearRect(0,0,W,H);const t=ts*.001;
-  // PyArchInit source (left)
-  const sx=W*.12,sy=H*.4;
-  rr(sx-35,sy-25,70,55,6);ctx.fillStyle='rgba(88,166,255,.08)';ctx.fill();
-  ctx.strokeStyle='#58a6ff';ctx.lineWidth=1.5;ctx.stroke();
-  ctx.fillStyle='#58a6ff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
-  ctx.fillText('PyArchInit',sx,sy-6);ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';
-  ctx.fillText('Media Manager',sx,sy+8);ctx.fillText('(photos, drawings)',sx,sy+20);
-  // Cloud backends (right side, arranged in arc)
-  const backends=[
-    {id:'cloudinary',label:'Cloudinary',color:'#f85149',x:.72,y:.12},
-    {id:'gdrive',label:'Google Drive',color:'#58a6ff',x:.82,y:.25},
-    {id:'s3',label:'S3 / R2',color:'#3fb950',x:.85,y:.42},
-    {id:'webdav',label:'WebDAV',color:'#bc8cff',x:.82,y:.59},
-    {id:'dropbox',label:'Dropbox',color:'#d29922',x:.72,y:.72},
-    {id:'sftp',label:'SFTP',color:'#39d353',x:.58,y:.8},
-    {id:'api',label:'API',color:'#8b949e',x:.42,y:.82},
-  ];
-  backends.forEach(b=>{
-    const bx=W*b.x,by=H*b.y;
-    const hl=A.hlBk===b.id;
-    // Connection line
-    ctx.strokeStyle=hl?b.color+'88':b.color+'22';ctx.lineWidth=hl?2:1;ctx.setLineDash(hl?[]:[4,4]);
-    ctx.beginPath();ctx.moveTo(sx+38,sy);ctx.lineTo(bx-22,by);ctx.stroke();ctx.setLineDash([]);
-    // Node
-    ctx.beginPath();ctx.arc(bx,by,20,0,Math.PI*2);
-    ctx.fillStyle=hl?b.color+'22':'rgba(33,38,45,.6)';ctx.fill();
-    ctx.strokeStyle=hl?b.color:b.color+'55';ctx.lineWidth=hl?2:1;ctx.stroke();
-    ctx.fillStyle=hl?'#e6edf3':'#8b949e';ctx.font=(hl?'bold ':'')+'8px sans-serif';ctx.textAlign='center';
-    ctx.fillText(b.label,bx,by+4);
-    // Animated particle when highlighted
-    if(hl){
-      const p=((t*.6)%1);
-      const px=sx+38+(bx-22-sx-38)*p,py=sy+(by-sy)*p;
-      const al=p<.1?p/.1:p>.9?(1-p)/.1:1;
-      ctx.fillStyle=b.color;ctx.globalAlpha=al*.7;
-      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-    }
-  });
-  // Storage manager box (center)
-  const mx=W*.42,my=H*.38;
-  rr(mx-45,my-18,90,40,5);ctx.fillStyle='rgba(88,166,255,.04)';ctx.fill();
-  ctx.strokeStyle='#30363d';ctx.lineWidth=1;ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='bold 8px sans-serif';ctx.textAlign='center';
-  ctx.fillText('Storage Manager',mx,my-2);ctx.font='7px sans-serif';
-  ctx.fillText('base_backend.py',mx,my+12);
-  // DB icon (bottom left)
-  const dx=W*.2,dy=H*.72;
-  ctx.strokeStyle='#58a6ff55';ctx.lineWidth=1;
-  ctx.beginPath();ctx.ellipse(dx,dy,18,7,0,0,Math.PI*2);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(dx-18,dy);ctx.lineTo(dx-18,dy+15);ctx.stroke();
-  ctx.beginPath();ctx.moveTo(dx+18,dy);ctx.lineTo(dx+18,dy+15);ctx.stroke();
-  ctx.beginPath();ctx.ellipse(dx,dy+15,18,7,0,0,Math.PI,false);ctx.stroke();
-  ctx.fillStyle='#8b949e';ctx.font='8px sans-serif';ctx.fillText('media_table',dx,dy+30);ctx.fillText('(remote_url)',dx,dy+40);
+function padTwo(n) {
+  var s = String(n);
+  while (s.length < 2) { s = '0' + s; }
+  return s;
 }
 
-// ── Engine ──
-function load(i){A.sc=i;A.step=0;A.steps=SC[i].steps;clearTimeout(A.timer);hlBk(null);updSt({bk:'--',dir:'--',status:'Idle',files:'0'});logE.innerHTML='';A.logN=0;updDots();updDesc(SC[i].desc);exec(0);}
-function exec(si){if(si<0||si>=A.steps.length)return;A.step=si;const s=A.steps[si];addLog(s.log,s.type);if(s.bk!==undefined)hlBk(s.bk);if(s.st)updSt(s.st);if(s.d)updDesc('<strong>'+SC[A.sc].title+':</strong> '+s.d);updDots();if(A.mode==='auto'&&A.playing)schedNext();}
-function schedNext(){clearTimeout(A.timer);const last=A.step>=A.steps.length-1;if(last&&A.looping){A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto'&&A.looping){const n=(A.sc+1)%SC.length;sel.value=n;load(n);}},3000/A.speed);return;}if(last)return;let d=2300;const s=A.steps[A.step];if(s.type==='success')d=2500;A.timer=setTimeout(()=>{if(A.playing&&A.mode==='auto')exec(A.step+1);},d/A.speed);}
+function hlBk(b) {
+  A.hlBk = b;
+  var els = Array.prototype.slice.call(document.querySelectorAll('.bk'));
+  for (var i = 0; i < els.length; i++) {
+    if (els[i].getAttribute('data-b') === b) {
+      if (!els[i].className.match(/\bhl\b/)) {
+        els[i].className = els[i].className + ' hl';
+      }
+    } else {
+      els[i].className = els[i].className.replace(/\s*\bhl\b/g, '');
+    }
+  }
+}
 
-sel.addEventListener('change',()=>load(+sel.value));
-bA.addEventListener('click',()=>{A.mode='auto';bA.classList.add('on');bM.classList.remove('on');bPr.disabled=bNx.disabled=true;if(A.playing)schedNext();});
-bM.addEventListener('click',()=>{A.mode='manual';bM.classList.add('on');bA.classList.remove('on');bPr.disabled=bNx.disabled=false;clearTimeout(A.timer);});
-bPP.addEventListener('click',()=>{A.playing=!A.playing;bPP.innerHTML=A.playing?'&#10074;&#10074;':'&#9654;';if(A.playing&&A.mode==='auto')schedNext();else clearTimeout(A.timer);});
-bPr.addEventListener('click',()=>{if(A.step>0){logE.innerHTML='';exec(A.step-1);}});
-bNx.addEventListener('click',()=>{if(A.step<A.steps.length-1)exec(A.step+1);});
-bRe.addEventListener('click',()=>{A.playing=true;bPP.innerHTML='&#10074;&#10074;';load(A.sc);});
-bL.addEventListener('click',()=>{A.looping=!A.looping;bL.classList.toggle('on',A.looping);bSt.style.display=A.looping?'':'none';bL.innerHTML=A.looping?'&#8635; Looping':'&#8635; Loop';if(A.looping&&A.playing&&A.mode==='auto'&&A.step>=A.steps.length-1)schedNext();});
-bSt.addEventListener('click',()=>{A.looping=false;A.playing=false;bL.classList.remove('on');bL.innerHTML='&#8635; Loop';bSt.style.display='none';bPP.innerHTML='&#9654;';clearTimeout(A.timer);});
-spB.forEach(b=>b.addEventListener('click',()=>{spB.forEach(x=>x.classList.remove('on'));b.classList.add('on');A.speed=+b.dataset.s;if(A.playing&&A.mode==='auto')schedNext();}));
-document.addEventListener('keydown',e=>{if(e.key===' '){e.preventDefault();bPP.click();}if(e.key==='ArrowRight'&&A.mode==='manual')bNx.click();if(e.key==='ArrowLeft'&&A.mode==='manual')bPr.click();if(e.key==='r'||e.key==='R')bRe.click();if(e.key==='l'||e.key==='L')bL.click();if((e.key==='s'||e.key==='S')&&A.looping)bSt.click();if(e.key>='1'&&e.key<='4'){sel.value=+e.key-1;load(+e.key-1);}});
-function renderLoop(ts){drawScene(ts);requestAnimationFrame(renderLoop);}
-resize();requestAnimationFrame(renderLoop);load(0);
+function updSt(o) {
+  if (o) {
+    if (o.bk) { $('curBk').textContent = o.bk; }
+    if (o.dir) { $('curDir').textContent = o.dir; }
+    if (o.status) {
+      $('curSt').textContent = o.status;
+      if (o.status === 'Connected' || o.status === 'Complete') {
+        $('curSt').style.color = '#3fb950';
+      } else if (o.status.indexOf('...') !== -1) {
+        $('curSt').style.color = '#d29922';
+      } else {
+        $('curSt').style.color = '#8b949e';
+      }
+    }
+    if (o.files) { $('curFiles').textContent = o.files; }
+  }
+}
+
+function addLog(t, type) {
+  A.logN++;
+  var now = new Date();
+  var ts = padTwo(now.getMinutes()) + ':' + padTwo(now.getSeconds());
+  var ic = {info:'&#8505;', success:'&#10004;', warn:'&#9888;', error:'&#10008;'};
+  var cl = {info:'#58a6ff', success:'#3fb950', warn:'#d29922', error:'#f85149'};
+  var d = document.createElement('div');
+  d.className = 'le ' + type;
+  d.innerHTML = '<span class="le-t">' + ts + '</span><span class="le-i" style="color:' + cl[type] + '">' + ic[type] + '</span><span class="le-x">' + t + '</span>';
+  logE.insertBefore(d, logE.firstChild);
+  while (logE.children.length > 25) { logE.removeChild(logE.lastChild); }
+}
+
+function updDots() {
+  dots.innerHTML = '';
+  for (var i = 0; i < A.steps.length; i++) {
+    var d = document.createElement('div');
+    var cls = 'dot';
+    if (i === A.step) { cls += ' on'; }
+    else if (i < A.step) { cls += ' ok'; }
+    d.className = cls;
+    dots.appendChild(d);
+  }
+}
+
+function updDesc(h) {
+  dsc.innerHTML = h || '';
+  dsc.style.opacity = h ? '1' : '0';
+}
+
+function resize() {
+  var r = cv.parentElement.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  cv.width = r.width * dpr;
+  cv.height = r.height * dpr;
+  cv.style.width = r.width + 'px';
+  cv.style.height = r.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resize);
+
+function rr(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/* Draw an ellipse using arc + scale (compatible with old canvas without ellipse()) */
+function drawEllipse(cx, cy, rx, ry, startAngle, endAngle, anticlockwise) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(1, ry / rx);
+  ctx.beginPath();
+  ctx.arc(0, 0, rx, startAngle, endAngle, !!anticlockwise);
+  ctx.restore();
+}
+
+function drawScene(ts) {
+  var W = cv.width / (window.devicePixelRatio || 1);
+  var H = cv.height / (window.devicePixelRatio || 1);
+  ctx.clearRect(0, 0, W, H);
+  var t = ts * 0.001;
+
+  /* PyArchInit source (left) */
+  var sx = W * 0.12, sy = H * 0.4;
+  rr(sx - 35, sy - 25, 70, 55, 6);
+  ctx.fillStyle = 'rgba(88,166,255,.08)';
+  ctx.fill();
+  ctx.strokeStyle = '#58a6ff';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#58a6ff';
+  ctx.font = 'bold 9px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('PyArchInit', sx, sy - 6);
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '8px sans-serif';
+  ctx.fillText('Media Manager', sx, sy + 8);
+  ctx.fillText('(photos, drawings)', sx, sy + 20);
+
+  /* Cloud backends (right side, arranged in arc) */
+  var backends = [
+    {id:'cloudinary', label:'Cloudinary', color:'#f85149', x:0.72, y:0.12},
+    {id:'gdrive', label:'Google Drive', color:'#58a6ff', x:0.82, y:0.25},
+    {id:'s3', label:'S3 / R2', color:'#3fb950', x:0.85, y:0.42},
+    {id:'webdav', label:'WebDAV', color:'#bc8cff', x:0.82, y:0.59},
+    {id:'dropbox', label:'Dropbox', color:'#d29922', x:0.72, y:0.72},
+    {id:'sftp', label:'SFTP', color:'#39d353', x:0.58, y:0.8},
+    {id:'api', label:'API', color:'#8b949e', x:0.42, y:0.82}
+  ];
+
+  for (var bi = 0; bi < backends.length; bi++) {
+    var b = backends[bi];
+    var bx = W * b.x, by = H * b.y;
+    var hl = (A.hlBk === b.id);
+
+    /* Connection line */
+    ctx.strokeStyle = hl ? b.color + '88' : b.color + '22';
+    ctx.lineWidth = hl ? 2 : 1;
+    if (hl) {
+      ctx.setLineDash([]);
+    } else {
+      ctx.setLineDash([4, 4]);
+    }
+    ctx.beginPath();
+    ctx.moveTo(sx + 38, sy);
+    ctx.lineTo(bx - 22, by);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    /* Node */
+    ctx.beginPath();
+    ctx.arc(bx, by, 20, 0, Math.PI * 2);
+    ctx.fillStyle = hl ? b.color + '22' : 'rgba(33,38,45,.6)';
+    ctx.fill();
+    ctx.strokeStyle = hl ? b.color : b.color + '55';
+    ctx.lineWidth = hl ? 2 : 1;
+    ctx.stroke();
+    ctx.fillStyle = hl ? '#e6edf3' : '#8b949e';
+    ctx.font = (hl ? 'bold ' : '') + '8px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(b.label, bx, by + 4);
+
+    /* Animated particle when highlighted */
+    if (hl) {
+      var p = ((t * 0.6) % 1);
+      var px = sx + 38 + (bx - 22 - sx - 38) * p;
+      var py = sy + (by - sy) * p;
+      var al = p < 0.1 ? p / 0.1 : p > 0.9 ? (1 - p) / 0.1 : 1;
+      ctx.fillStyle = b.color;
+      ctx.globalAlpha = al * 0.7;
+      ctx.beginPath();
+      ctx.arc(px, py, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  /* Storage manager box (center) */
+  var mx = W * 0.42, my = H * 0.38;
+  rr(mx - 45, my - 18, 90, 40, 5);
+  ctx.fillStyle = 'rgba(88,166,255,.04)';
+  ctx.fill();
+  ctx.strokeStyle = '#30363d';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = '#8b949e';
+  ctx.font = 'bold 8px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Storage Manager', mx, my - 2);
+  ctx.font = '7px sans-serif';
+  ctx.fillText('base_backend.py', mx, my + 12);
+
+  /* DB icon (bottom left) */
+  var dx = W * 0.2, dy = H * 0.72;
+  ctx.strokeStyle = '#58a6ff55';
+  ctx.lineWidth = 1;
+
+  /* Top ellipse */
+  drawEllipse(dx, dy, 18, 7, 0, Math.PI * 2, false);
+  ctx.stroke();
+
+  /* Left side line */
+  ctx.beginPath();
+  ctx.moveTo(dx - 18, dy);
+  ctx.lineTo(dx - 18, dy + 15);
+  ctx.stroke();
+
+  /* Right side line */
+  ctx.beginPath();
+  ctx.moveTo(dx + 18, dy);
+  ctx.lineTo(dx + 18, dy + 15);
+  ctx.stroke();
+
+  /* Bottom half-ellipse */
+  drawEllipse(dx, dy + 15, 18, 7, 0, Math.PI, false);
+  ctx.stroke();
+
+  ctx.fillStyle = '#8b949e';
+  ctx.font = '8px sans-serif';
+  ctx.fillText('media_table', dx, dy + 30);
+  ctx.fillText('(remote_url)', dx, dy + 40);
+}
+
+/* ── Engine ── */
+function load(i) {
+  A.sc = i;
+  A.step = 0;
+  A.steps = SC[i].steps;
+  clearTimeout(A.timer);
+  hlBk(null);
+  updSt({bk:'--', dir:'--', status:'Idle', files:'0'});
+  logE.innerHTML = '';
+  A.logN = 0;
+  updDots();
+  updDesc(SC[i].desc);
+  exec(0);
+}
+
+function exec(si) {
+  if (si < 0 || si >= A.steps.length) { return; }
+  A.step = si;
+  var s = A.steps[si];
+  addLog(s.log, s.type);
+  if (s.bk !== undefined) { hlBk(s.bk); }
+  if (s.st) { updSt(s.st); }
+  if (s.d) { updDesc('<strong>' + SC[A.sc].title + ':</strong> ' + s.d); }
+  updDots();
+  if (A.mode === 'auto' && A.playing) { schedNext(); }
+}
+
+function schedNext() {
+  clearTimeout(A.timer);
+  var last = A.step >= A.steps.length - 1;
+  if (last && A.looping) {
+    A.timer = setTimeout(function() {
+      if (A.playing && A.mode === 'auto' && A.looping) {
+        var n = (A.sc + 1) % SC.length;
+        sel.value = n;
+        load(n);
+      }
+    }, 3000 / A.speed);
+    return;
+  }
+  if (last) { return; }
+  var d = 2300;
+  var s = A.steps[A.step];
+  if (s.type === 'success') { d = 2500; }
+  A.timer = setTimeout(function() {
+    if (A.playing && A.mode === 'auto') { exec(A.step + 1); }
+  }, d / A.speed);
+}
+
+sel.addEventListener('change', function() { load(+sel.value); });
+
+bA.addEventListener('click', function() {
+  A.mode = 'auto';
+  bA.className = bA.className.replace(/\s*\bon\b/g, '') + ' on';
+  bM.className = bM.className.replace(/\s*\bon\b/g, '');
+  bPr.disabled = true;
+  bNx.disabled = true;
+  if (A.playing) { schedNext(); }
+});
+
+bM.addEventListener('click', function() {
+  A.mode = 'manual';
+  bM.className = bM.className.replace(/\s*\bon\b/g, '') + ' on';
+  bA.className = bA.className.replace(/\s*\bon\b/g, '');
+  bPr.disabled = false;
+  bNx.disabled = false;
+  clearTimeout(A.timer);
+});
+
+bPP.addEventListener('click', function() {
+  A.playing = !A.playing;
+  bPP.innerHTML = A.playing ? '&#10074;&#10074;' : '&#9654;';
+  if (A.playing && A.mode === 'auto') { schedNext(); }
+  else { clearTimeout(A.timer); }
+});
+
+bPr.addEventListener('click', function() {
+  if (A.step > 0) { logE.innerHTML = ''; exec(A.step - 1); }
+});
+
+bNx.addEventListener('click', function() {
+  if (A.step < A.steps.length - 1) { exec(A.step + 1); }
+});
+
+bRe.addEventListener('click', function() {
+  A.playing = true;
+  bPP.innerHTML = '&#10074;&#10074;';
+  load(A.sc);
+});
+
+bL.addEventListener('click', function() {
+  A.looping = !A.looping;
+  if (A.looping) {
+    if (!bL.className.match(/\bon\b/)) { bL.className = bL.className + ' on'; }
+  } else {
+    bL.className = bL.className.replace(/\s*\bon\b/g, '');
+  }
+  bSt.style.display = A.looping ? '' : 'none';
+  bL.innerHTML = A.looping ? '&#8635; Looping' : '&#8635; Loop';
+  if (A.looping && A.playing && A.mode === 'auto' && A.step >= A.steps.length - 1) { schedNext(); }
+});
+
+bSt.addEventListener('click', function() {
+  A.looping = false;
+  A.playing = false;
+  bL.className = bL.className.replace(/\s*\bon\b/g, '');
+  bL.innerHTML = '&#8635; Loop';
+  bSt.style.display = 'none';
+  bPP.innerHTML = '&#9654;';
+  clearTimeout(A.timer);
+});
+
+for (var si = 0; si < spB.length; si++) {
+  (function(btn) {
+    btn.addEventListener('click', function() {
+      for (var j = 0; j < spB.length; j++) {
+        spB[j].className = spB[j].className.replace(/\s*\bon\b/g, '');
+      }
+      btn.className = btn.className + ' on';
+      A.speed = +btn.getAttribute('data-s');
+      if (A.playing && A.mode === 'auto') { schedNext(); }
+    });
+  })(spB[si]);
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === ' ') { e.preventDefault(); bPP.click(); }
+  if (e.key === 'ArrowRight' && A.mode === 'manual') { bNx.click(); }
+  if (e.key === 'ArrowLeft' && A.mode === 'manual') { bPr.click(); }
+  if (e.key === 'r' || e.key === 'R') { bRe.click(); }
+  if (e.key === 'l' || e.key === 'L') { bL.click(); }
+  if ((e.key === 's' || e.key === 'S') && A.looping) { bSt.click(); }
+  if (e.key >= '1' && e.key <= '4') { sel.value = +e.key - 1; load(+e.key - 1); }
+});
+
+function renderLoop(ts) {
+  drawScene(ts);
+  requestAnimationFrame(renderLoop);
+}
+
+resize();
+requestAnimationFrame(renderLoop);
+load(0);
 })();
 </script>
 </body>
