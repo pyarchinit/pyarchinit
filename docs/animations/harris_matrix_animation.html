@@ -7,18 +7,19 @@
 <style>
 *,*::before,*::after{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0e14;color:#d4dce8;min-height:100vh;overflow-x:hidden}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0a0e14;color:#d4dce8;height:100vh;overflow:hidden}
 
-.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.app{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;height:100vh}
 .header{width:100%;background:#131920;border-bottom:1px solid #253040;padding:12px 24px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
 .header > *{margin:5px 0}
 .header h1{font-size:1.25rem;font-weight:600;color:#4ec9b0}
 .header h1 span{color:#6e7f91;font-weight:400}
-.main{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0}
+.middle{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;overflow:hidden;min-height:0}
+.main{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0;min-height:0}
 .sidebar{width:250px;background:#131920;border-left:1px solid #253040;padding:14px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
 .sidebar > *{margin-bottom:14px}
 .sidebar > *:last-child{margin-bottom:0}
-.log-area{width:100%;-webkit-order:3;order:3;-webkit-flex-basis:100%;flex-basis:100%;background:#131920;border-top:1px solid #253040;padding:10px 24px;max-height:170px;overflow-y:auto}
+.log-area{background:#131920;border-top:1px solid #253040;padding:10px 24px;max-height:170px;overflow-y:auto}
 
 .controls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
 .controls > *{margin:3px}
@@ -32,7 +33,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .grp button:first-child{border-radius:8px 0 0 8px}
 .grp button:last-child{border-radius:0 8px 8px 0}
 
-.scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}
+.scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:0}
 .scene-wrap canvas{width:100%;height:100%;display:block}
 .desc-box{position:absolute;top:10px;left:10px;background:rgba(10,14,20,.92);border:1px solid #253040;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;-webkit-transition:opacity .3s;transition:opacity .3s}
 .desc-box strong{color:#4ec9b0}
@@ -77,7 +78,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .le.error{background:rgba(240,96,96,.06)}
 
 @media(max-width:900px){
-  .app{-webkit-flex-direction:column;flex-direction:column}
+  .middle{-webkit-flex-direction:column;flex-direction:column}
   .sidebar{width:100%;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap;border-left:none;border-top:1px solid #253040}
   .widget{-webkit-flex:1;flex:1;min-width:170px}
 }
@@ -118,6 +119,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
     </div>
   </div>
 
+  <div class="middle">
   <div class="main">
     <div class="scene-wrap">
       <canvas id="cv"></canvas>
@@ -159,6 +161,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="stat-row"><span class="stat-l">Tred</span><span class="stat-v" style="color:#e8a838">Harris_matrix_tred.dot</span></div>
       <div class="stat-row"><span class="stat-l">Image</span><span class="stat-v" style="color:#4da6ff">JPG / PNG</span></div>
     </div>
+  </div>
   </div>
 
   <div class="log-area">
@@ -324,10 +327,9 @@ function updDesc(h){dbox.innerHTML=h||'';dbox.style.opacity=h?'1':'0';}
 
 // ── Canvas ──
 function resize(){
-  var r=cv.parentElement.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
-  cv.width=r.width*dpr;cv.height=r.height*dpr;
-  cv.style.width=r.width+'px';cv.style.height=r.height+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
+  var wrap=cv.parentElement;
+  var w=wrap.clientWidth,h=wrap.clientHeight;
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
 }
 window.addEventListener('resize',resize);
 
@@ -369,7 +371,7 @@ var PERIOD_BOXES=[
 ];
 
 function drawScene(ts){
-  var W=cv.width/(window.devicePixelRatio||1),H=cv.height/(window.devicePixelRatio||1);
+  var W=cv.width,H=cv.height;
   ctx.clearRect(0,0,W,H);
   var t=ts*.001;
   var marginTop=H*.08,areaH=H*.75;

@@ -12,16 +12,16 @@ body {
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   background: #0f1923;
   color: #e0e8f0;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* ===== LAYOUT ===== */
 .app {
   display: -webkit-flex;
   display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
+  -webkit-flex-direction: column;
+  flex-direction: column;
   height: 100vh;
 }
 .header {
@@ -50,6 +50,14 @@ body {
   letter-spacing: 0.5px;
 }
 .header h1 span { color: #8899aa; font-weight: 400; }
+.middle {
+  -webkit-flex: 1;
+  flex: 1;
+  display: -webkit-flex;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
 .main-area {
   -webkit-flex: 1 1 0%;
   flex: 1 1 0%;
@@ -59,6 +67,7 @@ body {
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  min-height: 0;
 }
 .sidebar {
   width: 240px;
@@ -80,37 +89,16 @@ body {
   margin-bottom: 0;
 }
 .timeline-area {
-  width: 100%;
-  -webkit-flex: 0 0 auto;
-  flex: 0 0 auto;
-  -webkit-order: 10;
-  order: 10;
   background: #162230;
   border-top: 1px solid rgba(79,195,247,0.15);
   padding: 12px 24px;
   max-height: 180px;
   overflow-y: auto;
 }
-/* Make main-area and sidebar share the middle row */
-.main-area {
-  -webkit-order: 1;
-  order: 1;
-}
+/* sidebar alignment */
 .sidebar {
-  -webkit-order: 2;
-  order: 2;
   -webkit-align-self: stretch;
   align-self: stretch;
-}
-/* The timeline needs full width below */
-.timeline-area {
-  -webkit-flex-basis: 100%;
-  flex-basis: 100%;
-}
-/* Force the middle row to take remaining height */
-.app {
-  -webkit-align-content: flex-start;
-  align-content: flex-start;
 }
 
 /* ===== CONTROLS ===== */
@@ -181,7 +169,7 @@ body {
   flex: 1;
   position: relative;
   overflow: hidden;
-  min-height: 220px;
+  min-height: 0;
 }
 .scene-canvas {
   width: 100%;
@@ -433,27 +421,22 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
+  .middle {
+    display: block;
+  }
   .sidebar {
     width: 100%;
-    -webkit-flex-basis: 100%;
-    flex-basis: 100%;
     -webkit-flex-direction: row;
     flex-direction: row;
     -webkit-flex-wrap: wrap;
     flex-wrap: wrap;
     border-left: none;
     border-top: 1px solid rgba(79,195,247,0.15);
-    -webkit-order: 3;
-    order: 3;
   }
   .sidebar > .widget {
     -webkit-flex: 1 1 180px;
     flex: 1 1 180px;
     margin: 4px;
-  }
-  .timeline-area {
-    -webkit-order: 10;
-    order: 10;
   }
 }
 @media (max-width: 600px) {
@@ -513,6 +496,9 @@ body {
       <button id="btnStop" title="Stop and reset (S)" style="display:none;">&#9632; Stop</button>
     </div>
   </div>
+
+  <!-- MIDDLE (main + sidebar) -->
+  <div class="middle">
 
   <!-- MAIN AREA -->
   <div class="main-area">
@@ -652,6 +638,8 @@ body {
         <span class="current-state-name" id="currentStateName" style="background:rgba(66,165,245,0.15);color:#42a5f5;">OFFLINE_EDITING</span>
       </div>
     </div>
+  </div>
+
   </div>
 
   <!-- TIMELINE LOG -->
@@ -972,13 +960,13 @@ function updateScenarioDesc(text) {
 // ===================================================================
 
 function resizeCanvas() {
-  var rect = canvas.parentElement.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  canvas.style.width = rect.width + 'px';
-  canvas.style.height = rect.height + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var wrap = canvas.parentElement;
+  var w = wrap.clientWidth;
+  var h = wrap.clientHeight;
+  if (canvas.width !== w || canvas.height !== h) {
+    canvas.width = w;
+    canvas.height = h;
+  }
 }
 
 function drawRoundedRect(x, y, w, h, r) {
@@ -996,9 +984,8 @@ function drawRoundedRect(x, y, w, h, r) {
 }
 
 function drawScene(time) {
-  var dpr = window.devicePixelRatio || 1;
-  var W = canvas.width / dpr;
-  var H = canvas.height / dpr;
+  var W = canvas.width;
+  var H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
   if (app.scenario === 3) return; // KG scenario uses SVG overlay
@@ -1493,9 +1480,8 @@ function executeStep(stepIndex) {
 
   // Update bundle position for scene
   if (step.state >= 1 && step.state <= 4) {
-    var dpr = window.devicePixelRatio || 1;
-    var bW = canvas.width / dpr;
-    var bH = canvas.height / dpr;
+    var bW = canvas.width;
+    var bH = canvas.height;
     var positions = [
       null,
       {x: bW * 0.30, y: bH * 0.38},
@@ -1505,9 +1491,8 @@ function executeStep(stepIndex) {
     ];
     app.bundlePos = positions[step.state] || null;
   } else if (step.state === 5) {
-    var dpr2 = window.devicePixelRatio || 1;
-    var bW2 = canvas.width / dpr2;
-    var bH2 = canvas.height / dpr2;
+    var bW2 = canvas.width;
+    var bH2 = canvas.height;
     app.bundlePos = {x: bW2 * 0.56, y: bH2 * 0.42};
   } else {
     app.bundlePos = null;

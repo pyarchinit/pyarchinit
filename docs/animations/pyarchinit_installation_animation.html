@@ -7,15 +7,16 @@
 <style>
 *,*::before,*::after{-webkit-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
-.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;height:100vh;overflow:hidden}
+.app{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;height:100vh}
 .hdr{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 20px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
 .hdr>*{margin:5px 0}
 .hdr h1{font-size:1.2rem;font-weight:600;color:#58a6ff}.hdr h1 span{color:#8b949e;font-weight:400}
-.main{-webkit-flex:1;flex:1;min-width:0;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden}
+.middle{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;overflow:hidden;min-height:0}
+.main{-webkit-flex:1;flex:1;min-width:0;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-height:0}
 .side{width:250px;background:#161b22;border-left:1px solid #30363d;padding:14px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
 .side>*{margin-bottom:12px}
-.log{width:100%;-webkit-flex-shrink:0;flex-shrink:0;-webkit-order:3;order:3;background:#161b22;border-top:1px solid #30363d;padding:10px 20px;max-height:160px;overflow-y:auto}
+.log{background:#161b22;border-top:1px solid #30363d;padding:10px 20px;max-height:160px;overflow-y:auto}
 .ctrls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
 .ctrls>*{margin:0 2px 2px 0}
 .ctrls button,.ctrls select{background:#21262d;border:1px solid #30363d;color:#e6edf3;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:.82rem;-webkit-transition:all .2s;transition:all .2s}
@@ -23,7 +24,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .ctrls button.on{background:#58a6ff;color:#000;border-color:#58a6ff}
 .ctrls button:disabled{opacity:.3;cursor:default}
 .g{display:-webkit-flex;display:flex}.g>*{margin:0}.g button{border-radius:0}.g button:first-child{border-radius:8px 0 0 8px}.g button:last-child{border-radius:0 8px 8px 0}
-.scene{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}
+.scene{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:0}
 .scene canvas{width:100%;height:100%;display:block}
 .dsc{position:absolute;top:10px;left:10px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:360px;font-size:.83rem;line-height:1.5;z-index:5}
 .dsc strong{color:#58a6ff}
@@ -54,7 +55,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .le.info{background:rgba(88,166,255,.04)}.le.success{background:rgba(63,185,80,.06)}.le.warn{background:rgba(210,153,34,.06)}.le.error{background:rgba(248,81,73,.06)}
 .le-t{color:#8b949e;min-width:40px;-webkit-flex-shrink:0;flex-shrink:0}
 .le-i{-webkit-flex-shrink:0;flex-shrink:0;width:14px;text-align:center}.le-x{-webkit-flex:1;flex:1}
-@media(max-width:860px){.app{-webkit-flex-direction:column;flex-direction:column}.side{width:100%;border-left:none;border-top:1px solid #30363d;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap}.w{-webkit-flex:1;flex:1;min-width:160px}}
+@media(max-width:860px){.middle{-webkit-flex-direction:column;flex-direction:column}.side{width:100%;border-left:none;border-top:1px solid #30363d;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap}.w{-webkit-flex:1;flex:1;min-width:160px}}
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
 </style>
 </head>
@@ -72,6 +73,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <button id="bL">&#8635; Loop</button><button id="bSt" style="display:none">&#9632; Stop</button>
     </div>
   </div>
+  <div class="middle">
   <div class="main">
     <div class="scene"><canvas id="cv"></canvas><div class="dsc" id="dsc"></div><div class="dots" id="dots"></div></div>
   </div>
@@ -101,6 +103,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="sr"><span class="sl">Locale</span><span class="sv" id="cfgLocale">--</span></div>
       <div class="sr"><span class="sl">Site</span><span class="sv" id="cfgSite">--</span></div>
     </div>
+  </div>
   </div>
   <div class="log"><h3>Event Log</h3><div class="les" id="logE"></div></div>
 </div>
@@ -269,13 +272,9 @@ function updDesc(h){ dsc.innerHTML = h || ''; dsc.style.opacity = h ? '1' : '0';
 
 // ── Canvas ──
 function resize(){
-  var r = cv.parentElement.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  cv.width = r.width * dpr;
-  cv.height = r.height * dpr;
-  cv.style.width = r.width + 'px';
-  cv.style.height = r.height + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var wrap=cv.parentElement;
+  var w=wrap.clientWidth,h=wrap.clientHeight;
+  if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}
 }
 window.addEventListener('resize', resize);
 
@@ -305,8 +304,8 @@ function drawEllipse(cx, cy, rx, ry, rotation, startAngle, endAngle, anticlockwi
 }
 
 function drawScene(ts){
-  var W = cv.width / (window.devicePixelRatio || 1);
-  var H = cv.height / (window.devicePixelRatio || 1);
+  var W = cv.width;
+  var H = cv.height;
   ctx.clearRect(0, 0, W, H);
   var t = ts * 0.001;
   if (A.sc === 0) { drawInstall(t, W, H); }

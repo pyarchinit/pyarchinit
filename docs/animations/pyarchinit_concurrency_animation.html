@@ -7,19 +7,20 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
+body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#0d1117;color:#e6edf3;height:100vh;overflow:hidden}
 
 /* Layout — flexbox instead of grid */
-.app{display:-webkit-flex;display:flex;-webkit-flex-wrap:wrap;flex-wrap:wrap;height:100vh}
+.app{display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;height:100vh}
 .header{width:100%;background:#161b22;border-bottom:1px solid #30363d;padding:12px 24px;display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:wrap;flex-wrap:wrap}
 .header > *{margin:5px 0}
 .header h1{font-size:1.25rem;font-weight:600;color:#58a6ff}
 .header h1 span{color:#8b949e;font-weight:400}
-.main{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0}
+.middle{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;overflow:hidden;min-height:0}
+.main{-webkit-flex:1;flex:1;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;overflow:hidden;min-width:0;min-height:0}
 .sidebar{width:260px;background:#161b22;border-left:1px solid #30363d;padding:16px;overflow-y:auto;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column}
 .sidebar > *{margin-bottom:14px}
 .sidebar > *:last-child{margin-bottom:0}
-.log-area{width:100%;-webkit-order:4;order:4;background:#161b22;border-top:1px solid #30363d;padding:12px 24px;max-height:170px;overflow-y:auto}
+.log-area{background:#161b22;border-top:1px solid #30363d;padding:12px 24px;max-height:170px;overflow-y:auto}
 
 /* Controls */
 .controls{display:-webkit-flex;display:flex;-webkit-align-items:center;align-items:center;-webkit-flex-wrap:wrap;flex-wrap:wrap}
@@ -35,7 +36,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 .btn-group button:last-child{border-radius:0 8px 8px 0}
 
 /* Scene */
-.scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:200px}
+.scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:0}
 .scene-wrap canvas{width:100%;height:100%;display:block}
 .scene-desc{position:absolute;top:12px;left:12px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;-webkit-transition:opacity .3s;transition:opacity .3s}
 .scene-desc strong{color:#58a6ff}
@@ -84,7 +85,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 
 /* Responsive */
 @media(max-width:900px){
-  .app{-webkit-flex-direction:column;flex-direction:column}
+  .middle{-webkit-flex-direction:column;flex-direction:column}
   .sidebar{width:100%;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap;border-left:none;border-top:1px solid #30363d}
   .widget{-webkit-flex:1;flex:1;min-width:170px}
 }
@@ -126,6 +127,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
     </div>
   </div>
 
+  <div class="middle">
   <div class="main">
     <div class="scene-wrap">
       <canvas id="C"></canvas>
@@ -168,6 +170,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
       <div class="stat-row"><span class="stat-label">autocommit</span><span class="stat-val" style="color:#f85149">OFF</span></div>
       <div class="stat-row"><span class="stat-label">State</span><span class="stat-val" id="sessState" style="color:#3fb950">IDLE</span></div>
     </div>
+  </div>
   </div>
 
   <div class="log-area">
@@ -391,19 +394,15 @@ function updDesc(html){
 
 /* ── Canvas ── */
 function resize(){
-  var r = C.parentElement.getBoundingClientRect();
-  var dpr = window.devicePixelRatio || 1;
-  C.width = r.width * dpr;
-  C.height = r.height * dpr;
-  C.style.width = r.width + 'px';
-  C.style.height = r.height + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var wrap=C.parentElement;
+  var w=wrap.clientWidth,h=wrap.clientHeight;
+  if(C.width!==w||C.height!==h){C.width=w;C.height=h;}
 }
 window.addEventListener('resize', resize);
 
 function drawScene(ts){
-  var W = C.width / (window.devicePixelRatio || 1);
-  var H = C.height / (window.devicePixelRatio || 1);
+  var W = C.width;
+  var H = C.height;
   ctx.clearRect(0, 0, W, H);
   var t = ts * 0.001;
 
