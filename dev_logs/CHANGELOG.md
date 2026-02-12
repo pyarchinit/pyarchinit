@@ -5,6 +5,51 @@
 
 ---
 
+## [5.2.6-alpha] - 2026-02-12
+
+### refactor(ui): Refactoring layout descrizioni in 12 animazioni docs/animations / Description layout refactoring in 12 animations docs/animations
+
+- **IT**: Refactoring completo del layout descrizioni in tutti i 12 file HTML in `docs/animations/`. I pannelli descrizione (`.desc-box`, `.scene-desc`, `.dsc`, `.scenario-desc` — 4 varianti di classe diverse) erano overlay assoluti (`position:absolute; top/left`) che si sovrapponevano al contenuto del canvas. Sono stati tutti trasformati in `.desc-panel` — un pannello flex dedicato posizionato sotto l'area canvas. Miglioramenti: descrizioni spostate da overlay assoluto a child flex, nuovo CSS con tipografia migliorata (font 0.9rem, line-height 1.7, monospace per nomi di funzioni in `<strong>`), preservati gli schemi colore specifici di ogni file (#4ec9b0 per harris_matrix, #4fc3f7 per stratigraph_sync, #58a6ff per i restanti), regole responsive aggiunte in tutti i blocchi `@media`. Script batch Python per 10 file + 2 fix manuali per strutture HTML particolari (installation con `<div class="scene">` e stratigraph_sync con `step-indicator` e `kg-overlay`).
+- **EN**: Complete description layout refactoring in all 12 HTML files in `docs/animations/`. The description panels (`.desc-box`, `.scene-desc`, `.dsc`, `.scenario-desc` — 4 different class variants) were absolute-positioned overlays (`position:absolute; top/left`) that overlapped canvas content. They have all been transformed into `.desc-panel` — a dedicated flex panel positioned below the canvas area. Improvements: descriptions moved from absolute overlay to proper flex child, new CSS with improved typography (font 0.9rem, line-height 1.7, monospace for function names in `<strong>`), preserved each file's specific color scheme (#4ec9b0 for harris_matrix, #4fc3f7 for stratigraph_sync, #58a6ff for the rest), responsive rules added in all `@media` blocks. Python batch script for 10 files + 2 manual fixes for particular HTML structures (installation with `<div class="scene">` and stratigraph_sync with `step-indicator` and `kg-overlay`).
+
+#### File modificati / Modified files
+- `docs/animations/harris_matrix_animation.html`
+- `docs/animations/pyarchinit_concurrency_animation.html`
+- `docs/animations/pyarchinit_create_map_animation.html`
+- `docs/animations/pyarchinit_image_classification_animation.html`
+- `docs/animations/pyarchinit_image_export_animation.html`
+- `docs/animations/pyarchinit_installation_animation.html`
+- `docs/animations/pyarchinit_media_manager_animation.html`
+- `docs/animations/pyarchinit_pottery_tools_animation.html`
+- `docs/animations/pyarchinit_remote_storage_animation.html`
+- `docs/animations/pyarchinit_thesaurus_animation.html`
+- `docs/animations/pyarchinit_timemanager_animation.html`
+- `docs/animations/stratigraph_sync_animation.html`
+
+---
+
+## [5.2.5-alpha] - 2026-02-12
+
+### refactor(ui): Refactoring layout descrizioni in 11 animazioni algoritmi / Description layout refactoring in 11 algorithm animations
+
+- **IT**: Refactoring completo del layout descrizioni in tutti gli 11 file HTML in `docs/algorithm_animations/`. I pannelli descrizione (`.desc-box`) erano in precedenza overlay assoluti (`position:absolute; top/left`) che si sovrapponevano al contenuto del canvas e agli elementi animati. Sono stati trasformati in `.desc-panel` - un pannello flex dedicato posizionato sotto l'area canvas che non si sovrappone mai. Miglioramenti chiave: descrizioni spostate da overlay assoluto a child flex di `.main`, nuovo CSS con tipografia migliorata (font 0.9rem invece di 0.8rem, line-height 1.7 invece di 1.4, styling monospace per nomi di funzioni), tag `<strong>` ora renderizzati con font monospace e sfondo accent sottile per migliore leggibilità del codice, regole responsive aggiunte per schermi piccoli (max-height ridotto, padding compatto), tutti gli 11 file aggiornati in modo consistente (escluso file sperimentale MODERN_TEST), dots bar rimane nel canvas, pannello descrizione si posiziona tra canvas e area sidebar/log.
+- **EN**: Complete description layout refactoring in all 11 HTML files in `docs/algorithm_animations/`. The description panels (`.desc-box`) were previously absolute-positioned overlays (`position:absolute; top/left`) that overlapped canvas content and animation elements. They have been transformed into `.desc-panel` - a dedicated flex panel positioned below the canvas area that never overlaps. Key improvements: descriptions moved from absolute overlay to proper flex child of `.main`, new CSS with improved typography (font 0.9rem instead of 0.8rem, line-height 1.7 instead of 1.4, monospace styling for function names), `<strong>` tags now rendered with monospace font and subtle accent background for better code readability, responsive rules added for small screens (reduced max-height, compact padding), all 11 files updated consistently (excluding MODERN_TEST experimental file), dots bar remains in canvas, description panel sits between canvas and sidebar/log area.
+
+#### File modificati / Modified files
+- `docs/algorithm_animations/crud_operations_algorithm.html`
+- `docs/algorithm_animations/database_creation_algorithm.html`
+- `docs/algorithm_animations/db_import_export_algorithm.html`
+- `docs/algorithm_animations/harris_matrix_algorithm.html`
+- `docs/algorithm_animations/image_classification_algorithm.html`
+- `docs/algorithm_animations/media_management_algorithm.html`
+- `docs/algorithm_animations/order_layer_algorithm.html`
+- `docs/algorithm_animations/package_installation_algorithm.html`
+- `docs/algorithm_animations/pdf_creation_algorithm.html`
+- `docs/algorithm_animations/report_ai_algorithm.html`
+- `docs/algorithm_animations/tops_algorithm.html`
+
+---
+
 ## [5.2.4-alpha] - 2026-02-11
 
 ### Fix nested flex layout per 6 animazioni docs/animations / Nested flex layout fix for 6 animations in docs/animations

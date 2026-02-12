@@ -356,23 +356,23 @@ body {
 .log-entry.warning { background: rgba(255,167,38,0.08); }
 .log-entry.error { background: rgba(239,83,80,0.08); }
 
-/* ===== SCENARIO DESCRIPTION OVERLAY ===== */
-.scenario-desc {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: rgba(15,25,35,0.9);
-  border: 1px solid rgba(79,195,247,0.2);
-  border-radius: 8px;
-  padding: 10px 14px;
-  max-width: 340px;
-  z-index: 5;
-  font-size: 0.85rem;
-  line-height: 1.5;
+/* ===== SCENARIO DESCRIPTION PANEL ===== */
+.desc-panel {
+  background: #111820;
+  border-top: 2px solid rgba(79,195,247,0.18);
+  padding: 14px 24px;
+  min-height: 68px;
+  max-height: 130px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  -webkit-flex-shrink: 0;
+  flex-shrink: 0;
+  color: #c8d4e2;
   -webkit-transition: opacity 0.3s;
   transition: opacity 0.3s;
 }
-.scenario-desc strong { color: #4fc3f7; }
+.desc-panel strong { color: #4fc3f7; font-weight: 600; font-family: 'Consolas','Monaco','Courier New',monospace; font-size: 0.86rem; background: rgba(79,195,247,0.08); padding: 1px 5px; border-radius: 3px; }
 
 /* ===== STEP INDICATOR ===== */
 .step-indicator {
@@ -438,6 +438,7 @@ body {
     flex: 1 1 180px;
     margin: 4px;
   }
+  .desc-panel { max-height: 90px; min-height: 50px; font-size: 0.84rem; padding: 10px 16px; }
 }
 @media (max-width: 600px) {
   .header { padding: 8px 12px; }
@@ -575,13 +576,13 @@ body {
     <!-- Scene (Central animated area) -->
     <div class="scene-wrap">
       <canvas id="sceneCanvas" class="scene-canvas"></canvas>
-      <div class="scenario-desc" id="scenarioDesc"></div>
       <div class="step-indicator" id="stepIndicator"></div>
       <!-- KG Overlay for scenario 4 -->
       <div class="kg-overlay" id="kgOverlay">
         <svg id="kgSvg" viewBox="0 0 700 400" width="700" height="400"></svg>
       </div>
     </div>
+    <div class="desc-panel" id="scenarioDesc"></div>
   </div>
 
   <!-- SIDEBAR -->

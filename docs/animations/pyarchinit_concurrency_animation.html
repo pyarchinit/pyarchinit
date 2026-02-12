@@ -38,8 +38,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 /* Scene */
 .scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:0}
 .scene-wrap canvas{width:100%;height:100%;display:block}
-.scene-desc{position:absolute;top:12px;left:12px;background:rgba(13,17,23,.92);border:1px solid #30363d;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;-webkit-transition:opacity .3s;transition:opacity .3s}
-.scene-desc strong{color:#58a6ff}
+.desc-panel{background:#0f141b;border-top:2px solid #30363d;padding:14px 24px;min-height:68px;max-height:130px;overflow-y:auto;font-size:.9rem;line-height:1.7;-webkit-flex-shrink:0;flex-shrink:0;color:#c8d4e2}
+.desc-panel strong{color:#58a6ff;font-weight:600;font-family:'Consolas','Monaco','Courier New',monospace;font-size:.86rem;background:rgba(88,166,255,.08);padding:1px 5px;border-radius:3px}
 .step-dots{position:absolute;bottom:12px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-flex;display:flex;z-index:5}
 .step-dots .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);-webkit-transition:all .3s;transition:all .3s;margin:0 2px}
 .step-dots .dot.active{background:#58a6ff;border-color:#58a6ff;-webkit-box-shadow:0 0 8px #58a6ff;box-shadow:0 0 8px #58a6ff}
@@ -88,7 +88,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   .middle{-webkit-flex-direction:column;flex-direction:column}
   .sidebar{width:100%;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap;border-left:none;border-top:1px solid #30363d}
   .widget{-webkit-flex:1;flex:1;min-width:170px}
-}
+.desc-panel{max-height:90px;min-height:50px;font-size:.84rem;padding:10px 16px}}
 @-webkit-keyframes glow{0%,100%{-webkit-filter:drop-shadow(0 0 3px currentColor)}50%{-webkit-filter:drop-shadow(0 0 10px currentColor)}}
 @keyframes glow{0%,100%{-webkit-filter:drop-shadow(0 0 3px currentColor);filter:drop-shadow(0 0 3px currentColor)}50%{-webkit-filter:drop-shadow(0 0 10px currentColor);filter:drop-shadow(0 0 10px currentColor)}}
 ::-webkit-scrollbar{width:5px}
@@ -130,10 +130,9 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   <div class="middle">
   <div class="main">
     <div class="scene-wrap">
-      <canvas id="C"></canvas>
-      <div class="scene-desc" id="desc"></div>
-      <div class="step-dots" id="dots"></div>
+      <canvas id="C"></canvas>      <div class="step-dots" id="dots"></div>
     </div>
+    <div class="desc-panel" id="desc"></div>
   </div>
 
   <div class="sidebar">

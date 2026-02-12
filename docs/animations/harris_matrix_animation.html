@@ -35,8 +35,8 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
 
 .scene-wrap{-webkit-flex:1;flex:1;position:relative;overflow:hidden;min-height:0}
 .scene-wrap canvas{width:100%;height:100%;display:block}
-.desc-box{position:absolute;top:10px;left:10px;background:rgba(10,14,20,.92);border:1px solid #253040;border-radius:8px;padding:10px 14px;max-width:380px;font-size:.85rem;line-height:1.5;z-index:5;-webkit-transition:opacity .3s;transition:opacity .3s}
-.desc-box strong{color:#4ec9b0}
+.desc-panel{background:#111820;border-top:2px solid #253040;padding:14px 24px;min-height:68px;max-height:130px;overflow-y:auto;font-size:.9rem;line-height:1.7;-webkit-flex-shrink:0;flex-shrink:0;color:#c8d4e2}
+.desc-panel strong{color:#4ec9b0;font-weight:600;font-family:'Consolas','Monaco','Courier New',monospace;font-size:.86rem;background:rgba(88,166,255,.08);padding:1px 5px;border-radius:3px}
 .dots-bar{position:absolute;bottom:10px;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%);display:-webkit-flex;display:flex;z-index:5}
 .dots-bar > *{margin:0 2.5px}
 .dt{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);-webkit-transition:all .3s;transition:all .3s}
@@ -81,7 +81,7 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   .middle{-webkit-flex-direction:column;flex-direction:column}
   .sidebar{width:100%;-webkit-flex-direction:row;flex-direction:row;-webkit-flex-wrap:wrap;flex-wrap:wrap;border-left:none;border-top:1px solid #253040}
   .widget{-webkit-flex:1;flex:1;min-width:170px}
-}
+.desc-panel{max-height:90px;min-height:50px;font-size:.84rem;padding:10px 16px}}
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:#0a0e14}
 ::-webkit-scrollbar-thumb{background:#1a2230;border-radius:3px}
@@ -122,10 +122,9 @@ body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;backgrou
   <div class="middle">
   <div class="main">
     <div class="scene-wrap">
-      <canvas id="cv"></canvas>
-      <div class="desc-box" id="dbox"></div>
-      <div class="dots-bar" id="dotsB"></div>
+      <canvas id="cv"></canvas>      <div class="dots-bar" id="dotsB"></div>
     </div>
+    <div class="desc-panel" id="dbox"></div>
   </div>
 
   <div class="sidebar">
