@@ -5,6 +5,22 @@
 
 ---
 
+## [5.3.7-alpha] - 2026-02-16
+
+### fix(i18n): Compilazione .qm mancanti e completamento traduzioni italiane / Compile missing .qm files and complete Italian translations
+
+- **IT**: Compilati i 3 file `.qm` mancanti per rumeno (`ro_RO`), portoghese (`pt_PT`) e greco (`el_GR`) — prima gli utenti di queste lingue vedevano il testo italiano di fallback per tutte le etichette dei form .ui. Completato il file di traduzione italiano (`it_IT.ts`): 2.252 voci vuote riempite (271 tradotte dall'inglese, 1.981 copiate dal sorgente italiano). Ricompilato `it_IT.qm` con 2.826 traduzioni finite. Ora tutti i 10 file `.qm` sono presenti e completi.
+- **EN**: Compiled the 3 missing `.qm` files for Romanian (`ro_RO`), Portuguese (`pt_PT`) and Greek (`el_GR`) — previously users of these languages saw Italian fallback text for all .ui form labels. Completed the Italian translation file (`it_IT.ts`): 2,252 empty entries filled (271 translated from English, 1,981 copied from Italian source text). Recompiled `it_IT.qm` with 2,826 finished translations. All 10 `.qm` files now present and complete.
+
+#### File modificati / Modified files
+- `i18n/pyarchinit_plugin_it_IT.ts` (completato / completed)
+- `i18n/pyarchinit_plugin_it_IT.qm` (ricompilato / recompiled)
+- `i18n/pyarchinit_plugin_ro_RO.qm` (nuovo / new)
+- `i18n/pyarchinit_plugin_pt_PT.qm` (nuovo / new)
+- `i18n/pyarchinit_plugin_el_GR.qm` (nuovo / new)
+
+---
+
 ## [5.3.6-alpha] - 2026-02-16
 
 ### feat(i18n): Espansione completa CONVERSION_DICT e SORT_ITEMS a 10 lingue / Complete expansion of CONVERSION_DICT and SORT_ITEMS to 10 languages
