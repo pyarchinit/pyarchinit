@@ -2122,9 +2122,15 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
             <rect>
              <x>280</x>
              <y>40</y>
-             <width>371</width>
-             <height>221</height>
+             <width>420</width>
+             <height>700</height>
             </rect>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>380</width>
+             <height>500</height>
+            </size>
            </property>
            <property name="windowIcon">
             <iconset resource="../../resources/resources.qrc">
@@ -2136,173 +2142,569 @@ Step 3 - Riavviare Qgis e cliccare sul pulsante Run Test per verificare l'output
            <property name="windowTitle">
             <string>MovecostToPyarchinit</string>
            </property>
+           <property name="styleSheet">
+            <string notr="true">
+QGroupBox {
+    font-weight: bold;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    margin-top: 12px;
+    padding-top: 10px;
+    background-color: #f8f9fa;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 8px;
+    color: #2c3e50;
+}
+QPushButton {
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-weight: 500;
+    min-height: 28px;
+}
+QPushButton:hover {
+    opacity: 0.9;
+}
+QPushButton:pressed {
+    padding-top: 10px;
+}
+QTabWidget::pane {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    background: white;
+}
+QTabBar::tab {
+    background: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    padding: 8px 16px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+QTabBar::tab:selected {
+    background: #3498db;
+    color: white;
+}
+QTextEdit {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    background: white;
+}
+QComboBox {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 4px 8px;
+    background: white;
+}
+            </string>
+           </property>
            <widget class="QWidget" name="dockWidgetContents">
-            <widget class="QPushButton" name="pushButton_movecorr_p">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>80</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
+            <layout class="QVBoxLayout" name="dockMainLayout">
+             <property name="spacing">
+              <number>8</number>
              </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <property name="leftMargin">
+              <number>8</number>
              </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 170, 127);</string>
+             <property name="topMargin">
+              <number>8</number>
              </property>
-             <property name="text">
-              <string>movecorr by polygon</string>
+             <property name="rightMargin">
+              <number>8</number>
              </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movecost">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>20</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
+             <property name="bottomMargin">
+              <number>8</number>
              </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">alternate-background-color: rgb(255, 255, 127);
-background-color: rgb(255, 255, 127);</string>
-             </property>
-             <property name="text">
-              <string>movecost</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movecost_p">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>20</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating accumulated anisotropic slope-dependant cost of movement across the terrain and least-cost paths from a point origin using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 127);</string>
-             </property>
-             <property name="text">
-              <string>movecost by polygon</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movebound">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>50</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(85, 255, 127);</string>
-             </property>
-             <property name="text">
-              <string>movebound</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movebound_p">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>50</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating slope-dependant walking cost boundary(ies) around point location(s) using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(85, 255, 127);</string>
-             </property>
-             <property name="text">
-              <string>movebound by polygon</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movecorr">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>80</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 170, 127);</string>
-             </property>
-             <property name="text">
-              <string>movcorr</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_add_script">
-             <property name="geometry">
-              <rect>
-               <x>140</x>
-               <y>150</y>
-               <width>75</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Add scripts</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movealloc_p">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>110</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations using a polygon area to download the dtm&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 170, 127);</string>
-             </property>
-             <property name="text">
-              <string>movealloc by polygon</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_movealloc">
-             <property name="geometry">
-              <rect>
-               <x>30</x>
-               <y>110</y>
-               <width>141</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;R function for calculating least-cost corridor between point locations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 170, 127);</string>
-             </property>
-             <property name="text">
-              <string>movalloc</string>
-             </property>
-            </widget>
+             <item>
+              <widget class="QTabWidget" name="mc_tabWidget">
+               <property name="currentIndex">
+                <number>0</number>
+               </property>
+               <!-- Tab 1: Algorithms -->
+               <widget class="QWidget" name="mc_tabAlgorithms">
+                <attribute name="title">
+                 <string>Algorithms</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="mc_verticalLayout_alg">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_cost">
+                   <property name="title">
+                    <string>Cost Surface &amp; Paths</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_cost">
+                    <item row="0" column="0">
+                     <widget class="QPushButton" name="pushButton_movecost">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #f1c40f; color: #2c3e50;</string>
+                      </property>
+                      <property name="text">
+                       <string>movecost</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QPushButton" name="pushButton_movecost_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #f39c12; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QPushButton" name="pushButton_movebound">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #2ecc71; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>movebound</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QPushButton" name="pushButton_movebound_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #27ae60; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_analysis">
+                   <property name="title">
+                    <string>Corridor &amp; Network Analysis</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_analysis">
+                    <item row="0" column="0">
+                     <widget class="QPushButton" name="pushButton_movecorr">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #e74c3c; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>movecorr</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QPushButton" name="pushButton_movecorr_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #c0392b; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QPushButton" name="pushButton_movealloc">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #9b59b6; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>movealloc</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QPushButton" name="pushButton_movealloc_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #8e44ad; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="QPushButton" name="pushButton_movenetw">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #3498db; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>movenetw</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QPushButton" name="pushButton_movenetw_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #2980b9; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_compare">
+                   <property name="title">
+                    <string>Comparison &amp; Ranking</string>
+                   </property>
+                   <layout class="QGridLayout" name="gridLayout_compare">
+                    <item row="0" column="0">
+                     <widget class="QPushButton" name="pushButton_movecomp">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #1abc9c; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>movecomp</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QPushButton" name="pushButton_movecomp_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #16a085; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QPushButton" name="pushButton_moverank_p">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #34495e; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>moverank</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QPushButton" name="pushButton_moverank_polygon">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #2c3e50; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>by polygon</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="mc_verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+               <!-- Tab 2: Results -->
+               <widget class="QWidget" name="mc_tabResults">
+                <attribute name="title">
+                 <string>Results</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="mc_verticalLayout_res">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_summary">
+                   <property name="title">
+                    <string>Cost Summary</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_summary">
+                    <item>
+                     <widget class="QTextEdit" name="textEdit_summary">
+                      <property name="readOnly">
+                       <bool>true</bool>
+                      </property>
+                      <property name="placeholderText">
+                       <string>Run an algorithm to see the cost summary here...</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_plot">
+                   <property name="title">
+                    <string>R Plot Viewer</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_plot">
+                    <item>
+                     <widget class="QLabel" name="label_plot">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>200</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: white; border: 1px solid #bdc3c7; border-radius: 4px;</string>
+                      </property>
+                      <property name="text">
+                       <string>R plots will appear here after running an algorithm</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignCenter</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="mc_horizontalLayout_plot_buttons">
+                      <item>
+                       <widget class="QPushButton" name="pushButton_refresh_plot">
+                        <property name="styleSheet">
+                         <string notr="true">background-color: #3498db; color: white;</string>
+                        </property>
+                        <property name="text">
+                         <string>Refresh Plot</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QPushButton" name="pushButton_save_plot">
+                        <property name="styleSheet">
+                         <string notr="true">background-color: #2ecc71; color: white;</string>
+                        </property>
+                        <property name="text">
+                         <string>Save Plot</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+               <!-- Tab 3: Export -->
+               <widget class="QWidget" name="mc_tabExport">
+                <attribute name="title">
+                 <string>Export</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="mc_verticalLayout_exp">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_export">
+                   <property name="title">
+                    <string>Export Options</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_export">
+                    <item>
+                     <widget class="QPushButton" name="pushButton_export_csv">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #27ae60; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Export Cost Table (CSV)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pushButton_export_pdf">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #e74c3c; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Export Report (PDF)</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="pushButton_export_html">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #3498db; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Export Report (HTML)</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="mc_verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+               <!-- Tab 4: Settings -->
+               <widget class="QWidget" name="mc_tabSettings">
+                <attribute name="title">
+                 <string>Settings</string>
+                </attribute>
+                <layout class="QVBoxLayout" name="mc_verticalLayout_set">
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_rscripts">
+                   <property name="title">
+                    <string>R Scripts</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_rscripts">
+                    <item>
+                     <widget class="QPushButton" name="pushButton_add_script">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #95a5a6; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Install R Scripts</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_rscripts_info">
+                      <property name="text">
+                       <string>Install or update the R scripts required for movecost algorithms</string>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">color: #7f8c8d; font-style: italic;</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_mc_language">
+                   <property name="title">
+                    <string>Language</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_language">
+                    <item>
+                     <widget class="QComboBox" name="comboBox_mc_language">
+                      <item>
+                       <property name="text">
+                        <string>English</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Italiano</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Francais</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Espanol</string>
+                       </property>
+                      </item>
+                      <item>
+                       <property name="text">
+                        <string>Deutsch</string>
+                       </property>
+                      </item>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_mc_language_info">
+                      <property name="text">
+                       <string>Select language for tooltips and help documentation</string>
+                      </property>
+                      <property name="wordWrap">
+                       <bool>true</bool>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">color: #7f8c8d; font-style: italic;</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_mc_layers">
+                   <property name="title">
+                    <string>Layer Organization</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_layers">
+                    <item>
+                     <widget class="QPushButton" name="pushButton_organize">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #1abc9c; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Organize Layers</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QCheckBox" name="checkBox_auto_organize">
+                      <property name="text">
+                       <string>Auto organize layers after running algorithms</string>
+                      </property>
+                      <property name="checked">
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox_mc_help">
+                   <property name="title">
+                    <string>Help &amp; Documentation</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="mc_verticalLayout_help">
+                    <item>
+                     <widget class="QPushButton" name="pushButton_mc_help">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: #3498db; color: white;</string>
+                      </property>
+                      <property name="text">
+                       <string>Open Help Documentation</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="mc_verticalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </widget>

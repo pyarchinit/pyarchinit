@@ -5,6 +5,19 @@
 
 ---
 
+## [5.3.8-alpha] - 2026-02-16
+
+### feat(movecost): Integrazione MoveCost completa nella Scheda Sito con interfaccia a 4 tab / Complete MoveCost integration in Site tab with 4-tab interface
+
+- **IT**: Completamente ristrutturata l'integrazione MoveCost nella Scheda Sito (`Site.ui` + `Site.py`). **UI** (`gui/ui/Site.ui`): Rimosso il vecchio dock widget a posizionamento assoluto con 8 pulsanti (371x221px), sostituito con un'interfaccia moderna a 4 schede (420x700px): (1) Tab "Algorithms" con 14 pulsanti organizzati in 3 gruppi (Cost Surface & Paths: movecost, movecost_focalcost, movecost_focalslope, movealloc, movecorr; Corridor & Network Analysis: movecorr, movenetw; Comparison & Ranking: movecomp, moverank) per 7 algoritmi base + 7 varianti poligonali -- aggiunge i nuovi algoritmi movecomp, movenetw, moverank; (2) Tab "Results" con riepilogo costi (statistiche) e visualizzatore R Plot con funzioni refresh/salva; (3) Tab "Export" con opzioni esportazione CSV, HTML e PDF per i dati di analisi dei costi; (4) Tab "Settings" con installatore R Scripts, selettore lingua (5 lingue), controlli organizzazione layer e documentazione help. **Backend** (`tabs/Site.py`): Sostituiti i metodi handler semplici con implementazione completa: wrapper `_mc_run_algorithm()` con auto-organizzazione layer e aggiornamento automatico tab risultati; 14 handler di algoritmo (7 base + 7 poligonali) invece di 8; tab risultati con riepilogo costi e statistiche + auto-rilevamento R plot; esportazione CSV e generazione report HTML; integrazione organizzatore layer (dal plugin movecost); sistema tooltip multilingua (carica dai file JSON i18n del plugin movecost); documentazione help (apre le pagine help del plugin movecost); installatore R script aggiornato: ora copia dalla directory `rscripts/` del plugin movecost (28 script) con fallback agli script propri di pyarchinit.
+- **EN**: Completely restructured the MoveCost integration in the Site tab (`Site.ui` + `Site.py`). **UI** (`gui/ui/Site.ui`): Removed the old absolute-positioned dock widget with 8 buttons (371x221px), replaced with a modern 4-tab interface (420x700px): (1) "Algorithms" tab with 14 buttons organized in 3 groups (Cost Surface & Paths: movecost, movecost_focalcost, movecost_focalslope, movealloc, movecorr; Corridor & Network Analysis: movecorr, movenetw; Comparison & Ranking: movecomp, moverank) for 7 base + 7 polygon variants -- adds new movecomp, movenetw, moverank algorithms; (2) "Results" tab with cost summary display (statistics) and R Plot Viewer with refresh/save capabilities; (3) "Export" tab with CSV, HTML and PDF export options for cost analysis data; (4) "Settings" tab with R Scripts installer, language selector (5 languages), layer organization controls and help documentation. **Backend** (`tabs/Site.py`): Replaced simple handler methods with full-featured implementation: `_mc_run_algorithm()` wrapper with auto-organize layers and results tab auto-update; 14 algorithm handlers (7 base + 7 polygon variants) instead of 8; results tab with cost summary and statistics + R plot auto-detection; CSV export and HTML report generation; layer organizer integration (from movecost plugin); multi-language tooltips system (loads from movecost plugin's i18n JSON files); help documentation (opens movecost plugin's help pages); updated R script installer: now copies from movecost plugin's `rscripts/` directory (28 scripts) with fallback to pyarchinit's own scripts.
+
+#### File modificati / Modified files
+- `gui/ui/Site.ui` (ristrutturato / restructured)
+- `tabs/Site.py` (aggiornato / updated)
+
+---
+
 ## [5.3.7-alpha] - 2026-02-16
 
 ### fix(i18n): Compilazione .qm mancanti e completamento traduzioni italiane / Compile missing .qm files and complete Italian translations
