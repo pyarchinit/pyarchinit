@@ -172,7 +172,7 @@ LANGUAGES = {
     },
 }
 
-MODEL = "gpt-4o"
+MODEL = "gpt-4.1"
 
 # Terms that should NOT be translated (keep as-is)
 SKIP_TERMS = {

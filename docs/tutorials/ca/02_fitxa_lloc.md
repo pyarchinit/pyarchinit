@@ -8,7 +8,7 @@
 5. [Barra d'Eines DBMS](#barra-deines-dbms)
 6. [Funcionalitats GIS](#funcionalitats-gis)
 7. [Generació de Fitxes US](#generació-de-fitxes-us)
-8. [MoveCost - Anàlisi de Rutes](#movecost---anàlisi-de-rutes)
+8. [Eines d'Anàlisi](#eines-danàlisi)
 9. [Exportació d'Informes](#exportació-dinformes)
 10. [Flux de Treball Operatiu](#flux-de-treball-operatiu)
 
@@ -43,7 +43,7 @@ La Fitxa de Lloc es divideix en diverses àrees funcionals:
 | 2 | **Dades Descriptives** | Camps per inserir la informació del lloc |
 | 3 | **Generador US** | Eina per crear fitxes US en lot |
 | 4 | **GIS Viewer** | Controls per a visualització cartogràfica |
-| 5 | **MoveCost** | Eines d'anàlisi espacial avançada |
+| 5 | **Eines d'Anàlisi** | Accessibles des de la barra d'eines (MoveCost, GeoArchaeo, SAM, etc.) |
 | 6 | **Ajuda** | Documentació i tutorials en vídeo |
 
 ---
@@ -227,32 +227,16 @@ Aquesta funcionalitat permet crear automàticament un nombre arbitrari de fitxes
 
 ---
 
-## MoveCost - Anàlisi de Rutes
+## Eines d'Anàlisi
 
-La secció **MovecostToPyarchinit** integra funcions R per a l'anàlisi de rutes de menor cost (Least Cost Path Analysis).
+Les eines d'anàlisi avançada estan ara disponibles com a diàlegs independents, accessibles des del botó **Eines d'Anàlisi** a la barra d'eines de PyArchInit:
 
-### Prerequisits
-
-- **R** instal·lat al sistema
-- Package R **movecost** instal·lat
-- **Processing R Provider** plugin actiu a QGIS
-
-### Funcions Disponibles
-
-| Funció | Descripció |
-|--------|------------|
-| **movecost** | Calcula el cost de moviment i rutes de menor cost des d'un punt origen |
-| **movecost by polygon** | Com l'anterior, usant un polígon per descarregar el DTM |
-| **movebound** | Calcula els límits del cost de camí al voltant de punts |
-| **movebound by polygon** | Com l'anterior, usant un polígon |
-| **movcorr** | Calcula corredors de menor cost entre punts |
-| **movecorr by polygon** | Com l'anterior, usant un polígon |
-| **movalloc** | Assignació territorial basada en costos |
-| **movealloc by polygon** | Com l'anterior, usant un polígon |
-
-### Add Scripts
-
-El botó **Add scripts** instal·la automàticament els scripts R necessaris al perfil QGIS.
+- **MoveCost** - Anàlisi de camins de menor cost (vegeu [Tutorial MoveCost](34_movecost.md))
+- **GeoArchaeo** - Anàlisi geoestadística per a la recerca arqueològica (vegeu [Tutorial GeoArchaeo](33_geoarchaeo.md))
+- **SAM Segmentation** - Segmentació d'imatges amb IA
+- **Pottery Tools** - Eines d'anàlisi ceràmica
+- **TOPS** - Importació de dades d'estació total
+- **Image Search** - Cerca d'imatges
 
 ---
 
@@ -352,10 +336,8 @@ Quan s'usa PostgreSQL en entorn multiusuari, el sistema gestiona automàticament
 - Verificar la connexió a internet
 - Comprovar que l'adreça estigui escrita correctament
 
-### MoveCost no funciona
-- Verificar que R estigui instal·lat
-- Verificar que el plugin Processing R Provider estigui actiu
-- Instal·lar el package movecost a R
+### Eines d'anàlisi
+- Per a problemes amb MoveCost, GeoArchaeo i altres eines d'anàlisi, consulteu els tutorials dedicats corresponents.
 
 ---
 

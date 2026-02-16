@@ -8,7 +8,7 @@
 5. [DBMS Toolbar](#dbms-toolbar)
 6. [GIS Features](#gis-features)
 7. [SU Form Generation](#su-form-generation)
-8. [MoveCost - Path Analysis](#movecost---path-analysis)
+8. [Analysis Tools](#analysis-tools)
 9. [Report Export](#report-export)
 10. [Operational Workflow](#operational-workflow)
 
@@ -58,7 +58,7 @@ The Site Form is divided into several functional areas:
 | 2 | **Descriptive Data** | Fields for entering site information |
 | 3 | **SU Generator** | Tool for batch-creating SU forms |
 | 4 | **GIS Viewer** | Controls for cartographic display |
-| 5 | **MoveCost** | Advanced spatial analysis tools |
+| 5 | **Analysis Tools** | Accessible from toolbar (MoveCost, GeoArchaeo, SAM, etc.) |
 | 6 | **Help** | Documentation and video tutorials |
 
 ---
@@ -328,43 +328,16 @@ This feature allows automatically creating an arbitrary number of SU forms for t
 
 ---
 
-## MoveCost - Path Analysis
+## Analysis Tools
 
-The **MovecostToPyarchinit** section integrates R functions for least cost path analysis.
+Advanced analysis tools are now available as standalone dialogs, accessible from the **Analysis Tools** toolbar button in PyArchInit:
 
-<!-- IMAGE: Screenshot of MoveCost section -->
-![MoveCost](images/02_scheda_sito/24_movecost_sezione.png)
-*Figure 24: MoveCost section*
-
-### Prerequisites
-
-- **R** installed on the system
-- R package **movecost** installed
-- **Processing R Provider** plugin active in QGIS
-
-### Available Functions
-
-| Function | Description |
-|----------|-------------|
-| **movecost** | Calculates movement cost and least cost paths from an origin point |
-| **movecost by polygon** | Same as above, using a polygon to download DTM |
-| **movebound** | Calculates walking cost boundaries around points |
-| **movebound by polygon** | Same as above, using a polygon |
-| **movcorr** | Calculates least cost corridors between points |
-| **movecorr by polygon** | Same as above, using a polygon |
-| **movalloc** | Territory allocation based on costs |
-| **movealloc by polygon** | Same as above, using a polygon |
-
-<!-- IMAGE: Screenshot of movecost example -->
-![MoveCost Example](images/02_scheda_sito/25_esempio_movecost.png)
-*Figure 25: MoveCost analysis output example*
-
-### Add Scripts
-
-The **Add scripts** button automatically installs the necessary R scripts in the QGIS profile.
-
-<!-- VIDEO: MoveCost Analysis -->
-> **Video Tutorial**: [Insert MoveCost video link]
+- **MoveCost** - Least-cost path analysis (see [MoveCost Tutorial](34_movecost.md))
+- **GeoArchaeo** - Geostatistical analysis for archaeological research (see [GeoArchaeo Tutorial](33_geoarchaeo.md))
+- **SAM Segmentation** - AI image segmentation
+- **Pottery Tools** - Ceramic analysis tools
+- **TOPS** - Total station data import
+- **Image Search** - Image search
 
 ---
 
@@ -518,10 +491,8 @@ When using PostgreSQL in a multi-user environment, the system automatically mana
 - Verify internet connection
 - Check that the address is written correctly
 
-### MoveCost not working
-- Verify that R is installed
-- Verify that Processing R Provider plugin is active
-- Install the movecost package in R
+### Analysis tools
+- For issues with MoveCost, GeoArchaeo and other analysis tools, see their dedicated tutorials.
 
 ---
 

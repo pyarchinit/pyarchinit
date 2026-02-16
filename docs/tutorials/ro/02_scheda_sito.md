@@ -8,7 +8,7 @@
 5. [Bara de Instrumente DBMS](#bara-de-instrumente-dbms)
 6. [Functionalitati GIS](#functionalitati-gis)
 7. [Generare Fise US](#generare-fise-us)
-8. [MoveCost - Analiza Traseelor](#movecost---analiza-traseelor)
+8. [Instrumente de Analiză](#instrumente-de-analiză)
 9. [Export Rapoarte](#export-rapoarte)
 10. [Flux de Lucru Operational](#flux-de-lucru-operational)
 
@@ -58,7 +58,7 @@ Fisa Santier este impartita in mai multe zone functionale:
 | 2 | **Date Descriptive** | Campuri pentru introducerea informatiilor despre santier |
 | 3 | **Generator US** | Instrument pentru crearea in lot a fiselor US |
 | 4 | **Vizualizator GIS** | Controale pentru afisarea cartografica |
-| 5 | **MoveCost** | Instrumente avansate de analiza spatiala |
+| 5 | **Instrumente de Analiză** | Accesibile din bara de instrumente (MoveCost, GeoArchaeo, SAM, etc.) |
 | 6 | **Ajutor** | Documentatie si tutoriale video |
 
 ---
@@ -328,43 +328,16 @@ Aceasta functionalitate permite crearea automata a unui numar arbitrar de fise U
 
 ---
 
-## MoveCost - Analiza Traseelor
+## Instrumente de Analiză
 
-Sectiunea **MovecostToPyarchinit** integreaza functii R pentru analiza traseelor de cost minim.
+Instrumentele de analiză avansată sunt acum disponibile ca dialoguri independente, accesibile din butonul **Instrumente de Analiză** din bara de instrumente PyArchInit:
 
-<!-- IMAGINE: Captură de ecran a sectiunii MoveCost -->
-![MoveCost](images/02_scheda_sito/24_movecost_sezione.png)
-*Figura 24: Sectiunea MoveCost*
-
-### Cerinte Preliminare
-
-- **R** instalat pe sistem
-- Pachetul R **movecost** instalat
-- Plugin-ul **Processing R Provider** activ in QGIS
-
-### Functii Disponibile
-
-| Functie | Descriere |
-|---------|-----------|
-| **movecost** | Calculeaza costul de deplasare si traseele de cost minim de la un punct de origine |
-| **movecost by polygon** | La fel ca mai sus, folosind un poligon pentru descarcarea DTM |
-| **movebound** | Calculeaza limitele de cost de deplasare in jurul punctelor |
-| **movebound by polygon** | La fel ca mai sus, folosind un poligon |
-| **movcorr** | Calculeaza coridoarele de cost minim intre puncte |
-| **movecorr by polygon** | La fel ca mai sus, folosind un poligon |
-| **movalloc** | Alocarea teritoriului pe baza costurilor |
-| **movealloc by polygon** | La fel ca mai sus, folosind un poligon |
-
-<!-- IMAGINE: Captură de ecran cu exemplu movecost -->
-![Exemplu MoveCost](images/02_scheda_sito/25_esempio_movecost.png)
-*Figura 25: Exemplu de rezultat al analizei MoveCost*
-
-### Adaugare Scripturi
-
-Butonul **Adaugare scripturi** instaleaza automat scripturile R necesare in profilul QGIS.
-
-<!-- VIDEO: Analiza MoveCost -->
-> **Tutorial Video**: [Inserati link video MoveCost]
+- **MoveCost** - Analiza rutelor cu cel mai mic cost (vezi [Tutorial MoveCost](34_movecost.md))
+- **GeoArchaeo** - Analiză geostatistică pentru cercetarea arheologică (vezi [Tutorial GeoArchaeo](33_geoarchaeo.md))
+- **SAM Segmentation** - Segmentare imagini cu IA
+- **Pottery Tools** - Instrumente de analiză ceramică
+- **TOPS** - Import date de la stație totală
+- **Image Search** - Căutare imagini
 
 ---
 
@@ -518,10 +491,8 @@ Cand se utilizeaza PostgreSQL intr-un mediu multi-utilizator, sistemul gestionea
 - Verificati conexiunea la internet
 - Verificati ca adresa este scrisa corect
 
-### MoveCost nu functioneaza
-- Verificati ca R este instalat
-- Verificati ca plugin-ul Processing R Provider este activ
-- Instalati pachetul movecost in R
+### Instrumente de analiză
+- Pentru probleme cu MoveCost, GeoArchaeo și alte instrumente de analiză, consultați tutorialele dedicate respective.
 
 ---
 

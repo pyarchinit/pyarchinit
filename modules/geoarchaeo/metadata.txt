@@ -1,0 +1,49 @@
+[general]
+name=GeoArchaeo
+qgisMinimumVersion=3.16
+qgisMaximumVersion=4.99
+description=Advanced Geostatistical Analysis for Archaeological Research
+version=1.1.2
+author=Enzo Cocca
+email=enzo.ccc@gmail.com
+
+about=Complete geostatistical toolkit for archaeology including:
+    - Variogram analysis with anisotropy detection
+    - Multiple kriging methods (OK, UK, Co-Kriging, Spatio-temporal)
+    - Compositional data analysis (CLR/ILR transforms)
+    - Machine Learning pattern recognition
+    - Optimal sampling design
+    - Interactive Plotly visualizations
+    - Batch processing for large datasets
+    - Integration with SpatiaLite
+
+tracker=https://github.com/enzococca/GeoArchaeo/issues
+repository=https://github.com/enzococca/GeoArchaeo
+tags=archaeology, geostatistics, kriging, machine learning, spatialite, interpolation, spatial analysis
+
+homepage=https://github.com/enzococca/GeoArchaeo
+category=Analysis
+icon=icons/geoarchaeo.png
+experimental=False
+deprecated=False
+
+hasProcessingProvider=yes
+supportsQt6=True
+
+; Server support (optional)
+server=False
+
+; Changelog
+changelog=
+    1.1.2 - Fixed infinite recursion in _create_web_view() causing plugin load failure
+            when QtWebEngine is available (Issue #1)
+    1.1.1 - Fixed tutorial text visibility on dark themes
+          - Fixed ML method mapping for English UI
+    1.1.0 - Added Qt5/Qt6 compatibility for QGIS 4.x
+          - Made QtWebEngine optional with browser fallback
+          - Added English language support
+          - Improved error handling
+    1.0.0 - Initial release
+          - Complete geostatistical analysis suite
+          - Machine learning pattern recognition
+          - Interactive Plotly visualizations

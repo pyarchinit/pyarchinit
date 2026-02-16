@@ -1,0 +1,1811 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:32633"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499992.36,
+          4700003.93
+        ]
+      },
+      "properties": {
+        "id_point": 1,
+        "densita_mq": 3.1,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 6.3,
+        "distanza_acqua": 593.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499998.47,
+          4700051.37
+        ]
+      },
+      "properties": {
+        "id_point": 2,
+        "densita_mq": 2.9,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 4.8,
+        "distanza_acqua": 435.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500005.53,
+          4700096.82
+        ]
+      },
+      "properties": {
+        "id_point": 3,
+        "densita_mq": 4.7,
+        "visibilita": 4,
+        "uso_suolo": "Arato",
+        "pendenza": 8.4,
+        "distanza_acqua": 314.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499997.55,
+          4700150.69
+        ]
+      },
+      "properties": {
+        "id_point": 4,
+        "densita_mq": 2.5,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 7.6,
+        "distanza_acqua": 906.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499997.78,
+          4700190.22
+        ]
+      },
+      "properties": {
+        "id_point": 5,
+        "densita_mq": 4.5,
+        "visibilita": 1,
+        "uso_suolo": "Pascolo",
+        "pendenza": 5.3,
+        "distanza_acqua": 534.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499999.86,
+          4700241.67
+        ]
+      },
+      "properties": {
+        "id_point": 6,
+        "densita_mq": 0.5,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.8,
+        "distanza_acqua": 705.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500005.05,
+          4700305.83
+        ]
+      },
+      "properties": {
+        "id_point": 7,
+        "densita_mq": 3.9,
+        "visibilita": 1,
+        "uso_suolo": "Incolto",
+        "pendenza": 10.4,
+        "distanza_acqua": 972.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500003.76,
+          4700356.74
+        ]
+      },
+      "properties": {
+        "id_point": 8,
+        "densita_mq": 4.3,
+        "visibilita": 4,
+        "uso_suolo": "Incolto",
+        "pendenza": 6.2,
+        "distanza_acqua": 731.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          499991.46,
+          4700406.44
+        ]
+      },
+      "properties": {
+        "id_point": 9,
+        "densita_mq": 3.5,
+        "visibilita": 1,
+        "uso_suolo": "Arato",
+        "pendenza": 6.3,
+        "distanza_acqua": 877.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500007.61,
+          4700444.73
+        ]
+      },
+      "properties": {
+        "id_point": 10,
+        "densita_mq": 4.5,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 0.6,
+        "distanza_acqua": 439.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500041.67,
+          4700005.54
+        ]
+      },
+      "properties": {
+        "id_point": 11,
+        "densita_mq": 2.8,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 2.8,
+        "distanza_acqua": 328.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500048.1,
+          4700051.43
+        ]
+      },
+      "properties": {
+        "id_point": 12,
+        "densita_mq": 3.7,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 0.6,
+        "distanza_acqua": 684.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500054.92,
+          4700101.67
+        ]
+      },
+      "properties": {
+        "id_point": 13,
+        "densita_mq": 4.8,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 5.2,
+        "distanza_acqua": 493.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500056.04,
+          4700159.56
+        ]
+      },
+      "properties": {
+        "id_point": 14,
+        "densita_mq": 2.8,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 2.5,
+        "distanza_acqua": 575.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500059.86,
+          4700191.48
+        ]
+      },
+      "properties": {
+        "id_point": 15,
+        "densita_mq": 2.8,
+        "visibilita": 5,
+        "uso_suolo": "Incolto",
+        "pendenza": 3.6,
+        "distanza_acqua": 365.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500059.92,
+          4700253.94
+        ]
+      },
+      "properties": {
+        "id_point": 16,
+        "densita_mq": 1.9,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 3.3,
+        "distanza_acqua": 353.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500059.01,
+          4700307.81
+        ]
+      },
+      "properties": {
+        "id_point": 17,
+        "densita_mq": 2.3,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 6.4,
+        "distanza_acqua": 449.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500044.59,
+          4700345.32
+        ]
+      },
+      "properties": {
+        "id_point": 18,
+        "densita_mq": 1.8,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 1.9,
+        "distanza_acqua": 728.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500050.72,
+          4700396.19
+        ]
+      },
+      "properties": {
+        "id_point": 19,
+        "densita_mq": 4.1,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 4.6,
+        "distanza_acqua": 623.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500058.38,
+          4700441.65
+        ]
+      },
+      "properties": {
+        "id_point": 20,
+        "densita_mq": 4.4,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 6.9,
+        "distanza_acqua": 124.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500097.53,
+          4700006.21
+        ]
+      },
+      "properties": {
+        "id_point": 21,
+        "densita_mq": 4.9,
+        "visibilita": 2,
+        "uso_suolo": "Arato",
+        "pendenza": 3.2,
+        "distanza_acqua": 846.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500101.38,
+          4700041.27
+        ]
+      },
+      "properties": {
+        "id_point": 22,
+        "densita_mq": 0.2,
+        "visibilita": 2,
+        "uso_suolo": "Arato",
+        "pendenza": 9.3,
+        "distanza_acqua": 151.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500107.29,
+          4700106.26
+        ]
+      },
+      "properties": {
+        "id_point": 23,
+        "densita_mq": 5.0,
+        "visibilita": 5,
+        "uso_suolo": "Arato",
+        "pendenza": 9.8,
+        "distanza_acqua": 781.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500097.56,
+          4700144.82
+        ]
+      },
+      "properties": {
+        "id_point": 24,
+        "densita_mq": 1.0,
+        "visibilita": 2,
+        "uso_suolo": "Arato",
+        "pendenza": 6.8,
+        "distanza_acqua": 646.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500094.57,
+          4700203.43
+        ]
+      },
+      "properties": {
+        "id_point": 25,
+        "densita_mq": 3.1,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.0,
+        "distanza_acqua": 529.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500106.63,
+          4700246.16
+        ]
+      },
+      "properties": {
+        "id_point": 26,
+        "densita_mq": 4.1,
+        "visibilita": 5,
+        "uso_suolo": "Incolto",
+        "pendenza": 3.7,
+        "distanza_acqua": 889.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500098.07,
+          4700292.68
+        ]
+      },
+      "properties": {
+        "id_point": 27,
+        "densita_mq": 0.1,
+        "visibilita": 4,
+        "uso_suolo": "Arato",
+        "pendenza": 8.4,
+        "distanza_acqua": 913.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500102.35,
+          4700359.61
+        ]
+      },
+      "properties": {
+        "id_point": 28,
+        "densita_mq": 3.0,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 6.6,
+        "distanza_acqua": 494.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500108.08,
+          4700396.97
+        ]
+      },
+      "properties": {
+        "id_point": 29,
+        "densita_mq": 2.6,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.7,
+        "distanza_acqua": 728.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500105.93,
+          4700449.19
+        ]
+      },
+      "properties": {
+        "id_point": 30,
+        "densita_mq": 4.2,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 0.7,
+        "distanza_acqua": 513.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500159.6,
+          4699999.85
+        ]
+      },
+      "properties": {
+        "id_point": 31,
+        "densita_mq": 1.6,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 6.5,
+        "distanza_acqua": 514.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500151.7,
+          4700048.01
+        ]
+      },
+      "properties": {
+        "id_point": 32,
+        "densita_mq": 3.5,
+        "visibilita": 2,
+        "uso_suolo": "Bosco",
+        "pendenza": 1.2,
+        "distanza_acqua": 411.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500157.94,
+          4700099.48
+        ]
+      },
+      "properties": {
+        "id_point": 33,
+        "densita_mq": 3.3,
+        "visibilita": 2,
+        "uso_suolo": "Incolto",
+        "pendenza": 6.8,
+        "distanza_acqua": 411.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500146.95,
+          4700140.64
+        ]
+      },
+      "properties": {
+        "id_point": 34,
+        "densita_mq": 2.7,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 3.4,
+        "distanza_acqua": 286.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500147.29,
+          4700200.07
+        ]
+      },
+      "properties": {
+        "id_point": 35,
+        "densita_mq": 6.6,
+        "visibilita": 1,
+        "uso_suolo": "Arato",
+        "pendenza": 10.9,
+        "distanza_acqua": 560.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500143.14,
+          4700247.55
+        ]
+      },
+      "properties": {
+        "id_point": 36,
+        "densita_mq": 3.5,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 4.4,
+        "distanza_acqua": 773.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500143.69,
+          4700294.19
+        ]
+      },
+      "properties": {
+        "id_point": 37,
+        "densita_mq": 10.8,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 5.6,
+        "distanza_acqua": 748.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500141.25,
+          4700342.95
+        ]
+      },
+      "properties": {
+        "id_point": 38,
+        "densita_mq": 5.4,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 9.8,
+        "distanza_acqua": 561.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500150.64,
+          4700392.14
+        ]
+      },
+      "properties": {
+        "id_point": 39,
+        "densita_mq": 6.8,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 5.9,
+        "distanza_acqua": 264.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500151.28,
+          4700456.81
+        ]
+      },
+      "properties": {
+        "id_point": 40,
+        "densita_mq": 0.4,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 3.5,
+        "distanza_acqua": 901.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500201.87,
+          4700003.58
+        ]
+      },
+      "properties": {
+        "id_point": 41,
+        "densita_mq": 3.9,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 9.7,
+        "distanza_acqua": 602.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500201.73,
+          4700051.29
+        ]
+      },
+      "properties": {
+        "id_point": 42,
+        "densita_mq": 1.9,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 6.7,
+        "distanza_acqua": 681.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500201.42,
+          4700097.12
+        ]
+      },
+      "properties": {
+        "id_point": 43,
+        "densita_mq": 4.9,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 4.4,
+        "distanza_acqua": 866.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500191.76,
+          4700156.12
+        ]
+      },
+      "properties": {
+        "id_point": 44,
+        "densita_mq": 2.4,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 1.8,
+        "distanza_acqua": 572.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500198.21,
+          4700209.65
+        ]
+      },
+      "properties": {
+        "id_point": 45,
+        "densita_mq": 9.3,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.0,
+        "distanza_acqua": 751.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500206.42,
+          4700254.37
+        ]
+      },
+      "properties": {
+        "id_point": 46,
+        "densita_mq": 30.1,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 6.4,
+        "distanza_acqua": 793.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500193.74,
+          4700296.47
+        ]
+      },
+      "properties": {
+        "id_point": 47,
+        "densita_mq": 25.3,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 10.5,
+        "distanza_acqua": 791.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500191.75,
+          4700350.12
+        ]
+      },
+      "properties": {
+        "id_point": 48,
+        "densita_mq": 38.2,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 5.8,
+        "distanza_acqua": 147.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500196.73,
+          4700392.69
+        ]
+      },
+      "properties": {
+        "id_point": 49,
+        "densita_mq": 7.7,
+        "visibilita": 5,
+        "uso_suolo": "Arato",
+        "pendenza": 3.3,
+        "distanza_acqua": 225.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500190.05,
+          4700442.33
+        ]
+      },
+      "properties": {
+        "id_point": 50,
+        "densita_mq": 5.8,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 5.8,
+        "distanza_acqua": 414.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500258.59,
+          4700006.61
+        ]
+      },
+      "properties": {
+        "id_point": 51,
+        "densita_mq": 4.8,
+        "visibilita": 2,
+        "uso_suolo": "Bosco",
+        "pendenza": 7.0,
+        "distanza_acqua": 749.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500240.96,
+          4700055.63
+        ]
+      },
+      "properties": {
+        "id_point": 52,
+        "densita_mq": 4.1,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 4.4,
+        "distanza_acqua": 247.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500243.29,
+          4700106.29
+        ]
+      },
+      "properties": {
+        "id_point": 53,
+        "densita_mq": 3.3,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 7.5,
+        "distanza_acqua": 715.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500249.04,
+          4700154.28
+        ]
+      },
+      "properties": {
+        "id_point": 54,
+        "densita_mq": 21.0,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 0.1,
+        "distanza_acqua": 773.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500250.05,
+          4700194.64
+        ]
+      },
+      "properties": {
+        "id_point": 55,
+        "densita_mq": 38.4,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 1.9,
+        "distanza_acqua": 400.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500254.61,
+          4700253.87
+        ]
+      },
+      "properties": {
+        "id_point": 56,
+        "densita_mq": 75.0,
+        "visibilita": 4,
+        "uso_suolo": "Arato",
+        "pendenza": 9.3,
+        "distanza_acqua": 580.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500257.88,
+          4700305.77
+        ]
+      },
+      "properties": {
+        "id_point": 57,
+        "densita_mq": 72.8,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 3.5,
+        "distanza_acqua": 284.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500254.28,
+          4700349.88
+        ]
+      },
+      "properties": {
+        "id_point": 58,
+        "densita_mq": 163.2,
+        "visibilita": 2,
+        "uso_suolo": "Arato",
+        "pendenza": 6.2,
+        "distanza_acqua": 200.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500256.93,
+          4700392.55
+        ]
+      },
+      "properties": {
+        "id_point": 59,
+        "densita_mq": 25.4,
+        "visibilita": 4,
+        "uso_suolo": "Arato",
+        "pendenza": 2.7,
+        "distanza_acqua": 795.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500240.24,
+          4700451.97
+        ]
+      },
+      "properties": {
+        "id_point": 60,
+        "densita_mq": 12.0,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 3.8,
+        "distanza_acqua": 411.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500293.63,
+          4700008.17
+        ]
+      },
+      "properties": {
+        "id_point": 61,
+        "densita_mq": 2.9,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 7.4,
+        "distanza_acqua": 921.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500292.78,
+          4700042.02
+        ]
+      },
+      "properties": {
+        "id_point": 62,
+        "densita_mq": 1.3,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 0.5,
+        "distanza_acqua": 939.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500301.3,
+          4700103.93
+        ]
+      },
+      "properties": {
+        "id_point": 63,
+        "densita_mq": 1.8,
+        "visibilita": 4,
+        "uso_suolo": "Incolto",
+        "pendenza": 3.2,
+        "distanza_acqua": 162.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500291.55,
+          4700142.08
+        ]
+      },
+      "properties": {
+        "id_point": 64,
+        "densita_mq": 18.3,
+        "visibilita": 5,
+        "uso_suolo": "Arato",
+        "pendenza": 8.9,
+        "distanza_acqua": 202.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500309.7,
+          4700206.78
+        ]
+      },
+      "properties": {
+        "id_point": 65,
+        "densita_mq": 68.7,
+        "visibilita": 5,
+        "uso_suolo": "Pascolo",
+        "pendenza": 1.8,
+        "distanza_acqua": 647.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500297.59,
+          4700254.88
+        ]
+      },
+      "properties": {
+        "id_point": 66,
+        "densita_mq": 80.8,
+        "visibilita": 4,
+        "uso_suolo": "Incolto",
+        "pendenza": 2.8,
+        "distanza_acqua": 400.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500297.96,
+          4700300.75
+        ]
+      },
+      "properties": {
+        "id_point": 67,
+        "densita_mq": 188.0,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 7.5,
+        "distanza_acqua": 628.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500290.66,
+          4700358.25
+        ]
+      },
+      "properties": {
+        "id_point": 68,
+        "densita_mq": 87.2,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 4.9,
+        "distanza_acqua": 477.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500308.3,
+          4700397.25
+        ]
+      },
+      "properties": {
+        "id_point": 69,
+        "densita_mq": 137.1,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.2,
+        "distanza_acqua": 978.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500299.18,
+          4700451.15
+        ]
+      },
+      "properties": {
+        "id_point": 70,
+        "densita_mq": 21.7,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 0.5,
+        "distanza_acqua": 552.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500351.91,
+          4699991.34
+        ]
+      },
+      "properties": {
+        "id_point": 71,
+        "densita_mq": 3.7,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 3.7,
+        "distanza_acqua": 662.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500347.55,
+          4700056.73
+        ]
+      },
+      "properties": {
+        "id_point": 72,
+        "densita_mq": 2.9,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 1.4,
+        "distanza_acqua": 508.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500350.49,
+          4700098.82
+        ]
+      },
+      "properties": {
+        "id_point": 73,
+        "densita_mq": 2.0,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 4.1,
+        "distanza_acqua": 168.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500355.06,
+          4700145.45
+        ]
+      },
+      "properties": {
+        "id_point": 74,
+        "densita_mq": 16.5,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 2.9,
+        "distanza_acqua": 123.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500343.12,
+          4700204.32
+        ]
+      },
+      "properties": {
+        "id_point": 75,
+        "densita_mq": 34.6,
+        "visibilita": 1,
+        "uso_suolo": "Pascolo",
+        "pendenza": 2.7,
+        "distanza_acqua": 555.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500351.9,
+          4700246.79
+        ]
+      },
+      "properties": {
+        "id_point": 76,
+        "densita_mq": 135.4,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 3.1,
+        "distanza_acqua": 314.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500341.99,
+          4700294.86
+        ]
+      },
+      "properties": {
+        "id_point": 77,
+        "densita_mq": 158.3,
+        "visibilita": 4,
+        "uso_suolo": "Pascolo",
+        "pendenza": 4.2,
+        "distanza_acqua": 392.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500341.74,
+          4700352.66
+        ]
+      },
+      "properties": {
+        "id_point": 78,
+        "densita_mq": 160.4,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 1.8,
+        "distanza_acqua": 263.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500351.66,
+          4700398.43
+        ]
+      },
+      "properties": {
+        "id_point": 79,
+        "densita_mq": 40.6,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 8.0,
+        "distanza_acqua": 427.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500340.68,
+          4700456.61
+        ]
+      },
+      "properties": {
+        "id_point": 80,
+        "densita_mq": 9.1,
+        "visibilita": 4,
+        "uso_suolo": "Arato",
+        "pendenza": 3.5,
+        "distanza_acqua": 493.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500395.89,
+          4700008.97
+        ]
+      },
+      "properties": {
+        "id_point": 81,
+        "densita_mq": 3.8,
+        "visibilita": 2,
+        "uso_suolo": "Incolto",
+        "pendenza": 5.9,
+        "distanza_acqua": 524.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500393.64,
+          4700049.7
+        ]
+      },
+      "properties": {
+        "id_point": 82,
+        "densita_mq": 2.6,
+        "visibilita": 4,
+        "uso_suolo": "Incolto",
+        "pendenza": 5.1,
+        "distanza_acqua": 670.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500395.16,
+          4700092.79
+        ]
+      },
+      "properties": {
+        "id_point": 83,
+        "densita_mq": 4.2,
+        "visibilita": 5,
+        "uso_suolo": "Incolto",
+        "pendenza": 5.9,
+        "distanza_acqua": 715.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500406.45,
+          4700150.59
+        ]
+      },
+      "properties": {
+        "id_point": 84,
+        "densita_mq": 7.1,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 6.9,
+        "distanza_acqua": 599.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500403.03,
+          4700206.59
+        ]
+      },
+      "properties": {
+        "id_point": 85,
+        "densita_mq": 11.1,
+        "visibilita": 1,
+        "uso_suolo": "Arato",
+        "pendenza": 2.3,
+        "distanza_acqua": 759.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500395.01,
+          4700252.66
+        ]
+      },
+      "properties": {
+        "id_point": 86,
+        "densita_mq": 27.9,
+        "visibilita": 3,
+        "uso_suolo": "Arato",
+        "pendenza": 2.3,
+        "distanza_acqua": 477.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500397.66,
+          4700300.38
+        ]
+      },
+      "properties": {
+        "id_point": 87,
+        "densita_mq": 57.0,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 4.3,
+        "distanza_acqua": 924.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500404.43,
+          4700352.21
+        ]
+      },
+      "properties": {
+        "id_point": 88,
+        "densita_mq": 39.9,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 8.6,
+        "distanza_acqua": 943.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500404.65,
+          4700394.3
+        ]
+      },
+      "properties": {
+        "id_point": 89,
+        "densita_mq": 6.7,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 5.7,
+        "distanza_acqua": 960.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500393.09,
+          4700452.47
+        ]
+      },
+      "properties": {
+        "id_point": 90,
+        "densita_mq": 6.2,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.7,
+        "distanza_acqua": 755.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500449.91,
+          4700003.77
+        ]
+      },
+      "properties": {
+        "id_point": 91,
+        "densita_mq": 2.2,
+        "visibilita": 2,
+        "uso_suolo": "Pascolo",
+        "pendenza": 4.1,
+        "distanza_acqua": 827.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500459.24,
+          4700055.8
+        ]
+      },
+      "properties": {
+        "id_point": 92,
+        "densita_mq": 3.5,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 3.0,
+        "distanza_acqua": 588.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500457.46,
+          4700104.64
+        ]
+      },
+      "properties": {
+        "id_point": 93,
+        "densita_mq": 4.0,
+        "visibilita": 3,
+        "uso_suolo": "Incolto",
+        "pendenza": 5.1,
+        "distanza_acqua": 913.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500452.93,
+          4700153.86
+        ]
+      },
+      "properties": {
+        "id_point": 94,
+        "densita_mq": 0.3,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 5.0,
+        "distanza_acqua": 735.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500458.5,
+          4700193.61
+        ]
+      },
+      "properties": {
+        "id_point": 95,
+        "densita_mq": 3.0,
+        "visibilita": 5,
+        "uso_suolo": "Incolto",
+        "pendenza": 6.1,
+        "distanza_acqua": 273.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500442.31,
+          4700248.44
+        ]
+      },
+      "properties": {
+        "id_point": 96,
+        "densita_mq": 20.3,
+        "visibilita": 4,
+        "uso_suolo": "Bosco",
+        "pendenza": 3.2,
+        "distanza_acqua": 860.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500446.38,
+          4700306.58
+        ]
+      },
+      "properties": {
+        "id_point": 97,
+        "densita_mq": 6.1,
+        "visibilita": 3,
+        "uso_suolo": "Pascolo",
+        "pendenza": 2.4,
+        "distanza_acqua": 896.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500450.61,
+          4700348.82
+        ]
+      },
+      "properties": {
+        "id_point": 98,
+        "densita_mq": 10.9,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 13.2,
+        "distanza_acqua": 586.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500455.81,
+          4700396.38
+        ]
+      },
+      "properties": {
+        "id_point": 99,
+        "densita_mq": 5.9,
+        "visibilita": 4,
+        "uso_suolo": "Incolto",
+        "pendenza": 4.3,
+        "distanza_acqua": 516.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500459.81,
+          4700440.0
+        ]
+      },
+      "properties": {
+        "id_point": 100,
+        "densita_mq": 0.9,
+        "visibilita": 3,
+        "uso_suolo": "Bosco",
+        "pendenza": 8.0,
+        "distanza_acqua": 819.0
+      }
+    }
+  ]
+}

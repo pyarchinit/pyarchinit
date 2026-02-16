@@ -8,7 +8,7 @@
 5. [Toolbar DBMS](#toolbar-dbms)
 6. [Funzionalita GIS](#funzionalita-gis)
 7. [Generazione Schede US](#generazione-schede-us)
-8. [MoveCost - Analisi Percorsi](#movecost---analisi-percorsi)
+8. [Strumenti di Analisi](#strumenti-di-analisi)
 9. [Esportazione Report](#esportazione-report)
 10. [Workflow Operativo](#workflow-operativo)
 
@@ -58,7 +58,7 @@ La Scheda Sito e divisa in diverse aree funzionali:
 | 2 | **Dati Descrittivi** | Campi per inserire le informazioni del sito |
 | 3 | **Generatore US** | Strumento per creare schede US in batch |
 | 4 | **GIS Viewer** | Controlli per visualizzazione cartografica |
-| 5 | **MoveCost** | Strumenti di analisi spaziale avanzata |
+| 5 | **Strumenti di Analisi** | Accessibili dalla toolbar (MoveCost, GeoArchaeo, SAM, ecc.) |
 | 6 | **Help** | Documentazione e video tutorial |
 
 ---
@@ -328,43 +328,16 @@ Questa funzionalita permette di creare automaticamente un numero arbitrario di s
 
 ---
 
-## MoveCost - Analisi Percorsi
+## Strumenti di Analisi
 
-La sezione **MovecostToPyarchinit** integra funzioni R per l'analisi dei percorsi di minor costo (Least Cost Path Analysis).
+Gli strumenti di analisi avanzata sono ora disponibili come finestre di dialogo indipendenti, accessibili dal pulsante **Strumenti di Analisi** nella toolbar di PyArchInit:
 
-<!-- IMMAGINE: Screenshot sezione MoveCost -->
-![MoveCost](images/02_scheda_sito/24_movecost_sezione.png)
-*Figura 24: Sezione MoveCost*
-
-### Prerequisiti
-
-- **R** installato sul sistema
-- Package R **movecost** installato
-- **Processing R Provider** plugin attivo in QGIS
-
-### Funzioni Disponibili
-
-| Funzione | Descrizione |
-|----------|-------------|
-| **movecost** | Calcola il costo di movimento e percorsi di minor costo da un punto origine |
-| **movecost by polygon** | Come sopra, usando un poligono per scaricare il DTM |
-| **movebound** | Calcola i confini del costo di cammino attorno a punti |
-| **movebound by polygon** | Come sopra, usando un poligono |
-| **movcorr** | Calcola corridoi di minor costo tra punti |
-| **movecorr by polygon** | Come sopra, usando un poligono |
-| **movalloc** | Allocazione territoriale basata sui costi |
-| **movealloc by polygon** | Come sopra, usando un poligono |
-
-<!-- IMMAGINE: Screenshot esempio movecost -->
-![Esempio MoveCost](images/02_scheda_sito/25_esempio_movecost.png)
-*Figura 25: Esempio output analisi MoveCost*
-
-### Add Scripts
-
-Il bottone **Add scripts** installa automaticamente gli script R necessari nel profilo QGIS.
-
-<!-- VIDEO: Analisi MoveCost -->
-> **Video Tutorial**: [Inserire link video MoveCost]
+- **MoveCost** - Analisi dei percorsi di minor costo (vedi [Tutorial MoveCost](34_movecost.md))
+- **GeoArchaeo** - Analisi geostatistica per la ricerca archeologica (vedi [Tutorial GeoArchaeo](33_geoarchaeo.md))
+- **SAM Segmentation** - Segmentazione AI delle immagini
+- **Pottery Tools** - Strumenti per la ceramica
+- **TOPS** - Importazione dati da stazione totale
+- **Image Search** - Ricerca immagini
 
 ---
 
@@ -518,10 +491,8 @@ Quando si usa PostgreSQL in ambiente multi-utente, il sistema gestisce automatic
 - Verificare la connessione internet
 - Controllare che l'indirizzo sia scritto correttamente
 
-### MoveCost non funziona
-- Verificare che R sia installato
-- Verificare che il plugin Processing R Provider sia attivo
-- Installare il package movecost in R
+### Strumenti di analisi
+- Per problemi con MoveCost, GeoArchaeo e altri strumenti di analisi, consultare i rispettivi tutorial dedicati.
 
 ---
 
@@ -577,7 +548,7 @@ Quando si usa PostgreSQL in ambiente multi-utente, il sistema gestisce automatic
 | Video introduzione scheda sito | Panoramica della scheda |
 | Video ricerca | Come effettuare ricerche |
 | Video generazione US | Come generare US in batch |
-| Video MoveCost | Analisi percorsi |
+| Video Strumenti di Analisi | Panoramica strumenti |
 | Video workflow nuovo sito | Creazione nuovo sito passo-passo |
 
 ---

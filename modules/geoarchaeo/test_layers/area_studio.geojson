@@ -1,0 +1,63 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:32633"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              499950,
+              4699950
+            ],
+            [
+              501050,
+              4699950
+            ],
+            [
+              501050,
+              4700500
+            ],
+            [
+              500800,
+              4700500
+            ],
+            [
+              500800,
+              4700800
+            ],
+            [
+              501050,
+              4700800
+            ],
+            [
+              501050,
+              4701050
+            ],
+            [
+              499950,
+              4701050
+            ],
+            [
+              499950,
+              4699950
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": 1,
+        "nome": "Area Studio Archeologica",
+        "superficie_ha": 110.5,
+        "note": "Area di indagine principale del progetto"
+      }
+    }
+  ]
+}

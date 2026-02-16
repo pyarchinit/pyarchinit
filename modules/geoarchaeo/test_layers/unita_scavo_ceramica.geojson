@@ -1,0 +1,961 @@
+{
+  "type": "FeatureCollection",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:32633"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500189.0,
+          4700130.31
+        ]
+      },
+      "properties": {
+        "id_unit": 1,
+        "ceramica_tot": 70.0,
+        "ceramica_fine": 13.2,
+        "ceramica_comune": 56.7,
+        "fase": "Medievale",
+        "profondita": 30.0,
+        "area_mq": 2.38
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500127.37,
+          4700131.58
+        ]
+      },
+      "properties": {
+        "id_unit": 2,
+        "ceramica_tot": 40.2,
+        "ceramica_fine": 4.2,
+        "ceramica_comune": 36.0,
+        "fase": "Romano Repubblicano",
+        "profondita": 117.0,
+        "area_mq": 3.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500179.25,
+          4700180.77
+        ]
+      },
+      "properties": {
+        "id_unit": 3,
+        "ceramica_tot": 0.0,
+        "ceramica_fine": 0.0,
+        "ceramica_comune": 0.0,
+        "fase": "Romano Repubblicano",
+        "profondita": 117.4,
+        "area_mq": 1.7
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500162.07,
+          4700137.41
+        ]
+      },
+      "properties": {
+        "id_unit": 4,
+        "ceramica_tot": 67.9,
+        "ceramica_fine": 13.8,
+        "ceramica_comune": 54.1,
+        "fase": "Romano Imperiale",
+        "profondita": 79.2,
+        "area_mq": 1.14
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500189.5,
+          4700158.26
+        ]
+      },
+      "properties": {
+        "id_unit": 5,
+        "ceramica_tot": 0.0,
+        "ceramica_fine": 0.0,
+        "ceramica_comune": 0.0,
+        "fase": "Romano Imperiale",
+        "profondita": 43.1,
+        "area_mq": 1.72
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500222.39,
+          4700142.6
+        ]
+      },
+      "properties": {
+        "id_unit": 6,
+        "ceramica_tot": 42.1,
+        "ceramica_fine": 5.7,
+        "ceramica_comune": 36.4,
+        "fase": "Romano Imperiale",
+        "profondita": 59.1,
+        "area_mq": 1.55
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500122.44,
+          4700142.94
+        ]
+      },
+      "properties": {
+        "id_unit": 7,
+        "ceramica_tot": 29.5,
+        "ceramica_fine": 7.9,
+        "ceramica_comune": 21.6,
+        "fase": "Romano Imperiale",
+        "profondita": 65.0,
+        "area_mq": 2.19
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500151.33,
+          4700131.86
+        ]
+      },
+      "properties": {
+        "id_unit": 8,
+        "ceramica_tot": 78.3,
+        "ceramica_fine": 16.8,
+        "ceramica_comune": 61.5,
+        "fase": "Romano Imperiale",
+        "profondita": 72.1,
+        "area_mq": 3.88
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500070.43,
+          4700085.6
+        ]
+      },
+      "properties": {
+        "id_unit": 9,
+        "ceramica_tot": 24.2,
+        "ceramica_fine": 3.8,
+        "ceramica_comune": 20.4,
+        "fase": "Romano Imperiale",
+        "profondita": 74.3,
+        "area_mq": 1.42
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500221.14,
+          4700082.49
+        ]
+      },
+      "properties": {
+        "id_unit": 10,
+        "ceramica_tot": 0.0,
+        "ceramica_fine": 0.0,
+        "ceramica_comune": 0.0,
+        "fase": "Medievale",
+        "profondita": 21.4,
+        "area_mq": 1.6
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500209.52,
+          4700146.07
+        ]
+      },
+      "properties": {
+        "id_unit": 11,
+        "ceramica_tot": 43.9,
+        "ceramica_fine": 12.4,
+        "ceramica_comune": 31.5,
+        "fase": "Romano Repubblicano",
+        "profondita": 105.0,
+        "area_mq": 2.35
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500111.94,
+          4700096.45
+        ]
+      },
+      "properties": {
+        "id_unit": 12,
+        "ceramica_tot": 57.8,
+        "ceramica_fine": 9.5,
+        "ceramica_comune": 48.3,
+        "fase": "Romano Repubblicano",
+        "profondita": 93.0,
+        "area_mq": 2.91
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500159.11,
+          4700141.39
+        ]
+      },
+      "properties": {
+        "id_unit": 13,
+        "ceramica_tot": 2.8,
+        "ceramica_fine": 0.4,
+        "ceramica_comune": 2.4,
+        "fase": "Medievale",
+        "profondita": 24.0,
+        "area_mq": 3.13
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500165.68,
+          4700151.74
+        ]
+      },
+      "properties": {
+        "id_unit": 14,
+        "ceramica_tot": 53.1,
+        "ceramica_fine": 8.7,
+        "ceramica_comune": 44.5,
+        "fase": "Romano Imperiale",
+        "profondita": 70.9,
+        "area_mq": 3.72
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500217.45,
+          4700165.74
+        ]
+      },
+      "properties": {
+        "id_unit": 15,
+        "ceramica_tot": 52.0,
+        "ceramica_fine": 14.4,
+        "ceramica_comune": 37.7,
+        "fase": "Romano Repubblicano",
+        "profondita": 82.4,
+        "area_mq": 1.89
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500116.47,
+          4700105.14
+        ]
+      },
+      "properties": {
+        "id_unit": 16,
+        "ceramica_tot": 62.5,
+        "ceramica_fine": 8.6,
+        "ceramica_comune": 54.0,
+        "fase": "Romano Repubblicano",
+        "profondita": 109.3,
+        "area_mq": 2.62
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500143.45,
+          4700132.77
+        ]
+      },
+      "properties": {
+        "id_unit": 17,
+        "ceramica_tot": 48.9,
+        "ceramica_fine": 11.2,
+        "ceramica_comune": 37.7,
+        "fase": "Medievale",
+        "profondita": 20.1,
+        "area_mq": 2.06
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500209.22,
+          4700120.1
+        ]
+      },
+      "properties": {
+        "id_unit": 18,
+        "ceramica_tot": 68.8,
+        "ceramica_fine": 12.6,
+        "ceramica_comune": 56.2,
+        "fase": "Romano Imperiale",
+        "profondita": 42.2,
+        "area_mq": 1.36
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500190.34,
+          4700108.6
+        ]
+      },
+      "properties": {
+        "id_unit": 19,
+        "ceramica_tot": 18.9,
+        "ceramica_fine": 2.1,
+        "ceramica_comune": 16.8,
+        "fase": "Romano Imperiale",
+        "profondita": 45.4,
+        "area_mq": 1.74
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500225.27,
+          4700081.62
+        ]
+      },
+      "properties": {
+        "id_unit": 20,
+        "ceramica_tot": 21.1,
+        "ceramica_fine": 3.3,
+        "ceramica_comune": 17.8,
+        "fase": "Medievale",
+        "profondita": 23.7,
+        "area_mq": 2.83
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500141.16,
+          4700148.32
+        ]
+      },
+      "properties": {
+        "id_unit": 21,
+        "ceramica_tot": 98.8,
+        "ceramica_fine": 23.3,
+        "ceramica_comune": 75.5,
+        "fase": "Romano Imperiale",
+        "profondita": 73.1,
+        "area_mq": 2.34
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500121.47,
+          4700165.35
+        ]
+      },
+      "properties": {
+        "id_unit": 22,
+        "ceramica_tot": 11.0,
+        "ceramica_fine": 2.8,
+        "ceramica_comune": 8.2,
+        "fase": "Romano Imperiale",
+        "profondita": 43.8,
+        "area_mq": 3.18
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500128.1,
+          4700127.85
+        ]
+      },
+      "properties": {
+        "id_unit": 23,
+        "ceramica_tot": 9.1,
+        "ceramica_fine": 2.4,
+        "ceramica_comune": 6.7,
+        "fase": "Romano Imperiale",
+        "profondita": 52.1,
+        "area_mq": 1.56
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500101.54,
+          4700091.67
+        ]
+      },
+      "properties": {
+        "id_unit": 24,
+        "ceramica_tot": 92.6,
+        "ceramica_fine": 13.3,
+        "ceramica_comune": 79.2,
+        "fase": "Romano Repubblicano",
+        "profondita": 91.1,
+        "area_mq": 3.43
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500210.73,
+          4700101.71
+        ]
+      },
+      "properties": {
+        "id_unit": 25,
+        "ceramica_tot": 61.7,
+        "ceramica_fine": 7.9,
+        "ceramica_comune": 53.9,
+        "fase": "Romano Imperiale",
+        "profondita": 54.1,
+        "area_mq": 1.34
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500196.78,
+          4700157.45
+        ]
+      },
+      "properties": {
+        "id_unit": 26,
+        "ceramica_tot": 36.5,
+        "ceramica_fine": 5.3,
+        "ceramica_comune": 31.2,
+        "fase": "Medievale",
+        "profondita": 37.5,
+        "area_mq": 3.95
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500093.51,
+          4700095.88
+        ]
+      },
+      "properties": {
+        "id_unit": 27,
+        "ceramica_tot": 48.6,
+        "ceramica_fine": 8.3,
+        "ceramica_comune": 40.3,
+        "fase": "Romano Repubblicano",
+        "profondita": 92.6,
+        "area_mq": 3.69
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500173.81,
+          4700162.35
+        ]
+      },
+      "properties": {
+        "id_unit": 28,
+        "ceramica_tot": 65.2,
+        "ceramica_fine": 7.6,
+        "ceramica_comune": 57.6,
+        "fase": "Medievale",
+        "profondita": 36.2,
+        "area_mq": 3.7
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500153.5,
+          4700125.66
+        ]
+      },
+      "properties": {
+        "id_unit": 29,
+        "ceramica_tot": 65.0,
+        "ceramica_fine": 9.4,
+        "ceramica_comune": 55.6,
+        "fase": "Romano Repubblicano",
+        "profondita": 91.2,
+        "area_mq": 1.71
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500126.5,
+          4700090.75
+        ]
+      },
+      "properties": {
+        "id_unit": 30,
+        "ceramica_tot": 17.0,
+        "ceramica_fine": 4.2,
+        "ceramica_comune": 12.8,
+        "fase": "Romano Repubblicano",
+        "profondita": 92.1,
+        "area_mq": 1.92
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500172.6,
+          4700104.56
+        ]
+      },
+      "properties": {
+        "id_unit": 31,
+        "ceramica_tot": 52.6,
+        "ceramica_fine": 11.9,
+        "ceramica_comune": 40.7,
+        "fase": "Romano Repubblicano",
+        "profondita": 99.5,
+        "area_mq": 2.51
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500195.21,
+          4700091.87
+        ]
+      },
+      "properties": {
+        "id_unit": 32,
+        "ceramica_tot": 37.9,
+        "ceramica_fine": 9.3,
+        "ceramica_comune": 28.7,
+        "fase": "Romano Imperiale",
+        "profondita": 48.1,
+        "area_mq": 1.07
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500064.33,
+          4700095.14
+        ]
+      },
+      "properties": {
+        "id_unit": 33,
+        "ceramica_tot": 36.7,
+        "ceramica_fine": 10.7,
+        "ceramica_comune": 26.0,
+        "fase": "Romano Imperiale",
+        "profondita": 53.1,
+        "area_mq": 2.66
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500210.13,
+          4700103.06
+        ]
+      },
+      "properties": {
+        "id_unit": 34,
+        "ceramica_tot": 21.5,
+        "ceramica_fine": 5.8,
+        "ceramica_comune": 15.7,
+        "fase": "Romano Imperiale",
+        "profondita": 51.7,
+        "area_mq": 1.51
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500121.93,
+          4700093.29
+        ]
+      },
+      "properties": {
+        "id_unit": 35,
+        "ceramica_tot": 59.3,
+        "ceramica_fine": 10.2,
+        "ceramica_comune": 49.1,
+        "fase": "Romano Imperiale",
+        "profondita": 45.4,
+        "area_mq": 1.89
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500128.4,
+          4700167.45
+        ]
+      },
+      "properties": {
+        "id_unit": 36,
+        "ceramica_tot": 61.0,
+        "ceramica_fine": 14.7,
+        "ceramica_comune": 46.3,
+        "fase": "Romano Imperiale",
+        "profondita": 55.9,
+        "area_mq": 1.88
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500168.97,
+          4700109.79
+        ]
+      },
+      "properties": {
+        "id_unit": 37,
+        "ceramica_tot": 19.0,
+        "ceramica_fine": 1.9,
+        "ceramica_comune": 17.1,
+        "fase": "Romano Repubblicano",
+        "profondita": 82.8,
+        "area_mq": 1.58
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500153.91,
+          4700154.65
+        ]
+      },
+      "properties": {
+        "id_unit": 38,
+        "ceramica_tot": 85.2,
+        "ceramica_fine": 14.3,
+        "ceramica_comune": 70.9,
+        "fase": "Romano Imperiale",
+        "profondita": 57.6,
+        "area_mq": 1.28
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500176.0,
+          4700144.03
+        ]
+      },
+      "properties": {
+        "id_unit": 39,
+        "ceramica_tot": 35.2,
+        "ceramica_fine": 5.3,
+        "ceramica_comune": 29.9,
+        "fase": "Medievale",
+        "profondita": 23.9,
+        "area_mq": 1.91
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500202.82,
+          4700121.29
+        ]
+      },
+      "properties": {
+        "id_unit": 40,
+        "ceramica_tot": 68.6,
+        "ceramica_fine": 17.4,
+        "ceramica_comune": 51.2,
+        "fase": "Romano Imperiale",
+        "profondita": 41.6,
+        "area_mq": 2.87
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500150.91,
+          4700136.97
+        ]
+      },
+      "properties": {
+        "id_unit": 41,
+        "ceramica_tot": 107.6,
+        "ceramica_fine": 26.4,
+        "ceramica_comune": 81.2,
+        "fase": "Romano Repubblicano",
+        "profondita": 117.6,
+        "area_mq": 2.55
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500162.68,
+          4700147.86
+        ]
+      },
+      "properties": {
+        "id_unit": 42,
+        "ceramica_tot": 55.4,
+        "ceramica_fine": 10.3,
+        "ceramica_comune": 45.1,
+        "fase": "Romano Repubblicano",
+        "profondita": 94.4,
+        "area_mq": 1.75
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500134.56,
+          4700183.23
+        ]
+      },
+      "properties": {
+        "id_unit": 43,
+        "ceramica_tot": 22.8,
+        "ceramica_fine": 3.4,
+        "ceramica_comune": 19.4,
+        "fase": "Romano Imperiale",
+        "profondita": 74.9,
+        "area_mq": 3.14
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500093.64,
+          4700107.55
+        ]
+      },
+      "properties": {
+        "id_unit": 44,
+        "ceramica_tot": 105.0,
+        "ceramica_fine": 23.3,
+        "ceramica_comune": 81.7,
+        "fase": "Romano Imperiale",
+        "profondita": 62.0,
+        "area_mq": 1.74
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500195.25,
+          4700157.44
+        ]
+      },
+      "properties": {
+        "id_unit": 45,
+        "ceramica_tot": 28.0,
+        "ceramica_fine": 5.5,
+        "ceramica_comune": 22.6,
+        "fase": "Medievale",
+        "profondita": 37.3,
+        "area_mq": 2.3
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500181.35,
+          4700113.51
+        ]
+      },
+      "properties": {
+        "id_unit": 46,
+        "ceramica_tot": 62.3,
+        "ceramica_fine": 6.4,
+        "ceramica_comune": 55.8,
+        "fase": "Romano Repubblicano",
+        "profondita": 113.3,
+        "area_mq": 2.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500119.45,
+          4700130.89
+        ]
+      },
+      "properties": {
+        "id_unit": 47,
+        "ceramica_tot": 36.5,
+        "ceramica_fine": 9.5,
+        "ceramica_comune": 27.0,
+        "fase": "Romano Repubblicano",
+        "profondita": 87.7,
+        "area_mq": 2.72
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500118.52,
+          4700142.66
+        ]
+      },
+      "properties": {
+        "id_unit": 48,
+        "ceramica_tot": 0.0,
+        "ceramica_fine": 0.0,
+        "ceramica_comune": 0.0,
+        "fase": "Romano Imperiale",
+        "profondita": 58.6,
+        "area_mq": 3.88
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500136.62,
+          4700132.64
+        ]
+      },
+      "properties": {
+        "id_unit": 49,
+        "ceramica_tot": 37.3,
+        "ceramica_fine": 4.0,
+        "ceramica_comune": 33.2,
+        "fase": "Romano Repubblicano",
+        "profondita": 81.8,
+        "area_mq": 2.01
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          500124.65,
+          4700167.7
+        ]
+      },
+      "properties": {
+        "id_unit": 50,
+        "ceramica_tot": 26.4,
+        "ceramica_fine": 2.8,
+        "ceramica_comune": 23.6,
+        "fase": "Romano Repubblicano",
+        "profondita": 101.4,
+        "area_mq": 1.85
+      }
+    }
+  ]
+}

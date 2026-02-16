@@ -8,7 +8,7 @@
 5. [Barra de Herramientas DBMS](#barra-de-herramientas-dbms)
 6. [Funcionalidades SIG](#funcionalidades-sig)
 7. [Generación de Fichas UE](#generación-de-fichas-ue)
-8. [MoveCost - Análisis de Rutas](#movecost---análisis-de-rutas)
+8. [Herramientas de Análisis](#herramientas-de-análisis)
 9. [Exportación de Informes](#exportación-de-informes)
 10. [Workflow Operativo](#workflow-operativo)
 
@@ -48,7 +48,7 @@ La Ficha de Sitio está dividida en diferentes áreas funcionales:
 | 2 | **Datos Descriptivos** | Campos para insertar la información del sitio |
 | 3 | **Generador UE** | Herramienta para crear fichas UE en lote |
 | 4 | **GIS Viewer** | Controles para visualización cartográfica |
-| 5 | **MoveCost** | Herramientas de análisis espacial avanzado |
+| 5 | **Herramientas de Análisis** | Accesibles desde la barra de herramientas (MoveCost, GeoArchaeo, SAM, etc.) |
 | 6 | **Ayuda** | Documentación y video tutoriales |
 
 ---
@@ -221,29 +221,16 @@ Esta funcionalidad permite crear automáticamente un número arbitrario de ficha
 
 ---
 
-## MoveCost - Análisis de Rutas
+## Herramientas de Análisis
 
-La sección **MovecostToPyarchinit** integra funciones R para el análisis de rutas de menor coste (Least Cost Path Analysis).
+Las herramientas de análisis avanzado están ahora disponibles como diálogos independientes, accesibles desde el botón **Herramientas de Análisis** en la barra de herramientas de PyArchInit:
 
-### Prerequisitos
-
-- **R** instalado en el sistema
-- Paquete R **movecost** instalado
-- **Processing R Provider** plugin activo en QGIS
-
-### Funciones Disponibles
-
-| Función | Descripción |
-|---------|-------------|
-| **movecost** | Calcula el coste de movimiento y rutas de menor coste desde un punto de origen |
-| **movecost by polygon** | Como el anterior, usando un polígono para descargar el DTM |
-| **movebound** | Calcula los límites del coste de caminata alrededor de puntos |
-| **movcorr** | Calcula corredores de menor coste entre puntos |
-| **movalloc** | Asignación territorial basada en costes |
-
-### Add Scripts
-
-El botón **Add scripts** instala automáticamente los scripts R necesarios en el perfil QGIS.
+- **MoveCost** - Análisis de rutas de menor coste (ver [Tutorial MoveCost](34_movecost.md))
+- **GeoArchaeo** - Análisis geoestadístico para la investigación arqueológica (ver [Tutorial GeoArchaeo](33_geoarchaeo.md))
+- **SAM Segmentation** - Segmentación de imágenes con IA
+- **Pottery Tools** - Herramientas de análisis cerámico
+- **TOPS** - Importación de datos de estación total
+- **Image Search** - Búsqueda de imágenes
 
 ---
 
@@ -343,10 +330,8 @@ Cuando se usa PostgreSQL en entorno multiusuario, el sistema gestiona automátic
 - Verificar la conexión a internet
 - Comprobar que la dirección esté escrita correctamente
 
-### MoveCost no funciona
-- Verificar que R esté instalado
-- Verificar que el plugin Processing R Provider esté activo
-- Instalar el paquete movecost en R
+### Herramientas de análisis
+- Para problemas con MoveCost, GeoArchaeo y otras herramientas de análisis, consulte los tutoriales dedicados correspondientes.
 
 ---
 

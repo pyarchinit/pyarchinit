@@ -8,7 +8,7 @@
 5. [DBMS-Toolbar](#dbms-toolbar)
 6. [GIS-Funktionen](#gis-funktionen)
 7. [SE-Generierung](#se-generierung)
-8. [MoveCost - Weganalyse](#movecost---weganalyse)
+8. [Analysewerkzeuge](#analysewerkzeuge)
 9. [Berichtexport](#berichtexport)
 10. [Operativer Arbeitsablauf](#operativer-arbeitsablauf)
 
@@ -54,7 +54,7 @@ Das Fundort-Formular ist in verschiedene Funktionsbereiche unterteilt:
 | 2 | **Beschreibende Daten** | Felder zur Eingabe der Fundortinformationen |
 | 3 | **SE-Generator** | Werkzeug zum Batch-Erstellen von SE-Formularen |
 | 4 | **GIS-Viewer** | Steuerelemente für kartografische Anzeige |
-| 5 | **MoveCost** | Erweiterte räumliche Analysewerkzeuge |
+| 5 | **Analysewerkzeuge** | Erreichbar über die Toolbar (MoveCost, GeoArchaeo, SAM, usw.) |
 | 6 | **Hilfe** | Dokumentation und Video-Tutorials |
 
 ---
@@ -301,37 +301,16 @@ Diese Funktion ermöglicht das automatische Erstellen einer beliebigen Anzahl vo
 
 ---
 
-## MoveCost - Weganalyse
+## Analysewerkzeuge
 
-Der Bereich **MovecostToPyarchinit** integriert R-Funktionen für die Least-Cost-Path-Analyse.
+Erweiterte Analysewerkzeuge sind jetzt als eigenständige Dialoge verfügbar, erreichbar über die Schaltfläche **Analysewerkzeuge** in der PyArchInit-Werkzeugleiste:
 
-![MoveCost](images/02_fundort_formular/24_movecost_sezione.png)
-*Abbildung 24: MoveCost-Bereich*
-
-### Voraussetzungen
-
-- **R** auf dem System installiert
-- R-Paket **movecost** installiert
-- **Processing R Provider** Plugin in QGIS aktiv
-
-### Verfügbare Funktionen
-
-| Funktion | Beschreibung |
-|----------|-------------|
-| **movecost** | Berechnet Bewegungskosten und kürzeste Wege von einem Ursprungspunkt |
-| **movecost by polygon** | Wie oben, mit Polygon zum DTM-Download |
-| **movebound** | Berechnet Grenzen der Wegkosten um Punkte |
-| **movcorr** | Berechnet Least-Cost-Korridore zwischen Punkten |
-| **movalloc** | Territoriale Zuordnung basierend auf Kosten |
-
-![MoveCost-Beispiel](images/02_fundort_formular/25_esempio_movecost.png)
-*Abbildung 25: Beispiel MoveCost-Analyseausgabe*
-
-### Skripte hinzufügen
-
-Die Schaltfläche **Skripte hinzufügen** installiert automatisch die erforderlichen R-Skripte im QGIS-Profil.
-
-> **Video-Tutorial**: [Link zum MoveCost-Video einfügen]
+- **MoveCost** - Wegkostenanalyse (siehe [MoveCost Tutorial](34_movecost.md))
+- **GeoArchaeo** - Geostatistische Analyse für die archäologische Forschung (siehe [GeoArchaeo Tutorial](33_geoarchaeo.md))
+- **SAM Segmentation** - KI-Bildsegmentierung
+- **Pottery Tools** - Keramik-Analysewerkzeuge
+- **TOPS** - Totalstation-Datenimport
+- **Image Search** - Bildersuche
 
 ---
 
@@ -471,10 +450,8 @@ Bei der Verwendung von PostgreSQL in einer Mehrbenutzerumgebung verwaltet das Sy
 - Überprüfen Sie die Internetverbindung
 - Kontrollieren Sie, ob die Adresse korrekt geschrieben ist
 
-### MoveCost funktioniert nicht
-- Überprüfen Sie, ob R installiert ist
-- Stellen Sie sicher, dass das Plugin Processing R Provider aktiv ist
-- Installieren Sie das movecost-Paket in R
+### Analysewerkzeuge
+- Bei Problemen mit MoveCost, GeoArchaeo und anderen Analysewerkzeugen siehe die jeweiligen dedizierten Tutorials.
 
 ---
 

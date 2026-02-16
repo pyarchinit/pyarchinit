@@ -187,7 +187,7 @@ class GPTWindow(QMainWindow):
                 prompt += f"DPI: {dpi[0]} x {dpi[1]}\n"
                 prompt += f"Dimensioni: {width} x {height}\n"
 
-                if selected_model == "GPT-4o":
+                if selected_model == "GPT-4.1":
                     response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
                 else:
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
@@ -317,7 +317,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4.1",
                 messages=messages,
                 max_tokens=4096,
                 temperature=0.5,
@@ -384,7 +384,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.messages.create(
-                model="claude-3-5-sonnet-20240620",
+                model="claude-sonnet-4-5-20250929",
                 max_tokens=4096,
                 temperature=0.5,
                 messages=messages,
@@ -454,7 +454,7 @@ class GPTWindow(QMainWindow):
 
         for file_path in file_paths:
             try:
-                if selected_model == "GPT-4o":
+                if selected_model == "GPT-4.1":
                     response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
                 else:  # This implies Claude Sonnet is selected
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
@@ -1139,7 +1139,7 @@ class GPTWindow(QMainWindow):
         if file_path:
             prompt = self.prompt_label.toPlainText()
             selected_model = self.model_selector.currentText()
-            if selected_model == "GPT-4o":
+            if selected_model == "GPT-4.1":
                 self.ask_gpt4(prompt, self.apikey_gpt(), file_path, is_image=False)
             else:
                 self.ask_claude(prompt, self.apikey_claude(), file_path, is_image=False)

@@ -42,12 +42,14 @@ class Text2SQLWidget(QWidget):
         mode_layout = QVBoxLayout()
 
         # RadioButton per scelta modalità
-        self.openai_radio = QRadioButton("OpenAI GPT-4 (API già configurata)")
+        self.openai_radio = QRadioButton("OpenAI GPT-4.1 (API già configurata)")
         self.openai_radio.setChecked(True)
+        self.anthropic_radio = QRadioButton("Anthropic Claude 4.5 Sonnet (API già configurata)")
         self.ollama_radio = QRadioButton("Ollama (modello locale)")
         self.free_radio = QRadioButton("API gratuita (se disponibile)")
 
         mode_layout.addWidget(self.openai_radio)
+        mode_layout.addWidget(self.anthropic_radio)
         mode_layout.addWidget(self.ollama_radio)
         mode_layout.addWidget(self.free_radio)
 
@@ -155,6 +157,7 @@ class Text2SQLWidget(QWidget):
 
         # Connetti segnali
         self.openai_radio.toggled.connect(self.on_mode_toggled)
+        self.anthropic_radio.toggled.connect(self.on_mode_toggled)
         self.ollama_radio.toggled.connect(self.on_mode_toggled)
         self.free_radio.toggled.connect(self.on_mode_toggled)
 
@@ -199,17 +202,21 @@ class Text2SQLWidget(QWidget):
         if self.openai_radio.isChecked():
             # Modalità OpenAI
             sql_query, explanation = MakeSQL.make_openai_request(prompt, db_type, self.parent)
-            
+
+        elif self.anthropic_radio.isChecked():
+            # Modalità Anthropic Claude
+            sql_query, explanation = MakeSQL.make_anthropic_request(prompt, db_type, self.parent)
+
         elif self.ollama_radio.isChecked():
             # Modalità Ollama
             model = self.ollama_model_combo.currentText()
             sql_query, explanation = MakeSQL.make_ollama_request(prompt, db_type, model, self)
-            
+
         elif self.free_radio.isChecked():
             # Modalità API gratuita (da implementare)
-            QMessageBox.information(self, "Non disponibile", 
+            QMessageBox.information(self, "Non disponibile",
                                   "Le API gratuite non sono ancora implementate.\n"
-                                  "Usa OpenAI o Ollama per ora.")
+                                  "Usa OpenAI, Anthropic o Ollama per ora.")
             return
 
         # Mostra il risultato
@@ -422,7 +429,7 @@ Regole importanti:
             
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4",
+                    model="gpt-4.1",
                     messages=messages,
                     temperature=0.1,
                     max_tokens=1500
@@ -489,7 +496,7 @@ Includi:
             ]
             
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4.1",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=1000
@@ -499,6 +506,125 @@ Includi:
             
         except Exception as e:
             return f"Errore nella spiegazione: {str(e)}"
+
+    @staticmethod
+    def get_anthropic_api_key(parent=None):
+        """Ottiene l'API key di Anthropic dal file di configurazione"""
+        api_key = ""
+        HOME = os.path.expanduser("~")
+        BIN = os.path.join(HOME, "pyarchinit", "bin")
+        path_key = os.path.join(BIN, "anthropic_api_key.txt")
+
+        if os.path.isfile(path_key):
+            try:
+                with open(path_key, "r") as f:
+                    api_key = f.read().strip()
+                if api_key:
+                    return api_key
+            except Exception as e:
+                print(f"Errore lettura API key Anthropic: {e}")
+
+        if not api_key and parent and hasattr(parent, 'apikey_claude'):
+            try:
+                api_key = parent.apikey_claude()
+                if api_key:
+                    return api_key
+            except:
+                pass
+
+        if not api_key:
+            reply = QMessageBox.question(None, 'API Key Anthropic non trovata',
+                                        f'Il file {path_key} non esiste o è vuoto.\n'
+                                        'Vuoi inserire ora la tua API key Anthropic?',
+                                        QMessageBox.Yes | QMessageBox.No)
+            if reply == QMessageBox.Yes:
+                api_key, ok = QInputDialog.getText(None, 'Anthropic API Key',
+                                                   'Inserisci la tua API key Anthropic:')
+                if ok and api_key:
+                    try:
+                        os.makedirs(BIN, exist_ok=True)
+                        with open(path_key, 'w') as f:
+                            f.write(api_key)
+                    except Exception as e:
+                        QMessageBox.critical(None, "Errore",
+                                           f"Impossibile salvare l'API key: {str(e)}")
+        return api_key
+
+    @staticmethod
+    def make_anthropic_request(prompt, db_type, parent=None):
+        """Genera SQL usando Anthropic Claude 4.5 Sonnet"""
+        try:
+            from anthropic import Anthropic
+        except ImportError:
+            QMessageBox.critical(None, "Libreria mancante",
+                               "La libreria 'anthropic' non è installata.\n"
+                               "Installala con: pip install anthropic")
+            return None, None
+
+        api_key = MakeSQL.get_anthropic_api_key(parent)
+        if not api_key:
+            return None, None
+
+        try:
+            client = Anthropic(api_key=api_key)
+
+            schema_text = MakeSQL.schema_to_text(database_schema.get_metadata())
+
+            system_prompt = f"""Sei un esperto di SQL e database archeologici PyArchInit.
+Database type: {db_type}
+
+{schema_text}
+
+Regole importanti:
+1. Genera SOLO la query SQL, senza commenti o formattazione markdown
+2. La query deve essere eseguibile direttamente
+3. Per query geometriche usa le funzioni PostGIS/Spatialite appropriate
+4. Considera sempre il contesto archeologico dei dati
+5. Dopo la query, su una nuova riga preceduta da "---", fornisci una spiegazione dettagliata in italiano di cosa fa la query, con esempi di risultati attesi"""
+
+            progress = QProgressDialog("Generazione SQL con Claude in corso...", "Annulla", 0, 0, parent)
+            progress.setWindowTitle("Attendi")
+            progress.setWindowModality(Qt.WindowModal)
+            progress.show()
+
+            try:
+                response = client.messages.create(
+                    model="claude-sonnet-4-5-20250929",
+                    max_tokens=1500,
+                    temperature=0.1,
+                    system=system_prompt,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+
+                content = response.content[0].text
+
+                if "---" in content:
+                    parts = content.split("---", 1)
+                    sql_query = parts[0].strip()
+                    explanation = parts[1].strip() if len(parts) > 1 else ""
+                else:
+                    sql_query = content.strip()
+                    explanation = ""
+
+                sql_query = MakeSQL.clean_sql_query(sql_query)
+                return sql_query, explanation
+
+            finally:
+                progress.close()
+
+        except Exception as e:
+            error_msg = str(e)
+            if "api_key" in error_msg.lower() or "unauthorized" in error_msg.lower():
+                QMessageBox.critical(parent, "Errore API Key",
+                                   f"Errore di autenticazione Anthropic.\n\n"
+                                   f"Verifica che l'API key sia valida nel file:\n"
+                                   f"~/pyarchinit/bin/anthropic_api_key.txt\n\n"
+                                   f"Errore: {error_msg}")
+            else:
+                QMessageBox.critical(parent, "Errore", f"Errore Anthropic: {error_msg}")
+            return None, None
 
     @staticmethod
     def check_ollama_status():

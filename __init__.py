@@ -118,6 +118,8 @@ class PackageManager:
             return os.path.join(osgeo4w_root, 'bin', 'python-qgis.bat')
         return sys.executable
 
+    _cached_windows_python_path = None
+
     @staticmethod
     def get_windows_qgis_python() -> str:
         """
@@ -125,11 +127,16 @@ class PackageManager:
 
         Dynamically scans for all QGIS versions from 3.22 to 4.x.
         Supports both PR (latest) and LTR (Long Term Release) versions.
+        Result is cached after first call to avoid repeated filesystem scans.
 
         Returns:
             Path to python.exe or sys.executable if not found
         """
+        if PackageManager._cached_windows_python_path is not None:
+            return PackageManager._cached_windows_python_path
+
         if platform.system() != 'Windows':
+            PackageManager._cached_windows_python_path = sys.executable
             return sys.executable
 
         qgis_paths = []
@@ -183,9 +190,11 @@ class PackageManager:
         # Try to find existing Python installation
         for path in qgis_paths:
             if os.path.exists(path):
+                PackageManager._cached_windows_python_path = path
                 return path
 
         # Fallback: use sys.executable (the Python running QGIS)
+        PackageManager._cached_windows_python_path = sys.executable
         return sys.executable
 
     @staticmethod
@@ -648,20 +657,13 @@ def initialize_environment() -> None:
     if not Pyarchinit_OS_Utility.checkpostgresinstallation() and s.value('pyArchInit/postgresBinPath'):
         os.environ['PATH'] += os.pathsep + os.path.normpath(s.value('pyArchInit/postgresBinPath'))
 
-    # Check external programs
-    packages_to_check = ['postgres', 'graphviz']
-    for package in packages_to_check:
-        if package.startswith('postgres'):
-            try:
-                subprocess.call(['pg_dump', '-V'])
-            except Exception as e:
-                print(f"Error checking postgres: {e}")
-
-        if package.startswith('graphviz'):
-            try:
-                subprocess.call(['dot', '-V'])
-            except Exception as e:
-                print(f"Error checking graphviz: {e}")
+    # Check external programs (with timeout to prevent hanging on Windows)
+    for cmd, label in [(['pg_dump', '-V'], 'postgres'), (['dot', '-V'], 'graphviz')]:
+        try:
+            subprocess.run(cmd, timeout=5,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+            print(f"Note: {label} not found or timed out: {e}")
 
     # Install fonts
     FontManager.install_fonts()

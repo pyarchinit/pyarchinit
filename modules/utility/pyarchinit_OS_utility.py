@@ -126,17 +126,19 @@ class Pyarchinit_OS_Utility(object):
     @staticmethod
     def checkgraphvizinstallation():
         try:
-            subprocess.call(['dot', '-V'])
+            subprocess.run(['dot', '-V'], timeout=5,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return True
-        except Exception as e:
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             return False
-    
+
     @staticmethod
     def checkpostgresinstallation():
         try:
-            subprocess.call(['pg_dump','-V'])
+            subprocess.run(['pg_dump', '-V'], timeout=5,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             return True
-        except Exception as e:
+        except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             return False
     
     

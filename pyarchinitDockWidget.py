@@ -63,24 +63,7 @@ if not HAS_WEBENGINE:
 if not HAS_WEBENGINE:
     _dock_log("No web view available (QtWebKit/QtWebEngine) — animations will open in system browser")
 
-#from .tabs.Archeozoology import pyarchinit_Archeozoology
-from .tabs.Deteta import pyarchinit_Deteta
-from .tabs.Detsesso import pyarchinit_Detsesso
-from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
-from .tabs.Image_viewer import Main
-from .tabs.Images_directory_export import pyarchinit_Images_directory_export
-from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
-from .tabs.Pdf_export import pyarchinit_pdf_export
-from .tabs.Periodizzazione import pyarchinit_Periodizzazione
-from .tabs.Schedaind import pyarchinit_Schedaind
-from .tabs.Site import pyarchinit_Site
-from .tabs.Struttura import pyarchinit_Struttura
-from .tabs.Tomba import pyarchinit_Tomba
-from .tabs.US_USM import pyarchinit_US
-from .tabs.UT import pyarchinit_UT
-from .tabs.Upd import pyarchinit_Upd_Values
-from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
-from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
+# Tab/dialog imports are deferred to click handler methods for faster plugin startup
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'gui', 'ui', 'pyarchinit_plugin.ui')))
@@ -340,86 +323,103 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.setup_button_tooltips()
 
     def runSite(self):
+        from .tabs.Site import pyarchinit_Site
         pluginGui = pyarchinit_Site(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runPer(self):
+        from .tabs.Periodizzazione import pyarchinit_Periodizzazione
         pluginGui = pyarchinit_Periodizzazione(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runStruttura(self):
+        from .tabs.Struttura import pyarchinit_Struttura
         pluginGui = pyarchinit_Struttura(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runUS(self):
+        from .tabs.US_USM import pyarchinit_US
         pluginGui = pyarchinit_US(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runInr(self):
+        from .tabs.Inv_Materiali import pyarchinit_Inventario_reperti
         pluginGui = pyarchinit_Inventario_reperti(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runGisTimeController(self):
+        from .tabs.Gis_Time_controller import pyarchinit_Gis_Time_Controller
         pluginGui = pyarchinit_Gis_Time_Controller(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runUpd(self):
+        from .tabs.Upd import pyarchinit_Upd_Values
         pluginGui = pyarchinit_Upd_Values(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runConf(self):
+        from .gui.pyarchinitConfigDialog import pyArchInitDialog_Config
         pluginConfGui = pyArchInitDialog_Config()
         pluginConfGui.show()
         self.pluginGui = pluginConfGui
 
     def runInfo(self):
+        from .gui.pyarchinitInfoDialog import pyArchInitDialog_Info
         pluginInfoGui = pyArchInitDialog_Info()
         pluginInfoGui.show()
         self.pluginGui = pluginInfoGui
 
     def runImageViewer(self):
+        from .tabs.Image_viewer import Main
         pluginImageView = Main()
         pluginImageView.show()
         self.pluginGui = pluginImageView
 
     def runImages_directory_export(self):
+        from .tabs.Images_directory_export import pyarchinit_Images_directory_export
         pluginImage_directory_export = pyarchinit_Images_directory_export()
         pluginImage_directory_export.show()
         self.pluginGui = pluginImage_directory_export
 
     def runTomba(self):
+        from .tabs.Tomba import pyarchinit_Tomba
         pluginTomba = pyarchinit_Tomba(self.iface)
         pluginTomba.show()
         self.pluginGui = pluginTomba
 
     def runSchedaind(self):
+        from .tabs.Schedaind import pyarchinit_Schedaind
         pluginIndividui = pyarchinit_Schedaind(self.iface)
         pluginIndividui.show()
         self.pluginGui = pluginIndividui
 
     def runDetsesso(self):
+        from .tabs.Detsesso import pyarchinit_Detsesso
         pluginSesso = pyarchinit_Detsesso(self.iface)
         pluginSesso.show()
         self.pluginGui = pluginSesso
 
     def runDeteta(self):
+        from .tabs.Deteta import pyarchinit_Deteta
         pluginEta = pyarchinit_Deteta(self.iface)
         pluginEta.show()
         self.pluginGui = pluginEta
 
     def runUT(self):
+        from .tabs.UT import pyarchinit_UT
         pluginUT = pyarchinit_UT(self.iface)
         pluginUT.show()
         self.pluginGui = pluginUT
 
     def runPDFadministrator(self):
+        from .tabs.Pdf_export import pyarchinit_pdf_export
         pluginPDFadmin = pyarchinit_pdf_export(self.iface)
         pluginPDFadmin.show()
         self.pluginGui = pluginPDFadmin

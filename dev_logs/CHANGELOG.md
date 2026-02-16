@@ -5,6 +5,168 @@
 
 ---
 
+## [5.3.12-alpha] - 2026-02-16
+
+### fix(perf): Risolto CPU 100% su Windows al caricamento del plugin / Fixed Windows CPU 100% at plugin load
+
+- **IT**: Risolto un problema critico di prestazioni che causava il blocco della CPU al 100% su macchine Windows durante il caricamento del plugin, in particolare quando PostgreSQL o Graphviz non erano installati. Tre interventi principali: (1) **Timeout sui subprocess**: aggiunto `timeout=5` alle chiamate `subprocess.run()` per i controlli di versione `pg_dump -V` e `dot -V` in `__init__.py` e `modules/utility/pyarchinit_OS_utility.py`. In precedenza veniva usato `subprocess.call()` senza timeout, che poteva bloccarsi indefinitamente su Windows in assenza dei programmi esterni. (2) **Import lazy dei tab**: spostati oltre 30 import di moduli tab/dialog dal livello di modulo all'interno dei rispettivi metodi `run*()` (click handler) sia in `pyarchinitPlugin.py` che in `pyarchinitDockWidget.py`. Questo differisce il caricamento delle dipendenze pesanti (cv2, matplotlib, pandas, numpy, ecc.) dall'avvio del plugin al momento in cui l'utente apre effettivamente ciascun tab. (3) **Cache dei percorsi**: aggiunta variabile cache `_cached_windows_python_path` in `PackageManager.get_windows_qgis_python()` in `__init__.py` per evitare scansioni ripetute del filesystem in `C:\Program Files` durante l'installazione dei pacchetti.
+- **EN**: Fixed a critical performance issue causing 100% CPU lock on Windows machines during plugin loading, particularly when PostgreSQL or Graphviz were not installed. Three main interventions: (1) **Subprocess timeout**: added `timeout=5` to `subprocess.run()` calls for `pg_dump -V` and `dot -V` version checks in `__init__.py` and `modules/utility/pyarchinit_OS_utility.py`. Previously bare `subprocess.call()` was used without timeout, which could hang indefinitely on Windows when the external programs were missing. (2) **Lazy tab imports**: moved 30+ tab/dialog module imports from module-level to inside their respective `run*()` click handler methods in both `pyarchinitPlugin.py` and `pyarchinitDockWidget.py`. This defers loading heavy dependencies (cv2, matplotlib, pandas, numpy, etc.) from plugin startup to when the user actually opens each tab. (3) **Path caching**: added `_cached_windows_python_path` cache variable to `PackageManager.get_windows_qgis_python()` in `__init__.py` to avoid repeated filesystem scans of `C:\Program Files` during package installation.
+
+#### File modificati / Modified files
+- `__init__.py` (timeout subprocess, cache percorsi / subprocess timeout, path caching)
+- `pyarchinitPlugin.py` (import lazy dei tab / lazy tab imports)
+- `pyarchinitDockWidget.py` (import lazy dei tab / lazy tab imports)
+- `modules/utility/pyarchinit_OS_utility.py` (timeout subprocess / subprocess timeout)
+
+---
+
+## [5.3.11-alpha] - 2026-02-16
+
+### fix(docs): Corretto tutorial MoveCost greco (el/34_movecost.md) da traslitterazione latina a caratteri greci / Fixed Greek MoveCost tutorial (el/34_movecost.md) from Latin transliteration to Greek characters
+
+- **IT**: Riscritto completamente il file `docs/tutorials/el/34_movecost.md` convertendo tutto il testo dalla traslitterazione latina (Greeklish, es. "Eisagwgi", "Periechomena", "Algorithmoi") ai caratteri greci propri (es. "Εισαγωγη", "Περιεχομενα", "Αλγοριθμοι"). Lo stile adottato e il greco monotonico senza accenti, coerente con il tutorial GeoArchaeo greco (`el/33_geoarchaeo.md`). I termini tecnici (MoveCost, QGIS, R, DTM, CSV, HTML, PDF, Processing, ecc.) sono stati mantenuti in caratteri latini. La struttura e il contenuto del documento sono rimasti invariati (574 righe, 11 sezioni).
+- **EN**: Completely rewrote the file `docs/tutorials/el/34_movecost.md` converting all text from Latin transliteration (Greeklish, e.g. "Eisagwgi", "Periechomena", "Algorithmoi") to proper Greek characters (e.g. "Εισαγωγη", "Περιεχομενα", "Αλγοριθμοι"). The style used is monotonic Greek without accents, consistent with the Greek GeoArchaeo tutorial (`el/33_geoarchaeo.md`). Technical terms (MoveCost, QGIS, R, DTM, CSV, HTML, PDF, Processing, etc.) were kept in Latin characters. The document structure and content remain unchanged (574 lines, 11 sections).
+
+#### File modificati / Modified files
+- `docs/tutorials/el/34_movecost.md`
+
+---
+
+## [5.3.10-alpha] - 2026-02-16
+
+### docs(tutorials): Creato tutorial GeoArchaeo (33_geoarchaeo.md) in 10 lingue / Created GeoArchaeo tutorial (33_geoarchaeo.md) in 10 languages
+
+- **IT**: Creato il file tutorial `33_geoarchaeo.md` in tutte le 10 directory linguistiche (it, en, de, fr, es, ar, ca, ro, pt, el) per lo strumento di analisi geostatistica GeoArchaeo. Ogni file contiene circa 463-466 righe di markdown con: indice, introduzione (cos'e GeoArchaeo, perche l'analisi geostatistica in archeologia), accesso allo strumento (Analysis Tools toolbar), interfaccia utente (6 schede), scheda Dati (caricamento layer, selezione campi, dati di esempio, esplorazione), scheda Variogramma (calcolo variogramma sperimentale, modellazione con 4 tipi di modello, variogrammi direzionali, parametri nugget/sill/range), scheda Kriging (kriging ordinario e universale, parametri griglia, risultati predizione e varianza), scheda Machine Learning (Random Forest, Gradient Boosting, SVR, validazione crociata, importanza variabili), scheda Campionamento (4 strategie: casuale semplice, stratificato, griglia regolare, ottimizzato), scheda Report (generazione automatica, formati PDF/HTML/Markdown), flusso di lavoro operativo in 6 passi, risoluzione problemi (tabella con 6 problemi comuni e soluzioni), note tecniche (dipendenze, CRS, esportazione, integrazione QGIS). Ogni versione linguistica e una traduzione propria, non una copia.
+- **EN**: Created the tutorial file `33_geoarchaeo.md` in all 10 language directories (it, en, de, fr, es, ar, ca, ro, pt, el) for the GeoArchaeo geostatistical analysis tool. Each file contains approximately 463-466 lines of markdown with: table of contents, introduction (what is GeoArchaeo, why geostatistical analysis in archaeology), accessing the tool (Analysis Tools toolbar), user interface (6 tabs), Data tab (loading layers, field selection, example data, exploration), Variogram tab (experimental variogram computation, modelling with 4 model types, directional variograms, nugget/sill/range parameters), Kriging tab (ordinary and universal kriging, grid parameters, prediction and variance results), Machine Learning tab (Random Forest, Gradient Boosting, SVR, cross-validation, variable importance), Sampling tab (4 strategies: simple random, stratified, regular grid, optimised), Report tab (automatic generation, PDF/HTML/Markdown formats), 6-step operational workflow, troubleshooting (table with 6 common issues and solutions), technical notes (dependencies, CRS, export, QGIS integration). Each language version is a proper translation, not a copy.
+
+#### File creati / Created files
+- `docs/tutorials/it/33_geoarchaeo.md`
+- `docs/tutorials/en/33_geoarchaeo.md`
+- `docs/tutorials/de/33_geoarchaeo.md`
+- `docs/tutorials/fr/33_geoarchaeo.md`
+- `docs/tutorials/es/33_geoarchaeo.md`
+- `docs/tutorials/ar/33_geoarchaeo.md`
+- `docs/tutorials/ca/33_geoarchaeo.md`
+- `docs/tutorials/ro/33_geoarchaeo.md`
+- `docs/tutorials/pt/33_geoarchaeo.md`
+- `docs/tutorials/el/33_geoarchaeo.md`
+
+---
+
+## [5.3.9-alpha] - 2026-02-16
+
+### docs(tutorials): Creato tutorial MoveCost (34_movecost.md) in 10 lingue / Created MoveCost tutorial (34_movecost.md) in 10 languages
+
+- **IT**: Creato il file tutorial `34_movecost.md` in tutte le 10 directory linguistiche (it, en, de, fr, es, ar, ca, ro, pt, el) per lo strumento autonomo MoveCost di analisi percorsi di minor costo. Ogni file contiene circa 450-550 righe di markdown con: indice, introduzione (storia dell'estrazione dalla scheda Sito), accesso allo strumento (Analysis Tools toolbar), prerequisiti (R, pacchetto movecost, Processing R Provider), interfaccia utente (4 schede), scheda Algoritmi (14 algoritmi in 3 gruppi: Superficie di Costo e Percorsi, Analisi Corridoi e Reti, Confronto e Classificazione), scheda Risultati (riepilogo costi e visualizzatore grafici R), scheda Esportazione (CSV, PDF stub, HTML), scheda Impostazioni (script R, lingua, organizzazione layer, help), flusso di lavoro operativo passo-passo, risoluzione problemi (R non trovato, script mancanti, grafici non visibili, pacchetto non installato, analisi lenta, errore CRS), note tecniche (architettura, file sorgente, funzioni di costo supportate, riferimenti bibliografici, compatibilita).
+- **EN**: Created the tutorial file `34_movecost.md` in all 10 language directories (it, en, de, fr, es, ar, ca, ro, pt, el) for the standalone MoveCost least-cost path analysis tool. Each file contains approximately 450-550 lines of markdown with: table of contents, introduction (history of extraction from Site form), accessing the tool (Analysis Tools toolbar), prerequisites (R, movecost package, Processing R Provider), user interface (4 tabs), Algorithms tab (14 algorithms in 3 groups: Cost Surface & Paths, Corridor & Network Analysis, Comparison & Ranking), Results tab (cost summary and R plot viewer), Export tab (CSV, PDF stub, HTML), Settings tab (R scripts, language, layer organization, help), step-by-step operational workflow, troubleshooting (R not found, scripts missing, plots not showing, package not installed, slow analysis, CRS error), technical notes (architecture, source files, supported cost functions, bibliographic references, compatibility).
+
+#### File creati / Created files
+- `docs/tutorials/it/34_movecost.md`
+- `docs/tutorials/en/34_movecost.md`
+- `docs/tutorials/de/34_movecost.md`
+- `docs/tutorials/fr/34_movecost.md`
+- `docs/tutorials/es/34_movecost.md`
+- `docs/tutorials/ar/34_movecost.md`
+- `docs/tutorials/ca/34_movecost.md`
+- `docs/tutorials/ro/34_movecost.md`
+- `docs/tutorials/pt/34_movecost.md`
+- `docs/tutorials/el/34_movecost.md`
+
+### docs(tutorials): Aggiornamento tutorial Scheda Sito (02_*) in 10 lingue: rimossa sezione MoveCost, aggiunta nota strumenti di analisi standalone / Update Site Form tutorial (02_*) in 10 languages: removed MoveCost section, added standalone analysis tools note
+
+- **IT**: Aggiornati i tutorial della Scheda Sito (02_*) in tutte le 10 directory linguistiche (it, en, de, fr, es, ar, ca, ro, pt, el). Modifiche: (1) Rimossa voce MoveCost dall'indice e sostituita con "Strumenti di Analisi"; (2) Aggiornata tabella interfaccia utente, riga 5 da "MoveCost" a "Strumenti di Analisi"; (3) Rimossa intera sezione MoveCost (prerequisiti, funzioni R, screenshot) e sostituita con una breve nota sugli strumenti di analisi standalone accessibili dalla toolbar (MoveCost, GeoArchaeo, SAM Segmentation, Pottery Tools, TOPS, Image Search) con link ai tutorial dedicati; (4) Sostituita voce troubleshooting "MoveCost non funziona" con riferimento generico ai tutorial dedicati; (5) Aggiornato elenco video nella versione IT.
+- **EN**: Updated the Site Form tutorials (02_*) in all 10 language directories (it, en, de, fr, es, ar, ca, ro, pt, el). Changes: (1) Removed MoveCost entry from table of contents and replaced with "Analysis Tools"; (2) Updated user interface table, row 5 from "MoveCost" to "Analysis Tools"; (3) Removed entire MoveCost section (prerequisites, R functions, screenshots) and replaced with a short note about standalone analysis tools accessible from the toolbar (MoveCost, GeoArchaeo, SAM Segmentation, Pottery Tools, TOPS, Image Search) with links to dedicated tutorials; (4) Replaced troubleshooting entry "MoveCost not working" with a generic reference to dedicated tutorials; (5) Updated video list in IT version.
+
+#### File modificati / Modified files
+- `docs/tutorials/it/02_scheda_sito.md`
+- `docs/tutorials/en/02_scheda_sito.md`
+- `docs/tutorials/de/02_fundort_formular.md`
+- `docs/tutorials/fr/02_fiche_site.md`
+- `docs/tutorials/es/02_ficha_sitio.md`
+- `docs/tutorials/ar/02_بطاقة_الموقع.md`
+- `docs/tutorials/ca/02_fitxa_lloc.md`
+- `docs/tutorials/ro/02_scheda_sito.md`
+- `docs/tutorials/pt/02_scheda_sito.md`
+- `docs/tutorials/el/02_scheda_sito.md`
+
+### refactor(movecost): Estrazione MoveCost dalla scheda Sito in strumento di analisi standalone / Extract MoveCost from Site form into standalone analysis tool
+
+- **IT**: Estratto MoveCost dalla scheda Sito (`tabs/Site.py`, `gui/ui/Site.ui`) in uno strumento di analisi standalone. Creato nuovo dialogo `tabs/Movecost.py` (classe `pyarchinit_Movecost`) con tutte le funzionalità movecost: 14 algoritmi R (movecost, movebound, movecorr, movealloc, movecomp, movenetw, moverank con varianti polygon), organizzazione layer, riepilogo risultati, visualizzazione plot R, esportazione CSV/PDF/HTML, impostazioni (script R, lingua, help). Creato file UI `gui/ui/Movecost.ui` con 4 tab (Algoritmi, Risultati, Esportazione, Impostazioni). Rimosso `QgsDockWidget mDockWidget`, `pushButton_mc` e connessione signal/slot da `Site.ui`. Rimossi tutti i metodi movecost e import inutilizzati da `Site.py`. Aggiunto `actionMovecost` al `analysisToolButton` in tutte le 4 sezioni locali (IT/EN/DE/else) di `pyarchinitPlugin.py`. Aggiunto metodo `runMovecost` al plugin.
+- **EN**: Extracted MoveCost from the Site form (`tabs/Site.py`, `gui/ui/Site.ui`) into a standalone analysis tool. Created new dialog `tabs/Movecost.py` (class `pyarchinit_Movecost`) containing all movecost functionality: 14 R algorithms (movecost, movebound, movecorr, movealloc, movecomp, movenetw, moverank with polygon variants), layer organization, results summary, R plot viewer, CSV/PDF/HTML export, settings (R scripts, language, help). Created UI file `gui/ui/Movecost.ui` with 4 tabs (Algorithms, Results, Export, Settings). Removed `QgsDockWidget mDockWidget`, `pushButton_mc` and signal/slot connection from `Site.ui`. Removed all movecost methods and unused imports from `Site.py`. Added `actionMovecost` to `analysisToolButton` in all 4 locale sections (IT/EN/DE/else) of `pyarchinitPlugin.py`. Added `runMovecost` method to the plugin.
+
+#### File creati / Created files
+- `tabs/Movecost.py` (nuovo / new)
+- `gui/ui/Movecost.ui` (nuovo / new)
+
+#### File modificati / Modified files
+- `tabs/Site.py` (rimossi metodi e import movecost / removed movecost methods and imports)
+- `gui/ui/Site.ui` (rimosso mDockWidget, pushButton_mc e connessione / removed mDockWidget, pushButton_mc and connection)
+- `pyarchinitPlugin.py` (aggiunto actionMovecost e runMovecost / added actionMovecost and runMovecost)
+
+### feat(ui): Creato file UI standalone per MoveCost Analysis / Created standalone MoveCost Analysis UI file
+
+- **IT**: Creato nuovo file Qt Designer `gui/ui/Movecost.ui` con classe `MovecostDialog` (QDialog, 420x700). Il dialogo contiene un QTabWidget con 4 tab: (1) Algorithms -- pulsanti per movecost, movebound, movecorr, movealloc, movenetw, movecomp, moverank con varianti "by polygon", raggruppati in 3 QGroupBox (Cost Surface & Paths, Corridor & Network Analysis, Comparison & Ranking); (2) Results -- QTextEdit per il riepilogo costi e QLabel per visualizzazione plot R con pulsanti Refresh/Save; (3) Export -- pulsanti per esportazione CSV, PDF e HTML; (4) Settings -- installazione script R, selezione lingua, organizzazione layer automatica, help. Applicato stylesheet completo con bordi arrotondati, colori tematici per ogni pulsante e stile coerente per tab, gruppi, combo e text edit.
+- **EN**: Created new Qt Designer file `gui/ui/Movecost.ui` with class `MovecostDialog` (QDialog, 420x700). The dialog contains a QTabWidget with 4 tabs: (1) Algorithms -- buttons for movecost, movebound, movecorr, movealloc, movenetw, movecomp, moverank with "by polygon" variants, grouped in 3 QGroupBoxes (Cost Surface & Paths, Corridor & Network Analysis, Comparison & Ranking); (2) Results -- QTextEdit for cost summary and QLabel for R plot display with Refresh/Save buttons; (3) Export -- buttons for CSV, PDF and HTML export; (4) Settings -- R script installation, language selection, automatic layer organization, help. Applied comprehensive stylesheet with rounded borders, themed colors per button, and consistent styling for tabs, groups, combos, and text edits.
+
+#### File creati / Created files
+- `gui/ui/Movecost.ui` (nuovo / new)
+
+### refactor(toolbar): Raggruppamento strumenti di analisi nelle sezioni EN ed else della toolbar / Group analysis tools in EN and else toolbar sections
+
+- **IT**: Aggiornate le sezioni `elif l == 'en'` ed `else` in `pyarchinitPlugin.py` per allinearle alla sezione italiana (`l == 'it'`) gia' modificata. Modifiche: (1) rimosso `self.toolBar.addAction(self.actionSamSegmentation)` -- SAM ora raggruppato nell'analysisToolButton; (2) rimosso `self.actionPotteryTools` dal `dataToolButton`; (3) sostituito il vecchio pulsante standalone TOPS con un nuovo `analysisToolButton` che contiene: SAM Segmentation, Pottery Tools, TOPS, Image Search, GeoArchaeo; (4) rimossa la vecchia definizione di `ImageSearch` dalla sezione documentazione (ora creata nell'area analysis tools); (5) rimosso `ImageSearch` dal `docToolButton`; (6) aggiunti `actionImageSearch` e `actionGeoArchaeo` al menu plugin; (7) aggiornato il QMenu per raggruppare gli strumenti di analisi e rimuovere PotteryTools dalla riga data entry.
+- **EN**: Updated the `elif l == 'en'` and `else` sections in `pyarchinitPlugin.py` to match the already-modified Italian (`l == 'it'`) section. Changes: (1) removed `self.toolBar.addAction(self.actionSamSegmentation)` -- SAM now grouped in analysisToolButton; (2) removed `self.actionPotteryTools` from `dataToolButton`; (3) replaced the old standalone TOPS button with a new `analysisToolButton` containing: SAM Segmentation, Pottery Tools, TOPS, Image Search, GeoArchaeo; (4) removed old `ImageSearch` definition from the documentation section (now created in the analysis tools area); (5) removed `ImageSearch` from `docToolButton`; (6) added `actionImageSearch` and `actionGeoArchaeo` to the plugin menu; (7) updated the QMenu to group analysis tools and remove PotteryTools from the data entry line.
+
+#### File modificati / Modified files
+- `pyarchinitPlugin.py` (aggiornate sezioni EN ed else / updated EN and else sections)
+
+### fix(security): Aggiornamento dipendenze per vulnerabilita' Dependabot / Update dependencies for Dependabot vulnerabilities
+
+- **IT**: Aggiornato `requirements.txt` per risolvere vulnerabilita' segnalate da Dependabot: `langchain` da 1.2.3 a 1.2.10 e `langchain-core` da 1.2.7 a 1.2.13. Le nuove versioni includono patch di sicurezza e fix di stabilita'.
+- **EN**: Updated `requirements.txt` to resolve Dependabot-reported vulnerabilities: `langchain` from 1.2.3 to 1.2.10 and `langchain-core` from 1.2.7 to 1.2.13. The new versions include security patches and stability fixes.
+
+#### File modificati / Modified files
+- `requirements.txt` (aggiornato / updated)
+
+### feat(ai): Aggiornamento modelli AI a GPT-4.1 e Claude 4.5 Sonnet / Update AI models to GPT-4.1 and Claude 4.5 Sonnet
+
+- **IT**: Aggiornati tutti i riferimenti ai modelli AI nel codebase. Tutti i riferimenti a GPT-4o sostituiti con GPT-4.1 in 5 file: `skatch_gpt_US.py`, `skatch_gpt_INVMAT.py`, `embedding_models.py`, `translate_ts_complete.py`, `textTosql.py`. Modello Claude aggiornato da `claude-3-5-sonnet` a `claude-sonnet-4-5-20250929`. Aggiunto Anthropic Claude 4.5 Sonnet come alternativa nel modulo txt2sql (`textTosql.py`) per query SQL in linguaggio naturale.
+- **EN**: Updated all AI model references across the codebase. All GPT-4o references replaced with GPT-4.1 in 5 files: `skatch_gpt_US.py`, `skatch_gpt_INVMAT.py`, `embedding_models.py`, `translate_ts_complete.py`, `textTosql.py`. Claude model updated from `claude-3-5-sonnet` to `claude-sonnet-4-5-20250929`. Added Anthropic Claude 4.5 Sonnet as alternative in the txt2sql module (`textTosql.py`) for natural language SQL queries.
+
+#### File modificati / Modified files
+- `modules/ai/skatch_gpt_US.py` (aggiornato / updated)
+- `modules/ai/skatch_gpt_INVMAT.py` (aggiornato / updated)
+- `modules/ai/embedding_models.py` (aggiornato / updated)
+- `scripts/translate_ts_complete.py` (aggiornato / updated)
+- `modules/ai/textTosql.py` (aggiornato / updated)
+
+### feat(geoarchaeo): Integrazione plugin GeoArchaeo per analisi geostatistica / GeoArchaeo geostatistical analysis plugin integration
+
+- **IT**: Integrato il plugin GeoArchaeo per analisi geostatistica come modulo interno in `modules/geoarchaeo/`. Aggiunto alla toolbar in tutte le sezioni locali (IT/EN/DE/else) all'interno del nuovo `analysisToolButton`. Implementato metodo `runGeoArchaeo` in `pyarchinitPlugin.py` che avvia il pannello dock widget per l'analisi geostatistica. Il plugin fornisce strumenti per analisi spaziale, interpolazione e statistica dei dati archeologici direttamente dall'interfaccia PyArchInit.
+- **EN**: Integrated the GeoArchaeo geostatistical analysis plugin as an internal module at `modules/geoarchaeo/`. Added to the toolbar in all locale sections (IT/EN/DE/else) within the new `analysisToolButton`. Implemented `runGeoArchaeo` method in `pyarchinitPlugin.py` that launches the dock widget panel for geostatistical analysis. The plugin provides tools for spatial analysis, interpolation and statistics on archaeological data directly from the PyArchInit interface.
+
+#### File modificati / Modified files
+- `modules/geoarchaeo/` (nuovo modulo / new module)
+- `pyarchinitPlugin.py` (aggiornato / updated)
+
+### refactor(tops): Riscrittura completa del modulo TOPS con API Python diretta / Complete rewrite of TOPS module with direct Python API
+
+- **IT**: Riscrittura completa di `tabs/tops_pyarchinit.py`: rimosso il vecchio approccio basato su subprocess a favore dell'API Python diretta. Aggiunto auto-rilevamento dei formati di input disponibili. Ora supporta 17 formati di input (CSV, DXF, GeoJSON, GML, GPX, JSON, KML, KMZ, MapInfo, ODS, OpenFileGDB, Parquet, SHP, SQLite, XLSX, GeoPackage, TopoJSON) e 11 formati di output (CSV, DXF, GeoJSON, GML, GPX, KML, MapInfo, SHP, SQLite, GeoPackage, XLSX). Aggiornata l'interfaccia utente `gui/ui/Tops2pyarchinit.ui` con le nuove liste di formati.
+- **EN**: Complete rewrite of `tabs/tops_pyarchinit.py`: removed the old subprocess-based approach in favor of direct Python API. Added auto-detection of available input formats. Now supports 17 input formats (CSV, DXF, GeoJSON, GML, GPX, JSON, KML, KMZ, MapInfo, ODS, OpenFileGDB, Parquet, SHP, SQLite, XLSX, GeoPackage, TopoJSON) and 11 output formats (CSV, DXF, GeoJSON, GML, GPX, KML, MapInfo, SHP, SQLite, GeoPackage, XLSX). Updated the UI `gui/ui/Tops2pyarchinit.ui` with the new format lists.
+
+#### File modificati / Modified files
+- `tabs/tops_pyarchinit.py` (riscritto / rewritten)
+- `gui/ui/Tops2pyarchinit.ui` (aggiornato / updated)
+
+### fix(toolbar): Correzione sezione DE della toolbar per allineamento con IT/EN/else / Fix DE toolbar section to match IT/EN/else
+
+- **IT**: Corretta la sezione tedesca (`elif l == 'de'`) della toolbar in `pyarchinitPlugin.py` per allinearla alle sezioni IT/EN/else gia' aggiornate. Rimosso il pulsante standalone `self.toolBar.addAction(self.actionSamSegmentation)`. Sostituito il vecchio `manageToolButton` standalone per TOPS con il nuovo `analysisToolButton` che raggruppa: SAM Segmentation, Pottery Tools, TOPS, Image Search, GeoArchaeo. Ora tutte e 4 le sezioni della toolbar (IT/EN/DE/else) hanno la stessa struttura.
+- **EN**: Fixed the German (`elif l == 'de'`) toolbar section in `pyarchinitPlugin.py` to match the already-updated IT/EN/else sections. Removed the standalone `self.toolBar.addAction(self.actionSamSegmentation)` button. Replaced the old standalone TOPS `manageToolButton` with the new `analysisToolButton` grouping: SAM Segmentation, Pottery Tools, TOPS, Image Search, GeoArchaeo. All 4 toolbar sections (IT/EN/DE/else) now have the same structure.
+
+#### File modificati / Modified files
+- `pyarchinitPlugin.py` (aggiornata sezione DE / updated DE section)
+
+---
+
 ## [5.3.8-alpha] - 2026-02-16
 
 ### feat(movecost): Integrazione MoveCost completa nella Scheda Sito con interfaccia a 4 tab / Complete MoveCost integration in Site tab with 4-tab interface

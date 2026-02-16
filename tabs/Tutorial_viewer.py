@@ -104,6 +104,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ai_query_database.md", "AI Query Database", "Query database con AI (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificatori persistenti per il Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronizzazione offline-first con il Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Analisi geostatistica per la ricerca archeologica"),
+            ("34_movecost.md", "MoveCost", "Analisi dei percorsi di minor costo"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup, database connection, paths"),
@@ -138,6 +140,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ai_query_database.md", "AI Query Database", "Database query with AI (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Persistent identifiers for the Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first sync with the Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistical analysis for archaeological research"),
+            ("34_movecost.md", "MoveCost", "Least-cost path analysis"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung, Datenbankverbindung, Pfade"),
@@ -172,6 +176,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ki_datenbankabfrage.md", "KI-Datenbankabfrage", "Datenbankabfrage mit KI (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Persistente Identifikatoren für den Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first Synchronisation mit dem Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistische Analyse für die archäologische Forschung"),
+            ("34_movecost.md", "MoveCost", "Wegkostenanalyse"),
         ],
         'fr': [
             ("01_configuration.md", "Configuration", "Configuration initiale, connexion base de données, chemins"),
@@ -206,6 +212,8 @@ class TutorialViewerDialog(QDialog):
             ("30_requete_ia_base_donnees.md", "Requête IA Base de Données", "Requête de base de données avec IA (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identifiants persistants pour le Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Synchronisation offline-first avec le Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Analyse géostatistique pour la recherche archéologique"),
+            ("34_movecost.md", "MoveCost", "Analyse des chemins de moindre coût"),
         ],
         'es': [
             ("01_configuracion.md", "Configuración", "Configuración inicial, conexión de base de datos, rutas"),
@@ -240,6 +248,8 @@ class TutorialViewerDialog(QDialog):
             ("30_consulta_ai_database.md", "Consulta IA Base de Datos", "Consulta de base de datos con IA (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificadores persistentes para el Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronización offline-first con el Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Análisis geoestadístico para la investigación arqueológica"),
+            ("34_movecost.md", "MoveCost", "Análisis de rutas de menor coste"),
         ],
         'ar': [
             ("01_التكوين.md", "التكوين", "الإعداد الأولي، اتصال قاعدة البيانات، المسارات"),
@@ -274,6 +284,8 @@ class TutorialViewerDialog(QDialog):
             ("30_استعلام_قاعدة_البيانات_بالذكاء_الاصطناعي.md", "استعلام قاعدة البيانات بالذكاء الاصطناعي", "استعلام قاعدة البيانات بالذكاء الاصطناعي"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "معرفات دائمة لرسم المعرفة"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "مزامنة دون اتصال أولاً مع رسم المعرفة"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "التحليل الجيوإحصائي للبحث الأثري"),
+            ("34_movecost.md", "MoveCost", "تحليل مسارات أقل تكلفة"),
         ],
         'ca': [
             ("01_configuracio.md", "Configuració", "Configuració inicial, connexió de base de dades, camins"),
@@ -308,6 +320,8 @@ class TutorialViewerDialog(QDialog):
             ("30_consulta_ai_bd.md", "Consulta IA Base de Dades", "Consulta de base de dades amb IA (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificadors persistents per al Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronització offline-first amb el Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Anàlisi geoestadística per a la recerca arqueològica"),
+            ("34_movecost.md", "MoveCost", "Anàlisi de camins de menor cost"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -342,6 +356,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ai_query_database.md", "AI Query Database", "Interogare bază de date cu AI (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificatori persistenți pentru Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronizare offline-first cu Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Analiză geostatistică pentru cercetarea arheologică"),
+            ("34_movecost.md", "MoveCost", "Analiza rutelor cu cel mai mic cost"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -376,6 +392,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ai_query_database.md", "AI Query Database", "Consulta à base de dados com IA (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Identificadores persistentes para o Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronização offline-first com o Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Análise geoestatística para pesquisa arqueológica"),
+            ("34_movecost.md", "MoveCost", "Análise de caminhos de menor custo"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -410,6 +428,8 @@ class TutorialViewerDialog(QDialog):
             ("30_ai_query_database.md", "AI Query Database", "Ερωτήματα βάσης δεδομένων με AI (Text2SQL)"),
             ("31_stratigraph_uuid.md", "StratiGraph UUID", "Μόνιμα αναγνωριστικά για το Knowledge Graph"),
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Συγχρονισμός offline-first με το Knowledge Graph"),
+            ("33_geoarchaeo.md", "GeoArchaeo", "Γεωστατιστική ανάλυση για αρχαιολογική έρευνα"),
+            ("34_movecost.md", "MoveCost", "Ανάλυση διαδρομών ελάχιστου κόστους"),
         ],
     }
 

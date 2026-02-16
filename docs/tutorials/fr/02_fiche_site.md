@@ -29,7 +29,7 @@ La Fiche Site est divisée en plusieurs zones fonctionnelles :
 | 2 | **Données Descriptives** | Champs pour les informations du site |
 | 3 | **Générateur US** | Outil pour créer des fiches US en lot |
 | 4 | **GIS Viewer** | Contrôles pour visualisation cartographique |
-| 5 | **MoveCost** | Outils d'analyse spatiale avancée |
+| 5 | **Outils d'analyse** | Accessibles depuis la barre d'outils (MoveCost, GeoArchaeo, SAM, etc.) |
 | 6 | **Aide** | Documentation et tutoriels vidéo |
 
 ---
@@ -168,24 +168,16 @@ Cette fonctionnalité permet de créer automatiquement un nombre défini de fich
 
 ---
 
-## MoveCost - Analyse de Parcours
+## Outils d'analyse
 
-La section **MovecostToPyarchinit** intègre des fonctions R pour l'analyse des chemins de moindre coût (Least Cost Path Analysis).
+Les outils d'analyse avancés sont désormais disponibles sous forme de dialogues indépendants, accessibles via le bouton **Outils d'analyse** dans la barre d'outils PyArchInit :
 
-### Prérequis
-
-- **R** installé sur le système
-- Package R **movecost** installé
-- Plugin **Processing R Provider** actif dans QGIS
-
-### Fonctions Disponibles
-
-| Fonction | Description |
-|----------|-------------|
-| **movecost** | Calcule le coût de déplacement et chemins optimaux |
-| **movebound** | Calcule les limites de coût de marche |
-| **movcorr** | Calcule les corridors de moindre coût |
-| **movalloc** | Allocation territoriale basée sur les coûts |
+- **MoveCost** - Analyse des chemins de moindre coût (voir [Tutoriel MoveCost](34_movecost.md))
+- **GeoArchaeo** - Analyse géostatistique pour la recherche archéologique (voir [Tutoriel GeoArchaeo](33_geoarchaeo.md))
+- **SAM Segmentation** - Segmentation d'images par IA
+- **Pottery Tools** - Outils d'analyse céramique
+- **TOPS** - Import de données de station totale
+- **Image Search** - Recherche d'images
 
 ---
 

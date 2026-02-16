@@ -62,6 +62,16 @@
      <widget class="QComboBox" name="comboBox_format">
       <item>
        <property name="text">
+        <string>auto-detect</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>carlson_rw5</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
         <string>geomax_gsi</string>
        </property>
       </item>
@@ -72,12 +82,12 @@
       </item>
       <item>
        <property name="text">
-        <string>leica_gsi</string>
+        <string>landxml</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>leica_tcr_1205</string>
+        <string>leica_gsi</string>
        </property>
       </item>
       <item>
@@ -87,17 +97,12 @@
       </item>
       <item>
        <property name="text">
-        <string>topcon_gts</string>
+        <string>leica_tcr_1205</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>topcon_ascii</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>topcon_gt7</string>
+        <string>nikon_raw_v200</string>
        </property>
       </item>
       <item>
@@ -107,7 +112,17 @@
       </item>
       <item>
        <property name="text">
-        <string>trimble_dc</string>
+        <string>topcon_ascii</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>topcon_gpt</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>topcon_gts</string>
        </property>
       </item>
       <item>
@@ -117,7 +132,12 @@
       </item>
       <item>
        <property name="text">
-        <string>nikon_raw_v200</string>
+        <string>trimble_dc</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>trimble_jxl</string>
        </property>
       </item>
       <item>
@@ -128,11 +148,6 @@
       <item>
        <property name="text">
         <string>zeiss_rec_500</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>landxml</string>
        </property>
       </item>
      </widget>
@@ -196,6 +211,46 @@
       <item>
        <property name="text">
         <string>csv pyarchinit_sample</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>csv</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dxf</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>geojson</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>kml</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>landxml</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>sql</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>dat</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>txt</string>
        </property>
       </item>
      </widget>

@@ -123,7 +123,7 @@ class GPTWindow(QMainWindow):
 
         # Aggiungi un selettore per il modello AI
         self.model_selector = QComboBox()
-        self.model_selector.addItems(["GPT-4o", "Claude Sonnet 3.5"])
+        self.model_selector.addItems(["GPT-4.1", "Claude 4.5 Sonnet"])
         layout.addWidget(QLabel("Select AI Model:"), 0, 0)
         layout.addWidget(self.model_selector, 0, 1)
 
@@ -193,7 +193,7 @@ class GPTWindow(QMainWindow):
                 prompt += f"DPI: {dpi[0]} x {dpi[1]}\n"
                 prompt += f"Dimensioni: {width} x {height}\n"
 
-                if selected_model == "GPT-4o":
+                if selected_model == "GPT-4.1":
                     response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
                 else:
                     response = self.ask_claude(prompt, self.apikey_claude(), file_path)
@@ -323,7 +323,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.chat.completions.create(
-                model="gpt-4o",
+                model="gpt-4.1",
                 messages=messages,
                 max_tokens=4096,
                 temperature=0.5,
@@ -390,7 +390,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.messages.create(
-                model="claude-3-5-sonnet-20240620",
+                model="claude-sonnet-4-5-20250929",
                 max_tokens=4096,
                 temperature=0.5,
                 messages=messages,
@@ -550,7 +550,7 @@ class GPTWindow(QMainWindow):
                         )
 
                         # Chiama il modello appropriato con il nuovo prompt
-                        if selected_model == "GPT-4o":
+                        if selected_model == "GPT-4.1":
                             response = self.ask_gpt4(detailed_prompt, self.apikey_gpt(), file_path)
                         else:  # Questo implica che sia selezionato Claude Sonnet
                             response = self.ask_claude(detailed_prompt, self.apikey_claude(), file_path)
@@ -599,7 +599,7 @@ class GPTWindow(QMainWindow):
                         return
                 else:
                     # Logica esistente per immagini non-Harris matrix
-                    if selected_model == "GPT-4o":
+                    if selected_model == "GPT-4.1":
                         response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
                     else:  # Questo implica che sia selezionato Claude Sonnet
                         response = self.ask_claude(prompt, self.apikey_claude(), file_path)
@@ -1309,7 +1309,7 @@ class GPTWindow(QMainWindow):
             })
 
         params = {
-            "model": "gpt-4-vision-preview",
+            "model": "gpt-4.1",
             "temperature": 0.5,
             "user": "my_customer",
             "max_tokens": 4096,
@@ -1510,7 +1510,7 @@ class GPTWindow(QMainWindow):
 
         # Prepara i parametri per il worker
         params = {
-            "model": "claude-3-5-sonnet-20240620",
+            "model": "claude-sonnet-4-5-20250929",
             "messages": messages,
             "max_tokens": 4096,
             "temperature": 0.5,
@@ -1549,7 +1549,7 @@ class GPTWindow(QMainWindow):
         if file_path:
             prompt = self.prompt_label.toPlainText()
             selected_model = self.model_selector.currentText()
-            if selected_model == "GPT-4o":
+            if selected_model == "GPT-4.1":
                 self.ask_doc(prompt, self.apikey_gpt(), file_path)
             else:
                 self.ask_claude(prompt, self.apikey_claude(), file_path, is_image=False)
