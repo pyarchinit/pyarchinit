@@ -153,8 +153,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.logger.log("=== PyArchInit Config Dialog Initialized ===")
 
         s = QgsSettings()
-        self.mDockWidget.setHidden(True)
-
         self.load_dict()
         self.charge_data()
         self.summary()
@@ -217,7 +215,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButtonPostgres.clicked.connect(self.setPathPostgres)
         self.pbnSaveEnvironPathPostgres.clicked.connect(self.setEnvironPathPostgres)
         self.comboBox_server_rd.currentTextChanged.connect(self.geometry_conn)
-        self.pushButton_compare.clicked.connect(self.compare)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
@@ -5907,34 +5904,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self._save_in_progress = False
             self.logger.log("Clearing _save_in_progress flag in finally block")
             self.logger.log("on_pushButton_save_pressed completed")
-    def compare(self):
-        if self.comboBox_server_wt.currentText() == 'sqlite':
-
-            if platform.system() == "Windows":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff.exe')
-            elif platform.system() == "Darwin":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_osx')
-            else:
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_linux')
-
-            db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
-            db2 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
-
-            # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
-            # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
-            os.system("start cmd /k" + cmd + ' ' + self.comboBox_compare.currentText() + ' ' + db1 + ' ' + db2)
-            # if result == b'':
-            #
-            #     pass
-            # else:
-            #     QMessageBox.warning(self, "Attenzione",
-            #                         "Il db non allineato devi aggiornarlo. Chiudi questa finestra e clicca il bottone con l'icona di spatialite in basso a sinistra aggiungendo l'epsg del tuo db",
-            #                         QMessageBox.Ok)
-            #     # # #break
-
-        else:
-            pass
-
     def on_pushButton_crea_database_pressed(self,):
         # Check if user is admin
         if not self.check_if_admin():
@@ -10024,32 +9993,3 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
        # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
        # self.lineEdit_2.insert("Connection Close ............. ")
        # srv.close()
-    def on_pushButton_convertdb_pressed(self):
-        QMessageBox.warning(self, "Attenzione",
-                                     "Assicurati che il nome del db non abbia parentesi o caratteri spaciali, altrimenti la conversione fallisce",
-                                     QMessageBox.Ok)
-        if self.comboBox_Database.currentText() == 'sqlite':
-
-            if platform.system() == "Windows":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'spatialite_convert.exe')
-                #db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
-                
-            
-            else:
-                QMessageBox.warning(self, "Attenzione",
-                                     "Funzione abilitata solo per windows",
-                                     QMessageBox.Ok)
-
-            db1 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
-
-            # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
-            # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
-            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' +db1 +' '+ '-tv 4' )
-            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' + db1 +' '+ '-tv 5' )
-            
-
-        else:
-            QMessageBox.warning(self, "Attenzione",
-                                     "ops qualcosa è andato storto",
-                                     QMessageBox.Ok)
-    

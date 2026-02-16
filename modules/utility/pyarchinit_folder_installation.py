@@ -101,10 +101,6 @@ class pyarchinit_Folder_installation(object):
         bin_files = [
             ('pyarchinit.sqlite', 'pyarchinit.sqlite'),
             ('EM_palette.graphml', 'EM_palette.graphml'),
-            ('spatialite_convert.exe', 'spatialite_convert.exe'),
-            ('sqldiff.exe', 'sqldiff.exe'),
-            ('sqldiff_linux', 'sqldiff_linux'),
-            ('sqldiff_osx', 'sqldiff_osx'),
             ('dottoxml.py', 'dottoxml.py'),
             ('dot.py', 'dot.py'),
             ('X11Colors.py', 'X11Colors.py'),

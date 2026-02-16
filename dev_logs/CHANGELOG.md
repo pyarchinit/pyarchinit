@@ -5,6 +5,26 @@
 
 ---
 
+## [5.3.13-alpha] - 2026-02-16
+
+### refactor(cleanup): Rimossi eseguibili obsoleti e codice morto associato / Removed obsolete bundled executables and associated dead code
+
+- **IT**: Rimossi 4 eseguibili obsoleti dalla directory `resources/dbfiles/`: `sqldiff.exe`, `sqldiff_linux`, `sqldiff_osx` e `spatialite_convert.exe`. Questi file non erano piu utilizzati dal plugin e appesantivano inutilmente il pacchetto. Rimosso il metodo `compare()` da `gui/pyarchinitConfigDialog.py`, che eseguiva `os.system("start cmd /k...")` per lanciare `sqldiff` solo su Windows — un pattern insicuro (shell injection) e non portabile. Rimosso il metodo `on_pushButton_convertdb_pressed()` dallo stesso file, anch'esso esclusivamente Windows-only e legato a `spatialite_convert.exe`. Rimosso il pannello UI `mDockWidget` dal file `gui/ui/pyarchinitConfigDialog.ui` che ospitava i pulsanti per queste funzionalita. Rimosse le voci di copia file per i 4 eseguibili da `modules/utility/pyarchinit_folder_installation.py`, che li copiava nella directory utente durante l'installazione delle cartelle del plugin. Il risultato e un plugin piu leggero, senza codice specifico Windows/insicuro e senza binari inutilizzati.
+- **EN**: Removed 4 obsolete executables from the `resources/dbfiles/` directory: `sqldiff.exe`, `sqldiff_linux`, `sqldiff_osx`, and `spatialite_convert.exe`. These files were no longer used by the plugin and unnecessarily bloated the package. Removed the `compare()` method from `gui/pyarchinitConfigDialog.py`, which ran `os.system("start cmd /k...")` to launch `sqldiff` on Windows only — an insecure pattern (shell injection risk) and non-portable. Removed the `on_pushButton_convertdb_pressed()` method from the same file, also Windows-only and tied to `spatialite_convert.exe`. Removed the `mDockWidget` UI panel from `gui/ui/pyarchinitConfigDialog.ui` that hosted the buttons for these features. Removed the file-copy entries for the 4 executables from `modules/utility/pyarchinit_folder_installation.py`, which copied them into the user directory during plugin folder installation. The result is a lighter plugin, free of Windows-specific/insecure code paths and unused binaries.
+
+#### File eliminati / Deleted files
+- `resources/dbfiles/sqldiff.exe`
+- `resources/dbfiles/sqldiff_linux`
+- `resources/dbfiles/sqldiff_osx`
+- `resources/dbfiles/spatialite_convert.exe`
+
+#### File modificati / Modified files
+- `gui/pyarchinitConfigDialog.py` (rimossi metodi `compare()` e `on_pushButton_convertdb_pressed()` / removed `compare()` and `on_pushButton_convertdb_pressed()` methods)
+- `gui/ui/pyarchinitConfigDialog.ui` (rimosso pannello `mDockWidget` / removed `mDockWidget` panel)
+- `modules/utility/pyarchinit_folder_installation.py` (rimosse voci copia eseguibili / removed executable copy entries)
+
+---
+
 ## [5.3.12-alpha] - 2026-02-16
 
 ### fix(perf): Risolto CPU 100% su Windows al caricamento del plugin / Fixed Windows CPU 100% at plugin load
