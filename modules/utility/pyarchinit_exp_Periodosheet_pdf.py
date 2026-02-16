@@ -146,67 +146,39 @@ class single_US_pdf_sheet(object):
         self.documentazione = data[28]
 
     def unzip_rapporti_stratigrafici(self):
+        from .pyarchinit_i18n_stratigraphic import (
+            CONNECTED_GROUP, SAME_AS_GROUP, COVERS_GROUP, COVERED_BY_GROUP,
+            FILLS_GROUP, FILLED_BY_GROUP, CUTS_GROUP, CUT_BY_GROUP,
+            ABUTS_GROUP, SUPPORTS_GROUP,
+        )
         rapporti = eval(self.rapporti)
+        _GROUP_MAP = [
+            (CONNECTED_GROUP, 'si_lega_a'),
+            (SAME_AS_GROUP, 'uguale_a'),
+            (COVERS_GROUP, 'copre'),
+            (COVERED_BY_GROUP, 'coperto_da'),
+            (FILLS_GROUP, 'riempie'),
+            (FILLED_BY_GROUP, 'riempito_da'),
+            (CUTS_GROUP, 'taglia'),
+            (CUT_BY_GROUP, 'tagliato_da'),
+            (ABUTS_GROUP, 'si_appoggia_a'),
+            (SUPPORTS_GROUP, 'gli_si_appoggia'),
+        ]
+        _lower_map = {}
+        for group, attr in _GROUP_MAP:
+            for term in group:
+                _lower_map[term.lower()] = attr
         for rapporto in rapporti:
-            if len(rapporto) == 2:
-                if rapporto[0] == 'Si lega a' or rapporto[0] == 'si lega a':
-                    if self.si_lega_a == '':
-                        self.si_lega_a += str(rapporto[1])
+            if len(rapporto) >= 2:
+                term = rapporto[0]
+                val = str(rapporto[1])
+                attr = _lower_map.get(term.lower() if term else '')
+                if attr:
+                    cur = getattr(self, attr)
+                    if cur == '':
+                        setattr(self, attr, val)
                     else:
-                        self.si_lega_a += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Uguale a' or rapporto[0] == 'uguale a':
-                    if self.uguale_a == '':
-                        self.uguale_a += str(rapporto[1])
-                    else:
-                        self.uguale_a += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Copre' or rapporto[0] == 'copre':
-                    if self.copre == '':
-                        self.copre += str(rapporto[1])
-                    else:
-                        self.copre += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Coperto da' or rapporto[0] == 'coperto da':
-                    if self.coperto_da == '':
-                        self.coperto_da += str(rapporto[1])
-                    else:
-                        self.coperto_da += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Riempie' or rapporto[0] == 'riempie':
-                    if self.riempie == '':
-                        self.riempie += str(rapporto[1])
-                    else:
-                        self.riempie += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Riempito da' or rapporto[0] == 'riempito da':
-                    if self.riempito_da == '':
-                        self.riempito_da += str(rapporto[1])
-                    else:
-                        self.riempito_da += ', ' + str(rapporto[1])
-                if rapporto[0] == 'Taglia' or rapporto[0] == 'taglia':
-                    if self.taglia == '':
-                        self.taglia += str(rapporto[1])
-                    else:
-                        self.taglia += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Tagliato da' or rapporto[0] == 'tagliato da':
-                    if self.tagliato_da == '':
-                        self.tagliato_da += str(rapporto[1])
-                    else:
-                        self.tagliato_da += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Si appoggia a' or rapporto[0] == 'si appoggia a':
-                    if self.si_appoggia_a == '':
-                        self.si_appoggia_a += str(rapporto[1])
-                    else:
-                        self.si_appoggia_a += ', ' + str(rapporto[1])
-
-                if rapporto[0] == 'Gli si appoggia' or rapporto[0] == 'gli si appoggia':
-                    if self.gli_si_appoggia == '':
-                        self.gli_si_appoggia += str(rapporto[1])
-                    else:
-                        self.gli_si_appoggia += ', ' + str(rapporto[1])
+                        setattr(self, attr, cur + ', ' + val)
 
     def unzip_documentazione(self):
         if self.documentazione == '':

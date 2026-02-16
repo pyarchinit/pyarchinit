@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - Coduri Tezaur (RO)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>Coduri Tezaur PyArchInit</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">Limbă: <strong>Română (RO)</strong></p>
+
+    <div class="nav">
+        <a href="#site">Sit</a>
+        <a href="#us">US/USM</a>
+        <a href="#struttura">Structură</a>
+        <a href="#tomba">Mormânt</a>
+        <a href="#materiali">Inv. Materiale</a>
+        <a href="#campioni">Eșantioane</a>
+        <a href="#individui">Indivizi</a>
+        <a href="#documentazione">Documentație</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">Ceramică</a>
+        <a href="#ut">UT</a>
+        <a href="#fauna">Faună</a>
+    </div>
+
+    <!-- SITE -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>Formular Sit (site_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>Definiția sitului</td><td>Tipul intervenției sau definiția sitului arheologic</td><td class="example">Săpătură stratigrafică, Sondaj, Prospectare</td></tr>
+        </table>
+    </div>
+
+    <!-- US/USM -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>Formular US/USM (us_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>Sector</td><td>Sectorul de săpătură</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>Superintendență</td><td>Autoritatea de referință</td><td class="example">SABAP-Marche, SABAP-Umbria</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>Definiție stratigrafică</td><td>Definiția fizică a stratului</td><td class="example">Strat, Tăietură, Umplutură, Depozit</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>Definiție interpretată</td><td>Interpretare funcțională</td><td class="example">Prăbușire, Podea, Fundație</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>Funcție statică (USM)</td><td>Funcția structurală pentru ziduri</td><td class="example">Portantă, Despărțitoare, Fundație</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>Consistența liantului (USM)</td><td>Consistența liantului în ziduri</td><td class="example">Tenace, Friabil, Plastic</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>Consistență/Textură</td><td>Textura stratului</td><td class="example">Compact, Afânat, Nisipos</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>Metoda de săpătură</td><td>Tehnica de săpătură utilizată</td><td class="example">Stratigrafică, Manuală, Mecanică</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>Formație</td><td>Originea stratului</td><td class="example">Naturală, Antropică, Artificială</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>Modul de formare</td><td>Procesul de formare</td><td class="example">Acumulare, Îndepărtare, Construcție</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>Consistență</td><td>Consistența stratului</td><td class="example">Compact, Friabil, Plastic, Afânat</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>Starea de conservare</td><td>Conservarea stratului</td><td class="example">Bună, Acceptabilă, Proastă, Foarte proastă</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>Eșantioane</td><td>Tipuri de eșantioane colectate</td><td class="example">Cărbune, Sol, Malacofaună</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>Componente organice</td><td>Material organic prezent</td><td class="example">Oase, Lemn, Semințe, Cărbune</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>Incluziuni</td><td>Materiale incluse în strat</td><td class="example">Cărămizi, Ceramică, Pietre, Mortar</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>Înregistrator</td><td>Numele înregistratorului</td><td class="example">Numele operatorului</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>Topograf</td><td>Numele topografului</td><td class="example">Numele operatorului</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>Supervizor</td><td>Supervizor științific</td><td class="example">Numele supervizorului</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>Documentație</td><td>Tipul documentației</td><td class="example">Foto, Plan, Secțiune, Elevație</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>Culoare</td><td>Culoarea stratului</td><td class="example">Maro, Gri, Negru, Galben</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>Agregate</td><td>Tipuri de agregate în liant</td><td class="example">Nisip, Var, Cărămizi</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>Săpată</td><td>US complet săpată</td><td class="example">Da, Nu</td></tr>
+        </table>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>Formular Structură (struttura_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>Codul structurii</td><td>Cod de identificare</td><td class="example">STR, WAL, AMB, TOM, FOR, WEL, CIS, FLR</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>Categoria structurii</td><td>Categorie generală</td><td class="example">Clădiri civile, religioase, funerare, militare, productive, Infrastructură, Arhitectură rupestră</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>Tipologia structurii</td><td>Tip specific</td><td class="example">Locuință, Biserică, Necropolă, Fortificație, Atelier, Hipogeu, Peșteră</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>Definiție</td><td>Definiția structurii</td><td class="example">Zid perimetral, Zid despărțitor, Fundație, Prag, Cameră rupestră</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>Materiale utilizate</td><td>Materiale de construcție</td><td class="example">Piatră, Cărămidă, Mortar, Lemn, Pământ, Pietriș, Stâncă</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>Tipul elementului structural</td><td>Componente structurale</td><td class="example">Arc, Coloană, Pilon, Boltă, Podea, Prag</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>Tipul măsurătorii</td><td>Tipul măsurătorii</td><td class="example">Lungime, Lățime, Înălțime, Grosime, Diametru, Adâncime</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>Unitate de măsură</td><td>Unități metrice</td><td class="example">m, cm, mm</td></tr>
+            <tr><td><span class="code">6.9</span></td><td>Elemente arhitecturale AR</td><td>Elemente arhitecturale pentru Arhitectură Rupestră</td><td class="example">Arc, Coloană, Pilon, Boltă, Nișă, Bancă, Treaptă, Intrare</td></tr>
+            <tr><td><span class="code">6.10</span></td><td>Factori de degradare</td><td>Factori de degradare</td><td class="example">Agenți atmosferici, Intervenție antropică, Vegetație, Umiditate, Prăbușire</td></tr>
+            <tr><td><span class="code">6.11</span></td><td>Fațada de intrare</td><td>Tipul fațadei de intrare</td><td class="example">La nivelul stâncii, Retrasă, Proeminentă</td></tr>
+            <tr><td><span class="code">6.12</span></td><td>Elemente constitutive</td><td>Părți constitutive ale structurii</td><td class="example">Dromos, Vestibul, Cameră, Antecameră</td></tr>
+            <tr><td><span class="code">6.13</span></td><td>Artefacte</td><td>Tipul artefactelor găsite</td><td class="example">Ceramică, Metal, Sticlă, Litică, Os</td></tr>
+            <tr><td><span class="code">6.14</span></td><td>Definiția fazelor funcționale</td><td>Fazele de utilizare ale structurii</td><td class="example">Rezidențială, Cultuală, Funerară, Productivă, Depozitare, Adăpost animale</td></tr>
+            <tr><td><span class="code">6.15</span></td><td>Dezvoltare planimetrică</td><td>Tipul dezvoltării planimetrice</td><td class="example">Axială, Transversală, Cruciformă, Circulară, Neregulată</td></tr>
+        </table>
+    </div>
+
+    <!-- BURIAL -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>Formular Mormânt (tomba_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>Rit</td><td>Rit funerar</td><td class="example">Înhumare, Incinerare</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>Orientare</td><td>Orientarea mormântului</td><td class="example">N-S, E-V, NE-SV</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>Acoperire</td><td>Tipul de acoperire</td><td class="example">Țigle, Placă, Cappuccina</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>Tipul mormântului</td><td>Tipologia mormântului</td><td class="example">Cappuccina, Cistă, Enchytrismos</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>Marcaj</td><td>Prezența marcajului funerar</td><td class="example">Cippus, Stelă</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>Depunere</td><td>Tipul de depunere</td><td class="example">Primară, Secundară</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>Număr de depuneri</td><td>Cantitatea de depuneri</td><td class="example">Simplă, Dublă, Multiplă</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>Perioadă</td><td>Perioada cronologică</td><td class="example">Romană, Medievală</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>Prezență liberă</td><td>Mormânt fără obiecte</td><td class="example">Da, Nu</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>Inventar funerar</td><td>Prezența inventarului funerar</td><td class="example">Da, Nu</td></tr>
+        </table>
+    </div>
+
+    <!-- FINDS INVENTORY -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>Formular Inventar Materiale (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>Clasa de material</td><td>Clasa generală a descoperirii</td><td class="example">Ceramică, Metal, Sticlă, Piatră</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>Tipul de material</td><td>Tip specific</td><td class="example">Ceramică comună, Sigillata, Sticlă</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>Formă</td><td>Forma descoperirii</td><td class="example">Amforă, Cupă, Farfurie, Borcan</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>Cantitate</td><td>Număr de fragmente</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>Tipul măsurătorii</td><td>Tipul măsurătorii</td><td class="example">Lungime, Diametru, Grosime</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>Unitate de măsură</td><td>Unități metrice</td><td class="example">mm, cm</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>Starea de conservare</td><td>Conservarea descoperirii</td><td class="example">Complet, Fragmentar</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>Datare</td><td>Datarea descoperirii</td><td class="example">Sec. I d.Hr., Sec. IV-V</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>Compilator</td><td>Numele compilatorului</td><td class="example">Numele operatorului</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>Complet</td><td>Descoperire completă</td><td class="example">Da, Nu</td></tr>
+        </table>
+    </div>
+
+    <!-- SAMPLES -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>Formular Eșantioane (campioni_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>Tipul eșantionului</td><td>Tipul de eșantion colectat</td><td class="example">Cărbune, Sol, Malacofaună, Polen</td></tr>
+        </table>
+    </div>
+
+    <!-- INDIVIDUALS -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>Formular Indivizi (individui_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>Poziția craniului</td><td>Poziția craniului</td><td class="example">Dreapta, Stânga, Supină, Pronă</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>Poziția scheletului</td><td>Poziția generală a scheletului</td><td class="example">Supină, Pronă, Laterală</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>Orientarea axei</td><td>Orientarea axei corporale</td><td class="example">N-S, E-V, NE-SV</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>Membre superioare</td><td>Poziția membrelor superioare</td><td class="example">Întinse, Flexate, Pe bazin</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>Membre inferioare</td><td>Poziția membrelor inferioare</td><td class="example">Întinse, Flexate</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>Zonă</td><td>Zona de săpătură</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>Da/Nu</td><td>Valori booleene (Perturbat, Complet, Articulat)</td><td class="example">Da, Nu</td></tr>
+        </table>
+    </div>
+
+    <!-- DOCUMENTATION -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>Formular Documentație (documentazione_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>Tipul documentului</td><td>Tipologia documentului</td><td class="example">Foto, Desen, Ridicare topografică</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>Scară</td><td>Scara documentației</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>Formular TMA (tma_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>Numele locației</td><td>Locația de conservare</td><td class="example">Muzeu, Depozit</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>Localitate</td><td>Localitate de proveniență</td><td class="example">Numele localității</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>Definiție</td><td>Definiția obiectului</td><td class="example">Vas, Statuie, Monedă</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>Tipologie</td><td>Tipologia obiectului</td><td class="example">Tip specific</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>Cronologie</td><td>Perioada cronologică</td><td class="example">Sec. I-II d.Hr.</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>Unitate tipologică</td><td>Unitate tipologică</td><td class="example">Tip A, Tip B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>Zonă</td><td>Zona de proveniență</td><td class="example">Zona 1, Sector A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>Clasă</td><td>Clasa de material</td><td class="example">Ceramică, Metal</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>Categorie</td><td>Categoria obiectului</td><td class="example">Vase, Unelte</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>Starea de conservare</td><td>Conservare</td><td class="example">Complet, Fragmentar</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>US</td><td>Unitate stratigrafică</td><td class="example">US 1, US 25</td></tr>
+        </table>
+    </div>
+
+    <!-- POTTERY -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>Formular Ceramică (pottery_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>Pastă</td><td>Tipul de pastă</td><td class="example">Fină, Grosieră</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>Procentaj</td><td>Procentajul incluziunilor</td><td class="example">5%, 10%, 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>Material</td><td>Material ceramic</td><td class="example">Argilă, Caolin</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>Formă</td><td>Forma vasului</td><td class="example">Deschisă, Închisă</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>Formă specifică</td><td>Formă specifică</td><td class="example">Cupă, Borcan, Amforă</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>Producție</td><td>Tipul de ceramică</td><td class="example">Terra sigillata, Ceramică comună</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>Munsell</td><td>Culoare Munsell</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>Tratament de suprafață</td><td>Tratament de suprafață</td><td class="example">Netezită, Acoperită cu slip</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>Decorație externă</td><td>Decorație externă</td><td class="example">Pictată, Incizată</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>Decorație internă</td><td>Decorație internă</td><td class="example">Pictată, Netezită</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>Roata</td><td>Fabricat la roată</td><td class="example">Da, Nu</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>Formular UT (ut_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>Tipul de prospectare</td><td>Tipul de prospectare</td><td class="example">Sistematică, Intensivă</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>Vegetație</td><td>Acoperire vegetală</td><td class="example">Arat, Pârloagă, Pădure</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>Metoda GPS</td><td>Metoda de prospectare</td><td class="example">RTK, DGPS, Portabil</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>Suprafață</td><td>Condițiile suprafeței</td><td class="example">Vizibilă, Acoperită</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>Accesibilitate</td><td>Accesibilitatea zonei</td><td class="example">Bună, Limitată</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>Condiții meteorologice</td><td>Condiții meteorologice</td><td class="example">Senin, Înnorat</td></tr>
+        </table>
+    </div>
+
+    <!-- FAUNA -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>Formular Faună (fauna_table)</h2></div>
+        <table>
+            <tr><th>Cod</th><th>Câmp</th><th>Descriere</th><th>Exemple</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>Context</td><td>Contextul descoperirii</td><td class="example">Domestic, Ritual, Funerar, Industrial</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>Metoda de recuperare</td><td>Metoda de recuperare a oaselor</td><td class="example">Colectare manuală, Cernere, Flotație</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>Tipul de acumulare</td><td>Tipul de acumulare a oaselor</td><td class="example">Primară, Secundară, Mixtă</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>Tipul de depunere</td><td>Modul de depunere</td><td class="example">Intenționată, Naturală, Necunoscută</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>Fragmentare</td><td>Gradul de fragmentare a oaselor</td><td class="example">Complet, Fragmentar, Foarte fragmentat</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>Starea de conservare</td><td>Starea de conservare a oaselor (0=Excelentă, 5=Proastă)</td><td class="example">0 (Excelentă), 1, 2, 3, 4, 5 (Proastă)</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>Fiabilitate stratigrafică</td><td>Fiabilitatea determinării</td><td class="example">Ridicată, Medie, Scăzută</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>Urme de ardere</td><td>Prezența urmelor de ardere</td><td class="example">Niciuna, Carbonizat, Calcinat</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>Tipul de combustie</td><td>Tipul/cauza combustiei</td><td class="example">Gătit, Incinerare, Eliminare</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>Conexiune anatomică</td><td>Prezența articulației anatomice</td><td class="example">Articulat, Parțial articulat, Dezarticulat</td></tr>
+            <tr><td><span class="code">13.11</span></td><td>Specie</td><td>Specia animală identificată</td><td class="example">Bos taurus, Ovis aries, Sus domesticus, Cervus elaphus</td></tr>
+            <tr><td><span class="code">13.12</span></td><td>Părți scheletice (PSI)</td><td>Părți scheletice identificate</td><td class="example">Craniu, Mandibulă, Humerus, Femur, Tibie, Falange</td></tr>
+            <tr><td><span class="code">13.13</span></td><td>Element anatomic</td><td>Element anatomic pentru măsurători</td><td class="example">Humerus drept, Femur stâng, Tibie dreaptă, Metacarp</td></tr>
+            <tr><td><span class="code">13.14</span></td><td>Semne tafonomice</td><td>Semne tafonomice evidente pe oase</td><td class="example">Urme de tăiere, Urme de ros, Alterare meteorică, Urme de rădăcini</td></tr>
+            <tr><td><span class="code">13.15</span></td><td>Caracterizare tafonomică</td><td>Descriere detaliată a semnelor tafonomice</td><td class="example">Urme de tăiere, Urme de lovire, Fracturi de impact, Urme de ros</td></tr>
+            <tr><td><span class="code">13.16</span></td><td>Număr estimat de resturi</td><td>Estimare cantitativă a resturilor osoase</td><td class="example">Foarte puține (&lt;5), Puține (5-20), Moderate (21-50), Numeroase</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - Documentație Coduri Tezaur v4.9</p>
+    </footer>
+</body>
+</html>

@@ -76,6 +76,10 @@ latex_documents = [
      'PyArchInit Team', 'manual'),
     ('ca/index', 'PyArchInit_Tutorials_CA.tex', 'PyArchInit Tutorials - Catala',
      'PyArchInit Team', 'manual'),
+    ('ro/index', 'PyArchInit_Tutorials_RO.tex', 'PyArchInit Tutorials - Romana',
+     'PyArchInit Team', 'manual'),
+    ('pt/index', 'PyArchInit_Tutorials_PT.tex', 'PyArchInit Tutorials - Portugues',
+     'PyArchInit Team', 'manual'),
 ]
 
 latex_logo = None

@@ -220,16 +220,16 @@ class PlotlyMatrixVisualizer:
 
         # Color mapping
         color_map = {
-            'US': '#4CAF50',   # Green
-            'USM': '#FF9800',  # Orange
-            'USF': '#2196F3',  # Blue
-            'USD': '#795548',  # Brown
-            'USR': '#9C27B0',  # Purple
-            'CON': '#FFA07A',  # Light salmon
-            'SF': '#F0E68C',   # Khaki
-            'USN': '#E91E63',  # Pink
-            'SU': '#00BCD4',   # Cyan
-            'virtual_reconstruction': '#FF5722'  # Deep orange
+            # US equivalents (all languages) - Green
+            'US': '#4CAF50', 'SU': '#4CAF50', 'SE': '#4CAF50',
+            'UE': '#4CAF50', '\u03a3\u039c': '#4CAF50',
+            # USM equivalents (all languages) - Orange
+            'USM': '#FF9800', 'WSU': '#FF9800', 'MSE': '#FF9800',
+            'UEM': '#FF9800', 'USZ': '#FF9800', '\u03a4\u03a3\u039c': '#FF9800',
+            # Other types
+            'USF': '#2196F3', 'USD': '#795548', 'USR': '#9C27B0',
+            'CON': '#FFA07A', 'SF': '#F0E68C', 'USN': '#E91E63',
+            'virtual_reconstruction': '#FF5722',
         }
 
         # Create trace for each unit type

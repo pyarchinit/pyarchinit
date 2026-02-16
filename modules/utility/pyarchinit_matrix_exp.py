@@ -22,6 +22,7 @@ import subprocess
 from qgis.core import QgsSettings
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from .pyarchinit_i18n_stratigraphic import RELATIONSHIPS
 from ...tabs.pyarchinit_setting_matrix import *
 class HarrisMatrix:
     """
@@ -249,9 +250,10 @@ class HarrisMatrix:
                                    arrowsize=str(self.dialog.combo_box_16.currentText()))
 
 
+                            _same_label = RELATIONSHIPS.get(self.L, RELATIONSHIPS['en'])[0]
                             temp.node('a2', shape=str(self.dialog.combo_box_18.currentText()),
                                    fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled', gradientangle='1',
-                                   label='Contemporaneo')
+                                   label=_same_label)
 
                             # i.node('node3', shape=str(self.dialog.combo_box_18.currentText()), fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
                             temp.edge('a2', 'a3', constraint='False', shape=str(self.dialog.combo_box_22.currentText()),
@@ -261,7 +263,7 @@ class HarrisMatrix:
                                    arrowsize=str(self.dialog.combo_box_24.currentText()))
                             temp.node('a3', rank='same', shape=str(self.dialog.combo_box_18.currentText()),
                                    fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled', gradientangle='1',
-                                   label='Contemporaneo')
+                                   label=_same_label)
                             temp.edge('a3', 'a2', constraint='False', shape=str(self.dialog.combo_box_22.currentText()),
                                    fillcolor=str(self.dialog.combo_box_17.currentText()),
                                    style=str(self.dialog.combo_box_23.currentText()),
@@ -270,6 +272,7 @@ class HarrisMatrix:
 
 
                         else:
+                            _same_label = RELATIONSHIPS.get(self.L, RELATIONSHIPS['en'])[0]
                             i.node('a0', shape=str(self.dialog.combo_box_3.currentText()),
                                    fillcolor=str(self.dialog.combo_box.currentText()), style='filled',
                                    gradientangle='90',
@@ -292,7 +295,7 @@ class HarrisMatrix:
                             temp.node('a2', shape=str(self.dialog.combo_box_18.currentText()),
                                       fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled',
                                       gradientangle='1',
-                                      label='Sama as')
+                                      label=_same_label)
 
                             # i.node('node3', shape=str(self.dialog.combo_box_18.currentText()), fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled', gradientangle='1')
                             temp.edge('a2', 'a3', constraint='False', shape=str(self.dialog.combo_box_22.currentText()),
@@ -303,7 +306,7 @@ class HarrisMatrix:
                             temp.node('a3', rank='same', shape=str(self.dialog.combo_box_18.currentText()),
                                       fillcolor=str(self.dialog.combo_box_17.currentText()), style='filled',
                                       gradientangle='1',
-                                      label='Same as')
+                                      label=_same_label)
                             temp.edge('a3', 'a2', constraint='False', shape=str(self.dialog.combo_box_22.currentText()),
                                       fillcolor=str(self.dialog.combo_box_17.currentText()),
                                       style=str(self.dialog.combo_box_23.currentText()),

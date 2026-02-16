@@ -19,9 +19,11 @@ from qgis.PyQt.QtCore import QThread, pyqtSignal, pyqtSlot, Qt
 
 from qgis.PyQt.QtGui import QIcon
 from PIL import Image
+from qgis.core import QgsSettings
 from modules.db.pyarchinit_conn_strings import Connection
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_media_utility import Media_utility, Media_utility_resize
+from modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
 
 
 class Worker(QThread):
@@ -484,7 +486,11 @@ class GPTWindow(QMainWindow):
                                                    QMessageBox.Yes | QMessageBox.No)
 
                     if confirm == QMessageBox.Yes:
-                        # Usa il prompt dettagliato per l'analisi della Harris matrix
+                        # Build a localized prompt using the central i18n module
+                        _lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+                        _rel = RELATIONSHIPS.get(_lang, RELATIONSHIPS['en'])
+                        # _rel indices: 0=Same as, 1=Connected to, 2=Covers, 3=Covered by,
+                        #   4=Fills, 5=Filled by, 6=Cuts, 7=Cut by, 8=Abuts, 9=Supports
                         detailed_prompt = (
                             "# Prompt: Analisi Dettagliata del Diagramma di Harris Matrix\n\n"
                             "Analizza attentamente l'immagine fornita di un diagramma di Harris Matrix e identifica le seguenti relazioni stratigrafiche, distinguendo tra Unità Stratigrafiche (US) e Unità Stratigrafiche Murarie (USM):\n\n"
@@ -492,26 +498,26 @@ class GPTWindow(QMainWindow):
                             "   - US: Generalmente indicate da numeri all'interno di cerchi o rettangoli.\n"
                             "   - USM: Spesso indicate da numeri preceduti da 'M' o in un formato distintivo.\n\n"
                             "2. Relazioni stratigrafiche (identifica sia la relazione diretta che l'inversa):\n"
-                            "   a) Copre / Coperto da:\n"
+                            "   a) {covers} / {covered_by}:\n"
                             "      - Linee continue verticali tra le unità.\n"
-                            "      - Es: Se A copre B, allora B è coperto da A.\n\n"
-                            "   b) Taglia / Tagliato da:\n"
+                            "      - Es: Se A {covers_lc} B, allora B è {covered_by_lc} A.\n\n"
+                            "   b) {cuts} / {cut_by}:\n"
                             "      - Linee tratteggiate o punteggiate tra le unità.\n"
-                            "      - Es: Se A taglia B, allora B è tagliato da A.\n\n"
-                            "   c) Riempie / Riempito da:\n"
+                            "      - Es: Se A {cuts_lc} B, allora B è {cut_by_lc} A.\n\n"
+                            "   c) {fills} / {filled_by}:\n"
                             "      - Linee continue con frecce rivolte verso il basso.\n"
-                            "      - Es: Se A riempie B, allora B è riempito da A.\n\n"
-                            "   d) Si appoggia / Gli si appoggia:\n"
+                            "      - Es: Se A {fills_lc} B, allora B è {filled_by_lc} A.\n\n"
+                            "   d) {abuts} / {supports}:\n"
                             "      - Linee continue verticali, spesso con annotazioni.\n"
-                            "      - Es: Se A si appoggia a B, allora B è appoggiato da A.\n\n"
+                            "      - Es: Se A {abuts_lc} B, allora B è {supports_lc} A.\n\n"
 
-                            "   e) Uguale a:\n"
+                            "   e) {same_as}:\n"
                             "      - Linee orizzontali doppie tra unità.\n"
-                            "      - Relazione simmetrica: Se A è uguale a B, allora B è uguale a A.\n\n"
-                            "   f) Si lega a:\n"
+                            "      - Relazione simmetrica: Se A è {same_as_lc} B, allora B è {same_as_lc} A.\n\n"
+                            "   f) {connected}:\n"
                             "      - Usato specificamente per USM.\n"
-                            "      - Rappresentato come 'Uguale a' con linee orizzontali doppie.\n"
-                            "      - Relazione simmetrica: Se USM A si lega a USM B, allora USM B si lega a USM A.\n\n"
+                            "      - Rappresentato come '{same_as}' con linee orizzontali doppie.\n"
+                            "      - Relazione simmetrica: Se USM A {connected_lc} USM B, allora USM B {connected_lc} USM A.\n\n"
 
                             "3. Sequenza temporale:\n"
                             "   - Determina la sequenza cronologica relativa basandoti sulle relazioni identificate.\n"
@@ -522,7 +528,7 @@ class GPTWindow(QMainWindow):
                             "   - Interpreta eventuali note, etichette o legende presenti nel diagramma.\n\n"
                             "6. Distinzione US/USM:\n"
                             "   - Evidenzia le differenze nelle relazioni applicate a US e USM.\n"
-                            "   - Nota in particolare l'uso di 'Si lega a' esclusivamente per USM.\n\n"
+                            "   - Nota in particolare l'uso di '{connected}' esclusivamente per USM.\n\n"
                             "Fornisci un'analisi dettagliata che includa:\n"
                             "1. Elenco di tutte le US e USM identificate.\n"
                             "2. Descrizione di tutte le relazioni stratigrafiche, includendo sempre sia la relazione diretta che l'inversa.\n"
@@ -530,6 +536,17 @@ class GPTWindow(QMainWindow):
                             "4. Osservazioni su eventuali gruppi o fasi identificate.\n"
                             "5. Commenti su qualsiasi caratteristica distintiva o insolita nel diagramma.\n\n"
                             "Assicurati di evidenziare chiaramente la distinzione tra US e USM nelle tue osservazioni e di utilizzare correttamente la terminologia per ciascun tipo di unità."
+                        ).format(
+                            covers=_rel[2], covered_by=_rel[3],
+                            covers_lc=_rel[2].lower(), covered_by_lc=_rel[3].lower(),
+                            cuts=_rel[6], cut_by=_rel[7],
+                            cuts_lc=_rel[6].lower(), cut_by_lc=_rel[7].lower(),
+                            fills=_rel[4], filled_by=_rel[5],
+                            fills_lc=_rel[4].lower(), filled_by_lc=_rel[5].lower(),
+                            abuts=_rel[8], supports=_rel[9],
+                            abuts_lc=_rel[8].lower(), supports_lc=_rel[9].lower(),
+                            same_as=_rel[0], same_as_lc=_rel[0].lower(),
+                            connected=_rel[1], connected_lc=_rel[1].lower(),
                         )
 
                         # Chiama il modello appropriato con il nuovo prompt

@@ -122,6 +122,166 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             "Abkürzungtyp",
             "Sprache"
         ]
+    elif L=='en':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Table name": "nome_tabella",
+            "Code": "sigla",
+            "Code whole": "sigla_estesa",
+            "Description": "descrizione",
+            "Code typology": "tipologia_sigla",
+            "Language": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Table name",
+            "Code",
+            "Code whole",
+            "Description",
+            "Code typology",
+            "Language"
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Nombre de tabla": "nome_tabella",
+            "Código de tabla": "sigla",
+            "Tipología de código": "sigla_estesa",
+            "Descripción": "descrizione",
+            "Definición": "tipologia_sigla",
+            "Idioma": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Nombre de tabla",
+            "Código de tabla",
+            "Tipología de código",
+            "Descripción",
+            "Definición",
+            "Idioma"
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Nom de table": "nome_tabella",
+            "Code de table": "sigla",
+            "Typologie de code": "sigla_estesa",
+            "Description": "descrizione",
+            "Définition": "tipologia_sigla",
+            "Langue": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Nom de table",
+            "Code de table",
+            "Typologie de code",
+            "Description",
+            "Définition",
+            "Langue"
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "اسم الجدول": "nome_tabella",
+            "رمز الجدول": "sigla",
+            "نمط الرمز": "sigla_estesa",
+            "وصف": "descrizione",
+            "تعريف": "tipologia_sigla",
+            "لغة": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "اسم الجدول",
+            "رمز الجدول",
+            "نمط الرمز",
+            "وصف",
+            "تعريف",
+            "لغة"
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Nom de taula": "nome_tabella",
+            "Codi de taula": "sigla",
+            "Tipologia de codi": "sigla_estesa",
+            "Descripció": "descrizione",
+            "Definició": "tipologia_sigla",
+            "Llengua": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Nom de taula",
+            "Codi de taula",
+            "Tipologia de codi",
+            "Descripció",
+            "Definició",
+            "Llengua"
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Nume tabel": "nome_tabella",
+            "Cod tabel": "sigla",
+            "Tipologie cod": "sigla_estesa",
+            "Descriere": "descrizione",
+            "Definiție": "tipologia_sigla",
+            "Limbă": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Nume tabel",
+            "Cod tabel",
+            "Tipologie cod",
+            "Descriere",
+            "Definiție",
+            "Limbă"
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Nome da tabela": "nome_tabella",
+            "Código da tabela": "sigla",
+            "Tipologia do código": "sigla_estesa",
+            "Descrição": "descrizione",
+            "Definição": "tipologia_sigla",
+            "Língua": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Nome da tabela",
+            "Código da tabela",
+            "Tipologia do código",
+            "Descrição",
+            "Definição",
+            "Língua"
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Όνομα πίνακα": "nome_tabella",
+            "Κωδικός πίνακα": "sigla",
+            "Τυπολογία κωδικού": "sigla_estesa",
+            "Περιγραφή": "descrizione",
+            "Ορισμός": "tipologia_sigla",
+            "Γλώσσα": "lingua"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Όνομα πίνακα",
+            "Κωδικός πίνακα",
+            "Τυπολογία κωδικού",
+            "Περιγραφή",
+            "Ορισμός",
+            "Γλώσσα"
+        ]
     else:
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -141,7 +301,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             "Description",
             "Code typology",
             "Language"
-        ]   
+        ]
     LANG = {
         "IT": ['it_IT', 'IT', 'it', 'IT_IT'],
         "EN": ['en', 'EN'],
@@ -157,6 +317,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR', 'PT_BR'],
         "SL": ['sl_SL', 'sl', 'SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     TABLE_FIELDS = [

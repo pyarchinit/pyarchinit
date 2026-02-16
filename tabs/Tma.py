@@ -193,6 +193,9 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         "ES": ['es_ES', 'es', 'ES', 'ES_ES'],
         "AR": ['ar_LB', 'ar', 'AR', 'AR_LB', 'ar_AR', 'AR_AR'],
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
+        "RO": ['ro_RO', 'ro', 'RO', 'RO_RO'],
+        "PT": ['pt_PT', 'pt', 'PT', 'PT_PT'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     HOME = os.environ['PYARCHINIT_HOME']

@@ -5,6 +5,154 @@
 
 ---
 
+## [5.3.6-alpha] - 2026-02-16
+
+### feat(i18n): Espansione completa CONVERSION_DICT e SORT_ITEMS a 10 lingue / Complete expansion of CONVERSION_DICT and SORT_ITEMS to 10 languages
+
+- **IT**: Espansi `CONVERSION_DICT` e `SORT_ITEMS` da 3 lingue (it/de/en) a 10 lingue (it/de/en/es/fr/ar/ca/ro/pt/el) + fallback else in tutti i 14 file tab. File aggiornati: `Site.py` (8 campi), `Struttura.py` (13 campi), `Tomba.py` (33 campi), `Schedaind.py` (12 campi), `Campioni.py` (4 campi + SORT_ITEMS), `Thesaurus.py` (6 campi), `Documentazione.py` (8 campi), `Tafonomia.py` (33 campi), `US_USM.py` (~85 campi + SORT_ITEMS), `Deteta.py` (~40 campi), `Inv_Lapidei.py` (20 campi), `Inv_Materiali.py` (29 campi + QUANT_ITEMS), `UT.py` (48 campi + SORT_ITEMS). Corretti bug: blocchi `if` separati in Inv_Materiali.py convertiti in catena `elif` corretta. Corretto blocco `else:` → `elif L=='en':` in Inv_Lapidei.py, UT.py, US_USM.py. Corretti refusi inglesi in Inv_Lapidei.py. Espanso `LAYERS_CONVERT_DIZ` in `pyarchinit_pyqgis.py` (33 layer) e aggiunto sistema centralizzato `_GROUP_NAMES` + `_gn()` per 21 nomi di gruppi GIS. Creati 3 file HTML codici thesaurus: `codici_el.html`, `codici_pt.html`, `codici_ro.html`. Totale: ~15.000 nuove righe.
+- **EN**: Expanded `CONVERSION_DICT` and `SORT_ITEMS` from 3 languages (it/de/en) to 10 languages (it/de/en/es/fr/ar/ca/ro/pt/el) + else fallback across all 14 tab files. Files updated: `Site.py` (8 fields), `Struttura.py` (13 fields), `Tomba.py` (33 fields), `Schedaind.py` (12 fields), `Campioni.py` (4 fields + SORT_ITEMS), `Thesaurus.py` (6 fields), `Documentazione.py` (8 fields), `Tafonomia.py` (33 fields), `US_USM.py` (~85 fields + SORT_ITEMS), `Deteta.py` (~40 fields), `Inv_Lapidei.py` (20 fields), `Inv_Materiali.py` (29 fields + QUANT_ITEMS), `UT.py` (48 fields + SORT_ITEMS). Bug fixes: separate `if` blocks in Inv_Materiali.py converted to proper `elif` chain. Fixed `else:` → `elif L=='en':` in Inv_Lapidei.py, UT.py, US_USM.py. Fixed English typos in Inv_Lapidei.py. Expanded `LAYERS_CONVERT_DIZ` in `pyarchinit_pyqgis.py` (33 layers) and added centralized `_GROUP_NAMES` + `_gn()` system for 21 GIS group names. Created 3 thesaurus codes HTML files: `codici_el.html`, `codici_pt.html`, `codici_ro.html`. Total: ~15,000 new lines.
+
+#### File modificati / Modified files
+- `tabs/Site.py`, `tabs/Struttura.py`, `tabs/Tomba.py`, `tabs/Schedaind.py`
+- `tabs/Campioni.py`, `tabs/Thesaurus.py`, `tabs/Documentazione.py`, `tabs/Tafonomia.py`
+- `tabs/US_USM.py`, `tabs/Deteta.py`, `tabs/Inv_Lapidei.py`, `tabs/Inv_Materiali.py`, `tabs/UT.py`
+- `modules/gis/pyarchinit_pyqgis.py`
+- `tabs/codici_el.html`, `tabs/codici_pt.html`, `tabs/codici_ro.html`
+
+---
+
+## [5.3.5-alpha] - 2026-02-16
+
+### feat(i18n): Thesaurus codes HTML per greco, portoghese e rumeno / Thesaurus codes HTML for Greek, Portuguese and Romanian
+
+- **IT**: Creati 3 nuovi file HTML di codici thesaurus tradotti dalla versione inglese: `tabs/codici_el.html` (Greco moderno), `tabs/codici_pt.html` (Portoghese europeo), `tabs/codici_ro.html` (Rumeno). Ogni file contiene 12 sezioni tabellari (Sito, US/USM, Struttura, Sepoltura, Inventario Materiali, Campioni, Individui, Documentazione, TMA, Ceramica, UT, Fauna) con intestazioni di colonna, titoli di sezione, descrizioni dei campi e valori di esempio tradotti. Struttura HTML, CSS e nomi tecnici dei campi database mantenuti identici alla versione inglese. ~300 righe per file.
+- **EN**: Created 3 new translated thesaurus codes HTML files from the English version: `tabs/codici_el.html` (Modern Greek), `tabs/codici_pt.html` (European Portuguese), `tabs/codici_ro.html` (Romanian). Each file contains 12 table sections (Site, SU/WSU, Structure, Burial, Finds Inventory, Samples, Individuals, Documentation, TMA, Pottery, UT, Fauna) with translated column headers, section titles, field descriptions and example values. HTML structure, CSS and technical database field names kept identical to the English version. ~300 lines per file.
+
+#### File modificati / Modified files
+- `tabs/codici_el.html` (nuovo / new)
+- `tabs/codici_pt.html` (nuovo / new)
+- `tabs/codici_ro.html` (nuovo / new)
+
+---
+
+## [5.3.4-alpha] - 2026-02-16
+
+### feat(i18n): CONVERSION_DICT, QUANT_ITEMS e SORT_ITEMS multilingua in Inv_Materiali / Multilingual CONVERSION_DICT, QUANT_ITEMS and SORT_ITEMS in Inv_Materiali
+
+- **IT**: Aggiunti blocchi `CONVERSION_DICT`, `QUANT_ITEMS` e `SORT_ITEMS` per 7 lingue aggiuntive (es, fr, ar, ca, ro, pt, el) nel file `tabs/Inv_Materiali.py`. Corretta la catena di `if` separati: le istruzioni `if L =='de':` e `if L =='en':` sono state convertite in `elif` per formare una catena corretta `if/elif/else`. Aggiunto blocco `else:` finale con fallback inglese. 29 campi tradotti per ogni lingua (sito, numero_inventario, tipo_reperto, criterio_schedatura, definizione, descrizione, area, us, lavato, nr_cassa, luogo_conservazione, stato_conservazione, datazione_reperto, forme_minime, forme_massime, totale_frammenti, corpo_ceramico, rivestimento, diametro_orlo, peso, tipo, eve_orlo, repertato, diagnostico, n_reperto, tipo_contenitore, struttura, years). QUANT_ITEMS include 9 voci tradotte per lingua. Totale: ~580 nuove righe.
+- **EN**: Added `CONVERSION_DICT`, `QUANT_ITEMS` and `SORT_ITEMS` blocks for 7 additional languages (es, fr, ar, ca, ro, pt, el) in `tabs/Inv_Materiali.py`. Fixed separate `if` statements: `if L =='de':` and `if L =='en':` were converted to `elif` to form a proper `if/elif/else` chain. Added final `else:` block with English fallback. 29 fields translated per language (site, inventory_number, artefact_type, material_class, definition, description, area, stratigraphic_unit, washed, box, place_of_conservation, status_of_conservation, artefact_period, min_shape, max_shape, total_fragments, body_sherds, coating, rim_diameter, weight, type, eve_rim, reperted, diagnostic, ra, container_type, structure, years). QUANT_ITEMS includes 9 translated entries per language. Total: ~580 new lines.
+
+#### File modificati / Modified files
+- `tabs/Inv_Materiali.py` (aggiornato / updated)
+
+---
+
+## [5.3.3-alpha] - 2026-02-16
+
+### feat(i18n): CONVERSION_DICT e SORT_ITEMS multilingua in Inv_Lapidei / Multilingual CONVERSION_DICT and SORT_ITEMS in Inv_Lapidei
+
+- **IT**: Aggiunti blocchi `CONVERSION_DICT` e `SORT_ITEMS` per 7 lingue aggiuntive (es, fr, ar, ca, ro, pt, el) nel file `tabs/Inv_Lapidei.py`. Il blocco `else:` (fallback inglese) è stato convertito in `elif L=='en':` esplicito, seguito da 7 nuovi blocchi `elif` per ciascuna lingua e un blocco `else:` finale che usa l'inglese come default. 19 campi tradotti per ogni lingua (sito, scheda_numero, collocazione, oggetto, tipologia, materiale, d_letto_posa, d_letto_attesa, toro, spessore, larghezza, lunghezza, h, descrizione, lavorazione_e_stato_di_conservazione, confronti, cronologia, bibliografia, compilatore). Corretti refusi nelle etichette inglesi: "Thikness" -> "Thickness", "Weight" -> "Width", "Lenght" -> "Length", "presevation" -> "preservation", "Comparision" -> "Comparisons". Totale: ~370 nuove righe.
+- **EN**: Added `CONVERSION_DICT` and `SORT_ITEMS` blocks for 7 additional languages (es, fr, ar, ca, ro, pt, el) in `tabs/Inv_Lapidei.py`. The `else:` block (English fallback) was converted to an explicit `elif L=='en':`, followed by 7 new `elif` blocks for each language and a final `else:` block defaulting to English. 19 fields translated per language (site, form_number, placement, object, typology, material, bed_pose, waiting_bed, toro, thickness, width, length, h, description, processing_and_preservation_state, comparisons, chronology, bibliography, author). Fixed English label typos: "Thikness" -> "Thickness", "Weight" -> "Width", "Lenght" -> "Length", "presevation" -> "preservation", "Comparision" -> "Comparisons". Total: ~370 new lines.
+
+#### File modificati / Modified files
+- `tabs/Inv_Lapidei.py` (aggiornato / updated)
+
+---
+
+## [5.3.2-alpha] - 2026-02-16
+
+### feat(i18n): CONVERSION_DICT e SORT_ITEMS multilingua in Documentazione e Tafonomia / Multilingual CONVERSION_DICT and SORT_ITEMS in Documentazione and Tafonomia
+
+- **IT**: Aggiunti blocchi `CONVERSION_DICT` e `SORT_ITEMS` per 7 lingue aggiuntive (es, fr, ar, ca, ro, pt, el) nei file `Documentazione.py` e `Tafonomia.py`. Il blocco `else:` (fallback inglese) è stato convertito in `elif L=='en':` esplicito, seguito da 7 nuovi blocchi `elif` per ciascuna lingua e un blocco `else:` finale che usa l'inglese come default. In `Documentazione.py`: 8 campi tradotti per ogni lingua (sito, nome_doc, data, tipo_documentazione, sorgente, scala, disegnatore, note). In `Tafonomia.py`: 33 campi tradotti per ogni lingua (sito, nr_scheda_taf, sigla_struttura, nr_struttura, nr_individuo, rito, descrizione, interpretazione, segnacoli, canale_libatorio, oggetti_rinvenuti, stato_conservazione, copertura, contenitore_resti, orientamento_asse/azimut, corredo, lunghezza/posizione_scheletro, cranio, arti_superiori/inferiori, completo, disturbato, connessione, caratteristiche, periodo/fase iniziale/finale, datazione_estesa). Totale: ~560 nuove righe in Documentazione.py, ~1050 nuove righe in Tafonomia.py.
+- **EN**: Added `CONVERSION_DICT` and `SORT_ITEMS` blocks for 7 additional languages (es, fr, ar, ca, ro, pt, el) in `Documentazione.py` and `Tafonomia.py`. The `else:` block (English fallback) was converted to an explicit `elif L=='en':`, followed by 7 new `elif` blocks for each language and a final `else:` block defaulting to English. In `Documentazione.py`: 8 fields translated per language (site, doc_name, date, documentation_type, source, scale, draftsman, notes). In `Tafonomia.py`: 33 fields translated per language (site, taphonomy_sheet_nr, structure_acronym, structure_nr, individual_nr, rite, description, interpretation, markers, libation_channel, external_objects, conservation_state, covering_type, remains_container_type, axis/azimuth_orientation, grave_goods, skeleton_length/position, cranium/upper_limbs/lower_limbs position, complete, disturbed, in_connection, characteristics, initial/final period/phase, extended_dating). Total: ~560 new lines in Documentazione.py, ~1050 new lines in Tafonomia.py.
+
+#### File modificati / Modified files
+- `tabs/Documentazione.py` (aggiornato / updated)
+- `tabs/Tafonomia.py` (aggiornato / updated)
+
+---
+
+## [5.3.1-alpha] - 2026-02-15
+
+### feat(db): Estensione dati i18n: tabelle aggiuntive + layer GIS / Extend i18n example data: additional tables + GIS layers
+
+- **IT**: Esteso lo script `scripts/populate_i18n_example_data.py` per popolare 6 tabelle aggiuntive in tutte le 10 lingue: `struttura_table` (10 record: edifici, focolare, muri, pavimenti, fossa, spoliazione), `tomba_table` (10 sepolture: inumazioni e cremazione, vari tipi), `individui_table` (10 individui con sesso, età, posizioni), `pottery_table` (10 ceramiche: maiolica, invetriata, grezza, ingobbiata), `inventario_materiali_table` (10 reperti: ceramica, metallo, vetro, osso, moneta, laterizio). Replicati i layer GIS per 9 lingue aggiuntive: `pyunitastratigrafiche` (482×10=4820 righe), `pyunitastratigrafiche_usm` (19×10=190 righe), `pyarchinit_quote` (70×10=700 righe) con traduzione dei tipi di materiale (tipo_us_s) e delle abbreviazioni unità tipo. Gestione trigger SpatiaLite per pyarchinit_quote. Aggiunti ~25 dizionari di traduzione per i nuovi campi. Totale: 500 record per le nuove tabelle (100 ciascuna × 5 tabelle), 5710 geometrie GIS.
+- **EN**: Extended `scripts/populate_i18n_example_data.py` to populate 6 additional tables across all 10 languages: `struttura_table` (10 records: buildings, hearth, walls, floors, pit, robber trench), `tomba_table` (10 burials: inhumations and cremation, various types), `individui_table` (10 individuals with sex, age, positions), `pottery_table` (10 ceramics: majolica, glazed, coarse, slipped), `inventario_materiali_table` (10 finds: ceramic, metal, glass, bone, coin, brick). Replicated GIS layers for 9 additional languages: `pyunitastratigrafiche` (482×10=4820 rows), `pyunitastratigrafiche_usm` (19×10=190 rows), `pyarchinit_quote` (70×10=700 rows) with translation of material types (tipo_us_s) and unit type abbreviations. Handled SpatiaLite geometry triggers for pyarchinit_quote. Added ~25 translation dictionaries for new fields. Total: 500 records for new tables (100 each × 5 tables), 5710 GIS geometries.
+
+#### File modificati / Modified files
+- `scripts/populate_i18n_example_data.py` (aggiornato / updated)
+- `resources/dbfiles/pyarchinit_db.sqlite` (aggiornato / updated)
+
+---
+
+## [5.3.0-alpha] - 2026-02-15
+
+### feat(db): Dati di esempio i18n per 10 lingue nel template SQLite / i18n example data for 10 languages in template SQLite
+
+- **IT**: Creato script `scripts/populate_i18n_example_data.py` che popola il database template `resources/dbfiles/pyarchinit_db.sqlite` con dati di esempio tradotti per tutte le 10 lingue supportate (IT, EN, DE, ES, FR, AR, CA, RO, PT, EL). Partendo dai 51 record US italiani esistenti ("Scavo archeologico"), vengono generati 9 siti aggiuntivi con nomi localizzati (es. "Archaeological Excavation", "Archäologische Ausgrabung", "Αρχαιολογική Ανασκαφή"). Per ogni sito: 51 record US con termini di relazione tradotti (rapporti/rapporti2), abbreviazioni unità tipo localizzate (US→SU/SE/UE/ΣΜ, USM→WSU/MSE/UEM/USZ/ΤΣΜ), campi testuali tradotti (d_stratigrafica, d_interpretativa, formazione, stato_di_conservazione, colore, consistenza, metodo_di_scavo, inclusi, documentazione) e testi lunghi (descrizione/interpretazione) con sostituzione terminologica. 12 record periodizzazione con descrizioni cronologiche tradotte. Totale: 510 US, 120 periodizzazioni, 11 siti. Lo script utilizza il modulo centrale `pyarchinit_i18n_stratigraphic` per i termini di relazione e le abbreviazioni.
+- **EN**: Created script `scripts/populate_i18n_example_data.py` that populates the template database `resources/dbfiles/pyarchinit_db.sqlite` with translated example data for all 10 supported languages (IT, EN, DE, ES, FR, AR, CA, RO, PT, EL). Starting from the existing 51 Italian US records ("Scavo archeologico"), 9 additional sites are generated with localized names (e.g. "Archaeological Excavation", "Archäologische Ausgrabung", "Αρχαιολογική Ανασκαφή"). For each site: 51 US records with translated relationship terms (rapporti/rapporti2), localized unit type abbreviations (US→SU/SE/UE/ΣΜ, USM→WSU/MSE/UEM/USZ/ΤΣΜ), translated text fields (d_stratigrafica, d_interpretativa, formazione, stato_di_conservazione, colore, consistenza, metodo_di_scavo, inclusi, documentazione) and long texts (descrizione/interpretazione) with term replacement. 12 periodizzazione records with translated chronological descriptions. Total: 510 US, 120 periods, 11 sites. The script uses the central `pyarchinit_i18n_stratigraphic` module for relationship terms and abbreviations.
+
+#### File modificati / Modified files
+- `scripts/populate_i18n_example_data.py` (nuovo / new)
+- `resources/dbfiles/pyarchinit_db.sqlite` (aggiornato / updated)
+
+---
+
+## [5.2.9-alpha] - 2026-02-15
+
+### refactor(i18n): Integrazione modulo i18n centrale per relazioni stratigrafiche in 5 file / Integrate central i18n module for stratigraphic relationships in 5 files
+
+- **IT**: Aggiornati 5 file per utilizzare il modulo centrale `pyarchinit_i18n_stratigraphic` al posto di termini di relazione stratigrafica hardcoded. In `pyarchinit_matrix_exp.py`: le etichette della legenda "Contemporaneo" / "Same as" / "Sama as" ora utilizzano `RELATIONSHIPS[lang][0]` per la localizzazione corretta in tutte le 10 lingue. In `pyarchinit_pyqgis.py`: le liste `rel_covers_*` e `rel_equals_*` per 6 lingue sostituite con i group set del modulo centrale (`COVERS_GROUP`, `FILLS_GROUP`, `CUTS_GROUP`, `ABUTS_GROUP`, `SAME_AS_GROUP`, `CONNECTED_GROUP`) che coprono automaticamente tutte le 10 lingue. In `pyarchinit_db_manager.py`: i filtri SQL `select_not_like_from_db_sql()` per 3 lingue (it/en/de) sostituiti con filtri generati dinamicamente dai group set, coprendo tutte le 10 lingue. In `skatch_gpt_US.py`: il prompt di analisi Harris Matrix con termini italiani hardcoded ora utilizza `RELATIONSHIPS[lang]` per inserire i termini localizzati. In `Struttura.py`: il blocco `valuesRapporti` if/elif/else per 3 lingue (it/de/en) sostituito con lookup dinamico da `RELATIONSHIPS` + dizionario `_STRUTTURA_EXTRA` per i termini specifici delle strutture, ora con supporto per tutte le 10 lingue.
+- **EN**: Updated 5 files to use the central `pyarchinit_i18n_stratigraphic` module instead of hardcoded stratigraphic relationship terms. In `pyarchinit_matrix_exp.py`: legend labels "Contemporaneo" / "Same as" / "Sama as" now use `RELATIONSHIPS[lang][0]` for correct localization across all 10 languages. In `pyarchinit_pyqgis.py`: per-language `rel_covers_*` and `rel_equals_*` lists for 6 languages replaced with central module group sets (`COVERS_GROUP`, `FILLS_GROUP`, `CUTS_GROUP`, `ABUTS_GROUP`, `SAME_AS_GROUP`, `CONNECTED_GROUP`) that automatically cover all 10 languages. In `pyarchinit_db_manager.py`: SQL filters in `select_not_like_from_db_sql()` for 3 languages (it/en/de) replaced with dynamically generated filters from group sets, covering all 10 languages. In `skatch_gpt_US.py`: Harris Matrix analysis prompt with hardcoded Italian terms now uses `RELATIONSHIPS[lang]` to insert localized terms. In `Struttura.py`: `valuesRapporti` if/elif/else block for 3 languages (it/de/en) replaced with dynamic lookup from `RELATIONSHIPS` + `_STRUTTURA_EXTRA` dict for structure-specific terms, now supporting all 10 languages.
+
+#### File modificati / Modified files
+- `modules/utility/pyarchinit_matrix_exp.py`
+- `modules/gis/pyarchinit_pyqgis.py`
+- `modules/db/pyarchinit_db_manager.py`
+- `modules/utility/skatch_gpt_US.py`
+- `tabs/Struttura.py`
+
+---
+
+## [5.2.8-alpha] - 2026-02-15
+
+### refactor(pdf): Pulizia codice orfano in pyarchinit_exp_USsheet_pdf.py / Remove orphan code from pyarchinit_exp_USsheet_pdf.py
+
+- **IT**: Rimossi ~983 righe di codice orfano dal file `pyarchinit_exp_USsheet_pdf.py`. Eliminati i due metodi placeholder `_unzip_compat_placeholder()` e tutti i blocchi `len==4`, `len==3`, `len==2` rimasti dopo la sostituzione dei vecchi metodi `unzip_rapporti_stratigrafici()` con la nuova versione unificata basata sui group set del modulo i18n centrale (`pyarchinit_i18n_stratigraphic`). I metodi `unzip_rapporti_stratigrafici_de()` e `unzip_rapporti_stratigrafici_en()` (4 istanze totali, 2 per classe) sono stati sostituiti con one-liner che delegano al metodo unificato `unzip_rapporti_stratigrafici()`. Sintassi Python verificata dopo le modifiche.
+- **EN**: Removed ~983 lines of orphan code from `pyarchinit_exp_USsheet_pdf.py`. Deleted two `_unzip_compat_placeholder()` methods and all leftover `len==4`, `len==3`, `len==2` blocks remaining after replacing the old `unzip_rapporti_stratigrafici()` methods with the new unified version based on group sets from the central i18n module (`pyarchinit_i18n_stratigraphic`). The `unzip_rapporti_stratigrafici_de()` and `unzip_rapporti_stratigrafici_en()` methods (4 total instances, 2 per class) were replaced with one-liners that delegate to the unified `unzip_rapporti_stratigrafici()`. Python syntax verified after changes.
+
+#### File modificati / Modified files
+- `modules/utility/pyarchinit_exp_USsheet_pdf.py`
+
+---
+
+## [5.2.7-alpha] - 2026-02-15
+
+### feat(i18n): Aggiunta supporto lingua Greco Moderno (el_GR) / Added Modern Greek (el_GR) language support
+
+- **IT**: Aggiunta completa del supporto per la lingua Greca Moderna (Ελληνικά) al plugin, decima lingua supportata. Modifiche effettuate: aggiunta `'el': 'el_GR'` al `LOCALE_MAPPING` in `pyarchinitPlugin.py`; aggiunta `'el': 'Ελληνικά'` a `SUPPORTED_LANGUAGES` e relativi `TUTORIALS_METADATA` + `UI_LABELS` in `Tutorial_viewer.py` e `pyarchinitDockWidget.py`; aggiunta `'el'` a `SUPPORTED_LANGUAGES` in `Fauna.py`; aggiunta voce `"EL"` ai dizionari `LANG` in tutti i 13 file tab (US_USM, Tma, Pottery, Tomba, Thesaurus, Tafonomia, Struttura, Site, Schedaind, Inv_Materiali, Inv_Lapidei, Documentazione, Campioni); creazione di 32 file tutorial tradotti in greco in `docs/tutorials/el/` con terminologia archeologica appropriata (ΣΜ per Στρωματογραφική Μονάδα, ΤΝ per Τεχνητή Νοημοσύνη ecc.); creazione file i18n `pyarchinit_plugin_el_GR.ts`; aggiornamento di tutti i 7 script di traduzione con voci `el_GR`; aggiornamento `build_docs.py`, `conf.py` e `metadata.txt`.
+- **EN**: Complete addition of Modern Greek (Ελληνικά) language support to the plugin, now the tenth supported language. Changes made: added `'el': 'el_GR'` to `LOCALE_MAPPING` in `pyarchinitPlugin.py`; added `'el': 'Ελληνικά'` to `SUPPORTED_LANGUAGES` and related `TUTORIALS_METADATA` + `UI_LABELS` in `Tutorial_viewer.py` and `pyarchinitDockWidget.py`; added `'el'` to `SUPPORTED_LANGUAGES` in `Fauna.py`; added `"EL"` entry to `LANG` dicts in all 13 tab files (US_USM, Tma, Pottery, Tomba, Thesaurus, Tafonomia, Struttura, Site, Schedaind, Inv_Materiali, Inv_Lapidei, Documentazione, Campioni); created 32 Greek tutorial files in `docs/tutorials/el/` with proper archaeological terminology (ΣΜ for Στρωματογραφική Μονάδα, ΤΝ for Τεχνητή Νοημοσύνη etc.); created i18n file `pyarchinit_plugin_el_GR.ts`; updated all 7 translation scripts with `el_GR` entries; updated `build_docs.py`, `conf.py` and `metadata.txt`.
+
+#### File modificati / Modified files
+- `pyarchinitPlugin.py`
+- `tabs/Tutorial_viewer.py`
+- `pyarchinitDockWidget.py`
+- `tabs/Fauna.py`
+- `tabs/US_USM.py`, `tabs/Tma.py`, `tabs/pyarchinit_Pottery_mainapp.py`
+- `tabs/Tomba.py`, `tabs/Thesaurus.py`, `tabs/Tafonomia.py`, `tabs/Struttura.py`
+- `tabs/Site.py`, `tabs/Schedaind.py`, `tabs/Inv_Materiali.py`, `tabs/Inv_Lapidei.py`
+- `tabs/Documentazione.py`, `tabs/Campioni.py`
+- `docs/tutorials/el/` (32 file)
+- `i18n/pyarchinit_plugin_el_GR.ts`
+- `scripts/update_translations.py`, `scripts/update_struttura_translations.py`
+- `scripts/update_fauna_translations.py`, `scripts/update_other_translations.py`
+- `scripts/add_sync_translations.py`, `scripts/auto_translate_ts.py`
+- `scripts/translate_ts_complete.py`
+- `docs/tutorials/build_docs.py`
+- `metadata.txt`
+
+---
+
 ## [5.2.6-alpha] - 2026-02-12
 
 ### refactor(ui): Refactoring layout descrizioni in 12 animazioni docs/animations / Description layout refactoring in 12 animations docs/animations

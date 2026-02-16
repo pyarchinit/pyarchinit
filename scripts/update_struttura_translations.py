@@ -19,6 +19,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Fecha de compilación",
         "ar_LB": "تاريخ الإعداد",
         "ca_ES": "Data de compilació",
+        "ro_RO": "Data completării",
+        "pt_PT": "Data de compilação",
+        "el_GR": "Ημερομηνία σύνταξης",
         "it_IT": "Data compilazione"
     },
     "Nome compilatore": {
@@ -28,6 +31,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Nombre del compilador",
         "ar_LB": "اسم المُعدّ",
         "ca_ES": "Nom del compilador",
+        "ro_RO": "Numele compilatorului",
+        "pt_PT": "Nome do compilador",
+        "el_GR": "Όνομα συντάκτη",
         "it_IT": "Nome compilatore"
     },
     "dd/MM/yyyy": {
@@ -37,6 +43,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "dd/MM/yyyy",
         "ar_LB": "yyyy/MM/dd",
         "ca_ES": "dd/MM/yyyy",
+        "ro_RO": "dd/MM/yyyy",
+        "pt_PT": "dd/MM/yyyy",
+        "el_GR": "dd/MM/yyyy",
         "it_IT": "dd/MM/yyyy"
     },
     "Ubicazione": {
@@ -46,6 +55,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Ubicación",
         "ar_LB": "الموقع",
         "ca_ES": "Ubicació",
+        "ro_RO": "Locație",
+        "pt_PT": "Localização",
+        "el_GR": "Τοποθεσία",
         "it_IT": "Ubicazione"
     },
     "Elementi architettonici": {
@@ -55,6 +67,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Elementos arquitectónicos",
         "ar_LB": "العناصر المعمارية",
         "ca_ES": "Elements arquitectònics",
+        "ro_RO": "Elemente arhitecturale",
+        "pt_PT": "Elementos arquitetónicos",
+        "el_GR": "Αρχιτεκτονικά στοιχεία",
         "it_IT": "Elementi architettonici"
     },
     "Stato conservazione": {
@@ -64,6 +79,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Estado de conservación",
         "ar_LB": "حالة الحفظ",
         "ca_ES": "Estat de conservació",
+        "ro_RO": "Stare de conservare",
+        "pt_PT": "Estado de conservação",
+        "el_GR": "Κατάσταση διατήρησης",
         "it_IT": "Stato conservazione"
     },
     "Stato": {
@@ -73,6 +91,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Estado",
         "ar_LB": "الحالة",
         "ca_ES": "Estat",
+        "ro_RO": "Stare",
+        "pt_PT": "Estado",
+        "el_GR": "Κατάσταση",
         "it_IT": "Stato"
     },
     "Grado": {
@@ -82,6 +103,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Grado",
         "ar_LB": "الدرجة",
         "ca_ES": "Grau",
+        "ro_RO": "Grad",
+        "pt_PT": "Grau",
+        "el_GR": "Βαθμός",
         "it_IT": "Grado"
     },
     "Fattori agenti": {
@@ -91,6 +115,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Factores de acción",
         "ar_LB": "العوامل المؤثرة",
         "ca_ES": "Factors d'acció",
+        "ro_RO": "Factori de acțiune",
+        "pt_PT": "Fatores de ação",
+        "el_GR": "Παράγοντες φθοράς",
         "it_IT": "Fattori agenti"
     },
     "Dati architettura": {
@@ -100,6 +127,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Datos de arquitectura",
         "ar_LB": "بيانات العمارة",
         "ca_ES": "Dades d'arquitectura",
+        "ro_RO": "Date de arhitectură",
+        "pt_PT": "Dados de arquitetura",
+        "el_GR": "Αρχιτεκτονικά δεδομένα",
         "it_IT": "Dati architettura"
     },
     "N. ambienti": {
@@ -109,6 +139,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "N.º de ambientes",
         "ar_LB": "عدد الغرف",
         "ca_ES": "Núm. d'ambients",
+        "ro_RO": "Nr. încăperi",
+        "pt_PT": "N.º de compartimentos",
+        "el_GR": "Αρ. χώρων",
         "it_IT": "N. ambienti"
     },
     "Sviluppo planimetrico": {
@@ -118,6 +151,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Desarrollo planimétrico",
         "ar_LB": "التطور المسطح",
         "ca_ES": "Desenvolupament planimètric",
+        "ro_RO": "Dezvoltare planimetrică",
+        "pt_PT": "Desenvolvimento planimétrico",
+        "el_GR": "Πλανιμετρική ανάπτυξη",
         "it_IT": "Sviluppo planimetrico"
     },
     "Elementi costitutivi": {
@@ -127,6 +163,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Elementos constitutivos",
         "ar_LB": "العناصر المكونة",
         "ca_ES": "Elements constitutius",
+        "ro_RO": "Elemente constitutive",
+        "pt_PT": "Elementos constitutivos",
+        "el_GR": "Δομικά στοιχεία",
         "it_IT": "Elementi costitutivi"
     },
     "Prospetto ingresso": {
@@ -136,6 +175,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Alzado de entrada",
         "ar_LB": "واجهة المدخل",
         "ca_ES": "Alçat d'entrada",
+        "ro_RO": "Fațada de intrare",
+        "pt_PT": "Alçado de entrada",
+        "el_GR": "Όψη εισόδου",
         "it_IT": "Prospetto ingresso"
     },
     "Orientamento ambienti": {
@@ -145,6 +187,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Orientación de ambientes",
         "ar_LB": "توجيه الغرف",
         "ca_ES": "Orientació dels ambients",
+        "ro_RO": "Orientarea încăperilor",
+        "pt_PT": "Orientação dos compartimentos",
+        "el_GR": "Προσανατολισμός χώρων",
         "it_IT": "Orientamento ambienti"
     },
     "Relazione topografica": {
@@ -154,6 +199,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Relación topográfica",
         "ar_LB": "العلاقة الطوبوغرافية",
         "ca_ES": "Relació topogràfica",
+        "ro_RO": "Relație topografică",
+        "pt_PT": "Relação topográfica",
+        "el_GR": "Τοπογραφική σχέση",
         "it_IT": "Relazione topografica"
     },
     "Prospetto": {
@@ -163,6 +211,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Alzado",
         "ar_LB": "الواجهة",
         "ca_ES": "Alçat",
+        "ro_RO": "Fațadă",
+        "pt_PT": "Alçado",
+        "el_GR": "Όψη",
         "it_IT": "Prospetto"
     },
     "Elemento": {
@@ -172,6 +223,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Elemento",
         "ar_LB": "العنصر",
         "ca_ES": "Element",
+        "ro_RO": "Element",
+        "pt_PT": "Elemento",
+        "el_GR": "Στοιχείο",
         "it_IT": "Elemento"
     },
     "Articolazione": {
@@ -181,6 +235,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Articulación",
         "ar_LB": "التفصيل",
         "ca_ES": "Articulació",
+        "ro_RO": "Articulare",
+        "pt_PT": "Articulação",
+        "el_GR": "Άρθρωση",
         "it_IT": "Articolazione"
     },
     "Orientamento ingresso": {
@@ -190,6 +247,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Orientación de entrada",
         "ar_LB": "اتجاه المدخل",
         "ca_ES": "Orientació de l'entrada",
+        "ro_RO": "Orientarea intrării",
+        "pt_PT": "Orientação da entrada",
+        "el_GR": "Προσανατολισμός εισόδου",
         "it_IT": "Orientamento ingresso"
     },
     "Motivo decorativo": {
@@ -199,6 +259,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Motivo decorativo",
         "ar_LB": "الزخرفة",
         "ca_ES": "Motiu decoratiu",
+        "ro_RO": "Motiv decorativ",
+        "pt_PT": "Motivo decorativo",
+        "el_GR": "Διακοσμητικό μοτίβο",
         "it_IT": "Motivo decorativo"
     },
     "Dati archeologici": {
@@ -208,6 +271,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Datos arqueológicos",
         "ar_LB": "البيانات الأثرية",
         "ca_ES": "Dades arqueològiques",
+        "ro_RO": "Date arheologice",
+        "pt_PT": "Dados arqueológicos",
+        "el_GR": "Αρχαιολογικά δεδομένα",
         "it_IT": "Dati archeologici"
     },
     "Potenzialita' archeologica": {
@@ -217,6 +283,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Potencial arqueológico",
         "ar_LB": "الإمكانات الأثرية",
         "ca_ES": "Potencial arqueològic",
+        "ro_RO": "Potențial arheologic",
+        "pt_PT": "Potencial arqueológico",
+        "el_GR": "Αρχαιολογικό δυναμικό",
         "it_IT": "Potenzialità archeologica"
     },
     "Fasi funzionali": {
@@ -226,6 +295,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Fases funcionales",
         "ar_LB": "المراحل الوظيفية",
         "ca_ES": "Fases funcionals",
+        "ro_RO": "Faze funcționale",
+        "pt_PT": "Fases funcionais",
+        "el_GR": "Λειτουργικές φάσεις",
         "it_IT": "Fasi funzionali"
     },
     "Manufatto": {
@@ -235,6 +307,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Artefacto",
         "ar_LB": "القطعة الأثرية",
         "ca_ES": "Artefacte",
+        "ro_RO": "Artefact",
+        "pt_PT": "Artefacto",
+        "el_GR": "Τέχνεργο",
         "it_IT": "Manufatto"
     },
     "Definizione e fasi funzionali": {
@@ -244,6 +319,9 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Definición y fases funcionales",
         "ar_LB": "التعريف والمراحل الوظيفية",
         "ca_ES": "Definició i fases funcionals",
+        "ro_RO": "Definiție și faze funcționale",
+        "pt_PT": "Definição e fases funcionais",
+        "el_GR": "Ορισμός και λειτουργικές φάσεις",
         "it_IT": "Definizione e fasi funzionali"
     },
     "Manufatti": {
@@ -253,11 +331,14 @@ STRUTTURA_TRANSLATIONS = {
         "es_ES": "Artefactos",
         "ar_LB": "القطع الأثرية",
         "ca_ES": "Artefactes",
+        "ro_RO": "Artefacte",
+        "pt_PT": "Artefactos",
+        "el_GR": "Τεχνέργα",
         "it_IT": "Manufatti"
     },
 }
 
-TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT"]
+TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT", "ro_RO", "pt_PT", "el_GR"]
 
 
 def escape_xml(text):

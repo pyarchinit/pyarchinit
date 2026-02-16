@@ -56,15 +56,15 @@ A **Stratigraphic Unit** is the smallest excavation unit that can be identified 
 |------|------|-------------|
 | SU | Stratigraphic Unit | Generic layer |
 | WSU | Wall Stratigraphic Unit | Wall construction element |
-| VSUA | Vertical Stratigraphic Unit A | Vertical elevation type A |
-| VSUB | Vertical Stratigraphic Unit B | Vertical elevation type B |
-| VSUC | Vertical Stratigraphic Unit C | Vertical elevation type C |
-| DSU | Demolition Stratigraphic Unit | Collapse/demolition layer |
-| ASH | Ashlars | Architectural blocks |
-| VSF | Virtual Stratigraphic Feature | Virtual element |
-| SF | Stratigraphic Feature | Stratigraphic feature |
-| SSU | Sub-Stratigraphic Unit | Subdivision of SU |
-| DOC | Documentation | Documentary element |
+| USVA | Unita Stratigrafica Verticale A | Alzato verticale tipo A |
+| USVB | Unita Stratigrafica Verticale B | Alzato verticale tipo B |
+| USVC | Unita Stratigrafica Verticale C | Alzato verticale tipo C |
+| USD | Unita Stratigrafica di Demolizione | Strato di crollo/demolizione |
+| CON | Conci | Blocchi architettonici |
+| VSF | Virtual Stratigraphic Feature | Elemento virtuale |
+| SF | Stratigraphic Feature | Feature stratigrafica |
+| SUS | Sub-Unita Stratigrafica | Suddivisione di US |
+| DOC | Documentazione | Elemento documentario |
 
 ### Stratigraphic Relationships
 

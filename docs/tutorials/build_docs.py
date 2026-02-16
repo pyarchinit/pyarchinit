@@ -30,7 +30,7 @@ BUILD_DIR = SCRIPT_DIR / "_build"
 SOURCE_DIR = SCRIPT_DIR
 
 # Languages with Latin alphabet (work with pdflatex)
-LANGUAGES = ['it', 'en', 'de', 'fr', 'es', 'ca']
+LANGUAGES = ['it', 'en', 'de', 'fr', 'es', 'ca', 'ro', 'pt', 'el']
 
 LANGUAGE_NAMES = {
     'it': 'Italiano',
@@ -40,6 +40,9 @@ LANGUAGE_NAMES = {
     'es': 'Español',
     'ca': 'Català',
     'ar': 'العربية',  # Arabic requires xelatex
+    'ro': 'Română',
+    'pt': 'Português',
+    'el': 'Ελληνικά',
 }
 
 

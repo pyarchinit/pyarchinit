@@ -125,6 +125,51 @@ LANGUAGES = {
             "Lista USM": "Llista UEM",
         }
     },
+    "ro_RO": {
+        "name": "Romanian",
+        "code": "ro",
+        "file": "pyarchinit_plugin_ro_RO.ts",
+        "terminology": {
+            "US": "US",
+            "USM": "USM",
+            "Unità Stratigrafica": "Unitate Stratigrafică",
+            "Unità Stratigrafica Muraria": "Unitate Stratigrafică Murală",
+            "Scheda US": "Fișă US",
+            "Scheda USM": "Fișă USM",
+            "Lista US": "Lista US",
+            "Lista USM": "Lista USM",
+        }
+    },
+    "pt_PT": {
+        "name": "Portuguese",
+        "code": "pt",
+        "file": "pyarchinit_plugin_pt_PT.ts",
+        "terminology": {
+            "US": "UE",
+            "USM": "UEM",
+            "Unità Stratigrafica": "Unidade Estratigráfica",
+            "Unità Stratigrafica Muraria": "Unidade Estratigráfica Murária",
+            "Scheda US": "Ficha UE",
+            "Scheda USM": "Ficha UEM",
+            "Lista US": "Lista UE",
+            "Lista USM": "Lista UEM",
+        }
+    },
+    "el_GR": {
+        "name": "Greek",
+        "code": "el",
+        "file": "pyarchinit_plugin_el_GR.ts",
+        "terminology": {
+            "US": "ΣΕ",
+            "USM": "ΤΣΕ",
+            "Unità Stratigrafica": "Στρωματογραφική Ενότητα",
+            "Unità Stratigrafica Muraria": "Τοιχοποιητική Στρωματογραφική Ενότητα",
+            "Scheda US": "Δελτίο ΣΕ",
+            "Scheda USM": "Δελτίο ΤΣΕ",
+            "Lista US": "Κατάλογος ΣΕ",
+            "Lista USM": "Κατάλογος ΤΣΕ",
+        }
+    },
 }
 
 MODEL = "gpt-4o"

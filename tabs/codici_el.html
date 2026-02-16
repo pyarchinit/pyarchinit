@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyArchInit - Κωδικοί Θησαυρού (EL)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.5;
+            padding: 15px;
+            font-size: 13px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            font-size: 1.5em;
+        }
+        .nav {
+            background: #2c3e50;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+        }
+        .nav a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 3px;
+            padding: 4px 8px;
+            background: #34495e;
+            border-radius: 3px;
+            display: inline-block;
+            font-size: 12px;
+        }
+        .nav a:hover { background: #3498db; color: #fff; }
+        .table-section {
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table-header {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+        }
+        .table-header h2 { margin: 0; font-size: 1.2em; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #ecf0f1; color: #2c3e50; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .code {
+            font-family: 'Courier New', monospace;
+            background: #e8f4fc;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        .example { color: #7f8c8d; font-style: italic; font-size: 0.9em; }
+        footer { text-align: center; padding: 15px; color: #7f8c8d; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <h1>Κωδικοί Θησαυρού PyArchInit</h1>
+    <p style="text-align:center; margin-bottom:15px; color:#666;">Γλώσσα: <strong>Ελληνικά (EL)</strong></p>
+
+    <div class="nav">
+        <a href="#site">Θέση</a>
+        <a href="#us">ΣΕ/ΤΣΕ</a>
+        <a href="#struttura">Κατασκευή</a>
+        <a href="#tomba">Ταφή</a>
+        <a href="#materiali">Ευρετ. Ευρημ.</a>
+        <a href="#campioni">Δείγματα</a>
+        <a href="#individui">Άτομα</a>
+        <a href="#documentazione">Τεκμηρίωση</a>
+        <a href="#tma">TMA</a>
+        <a href="#pottery">Κεραμική</a>
+        <a href="#ut">ΤΕ</a>
+        <a href="#fauna">Πανίδα</a>
+    </div>
+
+    <!-- SITE -->
+    <div class="table-section" id="site">
+        <div class="table-header"><h2>Φόρμα Θέσης (site_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">1.1</span></td><td>Ορισμός θέσης</td><td>Τύπος παρέμβασης ή ορισμός αρχαιολογικής θέσης</td><td class="example">Στρωματογραφική ανασκαφή, Δοκιμαστική τομή, Επιφανειακή έρευνα</td></tr>
+        </table>
+    </div>
+
+    <!-- ΣΕ/ΤΣΕ -->
+    <div class="table-section" id="us">
+        <div class="table-header"><h2>Φόρμα ΣΕ/ΤΣΕ (us_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">2.1</span></td><td>Τομέας</td><td>Τομέας ανασκαφής</td><td class="example">A, B, C, 1, 2, 3</td></tr>
+            <tr><td><span class="code">2.2</span></td><td>Εφορεία</td><td>Αρμόδια αρχή</td><td class="example">SABAP-Marche, SABAP-Umbria</td></tr>
+            <tr><td><span class="code">2.3</span></td><td>Στρωματογραφικός ορισμός</td><td>Φυσικός ορισμός του στρώματος</td><td class="example">Στρώμα, Τομή, Γέμισμα, Απόθεση</td></tr>
+            <tr><td><span class="code">2.4</span></td><td>Ερμηνευτικός ορισμός</td><td>Λειτουργική ερμηνεία</td><td class="example">Κατάρρευση, Δάπεδο, Θεμελίωση</td></tr>
+            <tr><td><span class="code">2.5</span></td><td>Στατική λειτουργία (ΤΣΕ)</td><td>Δομική λειτουργία για τοίχους</td><td class="example">Φέρων, Χωριστικός, Θεμελίωση</td></tr>
+            <tr><td><span class="code">2.6</span></td><td>Συνεκτικότητα συνδετικού (ΤΣΕ)</td><td>Συνεκτικότητα συνδετικού υλικού σε τοίχους</td><td class="example">Ανθεκτικό, Εύθρυπτο, Πλαστικό</td></tr>
+            <tr><td><span class="code">2.7</span></td><td>Συνεκτικότητα/Υφή</td><td>Υφή στρώματος</td><td class="example">Συμπαγές, Χαλαρό, Αμμώδες</td></tr>
+            <tr><td><span class="code">2.8</span></td><td>Μέθοδος ανασκαφής</td><td>Τεχνική ανασκαφής που χρησιμοποιήθηκε</td><td class="example">Στρωματογραφική, Χειρωνακτική, Μηχανική</td></tr>
+            <tr><td><span class="code">2.9</span></td><td>Σχηματισμός</td><td>Προέλευση στρώματος</td><td class="example">Φυσικός, Ανθρωπογενής, Τεχνητός</td></tr>
+            <tr><td><span class="code">2.10</span></td><td>Τρόπος σχηματισμού</td><td>Διαδικασία σχηματισμού</td><td class="example">Συσσώρευση, Αφαίρεση, Κατασκευή</td></tr>
+            <tr><td><span class="code">2.11</span></td><td>Συνεκτικότητα</td><td>Συνεκτικότητα στρώματος</td><td class="example">Συμπαγές, Εύθρυπτο, Πλαστικό, Χαλαρό</td></tr>
+            <tr><td><span class="code">2.12</span></td><td>Κατάσταση διατήρησης</td><td>Διατήρηση στρώματος</td><td class="example">Καλή, Μέτρια, Κακή, Πολύ κακή</td></tr>
+            <tr><td><span class="code">2.13</span></td><td>Δείγματα</td><td>Τύποι δειγμάτων που συλλέχθηκαν</td><td class="example">Κάρβουνο, Χώμα, Μαλακοπανίδα</td></tr>
+            <tr><td><span class="code">2.14</span></td><td>Οργανικά συστατικά</td><td>Παρόν οργανικό υλικό</td><td class="example">Οστά, Ξύλο, Σπόροι, Κάρβουνο</td></tr>
+            <tr><td><span class="code">2.15</span></td><td>Εγκλείσματα</td><td>Υλικά που περιλαμβάνονται στο στρώμα</td><td class="example">Τούβλα, Κεραμική, Πέτρες, Κονίαμα</td></tr>
+            <tr><td><span class="code">2.16</span></td><td>Καταγραφέας</td><td>Όνομα καταγραφέα</td><td class="example">Όνομα χειριστή</td></tr>
+            <tr><td><span class="code">2.17</span></td><td>Τοπογράφος</td><td>Όνομα τοπογράφου</td><td class="example">Όνομα χειριστή</td></tr>
+            <tr><td><span class="code">2.18</span></td><td>Επιβλέπων</td><td>Επιστημονικός επιβλέπων</td><td class="example">Όνομα επιβλέποντος</td></tr>
+            <tr><td><span class="code">2.19</span></td><td>Τεκμηρίωση</td><td>Τύπος τεκμηρίωσης</td><td class="example">Φωτογραφία, Κάτοψη, Τομή, Όψη</td></tr>
+            <tr><td><span class="code">201.201</span></td><td>Χρώμα</td><td>Χρώμα στρώματος</td><td class="example">Καφέ, Γκρι, Μαύρο, Κίτρινο</td></tr>
+            <tr><td><span class="code">202.202</span></td><td>Αδρανή</td><td>Τύποι αδρανών σε συνδετικό</td><td class="example">Άμμος, Ασβέστης, Τούβλα</td></tr>
+            <tr><td><span class="code">203.203</span></td><td>Ανασκαμμένη</td><td>ΣΕ πλήρως ανασκαμμένη</td><td class="example">Ναι, Όχι</td></tr>
+        </table>
+    </div>
+
+    <!-- STRUCTURE -->
+    <div class="table-section" id="struttura">
+        <div class="table-header"><h2>Φόρμα Κατασκευής (struttura_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">6.1</span></td><td>Κωδικός κατασκευής</td><td>Κωδικός αναγνώρισης</td><td class="example">STR, WAL, AMB, TOM, FOR, WEL, CIS, FLR</td></tr>
+            <tr><td><span class="code">6.2</span></td><td>Κατηγορία κατασκευής</td><td>Γενική κατηγορία</td><td class="example">Πολιτικά, θρησκευτικά, ταφικά, στρατιωτικά, παραγωγικά κτίρια, Υποδομές, Λαξευτή αρχιτεκτονική</td></tr>
+            <tr><td><span class="code">6.3</span></td><td>Τυπολογία κατασκευής</td><td>Συγκεκριμένος τύπος</td><td class="example">Κατοικία, Εκκλησία, Νεκρόπολη, Οχύρωση, Εργαστήριο, Υπόγειο, Σπήλαιο</td></tr>
+            <tr><td><span class="code">6.4</span></td><td>Ορισμός</td><td>Ορισμός κατασκευής</td><td class="example">Περιμετρικός τοίχος, Χωριστικός τοίχος, Θεμελίωση, Κατώφλι, Λαξευτός χώρος</td></tr>
+            <tr><td><span class="code">6.5</span></td><td>Χρησιμοποιούμενα υλικά</td><td>Δομικά υλικά</td><td class="example">Πέτρα, Τούβλο, Κονίαμα, Ξύλο, Χώμα, Βότσαλα, Βράχος</td></tr>
+            <tr><td><span class="code">6.6</span></td><td>Τύπος δομικού στοιχείου</td><td>Δομικά στοιχεία</td><td class="example">Τόξο, Κίονας, Πεσσός, Θόλος, Δάπεδο, Κατώφλι</td></tr>
+            <tr><td><span class="code">6.7</span></td><td>Τύπος μέτρησης</td><td>Τύπος μέτρησης</td><td class="example">Μήκος, Πλάτος, Ύψος, Πάχος, Διάμετρος, Βάθος</td></tr>
+            <tr><td><span class="code">6.8</span></td><td>Μονάδα μέτρησης</td><td>Μετρικές μονάδες</td><td class="example">m, cm, mm</td></tr>
+            <tr><td><span class="code">6.9</span></td><td>Αρχιτεκτονικά στοιχεία ΛΑ</td><td>Αρχιτεκτονικά στοιχεία για Λαξευτή Αρχιτεκτονική</td><td class="example">Τόξο, Κίονας, Πεσσός, Θόλος, Κόγχη, Πάγκος, Σκαλοπάτι, Είσοδος</td></tr>
+            <tr><td><span class="code">6.10</span></td><td>Παράγοντες φθοράς</td><td>Παράγοντες αποσάθρωσης</td><td class="example">Ατμοσφαιρικοί παράγοντες, Ανθρωπογενής παρέμβαση, Βλάστηση, Υγρασία, Κατάρρευση</td></tr>
+            <tr><td><span class="code">6.11</span></td><td>Πρόσοψη εισόδου</td><td>Τύπος πρόσοψης εισόδου</td><td class="example">Στο επίπεδο του βράχου, Εσοχή, Προεξοχή</td></tr>
+            <tr><td><span class="code">6.12</span></td><td>Συστατικά στοιχεία</td><td>Συστατικά μέρη κατασκευής</td><td class="example">Δρόμος, Προθάλαμος, Θάλαμος, Προθάλαμος</td></tr>
+            <tr><td><span class="code">6.13</span></td><td>Τέχνεργα</td><td>Τύπος τεχνέργων που βρέθηκαν</td><td class="example">Κεραμικά, Μεταλλικά, Γυάλινα, Λίθινα, Οστέινα</td></tr>
+            <tr><td><span class="code">6.14</span></td><td>Ορισμός λειτουργικών φάσεων</td><td>Φάσεις χρήσης κατασκευής</td><td class="example">Κατοικία, Λατρευτική, Ταφική, Παραγωγική, Αποθήκευση, Κατάλυμα ζώων</td></tr>
+            <tr><td><span class="code">6.15</span></td><td>Πλανιμετρική ανάπτυξη</td><td>Τύπος πλανιμετρικής ανάπτυξης</td><td class="example">Αξονική, Εγκάρσια, Σταυρόσχημη, Κυκλική, Ακανόνιστη</td></tr>
+        </table>
+    </div>
+
+    <!-- BURIAL -->
+    <div class="table-section" id="tomba">
+        <div class="table-header"><h2>Φόρμα Ταφής (tomba_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">7.1</span></td><td>Τελετουργία</td><td>Ταφική τελετουργία</td><td class="example">Ενταφιασμός, Καύση</td></tr>
+            <tr><td><span class="code">7.2</span></td><td>Προσανατολισμός</td><td>Προσανατολισμός ταφής</td><td class="example">Β-Ν, Α-Δ, ΒΑ-ΝΔ</td></tr>
+            <tr><td><span class="code">7.3</span></td><td>Κάλυμμα</td><td>Τύπος καλύμματος</td><td class="example">Κεραμίδια, Πλάκα, Cappuccina</td></tr>
+            <tr><td><span class="code">7.4</span></td><td>Τύπος τάφου</td><td>Τυπολογία ταφής</td><td class="example">Cappuccina, Κιβωτιόσχημος, Εγχυτρισμός</td></tr>
+            <tr><td><span class="code">7.5</span></td><td>Σήμα</td><td>Παρουσία ταφικού σήματος</td><td class="example">Κίονας, Στήλη</td></tr>
+            <tr><td><span class="code">7.6</span></td><td>Απόθεση</td><td>Τύπος απόθεσης</td><td class="example">Πρωτογενής, Δευτερογενής</td></tr>
+            <tr><td><span class="code">7.7</span></td><td>Αριθμός αποθέσεων</td><td>Ποσότητα αποθέσεων</td><td class="example">Μονή, Διπλή, Πολλαπλή</td></tr>
+            <tr><td><span class="code">7.8</span></td><td>Περίοδος</td><td>Χρονολογική περίοδος</td><td class="example">Ρωμαϊκή, Μεσαιωνική</td></tr>
+            <tr><td><span class="code">701.701</span></td><td>Ελεύθερη παρουσία</td><td>Τάφος χωρίς αντικείμενα</td><td class="example">Ναι, Όχι</td></tr>
+            <tr><td><span class="code">702.702</span></td><td>Κτερίσματα</td><td>Παρουσία κτερισμάτων</td><td class="example">Ναι, Όχι</td></tr>
+        </table>
+    </div>
+
+    <!-- FINDS INVENTORY -->
+    <div class="table-section" id="materiali">
+        <div class="table-header"><h2>Φόρμα Ευρετηρίου Ευρημάτων (inventario_materiali_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">3.1</span></td><td>Κατηγορία υλικού</td><td>Γενική κατηγορία ευρήματος</td><td class="example">Κεραμική, Μέταλλο, Γυαλί, Πέτρα</td></tr>
+            <tr><td><span class="code">3.2</span></td><td>Τύπος υλικού</td><td>Συγκεκριμένος τύπος</td><td class="example">Κοινή κεραμική, Sigillata, Γυαλί</td></tr>
+            <tr><td><span class="code">3.3</span></td><td>Σχήμα</td><td>Σχήμα ευρήματος</td><td class="example">Αμφορέας, Κύπελλο, Πιάτο, Στάμνα</td></tr>
+            <tr><td><span class="code">3.4</span></td><td>Ποσότητα</td><td>Αριθμός θραυσμάτων</td><td class="example">1, 5, 10</td></tr>
+            <tr><td><span class="code">3.5</span></td><td>Τύπος μέτρησης</td><td>Τύπος μέτρησης</td><td class="example">Μήκος, Διάμετρος, Πάχος</td></tr>
+            <tr><td><span class="code">3.6</span></td><td>Μονάδα μέτρησης</td><td>Μετρικές μονάδες</td><td class="example">mm, cm</td></tr>
+            <tr><td><span class="code">3.11</span></td><td>Κατάσταση διατήρησης</td><td>Διατήρηση ευρήματος</td><td class="example">Ολόκληρο, Αποσπασματικό</td></tr>
+            <tr><td><span class="code">3.13</span></td><td>Χρονολόγηση</td><td>Χρονολόγηση ευρήματος</td><td class="example">1ος αι. μ.Χ., 4ος-5ος αι.</td></tr>
+            <tr><td><span class="code">3.14</span></td><td>Συντάκτης</td><td>Όνομα συντάκτη</td><td class="example">Όνομα χειριστή</td></tr>
+            <tr><td><span class="code">301.301</span></td><td>Ολόκληρο</td><td>Εύρημα ολόκληρο</td><td class="example">Ναι, Όχι</td></tr>
+        </table>
+    </div>
+
+    <!-- SAMPLES -->
+    <div class="table-section" id="campioni">
+        <div class="table-header"><h2>Φόρμα Δειγμάτων (campioni_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">4.1</span></td><td>Τύπος δείγματος</td><td>Τύπος δείγματος που συλλέχθηκε</td><td class="example">Κάρβουνο, Χώμα, Μαλακοπανίδα, Γύρη</td></tr>
+        </table>
+    </div>
+
+    <!-- INDIVIDUALS -->
+    <div class="table-section" id="individui">
+        <div class="table-header"><h2>Φόρμα Ατόμων (individui_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">8.1</span></td><td>Θέση κρανίου</td><td>Θέση του κρανίου</td><td class="example">Δεξιά, Αριστερά, Ύπτια, Πρηνής</td></tr>
+            <tr><td><span class="code">8.2</span></td><td>Θέση σκελετού</td><td>Γενική θέση σκελετού</td><td class="example">Ύπτια, Πρηνής, Πλάγια</td></tr>
+            <tr><td><span class="code">8.3</span></td><td>Προσανατολισμός άξονα</td><td>Προσανατολισμός άξονα σώματος</td><td class="example">Β-Ν, Α-Δ, ΒΑ-ΝΔ</td></tr>
+            <tr><td><span class="code">8.4</span></td><td>Άνω άκρα</td><td>Θέση άνω άκρων</td><td class="example">Σε έκταση, Λυγισμένα, Στη λεκάνη</td></tr>
+            <tr><td><span class="code">8.5</span></td><td>Κάτω άκρα</td><td>Θέση κάτω άκρων</td><td class="example">Σε έκταση, Λυγισμένα</td></tr>
+            <tr><td><span class="code">8.6</span></td><td>Περιοχή</td><td>Περιοχή ανασκαφής</td><td class="example">A, B, 1, 2</td></tr>
+            <tr><td><span class="code">801.801</span></td><td>Ναι/Όχι</td><td>Δυαδικές τιμές (Διαταραγμένο, Πλήρες, Αρθρωμένο)</td><td class="example">Ναι, Όχι</td></tr>
+        </table>
+    </div>
+
+    <!-- DOCUMENTATION -->
+    <div class="table-section" id="documentazione">
+        <div class="table-header"><h2>Φόρμα Τεκμηρίωσης (documentazione_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">9.1</span></td><td>Τύπος εγγράφου</td><td>Τυπολογία εγγράφου</td><td class="example">Φωτογραφία, Σχέδιο, Αποτύπωση</td></tr>
+            <tr><td><span class="code">9.2</span></td><td>Κλίμακα</td><td>Κλίμακα τεκμηρίωσης</td><td class="example">1:20, 1:50, 1:100</td></tr>
+        </table>
+    </div>
+
+    <!-- TMA -->
+    <div class="table-section" id="tma">
+        <div class="table-header"><h2>Φόρμα TMA (tma_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">10.1</span></td><td>Τόπος φύλαξης</td><td>Τοποθεσία φύλαξης</td><td class="example">Μουσείο, Αποθήκη</td></tr>
+            <tr><td><span class="code">10.2</span></td><td>Τοπωνύμιο</td><td>Τοπωνύμιο προέλευσης</td><td class="example">Όνομα τοπωνυμίου</td></tr>
+            <tr><td><span class="code">10.3</span></td><td>Ορισμός</td><td>Ορισμός αντικειμένου</td><td class="example">Αγγείο, Άγαλμα, Νόμισμα</td></tr>
+            <tr><td><span class="code">10.4</span></td><td>Τυπολογία</td><td>Τυπολογία αντικειμένου</td><td class="example">Συγκεκριμένος τύπος</td></tr>
+            <tr><td><span class="code">10.5</span></td><td>Χρονολογία</td><td>Χρονολογική περίοδος</td><td class="example">1ος-2ος αι. μ.Χ.</td></tr>
+            <tr><td><span class="code">10.6</span></td><td>Τυπολογική μονάδα</td><td>Τυπολογική μονάδα</td><td class="example">Τύπος A, Τύπος B</td></tr>
+            <tr><td><span class="code">10.7</span></td><td>Περιοχή</td><td>Περιοχή προέλευσης</td><td class="example">Περιοχή 1, Τομέας A</td></tr>
+            <tr><td><span class="code">10.8</span></td><td>Κατηγορία</td><td>Κατηγορία υλικού</td><td class="example">Κεραμική, Μέταλλο</td></tr>
+            <tr><td><span class="code">10.9</span></td><td>Κατηγορία</td><td>Κατηγορία αντικειμένου</td><td class="example">Αγγεία, Εργαλεία</td></tr>
+            <tr><td><span class="code">10.12</span></td><td>Κατάσταση διατήρησης</td><td>Διατήρηση</td><td class="example">Ολόκληρο, Αποσπασματικό</td></tr>
+            <tr><td><span class="code">10.15</span></td><td>ΣΕ</td><td>Στρωματογραφική ενότητα</td><td class="example">ΣΕ 1, ΣΕ 25</td></tr>
+        </table>
+    </div>
+
+    <!-- POTTERY -->
+    <div class="table-section" id="pottery">
+        <div class="table-header"><h2>Φόρμα Κεραμικής (pottery_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">11.1</span></td><td>Ύφασμα</td><td>Τύπος υφάσματος</td><td class="example">Λεπτό, Χονδρό</td></tr>
+            <tr><td><span class="code">11.2</span></td><td>Ποσοστό</td><td>Ποσοστό εγκλεισμάτων</td><td class="example">5%, 10%, 20%</td></tr>
+            <tr><td><span class="code">11.3</span></td><td>Υλικό</td><td>Κεραμικό υλικό</td><td class="example">Άργιλος, Καολίνης</td></tr>
+            <tr><td><span class="code">11.4</span></td><td>Σχήμα</td><td>Σχήμα αγγείου</td><td class="example">Ανοιχτό, Κλειστό</td></tr>
+            <tr><td><span class="code">11.5</span></td><td>Ειδικό σχήμα</td><td>Συγκεκριμένο σχήμα</td><td class="example">Κύπελλο, Στάμνα, Αμφορέας</td></tr>
+            <tr><td><span class="code">11.6</span></td><td>Κεραμική κατηγορία</td><td>Τύπος κεραμικής</td><td class="example">Terra sigillata, Κοινή κεραμική</td></tr>
+            <tr><td><span class="code">11.7</span></td><td>Munsell</td><td>Χρώμα Munsell</td><td class="example">7.5YR 6/4</td></tr>
+            <tr><td><span class="code">11.8</span></td><td>Επεξεργασία επιφάνειας</td><td>Επεξεργασία επιφάνειας</td><td class="example">Λειασμένη, Επιχρισμένη</td></tr>
+            <tr><td><span class="code">11.9</span></td><td>Εξωτερική διακόσμηση</td><td>Εξωτερική διακόσμηση</td><td class="example">Ζωγραφισμένη, Εγχάρακτη</td></tr>
+            <tr><td><span class="code">11.10</span></td><td>Εσωτερική διακόσμηση</td><td>Εσωτερική διακόσμηση</td><td class="example">Ζωγραφισμένη, Λειασμένη</td></tr>
+            <tr><td><span class="code">11.11</span></td><td>Τροχός</td><td>Κατασκευασμένο σε τροχό</td><td class="example">Ναι, Όχι</td></tr>
+        </table>
+    </div>
+
+    <!-- UT -->
+    <div class="table-section" id="ut">
+        <div class="table-header"><h2>Φόρμα ΤΕ (ut_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">12.1</span></td><td>Τύπος επιφανειακής έρευνας</td><td>Τύπος έρευνας</td><td class="example">Συστηματική, Εντατική</td></tr>
+            <tr><td><span class="code">12.2</span></td><td>Βλάστηση</td><td>Φυτοκάλυψη</td><td class="example">Οργωμένο, Αγρανάπαυση, Δάσος</td></tr>
+            <tr><td><span class="code">12.3</span></td><td>Μέθοδος GPS</td><td>Μέθοδος αποτύπωσης</td><td class="example">RTK, DGPS, Χειρός</td></tr>
+            <tr><td><span class="code">12.4</span></td><td>Επιφάνεια</td><td>Συνθήκες επιφάνειας</td><td class="example">Ορατή, Καλυμμένη</td></tr>
+            <tr><td><span class="code">12.5</span></td><td>Προσβασιμότητα</td><td>Προσβασιμότητα περιοχής</td><td class="example">Καλή, Περιορισμένη</td></tr>
+            <tr><td><span class="code">12.6</span></td><td>Καιρικές συνθήκες</td><td>Καιρικές συνθήκες</td><td class="example">Αίθριος, Συννεφιασμένος</td></tr>
+        </table>
+    </div>
+
+    <!-- FAUNA -->
+    <div class="table-section" id="fauna">
+        <div class="table-header"><h2>Φόρμα Πανίδας (fauna_table)</h2></div>
+        <table>
+            <tr><th>Κωδικός</th><th>Πεδίο</th><th>Περιγραφή</th><th>Παραδείγματα</th></tr>
+            <tr><td><span class="code">13.1</span></td><td>Πλαίσιο</td><td>Πλαίσιο ανεύρεσης</td><td class="example">Οικιακό, Τελετουργικό, Ταφικό, Βιομηχανικό</td></tr>
+            <tr><td><span class="code">13.2</span></td><td>Μέθοδος ανάκτησης</td><td>Μέθοδος ανάκτησης οστών</td><td class="example">Χειροσυλλογή, Κοσκίνισμα, Επίπλευση</td></tr>
+            <tr><td><span class="code">13.3</span></td><td>Τύπος συσσώρευσης</td><td>Τύπος συσσώρευσης οστών</td><td class="example">Πρωτογενής, Δευτερογενής, Μικτός</td></tr>
+            <tr><td><span class="code">13.4</span></td><td>Τύπος απόθεσης</td><td>Τρόπος απόθεσης</td><td class="example">Σκόπιμη, Φυσική, Άγνωστη</td></tr>
+            <tr><td><span class="code">13.5</span></td><td>Κατάτμηση</td><td>Βαθμός κατάτμησης οστών</td><td class="example">Ολόκληρο, Αποσπασματικό, Πολύ κατατμημένο</td></tr>
+            <tr><td><span class="code">13.6</span></td><td>Κατάσταση διατήρησης</td><td>Κατάσταση διατήρησης οστών (0=Άριστη, 5=Κακή)</td><td class="example">0 (Άριστη), 1, 2, 3, 4, 5 (Κακή)</td></tr>
+            <tr><td><span class="code">13.7</span></td><td>Στρωματογραφική αξιοπιστία</td><td>Αξιοπιστία προσδιορισμού</td><td class="example">Υψηλή, Μέτρια, Χαμηλή</td></tr>
+            <tr><td><span class="code">13.8</span></td><td>Ίχνη καύσης</td><td>Παρουσία ιχνών καύσης</td><td class="example">Κανένα, Ανθρακωμένο, Ασβεστωμένο</td></tr>
+            <tr><td><span class="code">13.9</span></td><td>Τύπος καύσης</td><td>Τύπος/αιτία καύσης</td><td class="example">Μαγείρεμα, Καύση νεκρού, Απόρριψη</td></tr>
+            <tr><td><span class="code">13.10</span></td><td>Ανατομική σύνδεση</td><td>Παρουσία ανατομικής άρθρωσης</td><td class="example">Αρθρωμένο, Μερικώς αρθρωμένο, Αναρθρωμένο</td></tr>
+            <tr><td><span class="code">13.11</span></td><td>Είδος</td><td>Αναγνωρισμένο ζωικό είδος</td><td class="example">Bos taurus, Ovis aries, Sus domesticus, Cervus elaphus</td></tr>
+            <tr><td><span class="code">13.12</span></td><td>Σκελετικά μέρη (PSI)</td><td>Αναγνωρισμένα σκελετικά μέρη</td><td class="example">Κρανίο, Κάτω γνάθος, Βραχιόνιο, Μηριαίο, Κνήμη, Φάλαγγες</td></tr>
+            <tr><td><span class="code">13.13</span></td><td>Ανατομικό στοιχείο</td><td>Ανατομικό στοιχείο για μετρήσεις</td><td class="example">Δεξί βραχιόνιο, Αριστερό μηριαίο, Δεξιά κνήμη, Μετακάρπιο</td></tr>
+            <tr><td><span class="code">13.14</span></td><td>Ταφονομικά σημάδια</td><td>Εμφανή ταφονομικά σημάδια σε οστά</td><td class="example">Σημάδια τεμαχισμού, Σημάδια δαγκώματος, Αποσάθρωση, Σημάδια ριζών</td></tr>
+            <tr><td><span class="code">13.15</span></td><td>Ταφονομικός χαρακτηρισμός</td><td>Λεπτομερής περιγραφή ταφονομικών σημαδιών</td><td class="example">Σημάδια κοπής, Σημάδια χτυπήματος, Κατάγματα κρούσης, Σημάδια δαγκώματος</td></tr>
+            <tr><td><span class="code">13.16</span></td><td>Εκτιμώμενος αριθμός καταλοίπων</td><td>Ποσοτική εκτίμηση οστικών καταλοίπων</td><td class="example">Πολύ λίγα (&lt;5), Λίγα (5-20), Μέτρια (21-50), Πολυάριθμα</td></tr>
+        </table>
+    </div>
+
+    <footer>
+        <p>PyArchInit - Τεκμηρίωση Κωδικών Θησαυρού v4.9</p>
+    </footer>
+</body>
+</html>

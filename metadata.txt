@@ -20,7 +20,7 @@ about=pyArchInit is a comprehensive open-source plugin for archaeological data m
     - Image and media management with tagging
     - PostgreSQL/PostGIS and SQLite/Spatialite database support
     - AI-powered report generation and data analysis
-    - Multi-language support (IT, EN, DE, ES, FR, AR)
+    - Multi-language support (IT, EN, DE, ES, FR, AR, CA, RO, PT, EL)
 
     Developed by pyArchInit community.
     Documentation: https://pyarchinit.github.io

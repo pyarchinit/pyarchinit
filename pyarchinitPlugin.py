@@ -105,6 +105,9 @@ class PyArchInitPlugin(object):
         'es': 'es_ES',
         'ar': 'ar_LB',
         'ca': 'ca_ES',  # Catalan
+        'ro': 'ro_RO',  # Romanian
+        'pt': 'pt_PT',  # Portuguese
+        'el': 'el_GR',  # Greek
     }
 
     def __init__(self, iface):

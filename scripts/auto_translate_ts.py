@@ -76,6 +76,24 @@ LANGUAGES = {
         "file": "pyarchinit_plugin_ca_ES.ts",
         "action": "translate"
     },
+    "ro_RO": {
+        "name": "Rumeno",
+        "code": "ro",
+        "file": "pyarchinit_plugin_ro_RO.ts",
+        "action": "translate"
+    },
+    "pt_PT": {
+        "name": "Portoghese",
+        "code": "pt",
+        "file": "pyarchinit_plugin_pt_PT.ts",
+        "action": "translate"
+    },
+    "el_GR": {
+        "name": "Greco",
+        "code": "el",
+        "file": "pyarchinit_plugin_el_GR.ts",
+        "action": "translate"
+    },
 }
 
 # Modello OpenAI (gpt-4o è il più recente e veloce)

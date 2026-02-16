@@ -174,14 +174,16 @@ class GraphvizVisualizer:
 
                     # Color based on unit type
                     color_map = {
-                        'US': '#90EE90',  # Light green
-                        'USM': '#FFD700',  # Gold
-                        'USF': '#87CEEB',  # Sky blue
-                        'USD': '#DEB887',  # Burlywood
-                        'USR': '#DDA0DD',  # Plum
-                        'CON': '#FFA07A',  # Light salmon
-                        'SF': '#F0E68C',   # Khaki
-                        'virtual_reconstruction': '#FFB6C1'  # Light pink
+                        # US equivalents (all languages)
+                        'US': '#90EE90', 'SU': '#90EE90', 'SE': '#90EE90',
+                        'UE': '#90EE90', '\u03a3\u039c': '#90EE90',
+                        # USM equivalents (all languages)
+                        'USM': '#FFD700', 'WSU': '#FFD700', 'MSE': '#FFD700',
+                        'UEM': '#FFD700', 'USZ': '#FFD700', '\u03a4\u03a3\u039c': '#FFD700',
+                        # Other types
+                        'USF': '#87CEEB', 'USD': '#DEB887', 'USR': '#DDA0DD',
+                        'CON': '#FFA07A', 'SF': '#F0E68C',
+                        'virtual_reconstruction': '#FFB6C1',
                     }
                     color = color_map.get(unita_tipo, '#E0E0E0')
 
@@ -248,8 +250,8 @@ class GraphvizVisualizer:
         self.dot_content.append('    color=lightgray;')
         self.dot_content.append('    node [shape=box, style=filled];')
         self.dot_content.append('')
-        self.dot_content.append('    "US Type" [fillcolor="#90EE90", label="US\\nStratigraphic Unit"];')
-        self.dot_content.append('    "USM Type" [fillcolor="#FFD700", label="USM\\nMasonry Unit"];')
+        self.dot_content.append('    "US Type" [fillcolor="#90EE90", label="US/SU/SE/UE\\nStratigraphic Unit"];')
+        self.dot_content.append('    "USM Type" [fillcolor="#FFD700", label="USM/WSU/MSE/UEM\\nMasonry Unit"];')
         self.dot_content.append('    "USF Type" [fillcolor="#87CEEB", label="USF\\nFeature Unit"];')
         self.dot_content.append('  }')
 

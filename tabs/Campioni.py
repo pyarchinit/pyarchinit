@@ -103,6 +103,110 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             "Box": "nr_cassa",
             "Ort der Erhaltung": "luogo_conservazione"
         }
+    elif L=='en':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Nr Samples": "nr_campione",
+            "Samples Type": "tipo_campione",
+            "Description": "descrizione",
+            "Area": "area",
+            "SU": "us",
+            "Artefact invetory Nr.": "numero_inventario_materiale",
+            "Box": "nr_cassa",
+            "Store": "luogo_conservazione"
+        }
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "Número de muestra": "nr_campione",
+            "Tipo de muestra": "tipo_campione",
+            "Descripción": "descrizione",
+            "Área": "area",
+            "UE": "us",
+            "Nº inv. material": "numero_inventario_materiale",
+            "Nº caja": "nr_cassa",
+            "Lugar de conservación": "luogo_conservazione"
+        }
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Numéro d'échantillon": "nr_campione",
+            "Type d'échantillon": "tipo_campione",
+            "Description": "descrizione",
+            "Zone": "area",
+            "US": "us",
+            "Nº inv. matériel": "numero_inventario_materiale",
+            "Nº caisse": "nr_cassa",
+            "Lieu de conservation": "luogo_conservazione"
+        }
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "رقم العينة": "nr_campione",
+            "نوع العينة": "tipo_campione",
+            "وصف": "descrizione",
+            "منطقة": "area",
+            "وحدة طبقية": "us",
+            "رقم جرد المواد": "numero_inventario_materiale",
+            "رقم الصندوق": "nr_cassa",
+            "مكان الحفظ": "luogo_conservazione"
+        }
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "Número de mostra": "nr_campione",
+            "Tipus de mostra": "tipo_campione",
+            "Descripció": "descrizione",
+            "Àrea": "area",
+            "UE": "us",
+            "Nº inv. material": "numero_inventario_materiale",
+            "Nº caixa": "nr_cassa",
+            "Lloc de conservació": "luogo_conservazione"
+        }
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "Număr eșantion": "nr_campione",
+            "Tip eșantion": "tipo_campione",
+            "Descriere": "descrizione",
+            "Zonă": "area",
+            "US": "us",
+            "Nr. inv. material": "numero_inventario_materiale",
+            "Nr. cutie": "nr_cassa",
+            "Loc de conservare": "luogo_conservazione"
+        }
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "Número de amostra": "nr_campione",
+            "Tipo de amostra": "tipo_campione",
+            "Descrição": "descrizione",
+            "Área": "area",
+            "UE": "us",
+            "Nº inv. material": "numero_inventario_materiale",
+            "Nº caixa": "nr_cassa",
+            "Local de conservação": "luogo_conservazione"
+        }
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "Αριθμός δείγματος": "nr_campione",
+            "Τύπος δείγματος": "tipo_campione",
+            "Περιγραφή": "descrizione",
+            "Περιοχή": "area",
+            "ΣΕ": "us",
+            "Αρ. καταγρ. υλικού": "numero_inventario_materiale",
+            "Αρ. κιβωτίου": "nr_cassa",
+            "Τόπος φύλαξης": "luogo_conservazione"
+        }
     else:
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -115,8 +219,8 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             "Artefact invetory Nr.": "numero_inventario_materiale",
             "Box": "nr_cassa",
             "Store": "luogo_conservazione"
-        }   
-    
+        }
+
     if L=='it':
         SORT_ITEMS = [
             ID_TABLE,
@@ -143,6 +247,110 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             "Box",
             "Ort der Erhaltung"
         ]
+    elif L=='en':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Nr Samples",
+            "Samples Type",
+            "Description",
+            "Area",
+            "SU",
+            "Artefact invetory Nr.",
+            "Box",
+            "Store"
+        ]
+    elif L=='es':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "Número de muestra",
+            "Tipo de muestra",
+            "Descripción",
+            "Área",
+            "UE",
+            "Nº inv. material",
+            "Nº caja",
+            "Lugar de conservación"
+        ]
+    elif L=='fr':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Numéro d'échantillon",
+            "Type d'échantillon",
+            "Description",
+            "Zone",
+            "US",
+            "Nº inv. matériel",
+            "Nº caisse",
+            "Lieu de conservation"
+        ]
+    elif L=='ar':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "رقم العينة",
+            "نوع العينة",
+            "وصف",
+            "منطقة",
+            "وحدة طبقية",
+            "رقم جرد المواد",
+            "رقم الصندوق",
+            "مكان الحفظ"
+        ]
+    elif L=='ca':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "Número de mostra",
+            "Tipus de mostra",
+            "Descripció",
+            "Àrea",
+            "UE",
+            "Nº inv. material",
+            "Nº caixa",
+            "Lloc de conservació"
+        ]
+    elif L=='ro':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "Număr eșantion",
+            "Tip eșantion",
+            "Descriere",
+            "Zonă",
+            "US",
+            "Nr. inv. material",
+            "Nr. cutie",
+            "Loc de conservare"
+        ]
+    elif L=='pt':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "Número de amostra",
+            "Tipo de amostra",
+            "Descrição",
+            "Área",
+            "UE",
+            "Nº inv. material",
+            "Nº caixa",
+            "Local de conservação"
+        ]
+    elif L=='el':
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "Αριθμός δείγματος",
+            "Τύπος δείγματος",
+            "Περιγραφή",
+            "Περιοχή",
+            "ΣΕ",
+            "Αρ. καταγρ. υλικού",
+            "Αρ. κιβωτίου",
+            "Τόπος φύλαξης"
+        ]
     else:
         SORT_ITEMS = [
             ID_TABLE,
@@ -155,7 +363,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
             "Artefact invetory Nr.",
             "Box",
             "Store"
-        ]   
+        ]
     TABLE_FIELDS = [
         "sito",
         "nr_campione",
@@ -182,6 +390,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     DB_SERVER = 'not defined'

@@ -58,7 +58,7 @@ class pyarchinit_Fauna(QDialog):
 
     # Supported languages: IT, EN, DE, ES, FR, AR, CA
     # Default to Italian if language not supported
-    SUPPORTED_LANGUAGES = ['it', 'en', 'de', 'es', 'fr', 'ar', 'ca']
+    SUPPORTED_LANGUAGES = ['it', 'en', 'de', 'es', 'fr', 'ar', 'ca', 'ro', 'pt', 'el']
     _raw_locale = QgsSettings().value("locale/userLocale", "it")[0:2]
     L = _raw_locale if _raw_locale in SUPPORTED_LANGUAGES else 'it'
 

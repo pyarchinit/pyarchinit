@@ -54,6 +54,7 @@ from ..modules.db.pyarchinit_utility import Utility
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.utility.pyarchinit_error_check import Error_check
+from ..modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
 from ..modules.utility.pyarchinit_exp_Strutturasheet_pdf import generate_struttura_pdf
 from ..modules.utility.pyarchinit_exp_Struttura_AR_pdf import generate_struttura_AR_pdf
 from ..gui.sortpanelmain import SortPanelMain
@@ -166,7 +167,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             "Letzte phase",
             "Erweiterte Datierung"
         ]
-    else:
+    elif L=='en':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
             "Site": "sito",
@@ -181,7 +182,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             "Starting phase": "fase_iniziale",
             "Final period": "periodo_finale",
             "Final phase": "fase_finale",
-            "Letteral datetion": "datazione_estesa"
+            "Extended dating": "datazione_estesa"
         }
         SORT_ITEMS = [
             ID_TABLE,
@@ -197,7 +198,272 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             "Starting phase",
             "Final period",
             "Final phase",
-            "Letteral datetion"]
+            "Extended dating"
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "Código estructura": "sigla_struttura",
+            "Número estructura": "numero_struttura",
+            "Categoría estructura": "categoria_struttura",
+            "Tipología estructura": "tipologia_struttura",
+            "Definición": "definizione_struttura",
+            "Descripción": "descrizione",
+            "Interpretación": "interpretazione",
+            "Período inicial": "periodo_iniziale",
+            "Fase inicial": "fase_iniziale",
+            "Período final": "periodo_finale",
+            "Fase final": "fase_finale",
+            "Datación extendida": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "Código estructura",
+            "Número estructura",
+            "Categoría estructura",
+            "Tipología estructura",
+            "Definición",
+            "Descripción",
+            "Interpretación",
+            "Período inicial",
+            "Fase inicial",
+            "Período final",
+            "Fase final",
+            "Datación extendida"
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Code structure": "sigla_struttura",
+            "Numéro structure": "numero_struttura",
+            "Catégorie structure": "categoria_struttura",
+            "Typologie structure": "tipologia_struttura",
+            "Définition": "definizione_struttura",
+            "Description": "descrizione",
+            "Interprétation": "interpretazione",
+            "Période initiale": "periodo_iniziale",
+            "Phase initiale": "fase_iniziale",
+            "Période finale": "periodo_finale",
+            "Phase finale": "fase_finale",
+            "Datation étendue": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Code structure",
+            "Numéro structure",
+            "Catégorie structure",
+            "Typologie structure",
+            "Définition",
+            "Description",
+            "Interprétation",
+            "Période initiale",
+            "Phase initiale",
+            "Période finale",
+            "Phase finale",
+            "Datation étendue"
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "رمز الهيكل": "sigla_struttura",
+            "رقم الهيكل": "numero_struttura",
+            "فئة الهيكل": "categoria_struttura",
+            "نمط الهيكل": "tipologia_struttura",
+            "تعريف": "definizione_struttura",
+            "وصف": "descrizione",
+            "تفسير": "interpretazione",
+            "الفترة الأولى": "periodo_iniziale",
+            "المرحلة الأولى": "fase_iniziale",
+            "الفترة النهائية": "periodo_finale",
+            "المرحلة النهائية": "fase_finale",
+            "التأريخ الموسع": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "رمز الهيكل",
+            "رقم الهيكل",
+            "فئة الهيكل",
+            "نمط الهيكل",
+            "تعريف",
+            "وصف",
+            "تفسير",
+            "الفترة الأولى",
+            "المرحلة الأولى",
+            "الفترة النهائية",
+            "المرحلة النهائية",
+            "التأريخ الموسع"
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "Codi estructura": "sigla_struttura",
+            "Número estructura": "numero_struttura",
+            "Categoria estructura": "categoria_struttura",
+            "Tipologia estructura": "tipologia_struttura",
+            "Definició": "definizione_struttura",
+            "Descripció": "descrizione",
+            "Interpretació": "interpretazione",
+            "Període inicial": "periodo_iniziale",
+            "Fase inicial": "fase_iniziale",
+            "Període final": "periodo_finale",
+            "Fase final": "fase_finale",
+            "Datació estesa": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "Codi estructura",
+            "Número estructura",
+            "Categoria estructura",
+            "Tipologia estructura",
+            "Definició",
+            "Descripció",
+            "Interpretació",
+            "Període inicial",
+            "Fase inicial",
+            "Període final",
+            "Fase final",
+            "Datació estesa"
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "Cod structură": "sigla_struttura",
+            "Număr structură": "numero_struttura",
+            "Categorie structură": "categoria_struttura",
+            "Tipologie structură": "tipologia_struttura",
+            "Definiție": "definizione_struttura",
+            "Descriere": "descrizione",
+            "Interpretare": "interpretazione",
+            "Perioadă inițială": "periodo_iniziale",
+            "Fază inițială": "fase_iniziale",
+            "Perioadă finală": "periodo_finale",
+            "Fază finală": "fase_finale",
+            "Datare extinsă": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "Cod structură",
+            "Număr structură",
+            "Categorie structură",
+            "Tipologie structură",
+            "Definiție",
+            "Descriere",
+            "Interpretare",
+            "Perioadă inițială",
+            "Fază inițială",
+            "Perioadă finală",
+            "Fază finală",
+            "Datare extinsă"
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "Código estrutura": "sigla_struttura",
+            "Número estrutura": "numero_struttura",
+            "Categoria estrutura": "categoria_struttura",
+            "Tipologia estrutura": "tipologia_struttura",
+            "Definição": "definizione_struttura",
+            "Descrição": "descrizione",
+            "Interpretação": "interpretazione",
+            "Período inicial": "periodo_iniziale",
+            "Fase inicial": "fase_iniziale",
+            "Período final": "periodo_finale",
+            "Fase final": "fase_finale",
+            "Datação alargada": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "Código estrutura",
+            "Número estrutura",
+            "Categoria estrutura",
+            "Tipologia estrutura",
+            "Definição",
+            "Descrição",
+            "Interpretação",
+            "Período inicial",
+            "Fase inicial",
+            "Período final",
+            "Fase final",
+            "Datação alargada"
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "Κωδικός κατασκευής": "sigla_struttura",
+            "Αριθμός κατασκευής": "numero_struttura",
+            "Κατηγορία κατασκευής": "categoria_struttura",
+            "Τυπολογία κατασκευής": "tipologia_struttura",
+            "Ορισμός": "definizione_struttura",
+            "Περιγραφή": "descrizione",
+            "Ερμηνεία": "interpretazione",
+            "Αρχική περίοδος": "periodo_iniziale",
+            "Αρχική φάση": "fase_iniziale",
+            "Τελική περίοδος": "periodo_finale",
+            "Τελική φάση": "fase_finale",
+            "Εκτεταμένη χρονολόγηση": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "Κωδικός κατασκευής",
+            "Αριθμός κατασκευής",
+            "Κατηγορία κατασκευής",
+            "Τυπολογία κατασκευής",
+            "Ορισμός",
+            "Περιγραφή",
+            "Ερμηνεία",
+            "Αρχική περίοδος",
+            "Αρχική φάση",
+            "Τελική περίοδος",
+            "Τελική φάση",
+            "Εκτεταμένη χρονολόγηση"
+        ]
+    else:
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Structure code": "sigla_struttura",
+            "Structure number": "numero_struttura",
+            "Structure categories": "categoria_struttura",
+            "Structure typology": "tipologia_struttura",
+            "Definition": "definizione_struttura",
+            "Description": "descrizione",
+            "Interpretation": "interpretazione",
+            "Starting period": "periodo_iniziale",
+            "Starting phase": "fase_iniziale",
+            "Final period": "periodo_finale",
+            "Final phase": "fase_finale",
+            "Extended dating": "datazione_estesa"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Structure code",
+            "Structure number",
+            "Structure categories",
+            "Structure typology",
+            "Definition",
+            "Description",
+            "Interpretation",
+            "Starting period",
+            "Starting phase",
+            "Final period",
+            "Final phase",
+            "Extended dating"
+        ]
     TABLE_FIELDS = [
         "sito",
         "sigla_struttura",
@@ -250,6 +516,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort
@@ -1961,28 +2228,39 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
         self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
 
-        if self.L=='it':
-            valuesRapporti = ["Si appoggia a", "Gli si appoggia", "Connesso con", "Si sovrappone a", "Gli si sovrappone",
-                              "Ampliato da", "Amplia", "Uguale a",""]
-            self.delegateRapporti = ComboBoxDelegate()
-            self.delegateRapporti.def_values(valuesRapporti)
-            self.delegateRapporti.def_editable('True')
-            self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)
-        elif self.L=='de':
-            valuesRapporti = ["Stützt sich auf", "Wird gestüzt von", "Bindet an", "Überschneidungen sich auf", "Wird Überschneidungen von",
-                              "Erweitert um", "Erweitert", "Entspricht", ""]
-            self.delegateRapporti = ComboBoxDelegate()
-            self.delegateRapporti.def_values(valuesRapporti)
-            self.delegateRapporti.def_editable('True')
-            self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)
-            
-        else:
-            valuesRapporti = ["Abuts", "Supports", "Connected to", "Overlaps", "Overlaid by",
-                              "Extend by", "Extend", "Same as", ""]
-            self.delegateRapporti = ComboBoxDelegate()
-            self.delegateRapporti.def_values(valuesRapporti)
-            self.delegateRapporti.def_editable('True')
-            self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)    
+        # Structure-specific relationship terms that are NOT in the central
+        # RELATIONSHIPS module (Overlaps, Overlaid by, Extend, Extend by).
+        # Terms shared with the US module (Abuts, Supports, Connected to,
+        # Same as) are pulled from the central i18n dict.
+        _STRUTTURA_EXTRA = {
+            'it': ["Connesso con", "Si sovrappone a", "Gli si sovrappone",
+                   "Ampliato da", "Amplia"],
+            'de': ["Bindet an", "Überschneidungen sich auf", "Wird Überschneidungen von",
+                   "Erweitert um", "Erweitert"],
+            'fr': ["Connecté avec", "Se superpose à", "Superposé par",
+                   "Élargi par", "Élargit"],
+            'es': ["Conectado con", "Se superpone a", "Superpuesto por",
+                   "Ampliado por", "Amplía"],
+            'ar': ["متصل بـ", "يتراكب على", "متراكب من",
+                   "موسع من", "يوسع"],
+            'ca': ["Connectat amb", "Se superposa a", "Superposat per",
+                   "Ampliat per", "Amplia"],
+            'ro': ["Conectat cu", "Se suprapune pe", "Suprapus de",
+                   "Extins de", "Extinde"],
+            'pt': ["Conectado com", "Sobrepõe-se a", "Sobreposto por",
+                   "Ampliado por", "Amplia"],
+            'el': ["Συνδεδεμένο με", "Επικαλύπτει", "Επικαλύπτεται από",
+                   "Επεκτείνεται από", "Επεκτείνει"],
+            'en': ["Connected with", "Overlaps", "Overlaid by",
+                   "Extend by", "Extend"],
+        }
+        _rel = RELATIONSHIPS.get(self.L, RELATIONSHIPS['en'])
+        _extra = _STRUTTURA_EXTRA.get(self.L, _STRUTTURA_EXTRA['en'])
+        valuesRapporti = [_rel[8], _rel[9]] + _extra + [_rel[0], ""]
+        self.delegateRapporti = ComboBoxDelegate()
+        self.delegateRapporti.def_values(valuesRapporti)
+        self.delegateRapporti.def_editable('True')
+        self.tableWidget_rapporti.setItemDelegateForColumn(0, self.delegateRapporti)    
         # lista materiali
 
         search_dict = {

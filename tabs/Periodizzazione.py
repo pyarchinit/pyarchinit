@@ -130,7 +130,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             "Erweiterte Datierung",
             "Periodencode erstellen"
         ]
-    else:   
+    elif L=='en':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
             "Site": "sito",
@@ -152,7 +152,191 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             "Description",
             "Letteral datation",
             "Perion code"
-        ]   
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "Período": "periodo",
+            "Fase": "fase",
+            "Cronología inicial": "cron_iniziale",
+            "Cronología final": "cron_finale",
+            "Descripción": "descrizione",
+            "Datación extendida": "datazione_estesa",
+            "Código de período": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "Período",
+            "Fase",
+            "Cronología inicial",
+            "Cronología final",
+            "Descripción",
+            "Datación extendida",
+            "Código de período"
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Période": "periodo",
+            "Phase": "fase",
+            "Chronologie initiale": "cron_iniziale",
+            "Chronologie finale": "cron_finale",
+            "Description": "descrizione",
+            "Datation étendue": "datazione_estesa",
+            "Code de période": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Période",
+            "Phase",
+            "Chronologie initiale",
+            "Chronologie finale",
+            "Description",
+            "Datation étendue",
+            "Code de période"
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "فترة": "periodo",
+            "مرحلة": "fase",
+            "التسلسل الزمني الأولي": "cron_iniziale",
+            "التسلسل الزمني النهائي": "cron_finale",
+            "وصف": "descrizione",
+            "التأريخ الموسع": "datazione_estesa",
+            "رمز الفترة": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "فترة",
+            "مرحلة",
+            "التسلسل الزمني الأولي",
+            "التسلسل الزمني النهائي",
+            "وصف",
+            "التأريخ الموسع",
+            "رمز الفترة"
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "Període": "periodo",
+            "Fase": "fase",
+            "Cronologia inicial": "cron_iniziale",
+            "Cronologia final": "cron_finale",
+            "Descripció": "descrizione",
+            "Datació estesa": "datazione_estesa",
+            "Codi de període": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "Període",
+            "Fase",
+            "Cronologia inicial",
+            "Cronologia final",
+            "Descripció",
+            "Datació estesa",
+            "Codi de període"
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "Perioadă": "periodo",
+            "Fază": "fase",
+            "Cronologie inițială": "cron_iniziale",
+            "Cronologie finală": "cron_finale",
+            "Descriere": "descrizione",
+            "Datare extinsă": "datazione_estesa",
+            "Cod perioadă": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "Perioadă",
+            "Fază",
+            "Cronologie inițială",
+            "Cronologie finală",
+            "Descriere",
+            "Datare extinsă",
+            "Cod perioadă"
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "Período": "periodo",
+            "Fase": "fase",
+            "Cronologia inicial": "cron_iniziale",
+            "Cronologia final": "cron_finale",
+            "Descrição": "descrizione",
+            "Datação alargada": "datazione_estesa",
+            "Código de período": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "Período",
+            "Fase",
+            "Cronologia inicial",
+            "Cronologia final",
+            "Descrição",
+            "Datação alargada",
+            "Código de período"
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "Περίοδος": "periodo",
+            "Φάση": "fase",
+            "Αρχική χρονολογία": "cron_iniziale",
+            "Τελική χρονολογία": "cron_finale",
+            "Περιγραφή": "descrizione",
+            "Εκτεταμένη χρονολόγηση": "datazione_estesa",
+            "Κωδικός περιόδου": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "Περίοδος",
+            "Φάση",
+            "Αρχική χρονολογία",
+            "Τελική χρονολογία",
+            "Περιγραφή",
+            "Εκτεταμένη χρονολόγηση",
+            "Κωδικός περιόδου"
+        ]
+    else:
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Period": "periodo",
+            "Phase": "fase",
+            "Start chronology": "cron_iniziale",
+            "Final chronology": "cron_finale",
+            "Description": "descrizione",
+            "Letteral datation": "datazione_estesa",
+            "Perion code": "cont_per"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Period",
+            "Phase",
+            "Start chronology",
+            "Final chronology",
+            "Description",
+            "Letteral datation",
+            "Perion code"
+        ]
     TABLE_FIELDS = [
         'sito',
         'periodo',

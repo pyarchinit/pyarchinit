@@ -153,6 +153,198 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             "Definition Ausgrabungsstätte",
             "Folder path"
         ]
+    elif L=='en':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Nation": "nazione",
+            "Region": "regione",
+            "Description": "descrizione",
+            "Town": "comune",
+            "Provincie": "provincia",
+            "Definition site ": "definizione_sito",
+            "Directory": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Nation",
+            "Region",
+            "Description",
+            "Town",
+            "Provincie",
+            "Definition site ",
+            "Directory"
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "Nación": "nazione",
+            "Región": "regione",
+            "Descripción": "descrizione",
+            "Municipio": "comune",
+            "Provincia": "provincia",
+            "Definición del sitio": "definizione_sito",
+            "Directorio": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "Nación",
+            "Región",
+            "Descripción",
+            "Municipio",
+            "Provincia",
+            "Definición del sitio",
+            "Directorio"
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Nation": "nazione",
+            "Région": "regione",
+            "Description": "descrizione",
+            "Commune": "comune",
+            "Province": "provincia",
+            "Définition du site": "definizione_sito",
+            "Répertoire": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Nation",
+            "Région",
+            "Description",
+            "Commune",
+            "Province",
+            "Définition du site",
+            "Répertoire"
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "دولة": "nazione",
+            "منطقة": "regione",
+            "وصف": "descrizione",
+            "بلدية": "comune",
+            "محافظة": "provincia",
+            "تعريف الموقع": "definizione_sito",
+            "مسار الملفات": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "دولة",
+            "منطقة",
+            "وصف",
+            "بلدية",
+            "محافظة",
+            "تعريف الموقع",
+            "مسار الملفات"
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "Nació": "nazione",
+            "Regió": "regione",
+            "Descripció": "descrizione",
+            "Municipi": "comune",
+            "Província": "provincia",
+            "Definició del jaciment": "definizione_sito",
+            "Directori": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "Nació",
+            "Regió",
+            "Descripció",
+            "Municipi",
+            "Província",
+            "Definició del jaciment",
+            "Directori"
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "Națiune": "nazione",
+            "Regiune": "regione",
+            "Descriere": "descrizione",
+            "Oraș": "comune",
+            "Provincie": "provincia",
+            "Definiție sit": "definizione_sito",
+            "Director": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "Națiune",
+            "Regiune",
+            "Descriere",
+            "Oraș",
+            "Provincie",
+            "Definiție sit",
+            "Director"
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "Nação": "nazione",
+            "Região": "regione",
+            "Descrição": "descrizione",
+            "Município": "comune",
+            "Província": "provincia",
+            "Definição do sítio": "definizione_sito",
+            "Diretório": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "Nação",
+            "Região",
+            "Descrição",
+            "Município",
+            "Província",
+            "Definição do sítio",
+            "Diretório"
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "Έθνος": "nazione",
+            "Περιφέρεια": "regione",
+            "Περιγραφή": "descrizione",
+            "Δήμος": "comune",
+            "Νομός": "provincia",
+            "Ορισμός θέσης": "definizione_sito",
+            "Κατάλογος": "sito_path"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "Έθνος",
+            "Περιφέρεια",
+            "Περιγραφή",
+            "Δήμος",
+            "Νομός",
+            "Ορισμός θέσης",
+            "Κατάλογος"
+        ]
     else:
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -176,7 +368,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             "Provincie",
             "Definition site ",
             "Directory"
-        ]   
+        ]
     TABLE_FIELDS = [
         "sito",
         "nazione",
@@ -202,6 +394,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     DB_SERVER = "not defined"  ####nuovo sistema sort

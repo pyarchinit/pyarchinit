@@ -39,6 +39,12 @@ from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.pyarchinit_i18n_stratigraphic import (
+    POSITIVE_GROUP, NEGATIVE_GROUP, PASSIVE_COVERS_GROUP, PASSIVE_CUTS_GROUP,
+    MATRIX_CONTEMPORARY_GROUP, COVERS_GROUP, CUTS_GROUP, FILLS_GROUP,
+    COVERED_BY_GROUP, CUT_BY_GROUP, FILLED_BY_GROUP, CONNECTED_GROUP,
+    SAME_AS_GROUP, ABUTS_GROUP, SUPPORTS_GROUP,
+)
 import re
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Interactive_matrix.ui'))
@@ -138,20 +144,17 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                     
                 for  sing_rapp in rapporti_stratigrafici:
                 
-                    if   sing_rapp[0] == 'Covers' or  sing_rapp[0] == 'Abuts' or  sing_rapp[0] == 'Fills' or  sing_rapp[0] == 'Copre' or  sing_rapp[0] == 'Si appoggia a' or  sing_rapp[0] == 'Riempie'   or  sing_rapp[0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or  sing_rapp[0] == 'Entspricht' :
+                    if sing_rapp[0] in POSITIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             data.append(harris_rapp)
-                        
-                        
-                    
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
+
+                    if sing_rapp[0] in NEGATIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             negative.append(harris_rapp1)
-                            
-                    
-                    if sing_rapp[0] == 'Si lega a' or  sing_rapp[0] == 'Uguale a' or sing_rapp[0] == 'Connected to' or  sing_rapp[0] == 'Same as'or sing_rapp[0] == 'Liegt über' or  sing_rapp[0] == 'Stützt sich auf':
+
+                    if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
                             conteporane.append(harris_rapp2)
@@ -277,19 +280,17 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             try:
                 for sing_rapp in rapporti_stratigrafici:
-                    if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
-                                        'Bindet an', 'Entspricht']:
+                    if sing_rapp[0] in POSITIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             data.append(harris_rapp)
 
-                    if sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
+                    if sing_rapp[0] in NEGATIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp1 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             negative.append(harris_rapp1)
 
-                    if sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
-                                        'Stützt sich auf']:
+                    if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp2 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
                             conteporane.append(harris_rapp2)
@@ -505,21 +506,17 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
             try:
                 for sing_rapp in rapporti_stratigrafici:
 
-                    if sing_rapp[0] == 'Covers' or sing_rapp[0] == 'Abuts' or sing_rapp[0] == 'Fills' or sing_rapp[
-                        0] == 'Copre' or sing_rapp[0] == 'Si appoggia a' or sing_rapp[0] == 'Riempie' or sing_rapp[
-                        0] == 'Verfüllt' or sing_rapp[0] == 'Bindet an' or sing_rapp[0] == 'Entspricht':
+                    if sing_rapp[0] in POSITIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp = (us, str(sing_rapp[1]))
                             data.append(harris_rapp)
 
-                    if sing_rapp[0] == 'Taglia' or sing_rapp[0] == 'Cuts' or sing_rapp[0] == 'Schneidet':
+                    if sing_rapp[0] in NEGATIVE_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp1 = (us, str(sing_rapp[1]))
                             negative.append(harris_rapp1)
 
-                    if sing_rapp[0] == 'Si lega a' or sing_rapp[0] == 'Uguale a' or sing_rapp[
-                        0] == 'Connected to' or sing_rapp[0] == 'Same as' or sing_rapp[0] == 'Liegt über' or \
-                            sing_rapp[0] == 'Stützt sich auf':
+                    if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
                         if sing_rapp[1] != '':
                             harris_rapp2 = (us, str(sing_rapp[1]))
                             conteporane.append(harris_rapp2)
@@ -755,55 +752,45 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
                             print(f"DEBUG - Skipping relation to {target_us_key} - not in processed set")
                             continue
                             
-                        if sing_rapp[0] in ['Covers', 'Abuts', 'Fills', 'Copre', 'Si appoggia a', 'Riempie', 'Verfüllt',
-                                            'Bindet an', 'Entspricht']:
+                        if sing_rapp[0] in COVERS_GROUP | ABUTS_GROUP | SAME_AS_GROUP | CONNECTED_GROUP:
                             harris_rapp = (current_us_key, target_us_key)
                             reverse_relation = (target_us_key, current_us_key)
-                            
+
                             # Evita cicli diretti
                             if harris_rapp not in added_relations and reverse_relation not in added_relations:
                                 data.append(harris_rapp)
                                 added_relations.add(harris_rapp)
-                        elif sing_rapp[0] in ['Coperto da', 'Covered by', 'Riempito da']:
-                            # Inverti la relazione per "coperto da"
+                        elif sing_rapp[0] in COVERED_BY_GROUP | FILLED_BY_GROUP:
+                            # Inverti la relazione per "coperto da" / "riempito da"
                             harris_rapp = (target_us_key, current_us_key)
                             reverse_relation = (current_us_key, target_us_key)
-                            
+
                             # Evita cicli diretti
                             if harris_rapp not in added_relations and reverse_relation not in added_relations:
                                 data.append(harris_rapp)
                                 added_relations.add(harris_rapp)
 
-                        elif sing_rapp[0] in ['Taglia', 'Cuts', 'Schneidet']:
+                        elif sing_rapp[0] in CUTS_GROUP:
                             harris_rapp1 = (current_us_key, target_us_key)
                             if harris_rapp1 not in added_relations:
                                 negative.append(harris_rapp1)
                                 added_relations.add(harris_rapp1)
-                        elif sing_rapp[0] in ['Tagliato da', 'Cut by']:
+                        elif sing_rapp[0] in CUT_BY_GROUP:
                             # Inverti la relazione per "tagliato da"
                             harris_rapp1 = (target_us_key, current_us_key)
                             if harris_rapp1 not in added_relations:
                                 negative.append(harris_rapp1)
                                 added_relations.add(harris_rapp1)
 
-                        elif sing_rapp[0] in ['Si lega a', 'Uguale a', 'Connected to', 'Same as', 'Liegt über',
-                                            'Stützt sich auf', 'Gli si appoggia', '<']:
+                        elif sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP | SUPPORTS_GROUP or sing_rapp[0] == '<':
                             harris_rapp2 = (current_us_key, target_us_key)
                             if harris_rapp2 not in added_relations:
                                 conteporane.append(harris_rapp2)
                                 added_relations.add(harris_rapp2)
-                        elif sing_rapp[0] in ['Riempie', 'Fills']:
+                        elif sing_rapp[0] in FILLS_GROUP:
                             harris_rapp = (current_us_key, target_us_key)
                             reverse_relation = (target_us_key, current_us_key)
-                            
-                            # Evita cicli diretti
-                            if harris_rapp not in added_relations and reverse_relation not in added_relations:
-                                data.append(harris_rapp)
-                                added_relations.add(harris_rapp)
-                        elif sing_rapp[0] in ['Riempito da', 'Filled by']:
-                            harris_rapp = (target_us_key, current_us_key)
-                            reverse_relation = (current_us_key, target_us_key)
-                            
+
                             # Evita cicli diretti
                             if harris_rapp not in added_relations and reverse_relation not in added_relations:
                                 data.append(harris_rapp)

@@ -26,6 +26,13 @@ import xml.dom.minidom as F
 from xml.dom.minidom import *
 from qgis.PyQt import QtCore
 from qgis.PyQt.QtWidgets import QInputDialog, QApplication
+from qgis.core import QgsSettings
+
+# i18n unit type prefixes for all 10 languages
+_ALL_US_PREFIXES = ('US', 'SU', 'SE', 'UE', '\u03a3\u039c')
+_ALL_USM_PREFIXES = ('USM', 'WSU', 'MSE', 'UEM', 'USZ', '\u03a4\u03a3\u039c')
+_ALL_UNIT_PREFIXES = _ALL_US_PREFIXES + _ALL_USM_PREFIXES + ('USVA', 'USVB', 'USVC', 'USD', 'CON', 'VSF', 'SF', 'SUS', 'DOC', 'Combinar', 'Extractor', 'property')
+_PERIOD_PREFIXES = ('Periodo', 'Period', 'Periode', 'Per\u00edodo', '\u03a0\u03b5\u03c1\u03af\u03bf\u03b4\u03bf\u03c2')
 # Usage message
 usgmsg = "Usage: dottoxml.py [options] infile.dot outfile.graphml"
 
@@ -55,23 +62,73 @@ def exportGML(o, nodes, edges, options):
 
     o.write("]\n")
 
+def _get_lang():
+    return QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+
+_INTES_TITLE = {
+    'it': 'Intestazione', 'en': 'Header', 'de': 'Kopfzeile',
+    'es': 'Encabezado', 'fr': 'En-t\u00eate', 'ar': '\u0639\u0646\u0648\u0627\u0646',
+    'ca': 'Encap\u00e7alament', 'ro': 'Antet', 'pt': 'Cabe\u00e7alho', 'el': '\u0395\u03c0\u03b9\u03ba\u03b5\u03c6\u03b1\u03bb\u03af\u03b4\u03b1',
+}
+_INTES_MSG = {
+    'it': 'Aggiungi una intestazione al tuo diagramma stratigrafico',
+    'en': 'Add a header to your stratigraphic diagram',
+    'de': 'F\u00fcgen Sie eine \u00dcberschrift zu Ihrem stratigraphischen Diagramm hinzu',
+    'es': 'A\u00f1ade un encabezado a tu diagrama estratigr\u00e1fico',
+    'fr': 'Ajoutez un en-t\u00eate \u00e0 votre diagramme stratigraphique',
+    'ar': '\u0623\u0636\u0641 \u0639\u0646\u0648\u0627\u0646\u064b\u0627 \u0644\u0645\u062e\u0637\u0637\u0643 \u0627\u0644\u0637\u0628\u0642\u064a',
+    'ca': 'Afegeix una capçalera al teu diagrama estratigr\u00e0fic',
+    'ro': 'Adaug\u0103 un antet diagramei tale stratigrafice',
+    'pt': 'Adicione um cabe\u00e7alho ao seu diagrama estratigr\u00e1fico',
+    'el': '\u03a0\u03c1\u03bf\u03c3\u03b8\u03ad\u03c3\u03c4\u03b5 \u03b5\u03c0\u03b9\u03ba\u03b5\u03c6\u03b1\u03bb\u03af\u03b4\u03b1 \u03c3\u03c4\u03bf \u03c3\u03c4\u03c1\u03c9\u03bc\u03b1\u03c4\u03bf\u03b3\u03c1\u03b1\u03c6\u03b9\u03ba\u03cc \u03c3\u03b1\u03c2 \u03b4\u03b9\u03ac\u03b3\u03c1\u03b1\u03bc\u03bc\u03b1',
+}
+_REVERSE_TITLE = {
+    'it': 'Ordinamento', 'en': 'Ordering', 'de': 'Sortierung',
+    'es': 'Ordenamiento', 'fr': 'Classement', 'ar': '\u062a\u0631\u062a\u064a\u0628',
+    'ca': 'Ordenament', 'ro': 'Ordonare', 'pt': 'Ordena\u00e7\u00e3o', 'el': '\u03a4\u03b1\u03be\u03b9\u03bd\u03cc\u03bc\u03b7\u03c3\u03b7',
+}
+_REVERSE_MSG = {
+    'it': "Scrivi true se il Periodo 1 corrisponde all'utima epoca scavata.\n Altrimeti lascia vuoto e clicca 'ok'",
+    'en': "Type true if Period 1 corresponds to the last excavated epoch.\n Otherwise leave empty and click 'ok'",
+    'de': "Schreiben Sie true, wenn Periode 1 der letzten ausgegrabenen Epoche entspricht.\n Ansonsten leer lassen und 'ok' klicken",
+    'es': "Escribe true si el Per\u00edodo 1 corresponde a la \u00faltima \u00e9poca excavada.\n De lo contrario, deja vac\u00edo y haz clic en 'ok'",
+    'fr': "Tapez true si la P\u00e9riode 1 correspond \u00e0 la derni\u00e8re \u00e9poque fouill\u00e9e.\n Sinon laissez vide et cliquez sur 'ok'",
+    'ar': "\u0627\u0643\u062a\u0628 true \u0625\u0630\u0627 \u0643\u0627\u0646\u062a \u0627\u0644\u0641\u062a\u0631\u0629 1 \u062a\u0642\u0627\u0628\u0644 \u0622\u062e\u0631 \u062d\u0642\u0628\u0629 \u0645\u0646\u0642\u0628\u0629.\n \u0648\u0625\u0644\u0627 \u0627\u062a\u0631\u0643\u0647 \u0641\u0627\u0631\u063a\u064b\u0627 \u0648\u0627\u0646\u0642\u0631 'ok'",
+    'ca': "Escriu true si el Per\u00edode 1 correspon a la darrera \u00e8poca excavada.\n En cas contrari, deixa buit i fes clic a 'ok'",
+    'ro': "Scrie true dac\u0103 Perioada 1 corespunde ultimei epoci excavate.\n Altfel las\u0103 gol \u0219i apas\u0103 'ok'",
+    'pt': "Escreva true se o Per\u00edodo 1 corresponde \u00e0 \u00faltima \u00e9poca escavada.\n Caso contr\u00e1rio, deixe vazio e clique em 'ok'",
+    'el': "\u0393\u03c1\u03ac\u03c8\u03c4\u03b5 true \u03b1\u03bd \u03b7 \u03a0\u03b5\u03c1\u03af\u03bf\u03b4\u03bf\u03c2 1 \u03b1\u03bd\u03c4\u03b9\u03c3\u03c4\u03bf\u03b9\u03c7\u03b5\u03af \u03c3\u03c4\u03b7\u03bd \u03c4\u03b5\u03bb\u03b5\u03c5\u03c4\u03b1\u03af\u03b1 \u03b1\u03bd\u03b1\u03c3\u03ba\u03b1\u03c6\u03b5\u03af\u03c3\u03b1 \u03b5\u03c0\u03bf\u03c7\u03ae.\n \u0394\u03b9\u03b1\u03c6\u03bf\u03c1\u03b5\u03c4\u03b9\u03ba\u03ac \u03b1\u03c6\u03ae\u03c3\u03c4\u03b5 \u03ba\u03b5\u03bd\u03cc \u03ba\u03b1\u03b9 \u03c0\u03b1\u03c4\u03ae\u03c3\u03c4\u03b5 'ok'",
+}
+_STRATIGRAFIA_LABEL = {
+    'it': 'Stratigrafia', 'en': 'Stratigraphy', 'de': 'Stratigraphie',
+    'es': 'Estratigraf\u00eda', 'fr': 'Stratigraphie', 'ar': '\u0627\u0644\u0637\u0628\u0642\u064a\u0629',
+    'ca': 'Estratigrafia', 'ro': 'Stratigrafie', 'pt': 'Estratigrafia', 'el': '\u03a3\u03c4\u03c1\u03c9\u03bc\u03b1\u03c4\u03bf\u03b3\u03c1\u03b1\u03c6\u03af\u03b1',
+}
+
 def intes():
-    try: 
+    try:
+        L = _get_lang()
         dialog = QInputDialog()
         dialog.resize(QtCore.QSize(700, 100))
-        ID_Sito = dialog.getText(None, 'Intestazione', "Aggiungi una intestazione al tuo diagramma stratigrafico")
+        title = _INTES_TITLE.get(L, _INTES_TITLE['en'])
+        msg = _INTES_MSG.get(L, _INTES_MSG['en'])
+        ID_Sito = dialog.getText(None, title, msg)
         Sito = str(ID_Sito[0])
         return Sito
     except KeyError as e:
         print(str(e))
+
 def reverse():
-    '''return true or false about the order epoch  '''
-    try: 
+    '''return true or false about the order epoch'''
+    try:
+        L = _get_lang()
         dialog = QInputDialog()
         dialog.resize(QtCore.QSize(700, 100))
-        ID_rev = dialog.getText(None, 'Ordinamento', "Scrivi true se il Periodo 1 corrisponde all'utima epoca scavata.\n Altrimeti lascia vuoto e clicca 'ok'")
+        title = _REVERSE_TITLE.get(L, _REVERSE_TITLE['en'])
+        msg = _REVERSE_MSG.get(L, _REVERSE_MSG['en'])
+        ID_rev = dialog.getText(None, title, msg)
         rev = str(ID_rev[0])
-        if rev=='true':
+        if rev == 'true':
             return 1
         else:
             return 0
@@ -185,7 +242,7 @@ def exportGraphml(o, nodes, edges, options,ff=0):
     data1 = doc.createElement('data')
     data1.setAttribute('key', 'd5')
     data1.setAttribute('xml:space','preserve')
-    data1.appendChild(doc.createTextNode('Stratigrafia'))  
+    data1.appendChild(doc.createTextNode(_STRATIGRAFIA_LABEL.get(_get_lang(), 'Stratigraphy')))  
     node1.appendChild(data1)    
     data0 = doc.createElement('data')
     data0.setAttribute('key', 'd6')    
@@ -243,9 +300,9 @@ def exportGraphml(o, nodes, edges, options,ff=0):
 
     epoch_sigla = []
     for i in sorted(nodes):
-        if i.startswith('Periodo') or i.startswith('Period'):
+        if any(i.startswith(p) for p in _PERIOD_PREFIXES):
             epoch.append(i)
-        elif i.startswith('US') or i.startswith('SU') or i.startswith('WSU'):
+        elif any(i.startswith(p) for p in _ALL_UNIT_PREFIXES):
             descrizione_us, singola_epoca = i.rsplit('_',1)
             #print(singola_epoca)
             nome_us, descrizione_us= descrizione_us.split('_',1)

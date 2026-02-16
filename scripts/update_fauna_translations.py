@@ -24,6 +24,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos de Identificación",
         "ar_LB": "بيانات التعريف",
         "ca_ES": "Dades d'Identificació",
+        "ro_RO": "Date de Identificare",
+        "pt_PT": "Dados de Identificação",
+        "el_GR": "Δεδομένα Ταυτοποίησης",
         "it_IT": "Dati Identificativi"
     },
     "Dati Archeozoologici": {
@@ -33,6 +36,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos Arqueozoológicos",
         "ar_LB": "البيانات الأثرية الحيوانية",
         "ca_ES": "Dades Arqueozoològiques",
+        "ro_RO": "Date Arheozoologice",
+        "pt_PT": "Dados Arqueozoológicos",
+        "el_GR": "Αρχαιοζωολογικά Δεδομένα",
         "it_IT": "Dati Archeozoologici"
     },
     "Dati Tafonomici": {
@@ -42,6 +48,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos Tafonómicos",
         "ar_LB": "البيانات التافونومية",
         "ca_ES": "Dades Tafonòmiques",
+        "ro_RO": "Date Tafonomice",
+        "pt_PT": "Dados Tafonómicos",
+        "el_GR": "Ταφονομικά Δεδομένα",
         "it_IT": "Dati Tafonomici"
     },
     "Dati Contestuali": {
@@ -51,6 +60,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos Contextuales",
         "ar_LB": "البيانات السياقية",
         "ca_ES": "Dades Contextuals",
+        "ro_RO": "Date Contextuale",
+        "pt_PT": "Dados Contextuais",
+        "el_GR": "Συμφραζόμενα Δεδομένα",
         "it_IT": "Dati Contestuali"
     },
     "Statistiche": {
@@ -60,6 +72,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Estadísticas",
         "ar_LB": "إحصائيات",
         "ca_ES": "Estadístiques",
+        "ro_RO": "Statistici",
+        "pt_PT": "Estatísticas",
+        "el_GR": "Στατιστικά",
         "it_IT": "Statistiche"
     },
 
@@ -71,6 +86,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Primer registro",
         "ar_LB": "السجل الأول",
         "ca_ES": "Primer registre",
+        "ro_RO": "Prima înregistrare",
+        "pt_PT": "Primeiro registo",
+        "el_GR": "Πρώτη εγγραφή",
         "it_IT": "Primo record"
     },
     "Previous record": {
@@ -80,6 +98,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Registro anterior",
         "ar_LB": "السجل السابق",
         "ca_ES": "Registre anterior",
+        "ro_RO": "Înregistrarea anterioară",
+        "pt_PT": "Registo anterior",
+        "el_GR": "Προηγούμενη εγγραφή",
         "it_IT": "Record precedente"
     },
     "Next record": {
@@ -89,6 +110,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Siguiente registro",
         "ar_LB": "السجل التالي",
         "ca_ES": "Registre següent",
+        "ro_RO": "Înregistrarea următoare",
+        "pt_PT": "Registo seguinte",
+        "el_GR": "Επόμενη εγγραφή",
         "it_IT": "Record successivo"
     },
     "Last record": {
@@ -98,6 +122,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Último registro",
         "ar_LB": "السجل الأخير",
         "ca_ES": "Últim registre",
+        "ro_RO": "Ultima înregistrare",
+        "pt_PT": "Último registo",
+        "el_GR": "Τελευταία εγγραφή",
         "it_IT": "Ultimo record"
     },
     "New record": {
@@ -107,6 +134,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Nuevo registro",
         "ar_LB": "سجل جديد",
         "ca_ES": "Nou registre",
+        "ro_RO": "Înregistrare nouă",
+        "pt_PT": "Novo registo",
+        "el_GR": "Νέα εγγραφή",
         "it_IT": "Nuovo record"
     },
     "Save": {
@@ -116,6 +146,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Guardar",
         "ar_LB": "حفظ",
         "ca_ES": "Desar",
+        "ro_RO": "Salvare",
+        "pt_PT": "Guardar",
+        "el_GR": "Αποθήκευση",
         "it_IT": "Salva"
     },
     "Delete record": {
@@ -125,6 +158,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Eliminar registro",
         "ar_LB": "حذف السجل",
         "ca_ES": "Eliminar registre",
+        "ro_RO": "Șterge înregistrarea",
+        "pt_PT": "Eliminar registo",
+        "el_GR": "Διαγραφή εγγραφής",
         "it_IT": "Elimina record"
     },
     "View all records": {
@@ -134,6 +170,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Ver todos los registros",
         "ar_LB": "عرض جميع السجلات",
         "ca_ES": "Veure tots els registres",
+        "ro_RO": "Vizualizare toate înregistrările",
+        "pt_PT": "Ver todos os registos",
+        "el_GR": "Προβολή όλων των εγγραφών",
         "it_IT": "Visualizza tutti i record"
     },
     "New search": {
@@ -143,6 +182,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Nueva búsqueda",
         "ar_LB": "بحث جديد",
         "ca_ES": "Nova cerca",
+        "ro_RO": "Căutare nouă",
+        "pt_PT": "Nova pesquisa",
+        "el_GR": "Νέα αναζήτηση",
         "it_IT": "Nuova ricerca"
     },
     "Execute search": {
@@ -152,6 +194,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Ejecutar búsqueda",
         "ar_LB": "تنفيذ البحث",
         "ca_ES": "Executar cerca",
+        "ro_RO": "Execută căutarea",
+        "pt_PT": "Executar pesquisa",
+        "el_GR": "Εκτέλεση αναζήτησης",
         "it_IT": "Esegui ricerca"
     },
     "Export PDF sheets": {
@@ -161,6 +206,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Exportar fichas PDF",
         "ar_LB": "تصدير صفحات PDF",
         "ca_ES": "Exportar fitxes PDF",
+        "ro_RO": "Exportă fișe PDF",
+        "pt_PT": "Exportar fichas PDF",
+        "el_GR": "Εξαγωγή δελτίων PDF",
         "it_IT": "Esporta schede PDF"
     },
 
@@ -172,6 +220,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos de Identificación (de UE)",
         "ar_LB": "بيانات التعريف (من الوحدة الطبقية)",
         "ca_ES": "Dades d'Identificació (de la UE)",
+        "ro_RO": "Date de Identificare (de la US)",
+        "pt_PT": "Dados de Identificação (de US)",
+        "el_GR": "Δεδομένα Ταυτοποίησης (από ΣΕ)",
         "it_IT": "Dati Identificativi (da US)"
     },
     "Seleziona US": {
@@ -181,6 +232,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Seleccionar UE",
         "ar_LB": "اختر الوحدة الطبقية",
         "ca_ES": "Seleccionar UE",
+        "ro_RO": "Selectează US",
+        "pt_PT": "Selecionar US",
+        "el_GR": "Επιλογή ΣΕ",
         "it_IT": "Seleziona US"
     },
     "Sito": {
@@ -190,6 +244,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Sitio",
         "ar_LB": "الموقع",
         "ca_ES": "Jaciment",
+        "ro_RO": "Sit",
+        "pt_PT": "Sítio",
+        "el_GR": "Θέση",
         "it_IT": "Sito"
     },
     "Area": {
@@ -199,6 +256,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Área",
         "ar_LB": "المنطقة",
         "ca_ES": "Àrea",
+        "ro_RO": "Zonă",
+        "pt_PT": "Área",
+        "el_GR": "Περιοχή",
         "it_IT": "Area"
     },
     "Saggio": {
@@ -208,6 +268,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Sondeo",
         "ar_LB": "حفرية تجريبية",
         "ca_ES": "Sondeig",
+        "ro_RO": "Sondaj",
+        "pt_PT": "Sondagem",
+        "el_GR": "Δοκιμαστική τομή",
         "it_IT": "Saggio"
     },
     "Datazione US": {
@@ -217,6 +280,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datación UE",
         "ar_LB": "تأريخ الوحدة الطبقية",
         "ca_ES": "Datació UE",
+        "ro_RO": "Datarea US",
+        "pt_PT": "Datação US",
+        "el_GR": "Χρονολόγηση ΣΕ",
         "it_IT": "Datazione US"
     },
     "Dati Deposizionali": {
@@ -226,6 +292,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Datos Deposicionales",
         "ar_LB": "بيانات الترسيب",
         "ca_ES": "Dades Deposicionals",
+        "ro_RO": "Date Depoziționale",
+        "pt_PT": "Dados Deposicionais",
+        "el_GR": "Δεδομένα Απόθεσης",
         "it_IT": "Dati Deposizionali"
     },
     "Responsabile": {
@@ -235,6 +304,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Responsable",
         "ar_LB": "المسؤول",
         "ca_ES": "Responsable",
+        "ro_RO": "Responsabil",
+        "pt_PT": "Responsável",
+        "el_GR": "Υπεύθυνος",
         "it_IT": "Responsabile"
     },
     "Data Compilazione": {
@@ -244,6 +316,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Fecha de Compilación",
         "ar_LB": "تاريخ الإعداد",
         "ca_ES": "Data de Compilació",
+        "ro_RO": "Data Completării",
+        "pt_PT": "Data de Compilação",
+        "el_GR": "Ημερομηνία Σύνταξης",
         "it_IT": "Data Compilazione"
     },
     "Doc. Fotografica": {
@@ -253,6 +328,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Doc. Fotográfica",
         "ar_LB": "التوثيق الفوتوغرافي",
         "ca_ES": "Doc. Fotogràfica",
+        "ro_RO": "Doc. Fotografică",
+        "pt_PT": "Doc. Fotográfica",
+        "el_GR": "Φωτ. Τεκμηρίωση",
         "it_IT": "Doc. Fotografica"
     },
     "Metodologia Recupero": {
@@ -262,6 +340,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Metodología de Recuperación",
         "ar_LB": "منهجية الاسترداد",
         "ca_ES": "Metodologia de Recuperació",
+        "ro_RO": "Metodologia de Recuperare",
+        "pt_PT": "Metodologia de Recuperação",
+        "el_GR": "Μεθοδολογία Ανάκτησης",
         "it_IT": "Metodologia Recupero"
     },
     "Contesto": {
@@ -271,6 +352,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Contexto",
         "ar_LB": "السياق",
         "ca_ES": "Context",
+        "ro_RO": "Context",
+        "pt_PT": "Contexto",
+        "el_GR": "Πλαίσιο",
         "it_IT": "Contesto"
     },
     "Descrizione Contesto": {
@@ -280,6 +364,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Descripción del Contexto",
         "ar_LB": "وصف السياق",
         "ca_ES": "Descripció del Context",
+        "ro_RO": "Descrierea Contextului",
+        "pt_PT": "Descrição do Contexto",
+        "el_GR": "Περιγραφή Πλαισίου",
         "it_IT": "Descrizione Contesto"
     },
 
@@ -291,6 +378,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Conexión Anatómica",
         "ar_LB": "الاتصال التشريحي",
         "ca_ES": "Connexió Anatòmica",
+        "ro_RO": "Conexiune Anatomică",
+        "pt_PT": "Conexão Anatómica",
+        "el_GR": "Ανατομική Σύνδεση",
         "it_IT": "Connessione Anatomica"
     },
     "Tipologia Accumulo": {
@@ -300,6 +390,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Tipo de Acumulación",
         "ar_LB": "نوع التراكم",
         "ca_ES": "Tipus d'Acumulació",
+        "ro_RO": "Tipologia Acumulării",
+        "pt_PT": "Tipologia de Acumulação",
+        "el_GR": "Τύπος Συσσώρευσης",
         "it_IT": "Tipologia Accumulo"
     },
     "Deposizione": {
@@ -309,6 +402,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Deposición",
         "ar_LB": "الترسيب",
         "ca_ES": "Deposició",
+        "ro_RO": "Depunere",
+        "pt_PT": "Deposição",
+        "el_GR": "Απόθεση",
         "it_IT": "Deposizione"
     },
     "Numero Stimato Resti": {
@@ -318,6 +414,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Número Estimado de Restos",
         "ar_LB": "العدد التقديري للبقايا",
         "ca_ES": "Nombre Estimat de Restes",
+        "ro_RO": "Număr Estimat de Resturi",
+        "pt_PT": "Número Estimado de Restos",
+        "el_GR": "Εκτιμώμενος Αριθμός Καταλοίπων",
         "it_IT": "Numero Stimato Resti"
     },
     "Specie e Parti Scheletriche (PSI)": {
@@ -327,6 +426,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Especies y Partes Esqueléticas (IPE)",
         "ar_LB": "الأنواع والأجزاء الهيكلية",
         "ca_ES": "Espècies i Parts Esquelètiques (IPE)",
+        "ro_RO": "Specii și Părți Scheletice (PSI)",
+        "pt_PT": "Espécies e Partes Esqueléticas (PSI)",
+        "el_GR": "Είδη και Σκελετικά Μέρη (PSI)",
         "it_IT": "Specie e Parti Scheletriche (PSI)"
     },
     "Aggiungi Riga": {
@@ -336,6 +438,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Añadir Fila",
         "ar_LB": "إضافة صف",
         "ca_ES": "Afegir Fila",
+        "ro_RO": "Adaugă Rând",
+        "pt_PT": "Adicionar Linha",
+        "el_GR": "Προσθήκη Γραμμής",
         "it_IT": "Aggiungi Riga"
     },
     "Rimuovi Riga": {
@@ -345,6 +450,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Eliminar Fila",
         "ar_LB": "إزالة صف",
         "ca_ES": "Eliminar Fila",
+        "ro_RO": "Elimină Rând",
+        "pt_PT": "Remover Linha",
+        "el_GR": "Αφαίρεση Γραμμής",
         "it_IT": "Rimuovi Riga"
     },
     "Specie": {
@@ -354,6 +462,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Especie",
         "ar_LB": "النوع",
         "ca_ES": "Espècie",
+        "ro_RO": "Specie",
+        "pt_PT": "Espécie",
+        "el_GR": "Είδος",
         "it_IT": "Specie"
     },
     "PSI (Parti Scheletriche)": {
@@ -363,6 +474,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "IPE (Partes Esqueléticas)",
         "ar_LB": "الأجزاء الهيكلية",
         "ca_ES": "IPE (Parts Esquelètiques)",
+        "ro_RO": "PSI (Părți Scheletice)",
+        "pt_PT": "PSI (Partes Esqueléticas)",
+        "el_GR": "PSI (Σκελετικά Μέρη)",
         "it_IT": "PSI (Parti Scheletriche)"
     },
     "Misure Ossa": {
@@ -372,6 +486,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Medidas de Huesos",
         "ar_LB": "قياسات العظام",
         "ca_ES": "Mesures d'Ossos",
+        "ro_RO": "Măsurători Oase",
+        "pt_PT": "Medidas Ósseas",
+        "el_GR": "Μετρήσεις Οστών",
         "it_IT": "Misure Ossa"
     },
     "Elemento Anatomico": {
@@ -381,6 +498,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Elemento Anatómico",
         "ar_LB": "العنصر التشريحي",
         "ca_ES": "Element Anatòmic",
+        "ro_RO": "Element Anatomic",
+        "pt_PT": "Elemento Anatómico",
+        "el_GR": "Ανατομικό Στοιχείο",
         "it_IT": "Elemento Anatomico"
     },
 
@@ -392,6 +512,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Estado de Fragmentación",
         "ar_LB": "حالة التجزئة",
         "ca_ES": "Estat de Fragmentació",
+        "ro_RO": "Starea de Fragmentare",
+        "pt_PT": "Estado de Fragmentação",
+        "el_GR": "Κατάσταση Θραυσματοποίησης",
         "it_IT": "Stato Frammentazione"
     },
     "Tracce Combustione": {
@@ -401,6 +524,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Trazas de Combustión",
         "ar_LB": "آثار الاحتراق",
         "ca_ES": "Traces de Combustió",
+        "ro_RO": "Urme de Combustie",
+        "pt_PT": "Vestígios de Combustão",
+        "el_GR": "Ίχνη Καύσης",
         "it_IT": "Tracce Combustione"
     },
     "Combustione Altri Materiali US": {
@@ -410,6 +536,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Combustión Otros Materiales UE",
         "ar_LB": "احتراق مواد أخرى في الوحدة الطبقية",
         "ca_ES": "Combustió Altres Materials UE",
+        "ro_RO": "Combustie Alte Materiale US",
+        "pt_PT": "Combustão Outros Materiais US",
+        "el_GR": "Καύση Λοιπών Υλικών ΣΕ",
         "it_IT": "Combustione Altri Materiali US"
     },
     "Tipo Combustione": {
@@ -419,6 +548,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Tipo de Combustión",
         "ar_LB": "نوع الاحتراق",
         "ca_ES": "Tipus de Combustió",
+        "ro_RO": "Tip de Combustie",
+        "pt_PT": "Tipo de Combustão",
+        "el_GR": "Τύπος Καύσης",
         "it_IT": "Tipo Combustione"
     },
     "Segni Tafonomici": {
@@ -428,6 +560,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Signos Tafonómicos",
         "ar_LB": "علامات تافونومية",
         "ca_ES": "Signes Tafonòmics",
+        "ro_RO": "Semne Tafonomice",
+        "pt_PT": "Sinais Tafonómicos",
+        "el_GR": "Ταφονομικά Σημάδια",
         "it_IT": "Segni Tafonomici"
     },
     "Caratterizzazione": {
@@ -437,6 +572,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Caracterización",
         "ar_LB": "التوصيف",
         "ca_ES": "Caracterització",
+        "ro_RO": "Caracterizare",
+        "pt_PT": "Caracterização",
+        "el_GR": "Χαρακτηρισμός",
         "it_IT": "Caratterizzazione"
     },
     "Stato Conservazione": {
@@ -446,6 +584,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Estado de Conservación",
         "ar_LB": "حالة الحفظ",
         "ca_ES": "Estat de Conservació",
+        "ro_RO": "Stare de Conservare",
+        "pt_PT": "Estado de Conservação",
+        "el_GR": "Κατάσταση Διατήρησης",
         "it_IT": "Stato Conservazione"
     },
     "Alterazioni Morfologiche": {
@@ -455,6 +596,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Alteraciones Morfológicas",
         "ar_LB": "التغيرات المورفولوجية",
         "ca_ES": "Alteracions Morfològiques",
+        "ro_RO": "Alterări Morfologice",
+        "pt_PT": "Alterações Morfológicas",
+        "el_GR": "Μορφολογικές Αλλοιώσεις",
         "it_IT": "Alterazioni Morfologiche"
     },
 
@@ -466,6 +610,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Notas Terreno y Posición",
         "ar_LB": "ملاحظات التضاريس والموقع",
         "ca_ES": "Notes Terreny i Posició",
+        "ro_RO": "Note Teren și Poziție",
+        "pt_PT": "Notas Terreno e Posição",
+        "el_GR": "Σημειώσεις Εδάφους και Θέσης",
         "it_IT": "Note Terreno Giacitura"
     },
     "Campionature Effettuate": {
@@ -475,6 +622,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Muestreos Realizados",
         "ar_LB": "العينات المأخوذة",
         "ca_ES": "Mostrejos Realitzats",
+        "ro_RO": "Eșantionări Efectuate",
+        "pt_PT": "Amostragens Realizadas",
+        "el_GR": "Δειγματοληψίες",
         "it_IT": "Campionature Effettuate"
     },
     "Affidabilità Stratigrafica": {
@@ -484,6 +634,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Fiabilidad Estratigráfica",
         "ar_LB": "الموثوقية الطبقية",
         "ca_ES": "Fiabilitat Estratigràfica",
+        "ro_RO": "Fiabilitate Stratigrafică",
+        "pt_PT": "Fiabilidade Estratigráfica",
+        "el_GR": "Στρωματογραφική Αξιοπιστία",
         "it_IT": "Affidabilità Stratigrafica"
     },
     "Classi Reperti Associazione": {
@@ -493,6 +646,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Clases de Hallazgos Asociados",
         "ar_LB": "فئات اللقى المرتبطة",
         "ca_ES": "Classes de Troballes Associades",
+        "ro_RO": "Clase de Descoperiri Asociate",
+        "pt_PT": "Classes de Achados Associados",
+        "el_GR": "Κατηγορίες Συσχετιζόμενων Ευρημάτων",
         "it_IT": "Classi Reperti Associazione"
     },
     "Osservazioni": {
@@ -502,6 +658,9 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Observaciones",
         "ar_LB": "ملاحظات",
         "ca_ES": "Observacions",
+        "ro_RO": "Observații",
+        "pt_PT": "Observações",
+        "el_GR": "Παρατηρήσεις",
         "it_IT": "Osservazioni"
     },
     "Interpretazione": {
@@ -511,12 +670,15 @@ FAUNA_TRANSLATIONS = {
         "es_ES": "Interpretación",
         "ar_LB": "التفسير",
         "ca_ES": "Interpretació",
+        "ro_RO": "Interpretare",
+        "pt_PT": "Interpretação",
+        "el_GR": "Ερμηνεία",
         "it_IT": "Interpretazione"
     },
 }
 
 # Lingue target (escludendo italiano che è la sorgente)
-TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT"]
+TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT", "ro_RO", "pt_PT", "el_GR"]
 
 
 def escape_xml(text):

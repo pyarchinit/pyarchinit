@@ -14,6 +14,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Sincronización de base de datos (Local ↔ Remoto)",
         "ca_ES": "Sincronització de base de dades (Local ↔ Remot)",
         "ar_LB": "مزامنة قاعدة البيانات (محلي ↔ بعيد)",
+        "ro_RO": "Sincronizare Bază de Date (Local ↔ Distant)",
+        "pt_PT": "Sincronização de Base de Dados (Local ↔ Remoto)",
+        "el_GR": "Συγχρονισμός Βάσης Δεδομένων (Τοπική ↔ Απομακρυσμένη)",
     },
     "Local Database (PostgreSQL)": {
         "it_IT": "Database Locale (PostgreSQL)",
@@ -23,6 +26,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Base de datos local (PostgreSQL)",
         "ca_ES": "Base de dades local (PostgreSQL)",
         "ar_LB": "قاعدة بيانات محلية (PostgreSQL)",
+        "ro_RO": "Bază de Date Locală (PostgreSQL)",
+        "pt_PT": "Base de Dados Local (PostgreSQL)",
+        "el_GR": "Τοπική Βάση Δεδομένων (PostgreSQL)",
     },
     "Remote Database (Server/Cloud)": {
         "it_IT": "Database Remoto (Server/Cloud)",
@@ -32,6 +38,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Base de datos remota (Servidor/Nube)",
         "ca_ES": "Base de dades remota (Servidor/Núvol)",
         "ar_LB": "قاعدة بيانات بعيدة (خادم/سحابة)",
+        "ro_RO": "Bază de Date Distantă (Server/Cloud)",
+        "pt_PT": "Base de Dados Remota (Servidor/Cloud)",
+        "el_GR": "Απομακρυσμένη Βάση Δεδομένων (Διακομιστής/Cloud)",
     },
     "Host:": {
         "it_IT": "Host:",
@@ -41,6 +50,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Host:",
         "ca_ES": "Host:",
         "ar_LB": "المضيف:",
+        "ro_RO": "Gazdă:",
+        "pt_PT": "Anfitrião:",
+        "el_GR": "Διακομιστής:",
     },
     "Port:": {
         "it_IT": "Porta:",
@@ -50,6 +62,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Puerto:",
         "ca_ES": "Port:",
         "ar_LB": "المنفذ:",
+        "ro_RO": "Port:",
+        "pt_PT": "Porta:",
+        "el_GR": "Θύρα:",
     },
     "Database:": {
         "it_IT": "Database:",
@@ -59,6 +74,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Base de datos:",
         "ca_ES": "Base de dades:",
         "ar_LB": "قاعدة البيانات:",
+        "ro_RO": "Bază de date:",
+        "pt_PT": "Base de dados:",
+        "el_GR": "Βάση δεδομένων:",
     },
     "User:": {
         "it_IT": "Utente:",
@@ -68,6 +86,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Usuario:",
         "ca_ES": "Usuari:",
         "ar_LB": "المستخدم:",
+        "ro_RO": "Utilizator:",
+        "pt_PT": "Utilizador:",
+        "el_GR": "Χρήστης:",
     },
     "Password:": {
         "it_IT": "Password:",
@@ -77,6 +98,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Contraseña:",
         "ca_ES": "Contrasenya:",
         "ar_LB": "كلمة المرور:",
+        "ro_RO": "Parolă:",
+        "pt_PT": "Palavra-passe:",
+        "el_GR": "Κωδικός πρόσβασης:",
     },
     "Save Credentials": {
         "it_IT": "Salva Credenziali",
@@ -86,6 +110,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Guardar credenciales",
         "ca_ES": "Desar credencials",
         "ar_LB": "حفظ بيانات الاعتماد",
+        "ro_RO": "Salvează Credențialele",
+        "pt_PT": "Guardar Credenciais",
+        "el_GR": "Αποθήκευση Διαπιστευτηρίων",
     },
     "Analyze Differences": {
         "it_IT": "Analizza Differenze",
@@ -95,6 +122,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Analizar diferencias",
         "ca_ES": "Analitzar diferències",
         "ar_LB": "تحليل الاختلافات",
+        "ro_RO": "Analizează Diferențele",
+        "pt_PT": "Analisar Diferenças",
+        "el_GR": "Ανάλυση Διαφορών",
     },
     "Upload to Remote": {
         "it_IT": "Carica sul Remoto",
@@ -104,6 +134,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Subir al remoto",
         "ca_ES": "Pujar al remot",
         "ar_LB": "رفع إلى البعيد",
+        "ro_RO": "Încarcă pe Distant",
+        "pt_PT": "Enviar para Remoto",
+        "el_GR": "Μεταφόρτωση στον Απομακρυσμένο",
     },
     "Download from Remote": {
         "it_IT": "Scarica dal Remoto",
@@ -113,6 +146,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Descargar del remoto",
         "ca_ES": "Descarregar del remot",
         "ar_LB": "تحميل من البعيد",
+        "ro_RO": "Descarcă de pe Distant",
+        "pt_PT": "Descarregar do Remoto",
+        "el_GR": "Λήψη από Απομακρυσμένο",
     },
     "Analyzing differences...": {
         "it_IT": "Analisi delle differenze...",
@@ -122,6 +158,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Analizando diferencias...",
         "ca_ES": "Analitzant diferències...",
         "ar_LB": "تحليل الاختلافات...",
+        "ro_RO": "Analizarea diferențelor...",
+        "pt_PT": "A analisar diferenças...",
+        "el_GR": "Ανάλυση διαφορών...",
     },
     "Analysis complete": {
         "it_IT": "Analisi completata",
@@ -131,6 +170,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Análisis completado",
         "ca_ES": "Anàlisi completada",
         "ar_LB": "اكتمل التحليل",
+        "ro_RO": "Analiză completă",
+        "pt_PT": "Análise concluída",
+        "el_GR": "Ολοκλήρωση ανάλυσης",
     },
     "Error": {
         "it_IT": "Errore",
@@ -140,6 +182,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Error",
         "ca_ES": "Error",
         "ar_LB": "خطأ",
+        "ro_RO": "Eroare",
+        "pt_PT": "Erro",
+        "el_GR": "Σφάλμα",
     },
     "Remote host not configured.": {
         "it_IT": "Host remoto non configurato.",
@@ -149,6 +194,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Host remoto no configurado.",
         "ca_ES": "Host remot no configurat.",
         "ar_LB": "لم يتم تكوين المضيف البعيد.",
+        "ro_RO": "Gazda distantă nu este configurată.",
+        "pt_PT": "Anfitrião remoto não configurado.",
+        "el_GR": "Ο απομακρυσμένος διακομιστής δεν έχει ρυθμιστεί.",
     },
     "Local database not configured.": {
         "it_IT": "Database locale non configurato.",
@@ -158,6 +206,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Base de datos local no configurada.",
         "ca_ES": "Base de dades local no configurada.",
         "ar_LB": "لم يتم تكوين قاعدة البيانات المحلية.",
+        "ro_RO": "Baza de date locală nu este configurată.",
+        "pt_PT": "Base de dados local não configurada.",
+        "el_GR": "Η τοπική βάση δεδομένων δεν έχει ρυθμιστεί.",
     },
     "Database Synchronization - Differences Analysis": {
         "it_IT": "Sincronizzazione Database - Analisi Differenze",
@@ -167,6 +218,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Sincronización de base de datos - Análisis de diferencias",
         "ca_ES": "Sincronització de base de dades - Anàlisi de diferències",
         "ar_LB": "مزامنة قاعدة البيانات - تحليل الاختلافات",
+        "ro_RO": "Sincronizare Bază de Date - Analiză Diferențe",
+        "pt_PT": "Sincronização de Base de Dados - Análise de Diferenças",
+        "el_GR": "Συγχρονισμός Βάσης Δεδομένων - Ανάλυση Διαφορών",
     },
     "Select": {
         "it_IT": "Seleziona",
@@ -176,6 +230,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Seleccionar",
         "ca_ES": "Seleccionar",
         "ar_LB": "تحديد",
+        "ro_RO": "Selectează",
+        "pt_PT": "Selecionar",
+        "el_GR": "Επιλογή",
     },
     "Table Name": {
         "it_IT": "Nome Tabella",
@@ -185,6 +242,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Nombre de tabla",
         "ca_ES": "Nom de la taula",
         "ar_LB": "اسم الجدول",
+        "ro_RO": "Numele Tabelului",
+        "pt_PT": "Nome da Tabela",
+        "el_GR": "Όνομα Πίνακα",
     },
     "Local": {
         "it_IT": "Locale",
@@ -194,6 +254,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Local",
         "ca_ES": "Local",
         "ar_LB": "محلي",
+        "ro_RO": "Local",
+        "pt_PT": "Local",
+        "el_GR": "Τοπικό",
     },
     "Remote": {
         "it_IT": "Remoto",
@@ -203,6 +266,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Remoto",
         "ca_ES": "Remot",
         "ar_LB": "بعيد",
+        "ro_RO": "Distant",
+        "pt_PT": "Remoto",
+        "el_GR": "Απομακρυσμένο",
     },
     "Only Local": {
         "it_IT": "Solo Locale",
@@ -212,6 +278,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Solo local",
         "ca_ES": "Només local",
         "ar_LB": "محلي فقط",
+        "ro_RO": "Doar Local",
+        "pt_PT": "Apenas Local",
+        "el_GR": "Μόνο Τοπικά",
     },
     "Only Remote": {
         "it_IT": "Solo Remoto",
@@ -221,6 +290,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Solo remoto",
         "ca_ES": "Només remot",
         "ar_LB": "بعيد فقط",
+        "ro_RO": "Doar Distant",
+        "pt_PT": "Apenas Remoto",
+        "el_GR": "Μόνο Απομακρυσμένα",
     },
     "Modified": {
         "it_IT": "Modificati",
@@ -230,6 +302,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Modificado",
         "ca_ES": "Modificat",
         "ar_LB": "معدل",
+        "ro_RO": "Modificat",
+        "pt_PT": "Modificado",
+        "el_GR": "Τροποποιημένο",
     },
     "Status": {
         "it_IT": "Stato",
@@ -239,6 +314,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Estado",
         "ca_ES": "Estat",
         "ar_LB": "الحالة",
+        "ro_RO": "Stare",
+        "pt_PT": "Estado",
+        "el_GR": "Κατάσταση",
     },
     "Differences found": {
         "it_IT": "Differenze trovate",
@@ -248,6 +326,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Diferencias encontradas",
         "ca_ES": "Diferències trobades",
         "ar_LB": "تم العثور على اختلافات",
+        "ro_RO": "Diferențe găsite",
+        "pt_PT": "Diferenças encontradas",
+        "el_GR": "Βρέθηκαν διαφορές",
     },
     "Synchronized": {
         "it_IT": "Sincronizzato",
@@ -257,6 +338,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Sincronizado",
         "ca_ES": "Sincronitzat",
         "ar_LB": "متزامن",
+        "ro_RO": "Sincronizat",
+        "pt_PT": "Sincronizado",
+        "el_GR": "Συγχρονισμένο",
     },
     "Select All": {
         "it_IT": "Seleziona Tutto",
@@ -266,6 +350,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Seleccionar todo",
         "ca_ES": "Seleccionar tot",
         "ar_LB": "تحديد الكل",
+        "ro_RO": "Selectează Tot",
+        "pt_PT": "Selecionar Tudo",
+        "el_GR": "Επιλογή Όλων",
     },
     "Select None": {
         "it_IT": "Deseleziona Tutto",
@@ -275,6 +362,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "No seleccionar ninguno",
         "ca_ES": "No seleccionar cap",
         "ar_LB": "إلغاء تحديد الكل",
+        "ro_RO": "Deselectează Tot",
+        "pt_PT": "Não Selecionar Nenhum",
+        "el_GR": "Αποεπιλογή Όλων",
     },
     "Select Only Different": {
         "it_IT": "Seleziona Solo Differenti",
@@ -284,6 +374,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Seleccionar solo diferentes",
         "ca_ES": "Seleccionar només els diferents",
         "ar_LB": "تحديد المختلفة فقط",
+        "ro_RO": "Selectează Doar Diferitele",
+        "pt_PT": "Selecionar Apenas Diferentes",
+        "el_GR": "Επιλογή Μόνο Διαφορετικών",
     },
     "Close": {
         "it_IT": "Chiudi",
@@ -293,6 +386,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Cerrar",
         "ca_ES": "Tancar",
         "ar_LB": "إغلاق",
+        "ro_RO": "Închide",
+        "pt_PT": "Fechar",
+        "el_GR": "Κλείσιμο",
     },
     "No Tables Selected": {
         "it_IT": "Nessuna Tabella Selezionata",
@@ -302,6 +398,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "No se seleccionaron tablas",
         "ca_ES": "No s'han seleccionat taules",
         "ar_LB": "لم يتم تحديد جداول",
+        "ro_RO": "Niciun Tabel Selectat",
+        "pt_PT": "Nenhuma Tabela Selecionada",
+        "el_GR": "Δεν Επιλέχθηκαν Πίνακες",
     },
     "Please select at least one table to synchronize.": {
         "it_IT": "Seleziona almeno una tabella da sincronizzare.",
@@ -311,6 +410,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Por favor seleccione al menos una tabla para sincronizar.",
         "ca_ES": "Si us plau, seleccioneu almenys una taula per sincronitzar.",
         "ar_LB": "يرجى تحديد جدول واحد على الأقل للمزامنة.",
+        "ro_RO": "Vă rugăm selectați cel puțin un tabel pentru sincronizare.",
+        "pt_PT": "Por favor selecione pelo menos uma tabela para sincronizar.",
+        "el_GR": "Παρακαλώ επιλέξτε τουλάχιστον έναν πίνακα για συγχρονισμό.",
     },
     "Confirm Synchronization": {
         "it_IT": "Conferma Sincronizzazione",
@@ -320,6 +422,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Confirmar sincronización",
         "ca_ES": "Confirmar sincronització",
         "ar_LB": "تأكيد المزامنة",
+        "ro_RO": "Confirmă Sincronizarea",
+        "pt_PT": "Confirmar Sincronização",
+        "el_GR": "Επιβεβαίωση Συγχρονισμού",
     },
     "Confirm Download": {
         "it_IT": "Conferma Download",
@@ -329,6 +434,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Confirmar descarga",
         "ca_ES": "Confirmar descàrrega",
         "ar_LB": "تأكيد التحميل",
+        "ro_RO": "Confirmă Descărcarea",
+        "pt_PT": "Confirmar Descarga",
+        "el_GR": "Επιβεβαίωση Λήψης",
     },
     "Confirm Upload": {
         "it_IT": "Conferma Upload",
@@ -338,6 +446,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Confirmar subida",
         "ca_ES": "Confirmar pujada",
         "ar_LB": "تأكيد الرفع",
+        "ro_RO": "Confirmă Încărcarea",
+        "pt_PT": "Confirmar Envio",
+        "el_GR": "Επιβεβαίωση Μεταφόρτωσης",
     },
     "Missing Configuration": {
         "it_IT": "Configurazione Mancante",
@@ -347,6 +458,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Configuración faltante",
         "ca_ES": "Configuració que falta",
         "ar_LB": "تكوين مفقود",
+        "ro_RO": "Configurație Lipsă",
+        "pt_PT": "Configuração em Falta",
+        "el_GR": "Ελλιπής Ρύθμιση",
     },
     # ========== CONNECTION PROFILES ==========
     "Connection Profiles": {
@@ -357,6 +471,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfiles de conexión",
         "ca_ES": "Perfils de connexió",
         "ar_LB": "ملفات تعريف الاتصال",
+        "ro_RO": "Profile de Conexiune",
+        "pt_PT": "Perfis de Conexão",
+        "el_GR": "Προφίλ Σύνδεσης",
     },
     "Saved Profiles:": {
         "it_IT": "Profili Salvati:",
@@ -366,6 +483,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfiles guardados:",
         "ca_ES": "Perfils desats:",
         "ar_LB": "الملفات المحفوظة:",
+        "ro_RO": "Profile Salvate:",
+        "pt_PT": "Perfis Guardados:",
+        "el_GR": "Αποθηκευμένα Προφίλ:",
     },
     "-- Select a profile --": {
         "it_IT": "-- Seleziona un profilo --",
@@ -375,24 +495,33 @@ SYNC_TRANSLATIONS = {
         "es_ES": "-- Seleccionar un perfil --",
         "ca_ES": "-- Selecciona un perfil --",
         "ar_LB": "-- اختر ملف تعريف --",
+        "ro_RO": "-- Selectează un profil --",
+        "pt_PT": "-- Selecionar um perfil --",
+        "el_GR": "-- Επιλέξτε προφίλ --",
     },
-    "💾 Save": {
-        "it_IT": "💾 Salva",
-        "en_US": "💾 Save",
-        "de_DE": "💾 Speichern",
-        "fr_FR": "💾 Enregistrer",
-        "es_ES": "💾 Guardar",
-        "ca_ES": "💾 Desar",
-        "ar_LB": "💾 حفظ",
+    "\U0001f4be Save": {
+        "it_IT": "\U0001f4be Salva",
+        "en_US": "\U0001f4be Save",
+        "de_DE": "\U0001f4be Speichern",
+        "fr_FR": "\U0001f4be Enregistrer",
+        "es_ES": "\U0001f4be Guardar",
+        "ca_ES": "\U0001f4be Desar",
+        "ar_LB": "\U0001f4be حفظ",
+        "ro_RO": "\U0001f4be Salvează",
+        "pt_PT": "\U0001f4be Guardar",
+        "el_GR": "\U0001f4be Αποθήκευση",
     },
-    "🗑️ Delete": {
-        "it_IT": "🗑️ Elimina",
-        "en_US": "🗑️ Delete",
-        "de_DE": "🗑️ Löschen",
-        "fr_FR": "🗑️ Supprimer",
-        "es_ES": "🗑️ Eliminar",
-        "ca_ES": "🗑️ Eliminar",
-        "ar_LB": "🗑️ حذف",
+    "\U0001f5d1\ufe0f Delete": {
+        "it_IT": "\U0001f5d1\ufe0f Elimina",
+        "en_US": "\U0001f5d1\ufe0f Delete",
+        "de_DE": "\U0001f5d1\ufe0f Löschen",
+        "fr_FR": "\U0001f5d1\ufe0f Supprimer",
+        "es_ES": "\U0001f5d1\ufe0f Eliminar",
+        "ca_ES": "\U0001f5d1\ufe0f Eliminar",
+        "ar_LB": "\U0001f5d1\ufe0f حذف",
+        "ro_RO": "\U0001f5d1\ufe0f Șterge",
+        "pt_PT": "\U0001f5d1\ufe0f Eliminar",
+        "el_GR": "\U0001f5d1\ufe0f Διαγραφή",
     },
     "Save current settings as a new profile": {
         "it_IT": "Salva le impostazioni correnti come nuovo profilo",
@@ -402,6 +531,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Guardar la configuración actual como nuevo perfil",
         "ca_ES": "Desar la configuració actual com a nou perfil",
         "ar_LB": "حفظ الإعدادات الحالية كملف تعريف جديد",
+        "ro_RO": "Salvează setările curente ca profil nou",
+        "pt_PT": "Guardar as definições atuais como novo perfil",
+        "el_GR": "Αποθήκευση τρεχουσών ρυθμίσεων ως νέο προφίλ",
     },
     "Delete the selected profile": {
         "it_IT": "Elimina il profilo selezionato",
@@ -411,6 +543,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Eliminar el perfil seleccionado",
         "ca_ES": "Eliminar el perfil seleccionat",
         "ar_LB": "حذف الملف الشخصي المحدد",
+        "ro_RO": "Șterge profilul selectat",
+        "pt_PT": "Eliminar o perfil selecionado",
+        "el_GR": "Διαγραφή του επιλεγμένου προφίλ",
     },
     "Save Connection Profile": {
         "it_IT": "Salva Profilo Connessione",
@@ -420,6 +555,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Guardar perfil de conexión",
         "ca_ES": "Desar perfil de connexió",
         "ar_LB": "حفظ ملف تعريف الاتصال",
+        "ro_RO": "Salvează Profilul de Conexiune",
+        "pt_PT": "Guardar Perfil de Conexão",
+        "el_GR": "Αποθήκευση Προφίλ Σύνδεσης",
     },
     "Enter a name for this connection profile:": {
         "it_IT": "Inserisci un nome per questo profilo di connessione:",
@@ -429,6 +567,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Introduzca un nombre para este perfil de conexión:",
         "ca_ES": "Introduïu un nom per a aquest perfil de connexió:",
         "ar_LB": "أدخل اسمًا لملف تعريف الاتصال هذا:",
+        "ro_RO": "Introduceți un nume pentru acest profil de conexiune:",
+        "pt_PT": "Introduza um nome para este perfil de conexão:",
+        "el_GR": "Εισαγάγετε ένα όνομα για αυτό το προφίλ σύνδεσης:",
     },
     "Profile Exists": {
         "it_IT": "Profilo Esistente",
@@ -438,6 +579,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "El perfil existe",
         "ca_ES": "El perfil existeix",
         "ar_LB": "الملف الشخصي موجود",
+        "ro_RO": "Profilul Există",
+        "pt_PT": "O Perfil Existe",
+        "el_GR": "Το Προφίλ Υπάρχει",
     },
     "A profile named '{name}' already exists. Do you want to overwrite it?": {
         "it_IT": "Un profilo chiamato '{name}' esiste già. Vuoi sovrascriverlo?",
@@ -447,6 +591,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Ya existe un perfil llamado '{name}'. ¿Desea sobrescribirlo?",
         "ca_ES": "Ja existeix un perfil anomenat '{name}'. Voleu sobreescriure'l?",
         "ar_LB": "يوجد بالفعل ملف تعريف باسم '{name}'. هل تريد استبداله؟",
+        "ro_RO": "Un profil numit '{name}' există deja. Doriți să-l suprascrieți?",
+        "pt_PT": "Já existe um perfil chamado '{name}'. Deseja substituí-lo?",
+        "el_GR": "Ένα προφίλ με το όνομα '{name}' υπάρχει ήδη. Θέλετε να το αντικαταστήσετε;",
     },
     "Profile Saved": {
         "it_IT": "Profilo Salvato",
@@ -456,6 +603,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfil guardado",
         "ca_ES": "Perfil desat",
         "ar_LB": "تم حفظ الملف الشخصي",
+        "ro_RO": "Profil Salvat",
+        "pt_PT": "Perfil Guardado",
+        "el_GR": "Το Προφίλ Αποθηκεύτηκε",
     },
     "No Profile Selected": {
         "it_IT": "Nessun Profilo Selezionato",
@@ -465,6 +615,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "No hay perfil seleccionado",
         "ca_ES": "No hi ha cap perfil seleccionat",
         "ar_LB": "لم يتم تحديد أي ملف تعريف",
+        "ro_RO": "Niciun Profil Selectat",
+        "pt_PT": "Nenhum Perfil Selecionado",
+        "el_GR": "Δεν Επιλέχθηκε Προφίλ",
     },
     "Please select a profile to delete.": {
         "it_IT": "Seleziona un profilo da eliminare.",
@@ -474,6 +627,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Por favor, seleccione un perfil para eliminar.",
         "ca_ES": "Si us plau, seleccioneu un perfil per eliminar.",
         "ar_LB": "يرجى تحديد ملف تعريف للحذف.",
+        "ro_RO": "Vă rugăm selectați un profil de șters.",
+        "pt_PT": "Por favor selecione um perfil para eliminar.",
+        "el_GR": "Παρακαλώ επιλέξτε ένα προφίλ για διαγραφή.",
     },
     "Confirm Deletion": {
         "it_IT": "Conferma Eliminazione",
@@ -483,6 +639,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Confirmar eliminación",
         "ca_ES": "Confirmar eliminació",
         "ar_LB": "تأكيد الحذف",
+        "ro_RO": "Confirmă Ștergerea",
+        "pt_PT": "Confirmar Eliminação",
+        "el_GR": "Επιβεβαίωση Διαγραφής",
     },
     "Profile Deleted": {
         "it_IT": "Profilo Eliminato",
@@ -492,6 +651,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfil eliminado",
         "ca_ES": "Perfil eliminat",
         "ar_LB": "تم حذف الملف الشخصي",
+        "ro_RO": "Profil Șters",
+        "pt_PT": "Perfil Eliminado",
+        "el_GR": "Το Προφίλ Διαγράφηκε",
     },
     # DB Settings Profile translations
     "-- Select profile --": {
@@ -502,6 +664,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "-- Seleccionar perfil --",
         "ca_ES": "-- Seleccionar perfil --",
         "ar_LB": "-- اختر ملف تعريف --",
+        "ro_RO": "-- Selectează profil --",
+        "pt_PT": "-- Selecionar perfil --",
+        "el_GR": "-- Επιλέξτε προφίλ --",
     },
     "Connection Profiles:": {
         "it_IT": "Profili Connessione:",
@@ -511,6 +676,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfiles de conexión:",
         "ca_ES": "Perfils de connexió:",
         "ar_LB": "ملفات تعريف الاتصال:",
+        "ro_RO": "Profile de Conexiune:",
+        "pt_PT": "Perfis de Conexão:",
+        "el_GR": "Προφίλ Σύνδεσης:",
     },
     "Profiles:": {
         "it_IT": "Profili:",
@@ -520,6 +688,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfiles:",
         "ca_ES": "Perfils:",
         "ar_LB": "الملفات الشخصية:",
+        "ro_RO": "Profile:",
+        "pt_PT": "Perfis:",
+        "el_GR": "Προφίλ:",
     },
     "Saved:": {
         "it_IT": "Salvati:",
@@ -529,6 +700,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Guardados:",
         "ca_ES": "Desats:",
         "ar_LB": "المحفوظة:",
+        "ro_RO": "Salvate:",
+        "pt_PT": "Guardados:",
+        "el_GR": "Αποθηκευμένα:",
     },
     "Save current database settings as a profile": {
         "it_IT": "Salva le impostazioni correnti del database come profilo",
@@ -538,6 +712,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Guardar la configuración actual de la base de datos como perfil",
         "ca_ES": "Desar la configuració actual de la base de dades com a perfil",
         "ar_LB": "حفظ إعدادات قاعدة البيانات الحالية كملف تعريف",
+        "ro_RO": "Salvează setările curente ale bazei de date ca profil",
+        "pt_PT": "Guardar as definições atuais da base de dados como perfil",
+        "el_GR": "Αποθήκευση τρεχουσών ρυθμίσεων βάσης δεδομένων ως προφίλ",
     },
     "Profile Loaded": {
         "it_IT": "Profilo Caricato",
@@ -547,6 +724,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Perfil cargado",
         "ca_ES": "Perfil carregat",
         "ar_LB": "تم تحميل الملف الشخصي",
+        "ro_RO": "Profil Încărcat",
+        "pt_PT": "Perfil Carregado",
+        "el_GR": "Το Προφίλ Φορτώθηκε",
     },
     "Profile '{name}' loaded successfully!\n\nClick 'Save Parameters' to apply the connection.": {
         "it_IT": "Profilo '{name}' caricato con successo!\n\nClicca 'Salva Parametri' per applicare la connessione.",
@@ -556,6 +736,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "¡Perfil '{name}' cargado correctamente!\n\nHaga clic en 'Guardar parámetros' para aplicar la conexión.",
         "ca_ES": "Perfil '{name}' carregat correctament!\n\nFeu clic a 'Desar paràmetres' per aplicar la connexió.",
         "ar_LB": "تم تحميل الملف الشخصي '{name}' بنجاح!\n\nانقر على 'حفظ المعلمات' لتطبيق الاتصال.",
+        "ro_RO": "Profilul '{name}' a fost încărcat cu succes!\n\nFaceți clic pe 'Salvează Parametrii' pentru a aplica conexiunea.",
+        "pt_PT": "Perfil '{name}' carregado com sucesso!\n\nClique em 'Guardar Parâmetros' para aplicar a conexão.",
+        "el_GR": "Το προφίλ '{name}' φορτώθηκε επιτυχώς!\n\nΚάντε κλικ στο 'Αποθήκευση Παραμέτρων' για εφαρμογή της σύνδεσης.",
     },
     "Enter a name for this database connection profile:": {
         "it_IT": "Inserisci un nome per questo profilo di connessione al database:",
@@ -565,6 +748,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "Introduzca un nombre para este perfil de conexión a la base de datos:",
         "ca_ES": "Introduïu un nom per a aquest perfil de connexió a la base de dades:",
         "ar_LB": "أدخل اسمًا لملف تعريف اتصال قاعدة البيانات هذا:",
+        "ro_RO": "Introduceți un nume pentru acest profil de conexiune la baza de date:",
+        "pt_PT": "Introduza um nome para este perfil de conexão à base de dados:",
+        "el_GR": "Εισαγάγετε ένα όνομα για αυτό το προφίλ σύνδεσης βάσης δεδομένων:",
     },
     "Database connection profile '{name}' saved successfully!\n\nServer: {server}\nHost: {host}:{port}\nDatabase: {database}": {
         "it_IT": "Profilo di connessione al database '{name}' salvato con successo!\n\nServer: {server}\nHost: {host}:{port}\nDatabase: {database}",
@@ -574,6 +760,9 @@ SYNC_TRANSLATIONS = {
         "es_ES": "¡Perfil de conexión a la base de datos '{name}' guardado correctamente!\n\nServidor: {server}\nHost: {host}:{port}\nBase de datos: {database}",
         "ca_ES": "Perfil de connexió a la base de dades '{name}' desat correctament!\n\nServidor: {server}\nHost: {host}:{port}\nBase de dades: {database}",
         "ar_LB": "تم حفظ ملف تعريف اتصال قاعدة البيانات '{name}' بنجاح!\n\nالخادم: {server}\nالمضيف: {host}:{port}\nقاعدة البيانات: {database}",
+        "ro_RO": "Profilul de conexiune la baza de date '{name}' a fost salvat cu succes!\n\nServer: {server}\nGazdă: {host}:{port}\nBază de date: {database}",
+        "pt_PT": "Perfil de conexão à base de dados '{name}' guardado com sucesso!\n\nServidor: {server}\nAnfitrião: {host}:{port}\nBase de dados: {database}",
+        "el_GR": "Το προφίλ σύνδεσης βάσης δεδομένων '{name}' αποθηκεύτηκε επιτυχώς!\n\nΔιακομιστής: {server}\nHost: {host}:{port}\nΒάση δεδομένων: {database}",
     },
 }
 
@@ -677,6 +866,9 @@ def main():
         'es_ES': 'pyarchinit_plugin_es_ES.ts',
         'ca_ES': 'pyarchinit_plugin_ca_ES.ts',
         'ar_LB': 'pyarchinit_plugin_ar_LB.ts',
+        'ro_RO': 'pyarchinit_plugin_ro_RO.ts',
+        'pt_PT': 'pyarchinit_plugin_pt_PT.ts',
+        'el_GR': 'pyarchinit_plugin_el_GR.ts',
     }
 
     for lang_code, filename in lang_files.items():

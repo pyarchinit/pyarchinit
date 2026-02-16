@@ -49,7 +49,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     elif L=='en':
         MSG_BOX_TITLE = "PyArchInit - Documentation"
     elif L=='de':
-        MSG_BOX_TITLE = "PyArchInit - Documentation"  
+        MSG_BOX_TITLE = "PyArchInit - Documentation"
     DATA_LIST = []
     DATA_LIST_REC_CORR = []
     DATA_LIST_REC_TEMP = []
@@ -58,10 +58,10 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     SITO = pyArchInitDialog_Config
     if L=='it':
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
-    
+
     if L=='de':
         STATUS_ITEMS = {"b": "Aktuell ", "f": "Finden", "n": "Neuer Rekord"}
-    
+
     else :
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
     BROWSE_STATUS = "b"
@@ -79,7 +79,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     MAPPER_TABLE_CLASS = "DOCUMENTAZIONE"
     NOME_SCHEDA = "Scheda Documentazione"
     ID_TABLE = "id_documentazione"
-    
+
     if L=='it':
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -128,6 +128,198 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             "Zeichner",
             "Notes"
         ]
+    elif L=='en':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Documentation name": "nome_doc",
+            "Date": "data",
+            "Documentation Type": "tipo_documentazione",
+            "Source": "sorgente",
+            "Scale": "scala",
+            "Draftman": "disegnatore",
+            "Note": "note"
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Documentation name",
+            "Date",
+            "Documentation Type",
+            "Source",
+            "Scale",
+            "Draftman",
+            "Note"
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "Nombre documento": "nome_doc",
+            "Fecha": "data",
+            "Tipo de documentación": "tipo_documentazione",
+            "Fuente": "sorgente",
+            "Escala": "scala",
+            "Dibujante": "disegnatore",
+            "Notas": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "Nombre documento",
+            "Fecha",
+            "Tipo de documentación",
+            "Fuente",
+            "Escala",
+            "Dibujante",
+            "Notas",
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "Nom du document": "nome_doc",
+            "Date": "data",
+            "Type de documentation": "tipo_documentazione",
+            "Source": "sorgente",
+            "Échelle": "scala",
+            "Dessinateur": "disegnatore",
+            "Notes": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "Nom du document",
+            "Date",
+            "Type de documentation",
+            "Source",
+            "Échelle",
+            "Dessinateur",
+            "Notes",
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "اسم المستند": "nome_doc",
+            "تاريخ": "data",
+            "نوع التوثيق": "tipo_documentazione",
+            "مصدر": "sorgente",
+            "مقياس": "scala",
+            "رسام": "disegnatore",
+            "ملاحظات": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "اسم المستند",
+            "تاريخ",
+            "نوع التوثيق",
+            "مصدر",
+            "مقياس",
+            "رسام",
+            "ملاحظات",
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "Nom del document": "nome_doc",
+            "Data": "data",
+            "Tipus de documentació": "tipo_documentazione",
+            "Font": "sorgente",
+            "Escala": "scala",
+            "Dibuixant": "disegnatore",
+            "Notes": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "Nom del document",
+            "Data",
+            "Tipus de documentació",
+            "Font",
+            "Escala",
+            "Dibuixant",
+            "Notes",
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "Nume document": "nome_doc",
+            "Data": "data",
+            "Tip documentație": "tipo_documentazione",
+            "Sursă": "sorgente",
+            "Scară": "scala",
+            "Desenator": "disegnatore",
+            "Note": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "Nume document",
+            "Data",
+            "Tip documentație",
+            "Sursă",
+            "Scară",
+            "Desenator",
+            "Note",
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "Nome do documento": "nome_doc",
+            "Data": "data",
+            "Tipo de documentação": "tipo_documentazione",
+            "Fonte": "sorgente",
+            "Escala": "scala",
+            "Desenhador": "disegnatore",
+            "Notas": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "Nome do documento",
+            "Data",
+            "Tipo de documentação",
+            "Fonte",
+            "Escala",
+            "Desenhador",
+            "Notas",
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "Όνομα εγγράφου": "nome_doc",
+            "Ημερομηνία": "data",
+            "Τύπος τεκμηρίωσης": "tipo_documentazione",
+            "Πηγή": "sorgente",
+            "Κλίμακα": "scala",
+            "Σχεδιαστής": "disegnatore",
+            "Σημειώσεις": "note",
+        }
+
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "Όνομα εγγράφου",
+            "Ημερομηνία",
+            "Τύπος τεκμηρίωσης",
+            "Πηγή",
+            "Κλίμακα",
+            "Σχεδιαστής",
+            "Σημειώσεις",
+        ]
     else:
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -151,8 +343,8 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             "Scale",
             "Draftman",
             "Note"
-        ]   
-        
+        ]
+
     TABLE_FIELDS = [
         "sito",
         "nome_doc",
@@ -178,6 +370,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -249,9 +442,9 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
 
         self.pushButton_sort.setEnabled(n)
 
-    
-    
-    
+
+
+
     def on_pushButton_connect_pressed(self):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -278,30 +471,30 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
-            else:    
+            else:
                 if self.L=='it':
                     QMessageBox.warning(self,"BENVENUTO", "Benvenuto in pyArchInit " + self.NOME_SCHEDA + ". Il database e' vuoto. Premi 'Ok' e buon lavoro!",
                                         QMessageBox.StandardButton.Ok)
-                
+
                 elif self.L=='de':
-                    
+
                     QMessageBox.warning(self,"WILLKOMMEN","WILLKOMMEN in pyArchInit" + "Documentationformular"+ ". Die Datenbank ist leer. Tippe 'Ok' und aufgehts!",
-                                        QMessageBox.StandardButton.Ok) 
+                                        QMessageBox.StandardButton.Ok)
                 else:
                     QMessageBox.warning(self,"WELCOME", "Welcome in pyArchInit" + "Documentation form" + ". The DB is empty. Push 'Ok' and Good Work!",
-                                        QMessageBox.StandardButton.Ok)    
+                                        QMessageBox.StandardButton.Ok)
                 self.charge_list()
                 self.BROWSE_STATUS = 'x'
                 self.on_pushButton_new_rec_pressed()
         except Exception as e:
             e = str(e)
             if e.find("no such table"):
-            
+
                 if self.L=='it':
                     msg = "La connessione e' fallita {}. " \
                           "E' NECESSARIO RIAVVIARE QGIS oppure rilevato bug! Segnalarlo allo sviluppatore".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                
+
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 elif self.L=='de':
                     msg = "Verbindungsfehler {}. " \
@@ -309,18 +502,18 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 else:
                     msg = "The connection failed {}. " \
-                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))        
+                          "You MUST RESTART QGIS or bug detected! Report it to the developer".format(str(e))
             else:
                 if self.L=='it':
                     msg = "Attenzione rilevato bug! Segnalarlo allo sviluppatore. Errore: ".format(str(e))
                     self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
-                
+
                 elif self.L=='de':
                     msg = "ACHTUNG. Es wurde ein bug gefunden! Fehler einsenden: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)  
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
                 else:
                     msg = "Warning bug detected! Report it to the developer. Error: ".format(str(e))
-                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)    
+                    self.iface.messageBar().pushMessage(self.tr(msg), Qgis.Warning, 0)
 
                 ####################################
 
@@ -411,26 +604,26 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.comboBox_sito_doc.currentText()) and self.comboBox_sito_doc.currentText()==sito_set_str:
-            
+
             if self.L=='it':
-                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
-        
+                QMessageBox.information(self, "OK" ,"Sei connesso al sito: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
+
             elif self.L=='de':
-                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok) 
-                
+                QMessageBox.information(self, "OK", "Sie sind mit der archäologischen Stätte verbunden: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
+
             else:
-                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)     
-        
-        elif sito_set_str=='':    
+                QMessageBox.information(self, "OK", "You are connected to the site: %s" % str(sito_set_str),QMessageBox.StandardButton.Ok)
+
+        elif sito_set_str=='':
             if self.L=='it':
-                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
+                msg = QMessageBox.information(self, "Attenzione" ,"Non hai settato alcun sito. Vuoi settarne uno? click Ok altrimenti Annulla per  vedere tutti i record",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             elif self.L=='de':
-                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
+                msg = QMessageBox.information(self, "Achtung", "Sie haben keine archäologischen Stätten eingerichtet. Klicken Sie auf OK oder Abbrechen, um alle Datensätze zu sehen",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             else:
-                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel) 
+                msg = QMessageBox.information(self, "Warning" , "You have not set up any archaeological site. Do you want to set one? click Ok otherwise Cancel to see all records",QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
             if msg == QMessageBox.StandardButton.Cancel:
                 pass
-            else: 
+            else:
                 dlg = pyArchInitDialog_Config(self)
                 dlg.charge_list()
                 dlg.exec()
@@ -476,7 +669,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             elif self.L == 'de':
                 QMessageBox.warning(self, "Fehler", f"Fehler beim Laden der Daten: {str(e)}", QMessageBox.StandardButton.Ok)
             else:
-                QMessageBox.warning(self, "Error", f"Error loading data: {str(e)}", QMessageBox.StandardButton.Ok) 
+                QMessageBox.warning(self, "Error", f"Error loading data: {str(e)}", QMessageBox.StandardButton.Ok)
     def generate_list_pdf(self):
         data_list = []
         for i in range(len(self.DATA_LIST)):
@@ -529,7 +722,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                 string_to_pdf += "<br/>Area " + area_corr + ": " + us_elenco[:-2]
                                 area_corr = str(elenco_us_pdf[rec_us][0])
                                 us_elenco = str(elenco_us_pdf[rec_us][1]) + ", "
-                            
+
                         elif self.L=='de':
                             if string_to_pdf == "":
                                 string_to_pdf = "Areal " + area_corr + ": " + us_elenco[:-2]
@@ -547,13 +740,13 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                             else:
                                 string_to_pdf += "<br/>Area " + area_corr + ": " + us_elenco[:-2]
                                 area_corr = str(elenco_us_pdf[rec_us][0])
-                                us_elenco = str(elenco_us_pdf[rec_us][1]) + ", "        
-                if self.L=='it':                
+                                us_elenco = str(elenco_us_pdf[rec_us][1]) + ", "
+                if self.L=='it':
                     string_to_pdf += "<br/>Area " + area_corr + ": " + us_elenco[:-2]
-                elif self.L=='de':               
+                elif self.L=='de':
                     string_to_pdf += "<br/>Areal " + area_corr + ": " + us_elenco[:-2]
-                else:               
-                    string_to_pdf += "<br/>Area " + area_corr + ": " + us_elenco[:-2]   
+                else:
+                    string_to_pdf += "<br/>Area " + area_corr + ": " + us_elenco[:-2]
             else:
                 pass
 
@@ -586,8 +779,8 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             single_Documentazione_pdf_sheet = generate_documentazione_pdf()
             data_list = self.generate_list_pdf()
-            single_Documentazione_pdf_sheet.build_Documentazione_sheets_en(data_list)   
-            
+            single_Documentazione_pdf_sheet.build_Documentazione_sheets_en(data_list)
+
     def on_pushButton_exp_elenco_doc_pressed(self):
         if self.L=='it':
             Documentazione_index_pdf = generate_documentazione_pdf()
@@ -600,8 +793,8 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         else:
             Documentazione_index_pdf = generate_documentazione_pdf()
             data_list = self.generate_list_pdf()
-            Documentazione_index_pdf.build_index_Documentazione_en(data_list, data_list[0][0])  
-            
+            Documentazione_index_pdf.build_index_Documentazione_en(data_list, data_list[0][0])
+
     def on_pushButtonPreview_pressed(self):
 
         docstr = (' \"%s\"=\'%s\' AND \"%s\"=\'%s\' AND \"%s\"=\'%s\' ') % ('sito',
@@ -661,7 +854,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_new_rec_pressed(self):
         conn = Connection()
-        
+
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         if bool(self.DATA_LIST):
@@ -678,7 +871,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
                                 QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
-                                                                   
+
                             else:
                                 self.update_if(QMessageBox.warning(self, 'Error',
                                                                    "The record has been changed. Do you want to save the changes?",
@@ -709,7 +902,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 self.setComboBoxEnable(["self.lineEdit_nome_doc"], "True")
 
                 self.set_rec_counter('', '')
-            
+
             self.enable_button(0)
 
 
@@ -718,7 +911,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_save_pressed(self):
         # save record
         if self.BROWSE_STATUS == "b":
-            
+
                     # Check for version conflicts before updating
                     if hasattr(self, 'current_record_version') and self.current_record_version:
                         conflict = self.concurrency_manager.check_version_conflict(
@@ -751,7 +944,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                            "Der Record wurde geändert. Möchtest du die Änderungen speichern?",
                                                            QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
-                                                    
+
                                 else:
                                     self.update_if(QMessageBox.warning(self, 'Error',
                                                            "The record has been changed. Do you want to save the changes?",
@@ -824,7 +1017,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
 
             if EC.data_is_empty(str(self.lineEdit_nome_doc.text())) == 0:
                 QMessageBox.warning(self,"WARNING", "Name Documentation Field. \n The field must not be empty", QMessageBox.StandardButton.Ok)
-                test = 1        
+                test = 1
         return test
 
     def insert_new_rec(self):
@@ -847,16 +1040,16 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                 e_str = str(e)
                 if e_str.__contains__("IntegrityError"):
-                    
+
                     if self.L=='it':
                         msg = self.ID_TABLE + " gia' presente nel database"
                         QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         msg = self.ID_TABLE + " bereits in der Datenbank"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                     else:
                         msg = self.ID_TABLE + " exist in db"
-                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)  
+                        QMessageBox.warning(self, "Error", "Error" + str(msg), QMessageBox.StandardButton.Ok)
                 else:
                     msg = e
                     QMessageBox.warning(self, "Error", "Error 1 \n" + str(msg), QMessageBox.StandardButton.Ok)
@@ -873,7 +1066,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         elif self.records_equal_check() == 1 and ec == 0:
             if self.L=='it':
                 self.update_if(
-                
+
                     QMessageBox.warning(self, 'Errore', "Il record e' stato modificato. Vuoi salvare le modifiche?",
                                         QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel))
             elif self.L=='de':
@@ -945,7 +1138,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 elif self.L=='de':
                     QMessageBox.warning(self, "Achtung", "du befindest dich im ersten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)        
+                    QMessageBox.warning(self, "Warning", "You are to the first record!", QMessageBox.StandardButton.Ok)
             else:
                 try:
                     self.empty_fields()
@@ -966,7 +1159,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 elif self.L=='de':
                     QMessageBox.warning(self, "Achtung", "du befindest dich im letzten Datensatz!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.StandardButton.Ok)  
+                    QMessageBox.warning(self, "Error", "You are to the first record!", QMessageBox.StandardButton.Ok)
             else:
                 try:
                     self.empty_fields()
@@ -976,7 +1169,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.warning(self, "Error", str(e), QMessageBox.StandardButton.Ok)
 
     def on_pushButton_delete_pressed(self):
-        
+
         if self.L=='it':
             msg = QMessageBox.warning(self, "Attenzione!!!",
                                       "Vuoi veramente eliminare il record? \n L'azione è irreversibile",
@@ -1074,10 +1267,10 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                     self.charge_list()
-                    self.fill_fields()  
+                    self.fill_fields()
                     self.set_sito()
-            
-            
+
+
             self.SORT_STATUS = "n"
             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
@@ -1088,7 +1281,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             self.enable_button_search(0)
 
             conn = Connection()
-        
+
             sito_set= conn.sito_set()
             sito_set_str = sito_set['sito_set']
 
@@ -1132,7 +1325,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                                     QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button ",
-                                    QMessageBox.StandardButton.Ok)  
+                                    QMessageBox.StandardButton.Ok)
         else:
             search_dict = {
                 self.TABLE_FIELDS[0]: "'" + str(self.comboBox_sito_doc.currentText()) + "'",  # 1 - Sito
@@ -1153,7 +1346,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
                 elif self.L=='de':
                     QMessageBox.warning(self, "ACHTUNG", "Keine Abfrage definiert!!!", QMessageBox.StandardButton.Ok)
                 else:
-                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok)      
+                    QMessageBox.warning(self, " WARNING", "No search has been set!!!", QMessageBox.StandardButton.Ok)
             else:
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                 if not bool(res):
@@ -1274,7 +1467,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         return lista
 
     def empty_fields_nosite(self):
-        
+
         self.lineEdit_nome_doc.clear()  # 2 - Nome Dcumentazione
         self.lineEdit_data_doc.clear()  # 3 - Data
         self.comboBox_tipo_doc.setEditText("")  # 4 - Tipo Documentazione
@@ -1400,7 +1593,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             return 1
         except Exception as e:
             str(e)
-            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder") 
+            save_file='{}{}{}'.format(self.HOME, os.sep,"pyarchinit_Report_folder")
             file_=os.path.join(save_file,'error_encodig_data_recover.txt')
             with open(file_, "a") as fh:
                 try:
@@ -1410,11 +1603,11 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             if self.L=='it':
                 QMessageBox.warning(self, "Messaggio",
                                     "Problema di encoding: sono stati inseriti accenti o caratteri non accettati dal database. Verrà fatta una copia dell'errore con i dati che puoi recuperare nella cartella pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
-            
-            
+
+
             elif self.L=='de':
                 QMessageBox.warning(self, "Message",
-                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok) 
+                                    "Encoding problem: accents or characters not accepted by the database were entered. A copy of the error will be made with the data you can retrieve in the pyarchinit_Report _Folder", QMessageBox.StandardButton.Ok)
             else:
                 QMessageBox.warning(self, "Message",
                                     "Kodierungsproblem: Es wurden Akzente oder Zeichen eingegeben, die von der Datenbank nicht akzeptiert werden. Es wird eine Kopie des Fehlers mit den Daten erstellt, die Sie im pyarchinit_Report _Ordner abrufen können", QMessageBox.StandardButton.Ok)

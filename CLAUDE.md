@@ -115,7 +115,7 @@ The following agents MUST be invoked automatically after relevant work — do NO
 
 ### `tutorial-updater` — After user-facing changes
 - **When**: After adding/modifying UI elements, buttons, forms, workflows, or any feature visible to end users
-- **What it does**: Updates tutorials in all 7 languages (`it`, `en`, `de`, `es`, `fr`, `ar`, `ca`) in `docs/tutorials/<lang>/`
+- **What it does**: Updates tutorials in all 9 languages (`it`, `en`, `de`, `es`, `fr`, `ar`, `ca`, `ro`, `pt`) in `docs/tutorials/<lang>/`
 - **Rule**: If the change affects what the user sees or how they interact with the plugin, invoke this agent
 
 ### Invocation order

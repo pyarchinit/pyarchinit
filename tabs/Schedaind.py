@@ -155,6 +155,238 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
             "Altersklassen",
             "Beobachtungen"
         ]
+    elif L=='en':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "SU": "us",
+            "Area": "area",
+            "Individual Nr.": "nr_individuo",
+            "Date Form": "data_schedatura",
+            "Filler": "schedatore",
+            "Extimation sex": "sesso",
+            "Extimation age of death min": "eta_min",
+            "Extimation age of death max": "eta_max",
+            "Age class": "classi_eta",
+            "Note": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "SU",
+            "Area",
+            "Individual Nr.",
+            "Date Form",
+            "Filler",
+            "Extimation sex",
+            "Extimation age of death min",
+            "Extimation age of death max",
+            "Age class",
+            "Note"
+        ]
+    elif L=='es':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sitio": "sito",
+            "UE": "us",
+            "Área": "area",
+            "Nº individuo": "nr_individuo",
+            "Fecha de registro": "data_schedatura",
+            "Registrador": "schedatore",
+            "Sexo": "sesso",
+            "Edad mínima": "eta_min",
+            "Edad máxima": "eta_max",
+            "Clases de edad": "classi_eta",
+            "Observaciones": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sitio",
+            "UE",
+            "Área",
+            "Nº individuo",
+            "Fecha de registro",
+            "Registrador",
+            "Sexo",
+            "Edad mínima",
+            "Edad máxima",
+            "Clases de edad",
+            "Observaciones"
+        ]
+    elif L=='fr':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Site": "sito",
+            "US": "us",
+            "Zone": "area",
+            "Nº individu": "nr_individuo",
+            "Date d'enregistrement": "data_schedatura",
+            "Responsable": "schedatore",
+            "Sexe": "sesso",
+            "Âge minimum": "eta_min",
+            "Âge maximum": "eta_max",
+            "Classes d'âge": "classi_eta",
+            "Observations": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Site",
+            "US",
+            "Zone",
+            "Nº individu",
+            "Date d'enregistrement",
+            "Responsable",
+            "Sexe",
+            "Âge minimum",
+            "Âge maximum",
+            "Classes d'âge",
+            "Observations"
+        ]
+    elif L=='ar':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "موقع": "sito",
+            "وحدة طبقية": "us",
+            "منطقة": "area",
+            "رقم الفرد": "nr_individuo",
+            "تاريخ التسجيل": "data_schedatura",
+            "المسجل": "schedatore",
+            "الجنس": "sesso",
+            "العمر الأدنى": "eta_min",
+            "العمر الأقصى": "eta_max",
+            "فئات العمر": "classi_eta",
+            "ملاحظات": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "موقع",
+            "وحدة طبقية",
+            "منطقة",
+            "رقم الفرد",
+            "تاريخ التسجيل",
+            "المسجل",
+            "الجنس",
+            "العمر الأدنى",
+            "العمر الأقصى",
+            "فئات العمر",
+            "ملاحظات"
+        ]
+    elif L=='ca':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Jaciment": "sito",
+            "UE": "us",
+            "Àrea": "area",
+            "Nº individu": "nr_individuo",
+            "Data de registre": "data_schedatura",
+            "Registrador": "schedatore",
+            "Sexe": "sesso",
+            "Edat mínima": "eta_min",
+            "Edat màxima": "eta_max",
+            "Classes d'edat": "classi_eta",
+            "Observacions": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Jaciment",
+            "UE",
+            "Àrea",
+            "Nº individu",
+            "Data de registre",
+            "Registrador",
+            "Sexe",
+            "Edat mínima",
+            "Edat màxima",
+            "Classes d'edat",
+            "Observacions"
+        ]
+    elif L=='ro':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sit": "sito",
+            "US": "us",
+            "Zonă": "area",
+            "Nr. individ": "nr_individuo",
+            "Data înregistrării": "data_schedatura",
+            "Responsabil": "schedatore",
+            "Sex": "sesso",
+            "Vârstă minimă": "eta_min",
+            "Vârstă maximă": "eta_max",
+            "Clase de vârstă": "classi_eta",
+            "Observații": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sit",
+            "US",
+            "Zonă",
+            "Nr. individ",
+            "Data înregistrării",
+            "Responsabil",
+            "Sex",
+            "Vârstă minimă",
+            "Vârstă maximă",
+            "Clase de vârstă",
+            "Observații"
+        ]
+    elif L=='pt':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Sítio": "sito",
+            "UE": "us",
+            "Área": "area",
+            "Nº indivíduo": "nr_individuo",
+            "Data de registo": "data_schedatura",
+            "Responsável": "schedatore",
+            "Sexo": "sesso",
+            "Idade mínima": "eta_min",
+            "Idade máxima": "eta_max",
+            "Classes de idade": "classi_eta",
+            "Observações": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Sítio",
+            "UE",
+            "Área",
+            "Nº indivíduo",
+            "Data de registo",
+            "Responsável",
+            "Sexo",
+            "Idade mínima",
+            "Idade máxima",
+            "Classes de idade",
+            "Observações"
+        ]
+    elif L=='el':
+        CONVERSION_DICT = {
+            ID_TABLE: ID_TABLE,
+            "Θέση": "sito",
+            "ΣΕ": "us",
+            "Περιοχή": "area",
+            "Αρ. ατόμου": "nr_individuo",
+            "Ημερομηνία καταγραφής": "data_schedatura",
+            "Καταγραφέας": "schedatore",
+            "Φύλο": "sesso",
+            "Ελάχιστη ηλικία": "eta_min",
+            "Μέγιστη ηλικία": "eta_max",
+            "Ηλικιακές κατηγορίες": "classi_eta",
+            "Παρατηρήσεις": "osservazioni"
+        }
+        SORT_ITEMS = [
+            ID_TABLE,
+            "Θέση",
+            "ΣΕ",
+            "Περιοχή",
+            "Αρ. ατόμου",
+            "Ημερομηνία καταγραφής",
+            "Καταγραφέας",
+            "Φύλο",
+            "Ελάχιστη ηλικία",
+            "Μέγιστη ηλικία",
+            "Ηλικιακές κατηγορίες",
+            "Παρατηρήσεις"
+        ]
     else:
         CONVERSION_DICT = {
             ID_TABLE: ID_TABLE,
@@ -223,8 +455,9 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         "CA": ['ca_ES', 'ca', 'CA', 'CA_ES'],
         "PT_BR": ['pt_BR','PT_BR'],
         "SL": ['sl_SL','sl','SL', 'SL_SL'],
+        "EL": ['el_GR', 'el', 'EL', 'EL_GR'],
     }
-    
+
     HOME = os.environ['PYARCHINIT_HOME']
     PDFFOLDER = '{}{}{}'.format(HOME, os.sep, "pyarchinit_PDF_folder")
     DB_SERVER = "not defined"  ####nuovo sistema sort

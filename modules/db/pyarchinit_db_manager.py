@@ -55,6 +55,10 @@ from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from sqlalchemy.sql.schema import MetaData
 
+from ..utility.pyarchinit_i18n_stratigraphic import (
+    COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
+)
+
 from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTERY, TMA, TMA_MATERIALI, \
     STRUTTURA, SCHEDAIND, INVENTARIO_MATERIALI, DETSESSO, DOCUMENTAZIONE, DETETA, MEDIA, \
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
@@ -4691,19 +4695,13 @@ class Pyarchinit_db_management(object):
     #     return res
 
     def select_not_like_from_db_sql(self, sitof, areaf):
-        l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         Session = sessionmaker(bind=self.engine, autoflush=True)
         session = Session()
         res = None
 
-        if l == 'it':
-            filters = ["%'>>'%", "%'Copre'%", "%'Riempie'%", "%'Taglia'%", "%'Si appoggia a'%"]
-        elif l == 'en':
-            filters = ["%'>>'%","%'Cuts'%", "%'Abuts'%", "%'Covers'%", "%'Fills'%"]
-        elif l == 'de':
-            filters = ["%'>>'%","%'Schneidet'%", "%'Stützt sich auf'%", "%'Liegt über'%", "%'Verfüllt'%"]
-        else:
-            filters = []  # Add fallback filters or handle this case differently.
+        # Build filters from all language variants using the central i18n module
+        all_terms = COVERS_GROUP | FILLS_GROUP | CUTS_GROUP | ABUTS_GROUP
+        filters = ["%'>>'%"] + ["%'{}'%".format(t) for t in sorted(all_terms)]
 
         for f in filters:
             res = session.query(US).filter_by(sito=sitof).filter_by(area=areaf).filter(~US.rapporti.like(f))

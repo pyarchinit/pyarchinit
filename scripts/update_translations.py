@@ -21,7 +21,7 @@ PLUGIN_DIR = Path(__file__).parent.parent
 I18N_DIR = PLUGIN_DIR / "i18n"
 
 # Lingue supportate
-LANGUAGES = ["it_IT", "de_DE", "en_US", "fr_FR", "ar_LB", "es_ES", "ca_ES"]
+LANGUAGES = ["it_IT", "de_DE", "en_US", "fr_FR", "ar_LB", "es_ES", "ca_ES", "ro_RO", "pt_PT", "el_GR"]
 
 # Pattern per trovare i file sorgente
 SOURCE_PATTERNS = [

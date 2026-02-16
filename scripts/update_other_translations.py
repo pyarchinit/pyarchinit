@@ -19,7 +19,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Sélectionner l'orthophoto ou l'image à segmenter",
         "es_ES": "Seleccionar la ortofoto o imagen a segmentar",
         "ar_LB": "اختر الصورة الجوية أو الصورة للتجزئة",
-        "ca_ES": "Selecciona l'ortofoto o imatge a segmentar"
+        "ca_ES": "Selecciona l'ortofoto o imatge a segmentar",
+        "ro_RO": "Selectează ortofoto sau imaginea de segmentat",
+        "pt_PT": "Selecionar a ortofoto ou imagem a segmentar",
+        "el_GR": "Επιλέξτε την ορθοφωτογραφία ή εικόνα προς κατάτμηση"
     },
     "Select the target layer for polygons": {
         "it_IT": "Seleziona il layer di destinazione per i poligoni",
@@ -27,7 +30,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Sélectionner la couche cible pour les polygones",
         "es_ES": "Seleccionar la capa de destino para polígonos",
         "ar_LB": "اختر الطبقة المستهدفة للمضلعات",
-        "ca_ES": "Selecciona la capa de destí per als polígons"
+        "ca_ES": "Selecciona la capa de destí per als polígons",
+        "ro_RO": "Selectează stratul țintă pentru poligoane",
+        "pt_PT": "Selecionar a camada de destino para polígonos",
+        "el_GR": "Επιλέξτε το επίπεδο-στόχο για πολύγωνα"
     },
     "Site from configuration (read-only)": {
         "it_IT": "Sito dalla configurazione (sola lettura)",
@@ -35,7 +41,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Site depuis la configuration (lecture seule)",
         "es_ES": "Sitio desde la configuración (solo lectura)",
         "ar_LB": "الموقع من التكوين (للقراءة فقط)",
-        "ca_ES": "Jaciment des de la configuració (només lectura)"
+        "ca_ES": "Jaciment des de la configuració (només lectura)",
+        "ro_RO": "Sit din configurație (doar citire)",
+        "pt_PT": "Sítio da configuração (apenas leitura)",
+        "el_GR": "Θέση από ρυθμίσεις (μόνο ανάγνωση)"
     },
     "Area number": {
         "it_IT": "Numero area",
@@ -43,7 +52,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Numéro de zone",
         "es_ES": "Número de área",
         "ar_LB": "رقم المنطقة",
-        "ca_ES": "Número d'àrea"
+        "ca_ES": "Número d'àrea",
+        "ro_RO": "Număr zonă",
+        "pt_PT": "Número de área",
+        "el_GR": "Αριθμός περιοχής"
     },
     "1 = stones/objects, 2 = soil/area": {
         "it_IT": "1 = pietre/oggetti, 2 = suolo/area",
@@ -51,7 +63,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "1 = pierres/objets, 2 = sol/zone",
         "es_ES": "1 = piedras/objetos, 2 = suelo/área",
         "ar_LB": "1 = حجارة/كائنات، 2 = تربة/منطقة",
-        "ca_ES": "1 = pedres/objectes, 2 = sòl/àrea"
+        "ca_ES": "1 = pedres/objectes, 2 = sòl/àrea",
+        "ro_RO": "1 = pietre/obiecte, 2 = sol/zonă",
+        "pt_PT": "1 = pedras/objetos, 2 = solo/área",
+        "el_GR": "1 = λίθοι/αντικείμενα, 2 = έδαφος/περιοχή"
     },
     "Type of stratigraphic unit": {
         "it_IT": "Tipo di unità stratigrafica",
@@ -59,7 +74,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Type d'unité stratigraphique",
         "es_ES": "Tipo de unidad estratigráfica",
         "ar_LB": "نوع الوحدة الطبقية",
-        "ca_ES": "Tipus d'unitat estratigràfica"
+        "ca_ES": "Tipus d'unitat estratigràfica",
+        "ro_RO": "Tipul unității stratigrafice",
+        "pt_PT": "Tipo de unidade estratigráfica",
+        "el_GR": "Τύπος στρωματογραφικής ενότητας"
     },
     "Automatically segment all detected objects in the visible area": {
         "it_IT": "Segmenta automaticamente tutti gli oggetti rilevati nell'area visibile",
@@ -67,7 +85,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Segmenter automatiquement tous les objets détectés dans la zone visible",
         "es_ES": "Segmentar automáticamente todos los objetos detectados en el área visible",
         "ar_LB": "تجزئة تلقائية لجميع الكائنات المكتشفة في المنطقة المرئية",
-        "ca_ES": "Segmentar automàticament tots els objectes detectats a l'àrea visible"
+        "ca_ES": "Segmentar automàticament tots els objectes detectats a l'àrea visible",
+        "ro_RO": "Segmentează automat toate obiectele detectate în zona vizibilă",
+        "pt_PT": "Segmentar automaticamente todos os objetos detetados na área visível",
+        "el_GR": "Αυτόματη κατάτμηση όλων των εντοπισμένων αντικειμένων στην ορατή περιοχή"
     },
     "Click on individual stones to segment them. Right-click or press Enter when done.": {
         "it_IT": "Clicca sulle singole pietre per segmentarle. Tasto destro o Invio per terminare.",
@@ -75,7 +96,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Cliquez sur les pierres individuelles pour les segmenter. Clic droit ou Entrée pour terminer.",
         "es_ES": "Haz clic en las piedras individuales para segmentarlas. Clic derecho o Enter para terminar.",
         "ar_LB": "انقر على الحجارة الفردية لتجزئتها. انقر بزر الماوس الأيمن أو اضغط Enter عند الانتهاء.",
-        "ca_ES": "Fes clic a les pedres individuals per segmentar-les. Clic dret o Enter per acabar."
+        "ca_ES": "Fes clic a les pedres individuals per segmentar-les. Clic dret o Enter per acabar.",
+        "ro_RO": "Faceți clic pe pietrele individuale pentru a le segmenta. Clic dreapta sau Enter când ați terminat.",
+        "pt_PT": "Clique nas pedras individuais para as segmentar. Clique direito ou Enter quando terminar.",
+        "el_GR": "Κάντε κλικ σε μεμονωμένους λίθους για κατάτμηση. Δεξί κλικ ή Enter για ολοκλήρωση."
     },
     "Draw a rectangle to segment all stones within that area": {
         "it_IT": "Disegna un rettangolo per segmentare tutte le pietre nell'area",
@@ -83,7 +107,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Dessinez un rectangle pour segmenter toutes les pierres dans cette zone",
         "es_ES": "Dibuja un rectángulo para segmentar todas las piedras en esa área",
         "ar_LB": "ارسم مستطيلاً لتجزئة جميع الحجارة في تلك المنطقة",
-        "ca_ES": "Dibuixa un rectangle per segmentar totes les pedres en aquella àrea"
+        "ca_ES": "Dibuixa un rectangle per segmentar totes les pedres en aquella àrea",
+        "ro_RO": "Desenați un dreptunghi pentru a segmenta toate pietrele din acea zonă",
+        "pt_PT": "Desenhe um retângulo para segmentar todas as pedras nessa área",
+        "el_GR": "Σχεδιάστε ένα ορθογώνιο για κατάτμηση όλων των λίθων στην περιοχή"
     },
     "Draw a polygon to define the area to segment. Click vertices, right-click to finish.": {
         "it_IT": "Disegna un poligono per definire l'area da segmentare. Clicca i vertici, tasto destro per finire.",
@@ -91,7 +118,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Dessinez un polygone pour définir la zone à segmenter. Cliquez sur les sommets, clic droit pour terminer.",
         "es_ES": "Dibuja un polígono para definir el área a segmentar. Haz clic en los vértices, clic derecho para terminar.",
         "ar_LB": "ارسم مضلعاً لتحديد المنطقة المراد تجزئتها. انقر على الرؤوس، انقر بزر الماوس الأيمن للإنهاء.",
-        "ca_ES": "Dibuixa un polígon per definir l'àrea a segmentar. Fes clic als vèrtexs, clic dret per acabar."
+        "ca_ES": "Dibuixa un polígon per definir l'àrea a segmentar. Fes clic als vèrtexs, clic dret per acabar.",
+        "ro_RO": "Desenați un poligon pentru a defini zona de segmentat. Clic pe vârfuri, clic dreapta pentru a termina.",
+        "pt_PT": "Desenhe um polígono para definir a área a segmentar. Clique nos vértices, clique direito para terminar.",
+        "el_GR": "Σχεδιάστε ένα πολύγωνο για να ορίσετε την περιοχή κατάτμησης. Κλικ στις κορυφές, δεξί κλικ για ολοκλήρωση."
     },
     "Select a polygon feature from an existing layer as the area to segment": {
         "it_IT": "Seleziona un elemento poligonale da un layer esistente come area da segmentare",
@@ -99,7 +129,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Sélectionnez un élément polygonal d'une couche existante comme zone à segmenter",
         "es_ES": "Selecciona un elemento poligonal de una capa existente como área a segmentar",
         "ar_LB": "اختر عنصر مضلع من طبقة موجودة كمنطقة للتجزئة",
-        "ca_ES": "Selecciona un element poligonal d'una capa existent com a àrea a segmentar"
+        "ca_ES": "Selecciona un element poligonal d'una capa existent com a àrea a segmentar",
+        "ro_RO": "Selectează un element poligonal dintr-un strat existent ca zonă de segmentat",
+        "pt_PT": "Selecione um elemento poligonal de uma camada existente como área a segmentar",
+        "el_GR": "Επιλέξτε ένα πολυγωνικό στοιχείο από υπάρχον επίπεδο ως περιοχή κατάτμησης"
     },
     "Get your API key from replicate.com or roboflow.com": {
         "it_IT": "Ottieni la tua chiave API da replicate.com o roboflow.com",
@@ -107,7 +140,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Obtenez votre clé API sur replicate.com ou roboflow.com",
         "es_ES": "Obtén tu clave API de replicate.com o roboflow.com",
         "ar_LB": "احصل على مفتاح API الخاص بك من replicate.com أو roboflow.com",
-        "ca_ES": "Obtén la teva clau API de replicate.com o roboflow.com"
+        "ca_ES": "Obtén la teva clau API de replicate.com o roboflow.com",
+        "ro_RO": "Obțineți cheia API de la replicate.com sau roboflow.com",
+        "pt_PT": "Obtenha a sua chave API em replicate.com ou roboflow.com",
+        "el_GR": "Αποκτήστε το κλειδί API σας από replicate.com ή roboflow.com"
     },
     "Describe what objects to segment (SAM-3 only)": {
         "it_IT": "Descrivi quali oggetti segmentare (solo SAM-3)",
@@ -115,7 +151,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Décrivez quels objets segmenter (SAM-3 uniquement)",
         "es_ES": "Describe qué objetos segmentar (solo SAM-3)",
         "ar_LB": "صف الكائنات المراد تجزئتها (SAM-3 فقط)",
-        "ca_ES": "Descriu quins objectes segmentar (només SAM-3)"
+        "ca_ES": "Descriu quins objectes segmentar (només SAM-3)",
+        "ro_RO": "Descrieți ce obiecte să segmenteze (doar SAM-3)",
+        "pt_PT": "Descreva que objetos segmentar (apenas SAM-3)",
+        "el_GR": "Περιγράψτε τα αντικείμενα προς κατάτμηση (μόνο SAM-3)"
     },
     "Run segmentation on the selected raster": {
         "it_IT": "Esegui la segmentazione sul raster selezionato",
@@ -123,7 +162,10 @@ SAM_TRANSLATIONS = {
         "fr_FR": "Exécuter la segmentation sur le raster sélectionné",
         "es_ES": "Ejecutar la segmentación en el ráster seleccionado",
         "ar_LB": "تشغيل التجزئة على النقطية المحددة",
-        "ca_ES": "Executa la segmentació en el ràster seleccionat"
+        "ca_ES": "Executa la segmentació en el ràster seleccionat",
+        "ro_RO": "Rulează segmentarea pe rasterul selectat",
+        "pt_PT": "Executar a segmentação no raster selecionado",
+        "el_GR": "Εκτέλεση κατάτμησης στο επιλεγμένο ψηφιδωτό"
     },
 }
 
@@ -135,7 +177,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Plus grand = meilleure qualité mais plus lent",
         "es_ES": "Mayor = mejor calidad pero más lento",
         "ar_LB": "أكبر = جودة أفضل ولكن أبطأ",
-        "ca_ES": "Més gran = millor qualitat però més lent"
+        "ca_ES": "Més gran = millor qualitat però més lent",
+        "ro_RO": "Mai mare = calitate mai bună dar mai lent",
+        "pt_PT": "Maior = melhor qualidade mas mais lento",
+        "el_GR": "Μεγαλύτερο = καλύτερη ποιότητα αλλά πιο αργό"
     },
     "Overlap between patches to reduce seams": {
         "it_IT": "Sovrapposizione tra le sezioni per ridurre le giunture",
@@ -143,7 +188,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Chevauchement entre les sections pour réduire les coutures",
         "es_ES": "Superposición entre parches para reducir costuras",
         "ar_LB": "تداخل بين الرقع لتقليل اللحامات",
-        "ca_ES": "Superposició entre seccions per reduir les costures"
+        "ca_ES": "Superposició entre seccions per reduir les costures",
+        "ro_RO": "Suprapunere între secțiuni pentru a reduce îmbinările",
+        "pt_PT": "Sobreposição entre secções para reduzir costuras",
+        "el_GR": "Επικάλυψη μεταξύ τμημάτων για μείωση ραφών"
     },
     "Control dot pattern density": {
         "it_IT": "Controlla la densità del pattern a punti",
@@ -151,7 +199,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Contrôler la densité du motif de points",
         "es_ES": "Controlar la densidad del patrón de puntos",
         "ar_LB": "التحكم في كثافة نمط النقاط",
-        "ca_ES": "Controla la densitat del patró de punts"
+        "ca_ES": "Controla la densitat del patró de punts",
+        "ro_RO": "Controlează densitatea modelului de puncte",
+        "pt_PT": "Controlar a densidade do padrão de pontos",
+        "el_GR": "Ρύθμιση πυκνότητας μοτίβου στιγμών"
     },
     "Apply automatic brightness/contrast adjustment": {
         "it_IT": "Applica regolazione automatica luminosità/contrasto",
@@ -159,7 +210,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Appliquer l'ajustement automatique de luminosité/contraste",
         "es_ES": "Aplicar ajuste automático de brillo/contraste",
         "ar_LB": "تطبيق ضبط السطوع/التباين التلقائي",
-        "ca_ES": "Aplica l'ajust automàtic de brillantor/contrast"
+        "ca_ES": "Aplica l'ajust automàtic de brillantor/contrast",
+        "ro_RO": "Aplică ajustarea automată a luminozității/contrastului",
+        "pt_PT": "Aplicar ajuste automático de brilho/contraste",
+        "el_GR": "Εφαρμογή αυτόματης ρύθμισης φωτεινότητας/αντίθεσης"
     },
     "Manual contrast adjustment (1.0 = no change)": {
         "it_IT": "Regolazione manuale del contrasto (1.0 = nessun cambiamento)",
@@ -167,7 +221,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Ajustement manuel du contraste (1.0 = pas de changement)",
         "es_ES": "Ajuste manual del contraste (1.0 = sin cambio)",
         "ar_LB": "ضبط التباين اليدوي (1.0 = بدون تغيير)",
-        "ca_ES": "Ajust manual del contrast (1.0 = sense canvi)"
+        "ca_ES": "Ajust manual del contrast (1.0 = sense canvi)",
+        "ro_RO": "Ajustare manuală a contrastului (1.0 = fără modificare)",
+        "pt_PT": "Ajuste manual do contraste (1.0 = sem alteração)",
+        "el_GR": "Χειροκίνητη ρύθμιση αντίθεσης (1.0 = χωρίς αλλαγή)"
     },
     "Manual brightness adjustment (1.0 = no change)": {
         "it_IT": "Regolazione manuale della luminosità (1.0 = nessun cambiamento)",
@@ -175,7 +232,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Ajustement manuel de la luminosité (1.0 = pas de changement)",
         "es_ES": "Ajuste manual del brillo (1.0 = sin cambio)",
         "ar_LB": "ضبط السطوع اليدوي (1.0 = بدون تغيير)",
-        "ca_ES": "Ajust manual de la brillantor (1.0 = sense canvi)"
+        "ca_ES": "Ajust manual de la brillantor (1.0 = sense canvi)",
+        "ro_RO": "Ajustare manuală a luminozității (1.0 = fără modificare)",
+        "pt_PT": "Ajuste manual do brilho (1.0 = sem alteração)",
+        "el_GR": "Χειροκίνητη ρύθμιση φωτεινότητας (1.0 = χωρίς αλλαγή)"
     },
     "Reset to default values": {
         "it_IT": "Ripristina i valori predefiniti",
@@ -183,7 +243,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Réinitialiser aux valeurs par défaut",
         "es_ES": "Restablecer valores predeterminados",
         "ar_LB": "إعادة التعيين إلى القيم الافتراضية",
-        "ca_ES": "Restableix els valors predeterminats"
+        "ca_ES": "Restableix els valors predeterminats",
+        "ro_RO": "Resetare la valorile implicite",
+        "pt_PT": "Repor valores predefinidos",
+        "el_GR": "Επαναφορά στις προεπιλεγμένες τιμές"
     },
     "Background treatment for output image": {
         "it_IT": "Trattamento sfondo per immagine di output",
@@ -191,7 +254,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Traitement du fond pour l'image de sortie",
         "es_ES": "Tratamiento del fondo para imagen de salida",
         "ar_LB": "معالجة الخلفية لصورة الإخراج",
-        "ca_ES": "Tractament del fons per a la imatge de sortida"
+        "ca_ES": "Tractament del fons per a la imatge de sortida",
+        "ro_RO": "Tratamentul fundalului pentru imaginea de ieșire",
+        "pt_PT": "Tratamento do fundo para imagem de saída",
+        "el_GR": "Επεξεργασία φόντου για εικόνα εξόδου"
     },
     "Brightness threshold for background detection (higher = stricter)": {
         "it_IT": "Soglia di luminosità per rilevamento sfondo (più alta = più rigida)",
@@ -199,7 +265,10 @@ POTTERY_TRANSLATIONS = {
         "fr_FR": "Seuil de luminosité pour la détection du fond (plus élevé = plus strict)",
         "es_ES": "Umbral de brillo para detección de fondo (mayor = más estricto)",
         "ar_LB": "عتبة السطوع لاكتشاف الخلفية (أعلى = أكثر صرامة)",
-        "ca_ES": "Llindar de brillantor per a la detecció del fons (més alt = més estricte)"
+        "ca_ES": "Llindar de brillantor per a la detecció del fons (més alt = més estricte)",
+        "ro_RO": "Pragul de luminozitate pentru detectarea fundalului (mai mare = mai strict)",
+        "pt_PT": "Limiar de brilho para deteção do fundo (maior = mais rigoroso)",
+        "el_GR": "Κατώφλι φωτεινότητας για ανίχνευση φόντου (υψηλότερο = αυστηρότερο)"
     },
 }
 
@@ -212,6 +281,9 @@ TMA_TRANSLATIONS = {
         "es_ES": "Abrir búsqueda avanzada para UE y cajas",
         "ar_LB": "فتح البحث المتقدم للوحدات الطبقية والصناديق",
         "ca_ES": "Obrir cerca avançada per a UE i caixes",
+        "ro_RO": "Deschide căutarea avansată pentru US și cutii",
+        "pt_PT": "Abrir pesquisa avançada para US e caixas",
+        "el_GR": "Άνοιγμα προχωρημένης αναζήτησης για ΣΕ και κιβώτια",
         "it_IT": "Apri ricerca avanzata per US e cassette"
     },
     "Passa alla vista tabella": {
@@ -221,6 +293,9 @@ TMA_TRANSLATIONS = {
         "es_ES": "Cambiar a vista de tabla",
         "ar_LB": "التبديل إلى عرض الجدول",
         "ca_ES": "Canviar a vista de taula",
+        "ro_RO": "Comută la vizualizarea tabel",
+        "pt_PT": "Mudar para vista de tabela",
+        "el_GR": "Εναλλαγή σε προβολή πίνακα",
         "it_IT": "Passa alla vista tabella"
     },
 }
@@ -232,7 +307,7 @@ ALL_TRANSLATIONS.update(POTTERY_TRANSLATIONS)
 ALL_TRANSLATIONS.update(TMA_TRANSLATIONS)
 
 # Lingue target
-TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT"]
+TARGET_LANGUAGES = ["en_US", "de_DE", "fr_FR", "es_ES", "ar_LB", "ca_ES", "it_IT", "ro_RO", "pt_PT", "el_GR"]
 
 
 def escape_xml(text):

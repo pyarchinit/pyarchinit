@@ -243,12 +243,15 @@ class MatrixGraphVisualizer:
 
             # Color by unit type
             color_map = {
-                'US': '#4CAF50',  # Green for regular US
-                'USM': '#FF9800',  # Orange for masonry
-                'USF': '#2196F3',  # Blue for features
-                'USD': '#795548',  # Brown for deposits
-                'USR': '#9C27B0',  # Purple for structural
-                'virtual_reconstruction': '#E91E63'  # Pink for virtual
+                # US equivalents (all languages) - Green
+                'US': '#4CAF50', 'SU': '#4CAF50', 'SE': '#4CAF50',
+                'UE': '#4CAF50', '\u03a3\u039c': '#4CAF50',
+                # USM equivalents (all languages) - Orange
+                'USM': '#FF9800', 'WSU': '#FF9800', 'MSE': '#FF9800',
+                'UEM': '#FF9800', 'USZ': '#FF9800', '\u03a4\u03a3\u039c': '#FF9800',
+                # Other types
+                'USF': '#2196F3', 'USD': '#795548', 'USR': '#9C27B0',
+                'virtual_reconstruction': '#E91E63',
             }
             node_colors.append(color_map.get(unita_tipo, '#607D8B'))
 
@@ -295,8 +298,8 @@ class MatrixGraphVisualizer:
 
         # Add legend
         legend_elements = [
-            mpatches.Patch(color='#4CAF50', label='US - Stratigraphic Unit'),
-            mpatches.Patch(color='#FF9800', label='USM - Masonry Unit'),
+            mpatches.Patch(color='#4CAF50', label='US/SU/SE/UE - Stratigraphic Unit'),
+            mpatches.Patch(color='#FF9800', label='USM/WSU/MSE/UEM - Masonry Unit'),
             mpatches.Patch(color='#2196F3', label='USF - Feature Unit'),
             mpatches.Patch(color='#795548', label='USD - Deposit Unit'),
             mpatches.Patch(color='#9C27B0', label='USR - Structural Unit'),

@@ -48,6 +48,10 @@ import urllib.error
 
 from ..utility.create_style import ThesaurusStyler, USViewStyler
 from ..utility.settings import Settings
+from ..utility.pyarchinit_i18n_stratigraphic import (
+    COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
+    SAME_AS_GROUP, CONNECTED_GROUP,
+)
 
 from ..db.pyarchinit_conn_strings import Connection
 
@@ -174,6 +178,286 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_ut_polygon": "UT Polygone Zeichnung"
 
                               }
+    elif L=='en':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Samples point",
+                              "pyarchinit_individui": "Individual",
+                              "pyarchinit_linee_rif": "Reference line",
+                              "pyarchinit_punti_rif": "Reference point",
+                              "pyarchinit_quote": "SU elevation",
+                              "pyarchinit_quote_view": "SU elevation view",
+                              "pyarchinit_ripartizioni_spaziali": "Spatial allocation",
+                              "pyarchinit_sezioni": "Excavation section",
+                              "pyarchinit_siti": "Point site localization",
+                              "pyarchinit_strutture_ipotesi": "Hypothetical excavation structures",
+                              "pyarchinit_us_view": "SU view",
+                              "pyunitastratigrafiche": "SU drawing",
+                              "pyarchinit_documentazione": "Documentation register",
+                              "pyarchinit_doc_view": "Documentation view",
+                              "pyarchinit_us_negative_doc": "Negative SU for section/elevation",
+                              "pyarchinit_us_negative_doc_view": "Negative SU for section/elevation view",
+                              "pyarchinit_siti_polygonal": "Areal site",
+                              "pyarchinit_siti_polygonal_view": "Areal site view",
+                              "pyarchinit_site_view": "Site point view",
+                              "pyarchinit_strutture_view": "Hypothetical excavation structures view",
+                              "pyarchinit_tomba_view": "Taphonomy view",
+                              "pyarchinit_tafonomia": "Taphonomy",
+                              "pyarchinit_doc_view_b": "Documentation view B",
+                              "pyarchinit_reperti": "Artefact",
+                              "pyarchinit_reperti_view": "Artefact view",
+                              "pyarchinit_sezioni_view": "Excavation section view",
+                              "pyunitastratigrafiche_usm": "SUW drawing",
+                              "pyarchinit_usm_view": "SUW View",
+                              "pyarchinit_quote_usm": "SUW Elevation",
+                              "pyarchinit_quote_usm_view": "SUW Elevation View",
+                              "pyarchinit_ut_point": "UT Points drawing",
+                              "pyarchinit_ut_line": "UT Lines drawing",
+                              "pyarchinit_ut_polygon": "UT Polygons drawing"
+                              }
+    elif L=='es':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Puntos de muestreo",
+                              "pyarchinit_individui": "Individuos",
+                              "pyarchinit_linee_rif": "Líneas de referencia",
+                              "pyarchinit_punti_rif": "Puntos de referencia",
+                              "pyarchinit_quote": "Cotas UE dibujo",
+                              "pyarchinit_quote_view": "Cotas UE vista",
+                              "pyarchinit_ripartizioni_spaziali": "Subdivisiones espaciales",
+                              "pyarchinit_sezioni": "Secciones de excavación",
+                              "pyarchinit_siti": "Localización puntual de sitios",
+                              "pyarchinit_strutture_ipotesi": "Hipótesis de estructuras de excavación",
+                              "pyarchinit_us_view": "UE vista",
+                              "pyunitastratigrafiche": "Unidades Estratigráficas dibujo",
+                              "pyarchinit_documentazione": "Registro de documentación",
+                              "pyarchinit_doc_view": "Documentación vista",
+                              "pyarchinit_us_negative_doc": "UE negativas para secciones/alzados",
+                              "pyarchinit_us_negative_doc_view": "Vista UE negativas para secciones/alzados",
+                              "pyarchinit_siti_polygonal": "Perímetro de sitios poligonales",
+                              "pyarchinit_siti_polygonal_view": "Perímetro de sitios poligonales vista",
+                              "pyarchinit_site_view": "Localización puntual vista",
+                              "pyarchinit_strutture_view": "Hipótesis de estructuras vista",
+                              "pyarchinit_tomba_view": "Vista tafonomía",
+                              "pyarchinit_tafonomia": "Tafonomía",
+                              "pyarchinit_doc_view_b": "Documentación vista B",
+                              "pyarchinit_reperti": "Hallazgos",
+                              "pyarchinit_reperti_view": "Hallazgos vista",
+                              "pyarchinit_sezioni_view": "Secciones de excavación vista",
+                              "pyunitastratigrafiche_usm": "UEM dibujo",
+                              "pyarchinit_usm_view": "UEM vista",
+                              "pyarchinit_quote_usm": "Cotas UEM",
+                              "pyarchinit_quote_usm_view": "Cotas UEM vista",
+                              "pyarchinit_ut_point": "UT Puntos dibujo",
+                              "pyarchinit_ut_line": "UT Líneas dibujo",
+                              "pyarchinit_ut_polygon": "UT Polígonos dibujo"
+                              }
+    elif L=='fr':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Points d’échantillonnage",
+                              "pyarchinit_individui": "Individus",
+                              "pyarchinit_linee_rif": "Lignes de référence",
+                              "pyarchinit_punti_rif": "Points de référence",
+                              "pyarchinit_quote": "Cotes US dessin",
+                              "pyarchinit_quote_view": "Cotes US vue",
+                              "pyarchinit_ripartizioni_spaziali": "Répartitions spatiales",
+                              "pyarchinit_sezioni": "Coupes de fouille",
+                              "pyarchinit_siti": "Localisation ponctuelle des sites",
+                              "pyarchinit_strutture_ipotesi": "Hypothèses de structures de fouille",
+                              "pyarchinit_us_view": "US vue",
+                              "pyunitastratigrafiche": "Unités Stratigraphiques dessin",
+                              "pyarchinit_documentazione": "Registre de documentation",
+                              "pyarchinit_doc_view": "Documentation vue",
+                              "pyarchinit_us_negative_doc": "US négatives pour coupes/élévations",
+                              "pyarchinit_us_negative_doc_view": "Vue US négatives pour coupes/élévations",
+                              "pyarchinit_siti_polygonal": "Périmètre polygonal des sites",
+                              "pyarchinit_siti_polygonal_view": "Périmètre polygonal des sites vue",
+                              "pyarchinit_site_view": "Localisation ponctuelle vue",
+                              "pyarchinit_strutture_view": "Hypothèses de structures vue",
+                              "pyarchinit_tomba_view": "Vue taphonomie",
+                              "pyarchinit_tafonomia": "Taphonomie",
+                              "pyarchinit_doc_view_b": "Documentation vue B",
+                              "pyarchinit_reperti": "Objets",
+                              "pyarchinit_reperti_view": "Objets vue",
+                              "pyarchinit_sezioni_view": "Coupes de fouille vue",
+                              "pyunitastratigrafiche_usm": "USM dessin",
+                              "pyarchinit_usm_view": "USM vue",
+                              "pyarchinit_quote_usm": "Cotes USM",
+                              "pyarchinit_quote_usm_view": "Cotes USM vue",
+                              "pyarchinit_ut_point": "UT Points dessin",
+                              "pyarchinit_ut_line": "UT Lignes dessin",
+                              "pyarchinit_ut_polygon": "UT Polygones dessin"
+                              }
+    elif L=='ar':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "نقاط أخذ العينات",
+                              "pyarchinit_individui": "أفراد",
+                              "pyarchinit_linee_rif": "خطوط مرجعية",
+                              "pyarchinit_punti_rif": "نقاط مرجعية",
+                              "pyarchinit_quote": "مناسيب وحدة طبقية رسم",
+                              "pyarchinit_quote_view": "مناسيب وحدة طبقية عرض",
+                              "pyarchinit_ripartizioni_spaziali": "تقسيمات مكانية",
+                              "pyarchinit_sezioni": "مقاطع حفر",
+                              "pyarchinit_siti": "تحديد مواقع نقطي",
+                              "pyarchinit_strutture_ipotesi": "فرضيات هياكل الحفر",
+                              "pyarchinit_us_view": "وحدة طبقية عرض",
+                              "pyunitastratigrafiche": "وحدات طبقية رسم",
+                              "pyarchinit_documentazione": "سجل التوثيق",
+                              "pyarchinit_doc_view": "التوثيق عرض",
+                              "pyarchinit_us_negative_doc": "وحدات سلبية للمقاطع/الواجهات",
+                              "pyarchinit_us_negative_doc_view": "عرض وحدات سلبية",
+                              "pyarchinit_siti_polygonal": "محيط مواقع مضلعة",
+                              "pyarchinit_siti_polygonal_view": "محيط مواقع مضلعة عرض",
+                              "pyarchinit_site_view": "تحديد موقع نقطي عرض",
+                              "pyarchinit_strutture_view": "فرضيات هياكل عرض",
+                              "pyarchinit_tomba_view": "عرض تافونومي",
+                              "pyarchinit_tafonomia": "تافونوميا",
+                              "pyarchinit_doc_view_b": "التوثيق عرض ب",
+                              "pyarchinit_reperti": "لقى",
+                              "pyarchinit_reperti_view": "لقى عرض",
+                              "pyarchinit_sezioni_view": "مقاطع حفر عرض",
+                              "pyunitastratigrafiche_usm": "وحدات جدارية رسم",
+                              "pyarchinit_usm_view": "وحدات جدارية عرض",
+                              "pyarchinit_quote_usm": "مناسيب وحدات جدارية",
+                              "pyarchinit_quote_usm_view": "مناسيب وحدات جدارية عرض",
+                              "pyarchinit_ut_point": "UT نقاط رسم",
+                              "pyarchinit_ut_line": "UT خطوط رسم",
+                              "pyarchinit_ut_polygon": "UT مضلعات رسم"
+                              }
+    elif L=='ca':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Punts de mostreig",
+                              "pyarchinit_individui": "Individus",
+                              "pyarchinit_linee_rif": "Línies de referència",
+                              "pyarchinit_punti_rif": "Punts de referència",
+                              "pyarchinit_quote": "Cotes UE dibuix",
+                              "pyarchinit_quote_view": "Cotes UE vista",
+                              "pyarchinit_ripartizioni_spaziali": "Subdivisions espacials",
+                              "pyarchinit_sezioni": "Seccions d’excavació",
+                              "pyarchinit_siti": "Localització puntual de jaciments",
+                              "pyarchinit_strutture_ipotesi": "Hipòtesis d’estructures d’excavació",
+                              "pyarchinit_us_view": "UE vista",
+                              "pyunitastratigrafiche": "Unitats Estratigràfiques dibuix",
+                              "pyarchinit_documentazione": "Registre de documentació",
+                              "pyarchinit_doc_view": "Documentació vista",
+                              "pyarchinit_us_negative_doc": "UE negatives per seccions/alçats",
+                              "pyarchinit_us_negative_doc_view": "Vista UE negatives per seccions/alçats",
+                              "pyarchinit_siti_polygonal": "Perímetre de jaciments poligonals",
+                              "pyarchinit_siti_polygonal_view": "Perímetre de jaciments poligonals vista",
+                              "pyarchinit_site_view": "Localització puntual vista",
+                              "pyarchinit_strutture_view": "Hipòtesis d’estructures vista",
+                              "pyarchinit_tomba_view": "Vista tafonomia",
+                              "pyarchinit_tafonomia": "Tafonomia",
+                              "pyarchinit_doc_view_b": "Documentació vista B",
+                              "pyarchinit_reperti": "Troballes",
+                              "pyarchinit_reperti_view": "Troballes vista",
+                              "pyarchinit_sezioni_view": "Seccions d’excavació vista",
+                              "pyunitastratigrafiche_usm": "UEM dibuix",
+                              "pyarchinit_usm_view": "UEM vista",
+                              "pyarchinit_quote_usm": "Cotes UEM",
+                              "pyarchinit_quote_usm_view": "Cotes UEM vista",
+                              "pyarchinit_ut_point": "UT Punts dibuix",
+                              "pyarchinit_ut_line": "UT Línies dibuix",
+                              "pyarchinit_ut_polygon": "UT Polígons dibuix"
+                              }
+    elif L=='ro':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Puncte de eșantionare",
+                              "pyarchinit_individui": "Indivizi",
+                              "pyarchinit_linee_rif": "Linii de referință",
+                              "pyarchinit_punti_rif": "Puncte de referință",
+                              "pyarchinit_quote": "Cote US desen",
+                              "pyarchinit_quote_view": "Cote US vizualizare",
+                              "pyarchinit_ripartizioni_spaziali": "Repartiții spațiale",
+                              "pyarchinit_sezioni": "Secțiuni de săpătură",
+                              "pyarchinit_siti": "Localizare punctuală situri",
+                              "pyarchinit_strutture_ipotesi": "Ipoteze structuri de săpătură",
+                              "pyarchinit_us_view": "US vizualizare",
+                              "pyunitastratigrafiche": "Unități Stratigrafice desen",
+                              "pyarchinit_documentazione": "Registru documentație",
+                              "pyarchinit_doc_view": "Documentație vizualizare",
+                              "pyarchinit_us_negative_doc": "US negative pentru secțiuni/elevații",
+                              "pyarchinit_us_negative_doc_view": "Vizualizare US negative pentru secțiuni/elevații",
+                              "pyarchinit_siti_polygonal": "Perimetru situri poligonale",
+                              "pyarchinit_siti_polygonal_view": "Perimetru situri poligonale vizualizare",
+                              "pyarchinit_site_view": "Localizare punctuală vizualizare",
+                              "pyarchinit_strutture_view": "Ipoteze structuri vizualizare",
+                              "pyarchinit_tomba_view": "Vizualizare tafonomie",
+                              "pyarchinit_tafonomia": "Tafonomie",
+                              "pyarchinit_doc_view_b": "Documentație vizualizare B",
+                              "pyarchinit_reperti": "Artefacte",
+                              "pyarchinit_reperti_view": "Artefacte vizualizare",
+                              "pyarchinit_sezioni_view": "Secțiuni de săpătură vizualizare",
+                              "pyunitastratigrafiche_usm": "USZ desen",
+                              "pyarchinit_usm_view": "USZ vizualizare",
+                              "pyarchinit_quote_usm": "Cote USZ",
+                              "pyarchinit_quote_usm_view": "Cote USZ vizualizare",
+                              "pyarchinit_ut_point": "UT Puncte desen",
+                              "pyarchinit_ut_line": "UT Linii desen",
+                              "pyarchinit_ut_polygon": "UT Poligoane desen"
+                              }
+    elif L=='pt':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Pontos de amostragem",
+                              "pyarchinit_individui": "Indivíduos",
+                              "pyarchinit_linee_rif": "Linhas de referência",
+                              "pyarchinit_punti_rif": "Pontos de referência",
+                              "pyarchinit_quote": "Cotas UE desenho",
+                              "pyarchinit_quote_view": "Cotas UE vista",
+                              "pyarchinit_ripartizioni_spaziali": "Repartições espaciais",
+                              "pyarchinit_sezioni": "Secções de escavação",
+                              "pyarchinit_siti": "Localização pontual de sítios",
+                              "pyarchinit_strutture_ipotesi": "Hipóteses de estruturas de escavação",
+                              "pyarchinit_us_view": "UE vista",
+                              "pyunitastratigrafiche": "Unidades Estratigráficas desenho",
+                              "pyarchinit_documentazione": "Registo de documentação",
+                              "pyarchinit_doc_view": "Documentação vista",
+                              "pyarchinit_us_negative_doc": "UE negativas para secções/elevações",
+                              "pyarchinit_us_negative_doc_view": "Vista UE negativas para secções/elevações",
+                              "pyarchinit_siti_polygonal": "Perímetro de sítios poligonais",
+                              "pyarchinit_siti_polygonal_view": "Perímetro de sítios poligonais vista",
+                              "pyarchinit_site_view": "Localização pontual vista",
+                              "pyarchinit_strutture_view": "Hipóteses de estruturas vista",
+                              "pyarchinit_tomba_view": "Vista tafonomia",
+                              "pyarchinit_tafonomia": "Tafonomia",
+                              "pyarchinit_doc_view_b": "Documentação vista B",
+                              "pyarchinit_reperti": "Achados",
+                              "pyarchinit_reperti_view": "Achados vista",
+                              "pyarchinit_sezioni_view": "Secções de escavação vista",
+                              "pyunitastratigrafiche_usm": "UEP desenho",
+                              "pyarchinit_usm_view": "UEP vista",
+                              "pyarchinit_quote_usm": "Cotas UEP",
+                              "pyarchinit_quote_usm_view": "Cotas UEP vista",
+                              "pyarchinit_ut_point": "UT Pontos desenho",
+                              "pyarchinit_ut_line": "UT Linhas desenho",
+                              "pyarchinit_ut_polygon": "UT Polígonos desenho"
+                              }
+    elif L=='el':
+        LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Σημεία δειγματοληψίας",
+                              "pyarchinit_individui": "Άτομα",
+                              "pyarchinit_linee_rif": "Γραμμές αναφοράς",
+                              "pyarchinit_punti_rif": "Σημεία αναφοράς",
+                              "pyarchinit_quote": "Υψόμετρα ΣΕ σχέδιο",
+                              "pyarchinit_quote_view": "Υψόμετρα ΣΕ προβολή",
+                              "pyarchinit_ripartizioni_spaziali": "Χωρικές κατανομές",
+                              "pyarchinit_sezioni": "Τομές ανασκαφής",
+                              "pyarchinit_siti": "Σημειακός εντοπισμός θέσεων",
+                              "pyarchinit_strutture_ipotesi": "Υποθέσεις κατασκευών ανασκαφής",
+                              "pyarchinit_us_view": "ΣΕ προβολή",
+                              "pyunitastratigrafiche": "Στρωματογραφικές Ενότητες σχέδιο",
+                              "pyarchinit_documentazione": "Μητρώο τεκμηρίωσης",
+                              "pyarchinit_doc_view": "Τεκμηρίωση προβολή",
+                              "pyarchinit_us_negative_doc": "Αρνητικές ΣΕ για τομές/όψεις",
+                              "pyarchinit_us_negative_doc_view": "Προβολή αρνητικών ΣΕ για τομές/όψεις",
+                              "pyarchinit_siti_polygonal": "Περίμετρος πολυγωνικών θέσεων",
+                              "pyarchinit_siti_polygonal_view": "Περίμετρος πολυγωνικών θέσεων προβολή",
+                              "pyarchinit_site_view": "Σημειακός εντοπισμός προβολή",
+                              "pyarchinit_strutture_view": "Υποθέσεις κατασκευών προβολή",
+                              "pyarchinit_tomba_view": "Προβολή ταφονομίας",
+                              "pyarchinit_tafonomia": "Ταφονομία",
+                              "pyarchinit_doc_view_b": "Τεκμηρίωση προβολή Β",
+                              "pyarchinit_reperti": "Ευρήματα",
+                              "pyarchinit_reperti_view": "Ευρήματα προβολή",
+                              "pyarchinit_sezioni_view": "Τομές ανασκαφής προβολή",
+                              "pyunitastratigrafiche_usm": "ΤΚΕ σχέδιο",
+                              "pyarchinit_usm_view": "ΤΚΕ προβολή",
+                              "pyarchinit_quote_usm": "Υψόμετρα ΤΚΕ",
+                              "pyarchinit_quote_usm_view": "Υψόμετρα ΤΚΕ προβολή",
+                              "pyarchinit_ut_point": "UT Σημεία σχέδιο",
+                              "pyarchinit_ut_line": "UT Γραμμές σχέδιο",
+                              "pyarchinit_ut_polygon": "UT Πολύγωνα σχέδιο"
+                              }
     else:
         LAYERS_CONVERT_DIZ = {"pyarchinit_campionature": "Samples point",
                               "pyarchinit_individui": "Individual",
@@ -191,7 +475,6 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_doc_view": "Documentation view",
                               "pyarchinit_us_negative_doc": "Negative SU for section/elevation",
                               "pyarchinit_us_negative_doc_view": "Negative SU for section/elevation view",
-                              #"pyarchinit_site_view": "Site view",
                               "pyarchinit_siti_polygonal": "Areal site",
                               "pyarchinit_siti_polygonal_view": "Areal site view",
                               "pyarchinit_site_view": "Site point view",
@@ -202,14 +485,180 @@ class Pyarchinit_pyqgis(QDialog):
                               "pyarchinit_reperti": "Artefact",
                               "pyarchinit_reperti_view": "Artefact view",
                               "pyarchinit_sezioni_view": "Excavation section view",
-                              "pyunitastratigrafiche_usm":"SUW drawing",
-                              "pyarchinit_usm_view":"SUW View",
-                              "pyarchinit_quote_usm":"SUW Elevation",
-                              "pyarchinit_quote_usm_view":"SUW Elevation View",
+                              "pyunitastratigrafiche_usm": "SUW drawing",
+                              "pyarchinit_usm_view": "SUW View",
+                              "pyarchinit_quote_usm": "SUW Elevation",
+                              "pyarchinit_quote_usm_view": "SUW Elevation View",
                               "pyarchinit_ut_point": "UT Points drawing",
                               "pyarchinit_ut_line": "UT Lines drawing",
                               "pyarchinit_ut_polygon": "UT Polygons drawing"
                               }
+
+    # Translated group names for QGIS layer tree
+    _GROUP_NAMES = {
+        'view_us_individui': {
+            'it': "View scheda US-Individui", 'de': "Ansicht SE-Individuen",
+            'en': "SU-Individuals View", 'es': "Vista UE-Individuos",
+            'fr': "Vue US-Individus", 'ar': "عرض وحدة طبقية-أفراد",
+            'ca': "Vista UE-Individus", 'ro': "Vizualizare US-Indivizi",
+            'pt': "Vista UE-Indivíduos", 'el': "Προβολή ΣΕ-Ατόμων",
+        },
+        'view_us_matrix': {
+            'it': "View scheda US-Matrix", 'de': "Ansicht SE-Matrix",
+            'en': "SU-Matrix View", 'es': "Vista UE-Matrix",
+            'fr': "Vue US-Matrice", 'ar': "عرض وحدة طبقية-مصفوفة",
+            'ca': "Vista UE-Matriu", 'ro': "Vizualizare US-Matrice",
+            'pt': "Vista UE-Matriz", 'el': "Προβολή ΣΕ-Μήτρα",
+        },
+        'view_documentazione': {
+            'it': "View scheda Documentazione", 'de': "Ansicht Dokumentation",
+            'en': "Documentation View", 'es': "Vista Documentación",
+            'fr': "Vue Documentation", 'ar': "عرض التوثيق",
+            'ca': "Vista Documentació", 'ro': "Vizualizare Documentație",
+            'pt': "Vista Documentação", 'el': "Προβολή Τεκμηρίωσης",
+        },
+        'view_us_documentazione': {
+            'it': "View scheda US-Documentazione", 'de': "Ansicht SE-Dokumentation",
+            'en': "SU-Documentation View", 'es': "Vista UE-Documentación",
+            'fr': "Vue US-Documentation", 'ar': "عرض وحدة طبقية-توثيق",
+            'ca': "Vista UE-Documentació", 'ro': "Vizualizare US-Documentație",
+            'pt': "Vista UE-Documentação", 'el': "Προβολή ΣΕ-Τεκμηρίωσης",
+        },
+        'view_us': {
+            'it': "View scheda US", 'de': "Ansicht SE Formular",
+            'en': "SU Form View", 'es': "Vista ficha UE",
+            'fr': "Vue fiche US", 'ar': "عرض بطاقة وحدة طبقية",
+            'ca': "Vista fitxa UE", 'ro': "Vizualizare fișă US",
+            'pt': "Vista ficha UE", 'el': "Προβολή δελτίου ΣΕ",
+        },
+        'view_usm': {
+            'it': "View scheda USM", 'de': "Ansicht SEW Formular",
+            'en': "WSU Form View", 'es': "Vista ficha UEM",
+            'fr': "Vue fiche USM", 'ar': "عرض بطاقة وحدة جدارية",
+            'ca': "Vista fitxa UEM", 'ro': "Vizualizare fișă USZ",
+            'pt': "Vista ficha UEP", 'el': "Προβολή δελτίου ΤΚΕ",
+        },
+        'strat_orizzontali': {
+            'it': "Stratigrafie Orizzontali  - %s", 'de': "Horizontale Stratigraphien - %s",
+            'en': "Horizontal Stratigraphy - %s", 'es': "Estratigrafías horizontales - %s",
+            'fr': "Stratigraphies horizontales - %s", 'ar': "طبقات أفقية - %s",
+            'ca': "Estratigrafies horitzontals - %s", 'ro': "Stratigrafii orizontale - %s",
+            'pt': "Estratigrafias horizontais - %s", 'el': "Οριζόντιες στρωματογραφίες - %s",
+        },
+        'strat_verticali': {
+            'it': "Stratigrafie Verticali - %s", 'de': "Vertikale Stratigraphien - %s",
+            'en': "Vertical Stratigraphy - %s", 'es': "Estratigrafías verticales - %s",
+            'fr': "Stratigraphies verticales - %s", 'ar': "طبقات عمودية - %s",
+            'ca': "Estratigrafies verticals - %s", 'ro': "Stratigrafii verticale - %s",
+            'pt': "Estratigrafias verticais - %s", 'el': "Κάθετες στρωματογραφίες - %s",
+        },
+        'layer_archeologici': {
+            'it': "Layer Archeologici", 'de': "Archäologische Schichten",
+            'en': "Archaeological Layers", 'es': "Capas arqueológicas",
+            'fr': "Couches archéologiques", 'ar': "طبقات أثرية",
+            'ca': "Capes arqueològiques", 'ro': "Straturi arheologice",
+            'pt': "Camadas arqueológicas", 'el': "Αρχαιολογικά στρώματα",
+        },
+        'layer_archeologici_val': {
+            'it': "Layer Archeologici(%s)", 'de': "Archäologische Schichten(%s)",
+            'en': "Archaeological Layers(%s)", 'es': "Capas arqueológicas(%s)",
+            'fr': "Couches archéologiques(%s)", 'ar': "طبقات أثرية(%s)",
+            'ca': "Capes arqueològiques(%s)", 'ro': "Straturi arheologice(%s)",
+            'pt': "Camadas arqueológicas(%s)", 'el': "Αρχαιολογικά στρώματα(%s)",
+        },
+        'rif_localizzazione': {
+            'it': "Riferimenti di localizzazione", 'de': "Lokalisierungsreferenzen",
+            'en': "Location references", 'es': "Referencias de localización",
+            'fr': "Références de localisation", 'ar': "مراجع تحديد الموقع",
+            'ca': "Referències de localització", 'ro': "Referințe de localizare",
+            'pt': "Referências de localização", 'el': "Αναφορές εντοπισμού",
+        },
+        'linee_riferimento': {
+            'it': "Linee di riferimento", 'de': "Bezugslinien",
+            'en': "Reference lines", 'es': "Líneas de referencia",
+            'fr': "Lignes de référence", 'ar': "خطوط مرجعية",
+            'ca': "Línies de referència", 'ro': "Linii de referință",
+            'pt': "Linhas de referência", 'el': "Γραμμές αναφοράς",
+        },
+        'ingombri': {
+            'it': "Ingombri", 'de': "Umrisse",
+            'en': "Spatial extents", 'es': "Extensiones espaciales",
+            'fr': "Encombrements", 'ar': "الامتدادات المكانية",
+            'ca': "Extensions espacials", 'ro': "Extensii spațiale",
+            'pt': "Extensões espaciais", 'el': "Χωρικές εκτάσεις",
+        },
+        'view_sito': {
+            'it': "View Localizzazione Sito archeologico", 'de': "Ansicht Archäologische Fundstätte",
+            'en': "Archaeological Site Location View", 'es': "Vista localización sitio arqueológico",
+            'fr': "Vue localisation site archéologique", 'ar': "عرض موقع أثري",
+            'ca': "Vista localització jaciment arqueològic", 'ro': "Vizualizare localizare sit arheologic",
+            'pt': "Vista localização sítio arqueológico", 'el': "Προβολή εντοπισμού αρχαιολ. θέσης",
+        },
+        'view_reperti': {
+            'it': "View scheda Reperti", 'de': "Ansicht Artefakte",
+            'en': "Finds View", 'es': "Vista Hallazgos",
+            'fr': "Vue Objets", 'ar': "عرض اللقى",
+            'ca': "Vista Troballes", 'ro': "Vizualizare Artefacte",
+            'pt': "Vista Achados", 'el': "Προβολή Ευρημάτων",
+        },
+        'view_tomba': {
+            'it': "View scheda Tomba", 'de': "Ansicht Taphonomie",
+            'en': "Burial View", 'es': "Vista Tumba",
+            'fr': "Vue Tombe", 'ar': "عرض المدفن",
+            'ca': "Vista Tomba", 'ro': "Vizualizare Mormânt",
+            'pt': "Vista Sepultura", 'el': "Προβολή Ταφής",
+        },
+        'view_struttura_detail': {
+            'it': "View scheda Struttura  - Sigla: %s / Num: %s", 'de': "Ansicht Struktur - Code: %s / Nr: %s",
+            'en': "Structure View - Code: %s / Nr: %s", 'es': "Vista Estructura - Código: %s / Nº: %s",
+            'fr': "Vue Structure - Code: %s / Nº: %s", 'ar': "عرض هيكل - رمز: %s / رقم: %s",
+            'ca': "Vista Estructura - Codi: %s / Nº: %s", 'ro': "Vizualizare Structură - Cod: %s / Nr: %s",
+            'pt': "Vista Estrutura - Código: %s / Nº: %s", 'el': "Προβολή Κατασκευής - Κωδ: %s / Αρ: %s",
+        },
+        'view_struttura': {
+            'it': "View scheda Struttura", 'de': "Ansicht Struktur",
+            'en': "Structure View", 'es': "Vista Estructura",
+            'fr': "Vue Structure", 'ar': "عرض الهيكل",
+            'ca': "Vista Estructura", 'ro': "Vizualizare Structură",
+            'pt': "Vista Estrutura", 'el': "Προβολή Κατασκευής",
+        },
+        'view_individui': {
+            'it': "View scheda Individui", 'de': "Ansicht Individuen",
+            'en': "Individuals View", 'es': "Vista Individuos",
+            'fr': "Vue Individus", 'ar': "عرض الأفراد",
+            'ca': "Vista Individus", 'ro': "Vizualizare Indivizi",
+            'pt': "Vista Indivíduos", 'el': "Προβολή Ατόμων",
+        },
+        'view_ut': {
+            'it': "View scheda UT", 'de': "Ansicht TU Formular",
+            'en': "TU Form View", 'es': "Vista ficha UT",
+            'fr': "Vue fiche UT", 'ar': "عرض بطاقة UT",
+            'ca': "Vista fitxa UT", 'ro': "Vizualizare fișă UT",
+            'pt': "Vista ficha UT", 'el': "Προβολή δελτίου UT",
+        },
+        'us_orizzontali': {
+            'it': "US orizzontali - %s: %s", 'de': "Horizontale SE - %s: %s",
+            'en': "Horizontal SU - %s: %s", 'es': "UE horizontales - %s: %s",
+            'fr': "US horizontales - %s: %s", 'ar': "وحدات أفقية - %s: %s",
+            'ca': "UE horitzontals - %s: %s", 'ro': "US orizontale - %s: %s",
+            'pt': "UE horizontais - %s: %s", 'el': "Οριζόντιες ΣΕ - %s: %s",
+        },
+        'us_verticali': {
+            'it': "US Verticali - %s: %s", 'de': "Vertikale SE - %s: %s",
+            'en': "Vertical SU - %s: %s", 'es': "UE verticales - %s: %s",
+            'fr': "US verticales - %s: %s", 'ar': "وحدات عمودية - %s: %s",
+            'ca': "UE verticals - %s: %s", 'ro': "US verticale - %s: %s",
+            'pt': "UE verticais - %s: %s", 'el': "Κάθετες ΣΕ - %s: %s",
+        },
+    }
+
+    def _gn(self, key, *args):
+        """Get translated group name by key, with optional format args."""
+        names = self._GROUP_NAMES.get(key, {})
+        name = names.get(self.L, names.get('en', key))
+        if args:
+            return name % args
+        return name
 
     def __init__(self, iface):
         super().__init__()
@@ -447,7 +896,7 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
-        groupName="View scheda US-Individui"
+        groupName=self._gn('view_us_individui')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -563,7 +1012,7 @@ class Pyarchinit_pyqgis(QDialog):
             name_layer_q='Hoch view'
         else:
             name_layer_q='Elevation view'
-        groupName="View scheda US-Matrix"
+        groupName=self._gn('view_us_matrix')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -664,7 +1113,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Documentazione"
+        groupName=self._gn('view_documentazione')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -785,7 +1234,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
             # Use OGR provider for views to avoid spatialite schema caching bug
-            layer_name_pos = "US orizzontali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_pos = self._gn('us_orizzontali', str(data[0].tipo_documentazione), str(data[0].nome_doc))
             layerPos = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', docstr, srid)
 
             if layerPos and layerPos.isValid():
@@ -796,7 +1245,7 @@ class Pyarchinit_pyqgis(QDialog):
                 self.canvas.setExtent(layerPos.extent())
 
             # Use OGR provider for views to avoid spatialite schema caching bug
-            layer_name_verticali = "US Verticali - "+ str(data[0].tipo_documentazione) + ": " + str(data[0].nome_doc)
+            layer_name_verticali = self._gn('us_verticali', str(data[0].tipo_documentazione), str(data[0].nome_doc))
             layerverticali = self._load_spatialite_view(db_file_path, 'pyarchinit_usm_view', docstr, srid)
 
             if layerverticali and layerverticali.isValid():
@@ -1065,7 +1514,7 @@ class Pyarchinit_pyqgis(QDialog):
         else:
             name_layer_s_n='SU negative view'
 
-        groupName="View scheda US-Documentazione"
+        groupName=self._gn('view_us_documentazione')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -1315,7 +1764,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
 
-        groupName="View scheda US"
+        groupName=self._gn('view_us')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -1460,7 +1909,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
 
-        groupName="View scheda USM"
+        groupName=self._gn('view_usm')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -1611,21 +2060,20 @@ class Pyarchinit_pyqgis(QDialog):
         settings.set_configuration()
 
         # Layer names by language
-        if self.L == 'it':
-            name_layer_point = 'UT Punti view'
-            name_layer_line = 'UT Linee view'
-            name_layer_polygon = 'UT Poligoni view'
-            group_name = 'View scheda UT'
-        elif self.L == 'de':
-            name_layer_point = 'TU Punkte view'
-            name_layer_line = 'TU Linien view'
-            name_layer_polygon = 'TU Polygone view'
-            group_name = 'Ansicht TU Formular'
-        else:
-            name_layer_point = 'TU Points view'
-            name_layer_line = 'TU Lines view'
-            name_layer_polygon = 'TU Polygons view'
-            group_name = 'TU Form View'
+        _ut_layer_names = {
+            'it': ('UT Punti view', 'UT Linee view', 'UT Poligoni view'),
+            'de': ('TU Punkte view', 'TU Linien view', 'TU Polygone view'),
+            'es': ('UT Puntos vista', 'UT Líneas vista', 'UT Polígonos vista'),
+            'fr': ('UT Points vue', 'UT Lignes vue', 'UT Polygones vue'),
+            'ar': ('UT نقاط عرض', 'UT خطوط عرض', 'UT مضلعات عرض'),
+            'ca': ('UT Punts vista', 'UT Línies vista', 'UT Polígons vista'),
+            'ro': ('UT Puncte vizualizare', 'UT Linii vizualizare', 'UT Poligoane vizualizare'),
+            'pt': ('UT Pontos vista', 'UT Linhas vista', 'UT Polígonos vista'),
+            'el': ('UT Σημεία προβολή', 'UT Γραμμές προβολή', 'UT Πολύγωνα προβολή'),
+        }
+        _default_ut = ('TU Points view', 'TU Lines view', 'TU Polygons view')
+        name_layer_point, name_layer_line, name_layer_polygon = _ut_layer_names.get(self.L, _default_ut)
+        group_name = self._gn('view_ut')
 
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(group_name)
@@ -1740,7 +2188,7 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="Stratigrafie Orizzontali  - %s " % (self.dat)
+        groupName=self._gn('strat_orizzontali', self.dat)
 
         root = QgsProject.instance().layerTreeRoot()
 
@@ -1855,7 +2303,7 @@ class Pyarchinit_pyqgis(QDialog):
         conf.close()
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName=" Stratigrafie Verticali %s " % (self.dat)
+        groupName=self._gn('strat_verticali', self.dat)
 
         root = QgsProject.instance().layerTreeRoot()
 
@@ -1964,7 +2412,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
 
-        groupName="Stratigrafie Orizzontali - %s" % (self.dat)
+        groupName=self._gn('strat_orizzontali', self.dat)
         root = QgsProject.instance().layerTreeRoot()
 
         group = root.addGroup(groupName)
@@ -2194,7 +2642,7 @@ class Pyarchinit_pyqgis(QDialog):
 
 
 
-        groupName="Stratigrafie Verticali  - %s" % (self.dat)
+        groupName=self._gn('strat_verticali', self.dat)
         root = QgsProject.instance().layerTreeRoot()
 
         group = root.addGroup(groupName)
@@ -2802,24 +3250,13 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        if self.L=='it':
-            groupName="Layer Archeologici"
-            root = QgsProject.instance().layerTreeRoot()
-            group = root.addGroup(groupName)
-            group.setExpanded(False)
-            myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
-            myGroup2 = group.insertGroup(2, "Linee di riferimento")
-            myGroup3 = group.insertGroup(3, "Ingombri")
-
-        else:
-            groupName="Archaeological layer"
-            root = QgsProject.instance().layerTreeRoot()
-            group = root.addGroup(groupName)
-            group.setExpanded(False)
-            myGroup1 = group.insertGroup(1, "Place reference")
-            myGroup2 = group.insertGroup(2, "Lines refernces")
-            myGroup3 = group.insertGroup(3, "Space requirements")
-
+        groupName = self._gn('layer_archeologici')
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        group.setExpanded(False)
+        myGroup1 = group.insertGroup(1, self._gn('rif_localizzazione'))
+        myGroup2 = group.insertGroup(2, self._gn('linee_riferimento'))
+        myGroup3 = group.insertGroup(3, self._gn('ingombri'))
 
         #myGroup4 = group.insertGroup(4, "Base Map")
         myGroup1.setExpanded(False)
@@ -3618,23 +4055,13 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        if self.L=='it':
-            groupName="Layer Archeologici(%s)"%(val)
-            root = QgsProject.instance().layerTreeRoot()
-            group = root.addGroup(groupName)
-            group.setExpanded(False)
-            myGroup1 = group.insertGroup(1, "Riferimenti di localizzazione")
-            myGroup2 = group.insertGroup(2, "Linee di riferimento")
-            myGroup3 = group.insertGroup(3, "Ingombri")
-
-        else:
-            groupName="Archaeological layer(%s)"%(val)
-            root = QgsProject.instance().layerTreeRoot()
-            group = root.addGroup(groupName)
-            group.setExpanded(False)
-            myGroup1 = group.insertGroup(1, "Place reference")
-            myGroup2 = group.insertGroup(2, "Lines refernces")
-            myGroup3 = group.insertGroup(3, "Space requirements")
+        groupName = self._gn('layer_archeologici_val', val)
+        root = QgsProject.instance().layerTreeRoot()
+        group = root.addGroup(groupName)
+        group.setExpanded(False)
+        myGroup1 = group.insertGroup(1, self._gn('rif_localizzazione'))
+        myGroup2 = group.insertGroup(2, self._gn('linee_riferimento'))
+        myGroup3 = group.insertGroup(3, self._gn('ingombri'))
         myGroup1.setExpanded(False)
         myGroup2.setExpanded(False)
         myGroup3.setExpanded(False)
@@ -4440,7 +4867,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View Localizzazione Sito archeologico"
+        groupName=self._gn('view_sito')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -4514,7 +4941,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Reperti"
+        groupName=self._gn('view_reperti')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -4600,7 +5027,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Tomba"
+        groupName=self._gn('view_tomba')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -4692,7 +5119,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Struttura  - Sigla: %s / Num: %s" % (self.sigla_st, self.n_st)
+        groupName=self._gn('view_struttura_detail', self.sigla_st, self.n_st)
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -4763,7 +5190,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Struttura"
+        groupName=self._gn('view_struttura')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -4829,7 +5256,7 @@ class Pyarchinit_pyqgis(QDialog):
 
         settings = Settings(con_sett)
         settings.set_configuration()
-        groupName="View scheda Individui"
+        groupName=self._gn('view_individui')
         root = QgsProject.instance().layerTreeRoot()
         group = root.addGroup(groupName)
         group.setExpanded(False)
@@ -9126,29 +9553,9 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
     def _build_graph(self):
         """Costruisce il grafo delle relazioni stratigrafiche"""
         try:
-            # Definisci le relazioni per TUTTE le lingue (il database può contenere dati in qualsiasi lingua)
-            # Italiano
-            rel_covers_it = ['Copre', 'Riempie', 'Taglia', 'Si appoggia a']
-            rel_equals_it = ['Uguale a', 'Si lega a']
-            # Inglese
-            rel_covers_en = ['Covers', 'Fills', 'Cuts', 'Abuts']
-            rel_equals_en = ['Same as', 'Connected to']
-            # Tedesco
-            rel_covers_de = ['Liegt über', 'Verfüllt', 'Schneidet', 'Stützt sich auf']
-            rel_equals_de = ['Entspricht', 'Bindet an']
-            # Spagnolo
-            rel_covers_es = ['Cubre', 'Rellena', 'Corta', 'Se apoya en']
-            rel_equals_es = ['Igual a', 'Se liga a']
-            # Francese
-            rel_covers_fr = ['Couvre', 'Remplit', 'Coupe', 'S\'appuie sur']
-            rel_equals_fr = ['Égal à', 'Se lie à']
-            # Portoghese
-            rel_covers_pt = ['Cobre', 'Preenche', 'Corta', 'Apoia-se em']
-            rel_equals_pt = ['Igual a', 'Liga-se a']
-
-            # Combina TUTTE le lingue + simbolo universale
-            rel_covers = list(set(rel_covers_it + rel_covers_en + rel_covers_de + rel_covers_es + rel_covers_fr + rel_covers_pt + ['>>']))
-            rel_equals = list(set(rel_equals_it + rel_equals_en + rel_equals_de + rel_equals_es + rel_equals_fr + rel_equals_pt))
+            # Use the central i18n module which covers all 10 languages
+            rel_covers = list(COVERS_GROUP | FILLS_GROUP | CUTS_GROUP | ABUTS_GROUP | frozenset(['>>']))
+            rel_equals = list(SAME_AS_GROUP | CONNECTED_GROUP)
 
             self.logger.info(f"Relazioni di copertura riconosciute: {rel_covers}")
             self.logger.info(f"Relazioni di uguaglianza riconosciute: {rel_equals}")
