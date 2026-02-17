@@ -595,7 +595,7 @@ class SQLiteAdapter(DatabaseAdapter):
         return result
 
     def import_records(self, table: str, columns: List[str], records: List[List[Any]]) -> int:
-        """Import records into table"""
+        """Import records into table using batch executemany"""
         if not records:
             return 0
 
@@ -606,22 +606,36 @@ class SQLiteAdapter(DatabaseAdapter):
             placeholders = ', '.join('?' * len(columns))
             query = f"INSERT OR REPLACE INTO {table} ({columns_str}) VALUES ({placeholders})"
 
-            # Get column types for empty string -> NULL conversion
             col_types = self._get_column_types(table)
 
-            for record in records:
-                try:
-                    # Convert empty strings to None for numeric columns
-                    cleaned_record = self._convert_empty_to_null(columns, record, col_types)
-                    conn.execute(query, cleaned_record)
-                    imported += 1
-                except Exception as e:
-                    print(f"Insert error for {table}: {e}")
+            # Clean all records first, then batch insert
+            cleaned_records = [
+                self._convert_empty_to_null(columns, record, col_types)
+                for record in records
+            ]
 
+            conn.executemany(query, cleaned_records)
             conn.commit()
-            conn.close()
+            imported = len(cleaned_records)
         except Exception as e:
-            print(f"Import error for {table}: {e}")
+            print(f"Batch import error for {table}, falling back to row-by-row: {e}")
+            # Fallback to row-by-row
+            try:
+                conn = self._get_connection()
+                columns_str = ', '.join(columns)
+                placeholders = ', '.join('?' * len(columns))
+                query = f"INSERT OR REPLACE INTO {table} ({columns_str}) VALUES ({placeholders})"
+                col_types = self._get_column_types(table)
+                for record in records:
+                    try:
+                        cleaned = self._convert_empty_to_null(columns, record, col_types)
+                        conn.execute(query, cleaned)
+                        imported += 1
+                    except Exception as row_e:
+                        print(f"Row insert error for {table}: {row_e}")
+                conn.commit()
+            except Exception as fallback_e:
+                print(f"Fallback import error for {table}: {fallback_e}")
 
         return imported
 
