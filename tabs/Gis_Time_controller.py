@@ -40,7 +40,7 @@ except ImportError:
     print("openai installed successfully")
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog, QInputDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QLabel
-from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread, QRectF
+from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread, QRectF, QEventLoop, QTimer
 from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture, QgsLayoutItemLabel
 from qgis.PyQt.QtXml import QDomDocument
 
@@ -935,10 +935,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # Aggiorna la visualizzazione della mappa per assicurarsi che mostri gli aggiornamenti ai dati del layer
 
             canvas.refresh()
-            QCoreApplication.processEvents()  # Process system events to allow the refresh to start
-            QThread.sleep(2)  # Wait for a second
-            while canvas.isDrawing():
-                QCoreApplication.processEvents()
+            # Wait for canvas rendering without blocking
+            loop = QEventLoop()
+            canvas.renderComplete.connect(loop.quit)
+            QTimer.singleShot(10000, loop.quit)  # 10s safety timeout
+            if canvas.isDrawing():
+                loop.exec_()
             #QThread.sleep(2)
 
             #QMessageBox.information(None, 'ok', f"{self.current_layout}")# Define the area of the layout to be exported
