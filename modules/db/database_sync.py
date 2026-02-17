@@ -397,17 +397,23 @@ class SQLiteAdapter(DatabaseAdapter):
 
     def __init__(self, db_path: str):
         self.db_path = db_path
+        self._conn = None
         if not os.path.exists(db_path):
             raise FileNotFoundError(f"SQLite database not found: {db_path}")
 
     def _get_connection(self) -> sqlite3.Connection:
-        """Get a new database connection"""
+        """Get or reuse database connection"""
+        if self._conn is not None:
+            try:
+                self._conn.execute("SELECT 1")
+                return self._conn
+            except Exception:
+                self._conn = None
+
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        # Enable loading extensions for spatialite
         conn.enable_load_extension(True)
 
-        # Find and load SpatiaLite extension
         spatialite_path = self._find_spatialite_path()
         try:
             if spatialite_path:
@@ -418,8 +424,19 @@ class SQLiteAdapter(DatabaseAdapter):
             try:
                 conn.execute("SELECT load_extension('libspatialite')")
             except:
-                pass  # Spatialite not available
+                pass
+
+        self._conn = conn
         return conn
+
+    def close(self):
+        """Close the persistent connection"""
+        if self._conn:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+            self._conn = None
 
     def _find_spatialite_path(self) -> Optional[str]:
         """Find the path to mod_spatialite library"""
@@ -466,7 +483,6 @@ class SQLiteAdapter(DatabaseAdapter):
             conn = self._get_connection()
             cursor = conn.execute(f"SELECT COUNT(*) FROM {table}")
             count = cursor.fetchone()[0]
-            conn.close()
             return count
         except Exception as e:
             print(f"Count error for {table}: {e}")
@@ -478,9 +494,7 @@ class SQLiteAdapter(DatabaseAdapter):
             cursor = conn.execute(f"PRAGMA table_info({table})")
             for row in cursor:
                 if row['pk'] == 1:
-                    conn.close()
                     return row['name']
-            conn.close()
         except Exception as e:
             print(f"PK error for {table}: {e}")
         return ''
@@ -490,7 +504,6 @@ class SQLiteAdapter(DatabaseAdapter):
             conn = self._get_connection()
             cursor = conn.execute(f"SELECT {pk} FROM {table} ORDER BY {pk}")
             ids = [str(row[0]) for row in cursor]
-            conn.close()
             return ids
         except Exception as e:
             print(f"Get IDs error for {table}: {e}")
@@ -501,7 +514,6 @@ class SQLiteAdapter(DatabaseAdapter):
             conn = self._get_connection()
             cursor = conn.execute(f"PRAGMA table_info({table})")
             columns = [row['name'] for row in cursor]
-            conn.close()
             return columns
         except Exception as e:
             print(f"Get columns error for {table}: {e}")
@@ -515,7 +527,6 @@ class SQLiteAdapter(DatabaseAdapter):
                 (table,)
             )
             result = cursor.fetchone() is not None
-            conn.close()
             return result
         except:
             return False
@@ -528,7 +539,6 @@ class SQLiteAdapter(DatabaseAdapter):
                 (table,)
             )
             result = cursor.fetchone() is not None
-            conn.close()
             return result
         except:
             return False
@@ -553,7 +563,6 @@ class SQLiteAdapter(DatabaseAdapter):
                 for row in cursor:
                     records.append(list(row))
 
-            conn.close()
         except Exception as e:
             print(f"Export error for {table}: {e}")
 
@@ -567,7 +576,6 @@ class SQLiteAdapter(DatabaseAdapter):
             cursor = conn.execute(f"PRAGMA table_info({table})")
             for row in cursor:
                 types[row['name']] = row['type'].upper()
-            conn.close()
         except:
             pass
         return types
@@ -622,7 +630,6 @@ class SQLiteAdapter(DatabaseAdapter):
             conn = self._get_connection()
             conn.execute(f"DELETE FROM {table}")
             conn.commit()
-            conn.close()
             return True
         except Exception as e:
             print(f"Truncate error for {table}: {e}")
