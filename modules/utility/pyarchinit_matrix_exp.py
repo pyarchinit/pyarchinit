@@ -18,12 +18,205 @@
  ***************************************************************************/
 """
 
+import json
 import subprocess
 from qgis.core import QgsSettings
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .pyarchinit_i18n_stratigraphic import RELATIONSHIPS
 from ...tabs.pyarchinit_setting_matrix import *
+
+
+def _rust_transitive_reduction(dot_file_path, output_file_path):
+    """Try to perform transitive reduction using the Rust engine instead of `tred` subprocess.
+
+    Parses edges from a DOT file, applies Rust-based transitive reduction,
+    and writes a reduced DOT file. Returns True on success, False on failure
+    (caller should fall back to subprocess `tred`).
+    """
+    try:
+        from .._rust_bridge import rust_bridge
+        if not rust_bridge.is_available():
+            return False
+
+        import re
+
+        with open(dot_file_path, 'r') as f:
+            dot_content = f.read()
+
+        # Parse edges from DOT: pattern matches "node1" -> "node2" or node1 -> node2
+        edge_pattern = re.compile(
+            r'^\s*"?([^"\s\[]+)"?\s*->\s*"?([^"\s\[;]+)"?\s*',
+            re.MULTILINE
+        )
+        edges = []
+        for m in edge_pattern.finditer(dot_content):
+            src = m.group(1).strip('"')
+            tgt = m.group(2).strip('"')
+            if src and tgt:
+                edges.append((src, tgt))
+
+        if not edges:
+            # No edges to reduce, just copy the file
+            with open(output_file_path, 'w') as f:
+                f.write(dot_content)
+            return True
+
+        # Perform transitive reduction via Rust
+        reduced_edges = rust_bridge.transitive_reduction(edges)
+        reduced_set = set((a, b) for a, b in reduced_edges)
+
+        # Rebuild DOT content: remove edges not in reduced set
+        lines = dot_content.split('\n')
+        output_lines = []
+        for line in lines:
+            m = edge_pattern.match(line)
+            if m:
+                src = m.group(1).strip('"')
+                tgt = m.group(2).strip('"')
+                if (src, tgt) in reduced_set:
+                    output_lines.append(line)
+                # else: skip this transitive edge
+            else:
+                output_lines.append(line)
+
+        with open(output_file_path, 'w') as f:
+            f.write('\n'.join(output_lines))
+
+        print("Rust tred: transitive reduction completed successfully")
+        return True
+
+    except Exception as e:
+        print(f"Rust tred fallback: {e}")
+        return False
+
+
+def rust_harris_layout(edges, node_labels, phase_groups=None,
+                       layer_spacing=80.0, node_spacing=60.0):
+    """Compute Harris Matrix layout using the Rust Sugiyama engine.
+
+    Args:
+        edges: list of (from_id, to_id) directed edges
+        node_labels: list of all node identifiers
+        phase_groups: optional list of (phase_name, [node_ids...])
+        layer_spacing: vertical distance between layers (default 80)
+        node_spacing: horizontal distance between nodes (default 60)
+
+    Returns:
+        dict with 'node_positions' and 'edge_paths', or None if Rust unavailable.
+    """
+    try:
+        from .._rust_bridge import rust_bridge
+        if not rust_bridge.is_available():
+            return None
+
+        result = rust_bridge.harris_matrix_layout(
+            edges, node_labels,
+            phase_groups=phase_groups,
+            layer_spacing=layer_spacing,
+            node_spacing=node_spacing
+        )
+        print(f"Rust Sugiyama layout: {len(result.get('node_positions', []))} nodes positioned")
+        return result
+
+    except Exception as e:
+        print(f"Rust layout unavailable: {e}")
+        return None
+
+
+def rust_layout_to_dot(layout_result, edges, node_labels,
+                       sequence_edges=None, negative_edges=None,
+                       contemporary_edges=None,
+                       dpi='150', node_shape='box', node_color='white'):
+    """Convert Rust layout result to a positioned DOT string for graphviz rendering.
+
+    Uses the Sugiyama-computed coordinates as fixed `pos` attributes so graphviz
+    only performs rendering (not layout). This produces output compatible with the
+    existing `Source.from_file(...).render()` pipeline.
+
+    Args:
+        layout_result: dict from rust_harris_layout()
+        edges: all directed edges
+        node_labels: all node identifiers
+        sequence_edges: set of (src, tgt) for stratigraphic sequence edges
+        negative_edges: set of (src, tgt) for negative relationship edges
+        contemporary_edges: set of (src, tgt) for contemporary edges
+        dpi: output DPI
+        node_shape: node shape
+        node_color: node fill color
+
+    Returns:
+        DOT string with fixed positions, or None on failure.
+    """
+    if not layout_result:
+        return None
+
+    try:
+        node_positions = layout_result.get('node_positions', [])
+        edge_paths = layout_result.get('edge_paths', [])
+
+        if not node_positions:
+            return None
+
+        if sequence_edges is None:
+            sequence_edges = set()
+        if negative_edges is None:
+            negative_edges = set()
+        if contemporary_edges is None:
+            contemporary_edges = set()
+
+        # Build DOT with neato engine (supports pos attribute)
+        lines = ['digraph {']
+        lines.append(f'    graph [dpi={dpi} pad="0.5" splines=polyline rankdir=TB];')
+        lines.append(f'    node [shape={node_shape} style=filled fillcolor="{node_color}" '
+                      f'color=black penwidth=0.5 fixedsize=false];')
+        lines.append('    edge [penwidth=0.5];')
+
+        # Add nodes with fixed positions (graphviz uses inches, 72 points/inch)
+        pos_map = {}
+        for node_id, x, y in node_positions:
+            pos_map[node_id] = (x, y)
+            # pos format for neato: "x,y!" where ! means fixed
+            safe_id = node_id.replace('"', '\\"')
+            pos_str = f"{x / 72.0:.4f},{-y / 72.0:.4f}!"
+            lines.append(f'    "{safe_id}" [pos="{pos_str}"];')
+
+        # Add edges with waypoint routing
+        edge_waypoints = {}
+        for from_id, to_id, waypoints in edge_paths:
+            edge_waypoints[(from_id, to_id)] = waypoints
+
+        all_edges_set = set()
+        for src, tgt in edges:
+            if (src, tgt) in all_edges_set:
+                continue
+            all_edges_set.add((src, tgt))
+
+            safe_src = src.replace('"', '\\"')
+            safe_tgt = tgt.replace('"', '\\"')
+
+            attrs = []
+            if (src, tgt) in negative_edges:
+                attrs.append('style=dashed')
+                attrs.append('color=gray')
+            elif (src, tgt) in contemporary_edges:
+                attrs.append('constraint=false')
+                attrs.append('arrowhead=none')
+            else:
+                attrs.append('arrowhead=normal')
+                attrs.append('arrowsize=0.8')
+
+            attr_str = ' '.join(attrs)
+            lines.append(f'    "{safe_src}" -> "{safe_tgt}" [{attr_str}];')
+
+        lines.append('}')
+        return '\n'.join(lines)
+
+    except Exception as e:
+        print(f"Error generating DOT from Rust layout: {e}")
+        return None
+
+
 class HarrisMatrix:
     """
         This class is used to create a Harris Matrix, a tool used in archaeology to depict the temporal succession of archaeological contexts.
@@ -367,36 +560,32 @@ class HarrisMatrix:
             #showMessage(f"Errore durante la creazione del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
             return
 
-        startupinfo = None
-        if Pyarchinit_OS_Utility.isWindows():
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow = subprocess.SW_HIDE
+        # Try Rust transitive reduction first, fall back to subprocess `tred`
+        rust_tred_ok = _rust_transitive_reduction(dot_file, tred_output_file_path)
 
-        try:
+        if not rust_tred_ok:
+            startupinfo = None
+            if Pyarchinit_OS_Utility.isWindows():
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
 
-            with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
-                subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
-            #showMessage("Comando `tred` eseguito con successo.")
-        except Exception as e:
-            #showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
-            return
-        if os.path.getsize(error_file_path) > 0:
-            with open(error_file_path, "r") as err_file:
-                print()#errors = err_file.read()
-                #showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore')
-                            #icon=QMessageBox.Warning)
-        else:
-            print()#showMessage("Nessun errore riportato da `tred`.")
+            try:
+                with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
+                    subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
+            except Exception as e:
+                return
+            if os.path.getsize(error_file_path) > 0:
+                with open(error_file_path, "r") as err_file:
+                    print()
+            else:
+                print()
 
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            print()#showMessage("Rendering del grafico completato.")
-            # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
-            print()#showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-                        #icon=QMessageBox.Critical)
+            print()
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -574,37 +763,33 @@ class HarrisMatrix:
             #showMessage(f"Errore durante la creazione del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
             return
 
-        startupinfo = None
-        if Pyarchinit_OS_Utility.isWindows():
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow = subprocess.SW_HIDE
+        # Try Rust transitive reduction first, fall back to subprocess `tred`
+        rust_tred_ok = _rust_transitive_reduction(dot_file, tred_output_file_path)
 
-        try:
+        if not rust_tred_ok:
+            startupinfo = None
+            if Pyarchinit_OS_Utility.isWindows():
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
 
-            with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
-                subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
-            #showMessage("Comando `tred` eseguito con successo.")
-        except Exception as e:
-            print()#showMessage(f"Errore durante l'esecuzione di `tred`: {e}", title='Errore', icon=QMessageBox.Critical)
-
-        if os.path.getsize(error_file_path) > 0:
-            with open(error_file_path, "r") as err_file:
+            try:
+                with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
+                    subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
+            except Exception as e:
                 print()
-                #errors = err_file.read()
-                #showMessage(f"Errori durante l'esecuzione di `tred`:\n{errors}", title='Errore',
-                            #icon=QMessageBox.Warning)
-        else:
-            print()#showMessage("Nessun errore riportato da `tred`.")
+
+            if os.path.getsize(error_file_path) > 0:
+                with open(error_file_path, "r") as err_file:
+                    print()
+            else:
+                print()
 
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            #showMessage("Rendering del grafico completato.")
-            # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
-            print()#showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-                        #icon=QMessageBox.Critical)
+            print()
 
 
 class ViewHarrisMatrix:
@@ -722,31 +907,32 @@ class ViewHarrisMatrix:
 
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = 'Harris_matrix'
-        # f = open(filename, "w")
         G.format = 'dot'
         dot_file = G.render(directory=matrix_path, filename=filename)
-        # For MS-Windows, we need to hide the console window.
-        if Pyarchinit_OS_Utility.isWindows():
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            si.wShowWindow = subprocess.SW_HIDE
-        # cmd = ' '.join(['tred', dot_file])
-        # dotargs = shlex.split(cmd)
-        with open(os.path.join(matrix_path, filename + '_viewtred.dot'), "w") as out, \
-                open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
-            subprocess.Popen(['tred', dot_file],
-                             # shell=True,
-                             stdout=out,
-                             stderr=err,
-                             startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
         tred_file = os.path.join(matrix_path, filename + '_viewtred.dot')
+
+        # Try Rust transitive reduction first, fall back to subprocess `tred`
+        rust_tred_ok = _rust_transitive_reduction(dot_file, tred_file)
+
+        if not rust_tred_ok:
+            if Pyarchinit_OS_Utility.isWindows():
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = subprocess.SW_HIDE
+            else:
+                si = None
+            with open(tred_file, "w") as out, \
+                    open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
+                subprocess.Popen(['tred', dot_file],
+                                 stdout=out,
+                                 stderr=err,
+                                 startupinfo=si)
 
         f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
         return g, f
-        # return f
 
     @property
     def export_matrix_3(self):
@@ -930,46 +1116,50 @@ class ViewHarrisMatrix:
         # Sistema intelligente auto-adattivo per DPI
         dpi_levels = ['150', '120', '100', '75', '50']  # DPI decrescenti da provare
         matrix_generated = False
-        
+
         for i, current_dpi in enumerate(dpi_levels):
             try:
                 print(f"Tentativo generazione matrice con DPI {current_dpi} ({i+1}/{len(dpi_levels)})...")
-                
+
                 # Aggiorna DPI nel grafico
                 G.graph_attr['dpi'] = current_dpi
-                
+
                 # Rigenera il file DOT con il nuovo DPI
                 G.format = 'dot'
                 dot_file = G.render(directory=matrix_path, filename=filename, cleanup=True)
-                
-                # Esegui tred
-                with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
-                    subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
-                
-                # Controlla errori ma non mostrare all'utente se sono solo warning sui cicli
+
+                # Try Rust transitive reduction first, fall back to subprocess `tred`
+                rust_tred_ok = _rust_transitive_reduction(dot_file, tred_output_file_path)
+
                 has_critical_errors = False
-                if os.path.getsize(error_file_path) > 0:
-                    with open(error_file_path, "r") as err_file:
-                        errors = err_file.read().lower()
-                        # Solo errori critici, non warning sui cicli
-                        if 'error' in errors and 'warning' not in errors:
-                            has_critical_errors = True
-                            print(f"Errori critici con DPI {current_dpi}: {errors}")
-                        else:
-                            print(f"Warning tred con DPI {current_dpi} (normale per matrici complesse)")
-                
+                if not rust_tred_ok:
+                    # Esegui tred via subprocess
+                    with open(tred_output_file_path, "w") as out_file, open(error_file_path, "w") as err_file:
+                        subprocess.call(['tred', dot_file], stdout=out_file, stderr=err_file, startupinfo=startupinfo)
+
+                    # Controlla errori ma non mostrare all'utente se sono solo warning sui cicli
+                    if os.path.getsize(error_file_path) > 0:
+                        with open(error_file_path, "r") as err_file:
+                            errors = err_file.read().lower()
+                            # Solo errori critici, non warning sui cicli
+                            if 'error' in errors and 'warning' not in errors:
+                                has_critical_errors = True
+                                print(f"Errori critici con DPI {current_dpi}: {errors}")
+                            else:
+                                print(f"Warning tred con DPI {current_dpi} (normale per matrici complesse)")
+
                 # Prova il rendering
                 if not has_critical_errors:
                     try:
                         g = Source.from_file(tred_output_file_path, format='jpg')
                         g.render()
                         matrix_generated = True
-                        print(f"✓ Matrice generata con successo con DPI {current_dpi}")
+                        print(f"Matrice generata con successo con DPI {current_dpi}")
                         break  # Successo, esci dal loop
                     except Exception as render_error:
                         print(f"Errore rendering con DPI {current_dpi}: {render_error}")
                         continue  # Prova DPI successivo
-                        
+
             except Exception as e:
                 print(f"Errore generale con DPI {current_dpi}: {e}")
                 continue  # Prova DPI successivo
