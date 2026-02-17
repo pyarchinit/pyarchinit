@@ -9649,9 +9649,38 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             return False
 
     def _remove_cycles(self):
-        """Identifica e rimuove i cicli nel grafo — algoritmo iterativo O(N+E)"""
+        """Identifica e rimuove i cicli nel grafo — Rust fast path con fallback Python"""
         self.logger.info("Ricerca cicli nel grafo...")
 
+        # Try Rust fast path
+        try:
+            from modules._rust_bridge import rust_bridge
+            if rust_bridge.is_available():
+                edges = []
+                for from_node, targets in self.graph_edges.items():
+                    for to_node in targets:
+                        edges.append((str(from_node), str(to_node)))
+
+                clean_edges, cycles_found = rust_bridge.detect_and_remove_cycles(edges)
+
+                if cycles_found:
+                    self.logger.warning(f"Trovati {len(cycles_found)} cicli (Rust engine)")
+                    # Rebuild graph_edges from clean edges
+                    self.graph_edges = defaultdict(set)
+                    self.graph_reverse = defaultdict(set)
+                    for from_node, to_node in clean_edges:
+                        self.graph_edges[from_node].add(to_node)
+                        self.graph_reverse[to_node].add(from_node)
+                    for i, cycle in enumerate(cycles_found[:5]):
+                        self.logger.info(
+                            f"Ciclo {i + 1}: {' -> '.join(cycle[:3])}...")
+                else:
+                    self.logger.info("Nessun ciclo trovato (Rust engine)")
+                return
+        except Exception as e:
+            self.logger.debug(f"Rust engine non disponibile, uso Python: {e}")
+
+        # Python fallback (iterative DFS)
         WHITE, GRAY, BLACK = 0, 1, 2
         color = {node: WHITE for node in self.all_us}
         cycles_found = []
@@ -9707,13 +9736,40 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
         """
         Esegue l'ordinamento topologico restituendo i livelli.
         Usa l'algoritmo di Kahn modificato per raggruppare per livelli.
+        Rust fast path con fallback Python.
 
         Args:
             reverse_order (bool): Se True, inverte i livelli per ottenere ordine antico→recente.
                                  Se False, mantiene l'ordine diretto (recente→antico).
                                  Default: True (comportamento attuale)
         """
-        # Calcola i gradi entranti
+        # Try Rust fast path for the core algorithm
+        try:
+            from modules._rust_bridge import rust_bridge
+            if rust_bridge.is_available():
+                edges = []
+                for from_node, targets in self.graph_edges.items():
+                    for to_node in targets:
+                        edges.append((str(from_node), str(to_node)))
+
+                levels = rust_bridge.topological_sort_with_levels(edges, reverse_order=reverse_order)
+                self.logger.info(f"Ordinamento topologico (Rust engine): {len(levels)} livelli")
+
+                # Apply us_equals grouping in Python
+                for i, level in enumerate(levels):
+                    expanded = set(level)
+                    for node in level:
+                        for equal_node in self.us_equals.get(node, set()):
+                            expanded.add(equal_node)
+                    levels[i] = sorted(list(expanded))
+
+                self.progress_bar.setValue(90)
+                QApplication.processEvents()
+                return levels
+        except Exception as e:
+            self.logger.debug(f"Rust topo sort non disponibile, uso Python: {e}")
+
+        # Python fallback — Calcola i gradi entranti
         in_degree = {}
         for node in self.all_us:
             in_degree[node] = len(self.graph_reverse.get(node, set()))
