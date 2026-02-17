@@ -141,6 +141,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Setup Supabase Sync tab
         self.setup_supabase_sync_tab()
 
+        # Setup Rust Acceleration tab
+        self.setup_rust_acceleration_tab()
+
         # Setup DB connection profiles in main settings tab
         self.setup_db_connection_profiles()
 
@@ -1126,6 +1129,254 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             print(f"Error setting up DB Sync tab: {e}")
             import traceback
             traceback.print_exc()
+
+    # ── Rust Acceleration Tab ──────────────────────────────────────────
+    def setup_rust_acceleration_tab(self):
+        """Setup a tab for optional Rust acceleration module management."""
+        try:
+            from qgis.PyQt.QtWidgets import (
+                QWidget, QVBoxLayout, QHBoxLayout, QGroupBox,
+                QLabel, QPushButton, QScrollArea, QSizePolicy
+            )
+            from qgis.PyQt.QtCore import Qt
+            from qgis.PyQt.QtGui import QFont
+
+            # Create scroll area for the tab
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+            rust_tab = QWidget()
+            rust_layout = QVBoxLayout(rust_tab)
+            rust_layout.setSpacing(12)
+            rust_layout.setContentsMargins(15, 15, 15, 15)
+
+            # Title
+            title_label = QLabel(self.tr("Rust Acceleration"))
+            title_font = QFont()
+            title_font.setPointSize(13)
+            title_font.setBold(True)
+            title_label.setFont(title_font)
+            title_label.setStyleSheet("color: #E65100; margin-bottom: 5px;")
+            rust_layout.addWidget(title_label)
+
+            # Description
+            desc_label = QLabel(self.tr(
+                "PyArchInit can optionally use a native Rust module "
+                "(pyarchinit_core) to accelerate graph algorithms such as "
+                "topological sorting, cycle detection, and transitive "
+                "reduction. The plugin works without this module, but "
+                "installing it can significantly speed up Harris Matrix "
+                "computations on large datasets."
+            ))
+            desc_label.setWordWrap(True)
+            desc_label.setStyleSheet(
+                "color: #666; margin-bottom: 10px; font-size: 11px;")
+            rust_layout.addWidget(desc_label)
+
+            # ── Status group ──
+            status_group = QGroupBox(self.tr("Module Status"))
+            status_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #E65100;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            status_layout = QVBoxLayout(status_group)
+
+            # Status label
+            self.rust_status_label = QLabel()
+            self.rust_status_label.setStyleSheet("padding: 8px;")
+            status_layout.addWidget(self.rust_status_label)
+
+            # Enable/disable checkbox area
+            enable_layout = QHBoxLayout()
+            from qgis.PyQt.QtWidgets import QCheckBox
+            self.rust_enabled_checkbox = QCheckBox(
+                self.tr("Enable Rust acceleration (when available)"))
+            s = QgsSettings()
+            enabled = s.value(
+                'pyArchInit/rust_acceleration_enabled', True, type=bool)
+            self.rust_enabled_checkbox.setChecked(enabled)
+            self.rust_enabled_checkbox.stateChanged.connect(
+                self._on_rust_enabled_changed)
+            enable_layout.addWidget(self.rust_enabled_checkbox)
+            status_layout.addLayout(enable_layout)
+
+            rust_layout.addWidget(status_group)
+
+            # ── Install / Update group ──
+            install_group = QGroupBox(self.tr("Install / Update"))
+            install_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #4CAF50;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            install_layout = QVBoxLayout(install_group)
+
+            platform_info = QLabel(self.tr(
+                "Platform: {} / {}").format(
+                    platform.system(), platform.machine()))
+            platform_info.setStyleSheet("font-size: 10px; color: #888;")
+            install_layout.addWidget(platform_info)
+
+            btn_layout = QHBoxLayout()
+            self.rust_install_btn = QPushButton(
+                self.tr("Install / Update Rust Module"))
+            self.rust_install_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #4CAF50; color: white;
+                    border: none; padding: 8px 16px;
+                    border-radius: 4px; font-weight: bold;
+                }
+                QPushButton:hover { background-color: #388E3C; }
+                QPushButton:disabled { background-color: #BDBDBD; }
+            """)
+            self.rust_install_btn.clicked.connect(
+                self._on_rust_install_clicked)
+            btn_layout.addWidget(self.rust_install_btn)
+            btn_layout.addStretch()
+            install_layout.addLayout(btn_layout)
+
+            self.rust_install_status_label = QLabel("")
+            self.rust_install_status_label.setWordWrap(True)
+            self.rust_install_status_label.setStyleSheet(
+                "font-size: 10px; padding: 4px;")
+            install_layout.addWidget(self.rust_install_status_label)
+
+            rust_layout.addWidget(install_group)
+
+            # ── Info group ──
+            info_group = QGroupBox(self.tr("Technical Details"))
+            info_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #1976D2;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            info_layout = QVBoxLayout(info_group)
+            info_text = QLabel(self.tr(
+                "The Rust module provides:\n"
+                "  - Topological sort with level grouping (Kahn's algorithm)\n"
+                "  - Cycle detection and removal (iterative DFS)\n"
+                "  - Transitive reduction (Warshall's algorithm)\n\n"
+                "When not installed, the plugin uses equivalent Python "
+                "implementations automatically."
+            ))
+            info_text.setWordWrap(True)
+            info_text.setStyleSheet("font-size: 10px; color: #555;")
+            info_layout.addWidget(info_text)
+            rust_layout.addWidget(info_group)
+
+            # Spacer
+            rust_layout.addStretch()
+
+            scroll_area.setWidget(rust_tab)
+
+            # Add tab to tabWidget
+            if hasattr(self, 'tabWidget'):
+                self.tabWidget.addTab(
+                    scroll_area, self.tr("Rust Acceleration"))
+
+            # Refresh status display
+            self._refresh_rust_status()
+
+        except Exception as e:
+            print(f"Error setting up Rust Acceleration tab: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _refresh_rust_status(self):
+        """Update the Rust module status display."""
+        try:
+            from scripts.rust_installer import check_rust_available
+            available, version = check_rust_available()
+
+            if available:
+                self.rust_status_label.setText(
+                    self.tr("Status: Installed (v{})").format(version))
+                self.rust_status_label.setStyleSheet(
+                    "padding: 8px; color: #2E7D32; font-weight: bold; "
+                    "background-color: #E8F5E9; border-radius: 4px;")
+            else:
+                self.rust_status_label.setText(
+                    self.tr("Status: Not installed"))
+                self.rust_status_label.setStyleSheet(
+                    "padding: 8px; color: #BF360C; font-weight: bold; "
+                    "background-color: #FBE9E7; border-radius: 4px;")
+        except Exception as e:
+            self.rust_status_label.setText(
+                self.tr("Status: Error checking ({})").format(str(e)))
+            self.rust_status_label.setStyleSheet(
+                "padding: 8px; color: #F57F17; font-weight: bold; "
+                "background-color: #FFF8E1; border-radius: 4px;")
+
+    def _on_rust_enabled_changed(self, state):
+        """Handle Rust acceleration enable/disable toggle."""
+        from qgis.PyQt.QtCore import Qt
+        enabled = (state == Qt.CheckState.Checked.value
+                   if hasattr(Qt.CheckState, 'Checked')
+                   else state == 2)
+        s = QgsSettings()
+        s.setValue('pyArchInit/rust_acceleration_enabled', enabled)
+        QgsMessageLog.logMessage(
+            f"Rust acceleration {'enabled' if enabled else 'disabled'}",
+            "PyArchInit", Qgis.MessageLevel.Info)
+
+    def _on_rust_install_clicked(self):
+        """Handle the Install/Update button click."""
+        self.rust_install_btn.setEnabled(False)
+        self.rust_install_btn.setText(self.tr("Installing..."))
+        self.rust_install_status_label.setText(
+            self.tr("Downloading and installing... please wait."))
+        self.rust_install_status_label.setStyleSheet(
+            "font-size: 10px; padding: 4px; color: #1565C0;")
+
+        # Process events to update UI
+        QApplication.processEvents()
+
+        try:
+            from scripts.rust_installer import install_rust_acceleration
+            success = install_rust_acceleration()
+
+            if success:
+                self.rust_install_status_label.setText(
+                    self.tr("Installation successful! Restart QGIS to "
+                            "activate."))
+                self.rust_install_status_label.setStyleSheet(
+                    "font-size: 10px; padding: 4px; color: #2E7D32; "
+                    "font-weight: bold;")
+            else:
+                self.rust_install_status_label.setText(
+                    self.tr("Installation failed. Check the QGIS log "
+                            "for details."))
+                self.rust_install_status_label.setStyleSheet(
+                    "font-size: 10px; padding: 4px; color: #C62828; "
+                    "font-weight: bold;")
+        except Exception as e:
+            self.rust_install_status_label.setText(
+                self.tr("Error: {}").format(str(e)))
+            self.rust_install_status_label.setStyleSheet(
+                "font-size: 10px; padding: 4px; color: #C62828;")
+
+        self.rust_install_btn.setEnabled(True)
+        self.rust_install_btn.setText(
+            self.tr("Install / Update Rust Module"))
+        self._refresh_rust_status()
 
     def _on_local_db_type_changed(self, index):
         """Handle local database type change"""

@@ -255,6 +255,9 @@ class PyArchInitPlugin(object):
         # Load configuration from config.cfg FIRST to get EXPERIMENTAL setting
         self.load_config()
 
+        # Log Rust acceleration status at startup
+        self._log_rust_status()
+
         l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             settings = QgsSettings()
@@ -2161,6 +2164,35 @@ class PyArchInitPlugin(object):
             self.dockWidget.hide()
         else:
             self.dockWidget.show()
+
+    # ── Rust Acceleration Status ───────────────────────────────────────
+    def _log_rust_status(self):
+        """Log the Rust acceleration module status at plugin startup."""
+        try:
+            s = QgsSettings()
+            enabled = s.value(
+                'pyArchInit/rust_acceleration_enabled', True, type=bool)
+            if not enabled:
+                QgsMessageLog.logMessage(
+                    "Rust acceleration: disabled by user",
+                    "PyArchInit", Qgis.MessageLevel.Info)
+                return
+
+            from .scripts.rust_installer import check_rust_available
+            available, version = check_rust_available()
+            if available:
+                QgsMessageLog.logMessage(
+                    f"Rust acceleration: active (v{version})",
+                    "PyArchInit", Qgis.MessageLevel.Info)
+            else:
+                QgsMessageLog.logMessage(
+                    "Rust acceleration: not installed "
+                    "(optional - install via Settings > Rust Acceleration)",
+                    "PyArchInit", Qgis.MessageLevel.Info)
+        except Exception as e:
+            QgsMessageLog.logMessage(
+                f"Rust acceleration: status check failed ({e})",
+                "PyArchInit", Qgis.MessageLevel.Warning)
 
     # ── StratiGraph Sync ────────────────────────────────────────────────
     def _init_stratigraph_sync(self):

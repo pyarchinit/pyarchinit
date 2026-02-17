@@ -5,6 +5,23 @@
 
 ---
 
+## [5.3.17-alpha] - 2026-02-17
+
+### feat(rust): Phase 5 — Pipeline di distribuzione modulo Rust / Phase 5 — Rust module distribution pipeline
+
+- **IT**: Implementata la pipeline completa di distribuzione per il modulo opzionale di accelerazione Rust `pyarchinit_core`. (1) **CI/CD**: Creato workflow GitHub Actions `.github/workflows/build-rust.yml` che compila wheel cross-platform (Linux x86_64, Windows x86_64, macOS universal2) usando `maturin-action`, con trigger su tag `rust-v*` e pubblicazione automatica come GitHub Release. (2) **Installer**: Creato `scripts/rust_installer.py` con funzioni `check_rust_available()` (verifica importabilita e versione) e `install_rust_acceleration()` (rileva piattaforma/architettura, costruisce URL wheel corretto, installa via pip dal GitHub Release). (3) **Pannello impostazioni**: Aggiunto tab "Rust Acceleration" nel dialog di configurazione (`gui/pyarchinitConfigDialog.py`) con: stato del modulo (installato/non installato con versione), checkbox per abilitare/disabilitare l'accelerazione (persistita in `QgsSettings pyArchInit/rust_acceleration_enabled`), pulsante Install/Update con feedback visivo, e dettagli tecnici sugli algoritmi accelerati. (4) **Indicatore di stato**: Aggiunto log message all'avvio del plugin (`pyarchinitPlugin.py`) che riporta lo stato dell'accelerazione Rust nel pannello messaggi di QGIS.
+- **EN**: Implemented the complete distribution pipeline for the optional Rust acceleration module `pyarchinit_core`. (1) **CI/CD**: Created GitHub Actions workflow `.github/workflows/build-rust.yml` that builds cross-platform wheels (Linux x86_64, Windows x86_64, macOS universal2) using `maturin-action`, triggered on `rust-v*` tags with automatic GitHub Release publishing. (2) **Installer**: Created `scripts/rust_installer.py` with `check_rust_available()` (checks importability and version) and `install_rust_acceleration()` (detects platform/architecture, builds correct wheel URL, installs via pip from GitHub Release). (3) **Settings panel**: Added "Rust Acceleration" tab to the configuration dialog (`gui/pyarchinitConfigDialog.py`) with: module status (installed/not installed with version), checkbox to enable/disable acceleration (persisted in `QgsSettings pyArchInit/rust_acceleration_enabled`), Install/Update button with visual feedback, and technical details about accelerated algorithms. (4) **Status indicator**: Added startup log message (`pyarchinitPlugin.py`) that reports Rust acceleration status in the QGIS message log panel.
+
+#### File creati / Created files
+- `.github/workflows/build-rust.yml` (CI/CD workflow cross-platform wheel build)
+- `scripts/rust_installer.py` (installer e checker per modulo Rust)
+
+#### File modificati / Modified files
+- `gui/pyarchinitConfigDialog.py` (aggiunto tab Rust Acceleration con UI gestione modulo)
+- `pyarchinitPlugin.py` (aggiunto log stato Rust all'avvio plugin)
+
+---
+
 ## [5.3.16-alpha] - 2026-02-17
 
 ### feat(rust): Phase 3 — Modulo geostatistico Rust / Phase 3 — Rust geostatistics module
