@@ -99,6 +99,17 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.pyQGIS = Pyarchinit_pyqgis(iface)
         self.setupUi(self)
 
+        # Debounce timer for dial/spinbox
+        self._debounce_timer = QTimer()
+        self._debounce_timer.setSingleShot(True)
+        self._debounce_timer.setInterval(300)
+        self._debounce_timer.timeout.connect(self._on_debounce_timeout)
+        self._pending_value = 0
+
+        # Cached sito/area strings
+        self._cached_sito = None
+        self._cached_area = None
+
         # Apply theme
         ThemeManager.apply_theme(self)
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
@@ -158,9 +169,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.listWidget.itemChanged.connect(self.update_selected_layers)
         self.dial_relative_cronology.valueChanged.connect(self.set_max_num)
         self.spinBox_relative_cronology.valueChanged.connect(self.set_max_num)
-        self.dial_relative_cronology.valueChanged.connect(self.define_order_layer_value)
+        self.dial_relative_cronology.valueChanged.connect(self._schedule_order_layer_update)
         self.dial_relative_cronology.valueChanged.connect(self.spinBox_relative_cronology.setValue)
-        self.spinBox_relative_cronology.valueChanged.connect(self.define_order_layer_value)
+        self.spinBox_relative_cronology.valueChanged.connect(self._schedule_order_layer_update)
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
         self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
         self.spinBox_relative_cronology.valueChanged.connect(self.update_graphics_view)
@@ -196,6 +207,23 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                                 self.listWidget.item(i).checkState() == Qt.CheckState.Checked]
         self.selected_layers = [layer for layer in self.relevant_layers if layer.name() in selected_layer_names]
 
+    def _schedule_order_layer_update(self, v):
+        """Debounced order layer update."""
+        self._pending_value = v
+        self._debounce_timer.start()
+
+    def _on_debounce_timeout(self):
+        """Called after debounce period."""
+        self.define_order_layer_value(self._pending_value)
+
+    def _get_cached_sito_area(self):
+        """Get sito/area strings, computing only once per session."""
+        if self._cached_sito is None:
+            self._cached_sito = "','".join(
+                self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
+            self._cached_area = "','".join(
+                self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
+        return self._cached_sito, self._cached_area
 
     def update_layers(self, layers):
         # 'layers' è una lista di oggetti QgsMapLayer.
@@ -327,8 +355,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             QgsMessageLog.logMessage('I layer Quote View e US View devono essere caricati.', 'Avviso')
             return
 
-        sito = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
-        area = "','".join(self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
+        sito, area = self._get_cached_sito_area()
 
         self.ORDER_LAYER_VALUE = v
 
