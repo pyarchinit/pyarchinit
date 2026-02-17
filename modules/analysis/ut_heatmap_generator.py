@@ -11,10 +11,21 @@ Supports three methods:
 Created for PyArchInit QGIS Plugin
 """
 
+import logging
 import os
 import tempfile
 import json
 from datetime import datetime
+
+_log = logging.getLogger(__name__)
+
+# Rust acceleration (optional)
+_RUST_AVAILABLE = False
+try:
+    from modules._rust_bridge import rust_bridge
+    _RUST_AVAILABLE = rust_bridge.is_available()
+except Exception:
+    _RUST_AVAILABLE = False
 
 # Numpy import with comprehensive error handling
 # The _ARRAY_API error occurs when numpy's C module has version mismatch
@@ -348,9 +359,27 @@ class UTHeatmapGenerator:
             nx = max(1, nx)
             ny = max(1, ny)
 
-        xi = np.linspace(xmin + cell_size/2, xmax - cell_size/2, nx)
-        yi = np.linspace(ymin + cell_size/2, ymax - cell_size/2, ny)
-        xi, yi = np.meshgrid(xi, yi)
+        xi_1d = np.linspace(xmin + cell_size/2, xmax - cell_size/2, nx)
+        yi_1d = np.linspace(ymin + cell_size/2, ymax - cell_size/2, ny)
+
+        # --- Rust fast path for IDW ---
+        if _RUST_AVAILABLE:
+            try:
+                sr = float(search_radius) if search_radius else None
+                pred_flat, r_ny, r_nx = rust_bridge.idw_interpolation(
+                    points[:, 0].tolist(), points[:, 1].tolist(),
+                    values.tolist(),
+                    xi_1d.tolist(), yi_1d.tolist(),
+                    power=float(power), search_radius=sr
+                )
+                grid = np.array(pred_flat).reshape(r_ny, r_nx)
+                _log.info("IDW: using Rust engine (%dx%d grid)", r_ny, r_nx)
+                return grid, extent
+            except Exception as e:
+                _log.warning("IDW Rust fast path failed, falling back to Python: %s", e)
+        # --- End Rust fast path ---
+
+        xi, yi = np.meshgrid(xi_1d, yi_1d)
 
         grid = np.zeros_like(xi)
 

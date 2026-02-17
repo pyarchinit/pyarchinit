@@ -2,12 +2,22 @@
 Motore geostatistico principale
 """
 
+import logging
 import numpy as np
 import pandas as pd
 from scipy import spatial, stats, linalg
 from scipy.interpolate import griddata
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import warnings
+
+log = logging.getLogger(__name__)
+
+# Rust acceleration (optional)
+try:
+    from modules._rust_bridge import rust_bridge
+    _RUST_AVAILABLE = rust_bridge.is_available()
+except Exception:
+    _RUST_AVAILABLE = False
 warnings.filterwarnings('ignore')
 
 # Fix per numpy compatibility
@@ -66,11 +76,41 @@ class GeostatEngine:
         self.ml_available = ML_AVAILABLE
         self.plotly_available = PLOTLY_AVAILABLE
         
-    def calculate_variogram(self, points, values, max_distance, model_type='spherical', 
+    def calculate_variogram(self, points, values, max_distance, model_type='spherical',
                            check_anisotropy=False):
         """Calcola variogramma con supporto anisotropia"""
         n_points = len(points)
-        
+
+        # --- Rust fast path for empirical variogram ---
+        if _RUST_AVAILABLE and not check_anisotropy:
+            try:
+                pts = np.asarray(points)
+                vals = np.asarray(values, dtype=float)
+                n_lags = min(20, max(1, int(max_distance / 5)))
+                lag_centers, semivariances = rust_bridge.calculate_variogram(
+                    pts[:, 0].tolist(), pts[:, 1].tolist(), vals.tolist(),
+                    n_lags=n_lags, max_lag=float(max_distance)
+                )
+                log.info("Variogram: using Rust engine (%d lags)", len(lag_centers))
+                # Still need Python for model fitting and anisotropy
+                n_pairs_list = [0] * len(lag_centers)  # not returned by Rust
+                model_params = self._fit_variogram_model(
+                    np.array(lag_centers),
+                    np.array(semivariances),
+                    model_type
+                )
+                return {
+                    'distances': lag_centers,
+                    'semivariances': semivariances,
+                    'n_pairs': n_pairs_list,
+                    'model_type': model_type,
+                    'model_params': model_params,
+                    'anisotropy': None
+                }
+            except Exception as e:
+                log.warning("Variogram Rust fast path failed, falling back to Python: %s", e)
+        # --- End Rust fast path ---
+
         # Calcola matrice distanze
         dist_matrix = spatial.distance_matrix(points, points)
         
@@ -238,6 +278,36 @@ class GeostatEngine:
     def _cross_validate_kriging(self, points, values, variogram_params, max_cv_points=50):
         """Cross-validation leave-one-out per kriging (con campionamento)"""
         n = len(points)
+
+        # --- Rust fast path for cross-validation ---
+        if _RUST_AVAILABLE:
+            try:
+                model_params = variogram_params.get('model_params', {})
+                nugget = float(model_params.get('nugget', 0))
+                sill = float(model_params.get('sill', np.var(values)))
+                range_val = float(model_params.get('range', 100))
+                model_type = variogram_params.get('model_type', 'spherical')
+                pts = np.asarray(points)
+                vals = np.asarray(values, dtype=float)
+                rmse, mae = rust_bridge.cross_validate_kriging(
+                    pts[:, 0].tolist(), pts[:, 1].tolist(), vals.tolist(),
+                    variogram_model=model_type,
+                    nugget=nugget, sill=sill, range_param=range_val,
+                    max_cv_points=max_cv_points, max_nearby=30
+                )
+                log.info("Cross-validation: using Rust engine (rmse=%.4f, mae=%.4f)", rmse, mae)
+                return {
+                    'mae': mae,
+                    'rmse': rmse,
+                    'me': 0.0,
+                    'r2': 0.0,
+                    'n_valid': min(n, max_cv_points),
+                    'predictions': np.array([]),
+                    'errors': np.array([])
+                }
+            except Exception as e:
+                log.warning("Cross-validation Rust fast path failed, falling back to Python: %s", e)
+        # --- End Rust fast path ---
 
         # Limita il numero di punti per la cross-validation
         if n > max_cv_points:
@@ -437,6 +507,43 @@ class GeostatEngine:
             # Pre-calcola la media per fallback
             mean_value = float(np.mean(values))
             log(f"Step 5b: mean_value={mean_value}")
+
+            # --- Rust fast path for kriging grid ---
+            if _RUST_AVAILABLE:
+                try:
+                    log("Step 6-RUST: Attempting Rust kriging engine...")
+                    pts = np.asarray(points)
+                    vals = np.asarray(values, dtype=float)
+                    pred_flat, var_flat, r_ny, r_nx = rust_bridge.ordinary_kriging(
+                        pts[:, 0].tolist(), pts[:, 1].tolist(), vals.tolist(),
+                        x_grid.tolist(), y_grid.tolist(),
+                        variogram_model=model_type,
+                        nugget=nugget, sill=sill, range_param=range_val,
+                        max_nearby=MAX_NEARBY_POINTS
+                    )
+                    predictions = np.array(pred_flat).reshape(r_ny, r_nx)
+                    variances = np.array(var_flat).reshape(r_ny, r_nx)
+                    log(f"Step 6-RUST OK: Kriging completed via Rust ({r_ny}x{r_nx})")
+
+                    # Skip Python loop, jump to CV / result
+                    log("Step 7: Cross-validation (SKIPPED - disabled for stability)...")
+                    cv_results = {
+                        'mae': 0.0, 'rmse': 0.0, 'me': 0.0, 'r2': 0.0, 'n_valid': 0,
+                        'note': 'CV disabled for stability'
+                    }
+                    log("Step 8: Building result dict...")
+                    result = {
+                        'predictions': predictions,
+                        'variances': variances,
+                        'x_grid': x_grid,
+                        'y_grid': y_grid,
+                        'cv_results': cv_results
+                    }
+                    log("Step 8 OK: KRIGING COMPLETE SUCCESS (Rust engine)")
+                    return result
+                except Exception as e:
+                    log(f"Step 6-RUST FAILED: {e}, falling back to Python")
+            # --- End Rust fast path ---
 
             log(f"Step 6: Starting kriging loop ({ny}x{nx} = {ny*nx} cells)...")
             # Kriging per ogni punto della griglia

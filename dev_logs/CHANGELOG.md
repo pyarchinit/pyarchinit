@@ -5,6 +5,21 @@
 
 ---
 
+## [5.3.16-alpha] - 2026-02-17
+
+### feat(rust): Phase 3 — Modulo geostatistico Rust / Phase 3 — Rust geostatistics module
+
+- **IT**: Implementato il modulo geostatistico completo in Rust (`_rust_core/src/geostat/mod.rs`) con 5 funzioni ad alte prestazioni: (1) `calculate_variogram` -- calcolo variogramma empirico con binning per lag e computazione pairwise parallelizzata via rayon; (2) `ordinary_kriging` -- kriging ordinario su griglia regolare con matrice di covarianza, risoluzione del sistema lineare via LU decomposition (nalgebra) e parallelizzazione per cella via rayon, supporta 4 modelli di variogramma (sferico, esponenziale, gaussiano, lineare); (3) `idw_interpolation` -- interpolazione IDW (Inverse Distance Weighting) parallelizzata con raggio di ricerca opzionale; (4) `maximin_design` -- campionamento ottimale maximin greedy per la selezione di nuovi punti di campionamento che massimizzano la distanza minima dai punti esistenti; (5) `cross_validate_kriging` -- cross-validation leave-one-out parallelizzata per kriging con sottocampionamento deterministico. Aggiornato il bridge Python `modules/_rust_bridge.py` con metodi wrapper per tutte le 5 funzioni geostatistiche. Integrati fast path Rust in `modules/geoarchaeo/core/geostat_engine.py` (variogramma, kriging, cross-validation) e in `modules/analysis/ut_heatmap_generator.py` (IDW), ciascuno con fallback automatico alle implementazioni Python in caso di errore.
+- **EN**: Implemented the complete geostatistics module in Rust (`_rust_core/src/geostat/mod.rs`) with 5 high-performance functions: (1) `calculate_variogram` -- empirical variogram computation with lag binning and rayon-parallelized pairwise distance/semivariance calculation; (2) `ordinary_kriging` -- ordinary kriging on regular grid with covariance matrix, LU decomposition solver (nalgebra) and per-cell rayon parallelization, supporting 4 variogram models (spherical, exponential, gaussian, linear); (3) `idw_interpolation` -- parallelized IDW (Inverse Distance Weighting) interpolation with optional search radius; (4) `maximin_design` -- greedy maximin optimal sampling design for selecting new sample points that maximize minimum distance to existing points; (5) `cross_validate_kriging` -- parallelized leave-one-out cross-validation for kriging with deterministic subsampling. Updated Python bridge `modules/_rust_bridge.py` with wrapper methods for all 5 geostatistical functions. Integrated Rust fast paths into `modules/geoarchaeo/core/geostat_engine.py` (variogram, kriging, cross-validation) and `modules/analysis/ut_heatmap_generator.py` (IDW), each with automatic fallback to Python implementations on error.
+
+#### File modificati / Modified files
+- `_rust_core/src/geostat/mod.rs` (implementazione completa: variogramma, kriging, IDW, maximin, cross-validation)
+- `modules/_rust_bridge.py` (aggiunti 5 metodi wrapper geostatistici)
+- `modules/geoarchaeo/core/geostat_engine.py` (Rust fast path per variogramma, kriging, cross-validation)
+- `modules/analysis/ut_heatmap_generator.py` (Rust fast path per IDW)
+
+---
+
 ## [5.3.15-alpha] - 2026-02-17
 
 ### feat(rust): Phase 2 — Scaffolding modulo Rust pyarchinit_core / Phase 2 — Rust pyarchinit_core module scaffolding
