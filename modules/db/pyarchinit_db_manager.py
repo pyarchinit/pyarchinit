@@ -2993,11 +2993,6 @@ class Pyarchinit_db_management(object):
                 raise
         # Clear cache to ensure fresh data on next query
         self.clear_cache()
-        # Force refresh of connection pool and session factory to ensure fresh data on next query
-        if self.engine:
-            self.engine.dispose()
-            # Recreate session factory with fresh connections
-            self.Session = sessionmaker(bind=self.engine, autoflush=False, autocommit=False)
 
     def insert_data_conflict(self, data):
         with self.session_scope() as session:
