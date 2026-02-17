@@ -26,3 +26,6 @@ __pycache__/
 /examples/
 /export/
 modules/gis/logs/*.log
+
+# Plugin external libraries (installed at runtime)
+ext_libs/

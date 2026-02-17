@@ -128,9 +128,8 @@ class RestoreSchema(object):
     def update_geom_srid(self, schema, crs):
         sql_query_string = ("SELECT f_table_name, type FROM {}".format('geometry_columns'))
         engine = create_engine(self.db_url)
-        Session = sessionmaker(bind=engine)
-        session = Session()
         conn = engine.connect()
+        transaction = conn.begin()
         try:
             res = conn.execute(text(sql_query_string))
             tables = []
@@ -144,41 +143,37 @@ class RestoreSchema(object):
                     t, ty, crs
                 ))
                 res = conn.execute(sql_queries)
-            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
+            transaction.commit()
         except Exception as e:
-            conn.rollback()
+            transaction.rollback()
             raise e
         finally:
             conn.close()
-            session.close()
         return True
 
     def set_owner(self, owner):
         sql = "SELECT table_name FROM information_schema.tables where table_schema = 'public'"
         engine = create_engine(self.db_url)
-        Session = sessionmaker(bind=engine)
-        session = Session()
         conn = engine.connect()
+        transaction = conn.begin()
         try:
             res = conn.execute(text(sql))
             for r in res:
                 sql_queries = text("ALTER TABLE public.{} OWNER TO {};".format(r[0], owner))
                 res = conn.execute(sql_queries)
-            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
+            transaction.commit()
         except Exception as e:
-            conn.rollback()
+            transaction.rollback()
             raise e
         finally:
             conn.close()
-            session.close()
         return True
 
     def update_geom_srid_sl(self, crs):
         sql_query_string = ("SELECT f_table_name, geometry_type, f_geometry_column FROM {}".format('geometry_columns'))
         engine = create_engine(self.db_url, echo=False)
-        Session = sessionmaker(bind=engine)
-        session = Session()
         conn = engine.connect()
+        transaction = conn.begin()
         try:
             res = conn.execute(text(sql_query_string))
             tables = []
@@ -191,18 +186,13 @@ class RestoreSchema(object):
                 sql_queries_1 = text("UPDATE geometry_columns SET srid = {1} WHERE f_table_name = '{0}';".format(
                     t, crs
                 ))
-                # sql_queries_2 = text("UPDATE {0} SET {1} = SetSRID({1}, {2});".format(
-                #     t, ty[1], crs
-                # ))
                 conn.execute(sql_queries_1)
-                # conn.execute(sql_queries_2)
-            conn.commit()  # SQLAlchemy 2.0 requires explicit commit
+            transaction.commit()
         except Exception as e:
-            conn.rollback()
+            transaction.rollback()
             raise e
         finally:
             conn.close()
-            session.close()
         return True
 
 
