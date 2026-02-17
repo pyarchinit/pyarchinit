@@ -5,6 +5,45 @@
 
 ---
 
+## [5.3.14-alpha] - 2026-02-17
+
+### perf: Phase 1 — Ottimizzazioni prestazioni Python / Phase 1 — Python Performance Optimizations
+
+#### Gruppo A: Order Layer (`modules/gis/pyarchinit_pyqgis.py`)
+
+- **IT**: (1) Sostituito `eval()` con `ast.literal_eval()` in `_build_graph()` — sicurezza e prestazioni. (2) Riscritta `_remove_cycles()` da DFS ricorsivo O(N²) a iterativo O(N+E) con stack esplicito e `path_set`. (3) Riscritta `update_database_with_order()` con singola query batch `UPDATE ... SET order_layer = CASE WHEN ... END` invece di N query + N `clear_cache()`.
+- **EN**: (1) Replaced `eval()` with `ast.literal_eval()` in `_build_graph()` — security and performance. (2) Rewrote `_remove_cycles()` from recursive O(N²) DFS to iterative O(N+E) with explicit stack and `path_set`. (3) Rewrote `update_database_with_order()` with single batch `UPDATE ... SET order_layer = CASE WHEN ... END` instead of N queries + N `clear_cache()` calls.
+
+#### Gruppo B: Time Manager (`tabs/Gis_Time_controller.py`)
+
+- **IT**: (1) Rimosso `QThread.sleep(2)` — sostituito con `canvas.renderComplete` signal + `QEventLoop` con timeout 10s. (2) Debounce dial/spinbox con `QTimer.singleShot(300ms)` + cache sito/area. (3) Lazy matrix rebuild solo al cambio stato checkbox. (4) Pre-scan SQL ottimizzato: singola query `SELECT COUNT(DISTINCT order_layer)` invece di triplo ciclo annidato.
+- **EN**: (1) Removed `QThread.sleep(2)` — replaced with `canvas.renderComplete` signal + `QEventLoop` with 10s timeout. (2) Debounce dial/spinbox with `QTimer.singleShot(300ms)` + cached sito/area. (3) Lazy matrix rebuild only on checkbox state change. (4) Optimized pre-scan SQL: single `SELECT COUNT(DISTINCT order_layer)` query instead of triple nested loop.
+
+#### Gruppo C: DB Manager (`modules/db/pyarchinit_db_manager.py`)
+
+- **IT**: (1) Rimosso `engine.dispose()` dopo ogni insert in `insert_data_session()`. (2) Riuso `self.Session()` in `update()` invece di creare nuovo `sessionmaker` per chiamata.
+- **EN**: (1) Removed `engine.dispose()` after every insert in `insert_data_session()`. (2) Reuse `self.Session()` in `update()` instead of creating new `sessionmaker` per call.
+
+#### Gruppo D: Database Sync (`modules/db/database_sync.py`)
+
+- **IT**: (1) Connessione SQLite persistente in `SQLiteAdapter` con validazione `SELECT 1`. (2) Import batch con `executemany()` + fallback row-by-row. (3) Supporto SQLAlchemy engine per `PostgreSQLAdapter` — elimina ~188 subprocess `psql` per sessione.
+- **EN**: (1) Persistent SQLite connection in `SQLiteAdapter` with `SELECT 1` validation. (2) Batch import with `executemany()` + row-by-row fallback. (3) SQLAlchemy engine support for `PostgreSQLAdapter` — eliminates ~188 `psql` subprocess spawns per session.
+
+#### Gruppo E: DB Index
+
+- **IT**: Aggiunto indice `idx_us_order_layer` su `us_table.order_layer` in structures e structures_metadata.
+- **EN**: Added `idx_us_order_layer` index on `us_table.order_layer` in structures and structures_metadata.
+
+#### File modificati / Modified files
+- `modules/gis/pyarchinit_pyqgis.py` (eval→ast.literal_eval, DFS iterativo, batch SQL update)
+- `tabs/Gis_Time_controller.py` (renderComplete signal, debounce, lazy matrix, SQL pre-scan)
+- `modules/db/pyarchinit_db_manager.py` (rimosso engine.dispose, riuso self.Session)
+- `modules/db/database_sync.py` (connessione persistente, executemany, SQLAlchemy engine)
+- `modules/db/structures/US_table.py` (indice order_layer)
+- `modules/db/structures_metadata/US_table.py` (indice order_layer)
+
+---
+
 ## [5.3.13-alpha] - 2026-02-16
 
 ### refactor(cleanup): Rimossi eseguibili obsoleti e codice morto associato / Removed obsolete bundled executables and associated dead code
