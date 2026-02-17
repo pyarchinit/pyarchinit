@@ -22,6 +22,19 @@
 
 ---
 
+## [5.3.18-alpha] - 2026-02-17
+
+### feat(rust): Phase 4 — Layout Sugiyama per Harris Matrix / Phase 4 — Sugiyama Harris Matrix layout engine
+
+- **IT**: Implementato l'algoritmo di layout a livelli Sugiyama completo nel modulo Rust `matrix` (`_rust_core/src/matrix/mod.rs`) per la visualizzazione della Harris Matrix senza dipendenza da graphviz/dot per il posizionamento dei nodi. L'algoritmo comprende 4 fasi: (1) **Assegnazione livelli**: algoritmo longest-path basato su Kahn con supporto opzionale per vincoli di raggruppamento per fase (nodi contemporanei sullo stesso livello); (2) **Inserimento nodi dummy**: per archi che attraversano livelli multipli, inserimento di nodi virtuali per mantenere l'instradamento corretto degli archi; (3) **Minimizzazione incroci**: euristica del baricentro con sweep alternati top-down/bottom-up (6 iterazioni configurabili); (4) **Assegnazione coordinate**: posizionamento mediano con risoluzione sovrapposizioni e centratura dei livelli. Integrato nella pipeline di esportazione matrix (`modules/utility/pyarchinit_matrix_exp.py`): aggiunta funzione `_rust_transitive_reduction()` che sostituisce il subprocess `tred` usando il modulo Rust `graph.transitive_reduction()`, con fallback automatico al subprocess. Tutti e 4 i punti di chiamata `tred` in `HarrisMatrix.export_matrix`, `export_matrix_2`, `ViewHarrisMatrix.export_matrix` e `export_matrix_3` ora provano prima Rust e ricadono sul subprocess automaticamente. Aggiunte anche le funzioni pubbliche `rust_harris_layout()` e `rust_layout_to_dot()` per uso programmatico del layout engine.
+- **EN**: Implemented the complete Sugiyama layered layout algorithm in the Rust `matrix` module (`_rust_core/src/matrix/mod.rs`) for Harris Matrix visualization without dependency on graphviz/dot for node positioning. The algorithm comprises 4 phases: (1) **Layer assignment**: longest-path algorithm based on Kahn's topological sort with optional phase group constraints (contemporary nodes on same layer); (2) **Dummy node insertion**: for edges spanning multiple layers, virtual nodes are inserted to maintain proper edge routing; (3) **Crossing minimization**: barycenter heuristic with alternating top-down/bottom-up sweeps (6 configurable iterations); (4) **Coordinate assignment**: median positioning with overlap resolution and layer centering. Integrated into the matrix export pipeline (`modules/utility/pyarchinit_matrix_exp.py`): added `_rust_transitive_reduction()` function that replaces the `tred` subprocess using the Rust `graph.transitive_reduction()` module, with automatic fallback to subprocess. All 4 `tred` call sites in `HarrisMatrix.export_matrix`, `export_matrix_2`, `ViewHarrisMatrix.export_matrix`, and `export_matrix_3` now try Rust first and fall back to subprocess automatically. Also added public functions `rust_harris_layout()` and `rust_layout_to_dot()` for programmatic use of the layout engine.
+
+#### File modificati / Modified files
+- `_rust_core/src/matrix/mod.rs` (implementazione completa Sugiyama: layer assignment, dummy nodes, crossing minimization, coordinate assignment)
+- `modules/utility/pyarchinit_matrix_exp.py` (Rust fast path per tred + funzioni layout pubbliche)
+
+---
+
 ## [5.3.16-alpha] - 2026-02-17
 
 ### feat(rust): Phase 3 — Modulo geostatistico Rust / Phase 3 — Rust geostatistics module
