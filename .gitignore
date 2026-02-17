@@ -33,3 +33,6 @@ __pycache__/
 /examples/
 /export/
 modules/gis/logs/*.log
+
+# Rust build artifacts
+_rust_core/target/
