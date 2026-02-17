@@ -9825,20 +9825,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
         return final_levels
 
     def update_database_with_order(self, db_manager, mapper_table_class, id_table, sito, area):
-        """
-        Aggiorna il database con l'order layer calcolato.
-        Mantiene aperta la finestra di progress durante l'aggiornamento.
-
-        Args:
-            db_manager: Il DB manager per le query
-            mapper_table_class: La classe mapper della tabella
-            id_table: Il nome del campo ID
-            sito: Il sito
-            area: L'area
-
-        Returns:
-            int: Numero di record aggiornati
-        """
+        """Aggiorna il database con l'order layer calcolato — versione batch."""
         if not self.order_dict:
             self.logger.error("Nessun order_dict disponibile per l'aggiornamento")
             if self.progress_widget:
@@ -9846,82 +9833,59 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             return 0
 
         try:
-            # Reset progress per aggiornamento database
             self.progress_bar.setValue(0)
             self.progress_bar.setFormat("Aggiornamento database in corso...")
-            self.logger.info("=== INIZIO AGGIORNAMENTO DATABASE ===")
+            self.logger.info("=== INIZIO AGGIORNAMENTO DATABASE (BATCH) ===")
             QApplication.processEvents()
 
-            # Calcola totale updates
             total_updates = sum(len(v) for v in self.order_dict.values())
-            updates_count = 0
-            errors_count = 0
 
-            # Aggiorna il database
-            for k, v in self.order_dict.items():
-                order_number = k
-                us_v = v
+            # Build batch CASE WHEN statement
+            case_parts = []
+            us_values = []
+            for order_number, us_list in self.order_dict.items():
+                for sing_us in us_list:
+                    case_parts.append(f"WHEN us = '{sing_us}' THEN {order_number}")
+                    us_values.append(str(sing_us))
 
-                self.logger.debug(f"Aggiornamento livello {order_number}: {len(us_v)} US")
+            if not case_parts:
+                self.logger.warning("Nessun dato da aggiornare")
+                if self.progress_widget:
+                    self.progress_widget.close()
+                return 0
 
-                for sing_us in us_v:
-                    search_dict = {
-                        'sito': "'" + str(sito) + "'",
-                        'area': "'" + str(area) + "'",
-                        'us': str(sing_us)
-                    }
+            # Single batch UPDATE
+            us_in_clause = "','".join(us_values)
+            batch_sql = f"""
+                UPDATE us_table
+                SET order_layer = CASE {' '.join(case_parts)} END
+                WHERE sito = '{sito}' AND area = '{area}' AND us IN ('{us_in_clause}')
+            """
 
-                    try:
-                        records = db_manager.query_bool(search_dict, mapper_table_class)
-
-                        if records:
-                            db_manager.update(
-                                mapper_table_class,
-                                id_table,
-                                [int(records[0].id_us)],
-                                ['order_layer'],
-                                [order_number]
-                            )
-                            updates_count += 1
-
-                            # Aggiorna progress
-                            progress = int((updates_count / total_updates) * 100)
-                            self.progress_bar.setValue(progress)
-                            self.progress_bar.setFormat(f"Aggiornamento database: {updates_count}/{total_updates} US")
-
-                            # Log ogni 10 updates
-                            if updates_count % 10 == 0:
-                                self.logger.debug(f"Aggiornate {updates_count} US...")
-                                QApplication.processEvents()
-                        else:
-                            self.logger.warning(f"Nessun record trovato per US {sing_us}")
-                            errors_count += 1
-
-                    except Exception as e:
-                        errors_count += 1
-                        self.logger.error(f"Errore aggiornamento US {sing_us}: {str(e)}")
-
-            # Completato
-            self.progress_bar.setValue(100)
-            self.progress_bar.setFormat(f"Aggiornamento completato: {updates_count} US aggiornate")
-
-            self.logger.info(f"=== AGGIORNAMENTO COMPLETATO ===")
-            self.logger.info(f"US aggiornate: {updates_count}")
-            if errors_count > 0:
-                self.logger.warning(f"Errori riscontrati: {errors_count}")
-
-            # Attendi prima di chiudere
+            self.progress_bar.setValue(50)
+            self.progress_bar.setFormat(f"Esecuzione aggiornamento batch per {total_updates} US...")
             QApplication.processEvents()
-            time.sleep(2)
 
-            # Chiudi la finestra
+            db_manager._execute_sql(batch_sql)
+
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat(f"Aggiornamento completato: {total_updates} US aggiornate")
+            self.logger.info(f"=== AGGIORNAMENTO COMPLETATO (BATCH) ===")
+            self.logger.info(f"US aggiornate: {total_updates}")
+
+            QApplication.processEvents()
+            time.sleep(1)
+
             if self.progress_widget:
                 self.progress_widget.close()
 
-            return updates_count
+            # Clear cache once at the end
+            db_manager.clear_cache()
+
+            return total_updates
 
         except Exception as e:
-            self.logger.error(f"Errore critico durante l'aggiornamento: {str(e)}", exc_info=True)
+            self.logger.error(f"Errore critico durante l'aggiornamento batch: {str(e)}", exc_info=True)
             if self.progress_widget:
                 self.progress_bar.setFormat("Errore durante l'aggiornamento!")
                 QApplication.processEvents()
@@ -9980,9 +9944,9 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             self.order_dict[k] = l
         return
 
-    def update_database_with_order(self, db_manager, mapper_table_class, id_table, sito, area):
+    def _update_database_with_order_legacy(self, db_manager, mapper_table_class, id_table, sito, area):
         """
-        Aggiorna il database con l'order layer calcolato.
+        Aggiorna il database con l'order layer calcolato (versione legacy, fallback).
         Mantiene aperta la finestra di progress durante l'aggiornamento.
 
         Args:
