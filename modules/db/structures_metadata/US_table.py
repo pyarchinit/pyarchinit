@@ -3,14 +3,14 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
-from sqlalchemy import Table, Column, Integer, String, Text, Numeric, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Text, Numeric, UniqueConstraint, Index
 
 
 # Table representing stratigraphic units (Unità Stratigrafiche - US)
 class US_table:
     @classmethod
     def define_table(cls, metadata):
-        return Table('us_table', metadata,
+        table = Table('us_table', metadata,
                      # Unique identifier for each stratigraphic unit
                      Column('id_us', Integer, primary_key=True),
 
@@ -368,3 +368,6 @@ class US_table:
                      # Unique constraint ensuring the combination of site, area, stratigraphic unit and unit type is unique
                      UniqueConstraint('sito', 'area', 'us', 'unita_tipo', name='ID_us_unico')
                      )
+        # Index on order_layer for faster ORDER BY / WHERE queries
+        Index('idx_us_order_layer', table.c.order_layer)
+        return table

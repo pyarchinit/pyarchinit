@@ -3,7 +3,7 @@ Created on 19 feb 2018
 
 @author: Serena Sensini; Enzo Cocca <enzo.ccc@gmail.com>
 '''
-from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint
+from sqlalchemy import Table, Column, Integer, String, Text, Numeric, MetaData, create_engine, UniqueConstraint, Index
 
 from modules.db.pyarchinit_conn_strings import Connection
 
@@ -136,6 +136,9 @@ class US_table:
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')
                      )
+
+    # Index on order_layer for faster ORDER BY / WHERE queries
+    Index('idx_us_order_layer', us_table.c.order_layer)
 
     # DO NOT create tables at module import time!
 
