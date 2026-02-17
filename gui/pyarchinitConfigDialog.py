@@ -1327,10 +1327,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
     def _on_rust_enabled_changed(self, state):
         """Handle Rust acceleration enable/disable toggle."""
-        from qgis.PyQt.QtCore import Qt
-        enabled = (state == Qt.CheckState.Checked.value
-                   if hasattr(Qt.CheckState, 'Checked')
-                   else state == 2)
+        # stateChanged emits int in PyQt5 (0=unchecked, 2=checked)
+        enabled = int(state) == 2
         s = QgsSettings()
         s.setValue('pyArchInit/rust_acceleration_enabled', enabled)
         QgsMessageLog.logMessage(
