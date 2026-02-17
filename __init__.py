@@ -433,6 +433,10 @@ class PackageManager:
                 if not line or line.startswith('#'):
                     continue
 
+                # Strip inline comments (e.g. "opencv-python>=4.8.0  # Optional")
+                if ' #' in line:
+                    line = line[:line.index(' #')].strip()
+
                 package_spec = line
                 package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
                 pkg_lower = package_name.lower()
