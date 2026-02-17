@@ -1349,7 +1349,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         try:
             from scripts.rust_installer import install_rust_acceleration
-            success = install_rust_acceleration()
+            success, message = install_rust_acceleration()
 
             if success:
                 self.rust_install_status_label.setText(
@@ -1358,18 +1358,27 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.rust_install_status_label.setStyleSheet(
                     "font-size: 10px; padding: 4px; color: #2E7D32; "
                     "font-weight: bold;")
+                QgsMessageLog.logMessage(
+                    f"Rust acceleration installed: {message}",
+                    "PyArchInit", Qgis.MessageLevel.Info)
             else:
                 self.rust_install_status_label.setText(
-                    self.tr("Installation failed. Check the QGIS log "
-                            "for details."))
+                    self.tr("Installation failed: {}").format(message))
                 self.rust_install_status_label.setStyleSheet(
                     "font-size: 10px; padding: 4px; color: #C62828; "
                     "font-weight: bold;")
+                QgsMessageLog.logMessage(
+                    f"Rust acceleration install failed: {message}",
+                    "PyArchInit", Qgis.MessageLevel.Warning)
         except Exception as e:
+            error_msg = str(e)
             self.rust_install_status_label.setText(
-                self.tr("Error: {}").format(str(e)))
+                self.tr("Error: {}").format(error_msg))
             self.rust_install_status_label.setStyleSheet(
                 "font-size: 10px; padding: 4px; color: #C62828;")
+            QgsMessageLog.logMessage(
+                f"Rust acceleration install error: {error_msg}",
+                "PyArchInit", Qgis.MessageLevel.Critical)
 
         self.rust_install_btn.setEnabled(True)
         self.rust_install_btn.setText(

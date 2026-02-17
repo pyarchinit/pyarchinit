@@ -87,60 +87,88 @@ def check_rust_available():
         return False, None
 
 
-def _get_wheel_tag():
-    """Determine the correct wheel tag for the current platform/arch.
+def _get_platform_keywords():
+    """Get keywords to match against wheel filenames for this platform.
 
     Returns:
-        str: The wheel platform tag (e.g. 'manylinux_2_17_x86_64',
-             'macosx_11_0_universal2', 'win_amd64'), or None if
-             the platform is not supported.
+        list[str]: Keywords that should appear in the wheel filename.
+                   Returns empty list if platform is not supported.
     """
     system = platform.system()
-    # Detect architecture: 64-bit pointer size and machine name
     bits = struct.calcsize('P') * 8
     machine = platform.machine().lower()
 
     if system == 'Linux':
         if machine in ('x86_64', 'amd64') and bits == 64:
-            return 'manylinux_2_17_x86_64.manylinux2014_x86_64'
+            return ['manylinux', 'x86_64']
         elif machine in ('aarch64', 'arm64') and bits == 64:
-            return 'manylinux_2_17_aarch64.manylinux2014_aarch64'
+            return ['manylinux', 'aarch64']
     elif system == 'Darwin':
-        # Try universal2 first (works on both Intel and Apple Silicon)
         # QGIS on macOS may run under Rosetta (x86_64 Python on arm64 Mac)
-        # so we provide both universal2 and architecture-specific tags
         import sysconfig
-        plat = sysconfig.get_platform()  # e.g. 'macosx-10.13.0-x86_64'
+        plat = sysconfig.get_platform()
         if 'x86_64' in plat:
-            return 'macosx_10_12_x86_64'
+            # Prefer x86_64 or universal2
+            return ['macosx']
         elif 'arm64' in plat:
-            return 'macosx_11_0_arm64'
-        # Fallback to universal2
-        return 'macosx_11_0_universal2'
+            return ['macosx']
+        return ['macosx']
     elif system == 'Windows':
         if machine in ('x86_64', 'amd64', 'x64') or bits == 64:
-            return 'win_amd64'
+            return ['win_amd64']
 
-    return None
+    return []
 
 
 def _build_wheel_url(version):
-    """Build the full wheel download URL for the current platform.
+    """Find the correct wheel URL by querying the GitHub Release assets.
+
+    Queries the GitHub Releases API to find the matching wheel for
+    this platform, instead of guessing the exact filename.
 
     Args:
         version: Version string, e.g. '0.1.0'
 
     Returns:
-        str: Full URL to the .whl file, or None if platform not supported.
+        str: Full URL to the .whl file, or None if not found.
     """
-    wheel_tag = _get_wheel_tag()
-    if wheel_tag is None:
+    keywords = _get_platform_keywords()
+    if not keywords:
         return None
 
-    wheel_filename = (
-        f"pyarchinit_core-{version}-cp39-abi3-{wheel_tag}.whl"
+    # Query GitHub API for release assets
+    api_url = (
+        f"https://api.github.com/repos/pyarchinit/pyarchinit"
+        f"/releases/tags/rust-v{version}"
     )
-    return f"{GITHUB_RELEASE_URL}/rust-v{version}/{wheel_filename}"
+
+    try:
+        import urllib.request
+        import json
+        req = urllib.request.Request(api_url)
+        req.add_header('Accept', 'application/vnd.github.v3+json')
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.loads(resp.read().decode())
+    except Exception as e:
+        print(f"[PyArchInit] Failed to query GitHub API: {e}")
+        return None
+
+    # Find matching wheel among release assets
+    for asset in data.get('assets', []):
+        name = asset.get('name', '')
+        if not name.endswith('.whl'):
+            continue
+        if not name.startswith('pyarchinit_core'):
+            continue
+        # Check all keywords match
+        if all(kw in name for kw in keywords):
+            return asset.get('browser_download_url')
+
+    print(
+        f"[PyArchInit] No matching wheel found for platform "
+        f"keywords={keywords}"
+    )
+    return None
 
 
 def install_rust_acceleration(version=None):
@@ -150,7 +178,7 @@ def install_rust_acceleration(version=None):
         version: Version to install. Defaults to DEFAULT_VERSION.
 
     Returns:
-        bool: True if installation succeeded, False otherwise.
+        tuple: (success: bool, message: str)
     """
     if version is None:
         version = DEFAULT_VERSION
@@ -159,11 +187,10 @@ def install_rust_acceleration(version=None):
     if wheel_url is None:
         system = platform.system()
         machine = platform.machine()
-        print(
-            f"[PyArchInit] Rust acceleration: unsupported platform "
-            f"{system}/{machine}"
-        )
-        return False
+        msg = (f"No matching wheel for {system}/{machine}. "
+               f"Check GitHub Releases for rust-v{version}.")
+        print(f"[PyArchInit] {msg}")
+        return False, msg
 
     print(f"[PyArchInit] Installing Rust acceleration from: {wheel_url}")
 
@@ -178,7 +205,8 @@ def install_rust_acceleration(version=None):
             timeout=120
         )
         if result.returncode == 0:
-            print("[PyArchInit] Rust acceleration installed successfully")
+            msg = f"v{version} installed from {wheel_url}"
+            print(f"[PyArchInit] {msg}")
             # Reset the bridge so it re-checks on next use
             try:
                 from modules._rust_bridge import rust_bridge
@@ -187,16 +215,18 @@ def install_rust_acceleration(version=None):
                 rust_bridge._module = None
             except Exception:
                 pass
-            return True
+            return True, msg
         else:
-            print(
-                f"[PyArchInit] Rust acceleration install failed: "
-                f"{result.stderr}"
-            )
-            return False
+            stderr = result.stderr.strip()
+            stdout = result.stdout.strip()
+            msg = stderr or stdout or "pip returned non-zero exit code"
+            print(f"[PyArchInit] Install failed: {msg}")
+            return False, msg
     except subprocess.TimeoutExpired:
-        print("[PyArchInit] Rust acceleration install timed out")
-        return False
+        msg = "Download/install timed out after 120s"
+        print(f"[PyArchInit] {msg}")
+        return False, msg
     except Exception as e:
-        print(f"[PyArchInit] Rust acceleration install error: {e}")
-        return False
+        msg = str(e)
+        print(f"[PyArchInit] Install error: {msg}")
+        return False, msg
