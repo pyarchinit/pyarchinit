@@ -106,7 +106,16 @@ def _get_wheel_tag():
         elif machine in ('aarch64', 'arm64') and bits == 64:
             return 'manylinux_2_17_aarch64.manylinux2014_aarch64'
     elif system == 'Darwin':
-        # Universal2 binary works on both Intel and Apple Silicon
+        # Try universal2 first (works on both Intel and Apple Silicon)
+        # QGIS on macOS may run under Rosetta (x86_64 Python on arm64 Mac)
+        # so we provide both universal2 and architecture-specific tags
+        import sysconfig
+        plat = sysconfig.get_platform()  # e.g. 'macosx-10.13.0-x86_64'
+        if 'x86_64' in plat:
+            return 'macosx_10_12_x86_64'
+        elif 'arm64' in plat:
+            return 'macosx_11_0_arm64'
+        # Fallback to universal2
         return 'macosx_11_0_universal2'
     elif system == 'Windows':
         if machine in ('x86_64', 'amd64', 'x64') or bits == 64:
