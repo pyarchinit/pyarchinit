@@ -255,9 +255,6 @@ class PyArchInitPlugin(object):
         # Load configuration from config.cfg FIRST to get EXPERIMENTAL setting
         self.load_config()
 
-        # Log Rust acceleration status at startup
-        self._log_rust_status()
-
         l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             settings = QgsSettings()
@@ -1607,6 +1604,8 @@ class PyArchInitPlugin(object):
             menuBar.addMenu(self.menu)
             self._init_stratigraph_sync()
 
+        # Log Rust acceleration status (after all UI is initialized)
+        self._log_rust_status()
 
     def runSite(self):
         from .tabs.Site import pyarchinit_Site
