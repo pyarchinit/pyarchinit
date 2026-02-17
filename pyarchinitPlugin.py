@@ -32,6 +32,12 @@ from qgis.PyQt.QtCore import QLocale
 from .pyarchinitDockWidget import PyarchinitPluginDialog
 # Tab/dialog imports are deferred to run*() methods for faster plugin startup
 
+# Register Qt resources early so :/icons/ paths work in all .ui files
+try:
+    import resources_rc  # noqa: F401
+except ImportError:
+    pass
+
 
 filepath = os.path.dirname(__file__)
 
