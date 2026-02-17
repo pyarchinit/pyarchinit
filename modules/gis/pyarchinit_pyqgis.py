@@ -9649,39 +9649,49 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
             return False
 
     def _remove_cycles(self):
-        """Identifica e rimuove i cicli nel grafo"""
+        """Identifica e rimuove i cicli nel grafo — algoritmo iterativo O(N+E)"""
         self.logger.info("Ricerca cicli nel grafo...")
 
-        # Algoritmo DFS per trovare cicli
         WHITE, GRAY, BLACK = 0, 1, 2
         color = {node: WHITE for node in self.all_us}
         cycles_found = []
 
-        def dfs(node, path):
-            color[node] = GRAY
-            path.append(node)
+        for start in self.all_us:
+            if color[start] != WHITE:
+                continue
 
-            for neighbor in self.graph_edges.get(node, set()):
-                if color[neighbor] == GRAY:
-                    # Trovato un ciclo
+            # Iterative DFS using explicit stack
+            path = [start]
+            path_set = {start}
+            color[start] = GRAY
+            neighbor_iters = [iter(self.graph_edges.get(start, set()))]
+
+            while neighbor_iters:
+                try:
+                    neighbor = next(neighbor_iters[-1])
+                except StopIteration:
+                    # Backtrack
+                    node = path.pop()
+                    path_set.discard(node)
+                    color[node] = BLACK
+                    neighbor_iters.pop()
+                    continue
+
+                if color[neighbor] == GRAY and neighbor in path_set:
+                    # Found a cycle
                     cycle_start = path.index(neighbor)
                     cycle = path[cycle_start:]
                     cycles_found.append(cycle)
                 elif color[neighbor] == WHITE:
-                    dfs(neighbor, path[:])
-
-            color[node] = BLACK
-
-        # Cerca cicli partendo da ogni nodo bianco
-        for node in self.all_us:
-            if color[node] == WHITE:
-                dfs(node, [])
+                    color[neighbor] = GRAY
+                    path.append(neighbor)
+                    path_set.add(neighbor)
+                    neighbor_iters.append(iter(self.graph_edges.get(neighbor, set())))
 
         # Rimuovi cicli trovati
         if cycles_found:
             self.logger.warning(f"Trovati {len(cycles_found)} cicli nel grafo")
             for i, cycle in enumerate(cycles_found):
-                # Rimuovi l'ultimo arco del ciclo
                 if len(cycle) >= 2:
                     from_node = cycle[-1]
                     to_node = cycle[0]
