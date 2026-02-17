@@ -219,17 +219,21 @@ class DatabaseAdapter(ABC):
 class PostgreSQLAdapter(DatabaseAdapter):
     """PostgreSQL database adapter"""
 
-    def __init__(self, host: str, port: int, database: str, user: str, password: str):
+    def __init__(self, host: str, port: int, database: str, user: str, password: str, engine=None):
         self.host = host
         self.port = port
         self.database = database
         self.user = user
         self.password = password
-        self.env = os.environ.copy()
-        self.env['PGPASSWORD'] = password
-        self.psql = self._get_psql_path()
+        self._engine = engine
 
-    def _get_psql_path(self) -> str:
+        # Only need psql as fallback
+        self.psql = self._find_psql()
+        self.env = os.environ.copy()
+        if password:
+            self.env["PGPASSWORD"] = password
+
+    def _find_psql(self) -> str:
         """Find psql executable"""
         possible_paths = [
             "/Library/PostgreSQL/17/bin/psql",
@@ -245,7 +249,33 @@ class PostgreSQLAdapter(DatabaseAdapter):
         return "psql"
 
     def _run_query(self, query: str, timeout: int = 30) -> Tuple[bool, str]:
-        """Run a SQL query and return success status and output"""
+        """Run a SQL query — prefer engine, fallback to psql subprocess"""
+        if self._engine:
+            return self._run_query_engine(query)
+        return self._run_query_subprocess(query, timeout)
+
+    def _run_query_engine(self, query: str) -> Tuple[bool, str]:
+        """Run query via SQLAlchemy engine"""
+        try:
+            from sqlalchemy import text
+            with self._engine.connect() as conn:
+                result = conn.execute(text(query))
+                try:
+                    rows = result.fetchall()
+                    output = '\n'.join(
+                        '|'.join(str(v) if v is not None else '' for v in row)
+                        for row in rows
+                    )
+                    return True, output
+                except Exception:
+                    # Non-SELECT query (e.g., TRUNCATE)
+                    conn.commit()
+                    return True, ''
+        except Exception as e:
+            return False, str(e)
+
+    def _run_query_subprocess(self, query: str, timeout: int = 30) -> Tuple[bool, str]:
+        """Run query via psql subprocess (legacy fallback)"""
         cmd = [
             self.psql, "-h", self.host, "-p", str(self.port),
             "-U", self.user, "-d", self.database,
@@ -657,7 +687,7 @@ class SQLiteAdapter(DatabaseAdapter):
         return True
 
 
-def create_adapter(config: SyncConfig, is_local: bool) -> DatabaseAdapter:
+def create_adapter(config: SyncConfig, is_local: bool, engine=None) -> DatabaseAdapter:
     """Factory function to create the appropriate database adapter"""
     if is_local:
         db_type = config.local_db_type
@@ -666,7 +696,8 @@ def create_adapter(config: SyncConfig, is_local: bool) -> DatabaseAdapter:
         else:
             return PostgreSQLAdapter(
                 config.local_host, config.local_port,
-                config.local_database, config.local_user, config.local_password
+                config.local_database, config.local_user, config.local_password,
+                engine=engine
             )
     else:
         db_type = config.remote_db_type
@@ -675,7 +706,8 @@ def create_adapter(config: SyncConfig, is_local: bool) -> DatabaseAdapter:
         else:
             return PostgreSQLAdapter(
                 config.remote_host, config.remote_port,
-                config.remote_database, config.remote_user, config.remote_password
+                config.remote_database, config.remote_user, config.remote_password,
+                engine=engine
             )
 
 
