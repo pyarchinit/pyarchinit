@@ -902,25 +902,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
         total_order_layers = max_num_order_layer + 1  # da 0 a max incluso
         
-        # Conta quanti order_layer hanno datazione valida (solo per info)
-        valid_count = 0
-        for value in range(0, max_num_order_layer + 1):
-            has_valid_datazione = False
-            for layer in self.selected_layers:
-                fields = layer.fields()
-                fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
-                if fieldname:
-                    for feature in layer.getFeatures():
-                        if (feature.attribute("order_layer") == value and 
-                            feature.attribute(fieldname) and 
-                            str(feature.attribute(fieldname)).strip() != ''):
-                            has_valid_datazione = True
-                            break
-                if has_valid_datazione:
-                    break
-            if has_valid_datazione:
-                valid_count += 1
-        
+        # Optimized: single SQL query instead of O(levels * layers * features) scan
+        try:
+            valid_result = self.DB_MANAGER._execute_sql(
+                "SELECT COUNT(DISTINCT order_layer) FROM us_table "
+                "WHERE order_layer IS NOT NULL AND datazione IS NOT NULL AND TRIM(datazione) != ''"
+            )
+            valid_count = 0
+            for row in valid_result:
+                valid_count = row[0] if row[0] else 0
+                break
+        except Exception:
+            valid_count = max_num_order_layer + 1
+
         if valid_count == 0:
             QMessageBox.information(self, "Info", "Nessun order_layer con datazione valida trovato.")
             return
