@@ -717,10 +717,23 @@ class FontManager:
                     subprocess.Popen(["open", path])
 
 
-def initialize_environment() -> None:
-    """Initialize the environment for pyArchInit."""
+def initialize_environment(splash=None) -> None:
+    """Initialize the environment for pyArchInit.
+
+    Args:
+        splash: Optional splash screen to update messages and keep animation alive
+    """
+    def _step(message=None):
+        """Process events between steps to keep splash animation fluid."""
+        if splash and message:
+            splash.set_message(message)
+        QApplication.processEvents()
+
+    _step("Configuring Python environment...")
+
     # Configure and update pip
     PipManager.configure_pip()
+    _step()
 
     # Setup pyArchInit home directory
     s = QgsSettings()
@@ -728,12 +741,15 @@ def initialize_environment() -> None:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'resources')))
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'gui', 'ui')))
 
+    _step("Creating project directories...")
+
     # Create necessary directories
     fi = pyarchinit_Folder_installation()
     if not os.path.exists(PYARCHINIT_HOME):
         fi.install_dir()
     else:
         os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
+    _step()
 
     # Install configuration files
     config_path = os.path.join(os.sep, PYARCHINIT_HOME, 'pyarchinit_DB_folder', 'config.cfg')
@@ -742,6 +758,7 @@ def initialize_environment() -> None:
         fi.installConfigFile(os.path.dirname(config_path))
 
     fi.installConfigFile(os.path.dirname(logo_iccd))
+    _step("Detecting external tools...")
 
     # Update PATH with graphviz and postgres
     if not Pyarchinit_OS_Utility.checkgraphvizinstallation() and s.value('pyArchInit/graphvizBinPath'):
@@ -757,12 +774,17 @@ def initialize_environment() -> None:
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
             print(f"Note: {label} not found or timed out: {e}")
+        _step()
+
+    _step("Installing fonts...")
 
     # Install fonts
     FontManager.install_fonts()
+    _step()
 
     # Remove OpenCV directories on macOS
     PackageManager.remove_opencv_directories()
+    _step()
 
 
 def get_missing_packages() -> List[str]:
@@ -848,7 +870,12 @@ def classFactory(iface):
         s.setValue('pyArchInit/dependenciesInstalled', True)
 
     # STEP 2: Now show splash screen for the rest of the loading
+    import time as _time
+
+    SPLASH_MIN_SECONDS = 5.0
     splash = None
+    splash_start = _time.perf_counter()
+
     try:
         from .gui.pyarchinit_splash import PyArchInitSplash
         splash = PyArchInitSplash(message="Loading PyArchInit...")
@@ -858,27 +885,77 @@ def classFactory(iface):
         print(f"Could not show splash screen: {e}")
 
     try:
-        # Update splash message
-        if splash:
-            splash.set_message("Initializing environment...")
-            QApplication.processEvents()
+        # Initialize environment (splash stays animated via processEvents)
+        initialize_environment(splash)
 
-        initialize_environment()
-
-        # Update splash message
         if splash:
             splash.set_message("Loading plugin modules...")
             QApplication.processEvents()
 
         from .pyarchinitPlugin import PyArchInitPlugin
+
+        if splash:
+            splash.set_message("Building interface...")
+            QApplication.processEvents()
+
         plugin = PyArchInitPlugin(iface)
 
-        # Update splash message before closing
         if splash:
             splash.set_message("PyArchInit ready!")
             QApplication.processEvents()
-            # Small delay to show "ready" message
-            QTimer.singleShot(500, splash.close)
+
+            # Keep splash alive for the remaining minimum time
+            # with smooth animation (event loop stays responsive)
+            loading_messages = [
+                "Scanning archaeological databases...",
+                "Calibrating GIS projections...",
+                "Synchronizing data layers...",
+                "Loading stratigraphic modules...",
+                "PyArchInit ready!",
+            ]
+            elapsed = _time.perf_counter() - splash_start
+            remaining = SPLASH_MIN_SECONDS - elapsed
+
+            if remaining > 0:
+                msg_interval = remaining / len(loading_messages)
+                msg_idx = 0
+                msg_timer = 0.0
+                last_t = _time.perf_counter()
+
+                while True:
+                    now = _time.perf_counter()
+                    dt = now - last_t
+                    last_t = now
+                    msg_timer += dt
+
+                    if msg_timer >= msg_interval and msg_idx < len(loading_messages):
+                        splash.set_message(loading_messages[msg_idx])
+                        msg_idx += 1
+                        msg_timer = 0.0
+
+                    QApplication.processEvents()
+
+                    if (_time.perf_counter() - splash_start) >= SPLASH_MIN_SECONDS:
+                        break
+
+                    # Sleep briefly to avoid busy-waiting but keep ~60 FPS
+                    _time.sleep(0.008)
+
+            # Fade out
+            splash.set_message("PyArchInit ready!")
+            QApplication.processEvents()
+            fade_duration = 0.6
+            fade_start = _time.perf_counter()
+            while True:
+                elapsed_fade = _time.perf_counter() - fade_start
+                if elapsed_fade >= fade_duration:
+                    break
+                opacity = 1.0 - (elapsed_fade / fade_duration)
+                splash.setWindowOpacity(opacity)
+                QApplication.processEvents()
+                _time.sleep(0.016)
+
+            splash.close()
 
         return plugin
 
