@@ -18,6 +18,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import ast
 import logging
 import os
 import random
@@ -9572,7 +9573,7 @@ class Order_layer_graph(object):  # Rinominata per compatibilità con il codice 
                 try:
                     # Parse dei rapporti
                     if rapporti_str.startswith('['):
-                        rapporti_list = eval(rapporti_str)
+                        rapporti_list = ast.literal_eval(rapporti_str)
                     else:
                         continue
 
