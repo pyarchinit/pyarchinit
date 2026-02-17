@@ -129,9 +129,8 @@ class DatabaseMigrations:
             """
 
         try:
-            with self.engine.connect() as conn:
+            with self.engine.begin() as conn:
                 conn.execute(text(create_sql))
-                conn.commit()
             return True
         except Exception as e:
             print(f"[PyArchInit] Error creating fauna_table: {e}")

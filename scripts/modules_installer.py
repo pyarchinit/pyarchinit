@@ -39,16 +39,16 @@ if not packages:
     else:
         # Fallback to minimal set if requirements.txt not found
         packages = [
-            'SQLAlchemy==1.4.27',
-            'SQLAlchemy-Utils',
-            'geoalchemy2==0.9.4',
-            'reportlab',
-            'matplotlib',
-            'graphviz',
-            'xlsxwriter',
-            'pandas',
-            'opencv-python',
-            'qrcode==8.2']
+            'SQLAlchemy>=2.0.0',
+            'SQLAlchemy-Utils>=0.41.0',
+            'GeoAlchemy2>=0.14.0',
+            'reportlab>=4.0.0',
+            'matplotlib>=3.7.0',
+            'graphviz>=0.20',
+            'xlsxwriter>=3.1.0',
+            'pandas>=2.0.0',
+            'opencv-python>=4.8.0',
+            'qrcode>=7.4']
 if not l:    
     l=[
         'totalopenstation'

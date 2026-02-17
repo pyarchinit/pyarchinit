@@ -25,6 +25,15 @@ import sys
 from importlib.metadata import distributions
 from typing import Dict, List, Optional, Set
 
+# Plugin-local ext_libs directory for dependency isolation
+# Must be prepended to sys.path BEFORE any third-party imports
+# so that plugin dependencies take priority over QGIS-bundled packages
+_EXT_LIBS_DIR = os.path.join(os.path.dirname(__file__), 'ext_libs')
+if not os.path.exists(_EXT_LIBS_DIR):
+    os.makedirs(_EXT_LIBS_DIR, exist_ok=True)
+if _EXT_LIBS_DIR not in sys.path:
+    sys.path.insert(0, _EXT_LIBS_DIR)
+
 from qgis.PyQt.QtCore import QObject, QThread, pyqtSignal, QTimer
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QCheckBox, QDialog, QHeaderView, QLabel,
@@ -99,6 +108,10 @@ class PackageManager:
 
     # Priority packages that need special handling
     PRIORITY_PACKAGES = ["Pillow", "matplotlib", "numpy", "scipy"]
+
+    # Packages bundled by QGIS that must NOT be installed to ext_libs
+    # (overriding them breaks QGIS internals)
+    QGIS_PROTECTED_PACKAGES = {"numpy", "scipy", "sip", "pyqt5", "qgis"}
 
     @staticmethod
     def is_osgeo4w() -> bool:
@@ -242,8 +255,15 @@ class PackageManager:
         Args:
             package: The package to install
         """
+        # Extract package base name for checks
+        package_base = package.split('==')[0].split('>=')[0].split('<=')[0].strip()
+
+        # Skip packages that would break QGIS if overridden
+        if package_base.lower() in PackageManager.QGIS_PROTECTED_PACKAGES:
+            print(f"Skipping {package_base} - protected QGIS package")
+            return
+
         # Special handling for Pillow on macOS
-        package_base = package.split('==')[0].split('>=')[0]
         if package_base == 'Pillow' and platform.system() == 'Darwin':
             # Get Python version for path
             python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
@@ -280,54 +300,68 @@ class PackageManager:
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except subprocess.CalledProcessError:
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
-                subprocess.run([sys.executable, "-m", "pip", "install", package],
-                               check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif platform.system() == 'Windows' and PackageManager.is_osgeo4w():
-            # OSGeo4W installation - use the batch file wrapper
-            python_executable = PackageManager.get_osgeo4w_python()
-            subprocess.run([python_executable, "-m", "pip", "install", package],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+                ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
+                os.makedirs(ext_libs, exist_ok=True)
+                try:
+                    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade",
+                                   "--target", ext_libs, package],
+                                   check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                except subprocess.CalledProcessError:
+                    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade",
+                                   package, "--user"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif platform.system() == 'Windows':
-            # Standalone QGIS installation (PR or LTR)
-            python_executable = PackageManager.get_windows_qgis_python()
+            # On Windows, install to plugin-local ext_libs directory
+            ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
+            os.makedirs(ext_libs, exist_ok=True)
+
+            if PackageManager.is_osgeo4w():
+                python_executable = PackageManager.get_osgeo4w_python()
+            else:
+                python_executable = PackageManager.get_windows_qgis_python()
+
             try:
-                # First try without --user (for system-wide QGIS installation)
-                subprocess.run([python_executable, "-m", "pip", "install", package],
+                subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
+                               "--target", ext_libs, package],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
             except subprocess.CalledProcessError:
-                # If that fails, try with --user flag
-                subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+                # Fallback: try with --user flag
+                try:
+                    subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
+                                   package, "--user"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+                except subprocess.CalledProcessError as e:
+                    print(f"Error installing {package} on Windows: {e}")
         elif platform.system() == 'Darwin':
-            # On macOS, install directly to QGIS site-packages using --target
+            # On macOS, install to plugin-local ext_libs directory
+            # This avoids permission issues with the QGIS app bundle
+            # and ensures plugin deps take priority over bundled packages
+            ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
+            os.makedirs(ext_libs, exist_ok=True)
+
             installed = False
             last_error = None
 
-            # Get Python version for path (e.g., "3.9", "3.12")
-            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-
-            # Find QGIS Python and site-packages
+            # Find QGIS Python executable
+            qgis_python = None
             for qgis_type in ['standard', 'ltr']:
                 qgis_base = QGIS_PATHS[qgis_type]
-                qgis_python = os.path.join(qgis_base, 'bin', 'python3')
-                qgis_site_packages = os.path.join(qgis_base, 'lib', f'python{python_version}', 'site-packages')
-
-                if not os.path.exists(qgis_python):
-                    continue
-                if not os.path.exists(qgis_site_packages):
-                    continue
-
-                # Try to install with --target to QGIS site-packages
-                try:
-                    result = subprocess.run(
-                        [qgis_python, "-m", "pip", "install", "--upgrade",
-                         "--target", qgis_site_packages, package],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-                    )
-                    installed = True
+                candidate = os.path.join(qgis_base, 'bin', 'python3')
+                if os.path.exists(candidate):
+                    qgis_python = candidate
                     break
-                except subprocess.CalledProcessError as e:
-                    last_error = e.stderr.decode() if e.stderr else str(e)
+
+            python_cmd = qgis_python or sys.executable
+
+            try:
+                subprocess.run(
+                    [python_cmd, "-m", "pip", "install", "--upgrade",
+                     "--target", ext_libs, package],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
+                )
+                installed = True
+            except subprocess.CalledProcessError as e:
+                last_error = e.stderr.decode() if e.stderr else str(e)
 
             if not installed and last_error:
                 print(f"Error installing {package} on macOS: {last_error}")
@@ -354,43 +388,98 @@ class PackageManager:
     @staticmethod
     def check_required_packages(requirements_path: str) -> List[str]:
         """
-        Check which required packages are missing.
+        Check which required packages are missing or have wrong versions.
+
+        Searches both standard distributions and the plugin ext_libs directory.
 
         Args:
             requirements_path: Path to the requirements.txt file
 
         Returns:
-            List of missing packages
+            List of missing or outdated packages
         """
-        # Get installed package names (normalized to lowercase for comparison)
-        # Note: We only check if package is installed, not the version,
-        # because QGIS and user site-packages may have different versions
-        installed_package_names = set()
+        # Build a dict of installed packages: name (lowercase) -> version
+        # Priority: ext_libs packages override system packages
+        installed_packages = {}
         for pkg in distributions():
             try:
                 name = pkg.metadata.get('Name')
+                version = pkg.metadata.get('Version')
                 if name:
-                    # Normalize to lowercase for case-insensitive comparison
-                    installed_package_names.add(name.lower())
+                    installed_packages[name.lower()] = version or ''
             except Exception:
-                # Skip packages with incomplete metadata
                 continue
+
+        # Also scan ext_libs .dist-info directories for packages installed there
+        ext_libs = os.path.join(os.path.dirname(requirements_path), 'ext_libs')
+        if os.path.isdir(ext_libs):
+            for item in os.listdir(ext_libs):
+                if item.endswith('.dist-info'):
+                    metadata_file = os.path.join(ext_libs, item, 'METADATA')
+                    if not os.path.exists(metadata_file):
+                        metadata_file = os.path.join(ext_libs, item, 'PKG-INFO')
+                    if os.path.exists(metadata_file):
+                        try:
+                            with open(metadata_file, 'r', encoding='utf-8') as mf:
+                                pkg_name = pkg_version = None
+                                for mline in mf:
+                                    if mline.startswith('Name:'):
+                                        pkg_name = mline.split(':', 1)[1].strip().lower()
+                                    elif mline.startswith('Version:'):
+                                        pkg_version = mline.split(':', 1)[1].strip()
+                                    if pkg_name and pkg_version:
+                                        break
+                                if pkg_name:
+                                    # ext_libs version takes priority
+                                    installed_packages[pkg_name] = pkg_version or ''
+                        except Exception:
+                            continue
 
         missing_packages = []
         with open(requirements_path, 'r') as f:
             for line in f:
                 line = line.strip()
-                # Skip comment lines and empty lines
                 if not line or line.startswith('#'):
                     continue
 
-                # Extract package name (everything before ==, >=, <=, etc.)
                 package_spec = line
                 package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
+                pkg_lower = package_name.lower()
 
-                # Check if package is installed (case-insensitive)
-                if package_name.lower() not in installed_package_names:
+                if pkg_lower not in installed_packages:
+                    # Package not installed at all
                     missing_packages.append(package_spec)
+                elif '==' in line:
+                    # Exact version pinned - check major version mismatch
+                    required_version = line.split('==')[1].strip()
+                    installed_version = installed_packages[pkg_lower]
+                    if installed_version and installed_version != required_version:
+                        req_parts = required_version.split('.')
+                        inst_parts = installed_version.split('.')
+                        req_major = req_parts[0]
+                        inst_major = inst_parts[0]
+                        if req_major != inst_major:
+                            missing_packages.append(package_spec)
+                        elif req_major == '0':
+                            req_minor = req_parts[1] if len(req_parts) > 1 else '0'
+                            inst_minor = inst_parts[1] if len(inst_parts) > 1 else '0'
+                            if req_minor != inst_minor:
+                                missing_packages.append(package_spec)
+                elif '>=' in line:
+                    # Minimum version - check if installed version is too old
+                    min_version = line.split('>=')[1].strip()
+                    installed_version = installed_packages[pkg_lower]
+                    if installed_version:
+                        try:
+                            from packaging.version import Version
+                            if Version(installed_version) < Version(min_version):
+                                missing_packages.append(package_spec)
+                        except Exception:
+                            # Fallback: simple tuple comparison
+                            min_parts = tuple(int(x) for x in min_version.split('.'))
+                            inst_parts = tuple(int(x) for x in installed_version.split('.'))
+                            if inst_parts < min_parts:
+                                missing_packages.append(package_spec)
 
         return missing_packages
 

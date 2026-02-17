@@ -34,5 +34,8 @@ __pycache__/
 /export/
 modules/gis/logs/*.log
 
+# Plugin external libraries (installed at runtime)
+ext_libs/
+
 # Rust build artifacts
 _rust_core/target/
