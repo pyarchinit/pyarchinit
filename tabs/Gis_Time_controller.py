@@ -174,7 +174,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self._schedule_order_layer_update)
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
         self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
-        self.spinBox_relative_cronology.valueChanged.connect(self.update_graphics_view)
+        self.checkBox_matrix.stateChanged.connect(self.update_graphics_view)
         if self.checkBox_matrix.isChecked():
             self.update_graphics_view()
 
