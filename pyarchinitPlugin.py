@@ -32,10 +32,11 @@ from qgis.PyQt.QtCore import QLocale
 from .pyarchinitDockWidget import PyarchinitPluginDialog
 # Tab/dialog imports are deferred to run*() methods for faster plugin startup
 
-# Register Qt resources early so :/icons/ paths work in all .ui files
+# Register Qt resources early so :/icons/ paths work in all .ui files.
+# MUST use relative import — bare "import resources_rc" picks up geodb's copy.
 try:
-    import resources_rc  # noqa: F401
-except ImportError:
+    from . import resources_rc  # noqa: F401  — triggers qInitResources()
+except Exception:
     pass
 
 
