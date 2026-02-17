@@ -3055,8 +3055,7 @@ class Pyarchinit_db_management(object):
         print(f"[DB_MANAGER DEBUG] update: changes_dict keys={list(changes_dict.keys())}")
         print(f"[DB_MANAGER DEBUG] update: changes_dict={changes_dict}")
 
-        Session = sessionmaker(bind=self.engine, autoflush=True)
-        session = Session()
+        session = self.Session()
 
         # Ensure the ID value is properly typed
         id_value = self.value_id_list[0]
