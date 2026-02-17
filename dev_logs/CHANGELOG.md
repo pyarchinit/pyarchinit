@@ -5,6 +5,26 @@
 
 ---
 
+## [5.3.15-alpha] - 2026-02-17
+
+### feat(rust): Phase 2 — Scaffolding modulo Rust pyarchinit_core / Phase 2 — Rust pyarchinit_core module scaffolding
+
+- **IT**: Creato il crate Rust `pyarchinit_core` con PyO3 0.22 (abi3-py39) per accelerazione opzionale del plugin. Il modulo `graph` implementa tre algoritmi: (1) `topological_sort_with_levels` (algoritmo di Kahn con raggruppamento per livelli), (2) `detect_and_remove_cycles` (DFS iterativo per rilevamento e rimozione cicli), (3) `transitive_reduction` (algoritmo di Warshall per riduzione transitiva, sostituisce il subprocess `tred`). I moduli `geostat` e `matrix` sono placeholder per le fasi 3-4. Creato il bridge Python `modules/_rust_bridge.py` con pattern singleton lazy-loading e graceful degradation (il plugin funziona anche senza il modulo Rust). Integrato il Rust engine in `Order_layer_graph._remove_cycles()` e `_topological_sort_with_levels()` con fallback automatico alle implementazioni Python. Build verificato con maturin 1.12 su macOS ARM64.
+- **EN**: Created `pyarchinit_core` Rust crate with PyO3 0.22 (abi3-py39) for optional plugin acceleration. The `graph` module implements three algorithms: (1) `topological_sort_with_levels` (Kahn's algorithm with level grouping), (2) `detect_and_remove_cycles` (iterative DFS for cycle detection and removal), (3) `transitive_reduction` (Warshall's algorithm for transitive reduction, replaces `tred` subprocess). `geostat` and `matrix` modules are placeholders for phases 3-4. Created Python bridge `modules/_rust_bridge.py` with lazy-loading singleton pattern and graceful degradation (plugin works without Rust module). Integrated Rust engine into `Order_layer_graph._remove_cycles()` and `_topological_sort_with_levels()` with automatic fallback to Python implementations. Build verified with maturin 1.12 on macOS ARM64.
+
+#### File creati / Created files
+- `_rust_core/Cargo.toml`, `_rust_core/pyproject.toml` (configurazione crate/build)
+- `_rust_core/src/lib.rs` (entry point #[pymodule])
+- `_rust_core/src/graph/mod.rs` (topo_sort, cycle detection, tred)
+- `_rust_core/src/geostat/mod.rs`, `_rust_core/src/matrix/mod.rs` (placeholder)
+- `modules/_rust_bridge.py` (bridge Python con graceful degradation)
+
+#### File modificati / Modified files
+- `modules/gis/pyarchinit_pyqgis.py` (Rust fast path in _remove_cycles e _topological_sort_with_levels)
+- `.gitignore` (aggiunto `_rust_core/target/`)
+
+---
+
 ## [5.3.14-alpha] - 2026-02-17
 
 ### perf: Phase 1 — Ottimizzazioni prestazioni Python / Phase 1 — Python Performance Optimizations
