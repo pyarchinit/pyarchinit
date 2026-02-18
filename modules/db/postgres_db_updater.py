@@ -987,7 +987,7 @@ class PostgresDbUpdater:
             self.log_message(f"Errore installando funzioni sincronizzazione GRANT: {e}")
 
     def update_inventario_materiali_table(self):
-        """Aggiorna la tabella inventario_materiali_table con nuovi campi photo_id e drawing_id"""
+        """Aggiorna la tabella inventario_materiali_table con colonne mancanti"""
         self.log_message("Controllo tabella inventario_materiali_table...")
 
         try:
@@ -1008,15 +1008,20 @@ class PostgresDbUpdater:
             # Aggiungi nuove colonne se mancanti
             updated = False
 
-            # photo_id - per i nomi delle foto (immagini che NON iniziano con D_)
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'schedatore', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'date_scheda', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'punto_rinv', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'negativo_photo', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'diapositiva', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'quota_usm', 'NUMERIC(10,3)', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'unita_misura_quota', 'VARCHAR(20)', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT', 'NULL')
-
-            # drawing_id - per i nomi dei disegni (immagini che iniziano con D_)
             updated |= self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'entity_uuid', 'TEXT', 'NULL')
 
             if updated:
-                self.log_message("Tabella inventario_materiali_table aggiornata con campi photo_id e drawing_id")
-                self.updates_made.append("inventario_materiali_table: photo_id, drawing_id")
+                self.log_message("Tabella inventario_materiali_table aggiornata")
+                self.updates_made.append("inventario_materiali_table: colonne mancanti aggiunte")
             else:
                 self.log_message("Tabella inventario_materiali_table già aggiornata")
 
