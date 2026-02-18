@@ -5368,40 +5368,33 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.save_dict()
 
                 if str(self.comboBox_Database.currentText()) == 'postgres':
-
-                    b = str(self.select_version_sql())
-
-                    a = "90313"
-
-                    if a == b:
+                    pg_ver = self.select_version_sql()
+                    if pg_ver and pg_ver == "90313":
                         link = 'https://www.postgresql.org/download/'
                         if self.L == 'it':
-                            msg = "Stai utilizzando la versione di Postgres: " + str(
-                                b) + ". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % link
-                        if self.L == 'de':
-                            msg = "Sie benutzen die Postgres-Version: " + str(
-                                b) + ". Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % link
+                            msg = "Stai utilizzando la versione di Postgres: %s. Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
+                        elif self.L == 'de':
+                            msg = "Sie benutzen die Postgres-Version: %s. Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
                         else:
-                            msg = "You are using the Postgres version: " + str(
-                                b) + ". This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % link
+                            msg = "You are using the Postgres version: %s. This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
                         QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
-                    else:
-                        pass
-                else:
-                    pass
 
                 self.connection_up()
 
         except Exception as e:
+            error_detail = str(e)
             if self.L == 'it':
-                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti",
-                                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO",
+                    f"Problema di connessione al db. Controlla i parametri inseriti.\n\nDettaglio errore: {error_detail}",
+                    QMessageBox.Ok)
             elif self.L == 'de':
-                QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter",
-                                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO",
+                    f"Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter.\n\nFehlerdetail: {error_detail}",
+                    QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted",
-                                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO",
+                    f"Db connection problem. Check the parameters inserted.\n\nError detail: {error_detail}",
+                    QMessageBox.Ok)
 
     def on_pushButton_update_db_pressed(self):
         """
@@ -5867,27 +5860,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.save_dict()
                 self.logger.log("Parameters saved")
 
-                if str(self.comboBox_Database.currentText())=='postgres':
-
-
-                    b=str(self.select_version_sql())
-
-                    a = "90313"
-
-                    if a == b:
+                if str(self.comboBox_Database.currentText()) == 'postgres':
+                    pg_ver = self.select_version_sql()
+                    if pg_ver and pg_ver == "90313":
                         link = 'https://www.postgresql.org/download/'
-                        if self.L=='it':
-                            msg =   "Stai utilizzando la versione di Postgres: " + str(b)+". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" %link
-                        if self.L=='de':
-                            msg =   "Sie benutzen die Postgres-Version: " + str(b)+". Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" %link
+                        if self.L == 'it':
+                            msg = "Stai utilizzando la versione di Postgres: %s. Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
+                        elif self.L == 'de':
+                            msg = "Sie benutzen die Postgres-Version: %s. Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
                         else:
-                            msg = "You are using the Postgres version: " + str(b)+". This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" %link
-                        QMessageBox.information(self, "INFO", msg,QMessageBox.Ok)
-                    else:
-                        pass
-                else:
-                    pass
-
+                            msg = "You are using the Postgres version: %s. This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
+                        QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
 
                 self.logger.log("Calling try_connection from on_pushButton_save_pressed")
                 self.try_connection()
@@ -5895,13 +5878,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             self.logger.log_exception("on_pushButton_save_pressed", e)
-
-            if self.L=='it':
-                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti", QMessageBox.Ok)
-            elif self.L=='de':
-                QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter", QMessageBox.Ok)
+            error_detail = str(e)
+            if self.L == 'it':
+                QMessageBox.warning(self, "INFO",
+                    f"Problema di connessione al db. Controlla i parametri inseriti.\n\nDettaglio errore: {error_detail}",
+                    QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "INFO",
+                    f"Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter.\n\nFehlerdetail: {error_detail}",
+                    QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted", QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO",
+                    f"Db connection problem. Check the parameters inserted.\n\nError detail: {error_detail}",
+                    QMessageBox.Ok)
         finally:
             # Always clear the save flag
             self._save_in_progress = False
@@ -6109,19 +6098,26 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.warning(self, "INFO", "The DB exist already", QMessageBox.Ok)
     def select_version_sql(self):
-        conn = Connection()
-        db_url = conn.conn_str()
-        # Debug: mostra la connection string (mascherata)
-        import re
-        masked_url = re.sub(r':([^:@]+)@', ':***@', str(db_url)) if db_url else "None"
-        print(f"[DEBUG] select_version_sql - db_url: {masked_url}")
-        sql_query_string = "SELECT current_setting('server_version_num')"
-        self.engine = create_engine(db_url, connect_args={'connect_timeout': 10})
-        with self.engine.connect() as conn:
-            res = conn.execute(text(sql_query_string))
-            rows = res.fetchone()
-            vers = ''.join(rows)
-        return vers
+        """Check PostgreSQL server version. Returns version string or None on failure."""
+        try:
+            conn = Connection()
+            db_url = conn.conn_str()
+            if not db_url:
+                self.logger.log("select_version_sql: no connection string available")
+                return None
+            sql_query_string = "SELECT current_setting('server_version_num')"
+            engine = create_engine(db_url, connect_args={'connect_timeout': 10})
+            try:
+                with engine.connect() as connection:
+                    res = connection.execute(text(sql_query_string))
+                    rows = res.fetchone()
+                    vers = ''.join(rows)
+                return vers
+            finally:
+                engine.dispose()
+        except Exception as e:
+            self.logger.log(f"select_version_sql failed (non-blocking): {e}")
+            return None
 
     def on_pushButton_upd_postgres_pressed(self):
         # Check if user is admin
@@ -6136,32 +6132,28 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                        'pyarchinit_update_postgres.sql')
 
-        b=str(self.select_version_sql())
+        pg_ver = self.select_version_sql()
 
-        a = "90313"
-        if self.L== 'it':
-            if a == b:
-                QMessageBox.information(self, "INFO", " Non puoi aggiornare il db postgres per chè la tua versione è inferiore alla 9.4 "
-                                                                                "Aggiorna ad una versione più recente",QMessageBox.Ok)
+        if pg_ver and pg_ver == "90313":
+            if self.L == 'it':
+                QMessageBox.information(self, "INFO",
+                    "Non puoi aggiornare il db postgres perché la tua versione è inferiore alla 9.4. "
+                    "Aggiorna ad una versione più recente", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "INFO",
+                    "Sie können die db postgres nicht aktualisieren, da Ihre Version niedriger als 9.4 ist. "
+                    "Upgrade auf eine neuere Version", QMessageBox.Ok)
             else:
-                RestoreSchema(db_url,view_file).restore_schema()
-
-                QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
-        elif self.L== 'de':
-            if a == b:
-                QMessageBox.information(self, "INFO", " Sie können die db postgres nicht aktualisieren, da Ihre Version niedriger als 9.4 ist. "
-                                                                                "Upgrade auf eine neuere Version",QMessageBox.Ok)
-            else:
-                RestoreSchema(db_url,view_file).restore_schema()
-
-                QMessageBox.information(self, "INFO", "die db wurde aktualisiert", QMessageBox.Ok)
+                QMessageBox.information(self, "INFO",
+                    "You cannot update the db postgres because your version is lower than 9.4. "
+                    "Upgrade to a newer version", QMessageBox.Ok)
         else:
-            if a == b:
-                QMessageBox.information(self, "INFO", " You cannot update the db postgres because your version is lower than 9.4 "
-                                                                                "Upgrade to a newer version",QMessageBox.Ok)
+            RestoreSchema(db_url, view_file).restore_schema()
+            if self.L == 'it':
+                QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
+            elif self.L == 'de':
+                QMessageBox.information(self, "INFO", "die db wurde aktualisiert", QMessageBox.Ok)
             else:
-                RestoreSchema(db_url,view_file).restore_schema()
-
                 QMessageBox.information(self, "INFO", "the db has been updated", QMessageBox.Ok)
 
 

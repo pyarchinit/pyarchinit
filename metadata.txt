@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=4.9.76
+version=4.9.77
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=4.9.76 (2026-01-29):
+changelog=4.9.77 (2026-02-18) [PostgreSQL Connection Fix]:
+    - Fix: make select_version_sql() non-blocking so PostgreSQL version check failure no longer prevents connection (fixes #656)
+    - Fix: show actual error details in connection failure dialog instead of generic message
+    - Fix: properly dispose SQLAlchemy engine after version check to prevent resource leaks
+  4.9.76 (2026-01-29):
     - Feature:  apply nested US symbology in multiple layer loading functions
     - Feature:  apply nested US symbology when loading US/USM views
     - Feature:  add nested rule-based symbology for US layers
