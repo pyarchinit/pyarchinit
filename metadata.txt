@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.4-alpha
+version=5.0.5-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,12 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.4-alpha (2026-02-09) [Tutorial Viewer]:
+changelog=5.0.5-alpha (2026-02-18) [PostgreSQL Connection Fix]:
+    - Fix: make select_version_sql() non-blocking so PostgreSQL version check failure no longer prevents connection (fixes #656)
+    - Fix: show actual error details in connection failure dialog instead of generic message
+    - Fix: properly dispose SQLAlchemy engine after version check to prevent resource leaks
+    - Cleanup: remove bundled sqldiff/spatialite_convert executables and associated dead code
+  5.0.4-alpha (2026-02-09) [Tutorial Viewer]:
     - Feature: embed HTML5 animation playback inside Tutorial Viewer using QStackedWidget (QTextBrowser for markdown + QWebEngineView for animations)
     - Feature: multi-path QWebEngineView import (qgis.PyQt, PyQt5, PyQt6) for broader compatibility
     - Feature: back button to return from animation to tutorial content

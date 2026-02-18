@@ -5,6 +5,19 @@
 
 ---
 
+## [5.3.19-alpha] - 2026-02-18
+
+### fix(postgres): Non-blocking PostgreSQL version check and improved error handling (#656)
+
+- **IT**: Risolto il problema di blocco della pipeline save/connect quando il controllo della versione PostgreSQL fallisce. (1) **select_version_sql() non-bloccante**: la funzione ora restituisce `None` se il controllo della versione fallisce, invece di sollevare un'eccezione che interrompe l'intero flusso. Questa modifica consente al plugin di continuare a funzionare anche quando il database non supporta il controllo della versione o quando si verificano errori transitori di connessione. (2) **Messaggi di errore migliorati**: sostituite le eccezioni generiche "Problema di connessione al db" con messaggi di errore dettagliati che mostrano l'effettivo errore restituito dal database, migliorando notevolmente la diagnostica per gli utenti. (3) **Corretta perdita di risorse**: aggiunto `engine.dispose()` dopo il controllo della versione SQLAlchemy per garantire il rilascio adeguato delle risorse del pool di connessioni.
+- **EN**: Fixed issue where PostgreSQL version check failure blocked the entire save/connect pipeline. (1) **Non-blocking select_version_sql()**: function now returns `None` if version check fails instead of raising an exception that blocks the entire flow. This allows the plugin to continue working even when the database doesn't support version checking or transient connection errors occur. (2) **Improved error messages**: replaced generic "Problema di connessione al db" exceptions with detailed error messages showing the actual database error, significantly improving diagnostics for users. (3) **Fixed resource leak**: added `engine.dispose()` after SQLAlchemy version check to ensure proper cleanup of connection pool resources.
+
+#### File modificati / Modified files
+- `gui/pyarchinitConfigDialog.py` (reso non-bloccante select_version_sql(), migliorati messaggi errore)
+- `metadata.txt` (versione patch)
+
+---
+
 ## [5.3.17-alpha] - 2026-02-17
 
 ### feat(rust): Phase 5 — Pipeline di distribuzione modulo Rust / Phase 5 — Rust module distribution pipeline
