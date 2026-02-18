@@ -915,22 +915,22 @@
            <widget class="QComboBox" name="comboBox_sslmode">
             <item>
              <property name="text">
-              <string>allow</string>
+              <string notr="true">allow</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>prefer</string>
+              <string notr="true">prefer</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>require</string>
+              <string notr="true">require</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>disable</string>
+              <string notr="true">disable</string>
              </property>
             </item>
            </widget>
