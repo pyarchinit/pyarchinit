@@ -1017,7 +1017,6 @@ class PostgresDbUpdater:
             updated |= self.add_column_if_missing('inventario_materiali_table', 'unita_misura_quota', 'VARCHAR(20)', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT', 'NULL')
-            updated |= self.add_column_if_missing('inventario_materiali_table', 'entity_uuid', 'TEXT', 'NULL')
 
             if updated:
                 self.log_message("Tabella inventario_materiali_table aggiornata")
