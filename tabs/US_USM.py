@@ -15202,6 +15202,22 @@ DATABASE SCHEMA KNOWLEDGE:
         self.iconListWidget.update()
         # Setup click handlers for ref_ra and ref_n fields to open related records
         self.setup_ref_click_handlers()
+
+        # Populate comboBox_unita_tipo with language-specific items
+        try:
+            from modules.utility.pyarchinit_i18n_stratigraphic import get_unit_type_items
+            current_text = self.comboBox_unita_tipo.currentText()
+            self.comboBox_unita_tipo.blockSignals(True)
+            self.comboBox_unita_tipo.clear()
+            self.comboBox_unita_tipo.addItem("")  # empty first item
+            for item in get_unit_type_items(self.L):
+                self.comboBox_unita_tipo.addItem(item)
+            if current_text:
+                self.comboBox_unita_tipo.setEditText(current_text)
+            self.comboBox_unita_tipo.blockSignals(False)
+        except Exception as e:
+            pass  # fallback: keep hardcoded .ui items
+
         l = QgsSettings().value("locale/userLocale", QVariant)[0:2]
         lang = ""
         for key, values in self.LANG.items():
