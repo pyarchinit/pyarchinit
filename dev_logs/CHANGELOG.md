@@ -5,6 +5,32 @@
 
 ---
 
+## [5.0.5-alpha] - 2026-02-19
+
+### Aggiunto / Added
+- **Traduzioni ro/pt/el**: Aggiunte traduzioni complete per Rumeno (ro_RO), Portoghese (pt_PT) e Greco (el_GR) con ~2100+ stringhe tradotte per ciascuna lingua. Aggiornato pyarchinit.pro per includere le tre lingue. / Added complete translations for Romanian (ro_RO), Portuguese (pt_PT) and Greek (el_GR) with ~2100+ strings translated per language. Updated pyarchinit.pro to include all three languages.
+- **Combobox US/USM dinamico**: Il combobox del tipo di unità stratigrafica (US/USM) viene ora popolato dinamicamente in base alla lingua impostata in QGIS. / The stratigraphic unit type combobox (US/USM) is now dynamically populated based on the language set in QGIS.
+
+---
+
+## [5.3.20-alpha] - 2026-02-18
+
+### feat(i18n): Add Romanian, Portuguese, and Greek translations
+
+- **IT**: Infrastruttura di traduzione aggiornata e traduzioni generate per tre nuove lingue: rumeno (ro_RO), portoghese (pt_PT) e greco (el_GR). (1) **pyarchinit.pro**: Aggiunte le voci mancanti per ro_RO, pt_PT e el_GR nella variabile TRANSLATIONS. (2) **Traduzione dei file .ts**: Scritto ed eseguito script Python che utilizza dizionari completi di termini UI comuni e vocabolario archeologico per tradurre i blocchi <message> dei file .ts dal testo inglese nelle rispettive lingue target. Tradotti 1.044 blocchi per il rumeno, 1.055 per il portoghese e 1.081 per il greco, coprendo etichette di pulsanti, voci di menu, termini GIS/archeologici e frasi comuni dell'interfaccia. (3) **Compilazione file .qm**: Compilati i file .qm binari usando lrelease di PySide6. Ciascun file compila 2.734 traduzioni finite con 92 stringhe sorgente non tradotte ignorate. Le dimensioni dei file confermano l'incorporamento corretto delle traduzioni (ro: 295KB, pt: 296KB, el: 296KB vs. 292KB quando erano copie solo in inglese).
+- **EN**: Updated translation infrastructure and generated translations for three new languages: Romanian (ro_RO), Portuguese (pt_PT), and Greek (el_GR). (1) **pyarchinit.pro**: Added missing entries for ro_RO, pt_PT, and el_GR to the TRANSLATIONS variable. (2) **.ts file translation**: Wrote and executed Python script using comprehensive dictionaries of common UI terms and archaeological vocabulary to translate .ts file <message> blocks from English text into respective target languages. Translated 1,044 blocks for Romanian, 1,055 for Portuguese, and 1,081 for Greek, covering button labels, menu items, GIS/archaeological terms, and common UI phrases. (3) **.qm compilation**: Compiled binary .qm files using PySide6's lrelease. Each file compiles 2,734 finished translations with 92 untranslated source texts ignored. File sizes confirm correct translation embedding (ro: 295KB, pt: 296KB, el: 296KB vs. 292KB when they were English-only copies).
+
+#### File modificati / Modified files
+- `pyarchinit.pro` (aggiunte voci TRANSLATIONS per ro_RO, pt_PT, el_GR)
+- `i18n/pyarchinit_plugin_ro_RO.ts` (1.044 stringhe tradotte in rumeno)
+- `i18n/pyarchinit_plugin_pt_PT.ts` (1.055 stringhe tradotte in portoghese)
+- `i18n/pyarchinit_plugin_el_GR.ts` (1.081 stringhe tradotte in greco)
+- `i18n/pyarchinit_plugin_ro_RO.qm` (file binario compilato)
+- `i18n/pyarchinit_plugin_pt_PT.qm` (file binario compilato)
+- `i18n/pyarchinit_plugin_el_GR.qm` (file binario compilato)
+
+---
+
 ## [5.3.19-alpha] - 2026-02-18
 
 ### fix(postgres): Non-blocking PostgreSQL version check and improved error handling (#656)
