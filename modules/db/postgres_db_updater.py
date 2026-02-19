@@ -55,6 +55,8 @@ class PostgresDbUpdater:
             self.fix_thesaurus_nome_tabella()
             # Aggiorna ut_table con nuovi campi analisi (v4.9.67+)
             self.update_ut_table()
+            # Aggiorna inventario_materiali_table con colonne mancanti (quota_usm, ecc.)
+            self.update_inventario_materiali_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1017,9 +1019,15 @@ class PostgresDbUpdater:
             updated |= self.add_column_if_missing('inventario_materiali_table', 'unita_misura_quota', 'VARCHAR(20)', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT', 'NULL')
+            updated |= self.add_column_if_missing('inventario_materiali_table', 'entity_uuid', 'TEXT', 'NULL')
 
             if updated:
-                self.log_message("Tabella inventario_materiali_table aggiornata")
+                added = []
+                for col in ['schedatore', 'date_scheda', 'punto_rinv', 'negativo_photo',
+                           'diapositiva', 'quota_usm', 'unita_misura_quota', 'photo_id',
+                           'drawing_id', 'entity_uuid']:
+                    added.append(col)
+                self.log_message(f"Tabella inventario_materiali_table aggiornata")
                 self.updates_made.append("inventario_materiali_table: colonne mancanti aggiunte")
             else:
                 self.log_message("Tabella inventario_materiali_table già aggiornata")
