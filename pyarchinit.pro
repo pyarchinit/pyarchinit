@@ -123,4 +123,7 @@ TRANSLATIONS = i18n/pyarchinit_plugin_it_IT.ts \
 			   i18n/pyarchinit_plugin_fr_FR.ts \
 			   i18n/pyarchinit_plugin_ar_LB.ts \
 			   i18n/pyarchinit_plugin_es_ES.ts \
-			   i18n/pyarchinit_plugin_ca_ES.ts
+			   i18n/pyarchinit_plugin_ca_ES.ts \
+			   i18n/pyarchinit_plugin_ro_RO.ts \
+			   i18n/pyarchinit_plugin_pt_PT.ts \
+			   i18n/pyarchinit_plugin_el_GR.ts
