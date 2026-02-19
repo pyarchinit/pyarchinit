@@ -8,6 +8,13 @@
 ## [5.0.5-alpha] - 2026-02-19
 
 ### Corretto / Fixed
+- **Import geometrie PostgreSQL #659**: La clausola `ON CONFLICT` veniva aggiunta dopo `RETURNING` nella SQL generata, causando un `SyntaxError`. Corretto posizionando `ON CONFLICT` prima di `RETURNING` in tutti e tre i gestori di import (replace/ignore/abort). / The `ON CONFLICT` clause was appended after `RETURNING` in the generated SQL, causing a `SyntaxError`. Fixed by inserting `ON CONFLICT` before `RETURNING` in all three import mode handlers (replace/ignore/abort).
+
+---
+
+## [5.0.5-alpha] - 2026-02-19
+
+### Corretto / Fixed
 - **Import PostgreSQL #658**: Aggiunto helper `_pg_quote()` nel codice di importazione tabelle per quotare i nomi di colonna con lettere maiuscole (es. `id_mediaToEntity`) nella clausola `ON CONFLICT DO UPDATE SET`. PostgreSQL fa il fold dei nomi non quotati a lowercase causando un `UndefinedColumn`. / Added `_pg_quote()` helper in the table import code to double-quote mixed-case column names (e.g. `id_mediaToEntity`) in `ON CONFLICT DO UPDATE SET`. PostgreSQL folds unquoted identifiers to lowercase, causing `UndefinedColumn` errors.
 
 ---
