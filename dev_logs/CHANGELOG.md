@@ -7,6 +7,13 @@
 
 ## [5.0.5-alpha] - 2026-02-19
 
+### Corretto / Fixed
+- **Schema PostgreSQL #657**: Aggiunto `quota_usm`, `unita_misura_quota`, `photo_id`, `drawing_id`, `audit_trail` al CREATE TABLE di `inventario_materiali_table` in `pyarchinit_schema_updated.sql`. I nuovi database PostgreSQL ora includono tutte le colonne necessarie fin dalla creazione. Aggiornati anche i template SQLite (`pyarchinit.sqlite`, `pyarchinit_db.sqlite`). / Added missing columns (`quota_usm`, `unita_misura_quota`, `photo_id`, `drawing_id`, `audit_trail`) to the `inventario_materiali_table` CREATE TABLE in `pyarchinit_schema_updated.sql`. Newly created PostgreSQL databases now include all required columns. Also updated SQLite template files.
+
+---
+
+## [5.0.5-alpha] - 2026-02-19
+
 ### Aggiunto / Added
 - **Traduzioni ro/pt/el**: Aggiunte traduzioni complete per Rumeno (ro_RO), Portoghese (pt_PT) e Greco (el_GR) con ~2100+ stringhe tradotte per ciascuna lingua. Aggiornato pyarchinit.pro per includere le tre lingue. / Added complete translations for Romanian (ro_RO), Portuguese (pt_PT) and Greek (el_GR) with ~2100+ strings translated per language. Updated pyarchinit.pro to include all three languages.
 - **Combobox US/USM dinamico**: Il combobox del tipo di unità stratigrafica (US/USM) viene ora popolato dinamicamente in base alla lingua impostata in QGIS. / The stratigraphic unit type combobox (US/USM) is now dynamically populated based on the language set in QGIS.
