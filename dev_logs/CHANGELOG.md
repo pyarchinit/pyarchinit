@@ -8,6 +8,13 @@
 ## [5.0.5-alpha] - 2026-02-19
 
 ### Corretto / Fixed
+- **Import PostgreSQL #658**: Aggiunto helper `_pg_quote()` nel codice di importazione tabelle per quotare i nomi di colonna con lettere maiuscole (es. `id_mediaToEntity`) nella clausola `ON CONFLICT DO UPDATE SET`. PostgreSQL fa il fold dei nomi non quotati a lowercase causando un `UndefinedColumn`. / Added `_pg_quote()` helper in the table import code to double-quote mixed-case column names (e.g. `id_mediaToEntity`) in `ON CONFLICT DO UPDATE SET`. PostgreSQL folds unquoted identifiers to lowercase, causing `UndefinedColumn` errors.
+
+---
+
+## [5.0.5-alpha] - 2026-02-19
+
+### Corretto / Fixed
 - **Schema PostgreSQL #657**: Aggiunto `quota_usm`, `unita_misura_quota`, `photo_id`, `drawing_id`, `audit_trail` al CREATE TABLE di `inventario_materiali_table` in `pyarchinit_schema_updated.sql`. I nuovi database PostgreSQL ora includono tutte le colonne necessarie fin dalla creazione. Aggiornati anche i template SQLite (`pyarchinit.sqlite`, `pyarchinit_db.sqlite`). / Added missing columns (`quota_usm`, `unita_misura_quota`, `photo_id`, `drawing_id`, `audit_trail`) to the `inventario_materiali_table` CREATE TABLE in `pyarchinit_schema_updated.sql`. Newly created PostgreSQL databases now include all required columns. Also updated SQLite template files.
 
 ---
