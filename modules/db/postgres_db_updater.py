@@ -55,6 +55,8 @@ class PostgresDbUpdater:
             self.fix_thesaurus_nome_tabella()
             # Aggiorna ut_table con nuovi campi analisi (v4.9.67+)
             self.update_ut_table()
+            # Aggiorna inventario_materiali_table con colonne mancanti (quota_usm, ecc.)
+            self.update_inventario_materiali_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
