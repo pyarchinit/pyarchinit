@@ -141,6 +141,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         # Setup Supabase Sync tab
         self.setup_supabase_sync_tab()
 
+        # Setup Rust Acceleration tab
+        self.setup_rust_acceleration_tab()
+
         # Setup DB connection profiles in main settings tab
         self.setup_db_connection_profiles()
 
@@ -153,8 +156,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.logger.log("=== PyArchInit Config Dialog Initialized ===")
 
         s = QgsSettings()
-        self.mDockWidget.setHidden(True)
-
         self.load_dict()
         self.charge_data()
         self.summary()
@@ -217,7 +218,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         self.pushButtonPostgres.clicked.connect(self.setPathPostgres)
         self.pbnSaveEnvironPathPostgres.clicked.connect(self.setEnvironPathPostgres)
         self.comboBox_server_rd.currentTextChanged.connect(self.geometry_conn)
-        self.pushButton_compare.clicked.connect(self.compare)
         self.pushButton_import.clicked.connect(self.on_pushButton_import_pressed)
         self.graphviz_bin = s.value('pyArchInit/graphvizBinPath', None, type=str)
         if self.graphviz_bin:
@@ -1129,6 +1129,261 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             print(f"Error setting up DB Sync tab: {e}")
             import traceback
             traceback.print_exc()
+
+    # ── Rust Acceleration Tab ──────────────────────────────────────────
+    def setup_rust_acceleration_tab(self):
+        """Setup a tab for optional Rust acceleration module management."""
+        try:
+            from qgis.PyQt.QtWidgets import (
+                QWidget, QVBoxLayout, QHBoxLayout, QGroupBox,
+                QLabel, QPushButton, QScrollArea, QSizePolicy
+            )
+            from qgis.PyQt.QtCore import Qt
+            from qgis.PyQt.QtGui import QFont
+
+            # Create scroll area for the tab
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+
+            rust_tab = QWidget()
+            rust_layout = QVBoxLayout(rust_tab)
+            rust_layout.setSpacing(12)
+            rust_layout.setContentsMargins(15, 15, 15, 15)
+
+            # Title
+            title_label = QLabel(self.tr("Rust Acceleration"))
+            title_font = QFont()
+            title_font.setPointSize(13)
+            title_font.setBold(True)
+            title_label.setFont(title_font)
+            title_label.setStyleSheet("color: #E65100; margin-bottom: 5px;")
+            rust_layout.addWidget(title_label)
+
+            # Description
+            desc_label = QLabel(self.tr(
+                "PyArchInit can optionally use a native Rust module "
+                "(pyarchinit_core) to accelerate graph algorithms such as "
+                "topological sorting, cycle detection, and transitive "
+                "reduction. The plugin works without this module, but "
+                "installing it can significantly speed up Harris Matrix "
+                "computations on large datasets."
+            ))
+            desc_label.setWordWrap(True)
+            desc_label.setStyleSheet(
+                "color: #666; margin-bottom: 10px; font-size: 11px;")
+            rust_layout.addWidget(desc_label)
+
+            # ── Status group ──
+            status_group = QGroupBox(self.tr("Module Status"))
+            status_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #E65100;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            status_layout = QVBoxLayout(status_group)
+
+            # Status label
+            self.rust_status_label = QLabel()
+            self.rust_status_label.setStyleSheet("padding: 8px;")
+            status_layout.addWidget(self.rust_status_label)
+
+            # Enable/disable checkbox area
+            enable_layout = QHBoxLayout()
+            from qgis.PyQt.QtWidgets import QCheckBox
+            self.rust_enabled_checkbox = QCheckBox(
+                self.tr("Enable Rust acceleration (when available)"))
+            s = QgsSettings()
+            enabled = s.value(
+                'pyArchInit/rust_acceleration_enabled', True, type=bool)
+            self.rust_enabled_checkbox.setChecked(enabled)
+            self.rust_enabled_checkbox.stateChanged.connect(
+                self._on_rust_enabled_changed)
+            enable_layout.addWidget(self.rust_enabled_checkbox)
+            status_layout.addLayout(enable_layout)
+
+            rust_layout.addWidget(status_group)
+
+            # ── Install / Update group ──
+            install_group = QGroupBox(self.tr("Install / Update"))
+            install_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #4CAF50;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            install_layout = QVBoxLayout(install_group)
+
+            platform_info = QLabel(self.tr(
+                "Platform: {} / {}").format(
+                    platform.system(), platform.machine()))
+            platform_info.setStyleSheet("font-size: 10px; color: #888;")
+            install_layout.addWidget(platform_info)
+
+            btn_layout = QHBoxLayout()
+            self.rust_install_btn = QPushButton(
+                self.tr("Install / Update Rust Module"))
+            self.rust_install_btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #4CAF50; color: white;
+                    border: none; padding: 8px 16px;
+                    border-radius: 4px; font-weight: bold;
+                }
+                QPushButton:hover { background-color: #388E3C; }
+                QPushButton:disabled { background-color: #BDBDBD; }
+            """)
+            self.rust_install_btn.clicked.connect(
+                self._on_rust_install_clicked)
+            btn_layout.addWidget(self.rust_install_btn)
+            btn_layout.addStretch()
+            install_layout.addLayout(btn_layout)
+
+            self.rust_install_status_label = QLabel("")
+            self.rust_install_status_label.setWordWrap(True)
+            self.rust_install_status_label.setStyleSheet(
+                "font-size: 10px; padding: 4px;")
+            install_layout.addWidget(self.rust_install_status_label)
+
+            rust_layout.addWidget(install_group)
+
+            # ── Info group ──
+            info_group = QGroupBox(self.tr("Technical Details"))
+            info_group.setStyleSheet("""
+                QGroupBox {
+                    font-weight: bold; border: 2px solid #1976D2;
+                    border-radius: 5px; margin-top: 8px; padding-top: 8px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin; left: 10px;
+                    padding: 0 5px;
+                }
+            """)
+            info_layout = QVBoxLayout(info_group)
+            info_text = QLabel(self.tr(
+                "The Rust module provides:\n"
+                "  - Topological sort with level grouping (Kahn's algorithm)\n"
+                "  - Cycle detection and removal (iterative DFS)\n"
+                "  - Transitive reduction (Warshall's algorithm)\n\n"
+                "When not installed, the plugin uses equivalent Python "
+                "implementations automatically."
+            ))
+            info_text.setWordWrap(True)
+            info_text.setStyleSheet("font-size: 10px; color: #555;")
+            info_layout.addWidget(info_text)
+            rust_layout.addWidget(info_group)
+
+            # Spacer
+            rust_layout.addStretch()
+
+            scroll_area.setWidget(rust_tab)
+
+            # Add tab to tabWidget
+            if hasattr(self, 'tabWidget'):
+                self.tabWidget.addTab(
+                    scroll_area, self.tr("Rust Acceleration"))
+
+            # Refresh status display
+            self._refresh_rust_status()
+
+        except Exception as e:
+            print(f"Error setting up Rust Acceleration tab: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _refresh_rust_status(self):
+        """Update the Rust module status display."""
+        try:
+            from scripts.rust_installer import check_rust_available
+            available, version = check_rust_available()
+
+            if available:
+                self.rust_status_label.setText(
+                    self.tr("Status: Installed (v{})").format(version))
+                self.rust_status_label.setStyleSheet(
+                    "padding: 8px; color: #2E7D32; font-weight: bold; "
+                    "background-color: #E8F5E9; border-radius: 4px;")
+            else:
+                self.rust_status_label.setText(
+                    self.tr("Status: Not installed"))
+                self.rust_status_label.setStyleSheet(
+                    "padding: 8px; color: #BF360C; font-weight: bold; "
+                    "background-color: #FBE9E7; border-radius: 4px;")
+        except Exception as e:
+            self.rust_status_label.setText(
+                self.tr("Status: Error checking ({})").format(str(e)))
+            self.rust_status_label.setStyleSheet(
+                "padding: 8px; color: #F57F17; font-weight: bold; "
+                "background-color: #FFF8E1; border-radius: 4px;")
+
+    def _on_rust_enabled_changed(self, state):
+        """Handle Rust acceleration enable/disable toggle."""
+        # stateChanged emits int in PyQt5 (0=unchecked, 2=checked)
+        enabled = int(state) == 2
+        s = QgsSettings()
+        s.setValue('pyArchInit/rust_acceleration_enabled', enabled)
+        QgsMessageLog.logMessage(
+            f"Rust acceleration {'enabled' if enabled else 'disabled'}",
+            "PyArchInit", Qgis.MessageLevel.Info)
+
+    def _on_rust_install_clicked(self):
+        """Handle the Install/Update button click."""
+        self.rust_install_btn.setEnabled(False)
+        self.rust_install_btn.setText(self.tr("Installing..."))
+        self.rust_install_status_label.setText(
+            self.tr("Downloading and installing... please wait."))
+        self.rust_install_status_label.setStyleSheet(
+            "font-size: 10px; padding: 4px; color: #1565C0;")
+
+        # Process events to update UI
+        QApplication.processEvents()
+
+        try:
+            from scripts.rust_installer import install_rust_acceleration
+            success, message = install_rust_acceleration()
+
+            if success:
+                self.rust_install_status_label.setText(
+                    self.tr("Installation successful! Restart QGIS to "
+                            "activate."))
+                self.rust_install_status_label.setStyleSheet(
+                    "font-size: 10px; padding: 4px; color: #2E7D32; "
+                    "font-weight: bold;")
+                QgsMessageLog.logMessage(
+                    f"Rust acceleration installed: {message}",
+                    "PyArchInit", Qgis.MessageLevel.Info)
+            else:
+                self.rust_install_status_label.setText(
+                    self.tr("Installation failed: {}").format(message))
+                self.rust_install_status_label.setStyleSheet(
+                    "font-size: 10px; padding: 4px; color: #C62828; "
+                    "font-weight: bold;")
+                QgsMessageLog.logMessage(
+                    f"Rust acceleration install failed: {message}",
+                    "PyArchInit", Qgis.MessageLevel.Warning)
+        except Exception as e:
+            error_msg = str(e)
+            self.rust_install_status_label.setText(
+                self.tr("Error: {}").format(error_msg))
+            self.rust_install_status_label.setStyleSheet(
+                "font-size: 10px; padding: 4px; color: #C62828;")
+            QgsMessageLog.logMessage(
+                f"Rust acceleration install error: {error_msg}",
+                "PyArchInit", Qgis.MessageLevel.Critical)
+
+        self.rust_install_btn.setEnabled(True)
+        self.rust_install_btn.setText(
+            self.tr("Install / Update Rust Module"))
+        self._refresh_rust_status()
 
     def _on_local_db_type_changed(self, index):
         """Handle local database type change"""
@@ -4736,11 +4991,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 # Fallback to just return the insert without ON CONFLICT
                                 return insert
 
-                        s = ", ".join(column_names)
-                        
-                        
+                        # Quote column names that contain uppercase letters (PostgreSQL folds unquoted to lowercase)
+                        def _pg_quote(name):
+                            return f'"{name}"' if any(ch.isupper() for ch in name) else name
+
+                        s = ", ".join(_pg_quote(n) for n in column_names)
+
                         ondup = f"ON CONFLICT ({s}) DO UPDATE SET"
-                        updates = ", ".join(f'{c.name}=EXCLUDED.{c.name}' for c in insert_srt.table.columns)
+                        updates = ", ".join(
+                            f'{_pg_quote(c.name)}=EXCLUDED.{_pg_quote(c.name)}'
+                            for c in insert_srt.table.columns
+                        )
                         upsert = " ".join((insert, ondup, updates))
                         return upsert
         
@@ -5368,33 +5629,40 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 self.save_dict()
 
                 if str(self.comboBox_Database.currentText()) == 'postgres':
-                    pg_ver = self.select_version_sql()
-                    if pg_ver and pg_ver == "90313":
+
+                    b = str(self.select_version_sql())
+
+                    a = "90313"
+
+                    if a == b:
                         link = 'https://www.postgresql.org/download/'
                         if self.L == 'it':
-                            msg = "Stai utilizzando la versione di Postgres: %s. Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
-                        elif self.L == 'de':
-                            msg = "Sie benutzen die Postgres-Version: %s. Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
+                            msg = "Stai utilizzando la versione di Postgres: " + str(
+                                b) + ". Tale versione è diventata obsoleta e potresti riscontrare degli errori. Aggiorna PostgreSQL ad una versione più recente. <br><a href='%s'>PostgreSQL</a>" % link
+                        if self.L == 'de':
+                            msg = "Sie benutzen die Postgres-Version: " + str(
+                                b) + ". Diese Version ist veraltet, und Sie werden möglicherweise einige Fehler finden. Aktualisieren Sie PostgreSQL auf eine neuere Version. <br><a href='%s'>PostgreSQL</a>" % link
                         else:
-                            msg = "You are using the Postgres version: %s. This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
+                            msg = "You are using the Postgres version: " + str(
+                                b) + ". This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % link
                         QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
+                    else:
+                        pass
+                else:
+                    pass
 
                 self.connection_up()
 
         except Exception as e:
-            error_detail = str(e)
             if self.L == 'it':
-                QMessageBox.warning(self, "INFO",
-                    f"Problema di connessione al db. Controlla i parametri inseriti.\n\nDettaglio errore: {error_detail}",
-                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Problema di connessione al db. Controlla i paramatri inseriti",
+                                    QMessageBox.Ok)
             elif self.L == 'de':
-                QMessageBox.warning(self, "INFO",
-                    f"Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter.\n\nFehlerdetail: {error_detail}",
-                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Db-Verbindungsproblem. Überprüfen Sie die eingegebenen Parameter",
+                                    QMessageBox.Ok)
             else:
-                QMessageBox.warning(self, "INFO",
-                    f"Db connection problem. Check the parameters inserted.\n\nError detail: {error_detail}",
-                    QMessageBox.Ok)
+                QMessageBox.warning(self, "INFO", "Db connection problem. Check the parameters inserted",
+                                    QMessageBox.Ok)
 
     def on_pushButton_update_db_pressed(self):
         """
@@ -5872,6 +6140,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             msg = "You are using the Postgres version: %s. This version has become obsolete and you may find some errors. Update PostgreSQL to a newer version. <br><a href='%s'>PostgreSQL</a>" % (pg_ver, link)
                         QMessageBox.information(self, "INFO", msg, QMessageBox.Ok)
 
+
                 self.logger.log("Calling try_connection from on_pushButton_save_pressed")
                 self.try_connection()
                 self.logger.log("try_connection completed successfully")
@@ -5896,33 +6165,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             self._save_in_progress = False
             self.logger.log("Clearing _save_in_progress flag in finally block")
             self.logger.log("on_pushButton_save_pressed completed")
-    def compare(self):
-        if self.comboBox_server_wt.currentText() == 'sqlite':
-
-            if platform.system() == "Windows":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff.exe')
-            elif platform.system() == "Darwin":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_osx')
-            else:
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'sqldiff_linux')
-
-            db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
-            db2 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
-
-            # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
-            # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
-            os.system("start cmd /k" + cmd + ' ' + self.comboBox_compare.currentText() + ' ' + db1 + ' ' + db2)
-            # if result == b'':
-            #
-            #     pass
-            # else:
-            #     QMessageBox.warning(self, "Attenzione",
-            #                         "Il db non allineato devi aggiornarlo. Chiudi questa finestra e clicca il bottone con l'icona di spatialite in basso a sinistra aggiungendo l'epsg del tuo db",
-            #                         QMessageBox.Ok)
-            #     # # #break
-
-        else:
-            pass
 
     def on_pushButton_crea_database_pressed(self,):
         # Check if user is admin
@@ -6132,28 +6374,32 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         view_file = os.path.join(os.path.dirname(__file__), os.pardir, 'resources', 'dbfiles',
                                        'pyarchinit_update_postgres.sql')
 
-        pg_ver = self.select_version_sql()
+        b=str(self.select_version_sql())
 
-        if pg_ver and pg_ver == "90313":
-            if self.L == 'it':
-                QMessageBox.information(self, "INFO",
-                    "Non puoi aggiornare il db postgres perché la tua versione è inferiore alla 9.4. "
-                    "Aggiorna ad una versione più recente", QMessageBox.Ok)
-            elif self.L == 'de':
-                QMessageBox.information(self, "INFO",
-                    "Sie können die db postgres nicht aktualisieren, da Ihre Version niedriger als 9.4 ist. "
-                    "Upgrade auf eine neuere Version", QMessageBox.Ok)
+        a = "90313"
+        if self.L== 'it':
+            if a == b:
+                QMessageBox.information(self, "INFO", " Non puoi aggiornare il db postgres per chè la tua versione è inferiore alla 9.4 "
+                                                                                "Aggiorna ad una versione più recente",QMessageBox.Ok)
             else:
-                QMessageBox.information(self, "INFO",
-                    "You cannot update the db postgres because your version is lower than 9.4. "
-                    "Upgrade to a newer version", QMessageBox.Ok)
-        else:
-            RestoreSchema(db_url, view_file).restore_schema()
-            if self.L == 'it':
+                RestoreSchema(db_url,view_file).restore_schema()
+
                 QMessageBox.information(self, "INFO", "il db è stato aggiornato", QMessageBox.Ok)
-            elif self.L == 'de':
-                QMessageBox.information(self, "INFO", "die db wurde aktualisiert", QMessageBox.Ok)
+        elif self.L== 'de':
+            if a == b:
+                QMessageBox.information(self, "INFO", " Sie können die db postgres nicht aktualisieren, da Ihre Version niedriger als 9.4 ist. "
+                                                                                "Upgrade auf eine neuere Version",QMessageBox.Ok)
             else:
+                RestoreSchema(db_url,view_file).restore_schema()
+
+                QMessageBox.information(self, "INFO", "die db wurde aktualisiert", QMessageBox.Ok)
+        else:
+            if a == b:
+                QMessageBox.information(self, "INFO", " You cannot update the db postgres because your version is lower than 9.4 "
+                                                                                "Upgrade to a newer version",QMessageBox.Ok)
+            else:
+                RestoreSchema(db_url,view_file).restore_schema()
+
                 QMessageBox.information(self, "INFO", "the db has been updated", QMessageBox.Ok)
 
 
@@ -10016,32 +10262,3 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
        # srv = pysftp.Connection(host=self.ip, username=self.user, password=self.pwd,cnopts =cnopts )
        # self.lineEdit_2.insert("Connection Close ............. ")
        # srv.close()
-    def on_pushButton_convertdb_pressed(self):
-        QMessageBox.warning(self, "Attenzione",
-                                     "Assicurati che il nome del db non abbia parentesi o caratteri spaciali, altrimenti la conversione fallisce",
-                                     QMessageBox.Ok)
-        if self.comboBox_Database.currentText() == 'sqlite':
-
-            if platform.system() == "Windows":
-                cmd = os.path.join(os.sep, self.HOME, 'bin', 'spatialite_convert.exe')
-                #db1 = os.path.join(os.sep, self.HOME, 'bin', 'pyarchinit.sqlite')
-                
-            
-            else:
-                QMessageBox.warning(self, "Attenzione",
-                                     "Funzione abilitata solo per windows",
-                                     QMessageBox.Ok)
-
-            db1 = os.path.join(os.sep, self.HOME, 'pyarchinit_DB_folder', self.lineEdit_DBname.text())
-
-            # text_ = cmd, self.comboBox_compare.currentText(), db1 + ' ', db2
-            # result = subprocess.check_output([text_], stderr=subprocess.STDOUT)
-            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' +db1 +' '+ '-tv 4' )
-            os.system("start cmd /k" + cmd + ' --db-path ' + ' ' + db1 +' '+ '-tv 5' )
-            
-
-        else:
-            QMessageBox.warning(self, "Attenzione",
-                                     "ops qualcosa è andato storto",
-                                     QMessageBox.Ok)
-    
