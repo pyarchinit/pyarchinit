@@ -32,7 +32,8 @@ CREATE TABLE public.archeozoology_table (
     strie BIGINT,
     canidi BIGINT,
     ursidi BIGINT,
-    megacero BIGINT
+    megacero BIGINT,
+    entity_uuid text
 );
 
 
@@ -77,7 +78,8 @@ CREATE TABLE public.campioni_table (
     us TEXT,
     numero_inventario_materiale BIGINT,
     nr_cassa BIGINT,
-    luogo_conservazione text
+    luogo_conservazione text,
+    entity_uuid text
 );
 
 
@@ -302,7 +304,8 @@ CREATE TABLE public.documentazione_table (
     sorgente text,
     scala text,
     disegnatore text,
-    note text
+    note text,
+    entity_uuid text
 );
 
 
@@ -361,7 +364,8 @@ CREATE TABLE public.individui_table (
     posizione_arti_superiori character varying(250),
     posizione_arti_inferiori character varying(250),
 	orientamento_asse text,
-	orientamento_azimut text
+	orientamento_azimut text,
+	entity_uuid text
 	);
 
 
@@ -435,11 +439,17 @@ CREATE TABLE public.inventario_materiali_table (
 	punto_rinv text,
 	negativo_photo text,
 	diapositiva text,
+	quota_usm NUMERIC(10,3),
+	unita_misura_quota VARCHAR(20),
+	photo_id text,
+	drawing_id text,
 	version_number INTEGER DEFAULT 1,
 	editing_by VARCHAR(100),
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
-	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	audit_trail text,
+	entity_uuid text
 );
 
 
@@ -555,7 +565,8 @@ CREATE TABLE public.media_table (
     filetype character varying(10),
     filepath text,
     descrizione text,
-    tags text
+    tags text,
+    entity_uuid text
 );
 
 
@@ -598,7 +609,8 @@ CREATE TABLE public.media_thumb_table (
     media_thumb_filename text,
     filetype character varying(10),
     filepath text,
-	path_resize text
+	path_resize text,
+	entity_uuid text
 );
 
 
@@ -640,7 +652,8 @@ CREATE TABLE public.media_to_entity_table (
     table_name text,
     id_media BIGINT,
     filepath text,
-    media_name text
+    media_name text,
+    entity_uuid text
 );
 
 
@@ -767,7 +780,8 @@ CREATE TABLE public.periodizzazione_table (
 	editing_by VARCHAR(100),
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
-	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	entity_uuid text
 );
 
 
@@ -837,7 +851,8 @@ CREATE TABLE public.pottery_table (
     decoration_type text,
     decoration_motif text,
     decoration_position text,
-    datazione text
+    datazione text,
+    entity_uuid text
 );
 
 
@@ -1199,7 +1214,8 @@ CREATE TABLE public.us_table (
 	editing_by VARCHAR(100),
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
-	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	entity_uuid text
 );
 
 
@@ -1601,7 +1617,8 @@ CREATE TABLE public.struttura_table (
     potenzialita_archeologica text,
     manufatti text,
     elementi_datanti text,
-    fasi_funzionali text
+    fasi_funzionali text,
+    entity_uuid text
 );
 
 
@@ -1679,7 +1696,8 @@ CREATE TABLE public.tomba_table (
     fase_iniziale BIGINT,
     periodo_finale BIGINT,
     fase_finale BIGINT,
-    datazione_estesa text
+    datazione_estesa text,
+    entity_uuid text
 );
 
 
@@ -2079,7 +2097,8 @@ CREATE TABLE public.site_table (
     editing_since TIMESTAMP,
     last_modified_by VARCHAR(100) DEFAULT 'system',
     last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    sito_path text
+    sito_path text,
+    entity_uuid text
 );
 
 
@@ -2209,7 +2228,8 @@ CREATE TABLE public.tma_materiali_archeologici (
     editing_by VARCHAR(100),
     editing_since TIMESTAMP,
     last_modified_by VARCHAR(100) DEFAULT 'system',
-    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    entity_uuid text
 );
 
 ALTER TABLE public.tma_materiali_archeologici OWNER TO postgres;
@@ -2256,7 +2276,8 @@ CREATE TABLE public.tma_materiali_ripetibili (
     editing_by VARCHAR(100),
     editing_since TIMESTAMP,
     last_modified_by VARCHAR(100) DEFAULT 'system',
-    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    entity_uuid text
 );
 
 ALTER TABLE public.tma_materiali_ripetibili OWNER TO postgres;
@@ -2446,7 +2467,8 @@ CREATE TABLE public.ut_table (
     potential_factors TEXT,
     risk_factors TEXT,
     analysis_date character varying(100),
-    analysis_method character varying(100)
+    analysis_method character varying(100),
+    entity_uuid text
 );
 
 
