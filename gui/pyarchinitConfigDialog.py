@@ -4949,10 +4949,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         insert = compiler.visit_insert(insert_srt, **kw)
                         c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
                         column_names = [col.name for col in c.columns]
-                        s= ", ".join(column_names)
-                        ondup = f'ON CONFLICT ({s})DO NOTHING'
-                    
-                        upsert = ' '.join((insert, ondup))
+                        s = ", ".join(column_names)
+                        conflict_clause = f'ON CONFLICT ({s}) DO NOTHING'
+                        # ON CONFLICT must come before RETURNING (if present)
+                        if ' RETURNING ' in insert:
+                            ret_idx = insert.index(' RETURNING ')
+                            upsert = insert[:ret_idx] + ' ' + conflict_clause + insert[ret_idx:]
+                        else:
+                            upsert = f'{insert} {conflict_clause}'
                         return upsert
                        
                         
@@ -5002,7 +5006,13 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             f'{_pg_quote(c.name)}=EXCLUDED.{_pg_quote(c.name)}'
                             for c in insert_srt.table.columns
                         )
-                        upsert = " ".join((insert, ondup, updates))
+                        conflict_clause = f"{ondup} {updates}"
+                        # ON CONFLICT must come before RETURNING (if present)
+                        if ' RETURNING ' in insert:
+                            ret_idx = insert.index(' RETURNING ')
+                            upsert = insert[:ret_idx] + ' ' + conflict_clause + insert[ret_idx:]
+                        else:
+                            upsert = f"{insert} {conflict_clause}"
                         return upsert
         
             if self.checkBox_abort.isChecked():
@@ -5019,10 +5029,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
                         pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        ondup = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
-                        #updates = ', '.join(f"{c.name}=EXCLUDED.{c.name}" for c in insert_srt.table.columns)
-                        upsert = ' '.join((insert, ondup))
-                        return insert
+                        conflict_clause = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+                        # ON CONFLICT must come before RETURNING (if present)
+                        if ' RETURNING ' in insert:
+                            ret_idx = insert.index(' RETURNING ')
+                            upsert = insert[:ret_idx] + ' ' + conflict_clause + insert[ret_idx:]
+                        else:
+                            upsert = f'{insert} {conflict_clause}'
+                        return upsert
         
         
         except:
