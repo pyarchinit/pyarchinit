@@ -4991,11 +4991,17 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 # Fallback to just return the insert without ON CONFLICT
                                 return insert
 
-                        s = ", ".join(column_names)
-                        
-                        
+                        # Quote column names that contain uppercase letters (PostgreSQL folds unquoted to lowercase)
+                        def _pg_quote(name):
+                            return f'"{name}"' if any(ch.isupper() for ch in name) else name
+
+                        s = ", ".join(_pg_quote(n) for n in column_names)
+
                         ondup = f"ON CONFLICT ({s}) DO UPDATE SET"
-                        updates = ", ".join(f'{c.name}=EXCLUDED.{c.name}' for c in insert_srt.table.columns)
+                        updates = ", ".join(
+                            f'{_pg_quote(c.name)}=EXCLUDED.{_pg_quote(c.name)}'
+                            for c in insert_srt.table.columns
+                        )
                         upsert = " ".join((insert, ondup, updates))
                         return upsert
         
