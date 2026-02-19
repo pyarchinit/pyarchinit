@@ -439,11 +439,16 @@ CREATE TABLE public.inventario_materiali_table (
 	punto_rinv text,
 	negativo_photo text,
 	diapositiva text,
+	quota_usm NUMERIC(10,3),
+	unita_misura_quota VARCHAR(20),
+	photo_id text,
+	drawing_id text,
 	version_number INTEGER DEFAULT 1,
 	editing_by VARCHAR(100),
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
 	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	audit_trail text,
 	entity_uuid text
 );
 
