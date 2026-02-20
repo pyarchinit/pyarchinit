@@ -8,6 +8,14 @@
 ## [5.0.5-alpha] - 2026-02-20
 
 ### Aggiunto / Added
+- **Controller CRUD Tab per Site Management**: Creati 4 controller tab Python per il modulo Site Management: `Personale.py`, `Presenze.py`, `Attrezzature.py`, `Budget.py`. Ogni controller segue esattamente il pattern di `Periodizzazione.py` con: supporto i18n per 10 lingue (it, en, de, es, fr, ar, ca, ro, pt, el), integrazione ThemeManager, operazioni CRUD complete via `get_db_manager()` singleton, navigazione record, ricerca/ordinamento, gestione sito, metodi `fill_fields`/`empty_fields`/`insert_new_rec`/`update_record`. Presenze.py include metodi extra `calculate_hours()` e `calculate_cost()`. Attrezzature.py include `check_maintenance_alert()` per avvisi scadenza manutenzione. / Created 4 Python tab controllers for the Site Management module: `Personale.py`, `Presenze.py`, `Attrezzature.py`, `Budget.py`. Each controller follows the exact `Periodizzazione.py` pattern with: i18n support for 10 languages (it, en, de, es, fr, ar, ca, ro, pt, el), ThemeManager integration, full CRUD operations via `get_db_manager()` singleton, record navigation, search/sort, site management, `fill_fields`/`empty_fields`/`insert_new_rec`/`update_record` methods. Presenze.py includes extra `calculate_hours()` and `calculate_cost()` methods. Attrezzature.py includes `check_maintenance_alert()` for maintenance due date warnings.
+
+#### File creati / Created files
+- `tabs/Personale.py`
+- `tabs/Presenze.py`
+- `tabs/Attrezzature.py`
+- `tabs/Budget.py`
+
 - **Database Updaters per Site Management**: Aggiunti metodi CREATE TABLE per le 5 nuove tabelle (`personale_table`, `presenze_table`, `attrezzature_table`, `budget_table`, `computo_metrico_table`) sia nel SQLite updater che nel PostgreSQL updater. I database esistenti riceveranno le nuove tabelle automaticamente alla prossima connessione. Il SQLite updater usa `self.cursor.execute()` con `table_exists()` guard, il PostgreSQL updater usa il pattern `with self.db_manager.engine.connect()` con `sqlalchemy.text()` e `COMMIT` esplicito. / Added CREATE TABLE methods for the 5 new tables (`personale_table`, `presenze_table`, `attrezzature_table`, `budget_table`, `computo_metrico_table`) to both the SQLite and PostgreSQL database updaters. Existing databases will receive the new tables automatically on next connection. The SQLite updater uses `self.cursor.execute()` with `table_exists()` guard; the PostgreSQL updater uses the `with self.db_manager.engine.connect()` pattern with `sqlalchemy.text()` and explicit `COMMIT`.
 
 #### File modificati / Modified files
