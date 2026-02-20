@@ -4635,15 +4635,21 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
     
     def test2(self):
         try:
-            
+
             conn = Connection()
             conn_str = conn.conn_str()
+            # Only run for SQLite databases
+            if conn_str.find("sqlite") != 0:
+                return
             conn_sqlite = conn.databasename()
-            
+
             sqlite_DB_path = '{}{}{}'.format(self.HOME, os.sep,
                                            "pyarchinit_DB_folder")
-            
-            con = sqlite3.connect(sqlite_DB_path +os.sep+ conn_sqlite["db_name"])
+
+            db_file = sqlite_DB_path + os.sep + conn_sqlite["db_name"]
+            if not os.path.exists(db_file):
+                return
+            con = sqlite3.connect(db_file)
             cur = con.cursor()
 
             cur.executescript('''
@@ -4731,11 +4737,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             )
                         );
                     
-                PRAGMA foreign_keys = 1;   
+                PRAGMA foreign_keys = 1;
             ''')
-            #c.close()
-        except KeyError as e:
-            pass#QMessageBox.warning(self, "ok", str(e), QMessageBox.Ok)
+            con.close()
+        except (KeyError, Exception) as e:
+            try:
+                con.close()
+            except Exception:
+                pass
     def setComboBoxEnable(self, f, v):
         field_names = f
         value = v

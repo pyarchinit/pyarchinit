@@ -89,6 +89,7 @@ class pyarchinit_Cantiere(QDialog, MAIN_DIALOG_CLASS):
 
         # Populate combos
         self.charge_list()
+        self.apply_sito_set()
         self.populate_raster_combos()
         self.populate_vector_combos()
         self.refresh_dashboard()
@@ -127,6 +128,19 @@ class pyarchinit_Cantiere(QDialog, MAIN_DIALOG_CLASS):
         years = [str(y) for y in range(current_year, current_year - 10, -1)]
         self.comboBox_anno.clear()
         self.comboBox_anno.addItems(years)
+
+    def apply_sito_set(self):
+        """Pre-select the configured site if set"""
+        try:
+            conn = Connection()
+            sito_set = conn.sito_set()
+            sito_set_str = sito_set['sito_set']
+            if bool(sito_set_str):
+                idx = self.comboBox_sito.findText(sito_set_str)
+                if idx >= 0:
+                    self.comboBox_sito.setCurrentIndex(idx)
+        except Exception:
+            pass
 
     def populate_raster_combos(self):
         """Populate DEM layer comboboxes from QGIS project"""
