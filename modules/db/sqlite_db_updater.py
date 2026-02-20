@@ -202,8 +202,21 @@ class SQLiteDBUpdater:
                         self.log_message(f"View pyarchinit_us_view mancante di colonne: {error_msg}")
                         return True
             
+            # Check if site management tables exist (v5.0.5+)
+            site_mgmt_tables = [
+                'personale_table', 'presenze_table', 'attrezzature_table',
+                'budget_table', 'computo_metrico_table'
+            ]
+            for tbl in site_mgmt_tables:
+                self.cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                    (tbl,))
+                if not self.cursor.fetchone():
+                    self.log_message(f"Tabella mancante: {tbl}")
+                    return True
+
             return False
-            
+
         except Exception as e:
             self.log_message(f"Errore verifica database: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
             return True
