@@ -202,8 +202,9 @@ class SQLiteDBUpdater:
                         self.log_message(f"View pyarchinit_us_view mancante di colonne: {error_msg}")
                         return True
             
-            # Check if site management tables exist (v5.0.5+)
+            # Check if required tables exist (v5.0.5+)
             site_mgmt_tables = [
+                'inventario_lapidei_table',
                 'personale_table', 'presenze_table', 'attrezzature_table',
                 'budget_table', 'computo_metrico_table'
             ]
@@ -336,6 +337,9 @@ class SQLiteDBUpdater:
 
             # Create missing tables for sync compatibility
             self.create_missing_tables()
+
+            # Create inventario_lapidei_table if missing (referenced by concurrency SQL)
+            self.update_inventario_lapidei_table()
 
             # Create site management tables (personale, presenze, attrezzature, budget, computo_metrico)
             self.update_personale_table()
@@ -2224,6 +2228,38 @@ class SQLiteDBUpdater:
                 )
             ''')
             self.updates_made.append("CREATE TABLE computo_metrico_table")
+
+    def update_inventario_lapidei_table(self):
+        """Crea inventario_lapidei_table se non esiste"""
+        if not self.table_exists('inventario_lapidei_table'):
+            self.log_message("Creazione tabella inventario_lapidei_table...")
+            self.cursor.execute('''
+                CREATE TABLE inventario_lapidei_table (
+                    id_invlap INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    scheda_numero INTEGER DEFAULT 0,
+                    collocazione TEXT DEFAULT '',
+                    oggetto TEXT DEFAULT '',
+                    tipologia TEXT DEFAULT '',
+                    materiale TEXT DEFAULT '',
+                    d_letto_posa REAL DEFAULT 0,
+                    d_letto_attesa REAL DEFAULT 0,
+                    toro REAL DEFAULT 0,
+                    spessore REAL DEFAULT 0,
+                    larghezza REAL DEFAULT 0,
+                    lunghezza REAL DEFAULT 0,
+                    h REAL DEFAULT 0,
+                    descrizione TEXT DEFAULT '',
+                    lavorazione_e_stato_di_conservazione TEXT DEFAULT '',
+                    confronti TEXT DEFAULT '',
+                    cronologia TEXT DEFAULT '',
+                    bibliografia TEXT DEFAULT '',
+                    compilatore TEXT DEFAULT '',
+                    entity_uuid TEXT DEFAULT '',
+                    UNIQUE(sito, scheda_numero)
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE inventario_lapidei_table")
 
 
 def check_and_update_sqlite_db(db_path, parent=None):

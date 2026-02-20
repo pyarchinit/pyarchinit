@@ -2259,8 +2259,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 QMessageBox.warning(self, 'Errore', 'Nessuna connessione al database attiva.')
                 return
 
-            # Detect database type
-            conn_str = str(self.DB_MANAGER.engine.url) if hasattr(self.DB_MANAGER, 'engine') else ''
+            # Detect database type - use render_as_string to preserve real password
+            conn_str = self.DB_MANAGER.engine.url.render_as_string(hide_password=False) if hasattr(self.DB_MANAGER, 'engine') else ''
             is_sqlite = 'sqlite' in conn_str.lower()
 
             # First check if updates are needed

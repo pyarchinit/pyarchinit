@@ -57,6 +57,8 @@ class PostgresDbUpdater:
             self.update_ut_table()
             # Aggiorna inventario_materiali_table con colonne mancanti (quota_usm, ecc.)
             self.update_inventario_materiali_table()
+            # Crea inventario_lapidei_table se non esiste (richiesta dai SQL di concorrenza)
+            self.update_inventario_lapidei_table()
             # Crea tabelle gestione sito (personale, presenze, attrezzature, budget, computo_metrico)
             self.update_personale_table()
             self.update_presenze_table()
@@ -2107,6 +2109,48 @@ class PostgresDbUpdater:
             self.updates_made.append("CREATE TABLE computo_metrico_table")
         except Exception as e:
             self.log_message(f"Errore creando computo_metrico_table: {e}")
+
+
+    def update_inventario_lapidei_table(self):
+        """Crea inventario_lapidei_table se non esiste (richiesta dai SQL di concorrenza)"""
+        if self.table_exists('inventario_lapidei_table'):
+            return
+        self.log_message("Creazione tabella inventario_lapidei_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS inventario_lapidei_table (
+                    id_invlap BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    scheda_numero INTEGER,
+                    collocazione TEXT,
+                    oggetto TEXT,
+                    tipologia TEXT,
+                    materiale TEXT,
+                    d_letto_posa NUMERIC(4,2),
+                    d_letto_attesa NUMERIC(4,2),
+                    toro NUMERIC(4,2),
+                    spessore NUMERIC(4,2),
+                    larghezza NUMERIC(4,2),
+                    lunghezza NUMERIC(4,2),
+                    h NUMERIC(4,2),
+                    descrizione TEXT,
+                    lavorazione_e_stato_di_conservazione TEXT,
+                    confronti TEXT,
+                    cronologia TEXT,
+                    bibliografia TEXT,
+                    compilatore TEXT,
+                    entity_uuid TEXT,
+                    UNIQUE(sito, scheda_numero)
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella inventario_lapidei_table creata con successo")
+            self.updates_made.append("CREATE TABLE inventario_lapidei_table")
+        except Exception as e:
+            self.log_message(f"Errore creando inventario_lapidei_table: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):
