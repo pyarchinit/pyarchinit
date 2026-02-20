@@ -118,6 +118,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "GeoPackage Export", "Export GeoPackage"),
             ("29_make_your_map.md", "Make Your Map", "Generazione mappe"),
             ("30_ai_query_database.md", "AI Query", "Query con AI"),
+            ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup and database"),
@@ -150,6 +151,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "GeoPackage Export", "GeoPackage export"),
             ("29_make_your_map.md", "Make Your Map", "Map generation"),
             ("30_ai_query_database.md", "AI Query", "AI database query"),
+            ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung und Datenbank"),
@@ -182,6 +184,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "GeoPackage-Export", "GeoPackage-Export"),
             ("29_karte_erstellen.md", "Karte erstellen", "Kartenerstellung"),
             ("30_ki_datenbankabfrage.md", "KI-Abfrage", "KI-Datenbankabfrage"),
+            ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -214,6 +217,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "Export GeoPackage", "Export date în GeoPackage"),
             ("29_make_your_map.md", "Creează Harta", "Generare hărți și tipărire"),
             ("30_ai_query_database.md", "AI Query Database", "Interogare bază de date cu AI (Text2SQL)"),
+            ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -246,6 +250,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "Exportação GeoPackage", "Exportação de dados em GeoPackage"),
             ("29_make_your_map.md", "Criar Mapa", "Geração de mapas e impressão"),
             ("30_ai_query_database.md", "AI Query Database", "Consulta à base de dados com IA (Text2SQL)"),
+            ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -278,6 +283,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("28_geopackage_export.md", "Εξαγωγή GeoPackage", "Εξαγωγή δεδομένων σε GeoPackage"),
             ("29_make_your_map.md", "Δημιουργία Χάρτη", "Δημιουργία χαρτών και εκτύπωση"),
             ("30_ai_query_database.md", "AI Query Database", "Ερωτήματα βάσης δεδομένων με AI (Text2SQL)"),
+            ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
         ],
     }
 

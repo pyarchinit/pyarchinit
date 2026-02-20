@@ -106,6 +106,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronizzazione offline-first con il Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Analisi geostatistica per la ricerca archeologica"),
             ("34_movecost.md", "MoveCost", "Analisi dei percorsi di minor costo"),
+            ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup, database connection, paths"),
@@ -142,6 +143,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first sync with the Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistical analysis for archaeological research"),
             ("34_movecost.md", "MoveCost", "Least-cost path analysis"),
+            ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung, Datenbankverbindung, Pfade"),
@@ -178,6 +180,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Offline-first Synchronisation mit dem Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistische Analyse für die archäologische Forschung"),
             ("34_movecost.md", "MoveCost", "Wegkostenanalyse"),
+            ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
         ],
         'fr': [
             ("01_configuration.md", "Configuration", "Configuration initiale, connexion base de données, chemins"),
@@ -214,6 +217,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Synchronisation offline-first avec le Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Analyse géostatistique pour la recherche archéologique"),
             ("34_movecost.md", "MoveCost", "Analyse des chemins de moindre coût"),
+            ("35_gestion_chantier.md", "Gestion de Chantier", "Tableau de bord, personnel, présences, équipements, budget"),
         ],
         'es': [
             ("01_configuracion.md", "Configuración", "Configuración inicial, conexión de base de datos, rutas"),
@@ -250,6 +254,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronización offline-first con el Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Análisis geoestadístico para la investigación arqueológica"),
             ("34_movecost.md", "MoveCost", "Análisis de rutas de menor coste"),
+            ("35_gestion_obra.md", "Gestión de Obra", "Panel de obra, personal, asistencia, equipamiento, presupuesto"),
         ],
         'ar': [
             ("01_التكوين.md", "التكوين", "الإعداد الأولي، اتصال قاعدة البيانات، المسارات"),
@@ -286,6 +291,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "مزامنة دون اتصال أولاً مع رسم المعرفة"),
             ("33_geoarchaeo.md", "GeoArchaeo", "التحليل الجيوإحصائي للبحث الأثري"),
             ("34_movecost.md", "MoveCost", "تحليل مسارات أقل تكلفة"),
+            ("35_إدارة_الموقع.md", "إدارة الموقع", "لوحة القيادة، الموظفون، الحضور، المعدات، الميزانية"),
         ],
         'ca': [
             ("01_configuracio.md", "Configuració", "Configuració inicial, connexió de base de dades, camins"),
@@ -322,6 +328,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronització offline-first amb el Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Anàlisi geoestadística per a la recerca arqueològica"),
             ("34_movecost.md", "MoveCost", "Anàlisi de camins de menor cost"),
+            ("35_gestio_obra.md", "Gestió d'Obra", "Tauler d'obra, personal, assistència, equipament, pressupost"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -358,6 +365,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronizare offline-first cu Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Analiză geostatistică pentru cercetarea arheologică"),
             ("34_movecost.md", "MoveCost", "Analiza rutelor cu cel mai mic cost"),
+            ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -394,6 +402,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Sincronização offline-first com o Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Análise geoestatística para pesquisa arqueológica"),
             ("34_movecost.md", "MoveCost", "Análise de caminhos de menor custo"),
+            ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -430,6 +439,7 @@ class TutorialViewerDialog(QDialog):
             ("32_stratigraph_sync.md", "StratiGraph Sync", "Συγχρονισμός offline-first με το Knowledge Graph"),
             ("33_geoarchaeo.md", "GeoArchaeo", "Γεωστατιστική ανάλυση για αρχαιολογική έρευνα"),
             ("34_movecost.md", "MoveCost", "Ανάλυση διαδρομών ελάχιστου κόστους"),
+            ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
         ],
     }
 
