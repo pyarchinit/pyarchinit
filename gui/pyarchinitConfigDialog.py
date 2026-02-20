@@ -2337,17 +2337,14 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 sql_content = f.read()
 
                             import psycopg2
-                            from urllib.parse import urlparse
 
-                            db_url = str(self.DB_MANAGER.engine.url)
-                            parsed = urlparse(db_url.replace('postgresql://', 'http://'))
-
+                            sa_url = self.DB_MANAGER.engine.url
                             conn = psycopg2.connect(
-                                host=parsed.hostname or 'localhost',
-                                port=parsed.port or 5432,
-                                database=parsed.path.lstrip('/'),
-                                user=parsed.username,
-                                password=parsed.password
+                                host=sa_url.host or 'localhost',
+                                port=sa_url.port or 5432,
+                                database=sa_url.database,
+                                user=sa_url.username,
+                                password=sa_url.password
                             )
 
                             with conn.cursor() as cursor:
@@ -2437,19 +2434,15 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     try:
                         # Use raw psycopg2 connection for complex SQL with functions
                         import psycopg2
-                        from urllib.parse import urlparse
 
-                        # Parse connection URL
-                        db_url = str(self.DB_MANAGER.engine.url)
-                        parsed = urlparse(db_url.replace('postgresql://', 'http://'))
-
-                        # Create direct psycopg2 connection
+                        # Extract credentials from SQLAlchemy URL object directly
+                        sa_url = self.DB_MANAGER.engine.url
                         conn = psycopg2.connect(
-                            host=parsed.hostname or 'localhost',
-                            port=parsed.port or 5432,
-                            database=parsed.path.lstrip('/'),
-                            user=parsed.username,
-                            password=parsed.password
+                            host=sa_url.host or 'localhost',
+                            port=sa_url.port or 5432,
+                            database=sa_url.database,
+                            user=sa_url.username,
+                            password=sa_url.password
                         )
 
                         # Execute the entire SQL file as one transaction
