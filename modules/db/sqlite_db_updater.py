@@ -202,18 +202,13 @@ class SQLiteDBUpdater:
                         self.log_message(f"View pyarchinit_us_view mancante di colonne: {error_msg}")
                         return True
             
-            # Check if site management tables exist (v5.0.5+)
-            site_mgmt_tables = [
-                'personale_table', 'presenze_table', 'attrezzature_table',
-                'budget_table', 'computo_metrico_table'
-            ]
-            for tbl in site_mgmt_tables:
-                self.cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-                    (tbl,))
-                if not self.cursor.fetchone():
-                    self.log_message(f"Tabella mancante: {tbl}")
-                    return True
+            # Check if inventario_lapidei_table exists (referenced in concurrency views)
+            self.cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                ('inventario_lapidei_table',))
+            if not self.cursor.fetchone():
+                self.log_message("Tabella mancante: inventario_lapidei_table")
+                return True
 
             return False
 
@@ -333,6 +328,9 @@ class SQLiteDBUpdater:
 
             # Add concurrency columns for sync with PostgreSQL (v5.0+)
             self.add_concurrency_columns()
+
+            # Create inventario_lapidei_table if missing
+            self.update_inventario_lapidei_table()
 
             # Create missing tables for sync compatibility
             self.create_missing_tables()
@@ -2083,6 +2081,39 @@ class SQLiteDBUpdater:
                 self.cursor.execute("ANALYZE")
             except:
                 pass
+
+
+    def update_inventario_lapidei_table(self):
+        """Crea la tabella inventario_lapidei_table se non esiste"""
+        if not self.table_exists('inventario_lapidei_table'):
+            self.cursor.execute('''
+                CREATE TABLE inventario_lapidei_table (
+                    id_invlap INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    scheda_numero INTEGER DEFAULT 0,
+                    collocazione TEXT DEFAULT '',
+                    oggetto TEXT DEFAULT '',
+                    tipologia TEXT DEFAULT '',
+                    materiale TEXT DEFAULT '',
+                    d_letto_posa REAL DEFAULT 0,
+                    d_letto_attesa REAL DEFAULT 0,
+                    toro REAL DEFAULT 0,
+                    spessore REAL DEFAULT 0,
+                    larghezza REAL DEFAULT 0,
+                    lunghezza REAL DEFAULT 0,
+                    h REAL DEFAULT 0,
+                    descrizione TEXT DEFAULT '',
+                    lavorazione_e_stato_di_conservazione TEXT DEFAULT '',
+                    confronti TEXT DEFAULT '',
+                    cronologia TEXT DEFAULT '',
+                    bibliografia TEXT DEFAULT '',
+                    compilatore TEXT DEFAULT '',
+                    entity_uuid TEXT DEFAULT '',
+                    UNIQUE(sito, scheda_numero)
+                )
+            ''')
+            self.log_message("Creata tabella inventario_lapidei_table")
+            self.updates_made.append("CREATE TABLE inventario_lapidei_table")
 
 
 def check_and_update_sqlite_db(db_path, parent=None):

@@ -57,6 +57,8 @@ class PostgresDbUpdater:
             self.update_ut_table()
             # Aggiorna inventario_materiali_table con colonne mancanti (quota_usm, ecc.)
             self.update_inventario_materiali_table()
+            # Crea inventario_lapidei_table se non esiste
+            self.update_inventario_lapidei_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1922,6 +1924,88 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore creando indici di performance: {e}")
+
+    def update_inventario_lapidei_table(self):
+        """Crea o aggiorna la tabella inventario_lapidei_table"""
+        self.log_message("Controllo tabella inventario_lapidei_table...")
+
+        try:
+            from sqlalchemy import text
+
+            # Verifica se la tabella esiste
+            query = text("""
+                SELECT table_name
+                FROM information_schema.tables
+                WHERE table_name = 'inventario_lapidei_table'
+                AND table_schema = 'public'
+            """)
+            result = self.db_manager._execute_sql(query).fetchone()
+
+            if not result:
+                # Crea la tabella
+                create_sql = text("""
+                    CREATE TABLE inventario_lapidei_table (
+                        id_invlap BIGSERIAL PRIMARY KEY,
+                        sito TEXT,
+                        scheda_numero INTEGER,
+                        collocazione TEXT,
+                        oggetto TEXT,
+                        tipologia TEXT,
+                        materiale TEXT,
+                        d_letto_posa NUMERIC(4,2),
+                        d_letto_attesa NUMERIC(4,2),
+                        toro NUMERIC(4,2),
+                        spessore NUMERIC(4,2),
+                        larghezza NUMERIC(4,2),
+                        lunghezza NUMERIC(4,2),
+                        h NUMERIC(4,2),
+                        descrizione TEXT,
+                        lavorazione_e_stato_di_conservazione TEXT,
+                        confronti TEXT,
+                        cronologia TEXT,
+                        bibliografia TEXT,
+                        compilatore TEXT,
+                        entity_uuid TEXT,
+                        UNIQUE(sito, scheda_numero)
+                    )
+                """)
+                with self.db_manager.engine.connect() as conn:
+                    conn.execute(create_sql)
+                    conn.execute(text("COMMIT"))
+                self.log_message("Creata tabella inventario_lapidei_table")
+                self.updates_made.append("CREATE TABLE inventario_lapidei_table")
+            else:
+                # Aggiungi colonne mancanti se la tabella esiste già
+                updated = False
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'sito', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'scheda_numero', 'INTEGER')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'collocazione', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'oggetto', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'tipologia', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'materiale', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'd_letto_posa', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'd_letto_attesa', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'toro', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'spessore', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'larghezza', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'lunghezza', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'h', 'NUMERIC(4,2)')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'descrizione', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'lavorazione_e_stato_di_conservazione', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'confronti', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'cronologia', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'bibliografia', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'compilatore', 'TEXT')
+                updated |= self.add_column_if_missing('inventario_lapidei_table', 'entity_uuid', 'TEXT')
+
+                if updated:
+                    self.log_message("Tabella inventario_lapidei_table aggiornata")
+                    self.updates_made.append("inventario_lapidei_table: colonne mancanti aggiunte")
+                else:
+                    self.log_message("Tabella inventario_lapidei_table già aggiornata")
+
+        except Exception as e:
+            self.log_message(f"Errore durante l'aggiornamento della tabella inventario_lapidei_table: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

@@ -2260,7 +2260,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 return
 
             # Detect database type
-            conn_str = str(self.DB_MANAGER.engine.url) if hasattr(self.DB_MANAGER, 'engine') else ''
+            conn_str = self.DB_MANAGER.engine.url.render_as_string(hide_password=False) if hasattr(self.DB_MANAGER, 'engine') else ''
             is_sqlite = 'sqlite' in conn_str.lower()
 
             # First check if updates are needed
