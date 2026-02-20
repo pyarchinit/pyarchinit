@@ -31,7 +31,13 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.5-alpha (2026-02-18) [PostgreSQL Connection Fix]:
+changelog=5.0.5-alpha (2026-02-20) [i18n & Thesaurus for Site Management]:
+    - Feature: expand i18n from 3 to 10 languages for Site Management tabs (es, fr, ar, ca, ro, pt, el)
+    - Feature: add thesaurus codes 14.1-14.7 (~470 records) for site management fields in 10 languages
+    - Feature: integrate thesaurus-based combobox population in Personale, Presenze, Attrezzature, Budget tabs
+    - Feature: add site management tutorials in 10 languages
+    - Docs: update CHANGELOG with issue #660 fixes
+  5.0.5-alpha (2026-02-18) [PostgreSQL Connection Fix]:
     - Fix: make select_version_sql() non-blocking so PostgreSQL version check failure no longer prevents connection (fixes #656)
     - Fix: show actual error details in connection failure dialog instead of generic message
     - Fix: properly dispose SQLAlchemy engine after version check to prevent resource leaks
