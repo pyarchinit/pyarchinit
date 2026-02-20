@@ -600,6 +600,46 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+
+            # === Gestione Cantiere toolbar ===
+            self.toolBarCantiere = self.iface.addToolBar("pyArchInit - Gestione Cantiere")
+            self.toolBarCantiere.setObjectName("pyArchInitCantiere")
+
+            icon_cantiere = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconCantiere.png'))
+            icon_personale = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPersonale.png'))
+            icon_presenze = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPresenze.png'))
+            icon_attrezzature = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAttrezzature.png'))
+            icon_budget = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconBudget.png'))
+
+            self.actionCantiere = QAction(QIcon(icon_cantiere), "Dashboard Cantiere", self.iface.mainWindow())
+            self.actionPersonale = QAction(QIcon(icon_personale), "Personale", self.iface.mainWindow())
+            self.actionPresenze = QAction(QIcon(icon_presenze), "Presenze", self.iface.mainWindow())
+            self.actionAttrezzature = QAction(QIcon(icon_attrezzature), "Attrezzature", self.iface.mainWindow())
+            self.actionBudget = QAction(QIcon(icon_budget), "Budget", self.iface.mainWindow())
+
+            # Connect signals
+            self.actionCantiere.triggered.connect(self.runCantiere)
+            self.actionPersonale.triggered.connect(self.runPersonale)
+            self.actionPresenze.triggered.connect(self.runPresenze)
+            self.actionAttrezzature.triggered.connect(self.runAttrezzature)
+            self.actionBudget.triggered.connect(self.runBudget)
+
+            # Add to toolbar
+            self.toolBarCantiere.addAction(self.actionCantiere)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionPersonale)
+            self.toolBarCantiere.addAction(self.actionPresenze)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionAttrezzature)
+            self.toolBarCantiere.addAction(self.actionBudget)
+
+            # Add to menu
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+
             self._init_stratigraph_sync()
         elif l == 'en':
             settings = QgsSettings()
@@ -937,6 +977,46 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+
+            # === Site Management toolbar ===
+            self.toolBarCantiere = self.iface.addToolBar("pyArchInit - Gestione Cantiere")
+            self.toolBarCantiere.setObjectName("pyArchInitCantiere")
+
+            icon_cantiere = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconCantiere.png'))
+            icon_personale = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPersonale.png'))
+            icon_presenze = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPresenze.png'))
+            icon_attrezzature = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAttrezzature.png'))
+            icon_budget = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconBudget.png'))
+
+            self.actionCantiere = QAction(QIcon(icon_cantiere), "Site Dashboard", self.iface.mainWindow())
+            self.actionPersonale = QAction(QIcon(icon_personale), "Personnel", self.iface.mainWindow())
+            self.actionPresenze = QAction(QIcon(icon_presenze), "Attendance", self.iface.mainWindow())
+            self.actionAttrezzature = QAction(QIcon(icon_attrezzature), "Equipment", self.iface.mainWindow())
+            self.actionBudget = QAction(QIcon(icon_budget), "Budget", self.iface.mainWindow())
+
+            # Connect signals
+            self.actionCantiere.triggered.connect(self.runCantiere)
+            self.actionPersonale.triggered.connect(self.runPersonale)
+            self.actionPresenze.triggered.connect(self.runPresenze)
+            self.actionAttrezzature.triggered.connect(self.runAttrezzature)
+            self.actionBudget.triggered.connect(self.runBudget)
+
+            # Add to toolbar
+            self.toolBarCantiere.addAction(self.actionCantiere)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionPersonale)
+            self.toolBarCantiere.addAction(self.actionPresenze)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionAttrezzature)
+            self.toolBarCantiere.addAction(self.actionBudget)
+
+            # Add to menu
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+
             self._init_stratigraph_sync()
         elif l=='de':
             settings = QgsSettings()
@@ -1272,6 +1352,46 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+
+            # === Baustellen-Verwaltung toolbar ===
+            self.toolBarCantiere = self.iface.addToolBar("pyArchInit - Gestione Cantiere")
+            self.toolBarCantiere.setObjectName("pyArchInitCantiere")
+
+            icon_cantiere = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconCantiere.png'))
+            icon_personale = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPersonale.png'))
+            icon_presenze = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPresenze.png'))
+            icon_attrezzature = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAttrezzature.png'))
+            icon_budget = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconBudget.png'))
+
+            self.actionCantiere = QAction(QIcon(icon_cantiere), "Baustellen-Dashboard", self.iface.mainWindow())
+            self.actionPersonale = QAction(QIcon(icon_personale), "Personal", self.iface.mainWindow())
+            self.actionPresenze = QAction(QIcon(icon_presenze), "Anwesenheit", self.iface.mainWindow())
+            self.actionAttrezzature = QAction(QIcon(icon_attrezzature), "Ausrüstung", self.iface.mainWindow())
+            self.actionBudget = QAction(QIcon(icon_budget), "Budget", self.iface.mainWindow())
+
+            # Connect signals
+            self.actionCantiere.triggered.connect(self.runCantiere)
+            self.actionPersonale.triggered.connect(self.runPersonale)
+            self.actionPresenze.triggered.connect(self.runPresenze)
+            self.actionAttrezzature.triggered.connect(self.runAttrezzature)
+            self.actionBudget.triggered.connect(self.runBudget)
+
+            # Add to toolbar
+            self.toolBarCantiere.addAction(self.actionCantiere)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionPersonale)
+            self.toolBarCantiere.addAction(self.actionPresenze)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionAttrezzature)
+            self.toolBarCantiere.addAction(self.actionBudget)
+
+            # Add to menu
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+
             self._init_stratigraph_sync()
         else:
             settings = QgsSettings()
@@ -1609,6 +1729,46 @@ class PyArchInitPlugin(object):
             self.menu.addActions([self.actionConf, self.actionThesaurus, self.actionDbmanagment, self.actionInfo])
             menuBar = self.iface.mainWindow().menuBar()
             menuBar.addMenu(self.menu)
+
+            # === Site Management toolbar (fallback) ===
+            self.toolBarCantiere = self.iface.addToolBar("pyArchInit - Gestione Cantiere")
+            self.toolBarCantiere.setObjectName("pyArchInitCantiere")
+
+            icon_cantiere = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconCantiere.png'))
+            icon_personale = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPersonale.png'))
+            icon_presenze = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconPresenze.png'))
+            icon_attrezzature = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconAttrezzature.png'))
+            icon_budget = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'iconBudget.png'))
+
+            self.actionCantiere = QAction(QIcon(icon_cantiere), "Site Dashboard", self.iface.mainWindow())
+            self.actionPersonale = QAction(QIcon(icon_personale), "Personnel", self.iface.mainWindow())
+            self.actionPresenze = QAction(QIcon(icon_presenze), "Attendance", self.iface.mainWindow())
+            self.actionAttrezzature = QAction(QIcon(icon_attrezzature), "Equipment", self.iface.mainWindow())
+            self.actionBudget = QAction(QIcon(icon_budget), "Budget", self.iface.mainWindow())
+
+            # Connect signals
+            self.actionCantiere.triggered.connect(self.runCantiere)
+            self.actionPersonale.triggered.connect(self.runPersonale)
+            self.actionPresenze.triggered.connect(self.runPresenze)
+            self.actionAttrezzature.triggered.connect(self.runAttrezzature)
+            self.actionBudget.triggered.connect(self.runBudget)
+
+            # Add to toolbar
+            self.toolBarCantiere.addAction(self.actionCantiere)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionPersonale)
+            self.toolBarCantiere.addAction(self.actionPresenze)
+            self.toolBarCantiere.addSeparator()
+            self.toolBarCantiere.addAction(self.actionAttrezzature)
+            self.toolBarCantiere.addAction(self.actionBudget)
+
+            # Add to menu
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.addPluginToMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+
             self._init_stratigraph_sync()
 
         # Log Rust acceleration status (after all UI is initialized)
@@ -1864,6 +2024,36 @@ class PyArchInitPlugin(object):
         pluginExcel.show()
         self.pluginGui = pluginExcel  # save
 
+    def runCantiere(self):
+        from .tabs.Cantiere import pyarchinit_Cantiere
+        pluginGui = pyarchinit_Cantiere(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui
+
+    def runPersonale(self):
+        from .tabs.Personale import pyarchinit_Personale
+        pluginGui = pyarchinit_Personale(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui
+
+    def runPresenze(self):
+        from .tabs.Presenze import pyarchinit_Presenze
+        pluginGui = pyarchinit_Presenze(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui
+
+    def runAttrezzature(self):
+        from .tabs.Attrezzature import pyarchinit_Attrezzature
+        pluginGui = pyarchinit_Attrezzature(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui
+
+    def runBudget(self):
+        from .tabs.Budget import pyarchinit_Budget
+        pluginGui = pyarchinit_Budget(self.iface)
+        pluginGui.show()
+        self.pluginGui = pluginGui
+
     def unload(self):
         # StratiGraph sync cleanup (locale-independent)
         self._unload_stratigraph_sync()
@@ -1949,6 +2139,19 @@ class PyArchInitPlugin(object):
                 self.plugin_window.close()
                 self.plugin_window = None
 
+            # Gestione Cantiere cleanup
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+            self.iface.removeToolBarIcon(self.actionCantiere)
+            self.iface.removeToolBarIcon(self.actionPersonale)
+            self.iface.removeToolBarIcon(self.actionPresenze)
+            self.iface.removeToolBarIcon(self.actionAttrezzature)
+            self.iface.removeToolBarIcon(self.actionBudget)
+            del self.toolBarCantiere
+
             # remove tool bar
             del self.toolBar
 
@@ -2021,6 +2224,19 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionDbmanagment)
             self.dockWidget.setVisible(False)
             self.iface.removeDockWidget(self.dockWidget)
+            # Gestione Cantiere cleanup
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+            self.iface.removeToolBarIcon(self.actionCantiere)
+            self.iface.removeToolBarIcon(self.actionPersonale)
+            self.iface.removeToolBarIcon(self.actionPresenze)
+            self.iface.removeToolBarIcon(self.actionAttrezzature)
+            self.iface.removeToolBarIcon(self.actionBudget)
+            del self.toolBarCantiere
+
             # remove tool bar
             del self.toolBar
         elif l== 'de':
@@ -2092,6 +2308,20 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionDbmanagment)
             self.dockWidget.setVisible(False)
             self.iface.removeDockWidget(self.dockWidget)
+
+            # Gestione Cantiere cleanup
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+            self.iface.removeToolBarIcon(self.actionCantiere)
+            self.iface.removeToolBarIcon(self.actionPersonale)
+            self.iface.removeToolBarIcon(self.actionPresenze)
+            self.iface.removeToolBarIcon(self.actionAttrezzature)
+            self.iface.removeToolBarIcon(self.actionBudget)
+            del self.toolBarCantiere
+
             # remove tool bar
             del self.toolBar
         else:
@@ -2163,6 +2393,20 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionDbmanagment)
             self.dockWidget.setVisible(False)
             self.iface.removeDockWidget(self.dockWidget)
+
+            # Gestione Cantiere cleanup
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPresenze)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionAttrezzature)
+            self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionBudget)
+            self.iface.removeToolBarIcon(self.actionCantiere)
+            self.iface.removeToolBarIcon(self.actionPersonale)
+            self.iface.removeToolBarIcon(self.actionPresenze)
+            self.iface.removeToolBarIcon(self.actionAttrezzature)
+            self.iface.removeToolBarIcon(self.actionBudget)
+            del self.toolBarCantiere
+
             # remove tool bar
             del self.toolBar
     def showHideDockWidget(self):
