@@ -324,6 +324,13 @@ class SQLiteDBUpdater:
             # Create missing tables for sync compatibility
             self.create_missing_tables()
 
+            # Create site management tables (personale, presenze, attrezzature, budget, computo_metrico)
+            self.update_personale_table()
+            self.update_presenze_table()
+            self.update_attrezzature_table()
+            self.update_budget_table()
+            self.update_computo_metrico_table()
+
             # Create pottery embeddings metadata table for visual similarity search
             self.create_pottery_embeddings_metadata_table()
 
@@ -2070,6 +2077,140 @@ class SQLiteDBUpdater:
                 self.cursor.execute("ANALYZE")
             except:
                 pass
+
+
+    def update_personale_table(self):
+        """Crea personale_table se non esiste"""
+        if not self.table_exists('personale_table'):
+            self.log_message("Creazione tabella personale_table...")
+            self.cursor.execute('''
+                CREATE TABLE personale_table (
+                    id_personale INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    nome TEXT DEFAULT '',
+                    cognome TEXT DEFAULT '',
+                    ruolo TEXT DEFAULT '',
+                    qualifica TEXT DEFAULT '',
+                    codice_fiscale TEXT DEFAULT '',
+                    email TEXT DEFAULT '',
+                    telefono TEXT DEFAULT '',
+                    data_nascita TEXT DEFAULT '',
+                    indirizzo TEXT DEFAULT '',
+                    tipo_contratto TEXT DEFAULT '',
+                    data_inizio_contratto TEXT DEFAULT '',
+                    data_fine_contratto TEXT DEFAULT '',
+                    tariffa_oraria REAL DEFAULT 0,
+                    tariffa_giornaliera REAL DEFAULT 0,
+                    iban TEXT DEFAULT '',
+                    note TEXT DEFAULT '',
+                    attivo INTEGER DEFAULT 1,
+                    entity_uuid TEXT DEFAULT '',
+                    UNIQUE(sito, codice_fiscale)
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE personale_table")
+
+    def update_presenze_table(self):
+        """Crea presenze_table se non esiste"""
+        if not self.table_exists('presenze_table'):
+            self.log_message("Creazione tabella presenze_table...")
+            self.cursor.execute('''
+                CREATE TABLE presenze_table (
+                    id_presenza INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    id_personale INTEGER DEFAULT 0,
+                    data TEXT DEFAULT '',
+                    ora_ingresso TEXT DEFAULT '',
+                    ora_uscita TEXT DEFAULT '',
+                    ore_ordinarie REAL DEFAULT 0,
+                    ore_straordinario REAL DEFAULT 0,
+                    tipo_giornata TEXT DEFAULT '',
+                    turno TEXT DEFAULT '',
+                    area_lavoro TEXT DEFAULT '',
+                    note TEXT DEFAULT '',
+                    costo_giornata REAL DEFAULT 0,
+                    entity_uuid TEXT DEFAULT '',
+                    UNIQUE(sito, id_personale, data, turno)
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE presenze_table")
+
+    def update_attrezzature_table(self):
+        """Crea attrezzature_table se non esiste"""
+        if not self.table_exists('attrezzature_table'):
+            self.log_message("Creazione tabella attrezzature_table...")
+            self.cursor.execute('''
+                CREATE TABLE attrezzature_table (
+                    id_attrezzatura INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    codice_inventario TEXT DEFAULT '',
+                    nome TEXT DEFAULT '',
+                    categoria TEXT DEFAULT '',
+                    marca TEXT DEFAULT '',
+                    modello TEXT DEFAULT '',
+                    numero_serie TEXT DEFAULT '',
+                    proprieta TEXT DEFAULT '',
+                    data_acquisto TEXT DEFAULT '',
+                    costo_acquisto REAL DEFAULT 0,
+                    costo_noleggio_giorno REAL DEFAULT 0,
+                    stato TEXT DEFAULT '',
+                    assegnato_a INTEGER DEFAULT 0,
+                    data_ultima_manutenzione TEXT DEFAULT '',
+                    data_prossima_manutenzione TEXT DEFAULT '',
+                    note TEXT DEFAULT '',
+                    entity_uuid TEXT DEFAULT '',
+                    UNIQUE(sito, codice_inventario)
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE attrezzature_table")
+
+    def update_budget_table(self):
+        """Crea budget_table se non esiste"""
+        if not self.table_exists('budget_table'):
+            self.log_message("Creazione tabella budget_table...")
+            self.cursor.execute('''
+                CREATE TABLE budget_table (
+                    id_budget INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    anno INTEGER DEFAULT 0,
+                    categoria TEXT DEFAULT '',
+                    descrizione TEXT DEFAULT '',
+                    importo_previsto REAL DEFAULT 0,
+                    importo_effettivo REAL DEFAULT 0,
+                    data_registrazione TEXT DEFAULT '',
+                    data_spesa TEXT DEFAULT '',
+                    fornitore TEXT DEFAULT '',
+                    numero_fattura TEXT DEFAULT '',
+                    note TEXT DEFAULT '',
+                    entity_uuid TEXT DEFAULT ''
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE budget_table")
+
+    def update_computo_metrico_table(self):
+        """Crea computo_metrico_table se non esiste"""
+        if not self.table_exists('computo_metrico_table'):
+            self.log_message("Creazione tabella computo_metrico_table...")
+            self.cursor.execute('''
+                CREATE TABLE computo_metrico_table (
+                    id_computo INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sito TEXT DEFAULT '',
+                    nome_calcolo TEXT DEFAULT '',
+                    tipo_calcolo TEXT DEFAULT '',
+                    dem_pre TEXT DEFAULT '',
+                    dem_post TEXT DEFAULT '',
+                    layer_poligono TEXT DEFAULT '',
+                    area_mq REAL DEFAULT 0,
+                    volume_mc REAL DEFAULT 0,
+                    quota_min REAL DEFAULT 0,
+                    quota_max REAL DEFAULT 0,
+                    data_calcolo TEXT DEFAULT '',
+                    fase_scavo TEXT DEFAULT '',
+                    note TEXT DEFAULT '',
+                    entity_uuid TEXT DEFAULT ''
+                )
+            ''')
+            self.updates_made.append("CREATE TABLE computo_metrico_table")
 
 
 def check_and_update_sqlite_db(db_path, parent=None):

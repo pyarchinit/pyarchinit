@@ -64,7 +64,8 @@ from modules.db.pyarchinit_db_mapper import US, UT, SITE, PERIODIZZAZIONE, POTTE
     MEDIA_THUMB, MEDIATOENTITY, MEDIAVIEW, TOMBA, CAMPIONI, PYARCHINIT_THESAURUS_SIGLE, \
     INVENTARIO_LAPIDEI, PDF_ADMINISTRATOR, PYUS, PYUSM, PYSITO_POINT, PYSITO_POLYGON, PYQUOTE, PYQUOTEUSM, \
     PYUS_NEGATIVE, PYSTRUTTURE, PYREPERTI, PYINDIVIDUI, PYCAMPIONI, PYTOMBA, PYDOCUMENTAZIONE, PYLINEERIFERIMENTO, \
-    PYRIPARTIZIONI_SPAZIALI, PYSEZIONI, POTTERY_EMBEDDING_METADATA, FAUNA
+    PYRIPARTIZIONI_SPAZIALI, PYSEZIONI, POTTERY_EMBEDDING_METADATA, FAUNA, \
+    PERSONALE, PRESENZE, ATTREZZATURE, BUDGET, COMPUTO_METRICO
 from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -2215,6 +2216,106 @@ class Pyarchinit_db_management(object):
                                       )
         return mediatoentity
 
+    def insert_personale_values(self, *arg):
+        """Istanzia la classe PERSONALE"""
+        personale = PERSONALE(
+            arg[0],   # id_personale
+            arg[1],   # sito
+            arg[2],   # nome
+            arg[3],   # cognome
+            arg[4],   # ruolo
+            arg[5],   # qualifica
+            arg[6],   # codice_fiscale
+            arg[7],   # email
+            arg[8],   # telefono
+            arg[9],   # data_nascita
+            arg[10],  # indirizzo
+            arg[11],  # tipo_contratto
+            arg[12],  # data_inizio_contratto
+            arg[13],  # data_fine_contratto
+            arg[14],  # tariffa_oraria
+            arg[15],  # tariffa_giornaliera
+            arg[16],  # iban
+            arg[17],  # note
+            arg[18])  # attivo
+        return personale
+
+    def insert_presenze_values(self, *arg):
+        """Istanzia la classe PRESENZE"""
+        presenze = PRESENZE(
+            arg[0],   # id_presenza
+            arg[1],   # sito
+            arg[2],   # id_personale
+            arg[3],   # data
+            arg[4],   # ora_ingresso
+            arg[5],   # ora_uscita
+            arg[6],   # ore_ordinarie
+            arg[7],   # ore_straordinario
+            arg[8],   # tipo_giornata
+            arg[9],   # turno
+            arg[10],  # area_lavoro
+            arg[11],  # note
+            arg[12])  # costo_giornata
+        return presenze
+
+    def insert_attrezzature_values(self, *arg):
+        """Istanzia la classe ATTREZZATURE"""
+        attrezzature = ATTREZZATURE(
+            arg[0],   # id_attrezzatura
+            arg[1],   # sito
+            arg[2],   # codice_inventario
+            arg[3],   # nome
+            arg[4],   # categoria
+            arg[5],   # marca
+            arg[6],   # modello
+            arg[7],   # numero_serie
+            arg[8],   # proprieta
+            arg[9],   # data_acquisto
+            arg[10],  # costo_acquisto
+            arg[11],  # costo_noleggio_giorno
+            arg[12],  # stato
+            arg[13],  # assegnato_a
+            arg[14],  # data_ultima_manutenzione
+            arg[15],  # data_prossima_manutenzione
+            arg[16])  # note
+        return attrezzature
+
+    def insert_budget_values(self, *arg):
+        """Istanzia la classe BUDGET"""
+        budget = BUDGET(
+            arg[0],   # id_budget
+            arg[1],   # sito
+            arg[2],   # anno
+            arg[3],   # categoria
+            arg[4],   # descrizione
+            arg[5],   # importo_previsto
+            arg[6],   # importo_effettivo
+            arg[7],   # data_registrazione
+            arg[8],   # data_spesa
+            arg[9],   # fornitore
+            arg[10],  # numero_fattura
+            arg[11])  # note
+        return budget
+
+    def insert_computo_metrico_values(self, *arg):
+        """Istanzia la classe COMPUTO_METRICO"""
+        computo = COMPUTO_METRICO(
+            arg[0],   # id_computo
+            arg[1],   # sito
+            arg[2],   # nome_calcolo
+            arg[3],   # tipo_calcolo
+            arg[4],   # dem_pre
+            arg[5],   # dem_post
+            arg[6],   # layer_poligono
+            arg[7],   # area_mq
+            arg[8],   # volume_mc
+            arg[9],   # quota_min
+            arg[10],  # quota_max
+            arg[11],  # data_calcolo
+            arg[12],  # fase_scavo
+            arg[13])  # note
+        return computo
+
     ##  def insert_relationship_check_values(self, *arg):
     ##      """Istanzia la classe RELATIONSHIP_CHECK da pyarchinit_db_mapper"""
     ##      relationship_check = RELATIONSHIP_CHECK(arg[0],
@@ -2740,10 +2841,12 @@ class Pyarchinit_db_management(object):
             'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
             'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
             'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
-            'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI, 'FAUNA': FAUNA
+            'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI, 'FAUNA': FAUNA,
+            'PERSONALE': PERSONALE, 'PRESENZE': PRESENZE, 'ATTREZZATURE': ATTREZZATURE,
+            'BUDGET': BUDGET, 'COMPUTO_METRICO': COMPUTO_METRICO
             # Add other table class mappings here
         }
-        
+
         # Get the table class from the mapping
         table_class = table_classes.get(table_class_name)
         if not table_class:
@@ -3534,7 +3637,9 @@ class Pyarchinit_db_management(object):
                 'PYSTRUTTURE': PYSTRUTTURE, 'PYREPERTI': PYREPERTI, 'PYINDIVIDUI': PYINDIVIDUI,
                 'PYCAMPIONI': PYCAMPIONI, 'PYTOMBA': PYTOMBA, 'PYDOCUMENTAZIONE': PYDOCUMENTAZIONE,
                 'PYLINEERIFERIMENTO': PYLINEERIFERIMENTO, 'PYRIPARTIZIONI_SPAZIALI': PYRIPARTIZIONI_SPAZIALI,
-                'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI, 'FAUNA': FAUNA
+                'PYSEZIONI': PYSEZIONI, 'TMA': TMA, 'TMA_MATERIALI': TMA_MATERIALI, 'FAUNA': FAUNA,
+                'PERSONALE': PERSONALE, 'PRESENZE': PRESENZE, 'ATTREZZATURE': ATTREZZATURE,
+                'BUDGET': BUDGET, 'COMPUTO_METRICO': COMPUTO_METRICO
             }
 
             table_class = table_classes.get(CD)

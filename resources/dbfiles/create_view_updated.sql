@@ -943,3 +943,26 @@ GRANT SELECT ON public.pyarchinit_ut_polygon_view TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_point_gid_seq TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_line_gid_seq TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_polygon_gid_seq TO PUBLIC;
+
+-- Riepilogo presenze per personale (Gestione Cantiere)
+CREATE OR REPLACE VIEW public.presenze_personale_view AS
+ SELECT p.id_presenza,
+    p.sito,
+    p.data,
+    p.ora_ingresso,
+    p.ora_uscita,
+    p.ore_ordinarie,
+    p.ore_straordinario,
+    p.tipo_giornata,
+    p.turno,
+    p.area_lavoro,
+    p.costo_giornata,
+    pers.nome,
+    pers.cognome,
+    pers.ruolo,
+    pers.tariffa_oraria,
+    pers.tariffa_giornaliera
+   FROM presenze_table p
+     JOIN personale_table pers ON p.sito = pers.sito AND p.id_personale = pers.id_personale;
+
+ALTER VIEW public.presenze_personale_view OWNER TO postgres;

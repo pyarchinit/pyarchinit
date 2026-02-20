@@ -57,6 +57,12 @@ class PostgresDbUpdater:
             self.update_ut_table()
             # Aggiorna inventario_materiali_table con colonne mancanti (quota_usm, ecc.)
             self.update_inventario_materiali_table()
+            # Crea tabelle gestione sito (personale, presenze, attrezzature, budget, computo_metrico)
+            self.update_personale_table()
+            self.update_presenze_table()
+            self.update_attrezzature_table()
+            self.update_budget_table()
+            self.update_computo_metrico_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1922,6 +1928,185 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore creando indici di performance: {e}")
+
+
+    def update_personale_table(self):
+        """Crea personale_table se non esiste"""
+        if self.table_exists('personale_table'):
+            return
+        self.log_message("Creazione tabella personale_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS personale_table (
+                    id_personale BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    nome TEXT,
+                    cognome TEXT,
+                    ruolo TEXT,
+                    qualifica TEXT,
+                    codice_fiscale TEXT,
+                    email TEXT,
+                    telefono TEXT,
+                    data_nascita TEXT,
+                    indirizzo TEXT,
+                    tipo_contratto TEXT,
+                    data_inizio_contratto TEXT,
+                    data_fine_contratto TEXT,
+                    tariffa_oraria DOUBLE PRECISION,
+                    tariffa_giornaliera DOUBLE PRECISION,
+                    iban TEXT,
+                    note TEXT,
+                    attivo INTEGER DEFAULT 1,
+                    entity_uuid TEXT,
+                    UNIQUE(sito, codice_fiscale)
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella personale_table creata con successo")
+            self.updates_made.append("CREATE TABLE personale_table")
+        except Exception as e:
+            self.log_message(f"Errore creando personale_table: {e}")
+
+    def update_presenze_table(self):
+        """Crea presenze_table se non esiste"""
+        if self.table_exists('presenze_table'):
+            return
+        self.log_message("Creazione tabella presenze_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS presenze_table (
+                    id_presenza BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    id_personale INTEGER DEFAULT 0,
+                    data TEXT,
+                    ora_ingresso TEXT,
+                    ora_uscita TEXT,
+                    ore_ordinarie DOUBLE PRECISION,
+                    ore_straordinario DOUBLE PRECISION,
+                    tipo_giornata TEXT,
+                    turno TEXT,
+                    area_lavoro TEXT,
+                    note TEXT,
+                    costo_giornata DOUBLE PRECISION,
+                    entity_uuid TEXT,
+                    UNIQUE(sito, id_personale, data, turno)
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella presenze_table creata con successo")
+            self.updates_made.append("CREATE TABLE presenze_table")
+        except Exception as e:
+            self.log_message(f"Errore creando presenze_table: {e}")
+
+    def update_attrezzature_table(self):
+        """Crea attrezzature_table se non esiste"""
+        if self.table_exists('attrezzature_table'):
+            return
+        self.log_message("Creazione tabella attrezzature_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS attrezzature_table (
+                    id_attrezzatura BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    codice_inventario TEXT,
+                    nome TEXT,
+                    categoria TEXT,
+                    marca TEXT,
+                    modello TEXT,
+                    numero_serie TEXT,
+                    proprieta TEXT,
+                    data_acquisto TEXT,
+                    costo_acquisto DOUBLE PRECISION,
+                    costo_noleggio_giorno DOUBLE PRECISION,
+                    stato TEXT,
+                    assegnato_a INTEGER DEFAULT 0,
+                    data_ultima_manutenzione TEXT,
+                    data_prossima_manutenzione TEXT,
+                    note TEXT,
+                    entity_uuid TEXT,
+                    UNIQUE(sito, codice_inventario)
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella attrezzature_table creata con successo")
+            self.updates_made.append("CREATE TABLE attrezzature_table")
+        except Exception as e:
+            self.log_message(f"Errore creando attrezzature_table: {e}")
+
+    def update_budget_table(self):
+        """Crea budget_table se non esiste"""
+        if self.table_exists('budget_table'):
+            return
+        self.log_message("Creazione tabella budget_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS budget_table (
+                    id_budget BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    anno INTEGER DEFAULT 0,
+                    categoria TEXT,
+                    descrizione TEXT,
+                    importo_previsto DOUBLE PRECISION,
+                    importo_effettivo DOUBLE PRECISION,
+                    data_registrazione TEXT,
+                    data_spesa TEXT,
+                    fornitore TEXT,
+                    numero_fattura TEXT,
+                    note TEXT,
+                    entity_uuid TEXT
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella budget_table creata con successo")
+            self.updates_made.append("CREATE TABLE budget_table")
+        except Exception as e:
+            self.log_message(f"Errore creando budget_table: {e}")
+
+    def update_computo_metrico_table(self):
+        """Crea computo_metrico_table se non esiste"""
+        if self.table_exists('computo_metrico_table'):
+            return
+        self.log_message("Creazione tabella computo_metrico_table...")
+        try:
+            from sqlalchemy import text
+            create_sql = text("""
+                CREATE TABLE IF NOT EXISTS computo_metrico_table (
+                    id_computo BIGSERIAL PRIMARY KEY,
+                    sito TEXT,
+                    nome_calcolo TEXT,
+                    tipo_calcolo TEXT,
+                    dem_pre TEXT,
+                    dem_post TEXT,
+                    layer_poligono TEXT,
+                    area_mq DOUBLE PRECISION,
+                    volume_mc DOUBLE PRECISION,
+                    quota_min DOUBLE PRECISION,
+                    quota_max DOUBLE PRECISION,
+                    data_calcolo TEXT,
+                    fase_scavo TEXT,
+                    note TEXT,
+                    entity_uuid TEXT
+                )
+            """)
+            with self.db_manager.engine.connect() as conn:
+                conn.execute(create_sql)
+                conn.execute(text("COMMIT"))
+            self.log_message("Tabella computo_metrico_table creata con successo")
+            self.updates_made.append("CREATE TABLE computo_metrico_table")
+        except Exception as e:
+            self.log_message(f"Errore creando computo_metrico_table: {e}")
 
 
 def check_and_update_postgres_db(db_manager, parent=None):

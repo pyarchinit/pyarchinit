@@ -3722,3 +3722,110 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- PostgreSQL database dump complete
 --
+
+-- =============================================
+-- GESTIONE CANTIERE MODULE
+-- =============================================
+
+CREATE TABLE public.personale_table (
+    id_personale BIGSERIAL PRIMARY KEY,
+    sito text,
+    nome text,
+    cognome text,
+    ruolo text,
+    qualifica text,
+    codice_fiscale text,
+    email text,
+    telefono text,
+    data_nascita text,
+    indirizzo text,
+    tipo_contratto text,
+    data_inizio_contratto text,
+    data_fine_contratto text,
+    tariffa_oraria double precision,
+    tariffa_giornaliera double precision,
+    iban text,
+    note text,
+    attivo integer DEFAULT 1,
+    entity_uuid text,
+    UNIQUE(sito, codice_fiscale)
+);
+ALTER TABLE public.personale_table OWNER TO postgres;
+
+CREATE TABLE public.presenze_table (
+    id_presenza BIGSERIAL PRIMARY KEY,
+    sito text,
+    id_personale integer,
+    data text,
+    ora_ingresso text,
+    ora_uscita text,
+    ore_ordinarie double precision,
+    ore_straordinario double precision,
+    tipo_giornata text,
+    turno text,
+    area_lavoro text,
+    note text,
+    costo_giornata double precision,
+    entity_uuid text,
+    UNIQUE(sito, id_personale, data, turno)
+);
+ALTER TABLE public.presenze_table OWNER TO postgres;
+
+CREATE TABLE public.attrezzature_table (
+    id_attrezzatura BIGSERIAL PRIMARY KEY,
+    sito text,
+    codice_inventario text,
+    nome text,
+    categoria text,
+    marca text,
+    modello text,
+    numero_serie text,
+    proprieta text,
+    data_acquisto text,
+    costo_acquisto double precision,
+    costo_noleggio_giorno double precision,
+    stato text,
+    assegnato_a integer,
+    data_ultima_manutenzione text,
+    data_prossima_manutenzione text,
+    note text,
+    entity_uuid text,
+    UNIQUE(sito, codice_inventario)
+);
+ALTER TABLE public.attrezzature_table OWNER TO postgres;
+
+CREATE TABLE public.budget_table (
+    id_budget BIGSERIAL PRIMARY KEY,
+    sito text,
+    anno integer,
+    categoria text,
+    descrizione text,
+    importo_previsto double precision,
+    importo_effettivo double precision,
+    data_registrazione text,
+    data_spesa text,
+    fornitore text,
+    numero_fattura text,
+    note text,
+    entity_uuid text
+);
+ALTER TABLE public.budget_table OWNER TO postgres;
+
+CREATE TABLE public.computo_metrico_table (
+    id_computo BIGSERIAL PRIMARY KEY,
+    sito text,
+    nome_calcolo text,
+    tipo_calcolo text,
+    dem_pre text,
+    dem_post text,
+    layer_poligono text,
+    area_mq double precision,
+    volume_mc double precision,
+    quota_min double precision,
+    quota_max double precision,
+    data_calcolo text,
+    fase_scavo text,
+    note text,
+    entity_uuid text
+);
+ALTER TABLE public.computo_metrico_table OWNER TO postgres;

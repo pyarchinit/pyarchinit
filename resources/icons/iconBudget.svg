@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="coin1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF176"/>
+      <stop offset="40%" style="stop-color:#FFD54F"/>
+      <stop offset="100%" style="stop-color:#F9A825"/>
+    </linearGradient>
+    <linearGradient id="coin_edge" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB300"/>
+      <stop offset="100%" style="stop-color:#E65100"/>
+    </linearGradient>
+    <linearGradient id="sheet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF"/>
+      <stop offset="100%" style="stop-color:#E8EAF6"/>
+    </linearGradient>
+    <linearGradient id="pie1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF8A65"/>
+      <stop offset="100%" style="stop-color:#E64A19"/>
+    </linearGradient>
+    <linearGradient id="pie2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4FC3F7"/>
+      <stop offset="100%" style="stop-color:#0277BD"/>
+    </linearGradient>
+    <linearGradient id="pie3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#81C784"/>
+      <stop offset="100%" style="stop-color:#2E7D32"/>
+    </linearGradient>
+    <linearGradient id="pie4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD54F"/>
+      <stop offset="100%" style="stop-color:#F9A825"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#00000040"/>
+    </filter>
+  </defs>
+
+  <!-- Ground -->
+  <ellipse cx="128" cy="232" rx="100" ry="15" fill="#D7CCC8" opacity="0.5"/>
+
+  <!-- Spreadsheet/ledger (background) -->
+  <g filter="url(#shadow)">
+    <rect x="25" y="30" width="130" height="170" rx="8" fill="url(#sheet)" stroke="#BDBDBD" stroke-width="2"/>
+    <!-- Header row -->
+    <rect x="25" y="30" width="130" height="28" rx="8" fill="#FF8A65" opacity="0.9"/>
+    <rect x="25" y="48" width="130" height="10" fill="#FF8A65" opacity="0.9"/>
+    <text x="90" y="50" text-anchor="middle" fill="white" font-size="13" font-weight="bold" font-family="Arial">BUDGET</text>
+
+    <!-- Table rows -->
+    <line x1="35" y1="80" x2="145" y2="80" stroke="#E0E0E0" stroke-width="1"/>
+    <line x1="35" y1="100" x2="145" y2="100" stroke="#E0E0E0" stroke-width="1"/>
+    <line x1="35" y1="120" x2="145" y2="120" stroke="#E0E0E0" stroke-width="1"/>
+    <line x1="35" y1="140" x2="145" y2="140" stroke="#E0E0E0" stroke-width="1"/>
+    <line x1="35" y1="160" x2="145" y2="160" stroke="#E0E0E0" stroke-width="1"/>
+    <!-- Vertical divider -->
+    <line x1="100" y1="58" x2="100" y2="190" stroke="#E0E0E0" stroke-width="1"/>
+
+    <!-- Row labels -->
+    <g fill="#5D4037" font-size="9" font-family="Arial">
+      <text x="40" y="74">Personale</text>
+      <text x="40" y="94">Attrezzi</text>
+      <text x="40" y="114">Materiali</text>
+      <text x="40" y="134">Trasporti</text>
+      <text x="40" y="154">Analisi</text>
+    </g>
+    <!-- Values -->
+    <g fill="#2E7D32" font-size="9" font-weight="bold" font-family="Arial">
+      <text x="108" y="74">€ 12.500</text>
+      <text x="108" y="94">€ 3.200</text>
+      <text x="108" y="114">€ 1.800</text>
+      <text x="108" y="134">€ 2.100</text>
+      <text x="108" y="154">€ 4.500</text>
+    </g>
+    <!-- Total -->
+    <line x1="35" y1="168" x2="145" y2="168" stroke="#5D4037" stroke-width="2"/>
+    <text x="40" y="185" fill="#BF360C" font-size="10" font-weight="bold" font-family="Arial">Totale</text>
+    <text x="108" y="185" fill="#BF360C" font-size="10" font-weight="bold" font-family="Arial">€ 24.100</text>
+  </g>
+
+  <!-- Pie chart (right side) -->
+  <g filter="url(#shadow)" transform="translate(160, 95)">
+    <!-- Pie segments (simplified) -->
+    <circle cx="42" cy="42" r="42" fill="url(#pie3)"/>
+    <path d="M 42 42 L 42 0 A 42 42 0 0 1 84 42 Z" fill="url(#pie1)"/>
+    <path d="M 42 42 L 84 42 A 42 42 0 0 1 42 84 Z" fill="url(#pie2)"/>
+    <path d="M 42 42 L 42 84 A 42 42 0 0 1 12 72 Z" fill="url(#pie4)"/>
+    <!-- Center hole (donut) -->
+    <circle cx="42" cy="42" r="18" fill="white" opacity="0.9"/>
+    <text x="42" y="46" text-anchor="middle" fill="#5D4037" font-size="10" font-weight="bold" font-family="Arial">%</text>
+  </g>
+
+  <!-- Coins stack (bottom left) -->
+  <g filter="url(#shadow)" transform="translate(30, 170)">
+    <!-- Coin stack -->
+    <ellipse cx="35" cy="50" rx="25" ry="8" fill="url(#coin_edge)"/>
+    <ellipse cx="35" cy="46" rx="25" ry="8" fill="url(#coin1)" stroke="#F57F17" stroke-width="1"/>
+    <ellipse cx="35" cy="42" rx="25" ry="8" fill="url(#coin_edge)"/>
+    <ellipse cx="35" cy="38" rx="25" ry="8" fill="url(#coin1)" stroke="#F57F17" stroke-width="1"/>
+    <ellipse cx="35" cy="34" rx="25" ry="8" fill="url(#coin_edge)"/>
+    <ellipse cx="35" cy="30" rx="25" ry="8" fill="url(#coin1)" stroke="#F57F17" stroke-width="1"/>
+    <!-- Euro symbol on top coin -->
+    <text x="35" y="35" text-anchor="middle" fill="#E65100" font-size="14" font-weight="bold" font-family="Arial">€</text>
+  </g>
+</svg>

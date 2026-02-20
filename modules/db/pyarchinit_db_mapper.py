@@ -72,6 +72,11 @@ from modules.db.entities.TOMBA import TOMBA
 from modules.db.entities.US import US
 from modules.db.entities.US_TOIMP import US_TOIMP
 from modules.db.entities.UT import UT
+from modules.db.entities.PERSONALE import PERSONALE
+from modules.db.entities.PRESENZE import PRESENZE
+from modules.db.entities.ATTREZZATURE import ATTREZZATURE
+from modules.db.entities.BUDGET import BUDGET
+from modules.db.entities.COMPUTO_METRICO import COMPUTO_METRICO
 from modules.db.structures.Archeozoology_table import Archeozoology_table
 from modules.db.structures.Campioni_table import Campioni_table
 from modules.db.structures.Fauna_table import Fauna_table
@@ -114,6 +119,11 @@ from modules.db.structures.pytomba import pytomba
 from modules.db.structures.pyunitastratigrafiche import pyunitastratigrafiche
 from modules.db.structures.pyunitastratigrafiche_usm import pyunitastratigrafiche_usm
 from modules.db.structures.pyus_negative import pyus_negative
+from modules.db.structures.Personale_table import Personale_table
+from modules.db.structures.Presenze_table import Presenze_table
+from modules.db.structures.Attrezzature_table import Attrezzature_table
+from modules.db.structures.Budget_table import Budget_table
+from modules.db.structures.Computo_metrico_table import Computo_metrico_table
 
 try:
     # mapper - Archeozoology
@@ -244,6 +254,13 @@ try:
     
     # mapper
     mapper(TMA_MATERIALI, Tma_materiali_table.tma_materiali_table)
+
+    # mapper - Gestione Cantiere
+    mapper(PERSONALE, Personale_table.personale_table)
+    mapper(PRESENZE, Presenze_table.presenze_table)
+    mapper(ATTREZZATURE, Attrezzature_table.attrezzature_table)
+    mapper(BUDGET, Budget_table.budget_table)
+    mapper(COMPUTO_METRICO, Computo_metrico_table.computo_metrico_table)
 
 except Exception as e:
     print(e)

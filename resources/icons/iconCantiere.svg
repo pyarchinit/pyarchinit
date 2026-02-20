@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <!-- Helmet gradient -->
+    <linearGradient id="helmet" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD54F"/>
+      <stop offset="50%" style="stop-color:#FFB300"/>
+      <stop offset="100%" style="stop-color:#FF8F00"/>
+    </linearGradient>
+    <!-- Ground gradient -->
+    <linearGradient id="ground" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#A1887F"/>
+      <stop offset="100%" style="stop-color:#795548"/>
+    </linearGradient>
+    <!-- Chart bar gradient -->
+    <linearGradient id="bar1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4FC3F7"/>
+      <stop offset="100%" style="stop-color:#0288D1"/>
+    </linearGradient>
+    <linearGradient id="bar2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#81C784"/>
+      <stop offset="100%" style="stop-color:#388E3C"/>
+    </linearGradient>
+    <linearGradient id="bar3" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB74D"/>
+      <stop offset="100%" style="stop-color:#F57C00"/>
+    </linearGradient>
+    <!-- Shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="2" dy="3" stdDeviation="4" flood-color="#00000040"/>
+    </filter>
+  </defs>
+
+  <!-- Ground plane -->
+  <ellipse cx="128" cy="225" rx="100" ry="18" fill="#D7CCC8" opacity="0.6"/>
+
+  <!-- Hard hat (construction helmet) -->
+  <g filter="url(#shadow)">
+    <!-- Helmet dome -->
+    <path d="M 60 105 Q 60 45, 128 40 Q 196 45, 196 105 L 196 115 Q 196 120, 191 120 L 65 120 Q 60 120, 60 115 Z" fill="url(#helmet)" stroke="#E65100" stroke-width="2"/>
+    <!-- Helmet brim -->
+    <path d="M 45 115 Q 45 108, 55 108 L 201 108 Q 211 108, 211 115 Q 211 128, 201 128 L 55 128 Q 45 128, 45 115 Z" fill="url(#helmet)" stroke="#E65100" stroke-width="2"/>
+    <!-- Helmet ridge -->
+    <rect x="120" y="40" width="16" height="70" rx="4" fill="#FFC107" stroke="#E65100" stroke-width="1.5"/>
+    <!-- Helmet shine -->
+    <path d="M 80 60 Q 90 50, 128 48 Q 140 48, 150 52" fill="none" stroke="#FFF9C4" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  </g>
+
+  <!-- Mini chart below helmet -->
+  <g filter="url(#shadow)" transform="translate(0, 5)">
+    <!-- Chart background -->
+    <rect x="62" y="140" width="132" height="80" rx="8" fill="white" stroke="#BDBDBD" stroke-width="1.5" opacity="0.95"/>
+
+    <!-- Chart axes -->
+    <line x1="80" y1="150" x2="80" y2="210" stroke="#757575" stroke-width="2" stroke-linecap="round"/>
+    <line x1="78" y1="208" x2="180" y2="208" stroke="#757575" stroke-width="2" stroke-linecap="round"/>
+
+    <!-- Chart bars -->
+    <rect x="90" y="175" width="22" height="33" rx="3" fill="url(#bar1)"/>
+    <rect x="117" y="160" width="22" height="48" rx="3" fill="url(#bar2)"/>
+    <rect x="144" y="168" width="22" height="40" rx="3" fill="url(#bar3)"/>
+
+    <!-- Trend line -->
+    <polyline points="101,172 128,155 155,163" fill="none" stroke="#E53935" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="101" cy="172" r="3" fill="#E53935"/>
+    <circle cx="128" cy="155" r="3" fill="#E53935"/>
+    <circle cx="155" cy="163" r="3" fill="#E53935"/>
+  </g>
+</svg>

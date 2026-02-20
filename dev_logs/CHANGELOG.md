@@ -5,6 +5,37 @@
 
 ---
 
+## [5.0.5-alpha] - 2026-02-20
+
+### Aggiunto / Added
+- **Database Updaters per Site Management**: Aggiunti metodi CREATE TABLE per le 5 nuove tabelle (`personale_table`, `presenze_table`, `attrezzature_table`, `budget_table`, `computo_metrico_table`) sia nel SQLite updater che nel PostgreSQL updater. I database esistenti riceveranno le nuove tabelle automaticamente alla prossima connessione. Il SQLite updater usa `self.cursor.execute()` con `table_exists()` guard, il PostgreSQL updater usa il pattern `with self.db_manager.engine.connect()` con `sqlalchemy.text()` e `COMMIT` esplicito. / Added CREATE TABLE methods for the 5 new tables (`personale_table`, `presenze_table`, `attrezzature_table`, `budget_table`, `computo_metrico_table`) to both the SQLite and PostgreSQL database updaters. Existing databases will receive the new tables automatically on next connection. The SQLite updater uses `self.cursor.execute()` with `table_exists()` guard; the PostgreSQL updater uses the `with self.db_manager.engine.connect()` pattern with `sqlalchemy.text()` and explicit `COMMIT`.
+
+#### File modificati / Modified files
+- `modules/db/sqlite_db_updater.py`
+- `modules/db/postgres_db_updater.py`
+
+- **Mapper registration + DB Manager per Site Management**: Registrate le 5 nuove entita (PERSONALE, PRESENZE, ATTREZZATURE, BUDGET, COMPUTO_METRICO) nel sistema di mapping SQLAlchemy e nel DB manager. Aggiunti import entita e strutture, chiamate `mapper()`, 5 metodi `insert_*_values()`, e voci nei dizionari `table_classes` di `query_bool` e `group_by`. / Registered the 5 new entity classes (PERSONALE, PRESENZE, ATTREZZATURE, BUDGET, COMPUTO_METRICO) in the SQLAlchemy mapping system and DB manager. Added entity and structure imports, `mapper()` calls, 5 `insert_*_values()` methods, and entries in the `table_classes` dictionaries of `query_bool` and `group_by`.
+
+#### File modificati / Modified files
+- `modules/db/pyarchinit_db_mapper.py`
+- `modules/db/pyarchinit_db_manager.py`
+
+- **Strutture tabelle Site Management**: Creati 10 file di definizione tabelle per il modulo Site Management (5 in `modules/db/structures/` e 5 in `modules/db/structures_metadata/`). Le tabelle coprono: personale (`personale_table`), presenze (`presenze_table`), attrezzature (`attrezzature_table`), budget (`budget_table`) e computo metrico (`computo_metrico_table`). Le strutture seguono i pattern esistenti del progetto (Pattern A con `MetaData()` a livello di classe e Pattern B con `@classmethod define_table`). / Created 10 table definition files for the Site Management module (5 in `modules/db/structures/` and 5 in `modules/db/structures_metadata/`). Tables cover: personnel (`personale_table`), attendance (`presenze_table`), equipment (`attrezzature_table`), budget (`budget_table`) and metric computation (`computo_metrico_table`). Structures follow existing project patterns (Pattern A with class-level `MetaData()` and Pattern B with `@classmethod define_table`).
+
+#### File creati / Created files
+- `modules/db/structures/Personale_table.py`
+- `modules/db/structures/Presenze_table.py`
+- `modules/db/structures/Attrezzature_table.py`
+- `modules/db/structures/Budget_table.py`
+- `modules/db/structures/Computo_metrico_table.py`
+- `modules/db/structures_metadata/Personale_table.py`
+- `modules/db/structures_metadata/Presenze_table.py`
+- `modules/db/structures_metadata/Attrezzature_table.py`
+- `modules/db/structures_metadata/Budget_table.py`
+- `modules/db/structures_metadata/Computo_metrico_table.py`
+
+---
+
 ## [5.0.5-alpha] - 2026-02-19
 
 ### Corretto / Fixed
@@ -62,6 +93,61 @@
 #### File modificati / Modified files
 - `gui/pyarchinitConfigDialog.py` (reso non-bloccante select_version_sql(), migliorati messaggi errore)
 - `metadata.txt` (versione patch)
+
+---
+
+## [5.3.22-alpha] - 2026-02-17
+
+### feat(ui): Splash screen non-bloccante con durata minima 5s / Smooth non-blocking splash screen with 5s minimum duration
+
+- **IT**: Reso lo splash screen non-bloccante con chiamate `processEvents()` durante l'inizializzazione, garantendo che la UI rimanga reattiva. Aggiunta durata minima di 5 secondi con messaggi di stato rotanti. Aggiunta animazione di fade-out di 0.6s. Lo splash non si blocca piu durante le operazioni pesanti di init.
+- **EN**: Made splash screen non-blocking with `processEvents()` calls during initialization, ensuring the UI remains responsive. Added 5-second minimum duration with rotating status messages. Added smooth 0.6s fade-out animation. Splash no longer freezes during heavy init operations.
+
+#### File modificati / Modified files
+- `pyarchinitPlugin.py` (splash screen non-bloccante con processEvents, durata minima 5s, fade-out animato)
+
+---
+
+## [5.3.21-alpha] - 2026-02-17
+
+### fix(db): Compatibilita SQLAlchemy 2.x in db_createdump e db_migrations / SQLAlchemy 2.x compatibility in db_createdump and db_migrations
+
+- **IT**: Risolto errore `'Connection' object has no attribute 'rollback'/'commit'` in `db_createdump.py`. Cambiato al pattern esplicito `transaction = conn.begin()` compatibile con SA 1.x e 2.x. Corretto `db_migrations.py` per usare il context manager `engine.begin()`.
+- **EN**: Fixed `'Connection' object has no attribute 'rollback'/'commit'` error in `db_createdump.py`. Changed to explicit `transaction = conn.begin()` pattern compatible with SA 1.x and 2.x. Fixed `db_migrations.py` to use `engine.begin()` context manager.
+
+#### File modificati / Modified files
+- `modules/db/db_createdump.py` (pattern transazione esplicito per SA 2.x / explicit transaction pattern for SA 2.x)
+- `modules/db/db_migrations.py` (engine.begin() context manager)
+
+---
+
+## [5.3.20-alpha] - 2026-02-17
+
+### fix(deps): Gestione commenti inline in requirements.txt / Strip inline comments from requirements.txt when parsing versions
+
+- **IT**: Risolto `ValueError` quando le righe di `requirements.txt` contengono commenti inline come `pkg>=1.0  # Optional`. Il parser ora rimuove i commenti prima di confrontare le versioni.
+- **EN**: Fixed `ValueError` when `requirements.txt` lines have inline comments like `pkg>=1.0  # Optional`. The parser now strips comments before comparing versions.
+
+#### File modificati / Modified files
+- `__init__.py` (strip dei commenti inline nel parsing di requirements.txt)
+
+---
+
+## [5.3.19-alpha] - 2026-02-17
+
+### fix(deps): Isolamento dipendenze plugin con ext_libs e correzione compatibilita versioni / Isolate plugin dependencies with ext_libs and fix version compatibility
+
+- **IT**: Creata directory `ext_libs/` per isolare le dipendenze del plugin dai pacchetti bundled di QGIS. Corretti tutti i pin `==` in `requirements.txt` sostituiti con versioni minime `>=` (molte versioni pinnate non esistevano per Python 3.9). Corrette le versioni dei pacchetti langchain (erano completamente inventate, es. `langchain==1.2.10` non esiste). Aggiunta lista `QGIS_PROTECTED_PACKAGES` per evitare di sovrascrivere numpy, scipy, sip, pyqt5. Corretto `PackageManager.install()` su tutte le piattaforme per installare in `ext_libs/` con `--target`. Corretta logica di confronto versioni per pacchetti 0.x (es. GeoAlchemy2 0.9 vs 0.18).
+- **EN**: Created `ext_libs/` directory for dependency isolation from QGIS-bundled packages. Fixed all pinned `==` versions in `requirements.txt` replaced with `>=` minimum versions (many pinned versions didn't exist for Python 3.9). Fixed langchain package versions (were completely fabricated, e.g. `langchain==1.2.10` doesn't exist). Added `QGIS_PROTECTED_PACKAGES` to prevent overriding numpy, scipy, sip, pyqt5. Fixed `PackageManager.install()` on all platforms to install to `ext_libs/` with `--target`. Fixed version checking logic for 0.x packages (GeoAlchemy2 0.9 vs 0.18).
+
+#### File creati / Created files
+- `ext_libs/` (directory per dipendenze isolate del plugin / directory for isolated plugin dependencies)
+
+#### File modificati / Modified files
+- `requirements.txt` (tutte le versioni corrette da == a >= con versioni reali / all versions fixed from == to >= with real versions)
+- `__init__.py` (QGIS_PROTECTED_PACKAGES, PackageManager.install con --target ext_libs, logica confronto versioni 0.x / QGIS_PROTECTED_PACKAGES, PackageManager.install with --target ext_libs, 0.x version comparison logic)
+- `modules/db/db_createdump.py` (compatibilita SA 2.x / SA 2.x compatibility)
+- `modules/db/db_migrations.py` (engine.begin() context manager)
 
 ---
 
