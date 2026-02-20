@@ -51,7 +51,13 @@ TABLE_NAME_MAPPINGS = {
     'pysezioni_table': 'PYSEZIONI',
     'pysito_point_table': 'PYSITO_POINT',
     'pysito_polygon_table': 'PYSITO_POLYGON',
-    'ut_table': 'UT'
+    'ut_table': 'UT',
+
+    # Cantiere (Site Management) tables
+    'cantiere_personale_table': 'cantiere_personale_table',
+    'cantiere_presenze_table': 'cantiere_presenze_table',
+    'cantiere_attrezzature_table': 'cantiere_attrezzature_table',
+    'cantiere_budget_table': 'cantiere_budget_table',
 }
 
 # Reverse mapping for lookups

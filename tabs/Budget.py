@@ -48,6 +48,20 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         MSG_BOX_TITLE = "PyArchInit - Budget Form"
     elif L == 'de':
         MSG_BOX_TITLE = "PyArchInit - Budgetformular"
+    elif L == 'es':
+        MSG_BOX_TITLE = "PyArchInit - Presupuesto de Obra"
+    elif L == 'fr':
+        MSG_BOX_TITLE = "PyArchInit - Budget de Chantier"
+    elif L == 'ar':
+        MSG_BOX_TITLE = "PyArchInit - ميزانية الموقع"
+    elif L == 'ca':
+        MSG_BOX_TITLE = "PyArchInit - Pressupost d'Obra"
+    elif L == 'ro':
+        MSG_BOX_TITLE = "PyArchInit - Buget Șantier"
+    elif L == 'pt':
+        MSG_BOX_TITLE = "PyArchInit - Orçamento de Obra"
+    elif L == 'el':
+        MSG_BOX_TITLE = "PyArchInit - Προϋπολογισμός Εργοταξίου"
     else:
         MSG_BOX_TITLE = "PyArchInit - Budget Form"
 
@@ -62,6 +76,20 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     elif L == 'de':
         STATUS_ITEMS = {"b": "Aktuell", "f": "Finden", "n": "Neuer Rekord"}
+    elif L == 'es':
+        STATUS_ITEMS = {"b": "navegar", "f": "buscar", "n": "nuevo registro"}
+    elif L == 'fr':
+        STATUS_ITEMS = {"b": "parcourir", "f": "rechercher", "n": "nouveau"}
+    elif L == 'ar':
+        STATUS_ITEMS = {"b": "تصفح", "f": "بحث", "n": "جديد"}
+    elif L == 'ca':
+        STATUS_ITEMS = {"b": "navegar", "f": "cercar", "n": "nou registre"}
+    elif L == 'ro':
+        STATUS_ITEMS = {"b": "navigare", "f": "căutare", "n": "înregistrare nouă"}
+    elif L == 'pt':
+        STATUS_ITEMS = {"b": "navegar", "f": "pesquisar", "n": "novo registo"}
+    elif L == 'el':
+        STATUS_ITEMS = {"b": "περιήγηση", "f": "αναζήτηση", "n": "νέα εγγραφή"}
     else:
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
 
@@ -72,6 +100,20 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
     elif L == 'de':
         SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
+    elif L == 'es':
+        SORTED_ITEMS = {"n": "No ordenados", "o": "Ordenados"}
+    elif L == 'fr':
+        SORTED_ITEMS = {"n": "Non triés", "o": "Triés"}
+    elif L == 'ar':
+        SORTED_ITEMS = {"n": "غير مرتب", "o": "مرتب"}
+    elif L == 'ca':
+        SORTED_ITEMS = {"n": "No ordenats", "o": "Ordenats"}
+    elif L == 'ro':
+        SORTED_ITEMS = {"n": "Nesortat", "o": "Sortat"}
+    elif L == 'pt':
+        SORTED_ITEMS = {"n": "Não ordenados", "o": "Ordenados"}
+    elif L == 'el':
+        SORTED_ITEMS = {"n": "Μη ταξινομημένα", "o": "Ταξινομημένα"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
 
@@ -351,6 +393,12 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         'note'
     ]
 
+    LANG_TO_THESAURUS = {
+        'it': 'IT', 'en': 'en_US', 'de': 'de_DE', 'es': 'es_ES',
+        'fr': 'fr_FR', 'ar': 'ar_AR', 'ca': 'ca_ES', 'ro': 'ro_RO',
+        'pt': 'pt_PT', 'el': 'el_GR'
+    }
+
     DB_SERVER = "not defined"
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -449,6 +497,18 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        # Thesaurus-based combobox population
+        th_lang = self.LANG_TO_THESAURUS.get(self.L, 'en_US')
+        try:
+            thesaurus = self.DB_MANAGER.query_thesaurus_batch(
+                'cantiere_budget_table', th_lang)
+
+            categoria_values = [v.sigla_estesa for v in thesaurus.get('14.7', [])]
+            self.comboBox_categoria.clear()
+            self.comboBox_categoria.addItems(categoria_values)
+        except Exception as e:
+            pass
 
     def msg_sito(self):
         conn = Connection()

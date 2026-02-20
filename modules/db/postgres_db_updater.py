@@ -65,6 +65,8 @@ class PostgresDbUpdater:
             self.update_attrezzature_table()
             self.update_budget_table()
             self.update_computo_metrico_table()
+            # Aggiunge voci thesaurus per tabelle gestione cantiere (14.x)
+            self.update_site_management_thesaurus()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -1795,6 +1797,325 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore aggiungendo voci thesaurus UT: {e}")
+
+    def update_site_management_thesaurus(self):
+        """Seed thesaurus entries for site management (cantiere) tables.
+        7 codes (14.1-14.7) × 10 languages."""
+        try:
+            from sqlalchemy import text
+
+            check_sql = text("""
+                SELECT COUNT(*) FROM pyarchinit_thesaurus_sigle
+                WHERE tipologia_sigla LIKE '14.%'
+            """)
+            existing_count = self.db_manager._execute_sql(check_sql).scalar() or 0
+
+            if existing_count >= 400:
+                return
+
+            self.log_message("Aggiunta voci thesaurus gestione cantiere (14.x) per PostgreSQL...")
+
+            entries = [
+                # 14.1 ruolo
+                ('cantiere_personale_table', 'direttore', 'Direttore', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'responsabile_area', 'Responsabile area', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'archeologo', 'Archeologo', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'tecnico', 'Tecnico', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'operaio', 'Operaio', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'restauratore', 'Restauratore', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'topografo', 'Topografo', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'disegnatore', 'Disegnatore', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'fotografo', 'Fotografo', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'studente', 'Studente', '', '14.1', 'IT'),
+                ('cantiere_personale_table', 'director', 'Director', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'area_supervisor', 'Area Supervisor', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'archaeologist', 'Archaeologist', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'technician', 'Technician', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'worker', 'Worker', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'conservator', 'Conservator', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'surveyor', 'Surveyor', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'draftsperson', 'Draftsperson', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'photographer', 'Photographer', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'student', 'Student', '', '14.1', 'en_US'),
+                ('cantiere_personale_table', 'direktor', 'Direktor', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'bereichsleiter', 'Bereichsleiter', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'archaeologe', 'Archäologe', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'techniker', 'Techniker', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'arbeiter', 'Arbeiter', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'restaurator', 'Restaurator', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'vermesser', 'Vermesser', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'zeichner', 'Zeichner', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'fotograf', 'Fotograf', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'student_de', 'Student', '', '14.1', 'de_DE'),
+                ('cantiere_personale_table', 'director_es', 'Director', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'responsable_area', 'Responsable de área', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'arqueologo', 'Arqueólogo', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'tecnico_es', 'Técnico', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'obrero', 'Obrero', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'restaurador', 'Restaurador', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'topografo_es', 'Topógrafo', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'dibujante', 'Dibujante', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'fotografo_es', 'Fotógrafo', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'estudiante', 'Estudiante', '', '14.1', 'es_ES'),
+                ('cantiere_personale_table', 'directeur', 'Directeur', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'responsable_secteur', 'Responsable de secteur', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'archeologue', 'Archéologue', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'technicien', 'Technicien', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'ouvrier', 'Ouvrier', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'restaurateur', 'Restaurateur', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'geometre', 'Géomètre', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'dessinateur', 'Dessinateur', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'photographe', 'Photographe', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'etudiant', 'Étudiant', '', '14.1', 'fr_FR'),
+                ('cantiere_personale_table', 'mudir', 'مدير', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'masul_mantaqa', 'مسؤول منطقة', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'athari', 'عالم آثار', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'fanni', 'فني', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'amil', 'عامل', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'murammim', 'مرمم', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'massah', 'مساح', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'rassam', 'رسام', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'musawwir', 'مصور', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'talib', 'طالب', '', '14.1', 'ar_AR'),
+                ('cantiere_personale_table', 'director_ca', 'Director', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'responsable_area_ca', "Responsable d'àrea", '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'arqueoleg', 'Arqueòleg', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'tecnic', 'Tècnic', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'obrer', 'Obrer', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'restaurador_ca', 'Restaurador', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'topograf', 'Topògraf', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'dibuixant', 'Dibuixant', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'fotograf_ca', 'Fotògraf', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'estudiant', 'Estudiant', '', '14.1', 'ca_ES'),
+                ('cantiere_personale_table', 'director_ro', 'Director', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'responsabil_zona', 'Responsabil zonă', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'arheolog', 'Arheolog', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'tehnician', 'Tehnician', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'muncitor', 'Muncitor', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'restaurator_ro', 'Restaurator', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'topograf_ro', 'Topograf', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'desenator', 'Desenator', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'fotograf_ro', 'Fotograf', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'student_ro', 'Student', '', '14.1', 'ro_RO'),
+                ('cantiere_personale_table', 'diretor', 'Diretor', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'responsavel_area', 'Responsável de área', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'arqueologo_pt', 'Arqueólogo', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'tecnico_pt', 'Técnico', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'operario', 'Operário', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'restaurador_pt', 'Restaurador', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'topografo_pt', 'Topógrafo', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'desenhador', 'Desenhador', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'fotografo_pt', 'Fotógrafo', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'estudante', 'Estudante', '', '14.1', 'pt_PT'),
+                ('cantiere_personale_table', 'diefthyntis', 'Διευθυντής', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'ypefthynos_tomea', 'Υπεύθυνος τομέα', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'archaiologos', 'Αρχαιολόγος', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'technikos', 'Τεχνικός', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'ergatis', 'Εργάτης', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'syntiritis', 'Συντηρητής', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'topografos', 'Τοπογράφος', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'schediasitis', 'Σχεδιαστής', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'fotografos', 'Φωτογράφος', '', '14.1', 'el_GR'),
+                ('cantiere_personale_table', 'foititis', 'Φοιτητής', '', '14.1', 'el_GR'),
+                # 14.2 tipo_contratto
+                ('cantiere_personale_table', 'tempo_indeterminato', 'Tempo indeterminato', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'tempo_determinato', 'Tempo determinato', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'collaborazione', 'Collaborazione', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'partita_iva', 'Partita IVA', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'volontario', 'Volontario', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'stage_tirocinio', 'Stage/Tirocinio', '', '14.2', 'IT'),
+                ('cantiere_personale_table', 'permanent', 'Permanent', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'fixed_term', 'Fixed-term', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'collaboration', 'Collaboration', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'freelance', 'Freelance', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'volunteer', 'Volunteer', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'internship', 'Internship', '', '14.2', 'en_US'),
+                ('cantiere_personale_table', 'unbefristet', 'Unbefristet', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'befristet', 'Befristet', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'zusammenarbeit', 'Zusammenarbeit', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'freiberuflich', 'Freiberuflich', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'ehrenamtlich', 'Ehrenamtlich', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'praktikum', 'Praktikum', '', '14.2', 'de_DE'),
+                ('cantiere_personale_table', 'indefinido', 'Indefinido', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'temporal', 'Temporal', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'colaboracion', 'Colaboración', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'autonomo', 'Autónomo', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'voluntario_es', 'Voluntario', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'practicas', 'Prácticas', '', '14.2', 'es_ES'),
+                ('cantiere_personale_table', 'cdi', 'CDI', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'cdd', 'CDD', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'collaboration_fr', 'Collaboration', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'independant', 'Indépendant', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'benevole', 'Bénévole', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'stage', 'Stage', '', '14.2', 'fr_FR'),
+                ('cantiere_personale_table', 'daaim', 'دائم', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'muaqqat', 'مؤقت', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'taawun', 'تعاون', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'amal_hurr', 'عمل حر', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'mutawwi', 'متطوع', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'tadrib', 'تدريب', '', '14.2', 'ar_AR'),
+                ('cantiere_personale_table', 'indefinit', 'Indefinit', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'temporal_ca', 'Temporal', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'collaboracio', 'Col·laboració', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'autonom', 'Autònom', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'voluntari', 'Voluntari', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'practiques', 'Pràctiques', '', '14.2', 'ca_ES'),
+                ('cantiere_personale_table', 'nedeterminat', 'Nedeterminat', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'determinat', 'Determinat', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'colaborare', 'Colaborare', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'liber_profesionist', 'Liber profesionist', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'voluntar', 'Voluntar', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'stagiu', 'Stagiu', '', '14.2', 'ro_RO'),
+                ('cantiere_personale_table', 'efetivo', 'Efetivo', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'termo_certo', 'Termo certo', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'colaboracao', 'Colaboração', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'independente', 'Independente', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'voluntario_pt', 'Voluntário', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'estagio', 'Estágio', '', '14.2', 'pt_PT'),
+                ('cantiere_personale_table', 'aoristou', 'Αορίστου χρόνου', '', '14.2', 'el_GR'),
+                ('cantiere_personale_table', 'orismenou', 'Ορισμένου χρόνου', '', '14.2', 'el_GR'),
+                ('cantiere_personale_table', 'synergasia', 'Συνεργασία', '', '14.2', 'el_GR'),
+                ('cantiere_personale_table', 'eleftheros', 'Ελεύθερος επαγγελματίας', '', '14.2', 'el_GR'),
+                ('cantiere_personale_table', 'ethelontis', 'Εθελοντής', '', '14.2', 'el_GR'),
+                ('cantiere_personale_table', 'praktiki', 'Πρακτική', '', '14.2', 'el_GR'),
+                # 14.3 tipo_giornata
+                ('cantiere_presenze_table', 'lavorativa', 'Lavorativa', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'ferie', 'Ferie', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'malattia', 'Malattia', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'permesso', 'Permesso', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'riposo', 'Riposo', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'trasferta', 'Trasferta', '', '14.3', 'IT'),
+                ('cantiere_presenze_table', 'working', 'Working', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'holiday', 'Holiday', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'sick_leave', 'Sick leave', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'leave', 'Leave', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'rest', 'Rest', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'travel', 'Travel', '', '14.3', 'en_US'),
+                ('cantiere_presenze_table', 'arbeitstag', 'Arbeitstag', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'urlaub', 'Urlaub', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'krankheit', 'Krankheit', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'genehmigung', 'Genehmigung', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'ruhetag', 'Ruhetag', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'dienstreise', 'Dienstreise', '', '14.3', 'de_DE'),
+                ('cantiere_presenze_table', 'laborable', 'Laborable', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'vacaciones', 'Vacaciones', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'enfermedad', 'Enfermedad', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'permiso', 'Permiso', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'descanso', 'Descanso', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'desplazamiento', 'Desplazamiento', '', '14.3', 'es_ES'),
+                ('cantiere_presenze_table', 'travail', 'Travail', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'conge', 'Congé', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'maladie', 'Maladie', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'autorisation', 'Autorisation', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'repos', 'Repos', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'deplacement', 'Déplacement', '', '14.3', 'fr_FR'),
+                ('cantiere_presenze_table', 'amal', 'عمل', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'ijaza', 'إجازة', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'marad', 'مرض', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'idhn', 'إذن', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'raha', 'راحة', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'safar', 'سفر', '', '14.3', 'ar_AR'),
+                ('cantiere_presenze_table', 'laborable_ca', 'Laborable', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'vacances', 'Vacances', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'malaltia', 'Malaltia', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'permis', 'Permís', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'descans', 'Descans', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'desplacament', 'Desplaçament', '', '14.3', 'ca_ES'),
+                ('cantiere_presenze_table', 'lucratoare', 'Lucrătoare', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'concediu', 'Concediu', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'boala', 'Boală', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'permisiune', 'Permisiune', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'odihna', 'Odihnă', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'deplasare', 'Deplasare', '', '14.3', 'ro_RO'),
+                ('cantiere_presenze_table', 'trabalho', 'Trabalho', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'ferias', 'Férias', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'doenca', 'Doença', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'licenca', 'Licença', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'descanso_pt', 'Descanso', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'deslocacao', 'Deslocação', '', '14.3', 'pt_PT'),
+                ('cantiere_presenze_table', 'ergasimi', 'Εργάσιμη', '', '14.3', 'el_GR'),
+                ('cantiere_presenze_table', 'adeia', 'Άδεια', '', '14.3', 'el_GR'),
+                ('cantiere_presenze_table', 'astheneia', 'Ασθένεια', '', '14.3', 'el_GR'),
+                ('cantiere_presenze_table', 'adeiopoiisi', 'Αδειοδότηση', '', '14.3', 'el_GR'),
+                ('cantiere_presenze_table', 'anapafsi', 'Ανάπαυση', '', '14.3', 'el_GR'),
+                ('cantiere_presenze_table', 'metakinisi', 'Μετακίνηση', '', '14.3', 'el_GR'),
+                # 14.4, 14.5, 14.6 attrezzature - stato/proprietà/categoria
+                ('cantiere_attrezzature_table', 'macchinario', 'Macchinario', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'strumento_topografico', 'Strumento topografico', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'strumento_fotografico', 'Strumento fotografico', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'attrezzo_manuale', 'Attrezzo manuale', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'attrezzatura_sicurezza', 'Attrezzatura di sicurezza', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'attrezzatura_laboratorio', 'Attrezzatura di laboratorio', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'veicolo', 'Veicolo', '', '14.4', 'IT'),
+                ('cantiere_attrezzature_table', 'machinery', 'Machinery', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'survey_instrument', 'Survey instrument', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'photographic_equipment', 'Photographic equipment', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'hand_tool', 'Hand tool', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'safety_equipment', 'Safety equipment', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'lab_equipment', 'Lab equipment', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'vehicle', 'Vehicle', '', '14.4', 'en_US'),
+                ('cantiere_attrezzature_table', 'in_uso', 'In uso', '', '14.5', 'IT'),
+                ('cantiere_attrezzature_table', 'in_manutenzione', 'In manutenzione', '', '14.5', 'IT'),
+                ('cantiere_attrezzature_table', 'fuori_servizio', 'Fuori servizio', '', '14.5', 'IT'),
+                ('cantiere_attrezzature_table', 'disponibile', 'Disponibile', '', '14.5', 'IT'),
+                ('cantiere_attrezzature_table', 'in_use', 'In use', '', '14.5', 'en_US'),
+                ('cantiere_attrezzature_table', 'under_maintenance', 'Under maintenance', '', '14.5', 'en_US'),
+                ('cantiere_attrezzature_table', 'out_of_service', 'Out of service', '', '14.5', 'en_US'),
+                ('cantiere_attrezzature_table', 'available', 'Available', '', '14.5', 'en_US'),
+                ('cantiere_attrezzature_table', 'proprio', 'Proprio', '', '14.6', 'IT'),
+                ('cantiere_attrezzature_table', 'noleggio', 'Noleggio', '', '14.6', 'IT'),
+                ('cantiere_attrezzature_table', 'comodato', 'Comodato', '', '14.6', 'IT'),
+                ('cantiere_attrezzature_table', 'prestito', 'Prestito', '', '14.6', 'IT'),
+                ('cantiere_attrezzature_table', 'owned', 'Owned', '', '14.6', 'en_US'),
+                ('cantiere_attrezzature_table', 'rented', 'Rented', '', '14.6', 'en_US'),
+                ('cantiere_attrezzature_table', 'on_loan_free', 'On loan (free)', '', '14.6', 'en_US'),
+                ('cantiere_attrezzature_table', 'borrowed', 'Borrowed', '', '14.6', 'en_US'),
+                # 14.7 categoria_budget
+                ('cantiere_budget_table', 'personale_cat', 'Personale', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'materiali', 'Materiali', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'attrezzature_cat', 'Attrezzature', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'logistica', 'Logistica', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'documentazione', 'Documentazione', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'laboratorio', 'Laboratorio', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'altro', 'Altro', '', '14.7', 'IT'),
+                ('cantiere_budget_table', 'personnel', 'Personnel', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'materials', 'Materials', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'equipment', 'Equipment', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'logistics', 'Logistics', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'documentation', 'Documentation', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'laboratory', 'Laboratory', '', '14.7', 'en_US'),
+                ('cantiere_budget_table', 'other', 'Other', '', '14.7', 'en_US'),
+            ]
+
+            insert_sql = text("""
+                INSERT INTO pyarchinit_thesaurus_sigle
+                (nome_tabella, sigla, sigla_estesa, descrizione, tipologia_sigla, lingua)
+                SELECT :nome_tabella, :sigla, :sigla_estesa, :descrizione, :tipologia_sigla, :lingua
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM pyarchinit_thesaurus_sigle
+                    WHERE nome_tabella = :nome_tabella AND sigla = :sigla AND tipologia_sigla = :tipologia_sigla AND lingua = :lingua
+                )
+            """)
+
+            inserted_count = 0
+            for entry in entries:
+                try:
+                    result = self.db_manager._execute_sql(insert_sql, {
+                        'nome_tabella': entry[0], 'sigla': entry[1],
+                        'sigla_estesa': entry[2], 'descrizione': entry[3],
+                        'tipologia_sigla': entry[4], 'lingua': entry[5]
+                    })
+                    if result.rowcount > 0:
+                        inserted_count += 1
+                except Exception:
+                    pass
+
+            if inserted_count > 0:
+                self.log_message(f"Aggiunte {inserted_count} voci thesaurus gestione cantiere (14.x) per PostgreSQL")
+                self.updates_made.append(f"cantiere thesaurus ({inserted_count} voci)")
+
+        except Exception as e:
+            self.log_message(f"Errore aggiungendo voci thesaurus cantiere: {e}")
 
     def fix_thesaurus_nome_tabella(self):
         """Fix thesaurus entries that have display names instead of actual table names.

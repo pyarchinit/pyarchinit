@@ -48,6 +48,20 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         MSG_BOX_TITLE = "PyArchInit - Attendance Form"
     elif L == 'de':
         MSG_BOX_TITLE = "PyArchInit - Anwesenheitsformular"
+    elif L == 'es':
+        MSG_BOX_TITLE = "PyArchInit - Asistencia de Obra"
+    elif L == 'fr':
+        MSG_BOX_TITLE = "PyArchInit - Présences de Chantier"
+    elif L == 'ar':
+        MSG_BOX_TITLE = "PyArchInit - حضور الموقع"
+    elif L == 'ca':
+        MSG_BOX_TITLE = "PyArchInit - Assistència d'Obra"
+    elif L == 'ro':
+        MSG_BOX_TITLE = "PyArchInit - Prezențe Șantier"
+    elif L == 'pt':
+        MSG_BOX_TITLE = "PyArchInit - Presenças de Obra"
+    elif L == 'el':
+        MSG_BOX_TITLE = "PyArchInit - Παρουσίες Εργοταξίου"
     else:
         MSG_BOX_TITLE = "PyArchInit - Attendance Form"
 
@@ -62,6 +76,20 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         STATUS_ITEMS = {"b": "Usa", "f": "Trova", "n": "Nuovo Record"}
     elif L == 'de':
         STATUS_ITEMS = {"b": "Aktuell", "f": "Finden", "n": "Neuer Rekord"}
+    elif L == 'es':
+        STATUS_ITEMS = {"b": "navegar", "f": "buscar", "n": "nuevo registro"}
+    elif L == 'fr':
+        STATUS_ITEMS = {"b": "parcourir", "f": "rechercher", "n": "nouveau"}
+    elif L == 'ar':
+        STATUS_ITEMS = {"b": "تصفح", "f": "بحث", "n": "جديد"}
+    elif L == 'ca':
+        STATUS_ITEMS = {"b": "navegar", "f": "cercar", "n": "nou registre"}
+    elif L == 'ro':
+        STATUS_ITEMS = {"b": "navigare", "f": "căutare", "n": "înregistrare nouă"}
+    elif L == 'pt':
+        STATUS_ITEMS = {"b": "navegar", "f": "pesquisar", "n": "novo registo"}
+    elif L == 'el':
+        STATUS_ITEMS = {"b": "περιήγηση", "f": "αναζήτηση", "n": "νέα εγγραφή"}
     else:
         STATUS_ITEMS = {"b": "Current", "f": "Find", "n": "New Record"}
 
@@ -72,6 +100,20 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         SORTED_ITEMS = {"n": "Non ordinati", "o": "Ordinati"}
     elif L == 'de':
         SORTED_ITEMS = {"n": "Nicht sortiert", "o": "Sortiert"}
+    elif L == 'es':
+        SORTED_ITEMS = {"n": "No ordenados", "o": "Ordenados"}
+    elif L == 'fr':
+        SORTED_ITEMS = {"n": "Non triés", "o": "Triés"}
+    elif L == 'ar':
+        SORTED_ITEMS = {"n": "غير مرتب", "o": "مرتب"}
+    elif L == 'ca':
+        SORTED_ITEMS = {"n": "No ordenats", "o": "Ordenats"}
+    elif L == 'ro':
+        SORTED_ITEMS = {"n": "Nesortat", "o": "Sortat"}
+    elif L == 'pt':
+        SORTED_ITEMS = {"n": "Não ordenados", "o": "Ordenados"}
+    elif L == 'el':
+        SORTED_ITEMS = {"n": "Μη ταξινομημένα", "o": "Ταξινομημένα"}
     else:
         SORTED_ITEMS = {"n": "Not sorted", "o": "Sorted"}
 
@@ -374,6 +416,12 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         'costo_giornata'
     ]
 
+    LANG_TO_THESAURUS = {
+        'it': 'IT', 'en': 'en_US', 'de': 'de_DE', 'es': 'es_ES',
+        'fr': 'fr_FR', 'ar': 'ar_AR', 'ca': 'ca_ES', 'ro': 'ro_RO',
+        'pt': 'pt_PT', 'el': 'el_GR'
+    }
+
     DB_SERVER = "not defined"
     HOME = os.environ['PYARCHINIT_HOME']
 
@@ -485,6 +533,18 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito.clear()
         sito_vl.sort()
         self.comboBox_sito.addItems(sito_vl)
+
+        # Thesaurus-based combobox population
+        th_lang = self.LANG_TO_THESAURUS.get(self.L, 'en_US')
+        try:
+            thesaurus = self.DB_MANAGER.query_thesaurus_batch(
+                'cantiere_presenze_table', th_lang)
+
+            giornata_values = [v.sigla_estesa for v in thesaurus.get('14.3', [])]
+            self.comboBox_tipo_giornata.clear()
+            self.comboBox_tipo_giornata.addItems(giornata_values)
+        except Exception as e:
+            pass
 
     def charge_personale_list(self):
         """Populate comboBox_personale from personale_table."""
