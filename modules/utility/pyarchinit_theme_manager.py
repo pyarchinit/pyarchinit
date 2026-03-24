@@ -874,7 +874,7 @@ class ThemeManager:
     @classmethod
     def add_theme_toggle_to_form(cls, form):
         """
-        Add a theme toggle button to a form, positioned in the top-right corner.
+        Add a theme toggle button to a form, positioned in the bottom-right corner.
 
         Args:
             form: The QDialog or QWidget to add the toggle button to
@@ -885,11 +885,11 @@ class ThemeManager:
         button = cls.create_toggle_button(form, 'tool')
         button.setFixedSize(28, 28)
 
-        # Position the button in the top-right corner
+        # Position the button in the bottom-right corner to avoid toolbar overlaps
         def reposition_button(event=None):
             # Position with some padding from the edges
-            x = form.width() - button.width() - 10
-            y = 10
+            x = form.width() - button.width() - 12
+            y = form.height() - button.height() - 12
             button.move(x, y)
             button.raise_()  # Ensure button is on top
 

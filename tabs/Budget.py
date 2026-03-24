@@ -1634,8 +1634,14 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         except Exception:
             pass
 
+    # Professional color palette for all charts
+    CHART_COLORS = [
+        '#1565C0', '#00897B', '#EF6C00', '#8E24AA', '#C62828',
+        '#00838F', '#558B2F', '#6D4C41', '#F9A825', '#AD1457',
+    ]
+
     def draw_category_chart(self, records):
-        """Draw a Plotly donut chart of actual spending by category."""
+        """Draw a donut chart of actual spending by category using matplotlib (primary)."""
         try:
             at = getattr(self, '_analytics_t', {})
             cat_totals = defaultdict(float)
@@ -1646,66 +1652,76 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             if not cat_totals or sum(cat_totals.values()) == 0:
                 return
 
-            labels = list(cat_totals.keys())
-            values = list(cat_totals.values())
-
-            colors = [
-                '#1565C0', '#00897B', '#EF6C00', '#6A1B9A',
-                '#C62828', '#2E7D32', '#AD1457', '#4527A0',
-                '#00838F', '#F9A825', '#4E342E',
-            ]
-
             title_text = at.get('chart_category_title', 'Spending by Category')
 
+            # Primary: matplotlib
+            try:
+                from matplotlib.figure import Figure
+                labels = list(cat_totals.keys())
+                sizes = list(cat_totals.values())
+                colors = self.CHART_COLORS[:len(labels)]
+
+                fig = Figure(figsize=(4, 3), dpi=80, tight_layout=True)
+                fig.patch.set_facecolor('white')
+                ax = fig.add_subplot(111)
+
+                wedges, texts, autotexts = ax.pie(
+                    sizes, labels=None, colors=colors,
+                    autopct='%1.1f%%', startangle=90, pctdistance=0.78,
+                    wedgeprops={'width': 0.45, 'edgecolor': 'white', 'linewidth': 2},
+                    textprops={'fontsize': 9, 'fontfamily': 'sans-serif'},
+                )
+                for autotext in autotexts:
+                    autotext.set_fontsize(8)
+                    autotext.set_color('#333333')
+
+                ax.legend(
+                    wedges, ['{} ({}{:,.0f})'.format(l, chr(8364), v) for l, v in zip(labels, sizes)],
+                    title=None, loc='center left', bbox_to_anchor=(1.0, 0.5),
+                    fontsize=8, frameon=False,
+                )
+                ax.set_title(title_text, fontsize=12, fontweight='bold',
+                             color='#2c3e50', fontfamily='sans-serif', pad=12)
+                ax.set_aspect('equal')
+                fig.tight_layout()
+                self._render_matplotlib_chart(self.widget_chart_category, fig)
+                return
+            except ImportError:
+                pass
+
+            # Fallback: Plotly via QWebEngineView
+            self._draw_category_chart_plotly(cat_totals, title_text)
+        except Exception:
+            pass
+
+    def _draw_category_chart_plotly(self, cat_totals, title_text):
+        """Optional Plotly fallback for category chart."""
+        try:
+            labels = list(cat_totals.keys())
+            values = list(cat_totals.values())
+            colors = self.CHART_COLORS
+
             plotly_data = json.dumps([{
-                'labels': labels,
-                'values': values,
-                'type': 'pie',
-                'hole': 0.4,
-                'marker': {
-                    'colors': colors[:len(labels)],
-                    'line': {'color': '#ffffff', 'width': 2},
-                },
+                'labels': labels, 'values': values, 'type': 'pie', 'hole': 0.4,
+                'marker': {'colors': colors[:len(labels)], 'line': {'color': '#ffffff', 'width': 2}},
                 'textinfo': 'label+percent',
                 'textfont': {'size': 11, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
-                'hovertemplate': '<b>%{label}</b><br>' + chr(8364) + ' %{value:,.2f}<br>%{percent}<extra></extra>',
                 'sort': False,
             }])
-
             plotly_layout = json.dumps({
-                'title': {
-                    'text': title_text,
-                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
-                    'x': 0.5, 'xanchor': 'center',
-                },
+                'title': {'text': title_text, 'font': {'size': 14, 'color': '#2c3e50'}, 'x': 0.5},
                 'margin': {'l': 10, 'r': 10, 't': 40, 'b': 10},
-                'paper_bgcolor': 'rgba(0,0,0,0)',
-                'plot_bgcolor': 'rgba(0,0,0,0)',
+                'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)',
                 'showlegend': True,
-                'legend': {
-                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
-                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.15, 'xanchor': 'center', 'x': 0.5,
-                },
+                'legend': {'font': {'size': 10}, 'orientation': 'h', 'y': -0.15, 'x': 0.5, 'xanchor': 'center'},
             })
-
-            html = '''<!DOCTYPE html>
-<html><head>
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-</head><body style="margin:0;padding:0;">
-<div id="chart" style="width:100%%;height:100%%;"></div>
-<script>
-var data = %s;
-var layout = %s;
-Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
-</script></body></html>''' % (plotly_data, plotly_layout)
-
-            if not self._render_plotly_chart(self.widget_chart_category, html):
-                self._render_matplotlib_category(cat_totals)
+            html = self._plotly_html_template(plotly_data, plotly_layout)
+            self._render_plotly_chart(self.widget_chart_category, html)
         except Exception:
             pass
 
     def draw_timeline_chart(self, records):
-        """Draw a Plotly bar+line chart of monthly spending trend."""
+        """Draw a bar+line chart of monthly spending trend using matplotlib (primary)."""
         try:
             at = getattr(self, '_analytics_t', {})
             monthly_actual = defaultdict(float)
@@ -1738,63 +1754,81 @@ Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
             actual_label = at.get('total_actual', 'Actual')
             planned_label = at.get('total_planned', 'Planned (cumul.)')
 
+            # Primary: matplotlib
+            try:
+                import numpy as np
+                from matplotlib.figure import Figure
+
+                fig = Figure(figsize=(4, 3), dpi=80, tight_layout=True)
+                fig.patch.set_facecolor('white')
+                ax = fig.add_subplot(111)
+
+                x = np.arange(len(months))
+                bar_width = 0.6
+
+                bars = ax.bar(x, actual_vals, bar_width, color='#1565C0', edgecolor='white',
+                              linewidth=0.5, label=actual_label, zorder=3)
+
+                ax2 = ax.twinx()
+                ax2.plot(x, cumulative_planned, color='#EF6C00', linewidth=2.5,
+                         marker='o', markersize=5, label=planned_label, zorder=4)
+                ax2.set_ylabel(planned_label, fontsize=9, color='#EF6C00', fontfamily='sans-serif')
+                ax2.tick_params(axis='y', labelcolor='#EF6C00', labelsize=8)
+
+                ax.set_xticks(x)
+                ax.set_xticklabels(months, rotation=45, ha='right', fontsize=8, fontfamily='sans-serif')
+                ax.set_ylabel(actual_label, fontsize=9, color='#1565C0', fontfamily='sans-serif')
+                ax.tick_params(axis='y', labelcolor='#1565C0', labelsize=8)
+                ax.set_title(title_text, fontsize=12, fontweight='bold',
+                             color='#2c3e50', fontfamily='sans-serif', pad=12)
+
+                ax.grid(axis='y', alpha=0.3, linestyle='--', zorder=0)
+                ax.set_axisbelow(True)
+
+                # Combined legend
+                lines_1, labels_1 = ax.get_legend_handles_labels()
+                lines_2, labels_2 = ax2.get_legend_handles_labels()
+                ax.legend(lines_1 + lines_2, labels_1 + labels_2,
+                          loc='upper left', fontsize=8, frameon=True, framealpha=0.9)
+
+                fig.tight_layout()
+                self._render_matplotlib_chart(self.widget_chart_timeline, fig)
+                return
+            except ImportError:
+                pass
+
+            # Fallback: Plotly
+            self._draw_timeline_chart_plotly(months, actual_vals, cumulative_planned,
+                                             title_text, actual_label, planned_label)
+        except Exception:
+            pass
+
+    def _draw_timeline_chart_plotly(self, months, actual_vals, cumulative_planned,
+                                    title_text, actual_label, planned_label):
+        """Optional Plotly fallback for timeline chart."""
+        try:
             plotly_data = json.dumps([
-                {
-                    'x': months,
-                    'y': actual_vals,
-                    'type': 'bar',
-                    'name': actual_label,
-                    'marker': {'color': '#1565C0'},
-                    'hovertemplate': '<b>%{x}</b><br>' + chr(8364) + ' %{y:,.2f}<extra></extra>',
-                },
-                {
-                    'x': months,
-                    'y': cumulative_planned,
-                    'type': 'scatter',
-                    'mode': 'lines+markers',
-                    'name': planned_label,
-                    'line': {'color': '#EF6C00', 'width': 3},
-                    'marker': {'size': 6},
-                    'hovertemplate': '<b>%{x}</b><br>' + chr(8364) + ' %{y:,.2f}<extra></extra>',
-                },
+                {'x': months, 'y': actual_vals, 'type': 'bar', 'name': actual_label,
+                 'marker': {'color': '#1565C0'}},
+                {'x': months, 'y': cumulative_planned, 'type': 'scatter',
+                 'mode': 'lines+markers', 'name': planned_label,
+                 'line': {'color': '#EF6C00', 'width': 3}, 'marker': {'size': 6}},
             ])
-
             plotly_layout = json.dumps({
-                'title': {
-                    'text': title_text,
-                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
-                    'x': 0.5, 'xanchor': 'center',
-                },
+                'title': {'text': title_text, 'font': {'size': 14, 'color': '#2c3e50'}, 'x': 0.5},
                 'margin': {'l': 60, 'r': 20, 't': 40, 'b': 50},
-                'paper_bgcolor': 'rgba(0,0,0,0)',
-                'plot_bgcolor': 'rgba(0,0,0,0)',
-                'barmode': 'group',
-                'showlegend': True,
-                'legend': {
-                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
-                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.25, 'xanchor': 'center', 'x': 0.5,
-                },
-                'xaxis': {'tickangle': -45},
-                'yaxis': {'tickformat': ',.0f'},
+                'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)',
+                'barmode': 'group', 'showlegend': True,
+                'legend': {'font': {'size': 10}, 'orientation': 'h', 'y': -0.25, 'x': 0.5, 'xanchor': 'center'},
+                'xaxis': {'tickangle': -45}, 'yaxis': {'tickformat': ',.0f'},
             })
-
-            html = '''<!DOCTYPE html>
-<html><head>
-<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-</head><body style="margin:0;padding:0;">
-<div id="chart" style="width:100%%;height:100%%;"></div>
-<script>
-var data = %s;
-var layout = %s;
-Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
-</script></body></html>''' % (plotly_data, plotly_layout)
-
+            html = self._plotly_html_template(plotly_data, plotly_layout)
             self._render_plotly_chart(self.widget_chart_timeline, html)
         except Exception:
             pass
 
     def draw_variance_chart(self, records):
-        """Draw a Plotly horizontal grouped bar chart for planned vs actual by category."""
+        """Draw a horizontal grouped bar chart for planned vs actual by category using matplotlib (primary)."""
         try:
             at = getattr(self, '_analytics_t', {})
             cat_data = defaultdict(lambda: {'planned': 0.0, 'actual': 0.0})
@@ -1809,53 +1843,91 @@ Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
             categories = sorted(cat_data.keys())
             planned_vals = [cat_data[c]['planned'] for c in categories]
             actual_vals = [cat_data[c]['actual'] for c in categories]
-            actual_colors = ['#C62828' if cat_data[c]['actual'] > cat_data[c]['planned'] else '#2E7D32'
-                             for c in categories]
 
             title_text = at.get('chart_variance_title', 'Variance by Category')
             planned_label = at.get('total_planned', 'Planned')
             actual_label = at.get('total_actual', 'Actual')
 
-            plotly_data = json.dumps([
-                {
-                    'y': categories,
-                    'x': planned_vals,
-                    'type': 'bar',
-                    'name': planned_label,
-                    'orientation': 'h',
-                    'marker': {'color': '#1565C0'},
-                    'hovertemplate': '<b>%{y}</b><br>' + chr(8364) + ' %{x:,.2f}<extra></extra>',
-                },
-                {
-                    'y': categories,
-                    'x': actual_vals,
-                    'type': 'bar',
-                    'name': actual_label,
-                    'orientation': 'h',
-                    'marker': {'color': actual_colors},
-                    'hovertemplate': '<b>%{y}</b><br>' + chr(8364) + ' %{x:,.2f}<extra></extra>',
-                },
-            ])
+            # Primary: matplotlib
+            try:
+                import numpy as np
+                from matplotlib.figure import Figure
 
+                fig = Figure(figsize=(4, max(2.5, len(categories) * 0.5 + 1)), dpi=80, tight_layout=True)
+                fig.patch.set_facecolor('white')
+                ax = fig.add_subplot(111)
+
+                y = np.arange(len(categories))
+                bar_height = 0.35
+
+                # Planned bars (blue)
+                ax.barh(y + bar_height / 2, planned_vals, bar_height, color='#1565C0',
+                        edgecolor='white', linewidth=0.5, label=planned_label, zorder=3)
+
+                # Actual bars (green if under budget, red if over)
+                actual_colors = ['#C62828' if cat_data[c]['actual'] > cat_data[c]['planned']
+                                 else '#00897B' for c in categories]
+                ax.barh(y - bar_height / 2, actual_vals, bar_height, color=actual_colors,
+                        edgecolor='white', linewidth=0.5, label=actual_label, zorder=3)
+
+                ax.set_yticks(y)
+                ax.set_yticklabels(categories, fontsize=9, fontfamily='sans-serif')
+                ax.set_title(title_text, fontsize=12, fontweight='bold',
+                             color='#2c3e50', fontfamily='sans-serif', pad=12)
+                ax.tick_params(axis='x', labelsize=8)
+
+                ax.grid(axis='x', alpha=0.3, linestyle='--', zorder=0)
+                ax.set_axisbelow(True)
+
+                # Format x-axis with currency-like numbers
+                from matplotlib.ticker import FuncFormatter
+                ax.xaxis.set_major_formatter(
+                    FuncFormatter(lambda x, p: '{:,.0f}'.format(x)))
+
+                ax.legend(fontsize=8, loc='lower right', frameon=True, framealpha=0.9)
+                ax.invert_yaxis()
+
+                fig.tight_layout()
+                self._render_matplotlib_chart(self.widget_chart_variance, fig)
+                return
+            except ImportError:
+                pass
+
+            # Fallback: Plotly
+            self._draw_variance_chart_plotly(categories, planned_vals, actual_vals, cat_data,
+                                             title_text, planned_label, actual_label)
+        except Exception:
+            pass
+
+    def _draw_variance_chart_plotly(self, categories, planned_vals, actual_vals, cat_data,
+                                    title_text, planned_label, actual_label):
+        """Optional Plotly fallback for variance chart."""
+        try:
+            actual_colors = ['#C62828' if cat_data[c]['actual'] > cat_data[c]['planned']
+                             else '#00897B' for c in categories]
+            plotly_data = json.dumps([
+                {'y': categories, 'x': planned_vals, 'type': 'bar', 'name': planned_label,
+                 'orientation': 'h', 'marker': {'color': '#1565C0'}},
+                {'y': categories, 'x': actual_vals, 'type': 'bar', 'name': actual_label,
+                 'orientation': 'h', 'marker': {'color': actual_colors}},
+            ])
             plotly_layout = json.dumps({
-                'title': {
-                    'text': title_text,
-                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
-                    'x': 0.5, 'xanchor': 'center',
-                },
+                'title': {'text': title_text, 'font': {'size': 14, 'color': '#2c3e50'}, 'x': 0.5},
                 'margin': {'l': 120, 'r': 20, 't': 40, 'b': 30},
-                'paper_bgcolor': 'rgba(0,0,0,0)',
-                'plot_bgcolor': 'rgba(0,0,0,0)',
-                'barmode': 'group',
-                'showlegend': True,
-                'legend': {
-                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
-                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.2, 'xanchor': 'center', 'x': 0.5,
-                },
+                'paper_bgcolor': 'rgba(0,0,0,0)', 'plot_bgcolor': 'rgba(0,0,0,0)',
+                'barmode': 'group', 'showlegend': True,
+                'legend': {'font': {'size': 10}, 'orientation': 'h', 'y': -0.2, 'x': 0.5, 'xanchor': 'center'},
                 'xaxis': {'tickformat': ',.0f'},
             })
+            html = self._plotly_html_template(plotly_data, plotly_layout)
+            self._render_plotly_chart(self.widget_chart_variance, html)
+        except Exception:
+            pass
 
-            html = '''<!DOCTYPE html>
+    @staticmethod
+    def _plotly_html_template(plotly_data, plotly_layout):
+        """Generate the Plotly HTML wrapper."""
+        return '''<!DOCTYPE html>
 <html><head>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head><body style="margin:0;padding:0;">
@@ -1865,10 +1937,6 @@ var data = %s;
 var layout = %s;
 Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
 </script></body></html>''' % (plotly_data, plotly_layout)
-
-            self._render_plotly_chart(self.widget_chart_variance, html)
-        except Exception:
-            pass
 
     def _render_plotly_chart(self, widget, fig_html):
         """Render Plotly HTML into a QWebEngineView inside the given widget. Returns True on success."""
@@ -1894,6 +1962,7 @@ Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
             layout = widget.layout()
             if layout is None:
                 layout = QVBoxLayout(widget)
+                layout.setContentsMargins(0, 0, 0, 0)
                 widget.setLayout(layout)
             else:
                 while layout.count():
@@ -1909,13 +1978,14 @@ Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
             return False
 
     def _render_matplotlib_chart(self, widget, fig):
-        """Fallback: render a matplotlib Figure into the given widget."""
+        """Render a matplotlib Figure into the given widget using FigureCanvasQTAgg."""
         try:
             from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
             layout = widget.layout()
             if layout is None:
                 layout = QVBoxLayout(widget)
+                layout.setContentsMargins(0, 0, 0, 0)
                 widget.setLayout(layout)
             else:
                 while layout.count():
@@ -1924,29 +1994,12 @@ Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
                         child.widget().deleteLater()
 
             canvas = FigureCanvasQTAgg(fig)
+            from qgis.PyQt.QtWidgets import QSizePolicy
+            canvas.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+            canvas.setMinimumHeight(150)
+            canvas.setMaximumHeight(300)
             layout.addWidget(canvas)
             canvas.draw()
-        except Exception:
-            pass
-
-    def _render_matplotlib_category(self, cat_totals):
-        """Fallback matplotlib rendering for category donut chart."""
-        try:
-            from matplotlib.figure import Figure
-            colors = ['#1565C0', '#00897B', '#EF6C00', '#6A1B9A',
-                      '#C62828', '#2E7D32', '#AD1457', '#4527A0',
-                      '#00838F', '#F9A825', '#4E342E']
-            labels = list(cat_totals.keys())
-            sizes = list(cat_totals.values())
-            fig = Figure(figsize=(4, 3), dpi=80)
-            ax = fig.add_subplot(111)
-            ax.pie(sizes, labels=labels, colors=colors[:len(labels)],
-                   autopct='%1.0f%%', startangle=90, textprops={'fontsize': 7})
-            at = getattr(self, '_analytics_t', {})
-            ax.set_title(at.get('chart_category_title', 'Spending by Category'), fontsize=9)
-            ax.set_aspect('equal')
-            fig.tight_layout()
-            self._render_matplotlib_chart(self.widget_chart_category, fig)
         except Exception:
             pass
 

@@ -21,6 +21,7 @@ from qgis.PyQt.QtGui import QIcon
 from PIL import Image
 from qgis.core import QgsSettings
 from modules.db.pyarchinit_conn_strings import Connection
+from modules.utility.pyarchinit_theme_manager import ThemeManager
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_media_utility import Media_utility, Media_utility_resize
 from modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
@@ -162,6 +163,10 @@ class GPTWindow(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
         self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+        ThemeManager.add_theme_toggle_to_form(self)
 
 
 

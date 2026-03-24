@@ -38,6 +38,7 @@ from qgis.PyQt.QtWidgets import QApplication, QDialog, QMessageBox, QProgressDia
 from qgis.PyQt.QtGui import QTextCharFormat, QColor, QFont
 from qgis.PyQt.uic import loadUiType
 from datetime import datetime
+from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), 'ui', 'dbmanagment.ui'))
 
@@ -139,6 +140,10 @@ class pyarchinit_dbmanagment(QDialog, MAIN_DIALOG_CLASS):
         self.update_calendar()
 
         self.currentLayerId = None
+
+        # Apply theme
+        ThemeManager.apply_theme(self)
+        ThemeManager.add_theme_toggle_to_form(self)
         
     def load_db_config(self):
         """Load database configuration from config file"""
