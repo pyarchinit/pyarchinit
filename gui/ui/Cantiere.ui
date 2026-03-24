@@ -49,9 +49,21 @@
      </item>
      <item>
       <widget class="QComboBox" name="comboBox_sito">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>3</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>250</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
-         <pointsize>8</pointsize>
+         <pointsize>9</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
@@ -88,9 +100,21 @@
      </item>
      <item>
       <widget class="QComboBox" name="comboBox_anno">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>120</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="font">
         <font>
-         <pointsize>8</pointsize>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="editable">

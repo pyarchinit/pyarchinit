@@ -24,7 +24,8 @@ from __future__ import absolute_import
 import os
 import sys
 from datetime import date, datetime
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import QDate, QTimer
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QFileDialog
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 
@@ -435,6 +436,26 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.currentLayerId = None
+        self.retranslate_ui()
+
+        # Reload personnel list when site changes
+        self.comboBox_sito.currentTextChanged.connect(self.charge_personale_list)
+
+        # Defer DB loading so the window shows instantly
+        QTimer.singleShot(0, self._deferred_init)
+
+        # Connect export buttons
+        self.pushButton_export_pdf.clicked.connect(self.on_pushButton_export_pdf_pressed)
+        self.pushButton_export_excel.clicked.connect(self.on_pushButton_export_excel_pressed)
+
+        # Connect quick register buttons
+        self.pushButton_registra_oggi.clicked.connect(lambda: self.quick_register('regular'))
+        self.pushButton_registra_ferie.clicked.connect(lambda: self.quick_register('holiday'))
+        self.pushButton_registra_malattia.clicked.connect(lambda: self.quick_register('sick'))
+        self.pushButton_registra_permesso.clicked.connect(lambda: self.quick_register('dayoff'))
+
+    def _deferred_init(self):
+        """Load data after the window is visible."""
         try:
             self.on_pushButton_connect_pressed()
         except:
@@ -442,6 +463,215 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+
+    def quick_register(self, reg_type):
+        """Quick-fill attendance form for today with selected type."""
+        from datetime import datetime as dt
+
+        # Set today's date
+        self.lineEdit_data.setDate(QDate.currentDate())
+
+        # Map type to thesaurus values based on language
+        type_map = {
+            'regular': {'it': 'Ordinaria', 'en': 'Regular Day', 'de': 'Regulärer Tag',
+                        'es': 'Jornada Ordinaria', 'fr': 'Journée Ordinaire', 'ar': 'يوم عادي',
+                        'ca': 'Jornada Ordinària', 'ro': 'Zi Normală', 'pt': 'Dia Regular', 'el': 'Κανονική Ημέρα'},
+            'holiday': {'it': 'Ferie', 'en': 'Holiday/Leave', 'de': 'Urlaub',
+                        'es': 'Vacaciones', 'fr': 'Congé', 'ar': 'إجازة',
+                        'ca': 'Vacances', 'ro': 'Concediu', 'pt': 'Férias', 'el': 'Άδεια'},
+            'sick': {'it': 'Malattia', 'en': 'Sick Leave', 'de': 'Krankheit',
+                     'es': 'Baja Médica', 'fr': 'Maladie', 'ar': 'إجازة مرضية',
+                     'ca': 'Malaltia', 'ro': 'Concediu Medical', 'pt': 'Baixa Médica', 'el': 'Αναρρωτική'},
+            'dayoff': {'it': 'Permesso', 'en': 'Day Off', 'de': 'Freistellung',
+                       'es': 'Permiso', 'fr': 'Permission', 'ar': 'إذن',
+                       'ca': 'Permís', 'ro': 'Permisie', 'pt': 'Licença', 'el': 'Ρεπό'},
+        }
+
+        tipo_vals = type_map.get(reg_type, type_map['regular'])
+        tipo = tipo_vals.get(self.L, tipo_vals['en'])
+
+        # Set tipo_giornata
+        idx = self.comboBox_tipo_giornata.findText(tipo)
+        if idx >= 0:
+            self.comboBox_tipo_giornata.setCurrentIndex(idx)
+        else:
+            self.comboBox_tipo_giornata.setEditText(tipo)
+
+        # For regular day, pre-fill standard work hours
+        if reg_type == 'regular':
+            now = dt.now()
+            self.lineEdit_ora_ingresso.setText(now.strftime("%H:%M"))
+            self.lineEdit_ore_ordinarie.setText("8")
+            self.lineEdit_ore_straordinario.setText("0")
+            self.comboBox_turno.setEditText("Morning")
+        elif reg_type in ('holiday', 'sick', 'dayoff'):
+            self.lineEdit_ora_ingresso.setText("")
+            self.lineEdit_ora_uscita.setText("")
+            self.lineEdit_ore_ordinarie.setText("0")
+            self.lineEdit_ore_straordinario.setText("0")
+            self.lineEdit_costo_giornata.setText("0")
+
+        # Switch to new record mode if browsing
+        if self.BROWSE_STATUS != 'n':
+            self.on_pushButton_new_rec_pressed()
+            # Re-apply the quick fill after new record
+            self.lineEdit_data.setDate(QDate.currentDate())
+            idx = self.comboBox_tipo_giornata.findText(tipo)
+            if idx >= 0:
+                self.comboBox_tipo_giornata.setCurrentIndex(idx)
+            else:
+                self.comboBox_tipo_giornata.setEditText(tipo)
+            if reg_type == 'regular':
+                self.lineEdit_ora_ingresso.setText(dt.now().strftime("%H:%M"))
+                self.lineEdit_ore_ordinarie.setText("8")
+                self.lineEdit_ore_straordinario.setText("0")
+
+    def retranslate_ui(self):
+        """Translate UI labels based on current locale."""
+        lang = self.L
+        translations = {
+            'it': {
+                'title': 'pyArchInit Gestione Cantiere - Presenze',
+                'sito': 'Sito', 'personale': 'Personale', 'data': 'Data',
+                'turno': 'Turno', 'area_lavoro': 'Area Lavoro',
+                'ora_ingresso': 'Ora Ingresso', 'ora_uscita': 'Ora Uscita',
+                'ore_ordinarie': 'Ore Ordinarie', 'ore_straordinario': 'Ore Straordinario',
+                'tipo_giornata': 'Tipo Giornata', 'costo_giornata': 'Costo Giornata',
+                'note': 'Note', 'ordinamento': 'Ordinamento',
+                'btn_oggi': 'Registra Oggi', 'btn_ferie': 'Ferie',
+                'btn_malattia': 'Malattia', 'btn_permesso': 'Permesso',
+                'btn_export_pdf': 'Esporta PDF', 'btn_export_excel': 'Esporta Excel',
+            },
+            'en': {
+                'title': 'pyArchInit Site Management - Attendance',
+                'sito': 'Site', 'personale': 'Personnel', 'data': 'Date',
+                'turno': 'Shift', 'area_lavoro': 'Work Area',
+                'ora_ingresso': 'Clock In', 'ora_uscita': 'Clock Out',
+                'ore_ordinarie': 'Regular Hours', 'ore_straordinario': 'Overtime Hours',
+                'tipo_giornata': 'Day Type', 'costo_giornata': 'Daily Cost',
+                'note': 'Notes', 'ordinamento': 'Sort Order',
+                'btn_oggi': 'Register Today', 'btn_ferie': 'Holiday',
+                'btn_malattia': 'Sick Leave', 'btn_permesso': 'Day Off',
+                'btn_export_pdf': 'Export PDF', 'btn_export_excel': 'Export Excel',
+            },
+            'de': {
+                'title': 'pyArchInit Grabungsverwaltung - Anwesenheit',
+                'sito': 'Fundstelle', 'personale': 'Personal', 'data': 'Datum',
+                'turno': 'Schicht', 'area_lavoro': 'Arbeitsbereich',
+                'ora_ingresso': 'Arbeitsbeginn', 'ora_uscita': 'Arbeitsende',
+                'ore_ordinarie': 'Regelarbeitszeit', 'ore_straordinario': 'Überstunden',
+                'tipo_giornata': 'Tagestyp', 'costo_giornata': 'Tageskosten',
+                'note': 'Notizen', 'ordinamento': 'Sortierung',
+                'btn_oggi': 'Heute Erfassen', 'btn_ferie': 'Urlaub',
+                'btn_malattia': 'Krankheit', 'btn_permesso': 'Freistellung',
+                'btn_export_pdf': 'PDF Export', 'btn_export_excel': 'Excel Export',
+            },
+            'es': {
+                'title': 'pyArchInit Gestión de Obra - Asistencia',
+                'sito': 'Sitio', 'personale': 'Personal', 'data': 'Fecha',
+                'turno': 'Turno', 'area_lavoro': 'Área de Trabajo',
+                'ora_ingresso': 'Hora Entrada', 'ora_uscita': 'Hora Salida',
+                'ore_ordinarie': 'Horas Ordinarias', 'ore_straordinario': 'Horas Extra',
+                'tipo_giornata': 'Tipo de Jornada', 'costo_giornata': 'Coste Diario',
+                'note': 'Notas', 'ordinamento': 'Orden',
+                'btn_oggi': 'Registrar Hoy', 'btn_ferie': 'Vacaciones',
+                'btn_malattia': 'Baja Médica', 'btn_permesso': 'Permiso',
+                'btn_export_pdf': 'Exportar PDF', 'btn_export_excel': 'Exportar Excel',
+            },
+            'fr': {
+                'title': 'pyArchInit Gestion de Chantier - Présences',
+                'sito': 'Site', 'personale': 'Personnel', 'data': 'Date',
+                'turno': 'Équipe', 'area_lavoro': 'Zone de Travail',
+                'ora_ingresso': 'Heure Arrivée', 'ora_uscita': 'Heure Départ',
+                'ore_ordinarie': 'Heures Normales', 'ore_straordinario': 'Heures Supplémentaires',
+                'tipo_giornata': 'Type de Journée', 'costo_giornata': 'Coût Journalier',
+                'note': 'Notes', 'ordinamento': 'Classement',
+                'btn_oggi': "Enregistrer Aujourd'hui", 'btn_ferie': 'Congé',
+                'btn_malattia': 'Maladie', 'btn_permesso': 'Permission',
+                'btn_export_pdf': 'Exporter PDF', 'btn_export_excel': 'Exporter Excel',
+            },
+            'ar': {
+                'title': 'pyArchInit إدارة الموقع - الحضور',
+                'sito': 'الموقع', 'personale': 'الموظف', 'data': 'التاريخ',
+                'turno': 'الوردية', 'area_lavoro': 'منطقة العمل',
+                'ora_ingresso': 'وقت الدخول', 'ora_uscita': 'وقت الخروج',
+                'ore_ordinarie': 'ساعات عادية', 'ore_straordinario': 'ساعات إضافية',
+                'tipo_giornata': 'نوع اليوم', 'costo_giornata': 'التكلفة اليومية',
+                'note': 'ملاحظات', 'ordinamento': 'الترتيب',
+                'btn_oggi': 'تسجيل اليوم', 'btn_ferie': 'إجازة',
+                'btn_malattia': 'إجازة مرضية', 'btn_permesso': 'إذن',
+                'btn_export_pdf': 'تصدير PDF', 'btn_export_excel': 'تصدير Excel',
+            },
+            'ca': {
+                'title': "pyArchInit Gestió d'Obra - Assistència",
+                'sito': 'Lloc', 'personale': 'Personal', 'data': 'Data',
+                'turno': 'Torn', 'area_lavoro': 'Àrea de Treball',
+                'ora_ingresso': 'Hora Entrada', 'ora_uscita': 'Hora Sortida',
+                'ore_ordinarie': 'Hores Ordinàries', 'ore_straordinario': 'Hores Extres',
+                'tipo_giornata': 'Tipus de Jornada', 'costo_giornata': 'Cost Diari',
+                'note': 'Notes', 'ordinamento': 'Ordenació',
+                'btn_oggi': "Registrar Avui", 'btn_ferie': 'Vacances',
+                'btn_malattia': 'Malaltia', 'btn_permesso': 'Permís',
+                'btn_export_pdf': 'Exportar PDF', 'btn_export_excel': 'Exportar Excel',
+            },
+            'ro': {
+                'title': 'pyArchInit Gestiune Șantier - Prezențe',
+                'sito': 'Sit', 'personale': 'Personal', 'data': 'Data',
+                'turno': 'Tură', 'area_lavoro': 'Zona de Lucru',
+                'ora_ingresso': 'Ora Intrare', 'ora_uscita': 'Ora Ieșire',
+                'ore_ordinarie': 'Ore Normale', 'ore_straordinario': 'Ore Suplimentare',
+                'tipo_giornata': 'Tip Zi', 'costo_giornata': 'Cost Zilnic',
+                'note': 'Note', 'ordinamento': 'Ordonare',
+                'btn_oggi': 'Înregistrează Azi', 'btn_ferie': 'Concediu',
+                'btn_malattia': 'Concediu Medical', 'btn_permesso': 'Permisie',
+                'btn_export_pdf': 'Export PDF', 'btn_export_excel': 'Export Excel',
+            },
+            'pt': {
+                'title': 'pyArchInit Gestão de Obra - Presenças',
+                'sito': 'Sítio', 'personale': 'Pessoal', 'data': 'Data',
+                'turno': 'Turno', 'area_lavoro': 'Área de Trabalho',
+                'ora_ingresso': 'Hora de Entrada', 'ora_uscita': 'Hora de Saída',
+                'ore_ordinarie': 'Horas Normais', 'ore_straordinario': 'Horas Extra',
+                'tipo_giornata': 'Tipo de Dia', 'costo_giornata': 'Custo Diário',
+                'note': 'Notas', 'ordinamento': 'Ordenação',
+                'btn_oggi': 'Registar Hoje', 'btn_ferie': 'Férias',
+                'btn_malattia': 'Baixa Médica', 'btn_permesso': 'Licença',
+                'btn_export_pdf': 'Exportar PDF', 'btn_export_excel': 'Exportar Excel',
+            },
+            'el': {
+                'title': 'pyArchInit Διαχείριση Ανασκαφής - Παρουσίες',
+                'sito': 'Τοποθεσία', 'personale': 'Προσωπικό', 'data': 'Ημερομηνία',
+                'turno': 'Βάρδια', 'area_lavoro': 'Περιοχή Εργασίας',
+                'ora_ingresso': 'Ώρα Προσέλευσης', 'ora_uscita': 'Ώρα Αποχώρησης',
+                'ore_ordinarie': 'Κανονικές Ώρες', 'ore_straordinario': 'Υπερωρίες',
+                'tipo_giornata': 'Τύπος Ημέρας', 'costo_giornata': 'Ημερήσιο Κόστος',
+                'note': 'Σημειώσεις', 'ordinamento': 'Ταξινόμηση',
+                'btn_oggi': 'Καταχώρηση Σήμερα', 'btn_ferie': 'Άδεια',
+                'btn_malattia': 'Αναρρωτική', 'btn_permesso': 'Ρεπό',
+                'btn_export_pdf': 'Εξαγωγή PDF', 'btn_export_excel': 'Εξαγωγή Excel',
+            },
+        }
+        t = translations.get(lang, translations.get('en', translations['it']))
+        self.setWindowTitle(t['title'])
+        self.label_sito.setText(t['sito'])
+        self.label_personale.setText(t['personale'])
+        self.label_data.setText(t['data'])
+        self.label_turno.setText(t['turno'])
+        self.label_area_lavoro.setText(t['area_lavoro'])
+        self.label_ora_ingresso.setText(t['ora_ingresso'])
+        self.label_ora_uscita.setText(t['ora_uscita'])
+        self.label_ore_ordinarie.setText(t['ore_ordinarie'])
+        self.label_ore_straordinario.setText(t['ore_straordinario'])
+        self.label_tipo_giornata.setText(t['tipo_giornata'])
+        self.label_costo_giornata.setText(t['costo_giornata'])
+        self.label_note.setText(t['note'])
+        self.label_lbl_sort.setText(t['ordinamento'])
+        self.pushButton_registra_oggi.setText(t['btn_oggi'])
+        self.pushButton_registra_ferie.setText(t['btn_ferie'])
+        self.pushButton_registra_malattia.setText(t['btn_malattia'])
+        self.pushButton_registra_permesso.setText(t['btn_permesso'])
+        self.pushButton_export_pdf.setText(t['btn_export_pdf'])
+        self.pushButton_export_excel.setText(t['btn_export_excel'])
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -545,6 +775,9 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_tipo_giornata.addItems(giornata_values)
         except Exception as e:
             pass
+
+        # Populate personnel combobox from personale_table
+        self.charge_personale_list()
 
     def charge_personale_list(self):
         """Populate comboBox_personale from personale_table."""
@@ -810,21 +1043,21 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_data.text() == "":
+            if self.lineEdit_data.date() == QDate(2000, 1, 1):
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Data obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
         elif self.L == 'de':
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ACHTUNG", "Feld Fundort erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_data.text() == "":
+            if self.lineEdit_data.date() == QDate(2000, 1, 1):
                 QMessageBox.warning(self, "ACHTUNG", "Feld Datum erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
         else:
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_data.text() == "":
+            if self.lineEdit_data.date() == QDate(2000, 1, 1):
                 QMessageBox.warning(self, "WARNING", "Date field required!", QMessageBox.StandardButton.Ok)
                 test = 1
 
@@ -864,13 +1097,13 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),                  # sito
                 id_personale,                                           # id_personale
-                str(self.lineEdit_data.text()),                         # data
+                str(self.lineEdit_data.date().toString("yyyy-MM-dd")),                         # data
                 str(self.lineEdit_ora_ingresso.text()),                 # ora_ingresso
                 str(self.lineEdit_ora_uscita.text()),                   # ora_uscita
                 ore_ordinarie,                                          # ore_ordinarie
                 ore_straordinario,                                      # ore_straordinario
                 str(self.comboBox_tipo_giornata.currentText()),         # tipo_giornata
-                str(self.lineEdit_turno.text()),                        # turno
+                str(self.comboBox_turno.currentText()),                        # turno
                 str(self.lineEdit_area_lavoro.text()),                  # area_lavoro
                 str(self.textEdit_note.toPlainText()),                  # note
                 costo_giornata)                                         # costo_giornata
@@ -1137,9 +1370,9 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         else:
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
-                'data': "'" + str(self.lineEdit_data.text()) + "'",
+                'data': "'" + str(self.lineEdit_data.date().toString("yyyy-MM-dd")) + "'",
                 'tipo_giornata': "'" + str(self.comboBox_tipo_giornata.currentText()) + "'",
-                'turno': "'" + str(self.lineEdit_turno.text()) + "'",
+                'turno': "'" + str(self.comboBox_turno.currentText()) + "'",
                 'area_lavoro': "'" + str(self.lineEdit_area_lavoro.text()) + "'",
                 'note': str(self.textEdit_note.toPlainText()),
             }
@@ -1240,13 +1473,13 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
 
     def empty_fields_nosite(self):
         self.comboBox_personale.setCurrentIndex(-1)
-        self.lineEdit_data.clear()
+        self.lineEdit_data.setDate(QDate(2000, 1, 1))
         self.lineEdit_ora_ingresso.clear()
         self.lineEdit_ora_uscita.clear()
         self.lineEdit_ore_ordinarie.clear()
         self.lineEdit_ore_straordinario.clear()
         self.comboBox_tipo_giornata.setEditText("")
-        self.lineEdit_turno.clear()
+        self.comboBox_turno.setEditText("")
         self.lineEdit_area_lavoro.clear()
         self.textEdit_note.clear()
         self.lineEdit_costo_giornata.clear()
@@ -1254,13 +1487,13 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
     def empty_fields(self):
         self.comboBox_sito.setEditText("")
         self.comboBox_personale.setCurrentIndex(-1)
-        self.lineEdit_data.clear()
+        self.lineEdit_data.setDate(QDate(2000, 1, 1))
         self.lineEdit_ora_ingresso.clear()
         self.lineEdit_ora_uscita.clear()
         self.lineEdit_ore_ordinarie.clear()
         self.lineEdit_ore_straordinario.clear()
         self.comboBox_tipo_giornata.setEditText("")
-        self.lineEdit_turno.clear()
+        self.comboBox_turno.setEditText("")
         self.lineEdit_area_lavoro.clear()
         self.textEdit_note.clear()
         self.lineEdit_costo_giornata.clear()
@@ -1278,7 +1511,19 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.comboBox_personale.setCurrentIndex(-1)
 
-            self.lineEdit_data.setText(str(self.DATA_LIST[self.rec_num].data) if self.DATA_LIST[self.rec_num].data else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data) if self.DATA_LIST[self.rec_num].data else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd-MM-yyyy")
+                if qd.isValid():
+                    self.lineEdit_data.setDate(qd)
+                else:
+                    self.lineEdit_data.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data.setDate(QDate(2000, 1, 1))
             self.lineEdit_ora_ingresso.setText(str(self.DATA_LIST[self.rec_num].ora_ingresso) if self.DATA_LIST[self.rec_num].ora_ingresso else "")
             self.lineEdit_ora_uscita.setText(str(self.DATA_LIST[self.rec_num].ora_uscita) if self.DATA_LIST[self.rec_num].ora_uscita else "")
 
@@ -1293,7 +1538,7 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_ore_straordinario.setText("")
 
             self.comboBox_tipo_giornata.setEditText(str(self.DATA_LIST[self.rec_num].tipo_giornata) if self.DATA_LIST[self.rec_num].tipo_giornata else "")
-            self.lineEdit_turno.setText(str(self.DATA_LIST[self.rec_num].turno) if self.DATA_LIST[self.rec_num].turno else "")
+            self.comboBox_turno.setEditText(str(self.DATA_LIST[self.rec_num].turno) if self.DATA_LIST[self.rec_num].turno else "")
             self.lineEdit_area_lavoro.setText(str(self.DATA_LIST[self.rec_num].area_lavoro) if self.DATA_LIST[self.rec_num].area_lavoro else "")
             self.textEdit_note.setText(str(self.DATA_LIST[self.rec_num].note) if self.DATA_LIST[self.rec_num].note else "")
 
@@ -1314,13 +1559,13 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),
             id_pers_str,
-            str(self.lineEdit_data.text()),
+            str(self.lineEdit_data.date().toString("yyyy-MM-dd")),
             str(self.lineEdit_ora_ingresso.text()),
             str(self.lineEdit_ora_uscita.text()),
             ore_ord,
             ore_str,
             str(self.comboBox_tipo_giornata.currentText()),
-            str(self.lineEdit_turno.text()),
+            str(self.comboBox_turno.currentText()),
             str(self.lineEdit_area_lavoro.text()),
             str(self.textEdit_note.toPlainText()),
             costo
@@ -1373,6 +1618,443 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
         return today
+
+
+    def on_pushButton_export_pdf_pressed(self):
+        """Export attendance records to a professional full-page landscape PDF."""
+        if not bool(self.DATA_LIST):
+            QMessageBox.warning(self, "Warning", "No records to export.", QMessageBox.StandardButton.Ok)
+            return
+
+        home = os.environ['PYARCHINIT_HOME']
+        default_name = "attendance_report.pdf"
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export PDF", os.path.join(home, default_name), "PDF (*.pdf)")
+        if not file_path:
+            return
+
+        try:
+            from reportlab.lib import colors
+            from reportlab.lib.pagesizes import A4, landscape
+            from reportlab.lib.units import cm, mm
+            from reportlab.platypus import (SimpleDocTemplate, Table, TableStyle,
+                                            Paragraph, Spacer, PageBreak, KeepTogether)
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+            from reportlab.platypus.flowables import HRFlowable
+            from datetime import datetime
+
+            lang = self.L
+            sito = self.comboBox_sito.currentText()
+
+            # --- Color scheme ---
+            CLR_HEADER = colors.HexColor('#1a237e')       # dark blue
+            CLR_ACCENT = colors.HexColor('#e3f2fd')        # light blue
+            CLR_ROW_ALT = colors.HexColor('#f5f7fa')       # subtle grey
+            CLR_TEXT_LIGHT = colors.white
+            CLR_BORDER = colors.HexColor('#bbdefb')        # medium blue
+            CLR_SUMMARY_BG = colors.HexColor('#e8eaf6')    # indigo tint
+            CLR_TOTAL_ROW = colors.HexColor('#c5cae9')     # stronger indigo
+
+            # --- i18n strings ---
+            i18n = {
+                'it': {
+                    'title': 'Report Presenze',
+                    'subtitle': 'Riepilogo delle presenze del personale',
+                    'site': 'Cantiere', 'generated': 'Generato il',
+                    'period': 'Periodo', 'to': 'a',
+                    'headers': ['Data', 'Personale', 'Ingresso', 'Uscita',
+                                'Ore Ord.', 'Ore Str.', 'Tipo', 'Turno', 'Area', 'Costo'],
+                    'summary_title': 'Riepilogo',
+                    'total_regular': 'Totale Ore Ordinarie',
+                    'total_overtime': 'Totale Ore Straordinarie',
+                    'total_cost': 'Costo Totale',
+                    'days_worked': 'Giorni Lavorati',
+                    'personnel_count': 'Personale Coinvolto',
+                    'page': 'Pagina',
+                    'of': 'di',
+                    'footer': 'pyArchInit - Gestione Dati Archeologici',
+                },
+                'en': {
+                    'title': 'Attendance Report',
+                    'subtitle': 'Personnel attendance summary',
+                    'site': 'Site', 'generated': 'Generated on',
+                    'period': 'Period', 'to': 'to',
+                    'headers': ['Date', 'Personnel', 'Clock In', 'Clock Out',
+                                'Regular Hrs', 'Overtime', 'Type', 'Shift', 'Area', 'Cost'],
+                    'summary_title': 'Summary',
+                    'total_regular': 'Total Regular Hours',
+                    'total_overtime': 'Total Overtime Hours',
+                    'total_cost': 'Total Cost',
+                    'days_worked': 'Days Worked',
+                    'personnel_count': 'Personnel Involved',
+                    'page': 'Page',
+                    'of': 'of',
+                    'footer': 'pyArchInit - Archaeological Data Management',
+                },
+                'de': {
+                    'title': 'Anwesenheitsbericht',
+                    'subtitle': 'Zusammenfassung der Personalanwesenheit',
+                    'site': 'Fundstelle', 'generated': 'Erstellt am',
+                    'period': 'Zeitraum', 'to': 'bis',
+                    'headers': ['Datum', 'Personal', 'Eingang', 'Ausgang',
+                                'Std. Reg.', 'Uberstd.', 'Typ', 'Schicht', 'Bereich', 'Kosten'],
+                    'summary_title': 'Zusammenfassung',
+                    'total_regular': 'Regulare Stunden Gesamt',
+                    'total_overtime': 'Uberstunden Gesamt',
+                    'total_cost': 'Gesamtkosten',
+                    'days_worked': 'Arbeitstage',
+                    'personnel_count': 'Beteiligtes Personal',
+                    'page': 'Seite',
+                    'of': 'von',
+                    'footer': 'pyArchInit - Archaologische Datenverwaltung',
+                },
+                'es': {
+                    'title': 'Informe de Asistencia',
+                    'subtitle': 'Resumen de asistencia del personal',
+                    'site': 'Sitio', 'generated': 'Generado el',
+                    'period': 'Periodo', 'to': 'a',
+                    'headers': ['Fecha', 'Personal', 'Entrada', 'Salida',
+                                'Hrs Ord.', 'Hrs Extra', 'Tipo', 'Turno', 'Area', 'Coste'],
+                    'summary_title': 'Resumen',
+                    'total_regular': 'Total Horas Ordinarias',
+                    'total_overtime': 'Total Horas Extras',
+                    'total_cost': 'Coste Total',
+                    'days_worked': 'Dias Trabajados',
+                    'personnel_count': 'Personal Involucrado',
+                    'page': 'Pagina',
+                    'of': 'de',
+                    'footer': 'pyArchInit - Gestion de Datos Arqueologicos',
+                },
+                'fr': {
+                    'title': 'Rapport de Presences',
+                    'subtitle': 'Resume des presences du personnel',
+                    'site': 'Chantier', 'generated': 'Genere le',
+                    'period': 'Periode', 'to': 'a',
+                    'headers': ['Date', 'Personnel', 'Entree', 'Sortie',
+                                'Hrs Ord.', 'Hrs Sup.', 'Type', 'Equipe', 'Zone', 'Cout'],
+                    'summary_title': 'Resume',
+                    'total_regular': 'Total Heures Ordinaires',
+                    'total_overtime': 'Total Heures Supplementaires',
+                    'total_cost': 'Cout Total',
+                    'days_worked': 'Jours Travailles',
+                    'personnel_count': 'Personnel Implique',
+                    'page': 'Page',
+                    'of': 'de',
+                    'footer': 'pyArchInit - Gestion des Donnees Archeologiques',
+                },
+            }
+            t = i18n.get(lang, i18n['en'])
+
+            # --- Resolve personnel names from personale_table ---
+            personnel_map = {}
+            try:
+                pers_search = {'sito': "'" + sito + "'"}
+                pers_recs = self.DB_MANAGER.query_bool(pers_search, "PERSONALE")
+                for p in pers_recs:
+                    personnel_map[p.id_personale] = f"{p.nome} {p.cognome}"
+            except Exception:
+                pass
+
+            def resolve_name(id_pers):
+                if id_pers in personnel_map:
+                    return personnel_map[id_pers]
+                try:
+                    pid = int(id_pers)
+                    if pid in personnel_map:
+                        return personnel_map[pid]
+                except (ValueError, TypeError):
+                    pass
+                return str(id_pers) if id_pers else ''
+
+            # --- Custom styles ---
+            styles = getSampleStyleSheet()
+            style_title = ParagraphStyle('PDFTitle', parent=styles['Title'],
+                                         fontName='Helvetica-Bold', fontSize=20,
+                                         textColor=CLR_HEADER, spaceAfter=2 * mm)
+            style_subtitle = ParagraphStyle('PDFSubtitle', parent=styles['Normal'],
+                                            fontName='Helvetica', fontSize=11,
+                                            textColor=colors.HexColor('#546e7a'), spaceAfter=1 * mm)
+            style_section = ParagraphStyle('PDFSection', parent=styles['Heading2'],
+                                           fontName='Helvetica-Bold', fontSize=13,
+                                           textColor=CLR_HEADER, spaceBefore=6 * mm, spaceAfter=3 * mm)
+            style_cell = ParagraphStyle('CellStyle', fontName='Helvetica', fontSize=7.5,
+                                        leading=9, alignment=TA_LEFT)
+            style_cell_right = ParagraphStyle('CellRight', fontName='Helvetica', fontSize=7.5,
+                                              leading=9, alignment=TA_RIGHT)
+            style_cell_center = ParagraphStyle('CellCenter', fontName='Helvetica', fontSize=7.5,
+                                               leading=9, alignment=TA_CENTER)
+            style_header_cell = ParagraphStyle('HeaderCell', fontName='Helvetica-Bold', fontSize=8,
+                                               leading=10, textColor=CLR_TEXT_LIGHT, alignment=TA_CENTER)
+            style_summary_label = ParagraphStyle('SumLabel', fontName='Helvetica-Bold', fontSize=10,
+                                                  textColor=CLR_HEADER)
+            style_summary_val = ParagraphStyle('SumVal', fontName='Helvetica-Bold', fontSize=11,
+                                                textColor=colors.HexColor('#0d47a1'), alignment=TA_RIGHT)
+
+            # --- Compute date range ---
+            dates = [str(rec.data) for rec in self.DATA_LIST if rec.data]
+            date_min = min(dates) if dates else '-'
+            date_max = max(dates) if dates else '-'
+
+            # --- Compute summary stats ---
+            total_regular = 0.0
+            total_overtime = 0.0
+            total_cost = 0.0
+            unique_dates = set()
+            unique_personnel = set()
+            for rec in self.DATA_LIST:
+                try:
+                    total_regular += float(rec.ore_ordinarie or 0)
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    total_overtime += float(rec.ore_straordinario or 0)
+                except (ValueError, TypeError):
+                    pass
+                try:
+                    total_cost += float(rec.costo_giornata or 0)
+                except (ValueError, TypeError):
+                    pass
+                if rec.data:
+                    unique_dates.add(str(rec.data))
+                if rec.id_personale:
+                    unique_personnel.add(rec.id_personale)
+
+            # --- Page header/footer callbacks ---
+            def header_footer(canvas, doc):
+                canvas.saveState()
+                page_w, page_h = landscape(A4)
+
+                # Header bar
+                canvas.setFillColor(CLR_HEADER)
+                canvas.rect(0, page_h - 18 * mm, page_w, 18 * mm, fill=1, stroke=0)
+
+                # Header accent line
+                canvas.setFillColor(colors.HexColor('#3949ab'))
+                canvas.rect(0, page_h - 19 * mm, page_w, 1 * mm, fill=1, stroke=0)
+
+                # Logo area / site name in header
+                canvas.setFont('Helvetica-Bold', 14)
+                canvas.setFillColor(CLR_TEXT_LIGHT)
+                canvas.drawString(15 * mm, page_h - 12 * mm, f"pyArchInit")
+
+                canvas.setFont('Helvetica', 10)
+                canvas.drawString(55 * mm, page_h - 12 * mm,
+                                  f"|  {t['site']}: {sito}  |  {t['period']}: {date_min} {t['to']} {date_max}")
+
+                # Date generated (right side)
+                gen_date = datetime.now().strftime('%Y-%m-%d %H:%M')
+                canvas.setFont('Helvetica', 9)
+                canvas.drawRightString(page_w - 15 * mm, page_h - 12 * mm,
+                                       f"{t['generated']}: {gen_date}")
+
+                # Footer
+                canvas.setFillColor(CLR_HEADER)
+                canvas.rect(0, 0, page_w, 10 * mm, fill=1, stroke=0)
+
+                canvas.setFont('Helvetica', 7)
+                canvas.setFillColor(CLR_TEXT_LIGHT)
+                canvas.drawString(15 * mm, 3.5 * mm, t['footer'])
+
+                # Page number
+                page_num = canvas.getPageNumber()
+                canvas.drawRightString(page_w - 15 * mm, 3.5 * mm,
+                                       f"{t['page']} {page_num}")
+
+                canvas.restoreState()
+
+            # --- Build document ---
+            doc = SimpleDocTemplate(
+                file_path,
+                pagesize=landscape(A4),
+                topMargin=25 * mm,
+                bottomMargin=15 * mm,
+                leftMargin=12 * mm,
+                rightMargin=12 * mm,
+            )
+            elements = []
+
+            # Title block
+            elements.append(Spacer(1, 2 * mm))
+            elements.append(Paragraph(t['title'], style_title))
+            elements.append(Paragraph(
+                f"{t['site']}: <b>{sito}</b> &nbsp;&nbsp;|&nbsp;&nbsp; "
+                f"{t['period']}: <b>{date_min}</b> {t['to']} <b>{date_max}</b>",
+                style_subtitle))
+            elements.append(HRFlowable(width="100%", thickness=0.5, color=CLR_BORDER,
+                                       spaceAfter=4 * mm, spaceBefore=2 * mm))
+
+            # --- Data table ---
+            headers = t['headers']
+            header_row = [Paragraph(h, style_header_cell) for h in headers]
+            data_table = [header_row]
+
+            for rec in self.DATA_LIST:
+                cost_val = ''
+                try:
+                    if rec.costo_giornata:
+                        cost_val = f"{float(rec.costo_giornata):,.2f}"
+                except (ValueError, TypeError):
+                    cost_val = str(rec.costo_giornata) if rec.costo_giornata else ''
+
+                row = [
+                    Paragraph(str(rec.data) if rec.data else '', style_cell_center),
+                    Paragraph(resolve_name(rec.id_personale), style_cell),
+                    Paragraph(str(rec.ora_ingresso) if rec.ora_ingresso else '', style_cell_center),
+                    Paragraph(str(rec.ora_uscita) if rec.ora_uscita else '', style_cell_center),
+                    Paragraph(str(rec.ore_ordinarie) if rec.ore_ordinarie else '', style_cell_center),
+                    Paragraph(str(rec.ore_straordinario) if rec.ore_straordinario else '', style_cell_center),
+                    Paragraph(str(rec.tipo_giornata) if rec.tipo_giornata else '', style_cell_center),
+                    Paragraph(str(rec.turno) if rec.turno else '', style_cell_center),
+                    Paragraph(str(rec.area_lavoro) if rec.area_lavoro else '', style_cell),
+                    Paragraph(cost_val, style_cell_right),
+                ]
+                data_table.append(row)
+
+            col_widths = [22 * mm, 42 * mm, 20 * mm, 20 * mm, 20 * mm, 20 * mm,
+                          28 * mm, 22 * mm, 38 * mm, 25 * mm]
+
+            tbl = Table(data_table, colWidths=col_widths, repeatRows=1)
+            tbl.setStyle(TableStyle([
+                # Header row
+                ('BACKGROUND', (0, 0), (-1, 0), CLR_HEADER),
+                ('TEXTCOLOR', (0, 0), (-1, 0), CLR_TEXT_LIGHT),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 4),
+                ('TOPPADDING', (0, 0), (-1, 0), 4),
+
+                # Data rows
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 7.5),
+                ('TOPPADDING', (0, 1), (-1, -1), 3),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 3),
+                ('LEFTPADDING', (0, 0), (-1, -1), 3),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+
+                # Alternating row colors
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, CLR_ROW_ALT]),
+
+                # Grid
+                ('GRID', (0, 0), (-1, 0), 0.5, CLR_HEADER),
+                ('LINEBELOW', (0, 0), (-1, 0), 1.5, colors.HexColor('#3949ab')),
+                ('INNERGRID', (0, 1), (-1, -1), 0.25, CLR_BORDER),
+                ('BOX', (0, 0), (-1, -1), 0.75, CLR_HEADER),
+
+                # Vertical alignment
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            elements.append(tbl)
+
+            # --- Summary section ---
+            elements.append(Spacer(1, 6 * mm))
+            elements.append(Paragraph(t['summary_title'], style_section))
+
+            summary_data = [
+                [Paragraph(t['total_regular'], style_summary_label),
+                 Paragraph(f"{total_regular:,.1f}", style_summary_val),
+                 Paragraph(t['total_overtime'], style_summary_label),
+                 Paragraph(f"{total_overtime:,.1f}", style_summary_val)],
+                [Paragraph(t['days_worked'], style_summary_label),
+                 Paragraph(str(len(unique_dates)), style_summary_val),
+                 Paragraph(t['personnel_count'], style_summary_label),
+                 Paragraph(str(len(unique_personnel)), style_summary_val)],
+                [Paragraph(t['total_cost'], style_summary_label),
+                 Paragraph(f"\u20ac {total_cost:,.2f}", style_summary_val),
+                 Paragraph('', style_summary_label),
+                 Paragraph('', style_summary_val)],
+            ]
+
+            summary_col_widths = [55 * mm, 35 * mm, 55 * mm, 35 * mm]
+            summary_tbl = Table(summary_data, colWidths=summary_col_widths)
+            summary_tbl.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), CLR_SUMMARY_BG),
+                ('BOX', (0, 0), (-1, -1), 1, CLR_HEADER),
+                ('INNERGRID', (0, 0), (-1, -1), 0.5, CLR_BORDER),
+                ('TOPPADDING', (0, 0), (-1, -1), 5),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                # Highlight total cost row
+                ('BACKGROUND', (0, -1), (1, -1), CLR_TOTAL_ROW),
+            ]))
+            elements.append(summary_tbl)
+
+            # Build with header/footer
+            doc.build(elements, onFirstPage=header_footer, onLaterPages=header_footer)
+
+            QMessageBox.information(self, "OK", f"PDF exported: {file_path}", QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"PDF export failed: {str(e)}", QMessageBox.StandardButton.Ok)
+
+    def on_pushButton_export_excel_pressed(self):
+        """Export attendance records to Excel."""
+        if not bool(self.DATA_LIST):
+            QMessageBox.warning(self, "Warning", "No records to export.", QMessageBox.StandardButton.Ok)
+            return
+
+        home = os.environ['PYARCHINIT_HOME']
+        default_name = "attendance_report.csv"
+        file_path, _ = QFileDialog.getSaveFileName(self, "Export Excel/CSV", os.path.join(home, default_name), "CSV (*.csv);;Excel (*.xlsx)")
+        if not file_path:
+            return
+
+        try:
+            import csv
+
+            lang = self.L
+            hdrs = {'it': ['Data', 'ID Personale', 'Ora Ingresso', 'Ora Uscita', 'Ore Ordinarie', 'Ore Straordinario', 'Tipo Giornata', 'Turno', 'Area Lavoro', 'Costo Giornata', 'Note'],
+                    'en': ['Date', 'Personnel ID', 'Clock In', 'Clock Out', 'Regular Hours', 'Overtime Hours', 'Day Type', 'Shift', 'Work Area', 'Daily Cost', 'Notes']}
+            headers = hdrs.get(lang, hdrs['en'])
+
+            if file_path.endswith('.xlsx'):
+                try:
+                    import openpyxl
+                    wb = openpyxl.Workbook()
+                    ws = wb.active
+                    ws.title = "Attendance"
+                    ws.append(headers)
+                    for rec in self.DATA_LIST:
+                        ws.append([
+                            str(rec.data) if rec.data else '',
+                            rec.id_personale,
+                            str(rec.ora_ingresso) if rec.ora_ingresso else '',
+                            str(rec.ora_uscita) if rec.ora_uscita else '',
+                            rec.ore_ordinarie,
+                            rec.ore_straordinario,
+                            str(rec.tipo_giornata) if rec.tipo_giornata else '',
+                            str(rec.turno) if rec.turno else '',
+                            str(rec.area_lavoro) if rec.area_lavoro else '',
+                            rec.costo_giornata,
+                            str(rec.note) if rec.note else '',
+                        ])
+                    wb.save(file_path)
+                except ImportError:
+                    QMessageBox.warning(self, "Warning", "openpyxl not installed. Saving as CSV instead.", QMessageBox.StandardButton.Ok)
+                    file_path = file_path.replace('.xlsx', '.csv')
+
+            if file_path.endswith('.csv'):
+                with open(file_path, 'w', newline='', encoding='utf-8') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(headers)
+                    for rec in self.DATA_LIST:
+                        writer.writerow([
+                            str(rec.data) if rec.data else '',
+                            rec.id_personale,
+                            str(rec.ora_ingresso) if rec.ora_ingresso else '',
+                            str(rec.ora_uscita) if rec.ora_uscita else '',
+                            rec.ore_ordinarie,
+                            rec.ore_straordinario,
+                            str(rec.tipo_giornata) if rec.tipo_giornata else '',
+                            str(rec.turno) if rec.turno else '',
+                            str(rec.area_lavoro) if rec.area_lavoro else '',
+                            rec.costo_giornata,
+                            str(rec.note) if rec.note else '',
+                        ])
+
+            QMessageBox.information(self, "OK", f"Export completed: {file_path}", QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"Export failed: {str(e)}", QMessageBox.StandardButton.Ok)
 
 
 ## Class end

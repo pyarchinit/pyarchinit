@@ -21,9 +21,905 @@ class UserManagementDialog(QDialog):
 
     user_changed = pyqtSignal()  # Segnale quando cambiano utenti/permessi
 
+    # Translation dictionary for all user-facing strings in 10 languages
+    TRANSLATIONS = {
+        'window_title': {
+            'it': "Gestione Utenti e Permessi - PyArchInit",
+            'en': "User & Permission Management - PyArchInit",
+            'de': "Benutzer- & Rechteverwaltung - PyArchInit",
+            'es': "Gestion de Usuarios y Permisos - PyArchInit",
+            'fr': "Gestion des Utilisateurs et Permissions - PyArchInit",
+            'ar': "ادارة المستخدمين والصلاحيات - PyArchInit",
+            'ca': "Gestio d'Usuaris i Permisos - PyArchInit",
+            'ro': "Gestionarea Utilizatorilor si Permisiunilor - PyArchInit",
+            'pt': "Gestao de Utilizadores e Permissoes - PyArchInit",
+            'el': "Diacheirisi Christon kai Dikaiomadon - PyArchInit",
+        },
+        'header_title': {
+            'it': "GESTIONE UTENTI E PERMESSI",
+            'en': "USER & PERMISSION MANAGEMENT",
+            'de': "BENUTZER- & RECHTEVERWALTUNG",
+            'es': "GESTION DE USUARIOS Y PERMISOS",
+            'fr': "GESTION DES UTILISATEURS ET PERMISSIONS",
+            'ar': "ادارة المستخدمين والصلاحيات",
+            'ca': "GESTIO D'USUARIS I PERMISOS",
+            'ro': "GESTIONAREA UTILIZATORILOR SI PERMISIUNILOR",
+            'pt': "GESTAO DE UTILIZADORES E PERMISSOES",
+            'el': "DIACHEIRISI CHRISTON KAI DIKAIOMADON",
+        },
+        'connected_as': {
+            'it': "Connesso come",
+            'en': "Connected as",
+            'de': "Verbunden als",
+            'es': "Conectado como",
+            'fr': "Connecte en tant que",
+            'ar': "متصل باسم",
+            'ca': "Connectat com",
+            'ro': "Conectat ca",
+            'pt': "Conectado como",
+            'el': "Syndedemenos os",
+        },
+        'tab_users': {
+            'it': "Utenti",
+            'en': "Users",
+            'de': "Benutzer",
+            'es': "Usuarios",
+            'fr': "Utilisateurs",
+            'ar': "المستخدمون",
+            'ca': "Usuaris",
+            'ro': "Utilizatori",
+            'pt': "Utilizadores",
+            'el': "Christes",
+        },
+        'tab_permissions': {
+            'it': "Permessi",
+            'en': "Permissions",
+            'de': "Berechtigungen",
+            'es': "Permisos",
+            'fr': "Permissions",
+            'ar': "الصلاحيات",
+            'ca': "Permisos",
+            'ro': "Permisiuni",
+            'pt': "Permissoes",
+            'el': "Dikaiomata",
+        },
+        'tab_monitor': {
+            'it': "Monitor",
+            'en': "Monitor",
+            'de': "Monitor",
+            'es': "Monitor",
+            'fr': "Moniteur",
+            'ar': "المراقبة",
+            'ca': "Monitor",
+            'ro': "Monitor",
+            'pt': "Monitor",
+            'el': "Parakolouthisi",
+        },
+        'tab_roles': {
+            'it': "Ruoli",
+            'en': "Roles",
+            'de': "Rollen",
+            'es': "Roles",
+            'fr': "Roles",
+            'ar': "الادوار",
+            'ca': "Rols",
+            'ro': "Roluri",
+            'pt': "Papeis",
+            'el': "Roloi",
+        },
+        'btn_init_db': {
+            'it': "Inizializza Database Utenti",
+            'en': "Initialize User Database",
+            'de': "Benutzerdatenbank initialisieren",
+            'es': "Inicializar Base de Datos de Usuarios",
+            'fr': "Initialiser la Base de Donnees Utilisateurs",
+            'ar': "تهيئة قاعدة بيانات المستخدمين",
+            'ca': "Inicialitza Base de Dades d'Usuaris",
+            'ro': "Initializeaza Baza de Date Utilizatori",
+            'pt': "Inicializar Base de Dados de Utilizadores",
+            'el': "Archikopoisisi Vasis Dedomenon Christon",
+        },
+        'btn_refresh': {
+            'it': "Aggiorna",
+            'en': "Refresh",
+            'de': "Aktualisieren",
+            'es': "Actualizar",
+            'fr': "Actualiser",
+            'ar': "تحديث",
+            'ca': "Actualitza",
+            'ro': "Actualizeaza",
+            'pt': "Atualizar",
+            'el': "Ananeosin",
+        },
+        'btn_close': {
+            'it': "Chiudi",
+            'en': "Close",
+            'de': "Schliessen",
+            'es': "Cerrar",
+            'fr': "Fermer",
+            'ar': "اغلاق",
+            'ca': "Tanca",
+            'ro': "Inchide",
+            'pt': "Fechar",
+            'el': "Kleisimo",
+        },
+        'user_list': {
+            'it': "Lista Utenti",
+            'en': "User List",
+            'de': "Benutzerliste",
+            'es': "Lista de Usuarios",
+            'fr': "Liste des Utilisateurs",
+            'ar': "قائمة المستخدمين",
+            'ca': "Llista d'Usuaris",
+            'ro': "Lista Utilizatorilor",
+            'pt': "Lista de Utilizadores",
+            'el': "Lista Christon",
+        },
+        'col_username': {
+            'it': "Username", 'en': "Username", 'de': "Benutzername", 'es': "Usuario",
+            'fr': "Identifiant", 'ar': "اسم المستخدم", 'ca': "Usuari", 'ro': "Utilizator",
+            'pt': "Utilizador", 'el': "Onoma Christi",
+        },
+        'col_name': {
+            'it': "Nome", 'en': "Name", 'de': "Name", 'es': "Nombre",
+            'fr': "Nom", 'ar': "الاسم", 'ca': "Nom", 'ro': "Nume",
+            'pt': "Nome", 'el': "Onoma",
+        },
+        'col_role': {
+            'it': "Ruolo", 'en': "Role", 'de': "Rolle", 'es': "Rol",
+            'fr': "Role", 'ar': "الدور", 'ca': "Rol", 'ro': "Rol",
+            'pt': "Papel", 'el': "Rolos",
+        },
+        'col_email': {
+            'it': "Email", 'en': "Email", 'de': "E-Mail", 'es': "Email",
+            'fr': "Email", 'ar': "البريد الالكتروني", 'ca': "Correu", 'ro': "Email",
+            'pt': "Email", 'el': "Email",
+        },
+        'col_active': {
+            'it': "Attivo", 'en': "Active", 'de': "Aktiv", 'es': "Activo",
+            'fr': "Actif", 'ar': "نشط", 'ca': "Actiu", 'ro': "Activ",
+            'pt': "Ativo", 'el': "Energos",
+        },
+        'btn_new_user': {
+            'it': "Nuovo Utente",
+            'en': "New User",
+            'de': "Neuer Benutzer",
+            'es': "Nuevo Usuario",
+            'fr': "Nouvel Utilisateur",
+            'ar': "مستخدم جديد",
+            'ca': "Nou Usuari",
+            'ro': "Utilizator Nou",
+            'pt': "Novo Utilizador",
+            'el': "Neos Christis",
+        },
+        'btn_delete': {
+            'it': "Elimina",
+            'en': "Delete",
+            'de': "Loschen",
+            'es': "Eliminar",
+            'fr': "Supprimer",
+            'ar': "حذف",
+            'ca': "Elimina",
+            'ro': "Sterge",
+            'pt': "Eliminar",
+            'el': "Diagrafi",
+        },
+        'user_details': {
+            'it': "Dettagli Utente",
+            'en': "User Details",
+            'de': "Benutzerdetails",
+            'es': "Detalles del Usuario",
+            'fr': "Details de l'Utilisateur",
+            'ar': "تفاصيل المستخدم",
+            'ca': "Detalls de l'Usuari",
+            'ro': "Detalii Utilizator",
+            'pt': "Detalhes do Utilizador",
+            'el': "Stoicheia Christi",
+        },
+        'lbl_username': {
+            'it': "Username:", 'en': "Username:", 'de': "Benutzername:", 'es': "Usuario:",
+            'fr': "Identifiant:", 'ar': "اسم المستخدم:", 'ca': "Usuari:", 'ro': "Utilizator:",
+            'pt': "Utilizador:", 'el': "Onoma Christi:",
+        },
+        'lbl_password': {
+            'it': "Password:", 'en': "Password:", 'de': "Passwort:", 'es': "Contrasena:",
+            'fr': "Mot de passe:", 'ar': "كلمة المرور:", 'ca': "Contrasenya:", 'ro': "Parola:",
+            'pt': "Palavra-passe:", 'el': "Kodikos:",
+        },
+        'lbl_fullname': {
+            'it': "Nome Completo:", 'en': "Full Name:", 'de': "Vollstandiger Name:", 'es': "Nombre Completo:",
+            'fr': "Nom Complet:", 'ar': "الاسم الكامل:", 'ca': "Nom Complet:", 'ro': "Nume Complet:",
+            'pt': "Nome Completo:", 'el': "Plires Onoma:",
+        },
+        'lbl_email': {
+            'it': "Email:", 'en': "Email:", 'de': "E-Mail:", 'es': "Email:",
+            'fr': "Email:", 'ar': "البريد الالكتروني:", 'ca': "Correu:", 'ro': "Email:",
+            'pt': "Email:", 'el': "Email:",
+        },
+        'lbl_role': {
+            'it': "Ruolo:", 'en': "Role:", 'de': "Rolle:", 'es': "Rol:",
+            'fr': "Role:", 'ar': "الدور:", 'ca': "Rol:", 'ro': "Rol:",
+            'pt': "Papel:", 'el': "Rolos:",
+        },
+        'lbl_status': {
+            'it': "Stato:", 'en': "Status:", 'de': "Status:", 'es': "Estado:",
+            'fr': "Statut:", 'ar': "الحالة:", 'ca': "Estat:", 'ro': "Stare:",
+            'pt': "Estado:", 'el': "Katastasi:",
+        },
+        'lbl_notes': {
+            'it': "Note:", 'en': "Notes:", 'de': "Notizen:", 'es': "Notas:",
+            'fr': "Notes:", 'ar': "ملاحظات:", 'ca': "Notes:", 'ro': "Note:",
+            'pt': "Notas:", 'el': "Simeiosis:",
+        },
+        'lbl_last_login': {
+            'it': "Ultimo Accesso:", 'en': "Last Login:", 'de': "Letzter Zugriff:", 'es': "Ultimo Acceso:",
+            'fr': "Derniere Connexion:", 'ar': "اخر دخول:", 'ca': "Ultim Acces:", 'ro': "Ultima Autentificare:",
+            'pt': "Ultimo Acesso:", 'el': "Teleftaia Syndesi:",
+        },
+        'user_active': {
+            'it': "Utente Attivo",
+            'en': "User Active",
+            'de': "Benutzer Aktiv",
+            'es': "Usuario Activo",
+            'fr': "Utilisateur Actif",
+            'ar': "مستخدم نشط",
+            'ca': "Usuari Actiu",
+            'ro': "Utilizator Activ",
+            'pt': "Utilizador Ativo",
+            'el': "Energos Christis",
+        },
+        'password_placeholder': {
+            'it': "Lascia vuoto per non cambiare",
+            'en': "Leave empty to keep current",
+            'de': "Leer lassen, um nicht zu andern",
+            'es': "Dejar vacio para no cambiar",
+            'fr': "Laisser vide pour ne pas changer",
+            'ar': "اتركه فارغا للابقاء على الحالي",
+            'ca': "Deixa buit per no canviar",
+            'ro': "Lasati gol pentru a nu schimba",
+            'pt': "Deixar vazio para nao alterar",
+            'el': "Afiste keno gia na min allaxei",
+        },
+        'btn_save_user': {
+            'it': "Salva Utente",
+            'en': "Save User",
+            'de': "Benutzer Speichern",
+            'es': "Guardar Usuario",
+            'fr': "Enregistrer Utilisateur",
+            'ar': "حفظ المستخدم",
+            'ca': "Desa Usuari",
+            'ro': "Salveaza Utilizator",
+            'pt': "Guardar Utilizador",
+            'el': "Apothikefsi Christi",
+        },
+        'lbl_user': {
+            'it': "Utente:", 'en': "User:", 'de': "Benutzer:", 'es': "Usuario:",
+            'fr': "Utilisateur:", 'ar': "المستخدم:", 'ca': "Usuari:", 'ro': "Utilizator:",
+            'pt': "Utilizador:", 'el': "Christis:",
+        },
+        'btn_apply_all': {
+            'it': "Applica a Tutte le Tabelle",
+            'en': "Apply to All Tables",
+            'de': "Auf alle Tabellen anwenden",
+            'es': "Aplicar a Todas las Tablas",
+            'fr': "Appliquer a Toutes les Tables",
+            'ar': "تطبيق على جميع الجداول",
+            'ca': "Aplica a Totes les Taules",
+            'ro': "Aplica la Toate Tabelele",
+            'pt': "Aplicar a Todas as Tabelas",
+            'el': "Efarmogi se Olous tous Pinakes",
+        },
+        'btn_save_permissions': {
+            'it': "Salva Permessi",
+            'en': "Save Permissions",
+            'de': "Berechtigungen Speichern",
+            'es': "Guardar Permisos",
+            'fr': "Enregistrer Permissions",
+            'ar': "حفظ الصلاحيات",
+            'ca': "Desa Permisos",
+            'ro': "Salveaza Permisiuni",
+            'pt': "Guardar Permissoes",
+            'el': "Apothikefsi Dikaiomaton",
+        },
+        'col_table': {
+            'it': "Tabella", 'en': "Table", 'de': "Tabelle", 'es': "Tabla",
+            'fr': "Table", 'ar': "الجدول", 'ca': "Taula", 'ro': "Tabel",
+            'pt': "Tabela", 'el': "Pinakas",
+        },
+        'col_view': {
+            'it': "Visualizza", 'en': "View", 'de': "Anzeigen", 'es': "Ver",
+            'fr': "Voir", 'ar': "عرض", 'ca': "Veure", 'ro': "Vizualizeaza",
+            'pt': "Ver", 'el': "Provoli",
+        },
+        'col_insert': {
+            'it': "Inserisci", 'en': "Insert", 'de': "Einfugen", 'es': "Insertar",
+            'fr': "Inserer", 'ar': "ادراج", 'ca': "Inserir", 'ro': "Insereaza",
+            'pt': "Inserir", 'el': "Eisagogi",
+        },
+        'col_update': {
+            'it': "Modifica", 'en': "Update", 'de': "Andern", 'es': "Modificar",
+            'fr': "Modifier", 'ar': "تعديل", 'ca': "Modificar", 'ro': "Modifica",
+            'pt': "Modificar", 'el': "Enimerosin",
+        },
+        'col_delete': {
+            'it': "Elimina", 'en': "Delete", 'de': "Loschen", 'es': "Eliminar",
+            'fr': "Supprimer", 'ar': "حذف", 'ca': "Eliminar", 'ro': "Sterge",
+            'pt': "Eliminar", 'el': "Diagrafi",
+        },
+        'col_type': {
+            'it': "Tipo", 'en': "Type", 'de': "Typ", 'es': "Tipo",
+            'fr': "Type", 'ar': "النوع", 'ca': "Tipus", 'ro': "Tip",
+            'pt': "Tipo", 'el': "Typos",
+        },
+        'quick_permissions': {
+            'it': "Permessi Rapidi:", 'en': "Quick Permissions:", 'de': "Schnellberechtigungen:",
+            'es': "Permisos Rapidos:", 'fr': "Permissions Rapides:", 'ar': "صلاحيات سريعة:",
+            'ca': "Permisos Rapids:", 'ro': "Permisiuni Rapide:", 'pt': "Permissoes Rapidas:",
+            'el': "Grigora Dikaiomata:",
+        },
+        'realtime_monitor': {
+            'it': "Monitor Real-Time",
+            'en': "Real-Time Monitor",
+            'de': "Echtzeit-Monitor",
+            'es': "Monitor en Tiempo Real",
+            'fr': "Moniteur en Temps Reel",
+            'ar': "مراقبة فورية",
+            'ca': "Monitor en Temps Real",
+            'ro': "Monitor in Timp Real",
+            'pt': "Monitor em Tempo Real",
+            'el': "Parakolouthisi Pragmatikou Chronou",
+        },
+        'col_user_monitor': {
+            'it': "Utente", 'en': "User", 'de': "Benutzer", 'es': "Usuario",
+            'fr': "Utilisateur", 'ar': "المستخدم", 'ca': "Usuari", 'ro': "Utilizator",
+            'pt': "Utilizador", 'el': "Christis",
+        },
+        'col_table_monitor': {
+            'it': "Tabella", 'en': "Table", 'de': "Tabelle", 'es': "Tabla",
+            'fr': "Table", 'ar': "الجدول", 'ca': "Taula", 'ro': "Tabel",
+            'pt': "Tabela", 'el': "Pinakas",
+        },
+        'col_record': {
+            'it': "Record", 'en': "Record", 'de': "Datensatz", 'es': "Registro",
+            'fr': "Enregistrement", 'ar': "سجل", 'ca': "Registre", 'ro': "Inregistrare",
+            'pt': "Registo", 'el': "Eggraphi",
+        },
+        'col_action': {
+            'it': "Azione", 'en': "Action", 'de': "Aktion", 'es': "Accion",
+            'fr': "Action", 'ar': "اجراء", 'ca': "Accio", 'ro': "Actiune",
+            'pt': "Acao", 'el': "Energeia",
+        },
+        'col_minutes': {
+            'it': "Da Minuti", 'en': "Minutes", 'de': "Seit Minuten", 'es': "Minutos",
+            'fr': "Depuis Minutes", 'ar': "دقائق", 'ca': "Des de Minuts", 'ro': "De Minute",
+            'pt': "Minutos", 'el': "Lepta",
+        },
+        'col_ip': {
+            'it': "IP", 'en': "IP", 'de': "IP", 'es': "IP",
+            'fr': "IP", 'ar': "IP", 'ca': "IP", 'ro': "IP",
+            'pt': "IP", 'el': "IP",
+        },
+        'col_status': {
+            'it': "Stato", 'en': "Status", 'de': "Status", 'es': "Estado",
+            'fr': "Statut", 'ar': "الحالة", 'ca': "Estat", 'ro': "Stare",
+            'pt': "Estado", 'el': "Katastasi",
+        },
+        'auto_refresh': {
+            'it': "Auto-refresh ogni 10 secondi",
+            'en': "Auto-refresh every 10 seconds",
+            'de': "Automatische Aktualisierung alle 10 Sekunden",
+            'es': "Auto-actualizacion cada 10 segundos",
+            'fr': "Actualisation auto toutes les 10 secondes",
+            'ar': "تحديث تلقائي كل 10 ثوان",
+            'ca': "Actualitzacio automatica cada 10 segons",
+            'ro': "Actualizare automata la fiecare 10 secunde",
+            'pt': "Atualizacao automatica a cada 10 segundos",
+            'el': "Aftomati ananeosin kathe 10 defterolepdo",
+        },
+        'btn_unlock': {
+            'it': "Sblocca Record Selezionato",
+            'en': "Unlock Selected Record",
+            'de': "Ausgewahlten Datensatz Entsperren",
+            'es': "Desbloquear Registro Seleccionado",
+            'fr': "Deverrouiller l'Enregistrement Selectionne",
+            'ar': "فتح السجل المحدد",
+            'ca': "Desbloqueja Registre Seleccionat",
+            'ro': "Deblocheaza Inregistrarea Selectata",
+            'pt': "Desbloquear Registo Selecionado",
+            'el': "Xekleidoma Epilegmenis Eggrafis",
+        },
+        'access_log': {
+            'it': "Log Accessi (ultime 24 ore)",
+            'en': "Access Log (last 24 hours)",
+            'de': "Zugriffsprotokoll (letzte 24 Stunden)",
+            'es': "Registro de Accesos (ultimas 24 horas)",
+            'fr': "Journal des Acces (dernieres 24 heures)",
+            'ar': "سجل الوصول (اخر 24 ساعة)",
+            'ca': "Registre d'Accessos (ultimes 24 hores)",
+            'ro': "Jurnal Acces (ultimele 24 ore)",
+            'pt': "Registo de Acessos (ultimas 24 horas)",
+            'el': "Archeio Prosvaseon (teleftaies 24 ores)",
+        },
+        'col_timestamp': {
+            'it': "Timestamp", 'en': "Timestamp", 'de': "Zeitstempel", 'es': "Marca de Tiempo",
+            'fr': "Horodatage", 'ar': "الطابع الزمني", 'ca': "Marca de Temps", 'ro': "Marca Temporala",
+            'pt': "Marca Temporal", 'el': "Chronosfragida",
+        },
+        'col_success': {
+            'it': "Successo", 'en': "Success", 'de': "Erfolg", 'es': "Exito",
+            'fr': "Succes", 'ar': "نجاح", 'ca': "Exit", 'ro': "Succes",
+            'pt': "Sucesso", 'el': "Epitichia",
+        },
+        'col_error': {
+            'it': "Errore", 'en': "Error", 'de': "Fehler", 'es': "Error",
+            'fr': "Erreur", 'ar': "خطا", 'ca': "Error", 'ro': "Eroare",
+            'pt': "Erro", 'el': "Sfalma",
+        },
+        'col_role_table': {
+            'it': "Ruolo", 'en': "Role", 'de': "Rolle", 'es': "Rol",
+            'fr': "Role", 'ar': "الدور", 'ca': "Rol", 'ro': "Rol",
+            'pt': "Papel", 'el': "Rolos",
+        },
+        'col_description': {
+            'it': "Descrizione", 'en': "Description", 'de': "Beschreibung", 'es': "Descripcion",
+            'fr': "Description", 'ar': "الوصف", 'ca': "Descripcio", 'ro': "Descriere",
+            'pt': "Descricao", 'el': "Perigrafi",
+        },
+        'col_system': {
+            'it': "Sistema", 'en': "System", 'de': "System", 'es': "Sistema",
+            'fr': "Systeme", 'ar': "النظام", 'ca': "Sistema", 'ro': "Sistem",
+            'pt': "Sistema", 'el': "Systima",
+        },
+        'roles_info': {
+            'it': "I ruoli di sistema (admin) non possono essere modificati.\nI permessi dei ruoli sono i default applicati agli utenti con quel ruolo.",
+            'en': "System roles (admin) cannot be modified.\nRole permissions are the defaults applied to users with that role.",
+            'de': "Systemrollen (admin) konnen nicht geandert werden.\nRollenberechtigungen sind die Standardwerte fur Benutzer mit dieser Rolle.",
+            'es': "Los roles de sistema (admin) no se pueden modificar.\nLos permisos de rol son los predeterminados aplicados a los usuarios con ese rol.",
+            'fr': "Les roles systeme (admin) ne peuvent pas etre modifies.\nLes permissions de role sont les valeurs par defaut appliquees aux utilisateurs ayant ce role.",
+            'ar': "ادوار النظام (المشرف) لا يمكن تعديلها.\nصلاحيات الادوار هي الافتراضية المطبقة على المستخدمين بهذا الدور.",
+            'ca': "Els rols de sistema (admin) no es poden modificar.\nEls permisos de rol son els predeterminats aplicats als usuaris amb aquest rol.",
+            'ro': "Rolurile de sistem (admin) nu pot fi modificate.\nPermisiunile rolurilor sunt valorile implicite aplicate utilizatorilor cu acel rol.",
+            'pt': "Os papeis de sistema (admin) nao podem ser modificados.\nAs permissoes de papel sao os valores predefinidos aplicados aos utilizadores com esse papel.",
+            'el': "Oi roloi systimatos (admin) den mporoun na tropopoiithoun.\nTa dikaiomata rolon einai ta proepilogi pou efarmozondai stous christes me afton ton rolo.",
+        },
+        'access_denied': {
+            'it': "Accesso Negato",
+            'en': "Access Denied",
+            'de': "Zugriff Verweigert",
+            'es': "Acceso Denegado",
+            'fr': "Acces Refuse",
+            'ar': "الوصول مرفوض",
+            'ca': "Acces Denegat",
+            'ro': "Acces Refuzat",
+            'pt': "Acesso Negado",
+            'el': "Apagoreusi Prosvaseos",
+        },
+        'admin_only': {
+            'it': "Solo gli amministratori possono accedere a questa funzione",
+            'en': "Only administrators can access this function",
+            'de': "Nur Administratoren konnen auf diese Funktion zugreifen",
+            'es': "Solo los administradores pueden acceder a esta funcion",
+            'fr': "Seuls les administrateurs peuvent acceder a cette fonction",
+            'ar': "فقط المشرفون يمكنهم الوصول الى هذه الوظيفة",
+            'ca': "Nomes els administradors poden accedir a aquesta funcio",
+            'ro': "Doar administratorii pot accesa aceasta functie",
+            'pt': "Apenas os administradores podem aceder a esta funcao",
+            'el': "Mono oi diacheiristes mporoun na prosvasoun afti ti leitourgia",
+        },
+        'error': {
+            'it': "Errore", 'en': "Error", 'de': "Fehler", 'es': "Error",
+            'fr': "Erreur", 'ar': "خطا", 'ca': "Error", 'ro': "Eroare",
+            'pt': "Erro", 'el': "Sfalma",
+        },
+        'success': {
+            'it': "Successo", 'en': "Success", 'de': "Erfolg", 'es': "Exito",
+            'fr': "Succes", 'ar': "نجاح", 'ca': "Exit", 'ro': "Succes",
+            'pt': "Sucesso", 'el': "Epitichia",
+        },
+        'confirm': {
+            'it': "Conferma", 'en': "Confirm", 'de': "Bestatigen", 'es': "Confirmar",
+            'fr': "Confirmer", 'ar': "تاكيد", 'ca': "Confirma", 'ro': "Confirma",
+            'pt': "Confirmar", 'el': "Epivevaiosin",
+        },
+        'table_not_found': {
+            'it': "Tabella utenti non trovata",
+            'en': "User table not found",
+            'de': "Benutzertabelle nicht gefunden",
+            'es': "Tabla de usuarios no encontrada",
+            'fr': "Table utilisateurs non trouvee",
+            'ar': "جدول المستخدمين غير موجود",
+            'ca': "Taula d'usuaris no trobada",
+            'ro': "Tabelul utilizatorilor nu a fost gasit",
+            'pt': "Tabela de utilizadores nao encontrada",
+            'el': "O pinakas christon den vrethike",
+        },
+        'run_update_script': {
+            'it': "Esegui prima lo script di aggiornamento database",
+            'en': "Run the database update script first",
+            'de': "Fuhren Sie zuerst das Datenbank-Update-Skript aus",
+            'es': "Ejecute primero el script de actualizacion de base de datos",
+            'fr': "Executez d'abord le script de mise a jour de la base de donnees",
+            'ar': "قم بتشغيل سكريبت تحديث قاعدة البيانات اولا",
+            'ca': "Executeu primer l'script d'actualitzacio de base de dades",
+            'ro': "Rulati mai intai scriptul de actualizare a bazei de date",
+            'pt': "Execute primeiro o script de atualizacao da base de dados",
+            'el': "Ekteleste proto to senario enimeroseon vaseon dedomenon",
+        },
+        'loading_users_error': {
+            'it': "Errore caricamento utenti",
+            'en': "Error loading users",
+            'de': "Fehler beim Laden der Benutzer",
+            'es': "Error al cargar usuarios",
+            'fr': "Erreur de chargement des utilisateurs",
+            'ar': "خطا في تحميل المستخدمين",
+            'ca': "Error en carregar usuaris",
+            'ro': "Eroare la incarcarea utilizatorilor",
+            'pt': "Erro ao carregar utilizadores",
+            'el': "Sfalma fortosis christon",
+        },
+        'loading_perms_error': {
+            'it': "Errore caricamento permessi",
+            'en': "Error loading permissions",
+            'de': "Fehler beim Laden der Berechtigungen",
+            'es': "Error al cargar permisos",
+            'fr': "Erreur de chargement des permissions",
+            'ar': "خطا في تحميل الصلاحيات",
+            'ca': "Error en carregar permisos",
+            'ro': "Eroare la incarcarea permisiunilor",
+            'pt': "Erro ao carregar permissoes",
+            'el': "Sfalma fortosis dikaiomaton",
+        },
+        'custom': {
+            'it': "Personalizzato", 'en': "Custom", 'de': "Benutzerdefiniert", 'es': "Personalizado",
+            'fr': "Personnalise", 'ar': "مخصص", 'ca': "Personalitzat", 'ro': "Personalizat",
+            'pt': "Personalizado", 'el': "Prosarmosmeno",
+        },
+        'default': {
+            'it': "Default", 'en': "Default", 'de': "Standard", 'es': "Predeterminado",
+            'fr': "Par defaut", 'ar': "افتراضي", 'ca': "Predeterminat", 'ro': "Implicit",
+            'pt': "Predefinido", 'el': "Proepilogi",
+        },
+        'view_not_exists': {
+            'it': "La vista active_editing_sessions non esiste. Eseguire 'Applica Sistema Concorrenza' dalla configurazione.",
+            'en': "The active_editing_sessions view does not exist. Run 'Apply Concurrency System' from configuration.",
+            'de': "Die Ansicht active_editing_sessions existiert nicht. Fuhren Sie 'Konkurrenzsystem anwenden' aus der Konfiguration aus.",
+            'es': "La vista active_editing_sessions no existe. Ejecute 'Aplicar Sistema de Concurrencia' desde la configuracion.",
+            'fr': "La vue active_editing_sessions n'existe pas. Executez 'Appliquer Systeme de Concurrence' depuis la configuration.",
+            'ar': "عرض active_editing_sessions غير موجود. قم بتشغيل 'تطبيق نظام التزامن' من الاعدادات.",
+            'ca': "La vista active_editing_sessions no existeix. Executeu 'Aplica Sistema de Concurrencia' des de la configuracio.",
+            'ro': "Vizualizarea active_editing_sessions nu exista. Rulati 'Aplica Sistemul de Concurenta' din configurare.",
+            'pt': "A vista active_editing_sessions nao existe. Execute 'Aplicar Sistema de Concorrencia' a partir da configuracao.",
+            'el': "I proepiskopisi active_editing_sessions den yparchi. Ekteleste 'Efarmogi Systimatos Syndromotitas' apo tis rythmiseis.",
+        },
+        'no_active_sessions': {
+            'it': "Nessuna sessione di editing attiva al momento",
+            'en': "No active editing sessions at this time",
+            'de': "Derzeit keine aktiven Bearbeitungssitzungen",
+            'es': "No hay sesiones de edicion activas en este momento",
+            'fr': "Aucune session d'edition active pour le moment",
+            'ar': "لا توجد جلسات تحرير نشطة حاليا",
+            'ca': "No hi ha sessions d'edicio actives en aquest moment",
+            'ro': "Nu exista sesiuni de editare active in acest moment",
+            'pt': "Nenhuma sessao de edicao ativa neste momento",
+            'el': "Den yparxoun energes synedries epimelias afti ti stigmi",
+        },
+        'status_active': {
+            'it': "Attivo", 'en': "Active", 'de': "Aktiv", 'es': "Activo",
+            'fr': "Actif", 'ar': "نشط", 'ca': "Actiu", 'ro': "Activ",
+            'pt': "Ativo", 'el': "Energos",
+        },
+        'status_ongoing': {
+            'it': "In corso", 'en': "Ongoing", 'de': "Laufend", 'es': "En curso",
+            'fr': "En cours", 'ar': "جار", 'ca': "En curs", 'ro': "In curs",
+            'pt': "Em curso", 'el': "Se exelixi",
+        },
+        'status_stalled': {
+            'it': "Stallo", 'en': "Stalled", 'de': "Blockiert", 'es': "Estancado",
+            'fr': "Bloque", 'ar': "متوقف", 'ca': "Estancat", 'ro': "Blocat",
+            'pt': "Bloqueado", 'el': "Mplokare",
+        },
+        'log_not_exists': {
+            'it': "La tabella pyarchinit_access_log non esiste. Eseguire 'Inizializza Database Utenti' per crearla.",
+            'en': "The pyarchinit_access_log table does not exist. Run 'Initialize User Database' to create it.",
+            'de': "Die Tabelle pyarchinit_access_log existiert nicht. Fuhren Sie 'Benutzerdatenbank initialisieren' aus.",
+            'es': "La tabla pyarchinit_access_log no existe. Ejecute 'Inicializar Base de Datos de Usuarios' para crearla.",
+            'fr': "La table pyarchinit_access_log n'existe pas. Executez 'Initialiser la Base de Donnees Utilisateurs' pour la creer.",
+            'ar': "جدول pyarchinit_access_log غير موجود. قم بتشغيل 'تهيئة قاعدة بيانات المستخدمين' لانشائه.",
+            'ca': "La taula pyarchinit_access_log no existeix. Executeu 'Inicialitza Base de Dades d'Usuaris' per crear-la.",
+            'ro': "Tabelul pyarchinit_access_log nu exista. Rulati 'Initializeaza Baza de Date Utilizatori' pentru a-l crea.",
+            'pt': "A tabela pyarchinit_access_log nao existe. Execute 'Inicializar Base de Dados de Utilizadores' para cria-la.",
+            'el': "O pinakas pyarchinit_access_log den yparchi. Ekteleste 'Archikopoisisi Vasis Dedomenon Christon' gia na ton dimiourgisite.",
+        },
+        'no_logs': {
+            'it': "Nessun log di accesso nelle ultime 24 ore",
+            'en': "No access log entries in the last 24 hours",
+            'de': "Keine Zugriffsprotokolle in den letzten 24 Stunden",
+            'es': "Sin registros de acceso en las ultimas 24 horas",
+            'fr': "Aucune entree de journal d'acces dans les dernieres 24 heures",
+            'ar': "لا توجد سجلات وصول في اخر 24 ساعة",
+            'ca': "Sense registres d'acces en les ultimes 24 hores",
+            'ro': "Nu exista inregistrari in jurnalul de acces in ultimele 24 de ore",
+            'pt': "Sem registos de acesso nas ultimas 24 horas",
+            'el': "Den yparxoun katachoreseis prosvaseon tis teleftaies 24 ores",
+        },
+        'system_role': {
+            'it': "Sistema", 'en': "System", 'de': "System", 'es': "Sistema",
+            'fr': "Systeme", 'ar': "نظام", 'ca': "Sistema", 'ro': "Sistem",
+            'pt': "Sistema", 'el': "Systima",
+        },
+        'custom_role': {
+            'it': "Custom", 'en': "Custom", 'de': "Benutzerdefiniert", 'es': "Personalizado",
+            'fr': "Personnalise", 'ar': "مخصص", 'ca': "Personalitzat", 'ro': "Personalizat",
+            'pt': "Personalizado", 'el': "Prosarmosmeno",
+        },
+        'never_logged_in': {
+            'it': "Mai effettuato", 'en': "Never", 'de': "Nie", 'es': "Nunca",
+            'fr': "Jamais", 'ar': "ابدا", 'ca': "Mai", 'ro': "Niciodata",
+            'pt': "Nunca", 'el': "Pote",
+        },
+        'cannot_delete_admin': {
+            'it': "Non puoi eliminare l'utente admin!",
+            'en': "You cannot delete the admin user!",
+            'de': "Der Admin-Benutzer kann nicht geloscht werden!",
+            'es': "No puede eliminar el usuario admin!",
+            'fr': "Vous ne pouvez pas supprimer l'utilisateur admin!",
+            'ar': "لا يمكنك حذف مستخدم المشرف!",
+            'ca': "No podeu eliminar l'usuari admin!",
+            'ro': "Nu puteti sterge utilizatorul admin!",
+            'pt': "Nao pode eliminar o utilizador admin!",
+            'el': "Den mporeis na diagrapseis ton christi admin!",
+        },
+        'confirm_delete_user': {
+            'it': "Eliminare l'utente {username}?",
+            'en': "Delete user {username}?",
+            'de': "Benutzer {username} loschen?",
+            'es': "Eliminar el usuario {username}?",
+            'fr': "Supprimer l'utilisateur {username}?",
+            'ar': "حذف المستخدم {username}؟",
+            'ca': "Eliminar l'usuari {username}?",
+            'ro': "Stergeti utilizatorul {username}?",
+            'pt': "Eliminar o utilizador {username}?",
+            'el': "Diagrafi tou christi {username};",
+        },
+        'user_deleted': {
+            'it': "Utente eliminato",
+            'en': "User deleted",
+            'de': "Benutzer geloscht",
+            'es': "Usuario eliminado",
+            'fr': "Utilisateur supprime",
+            'ar': "تم حذف المستخدم",
+            'ca': "Usuari eliminat",
+            'ro': "Utilizator sters",
+            'pt': "Utilizador eliminado",
+            'el': "O christis diagrafike",
+        },
+        'delete_error': {
+            'it': "Errore eliminazione",
+            'en': "Deletion error",
+            'de': "Loschfehler",
+            'es': "Error de eliminacion",
+            'fr': "Erreur de suppression",
+            'ar': "خطا في الحذف",
+            'ca': "Error d'eliminacio",
+            'ro': "Eroare la stergere",
+            'pt': "Erro de eliminacao",
+            'el': "Sfalma diagrafis",
+        },
+        'username_required': {
+            'it': "Username obbligatorio!",
+            'en': "Username is required!",
+            'de': "Benutzername ist erforderlich!",
+            'es': "El nombre de usuario es obligatorio!",
+            'fr': "L'identifiant est obligatoire!",
+            'ar': "اسم المستخدم مطلوب!",
+            'ca': "L'usuari es obligatori!",
+            'ro': "Numele de utilizator este obligatoriu!",
+            'pt': "O nome de utilizador e obrigatorio!",
+            'el': "To onoma christi einai apardaitito!",
+        },
+        'password_required_new': {
+            'it': "Password obbligatoria per nuovo utente!",
+            'en': "Password is required for a new user!",
+            'de': "Passwort ist fur neue Benutzer erforderlich!",
+            'es': "La contrasena es obligatoria para un nuevo usuario!",
+            'fr': "Le mot de passe est obligatoire pour un nouvel utilisateur!",
+            'ar': "كلمة المرور مطلوبة للمستخدم الجديد!",
+            'ca': "La contrasenya es obligatoria per a un nou usuari!",
+            'ro': "Parola este obligatorie pentru un utilizator nou!",
+            'pt': "A palavra-passe e obrigatoria para um novo utilizador!",
+            'el': "O kodikos einai aparaititos gia neo christi!",
+        },
+        'user_saved': {
+            'it': "Utente salvato correttamente e creato in PostgreSQL!",
+            'en': "User saved successfully and created in PostgreSQL!",
+            'de': "Benutzer erfolgreich gespeichert und in PostgreSQL erstellt!",
+            'es': "Usuario guardado correctamente y creado en PostgreSQL!",
+            'fr': "Utilisateur enregistre et cree dans PostgreSQL avec succes!",
+            'ar': "تم حفظ المستخدم بنجاح وانشاؤه في PostgreSQL!",
+            'ca': "Usuari desat correctament i creat a PostgreSQL!",
+            'ro': "Utilizator salvat cu succes si creat in PostgreSQL!",
+            'pt': "Utilizador guardado com sucesso e criado no PostgreSQL!",
+            'el': "O christis apothikeftike kai dimiourgithike sto PostgreSQL!",
+        },
+        'save_error': {
+            'it': "Errore salvataggio",
+            'en': "Save error",
+            'de': "Speicherfehler",
+            'es': "Error al guardar",
+            'fr': "Erreur d'enregistrement",
+            'ar': "خطا في الحفظ",
+            'ca': "Error en desar",
+            'ro': "Eroare la salvare",
+            'pt': "Erro ao guardar",
+            'el': "Sfalma apothikefsis",
+        },
+        'select_user': {
+            'it': "Seleziona un utente",
+            'en': "Select a user",
+            'de': "Wahlen Sie einen Benutzer",
+            'es': "Seleccione un usuario",
+            'fr': "Selectionnez un utilisateur",
+            'ar': "اختر مستخدما",
+            'ca': "Seleccioneu un usuari",
+            'ro': "Selectati un utilizator",
+            'pt': "Selecione um utilizador",
+            'el': "Epilexte enan christi",
+        },
+        'user_not_found': {
+            'it': "Utente non trovato",
+            'en': "User not found",
+            'de': "Benutzer nicht gefunden",
+            'es': "Usuario no encontrado",
+            'fr': "Utilisateur non trouve",
+            'ar': "المستخدم غير موجود",
+            'ca': "Usuari no trobat",
+            'ro': "Utilizator negasit",
+            'pt': "Utilizador nao encontrado",
+            'el': "O christis den vrethike",
+        },
+        'permissions_saved': {
+            'it': "Permessi salvati correttamente e sincronizzati con PostgreSQL!",
+            'en': "Permissions saved successfully and synced with PostgreSQL!",
+            'de': "Berechtigungen erfolgreich gespeichert und mit PostgreSQL synchronisiert!",
+            'es': "Permisos guardados correctamente y sincronizados con PostgreSQL!",
+            'fr': "Permissions enregistrees et synchronisees avec PostgreSQL avec succes!",
+            'ar': "تم حفظ الصلاحيات بنجاح ومزامنتها مع PostgreSQL!",
+            'ca': "Permisos desats correctament i sincronitzats amb PostgreSQL!",
+            'ro': "Permisiuni salvate cu succes si sincronizate cu PostgreSQL!",
+            'pt': "Permissoes guardadas com sucesso e sincronizadas com o PostgreSQL!",
+            'el': "Ta dikaiomata apothikeftikan kai sygchronistikan me to PostgreSQL!",
+        },
+        'permissions_save_error': {
+            'it': "Errore salvataggio permessi",
+            'en': "Error saving permissions",
+            'de': "Fehler beim Speichern der Berechtigungen",
+            'es': "Error al guardar permisos",
+            'fr': "Erreur d'enregistrement des permissions",
+            'ar': "خطا في حفظ الصلاحيات",
+            'ca': "Error en desar permisos",
+            'ro': "Eroare la salvarea permisiunilor",
+            'pt': "Erro ao guardar permissoes",
+            'el': "Sfalma apothikefsis dikaiomaton",
+        },
+        'confirm_apply_all': {
+            'it': "Applicare questi permessi a TUTTE le tabelle per {username}?",
+            'en': "Apply these permissions to ALL tables for {username}?",
+            'de': "Diese Berechtigungen auf ALLE Tabellen fur {username} anwenden?",
+            'es': "Aplicar estos permisos a TODAS las tablas para {username}?",
+            'fr': "Appliquer ces permissions a TOUTES les tables pour {username}?",
+            'ar': "تطبيق هذه الصلاحيات على جميع الجداول لـ {username}؟",
+            'ca': "Aplicar aquests permisos a TOTES les taules per a {username}?",
+            'ro': "Aplicati aceste permisiuni la TOATE tabelele pentru {username}?",
+            'pt': "Aplicar estas permissoes a TODAS as tabelas para {username}?",
+            'el': "Efarmogi afton ton dikaiomaton se OLOUS tous pinakes gia {username};",
+        },
+        'permissions_applied': {
+            'it': "Permessi applicati!",
+            'en': "Permissions applied!",
+            'de': "Berechtigungen angewendet!",
+            'es': "Permisos aplicados!",
+            'fr': "Permissions appliquees!",
+            'ar': "تم تطبيق الصلاحيات!",
+            'ca': "Permisos aplicats!",
+            'ro': "Permisiuni aplicate!",
+            'pt': "Permissoes aplicadas!",
+            'el': "Ta dikaiomata efarmostikan!",
+        },
+        'apply_error': {
+            'it': "Errore applicazione permessi",
+            'en': "Error applying permissions",
+            'de': "Fehler beim Anwenden der Berechtigungen",
+            'es': "Error al aplicar permisos",
+            'fr': "Erreur d'application des permissions",
+            'ar': "خطا في تطبيق الصلاحيات",
+            'ca': "Error en aplicar permisos",
+            'ro': "Eroare la aplicarea permisiunilor",
+            'pt': "Erro ao aplicar permissoes",
+            'el': "Sfalma efarmogis dikaiomaton",
+        },
+        'confirm_unlock': {
+            'it': "Sbloccare forzatamente il record {record} in {table} (bloccato da {user})?",
+            'en': "Force unlock record {record} in {table} (locked by {user})?",
+            'de': "Datensatz {record} in {table} gewaltsam entsperren (gesperrt von {user})?",
+            'es': "Desbloquear forzosamente el registro {record} en {table} (bloqueado por {user})?",
+            'fr': "Deverrouiller de force l'enregistrement {record} dans {table} (verrouille par {user})?",
+            'ar': "فتح السجل {record} قسريا في {table} (مقفل بواسطة {user})؟",
+            'ca': "Desbloquejar forcosament el registre {record} a {table} (bloquejat per {user})?",
+            'ro': "Deblocati fortat inregistrarea {record} in {table} (blocata de {user})?",
+            'pt': "Desbloquear forcadamente o registo {record} em {table} (bloqueado por {user})?",
+            'el': "Exanancastiko xekleidoma eggrafis {record} ston pinaka {table} (kleidomeno apo {user});",
+        },
+        'record_unlocked': {
+            'it': "Record sbloccato!",
+            'en': "Record unlocked!",
+            'de': "Datensatz entsperrt!",
+            'es': "Registro desbloqueado!",
+            'fr': "Enregistrement deverrouille!",
+            'ar': "تم فتح السجل!",
+            'ca': "Registre desbloquejat!",
+            'ro': "Inregistrare deblocata!",
+            'pt': "Registo desbloqueado!",
+            'el': "I eggrafi xekliodothike!",
+        },
+        'unlock_error': {
+            'it': "Errore sblocco",
+            'en': "Unlock error",
+            'de': "Entsperrfehler",
+            'es': "Error de desbloqueo",
+            'fr': "Erreur de deverrouillage",
+            'ar': "خطا في فتح القفل",
+            'ca': "Error de desbloqueig",
+            'ro': "Eroare la deblocare",
+            'pt': "Erro de desbloqueio",
+            'el': "Sfalma xekleidomatos",
+        },
+        'confirm_init_db': {
+            'it': "Vuoi creare le tabelle del sistema utenti?\nQuesta operazione creera:\n- pyarchinit_users (utenti)\n- pyarchinit_permissions (permessi)\n- pyarchinit_roles (ruoli)\n- pyarchinit_access_log (log accessi)",
+            'en': "Do you want to create the user system tables?\nThis operation will create:\n- pyarchinit_users (users)\n- pyarchinit_permissions (permissions)\n- pyarchinit_roles (roles)\n- pyarchinit_access_log (access log)",
+            'de': "Mochten Sie die Benutzersystemtabellen erstellen?\nDieser Vorgang erstellt:\n- pyarchinit_users (Benutzer)\n- pyarchinit_permissions (Berechtigungen)\n- pyarchinit_roles (Rollen)\n- pyarchinit_access_log (Zugriffsprotokoll)",
+            'es': "Desea crear las tablas del sistema de usuarios?\nEsta operacion creara:\n- pyarchinit_users (usuarios)\n- pyarchinit_permissions (permisos)\n- pyarchinit_roles (roles)\n- pyarchinit_access_log (registro de accesos)",
+            'fr': "Voulez-vous creer les tables du systeme utilisateurs?\nCette operation creera:\n- pyarchinit_users (utilisateurs)\n- pyarchinit_permissions (permissions)\n- pyarchinit_roles (roles)\n- pyarchinit_access_log (journal des acces)",
+            'ar': "هل تريد انشاء جداول نظام المستخدمين؟\nستنشئ هذه العملية:\n- pyarchinit_users (المستخدمون)\n- pyarchinit_permissions (الصلاحيات)\n- pyarchinit_roles (الادوار)\n- pyarchinit_access_log (سجل الوصول)",
+            'ca': "Voleu crear les taules del sistema d'usuaris?\nAquesta operacio creara:\n- pyarchinit_users (usuaris)\n- pyarchinit_permissions (permisos)\n- pyarchinit_roles (rols)\n- pyarchinit_access_log (registre d'accessos)",
+            'ro': "Doriti sa creati tabelele sistemului de utilizatori?\nAceasta operatiune va crea:\n- pyarchinit_users (utilizatori)\n- pyarchinit_permissions (permisiuni)\n- pyarchinit_roles (roluri)\n- pyarchinit_access_log (jurnal acces)",
+            'pt': "Deseja criar as tabelas do sistema de utilizadores?\nEsta operacao criara:\n- pyarchinit_users (utilizadores)\n- pyarchinit_permissions (permissoes)\n- pyarchinit_roles (papeis)\n- pyarchinit_access_log (registo de acessos)",
+            'el': "Thelete na dimiourgisete tous pinakes systimatos christon?\nAfti i leitourgia tha dimiourgisei:\n- pyarchinit_users (christes)\n- pyarchinit_permissions (dikaiomata)\n- pyarchinit_roles (roloi)\n- pyarchinit_access_log (archeio prosvaseon)",
+        },
+        'tables_created': {
+            'it': "Tabelle create con successo!\nOra puoi iniziare a gestire gli utenti.",
+            'en': "Tables created successfully!\nYou can now start managing users.",
+            'de': "Tabellen erfolgreich erstellt!\nSie konnen jetzt mit der Benutzerverwaltung beginnen.",
+            'es': "Tablas creadas con exito!\nAhora puede empezar a gestionar usuarios.",
+            'fr': "Tables creees avec succes!\nVous pouvez maintenant commencer a gerer les utilisateurs.",
+            'ar': "تم انشاء الجداول بنجاح!\nيمكنك الان البدء في ادارة المستخدمين.",
+            'ca': "Taules creades amb exit!\nAra podeu comencar a gestionar usuaris.",
+            'ro': "Tabele create cu succes!\nAcum puteti incepe sa gestionati utilizatorii.",
+            'pt': "Tabelas criadas com sucesso!\nAgora pode comecar a gerir utilizadores.",
+            'el': "Oi pinakes dimiourgithikan me epitichia!\nMporeite tora na archisete ti diacheirisi christon.",
+        },
+        'table_creation_error': {
+            'it': "Errore durante la creazione delle tabelle",
+            'en': "Error creating tables",
+            'de': "Fehler beim Erstellen der Tabellen",
+            'es': "Error al crear las tablas",
+            'fr': "Erreur lors de la creation des tables",
+            'ar': "خطا اثناء انشاء الجداول",
+            'ca': "Error durant la creacio de les taules",
+            'ro': "Eroare la crearea tabelelor",
+            'pt': "Erro ao criar as tabelas",
+            'el': "Sfalma kata ti dimiourgia ton pinakon",
+        },
+    }
+
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
+
+        # Detect language
+        self.L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+        if self.L not in ('it', 'en', 'de', 'es', 'fr', 'ar', 'ca', 'ro', 'pt', 'el'):
+            self.L = 'en'
+
         # Get database username from QGIS settings, fallback to OS username
         s = QgsSettings()
         self.current_user = s.value('pyArchInit/current_user', '', type=str)
@@ -35,8 +931,8 @@ class UserManagementDialog(QDialog):
 
         # Verifica se l'utente è admin
         if not self.check_admin_access():
-            QMessageBox.critical(self, "Accesso Negato",
-                               "Solo gli amministratori possono accedere a questa funzione")
+            QMessageBox.critical(self, self.tr_('access_denied'),
+                               self.tr_('admin_only'))
             self.close()
             return
 
@@ -63,6 +959,14 @@ class UserManagementDialog(QDialog):
         except:
             pass
         return ''
+
+    def tr_(self, key, **kwargs):
+        """Get translated string for current language"""
+        t = self.TRANSLATIONS.get(key, {})
+        text = t.get(self.L, t.get('en', key))
+        if kwargs:
+            text = text.format(**kwargs)
+        return text
 
     def check_admin_access(self):
         """Verifica se l'utente corrente è admin"""
@@ -121,21 +1025,21 @@ class UserManagementDialog(QDialog):
 
     def init_ui(self):
         """Inizializza interfaccia"""
-        self.setWindowTitle("🛡️ Gestione Utenti e Permessi - PyArchInit")
+        self.setWindowTitle(self.tr_('window_title'))
         self.setMinimumSize(1200, 700)
 
         layout = QVBoxLayout()
 
         # Header
         header_layout = QHBoxLayout()
-        title = QLabel("👤 GESTIONE UTENTI E PERMESSI")
+        title = QLabel(self.tr_('header_title'))
         title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2196F3;")
         header_layout.addWidget(title)
 
         # Show both PyArchInit user and database user for clarity
         user_display = self.current_user if self.current_user else self.db_username
         db_display = f" [DB: {self.db_username}]" if self.db_username and self.db_username != user_display else ""
-        self.status_label = QLabel(f"Connesso come: {user_display}{db_display} (Admin)")
+        self.status_label = QLabel(f"{self.tr_('connected_as')}: {user_display}{db_display} (Admin)")
         self.status_label.setStyleSheet("color: green;")
         header_layout.addStretch()
         header_layout.addWidget(self.status_label)
@@ -145,35 +1049,35 @@ class UserManagementDialog(QDialog):
         # Tab widget
         self.tabs = QTabWidget()
 
-        # Tab 1: Gestione Utenti
+        # Tab 1: Users
         self.users_tab = self.create_users_tab()
-        self.tabs.addTab(self.users_tab, "👥 Utenti")
+        self.tabs.addTab(self.users_tab, self.tr_('tab_users'))
 
-        # Tab 2: Gestione Permessi
+        # Tab 2: Permissions
         self.permissions_tab = self.create_permissions_tab()
-        self.tabs.addTab(self.permissions_tab, "🔐 Permessi")
+        self.tabs.addTab(self.permissions_tab, self.tr_('tab_permissions'))
 
-        # Tab 3: Monitor Attività
+        # Tab 3: Monitor
         self.monitor_tab = self.create_monitor_tab()
-        self.tabs.addTab(self.monitor_tab, "📊 Monitor")
+        self.tabs.addTab(self.monitor_tab, self.tr_('tab_monitor'))
 
-        # Tab 4: Ruoli
+        # Tab 4: Roles
         self.roles_tab = self.create_roles_tab()
-        self.tabs.addTab(self.roles_tab, "👔 Ruoli")
+        self.tabs.addTab(self.roles_tab, self.tr_('tab_roles'))
 
         layout.addWidget(self.tabs)
 
         # Footer buttons
         footer_layout = QHBoxLayout()
 
-        self.init_db_btn = QPushButton("🔧 Inizializza Database Utenti")
+        self.init_db_btn = QPushButton(self.tr_('btn_init_db'))
         self.init_db_btn.clicked.connect(self.initialize_user_tables)
         self.init_db_btn.setStyleSheet("background-color: #FF9800; color: white;")
 
-        self.refresh_btn = QPushButton("🔄 Aggiorna")
+        self.refresh_btn = QPushButton(self.tr_('btn_refresh'))
         self.refresh_btn.clicked.connect(self.load_data)
 
-        self.close_btn = QPushButton("❌ Chiudi")
+        self.close_btn = QPushButton(self.tr_('btn_close'))
         self.close_btn.clicked.connect(self.close)
 
         footer_layout.addWidget(self.init_db_btn)
@@ -190,12 +1094,15 @@ class UserManagementDialog(QDialog):
         layout = QHBoxLayout()
 
         # Left: User list
-        left_panel = QGroupBox("Lista Utenti")
+        left_panel = QGroupBox(self.tr_('user_list'))
         left_layout = QVBoxLayout()
 
         self.users_table = QTableWidget()
         self.users_table.setColumnCount(5)
-        self.users_table.setHorizontalHeaderLabels(["Username", "Nome", "Ruolo", "Email", "Attivo"])
+        self.users_table.setHorizontalHeaderLabels([
+            self.tr_('col_username'), self.tr_('col_name'), self.tr_('col_role'),
+            self.tr_('col_email'), self.tr_('col_active')
+        ])
         self.users_table.horizontalHeader().setStretchLastSection(True)
         self.users_table.itemSelectionChanged.connect(self.on_user_selected)
 
@@ -203,11 +1110,11 @@ class UserManagementDialog(QDialog):
 
         # Buttons
         btn_layout = QHBoxLayout()
-        self.add_user_btn = QPushButton("➕ Nuovo Utente")
+        self.add_user_btn = QPushButton(self.tr_('btn_new_user'))
         self.add_user_btn.clicked.connect(self.add_new_user)
-        self.delete_user_btn = QPushButton("🗑️ Elimina")
+        self.delete_user_btn = QPushButton(self.tr_('btn_delete'))
         self.delete_user_btn.clicked.connect(self.delete_user)
-        self.refresh_btn = QPushButton("🔄 Aggiorna")
+        self.refresh_btn = QPushButton(self.tr_('btn_refresh'))
         self.refresh_btn.clicked.connect(self.load_data)
 
         btn_layout.addWidget(self.add_user_btn)
@@ -218,7 +1125,7 @@ class UserManagementDialog(QDialog):
         left_panel.setLayout(left_layout)
 
         # Right: User details
-        right_panel = QGroupBox("Dettagli Utente")
+        right_panel = QGroupBox(self.tr_('user_details'))
         right_layout = QFormLayout()
 
         self.username_edit = QLineEdit()
@@ -228,29 +1135,29 @@ class UserManagementDialog(QDialog):
         self.role_combo = QComboBox()
         self.role_combo.addItems(["admin", "responsabile", "archeologo", "studente", "guest"])
 
-        self.active_check = QCheckBox("Utente Attivo")
+        self.active_check = QCheckBox(self.tr_('user_active'))
 
         self.password_edit = QLineEdit()
         self.password_edit.setEchoMode(QLineEdit.Password)
-        self.password_edit.setPlaceholderText("Lascia vuoto per non cambiare")
+        self.password_edit.setPlaceholderText(self.tr_('password_placeholder'))
 
         self.notes_edit = QTextEdit()
         self.notes_edit.setMaximumHeight(100)
 
-        right_layout.addRow("Username:", self.username_edit)
-        right_layout.addRow("Password:", self.password_edit)
-        right_layout.addRow("Nome Completo:", self.fullname_edit)
-        right_layout.addRow("Email:", self.email_edit)
-        right_layout.addRow("Ruolo:", self.role_combo)
-        right_layout.addRow("Stato:", self.active_check)
-        right_layout.addRow("Note:", self.notes_edit)
+        right_layout.addRow(self.tr_('lbl_username'), self.username_edit)
+        right_layout.addRow(self.tr_('lbl_password'), self.password_edit)
+        right_layout.addRow(self.tr_('lbl_fullname'), self.fullname_edit)
+        right_layout.addRow(self.tr_('lbl_email'), self.email_edit)
+        right_layout.addRow(self.tr_('lbl_role'), self.role_combo)
+        right_layout.addRow(self.tr_('lbl_status'), self.active_check)
+        right_layout.addRow(self.tr_('lbl_notes'), self.notes_edit)
 
         # Last login info
         self.last_login_label = QLabel("-")
-        right_layout.addRow("Ultimo Accesso:", self.last_login_label)
+        right_layout.addRow(self.tr_('lbl_last_login'), self.last_login_label)
 
         # Add save button for user
-        self.save_user_btn = QPushButton("💾 Salva Utente")
+        self.save_user_btn = QPushButton(self.tr_('btn_save_user'))
         self.save_user_btn.clicked.connect(self.save_changes)
         self.save_user_btn.setStyleSheet("""
             QPushButton {
@@ -287,7 +1194,7 @@ class UserManagementDialog(QDialog):
 
         # User selector
         top_layout = QHBoxLayout()
-        top_layout.addWidget(QLabel("Utente:"))
+        top_layout.addWidget(QLabel(self.tr_('lbl_user')))
 
         self.perm_user_combo = QComboBox()
         self.perm_user_combo.currentTextChanged.connect(self.load_user_permissions)
@@ -299,12 +1206,12 @@ class UserManagementDialog(QDialog):
 
         top_layout.addStretch()
 
-        self.apply_to_all_btn = QPushButton("📋 Applica a Tutte le Tabelle")
+        self.apply_to_all_btn = QPushButton(self.tr_('btn_apply_all'))
         self.apply_to_all_btn.clicked.connect(self.apply_permissions_to_all)
         top_layout.addWidget(self.apply_to_all_btn)
 
         # Add save button for permissions
-        self.save_permissions_btn = QPushButton("💾 Salva Permessi")
+        self.save_permissions_btn = QPushButton(self.tr_('btn_save_permissions'))
         self.save_permissions_btn.clicked.connect(self.save_permissions)
         self.save_permissions_btn.setStyleSheet("""
             QPushButton {
@@ -325,7 +1232,8 @@ class UserManagementDialog(QDialog):
         self.permissions_table = QTableWidget()
         self.permissions_table.setColumnCount(6)
         self.permissions_table.setHorizontalHeaderLabels([
-            "Tabella", "Visualizza", "Inserisci", "Modifica", "Elimina", "Tipo"
+            self.tr_('col_table'), self.tr_('col_view'), self.tr_('col_insert'),
+            self.tr_('col_update'), self.tr_('col_delete'), self.tr_('col_type')
         ])
 
         header = self.permissions_table.horizontalHeader()
@@ -335,12 +1243,12 @@ class UserManagementDialog(QDialog):
 
         # Quick permissions
         quick_layout = QHBoxLayout()
-        quick_layout.addWidget(QLabel("Permessi Rapidi:"))
+        quick_layout.addWidget(QLabel(self.tr_('quick_permissions')))
 
-        self.quick_view = QCheckBox("Visualizza")
-        self.quick_insert = QCheckBox("Inserisci")
-        self.quick_update = QCheckBox("Modifica")
-        self.quick_delete = QCheckBox("Elimina")
+        self.quick_view = QCheckBox(self.tr_('col_view'))
+        self.quick_insert = QCheckBox(self.tr_('col_insert'))
+        self.quick_update = QCheckBox(self.tr_('col_update'))
+        self.quick_delete = QCheckBox(self.tr_('col_delete'))
 
         quick_layout.addWidget(self.quick_view)
         quick_layout.addWidget(self.quick_insert)
@@ -359,24 +1267,25 @@ class UserManagementDialog(QDialog):
         layout = QVBoxLayout()
 
         # Real-time monitor
-        monitor_group = QGroupBox("🔴 Monitor Real-Time")
+        monitor_group = QGroupBox(self.tr_('realtime_monitor'))
         monitor_layout = QVBoxLayout()
 
         self.monitor_table = QTableWidget()
         self.monitor_table.setColumnCount(7)
         self.monitor_table.setHorizontalHeaderLabels([
-            "Utente", "Tabella", "Record", "Azione", "Da Minuti", "IP", "Stato"
+            self.tr_('col_user_monitor'), self.tr_('col_table_monitor'), self.tr_('col_record'),
+            self.tr_('col_action'), self.tr_('col_minutes'), self.tr_('col_ip'), self.tr_('col_status')
         ])
 
         monitor_layout.addWidget(self.monitor_table)
 
         # Auto-refresh
         refresh_layout = QHBoxLayout()
-        self.auto_refresh_check = QCheckBox("Auto-refresh ogni 10 secondi")
+        self.auto_refresh_check = QCheckBox(self.tr_('auto_refresh'))
         self.auto_refresh_check.stateChanged.connect(self.toggle_auto_refresh)
         refresh_layout.addWidget(self.auto_refresh_check)
 
-        self.force_unlock_btn = QPushButton("🔓 Sblocca Record Selezionato")
+        self.force_unlock_btn = QPushButton(self.tr_('btn_unlock'))
         self.force_unlock_btn.clicked.connect(self.force_unlock_record)
         refresh_layout.addStretch()
         refresh_layout.addWidget(self.force_unlock_btn)
@@ -386,13 +1295,14 @@ class UserManagementDialog(QDialog):
         layout.addWidget(monitor_group)
 
         # Access log
-        log_group = QGroupBox("📜 Log Accessi (ultime 24 ore)")
+        log_group = QGroupBox(self.tr_('access_log'))
         log_layout = QVBoxLayout()
 
         self.log_table = QTableWidget()
         self.log_table.setColumnCount(6)
         self.log_table.setHorizontalHeaderLabels([
-            "Timestamp", "Utente", "Azione", "Tabella", "Successo", "Errore"
+            self.tr_('col_timestamp'), self.tr_('col_user_monitor'), self.tr_('col_action'),
+            self.tr_('col_table_monitor'), self.tr_('col_success'), self.tr_('col_error')
         ])
 
         log_layout.addWidget(self.log_table)
@@ -411,16 +1321,14 @@ class UserManagementDialog(QDialog):
         self.roles_table = QTableWidget()
         self.roles_table.setColumnCount(7)
         self.roles_table.setHorizontalHeaderLabels([
-            "Ruolo", "Descrizione", "Visualizza", "Inserisci", "Modifica", "Elimina", "Sistema"
+            self.tr_('col_role_table'), self.tr_('col_description'), self.tr_('col_view'),
+            self.tr_('col_insert'), self.tr_('col_update'), self.tr_('col_delete'), self.tr_('col_system')
         ])
 
         layout.addWidget(self.roles_table)
 
         # Info
-        info_label = QLabel(
-            "ℹ️ I ruoli di sistema (admin) non possono essere modificati.\n"
-            "I permessi dei ruoli sono i default applicati agli utenti con quel ruolo."
-        )
+        info_label = QLabel(self.tr_('roles_info'))
         info_label.setStyleSheet("background-color: #E3F2FD; padding: 10px; border-radius: 5px;")
         layout.addWidget(info_label)
 
@@ -449,8 +1357,8 @@ class UserManagementDialog(QDialog):
             if not exists or not exists[0][0]:
                 # Tabella non esiste, mostra messaggio
                 self.users_table.setRowCount(1)
-                self.users_table.setItem(0, 0, QTableWidgetItem("Tabella utenti non trovata"))
-                self.users_table.setItem(0, 1, QTableWidgetItem("Esegui prima lo script di aggiornamento database"))
+                self.users_table.setItem(0, 0, QTableWidgetItem(self.tr_('table_not_found')))
+                self.users_table.setItem(0, 1, QTableWidgetItem(self.tr_('run_update_script')))
                 return
 
             query = """
@@ -486,7 +1394,7 @@ class UserManagementDialog(QDialog):
                     self.perm_user_combo.addItem(user[0])
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore caricamento utenti: {e}")
+            QMessageBox.warning(self, self.tr_('error'), f"{self.tr_('loading_users_error')}: {e}")
 
     def load_user_permissions(self):
         """Carica permessi utente selezionato - mostra SEMPRE tutte le tabelle"""
@@ -501,7 +1409,7 @@ class UserManagementDialog(QDialog):
             result = self.db_manager.execute_sql(query, {'username': username})
             if result:
                 role = result[0][0]
-                self.perm_role_label.setText(f"Ruolo: {role}")
+                self.perm_role_label.setText(f"{self.tr_('col_role')}: {role}")
 
             # Get existing custom permissions from database
             query = """
@@ -579,13 +1487,13 @@ class UserManagementDialog(QDialog):
 
                 # Permission type (custom if from DB, default if generated)
                 is_custom = perm[5]
-                type_item = QTableWidgetItem("Personalizzato" if is_custom else "Default")
+                type_item = QTableWidgetItem(self.tr_('custom') if is_custom else self.tr_('default'))
                 if is_custom:
                     type_item.setBackground(QBrush(QColor(255, 255, 200)))
                 self.permissions_table.setItem(i, 5, type_item)
 
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore caricamento permessi: {e}")
+            QMessageBox.warning(self, self.tr_('error'), f"{self.tr_('loading_perms_error')}: {e}")
 
     def load_monitor(self):
         """Carica monitor attività real-time"""
@@ -602,8 +1510,7 @@ class UserManagementDialog(QDialog):
             if not view_exists or not view_exists[0][0]:
                 # View doesn't exist - show info message
                 self.monitor_table.setRowCount(1)
-                item = QTableWidgetItem("La vista active_editing_sessions non esiste. "
-                                       "Eseguire 'Applica Sistema Concorrenza' dalla configurazione.")
+                item = QTableWidgetItem(self.tr_('view_not_exists'))
                 item.setBackground(QBrush(QColor(255, 255, 200)))
                 self.monitor_table.setItem(0, 0, item)
                 self.monitor_table.setSpan(0, 0, 1, 7)
@@ -619,9 +1526,9 @@ class UserManagementDialog(QDialog):
                     ROUND(minutes_editing::numeric, 1) as minutes,
                     '' as ip,
                     CASE
-                        WHEN minutes_editing < 5 THEN '🟢 Attivo'
-                        WHEN minutes_editing < 30 THEN '🟡 In corso'
-                        ELSE '🔴 Stallo'
+                        WHEN minutes_editing < 5 THEN 'active'
+                        WHEN minutes_editing < 30 THEN 'ongoing'
+                        ELSE 'stalled'
                     END as status
                 FROM active_editing_sessions
                 ORDER BY editing_since DESC
@@ -632,7 +1539,7 @@ class UserManagementDialog(QDialog):
             if not activities:
                 # No active sessions
                 self.monitor_table.setRowCount(1)
-                item = QTableWidgetItem("Nessuna sessione di editing attiva al momento")
+                item = QTableWidgetItem(self.tr_('no_active_sessions'))
                 item.setBackground(QBrush(QColor(200, 255, 200)))
                 self.monitor_table.setItem(0, 0, item)
                 self.monitor_table.setSpan(0, 0, 1, 7)
@@ -642,12 +1549,22 @@ class UserManagementDialog(QDialog):
             self.monitor_table.clearSpans()
             self.monitor_table.setRowCount(len(activities))
 
+            # Map status codes to translated labels
+            _status_map = {
+                'active': self.tr_('status_active'),
+                'ongoing': self.tr_('status_ongoing'),
+                'stalled': self.tr_('status_stalled'),
+            }
+
             for i, activity in enumerate(activities):
                 for j, value in enumerate(activity):
-                    item = QTableWidgetItem(str(value) if value is not None else "")
+                    display_val = str(value) if value is not None else ""
+                    if j == 6:  # Status column - translate
+                        display_val = _status_map.get(display_val, display_val)
+                    item = QTableWidgetItem(display_val)
                     if j == 6:  # Status column
                         item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
-                        if '🔴' in str(value):
+                        if str(value) == 'stalled':
                             item.setBackground(QBrush(QColor(255, 200, 200)))
                     self.monitor_table.setItem(i, j, item)
 
@@ -676,8 +1593,7 @@ class UserManagementDialog(QDialog):
             if not table_exists or not table_exists[0][0]:
                 # Table doesn't exist - show info message
                 self.log_table.setRowCount(1)
-                item = QTableWidgetItem("La tabella pyarchinit_access_log non esiste. "
-                                       "Eseguire 'Inizializza Database Utenti' per crearla.")
+                item = QTableWidgetItem(self.tr_('log_not_exists'))
                 item.setBackground(QBrush(QColor(255, 255, 200)))
                 self.log_table.setItem(0, 0, item)
                 self.log_table.setSpan(0, 0, 1, 6)
@@ -703,7 +1619,7 @@ class UserManagementDialog(QDialog):
             if not logs:
                 # No logs in last 24 hours
                 self.log_table.setRowCount(1)
-                item = QTableWidgetItem("Nessun log di accesso nelle ultime 24 ore")
+                item = QTableWidgetItem(self.tr_('no_logs'))
                 item.setBackground(QBrush(QColor(200, 255, 200)))
                 self.log_table.setItem(0, 0, item)
                 self.log_table.setSpan(0, 0, 1, 6)
@@ -771,7 +1687,7 @@ class UserManagementDialog(QDialog):
                         item.setBackground(QBrush(QColor(200, 255, 200)))
                     self.roles_table.setItem(i, j, item)
 
-                system_item = QTableWidgetItem("Sistema" if role[6] else "Custom")
+                system_item = QTableWidgetItem(self.tr_('system_role') if role[6] else self.tr_('custom_role'))
                 if role[6]:
                     system_item.setBackground(QBrush(QColor(200, 200, 200)))
                 self.roles_table.setItem(i, 6, system_item)
@@ -808,7 +1724,7 @@ class UserManagementDialog(QDialog):
                 if user[6]:
                     self.last_login_label.setText(user[6].strftime("%Y-%m-%d %H:%M"))
                 else:
-                    self.last_login_label.setText("Mai effettuato")
+                    self.last_login_label.setText(self.tr_('never_logged_in'))
 
         except Exception as e:
             print(f"Errore selezione utente: {e}")
@@ -835,11 +1751,11 @@ class UserManagementDialog(QDialog):
         username = self.users_table.item(row, 0).text()
 
         if username == 'admin':
-            QMessageBox.warning(self, "Errore", "Non puoi eliminare l'utente admin!")
+            QMessageBox.warning(self, self.tr_('error'), self.tr_('cannot_delete_admin'))
             return
 
-        reply = QMessageBox.question(self, "Conferma",
-                                    f"Eliminare l'utente {username}?",
+        reply = QMessageBox.question(self, self.tr_('confirm'),
+                                    self.tr_('confirm_delete_user', username=username),
                                     QMessageBox.Yes | QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -847,15 +1763,15 @@ class UserManagementDialog(QDialog):
                 query = "DELETE FROM pyarchinit_users WHERE username = :username"
                 self.db_manager.execute_sql(query, {'username': username})
                 self.load_data()
-                QMessageBox.information(self, "Successo", "Utente eliminato")
+                QMessageBox.information(self, self.tr_('success'), self.tr_('user_deleted'))
             except Exception as e:
-                QMessageBox.critical(self, "Errore", f"Errore eliminazione: {e}")
+                QMessageBox.critical(self, self.tr_('error'), f"{self.tr_('delete_error')}: {e}")
 
     def save_changes(self):
         """Salva modifiche utente"""
         username = self.username_edit.text()
         if not username:
-            QMessageBox.warning(self, "Errore", "Username obbligatorio!")
+            QMessageBox.warning(self, self.tr_('error'), self.tr_('username_required'))
             return
 
         try:
@@ -905,7 +1821,7 @@ class UserManagementDialog(QDialog):
             else:
                 # Insert new
                 if not self.password_edit.text():
-                    QMessageBox.warning(self, "Errore", "Password obbligatoria per nuovo utente!")
+                    QMessageBox.warning(self, self.tr_('error'), self.tr_('password_required_new'))
                     return
 
                 password_hash = hashlib.sha256(
@@ -961,16 +1877,16 @@ class UserManagementDialog(QDialog):
             # Crea automaticamente l'utente PostgreSQL (using saved password, not the cleared field!)
             self.create_postgres_user(username, password_for_postgres, role_for_postgres)
 
-            QMessageBox.information(self, "Successo", "Utente salvato correttamente e creato in PostgreSQL!")
+            QMessageBox.information(self, self.tr_('success'), self.tr_('user_saved'))
 
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore salvataggio: {e}")
+            QMessageBox.critical(self, self.tr_('error'), f"{self.tr_('save_error')}: {e}")
 
     def save_permissions(self):
         """Salva i permessi modificati per l'utente selezionato"""
         username = self.perm_user_combo.currentText()
         if not username:
-            QMessageBox.warning(self, "Errore", "Seleziona un utente")
+            QMessageBox.warning(self, self.tr_('error'), self.tr_('select_user'))
             return
 
         try:
@@ -978,7 +1894,7 @@ class UserManagementDialog(QDialog):
             query = "SELECT id FROM pyarchinit_users WHERE username = :username"
             result = self.db_manager.execute_sql(query, {'username': username})
             if not result:
-                QMessageBox.warning(self, "Errore", "Utente non trovato")
+                QMessageBox.warning(self, self.tr_('error'), self.tr_('user_not_found'))
                 return
 
             user_id = result[0][0]
@@ -1016,10 +1932,10 @@ class UserManagementDialog(QDialog):
             # Sincronizza i permessi con PostgreSQL
             self.sync_postgres_permissions_for_user(username)
 
-            QMessageBox.information(self, "Successo", "Permessi salvati correttamente e sincronizzati con PostgreSQL!")
+            QMessageBox.information(self, self.tr_('success'), self.tr_('permissions_saved'))
 
         except Exception as e:
-            QMessageBox.critical(self, "Errore", f"Errore salvataggio permessi: {e}")
+            QMessageBox.critical(self, self.tr_('error'), f"{self.tr_('permissions_save_error')}: {e}")
 
     def create_postgres_user(self, username, password, role):
         """Crea un utente PostgreSQL con i permessi base del ruolo"""
@@ -1297,8 +2213,8 @@ class UserManagementDialog(QDialog):
         update = self.quick_update.isChecked()
         delete = self.quick_delete.isChecked()
 
-        reply = QMessageBox.question(self, "Conferma",
-            f"Applicare questi permessi a TUTTE le tabelle per {username}?",
+        reply = QMessageBox.question(self, self.tr_('confirm'),
+            self.tr_('confirm_apply_all', username=username),
             QMessageBox.Yes | QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -1315,10 +2231,10 @@ class UserManagementDialog(QDialog):
                     ])
 
                 self.load_user_permissions()
-                QMessageBox.information(self, "Successo", "Permessi applicati!")
+                QMessageBox.information(self, self.tr_('success'), self.tr_('permissions_applied'))
 
             except Exception as e:
-                QMessageBox.critical(self, "Errore", f"Errore applicazione permessi: {e}")
+                QMessageBox.critical(self, self.tr_('error'), f"{self.tr_('apply_error')}: {e}")
 
     def force_unlock_record(self):
         """Forza sblocco record"""
@@ -1330,8 +2246,8 @@ class UserManagementDialog(QDialog):
         record = self.monitor_table.item(row, 2).text()
         user = self.monitor_table.item(row, 0).text()
 
-        reply = QMessageBox.question(self, "Conferma",
-            f"Sbloccare forzatamente il record {record} in {table} (bloccato da {user})?",
+        reply = QMessageBox.question(self, self.tr_('confirm'),
+            self.tr_('confirm_unlock', record=record, table=table, user=user),
             QMessageBox.Yes | QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -1343,9 +2259,9 @@ class UserManagementDialog(QDialog):
                 """
                 self.db_manager.execute_sql(query, {'record': record})
                 self.load_monitor()
-                QMessageBox.information(self, "Successo", "Record sbloccato!")
+                QMessageBox.information(self, self.tr_('success'), self.tr_('record_unlocked'))
             except Exception as e:
-                QMessageBox.critical(self, "Errore", f"Errore sblocco: {e}")
+                QMessageBox.critical(self, self.tr_('error'), f"{self.tr_('unlock_error')}: {e}")
 
     def toggle_auto_refresh(self, state):
         """Attiva/disattiva auto-refresh"""
@@ -1364,13 +2280,8 @@ class UserManagementDialog(QDialog):
 
     def initialize_user_tables(self):
         """Inizializza le tabelle del sistema utenti nel database"""
-        reply = QMessageBox.question(self, "Conferma",
-                                    "Vuoi creare le tabelle del sistema utenti?\n"
-                                    "Questa operazione creerà:\n"
-                                    "- pyarchinit_users (utenti)\n"
-                                    "- pyarchinit_permissions (permessi)\n"
-                                    "- pyarchinit_roles (ruoli)\n"
-                                    "- pyarchinit_access_log (log accessi)",
+        reply = QMessageBox.question(self, self.tr_('confirm'),
+                                    self.tr_('confirm_init_db'),
                                     QMessageBox.Yes | QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -1393,16 +2304,15 @@ class UserManagementDialog(QDialog):
                     if query.strip():
                         self.db_manager.execute_sql(query)
 
-                QMessageBox.information(self, "Successo",
-                                      "Tabelle create con successo!\n"
-                                      "Ora puoi iniziare a gestire gli utenti.")
+                QMessageBox.information(self, self.tr_('success'),
+                                      self.tr_('tables_created'))
 
                 # Ricarica i dati
                 self.load_data()
 
             except Exception as e:
-                QMessageBox.critical(self, "Errore",
-                                   f"Errore durante la creazione delle tabelle:\n{str(e)}")
+                QMessageBox.critical(self, self.tr_('error'),
+                                   f"{self.tr_('table_creation_error')}:\n{str(e)}")
 
     def get_user_tables_sql(self):
         """Ritorna lo script SQL per creare le tabelle utenti"""

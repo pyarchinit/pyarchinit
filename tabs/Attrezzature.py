@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import os
 import sys
 from datetime import date, datetime
+from qgis.PyQt.QtCore import QDate, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -482,6 +483,11 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.currentLayerId = None
+        self.retranslate_ui()
+        QTimer.singleShot(0, self._deferred_init)
+
+    def _deferred_init(self):
+        """Load data after the window is visible."""
         try:
             self.on_pushButton_connect_pressed()
         except:
@@ -489,6 +495,195 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+
+    def retranslate_ui(self):
+        """Translate UI labels based on current locale."""
+        lang = self.L
+        translations = {
+            'it': {
+                'title': 'pyArchInit Gestione Cantiere - Attrezzature',
+                'sito': 'Sito', 'identificazione': 'Identificazione',
+                'codice_inventario': 'Codice Inventario', 'nome': 'Nome',
+                'categoria': 'Categoria', 'marca': 'Marca', 'modello': 'Modello',
+                'numero_serie': 'Numero Serie',
+                'proprieta_costi': 'Proprietà e Costi', 'proprieta': 'Proprietà',
+                'data_acquisto': 'Data Acquisto', 'costo_acquisto': 'Costo Acquisto',
+                'costo_noleggio': 'Costo Noleggio/Giorno',
+                'stato_assegnazione': 'Stato e Assegnazione',
+                'stato': 'Stato', 'assegnato_a': 'Assegnato a',
+                'manutenzione': 'Manutenzione',
+                'ultima_manutenzione': 'Ultima Manutenzione',
+                'prossima_manutenzione': 'Prossima Manutenzione',
+                'note': 'Note', 'ordinamento': 'Ordinamento',
+            },
+            'en': {
+                'title': 'pyArchInit Site Management - Equipment',
+                'sito': 'Site', 'identificazione': 'Identification',
+                'codice_inventario': 'Inventory Code', 'nome': 'Name',
+                'categoria': 'Category', 'marca': 'Brand', 'modello': 'Model',
+                'numero_serie': 'Serial Number',
+                'proprieta_costi': 'Ownership & Costs', 'proprieta': 'Ownership',
+                'data_acquisto': 'Purchase Date', 'costo_acquisto': 'Purchase Cost',
+                'costo_noleggio': 'Rental Cost/Day',
+                'stato_assegnazione': 'Status & Assignment',
+                'stato': 'Status', 'assegnato_a': 'Assigned To',
+                'manutenzione': 'Maintenance',
+                'ultima_manutenzione': 'Last Maintenance',
+                'prossima_manutenzione': 'Next Maintenance',
+                'note': 'Notes', 'ordinamento': 'Sort Order',
+            },
+            'de': {
+                'title': 'pyArchInit Grabungsverwaltung - Ausrüstung',
+                'sito': 'Fundstelle', 'identificazione': 'Identifikation',
+                'codice_inventario': 'Inventarcode', 'nome': 'Name',
+                'categoria': 'Kategorie', 'marca': 'Marke', 'modello': 'Modell',
+                'numero_serie': 'Seriennummer',
+                'proprieta_costi': 'Eigentum & Kosten', 'proprieta': 'Eigentum',
+                'data_acquisto': 'Kaufdatum', 'costo_acquisto': 'Kaufpreis',
+                'costo_noleggio': 'Mietkosten/Tag',
+                'stato_assegnazione': 'Status & Zuweisung',
+                'stato': 'Status', 'assegnato_a': 'Zugewiesen an',
+                'manutenzione': 'Wartung',
+                'ultima_manutenzione': 'Letzte Wartung',
+                'prossima_manutenzione': 'Nächste Wartung',
+                'note': 'Notizen', 'ordinamento': 'Sortierung',
+            },
+            'es': {
+                'title': 'pyArchInit Gestión de Obra - Equipamiento',
+                'sito': 'Sitio', 'identificazione': 'Identificación',
+                'codice_inventario': 'Código de Inventario', 'nome': 'Nombre',
+                'categoria': 'Categoría', 'marca': 'Marca', 'modello': 'Modelo',
+                'numero_serie': 'Número de Serie',
+                'proprieta_costi': 'Propiedad y Costes', 'proprieta': 'Propiedad',
+                'data_acquisto': 'Fecha de Compra', 'costo_acquisto': 'Coste de Compra',
+                'costo_noleggio': 'Coste Alquiler/Día',
+                'stato_assegnazione': 'Estado y Asignación',
+                'stato': 'Estado', 'assegnato_a': 'Asignado a',
+                'manutenzione': 'Mantenimiento',
+                'ultima_manutenzione': 'Último Mantenimiento',
+                'prossima_manutenzione': 'Próximo Mantenimiento',
+                'note': 'Notas', 'ordinamento': 'Orden',
+            },
+            'fr': {
+                'title': 'pyArchInit Gestion de Chantier - Équipement',
+                'sito': 'Site', 'identificazione': 'Identification',
+                'codice_inventario': 'Code Inventaire', 'nome': 'Nom',
+                'categoria': 'Catégorie', 'marca': 'Marque', 'modello': 'Modèle',
+                'numero_serie': 'Numéro de Série',
+                'proprieta_costi': 'Propriété et Coûts', 'proprieta': 'Propriété',
+                'data_acquisto': "Date d'Achat", 'costo_acquisto': "Coût d'Achat",
+                'costo_noleggio': 'Coût Location/Jour',
+                'stato_assegnazione': 'État et Affectation',
+                'stato': 'État', 'assegnato_a': 'Assigné à',
+                'manutenzione': 'Maintenance',
+                'ultima_manutenzione': 'Dernière Maintenance',
+                'prossima_manutenzione': 'Prochaine Maintenance',
+                'note': 'Notes', 'ordinamento': 'Classement',
+            },
+            'ar': {
+                'title': 'pyArchInit إدارة الموقع - المعدات',
+                'sito': 'الموقع', 'identificazione': 'التعريف',
+                'codice_inventario': 'رمز الجرد', 'nome': 'الاسم',
+                'categoria': 'الفئة', 'marca': 'العلامة التجارية', 'modello': 'الموديل',
+                'numero_serie': 'الرقم التسلسلي',
+                'proprieta_costi': 'الملكية والتكاليف', 'proprieta': 'الملكية',
+                'data_acquisto': 'تاريخ الشراء', 'costo_acquisto': 'تكلفة الشراء',
+                'costo_noleggio': 'تكلفة الإيجار/يوم',
+                'stato_assegnazione': 'الحالة والتخصيص',
+                'stato': 'الحالة', 'assegnato_a': 'مخصص لـ',
+                'manutenzione': 'الصيانة',
+                'ultima_manutenzione': 'آخر صيانة',
+                'prossima_manutenzione': 'الصيانة القادمة',
+                'note': 'ملاحظات', 'ordinamento': 'الترتيب',
+            },
+            'ca': {
+                'title': "pyArchInit Gestió d'Obra - Equipament",
+                'sito': 'Lloc', 'identificazione': 'Identificació',
+                'codice_inventario': "Codi d'Inventari", 'nome': 'Nom',
+                'categoria': 'Categoria', 'marca': 'Marca', 'modello': 'Model',
+                'numero_serie': 'Número de Sèrie',
+                'proprieta_costi': 'Propietat i Costos', 'proprieta': 'Propietat',
+                'data_acquisto': 'Data de Compra', 'costo_acquisto': 'Cost de Compra',
+                'costo_noleggio': 'Cost Lloguer/Dia',
+                'stato_assegnazione': 'Estat i Assignació',
+                'stato': 'Estat', 'assegnato_a': 'Assignat a',
+                'manutenzione': 'Manteniment',
+                'ultima_manutenzione': 'Últim Manteniment',
+                'prossima_manutenzione': 'Proper Manteniment',
+                'note': 'Notes', 'ordinamento': 'Ordenació',
+            },
+            'ro': {
+                'title': 'pyArchInit Gestiune Șantier - Echipamente',
+                'sito': 'Sit', 'identificazione': 'Identificare',
+                'codice_inventario': 'Cod Inventar', 'nome': 'Nume',
+                'categoria': 'Categorie', 'marca': 'Marcă', 'modello': 'Model',
+                'numero_serie': 'Număr Serie',
+                'proprieta_costi': 'Proprietate și Costuri', 'proprieta': 'Proprietate',
+                'data_acquisto': 'Data Achiziției', 'costo_acquisto': 'Cost Achiziție',
+                'costo_noleggio': 'Cost Închiriere/Zi',
+                'stato_assegnazione': 'Stare și Atribuire',
+                'stato': 'Stare', 'assegnato_a': 'Atribuit la',
+                'manutenzione': 'Întreținere',
+                'ultima_manutenzione': 'Ultima Întreținere',
+                'prossima_manutenzione': 'Următoarea Întreținere',
+                'note': 'Note', 'ordinamento': 'Ordonare',
+            },
+            'pt': {
+                'title': 'pyArchInit Gestão de Obra - Equipamento',
+                'sito': 'Sítio', 'identificazione': 'Identificação',
+                'codice_inventario': 'Código de Inventário', 'nome': 'Nome',
+                'categoria': 'Categoria', 'marca': 'Marca', 'modello': 'Modelo',
+                'numero_serie': 'Número de Série',
+                'proprieta_costi': 'Propriedade e Custos', 'proprieta': 'Propriedade',
+                'data_acquisto': 'Data de Compra', 'costo_acquisto': 'Custo de Compra',
+                'costo_noleggio': 'Custo Aluguer/Dia',
+                'stato_assegnazione': 'Estado e Atribuição',
+                'stato': 'Estado', 'assegnato_a': 'Atribuído a',
+                'manutenzione': 'Manutenção',
+                'ultima_manutenzione': 'Última Manutenção',
+                'prossima_manutenzione': 'Próxima Manutenção',
+                'note': 'Notas', 'ordinamento': 'Ordenação',
+            },
+            'el': {
+                'title': 'pyArchInit Διαχείριση Ανασκαφής - Εξοπλισμός',
+                'sito': 'Τοποθεσία', 'identificazione': 'Αναγνώριση',
+                'codice_inventario': 'Κωδικός Απογραφής', 'nome': 'Όνομα',
+                'categoria': 'Κατηγορία', 'marca': 'Μάρκα', 'modello': 'Μοντέλο',
+                'numero_serie': 'Σειριακός Αριθμός',
+                'proprieta_costi': 'Ιδιοκτησία & Κόστη', 'proprieta': 'Ιδιοκτησία',
+                'data_acquisto': 'Ημ. Αγοράς', 'costo_acquisto': 'Κόστος Αγοράς',
+                'costo_noleggio': 'Κόστος Ενοικίασης/Ημέρα',
+                'stato_assegnazione': 'Κατάσταση & Ανάθεση',
+                'stato': 'Κατάσταση', 'assegnato_a': 'Ανατέθηκε σε',
+                'manutenzione': 'Συντήρηση',
+                'ultima_manutenzione': 'Τελευταία Συντήρηση',
+                'prossima_manutenzione': 'Επόμενη Συντήρηση',
+                'note': 'Σημειώσεις', 'ordinamento': 'Ταξινόμηση',
+            },
+        }
+        t = translations.get(lang, translations.get('en', translations['it']))
+        self.setWindowTitle(t['title'])
+        self.label_sito.setText(t['sito'])
+        self.groupBox_identificazione.setTitle(t['identificazione'])
+        self.label_codice_inventario.setText(t['codice_inventario'])
+        self.label_nome_attr.setText(t['nome'])
+        self.label_categoria.setText(t['categoria'])
+        self.label_marca.setText(t['marca'])
+        self.label_modello.setText(t['modello'])
+        self.label_numero_serie.setText(t['numero_serie'])
+        self.groupBox_proprieta_costi.setTitle(t['proprieta_costi'])
+        self.label_proprieta.setText(t['proprieta'])
+        self.label_data_acquisto.setText(t['data_acquisto'])
+        self.label_costo_acquisto.setText(t['costo_acquisto'])
+        self.label_costo_noleggio_giorno.setText(t['costo_noleggio'])
+        self.groupBox_stato_assegnazione.setTitle(t['stato_assegnazione'])
+        self.label_stato.setText(t['stato'])
+        self.label_assegnato_a.setText(t['assegnato_a'])
+        self.groupBox_manutenzione.setTitle(t['manutenzione'])
+        self.label_data_ultima_manutenzione.setText(t['ultima_manutenzione'])
+        self.label_data_prossima_manutenzione.setText(t['prossima_manutenzione'])
+        self.label_note.setText(t['note'])
+        self.label_lbl_sort.setText(t['ordinamento'])
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -646,11 +841,11 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
     def check_maintenance_alert(self):
         """Check if next maintenance date is past due and show alert."""
         try:
-            next_maint = self.lineEdit_data_prossima_manutenzione.text()
+            next_maint = self.lineEdit_data_prossima_manutenzione.date().toString("yyyy-MM-dd")
             if next_maint:
                 maint_date = datetime.strptime(next_maint, "%Y-%m-%d").date()
                 if maint_date <= date.today():
-                    equipment_name = self.lineEdit_nome.text()
+                    equipment_name = self.comboBox_nome.currentText()
                     if self.L == 'it':
                         QMessageBox.warning(self, "Attenzione - Manutenzione",
                             "L'attrezzatura '%s' necessita di manutenzione!\nData prevista: %s" % (equipment_name, next_maint),
@@ -787,21 +982,21 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_nome.text() == "":
+            if self.comboBox_nome.currentText() == "":
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Nome obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
         elif self.L == 'de':
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ACHTUNG", "Feld Fundort erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_nome.text() == "":
+            if self.comboBox_nome.currentText() == "":
                 QMessageBox.warning(self, "ACHTUNG", "Feld Name erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
         else:
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_nome.text() == "":
+            if self.comboBox_nome.currentText() == "":
                 QMessageBox.warning(self, "WARNING", "Name field required!", QMessageBox.StandardButton.Ok)
                 test = 1
         return test
@@ -826,19 +1021,19 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),
                 str(self.lineEdit_codice_inventario.text()),
-                str(self.lineEdit_nome.text()),
+                str(self.comboBox_nome.currentText()),
                 str(self.comboBox_categoria.currentText()),
                 str(self.lineEdit_marca.text()),
                 str(self.lineEdit_modello.text()),
                 str(self.lineEdit_numero_serie.text()),
                 str(self.comboBox_proprieta.currentText()),
-                str(self.lineEdit_data_acquisto.text()),
+                str(self.lineEdit_data_acquisto.date().toString("yyyy-MM-dd")),
                 costo_acquisto,
                 costo_noleggio,
                 str(self.comboBox_stato.currentText()),
-                str(self.lineEdit_assegnato_a.text()),
-                str(self.lineEdit_data_ultima_manutenzione.text()),
-                str(self.lineEdit_data_prossima_manutenzione.text()),
+                int(self.comboBox_assegnato_a.currentText()) if self.comboBox_assegnato_a.currentText().strip() else None,
+                str(self.lineEdit_data_ultima_manutenzione.date().toString("yyyy-MM-dd")),
+                str(self.lineEdit_data_prossima_manutenzione.date().toString("yyyy-MM-dd")),
                 str(self.textEdit_note.toPlainText()))
 
             try:
@@ -1036,10 +1231,10 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
             search_dict = {
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
                 'codice_inventario': "'" + str(self.lineEdit_codice_inventario.text()) + "'",
-                'nome': "'" + str(self.lineEdit_nome.text()) + "'",
+                'nome': "'" + str(self.comboBox_nome.currentText()) + "'",
                 'categoria': "'" + str(self.comboBox_categoria.currentText()) + "'",
                 'stato': "'" + str(self.comboBox_stato.currentText()) + "'",
-                'assegnato_a': "'" + str(self.lineEdit_assegnato_a.text()) + "'",
+                'assegnato_a': "'" + str(self.comboBox_assegnato_a.currentText()) + "'",
                 'note': str(self.textEdit_note.toPlainText()),
             }
             u = Utility()
@@ -1128,37 +1323,37 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
 
     def empty_fields_nosite(self):
         self.lineEdit_codice_inventario.clear()
-        self.lineEdit_nome.clear()
+        self.comboBox_nome.setEditText("")
         self.comboBox_categoria.setEditText("")
         self.lineEdit_marca.clear()
         self.lineEdit_modello.clear()
         self.lineEdit_numero_serie.clear()
         self.comboBox_proprieta.setEditText("")
-        self.lineEdit_data_acquisto.clear()
+        self.lineEdit_data_acquisto.setDate(QDate(2000, 1, 1))
         self.lineEdit_costo_acquisto.clear()
         self.lineEdit_costo_noleggio_giorno.clear()
         self.comboBox_stato.setEditText("")
-        self.lineEdit_assegnato_a.clear()
-        self.lineEdit_data_ultima_manutenzione.clear()
-        self.lineEdit_data_prossima_manutenzione.clear()
+        self.comboBox_assegnato_a.setEditText("")
+        self.lineEdit_data_ultima_manutenzione.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_prossima_manutenzione.setDate(QDate(2000, 1, 1))
         self.textEdit_note.clear()
 
     def empty_fields(self):
         self.comboBox_sito.setEditText("")
         self.lineEdit_codice_inventario.clear()
-        self.lineEdit_nome.clear()
+        self.comboBox_nome.setEditText("")
         self.comboBox_categoria.setEditText("")
         self.lineEdit_marca.clear()
         self.lineEdit_modello.clear()
         self.lineEdit_numero_serie.clear()
         self.comboBox_proprieta.setEditText("")
-        self.lineEdit_data_acquisto.clear()
+        self.lineEdit_data_acquisto.setDate(QDate(2000, 1, 1))
         self.lineEdit_costo_acquisto.clear()
         self.lineEdit_costo_noleggio_giorno.clear()
         self.comboBox_stato.setEditText("")
-        self.lineEdit_assegnato_a.clear()
-        self.lineEdit_data_ultima_manutenzione.clear()
-        self.lineEdit_data_prossima_manutenzione.clear()
+        self.comboBox_assegnato_a.setEditText("")
+        self.lineEdit_data_ultima_manutenzione.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_prossima_manutenzione.setDate(QDate(2000, 1, 1))
         self.textEdit_note.clear()
 
     def fill_fields(self, n=0):
@@ -1166,13 +1361,23 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
         try:
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
             self.lineEdit_codice_inventario.setText(str(self.DATA_LIST[self.rec_num].codice_inventario) if self.DATA_LIST[self.rec_num].codice_inventario else "")
-            self.lineEdit_nome.setText(str(self.DATA_LIST[self.rec_num].nome) if self.DATA_LIST[self.rec_num].nome else "")
+            self.comboBox_nome.setEditText(str(self.DATA_LIST[self.rec_num].nome) if self.DATA_LIST[self.rec_num].nome else "")
             self.comboBox_categoria.setEditText(str(self.DATA_LIST[self.rec_num].categoria) if self.DATA_LIST[self.rec_num].categoria else "")
             self.lineEdit_marca.setText(str(self.DATA_LIST[self.rec_num].marca) if self.DATA_LIST[self.rec_num].marca else "")
             self.lineEdit_modello.setText(str(self.DATA_LIST[self.rec_num].modello) if self.DATA_LIST[self.rec_num].modello else "")
             self.lineEdit_numero_serie.setText(str(self.DATA_LIST[self.rec_num].numero_serie) if self.DATA_LIST[self.rec_num].numero_serie else "")
             self.comboBox_proprieta.setEditText(str(self.DATA_LIST[self.rec_num].proprieta) if self.DATA_LIST[self.rec_num].proprieta else "")
-            self.lineEdit_data_acquisto.setText(str(self.DATA_LIST[self.rec_num].data_acquisto) if self.DATA_LIST[self.rec_num].data_acquisto else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data_acquisto) if self.DATA_LIST[self.rec_num].data_acquisto else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_acquisto.setDate(qd)
+                else:
+                    self.lineEdit_data_acquisto.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_acquisto.setDate(QDate(2000, 1, 1))
 
             if self.DATA_LIST[self.rec_num].costo_acquisto is not None:
                 self.lineEdit_costo_acquisto.setText(str(self.DATA_LIST[self.rec_num].costo_acquisto))
@@ -1185,9 +1390,29 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
                 self.lineEdit_costo_noleggio_giorno.setText("")
 
             self.comboBox_stato.setEditText(str(self.DATA_LIST[self.rec_num].stato) if self.DATA_LIST[self.rec_num].stato else "")
-            self.lineEdit_assegnato_a.setText(str(self.DATA_LIST[self.rec_num].assegnato_a) if self.DATA_LIST[self.rec_num].assegnato_a else "")
-            self.lineEdit_data_ultima_manutenzione.setText(str(self.DATA_LIST[self.rec_num].data_ultima_manutenzione) if self.DATA_LIST[self.rec_num].data_ultima_manutenzione else "")
-            self.lineEdit_data_prossima_manutenzione.setText(str(self.DATA_LIST[self.rec_num].data_prossima_manutenzione) if self.DATA_LIST[self.rec_num].data_prossima_manutenzione else "")
+            self.comboBox_assegnato_a.setEditText(str(self.DATA_LIST[self.rec_num].assegnato_a) if self.DATA_LIST[self.rec_num].assegnato_a else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data_ultima_manutenzione) if self.DATA_LIST[self.rec_num].data_ultima_manutenzione else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_ultima_manutenzione.setDate(qd)
+                else:
+                    self.lineEdit_data_ultima_manutenzione.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_ultima_manutenzione.setDate(QDate(2000, 1, 1))
+            date_str = str(self.DATA_LIST[self.rec_num].data_prossima_manutenzione) if self.DATA_LIST[self.rec_num].data_prossima_manutenzione else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_prossima_manutenzione.setDate(qd)
+                else:
+                    self.lineEdit_data_prossima_manutenzione.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_prossima_manutenzione.setDate(QDate(2000, 1, 1))
             self.textEdit_note.setText(str(self.DATA_LIST[self.rec_num].note) if self.DATA_LIST[self.rec_num].note else "")
 
             # Check maintenance alert
@@ -1202,19 +1427,19 @@ class pyarchinit_Attrezzature(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_TEMP = [
             str(self.comboBox_sito.currentText()),
             str(self.lineEdit_codice_inventario.text()),
-            str(self.lineEdit_nome.text()),
+            str(self.comboBox_nome.currentText()),
             str(self.comboBox_categoria.currentText()),
             str(self.lineEdit_marca.text()),
             str(self.lineEdit_modello.text()),
             str(self.lineEdit_numero_serie.text()),
             str(self.comboBox_proprieta.currentText()),
-            str(self.lineEdit_data_acquisto.text()),
+            str(self.lineEdit_data_acquisto.date().toString("yyyy-MM-dd")),
             costo_acq,
             costo_nol,
             str(self.comboBox_stato.currentText()),
-            str(self.lineEdit_assegnato_a.text()),
-            str(self.lineEdit_data_ultima_manutenzione.text()),
-            str(self.lineEdit_data_prossima_manutenzione.text()),
+            int(self.comboBox_assegnato_a.currentText()) if self.comboBox_assegnato_a.currentText().strip() else None,
+            str(self.lineEdit_data_ultima_manutenzione.date().toString("yyyy-MM-dd")),
+            str(self.lineEdit_data_prossima_manutenzione.date().toString("yyyy-MM-dd")),
             str(self.textEdit_note.toPlainText())
         ]
 

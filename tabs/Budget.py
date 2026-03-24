@@ -24,7 +24,11 @@ from __future__ import absolute_import
 import os
 import sys
 from datetime import date
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+import json
+from collections import defaultdict
+from qgis.PyQt.QtCore import QDate, QTimer, Qt
+from qgis.PyQt.QtWidgets import (QDialog, QMessageBox, QTableWidgetItem,
+                                  QHeaderView, QVBoxLayout, QApplication)
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 
@@ -411,6 +415,11 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.currentLayerId = None
+        self.retranslate_ui()
+        QTimer.singleShot(0, self._deferred_init)
+
+    def _deferred_init(self):
+        """Load data after the window is visible."""
         try:
             self.on_pushButton_connect_pressed()
         except:
@@ -418,6 +427,262 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+
+        # Analytics tab signals
+        try:
+            self.tabWidget_budget.currentChanged.connect(self.on_tab_changed)
+            self.pushButton_refresh_analytics.clicked.connect(self.refresh_analytics)
+            self.pushButton_export_analytics_pdf.clicked.connect(self.export_analytics_pdf)
+        except:
+            pass
+
+    def retranslate_ui(self):
+        """Translate UI labels based on current locale."""
+        lang = self.L
+        translations = {
+            'it': {
+                'title': 'pyArchInit Gestione Cantiere - Budget',
+                'sito': 'Sito', 'anno': 'Anno',
+                'voce_spesa': 'Voce di Spesa', 'categoria': 'Categoria',
+                'descrizione': 'Descrizione', 'fornitore': 'Fornitore',
+                'numero_fattura': 'Numero Fattura', 'data_spesa': 'Data Spesa',
+                'data_registrazione': 'Data Registrazione',
+                'importi': 'Importi', 'importo_previsto': 'Importo Previsto',
+                'importo_effettivo': 'Importo Effettivo',
+                'note': 'Note', 'ordinamento': 'Ordinamento',
+            },
+            'en': {
+                'title': 'pyArchInit Site Management - Budget',
+                'sito': 'Site', 'anno': 'Year',
+                'voce_spesa': 'Expense Item', 'categoria': 'Category',
+                'descrizione': 'Description', 'fornitore': 'Supplier',
+                'numero_fattura': 'Invoice Number', 'data_spesa': 'Expense Date',
+                'data_registrazione': 'Registration Date',
+                'importi': 'Amounts', 'importo_previsto': 'Budgeted Amount',
+                'importo_effettivo': 'Actual Amount',
+                'note': 'Notes', 'ordinamento': 'Sort Order',
+            },
+            'de': {
+                'title': 'pyArchInit Grabungsverwaltung - Budget',
+                'sito': 'Fundstelle', 'anno': 'Jahr',
+                'voce_spesa': 'Kostenposition', 'categoria': 'Kategorie',
+                'descrizione': 'Beschreibung', 'fornitore': 'Lieferant',
+                'numero_fattura': 'Rechnungsnummer', 'data_spesa': 'Ausgabendatum',
+                'data_registrazione': 'Erfassungsdatum',
+                'importi': 'Beträge', 'importo_previsto': 'Geplanter Betrag',
+                'importo_effettivo': 'Tatsächlicher Betrag',
+                'note': 'Notizen', 'ordinamento': 'Sortierung',
+            },
+            'es': {
+                'title': 'pyArchInit Gestión de Obra - Presupuesto',
+                'sito': 'Sitio', 'anno': 'Año',
+                'voce_spesa': 'Partida de Gasto', 'categoria': 'Categoría',
+                'descrizione': 'Descripción', 'fornitore': 'Proveedor',
+                'numero_fattura': 'Número de Factura', 'data_spesa': 'Fecha de Gasto',
+                'data_registrazione': 'Fecha de Registro',
+                'importi': 'Importes', 'importo_previsto': 'Importe Previsto',
+                'importo_effettivo': 'Importe Efectivo',
+                'note': 'Notas', 'ordinamento': 'Orden',
+            },
+            'fr': {
+                'title': 'pyArchInit Gestion de Chantier - Budget',
+                'sito': 'Site', 'anno': 'Année',
+                'voce_spesa': 'Poste de Dépense', 'categoria': 'Catégorie',
+                'descrizione': 'Description', 'fornitore': 'Fournisseur',
+                'numero_fattura': 'Numéro de Facture', 'data_spesa': 'Date de Dépense',
+                'data_registrazione': "Date d'Enregistrement",
+                'importi': 'Montants', 'importo_previsto': 'Montant Prévu',
+                'importo_effettivo': 'Montant Effectif',
+                'note': 'Notes', 'ordinamento': 'Classement',
+            },
+            'ar': {
+                'title': 'pyArchInit إدارة الموقع - الميزانية',
+                'sito': 'الموقع', 'anno': 'السنة',
+                'voce_spesa': 'بند المصروف', 'categoria': 'الفئة',
+                'descrizione': 'الوصف', 'fornitore': 'المورد',
+                'numero_fattura': 'رقم الفاتورة', 'data_spesa': 'تاريخ المصروف',
+                'data_registrazione': 'تاريخ التسجيل',
+                'importi': 'المبالغ', 'importo_previsto': 'المبلغ المخطط',
+                'importo_effettivo': 'المبلغ الفعلي',
+                'note': 'ملاحظات', 'ordinamento': 'الترتيب',
+            },
+            'ca': {
+                'title': "pyArchInit Gestió d'Obra - Pressupost",
+                'sito': 'Lloc', 'anno': 'Any',
+                'voce_spesa': 'Partida de Despesa', 'categoria': 'Categoria',
+                'descrizione': 'Descripció', 'fornitore': 'Proveïdor',
+                'numero_fattura': 'Número de Factura', 'data_spesa': 'Data de Despesa',
+                'data_registrazione': "Data d'Enregistrament",
+                'importi': 'Imports', 'importo_previsto': 'Import Previst',
+                'importo_effettivo': 'Import Efectiu',
+                'note': 'Notes', 'ordinamento': 'Ordenació',
+            },
+            'ro': {
+                'title': 'pyArchInit Gestiune Șantier - Buget',
+                'sito': 'Sit', 'anno': 'An',
+                'voce_spesa': 'Articol de Cheltuială', 'categoria': 'Categorie',
+                'descrizione': 'Descriere', 'fornitore': 'Furnizor',
+                'numero_fattura': 'Număr Factură', 'data_spesa': 'Data Cheltuielii',
+                'data_registrazione': 'Data Înregistrării',
+                'importi': 'Sume', 'importo_previsto': 'Sumă Planificată',
+                'importo_effettivo': 'Sumă Efectivă',
+                'note': 'Note', 'ordinamento': 'Ordonare',
+            },
+            'pt': {
+                'title': 'pyArchInit Gestão de Obra - Orçamento',
+                'sito': 'Sítio', 'anno': 'Ano',
+                'voce_spesa': 'Rubrica de Despesa', 'categoria': 'Categoria',
+                'descrizione': 'Descrição', 'fornitore': 'Fornecedor',
+                'numero_fattura': 'Número da Fatura', 'data_spesa': 'Data da Despesa',
+                'data_registrazione': 'Data de Registo',
+                'importi': 'Montantes', 'importo_previsto': 'Montante Previsto',
+                'importo_effettivo': 'Montante Efetivo',
+                'note': 'Notas', 'ordinamento': 'Ordenação',
+            },
+            'el': {
+                'title': 'pyArchInit Διαχείριση Ανασκαφής - Προϋπολογισμός',
+                'sito': 'Τοποθεσία', 'anno': 'Έτος',
+                'voce_spesa': 'Στοιχείο Δαπάνης', 'categoria': 'Κατηγορία',
+                'descrizione': 'Περιγραφή', 'fornitore': 'Προμηθευτής',
+                'numero_fattura': 'Αριθμός Τιμολογίου', 'data_spesa': 'Ημ. Δαπάνης',
+                'data_registrazione': 'Ημ. Καταχώρησης',
+                'importi': 'Ποσά', 'importo_previsto': 'Προϋπολογισθέν Ποσό',
+                'importo_effettivo': 'Πραγματικό Ποσό',
+                'note': 'Σημειώσεις', 'ordinamento': 'Ταξινόμηση',
+            },
+        }
+        # Analytics translations for all 10 languages
+        analytics_translations = {
+            'it': {
+                'tab_data': 'Dati', 'tab_analytics': 'Analisi',
+                'total_planned': 'Totale Previsto', 'total_actual': 'Totale Effettivo',
+                'variance': 'Scostamento', 'budget_usage': 'Utilizzo Budget',
+                'under_budget': 'Sotto Budget', 'over_budget': 'Sopra Budget', 'on_budget': 'In Budget',
+                'btn_refresh_analytics': 'Aggiorna Analisi', 'btn_export_analytics': 'Esporta PDF Analisi',
+                'chart_category_title': 'Spesa per Categoria',
+                'chart_timeline_title': 'Andamento Mensile Spese',
+                'chart_variance_title': 'Scostamento per Categoria',
+            },
+            'en': {
+                'tab_data': 'Data', 'tab_analytics': 'Analytics',
+                'total_planned': 'Total Planned', 'total_actual': 'Total Actual',
+                'variance': 'Variance', 'budget_usage': 'Budget Usage',
+                'under_budget': 'Under Budget', 'over_budget': 'Over Budget', 'on_budget': 'On Budget',
+                'btn_refresh_analytics': 'Refresh Analytics', 'btn_export_analytics': 'Export Analytics PDF',
+                'chart_category_title': 'Spending by Category',
+                'chart_timeline_title': 'Monthly Spending Trend',
+                'chart_variance_title': 'Variance by Category',
+            },
+            'de': {
+                'tab_data': 'Daten', 'tab_analytics': 'Analytik',
+                'total_planned': 'Gesamt Geplant', 'total_actual': 'Gesamt Tatsächlich',
+                'variance': 'Abweichung', 'budget_usage': 'Budgetauslastung',
+                'under_budget': 'Unter Budget', 'over_budget': 'Über Budget', 'on_budget': 'Im Budget',
+                'btn_refresh_analytics': 'Analytik Aktualisieren', 'btn_export_analytics': 'Analytik PDF Exportieren',
+                'chart_category_title': 'Ausgaben nach Kategorie',
+                'chart_timeline_title': 'Monatlicher Ausgabentrend',
+                'chart_variance_title': 'Abweichung nach Kategorie',
+            },
+            'es': {
+                'tab_data': 'Datos', 'tab_analytics': 'Análisis',
+                'total_planned': 'Total Previsto', 'total_actual': 'Total Efectivo',
+                'variance': 'Desviación', 'budget_usage': 'Uso del Presupuesto',
+                'under_budget': 'Bajo Presupuesto', 'over_budget': 'Sobre Presupuesto', 'on_budget': 'En Presupuesto',
+                'btn_refresh_analytics': 'Actualizar Análisis', 'btn_export_analytics': 'Exportar PDF Análisis',
+                'chart_category_title': 'Gasto por Categoría',
+                'chart_timeline_title': 'Tendencia Mensual de Gastos',
+                'chart_variance_title': 'Desviación por Categoría',
+            },
+            'fr': {
+                'tab_data': 'Données', 'tab_analytics': 'Analytique',
+                'total_planned': 'Total Prévu', 'total_actual': 'Total Effectif',
+                'variance': 'Écart', 'budget_usage': 'Utilisation du Budget',
+                'under_budget': 'Sous Budget', 'over_budget': 'Hors Budget', 'on_budget': 'Dans le Budget',
+                'btn_refresh_analytics': 'Actualiser Analytique', 'btn_export_analytics': 'Exporter PDF Analytique',
+                'chart_category_title': 'Dépenses par Catégorie',
+                'chart_timeline_title': 'Tendance Mensuelle des Dépenses',
+                'chart_variance_title': 'Écart par Catégorie',
+            },
+            'ar': {
+                'tab_data': 'بيانات', 'tab_analytics': 'تحليلات',
+                'total_planned': 'إجمالي مخطط', 'total_actual': 'إجمالي فعلي',
+                'variance': 'الانحراف', 'budget_usage': 'استخدام الميزانية',
+                'under_budget': 'تحت الميزانية', 'over_budget': 'فوق الميزانية', 'on_budget': 'ضمن الميزانية',
+                'btn_refresh_analytics': 'تحديث التحليلات', 'btn_export_analytics': 'تصدير PDF التحليلات',
+                'chart_category_title': 'الإنفاق حسب الفئة',
+                'chart_timeline_title': 'اتجاه الإنفاق الشهري',
+                'chart_variance_title': 'الانحراف حسب الفئة',
+            },
+            'ca': {
+                'tab_data': 'Dades', 'tab_analytics': 'Analítica',
+                'total_planned': 'Total Previst', 'total_actual': 'Total Efectiu',
+                'variance': 'Desviació', 'budget_usage': "Ús del Pressupost",
+                'under_budget': 'Sota Pressupost', 'over_budget': 'Sobre Pressupost', 'on_budget': 'En Pressupost',
+                'btn_refresh_analytics': 'Actualitzar Analítica', 'btn_export_analytics': 'Exportar PDF Analítica',
+                'chart_category_title': 'Despesa per Categoria',
+                'chart_timeline_title': 'Tendència Mensual de Despeses',
+                'chart_variance_title': 'Desviació per Categoria',
+            },
+            'ro': {
+                'tab_data': 'Date', 'tab_analytics': 'Analiză',
+                'total_planned': 'Total Planificat', 'total_actual': 'Total Efectiv',
+                'variance': 'Abatere', 'budget_usage': 'Utilizare Buget',
+                'under_budget': 'Sub Buget', 'over_budget': 'Peste Buget', 'on_budget': 'În Buget',
+                'btn_refresh_analytics': 'Actualizare Analiză', 'btn_export_analytics': 'Exportare PDF Analiză',
+                'chart_category_title': 'Cheltuieli pe Categorie',
+                'chart_timeline_title': 'Tendința Lunară a Cheltuielilor',
+                'chart_variance_title': 'Abatere pe Categorie',
+            },
+            'pt': {
+                'tab_data': 'Dados', 'tab_analytics': 'Análise',
+                'total_planned': 'Total Previsto', 'total_actual': 'Total Efetivo',
+                'variance': 'Desvio', 'budget_usage': 'Utilização do Orçamento',
+                'under_budget': 'Abaixo do Orçamento', 'over_budget': 'Acima do Orçamento', 'on_budget': 'No Orçamento',
+                'btn_refresh_analytics': 'Atualizar Análise', 'btn_export_analytics': 'Exportar PDF Análise',
+                'chart_category_title': 'Despesa por Categoria',
+                'chart_timeline_title': 'Tendência Mensal de Despesas',
+                'chart_variance_title': 'Desvio por Categoria',
+            },
+            'el': {
+                'tab_data': 'Δεδομένα', 'tab_analytics': 'Αναλυτικά',
+                'total_planned': 'Συνολικός Προϋπολογισμός', 'total_actual': 'Συνολικό Πραγματικό',
+                'variance': 'Απόκλιση', 'budget_usage': 'Χρήση Προϋπολογισμού',
+                'under_budget': 'Κάτω του Προϋπολογισμού', 'over_budget': 'Πάνω του Προϋπολογισμού', 'on_budget': 'Εντός Προϋπολογισμού',
+                'btn_refresh_analytics': 'Ανανέωση Αναλυτικών', 'btn_export_analytics': 'Εξαγωγή PDF Αναλυτικών',
+                'chart_category_title': 'Δαπάνες ανά Κατηγορία',
+                'chart_timeline_title': 'Μηνιαία Τάση Δαπανών',
+                'chart_variance_title': 'Απόκλιση ανά Κατηγορία',
+            },
+        }
+        # Store analytics translations for use in chart methods
+        self._analytics_t = analytics_translations.get(lang, analytics_translations.get('en', analytics_translations['it']))
+
+        t = translations.get(lang, translations.get('en', translations['it']))
+        self.setWindowTitle(t['title'])
+        self.label_sito.setText(t['sito'])
+        self.label_anno.setText(t['anno'])
+        self.groupBox_voce_spesa.setTitle(t['voce_spesa'])
+        self.label_categoria.setText(t['categoria'])
+        self.label_descrizione.setText(t['descrizione'])
+        self.label_fornitore.setText(t['fornitore'])
+        self.label_numero_fattura.setText(t['numero_fattura'])
+        self.label_data_spesa.setText(t['data_spesa'])
+        self.label_data_registrazione.setText(t['data_registrazione'])
+        self.groupBox_importi.setTitle(t['importi'])
+        self.label_importo_previsto.setText(t['importo_previsto'])
+        self.label_importo_effettivo.setText(t['importo_effettivo'])
+        self.label_note.setText(t['note'])
+        self.label_lbl_sort.setText(t['ordinamento'])
+
+        # Apply analytics tab labels
+        try:
+            at = self._analytics_t
+            self.tabWidget_budget.setTabText(0, at['tab_data'])
+            self.tabWidget_budget.setTabText(1, at['tab_analytics'])
+            self.pushButton_refresh_analytics.setText(at['btn_refresh_analytics'])
+            self.pushButton_export_analytics_pdf.setText(at['btn_export_analytics'])
+        except:
+            pass
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -687,30 +952,30 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Sito obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_anno.text() == "":
+            if self.comboBox_anno.currentText() == "":
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Anno obbligatorio!", QMessageBox.StandardButton.Ok)
                 test = 1
-            elif EC.data_is_int(self.lineEdit_anno.text()) == 0:
+            elif EC.data_is_int(self.comboBox_anno.currentText()) == 0:
                 QMessageBox.warning(self, "ATTENZIONE", "Campo Anno: il valore deve essere numerico", QMessageBox.StandardButton.Ok)
                 test = 1
         elif self.L == 'de':
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "ACHTUNG", "Feld Fundort erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_anno.text() == "":
+            if self.comboBox_anno.currentText() == "":
                 QMessageBox.warning(self, "ACHTUNG", "Feld Jahr erforderlich!", QMessageBox.StandardButton.Ok)
                 test = 1
-            elif EC.data_is_int(self.lineEdit_anno.text()) == 0:
+            elif EC.data_is_int(self.comboBox_anno.currentText()) == 0:
                 QMessageBox.warning(self, "ACHTUNG", "Feld Jahr: Der Wert muss numerisch sein", QMessageBox.StandardButton.Ok)
                 test = 1
         else:
             if self.comboBox_sito.currentText() == "":
                 QMessageBox.warning(self, "WARNING", "Site field required!", QMessageBox.StandardButton.Ok)
                 test = 1
-            if self.lineEdit_anno.text() == "":
+            if self.comboBox_anno.currentText() == "":
                 QMessageBox.warning(self, "WARNING", "Year field required!", QMessageBox.StandardButton.Ok)
                 test = 1
-            elif EC.data_is_int(self.lineEdit_anno.text()) == 0:
+            elif EC.data_is_int(self.comboBox_anno.currentText()) == 0:
                 QMessageBox.warning(self, "WARNING", "Year field: the value must be numeric", QMessageBox.StandardButton.Ok)
                 test = 1
 
@@ -735,13 +1000,13 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             data = self.DB_MANAGER.insert_budget_values(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,
                 str(self.comboBox_sito.currentText()),
-                int(self.lineEdit_anno.text()),
+                int(self.comboBox_anno.currentText()),
                 str(self.comboBox_categoria.currentText()),
-                str(self.textEdit_descrizione.toPlainText()),
+                str(self.lineEdit_descrizione.text()),
                 importo_previsto,
                 importo_effettivo,
-                str(self.lineEdit_data_registrazione.text()),
-                str(self.lineEdit_data_spesa.text()),
+                str(self.lineEdit_data_registrazione.date().toString("yyyy-MM-dd")),
+                str(self.lineEdit_data_spesa.date().toString("yyyy-MM-dd")),
                 str(self.lineEdit_fornitore.text()),
                 str(self.lineEdit_numero_fattura.text()),
                 str(self.textEdit_note.toPlainText()))
@@ -938,8 +1203,8 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             else:
                 QMessageBox.warning(self, "WARNING", "To perform a new search click on the 'new search' button", QMessageBox.StandardButton.Ok)
         else:
-            if self.lineEdit_anno.text() != "":
-                anno = "'" + str(self.lineEdit_anno.text()) + "'"
+            if self.comboBox_anno.currentText() != "":
+                anno = "'" + str(self.comboBox_anno.currentText()) + "'"
             else:
                 anno = ""
 
@@ -947,7 +1212,7 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
                 'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
                 'anno': anno,
                 'categoria': "'" + str(self.comboBox_categoria.currentText()) + "'",
-                'descrizione': str(self.textEdit_descrizione.toPlainText()),
+                'descrizione': str(self.lineEdit_descrizione.text()),
                 'fornitore': "'" + str(self.lineEdit_fornitore.text()) + "'",
                 'numero_fattura': "'" + str(self.lineEdit_numero_fattura.text()) + "'",
                 'note': str(self.textEdit_note.toPlainText()),
@@ -1037,26 +1302,26 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         self.label_rec_corrente.setText(str(self.rec_corr))
 
     def empty_fields_nosite(self):
-        self.lineEdit_anno.clear()
+        self.comboBox_anno.setEditText("")
         self.comboBox_categoria.setEditText("")
-        self.textEdit_descrizione.clear()
+        self.lineEdit_descrizione.clear()
         self.lineEdit_importo_previsto.clear()
         self.lineEdit_importo_effettivo.clear()
-        self.lineEdit_data_registrazione.clear()
-        self.lineEdit_data_spesa.clear()
+        self.lineEdit_data_registrazione.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_spesa.setDate(QDate(2000, 1, 1))
         self.lineEdit_fornitore.clear()
         self.lineEdit_numero_fattura.clear()
         self.textEdit_note.clear()
 
     def empty_fields(self):
         self.comboBox_sito.setEditText("")
-        self.lineEdit_anno.clear()
+        self.comboBox_anno.setEditText("")
         self.comboBox_categoria.setEditText("")
-        self.textEdit_descrizione.clear()
+        self.lineEdit_descrizione.clear()
         self.lineEdit_importo_previsto.clear()
         self.lineEdit_importo_effettivo.clear()
-        self.lineEdit_data_registrazione.clear()
-        self.lineEdit_data_spesa.clear()
+        self.lineEdit_data_registrazione.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_spesa.setDate(QDate(2000, 1, 1))
         self.lineEdit_fornitore.clear()
         self.lineEdit_numero_fattura.clear()
         self.textEdit_note.clear()
@@ -1067,12 +1332,12 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sito.setEditText(str(self.DATA_LIST[self.rec_num].sito))
 
             if self.DATA_LIST[self.rec_num].anno is not None:
-                self.lineEdit_anno.setText(str(self.DATA_LIST[self.rec_num].anno))
+                self.comboBox_anno.setEditText(str(self.DATA_LIST[self.rec_num].anno))
             else:
-                self.lineEdit_anno.setText("")
+                self.comboBox_anno.setEditText("")
 
             self.comboBox_categoria.setEditText(str(self.DATA_LIST[self.rec_num].categoria) if self.DATA_LIST[self.rec_num].categoria else "")
-            self.textEdit_descrizione.setText(str(self.DATA_LIST[self.rec_num].descrizione) if self.DATA_LIST[self.rec_num].descrizione else "")
+            self.lineEdit_descrizione.setText(str(self.DATA_LIST[self.rec_num].descrizione) if self.DATA_LIST[self.rec_num].descrizione else "")
 
             if self.DATA_LIST[self.rec_num].importo_previsto is not None:
                 self.lineEdit_importo_previsto.setText(str(self.DATA_LIST[self.rec_num].importo_previsto))
@@ -1084,8 +1349,28 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_importo_effettivo.setText("")
 
-            self.lineEdit_data_registrazione.setText(str(self.DATA_LIST[self.rec_num].data_registrazione) if self.DATA_LIST[self.rec_num].data_registrazione else "")
-            self.lineEdit_data_spesa.setText(str(self.DATA_LIST[self.rec_num].data_spesa) if self.DATA_LIST[self.rec_num].data_spesa else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data_registrazione) if self.DATA_LIST[self.rec_num].data_registrazione else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_registrazione.setDate(qd)
+                else:
+                    self.lineEdit_data_registrazione.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_registrazione.setDate(QDate(2000, 1, 1))
+            date_str = str(self.DATA_LIST[self.rec_num].data_spesa) if self.DATA_LIST[self.rec_num].data_spesa else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_spesa.setDate(qd)
+                else:
+                    self.lineEdit_data_spesa.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_spesa.setDate(QDate(2000, 1, 1))
             self.lineEdit_fornitore.setText(str(self.DATA_LIST[self.rec_num].fornitore) if self.DATA_LIST[self.rec_num].fornitore else "")
             self.lineEdit_numero_fattura.setText(str(self.DATA_LIST[self.rec_num].numero_fattura) if self.DATA_LIST[self.rec_num].numero_fattura else "")
             self.textEdit_note.setText(str(self.DATA_LIST[self.rec_num].note) if self.DATA_LIST[self.rec_num].note else "")
@@ -1093,7 +1378,7 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             pass
 
     def set_LIST_REC_TEMP(self):
-        anno = str(self.lineEdit_anno.text()) if self.lineEdit_anno.text() else ''
+        anno = str(self.comboBox_anno.currentText()) if self.comboBox_anno.currentText() else ''
         imp_prev = str(self.lineEdit_importo_previsto.text()) if self.lineEdit_importo_previsto.text() else ''
         imp_eff = str(self.lineEdit_importo_effettivo.text()) if self.lineEdit_importo_effettivo.text() else ''
 
@@ -1101,11 +1386,11 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
             str(self.comboBox_sito.currentText()),
             anno,
             str(self.comboBox_categoria.currentText()),
-            str(self.textEdit_descrizione.toPlainText()),
+            str(self.lineEdit_descrizione.text()),
             imp_prev,
             imp_eff,
-            str(self.lineEdit_data_registrazione.text()),
-            str(self.lineEdit_data_spesa.text()),
+            str(self.lineEdit_data_registrazione.date().toString("yyyy-MM-dd")),
+            str(self.lineEdit_data_spesa.date().toString("yyyy-MM-dd")),
             str(self.lineEdit_fornitore.text()),
             str(self.lineEdit_numero_fattura.text()),
             str(self.textEdit_note.toPlainText())
@@ -1153,6 +1438,651 @@ class pyarchinit_Budget(QDialog, MAIN_DIALOG_CLASS):
         now = date.today()
         today = now.strftime("%d-%m-%Y")
         return today
+
+    # -------------------------------------------------------------------------
+    # Analytics methods
+    # -------------------------------------------------------------------------
+
+    def on_tab_changed(self, index):
+        """When analytics tab is selected, refresh analytics data."""
+        if index == 1:
+            self.refresh_analytics()
+
+    def refresh_analytics(self):
+        """Refresh all analytics widgets with current data."""
+        try:
+            sito = self.comboBox_sito.currentText()
+            if not sito:
+                return
+
+            # Query all budget records for the site
+            search_dict = {'sito': "'" + str(sito) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+            if not records:
+                return
+
+            # Populate year filter combobox from available data
+            try:
+                current_filter = self.comboBox_filter_anno.currentText()
+                self.comboBox_filter_anno.blockSignals(True)
+                self.comboBox_filter_anno.clear()
+                self.comboBox_filter_anno.addItem("")  # All years
+                years = sorted(set(str(r.anno) for r in records if r.anno), reverse=True)
+                self.comboBox_filter_anno.addItems(years)
+                if current_filter:
+                    idx = self.comboBox_filter_anno.findText(current_filter)
+                    if idx >= 0:
+                        self.comboBox_filter_anno.setCurrentIndex(idx)
+                self.comboBox_filter_anno.blockSignals(False)
+            except AttributeError:
+                pass
+
+            # Filter by year if selected
+            try:
+                anno_filter = self.comboBox_filter_anno.currentText()
+                if anno_filter and anno_filter.strip():
+                    records = [r for r in records if str(r.anno) == str(anno_filter)]
+            except AttributeError:
+                pass
+
+            if not records:
+                return
+
+            self.update_summary_cards(records)
+            self.update_summary_table(records)
+            self.draw_category_chart(records)
+            self.draw_timeline_chart(records)
+            self.draw_variance_chart(records)
+        except Exception as e:
+            pass
+
+    def update_summary_cards(self, records):
+        """Calculate and display summary statistics on card labels."""
+        try:
+            total_planned = sum(float(r.importo_previsto or 0) for r in records)
+            total_actual = sum(float(r.importo_effettivo or 0) for r in records)
+            variance = total_planned - total_actual
+
+            self.label_total_planned.setText("{}{:,.2f}".format(chr(8364) + " ", total_planned))
+            self.label_total_actual.setText("{}{:,.2f}".format(chr(8364) + " ", total_actual))
+
+            variance_text = "{}{:,.2f}".format(chr(8364) + " ", abs(variance))
+            if variance > 0:
+                self.label_total_variance.setText("+" + variance_text)
+                self.label_total_variance.setStyleSheet("color: #2E7D32; font-weight: bold;")
+            elif variance < 0:
+                self.label_total_variance.setText("-" + variance_text)
+                self.label_total_variance.setStyleSheet("color: #C62828; font-weight: bold;")
+            else:
+                self.label_total_variance.setText(variance_text)
+                self.label_total_variance.setStyleSheet("color: #555555; font-weight: bold;")
+
+            # Progress bar: percentage of budget used
+            if total_planned > 0:
+                usage_pct = min(int((total_actual / total_planned) * 100), 999)
+                self.progressBar_budget_usage.setValue(usage_pct)
+                if usage_pct > 100:
+                    self.progressBar_budget_usage.setStyleSheet(
+                        "QProgressBar::chunk { background-color: #C62828; }")
+                else:
+                    self.progressBar_budget_usage.setStyleSheet(
+                        "QProgressBar::chunk { background-color: #2E7D32; }")
+            else:
+                self.progressBar_budget_usage.setValue(0)
+        except Exception:
+            pass
+
+    def update_summary_table(self, records):
+        """Populate the budget summary table grouped by category."""
+        try:
+            at = getattr(self, '_analytics_t', {})
+            # Group by category
+            cat_data = defaultdict(lambda: {'planned': 0.0, 'actual': 0.0})
+            for r in records:
+                cat = str(r.categoria) if r.categoria else 'N/A'
+                cat_data[cat]['planned'] += float(r.importo_previsto or 0)
+                cat_data[cat]['actual'] += float(r.importo_effettivo or 0)
+
+            table = self.tableWidget_budget_summary
+            table.clear()
+            table.setRowCount(len(cat_data) + 1)  # +1 for totals row
+            table.setColumnCount(6)
+
+            # Headers
+            headers_map = {
+                'it': ['Categoria', 'Previsto', 'Effettivo', 'Scostamento', '%', 'Stato'],
+                'en': ['Category', 'Planned', 'Actual', 'Variance', '%', 'Status'],
+                'de': ['Kategorie', 'Geplant', 'Tatsächlich', 'Abweichung', '%', 'Status'],
+                'es': ['Categoría', 'Previsto', 'Efectivo', 'Desviación', '%', 'Estado'],
+                'fr': ['Catégorie', 'Prévu', 'Effectif', 'Écart', '%', 'Statut'],
+                'ar': ['الفئة', 'مخطط', 'فعلي', 'انحراف', '%', 'الحالة'],
+                'ca': ['Categoria', 'Previst', 'Efectiu', 'Desviació', '%', 'Estat'],
+                'ro': ['Categorie', 'Planificat', 'Efectiv', 'Abatere', '%', 'Stare'],
+                'pt': ['Categoria', 'Previsto', 'Efetivo', 'Desvio', '%', 'Estado'],
+                'el': ['Κατηγορία', 'Προϋπ.', 'Πραγμ.', 'Απόκλιση', '%', 'Κατάσταση'],
+            }
+            headers = headers_map.get(self.L, headers_map['en'])
+            table.setHorizontalHeaderLabels(headers)
+
+            grand_planned = 0.0
+            grand_actual = 0.0
+            row = 0
+
+            for cat, vals in sorted(cat_data.items()):
+                planned = vals['planned']
+                actual = vals['actual']
+                var = planned - actual
+                pct = ((actual / planned) * 100) if planned != 0 else 0.0
+                grand_planned += planned
+                grand_actual += actual
+
+                table.setItem(row, 0, QTableWidgetItem(cat))
+                table.setItem(row, 1, QTableWidgetItem("{:,.2f}".format(planned)))
+                table.setItem(row, 2, QTableWidgetItem("{:,.2f}".format(actual)))
+
+                var_item = QTableWidgetItem("{:+,.2f}".format(var))
+                pct_item = QTableWidgetItem("{:.1f}%".format(pct))
+
+                if var < 0:
+                    color = Qt.GlobalColor.red
+                    status_text = at.get('over_budget', 'Over Budget')
+                elif var > 0:
+                    color = Qt.GlobalColor.darkGreen
+                    status_text = at.get('under_budget', 'Under Budget')
+                else:
+                    color = Qt.GlobalColor.darkGray
+                    status_text = at.get('on_budget', 'On Budget')
+
+                var_item.setForeground(color)
+                pct_item.setForeground(color)
+                table.setItem(row, 3, var_item)
+                table.setItem(row, 4, pct_item)
+                table.setItem(row, 5, QTableWidgetItem(status_text))
+                row += 1
+
+            # Totals row (bold)
+            grand_var = grand_planned - grand_actual
+            grand_pct = ((grand_actual / grand_planned) * 100) if grand_planned != 0 else 0.0
+            totals_label = {'it': 'TOTALE', 'en': 'TOTAL', 'de': 'GESAMT', 'es': 'TOTAL',
+                            'fr': 'TOTAL', 'ar': 'المجموع', 'ca': 'TOTAL', 'ro': 'TOTAL',
+                            'pt': 'TOTAL', 'el': 'ΣΥΝΟΛΟ'}
+
+            bold_items = [
+                QTableWidgetItem(totals_label.get(self.L, 'TOTAL')),
+                QTableWidgetItem("{:,.2f}".format(grand_planned)),
+                QTableWidgetItem("{:,.2f}".format(grand_actual)),
+                QTableWidgetItem("{:+,.2f}".format(grand_var)),
+                QTableWidgetItem("{:.1f}%".format(grand_pct)),
+                QTableWidgetItem(""),
+            ]
+            from qgis.PyQt.QtGui import QFont
+            bold_font = QFont()
+            bold_font.setBold(True)
+            for col, item in enumerate(bold_items):
+                item.setFont(bold_font)
+                if col in (3, 4) and grand_var < 0:
+                    item.setForeground(Qt.GlobalColor.red)
+                elif col in (3, 4) and grand_var > 0:
+                    item.setForeground(Qt.GlobalColor.darkGreen)
+                table.setItem(row, col, item)
+
+            table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+            table.setSortingEnabled(True)
+        except Exception:
+            pass
+
+    def draw_category_chart(self, records):
+        """Draw a Plotly donut chart of actual spending by category."""
+        try:
+            at = getattr(self, '_analytics_t', {})
+            cat_totals = defaultdict(float)
+            for r in records:
+                cat = str(r.categoria) if r.categoria else 'N/A'
+                cat_totals[cat] += float(r.importo_effettivo or 0)
+
+            if not cat_totals or sum(cat_totals.values()) == 0:
+                return
+
+            labels = list(cat_totals.keys())
+            values = list(cat_totals.values())
+
+            colors = [
+                '#1565C0', '#00897B', '#EF6C00', '#6A1B9A',
+                '#C62828', '#2E7D32', '#AD1457', '#4527A0',
+                '#00838F', '#F9A825', '#4E342E',
+            ]
+
+            title_text = at.get('chart_category_title', 'Spending by Category')
+
+            plotly_data = json.dumps([{
+                'labels': labels,
+                'values': values,
+                'type': 'pie',
+                'hole': 0.4,
+                'marker': {
+                    'colors': colors[:len(labels)],
+                    'line': {'color': '#ffffff', 'width': 2},
+                },
+                'textinfo': 'label+percent',
+                'textfont': {'size': 11, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
+                'hovertemplate': '<b>%{label}</b><br>' + chr(8364) + ' %{value:,.2f}<br>%{percent}<extra></extra>',
+                'sort': False,
+            }])
+
+            plotly_layout = json.dumps({
+                'title': {
+                    'text': title_text,
+                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
+                    'x': 0.5, 'xanchor': 'center',
+                },
+                'margin': {'l': 10, 'r': 10, 't': 40, 'b': 10},
+                'paper_bgcolor': 'rgba(0,0,0,0)',
+                'plot_bgcolor': 'rgba(0,0,0,0)',
+                'showlegend': True,
+                'legend': {
+                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
+                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.15, 'xanchor': 'center', 'x': 0.5,
+                },
+            })
+
+            html = '''<!DOCTYPE html>
+<html><head>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head><body style="margin:0;padding:0;">
+<div id="chart" style="width:100%%;height:100%%;"></div>
+<script>
+var data = %s;
+var layout = %s;
+Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
+</script></body></html>''' % (plotly_data, plotly_layout)
+
+            if not self._render_plotly_chart(self.widget_chart_category, html):
+                self._render_matplotlib_category(cat_totals)
+        except Exception:
+            pass
+
+    def draw_timeline_chart(self, records):
+        """Draw a Plotly bar+line chart of monthly spending trend."""
+        try:
+            at = getattr(self, '_analytics_t', {})
+            monthly_actual = defaultdict(float)
+            monthly_planned = defaultdict(float)
+
+            for r in records:
+                date_str = str(r.data_spesa) if r.data_spesa else ''
+                if date_str and len(date_str) >= 7:
+                    month_key = date_str[:7]  # yyyy-MM
+                else:
+                    continue
+                monthly_actual[month_key] += float(r.importo_effettivo or 0)
+                monthly_planned[month_key] += float(r.importo_previsto or 0)
+
+            if not monthly_actual:
+                return
+
+            months = sorted(set(list(monthly_actual.keys()) + list(monthly_planned.keys())))
+            actual_vals = [monthly_actual.get(m, 0) for m in months]
+            planned_vals = [monthly_planned.get(m, 0) for m in months]
+
+            # Cumulative planned
+            cumulative_planned = []
+            cum = 0
+            for v in planned_vals:
+                cum += v
+                cumulative_planned.append(cum)
+
+            title_text = at.get('chart_timeline_title', 'Monthly Spending Trend')
+            actual_label = at.get('total_actual', 'Actual')
+            planned_label = at.get('total_planned', 'Planned (cumul.)')
+
+            plotly_data = json.dumps([
+                {
+                    'x': months,
+                    'y': actual_vals,
+                    'type': 'bar',
+                    'name': actual_label,
+                    'marker': {'color': '#1565C0'},
+                    'hovertemplate': '<b>%{x}</b><br>' + chr(8364) + ' %{y:,.2f}<extra></extra>',
+                },
+                {
+                    'x': months,
+                    'y': cumulative_planned,
+                    'type': 'scatter',
+                    'mode': 'lines+markers',
+                    'name': planned_label,
+                    'line': {'color': '#EF6C00', 'width': 3},
+                    'marker': {'size': 6},
+                    'hovertemplate': '<b>%{x}</b><br>' + chr(8364) + ' %{y:,.2f}<extra></extra>',
+                },
+            ])
+
+            plotly_layout = json.dumps({
+                'title': {
+                    'text': title_text,
+                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
+                    'x': 0.5, 'xanchor': 'center',
+                },
+                'margin': {'l': 60, 'r': 20, 't': 40, 'b': 50},
+                'paper_bgcolor': 'rgba(0,0,0,0)',
+                'plot_bgcolor': 'rgba(0,0,0,0)',
+                'barmode': 'group',
+                'showlegend': True,
+                'legend': {
+                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
+                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.25, 'xanchor': 'center', 'x': 0.5,
+                },
+                'xaxis': {'tickangle': -45},
+                'yaxis': {'tickformat': ',.0f'},
+            })
+
+            html = '''<!DOCTYPE html>
+<html><head>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head><body style="margin:0;padding:0;">
+<div id="chart" style="width:100%%;height:100%%;"></div>
+<script>
+var data = %s;
+var layout = %s;
+Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
+</script></body></html>''' % (plotly_data, plotly_layout)
+
+            self._render_plotly_chart(self.widget_chart_timeline, html)
+        except Exception:
+            pass
+
+    def draw_variance_chart(self, records):
+        """Draw a Plotly horizontal grouped bar chart for planned vs actual by category."""
+        try:
+            at = getattr(self, '_analytics_t', {})
+            cat_data = defaultdict(lambda: {'planned': 0.0, 'actual': 0.0})
+            for r in records:
+                cat = str(r.categoria) if r.categoria else 'N/A'
+                cat_data[cat]['planned'] += float(r.importo_previsto or 0)
+                cat_data[cat]['actual'] += float(r.importo_effettivo or 0)
+
+            if not cat_data:
+                return
+
+            categories = sorted(cat_data.keys())
+            planned_vals = [cat_data[c]['planned'] for c in categories]
+            actual_vals = [cat_data[c]['actual'] for c in categories]
+            actual_colors = ['#C62828' if cat_data[c]['actual'] > cat_data[c]['planned'] else '#2E7D32'
+                             for c in categories]
+
+            title_text = at.get('chart_variance_title', 'Variance by Category')
+            planned_label = at.get('total_planned', 'Planned')
+            actual_label = at.get('total_actual', 'Actual')
+
+            plotly_data = json.dumps([
+                {
+                    'y': categories,
+                    'x': planned_vals,
+                    'type': 'bar',
+                    'name': planned_label,
+                    'orientation': 'h',
+                    'marker': {'color': '#1565C0'},
+                    'hovertemplate': '<b>%{y}</b><br>' + chr(8364) + ' %{x:,.2f}<extra></extra>',
+                },
+                {
+                    'y': categories,
+                    'x': actual_vals,
+                    'type': 'bar',
+                    'name': actual_label,
+                    'orientation': 'h',
+                    'marker': {'color': actual_colors},
+                    'hovertemplate': '<b>%{y}</b><br>' + chr(8364) + ' %{x:,.2f}<extra></extra>',
+                },
+            ])
+
+            plotly_layout = json.dumps({
+                'title': {
+                    'text': title_text,
+                    'font': {'size': 14, 'family': 'Segoe UI, Helvetica, Arial, sans-serif', 'color': '#2c3e50'},
+                    'x': 0.5, 'xanchor': 'center',
+                },
+                'margin': {'l': 120, 'r': 20, 't': 40, 'b': 30},
+                'paper_bgcolor': 'rgba(0,0,0,0)',
+                'plot_bgcolor': 'rgba(0,0,0,0)',
+                'barmode': 'group',
+                'showlegend': True,
+                'legend': {
+                    'font': {'size': 10, 'family': 'Segoe UI, Helvetica, Arial, sans-serif'},
+                    'orientation': 'h', 'yanchor': 'bottom', 'y': -0.2, 'xanchor': 'center', 'x': 0.5,
+                },
+                'xaxis': {'tickformat': ',.0f'},
+            })
+
+            html = '''<!DOCTYPE html>
+<html><head>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head><body style="margin:0;padding:0;">
+<div id="chart" style="width:100%%;height:100%%;"></div>
+<script>
+var data = %s;
+var layout = %s;
+Plotly.newPlot('chart', data, layout, {responsive:true, displayModeBar:false});
+</script></body></html>''' % (plotly_data, plotly_layout)
+
+            self._render_plotly_chart(self.widget_chart_variance, html)
+        except Exception:
+            pass
+
+    def _render_plotly_chart(self, widget, fig_html):
+        """Render Plotly HTML into a QWebEngineView inside the given widget. Returns True on success."""
+        try:
+            # Import QWebEngineView from multiple possible paths
+            QWebEngineView = None
+            for _import_path in [
+                ('qgis.PyQt.QtWebEngineWidgets', 'QWebEngineView'),
+                ('PyQt5.QtWebEngineWidgets', 'QWebEngineView'),
+                ('PyQt6.QtWebEngineWidgets', 'QWebEngineView'),
+            ]:
+                try:
+                    mod = __import__(_import_path[0], fromlist=[_import_path[1]])
+                    QWebEngineView = getattr(mod, _import_path[1])
+                    break
+                except (ImportError, AttributeError):
+                    continue
+
+            if QWebEngineView is None:
+                return False
+
+            # Clear existing layout
+            layout = widget.layout()
+            if layout is None:
+                layout = QVBoxLayout(widget)
+                widget.setLayout(layout)
+            else:
+                while layout.count():
+                    child = layout.takeAt(0)
+                    if child.widget():
+                        child.widget().deleteLater()
+
+            web_view = QWebEngineView()
+            web_view.setHtml(fig_html)
+            layout.addWidget(web_view)
+            return True
+        except Exception:
+            return False
+
+    def _render_matplotlib_chart(self, widget, fig):
+        """Fallback: render a matplotlib Figure into the given widget."""
+        try:
+            from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+
+            layout = widget.layout()
+            if layout is None:
+                layout = QVBoxLayout(widget)
+                widget.setLayout(layout)
+            else:
+                while layout.count():
+                    child = layout.takeAt(0)
+                    if child.widget():
+                        child.widget().deleteLater()
+
+            canvas = FigureCanvasQTAgg(fig)
+            layout.addWidget(canvas)
+            canvas.draw()
+        except Exception:
+            pass
+
+    def _render_matplotlib_category(self, cat_totals):
+        """Fallback matplotlib rendering for category donut chart."""
+        try:
+            from matplotlib.figure import Figure
+            colors = ['#1565C0', '#00897B', '#EF6C00', '#6A1B9A',
+                      '#C62828', '#2E7D32', '#AD1457', '#4527A0',
+                      '#00838F', '#F9A825', '#4E342E']
+            labels = list(cat_totals.keys())
+            sizes = list(cat_totals.values())
+            fig = Figure(figsize=(4, 3), dpi=80)
+            ax = fig.add_subplot(111)
+            ax.pie(sizes, labels=labels, colors=colors[:len(labels)],
+                   autopct='%1.0f%%', startangle=90, textprops={'fontsize': 7})
+            at = getattr(self, '_analytics_t', {})
+            ax.set_title(at.get('chart_category_title', 'Spending by Category'), fontsize=9)
+            ax.set_aspect('equal')
+            fig.tight_layout()
+            self._render_matplotlib_chart(self.widget_chart_category, fig)
+        except Exception:
+            pass
+
+    def export_analytics_pdf(self):
+        """Export analytics summary to PDF using ReportLab."""
+        try:
+            from qgis.PyQt.QtWidgets import QFileDialog
+            at = getattr(self, '_analytics_t', {})
+
+            sito = self.comboBox_sito.currentText()
+            if not sito:
+                QMessageBox.warning(self, "Warning", "Select a site first.", QMessageBox.StandardButton.Ok)
+                return
+
+            file_path, _ = QFileDialog.getSaveFileName(
+                self, "Export Analytics PDF", "",
+                "PDF Files (*.pdf);;All Files (*)")
+            if not file_path:
+                return
+
+            if not file_path.lower().endswith('.pdf'):
+                file_path += '.pdf'
+
+            # Get records
+            search_dict = {'sito': "'" + str(sito) + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            if not records:
+                QMessageBox.warning(self, "Warning", "No data to export.", QMessageBox.StandardButton.Ok)
+                return
+
+            # Filter by year if available
+            try:
+                anno_filter = self.comboBox_filter_anno.currentText()
+                if anno_filter and anno_filter.strip():
+                    records = [r for r in records if str(r.anno) == str(anno_filter)]
+            except AttributeError:
+                pass
+
+            from reportlab.lib.pagesizes import A4
+            from reportlab.lib import colors as rl_colors
+            from reportlab.lib.units import cm
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib.styles import getSampleStyleSheet
+
+            doc = SimpleDocTemplate(file_path, pagesize=A4)
+            elements = []
+            styles = getSampleStyleSheet()
+
+            # Title
+            title_text = "Budget Analytics - " + sito
+            elements.append(Paragraph(title_text, styles['Title']))
+            elements.append(Spacer(1, 0.5 * cm))
+
+            # Summary
+            total_planned = sum(float(r.importo_previsto or 0) for r in records)
+            total_actual = sum(float(r.importo_effettivo or 0) for r in records)
+            variance = total_planned - total_actual
+
+            summary_data = [
+                [at.get('total_planned', 'Total Planned'), "{} {:,.2f}".format(chr(8364), total_planned)],
+                [at.get('total_actual', 'Total Actual'), "{} {:,.2f}".format(chr(8364), total_actual)],
+                [at.get('variance', 'Variance'), "{} {:+,.2f}".format(chr(8364), variance)],
+            ]
+            summary_table = Table(summary_data, colWidths=[8 * cm, 8 * cm])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (0, -1), rl_colors.HexColor('#f0f0f0')),
+                ('TEXTCOLOR', (0, 0), (-1, -1), rl_colors.black),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 6),
+                ('GRID', (0, 0), (-1, -1), 0.5, rl_colors.grey),
+            ]))
+            elements.append(summary_table)
+            elements.append(Spacer(1, 1 * cm))
+
+            # Category breakdown table
+            cat_data = defaultdict(lambda: {'planned': 0.0, 'actual': 0.0})
+            for r in records:
+                cat = str(r.categoria) if r.categoria else 'N/A'
+                cat_data[cat]['planned'] += float(r.importo_previsto or 0)
+                cat_data[cat]['actual'] += float(r.importo_effettivo or 0)
+
+            headers_map = {
+                'it': ['Categoria', 'Previsto', 'Effettivo', 'Scostamento', '%'],
+                'en': ['Category', 'Planned', 'Actual', 'Variance', '%'],
+                'de': ['Kategorie', 'Geplant', 'Tatsächlich', 'Abweichung', '%'],
+            }
+            headers = headers_map.get(self.L, headers_map['en'])
+            table_data = [headers]
+
+            for cat in sorted(cat_data.keys()):
+                vals = cat_data[cat]
+                var = vals['planned'] - vals['actual']
+                pct = ((vals['actual'] / vals['planned']) * 100) if vals['planned'] != 0 else 0
+                table_data.append([
+                    cat,
+                    "{:,.2f}".format(vals['planned']),
+                    "{:,.2f}".format(vals['actual']),
+                    "{:+,.2f}".format(var),
+                    "{:.1f}%".format(pct),
+                ])
+
+            detail_table = Table(table_data, colWidths=[5 * cm, 3 * cm, 3 * cm, 3 * cm, 2 * cm])
+            detail_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), rl_colors.HexColor('#2c3e50')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), rl_colors.white),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 9),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('GRID', (0, 0), (-1, -1), 0.5, rl_colors.grey),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [rl_colors.white, rl_colors.HexColor('#f5f5f5')]),
+                ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
+            ]))
+            elements.append(detail_table)
+
+            doc.build(elements)
+
+            if self.L == 'it':
+                msg = "PDF esportato con successo in:\n" + file_path
+            elif self.L == 'de':
+                msg = "PDF erfolgreich exportiert nach:\n" + file_path
+            else:
+                msg = "PDF exported successfully to:\n" + file_path
+            QMessageBox.information(self, "OK", msg, QMessageBox.StandardButton.Ok)
+        except ImportError:
+            QMessageBox.warning(self, "Error",
+                "ReportLab is required for PDF export. Install it with: pip install reportlab",
+                QMessageBox.StandardButton.Ok)
+        except Exception as e:
+            QMessageBox.warning(self, "Error", "PDF export failed: " + str(e),
+                QMessageBox.StandardButton.Ok)
 
 
 ## Class end

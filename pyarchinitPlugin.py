@@ -62,6 +62,178 @@ class PyArchInitPlugin(object):
         """Check if experimental features are enabled, regardless of language setting."""
         return self.PARAMS_DICT.get('EXPERIMENTAL', '').strip() in self.EXPERIMENTAL_YES_VALUES
 
+    _cantiere_permission_cache = None  # Cache result for session
+
+    def _check_cantiere_permission(self, table_name='cantiere_table'):
+        """
+        Check if the current user has permission to access cantiere management forms.
+        Returns True if user has admin or responsabile role, or if the permission system
+        is not available (backward compatibility).
+
+        This is a soft gate: any error defaults to allowing access.
+        Result is cached for the session to avoid repeated DB queries.
+        """
+        if self._cantiere_permission_cache is not None:
+            return self._cantiere_permission_cache
+
+        try:
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .modules.db.pyarchinit_db_manager import get_db_manager
+            import getpass
+
+            conn = Connection()
+            conn_str = conn.conn_str()
+
+            # For SQLite databases, always allow access
+            if 'sqlite' in conn_str.lower():
+                self._cantiere_permission_cache = True
+                return True
+
+            db_manager = get_db_manager(conn_str, use_singleton=True)
+
+            # Check if pyarchinit_users table exists
+            check_table = """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables
+                    WHERE table_name = 'pyarchinit_users'
+                )
+            """
+            table_exists = db_manager.execute_sql(check_table)
+            if not table_exists or not table_exists[0][0]:
+                # Permission system not installed - allow access for backward compatibility
+                self._cantiere_permission_cache = True
+                return True
+
+            # Get current username from settings or OS
+            s = QgsSettings()
+            current_user = s.value('pyArchInit/current_user', '', type=str)
+            db_username = s.value('pyArchInit/db_username', '', type=str)
+
+            # Try to get DB username from connection if not in settings
+            if not db_username:
+                try:
+                    result = db_manager.execute_sql("SELECT current_user")
+                    if result and result[0][0]:
+                        db_username = result[0][0]
+                except Exception:
+                    pass
+
+            if not current_user:
+                current_user = getpass.getuser()
+
+            # Check if database superuser (postgres)
+            if db_username:
+                db_user_lower = db_username.lower()
+                if db_user_lower == 'postgres' or db_user_lower.startswith('postgres.'):
+                    self._cantiere_permission_cache = True
+                    return True
+
+            # Check user role in pyarchinit_users
+            usernames_to_check = [u for u in [current_user, db_username] if u]
+            for username in usernames_to_check:
+                query = """
+                    SELECT role FROM pyarchinit_users
+                    WHERE LOWER(username) = LOWER(%s) AND is_active = TRUE
+                """
+                # Try both parameterized and formatted queries for compatibility
+                try:
+                    result = db_manager.execute_sql(query, (username,))
+                except Exception:
+                    try:
+                        query_fmt = f"""
+                            SELECT role FROM pyarchinit_users
+                            WHERE LOWER(username) = LOWER('{username}') AND is_active = TRUE
+                        """
+                        result = db_manager.execute_sql(query_fmt)
+                    except Exception:
+                        return True  # On query failure, allow access
+
+                if result and len(result) > 0:
+                    role = result[0][0]
+                    if role in ('admin', 'responsabile'):
+                        self._cantiere_permission_cache = True
+                        return True
+                    else:
+                        self._cantiere_permission_cache = False
+                        return False
+
+            # User not found in the table - allow access for backward compatibility
+            self._cantiere_permission_cache = True
+            return True
+
+        except Exception as e:
+            # Any error during permission check: default to allowing access
+            QgsMessageLog.logMessage(
+                f"Cantiere permission check failed (defaulting to allow): {str(e)}",
+                "PyArchInit", Qgis.Info
+            )
+            self._cantiere_permission_cache = True
+            return True
+
+    def _show_cantiere_permission_denied(self):
+        """Show a permission denied message for cantiere forms."""
+        l = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+
+        _titles = {
+            'it': "Accesso Negato",
+            'en': "Access Denied",
+            'de': "Zugriff verweigert",
+            'es': "Acceso Denegado",
+            'fr': "Acces Refuse",
+            'ar': "الوصول مرفوض",
+            'ca': "Acces Denegat",
+            'ro': "Acces Refuzat",
+            'pt': "Acesso Negado",
+            'el': "Apagoreusi Prosvaseos",
+        }
+
+        _msgs = {
+            'it': ("Non hai i permessi necessari per accedere alla gestione cantiere.\n\n"
+                   "Solo gli utenti con ruolo 'admin' o 'responsabile' possono accedere "
+                   "a questa funzionalita'.\n\n"
+                   "Contatta l'amministratore del sistema per richiedere l'accesso."),
+            'en': ("You do not have the necessary permissions to access site management.\n\n"
+                   "Only users with 'admin' or 'responsabile' role can access "
+                   "this functionality.\n\n"
+                   "Contact the system administrator to request access."),
+            'de': ("Sie haben nicht die erforderlichen Berechtigungen fuer die Baustellen-Verwaltung.\n\n"
+                   "Nur Benutzer mit der Rolle 'admin' oder 'responsabile' koennen auf "
+                   "diese Funktion zugreifen.\n\n"
+                   "Wenden Sie sich an den Systemadministrator, um Zugriff anzufordern."),
+            'es': ("No tiene los permisos necesarios para acceder a la gestion de obra.\n\n"
+                   "Solo los usuarios con rol 'admin' o 'responsabile' pueden acceder "
+                   "a esta funcionalidad.\n\n"
+                   "Contacte al administrador del sistema para solicitar acceso."),
+            'fr': ("Vous n'avez pas les autorisations necessaires pour acceder a la gestion du chantier.\n\n"
+                   "Seuls les utilisateurs ayant le role 'admin' ou 'responsabile' peuvent acceder "
+                   "a cette fonctionnalite.\n\n"
+                   "Contactez l'administrateur du systeme pour demander l'acces."),
+            'ar': ("ليس لديك الصلاحيات اللازمة للوصول الى ادارة الموقع.\n\n"
+                   "فقط المستخدمون بدور 'admin' او 'responsabile' يمكنهم الوصول "
+                   "الى هذه الوظيفة.\n\n"
+                   "اتصل بمسؤول النظام لطلب الوصول."),
+            'ca': ("No teniu els permisos necessaris per accedir a la gestio del cantiere.\n\n"
+                   "Nomes els usuaris amb el rol 'admin' o 'responsabile' poden accedir "
+                   "a aquesta funcionalitat.\n\n"
+                   "Contacteu amb l'administrador del sistema per sol·licitar l'acces."),
+            'ro': ("Nu aveti permisiunile necesare pentru a accesa gestionarea santierului.\n\n"
+                   "Doar utilizatorii cu rolul 'admin' sau 'responsabile' pot accesa "
+                   "aceasta functionalitate.\n\n"
+                   "Contactati administratorul de sistem pentru a solicita acces."),
+            'pt': ("Nao tem as permissoes necessarias para aceder a gestao do estaleiro.\n\n"
+                   "Apenas os utilizadores com o papel 'admin' ou 'responsabile' podem aceder "
+                   "a esta funcionalidade.\n\n"
+                   "Contacte o administrador do sistema para solicitar acesso."),
+            'el': ("Den echete ta aparaitita dikaiomata gia prosvasi sti diacheirisi ergotaxiou.\n\n"
+                   "Mono oi christes me rolo 'admin' i 'responsabile' mporoun na prosvasoun "
+                   "se afti ti leitourgia.\n\n"
+                   "Epikoinoniste me ton diacheiristi systimatos gia na zitisete prosvasi."),
+        }
+
+        title = _titles.get(l, _titles['en'])
+        msg = _msgs.get(l, _msgs['en'])
+        QMessageBox.warning(self.iface.mainWindow(), title, msg, QMessageBox.Ok)
+
     def load_config(self):
         """Load configuration from config.cfg file into PARAMS_DICT."""
         try:
@@ -2025,30 +2197,45 @@ class PyArchInitPlugin(object):
         self.pluginGui = pluginExcel  # save
 
     def runCantiere(self):
+        if not self._check_cantiere_permission('cantiere_table'):
+            self._show_cantiere_permission_denied()
+            return
         from .tabs.Cantiere import pyarchinit_Cantiere
         pluginGui = pyarchinit_Cantiere(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runPersonale(self):
+        if not self._check_cantiere_permission('cantiere_personale_table'):
+            self._show_cantiere_permission_denied()
+            return
         from .tabs.Personale import pyarchinit_Personale
         pluginGui = pyarchinit_Personale(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runPresenze(self):
+        if not self._check_cantiere_permission('cantiere_presenze_table'):
+            self._show_cantiere_permission_denied()
+            return
         from .tabs.Presenze import pyarchinit_Presenze
         pluginGui = pyarchinit_Presenze(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runAttrezzature(self):
+        if not self._check_cantiere_permission('cantiere_attrezzature_table'):
+            self._show_cantiere_permission_denied()
+            return
         from .tabs.Attrezzature import pyarchinit_Attrezzature
         pluginGui = pyarchinit_Attrezzature(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui
 
     def runBudget(self):
+        if not self._check_cantiere_permission('cantiere_budget_table'):
+            self._show_cantiere_permission_denied()
+            return
         from .tabs.Budget import pyarchinit_Budget
         pluginGui = pyarchinit_Budget(self.iface)
         pluginGui.show()

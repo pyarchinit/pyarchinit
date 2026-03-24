@@ -655,13 +655,19 @@
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLineEdit" name="lineEdit_data_nascita">
+       <widget class="QDateEdit" name="lineEdit_data_nascita">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
         </property>
        </widget>
       </item>
@@ -853,13 +859,19 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="lineEdit_data_inizio_contratto">
+       <widget class="QDateEdit" name="lineEdit_data_inizio_contratto">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
         </property>
        </widget>
       </item>
@@ -878,13 +890,19 @@
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLineEdit" name="lineEdit_data_fine_contratto">
+       <widget class="QDateEdit" name="lineEdit_data_fine_contratto">
         <property name="font">
          <font>
           <pointsize>8</pointsize>
           <weight>50</weight>
           <bold>false</bold>
          </font>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+        <property name="displayFormat">
+         <string>yyyy-MM-dd</string>
         </property>
        </widget>
       </item>

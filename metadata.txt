@@ -31,11 +31,27 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.5-alpha (2026-02-20) [i18n & Thesaurus for Site Management]:
-    - Feature: expand i18n from 3 to 10 languages for Site Management tabs (es, fr, ar, ca, ro, pt, el)
-    - Feature: add thesaurus codes 14.1-14.7 (~470 records) for site management fields in 10 languages
-    - Feature: integrate thesaurus-based combobox population in Personale, Presenze, Attrezzature, Budget tabs
+changelog=5.0.5-alpha (2026-03-24) [Site Management, Analytics, Permissions & i18n]:
+    - Feature: add Budget Analytics tab with interactive Plotly charts (donut, timeline, variance), summary cards, and sortable table
+    - Feature: add interactive Plotly donut chart to Site Dashboard (replaces matplotlib)
+    - Feature: add admin/responsabile permission gate to all 5 cantiere forms with cached session check
+    - Feature: translate user management system (80+ strings) to 10 languages (users, permissions, monitor, roles tabs)
+    - Feature: translate permission_handler error messages to 10 languages
+    - Feature: add Presenze quick register buttons (Register Today, Holiday, Sick Leave, Day Off) in 10 languages
+    - Feature: add professional PDF exports with ReportLab (Presenze: landscape A4 with personnel names; Dashboard: title page, budget chart, tables)
+    - Feature: add CSV/Excel export to Presenze and Dashboard
+    - Feature: add retranslate_ui to all 5 cantiere forms + Site Dashboard in 10 languages
+    - Feature: convert 9 date fields to QDateEdit with calendar popup (Personale 3, Presenze 1, Attrezzature 3, Budget 2)
+    - Feature: make Thesaurus TABLE_DISPLAY_MAPPING multilingual (10 languages) with 4 cantiere tables
+    - Feature: add thesaurus codes 14.1-14.7 for site management with tooltips
+    - Feature: expand i18n to 10 languages for all Site Management tabs
     - Feature: add site management tutorials in 10 languages
+    - Fix: widget name mismatches in Presenze, Budget, Attrezzature (comboBox vs lineEdit)
+    - Fix: connect charge_personale_list() in Presenze for auto-population
+    - Fix: Attrezzature assegnato_a integer field sends None instead of empty string
+    - Fix: Dashboard sidebar queries now multilingual (10 languages) with fallback to all records
+    - Fix: Dashboard comboBox_sito/anno expanded with sizePolicy Expanding
+    - Perf: deferred loading (QTimer.singleShot) for all 5 cantiere forms - instant window display
     - Docs: update CHANGELOG with issue #660 fixes
   5.0.5-alpha (2026-02-18) [PostgreSQL Connection Fix]:
     - Fix: make select_version_sql() non-blocking so PostgreSQL version check failure no longer prevents connection (fixes #656)

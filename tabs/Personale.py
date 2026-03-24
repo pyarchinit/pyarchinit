@@ -24,6 +24,7 @@ from __future__ import absolute_import
 import os
 import sys
 from datetime import date
+from qgis.PyQt.QtCore import QDate, QTimer
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
@@ -507,6 +508,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
 
         self.currentLayerId = None
+        self.retranslate_ui()
+        QTimer.singleShot(0, self._deferred_init)
+
+    def _deferred_init(self):
+        """Load data after the window is visible."""
         try:
             self.on_pushButton_connect_pressed()
         except:
@@ -514,6 +520,155 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
         self.fill_fields()
         self.set_sito()
         self.msg_sito()
+
+    def retranslate_ui(self):
+        """Translate UI labels based on current locale."""
+        lang = self.L
+        translations = {
+            'it': {
+                'title': 'pyArchInit Gestione Cantiere - Personale',
+                'anagrafica': 'Anagrafica', 'nome': 'Nome', 'cognome': 'Cognome',
+                'codice_fiscale': 'Codice Fiscale', 'data_nascita': 'Data Nascita',
+                'email': 'Email', 'telefono': 'Telefono', 'indirizzo': 'Indirizzo',
+                'ruolo': 'Ruolo', 'qualifica': 'Qualifica',
+                'contratto': 'Contratto', 'tipo_contratto': 'Tipo Contratto',
+                'data_inizio': 'Data Inizio', 'data_fine': 'Data Fine',
+                'tariffa_oraria': 'Tariffa Oraria', 'tariffa_giornaliera': 'Tariffa Giornaliera',
+                'iban': 'IBAN', 'stato': 'Stato', 'attivo': 'Attivo', 'note': 'Note',
+                'sito': 'Sito', 'ordinamento': 'Ordinamento',
+            },
+            'en': {
+                'title': 'pyArchInit Site Management - Personnel',
+                'anagrafica': 'Personal Data', 'nome': 'First Name', 'cognome': 'Surname',
+                'codice_fiscale': 'Tax ID', 'data_nascita': 'Date of Birth',
+                'email': 'Email', 'telefono': 'Phone', 'indirizzo': 'Address',
+                'ruolo': 'Role', 'qualifica': 'Qualification',
+                'contratto': 'Contract', 'tipo_contratto': 'Contract Type',
+                'data_inizio': 'Start Date', 'data_fine': 'End Date',
+                'tariffa_oraria': 'Hourly Rate', 'tariffa_giornaliera': 'Daily Rate',
+                'iban': 'IBAN', 'stato': 'Status', 'attivo': 'Active', 'note': 'Notes',
+                'sito': 'Site', 'ordinamento': 'Sort Order',
+            },
+            'de': {
+                'title': 'pyArchInit Grabungsverwaltung - Personal',
+                'anagrafica': 'Persönliche Daten', 'nome': 'Vorname', 'cognome': 'Nachname',
+                'codice_fiscale': 'Steuernummer', 'data_nascita': 'Geburtsdatum',
+                'email': 'E-Mail', 'telefono': 'Telefon', 'indirizzo': 'Adresse',
+                'ruolo': 'Rolle', 'qualifica': 'Qualifikation',
+                'contratto': 'Vertrag', 'tipo_contratto': 'Vertragstyp',
+                'data_inizio': 'Startdatum', 'data_fine': 'Enddatum',
+                'tariffa_oraria': 'Stundensatz', 'tariffa_giornaliera': 'Tagessatz',
+                'iban': 'IBAN', 'stato': 'Status', 'attivo': 'Aktiv', 'note': 'Notizen',
+                'sito': 'Fundstelle', 'ordinamento': 'Sortierung',
+            },
+            'es': {
+                'title': 'pyArchInit Gestión de Obra - Personal',
+                'anagrafica': 'Datos Personales', 'nome': 'Nombre', 'cognome': 'Apellido',
+                'codice_fiscale': 'NIF', 'data_nascita': 'Fecha de Nacimiento',
+                'email': 'Correo', 'telefono': 'Teléfono', 'indirizzo': 'Dirección',
+                'ruolo': 'Rol', 'qualifica': 'Cualificación',
+                'contratto': 'Contrato', 'tipo_contratto': 'Tipo de Contrato',
+                'data_inizio': 'Fecha Inicio', 'data_fine': 'Fecha Fin',
+                'tariffa_oraria': 'Tarifa Horaria', 'tariffa_giornaliera': 'Tarifa Diaria',
+                'iban': 'IBAN', 'stato': 'Estado', 'attivo': 'Activo', 'note': 'Notas',
+                'sito': 'Sitio', 'ordinamento': 'Orden',
+            },
+            'fr': {
+                'title': 'pyArchInit Gestion de Chantier - Personnel',
+                'anagrafica': 'Données Personnelles', 'nome': 'Prénom', 'cognome': 'Nom',
+                'codice_fiscale': 'Numéro Fiscal', 'data_nascita': 'Date de Naissance',
+                'email': 'Courriel', 'telefono': 'Téléphone', 'indirizzo': 'Adresse',
+                'ruolo': 'Rôle', 'qualifica': 'Qualification',
+                'contratto': 'Contrat', 'tipo_contratto': 'Type de Contrat',
+                'data_inizio': 'Date de Début', 'data_fine': 'Date de Fin',
+                'tariffa_oraria': 'Tarif Horaire', 'tariffa_giornaliera': 'Tarif Journalier',
+                'iban': 'IBAN', 'stato': 'Statut', 'attivo': 'Actif', 'note': 'Notes',
+                'sito': 'Site', 'ordinamento': 'Classement',
+            },
+            'ar': {
+                'title': 'pyArchInit إدارة الموقع - الموظفون',
+                'anagrafica': 'البيانات الشخصية', 'nome': 'الاسم', 'cognome': 'اللقب',
+                'codice_fiscale': 'الرقم الضريبي', 'data_nascita': 'تاريخ الميلاد',
+                'email': 'البريد الإلكتروني', 'telefono': 'الهاتف', 'indirizzo': 'العنوان',
+                'ruolo': 'الدور', 'qualifica': 'المؤهل',
+                'contratto': 'العقد', 'tipo_contratto': 'نوع العقد',
+                'data_inizio': 'تاريخ البداية', 'data_fine': 'تاريخ النهاية',
+                'tariffa_oraria': 'الأجر بالساعة', 'tariffa_giornaliera': 'الأجر اليومي',
+                'iban': 'IBAN', 'stato': 'الحالة', 'attivo': 'نشط', 'note': 'ملاحظات',
+                'sito': 'الموقع', 'ordinamento': 'الترتيب',
+            },
+            'ca': {
+                'title': "pyArchInit Gestió d'Obra - Personal",
+                'anagrafica': 'Dades Personals', 'nome': 'Nom', 'cognome': 'Cognom',
+                'codice_fiscale': 'NIF', 'data_nascita': 'Data de Naixement',
+                'email': 'Correu', 'telefono': 'Telèfon', 'indirizzo': 'Adreça',
+                'ruolo': 'Rol', 'qualifica': 'Qualificació',
+                'contratto': 'Contracte', 'tipo_contratto': 'Tipus de Contracte',
+                'data_inizio': "Data d'Inici", 'data_fine': 'Data Final',
+                'tariffa_oraria': 'Tarifa Horària', 'tariffa_giornaliera': 'Tarifa Diària',
+                'iban': 'IBAN', 'stato': 'Estat', 'attivo': 'Actiu', 'note': 'Notes',
+                'sito': 'Lloc', 'ordinamento': 'Ordenació',
+            },
+            'ro': {
+                'title': 'pyArchInit Gestiune Șantier - Personal',
+                'anagrafica': 'Date Personale', 'nome': 'Prenume', 'cognome': 'Nume',
+                'codice_fiscale': 'CNP', 'data_nascita': 'Data Nașterii',
+                'email': 'Email', 'telefono': 'Telefon', 'indirizzo': 'Adresă',
+                'ruolo': 'Rol', 'qualifica': 'Calificare',
+                'contratto': 'Contract', 'tipo_contratto': 'Tip Contract',
+                'data_inizio': 'Data Început', 'data_fine': 'Data Sfârșit',
+                'tariffa_oraria': 'Tarif Orar', 'tariffa_giornaliera': 'Tarif Zilnic',
+                'iban': 'IBAN', 'stato': 'Stare', 'attivo': 'Activ', 'note': 'Note',
+                'sito': 'Sit', 'ordinamento': 'Ordonare',
+            },
+            'pt': {
+                'title': 'pyArchInit Gestão de Obra - Pessoal',
+                'anagrafica': 'Dados Pessoais', 'nome': 'Nome', 'cognome': 'Apelido',
+                'codice_fiscale': 'NIF', 'data_nascita': 'Data de Nascimento',
+                'email': 'Email', 'telefono': 'Telefone', 'indirizzo': 'Morada',
+                'ruolo': 'Função', 'qualifica': 'Qualificação',
+                'contratto': 'Contrato', 'tipo_contratto': 'Tipo de Contrato',
+                'data_inizio': 'Data de Início', 'data_fine': 'Data de Fim',
+                'tariffa_oraria': 'Taxa Horária', 'tariffa_giornaliera': 'Taxa Diária',
+                'iban': 'IBAN', 'stato': 'Estado', 'attivo': 'Ativo', 'note': 'Notas',
+                'sito': 'Sítio', 'ordinamento': 'Ordenação',
+            },
+            'el': {
+                'title': 'pyArchInit Διαχείριση Ανασκαφής - Προσωπικό',
+                'anagrafica': 'Προσωπικά Στοιχεία', 'nome': 'Όνομα', 'cognome': 'Επώνυμο',
+                'codice_fiscale': 'ΑΦΜ', 'data_nascita': 'Ημερομηνία Γέννησης',
+                'email': 'Email', 'telefono': 'Τηλέφωνο', 'indirizzo': 'Διεύθυνση',
+                'ruolo': 'Ρόλος', 'qualifica': 'Προσόντα',
+                'contratto': 'Σύμβαση', 'tipo_contratto': 'Τύπος Σύμβασης',
+                'data_inizio': 'Ημ. Έναρξης', 'data_fine': 'Ημ. Λήξης',
+                'tariffa_oraria': 'Ωριαία Αμοιβή', 'tariffa_giornaliera': 'Ημερήσια Αμοιβή',
+                'iban': 'IBAN', 'stato': 'Κατάσταση', 'attivo': 'Ενεργός', 'note': 'Σημειώσεις',
+                'sito': 'Τοποθεσία', 'ordinamento': 'Ταξινόμηση',
+            },
+        }
+        t = translations.get(lang, translations.get('en', translations['it']))
+        self.setWindowTitle(t['title'])
+        self.groupBox_anagrafica.setTitle(t['anagrafica'])
+        self.label_nome.setText(t['nome'])
+        self.label_cognome.setText(t['cognome'])
+        self.label_codice_fiscale.setText(t['codice_fiscale'])
+        self.label_data_nascita.setText(t['data_nascita'])
+        self.label_email.setText(t['email'])
+        self.label_telefono.setText(t['telefono'])
+        self.label_indirizzo.setText(t['indirizzo'])
+        self.label_ruolo.setText(t['ruolo'])
+        self.label_qualifica.setText(t['qualifica'])
+        self.groupBox_contratto.setTitle(t['contratto'])
+        self.label_tipo_contratto.setText(t['tipo_contratto'])
+        self.label_data_inizio_contratto.setText(t['data_inizio'])
+        self.label_data_fine_contratto.setText(t['data_fine'])
+        self.label_tariffa_oraria.setText(t['tariffa_oraria'])
+        self.label_tariffa_giornaliera.setText(t['tariffa_giornaliera'])
+        self.label_iban.setText(t['iban'])
+        self.groupBox_stato.setTitle(t['stato'])
+        self.label_note.setText(t['note'])
+        self.label_sito.setText(t['sito'])
+        self.label_lbl_sort.setText(t['ordinamento'])
 
     def enable_button(self, n):
         self.pushButton_connect.setEnabled(n)
@@ -920,11 +1075,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
                 str(self.lineEdit_codice_fiscale.text()),               # codice_fiscale
                 str(self.lineEdit_email.text()),                        # email
                 str(self.lineEdit_telefono.text()),                     # telefono
-                str(self.lineEdit_data_nascita.text()),                 # data_nascita
+                str(self.lineEdit_data_nascita.date().toString("yyyy-MM-dd")),                 # data_nascita
                 str(self.lineEdit_indirizzo.text()),                    # indirizzo
                 str(self.comboBox_tipo_contratto.currentText()),        # tipo_contratto
-                str(self.lineEdit_data_inizio_contratto.text()),        # data_inizio_contratto
-                str(self.lineEdit_data_fine_contratto.text()),          # data_fine_contratto
+                str(self.lineEdit_data_inizio_contratto.date().toString("yyyy-MM-dd")),        # data_inizio_contratto
+                str(self.lineEdit_data_fine_contratto.date().toString("yyyy-MM-dd")),          # data_fine_contratto
                 tariffa_oraria,                                         # tariffa_oraria
                 tariffa_giornaliera,                                    # tariffa_giornaliera
                 str(self.lineEdit_iban.text()),                         # iban
@@ -1222,11 +1377,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
                 'codice_fiscale': "'" + str(self.lineEdit_codice_fiscale.text()) + "'",
                 'email': "'" + str(self.lineEdit_email.text()) + "'",
                 'telefono': "'" + str(self.lineEdit_telefono.text()) + "'",
-                'data_nascita': "'" + str(self.lineEdit_data_nascita.text()) + "'",
+                'data_nascita': "'" + str(self.lineEdit_data_nascita.date().toString("yyyy-MM-dd")) + "'",
                 'indirizzo': "'" + str(self.lineEdit_indirizzo.text()) + "'",
                 'tipo_contratto': "'" + str(self.comboBox_tipo_contratto.currentText()) + "'",
-                'data_inizio_contratto': "'" + str(self.lineEdit_data_inizio_contratto.text()) + "'",
-                'data_fine_contratto': "'" + str(self.lineEdit_data_fine_contratto.text()) + "'",
+                'data_inizio_contratto': "'" + str(self.lineEdit_data_inizio_contratto.date().toString("yyyy-MM-dd")) + "'",
+                'data_fine_contratto': "'" + str(self.lineEdit_data_fine_contratto.date().toString("yyyy-MM-dd")) + "'",
                 'tariffa_oraria': "'" + str(self.lineEdit_tariffa_oraria.text()) + "'",
                 'tariffa_giornaliera': "'" + str(self.lineEdit_tariffa_giornaliera.text()) + "'",
                 'iban': "'" + str(self.lineEdit_iban.text()) + "'",
@@ -1344,11 +1499,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_codice_fiscale.clear()
         self.lineEdit_email.clear()
         self.lineEdit_telefono.clear()
-        self.lineEdit_data_nascita.clear()
+        self.lineEdit_data_nascita.setDate(QDate(2000, 1, 1))
         self.lineEdit_indirizzo.clear()
         self.comboBox_tipo_contratto.setEditText("")
-        self.lineEdit_data_inizio_contratto.clear()
-        self.lineEdit_data_fine_contratto.clear()
+        self.lineEdit_data_inizio_contratto.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_fine_contratto.setDate(QDate(2000, 1, 1))
         self.lineEdit_tariffa_oraria.clear()
         self.lineEdit_tariffa_giornaliera.clear()
         self.lineEdit_iban.clear()
@@ -1364,11 +1519,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
         self.lineEdit_codice_fiscale.clear()
         self.lineEdit_email.clear()
         self.lineEdit_telefono.clear()
-        self.lineEdit_data_nascita.clear()
+        self.lineEdit_data_nascita.setDate(QDate(2000, 1, 1))
         self.lineEdit_indirizzo.clear()
         self.comboBox_tipo_contratto.setEditText("")
-        self.lineEdit_data_inizio_contratto.clear()
-        self.lineEdit_data_fine_contratto.clear()
+        self.lineEdit_data_inizio_contratto.setDate(QDate(2000, 1, 1))
+        self.lineEdit_data_fine_contratto.setDate(QDate(2000, 1, 1))
         self.lineEdit_tariffa_oraria.clear()
         self.lineEdit_tariffa_giornaliera.clear()
         self.lineEdit_iban.clear()
@@ -1386,11 +1541,41 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_codice_fiscale.setText(str(self.DATA_LIST[self.rec_num].codice_fiscale) if self.DATA_LIST[self.rec_num].codice_fiscale else "")
             self.lineEdit_email.setText(str(self.DATA_LIST[self.rec_num].email) if self.DATA_LIST[self.rec_num].email else "")
             self.lineEdit_telefono.setText(str(self.DATA_LIST[self.rec_num].telefono) if self.DATA_LIST[self.rec_num].telefono else "")
-            self.lineEdit_data_nascita.setText(str(self.DATA_LIST[self.rec_num].data_nascita) if self.DATA_LIST[self.rec_num].data_nascita else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data_nascita) if self.DATA_LIST[self.rec_num].data_nascita else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_nascita.setDate(qd)
+                else:
+                    self.lineEdit_data_nascita.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_nascita.setDate(QDate(2000, 1, 1))
             self.lineEdit_indirizzo.setText(str(self.DATA_LIST[self.rec_num].indirizzo) if self.DATA_LIST[self.rec_num].indirizzo else "")
             self.comboBox_tipo_contratto.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contratto) if self.DATA_LIST[self.rec_num].tipo_contratto else "")
-            self.lineEdit_data_inizio_contratto.setText(str(self.DATA_LIST[self.rec_num].data_inizio_contratto) if self.DATA_LIST[self.rec_num].data_inizio_contratto else "")
-            self.lineEdit_data_fine_contratto.setText(str(self.DATA_LIST[self.rec_num].data_fine_contratto) if self.DATA_LIST[self.rec_num].data_fine_contratto else "")
+            date_str = str(self.DATA_LIST[self.rec_num].data_inizio_contratto) if self.DATA_LIST[self.rec_num].data_inizio_contratto else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_inizio_contratto.setDate(qd)
+                else:
+                    self.lineEdit_data_inizio_contratto.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_inizio_contratto.setDate(QDate(2000, 1, 1))
+            date_str = str(self.DATA_LIST[self.rec_num].data_fine_contratto) if self.DATA_LIST[self.rec_num].data_fine_contratto else ""
+            if date_str:
+                qd = QDate.fromString(date_str, "yyyy-MM-dd")
+                if not qd.isValid():
+                    qd = QDate.fromString(date_str, "dd/MM/yyyy")
+                if qd.isValid():
+                    self.lineEdit_data_fine_contratto.setDate(qd)
+                else:
+                    self.lineEdit_data_fine_contratto.setDate(QDate.currentDate())
+            else:
+                self.lineEdit_data_fine_contratto.setDate(QDate(2000, 1, 1))
 
             if self.DATA_LIST[self.rec_num].tariffa_oraria is not None:
                 self.lineEdit_tariffa_oraria.setText(str(self.DATA_LIST[self.rec_num].tariffa_oraria))
@@ -1428,11 +1613,11 @@ class pyarchinit_Personale(QDialog, MAIN_DIALOG_CLASS):
             str(self.lineEdit_codice_fiscale.text()),               # codice_fiscale
             str(self.lineEdit_email.text()),                        # email
             str(self.lineEdit_telefono.text()),                     # telefono
-            str(self.lineEdit_data_nascita.text()),                 # data_nascita
+            str(self.lineEdit_data_nascita.date().toString("yyyy-MM-dd")),                 # data_nascita
             str(self.lineEdit_indirizzo.text()),                    # indirizzo
             str(self.comboBox_tipo_contratto.currentText()),        # tipo_contratto
-            str(self.lineEdit_data_inizio_contratto.text()),        # data_inizio_contratto
-            str(self.lineEdit_data_fine_contratto.text()),          # data_fine_contratto
+            str(self.lineEdit_data_inizio_contratto.date().toString("yyyy-MM-dd")),        # data_inizio_contratto
+            str(self.lineEdit_data_fine_contratto.date().toString("yyyy-MM-dd")),          # data_fine_contratto
             tariffa_oraria,                                         # tariffa_oraria
             tariffa_giornaliera,                                    # tariffa_giornaliera
             str(self.lineEdit_iban.text()),                         # iban
