@@ -3978,11 +3978,8 @@ class RAGQueryDialog(QDialog):
         # Model selection
         self.model_combo = QComboBox()
         self.model_combo.addItems([
-            "gpt-4.1-mini",
-            "gpt-4.1",
-            "gpt-4o-mini",
-            "gpt-4o",
-            "gpt-4-turbo"
+            "gpt-5.4-mini",
+            "gpt-5.4",
         ])
         button_layout.addWidget(QLabel("Modello:"))
         button_layout.addWidget(self.model_combo)
@@ -11078,7 +11075,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 from langchain.memory import ConversationSummaryMemory
 
                 llm = ChatOpenAI(
-                    model_name="gpt-4.1-mini",
+                    model_name="gpt-5.4-mini",
                     api_key=api_key,
                     max_tokens=16000,
                     streaming=False
@@ -11161,7 +11158,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-4.1-mini",
+                    selected_model="gpt-5.4-mini",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -20787,7 +20784,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-4.1-mini", "gpt-4.1", "gpt-4o-mini", "gpt-4o"]
+        models = ["gpt-5.4-mini", "gpt-5.4"]
         
         # Setup progress tracking
         validation_steps = 2  # rapporti_stratigrafici_check + automaticform_check

@@ -429,7 +429,7 @@ Regole importanti:
             
             try:
                 response = client.chat.completions.create(
-                    model="gpt-4.1",
+                    model="gpt-5.4",
                     messages=messages,
                     temperature=0.1,
                     max_tokens=1500
@@ -496,7 +496,7 @@ Includi:
             ]
             
             response = client.chat.completions.create(
-                model="gpt-4.1",
+                model="gpt-5.4",
                 messages=messages,
                 temperature=0.3,
                 max_tokens=1000

@@ -96,8 +96,8 @@ LANGUAGES = {
     },
 }
 
-# Modello OpenAI (gpt-4o è il più recente e veloce)
-MODEL = "gpt-4o"
+# Modello OpenAI (gpt-5.4 è il più recente e veloce)
+MODEL = "gpt-5.4"
 
 
 class TSTranslator:

@@ -425,7 +425,7 @@ Sii dettagliato ma conciso."""
 
             # Get image description using GPT-4 Vision with specialized prompt
             description_response = client.chat.completions.create(
-                model="gpt-4.1-mini",
+                model="gpt-5.4-mini",
                 messages=[
                     {
                         "role": "user",

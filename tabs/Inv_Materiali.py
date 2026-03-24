@@ -7296,7 +7296,7 @@ The tone should be professional and scientific, suitable for an archaeological p
                 QMessageBox.warning(self, "API Key", msg, QMessageBox.StandardButton.Ok)
                 return
 
-            model = 'gpt-4o-mini'
+            model = 'gpt-5.4-mini'
 
             prompt = self.build_statistics_prompt()
             if not prompt:

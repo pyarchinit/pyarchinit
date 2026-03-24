@@ -328,7 +328,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.chat.completions.create(
-                model="gpt-4.1",
+                model="gpt-5.4",
                 messages=messages,
                 max_tokens=4096,
                 temperature=0.5,
@@ -1314,7 +1314,7 @@ class GPTWindow(QMainWindow):
             })
 
         params = {
-            "model": "gpt-4.1",
+            "model": "gpt-5.4",
             "temperature": 0.5,
             "user": "my_customer",
             "max_tokens": 4096,
@@ -1478,7 +1478,7 @@ class GPTWindow(QMainWindow):
         }
 
         params = {
-            "model": "gpt-4o",
+            "model": "gpt-5.4",
             "temperature": 0.5,
             "user": "my_customer",
             "max_tokens": 4096,

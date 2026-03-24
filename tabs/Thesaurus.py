@@ -436,7 +436,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             )
             return ""
 
-        models = ["gpt-4o", "gpt-4-turbo"]  # Replace with actual model names
+        models = ["gpt-5.4-mini", "gpt-5.4"]
         os.environ["OPENAI_API_KEY"] = self.apikey_gpt()
         combo = QComboBox()
         combo.addItems(models)

@@ -710,7 +710,7 @@ class pyarchinit_Periodizzazione(QDialog, MAIN_DIALOG_CLASS):
             )
             return ""
 
-        models = ["gpt-4o", "gpt-4"]  # Replace with actual model names
+        models = ["gpt-5.4-mini", "gpt-5.4"]
         combo = QComboBox()
         combo.addItems(models)
         selected_model, ok = QInputDialog.getItem(self, "Select Model", "Choose a model for GPT:", models, 0,

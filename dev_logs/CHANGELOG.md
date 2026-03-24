@@ -5,6 +5,14 @@
 
 ---
 
+## [5.0.5-alpha.2] - 2026-03-24
+
+### Aggiornamento / Update
+
+- **chore(ai): Aggiornati tutti i riferimenti ai modelli OpenAI GPT alla versione marzo 2026**: Sostituiti tutti i modelli GPT obsoleti (gpt-4.1, gpt-4.1-mini, gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-4-vision-preview, gpt-3.5-turbo) con le versioni aggiornate (gpt-5.4, gpt-5.4-mini). Le liste dropdown/combobox ora offrono ["gpt-5.4-mini", "gpt-5.4", "gpt-5.3-codex"]. File modificati: tabs/US_USM.py, tabs/Thesaurus.py, tabs/Periodizzazione.py, tabs/Inv_Materiali.py, tabs/pyarchinit_Pottery_mainapp.py, modules/utility/skatch_gpt_US.py, modules/utility/skatch_gpt_INVMAT.py, modules/utility/textTosql.py, modules/utility/pottery_similarity/embedding_models.py, scripts/translate_ts_complete.py, scripts/auto_translate_ts.py. / **chore(ai): Updated all OpenAI GPT model references to March 2026 versions**: Replaced all obsolete GPT models (gpt-4.1, gpt-4.1-mini, gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-4-vision-preview, gpt-3.5-turbo) with updated versions (gpt-5.4, gpt-5.4-mini). Dropdown/combobox lists now offer ["gpt-5.4-mini", "gpt-5.4", "gpt-5.3-codex"]. Files modified: tabs/US_USM.py, tabs/Thesaurus.py, tabs/Periodizzazione.py, tabs/Inv_Materiali.py, tabs/pyarchinit_Pottery_mainapp.py, modules/utility/skatch_gpt_US.py, modules/utility/skatch_gpt_INVMAT.py, modules/utility/textTosql.py, modules/utility/pottery_similarity/embedding_models.py, scripts/translate_ts_complete.py, scripts/auto_translate_ts.py.
+
+---
+
 ## [5.0.5-alpha.1] - 2026-03-24
 
 ### Corretto / Fixed

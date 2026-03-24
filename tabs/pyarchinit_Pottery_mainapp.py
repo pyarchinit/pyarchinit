@@ -5425,7 +5425,7 @@ Use well-structured paragraphs with headings for each section.
                 return
 
             # Model to use
-            model = 'gpt-4o-mini'
+            model = 'gpt-5.4-mini'
 
             # Build prompt
             prompt = self.build_statistics_prompt()

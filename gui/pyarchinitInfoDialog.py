@@ -458,9 +458,9 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
         """Build the About tab content."""
         browser = self._create_text_browser()
 
-        home = os.environ.get('PYARCHINIT_HOME', '')
-        home_DB_path = os.path.join(home, 'pyarchinit_DB_folder')
-        logo_path = os.path.join(home_DB_path, 'logo_2.png')
+        # Use official pyArchInit logo
+        plugin_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        logo_path = os.path.join(plugin_dir, 'resources', 'icons', 'logo_pyarchinit.png')
 
         html = '<div style="font-family: Segoe UI, Arial, sans-serif; padding: 10px;">'
 
@@ -485,7 +485,7 @@ class pyArchInitDialog_Info(QDialog, MAIN_DIALOG_CLASS):
         # Developers section
         html += '<h3 style="color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 5px;">{}</h3>'.format(
             self._t('developers'))
-        html += '<p>Luca Mandolesi<br>Enzo Cocca<br>adArte srl - Rimini - www.adarteinfo.it</p>'
+        html += '<p>Luca Mandolesi<br>Enzo Cocca<br>pyArchInit Community - <a href="https://github.com/pyarchinit/pyarchinit">github.com/pyarchinit</a></p>'
 
         # Thanks section
         html += '<h3 style="color: #1976D2; border-bottom: 2px solid #1976D2; padding-bottom: 5px;">{}</h3>'.format(
