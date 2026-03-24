@@ -42,9 +42,9 @@ class Text2SQLWidget(QWidget):
         mode_layout = QVBoxLayout()
 
         # RadioButton per scelta modalità
-        self.openai_radio = QRadioButton("OpenAI GPT-4.1 (API già configurata)")
+        self.openai_radio = QRadioButton("OpenAI GPT-5.4 (API configured)")
         self.openai_radio.setChecked(True)
-        self.anthropic_radio = QRadioButton("Anthropic Claude 4.5 Sonnet (API già configurata)")
+        self.anthropic_radio = QRadioButton("Anthropic Claude 4.6 Sonnet (API già configurata)")
         self.ollama_radio = QRadioButton("Ollama (modello locale)")
         self.free_radio = QRadioButton("API gratuita (se disponibile)")
 
@@ -432,7 +432,7 @@ Regole importanti:
                     model="gpt-5.4",
                     messages=messages,
                     temperature=0.1,
-                    max_tokens=1500
+                    max_completion_tokens=1500
                 )
                 
                 content = response.choices[0].message.content
@@ -499,7 +499,7 @@ Includi:
                 model="gpt-5.4",
                 messages=messages,
                 temperature=0.3,
-                max_tokens=1000
+                max_completion_tokens=1000
             )
             
             return response.choices[0].message.content
@@ -513,7 +513,10 @@ Includi:
         api_key = ""
         HOME = os.path.expanduser("~")
         BIN = os.path.join(HOME, "pyarchinit", "bin")
-        path_key = os.path.join(BIN, "anthropic_api_key.txt")
+        # Try both filenames for backward compatibility
+        path_key = os.path.join(BIN, "claude_api_key.txt")
+        if not os.path.isfile(path_key):
+            path_key = os.path.join(BIN, "anthropic_api_key.txt")
 
         if os.path.isfile(path_key):
             try:
@@ -552,7 +555,7 @@ Includi:
 
     @staticmethod
     def make_anthropic_request(prompt, db_type, parent=None):
-        """Genera SQL usando Anthropic Claude 4.5 Sonnet"""
+        """Genera SQL usando Anthropic Claude 4.6 Sonnet"""
         try:
             from anthropic import Anthropic
         except ImportError:
@@ -589,7 +592,7 @@ Regole importanti:
 
             try:
                 response = client.messages.create(
-                    model="claude-sonnet-4-5-20250929",
+                    model="claude-sonnet-4-6",
                     max_tokens=1500,
                     temperature=0.1,
                     system=system_prompt,
@@ -620,7 +623,7 @@ Regole importanti:
                 QMessageBox.critical(parent, "Errore API Key",
                                    f"Errore di autenticazione Anthropic.\n\n"
                                    f"Verifica che l'API key sia valida nel file:\n"
-                                   f"~/pyarchinit/bin/anthropic_api_key.txt\n\n"
+                                   f"~/pyarchinit/bin/claude_api_key.txt\n\n"
                                    f"Errore: {error_msg}")
             else:
                 QMessageBox.critical(parent, "Errore", f"Errore Anthropic: {error_msg}")

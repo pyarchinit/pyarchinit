@@ -124,7 +124,7 @@ class GPTWindow(QMainWindow):
 
         # Aggiungi un selettore per il modello AI
         self.model_selector = QComboBox()
-        self.model_selector.addItems(["GPT-4.1", "Claude 4.5 Sonnet"])
+        self.model_selector.addItems(["GPT-5.4", "Claude 4.6 Sonnet"])
         layout.addWidget(QLabel("Select AI Model:"), 0, 0)
         layout.addWidget(self.model_selector, 0, 1)
 
@@ -330,7 +330,7 @@ class GPTWindow(QMainWindow):
             stream = client.chat.completions.create(
                 model="gpt-5.4",
                 messages=messages,
-                max_tokens=4096,
+                max_completion_tokens=4096,
                 temperature=0.5,
                 stream=True
             )
@@ -395,7 +395,7 @@ class GPTWindow(QMainWindow):
                 ]
 
             stream = client.messages.create(
-                model="claude-sonnet-4-5-20250929",
+                model="claude-sonnet-4-6",
                 max_tokens=4096,
                 temperature=0.5,
                 messages=messages,
@@ -1317,7 +1317,7 @@ class GPTWindow(QMainWindow):
             "model": "gpt-5.4",
             "temperature": 0.5,
             "user": "my_customer",
-            "max_tokens": 4096,
+            "max_completion_tokens": 4096,
             "top_p": 0.5,
             "stream": True,
             "messages": [
@@ -1481,7 +1481,7 @@ class GPTWindow(QMainWindow):
             "model": "gpt-5.4",
             "temperature": 0.5,
             "user": "my_customer",
-            "max_tokens": 4096,
+            "max_completion_tokens": 4096,
             "top_p": 0.5,
             "stream": True,
             "messages": [
@@ -1515,7 +1515,7 @@ class GPTWindow(QMainWindow):
 
         # Prepara i parametri per il worker
         params = {
-            "model": "claude-sonnet-4-5-20250929",
+            "model": "claude-sonnet-4-6",
             "messages": messages,
             "max_tokens": 4096,
             "temperature": 0.5,

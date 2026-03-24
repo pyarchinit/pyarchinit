@@ -305,7 +305,7 @@ Respond with ONLY the {target_lang} translation, nothing else. No quotes, no exp
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.2,
-                max_tokens=500
+                max_completion_tokens=500
             )
 
             result = response.choices[0].message.content.strip()

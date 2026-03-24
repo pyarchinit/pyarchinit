@@ -3022,7 +3022,7 @@ Provide detailed answers for each question, clearly numbered."""
                                         model=self.selected_model,
                                         messages=[{"role": "system", "content": "You are an archaeological expert."},
                                                   {"role": "user", "content": integration_prompt}],
-                                        max_tokens=4000,
+                                        max_completion_tokens=4000,
                                         stream=True
                                     )
 
@@ -3040,7 +3040,7 @@ Provide detailed answers for each question, clearly numbered."""
                                         model=self.selected_model,
                                         messages=[{"role": "system", "content": "You are an archaeological expert."},
                                                   {"role": "user", "content": integration_prompt}],
-                                        max_tokens=4000
+                                        max_completion_tokens=4000
                                     )
                                     final_result = response.choices[0].message.content
                                 if final_result:
@@ -3246,7 +3246,7 @@ Provide detailed answers for each question, clearly numbered."""
                                         model=self.selected_model,
                                         messages=[{"role": "system", "content": "You are an archaeological expert."},
                                                   {"role": "user", "content": overview_prompt}],
-                                        max_tokens=1000,
+                                        max_completion_tokens=1000,
                                         stream=True
                                     )
 
@@ -3261,7 +3261,7 @@ Provide detailed answers for each question, clearly numbered."""
                                         model=self.selected_model,
                                         messages=[{"role": "system", "content": "You are an archaeological expert."},
                                                   {"role": "user", "content": overview_prompt}],
-                                        max_tokens=1000
+                                        max_completion_tokens=1000
                                     )
                                     overview_result = response.choices[0].message.content
                                 if overview_result:
@@ -3917,6 +3917,430 @@ class RAGRebuildWorker(QThread):
 class RAGQueryDialog(QDialog):
     """Dialog for RAG-based database querying with GPT-5"""
 
+    # Translations for 10 languages
+    TR = {
+        'it': {
+            'window_title': "Interrogazione Database con AI (RAG)",
+            'instructions': "Interroga il database archeologico usando linguaggio naturale. Puoi chiedere analisi, statistiche, grafici e tabelle.",
+            'query_group': "Query",
+            'placeholder': "Esempi:\n- Mostra una tabella con tutte le US del sito X ordinate per periodo\n- Crea un grafico a barre dei materiali per tipologia\n- Calcola statistiche sui reperti ceramici per area di scavo\n- Analizza le relazioni stratigrafiche dell'area A",
+            'execute': "Esegui Query",
+            'clear': "Pulisci",
+            'model_label': "Modello:",
+            'streaming': "Streaming",
+            'streaming_tip': "Abilita streaming per risposte in tempo reale",
+            'auto_update': "Auto-aggiorna",
+            'auto_update_tip': "Aggiorna automaticamente il RAG quando i dati cambiano",
+            'reload_db': "Ricarica DB",
+            'reload_db_tip': "Forza ricaricamento di tutte le tabelle e ricostruzione del vectorstore",
+            'tab_text': "Risultati Testo",
+            'tab_table': "Tabella",
+            'tab_chart': "Grafico",
+            'tab_media': "Media",
+            'tab_map': "Mappa",
+            'media_label': "Media correlati alle US trovate:",
+            'no_media': "Nessun media trovato.\n\nI media verranno visualizzati quando la query AI\ntrova US che hanno immagini associate nel database\n(tabella MEDIATOENTITY).",
+            'show_on_map': "Mostra su mappa principale",
+            'show_on_map_tip': "Evidenzia i risultati sulla mappa QGIS",
+            'dedicated_map': "Finestra mappa dedicata",
+            'dedicated_map_tip': "Mostra risultati in una finestra mappa separata",
+            'zoom_results': "Zoom ai Risultati",
+            'highlight': "Evidenzia",
+            'clear_highlight': "Rimuovi Evidenziazione",
+            'map_info': "I risultati della query verranno visualizzati sulla mappa principale di QGIS.\nSeleziona le opzioni sopra per controllare la visualizzazione.\n\nUsa 'Zoom ai Risultati' per centrare la mappa sui record trovati.\nUsa 'Evidenzia' per evidenziare le US sulla mappa.",
+            'us_col_us': "US", 'us_col_area': "Area", 'us_col_type': "Tipo", 'us_col_period': "Periodo",
+            'export_text': "Esporta Testo",
+            'export_csv': "Esporta Tabella (CSV)",
+            'export_excel': "Esporta Excel",
+            'export_chart': "Esporta Grafico",
+            'export_pdf': "Report PDF",
+            'export_pdf_tip': "Esporta report completo con testo, tabelle e grafici",
+            'export_excel_complete': "Excel Completo",
+            'export_excel_complete_tip': "Esporta Excel multi-foglio con tutti i dati",
+            'close': "Chiudi",
+            'auto_update_disabled': "Auto-aggiornamento RAG disabilitato",
+            'checking_updates': "Controllo aggiornamenti database...",
+        },
+        'en': {
+            'window_title': "AI Database Query (RAG)",
+            'instructions': "Query the archaeological database using natural language. You can request analyses, statistics, charts and tables.",
+            'query_group': "Query",
+            'placeholder': "Examples:\n- Show a table with all SU from site X sorted by period\n- Create a bar chart of materials by typology\n- Calculate statistics on ceramic finds by excavation area\n- Analyse the stratigraphic relationships of area A",
+            'execute': "Execute Query",
+            'clear': "Clear",
+            'model_label': "Model:",
+            'streaming': "Streaming",
+            'streaming_tip': "Enable streaming for real-time responses",
+            'auto_update': "Auto-update",
+            'auto_update_tip': "Automatically update RAG when data changes",
+            'reload_db': "Reload DB",
+            'reload_db_tip': "Force reload all tables and rebuild the vectorstore",
+            'tab_text': "Text Results",
+            'tab_table': "Table",
+            'tab_chart': "Chart",
+            'tab_media': "Media",
+            'tab_map': "Map",
+            'media_label': "Media related to the SU found:",
+            'no_media': "No media found.\n\nMedia will be displayed when the AI query\nfinds SU that have associated images in the database\n(MEDIATOENTITY table).",
+            'show_on_map': "Show on main map",
+            'show_on_map_tip': "Highlight results on the QGIS map",
+            'dedicated_map': "Dedicated map window",
+            'dedicated_map_tip': "Show results in a separate map window",
+            'zoom_results': "Zoom to Results",
+            'highlight': "Highlight",
+            'clear_highlight': "Remove Highlight",
+            'map_info': "Query results will be displayed on the main QGIS map.\nSelect the options above to control the visualisation.\n\nUse 'Zoom to Results' to centre the map on found records.\nUse 'Highlight' to highlight SU on the map.",
+            'us_col_us': "SU", 'us_col_area': "Area", 'us_col_type': "Type", 'us_col_period': "Period",
+            'export_text': "Export Text",
+            'export_csv': "Export Table (CSV)",
+            'export_excel': "Export Excel",
+            'export_chart': "Export Chart",
+            'export_pdf': "PDF Report",
+            'export_pdf_tip': "Export complete report with text, tables and charts",
+            'export_excel_complete': "Complete Excel",
+            'export_excel_complete_tip': "Export multi-sheet Excel with all data",
+            'close': "Close",
+            'auto_update_disabled': "RAG auto-update disabled",
+            'checking_updates': "Checking database updates...",
+        },
+        'de': {
+            'window_title': "KI-Datenbankabfrage (RAG)",
+            'instructions': "Befragen Sie die archäologische Datenbank in natürlicher Sprache. Sie können Analysen, Statistiken, Diagramme und Tabellen anfordern.",
+            'query_group': "Abfrage",
+            'placeholder': "Beispiele:\n- Zeige eine Tabelle mit allen SE der Fundstelle X nach Periode sortiert\n- Erstelle ein Balkendiagramm der Materialien nach Typologie\n- Berechne Statistiken zu Keramikfunden nach Grabungsbereich\n- Analysiere die stratigraphischen Beziehungen von Bereich A",
+            'execute': "Abfrage ausführen",
+            'clear': "Löschen",
+            'model_label': "Modell:",
+            'streaming': "Streaming",
+            'streaming_tip': "Streaming für Echtzeit-Antworten aktivieren",
+            'auto_update': "Auto-Aktualisierung",
+            'auto_update_tip': "RAG automatisch aktualisieren wenn sich Daten ändern",
+            'reload_db': "DB neu laden",
+            'reload_db_tip': "Neuladen aller Tabellen und Neuaufbau des Vektorspeichers erzwingen",
+            'tab_text': "Textergebnisse",
+            'tab_table': "Tabelle",
+            'tab_chart': "Diagramm",
+            'tab_media': "Medien",
+            'tab_map': "Karte",
+            'media_label': "Medien zu den gefundenen SE:",
+            'no_media': "Keine Medien gefunden.\n\nMedien werden angezeigt, wenn die KI-Abfrage\nSE findet, die zugeordnete Bilder in der Datenbank haben\n(Tabelle MEDIATOENTITY).",
+            'show_on_map': "Auf Hauptkarte anzeigen",
+            'show_on_map_tip': "Ergebnisse auf der QGIS-Karte hervorheben",
+            'dedicated_map': "Eigenes Kartenfenster",
+            'dedicated_map_tip': "Ergebnisse in einem separaten Kartenfenster anzeigen",
+            'zoom_results': "Auf Ergebnisse zoomen",
+            'highlight': "Hervorheben",
+            'clear_highlight': "Hervorhebung entfernen",
+            'map_info': "Die Abfrageergebnisse werden auf der QGIS-Hauptkarte angezeigt.\nWählen Sie die Optionen oben, um die Anzeige zu steuern.\n\nVerwenden Sie 'Auf Ergebnisse zoomen', um die Karte auf gefundene Datensätze zu zentrieren.\nVerwenden Sie 'Hervorheben', um SE auf der Karte hervorzuheben.",
+            'us_col_us': "SE", 'us_col_area': "Bereich", 'us_col_type': "Typ", 'us_col_period': "Periode",
+            'export_text': "Text exportieren",
+            'export_csv': "Tabelle exportieren (CSV)",
+            'export_excel': "Excel exportieren",
+            'export_chart': "Diagramm exportieren",
+            'export_pdf': "PDF-Bericht",
+            'export_pdf_tip': "Vollständigen Bericht mit Text, Tabellen und Diagrammen exportieren",
+            'export_excel_complete': "Komplettes Excel",
+            'export_excel_complete_tip': "Multi-Sheet-Excel mit allen Daten exportieren",
+            'close': "Schließen",
+            'auto_update_disabled': "RAG Auto-Aktualisierung deaktiviert",
+            'checking_updates': "Prüfe Datenbank-Aktualisierungen...",
+        },
+        'es': {
+            'window_title': "Consulta de Base de Datos con IA (RAG)",
+            'instructions': "Consulta la base de datos arqueológica usando lenguaje natural. Puedes pedir análisis, estadísticas, gráficos y tablas.",
+            'query_group': "Consulta",
+            'placeholder': "Ejemplos:\n- Muestra una tabla con todas las UE del sitio X ordenadas por período\n- Crea un gráfico de barras de materiales por tipología\n- Calcula estadísticas sobre hallazgos cerámicos por área de excavación\n- Analiza las relaciones estratigráficas del área A",
+            'execute': "Ejecutar Consulta",
+            'clear': "Limpiar",
+            'model_label': "Modelo:",
+            'streaming': "Streaming",
+            'streaming_tip': "Habilitar streaming para respuestas en tiempo real",
+            'auto_update': "Auto-actualizar",
+            'auto_update_tip': "Actualizar automáticamente el RAG cuando cambien los datos",
+            'reload_db': "Recargar BD",
+            'reload_db_tip': "Forzar recarga de todas las tablas y reconstrucción del vectorstore",
+            'tab_text': "Resultados Texto",
+            'tab_table': "Tabla",
+            'tab_chart': "Gráfico",
+            'tab_media': "Media",
+            'tab_map': "Mapa",
+            'media_label': "Media relacionados con las UE encontradas:",
+            'no_media': "No se encontraron medios.\n\nLos medios se mostrarán cuando la consulta IA\nencuentre UE que tengan imágenes asociadas en la base de datos\n(tabla MEDIATOENTITY).",
+            'show_on_map': "Mostrar en mapa principal",
+            'show_on_map_tip': "Resaltar resultados en el mapa QGIS",
+            'dedicated_map': "Ventana de mapa dedicada",
+            'dedicated_map_tip': "Mostrar resultados en una ventana de mapa separada",
+            'zoom_results': "Zoom a Resultados",
+            'highlight': "Resaltar",
+            'clear_highlight': "Eliminar Resaltado",
+            'map_info': "Los resultados de la consulta se mostrarán en el mapa principal de QGIS.\nSelecciona las opciones de arriba para controlar la visualización.\n\nUsa 'Zoom a Resultados' para centrar el mapa en los registros encontrados.\nUsa 'Resaltar' para resaltar las UE en el mapa.",
+            'us_col_us': "UE", 'us_col_area': "Área", 'us_col_type': "Tipo", 'us_col_period': "Período",
+            'export_text': "Exportar Texto",
+            'export_csv': "Exportar Tabla (CSV)",
+            'export_excel': "Exportar Excel",
+            'export_chart': "Exportar Gráfico",
+            'export_pdf': "Informe PDF",
+            'export_pdf_tip': "Exportar informe completo con texto, tablas y gráficos",
+            'export_excel_complete': "Excel Completo",
+            'export_excel_complete_tip': "Exportar Excel multi-hoja con todos los datos",
+            'close': "Cerrar",
+            'auto_update_disabled': "Auto-actualización RAG desactivada",
+            'checking_updates': "Comprobando actualizaciones de la base de datos...",
+        },
+        'fr': {
+            'window_title': "Requête Base de Données avec IA (RAG)",
+            'instructions': "Interrogez la base de données archéologique en langage naturel. Vous pouvez demander des analyses, statistiques, graphiques et tableaux.",
+            'query_group': "Requête",
+            'placeholder': "Exemples :\n- Afficher un tableau avec toutes les US du site X triées par période\n- Créer un diagramme en barres des matériaux par typologie\n- Calculer les statistiques sur les trouvailles céramiques par zone de fouille\n- Analyser les relations stratigraphiques de la zone A",
+            'execute': "Exécuter la requête",
+            'clear': "Effacer",
+            'model_label': "Modèle :",
+            'streaming': "Streaming",
+            'streaming_tip': "Activer le streaming pour des réponses en temps réel",
+            'auto_update': "Mise à jour auto",
+            'auto_update_tip': "Mettre à jour automatiquement le RAG lorsque les données changent",
+            'reload_db': "Recharger BD",
+            'reload_db_tip': "Forcer le rechargement de toutes les tables et la reconstruction du vectorstore",
+            'tab_text': "Résultats Texte",
+            'tab_table': "Tableau",
+            'tab_chart': "Graphique",
+            'tab_media': "Médias",
+            'tab_map': "Carte",
+            'media_label': "Médias liés aux US trouvées :",
+            'no_media': "Aucun média trouvé.\n\nLes médias seront affichés lorsque la requête IA\ntrouve des US ayant des images associées dans la base de données\n(table MEDIATOENTITY).",
+            'show_on_map': "Afficher sur la carte principale",
+            'show_on_map_tip': "Mettre en évidence les résultats sur la carte QGIS",
+            'dedicated_map': "Fenêtre carte dédiée",
+            'dedicated_map_tip': "Afficher les résultats dans une fenêtre carte séparée",
+            'zoom_results': "Zoom sur les résultats",
+            'highlight': "Mettre en évidence",
+            'clear_highlight': "Supprimer la mise en évidence",
+            'map_info': "Les résultats de la requête seront affichés sur la carte principale de QGIS.\nSélectionnez les options ci-dessus pour contrôler l'affichage.\n\nUtilisez 'Zoom sur les résultats' pour centrer la carte sur les enregistrements trouvés.\nUtilisez 'Mettre en évidence' pour surligner les US sur la carte.",
+            'us_col_us': "US", 'us_col_area': "Zone", 'us_col_type': "Type", 'us_col_period': "Période",
+            'export_text': "Exporter Texte",
+            'export_csv': "Exporter Tableau (CSV)",
+            'export_excel': "Exporter Excel",
+            'export_chart': "Exporter Graphique",
+            'export_pdf': "Rapport PDF",
+            'export_pdf_tip': "Exporter le rapport complet avec texte, tableaux et graphiques",
+            'export_excel_complete': "Excel Complet",
+            'export_excel_complete_tip': "Exporter un Excel multi-feuilles avec toutes les données",
+            'close': "Fermer",
+            'auto_update_disabled': "Mise à jour auto RAG désactivée",
+            'checking_updates': "Vérification des mises à jour de la base de données...",
+        },
+        'ar': {
+            'window_title': "استعلام قاعدة البيانات بالذكاء الاصطناعي (RAG)",
+            'instructions': "استعلم من قاعدة البيانات الأثرية باستخدام اللغة الطبيعية. يمكنك طلب تحليلات وإحصائيات ورسوم بيانية وجداول.",
+            'query_group': "استعلام",
+            'placeholder': "أمثلة:\n- اعرض جدولاً بجميع الوحدات الطبقية للموقع X مرتبة حسب الفترة\n- أنشئ رسمًا بيانيًا شريطيًا للمواد حسب التصنيف\n- احسب إحصائيات عن اللُقى الخزفية حسب منطقة الحفر\n- حلل العلاقات الطبقية للمنطقة أ",
+            'execute': "تنفيذ الاستعلام",
+            'clear': "مسح",
+            'model_label': "النموذج:",
+            'streaming': "بث مباشر",
+            'streaming_tip': "تفعيل البث المباشر للردود الفورية",
+            'auto_update': "تحديث تلقائي",
+            'auto_update_tip': "تحديث RAG تلقائيًا عند تغيير البيانات",
+            'reload_db': "إعادة تحميل قاعدة البيانات",
+            'reload_db_tip': "فرض إعادة تحميل جميع الجداول وإعادة بناء مخزن المتجهات",
+            'tab_text': "نتائج نصية",
+            'tab_table': "جدول",
+            'tab_chart': "رسم بياني",
+            'tab_media': "وسائط",
+            'tab_map': "خريطة",
+            'media_label': "وسائط مرتبطة بالوحدات الطبقية المكتشفة:",
+            'no_media': "لم يتم العثور على وسائط.\n\nسيتم عرض الوسائط عندما يجد استعلام الذكاء الاصطناعي\nوحدات طبقية لها صور مرتبطة في قاعدة البيانات\n(جدول MEDIATOENTITY).",
+            'show_on_map': "عرض على الخريطة الرئيسية",
+            'show_on_map_tip': "تمييز النتائج على خريطة QGIS",
+            'dedicated_map': "نافذة خريطة مخصصة",
+            'dedicated_map_tip': "عرض النتائج في نافذة خريطة منفصلة",
+            'zoom_results': "تكبير النتائج",
+            'highlight': "تمييز",
+            'clear_highlight': "إزالة التمييز",
+            'map_info': "سيتم عرض نتائج الاستعلام على خريطة QGIS الرئيسية.\nحدد الخيارات أعلاه للتحكم في العرض.\n\nاستخدم 'تكبير النتائج' لتوسيط الخريطة على السجلات المكتشفة.\nاستخدم 'تمييز' لتمييز الوحدات الطبقية على الخريطة.",
+            'us_col_us': "و.ط.", 'us_col_area': "منطقة", 'us_col_type': "نوع", 'us_col_period': "فترة",
+            'export_text': "تصدير نص",
+            'export_csv': "تصدير جدول (CSV)",
+            'export_excel': "تصدير Excel",
+            'export_chart': "تصدير رسم بياني",
+            'export_pdf': "تقرير PDF",
+            'export_pdf_tip': "تصدير تقرير كامل مع نصوص وجداول ورسوم بيانية",
+            'export_excel_complete': "Excel كامل",
+            'export_excel_complete_tip': "تصدير Excel متعدد الأوراق مع جميع البيانات",
+            'close': "إغلاق",
+            'auto_update_disabled': "التحديث التلقائي لـ RAG معطل",
+            'checking_updates': "جارٍ التحقق من تحديثات قاعدة البيانات...",
+        },
+        'ca': {
+            'window_title': "Consulta de Base de Dades amb IA (RAG)",
+            'instructions': "Consulta la base de dades arqueològica usant llenguatge natural. Pots demanar anàlisis, estadístiques, gràfics i taules.",
+            'query_group': "Consulta",
+            'placeholder': "Exemples:\n- Mostra una taula amb totes les UE del lloc X ordenades per període\n- Crea un gràfic de barres dels materials per tipologia\n- Calcula estadístiques sobre troballes ceràmiques per àrea d'excavació\n- Analitza les relacions estratigràfiques de l'àrea A",
+            'execute': "Executar Consulta",
+            'clear': "Neteja",
+            'model_label': "Model:",
+            'streaming': "Streaming",
+            'streaming_tip': "Habilita streaming per a respostes en temps real",
+            'auto_update': "Auto-actualitza",
+            'auto_update_tip': "Actualitza automàticament el RAG quan canviïn les dades",
+            'reload_db': "Recarrega BD",
+            'reload_db_tip': "Força la recàrrega de totes les taules i la reconstrucció del vectorstore",
+            'tab_text': "Resultats Text",
+            'tab_table': "Taula",
+            'tab_chart': "Gràfic",
+            'tab_media': "Mitjans",
+            'tab_map': "Mapa",
+            'media_label': "Mitjans relacionats amb les UE trobades:",
+            'no_media': "No s'han trobat mitjans.\n\nEls mitjans es mostraran quan la consulta IA\ntrobi UE que tinguin imatges associades a la base de dades\n(taula MEDIATOENTITY).",
+            'show_on_map': "Mostra al mapa principal",
+            'show_on_map_tip': "Ressalta els resultats al mapa QGIS",
+            'dedicated_map': "Finestra de mapa dedicada",
+            'dedicated_map_tip': "Mostra els resultats en una finestra de mapa separada",
+            'zoom_results': "Zoom als Resultats",
+            'highlight': "Ressalta",
+            'clear_highlight': "Elimina Ressaltat",
+            'map_info': "Els resultats de la consulta es mostraran al mapa principal de QGIS.\nSelecciona les opcions de dalt per controlar la visualització.\n\nUsa 'Zoom als Resultats' per centrar el mapa als registres trobats.\nUsa 'Ressalta' per ressaltar les UE al mapa.",
+            'us_col_us': "UE", 'us_col_area': "Àrea", 'us_col_type': "Tipus", 'us_col_period': "Període",
+            'export_text': "Exporta Text",
+            'export_csv': "Exporta Taula (CSV)",
+            'export_excel': "Exporta Excel",
+            'export_chart': "Exporta Gràfic",
+            'export_pdf': "Informe PDF",
+            'export_pdf_tip': "Exporta informe complet amb text, taules i gràfics",
+            'export_excel_complete': "Excel Complet",
+            'export_excel_complete_tip': "Exporta Excel multi-full amb totes les dades",
+            'close': "Tanca",
+            'auto_update_disabled': "Auto-actualització RAG desactivada",
+            'checking_updates': "Comprovant actualitzacions de la base de dades...",
+        },
+        'ro': {
+            'window_title': "Interogare Bază de Date cu IA (RAG)",
+            'instructions': "Interogați baza de date arheologică folosind limbaj natural. Puteți cere analize, statistici, grafice și tabele.",
+            'query_group': "Interogare",
+            'placeholder': "Exemple:\n- Afișează un tabel cu toate US de pe șantierul X ordonate după perioadă\n- Creează un grafic cu bare al materialelor după tipologie\n- Calculează statistici despre descoperirile ceramice pe zona de săpătură\n- Analizează relațiile stratigrafice din zona A",
+            'execute': "Execută Interogarea",
+            'clear': "Șterge",
+            'model_label': "Model:",
+            'streaming': "Streaming",
+            'streaming_tip': "Activează streaming pentru răspunsuri în timp real",
+            'auto_update': "Actualizare automată",
+            'auto_update_tip': "Actualizează automat RAG când se modifică datele",
+            'reload_db': "Reîncarcă BD",
+            'reload_db_tip': "Forțează reîncărcarea tuturor tabelelor și reconstruirea vectorstore-ului",
+            'tab_text': "Rezultate Text",
+            'tab_table': "Tabel",
+            'tab_chart': "Grafic",
+            'tab_media': "Media",
+            'tab_map': "Hartă",
+            'media_label': "Media asociate US-urilor găsite:",
+            'no_media': "Niciun media găsit.\n\nMedia vor fi afișate când interogarea IA\ngăsește US care au imagini asociate în baza de date\n(tabelul MEDIATOENTITY).",
+            'show_on_map': "Afișează pe harta principală",
+            'show_on_map_tip': "Evidențiază rezultatele pe harta QGIS",
+            'dedicated_map': "Fereastră hartă dedicată",
+            'dedicated_map_tip': "Afișează rezultatele într-o fereastră hartă separată",
+            'zoom_results': "Zoom la Rezultate",
+            'highlight': "Evidențiază",
+            'clear_highlight': "Elimină Evidențierea",
+            'map_info': "Rezultatele interogării vor fi afișate pe harta principală QGIS.\nSelectați opțiunile de mai sus pentru a controla vizualizarea.\n\nFolosiți 'Zoom la Rezultate' pentru a centra harta pe înregistrările găsite.\nFolosiți 'Evidențiază' pentru a evidenția US-urile pe hartă.",
+            'us_col_us': "US", 'us_col_area': "Zonă", 'us_col_type': "Tip", 'us_col_period': "Perioadă",
+            'export_text': "Exportă Text",
+            'export_csv': "Exportă Tabel (CSV)",
+            'export_excel': "Exportă Excel",
+            'export_chart': "Exportă Grafic",
+            'export_pdf': "Raport PDF",
+            'export_pdf_tip': "Exportă raport complet cu text, tabele și grafice",
+            'export_excel_complete': "Excel Complet",
+            'export_excel_complete_tip': "Exportă Excel multi-foaie cu toate datele",
+            'close': "Închide",
+            'auto_update_disabled': "Actualizare automată RAG dezactivată",
+            'checking_updates': "Se verifică actualizările bazei de date...",
+        },
+        'pt': {
+            'window_title': "Consulta de Base de Dados com IA (RAG)",
+            'instructions': "Consulte a base de dados arqueológica usando linguagem natural. Pode pedir análises, estatísticas, gráficos e tabelas.",
+            'query_group': "Consulta",
+            'placeholder': "Exemplos:\n- Mostrar uma tabela com todas as UE do sítio X ordenadas por período\n- Criar um gráfico de barras dos materiais por tipologia\n- Calcular estatísticas sobre achados cerâmicos por área de escavação\n- Analisar as relações estratigráficas da área A",
+            'execute': "Executar Consulta",
+            'clear': "Limpar",
+            'model_label': "Modelo:",
+            'streaming': "Streaming",
+            'streaming_tip': "Ativar streaming para respostas em tempo real",
+            'auto_update': "Atualização automática",
+            'auto_update_tip': "Atualizar automaticamente o RAG quando os dados mudam",
+            'reload_db': "Recarregar BD",
+            'reload_db_tip': "Forçar recarregamento de todas as tabelas e reconstrução do vectorstore",
+            'tab_text': "Resultados Texto",
+            'tab_table': "Tabela",
+            'tab_chart': "Gráfico",
+            'tab_media': "Media",
+            'tab_map': "Mapa",
+            'media_label': "Media relacionados com as UE encontradas:",
+            'no_media': "Nenhum media encontrado.\n\nOs media serão exibidos quando a consulta IA\nencontrar UE que tenham imagens associadas na base de dados\n(tabela MEDIATOENTITY).",
+            'show_on_map': "Mostrar no mapa principal",
+            'show_on_map_tip': "Destacar resultados no mapa QGIS",
+            'dedicated_map': "Janela de mapa dedicada",
+            'dedicated_map_tip': "Mostrar resultados numa janela de mapa separada",
+            'zoom_results': "Zoom aos Resultados",
+            'highlight': "Destacar",
+            'clear_highlight': "Remover Destaque",
+            'map_info': "Os resultados da consulta serão exibidos no mapa principal do QGIS.\nSelecione as opções acima para controlar a visualização.\n\nUse 'Zoom aos Resultados' para centrar o mapa nos registos encontrados.\nUse 'Destacar' para destacar as UE no mapa.",
+            'us_col_us': "UE", 'us_col_area': "Área", 'us_col_type': "Tipo", 'us_col_period': "Período",
+            'export_text': "Exportar Texto",
+            'export_csv': "Exportar Tabela (CSV)",
+            'export_excel': "Exportar Excel",
+            'export_chart': "Exportar Gráfico",
+            'export_pdf': "Relatório PDF",
+            'export_pdf_tip': "Exportar relatório completo com texto, tabelas e gráficos",
+            'export_excel_complete': "Excel Completo",
+            'export_excel_complete_tip': "Exportar Excel multi-folha com todos os dados",
+            'close': "Fechar",
+            'auto_update_disabled': "Atualização automática RAG desativada",
+            'checking_updates': "A verificar atualizações da base de dados...",
+        },
+        'el': {
+            'window_title': "Ερώτημα Βάσης Δεδομένων με AI (RAG)",
+            'instructions': "Ρωτήστε την αρχαιολογική βάση δεδομένων σε φυσική γλώσσα. Μπορείτε να ζητήσετε αναλύσεις, στατιστικά, γραφήματα και πίνακες.",
+            'query_group': "Ερώτημα",
+            'placeholder': "Παραδείγματα:\n- Εμφάνιση πίνακα με όλες τις ΣΕ της θέσης X ταξινομημένες κατά περίοδο\n- Δημιουργία ραβδογράμματος υλικών ανά τυπολογία\n- Υπολογισμός στατιστικών για κεραμικά ευρήματα ανά ζώνη ανασκαφής\n- Ανάλυση στρωματογραφικών σχέσεων της ζώνης Α",
+            'execute': "Εκτέλεση Ερωτήματος",
+            'clear': "Καθαρισμός",
+            'model_label': "Μοντέλο:",
+            'streaming': "Streaming",
+            'streaming_tip': "Ενεργοποίηση streaming για απαντήσεις σε πραγματικό χρόνο",
+            'auto_update': "Αυτο-ενημέρωση",
+            'auto_update_tip': "Αυτόματη ενημέρωση RAG όταν αλλάζουν τα δεδομένα",
+            'reload_db': "Επαναφόρτωση ΒΔ",
+            'reload_db_tip': "Αναγκαστική επαναφόρτωση όλων των πινάκων και ανοικοδόμηση του vectorstore",
+            'tab_text': "Αποτελέσματα Κειμένου",
+            'tab_table': "Πίνακας",
+            'tab_chart': "Γράφημα",
+            'tab_media': "Μέσα",
+            'tab_map': "Χάρτης",
+            'media_label': "Μέσα σχετικά με τις ΣΕ που βρέθηκαν:",
+            'no_media': "Δεν βρέθηκαν μέσα.\n\nΤα μέσα θα εμφανιστούν όταν το ερώτημα AI\nβρει ΣΕ που έχουν συσχετισμένες εικόνες στη βάση δεδομένων\n(πίνακας MEDIATOENTITY).",
+            'show_on_map': "Εμφάνιση στον κύριο χάρτη",
+            'show_on_map_tip': "Επισήμανση αποτελεσμάτων στον χάρτη QGIS",
+            'dedicated_map': "Αποκλειστικό παράθυρο χάρτη",
+            'dedicated_map_tip': "Εμφάνιση αποτελεσμάτων σε ξεχωριστό παράθυρο χάρτη",
+            'zoom_results': "Εστίαση στα Αποτελέσματα",
+            'highlight': "Επισήμανση",
+            'clear_highlight': "Αφαίρεση Επισήμανσης",
+            'map_info': "Τα αποτελέσματα του ερωτήματος θα εμφανιστούν στον κύριο χάρτη QGIS.\nΕπιλέξτε τις παραπάνω επιλογές για να ελέγξετε την απεικόνιση.\n\nΧρησιμοποιήστε 'Εστίαση στα Αποτελέσματα' για να κεντράρετε τον χάρτη στις εγγραφές.\nΧρησιμοποιήστε 'Επισήμανση' για να επισημάνετε τις ΣΕ στον χάρτη.",
+            'us_col_us': "ΣΕ", 'us_col_area': "Ζώνη", 'us_col_type': "Τύπος", 'us_col_period': "Περίοδος",
+            'export_text': "Εξαγωγή Κειμένου",
+            'export_csv': "Εξαγωγή Πίνακα (CSV)",
+            'export_excel': "Εξαγωγή Excel",
+            'export_chart': "Εξαγωγή Γραφήματος",
+            'export_pdf': "Αναφορά PDF",
+            'export_pdf_tip': "Εξαγωγή πλήρους αναφοράς με κείμενο, πίνακες και γραφήματα",
+            'export_excel_complete': "Πλήρες Excel",
+            'export_excel_complete_tip': "Εξαγωγή Excel πολλαπλών φύλλων με όλα τα δεδομένα",
+            'close': "Κλείσιμο",
+            'auto_update_disabled': "Αυτο-ενημέρωση RAG απενεργοποιημένη",
+            'checking_updates': "Έλεγχος ενημερώσεων βάσης δεδομένων...",
+        },
+    }
+
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
@@ -3930,9 +4354,21 @@ class RAGQueryDialog(QDialog):
         self.auto_update_enabled = True  # Enable auto-update by default
         self.rebuild_worker = None  # RAG rebuild worker thread
 
-        self.setWindowTitle("Interrogazione Database con AI (RAG)")
+        # Detect language from QGIS settings
+        lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+        self.t = self.TR.get(lang, self.TR['it'])
+
+        self.setWindowTitle(self.t['window_title'])
         self.resize(1200, 800)
         self.setup_ui()
+
+        # Apply ThemeManager
+        try:
+            from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+            ThemeManager.apply_theme(self)
+            ThemeManager.add_theme_toggle_to_form(self)
+        except Exception:
+            pass
 
         # Check and rebuild RAG on-demand when dialog opens
         QTimer.singleShot(100, self.check_and_rebuild_rag)
@@ -3942,36 +4378,28 @@ class RAGQueryDialog(QDialog):
         layout = QVBoxLayout()
 
         # Instructions
-        instructions = QLabel(
-            "Interroga il database archeologico usando linguaggio naturale. "
-            "Puoi chiedere analisi, statistiche, grafici e tabelle."
-        )
+        t = self.t
+        instructions = QLabel(t['instructions'])
         instructions.setWordWrap(True)
         layout.addWidget(instructions)
 
         # Query input area
-        query_group = QGroupBox("Query")
+        query_group = QGroupBox(t['query_group'])
         query_layout = QVBoxLayout()
 
         self.query_input = QTextEdit()
-        self.query_input.setPlaceholderText(
-            "Esempi:\n"
-            "- Mostra una tabella con tutte le US del sito X ordinate per periodo\n"
-            "- Crea un grafico a barre dei materiali per tipologia\n"
-            "- Calcola statistiche sui reperti ceramici per area di scavo\n"
-            "- Analizza le relazioni stratigrafiche dell'area A"
-        )
+        self.query_input.setPlaceholderText(t['placeholder'])
         self.query_input.setMaximumHeight(150)
         query_layout.addWidget(self.query_input)
 
         # Query buttons
         button_layout = QHBoxLayout()
 
-        self.execute_button = QPushButton("Esegui Query")
+        self.execute_button = QPushButton(t['execute'])
         self.execute_button.clicked.connect(self.execute_query)
         button_layout.addWidget(self.execute_button)
 
-        self.clear_button = QPushButton("Pulisci")
+        self.clear_button = QPushButton(t['clear'])
         self.clear_button.clicked.connect(self.clear_query)
         button_layout.addWidget(self.clear_button)
 
@@ -3981,24 +4409,24 @@ class RAGQueryDialog(QDialog):
             "gpt-5.4-mini",
             "gpt-5.4",
         ])
-        button_layout.addWidget(QLabel("Modello:"))
+        button_layout.addWidget(QLabel(t['model_label']))
         button_layout.addWidget(self.model_combo)
 
         # Add streaming checkbox
-        self.streaming_checkbox = QCheckBox("Streaming")
+        self.streaming_checkbox = QCheckBox(t['streaming'])
         self.streaming_checkbox.setChecked(True)
-        self.streaming_checkbox.setToolTip(self.tr("Abilita streaming per risposte in tempo reale"))
+        self.streaming_checkbox.setToolTip(t['streaming_tip'])
         button_layout.addWidget(self.streaming_checkbox)
 
         # Add auto-update checkbox
-        self.auto_update_checkbox = QCheckBox("Auto-aggiorna")
+        self.auto_update_checkbox = QCheckBox(t['auto_update'])
         self.auto_update_checkbox.setChecked(True)
-        self.auto_update_checkbox.setToolTip(self.tr("Aggiorna automaticamente il RAG quando i dati cambiano"))
+        self.auto_update_checkbox.setToolTip(t['auto_update_tip'])
         button_layout.addWidget(self.auto_update_checkbox)
 
         # Add refresh button to force reload vectorstore
-        self.refresh_btn = QPushButton("🔄 Ricarica DB")
-        self.refresh_btn.setToolTip(self.tr("Forza ricaricamento di tutte le tabelle e ricostruzione del vectorstore"))
+        self.refresh_btn = QPushButton(t['reload_db'])
+        self.refresh_btn.setToolTip(t['reload_db_tip'])
         self.refresh_btn.clicked.connect(self.force_refresh_vectorstore)
         button_layout.addWidget(self.refresh_btn)
 
@@ -4014,24 +4442,24 @@ class RAGQueryDialog(QDialog):
         # Text results tab
         self.text_results = QTextEdit()
         self.text_results.setReadOnly(True)
-        self.results_tabs.addTab(self.text_results, "Risultati Testo")
+        self.results_tabs.addTab(self.text_results, t['tab_text'])
 
         # Table results tab
         self.table_widget = QTableWidget()
-        self.results_tabs.addTab(self.table_widget, "Tabella")
+        self.results_tabs.addTab(self.table_widget, t['tab_table'])
 
         # Chart tab
         self.chart_widget = QWidget()
         self.chart_layout = QVBoxLayout()
         self.chart_widget.setLayout(self.chart_layout)
-        self.results_tabs.addTab(self.chart_widget, "Grafico")
+        self.results_tabs.addTab(self.chart_widget, t['tab_chart'])
 
         # Media tab (for thumbnails and images)
         self.media_widget = QWidget()
         self.media_layout = QVBoxLayout(self.media_widget)
 
         # Label for media section
-        self.media_label = QLabel("Media correlati alle US trovate:")
+        self.media_label = QLabel(t['media_label'])
         self.media_label.setStyleSheet("font-weight: bold; font-size: 14px;")
         self.media_layout.addWidget(self.media_label)
 
@@ -4050,12 +4478,7 @@ class RAGQueryDialog(QDialog):
         self.media_layout.addWidget(media_scroll_area)
 
         # Info label when no media
-        self.no_media_label = QLabel(
-            "Nessun media trovato.\n\n"
-            "I media verranno visualizzati quando la query AI\n"
-            "trova US che hanno immagini associate nel database\n"
-            "(tabella MEDIATOENTITY)."
-        )
+        self.no_media_label = QLabel(t['no_media'])
         self.no_media_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.no_media_label.setStyleSheet("""
             QLabel {
@@ -4068,7 +4491,7 @@ class RAGQueryDialog(QDialog):
         """)
         self.gallery_layout.addWidget(self.no_media_label, 0, 0, 1, 4)
 
-        self.results_tabs.addTab(self.media_widget, "Media")
+        self.results_tabs.addTab(self.media_widget, t['tab_media'])
 
         # Map tab (for spatial visualization)
         self.map_widget = QWidget()
@@ -4077,27 +4500,27 @@ class RAGQueryDialog(QDialog):
         # Spatial controls
         spatial_controls = QHBoxLayout()
 
-        self.show_on_canvas_checkbox = QCheckBox("Mostra su mappa principale")
+        self.show_on_canvas_checkbox = QCheckBox(t['show_on_map'])
         self.show_on_canvas_checkbox.setChecked(True)
-        self.show_on_canvas_checkbox.setToolTip(self.tr("Evidenzia i risultati sulla mappa QGIS"))
+        self.show_on_canvas_checkbox.setToolTip(t['show_on_map_tip'])
         spatial_controls.addWidget(self.show_on_canvas_checkbox)
 
-        self.show_dedicated_map_checkbox = QCheckBox("Finestra mappa dedicata")
+        self.show_dedicated_map_checkbox = QCheckBox(t['dedicated_map'])
         self.show_dedicated_map_checkbox.setChecked(False)
-        self.show_dedicated_map_checkbox.setToolTip(self.tr("Mostra risultati in una finestra mappa separata"))
+        self.show_dedicated_map_checkbox.setToolTip(t['dedicated_map_tip'])
         spatial_controls.addWidget(self.show_dedicated_map_checkbox)
 
-        self.zoom_to_results_button = QPushButton("Zoom ai Risultati")
+        self.zoom_to_results_button = QPushButton(t['zoom_results'])
         self.zoom_to_results_button.clicked.connect(self.zoom_to_query_results)
         self.zoom_to_results_button.setEnabled(False)
         spatial_controls.addWidget(self.zoom_to_results_button)
 
-        self.highlight_results_button = QPushButton("Evidenzia")
+        self.highlight_results_button = QPushButton(t['highlight'])
         self.highlight_results_button.clicked.connect(self.highlight_query_results)
         self.highlight_results_button.setEnabled(False)
         spatial_controls.addWidget(self.highlight_results_button)
 
-        self.clear_highlight_button = QPushButton("Rimuovi Evidenziazione")
+        self.clear_highlight_button = QPushButton(t['clear_highlight'])
         self.clear_highlight_button.clicked.connect(self.clear_highlights)
         self.clear_highlight_button.setEnabled(False)
         spatial_controls.addWidget(self.clear_highlight_button)
@@ -4106,12 +4529,7 @@ class RAGQueryDialog(QDialog):
         self.map_layout.addLayout(spatial_controls)
 
         # Map canvas placeholder (will show embedded mini-map or instructions)
-        self.map_info_label = QLabel(
-            "I risultati della query verranno visualizzati sulla mappa principale di QGIS.\n"
-            "Seleziona le opzioni sopra per controllare la visualizzazione.\n\n"
-            "Usa 'Zoom ai Risultati' per centrare la mappa sui record trovati.\n"
-            "Usa 'Evidenzia' per evidenziare le US sulla mappa."
-        )
+        self.map_info_label = QLabel(t['map_info'])
         self.map_info_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.map_info_label.setStyleSheet("""
             QLabel {
@@ -4127,13 +4545,13 @@ class RAGQueryDialog(QDialog):
         # US list for spatial operations
         self.us_list_widget = QTableWidget()
         self.us_list_widget.setColumnCount(4)
-        self.us_list_widget.setHorizontalHeaderLabels(["US", "Area", "Tipo", "Periodo"])
+        self.us_list_widget.setHorizontalHeaderLabels([t['us_col_us'], t['us_col_area'], t['us_col_type'], t['us_col_period']])
         self.us_list_widget.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.us_list_widget.setSelectionMode(QTableWidget.SelectionMode.MultiSelection)
         self.us_list_widget.itemSelectionChanged.connect(self.on_us_selection_changed)
         self.map_layout.addWidget(self.us_list_widget)
 
-        self.results_tabs.addTab(self.map_widget, "Mappa")
+        self.results_tabs.addTab(self.map_widget, t['tab_map'])
 
         layout.addWidget(self.results_tabs)
 
@@ -4149,45 +4567,45 @@ class RAGQueryDialog(QDialog):
         # Export buttons
         export_layout = QHBoxLayout()
 
-        self.export_text_button = QPushButton("Esporta Testo")
+        self.export_text_button = QPushButton(t['export_text'])
         self.export_text_button.clicked.connect(self.export_text)
         self.export_text_button.setEnabled(False)
         export_layout.addWidget(self.export_text_button)
 
-        self.export_table_button = QPushButton("Esporta Tabella (CSV)")
+        self.export_table_button = QPushButton(t['export_csv'])
         self.export_table_button.clicked.connect(self.export_table_csv)
         self.export_table_button.setEnabled(False)
         export_layout.addWidget(self.export_table_button)
 
-        self.export_excel_button = QPushButton("Esporta Excel")
+        self.export_excel_button = QPushButton(t['export_excel'])
         self.export_excel_button.clicked.connect(self.export_excel)
         self.export_excel_button.setEnabled(False)
         export_layout.addWidget(self.export_excel_button)
 
-        self.export_chart_button = QPushButton("Esporta Grafico")
+        self.export_chart_button = QPushButton(t['export_chart'])
         self.export_chart_button.clicked.connect(self.export_chart)
         self.export_chart_button.setEnabled(False)
         export_layout.addWidget(self.export_chart_button)
 
         # PDF Report button
-        self.export_pdf_button = QPushButton("Report PDF")
+        self.export_pdf_button = QPushButton(t['export_pdf'])
         self.export_pdf_button.clicked.connect(self.export_pdf_report)
         self.export_pdf_button.setEnabled(False)
-        self.export_pdf_button.setToolTip(self.tr("Esporta report completo con testo, tabelle e grafici"))
+        self.export_pdf_button.setToolTip(t['export_pdf_tip'])
         export_layout.addWidget(self.export_pdf_button)
 
         # Complete Excel button
-        self.export_excel_complete_button = QPushButton("Excel Completo")
+        self.export_excel_complete_button = QPushButton(t['export_excel_complete'])
         self.export_excel_complete_button.clicked.connect(self.export_excel_complete)
         self.export_excel_complete_button.setEnabled(False)
-        self.export_excel_complete_button.setToolTip(self.tr("Esporta Excel multi-foglio con tutti i dati"))
+        self.export_excel_complete_button.setToolTip(t['export_excel_complete_tip'])
         export_layout.addWidget(self.export_excel_complete_button)
 
         export_layout.addStretch()
         layout.addLayout(export_layout)
 
         # Close button
-        close_button = QPushButton("Chiudi")
+        close_button = QPushButton(t['close'])
         close_button.clicked.connect(self.close)
         layout.addWidget(close_button)
 
@@ -4196,10 +4614,10 @@ class RAGQueryDialog(QDialog):
     def check_and_rebuild_rag(self):
         """Check if RAG needs rebuilding when dialog opens"""
         if not self.auto_update_checkbox.isChecked():
-            self.status_label.setText("Auto-aggiornamento RAG disabilitato")
+            self.status_label.setText(self.t['auto_update_disabled'])
             return
 
-        self.status_label.setText("Controllo aggiornamenti database...")
+        self.status_label.setText(self.t['checking_updates'])
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, 0)  # Indeterminate
 

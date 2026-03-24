@@ -444,7 +444,7 @@ Sii dettagliato ma conciso."""
                         ]
                     }
                 ],
-                max_tokens=400
+                max_completion_tokens=400
             )
 
             description = description_response.choices[0].message.content

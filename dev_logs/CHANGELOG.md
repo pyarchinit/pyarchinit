@@ -5,6 +5,14 @@
 
 ---
 
+## [5.0.5-alpha.3] - 2026-03-24
+
+### Aggiornamento / Update
+
+- **fix(ai): Sostituito `max_tokens` con `max_completion_tokens` nelle chiamate API OpenAI per compatibilità GPT-5.4**: I nuovi modelli GPT-5.4 richiedono il parametro `max_completion_tokens` anziché `max_tokens` nelle chiamate `client.chat.completions.create()` e nei dizionari di parametri per richieste HTTP dirette. Aggiornati 14 punti di chiamata in 6 file. Non modificati: variabili interne (`self.max_tokens`), logica di splitting token, chiamate API Anthropic (che usano correttamente `max_tokens`). File modificati: modules/utility/textTosql.py (2), modules/utility/skatch_gpt_US.py (3), modules/utility/skatch_gpt_INVMAT.py (3), modules/utility/pottery_similarity/embedding_models.py (1), tabs/US_USM.py (4), scripts/translate_ts_complete.py (1). / **fix(ai): Replaced `max_tokens` with `max_completion_tokens` in OpenAI API calls for GPT-5.4 compatibility**: New GPT-5.4 models require the `max_completion_tokens` parameter instead of `max_tokens` in `client.chat.completions.create()` calls and HTTP request parameter dicts. Updated 14 call sites across 6 files. Not modified: internal variables (`self.max_tokens`), token splitting logic, Anthropic API calls (which correctly use `max_tokens`). Files modified: modules/utility/textTosql.py (2), modules/utility/skatch_gpt_US.py (3), modules/utility/skatch_gpt_INVMAT.py (3), modules/utility/pottery_similarity/embedding_models.py (1), tabs/US_USM.py (4), scripts/translate_ts_complete.py (1).
+
+---
+
 ## [5.0.5-alpha.2] - 2026-03-24
 
 ### Aggiornamento / Update
