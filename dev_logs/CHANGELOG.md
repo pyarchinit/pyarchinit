@@ -5,6 +5,29 @@
 
 ---
 
+## [5.0.6-alpha] - 2026-03-25
+
+### Corretto / Fixed
+
+- **fix(geoarchaeo): Errore QVariant float conversion in main_dock.py**: Le feature QGIS restituiscono QVariant NULL che non è convertibile con float(). Protetti tutti i 4 punti di chiamata float(feature[field]) con try/except e filtro str(val) per valori NULL/None. / **fix(geoarchaeo): QVariant float conversion error in main_dock.py**: QGIS features return QVariant NULL which is not convertible with float(). Protected all 4 float(feature[field]) call sites with try/except and str(val) filter for NULL/None values.
+
+- **fix(geoarchaeo): Errore MultiPolygonZ asPoint() in main_dock.py**: La funzione asPoint() fallisce su geometrie Polygon/MultiPolygon. Sostituiti tutti i 4 geom.asPoint() con geom.centroid().asPoint() per supportare qualsiasi tipo di geometria. / **fix(geoarchaeo): MultiPolygonZ asPoint() error in main_dock.py**: The asPoint() function fails on Polygon/MultiPolygon geometries. Replaced all 4 geom.asPoint() with geom.centroid().asPoint() to support any geometry type.
+
+### Aggiornamento / Update
+
+- **feat(ai): Tradotta scheda RAG AI Query in 10 lingue con ThemeManager**: Aggiunto dizionario traduzioni con 35 chiavi (it/en/de/es/fr/ar/ca/ro/pt/el) a RAGQueryDialog. Sostituiti tutti gli string hardcoded italiani in setup_ui. Aggiunto ThemeManager.apply_theme e add_theme_toggle_to_form. / **feat(ai): Translated RAG AI Query dialog to 10 languages with ThemeManager**: Added 35-key translation dict (it/en/de/es/fr/ar/ca/ro/pt/el) to RAGQueryDialog. Replaced all hardcoded Italian strings in setup_ui. Added ThemeManager.apply_theme and add_theme_toggle_to_form.
+
+- **feat(ai): Aggiornati modelli Claude a Sonnet 4.6, fix path API key**: Aggiornato claude-sonnet-4-5-20250929 a claude-sonnet-4-6 in textTosql.py, skatch_gpt_US.py, skatch_gpt_INVMAT.py. Corretto lookup API key: ora cerca prima claude_api_key.txt poi fallback a anthropic_api_key.txt. / **feat(ai): Updated Claude models to Sonnet 4.6, fix API key path**: Updated claude-sonnet-4-5-20250929 to claude-sonnet-4-6 in textTosql.py, skatch_gpt_US.py, skatch_gpt_INVMAT.py. Fixed API key lookup: now tries claude_api_key.txt first, fallback to anthropic_api_key.txt.
+
+### File modificati / Modified files
+- `modules/geoarchaeo/gui/main_dock.py` (QVariant + centroid fix)
+- `tabs/US_USM.py` (RAG dialog i18n + ThemeManager)
+- `modules/utility/textTosql.py` (Claude 4.6 + key path)
+- `modules/utility/skatch_gpt_US.py` (Claude 4.6)
+- `modules/utility/skatch_gpt_INVMAT.py` (Claude 4.6)
+
+---
+
 ## [5.0.5-alpha.3] - 2026-03-24
 
 ### Aggiornamento / Update
