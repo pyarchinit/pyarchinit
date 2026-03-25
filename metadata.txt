@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.6-alpha (2026-03-24) [AI Models, Analytics, Permissions & i18n]:
+changelog=5.0.6-alpha (2026-03-25) [AI Models, Analytics, Permissions & i18n]:
+    - Fix: geoarchaeo QVariant float conversion errors with try/except protection (4 sites)
+    - Fix: geoarchaeo MultiPolygonZ asPoint() errors - use centroid() for all geometry types
     - Feature: update all AI models to GPT-5.4/5.4-mini and Claude Sonnet 4.6
     - Fix: use max_completion_tokens for GPT-5.x API compatibility (14 call sites across 6 files)
     - Fix: Claude API key lookup uses claude_api_key.txt with anthropic fallback

@@ -719,8 +719,12 @@ class GeoArchaeoDockWidget(QDockWidget):
         # Estrai valori
         values = []
         for feature in layer.getFeatures():
-            if feature[field] is not None:
-                values.append(float(feature[field]))
+            val = feature[field]
+            if val is not None and val != '' and str(val) not in ('NULL', 'None', ''):
+                try:
+                    values.append(float(val))
+                except (ValueError, TypeError):
+                    pass
         
         if not values:
             QMessageBox.warning(self, tr('warning'), tr('no_values_found'))
@@ -771,12 +775,15 @@ Interpretazione:
         values = []
         
         for feature in layer.getFeatures():
-            if feature[field] is not None:
+            val = feature[field]
+            if val is not None and str(val) not in ('NULL', 'None', ''):
                 geom = feature.geometry()
                 if geom and not geom.isEmpty():
-                    point = geom.asPoint()
-                    points.append([point.x(), point.y()])
-                    values.append(float(feature[field]))
+                    try:
+                        points.append([geom.centroid().asPoint().x(), geom.centroid().asPoint().y()])
+                        values.append(float(val))
+                    except (ValueError, TypeError):
+                        pass
         
         if len(points) < 5:
             QMessageBox.warning(self, tr('warning'), tr('min_points'))
@@ -869,15 +876,16 @@ Interpretazione:
         values = []
 
         for feature in layer.getFeatures():
-            if feature[field] is not None:
+            val = feature[field]
+            if val is not None and str(val) not in ('NULL', 'None', ''):
                 geom = feature.geometry()
                 if geom and not geom.isEmpty():
-                    point = geom.asPoint()
-                    points.append([point.x(), point.y()])
                     try:
-                        values.append(float(feature[field]))
+                        fval = float(val)
+                        points.append([geom.centroid().asPoint().x(), geom.centroid().asPoint().y()])
+                        values.append(fval)
                     except (ValueError, TypeError):
-                        continue  # Salta valori non numerici
+                        continue
 
         if len(points) < 5:
             QMessageBox.warning(self, tr('warning'), tr('min_points'))
@@ -1046,14 +1054,17 @@ Interpretazione:
             for feature in layer.getFeatures():
                 geom = feature.geometry()
                 if geom and not geom.isEmpty():
-                    point = geom.asPoint()
-                    data['points'].append([point.x(), point.y()])
+                    centroid = geom.centroid().asPoint()
+                    data['points'].append([centroid.x(), centroid.y()])
                     
                     # Valori attributi
                     feat_values = []
                     for field_name in numeric_fields:
                         val = feature[field_name]
-                        feat_values.append(float(val) if val is not None else 0)
+                        try:
+                            feat_values.append(float(val) if val is not None and str(val) not in ('NULL', 'None', '') else 0)
+                        except (ValueError, TypeError):
+                            feat_values.append(0)
                     data['features'].append(feat_values)
             
             if data['points']:
@@ -1162,7 +1173,7 @@ Interpretazione:
         for feature in existing_layer.getFeatures():
             geom = feature.geometry()
             if geom and not geom.isEmpty():
-                point = geom.asPoint()
+                point = geom.centroid().asPoint()
                 existing_points.append([point.x(), point.y()])
         
         if not existing_points:
