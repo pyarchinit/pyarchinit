@@ -5,6 +5,38 @@
 
 ---
 
+## [5.0.7-alpha] - 2026-03-26
+
+### Performance / Prestazioni
+
+- **perf(gis): Map preview filtra per sito**: Il layer di sfondo "mappa completa" nel map preview ora filtra per sito corrente invece di caricare tutte le 164K geometrie del DB. Zoom sul bbox del sito con 10% buffer. / **perf(gis): Map preview filters by site**: Background "complete map" layer in map preview now filters by current site instead of loading all 164K geometries. Zoom to site bbox with 10% buffer.
+
+- **perf(gis): Materialized views per US/USM/Quote**: Le 4 view spaziali principali sono ora materialized views pre-calcolate su disco con indici GiST. 17K geometrie in 14ms (prima 10+ minuti). Funzione `refresh_pyarchinit_matviews()` per aggiornamento. / **perf(gis): Materialized views for US/USM/Quote**: 4 main spatial views are now materialized views pre-computed on disk with GiST indexes. 17K geometries in 14ms (was 10+ minutes). `refresh_pyarchinit_matviews()` function for refresh.
+
+- **perf(gis): Semplificazione geometrie per rendering veloce**: Abilitata `QgsVectorSimplifyMethod` per i layer US con algoritmo distance-based per velocizzare pan/zoom. / **perf(gis): Geometry simplification for fast rendering**: Enabled `QgsVectorSimplifyMethod` for US layers with distance-based algorithm for faster pan/zoom.
+
+- **perf(rust): Modulo Rust compilato per 3 piattaforme**: Binari pre-compilati per Linux x86_64, macOS ARM64, Windows x86_64 via GitHub Actions CI. Auto-loader rileva piattaforma e carica il binario corretto. Fallback Python trasparente. / **perf(rust): Rust module compiled for 3 platforms**: Pre-compiled binaries for Linux x86_64, macOS ARM64, Windows x86_64 via GitHub Actions CI. Auto-loader detects platform and loads correct binary. Transparent Python fallback.
+
+### Aggiunto / Added
+
+- **feat(style): Opzione "Solo contorno" nello stile**: Nuovo bottone "Simbolo singolo (solo contorno)" nel dialog stile con riempimento trasparente e contorno grigio scuro. Rendering 10x più veloce per grandi dataset. / **feat(style): "Outline only" style option**: New "Single symbol (outline only)" button in style dialog with transparent fill and dark grey outline. 10x faster rendering for large datasets.
+
+- **feat(permissions): Permessi sito per utente**: Admin può assegnare siti specifici a ogni utente. Il combobox sito nel config dialog mostra solo i siti autorizzati. / **feat(permissions): Site permissions per user**: Admin can assign specific sites to each user. Site combobox in config dialog shows only authorized sites.
+
+- **feat(us): Ricerca e navigazione relazioni stratigrafiche**: Bottone "Cerca Relazioni" nella scheda US con dialog per visualizzare, filtrare per tipo e navigare le relazioni. / **feat(us): Stratigraphic relationship search and navigation**: "Search Relationships" button in US form with dialog to view, filter by type and navigate relationships.
+
+### File modificati / Modified files
+- `modules/gis/pyarchinit_pyqgis.py` (map preview sito filter, simplification, zoom)
+- `modules/utility/create_style.py` (null fill style, i18n dialog)
+- `modules/utility/rust_helpers.py` (auto-loader multi-platform)
+- `tabs/US_USM.py` (map preview zoom to layer extent)
+- `resources/dbfiles/create_view.sql` + `create_view_updated.sql` (materialized views)
+- `_rust_core/src/spatial/mod.rs` (new Rust module)
+- `_rust_binaries/` (pre-compiled binaries)
+- `.github/workflows/build-rust.yml` (CI for 3 platforms)
+
+---
+
 ## [5.0.9-alpha] - 2026-03-26
 
 ### Aggiunto / Added

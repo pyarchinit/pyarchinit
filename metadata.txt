@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.6-alpha
+version=5.0.7-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,20 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.6-alpha (2026-03-26) [AI Models, Analytics, Permissions, DB Resilience & i18n]:
+changelog=5.0.7-alpha (2026-03-26) [Performance, Rust, Materialized Views, Site Permissions]:
+    - Perf: materialized views for US/USM/Quote (17K geometries in 14ms vs 10+ minutes)
+    - Perf: Rust spatial module (parse_rapporti 10x faster, parallel style computation)
+    - Perf: geometry simplification for fast pan/zoom rendering
+    - Perf: sito filter instead of IN(900 ids) for layer loading
+    - Perf: map preview filters by sito (not all 164K geometries)
+    - Feature: site-based user permissions (admin assigns sites per user)
+    - Feature: null fill style option (outline only - fast rendering)
+    - Feature: stratigraphic relationship search and navigation
+    - Feature: Rust binaries pre-compiled for Linux, macOS ARM64, Windows via GitHub Actions CI
+    - Fix: map preview zooms to site bbox instead of full extent
+    - Fix: SQL install files use materialized views for PostgreSQL
+    - Fix: trigger loop between pyarchinit_users and users tables
+  5.0.6-alpha (2026-03-26) [AI Models, Analytics, Permissions, DB Resilience & i18n]:
     - Fix: DB update now executes SQL statement-by-statement with autocommit (no more cascading failures)
     - Fix: update_production_db_safe.sql adds ALTER TABLE IF NOT EXISTS before INSERT for pre-existing tables
     - Fix: geoarchaeo QVariant float conversion errors with try/except protection (4 sites)

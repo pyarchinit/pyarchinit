@@ -2860,7 +2860,23 @@ class Pyarchinit_pyqgis(QDialog):
             uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri_u.uri(), "Unita Stratigrafiche in uso", "postgres")
 
-            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", "", "gid")
+            # Filter background layer by sito (not all sites!) for fast rendering
+            # Extract sito from gidstr: "id_us = 12345" → query the sito from the view
+            sito_filter = ""
+            try:
+                from ..db.pyarchinit_db_manager import get_db_manager
+                from ..db.pyarchinit_conn_strings import Connection
+                conn = Connection()
+                db = get_db_manager(conn.conn_str(), use_singleton=True)
+                # Get sito from the first id_us in gidstr
+                id_val = gidstr.split("=")[1].strip().split(" ")[0]
+                result = db.execute_sql(f"SELECT sito FROM us_table WHERE id_us = {id_val}")
+                if result and result[0][0]:
+                    sito_filter = "sito = '{}'".format(result[0][0].replace("'", "''"))
+            except Exception:
+                pass
+
+            uri_u.setDataSource("public", "pyarchinit_us_view", "the_geom", sito_filter, "gid")
             layerUS_us = QgsVectorLayer(uri_u.uri(), "mappa completa", "postgres")
 
             if layerUS.isValid():
