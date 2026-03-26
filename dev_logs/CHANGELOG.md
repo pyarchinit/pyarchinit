@@ -5,9 +5,11 @@
 
 ---
 
-## [5.0.6-alpha] - 2026-03-25
+## [5.0.6-alpha] - 2026-03-26
 
 ### Corretto / Fixed
+
+- **fix(db): Aggiornamento DB ora esegue SQL statement per statement con autocommit**: L'esecuzione del file SQL di aggiornamento (`update_production_db_safe.sql` e `add_concurrency_fixed.sql`) ora splitta ogni statement e li esegue singolarmente con try/except. Se uno statement fallisce (colonna già esistente, tabella pre-esistente, tipo mismatch), viene saltato e si prosegue col successivo. Errori non critici loggati in QgsMessageLog. Aggiunto `ALTER TABLE ADD COLUMN IF NOT EXISTS` prima degli INSERT in pyarchinit_roles per gestire tabelle pre-esistenti con schema diverso. / **fix(db): DB update now executes SQL statement-by-statement with autocommit**: SQL update file execution now splits each statement and executes them individually with try/except. If a statement fails (column already exists, pre-existing table, type mismatch), it is skipped and execution continues. Non-critical errors logged to QgsMessageLog. Added `ALTER TABLE ADD COLUMN IF NOT EXISTS` before INSERT into pyarchinit_roles to handle pre-existing tables with different schema.
 
 - **fix(geoarchaeo): Errore QVariant float conversion in main_dock.py**: Le feature QGIS restituiscono QVariant NULL che non è convertibile con float(). Protetti tutti i 4 punti di chiamata float(feature[field]) con try/except e filtro str(val) per valori NULL/None. / **fix(geoarchaeo): QVariant float conversion error in main_dock.py**: QGIS features return QVariant NULL which is not convertible with float(). Protected all 4 float(feature[field]) call sites with try/except and str(val) filter for NULL/None values.
 
