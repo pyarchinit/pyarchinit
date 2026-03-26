@@ -1,7 +1,6 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList};
 use rayon::prelude::*;
-use std::collections::HashMap;
 
 /// Fast geometry filter: given a list of WKB geometries with attributes,
 /// filter by site name and return only matching records.
@@ -50,20 +49,19 @@ fn compute_style_categories(
     unique.sort();
 
     // Generate deterministic colors using hash
-    let dict = PyDict::new(py);
-    for (i, cat) in unique.iter().enumerate() {
+    let dict = PyDict::new_bound(py);
+    for (_i, cat) in unique.iter().enumerate() {
         let hash = cat.bytes().fold(0u64, |acc, b| acc.wrapping_mul(31).wrapping_add(b as u64));
         let r = ((hash >> 16) & 0xFF) as u8;
         let g = ((hash >> 8) & 0xFF) as u8;
         let b = (hash & 0xFF) as u8;
-        // Ensure minimum brightness
         let r = r.max(40);
         let g = g.max(40);
         let b = b.max(40);
         let color_tuple = (r, g, b);
         dict.set_item(cat, color_tuple)?;
     }
-    Ok(dict.into())
+    Ok(dict.unbind())
 }
 
 /// Parse rapporti field (Python list-of-lists string) and extract relationships.
@@ -146,18 +144,18 @@ fn build_relationship_graph(
     us_numbers: Vec<String>,
     rapporti_strings: Vec<String>,
 ) -> PyResult<Py<PyDict>> {
-    let graph = PyDict::new(py);
+    let graph = PyDict::new_bound(py);
 
     for (us, rapp) in us_numbers.iter().zip(rapporti_strings.iter()) {
         let relations = parse_rapporti_fast_internal(rapp);
-        let py_list = PyList::empty(py);
+        let py_list = PyList::empty_bound(py);
         for (rel_type, related) in relations {
             py_list.append((rel_type, related))?;
         }
         graph.set_item(us, py_list)?;
     }
 
-    Ok(graph.into())
+    Ok(graph.unbind())
 }
 
 pub fn register(m: &Bound<'_, PyModule>) -> PyResult<()> {
