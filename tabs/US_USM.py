@@ -25702,6 +25702,92 @@ DATABASE SCHEMA KNOWLEDGE:
 
         btn_search.clicked.connect(do_search_by_type)
         search_layout.addWidget(btn_search)
+
+        # "Filter by Type" button - filters DATA_LIST to only US with selected relationship
+        lbl_filter_type = "Filtra Scheda per Tipo" if is_it else "Filter Form by Type"
+        btn_filter_type = QPushButton(lbl_filter_type)
+        btn_filter_type.setStyleSheet("""
+            QPushButton { background-color: #7B1FA2; color: white;
+                font-weight: bold; padding: 6px 12px; border-radius: 3px; }
+            QPushButton:hover { background-color: #6A1B9A; }
+        """)
+
+        def filter_data_list_by_type():
+            """Filter DATA_LIST to only US records that have the selected relationship type."""
+            selected = combo_rel.currentText()
+            if selected.startswith("--"):
+                return
+
+            show_inv = chk_inverse.isChecked()
+
+            try:
+                # Get all US records for the current sito
+                search_dict = {'sito': "'" + current_sito + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                all_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+
+                filtered = []
+                for rec in all_records:
+                    try:
+                        rapporti_str = rec.rapporti if rec.rapporti else '[]'
+                        rapporti_list = ast.literal_eval(rapporti_str)
+                        if not isinstance(rapporti_list, list):
+                            continue
+                        for rapp in rapporti_list:
+                            if isinstance(rapp, list) and len(rapp) >= 2 and str(rapp[0]) == selected:
+                                filtered.append(rec)
+                                break
+                    except:
+                        continue
+
+                # Also add inverse if requested
+                if show_inv:
+                    try:
+                        from ..modules.utility.pyarchinit_i18n_stratigraphic import get_inverse_relationship
+                        inverse_rel = get_inverse_relationship(selected)
+                    except:
+                        inverse_rel = selected
+
+                    for rec in all_records:
+                        if rec in filtered:
+                            continue
+                        try:
+                            rapporti_str = rec.rapporti if rec.rapporti else '[]'
+                            rapporti_list = ast.literal_eval(rapporti_str)
+                            if not isinstance(rapporti_list, list):
+                                continue
+                            for rapp in rapporti_list:
+                                if isinstance(rapp, list) and len(rapp) >= 2 and str(rapp[0]) == inverse_rel:
+                                    filtered.append(rec)
+                                    break
+                        except:
+                            continue
+
+                if filtered:
+                    self.empty_fields()
+                    self.DATA_LIST = filtered
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    if self.toolButtonGis.isChecked():
+                        self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    if self.toolButton_usm.isChecked():
+                        self.pyQGIS.charge_usm_layers(self.DATA_LIST)
+                    dlg.accept()
+                    msg = f"{len(filtered)} US con relazione '{selected}'" if is_it else f"{len(filtered)} US with relationship '{selected}'"
+                    QMessageBox.information(self, "Info", msg)
+                else:
+                    msg = f"Nessuna US con relazione '{selected}' trovata." if is_it else f"No US with relationship '{selected}' found."
+                    QMessageBox.information(dlg, "Info", msg)
+            except Exception as e:
+                QMessageBox.warning(dlg, "Errore" if is_it else "Error", str(e))
+
+        btn_filter_type.clicked.connect(filter_data_list_by_type)
+        search_layout.addWidget(btn_filter_type)
         main_layout.addWidget(search_group)
 
         # --- Bottom buttons ---
