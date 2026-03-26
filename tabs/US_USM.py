@@ -17184,9 +17184,21 @@ DATABASE SCHEMA KNOWLEDGE:
             gidstr = self.ID_TABLE + " = " + str(
                 getattr(self.DATA_LIST[int(self.REC_CORR)], self.ID_TABLE))
             layerToSet = self.pyQGIS.loadMapPreview_new(gidstr)
-            #QMessageBox.warning(self, "layer to set", '\n'.join([l.name() for l in layerToSet]), QMessageBox.Ok)
             self.mapPreview.setLayers(layerToSet)
-            self.mapPreview.zoomToFullExtent()
+            # Zoom to the loaded layer extent (site bbox), not full extent
+            if layerToSet:
+                try:
+                    # Use the first layer's extent (the US geometry)
+                    extent = layerToSet[0].extent()
+                    for lyr in layerToSet[1:]:
+                        extent.combineExtentWith(lyr.extent())
+                    # Add 10% buffer around the extent
+                    extent.scale(1.1)
+                    self.mapPreview.setExtent(extent)
+                except Exception:
+                    self.mapPreview.zoomToFullExtent()
+            else:
+                self.mapPreview.zoomToFullExtent()
         elif mode == 1:
             self.mapPreview.setLayers([])
             self.mapPreview.zoomToFullExtent()

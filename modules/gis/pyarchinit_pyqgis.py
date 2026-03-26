@@ -1881,11 +1881,27 @@ class Pyarchinit_pyqgis(QDialog):
                 except Exception:
                     pass
 
+                # Enable simplification for faster rendering when panning/zooming
+                layerUS.setSimplifyMethod(QgsVectorSimplifyMethod())
+                simplify = layerUS.simplifyMethod()
+                simplify.setSimplifyHints(QgsVectorSimplifyMethod.SimplifyHint.GeometrySimplification)
+                simplify.setSimplifyAlgorithm(QgsVectorSimplifyMethod.SimplifyAlgorithm.Distance)
+                simplify.setThreshold(1.0)
+                simplify.setForceLocalOptimization(True)
+                layerUS.setSimplifyMethod(simplify)
+
                 # Apply feature ordering for correct stratigraphic rendering
                 self._apply_us_feature_ordering(layerUS)
 
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
+
+                # Zoom to layer extent (site bbox, not all sites)
+                try:
+                    self.iface.mapCanvas().setExtent(layerUS.extent())
+                    self.iface.mapCanvas().refresh()
+                except Exception:
+                    pass
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer US non valido", QMessageBox.Ok)
 

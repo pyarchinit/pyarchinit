@@ -2,7 +2,7 @@ import os
 import random
 
 
-from qgis.core import QgsVectorLayer, QgsFillSymbol, QgsRuleBasedRenderer,QgsExpression,QgsFeatureRequest,QgsMapLayerStyle,QgsCategorizedSymbolRenderer, QgsRendererCategory, QgsFeatureRequest, QgsSettings
+from qgis.core import QgsVectorLayer, QgsFillSymbol, QgsRuleBasedRenderer,QgsExpression,QgsFeatureRequest,QgsMapLayerStyle,QgsCategorizedSymbolRenderer, QgsRendererCategory, QgsFeatureRequest, QgsSettings, QgsSingleSymbolRenderer
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtCore import Qt
 
@@ -199,12 +199,27 @@ class USViewStyler:
     def ask_user_style_preference(self):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Question)
-        msg_box.setText("Come vuoi gestire lo stile del layer?")
-        msg_box.setWindowTitle("Scelta Stile")
 
-        save_button = msg_box.addButton("Salva nuovo stile", QMessageBox.ActionRole)
-        load_button = msg_box.addButton("Carica stile esistente", QMessageBox.ActionRole)
-        temp_button = msg_box.addButton("Usa stile temporaneo", QMessageBox.ActionRole)
+        L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+        if L == 'it':
+            msg_box.setText("Come vuoi gestire lo stile del layer?")
+            msg_box.setWindowTitle("Scelta Stile")
+            save_label = "Salva nuovo stile"
+            load_label = "Carica stile esistente"
+            temp_label = "Usa stile temporaneo"
+            null_label = "Simbolo singolo (solo contorno)"
+        else:
+            msg_box.setText("How do you want to manage the layer style?")
+            msg_box.setWindowTitle("Style Choice")
+            save_label = "Save new style"
+            load_label = "Load existing style"
+            temp_label = "Use temporary style"
+            null_label = "Single symbol (outline only)"
+
+        save_button = msg_box.addButton(save_label, QMessageBox.ActionRole)
+        load_button = msg_box.addButton(load_label, QMessageBox.ActionRole)
+        temp_button = msg_box.addButton(temp_label, QMessageBox.ActionRole)
+        null_button = msg_box.addButton(null_label, QMessageBox.ActionRole)
 
         msg_box.exec()
 
@@ -212,6 +227,8 @@ class USViewStyler:
             return "save"
         elif msg_box.clickedButton() == load_button:
             return "load"
+        elif msg_box.clickedButton() == null_button:
+            return "null_fill"
         else:
             return "temp"
 
@@ -412,6 +429,24 @@ class USViewStyler:
                     print("Errore nell'applicazione dello stile caricato")
             else:
                 print("Nessuno stile salvato trovato o selezione annullata. Verrà creato uno stile temporaneo.")
+
+        # Handle null fill (outline only)
+        if choice == "null_fill":
+            try:
+                symbol = QgsFillSymbol.createSimple({
+                    'color': '0,0,0,0',  # transparent fill
+                    'outline_color': '50,50,50,255',  # dark grey outline
+                    'outline_width': '0.3',
+                    'outline_style': 'solid'
+                })
+                renderer = QgsSingleSymbolRenderer(symbol)
+                layer.setRenderer(renderer)
+                layer.triggerRepaint()
+                layer.legendChanged.emit()
+                self._apply_feature_ordering(layer)
+                return
+            except Exception as e:
+                print(f"Error applying null fill: {e}")
 
         # Se siamo arrivati qui, o l'utente ha scelto "save"/"temp", o il caricamento è fallito
         # Ask user which field to use for categorization
