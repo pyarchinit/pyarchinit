@@ -937,6 +937,15 @@ class UserManagementDialog(QDialog):
             return
 
         self.init_ui()
+
+        # Apply theme and add toggle button
+        try:
+            from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+            ThemeManager.apply_theme(self)
+            self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
+        except Exception:
+            pass
+
         self.load_data()
 
     def _get_db_username(self):
@@ -1033,14 +1042,14 @@ class UserManagementDialog(QDialog):
         # Header
         header_layout = QHBoxLayout()
         title = QLabel(self.tr_('header_title'))
-        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #2196F3;")
+        title.setStyleSheet("font-size: 18px; font-weight: bold; color: #64B5F6;")
         header_layout.addWidget(title)
 
         # Show both PyArchInit user and database user for clarity
         user_display = self.current_user if self.current_user else self.db_username
         db_display = f" [DB: {self.db_username}]" if self.db_username and self.db_username != user_display else ""
         self.status_label = QLabel(f"{self.tr_('connected_as')}: {user_display}{db_display} (Admin)")
-        self.status_label.setStyleSheet("color: green;")
+        self.status_label.setStyleSheet("color: #66BB6A;")
         header_layout.addStretch()
         header_layout.addWidget(self.status_label)
 
@@ -1201,7 +1210,7 @@ class UserManagementDialog(QDialog):
         top_layout.addWidget(self.perm_user_combo)
 
         self.perm_role_label = QLabel()
-        self.perm_role_label.setStyleSheet("font-weight: bold; color: #2196F3;")
+        self.perm_role_label.setStyleSheet("font-weight: bold; color: #64B5F6;")
         top_layout.addWidget(self.perm_role_label)
 
         top_layout.addStretch()
@@ -1329,7 +1338,7 @@ class UserManagementDialog(QDialog):
 
         # Info
         info_label = QLabel(self.tr_('roles_info'))
-        info_label.setStyleSheet("background-color: #E3F2FD; padding: 10px; border-radius: 5px;")
+        info_label.setStyleSheet("background-color: rgba(100,181,246,0.15); padding: 10px; border-radius: 5px;")
         layout.addWidget(info_label)
 
         widget.setLayout(layout)
