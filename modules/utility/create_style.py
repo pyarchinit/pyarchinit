@@ -138,18 +138,27 @@ class ThesaurusStyler:
 
 
 class USViewStyler:
-    def __init__(self, connection):
+    def __init__(self, connection, sito=None):
         self.connection = connection
+        self.sito = sito
         self.engine = create_engine(self.connection.conn_str())
         self.DB_SERVER = "sqlite" if self.connection.conn_str().startswith('sqlite') else "postgres"
         self.us_data = self._load_us_data()
         self.us_styles = self._create_styles_for_us()
 
     def _load_us_data(self):
-        query = text("SELECT DISTINCT d_stratigrafica, tipo_us_s, stratigraph_index_us, d_interpretativa FROM pyarchinit_us_view")
-        with self.engine.connect() as conn:
-            result = conn.execute(query)
-            return [row._asdict() if hasattr(row, '_asdict') else dict(zip(result.keys(), row)) for row in result]
+        if self.sito:
+            query = text("SELECT DISTINCT d_stratigrafica, unita_tipo AS tipo_us_s, order_layer AS stratigraph_index_us, d_interpretativa FROM us_table WHERE sito = :sito")
+            params = {"sito": self.sito}
+        else:
+            query = text("SELECT DISTINCT d_stratigrafica, unita_tipo AS tipo_us_s, order_layer AS stratigraph_index_us, d_interpretativa FROM us_table")
+            params = {}
+        try:
+            with self.engine.connect() as conn:
+                result = conn.execute(query, params)
+                return [row._asdict() if hasattr(row, '_asdict') else dict(zip(result.keys(), row)) for row in result]
+        except Exception:
+            return []
 
     def _create_style(self, d_stratigrafica, tipo_us_s, stratigraph_index_us):
         symbol = QgsFillSymbol.createSimple({})

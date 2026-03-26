@@ -911,10 +911,8 @@ class Pyarchinit_pyqgis(QDialog):
             # Extract the SRID from the 'pyarchinit_individui' table
             cursor.execute("SELECT srid FROM geometry_columns WHERE f_table_name = 'pyarchinit_siti'")
             srid = cursor.fetchone()[0]
-            gidstr = "id_us = '" + str(data[0]) + "'"
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = '" + str(data[i]) + "'"
+            id_list = ",".join("'" + str(d) + "'" for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerUS = self._load_spatialite_view(db_file_path, 'pyarchinit_us_view', gidstr, srid)
@@ -945,12 +943,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            gidstr = "id_us = " + str(data[0])
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = " + str(data[i])
-
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            id_list = ",".join(str(d) for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
             uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
             layerUS = QgsVectorLayer(uri.uri(), name_layer_s, "postgres")
@@ -1749,7 +1743,8 @@ class Pyarchinit_pyqgis(QDialog):
         settings = Settings(con_sett)
         settings.set_configuration()
         a = Connection()
-        styler = USViewStyler(a)
+        current_sito = str(data[0].sito) if data else None
+        styler = USViewStyler(a, sito=current_sito)
         if self.L=='it':
             name_layer_s='US view'
         elif self.L=='de':
@@ -1782,10 +1777,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            gidstr = "id_us = '" + str(data[0].id_us) + "'"
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
+            id_list = ",".join("'" + str(d.id_us) + "'" for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_view', gidstr, srid)
@@ -1834,12 +1827,12 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            gidstr = id_us = "id_us = " + str(data[0].id_us)
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = " + str(data[i].id_us)
+            # Build efficient IN() filter instead of multiple OR clauses
+            id_list = ",".join(str(d.id_us) for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            # Also extract sito for additional filtering
+            sito_filter = str(data[0].sito) if data else ''
 
             uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
@@ -1934,10 +1927,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             # Close the database connection
             conn.close()
-            gidstr = "id_us = '" + str(data[0].id_us) + "'"
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = '" + str(data[i].id_us) + "'"
+            id_list = ",".join("'" + str(d.id_us) + "'" for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
             # Use OGR provider for views to avoid spatialite schema caching bug
             layerQUOTE = self._load_spatialite_view(db_file_path, 'pyarchinit_quote_usm_view', gidstr, srid)
@@ -1975,12 +1966,8 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            gidstr = id_us = "id_us = " + str(data[0].id_us)
-            if len(data) > 1:
-                for i in range(len(data)):
-                    gidstr += " OR id_us = " + str(data[i].id_us)
-
-            #srs = QgsCoordinateReferenceSystem(self.SRS, QgsCoordinateReferenceSystem.PostgisCrsId)
+            id_list = ",".join(str(d.id_us) for d in data)
+            gidstr = "id_us IN ({})".format(id_list)
 
             uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
