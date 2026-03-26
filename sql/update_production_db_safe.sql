@@ -157,8 +157,17 @@ CREATE TABLE IF NOT EXISTS pyarchinit_roles (
     default_can_insert BOOLEAN DEFAULT FALSE,
     default_can_update BOOLEAN DEFAULT FALSE,
     default_can_delete BOOLEAN DEFAULT FALSE,
-    is_system_role BOOLEAN DEFAULT TRUE
+    is_system_role BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Assicura che tutte le colonne esistano (per DB pre-esistenti)
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS default_can_view BOOLEAN DEFAULT TRUE;
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS default_can_insert BOOLEAN DEFAULT FALSE;
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS default_can_update BOOLEAN DEFAULT FALSE;
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS default_can_delete BOOLEAN DEFAULT FALSE;
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS is_system_role BOOLEAN DEFAULT TRUE;
+ALTER TABLE pyarchinit_roles ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- Inserisci ruoli predefiniti
 INSERT INTO pyarchinit_roles (role_name, description, default_can_view, default_can_insert, default_can_update, default_can_delete, is_system_role)

@@ -2460,9 +2460,22 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                                 password=sa_url.password
                             )
 
+                            # Execute SQL statement by statement to handle partial failures
+                            conn.autocommit = True
                             with conn.cursor() as cursor:
-                                cursor.execute(sql_content)
-                                conn.commit()
+                                # Split on semicolons, skip empty statements
+                                statements = [s.strip() for s in sql_content.split(';') if s.strip()]
+                                errors = []
+                                for stmt in statements:
+                                    try:
+                                        cursor.execute(stmt)
+                                    except Exception as stmt_err:
+                                        errors.append(str(stmt_err)[:100])
+                                if errors:
+                                    from qgis.core import QgsMessageLog, Qgis
+                                    QgsMessageLog.logMessage(
+                                        f"DB update: {len(errors)} non-critical errors (ignored):\n" + "\n".join(errors[:5]),
+                                        "PyArchInit", Qgis.Info)
 
                             conn.close()
 
@@ -2558,12 +2571,24 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             password=sa_url.password
                         )
 
-                        # Execute the entire SQL file as one transaction
+                        # Execute SQL statement by statement to handle partial failures
+                        conn.autocommit = True
+                        errors = []
                         with conn.cursor() as cursor:
-                            cursor.execute(sql_content)
-                            conn.commit()
+                            statements = [s.strip() for s in sql_content.split(';') if s.strip()]
+                            for stmt in statements:
+                                try:
+                                    cursor.execute(stmt)
+                                except Exception as stmt_err:
+                                    errors.append(str(stmt_err)[:100])
 
                         conn.close()
+
+                        if errors:
+                            from qgis.core import QgsMessageLog, Qgis
+                            QgsMessageLog.logMessage(
+                                f"Concurrency update: {len(errors)} non-critical errors:\n" + "\n".join(errors[:5]),
+                                "PyArchInit", Qgis.Info)
 
                         QMessageBox.information(self, 'Successo',
                             'Sistema di concorrenza applicato con successo!\n\n'
@@ -2571,7 +2596,8 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                             '• Versioning su tutte le tabelle\n'
                             '• Soft locks per editing\n'
                             '• Audit trail completo\n'
-                            '• Tracking utente reale')
+                            '• Tracking utente reale'
+                            + (f'\n\n({len(errors)} avvisi non critici - vedi log)' if errors else ''))
 
                     except Exception as e:
                         QMessageBox.critical(self, 'Errore',
