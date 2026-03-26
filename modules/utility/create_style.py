@@ -146,10 +146,10 @@ class USViewStyler:
         self.us_styles = self._create_styles_for_us()
 
     def _load_us_data(self):
-        query = text("SELECT d_stratigrafica, tipo_us_s, stratigraph_index_us, d_interpretativa FROM pyarchinit_us_view")
+        query = text("SELECT DISTINCT d_stratigrafica, tipo_us_s, stratigraph_index_us, d_interpretativa FROM pyarchinit_us_view")
         with self.engine.connect() as conn:
             result = conn.execute(query)
-            return [dict(row) for row in result]
+            return [row._asdict() if hasattr(row, '_asdict') else dict(zip(result.keys(), row)) for row in result]
 
     def _create_style(self, d_stratigrafica, tipo_us_s, stratigraph_index_us):
         symbol = QgsFillSymbol.createSimple({})

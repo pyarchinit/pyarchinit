@@ -1868,6 +1868,13 @@ class Pyarchinit_pyqgis(QDialog):
 
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
+
+                # Apply categorized style by d_stratigrafica (typology)
+                try:
+                    styler.apply_style_to_layer(layerUS)
+                except Exception:
+                    pass
+
                 # Applica simbologia nidificata US/stratigraph_index
                 self.create_us_nested_symbology(layerUS, gidstr)
 
