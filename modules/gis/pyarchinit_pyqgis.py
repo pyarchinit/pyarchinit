@@ -1827,14 +1827,13 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            # Build efficient IN() filter instead of multiple OR clauses
-            id_list = ",".join(str(d.id_us) for d in data)
-            gidstr = "id_us IN ({})".format(id_list)
+            # Use simple sito filter on base geometry table (much faster than view + IN())
+            sito_filter = str(data[0].sito).replace("'", "''") if data else ''
+            sito_gidstr = "scavo_s = '{}'".format(sito_filter)
 
-            # Also extract sito for additional filtering
-            sito_filter = str(data[0].sito) if data else ''
-
-            uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", gidstr, "gid")
+            # Quote layer - load from view with sito filter
+            quote_filter = "sito_q = '{}'".format(sito_filter)
+            uri.setDataSource("public", "pyarchinit_quote", "the_geom", quote_filter, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
@@ -1847,14 +1846,9 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-                    # f = open('/test_ok.txt','w')
-                    # f.write(str(e))
-                    # f.close()
-            else:
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
 
-
-            uri.setDataSource("public", "pyarchinit_us_view", "the_geom", gidstr, "gid")
+            # US layer - load from view with sito filter (not IN() with 900 ids)
+            uri.setDataSource("public", "pyarchinit_us_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerUS.isValid():
@@ -1867,9 +1861,6 @@ class Pyarchinit_pyqgis(QDialog):
                     styler.apply_style_to_layer(layerUS)
                 except Exception:
                     pass
-
-                # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
 
                 # Apply feature ordering for correct stratigraphic rendering
                 self._apply_us_feature_ordering(layerUS)
