@@ -9892,6 +9892,47 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_struttura.customContextMenuRequested.connect(self.show_struttura_context_menu)
 
         self.tableWidget_rapporti.itemChanged.connect(self.check_listoflist)
+
+        # Add "Search Relationships" button near the rapporti table
+        try:
+            self.pushButton_search_relationships = QPushButton()
+            if self.L == 'it':
+                self.pushButton_search_relationships.setText("Cerca Relazioni Stratigrafiche")
+            elif self.L == 'de':
+                self.pushButton_search_relationships.setText("Stratigraphische Beziehungen suchen")
+            elif self.L == 'es':
+                self.pushButton_search_relationships.setText("Buscar Relaciones Estratigraficas")
+            elif self.L == 'fr':
+                self.pushButton_search_relationships.setText("Rechercher Relations Stratigraphiques")
+            else:
+                self.pushButton_search_relationships.setText("Search Stratigraphic Relationships")
+            self.pushButton_search_relationships.setStyleSheet("""
+                QPushButton {
+                    background-color: #5B7FA5;
+                    color: white;
+                    font-weight: bold;
+                    padding: 4px 10px;
+                    border-radius: 3px;
+                    border: 1px solid #4A6E94;
+                }
+                QPushButton:hover {
+                    background-color: #4A6E94;
+                }
+                QPushButton:pressed {
+                    background-color: #3A5E84;
+                }
+            """)
+            self.pushButton_search_relationships.setToolTip(
+                "Cerca e naviga le relazioni stratigrafiche della US corrente" if self.L == 'it'
+                else "Search and navigate stratigraphic relationships of the current US"
+            )
+            parent_widget = self.tableWidget_rapporti.parent()
+            if parent_widget and parent_widget.layout():
+                parent_widget.layout().addWidget(self.pushButton_search_relationships)
+            self.pushButton_search_relationships.clicked.connect(self.on_pushButton_search_relationships_pressed)
+        except Exception:
+            pass
+
         # L'aggiornamento dating viene ora fatto solo quando si naviga ai record
         # per evitare falsi prompt di salvataggio durante l'inizializzazione
         # Imposta il collegamento nascosto per attivare text2sql
@@ -25361,6 +25402,394 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.pyQGIS.charge_usm_layers(self.DATA_LIST)
             else:
                 QMessageBox.information(self, 'No Results', "No records match the selected filters.", QMessageBox.StandardButton.Ok)
+
+    # -------------------------------------------------------------------------
+    # Stratigraphic Relationship Search / Navigation
+    # -------------------------------------------------------------------------
+    def on_pushButton_search_relationships_pressed(self):
+        """Open a dialog showing all stratigraphic relationships of the current US
+        with navigation, filtering and search-by-type capabilities."""
+        from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
+            QTableWidget, QTableWidgetItem, QPushButton, QLabel, QComboBox,
+            QCheckBox, QHeaderView, QAbstractItemView, QGroupBox, QMessageBox,
+            QSizePolicy)
+        from qgis.PyQt.QtCore import Qt
+        from modules.utility.pyarchinit_i18n_stratigraphic import (
+            RELATIONSHIPS, INVERSE_MAP, get_inverse_relationship)
+
+        if not self.DATA_LIST:
+            QMessageBox.warning(self,
+                "Attenzione" if self.L == 'it' else "Warning",
+                "Nessun record caricato." if self.L == 'it'
+                else "No records loaded.")
+            return
+
+        current_rec = self.DATA_LIST[self.rec_num]
+        current_us = str(current_rec.us)
+        current_sito = str(current_rec.sito)
+        current_area = str(current_rec.area)
+
+        # --- Parse rapporti of the current US ---
+        direct_rapporti = []  # list of [rel_type, us_number, area, sito]
+        try:
+            raw = current_rec.rapporti
+            if raw and str(raw).strip():
+                parsed = ast.literal_eval(str(raw))
+                if isinstance(parsed, list):
+                    for item in parsed:
+                        if isinstance(item, (list, tuple)) and len(item) >= 2:
+                            rel_type = str(item[0])
+                            rel_us = str(item[1])
+                            rel_area = str(item[2]) if len(item) > 2 else current_area
+                            rel_sito = str(item[3]) if len(item) > 3 else current_sito
+                            direct_rapporti.append([rel_type, rel_us, rel_area, rel_sito])
+        except Exception:
+            pass
+
+        # --- i18n labels ---
+        is_it = (self.L == 'it')
+        lbl_title = "Relazioni Stratigrafiche" if is_it else "Stratigraphic Relationships"
+        lbl_rel_type = "Tipo Relazione" if is_it else "Relationship Type"
+        lbl_us_num = "US Numero" if is_it else "US Number"
+        lbl_area = "Area"
+        lbl_sito = "Sito" if is_it else "Site"
+        lbl_navigate = "Naviga" if is_it else "Navigate"
+        lbl_show_all = "Mostra Tutti Correlati" if is_it else "Show All Related"
+        lbl_search_type = "Cerca per Tipo di Relazione" if is_it else "Search by Relationship Type"
+        lbl_search = "Cerca" if is_it else "Search"
+        lbl_show_inverse = "Mostra anche relazioni inverse" if is_it else "Show inverse relationships too"
+        lbl_direction = "Direzione" if is_it else "Direction"
+        lbl_direct = "Diretta" if is_it else "Direct"
+        lbl_inverse = "Inversa" if is_it else "Inverse"
+        lbl_close = "Chiudi" if is_it else "Close"
+        lbl_current_us = ("US corrente: %s (Sito: %s, Area: %s)" % (current_us, current_sito, current_area)) if is_it \
+            else ("Current US: %s (Site: %s, Area: %s)" % (current_us, current_sito, current_area))
+
+        # --- Build the dialog ---
+        dlg = QDialog(self)
+        dlg.setWindowTitle(lbl_title)
+        dlg.setMinimumSize(750, 520)
+        dlg.resize(850, 600)
+        main_layout = QVBoxLayout(dlg)
+        main_layout.setSpacing(8)
+
+        # Current US label
+        header_lbl = QLabel(f"<b>{lbl_current_us}</b>")
+        header_lbl.setStyleSheet("font-size: 13px; padding: 4px;")
+        main_layout.addWidget(header_lbl)
+
+        # --- Results table ---
+        table = QTableWidget()
+        table.setColumnCount(6)
+        table.setHorizontalHeaderLabels([lbl_rel_type, lbl_us_num, lbl_area, lbl_sito, lbl_direction, lbl_navigate])
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(4, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        table.setAlternatingRowColors(True)
+        table.setStyleSheet("""
+            QTableWidget { gridline-color: #cccccc; }
+            QTableWidget::item { padding: 3px; }
+            QHeaderView::section { background-color: #5B7FA5; color: white;
+                font-weight: bold; padding: 4px; border: 1px solid #4A6E94; }
+        """)
+
+        def populate_table(rows):
+            """rows: list of [rel_type, us_number, area, sito, direction_label]"""
+            table.setRowCount(0)
+            table.setRowCount(len(rows))
+            for i, row in enumerate(rows):
+                table.setItem(i, 0, QTableWidgetItem(row[0]))
+                table.setItem(i, 1, QTableWidgetItem(row[1]))
+                table.setItem(i, 2, QTableWidgetItem(row[2]))
+                table.setItem(i, 3, QTableWidgetItem(row[3]))
+                table.setItem(i, 4, QTableWidgetItem(row[4]))
+                nav_btn = QPushButton(lbl_navigate)
+                nav_btn.setStyleSheet("""
+                    QPushButton { background-color: #4CAF50; color: white;
+                        padding: 2px 8px; border-radius: 2px; font-weight: bold; }
+                    QPushButton:hover { background-color: #45a049; }
+                """)
+                us_num = row[1]
+                area_val = row[2]
+                sito_val = row[3]
+                nav_btn.clicked.connect(
+                    lambda checked, u=us_num, a=area_val, s=sito_val: navigate_to_us(u, a, s))
+                table.setCellWidget(i, 5, nav_btn)
+
+        def navigate_to_us(us_num, area_val, sito_val):
+            """Navigate to a specific US record."""
+            # First try to find in current DATA_LIST
+            for idx, rec in enumerate(self.DATA_LIST):
+                if (str(rec.us) == str(us_num) and
+                    str(rec.area) == str(area_val) and
+                    str(rec.sito) == str(sito_val)):
+                    self.rec_num = idx
+                    self.REC_CORR = idx
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[idx]
+                    self.fill_fields()
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    dlg.accept()
+                    return
+
+            # Not in current list, query the database
+            try:
+                search_dict = {
+                    'sito': "'" + str(sito_val) + "'",
+                    'area': "'" + str(area_val) + "'",
+                    'us': str(us_num)
+                }
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                if res:
+                    self.empty_fields()
+                    self.DATA_LIST = []
+                    for r in res:
+                        self.DATA_LIST.append(r)
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    dlg.accept()
+                else:
+                    QMessageBox.warning(dlg,
+                        "Attenzione" if is_it else "Warning",
+                        ("US %s non trovata nel database." % us_num) if is_it
+                        else ("US %s not found in the database." % us_num))
+            except Exception as e:
+                QMessageBox.warning(dlg,
+                    "Errore" if is_it else "Error", str(e))
+
+        def get_all_relationship_rows(show_inverse):
+            """Build complete list of relationship rows for the current US."""
+            rows = []
+            # Direct relationships from current US rapporti field
+            for r in direct_rapporti:
+                rows.append([r[0], r[1], r[2], r[3], lbl_direct])
+
+            if show_inverse:
+                # Search ALL records in the current sito that reference THIS US
+                try:
+                    search_dict = {'sito': "'" + current_sito + "'"}
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    all_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                    for rec in all_records:
+                        if str(rec.us) == current_us and str(rec.area) == current_area:
+                            continue  # skip self
+                        try:
+                            raw_r = rec.rapporti
+                            if raw_r and str(raw_r).strip():
+                                parsed_r = ast.literal_eval(str(raw_r))
+                                if isinstance(parsed_r, list):
+                                    for item in parsed_r:
+                                        if isinstance(item, (list, tuple)) and len(item) >= 2:
+                                            target_us = str(item[1])
+                                            target_area = str(item[2]) if len(item) > 2 else str(rec.area)
+                                            if target_us == current_us and target_area == current_area:
+                                                inv_rel = get_inverse_relationship(str(item[0]))
+                                                # Avoid duplicates with direct relationships
+                                                dup = False
+                                                for dr in rows:
+                                                    if (dr[1] == str(rec.us) and
+                                                        dr[2] == str(rec.area) and
+                                                        dr[0] == inv_rel):
+                                                        dup = True
+                                                        break
+                                                if not dup:
+                                                    rows.append([inv_rel, str(rec.us),
+                                                                str(rec.area), str(rec.sito),
+                                                                lbl_inverse])
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+            return rows
+
+        # --- Initial population ---
+        all_rows = get_all_relationship_rows(True)
+        populate_table(all_rows)
+        main_layout.addWidget(table)
+
+        # --- Show inverse checkbox ---
+        chk_inverse = QCheckBox(lbl_show_inverse)
+        chk_inverse.setChecked(True)
+        chk_inverse.stateChanged.connect(
+            lambda state: populate_table(get_all_relationship_rows(chk_inverse.isChecked())))
+        main_layout.addWidget(chk_inverse)
+
+        # --- Search by Relationship Type group ---
+        search_group = QGroupBox(lbl_search_type)
+        search_layout = QHBoxLayout(search_group)
+
+        combo_rel = QComboBox()
+        combo_rel.setMinimumWidth(200)
+        # Get relationship types for the current language
+        lang_terms = RELATIONSHIPS.get(self.L, RELATIONSHIPS.get('en', RELATIONSHIPS['it']))
+        combo_rel.addItem("-- %s --" % (("Tutti" if is_it else "All")))
+        for term in lang_terms:
+            combo_rel.addItem(term)
+        search_layout.addWidget(combo_rel)
+
+        btn_search = QPushButton(lbl_search)
+        btn_search.setStyleSheet("""
+            QPushButton { background-color: #5B7FA5; color: white;
+                font-weight: bold; padding: 4px 12px; border-radius: 3px; }
+            QPushButton:hover { background-color: #4A6E94; }
+        """)
+
+        def do_search_by_type():
+            """Search all US records in the current sito for a given relationship type."""
+            selected = combo_rel.currentText()
+            show_inv = chk_inverse.isChecked()
+
+            if selected.startswith("--"):
+                # Show all relationships of current US
+                populate_table(get_all_relationship_rows(show_inv))
+                return
+
+            results = []
+            try:
+                search_dict = {'sito': "'" + current_sito + "'"}
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
+                all_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+                for rec in all_records:
+                    try:
+                        raw_r = rec.rapporti
+                        if raw_r and str(raw_r).strip():
+                            parsed_r = ast.literal_eval(str(raw_r))
+                            if isinstance(parsed_r, list):
+                                for item in parsed_r:
+                                    if isinstance(item, (list, tuple)) and len(item) >= 2:
+                                        rel_type = str(item[0])
+                                        if rel_type == selected:
+                                            target_us = str(item[1])
+                                            target_area = str(item[2]) if len(item) > 2 else str(rec.area)
+                                            target_sito = str(item[3]) if len(item) > 3 else str(rec.sito)
+                                            # Show: US X [rel_type] US Y
+                                            label = "US %s %s US %s" % (str(rec.us), rel_type, target_us)
+                                            results.append([
+                                                rel_type,
+                                                str(rec.us),
+                                                str(rec.area),
+                                                str(rec.sito),
+                                                ("da/from US %s" % str(rec.us))
+                                            ])
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+            # Remove duplicates
+            seen = set()
+            unique_results = []
+            for r in results:
+                key = (r[0], r[1], r[2], r[3])
+                if key not in seen:
+                    seen.add(key)
+                    unique_results.append(r)
+            populate_table(unique_results)
+
+        btn_search.clicked.connect(do_search_by_type)
+        search_layout.addWidget(btn_search)
+        main_layout.addWidget(search_group)
+
+        # --- Bottom buttons ---
+        btn_layout = QHBoxLayout()
+
+        btn_show_all = QPushButton(lbl_show_all)
+        btn_show_all.setStyleSheet("""
+            QPushButton { background-color: #FF9800; color: white;
+                font-weight: bold; padding: 6px 16px; border-radius: 3px; font-size: 12px; }
+            QPushButton:hover { background-color: #F57C00; }
+        """)
+
+        def show_all_related():
+            """Filter DATA_LIST to only show US records related to the current US."""
+            show_inv = chk_inverse.isChecked()
+            all_rel_rows = get_all_relationship_rows(show_inv)
+            if not all_rel_rows:
+                QMessageBox.information(dlg,
+                    "Info",
+                    "Nessuna relazione trovata." if is_it
+                    else "No relationships found.")
+                return
+
+            # Collect all related US numbers with their area/sito
+            related_keys = set()
+            related_keys.add((current_us, current_area, current_sito))  # include current
+            for row in all_rel_rows:
+                related_keys.add((row[1], row[2], row[3]))
+
+            # Query all related records from the database
+            try:
+                filtered = []
+                search_dict_base = {'sito': "'" + current_sito + "'"}
+                u = Utility()
+                search_dict_base = u.remove_empty_items_fr_dict(search_dict_base)
+                all_records = self.DB_MANAGER.query_bool(search_dict_base, self.MAPPER_TABLE_CLASS)
+                for rec in all_records:
+                    key = (str(rec.us), str(rec.area), str(rec.sito))
+                    if key in related_keys:
+                        filtered.append(rec)
+
+                if filtered:
+                    self.empty_fields()
+                    self.DATA_LIST = filtered
+                    self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
+                    self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
+                    self.fill_fields()
+                    self.BROWSE_STATUS = "b"
+                    self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
+                    self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
+                    if self.toolButtonGis.isChecked():
+                        self.pyQGIS.charge_vector_layers(self.DATA_LIST)
+                    if self.toolButton_usm.isChecked():
+                        self.pyQGIS.charge_usm_layers(self.DATA_LIST)
+                    dlg.accept()
+                else:
+                    QMessageBox.information(dlg, "Info",
+                        "Nessun record correlato trovato." if is_it
+                        else "No related records found.")
+            except Exception as e:
+                QMessageBox.warning(dlg,
+                    "Errore" if is_it else "Error", str(e))
+
+        btn_show_all.clicked.connect(show_all_related)
+        btn_layout.addWidget(btn_show_all)
+
+        btn_layout.addStretch()
+
+        btn_close = QPushButton(lbl_close)
+        btn_close.setStyleSheet("""
+            QPushButton { background-color: #757575; color: white;
+                font-weight: bold; padding: 6px 16px; border-radius: 3px; font-size: 12px; }
+            QPushButton:hover { background-color: #616161; }
+        """)
+        btn_close.clicked.connect(dlg.reject)
+        btn_layout.addWidget(btn_close)
+
+        main_layout.addLayout(btn_layout)
+
+        # Info label
+        info_text = ("<i>%s: %d</i>" % (
+            ("Relazioni dirette trovate" if is_it else "Direct relationships found"),
+            len(direct_rapporti)))
+        info_lbl = QLabel(info_text)
+        info_lbl.setStyleSheet("color: #666; font-size: 11px; padding: 2px;")
+        main_layout.addWidget(info_lbl)
+
+        dlg.exec()
 
     # In your main window or wherever the button is located
     def text2sql(self):

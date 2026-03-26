@@ -5,6 +5,17 @@
 
 ---
 
+## [5.0.8-alpha] - 2026-03-26
+
+### Aggiunto / Added
+
+- **feat(us): Ricerca e navigazione relazioni stratigrafiche nella scheda US**: Aggiunto pulsante "Cerca Relazioni Stratigrafiche" vicino alla tabella rapporti nella scheda US. Apre un dialog professionale che mostra tutte le relazioni della US corrente (dirette e inverse) con: tabella risultati con colonne Tipo/US/Area/Sito/Direzione/Naviga, pulsante "Naviga" per saltare direttamente a una US correlata, checkbox "Mostra relazioni inverse" che cerca in tutto il sito le US che referenziano la US corrente, dropdown "Cerca per Tipo di Relazione" per filtrare tutte le US del sito per tipo (Copre, Taglia, Riempie, ecc.), pulsante "Mostra Tutti Correlati" che filtra DATA_LIST alle sole US correlate. Supporto i18n per IT/EN/DE/ES/FR. / **feat(us): Stratigraphic relationship search and navigation in US form**: Added "Search Stratigraphic Relationships" button near the rapporti table in the US form. Opens a professional dialog showing all relationships of the current US (direct and inverse) with: results table with Type/US/Area/Site/Direction/Navigate columns, "Navigate" button to jump directly to a related US, "Show inverse relationships" checkbox that searches the entire site for US records referencing the current US, "Search by Relationship Type" dropdown to filter all site US by type (Covers, Cuts, Fills, etc.), "Show All Related" button that filters DATA_LIST to only related US records. i18n support for IT/EN/DE/ES/FR.
+
+### File modificati / Modified files
+- `tabs/US_USM.py` (button in __init__, new method on_pushButton_search_relationships_pressed)
+
+---
+
 ## [5.0.7-alpha] - 2026-03-26
 
 ### Aggiunto / Added
