@@ -5,6 +5,18 @@
 
 ---
 
+## [5.0.7-alpha] - 2026-03-26
+
+### Aggiunto / Added
+
+- **feat(permissions): Permessi utente basati su sito - filtro siti autorizzati per utente**: Aggiunto widget QListWidget con checkbox nella scheda Gestione Utenti per assegnare siti autorizzati per ogni utente. Il campo `site_filter` (comma-separated) nella tabella `pyarchinit_users` viene letto/scritto automaticamente. Nel Config Dialog, il combobox siti viene filtrato in base ai permessi dell'utente PostgreSQL corrente (solo PostgreSQL, non SQLite). Superuser (postgres, admin_pyarchinit) e utenti con site_filter vuoto vedono tutti i siti. Pulsanti "Seleziona tutti" / "Deseleziona tutti" con traduzioni in 10 lingue. / **feat(permissions): Site-based user permissions - authorized site filter per user**: Added QListWidget widget with checkboxes in User Management tab to assign authorized sites per user. The `site_filter` field (comma-separated) in `pyarchinit_users` table is read/written automatically. In Config Dialog, site combobox is filtered based on current PostgreSQL user's permissions (PostgreSQL only, not SQLite). Superusers (postgres, admin_pyarchinit) and users with empty site_filter see all sites. "Select All" / "Deselect All" buttons with translations in 10 languages.
+
+### File modificati / Modified files
+- `gui/user_management_dialog.py` (site list widget, translations, save/load site_filter)
+- `gui/pyarchinitConfigDialog.py` (site filter in charge_list)
+
+---
+
 ## [5.0.6-alpha] - 2026-03-26
 
 ### Corretto / Fixed

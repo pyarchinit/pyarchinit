@@ -909,6 +909,54 @@ class UserManagementDialog(QDialog):
             'pt': "Erro ao criar as tabelas",
             'el': "Sfalma kata ti dimiourgia ton pinakon",
         },
+        'authorized_sites': {
+            'it': "Siti autorizzati",
+            'en': "Authorized Sites",
+            'de': "Autorisierte Fundorte",
+            'es': "Sitios autorizados",
+            'fr': "Sites autorises",
+            'ar': "المواقع المصرح بها",
+            'ca': "Llocs autoritzats",
+            'ro': "Site-uri autorizate",
+            'pt': "Sitios autorizados",
+            'el': "Exousiodotimenes Theseis",
+        },
+        'select_all': {
+            'it': "Seleziona tutti",
+            'en': "Select All",
+            'de': "Alle auswaehlen",
+            'es': "Seleccionar todos",
+            'fr': "Tout selectionner",
+            'ar': "تحديد الكل",
+            'ca': "Selecciona tots",
+            'ro': "Selecteaza tot",
+            'pt': "Selecionar tudo",
+            'el': "Epilogi olon",
+        },
+        'deselect_all': {
+            'it': "Deseleziona tutti",
+            'en': "Deselect All",
+            'de': "Alle abwaehlen",
+            'es': "Deseleccionar todos",
+            'fr': "Tout deselectionner",
+            'ar': "الغاء تحديد الكل",
+            'ca': "Desselecciona tots",
+            'ro': "Deselecteaza tot",
+            'pt': "Desselecionar tudo",
+            'el': "Apoepilogi olon",
+        },
+        'sites_empty_hint': {
+            'it': "Vuoto = accesso a tutti i siti",
+            'en': "Empty = access to all sites",
+            'de': "Leer = Zugriff auf alle Fundorte",
+            'es': "Vacio = acceso a todos los sitios",
+            'fr': "Vide = acces a tous les sites",
+            'ar': "فارغ = الوصول لجميع المواقع",
+            'ca': "Buit = acces a tots els llocs",
+            'ro': "Gol = acces la toate site-urile",
+            'pt': "Vazio = acesso a todos os sitios",
+            'el': "Keno = prosvasi se oles tis theseis",
+        },
     }
 
     def __init__(self, db_manager, parent=None):
@@ -1160,6 +1208,36 @@ class UserManagementDialog(QDialog):
         right_layout.addRow(self.tr_('lbl_role'), self.role_combo)
         right_layout.addRow(self.tr_('lbl_status'), self.active_check)
         right_layout.addRow(self.tr_('lbl_notes'), self.notes_edit)
+
+        # Authorized sites section
+        sites_group = QGroupBox(self.tr_('authorized_sites'))
+        sites_vlayout = QVBoxLayout()
+
+        # Hint label
+        sites_hint = QLabel(self.tr_('sites_empty_hint'))
+        sites_hint.setStyleSheet("color: #888; font-style: italic; font-size: 11px;")
+        sites_vlayout.addWidget(sites_hint)
+
+        # Select All / Deselect All buttons
+        sites_btn_layout = QHBoxLayout()
+        self.select_all_sites_btn = QPushButton(self.tr_('select_all'))
+        self.deselect_all_sites_btn = QPushButton(self.tr_('deselect_all'))
+        self.select_all_sites_btn.clicked.connect(self._select_all_sites)
+        self.deselect_all_sites_btn.clicked.connect(self._deselect_all_sites)
+        sites_btn_layout.addWidget(self.select_all_sites_btn)
+        sites_btn_layout.addWidget(self.deselect_all_sites_btn)
+        sites_vlayout.addLayout(sites_btn_layout)
+
+        # Site list widget with checkboxes
+        self.site_list_widget = QListWidget()
+        self.site_list_widget.setMaximumHeight(150)
+        sites_vlayout.addWidget(self.site_list_widget)
+
+        sites_group.setLayout(sites_vlayout)
+        right_layout.addRow(sites_group)
+
+        # Populate sites list
+        self._populate_site_list()
 
         # Last login info
         self.last_login_label = QLabel("-")
@@ -1704,6 +1782,59 @@ class UserManagementDialog(QDialog):
         except Exception as e:
             print(f"Errore ruoli: {e}")
 
+    def _populate_site_list(self):
+        """Populate the site list widget with all available sites from site_table"""
+        try:
+            self.site_list_widget.clear()
+            query = "SELECT DISTINCT sito FROM site_table ORDER BY sito"
+            result = self.db_manager.execute_sql(query)
+            if result:
+                for row in result:
+                    site_name = row[0]
+                    if site_name:
+                        item = QListWidgetItem(site_name)
+                        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                        item.setCheckState(Qt.CheckState.Unchecked)
+                        self.site_list_widget.addItem(item)
+        except Exception as e:
+            print(f"Error populating site list: {e}")
+
+    def _select_all_sites(self):
+        """Check all sites in the list"""
+        for i in range(self.site_list_widget.count()):
+            self.site_list_widget.item(i).setCheckState(Qt.CheckState.Checked)
+
+    def _deselect_all_sites(self):
+        """Uncheck all sites in the list"""
+        for i in range(self.site_list_widget.count()):
+            self.site_list_widget.item(i).setCheckState(Qt.CheckState.Unchecked)
+
+    def _load_user_site_filter(self, username):
+        """Load site_filter for a user and check corresponding sites"""
+        try:
+            # Uncheck all first
+            self._deselect_all_sites()
+
+            query = "SELECT site_filter FROM pyarchinit_users WHERE username = :username"
+            result = self.db_manager.execute_sql(query, {'username': username})
+            if result and result[0][0]:
+                allowed_sites = [s.strip() for s in result[0][0].split(',') if s.strip()]
+                for i in range(self.site_list_widget.count()):
+                    item = self.site_list_widget.item(i)
+                    if item.text() in allowed_sites:
+                        item.setCheckState(Qt.CheckState.Checked)
+        except Exception as e:
+            print(f"Error loading site filter: {e}")
+
+    def _get_site_filter_string(self):
+        """Get comma-separated string of checked sites"""
+        checked = []
+        for i in range(self.site_list_widget.count()):
+            item = self.site_list_widget.item(i)
+            if item.checkState() == Qt.CheckState.Checked:
+                checked.append(item.text())
+        return ','.join(checked) if checked else ''
+
     def on_user_selected(self):
         """Quando viene selezionato un utente"""
         row = self.users_table.currentRow()
@@ -1735,6 +1866,9 @@ class UserManagementDialog(QDialog):
                 else:
                     self.last_login_label.setText(self.tr_('never_logged_in'))
 
+                # Load site filter for this user
+                self._load_user_site_filter(username)
+
         except Exception as e:
             print(f"Errore selezione utente: {e}")
 
@@ -1748,6 +1882,7 @@ class UserManagementDialog(QDialog):
         self.role_combo.setCurrentIndex(2)  # archeologo
         self.active_check.setChecked(True)
         self.notes_edit.clear()
+        self._deselect_all_sites()
 
         self.username_edit.setFocus()
 
@@ -1788,6 +1923,9 @@ class UserManagementDialog(QDialog):
             query = "SELECT id FROM pyarchinit_users WHERE username = :username"
             result = self.db_manager.execute_sql(query, {'username': username})
 
+            # Get site_filter from checked sites
+            site_filter_value = self._get_site_filter_string() if hasattr(self, 'site_list_widget') else ''
+
             if result and len(result) > 0:
                 # Update existing
                 if self.password_edit.text():
@@ -1798,7 +1936,8 @@ class UserManagementDialog(QDialog):
                     query = """
                         UPDATE pyarchinit_users
                         SET full_name = :full_name, email = :email, role = :role,
-                            is_active = :is_active, notes = :notes, password_hash = :password_hash
+                            is_active = :is_active, notes = :notes, password_hash = :password_hash,
+                            site_filter = :site_filter
                         WHERE username = :username
                     """
                     params = {
@@ -1808,6 +1947,7 @@ class UserManagementDialog(QDialog):
                         'is_active': self.active_check.isChecked(),
                         'notes': self.notes_edit.toPlainText() if hasattr(self, 'notes_edit') else '',
                         'password_hash': password_hash,
+                        'site_filter': site_filter_value or None,
                         'username': username
                     }
                 else:
@@ -1815,7 +1955,8 @@ class UserManagementDialog(QDialog):
                     query = """
                         UPDATE pyarchinit_users
                         SET full_name = :full_name, email = :email, role = :role,
-                            is_active = :is_active, notes = :notes
+                            is_active = :is_active, notes = :notes,
+                            site_filter = :site_filter
                         WHERE username = :username
                     """
                     params = {
@@ -1824,6 +1965,7 @@ class UserManagementDialog(QDialog):
                         'role': self.role_combo.currentText(),
                         'is_active': self.active_check.isChecked(),
                         'notes': self.notes_edit.toPlainText() if hasattr(self, 'notes_edit') else '',
+                        'site_filter': site_filter_value or None,
                         'username': username
                     }
 
@@ -1839,8 +1981,8 @@ class UserManagementDialog(QDialog):
 
                 query = """
                     INSERT INTO pyarchinit_users
-                    (username, password_hash, full_name, email, role, is_active, notes, created_by)
-                    VALUES (:username, :password_hash, :full_name, :email, :role, :is_active, :notes, :created_by)
+                    (username, password_hash, full_name, email, role, is_active, notes, created_by, site_filter)
+                    VALUES (:username, :password_hash, :full_name, :email, :role, :is_active, :notes, :created_by, :site_filter)
                 """
                 params = {
                     'username': username,
@@ -1850,7 +1992,8 @@ class UserManagementDialog(QDialog):
                     'role': self.role_combo.currentText(),
                     'is_active': self.active_check.isChecked(),
                     'notes': self.notes_edit.toPlainText() if hasattr(self, 'notes_edit') else '',
-                    'created_by': getattr(self, 'current_user', 'admin')
+                    'created_by': getattr(self, 'current_user', 'admin'),
+                    'site_filter': site_filter_value or None
                 }
 
             # Execute the query
@@ -1880,6 +2023,8 @@ class UserManagementDialog(QDialog):
             self.email_edit.clear()
             if hasattr(self, 'notes_edit'):
                 self.notes_edit.clear()
+            if hasattr(self, 'site_list_widget'):
+                self._deselect_all_sites()
 
             self.user_changed.emit()
 

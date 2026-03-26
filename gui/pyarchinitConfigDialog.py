@@ -7163,10 +7163,36 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 # if str(e) == "list.remove(x): x not in list":
                 pass
         except Exception as e:
-            QMessageBox.warning(self, "Database Error", 
-                              f"Error loading site list: {str(e)}", 
+            QMessageBox.warning(self, "Database Error",
+                              f"Error loading site list: {str(e)}",
                               QMessageBox.Ok)
             return
+
+        # Filter sites based on user permissions (PostgreSQL only)
+        try:
+            if 'sqlite' not in conn_str.lower():
+                db_username = ''
+                try:
+                    result = self.DB_MANAGER.execute_sql("SELECT current_user")
+                    if result and result[0][0]:
+                        db_username = result[0][0]
+                except Exception:
+                    pass
+
+                if db_username and db_username.lower() not in ('postgres', 'admin_pyarchinit'):
+                    try:
+                        result = self.DB_MANAGER.execute_sql(
+                            "SELECT site_filter FROM pyarchinit_users WHERE LOWER(username) = LOWER(:username) AND is_active = TRUE",
+                            {'username': db_username}
+                        )
+                        if result and result[0][0]:
+                            allowed_sites = [s.strip() for s in result[0][0].split(',') if s.strip()]
+                            if allowed_sites:
+                                sito_vl = [s for s in sito_vl if s in allowed_sites]
+                    except Exception:
+                        pass  # If table doesn't exist, show all sites
+        except Exception:
+            pass  # Any error: show all sites (safe fallback)
 
         self.comboBox_sito.clear()
         sito_vl.sort()
