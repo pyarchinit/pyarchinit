@@ -5,6 +5,22 @@
 
 ---
 
+## [5.0.9-alpha] - 2026-03-26
+
+### Aggiunto / Added
+
+- **perf(sql): Viste materializzate per le 4 viste geometriche principali in PostgreSQL**: Convertite `pyarchinit_us_view`, `pyarchinit_usm_view`, `pyarchinit_quote_view` e `pyarchinit_quote_usm_view` da viste regolari a MATERIALIZED VIEW in entrambi i file SQL di installazione (`create_view.sql` e `create_view_updated.sql`). Rimosse le clausole ORDER BY (non necessarie per matviews, QGIS ordina lato client). Aggiunti indici GiST spaziali, indici su sito e indici univoci su gid per ogni matview. Aggiunta funzione `refresh_pyarchinit_matviews()` per il refresh concorrente. Le altre viste restano regolari. Solo PostgreSQL, nessun impatto su SQLite. / **perf(sql): Materialized views for the 4 main geometry views in PostgreSQL**: Converted `pyarchinit_us_view`, `pyarchinit_usm_view`, `pyarchinit_quote_view` and `pyarchinit_quote_usm_view` from regular views to MATERIALIZED VIEW in both installation SQL files (`create_view.sql` and `create_view_updated.sql`). Removed ORDER BY clauses (not needed for matviews, QGIS sorts client-side). Added spatial GiST indexes, sito indexes and unique gid indexes for each matview. Added `refresh_pyarchinit_matviews()` function for concurrent refresh. Other views remain regular. PostgreSQL only, no impact on SQLite.
+
+- **feat(rust): Integrazione opzionale del modulo Rust pyarchinit_core**: Aggiunto import opzionale di `pyarchinit_core` in `pyarchinit_pyqgis.py` con fallback Python. Nell'area di caricamento layer US (`charge_vector_layers`), se il modulo Rust e' disponibile, viene usato per pre-calcolare le categorie di stile. Creato modulo helper `modules/utility/rust_helpers.py` con funzioni `parse_rapporti()`, `compute_style_categories()` e `is_rust_available()` che usano Rust quando disponibile e Python come fallback. / **feat(rust): Optional Rust module pyarchinit_core integration**: Added optional import of `pyarchinit_core` in `pyarchinit_pyqgis.py` with Python fallback. In the US layer loading area (`charge_vector_layers`), if the Rust module is available, it is used to pre-compute style categories. Created helper module `modules/utility/rust_helpers.py` with `parse_rapporti()`, `compute_style_categories()` and `is_rust_available()` functions that use Rust when available and Python as fallback.
+
+### File modificati / Modified files
+- `resources/dbfiles/create_view.sql` (4 views -> materialized views + indexes + refresh function)
+- `resources/dbfiles/create_view_updated.sql` (4 views -> materialized views + indexes + refresh function)
+- `modules/gis/pyarchinit_pyqgis.py` (optional Rust import + style acceleration)
+- `modules/utility/rust_helpers.py` (NEW - Rust/Python helper functions)
+
+---
+
 ## [5.0.8-alpha] - 2026-03-26
 
 ### Aggiunto / Added

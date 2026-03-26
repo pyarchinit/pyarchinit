@@ -56,6 +56,12 @@ from ..utility.pyarchinit_i18n_stratigraphic import (
 
 from ..db.pyarchinit_conn_strings import Connection
 
+try:
+    import pyarchinit_core as _rust
+    HAS_RUST = True
+except ImportError:
+    HAS_RUST = False
+
 class Pyarchinit_pyqgis(QDialog):
 
     HOME = os.environ['PYARCHINIT_HOME']
@@ -1745,6 +1751,19 @@ class Pyarchinit_pyqgis(QDialog):
         a = Connection()
         current_sito = str(data[0].sito) if data else None
         styler = USViewStyler(a, sito=current_sito)
+
+        # Optional Rust acceleration for style category computation
+        if HAS_RUST:
+            try:
+                categories = _rust.compute_style_categories(
+                    [str(d.d_stratigrafica or '') for d in data]
+                )
+                # categories is a dict {name: (r,g,b)} - pass to styler if supported
+                if hasattr(styler, 'set_precomputed_categories'):
+                    styler.set_precomputed_categories(categories)
+            except Exception:
+                pass
+
         if self.L=='it':
             name_layer_s='US view'
         elif self.L=='de':

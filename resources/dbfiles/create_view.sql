@@ -66,10 +66,10 @@ CREATE OR REPLACE VIEW public.pyarchinit_pyuscarlinee_view AS
 ALTER TABLE public.pyarchinit_pyuscarlinee_view
     OWNER TO postgres;
 
--- View: public.pyarchinit_quote_view
--- DROP VIEW public.pyarchinit_quote_view;
+-- Materialized View: public.pyarchinit_quote_view
+-- DROP MATERIALIZED VIEW IF EXISTS public.pyarchinit_quote_view;
 
-CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.pyarchinit_quote_view AS
  SELECT pyarchinit_quote.gid,
     pyarchinit_quote.sito_q,
     pyarchinit_quote.area_q,
@@ -100,13 +100,14 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_view AS
    FROM pyarchinit_quote
      JOIN us_table ON pyarchinit_quote.sito_q::text = us_table.sito AND pyarchinit_quote.area_q::text = us_table.area::text AND pyarchinit_quote.us_q = us_table.us AND pyarchinit_quote.unita_tipo_q::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_quote_view
-    OWNER TO postgres;
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_quote_view_geom ON public.pyarchinit_quote_view USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_quote_view_sito ON public.pyarchinit_quote_view(sito);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pyarchinit_quote_view_gid ON public.pyarchinit_quote_view(gid);
 
--- View: public.pyarchinit_quote_usm_view
--- DROP VIEW public.pyarchinit_quote_usm_view;
+-- Materialized View: public.pyarchinit_quote_usm_view
+-- DROP MATERIALIZED VIEW IF EXISTS public.pyarchinit_quote_usm_view;
 
-CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.pyarchinit_quote_usm_view AS
  SELECT pyarchinit_quote_usm.gid,
     pyarchinit_quote_usm.sito_q,
     pyarchinit_quote_usm.area_q,
@@ -137,8 +138,9 @@ CREATE OR REPLACE VIEW public.pyarchinit_quote_usm_view AS
    FROM pyarchinit_quote_usm
      JOIN us_table ON pyarchinit_quote_usm.sito_q::text = us_table.sito AND pyarchinit_quote_usm.area_q::text = us_table.area::text AND pyarchinit_quote_usm.us_q = us_table.us AND pyarchinit_quote_usm.unita_tipo_q::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_quote_usm_view
-    OWNER TO postgres;
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_quote_usm_view_geom ON public.pyarchinit_quote_usm_view USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_quote_usm_view_sito ON public.pyarchinit_quote_usm_view(sito);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pyarchinit_quote_usm_view_gid ON public.pyarchinit_quote_usm_view(gid);
 
 -- View: public.pyarchinit_strutture_view
 -- DROP VIEW public.pyarchinit_strutture_view;
@@ -304,10 +306,10 @@ CREATE OR REPLACE VIEW public.pyarchinit_tipologie_view AS
 ALTER TABLE public.pyarchinit_tipologie_view
     OWNER TO postgres;
 
--- View: public.pyarchinit_us_view
--- DROP VIEW public.pyarchinit_us_view;
+-- Materialized View: public.pyarchinit_us_view
+-- DROP MATERIALIZED VIEW IF EXISTS public.pyarchinit_us_view;
 
-CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.pyarchinit_us_view AS
  SELECT pyunitastratigrafiche.gid,
     pyunitastratigrafiche.the_geom,
     pyunitastratigrafiche.area_s,
@@ -419,16 +421,16 @@ CREATE OR REPLACE VIEW public.pyarchinit_us_view AS
 	us_table.uso_primario_usm,
 	us_table.entity_uuid
    FROM pyunitastratigrafiche
-     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text
-  ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC, pyunitastratigrafiche.gid;
+     JOIN us_table ON pyunitastratigrafiche.scavo_s::text = us_table.sito AND pyunitastratigrafiche.area_s::text = us_table.area::text AND pyunitastratigrafiche.us_s = us_table.us AND pyunitastratigrafiche.unita_tipo_s::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_us_view
-    OWNER TO postgres;
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_us_view_geom ON public.pyarchinit_us_view USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_us_view_sito ON public.pyarchinit_us_view(sito);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pyarchinit_us_view_gid ON public.pyarchinit_us_view(gid);
 
--- View: public.pyarchinit_usm_view
--- DROP VIEW public.pyarchinit_usm_view;
+-- Materialized View: public.pyarchinit_usm_view
+-- DROP MATERIALIZED VIEW IF EXISTS public.pyarchinit_usm_view;
 
-CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.pyarchinit_usm_view AS
  SELECT pyunitastratigrafiche_usm.gid,
     pyunitastratigrafiche_usm.the_geom,
     pyunitastratigrafiche_usm.area_s,
@@ -540,11 +542,11 @@ CREATE OR REPLACE VIEW public.pyarchinit_usm_view AS
 	us_table.uso_primario_usm,
 	us_table.entity_uuid
    FROM pyunitastratigrafiche_usm
-     JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s = us_table.us AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text
-  ORDER BY us_table.order_layer ASC, pyunitastratigrafiche_usm.stratigraph_index_us ASC, pyunitastratigrafiche_usm.gid;
+     JOIN us_table ON pyunitastratigrafiche_usm.scavo_s::text = us_table.sito AND pyunitastratigrafiche_usm.area_s::text = us_table.area::text AND pyunitastratigrafiche_usm.us_s = us_table.us AND pyunitastratigrafiche_usm.unita_tipo_s::text = us_table.unita_tipo::text;
 
-ALTER TABLE public.pyarchinit_usm_view
-    OWNER TO postgres;
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_usm_view_geom ON public.pyarchinit_usm_view USING gist(the_geom);
+CREATE INDEX IF NOT EXISTS idx_pyarchinit_usm_view_sito ON public.pyarchinit_usm_view(sito);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_pyarchinit_usm_view_gid ON public.pyarchinit_usm_view(gid);
 
 -- Note: pyarchinit_uscaratterizzazioni_view removed because pyuscaratterizzazioni table no longer exists
 
@@ -942,3 +944,16 @@ GRANT SELECT ON public.pyarchinit_ut_polygon_view TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_point_gid_seq TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_line_gid_seq TO PUBLIC;
 GRANT USAGE, SELECT ON SEQUENCE public.pyarchinit_ut_polygon_gid_seq TO PUBLIC;
+
+-- =====================================================
+-- Refresh function for materialized views
+-- =====================================================
+
+CREATE OR REPLACE FUNCTION refresh_pyarchinit_matviews() RETURNS void AS $$
+BEGIN
+    REFRESH MATERIALIZED VIEW CONCURRENTLY pyarchinit_us_view;
+    REFRESH MATERIALIZED VIEW CONCURRENTLY pyarchinit_usm_view;
+    REFRESH MATERIALIZED VIEW CONCURRENTLY pyarchinit_quote_view;
+    REFRESH MATERIALIZED VIEW CONCURRENTLY pyarchinit_quote_usm_view;
+END;
+$$ LANGUAGE plpgsql;
