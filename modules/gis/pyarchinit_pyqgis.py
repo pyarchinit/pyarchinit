@@ -1850,9 +1850,9 @@ class Pyarchinit_pyqgis(QDialog):
             sito_filter = str(data[0].sito).replace("'", "''") if data else ''
             sito_gidstr = "scavo_s = '{}'".format(sito_filter)
 
-            # Quote layer - load from view with sito filter
-            quote_filter = "sito_q = '{}'".format(sito_filter)
-            uri.setDataSource("public", "pyarchinit_quote", "the_geom", quote_filter, "gid")
+            # Quote layer - load from materialized view (has order_layer for Time Manager)
+            quote_filter = "sito = '{}'".format(sito_filter)
+            uri.setDataSource("public", "pyarchinit_quote_view", "the_geom", quote_filter, "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
