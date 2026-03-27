@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.7-alpha
+version=5.0.8-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,15 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.7-alpha (2026-03-26) [Performance, Rust, Materialized Views, Site Permissions]:
+changelog=5.0.8-alpha (2026-03-27) [QGIS 4 Compatibility, Time Manager, Order Layer]:
+    - Fix: macOS QGIS 4 package installation with multiple Python fallbacks (embedded Python encodings error)
+    - Fix: add QGIS 4 path to QGIS_PATHS dict for package installer
+    - Fix: Time Manager filters by SITE_SET instead of all sites
+    - Fix: Time Manager handles None ORDER_LAYER_VALUE in SQL filter
+    - Fix: Quote layers loaded from materialized view (has order_layer for Time Manager)
+    - Fix: USM layers use sito filter, materialized views, styler + simplification
+    - Fix: Order layer uses sito from combobox instead of DATA_LIST[0]
+  5.0.7-alpha (2026-03-26) [Performance, Rust, Materialized Views, Site Permissions]:
     - Perf: materialized views for US/USM/Quote (17K geometries in 14ms vs 10+ minutes)
     - Perf: Rust spatial module (parse_rapporti 10x faster, parallel style computation)
     - Perf: geometry simplification for fast pan/zoom rendering

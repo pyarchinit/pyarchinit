@@ -5,6 +5,26 @@
 
 ---
 
+## [5.0.8-alpha] - 2026-03-27
+
+### Corretto / Fixed
+
+- **fix(init): Installazione pacchetti QGIS 4 macOS con fallback Python multipli**: Il Python embedded di QGIS 4 non supporta pip (errore `encodings`). Ora il sistema prova in ordine: QGIS python3, QGIS python3.12, /usr/bin/python3, Homebrew python3, sys.executable. Aggiunto QGIS 4 path a QGIS_PATHS. / **fix(init): QGIS 4 macOS package installation with multiple Python fallbacks**: QGIS 4 embedded Python doesn't support pip (`encodings` error). Now tries in order: QGIS python3, QGIS python3.12, /usr/bin/python3, Homebrew python3, sys.executable. Added QGIS 4 path to QGIS_PATHS.
+
+- **fix(time-manager): Filtro per SITE_SET invece di tutti i siti**: `_get_cached_sito_area` ora legge SITE_SET dalla configurazione invece di caricare tutti i siti dal DB. `set_max_num` calcola max order_layer solo per il sito corrente. Fix ORDER_LAYER_VALUE None → 0 nel filtro SQL. / **fix(time-manager): Filter by SITE_SET instead of all sites**: `_get_cached_sito_area` now reads SITE_SET from config instead of loading all sites. `set_max_num` computes max order_layer for current site only. Fix ORDER_LAYER_VALUE None → 0 in SQL filter.
+
+- **fix(gis): Quote caricate da materialized view per Time Manager**: Le quote ora vengono caricate da `pyarchinit_quote_view` (materialized view con order_layer) invece di `pyarchinit_quote` (tabella base senza order_layer). Stessa correzione per quote USM e USM view. / **fix(gis): Quote loaded from materialized view for Time Manager**: Quote now loaded from `pyarchinit_quote_view` (materialized view with order_layer) instead of `pyarchinit_quote` (base table without order_layer). Same fix for quote USM and USM view.
+
+- **fix(us): Order layer usa sito dal combobox**: `launch_order_layer_if` ora usa `comboBox_sito.currentText()` (sito configurato) invece di `DATA_LIST[0].sito` che poteva essere sbagliato. / **fix(us): Order layer uses sito from combobox**: `launch_order_layer_if` now uses `comboBox_sito.currentText()` (configured site) instead of `DATA_LIST[0].sito` which could be wrong.
+
+### File modificati / Modified files
+- `__init__.py` (QGIS 4 paths, Python fallbacks)
+- `tabs/Gis_Time_controller.py` (SITE_SET filter, ORDER_LAYER_VALUE fix)
+- `modules/gis/pyarchinit_pyqgis.py` (quote from matview, USM sito filter)
+- `tabs/US_USM.py` (order layer sito from combobox)
+
+---
+
 ## [5.0.7-alpha] - 2026-03-26
 
 ### Performance / Prestazioni
