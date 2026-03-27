@@ -443,7 +443,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         """
         # Usa operatore <= per cumulativo o = per singolo livello
         operator = "<=" if cumulative else "="
-        new_sub_set_string = f"order_layer {operator} {self.ORDER_LAYER_VALUE} AND sito IN ('{sito}') AND area IN ('{area}')"
+        order_val = self.ORDER_LAYER_VALUE if self.ORDER_LAYER_VALUE is not None else 0
+        new_sub_set_string = f"order_layer {operator} {order_val} AND sito IN ('{sito}') AND area IN ('{area}')"
 
         # Aggiungi filtro per periodizzazione se specificato
         if periodi_fasi and len(periodi_fasi) > 0:
