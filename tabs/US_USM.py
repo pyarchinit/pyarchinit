@@ -20683,10 +20683,9 @@ DATABASE SCHEMA KNOWLEDGE:
                     # Blocca il sistema di ordinamento su un sito ed area specifci in base alla ricerca eseguita sulla scheda US
 
 
-            sito = self.DATA_LIST[0].sito  # self.comboBox_sito_rappcheck.currentText()
-            area = self.DATA_LIST[0].area  # self.comboBox_area.currentText()
-
-
+            # Use sito from combobox (the configured site), not from DATA_LIST
+            sito = str(self.comboBox_sito.currentText())
+            area = str(self.comboBox_area.currentText()) if self.comboBox_area.currentText() else str(self.DATA_LIST[0].area)
 
             # Crea Order_layer_v2 con il widget
 
