@@ -51,7 +51,8 @@ PYARCHINIT_HOME = os.path.expanduser("~") + os.sep + 'pyarchinit'
 # Constants for QGIS paths on MacOS
 QGIS_PATHS = {
     'standard': '/Applications/QGIS.app/Contents/MacOS',
-    'ltr': '/Applications/QGIS-LTR.app/Contents/MacOS'
+    'ltr': '/Applications/QGIS-LTR.app/Contents/MacOS',
+    'qgis4': '/Applications/QGIS-final-4_0_0.app/Contents/MacOS',
 }
 
 # Constants for OpenCV paths on MacOS
@@ -342,26 +343,46 @@ class PackageManager:
             installed = False
             last_error = None
 
-            # Find QGIS Python executable
-            qgis_python = None
-            for qgis_type in ['standard', 'ltr']:
+            # Build list of Python executables to try, in priority order:
+            # 1. QGIS bundled python3 (QGIS 3.x)
+            # 2. QGIS bundled python3.12/3.11 (QGIS 4.x)
+            # 3. System python3 (/usr/bin/python3 or Homebrew)
+            # 4. Current sys.executable as last resort
+            python_candidates = []
+
+            for qgis_type in QGIS_PATHS:
                 qgis_base = QGIS_PATHS[qgis_type]
+                # Standard python3
                 candidate = os.path.join(qgis_base, 'bin', 'python3')
                 if os.path.exists(candidate):
-                    qgis_python = candidate
+                    python_candidates.append(candidate)
+                # QGIS 4 uses python3.XX directly
+                for pyver in ['python3.12', 'python3.11', 'python3.13']:
+                    candidate = os.path.join(qgis_base, pyver)
+                    if os.path.exists(candidate):
+                        python_candidates.append(candidate)
+
+            # System python fallbacks (always work with pip)
+            for sys_python in ['/usr/bin/python3', '/opt/homebrew/bin/python3',
+                               '/usr/local/bin/python3']:
+                if os.path.exists(sys_python):
+                    python_candidates.append(sys_python)
+
+            python_candidates.append(sys.executable)
+
+            for python_cmd in python_candidates:
+                try:
+                    result = subprocess.run(
+                        [python_cmd, "-m", "pip", "install", "--upgrade",
+                         "--target", ext_libs, package],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+                        timeout=120
+                    )
+                    installed = True
                     break
-
-            python_cmd = qgis_python or sys.executable
-
-            try:
-                subprocess.run(
-                    [python_cmd, "-m", "pip", "install", "--upgrade",
-                     "--target", ext_libs, package],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True
-                )
-                installed = True
-            except subprocess.CalledProcessError as e:
-                last_error = e.stderr.decode() if e.stderr else str(e)
+                except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as e:
+                    last_error = getattr(e, 'stderr', b'').decode() if hasattr(e, 'stderr') and e.stderr else str(e)
+                    continue
 
             if not installed and last_error:
                 print(f"Error installing {package} on macOS: {last_error}")
