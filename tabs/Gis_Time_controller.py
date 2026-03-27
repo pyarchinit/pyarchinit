@@ -217,12 +217,33 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.define_order_layer_value(self._pending_value)
 
     def _get_cached_sito_area(self):
-        """Get sito/area strings, computing only once per session."""
+        """Get sito/area strings from SITE_SET config, not all sites."""
         if self._cached_sito is None:
-            self._cached_sito = "','".join(
-                self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
-            self._cached_area = "','".join(
-                self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
+            try:
+                from ..modules.db.pyarchinit_conn_strings import Connection
+                conn = Connection()
+                sito_set = conn.sito_set()
+                sito_set_str = sito_set.get('sito_set', '')
+                if sito_set_str:
+                    self._cached_sito = sito_set_str
+                    # Get areas only for the selected site
+                    search_dict = {'sito': "'" + sito_set_str + "'"}
+                    u = Utility()
+                    search_dict = u.remove_empty_items_fr_dict(search_dict)
+                    area_list = self.UTILITY.tup_2_list_III(
+                        self.DB_MANAGER.group_by('us_table', 'area', 'US'))
+                    self._cached_area = "','".join(area_list) if area_list else ''
+                else:
+                    # Fallback: all sites
+                    self._cached_sito = "','".join(
+                        self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
+                    self._cached_area = "','".join(
+                        self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
+            except Exception:
+                self._cached_sito = "','".join(
+                    self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'sito', 'US')))
+                self._cached_area = "','".join(
+                    self.UTILITY.tup_2_list_III(self.DB_MANAGER.group_by('us_table', 'area', 'US')))
         return self._cached_sito, self._cached_area
 
     def update_layers(self, layers):
@@ -258,7 +279,16 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     self.datazione_dict[order_layer] = [datazione]
 
-        max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
+        # Get max order_layer for the current site only (not all sites)
+        try:
+            sito, _ = self._get_cached_sito_area()
+            search_dict = {'sito': "'" + sito + "'"}
+            u = Utility()
+            search_dict = u.remove_empty_items_fr_dict(search_dict)
+            records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+            max_num_order_layer = max((r.order_layer or 0) for r in records) if records else 0
+        except Exception:
+            max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
         if max_num_order_layer is not None:
             max_num_order_layer += 1
             self.dial_relative_cronology.setMaximum(max_num_order_layer)
