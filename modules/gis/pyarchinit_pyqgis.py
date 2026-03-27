@@ -1992,10 +1992,11 @@ class Pyarchinit_pyqgis(QDialog):
 
             uri.setConnection(settings.HOST, settings.PORT, settings.DATABASE, settings.USER, settings.PASSWORD)
 
-            id_list = ",".join(str(d.id_us) for d in data)
-            gidstr = "id_us IN ({})".format(id_list)
+            # Use sito filter (much faster than IN() with hundreds of ids)
+            sito_filter = str(data[0].sito).replace("'", "''") if data else ''
 
-            uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", gidstr, "gid")
+            # Quote USM - from materialized view (has order_layer for Time Manager)
+            uri.setDataSource("public", "pyarchinit_quote_usm_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerQUOTE = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerQUOTE.isValid():
@@ -2008,23 +2009,43 @@ class Pyarchinit_pyqgis(QDialog):
                     QgsProject.instance().addMapLayers([layerQUOTE], False)
                 except Exception as e:
                     pass
-                    # f = open('/test_ok.txt','w')
-                    # f.write(str(e))
-                    # f.close()
-            else:
-                QMessageBox.warning(self, "Pyarchinit", "OK Layer not valide", QMessageBox.Ok)
 
-
-            uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", gidstr, "gid")
+            # USM view - from materialized view with sito filter
+            uri.setDataSource("public", "pyarchinit_usm_view", "the_geom", "sito = '{}'".format(sito_filter), "gid")
             layerUS = QgsVectorLayer(uri.uri(), '', "postgres")
 
             if layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                # Applica simbologia nidificata USM/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+
+                # Apply categorized style by d_stratigrafica
+                try:
+                    a = Connection()
+                    usm_styler = USViewStyler(a, sito=sito_filter)
+                    usm_styler.apply_style_to_layer(layerUS)
+                except Exception:
+                    pass
+
+                # Geometry simplification for fast rendering
+                layerUS.setSimplifyMethod(QgsVectorSimplifyMethod())
+                simplify = layerUS.simplifyMethod()
+                simplify.setSimplifyHints(QgsVectorSimplifyMethod.SimplifyHint.GeometrySimplification)
+                simplify.setSimplifyAlgorithm(QgsVectorSimplifyMethod.SimplifyAlgorithm.Distance)
+                simplify.setThreshold(1.0)
+                simplify.setForceLocalOptimization(True)
+                layerUS.setSimplifyMethod(simplify)
+
+                self._apply_us_feature_ordering(layerUS)
+
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
+
+                # Zoom to site extent
+                try:
+                    self.iface.mapCanvas().setExtent(layerUS.extent())
+                    self.iface.mapCanvas().refresh()
+                except Exception:
+                    pass
             else:
                 QMessageBox.warning(self, "Pyarchinit", "OK Layer USM non valido", QMessageBox.Ok)
 
