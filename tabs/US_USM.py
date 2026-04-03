@@ -14931,9 +14931,7 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.checkBox_validation_rapp.isChecked():
             try:
 
-                # table_name = "self.tableWidget_rapporti"  # Using direct access
-                rowSelected_cmd = ("%s.selectedItems()") % (table_name)
-                # rowSelected = eval(rowSelected_cmd)  # Replaced above
+                rowSelected = self.tableWidget_rapporti.selectedItems()
                 rowIndex = (rowSelected[0].row())
                 sito = str(self.comboBox_sito.currentText())
                 area = str(self.comboBox_area.currentText())
@@ -16479,10 +16477,7 @@ DATABASE SCHEMA KNOWLEDGE:
         if self.checkBox_validate.isChecked():
             try:
 
-                # table_name = "self.tableWidget_rapporti"  # Using direct access
-
-                rowSelected_cmd = ("%s.selectedItems()") % (table_name)
-                # rowSelected = eval(rowSelected_cmd)  # Replaced above
+                rowSelected = self.tableWidget_rapporti.selectedItems()
 
                 for i  in rowSelected:
                     s= self.tableWidget_rapporti.rowCount()
@@ -16552,9 +16547,7 @@ DATABASE SCHEMA KNOWLEDGE:
                             self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
                             self.enable_button(1)
                             #self.fill_fields(self.REC_CORR)
-                            # table_name = "self.tableWidget_rapporti"  # Using direct access
-                            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-                            # rowSelected = eval(rowSelected_cmd)  # Replaced above
+                            rowSelected = self.tableWidget_rapporti.selectedIndexes()
                             rowIndex = (rowSelected[0].row())
                             sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
                             area_item = self.tableWidget_rapporti.item(rowIndex, 2)
@@ -16604,9 +16597,7 @@ DATABASE SCHEMA KNOWLEDGE:
 
 
 
-            # table_name = "self.tableWidget_rapporti"  # Using direct access
-            rowSelected_cmd = ("%s.selectedIndexes()") % (table_name)
-            # rowSelected = eval(rowSelected_cmd)  # Replaced above
+            rowSelected = self.tableWidget_rapporti.selectedIndexes()
             rowIndex = (rowSelected[0].row())
             sito_item = self.tableWidget_rapporti.item(rowIndex, 3)
             area_item = self.tableWidget_rapporti.item(rowIndex, 2)
@@ -21520,9 +21511,9 @@ DATABASE SCHEMA KNOWLEDGE:
             d_interpretativa=self.comboBox_def_intepret.currentText()
             d_stratigrafica=self.comboBox_def_strat.currentText()
             if attivita != "":
-                if EC.data_lenght(attivita, 3) == 0:
+                if EC.data_lenght(attivita, 99) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
-                                        "Campo Attivita. \n Il valore non deve superare i 4 caratteri alfanumerici",
+                                        "Campo Attivita. \n Il valore non deve superare i 100 caratteri alfanumerici",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             # if anno_scavo != "":
@@ -21545,15 +21536,15 @@ DATABASE SCHEMA KNOWLEDGE:
                     test = 1
 
             if formazione != "":
-                if EC.data_lenght(formazione, 19) == 0:
+                if EC.data_lenght(formazione, 99) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
                                         "Campo Formazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
-                if EC.data_lenght(stato_conservazione, 19) == 0:
+                if EC.data_lenght(stato_conservazione, 254) == 0:
                     QMessageBox.warning(self, "ATTENZIONE",
-                                        "Campo Conservazione. \n Il valore non deve superare i 20 caratteri alfanumerici",
+                                        "Campo Conservazione. \n Il valore non deve superare i 255 caratteri alfanumerici",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":
@@ -21605,9 +21596,9 @@ DATABASE SCHEMA KNOWLEDGE:
                     test = 1
             # US field validation removed - now accepts alphanumeric values
             if attivita != "":
-                if EC.data_lenght(attivita, 3) == 0:
+                if EC.data_lenght(attivita, 99) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
-                                        "Feld aktiviert. \n Der Wert darf nicht mehr als 4 alphanumerische Zeichen enthalten",
+                                        "Feld aktiviert. \n Der Wert darf nicht mehr als 100 alphanumerische Zeichen enthalten",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
                     # if anno_scavo != "":
@@ -21615,15 +21606,15 @@ DATABASE SCHEMA KNOWLEDGE:
             #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
             #       test = 1
             if formazione != "":
-                if EC.data_lenght(formazione, 19) == 0:
+                if EC.data_lenght(formazione, 99) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
                                         "Feld Bodenart. \n Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
-                if EC.data_lenght(stato_conservazione, 19) == 0:
+                if EC.data_lenght(stato_conservazione, 254) == 0:
                     QMessageBox.warning(self, "ACHTUNG",
-                                        "Feld Erhaltungszustand.  Der Wert darf nicht mehr als 20 alphanumerische Zeichen enthalten",
+                                        "Feld Erhaltungszustand.  Der Wert darf nicht mehr als 255 alphanumerische Zeichen enthalten",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":
@@ -21676,9 +21667,9 @@ DATABASE SCHEMA KNOWLEDGE:
             #         test = 1
             # US field validation removed - now accepts alphanumeric values
             if attivita != "":
-                if EC.data_lenght(attivita, 3) == 0:
+                if EC.data_lenght(attivita, 99) == 0:
                     QMessageBox.warning(self, "WARNING",
-                                        "Activity Field. \n The value must not exceed 4 alphanumeric characters",
+                                        "Activity Field. \n The value must not exceed 100 alphanumeric characters",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
                     # if anno_scavo != "":
@@ -21686,15 +21677,15 @@ DATABASE SCHEMA KNOWLEDGE:
             #       QMessageBox.warning(self, "ATTENZIONE", "Campo Anno. \n immettere una sola data (es. 2014)",  QMessageBox.Ok)
             #       test = 1
             if formazione != "":
-                if EC.data_lenght(formazione, 19) == 0:
+                if EC.data_lenght(formazione, 99) == 0:
                     QMessageBox.warning(self, "WARNING",
                                         "Formation Field. \n The value must not exceed 20 alphanumeric characters",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if stato_conservazione != "":
-                if EC.data_lenght(stato_conservazione, 19) == 0:
+                if EC.data_lenght(stato_conservazione, 254) == 0:
                     QMessageBox.warning(self, "WARNING",
-                                        "Conservation Field. \n The value must not exceed 20 alphanumeric characters",
+                                        "Conservation Field. \n The value must not exceed 255 alphanumeric characters",
                                         QMessageBox.StandardButton.Ok)
                     test = 1
             if colore != "":

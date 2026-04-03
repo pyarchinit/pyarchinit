@@ -5,6 +5,24 @@
 
 ---
 
+## [5.0.9-alpha] - 2026-04-01
+
+### Corretto / Fixed
+
+- **fix(db): Campo attivita ampliato da VARCHAR(4) a VARCHAR(100)**: Il campo `attivita` nella tabella `us_table` era limitato a 4 caratteri, insufficiente per descrizioni come "Distruzione post abbandono dell'anfiteatro" (42 caratteri). Aggiornati schema SQL (clean + updated), strutture SQLAlchemy (structures + structures_metadata), script di aggiornamento PostgreSQL (ALTER COLUMN) e SQLite (commento, tipo advisory). / **fix(db): Widen attivita field from VARCHAR(4) to VARCHAR(100)**: The `attivita` column in `us_table` was limited to 4 characters, insufficient for activity descriptions like "Distruzione post abbandono dell'anfiteatro" (42 chars). Updated SQL schemas (clean + updated), SQLAlchemy structures (structures + structures_metadata), PostgreSQL update script (ALTER COLUMN) and SQLite update script (comment, advisory type).
+
+### File modificati / Modified files
+- `resources/dbfiles/pyarchinit_schema_updated.sql` (2 occurrences)
+- `resources/dbfiles/pyarchinit_schema_clean.sql` (2 occurrences)
+- `modules/db/structures/US_table.py`
+- `modules/db/structures/US_table_toimp.py`
+- `modules/db/structures_metadata/US_table.py`
+- `modules/db/structures_metadata/US_table_toimp.py`
+- `resources/dbfiles/pyarchinit_update_postgres.sql`
+- `resources/dbfiles/pyarchinit_update_sqlite.sql`
+
+---
+
 ## [5.0.8-alpha] - 2026-03-27
 
 ### Corretto / Fixed

@@ -28,6 +28,14 @@ import graphviz
 from graphviz import Digraph, Source
 #from networkx.drawing.nx_pydot import graphviz_layout
 
+
+def _quote_node(name):
+    """Prefix node names with 'US' for safe Graphviz DOT names (handles leading '-')."""
+    s = str(name)
+    if not s.startswith('US'):
+        return 'US' + s
+    return s
+
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 #from networkx.drawing.nx_agraph import *
@@ -508,17 +516,17 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
                     if sing_rapp[0] in POSITIVE_GROUP:
                         if sing_rapp[1] != '':
-                            harris_rapp = (us, str(sing_rapp[1]))
+                            harris_rapp = (_quote_node(us), _quote_node(sing_rapp[1]))
                             data.append(harris_rapp)
 
                     if sing_rapp[0] in NEGATIVE_GROUP:
                         if sing_rapp[1] != '':
-                            harris_rapp1 = (us, str(sing_rapp[1]))
+                            harris_rapp1 = (_quote_node(us), _quote_node(sing_rapp[1]))
                             negative.append(harris_rapp1)
 
                     if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
                         if sing_rapp[1] != '':
-                            harris_rapp2 = (us, str(sing_rapp[1]))
+                            harris_rapp2 = (_quote_node(us), _quote_node(sing_rapp[1]))
                             conteporane.append(harris_rapp2)
 
 
@@ -596,7 +604,7 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 # sing_ut.append(rec.unita_tipo)
                 # sing_ut.append(rec.unita_tipo)
 
-                sing_us.append(rec.us)
+                sing_us.append(_quote_node(rec.us))
                 # sing_def.append(rec.d_stratigrafica)
 
             sing_per.insert(0, sing_us)

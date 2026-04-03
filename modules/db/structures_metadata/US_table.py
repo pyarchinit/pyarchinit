@@ -51,7 +51,7 @@ class US_table:
                      Column('scavato', String(2)),
 
                      # Activity reference number
-                     Column('attivita', String(4)),
+                     Column('attivita', String(100)),
 
                      # Year of excavation
                      Column('anno_scavo', String(4)),
@@ -75,10 +75,10 @@ class US_table:
                      Column('schedatore', String(25)),
 
                      # Formation process of the stratigraphic unit
-                     Column('formazione', String(20)),
+                     Column('formazione', String(100)),
 
                      # State of preservation
-                     Column('stato_di_conservazione', String(20)),
+                     Column('stato_di_conservazione', String(255)),
 
                      # Color of the soil/structure
                      Column('colore', String(20)),

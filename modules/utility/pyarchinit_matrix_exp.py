@@ -923,10 +923,48 @@ class ViewHarrisMatrix:
                 si = None
             with open(tred_file, "w") as out, \
                     open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
-                subprocess.Popen(['tred', dot_file],
-                                 stdout=out,
-                                 stderr=err,
-                                 startupinfo=si)
+                proc = subprocess.Popen(['tred', dot_file],
+                                        stdout=out,
+                                        stderr=err,
+                                        startupinfo=si)
+                proc.wait()
+
+        # Clean tred output: strip ALL layout attributes added by tred/dot
+        # (pos, width, height, bb) that cause syntax errors on re-render
+        import re
+        try:
+            with open(tred_file, 'r') as fh:
+                raw = fh.read()
+            # First join ALL line continuations (backslash before newline)
+            raw = raw.replace('\\\r\n', '').replace('\\\n', '')
+            # Process line by line
+            clean_lines = []
+            for line in raw.split('\n'):
+                # Remove all layout attributes from the line
+                line = re.sub(r'\bpos="[^"]*"', '', line)
+                line = re.sub(r'\bwidth=[0-9.]+', '', line)
+                line = re.sub(r'\bheight=[0-9.]+', '', line)
+                line = re.sub(r'\bbb="[^"]*"', '', line)
+                line = re.sub(r'\blp="[^"]*"', '', line)
+                # Clean leftover commas in attribute lists [, attr] or [attr, ]
+                line = re.sub(r'\[\s*,', '[', line)
+                line = re.sub(r',\s*,', ',', line)
+                line = re.sub(r',\s*\]', ']', line)
+                # Remove empty attribute lists
+                line = re.sub(r'\[\s*\]', '', line)
+                # Skip lines that are now empty or just whitespace/punctuation
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                # Skip orphan coordinate fragments from pos attributes
+                # (lines like '188.8"];' or '1952.2,188.85"];')
+                if re.match(r'^[\d.,\s]+["\];]*$', stripped):
+                    continue
+                clean_lines.append(line)
+            with open(tred_file, 'w') as fh:
+                fh.write('\n'.join(clean_lines) + '\n')
+        except Exception:
+            pass  # If cleanup fails, try rendering anyway
 
         f = Source.from_file(tred_file, format='png')
         f.render()

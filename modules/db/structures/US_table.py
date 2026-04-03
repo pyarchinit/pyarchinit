@@ -27,7 +27,7 @@ class US_table:
                      Column('periodo_finale', String(4)),  # 10
                      Column('fase_finale', String(4)),  # 11
                      Column('scavato', String(2)),  # 12
-                     Column('attivita', String(4)),  # 13
+                     Column('attivita', String(100)),  # 13
                      Column('anno_scavo', String(4)),  # 14
                      Column('metodo_di_scavo', String(20)),  # 15
                      Column('inclusi', Text),  # 16
@@ -35,8 +35,8 @@ class US_table:
                      Column('rapporti', Text),  # 18
                      Column('data_schedatura', String(20)),  # 19
                      Column('schedatore', String(25)),  # 20
-                     Column('formazione', String(20)),  # 21
-                     Column('stato_di_conservazione', String(20)),  # 22
+                     Column('formazione', String(100)),  # 21
+                     Column('stato_di_conservazione', String(255)),  # 22
                      Column('colore', String(20)),  # 23
                      Column('consistenza', String(20)),  # 24
                      Column('struttura', String(30)),  # 25

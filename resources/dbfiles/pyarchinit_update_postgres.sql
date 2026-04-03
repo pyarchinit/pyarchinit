@@ -1121,3 +1121,8 @@ ALTER TABLE public.archeozoology_table ADD COLUMN IF NOT EXISTS entity_uuid text
 ALTER TABLE public.documentazione_table ADD COLUMN IF NOT EXISTS entity_uuid text;
 ALTER TABLE public.inventario_lapidei_table ADD COLUMN IF NOT EXISTS entity_uuid text;
 
+-- =====================================================
+-- US_TABLE: Widen attivita column from VARCHAR(4) to VARCHAR(100)
+-- =====================================================
+ALTER TABLE us_table ALTER COLUMN attivita TYPE character varying(100);
+ALTER TABLE us_table ALTER COLUMN stato_di_conservazione TYPE character varying(255);

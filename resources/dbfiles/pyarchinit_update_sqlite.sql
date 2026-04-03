@@ -100,3 +100,9 @@ ALTER TABLE tma_materiali_ripetibili ADD COLUMN entity_uuid TEXT;
 ALTER TABLE archeozoology_table ADD COLUMN entity_uuid TEXT;
 ALTER TABLE documentazione_table ADD COLUMN entity_uuid TEXT;
 ALTER TABLE inventario_lapidei_table ADD COLUMN entity_uuid TEXT;
+
+-- =====================================================
+-- US_TABLE: Widen attivita column from VARCHAR(4) to VARCHAR(100)
+-- =====================================================
+-- SQLite doesn't support ALTER COLUMN, but the type is advisory only.
+-- New databases will use the updated schema. Existing data is unaffected.
