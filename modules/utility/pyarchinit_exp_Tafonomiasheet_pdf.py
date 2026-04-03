@@ -884,7 +884,7 @@ class single_Tomba_pdf_sheet(object):
 
         # 12 row
         caratteristiche_tafonomiche = ''
-        caratteristiche_list = eval(self.caratteristiche)
+        caratteristiche_list = eval(self.caratteristiche) if self.caratteristiche else []
         if len(caratteristiche_list) > 0:
             for i in caratteristiche_list:
                 if caratteristiche_tafonomiche == '':
@@ -921,7 +921,7 @@ class single_Tomba_pdf_sheet(object):
         # 17 row
         corredo_tipo = ''
         if len(self.corredo_tipo) > 0:
-            for i in eval(self.corredo_tipo):
+            for i in (eval(self.corredo_tipo) if self.corredo_tipo else []):
                 if corredo_tipo == '':
                     try:
                         corredo_tipo += ("N° reperto %s, tipo corredo: %s, descrizione: %s") % (
@@ -940,7 +940,7 @@ class single_Tomba_pdf_sheet(object):
         # 18 row
         misure_tomba = ''
         if len(self.misure_tomba) > 0:
-            for i in eval(self.misure_tomba):
+            for i in (eval(self.misure_tomba) if self.misure_tomba else []):
                 if misure_tomba == '':
                     try:
                         misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1215,7 +1215,7 @@ class single_Tomba_pdf_sheet(object):
 
         # 12 row
         caratteristiche_tafonomiche = ''
-        caratteristiche_list = eval(self.caratteristiche)
+        caratteristiche_list = eval(self.caratteristiche) if self.caratteristiche else []
         if len(caratteristiche_list) > 0:
             for i in caratteristiche_list:
                 if caratteristiche_tafonomiche == '':
@@ -1252,7 +1252,7 @@ class single_Tomba_pdf_sheet(object):
         # 17 row
         corredo_tipo = ''
         if len(self.corredo_tipo) > 0:
-            for i in eval(self.corredo_tipo):
+            for i in (eval(self.corredo_tipo) if self.corredo_tipo else []):
                 if corredo_tipo == '':
                     try:
                         corredo_tipo += ("<br/>N° finden %s, Grabbeigabetyp: %s, Beschreibung: %s") % (
@@ -1271,7 +1271,7 @@ class single_Tomba_pdf_sheet(object):
         # 18 row
         misure_tomba = ''
         if len(self.misure_tomba) > 0:
-            for i in eval(self.misure_tomba):
+            for i in (eval(self.misure_tomba) if self.misure_tomba else []):
                 if misure_tomba == '':
                     try:
                         misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1546,7 +1546,7 @@ class single_Tomba_pdf_sheet(object):
 
         # 12 row
         caratteristiche_tafonomiche = ''
-        caratteristiche_list = eval(self.caratteristiche)
+        caratteristiche_list = eval(self.caratteristiche) if self.caratteristiche else []
         if len(caratteristiche_list) > 0:
             for i in caratteristiche_list:
                 if caratteristiche_tafonomiche == '':
@@ -1583,7 +1583,7 @@ class single_Tomba_pdf_sheet(object):
         # 17 row
         corredo_tipo = ''
         if len(self.corredo_tipo) > 0:
-            for i in eval(self.corredo_tipo):
+            for i in (eval(self.corredo_tipo) if self.corredo_tipo else []):
                 if corredo_tipo == '':
                     try:
                         corredo_tipo += ("<br/>Artefact N° %s, Trousseau type: %s, Description: %s") % (
@@ -1602,7 +1602,7 @@ class single_Tomba_pdf_sheet(object):
         # 18 row
         misure_tomba = ''
         if len(self.misure_tomba) > 0:
-            for i in eval(self.misure_tomba):
+            for i in (eval(self.misure_tomba) if self.misure_tomba else []):
                 if misure_tomba == '':
                     try:
                         misure_tomba += ("%s: %s %s") % (str(i[0]), str(i[2]), str(i[1]))

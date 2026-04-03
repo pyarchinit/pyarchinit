@@ -5955,7 +5955,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     # Safely handle elementi_reperto
                     if hasattr(self.DATA_LIST[i], 'elementi_reperto') and self.DATA_LIST[i].elementi_reperto:
                         try:
-                            elementi_reperto = eval(self.DATA_LIST[i].elementi_reperto)
+                            elementi_reperto = eval(self.DATA_LIST[i].elementi_reperto) if self.DATA_LIST[i].elementi_reperto else []
                             if bool(elementi_reperto):
                                 tot_framm = 0
                                 for elrep in elementi_reperto:

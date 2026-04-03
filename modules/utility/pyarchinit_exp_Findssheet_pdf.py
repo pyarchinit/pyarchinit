@@ -285,8 +285,8 @@ class single_Finds_pdf_sheet(object):
 
             # 6 row
             elementi_reperto = ''
-            if eval(self.elementi_reperto):
-                for i in eval(self.elementi_reperto):
+            if self.elementi_reperto and eval(self.elementi_reperto):
+                for i in (eval(self.elementi_reperto) if self.elementi_reperto else []):
                     if elementi_reperto == '':
                         try:
                             elementi_reperto += ("Elemento rinvenuto: %s, Unita' di misura: %s, Quantita': %s") % (
@@ -304,8 +304,8 @@ class single_Finds_pdf_sheet(object):
 
             # 7 row
             misurazioni = ''
-            if eval(self.misurazioni):
-                for i in eval(self.misurazioni):
+            if self.misurazioni and eval(self.misurazioni):
+                for i in (eval(self.misurazioni) if self.misurazioni else []):
                     if misurazioni == '':
                         try:
                             misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -320,8 +320,8 @@ class single_Finds_pdf_sheet(object):
 
             # 8 row
             tecnologie = ''
-            if eval(self.tecnologie):
-                for i in eval(self.tecnologie):
+            if self.tecnologie and eval(self.tecnologie):
+                for i in (eval(self.tecnologie) if self.tecnologie else []):
                     if tecnologie == '':
                         try:
                             tecnologie += (
@@ -340,8 +340,8 @@ class single_Finds_pdf_sheet(object):
             tipologia = Paragraph("<b>Tipologia</b><br/>" + self.tipo, styNormal)
             # 9 row
             rif_biblio = ''
-            if eval(self.rif_biblio):
-                for i in eval(self.rif_biblio):  # gigi
+            if self.rif_biblio and eval(self.rif_biblio):
+                for i in (eval(self.rif_biblio) if self.rif_biblio else []):  # gigi
                     if rif_biblio == '':
                         try:
                             rif_biblio += ("Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
@@ -569,8 +569,8 @@ class single_Finds_pdf_sheet(object):
 
                 # 6 row
             elementi_reperto = ''
-            if eval(self.elementi_reperto):
-                for i in eval(self.elementi_reperto):
+            if self.elementi_reperto and eval(self.elementi_reperto):
+                for i in (eval(self.elementi_reperto) if self.elementi_reperto else []):
                     if elementi_reperto == '':
                         try:
                             elementi_reperto += ("Gegenstand gefunden: %s, Maßeinheit: %s, Menge: %s") % (
@@ -588,8 +588,8 @@ class single_Finds_pdf_sheet(object):
 
             # 7 row
             misurazioni = ''
-            if eval(self.misurazioni):
-                for i in eval(self.misurazioni):
+            if self.misurazioni and eval(self.misurazioni):
+                for i in (eval(self.misurazioni) if self.misurazioni else []):
                     if misurazioni == '':
                         try:
                             misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -604,8 +604,8 @@ class single_Finds_pdf_sheet(object):
 
             # 8 row
             tecnologie = ''
-            if eval(self.tecnologie):
-                for i in eval(self.tecnologie):
+            if self.tecnologie and eval(self.tecnologie):
+                for i in (eval(self.tecnologie) if self.tecnologie else []):
                     if tecnologie == '':
                         try:
                             tecnologie += (
@@ -624,8 +624,8 @@ class single_Finds_pdf_sheet(object):
 
             # 9 row
             rif_biblio = ''
-            if eval(self.rif_biblio):
-                for i in eval(self.rif_biblio):  # gigi
+            if self.rif_biblio and eval(self.rif_biblio):
+                for i in (eval(self.rif_biblio) if self.rif_biblio else []):  # gigi
                     if rif_biblio == '':
                         try:
                             rif_biblio += ("<b>Autor: %s, Jahr: %s, Titel: %s, Seite: %s, Bild: %s") % (
@@ -880,8 +880,8 @@ class single_Finds_pdf_sheet(object):
 
                 # 6 row
             elementi_reperto = ''
-            if eval(self.elementi_reperto):
-                for i in eval(self.elementi_reperto):
+            if self.elementi_reperto and eval(self.elementi_reperto):
+                for i in (eval(self.elementi_reperto) if self.elementi_reperto else []):
                     if elementi_reperto == '':
                         try:
                             elementi_reperto += ("<br/>Finds: %s, Measure unit: %s, Quantity: %s") % (
@@ -899,8 +899,8 @@ class single_Finds_pdf_sheet(object):
 
             # 7 row
             misurazioni = ''
-            if eval(self.misurazioni):
-                for i in eval(self.misurazioni):
+            if self.misurazioni and eval(self.misurazioni):
+                for i in (eval(self.misurazioni) if self.misurazioni else []):
                     if misurazioni == '':
                         try:
                             misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -915,8 +915,8 @@ class single_Finds_pdf_sheet(object):
 
             # 8 row
             tecnologie = ''
-            if eval(self.tecnologie):
-                for i in eval(self.tecnologie):
+            if self.tecnologie and eval(self.tecnologie):
+                for i in (eval(self.tecnologie) if self.tecnologie else []):
                     if tecnologie == '':
                         try:
                             tecnologie += (
@@ -935,8 +935,8 @@ class single_Finds_pdf_sheet(object):
 
             # 9 row
             rif_biblio = ''
-            if eval(self.rif_biblio):
-                for i in eval(self.rif_biblio):  # gigi
+            if self.rif_biblio and eval(self.rif_biblio):
+                for i in (eval(self.rif_biblio) if self.rif_biblio else []):  # gigi
                     if rif_biblio == '':
                         try:
                             rif_biblio += ("<b>Author: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s</b>") % (

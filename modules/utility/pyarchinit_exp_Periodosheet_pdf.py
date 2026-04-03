@@ -151,7 +151,7 @@ class single_US_pdf_sheet(object):
             FILLS_GROUP, FILLED_BY_GROUP, CUTS_GROUP, CUT_BY_GROUP,
             ABUTS_GROUP, SUPPORTS_GROUP,
         )
-        rapporti = eval(self.rapporti)
+        rapporti = eval(self.rapporti) if self.rapporti else []
         _GROUP_MAP = [
             (CONNECTED_GROUP, 'si_lega_a'),
             (SAME_AS_GROUP, 'uguale_a'),
@@ -184,7 +184,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            for string_doc in eval(self.documentazione):
+            for string_doc in (eval(self.documentazione) if self.documentazione else []):
                 if len(string_doc) == 2:
                     self.documentazione_print += str(string_doc[0]) + ": " + str(string_doc[1]) + "<br/>"
                 if len(string_doc) == 1:
@@ -247,9 +247,9 @@ class single_US_pdf_sheet(object):
         colore = Paragraph("<b>Colore</b><br/>" + self.colore, styNormal)
 
         # 4 row
-        inclusi_list = eval(self.inclusi)
+        inclusi_list = eval(self.inclusi) if self.inclusi else []
         inclusi = ''
-        for i in eval(self.inclusi):
+        for i in (eval(self.inclusi) if self.inclusi else []):
             if inclusi == '':
                 try:
                     inclusi += str(i[0])
@@ -261,9 +261,9 @@ class single_US_pdf_sheet(object):
                 except:
                     pass
         inclusi = Paragraph("<b>Inclusi</b><br/>" + inclusi, styNormal)
-        campioni_list = eval(self.campioni)
+        campioni_list = eval(self.campioni) if self.campioni else []
         campioni = ''
-        for i in eval(self.campioni):
+        for i in (eval(self.campioni) if self.campioni else []):
             if campioni == '':
                 try:
                     campioni += str(i[0])
@@ -477,7 +477,7 @@ class US_index_pdf_sheet(object):
         self.rapporti = data[17]
 
     def unzip_rapporti_stratigrafici(self):
-        rapporti = eval(self.rapporti)
+        rapporti = eval(self.rapporti) if self.rapporti else []
 
         rapporti.sort()
 

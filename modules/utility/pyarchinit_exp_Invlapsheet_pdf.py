@@ -191,8 +191,8 @@ class single_Invlap_pdf_sheet:
 
             # 18 row
         bibliografia = ''
-        if len(eval(self.bibliografia)) > 0:
-            for i in eval(self.bibliografia):  # gigi
+        if len(eval(self.bibliografia) if self.bibliografia else []) > 0:
+            for i in (eval(self.bibliografia) if self.bibliografia else []):  # gigi
                 if bibliografia == '':
                     try:
                         bibliografia += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (
@@ -394,8 +394,8 @@ class single_Invlap_pdf_sheet:
 
             # 18 row
         bibliografia = ''
-        if len(eval(self.bibliografia)) > 0:
-            for i in eval(self.bibliografia):  # gigi
+        if len(eval(self.bibliografia) if self.bibliografia else []) > 0:
+            for i in (eval(self.bibliografia) if self.bibliografia else []):  # gigi
                 if bibliografia == '':
                     try:
                         bibliografia += ("<b>Verfasser: %s, Jahr: %s, Titel: %s, Seite: %s, Bild: %s") % (
@@ -597,8 +597,8 @@ class single_Invlap_pdf_sheet:
 
             # 18 row
         bibliografia = ''
-        if len(eval(self.bibliografia)) > 0:
-            for i in eval(self.bibliografia):  # gigi
+        if len(eval(self.bibliografia) if self.bibliografia else []) > 0:
+            for i in (eval(self.bibliografia) if self.bibliografia else []):  # gigi
                 if bibliografia == '':
                     try:
                         bibliografia += ("<b>Autor: %s, Year: %s, Title: %s, Pag.: %s, Fig.: %s") % (

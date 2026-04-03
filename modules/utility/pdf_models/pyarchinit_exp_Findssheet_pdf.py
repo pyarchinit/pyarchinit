@@ -172,8 +172,8 @@ class single_Finds_pdf_sheet(object):
 
         # 6 row
         misurazioni = ''
-        if eval(self.misurazioni) > 0:
-            for i in eval(self.misurazioni):
+        if self.misurazioni and eval(self.misurazioni) > 0:
+            for i in (eval(self.misurazioni) if self.misurazioni else []):
                 if misurazioni == '':
                     try:
                         misurazioni += ("%s: %s %s") % (str(i[0]), str(i[1]), str(i[2]))
@@ -188,8 +188,8 @@ class single_Finds_pdf_sheet(object):
 
         # 7 row
         tecnologie = ''
-        if eval(self.tecnologie) > 0:
-            for i in eval(self.tecnologie):
+        if self.tecnologie and eval(self.tecnologie) > 0:
+            for i in (eval(self.tecnologie) if self.tecnologie else []):
                 if tecnologie == '':
                     try:
                         tecnologie += ("%s %s: %s %s") % (str(i[0]), str(i[1]), str(i[4]), str(i[3]))
@@ -204,8 +204,8 @@ class single_Finds_pdf_sheet(object):
 
         # 8 row
         rif_biblio = ''
-        if eval(self.rif_biblio) > 0:
-            for i in eval(self.rif_biblio):  # gigi
+        if self.rif_biblio and eval(self.rif_biblio) > 0:
+            for i in (eval(self.rif_biblio) if self.rif_biblio else []):  # gigi
                 if rif_biblio == '':
                     try:
                         rif_biblio += ("<b>Autore: %s, Anno: %s, Titolo: %s, Pag.: %s, Fig.: %s") % (

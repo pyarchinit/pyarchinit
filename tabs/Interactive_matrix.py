@@ -133,7 +133,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
                 doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione startigrafica
             
-                rapporti_stratigrafici = eval(sing_rec.rapporti2)
+                rapporti_stratigrafici = eval(sing_rec.rapporti2) if sing_rec.rapporti2 else []
             except (NameError, SyntaxError) as e: 
                 if self.L=='it':
                     QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
@@ -284,7 +284,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             sito = str(sing_rec.sito)
             area = str(sing_rec.area)
 
-            rapporti_stratigrafici = eval(sing_rec.rapporti)
+            rapporti_stratigrafici = eval(sing_rec.rapporti) if sing_rec.rapporti else []
 
             try:
                 for sing_rapp in rapporti_stratigrafici:
@@ -509,7 +509,7 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
             # defin = str(sing_rec.d_stratigrafica.replace(' ','_'))##per inserire la definizione startigrafica
             sito = str(sing_rec.sito)
             area = str(sing_rec.area)
-            rapporti_stratigrafici = eval(sing_rec.rapporti)
+            rapporti_stratigrafici = eval(sing_rec.rapporti) if sing_rec.rapporti else []
 
             try:
                 for sing_rapp in rapporti_stratigrafici:

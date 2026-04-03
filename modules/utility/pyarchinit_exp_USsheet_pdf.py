@@ -256,8 +256,8 @@ class single_US_pdf_sheet(object):
         self.materiale_p= data[113]
         self.consistenza_p= data[114]
     def unzip_componenti(self):
-        org = eval(self.componenti_organici)
-        inorg = eval(self.componenti_inorganici)
+        org = eval(self.componenti_organici) if self.componenti_organici else []
+        inorg = eval(self.componenti_inorganici) if self.componenti_inorganici else []
         organici = ''
         inorganici = ''
         if len(org)>0:
@@ -284,7 +284,7 @@ class single_US_pdf_sheet(object):
             FILLS_GROUP, FILLED_BY_GROUP, CUTS_GROUP, CUT_BY_GROUP,
             ABUTS_GROUP, SUPPORTS_GROUP,
         )
-        rapporti = eval(self.rapporti)
+        rapporti = eval(self.rapporti) if self.rapporti else []
         _GROUP_MAP = [
             (CONNECTED_GROUP, 'si_lega_a'),
             (SAME_AS_GROUP, 'uguale_a'),
@@ -328,7 +328,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            self.documentazione_list = eval(self.documentazione)
+            self.documentazione_list = eval(self.documentazione) if self.documentazione else []
 
             for string_doc in self.documentazione_list:
 
@@ -395,7 +395,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            self.documentazione_list = eval(self.documentazione)
+            self.documentazione_list = eval(self.documentazione) if self.documentazione else []
 
             for string_doc in self.documentazione_list:
 
@@ -463,7 +463,7 @@ class single_US_pdf_sheet(object):
         if self.documentazione == '':
             pass
         else:
-            self.documentazione_list = eval(self.documentazione)
+            self.documentazione_list = eval(self.documentazione) if self.documentazione else []
 
             for string_doc in self.documentazione_list:
 
@@ -532,7 +532,7 @@ class single_US_pdf_sheet(object):
             pass
         else:
             self.inclusi_print = ""
-            for string_inclusi in eval(self.inclusi):
+            for string_inclusi in (eval(self.inclusi) if self.inclusi else []):
                 if len(string_inclusi) == 2:
                     self.inclusi_print += str(string_inclusi[0]) + ": " + str(string_inclusi[1]) + "<br/>"
                 if len(string_inclusi) == 1:
@@ -543,7 +543,7 @@ class single_US_pdf_sheet(object):
             pass
         else:
             self.inclusi_usm_print = ""
-            for string_inclusi_usm in eval(self.inclusi_materiali_usm):
+            for string_inclusi_usm in (eval(self.inclusi_materiali_usm) if self.inclusi_materiali_usm else []):
                 if len(string_inclusi_usm) == 2:
                     self.inclusi_usm_print += str(string_inclusi_usm[0]) + ": " + str(string_inclusi_usm[1]) + "<br/>"
                 if len(string_inclusi_usm) == 1:
@@ -552,7 +552,7 @@ class single_US_pdf_sheet(object):
     
     def unzip_inerti_usm(self):
        
-        inorg = eval(self.aggreg_legante)
+        inorg = eval(self.aggreg_legante) if self.aggreg_legante else []
         
         inorganici = ''
         
@@ -572,7 +572,7 @@ class single_US_pdf_sheet(object):
     
     
     def unzip_colore_usm(self):
-        inorg = eval(self.col_legante)
+        inorg = eval(self.col_legante) if self.col_legante else []
         
         inorganici = ''
         
@@ -737,7 +737,7 @@ class single_US_pdf_sheet(object):
 
             organici, inorganici= self.unzip_componenti()
             inclusi = ''
-            for i in eval(self.inclusi):
+            for i in (eval(self.inclusi) if self.inclusi else []):
                 if inclusi == '':
                     try:
                         inclusi += str(i[0])
@@ -820,9 +820,9 @@ class single_US_pdf_sheet(object):
 
             #28 row
 
-            campioni_list = eval(self.campioni)
+            campioni_list = eval(self.campioni) if self.campioni else []
             campioni = ''
-            for i in eval(self.campioni):
+            for i in (eval(self.campioni) if self.campioni else []):
                 if campioni == '':
                     try:
                         campioni += str(i[0])
@@ -1620,7 +1620,7 @@ class single_US_pdf_sheet(object):
 
             organici, inorganici= self.unzip_componenti()
             inclusi = ''
-            for i in eval(self.inclusi):
+            for i in (eval(self.inclusi) if self.inclusi else []):
                 if inclusi == '':
                     try:
                         inclusi += str(i[0])
@@ -1703,9 +1703,9 @@ class single_US_pdf_sheet(object):
 
             #28 row
 
-            campioni_list = eval(self.campioni)
+            campioni_list = eval(self.campioni) if self.campioni else []
             campioni = ''
-            for i in eval(self.campioni):
+            for i in (eval(self.campioni) if self.campioni else []):
                 if campioni == '':
                     try:
                         campioni += str(i[0])
@@ -2508,7 +2508,7 @@ class single_US_pdf_sheet(object):
 
             organici, inorganici= self.unzip_componenti()
             inclusi = ''
-            for i in eval(self.inclusi):
+            for i in (eval(self.inclusi) if self.inclusi else []):
                 if inclusi == '':
                     try:
                         inclusi += str(i[0])
@@ -2594,9 +2594,9 @@ class single_US_pdf_sheet(object):
 
             #28 row
 
-            campioni_list = eval(self.campioni)
+            campioni_list = eval(self.campioni) if self.campioni else []
             campioni = ''
-            for i in eval(self.campioni):
+            for i in (eval(self.campioni) if self.campioni else []):
                 if campioni == '':
                     try:
                         campioni += str(i[0])
@@ -3300,7 +3300,7 @@ class US_index_pdf_sheet(object):
             FILLS_GROUP, FILLED_BY_GROUP, CUTS_GROUP, CUT_BY_GROUP,
             ABUTS_GROUP, SUPPORTS_GROUP,
         )
-        rapporti = eval(self.rapporti)
+        rapporti = eval(self.rapporti) if self.rapporti else []
         _GROUP_MAP = [
             (CONNECTED_GROUP, 'si_lega_a'),
             (SAME_AS_GROUP, 'uguale_a'),

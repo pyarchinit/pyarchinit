@@ -472,8 +472,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -489,8 +489,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Tipologia elemento: %s, quantità: %s") % (str(i[0]), str(i[1]))
@@ -506,8 +506,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Tipo rapporto: %s, sito: %s, sigla: %s, n.: %s") % (
@@ -525,8 +525,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Tipo di misura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -714,8 +714,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -731,8 +731,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("<br/>Funktionsart: %s, Menge: %s") % (str(i[0]), str(i[1]))
@@ -748,8 +748,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("<br/>Relatie type: %s, Ausgrabungsstätte: %s, code: %s, nr.: %s") % (
@@ -767,8 +767,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("<br/>Messart: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -955,8 +955,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -972,8 +972,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("<br/>Element typology: %s, Quantity: %s") % (str(i[0]), str(i[1]))
@@ -989,8 +989,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("<br/>Relation type: %s, site: %s, code: %s, nr.: %s") % (
@@ -1008,8 +1008,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("<br/>Measure type: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1194,8 +1194,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -1210,8 +1210,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Type d'élément: %s, quantité: %s") % (str(i[0]), str(i[1]))
@@ -1226,8 +1226,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Type de rapport: %s, site: %s, code: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
@@ -1242,8 +1242,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Type de mesure: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1383,8 +1383,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -1399,8 +1399,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Tipo de elemento: %s, cantidad: %s") % (str(i[0]), str(i[1]))
@@ -1415,8 +1415,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Tipo de relación: %s, sitio: %s, código: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
@@ -1431,8 +1431,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Tipo de medida: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1572,8 +1572,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -1588,8 +1588,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Element type: %s, quantity: %s") % (str(i[0]), str(i[1]))
@@ -1604,8 +1604,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Relation type: %s, site: %s, code: %s, nr.: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
@@ -1620,8 +1620,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Measure type: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
@@ -1761,8 +1761,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 7 row
         materiali_impiegati = ''
-        if eval(self.materiali_impiegati):
-            for i in eval(self.materiali_impiegati):
+        if self.materiali_impiegati and eval(self.materiali_impiegati):
+            for i in (eval(self.materiali_impiegati) if self.materiali_impiegati else []):
                 if materiali_impiegati == '':
                     try:
                         materiali_impiegati += ("%s") % (str(i[0]))
@@ -1777,8 +1777,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 8 row
         elementi_strutturali = ''
-        if eval(self.elementi_strutturali):
-            for i in eval(self.elementi_strutturali):
+        if self.elementi_strutturali and eval(self.elementi_strutturali):
+            for i in (eval(self.elementi_strutturali) if self.elementi_strutturali else []):
                 if elementi_strutturali == '':
                     try:
                         elementi_strutturali += ("Tipus d'element: %s, quantitat: %s") % (str(i[0]), str(i[1]))
@@ -1793,8 +1793,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 9 row
         rapporti_struttura = ''
-        if eval(self.rapporti_struttura):
-            for i in eval(self.rapporti_struttura):
+        if self.rapporti_struttura and eval(self.rapporti_struttura):
+            for i in (eval(self.rapporti_struttura) if self.rapporti_struttura else []):
                 if rapporti_struttura == '':
                     try:
                         rapporti_struttura += ("Tipus de relació: %s, jaciment: %s, codi: %s, n°: %s") % (str(i[0]), str(i[1]), str(i[2]), str(i[3]))
@@ -1809,8 +1809,8 @@ class single_Struttura_pdf_sheet(object):
 
         # 10 row
         misure_struttura = ''
-        if eval(self.misure_struttura):
-            for i in eval(self.misure_struttura):
+        if self.misure_struttura and eval(self.misure_struttura):
+            for i in (eval(self.misure_struttura) if self.misure_struttura else []):
                 if misure_struttura == '':
                     try:
                         misure_struttura += ("Tipus de mesura: %s = %s %s") % (str(i[0]), str(i[2]), str(i[1]))
