@@ -9,17 +9,25 @@
 
 ### Corretto / Fixed
 
-- **fix(db): Campo attivita ampliato da VARCHAR(4) a VARCHAR(100)**: Il campo `attivita` nella tabella `us_table` era limitato a 4 caratteri, insufficiente per descrizioni come "Distruzione post abbandono dell'anfiteatro" (42 caratteri). Aggiornati schema SQL (clean + updated), strutture SQLAlchemy (structures + structures_metadata), script di aggiornamento PostgreSQL (ALTER COLUMN) e SQLite (commento, tipo advisory). / **fix(db): Widen attivita field from VARCHAR(4) to VARCHAR(100)**: The `attivita` column in `us_table` was limited to 4 characters, insufficient for activity descriptions like "Distruzione post abbandono dell'anfiteatro" (42 chars). Updated SQL schemas (clean + updated), SQLAlchemy structures (structures + structures_metadata), PostgreSQL update script (ALTER COLUMN) and SQLite update script (comment, advisory type).
+- **fix(db): Campi schema ampliati — attivita, stato_di_conservazione, formazione**: Tre campi della `us_table` avevano limiti VARCHAR troppo stretti per dati reali. `attivita`: VARCHAR(4) → VARCHAR(100), insufficiente per descrizioni come "Distruzione post abbandono dell'anfiteatro" (42 caratteri). `stato_di_conservazione`: VARCHAR(20) → VARCHAR(255), troncava valori lunghi. `formazione`: VARCHAR(20) → VARCHAR(100). Aggiornati tutti gli schema SQL (clean, clean_backup, updated), strutture SQLAlchemy (structures + structures_metadata), script di aggiornamento PostgreSQL (ALTER COLUMN) e SQLite (commento, tipo advisory), e validatori IT/DE/EN. / **fix(db): Schema fields widened — attivita, stato_di_conservazione, formazione**: Three `us_table` fields had VARCHAR limits too narrow for real data. `attivita`: VARCHAR(4) → VARCHAR(100), insufficient for activity descriptions like "Distruzione post abbandono dell'anfiteatro" (42 chars). `stato_di_conservazione`: VARCHAR(20) → VARCHAR(255), was truncating long values. `formazione`: VARCHAR(20) → VARCHAR(100). Updated all SQL schemas (clean, clean_backup, updated), SQLAlchemy structures (structures + structures_metadata), PostgreSQL update script (ALTER COLUMN) and SQLite update script (comment, advisory type), and IT/DE/EN validators.
+
+- **fix(matrix): Numeri US negativi causavano errori di sintassi DOT nel grafo Harris**: I numeri US negativi (es. `-3858`) venivano interpretati da Graphviz come operatori di sottrazione nel formato DOT, causando errori di rendering. Aggiunta funzione `_quote_node()` in `Interactive_matrix.py` che prefixa i nodi con 'US' (es. `US_3858`). Inoltre, l'output di `tred` (riduzione transitiva) conteneva attributi di layout (`pos`, `width`, `height`, `bb`) e frammenti di coordinate orfane che causavano errori di sintassi al re-rendering. Aggiunto stripping di questi attributi in `pyarchinit_matrix_exp.py`. Cambiato `subprocess.Popen` per usare `proc.wait()` con `tred`. / **fix(matrix): Negative US numbers caused DOT syntax errors in Harris matrix graph**: Negative US numbers (e.g. `-3858`) were interpreted by Graphviz as subtraction operators in DOT format, causing rendering errors. Added `_quote_node()` function in `Interactive_matrix.py` that prefixes nodes with 'US' (e.g. `US_3858`). Additionally, `tred` (transitive reduction) output contained layout attributes (`pos`, `width`, `height`, `bb`) and orphan coordinate fragments that caused syntax errors when re-rendered. Added stripping of these attributes in `pyarchinit_matrix_exp.py`. Changed `subprocess.Popen` to use `proc.wait()` with `tred`.
+
+- **fix(ui): NameError table_name nella scheda rapporti stratigrafici**: In `US_USM.py`, la variabile `table_name` era usata in 4 punti della gestione rapporti stratigrafici ma era stata commentata, causando `NameError` a runtime. Sostituita con chiamate dirette a `self.tableWidget_rapporti.selectedItems()` / `.selectedIndexes()`. / **fix(ui): NameError table_name in stratigraphic rapporti tab**: In `US_USM.py`, the variable `table_name` was used in 4 places in the stratigraphic rapporti management but had been commented out, causing `NameError` at runtime. Replaced with direct calls to `self.tableWidget_rapporti.selectedItems()` / `.selectedIndexes()`.
 
 ### File modificati / Modified files
-- `resources/dbfiles/pyarchinit_schema_updated.sql` (2 occurrences)
-- `resources/dbfiles/pyarchinit_schema_clean.sql` (2 occurrences)
-- `modules/db/structures/US_table.py`
-- `modules/db/structures/US_table_toimp.py`
-- `modules/db/structures_metadata/US_table.py`
-- `modules/db/structures_metadata/US_table_toimp.py`
-- `resources/dbfiles/pyarchinit_update_postgres.sql`
-- `resources/dbfiles/pyarchinit_update_sqlite.sql`
+- `resources/dbfiles/pyarchinit_schema_clean.sql` (attivita, stato_di_conservazione widened)
+- `resources/dbfiles/pyarchinit_schema_clean_backup.sql` (attivita, stato_di_conservazione widened)
+- `resources/dbfiles/pyarchinit_schema_updated.sql` (attivita, stato_di_conservazione widened)
+- `resources/dbfiles/pyarchinit_update_postgres.sql` (ALTER COLUMN for attivita, stato_di_conservazione)
+- `resources/dbfiles/pyarchinit_update_sqlite.sql` (advisory type comments)
+- `modules/db/structures/US_table.py` (attivita, stato_di_conservazione, formazione widened)
+- `modules/db/structures/US_table_toimp.py` (attivita, stato_di_conservazione, formazione widened)
+- `modules/db/structures_metadata/US_table.py` (attivita, stato_di_conservazione, formazione widened)
+- `modules/db/structures_metadata/US_table_toimp.py` (attivita, stato_di_conservazione, formazione widened)
+- `tabs/Interactive_matrix.py` (`_quote_node()` for negative US numbers)
+- `modules/utility/pyarchinit_matrix_exp.py` (strip tred layout attributes, `proc.wait()`)
+- `tabs/US_USM.py` (fix table_name NameError in 4 occurrences)
 
 ---
 
