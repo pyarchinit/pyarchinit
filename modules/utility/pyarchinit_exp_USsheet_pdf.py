@@ -702,16 +702,16 @@ class single_US_pdf_sheet(object):
             label_unita_stratigrafica = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DELL’UNITÀ STRATIGRAFICA</b><br/>"+ str(self.us), styNormal2)
             label_sas = Paragraph("<b>NUMERO/CODICE IDENTIFICATIVO DEL SAGGIO STRATIGRAFICO/DELL’EDIFICIO/DELLA STRUTTURA/DELLA DEPOSIZIONE FUNERARIA DI RIFERIMENTO</b><br/>", styNormal2)
             
-            if self.formazione == 'Naturale':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
-                label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-            elif self.formazione == 'Artificiale':
+            if self.formazione and 'naturale' in self.formazione.lower():
+                label_NAT = Paragraph("<i>NAT.</i><br/>X", styNormal)
+                label_ART = Paragraph("<i>ART.</i>", styNormal)
+            elif self.formazione:
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
-            elif self.formazione !='Naturale' or 'Artificiale':    
-                label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
-                label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-            
+                label_ART = Paragraph("<i>ART.</i><br/>X", styNormal)
+            else:
+                label_NAT = Paragraph("<i>NAT.</i>", styNormal)
+                label_ART = Paragraph("<i>ART.</i>", styNormal)
+
 
             piante = Paragraph("<b>PIANTE</b><br/>" + self.escape_html(self.piante_iccd), styNormal)
             sezioni = Paragraph("<b>SEZIONI</b><br/>" + self.escape_html(self.sezioni_iccd), styNormal)
@@ -816,7 +816,7 @@ class single_US_pdf_sheet(object):
 
             #27 row
 
-            dati_quantitativi = Paragraph("<b>DATI QUANTITATIVI DEI REPERTI</b><br/>", styNormal)  # manca valore
+            dati_quantitativi = Paragraph("<b>DATI QUANTITATIVI DEI REPERTI</b><br/>" + self.escape_html(inclusi), styNormal)
 
             #28 row
 
@@ -1585,13 +1585,13 @@ class single_US_pdf_sheet(object):
             label_unita_stratigrafica = Paragraph("<b>NUMBER/SU CODE</b><br/>"+ str(self.us), styNormal)
             label_sas = Paragraph("<b>NUMBER/IDENTIFICATION CODE OF THE STRATIGRAPHIC ASSAY/BUILDING/STRUCTURE/FUNERARY DEPOSITION OF REFERENCE</b><br/>", styNormal)
             
-            if self.formazione == 'Natural':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
+            if self.formazione and 'natural' in self.formazione.lower():
+                label_NAT = Paragraph("<i>NAT.</i><br/>X", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-            elif self.formazione == 'Artificial':
+            elif self.formazione:
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
-            elif self.formazione !='Natural' or 'Artificial':    
+                label_ART = Paragraph("<i>ART.</i><br/>X", styNormal)
+            else:    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             
@@ -1699,7 +1699,7 @@ class single_US_pdf_sheet(object):
 
             #27 row
 
-            dati_quantitativi = Paragraph("<b>ARTEFACT QUANTITY</b><br/>", styNormal)  # manca valore
+            dati_quantitativi = Paragraph("<b>ARTEFACT QUANTITY</b><br/>" + self.escape_html(inclusi), styNormal)
 
             #28 row
 
@@ -1951,13 +1951,13 @@ class single_US_pdf_sheet(object):
             label_unita_stratigrafica = Paragraph("<b>NUMBER/SU CODE</b><br/>"+ str(self.us), styNormal)
             label_sas = Paragraph("<b>NUMBER/IDENTIFICATION CODE OF THE STRATIGRAPHIC ASSAY/BUILDING/STRUCTURE/FUNERARY DEPOSITION OF REFERENCE</b><br/>", styNormal)
             
-            if self.formazione == 'Natural':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
+            if self.formazione and 'natural' in self.formazione.lower():
+                label_NAT = Paragraph("<i>NAT.</i><br/>X", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
-            elif self.formazione == 'Artificial':
+            elif self.formazione:
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>ART.</i><br/>" + self.escape_html(self.formazione), styNormal)
-            elif self.formazione !='Natural' or 'Artificial':    
+                label_ART = Paragraph("<i>ART.</i><br/>X", styNormal)
+            else:    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>ART.</i>",  styNormal) 
             
@@ -2473,13 +2473,13 @@ class single_US_pdf_sheet(object):
             label_unita_stratigrafica = Paragraph("<b>NUMMER/IDENTIFIKATIONSCODE DER STRATIGRAPHISCHEN EINHEIT</b><br/>"+ str(self.us), styNormal)
             label_sas = Paragraph("<b>NUMMER/IDENTIFIZIERUNGSCODE DES STRATIGRAPHISCHEN AUFSATZES/GEBÄUDES/DER STRUKTUR/DER FUNERÄREN ABLAGERUNG DER REFERENZ</b><br/>", styNormal)
             
-            if self.formazione == 'Natürlich':
-                label_NAT = Paragraph("<i>NAT.</i><br/>" + self.escape_html(self.formazione), styNormal)
-                label_ART = Paragraph("<i>KÜN.</i>",  styNormal) 
-            elif self.formazione == 'Künstliche':
+            if self.formazione and 'natürlich' in self.formazione.lower():
+                label_NAT = Paragraph("<i>NAT.</i><br/>X", styNormal)
+                label_ART = Paragraph("<i>KÜN.</i>", styNormal)
+            elif self.formazione:
                 label_NAT = Paragraph("<i>NAT.</i>", styNormal)
-                label_ART = Paragraph("<i>KÜN.</i><br/>"+ self.formazione, styNormal)
-            elif self.formazione !='Natürlich' or 'Künstliche':    
+                label_ART = Paragraph("<i>KÜN.</i><br/>X", styNormal)
+            else:    
                 label_NAT = Paragraph("<i>NAT.</i><br/>", styNormal)
                 label_ART = Paragraph("<i>KÜN.</i>",  styNormal) 
             
@@ -2590,7 +2590,7 @@ class single_US_pdf_sheet(object):
 
             #27 row
 
-            dati_quantitativi = Paragraph("<b>QUANTITATIVE DATEN DER BEFUNDE</b><br/>", styNormal)  # manca valore
+            dati_quantitativi = Paragraph("<b>QUANTITATIVE DATEN DER BEFUNDE</b><br/>" + self.escape_html(inclusi), styNormal)
 
             #28 row
 
