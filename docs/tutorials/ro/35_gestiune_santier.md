@@ -9,9 +9,11 @@
 6. [Fisa Echipamente](#fisa-echipamente)
 7. [Fisa Buget](#fisa-buget)
 8. [Computo Metric](#computo-metric)
-9. [Flux de lucru recomandat](#flux-de-lucru-recomandat)
-10. [Depanare](#depanare)
-11. [Intrebari frecvente](#intrebari-frecvente)
+9. [Vizualizare 2D si 3D a Computo Metric](#vizualizare-2d-si-3d-a-computo-metric)
+10. [Export PDF si CSV al Panoului](#export-pdf-si-csv-al-panoului)
+11. [Flux de lucru recomandat](#flux-de-lucru-recomandat)
+12. [Depanare](#depanare)
+13. [Intrebari frecvente](#intrebari-frecvente)
 
 ---
 
@@ -128,6 +130,21 @@ Alertele de intarziere sunt afisate cu **text rosu** si includ numarul de echipa
 
 <!-- IMAGINE: Sectiunea sumar echipamente cu alerta de mentenanta -->
 > **Fig. 7**: Sumarul echipamentelor cu alerta de mentenanta intarziata (text rosu)
+
+### Noul aspect cu file al Panoului Santier
+
+Incepand cu versiunea curenta, fereastra **Panou Santier** a fost reorganizata in **trei file** pentru a face loc noului panou **Analiza Costurilor** fara a incarca vizual interfata. Randul de antet cu **Santier**, **An** si butonul **Actualizeaza** ramane vizibil deasupra filelor, astfel incat santierul sau anul pot fi schimbate in orice moment: toate filele se actualizeaza automat.
+
+| Fila | Continut |
+|------|----------|
+| **Sumar** | Vederea afisata la deschiderea panoului. Sus, pe toata latimea, **Sumarul Bugetului** (bara de progres si grafic de tip placinta); sub acesta, alaturat, sumarele **Personal** si **Echipamente** |
+| **Computo Metric** | Grupeaza intregul flux de calcul DEM: combo-urile **DEM Pre**, **DEM Post** si **Poligon**, butoanele radio **Diferenta DEM** / **DEM pe Poligon**, butonul **Calculeaza**, etichetele de **arie** si **volum**, noul grup **Analiza Costurilor** (EUR/m3, m3/zi -> cost total, zile estimate, cost zilnic), butonul **Salveaza Inregistrare**, butoanele **Afisare 2D** / **Afisare 3D** / **Export 2DM + 3D** si **tabelul de istoric** in partea de jos |
+| **Export** | Butoanele de **export PDF** si **CSV** insotite de o scurta descriere |
+
+<!-- IMAGINE: Noul aspect cu file al Panoului Santier (Sumar / Computo Metric / Export) -->
+> **Fig. 7a**: Noul aspect cu file al Panoului Santier cu antetul Santier / An / Actualizeaza mereu vizibil
+
+**Fix**: DEM-urile nu mai dispar la apasarea butonului **Calculeaza** (regresie din 5.0.13-alpha in care reimprospatarea automata a combo-urilor resetata selectia curenta).
 
 ---
 
@@ -348,6 +365,196 @@ Tabelul din partea inferioara a sectiunii afiseaza toate calculele anterioare:
 
 <!-- IMAGINE: Tabelul istoric computo cu mai multe inregistrari -->
 > **Fig. 17**: Istoricul calculelor de computo metric cu mai multe inregistrari
+
+Incepand cu versiunea 5.1, langa butonul **Calculeaza** sunt disponibile si butoanele **Afiseaza 2D**, **Afiseaza 3D** si **Creeaza plasa 3D**, pentru a vizualiza rezultatul calculului direct pe harta si intr-o vedere tridimensionala interactiva. Vezi sectiunea [Vizualizare 2D si 3D a Computo Metric](#vizualizare-2d-si-3d-a-computo-metric).
+
+---
+
+## Vizualizare 2D si 3D a Computo Metric
+
+Incepand cu versiunea 5.1, dupa apasarea butonului **Calculeaza** din panoul Computo Metric, Panoul Santier nu se mai limiteaza la afisarea valorilor numerice (aria si volum): creeaza automat un set de straturi cartografice si pune la dispozitie o vedere 3D interactiva.
+
+### Ce se intampla la apasarea butonului "Calculeaza"
+
+La finalizarea unui calcul de diferenta DEM, Panoul Santier executa automat urmatorii pasi:
+
+1. **Salvare permanenta a rasterului diferenta**: rasterul rezultat (DEM post - DEM pre) este salvat ca GeoTIFF permanent in `<PYARCHINIT_HOME>/site_dashboard/<numele santierului>/`. Astfel, rasterul nu mai este pierdut la inchiderea QGIS si poate fi reutilizat oricand.
+2. **Adaugare la proiectul QGIS**: rasterul este adaugat in panoul Straturi intr-un grup dedicat numit **"Site Dashboard - Computi"**, pentru a pastra toate calculele organizate.
+3. **Stil automat**: rasterul primeste o **rampa de culori divergenta**:
+   - **Rosu** pentru zonele de sapatura (valori negative, pamant excavat)
+   - **Albastru** pentru zonele de umplutura (valori pozitive, pamant adaugat)
+   - **Transparent / neutru** pentru celulele cu variatie neglijabila (|diff| <= 1 cm)
+4. **Poligonizarea zonei de interventie**: celulele raster cu |diff| > 1 cm sunt convertite intr-un strat vectorial de poligoane, adaugat tot in grupul "Site Dashboard - Computi" cu un stil evidentiat, pentru a arata dintr-o privire extinderea totala a interventiei.
+5. **Zoom automat**: harta principala QGIS este centrata automat pe extinderea calculului.
+
+### Cerinte
+
+Pentru a folosi noile vizualizari 2D / 3D este necesar:
+
+- Sa aveti **doua straturi raster DEM** incarcate in proiectul QGIS (de obicei un DEM **pre** si un DEM **post** sapatura)
+- Sa le selectati corect in listele derulante **DEM Pre** si **DEM Post** din panoul Computo Metric
+- Sistemul de referinta (CRS) al celor doua rastere sa fie coerent
+
+### Butoane noi
+
+Langa butonul **Calculeaza** sunt acum disponibile trei butoane noi:
+
+| Buton | Descriere |
+|-------|-----------|
+| **Afiseaza 2D** | Recentreaza harta QGIS pe extinderea ultimului calcul. Util pentru a reveni rapid la Computo Metric activ dupa ce ati lucrat in alte zone. |
+| **Afiseaza 3D** | Deschide un dialog 3D interactiv care foloseste DEM **pre** ca suprafata de teren, cu rasterul diferenta suprapus. Include: un control pentru **exagerarea verticala**, casete de bifare pentru activarea / dezactivarea straturilor individuale si un buton **Reseteaza vederea**. |
+| **Creeaza plasa 3D** | Construieste plase TIN din DEM pre si post (prin algoritmii QGIS Processing). Plasele pot fi afisate in vizualizatorul 3D pentru a compara vizual cele doua suprafete si volumul dintre ele. |
+
+<!-- IMAGINE: Noile butoane Afiseaza 2D, Afiseaza 3D si Creeaza plasa 3D langa butonul Calculeaza -->
+> **Fig. 18**: Noile butoane **Afiseaza 2D**, **Afiseaza 3D** si **Creeaza plasa 3D** langa butonul **Calculeaza**
+
+<!-- IMAGINE: Dialog 3D interactiv cu DEM pre ca teren si rasterul diferenta suprapus -->
+> **Fig. 19**: Dialogul 3D interactiv al Computo Metric cu exagerare verticala si control al straturilor
+
+### Flux de lucru tipic
+
+1. Incarcati in proiectul QGIS cele doua rastere DEM (pre si post)
+2. Deschideti **Panoul Santier**
+3. In sectiunea **Computo Metric** selectati cele doua DEM-uri in **DEM Pre** si **DEM Post**
+4. Apasati **Calculeaza**: rasterul diferenta si poligonul de interventie sunt create automat, iar harta este centrata pe extindere
+5. Cititi valorile numerice (aria, volum, sapatura, umplutura) direct in panou
+6. Apasati **Afiseaza 3D** pentru a deschide vederea tridimensionala
+7. (Optional) Apasati **Creeaza plasa 3D** pentru a genera si afisa plasele TIN ale celor doua DEM-uri
+8. Apasati **Salveaza Computo** pentru a arhiva rezultatul in istoric
+
+### Organizare pe disc
+
+Toate rasterele si straturile generate de Computo Metric sunt salvate in:
+
+```
+<PYARCHINIT_HOME>/site_dashboard/<numele santierului>/
+```
+
+unde `<PYARCHINIT_HOME>` este folderul de lucru configurat in setarile PyArchInit, iar `<numele santierului>` este santierul curent selectat in panou. Astfel se pastreaza un istoric fizic al tuturor calculelor si straturile pot fi reutilizate si in alte proiecte QGIS.
+
+### Actualizare: "Afiseaza 2D" -- Dialog analitic de sectiune
+
+Incepand cu urmatoarea versiune, butonul **Afiseaza 2D** din panoul Computo Metric nu se mai limiteaza la recentrarea hartii pe ultimul calcul: deschide un **dialog analitic bazat pe matplotlib** care prezinta rezultatele sapaturii ca o sectiune arheologica clasica.
+
+Dialogul este disponibil **numai atunci cand calculul a fost efectuat in modul "Diferenta DEM"** (cu DEM pre si DEM post). Daca ati folosit modul **DEM + Poligon**, butonul se comporta ca inainte si doar face zoom pe harta QGIS la extinderea calculului.
+
+Cand este disponibil, dialogul contine urmatoarele panouri:
+
+| Panou | Descriere |
+|-------|-----------|
+| **Harta termica a diferentei DEM** | Harta termica 2D a rasterului sapatura/umplutura cu o rampa de culori divergenta (rosu pentru sapatura, albastru pentru umplutura) |
+| **Histograma** | Distributia adancimilor de **sapatura** si a inaltimilor de **umplutura**, pentru a obtine imediat un rezumat statistic al volumului deplasat |
+| **Sectiune longitudinala (E-V)** | Sectiunea arheologica clasica: **DEM pre** este desenat in **albastru**, **DEM post** in **rosu**, iar volumul excavat este **umplut** intre cele doua linii |
+| **Sectiune transversala (N-S)** | Aceeasi logica ca si sectiunea E-V, dar pe directia Nord-Sud |
+| **Spinbox rand / coloana** | Permit deplasarea interactiva a pozitiei celor doua sectiuni pe raster, pentru a explora intreaga sapatura |
+| **Butonul "Salveaza PNG"** | Exporta intreaga figura (harta termica, histograma si ambele sectiuni) ca imagine PNG, gata de inclus in raportul de sapatura |
+
+<!-- IMAGINE: Dialog analitic Afiseaza 2D cu harta termica, histograma si sectiuni E-V / N-S -->
+> **Fig. 20**: Noul dialog analitic **Afiseaza 2D** cu harta termica a diferentei DEM, histograma sapatura / umplutura si ambele sectiuni longitudinala si transversala (DEM pre in albastru, DEM post in rosu, volumul excavat umplut intre cele doua linii)
+
+### Actualizare: "Afiseaza 3D" -- Rezerva matplotlib
+
+Butonul **Afiseaza 3D** gestioneaza acum automat doua scenarii in functie de versiunea de QGIS instalata:
+
+1. **QGIS cu modulul 3D nativ (Qt3D disponibil)**: ca si inainte, se deschide dialogul `Qgs3DMapCanvas` incorporat, cu teren construit din DEM pre, exagerare verticala si control al straturilor.
+2. **QGIS fara modulul 3D (eroare "QGIS 3D module not available")**: Panoul Santier trece automat la un **vizualizator 3D bazat pe matplotlib**. Deoarece matplotlib face parte din dependentele instalate deja de plugin, acest vizualizator **functioneaza intotdeauna**, chiar si pe build-uri QGIS minimale, compilate fara suport 3D.
+
+Vizualizatorul de rezerva ofera:
+
+| Control | Descriere |
+|---------|-----------|
+| **Mod de afisare** | Trei moduri selectabile: **Pre + Post** (ambele suprafete suprapuse), **Doar diferenta** (numai suprafata de sapatura/umplutura), **Doar Pre** (DEM pre ca suprafata de referinta) |
+| **Exagerare verticala** | Un cursor pentru a accentua diferenta de cota dintre cele doua suprafete -- util cand sapatura este putin adanca |
+| **Rotatie interactiva** | Tragand cu mouse-ul, scena 3D poate fi rotita in timp real pentru a explora sapatura din orice unghi |
+
+<!-- IMAGINE: Vizualizator 3D matplotlib de rezerva in modul Pre + Post -->
+> **Fig. 21**: Vizualizatorul 3D matplotlib de rezerva, folosit atunci cand modulul Qt3D nativ al QGIS nu este disponibil: arata suprafetele pre si post cu exagerare verticala reglabila
+
+### Actualizare: "Creeaza plasa 3D" -- Stil automat de teren
+
+Butonul **Creeaza plasa 3D** aplica acum automat o **rampa de culori de tip teren** grupului de seturi de date de elevatie al plasei (**Bed Elevation**). Anterior, plasa arata ca o suprafata plata, dificil de citit; acum devine imediat o harta expresiva a cotelor:
+
+- **Verde** pentru cotele cele mai joase
+- **Portocaliu** pentru cotele intermediare
+- **Maro** pentru cotele cele mai inalte
+
+Astfel, plasa este imediat vizibila si semnificativa in harta QGIS, chiar inainte de a deschide vederea 3D. Dupa ce ati construit-o, este suficient sa apasati **Afiseaza 3D** pentru a o vedea redata ca suprafata tridimensionala, fie prin modulul 3D nativ al QGIS, fie prin vizualizatorul matplotlib de rezerva descris mai sus.
+
+<!-- IMAGINE: Plasa 3D cu noua rampa verde / portocaliu / maro de tip teren -->
+> **Fig. 22**: Plasa 3D cu noua rampa de culori de tip teren aplicata automat pe setul de date de elevatie
+
+### Actualizare: poligon ca masca de decupare
+
+Daca in panoul Computo Metric, pe langa cele doua DEM-uri, selectati si un strat vectorial in combobox-ul **Strat Poligon** mentinand activa modalitatea **Diferenta DEM**, poligonul este folosit acum ca **masca de decupare**: ambele DEM-uri sunt decupate pe poligon inainte de calculul diferentei, astfel incat sectiunea analitica 2D, rezerva 3D matplotlib si plasa TIN lucreaza exclusiv pe zona de interventie. Fluxul tipic este: desenati un poligon in jurul sapaturii, selectati DEM-urile pre si post, alegeti poligonul in combobox-ul **Strat Poligon** si apasati **Calculeaza**. Cele doua rastere decupate sunt adaugate automat in grupul **"Cruscotto Cantiere - Computi"** din arborele de straturi, gata de reutilizare.
+
+### Actualizare: "Creeaza plasa 3D" -- fara blocari
+
+Versiunile anterioare puteau provoca blocari ale QGIS pe unele build-uri din cauza unui segfault C++ in interiorul algoritmilor de Processing folositi pentru construirea plasei. Generarea a fost rescrisa in **Python pur**: Panoul citeste DEM-ul cu GDAL si scrie direct un fisier 2DM cu o **plasa de patrulatere pe grila regulata**, fara a depinde de algoritmii nativi. Rezultatul este sigur pe orice versiune de QGIS. Plasele cu mai mult de aproximativ **15 000 de celule** sunt reesantionate automat pentru a mentine construirea rapida si fisierul usor, iar celulele cu valoare nodata sunt omise: atunci cand este activa o masca poligonala, plasa urmeaza deci exact forma zonei de interventie decupate. In rarul caz in care generarea esueaza din alte motive (disc plin, permisiuni), dialogul sugereaza acum sa deschideti direct **Afiseaza 3D**, care foloseste vizualizatorul matplotlib de rezerva si nu are nevoie de niciun strat plasa.
+
+### Actualizare: auto-reincarcarea combourilor la click pe "Calculeaza"
+
+Panoul Computo Metric **actualizeaza acum automat listele de DEM si de poligon de fiecare data cand se face click pe "Calculeaza"**: nu mai este necesar sa inchideti si sa redeschideti Panoul Santier dupa incarcarea unui nou raster sau dupa desenarea unui nou poligon in proiect. Este suficient sa adaugati stratul in QGIS, sa reveniti in panou si sa apasati **Calculeaza** -- combourile **DEM Pre**, **DEM Post** si **Strat Poligon** sunt repopulate instantaneu cu starea curenta a proiectului. Diagnosticul eventual al decuparii (succes, SRC incompatibil, intersectie vida) este afisat in **bara de mesaje a QGIS**, astfel incat sa fie mereu clar ce straturi au fost folosite efectiv in calcul.
+
+### Actualizare: buton redenumit "Exporta 2DM + 3D"
+
+Butonul numit anterior **Creeaza plasa 3D** a fost redenumit in **Exporta 2DM + 3D** pentru a reflecta noul sau comportament: **nu mai** incarca plasa ca strat in proiectul QGIS (API-ul nativ de mesh poate provoca blocari pe unele build-uri de QGIS) si, in schimb, efectueaza doua actiuni sigure si complementare. Scrie fisierele **2DM** pe disc pornind de la DEM-urile pre si post (utile pentru import in software extern de post-procesare) si deschide direct **vizualizarea 3D matplotlib** pe DEM-urile decupate, astfel incat rezultatul poate fi evaluat vizual imediat. In acest fel, riscul de blocare este eliminat complet, pentru ca API-ul de mesh al QGIS nu mai este apelat niciodata.
+
+### Actualizare: decuparea poligonului cu diagnostica vizibila
+
+Atunci cand selectati un strat in combobox-ul **Strat Poligon** impreuna cu cele doua DEM-uri, decuparea rasterelor pe poligon este acum **inregistrata in bara de mesaje a QGIS**: in caz de succes este afisata lista fisierelor decupate scrise pe disc, iar in caz de esec este indicat motivul concret (de exemplu poligon intr-un SRC diferit de cel al DEM-urilor, nicio intersectie geometrica intre poligon si raster, fisier sursa lipsa sau necitibil). Astfel este imediat clar de ce o decupare nu a fost aplicata si ce trebuie corectat (reproiectarea poligonului, mutarea lui peste zona DEM-urilor, verificarea caii fisierului), fara a fi nevoie sa deschideti log-uri sau consola Python.
+
+### Actualizare: decuparea poligonului si in modul "DEM pe Poligon"
+
+Decuparea poligonului functioneaza acum si atunci cand este selectat butonul radio **DEM pe Poligon** (modul zonal-stats cu un singur DEM): rasterul este decupat la extinderea poligonului **inainte** de a fi transmis vizualizatoarelor **Arata 2D**, **Arata 3D** si **Exporta 2DM + 3D**, astfel incat sectiunea si vederea 3D afiseaza doar zona de interventie in loc de intregul DEM, asa cum se intampla inainte. Mesajul de diagnostica al decuparii apare in **bara de mesaje a QGIS** exact ca in modul Diferenta DEM. In acest scenariu cu un singur DEM, vizualizatorul **Arata 2D** se adapteaza automat: heat-map-ul afiseaza cotele cu o rampa de culori **terrain**, histograma reprezinta distributia cotelor cu linia mediei, iar cele doua sectiuni longitudinala/transversala traseaza o singura linie de cota (fara umplere intre pre si post, pentru ca DEM-ul post nu exista).
+
+### Actualizare: Analiza Costurilor la Computo Metric
+
+In panoul Computo Metric al Panoului Santier a fost adaugat un nou bloc **Analiza Costurilor** cu doi parametri de intrare: **Cost unitar** (in euro/mc) si **Productivitate** (in mc/zi). La fiecare apasare a butonului **Calculeaza**, panoul actualizeaza automat trei valori derivate vizibile dintr-o privire: **Cost total** (volum x cost unitar), **Zile estimate** (volum / productivitate) si **Cost zilnic** (cost unitar x productivitate). Ambele intrari sunt salvate automat **pe santier** in setarile QGIS (chei `pyArchInit/site_dashboard/costs/<santier>/...`), astfel incat este suficient sa le introduceti o singura data pentru fiecare santier: la schimbarea santierului valorile salvate sunt reincarcate automat, iar cele trei totaluri sunt recalculate in timp real la fiecare nou calcul.
+
+### Actualizare: decupare pre/post aliniata
+
+Calculul diferentei DEM necesita ca cele doua DEM-uri (pre si post) sa fie perfect aliniate pe aceeasi grila de pixeli. In versiunile anterioare, atunci cand se folosea un poligon de decupare, cele doua DEM-uri decupate puteau ajunge pe grile usor diferite, iar calculul `pre - post` rezulta eronat sau gol. Acum ambele decupari folosesc **rezolutia nativa a DEM-ului pre** ca referinta (aceleasi `xRes` / `yRes` si aceeasi aliniere a grilei), astfel incat cele doua rastere decupate sunt intotdeauna aliniate la nivel de pixel, iar diferenta produce un rezultat valid. Chiar si transeele minime din care au fost scoase doar "10 galeti de pamant" (aproximativ 1 mc) sunt acum capturate corect de calculul cantitatilor.
+
+### Actualizare: noul combo "Ziduri / Structuri"
+
+In panoul Computo Metric a fost adaugat un al doilea combo **Ziduri / Structuri** care permite selectarea unui strat de poligoane reprezentand ziduri, structuri in elevatie, piloni sau alte parti construite care **nu trebuie luate in calcul** in cubajul de sapatura. Cand se apasa **Calculeaza**, poligoanele zidurilor sunt rasterizate ca NODATA pe rasterul de diferenta decupat, iar celulele lor sunt excluse din totalul de volum; mesajul de diagnostica apare in bara de mesaje a QGIS (de exemplu `walls masked: muri_trincea_42`). Flux de lucru arheologic tipic: incarca DEM pre + DEM post + poligonul zonei de sapatura + poligonul zidurilor descoperite, selecteaza-le pe ambele in cele doua combo-uri si apasa **Calculeaza** -- volumul sapat exclude automat volumul structurilor.
+
+---
+
+## Export PDF si CSV al Panoului
+
+Panoul Santier permite exportul unui rezumat complet al datelor de gestiune in doua formate: **PDF** (document paginat, ideal pentru predare catre beneficiar sau pentru arhivare) si **CSV** (ideal pentru analize ulterioare in Excel sau alte foi de calcul).
+
+### Export PDF
+
+Butonul **Exporta PDF** genereaza un raport complet al santierului. Incepand cu versiunea 5.1, PDF-ul include:
+
+- **Pagina de coperta reinnoita** cu numele santierului, anul de referinta si data generarii
+- **Rezumat buget** cu tabele detaliate pe categorii si totaluri (planificat vs efectiv)
+- **Rezumat personal** cu statistici de prezenta, ore lucrate si costuri
+- **Rezumat echipamente** cu starea inventarului si mentenanțe scadente
+- **Sectiune noua "Computo Metric"** care include:
+  - Un tabel detaliat cu toate calculele salvate
+  - **Totaluri**: aria totala (mp) si volumul total (mc)
+  - **Statistici**: volumul de sapatura, volumul de umplutura, aria afectata
+- **Sectiune noua "Analiza Costurilor"** (plasata intre **Computo Metric** si **Statistici**) cu o parameter card a valorilor configurate (cost unitar in euro/mc si productivitate in mc/zi), un tabel detaliat pe fiecare inregistrare (data, tip, volum, cost, zile estimate, cost zilnic) si un rand de **totaluri** la baza tabelului; blocul **Statistici** a fost extins cu **cost total** si **zile totale** de santier
+- **Suport complet pentru caractere speciale**: randarea PDF a fost corectata pentru toate limbile suportate, inclusiv literele cu diacritice din romana (**a**, **a**, **i**, **s**, **t**), caracterele **grecesti**, **arabe**, **portugheze** si **catalane**.
+
+### Export CSV
+
+Butonul **Exporta CSV** genereaza un fisier CSV compatibil cu principalele aplicatii de calcul tabelar. Incepand cu versiunea 5.1:
+
+- **Codificare UTF-8 cu BOM**: garanteaza ca Excel (in special versiunea europeana) deschide corect fisierul fara sa corupa literele cu diacritice si caracterele speciale
+- **Separator `;`** (punct si virgula): compatibil cu localizarea europeana a Excel-ului
+- **Sectiune COMPUTO METRICO**: include toate datele de computo metric, cu tipul, aria, volumul si notele fiecarui calcul
+- **Sectiune noua `=== ANALIZA COSTURILOR ===`**: incepe cu cei doi parametri (cost unitar in euro/mc si productivitate in mc/zi) si este urmata de tabelul detaliat pe fiecare inregistrare (data, tip, volum, cost, zile estimate, cost zilnic), gata pentru a fi filtrat sau agregat in Excel
+- **Bloc SUMMARY final extins**: un rezumat agregat cu totaluri si statistici, util pentru analize rapide fara a fi nevoie de formule; acum include si **Cost total** si **Zile totale** calculate pornind de la noua Analiza Costurilor
+
+<!-- IMAGINE: PDF exportat cu noua sectiune Computo Metric -->
+> **Fig. 20**: Exemplu de PDF exportat cu noua sectiune **Computo Metric** (tabel, totaluri si statistici)
+
+<!-- IMAGINE: CSV exportat deschis in Excel cu sectiunea COMPUTO METRICO si blocul SUMMARY -->
+> **Fig. 21**: Exemplu de CSV exportat deschis in Excel cu sectiunea **COMPUTO METRICO** si blocul **SUMMARY** final
 
 ---
 

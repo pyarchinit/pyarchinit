@@ -9,9 +9,11 @@
 6. [Attrezzature](#attrezzature)
 7. [Budget](#budget)
 8. [Computo Metrico e Calcolo DEM](#computo-metrico-e-calcolo-dem)
-9. [Flusso di lavoro consigliato](#flusso-di-lavoro-consigliato)
-10. [Risoluzione dei problemi](#risoluzione-dei-problemi)
-11. [Domande Frequenti](#domande-frequenti)
+9. [Visualizzazione 2D e 3D del Computo Metrico](#visualizzazione-2d-e-3d-del-computo-metrico)
+10. [Esportazione PDF e CSV del Cruscotto](#esportazione-pdf-e-csv-del-cruscotto)
+11. [Flusso di lavoro consigliato](#flusso-di-lavoro-consigliato)
+12. [Risoluzione dei problemi](#risoluzione-dei-problemi)
+13. [Domande Frequenti](#domande-frequenti)
 
 ---
 
@@ -139,8 +141,10 @@ La sezione computo metrico nella dashboard consente di eseguire calcoli volumetr
 
 I risultati dei calcoli vengono **salvati automaticamente nel database** e visualizzati nella **tabella storico computi** in basso nella dashboard.
 
-<!-- IMAGE: Sezione computo metrico con i due pulsanti di calcolo -->
-> **Fig. 7**: Sezione Computo Metrico della dashboard con le opzioni di calcolo DEM
+A partire dalla versione 5.1, accanto al pulsante **Calcola** sono disponibili anche i pulsanti **Mostra 2D**, **Mostra 3D** e **Crea mesh 3D** per visualizzare il risultato del computo direttamente sulla mappa e in una vista tridimensionale interattiva. Per i dettagli vedi la sezione [Visualizzazione 2D e 3D del Computo Metrico](#visualizzazione-2d-e-3d-del-computo-metrico).
+
+<!-- IMAGE: Sezione computo metrico con i pulsanti di calcolo e visualizzazione 2D/3D -->
+> **Fig. 7**: Sezione Computo Metrico della dashboard con le opzioni di calcolo DEM e i nuovi pulsanti di visualizzazione 2D / 3D
 
 ### Tabella Storico Computi
 
@@ -155,6 +159,21 @@ Questa tabella consente di tenere traccia dell'evoluzione volumetrica dello scav
 
 <!-- IMAGE: Tabella storico dei computi metrici -->
 > **Fig. 8**: Tabella con lo storico dei calcoli di computo metrico
+
+### Nuovo layout a schede della Dashboard Cantiere
+
+A partire dalla versione corrente, la finestra **Cruscotto Cantiere** e stata riorganizzata in **tre schede** per fare spazio al nuovo pannello di **Analisi dei Costi** senza appesantire la vista. L'intestazione con **Sito**, **Anno** e il pulsante **Aggiorna** rimane visibile sopra le schede, in modo da poter cambiare sito o anno in qualsiasi momento: tutte le schede vengono aggiornate automaticamente.
+
+| Scheda | Contenuto |
+|--------|-----------|
+| **Riepilogo** | E la vista mostrata all'apertura della dashboard. In alto, a tutta larghezza, il **Riepilogo Budget** (barra di progresso e grafico a torta); sotto, affiancati, i riepiloghi **Personale** e **Attrezzature** |
+| **Computo Metrico** | Raccoglie tutto il flusso di calcolo DEM: combo **DEM Pre**, **DEM Post** e **Poligono**, radio **Differenza DEM** / **DEM su Poligono**, pulsante **Calcola**, etichette di **area** e **volume**, il nuovo gruppo **Analisi dei Costi** (EUR/m3, m3/giorno -> costo totale, giorni stimati, costo giornaliero), pulsante **Salva Record**, pulsanti **Mostra 2D** / **Mostra 3D** / **Esporta 2DM + 3D** e la **tabella storico** dei computi in basso |
+| **Esportazione** | I pulsanti di **esportazione PDF** e **CSV** dei dati del cruscotto, accompagnati da una breve descrizione |
+
+<!-- IMAGE: Nuovo layout a schede del Cruscotto Cantiere (Riepilogo / Computo Metrico / Esportazione) -->
+> **Fig. 8a**: Il nuovo layout a schede della Dashboard Cantiere con l'intestazione Sito / Anno / Aggiorna sempre visibile
+
+**Fix**: i DEM non spariscono piu quando si preme **Calcola** (regressione della 5.0.13-alpha in cui l'auto-refresh dei combo resettava la selezione corrente).
 
 ---
 
@@ -353,6 +372,194 @@ Il calcolo **DEM + Poligono** calcola il volume di terreno all'interno di un'are
 
 ---
 
+## Visualizzazione 2D e 3D del Computo Metrico
+
+A partire dalla versione 5.1, dopo aver premuto il pulsante **Calcola** nel pannello Computo Metrico, il Cruscotto Cantiere non si limita piu a mostrare i valori numerici (area e volume), ma crea automaticamente una serie di layer cartografici e rende disponibile una vista 3D interattiva.
+
+### Cosa succede quando premi "Calcola"
+
+Al termine del calcolo della differenza DEM, il Cruscotto esegue automaticamente le seguenti operazioni:
+
+1. **Salvataggio permanente del raster di differenza**: il raster risultante (DEM post - DEM pre) viene salvato in modo permanente nella cartella `<PYARCHINIT_HOME>/site_dashboard/<nome sito>/` come file GeoTIFF. In questo modo il raster non viene perso alla chiusura di QGIS e puo essere riutilizzato in qualsiasi momento.
+2. **Aggiunta al progetto QGIS**: il raster viene aggiunto al pannello layer dentro un gruppo dedicato chiamato **"Cruscotto Cantiere - Computi"**, per tenere ordinati tutti i calcoli eseguiti.
+3. **Stile automatico**: al raster viene applicata una **rampa di colori divergente**:
+   - **Rosso** per le zone di scavo (valori negativi, terreno rimosso)
+   - **Blu** per le zone di riporto (valori positivi, terreno aggiunto)
+   - **Trasparente / neutro** per le zone con variazione trascurabile (|diff| <= 1 cm)
+4. **Poligonizzazione dell'area di intervento**: le celle raster in cui la variazione di quota supera 1 cm vengono poligonalizzate in un layer vettoriale di tipo poligono, aggiunto anch'esso al gruppo "Cruscotto Cantiere - Computi" con uno stile evidenziato, per mostrare a colpo d'occhio l'estensione complessiva dell'intervento.
+5. **Zoom automatico**: la vista principale della mappa di QGIS viene inquadrata automaticamente sull'estensione del calcolo.
+
+### Prerequisiti
+
+Per poter utilizzare le nuove visualizzazioni 2D / 3D del Computo Metrico e necessario:
+
+- Avere **due layer raster DEM** caricati nel progetto QGIS (tipicamente un DEM **pre**-scavo e un DEM **post**-scavo)
+- Selezionarli correttamente nei combobox **DEM Pre** e **DEM Post** della sezione Computo Metrico
+- Il sistema di riferimento (CRS) dei due raster deve essere coerente
+
+### Nuovi pulsanti
+
+Accanto al pulsante **Calcola** sono ora disponibili tre nuovi pulsanti:
+
+| Pulsante | Descrizione |
+|----------|-------------|
+| **Mostra 2D** | Ricentra la mappa di QGIS sull'estensione dell'ultimo calcolo eseguito. Utile dopo aver lavorato su altre aree per tornare rapidamente al Computo Metrico attivo. |
+| **Mostra 3D** | Apre una finestra di dialogo 3D interattiva che utilizza il DEM pre come terreno, con il raster di differenza sovrapposto ("drape"). Include: spinbox per l'**esagerazione verticale**, checkbox per attivare / disattivare i singoli layer e pulsante di **reset vista**. |
+| **Crea mesh 3D** | Costruisce mesh TIN a partire dai DEM pre e post (tramite gli algoritmi di QGIS Processing). Le mesh possono essere visualizzate all'interno del visualizzatore 3D, permettendo di apprezzare visivamente le due superfici e il volume compreso tra esse. |
+
+<!-- IMAGE: I tre nuovi pulsanti Mostra 2D, Mostra 3D, Crea mesh 3D accanto al pulsante Calcola -->
+> **Fig. 15**: I nuovi pulsanti **Mostra 2D**, **Mostra 3D** e **Crea mesh 3D** affiancati al pulsante **Calcola** nel pannello Computo Metrico
+
+<!-- IMAGE: Finestra di dialogo 3D con il DEM pre come terreno e il raster di differenza drappeggiato -->
+> **Fig. 16**: La finestra 3D interattiva del Computo Metrico con esagerazione verticale e controllo dei layer
+
+### Flusso di lavoro tipico
+
+1. Caricare nel progetto QGIS i due raster DEM (pre e post scavo)
+2. Aprire il **Cruscotto Cantiere**
+3. Nella sezione **Computo Metrico**, selezionare i due DEM nei combobox **DEM Pre** e **DEM Post**
+4. Premere **Calcola**: il raster di differenza e il poligono di intervento vengono creati automaticamente e la mappa viene inquadrata sull'estensione
+5. Leggere i valori numerici (area, volume, scavo, riporto) direttamente nel pannello
+6. Premere **Mostra 3D** per aprire la visualizzazione tridimensionale
+7. (Opzionale) Premere **Crea mesh 3D** per generare e visualizzare le mesh TIN dei due DEM
+8. Salvare il risultato nello storico con **Salva Computo**
+
+### Organizzazione dei file su disco
+
+Tutti i raster e i layer generati vengono salvati in:
+
+```
+<PYARCHINIT_HOME>/site_dashboard/<nome sito>/
+```
+
+dove `<PYARCHINIT_HOME>` e la cartella di lavoro configurata nelle impostazioni di PyArchInit e `<nome sito>` e il nome del sito selezionato nella dashboard. Questo consente di conservare uno storico fisico dei computi e di riutilizzarli anche in progetti QGIS diversi.
+
+### Aggiornamento: "Mostra 2D" -- Sezione analitica
+
+A partire dalla release successiva, il pulsante **Mostra 2D** del pannello Computo Metrico non si limita piu a ricentrare la mappa sull'ultimo calcolo: apre una finestra di dialogo analitica basata su **matplotlib** che mostra in un colpo d'occhio i risultati dello scavo come sezione archeologica classica.
+
+La finestra e disponibile **solo quando il calcolo e stato eseguito in modalita "Differenza DEM"** (con DEM pre e DEM post). Se hai usato la modalita **DEM + Poligono**, il pulsante si comporta come prima e si limita a fare zoom sull'estensione del calcolo nella mappa di QGIS.
+
+Quando disponibile, la finestra contiene i seguenti pannelli:
+
+| Pannello | Descrizione |
+|----------|-------------|
+| **Heat-map differenza DEM** | Mappa di calore bidimensionale del raster differenza con rampa colore divergente (scavo / riporto) |
+| **Istogramma** | Distribuzione delle profondita di **scavo** e delle altezze di **riporto**, per avere subito la statistica dei volumi movimentati |
+| **Sezione longitudinale (E-W)** | La classica sezione archeologica: il **DEM pre** e disegnato in **blu**, il **DEM post** in **rosso** e il volume asportato e **riempito** fra le due linee |
+| **Sezione trasversale (N-S)** | Stessa logica della sezione E-W ma lungo la direzione Nord-Sud |
+| **Spinbox riga / colonna** | Permettono di scorrere la posizione delle due sezioni sul raster, per esplorare interattivamente tutto lo scavo |
+| **Pulsante "Salva PNG"** | Esporta l'intera figura (heat-map, istogramma e due sezioni) come immagine PNG, pronta per essere inclusa nella relazione di scavo |
+
+<!-- IMMAGINE: Finestra analitica di Mostra 2D con heat-map, istogramma e sezioni E-W / N-S -->
+> **Fig. 17**: La nuova finestra analitica di **Mostra 2D** con heat-map della differenza DEM, istogramma di scavo / riporto e le due sezioni longitudinale e trasversale (DEM pre in blu, DEM post in rosso, volume asportato riempito fra le due linee)
+
+### Aggiornamento: "Mostra 3D" -- Fallback matplotlib
+
+Il pulsante **Mostra 3D** ora gestisce in automatico due scenari a seconda del tipo di build di QGIS installata:
+
+1. **QGIS con modulo 3D nativo (Qt3D disponibile)**: si apre come prima la finestra `Qgs3DMapCanvas` embedded, con terreno basato sul DEM pre, esagerazione verticale e controllo dei layer.
+2. **QGIS senza modulo 3D (errore "QGIS 3D module not available")**: il Cruscotto effettua automaticamente il **fallback a un visualizzatore 3D basato su matplotlib**, che fa parte delle dipendenze gia installate dal plugin, quindi funziona sempre -- anche sui QGIS minimali o compilati senza supporto 3D.
+
+Il visualizzatore di fallback offre:
+
+| Controllo | Descrizione |
+|-----------|-------------|
+| **Modalita di visualizzazione** | Tre modalita selezionabili: **Pre + Post** (entrambe le superfici sovrapposte), **Differenza** (solo la superficie di scavo / riporto), **Solo Pre** (il DEM pre come superficie di riferimento) |
+| **Esagerazione verticale** | Slider per enfatizzare la differenza di quota fra le due superfici, utile quando lo scavo ha spessori ridotti |
+| **Rotazione interattiva** | Trascinando con il mouse e possibile ruotare la scena 3D in tempo reale per esplorare lo scavo da qualsiasi angolazione |
+
+<!-- IMMAGINE: Visualizzatore 3D matplotlib di fallback in modalita Pre + Post -->
+> **Fig. 18**: Il visualizzatore 3D matplotlib di fallback quando QGIS non dispone del modulo Qt3D: mostra la superficie pre e la superficie post con esagerazione verticale regolabile
+
+### Aggiornamento: "Crea mesh 3D" -- Stile automatico del terreno
+
+Il pulsante **Crea mesh 3D** applica ora in automatico una **rampa di colori tipo terreno** al *dataset group* di elevazione della mesh (`Bed Elevation`). La mesh passa quindi dal colore di default (spesso un grigio piatto, poco leggibile) a una vera e propria mappa di quota:
+
+- **Verde** per le quote piu basse
+- **Arancione** per le quote intermedie
+- **Marrone** per le quote piu alte
+
+In questo modo la mesh risulta subito visibile e significativa nel canvas di QGIS, anche prima di aprire la vista 3D. Dopo averla costruita, e sufficiente premere **Mostra 3D** per vederla renderizzata come superficie tridimensionale, sia con il modulo 3D nativo di QGIS sia tramite il visualizzatore matplotlib di fallback descritto sopra.
+
+<!-- IMMAGINE: Mesh 3D con la nuova rampa terreno verde / arancione / marrone -->
+> **Fig. 19**: La mesh 3D con la nuova rampa colore tipo terreno applicata automaticamente al dataset group di elevazione
+
+### Aggiornamento: poligono come maschera di ritaglio
+
+Se nel pannello Computo Metrico, oltre ai due DEM, si seleziona anche un layer vettoriale nel combobox **Layer Poligono** lasciando attiva la modalita **Differenza DEM**, il poligono viene ora utilizzato come **maschera di ritaglio**: entrambi i DEM vengono ritagliati sul poligono prima del calcolo della differenza, cosi che la sezione analitica 2D, il fallback 3D matplotlib e la mesh TIN lavorino esclusivamente sull'area di intervento. Il flusso tipico e: disegnare un poligono attorno allo scavo, selezionare i DEM pre e post, scegliere il poligono nel combobox **Layer Poligono** e premere **Calcola**. I due raster ritagliati vengono aggiunti automaticamente al gruppo **"Cruscotto Cantiere - Computi"** nel pannello layer, pronti per essere riutilizzati.
+
+### Aggiornamento: "Crea mesh 3D" -- niente piu crash
+
+Le versioni precedenti potevano far crashare QGIS su alcune build a causa di un segfault C++ interno agli algoritmi di Processing usati per costruire la mesh. La generazione e stata riscritta in **Python puro**: il Cruscotto legge il DEM con GDAL e scrive direttamente un file 2DM con una **mesh di quad a griglia regolare**, senza dipendere dagli algoritmi nativi. Il risultato e sicuro su qualunque versione di QGIS. Le mesh con piu di circa **15 000 celle** vengono automaticamente ricampionate per mantenere la costruzione rapida e il file leggero, mentre le celle con valore nodata vengono saltate: se e attiva una maschera poligonale di ritaglio, la mesh segue quindi esattamente la forma dell'area di intervento. Nel raro caso in cui la generazione fallisca per altri motivi (disco pieno, permessi), la finestra di dialogo suggerisce ora di aprire direttamente **Mostra 3D**, che usa il visualizzatore matplotlib di fallback e non richiede alcun layer mesh.
+
+### Aggiornamento: auto-refresh dei combo al click di "Calcola"
+
+Il pannello Computo Metrico ora **aggiorna automaticamente le liste DEM e poligono ogni volta che si clicca "Calcola"**: non e piu necessario chiudere e riaprire il Cruscotto dopo aver caricato un nuovo raster o disegnato un nuovo poligono nel progetto. Basta caricare il layer in QGIS, tornare sul pannello e premere **Calcola** -- i combobox **DEM Pre**, **DEM Post** e **Layer Poligono** vengono ripopolati al volo con lo stato corrente del progetto. L'eventuale diagnostica del clip (successo, CRS non compatibile, intersezione vuota) viene mostrata nella **barra dei messaggi di QGIS**, in modo che sia sempre chiaro quali layer sono stati effettivamente usati nel calcolo.
+
+### Aggiornamento: bottone rinominato "Esporta 2DM + 3D"
+
+Il bottone precedentemente chiamato **Crea mesh 3D** e stato rinominato in **Esporta 2DM + 3D** per riflettere il suo nuovo comportamento: **non** carica piu la mesh come layer nel progetto QGIS (l'API mesh nativa puo crashare su alcune build di QGIS) e si limita a due operazioni sicure e complementari. Scrive su disco i file **2DM** a partire dai DEM pre e post (utili per l'import in software di post-processing esterni) e apre direttamente la **vista 3D matplotlib** sui DEM clippati, cosi da poter valutare subito visivamente il risultato. In questo modo il rischio di crash e completamente eliminato, perche l'API mesh di QGIS non viene mai toccata.
+
+### Aggiornamento: clip del poligono con diagnostica visibile
+
+Quando si seleziona un layer nel combobox **Layer Poligono** insieme ai due DEM, il ritaglio dei raster sul poligono viene ora **tracciato nella barra messaggi di QGIS**: in caso di successo compare l'elenco dei file clippati scritti su disco, mentre in caso di fallimento viene riportato il motivo specifico (ad esempio poligono in un CRS diverso dai DEM, nessuna intersezione geometrica tra poligono e raster, file sorgente non trovato o non leggibile). In questo modo e immediato capire perche un clip non e stato applicato e quali correzioni fare (riproiettare il poligono, spostarlo sopra l'area dei DEM, controllare il percorso del file), senza dover aprire log o console Python.
+
+### Aggiornamento: clip del poligono anche in modalita "DEM su Poligono"
+
+Il clip del poligono funziona ora anche quando si seleziona il radio button **DEM su Poligono** (modalita zonal-stats con un solo DEM): il raster viene ritagliato sull'estensione del poligono **prima** di essere passato ai visualizzatori **Mostra 2D**, **Mostra 3D** ed **Esporta 2DM + 3D**, cosi la sezione e la vista 3D mostrano esclusivamente l'area di intervento anziche l'intero DEM come avveniva prima. Il messaggio di diagnostica del clip compare nella **barra messaggi di QGIS** esattamente come in modalita Differenza DEM. In questo scenario a singolo DEM, il visualizzatore **Mostra 2D** si adatta automaticamente: la heat-map mostra le quote con una rampa **terrain**, l'istogramma rappresenta la distribuzione delle quote con la linea della media, e le due sezioni longitudinale/trasversale tracciano una sola linea di quota (senza il fill tra pre e post, perche il post non esiste).
+
+### Aggiornamento: Analisi Costi del Computo Metrico
+
+Nel pannello Computo Metrico del Cruscotto Cantiere e stato aggiunto un nuovo riquadro **Analisi Costi** con due parametri di input: **Costo unitario** (espresso in euro/m3) e **Produttivita** (espressa in m3/giorno). Ad ogni pressione del pulsante **Calcola**, il pannello aggiorna automaticamente tre valori derivati visibili a colpo d'occhio: **Costo totale** (volume x costo unitario), **Giorni stimati** (volume / produttivita) e **Costo giornaliero** (costo unitario x produttivita). I due input sono salvati automaticamente **per-sito** nelle impostazioni di QGIS (chiavi `pyArchInit/site_dashboard/costs/<sito>/...`), quindi basta inserirli una volta per ciascun cantiere: cambiando sito i valori vengono ricaricati senza doverli reinserire, e i tre totali si ricalcolano in tempo reale ad ogni nuovo computo.
+
+### Aggiornamento: clip allineato pre/post
+
+Il calcolo della differenza DEM richiede che le due DEM (pre e post) siano esattamente allineate sulla stessa griglia di pixel. Nelle versioni precedenti, quando si usava un poligono di clip, le due DEM ritagliate potevano finire su griglie leggermente diverse e il calcolo di `pre - post` risultava errato o vuoto. Ora entrambi i clip usano la **risoluzione nativa della DEM pre** come riferimento (stessa `xRes` / `yRes` e stesso allineamento della griglia), cosi che i due raster clippati siano sempre pixel-perfect e la differenza produca un risultato valido. Anche le trincee minime in cui sono stati tolti solo "10 secchi di terra" (circa 1 m3) vengono ora catturate correttamente dal computo.
+
+### Aggiornamento: nuovo combo "Muri / Strutture"
+
+Nel pannello Computo Metrico e stato aggiunto un secondo combo **Muri / Strutture** che permette di selezionare un layer di poligoni rappresentanti muri, strutture in elevato, pilastri o altre parti costruite che **non devono essere conteggiate** nel calcolo dei metri cubi di scavo. Quando si preme **Calcola**, i poligoni dei muri vengono rasterizzati come NODATA sul raster differenza clippato e le loro celle vengono escluse dal totale di volume; la diagnostica viene mostrata nella barra messaggi di QGIS (per esempio `walls masked: muri_trincea_42`). Il tipico flusso di lavoro archeologico e: caricare DEM pre + DEM post + poligono dell'area di scavo + poligono dei muri rinvenuti, selezionare entrambi nei due combo e premere **Calcola** -- il volume scavato esclude automaticamente il volume delle strutture.
+
+---
+
+## Esportazione PDF e CSV del Cruscotto
+
+Il Cruscotto Cantiere permette di esportare un riepilogo completo dei dati gestionali in due formati: **PDF** (documento impaginato, ideale per la consegna al committente o per l'archiviazione cartacea) e **CSV** (ideale per analisi successive in Excel o altri fogli di calcolo).
+
+### Esportazione PDF
+
+Il pulsante **Esporta PDF** presente nel Cruscotto Cantiere genera un report completo dello stato del cantiere. A partire dalla versione 5.1 il PDF include:
+
+- **Copertina rinnovata** con nome del sito, anno di riferimento e data di generazione
+- **Riepilogo Budget** con tabelle dettagliate per categoria e totali (previsto vs effettivo)
+- **Riepilogo Personale** con statistiche di presenza, ore lavorate e costi
+- **Riepilogo Attrezzature** con lo stato dell'inventario e le manutenzioni scadute
+- **Nuova sezione "Computo Metrico"** con:
+  - Tabella dettagliata di tutti i calcoli salvati
+  - **Totali**: area totale (m2) e volume totale (m3)
+  - **Statistiche**: volume di scavo, volume di riporto, area interessata
+- **Nuova sezione "Analisi Costi"** (inserita fra **Computo Metrico** e **Statistiche**) con parameter card dei valori impostati (costo unitario in euro/m3 e produttivita in m3/giorno), tabella dettagliata per record (data, tipo, volume, costo, giorni stimati, costo giornaliero) e riga di **totali** a fondo tabella; il blocco **Statistiche** e stato esteso con **costo totale** e **giorni totali** di cantiere
+- **Supporto completo per i caratteri speciali**: il rendering dei PDF e stato corretto per tutte le lingue supportate, incluse le lettere accentate del rumeno (**a**, **a**, **i**, **s**, **t**), i caratteri **greci**, **arabi**, **portoghesi** e **catalani**.
+
+### Esportazione CSV
+
+Il pulsante **Esporta CSV** genera un file CSV compatibile con i principali fogli di calcolo. Dalla versione 5.1:
+
+- **Codifica UTF-8 con BOM**: garantisce che Excel (in particolare la versione europea) apra correttamente il file senza corrompere le lettere accentate e i caratteri speciali
+- **Separatore `;`** (punto e virgola): compatibile con la localizzazione europea di Excel
+- **Sezione COMPUTO METRICO**: include tutti i dati di computo metrico, con tipologia, area, volume e note di ogni calcolo
+- **Nuova sezione `=== ANALISI COSTI ===`**: riporta in testa i due parametri (costo unitario in euro/m3 e produttivita in m3/giorno) e di seguito la tabella dettagliata per record (data, tipo, volume, costo, giorni stimati, costo giornaliero), pronta per essere filtrata o aggregata in Excel
+- **Blocco SUMMARY finale esteso**: un riepilogo aggregato con totali e statistiche, utile per analisi rapide senza dover creare formule; ora include anche **Totale costo** e **Giorni totali** calcolati a partire dalla nuova Analisi Costi
+
+<!-- IMAGE: Esempio di PDF esportato dal Cruscotto con la nuova sezione Computo Metrico -->
+> **Fig. 17**: Esempio di PDF esportato con la nuova sezione **Computo Metrico** contenente tabella, totali e statistiche
+
+<!-- IMAGE: Esempio di CSV esportato aperto in Excel con la sezione COMPUTO METRICO e il blocco SUMMARY -->
+> **Fig. 18**: Esempio di CSV esportato aperto in Excel con la sezione **COMPUTO METRICO** e il blocco **SUMMARY** finale
+
+---
+
 ## Flusso di lavoro consigliato
 
 Per ottenere il massimo dal modulo Gestione Cantiere, si consiglia il seguente flusso di lavoro:
@@ -461,7 +668,7 @@ I calcoli salvati nello storico sono record del database. Al momento non e previ
 
 *Documentazione PyArchInit - Gestione Cantiere*
 *Versione: 5.1*
-*Ultimo aggiornamento: Febbraio 2026*
+*Ultimo aggiornamento: Aprile 2026*
 
 ---
 

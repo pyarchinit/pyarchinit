@@ -9,10 +9,12 @@
 5. [Anwesenheitsformular](#anwesenheitsformular)
 6. [Ausruestungsformular](#ausruestungsformular)
 7. [Budgetformular](#budgetformular)
-8. [Operativer Arbeitsablauf](#operativer-arbeitsablauf)
-9. [Haeufig gestellte Fragen (FAQ)](#haeufig-gestellte-fragen-faq)
-10. [Fehlerbehebung](#fehlerbehebung)
-11. [Technische Hinweise](#technische-hinweise)
+8. [2D- und 3D-Visualisierung der Massenberechnung](#2d--und-3d-visualisierung-der-massenberechnung)
+9. [PDF- und CSV-Export des Dashboards](#pdf--und-csv-export-des-dashboards)
+10. [Operativer Arbeitsablauf](#operativer-arbeitsablauf)
+11. [Haeufig gestellte Fragen (FAQ)](#haeufig-gestellte-fragen-faq)
+12. [Fehlerbehebung](#fehlerbehebung)
+13. [Technische Hinweise](#technische-hinweise)
 
 ---
 
@@ -180,6 +182,211 @@ Die Tabelle im unteren Bereich zeigt alle gespeicherten Berechnungsergebnisse:
 
 <!-- IMAGE: Berechnungsverlaufstabelle mit mehreren Eintraegen -->
 > **Abb. 8**: Berechnungsverlaufstabelle mit gespeicherten Massenberechnungen
+
+Ab Version 5.1 stehen neben der Schaltflaeche **Berechnen** drei weitere Schaltflaechen zur Verfuegung (**2D anzeigen**, **3D anzeigen**, **3D-Netz erstellen**), mit denen das Ergebnis direkt in der Karte und in einer interaktiven 3D-Ansicht dargestellt werden kann. Details siehe Abschnitt [2D- und 3D-Visualisierung der Massenberechnung](#2d--und-3d-visualisierung-der-massenberechnung).
+
+---
+
+## 2D- und 3D-Visualisierung der Massenberechnung
+
+Ab Version 5.1 zeigt das Baustellen-Dashboard nach einem Klick auf **Berechnen** im Bereich Massenberechnung nicht mehr nur die numerischen Ergebnisse (Flaeche und Volumen), sondern erzeugt automatisch eine Reihe kartographischer Layer und stellt eine interaktive 3D-Ansicht bereit.
+
+### Was passiert beim Klick auf "Berechnen"
+
+Nach einer DEM-Differenz-Berechnung fuehrt das Dashboard automatisch folgende Schritte aus:
+
+1. **Permanente Speicherung des Differenzrasters**: Das berechnete Raster (DEM post - DEM pre) wird als dauerhaftes GeoTIFF unter `<PYARCHINIT_HOME>/site_dashboard/<Baustellenname>/` gespeichert. Das Raster geht beim Schliessen von QGIS nicht mehr verloren und kann jederzeit erneut verwendet werden.
+2. **Hinzufuegen zum QGIS-Projekt**: Das Raster wird im Bedienfeld "Layer" innerhalb einer eigenen Layergruppe namens **"Site Dashboard - Computi"** hinzugefuegt, damit alle Berechnungen uebersichtlich zusammenbleiben.
+3. **Automatische Stilzuweisung**: Das Raster erhaelt eine **divergierende Farbrampe**:
+   - **Rot** fuer Aushubbereiche (negative Werte, entfernter Boden)
+   - **Blau** fuer Auftragsbereiche (positive Werte, hinzugefuegter Boden)
+   - **Transparent / neutral** fuer Zellen mit vernachlaessigbarer Veraenderung (|diff| <= 1 cm)
+4. **Polygonisierung der Interventionsflaeche**: Rasterzellen mit |diff| > 1 cm werden in einen Vektor-Polygonlayer umgewandelt, der ebenfalls der Gruppe "Site Dashboard - Computi" mit hervorgehobener Darstellung hinzugefuegt wird, damit die Gesamtausdehnung des Eingriffs sofort sichtbar ist.
+5. **Automatischer Zoom**: Der Haupt-Kartenbereich von QGIS wird automatisch auf die Ausdehnung der Berechnung gezoomt.
+
+### Voraussetzungen
+
+Damit die neuen 2D/3D-Visualisierungen verwendet werden koennen, muessen:
+
+- Zwei **DEM-Rasterlayer** im QGIS-Projekt geladen sein (typischerweise ein DEM **vor** und ein DEM **nach** dem Aushub)
+- In den Comboboxen **DEM Pre** und **DEM Post** im Bereich Massenberechnung korrekt ausgewaehlt werden
+- Das CRS beider Raster konsistent sein
+
+### Neue Schaltflaechen
+
+Neben der Schaltflaeche **Berechnen** stehen drei neue Schaltflaechen zur Verfuegung:
+
+| Schaltflaeche | Beschreibung |
+|---------------|--------------|
+| **2D anzeigen** | Zentriert die QGIS-Karte erneut auf die Ausdehnung der letzten Berechnung. Nuetzlich, um nach dem Arbeiten in anderen Bereichen schnell zur aktiven Massenberechnung zurueckzukehren. |
+| **3D anzeigen** | Oeffnet einen interaktiven 3D-Dialog, der das DEM **pre** als Gelaendemodell verwendet und das Differenzraster darueber legt. Der Dialog bietet: einen Spinbox fuer die **vertikale Ueberhoehung**, Kontrollkaestchen zum Ein-/Ausschalten einzelner Layer und eine Schaltflaeche **Ansicht zuruecksetzen**. |
+| **3D-Netz erstellen** | Erzeugt TIN-Netze aus den pre- und post-DEMs ueber QGIS-Processing-Algorithmen. Die Netze koennen im 3D-Viewer angezeigt werden, um die beiden Oberflaechen und das dazwischen liegende Volumen visuell zu vergleichen. |
+
+<!-- IMAGE: Die neuen Schaltflaechen 2D anzeigen, 3D anzeigen und 3D-Netz erstellen neben Berechnen -->
+> **Abb. 9**: Die neuen Schaltflaechen **2D anzeigen**, **3D anzeigen** und **3D-Netz erstellen** neben der Schaltflaeche **Berechnen**
+
+<!-- IMAGE: Interaktive 3D-Ansicht mit DEM pre als Gelaende und aufgelegtem Differenzraster -->
+> **Abb. 10**: Der interaktive 3D-Dialog der Massenberechnung mit vertikaler Ueberhoehung und Layer-Umschaltung
+
+### Typischer Arbeitsablauf
+
+1. Die zwei DEM-Raster (pre und post) in das QGIS-Projekt laden
+2. Das **Baustellen-Dashboard** oeffnen
+3. Im Bereich **Massenberechnung** die beiden DEMs in **DEM Pre** und **DEM Post** auswaehlen
+4. Auf **Berechnen** klicken: Differenzraster und Interventionspolygon werden automatisch erzeugt, die Karte auf die Ausdehnung gezoomt
+5. Die numerischen Werte (Flaeche, Volumen, Aushub, Auftrag) direkt im Bereich ablesen
+6. Auf **3D anzeigen** klicken, um die interaktive 3D-Ansicht zu oeffnen
+7. (Optional) Auf **3D-Netz erstellen** klicken, um die TIN-Netze beider DEMs zu erzeugen und darzustellen
+8. Auf **Ergebnis speichern** klicken, um das Ergebnis im Berechnungsverlauf zu archivieren
+
+### Ablage auf der Festplatte
+
+Alle von der Massenberechnung erzeugten Raster und Layer werden gespeichert unter:
+
+```
+<PYARCHINIT_HOME>/site_dashboard/<Baustellenname>/
+```
+
+wobei `<PYARCHINIT_HOME>` der in den PyArchInit-Einstellungen konfigurierte Arbeitsordner ist und `<Baustellenname>` die im Dashboard ausgewaehlte Baustelle. Auf diese Weise bleibt ein physischer Verlauf aller Berechnungen erhalten und die Layer koennen auch in anderen QGIS-Projekten weiterverwendet werden.
+
+### Aktualisierung: "2D anzeigen" -- Analytischer Schnittdialog
+
+Ab der naechsten Version zentriert die Schaltflaeche **2D anzeigen** im Bereich Massenberechnung die Karte nicht mehr nur auf die letzte Berechnung, sondern oeffnet einen **matplotlib-basierten analytischen Dialog**, der die Aushubergebnisse als klassische archaeologische Schnittansicht praesentiert.
+
+Der Dialog steht **nur zur Verfuegung, wenn die Berechnung im Modus "DEM-Differenz"** (mit Pre- und Post-DEM) durchgefuehrt wurde. Bei Verwendung des Modus **DEM + Polygon** verhaelt sich die Schaltflaeche wie zuvor und zoomt lediglich die QGIS-Karte auf die Ausdehnung der Berechnung.
+
+Wenn verfuegbar, enthaelt der Dialog folgende Panels:
+
+| Panel | Beschreibung |
+|-------|--------------|
+| **Heatmap der DEM-Differenz** | 2D-Heatmap des Differenzrasters mit divergierender Farbrampe (Rot fuer Aushub, Blau fuer Auftrag) |
+| **Histogramm** | Verteilung der **Aushub**-Tiefen und **Auftrags**-Hoehen, fuer einen sofortigen statistischen Ueberblick ueber das bewegte Volumen |
+| **Laengsschnitt (O-W)** | Der klassische archaeologische Schnitt: das **Pre-DEM** wird in **Blau** gezeichnet, das **Post-DEM** in **Rot**, und das ausgehobene Volumen ist zwischen den beiden Linien **ausgefuellt** |
+| **Querschnitt (N-S)** | Gleiche Logik wie der O-W-Schnitt, aber entlang der Nord-Sued-Richtung |
+| **Zeilen- / Spalten-Spinbox** | Ermoeglichen das interaktive Verschieben der Schnittposition auf dem Raster, um den gesamten Aushub zu erkunden |
+| **Schaltflaeche "PNG speichern"** | Exportiert die gesamte Abbildung (Heatmap, Histogramm und beide Schnitte) als PNG-Bild, bereit zur Aufnahme in den Grabungsbericht |
+
+<!-- IMAGE: Analytischer 2D-Dialog mit Heatmap, Histogramm und O-W / N-S-Schnitten -->
+> **Abb. 11**: Der neue analytische **2D anzeigen**-Dialog mit Heatmap der DEM-Differenz, Aushub/Auftrags-Histogramm sowie Laengs- und Querschnitt (Pre-DEM in Blau, Post-DEM in Rot, Aushubvolumen zwischen den Linien gefuellt)
+
+### Aktualisierung: "3D anzeigen" -- matplotlib-Fallback
+
+Die Schaltflaeche **3D anzeigen** behandelt nun automatisch zwei Szenarien, je nachdem, welche QGIS-Version installiert ist:
+
+1. **QGIS mit nativem 3D-Modul (Qt3D verfuegbar)**: Wie bisher wird der eingebettete `Qgs3DMapCanvas`-Dialog geoeffnet, mit Gelaende aus dem Pre-DEM, vertikaler Ueberhoehung und Layer-Steuerung.
+2. **QGIS ohne 3D-Modul (Fehler "QGIS 3D module not available")**: Das Baustellen-Dashboard wechselt automatisch zu einem **matplotlib-basierten 3D-Viewer**. Da matplotlib zu den mit PyArchInit mitgelieferten Abhaengigkeiten gehoert, funktioniert dieser Viewer **immer**, auch auf minimalen QGIS-Builds ohne 3D-Unterstuetzung.
+
+Der Fallback-Viewer bietet:
+
+| Steuerung | Beschreibung |
+|-----------|--------------|
+| **Anzeigemodus** | Drei waehlbare Modi: **Pre + Post** (beide Oberflaechen ueberlagert), **Nur Differenz** (nur die Aushub/Auftrags-Oberflaeche), **Nur Pre** (das Pre-DEM als Referenzoberflaeche) |
+| **Vertikale Ueberhoehung** | Schieberegler zur Hervorhebung des Hoehenunterschieds zwischen den beiden Oberflaechen, besonders nuetzlich bei geringen Aushubtiefen |
+| **Interaktive Rotation** | Durch Ziehen mit der Maus kann die 3D-Szene in Echtzeit gedreht werden, um den Aushub aus jedem Blickwinkel zu betrachten |
+
+<!-- IMAGE: matplotlib 3D-Fallback-Viewer im Modus Pre + Post -->
+> **Abb. 12**: Der matplotlib 3D-Fallback-Viewer, wenn das native Qt3D-Modul von QGIS nicht verfuegbar ist: zeigt die Pre- und Post-Oberflaechen mit einstellbarer vertikaler Ueberhoehung
+
+### Aktualisierung: "3D-Netz erstellen" -- Automatische Gelaendestilzuweisung
+
+Die Schaltflaeche **3D-Netz erstellen** wendet nun automatisch eine **gelaendeartige Farbrampe** auf das Netz-Dataset **Bed Elevation** an. Zuvor wirkte das Netz wie eine flache, schwer lesbare Oberflaeche; jetzt wird es sofort zu einer aussagekraeftigen Hoehenkarte:
+
+- **Gruen** fuer die niedrigsten Hoehen
+- **Orange** fuer mittlere Hoehen
+- **Braun** fuer die hoechsten Hoehen
+
+Dadurch ist das Netz bereits im QGIS-Kartenbereich sichtbar und aussagekraeftig, noch bevor die 3D-Ansicht geoeffnet wird. Nach dem Erstellen genuegt ein Klick auf **3D anzeigen**, um das Netz als 3D-Oberflaeche zu rendern, entweder ueber das native QGIS-3D-Modul oder ueber den oben beschriebenen matplotlib-Fallback-Viewer.
+
+<!-- IMAGE: 3D-Netz mit der neuen gruen/orange/braun Gelaenderampe -->
+> **Abb. 13**: Das 3D-Netz mit der neuen gelaendeartigen Farbrampe, die automatisch auf das Hoehen-Dataset angewendet wird
+
+### Aktualisierung: Polygon als Zuschneidemaske
+
+Wenn Sie im Panel Massenberechnung zusaetzlich zu den beiden DEMs auch einen Vektorlayer im Kombinationsfeld **Polygon-Layer** auswaehlen und gleichzeitig den Modus **DEM-Differenz** aktiv lassen, wird das Polygon jetzt als **Zuschneidemaske** verwendet: Beide DEMs werden vor der Differenzberechnung auf das Polygon zugeschnitten, sodass die 2D-Analyseansicht, der matplotlib-3D-Fallback und das TIN-Netz ausschliesslich auf dem Eingriffsbereich arbeiten. Der typische Ablauf ist: Ein Polygon um den Grabungsbereich zeichnen, Pre- und Post-DEM auswaehlen, das Polygon im Kombinationsfeld **Polygon-Layer** waehlen und **Berechnen** druecken. Die beiden zugeschnittenen Raster werden automatisch zur Gruppe **"Cruscotto Cantiere - Computi"** im Layerbaum hinzugefuegt und koennen sofort wiederverwendet werden.
+
+### Aktualisierung: "3D-Netz erstellen" -- keine Abstuerze mehr
+
+Fruehere Versionen konnten QGIS auf bestimmten Builds zum Absturz bringen, weil es in den fuer die Netzgenerierung verwendeten Processing-Algorithmen zu einem C++-Segfault kam. Die Netzerzeugung wurde in **reinem Python** neu geschrieben: Das Dashboard liest das DEM mit GDAL und schreibt direkt eine 2DM-Datei mit einem **Viereck-Netz auf regelmaessigem Gitter**, ohne auf die nativen Algorithmen angewiesen zu sein. Das Ergebnis ist auf jeder QGIS-Version sicher. Netze mit mehr als etwa **15 000 Zellen** werden automatisch heruntergerechnet, um die Erstellung schnell und die Datei schlank zu halten, waehrend nodata-Zellen uebersprungen werden: Bei aktiver Polygon-Zuschneidemaske folgt das Netz somit exakt der Form des zugeschnittenen Eingriffsbereichs. Sollte die Erzeugung in seltenen Faellen aus anderen Gruenden scheitern (Festplatte voll, fehlende Berechtigungen), schlaegt der Dialog jetzt vor, direkt **3D anzeigen** zu oeffnen, das den matplotlib-Fallback-Viewer verwendet und keinen Netzlayer benoetigt.
+
+### Aktualisierung: Automatische Aktualisierung der Comboboxen beim Klick auf "Berechnen"
+
+Der Bereich Massenberechnung **aktualisiert die DEM- und Polygon-Listen nun automatisch bei jedem Klick auf "Berechnen"**: Es ist nicht mehr noetig, das Baustellen-Dashboard zu schliessen und wieder zu oeffnen, nachdem ein neues Raster geladen oder ein neues Polygon im Projekt gezeichnet wurde. Einfach den Layer in QGIS hinzufuegen, zum Panel zurueckkehren und **Berechnen** druecken -- die Comboboxen **DEM Pre**, **DEM Post** und **Polygon-Layer** werden sofort mit dem aktuellen Projektstand neu befuellt. Die Diagnose des Zuschneidevorgangs (Erfolg, nicht uebereinstimmendes CRS, leere Schnittflaeche) erscheint in der **QGIS-Meldungsleiste**, sodass jederzeit ersichtlich ist, welche Layer tatsaechlich fuer die Berechnung verwendet wurden.
+
+### Aktualisierung: Schaltflaeche umbenannt in "2DM + 3D exportieren"
+
+Die zuvor als **3D-Netz erstellen** bezeichnete Schaltflaeche wurde in **2DM + 3D exportieren** umbenannt, um ihr neues Verhalten widerzuspiegeln: Sie laedt das Netz **nicht mehr** als Layer in das QGIS-Projekt (die native Mesh-API kann auf einigen QGIS-Builds abstuerzen) und fuehrt stattdessen zwei sichere, sich ergaenzende Aktionen aus. Sie schreibt die **2DM**-Dateien aus dem Pre- und Post-DEM auf die Festplatte (nuetzlich fuer den Import in externe Nachbearbeitungssoftware) und oeffnet direkt die **matplotlib-3D-Ansicht** der zugeschnittenen DEMs, sodass das Ergebnis sofort visuell beurteilt werden kann. Abstuerze sind damit vollstaendig ausgeschlossen, da die QGIS-Mesh-API nie angesprochen wird.
+
+### Aktualisierung: Polygon-Zuschnitt mit sichtbarer Diagnose
+
+Wenn Sie zusammen mit den beiden DEMs einen Layer in der Combobox **Polygon-Layer** auswaehlen, wird das Zuschneiden der Raster auf das Polygon jetzt **in der QGIS-Meldungsleiste protokolliert**: Bei Erfolg werden die auf die Festplatte geschriebenen zugeschnittenen Dateien aufgelistet, bei einem Fehlschlag wird der genaue Grund angezeigt (zum Beispiel Polygon in einem anderen CRS als die DEMs, keine geometrische Schnittmenge zwischen Polygon und Raster, fehlende oder nicht lesbare Quelldatei). So wird sofort klar, warum ein Zuschnitt nicht angewendet wurde und was zu korrigieren ist (Polygon umprojizieren, ueber den DEM-Bereich verschieben, Dateipfad pruefen), ohne Logs oder die Python-Konsole oeffnen zu muessen.
+
+### Aktualisierung: Polygon-Zuschnitt auch im Modus "DEM auf Polygon"
+
+Der Polygon-Zuschnitt funktioniert jetzt auch, wenn der Radio-Button **DEM auf Polygon** ausgewaehlt ist (Zonalstatistik-Modus mit nur einem DEM): Das Raster wird **vor** der Uebergabe an die Viewer **2D anzeigen**, **3D anzeigen** und **2DM + 3D exportieren** auf die Ausdehnung des Polygons zugeschnitten, sodass der analytische Schnitt und die 3D-Ansicht ausschliesslich die Eingriffsflaeche anzeigen und nicht mehr wie zuvor das gesamte DEM. Die Zuschnitt-Diagnose erscheint in der **QGIS-Meldungsleiste** genau wie im Modus DEM-Differenz. In diesem Szenario mit einem einzelnen DEM passt sich der Viewer **2D anzeigen** automatisch an: Die Heatmap zeigt die Hoehen mit einer **terrain**-Farbrampe, das Histogramm stellt die Hoehenverteilung mit der Mittelwertlinie dar, und die beiden Laengs-/Querschnitte zeichnen nur eine einzelne Hoehenlinie (ohne Fuellung zwischen Pre und Post, da kein Post-DEM vorhanden ist).
+
+### Aktualisierung: Kostenanalyse der Massenberechnung
+
+Im Computo-Metrico-Panel des Baustellen-Dashboards wurde ein neuer Bereich **Kostenanalyse** mit zwei Eingabeparametern hinzugefuegt: **Einheitskosten** (in Euro/m3) und **Produktivitaet** (in m3/Tag). Bei jedem Klick auf **Berechnen** aktualisiert das Panel automatisch drei abgeleitete Werte, die auf einen Blick sichtbar sind: **Gesamtkosten** (Volumen x Einheitskosten), **Geschaetzte Tage** (Volumen / Produktivitaet) und **Tageskosten** (Einheitskosten x Produktivitaet). Beide Eingaben werden **pro Baustelle** in den QGIS-Einstellungen gespeichert (Schluessel `pyArchInit/site_dashboard/costs/<baustelle>/...`), sodass sie nur einmal pro Baustelle eingegeben werden muessen: Beim Wechsel der Baustelle werden die gespeicherten Werte automatisch neu geladen, und die drei Gesamtwerte werden bei jeder neuen Berechnung in Echtzeit neu berechnet.
+
+### Aktualisierung: Pre/Post-Zuschnitt ausgerichtet
+
+Die Berechnung der DEM-Differenz setzt voraus, dass die beiden DEMs (pre und post) exakt auf demselben Pixelraster ausgerichtet sind. In den vorherigen Versionen konnten die beiden zugeschnittenen DEMs bei Verwendung eines Zuschnittpolygons auf leicht unterschiedlichen Rastern landen, sodass `pre - post` falsch oder leer berechnet wurde. Jetzt verwenden beide Zuschnitte die **native Aufloesung des Pre-DEM** als Referenz (gleiche `xRes` / `yRes` und gleiche Rasterausrichtung), sodass die beiden zugeschnittenen Raster immer pixelgenau uebereinstimmen und die Differenz ein gueltiges Ergebnis liefert. Selbst minimale Graeben, aus denen nur "10 Eimer Erde" (etwa 1 m3) entnommen wurden, werden jetzt korrekt von der Massenberechnung erfasst.
+
+### Aktualisierung: Neue Combo "Mauern / Strukturen"
+
+Im Computo-Metrico-Panel wurde eine zweite Combo **Mauern / Strukturen** hinzugefuegt, mit der sich eine Polygonebene auswaehlen laesst, die Mauern, aufgehendes Mauerwerk, Pfeiler oder andere bauliche Elemente darstellt, die **nicht** in die Berechnung der Aushubkubikmeter einfliessen sollen. Beim Klick auf **Berechnen** werden die Mauer-Polygone als NODATA in das zugeschnittene Differenzraster gebrannt und ihre Zellen vom Volumen-Gesamtwert ausgeschlossen; die Diagnose erscheint in der QGIS-Meldungsleiste (z. B. `walls masked: muri_trincea_42`). Typischer archaeologischer Arbeitsablauf: Pre-DEM + Post-DEM + Polygon der Grabungsflaeche + Polygon der aufgefundenen Mauern laden, beide in den zwei Combos auswaehlen und **Berechnen** druecken -- das ausgehobene Volumen schliesst das Volumen der Strukturen automatisch aus.
+
+---
+
+## PDF- und CSV-Export des Dashboards
+
+Das Baustellen-Dashboard kann eine vollstaendige Zusammenfassung aller Verwaltungsdaten in zwei Formaten exportieren: **PDF** (paginiertes Dokument, ideal fuer Auftraggeber oder Archivierung) und **CSV** (ideal fuer weitere Auswertungen in Excel oder anderen Tabellenkalkulationen).
+
+### PDF-Export
+
+Die Schaltflaeche **PDF exportieren** erzeugt einen vollstaendigen Baustellenbericht. Ab Version 5.1 enthaelt das PDF:
+
+- **Ueberarbeitete Titelseite** mit Baustellenname, Bezugsjahr und Erstellungsdatum
+- **Budget-Zusammenfassung** mit detaillierten Tabellen nach Kategorie und Gesamtsummen (geplant vs. tatsaechlich)
+- **Personal-Zusammenfassung** mit Anwesenheitsstatistiken, Arbeitsstunden und Kosten
+- **Ausruestungs-Zusammenfassung** mit Inventarstatus und ueberfaelligen Wartungen
+- **Neuer Abschnitt "Computo Metrico"** mit:
+  - Detaillierter Tabelle aller gespeicherten Berechnungen
+  - **Gesamtsummen**: Gesamtflaeche (m2) und Gesamtvolumen (m3)
+  - **Statistik**: Aushubvolumen, Auftragsvolumen, betroffene Flaeche
+- **Neuer Abschnitt "Kostenanalyse"** (zwischen **Computo Metrico** und **Statistik** eingefuegt) mit einer Parameterkarte der konfigurierten Werte (Einheitskosten in Euro/m3 und Produktivitaet in m3/Tag), einer detaillierten Tabelle pro Datensatz (Datum, Typ, Volumen, Kosten, geschaetzte Tage, Tageskosten) und einer **Summenzeile** am Ende; der Block **Statistik** wurde um **Gesamtkosten** und **Gesamttage** der Baustelle erweitert
+- **Vollstaendige Unterstuetzung fuer Sonderzeichen**: Das PDF-Rendering wurde fuer alle unterstuetzten Sprachen korrigiert, einschliesslich rumaenischer Akzentbuchstaben (**a**, **a**, **i**, **s**, **t**), **griechischer**, **arabischer**, **portugiesischer** und **katalanischer** Zeichen.
+
+### CSV-Export
+
+Die Schaltflaeche **CSV exportieren** erzeugt eine CSV-Datei, die mit den gaengigen Tabellenkalkulationen kompatibel ist. Ab Version 5.1:
+
+- **UTF-8-Kodierung mit BOM**: garantiert, dass Excel (insbesondere die europaeische Version) die Datei korrekt oeffnet, ohne Sonderzeichen zu beschaedigen
+- **Trennzeichen Semikolon (`;`)**: kompatibel mit dem europaeischen Excel-Gebietsschema
+- **Abschnitt COMPUTO METRICO**: enthaelt alle Massenberechnungsdaten mit Typ, Flaeche, Volumen und Notizen jeder Berechnung
+- **Neuer Abschnitt `=== KOSTENANALYSE ===`**: beginnt mit den beiden Parametern (Einheitskosten in Euro/m3 und Produktivitaet in m3/Tag) und wird von der detaillierten Tabelle pro Datensatz (Datum, Typ, Volumen, Kosten, geschaetzte Tage, Tageskosten) gefolgt, bereit zum Filtern oder Aggregieren in Excel
+- **Erweiterter abschliessender SUMMARY-Block**: eine aggregierte Zusammenfassung mit Gesamtsummen und Statistiken fuer schnelle Auswertungen ohne zusaetzliche Formeln; jetzt zusaetzlich mit **Gesamtkosten** und **Gesamttage**, berechnet aus der neuen Kostenanalyse
+
+<!-- IMAGE: PDF-Export mit dem neuen Abschnitt Computo Metrico -->
+> **Abb. 11**: PDF-Export mit dem neuen Abschnitt **Computo Metrico** (Tabelle, Gesamtsummen und Statistik)
+
+<!-- IMAGE: CSV-Export in Excel mit dem Abschnitt COMPUTO METRICO und dem Block SUMMARY -->
+> **Abb. 12**: In Excel geoeffneter CSV-Export mit dem Abschnitt **COMPUTO METRICO** und dem abschliessenden Block **SUMMARY**
+
+### Neues Tab-Layout des Baustellen-Dashboards
+
+Ab der aktuellen Version ist das Fenster **Baustellen-Dashboard** in **drei Reiter** gegliedert, um dem neuen Panel **Kostenanalyse** Platz zu schaffen, ohne die Ansicht zu ueberladen. Die Kopfzeile mit **Baustelle**, **Jahr** und der Schaltflaeche **Aktualisieren** bleibt oberhalb der Reiter sichtbar, sodass jederzeit Baustelle oder Jahr gewechselt werden kann: alle Reiter werden automatisch aktualisiert.
+
+| Reiter | Inhalt |
+|--------|--------|
+| **Uebersicht** | Ansicht, die beim Oeffnen des Dashboards zuerst angezeigt wird. Oben, in voller Breite, die **Budget-Zusammenfassung** (Fortschrittsbalken und Tortendiagramm); darunter nebeneinander die Zusammenfassungen **Personal** und **Ausruestung** |
+| **Massenberechnung** | Enthaelt den gesamten DEM-Berechnungsworkflow: Comboboxen **DEM Pre**, **DEM Post** und **Polygon**, Radiobuttons **DEM-Differenz** / **DEM ueber Polygon**, Schaltflaeche **Berechnen**, Beschriftungen fuer **Flaeche** und **Volumen**, die neue Gruppe **Kostenanalyse** (EUR/m3, m3/Tag -> Gesamtkosten, geschaetzte Tage, Tageskosten), Schaltflaeche **Datensatz speichern**, Schaltflaechen **2D anzeigen** / **3D anzeigen** / **Export 2DM + 3D** und die **Historien-Tabelle** unten |
+| **Export** | Die Schaltflaechen fuer den **PDF-** und **CSV-Export** mit einer kurzen Beschreibung |
+
+<!-- IMAGE: Neues Tab-Layout des Baustellen-Dashboards (Uebersicht / Massenberechnung / Export) -->
+> **Abb. 13**: Das neue Tab-Layout des Baustellen-Dashboards mit der stets sichtbaren Kopfzeile Baustelle / Jahr / Aktualisieren
+
+**Fix**: DEMs verschwinden nicht mehr beim Druecken von **Berechnen** (Regression aus 5.0.13-alpha, bei der die automatische Aktualisierung der Comboboxen die aktuelle Auswahl zuruecksetzte).
 
 ---
 

@@ -9,9 +9,11 @@
 5. [Fiche Presences](#fiche-presences)
 6. [Fiche Equipements](#fiche-equipements)
 7. [Fiche Budget](#fiche-budget)
-8. [Flux de travail operationnel](#flux-de-travail-operationnel)
-9. [Foire aux questions](#foire-aux-questions)
-10. [Notes techniques](#notes-techniques)
+8. [Visualisation 2D et 3D des metrages](#visualisation-2d-et-3d-des-metrages)
+9. [Export PDF et CSV du tableau de bord](#export-pdf-et-csv-du-tableau-de-bord)
+10. [Flux de travail operationnel](#flux-de-travail-operationnel)
+11. [Foire aux questions](#foire-aux-questions)
+12. [Notes techniques](#notes-techniques)
 
 ---
 
@@ -150,8 +152,10 @@ La section metrages permet de calculer des surfaces et des volumes a partir de c
 
 Le bouton **Calculer** lance le calcul selon le mode selectionne. Le bouton **Sauvegarder** enregistre le resultat dans la table `computo_metrico_table` avec la date, le type de calcul, la surface, le volume et des notes.
 
-<!-- IMAGE: Section metrages avec selecteurs DEM et resultats de calcul -->
-> **Fig. 7** : Section metrages montrant les selecteurs DEM, les modes de calcul et les resultats
+Depuis la version 5.1, a cote du bouton **Calculer** sont egalement disponibles les boutons **Afficher 2D**, **Afficher 3D** et **Creer maillage 3D** permettant de visualiser le resultat du calcul directement sur la carte et dans une vue tridimensionnelle interactive. Voir la section [Visualisation 2D et 3D des metrages](#visualisation-2d-et-3d-des-metrages).
+
+<!-- IMAGE: Section metrages avec selecteurs DEM, resultats et nouveaux boutons 2D/3D -->
+> **Fig. 7** : Section metrages avec selecteurs DEM, modes de calcul et nouveaux boutons de visualisation 2D / 3D
 
 ### Historique des metrages
 
@@ -167,6 +171,21 @@ Un tableau en bas du formulaire affiche l'historique de tous les metrages enregi
 
 <!-- IMAGE: Tableau historique des metrages avec plusieurs entrees -->
 > **Fig. 8** : Historique des metrages pour un site donne
+
+### Nouvelle mise en page a onglets du Tableau de bord
+
+A partir de la version actuelle, la fenetre **Tableau de bord** a ete reorganisee en **trois onglets** pour faire place au nouveau panneau **Analyse des Couts** sans alourdir la vue. La ligne d'en-tete avec **Site**, **Annee** et le bouton **Actualiser** reste visible au-dessus des onglets, ce qui permet de changer de site ou d'annee a tout moment : tous les onglets sont mis a jour automatiquement.
+
+| Onglet | Contenu |
+|--------|---------|
+| **Resume** | Vue affichee a l'ouverture du tableau de bord. En haut, sur toute la largeur, le **Resume du Budget** (barre de progression et diagramme circulaire) ; en dessous, cote a cote, les resumes **Personnel** et **Equipement** |
+| **Metrage** | Regroupe tout le flux de calcul DEM : listes deroulantes **DEM Pre**, **DEM Post** et **Polygone**, boutons radio **Difference DEM** / **DEM sur Polygone**, bouton **Calculer**, etiquettes de **surface** et **volume**, le nouveau groupe **Analyse des Couts** (EUR/m3, m3/jour -> cout total, jours estimes, cout journalier), bouton **Enregistrer**, boutons **Afficher 2D** / **Afficher 3D** / **Exporter 2DM + 3D** et le **tableau d'historique** en bas |
+| **Export** | Les boutons d'**export PDF** et **CSV** accompagnes d'une courte description |
+
+<!-- IMAGE: Nouvelle mise en page a onglets du Tableau de bord (Resume / Metrage / Export) -->
+> **Fig. 8a** : La nouvelle mise en page a onglets du Tableau de bord avec l'en-tete Site / Annee / Actualiser toujours visible
+
+**Fix** : les DEM ne disparaissent plus lorsque l'on appuie sur **Calculer** (regression de la 5.0.13-alpha ou le rafraichissement automatique des listes deroulantes reinitialisait la selection courante).
 
 ---
 
@@ -311,6 +330,194 @@ La **Fiche Budget** permet le suivi financier du chantier en comparant les monta
 
 <!-- IMAGE: Formulaire Budget avec un enregistrement de ligne budgetaire -->
 > **Fig. 12** : Formulaire Budget avec les montants prevus et effectifs
+
+---
+
+## Visualisation 2D et 3D des metrages
+
+Depuis la version 5.1, apres un clic sur le bouton **Calculer** du panneau Metrages, le Tableau de Bord ne se contente plus d'afficher les resultats numeriques (surface et volume) : il cree automatiquement un ensemble de couches cartographiques et met a disposition une vue 3D interactive.
+
+### Ce qui se passe au clic sur "Calculer"
+
+Apres un calcul de difference de DEM, le Tableau de Bord execute automatiquement les etapes suivantes :
+
+1. **Sauvegarde permanente du raster de difference** : le raster calcule (DEM post - DEM pre) est enregistre en GeoTIFF permanent sous `<PYARCHINIT_HOME>/site_dashboard/<nom du site>/`. Le raster n'est plus perdu a la fermeture de QGIS et peut etre reutilise a tout moment.
+2. **Ajout au projet QGIS** : le raster est ajoute au panneau Couches dans un groupe dedie appele **"Site Dashboard - Computi"**, afin que tous les calculs restent organises.
+3. **Symbologie automatique** : une **rampe de couleurs divergente** est appliquee au raster :
+   - **Rouge** pour les zones de deblai (valeurs negatives, terre enlevee)
+   - **Bleu** pour les zones de remblai (valeurs positives, terre ajoutee)
+   - **Transparent / neutre** pour les cellules sans variation significative (|diff| <= 1 cm)
+4. **Polygonisation de la zone d'intervention** : les cellules raster avec |diff| > 1 cm sont converties en une couche vectorielle de polygones, egalement ajoutee au groupe "Site Dashboard - Computi" avec un style mis en evidence, afin de montrer d'un seul coup d'oeil l'etendue globale de l'intervention.
+5. **Zoom automatique** : la carte principale de QGIS est automatiquement zoomee sur l'emprise du calcul.
+
+### Prerequis
+
+Pour utiliser les nouvelles visualisations 2D / 3D, il faut :
+
+- Avoir **deux couches raster DEM** chargees dans le projet QGIS (typiquement un DEM **pre**-fouille et un DEM **post**-fouille)
+- Les selectionner dans les listes deroulantes **DEM Pre** et **DEM Post** du panneau Metrages
+- Le systeme de coordonnees (SCR) des deux rasters doit etre coherent
+
+### Nouveaux boutons
+
+A cote du bouton **Calculer** sont desormais disponibles trois nouveaux boutons :
+
+| Bouton | Description |
+|--------|-------------|
+| **Afficher 2D** | Recentre la carte QGIS sur l'emprise du dernier calcul. Utile pour revenir rapidement au metrage actif apres avoir travaille dans d'autres zones. |
+| **Afficher 3D** | Ouvre une boite de dialogue 3D interactive qui utilise le DEM **pre** comme terrain, avec le raster de difference drappe par-dessus. Elle inclut : un spinbox pour l'**exageration verticale**, des cases a cocher pour afficher / masquer individuellement les couches et un bouton **Reinitialiser la vue**. |
+| **Creer maillage 3D** | Construit des maillages TIN a partir des DEMs pre et post (via les algorithmes QGIS Processing). Les maillages peuvent etre affiches dans la vue 3D pour comparer visuellement les deux surfaces et le volume entre elles. |
+
+<!-- IMAGE: Les nouveaux boutons Afficher 2D, Afficher 3D et Creer maillage 3D a cote du bouton Calculer -->
+> **Fig. 14** : Les nouveaux boutons **Afficher 2D**, **Afficher 3D** et **Creer maillage 3D** a cote du bouton **Calculer**
+
+<!-- IMAGE: Boite de dialogue 3D avec le DEM pre comme terrain et le raster de difference drappe -->
+> **Fig. 15** : La boite de dialogue 3D interactive des metrages avec exageration verticale et controle des couches
+
+### Flux de travail typique
+
+1. Charger les deux rasters DEM (pre et post) dans le projet QGIS
+2. Ouvrir le **Tableau de bord**
+3. Dans la section **Metrages**, selectionner les deux DEMs dans **DEM Pre** et **DEM Post**
+4. Cliquer sur **Calculer** : le raster de difference et le polygone d'intervention sont crees automatiquement et la carte se recentre sur l'emprise
+5. Lire les valeurs numeriques (surface, volume, deblai, remblai) directement dans le panneau
+6. Cliquer sur **Afficher 3D** pour ouvrir la vue tridimensionnelle
+7. (Optionnel) Cliquer sur **Creer maillage 3D** pour generer et afficher les maillages TIN des deux DEMs
+8. Cliquer sur **Sauvegarder** pour archiver le resultat dans l'historique
+
+### Organisation sur le disque
+
+Tous les rasters et couches generes par le metrage sont stockes dans :
+
+```
+<PYARCHINIT_HOME>/site_dashboard/<nom du site>/
+```
+
+ou `<PYARCHINIT_HOME>` est le dossier de travail configure dans les parametres de PyArchInit et `<nom du site>` est le site actuellement selectionne dans le tableau de bord. Cela permet de conserver un historique physique de tous les calculs et de reutiliser les couches dans d'autres projets QGIS.
+
+### Mise a jour : "Afficher 2D" -- Boite de dialogue de coupe analytique
+
+A partir de la prochaine version, le bouton **Afficher 2D** du panneau Metrages ne se contente plus de recentrer la carte sur le dernier calcul : il ouvre desormais une **boite de dialogue analytique basee sur matplotlib** qui presente les resultats de la fouille sous forme de coupe archeologique classique.
+
+La boite de dialogue est disponible **uniquement lorsque le calcul a ete effectue en mode "Difference DEM"** (avec DEM pre et DEM post). Si vous avez utilise le mode **DEM + Polygone**, le bouton conserve son comportement precedent et se contente de zoomer la carte QGIS sur l'emprise du calcul.
+
+Lorsqu'elle est disponible, la boite de dialogue contient les panneaux suivants :
+
+| Panneau | Description |
+|---------|-------------|
+| **Carte de chaleur de la difference DEM** | Carte de chaleur 2D du raster deblai/remblai avec une rampe de couleurs divergente (rouge pour deblai, bleu pour remblai) |
+| **Histogramme** | Distribution des profondeurs de **deblai** et des hauteurs de **remblai**, pour obtenir immediatement un resume statistique du volume deplace |
+| **Coupe longitudinale (E-O)** | La coupe archeologique classique : le **DEM pre** est dessine en **bleu**, le **DEM post** en **rouge** et le volume excave est **rempli** entre les deux lignes |
+| **Coupe transversale (N-S)** | Meme logique que la coupe E-O mais dans la direction Nord-Sud |
+| **Spinbox ligne / colonne** | Permettent de faire defiler interactivement la position des deux coupes sur le raster pour explorer toute la fouille |
+| **Bouton "Enregistrer PNG"** | Exporte l'ensemble de la figure (carte de chaleur, histogramme et les deux coupes) sous forme d'image PNG, prete a etre inseree dans le rapport de fouille |
+
+<!-- IMAGE: Boite de dialogue analytique Afficher 2D avec carte de chaleur, histogramme et coupes E-O / N-S -->
+> **Fig. 18** : La nouvelle boite de dialogue analytique **Afficher 2D** avec carte de chaleur de la difference DEM, histogramme deblai / remblai et les deux coupes longitudinale et transversale (DEM pre en bleu, DEM post en rouge, volume excave rempli entre les deux lignes)
+
+### Mise a jour : "Afficher 3D" -- Repli matplotlib
+
+Le bouton **Afficher 3D** gere maintenant automatiquement deux scenarios selon la version de QGIS installee :
+
+1. **QGIS avec le module 3D natif (Qt3D disponible)** : comme auparavant, la boite de dialogue `Qgs3DMapCanvas` embarquee est ouverte, avec terrain genere a partir du DEM pre, exageration verticale et controle des couches.
+2. **QGIS sans le module 3D (erreur "QGIS 3D module not available")** : le Tableau de Bord bascule automatiquement vers un **visualiseur 3D base sur matplotlib**. Comme matplotlib fait partie des dependances deja installees par le plugin, ce visualiseur **fonctionne toujours**, meme sur les builds QGIS minimaux compiles sans support 3D.
+
+Le visualiseur de repli offre :
+
+| Controle | Description |
+|----------|-------------|
+| **Mode d'affichage** | Trois modes selectionnables : **Pre + Post** (les deux surfaces superposees), **Difference uniquement** (uniquement la surface deblai/remblai), **Pre uniquement** (le DEM pre comme surface de reference) |
+| **Exageration verticale** | Un curseur pour accentuer la difference d'altitude entre les deux surfaces -- utile lorsque la fouille est peu profonde |
+| **Rotation interactive** | En cliquant-glissant avec la souris, il est possible de faire pivoter la scene 3D en temps reel pour explorer la fouille sous n'importe quel angle |
+
+<!-- IMAGE: Visualiseur 3D matplotlib de repli en mode Pre + Post -->
+> **Fig. 19** : Le visualiseur 3D matplotlib de repli, utilise lorsque le module Qt3D natif de QGIS n'est pas disponible : il montre les surfaces pre et post avec une exageration verticale reglable
+
+### Mise a jour : "Creer maillage 3D" -- Symbologie terrain automatique
+
+Le bouton **Creer maillage 3D** applique maintenant automatiquement une **rampe de couleurs de type terrain** au groupe de datasets d'elevation du maillage (**Bed Elevation**). Auparavant le maillage apparaissait comme une surface plate et peu lisible ; il devient desormais immediatement une carte d'altitudes expressive :
+
+- **Vert** pour les altitudes les plus basses
+- **Orange** pour les altitudes intermediaires
+- **Marron** pour les altitudes les plus elevees
+
+De cette facon, le maillage est immediatement visible et significatif dans la carte QGIS, meme avant d'ouvrir la vue 3D. Apres l'avoir construit, il suffit de cliquer sur **Afficher 3D** pour le voir rendu en tant que surface tridimensionnelle, que ce soit via le module 3D natif de QGIS ou via le visualiseur matplotlib de repli decrit ci-dessus.
+
+<!-- IMAGE: Maillage 3D avec la nouvelle rampe terrain vert / orange / marron -->
+> **Fig. 20** : Le maillage 3D avec la nouvelle rampe de couleurs de type terrain appliquee automatiquement a son dataset d'elevation
+
+### Mise a jour : polygone comme masque de decoupe
+
+Si, en plus des deux DEM, vous selectionnez egalement une couche vectorielle dans le combobox **Couche polygone** du panneau Computo Metrico tout en laissant active la modalite **Difference DEM**, le polygone est desormais utilise comme **masque de decoupe** : les deux DEM sont decoupes sur le polygone avant le calcul de la difference, de sorte que la section analytique 2D, le repli 3D matplotlib et le maillage TIN travaillent uniquement sur la zone d'intervention. Le flux typique est : tracer un polygone autour de la fouille, selectionner les DEM pre et post, choisir le polygone dans le combobox **Couche polygone** et appuyer sur **Calculer**. Les deux rasters decoupes sont automatiquement ajoutes au groupe **"Cruscotto Cantiere - Computi"** dans le panneau des couches, prets a etre reutilises.
+
+### Mise a jour : "Creer maillage 3D" -- plus de plantages
+
+Les versions precedentes pouvaient faire planter QGIS sur certains builds a cause d'un segfault C++ a l'interieur des algorithmes Processing utilises pour construire le maillage. La generation a ete reecrite en **Python pur** : le Tableau de Bord lit le DEM avec GDAL et ecrit directement un fichier 2DM contenant un **maillage de quadrangles en grille reguliere**, sans dependre des algorithmes natifs. Le resultat est sur sur n'importe quelle version de QGIS. Les maillages comportant plus d'environ **15 000 cellules** sont automatiquement sous-echantillonnes pour garder la construction rapide et le fichier leger, tandis que les cellules nodata sont ignorees : quand un masque polygonal est actif, le maillage suit donc exactement la forme de la zone d'intervention decoupee. Dans le rare cas ou la generation echoue pour d'autres raisons (disque plein, permissions), la boite de dialogue suggere maintenant d'ouvrir directement **Afficher 3D**, qui utilise le visualiseur matplotlib de repli et ne necessite aucune couche maillage.
+
+### Mise a jour : rafraichissement automatique des combos au clic sur "Calculer"
+
+Le panneau Computo Metrico **rafraichit maintenant automatiquement les listes DEM et polygone a chaque clic sur "Calculer"** : il n'est plus necessaire de fermer et rouvrir le Tableau de Bord apres avoir charge un nouveau raster ou dessine un nouveau polygone dans le projet. Il suffit d'ajouter la couche dans QGIS, de revenir sur le panneau et d'appuyer sur **Calculer** -- les combobox **DEM Pre**, **DEM Post** et **Couche polygone** sont repeuples a la volee avec l'etat courant du projet. Le diagnostic eventuel du decoupage (succes, SCR incompatible, intersection vide) est affiche dans la **barre de messages de QGIS**, de sorte que l'on sache toujours precisement quelles couches ont ete reellement utilisees dans le calcul.
+
+### Mise a jour : bouton renomme "Exporter 2DM + 3D"
+
+Le bouton precedemment intitule **Creer maillage 3D** a ete renomme **Exporter 2DM + 3D** pour refleter son nouveau comportement : il **ne charge plus** le maillage comme couche dans le projet QGIS (l'API mesh native peut provoquer des plantages sur certains builds de QGIS) et effectue a la place deux actions sures et complementaires. Il ecrit les fichiers **2DM** sur le disque a partir des DEM pre et post (utiles pour l'import dans un logiciel externe de post-traitement) et ouvre directement la **vue 3D matplotlib** sur les DEM decoupes, ce qui permet d'evaluer visuellement le resultat immediatement. Le risque de plantage est ainsi totalement ecarte, car l'API mesh de QGIS n'est jamais sollicitee.
+
+### Mise a jour : decoupe du polygone avec diagnostic visible
+
+Lorsque vous selectionnez une couche dans le combobox **Couche polygone** en meme temps que les deux DEM, le decoupage des rasters sur le polygone est desormais **trace dans la barre de messages de QGIS** : en cas de succes, la liste des fichiers decoupes ecrits sur le disque est affichee, tandis qu'en cas d'echec la raison precise est indiquee (par exemple polygone dans un SCR different de celui des DEM, aucune intersection geometrique entre polygone et raster, fichier source introuvable ou illisible). Il est ainsi immediat de comprendre pourquoi un decoupage n'a pas ete applique et que corriger (reprojeter le polygone, le deplacer au-dessus de la zone des DEM, verifier le chemin du fichier), sans avoir a ouvrir les logs ou la console Python.
+
+### Mise a jour : decoupe du polygone aussi en mode "DEM sur Polygone"
+
+La decoupe du polygone fonctionne maintenant egalement lorsque le bouton radio **DEM sur Polygone** est selectionne (mode zonal-stats avec un seul DEM) : le raster est decoupe a l'emprise du polygone **avant** d'etre transmis aux visualiseurs **Afficher 2D**, **Afficher 3D** et **Exporter 2DM + 3D**, de sorte que la coupe et la vue 3D affichent uniquement la zone d'intervention au lieu du DEM entier comme auparavant. Le message de diagnostic du decoupage apparait dans la **barre de messages de QGIS**, exactement comme en mode Difference DEM. Dans ce scenario a un seul DEM, le visualiseur **Afficher 2D** s'adapte automatiquement : la heat-map affiche les altitudes avec une rampe de couleurs **terrain**, l'histogramme represente la distribution des altitudes avec la ligne de la moyenne, et les deux coupes longitudinale/transversale tracent une seule ligne d'altitude (sans remplissage entre pre et post, car il n'y a pas de DEM post).
+
+### Mise a jour : Analyse des Couts du Computo Metrico
+
+Un nouveau bloc **Analyse des Couts** a ete ajoute au panneau Computo Metrico du Tableau de Bord avec deux parametres d'entree : **Cout unitaire** (en euros/m3) et **Productivite** (en m3/jour). A chaque pression sur **Calculer**, le panneau met automatiquement a jour trois valeurs derivees visibles d'un coup d'oeil : **Cout total** (volume x cout unitaire), **Jours estimes** (volume / productivite) et **Cout journalier** (cout unitaire x productivite). Les deux entrees sont sauvegardees automatiquement **par chantier** dans les parametres de QGIS (cles `pyArchInit/site_dashboard/costs/<chantier>/...`), il suffit donc de les saisir une seule fois par chantier : en changeant de chantier, les valeurs enregistrees sont rechargees automatiquement, et les trois totaux sont recalcules en temps reel a chaque nouveau metrage.
+
+### Mise a jour : decoupe pre/post alignee
+
+Le calcul de la difference DEM exige que les deux DEM (pre et post) soient exactement alignes sur la meme grille de pixels. Dans les versions precedentes, lorsqu'un polygone de decoupe etait utilise, les deux DEM decoupes pouvaient se retrouver sur des grilles legerement differentes et le calcul `pre - post` etait errone ou vide. Desormais, les deux decoupes utilisent la **resolution native du DEM pre** comme reference (memes `xRes` / `yRes` et meme alignement de grille), de sorte que les deux rasters decoupes sont toujours parfaitement alignes au pixel pres et que la difference produit un resultat valide. Meme les tranchees minimes dans lesquelles seulement "10 seaux de terre" (environ 1 m3) ont ete enleves sont desormais correctement detectees par le metrage.
+
+### Mise a jour : nouveau combo "Murs / Structures"
+
+Un deuxieme combo **Murs / Structures** a ete ajoute au panneau Computo Metrico : il permet de selectionner une couche de polygones representant des murs, des structures en elevation, des piliers ou d'autres elements construits qui **ne doivent pas etre comptabilises** dans le calcul des metres cubes de fouille. Lorsque l'on clique sur **Calculer**, les polygones des murs sont rasterises en NODATA sur le raster de difference decoupe et leurs cellules sont exclues du total du volume ; le message de diagnostic apparait dans la barre de messages de QGIS (par exemple `walls masked: muri_trincea_42`). Flux de travail archeologique typique : charger DEM pre + DEM post + polygone de la zone de fouille + polygone des murs decouverts, les selectionner tous les deux dans les deux combos et appuyer sur **Calculer** -- le volume fouille exclut automatiquement le volume des structures.
+
+---
+
+## Export PDF et CSV du tableau de bord
+
+Le Tableau de Bord peut exporter un resume complet des donnees de gestion dans deux formats : **PDF** (document pagine, ideal pour remise au client ou archivage) et **CSV** (ideal pour analyses ulterieures dans Excel ou autres tableurs).
+
+### Export PDF
+
+Le bouton **Exporter PDF** genere un rapport complet du chantier. Depuis la version 5.1, le PDF inclut :
+
+- **Page de couverture renouvelee** avec le nom du site, l'annee de reference et la date de generation
+- **Resume du budget** avec tableaux detailles par categorie et totaux (prevu vs reel)
+- **Resume du personnel** avec statistiques de presence, heures travaillees et couts
+- **Resume des equipements** avec etat de l'inventaire et maintenances en retard
+- **Nouvelle section "Computo Metrico"** contenant :
+  - Tableau detaille de tous les calculs sauvegardes
+  - **Totaux** : surface totale (m2) et volume total (m3)
+  - **Statistiques** : volume de deblai, volume de remblai, surface concernee
+- **Nouvelle section "Analyse des Couts"** (inseree entre **Computo Metrico** et **Statistiques**) avec une parameter card des valeurs configurees (cout unitaire en euros/m3 et productivite en m3/jour), un tableau detaille par enregistrement (date, type, volume, cout, jours estimes, cout journalier) et une ligne de **totaux** en bas du tableau ; le bloc **Statistiques** a ete etendu avec **cout total** et **jours totaux** de chantier
+- **Prise en charge complete des caracteres speciaux** : le rendu PDF a ete corrige pour toutes les langues prises en charge, y compris les lettres accentuees du roumain (**a**, **a**, **i**, **s**, **t**), les caracteres **grecs**, **arabes**, **portugais** et **catalans**.
+
+### Export CSV
+
+Le bouton **Exporter CSV** genere un fichier CSV compatible avec les principaux tableurs. Depuis la version 5.1 :
+
+- **Encodage UTF-8 avec BOM** : garantit qu'Excel (notamment en version europeenne) ouvre le fichier correctement sans corrompre les lettres accentuees et les caracteres speciaux
+- **Separateur `;`** (point-virgule) : compatible avec la localisation europeenne d'Excel
+- **Section COMPUTO METRICO** : comprend toutes les donnees de metrage, avec type, surface, volume et notes pour chaque calcul
+- **Nouvelle section `=== ANALYSE DES COUTS ===`** : commence par les deux parametres (cout unitaire en euros/m3 et productivite en m3/jour) et est suivie du tableau detaille par enregistrement (date, type, volume, cout, jours estimes, cout journalier), pret a etre filtre ou agrege dans Excel
+- **Bloc SUMMARY final etendu** : un resume agrege avec totaux et statistiques, utile pour des analyses rapides sans avoir a ecrire de formules ; il inclut maintenant egalement **Cout total** et **Jours totaux** calcules a partir de la nouvelle Analyse des Couts
+
+<!-- IMAGE: PDF exporte avec la nouvelle section Computo Metrico -->
+> **Fig. 16** : Exemple de PDF exporte avec la nouvelle section **Computo Metrico** (tableau, totaux et statistiques)
+
+<!-- IMAGE: CSV exporte ouvert dans Excel avec la section COMPUTO METRICO et le bloc SUMMARY -->
+> **Fig. 17** : Exemple de CSV exporte ouvert dans Excel avec la section **COMPUTO METRICO** et le bloc **SUMMARY** final
 
 ---
 
