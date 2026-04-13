@@ -163,6 +163,25 @@
 
 ---
 
+## [5.0.9-alpha] - 2026-04-03
+
+### Corretto / Fixed
+
+- **fix(pdf): Protezione eval() da campi vuoti nei PDF export**: Tutti i `eval(self.campo)` nelle schede PDF (Finds, InvLap, Tafonomia, Struttura, Tomba, Periodo) e in Interactive_matrix/Inv_Materiali causavano `SyntaxError: unexpected EOF while parsing` quando il campo era stringa vuota `""` o `None`. Aggiunto guard `if self.campo` prima di ogni `eval()`, pattern: `eval(self.campo) if self.campo else []`. 9 file corretti, ~80 occorrenze totali. / **fix(pdf): Guard eval() against empty fields in PDF exports**: All `eval(self.field)` calls in PDF sheet files (Finds, InvLap, Taphonomy, Structure, Tomb, Period) and in Interactive_matrix/Inv_Materiali raised `SyntaxError: unexpected EOF while parsing` when field was empty string `""` or `None`. Added `if self.field` guard before every `eval()`, pattern: `eval(self.field) if self.field else []`. 9 files fixed, ~80 occurrences total.
+
+### File modificati / Modified files
+- `modules/utility/pyarchinit_exp_Findssheet_pdf.py` (guard eval for elementi_reperto, misurazioni, tecnologie, rif_biblio)
+- `modules/utility/pyarchinit_exp_Invlapsheet_pdf.py` (guard eval for bibliografia)
+- `modules/utility/pyarchinit_exp_Tafonomiasheet_pdf.py` (guard eval for caratteristiche, corredo_tipo, misure_tomba)
+- `modules/utility/pyarchinit_exp_Strutturasheet_pdf.py` (guard eval for materiali_impiegati, elementi_strutturali, rapporti_struttura, misure_struttura)
+- `modules/utility/pyarchinit_exp_Tombasheet_pdf.py` (guard eval for materiali, caratteristiche, corredo_tipo, misure_tomba)
+- `modules/utility/pyarchinit_exp_Periodosheet_pdf.py` (guard eval for rapporti, documentazione, inclusi, campioni)
+- `modules/utility/pdf_models/pyarchinit_exp_Findssheet_pdf.py` (guard eval for misurazioni, tecnologie, rif_biblio)
+- `tabs/Interactive_matrix.py` (guard eval for rapporti2, rapporti)
+- `tabs/Inv_Materiali.py` (guard eval for elementi_reperto)
+
+---
+
 ## [5.0.9-alpha] - 2026-04-01
 
 ### Corretto / Fixed
