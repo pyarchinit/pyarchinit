@@ -13451,18 +13451,16 @@ DATABASE SCHEMA KNOWLEDGE:
 
         with engine.connect() as connection:
             # Base query per selezionare le aree
-            stmt = select([area_table.c.area]).distinct()
+            stmt = select(area_table.c.area).distinct()
 
             # Se è specificato un sito, filtra per quel sito
             if sito:
                 stmt = stmt.where(area_table.c.sito == sito)
 
             result = connection.execute(stmt)
-            areas = result.fetchall()
-
-
-            # Fetch all rows from the result and return only the area names
-            all_areas = [row['area'] for row in result]
+            # Use index-based access (SA2 Row objects may not support
+            # dict-style row['col']) and consume the result only once.
+            all_areas = [row[0] for row in result.fetchall()]
 
         return all_areas
 
@@ -13490,7 +13488,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Log dell'inizio dell'operazione
                 log_error("Inizio operazione di aggiornamento", "INFO")
 
-                stmt = select([us_table.c.id_us, us_table.c.rapporti]).where(
+                stmt = select(us_table.c.id_us, us_table.c.rapporti).where(
                     us_table.c.sito == sito, us_table.c.area == area
                 )
 
@@ -13568,15 +13566,19 @@ DATABASE SCHEMA KNOWLEDGE:
                             log_error(error_msg)
                             continue
 
-                log_error("Operazione completata", "INFO")
+                # Commit the transaction — without this, SA2's implicit
+                # transaction rolls back on context-manager exit and
+                # no changes are persisted.
+                connection.commit()
+                log_error("Operazione completata e commit eseguito", "INFO")
 
         except Exception as e:
             error_msg = f"Errore critico durante l'operazione: {str(e)}"
-            log_error(error_msg)
+            try:
+                log_error(error_msg)
+            except Exception:
+                pass
             raise
-
-        except Exception as e:
-            self.show_error(e, "l'aggiornamento")
 
     def update_rapporti_col_2(self):
         # Inizializza la connessione
@@ -13612,7 +13614,7 @@ DATABASE SCHEMA KNOWLEDGE:
         try:
             with engine.connect() as connection:
                 # Recupera tutte le righe per il sito specificato
-                stmt = select([us_table]).where(us_table.c.sito == var1)
+                stmt = select(us_table).where(us_table.c.sito == var1)
                 try:
                     rows = connection.execute(stmt).fetchall()
                     log_error(f"Recuperate {len(rows)} righe da processare per il sito {var1}", "INFO")
@@ -13733,7 +13735,10 @@ DATABASE SCHEMA KNOWLEDGE:
                             log_error(error_msg)
                             continue
 
-                log_error(f"Aggiornamento completato per il sito {var1}", "INFO")
+                # Commit — senza questo, SA2 fa rollback all'uscita
+                # dal context manager e le modifiche vanno perse.
+                connection.commit()
+                log_error(f"Aggiornamento completato e commit eseguito per il sito {var1}", "INFO")
                 self.view_all()
 
         except Exception as e:
@@ -13793,7 +13798,7 @@ DATABASE SCHEMA KNOWLEDGE:
             us_table = Table('us_table', metadata, autoload_with=connection.engine)
 
             # Prepara la query con parametri sanitizzati
-            stmt = select([us_table.c.area]).where(
+            stmt = select(us_table.c.area).where(
                 and_(
                     us_table.c.us == us,
                     us_table.c.sito == sito
