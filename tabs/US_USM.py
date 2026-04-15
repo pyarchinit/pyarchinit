@@ -336,6 +336,13 @@ class ReportGeneratorDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore durante la validazione: {str(e)}")
 
+    @staticmethod
+    def _safe_int(val):
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return None
+
     def _get_sito_set(self):
         """Return the currently configured site name from sito_set()."""
         try:
@@ -361,7 +368,15 @@ class ReportGeneratorDialog(QDialog):
         if year_filter:
             records = [r for r in records if str(getattr(r, 'anno_scavo', '')) == year_filter]
         elif us_start and us_end:
-            records = [r for r in records if us_start <= str(getattr(r, 'us', '')) <= us_end]
+            # Numeric comparison — string compare would sort "2" > "10"
+            try:
+                us_start_n = int(us_start)
+                us_end_n = int(us_end)
+                records = [r for r in records
+                           if self._safe_int(getattr(r, 'us', '')) is not None
+                           and us_start_n <= self._safe_int(getattr(r, 'us', '')) <= us_end_n]
+            except (ValueError, TypeError):
+                pass  # invalid range values — skip filter
 
         return [{
             'id_us': getattr(r, 'id_us', ''),
@@ -1240,7 +1255,7 @@ class ReportDialog(QDialog):
                         doc.add_paragraph(f"[Errore con l'immagine: {str(e)}]")
                 else:
                     # If no image reference is found, process as a normal bullet point
-                    doc.add_paragraph(text[2:].strip(), style='List Bullet')
+                    self._add_bullet_paragraph(doc, text[2:].strip())
             # Check if this is a regular bullet point
             elif text.startswith('- ') or text.startswith('* '):
                 doc.add_paragraph(text[2:].strip(), style='List Bullet')
@@ -11844,6 +11859,29 @@ DATABASE SCHEMA KNOWLEDGE:
         doc.add_paragraph(report_text)
         doc.save(output_path)
 
+    @staticmethod
+    def _add_bullet_paragraph(doc, text):
+        """
+        Add a bullet-list paragraph to ``doc``. If the template does
+        not define the ``'List Bullet'`` style (common with custom
+        templates), fall back to ``'Normal'`` with a manual bullet
+        prefix and left indent, so the save never crashes with
+        ``KeyError: "no style with name 'List Bullet'"``
+        """
+        from docx.shared import Pt
+        try:
+            para = doc.add_paragraph(text, style='List Bullet')
+        except KeyError:
+            # Style not in template — simulate a bullet visually
+            para = doc.add_paragraph(f"\u2022  {text}")
+        para.paragraph_format.left_indent = Pt(18)
+        para.paragraph_format.space_before = Pt(3)
+        para.paragraph_format.space_after = Pt(3)
+        for run in para.runs:
+            run.font.name = 'Cambria'
+            run.font.size = Pt(11)
+        return para
+
     def process_section_content(self, doc, section_info, content, report_data):
         """
         Process the content of a section and add it to the document with proper styles.
@@ -12163,15 +12201,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 list_text = line[2:].strip()
 
                 # Add as a bullet list item with proper formatting
-                para = doc.add_paragraph(list_text, style='List Bullet')
-                para.paragraph_format.left_indent = Pt(18)  # Indent for bullet
-                para.paragraph_format.space_before = Pt(3)  # Small space before
-                para.paragraph_format.space_after = Pt(3)   # Small space after
-
-                # Set font for the list item
-                for run in para.runs:
-                    run.font.name = 'Cambria'
-                    run.font.size = Pt(11)  # Standard size for bullet items
+                self._add_bullet_paragraph(doc, list_text)
 
                 i += 1
                 continue
