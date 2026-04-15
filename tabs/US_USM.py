@@ -13411,12 +13411,25 @@ DATABASE SCHEMA KNOWLEDGE:
             
             dialog.setValue(total_steps, "Completato!")
             QApplication.processEvents()
-            
+
             # Auto-close after a short delay
             import time
             time.sleep(0.5)
             dialog.close()
-            
+
+            # Refresh: reload the current records from DB so the
+            # tableWidget_rapporti and tableWidget_rapporti2 show the
+            # newly-added area/sito columns without requiring a manual
+            # plugin reload.
+            try:
+                self.charge_records()
+                self.fill_fields(self.REC_CORR)
+            except Exception:
+                try:
+                    self.view_all()
+                except Exception:
+                    pass
+
         except Exception as e:
             dialog.close()
             QMessageBox.critical(None, "Errore", f"Errore durante l'aggiornamento: {str(e)}")
@@ -13674,7 +13687,18 @@ DATABASE SCHEMA KNOWLEDGE:
                 # dal context manager e le modifiche vanno perse.
                 connection.commit()
                 log_error(f"Aggiornamento completato e commit eseguito per il sito {var1}", "INFO")
-                self.view_all()
+
+                # Refresh the form: reload records from DB and repaint
+                # the tableWidgets so the user sees the new area/sito
+                # columns immediately without reloading the plugin.
+                try:
+                    self.charge_records()
+                    self.fill_fields(self.REC_CORR)
+                except Exception:
+                    try:
+                        self.view_all()
+                    except Exception:
+                        pass
 
         except Exception as e:
             error_msg = f"Errore critico durante l'aggiornamento: {str(e)}"
