@@ -16,13 +16,21 @@ class ReportGenerator(QWidget):
 
 
     @staticmethod
-    def read_data_from_db(db_url, table_name):
+    def read_data_from_db(db_url, table_name, sito=None):
+        """
+        Read all records from ``table_name``. If ``sito`` is supplied
+        and the table has a ``sito`` column, only the records for that
+        site are returned — this prevents loading 510 demo US when the
+        user only wants the 51 for their configured site.
+        """
         engine = create_engine(db_url)
         metadata = MetaData()
         table = Table(table_name, metadata, autoload_with=engine)
         Session = sessionmaker(bind=engine)
         session = Session()
         query = session.query(table)
+        if sito and 'sito' in table.c:
+            query = query.filter(table.c.sito == sito)
         records = query.all()
         columns = [column.name for column in table.columns]
         session.close()

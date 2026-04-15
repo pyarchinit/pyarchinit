@@ -336,6 +336,14 @@ class ReportGeneratorDialog(QDialog):
         except Exception as e:
             QMessageBox.critical(self, "Errore", f"Errore durante la validazione: {str(e)}")
 
+    def _get_sito_set(self):
+        """Return the currently configured site name from sito_set()."""
+        try:
+            conn = Connection()
+            return conn.sito_set().get('sito_set', '') or ''
+        except Exception:
+            return ''
+
     def get_us_data(self):
         """Recupera i dati delle US dal database"""
         selected_tables = self.get_selected_tables()
@@ -343,7 +351,8 @@ class ReportGeneratorDialog(QDialog):
             return []
 
         conn = Connection()
-        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'us_table')
+        sito = self._get_sito_set()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'us_table', sito=sito)
 
         # Applica i filtri
         year_filter = self.get_year_filter()
@@ -372,7 +381,8 @@ class ReportGeneratorDialog(QDialog):
             return []
 
         conn = Connection()
-        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'inventario_materiali_table')
+        sito = self._get_sito_set()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'inventario_materiali_table', sito=sito)
 
         # Applica i filtri
         year_filter = self.get_year_filter()
@@ -402,7 +412,8 @@ class ReportGeneratorDialog(QDialog):
             return []
 
         conn = Connection()
-        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'pottery_table')
+        sito = self._get_sito_set()
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'pottery_table', sito=sito)
 
         # Applica i filtri
         year_filter = self.get_year_filter()
@@ -429,8 +440,9 @@ class ReportGeneratorDialog(QDialog):
             return []
 
         conn = Connection()
+        sito = self._get_sito_set()
         # Usa il nome corretto della tabella nel database
-        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'tma_materiali_archeologici')
+        records, _ = ReportGenerator.read_data_from_db(conn.conn_str(), 'tma_materiali_archeologici', sito=sito)
 
         # Applica i filtri
         us_start, us_end = self.get_us_range()
