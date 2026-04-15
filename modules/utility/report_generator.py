@@ -18,7 +18,7 @@ class ReportGenerator(QWidget):
     @staticmethod
     def read_data_from_db(db_url, table_name):
         engine = create_engine(db_url)
-        metadata = MetaData(bind=engine)
+        metadata = MetaData()
         table = Table(table_name, metadata, autoload_with=engine)
         Session = sessionmaker(bind=engine)
         session = Session()

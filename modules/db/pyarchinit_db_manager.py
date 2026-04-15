@@ -2457,7 +2457,7 @@ class Pyarchinit_db_management(object):
         session = self.get_session()
         try:
             # Ottieni la tabella
-            table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+            table = Table(table_name, MetaData(), autoload_with=self.engine)
 
             # Costruisci la query
             query = select(table)
@@ -2481,7 +2481,7 @@ class Pyarchinit_db_management(object):
         session = self.get_session()
         try:
             # Ottieni la tabella
-            table = Table(table_name, MetaData(bind=self.engine), autoload_with=self.engine)
+            table = Table(table_name, MetaData(), autoload_with=self.engine)
 
             # Costruisci la query per ottenere il conteggio totale delle immagini
             query = select(func.count('*')).select_from(table)
@@ -2529,7 +2529,7 @@ class Pyarchinit_db_management(object):
 
     def query_bool_like(self, params, table, join_operator='or'):
 
-        meta = MetaData(bind=self.engine)
+        meta = MetaData()
         table_to_query = Table(table, meta, autoload_with=self.engine)
 
         u = Utility()
