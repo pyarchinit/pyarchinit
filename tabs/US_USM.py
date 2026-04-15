@@ -13624,116 +13624,51 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.show_error(e, "il recupero dei dati")
                     return
 
-                # Processa ogni riga
+                # Processa ogni riga — aggiorna SIA rapporti CHE rapporti2
                 for row_j in rows:
-                    id_us, rapporti_str = row_j.id_us, row_j.rapporti
+                    id_us = row_j.id_us
+                    any_change = False
 
-
+                    # --- rapporti (colonne: tipo, us, area, sito) ---
+                    rapporti_str = row_j.rapporti
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
-                            # Log della stringa originale
-
                             rapporti_list = ast.literal_eval(rapporti_str)
-                            updated_rapporti_list = []
-
-                            for sublist in rapporti_list:
+                            updated = self._update_rapporti_add_area_sito(
+                                rapporti_list, var1, connection, id_us, log_error)
+                            updated_str = self.ensure_utf8(str(updated))
+                            if updated_str != rapporti_str:
                                 try:
-                                    # Gestisci diversi formati di rapporti
-                                    if not sublist:
-                                        continue
-                                    
-                                    if len(sublist) < 2:
-                                        error_msg = f"Sottolista troppo corta per US {id_us}: {sublist}"
-                                        log_error(error_msg, "WARNING")
-                                        continue
-                                    
-                                    # Se il rapporto ha solo 2 elementi [tipo, us], aggiungi area e sito
-                                    if len(sublist) == 2:
-                                        us_id = sublist[1]
-                                        try:
-                                            # Trova l'area corretta per questa US
-                                            correct_area = self.find_correct_area_for_us(us_id, var1, connection)
-                                            if correct_area:
-                                                # Aggiungi area e sito
-                                                updated_sublist = sublist + [correct_area, var1]
-                                                updated_rapporti_list.append(updated_sublist)
-                                                log_error(f"Aggiunto area e sito per US {id_us}: {sublist} -> {updated_sublist}", "INFO")
-                                            else:
-                                                # Se non trovo l'area, preserva il rapporto base
-                                                updated_rapporti_list.append(sublist)
-                                                log_error(f"Area non trovata per US {us_id}, preservato rapporto base: {sublist}", "WARNING")
-                                        except Exception as e:
-                                            # In caso di errore, preserva il rapporto base
-                                            updated_rapporti_list.append(sublist)
-                                            log_error(f"Errore nel trovare area per US {us_id}: {str(e)}", "ERROR")
-                                        continue
-                                    
-                                    # Se ha almeno 3 elementi, processa normalmente
-                                    us_id = sublist[1]
-                                    current_area = sublist[2]
-
-                                    # Trova l'area corretta
-                                    try:
-                                        correct_area = self.find_correct_area_for_us(us_id, var1, connection)
-
-                                        if correct_area is None:
-                                            log_error(f"Area non trovata per US {us_id} nel sito {var1}", "WARNING")
-                                            updated_rapporti_list.append(sublist)
-                                            continue
-
-                                        if correct_area == current_area:
-                                            updated_rapporti_list.append(sublist)
-                                        else:
-                                            updated_sublist = sublist.copy()
-                                            updated_sublist[2] = correct_area
-                                            updated_rapporti_list.append(updated_sublist)
-                                            log_error(
-                                                f"Aggiornata area per US {us_id}: da {current_area} a {correct_area}",
-                                                "INFO")
-
-                                    except Exception as e:
-                                        error_msg = f"Errore nel trovare l'area corretta per US {us_id}: {str(e)}"
-                                        log_error(error_msg)
-                                        updated_rapporti_list.append(sublist)
-                                        continue
-
+                                    connection.execute(
+                                        update(us_table)
+                                        .where(us_table.c.id_us == id_us)
+                                        .values(rapporti=updated_str))
+                                    any_change = True
                                 except Exception as e:
-                                    error_msg = f"Errore nel processare la sottolista per US {id_us}: {str(e)}"
-                                    log_error(error_msg)
-                                    continue
-
-                            # Aggiorna il database
-                            # Non troncare i rapporti - preserva il formato esistente
-                            updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list))
-
-
-                            try:
-                                update_stmt = update(us_table).where(us_table.c.id_us == id_us).values(
-                                    rapporti=updated_rapporti_str)
-                                connection.execute(update_stmt)
-                            except Exception as e:
-                                error_msg = (
-                                    f"Errore nell'aggiornamento dell'US {id_us}:\n"
-                                    f"Errore: {str(e)}\n"
-                                    f"Stringa problematica: {updated_rapporti_str}"
-                                )
-                                log_error(error_msg)
-                                continue
-
-                        except ValueError as e:
-                            error_msg = (
-                                f"Errore nella conversione per US {id_us}:\n"
-                                f"Errore: {str(e)}\n"
-                                f"Stringa originale: {rapporti_str}"
-                            )
-                            log_error(error_msg)
-                            self.show_error(e, "la conversione della stringa in una lista di liste")
-                            continue
-
+                                    log_error(f"Errore update rapporti US {id_us}: {e}")
                         except Exception as e:
-                            error_msg = f"Errore generico per US {id_us}: {str(e)}"
-                            log_error(error_msg)
-                            continue
+                            log_error(f"Errore parsing rapporti US {id_us}: {e}")
+
+                    # --- rapporti2 (colonne: tipo, us, unita_tipo,
+                    #     descr, periodizzazione, area, sito) ---
+                    rapporti2_str = row_j.rapporti2
+                    if rapporti2_str and rapporti2_str != "[[]]" and rapporti2_str != '[]':
+                        try:
+                            rapporti2_list = ast.literal_eval(rapporti2_str)
+                            updated2 = self._update_rapporti2_add_area_sito(
+                                rapporti2_list, var1, connection, id_us, log_error)
+                            updated2_str = self.ensure_utf8(str(updated2))
+                            if updated2_str != rapporti2_str:
+                                try:
+                                    connection.execute(
+                                        update(us_table)
+                                        .where(us_table.c.id_us == id_us)
+                                        .values(rapporti2=updated2_str))
+                                    any_change = True
+                                except Exception as e:
+                                    log_error(f"Errore update rapporti2 US {id_us}: {e}")
+                        except Exception as e:
+                            log_error(f"Errore parsing rapporti2 US {id_us}: {e}")
 
                 # Commit — senza questo, SA2 fa rollback all'uscita
                 # dal context manager e le modifiche vanno perse.
@@ -13745,6 +13680,76 @@ DATABASE SCHEMA KNOWLEDGE:
             error_msg = f"Errore critico durante l'aggiornamento: {str(e)}"
             log_error(error_msg)
             self.show_error(e, "l'aggiornamento")
+
+    # ---- helper: aggiunge area+sito a rapporti (4-col) ----
+    def _update_rapporti_add_area_sito(self, rapporti_list, sito, connection, id_us, log_error):
+        """
+        Per ogni entry di ``rapporti`` [tipo, us, (area), (sito)],
+        aggiunge area e sito se mancano o corregge l'area
+        cercandola nel DB.
+        """
+        result = []
+        for sub in rapporti_list:
+            if not sub or len(sub) < 2:
+                continue
+            us_id = sub[1]
+            try:
+                correct_area = self.find_correct_area_for_us(us_id, sito, connection)
+            except Exception:
+                correct_area = None
+            if len(sub) == 2:
+                result.append(sub + [correct_area or '', sito])
+            elif len(sub) == 3:
+                result.append([sub[0], sub[1], correct_area or sub[2], sito])
+            else:
+                entry = list(sub[:4])
+                if correct_area:
+                    entry[2] = correct_area
+                entry[3] = sito
+                result.append(entry)
+        return result
+
+    # ---- helper: aggiunge area+sito a rapporti2 (7-col) ----
+    def _update_rapporti2_add_area_sito(self, rapporti2_list, sito, connection, id_us, log_error):
+        """
+        Per ogni entry di ``rapporti2``
+        [tipo, us, unita_tipo, descr, periodo, (area), (sito)],
+        aggiunge area e sito nelle posizioni 5 e 6 se mancano.
+        """
+        result = []
+        for sub in rapporti2_list:
+            if not sub or len(sub) < 2:
+                continue
+            us_id = sub[1]
+            try:
+                correct_area = self.find_correct_area_for_us(us_id, sito, connection)
+            except Exception:
+                correct_area = None
+            area_val = correct_area or ''
+            if len(sub) == 5:
+                # formato base senza area/sito → aggiungi
+                result.append(list(sub) + [area_val, sito])
+            elif len(sub) == 6:
+                # ha area ma non sito → aggiorna area e aggiungi sito
+                entry = list(sub)
+                entry[5] = area_val
+                entry.append(sito)
+                result.append(entry)
+            elif len(sub) >= 7:
+                # completo → aggiorna area e sito
+                entry = list(sub[:7])
+                entry[5] = area_val
+                entry[6] = sito
+                result.append(entry)
+            else:
+                # formato corto (<5 campi) — preserva e accoda area+sito
+                entry = list(sub)
+                while len(entry) < 5:
+                    entry.append('')
+                entry.append(area_val)
+                entry.append(sito)
+                result.append(entry)
+        return result
 
     def ensure_utf8(self,s):
         """
