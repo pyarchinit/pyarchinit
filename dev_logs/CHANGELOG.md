@@ -5,6 +5,29 @@
 
 ---
 
+## [5.0.18-alpha] - 2026-04-17
+
+### Corretto / Fixed
+
+- **fix(ui,invmat): Posizionamento corretto `lineEdit_sub_inv` accanto a `lineEdit_num_inv`**: La precedente iniezione via `QGridLayout.removeWidget`+`addWidget(r, c+1)` finiva nel fallback e il widget compariva in basso a sinistra. Riscritto `_inject_sub_inv_field` per usare un wrapper `QWidget` con `QHBoxLayout [num_inv | sub_inv]` e `QLayout.replaceWidget` sul layout genitore: funziona con qualsiasi tipo di layout (QGridLayout, QFormLayout, QHBoxLayout) e il widget appare immediatamente a destra del Nr. Inventario come richiesto dall'utente. / **fix(ui,invmat): Correct positioning of `lineEdit_sub_inv` next to `lineEdit_num_inv`**: The previous injection via `QGridLayout.removeWidget`+`addWidget(r, c+1)` hit the fallback and the widget appeared bottom-left. Rewrote `_inject_sub_inv_field` to use a wrapper `QWidget` with `QHBoxLayout [num_inv | sub_inv]` and `QLayout.replaceWidget` on the parent layout: works with any layout kind (QGridLayout, QFormLayout, QHBoxLayout) and the widget now appears immediately to the right of Nr. Inventario as requested.
+
+- **fix(ui,invmat): Elimina visualizzazione letterale `"None"` nei campi combo/text**: In `fill_fields` numerose chiamate `setEditText(str(record.campo))` producevano la stringa letterale `"None"` quando il campo DB era NULL. Introdotto helper `_safe_str(v)` che restituisce `""` per `None`/`str(None)` e wrappato le 11 chiamate interessate (`tipo_reperto`, `criterio_schedatura`, `definizione`, `descrizione`, `lavato`, `luogo_conservazione`, `stato_conservazione`, `datazione_reperto`, `rivestimento`, `corpo_ceramico`, `tipo`, `repertato`, `diagnostico`, `tipo_contenitore`, `struttura`, `years`). / **fix(ui,invmat): Remove literal `"None"` from combo/text fields**: `fill_fields` had many `setEditText(str(record.field))` calls that produced the literal string `"None"` when the DB value was NULL. Added `_safe_str(v)` helper returning `""` for `None`/`str(None)` and wrapped the 11 affected call sites.
+
+- **fix(import,invmat): Formato `rif_biblio` compatibile con `tableWidget_rif_biblio` (4 colonne)**: il parser Festòs produceva `rif_biblio=['testo']` ma il widget si aspetta `[[autore, anno, titolo, pag]]` (4 colonne). Aggiornato `build_rif_biblio` in `parse_to_festos2025.py` per emettere `[['', '', testo, '']]` e skippare placeholder `No/Sì/-/na/none/yes`. Applicato UPDATE al DB `festos2025` che ha riformattato 22 record reali e azzerato 2068 placeholder, lasciando 11 riferimenti bibliografici effettivi. / **fix(import,invmat): `rif_biblio` format compatible with `tableWidget_rif_biblio` (4 columns)**: Festòs parser was producing `rif_biblio=['text']` but the widget expects `[[author, year, title, page]]`. Updated `build_rif_biblio` to emit `[['', '', text, '']]` and skip placeholders. Applied UPDATE to `festos2025` DB: 22 real records reformatted, 2068 placeholders cleared, 11 actual bibliographic references retained.
+
+### Aggiunto / Added
+
+- **feat(ui,invmat): Sub-tab in Quantificazioni per migliore visibilita' (`stats_subtabs`)**: Il pannello sinistro della tab Quantificazioni impilava verticalmente "Riepilogo Generale", "Statistiche Quantitative" e "Report AI Descrittivo" richiedendo scroll per consultarli su schermi piccoli. Sostituiti i 3 `QGroupBox` con un `QTabWidget` interno (sub-tab "Riepilogo" / "Statistiche" / "Report AI") — ciascuna sezione ora ha spazio pieno e il grafico a destra resta sempre visibile. Label localizzate IT/DE/EN. / **feat(ui,invmat): Sub-tabs in Quantificazioni for better visibility (`stats_subtabs`)**: The Quantificazioni tab's left panel stacked "General Summary", "Quantitative Statistics" and "AI Report" vertically, requiring scroll on small screens. Replaced the 3 `QGroupBox` with a nested `QTabWidget` (sub-tabs "Summary" / "Statistics" / "AI Report") — each section gets full space and the chart on the right stays always visible. Labels localised IT/DE/EN.
+
+### File modificati / Modified files
+- `tabs/Inv_Materiali.py` (riscrittura `_inject_sub_inv_field` con wrapper+replaceWidget; helper `_safe_str`; 11 siti `setEditText` aggiornati; sub-tab `stats_subtabs` in setup Quantificazioni)
+- `/Users/enzo/Downloads/parsingra/parse_to_festos2025.py` (build_rif_biblio formato 4 colonne + skip placeholder)
+
+### DB festos2025
+- UPDATE rif_biblio: 2057 `['No']` -> `''`, 22 `[testo]` -> `[['','',testo,'']]`, 11 `['Sì']` -> `''`. Risultato: 11 riferimenti reali, il resto vuoto.
+
+---
+
 ## [5.0.17-alpha] - 2026-04-17
 
 ### Aggiunto / Added

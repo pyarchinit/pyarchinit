@@ -1123,58 +1123,60 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
     def _inject_sub_inv_field(self):
         """
-        Inietta un QLineEdit 'lineEdit_sub_inv' accanto a 'lineEdit_num_inv'
-        nel QGridLayout genitore. Serve a gestire il nuovo campo sub_inv
-        (VARCHAR(8) opzionale, es. "a", "b1", "bis") come VARIANT del
-        numero_inventario. Non si modifica il file .ui per non compromettere
-        il layout esistente.
+        Inietta un QLineEdit 'lineEdit_sub_inv' immediatamente a destra di
+        'lineEdit_num_inv' racchiudendoli in un QHBoxLayout dentro un wrapper
+        QWidget che sostituisce il num_inv nel layout genitore via replaceWidget.
+        Questo approccio funziona per qualsiasi tipo di layout parent
+        (QGridLayout, QFormLayout, QHBoxLayout, ecc.) e non modifica il .ui.
         """
         try:
             anchor = getattr(self, 'lineEdit_num_inv', None)
             if anchor is None:
                 return
-
-            # Se gia' iniettato (ricarica UI), non duplicare
+            # Evita doppia iniezione su ricarica UI
             if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
                 return
 
-            parent_widget = anchor.parentWidget()
-            if parent_widget is None:
+            parent_layout = anchor.parentWidget().layout() if anchor.parentWidget() else None
+            if parent_layout is None:
                 return
-            grid = parent_widget.layout()
 
-            sub_inv = QLineEdit(parent_widget)
+            sub_inv = QLineEdit()
             sub_inv.setObjectName('lineEdit_sub_inv')
             sub_inv.setMaxLength(8)
-            sub_inv.setMaximumWidth(50)
+            sub_inv.setFixedWidth(55)
             sub_inv.setPlaceholderText('a/b/bis')
             sub_inv.setToolTip(
                 'Suffisso opzionale al numero inventario (es. "a", "b1", "bis"). '
-                'Permette di distinguere varianti con lo stesso numero.'
-            )
+                'Permette di distinguere varianti con lo stesso numero.')
+
+            # Wrapper QWidget con QHBoxLayout che contiene [num_inv | sub_inv]
+            wrapper = QWidget()
+            h = QHBoxLayout(wrapper)
+            h.setContentsMargins(0, 0, 0, 0)
+            h.setSpacing(4)
+            # replaceWidget rimuove anchor dal parent_layout restituendo il layout
+            # item. Poi si re-parenta anchor dentro il wrapper prima di sub_inv.
+            replaced_item = parent_layout.replaceWidget(anchor, wrapper)
+            if replaced_item is None:
+                # replaceWidget non supportato o anchor non trovato: fallback
+                # minimo sicuro (meglio nascosto che fuori posto)
+                sub_inv.setVisible(False)
+                self.lineEdit_sub_inv = sub_inv
+                return
+            # Qt 5: replaceWidget restituisce un QLayoutItem da distruggere
+            try:
+                del replaced_item
+            except Exception:
+                pass
+            # Reparent anchor dentro il wrapper nella posizione 0
+            anchor.setParent(wrapper)
+            h.addWidget(anchor, 1)     # prende lo spazio residuo
+            h.addWidget(sub_inv, 0)    # fissa 55px
 
             self.lineEdit_sub_inv = sub_inv
-
-            if isinstance(grid, QGridLayout):
-                # lineEdit_num_inv si trova a row=2, col=6, colspan=2; lineEdit_n_reperto
-                # a row=2, col=10. Riduciamo il colspan del num_inv da 2 a 1 e
-                # inseriamo sub_inv nella colonna liberata (col=7).
-                idx = grid.indexOf(anchor)
-                if idx >= 0:
-                    r, c, rspan, cspan = grid.getItemPosition(idx)
-                    # Rimuoviamo e rinseriamo anchor con colspan ridotto
-                    grid.removeWidget(anchor)
-                    grid.addWidget(anchor, r, c, rspan, 1)
-                    grid.addWidget(sub_inv, r, c + 1, rspan, 1)
-                else:
-                    # Fallback: append a riga/colonna successive
-                    grid.addWidget(sub_inv, grid.rowCount(), 0)
-            else:
-                # Fallback: layout non a griglia; aggiungi comunque il widget
-                if grid is not None:
-                    grid.addWidget(sub_inv)
         except Exception:
-            # Non-fatale: il form continua a funzionare senza il campo sub_inv
+            # Non-fatale: il form continua senza il campo sub_inv
             pass
 
     def _get_sub_inv_value(self):
@@ -6245,6 +6247,13 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         # Single ordered query - replaces double query pattern for better performance
         self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
 
+    def _safe_str(self, v):
+        """None/'None' -> '', altrimenti str(v). Evita che 'None' compaia nei widget."""
+        if v is None:
+            return ''
+        s = str(v)
+        return '' if s == 'None' else s
+
     def fill_fields(self, n=0):
         self.rec_num = n
 
@@ -6298,17 +6307,17 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
                 sub_inv_rec = getattr(self.DATA_LIST[self.rec_num], 'sub_inv', None)
                 self.lineEdit_sub_inv.setText('' if sub_inv_rec is None or str(sub_inv_rec) == 'None' else str(sub_inv_rec))
-            self.comboBox_tipo_reperto.setEditText(self.DATA_LIST[self.rec_num].tipo_reperto)
-            self.comboBox_criterio_schedatura.setEditText(self.DATA_LIST[self.rec_num].criterio_schedatura)
-            self.comboBox_definizione.setEditText(self.DATA_LIST[self.rec_num].definizione)
-            self.textEdit_descrizione_reperto.setText(self.DATA_LIST[self.rec_num].descrizione)
+            self.comboBox_tipo_reperto.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].tipo_reperto))
+            self.comboBox_criterio_schedatura.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].criterio_schedatura))
+            self.comboBox_definizione.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].definizione))
+            self.textEdit_descrizione_reperto.setText(self._safe_str(self.DATA_LIST[self.rec_num].descrizione))
             self.comboBox_area.setEditText(area)
             self.lineEdit_us.setText(us)
-            self.comboBox_lavato.setEditText(str(self.DATA_LIST[self.rec_num].lavato))
+            self.comboBox_lavato.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].lavato))
             self.lineEdit_nr_cassa.setText(nr_cassa)
-            self.comboBox_magazzino.setEditText(str(self.DATA_LIST[self.rec_num].luogo_conservazione))
-            self.comboBox_conservazione.setEditText(str(self.DATA_LIST[self.rec_num].stato_conservazione))
-            self.comboBox_datazione.setEditText(str(self.DATA_LIST[self.rec_num].datazione_reperto))
+            self.comboBox_magazzino.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].luogo_conservazione))
+            self.comboBox_conservazione.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].stato_conservazione))
+            self.comboBox_datazione.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].datazione_reperto))
 
             self.tableInsertData("self.tableWidget_elementi_reperto", self.DATA_LIST[self.rec_num].elementi_reperto)
             self.tableInsertData("self.tableWidget_misurazioni", self.DATA_LIST[self.rec_num].misurazioni)
@@ -6318,8 +6327,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEditFormeMin.setText(forme_minime)
             self.lineEditFormeMax.setText(forme_massime)
             self.lineEditTotFram.setText(totale_frammenti)
-            self.lineEditRivestimento.setText(str(self.DATA_LIST[self.rec_num].rivestimento))
-            self.lineEditCorpoCeramico.setText(str(self.DATA_LIST[self.rec_num].corpo_ceramico))
+            self.lineEditRivestimento.setText(self._safe_str(self.DATA_LIST[self.rec_num].rivestimento))
+            self.lineEditCorpoCeramico.setText(self._safe_str(self.DATA_LIST[self.rec_num].corpo_ceramico))
 
             if self.DATA_LIST[self.rec_num].diametro_orlo is None:
                 self.lineEdit_diametro_orlo.setText("")
@@ -6331,19 +6340,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             else:
                 self.lineEdit_peso.setText(str(self.DATA_LIST[self.rec_num].peso))
 
-            self.comboBox_tipologia.setEditText(str(self.DATA_LIST[self.rec_num].tipo))
+            self.comboBox_tipologia.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].tipo))
 
             if self.DATA_LIST[self.rec_num].eve_orlo is None:
                 self.lineEdit_eve_orlo.setText("")
             else:
                 self.lineEdit_eve_orlo.setText(str(self.DATA_LIST[self.rec_num].eve_orlo))
 
-            self.comboBox_repertato.setEditText(str(self.DATA_LIST[self.rec_num].repertato))
-            self.comboBox_diagnostico.setEditText(str(self.DATA_LIST[self.rec_num].diagnostico))
+            self.comboBox_repertato.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].repertato))
+            self.comboBox_diagnostico.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].diagnostico))
             self.lineEdit_n_reperto.setText(n_reperto)
-            self.comboBox_tipo_contenitore.setEditText(str(self.DATA_LIST[self.rec_num].tipo_contenitore))
-            self.comboBox_struttura.setEditText(str(self.DATA_LIST[self.rec_num].struttura))
-            self.comboBox_year.setEditText(str(self.DATA_LIST[self.rec_num].years))
+            self.comboBox_tipo_contenitore.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].tipo_contenitore))
+            self.comboBox_struttura.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].struttura))
+            self.comboBox_year.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].years))
 
             # ============================================================
             # Media loading: auto-load only for local paths
@@ -6927,11 +6936,15 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             left_layout.addLayout(controls_layout)
 
-            # Summary table
-            grp_title = "Riepilogo Generale" if self.L == 'it' else "Allgemeine Zusammenfassung" if self.L == 'de' else "General Summary"
-            summary_group = QGroupBox(grp_title)
-            summary_layout = QVBoxLayout(summary_group)
+            # Sub-tab widget: invece di impilare i 3 group box verticalmente
+            # (richiede scroll), li mettiamo in sub-tab cosi' ogni sezione ha
+            # spazio pieno e l'utente naviga con un click. Migliore visibilita'
+            # dei dati e dei grafici su schermi piccoli.
+            self.stats_subtabs = QTabWidget()
 
+            # --- Sub-tab 1: Riepilogo Generale ---
+            summary_widget = QWidget()
+            summary_layout = QVBoxLayout(summary_widget)
             self.tableWidget_stats = QTableWidget()
             self.tableWidget_stats.setColumnCount(3)
             headers = ["Categoria", "Conteggio", "Percentuale"] if self.L == 'it' else \
@@ -6940,16 +6953,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_stats.setHorizontalHeaderLabels(headers)
             self.tableWidget_stats.horizontalHeader().setStretchLastSection(True)
             self.tableWidget_stats.setAlternatingRowColors(True)
-            self.tableWidget_stats.setMinimumHeight(200)
             summary_layout.addWidget(self.tableWidget_stats)
+            tab_summary_label = "Riepilogo" if self.L == 'it' else \
+                                "Zusammenfassung" if self.L == 'de' else "Summary"
+            self.stats_subtabs.addTab(summary_widget, tab_summary_label)
 
-            left_layout.addWidget(summary_group)
-
-            # Measurements statistics table
-            measures_title = "Statistiche Quantitative" if self.L == 'it' else "Quantitative Statistiken" if self.L == 'de' else "Quantitative Statistics"
-            measures_group = QGroupBox(measures_title)
-            measures_layout = QVBoxLayout(measures_group)
-
+            # --- Sub-tab 2: Statistiche Quantitative ---
+            measures_widget = QWidget()
+            measures_layout = QVBoxLayout(measures_widget)
             self.tableWidget_measures = QTableWidget()
             self.tableWidget_measures.setColumnCount(5)
             headers_m = ["Misura", "Min", "Max", "Media", "Mediana"] if self.L == 'it' else \
@@ -6958,16 +6969,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.tableWidget_measures.setHorizontalHeaderLabels(headers_m)
             self.tableWidget_measures.horizontalHeader().setStretchLastSection(True)
             self.tableWidget_measures.setAlternatingRowColors(True)
-            self.tableWidget_measures.setMinimumHeight(150)
             measures_layout.addWidget(self.tableWidget_measures)
+            tab_measures_label = "Statistiche" if self.L == 'it' else \
+                                 "Statistik" if self.L == 'de' else "Statistics"
+            self.stats_subtabs.addTab(measures_widget, tab_measures_label)
 
-            left_layout.addWidget(measures_group)
-
-            # AI Report section
-            ai_title = "Report AI Descrittivo" if self.L == 'it' else "KI-Beschreibender Bericht" if self.L == 'de' else "AI Descriptive Report"
-            ai_group = QGroupBox(ai_title)
-            ai_layout = QVBoxLayout(ai_group)
-
+            # --- Sub-tab 3: Report AI Descrittivo ---
+            ai_widget = QWidget()
+            ai_layout = QVBoxLayout(ai_widget)
             ai_buttons_layout = QHBoxLayout()
             btn_gen = "Genera Report AI" if self.L == 'it' else "KI-Bericht erstellen" if self.L == 'de' else "Generate AI Report"
             self.pushButton_generate_ai_report = QPushButton(btn_gen)
@@ -6987,10 +6996,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                          "Der KI-Bericht wird hier nach der Erstellung angezeigt..." if self.L == 'de' else \
                          "AI report will be displayed here after generation..."
             self.textEdit_ai_report.setPlaceholderText(placeholder)
-            self.textEdit_ai_report.setMinimumHeight(150)
             ai_layout.addWidget(self.textEdit_ai_report)
+            tab_ai_label = "Report AI" if self.L == 'it' else \
+                           "KI-Bericht" if self.L == 'de' else "AI Report"
+            self.stats_subtabs.addTab(ai_widget, tab_ai_label)
 
-            left_layout.addWidget(ai_group)
+            left_layout.addWidget(self.stats_subtabs)
 
             splitter.addWidget(left_widget)
 
