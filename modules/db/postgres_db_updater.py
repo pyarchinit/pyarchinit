@@ -1031,12 +1031,17 @@ class PostgresDbUpdater:
             updated |= self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT', 'NULL')
             updated |= self.add_column_if_missing('inventario_materiali_table', 'entity_uuid', 'TEXT', 'NULL')
 
+            # sub_inv: suffisso opzionale (es. "a", "b1", "bis") applicato a
+            # numero_inventario e n_reperto. Quando aggiunto, gli indici UNIQUE
+            # vanno estesi per includerlo altrimenti non e' possibile avere
+            # "1" e "1a" come record distinti.
+            sub_inv_added = self.add_column_if_missing(
+                'inventario_materiali_table', 'sub_inv', 'VARCHAR(8)', 'NULL')
+            updated |= sub_inv_added
+            if sub_inv_added:
+                self._rebuild_invmat_unique_constraints()
+
             if updated:
-                added = []
-                for col in ['schedatore', 'date_scheda', 'punto_rinv', 'negativo_photo',
-                           'diapositiva', 'quota_usm', 'unita_misura_quota', 'photo_id',
-                           'drawing_id', 'entity_uuid']:
-                    added.append(col)
                 self.log_message(f"Tabella inventario_materiali_table aggiornata")
                 self.updates_made.append("inventario_materiali_table: colonne mancanti aggiunte")
             else:
@@ -1044,6 +1049,32 @@ class PostgresDbUpdater:
 
         except Exception as e:
             self.log_message(f"Errore durante l'aggiornamento della tabella inventario_materiali: {e}")
+
+    def _rebuild_invmat_unique_constraints(self):
+        """Ricrea UNIQUE ID_invmat_unico e indice idx_n_reperto per includere sub_inv.
+
+        Serve per permettere record con stesso (sito, numero_inventario) ma
+        sub_inv differente (es. "1" e "1a"). PostgreSQL ignora righe con
+        NULL nei vincoli UNIQUE multi-colonna di default, quindi per i record
+        senza sub_inv i vecchi vincoli rimangono effettivi.
+        """
+        from sqlalchemy import text
+        try:
+            self.db_manager._execute_sql(text(
+                'ALTER TABLE public.inventario_materiali_table '
+                'DROP CONSTRAINT IF EXISTS "ID_invmat_unico"'))
+            self.db_manager._execute_sql(text(
+                'ALTER TABLE public.inventario_materiali_table '
+                'ADD CONSTRAINT "ID_invmat_unico" '
+                'UNIQUE (sito, numero_inventario, sub_inv)'))
+            self.db_manager._execute_sql(text(
+                'DROP INDEX IF EXISTS idx_n_reperto'))
+            self.db_manager._execute_sql(text(
+                'CREATE UNIQUE INDEX idx_n_reperto '
+                'ON inventario_materiali_table(sito, n_reperto, sub_inv)'))
+            self.log_message("Ricostruiti vincoli UNIQUE con sub_inv")
+        except Exception as e:
+            self.log_message(f"Avviso: impossibile ricostruire UNIQUE invmat: {e}")
 
     def update_struttura_table(self):
         """Aggiorna la tabella struttura_table con i nuovi campi Architettura Rupestre (AR)"""

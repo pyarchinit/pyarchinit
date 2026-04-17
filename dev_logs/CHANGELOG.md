@@ -5,6 +5,31 @@
 
 ---
 
+## [5.0.17-alpha] - 2026-04-17
+
+### Aggiunto / Added
+
+- **feat(db,invmat): Colonna `sub_inv` per sub-inventario opzionale in `inventario_materiali_table`**: Nuova colonna `VARCHAR(8)` che affianca `numero_inventario` / `n_reperto` (entrambi `bigint`) per catturare suffissi tipo `"a"`, `"b1"`, `"bis"` senza encoding numerico artificioso: il numero d'inventario rimane intero puro (sort numerico, referenze FK logiche preservate) e la variante del sub-frammento è in una colonna dedicata. I vincoli UNIQUE `ID_invmat_unico` e `idx_n_reperto` sono stati estesi a `(sito, numero_inventario, sub_inv)` e `(sito, n_reperto, sub_inv)` rispettivamente, così `"1"` e `"1a"` possono convivere. Modifiche: `modules/db/structures/Inventario_materiali_table.py` (Column + UniqueConstraint), `modules/db/entities/INVENTARIO_MATERIALI.py` (nuovo kwarg `sub_inv=None`), `resources/dbfiles/pyarchinit_schema_clean.sql` (DDL install PostgreSQL), template SQLite `pyarchinit_db.sqlite` e `pyarchinit.sqlite` (ALTER TABLE sui template distribuiti). / **feat(db,invmat): `sub_inv` column for optional sub-inventory suffix in `inventario_materiali_table`**: New `VARCHAR(8)` column alongside `numero_inventario` / `n_reperto` (both `bigint`) to store suffixes like `"a"`, `"b1"`, `"bis"` without synthetic numeric encoding: the inventory number stays a pure integer (numeric sorting, logical FK references preserved) and the sub-fragment variant lives in a dedicated column. `ID_invmat_unico` and `idx_n_reperto` UNIQUE constraints extended to `(sito, numero_inventario, sub_inv)` and `(sito, n_reperto, sub_inv)` so `"1"` and `"1a"` coexist.
+
+- **feat(db): Migrazione automatica `sub_inv` per DB esistenti (PostgreSQL + SQLite)**: `postgres_db_updater.update_inventario_materiali_table()` rileva la mancanza di `sub_inv`, la aggiunge con `ADD COLUMN IF NOT EXISTS` e richiama `_rebuild_invmat_unique_constraints()` che droppa/ricrea `ID_invmat_unico` e `idx_n_reperto` includendo la nuova colonna. `sqlite_db_updater.update_other_tables()` fa lo stesso per SQLite tramite PRAGMA + `_rebuild_invmat_unique_indexes()`. Entrambi sono idempotenti: se la colonna esiste già, non toccano nulla. / **feat(db): Automatic `sub_inv` migration for existing DBs (PostgreSQL + SQLite)**: `postgres_db_updater.update_inventario_materiali_table()` detects missing `sub_inv`, adds it via `ADD COLUMN IF NOT EXISTS` and invokes `_rebuild_invmat_unique_constraints()` to drop/recreate `ID_invmat_unico` and `idx_n_reperto` including the new column. `sqlite_db_updater.update_other_tables()` does the same for SQLite using PRAGMA + `_rebuild_invmat_unique_indexes()`. Both are idempotent: if the column already exists, nothing changes.
+
+- **feat(ui,invmat): Widget `lineEdit_sub_inv` iniettato nel form Inventario Materiali**: Nuovo `QLineEdit` (maxLength=8, placeholder `"a/b/bis"`) iniettato programmaticamente dopo `setupUi()` accanto a `lineEdit_num_inv` nel `QGridLayout` (il file `.ui` non è stato modificato). Collegato ai percorsi save/update/load/clear tramite `_get_sub_inv_value()` + `hasattr` guard per retrocompatibilità. / **feat(ui,invmat): `lineEdit_sub_inv` widget injected in Inventario Materiali form**: New `QLineEdit` (maxLength=8, placeholder `"a/b/bis"`) programmatically injected after `setupUi()` next to `lineEdit_num_inv` in the `QGridLayout` (the `.ui` file was not modified). Wired into save/update/load/clear paths via `_get_sub_inv_value()` + `hasattr` guards for backward compatibility.
+
+### File modificati / Modified files
+- `modules/db/structures/Inventario_materiali_table.py` (nuova `Column('sub_inv', String(8))`, UniqueConstraint esteso a 3 colonne)
+- `modules/db/entities/INVENTARIO_MATERIALI.py` (nuovo kwarg `sub_inv=None` + attributo)
+- `modules/db/postgres_db_updater.py` (add_column_if_missing + nuovo helper `_rebuild_invmat_unique_constraints`)
+- `modules/db/sqlite_db_updater.py` (PRAGMA pre-check + nuovo helper `_rebuild_invmat_unique_indexes`)
+- `resources/dbfiles/pyarchinit_schema_clean.sql` (DDL install + UNIQUE + CREATE INDEX)
+- `resources/dbfiles/pyarchinit_db.sqlite` / `pyarchinit.sqlite` (template: ALTER TABLE ADD COLUMN sub_inv)
+- `tabs/Inv_Materiali.py` (injection widget + save/update/load/clear + TODO su InventarioFilterDialog)
+
+### Note / Notes
+- I filter dialogs (`InventarioFilterDialog`) non sono ancora aggiornati per filtrare su `sub_inv`: TODO esplicito nel codice. / Filter dialogs (`InventarioFilterDialog`) not yet updated to filter by `sub_inv`: explicit TODO in the code.
+- SQLite considera `NULL != NULL` nei vincoli UNIQUE, quindi record senza `sub_inv` non falsificano l'unicità della coppia `(sito, numero_inventario)`. Stesso comportamento su PostgreSQL di default. / SQLite treats `NULL != NULL` in UNIQUE constraints, so records without `sub_inv` don't falsify the uniqueness of `(sito, numero_inventario)`. Same behaviour on PostgreSQL by default.
+
+---
+
 ## [5.0.16-alpha] - 2026-04-10
 
 ### Aggiunto / Added

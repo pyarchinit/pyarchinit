@@ -18,6 +18,9 @@ class Inventario_materiali_table:
                                        Column('id_invmat', Integer, primary_key=True),
                                        Column('sito', Text),
                                        Column('numero_inventario', Integer),
+                                       # Sub-inventario opzionale (es. "a", "b1", "bis")
+                                       # Si applica sia a numero_inventario che a n_reperto.
+                                       Column('sub_inv', String(8)),
                                        Column('tipo_reperto', Text),
                                        Column('criterio_schedatura', Text),
                                        Column('definizione', Text),
@@ -63,7 +66,8 @@ class Inventario_materiali_table:
                                        
                                        #Index('idx_n_reperto', 'sito', 'n_reperto', unique=True),
                                        
-                                       UniqueConstraint('sito', 'numero_inventario', name='ID_invmat_unico'))
+                                       UniqueConstraint('sito', 'numero_inventario', 'sub_inv',
+                                                        name='ID_invmat_unico'))
                                        
                                        
 

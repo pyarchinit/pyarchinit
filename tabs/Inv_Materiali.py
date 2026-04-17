@@ -945,7 +945,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'n_reperto',
         'tipo_contenitore',
         'struttura',
-        'years'
+        'years',
+        'sub_inv'
     ]
 
     TABLE_FIELDS_UPDATE = [
@@ -978,7 +979,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         'n_reperto',
         'tipo_contenitore',
         'struttura',
-        'year'
+        'year',
+        'sub_inv'
     ]
 
     LANG = {
@@ -1012,6 +1014,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.iface = iface
         self.setupUi(self)
+
+        # Inietta il QLineEdit per il sub_inv (suffisso opzionale del numero inventario)
+        # accanto a lineEdit_num_inv. Non modifichiamo il file .ui per evitare regressioni.
+        self._inject_sub_inv_field()
 
         # Apply theme
         ThemeManager.apply_theme(self)
@@ -1112,6 +1118,74 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             traceback.print_exc()  # Questo mostrerà lo stack trace completo
             return []
 
+
+    # --------------------------------------------- sub_inv field (inject) --
+
+    def _inject_sub_inv_field(self):
+        """
+        Inietta un QLineEdit 'lineEdit_sub_inv' accanto a 'lineEdit_num_inv'
+        nel QGridLayout genitore. Serve a gestire il nuovo campo sub_inv
+        (VARCHAR(8) opzionale, es. "a", "b1", "bis") come VARIANT del
+        numero_inventario. Non si modifica il file .ui per non compromettere
+        il layout esistente.
+        """
+        try:
+            anchor = getattr(self, 'lineEdit_num_inv', None)
+            if anchor is None:
+                return
+
+            # Se gia' iniettato (ricarica UI), non duplicare
+            if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
+                return
+
+            parent_widget = anchor.parentWidget()
+            if parent_widget is None:
+                return
+            grid = parent_widget.layout()
+
+            sub_inv = QLineEdit(parent_widget)
+            sub_inv.setObjectName('lineEdit_sub_inv')
+            sub_inv.setMaxLength(8)
+            sub_inv.setMaximumWidth(50)
+            sub_inv.setPlaceholderText('a/b/bis')
+            sub_inv.setToolTip(
+                'Suffisso opzionale al numero inventario (es. "a", "b1", "bis"). '
+                'Permette di distinguere varianti con lo stesso numero.'
+            )
+
+            self.lineEdit_sub_inv = sub_inv
+
+            if isinstance(grid, QGridLayout):
+                # lineEdit_num_inv si trova a row=2, col=6, colspan=2; lineEdit_n_reperto
+                # a row=2, col=10. Riduciamo il colspan del num_inv da 2 a 1 e
+                # inseriamo sub_inv nella colonna liberata (col=7).
+                idx = grid.indexOf(anchor)
+                if idx >= 0:
+                    r, c, rspan, cspan = grid.getItemPosition(idx)
+                    # Rimuoviamo e rinseriamo anchor con colspan ridotto
+                    grid.removeWidget(anchor)
+                    grid.addWidget(anchor, r, c, rspan, 1)
+                    grid.addWidget(sub_inv, r, c + 1, rspan, 1)
+                else:
+                    # Fallback: append a riga/colonna successive
+                    grid.addWidget(sub_inv, grid.rowCount(), 0)
+            else:
+                # Fallback: layout non a griglia; aggiungi comunque il widget
+                if grid is not None:
+                    grid.addWidget(sub_inv)
+        except Exception:
+            # Non-fatale: il form continua a funzionare senza il campo sub_inv
+            pass
+
+    def _get_sub_inv_value(self):
+        """Restituisce il valore del widget lineEdit_sub_inv o None se vuoto/assente."""
+        try:
+            if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
+                val = self.lineEdit_sub_inv.text().strip()
+                return val if val else None
+        except Exception:
+            pass
+        return None
 
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:
@@ -5251,6 +5325,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'comboBox_unita_quota'):
                 unita_misura_quota = str(self.comboBox_unita_quota.currentText()) if self.comboBox_unita_quota.currentText() else 'm s.l.m.'
 
+            # sub_inv: suffisso opzionale del numero inventario (VARCHAR(8))
+            sub_inv_val = self._get_sub_inv_value()
+
             data = self.DB_MANAGER.insert_values_reperti(
                 self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, self.ID_TABLE) + 1,  # 0 - id_invmat
                 str(self.comboBox_sito.currentText()),  # 1 - sito
@@ -5313,6 +5390,11 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                     # return 0
 
                 # else:
+                # Attacca il sub_inv all'entity prima del commit (kwarg opzionale)
+                try:
+                    data.sub_inv = sub_inv_val
+                except Exception:
+                    pass
                 self.DB_MANAGER.insert_data_session(data)
 
                 return 1
@@ -6212,6 +6294,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
             self.comboBox_sito.setEditText(self.DATA_LIST[self.rec_num].sito)
             self.lineEdit_num_inv.setText(num_inv)
+            # Carica sub_inv (suffisso opzionale) se il widget iniettato esiste
+            if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
+                sub_inv_rec = getattr(self.DATA_LIST[self.rec_num], 'sub_inv', None)
+                self.lineEdit_sub_inv.setText('' if sub_inv_rec is None or str(sub_inv_rec) == 'None' else str(sub_inv_rec))
             self.comboBox_tipo_reperto.setEditText(self.DATA_LIST[self.rec_num].tipo_reperto)
             self.comboBox_criterio_schedatura.setEditText(self.DATA_LIST[self.rec_num].criterio_schedatura)
             self.comboBox_definizione.setEditText(self.DATA_LIST[self.rec_num].definizione)
@@ -6350,6 +6436,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sito.setEditText("")  # 1 - Sito
         self.lineEdit_num_inv.clear()  # 2 - num_inv
+        # sub_inv (suffisso opzionale)
+        if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
+            self.lineEdit_sub_inv.clear()
         self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
         self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
         self.comboBox_definizione.setEditText("")  # 5 - definizione
@@ -6404,6 +6493,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         tecnologie_row_count = self.tableWidget_tecnologie.rowCount()
 
         self.lineEdit_num_inv.clear()  # 2 - num_inv
+        # sub_inv (suffisso opzionale)
+        if hasattr(self, 'lineEdit_sub_inv') and self.lineEdit_sub_inv is not None:
+            self.lineEdit_sub_inv.clear()
         self.comboBox_tipo_reperto.setEditText("")  # 3 - tipo_reperto
         self.comboBox_criterio_schedatura.setEditText("")  # 4 - criterio
         self.comboBox_definizione.setEditText("")  # 5 - definizione
@@ -6614,7 +6706,8 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             n_reperto,                                                 # 28 - n_reperto (Integer)
             str(self.comboBox_tipo_contenitore.currentText()),        # 29 - tipo_contenitore
             str(self.comboBox_struttura.currentText()),               # 30 - struttura
-            years                                                      # 31 - years (Integer)
+            years,                                                     # 31 - years (Integer)
+            self._get_sub_inv_value()                                  # 32 - sub_inv (VARCHAR(8))
         ]
 
     def set_LIST_REC_CORR(self):
@@ -7589,6 +7682,9 @@ The tone should be professional and scientific, suitable for an archaeological p
 
 class InventarioFilterDialog(QDialog):
     """Dialog for filtering Inventario Materiali records by numero_inventario, n_reperto, or years with checkboxes"""
+    # TODO(sub_inv): estendere il filtro per supportare il nuovo campo sub_inv
+    # (VARCHAR(8) opzionale, es. "a", "b1", "bis") come criterio di ricerca,
+    # idealmente combinato con numero_inventario per distinguere varianti.
     L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
     def __init__(self, db_manager, parent=None, site_filter=None):

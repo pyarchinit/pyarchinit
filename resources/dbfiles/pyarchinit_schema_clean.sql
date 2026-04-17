@@ -404,6 +404,7 @@ CREATE TABLE public.inventario_materiali_table (
     id_invmat BIGINT NOT NULL,
     sito text,
     numero_inventario BIGINT,
+    sub_inv VARCHAR(8),
     tipo_reperto text,
     criterio_schedatura text,
     definizione text,
@@ -2864,7 +2865,7 @@ ALTER TABLE ONLY public.documentazione_table
 --
 
 ALTER TABLE ONLY public.inventario_materiali_table
-    ADD CONSTRAINT "ID_invmat_unico" UNIQUE (sito, numero_inventario);
+    ADD CONSTRAINT "ID_invmat_unico" UNIQUE (sito, numero_inventario, sub_inv);
 
 
 --
@@ -3538,7 +3539,7 @@ CREATE INDEX sidx_pyunitastratigrafiche_usm_geom ON public.pyunitastratigrafiche
 
 CREATE INDEX sidx_riipartizione_territoriale_geom ON public.riipartizione_territoriale USING gist (the_geom);
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(sito, n_reperto, sub_inv);
 --
 -- TOC entry 5011 (class 0 OID 0)
 -- Dependencies: 20

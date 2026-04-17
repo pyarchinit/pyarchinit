@@ -1653,7 +1653,15 @@ class SQLiteDBUpdater:
             # Nuovi campi per nomi foto e disegni
             self.add_column_if_missing('inventario_materiali_table', 'photo_id', 'TEXT')
             self.add_column_if_missing('inventario_materiali_table', 'drawing_id', 'TEXT')
-        
+            # sub_inv: suffisso opzionale (es. "a", "b1", "bis") che si applica a
+            # numero_inventario e n_reperto. Se aggiungiamo la colonna dobbiamo anche
+            # ricostruire gli indici UNIQUE per includerla.
+            self.cursor.execute("PRAGMA table_info(inventario_materiali_table)")
+            _had_sub_inv = any(c[1] == 'sub_inv' for c in self.cursor.fetchall())
+            self.add_column_if_missing('inventario_materiali_table', 'sub_inv', 'TEXT')
+            if not _had_sub_inv:
+                self._rebuild_invmat_unique_indexes()
+
         # pottery_table
         if self.table_exists('pottery_table'):
             self.add_column_if_missing('pottery_table', 'anno', 'TEXT')
@@ -2224,7 +2232,31 @@ class SQLiteDBUpdater:
                 self.updates_made.append(f"{table_name}.{column_name}")
             except Exception as e:
                 self.log_message(f"Errore aggiungendo colonna {table_name}.{column_name}: {e}", Qgis.Warning if QGIS_AVAILABLE else None)
-    
+
+    def _rebuild_invmat_unique_indexes(self):
+        """Ricrea gli indici UNIQUE di inventario_materiali_table per includere sub_inv.
+
+        In SQLite i vincoli UNIQUE della CREATE TABLE non possono essere modificati
+        con ALTER, ma gli indici UNIQUE creati a parte (idx_n_reperto e simili) si'.
+        Sostituiamo l'indice su (sito, n_reperto) con (sito, n_reperto, sub_inv) e
+        aggiungiamo un indice equivalente per (sito, numero_inventario, sub_inv).
+        I vecchi record senza sub_inv (NULL) non vengono toccati e SQLite considera
+        NULL != NULL nei vincoli UNIQUE quindi non ci sono falsi positivi.
+        """
+        try:
+            self.cursor.execute('DROP INDEX IF EXISTS idx_n_reperto')
+            self.cursor.execute(
+                'CREATE UNIQUE INDEX idx_n_reperto '
+                'ON inventario_materiali_table(sito, n_reperto, sub_inv)')
+            self.cursor.execute('DROP INDEX IF EXISTS idx_invmat_unico_sub')
+            self.cursor.execute(
+                'CREATE UNIQUE INDEX idx_invmat_unico_sub '
+                'ON inventario_materiali_table(sito, numero_inventario, sub_inv)')
+            self.log_message('Ricostruiti indici UNIQUE invmat con sub_inv')
+        except Exception as e:
+            self.log_message(f"Avviso: impossibile ricostruire UNIQUE invmat: {e}",
+                             Qgis.Warning if QGIS_AVAILABLE else None)
+
     def _recreate_reperti_view(self):
         """Ricrea la view pyarchinit_reperti_view con il campo quota"""
         try:

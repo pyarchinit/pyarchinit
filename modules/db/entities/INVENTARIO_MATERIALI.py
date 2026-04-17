@@ -51,7 +51,8 @@ class INVENTARIO_MATERIALI(object):
                  unita_misura_quota,
                  photo_id,
                  drawing_id,
-                 entity_uuid=None
+                 entity_uuid=None,
+                 sub_inv=None
                  ):
         self.id_invmat = id_invmat  # 0
         self.sito = sito  # 1
@@ -96,6 +97,7 @@ class INVENTARIO_MATERIALI(object):
         self.photo_id = photo_id  # 40
         self.drawing_id = drawing_id  # 41
         self.entity_uuid = entity_uuid if entity_uuid else str(uuid.uuid4())
+        self.sub_inv = sub_inv  # 42 - suffisso opzionale (es. "a", "b1", "bis")
 
     # def __repr__"
     def __repr__(self):
