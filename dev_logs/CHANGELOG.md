@@ -25,6 +25,7 @@
 - 1416 record: descrizione normalizzata (no newline/tab/spazi multipli)
 - 12 nuove voci thesaurus inserite in `pyarchinit_thesaurus_sigle`: tipo_reperto +2, criterio_schedatura +1, definizione +7, tipo +2
 - **Lingua thesaurus consolidata IT (maiuscolo)**: il codice pyarchinit fa match sulla chiave del dict `LANG` che è `'IT'` maiuscolo (i values `['it_IT','IT','it','IT_IT']` servono solo a mappare la locale QGIS sulla chiave). Il parser originale inseriva `'it'` minuscolo, quindi il form non trovava le voci. UPDATE: 636 record `'it'` → `'IT'` (0 conflitti con 248 record `'IT'` preesistenti). Parser aggiornato per scrivere `'IT'` in futuro.
+- **Rimappatura `tipologia_sigla` sui codici ufficiali pyarchinit**: il form popola i combobox cercando per codice numerico, non per nome-stringa. `tipo_reperto` -> `3.1`, `criterio_schedatura` -> `3.2`, `definizione` -> `3.3`, `tipo` -> `10.12` + `nome_tabella='tma_materiali_ripetibili'` (da `inventario_materiali_table`). Prima rimossi 94 duplicati sigla_estesa già presenti sotto i codici ufficiali (7 + 15 + 72), poi UPDATE di 30+11+463+38 record con sigle generate automaticamente (`MACC1xx`, `CLSS1xx`, `DEF1xxx`, `TIPO1xx`). Adesso i 4 combobox del form ("Tipo reperto", "Classe materiale", "Definizione", "Tipologia") elencano tutti i valori dell'Excel.
 
 ---
 
