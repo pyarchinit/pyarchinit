@@ -1189,14 +1189,32 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
     def _fix_diapositive_header(self):
         """Il .ui ha horizontalHeaderVisible=false su tableWidget_diapositive e
         colonne senza etichette, quindi non si vedono 'codice'/'n.' come in
-        tableWidget_negative. Ripristiniamo a runtime 2 colonne con labels."""
+        tableWidget_negative. Ripristiniamo a runtime header + larghezza
+        simmetrica tra le due tabelle (stessa size policy, colonne Stretch)."""
         try:
-            w = getattr(self, 'tableWidget_diapositive', None)
-            if w is None: return
-            if w.columnCount() < 2:
-                w.setColumnCount(2)
-            w.setHorizontalHeaderLabels(['codice', 'n.'])
-            w.horizontalHeader().setVisible(True)
+            diap = getattr(self, 'tableWidget_diapositive', None)
+            neg = getattr(self, 'tableWidget_negative', None)
+            if diap is not None:
+                if diap.columnCount() < 2:
+                    diap.setColumnCount(2)
+                diap.setHorizontalHeaderLabels(['codice', 'n.'])
+                diap.horizontalHeader().setVisible(True)
+
+            # Pareggia le due tableWidget: stessa size policy Expanding/Expanding,
+            # stesso maximumWidth "sbloccato" e colonne in modalita' Stretch cosi'
+            # occupano l'intera larghezza disponibile senza tagliare 'n.'.
+            from qgis.PyQt.QtWidgets import QSizePolicy, QHeaderView
+            for w in (diap, neg):
+                if w is None: continue
+                sp = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+                sp.setHorizontalStretch(1)
+                w.setSizePolicy(sp)
+                w.setMaximumWidth(16777215)
+                w.setMinimumWidth(200)
+                try:
+                    w.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+                except Exception:
+                    w.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         except Exception:
             pass
 
