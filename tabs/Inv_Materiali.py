@@ -1019,6 +1019,12 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         # accanto a lineEdit_num_inv. Non modifichiamo il file .ui per evitare regressioni.
         self._inject_sub_inv_field()
 
+        # Ristruttura la tab "Dati quantitativi" (tab_3): il pannello di sinistra
+        # diventa un QTabWidget con 2 sub-tab (Elementi reperto / Misurazioni)
+        # per migliorare la leggibilita'. Il pannello destro (lineEdit dei totali)
+        # resta intatto. Non modifica il .ui, reparenta i widget esistenti.
+        self._restructure_dati_quantitativi_tab()
+
         # Apply theme
         ThemeManager.apply_theme(self)
         self.theme_toggle_btn = ThemeManager.add_theme_toggle_to_form(self)
@@ -1188,6 +1194,240 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         except Exception:
             pass
         return None
+
+    # ----------------------------------------- tab_3 Dati quantitativi (restructure) --
+
+    def _restructure_dati_quantitativi_tab(self):
+        """
+        Ristruttura la tab_3 ("Dati quantitativi") senza modificare il file .ui.
+
+        Pannello sinistro: le due sezioni impilate (Elementi reperto + Misurazioni)
+        vengono spostate dentro un QTabWidget con 2 sub-tab, cosi' ogni tabella
+        ha spazio pieno e l'utente commuta con un click.
+
+        Pannello destro: i 6 lineEdit con totali (Forme min/max, Tot frammenti,
+        Peso, Diametro orlo, E.v.e. orlo) + pushButton_tot_fram vengono
+        preservati intatti in un wrapper a destra di un QSplitter.
+
+        I widget esistenti sono reparentati via setParent()/addWidget(): le
+        connessioni di signal a livello di Qt meta-object sopravvivono al
+        cambio di parent, quindi i pulsanti insert/remove continuano a
+        funzionare senza dover riconnettere gli handler.
+
+        Idempotente: se gia' ristrutturata, esce senza rifare il lavoro.
+        """
+        try:
+            tab3 = getattr(self, 'tab_3', None)
+            if tab3 is None:
+                return
+            # Idempotenza: flag sulla tab
+            if getattr(tab3, '_dq_restructured', False):
+                return
+
+            # Widget necessari presenti?
+            required = [
+                'label_20', 'pushButton_insert_row_elementi',
+                'pushButton_remove_row_elementi', 'tableWidget_elementi_reperto',
+                'pushButton_insert_row_misure', 'pushButton_remove_row_misure',
+                'tableWidget_misurazioni',
+            ]
+            for n in required:
+                if not hasattr(self, n) or getattr(self, n) is None:
+                    return
+
+            # Label "Misurazioni" = label_21 (probabile). Non fatale se assente.
+            label_mis = getattr(self, 'label_21', None)
+
+            # ----- Localizzazione etichette sub-tab -----
+            L = getattr(self, 'L', 'it')
+            if L == 'de':
+                lbl_elem = "Fundobjekt-Elemente"
+                lbl_mis = "Messungen"
+            elif L == 'en':
+                lbl_elem = "Artefact Elements"
+                lbl_mis = "Measurements"
+            else:
+                lbl_elem = "Elementi reperto"
+                lbl_mis = "Misurazioni"
+
+            # ----- Identifica il pannello destro (gridLayout_11 + line separatrice + spacer)
+            # via i lineEdit di riferimento; usiamo il layout contenitore del loro
+            # parentWidget come right panel. Cerchiamo il QLayout piu' vicino.
+            right_anchor = None
+            for name in ('lineEditFormeMin', 'lineEdit_peso',
+                         'lineEdit_diametro_orlo', 'lineEdit_eve_orlo'):
+                w = getattr(self, name, None)
+                if w is not None:
+                    right_anchor = w
+                    break
+            right_grid_layout = None
+            if right_anchor is not None:
+                # parentWidget().layout() dovrebbe essere gridLayout_11, ma in Qt
+                # un nested layout non ha parentWidget diretto: la sua parentLayout
+                # e' gridLayout_16. Risaliamo via layout().
+                # Strategia: prendi il layout del parentWidget e cerca l'item che
+                # contiene right_anchor; se il layout e' annidato piu' volte,
+                # va bene comunque.
+                pw = right_anchor.parentWidget()
+                if pw is not None:
+                    right_grid_layout = self._find_layout_containing(pw.layout(), right_anchor)
+
+            # ----- Crea il nuovo QTabWidget per il pannello sinistro -----
+            left_tabs = QTabWidget()
+            left_tabs.setObjectName('tabWidget_dati_quantitativi_left')
+
+            # Sub-tab 1: Elementi reperto
+            w_elem = QWidget()
+            v_elem = QVBoxLayout(w_elem)
+            v_elem.setContentsMargins(4, 4, 4, 4)
+            h_btn_elem = QHBoxLayout()
+            # Il label_20 originale contiene la scritta "Elementi reperto":
+            # ridondante col titolo della sub-tab, ma lo reparentiamo lo stesso
+            # per conservare ogni eventuale logica che lo referenzia.
+            self.label_20.setParent(None)
+            h_btn_elem.addWidget(self.label_20)
+            self.pushButton_insert_row_elementi.setParent(None)
+            h_btn_elem.addWidget(self.pushButton_insert_row_elementi)
+            self.pushButton_remove_row_elementi.setParent(None)
+            h_btn_elem.addWidget(self.pushButton_remove_row_elementi)
+            h_btn_elem.addStretch()
+            v_elem.addLayout(h_btn_elem)
+            self.tableWidget_elementi_reperto.setParent(None)
+            v_elem.addWidget(self.tableWidget_elementi_reperto)
+            left_tabs.addTab(w_elem, lbl_elem)
+
+            # Sub-tab 2: Misurazioni
+            w_mis = QWidget()
+            v_mis = QVBoxLayout(w_mis)
+            v_mis.setContentsMargins(4, 4, 4, 4)
+            h_btn_mis = QHBoxLayout()
+            if label_mis is not None:
+                label_mis.setParent(None)
+                h_btn_mis.addWidget(label_mis)
+            self.pushButton_insert_row_misure.setParent(None)
+            h_btn_mis.addWidget(self.pushButton_insert_row_misure)
+            self.pushButton_remove_row_misure.setParent(None)
+            h_btn_mis.addWidget(self.pushButton_remove_row_misure)
+            h_btn_mis.addStretch()
+            v_mis.addLayout(h_btn_mis)
+            self.tableWidget_misurazioni.setParent(None)
+            v_mis.addWidget(self.tableWidget_misurazioni)
+            left_tabs.addTab(w_mis, lbl_mis)
+
+            # ----- Costruisci il pannello destro preservato -----
+            right_widget = QWidget()
+            right_v = QVBoxLayout(right_widget)
+            right_v.setContentsMargins(4, 4, 4, 4)
+            if right_grid_layout is not None:
+                # Spostiamo l'intero QGridLayout dei lineEdit dentro il nostro
+                # wrapper. In Qt non si puo' "setParent" un layout, ma si puo'
+                # rimuoverlo dal layout genitore e riassegnarlo a un nuovo
+                # contenitore via addLayout().
+                parent_layout = right_grid_layout.parent()
+                if isinstance(parent_layout, QLayout):
+                    # stacca dal parent
+                    parent_layout.removeItem(right_grid_layout)
+                right_v.addLayout(right_grid_layout)
+                right_v.addStretch()
+            else:
+                # Fallback: reparenta i singoli lineEdit + label se il layout
+                # non e' stato trovato (sicuro: niente crash).
+                fallback_grid = QGridLayout()
+                row = 0
+                fields = [
+                    ('label_8', 'lineEditFormeMin'),
+                    ('label_9', 'lineEditFormeMax'),
+                    ('label_10', 'lineEditTotFram'),
+                    ('label_14', 'lineEdit_peso'),
+                    ('label_15', 'lineEdit_diametro_orlo'),
+                    ('label_24', 'lineEdit_eve_orlo'),
+                ]
+                for lbl_name, edit_name in fields:
+                    lbl = getattr(self, lbl_name, None)
+                    ed = getattr(self, edit_name, None)
+                    if lbl is not None:
+                        lbl.setParent(None)
+                        fallback_grid.addWidget(lbl, row, 0)
+                    if ed is not None:
+                        ed.setParent(None)
+                        fallback_grid.addWidget(ed, row, 1)
+                    row += 1
+                btn_tot = getattr(self, 'pushButton_tot_fram', None)
+                if btn_tot is not None:
+                    btn_tot.setParent(None)
+                    fallback_grid.addWidget(btn_tot, row, 0, 1, 2)
+                right_v.addLayout(fallback_grid)
+                right_v.addStretch()
+
+            # ----- Splitter orizzontale -----
+            splitter = QSplitter(Qt.Orientation.Horizontal)
+            splitter.addWidget(left_tabs)
+            splitter.addWidget(right_widget)
+            splitter.setStretchFactor(0, 3)
+            splitter.setStretchFactor(1, 2)
+            splitter.setSizes([600, 350])
+
+            # ----- Sostituisci il layout di tab_3 -----
+            old_layout = tab3.layout()
+            if old_layout is not None:
+                # Svuota il vecchio layout (tutti i suoi child sono gia' stati
+                # reparentati o sono ridondanti: spacer/line separatrice).
+                while old_layout.count():
+                    item = old_layout.takeAt(0)
+                    w = item.widget() if item is not None else None
+                    if w is not None:
+                        w.setParent(None)
+                        w.deleteLater()
+                # Il vecchio layout va rimosso trasferendolo a un QObject
+                # temporaneo che lo distruggera'.
+                import sip  # pylint: disable=import-outside-toplevel
+                try:
+                    sip.delete(old_layout)
+                except Exception:
+                    # Alternativa: assegna un nuovo layout riparenterra'
+                    # quello vecchio (ma Qt stampa un warning). In ogni caso
+                    # procediamo.
+                    pass
+
+            new_layout = QVBoxLayout(tab3)
+            new_layout.setContentsMargins(4, 4, 4, 4)
+            new_layout.addWidget(splitter)
+
+            tab3._dq_restructured = True
+            # Salva riferimenti utili
+            self.tabWidget_dati_quantitativi_left = left_tabs
+
+        except Exception:
+            # Non-fatale: il form continua col layout originale
+            try:
+                import traceback
+                traceback.print_exc()
+            except Exception:
+                pass
+
+    def _find_layout_containing(self, layout, target_widget):
+        """
+        Ricerca ricorsiva del QLayout che contiene direttamente target_widget.
+        Ritorna il QLayout interno (es. gridLayout_11) o None.
+        """
+        try:
+            if layout is None:
+                return None
+            for i in range(layout.count()):
+                item = layout.itemAt(i)
+                if item is None:
+                    continue
+                w = item.widget()
+                if w is target_widget:
+                    return layout
+                sub = item.layout()
+                if sub is not None:
+                    found = self._find_layout_containing(sub, target_widget)
+                    if found is not None:
+                        return found
+            return None
+        except Exception:
+            return None
 
     def setnone(self):
         if self.lineEdit_tipo_contenitore.text=='None' or None:

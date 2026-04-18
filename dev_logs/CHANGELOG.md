@@ -5,6 +5,28 @@
 
 ---
 
+## [5.0.19-alpha] - 2026-04-18
+
+### Aggiunto / Added
+
+- **feat(ui,invmat): Sub-tab in Dati Quantitativi (`_restructure_dati_quantitativi_tab`)**: Il pannello sinistro della tab "Dati quantitativi" (tab_3) aveva "Elementi reperto" e "Misurazioni" impilati verticalmente, difficili da consultare/modificare. Riorganizzato in `QTabWidget` interno con 2 sub-tab ("Elementi reperto" / "Misurazioni"): ogni tabella ora usa l'intera altezza disponibile. Il pannello destro (Forme min/max, Totale, Peso, Diametro orlo, E.v.e.) è preservato identico — tutti i signal Qt auto-connect sui 6 lineEdit restano validi perché il layout genitore è stato spostato come blocco via `removeItem`+`addLayout` invece di ricreare i widget. Wrapping in `QSplitter` orizzontale. Labels localizzate IT/EN/DE + flag idempotenza `tab3._dq_restructured`. / **feat(ui,invmat): Sub-tabs in Dati Quantitativi (`_restructure_dati_quantitativi_tab`)**: The "Dati quantitativi" tab (tab_3) stacked "Elementi reperto" and "Misurazioni" vertically, making them hard to consult/edit. Reorganised into a nested `QTabWidget` with 2 sub-tabs ("Artefact Elements" / "Measurements"): each table now uses the full available height. Right panel (Min/Max shape, Total fragments, Weight, Rim diameter, E.v.e.) preserved identically — Qt auto-connect signals on the 6 lineEdits stay valid because the parent layout was relocated as a block via `removeItem`+`addLayout` instead of recreating widgets. Wrapped in horizontal `QSplitter`. Labels localised IT/EN/DE + idempotence flag.
+
+### Corretto / Fixed
+
+- **fix(db,invmat): Normalizzazione whitespace descrizione (festos2025)**: 1416 record avevano newline, tab o spazi multipli ereditati dalle celle Excel originali, che producevano righe "spezzate" nel form. UPDATE SQL `REGEXP_REPLACE(descrizione, E'[\n\r\t]+', ' ') → ' +' → ' '`. Il parser `parse_to_festos2025.py` ora chiama `_clean_ws()` su ciascun componente prima della concatenazione per evitare regressioni. / **fix(db,invmat): Descrizione whitespace normalization (festos2025)**: 1416 records had newlines, tabs or multi-spaces inherited from original Excel cells, producing broken lines in the form. SQL UPDATE `REGEXP_REPLACE(descrizione, E'[\n\r\t]+', ' ') → ' +' → ' '`. The parser now calls `_clean_ws()` on each component before concatenation to avoid regressions.
+
+- **fix(thesaurus,invmat): Popolamento gap thesaurus (4 campi TMA)**: 12 valori distinti presenti nei dati ma mancanti in `pyarchinit_thesaurus_sigle` sono stati inseriti per lingua `it` (2 tipologie, 2 tipo_reperto, 1 criterio_schedatura, 7 definizioni). Usata INSERT con `NOT EXISTS` e `ON CONFLICT DO NOTHING` per idempotenza. I combobox del form Inventario Materiali ora offrono l'elenco completo delle voci effettivamente usate. / **fix(thesaurus,invmat): Thesaurus gap filling (4 TMA fields)**: 12 distinct values present in data but missing from `pyarchinit_thesaurus_sigle` inserted for language `it` (2 tipologie, 2 tipo_reperto, 1 criterio_schedatura, 7 definizioni). Used INSERT with `NOT EXISTS` + `ON CONFLICT DO NOTHING` for idempotency. Inventario Materiali form combos now offer the complete list of values actually used.
+
+### File modificati / Modified files
+- `tabs/Inv_Materiali.py` (`_restructure_dati_quantitativi_tab` + helper `_find_layout_containing`)
+- `/Users/enzo/Downloads/parsingra/parse_to_festos2025.py` (`_clean_ws` applicato nei campi descrizione)
+
+### DB festos2025
+- 1416 record: descrizione normalizzata (no newline/tab/spazi multipli)
+- 12 nuove voci thesaurus (lingua=it): tipo_reperto +2, criterio_schedatura +1, definizione +7, tipo +2
+
+---
+
 ## [5.0.18-alpha] - 2026-04-17
 
 ### Corretto / Fixed
