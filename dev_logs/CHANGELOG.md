@@ -23,7 +23,8 @@
 
 ### DB festos2025
 - 1416 record: descrizione normalizzata (no newline/tab/spazi multipli)
-- 12 nuove voci thesaurus (lingua=it): tipo_reperto +2, criterio_schedatura +1, definizione +7, tipo +2
+- 12 nuove voci thesaurus inserite in `pyarchinit_thesaurus_sigle`: tipo_reperto +2, criterio_schedatura +1, definizione +7, tipo +2
+- **Lingua thesaurus consolidata IT (maiuscolo)**: il codice pyarchinit fa match sulla chiave del dict `LANG` che è `'IT'` maiuscolo (i values `['it_IT','IT','it','IT_IT']` servono solo a mappare la locale QGIS sulla chiave). Il parser originale inseriva `'it'` minuscolo, quindi il form non trovava le voci. UPDATE: 636 record `'it'` → `'IT'` (0 conflitti con 248 record `'IT'` preesistenti). Parser aggiornato per scrivere `'IT'` in futuro.
 
 ---
 
