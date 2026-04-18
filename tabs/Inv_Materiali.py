@@ -6594,6 +6594,23 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_struttura.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].struttura))
             self.comboBox_year.setEditText(self._safe_str(self.DATA_LIST[self.rec_num].years))
 
+            # Load punto_rinv (US_taglio) e i due table widget diapositive/negative.
+            # Bug pre-esistente: fill_fields non ricaricava questi tre campi, quindi
+            # apparivano sempre vuoti anche se salvati nel DB.
+            rec = self.DATA_LIST[self.rec_num]
+            if hasattr(self, 'lineEdit_punto_rinv'):
+                self.lineEdit_punto_rinv.setText(self._safe_str(getattr(rec, 'punto_rinv', None)))
+            try:
+                self.tableInsertData('self.tableWidget_diapositive',
+                                     getattr(rec, 'diapositiva', None))
+            except Exception:
+                pass
+            try:
+                self.tableInsertData('self.tableWidget_negative',
+                                     getattr(rec, 'negativo_photo', None))
+            except Exception:
+                pass
+
             # ============================================================
             # Media loading: auto-load only for local paths
             # Se path locale: auto-caricamento (veloce)
