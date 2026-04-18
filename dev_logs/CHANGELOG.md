@@ -21,6 +21,11 @@
 - `tabs/Inv_Materiali.py` (`_restructure_dati_quantitativi_tab` + helper `_find_layout_containing`)
 - `/Users/enzo/Downloads/parsingra/parse_to_festos2025.py` (`_clean_ws` applicato nei campi descrizione)
 
+### DB festos2025 (thesaurus TMA esteso)
+- Popolate anche le tabelle `TMA Materiali Ripetibili` (thesaurus delle schede TMA) per coerenza cross-scheda: `10.10 Categoria` +29 (da MATERIALE), `10.11 Classe` +8 (da CLASSE), `10.12 Precisazione Tipologica` +35 (da TIPO), `10.13 Definizione` +461 (da FORMA), `10.4 cronologia` +18 (da CRONOLOGIA). Totale +551 nuove voci nel thesaurus TMA.
+- Parser aggiornato con `THES_MAP` multi-target: ogni campo TMA del form Inv_Materiali ora scrive contemporaneamente nei codici `inventario_materiali_table / 3.x` (lowercase, per combo Inv_Materiali) E nei codici `TMA Materiali Ripetibili / 10.1x` (uppercase, per la scheda TMA).
+- Note: nessuna FK tra `inventario_materiali_table` e `periodizzazione_table` — il collegamento via `datazione_reperto` è testuale. La `periodizzazione_table` festos2025 ha gia' 71 record preesistenti.
+
 ### DB festos2025
 - 1416 record: descrizione normalizzata (no newline/tab/spazi multipli)
 - 12 nuove voci thesaurus inserite in `pyarchinit_thesaurus_sigle`: tipo_reperto +2, criterio_schedatura +1, definizione +7, tipo +2
