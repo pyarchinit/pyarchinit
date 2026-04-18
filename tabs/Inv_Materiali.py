@@ -1018,6 +1018,7 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         # Inietta il QLineEdit per il sub_inv (suffisso opzionale del numero inventario)
         # accanto a lineEdit_num_inv. Non modifichiamo il file .ui per evitare regressioni.
         self._inject_sub_inv_field()
+        self._fix_diapositive_header()
 
         # Ristruttura la tab "Dati quantitativi" (tab_3): il pannello di sinistra
         # diventa un QTabWidget con 2 sub-tab (Elementi reperto / Misurazioni)
@@ -1183,6 +1184,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
             self.lineEdit_sub_inv = sub_inv
         except Exception:
             # Non-fatale: il form continua senza il campo sub_inv
+            pass
+
+    def _fix_diapositive_header(self):
+        """Il .ui ha horizontalHeaderVisible=false su tableWidget_diapositive e
+        colonne senza etichette, quindi non si vedono 'codice'/'n.' come in
+        tableWidget_negative. Ripristiniamo a runtime 2 colonne con labels."""
+        try:
+            w = getattr(self, 'tableWidget_diapositive', None)
+            if w is None: return
+            if w.columnCount() < 2:
+                w.setColumnCount(2)
+            w.setHorizontalHeaderLabels(['codice', 'n.'])
+            w.horizontalHeader().setVisible(True)
+        except Exception:
             pass
 
     def _get_sub_inv_value(self):
