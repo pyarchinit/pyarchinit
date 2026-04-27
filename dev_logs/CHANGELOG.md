@@ -5,6 +5,36 @@
 
 ---
 
+## [5.0.20-alpha] - 2026-04-27
+
+### Aggiunto / Added
+
+- **feat(ai): Migrazione modelli OpenAI a strategia mista gpt-5.4 / gpt-5.5**: Aggiornati 21 riferimenti in 11 file. Le chiamate streaming e analisi documenti/immagini in `skatch_gpt_INVMAT.py` e `skatch_gpt_US.py` (6 call sites) usano `gpt-5.5`. I punti che richiedono determinismo (`textTosql.py` × 2, `auto_translate_ts.py`, `translate_ts_complete.py`, `US_USM.py:6213` RAG factual) restano su `gpt-5.4` con `temperature` custom (0.1 / 0.2 / 0.3) perché `gpt-5.5` accetta solo `temperature=1` di default. `gpt-5.5-mini` non esiste come modello: i 7 riferimenti `gpt-5.4-mini` originali sono stati conservati. / **feat(ai): OpenAI model migration with mixed gpt-5.4 / gpt-5.5 strategy**: Updated 21 references across 11 files. Streaming and document/image analysis calls in `skatch_gpt_INVMAT.py` and `skatch_gpt_US.py` (6 call sites) use `gpt-5.5`. Determinism-critical points (`textTosql.py` × 2, `auto_translate_ts.py`, `translate_ts_complete.py`, `US_USM.py:6213` RAG factual) stay on `gpt-5.4` with custom `temperature` (0.1 / 0.2 / 0.3) because `gpt-5.5` only accepts default `temperature=1`. `gpt-5.5-mini` does not exist as a model: the 7 original `gpt-5.4-mini` references were preserved.
+
+### Corretto / Fixed
+
+- **fix(ai): Rimossi parametri non supportati da chiamate gpt-5.5**: `gpt-5.5` rifiuta sia `temperature` con valori custom (errore 400 `Only the default (1) value is supported`) sia `top_p` (errore 400 `'top_p' is not supported with this model`). Rimossi `temperature=0.5` e `top_p=0.5` dalle 6 call in `skatch_gpt_INVMAT.py` e `skatch_gpt_US.py`. / **fix(ai): Removed unsupported params from gpt-5.5 calls**: `gpt-5.5` rejects both custom `temperature` (400 `Only the default (1) value is supported`) and `top_p` (400 `'top_p' is not supported with this model`). Removed `temperature=0.5` and `top_p=0.5` from 6 calls in `skatch_gpt_INVMAT.py` and `skatch_gpt_US.py`.
+
+- **fix(ai): Logica condizionale temperature in US_USM ChatOpenAI**: La call `ChatOpenAI(...)` a riga 6213 di `US_USM.py` riceve il modello scelto runtime dall'utente (`gpt-5.4-mini` o `gpt-5.5`). Aggiunto check `if not self.model.startswith("gpt-5.5"): kwargs["temperature"]=0.1` per mantenere determinismo solo dove supportato. / **fix(ai): Conditional temperature in US_USM ChatOpenAI**: The `ChatOpenAI(...)` call at line 6213 of `US_USM.py` receives the runtime-chosen model (`gpt-5.4-mini` or `gpt-5.5`). Added check `if not self.model.startswith("gpt-5.5"): kwargs["temperature"]=0.1` to preserve determinism only where supported.
+
+- **fix(scripts): max_tokens → max_completion_tokens in auto_translate_ts.py**: Aggiornato il parametro deprecato per compatibilità con i modelli OpenAI gpt-5.x. / **fix(scripts): max_tokens → max_completion_tokens in auto_translate_ts.py**: Updated deprecated parameter for OpenAI gpt-5.x model compatibility.
+
+- **fix(metadata): Typo accidentale in `metadata.txt`**: Corretto `instalclaude /resumelation` → `installation` nella entry changelog 5.0.8-alpha. / **fix(metadata): Accidental typo in `metadata.txt`**: Fixed `instalclaude /resumelation` → `installation` in the 5.0.8-alpha changelog entry.
+
+### File modificati / Modified files
+- `metadata.txt` (version 5.0.8 → 5.0.20-alpha + changelog entry + typo fix)
+- `modules/utility/skatch_gpt_INVMAT.py` (3 calls: removed temperature/top_p)
+- `modules/utility/skatch_gpt_US.py` (3 calls: removed temperature/top_p)
+- `scripts/auto_translate_ts.py` (max_tokens → max_completion_tokens, comment update)
+- `tabs/Periodizzazione.py` (model selector: `gpt-5.4` → `gpt-5.5`)
+- `tabs/Thesaurus.py` (model selector: `gpt-5.4` → `gpt-5.5`)
+- `tabs/US_USM.py` (model selector + conditional temperature for ChatOpenAI)
+
+### Test verificati / Tests verified
+- 6 pattern di chiamata API testati live contro OpenAI: streaming `skatch_gpt`, non-streaming `textTosql`, generic `askgpt.py` (entrambi gpt-5.5 e gpt-5.4-mini), vision (`pottery_similarity` con immagine reale), translation script. Tutti PASS.
+
+---
+
 ## [5.0.19-alpha] - 2026-04-18
 
 ### Aggiunto / Added

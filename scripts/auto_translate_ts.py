@@ -96,7 +96,7 @@ LANGUAGES = {
     },
 }
 
-# Modello OpenAI (gpt-5.4 è il più recente e veloce)
+# Modello OpenAI (gpt-5.4 supporta temperature custom per determinismo nelle traduzioni)
 MODEL = "gpt-5.4"
 
 
@@ -161,7 +161,7 @@ Testi da tradurre:
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
-                max_tokens=4000
+                max_completion_tokens=4000
             )
 
             result_text = response.choices[0].message.content.strip()

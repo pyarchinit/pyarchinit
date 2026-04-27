@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.8-alpha
+version=5.0.20-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,14 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.8-alpha (2026-03-27) [QGIS 4 Compatibility, Time Manager, Order Layer]:
+changelog=5.0.20-alpha (2026-04-27) [GPT-5.5 Migration, Mixed Model Strategy]:
+    - Feature: migrate AI to gpt-5.5 for streaming/document-analysis call sites (skatch_gpt_INVMAT, skatch_gpt_US)
+    - Feature: keep gpt-5.4 for deterministic call sites (textTosql SQL generation/explanation, translation scripts, US_USM RAG factual responses) where temperature custom is required
+    - Fix: remove temperature/top_p from gpt-5.5 chat.completions calls (gpt-5.5 only supports default temperature=1, no top_p)
+    - Fix: conditional temperature in US_USM ChatOpenAI (applied only for gpt-5.4*, omitted for gpt-5.5)
+    - Fix: max_tokens -> max_completion_tokens in auto_translate_ts.py (gpt-5.x compatibility)
+    - All 21 model references and 6 deterministic call sites verified end-to-end against live OpenAI API
+  5.0.8-alpha (2026-03-27) [QGIS 4 Compatibility, Time Manager, Order Layer]:
     - Fix: macOS QGIS 4 package installation with multiple Python fallbacks (embedded Python encodings error)
     - Fix: add QGIS 4 path to QGIS_PATHS dict for package installer
     - Fix: Time Manager filters by SITE_SET instead of all sites

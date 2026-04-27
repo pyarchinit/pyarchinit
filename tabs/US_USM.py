@@ -4434,7 +4434,7 @@ class RAGQueryDialog(QDialog):
         self.model_combo = QComboBox()
         self.model_combo.addItems([
             "gpt-5.4-mini",
-            "gpt-5.4",
+            "gpt-5.5",
         ])
         button_layout.addWidget(QLabel(t['model_label']))
         button_layout.addWidget(self.model_combo)
@@ -6209,13 +6209,15 @@ class RAGQueryWorker(QThread):
 
             self.progress_update.emit("Inizializzazione AI...")
 
-            # Initialize LLM with low temperature for factual responses
-            llm = ChatOpenAI(
-                model_name=self.model,
-                api_key=self.api_key,
-                max_completion_tokens=4000,
-                temperature=0.1  # Low temperature for precise, factual responses
-            )
+            # Initialize LLM. gpt-5.5 only supports default temperature; gpt-5.4* accepts custom values.
+            llm_kwargs = {
+                "model_name": self.model,
+                "api_key": self.api_key,
+                "max_completion_tokens": 4000,
+            }
+            if self.model and not self.model.startswith("gpt-5.5"):
+                llm_kwargs["temperature"] = 0.1  # Low temperature for precise, factual responses
+            llm = ChatOpenAI(**llm_kwargs)
 
             # Create tools for analysis
             tools = self.create_analysis_tools(data, vectorstore)
@@ -21323,7 +21325,7 @@ DATABASE SCHEMA KNOWLEDGE:
         self.listWidget_rapp.clear()
         sito_check = str(self.comboBox_sito.currentText())
         area_check = str(self.comboBox_area.currentText())
-        models = ["gpt-5.4-mini", "gpt-5.4"]
+        models = ["gpt-5.4-mini", "gpt-5.5"]
         
         # Setup progress tracking
         validation_steps = 2  # rapporti_stratigrafici_check + automaticform_check
