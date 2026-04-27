@@ -467,6 +467,19 @@ class PackageManager:
                 if ' #' in line:
                     line = line[:line.index(' #')].strip()
 
+                # Handle PEP 508 environment markers (e.g. "pkg>=1.0; python_version<'3.10'")
+                if ';' in line:
+                    spec_part, marker_str = line.split(';', 1)
+                    line = spec_part.strip()
+                    marker_str = marker_str.strip()
+                    try:
+                        from packaging.markers import Marker
+                        if not Marker(marker_str).evaluate():
+                            continue  # this line's marker doesn't apply to current env
+                    except Exception:
+                        # If marker can't be parsed, skip this line conservatively
+                        continue
+
                 package_spec = line
                 package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
                 pkg_lower = package_name.lower()

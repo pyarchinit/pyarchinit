@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.23-alpha
+version=5.0.24-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,9 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.23-alpha (2026-04-27) [Python 3.9 Conditional Floors for nltk/requests/PyMuPDF]:
+changelog=5.0.24-alpha (2026-04-27) [PEP 508 Marker Support in Requirements Parser]:
+    - Fix CRITICAL: check_required_packages() now handles `; python_version<X` markers in requirements.txt; without this fix the plugin failed to load with ValueError on Python 3.9 (introduced by 5.0.22 env-marker requirements)
+  5.0.23-alpha (2026-04-27) [Python 3.9 Conditional Floors for nltk/requests/PyMuPDF]:
     - Fix: nltk, requests and PyMuPDF security floors now also use python_version markers (their patches require Python >=3.10)
     - Fix: Python 3.9 floors: nltk>=3.8 (no patch), requests>=2.32.4 (closes .netrc only), PyMuPDF>=1.26.5 (no patch)
     - Fix: Python 3.10+ floors: nltk>=3.9.4, requests>=2.33.0, PyMuPDF>=1.26.7 (full coverage)

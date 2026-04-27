@@ -5,6 +5,18 @@
 
 ---
 
+## [5.0.24-alpha] - 2026-04-27
+
+### Corretto / Fixed
+
+- **fix CRITICAL(loader): Parser requirements.txt ora gestisce PEP 508 environment markers**: Il bump 5.0.22 aveva introdotto `package>=X; python_version<"3.10"` in `requirements.txt` ma `PackageManager.check_required_packages()` non sapeva interpretare il `;`. Conseguenza: il plugin **non si caricava** con `ValueError: invalid literal for int() with base 10: '4; python_version'`. Aggiunto blocco che usa `packaging.markers.Marker(...).evaluate()` per: (1) saltare le righe il cui marker non si applica all'ambiente corrente, (2) processare solo il version spec residuo. Compatibile con righe legacy senza marker. / **fix CRITICAL(loader): requirements.txt parser now handles PEP 508 environment markers**: The 5.0.22 bump introduced `package>=X; python_version<"3.10"` in `requirements.txt` but `PackageManager.check_required_packages()` didn't know about `;`. Result: the plugin **failed to load** with `ValueError: invalid literal for int() with base 10: '4; python_version'`. Added block using `packaging.markers.Marker(...).evaluate()` to: (1) skip lines whose marker doesn't apply to the current environment, (2) process only the residual version spec. Compatible with legacy non-marker lines.
+
+### File modificati / Modified files
+- `__init__.py` (`PackageManager.check_required_packages` + marker handling at lines 470-481)
+- `metadata.txt` (version 5.0.23 → 5.0.24-alpha)
+
+---
+
 ## [5.0.23-alpha] - 2026-04-27
 
 ### Corretto / Fixed
