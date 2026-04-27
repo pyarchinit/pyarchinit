@@ -5,6 +5,32 @@
 
 ---
 
+## [5.0.22-alpha] - 2026-04-27
+
+### Corretto / Fixed
+
+- **fix(deps): Compatibilità Python 3.9 (QGIS 3.x) tramite environment markers in requirements.txt**: Il bump 5.0.21 a `langchain>=1.2` rompeva l'installazione su QGIS 3.x macOS che usa il Python 3.9 bundled (langchain 1.x richiede Python >=3.10). Ogni dipendenza langchain ora ha due righe con marker condizionale: `package>=0.3.X; python_version<"3.10"` e `package>=1.x; python_version>="3.10"`. Pip selezionerà automaticamente la riga giusta in base al Python in uso. / **fix(deps): Python 3.9 compatibility (QGIS 3.x) via environment markers in requirements.txt**: The 5.0.21 bump to `langchain>=1.2` broke installs on QGIS 3.x macOS which uses the bundled Python 3.9 (langchain 1.x requires Python >=3.10). Each langchain dependency now has two lines with conditional markers: `package>=0.3.X; python_version<"3.10"` and `package>=1.x; python_version>="3.10"`. Pip will automatically pick the right line based on Python in use.
+
+### Coverage CVE per Python version
+
+**Python 3.9 (QGIS 3.x bundled)** — chiude 7 dei 17 CVE patchabili:
+- nltk 3.9.4, requests 2.33.0, PyMuPDF 1.26.7 (5 CVE chiusi)
+- langchain-core 0.3.84 (3 CVE chiusi: #14, #13, #24)
+- langchain-text-splitters 0.3.9 (1 CVE chiuso: #12)
+- langchain-community 0.3.27 (1 CVE chiuso: #10)
+- **Residui Python 3.9-only** (richiedono upgrade a QGIS 4.x): #23, #15 (langchain-core), #26 (langchain-text-splitters), #27 (langchain-openai), #25 (langsmith)
+
+**Python 3.10+ (QGIS 4.x)** — chiude tutti i 17 CVE patchabili.
+
+### Sintomi precedenti (5.0.21)
+- Su QGIS 3.x macOS: dialog "Sorgente Dati non Valida: /langchain>=1.2.0" e simili al prossimo avvio QGIS, perché pip falliva l'install della linea 1.x su Python 3.9 e QGIS interpretava le stringhe come tentativi di caricamento layer.
+
+### File modificati / Modified files
+- `requirements.txt` (env markers per langchain ecosystem)
+- `metadata.txt` (version 5.0.21 → 5.0.22-alpha + changelog entry)
+
+---
+
 ## [5.0.21-alpha] - 2026-04-27
 
 ### Sicurezza / Security

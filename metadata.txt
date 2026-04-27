@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.21-alpha
+version=5.0.22-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,11 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.21-alpha (2026-04-27) [Security: Dependency CVE Fixes]:
+changelog=5.0.22-alpha (2026-04-27) [Python 3.9 Compatibility for Security Fixes]:
+    - Fix: requirements.txt uses Python version markers - 0.3.x langchain line for Python <3.10 (QGIS 3.x), 1.x for Python >=3.10 (QGIS 4.x)
+    - Note: Python 3.9 closes 7 of 17 patchable CVEs (langchain-core 0.3.84, langchain-text-splitters 0.3.9, langchain-community 0.3.27 + nltk/requests/PyMuPDF). 4 LangChain CVEs require Python >=3.10
+    - Fix: avoid breaking QGIS 3.x installs that bundle Python 3.9
+  5.0.21-alpha (2026-04-27) [Security: Dependency CVE Fixes]:
     - Security: bump nltk >=3.9.4 (zip slip CRITICAL CVE-2026-0846, arbitrary file read, remote shutdown, XSS)
     - Security: bump langchain-core >=1.2.22 (serialization injection CRITICAL, path traversal, template injection, f-string, SSRF)
     - Security: bump langchain-text-splitters >=1.1.2 (XXE, SSRF redirect)
