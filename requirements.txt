@@ -15,17 +15,24 @@ XlsxWriter>=3.1.0
 openpyxl>=3.1.0
 matplotlib>=3.7.0
 pandas>=2.0.0
-requests>=2.33.0  # security: CVE-2024-47081 (.netrc leak), CVE-2024-35195 (temp file reuse)
+# requests CVEs: #9 .netrc leak patched in 2.32.4 (Python 3.8+), #22 temp file reuse patched in 2.33.0 (Python 3.10+)
+requests>=2.32.4; python_version<"3.10"
+requests>=2.33.0; python_version>="3.10"
 
 # Document & media
-PyMuPDF>=1.26.7  # security: path traversal in _main_.py
+# PyMuPDF path traversal patch (1.26.7) requires Python >=3.10; 1.26.5 is last 3.9-compatible (no fix on Python 3.9)
+PyMuPDF>=1.26.5; python_version<"3.10"
+PyMuPDF>=1.26.7; python_version>="3.10"
 python-docx>=1.0.0
 opencv-python>=4.8.0  # Optional - may already be installed or cause issues on Windows
 qrcode>=7.4
 
 # Utilities
 psutil>=5.9.0
-nltk>=3.9.4  # security: zip slip (CVE-2026-0846), arbitrary file read, remote shutdown, XSS
+# nltk security patches (3.9.3+) require Python >=3.10; Python 3.9 (QGIS 3.x) keeps 3.8+ floor
+# WARNING Python 3.9: 6 nltk CVEs (zip slip CRITICAL CVE-2026-0846, arbitrary file read, remote shutdown, XSS, downloader path traversal, JSONTaggedDecoder recursion) cannot be patched - upgrade to QGIS 4.x to fix
+nltk>=3.8.0; python_version<"3.10"
+nltk>=3.9.4; python_version>="3.10"
 beautifulsoup4>=4.12.0
 
 # AI / LLM

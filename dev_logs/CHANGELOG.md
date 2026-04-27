@@ -5,6 +5,45 @@
 
 ---
 
+## [5.0.23-alpha] - 2026-04-27
+
+### Corretto / Fixed
+
+- **fix(deps): Floor condizionali per nltk/requests/PyMuPDF**: Anche le patch di sicurezza per `nltk` (3.9.3+), `requests` (2.33.0+) e `PyMuPDF` (1.26.6+) richiedono Python ≥3.10, non solo le librerie langchain. Estesa la strategia env-marker anche a questi pacchetti. Per Python 3.9 (QGIS 3.x): `nltk>=3.8` (nessun fix possibile a monte — 6 CVE residue), `requests>=2.32.4` (fixa solo `.netrc` leak #9), `PyMuPDF>=1.26.5` (nessun fix possibile, 1.26.7 è 3.10+). Per Python ≥3.10: floor pieni. / **fix(deps): Conditional floors for nltk/requests/PyMuPDF**: Security patches for `nltk` (3.9.3+), `requests` (2.33.0+) and `PyMuPDF` (1.26.6+) also require Python ≥3.10, not just LangChain. Extended env-marker strategy to these packages. For Python 3.9 (QGIS 3.x): `nltk>=3.8` (no upstream fix — 6 residual CVEs), `requests>=2.32.4` (closes only .netrc leak #9), `PyMuPDF>=1.26.5` (no fix possible, 1.26.7 is 3.10+). For Python ≥3.10: full floors.
+
+### Coverage CVE finale per Python 3.9 (QGIS 3.x)
+
+| CVE | Pacchetto/Floor | Status |
+|---|---|---|
+| #14 critical (langchain-core serialization injection) | langchain-core 0.3.84 | ✅ Closed |
+| #16 critical (nltk zip slip CVE-2026-0846) | nltk 3.9.4 | ❌ Residual (Python 3.9 only) |
+| #28 high (nltk arbitrary file read) | nltk 3.9.3 | ❌ Residual |
+| #19 high (nltk remote shutdown) | nltk 3.9.4 | ❌ Residual |
+| #20 high (nltk downloader path traversal) | no upstream patch | ❌ Residual |
+| #23 high (langchain-core load_prompt path traversal) | langchain-core 1.2.22 | ❌ Residual (requires Python 3.10) |
+| #13 high (langchain-core template injection) | langchain-core 0.3.80 | ✅ Closed |
+| #12 high (langchain-text-splitters XXE) | langchain-text-splitters 0.3.9 | ✅ Closed |
+| #10 high (langchain-community XXE) | langchain-community 0.3.27 | ✅ Closed |
+| #18 medium (nltk XSS) | nltk 3.9.4 | ❌ Residual |
+| #17 medium (nltk JSONTaggedDecoder recursion) | no upstream patch | ❌ Residual |
+| #24 medium (langchain-core f-string) | langchain-core 0.3.84 | ✅ Closed |
+| #26 medium (langchain-text-splitters SSRF redirect) | langchain-text-splitters 1.1.2 | ❌ Residual (requires Python 3.10) |
+| #25 medium (langsmith streaming bypass) | langsmith 0.7.31 | ❌ Residual (requires Python 3.10) |
+| #22 medium (requests temp file) | requests 2.33.0 | ❌ Residual (requires Python 3.10) |
+| #9 medium (requests .netrc) | requests 2.32.4 | ✅ Closed |
+| #21 medium (PyMuPDF path traversal) | PyMuPDF 1.26.7 | ❌ Residual (requires Python 3.10) |
+| #15 low (langchain-core SSRF image_url) | langchain-core 1.2.11 | ❌ Residual (requires Python 3.10) |
+| #27 low (langchain-openai SSRF token counting) | langchain-openai 1.1.14 | ❌ Residual (requires Python 3.10) |
+
+**Su Python 3.9: 5 CVE chiusi, 14 residue (di cui 12 fixabili solo passando a QGIS 4.x con Python 3.10+, 2 senza patch upstream).**
+**Su Python 3.10+: 17 CVE chiusi, 2 residue (no upstream patch nltk).**
+
+### Note operative
+- **Pacchetti aggiornati manualmente in `ext_libs`** del repo locale dell'utente per il QGIS 3.42 (Python 3.9): `requests 2.32.5`, `langchain 0.3.28`, `langchain-community 0.3.31`, `langchain-core 0.3.84`, `langchain-text-splitters 0.3.11`, `langsmith 0.4.37`. Questo evita il dialog "Sorgente Dati non Valida" al prossimo avvio QGIS perché tutti i floor sono soddisfatti.
+- numpy 2.0.2 entrato in `ext_libs` durante l'install è stato rimosso manualmente (CLAUDE.md richiede numpy 1.26.4 strict per QGIS — è in `QGIS_PROTECTED_PACKAGES`).
+
+---
+
 ## [5.0.22-alpha] - 2026-04-27
 
 ### Corretto / Fixed
