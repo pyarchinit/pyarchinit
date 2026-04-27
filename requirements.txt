@@ -15,30 +15,35 @@ XlsxWriter>=3.1.0
 openpyxl>=3.1.0
 matplotlib>=3.7.0
 pandas>=2.0.0
-requests>=2.28.0
+requests>=2.33.0  # security: CVE-2024-47081 (.netrc leak), CVE-2024-35195 (temp file reuse)
 
 # Document & media
-PyMuPDF>=1.23.0
+PyMuPDF>=1.26.7  # security: path traversal in _main_.py
 python-docx>=1.0.0
 opencv-python>=4.8.0  # Optional - may already be installed or cause issues on Windows
 qrcode>=7.4
 
 # Utilities
 psutil>=5.9.0
-nltk>=3.8.0
+nltk>=3.9.4  # security: zip slip (CVE-2026-0846), arbitrary file read, remote shutdown, XSS
 beautifulsoup4>=4.12.0
 
 # AI / LLM
 openai>=1.0.0
 anthropic>=0.20.0
-# LangChain ecosystem
-langchain>=0.3.0
-langchain-community>=0.3.0
-langchain-core>=0.3.0
-langchain-openai>=0.3.0
-langchain-anthropic>=0.3.0
-langchain-text-splitters>=0.3.0
-langsmith>=0.3.0
+# LangChain ecosystem - bumped to 1.x line for security patches
+# langchain-core 1.2.22 closes: serialization injection, path traversal, template injection, f-string, SSRF
+# langchain-text-splitters 1.1.2 closes: XXE, SSRF redirect
+# langchain-openai 1.1.14 closes: SSRF token counting bypass
+# langchain-community 0.4 latest stable line; 0.3.27 also acceptable for CVE coverage
+# langsmith 0.7.31 closes: streaming token redaction bypass
+langchain>=1.2.0
+langchain-community>=0.4.0
+langchain-core>=1.2.22
+langchain-openai>=1.1.14
+langchain-anthropic>=1.0.0
+langchain-text-splitters>=1.1.2
+langsmith>=0.7.31
 
 # 3D visualization
 pygame>=2.5.0

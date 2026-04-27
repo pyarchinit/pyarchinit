@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.20-alpha
+version=5.0.21-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,18 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.20-alpha (2026-04-27) [GPT-5.5 Migration, Mixed Model Strategy]:
+changelog=5.0.21-alpha (2026-04-27) [Security: Dependency CVE Fixes]:
+    - Security: bump nltk >=3.9.4 (zip slip CRITICAL CVE-2026-0846, arbitrary file read, remote shutdown, XSS)
+    - Security: bump langchain-core >=1.2.22 (serialization injection CRITICAL, path traversal, template injection, f-string, SSRF)
+    - Security: bump langchain-text-splitters >=1.1.2 (XXE, SSRF redirect)
+    - Security: bump langchain-community >=0.4.0 (XXE)
+    - Security: bump langchain-openai >=1.1.14 (SSRF in token counting)
+    - Security: bump langchain >=1.2.0 and langchain-anthropic >=1.0.0 for ecosystem compatibility
+    - Security: bump langsmith >=0.7.31 (streaming token redaction bypass)
+    - Security: bump requests >=2.33.0 (.netrc credentials leak, temp file reuse)
+    - Security: bump PyMuPDF >=1.26.7 (path traversal)
+    - Note: 2 nltk alerts (downloader path traversal, JSONTaggedDecoder recursion) have no upstream patch yet
+  5.0.20-alpha (2026-04-27) [GPT-5.5 Migration, Mixed Model Strategy]:
     - Feature: migrate AI to gpt-5.5 for streaming/document-analysis call sites (skatch_gpt_INVMAT, skatch_gpt_US)
     - Feature: keep gpt-5.4 for deterministic call sites (textTosql SQL generation/explanation, translation scripts, US_USM RAG factual responses) where temperature custom is required
     - Fix: remove temperature/top_p from gpt-5.5 chat.completions calls (gpt-5.5 only supports default temperature=1, no top_p)

@@ -5,6 +5,46 @@
 
 ---
 
+## [5.0.21-alpha] - 2026-04-27
+
+### Sicurezza / Security
+
+- **security(deps): Risolti 17 dei 19 CVE Dependabot tramite bump dei floor `>=` in `requirements.txt`**: 2 critici, 6 high, 7 medium, 2 low. Le 2 alert residue (`nltk` Downloader Path Traversal #20 e `JSONTaggedDecoder` recursion #17) non hanno patch upstream — tracking aperto. Rischio reale per pyarchinit (plugin offline dentro QGIS) limitato a vettori specifici: file PDF/DOCX malevoli (PyMuPDF), URL inseriti in feature LangChain che fanno fetch (SSRF), corpus NLTK da fonti non verificate (zip slip). Bump effettuati: `nltk>=3.9.4` (era 3.8), `requests>=2.33.0` (era 2.28), `PyMuPDF>=1.26.7` (era 1.23), `langchain>=1.2.0`, `langchain-community>=0.4.0`, `langchain-core>=1.2.22`, `langchain-openai>=1.1.14`, `langchain-anthropic>=1.0.0`, `langchain-text-splitters>=1.1.2`, `langsmith>=0.7.31` (tutti era 0.3). / **security(deps): Resolved 17 of 19 Dependabot CVEs by bumping `>=` floors in `requirements.txt`**: 2 critical, 6 high, 7 medium, 2 low. The 2 residual alerts (`nltk` Downloader Path Traversal #20 and `JSONTaggedDecoder` recursion #17) have no upstream patch — open tracking. Real risk for pyarchinit (offline plugin inside QGIS) is limited to specific vectors: malicious PDF/DOCX files (PyMuPDF), URLs entered in LangChain features that fetch (SSRF), NLTK corpora from unverified sources (zip slip).
+
+### CVE chiusi / Closed CVEs
+
+- **CRITICAL** — `nltk` Zip Slip (CVE-2026-0846, GHSA-h8wq-7xc4-p3qx) → patched ≥3.9.3
+- **CRITICAL** — `langchain-core` serialization injection (secret extraction in dump/load) → patched ≥0.3.81 / ≥1.2.22
+- **HIGH** — `nltk` Arbitrary File Read in `nltk.util.filestring()` → patched ≥3.9.3
+- **HIGH** — `nltk` Unauthenticated remote shutdown in `nltk.app.wordnet_app` → patched ≥3.9.4
+- **HIGH** — `langchain-core` Path Traversal in `load_prompt` → patched ≥1.2.22
+- **HIGH** — `langchain-core` Template Injection via attribute access → patched ≥0.3.80 / ≥1.2.22
+- **HIGH** — `langchain-text-splitters` XXE attacks → patched ≥0.3.9 / ≥1.1.2
+- **HIGH** — `langchain-community` XXE → patched ≥0.3.27
+- **MEDIUM** — `nltk` XSS in pagine generate → patched ≥3.9.4
+- **MEDIUM** — `langchain-core` incomplete f-string validation → patched ≥0.3.84 / ≥1.2.22
+- **MEDIUM** — `langchain-text-splitters` SSRF in `HTMLHeaderTextSplitter.split_text_from_url` → patched ≥1.1.2
+- **MEDIUM** — `langsmith` Streaming token events bypass output redaction → patched ≥0.7.31
+- **MEDIUM** — `requests` Insecure Temp File Reuse in `extract_zipped_paths()` → patched ≥2.33.0
+- **MEDIUM** — `requests` `.netrc` credentials leak via malicious URLs → patched ≥2.32.4
+- **MEDIUM** — `PyMuPDF` path traversal in `_main_.py` → patched ≥1.26.7
+- **LOW** — `langchain-openai` SSRF protection bypass via DNS in image token counting → patched ≥1.1.14
+- **LOW** — `langchain-core` SSRF via image_url in `ChatOpenAI.get_num_tokens` → patched ≥1.2.11
+
+### Residui / Residual (no upstream patch)
+- `nltk` Downloader Path Traversal (file overwrite) — alert #20
+- `nltk` `JSONTaggedDecoder.decode()` unbounded recursion — alert #17
+
+### File modificati / Modified files
+- `requirements.txt` (10 floor bumps + commenti CVE inline)
+- `metadata.txt` (version 5.0.20 → 5.0.21-alpha + changelog entry)
+
+### Note operative / Operational notes
+- Il bump è solo nel manifest (`>=` floor). Utenti con installazioni esistenti devono lanciare `pip install -r requirements.txt --upgrade` (o usare `python scripts/modules_installer.py`) per applicare gli aggiornamenti.
+- LangChain ecosystem migrato dal canale 0.3.x al canale 1.x. API potenzialmente incompatibili in alcuni punti — testare le feature AI dopo l'upgrade. / LangChain ecosystem moved from 0.3.x to 1.x channel. APIs may have minor incompatibilities — test AI features after upgrade.
+
+---
+
 ## [5.0.20-alpha] - 2026-04-27
 
 ### Aggiunto / Added
