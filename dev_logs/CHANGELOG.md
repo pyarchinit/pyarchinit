@@ -5,6 +5,18 @@
 
 ---
 
+## [5.0.25-alpha] - 2026-04-28
+
+### Corretto / Fixed
+
+- **fix CRITICAL(installer macOS): Nuovi utenti Mac vedevano "Sorgente Dati non Valida" al primo avvio**: `PackageManager.install()` su Darwin usava `sys.executable` come ultimo fallback, ma dentro QGIS in esecuzione `sys.executable` è il binario dell'app QGIS (`/Applications/QGIS.app/Contents/MacOS/QGIS`), non un interprete Python. Quando i candidati Python precedenti fallivano (per timeout di rete o path mancanti su QGIS 4.x), `subprocess.run([qgis_binary, "-m", "pip", "install", "<pkg>"])` lanciava una *seconda istanza di QGIS* che interpretava il package spec come percorso file → "Sorgente Dati non Valida". Risolto: (1) rimosso `sys.executable` dal fallback su macOS, (2) aggiunti path bundle QGIS 4.x (`Contents/Resources/python/bin/`, `Contents/Frameworks/Python.framework/Versions/Current/bin/`) e nomi multi-versione (python3.9–3.13), (3) aggiunta validazione `python -c 'import sys; print(sys.version_info[0])'` con timeout 5s prima di usare ciascun candidato — qualsiasi binario non-Python viene scartato silenziosamente. / **fix CRITICAL(installer macOS): New Mac users hit "Sorgente Dati non Valida" on first launch**: `PackageManager.install()` on Darwin used `sys.executable` as last-resort fallback, but inside a running QGIS, `sys.executable` is the QGIS app binary (`/Applications/QGIS.app/Contents/MacOS/QGIS`), not a Python interpreter. When prior Python candidates failed (network timeout or missing paths on QGIS 4.x), `subprocess.run([qgis_binary, "-m", "pip", "install", "<pkg>"])` launched a *second QGIS instance* that interpreted the package spec as a file path → "Sorgente Dati non Valida" / "Invalid Data Source". Fixed: (1) removed `sys.executable` from macOS fallback, (2) added QGIS 4.x bundle paths (`Contents/Resources/python/bin/`, `Contents/Frameworks/Python.framework/Versions/Current/bin/`) and multi-version names (python3.9–3.13), (3) added `python -c 'import sys; print(sys.version_info[0])'` probe with 5s timeout before using each candidate — any non-Python binary is silently discarded.
+
+### File modificati / Modified files
+- `__init__.py` (`PackageManager.install` Darwin branch, lines 336–397: candidate discovery + interpreter probe)
+- `metadata.txt` (version 5.0.24-alpha → 5.0.25-alpha)
+
+---
+
 ## [5.0.24-alpha] - 2026-04-27
 
 ### Corretto / Fixed

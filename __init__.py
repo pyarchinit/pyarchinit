@@ -344,33 +344,56 @@ class PackageManager:
             last_error = None
 
             # Build list of Python executables to try, in priority order:
-            # 1. QGIS bundled python3 (QGIS 3.x)
-            # 2. QGIS bundled python3.12/3.11 (QGIS 4.x)
-            # 3. System python3 (/usr/bin/python3 or Homebrew)
-            # 4. Current sys.executable as last resort
+            # 1. QGIS bundled python3 (QGIS 3.x: Contents/MacOS/bin/, QGIS 4.x: Contents/Resources/python/bin/)
+            # 2. System python3 (/usr/bin/python3 or Homebrew)
+            #
+            # NOTE: sys.executable is intentionally NOT used as fallback on macOS.
+            # Inside a running QGIS, sys.executable is the QGIS app binary itself,
+            # not a Python interpreter. Invoking it via subprocess would launch a
+            # new QGIS instance with the package spec interpreted as a file path,
+            # producing "Sorgente Dati non Valida" / "Invalid Data Source" errors.
             python_candidates = []
 
             for qgis_type in QGIS_PATHS:
                 qgis_base = QGIS_PATHS[qgis_type]
-                # Standard python3
-                candidate = os.path.join(qgis_base, 'bin', 'python3')
-                if os.path.exists(candidate):
-                    python_candidates.append(candidate)
-                # QGIS 4 uses python3.XX directly
-                for pyver in ['python3.12', 'python3.11', 'python3.13']:
-                    candidate = os.path.join(qgis_base, pyver)
-                    if os.path.exists(candidate):
-                        python_candidates.append(candidate)
+                # Search common locations where QGIS bundles its Python interpreter
+                contents_dir = os.path.dirname(qgis_base)  # .../Contents
+                bundle_subdirs = [
+                    os.path.join(qgis_base, 'bin'),
+                    os.path.join(contents_dir, 'Resources', 'python', 'bin'),
+                    os.path.join(contents_dir, 'Frameworks', 'Python.framework',
+                                 'Versions', 'Current', 'bin'),
+                ]
+                for subdir in bundle_subdirs:
+                    if not os.path.isdir(subdir):
+                        continue
+                    for py_name in ['python3', 'python3.13', 'python3.12',
+                                    'python3.11', 'python3.10', 'python3.9']:
+                        candidate = os.path.join(subdir, py_name)
+                        if os.path.exists(candidate) and candidate not in python_candidates:
+                            python_candidates.append(candidate)
 
             # System python fallbacks (always work with pip)
             for sys_python in ['/usr/bin/python3', '/opt/homebrew/bin/python3',
                                '/usr/local/bin/python3']:
-                if os.path.exists(sys_python):
+                if os.path.exists(sys_python) and sys_python not in python_candidates:
                     python_candidates.append(sys_python)
 
-            python_candidates.append(sys.executable)
-
             for python_cmd in python_candidates:
+                # Validate this is actually a Python interpreter, not the QGIS
+                # app binary or another non-python executable that happens to live
+                # at a plausible path.
+                try:
+                    probe = subprocess.run(
+                        [python_cmd, '-c', 'import sys; print(sys.version_info[0])'],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        timeout=5
+                    )
+                    if probe.returncode != 0 or probe.stdout.strip() != b'3':
+                        continue
+                except (subprocess.TimeoutExpired, OSError):
+                    continue
+
                 try:
                     result = subprocess.run(
                         [python_cmd, "-m", "pip", "install", "--upgrade",
