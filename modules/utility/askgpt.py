@@ -3,6 +3,8 @@ import requests
 from openai import OpenAI
 from qgis.PyQt.QtWidgets import *
 import socket
+
+from modules.utility.llm_providers import LLMConfig, LLMProvider, LLMProviderManager
 #import sys, subprocess
 # try:
 #     import openai
@@ -45,31 +47,35 @@ class MyApp(QWidget):
         super().__init__(parent)
 
     def ask_gpt(self, prompt, apikey, model):
+        """Backward-compatible OpenAI wrapper.
+
+        New code should prefer ``ask_with_config`` which supports any provider.
+        """
+        config = LLMConfig(
+            provider=LLMProvider.OPENAI,
+            model=model,
+            api_key=apikey,
+        )
+        return self.ask_with_config(prompt, config)
+
+    def ask_with_config(self, prompt, config: LLMConfig):
+        """Send a single prompt to the configured LLM provider.
+
+        Returns the full text response, or None on error.
+        """
         try:
-            os.environ["OPENAI_API_KEY"] = apikey
-            client = OpenAI(api_key=apikey)
-
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
-                stream=True,
+            return LLMProviderManager.chat(
+                config,
+                [{"role": "user", "content": prompt}],
             )
-
-            combined_message = ""
-
-            for chunk in response:
-                if chunk.choices[0].delta.content is not None:
-                    combined_message += chunk.choices[0].delta.content
-
-            return combined_message
-
         except requests.exceptions.HTTPError as e:
             QMessageBox.critical(self, "Error", f"HTTP error: {e}")
             return None
         except requests.exceptions.JSONDecodeError as e:
             QMessageBox.critical(self, "Error", f"Json error: {e}")
+            return None
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"LLM error: {e}")
             return None
 
     def is_connected(self):

@@ -149,6 +149,19 @@ class SQLiteDBUpdater:
                     if col not in columns:
                         return True
 
+            # Check if inventario_materiali_table has the sub_inv suffix column
+            # (older DBs predate this column; the entity expects it).
+            self.cursor.execute("""
+                SELECT name FROM sqlite_master
+                WHERE type='table' AND name='inventario_materiali_table'
+            """)
+            if self.cursor.fetchone():
+                self.cursor.execute("PRAGMA table_info(inventario_materiali_table)")
+                columns = [column[1] for column in self.cursor.fetchall()]
+                if 'sub_inv' not in columns:
+                    print("DEBUG [sqlite_db_updater]: inventario_materiali_table manca sub_inv, needs_update=True")
+                    return True
+
             # Check if ut_table has analysis fields (v4.9.67+)
             self.cursor.execute("""
                 SELECT name FROM sqlite_master

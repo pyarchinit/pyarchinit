@@ -23,6 +23,8 @@ from modules.db.pyarchinit_conn_strings import Connection
 from modules.utility.pyarchinit_theme_manager import ThemeManager
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_media_utility import Media_utility, Media_utility_resize
+from modules.utility.llm_providers import LLMConfig, LLMProvider, LLMProviderManager
+from modules.utility.llm_selector_widget import LLMSelectorWidget
 
 
 class Worker(QThread):
@@ -119,11 +121,11 @@ class GPTWindow(QMainWindow):
         )
         layout.addWidget(self.prompt_label, 1, 0, 1, 3)
 
-        # Aggiungi un selettore per il modello AI
-        self.model_selector = QComboBox()
-        self.model_selector.addItems(["GPT-4o", "Claude Sonnet 3.5"])
-        layout.addWidget(QLabel("Select AI Model:"), 0, 0)
-        layout.addWidget(self.model_selector, 0, 1)
+        # Selettore unificato AI (OpenAI / Claude / Ollama / LM Studio)
+        self.llm_selector = LLMSelectorWidget(
+            scope="skatch_invmat", vision_only=True, title="Modello AI (vision)"
+        )
+        layout.addWidget(self.llm_selector, 0, 0, 1, 3)
 
         # Bottoni per l'interazione
         self.btn_import3 = QPushButton("Analizza Immagini Selezionate")
@@ -177,7 +179,7 @@ class GPTWindow(QMainWindow):
 
         self.listWidget_ai.clear()
         if self.selected_images:
-            selected_model = self.model_selector.currentText()
+            cfg = self.llm_selector.get_config()
             for file_path in self.selected_images:
                 # Get image metadata
                 metadata = get_image_metadata(file_path)
@@ -192,10 +194,7 @@ class GPTWindow(QMainWindow):
                 prompt += f"DPI: {dpi[0]} x {dpi[1]}\n"
                 prompt += f"Dimensioni: {width} x {height}\n"
 
-                if selected_model == "GPT-4.1":
-                    response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
-                else:
-                    response = self.ask_claude(prompt, self.apikey_claude(), file_path)
+                response = self.ask_with_llm(prompt, file_path, cfg, is_image=True)
 
                 # Display the response in the UI
                 #self.listWidget_ai.append(f"AI Response for {os.path.basename(file_path)}:")
@@ -296,6 +295,74 @@ class GPTWindow(QMainWindow):
                     api_key = f.read().strip()
 
         return api_key
+
+    def ask_with_llm(self, prompt, file_path, config: 'LLMConfig', is_image=True):
+        """Vision/document Q&A unificato per qualsiasi provider configurato."""
+        if not config.model:
+            QMessageBox.warning(self, "Modello mancante",
+                                "Seleziona un modello nel selettore AI.")
+            return ""
+        if config.needs_api_key and not config.api_key:
+            QMessageBox.warning(
+                self, "API key mancante",
+                f"Manca l'API key per {config.provider.value}."
+            )
+            return ""
+
+        try:
+            if is_image and config.provider == LLMProvider.ANTHROPIC:
+                _, ext = os.path.splitext(file_path)
+                media_type = {
+                    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+                    '.png': 'image/png',
+                    '.tiff': 'image/tiff', '.tif': 'image/tiff',
+                    '.webp': 'image/webp',
+                }.get(ext.lower(), 'image/jpeg')
+                with open(file_path, "rb") as fh:
+                    b64 = base64.b64encode(fh.read()).decode('utf-8')
+                messages = [{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image", "source": {
+                            "type": "base64", "media_type": media_type, "data": b64
+                        }},
+                    ],
+                }]
+            elif is_image:
+                with open(file_path, "rb") as fh:
+                    b64 = base64.b64encode(fh.read()).decode('utf-8')
+                _, ext = os.path.splitext(file_path)
+                mime = {
+                    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
+                    '.png': 'image/png',
+                    '.tiff': 'image/tiff', '.tif': 'image/tiff',
+                    '.webp': 'image/webp',
+                }.get(ext.lower(), 'image/jpeg')
+                messages = [{
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url",
+                         "image_url": {"url": f"data:{mime};base64,{b64}"}},
+                    ],
+                }]
+            else:
+                file_text = self.extract_text_from_file(file_path)
+                messages = [
+                    {"role": "system",
+                     "content": "You are an assistant for analyzing documents."},
+                    {"role": "user", "content": prompt + "\n\n" + file_text},
+                ]
+
+            full_response = ""
+            for chunk in LLMProviderManager.stream_chat(config, messages):
+                full_response += chunk
+                self.update_content(chunk)
+            return full_response
+        except Exception as e:
+            QMessageBox.warning(self, "Error", f"An error occurred in ask_with_llm: {e}")
+            return ""
 
     def ask_gpt4(self, prompt, apikey, file_path, is_image=True):
         try:
@@ -454,14 +521,11 @@ class GPTWindow(QMainWindow):
         if not prompt:
             prompt = "Analizza questa immagine e estrai le seguenti informazioni: Sito, Numero reperto. Fornisci queste informazioni nel formato 'Chiave: Valore', una per riga."
 
-        selected_model = self.model_selector.currentText()
+        cfg = self.llm_selector.get_config()
 
         for file_path in file_paths:
             try:
-                if selected_model == "GPT-4.1":
-                    response = self.ask_gpt4(prompt, self.apikey_gpt(), file_path)
-                else:  # This implies Claude Sonnet is selected
-                    response = self.ask_claude(prompt, self.apikey_claude(), file_path)
+                response = self.ask_with_llm(prompt, file_path, cfg, is_image=True)
 
                 extracted_info = self.extract_info_from_response(response)
 
@@ -1138,11 +1202,8 @@ class GPTWindow(QMainWindow):
         file_path, _ = file_dialog.getOpenFileName(self, "Select Document", "", "Documents (*.pdf *.csv *.docx)")
         if file_path:
             prompt = self.prompt_label.toPlainText()
-            selected_model = self.model_selector.currentText()
-            if selected_model == "GPT-4.1":
-                self.ask_gpt4(prompt, self.apikey_gpt(), file_path, is_image=False)
-            else:
-                self.ask_claude(prompt, self.apikey_claude(), file_path, is_image=False)
+            cfg = self.llm_selector.get_config()
+            self.ask_with_llm(prompt, file_path, cfg, is_image=False)
         else:
             self.listWidget_ai.setPlainText("Document selection was canceled.")
 

@@ -95,6 +95,8 @@ from ..modules.report.archeo_analysis import ArchaeologicalAnalysis
 from ..modules.report.validation_tools import ArchaeologicalValidators
 from ..gui.download_dialog import DownloadModelDialog
 from ..modules.utility.report_generator import ReportGenerator
+from ..modules.utility.llm_providers import LLMConfig, LLMProvider, LLMProviderManager
+from ..modules.utility.llm_selector_widget import LLMSelectorWidget
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
@@ -259,6 +261,12 @@ class ReportGeneratorDialog(QDialog):
 
         main_layout.addWidget(filters_section)
 
+        # LLM Provider Section (OpenAI / Claude / Ollama / LM Studio)
+        llm_section = CollapsibleSection("Provider AI")
+        self.llm_selector = LLMSelectorWidget(scope="us_report", title="")
+        llm_section.add_widget(self.llm_selector)
+        main_layout.addWidget(llm_section)
+
         # Buttons Section
         button_layout = QHBoxLayout()
         self.validate_button = QPushButton("Verifica Dati Mancanti")
@@ -270,6 +278,10 @@ class ReportGeneratorDialog(QDialog):
         self.buttons.rejected.connect(self.reject)
         button_layout.addWidget(self.buttons)
         main_layout.addLayout(button_layout)
+
+    def get_llm_config(self):
+        """Return the LLMConfig chosen in the selector widget."""
+        return self.llm_selector.get_config()
 
 
 
@@ -1534,13 +1546,18 @@ class GenerateReportThread(QThread):
 
     def __init__(self, custom_prompt, descriptions_text, api_key, selected_model, selected_tables, analysis_steps,
                  agent, us_data, materials_data, pottery_data, site_data, py_dialog, output_language='italiano',
-                 tomba_data=None, periodizzazione_data=None, struttura_data=None, tma_data=None, enable_streaming=True):
+                 tomba_data=None, periodizzazione_data=None, struttura_data=None, tma_data=None, enable_streaming=True,
+                 llm_config=None):
         super().__init__()
 
         self.custom_prompt = custom_prompt
         self.descriptions_text = descriptions_text
         self.api_key = api_key
         self.selected_model = selected_model
+        # Optional: full provider config. When None, fall back to legacy
+        # api_key + selected_model (OpenAI). When set, this drives any
+        # provider-aware helpers (_make_chat_llm, _provider_chat_completion).
+        self.llm_config = llm_config
         self.selected_tables = selected_tables
         self.analysis_steps = analysis_steps
         self.agent = agent
@@ -1557,6 +1574,109 @@ class GenerateReportThread(QThread):
         self.enable_streaming = enable_streaming  # Store streaming preference
         self.full_report = ""
         self.formatted_report = ""  # Inizializza qui la variabile
+
+    # ---------------------------------------------------------- LLM helpers
+
+    def _effective_config(self):
+        """Return the LLMConfig in use, building one from legacy fields if needed."""
+        if self.llm_config is not None:
+            return self.llm_config
+        return LLMConfig(
+            provider=LLMProvider.OPENAI,
+            model=self.selected_model or "gpt-4o-mini",
+            api_key=self.api_key or "",
+        )
+
+    def _make_chat_llm(self, max_tokens=4000, streaming=False):
+        """Build a LangChain chat LLM honouring the active provider.
+
+        OpenAI / Ollama / LM Studio share ``ChatOpenAI`` (the local servers
+        are OpenAI-compatible — we only override ``base_url``). For Anthropic
+        we use ``ChatAnthropic`` if available.
+        """
+        cfg = self._effective_config()
+        if cfg.provider == LLMProvider.ANTHROPIC:
+            try:
+                from langchain_anthropic import ChatAnthropic
+
+                return ChatAnthropic(
+                    model_name=cfg.model,
+                    api_key=cfg.api_key,
+                    max_tokens=max_tokens,
+                    streaming=streaming,
+                )
+            except ImportError:
+                self.log_message.emit(
+                    "langchain-anthropic non installato: fallback su OpenAI.", "warning"
+                )
+                cfg = LLMConfig(
+                    provider=LLMProvider.OPENAI,
+                    model=self.selected_model or "gpt-4o-mini",
+                    api_key=self.api_key or "",
+                )
+
+        from langchain_openai import ChatOpenAI
+
+        kwargs = dict(
+            model_name=cfg.model,
+            api_key=cfg.api_key or "not-needed",
+            max_tokens=max_tokens,
+            streaming=streaming,
+        )
+        # Local providers are OpenAI-compatible — point ChatOpenAI at them
+        if cfg.is_local:
+            kwargs["base_url"] = cfg.base_url
+        return ChatOpenAI(**kwargs)
+
+    def _get_embeddings(self):
+        """Return a LangChain Embeddings backed by the active provider.
+
+        Anthropic doesn't expose embeddings — we transparently fall back to
+        OpenAI in that case (the embeddings are only used for the FAISS index
+        and don't have to match the chat model).
+
+        For local providers (Ollama / LM Studio) we ALSO check that an
+        embedding model is actually loaded — many users load only a chat
+        model. If none, we fall back to OpenAI to avoid the cryptic
+        ``No models loaded`` 400 from ``/v1/embeddings``.
+        """
+        cfg = self._effective_config()
+        from langchain_openai import OpenAIEmbeddings
+
+        if cfg.provider == LLMProvider.ANTHROPIC:
+            return OpenAIEmbeddings(api_key=self.api_key)
+        if cfg.is_local:
+            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
+            if not embed_models:
+                self.log_message.emit(
+                    f"Nessun modello di embeddings caricato su {cfg.provider.value}: "
+                    "fallback su OpenAI per l'indice FAISS.",
+                    "warning",
+                )
+                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
+            return OpenAIEmbeddings(
+                api_key=cfg.api_key or "not-needed",
+                base_url=cfg.base_url,
+                model=embed_models[0],
+            )
+        return OpenAIEmbeddings(api_key=cfg.api_key or "not-needed")
+
+    def _provider_chat_completion(self, messages, max_tokens=4000, streaming=False):
+        """Direct chat completion through ``LLMProviderManager`` (no LangChain).
+
+        When ``streaming`` is true, each chunk is also forwarded via
+        ``stream_token`` so the UI updates live. Returns the full text.
+        """
+        cfg = self._effective_config()
+        full = ""
+        if streaming:
+            for chunk in LLMProviderManager.stream_chat(
+                cfg, messages, max_tokens=max_tokens
+            ):
+                full += chunk
+                self.stream_token.emit(chunk)
+            return full
+        return LLMProviderManager.chat(cfg, messages, max_tokens=max_tokens)
 
     def create_vector_db(self, data, table_name):
         """
@@ -1606,7 +1726,7 @@ class GenerateReportThread(QThread):
 
         # Create vector store
         try:
-            embeddings = OpenAIEmbeddings(api_key=self.api_key)
+            embeddings = self._get_embeddings()
             vector_store = FAISS.from_documents(texts, embeddings)
             return vector_store
         except Exception as e:
@@ -2737,14 +2857,9 @@ class GenerateReportThread(QThread):
                         use_streaming = self.enable_streaming
 
                         # Use appropriate token limit for RAG
-                        llm = ChatOpenAI(
-                            model_name=self.selected_model,
-                            api_key=self.api_key,
-                            max_completion_tokens=3500,  # Balanced: not too slow, not truncating content
-                            streaming=use_streaming,
-                            callbacks=[streaming_handler] if use_streaming else []
-                            # Note: temperature removed as GPT-5 doesn't support it
-                        )
+                        llm = self._make_chat_llm(max_tokens=3500, streaming=use_streaming)
+                        if use_streaming and hasattr(llm, "callbacks"):
+                            llm.callbacks = [streaming_handler]
 
                         # Create vector databases for large tables
                         vector_stores = {}
@@ -3041,35 +3156,14 @@ Provide detailed answers for each question, clearly numbered."""
 
                             # Use a direct call to the model with streaming if enabled
                             try:
-                                client = OpenAI(api_key=self.api_key)
-
-                                if self.enable_streaming:
-                                    # Use streaming API
-                                    response = client.chat.completions.create(
-                                        model=self.selected_model,
-                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                                  {"role": "user", "content": integration_prompt}],
-                                        max_completion_tokens=4000,
-                                        stream=True
-                                    )
-
-                                    # Collect streamed chunks
-                                    final_result = ""
-                                    for chunk in response:
-                                        if chunk.choices[0].delta.content is not None:
-                                            chunk_text = chunk.choices[0].delta.content
-                                            final_result += chunk_text
-                                            # Emit each chunk for real-time display
-                                            self.stream_token.emit(chunk_text)
-                                else:
-                                    # Non-streaming request
-                                    response = client.chat.completions.create(
-                                        model=self.selected_model,
-                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                                  {"role": "user", "content": integration_prompt}],
-                                        max_completion_tokens=4000
-                                    )
-                                    final_result = response.choices[0].message.content
+                                final_result = self._provider_chat_completion(
+                                    [
+                                        {"role": "system", "content": "You are an archaeological expert."},
+                                        {"role": "user", "content": integration_prompt},
+                                    ],
+                                    max_tokens=4000,
+                                    streaming=self.enable_streaming,
+                                )
                                 if final_result:
                                     result = final_result
                                 else:
@@ -3182,11 +3276,7 @@ Provide detailed answers for each question, clearly numbered."""
                             self.log_message.emit("Vector databases are stored in memory during the report generation process", "info")
 
                             # Initialize LLM for RAG with reduced tokens
-                            llm = ChatOpenAI(
-                                model_name=self.selected_model,
-                                api_key=self.api_key,
-                                max_completion_tokens=2000  # Reduced token count for safety
-                            )
+                            llm = self._make_chat_llm(max_tokens=2000, streaming=False)
 
                             # Identify large tables that need RAG
                             rag_tables = []
@@ -3265,32 +3355,15 @@ Provide detailed answers for each question, clearly numbered."""
                                 Keep your response concise and focused on the main points only.
                                 """
 
-                                # Use direct API call with streaming if enabled
-                                client = OpenAI(api_key=self.api_key)
-
-                                if self.enable_streaming:
-                                    response = client.chat.completions.create(
-                                        model=self.selected_model,
-                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                                  {"role": "user", "content": overview_prompt}],
-                                        max_completion_tokens=1000,
-                                        stream=True
-                                    )
-
-                                    overview_result = ""
-                                    for chunk in response:
-                                        if chunk.choices[0].delta.content is not None:
-                                            chunk_text = chunk.choices[0].delta.content
-                                            overview_result += chunk_text
-                                            self.stream_token.emit(chunk_text)
-                                else:
-                                    response = client.chat.completions.create(
-                                        model=self.selected_model,
-                                        messages=[{"role": "system", "content": "You are an archaeological expert."},
-                                                  {"role": "user", "content": overview_prompt}],
-                                        max_completion_tokens=1000
-                                    )
-                                    overview_result = response.choices[0].message.content
+                                # Use direct provider call (works for OpenAI/Ollama/LMStudio/Anthropic)
+                                overview_result = self._provider_chat_completion(
+                                    [
+                                        {"role": "system", "content": "You are an archaeological expert."},
+                                        {"role": "user", "content": overview_prompt},
+                                    ],
+                                    max_tokens=1000,
+                                    streaming=self.enable_streaming,
+                                )
                                 if overview_result:
                                     section_results.append(overview_result)
 
@@ -4430,14 +4503,12 @@ class RAGQueryDialog(QDialog):
         self.clear_button.clicked.connect(self.clear_query)
         button_layout.addWidget(self.clear_button)
 
-        # Model selection
-        self.model_combo = QComboBox()
-        self.model_combo.addItems([
-            "gpt-5.4-mini",
-            "gpt-5.5",
-        ])
-        button_layout.addWidget(QLabel(t['model_label']))
-        button_layout.addWidget(self.model_combo)
+        # Provider+model selection (OpenAI / Claude / Ollama / LM Studio).
+        # Replaces the previous OpenAI-only QComboBox.
+        self.llm_selector = LLMSelectorWidget(scope="rag_query", title=t.get('model_label', 'Provider AI'))
+        button_layout.addWidget(self.llm_selector)
+        # Backward-compat alias so old code paths can still call .currentText()
+        self.model_combo = self.llm_selector.model_combo
 
         # Add streaming checkbox
         self.streaming_checkbox = QCheckBox(t['streaming'])
@@ -4740,15 +4811,17 @@ class RAGQueryDialog(QDialog):
         # force_reload should only be True when explicitly requested (e.g., via a Refresh button)
         force_reload = False  # Cache will be used if data hasn't changed
 
+        cfg = self.llm_selector.get_config()
         self.query_thread = RAGQueryWorker(
             query=query,
             db_manager=self.db_manager,
-            api_key=api_key,
+            api_key=cfg.api_key or api_key,
             conversation_history=self.conversation_history,
-            model=self.model_combo.currentText(),
+            model=cfg.model or self.model_combo.currentText(),
             parent=self.parent,
             enable_streaming=self.streaming_checkbox.isChecked(),
-            force_reload=force_reload
+            force_reload=force_reload,
+            llm_config=cfg,
         )
 
         self.query_thread.result_ready.connect(self.handle_results)
@@ -5946,12 +6019,15 @@ class RAGQueryWorker(QThread):
         }
     }
 
-    def __init__(self, query, db_manager, api_key, model, conversation_history=None, parent=None, enable_streaming=True, force_reload=False):
+    def __init__(self, query, db_manager, api_key, model, conversation_history=None, parent=None, enable_streaming=True, force_reload=False, llm_config=None):
         super().__init__()
         self.query = query
         self.db_manager = db_manager
         self.api_key = api_key
         self.model = model
+        # Optional provider config; when set, _get_embeddings/_make_chat_llm
+        # use it. When None, falls back to OpenAI with self.api_key/model.
+        self.llm_config = llm_config
         self.conversation_history = conversation_history or []
         self.parent = parent
         self.enable_streaming = enable_streaming
@@ -5961,6 +6037,34 @@ class RAGQueryWorker(QThread):
         self._thumb_path = None
         self._thumb_resize = None
         self._load_media_paths()
+
+    def _effective_config(self):
+        if self.llm_config is not None:
+            return self.llm_config
+        saved = LLMProviderManager.resolve_config(scope="rag_query")
+        # If user has saved a non-OpenAI choice for the RAG dialog, honour it.
+        if saved.provider != LLMProvider.OPENAI:
+            return saved
+        return LLMConfig(provider=LLMProvider.OPENAI, model=self.model, api_key=self.api_key)
+
+    def _get_embeddings(self):
+        from langchain_openai import OpenAIEmbeddings
+
+        cfg = self._effective_config()
+        if cfg.provider == LLMProvider.ANTHROPIC:
+            return OpenAIEmbeddings(api_key=self.api_key)
+        if cfg.is_local:
+            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
+            if not embed_models:
+                # No embedding model loaded on the local server — fall back
+                # to OpenAI cloud so the FAISS index can still be built.
+                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
+            return OpenAIEmbeddings(
+                api_key=cfg.api_key or "not-needed",
+                base_url=cfg.base_url,
+                model=embed_models[0],
+            )
+        return OpenAIEmbeddings(api_key=cfg.api_key or self.api_key or "not-needed")
 
     def _load_media_paths(self):
         """Load media paths from config.cfg"""
@@ -6008,7 +6112,10 @@ class RAGQueryWorker(QThread):
                 if saved_hash != expected_hash:
                     return None
 
-            # Load the vectorstore
+            # Load the vectorstore. The embeddings object isn't actually
+            # called here (FAISS.load_local just deserializes the pickle), so
+            # this can't fail with an embedding error — but keep the same
+            # try/except shape used elsewhere for clarity.
             vectorstore = FAISS.load_local(
                 self.FAISS_INDEX_PATH,
                 embeddings,
@@ -6109,6 +6216,34 @@ class RAGQueryWorker(QThread):
             self.error_occurred.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.")
             return
 
+        # DIAGNOSTIC: log the resolved provider config so users (and devs)
+        # can tell which URL/model the LangChain calls will actually hit.
+        # Without this, a 400 from a misconfigured client looks identical to
+        # a 400 from the right server.
+        try:
+            _cfg = self._effective_config()
+            _embed_models = (
+                LLMProviderManager.discover_embedding_models(_cfg.provider)
+                if _cfg.is_local else []
+            )
+            _embed_path = (
+                f"local:{_cfg.base_url}|{_embed_models[0]}"
+                if _cfg.is_local and _embed_models
+                else "openai-cloud-fallback"
+                if _cfg.is_local
+                else f"openai-cloud|api-key-{'set' if (self.api_key or '') else 'missing'}"
+            )
+            print(
+                f"[AI Query] provider={_cfg.provider.value} "
+                f"chat_url={_cfg.base_url} chat_model={_cfg.model!r} "
+                f"embed_path={_embed_path}"
+            )
+            self.progress_update.emit(
+                f"AI: chat={_cfg.provider.value}/{_cfg.model} | embed={_embed_path}"
+            )
+        except Exception as _diag_e:
+            print(f"[AI Query] diagnostic failed: {_diag_e}")
+
         try:
             # Check if we can use cached data and vectorstore
             if (not self.force_reload and
@@ -6146,7 +6281,7 @@ class RAGQueryWorker(QThread):
                     texts = None  # Not needed when using cache
                 else:
                     # Initialize embeddings first (needed for both load and create)
-                    embeddings = OpenAIEmbeddings(api_key=self.api_key)
+                    embeddings = self._get_embeddings()
 
                     # Try to load vectorstore from disk first
                     if not self.force_reload:
@@ -6195,7 +6330,21 @@ class RAGQueryWorker(QThread):
                             self.error_occurred.emit("Impossibile creare documenti dai dati. Verifica i dati nel database.")
                             return
 
-                        vectorstore = FAISS.from_documents(documents, embeddings)
+                        # Wrap the embeddings call so a 400 from the wrong
+                        # endpoint gets a clear context message attached.
+                        try:
+                            vectorstore = FAISS.from_documents(documents, embeddings)
+                        except Exception as _emb_e:
+                            _cfg = self._effective_config()
+                            _embed_url = getattr(embeddings, "openai_api_base", None) or "openai-cloud"
+                            _embed_model = getattr(embeddings, "model", "(default)")
+                            print(
+                                f"[AI Query] Embeddings call failed at {_embed_url} "
+                                f"(model={_embed_model!r}): {_emb_e}"
+                            )
+                            raise type(_emb_e)(
+                                f"{_emb_e} [embed_url={_embed_url} embed_model={_embed_model!r}]"
+                            ) from _emb_e
 
                         # Cache the vectorstore in memory
                         RAGQueryWorker._cached_vectorstore = vectorstore
@@ -6209,15 +6358,35 @@ class RAGQueryWorker(QThread):
 
             self.progress_update.emit("Inizializzazione AI...")
 
-            # Initialize LLM. gpt-5.5 only supports default temperature; gpt-5.4* accepts custom values.
+            # Provider-aware LLM init. OpenAI / Ollama / LM Studio share
+            # ChatOpenAI (with base_url override for local). Anthropic uses
+            # ChatAnthropic; falls back to OpenAI if package missing.
+            cfg = self._effective_config()
             llm_kwargs = {
-                "model_name": self.model,
-                "api_key": self.api_key,
+                "model_name": cfg.model or self.model,
                 "max_completion_tokens": 4000,
             }
-            if self.model and not self.model.startswith("gpt-5.5"):
-                llm_kwargs["temperature"] = 0.1  # Low temperature for precise, factual responses
-            llm = ChatOpenAI(**llm_kwargs)
+            if cfg.provider == LLMProvider.ANTHROPIC:
+                try:
+                    from langchain_anthropic import ChatAnthropic
+                    llm = ChatAnthropic(
+                        model_name=cfg.model,
+                        api_key=cfg.api_key,
+                        max_tokens=4000,
+                    )
+                except ImportError:
+                    llm_kwargs["api_key"] = self.api_key or "not-needed"
+                    if self.model and not self.model.startswith("gpt-5.5"):
+                        llm_kwargs["temperature"] = 0.1
+                    llm = ChatOpenAI(**llm_kwargs)
+            else:
+                llm_kwargs["api_key"] = cfg.api_key or self.api_key or "not-needed"
+                if cfg.is_local:
+                    llm_kwargs["base_url"] = cfg.base_url
+                # Temperature: only set for non-gpt-5.5 (which only supports default)
+                if cfg.model and not cfg.model.startswith("gpt-5.5"):
+                    llm_kwargs["temperature"] = 0.1
+                llm = ChatOpenAI(**llm_kwargs)
 
             # Create tools for analysis
             tools = self.create_analysis_tools(data, vectorstore)
@@ -6541,13 +6710,19 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
 
                         # Use streaming if enabled
                         if self.enable_streaming and self.parent_thread:
-                            # Use OpenAI client directly for streaming
+                            # Use OpenAI client directly for streaming.
+                            # CRITICAL: re-use the base_url from the LangChain
+                            # LLM, otherwise the call defaults to api.openai.com
+                            # even when the user picked Ollama/LM Studio.
                             from openai import OpenAI
-                            # Get the actual API key value (it's a SecretStr in langchain)
                             api_key_value = self.llm.openai_api_key
                             if hasattr(api_key_value, 'get_secret_value'):
                                 api_key_value = api_key_value.get_secret_value()
-                            client = OpenAI(api_key=api_key_value)
+                            llm_base_url = getattr(self.llm, "openai_api_base", None)
+                            client = OpenAI(
+                                api_key=api_key_value or "not-needed",
+                                base_url=llm_base_url,
+                            )
 
                             response_stream = client.chat.completions.create(
                                 model=self.llm.model_name,
@@ -10210,6 +10385,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # Roughly 4 characters per token for English text
         return len(text) // 4
 
+    def _get_embeddings(self):
+        """Return embeddings honouring the provider chosen in QSettings ('us_report' scope).
+
+        For local providers (Ollama / LM Studio) we verify an embedding model
+        is actually loaded before pointing OpenAIEmbeddings there; otherwise
+        we fall back to OpenAI cloud to keep the FAISS index building.
+        Falls back to OpenAI with ``self.api_key`` if no preference is saved.
+        """
+        from langchain_openai import OpenAIEmbeddings
+
+        cfg = LLMProviderManager.resolve_config(scope="us_report")
+        if cfg.provider == LLMProvider.ANTHROPIC:
+            return OpenAIEmbeddings(api_key=self.api_key)
+        if cfg.is_local:
+            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
+            if not embed_models:
+                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
+            return OpenAIEmbeddings(
+                api_key=cfg.api_key or "not-needed",
+                base_url=cfg.base_url,
+                model=embed_models[0],
+            )
+        return OpenAIEmbeddings(api_key=cfg.api_key or self.api_key or "not-needed")
+
     def create_vector_db(self, data, table_name):
         """
         Create a vector database from the data for RAG approach.
@@ -10258,7 +10457,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         # Create vector store
         try:
-            embeddings = OpenAIEmbeddings(api_key=self.api_key)
+            embeddings = self._get_embeddings()
             vector_store = FAISS.from_documents(texts, embeddings)
             return vector_store
         except Exception as e:
@@ -11552,8 +11751,11 @@ DATABASE SCHEMA KNOWLEDGE:
             # self.progress_dialog.show()
 
             try:
-                # Step 9: Initialize OpenAI components
-                api_key = self.apikey_gpt()
+                # Step 9: Initialize LLM components — provider chosen in dialog
+                llm_config = dialog.get_llm_config()
+                # Backward-compat: ``api_key`` is still passed to the thread for
+                # paths that haven't yet been migrated (e.g. validation tools).
+                api_key = llm_config.api_key or self.apikey_gpt()
                 tools = self.create_analysis_tools(report_data, site_data, us_data, materials_data, pottery_data)
                 enhanced_tools = self.create_validation_tools(site_data, us_data, materials_data, pottery_data)
 
@@ -11562,12 +11764,40 @@ DATABASE SCHEMA KNOWLEDGE:
                 from langchain_openai import ChatOpenAI
                 from langchain.memory import ConversationSummaryMemory
 
-                llm = ChatOpenAI(
-                    model_name="gpt-5.4-mini",
-                    api_key=api_key,
-                    max_tokens=16000,
-                    streaming=False
-                )
+                # Build chat LLM honouring the chosen provider.
+                # OpenAI / Ollama / LM Studio share ChatOpenAI (with base_url
+                # override for local servers). Anthropic uses ChatAnthropic.
+                if llm_config.provider == LLMProvider.ANTHROPIC:
+                    try:
+                        from langchain_anthropic import ChatAnthropic
+                        llm = ChatAnthropic(
+                            model_name=llm_config.model,
+                            api_key=llm_config.api_key,
+                            max_tokens=16000,
+                            streaming=False,
+                        )
+                    except ImportError:
+                        QMessageBox.warning(
+                            self, "langchain-anthropic mancante",
+                            "Pacchetto langchain-anthropic non installato — "
+                            "fallback su OpenAI."
+                        )
+                        llm = ChatOpenAI(
+                            model_name="gpt-4o-mini",
+                            api_key=self.apikey_gpt(),
+                            max_tokens=16000,
+                            streaming=False,
+                        )
+                else:
+                    chat_kwargs = dict(
+                        model_name=llm_config.model or "gpt-4o-mini",
+                        api_key=llm_config.api_key or "not-needed",
+                        max_tokens=16000,
+                        streaming=False,
+                    )
+                    if llm_config.is_local:
+                        chat_kwargs["base_url"] = llm_config.base_url
+                    llm = ChatOpenAI(**chat_kwargs)
 
                 system_message = self.create_system_message()
                 # Using newer memory class to avoid deprecation warning
@@ -11646,7 +11876,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     custom_prompt=custom_prompt,
                     descriptions_text=descriptions_text,
                     api_key=api_key,
-                    selected_model="gpt-5.4-mini",
+                    selected_model=llm_config.model or "gpt-4o-mini",
                     selected_tables=selected_tables,
                     analysis_steps=self.analysis_steps,
                     agent=agent,
@@ -11660,7 +11890,8 @@ DATABASE SCHEMA KNOWLEDGE:
                     periodizzazione_data=periodizzazione_data,
                     struttura_data=struttura_data,
                     tma_data=tma_data,
-                    enable_streaming=dialog.get_streaming_enabled()
+                    enable_streaming=dialog.get_streaming_enabled(),
+                    llm_config=llm_config,
                 )
 
                 # Step 13: Connect signals and start thread

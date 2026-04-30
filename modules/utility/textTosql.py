@@ -6,13 +6,15 @@ from typing import Optional, Dict, Any
 from qgis.PyQt.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                                  QRadioButton, QGroupBox,
                                  QTextEdit, QLineEdit, QComboBox,
-                                 QSizePolicy, QSpacerItem, QMessageBox, 
+                                 QSizePolicy, QSpacerItem, QMessageBox,
                                  QProgressDialog, QLabel, QDialog, QPushButton,
                                  QInputDialog, QApplication)
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtCore import Qt, pyqtSignal, QObject
 
 from . import database_schema
+from .llm_providers import LLMConfig, LLMProvider, LLMProviderManager
+from .llm_selector_widget import LLMSelectorWidget
 
 
 class Text2SQLWidget(QWidget):
@@ -37,43 +39,9 @@ class Text2SQLWidget(QWidget):
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         main_layout.addWidget(title_label)
 
-        # Modalità di generazione
-        mode_group = QGroupBox("Modalità di Generazione")
-        mode_layout = QVBoxLayout()
-
-        # RadioButton per scelta modalità
-        self.openai_radio = QRadioButton("OpenAI GPT-5.4 (API configured)")
-        self.openai_radio.setChecked(True)
-        self.anthropic_radio = QRadioButton("Anthropic Claude 4.6 Sonnet (API già configurata)")
-        self.ollama_radio = QRadioButton("Ollama (modello locale)")
-        self.free_radio = QRadioButton("API gratuita (se disponibile)")
-
-        mode_layout.addWidget(self.openai_radio)
-        mode_layout.addWidget(self.anthropic_radio)
-        mode_layout.addWidget(self.ollama_radio)
-        mode_layout.addWidget(self.free_radio)
-
-        # Box per Ollama
-        ollama_layout = QHBoxLayout()
-        ollama_layout.addItem(QSpacerItem(20, 10, QSizePolicy.Fixed, QSizePolicy.Minimum))
-        ollama_layout.addWidget(QLabel("Modello Ollama:"))
-        self.ollama_model_combo = QComboBox()
-        self.ollama_model_combo.setEditable(True)
-        self.ollama_model_combo.addItems(["llama3.2", "mistral", "codellama", "phi3", "qwen2.5-coder"])
-        self.ollama_model_combo.setEnabled(False)
-        ollama_layout.addWidget(self.ollama_model_combo)
-        
-        self.ollama_status_label = QLabel("Stato: Non verificato")
-        ollama_layout.addWidget(self.ollama_status_label)
-        
-        self.check_ollama_btn = QPushButton("Verifica Ollama")
-        self.check_ollama_btn.clicked.connect(self.check_ollama_status)
-        self.check_ollama_btn.setEnabled(False)
-        ollama_layout.addWidget(self.check_ollama_btn)
-        
-        mode_layout.addLayout(ollama_layout)
-        mode_group.setLayout(mode_layout)
-        main_layout.addWidget(mode_group)
+        # Selettore unificato provider/modello (OpenAI, Claude, Ollama, LM Studio)
+        self.llm_selector = LLMSelectorWidget(scope="text2sql")
+        main_layout.addWidget(self.llm_selector)
 
         # Controlli per la generazione SQL
         input_group = QGroupBox("Input")
@@ -155,37 +123,6 @@ class Text2SQLWidget(QWidget):
         explanation_group.setLayout(explanation_layout)
         main_layout.addWidget(explanation_group)
 
-        # Connetti segnali
-        self.openai_radio.toggled.connect(self.on_mode_toggled)
-        self.anthropic_radio.toggled.connect(self.on_mode_toggled)
-        self.ollama_radio.toggled.connect(self.on_mode_toggled)
-        self.free_radio.toggled.connect(self.on_mode_toggled)
-
-    def on_mode_toggled(self):
-        """Gestisce il cambio di modalità"""
-        ollama_mode = self.ollama_radio.isChecked()
-        self.ollama_model_combo.setEnabled(ollama_mode)
-        self.check_ollama_btn.setEnabled(ollama_mode)
-        
-    def check_ollama_status(self):
-        """Verifica lo stato di Ollama"""
-        from .textTosql import MakeSQL
-        
-        if MakeSQL.check_ollama_status():
-            self.ollama_status_label.setText("Stato: Connesso")
-            self.ollama_status_label.setStyleSheet("color: green;")
-            # Aggiorna la lista dei modelli disponibili
-            models = MakeSQL.get_ollama_models()
-            if models:
-                self.ollama_model_combo.clear()
-                self.ollama_model_combo.addItems(models)
-        else:
-            self.ollama_status_label.setText("Stato: Non disponibile")
-            self.ollama_status_label.setStyleSheet("color: red;")
-            QMessageBox.warning(self, "Ollama non disponibile", 
-                              "Ollama non è in esecuzione o non è installato.\n"
-                              "Installa Ollama da https://ollama.ai e assicurati che sia in esecuzione.")
-
     def on_generate_clicked(self):
         """Gestisce il click sul pulsante di generazione"""
         from .textTosql import MakeSQL
@@ -198,26 +135,9 @@ class Text2SQLWidget(QWidget):
         # Ottieni il tipo di database
         db_type = self.db_type_combo.currentText()
 
-        # Genera SQL in base alla modalità selezionata
-        if self.openai_radio.isChecked():
-            # Modalità OpenAI
-            sql_query, explanation = MakeSQL.make_openai_request(prompt, db_type, self.parent)
-
-        elif self.anthropic_radio.isChecked():
-            # Modalità Anthropic Claude
-            sql_query, explanation = MakeSQL.make_anthropic_request(prompt, db_type, self.parent)
-
-        elif self.ollama_radio.isChecked():
-            # Modalità Ollama
-            model = self.ollama_model_combo.currentText()
-            sql_query, explanation = MakeSQL.make_ollama_request(prompt, db_type, model, self)
-
-        elif self.free_radio.isChecked():
-            # Modalità API gratuita (da implementare)
-            QMessageBox.information(self, "Non disponibile",
-                                  "Le API gratuite non sono ancora implementate.\n"
-                                  "Usa OpenAI, Anthropic o Ollama per ora.")
-            return
+        # Provider unico: il selettore decide chi chiamare
+        cfg = self.llm_selector.get_config()
+        sql_query, explanation = MakeSQL.make_query(prompt, db_type, cfg, self)
 
         # Mostra il risultato
         if sql_query:
@@ -241,15 +161,9 @@ class Text2SQLWidget(QWidget):
         if not sql_query:
             return
 
-        # Spiega SQL in base alla modalità selezionata
-        if self.openai_radio.isChecked():
-            # Modalità OpenAI
-            explanation = MakeSQL.explain_openai_request(sql_query, self.parent)
-            
-        elif self.ollama_radio.isChecked():
-            # Modalità Ollama
-            model = self.ollama_model_combo.currentText()
-            explanation = MakeSQL.explain_ollama_request(sql_query, model, self)
+        # Spiegazione: usa lo stesso provider scelto dall'utente
+        cfg = self.llm_selector.get_config()
+        explanation = MakeSQL.explain_query(sql_query, cfg, self)
 
         # Mostra il risultato
         if explanation:
@@ -795,6 +709,109 @@ Explanation in Italian:"""
                 clean_lines.append(line)
         
         return '\n'.join(clean_lines).strip()
+
+    @staticmethod
+    def make_query(prompt, db_type, config: 'LLMConfig', parent=None):
+        """Genera SQL usando qualunque provider (OpenAI/Anthropic/Ollama/LM Studio).
+
+        Ritorna (sql_query, explanation). Il prompt di sistema è uguale per
+        tutti i provider — l'unica differenza è il client che lo serve.
+        """
+        if not config.model:
+            QMessageBox.warning(parent, "Modello mancante",
+                                "Seleziona un modello nel selettore LLM.")
+            return None, None
+        if config.needs_api_key and not config.api_key:
+            QMessageBox.warning(
+                parent, "API key mancante",
+                f"Manca l'API key per {config.provider.value}.\n"
+                "Inseriscila nel selettore LLM e riprova."
+            )
+            return None, None
+
+        schema_text = MakeSQL.schema_to_text(database_schema.get_metadata())
+        system_prompt = (
+            "Sei un esperto di SQL e database archeologici PyArchInit.\n"
+            f"Database type: {db_type}\n\n{schema_text}\n\n"
+            "Regole importanti:\n"
+            "1. Genera SOLO la query SQL, senza commenti o formattazione markdown\n"
+            "2. La query deve essere eseguibile direttamente\n"
+            "3. Per query geometriche usa le funzioni PostGIS/Spatialite appropriate\n"
+            "4. Considera sempre il contesto archeologico dei dati\n"
+            "5. Dopo la query, su una nuova riga preceduta da \"---\", "
+            "fornisci una spiegazione dettagliata in italiano di cosa fa la query, "
+            "con esempi di risultati attesi"
+        )
+
+        progress = QProgressDialog(
+            f"Generazione SQL con {config.provider.value} ({config.model}) in corso...",
+            "Annulla", 0, 0, parent,
+        )
+        progress.setWindowTitle("Attendi")
+        progress.setWindowModality(Qt.WindowModal)
+        progress.show()
+        QApplication.processEvents()
+
+        try:
+            content = LLMProviderManager.chat(
+                config,
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=1500,
+                temperature=0.1,
+            )
+        except Exception as e:
+            progress.close()
+            QMessageBox.critical(parent, "Errore LLM", f"Errore {config.provider.value}: {e}")
+            return None, None
+        finally:
+            progress.close()
+
+        if not content:
+            return None, None
+
+        if "---" in content:
+            parts = content.split("---", 1)
+            sql_query = parts[0].strip()
+            explanation = parts[1].strip() if len(parts) > 1 else ""
+        else:
+            sql_query = content.strip()
+            explanation = ""
+
+        sql_query = MakeSQL.clean_sql_query(sql_query)
+        return sql_query, explanation
+
+    @staticmethod
+    def explain_query(sql_query, config: 'LLMConfig', parent=None):
+        """Spiega una query SQL usando il provider configurato."""
+        if not config.model:
+            return None
+        if config.needs_api_key and not config.api_key:
+            return None
+
+        system_prompt = (
+            "Sei un esperto di SQL e database archeologici. "
+            "Spiega la query SQL fornita in modo chiaro e dettagliato in italiano. Includi:\n"
+            "1. Cosa fa ogni parte della query\n"
+            "2. Quali tabelle vengono interrogate\n"
+            "3. Quali filtri vengono applicati\n"
+            "4. Che tipo di risultati ci si può aspettare\n"
+            "5. Esempi concreti nel contesto archeologico"
+        )
+        try:
+            return LLMProviderManager.chat(
+                config,
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Spiega questa query SQL:\n{sql_query}"},
+                ],
+                max_tokens=1000,
+                temperature=0.3,
+            )
+        except Exception as e:
+            return f"Errore nella spiegazione: {e}"
 
     @staticmethod
     def make_api_request(prompt, db, apikey):

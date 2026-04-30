@@ -5,6 +5,11 @@ from qgis.PyQt.QtWidgets import *
 import socket
 # OpenAI import removed to avoid pydantic conflicts - will be imported lazily in generate_report_with_openai
 from modules.utility.report_text_cleaner import ReportTextCleaner
+from modules.utility.llm_providers import (
+    LLMConfig,
+    LLMProvider,
+    LLMProviderManager,
+)
 
 
 class ReportGenerator(QWidget):
@@ -41,44 +46,70 @@ class ReportGenerator(QWidget):
         for i in range(0, len(data), chunk_size):
             yield data[i:i + chunk_size]
 
-    def generate_report_with_openai(self, prompt_completo, modello_selezionato, apikey):
-        '''
-        Usa l'API di OpenAI per generare un report basato sul prompt combinato e le descrizioni.
-        '''
-        # Lazy import to avoid pydantic conflicts
-        try:
-            from openai import OpenAI
-        except ImportError as e:
-            error_msg = f"Cannot import OpenAI: {str(e)}\n\nPlease install: python -m pip install --upgrade openai pydantic pydantic-core"
-            QMessageBox.warning(None, "OpenAI Import Error", error_msg, QMessageBox.Ok)
-            return "Error: Could not load OpenAI library"
+    def generate_report(self, prompt_completo, config: LLMConfig):
+        """
+        Generate a report using any supported LLM provider (OpenAI, Anthropic,
+        Ollama, LM Studio).
 
-        client= OpenAI(api_key=apikey)
+        ``config`` is built by ``LLMSelectorWidget`` and tells us which
+        provider/model/key to use. Streaming is uniform across providers
+        thanks to ``LLMProviderManager.stream_chat``.
+        """
+        if not config.model:
+            QMessageBox.warning(
+                None,
+                "Modello mancante",
+                "Nessun modello selezionato. Apri il selettore LLM e scegline uno.",
+                QMessageBox.Ok,
+            )
+            return "Error: no model configured"
 
-        response = client.chat.completions.create(
-            model=modello_selezionato,
-            messages=[
-                {"role": "user", "content": prompt_completo}
-            ],
-            stream=True,
-            #max_tokens=ReportGenerator.MAX_TOKENS
-        )
+        if config.needs_api_key and not config.api_key:
+            QMessageBox.warning(
+                None,
+                "API key mancante",
+                f"Manca l'API key per {config.provider.value}.",
+                QMessageBox.Ok,
+            )
+            return "Error: missing API key"
 
         messaggio_combinato = "\n "
-
         try:
-            for chunk in response:
-                delta_content = chunk.choices[0].delta.content
-                if delta_content is not None:
-                    messaggio_combinato += delta_content
-
+            for chunk in LLMProviderManager.stream_chat(
+                config,
+                messages=[{"role": "user", "content": prompt_completo}],
+            ):
+                messaggio_combinato += chunk
+        except ImportError as e:
+            QMessageBox.warning(
+                None,
+                "LLM Import Error",
+                f"Libreria mancante per il provider scelto: {e}",
+                QMessageBox.Ok,
+            )
+            return "Error: Could not load LLM library"
         except Exception as e:
             print(f"Errore nel processo di stream: {e}")
+            QMessageBox.warning(
+                None,
+                "Errore LLM",
+                f"Errore durante la generazione del report:\n{e}",
+                QMessageBox.Ok,
+            )
 
-        # Clean the generated text before returning
-        messaggio_combinato = ReportTextCleaner.clean_report_text(messaggio_combinato)
+        return ReportTextCleaner.clean_report_text(messaggio_combinato)
 
-        return messaggio_combinato
+    def generate_report_with_openai(self, prompt_completo, modello_selezionato, apikey):
+        """
+        Backward-compatible wrapper. Existing callers still work, but new
+        code should call ``generate_report(prompt, LLMConfig(...))``.
+        """
+        config = LLMConfig(
+            provider=LLMProvider.OPENAI,
+            model=modello_selezionato,
+            api_key=apikey,
+        )
+        return self.generate_report(prompt_completo, config)
 
     @staticmethod
     def is_connected():
