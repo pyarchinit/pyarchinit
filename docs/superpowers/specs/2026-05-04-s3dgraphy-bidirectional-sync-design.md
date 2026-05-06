@@ -1,10 +1,12 @@
 # PyArchInit ↔ s3dgraphy ↔ Datacenter — Bidirectional Knowledge Graph Sync
 
 **Spec date:** 2026-05-04
+**Last updated:** 2026-05-06 (aligned with Emanuel Demetrescu's T5.4 Reference Document v0.1, 2026-05-06)
 **Author:** Enzo (with brainstorming session)
-**Status:** Design proposal, awaiting review
+**Status:** Design proposal — direction confirmed in StratiGraph WP5/T5.4 meeting (2026-05-04) and consolidated in T5.4 Reference Document v0.1 (2026-05-06)
 **Target plugin version:** 5.1.0-alpha
 **Target s3dgraphy version:** 0.1.40 (currently bundled: 0.1.30, system pip: 0.1.15)
+**Target Extended Matrix version:** **EM 1.5** (PyArchInit currently hard-codes EM 1.4 — see §2.1.A); EM 1.6 in pipeline (building archaeology + working-units-on-surfaces) — arrives as JSON entries, no code change needed
 
 ## 1. Overview
 
@@ -36,9 +38,259 @@ PyArchInit without code changes.
 | D7 | URI strategy | UUID v7 stored in DB column `node_uuid` + human-readable `semantic_id` URI as label |
 | D8 | Vocabulary divergence | Migrate `USVA/USVB → USVs`, `USVC → USVn` one-shot; align `pyarchinit_i18n_stratigraphic.py` to s3dgraphy abbreviations |
 
+## 2.1 Alignment with T5.4 meeting (2026-05-04)
+
+Source: `SC1_StratiGraph_T5.4_MeetingNotes_20260504.pdf` (Emanuel Demetrescu,
+Enzo Cocca, Luca Mandolesi). The meeting validated the spec direction and
+added five clarifications, captured here as first-class design constraints.
+
+### A. EM version: 1.4 → 1.5 via dynamic JSON loading
+
+PyArchInit currently hard-codes the **EM 1.4** stratigraphic-unit type list
+inside `pyarchinit_i18n_stratigraphic.py` and similar helpers. The current
+released Extended Matrix language is **EM 1.5**, and s3dgraphy ships the
+authoritative type catalogue as JSON files inside its package. The
+`VocabProvider` (§3.1) replaces the hard-coded list with a dynamic read of
+those JSONs, so future EM releases (1.6, 1.7, …) are picked up by bumping the
+s3dgraphy dependency — no PyArchInit code change.
+
+This satisfies meeting action item **AI02** (Enzo Cocca, iterative).
+
+### B. Property-graph layer first; CIDOC-CRM / triple-store deferred to WP3
+
+s3dgraphy today exposes a **property-graph** representation: each node is a
+small typed record (human ID, 16-digit machine UID, minimal description,
+typed properties). This is the layer used by Heriverse and Blender + EM-tools
+**today** and is the contract PyArchInit will speak.
+
+The **triple-store / CIDOC-CRM** representation is the machine-actionable
+form required by the European Collaborative Cloud (EOSC). Mapping property
+values to CIDOC-CRM entities (e.g. *who took this photo on the morning of 4
+May during the excavation*) is the typical interoperability bottleneck and is
+being developed under **WP3** as the "intermediate body" between
+property-graph payloads and triples. **It is not a blocker for T5.4.**
+
+Implication for the phasing in §11: phases 1–3 target the property-graph
+layer only. The `GraphDBBackend` (phase 4) is implemented against SPARQL
+1.1, but the CIDOC-CRM mapping it consumes is the WP3 deliverable, not a
+PyArchInit-side artefact. PyArchInit ships with a placeholder mapping file
+sufficient for tests; the production mapping arrives via WP3.
+
+### C. Delegate the GraphML writer to s3dgraphy
+
+s3dgraphy already ships an **always-up-to-date GraphML writer** that tracks
+the latest Extended Matrix version. PyArchInit currently maintains its own
+`.xml` template embedding EM-compliant nodes; this duplicate writer is
+**dropped**. The `GraphProjector` (§3.2) builds the in-memory s3dgraphy
+graph and delegates serialisation to `s3dgraphy.exporter.graphml_exporter` (or
+the equivalent symbol exposed in 0.1.40). Every new EM release reduces, on
+the PyArchInit side, to bumping the s3dgraphy version pin.
+
+This satisfies meeting action item **AI03** (Enzo Cocca, iterative). The
+internal `.xml` writer file becomes a deprecated shim for one release cycle,
+then is removed.
+
+### D. Two-level validation (data entry + egress)
+
+| Layer | Where | What it validates | When |
+|---|---|---|---|
+| **Data entry** | PyArchInit's existing US-relations validator (`tabs/US_USM.py` and friends) | Invalid relations, missing reciprocal relations, periodisation gaps, paradoxes | Live, while the user fills the US form |
+| **Egress** | s3dgraphy, before any push to the central knowledge graph | Node-type schema (mandatory fields, datatypes), relation legality (e.g. *an actor cannot cut a USM*), visual-rule coverage | At `SyncEngine.push()` time, before the network call |
+
+The two layers are complementary, not redundant: PyArchInit's validator
+catches author mistakes early in a familiar UI; s3dgraphy's validator
+guarantees that whatever reaches the knowledge graph satisfies the EM
+formalism. Failures from the egress layer surface in the
+`ConflictResolver` flow as 422 responses (§6.3, §8).
+
+### E. Schema-as-data: s3dgraphy JSON catalogues
+
+s3dgraphy externalises its formalism into JSON files shipped inside its
+Python package. Three catalogues drive every consumer (PyArchInit, Heriverse,
+Blender + EM-tools, tropi, FieldOS-style exports):
+
+| File (canonical name in s3dgraphy 0.1.40) | Content | Consumed by `VocabProvider` for |
+|---|---|---|
+| `node_datamodel.json` (a.k.a. *nodes JSON*) | Every EM node type (US, USM, epochs, images, actors/authors, USVn/USVs, …): mandatory fields, accepted fields, datatypes, metadata | Combo-box population, schema validation, family classification |
+| `connections_datamodel.json` (a.k.a. *relations JSON*) | Every legal relation between node types (e.g. *US is_after US* allowed; *Actor cuts USM* refused) | Edge-type combo, egress validation |
+| Visual rules JSON (icons, colours, 3D logo file per node type) | Rendering metadata for any tool that wants to display an EM node | Future Harris-matrix and 3D-preview integrations; not consumed by data forms |
+
+When the EM community adds a new node type (the example raised in the
+meeting was an extension proposed by Knut, Korea), updating the JSONs in a
+new s3dgraphy release is sufficient: every consuming tool — PyArchInit
+included — picks up the new type without code changes. The
+`VocabProvider`'s file-system watcher and `vocabulary_changed` signal close
+the loop on the PyArchInit side.
+
+### F. Function naming alignment with Blender + EM-tools
+
+The Blender + EM-tools chain already uses two macro-functions at the
+graph/tabular boundary: `populate_graph` (tables → in-memory graph) and
+`populate_list` (graph → tables). PyArchInit adopts **the same names** for
+the symmetric pair on the SQL side, even though PyArchInit's "list" is a
+multi-table SQL fan-out rather than a Blender list. Keeping the names
+identical lowers the cognitive cost for users moving between the two
+ecosystems and makes the bridge symmetry explicit in the code.
+
+| Direction | s3dgraphy + PyArchInit symbol | Implemented by |
+|---|---|---|
+| PyArchInit tables → in-memory s3dgraphy graph | `populate_graph(...)` | `GraphProjector` (§3.2) |
+| In-memory s3dgraphy graph → PyArchInit tables | `populate_list(...)` | New `GraphIngestor` module (added in §3.7 below) |
+
+UID semantics confirmed during the meeting: PyArchInit's per-record UID is
+re-used as the s3dgraphy `EMid` (the GraphML attribute name on every node).
+Collision means *same entity* and drives an **update**; absence drives a
+**create**. This is the same hybrid "stable UUID + readable label" rule
+formalised in §4.3 — the meeting just fixed the GraphML attribute name as
+`EMid`.
+
+This satisfies meeting action items **AI04** (bridge prototype) and **AI05**
+(macro-function adoption).
+
+## 2.2 Alignment with T5.4 Reference Document v0.1 (2026-05-06)
+
+Source: `~/Downloads/T5.4_PyArchInit_s3Dgraphy_Reference_v0.1.pdf` — editor
+Emanuel Demetrescu (CNR-ISPC, T5.4 Chair). Building on Enzo's proposal of
+2026-05-05 and the meeting minutes of 2026-04-28 + 2026-05-04. Status: Draft
+for partner review (Athena RC / FS Engineering–Italferr / WP3-WP4).
+
+The reference document **confirms in full** the four substantive points of
+§2.1 (validation in s3dgraphy, GraphML writer delegated, property-graph
+first / CIDOC-CRM in WP3, identity aligned via `EMid` ↔ `node_uuid`) and
+introduces five clarifications that we fold into this spec.
+
+### G. Three JSON pillars, individually versioned
+
+| File (in `ext_libs/s3dgraphy/JSON_config/`) | Content | v0.1 reference version | Currently bundled |
+|---|---|---|---|
+| `s3Dgraphy_node_datamodel.json` | All EM node types (stratigraphic, temporal, group, paradata, reference, visualisation, rights). Per type: class, parent, mandatory/optional properties, datatypes, mapping hints | 1.5.2 | 1.5.1 (in 0.1.30) |
+| `s3Dgraphy_connections_datamodel.json` | All legal edge types and (source, target) node-type pairs — **36 edge types** in 1.5.4: `is_after`, `cuts`, `fills`, `overlies`, `abuts`, `is_bonded_to`, `changed_from`, … | 1.5.4 | (verify on 0.1.40 vendor) |
+| `em_visual_rules.json` | Per node type: icon, fill/stroke colour, palette, 3D logo file. Plus document-role and content-nature visual variants | EM 1.5.0 | (verify on 0.1.40 vendor) |
+| `em_qualia_types.json` (+ `_additions`) | Paradata sub-graphs vocabulary | — | bundled |
+| `em_extractor_types.json` | Source-of-evidence node types | — | bundled |
+| `em_document_types.json` | Document taxonomy | — | bundled |
+
+The three pillars evolve independently with their own version field; client
+tools can pin a minimum version on the one they care about. `VocabProvider`
+exposes each version separately and rejects loads of files older than the
+configured minimum, surfacing a banner in the QGIS log so users know which
+EM features are temporarily unavailable.
+
+The mapping `mappings/pyarchinit/pyarchinit_us_mapping.json` already exists
+inside the s3dgraphy package and is the contract `GraphProjector` consumes;
+per §7 of the reference document, **CNR-ISPC commits to keeping it
+co-evolving with the `Stratigraph_00001` branch of pyarchinit**, so we have
+a stable reference contract throughout T5.4 implementation.
+
+### H. Consumption model: Option B (per-tool parsing) preferred — Option A coexists
+
+The reference document (§4.5) raises the question of how the JSON configs
+reach client tools. Two patterns are on the table:
+
+| Option | What it means | Trade-off |
+|---|---|---|
+| **A — library-internal loading** | s3dgraphy parses the JSONs at import time, exposes a typed Python (and twin JS) API: `list_stratigraphic_types()`, `legal_edges_from(node_type)`, `visual_style_for(node_type)`. Clients never see the JSON | Narrow contract, schema cost shifts into the library |
+| **B — per-tool parsing** | The JSONs are the public artefact; each tool parses them on its own to feed combo boxes, DB entries, palettes. Library still owns validation + serialisation | Forces every developer to look at the JSON once and form a clear mental model — fewer integration surprises |
+
+**CNR-ISPC's preference is Option B**, and the two patterns can coexist
+(library may still load JSON internally for its own use). For PyArchInit
+this means the `VocabProvider` parses the JSON files **directly** rather
+than wrapping a typed s3dgraphy API. The contract is the JSON itself —
+guaranteed stable per Emanuel's commitment in §7.1 of the reference
+document (top-level file names and top-level keys are public API; renames
+deprecated one minor version in advance with a migration shim).
+
+This simplifies the §3.1 `VocabProvider` design: no dependency on
+unreleased typed APIs, no version coupling beyond the JSON file shape.
+
+### I. EM 1.6 in pipeline — building archaeology + working units on surfaces
+
+§4.3 of the reference document announces two EM 1.6 vocabulary axes that
+land **as JSON entries**, not as s3dgraphy code changes:
+
+- **Building archaeology**: complete unit set for upstanding architecture,
+  including *neutral* stratigraphic units that record architectural
+  reservations — doors, windows, niches: voids in masonry that are part of
+  the design but not active stratigraphic events.
+- **Working units on object surfaces**: `UL` / `WorkingUnit` will be
+  augmented to model traces of working *on the surface of* artefacts and
+  architectural elements (currently trialled in the Basilica Iulia
+  dataset).
+
+Implication for our migration plan: when `VocabProvider` is in place
+(post-AI02), bumping s3dgraphy from 0.1.40 to whatever ships EM 1.6 makes
+all these new types appear in PyArchInit combo boxes with **zero code
+change**. The migration `USVA/USVB → USVs`, `USVC → USVn` (§4.4) is the
+last one-shot vocabulary migration we expect.
+
+### J. Synchronisation policy — last-writer-wins, but timestamps deferred
+
+§5 of the reference document is the **only point where the answer
+requested by my proposal is "not yet settled on our side either"**.
+
+| Aspect | State | Implication for PyArchInit |
+|---|---|---|
+| Identity policy | **Settled.** s3dgraphy assigns UUID v7 on first read of any GraphML node lacking one; collision = same entity, absence = create new. PyArchInit's per-record UID lines up exactly | No migration needed beyond §4.3's UUID-as-`EMid` policy already in this spec |
+| Conflict UX (draft) | Last-writer-wins with user notification: pop-up + hook PyArchInit subscribes to | `ConflictResolver` (§3.7) implements this contract; both pyarchinit and EM-tools surface the same notification UX |
+| Modification timestamps | **Open.** Property graph has no `updated_at` per node today. Adding it naively risks duplicating triple-store provenance (PROV-O / CRMdig). Decision waits for PSNC-side KG revision-time encoding | Phase 1–3 work against `EMid`-only identity + opt-in conflict callback that, in absence of timestamps, simply asks the user. Stronger heuristic added later without API change |
+| Locked-down at | AI08 resync (post-PyArchInit-team review of s3dgraphy sources + Volterra ~1500 US smoke test) | Drives concrete `ConflictResolver` policy + decides whether timestamp lives on node, paradata sub-node, or graph-level revision record |
+
+This **unblocks Phase 1–3** of the roadmap (§11): we ship the bridge with
+the simplest possible conflict callback (call user, they decide). The
+timestamp-based heuristic gets added to `ConflictResolver` after AI08
+without changing the public API.
+
+### K. Division of responsibilities — explicit contract
+
+§6 of the reference document fixes the ownership table that informs every
+component split in §3 of this spec. Reproduced here for traceability:
+
+| Concern | Owned by s3dgraphy | Owned by PyArchInit |
+|---|---|---|
+| EM formalism (node/edge types, legal relations, visual rules) | Authoritative — served as JSON, versioned per file | Consumer — reads via `VocabProvider` |
+| GraphML serialisation | Authoritative writer, always EM-current | Delegated — internal `.xml` template retired |
+| Validation at egress (graph → KG) | Authoritative — enforces JSON schema | Optional friendly validation at form time stays as is |
+| Identity (`EMid` / per-record UID) | Generates UUID v7 on first read where missing | Stores UID on every record (already in place) |
+| Sync policy (last-writer-wins, conflict UX) | Provides conflict callback + notification primitive | Subscribes to callback; surfaces it in QGIS |
+| Triple-store I/O + CIDOC-CRM mapping | Will own once next s3dgraphy release lands; coordinated with WP3 | None — bridge writes through s3dgraphy when available |
+| Tabular ingestion (forms, US/USM cards, geometries, photos) | None — s3dgraphy reads PyArchInit through existing mapping | Authoritative |
+| 2D georeferenced refinement of data produced elsewhere | Provides absolute coordinates verbatim | Authoritative — `populate_list` writes back into QGIS layers |
+
+### L. Georeferencing — out-of-the-box compatible
+
+§4.4 of the reference document confirms that PyArchInit's QGIS-native
+absolute coordinates (EPSG-coded) travel **verbatim** through the s3dgraphy
+graph — nothing to convert, nothing to invent. PDF cards and 2D
+georeferenced views generated by PyArchInit consume the same payload that
+Heriverse reads in 3D.
+
+The complementary case — 3D models and proxy positions in *local*
+coordinates with a separate shift vector — is acknowledged as a real
+concern for Blender + EM-tools but **out of scope for the PyArchInit ↔
+s3dgraphy contract**, to be revisited later in T5.4 when (and only when) it
+becomes load-bearing.
+
+### M. New node types from real datasets — encouraged
+
+§4.2 of the reference document explicitly anticipates that, working with
+real Adarte datasets, we will surface the need for one or more node types
+that s3dgraphy does not yet ship. *"That is a good outcome, not a problem."*
+The same already happens on the EM-tools side (e.g. excavation photographs
+as first-class graph nodes in the Basilica Iulia case study).
+
+The contract: such additions are **JSON pull requests against the
+s3dgraphy package**, not pyarchinit-side ad-hoc additions. After the PR
+merges, every consumer (pyarchinit, EM-tools, Heriverse) sees the new type
+without a code change.
+
+This shifts our discovery work in Phase 2/3: when GraphProjector encounters
+an unmapped pyarchinit field, the right action is to draft a JSON PR
+against `s3dgraphy_node_datamodel.json` upstream rather than to extend the
+mapping locally.
+
 ## 3. Components
 
-Six modules under `modules/s3dgraphy/sync/`. None of them blocks the
+Seven modules under `modules/s3dgraphy/sync/`. None of them blocks the
 existing plugin functionality — all sync work happens in a `QThread`, and a
 feature flag (`QSettings("pyarchinit/sync_enabled", False)`) disables the
 whole subsystem leaving the plugin's pre-sync behavior intact.
@@ -125,7 +377,46 @@ Transport abstraction. Concrete backends:
 Auth via `IAuthProvider`: phase 1 API key, phase 2 OAuth 2.0 device flow.
 Configuration in QGIS Settings → PyArchInit → Datacenter dialog.
 
-### 3.6 `ConflictResolver`
+### 3.6 `GraphIngestor` (read-back path — `populate_list`)
+
+The symmetric counterpart of `GraphProjector`. Takes an in-memory s3dgraphy
+graph (built by s3dgraphy from any input format: GraphML, central knowledge
+graph response, Heriverse JSON, Excel, tropi export, …) and writes/updates
+the PyArchInit SQL tables.
+
+```python
+class GraphIngestor:
+    def populate_list(
+        self,
+        graph: 's3dgraphy.Graph',
+        *,
+        site_filter: str | None = None,
+        dry_run: bool = False,
+    ) -> IngestResult: ...
+```
+
+Decision rule per node, driven by `node.EMid` ↔ `node_uuid` collision
+(§4.3):
+
+| Match in DB? | Local row newer than graph node? | Action |
+|---|---|---|
+| No | — | INSERT new row (preserve `node_uuid = EMid`) |
+| Yes | No (graph wins) | UPDATE columns covered by the s3dgraphy mapping |
+| Yes | Yes (DB wins) | Skip; surface in `IngestResult.skipped` for user review |
+| Yes | Tie (same `updated_at`) | Skip; defer to `ConflictResolver` if the user requests reconciliation |
+
+`GraphIngestor` never touches columns outside the s3dgraphy mapping
+(`pyarchinit_us_mapping.json` and friends): user-only fields like internal
+notes, photo captions, and Soprintendenza-specific metadata are preserved
+verbatim. This is what makes Scenario B of the meeting (PyArchInit as a
+**full participant**, refining 2D plans/elevations on top of 3D-derived
+data) safe.
+
+Used by `SyncEngine.pull()` (§3.4) but also exposed as a standalone
+"Import GraphML / EM project" menu entry, so the read-back path is usable
+even before the datacenter side ships.
+
+### 3.7 `ConflictResolver`
 
 Receives `MergeResult` from `GraphMerger`. Applies per-node-type policy
 (see section 6.4). For nodes that require user intervention, opens a Qt dialog
@@ -181,6 +472,14 @@ node.local_label = "US 24"                                   # localized
 The `node_uuid` is the sync key. The `semantic_id` is regenerated from
 current site/area/us values, used for debug, and free to change when records
 are renamed.
+
+**GraphML attribute name.** When the in-memory graph is serialised to
+GraphML by s3dgraphy (§7.6 below), `node.id` lands on every node under the
+attribute name `EMid` (Extended-Matrix id). This is the wire-level
+identifier seen by every other tool in the chain (Heriverse, Blender +
+EM-tools, tropi, FieldOS exports). PyArchInit's `node_uuid` and s3dgraphy's
+`EMid` are **the same value with two names** depending on the layer; no
+mapping table is needed.
 
 For paradata-only nodes: the `ParadataStore` generates the UUID v7 at
 creation; `semantic_id` follows the same scheme:
@@ -434,7 +733,26 @@ Total estimate: ~2-3 days refactor + 1-2 days tests = 1 person-week.
 All scripts support `--dry-run`, `--apply`, `--rollback`. Accessible via
 QGIS menu → PyArchInit → Maintenance → Migrations.
 
-### 7.6 Rollback
+### 7.6 Drop the in-house GraphML writer (delegate to s3dgraphy)
+
+Per meeting decision §2.1.C, the EM-compliant `.xml` template currently used
+by PyArchInit's GraphML writer is **superseded** by s3dgraphy's built-in
+GraphML exporter, which always tracks the latest EM version.
+
+| File | Change | Effort |
+|---|---|---|
+| `modules/s3dgraphy/s3dgraphy_integration.py` (writer paths) | Replace local GraphML construction with `s3dgraphy.exporter.graphml_exporter` (or the equivalent symbol exposed in 0.1.40); delete the embedded `.xml` template once the migration is verified. | M (1 day) |
+| `modules/export/graphml_writer*.py` (if any standalone writer remains) | Re-route through `GraphProjector.to_graphml()` which delegates to s3dgraphy. | S (3-4 h) |
+| `resources/templates/em_graphml_template.xml` (or similar) | Mark as deprecated; remove after one release cycle. | XS |
+
+**Self-test gate.** Before deleting the legacy writer, run a
+byte-equivalence check on a representative dataset: project the same
+PyArchInit DB through both writers (legacy and delegated), GraphML-diff the
+results. Differences must be limited to attributes s3dgraphy adds (newer EM
+version metadata) — never to attributes s3dgraphy removes. Test fixture in
+`tests/integration/test_graphml_writer_parity.py`.
+
+### 7.7 Rollback
 
 | Failure point | Rollback action |
 |---|---|
@@ -556,6 +874,15 @@ Phase 4 can run in parallel with phase 3 once phase 2 is complete: the
 backends are independent. Each phase produces its own implementation plan
 following this spec.
 
+**Property-graph first (meeting §2.1.B).** Phases 1–3 target the
+property-graph layer of s3dgraphy — the layer Heriverse and Blender +
+EM-tools already consume today. The CIDOC-CRM mapping that lifts those
+property values to the triple-store form required by the European
+Collaborative Cloud is the WP3 deliverable and is **not on PyArchInit's
+critical path**. Phase 4's `GraphDBBackend` ships against the SPARQL 1.1
+surface; the CIDOC-CRM enrichment it delegates to is whatever WP3 publishes
+when it is ready.
+
 ## 12. Open questions
 
 1. **EM Datacenter authentication scheme.** Phase 1 spec assumes API key in
@@ -582,9 +909,24 @@ following this spec.
 
 ## 13. References
 
+- **Meeting minutes (alignment source for §2.1):**
+  `~/Downloads/SC1_StratiGraph_T5.4_MeetingNotes_20260504.pdf` — StratiGraph
+  WP5 / T5.4 — Pyarchinit ↔ s3Dgraphy connection — 2026-05-04, 11:13–12:02
+  CEST. Chair: Emanuel Demetrescu (CNR-ISPC). Action items AI01–AI08.
+- **T5.4 Reference Document v0.1 (alignment source for §2.2):**
+  `~/Downloads/T5.4_PyArchInit_s3Dgraphy_Reference_v0.1.pdf` — editor:
+  Emanuel Demetrescu (CNR-ISPC). Date: 2026-05-06. Status: Draft for
+  partner review (Athena RC, FS Engineering / Italferr, WP3-WP4). Confirms
+  the four substantive points of Enzo's proposal of 2026-05-05 and adds
+  the JSON-pillars catalogue, the Option B consumption preference, the
+  EM 1.6 pipeline preview, the synchronisation-policy honest framing, and
+  the division-of-responsibilities table reproduced in §2.2.K.
 - s3dgraphy v0.1.40 source: <https://github.com/zalmoxes-laran/s3dgraphy>
 - s3dgraphy core concepts:
   <https://docs.extendedmatrix.org/projects/s3dgraphy/en/latest/s3dgraphy_core_concepts.html>
+- Extended Matrix "How to" (entry point to s3dgraphy Sphinx docs):
+  <https://docs.extendedmatrix.org/>
+- PyArchInit API documentation (Sphinx, hosted on pyarchinit.org).
 - Section PDFs (rendered for review):
   - `docs/superpowers/specs/s3dgraphy-bridge-design/01-componenti.pdf`
   - `docs/superpowers/specs/s3dgraphy-bridge-design/02-mappatura-uri.pdf`
