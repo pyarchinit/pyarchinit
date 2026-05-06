@@ -1,0 +1,21 @@
+{
+    "s3Dgraphy_connections_version": "1.5.4",
+    "description": "Test fixture — 2 edges",
+    "edge_types": {
+        "is_after": {
+            "label": "is after",
+            "description": "Stratigraphic posteriority",
+            "allowed_pairs": [
+                {"source": "US", "target": "US"},
+                {"source": "US", "target": "USVs"}
+            ]
+        },
+        "cuts": {
+            "label": "cuts",
+            "description": "Stratigraphic cut",
+            "allowed_pairs": [
+                {"source": "US", "target": "US"}
+            ]
+        }
+    }
+}

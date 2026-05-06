@@ -1,0 +1,53 @@
+{
+    "s3Dgraphy_data_model_version": "1.5.2",
+    "description": "Test fixture — minimal subset",
+    "components": ["CIDOC-CRM"],
+    "node_types": {
+        "Node": {
+            "class": "Node",
+            "description": "Base class",
+            "mapping": {"cidoc": "E1 CRM Entity", "cidoc_s3d": null},
+            "properties": {"name": "P1_is_identified_by"}
+        }
+    },
+    "stratigraphic_nodes": {
+        "StratigraphicNode": {
+            "class": "StratigraphicNode",
+            "parent": "Node",
+            "description": "Base stratigraphic",
+            "mapping": {"cidoc": "A8 Stratigraphic Unit", "cidoc_s3d": null},
+            "properties": {"name": "P1_is_identified_by"},
+            "subtypes": {
+                "US": {
+                    "class": "StratigraphicUnit",
+                    "parent": "StratigraphicNode",
+                    "abbreviation": "US",
+                    "label": "US (or SU)",
+                    "symbol": "white rectangle",
+                    "description": "Stratigraphic Unit",
+                    "mapping": {"cidoc": "A2 Stratigraphic Volume Unit", "cidoc_s3d": null},
+                    "properties": {"name": "P1_is_identified_by"}
+                },
+                "USVs": {
+                    "class": "StratigraphicUnitVirtualStructural",
+                    "parent": "StratigraphicNode",
+                    "abbreviation": "USVs",
+                    "label": "USVs (Structural Virtual SU)",
+                    "symbol": "blue parallelogram",
+                    "description": "Structural virtual stratigraphic unit",
+                    "mapping": {"cidoc": "A8 Stratigraphic Unit", "cidoc_s3d": null},
+                    "properties": {"name": "P1_is_identified_by"}
+                }
+            }
+        }
+    },
+    "paradata_nodes": {
+        "AuthorNode": {
+            "class": "AuthorNode",
+            "parent": "Node",
+            "description": "Author of a paradata statement",
+            "mapping": {"cidoc": "E39 Actor", "cidoc_s3d": null},
+            "properties": {"name": "P1_is_identified_by"}
+        }
+    }
+}

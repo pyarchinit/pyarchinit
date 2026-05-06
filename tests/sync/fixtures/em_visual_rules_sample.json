@@ -1,0 +1,9 @@
+{
+    "em_visual_rules_version": "1.5.0",
+    "description": "Test fixture — visual rules",
+    "rules": {
+        "US": {"icon": "us.svg", "fill": "#FFFFFF", "stroke": "#000000", "palette": "stratigraphic"},
+        "USVs": {"icon": "usvs.svg", "fill": "#88CCFF", "stroke": "#0066AA", "palette": "stratigraphic"},
+        "AuthorNode": {"icon": "author.svg", "fill": "#F0E68C", "stroke": "#806040", "palette": "paradata"}
+    }
+}
