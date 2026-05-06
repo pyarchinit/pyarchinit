@@ -76,7 +76,7 @@ vtk>=9.2.0
 faiss-cpu>=1.7.4
 
 # Graph
-s3dgraphy>=0.1.20
+s3dgraphy>=0.1.40
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0
