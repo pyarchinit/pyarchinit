@@ -7,6 +7,7 @@ Aggiorna automaticamente database SQLite vecchi quando vengono aperti
 
 import sqlite3
 import os
+import re
 from datetime import datetime
 
 # Make QGIS imports optional
@@ -228,6 +229,38 @@ class SQLiteDBUpdater:
                 if not self.cursor.fetchone():
                     self.log_message(f"Tabella mancante: {tbl}")
                     return True
+
+            # Detect string columns that older DBs created as INT/INTEGER but
+            # the canonical template (resources/dbfiles/pyarchinit.sqlite)
+            # defines as TEXT. The migration coerces them in
+            # fix_field_types_in_base_tables; we only need to surface the
+            # mismatch here so the migration actually fires.
+            columns_must_be_text = [
+                ('us_table', 'us'),
+                ('inventario_materiali_table', 'area'),
+                ('inventario_materiali_table', 'us'),
+                ('campioni_table', 'us'),
+                ('pyarchinit_quote', 'area_q'),
+                ('pyarchinit_quote', 'us_q'),
+                ('pyarchinit_quote_usm', 'area_q'),
+                ('pyarchinit_quote_usm', 'us_q'),
+            ]
+            for tbl, col in columns_must_be_text:
+                self.cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                    (tbl,))
+                if not self.cursor.fetchone():
+                    continue
+                self.cursor.execute(f"PRAGMA table_info({tbl})")
+                for column in self.cursor.fetchall():
+                    if column[1] != col:
+                        continue
+                    declared = (column[2] or '').upper().strip()
+                    if declared not in ('TEXT', 'VARCHAR', 'CHAR') and declared:
+                        self.log_message(
+                            f"Tipo errato {tbl}.{col}={column[2]!r} "
+                            f"(atteso TEXT)")
+                        return True
 
             return False
 
@@ -2019,9 +2052,10 @@ class SQLiteDBUpdater:
                     us_table.profondita_max,
                     us_table.profondita_min,
                     us_table.larghezza_media,
-                    us_table.quota_max,
-                    us_table.quota_min,
-                    us_table.piante,
+                    us_table.quota_max_abs,
+                    us_table.quota_max_rel,
+                    us_table.quota_min_abs,
+                    us_table.quota_min_rel,
                     us_table.documentazione,
                     us_table.scavato,
                     us_table.cont_per,
@@ -2039,110 +2073,15 @@ class SQLiteDBUpdater:
                     pyunitastratigrafiche.us_s = us_table.us
                 ORDER BY us_table.order_layer ASC, pyunitastratigrafiche.stratigraph_index_us ASC
             '''),
-            ('pyarchinit_quote', '''
-                CREATE VIEW pyarchinit_quote AS
-                SELECT 
-                    sito,
-                    area,  -- Mantieni come TEXT
-                    us,    -- Mantieni come TEXT
-                    unita_tipo,
-                    quota_min,
-                    quota_max,
-                    cont_per,
-                    order_layer,
-                    datazione,
-                    the_geom
-                FROM us_table
-                WHERE quota_min IS NOT NULL OR quota_max IS NOT NULL
-            '''),
-            ('pyarchinit_quote_usm', '''
-                CREATE VIEW pyarchinit_quote_usm AS
-                SELECT 
-                    sito,
-                    area,  -- Mantieni come TEXT
-                    us,    -- Mantieni come TEXT
-                    unita_tipo,
-                    quota_min_usm,
-                    quota_max_usm,
-                    the_geom
-                FROM us_table
-                WHERE unita_tipo = 'USM' AND (quota_min_usm IS NOT NULL OR quota_max_usm IS NOT NULL)
-            '''),
-            ('pyunitastratigrafiche', '''
-                CREATE VIEW pyunitastratigrafiche AS
-                SELECT 
-                    id_us,
-                    sito,
-                    area,  -- Mantieni come TEXT
-                    us,    -- Mantieni come TEXT
-                    d_stratigrafica,
-                    d_interpretativa,
-                    descrizione,
-                    interpretazione,
-                    periodo_iniziale,
-                    fase_iniziale,
-                    periodo_finale,
-                    fase_finale,
-                    scavato,
-                    attivita,
-                    anno_scavo,
-                    metodo_di_scavo,
-                    inclusi,
-                    campioni,
-                    rapporti,
-                    organici,
-                    inorganici,
-                    data_schedatura,
-                    schedatore,
-                    formazione,
-                    stato_di_conservazione,
-                    colore,
-                    consistenza,
-                    struttura,
-                    cont_per,
-                    order_layer,
-                    the_geom
-                FROM us_table
-                WHERE unita_tipo = 'US'
-            '''),
-            ('pyunitastratigrafiche_usm', '''
-                CREATE VIEW pyunitastratigrafiche_usm AS
-                SELECT 
-                    id_us,
-                    sito,
-                    area,  -- Mantieni come TEXT
-                    us,    -- Mantieni come TEXT
-                    unita_tipo,
-                    d_stratigrafica,
-                    d_interpretativa,
-                    descrizione,
-                    interpretazione,
-                    periodo_iniziale,
-                    fase_iniziale,
-                    periodo_finale,
-                    fase_finale,
-                    scavato,
-                    attivita,
-                    anno_scavo,
-                    metodo_di_scavo,
-                    inclusi,
-                    campioni,
-                    rapporti,
-                    organici,
-                    inorganici,
-                    data_schedatura,
-                    schedatore,
-                    formazione,
-                    stato_di_conservazione,
-                    colore,
-                    consistenza,
-                    struttura,
-                    cont_per,
-                    order_layer,
-                    the_geom
-                FROM us_table
-                WHERE unita_tipo = 'USM'
-            ''')
+            # NOTE: pyarchinit_quote, pyarchinit_quote_usm, pyunitastratigrafiche
+            # and pyunitastratigrafiche_usm are TABLES in the canonical pyarchinit
+            # template DB (resources/dbfiles/pyarchinit.sqlite), not views derived
+            # from us_table. They have their own schemas (gid AUTOINCREMENT, the_geom
+            # registered as a Spatialite geometry column, etc.) and are populated
+            # independently. Trying to recreate them as views fails with
+            # "use DROP TABLE to delete table X" and would also lose user data.
+            # They are managed by _check_and_restore_backup_tables / spatialite
+            # registration paths instead.
         ]
         
         for view_name, create_sql in views_to_fix:
@@ -2216,7 +2155,137 @@ class SQLiteDBUpdater:
                             self.cursor.execute("ALTER TABLE tomba_table_old RENAME TO tomba_table")
                         except:
                             pass
-    
+
+        # Coerce key string columns that exist as INT/INTEGER in older DBs.
+        # These columns are TEXT in the canonical template DB
+        # (resources/dbfiles/pyarchinit.sqlite); when they get created as INT
+        # the spatialite views and JOINs against pyunitastratigrafiche.*_s
+        # (which are TEXT) silently mis-match.
+        columns_to_coerce_to_text = [
+            ('us_table', 'us'),
+            ('inventario_materiali_table', 'area'),
+            ('inventario_materiali_table', 'us'),
+            ('campioni_table', 'us'),
+            ('pyarchinit_quote', 'area_q'),
+            ('pyarchinit_quote', 'us_q'),
+            ('pyarchinit_quote_usm', 'area_q'),
+            ('pyarchinit_quote_usm', 'us_q'),
+        ]
+        for tbl, col in columns_to_coerce_to_text:
+            self._fix_column_to_text(tbl, col)
+
+    def _fix_column_to_text(self, table_name, column_name):
+        """Coerce a column to TEXT type via rebuild (rename → recreate → copy).
+
+        No-op if the table is missing or the column is already TEXT.
+        Preserves existing triggers attached to the table by re-issuing them
+        after the rebuild. Indexes are restored later by the performance-index
+        creation step. Falls back to restoring the renamed copy on failure.
+
+        Uses PRAGMA legacy_alter_table=ON during the rebuild because
+        SpatiaLite installs cross-table triggers (e.g. on
+        ISO_metadata_reference) whose body parses NEW.* references in a way
+        that breaks SQLite 3.25+'s automatic trigger rewriting on RENAME.
+        Legacy mode keeps trigger SQL intact and mirrors how older Spatialite
+        toolchains performed in-place schema migrations.
+        """
+        if not self.table_exists(table_name):
+            return
+        self.cursor.execute(f"PRAGMA table_info({table_name})")
+        columns = self.cursor.fetchall()
+        target = next((c for c in columns if c[1] == column_name), None)
+        if target is None:
+            return
+        if (target[2] or '').upper().strip() in ('TEXT', 'VARCHAR', 'CHAR'):
+            return
+
+        self.log_message(
+            f"Correzione campo {column_name} in {table_name} "
+            f"da {target[2]} a TEXT...")
+        old_table = f"{table_name}_old_typefix"
+        # Snapshot pragmas so we can restore them
+        self.cursor.execute("PRAGMA legacy_alter_table")
+        prev_legacy = self.cursor.fetchone()[0]
+        self.cursor.execute("PRAGMA foreign_keys")
+        prev_fkeys = self.cursor.fetchone()[0]
+        self.cursor.execute("PRAGMA legacy_alter_table=ON")
+        self.cursor.execute("PRAGMA foreign_keys=OFF")
+        try:
+            # Capture triggers + user-defined indexes before rename so they
+            # can be re-applied after the rebuild. Auto-indexes generated by
+            # PRIMARY KEY / UNIQUE constraints are excluded (SQL is NULL for
+            # them; SQLite recreates them implicitly from the CREATE TABLE).
+            self.cursor.execute(
+                "SELECT sql FROM sqlite_master "
+                "WHERE type='trigger' AND tbl_name=? AND sql IS NOT NULL",
+                (table_name,))
+            trigger_sqls = [row[0] for row in self.cursor.fetchall()]
+            self.cursor.execute(
+                "SELECT sql FROM sqlite_master "
+                "WHERE type='index' AND tbl_name=? AND sql IS NOT NULL",
+                (table_name,))
+            index_sqls = [row[0] for row in self.cursor.fetchall()]
+
+            create_sql = self._get_create_table_sql(table_name)
+            if not create_sql:
+                return
+            # Replace `<col> INT[EGER]` (with word boundary) inside the CREATE TABLE.
+            # The leading lookahead matches the separator (newline/whitespace/comma/`(`)
+            # so we don't fire on substrings of other identifiers.
+            pattern = re.compile(
+                r'(?P<lead>[\s,(])' + re.escape(column_name) +
+                r'\s+(?:INTEGER|INT)\b',
+                re.IGNORECASE)
+            new_sql, n = pattern.subn(
+                lambda m: f"{m.group('lead')}{column_name} TEXT",
+                create_sql, count=1)
+            if n == 0:
+                self.log_message(
+                    f"Avviso: pattern colonna non trovato per "
+                    f"{table_name}.{column_name}, skip")
+                return
+
+            self.cursor.execute(
+                f"ALTER TABLE {table_name} RENAME TO {old_table}")
+            self.cursor.execute(new_sql)
+            col_list = ','.join(c[1] for c in columns)
+            self.cursor.execute(
+                f"INSERT INTO {table_name} ({col_list}) "
+                f"SELECT {col_list} FROM {old_table}")
+            self.cursor.execute(f"DROP TABLE {old_table}")
+
+            for trig_sql in trigger_sqls:
+                try:
+                    self.cursor.execute(trig_sql)
+                except Exception as te:
+                    self.log_message(
+                        f"Avviso: impossibile ricreare trigger su "
+                        f"{table_name}: {te}")
+            for idx_sql in index_sqls:
+                try:
+                    self.cursor.execute(idx_sql)
+                except Exception as ie:
+                    self.log_message(
+                        f"Avviso: impossibile ricreare indice su "
+                        f"{table_name}: {ie}")
+
+            self.updates_made.append(
+                f"FIX {table_name}.{column_name} to TEXT")
+        except Exception as e:
+            self.log_message(
+                f"Errore correggendo {table_name}.{column_name}: {e}")
+            try:
+                self.cursor.execute(f"DROP TABLE IF EXISTS {table_name}")
+                self.cursor.execute(
+                    f"ALTER TABLE {old_table} RENAME TO {table_name}")
+            except Exception:
+                pass
+        finally:
+            self.cursor.execute(
+                f"PRAGMA legacy_alter_table={'ON' if prev_legacy else 'OFF'}")
+            self.cursor.execute(
+                f"PRAGMA foreign_keys={'ON' if prev_fkeys else 'OFF'}")
+
     def _get_create_table_sql(self, table_name):
         """Ottiene l'SQL CREATE TABLE da una tabella esistente"""
         self.cursor.execute(f"SELECT sql FROM sqlite_master WHERE type='table' AND name='{table_name}'")

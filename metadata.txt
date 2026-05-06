@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.26-alpha
+version=5.0.27-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,21 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.24-alpha (2026-04-27) [PEP 508 Marker Support in Requirements Parser]:
+changelog=5.0.27-alpha (2026-05-06) [SQLite migration alignment with template DB]:
+    - Fix: pyarchinit_us_view definition no longer references non-existent us_table.quota_max / quota_min / piante columns; replaced with the four canonical quota_max_abs/quota_max_rel/quota_min_abs/quota_min_rel columns from the template DB (resources/dbfiles/pyarchinit.sqlite)
+    - Fix: removed pyarchinit_quote, pyarchinit_quote_usm, pyunitastratigrafiche, pyunitastratigrafiche_usm from views_to_fix; in the canonical template these are TABLES (gid AUTOINCREMENT + Spatialite geometry column), not views derived from us_table. Trying to recreate them as views was failing with "use DROP TABLE to delete table X"
+    - Fix: needs_update() now detects column-type mismatches; surfaces 8 columns that older SQLite DBs created as INT/INTEGER but should be TEXT per template (us_table.us, inventario_materiali_table.area/us, campioni_table.us, pyarchinit_quote{,_usm}.area_q/us_q)
+    - Fix: fix_field_types_in_base_tables() coerces those 8 columns to TEXT atomically via rebuild (rename → recreate → copy → drop). New _fix_column_to_text() helper preserves user triggers and indexes; uses PRAGMA legacy_alter_table=ON to bypass the SpatiaLite ISO_metadata_reference_row_id_value_insert trigger that blocked RENAME on SQLite 3.25+
+    - Net result: legacy DBs (e.g. pyarchinitcs_SCHEDE2024.sqlite) align to the template schema on next plugin load, the "ATTENZIONE: Verifica fallita per pyarchinit_us_view: no such column: us_table.quota_max" warning is gone, and the four "Error fixing view ... use DROP TABLE" warnings are gone
+  5.0.26-alpha (2026-04-30) [Multi-Provider LLM Integration (Ollama/LM Studio/OpenAI/Anthropic)]:
+    - Feature: unified LLM provider abstraction (modules/utility/llm_providers.py + llm_selector_widget.py); each AI dialog (Report Generator, RAG Query, Text2SQL, Skatch GPT US, Skatch GPT InvMat) now exposes provider+model selectors with per-scope persistence
+    - Feature: auto-discovery of loaded models for local servers (LM Studio /v1/models + /api/v0/models filtering by state=loaded; Ollama /api/tags); vision-only filter for Skatch GPT
+    - Feature: separate embedding model discovery (/api/v0/models filtered to type=embeddings) with automatic fallback to OpenAI cloud when no embedding model is loaded locally
+    - Fix CRITICAL(RAG Query): streaming OpenAI client did not inherit base_url from LangChain → all streaming requests went to api.openai.com regardless of selected provider. Now reads self.llm.openai_api_base
+    - Fix(SQLite updater): needs_update() now also detects missing inventario_materiali_table.sub_inv (legacy DBs were not triggering the migration flow)
+  5.0.25-alpha (2026-04-28) [macOS Installer Fix]:
+    - Fix CRITICAL(installer macOS): PackageManager.install() no longer falls back to sys.executable on Darwin (which is the QGIS app binary, not a Python interpreter); added QGIS 4.x bundle paths and python interpreter validation probe
+  5.0.24-alpha (2026-04-27) [PEP 508 Marker Support in Requirements Parser]:
     - Fix CRITICAL: check_required_packages() now handles `; python_version<X` markers in requirements.txt; without this fix the plugin failed to load with ValueError on Python 3.9 (introduced by 5.0.22 env-marker requirements)
   5.0.23-alpha (2026-04-27) [Python 3.9 Conditional Floors for nltk/requests/PyMuPDF]:
     - Fix: nltk, requests and PyMuPDF security floors now also use python_version markers (their patches require Python >=3.10)
