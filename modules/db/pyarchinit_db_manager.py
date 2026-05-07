@@ -70,6 +70,14 @@ from modules.db.pyarchinit_db_update import DB_update
 from modules.db.pyarchinit_utility import Utility
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 
+# Pure-Python SQLite-path helper, re-exported so callers can do
+#   ``from modules.db.pyarchinit_db_manager import _resolve_sqlite_path``
+# Lives in a sibling module so unit tests can import it without dragging
+# in the QGIS/SQLAlchemy/psycopg2 surface area at the top of this file.
+from pathlib import Path
+from typing import Optional
+from modules.db._sqlite_path import _resolve_sqlite_path
+
 # Use a fixed key in sys.modules to store check state
 # This persists across module reloads within the same QGIS session
 import sys
@@ -154,7 +162,17 @@ class Pyarchinit_db_management(object):
         self.metadata = None
         self._is_singleton = _singleton
         self._local_cache = {}  # Cache locale per questa istanza
-        
+
+    def get_sqlite_path(self) -> Optional[Path]:
+        """Return the SQLite file path of the configured DB, or None
+        if the backend is PostgreSQL or the conn_str is unknown.
+
+        Used by AI03's graphml_writer to decide whether to attempt
+        s3dgraphy-based GraphML export (SQLite-only in 5.2.0-alpha;
+        PG support deferred to AI04).
+        """
+        return _resolve_sqlite_path(self.conn_str)
+
     def _get_cache_key(self, method_name, *args, **kwargs):
         """Genera una chiave di cache per metodo e parametri"""
         import hashlib
