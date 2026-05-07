@@ -172,8 +172,12 @@ class GraphvizVisualizer:
                     else:
                         full_label = label
 
-                    # Color based on unit type
-                    color_map = {
+                    # Color based on unit type. VocabProvider's visual
+                    # rules win when available; otherwise fall back to
+                    # the multilingual hardcoded table (kept for offline
+                    # callers / i18n abbreviations not yet in
+                    # em_visual_rules.json).
+                    _legacy_color_map = {
                         # US equivalents (all languages)
                         'US': '#90EE90', 'SU': '#90EE90', 'SE': '#90EE90',
                         'UE': '#90EE90', '\u03a3\u039c': '#90EE90',
@@ -185,7 +189,16 @@ class GraphvizVisualizer:
                         'CON': '#FFA07A', 'SF': '#F0E68C',
                         'virtual_reconstruction': '#FFB6C1',
                     }
-                    color = color_map.get(unita_tipo, '#E0E0E0')
+                    color = None
+                    try:
+                        from modules.s3dgraphy.sync import get_vocab_provider
+                        rule = get_vocab_provider().get_visual_rule(unita_tipo)
+                        if rule and rule.fill:
+                            color = rule.fill
+                    except Exception:
+                        color = None
+                    if color is None:
+                        color = _legacy_color_map.get(unita_tipo, '#E0E0E0')
 
                     # Add node
                     self.dot_content.append(f'    "{node_id}" [label="{full_label}", '
