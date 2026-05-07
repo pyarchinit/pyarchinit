@@ -110,16 +110,11 @@ class S3DGraphyDotBridge:
                 
                 attrs.append(f'label="{label}"')
                 
-                # Set colors based on unit type
-                color_map = {
-                    'US': '#FFFFFF',
-                    'USM': '#C0C0C0',
-                    'USD': '#FFFFFF',
-                    'SF': '#FFFFFF',
-                    'VSF': '#000000',
-                    'CON': '#000000'
-                }
-                fillcolor = color_map.get(unit_type, '#FFFFFF')
+                # Resolve fill color via VocabProvider's visual rules;
+                # fall back to a small hardcoded table (kept for offline
+                # callers / cases where ext_libs/s3dgraphy is missing) and
+                # then to a generic #CCCCCC.
+                fillcolor = self._fill_color_for(unit_type)
                 attrs.append(f'fillcolor="{fillcolor}"')
                 attrs.append('style="filled"')
                 
@@ -258,6 +253,33 @@ class S3DGraphyDotBridge:
         
         return exported_files
     
+    # Legacy fallback used when VocabProvider's get_visual_rule() returns
+    # nothing for a given unit type (e.g. ext_libs/s3dgraphy missing).
+    _LEGACY_FILL_FALLBACK = {
+        'US': '#FFFFFF',
+        'USM': '#C0C0C0',
+        'USD': '#FFFFFF',
+        'SF': '#FFFFFF',
+        'VSF': '#000000',
+        'CON': '#000000',
+    }
+
+    def _fill_color_for(self, unit_type: str) -> str:
+        """Resolve a node fill color via VocabProvider, with fallbacks.
+
+        Order: VocabProvider.get_visual_rule(unit_type).fill →
+        legacy hardcoded table → generic #CCCCCC.
+        """
+        try:
+            from modules.s3dgraphy.sync import get_vocab_provider
+            provider = get_vocab_provider()
+            rule = provider.get_visual_rule(unit_type)
+            if rule and rule.fill:
+                return rule.fill
+        except Exception:
+            pass
+        return self._LEGACY_FILL_FALLBACK.get(unit_type, '#CCCCCC')
+
     def _convert_dot_to_graphml(self, dot_file: str, graphml_file: str, options):
         """
         Convert DOT file to GraphML using PyArchInit's dottoxml converter
