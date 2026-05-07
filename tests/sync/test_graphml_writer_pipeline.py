@@ -64,3 +64,23 @@ def test_pipeline_produces_populated_graphml(mini_volterra, tmp_path):
     assert out.stat().st_size > 1000
     assert result.node_count > 0
     assert result.edge_count > 0
+
+
+def test_pipeline_emits_epoch_swimlanes(mini_volterra, tmp_path):
+    """L2 — closes 'no period swimlanes' limitation.
+
+    GraphMLExporter wraps strat nodes inside a TableNode swimlane;
+    each EpochNode becomes a row inside the table. Look for a
+    TableNode marker in the produced XML and assert epoch_count
+    matches the fixture's two periods.
+    """
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    out = tmp_path / "out.graphml"
+    result = export_graphml(
+        db_path=mini_volterra, mapping="pyarchinit_us_mapping",
+        output_path=out)
+    xml = out.read_text(encoding="utf-8")
+    assert ("TableNode" in xml or 'yfiles.foldertype="row"' in xml), (
+        "no swimlane marker found in output")
+    assert result.epoch_count >= 2, (
+        f"expected >=2 epochs, got {result.epoch_count}")
