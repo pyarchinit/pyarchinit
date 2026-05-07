@@ -119,3 +119,16 @@ class VocabProviderCore:
                 continue
             return [tgt for src, tgt in e.allowed_pairs if src == source_type]
         return []
+
+    def get_paradata_types(self) -> list[ParadataType]:
+        block = self._node_data.get("paradata_nodes", {})
+        out: list[ParadataType] = []
+        for class_name, defn in block.items():
+            out.append(ParadataType(
+                abbreviation=defn.get("abbreviation", class_name),
+                label=defn.get("label", class_name),
+                description=defn.get("description", ""),
+                cidoc_class=defn.get("mapping", {}).get("cidoc", ""),
+                s3dgraphy_class=defn.get("class", class_name),
+            ))
+        return out

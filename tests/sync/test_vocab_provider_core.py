@@ -49,3 +49,10 @@ def test_loads_edge_types_with_allowed_pairs(vocab_dir: Path, overrides_dir: Pat
 def test_unknown_edge_type_returns_empty_pairs(vocab_dir: Path, overrides_dir: Path):
     core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
     assert core.get_legal_targets_for(source_type="US", edge_name="nonexistent") == []
+
+
+def test_get_paradata_types(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    paradata = core.get_paradata_types()
+    by_name = {p.s3dgraphy_class: p for p in paradata}
+    assert "AuthorNode" in by_name
