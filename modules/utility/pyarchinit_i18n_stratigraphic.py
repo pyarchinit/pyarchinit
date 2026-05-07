@@ -2,16 +2,47 @@
 """
 Central i18n module for stratigraphic unit types and relationships.
 
+DEPRECATED (since 5.1.0, scheduled for removal in 6.0.0).
+New code should consume :mod:`modules.s3dgraphy.sync.VocabProvider`
+directly. This module remains as a backwards-compat adapter so existing
+imports keep working for one release cycle.
+
 Provides all unit type abbreviations (US/USM equivalents) and
 stratigraphic relationship terms for 10 supported languages.
 """
 
+from __future__ import annotations
+
+import logging
+from functools import lru_cache
+
+_log = logging.getLogger(__name__)
+_DEPRECATION_LOGGED = False
+
+
+def _warn_deprecation_once() -> None:
+    """Log a one-shot deprecation notice on first module load."""
+    global _DEPRECATION_LOGGED
+    if _DEPRECATION_LOGGED:
+        return
+    _DEPRECATION_LOGGED = True
+    _log.info(
+        "modules.utility.pyarchinit_i18n_stratigraphic is deprecated "
+        "(scheduled for removal in 6.0.0). New code should use "
+        "modules.s3dgraphy.sync.VocabProvider directly."
+    )
+
+
+_warn_deprecation_once()
+
+
 # ---------------------------------------------------------------------------
 # Unit Type Abbreviations
 # ---------------------------------------------------------------------------
-# Only US and USM change per language. All other types
-# (USVA, USVB, USVC, USD, CON, VSF, SF, SUS, DOC, Combinar, Extractor, property)
-# remain the same in ALL languages.
+# Only US and USM change per language - this is a pyarchinit UI convention
+# and is NOT part of the s3dgraphy JSON formalism, so it stays hard-coded
+# here. All other types (USVs, USVn, USD, CON, VSF, SF, SUS, DOC,
+# Combinar, Extractor, property) come from VocabProvider when available.
 
 UNIT_TYPE_ABBREV = {
     'it': ('US',  'USM'),
@@ -31,15 +62,128 @@ ALL_US_ABBREVS = {v[0] for v in UNIT_TYPE_ABBREV.values()}
 ALL_USM_ABBREVS = {v[1] for v in UNIT_TYPE_ABBREV.values()}
 ALL_UNIT_ABBREVS = ALL_US_ABBREVS | ALL_USM_ABBREVS
 
-# Common items shared by all languages (order matters for dialog)
-_COMMON_ITEMS = ('USVA', 'USVB', 'USVC', 'USD', 'CON', 'VSF', 'SF', 'SUS',
-                 'Combinar', 'Extractor', 'DOC', 'property')
+
+# ---------------------------------------------------------------------------
+# Common Items (delegated to VocabProvider, with legacy fallback)
+# ---------------------------------------------------------------------------
+# Hard-coded fallback used when ext_libs/s3dgraphy/ is unavailable
+# (e.g. fresh clone before pip install --target). Order matters for the
+# unit-type picker dialog.
+_LEGACY_COMMON_ITEMS = (
+    'USVA', 'USVB', 'USVC', 'USD', 'CON', 'VSF', 'SF', 'SUS',
+    'Combinar', 'Extractor', 'DOC', 'property',
+)
+
+# Non-stratigraphic legacy items that VocabProvider does not expose under
+# their old names: kept so existing UI/code keeps finding them.
+_LEGACY_EXTRA_ITEMS = ('CON', 'SUS', 'Combinar', 'Extractor', 'DOC', 'property')
+
+
+@lru_cache(maxsize=1)
+def _build_common_items() -> tuple:
+    """Resolve the common-items tuple from VocabProvider, lazily.
+
+    Returns the legacy hard-coded list when the s3dgraphy bundle is
+    missing (fresh clone before deps are installed).
+    """
+    try:
+        from modules.s3dgraphy.sync.vocab_provider import get_default_provider
+    except Exception as exc:  # noqa: BLE001 - adapter MUST not crash callers
+        _log.debug(
+            "VocabProvider unavailable (%s); falling back to legacy _COMMON_ITEMS.",
+            exc,
+        )
+        return _LEGACY_COMMON_ITEMS
+
+    try:
+        provider = get_default_provider()
+        unit_types = provider.get_unit_types()
+    except Exception as exc:  # noqa: BLE001
+        _log.debug(
+            "VocabProvider.get_unit_types() failed (%s); falling back to legacy _COMMON_ITEMS.",
+            exc,
+        )
+        return _LEGACY_COMMON_ITEMS
+
+    seen: set = set()
+    out: list = []
+    # First pass: stratigraphic unit types from VocabProvider, minus the
+    # per-language US/USM equivalents (those are added by get_unit_type_items).
+    for ut in unit_types:
+        abbrev = ut.abbreviation
+        if abbrev in ALL_UNIT_ABBREVS:
+            continue
+        if abbrev in seen:
+            continue
+        seen.add(abbrev)
+        out.append(abbrev)
+
+    # Second pass: append legacy non-stratigraphic items that VocabProvider
+    # does not expose under their old names, so old callers keep working.
+    for item in _LEGACY_EXTRA_ITEMS:
+        if item in seen:
+            continue
+        seen.add(item)
+        out.append(item)
+
+    return tuple(out)
+
+
+class _CommonItemsProxy(tuple):
+    """Tuple-like proxy that lazy-resolves to VocabProvider on first access.
+
+    Subclasses :class:`tuple` so that ``isinstance(_COMMON_ITEMS, tuple)``,
+    ``"DOC" in _COMMON_ITEMS``, and ``_COMMON_ITEMS + (x,)`` all keep
+    working exactly as before.
+    """
+
+    __slots__ = ()
+
+    def __new__(cls):
+        # Empty placeholder; real contents resolved lazily on every dunder.
+        return super().__new__(cls)
+
+    def _resolved(self) -> tuple:
+        return _build_common_items()
+
+    def __iter__(self):
+        return iter(self._resolved())
+
+    def __len__(self):
+        return len(self._resolved())
+
+    def __getitem__(self, idx):
+        return self._resolved()[idx]
+
+    def __contains__(self, item):
+        return item in self._resolved()
+
+    def __add__(self, other):
+        return self._resolved() + tuple(other)
+
+    def __radd__(self, other):
+        return tuple(other) + self._resolved()
+
+    def __eq__(self, other):
+        return self._resolved() == other
+
+    def __ne__(self, other):
+        return self._resolved() != other
+
+    def __hash__(self):
+        return hash(self._resolved())
+
+    def __repr__(self):
+        return repr(self._resolved())
+
+
+_COMMON_ITEMS = _CommonItemsProxy()
 
 
 def get_unit_type_items(lang):
     """Return full tuple of items for the unit-type picker dialog."""
     us, usm = UNIT_TYPE_ABBREV.get(lang, UNIT_TYPE_ABBREV['en'])
-    return (us, usm) + _COMMON_ITEMS
+    return (us, usm) + _build_common_items()
 
 
 def is_us_type(abbrev):
