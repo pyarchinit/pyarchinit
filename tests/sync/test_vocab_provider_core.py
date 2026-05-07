@@ -69,3 +69,13 @@ def test_get_visual_rule(vocab_dir: Path, overrides_dir: Path):
 def test_get_visual_rule_returns_none_for_unknown(vocab_dir: Path, overrides_dir: Path):
     core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
     assert core.get_visual_rule("nonexistent") is None
+
+
+def test_get_cidoc_mapping_returns_class_name(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    assert core.get_cidoc_mapping("US") == "A2 Stratigraphic Volume Unit"
+
+
+def test_get_cidoc_mapping_falls_back_for_unknown(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    assert core.get_cidoc_mapping("nonexistent") is None

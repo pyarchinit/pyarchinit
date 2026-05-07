@@ -145,3 +145,12 @@ class VocabProviderCore:
             stroke=rule.get("stroke", ""),
             palette=rule.get("palette", ""),
         )
+
+    def get_cidoc_mapping(self, type_abbreviation: str) -> str | None:
+        for ut in self.get_unit_types():
+            if ut.abbreviation == type_abbreviation:
+                return ut.cidoc_class or None
+        for pt in self.get_paradata_types():
+            if pt.s3dgraphy_class == type_abbreviation or pt.abbreviation == type_abbreviation:
+                return pt.cidoc_class or None
+        return None
