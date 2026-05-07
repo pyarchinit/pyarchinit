@@ -17,6 +17,7 @@ __pycache__/
 .idea/
 /tests/*
 !/tests/sync/
+!/tests/migrations/
 
 # Local scratch notes (inventory dumps, throwaway diagnostics)
 .scratch/
