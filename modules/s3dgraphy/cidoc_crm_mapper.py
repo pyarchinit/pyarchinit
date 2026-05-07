@@ -16,8 +16,11 @@ class CIDOCCRMMapper:
     CIDOC-CRM is the standard ontology for cultural heritage documentation
     """
 
-    # CIDOC-CRM class mappings for archaeological entities
-    CRM_CLASSES = {
+    # Legacy fallback used when ext_libs/s3dgraphy is unavailable or the
+    # VocabProvider lookup returns no match. Every key from the original
+    # CRM_CLASSES dict is preserved verbatim so existing callers keep
+    # working unchanged.
+    _LEGACY_CRM_FALLBACK = {
         'stratigraphic_unit': 'E18_Physical_Thing',  # Physical stratigraphic deposit
         'masonry_unit': 'E22_Human-Made_Object',  # Built structure
         'feature_unit': 'E25_Human-Made_Feature',  # Cut, pit, posthole
@@ -31,6 +34,27 @@ class CIDOCCRMMapper:
         'period': 'E4_Period',  # Historical period
         'phase': 'E4_Period'  # Archaeological phase
     }
+
+    @property
+    def CRM_CLASSES(self):
+        """Lazy proxy: VocabProvider lookup overlaid on a hardcoded fallback.
+
+        Existing call sites such as ``self.CRM_CLASSES.get(node_type, ...)``
+        and ``self.CRM_CLASSES[node_type]`` keep working because this returns
+        a plain dict.
+        """
+        try:
+            from modules.s3dgraphy.sync import get_vocab_provider
+            provider = get_vocab_provider()
+            d = dict(self._LEGACY_CRM_FALLBACK)
+            for ut in provider.get_unit_types():
+                if ut.cidoc_class:
+                    key = (ut.s3dgraphy_class or ut.abbreviation or '').lower()
+                    if key:
+                        d[key] = ut.cidoc_class.replace(' ', '_')
+            return d
+        except Exception:
+            return dict(self._LEGACY_CRM_FALLBACK)
 
     # CIDOC-CRM property mappings for relationships
     CRM_PROPERTIES = {
