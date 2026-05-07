@@ -5,6 +5,53 @@
 
 ---
 
+## [5.1.0-alpha] - 2026-05-07
+
+**Phase 1 (Foundation) of the StratiGraph WP5/T5.4 PyArchInit ↔ s3Dgraphy bridge.** Closes meeting action items AI01–AI05 (T5.4 minutes 2026-05-04) and aligns to Reference Document v0.1 (Emanuel Demetrescu, 2026-05-06). Tag: `phase1-foundation-5.1.0-alpha`. Rollback tag: `pre-s3dgraphy-040`.
+
+### Aggiunto / Added
+
+- **feat(s3dgraphy/sync): nuovo `VocabProvider` che parsa direttamente i tre pillars JSON di s3Dgraphy 0.1.40** (Option B per Reference Doc v0.1 §4.5). Il pacchetto `modules/s3dgraphy/sync/` ospita un core puro Python (`vocab_provider_core.py`) testabile via pytest senza QGIS bootstrap, e un wrapper Qt (`vocab_provider.py`) che aggiunge `vocabulary_changed` signal + `QFileSystemWatcher` per hot-reload. `VocabProvider` espone `get_unit_types(family=...)`, `get_edge_types()`, `get_paradata_types()`, `get_visual_rule()`, `get_cidoc_mapping()`, `get_legal_targets_for()`, `versions` (con minimum-version gating opzionale al costruttore). Override priority: `~/.config/pyarchinit/vocab_overrides/*.json` → bundled `ext_libs/s3dgraphy/JSON_config/*.json` con merge per top-level key (un override parziale non cancella tipi bundled). Compatibilità con il filename storico 0.1.30 con spazio finale `s3Dgraphy_node_datamodel .json`. Generatore UUID v7 locale RFC 9562 §5.7 (sostituito da `uuid.uuid7()` quando il minimo Python sarà 3.14+). 25 test unitari + 2 smoke test contro il vendor reale 0.1.40. / **feat(s3dgraphy/sync): new `VocabProvider` that parses the three s3Dgraphy 0.1.40 JSON pillars directly** (Option B per Reference Doc v0.1 §4.5). The `modules/s3dgraphy/sync/` package hosts a pure-Python core (`vocab_provider_core.py`) testable via pytest without QGIS bootstrap, and a Qt wrapper (`vocab_provider.py`) that adds a `vocabulary_changed` signal + `QFileSystemWatcher` for hot-reload. `VocabProvider` exposes `get_unit_types(family=...)`, `get_edge_types()`, `get_paradata_types()`, `get_visual_rule()`, `get_cidoc_mapping()`, `get_legal_targets_for()`, `versions` (with optional minimum-version gating at construction). Override priority: `~/.config/pyarchinit/vocab_overrides/*.json` → bundled `ext_libs/s3dgraphy/JSON_config/*.json` with per-top-level-key merge (a partial override does not erase bundled types). Compatibility with the legacy 0.1.30 trailing-space filename `s3Dgraphy_node_datamodel .json`. Local UUID v7 generator (RFC 9562 §5.7; replaced with stdlib `uuid.uuid7()` once project minimum is Python 3.14+). 25 unit tests + 2 smoke tests against the real bundled 0.1.40 vendor.
+
+- **feat(migrations): migrazione one-shot `USVA/USVB → USVs`, `USVC → USVn`** allinea i database storici al vocabolario canonico EM 1.5 di s3Dgraphy. Idempotente. Voce di menu QGIS `Maintenance → Migrazioni → Allinea vocabolario US`. Auto-backup prima di `--apply` con timestamp UTC nel nome file (`<db>.pre_us_vocab_alignment_<UTC>`). Rollback supportato via `--rollback <backup_path>`. Library/CLI split per testabilità. Spec §4.4. / **feat(migrations): one-shot `USVA/USVB → USVs`, `USVC → USVn` migration** aligns historical databases with the canonical EM 1.5 s3Dgraphy vocabulary. Idempotent. QGIS menu entry under `Maintenance → Migrazioni → Allinea vocabolario US`. Auto-backup before `--apply` with UTC-timestamped filename (`<db>.pre_us_vocab_alignment_<UTC>`). Rollback supported via `--rollback <backup_path>`. Library/CLI split for testability. Spec §4.4.
+
+- **feat(migrations): backfill UUID v7 sulla colonna `node_uuid TEXT`** aggiunta a `us_table`, `inventario_materiali_table`, `periodizzazione_table` con indice UNIQUE parziale (`WHERE node_uuid IS NOT NULL`, così i NULL temporanei durante recovery parziali non collidono). UUID generato in Python via `modules/s3dgraphy/sync/uuid7.py`; monotonico per processo. Idempotente. Voce menu QGIS dedicata. Spec §4.5. / **feat(migrations): UUID v7 backfill on `node_uuid TEXT` column** added to `us_table`, `inventario_materiali_table`, `periodizzazione_table` with a partial UNIQUE index (`WHERE node_uuid IS NOT NULL`, so transient NULLs during partial recovery don't collide). UUID generated in Python via `modules/s3dgraphy/sync/uuid7.py`; monotonic per process. Idempotent. Dedicated QGIS menu entry. Spec §4.5.
+
+### Modificato / Changed
+
+- **refactor(i18n): `pyarchinit_i18n_stratigraphic.py` diventa adapter su `VocabProvider`**. La picker dialog dei tipi US/USM ora espone 27 voci (era 14) sourced dal datamodel JSON 0.1.40: appaiono `USVs`, `USVn`, `serSU`, `WorkingUnit (UL)`, `NegativeStratigraphicUnit (USN)`, `TSU` e gli aggiornamenti EM 1.6 in arrivo. `_COMMON_ITEMS`, `UNIT_TYPE_ABBREV`, `get_unit_type_items`, `is_us_type`, `is_usm_type`, `ALL_US_ABBREVS`/`ALL_USM_ABBREVS` rimangono importabili come prima — 5 regression test in `tests/sync/test_i18n_compat.py` lockano la public surface. Fallback al vecchio elenco hardcoded quando `ext_libs/s3dgraphy/` è assente. Deprecation log al primo import. Rimozione del fallback prevista per 6.0.0. / **refactor(i18n): `pyarchinit_i18n_stratigraphic.py` becomes an adapter over `VocabProvider`**. The US/USM type picker dialog now exposes 27 items (was 14) sourced from the 0.1.40 JSON datamodel: `USVs`, `USVn`, `serSU`, `WorkingUnit (UL)`, `NegativeStratigraphicUnit (USN)`, `TSU` and the incoming EM 1.6 additions appear. `_COMMON_ITEMS`, `UNIT_TYPE_ABBREV`, `get_unit_type_items`, `is_us_type`, `is_usm_type`, `ALL_US_ABBREVS`/`ALL_USM_ABBREVS` remain importable — 5 regression tests in `tests/sync/test_i18n_compat.py` lock the public surface. Fallback to the legacy hardcoded list when `ext_libs/s3dgraphy/` is missing. One-time deprecation log on first import. Fallback removal scheduled for 6.0.0.
+
+- **refactor(s3dgraphy): 12 file in `modules/s3dgraphy/` auditati; 7 refactored** per consultare `VocabProvider` invece di tabelle hardcoded. Lista: `cidoc_crm_mapper.py` (`CRM_CLASSES` da dict statico a `@property` su VocabProvider), `s3dgraphy_integration.py` (string-tag `node.node_type = 'virtual_reconstruction'` rimpiazzato), `s3dgraphy_dot_bridge.py` (visual rules da `em_visual_rules.json`), `matrix_graph_visualizer.py`/`plotly_visualizer.py`/`simple_graph_visualizer.py`/`graphviz_visualizer.py` (color_map hardcoded → VocabProvider con fallback legacy). 4 file rimangono audit-only (`blender_integration.py`, `graphml_spatial_enhancer.py`, `spatial_grouping_manager.py`, `matrix_visualizer_qgis.py`). Per-file commits per `git revert` selettivo. / **refactor(s3dgraphy): 12 files in `modules/s3dgraphy/` audited; 7 refactored** to consult `VocabProvider` instead of hardcoded tables. List: `cidoc_crm_mapper.py` (`CRM_CLASSES` from static dict to a `@property` over VocabProvider), `s3dgraphy_integration.py` (string-tag `node.node_type = 'virtual_reconstruction'` replaced), `s3dgraphy_dot_bridge.py` (visual rules from `em_visual_rules.json`), `matrix_graph_visualizer.py`/`plotly_visualizer.py`/`simple_graph_visualizer.py`/`graphviz_visualizer.py` (hardcoded `color_map` → VocabProvider with legacy fallback). 4 files remain audit-only (`blender_integration.py`, `graphml_spatial_enhancer.py`, `spatial_grouping_manager.py`, `matrix_visualizer_qgis.py`). Per-file commits for selective `git revert`.
+
+### Dipendenze / Dependencies
+
+- **deps(s3dgraphy): bump 0.1.30 → 0.1.40** in `ext_libs/` (gitignored runtime install — `requirements.txt` floor è la fonte di verità). datamodel 1.5.3 → 1.5.4. La 0.1.40 porta `GraphMerger`, `GraphMLPatcher`, classification API (`get_family`, `is_real`, `iter_subtypes`), `aux_tracking`, le nuove classi `NegativeStratigraphicUnit` e `WorkingUnit`, e il fix del filename `s3Dgraphy_node_datamodel.json` (rimosso lo spazio finale del 0.1.30). Tag di rollback: `pre-s3dgraphy-040`. Procedura di rollback: `pip install s3dgraphy==0.1.30 --target ext_libs/ --no-deps`. / **deps(s3dgraphy): bump 0.1.30 → 0.1.40** in `ext_libs/` (gitignored runtime install — `requirements.txt` floor is the source of truth). datamodel 1.5.3 → 1.5.4. 0.1.40 brings `GraphMerger`, `GraphMLPatcher`, classification API (`get_family`, `is_real`, `iter_subtypes`), `aux_tracking`, the new `NegativeStratigraphicUnit` and `WorkingUnit` classes, and the `s3Dgraphy_node_datamodel.json` filename fix (trailing space removed). Rollback tag: `pre-s3dgraphy-040`. Rollback procedure: `pip install s3dgraphy==0.1.30 --target ext_libs/ --no-deps`.
+
+### Test
+
+- **42 unit test passing** (29 in `tests/sync/` + 13 in `tests/migrations/`). `pyproject.toml` configura pytest scoped a `tests/sync` e `tests/migrations` (i test legacy in `tests/` continuano a richiedere QGIS bootstrap come prima). / **42 unit tests passing** (29 in `tests/sync/` + 13 in `tests/migrations/`). `pyproject.toml` scopes pytest to `tests/sync` and `tests/migrations` (legacy tests in `tests/` continue to require QGIS bootstrap as before).
+
+### File modificati / Modified files
+
+- `ext_libs/s3dgraphy/` (gitignored — wholesale 0.1.30 → 0.1.40 vendor swap on each developer machine via `pip install --target ext_libs/`)
+- `modules/s3dgraphy/sync/` (NEW: `vocab_types.py`, `vocab_provider_core.py`, `vocab_provider.py`, `uuid7.py`, `__init__.py`)
+- `modules/utility/pyarchinit_i18n_stratigraphic.py` (adapter refactor)
+- `modules/s3dgraphy/cidoc_crm_mapper.py` (`CRM_CLASSES` → `@property`)
+- `modules/s3dgraphy/s3dgraphy_integration.py` (string-tag → typed)
+- `modules/s3dgraphy/s3dgraphy_dot_bridge.py` (visual rules from JSON)
+- `modules/s3dgraphy/{matrix_graph_visualizer,plotly_visualizer,simple_graph_visualizer,graphviz_visualizer}.py` (color_map → VocabProvider)
+- `scripts/migrations/` (NEW: `_common.py`, `_2026_05_us_vocabulary_alignment_lib.py`, `2026_05_us_vocabulary_alignment.py`, `_2026_05_node_uuid_backfill_lib.py`, `2026_05_node_uuid_backfill.py`, `__init__.py`)
+- `tests/sync/`, `tests/migrations/` (NEW: 42 unit tests + fixtures + smoke)
+- `pyarchinitPlugin.py` (two new menu entries — vocab alignment and UUID backfill)
+- `requirements.txt` (`s3dgraphy>=0.1.40`)
+- `metadata.txt` (`5.0.27-alpha` → `5.1.0-alpha`)
+- `pyproject.toml` (NEW: pytest scoping for `tests/sync` + `tests/migrations`)
+- `docs/superpowers/specs/2026-05-04-s3dgraphy-bidirectional-sync-design.md` (Reference Doc v0.1 alignment §2.2)
+- `docs/superpowers/plans/2026-05-06-phase-1-foundation.md` (NEW: implementation plan)
+- `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.{md,docx}` (NEW: rolling English-language partner-facing dev log)
+
+---
+
 ## [5.0.27-alpha] - 2026-05-06
 
 ### Corretto / Fixed

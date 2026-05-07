@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.0.27-alpha
+version=5.1.0-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,15 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.0.27-alpha (2026-05-06) [SQLite migration alignment with template DB]:
+changelog=5.1.0-alpha (2026-05-07) [Phase 1 Foundation: PyArchInit ↔ s3Dgraphy bridge — VocabProvider + vocab alignment + UUID v7 backfill]:
+    - Feature: VocabProvider parses the three s3Dgraphy 0.1.40 JSON pillars directly (Option B per Reference Doc v0.1 §4.5). New package modules/s3dgraphy/sync/ with pure-Python core + Qt wrapper; 25 tests passing
+    - Feature: pyarchinit_i18n_stratigraphic.py becomes adapter over VocabProvider (compat-shim for one release). Unit-type picker dialog now exposes 27 items (was 14) sourced from EM 1.5 datamodel; new types USVs, USVn, serSU, WorkingUnit (UL), NegativeStratigraphicUnit (USN), TSU appear automatically
+    - Feature: one-shot migration USVA/USVB → USVs, USVC → USVn (--dry-run / --apply / --rollback, auto-backup, idempotent; QGIS Maintenance menu entry). Spec §4.4
+    - Feature: one-shot node_uuid TEXT column + UUID v7 backfill (RFC 9562 §5.7) on us_table, inventario_materiali_table, periodizzazione_table with partial unique index; QGIS Maintenance menu entry. Spec §4.5
+    - Refactor: 12 modules/s3dgraphy/ files audited; 7 refactored to consult VocabProvider (cidoc_crm_mapper, s3dgraphy_integration, s3dgraphy_dot_bridge, matrix_graph_visualizer, plotly_visualizer, simple_graph_visualizer, graphviz_visualizer); 4 verified clean. Per-file commits for selective git-revert
+    - Deps: bumped s3dgraphy 0.1.30 → 0.1.40 vendored under ext_libs/ (gitignored runtime install). datamodel 1.5.3 → 1.5.4
+    - Tests: 42 unit tests (29 in tests/sync/ + 13 in tests/migrations/). Pyproject.toml scopes pytest to the new suites
+  5.0.27-alpha (2026-05-06) [SQLite migration alignment with template DB]:
     - Fix: pyarchinit_us_view definition no longer references non-existent us_table.quota_max / quota_min / piante columns; replaced with the four canonical quota_max_abs/quota_max_rel/quota_min_abs/quota_min_rel columns from the template DB (resources/dbfiles/pyarchinit.sqlite)
     - Fix: removed pyarchinit_quote, pyarchinit_quote_usm, pyunitastratigrafiche, pyunitastratigrafiche_usm from views_to_fix; in the canonical template these are TABLES (gid AUTOINCREMENT + Spatialite geometry column), not views derived from us_table. Trying to recreate them as views was failing with "use DROP TABLE to delete table X"
     - Fix: needs_update() now detects column-type mismatches; surfaces 8 columns that older SQLite DBs created as INT/INTEGER but should be TEXT per template (us_table.us, inventario_materiali_table.area/us, campioni_table.us, pyarchinit_quote{,_usm}.area_q/us_q)
