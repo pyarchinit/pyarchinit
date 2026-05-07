@@ -236,24 +236,42 @@ class MatrixGraphVisualizer:
         # Prepare node colors and shapes by type
         node_colors = []
         node_sizes = []
+        # Legacy multilingual fallback retained for the i18n abbreviations
+        # (SU, UE, \u03a3\u039c, etc.) and for the case where VocabProvider has no
+        # entry / ext_libs/s3dgraphy is missing.
+        _legacy_color_map = {
+            # US equivalents (all languages) - Green
+            'US': '#4CAF50', 'SU': '#4CAF50', 'SE': '#4CAF50',
+            'UE': '#4CAF50', '\u03a3\u039c': '#4CAF50',
+            # USM equivalents (all languages) - Orange
+            'USM': '#FF9800', 'WSU': '#FF9800', 'MSE': '#FF9800',
+            'UEM': '#FF9800', 'USZ': '#FF9800', '\u03a4\u03a3\u039c': '#FF9800',
+            # Other types
+            'USF': '#2196F3', 'USD': '#795548', 'USR': '#9C27B0',
+            'virtual_reconstruction': '#E91E63',
+        }
+        # Try VocabProvider once and cache the lookup result for the loop.
+        try:
+            from modules.s3dgraphy.sync import get_vocab_provider
+            _vp = get_vocab_provider()
+        except Exception:
+            _vp = None
         for node_id in self.graph.nodes():
             node_data = self.graph.nodes[node_id]
             node_type = node_data.get('node_type', 'stratigraphic_unit')
             unita_tipo = node_data.get('unita_tipo', 'US')
 
-            # Color by unit type
-            color_map = {
-                # US equivalents (all languages) - Green
-                'US': '#4CAF50', 'SU': '#4CAF50', 'SE': '#4CAF50',
-                'UE': '#4CAF50', '\u03a3\u039c': '#4CAF50',
-                # USM equivalents (all languages) - Orange
-                'USM': '#FF9800', 'WSU': '#FF9800', 'MSE': '#FF9800',
-                'UEM': '#FF9800', 'USZ': '#FF9800', '\u03a4\u03a3\u039c': '#FF9800',
-                # Other types
-                'USF': '#2196F3', 'USD': '#795548', 'USR': '#9C27B0',
-                'virtual_reconstruction': '#E91E63',
-            }
-            node_colors.append(color_map.get(unita_tipo, '#607D8B'))
+            color = None
+            if _vp is not None:
+                try:
+                    rule = _vp.get_visual_rule(unita_tipo)
+                    if rule and rule.fill:
+                        color = rule.fill
+                except Exception:
+                    color = None
+            if color is None:
+                color = _legacy_color_map.get(unita_tipo, '#607D8B')
+            node_colors.append(color)
 
             # Size by importance
             if node_type == 'virtual_reconstruction':
