@@ -16,21 +16,6 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
-# Import DOT converters
-try:
-    # Add resources directory to path for X11Colors import
-    resources_dir = os.path.join(parent_dir, 'resources', 'dbfiles')
-    if resources_dir not in sys.path:
-        sys.path.insert(0, resources_dir)
-    
-    import dot
-    import dottoxml
-except ImportError as e:
-    print(f"Error importing DOT modules: {e}")
-    # Fallback: try direct import
-    from resources.dbfiles import dot
-    from resources.dbfiles import dottoxml
-
 # Import s3dgraphy integration
 from .s3dgraphy_integration import S3DGraphyIntegration
 
@@ -56,8 +41,7 @@ class S3DGraphyDotBridge:
     def __init__(self, db_manager=None):
         self.db_manager = db_manager
         self.s3d_integration = S3DGraphyIntegration(db_manager)
-        self.spatial_groupings = None  # Will store spatial/functional groupings
-        
+
     def s3dgraphy_to_dot(self, site: str, area: Optional[str] = None) -> str:
         """
         Convert s3dgraphy Extended Matrix data to DOT format
@@ -137,13 +121,6 @@ class S3DGraphyDotBridge:
         
         dot_lines.append('}')
         dot_content = '\n'.join(dot_lines)
-        
-        # Apply spatial groupings if configured
-        if self.spatial_groupings:
-            from .spatial_grouping_manager import SpatialGroupingManager
-            manager = SpatialGroupingManager()
-            dot_content = manager.apply_grouping_to_dot(dot_content, self.spatial_groupings)
-        
         return dot_content
     
     def export_integrated_matrix(self, site: str, area: Optional[str] = None,
@@ -299,43 +276,6 @@ class S3DGraphyDotBridge:
         except Exception:
             pass
         return self._LEGACY_FILL_FALLBACK.get(unit_type, '#CCCCCC')
-
-    def _convert_dot_to_graphml(self, dot_file: str, graphml_file: str, options):
-        """
-        Convert DOT file to GraphML using PyArchInit's dottoxml converter
-        """
-        # Read DOT file and parse
-        with open(dot_file, 'r', encoding='utf-8') as f:
-            content = f.read().splitlines()
-        
-        # Parse nodes and edges using dot.py classes
-        nodes = {}
-        edges = []
-        nid = 1
-        eid = 1
-        
-        for line in content:
-            line = line.strip()
-            if '->' in line and not line.startswith('#'):
-                # Parse edge
-                e = dot.Edge()
-                e.initFromString(line)
-                e.id = eid
-                eid += 1
-                edges.append(e)
-            elif line.startswith('"') and ';' in line:
-                # Parse node
-                n = dot.Node()
-                n.initFromString(line)
-                n.id = nid
-                nid += 1
-                nodes[n.label] = n
-        
-        # Export to GraphML
-        with open(graphml_file, 'w', encoding='utf-8') as o:
-            # Note: The original dottoxml.exportGraphml expects epoch_sigla parameter
-            # For now, we'll pass an empty list as we're not using epoch-based positioning
-            dottoxml.exportGraphml(o, nodes, edges, options, [])
 
 
 if QGIS_AVAILABLE:
