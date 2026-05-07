@@ -218,8 +218,10 @@ class PlotlyMatrixVisualizer:
                 nodes_by_type[unita_tipo] = []
             nodes_by_type[unita_tipo].append(node)
 
-        # Color mapping
-        color_map = {
+        # Legacy multilingual color fallback (US/SU/UE/\u03a3\u039c etc.). Used when
+        # VocabProvider.get_visual_rule() returns nothing for a given
+        # abbreviation (e.g. ext_libs/s3dgraphy missing or i18n alias).
+        _legacy_color_map = {
             # US equivalents (all languages) - Green
             'US': '#4CAF50', 'SU': '#4CAF50', 'SE': '#4CAF50',
             'UE': '#4CAF50', '\u03a3\u039c': '#4CAF50',
@@ -231,6 +233,21 @@ class PlotlyMatrixVisualizer:
             'CON': '#FFA07A', 'SF': '#F0E68C', 'USN': '#E91E63',
             'virtual_reconstruction': '#FF5722',
         }
+        try:
+            from modules.s3dgraphy.sync import get_vocab_provider
+            _vp = get_vocab_provider()
+        except Exception:
+            _vp = None
+
+        def _color_for(unita_tipo: str) -> str:
+            if _vp is not None:
+                try:
+                    rule = _vp.get_visual_rule(unita_tipo)
+                    if rule and rule.fill:
+                        return rule.fill
+                except Exception:
+                    pass
+            return _legacy_color_map.get(unita_tipo, '#9E9E9E')
 
         # Create trace for each unit type
         for unita_tipo, nodes in nodes_by_type.items():
@@ -274,7 +291,7 @@ class PlotlyMatrixVisualizer:
                 customdata=customdata,
                 marker=dict(
                     size=40,
-                    color=color_map.get(unita_tipo, '#9E9E9E'),
+                    color=_color_for(unita_tipo),
                     line=dict(width=2, color='black')
                 )
             )
