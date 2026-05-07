@@ -29,7 +29,7 @@ def test_edge_type_lists_allowed_pairs():
         name="is_after",
         label="is after",
         description="Stratigraphic posteriority",
-        allowed_pairs=[("US", "US"), ("US", "USVs")],
+        allowed_pairs=(("US", "US"), ("US", "USVs")),
     )
     assert ("US", "USVs") in e.allowed_pairs
 

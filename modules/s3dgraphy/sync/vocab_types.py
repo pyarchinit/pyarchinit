@@ -47,7 +47,7 @@ class EdgeType:
     name: str
     label: str
     description: str
-    allowed_pairs: tuple
+    allowed_pairs: tuple[tuple[str, str], ...]
 
 
 @dataclass(frozen=True)

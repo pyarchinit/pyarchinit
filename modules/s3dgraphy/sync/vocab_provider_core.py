@@ -19,7 +19,7 @@ from .vocab_types import EdgeType, Family, ParadataType, UnitType, VisualRule
 # Filenames the loader will accept. Includes the 0.1.30 trailing-space typo.
 _NODE_DATAMODEL_NAMES = (
     "s3Dgraphy_node_datamodel.json",
-    "s3Dgraphy_node_datamodel .json",  # 0.1.30 typo, kept as fallback
+    "s3Dgraphy_node_datamodel .json",  # 0.1.30 shipped this filename by mistake (typo); kept for backward compat. Remove only after dropping 0.1.30 support.
 )
 _CONNECTIONS_NAMES = ("s3Dgraphy_connections_datamodel.json",)
 _VISUAL_RULES_NAMES = ("em_visual_rules.json",)
@@ -96,3 +96,26 @@ class VocabProviderCore:
                         s3dgraphy_class=sub.get("class", ""),
                     ))
         return out
+
+    def get_edge_types(self) -> list[EdgeType]:
+        block = self._connections_data.get("edge_types", {})
+        out: list[EdgeType] = []
+        for name, defn in block.items():
+            pairs = tuple(
+                (p.get("source", ""), p.get("target", ""))
+                for p in defn.get("allowed_pairs", [])
+            )
+            out.append(EdgeType(
+                name=name,
+                label=defn.get("label", name),
+                description=defn.get("description", ""),
+                allowed_pairs=pairs,
+            ))
+        return out
+
+    def get_legal_targets_for(self, source_type: str, edge_name: str) -> list[str]:
+        for e in self.get_edge_types():
+            if e.name != edge_name:
+                continue
+            return [tgt for src, tgt in e.allowed_pairs if src == source_type]
+        return []
