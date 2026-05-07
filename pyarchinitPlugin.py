@@ -2689,6 +2689,16 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu(
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionVocabAlign)
+
+            self.actionUuidBackfill = QAction(
+                "Migrazioni → Backfill node_uuid (UUID v7 per record)",
+                self.iface.mainWindow())
+            self.actionUuidBackfill.triggered.connect(
+                self._run_uuid_backfill_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionUuidBackfill)
+
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
@@ -2756,6 +2766,68 @@ class PyArchInitPlugin(object):
             self.iface.mainWindow(),
             "Migrazione completata",
             f"Backup: {backup}\n\nAggiornamenti: {applied}",
+        )
+
+    def _run_uuid_backfill_migration(self):
+        """File-picker + confirmation + add_columns + backfill (with backup)."""
+        from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
+        from pathlib import Path
+        try:
+            from .scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                TABLES,
+                add_columns,
+                backfill_uuids,
+            )
+            from .scripts.migrations._common import auto_backup_sqlite
+        except Exception:
+            # Fall back to absolute import (when not running under the QGIS
+            # plugin loader that registers the package).
+            from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                TABLES,
+                add_columns,
+                backfill_uuids,
+            )
+            from scripts.migrations._common import auto_backup_sqlite
+
+        db_path, _ = QFileDialog.getOpenFileName(
+            self.iface.mainWindow(),
+            "Seleziona il database pyarchinit (.sqlite)",
+            "",
+            "SQLite databases (*.sqlite)",
+        )
+        if not db_path:
+            return
+        db = Path(db_path)
+
+        tables_list = "\n".join(f"  - {t}" for t in TABLES)
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma backfill node_uuid",
+            "Verrà aggiunta la colonna node_uuid (TEXT) e assegnato un "
+            "UUID v7 a ogni record nelle tabelle:\n"
+            f"{tables_list}\n\n"
+            "Procedere con --apply (con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+        try:
+            backup = auto_backup_sqlite(db, tag="node_uuid_backfill")
+            add_columns(db)
+            counts = backfill_uuids(db)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore migrazione",
+                f"La migrazione è fallita:\n{e}",
+            )
+            return
+        counts_msg = "\n".join(
+            f"  {table}: {n} row(s)" for table, n in counts.items())
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Backfill completato",
+            f"Backup: {backup}\n\nUUID v7 assegnati:\n{counts_msg}",
         )
 
     def _unload_stratigraph_sync(self):
