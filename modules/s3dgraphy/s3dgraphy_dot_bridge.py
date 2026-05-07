@@ -349,12 +349,7 @@ if QGIS_AVAILABLE:
             self.cb_period_colors = QCheckBox("Apply period-based coloring")
             self.cb_period_colors.setChecked(True)
             options_layout.addWidget(self.cb_period_colors)
-            
-            # Add spatial grouping option
-            self.cb_spatial_grouping = QCheckBox("Configure spatial/functional groupings")
-            self.cb_spatial_grouping.setChecked(False)
-            options_layout.addWidget(self.cb_spatial_grouping)
-            
+
             options_group.setLayout(options_layout)
             layout.addWidget(options_group)
             
@@ -379,42 +374,6 @@ if QGIS_AVAILABLE:
         
         def on_export(self):
             """Handle export button click"""
-            # Check if spatial grouping is requested
-            spatial_groupings = None
-            if self.cb_spatial_grouping.isChecked():
-                # Import grouping dialog
-                from .spatial_grouping_manager import SpatialGroupingDialog
-                
-                # Get US data from database
-                search_dict = {'sito': self.site}
-                if self.area:
-                    search_dict['area'] = self.area
-                    
-                us_records = self.db_manager.query_bool(search_dict, 'US')
-                
-                # Convert to dict format
-                us_data = []
-                for record in us_records:
-                    us_data.append({
-                        'sito': record.sito,
-                        'area': record.area,
-                        'us': record.us,
-                        'settore': getattr(record, 'settore', ''),
-                        'struttura': getattr(record, 'struttura', ''),
-                        'd_stratigrafica': record.d_stratigrafica,
-                        'd_interpretativa': record.d_interpretativa,
-                        'interpretazione': getattr(record, 'interpretazione', ''),
-                        'descrizione': getattr(record, 'descrizione', '')
-                    })
-                
-                # Show grouping dialog
-                grouping_dialog = SpatialGroupingDialog(us_data, self)
-                if grouping_dialog.exec():
-                    spatial_groupings = grouping_dialog.get_groupings()
-                else:
-                    # User cancelled grouping configuration
-                    return
-            
             # Get output directory
             output_dir = QFileDialog.getExistingDirectory(
                 self,
@@ -448,12 +407,6 @@ if QGIS_AVAILABLE:
             self.progress.setValue(0)
             
             try:
-                # Store spatial groupings in bridge if configured
-                if spatial_groupings:
-                    self.bridge.spatial_groupings = spatial_groupings
-                else:
-                    self.bridge.spatial_groupings = None
-                
                 # Export using bridge
                 self.exported_files = self.bridge.export_integrated_matrix(
                     self.site, 
