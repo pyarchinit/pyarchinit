@@ -420,12 +420,44 @@ if QGIS_AVAILABLE:
                 
                 # Show results
                 if self.exported_files:
-                    file_list = "\n".join([f"- {fmt}: {path}" 
-                                          for fmt, path in self.exported_files.items()])
+                    exported_files = self.exported_files
+                    lines = []
+                    if 'dot' in exported_files:
+                        lines.append(f"✅ DOT  → {exported_files['dot']}")
+                    if 'json' in exported_files:
+                        lines.append(f"✅ JSON → {exported_files['json']}")
+                    if 'phased' in exported_files:
+                        lines.append(f"✅ Phased JSON → {exported_files['phased']}")
+
+                    if 'graphml' in exported_files:
+                        r = exported_files.get('graphml_result')
+                        if r:
+                            lines.append(
+                                f"✅ GraphML → {exported_files['graphml']}\n"
+                                f"   {r.node_count} nodes, {r.edge_count} edges, "
+                                f"{r.epoch_count} epochs, "
+                                f"{r.tred_removed_edges} redundancies removed by "
+                                f"transitive reduction"
+                            )
+                            for w in r.warnings:
+                                lines.append(f"   ⚠️ {w}")
+                        else:
+                            lines.append(f"✅ GraphML → {exported_files['graphml']}")
+                    elif 'graphml_status' in exported_files:
+                        st = exported_files['graphml_status']
+                        level = st.get('level', 'warning')
+                        glyph = '⚠️' if level == 'warning' else '❌' if level == 'error' else 'ℹ️'
+                        reason = st.get('reason', 'unknown')
+                        if 'stage' in st:
+                            lines.append(
+                                f"{glyph} GraphML failed at {st['stage']}: {reason}")
+                        else:
+                            lines.append(f"{glyph} GraphML skipped: {reason}")
+
                     QMessageBox.information(
                         self,
-                        "Export Successful",
-                        f"Extended Matrix exported successfully:\n\n{file_list}"
+                        "Extended Matrix export complete",
+                        "\n".join(lines) if lines else "Nothing exported.",
                     )
                     self.accept()
                 else:
