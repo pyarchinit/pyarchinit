@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.1.0-alpha
+version=5.2.0-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,27 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.1.0-alpha (2026-05-07) [Phase 1 Foundation: PyArchInit ↔ s3Dgraphy bridge — VocabProvider + vocab alignment + UUID v7 backfill]:
+changelog=5.2.0-alpha (2026-05-07) [Phase 2 / AI03: GraphML delegation to s3Dgraphy]:
+    - Feature: GraphML branch of the 'Extended Matrix' export now uses
+      s3dgraphy.PyArchInitImporter + s3dgraphy.exporter.graphml.GraphMLExporter.
+      Closes the four EM limitations from Phase 1: empty graphml on grouping
+      flag, no period swimlanes, partial edge styling, no transitive reduction.
+    - Refactor: legacy DOT->GraphML pipeline removed in cut-over (no
+      fallback). Files dropped: graphml_spatial_enhancer.py;
+      _convert_dot_to_graphml() in s3dgraphy_dot_bridge.py;
+      apply_grouping_to_dot() and SpatialGroupingDialog in
+      spatial_grouping_manager.py; cb_spatial_grouping checkbox in the
+      export dialog. resources/dbfiles/dot.py and dottoxml.py kept (still
+      used by Harris matrix exporters out of AI03 scope).
+    - Feature: db_manager.get_sqlite_path() lets the bridge skip GraphML
+      with an Info message when the backend is PostgreSQL (PG support
+      arrives with AI04).
+    - Feature: export dialog summary now shows per-format metrics
+      (node/edge/epoch counts, transitive reduction reduction, warnings).
+    - Tests: 16 new tests under tests/sync/ (3 helpers + 4 fixture-pipeline
+      + 4 sqlite_path + 5 prior helper tests) mapped 1:1 to the four EM
+      limitations and the dispatch helper.
+  5.1.0-alpha (2026-05-07) [Phase 1 Foundation: PyArchInit ↔ s3Dgraphy bridge — VocabProvider + vocab alignment + UUID v7 backfill]:
     - Feature: VocabProvider parses the three s3Dgraphy 0.1.40 JSON pillars directly (Option B per Reference Doc v0.1 §4.5). New package modules/s3dgraphy/sync/ with pure-Python core + Qt wrapper; 25 tests passing
     - Feature: pyarchinit_i18n_stratigraphic.py becomes adapter over VocabProvider (compat-shim for one release). Unit-type picker dialog now exposes 27 items (was 14) sourced from EM 1.5 datamodel; new types USVs, USVn, serSU, WorkingUnit (UL), NegativeStratigraphicUnit (USN), TSU appear automatically
     - Feature: one-shot migration USVA/USVB → USVs, USVC → USVn (--dry-run / --apply / --rollback, auto-backup, idempotent; QGIS Maintenance menu entry). Spec §4.4
