@@ -216,6 +216,35 @@ def findLastUnquoted(string, char, spos=0, qchar='"'):
             
     return lastpos
 
+
+def _split_respecting_quotes(s, qchar='"'):
+    """Split *s* on whitespace while keeping double-quoted runs intact.
+
+    PyArchInit's Extended Matrix DOT output emits node identifiers that
+    contain spaces (e.g. ``"Castelseprio Casa Piccoli_1_36"``). The
+    standard ``str.split`` call splits on every space and breaks such
+    identifiers across tokens, which silently zeroes out every edge in
+    the resulting GraphML. This helper preserves the run between
+    matching double quotes.
+    """
+    out = []
+    cur = []
+    in_quote = False
+    for ch in s:
+        if ch == qchar:
+            in_quote = not in_quote
+            cur.append(ch)
+        elif ch.isspace() and not in_quote:
+            if cur:
+                out.append(''.join(cur))
+                cur = []
+        else:
+            cur.append(ch)
+    if cur:
+        out.append(''.join(cur))
+    return out
+
+
 class Node:
     """ a single node in the graph """
     def __init__(self):
@@ -1026,8 +1055,13 @@ class Edge:
         # Strip off trailing ;
         line = line.rstrip(';')
         line = line.rstrip()
-        # Process labels
-        ll = line.replace('->',' ').split()
+        # Process labels — split must respect double-quoted identifiers
+        # because pyarchinit emits node IDs that contain spaces
+        # (e.g. "Castelseprio Casa Piccoli_1_36"). The naive
+        # line.replace('->', ' ').split() previously truncated such IDs
+        # at the first internal space, leaving every Extended-Matrix
+        # edge with a wrong src/dest and the resulting GraphML empty.
+        ll = _split_respecting_quotes(line.replace('->', ' '))
         if len(ll) > 1:
             self.src = ll[0].strip('"')
             self.dest = ll[1].strip('"')
