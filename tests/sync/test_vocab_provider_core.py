@@ -103,3 +103,41 @@ def test_minimum_version_gate_raises_when_unmet(vocab_dir: Path, overrides_dir: 
             bundled_dir=vocab_dir,
             overrides_dir=overrides_dir,
             min_versions={"nodes": "9.9.9"})
+
+
+def test_override_merges_per_top_level_key_not_whole_file(
+        tmp_path: Path,
+        node_datamodel_path: Path,
+        connections_datamodel_path: Path,
+        visual_rules_path: Path):
+    """A partial override that only redefines `paradata_nodes` must NOT
+    erase `stratigraphic_nodes` from the bundled file."""
+    bundled = tmp_path / "JSON_config"
+    bundled.mkdir()
+    (bundled / "s3Dgraphy_node_datamodel.json").write_bytes(node_datamodel_path.read_bytes())
+    (bundled / "s3Dgraphy_connections_datamodel.json").write_bytes(connections_datamodel_path.read_bytes())
+    (bundled / "em_visual_rules.json").write_bytes(visual_rules_path.read_bytes())
+
+    overrides = tmp_path / "overrides"
+    overrides.mkdir()
+    import json as _json
+    (overrides / "s3Dgraphy_node_datamodel.json").write_text(
+        _json.dumps({
+            "s3Dgraphy_data_model_version": "1.5.99",
+            "paradata_nodes": {
+                "AuthorNode": {
+                    "class": "AuthorNode",
+                    "label": "Custom override label",
+                    "description": "overridden",
+                    "mapping": {"cidoc": "E39 Actor", "cidoc_s3d": None},
+                    "properties": {}
+                }
+            }
+        }))
+
+    core = VocabProviderCore(bundled_dir=bundled, overrides_dir=overrides)
+    abbrevs = {ut.abbreviation for ut in core.get_unit_types(family=Family.STRATIGRAPHIC)}
+    assert "US" in abbrevs  # bundled stratigraphic nodes survived
+    paradata = core.get_paradata_types()
+    assert any(p.label == "Custom override label" for p in paradata)
+    assert core.versions.nodes == "1.5.99"
