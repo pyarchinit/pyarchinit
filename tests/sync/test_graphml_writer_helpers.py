@@ -44,3 +44,33 @@ def test_export_result_warnings_default_empty_list():
     r.warnings.append("test")
     assert r2.warnings == [], (
         "ExportResult instances share warnings list — mutable default bug")
+
+
+def test_graphml_export_error_categorises_stage():
+    from modules.s3dgraphy.sync.graphml_writer import GraphMLExportError
+    inner = ValueError("bad json mapping")
+    e = GraphMLExportError("import", inner)
+    assert e.stage == "import"
+    assert e.original is inner
+    assert "import" in str(e)
+    assert "ValueError" in str(e)
+
+
+def test_graphml_export_error_accepts_only_known_stages():
+    from modules.s3dgraphy.sync.graphml_writer import (
+        GraphMLExportError,
+        VALID_STAGES,
+    )
+    assert "import" in VALID_STAGES
+    assert "filter" in VALID_STAGES
+    assert "export" in VALID_STAGES
+    assert "write" in VALID_STAGES
+    with pytest.raises(ValueError, match="unknown stage"):
+        GraphMLExportError("nonsense", ValueError("x"))
+
+
+def test_empty_graph_error_is_value_error():
+    from modules.s3dgraphy.sync.graphml_writer import EmptyGraphError
+    assert issubclass(EmptyGraphError, ValueError)
+    e = EmptyGraphError("no rows for site Volterra")
+    assert "Volterra" in str(e)
