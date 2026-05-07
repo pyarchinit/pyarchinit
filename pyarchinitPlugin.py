@@ -2666,6 +2666,98 @@ class PyArchInitPlugin(object):
             self.sync_orchestrator = None
             self.sync_panel = None
 
+        # Phase 1 migrations menu (spec §4.4 / §4.5)
+        self._init_migrations_menu()
+
+    # ── Phase 1 migrations menu ─────────────────────────────────────────
+    def _init_migrations_menu(self):
+        """Wire the one-shot migration entries into the plugin menu.
+
+        Invoked from `_init_stratigraph_sync()` so it runs exactly once per
+        language branch in `initGui()`. Idempotent against re-init via the
+        ``_migrations_menu_wired`` guard.
+        """
+        if getattr(self, "_migrations_menu_wired", False):
+            return
+        try:
+            self.actionVocabAlign = QAction(
+                "Migrazioni → Allinea vocabolario US "
+                "(USVA/USVB→USVs, USVC→USVn)",
+                self.iface.mainWindow())
+            self.actionVocabAlign.triggered.connect(
+                self._run_vocab_alignment_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionVocabAlign)
+            self._migrations_menu_wired = True
+        except Exception as e:
+            QgsMessageLog.logMessage(
+                f"Migrations menu wiring failed: {e}",
+                "PyArchInit", Qgis.MessageLevel.Warning)
+
+    def _run_vocab_alignment_migration(self):
+        """File-picker + dry-run preview + confirmation + apply (with backup)."""
+        from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
+        from pathlib import Path
+        try:
+            from .scripts.migrations._2026_05_us_vocabulary_alignment_lib import (
+                apply_changes,
+                plan_changes,
+            )
+            from .scripts.migrations._common import auto_backup_sqlite
+        except Exception:
+            # Fall back to absolute import (when not running under the QGIS
+            # plugin loader that registers the package).
+            from scripts.migrations._2026_05_us_vocabulary_alignment_lib import (
+                apply_changes,
+                plan_changes,
+            )
+            from scripts.migrations._common import auto_backup_sqlite
+
+        db_path, _ = QFileDialog.getOpenFileName(
+            self.iface.mainWindow(),
+            "Seleziona il database pyarchinit (.sqlite)",
+            "",
+            "SQLite databases (*.sqlite)",
+        )
+        if not db_path:
+            return
+        db = Path(db_path)
+        try:
+            plan = plan_changes(db)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore lettura database",
+                f"Impossibile leggere il piano dalla DB:\n{e}",
+            )
+            return
+
+        msg = "Piano:\n" + "\n".join(f"  {k}: {v}" for k, v in plan.items())
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma migrazione vocabolario US",
+            msg + "\n\nProcedere con --apply (con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+        try:
+            backup = auto_backup_sqlite(db, tag="us_vocab_alignment")
+            applied = apply_changes(db)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore migrazione",
+                f"La migrazione è fallita:\n{e}",
+            )
+            return
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Migrazione completata",
+            f"Backup: {backup}\n\nAggiornamenti: {applied}",
+        )
+
     def _unload_stratigraph_sync(self):
         """Tear down the StratiGraph sync subsystem."""
         if getattr(self, 'sync_orchestrator', None) is not None:
