@@ -74,3 +74,78 @@ def test_empty_graph_error_is_value_error():
     assert issubclass(EmptyGraphError, ValueError)
     e = EmptyGraphError("no rows for site Volterra")
     assert "Volterra" in str(e)
+
+
+def _make_test_graph():
+    """Build a minimal s3dgraphy Graph for filter testing.
+
+    2 stratigraphic units (one per site), 2 epoch nodes,
+    has_first_epoch edges connecting them.
+
+    Note: ext_libs is appended (not inserted) to sys.path so the system
+    pandas (vendored ext_libs/pandas can be broken on some installs)
+    wins on import resolution. s3dgraphy itself is only available under
+    ext_libs/, so it still resolves correctly.
+    """
+    import sys
+    ext_libs = (
+        "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/"
+        "default/python/plugins/pyarchinit/ext_libs")
+    if ext_libs not in sys.path:
+        sys.path.append(ext_libs)
+    from s3dgraphy.graph import Graph
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    from s3dgraphy.nodes.epoch_node import EpochNode
+
+    g = Graph(graph_id="test")
+    us_a = StratigraphicUnit(node_id="us_a", name="US-A", description="")
+    us_a.attributes["sito"] = "SiteA"
+    us_b = StratigraphicUnit(node_id="us_b", name="US-B", description="")
+    us_b.attributes["sito"] = "SiteB"
+    epoch_1 = EpochNode(node_id="ep_1", name="Epoch1", start_time=0, end_time=100)
+    epoch_2 = EpochNode(node_id="ep_2", name="Epoch2", start_time=100, end_time=200)
+    g.add_node(us_a)
+    g.add_node(us_b)
+    g.add_node(epoch_1)
+    g.add_node(epoch_2)
+    # NOTE: Graph.add_edge takes 4 positional strings, not an Edge object.
+    g.add_edge("e1", "us_a", "ep_1", "has_first_epoch")
+    g.add_edge("e2", "us_b", "ep_2", "has_first_epoch")
+    return g
+
+
+def test_filter_by_site_keeps_only_matching_strat_nodes():
+    from modules.s3dgraphy.sync.graphml_writer import _filter_by_site
+    g = _make_test_graph()
+    out = _filter_by_site(g, "SiteA")
+    strat_ids = {n.node_id for n in out.nodes
+                 if hasattr(n, "attributes") and n.attributes.get("sito")}
+    assert strat_ids == {"us_a"}, f"expected only us_a, got {strat_ids!r}"
+
+
+def test_filter_by_site_retains_reachable_epoch_nodes():
+    from modules.s3dgraphy.sync.graphml_writer import _filter_by_site
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    g = _make_test_graph()
+    out = _filter_by_site(g, "SiteA")
+    epoch_ids = {n.node_id for n in out.nodes if isinstance(n, EpochNode)}
+    # ep_1 is reachable from us_a; ep_2 is reachable only from the
+    # discarded us_b, so it must NOT survive the filter.
+    assert epoch_ids == {"ep_1"}, f"expected {{ep_1}}, got {epoch_ids!r}"
+
+
+def test_filter_by_site_prunes_orphan_edges():
+    from modules.s3dgraphy.sync.graphml_writer import _filter_by_site
+    g = _make_test_graph()
+    out = _filter_by_site(g, "SiteA")
+    edge_ids = {e.edge_id for e in out.edges}
+    # e2 connected discarded us_b → discarded ep_2; must be pruned.
+    assert edge_ids == {"e1"}, f"expected {{e1}}, got {edge_ids!r}"
+
+
+def test_filter_by_site_returns_unfiltered_when_none():
+    from modules.s3dgraphy.sync.graphml_writer import _filter_by_site
+    g = _make_test_graph()
+    out = _filter_by_site(g, None)
+    assert len(out.nodes) == len(g.nodes)
+    assert len(out.edges) == len(g.edges)
