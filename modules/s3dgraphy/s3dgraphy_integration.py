@@ -109,8 +109,26 @@ class S3DGraphyIntegration:
                 description=vr_data.get('description', 'Virtual reconstruction')
             )
 
-            # Set as virtual/reconstruction node type
-            node.node_type = 'virtual_reconstruction'
+            # Set as virtual/reconstruction node type.
+            # Resolve the legacy 'virtual_reconstruction' tag through
+            # VocabProvider so future EM versions don't require a code
+            # change here. We map to USVs ("virtual structural" — closest
+            # match in EM 1.5); transitional callers still see the legacy
+            # string via the local mapping table below.
+            try:
+                from modules.s3dgraphy.sync import get_vocab_provider
+                _provider = get_vocab_provider()
+                _legacy_to_s3d = {
+                    'virtual_reconstruction': 'USVs',
+                    'stratigraphic_unit': 'US',
+                }
+                _abbrev = _legacy_to_s3d.get('virtual_reconstruction', 'US')
+                # Confirm the abbreviation is actually known to the catalogue;
+                # if not, fall back to the legacy string verbatim.
+                _known = {ut.abbreviation for ut in _provider.get_unit_types()}
+                node.node_type = _abbrev if _abbrev in _known else 'virtual_reconstruction'
+            except Exception:
+                node.node_type = 'virtual_reconstruction'
             node.is_virtual = True
             node.sito = vr_data.get('sito', '')
             node.area = vr_data.get('area', '')
