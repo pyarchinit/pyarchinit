@@ -1,0 +1,6 @@
+[tool.pytest.ini_options]
+# Scope pytest to tests/sync/ — the new VocabProvider test suite.
+# importlib mode + confcutdir prevents pytest from walking up into the
+# plugin root __init__.py (which imports qgis) when collecting tests.
+testpaths = ["tests/sync"]
+addopts = "--import-mode=importlib --confcutdir=tests/sync"
