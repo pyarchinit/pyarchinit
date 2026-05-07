@@ -32,6 +32,21 @@ class pyarchinit_Folder_installation(object):
 
     OS_UTILITY = Pyarchinit_OS_Utility()
 
+    # Bundled maintenance files in ~/pyarchinit/bin/ that the plugin
+    # owns end-to-end (utility code + templates the user does NOT
+    # customise). When the plugin ships a newer version of any of
+    # these, install_or_update_maintenance_files() overwrites the
+    # copy in HOME so bug fixes (e.g. dot.py edge parser) propagate
+    # on plugin reload. Files NOT in this list (epoche_storiche.csv,
+    # thesaurus_template.csv, template_report_adarte.docx) are left
+    # alone after the first install — they are user-editable.
+    MAINTENANCE_BIN_FILES = (
+        'dot.py',
+        'dottoxml.py',
+        'X11Colors.py',
+        'EM_palette.graphml',
+    )
+
     def _safe_copy(self, src, dst, description=""):
         """Copy file with error handling - continues even if file is missing/corrupted"""
         try:
@@ -150,6 +165,10 @@ class pyarchinit_Folder_installation(object):
                 logo_file
             )
 
+        # Refresh bundled maintenance files (dot.py, dottoxml.py, …) if
+        # the plugin shipped a newer version. Idempotent.
+        self.install_or_update_maintenance_files()
+
         # Extract ZIP archives (profile, rscripts, cambria fonts)
         zip_extracts = [
             ('profile.zip', 'profile'),
@@ -170,3 +189,55 @@ class pyarchinit_Folder_installation(object):
         template_dir = os.path.dirname(template_dst)
         if os.path.exists(template_dir):
             self._safe_copy(template_src, template_dst, 'layout_TimeManager.qpt')
+
+    def install_or_update_maintenance_files(self):
+        """Refresh bundled maintenance files in ~/pyarchinit/bin/ when the
+        plugin ships a newer version.
+
+        Compares mtime + size between the bundled source under
+        resources/dbfiles/ and the installed copy under
+        ~/pyarchinit/bin/. Overwrites the destination only when the
+        source is strictly newer (mtime), or when sizes differ
+        (covers the cross-machine case where mtime can't be trusted —
+        e.g. after a fresh git checkout that resets all mtimes to
+        check-out time).
+
+        Safe to call on every plugin reload — idempotent when the
+        bundled file equals the installed copy. Files NOT in
+        MAINTENANCE_BIN_FILES are left untouched (user-editable
+        templates and CSVs).
+
+        This closes the gap that prevented bug fixes in dot.py /
+        dottoxml.py from reaching ~/pyarchinit/bin/ on existing
+        installations: install_dir() runs only on first install,
+        and copy_file() is a no-op when the destination already
+        exists. install_or_update_maintenance_files() runs on every
+        reload via initialize_environment() in __init__.py.
+        """
+        home_bin = os.path.join(self.HOME, 'bin')
+        dbfiles = os.path.join(self.RESOURCES_PATH, 'dbfiles')
+        if not os.path.isdir(home_bin):
+            # First install hasn't run yet; install_dir() is the
+            # right entry point in that case (it calls us at the end).
+            return
+        if not os.path.isdir(dbfiles):
+            return
+        for name in self.MAINTENANCE_BIN_FILES:
+            src = os.path.join(dbfiles, name)
+            dst = os.path.join(home_bin, name)
+            if not os.path.exists(src):
+                continue
+            if not os.path.exists(dst):
+                # Bin folder existed but this specific file is missing
+                # — install it now (use overwrite-capable helper).
+                self._safe_copy_img(src, dst, name)
+                continue
+            try:
+                src_mtime = os.path.getmtime(src)
+                dst_mtime = os.path.getmtime(dst)
+                src_size = os.path.getsize(src)
+                dst_size = os.path.getsize(dst)
+            except OSError:
+                continue
+            if src_mtime > dst_mtime or src_size != dst_size:
+                self._safe_copy_img(src, dst, name)

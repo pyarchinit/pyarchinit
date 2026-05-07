@@ -806,6 +806,16 @@ def initialize_environment(splash=None) -> None:
         fi.install_dir()
     else:
         os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
+        # Even on existing installs, refresh bundled maintenance
+        # files (dot.py, dottoxml.py, …) when the plugin shipped a
+        # newer version. Without this, fixes inside the plugin's
+        # resources/dbfiles/ never reach ~/pyarchinit/bin/ where
+        # they actually run.
+        try:
+            fi.install_or_update_maintenance_files()
+        except Exception as _exc:
+            # Never block plugin startup on a maintenance refresh.
+            print(f"[pyArchInit] maintenance refresh skipped: {_exc}")
     _step()
 
     # Install configuration files
