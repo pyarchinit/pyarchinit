@@ -79,3 +79,27 @@ def test_get_cidoc_mapping_returns_class_name(vocab_dir: Path, overrides_dir: Pa
 def test_get_cidoc_mapping_falls_back_for_unknown(vocab_dir: Path, overrides_dir: Path):
     core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
     assert core.get_cidoc_mapping("nonexistent") is None
+
+
+def test_versions_are_exposed(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    v = core.versions
+    assert v.nodes == "1.5.2"
+    assert v.connections == "1.5.4"
+    assert v.visual_rules == "1.5.0"
+
+
+def test_minimum_version_gate_passes_when_met(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(
+        bundled_dir=vocab_dir,
+        overrides_dir=overrides_dir,
+        min_versions={"nodes": "1.5.0", "connections": "1.5.0", "visual_rules": "1.5.0"})
+    assert core.versions.nodes == "1.5.2"  # no error
+
+
+def test_minimum_version_gate_raises_when_unmet(vocab_dir: Path, overrides_dir: Path):
+    with pytest.raises(ValueError, match="below required minimum"):
+        VocabProviderCore(
+            bundled_dir=vocab_dir,
+            overrides_dir=overrides_dir,
+            min_versions={"nodes": "9.9.9"})

@@ -14,7 +14,7 @@ import json
 from pathlib import Path
 from typing import Iterable
 
-from .vocab_types import EdgeType, Family, ParadataType, UnitType, VisualRule
+from .vocab_types import EdgeType, Family, ParadataType, UnitType, VisualRule, VocabularyVersion
 
 # Filenames the loader will accept. Includes the 0.1.30 trailing-space typo.
 _NODE_DATAMODEL_NAMES = (
@@ -36,6 +36,17 @@ _FAMILY_KEYS = {
 }
 
 
+def _vtuple(s: str) -> tuple[int, ...]:
+    """Parse a 'M.N.P' version string into a comparable tuple."""
+    out: list[int] = []
+    for part in (s or "0").split("."):
+        try:
+            out.append(int(part))
+        except ValueError:
+            out.append(0)
+    return tuple(out)
+
+
 def _first_existing(directory: Path, names: Iterable[str]) -> Path | None:
     for name in names:
         p = directory / name
@@ -55,13 +66,36 @@ def _merge_dicts(base: dict, override: dict) -> dict:
 class VocabProviderCore:
     """Parses the s3dgraphy JSON pillars; query API for client tools."""
 
-    def __init__(self, bundled_dir: Path, overrides_dir: Path):
+    def __init__(self,
+                 bundled_dir: Path,
+                 overrides_dir: Path,
+                 min_versions: dict | None = None):
         self._bundled_dir = Path(bundled_dir)
         self._overrides_dir = Path(overrides_dir)
+        self._min_versions = dict(min_versions or {})
         self._node_data: dict = {}
         self._connections_data: dict = {}
         self._visual_data: dict = {}
         self.reload()
+        self._enforce_minimum_versions()
+
+    def _enforce_minimum_versions(self) -> None:
+        v = self.versions
+        for key, required in self._min_versions.items():
+            actual = getattr(v, key, "")
+            if _vtuple(actual) < _vtuple(required):
+                raise ValueError(
+                    f"s3dgraphy vocabulary {key} version {actual!r} is below "
+                    f"required minimum {required!r}")
+
+    @property
+    def versions(self) -> VocabularyVersion:
+        return VocabularyVersion(
+            nodes=self._node_data.get("s3Dgraphy_data_model_version", ""),
+            connections=self._connections_data.get(
+                "s3Dgraphy_connections_version", ""),
+            visual_rules=self._visual_data.get("em_visual_rules_version", ""),
+        )
 
     def reload(self) -> None:
         self._node_data = self._load_with_override(_NODE_DATAMODEL_NAMES)
