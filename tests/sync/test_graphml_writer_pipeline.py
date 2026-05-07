@@ -84,3 +84,24 @@ def test_pipeline_emits_epoch_swimlanes(mini_volterra, tmp_path):
         "no swimlane marker found in output")
     assert result.epoch_count >= 2, (
         f"expected >=2 epochs, got {result.epoch_count}")
+
+
+def test_pipeline_diversifies_edge_styles(mini_volterra, tmp_path):
+    """L3 — closes 'partial edge styling' limitation.
+
+    The fixture rapporti span 4 distinct relation types (copre,
+    coperto da, uguale a, riempie). After mapping into s3dgraphy
+    edge types (is_after / is_after / has_same_time / fills) and
+    rendering through GraphMLExporter, the produced XML must contain
+    >=2 distinct yEd LineStyle.type values.
+    """
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    out = tmp_path / "out.graphml"
+    export_graphml(
+        db_path=mini_volterra, mapping="pyarchinit_us_mapping",
+        output_path=out)
+    xml = out.read_text(encoding="utf-8")
+    line_styles = set(re.findall(
+        r'<y:LineStyle[^>]+type="([^"]+)"', xml))
+    assert len(line_styles) >= 2, (
+        f"expected >=2 distinct LineStyle.type values, got {line_styles!r}")
