@@ -105,3 +105,20 @@ def test_pipeline_diversifies_edge_styles(mini_volterra, tmp_path):
         r'<y:LineStyle[^>]+type="([^"]+)"', xml))
     assert len(line_styles) >= 2, (
         f"expected >=2 distinct LineStyle.type values, got {line_styles!r}")
+
+
+def test_pipeline_applies_transitive_reduction(mini_volterra, tmp_path):
+    """L4 — closes 'no transitive reduction' limitation.
+
+    The fixture wires US1→US2→US3 plus a redundant US1→US3.
+    GraphMLExporter must remove the redundant edge via
+    TemporalInferenceEngine.transitive_reduction.
+    """
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    out = tmp_path / "out.graphml"
+    result = export_graphml(
+        db_path=mini_volterra, mapping="pyarchinit_us_mapping",
+        output_path=out)
+    assert result.tred_removed_edges >= 1, (
+        f"expected >=1 redundant edge removed, got "
+        f"{result.tred_removed_edges}; warnings={result.warnings!r}")
