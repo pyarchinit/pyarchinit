@@ -90,11 +90,21 @@ class VocabProviderCore:
 
     @property
     def versions(self) -> VocabularyVersion:
+        # Each pillar uses a slightly different version key on disk; we
+        # accept BOTH the simplified fixture key and the real 0.1.40 key
+        # so neither test fixtures nor real vendor rolls regress.
+        connections = (
+            self._connections_data.get("s3Dgraphy_connections_version")
+            or self._connections_data.get("s3Dgraphy_connections_model_version", "")
+        )
+        visual_rules = (
+            self._visual_data.get("em_visual_rules_version")
+            or self._visual_data.get("version", "")
+        )
         return VocabularyVersion(
             nodes=self._node_data.get("s3Dgraphy_data_model_version", ""),
-            connections=self._connections_data.get(
-                "s3Dgraphy_connections_version", ""),
-            visual_rules=self._visual_data.get("em_visual_rules_version", ""),
+            connections=connections,
+            visual_rules=visual_rules,
         )
 
     def reload(self) -> None:
@@ -168,16 +178,35 @@ class VocabProviderCore:
         return out
 
     def get_visual_rule(self, node_type: str) -> VisualRule | None:
-        block = self._visual_data.get("rules", {})
+        # Two shapes are supported on disk:
+        #   (a) flat fixture form used by tests: `{"rules": {"<type>": {"icon", "fill", "stroke", "palette"}}}`
+        #   (b) real s3dgraphy 0.1.40 form: `{"node_styles": {"<type>": {"file_2d", "style": {"fill_color", "border_color", ...}, ...}}}`
+        block = (
+            self._visual_data.get("rules")
+            or self._visual_data.get("node_styles")
+            or {}
+        )
         rule = block.get(node_type)
         if rule is None:
             return None
+        # Flat shape (fixture): keys live at the rule's top level.
+        if "fill" in rule or "stroke" in rule or "palette" in rule:
+            return VisualRule(
+                node_type=node_type,
+                icon=rule.get("icon", ""),
+                fill=rule.get("fill", ""),
+                stroke=rule.get("stroke", ""),
+                palette=rule.get("palette", ""),
+            )
+        # Nested shape (s3dgraphy 0.1.40): style block holds fill_color, border_color, shape.
+        style = rule.get("style", {}) or {}
         return VisualRule(
             node_type=node_type,
-            icon=rule.get("icon", ""),
-            fill=rule.get("fill", ""),
-            stroke=rule.get("stroke", ""),
-            palette=rule.get("palette", ""),
+            icon=rule.get("file_2d") or rule.get("2d_file_rast")
+                 or rule.get("2d_file_vect", ""),
+            fill=style.get("fill_color", ""),
+            stroke=style.get("border_color", ""),
+            palette=style.get("shape", ""),
         )
 
     def get_cidoc_mapping(self, type_abbreviation: str) -> str | None:
