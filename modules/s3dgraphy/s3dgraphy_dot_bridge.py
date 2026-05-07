@@ -192,52 +192,72 @@ class S3DGraphyDotBridge:
                     f.write(dot_content)
                 exported_files['dot'] = dot_path
         
-        # Export GraphML format (via DOT conversion)
-        if 'graphml' in formats and 'dot' in exported_files:
+        # Export GraphML format via s3dgraphy.GraphMLExporter (AI03 cut-over).
+        # Phase 1's DOT->GraphML pipeline is gone; the produced file now has
+        # epoch swimlanes, transitive reduction, and full EM 1.5 edge styling.
+        if 'graphml' in formats:
             graphml_path = os.path.join(output_dir, f"{base_name}.graphml")
-            try:
-                # Create temporary options object for dottoxml
-                class Options:
-                    def __init__(self):
-                        self.format = 'Graphml'
-                        self.verbose = False
-                        self.sweep = False
-                        self.NodeLabels = True
-                        self.EdgeLabels = True
-                        self.NodeUml = True
-                        self.Arrows = True
-                        self.Colors = True
-                        self.LumpAttributes = True
-                        self.SepChar = '_'
-                        self.EdgeLabelsAutoComplete = False
-                        self.DefaultArrowHead = 'normal'
-                        self.DefaultArrowTail = 'none'
-                        self.DefaultNodeColor = '#CCCCFF'
-                        self.DefaultEdgeColor = '#000000'
-                        self.DefaultNodeTextColor = '#000000'
-                        self.DefaultEdgeTextColor = '#000000'
-                        self.InputEncoding = 'utf-8'
-                        self.OutputEncoding = 'utf-8'
-                
-                options = Options()
-                
-                # Convert DOT to GraphML using existing converter
-                self._convert_dot_to_graphml(exported_files['dot'], graphml_path, options)
-                
-                # Enhance GraphML with spatial groupings if configured
-                if self.spatial_groupings:
-                    from .graphml_spatial_enhancer import GraphMLSpatialEnhancer
-                    enhancer = GraphMLSpatialEnhancer()
-                    enhancer.enhance_graphml_with_groups(graphml_path, self.spatial_groupings)
-                
-                exported_files['graphml'] = graphml_path
-                
-            except Exception as e:
+            db_path = None
+            if self.db_manager is not None:
+                db_path = self.db_manager.get_sqlite_path()
+            if db_path is None:
+                # PG backend (or no db_manager). Skip GraphML and
+                # surface a friendly status — DOT/JSON still produced.
                 if QGIS_AVAILABLE:
                     QgsMessageLog.logMessage(
-                        f"Error converting to GraphML: {str(e)}",
-                        "PyArchInit", Qgis.Warning
+                        "GraphML export requires SQLite backend; "
+                        "PostgreSQL support arrives with AI04. "
+                        "DOT and JSON exports are unaffected.",
+                        "PyArchInit", Qgis.Info,
                     )
+                exported_files['graphml_status'] = {
+                    'level': 'info',
+                    'reason': 'postgresql backend not yet supported',
+                }
+            else:
+                from .sync.graphml_writer import (
+                    export_graphml,
+                    EmptyGraphError,
+                    GraphMLExportError,
+                )
+                try:
+                    result = export_graphml(
+                        db_path=db_path,
+                        mapping='pyarchinit_us_mapping',
+                        output_path=graphml_path,
+                        site_filter=site,
+                        persist_auxiliary=False,
+                    )
+                    exported_files['graphml'] = graphml_path
+                    exported_files['graphml_result'] = result
+                except (FileNotFoundError, EmptyGraphError) as e:
+                    exported_files['graphml_status'] = {
+                        'level': 'warning',
+                        'reason': str(e),
+                    }
+                    if QGIS_AVAILABLE:
+                        QgsMessageLog.logMessage(
+                            f"GraphML skipped: {e}",
+                            "PyArchInit", Qgis.Warning,
+                        )
+                except GraphMLExportError as e:
+                    import traceback
+                    exported_files['graphml_status'] = {
+                        'level': 'error',
+                        'stage': e.stage,
+                        'reason': str(e),
+                        'traceback': traceback.format_exc(),
+                    }
+                    if QGIS_AVAILABLE:
+                        QgsMessageLog.logMessage(
+                            f"GraphML export failed at {e.stage}: "
+                            f"{e.original}",
+                            "PyArchInit", Qgis.Critical,
+                        )
+                        QgsMessageLog.logMessage(
+                            traceback.format_exc(),
+                            "PyArchInit", Qgis.Critical,
+                        )
         
         # Export native s3dgraphy JSON format
         if 'json' in formats:
