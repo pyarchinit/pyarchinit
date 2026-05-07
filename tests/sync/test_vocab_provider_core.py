@@ -56,3 +56,16 @@ def test_get_paradata_types(vocab_dir: Path, overrides_dir: Path):
     paradata = core.get_paradata_types()
     by_name = {p.s3dgraphy_class: p for p in paradata}
     assert "AuthorNode" in by_name
+
+
+def test_get_visual_rule(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    rule = core.get_visual_rule("US")
+    assert rule is not None
+    assert rule.fill == "#FFFFFF"
+    assert rule.palette == "stratigraphic"
+
+
+def test_get_visual_rule_returns_none_for_unknown(vocab_dir: Path, overrides_dir: Path):
+    core = VocabProviderCore(bundled_dir=vocab_dir, overrides_dir=overrides_dir)
+    assert core.get_visual_rule("nonexistent") is None

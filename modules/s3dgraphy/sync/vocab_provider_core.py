@@ -132,3 +132,16 @@ class VocabProviderCore:
                 s3dgraphy_class=defn.get("class", class_name),
             ))
         return out
+
+    def get_visual_rule(self, node_type: str) -> VisualRule | None:
+        block = self._visual_data.get("rules", {})
+        rule = block.get(node_type)
+        if rule is None:
+            return None
+        return VisualRule(
+            node_type=node_type,
+            icon=rule.get("icon", ""),
+            fill=rule.get("fill", ""),
+            stroke=rule.get("stroke", ""),
+            palette=rule.get("palette", ""),
+        )
