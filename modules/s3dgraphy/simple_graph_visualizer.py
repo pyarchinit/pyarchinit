@@ -202,16 +202,27 @@ class SimpleGraphVisualizer:
             unita_tipo = node.get('unita_tipo', 'US')
             label = node.get('name', node.get('us', ''))
 
-            # Choose color based on unit type
-            color_map = {
+            # Resolve color via VocabProvider's visual rules; fall back to
+            # the hardcoded table (kept for offline callers / when
+            # ext_libs/s3dgraphy is missing) and then to a generic gray.
+            _legacy_color_map = {
                 'US': '#4CAF50',  # Green
                 'USM': '#FF9800',  # Orange
                 'USF': '#2196F3',  # Blue
                 'USD': '#795548',  # Brown
                 'USR': '#9C27B0',  # Purple
-                'virtual_reconstruction': '#E91E63'  # Pink
+                'virtual_reconstruction': '#E91E63',  # Pink
             }
-            color = color_map.get(unita_tipo, '#607D8B')
+            color = None
+            try:
+                from modules.s3dgraphy.sync import get_vocab_provider
+                rule = get_vocab_provider().get_visual_rule(unita_tipo)
+                if rule and rule.fill:
+                    color = rule.fill
+            except Exception:
+                color = None
+            if color is None:
+                color = _legacy_color_map.get(unita_tipo, '#607D8B')
 
             # Draw node circle
             circle = Circle((x, y), 0.4, facecolor=color, edgecolor='black',
