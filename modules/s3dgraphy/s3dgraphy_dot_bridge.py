@@ -395,6 +395,18 @@ if QGIS_AVAILABLE:
             file_row.addWidget(self.btn_browse)
             import_layout.addLayout(file_row)
 
+            # Sito selector — populated from site_table at dialog open
+            # time. Includes a "(new sito)" marker that the user can
+            # replace by typing a new name (the combo is editable).
+            sito_row = QHBoxLayout()
+            sito_row.addWidget(QLabel("Sito target:"))
+            self.cb_sito = QComboBox()
+            self.cb_sito.setEditable(True)
+            self.cb_sito.setInsertPolicy(QComboBox.NoInsert)
+            self._populate_sito_combo()
+            sito_row.addWidget(self.cb_sito, stretch=1)
+            import_layout.addLayout(sito_row)
+
             self.cb_create_epochs = QCheckBox("Crea periodi mancanti se assenti")
             self.cb_create_epochs.setChecked(False)
             import_layout.addWidget(self.cb_create_epochs)
@@ -527,6 +539,49 @@ if QGIS_AVAILABLE:
             finally:
                 self.progress.setVisible(False)
 
+        def _populate_sito_combo(self):
+            """Fill the sito combo with distinct values from site_table.
+
+            The combo is editable so the user can type a NEW sito; on
+            apply, the GraphIngestor will auto-create the row in
+            site_table if it doesn't already exist (#3 from H.4
+            extended fixes).
+
+            The current `self.site` (the sito the user was working on
+            in the parent form) is preselected when present in
+            site_table; otherwise the combo defaults to the first
+            entry.
+            """
+            try:
+                self.cb_sito.clear()
+                if not self.db_manager:
+                    return
+                sqlite_path = self.db_manager.get_sqlite_path()
+                if sqlite_path is None:
+                    return
+                import sqlite3
+                conn = sqlite3.connect(str(sqlite_path))
+                try:
+                    rows = conn.execute(
+                        "SELECT DISTINCT sito FROM site_table "
+                        "WHERE sito IS NOT NULL ORDER BY sito").fetchall()
+                finally:
+                    conn.close()
+                for r in rows:
+                    self.cb_sito.addItem(r[0])
+                if self.site:
+                    idx = self.cb_sito.findText(self.site)
+                    if idx >= 0:
+                        self.cb_sito.setCurrentIndex(idx)
+                    else:
+                        # Add the parent-form sito on the fly so the user
+                        # can keep using it even if it's not in the DB.
+                        self.cb_sito.addItem(self.site)
+                        self.cb_sito.setCurrentText(self.site)
+            except Exception:
+                # Defensive — combo stays empty/editable; user can type
+                pass
+
         def _on_browse_import(self):
             """File picker for the Import tab."""
             path, _ = QFileDialog.getOpenFileName(
@@ -557,11 +612,19 @@ if QGIS_AVAILABLE:
                         self, "No SQLite DB",
                         "Import requires a SQLite-backed pyarchinit project.")
                     return
+                target_sito = (self.cb_sito.currentText().strip()
+                               or self.site)
+                if not target_sito:
+                    QMessageBox.warning(
+                        self, "No sito",
+                        "Please select or type the sito target.")
+                    return
                 result = GraphIngestor().populate_list(
                     graph, db_path,
-                    sito=self.site,
+                    sito=target_sito,
                     dry_run=True,
                     create_missing_epochs=self.cb_create_epochs.isChecked(),
+                    graphml_path=graphml_path,
                 )
             except GraphSyncError as e:
                 QMessageBox.critical(
@@ -600,11 +663,19 @@ if QGIS_AVAILABLE:
                         self, "No SQLite DB",
                         "Import requires a SQLite-backed pyarchinit project.")
                     return
+                target_sito = (self.cb_sito.currentText().strip()
+                               or self.site)
+                if not target_sito:
+                    QMessageBox.warning(
+                        self, "No sito",
+                        "Please select or type the sito target.")
+                    return
                 result = GraphIngestor().populate_list(
                     graph, db_path,
-                    sito=self.site,
+                    sito=target_sito,
                     dry_run=False,
                     create_missing_epochs=self.cb_create_epochs.isChecked(),
+                    graphml_path=self._last_preview_path,
                 )
             except GraphSyncError as e:
                 QMessageBox.critical(self, type(e).__name__, str(e))

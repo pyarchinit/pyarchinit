@@ -96,16 +96,36 @@ def test_ingestor_construction():
     assert g2._resolver is not None
 
 
-def test_populate_list_requires_sito_match(mini_volterra):
-    """D6 — graph nodes whose sito differs from the parameter raise."""
+def test_populate_list_overrides_sito_to_target(mini_volterra):
+    """AI04.1 (formerly D6 strict): the sito parameter is now
+    AUTHORITATIVE — graph nodes' sito attribute is overridden to the
+    parameter value. This supports the "import this graph into a NEW
+    sito" workflow that emerged from the H.4 manual smoke gate."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
-    from modules.s3dgraphy.sync.graph_ingestor import (
-        GraphIngestor, SiteMismatchError)
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     sito = _read_sito(mini_volterra)
     graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    # Importing into a different sito must NOT raise — instead the
+    # ingestor rewrites sito on every node to the target value.
+    # create_missing_epochs=True so the new-sito periodizzazione gets
+    # auto-populated (otherwise MissingEpochError raises since the
+    # new sito has no period rows yet).
+    result = GraphIngestor().populate_list(
+        graph, mini_volterra, sito="DIFFERENT_TARGET",
+        dry_run=True, create_missing_epochs=True)
+    # Dry-run still does the detection; non-zero counters mean the
+    # nodes were processed (not skipped by a SiteMismatchError raise).
+    assert result.inserted + result.updated + result.skipped > 0
+
+
+def test_populate_list_empty_sito_still_raises():
+    """Empty sito parameter is always invalid."""
+    from s3dgraphy import Graph
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        GraphIngestor, SiteMismatchError)
     g = GraphIngestor()
     with pytest.raises(SiteMismatchError):
-        g.populate_list(graph, mini_volterra, sito="WRONG_SITE")
+        g.populate_list(Graph(graph_id="X"), "/nope.sqlite", sito="")
 
 
 def test_populate_list_schema_check_raises(tmp_path):

@@ -60,10 +60,15 @@ def _migrated_copy() -> Path:
 
 
 def _write_graphml(graph, out: Path) -> None:
-    """Use s3dgraphy's GraphMLExporter to serialise."""
+    """Serialise via s3dgraphy GraphMLExporter, then run the
+    _embed_pyarchinit_data_keys post-processor so the fixture
+    carries the data keys AI04 import can recover."""
     from s3dgraphy.exporter.graphml.graphml_exporter import GraphMLExporter
+    from modules.s3dgraphy.sync.graphml_writer import (
+        _embed_pyarchinit_data_keys)
     exporter = GraphMLExporter(graph)
     exporter.export(str(out), persist_auxiliary=False)
+    _embed_pyarchinit_data_keys(graph, out)
 
 
 def main() -> int:

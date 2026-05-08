@@ -312,6 +312,21 @@ def _enrich_pyarchinit_graph(graph, db_path: Path,
                     end_time=end,
                     color=row_color,
                 )
+                # Stash periodo/fase on the EpochNode so the AI04
+                # graphml round-trip can recover them via the
+                # _embed_pyarchinit_data_keys post-processor (which
+                # reads from `attributes` rather than parsing node_id —
+                # node_id may be reassigned by GraphMLExporter).
+                if not hasattr(ep, "attributes") or ep.attributes is None:
+                    ep.attributes = {}
+                ep.attributes["periodo"] = str(key[0])
+                ep.attributes["fase"] = str(key[1])
+                if cron_ini is not None:
+                    ep.attributes["cron_iniziale"] = str(int(cron_ini))
+                if cron_fin is not None:
+                    ep.attributes["cron_finale"] = str(int(cron_fin))
+                if descr:
+                    ep.attributes["datazione_estesa"] = str(descr)
                 graph.add_node(ep)
                 epoch_by_key[key] = ep
         except sqlite3.Error:
@@ -1000,6 +1015,193 @@ def _apply_pyarchinit_visual_overrides(
     tree.write(str(xml_path), encoding="UTF-8", xml_declaration=True)
 
 
+# Custom data-key names (must match the parser in graph_ingestor.py).
+_PYARCHINIT_NODE_DATA_KEYS = (
+    ("us", "pyarchinit.us"),
+    ("area", "pyarchinit.area"),
+    ("sito", "pyarchinit.sito"),
+    ("unita_tipo", "pyarchinit.unita_tipo"),
+    ("periodo_iniziale", "pyarchinit.periodo_iniziale"),
+    ("fase_iniziale", "pyarchinit.fase_iniziale"),
+    ("rapporti", "pyarchinit.rapporti"),
+    ("d_stratigrafica", "pyarchinit.d_stratigrafica"),
+)
+_PYARCHINIT_EPOCH_DATA_KEYS = (
+    ("periodo", "pyarchinit.periodo"),
+    ("fase", "pyarchinit.fase"),
+    ("cron_iniziale", "pyarchinit.cron_iniziale"),
+    ("cron_finale", "pyarchinit.cron_finale"),
+    ("datazione_estesa", "pyarchinit.datazione_estesa"),
+)
+
+
+def _embed_pyarchinit_data_keys(graph, xml_path: Path) -> None:
+    """Append custom <data> entries on each <node> in the produced
+    GraphML so AI04's import path can recover the pyarchinit columns
+    that s3dgraphy's GraphMLImporter would otherwise strip.
+
+    Each attribute gets its own <key for="node" attr.name="…"/> at
+    the document level, plus a per-node <data key="…">value</data>.
+    """
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # Build EMID → graph node lookup so we can pull attributes per node.
+    emid_to_node = {}
+    for n in graph.nodes:
+        emid = getattr(n, "node_id", None)
+        if emid:
+            emid_to_node[emid] = n
+
+    # Allocate fresh data-key ids that don't collide.
+    used_ids = {k.get("id") for k in root.findall(f"{{{NS_GRAPHML}}}key")
+                if k.get("id")}
+    next_n = 0
+    def _alloc_id() -> str:
+        nonlocal next_n
+        while f"d{next_n}" in used_ids:
+            next_n += 1
+        kid = f"d{next_n}"
+        used_ids.add(kid)
+        next_n += 1
+        return kid
+
+    # Register node-level keys
+    node_attrname_to_keyid: dict[str, str] = {}
+    for attr_name, attr_named in _PYARCHINIT_NODE_DATA_KEYS:
+        kid = _alloc_id()
+        node_attrname_to_keyid[attr_name] = kid
+        key_el = etree.Element(f"{{{NS_GRAPHML}}}key")
+        key_el.set("for", "node")
+        key_el.set("id", kid)
+        key_el.set("attr.name", attr_named)
+        key_el.set("attr.type", "string")
+        # Insert after existing keys
+        existing_keys = root.findall(f"{{{NS_GRAPHML}}}key")
+        if existing_keys:
+            existing_keys[-1].addnext(key_el)
+        else:
+            root.insert(0, key_el)
+
+    # Register epoch-level keys (we'll write them on EpochNode shapes;
+    # those are inside <y:Row> in the swimlane TableNode, but s3dgraphy
+    # also emits them as separate <node> entries — we put data on both
+    # via the same key set, applied conditionally below).
+    epoch_attrname_to_keyid: dict[str, str] = {}
+    for attr_name, attr_named in _PYARCHINIT_EPOCH_DATA_KEYS:
+        kid = _alloc_id()
+        epoch_attrname_to_keyid[attr_name] = kid
+        key_el = etree.Element(f"{{{NS_GRAPHML}}}key")
+        key_el.set("for", "node")
+        key_el.set("id", kid)
+        key_el.set("attr.name", attr_named)
+        key_el.set("attr.type", "string")
+        existing_keys = root.findall(f"{{{NS_GRAPHML}}}key")
+        if existing_keys:
+            existing_keys[-1].addnext(key_el)
+        else:
+            root.insert(0, key_el)
+
+    # ---- Epoch metadata block (#5 H.4 fix) ----
+    # EpochNodes don't appear as separate <node> elements in s3dgraphy
+    # output (they live inside the swimlane <y:TableNode>'s <y:Row>),
+    # so per-node data keys can't reach them. Instead embed a single
+    # JSON blob on the <graph> element listing every EpochNode's
+    # periodo/fase/cron metadata, indexed by name. The AI04 hydrator
+    # reads this and propagates back to graph.nodes by name match.
+    import json as _json
+    epoch_meta = []
+    for n in graph.nodes:
+        if type(n).__name__ != "EpochNode":
+            continue
+        nattrs = getattr(n, "attributes", None) or {}
+        meta = {"name": getattr(n, "name", "")}
+        for key in ("periodo", "fase", "cron_iniziale",
+                    "cron_finale", "datazione_estesa"):
+            if nattrs.get(key) is not None:
+                meta[key] = str(nattrs[key])
+        if getattr(n, "start_time", None) not in (None, 0, 0.0):
+            meta.setdefault("cron_iniziale", str(int(n.start_time)))
+        if getattr(n, "end_time", None) not in (None, 0, 0.0):
+            meta.setdefault("cron_finale", str(int(n.end_time)))
+        if len(meta) > 1:
+            epoch_meta.append(meta)
+    if epoch_meta:
+        epochs_kid = _alloc_id()
+        ekey_el = etree.Element(f"{{{NS_GRAPHML}}}key")
+        ekey_el.set("for", "graph")
+        ekey_el.set("id", epochs_kid)
+        ekey_el.set("attr.name", "pyarchinit.epochs_meta")
+        ekey_el.set("attr.type", "string")
+        existing_keys = root.findall(f"{{{NS_GRAPHML}}}key")
+        if existing_keys:
+            existing_keys[-1].addnext(ekey_el)
+        else:
+            root.insert(0, ekey_el)
+        # Find the top-level <graph> child to attach the data blob to
+        graph_el = root.find(f"{{{NS_GRAPHML}}}graph")
+        if graph_el is not None:
+            ed = etree.SubElement(graph_el, f"{{{NS_GRAPHML}}}data")
+            ed.set("key", epochs_kid)
+            ed.text = _json.dumps(epoch_meta)
+
+    # Walk every <node>, look up its EMID in emid_to_node, attach the
+    # corresponding pyarchinit data values when present.
+    known_emids = set(emid_to_node.keys())
+    for node_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        emid = None
+        for d_el in node_el.findall(f"{{{NS_GRAPHML}}}data"):
+            txt = (d_el.text or "").strip()
+            if txt and txt in known_emids:
+                emid = txt
+                break
+        if emid is None:
+            continue
+        n = emid_to_node[emid]
+        attrs = getattr(n, "attributes", None) or {}
+        # Choose the right attr-set based on node type
+        is_epoch = type(n).__name__ == "EpochNode"
+        if is_epoch:
+            attrname_to_kid = epoch_attrname_to_keyid
+            # Auto-derive periodo/fase from EpochNode.node_id when not
+            # already in attrs (so our import side sees them).
+            import re as _re_local
+            tid = getattr(n, "node_id", "") or ""
+            m = _re_local.match(
+                r"^epoch_([^_]+)_(.+?)(_synthetic)?$", str(tid))
+            if m:
+                attrs = dict(attrs)
+                attrs.setdefault("periodo", m.group(1))
+                attrs.setdefault("fase", m.group(2))
+            cron_ini = getattr(n, "start_time", None)
+            cron_fin = getattr(n, "end_time", None)
+            if cron_ini not in (None, 0, 0.0):
+                attrs.setdefault("cron_iniziale", str(int(cron_ini)))
+            if cron_fin not in (None, 0, 0.0):
+                attrs.setdefault("cron_finale", str(int(cron_fin)))
+            datazione = attrs.get("datazione_estesa") or getattr(n, "name", "")
+            if datazione:
+                attrs.setdefault("datazione_estesa", str(datazione))
+        else:
+            attrname_to_kid = node_attrname_to_keyid
+        for attr_name, kid in attrname_to_kid.items():
+            val = attrs.get(attr_name)
+            if val is None or val == "":
+                continue
+            d = etree.SubElement(node_el, f"{{{NS_GRAPHML}}}data")
+            d.set("key", kid)
+            d.text = str(val)
+
+    tree.write(str(xml_path), encoding="UTF-8", xml_declaration=True)
+
+
 def export_graphml(
     db_path,
     mapping: str,
@@ -1101,6 +1303,18 @@ def export_graphml(
         if hasattr(graph, "add_warning"):
             graph.add_warning(
                 f"Visual post-processing skipped: {type(e).__name__}: {e}")
+
+    # Stage 4c: embed pyarchinit-specific attributes as GraphML data
+    # keys so AI04's GraphIngestor can recover them on round-trip.
+    # s3dgraphy's GraphMLImporter strips any attribute it doesn't
+    # recognise; emitting under our own data-key namespace lets us
+    # parse them back via lxml directly in graph_ingestor.
+    try:
+        _embed_pyarchinit_data_keys(graph, output_path)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"Data-key embedding skipped: {type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.
     from s3dgraphy.nodes.epoch_node import EpochNode

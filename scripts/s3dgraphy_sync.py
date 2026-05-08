@@ -90,6 +90,7 @@ def cmd_import(args) -> int:
             sito=args.sito,
             dry_run=not args.apply,
             create_missing_epochs=args.create_epochs,
+            graphml_path=Path(args.graphml),
         )
     except GraphSyncError as e:
         print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
