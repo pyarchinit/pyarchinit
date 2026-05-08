@@ -1309,6 +1309,19 @@ def export_graphml(
     except Exception as e:
         raise GraphMLExportError("import", e) from e
 
+    # Capture paradata snapshot BEFORE the site filter — the AI04
+    # `_filter_by_site` only retains StratigraphicNode + EpochNode
+    # (it doesn't know about AI05 paradata classes), so it drops
+    # isolated AuthorNode/LicenseNode/EmbargoNode. Stage 4d below
+    # re-injects from this snapshot. AI05 site-level paradata (D9)
+    # applies to the whole site unconditionally — no per-node
+    # filtering is appropriate for them.
+    _paradata_snapshot = [
+        n for n in graph.nodes
+        if type(n).__name__ in _PARADATA_INJECT_TYPES
+    ]
+    print(f"[ExportGraphML] paradata snapshot: {len(_paradata_snapshot)}")
+
     # Stage 2: filter
     try:
         graph = _filter_by_site(graph, site_filter)
@@ -1327,16 +1340,6 @@ def export_graphml(
     # graph.warnings can never resolve. We use the arithmetic
     # fallback the plan suggested.
     temporal_input_count = _count_temporal_input_edges(graph)
-
-    # Capture paradata snapshot BEFORE GraphMLExporter runs —
-    # the exporter rebuilds graph.nodes internally to reflect only
-    # what it emits, dropping isolated AuthorNode/LicenseNode/
-    # EmbargoNode (D9 site-level paradata). Stage 4d below
-    # re-injects them from this snapshot.
-    _paradata_snapshot = [
-        n for n in graph.nodes
-        if type(n).__name__ in _PARADATA_INJECT_TYPES
-    ]
 
     # Stage 3: export (in-memory XML build)
     try:
