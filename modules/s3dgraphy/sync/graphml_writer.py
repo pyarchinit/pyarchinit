@@ -164,18 +164,23 @@ _RAPPORTI_TO_EDGE_TYPE = {
 # which in EM is encoded as `target is_after source` — so we swap.
 # Similarly for ">>" → "target extracted_from source" (target depends
 # on source's data).
+# Per pyarchinit author (May 2026):
+#   `>` and `>>` mean "the source COVERS the target" = source is above
+#       in the stratigraphic matrix = source is_after target temporally.
+#   `<` and `<<` mean "the source is COVERED by the target" = source is
+#       below the target = target is_after source.
+# The token A > B therefore produces edge `A is_after B` directly (no
+# swap); A < B produces `B is_after A` (swap source/target).
+# Single arrow `>` / `<` is used for Continuity (CON) and other
+# stratigraphic-only relations; double arrow `>>` / `<<` is paradata
+# data flow (DOC / Extractor / Combinar / property chains) and uses
+# `generic_connection` because the writer filters extracted_from /
+# combines as PARADATA_EDGE_TYPES (graphml_exporter.py:147).
 _RAPPORTI_SHORTHAND = {
-    ">":  ("is_after", True),            # A > B  ⇒  B is_after A
-    "<":  ("is_after", False),           # A < B  ⇒  A is_after B
-    # `>>` / `<<` are pyarchinit's data-flow shorthand. Semantically
-    # this is `extracted_from` / `combines`, but those edge_types are
-    # filtered out of the GraphMLExporter output (it expects paradata
-    # edges to live inside a ParadataNodeGroup structure, which
-    # pyarchinit-imported nodes do not produce). `generic_connection`
-    # bypasses the filter and renders as a labelled edge in yEd —
-    # users still see the relationship, just with a generic visual.
-    ">>": ("generic_connection", True),  # A >> B  ⇒  B generic_connection A
-    "<<": ("generic_connection", False), # A << B  ⇒  A generic_connection B
+    ">":  ("is_after", False),           # A > B  ⇒  A is_after B
+    "<":  ("is_after", True),            # A < B  ⇒  B is_after A
+    ">>": ("generic_connection", False), # A >> B ⇒  A → B
+    "<<": ("generic_connection", True),  # A << B ⇒  B → A
 }
 
 
@@ -295,7 +300,8 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
         try:
             cursor.execute(
                 "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
-                "fase_iniziale, rapporti FROM us_table"
+                "fase_iniziale, rapporti, d_stratigrafica "
+                "FROM us_table"
             )
             rows = cursor.fetchall()
         except sqlite3.Error:
@@ -303,7 +309,7 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
 
         edge_seq = 0
         for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
-             rapporti_raw) in rows:
+             rapporti_raw, d_stratigrafica) in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name or us_name not in strat_by_name:
                 continue
@@ -317,6 +323,10 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                 us_node.attributes["area"] = str(area)
             if unita_tipo is not None:
                 us_node.attributes["unita_tipo"] = str(unita_tipo)
+            # d_stratigrafica is the user-friendly description used as
+            # the LABEL for property nodes (e.g. "Materiale").
+            if d_stratigrafica is not None:
+                us_node.attributes["d_stratigrafica"] = str(d_stratigrafica)
 
             # 2a. has_first_epoch edge
             if periodo_ini is not None:
@@ -454,74 +464,131 @@ _LOCALIZED_US_USM = {
     "el": ("ΣΜ", "ΤΣΜ"),
 }
 
-# Style table: per unita_tipo → (fill, border, border_width,
-# border_style, shape). Calibrated against the canonical
-# `Extended Matrix palette v.1.5dev1.graphml` published by the EM-tools
-# project; pyarchinit-specific deviation: USM gets a grey fill so it
-# is immediately distinguishable from US in the swimlane (the EM
-# canonical palette uses identical fills for both).
+# Style table: per unita_tipo → visual properties. Calibrated to the
+# legacy pyarchinit Harris-matrix output (resources/dbfiles/dottoxml
+# pipeline) so users get the visual baseline they have always seen,
+# with the EM 1.5dev1 palette's color values where they overlap.
+#
+# Keys:
+#   fill         – fill color
+#   border       – border color
+#   width        – border width
+#   style        – border line style (line / dashed / dotted)
+#   shape        – yEd shape name
+#   text_color   – NodeLabel textColor (defaults to #000000)
+#   font_style   – NodeLabel fontStyle ("bold" / "plain"; default "bold")
+#   underlined   – NodeLabel underlinedText flag (True / False)
 _VISUAL_BY_UNITA_TIPO = {
-    # Stratigraphic core (red border family — #9B3333)
-    "US":   {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+    # Stratigraphic core (red border #9B3333, width 3.0 per legacy)
+    "US":   {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
              "style": "line", "shape": "rectangle"},
-    "USM":  {"fill": "#C0C0C0", "border": "#9B3333", "width": "4.0",
+    "USM":  {"fill": "#C0C0C0", "border": "#9B3333", "width": "3.0",
              "style": "line", "shape": "rectangle"},
-    "USN":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
-             "style": "line", "shape": "ellipse"},  # negative SU
-    "TSU":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
-             "style": "dashed", "shape": "roundrectangle"},
-    # Documentary (orange border)
-    "USD":  {"fill": "#FFFFFF", "border": "#D86400", "width": "4.0",
-             "style": "line", "shape": "roundrectangle"},
-    # Structural Virtual (blue border, BLACK fill per EM canonical)
-    "USVs": {"fill": "#000000", "border": "#248FE7", "width": "4.0",
-             "style": "line", "shape": "parallelogram"},
-    # Non-Structural Virtual (green border, BLACK fill per EM canonical)
-    "USVn": {"fill": "#000000", "border": "#31792D", "width": "4.0",
-             "style": "line", "shape": "hexagon"},
-    # Special Find (yellow border)
-    "SF":   {"fill": "#FFFFFF", "border": "#D8BD30", "width": "4.0",
-             "style": "line", "shape": "octagon"},
-    # Virtual Special Find (olive border, BLACK fill)
-    "VSF":  {"fill": "#000000", "border": "#B19F61", "width": "4.0",
-             "style": "line", "shape": "octagon"},
-    # Working Unit (green border family)
-    "UL":   {"fill": "#FFFFFF", "border": "#31792D", "width": "4.0",
-             "style": "line", "shape": "octagon"},
-    # Continuity (small dark dot)
-    "CON":  {"fill": "#000000", "border": "#000000", "width": "2.0",
+    "USN":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
              "style": "line", "shape": "ellipse"},
-    # Documents and paradata-tooling shapes — pyarchinit-specific
-    # since these are not nodes in the canonical EM palette.
-    "DOC":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
+    "TSU":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
+             "style": "dashed", "shape": "roundrectangle"},
+    # Documentary stratigraphic (orange border, EM canonical)
+    "USD":  {"fill": "#FFFFFF", "border": "#D86400", "width": "3.0",
              "style": "line", "shape": "roundrectangle"},
-    "EXT":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
-             "style": "line", "shape": "roundrectangle"},
-    "Extractor": {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
-                  "style": "line", "shape": "roundrectangle"},
-    "Combinar":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
-                  "style": "line", "shape": "trapezoid"},
-    "property":  {"fill": "#FFFFFF", "border": "#888888", "width": "2.0",
-                  "style": "line", "shape": "ellipse"},
-    "SUS":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+    # Structural Virtual SU — parallelogram, BLACK fill, blue border,
+    # white plain (not bold) text per EM canon and legacy output
+    "USVs": {"fill": "#000000", "border": "#248FE7", "width": "3.0",
+             "style": "line", "shape": "parallelogram",
+             "text_color": "#FFFFFF", "font_style": "plain"},
+    # Non-Structural Virtual SU — hexagon, BLACK fill, green border
+    "USVn": {"fill": "#000000", "border": "#31792D", "width": "3.0",
+             "style": "line", "shape": "hexagon",
+             "text_color": "#FFFFFF", "font_style": "plain"},
+    # Special Find (yellow border)
+    "SF":   {"fill": "#FFFFFF", "border": "#D8BD30", "width": "3.0",
+             "style": "line", "shape": "octagon"},
+    "VSF":  {"fill": "#000000", "border": "#B19F61", "width": "3.0",
+             "style": "line", "shape": "octagon",
+             "text_color": "#FFFFFF", "font_style": "plain"},
+    # Working Unit (green border)
+    "UL":   {"fill": "#FFFFFF", "border": "#31792D", "width": "3.0",
+             "style": "line", "shape": "octagon"},
+    # Continuity — same red-bordered rectangle as US per legacy
+    # (the legacy output renders CON500 as a rectangle, NOT a black
+    # dot like the EM 1.5dev1 palette suggests)
+    "CON":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
+             "style": "line", "shape": "rectangle"},
+    # Paradata tooling — DOC/Extractor/Combinar/property: white
+    # rectangle with thin black border, bold text. Differentiated
+    # only by the label format and (for Extractor) underlined text.
+    "DOC":       {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+                  "style": "line", "shape": "rectangle"},
+    "EXT":       {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+                  "style": "line", "shape": "rectangle",
+                  "underlined": True},
+    "Extractor": {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+                  "style": "line", "shape": "rectangle",
+                  "underlined": True},
+    "Combinar":  {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+                  "style": "line", "shape": "rectangle"},
+    # property — light cream fill, plain (not bold) text; the label
+    # for property nodes is the d_stratigrafica field (e.g.
+    # "Materiale", "Pavimento", ...) rather than an abbrev+number.
+    "property":  {"fill": "#FFFFFFE6", "border": "#000000", "width": "1.0",
+                  "style": "line", "shape": "rectangle",
+                  "font_style": "plain"},
+    "SUS":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
              "style": "line", "shape": "rectangle"},
 }
+
+# Unit types that render as paradata flow (dashed edges to/from them).
+# When an edge has at least one endpoint of one of these types, the
+# post-processor sets <y:LineStyle type="dashed">; otherwise it stays
+# solid (the default for stratigraphic relations).
+_PARADATA_UNITA_TIPI = frozenset({
+    "DOC", "EXT", "Extractor", "Combinar", "property",
+})
 
 # `_EPOCH_ROW_PALETTE` is defined earlier (above _enrich_pyarchinit_graph)
 # so that the enrichment step can assign per-epoch colors before export.
 
 
-def _resolve_display_abbrev(unita_tipo: str, language: str) -> str:
-    """Return the language-aware display string for a unita_tipo.
+def _resolve_display_label(unita_tipo: str, us_number: str,
+                           language: str, descrizione: str = "") -> str:
+    """Return the formatted display label for a node, per legacy
+    pyarchinit Harris-matrix conventions.
 
-    US/USM are localized via _LOCALIZED_US_USM. Every other EM type is
-    canonical and returned verbatim.
+    Format rules:
+      US        → "US<n>"        (concat, no space, language-aware US/SU/SE/...)
+      USM       → "USM<n>"       (language-aware USM/WSU/MSE/...)
+      USVs/USVn → "USV<n>"       (3 letters; legacy strips the
+                                  s/n suffix in the LABEL, even
+                                  though the type is preserved)
+      SF, VSF   → "SF<n>" / "VSF<n>"
+      CON       → "CON<n>"
+      DOC       → "D.<n>"
+      EXT/Extractor → "D.<n>"   (same shape; underline applied via
+                                  visual table)
+      Combinar  → "C.<n>"
+      property  → descrizione   (e.g. "Materiale", "Pavimento"); falls
+                                  back to "property<n>" if descrizione
+                                  is empty
+      anything else → "<unita_tipo><n>" (concat fallback)
     """
+    n = us_number.strip()
     if unita_tipo == "US":
-        return _LOCALIZED_US_USM.get(language, ("US", "USM"))[0]
+        return f"{_LOCALIZED_US_USM.get(language, ('US', 'USM'))[0]}{n}"
     if unita_tipo == "USM":
-        return _LOCALIZED_US_USM.get(language, ("US", "USM"))[1]
-    return unita_tipo
+        return f"{_LOCALIZED_US_USM.get(language, ('US', 'USM'))[1]}{n}"
+    if unita_tipo in ("USVs", "USVn"):
+        return f"USV{n}"
+    if unita_tipo in ("SF", "VSF"):
+        return f"{unita_tipo}{n}"
+    if unita_tipo == "CON":
+        return f"CON{n}"
+    if unita_tipo in ("DOC", "EXT", "Extractor"):
+        return f"D.{n}"
+    if unita_tipo == "Combinar":
+        return f"C.{n}"
+    if unita_tipo == "property":
+        return descrizione.strip() or f"property{n}"
+    return f"{unita_tipo}{n}"
 
 
 def _apply_pyarchinit_visual_overrides(
@@ -562,10 +629,11 @@ def _apply_pyarchinit_visual_overrides(
         emid = getattr(n, "node_id", None)
         if not emid:
             continue
-        unita_tipo = getattr(n, "attributes", {}).get("unita_tipo")
+        attrs = getattr(n, "attributes", {}) or {}
         meta_by_emid[emid] = {
-            "unita_tipo": unita_tipo,
+            "unita_tipo": attrs.get("unita_tipo"),
             "name": getattr(n, "name", ""),
+            "descrizione": attrs.get("d_stratigrafica", ""),
         }
 
     parser = etree.XMLParser(remove_blank_text=False)
@@ -579,7 +647,20 @@ def _apply_pyarchinit_visual_overrides(
     # Walk all <data> children of the node and pick the one whose text
     # is a UUID we recognise from the in-memory graph.
     known_emids = set(meta_by_emid.keys())
+    # Track which graphml node-id corresponds to which unita_tipo so we
+    # can decide dashed-vs-solid edge style in the second pass.
+    node_id_to_unita_tipo: dict[str, str] = {}
+    # Track ParadataNodeGroup wrapper nodes — those are the targets of
+    # the US→PD edges and need to drive dashed-edge selection too.
+    paradata_group_node_ids: set[str] = set()
     for node_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        # ParadataNodeGroup wrappers carry a nested <graph> child
+        # holding their paradata members. Mark them so we can later
+        # decide their incident edges should be dashed.
+        if node_el.find(f"{{{NS_GRAPHML}}}graph") is not None:
+            xid = node_el.get("id")
+            if xid:
+                paradata_group_node_ids.add(xid)
         emid = None
         for data_el in node_el.findall(f"{{{NS_GRAPHML}}}data"):
             txt = (data_el.text or "").strip()
@@ -593,8 +674,14 @@ def _apply_pyarchinit_visual_overrides(
         unita_tipo = meta["unita_tipo"]
         if not unita_tipo:
             continue
+        node_xml_id = node_el.get("id")
+        if node_xml_id:
+            node_id_to_unita_tipo[node_xml_id] = unita_tipo
         visual = _VISUAL_BY_UNITA_TIPO.get(unita_tipo)
-        display_abbrev = _resolve_display_abbrev(unita_tipo, language)
+        us_number = (meta.get("name") or "").strip()
+        descrizione = (meta.get("descrizione") or "").strip()
+        display_label = _resolve_display_label(
+            unita_tipo, us_number, language, descrizione)
 
         # Patch the ShapeNode block, if any
         for shape_el in node_el.iter(f"{{{NS_Y}}}ShapeNode"):
@@ -612,17 +699,39 @@ def _apply_pyarchinit_visual_overrides(
                 shape_inner = shape_el.find(f"{{{NS_Y}}}Shape")
                 if shape_inner is not None:
                     shape_inner.set("type", visual["shape"])
-            # Prefix the label with the display abbreviation.
-            # When the fill is dark (e.g. USVs/USVn/VSF black fill per
-            # EM 1.5 canon), the label must use white text to stay
-            # readable; otherwise stay with the default black.
+            # Replace the label with the legacy-faithful display form
+            # ("US36", "USV102", "D.4001", "C.900", "Materiale", …).
             label_el = shape_el.find(f"{{{NS_Y}}}NodeLabel")
-            if label_el is not None and label_el.text:
-                bare = label_el.text.strip()
-                if bare and not bare.startswith(display_abbrev):
-                    label_el.text = f"{display_abbrev} {bare}"
-                if visual and visual.get("fill") == "#000000":
-                    label_el.set("textColor", "#FFFFFF")
+            if label_el is not None:
+                label_el.text = display_label
+                if visual:
+                    text_color = visual.get("text_color", "#000000")
+                    label_el.set("textColor", text_color)
+                    font_style = visual.get("font_style", "plain")
+                    label_el.set("fontStyle", font_style)
+                    if visual.get("underlined"):
+                        label_el.set("underlinedText", "true")
+                    else:
+                        label_el.set("underlinedText", "false")
+
+    # --- 2b. Patch edges: dashed when one endpoint is paradata --------------
+    # pyarchinit-legacy convention: stratigraphic edges (US↔US, USM↔USM,
+    # CON↔stratigraphic, …) are SOLID. Edges touching a paradata unit
+    # (DOC, Extractor, Combinar, property) are DASHED.
+    for edge_el in root.iter(f"{{{NS_GRAPHML}}}edge"):
+        src = edge_el.get("source") or ""
+        tgt = edge_el.get("target") or ""
+        src_type = node_id_to_unita_tipo.get(src)
+        tgt_type = node_id_to_unita_tipo.get(tgt)
+        is_paradata = (
+            src_type in _PARADATA_UNITA_TIPI
+            or tgt_type in _PARADATA_UNITA_TIPI
+            or src in paradata_group_node_ids
+            or tgt in paradata_group_node_ids
+        )
+        line_style = "dashed" if is_paradata else "line"
+        for ls_el in edge_el.iter(f"{{{NS_Y}}}LineStyle"):
+            ls_el.set("type", line_style)
 
     # --- 3. Cycle epoch row colors ----------------------------------------
     # Rows live inside <y:TableNode>/<y:Table>/<y:Rows>/<y:Row ...>.
