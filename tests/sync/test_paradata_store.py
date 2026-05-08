@@ -252,3 +252,41 @@ def test_remove_high_level_alias(tmp_path):
     assert len(store.list_authors()) == 1
     store.remove(auth_uuid)
     assert len(store.list_authors()) == 0
+
+
+def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
+    """AC-3: simulate a crash during os.replace, assert original
+    file is untouched and tmp file is cleaned up."""
+    from modules.s3dgraphy.sync.paradata_store import (
+        ParadataStore, ParadataWriteError)
+
+    store = ParadataStore(_make_db(tmp_path), "X")
+    # Seed initial content
+    store.add_author("Original")
+    original_bytes = store.file_path.read_bytes()
+    assert len(original_bytes) > 0
+
+    # Patch os.replace globally to raise
+    real_replace = os.replace
+
+    def boom(src, dst):
+        raise OSError("simulated crash mid-rename")
+    monkeypatch.setattr("os.replace", boom)
+
+    # Try to add another author → write fails
+    with pytest.raises(ParadataWriteError):
+        store.add_author("New")
+
+    # Original file untouched
+    assert store.file_path.read_bytes() == original_bytes
+    # Tmp file cleaned up
+    assert not store.file_path.with_suffix(".graphml.tmp").exists()
+
+
+def test_paradata_store_init_validates_sito(tmp_path):
+    """Empty sito at construction raises ParadataValidationError."""
+    from modules.s3dgraphy.sync.paradata_store import (
+        ParadataStore, ParadataValidationError)
+    db = _make_db(tmp_path)
+    with pytest.raises(ParadataValidationError):
+        ParadataStore(db, "")
