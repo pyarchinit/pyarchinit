@@ -52,17 +52,24 @@ def cmd_export(args) -> int:
     _setup_path()
     from modules.s3dgraphy.sync.graphml_writer import (
         export_graphml, EmptyGraphError, GraphMLExportError)
+    # AI06: --group-by CSV → groups list
+    groups_arg = None
+    if getattr(args, "group_by", None):
+        groups_arg = [g.strip() for g in args.group_by.split(",")
+                      if g.strip()]
+    out_path = args.graphml
     try:
         result = export_graphml(
             db_path=Path(args.db),
             mapping=args.mapping,
-            output_path=Path(args.graphml),
+            output_path=Path(out_path),
             site_filter=args.sito,
+            groups=groups_arg,
         )
     except (EmptyGraphError, GraphMLExportError) as e:
         print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
-    print(f"OK — {args.graphml}")
+    print(f"OK — {out_path}")
     print(f"   {result.node_count} nodes, {result.edge_count} edges, "
           f"{result.epoch_count} epochs, "
           f"{result.tred_removed_edges} redundancies removed")
@@ -115,35 +122,67 @@ def cmd_paradata(args) -> int:
     from modules.s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataStoreError,
     )
-    store = ParadataStore(Path(args.db), args.sito)
+    from modules.s3dgraphy.sync.group_store import (
+        GroupStore, GroupStoreError,
+    )
     sub = args.paradata_action
     try:
         if sub == "add-author":
+            store = ParadataStore(Path(args.db), args.sito)
             uuid = store.add_author(args.name, orcid=args.orcid,
                                      role=args.role)
             print(f"OK — author {uuid}")
         elif sub == "list-authors":
+            store = ParadataStore(Path(args.db), args.sito)
             for a in store.list_authors():
                 print(f"{a['node_uuid']}\t{a['name']}\t{a.get('orcid','')}\t{a.get('role','')}")
         elif sub == "add-license":
+            store = ParadataStore(Path(args.db), args.sito)
             uuid = store.add_license(args.spdx, url=args.url)
             print(f"OK — license {uuid}")
         elif sub == "list-licenses":
+            store = ParadataStore(Path(args.db), args.sito)
             for li in store.list_licenses():
                 print(f"{li['node_uuid']}\t{li['spdx_id']}\t{li.get('url','')}")
         elif sub == "add-embargo":
+            store = ParadataStore(Path(args.db), args.sito)
             uuid = store.add_embargo(args.until, reason=args.reason)
             print(f"OK — embargo {uuid}")
         elif sub == "list-embargos":
+            store = ParadataStore(Path(args.db), args.sito)
             for e in store.list_embargos():
                 print(f"{e['node_uuid']}\t{e['until_date']}\t{e.get('reason','')}")
         elif sub == "remove":
+            store = ParadataStore(Path(args.db), args.sito)
             store.remove(args.uuid)
+            print(f"OK — removed {args.uuid}")
+        elif sub == "add-group":
+            gstore = GroupStore(Path(args.db), args.sito)
+            members = list(args.us_uuid or [])
+            uuid = gstore.add_group(
+                args.name,
+                group_kind=args.kind,
+                member_us_uuids=members,
+            )
+            print(f"OK — group {uuid}")
+        elif sub == "list-groups":
+            gstore = GroupStore(Path(args.db), args.sito)
+            for g in gstore.list_groups():
+                members_csv = ",".join(g.get("member_us_uuids", []))
+                print(f"{g['group_uuid']}\t{g['name']}\t"
+                      f"{g.get('group_kind', '')}\t{members_csv}")
+        elif sub == "add-us-to-group":
+            gstore = GroupStore(Path(args.db), args.sito)
+            gstore.add_us_to_group(args.group_uuid, args.us_uuid)
+            print(f"OK — added {args.us_uuid} to {args.group_uuid}")
+        elif sub == "remove-group":
+            gstore = GroupStore(Path(args.db), args.sito)
+            gstore.remove_group(args.uuid)
             print(f"OK — removed {args.uuid}")
         else:
             print(f"ERROR: unknown paradata action: {sub}", file=sys.stderr)
             return 2
-    except ParadataStoreError as e:
+    except (ParadataStoreError, GroupStoreError) as e:
         print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
     return 0
@@ -157,9 +196,16 @@ def main(argv: list[str]) -> int:
 
     p_exp = sub.add_parser("export", help="DB → GraphML")
     p_exp.add_argument("--db", required=True)
-    p_exp.add_argument("--graphml", required=True)
+    # --graphml and --output are aliases (same dest); either is required.
+    grp_out = p_exp.add_mutually_exclusive_group(required=True)
+    grp_out.add_argument("--graphml", dest="graphml")
+    grp_out.add_argument("--output", dest="graphml")
     p_exp.add_argument("--sito", required=True)
     p_exp.add_argument("--mapping", default="pyarchinit_us_mapping")
+    p_exp.add_argument("--group-by", dest="group_by",
+                       help="CSV of grouping dimensions: "
+                            "area,struttura,attivita,settore,ambient,"
+                            "saggio,quad_par,adhoc")
     p_exp.set_defaults(func=cmd_export)
 
     p_imp = sub.add_parser("import", help="GraphML → DB")
@@ -217,6 +263,33 @@ def main(argv: list[str]) -> int:
     p_rm.add_argument("--sito", required=True)
     p_rm.add_argument("--uuid", required=True)
     p_rm.set_defaults(func=cmd_paradata)
+
+    # AI06 — group sub-subcommands
+    p_ag = para_sub.add_parser("add-group")
+    p_ag.add_argument("--db", required=True)
+    p_ag.add_argument("--sito", required=True)
+    p_ag.add_argument("--name", required=True)
+    p_ag.add_argument("--kind", default="adhoc")
+    p_ag.add_argument("--us-uuid", action="append", dest="us_uuid")
+    p_ag.set_defaults(func=cmd_paradata)
+
+    p_lg = para_sub.add_parser("list-groups")
+    p_lg.add_argument("--db", required=True)
+    p_lg.add_argument("--sito", required=True)
+    p_lg.set_defaults(func=cmd_paradata)
+
+    p_aug = para_sub.add_parser("add-us-to-group")
+    p_aug.add_argument("--db", required=True)
+    p_aug.add_argument("--sito", required=True)
+    p_aug.add_argument("--group-uuid", required=True, dest="group_uuid")
+    p_aug.add_argument("--us-uuid", required=True, dest="us_uuid")
+    p_aug.set_defaults(func=cmd_paradata)
+
+    p_rg = para_sub.add_parser("remove-group")
+    p_rg.add_argument("--db", required=True)
+    p_rg.add_argument("--sito", required=True)
+    p_rg.add_argument("--uuid", required=True)
+    p_rg.set_defaults(func=cmd_paradata)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.WARNING)
