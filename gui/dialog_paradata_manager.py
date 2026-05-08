@@ -12,6 +12,7 @@ try:
         QDialog, QVBoxLayout, QHBoxLayout, QLabel, QPushButton,
         QTabWidget, QWidget, QTableWidget, QTableWidgetItem,
         QLineEdit, QFormLayout, QMessageBox, QHeaderView,
+        QComboBox,                # NEW (AI06)
     )
     from qgis.PyQt.QtCore import Qt
     QGIS_AVAILABLE = True
@@ -50,6 +51,7 @@ if QGIS_AVAILABLE:
             self._setup_tab_authors()
             self._setup_tab_licenses()
             self._setup_tab_embargoes()
+            self._setup_tab_groups()  # NEW (AI06)
 
             close = QPushButton("Close")
             close.clicked.connect(self.accept)
@@ -152,6 +154,47 @@ if QGIS_AVAILABLE:
             tab.setLayout(tlayout)
             self.tabs.addTab(tab, "Embargoes")
 
+        def _setup_tab_groups(self):
+            """AI06: 4th tab — ad-hoc US groups CRUD."""
+            tab = QWidget()
+            tlayout = QVBoxLayout()
+            self.table_groups = QTableWidget(0, 3)
+            self.table_groups.setHorizontalHeaderLabels(
+                ["Name", "Kind", "US members"])
+            self.table_groups.horizontalHeader().setSectionResizeMode(
+                QHeaderView.Stretch)
+            tlayout.addWidget(self.table_groups)
+
+            form = QFormLayout()
+            self.le_grp_name = QLineEdit()
+            self.cb_grp_kind = QComboBox()
+            # AI06: only "adhoc" via UI; SQL-derived kinds enter via
+            # round-trip with sql_apply_groups, never user input.
+            self.cb_grp_kind.addItems(["adhoc"])
+            self.btn_grp_pick_us = QPushButton("Pick US members…")
+            self.btn_grp_pick_us.clicked.connect(self._on_pick_us_for_group)
+            self._picked_us_uuids = []
+            self.lbl_grp_picked = QLabel("0 selected")
+            form.addRow("Name:", self.le_grp_name)
+            form.addRow("Kind:", self.cb_grp_kind)
+            form.addRow("Members:", self.btn_grp_pick_us)
+            form.addRow("", self.lbl_grp_picked)
+            tlayout.addLayout(form)
+
+            btn_row = QHBoxLayout()
+            btn_add = QPushButton("Add group")
+            btn_add.clicked.connect(self._on_add_group)
+            btn_remove = QPushButton("Remove selected")
+            btn_remove.clicked.connect(
+                lambda: self._on_remove_selected(
+                    self.table_groups, "group"))
+            btn_row.addWidget(btn_add)
+            btn_row.addWidget(btn_remove)
+            tlayout.addLayout(btn_row)
+
+            tab.setLayout(tlayout)
+            self.tabs.addTab(tab, "Groups")
+
         def _store(self):
             from modules.s3dgraphy.sync.paradata_store import ParadataStore
             db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
@@ -161,6 +204,17 @@ if QGIS_AVAILABLE:
                     "Paradata management requires a SQLite-backed pyarchinit project.")
                 return None
             return ParadataStore(db_path, self.sito)
+
+        def _group_store(self):
+            """AI06: GroupStore factory analogous to _store()."""
+            from modules.s3dgraphy.sync.group_store import GroupStore
+            db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
+            if db_path is None:
+                QMessageBox.critical(
+                    self, "No SQLite DB",
+                    "Group management requires a SQLite-backed pyarchinit project.")
+                return None
+            return GroupStore(db_path, self.sito)
 
         def _load_data(self):
             store = self._store()
@@ -178,6 +232,15 @@ if QGIS_AVAILABLE:
             self._fill_authors(authors)
             self._fill_licenses(licenses)
             self._fill_embargoes(embargoes)
+            # AI06: also load groups (best-effort — failures must not
+            # break paradata tabs).
+            try:
+                gstore = self._group_store()
+                if gstore is not None:
+                    groups = gstore.list_groups()
+                    self._fill_groups(groups)
+            except Exception as e:
+                self._diag(f"groups load failed: {e}")
 
         def _fill_authors(self, rows):
             self.table_authors.setRowCount(len(rows))
@@ -211,6 +274,22 @@ if QGIS_AVAILABLE:
                     i, 1, QTableWidgetItem(r.get("reason", "")))
                 self.table_embargoes.item(i, 0).setData(
                     Qt.UserRole, r["node_uuid"])
+
+        def _fill_groups(self, rows):
+            """AI06: populate the groups table from
+            GroupStore.list_groups() rows. Each row is a dict with
+            keys: group_uuid, name, group_kind, member_us_uuids."""
+            self.table_groups.setRowCount(len(rows))
+            for i, r in enumerate(rows):
+                self.table_groups.setItem(
+                    i, 0, QTableWidgetItem(r.get("name", "")))
+                self.table_groups.setItem(
+                    i, 1, QTableWidgetItem(r.get("group_kind", "")))
+                count = len(r.get("member_us_uuids", []))
+                self.table_groups.setItem(
+                    i, 2, QTableWidgetItem(str(count)))
+                self.table_groups.item(i, 0).setData(
+                    Qt.UserRole, r["group_uuid"])
 
         def _diag(self, msg: str) -> None:
             """Print to QGIS Python console + stderr — survives even when
@@ -310,6 +389,95 @@ if QGIS_AVAILABLE:
             self.le_emb_reason.clear()
             self._load_data()
 
+        def _on_pick_us_for_group(self):
+            """AI06: open secondary multi-select dialog of US for the
+            current sito. Stores selection in self._picked_us_uuids."""
+            from qgis.PyQt.QtWidgets import (
+                QDialog, QListWidget, QListWidgetItem,
+                QDialogButtonBox, QVBoxLayout)
+
+            dlg = QDialog(self)
+            dlg.setWindowTitle(f"Pick US for group — {self.sito}")
+            dlg.setMinimumWidth(500)
+            dlg.setMinimumHeight(400)
+            layout = QVBoxLayout()
+
+            lst = QListWidget()
+            lst.setSelectionMode(QListWidget.MultiSelection)
+            # Load US for sito
+            try:
+                import sqlite3
+                db = self.db_manager.get_sqlite_path() if self.db_manager else None
+                if db is None:
+                    QMessageBox.critical(
+                        dlg, "No SQLite DB",
+                        "US picker requires a SQLite-backed pyarchinit project.")
+                    return
+                conn = sqlite3.connect(str(db))
+                rows = conn.execute(
+                    "SELECT node_uuid, us, area, unita_tipo "
+                    "FROM us_table WHERE sito=? ORDER BY us",
+                    (self.sito,)).fetchall()
+                conn.close()
+                for node_uuid, us, area, unita_tipo in rows:
+                    if not node_uuid:
+                        continue
+                    label = f"{unita_tipo or 'US'} {us} (area {area or '-'})"
+                    item = QListWidgetItem(label)
+                    item.setData(Qt.UserRole, node_uuid)
+                    lst.addItem(item)
+            except Exception as e:
+                QMessageBox.critical(dlg, "Load failed", str(e))
+                return
+            layout.addWidget(lst)
+
+            btns = QDialogButtonBox(
+                QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            btns.accepted.connect(dlg.accept)
+            btns.rejected.connect(dlg.reject)
+            layout.addWidget(btns)
+            dlg.setLayout(layout)
+
+            if dlg.exec_() == QDialog.Accepted:
+                self._picked_us_uuids = [
+                    lst.item(i).data(Qt.UserRole)
+                    for i in range(lst.count())
+                    if lst.item(i).isSelected()
+                ]
+                self.lbl_grp_picked.setText(
+                    f"{len(self._picked_us_uuids)} selected")
+
+        def _on_add_group(self):
+            """AI06: add a new ad-hoc group via GroupStore."""
+            store = self._group_store()
+            if store is None:
+                return
+            name = self.le_grp_name.text().strip()
+            if not name:
+                QMessageBox.warning(
+                    self, "Invalid", "Group name is required.")
+                return
+            kind = self.cb_grp_kind.currentText().strip() or "adhoc"
+            try:
+                uuid = store.add_group(
+                    name,
+                    group_kind=kind,
+                    member_us_uuids=list(self._picked_us_uuids),
+                )
+                self._diag(f"add_group OK: {uuid}, "
+                           f"{len(self._picked_us_uuids)} members")
+            except Exception as e:
+                import traceback
+                self._diag(traceback.format_exc())
+                QMessageBox.critical(
+                    self, type(e).__name__,
+                    f"Cannot add group: {e}")
+                return
+            self.le_grp_name.clear()
+            self._picked_us_uuids = []
+            self.lbl_grp_picked.setText("0 selected")
+            self._load_data()
+
         def _on_remove_selected(self, table, label):
             row = table.currentRow()
             if row < 0:
@@ -320,11 +488,18 @@ if QGIS_AVAILABLE:
             uuid = table.item(row, 0).data(Qt.UserRole)
             if not uuid:
                 return
-            store = self._store()
-            if store is None:
-                return
             try:
-                store.remove(uuid)
+                if label == "group":
+                    # AI06: groups dispatch
+                    store = self._group_store()
+                    if store is None:
+                        return
+                    store.remove_group(uuid)
+                else:
+                    store = self._store()
+                    if store is None:
+                        return
+                    store.remove(uuid)
             except Exception as e:
                 QMessageBox.critical(self, type(e).__name__, str(e))
                 return
