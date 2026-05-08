@@ -1110,9 +1110,12 @@ def export_graphml(
     # AI05 Group C). The standalone `_enrich_pyarchinit_graph` was
     # deleted; its body now lives inside
     # :py:meth:`GraphProjector._enrich_into`. We pass
-    # ``include_paradata=False`` because export_graphml is the AI03
-    # strat-only surface — paradata merging is the new AI05 default
-    # for direct GraphProjector callers, not for this export path.
+    # ``include_paradata=True`` so the green Extended Matrix export
+    # button merges any Author/License/Embargo nodes the user
+    # authored via the "Manage paradata" dialog. The merge is a
+    # no-op when no paradata.graphml exists next to the DB — so
+    # AC-2 fixtures (which don't ship a paradata file) stay
+    # byte-identical.
     # ``strict_schema=False`` is passed so AC-2 fixtures (pre-AI05
     # migration, no us_table.node_uuid column) keep round-tripping
     # without applying the migration; node_uuid is only needed by
@@ -1123,7 +1126,7 @@ def export_graphml(
         graph = GraphProjector().populate_graph(
             db_path,
             sito=sito_for_projection,
-            include_paradata=False,
+            include_paradata=True,
             strict_schema=False,
         )
     except Exception as e:
