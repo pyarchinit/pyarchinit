@@ -234,25 +234,29 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
         # them, leaving us_node.attributes empty post-import.
         try:
             cursor.execute(
-                "SELECT us, sito, area, periodo_iniziale, fase_iniziale, "
-                "rapporti FROM us_table"
+                "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                "fase_iniziale, rapporti FROM us_table"
             )
             rows = cursor.fetchall()
         except sqlite3.Error:
             rows = []
 
         edge_seq = 0
-        for us_val, sito, area, periodo_ini, fase_ini, rapporti_raw in rows:
+        for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
+             rapporti_raw) in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name or us_name not in strat_by_name:
                 continue
             us_node = strat_by_name[us_name]
 
-            # Propagate identity attributes so site/area filters work.
+            # Propagate identity attributes so site/area filters work
+            # and so the post-processor can drive per-type styling.
             if sito is not None:
                 us_node.attributes["sito"] = str(sito)
             if area is not None:
                 us_node.attributes["area"] = str(area)
+            if unita_tipo is not None:
+                us_node.attributes["unita_tipo"] = str(unita_tipo)
 
             # 2a. has_first_epoch edge
             if periodo_ini is not None:
@@ -352,6 +356,195 @@ def _count_is_after_edges_in_xml(xml_text: str) -> int:
         len(re.findall(r'edge_type="is_after"', xml_text))
 
 
+# ---------------------------------------------------------------------------
+# Post-processor: pyarchinit-specific visual conventions on top of the
+# s3dgraphy GraphMLExporter output. The exporter writes a GraphML where
+# every node uses a single rectangle/white/dark-red style and every label
+# is just the bare US number. The conventions below restore the EM 1.5
+# look that yEd users (and EM-tools downstream) expect.
+# ---------------------------------------------------------------------------
+
+# Per-language US/USM display abbreviations — sourced from the Phase 1
+# i18n module so QGIS locale is honoured. Other unita_tipo values
+# (USVs/USVn/SF/etc.) are EM canonical and identical across languages.
+_LOCALIZED_US_USM = {
+    "it": ("US", "USM"),
+    "en": ("SU", "WSU"),
+    "de": ("SE", "MSE"),
+    "fr": ("US", "USM"),
+    "es": ("UE", "UEM"),
+    "ar": ("SU", "WSU"),
+    "ca": ("UE", "UEM"),
+    "ro": ("US", "USZ"),
+    "pt": ("UE", "UEM"),
+    "el": ("ΣΜ", "ΤΣΜ"),
+}
+
+# Style table: per unita_tipo → (fill, border, shape).
+# Shapes are yEd-native names. Fills/borders mirror the EM 1.5 palette
+# used in dottoxml.py (the legacy renderer) so the visual baseline stays
+# familiar; future tweaks can come from em_visual_rules.json.
+_VISUAL_BY_UNITA_TIPO = {
+    "US":   {"fill": "#FFFFFF", "border": "#000000", "shape": "rectangle"},
+    "USM":  {"fill": "#C0C0C0", "border": "#000000", "shape": "rectangle"},
+    "USD":  {"fill": "#FFF8DC", "border": "#000000", "shape": "rectangle"},
+    "USVs": {"fill": "#88CCFF", "border": "#0066AA", "shape": "parallelogram"},
+    "USVn": {"fill": "#FFFAF0", "border": "#0066AA", "shape": "ellipse"},
+    "USN":  {"fill": "#FFFFFF", "border": "#FF0000", "shape": "rectangle"},
+    "TSU":  {"fill": "#FFE4B5", "border": "#000000", "shape": "rectangle"},
+    "SF":   {"fill": "#FFD700", "border": "#000000", "shape": "diamond"},
+    "VSF":  {"fill": "#FFD700", "border": "#0066AA", "shape": "diamond"},
+    "UL":   {"fill": "#E0FFE0", "border": "#000000", "shape": "octagon"},
+    "CON":  {"fill": "#000000", "border": "#000000", "shape": "ellipse"},
+    "DOC":  {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
+    "EXT":  {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
+    "Extractor": {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
+    "Combinar":  {"fill": "#F0E68C", "border": "#806040", "shape": "trapezoid"},
+    "property":  {"fill": "#FFFFFF", "border": "#888888", "shape": "ellipse"},
+    "SUS":  {"fill": "#FFFFFF", "border": "#000000", "shape": "rectangle"},
+}
+
+# Light-hue palette cycled across epoch swimlane rows so each period
+# has a distinct background. Pastel shades chosen for readability.
+_EPOCH_ROW_PALETTE = (
+    "#FFE4E1",  # misty rose
+    "#E0FFFF",  # light cyan
+    "#F5F5DC",  # beige
+    "#E6E6FA",  # lavender
+    "#F0FFF0",  # honeydew
+    "#FFF0F5",  # lavender blush
+    "#FFFACD",  # lemon chiffon
+    "#E0FFE4",  # mint
+)
+
+
+def _resolve_display_abbrev(unita_tipo: str, language: str) -> str:
+    """Return the language-aware display string for a unita_tipo.
+
+    US/USM are localized via _LOCALIZED_US_USM. Every other EM type is
+    canonical and returned verbatim.
+    """
+    if unita_tipo == "US":
+        return _LOCALIZED_US_USM.get(language, ("US", "USM"))[0]
+    if unita_tipo == "USM":
+        return _LOCALIZED_US_USM.get(language, ("US", "USM"))[1]
+    return unita_tipo
+
+
+def _apply_pyarchinit_visual_overrides(
+    graph,
+    xml_path: Path,
+    *,
+    language: str = "it",
+) -> None:
+    """Patch the GraphML produced by s3dgraphy GraphMLExporter so that
+    every pyarchinit visual convention surfaces correctly:
+
+    1. Stratigraphic node labels are prefixed with the language-aware
+       unit-type abbreviation ("US 36", "USM 3", "USVs 4", …).
+    2. Node fill / border / shape come from `_VISUAL_BY_UNITA_TIPO`
+       keyed on the `unita_tipo` attribute that
+       `_enrich_pyarchinit_graph` populates from the DB.
+    3. Each `<y:Row>` inside the swimlane TableNode gets a distinct
+       background colour from `_EPOCH_ROW_PALETTE` so adjacent epochs
+       are visually separable.
+
+    The exporter emits the s3dgraphy `node_id` (UUID) under data key
+    `d3` (the EMID slot). We use that to bridge in-memory graph nodes
+    to their XML counterparts.
+
+    Mutates *xml_path* in place. No-op if lxml is unavailable.
+    """
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    # Build EMID → metadata map from the in-memory graph.
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    NS_Y = "http://www.yworks.com/xml/graphml"
+
+    meta_by_emid = {}
+    for n in graph.nodes:
+        emid = getattr(n, "node_id", None)
+        if not emid:
+            continue
+        unita_tipo = getattr(n, "attributes", {}).get("unita_tipo")
+        meta_by_emid[emid] = {
+            "unita_tipo": unita_tipo,
+            "name": getattr(n, "name", ""),
+        }
+
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # --- 1+2. Walk every <node> and patch label/fill/border/shape ----------
+    # The EMID slot's data-key id varies across nested graphs in the
+    # exporter output (sometimes d3, sometimes d7, etc. — depends on
+    # how many nested keys are scoped at the parent <graph> level).
+    # Walk all <data> children of the node and pick the one whose text
+    # is a UUID we recognise from the in-memory graph.
+    known_emids = set(meta_by_emid.keys())
+    for node_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        emid = None
+        for data_el in node_el.findall(f"{{{NS_GRAPHML}}}data"):
+            txt = (data_el.text or "").strip()
+            if txt and txt in known_emids:
+                emid = txt
+                break
+        if emid is None:
+            continue
+
+        meta = meta_by_emid[emid]
+        unita_tipo = meta["unita_tipo"]
+        if not unita_tipo:
+            continue
+        visual = _VISUAL_BY_UNITA_TIPO.get(unita_tipo)
+        display_abbrev = _resolve_display_abbrev(unita_tipo, language)
+
+        # Patch the ShapeNode block, if any
+        for shape_el in node_el.iter(f"{{{NS_Y}}}ShapeNode"):
+            if visual:
+                fill_el = shape_el.find(f"{{{NS_Y}}}Fill")
+                if fill_el is not None:
+                    fill_el.set("color", visual["fill"])
+                border_el = shape_el.find(f"{{{NS_Y}}}BorderStyle")
+                if border_el is not None:
+                    border_el.set("color", visual["border"])
+                shape_inner = shape_el.find(f"{{{NS_Y}}}Shape")
+                if shape_inner is not None:
+                    shape_inner.set("type", visual["shape"])
+            # Prefix the label with the display abbreviation.
+            label_el = shape_el.find(f"{{{NS_Y}}}NodeLabel")
+            if label_el is not None and label_el.text:
+                bare = label_el.text.strip()
+                if bare and not bare.startswith(display_abbrev):
+                    label_el.text = f"{display_abbrev} {bare}"
+
+    # --- 3. Cycle epoch row colors ----------------------------------------
+    # Rows live inside <y:TableNode>/<y:Table>/<y:Rows>/<y:Row ...>.
+    # Each row gets a background fill via <y:Property name="..."/>;
+    # but yEd respects a default RowStyle on the TableNode. We attach
+    # a per-row Style fragment with the palette colour.
+    palette = _EPOCH_ROW_PALETTE
+    rows = list(root.iter(f"{{{NS_Y}}}Row"))
+    for i, row_el in enumerate(rows):
+        color = palette[i % len(palette)]
+        # Add or replace a Fill child on the Row element. yEd treats
+        # the first <y:Fill> child of <y:Row> as the row background.
+        existing_fill = row_el.find(f"{{{NS_Y}}}Fill")
+        if existing_fill is not None:
+            existing_fill.set("color", color)
+            existing_fill.set("transparent", "false")
+        else:
+            fill_el = etree.SubElement(row_el, f"{{{NS_Y}}}Fill")
+            fill_el.set("color", color)
+            fill_el.set("transparent", "false")
+
+    tree.write(str(xml_path), encoding="UTF-8", xml_declaration=True)
+
+
 def export_graphml(
     db_path,
     mapping: str,
@@ -359,6 +552,7 @@ def export_graphml(
     *,
     site_filter: Optional[str] = None,
     persist_auxiliary: bool = False,
+    language: str = "it",
 ) -> ExportResult:
     """Run PyArchInitImporter → optional site filter → GraphMLExporter.
 
@@ -369,6 +563,9 @@ def export_graphml(
         site_filter: optional `sito` value to restrict the export.
         persist_auxiliary: bake (True) vs volatile (False) auxiliary
             data policy. Default False (volatile) per Spec D6.
+        language: 2-letter QGIS locale code used to localize US/USM
+            display labels (Italian by default). EM-canonical types
+            (USVs/USVn/SF/...) are language-neutral and unaffected.
 
     Returns:
         ExportResult with metrics + warnings.
@@ -432,6 +629,23 @@ def export_graphml(
             str(output_path), persist_auxiliary=persist_auxiliary)
     except Exception as e:
         raise GraphMLExportError("write", e) from e
+
+    # Stage 4b: pyarchinit-specific visual overrides on the produced
+    # XML. The s3dgraphy GraphMLExporter writes a graph where every
+    # node is a white rectangle with a dark-red border and the label
+    # is just the bare US number; this post-processor restores the
+    # EM 1.5 look (per-type fill/border/shape, language-aware
+    # "US 36" / "USM 3" / "USVs 4" labels, distinct epoch row colors).
+    # Treated as best-effort — failures here are logged through
+    # graph.warnings but do NOT fail the export, since the file is
+    # already structurally valid.
+    try:
+        _apply_pyarchinit_visual_overrides(
+            graph, output_path, language=language)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"Visual post-processing skipped: {type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.
     from s3dgraphy.nodes.epoch_node import EpochNode

@@ -197,6 +197,16 @@ class S3DGraphyDotBridge:
                     EmptyGraphError,
                     GraphMLExportError,
                 )
+                # Language for label localization (US/USM display).
+                # Read the QGIS locale; default to 'it' on any failure.
+                _locale = "it"
+                try:
+                    from qgis.core import QgsSettings
+                    _full = (QgsSettings().value(
+                        "locale/userLocale", "") or "")
+                    _locale = _full[:2].lower() or "it"
+                except Exception:
+                    pass
                 try:
                     result = export_graphml(
                         db_path=db_path,
@@ -204,6 +214,7 @@ class S3DGraphyDotBridge:
                         output_path=graphml_path,
                         site_filter=site,
                         persist_auxiliary=False,
+                        language=_locale,
                     )
                     exported_files['graphml'] = graphml_path
                     exported_files['graphml_result'] = result
