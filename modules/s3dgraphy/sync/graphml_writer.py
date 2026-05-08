@@ -1031,13 +1031,23 @@ def _apply_pyarchinit_visual_overrides(
     # pyarchinit-legacy convention: stratigraphic edges (US↔US, USM↔USM,
     # CON↔stratigraphic, …) are SOLID. Edges touching a paradata unit
     # (DOC, Extractor, Combinar, property) are DASHED.
+    from .edge_registry import is_paradata_edge
     for edge_el in root.iter(f"{{{NS_GRAPHML}}}edge"):
         src = edge_el.get("source") or ""
         tgt = edge_el.get("target") or ""
         src_type = node_id_to_unita_tipo.get(src)
         tgt_type = node_id_to_unita_tipo.get(tgt)
-        is_paradata = (
-            src_type in _PARADATA_UNITA_TIPI
+        # Classify the edge as paradata using the canonical s3dgraphy
+        # datamodel via edge_registry (D8). Falls back to the original
+        # unita_tipo-based heuristic if the registry doesn't classify
+        # the edge — the registry is the new source of truth, the
+        # heuristic stays as defence in depth (and covers edges whose
+        # edge_type attribute isn't recoverable from the post-processed
+        # XML, which is the common case for AI03 output).
+        edge_type_attr = edge_el.get("data-edge-type")  # may be None
+        is_paradata = bool(
+            (edge_type_attr and is_paradata_edge(edge_type_attr))
+            or src_type in _PARADATA_UNITA_TIPI
             or tgt_type in _PARADATA_UNITA_TIPI
             or src in paradata_group_node_ids
             or tgt in paradata_group_node_ids
