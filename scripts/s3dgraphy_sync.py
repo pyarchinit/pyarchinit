@@ -110,6 +110,45 @@ def cmd_import(args) -> int:
     return 0
 
 
+def cmd_paradata(args) -> int:
+    _setup_path()
+    from modules.s3dgraphy.sync.paradata_store import (
+        ParadataStore, ParadataStoreError,
+    )
+    store = ParadataStore(Path(args.db), args.sito)
+    sub = args.paradata_action
+    try:
+        if sub == "add-author":
+            uuid = store.add_author(args.name, orcid=args.orcid,
+                                     role=args.role)
+            print(f"OK — author {uuid}")
+        elif sub == "list-authors":
+            for a in store.list_authors():
+                print(f"{a['node_uuid']}\t{a['name']}\t{a.get('orcid','')}\t{a.get('role','')}")
+        elif sub == "add-license":
+            uuid = store.add_license(args.spdx, url=args.url)
+            print(f"OK — license {uuid}")
+        elif sub == "list-licenses":
+            for li in store.list_licenses():
+                print(f"{li['node_uuid']}\t{li['spdx_id']}\t{li.get('url','')}")
+        elif sub == "add-embargo":
+            uuid = store.add_embargo(args.until, reason=args.reason)
+            print(f"OK — embargo {uuid}")
+        elif sub == "list-embargos":
+            for e in store.list_embargos():
+                print(f"{e['node_uuid']}\t{e['until_date']}\t{e.get('reason','')}")
+        elif sub == "remove":
+            store.remove(args.uuid)
+            print(f"OK — removed {args.uuid}")
+        else:
+            print(f"ERROR: unknown paradata action: {sub}", file=sys.stderr)
+            return 2
+    except ParadataStoreError as e:
+        print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         prog="s3dgraphy_sync",
@@ -132,6 +171,52 @@ def main(argv: list[str]) -> int:
     p_imp.add_argument("--create-epochs", action="store_true",
                        help="auto-create missing periodizzazione rows")
     p_imp.set_defaults(func=cmd_import)
+
+    p_para = sub.add_parser("paradata", help="Manage paradata.graphml")
+    para_sub = p_para.add_subparsers(dest="paradata_action", required=True)
+
+    p_aa = para_sub.add_parser("add-author")
+    p_aa.add_argument("--db", required=True)
+    p_aa.add_argument("--sito", required=True)
+    p_aa.add_argument("--name", required=True)
+    p_aa.add_argument("--orcid")
+    p_aa.add_argument("--role")
+    p_aa.set_defaults(func=cmd_paradata)
+
+    p_la = para_sub.add_parser("list-authors")
+    p_la.add_argument("--db", required=True)
+    p_la.add_argument("--sito", required=True)
+    p_la.set_defaults(func=cmd_paradata)
+
+    p_al = para_sub.add_parser("add-license")
+    p_al.add_argument("--db", required=True)
+    p_al.add_argument("--sito", required=True)
+    p_al.add_argument("--spdx", required=True)
+    p_al.add_argument("--url")
+    p_al.set_defaults(func=cmd_paradata)
+
+    p_ll = para_sub.add_parser("list-licenses")
+    p_ll.add_argument("--db", required=True)
+    p_ll.add_argument("--sito", required=True)
+    p_ll.set_defaults(func=cmd_paradata)
+
+    p_ae = para_sub.add_parser("add-embargo")
+    p_ae.add_argument("--db", required=True)
+    p_ae.add_argument("--sito", required=True)
+    p_ae.add_argument("--until", required=True)
+    p_ae.add_argument("--reason")
+    p_ae.set_defaults(func=cmd_paradata)
+
+    p_le = para_sub.add_parser("list-embargos")
+    p_le.add_argument("--db", required=True)
+    p_le.add_argument("--sito", required=True)
+    p_le.set_defaults(func=cmd_paradata)
+
+    p_rm = para_sub.add_parser("remove")
+    p_rm.add_argument("--db", required=True)
+    p_rm.add_argument("--sito", required=True)
+    p_rm.add_argument("--uuid", required=True)
+    p_rm.set_defaults(func=cmd_paradata)
 
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.WARNING)
