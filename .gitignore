@@ -45,3 +45,6 @@ ext_libs/
 
 # Rust build artifacts
 _rust_core/target/
+
+# Superpowers brainstorming working directory (visual companion mockups)
+.superpowers/
