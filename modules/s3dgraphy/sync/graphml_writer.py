@@ -1078,7 +1078,7 @@ _PARADATA_INJECT_TYPES: frozenset[str] = frozenset({
 })
 
 
-def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
+def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
     """Append AuthorNode / LicenseNode / EmbargoNode entries to the
     GraphMLExporter output for site-level paradata that has no
     ParadataNodeGroup anchor.
@@ -1090,6 +1090,11 @@ def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
     dropped. This post-processor fixes that by re-injecting them
     post-export.
 
+    Pass a snapshot of paradata nodes (list, not Graph) because the
+    exporter mutates graph.nodes during export — by the time this
+    runs, the original AuthorNode/LicenseNode/EmbargoNode entries
+    are no longer in graph.nodes.
+
     Each injected node gets:
       - the existing EMID key for round-trip identity
       - the existing description key with `_s3d_node_type:<Type>`
@@ -1098,12 +1103,13 @@ def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
         + NodeLabel (display name)
       - the AI05 paradata_attrs JSON blob via key "pyarchinit.paradata_attrs"
     """
-    paradata_nodes = [
-        n for n in getattr(graph, "nodes", [])
-        if type(n).__name__ in _PARADATA_INJECT_TYPES
-    ]
-    print(f"[ParadataInject] candidates in graph.nodes: "
-          f"{len(paradata_nodes)} (out of {len(getattr(graph, 'nodes', []))})")
+    # Defensive: also accept a Graph for backward compat.
+    if hasattr(paradata_nodes, "nodes"):
+        paradata_nodes = [
+            n for n in paradata_nodes.nodes
+            if type(n).__name__ in _PARADATA_INJECT_TYPES
+        ]
+    print(f"[ParadataInject] candidates: {len(paradata_nodes)}")
     if not paradata_nodes:
         return
 
@@ -1322,6 +1328,16 @@ def export_graphml(
     # fallback the plan suggested.
     temporal_input_count = _count_temporal_input_edges(graph)
 
+    # Capture paradata snapshot BEFORE GraphMLExporter runs —
+    # the exporter rebuilds graph.nodes internally to reflect only
+    # what it emits, dropping isolated AuthorNode/LicenseNode/
+    # EmbargoNode (D9 site-level paradata). Stage 4d below
+    # re-injects them from this snapshot.
+    _paradata_snapshot = [
+        n for n in graph.nodes
+        if type(n).__name__ in _PARADATA_INJECT_TYPES
+    ]
+
     # Stage 3: export (in-memory XML build)
     try:
         from s3dgraphy.exporter.graphml.graphml_exporter import (
@@ -1372,9 +1388,11 @@ def export_graphml(
     # drops when they're not anchored to a ParadataNodeGroup. AI05
     # site-level paradata (D9) lives on the graph with no edges to
     # specific stratigraphic units, so we append them post-export
-    # via a dedicated post-processor.
+    # via a dedicated post-processor. Use the pre-export snapshot
+    # because the exporter mutates graph.nodes during export.
     try:
-        _inject_isolated_paradata_nodes(graph, output_path)
+        _inject_isolated_paradata_nodes(
+            _paradata_snapshot, output_path)
     except Exception as e:  # pragma: no cover (defensive)
         if hasattr(graph, "add_warning"):
             graph.add_warning(
