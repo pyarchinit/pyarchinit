@@ -1025,6 +1025,7 @@ _PYARCHINIT_NODE_DATA_KEYS = (
     ("fase_iniziale", "pyarchinit.fase_iniziale"),
     ("rapporti", "pyarchinit.rapporti"),
     ("d_stratigrafica", "pyarchinit.d_stratigrafica"),
+    ("documentazione", "pyarchinit.documentazione"),  # DOC URL/path
 )
 _PYARCHINIT_EPOCH_DATA_KEYS = (
     ("periodo", "pyarchinit.periodo"),
@@ -1191,6 +1192,14 @@ def _embed_pyarchinit_data_keys(graph, xml_path: Path) -> None:
                 attrs.setdefault("datazione_estesa", str(datazione))
         else:
             attrname_to_kid = node_attrname_to_keyid
+            # DocumentNode: copy `url` field into a documentazione
+            # attribute so the data-key emitter picks it up. AI04.1 #6.
+            if type(n).__name__ == "DocumentNode":
+                doc_url = (getattr(n, "url", None)
+                           or attrs.get("url"))
+                if doc_url and not attrs.get("documentazione"):
+                    attrs = dict(attrs)
+                    attrs["documentazione"] = str(doc_url)
         for attr_name, kid in attrname_to_kid.items():
             val = attrs.get(attr_name)
             if val is None or val == "":

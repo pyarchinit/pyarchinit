@@ -27,11 +27,12 @@ def test_specific_errors_inherit_graph_ingest_error():
 
 def test_mapped_columns_constant_present():
     from modules.s3dgraphy.sync.graph_ingestor import MAPPED_COLUMNS
-    # The 12 columns spec §3.2 + risk row 5 enumerate.
+    # 12 columns from spec §3.2 + 1 added in AI04.1 (#6 DOC URL path).
     expected = {
         "us", "d_stratigrafica", "d_interpretativa", "attivita",
         "struttura", "sito", "area", "unita_tipo",
         "periodo_iniziale", "fase_iniziale", "rapporti", "node_uuid",
+        "documentazione",  # AI04.1 #6 — DocumentNode.url
     }
     assert set(MAPPED_COLUMNS) == expected
     assert isinstance(MAPPED_COLUMNS, tuple)  # immutable

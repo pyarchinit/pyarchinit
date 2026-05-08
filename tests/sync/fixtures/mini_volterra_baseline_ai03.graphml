@@ -9,9 +9,9 @@
   <key attr.name="EMID" attr.type="string" for="edge" id="d11"/>
   <key attr.name="URI" attr.type="string" for="edge" id="d12"/>
   <key for="graphml" id="d9" yfiles.type="resources"/>
-  <key for="node" id="d0" attr.name="pyarchinit.us" attr.type="string"/><key for="node" id="d1" attr.name="pyarchinit.area" attr.type="string"/><key for="node" id="d2" attr.name="pyarchinit.sito" attr.type="string"/><key for="node" id="d3" attr.name="pyarchinit.unita_tipo" attr.type="string"/><key for="node" id="d13" attr.name="pyarchinit.periodo_iniziale" attr.type="string"/><key for="node" id="d14" attr.name="pyarchinit.fase_iniziale" attr.type="string"/><key for="node" id="d15" attr.name="pyarchinit.rapporti" attr.type="string"/><key for="node" id="d16" attr.name="pyarchinit.d_stratigrafica" attr.type="string"/><key for="node" id="d17" attr.name="pyarchinit.periodo" attr.type="string"/><key for="node" id="d18" attr.name="pyarchinit.fase" attr.type="string"/><key for="node" id="d19" attr.name="pyarchinit.cron_iniziale" attr.type="string"/><key for="node" id="d20" attr.name="pyarchinit.cron_finale" attr.type="string"/><key for="node" id="d21" attr.name="pyarchinit.datazione_estesa" attr.type="string"/><key for="graph" id="d22" attr.name="pyarchinit.epochs_meta" attr.type="string"/><graph id="G" edgedefault="directed">
+  <key for="node" id="d0" attr.name="pyarchinit.us" attr.type="string"/><key for="node" id="d1" attr.name="pyarchinit.area" attr.type="string"/><key for="node" id="d2" attr.name="pyarchinit.sito" attr.type="string"/><key for="node" id="d3" attr.name="pyarchinit.unita_tipo" attr.type="string"/><key for="node" id="d13" attr.name="pyarchinit.periodo_iniziale" attr.type="string"/><key for="node" id="d14" attr.name="pyarchinit.fase_iniziale" attr.type="string"/><key for="node" id="d15" attr.name="pyarchinit.rapporti" attr.type="string"/><key for="node" id="d16" attr.name="pyarchinit.d_stratigrafica" attr.type="string"/><key for="node" id="d17" attr.name="pyarchinit.documentazione" attr.type="string"/><key for="node" id="d18" attr.name="pyarchinit.periodo" attr.type="string"/><key for="node" id="d19" attr.name="pyarchinit.fase" attr.type="string"/><key for="node" id="d20" attr.name="pyarchinit.cron_iniziale" attr.type="string"/><key for="node" id="d21" attr.name="pyarchinit.cron_finale" attr.type="string"/><key for="node" id="d22" attr.name="pyarchinit.datazione_estesa" attr.type="string"/><key for="graph" id="d23" attr.name="pyarchinit.epochs_meta" attr.type="string"/><graph id="G" edgedefault="directed">
     <node id="n0" yfiles.foldertype="group">
-      <data key="d7">07b5ebee-69c8-4bba-91c7-bc5214ae7cb1</data>
+      <data key="d7">4df0772d-4e0c-4f77-b4de-7cb44e2a4ee8</data>
       <data key="d5" xml:space="preserve">Stratigrafia</data>
       <data key="d6">
         <y:TableNode configuration="YED_TABLE_NODE">
@@ -69,7 +69,7 @@
       <graph edgedefault="directed" id="n0:">
         <node id="n0::n0">
           <data key="d5">Strato di terra</data>
-          <data key="d7">0944b21d-8abc-4801-bbc0-1d8c1fd592fe</data>
+          <data key="d7">f95a901b-abd0-4d33-8162-4c2ad2463f8a</data>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="90.0" x="130.0" y="260.0"/>
@@ -82,7 +82,7 @@
         <data key="d1">1</data><data key="d2">TestSite</data><data key="d3">US</data><data key="d16">Strato di terra</data></node>
         <node id="n0::n1">
           <data key="d5">Strato di sabbia</data>
-          <data key="d7">e781c894-dd94-432e-983c-6e48aa02e772</data>
+          <data key="d7">859c167b-8320-4230-b94c-bf52bb3d2552</data>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="90.0" x="280.0" y="260.0"/>
@@ -95,7 +95,7 @@
         <data key="d1">1</data><data key="d2">TestSite</data><data key="d3">US</data><data key="d16">Strato di sabbia</data></node>
         <node id="n0::n2">
           <data key="d5">Strato di argilla</data>
-          <data key="d7">c9833c57-af88-4b76-a9d2-b89d10ad09c3</data>
+          <data key="d7">cadf17a7-ab3b-4a92-b1df-e65e205fdfef</data>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="90.0" x="430.0" y="260.0"/>
@@ -108,7 +108,7 @@
         <data key="d1">1</data><data key="d2">TestSite</data><data key="d3">US</data><data key="d16">Strato di argilla</data></node>
         <node id="n0::n3">
           <data key="d5">Muratura in pietra</data>
-          <data key="d7">318ab2b3-b87c-4411-830b-6aadf130e27d</data>
+          <data key="d7">fcb2f6a1-8fd6-4268-8e55-4f0b80530629</data>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="90.0" x="280.0" y="110.0"/>
@@ -121,7 +121,7 @@
         <data key="d1">1</data><data key="d2">TestSite</data><data key="d3">USM</data><data key="d16">Muratura in pietra</data></node>
         <node id="n0::n4">
           <data key="d5">Ricostruzione virtuale</data>
-          <data key="d7">5442397d-8683-453e-825a-70514e9a5a9f</data>
+          <data key="d7">4abbe133-69b8-4b39-a919-62bda51292ac</data>
           <data key="d6">
             <y:ShapeNode>
               <y:Geometry height="30.0" width="90.0" x="130.0" y="110.0"/>
@@ -133,7 +133,7 @@
           </data>
         <data key="d1">1</data><data key="d2">TestSite</data><data key="d3">USVs</data><data key="d16">Ricostruzione virtuale</data></node>
         <node id="n0::n5" yfiles.foldertype="folder">
-          <data key="d7">12fa591f-bac9-49a4-87f7-158b9fcc86a0</data>
+          <data key="d7">cbfa34f6-72ef-4787-9284-37d5a58c9ed4</data>
           <data key="d6">
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="1">
@@ -161,7 +161,7 @@
           <graph edgedefault="directed" id="n0::n5:">
             <node id="n0::n5::n0">
               <data key="d5">Riporto</data>
-              <data key="d7">0944b21d-8abc-4801-bbc0-1d8c1fd592fe_Interpretation</data>
+              <data key="d7">f95a901b-abd0-4d33-8162-4c2ad2463f8a_Interpretation</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="104.0" x="140.0" y="260.0"/>
@@ -179,7 +179,7 @@
             </node>
             <node id="n0::n5::n1">
               <data key="d5">overlies: 2, 3</data>
-              <data key="d7">0944b21d-8abc-4801-bbc0-1d8c1fd592fe_prop_strdef</data>
+              <data key="d7">f95a901b-abd0-4d33-8162-4c2ad2463f8a_prop_strdef</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="164.0" x="230.0" y="260.0"/>
@@ -198,7 +198,7 @@
           </graph>
         </node>
         <node id="n0::n6" yfiles.foldertype="folder">
-          <data key="d7">281faebe-11e2-46e2-ab50-5289d9171f83</data>
+          <data key="d7">c5651ca0-8b1c-42f7-bcd2-97aa2a27d3f3</data>
           <data key="d6">
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="1">
@@ -226,7 +226,7 @@
           <graph edgedefault="directed" id="n0::n6:">
             <node id="n0::n6::n0">
               <data key="d5">Sedimento</data>
-              <data key="d7">e781c894-dd94-432e-983c-6e48aa02e772_Interpretation</data>
+              <data key="d7">859c167b-8320-4230-b94c-bf52bb3d2552_Interpretation</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="104.0" x="290.0" y="260.0"/>
@@ -244,7 +244,7 @@
             </node>
             <node id="n0::n6::n1">
               <data key="d5">overlies: 3</data>
-              <data key="d7">e781c894-dd94-432e-983c-6e48aa02e772_prop_strdef</data>
+              <data key="d7">859c167b-8320-4230-b94c-bf52bb3d2552_prop_strdef</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="164.0" x="380.0" y="260.0"/>
@@ -263,7 +263,7 @@
           </graph>
         </node>
         <node id="n0::n7" yfiles.foldertype="folder">
-          <data key="d7">e20cf186-b6b5-4dde-8e47-33b83cf52e4f</data>
+          <data key="d7">efbb62d9-fd86-4c93-ba26-0d3ca0c6c494</data>
           <data key="d6">
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="1">
@@ -291,7 +291,7 @@
           <graph edgedefault="directed" id="n0::n7:">
             <node id="n0::n7::n0">
               <data key="d5">Naturale</data>
-              <data key="d7">c9833c57-af88-4b76-a9d2-b89d10ad09c3_Interpretation</data>
+              <data key="d7">cadf17a7-ab3b-4a92-b1df-e65e205fdfef_Interpretation</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="104.0" x="440.0" y="260.0"/>
@@ -310,7 +310,7 @@
           </graph>
         </node>
         <node id="n0::n8" yfiles.foldertype="folder">
-          <data key="d7">77066212-9ddb-4c27-88bf-00d243d1935b</data>
+          <data key="d7">6d095926-3c68-4db9-b9a6-f246166281cd</data>
           <data key="d6">
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="1">
@@ -338,7 +338,7 @@
           <graph edgedefault="directed" id="n0::n8:">
             <node id="n0::n8::n0">
               <data key="d5">Fondazione</data>
-              <data key="d7">318ab2b3-b87c-4411-830b-6aadf130e27d_Interpretation</data>
+              <data key="d7">fcb2f6a1-8fd6-4268-8e55-4f0b80530629_Interpretation</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="104.0" x="290.0" y="110.0"/>
@@ -356,7 +356,7 @@
             </node>
             <node id="n0::n8::n1">
               <data key="d5">is_physically_equal_to: 5</data>
-              <data key="d7">318ab2b3-b87c-4411-830b-6aadf130e27d_prop_strdef</data>
+              <data key="d7">fcb2f6a1-8fd6-4268-8e55-4f0b80530629_prop_strdef</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="164.0" x="380.0" y="110.0"/>
@@ -375,7 +375,7 @@
           </graph>
         </node>
         <node id="n0::n9" yfiles.foldertype="folder">
-          <data key="d7">8f9f6777-df95-4491-b0b2-5aaf8c0285bd</data>
+          <data key="d7">0b91d9b3-a396-4fab-aa8e-6e29398a693f</data>
           <data key="d6">
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="1">
@@ -403,7 +403,7 @@
           <graph edgedefault="directed" id="n0::n9:">
             <node id="n0::n9::n0">
               <data key="d5">Ipotesi</data>
-              <data key="d7">5442397d-8683-453e-825a-70514e9a5a9f_Interpretation</data>
+              <data key="d7">4abbe133-69b8-4b39-a919-62bda51292ac_Interpretation</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="104.0" x="140.0" y="110.0"/>
@@ -421,7 +421,7 @@
             </node>
             <node id="n0::n9::n1">
               <data key="d5">fills: 4</data>
-              <data key="d7">5442397d-8683-453e-825a-70514e9a5a9f_prop_strdef</data>
+              <data key="d7">4abbe133-69b8-4b39-a919-62bda51292ac_prop_strdef</data>
               <data key="d6">
                 <y:GenericNode configuration="com.yworks.bpmn.Artifact.withShadow">
                   <y:Geometry height="30.0" width="164.0" x="230.0" y="110.0"/>
@@ -440,7 +440,7 @@
           </graph>
         </node>
         <edge id="n0::e5" source="n0::n0" target="n0::n1">
-          <data key="d11">969b7306-0fc5-4e82-8bf9-b6cad1a1a863</data>
+          <data key="d11">4ba17a99-6bdd-441b-946e-38bd9d65e5df</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -451,7 +451,7 @@
           </data>
         </edge>
         <edge id="n0::e6" source="n0::n1" target="n0::n2">
-          <data key="d11">960b4f01-a9ae-469f-9d1d-90355610069b</data>
+          <data key="d11">a04c0c1c-8757-4382-b6b2-5c3a954e3aa7</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -462,7 +462,7 @@
           </data>
         </edge>
         <edge id="n0::e7" source="n0::n4" target="n0::n3">
-          <data key="d11">cf35684e-29d6-4562-a7fd-c9fef0bbb6d7</data>
+          <data key="d11">cbb051a4-834a-4ce4-bdd5-04cc644c7153</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -472,8 +472,8 @@
             </y:PolyLineEdge>
           </data>
         </edge>
-        <edge id="n0::e8" source="n0::n3" target="n0::n4">
-          <data key="d11">f8ce190e-efab-4806-a6b0-8eff980c5598</data>
+        <edge id="n0::e8" source="n0::n4" target="n0::n3">
+          <data key="d11">42b33661-471b-4148-bdcc-47fd957eaee9</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -484,7 +484,7 @@
           </data>
         </edge>
         <edge id="n0::e9" source="n0::n0" target="n0::n5">
-          <data key="d11">3be56f3a-0e4f-4b01-a483-4cbe57d2eb4a</data>
+          <data key="d11">5ffa81fb-c72d-47ea-8765-f850f6397df6</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -495,7 +495,7 @@
           </data>
         </edge>
         <edge id="n0::e10" source="n0::n1" target="n0::n6">
-          <data key="d11">8db50a52-8108-4329-b333-04d25a0634d9</data>
+          <data key="d11">23376058-6543-46f1-9000-979f1f794b18</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -506,7 +506,7 @@
           </data>
         </edge>
         <edge id="n0::e11" source="n0::n2" target="n0::n7">
-          <data key="d11">b7f736a0-bb8b-4668-a2b5-9c5b2e79ccd3</data>
+          <data key="d11">e0eac3be-a551-4248-9d09-b22ade978d50</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -517,7 +517,7 @@
           </data>
         </edge>
         <edge id="n0::e12" source="n0::n3" target="n0::n8">
-          <data key="d11">bf912ac2-db74-45de-8085-ae5b00bb0c4b</data>
+          <data key="d11">ff0aab7a-a86c-4ea9-98cd-d038006dbb1b</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -528,7 +528,7 @@
           </data>
         </edge>
         <edge id="n0::e13" source="n0::n4" target="n0::n9">
-          <data key="d11">2b8156f0-2d54-4721-91a4-84545b8bac1e</data>
+          <data key="d11">a2c70600-6a83-4f30-bfcf-e9868c156ccc</data>
           <data key="d10">
             <y:PolyLineEdge>
               <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -540,7 +540,7 @@
         </edge>
       </graph>
     </node>
-  <data key="d22">[{"name": "Late Roman", "periodo": "1", "fase": "1", "cron_iniziale": "-100", "cron_finale": "100", "datazione_estesa": "Late Roman"}, {"name": "Early Medieval", "periodo": "2", "fase": "1", "cron_iniziale": "100", "cron_finale": "400", "datazione_estesa": "Early Medieval"}]</data></graph>
+  <data key="d23">[{"name": "Late Roman", "periodo": "1", "fase": "1", "cron_iniziale": "-100", "cron_finale": "100", "datazione_estesa": "Late Roman"}, {"name": "Early Medieval", "periodo": "2", "fase": "1", "cron_iniziale": "100", "cron_finale": "400", "datazione_estesa": "Early Medieval"}]</data></graph>
   <data key="d9">
     <y:Resources>
       <y:Resource id="1">&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;

@@ -31,6 +31,9 @@ MAPPED_COLUMNS: tuple[str, ...] = (
     "fase_iniziale",
     "rapporti",
     "node_uuid",
+    # AI04.1: DOC nodes carry a URL/path in s3dgraphy DocumentNode.url
+    # → us_table.documentazione (#6 H.4 fix).
+    "documentazione",
 )
 
 
@@ -245,6 +248,15 @@ class GraphIngestor:
                     resolved_tipo = _resolve_unita_tipo(node, attrs)
                     if resolved_tipo:
                         attrs["unita_tipo"] = resolved_tipo
+                # DocumentNode: stash its `url` field into the
+                # documentazione column (#6 H.4 fix). Path is typically
+                # relative, e.g. "documents/scheda_1.pdf".
+                if (type_name == "DocumentNode"
+                        and not attrs.get("documentazione")):
+                    doc_url = (getattr(node, "url", None)
+                               or attrs.get("url"))
+                    if doc_url:
+                        attrs["documentazione"] = str(doc_url)
                 cur.execute(
                     "SELECT * FROM us_table WHERE node_uuid = ?",
                     (node_uuid,),
@@ -348,6 +360,12 @@ class GraphIngestor:
                         resolved_tipo = _resolve_unita_tipo(node, attrs)
                         if resolved_tipo:
                             attrs["unita_tipo"] = resolved_tipo
+                    if (type_name == "DocumentNode"
+                            and not attrs.get("documentazione")):
+                        doc_url = (getattr(node, "url", None)
+                                   or attrs.get("url"))
+                        if doc_url:
+                            attrs["documentazione"] = str(doc_url)
                     # area is part of the UNIQUE constraint
                     # (sito, area, us, unita_tipo) — default to "1"
                     # if the graph doesn't carry it.
@@ -861,6 +879,9 @@ def _resolve_unita_tipo(node, attrs: dict) -> str | None:
 # Node types that have no us_table counterpart and must be skipped by
 # the per-node loop. EpochNode is in its own loop and intentionally
 # excluded from this set so the EpochNode branch can still see it.
+# Note: DocumentNode is INCLUDED in the per-node loop (us_table.unita_tipo
+# = 'DOC' is supported) — see #6 H.4 fix. The DocumentNode.url value is
+# written to us_table.documentazione during INSERT/UPDATE.
 _NON_STRAT_TYPES: frozenset[str] = frozenset({
     "EpochNode",
     "GeoPositionNode",
@@ -869,7 +890,6 @@ _NON_STRAT_TYPES: frozenset[str] = frozenset({
     "AuthorNode",
     "LicenseNode",
     "EmbargoNode",
-    "DocumentNode",
     "ExtractorNode",
     "CombinerNode",
     "VirtualSpecialFindUnit",  # paradata-only, AI05 territory
