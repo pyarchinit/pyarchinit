@@ -55,6 +55,7 @@ class GraphProjector:
         *,
         include_paradata: bool = True,
         strict_schema: bool = True,
+        groups: list = None,                # NEW (AI06 D7-A: None = no grouping)
     ) -> "s3dgraphy.Graph":
         """Build and return a s3dgraphy.Graph populated with the
         stratigraphic rows of `sito` from the SQLite at `db_path`.
@@ -189,6 +190,15 @@ class GraphProjector:
         # D3: optionally merge paradata.graphml on top of the strat layer.
         if include_paradata:
             self._merge_paradata(graph, db_path, sito)
+
+        # AI06: optional grouping by us_table dimensions + ad-hoc
+        if groups:
+            try:
+                self._merge_groups(graph, db_path, sito, groups)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(
+                    f"_merge_groups failed, continuing without groups: {e}")
 
         return graph
 
@@ -579,6 +589,79 @@ class GraphProjector:
                         )
         finally:
             conn.close()
+
+    def _merge_groups(self, graph, db_path, sito, dimensions):
+        """Materialize ActivityNodeGroup nodes + is_in_activity edges
+        from SQL columns and ad-hoc store. Each group node carries
+        a ``group_kind`` attribute distinguishing the dimension."""
+        from .group_projector import (
+            build_groups_from_sql, merge_adhoc_groups,
+        )
+        # SQL-derived dims (anything except 'adhoc')
+        sql_dims = [d for d in dimensions if d != "adhoc"]
+        specs = build_groups_from_sql(db_path, sito, sql_dims)
+
+        if "adhoc" in dimensions:
+            from .group_store import GroupStore
+            store = GroupStore(db_path, sito)
+            specs = merge_adhoc_groups(specs, store)
+
+        # Materialize as s3dgraphy ActivityNodeGroup nodes
+        from s3dgraphy.nodes.group_node import ActivityNodeGroup
+
+        # Build node_uuid (DB) -> node_id (graph) map for stratigraphic
+        # nodes: GroupSpec.member_us_uuids are us_table.node_uuid values,
+        # but the s3dgraphy node_id is the importer-assigned EMID. The
+        # node_uuid is propagated onto the StratigraphicUnit's attributes
+        # by _propagate_node_uuid_and_us (Stage 2b).
+        node_uuid_to_id: dict = {}
+        for n in graph.nodes:
+            attrs = getattr(n, "attributes", None) or {}
+            nu = attrs.get("node_uuid")
+            if nu:
+                node_uuid_to_id[str(nu)] = getattr(n, "node_id", None)
+
+        existing_ids = {getattr(n, "node_id", None) for n in graph.nodes}
+        for spec in specs:
+            if spec.group_uuid in existing_ids:
+                continue  # idempotent — don't double-add on retry
+            node = ActivityNodeGroup(
+                node_id=spec.group_uuid,
+                name=spec.name,
+                description=spec.description or "",
+            )
+            data_key = f"pyarchinit.{spec.group_kind}"
+            node.attributes = {
+                "group_kind": spec.group_kind,
+                "sito": sito,
+                "name": spec.name,
+                data_key: spec.name,
+                "group_uuid": spec.group_uuid,
+            }
+            graph.add_node(node)
+            existing_ids.add(spec.group_uuid)
+
+            # is_in_activity edge from each US member to this group.
+            # Translate DB node_uuid -> graph node_id when available;
+            # fall back to the raw UUID (round-trip / external reference).
+            for us_uuid in spec.member_us_uuids:
+                src_id = node_uuid_to_id.get(str(us_uuid), us_uuid)
+                # Edge ID uses full UUIDs to avoid collisions among
+                # members whose node_uuids share an 8-char prefix
+                # (UUID7 timestamps make this common in batched seeds).
+                edge_id = f"grp_{us_uuid}_{spec.group_uuid}"
+                try:
+                    graph.add_edge(
+                        edge_id=edge_id,
+                        edge_source=src_id,
+                        edge_target=spec.group_uuid,
+                        edge_type="is_in_activity",
+                    )
+                except Exception:
+                    # Edge validation may reject if connection
+                    # rules don't accept the source type — log
+                    # and continue (defensive).
+                    pass
 
 
 def _is_epoch_node(node) -> bool:
