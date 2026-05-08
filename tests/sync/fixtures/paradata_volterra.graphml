@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/graphml">
+  <key id="d0" for="node" attr.name="url" attr.type="string"/>
+  <key id="d1" for="node" attr.name="description" attr.type="string"/>
+  <key id="d2" for="node" yfiles.type="nodegraphics"/>
+  <key id="d3" for="node" attr.name="EMID" attr.type="string"/>
+  <key id="d4" for="node" attr.name="URI" attr.type="string"/>
+  <key id="d5" for="node" attr.name="pyarchinit.paradata_attrs" attr.type="string"/>
+  <key for="node" id="d6" attr.name="pyarchinit.us" attr.type="string"/><key for="node" id="d7" attr.name="pyarchinit.area" attr.type="string"/><key for="node" id="d8" attr.name="pyarchinit.sito" attr.type="string"/><key for="node" id="d9" attr.name="pyarchinit.unita_tipo" attr.type="string"/><key for="node" id="d10" attr.name="pyarchinit.periodo_iniziale" attr.type="string"/><key for="node" id="d11" attr.name="pyarchinit.fase_iniziale" attr.type="string"/><key for="node" id="d12" attr.name="pyarchinit.rapporti" attr.type="string"/><key for="node" id="d13" attr.name="pyarchinit.d_stratigrafica" attr.type="string"/><key for="node" id="d14" attr.name="pyarchinit.documentazione" attr.type="string"/><key for="node" id="d15" attr.name="pyarchinit.periodo" attr.type="string"/><key for="node" id="d16" attr.name="pyarchinit.fase" attr.type="string"/><key for="node" id="d17" attr.name="pyarchinit.cron_iniziale" attr.type="string"/><key for="node" id="d18" attr.name="pyarchinit.cron_finale" attr.type="string"/><key for="node" id="d19" attr.name="pyarchinit.datazione_estesa" attr.type="string"/><graph id="paradata_testsite" edgedefault="directed">
+    <node id="019e087e-5801-7767-a6a8-a661d6d8b128">
+      <data key="d1">_s3d_node_type:AuthorNode</data>
+      <data key="d2">
+        <y:ImageNode>
+          <y:NodeLabel>Marco Pacifico</y:NodeLabel>
+        </y:ImageNode>
+      </data>
+      <data key="d3">019e087e-5801-7767-a6a8-a661d6d8b128</data>
+      <data key="d5">{"original_id": "019e087e-5801-7767-a6a8-a661d6d8b128", "graph_id": "0073f791-156e-4db8-be31-9dafd38c30ed", "paradata_attrs": "{\"original_id\": \"019e087e-5801-7767-a6a8-a661d6d8b128\", \"graph_id\": \"185cbc12-2f71-4796-bb5b-0de752f7ddb9\", \"paradata_attrs\": \"{\\\"original_id\\\": \\\"019e087e-5801-7767-a6a8-a661d6d8b128\\\", \\\"graph_id\\\": \\\"de887dc9-aefe-4bd2-bc97-b258b6f82f8c\\\", \\\"paradata_attrs\\\": \\\"{\\\\\\\"sito\\\\\\\": \\\\\\\"TestSite\\\\\\\", \\\\\\\"name\\\\\\\": \\\\\\\"Marco Pacifico\\\\\\\", \\\\\\\"orcid\\\\\\\": \\\\\\\"0000-0002-1234-5678\\\\\\\", \\\\\\\"role\\\\\\\": \\\\\\\"curator\\\\\\\", \\\\\\\"node_uuid\\\\\\\": \\\\\\\"019e087e-5801-7767-a6a8-a661d6d8b128\\\\\\\"}\\\", \\\"sito\\\": \\\"TestSite\\\", \\\"name\\\": \\\"Marco Pacifico\\\", \\\"orcid\\\": \\\"0000-0002-1234-5678\\\", \\\"role\\\": \\\"curator\\\", \\\"node_uuid\\\": \\\"019e087e-5801-7767-a6a8-a661d6d8b128\\\"}\", \"sito\": \"TestSite\", \"name\": \"Marco Pacifico\", \"orcid\": \"0000-0002-1234-5678\", \"role\": \"curator\", \"node_uuid\": \"019e087e-5801-7767-a6a8-a661d6d8b128\"}", "sito": "TestSite", "name": "Marco Pacifico", "orcid": "0000-0002-1234-5678", "role": "curator", "node_uuid": "019e087e-5801-7767-a6a8-a661d6d8b128"}</data>
+    <data key="d8">TestSite</data></node>
+    <node id="019e087e-5802-7209-8596-06fb9155ca48">
+      <data key="d1">_s3d_node_type:AuthorNode</data>
+      <data key="d2">
+        <y:ImageNode>
+          <y:NodeLabel>Maria Bianchi</y:NodeLabel>
+        </y:ImageNode>
+      </data>
+      <data key="d3">019e087e-5802-7209-8596-06fb9155ca48</data>
+      <data key="d5">{"original_id": "019e087e-5802-7209-8596-06fb9155ca48", "graph_id": "0073f791-156e-4db8-be31-9dafd38c30ed", "paradata_attrs": "{\"original_id\": \"019e087e-5802-7209-8596-06fb9155ca48\", \"graph_id\": \"185cbc12-2f71-4796-bb5b-0de752f7ddb9\", \"paradata_attrs\": \"{\\\"sito\\\": \\\"TestSite\\\", \\\"name\\\": \\\"Maria Bianchi\\\", \\\"orcid\\\": \\\"0000-0001-9876-5432\\\", \\\"role\\\": \\\"contributor\\\", \\\"node_uuid\\\": \\\"019e087e-5802-7209-8596-06fb9155ca48\\\"}\", \"sito\": \"TestSite\", \"name\": \"Maria Bianchi\", \"orcid\": \"0000-0001-9876-5432\", \"role\": \"contributor\", \"node_uuid\": \"019e087e-5802-7209-8596-06fb9155ca48\"}", "sito": "TestSite", "name": "Maria Bianchi", "orcid": "0000-0001-9876-5432", "role": "contributor", "node_uuid": "019e087e-5802-7209-8596-06fb9155ca48"}</data>
+    <data key="d8">TestSite</data></node>
+    <node id="019e087e-5806-7d94-91a3-38440cf7a0f2">
+      <data key="d1">_s3d_node_type:LicenseNode</data>
+      <data key="d2">
+        <y:ImageNode>
+          <y:NodeLabel>CC-BY-NC-4.0</y:NodeLabel>
+        </y:ImageNode>
+      </data>
+      <data key="d3">019e087e-5806-7d94-91a3-38440cf7a0f2</data>
+      <data key="d5">{"original_id": "019e087e-5806-7d94-91a3-38440cf7a0f2", "graph_id": "0073f791-156e-4db8-be31-9dafd38c30ed", "paradata_attrs": "{\"sito\": \"TestSite\", \"spdx_id\": \"CC-BY-NC-4.0\", \"url\": \"https://creativecommons.org/licenses/by-nc/4.0/\", \"node_uuid\": \"019e087e-5806-7d94-91a3-38440cf7a0f2\"}", "sito": "TestSite", "spdx_id": "CC-BY-NC-4.0", "url": "https://creativecommons.org/licenses/by-nc/4.0/", "node_uuid": "019e087e-5806-7d94-91a3-38440cf7a0f2"}</data>
+    <data key="d8">TestSite</data></node>
+    <node id="019e087e-5810-7dac-b255-91e521ec9acf">
+      <data key="d1">_s3d_node_type:EmbargoNode</data>
+      <data key="d2">
+        <y:ImageNode>
+          <y:NodeLabel>Embargo until 2030-12-31</y:NodeLabel>
+        </y:ImageNode>
+      </data>
+      <data key="d3">019e087e-5810-7dac-b255-91e521ec9acf</data>
+      <data key="d5">{"sito": "TestSite", "until_date": "2030-12-31", "reason": "Volterra dataset embargo", "node_uuid": "019e087e-5810-7dac-b255-91e521ec9acf"}</data>
+    <data key="d8">TestSite</data></node>
+  </graph>
+</graphml>

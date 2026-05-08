@@ -102,7 +102,51 @@ def main() -> int:
     _write_graphml(graph2,
                    FIX / "mini_volterra_external_with_new_epoch.graphml")
     print("OK — mini_volterra_external_with_new_epoch.graphml written")
+
+    # 3. pre-cooked paradata fixture
+    _emit_paradata_fixture()
     return 0
+
+
+def _emit_paradata_fixture():
+    """Generate paradata_volterra.graphml — pre-cooked Author/License/Embargo
+    fixture used by AI05 round-trip tests."""
+    import sqlite3
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+    SRC_DB = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "mini_volterra.sqlite"
+
+    # Apply Phase 1 migration to a tmp copy so ParadataStore has a valid DB.
+    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+        add_columns, backfill_uuids,
+    )
+    tmp_db = Path(tempfile.mkdtemp()) / "mini_volterra.sqlite"
+    shutil.copy2(SRC_DB, tmp_db)
+    add_columns(tmp_db); backfill_uuids(tmp_db)
+
+    sito = sqlite3.connect(tmp_db).execute(
+        "SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()[0]
+
+    # Use ParadataStore to seed the file with controlled UUIDs.
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(tmp_db, sito)
+    store.add_author("Marco Pacifico", orcid="0000-0002-1234-5678",
+                     role="curator")
+    store.add_author("Maria Bianchi", orcid="0000-0001-9876-5432",
+                     role="contributor")
+    store.add_license("CC-BY-NC-4.0",
+                      url="https://creativecommons.org/licenses/by-nc/4.0/")
+    store.add_embargo("2030-12-31", reason="Volterra dataset embargo")
+
+    # Copy the generated file into the fixtures directory under a
+    # canonical name (the slug-based name depends on sito; we use a
+    # site-agnostic filename for the test fixture).
+    out = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "paradata_volterra.graphml"
+    shutil.copy2(store.file_path, out)
+    print(f"OK — paradata_volterra.graphml ({out.stat().st_size} bytes)")
 
 
 if __name__ == "__main__":
