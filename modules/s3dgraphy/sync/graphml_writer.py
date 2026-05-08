@@ -1243,6 +1243,214 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
                    xml_declaration=True, pretty_print=True)
 
 
+_GROUP_INJECT_TYPE = "ActivityNodeGroup"
+
+
+def _inject_group_folders(
+    group_snapshot: list,
+    members_map: dict,
+    xml_path: Path,
+) -> None:
+    """Inject yEd folder nodes inside the TableNode for each group.
+
+    Each ActivityNodeGroup with group_kind attribute becomes a
+    <node yfiles.foldertype="group"> with a <y:GroupNode> realizer
+    (dashed border, fill #F5F5F5, NodeLabel position=top with bg
+    #EBEBEB) and a Geometry that spans the bounding box of all
+    member US nodes.
+
+    Member US <node> elements are RE-PARENTED from the TableNode
+    swimlane to the new group folder's inner <graph>. Their
+    original Geometry is preserved so they continue rendering in
+    the correct epoch row.
+
+    Pass a snapshot list (not a Graph) — by the time this runs,
+    the exporter has mutated graph.nodes (same lesson as AI05
+    _inject_isolated_paradata_nodes).
+    """
+    print(f"[GroupInject] candidates: {len(group_snapshot)}")
+    if not group_snapshot:
+        return
+
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    NS_Y = "http://www.yworks.com/xml/graphml"
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # Resolve key IDs needed for node re-creation
+    attrname_to_kid: dict = {}
+    for k in root.findall(f"{{{NS_GRAPHML}}}key"):
+        if k.get("for") != "node":
+            continue
+        attr_name = k.get("attr.name")
+        yfiles_type = k.get("yfiles.type")
+        if attr_name == "EMID":
+            attrname_to_kid["EMID"] = k.get("id")
+        elif attr_name == "description":
+            attrname_to_kid["description"] = k.get("id")
+        elif yfiles_type == "nodegraphics":
+            attrname_to_kid["nodegraphics"] = k.get("id")
+        elif attr_name == "pyarchinit.sito":
+            attrname_to_kid["sito"] = k.get("id")
+
+    if "nodegraphics" not in attrname_to_kid:
+        return  # nothing we can do without nodegraphics key
+
+    # Find the TableNode wrapper (epoch swimlane container).
+    # In s3dgraphy GraphMLExporter output it's the top-level
+    # yfiles.foldertype="group" containing <y:TableNode>.
+    table_node_el = None
+    table_inner_graph = None
+    for n in root.iter(f"{{{NS_GRAPHML}}}node"):
+        if n.get("yfiles.foldertype") != "group":
+            continue
+        # Look for TableNode realizer
+        for d in n.findall(f"{{{NS_GRAPHML}}}data"):
+            if d.find(f".//{{{NS_Y}}}TableNode") is not None:
+                table_node_el = n
+                table_inner_graph = n.find(f"{{{NS_GRAPHML}}}graph")
+                break
+        if table_node_el is not None:
+            break
+
+    if table_node_el is None or table_inner_graph is None:
+        # No swimlane wrapper — fall back to root <graph>
+        table_inner_graph = root.find(f"{{{NS_GRAPHML}}}graph")
+        if table_inner_graph is None:
+            return
+
+    # Build EMID → element index for member lookup
+    emid_kid = attrname_to_kid.get("EMID")
+    emid_to_node_el: dict = {}
+    if emid_kid:
+        for n_el in table_inner_graph.iter(f"{{{NS_GRAPHML}}}node"):
+            for d in n_el.findall(f"{{{NS_GRAPHML}}}data"):
+                if d.get("key") == emid_kid and d.text:
+                    emid_to_node_el[d.text.strip()] = n_el
+                    break
+
+    injected = 0
+    for group_node in group_snapshot:
+        group_uuid = getattr(group_node, "node_id", "")
+        attrs = getattr(group_node, "attributes", None) or {}
+        display_name = attrs.get("name") or getattr(group_node, "name", "")
+        if not group_uuid or not display_name:
+            continue
+
+        # Find member US elements by EMID
+        member_emids = members_map.get(group_uuid, [])
+        member_els = [emid_to_node_el[e] for e in member_emids
+                      if e in emid_to_node_el]
+        if not member_els:
+            continue  # nothing to render for this group
+
+        # Compute bbox of member geometries (defensive: skip absent geom)
+        xs, ys, x2s, y2s = [], [], [], []
+        for me in member_els:
+            geom = me.find(f".//{{{NS_Y}}}Geometry")
+            if geom is None:
+                continue
+            try:
+                gx = float(geom.get("x", "0"))
+                gy = float(geom.get("y", "0"))
+                gw = float(geom.get("width", "0"))
+                gh = float(geom.get("height", "0"))
+            except (TypeError, ValueError):
+                continue
+            xs.append(gx); ys.append(gy)
+            x2s.append(gx + gw); y2s.append(gy + gh)
+        if not xs:
+            continue
+        margin = 20.0
+        bx = min(xs) - margin
+        by = min(ys) - margin
+        bw = (max(x2s) - min(xs)) + 2 * margin
+        bh = (max(y2s) - min(ys)) + 2 * margin
+
+        # Build the group folder element
+        n_el = etree.SubElement(table_inner_graph, f"{{{NS_GRAPHML}}}node")
+        n_el.set("id", f"grp_{group_uuid}")
+        n_el.set("yfiles.foldertype", "group")
+
+        # Description with round-trip marker
+        if "description" in attrname_to_kid:
+            d_desc = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+            d_desc.set("key", attrname_to_kid["description"])
+            d_desc.text = "_s3d_node_type:ActivityNodeGroup"
+
+        # nodegraphics: ProxyAutoBoundsNode → Realizers → GroupNode
+        d_gfx = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+        d_gfx.set("key", attrname_to_kid["nodegraphics"])
+        proxy = etree.SubElement(d_gfx, f"{{{NS_Y}}}ProxyAutoBoundsNode")
+        realizers = etree.SubElement(proxy, f"{{{NS_Y}}}Realizers")
+        realizers.set("active", "0")
+        gn = etree.SubElement(realizers, f"{{{NS_Y}}}GroupNode")
+
+        geom = etree.SubElement(gn, f"{{{NS_Y}}}Geometry")
+        geom.set("x", f"{bx:.4f}")
+        geom.set("y", f"{by:.4f}")
+        geom.set("width", f"{bw:.4f}")
+        geom.set("height", f"{bh:.4f}")
+
+        fill = etree.SubElement(gn, f"{{{NS_Y}}}Fill")
+        fill.set("color", "#F5F5F5")
+        fill.set("transparent", "false")
+
+        bs = etree.SubElement(gn, f"{{{NS_Y}}}BorderStyle")
+        bs.set("color", "#000000")
+        bs.set("type", "dashed")
+        bs.set("width", "1.0")
+
+        nl = etree.SubElement(gn, f"{{{NS_Y}}}NodeLabel")
+        nl.set("alignment", "right")
+        nl.set("autoSizePolicy", "node_width")
+        nl.set("backgroundColor", "#EBEBEB")
+        nl.set("fontFamily", "Dialog")
+        nl.set("fontSize", "15")
+        nl.set("modelName", "internal")
+        nl.set("modelPosition", "t")
+        nl.set("verticalTextPosition", "bottom")
+        nl.set("visible", "true")
+        nl.text = display_name
+
+        shape = etree.SubElement(gn, f"{{{NS_Y}}}Shape")
+        shape.set("type", "roundrectangle")
+        state = etree.SubElement(gn, f"{{{NS_Y}}}State")
+        state.set("closed", "false")
+        state.set("innerGraphDisplayEnabled", "false")
+
+        # sito data key
+        sito = attrs.get("sito", "")
+        if sito and "sito" in attrname_to_kid:
+            d_sito = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+            d_sito.set("key", attrname_to_kid["sito"])
+            d_sito.text = str(sito)
+
+        # Inner <graph> element + re-parent member US elements
+        inner = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}graph")
+        inner.set("id", f"grp_{group_uuid}:")
+        inner.set("edgedefault", "directed")
+        for me in member_els:
+            # Detach from current parent and append to inner
+            parent = me.getparent()
+            if parent is not None:
+                parent.remove(me)
+            inner.append(me)
+
+        injected += 1
+
+    print(f"[GroupInject] injected {injected} group folders")
+    if injected:
+        tree.write(str(xml_path), encoding="UTF-8",
+                   xml_declaration=True, pretty_print=True)
+
+
 def export_graphml(
     db_path,
     mapping: str,
@@ -1251,6 +1459,7 @@ def export_graphml(
     site_filter: Optional[str] = None,
     persist_auxiliary: bool = False,
     language: str = "it",
+    groups: list = None,                  # NEW (AI06)
 ) -> ExportResult:
     """Run PyArchInitImporter → optional site filter → GraphMLExporter.
 
@@ -1300,6 +1509,7 @@ def export_graphml(
             sito=sito_for_projection,
             include_paradata=True,
             strict_schema=False,
+            groups=groups,                # NEW (AI06)
         )
         para_count = sum(1 for n in graph.nodes
                          if type(n).__name__ in
@@ -1321,6 +1531,27 @@ def export_graphml(
         if type(n).__name__ in _PARADATA_INJECT_TYPES
     ]
     print(f"[ExportGraphML] paradata snapshot: {len(_paradata_snapshot)}")
+
+    # AI06: capture group snapshot BEFORE Stage 2 _filter_by_site,
+    # which retains only StratigraphicNode + EpochNode and would
+    # drop our ActivityNodeGroup instances. Same lesson as AI05
+    # paradata snapshot.
+    _group_snapshot = [
+        n for n in graph.nodes
+        if type(n).__name__ == "ActivityNodeGroup"
+        and (getattr(n, "attributes", None) or {}).get("group_kind")
+    ]
+    # Build members_map (group_uuid → [us_emid, ...]) from the
+    # is_in_activity edges currently in the graph.
+    _group_member_uuids = {
+        gn.node_id: [] for gn in _group_snapshot
+    }
+    for edge in list(getattr(graph, "edges", []) or []):
+        if (getattr(edge, "edge_type", "") == "is_in_activity"
+                and edge.edge_target in _group_member_uuids):
+            _group_member_uuids[edge.edge_target].append(edge.edge_source)
+    print(f"[ExportGraphML] group snapshot: "
+          f"{len(_group_snapshot)} groups")
 
     # Stage 2: filter
     try:
@@ -1400,6 +1631,18 @@ def export_graphml(
         if hasattr(graph, "add_warning"):
             graph.add_warning(
                 f"Paradata injection skipped: {type(e).__name__}: {e}")
+
+    # Stage 4e: inject group folders (AI06). yEd folder nodes
+    # nesting member US, with EM canonical visual style. Default
+    # no-op when _group_snapshot is empty (D7-A).
+    try:
+        _inject_group_folders(
+            _group_snapshot, _group_member_uuids, output_path)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"Group folder injection skipped: "
+                f"{type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.
     from s3dgraphy.nodes.epoch_node import EpochNode

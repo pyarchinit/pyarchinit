@@ -610,16 +610,44 @@ class GraphProjector:
         from s3dgraphy.nodes.group_node import ActivityNodeGroup
 
         # Build node_uuid (DB) -> node_id (graph) map for stratigraphic
-        # nodes: GroupSpec.member_us_uuids are us_table.node_uuid values,
-        # but the s3dgraphy node_id is the importer-assigned EMID. The
-        # node_uuid is propagated onto the StratigraphicUnit's attributes
-        # by _propagate_node_uuid_and_us (Stage 2b).
+        # nodes: GroupSpec.member_us_uuids are us_table.node_uuid values
+        # but the s3dgraphy node_id is an importer-assigned UUID4. We
+        # bridge via the `name`/`us` attribute (importer emits name=str(us)
+        # — see _propagate_node_uuid_and_us docstring).
+        # Path 1 (strict_schema=True): node.attributes['node_uuid'] is
+        # already populated by Stage 2b — direct lookup.
+        # Path 2 (strict_schema=False): query us_table for the
+        # node_uuid -> us mapping and chain through name -> node.
         node_uuid_to_id: dict = {}
+        strat_by_name: dict = {}
         for n in graph.nodes:
             attrs = getattr(n, "attributes", None) or {}
             nu = attrs.get("node_uuid")
             if nu:
                 node_uuid_to_id[str(nu)] = getattr(n, "node_id", None)
+            cls = type(n).__name__
+            if cls.startswith("Stratigraphic") or cls == "USNode":
+                strat_by_name[str(getattr(n, "name", ""))] = n
+        if strat_by_name and not node_uuid_to_id:
+            try:
+                conn = sqlite3.connect(str(db_path))
+                try:
+                    cur = conn.execute(
+                        "SELECT node_uuid, us FROM us_table "
+                        "WHERE sito=? AND node_uuid IS NOT NULL",
+                        (sito,),
+                    )
+                    for nu, us_val in cur.fetchall():
+                        if nu is None or us_val is None:
+                            continue
+                        node = strat_by_name.get(str(us_val))
+                        if node is not None:
+                            node_uuid_to_id[str(nu)] = node.node_id
+                finally:
+                    conn.close()
+            except sqlite3.Error:
+                # Defensive: leave map partial — falls back to raw UUID.
+                pass
 
         existing_ids = {getattr(n, "node_id", None) for n in graph.nodes}
         for spec in specs:

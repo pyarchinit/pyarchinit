@@ -96,3 +96,51 @@ def test_groups_arg_adds_is_in_activity_edges(mini_volterra):
                  if getattr(e, "edge_target", None) in group_ids
                  and getattr(e, "edge_type", "") == "is_in_activity"]
     assert len(rel_edges) >= 3
+
+
+def test_export_with_groups_emits_yed_folder_node(mini_volterra, tmp_path):
+    """Stage 4e: export with groups=['struttura'] produces a yEd
+    folder node in the GraphML output."""
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    sito = _read_sito(mini_volterra)
+    _seed(mini_volterra, sito, "struttura", "basilica", 3)
+
+    out = tmp_path / "out.graphml"
+    export_graphml(
+        db_path=mini_volterra,
+        mapping="pyarchinit_us_mapping",
+        output_path=out,
+        site_filter=sito,
+        groups=["struttura"],
+    )
+
+    from lxml import etree as ET
+    NS = "{http://graphml.graphdrawing.org/xmlns}"
+    tree = ET.parse(str(out))
+    folders = [n for n in tree.iter(f"{NS}node")
+               if n.get("yfiles.foldertype") == "group"
+               and n.get("id", "").startswith("grp_")]
+    assert len(folders) >= 1
+
+
+def test_export_default_no_groups_unchanged_baseline(mini_volterra, tmp_path):
+    """D7-A: default export (no groups kwarg) doesn't add any
+    grp_* node — AC-2 byte-identical guarantee."""
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    sito = _read_sito(mini_volterra)
+
+    out = tmp_path / "out.graphml"
+    export_graphml(
+        db_path=mini_volterra,
+        mapping="pyarchinit_us_mapping",
+        output_path=out,
+        site_filter=sito,
+    )
+
+    from lxml import etree as ET
+    NS = "{http://graphml.graphdrawing.org/xmlns}"
+    tree = ET.parse(str(out))
+    folders = [n for n in tree.iter(f"{NS}node")
+               if n.get("yfiles.foldertype") == "group"
+               and n.get("id", "").startswith("grp_")]
+    assert folders == []
