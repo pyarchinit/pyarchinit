@@ -127,19 +127,30 @@ class ParadataStore:
     def write(self, graph) -> None:
         """Atomic write: serialise to .tmp, embed AI04 data keys,
         os.replace() to final path. Original file untouched on
-        failure."""
+        failure.
+
+        Uses a custom minimal-GraphML serializer (rather than the
+        full ``GraphMLExporter``) because the latter only emits
+        paradata image nodes when they sit inside a
+        ``ParadataNodeGroup`` attached to a stratigraphic unit; the
+        site-level paradata file holds isolated AuthorNode /
+        LicenseNode / EmbargoNode nodes with no stratigraphic
+        anchors, so the heavyweight exporter would silently drop
+        them. The minimal output we emit here uses the
+        ``_s3d_node_type:`` round-trip marker (Signal 1 in the
+        importer's ``_detect_paradata_image_type``), so
+        ``GraphMLImporter`` reconstructs the right subclass on
+        read().
+        """
         tmp = self.file_path.with_suffix(".graphml.tmp")
         try:
-            from s3dgraphy.exporter.graphml.graphml_exporter import (
-                GraphMLExporter,
-            )
-            exporter = GraphMLExporter(graph)
-            exporter.export(str(tmp), persist_auxiliary=False)
+            self._write_minimal_graphml(graph, tmp)
             # Embed pyarchinit data keys so round-trip preserves
-            # the AI04-introduced attributes.
+            # the AI04-introduced attributes (sito + any extra
+            # values stashed on node.attributes).
             from .graphml_writer import _embed_pyarchinit_data_keys
             _embed_pyarchinit_data_keys(graph, tmp)
-            # Atomic rename — POSIX + Windows ≥ Vista.
+            # Atomic rename — POSIX + Windows >= Vista.
             os.replace(str(tmp), str(self.file_path))
         except Exception as e:
             # Cleanup tmp if it exists; original is untouched.
@@ -150,6 +161,97 @@ class ParadataStore:
                 pass
             raise ParadataWriteError(
                 f"Cannot write {self.file_path}: {e}") from e
+
+    def _write_minimal_graphml(self, graph, out_path: Path) -> None:
+        """Emit a minimal GraphML file containing only the paradata
+        nodes from *graph*. Each node carries the round-trip
+        ``_s3d_node_type:<NodeType>`` marker in its description so
+        ``GraphMLImporter`` rebuilds the right subclass.
+        """
+        from lxml import etree as ET
+
+        NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+        NS_Y = "http://www.yworks.com/xml/graphml"
+        NSMAP = {None: NS_GRAPHML, "y": NS_Y}
+
+        root = ET.Element(f"{{{NS_GRAPHML}}}graphml", nsmap=NSMAP)
+
+        # <key> declarations — match what the importer's
+        # build_key_mapping() expects to find.
+        keys = [
+            ("d0", "node", None, "url", "string"),
+            ("d1", "node", None, "description", "string"),
+            ("d2", "node", "nodegraphics", None, None),
+            ("d3", "node", None, "EMID", "string"),
+            ("d4", "node", None, "URI", "string"),
+        ]
+        for kid, kfor, yftype, attr_name, attr_type in keys:
+            kel = ET.SubElement(root, f"{{{NS_GRAPHML}}}key")
+            kel.set("id", kid)
+            kel.set("for", kfor)
+            if yftype:
+                kel.set("yfiles.type", yftype)
+            if attr_name:
+                kel.set("attr.name", attr_name)
+            if attr_type:
+                kel.set("attr.type", attr_type)
+
+        graph_el = ET.SubElement(root, f"{{{NS_GRAPHML}}}graph")
+        graph_el.set("id", f"paradata_{self._slug}")
+        graph_el.set("edgedefault", "directed")
+
+        # Filter to paradata-only nodes (defensive)
+        for node in list(getattr(graph, "nodes", []) or []):
+            type_name = type(node).__name__
+            if type_name not in _PARADATA_NODE_TYPES:
+                continue
+            self._emit_paradata_node(graph_el, node, type_name,
+                                    NS_GRAPHML, NS_Y)
+
+        tree = ET.ElementTree(root)
+        tree.write(str(out_path), encoding="UTF-8",
+                   xml_declaration=True, pretty_print=True)
+
+    @staticmethod
+    def _emit_paradata_node(graph_el, node, type_name: str,
+                            ns_graphml: str, ns_y: str) -> None:
+        """Append a single paradata <node> to *graph_el*."""
+        from lxml import etree as ET
+
+        node_id = str(getattr(node, "node_id", "") or "")
+        display_name = str(getattr(node, "name", "") or type_name)
+        description = str(getattr(node, "description", "") or "")
+        url = ""
+        if type_name == "LicenseNode":
+            url = str(getattr(node, "url", "") or "")
+
+        n_el = ET.SubElement(graph_el, f"{{{ns_graphml}}}node")
+        n_el.set("id", node_id)
+
+        # d0 — url (LicenseNode only)
+        if url:
+            d_url = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+            d_url.set("key", "d0")
+            d_url.text = url
+
+        # d1 — description, with _s3d_node_type marker
+        d_desc = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_desc.set("key", "d1")
+        marker = f"_s3d_node_type:{type_name}"
+        d_desc.text = (description + ("\n" if description else "")
+                       + marker)
+
+        # d2 — nodegraphics with <y:ImageNode> + <y:NodeLabel>
+        d_gfx = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_gfx.set("key", "d2")
+        img = ET.SubElement(d_gfx, f"{{{ns_y}}}ImageNode")
+        nl = ET.SubElement(img, f"{{{ns_y}}}NodeLabel")
+        nl.text = display_name
+
+        # d3 — EMID (lets the importer re-use the node_id verbatim)
+        d_emid = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_emid.set("key", "d3")
+        d_emid.text = node_id
 
     def add_node(self, node) -> None:
         """Append *node* to the paradata graph + write."""
