@@ -1102,6 +1102,8 @@ def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
         n for n in getattr(graph, "nodes", [])
         if type(n).__name__ in _PARADATA_INJECT_TYPES
     ]
+    print(f"[ParadataInject] candidates in graph.nodes: "
+          f"{len(paradata_nodes)} (out of {len(getattr(graph, 'nodes', []))})")
     if not paradata_nodes:
         return
 
@@ -1228,6 +1230,8 @@ def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
 
         injected += 1
 
+    print(f"[ParadataInject] injected {injected} paradata nodes "
+          f"into {xml_path.name}")
     if injected:
         tree.write(str(xml_path), encoding="UTF-8",
                    xml_declaration=True, pretty_print=True)
@@ -1283,12 +1287,19 @@ def export_graphml(
     try:
         from .graph_projector import GraphProjector
         sito_for_projection = site_filter or _read_first_sito(db_path)
+        print(f"[ExportGraphML] populate_graph(sito={sito_for_projection!r}, "
+              f"include_paradata=True) — AI05 fix b2af31f4")
         graph = GraphProjector().populate_graph(
             db_path,
             sito=sito_for_projection,
             include_paradata=True,
             strict_schema=False,
         )
+        para_count = sum(1 for n in graph.nodes
+                         if type(n).__name__ in
+                         ("AuthorNode", "LicenseNode", "EmbargoNode"))
+        print(f"[ExportGraphML] post-merge: {len(graph.nodes)} nodes, "
+              f"{para_count} paradata")
     except Exception as e:
         raise GraphMLExportError("import", e) from e
 
