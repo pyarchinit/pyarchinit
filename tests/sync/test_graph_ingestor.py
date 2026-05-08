@@ -228,3 +228,39 @@ def test_populate_list_atomic_on_failure(mini_volterra):
         g.populate_list(graph, mini_volterra, sito=sito, dry_run=False)
     sha_after = hashlib.sha256(mini_volterra.read_bytes()).hexdigest()
     assert sha_before == sha_after, "atomic rollback failed: DB changed"
+
+
+def test_populate_list_inserts_new_rows(mini_volterra):
+    """A graph node not present in DB → INSERT in write mode."""
+    import sqlite3, uuid
+    from s3dgraphy import Graph
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+
+    sito = _read_sito(mini_volterra)
+    new_uuid = str(uuid.uuid4())
+
+    # Build a graph with one synthetic node not in DB
+    class _Node:
+        def __init__(self, **kw):
+            self.node_id = kw["node_id"]
+            self.name = kw["name"]
+            self.attributes = kw["attributes"]
+    graph = Graph(graph_id=sito)
+    n = _Node(node_id=new_uuid, name="999",
+              attributes={"us": "999", "sito": sito,
+                          "unita_tipo": "US", "node_uuid": new_uuid})
+    graph.add_node(n)
+
+    GraphIngestor().populate_list(
+        graph, mini_volterra, sito=sito, dry_run=False)
+
+    # Verify the INSERT happened
+    conn = sqlite3.connect(mini_volterra)
+    row = conn.execute(
+        "SELECT us, sito, unita_tipo FROM us_table WHERE node_uuid = ?",
+        (new_uuid,)).fetchone()
+    conn.close()
+    assert row is not None
+    assert row[0] == "999"
+    assert row[1] == sito
+    assert row[2] == "US"

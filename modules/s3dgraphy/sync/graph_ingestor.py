@@ -253,10 +253,70 @@ class GraphIngestor:
                 # no-op once the transaction is already rolled back).
                 raise MissingEpochError(missing=missing_epochs)
 
-            applied = inserted + updated  # Group D will write; for now counts only
-            # Always ROLLBACK in this Group (Group D adds COMMIT for non-dry-run)
-            conn.rollback()
-            applied = applied if dry_run else 0
+            # ---- Write block (Group D): INSERT new rows + UPDATE existing ----
+            # In dry-run mode, this loop is skipped entirely and the
+            # transaction is rolled back below. In write mode, we re-walk
+            # graph.nodes to replay the same decisions made in the
+            # detection loop above, this time issuing actual SQL writes.
+            applied = 0
+            if not dry_run:
+                for node in graph.nodes:
+                    if _is_epoch_node_local(node):
+                        continue
+                    attrs = getattr(node, "attributes", None) or {}
+                    node_uuid = (getattr(node, "node_id", None)
+                                 or attrs.get("node_uuid"))
+                    if not node_uuid:
+                        continue
+                    cur.execute(
+                        "SELECT * FROM us_table WHERE node_uuid = ?",
+                        (node_uuid,),
+                    )
+                    existing = cur.fetchone()
+                    col_payload = {col: attrs.get(col)
+                                   for col in MAPPED_COLUMNS
+                                   if col in attrs}
+                    col_payload["node_uuid"] = node_uuid
+                    col_payload["sito"] = sito
+                    if existing is None:
+                        # INSERT
+                        cols = list(col_payload.keys())
+                        placeholders = ",".join("?" for _ in cols)
+                        col_list = ",".join(cols)
+                        cur.execute(
+                            f"INSERT INTO us_table ({col_list}) VALUES "
+                            f"({placeholders})",
+                            [col_payload[c] for c in cols],
+                        )
+                        applied += 1
+                    # UPDATE branch lands in Task D.2
+
+                # Epoch INSERT (D5-B path, write mode only)
+                if create_missing_epochs:
+                    for node in graph.nodes:
+                        if not _is_epoch_node_local(node):
+                            continue
+                        eattrs = getattr(node, "attributes", None) or {}
+                        periodo = eattrs.get("periodo")
+                        fase = eattrs.get("fase")
+                        if periodo is None:
+                            continue
+                        ekey = (str(periodo),
+                                str(fase) if fase is not None else "")
+                        if ekey in existing_epochs:
+                            continue
+                        cur.execute(
+                            "INSERT INTO periodizzazione_table "
+                            "(periodo, fase, descrizione) VALUES (?, ?, ?)",
+                            (periodo, fase,
+                             getattr(node, "name", "") or ""),
+                        )
+
+            # Commit or rollback
+            if dry_run:
+                conn.rollback()
+            else:
+                conn.commit()
         except GraphSyncError:
             conn.rollback()
             raise
