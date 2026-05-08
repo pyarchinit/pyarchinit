@@ -219,6 +219,40 @@ class GraphIngestor:
                 else:
                     skipped += 1
 
+            # ---- EpochNode loop ----
+            # Read all (periodo, fase) pairs already in periodizzazione_table.
+            cur.execute(
+                "SELECT CAST(periodo AS TEXT), CAST(fase AS TEXT) "
+                "FROM periodizzazione_table")
+            existing_epochs = {(r[0], r[1]) for r in cur.fetchall()}
+            missing_epochs: list[tuple] = []
+            for node in graph.nodes:
+                if not _is_epoch_node_local(node):
+                    continue
+                attrs = getattr(node, "attributes", None) or {}
+                periodo = attrs.get("periodo")
+                fase = attrs.get("fase")
+                if periodo is None:
+                    continue
+                key = (str(periodo), str(fase) if fase is not None else "")
+                if key in existing_epochs:
+                    continue
+                if create_missing_epochs:
+                    epochs_created += 1
+                    # Group D writes the actual INSERT here. For dry-run, just count.
+                else:
+                    # Coerce periodo back to int for the error payload
+                    try:
+                        p_int = int(periodo)
+                    except (TypeError, ValueError):
+                        p_int = periodo
+                    missing_epochs.append((p_int, str(fase)))
+            if missing_epochs:
+                # rollback now and let the outer except GraphSyncError
+                # branch re-raise (it also calls rollback, which is a
+                # no-op once the transaction is already rolled back).
+                raise MissingEpochError(missing=missing_epochs)
+
             applied = inserted + updated  # Group D will write; for now counts only
             # Always ROLLBACK in this Group (Group D adds COMMIT for non-dry-run)
             conn.rollback()

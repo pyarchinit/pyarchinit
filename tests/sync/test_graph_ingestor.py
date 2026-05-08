@@ -157,3 +157,42 @@ def test_populate_list_dry_run_counts_skipped_when_unchanged(mini_volterra):
     assert result.inserted == 0
     assert result.updated == 0
     assert len(result.conflicts) == 0
+
+
+def _make_graph_with_extra_epoch(mini_volterra, periodo, fase):
+    """Project mini_volterra and inject an extra EpochNode."""
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    sito = _read_sito(mini_volterra)
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    # Add a synthetic epoch missing from periodizzazione_table
+    epoch = EpochNode(
+        node_id=f"epoch_{periodo}_{fase}_synthetic",
+        name=f"Synthetic Period {periodo} Phase {fase}",
+        start_time=0.0, end_time=0.0)
+    epoch.attributes = {"periodo": periodo, "fase": fase}
+    graph.add_node(epoch)
+    return graph, sito
+
+
+def test_missing_epoch_strict_raises(mini_volterra):
+    """D5-A — strict (default) raises MissingEpochError."""
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        GraphIngestor, MissingEpochError)
+    graph, sito = _make_graph_with_extra_epoch(
+        mini_volterra, periodo=99, fase="9.9")
+    g = GraphIngestor()
+    with pytest.raises(MissingEpochError) as excinfo:
+        g.populate_list(graph, mini_volterra, sito=sito, dry_run=True)
+    assert (99, "9.9") in excinfo.value.missing
+
+
+def test_missing_epoch_create_inserts_period(mini_volterra):
+    """D5-B — opt-in counts the would-be inserts; dry-run no writes."""
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    graph, sito = _make_graph_with_extra_epoch(
+        mini_volterra, periodo=99, fase="9.9")
+    g = GraphIngestor()
+    result = g.populate_list(graph, mini_volterra, sito=sito,
+                              dry_run=True, create_missing_epochs=True)
+    assert result.epochs_created == 1
