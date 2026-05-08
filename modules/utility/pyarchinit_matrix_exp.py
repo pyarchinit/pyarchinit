@@ -124,6 +124,101 @@ def rust_harris_layout(edges, node_labels, phase_groups=None,
         return None
 
 
+def _clean_tred_output(tred_file):
+    """Strip layout attributes (pos/width/height/bb/lp) from a DOT
+    file produced by ``tred``.
+
+    ``tred`` re-emits the input DOT verbatim except for the redundant
+    edges it removes. When tred removes an edge that used backslash
+    line continuations, it can leave behind orphan attribute fragments
+    that ``dot -Tjpg`` rejects with::
+
+        Error: ...: syntax error in line N near ','
+
+    We post-process the output so that any leftover `pos="..."`
+    coordinates from a failed layout round-trip are stripped, plus
+    drop any line that is a pure coordinate fragment (e.g. ``188.8"];``
+    or ``1952.2,188.85"];``) — those are the orphans tred leaves
+    behind when an edge declaration is removed mid-attribute-list.
+
+    This was previously inlined inside ``export_matrix_2`` only
+    (commit 1f0be2c1, April 3 2026); extracted here so the same
+    safety net is applied to every render path.
+
+    No-op (logs and returns) on any unexpected failure — better to
+    attempt rendering with the unmodified file than to crash.
+    """
+    import re
+    try:
+        with open(tred_file, 'r') as fh:
+            raw = fh.read()
+        # Join ALL line continuations (backslash before newline)
+        raw = raw.replace('\\\r\n', '').replace('\\\n', '')
+
+        # Strip layout attributes line-by-line and rebalance brackets.
+        attr_re_subs = [
+            (r'\bpos="[^"]*"', ''),
+            (r'\bwidth=[0-9.]+', ''),
+            (r'\bheight=[0-9.]+', ''),
+            (r'\bbb="[^"]*"', ''),
+            (r'\blp="[^"]*"', ''),
+            (r'\[\s*,', '['),
+            (r',\s*,', ','),
+            (r',\s*\]', ']'),
+            (r'\[\s*\]', ''),
+        ]
+        # Track whether we are inside an attribute list `[...]` so we
+        # know whether a bare attribute line is a legitimate
+        # continuation or an orphan left behind by tred when it
+        # removed an edge declaration.
+        in_attr_list = False
+        clean_lines = []
+        for line in raw.split('\n'):
+            for pat, repl in attr_re_subs:
+                line = re.sub(pat, repl, line)
+            stripped = line.strip()
+            if not stripped:
+                continue
+            # Pure-coordinate orphan from a stripped pos= attribute,
+            # e.g. '188.8"];' or '1952.2,188.85"];'
+            if re.match(r'^[\d.,\s]+["\];]*$', stripped):
+                # If it ends with '];' the orphan is closing an
+                # attribute list — flip the state back to outside.
+                if '];' in stripped:
+                    in_attr_list = False
+                continue
+            # Pure attribute-tail orphan when we are NOT currently
+            # inside a `[...]`. tred sometimes drops the edge opener
+            # but leaves trailing attribute lines (e.g.
+            # 'arrowsize=.8,', 'color="..."', 'constraint=False,', or
+            # the closing 'style=solid];'). Any line that is just
+            # `<key>=<value>[,;]?` without a node name, edge arrow,
+            # opening bracket or block delimiter is an orphan.
+            if (not in_attr_list
+                    and '[' not in stripped
+                    and '->' not in stripped
+                    and '{' not in stripped
+                    and '}' not in stripped
+                    and re.match(
+                        r'^[A-Za-z_]\w*\s*=\s*[^=\[]*[,;]?$',
+                        stripped)):
+                continue
+            # Update bracket state from the surviving line. A `[`
+            # without matching `];` opens an attribute list; a `];`
+            # closes it.
+            opens = stripped.count('[')
+            closes_with_semi = stripped.count('];')
+            if opens > closes_with_semi:
+                in_attr_list = True
+            elif closes_with_semi >= 1 and in_attr_list:
+                in_attr_list = False
+            clean_lines.append(line)
+        with open(tred_file, 'w') as fh:
+            fh.write('\n'.join(clean_lines) + '\n')
+    except Exception as e:
+        print(f"_clean_tred_output: cleanup failed ({e}), trying render anyway")
+
+
 def rust_layout_to_dot(layout_result, edges, node_labels,
                        sequence_edges=None, negative_edges=None,
                        contemporary_edges=None,
@@ -581,11 +676,19 @@ class HarrisMatrix:
             else:
                 print()
 
+        # Clean leftover layout / orphan-attribute fragments before
+        # graphviz reparses the tred output (see _clean_tred_output).
+        _clean_tred_output(tred_output_file_path)
+
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
         except Exception as e:
-            print()
+            # Surface the error instead of silently swallowing it —
+            # users were seeing only the .dot file with no image and
+            # no diagnostic. Log the cause so they can attach it to a
+            # bug report if it recurs.
+            print(f"export_matrix: graphviz render failed: {e}")
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -785,11 +888,15 @@ class HarrisMatrix:
             else:
                 print()
 
+        # Clean leftover layout / orphan-attribute fragments before
+        # graphviz reparses the tred output (see _clean_tred_output).
+        _clean_tred_output(tred_output_file_path)
+
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
         except Exception as e:
-            print()
+            print(f"export_matrix: graphviz render failed: {e}")
 
 
 class ViewHarrisMatrix:
@@ -1185,6 +1292,10 @@ class ViewHarrisMatrix:
                                 print(f"Errori critici con DPI {current_dpi}: {errors}")
                             else:
                                 print(f"Warning tred con DPI {current_dpi} (normale per matrici complesse)")
+
+                # Clean leftover layout / orphan-attribute fragments
+                # before graphviz reparses the tred output.
+                _clean_tred_output(tred_output_file_path)
 
                 # Prova il rendering
                 if not has_critical_errors:
