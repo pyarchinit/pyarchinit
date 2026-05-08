@@ -117,12 +117,71 @@ class ParadataStore:
             _hydrate_pyarchinit_data_keys(graph, self.file_path)
         except Exception:
             pass
+        # Paradata-specific hydrator: re-attach the JSON-blob attrs
+        # we wrote out on each paradata node.
+        try:
+            self._hydrate_paradata_attrs(graph)
+        except Exception:
+            pass
         # Defensive filter: drop non-paradata node types
         graph.nodes = [
             n for n in graph.nodes
             if type(n).__name__ in _PARADATA_NODE_TYPES
         ]
         return graph
+
+    def _hydrate_paradata_attrs(self, graph) -> None:
+        """Re-parse the paradata file and merge the JSON-blob
+        ``pyarchinit.paradata_attrs`` data values back onto each
+        node's ``.attributes`` dict. This is how high-level helpers
+        (orcid, role, spdx_id, url, until_date, reason) survive a
+        round-trip — s3dgraphy's importer strips unknown <data>
+        keys, so we serialise them in our own JSON blob.
+        """
+        from lxml import etree as ET
+        import json as _json
+        NS = "http://graphml.graphdrawing.org/xmlns"
+        try:
+            tree = ET.parse(str(self.file_path))
+        except Exception:
+            return
+        root = tree.getroot()
+        # Find our custom key id (registered as
+        # attr.name="pyarchinit.paradata_attrs").
+        attrs_kid = None
+        for k in root.findall(f"{{{NS}}}key"):
+            if k.get("attr.name") == "pyarchinit.paradata_attrs":
+                attrs_kid = k.get("id")
+                break
+        if not attrs_kid:
+            return
+        emid_to_node = {getattr(n, "node_id", None): n for n in graph.nodes}
+        for node_el in root.iter(f"{{{NS}}}node"):
+            blob_text = None
+            emid = node_el.get("id")
+            for d_el in node_el.findall(f"{{{NS}}}data"):
+                if d_el.get("key") == attrs_kid and d_el.text:
+                    blob_text = d_el.text
+                    break
+            if blob_text is None:
+                continue
+            try:
+                blob = _json.loads(blob_text)
+            except (ValueError, TypeError):
+                continue
+            n = emid_to_node.get(emid)
+            if n is None:
+                continue
+            attrs = getattr(n, "attributes", None)
+            if attrs is None:
+                try:
+                    n.attributes = {}
+                    attrs = n.attributes
+                except Exception:
+                    continue
+            for k, v in blob.items():
+                if attrs.get(k) in (None, ""):
+                    attrs[k] = v
 
     def write(self, graph) -> None:
         """Atomic write: serialise to .tmp, embed AI04 data keys,
@@ -184,6 +243,11 @@ class ParadataStore:
             ("d2", "node", "nodegraphics", None, None),
             ("d3", "node", None, "EMID", "string"),
             ("d4", "node", None, "URI", "string"),
+            # Custom key for the paradata-attrs JSON blob (our own
+            # round-trip channel for orcid / role / spdx_id /
+            # until_date / reason / etc., since s3dgraphy's importer
+            # strips unknown <data> keys).
+            ("d5", "node", None, "pyarchinit.paradata_attrs", "string"),
         ]
         for kid, kfor, yftype, attr_name, attr_type in keys:
             kel = ET.SubElement(root, f"{{{NS_GRAPHML}}}key")
@@ -253,6 +317,20 @@ class ParadataStore:
         d_emid.set("key", "d3")
         d_emid.text = node_id
 
+        # d5 — JSON blob carrying node.attributes for round-trip
+        # of high-level helper fields (orcid, role, spdx_id,
+        # until_date, reason, ...). s3dgraphy's importer drops
+        # unknown <data> entries; this is our private channel.
+        attrs = getattr(node, "attributes", None) or {}
+        if attrs:
+            import json as _json
+            d_attrs = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+            d_attrs.set("key", "d5")
+            d_attrs.text = _json.dumps(
+                {k: v for k, v in attrs.items() if v not in (None, "")},
+                ensure_ascii=False,
+            )
+
     def add_node(self, node) -> None:
         """Append *node* to the paradata graph + write."""
         type_name = type(node).__name__
@@ -291,6 +369,126 @@ class ParadataStore:
                 out.append(n)
         return out
 
-    # ---- High-level (D5) — populated in Task B.3 ----------------------
-    # add_author / list_authors / add_license / list_licenses /
-    # add_embargo / list_embargos
+    # ---- High-level (D5) ----------------------------------------------
+    def add_author(self, name: str, orcid: str = None,
+                   role: str = None) -> str:
+        """Create + persist an AuthorNode. Returns the new node_uuid."""
+        if not name or not str(name).strip():
+            raise ParadataValidationError(
+                "AuthorNode requires a non-empty `name`")
+        from s3dgraphy.nodes.author_node import AuthorNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = AuthorNode(
+            node_id=node_uuid,
+            name=str(name),
+            orcid=orcid or "noorcid",
+        )
+        # Stash extra attrs so round-trip preserves them via the AI04
+        # data-keys helper; the s3dgraphy AuthorNode itself doesn't
+        # have a `role` attr in 0.1.40.
+        node.attributes = {
+            "sito": self._sito,
+            "name": str(name),
+            "orcid": orcid or "",
+            "role": role or "",
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def list_authors(self) -> list[dict]:
+        """Return [{node_uuid, name, orcid, role}, ...]."""
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "AuthorNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            data = getattr(n, "data", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "name": getattr(n, "name", "")
+                        or attrs.get("name", "")
+                        or data.get("name", ""),
+                "orcid": attrs.get("orcid", "")
+                         or data.get("orcid", ""),
+                "role": attrs.get("role", ""),
+            })
+        return out
+
+    def add_license(self, spdx_id: str, url: str = None) -> str:
+        """Create + persist a LicenseNode."""
+        if not spdx_id or not str(spdx_id).strip():
+            raise ParadataValidationError(
+                "LicenseNode requires a non-empty SPDX id")
+        from s3dgraphy.nodes.license_node import LicenseNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = LicenseNode(
+            node_id=node_uuid,
+            name=str(spdx_id),
+            license_type=str(spdx_id),
+            url=url or "",
+        )
+        node.attributes = {
+            "sito": self._sito,
+            "spdx_id": str(spdx_id),
+            "url": url or "",
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def list_licenses(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "LicenseNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            data = getattr(n, "data", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "spdx_id": (attrs.get("spdx_id", "")
+                            or data.get("license_type", "")
+                            or getattr(n, "name", "")),
+                "url": attrs.get("url", "") or data.get("url", ""),
+            })
+        return out
+
+    def add_embargo(self, until_date: str, reason: str = None) -> str:
+        """Create + persist an EmbargoNode."""
+        if not until_date or not str(until_date).strip():
+            raise ParadataValidationError(
+                "EmbargoNode requires a non-empty until_date")
+        from s3dgraphy.nodes.embargo_node import EmbargoNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = EmbargoNode(
+            node_id=node_uuid,
+            name=f"Embargo until {until_date}",
+            embargo_end=str(until_date),
+            reason=reason or "",
+        )
+        node.attributes = {
+            "sito": self._sito,
+            "until_date": str(until_date),
+            "reason": reason or "",
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def list_embargos(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "EmbargoNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            data = getattr(n, "data", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "until_date": (attrs.get("until_date", "")
+                               or data.get("embargo_end", "")),
+                "reason": attrs.get("reason", "") or data.get("reason", ""),
+            })
+        return out

@@ -182,3 +182,73 @@ def test_find_returns_matching_nodes(tmp_path):
     found = store.find("AuthorNode", name="Marco")
     assert len(found) == 1
     assert found[0].node_id == "a1"
+
+
+def test_add_author_round_trip(tmp_path):
+    """add_author + list_authors round-trip (D5 high-level)."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(_make_db(tmp_path), "X")
+    auth_uuid = store.add_author(
+        "Marco Pacifico", orcid="0000-0002-1234-5678", role="curator")
+    assert isinstance(auth_uuid, str) and len(auth_uuid) > 8
+    authors = store.list_authors()
+    assert len(authors) == 1
+    a = authors[0]
+    assert a["name"] == "Marco Pacifico"
+    assert a["orcid"] == "0000-0002-1234-5678"
+    assert a["role"] == "curator"
+    assert a["node_uuid"] == auth_uuid
+
+
+def test_add_author_creates_isolated_node_no_edges(tmp_path):
+    """D9: AuthorNode is site-level, no edges to specific units."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(_make_db(tmp_path), "X")
+    store.add_author("Marco")
+    graph = store.read()
+    edges = list(getattr(graph, "edges", []) or [])
+    assert len(edges) == 0
+
+
+def test_add_author_validates_name(tmp_path):
+    """Empty name → ParadataValidationError."""
+    from modules.s3dgraphy.sync.paradata_store import (
+        ParadataStore, ParadataValidationError)
+    store = ParadataStore(_make_db(tmp_path), "X")
+    with pytest.raises(ParadataValidationError):
+        store.add_author("")
+
+
+def test_add_license_round_trip(tmp_path):
+    """add_license + list_licenses round-trip."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(_make_db(tmp_path), "X")
+    lic_uuid = store.add_license(
+        "CC-BY-NC-4.0", url="https://creativecommons.org/licenses/by-nc/4.0/")
+    licenses = store.list_licenses()
+    assert len(licenses) == 1
+    assert licenses[0]["spdx_id"] == "CC-BY-NC-4.0"
+    assert licenses[0]["url"].startswith("https://")
+    assert licenses[0]["node_uuid"] == lic_uuid
+
+
+def test_add_embargo_round_trip(tmp_path):
+    """add_embargo + list_embargos round-trip."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(_make_db(tmp_path), "X")
+    emb_uuid = store.add_embargo("2030-12-31", reason="dataset embargo")
+    embargos = store.list_embargos()
+    assert len(embargos) == 1
+    assert embargos[0]["until_date"] == "2030-12-31"
+    assert embargos[0]["reason"] == "dataset embargo"
+    assert embargos[0]["node_uuid"] == emb_uuid
+
+
+def test_remove_high_level_alias(tmp_path):
+    """`store.remove(uuid)` is an alias for `remove_node(uuid)`."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    store = ParadataStore(_make_db(tmp_path), "X")
+    auth_uuid = store.add_author("Marco")
+    assert len(store.list_authors()) == 1
+    store.remove(auth_uuid)
+    assert len(store.list_authors()) == 0
