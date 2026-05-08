@@ -89,21 +89,25 @@ def test_projector_returns_filtered_graph(mini_volterra):
             assert attrs["sito"] == sito
 
 
-def test_projector_delegates_to_enrich_function(mini_volterra, monkeypatch):
-    """D2 — verify GraphProjector calls _enrich_pyarchinit_graph
-    (Strategy D wrap pattern)."""
+def test_projector_delegates_to_enrich_method(mini_volterra, monkeypatch):
+    """D2 — verify GraphProjector.populate_graph calls the private
+    ``_enrich_into`` method.
+
+    AI04 originally wrapped a standalone ``_enrich_pyarchinit_graph``
+    function in ``graphml_writer`` (Strategy D). AI05 Group C promotes
+    the projector to a proper class (Strategy A): the body now lives
+    on ``GraphProjector._enrich_into`` and the standalone function is
+    deleted. This test pins the new delegation contract.
+    """
     from modules.s3dgraphy.sync import graph_projector as gp_mod
     calls = []
-    # Monkey-patch the local reference in graphml_writer (the module
-    # graph_projector imports the function from); we need to patch
-    # the binding inside GraphProjector.populate_graph at call-time.
-    from modules.s3dgraphy.sync import graphml_writer
-    original = graphml_writer._enrich_pyarchinit_graph
+    original = gp_mod.GraphProjector._enrich_into
 
-    def spy(graph, db_path, sito_filter=None):
+    def spy(self, graph, db_path, sito_filter=None):
         calls.append((db_path, sito_filter))
-        return original(graph, db_path, sito_filter=sito_filter)
-    monkeypatch.setattr(graphml_writer, "_enrich_pyarchinit_graph", spy)
+        return original(self, graph, db_path, sito_filter=sito_filter)
+    monkeypatch.setattr(
+        gp_mod.GraphProjector, "_enrich_into", spy, raising=True)
 
     import sqlite3
     conn = sqlite3.connect(mini_volterra)
@@ -113,5 +117,6 @@ def test_projector_delegates_to_enrich_function(mini_volterra, monkeypatch):
 
     p = gp_mod.GraphProjector()
     p.populate_graph(mini_volterra, sito=sito)
-    assert len(calls) == 1, "GraphProjector must call _enrich_pyarchinit_graph"
+    assert len(calls) == 1, (
+        "GraphProjector must call its own _enrich_into method")
     assert calls[0][1] == sito, "sito_filter must be propagated"

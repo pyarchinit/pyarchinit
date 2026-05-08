@@ -1,9 +1,9 @@
 """Project PyArchInit DB rows into a stratigraphic-layer s3dgraphy Graph.
 
-AI04 implementation is a thin wrapper (Strategy D, see memory note
-project_ai04_projector_refactor_plan.md) around the existing
-_enrich_pyarchinit_graph() function in graphml_writer.py. The
-promotion to a self-contained class lives in AI05.
+AI05 promotes this module from the AI04 thin-wrapper (Strategy D) to a
+proper class (Strategy A). The body of the former
+``_enrich_pyarchinit_graph()`` standalone function in ``graphml_writer``
+now lives inside :py:meth:`GraphProjector._enrich_into`.
 
 Exposed publicly so callers (UI Import tab, CLI helper, future
 SyncEngine in Phase 3) have a stable API surface even while the
@@ -11,6 +11,7 @@ underlying implementation evolves.
 """
 from __future__ import annotations
 
+import ast
 import sqlite3
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
@@ -90,7 +91,6 @@ class GraphProjector:
             from s3dgraphy import Graph
             from s3dgraphy.importer.pyarchinit_importer import (
                 PyArchInitImporter)
-            from .graphml_writer import _enrich_pyarchinit_graph
         except ImportError as e:
             raise ProjectionError(f"s3dgraphy import failed: {e}") from e
 
@@ -134,7 +134,7 @@ class GraphProjector:
                 pass
 
         try:
-            _enrich_pyarchinit_graph(graph, db_path, sito_filter=sito)
+            self._enrich_into(graph, db_path, sito_filter=sito)
         except Exception as e:
             raise ProjectionError(
                 f"Enrichment failed for sito={sito!r}: {e}") from e
@@ -236,6 +236,268 @@ class GraphProjector:
                 attrs["attivita"] = str(attivita)
             if struttura is not None:
                 attrs["struttura"] = str(struttura)
+
+    def _enrich_into(self, graph, db_path, sito_filter=None):
+        """Phase 2 / Strategy A — full-class implementation.
+
+        Body absorbed verbatim from the soon-to-be-deleted
+        ``_enrich_pyarchinit_graph()`` in ``graphml_writer.py``.
+
+        Bake epoch swimlanes + topological rapporti edges into *graph*.
+
+        The vendored s3dgraphy 0.1.40 PyArchInitImporter is incomplete:
+        it imports only US columns mapped in the JSON mapping (us_table
+        → StratigraphicNode + PropertyNodes), and does NOT:
+
+          * read periodizzazione_table → create EpochNodes
+          * add ``has_first_epoch`` edges from each US to its periodo
+          * parse the ``rapporti`` JSON column → create topological edges
+
+        Without those, the GraphMLExporter has no input for swimlanes
+        and no input for the TemporalInferenceEngine — both AI03
+        acceptance criteria fail. We perform the enrichment here, in
+        the orchestrator's filter+enrich layer, so the bridge stays a
+        one-call surface and so the test fixture remains pure
+        pyArchInit-shaped data.
+
+        Mutates the graph in place. No-op if the DB file lacks the
+        expected tables.
+        """
+        from s3dgraphy.nodes.epoch_node import EpochNode
+        # Lazy-import the rapporti tables and palette from graphml_writer
+        # to avoid duplicating these constants — they remain authoritative
+        # in the writer module.
+        from .graphml_writer import (
+            _RAPPORTI_TO_EDGE_TYPE,
+            _RAPPORTI_SHORTHAND,
+            _EPOCH_ROW_PALETTE,
+        )
+
+        # Build a name → StratigraphicNode index over the existing
+        # importer-emitted nodes; rapporti reference US by their numeric
+        # name, not by the importer-generated UUIDs.
+        strat_by_name = {}
+        for n in graph.nodes:
+            # Importer emits `name = str(us_number)` for stratigraphic
+            # rows. Skip PropertyNodes (they have a name like
+            # "Interpretation" rather than the US id).
+            nclass = type(n).__name__
+            if nclass.startswith("Stratigraphic") or nclass == "USNode":
+                strat_by_name[str(n.name)] = n
+
+        if not strat_by_name:
+            return  # nothing to enrich
+
+        try:
+            conn = sqlite3.connect(str(db_path))
+            cursor = conn.cursor()
+        except sqlite3.Error:
+            return
+
+        try:
+            # ---- 1. EpochNodes from periodizzazione_table -------------
+            # Schema columns vary slightly across pyArchInit releases;
+            # we read defensively. Each (periodo, fase) is one epoch.
+            epoch_by_key = {}  # (periodo:int, fase:str) -> EpochNode
+            try:
+                cursor.execute(
+                    "SELECT periodo, fase, cron_iniziale, cron_finale, "
+                    "descrizione FROM periodizzazione_table"
+                )
+                raw_rows = cursor.fetchall()
+            except sqlite3.Error:
+                raw_rows = []
+            # Sort the periodizzazione rows by (periodo asc, fase asc) so
+            # that when we add EpochNodes to the graph, ties on cron_iniziale
+            # are broken by the natural phase numbering. The swimlane
+            # generator at `epoch_generator.py:298` uses Python's stable
+            # `sorted(..., reverse=True)`, so ties preserve insertion order:
+            # phases inserted earlier here will end up above phases inserted
+            # later in the rendered matrix when their cron_iniziale tie.
+            def _sort_key(row):
+                periodo, fase, *_ = row
+                try:
+                    p_num = int(periodo) if periodo is not None else 0
+                except (TypeError, ValueError):
+                    p_num = 0
+                try:
+                    f_num = float(fase) if fase is not None else 0.0
+                except (TypeError, ValueError):
+                    f_num = 0.0
+                return (p_num, f_num)
+            rows_sorted = sorted(raw_rows, key=_sort_key)
+
+            try:
+                for periodo, fase, cron_ini, cron_fin, descr in rows_sorted:
+                    if periodo is None:
+                        continue
+                    key = (int(periodo), str(fase) if fase is not None else "")
+                    node_id = f"epoch_{key[0]}_{key[1]}"
+                    # Skip if already present (idempotent on repeat
+                    # invocation in single-graph mode).
+                    if graph.find_node_by_id(node_id) is not None:
+                        epoch_by_key[key] = graph.find_node_by_id(node_id)
+                        continue
+                    start = float(cron_ini) if cron_ini is not None else 0.0
+                    end = float(cron_fin) if cron_fin is not None else 0.0
+                    label = descr or f"Period {key[0]} Phase {key[1]}"
+                    # Cycle a pastel palette across epochs so each
+                    # swimlane row renders in a distinct background colour.
+                    # The s3dgraphy EpochSwimlanesGenerator
+                    # (`epoch_generator.py:360`) honours `epoch.color` when
+                    # it is not the default `#FFFFFF`; without an explicit
+                    # color it falls back to a single `#CCFFCC` for every
+                    # row, which is what the user reported as "tutti
+                    # verdino".
+                    row_color = _EPOCH_ROW_PALETTE[
+                        len(epoch_by_key) % len(_EPOCH_ROW_PALETTE)]
+                    ep = EpochNode(
+                        node_id=node_id,
+                        name=str(label),
+                        start_time=start,
+                        end_time=end,
+                        color=row_color,
+                    )
+                    # Stash periodo/fase on the EpochNode so the AI04
+                    # graphml round-trip can recover them via the
+                    # _embed_pyarchinit_data_keys post-processor (which
+                    # reads from `attributes` rather than parsing node_id —
+                    # node_id may be reassigned by GraphMLExporter).
+                    if not hasattr(ep, "attributes") or ep.attributes is None:
+                        ep.attributes = {}
+                    ep.attributes["periodo"] = str(key[0])
+                    ep.attributes["fase"] = str(key[1])
+                    if cron_ini is not None:
+                        ep.attributes["cron_iniziale"] = str(int(cron_ini))
+                    if cron_fin is not None:
+                        ep.attributes["cron_finale"] = str(int(cron_fin))
+                    if descr:
+                        ep.attributes["datazione_estesa"] = str(descr)
+                    graph.add_node(ep)
+                    epoch_by_key[key] = ep
+            except sqlite3.Error:
+                pass  # missing table is tolerated; epoch_count just stays 0
+
+            # ---- 2. has_first_epoch edges and rapporti edges ----------
+            # Also propagate `sito` and `area` to attributes so
+            # _filter_by_site can match — the upstream PyArchInitImporter
+            # mapping JSON only emits 5 columns and `sito` is not one of
+            # them, leaving us_node.attributes empty post-import.
+            try:
+                if sito_filter is not None:
+                    cursor.execute(
+                        "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                        "fase_iniziale, rapporti, d_stratigrafica "
+                        "FROM us_table WHERE sito = ?",
+                        (sito_filter,),
+                    )
+                else:
+                    cursor.execute(
+                        "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                        "fase_iniziale, rapporti, d_stratigrafica "
+                        "FROM us_table"
+                    )
+                rows = cursor.fetchall()
+            except sqlite3.Error:
+                rows = []
+
+            for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
+                 rapporti_raw, d_stratigrafica) in rows:
+                us_name = str(us_val) if us_val is not None else None
+                if not us_name or us_name not in strat_by_name:
+                    continue
+                us_node = strat_by_name[us_name]
+
+                # Propagate identity attributes so site/area filters work
+                # and so the post-processor can drive per-type styling.
+                if sito is not None:
+                    us_node.attributes["sito"] = str(sito)
+                if area is not None:
+                    us_node.attributes["area"] = str(area)
+                if unita_tipo is not None:
+                    us_node.attributes["unita_tipo"] = str(unita_tipo)
+                # d_stratigrafica is the user-friendly description used as
+                # the LABEL for property nodes (e.g. "Materiale").
+                if d_stratigrafica is not None:
+                    us_node.attributes["d_stratigrafica"] = str(d_stratigrafica)
+
+                # 2a. has_first_epoch edge
+                if periodo_ini is not None:
+                    try:
+                        p_int = int(periodo_ini)
+                    except (TypeError, ValueError):
+                        p_int = None
+                    if p_int is not None:
+                        f_str = (str(fase_ini) if fase_ini is not None else "")
+                        epoch = epoch_by_key.get((p_int, f_str))
+                        # If exact (periodo, fase) not found, fall back to
+                        # any epoch with the same periodo (some fixtures
+                        # store fase as int, others as str).
+                        if epoch is None:
+                            for (p, _f), e in epoch_by_key.items():
+                                if p == p_int:
+                                    epoch = e
+                                    break
+                        if epoch is not None:
+                            edge_id = f"hfe_{us_node.node_id}_{epoch.node_id}"
+                            if graph.find_edge_by_id(edge_id) is None:
+                                graph.add_edge(
+                                    edge_id=edge_id,
+                                    edge_source=us_node.node_id,
+                                    edge_target=epoch.node_id,
+                                    edge_type="has_first_epoch",
+                                )
+
+                # 2b. rapporti → topological edges
+                if not rapporti_raw or rapporti_raw == "[]":
+                    continue
+                try:
+                    rapporti = ast.literal_eval(rapporti_raw)
+                except (ValueError, SyntaxError):
+                    continue
+                if not isinstance(rapporti, list):
+                    continue
+                for rapporto in rapporti:
+                    if not isinstance(rapporto, list) or len(rapporto) < 2:
+                        continue
+                    # Preserve case for the shorthand tokens (>, >>, <, <<);
+                    # the named relations (copre/cuts/...) are case-folded.
+                    rel_raw = str(rapporto[0]).strip()
+                    rel_type_named = rel_raw.lower()
+                    target_us = str(rapporto[1]).strip()
+                    target_node = strat_by_name.get(target_us)
+                    if target_node is None:
+                        continue
+
+                    # Try named-relation table first, then shorthand tokens.
+                    edge_type = _RAPPORTI_TO_EDGE_TYPE.get(rel_type_named)
+                    swap = False
+                    if edge_type is None:
+                        shorthand = _RAPPORTI_SHORTHAND.get(rel_raw)
+                        if shorthand is None:
+                            continue
+                        edge_type, swap = shorthand
+
+                    src_node, dst_node = (
+                        (target_node, us_node) if swap
+                        else (us_node, target_node)
+                    )
+                    # Stable ID keyed on (src, dst, edge_type): when both
+                    # endpoints declare the same relation in their rapporti
+                    # (e.g. 102 says "> 6" and 6 says "< 102", both
+                    # encoding "102 is_after 6"), only one edge is added.
+                    edge_id = (
+                        f"rap_{src_node.node_id}_{dst_node.node_id}_"
+                        f"{edge_type}")
+                    if graph.find_edge_by_id(edge_id) is None:
+                        graph.add_edge(
+                            edge_id=edge_id,
+                            edge_source=src_node.node_id,
+                            edge_target=dst_node.node_id,
+                            edge_type=edge_type,
+                        )
+        finally:
+            conn.close()
 
 
 def _is_epoch_node(node) -> bool:
