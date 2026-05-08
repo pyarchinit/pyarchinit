@@ -162,14 +162,23 @@ class GraphProjector:
         # `_enrich_pyarchinit_graph` only sets 4 attributes
         # (sito/area/unita_tipo/d_stratigrafica) — AI04 needs the full
         # MAPPED_COLUMNS set on each StratigraphicUnit.
-        # Skipped when strict_schema=False (AI03 export path doesn't need
-        # node_uuid and may run on pre-migration fixtures).
+        # AI06 D.2: also try in non-strict mode (best-effort) so the
+        # GraphML round-trip can recover node_uuid via embedded data
+        # keys. Pre-migration fixtures without the node_uuid column
+        # silently skip.
         if strict_schema:
             try:
                 self._propagate_node_uuid_and_us(graph, db_path, sito)
             except Exception as e:
                 raise ProjectionError(
                     f"node_uuid propagation failed: {e}") from e
+        else:
+            try:
+                self._propagate_node_uuid_and_us(graph, db_path, sito)
+            except Exception:
+                # Defensive — AC-2 baseline fixtures may lack the
+                # node_uuid column. Best-effort only; export proceeds.
+                pass
 
         # Filter post-enrichment: keep only nodes whose attributes['sito']
         # match (defence in depth — _enrich already filters us_table rows

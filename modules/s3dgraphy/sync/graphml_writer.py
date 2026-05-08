@@ -888,6 +888,21 @@ _PYARCHINIT_NODE_DATA_KEYS = (
     ("rapporti", "pyarchinit.rapporti"),
     ("d_stratigrafica", "pyarchinit.d_stratigrafica"),
     ("documentazione", "pyarchinit.documentazione"),  # DOC URL/path
+    # AI06: persist DB node_uuid so round-trip via GraphMLImporter
+    # (which generates a fresh internal node_id) can still identify
+    # the original us_table row for UPDATE selettivo.
+    ("node_uuid", "pyarchinit.node_uuid"),
+    # AI06 D.2: register the SQL-derived group_kind columns so
+    # _inject_group_folders can emit a pyarchinit.<kind> data entry
+    # on each group folder. The round-trip importer
+    # (sql_apply_groups=True) reads these to discover which us_table
+    # column to UPDATE.
+    ("struttura", "pyarchinit.struttura"),
+    ("attivita", "pyarchinit.attivita"),
+    ("settore", "pyarchinit.settore"),
+    ("ambient", "pyarchinit.ambient"),
+    ("saggio", "pyarchinit.saggio"),
+    ("quad_par", "pyarchinit.quad_par"),
 )
 _PYARCHINIT_EPOCH_DATA_KEYS = (
     ("periodo", "pyarchinit.periodo"),
@@ -1285,6 +1300,16 @@ def _inject_group_folders(
 
     # Resolve key IDs needed for node re-creation
     attrname_to_kid: dict = {}
+    # AI06 D.2: also map pyarchinit.<group_kind> keys so we can emit
+    # a <data> entry on the folder identifying the SQL column group_kind
+    # corresponds to. The round-trip importer (graph_ingestor with
+    # sql_apply_groups=True) reads this back to know which us_table
+    # column to UPDATE.
+    _GROUP_KIND_COLS = frozenset({
+        "area", "struttura", "attivita", "settore",
+        "ambient", "saggio", "quad_par",
+    })
+    group_kind_to_kid: dict = {}
     for k in root.findall(f"{{{NS_GRAPHML}}}key"):
         if k.get("for") != "node":
             continue
@@ -1298,6 +1323,10 @@ def _inject_group_folders(
             attrname_to_kid["nodegraphics"] = k.get("id")
         elif attr_name == "pyarchinit.sito":
             attrname_to_kid["sito"] = k.get("id")
+        elif attr_name and attr_name.startswith("pyarchinit."):
+            short = attr_name.split(".", 1)[1]
+            if short in _GROUP_KIND_COLS:
+                group_kind_to_kid[short] = k.get("id")
 
     if "nodegraphics" not in attrname_to_kid:
         return  # nothing we can do without nodegraphics key
@@ -1431,6 +1460,17 @@ def _inject_group_folders(
             d_sito = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
             d_sito.set("key", attrname_to_kid["sito"])
             d_sito.text = str(sito)
+
+        # AI06 D.2: emit pyarchinit.<group_kind> data so the round-trip
+        # importer (sql_apply_groups=True) knows which us_table column
+        # to UPDATE for the members. Only for the 7 SQL-derived basic
+        # kinds; ad-hoc folders carry no kind data and are skipped on
+        # import (see graph_ingestor populate_list).
+        gkind = attrs.get("group_kind", "")
+        if gkind and gkind in group_kind_to_kid:
+            d_kind = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+            d_kind.set("key", group_kind_to_kid[gkind])
+            d_kind.text = str(display_name)
 
         # Inner <graph> element + re-parent member US elements
         inner = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}graph")

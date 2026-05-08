@@ -119,6 +119,7 @@ class GraphIngestor:
         dry_run: bool = False,
         create_missing_epochs: bool = False,
         graphml_path: Path | str | None = None,
+        sql_apply_groups: bool = False,
     ) -> IngestResult:
         """See spec §3.2 docstring for full contract.
 
@@ -128,8 +129,36 @@ class GraphIngestor:
         the file and merged into graph node attributes, so the
         round-trip preserves columns that s3dgraphy's own importer
         would otherwise drop.
+
+        AI06 D.2: when *sql_apply_groups* is True (default False), the
+        importer parses group folder nodes (``yfiles.foldertype="group"``
+        with ``id="grp_..."``) from the GraphML at *graphml_path* (or
+        *graph* if it is itself a path-like) and queues
+        ``UPDATE us_table SET <kind>=<group_name>`` for every member
+        US whose folder maps to a SQL-derived ``group_kind`` (the
+        basic 7: area / struttura / attivita / settore / ambient /
+        saggio / quad_par). Ad-hoc groups (group_kind not in this set)
+        never touch SQL — they always live in the GroupStore (AC-14).
+
+        Convenience: when *graph* is a Path-like (str or Path) instead
+        of a Graph, the importer auto-loads it as a Graph via
+        s3dgraphy's GraphMLImporter and uses the same path for
+        graphml_path. This lets callers pass just the .graphml file.
         """
         db_path = Path(db_path)
+        # AI06: graph may be a Path-like (graphml file). Auto-load.
+        from pathlib import Path as _P
+        if isinstance(graph, (str, _P)):
+            gpath = _P(graph)
+            if graphml_path is None:
+                graphml_path = gpath
+            try:
+                from s3dgraphy.importer.import_graphml import (
+                    GraphMLImporter)
+            except ImportError:
+                from s3dgraphy.importer.graphml_importer import (
+                    GraphMLImporter)
+            graph = GraphMLImporter(filepath=str(gpath)).parse()
         # 1. Sito parameter must be non-empty (cheap check, do first
         # so we fail fast even when db_path is invalid).
         self._verify_sito(graph, sito)
@@ -145,7 +174,9 @@ class GraphIngestor:
         # 3. Run the actual ingestion (Group C: dry-run only)
         return self._run(graph, db_path, sito,
                          dry_run=dry_run,
-                         create_missing_epochs=create_missing_epochs)
+                         create_missing_epochs=create_missing_epochs,
+                         graphml_path=graphml_path,
+                         sql_apply_groups=sql_apply_groups)
 
     # ------------------------------------------------------------------ helpers
     def _verify_schema(self, db_path: Path) -> None:
@@ -178,7 +209,8 @@ class GraphIngestor:
                 "sito parameter is mandatory; AI04 only supports "
                 "single-site graphs.")
 
-    def _run(self, graph, db_path, sito, *, dry_run, create_missing_epochs):
+    def _run(self, graph, db_path, sito, *, dry_run, create_missing_epochs,
+             graphml_path=None, sql_apply_groups=False):
         inserted = updated = skipped = 0
         epochs_created = 0
         sito_created = False
@@ -503,6 +535,14 @@ class GraphIngestor:
                              cron_ini_i, cron_fin_i, datazione),
                         )
 
+            # AI06 D.2: optional SQL UPDATE from group folders in the
+            # source GraphML. Runs INSIDE the same atomic transaction
+            # so a failure here rolls back everything (AI04 contract
+            # preserved). Default safe — gated by sql_apply_groups=True.
+            if sql_apply_groups and not dry_run and graphml_path:
+                applied += _apply_group_folders_to_sql(
+                    cur, Path(graphml_path), sito)
+
             # Commit or rollback
             if dry_run:
                 conn.rollback()
@@ -524,6 +564,135 @@ class GraphIngestor:
             conflicts=tuple(conflicts), errors=tuple(errors),
             dry_run=dry_run,
         )
+
+
+# AI06 D.2: SQL columns that map 1:1 to a SQL-derived group_kind.
+# Ad-hoc groups (any other kind) NEVER touch SQL — they live in the
+# GroupStore graphml file (AC-14).
+_GROUP_KIND_TO_COL: frozenset = frozenset({
+    "area", "struttura", "attivita", "settore",
+    "ambient", "saggio", "quad_par",
+})
+
+
+def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
+    """Parse *graphml_path* for ``yfiles.foldertype="group"`` folder
+    nodes whose id starts with ``grp_`` and apply
+    ``UPDATE us_table SET <kind>=<group_name>`` for every member US.
+
+    *cur* is an open SQLite cursor inside the caller's transaction —
+    we never commit / rollback here. A failure raises and the caller
+    rolls back.
+
+    Returns the number of UPDATEs queued. Folders without a
+    discoverable SQL ``group_kind`` (i.e. ad-hoc) are skipped entirely
+    — they never write to SQL regardless of caller flag (AC-14).
+
+    Member US identification: prefer ``pyarchinit.node_uuid`` (when
+    available, byte-identical match to the DB row); fall back to
+    ``(pyarchinit.us, pyarchinit.area, sito)`` (always available
+    because the AI03 enrichment writes those onto every strat node
+    regardless of strict_schema).
+    """
+    try:
+        from lxml import etree as _ET
+    except ImportError:
+        return 0
+
+    NS_G = "{http://graphml.graphdrawing.org/xmlns}"
+    NS_Y = "{http://www.yworks.com/xml/graphml}"
+    try:
+        _tree = _ET.parse(str(graphml_path))
+    except Exception:
+        return 0
+    root = _tree.getroot()
+
+    # Build d-key id → group_kind map (for the basic 7 kinds).
+    kid_to_kind: dict = {}
+    # Resolve other key ids we may need to identify members.
+    node_uuid_kid = None
+    us_kid = None
+    area_kid = None
+    sito_kid = None
+    for k in root.findall(f"{NS_G}key"):
+        attr_name = k.get("attr.name") or ""
+        if not attr_name.startswith("pyarchinit."):
+            continue
+        short = attr_name.split(".", 1)[1]
+        if short in _GROUP_KIND_TO_COL:
+            kid_to_kind[k.get("id")] = short
+        if short == "node_uuid":
+            node_uuid_kid = k.get("id")
+        elif short == "us":
+            us_kid = k.get("id")
+        elif short == "area":
+            area_kid = k.get("id")
+        elif short == "sito":
+            sito_kid = k.get("id")
+
+    applied = 0
+    for folder in _tree.iter(f"{NS_G}node"):
+        if folder.get("yfiles.foldertype") != "group":
+            continue
+        if not (folder.get("id") or "").startswith("grp_"):
+            continue
+        # Read group label
+        nl = folder.find(f".//{NS_Y}GroupNode/{NS_Y}NodeLabel")
+        if nl is None or not (nl.text or "").strip():
+            continue
+        group_name = nl.text.strip()
+        # Discover group_kind from the data keys on this folder.
+        group_kind = None
+        for d in folder.findall(f"{NS_G}data"):
+            kind = kid_to_kind.get(d.get("key"))
+            if kind:
+                group_kind = kind
+                break
+        if not group_kind:
+            # Ad-hoc or unknown — skip SQL UPDATE (AC-14).
+            continue
+        # Walk the folder's inner <graph> for member US elements.
+        inner = folder.find(f"{NS_G}graph")
+        if inner is None:
+            continue
+        for member in inner.findall(f"{NS_G}node"):
+            # Member identification — prefer node_uuid; fall back to
+            # (us, area, sito).
+            node_uuid = None
+            us_val = None
+            area_val = None
+            sito_val = None
+            for md in member.findall(f"{NS_G}data"):
+                kid = md.get("key")
+                txt = (md.text or "").strip()
+                if not txt:
+                    continue
+                if kid == node_uuid_kid:
+                    node_uuid = txt
+                elif kid == us_kid:
+                    us_val = txt
+                elif kid == area_kid:
+                    area_val = txt
+                elif kid == sito_kid:
+                    sito_val = txt
+            if node_uuid:
+                cur.execute(
+                    f"UPDATE us_table SET {group_kind}=? "
+                    f"WHERE node_uuid=? AND sito=?",
+                    (group_name, node_uuid, sito))
+                applied += cur.rowcount if cur.rowcount > 0 else 0
+            elif us_val:
+                # Fall back to (us, area, sito) match. Use the caller
+                # `sito` param as authoritative (matches AI04 import
+                # semantics — sito_val from the file may be the source
+                # site for cross-site imports).
+                area_val = area_val or "1"
+                cur.execute(
+                    f"UPDATE us_table SET {group_kind}=? "
+                    f"WHERE us=? AND area=? AND sito=?",
+                    (group_name, us_val, area_val, sito))
+                applied += cur.rowcount if cur.rowcount > 0 else 0
+    return applied
 
 
 def _values_equal(col: str, a, b) -> bool:
@@ -893,4 +1062,8 @@ _NON_STRAT_TYPES: frozenset[str] = frozenset({
     "ExtractorNode",
     "CombinerNode",
     "VirtualSpecialFindUnit",  # paradata-only, AI05 territory
+    # AI06: Group folder nodes — never written to us_table.
+    "GroupNode",
+    "ActivityNodeGroup",
+    "TimeBranchNodeGroup",
 })
