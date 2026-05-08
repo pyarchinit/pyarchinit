@@ -47,7 +47,13 @@ class GraphProjector:
         # AI04 does not consume it.
         self._vocab_provider = vocab_provider
 
-    def populate_graph(self, db_path: Path, sito: str) -> "s3dgraphy.Graph":
+    def populate_graph(
+        self,
+        db_path: Path,
+        sito: str,
+        *,
+        include_paradata: bool = True,
+    ) -> "s3dgraphy.Graph":
         """Build and return a s3dgraphy.Graph populated with the
         stratigraphic rows of `sito` from the SQLite at `db_path`.
 
@@ -55,6 +61,13 @@ class GraphProjector:
             db_path: filesystem path to the pyarchinit SQLite DB.
             sito: site identifier (`us_table.sito` value). Mandatory
                 — multi-graph projections are out of scope for AI04.
+            include_paradata: when True (default), merge any
+                ``paradata.graphml`` produced by :class:`ParadataStore`
+                for the (db, sito) pair. When False, return the pure
+                stratigraphic layer (backward-compat for AI04 callers
+                like ``graphml_writer.export_graphml``). On read errors
+                we log a warning and fall back to strat-only — never
+                fatal.
 
         Returns:
             A populated `s3dgraphy.Graph`. Empty graph (zero nodes) is
@@ -73,18 +86,7 @@ class GraphProjector:
             raise ProjectionError(f"DB file not found: {db_path}")
 
         # Verify Phase 1 migration applied: us_table.node_uuid column.
-        try:
-            conn = sqlite3.connect(str(db_path))
-            cur = conn.cursor()
-            cur.execute("PRAGMA table_info(us_table)")
-            cols = {row[1] for row in cur.fetchall()}
-            conn.close()
-        except sqlite3.Error as e:
-            raise ProjectionError(f"Cannot read us_table schema: {e}") from e
-        if "node_uuid" not in cols:
-            raise ProjectionError(
-                "us_table.node_uuid column missing — run "
-                "scripts/migrations/2026_05_node_uuid_backfill.py --apply")
+        self._verify_node_uuid_column(db_path)
 
         # Delegate to the existing AI03 enrichment routine.
         try:
@@ -167,8 +169,70 @@ class GraphProjector:
         graph.nodes = [n for n in graph.nodes if n.node_id in kept_node_ids
                        or _is_epoch_node(n)]
 
+        # D3: optionally merge paradata.graphml on top of the strat layer.
+        if include_paradata:
+            self._merge_paradata(graph, db_path, sito)
+
         return graph
 
+    def _verify_node_uuid_column(self, db_path: Path) -> None:
+        """Ensure the Phase-1 migration that added ``us_table.node_uuid``
+        has been applied. Raises :class:`ProjectionError` otherwise.
+
+        Extracted from ``populate_graph`` in AI05 Group C step 2 so the
+        schema-check is testable in isolation and reusable by any future
+        method that touches strat tables.
+        """
+        try:
+            conn = sqlite3.connect(str(db_path))
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(us_table)")
+            cols = {row[1] for row in cur.fetchall()}
+            conn.close()
+        except sqlite3.Error as e:
+            raise ProjectionError(f"Cannot read us_table schema: {e}") from e
+        if "node_uuid" not in cols:
+            raise ProjectionError(
+                "us_table.node_uuid column missing — run "
+                "scripts/migrations/2026_05_node_uuid_backfill.py --apply")
+
+    def _merge_paradata(self, graph, db_path: Path, sito: str) -> None:
+        """Read ``paradata.graphml`` for *sito* and add its nodes to
+        *graph*.
+
+        Non-fatal on read errors — logs a warning and returns. The
+        caller still gets the strat layer.
+
+        De-duplication: nodes whose ``node_id`` already exists on the
+        target graph are skipped (the strat layer wins). Edges from the
+        paradata graph are NOT merged here; AI05 Group C does
+        node-only merging because the paradata graph is currently
+        author/license/embargo nodes with no connecting edges.
+        """
+        from .paradata_store import ParadataStore, ParadataReadError
+        import logging
+        log = logging.getLogger(__name__)
+
+        store = ParadataStore(db_path, sito)
+        if not store.exists():
+            return
+        try:
+            paradata_graph = store.read()
+        except ParadataReadError as e:
+            log.warning(
+                "Paradata file unreadable, falling back to strat-only: %s",
+                e)
+            return
+
+        existing_ids = {getattr(n, "node_id", None) for n in graph.nodes}
+        for n in paradata_graph.nodes:
+            nid = getattr(n, "node_id", None)
+            if nid and nid not in existing_ids:
+                try:
+                    graph.add_node(n)
+                except Exception:
+                    # Defensive: best-effort merge; never fail strat path.
+                    pass
 
     def _propagate_node_uuid_and_us(self, graph, db_path, sito) -> None:
         """Set attributes['node_uuid'], 'us' and the remaining mapped
