@@ -52,6 +52,17 @@ _GROUP_HYDRATE_SKIP_KEYS: frozenset = frozenset({
 })
 
 
+# Type-name → background color mapping for the EM template. The
+# importer's ``determine_group_node_type_by_color`` is what reconstructs
+# the right GroupNode subclass on round-trip read, so the background
+# color we emit is load-bearing — not cosmetic.
+_GROUP_KIND_BACKGROUND_COLORS: dict = {
+    "ActivityNodeGroup": "#CCFFFF",
+    "ParadataNodeGroup": "#FFCC99",
+    "TimeBranchNodeGroup": "#99CC00",
+}
+
+
 def _sito_slug(sito: str) -> str:
     """Filename-safe lowercase slug for a sito identifier (matches AI05)."""
     return re.sub(r"\W", "_", sito).strip("_").lower()
@@ -164,3 +175,192 @@ class GroupStore:
                     continue
                 if attrs.get(k) in (None, ""):
                     attrs[k] = v
+
+    def write(self, graph) -> None:
+        """Atomic write via .tmp + os.replace."""
+        tmp = self.file_path.with_suffix(".graphml.tmp")
+        try:
+            self._write_minimal_graphml(graph, tmp)
+            from .graphml_writer import _embed_pyarchinit_data_keys
+            _embed_pyarchinit_data_keys(graph, tmp)
+            os.replace(str(tmp), str(self.file_path))
+        except Exception as e:
+            try:
+                if tmp.exists():
+                    tmp.unlink()
+            except Exception:
+                pass
+            raise GroupWriteError(
+                f"Cannot write {self.file_path}: {e}") from e
+
+    def _write_minimal_graphml(self, graph, out_path: Path) -> None:
+        """Emit a minimal GraphML containing only the group nodes."""
+        from lxml import etree as ET
+
+        NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+        NS_Y = "http://www.yworks.com/xml/graphml"
+        NSMAP = {None: NS_GRAPHML, "y": NS_Y}
+
+        root = ET.Element(f"{{{NS_GRAPHML}}}graphml", nsmap=NSMAP)
+        keys = [
+            ("d0", "node", None, "url", "string"),
+            ("d1", "node", None, "description", "string"),
+            ("d2", "node", "nodegraphics", None, None),
+            ("d3", "node", None, "EMID", "string"),
+            ("d4", "node", None, "URI", "string"),
+            ("d5", "node", None, "pyarchinit.group_attrs", "string"),
+        ]
+        for kid, kfor, yftype, attr_name, attr_type in keys:
+            kel = ET.SubElement(root, f"{{{NS_GRAPHML}}}key")
+            kel.set("id", kid)
+            kel.set("for", kfor)
+            if yftype:
+                kel.set("yfiles.type", yftype)
+            if attr_name:
+                kel.set("attr.name", attr_name)
+            if attr_type:
+                kel.set("attr.type", attr_type)
+
+        graph_el = ET.SubElement(root, f"{{{NS_GRAPHML}}}graph")
+        graph_el.set("id", f"groups_{self._slug}")
+        graph_el.set("edgedefault", "directed")
+
+        for node in list(getattr(graph, "nodes", []) or []):
+            attrs = getattr(node, "attributes", None) or {}
+            if not attrs.get("group_kind"):
+                continue
+            self._emit_group_node(graph_el, node, NS_GRAPHML, NS_Y)
+
+        tree = ET.ElementTree(root)
+        tree.write(str(out_path), encoding="UTF-8",
+                   xml_declaration=True, pretty_print=True)
+
+    @staticmethod
+    def _emit_group_node(graph_el, node, ns_graphml, ns_y):
+        """Append a single group <node> with the EM canonical layout."""
+        from lxml import etree as ET
+        import json as _json
+
+        node_id = str(getattr(node, "node_id", "") or "")
+        display_name = str(getattr(node, "name", "") or "Group")
+        type_name = type(node).__name__
+
+        n_el = ET.SubElement(graph_el, f"{{{ns_graphml}}}node")
+        n_el.set("id", node_id)
+        # yfiles.foldertype="group" makes GraphMLImporter._check_node_type
+        # classify this <node> as 'node_group' (otherwise it falls through
+        # to 'node_simple' and gets dropped at parse time because we don't
+        # emit a stratigraphic shape).
+        n_el.set("yfiles.foldertype", "group")
+
+        d_desc = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_desc.set("key", "d1")
+        d_desc.text = f"_s3d_node_type:{type_name}"
+
+        d_gfx = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_gfx.set("key", "d2")
+        img = ET.SubElement(d_gfx, f"{{{ns_y}}}GroupNode")
+        nl = ET.SubElement(img, f"{{{ns_y}}}NodeLabel")
+        # backgroundColor="#CCFFFF" → determine_group_node_type_by_color
+        # returns 'ActivityNodeGroup' on round-trip read.
+        nl.set("backgroundColor", _GROUP_KIND_BACKGROUND_COLORS.get(
+            type_name, "#CCFFFF"))
+        nl.text = display_name
+
+        d_emid = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+        d_emid.set("key", "d3")
+        d_emid.text = node_id
+
+        attrs = getattr(node, "attributes", None) or {}
+        if attrs:
+            _SKIP = {"original_id", "graph_id", "group_attrs"}
+            clean = {k: v for k, v in attrs.items()
+                     if k not in _SKIP and v not in (None, "")}
+            if clean:
+                d_attrs = ET.SubElement(n_el, f"{{{ns_graphml}}}data")
+                d_attrs.set("key", "d5")
+                d_attrs.text = _json.dumps(clean, ensure_ascii=False)
+
+    def add_node(self, node) -> None:
+        """Append *node* to the group graph + write."""
+        attrs = getattr(node, "attributes", None) or {}
+        if not attrs.get("group_kind"):
+            raise GroupValidationError(
+                "Refusing to store node without group_kind attribute")
+        graph = self.read()
+        graph.add_node(node)
+        self.write(graph)
+
+    def remove_node(self, group_uuid: str) -> None:
+        """Idempotent — no error if uuid not found."""
+        graph = self.read()
+        before = len(graph.nodes)
+        graph.nodes = [
+            n for n in graph.nodes
+            if getattr(n, "node_id", None) != group_uuid
+        ]
+        if len(graph.nodes) != before:
+            self.write(graph)
+
+    def find(self, group_kind: str = None, **kwargs) -> list:
+        """Return matching group nodes."""
+        out = []
+        for n in self.read().nodes:
+            attrs = getattr(n, "attributes", None) or {}
+            if group_kind is not None and attrs.get("group_kind") != group_kind:
+                continue
+            if all(getattr(n, k, None) == v
+                   or attrs.get(k) == v
+                   for k, v in kwargs.items()):
+                out.append(n)
+        return out
+
+    # ---- High-level (D6) -----------------------------------------------
+    def add_group(
+        self,
+        name: str,
+        group_kind: str = "adhoc",
+        member_us_uuids: list = None,
+        description: str = None,
+    ) -> str:
+        """Create + persist an ActivityNodeGroup. Returns uuid7."""
+        if not name or not str(name).strip():
+            raise GroupValidationError("Group name is required")
+        if not group_kind:
+            raise GroupValidationError("group_kind is required")
+        from s3dgraphy.nodes.group_node import ActivityNodeGroup
+        from .uuid7 import uuid7
+        group_uuid = str(uuid7())
+        members = list(member_us_uuids or [])
+        node = ActivityNodeGroup(node_id=group_uuid, name=str(name))
+        node.attributes = {
+            "group_kind": str(group_kind),
+            "sito": self._sito,
+            "name": str(name),
+            "member_us_uuids": ",".join(members),  # serialise as CSV
+            "description": str(description or ""),
+            "group_uuid": group_uuid,
+        }
+        self.add_node(node)
+        return group_uuid
+
+    def list_groups(self) -> list:
+        """Return [{group_uuid, name, group_kind, member_us_uuids, description}]."""
+        out = []
+        for n in self.read().nodes:
+            attrs = getattr(n, "attributes", None) or {}
+            members_csv = str(attrs.get("member_us_uuids", "") or "")
+            members = [m for m in members_csv.split(",") if m]
+            out.append({
+                "group_uuid": getattr(n, "node_id", ""),
+                "name": (attrs.get("name", "")
+                         or getattr(n, "name", "")),
+                "group_kind": attrs.get("group_kind", ""),
+                "member_us_uuids": members,
+                "description": attrs.get("description", ""),
+            })
+        return out
+
+    def remove_group(self, group_uuid: str) -> None:
+        """Alias for remove_node — high-level naming."""
+        self.remove_node(group_uuid)
