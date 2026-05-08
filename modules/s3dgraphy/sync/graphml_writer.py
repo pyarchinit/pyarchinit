@@ -203,7 +203,8 @@ _EPOCH_ROW_PALETTE = (
 )
 
 
-def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
+def _enrich_pyarchinit_graph(graph, db_path: Path,
+                              sito_filter: Optional[str] = None) -> None:
     """Bake epoch swimlanes + topological rapporti edges into *graph*.
 
     The vendored s3dgraphy 0.1.40 PyArchInitImporter is incomplete:
@@ -322,11 +323,19 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
         # mapping JSON only emits 5 columns and `sito` is not one of
         # them, leaving us_node.attributes empty post-import.
         try:
-            cursor.execute(
-                "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
-                "fase_iniziale, rapporti, d_stratigrafica "
-                "FROM us_table"
-            )
+            if sito_filter is not None:
+                cursor.execute(
+                    "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                    "fase_iniziale, rapporti, d_stratigrafica "
+                    "FROM us_table WHERE sito = ?",
+                    (sito_filter,),
+                )
+            else:
+                cursor.execute(
+                    "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                    "fase_iniziale, rapporti, d_stratigrafica "
+                    "FROM us_table"
+                )
             rows = cursor.fetchall()
         except sqlite3.Error:
             rows = []
