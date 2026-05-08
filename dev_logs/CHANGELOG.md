@@ -5,6 +5,24 @@
 
 ---
 
+## [5.3.0-alpha] - 2026-05-08
+
+### Italiano
+
+- **Phase 2 / AI04 — Bridge bidirezionale PyArchInit ↔ s3dgraphy.** Nuova API pubblica `GraphProjector.populate_graph(db, sito)` e `GraphIngestor.populate_list(graph, db, sito, dry_run, create_missing_epochs)` per il round-trip DB↔grafo. Strategia D wrapper su `_enrich_pyarchinit_graph` (zero impatto sul path AI03; AC-2 garantita).
+- **Tab "Import" nel dialog Extended Matrix.** Nuova tab con file picker, anteprima dry-run dei conflitti, e bottone "Applica" per scrivere nel DB. La tab "Export" è inalterata.
+- **CLI helper `scripts/s3dgraphy_sync.py`** con sottocomandi `export` e `import`. L'import è dry-run di default; `--apply` obbligatorio per scrivere.
+- **`UPDATE` selettivo sui 12 campi mappati.** Le 40+ colonne pyarchinit-specifiche (descrizione, foto, profondita, ...) sono preservate intatte durante il round-trip.
+- **Transazioni atomiche.** Qualsiasi fallimento durante l'ingestion fa ROLLBACK al DB; mai stati misti.
+
+### English
+
+- **Phase 2 / AI04 — Bidirectional PyArchInit ↔ s3dgraphy bridge.** New public API `GraphProjector.populate_graph(db, sito)` and `GraphIngestor.populate_list(graph, db, sito, dry_run, create_missing_epochs)` for round-trip DB↔graph. Strategy D wrapper on `_enrich_pyarchinit_graph` (zero impact on the AI03 path; AC-2 guarantee).
+- **"Import" tab in the Extended Matrix dialog.** New tab with file picker, dry-run conflict preview, and "Apply" button for committing to the DB. The "Export" tab is unchanged.
+- **CLI helper `scripts/s3dgraphy_sync.py`** with `export` and `import` subcommands. Import is dry-run by default; `--apply` is required to actually write.
+- **Selective `UPDATE` on the 12 mapped columns.** The 40+ pyarchinit-specific columns (descrizione, foto, profondita, ...) are preserved untouched during round-trip.
+- **Atomic transactions.** Any ingestion failure ROLLBACKs the DB; no mixed states.
+
 ## [5.2.0-alpha] - 2026-05-07
 
 **Phase 2 / AI03 chiuso: delega del ramo GraphML dell'export "Extended Matrix" a s3Dgraphy.** Cut-over pulito (nessun fallback): la pipeline legacy DOT→GraphML viene rimossa e il bridge invoca `s3dgraphy.PyArchInitImporter` + `s3dgraphy.exporter.graphml.GraphMLExporter`. Chiude le quattro limitazioni EM emerse alla fine della Phase 1 (graphml vuoto con flag di grouping, niente swimlane di periodo, edge styling parziale, niente riduzione transitiva). / **Phase 2 / AI03 closed: delegation of the GraphML branch of the "Extended Matrix" export to s3Dgraphy.** Clean cut-over (no fallback): the legacy DOT→GraphML pipeline is removed and the bridge invokes `s3dgraphy.PyArchInitImporter` + `s3dgraphy.exporter.graphml.GraphMLExporter`. Closes the four EM limitations surfaced at the end of Phase 1 (empty graphml on grouping flag, no period swimlanes, partial edge styling, no transitive reduction).
