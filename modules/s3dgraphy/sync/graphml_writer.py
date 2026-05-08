@@ -529,6 +529,69 @@ _LOCALIZED_US_USM = {
 #   text_color   – NodeLabel textColor (defaults to #000000)
 #   font_style   – NodeLabel fontStyle ("bold" / "plain"; default "bold")
 #   underlined   – NodeLabel underlinedText flag (True / False)
+# Lazy-initialised s3dgraphy NodeRegistry singleton. Reads
+# em_palette_template.graphml + s3Dgraphy_node_datamodel.json so we
+# don't have to hardcode visual rules for every EM type. Used as a
+# FALLBACK by `_resolve_visual()` for any unita_tipo we don't have
+# an explicit pyarchinit override for. See:
+#   ext_libs/s3dgraphy/exporter/graphml/node_registry.py
+#   ext_libs/s3dgraphy/JSON_config/em_visual_rules.json
+#   ext_libs/s3dgraphy/templates/em_palette_template.graphml
+_node_registry = None
+
+
+def _get_node_registry():
+    """Return a singleton s3dgraphy NodeRegistry, or None if it can't
+    be loaded (e.g. older s3dgraphy version)."""
+    global _node_registry
+    if _node_registry is False:  # sentinel: previously failed to load
+        return None
+    if _node_registry is None:
+        try:
+            from s3dgraphy.exporter.graphml.node_registry import (
+                NodeRegistry,
+            )
+            _node_registry = NodeRegistry()
+        except Exception:
+            _node_registry = False
+            return None
+    return _node_registry
+
+
+def _resolve_visual(unita_tipo: str):
+    """Return the visual properties dict for *unita_tipo*, preferring
+    pyarchinit-specific overrides in `_VISUAL_BY_UNITA_TIPO` and
+    falling back to s3dgraphy's NodeRegistry palette for any type we
+    don't have an explicit override for.
+
+    Pyarchinit overrides cover legacy deviations the user expects:
+    border width 3.0 (vs canonical 4.0), USM grey background, CON
+    diamond, paradata BPMN/SVG icons. New EM types added to s3dgraphy
+    in future releases get sane visuals automatically via the
+    NodeRegistry path without changes here.
+    """
+    if unita_tipo in _VISUAL_BY_UNITA_TIPO:
+        return _VISUAL_BY_UNITA_TIPO[unita_tipo]
+    registry = _get_node_registry()
+    if registry is None:
+        return None
+    props = registry.get_visual_properties(unita_tipo)
+    if props is None:
+        return None
+    # Translate the s3dgraphy NodeVisualProperties dataclass into the
+    # dict shape the post-processor consumes (same keys as the entries
+    # in `_VISUAL_BY_UNITA_TIPO`).
+    return {
+        "fill": props.fill_color,
+        "border": props.border_color,
+        "width": str(props.border_width),
+        "style": props.border_type,
+        "shape": props.shape,
+        "text_color": props.text_color,
+        "font_style": "plain",
+    }
+
+
 _VISUAL_BY_UNITA_TIPO = {
     # Stratigraphic core (red border #9B3333, width 3.0 per legacy)
     "US":   {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
@@ -912,7 +975,7 @@ def _apply_pyarchinit_visual_overrides(
         node_xml_id = node_el.get("id")
         if node_xml_id:
             node_id_to_unita_tipo[node_xml_id] = unita_tipo
-        visual = _VISUAL_BY_UNITA_TIPO.get(unita_tipo)
+        visual = _resolve_visual(unita_tipo)
         us_number = (meta.get("name") or "").strip()
         descrizione = (meta.get("descrizione") or "").strip()
         display_label = _resolve_display_label(

@@ -619,13 +619,26 @@ if QGIS_AVAILABLE:
                         self, "No sito",
                         "Please select or type the sito target.")
                     return
-                result = GraphIngestor().populate_list(
-                    graph, db_path,
-                    sito=target_sito,
-                    dry_run=True,
-                    create_missing_epochs=self.cb_create_epochs.isChecked(),
-                    graphml_path=graphml_path,
-                )
+                try:
+                    result = GraphIngestor().populate_list(
+                        graph, db_path,
+                        sito=target_sito,
+                        dry_run=True,
+                        create_missing_epochs=self.cb_create_epochs.isChecked(),
+                        graphml_path=graphml_path,
+                    )
+                except TypeError:
+                    # Stale module cache: older populate_list without
+                    # graphml_path. Fall back without that kwarg so the
+                    # user can still run preview (the lossy path —
+                    # graphml-specific data keys won't hydrate, but the
+                    # rest works).
+                    result = GraphIngestor().populate_list(
+                        graph, db_path,
+                        sito=target_sito,
+                        dry_run=True,
+                        create_missing_epochs=self.cb_create_epochs.isChecked(),
+                    )
             except GraphSyncError as e:
                 QMessageBox.critical(
                     self, type(e).__name__,
@@ -670,13 +683,22 @@ if QGIS_AVAILABLE:
                         self, "No sito",
                         "Please select or type the sito target.")
                     return
-                result = GraphIngestor().populate_list(
-                    graph, db_path,
-                    sito=target_sito,
-                    dry_run=False,
-                    create_missing_epochs=self.cb_create_epochs.isChecked(),
-                    graphml_path=self._last_preview_path,
-                )
+                try:
+                    result = GraphIngestor().populate_list(
+                        graph, db_path,
+                        sito=target_sito,
+                        dry_run=False,
+                        create_missing_epochs=self.cb_create_epochs.isChecked(),
+                        graphml_path=self._last_preview_path,
+                    )
+                except TypeError:
+                    # Stale module cache fallback (see preview handler).
+                    result = GraphIngestor().populate_list(
+                        graph, db_path,
+                        sito=target_sito,
+                        dry_run=False,
+                        create_missing_epochs=self.cb_create_epochs.isChecked(),
+                    )
             except GraphSyncError as e:
                 QMessageBox.critical(self, type(e).__name__, str(e))
                 return
