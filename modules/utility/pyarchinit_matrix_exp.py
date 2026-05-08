@@ -676,19 +676,29 @@ class HarrisMatrix:
             else:
                 print()
 
-        # Clean leftover layout / orphan-attribute fragments before
-        # graphviz reparses the tred output (see _clean_tred_output).
-        _clean_tred_output(tred_output_file_path)
-
+        # Render the tred output. Try a clean render FIRST so that
+        # the layout positions tred preserved from the initial dot
+        # pass are honoured (graphviz only re-layouts if pos="..."
+        # attrs are missing — and a fresh layout produces a much
+        # worse visual on Harris-matrix data). If the render fails
+        # because tred left orphan attribute fragments behind, then
+        # apply _clean_tred_output() and retry.
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-        except Exception as e:
-            # Surface the error instead of silently swallowing it —
-            # users were seeing only the .dot file with no image and
-            # no diagnostic. Log the cause so they can attach it to a
-            # bug report if it recurs.
-            print(f"export_matrix: graphviz render failed: {e}")
+        except Exception as first_err:
+            print(f"export_matrix: first render failed ({first_err}), "
+                  f"applying tred cleanup and retrying")
+            _clean_tred_output(tred_output_file_path)
+            try:
+                g = Source.from_file(
+                    tred_output_file_path, format='jpg')
+                g.render()
+            except Exception as e:
+                # Surface the error instead of silently swallowing
+                # it — users were seeing only the .dot file with no
+                # image and no diagnostic.
+                print(f"export_matrix: graphviz render failed: {e}")
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -888,15 +898,21 @@ class HarrisMatrix:
             else:
                 print()
 
-        # Clean leftover layout / orphan-attribute fragments before
-        # graphviz reparses the tred output (see _clean_tred_output).
-        _clean_tred_output(tred_output_file_path)
-
+        # Same render-first-cleanup-on-failure strategy as in
+        # export_matrix above (see comment there for rationale).
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-        except Exception as e:
-            print(f"export_matrix: graphviz render failed: {e}")
+        except Exception as first_err:
+            print(f"graphml export_matrix: first render failed "
+                  f"({first_err}), applying tred cleanup and retrying")
+            _clean_tred_output(tred_output_file_path)
+            try:
+                g = Source.from_file(
+                    tred_output_file_path, format='jpg')
+                g.render()
+            except Exception as e:
+                print(f"graphml export_matrix: render failed: {e}")
 
 
 class ViewHarrisMatrix:
@@ -1293,11 +1309,10 @@ class ViewHarrisMatrix:
                             else:
                                 print(f"Warning tred con DPI {current_dpi} (normale per matrici complesse)")
 
-                # Clean leftover layout / orphan-attribute fragments
-                # before graphviz reparses the tred output.
-                _clean_tred_output(tred_output_file_path)
-
-                # Prova il rendering
+                # Prova il rendering (try-first-then-clean-on-failure
+                # to preserve the layout positions tred kept from the
+                # initial dot pass — graphviz redoing layout from
+                # scratch produces noticeably worse Harris matrices).
                 if not has_critical_errors:
                     try:
                         g = Source.from_file(tred_output_file_path, format='jpg')
@@ -1306,8 +1321,20 @@ class ViewHarrisMatrix:
                         print(f"Matrice generata con successo con DPI {current_dpi}")
                         break  # Successo, esci dal loop
                     except Exception as render_error:
-                        print(f"Errore rendering con DPI {current_dpi}: {render_error}")
-                        continue  # Prova DPI successivo
+                        print(f"Render fallito con DPI {current_dpi}: "
+                              f"{render_error}; applico cleanup tred")
+                        _clean_tred_output(tred_output_file_path)
+                        try:
+                            g = Source.from_file(
+                                tred_output_file_path, format='jpg')
+                            g.render()
+                            matrix_generated = True
+                            print(f"Matrice generata con cleanup, DPI {current_dpi}")
+                            break
+                        except Exception as render_error2:
+                            print(f"Render fallito anche dopo cleanup: "
+                                  f"{render_error2}")
+                            continue  # Prova DPI successivo
 
             except Exception as e:
                 print(f"Errore generale con DPI {current_dpi}: {e}")
