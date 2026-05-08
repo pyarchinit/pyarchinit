@@ -196,3 +196,35 @@ def test_missing_epoch_create_inserts_period(mini_volterra):
     result = g.populate_list(graph, mini_volterra, sito=sito,
                               dry_run=True, create_missing_epochs=True)
     assert result.epochs_created == 1
+
+
+def test_populate_list_atomic_on_failure(mini_volterra):
+    """D8 — any mid-loop exception ROLLBACKs (DB sha256 unchanged).
+
+    Inject a resolver that raises on the first conflict.
+    """
+    import hashlib
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        GraphIngestor, GraphIngestError)
+    from modules.s3dgraphy.sync.conflict_resolver import ConflictResolver
+
+    class BombResolver(ConflictResolver):
+        def resolve(self, db_row, graph_value, field):
+            raise RuntimeError("simulated failure")
+
+    sito = _read_sito(mini_volterra)
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    # Force a conflict: mutate one node's d_stratigrafica
+    for n in graph.nodes:
+        attrs = getattr(n, "attributes", None) or {}
+        if attrs.get("us"):
+            attrs["d_stratigrafica"] = "MUTATED FOR TEST"
+            break
+
+    sha_before = hashlib.sha256(mini_volterra.read_bytes()).hexdigest()
+    g = GraphIngestor(conflict_resolver=BombResolver())
+    with pytest.raises(GraphIngestError):
+        g.populate_list(graph, mini_volterra, sito=sito, dry_run=False)
+    sha_after = hashlib.sha256(mini_volterra.read_bytes()).hexdigest()
+    assert sha_before == sha_after, "atomic rollback failed: DB changed"
