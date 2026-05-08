@@ -165,11 +165,37 @@ _RAPPORTI_TO_EDGE_TYPE = {
 # Similarly for ">>" → "target extracted_from source" (target depends
 # on source's data).
 _RAPPORTI_SHORTHAND = {
-    ">":  ("is_after", True),       # A > B  ⇒  emit  B is_after A
-    "<":  ("is_after", False),      # A < B  ⇒  emit  A is_after B
-    ">>": ("extracted_from", True), # A >> B ⇒  emit  B extracted_from A
-    "<<": ("extracted_from", False),# A << B ⇒  emit  A extracted_from B
+    ">":  ("is_after", True),            # A > B  ⇒  B is_after A
+    "<":  ("is_after", False),           # A < B  ⇒  A is_after B
+    # `>>` / `<<` are pyarchinit's data-flow shorthand. Semantically
+    # this is `extracted_from` / `combines`, but those edge_types are
+    # filtered out of the GraphMLExporter output (it expects paradata
+    # edges to live inside a ParadataNodeGroup structure, which
+    # pyarchinit-imported nodes do not produce). `generic_connection`
+    # bypasses the filter and renders as a labelled edge in yEd —
+    # users still see the relationship, just with a generic visual.
+    ">>": ("generic_connection", True),  # A >> B  ⇒  B generic_connection A
+    "<<": ("generic_connection", False), # A << B  ⇒  A generic_connection B
 }
+
+
+# Light-hue palette cycled across epoch swimlane rows so each period
+# has a distinct background. Pastel shades chosen for readability.
+# Defined here (early in the module) so `_enrich_pyarchinit_graph` can
+# assign each EpochNode.color before export — the s3dgraphy
+# EpochSwimlanesGenerator at `epoch_generator.py:360` honours
+# `epoch.color` when set, otherwise falls back to `#CCFFCC` for every
+# row (the green-ish default the user spotted).
+_EPOCH_ROW_PALETTE = (
+    "#FFE4E1",  # misty rose
+    "#E0FFFF",  # light cyan
+    "#F5F5DC",  # beige
+    "#E6E6FA",  # lavender
+    "#F0FFF0",  # honeydew
+    "#FFF0F5",  # lavender blush
+    "#FFFACD",  # lemon chiffon
+    "#E0FFE4",  # mint
+)
 
 
 def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
@@ -239,11 +265,22 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                 start = float(cron_ini) if cron_ini is not None else 0.0
                 end = float(cron_fin) if cron_fin is not None else 0.0
                 label = descr or f"Period {key[0]} Phase {key[1]}"
+                # Cycle a pastel palette across epochs so each
+                # swimlane row renders in a distinct background colour.
+                # The s3dgraphy EpochSwimlanesGenerator
+                # (`epoch_generator.py:360`) honours `epoch.color` when
+                # it is not the default `#FFFFFF`; without an explicit
+                # color it falls back to a single `#CCFFCC` for every
+                # row, which is what the user reported as "tutti
+                # verdino".
+                row_color = _EPOCH_ROW_PALETTE[
+                    len(epoch_by_key) % len(_EPOCH_ROW_PALETTE)]
                 ep = EpochNode(
                     node_id=node_id,
                     name=str(label),
                     start_time=start,
                     end_time=end,
+                    color=row_color,
                 )
                 graph.add_node(ep)
                 epoch_by_key[key] = ep
@@ -470,18 +507,8 @@ _VISUAL_BY_UNITA_TIPO = {
              "style": "line", "shape": "rectangle"},
 }
 
-# Light-hue palette cycled across epoch swimlane rows so each period
-# has a distinct background. Pastel shades chosen for readability.
-_EPOCH_ROW_PALETTE = (
-    "#FFE4E1",  # misty rose
-    "#E0FFFF",  # light cyan
-    "#F5F5DC",  # beige
-    "#E6E6FA",  # lavender
-    "#F0FFF0",  # honeydew
-    "#FFF0F5",  # lavender blush
-    "#FFFACD",  # lemon chiffon
-    "#E0FFE4",  # mint
-)
+# `_EPOCH_ROW_PALETTE` is defined earlier (above _enrich_pyarchinit_graph)
+# so that the enrichment step can assign per-epoch colors before export.
 
 
 def _resolve_display_abbrev(unita_tipo: str, language: str) -> str:
