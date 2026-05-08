@@ -2,8 +2,9 @@
 
 AI05 promotes this module from the AI04 thin-wrapper (Strategy D) to a
 proper class (Strategy A). The body of the former
-``_enrich_pyarchinit_graph()`` standalone function in ``graphml_writer``
-now lives inside :py:meth:`GraphProjector._enrich_into`.
+``_enrich_pyarchinit_graph`` standalone function (deleted from
+``graphml_writer`` in AI05 Group C) now lives inside
+:py:meth:`GraphProjector._enrich_into`.
 
 Exposed publicly so callers (UI Import tab, CLI helper, future
 SyncEngine in Phase 3) have a stable API surface even while the
@@ -53,6 +54,7 @@ class GraphProjector:
         sito: str,
         *,
         include_paradata: bool = True,
+        strict_schema: bool = True,
     ) -> "s3dgraphy.Graph":
         """Build and return a s3dgraphy.Graph populated with the
         stratigraphic rows of `sito` from the SQLite at `db_path`.
@@ -68,6 +70,16 @@ class GraphProjector:
                 like ``graphml_writer.export_graphml``). On read errors
                 we log a warning and fall back to strat-only — never
                 fatal.
+            strict_schema: when True (default), require that the
+                Phase-1 migration has been applied (i.e.
+                ``us_table.node_uuid`` exists) and propagate node-UUID
+                attributes onto each StratigraphicUnit so AI04 can do a
+                round-trip. When False, skip both the schema check and
+                ``_propagate_node_uuid_and_us``: useful for the AI03
+                strat-only export path (``graphml_writer.export_graphml``)
+                which only needs labels/edges/swimlanes — node_uuid is
+                irrelevant there and AC-2 fixtures pre-date the
+                migration.
 
         Returns:
             A populated `s3dgraphy.Graph`. Empty graph (zero nodes) is
@@ -86,7 +98,9 @@ class GraphProjector:
             raise ProjectionError(f"DB file not found: {db_path}")
 
         # Verify Phase 1 migration applied: us_table.node_uuid column.
-        self._verify_node_uuid_column(db_path)
+        # Skipped when strict_schema=False (AI03 export path).
+        if strict_schema:
+            self._verify_node_uuid_column(db_path)
 
         # Delegate to the existing AI03 enrichment routine.
         try:
@@ -147,11 +161,14 @@ class GraphProjector:
         # `_enrich_pyarchinit_graph` only sets 4 attributes
         # (sito/area/unita_tipo/d_stratigrafica) — AI04 needs the full
         # MAPPED_COLUMNS set on each StratigraphicUnit.
-        try:
-            self._propagate_node_uuid_and_us(graph, db_path, sito)
-        except Exception as e:
-            raise ProjectionError(
-                f"node_uuid propagation failed: {e}") from e
+        # Skipped when strict_schema=False (AI03 export path doesn't need
+        # node_uuid and may run on pre-migration fixtures).
+        if strict_schema:
+            try:
+                self._propagate_node_uuid_and_us(graph, db_path, sito)
+            except Exception as e:
+                raise ProjectionError(
+                    f"node_uuid propagation failed: {e}") from e
 
         # Filter post-enrichment: keep only nodes whose attributes['sito']
         # match (defence in depth — _enrich already filters us_table rows
@@ -304,8 +321,8 @@ class GraphProjector:
     def _enrich_into(self, graph, db_path, sito_filter=None):
         """Phase 2 / Strategy A — full-class implementation.
 
-        Body absorbed verbatim from the soon-to-be-deleted
-        ``_enrich_pyarchinit_graph()`` in ``graphml_writer.py``.
+        Body absorbed verbatim from the now-deleted standalone function
+        formerly named ``_enrich_pyarchinit_graph`` in ``graphml_writer``.
 
         Bake epoch swimlanes + topological rapporti edges into *graph*.
 
