@@ -146,3 +146,47 @@ def test_build_groups_collects_member_us_uuids(mini_volterra):
     # All UUIDs should be non-empty Phase 1 node_uuid values
     assert all(isinstance(u, str) and len(u) >= 32
                for u in basilica.member_us_uuids)
+
+
+def test_merge_adhoc_groups_appends_when_no_collision(tmp_path, mini_volterra):
+    """Ad-hoc group with unique name is appended to SQL specs."""
+    from modules.s3dgraphy.sync.group_projector import (
+        build_groups_from_sql, merge_adhoc_groups)
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    sito = _read_sito(mini_volterra)
+    _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
+
+    sql_specs = build_groups_from_sql(
+        mini_volterra, sito, dimensions=["struttura"])
+    # Add 1 ad-hoc group via store
+    store = GroupStore(mini_volterra, sito)
+    store.add_group("restauri-2023", group_kind="adhoc",
+                     member_us_uuids=["u1"])
+    merged = merge_adhoc_groups(sql_specs, store)
+    kinds = {s.group_kind for s in merged}
+    assert "struttura" in kinds and "adhoc" in kinds
+
+
+def test_merge_adhoc_groups_warns_on_name_collision(tmp_path, mini_volterra, caplog):
+    """SQL-name == ad-hoc-name → SQL wins, warning logged."""
+    import logging
+    from modules.s3dgraphy.sync.group_projector import (
+        build_groups_from_sql, merge_adhoc_groups)
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    sito = _read_sito(mini_volterra)
+    _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
+
+    sql_specs = build_groups_from_sql(
+        mini_volterra, sito, dimensions=["struttura"])
+    store = GroupStore(mini_volterra, sito)
+    # Ad-hoc name collides with SQL "basilica"
+    store.add_group("basilica", group_kind="adhoc",
+                     member_us_uuids=["u1"])
+
+    with caplog.at_level(logging.WARNING,
+                          logger="pyarchinit.s3dgraphy.sync.groups"):
+        merged = merge_adhoc_groups(sql_specs, store)
+    # SQL wins: no ad-hoc with that name
+    adhoc_names = {s.name for s in merged if s.group_kind == "adhoc"}
+    assert "basilica" not in adhoc_names
+    assert any("collision" in r.message.lower() for r in caplog.records)

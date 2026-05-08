@@ -125,3 +125,42 @@ def build_groups_from_sql(
     finally:
         conn.close()
     return out
+
+
+def merge_adhoc_groups(
+    sql_specs: List[GroupSpec],
+    store,
+) -> List[GroupSpec]:
+    """Append GroupSpec instances from groups_{sito}.graphml.
+
+    Collision policy: if an ad-hoc group has the same name as an
+    SQL-derived group (regardless of group_kind), the ad-hoc is
+    SKIPPED and a warning is logged. SQL "wins". This matches
+    spec §10 D6 risk mitigation.
+    """
+    out = list(sql_specs)
+    if not store.exists():
+        return out
+
+    sql_names = {s.name for s in sql_specs}
+    try:
+        groups = store.list_groups()
+    except Exception as e:
+        _log.warning(f"Cannot read GroupStore, skipping ad-hoc: {e}")
+        return out
+
+    for g in groups:
+        name = g.get("name", "")
+        if name in sql_names:
+            _log.warning(
+                f"Ad-hoc group name collision with SQL: '{name}' "
+                f"(SQL wins, ad-hoc skipped)")
+            continue
+        out.append(GroupSpec(
+            group_uuid=g.get("group_uuid", ""),
+            name=name,
+            group_kind=g.get("group_kind", "adhoc"),
+            member_us_uuids=list(g.get("member_us_uuids", [])),
+            description=g.get("description", ""),
+        ))
+    return out
