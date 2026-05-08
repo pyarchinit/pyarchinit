@@ -264,9 +264,15 @@ class GraphIngestor:
                     if _is_epoch_node_local(node):
                         continue
                     attrs = getattr(node, "attributes", None) or {}
-                    node_uuid = (getattr(node, "node_id", None)
-                                 or attrs.get("node_uuid"))
+                    # Same priority as the detection loop above:
+                    # explicit attrs.node_uuid wins (projector-built graphs),
+                    # node_id is the fallback (graphs built outside the
+                    # projector where node_id IS the DB uuid).
+                    node_uuid = attrs.get("node_uuid") or getattr(
+                        node, "node_id", None)
                     if not node_uuid:
+                        continue
+                    if "us" not in attrs:
                         continue
                     cur.execute(
                         "SELECT * FROM us_table WHERE node_uuid = ?",
@@ -289,7 +295,33 @@ class GraphIngestor:
                             [col_payload[c] for c in cols],
                         )
                         applied += 1
-                    # UPDATE branch lands in Task D.2
+                    else:
+                        # UPDATE selettivo: only the MAPPED_COLUMNS that
+                        # actually differ. Any column not in attrs and
+                        # any us_table column not in MAPPED_COLUMNS is
+                        # left untouched (preserves descrizione, foto,
+                        # etc.).
+                        col_names = [d[0] for d in cur.description]
+                        db_row = dict(zip(col_names, existing))
+                        diff_cols = []
+                        diff_vals = []
+                        for col in MAPPED_COLUMNS:
+                            if col not in attrs:
+                                continue
+                            if _values_equal(col, db_row.get(col),
+                                              attrs.get(col)):
+                                continue
+                            diff_cols.append(col)
+                            diff_vals.append(attrs.get(col))
+                        if diff_cols:
+                            set_clause = ", ".join(
+                                f"{c} = ?" for c in diff_cols)
+                            cur.execute(
+                                f"UPDATE us_table SET {set_clause} "
+                                f"WHERE node_uuid = ?",
+                                [*diff_vals, node_uuid],
+                            )
+                            applied += 1
 
                 # Epoch INSERT (D5-B path, write mode only)
                 if create_missing_epochs:

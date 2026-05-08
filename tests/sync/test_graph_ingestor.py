@@ -264,3 +264,60 @@ def test_populate_list_inserts_new_rows(mini_volterra):
     assert row[0] == "999"
     assert row[1] == sito
     assert row[2] == "US"
+
+
+def test_update_preserves_unmapped_columns(mini_volterra):
+    """D3 — UPDATE selettivo preserves columns not in MAPPED_COLUMNS.
+
+    Set descrizione (NOT in MAPPED_COLUMNS) on a row, run a graph
+    that mutates d_stratigrafica (mapped) on the same row, verify
+    descrizione survived intact.
+    """
+    import sqlite3
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+
+    sito = _read_sito(mini_volterra)
+
+    # Set descrizione on the first row
+    conn = sqlite3.connect(mini_volterra)
+    # Detect descrizione column (may be named differently across schemas)
+    cols = {r[1] for r in conn.execute(
+        "PRAGMA table_info(us_table)").fetchall()}
+    if "descrizione" not in cols:
+        pytest.skip("us_table has no descrizione column on this schema")
+    target_uuid = conn.execute(
+        "SELECT node_uuid FROM us_table WHERE sito = ? LIMIT 1",
+        (sito,)).fetchone()[0]
+    conn.execute(
+        "UPDATE us_table SET descrizione = ? WHERE node_uuid = ?",
+        ("PRESERVED_BY_AI04", target_uuid))
+    conn.commit()
+    conn.close()
+
+    # Project + mutate d_stratigrafica + ingest
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    found = False
+    for n in graph.nodes:
+        attrs = getattr(n, "attributes", None) or {}
+        # Projector-built graphs carry node_uuid in attrs (node_id is
+        # a separate surrogate). Match either, for forward-compat with
+        # graphs constructed outside the projector.
+        nuid = attrs.get("node_uuid") or getattr(n, "node_id", None)
+        if nuid == target_uuid:
+            attrs["d_stratigrafica"] = "AI04_NEW_VALUE"
+            found = True
+            break
+    assert found, "test setup: target node not found in graph"
+    GraphIngestor().populate_list(graph, mini_volterra, sito=sito,
+                                   dry_run=False)
+
+    # Verify descrizione survived
+    conn = sqlite3.connect(mini_volterra)
+    descr, dstrat = conn.execute(
+        "SELECT descrizione, d_stratigrafica FROM us_table "
+        "WHERE node_uuid = ?", (target_uuid,)).fetchone()
+    conn.close()
+    assert descr == "PRESERVED_BY_AI04", \
+        f"unmapped column overwritten (got {descr!r})"
+    assert dstrat == "AI04_NEW_VALUE", "mapped column not updated"
