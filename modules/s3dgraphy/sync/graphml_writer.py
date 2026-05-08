@@ -149,6 +149,29 @@ _RAPPORTI_TO_EDGE_TYPE = {
 }
 
 
+# pyarchinit-specific shorthand tokens for relations between non-US/USM
+# units (USVs/USVn/SF/CON/Combinar/Extractor/property/DOC). The user
+# enters these in the rapporti field as ">", ">>", "<", "<<".
+#
+# Convention (per the pyarchinit author, May 2026):
+#  - single arrow ">" / "<" carries simple temporal precedence
+#  - double arrow ">>" / "<<" carries paradata-style data flow
+#    (Extractor/Combinar/property/DOC chains)
+#
+# Each entry returns (edge_type, swap) where swap=True means we emit
+# the edge with source and target swapped relative to how the user
+# wrote it. Rationale: ">" reads as "source is older than target",
+# which in EM is encoded as `target is_after source` — so we swap.
+# Similarly for ">>" → "target extracted_from source" (target depends
+# on source's data).
+_RAPPORTI_SHORTHAND = {
+    ">":  ("is_after", True),       # A > B  ⇒  emit  B is_after A
+    "<":  ("is_after", False),      # A < B  ⇒  emit  A is_after B
+    ">>": ("extracted_from", True), # A >> B ⇒  emit  B extracted_from A
+    "<<": ("extracted_from", False),# A << B ⇒  emit  A extracted_from B
+}
+
+
 def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
     """Bake epoch swimlanes + topological rapporti edges into *graph*.
 
@@ -297,22 +320,36 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
             for rapporto in rapporti:
                 if not isinstance(rapporto, list) or len(rapporto) < 2:
                     continue
-                rel_type = str(rapporto[0]).strip().lower()
+                # Preserve case for the shorthand tokens (>, >>, <, <<);
+                # the named relations (copre/cuts/...) are case-folded.
+                rel_raw = str(rapporto[0]).strip()
+                rel_type_named = rel_raw.lower()
                 target_us = str(rapporto[1]).strip()
-                edge_type = _RAPPORTI_TO_EDGE_TYPE.get(rel_type)
-                if edge_type is None:
-                    continue
                 target_node = strat_by_name.get(target_us)
                 if target_node is None:
                     continue
+
+                # Try named-relation table first, then shorthand tokens.
+                edge_type = _RAPPORTI_TO_EDGE_TYPE.get(rel_type_named)
+                swap = False
+                if edge_type is None:
+                    shorthand = _RAPPORTI_SHORTHAND.get(rel_raw)
+                    if shorthand is None:
+                        continue
+                    edge_type, swap = shorthand
+
+                src_node, dst_node = (
+                    (target_node, us_node) if swap
+                    else (us_node, target_node)
+                )
                 edge_seq += 1
-                edge_id = (f"rap_{us_node.node_id}_{target_node.node_id}_"
+                edge_id = (f"rap_{src_node.node_id}_{dst_node.node_id}_"
                            f"{edge_type}_{edge_seq}")
                 if graph.find_edge_by_id(edge_id) is None:
                     graph.add_edge(
                         edge_id=edge_id,
-                        edge_source=us_node.node_id,
-                        edge_target=target_node.node_id,
+                        edge_source=src_node.node_id,
+                        edge_target=dst_node.node_id,
                         edge_type=edge_type,
                     )
     finally:
@@ -380,28 +417,57 @@ _LOCALIZED_US_USM = {
     "el": ("ΣΜ", "ΤΣΜ"),
 }
 
-# Style table: per unita_tipo → (fill, border, shape).
-# Shapes are yEd-native names. Fills/borders mirror the EM 1.5 palette
-# used in dottoxml.py (the legacy renderer) so the visual baseline stays
-# familiar; future tweaks can come from em_visual_rules.json.
+# Style table: per unita_tipo → (fill, border, border_width,
+# border_style, shape). Calibrated against the canonical
+# `Extended Matrix palette v.1.5dev1.graphml` published by the EM-tools
+# project; pyarchinit-specific deviation: USM gets a grey fill so it
+# is immediately distinguishable from US in the swimlane (the EM
+# canonical palette uses identical fills for both).
 _VISUAL_BY_UNITA_TIPO = {
-    "US":   {"fill": "#FFFFFF", "border": "#000000", "shape": "rectangle"},
-    "USM":  {"fill": "#C0C0C0", "border": "#000000", "shape": "rectangle"},
-    "USD":  {"fill": "#FFF8DC", "border": "#000000", "shape": "rectangle"},
-    "USVs": {"fill": "#88CCFF", "border": "#0066AA", "shape": "parallelogram"},
-    "USVn": {"fill": "#FFFAF0", "border": "#0066AA", "shape": "ellipse"},
-    "USN":  {"fill": "#FFFFFF", "border": "#FF0000", "shape": "rectangle"},
-    "TSU":  {"fill": "#FFE4B5", "border": "#000000", "shape": "rectangle"},
-    "SF":   {"fill": "#FFD700", "border": "#000000", "shape": "diamond"},
-    "VSF":  {"fill": "#FFD700", "border": "#0066AA", "shape": "diamond"},
-    "UL":   {"fill": "#E0FFE0", "border": "#000000", "shape": "octagon"},
-    "CON":  {"fill": "#000000", "border": "#000000", "shape": "ellipse"},
-    "DOC":  {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
-    "EXT":  {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
-    "Extractor": {"fill": "#F0E68C", "border": "#806040", "shape": "roundrectangle"},
-    "Combinar":  {"fill": "#F0E68C", "border": "#806040", "shape": "trapezoid"},
-    "property":  {"fill": "#FFFFFF", "border": "#888888", "shape": "ellipse"},
-    "SUS":  {"fill": "#FFFFFF", "border": "#000000", "shape": "rectangle"},
+    # Stratigraphic core (red border family — #9B3333)
+    "US":   {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+             "style": "line", "shape": "rectangle"},
+    "USM":  {"fill": "#C0C0C0", "border": "#9B3333", "width": "4.0",
+             "style": "line", "shape": "rectangle"},
+    "USN":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+             "style": "line", "shape": "ellipse"},  # negative SU
+    "TSU":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+             "style": "dashed", "shape": "roundrectangle"},
+    # Documentary (orange border)
+    "USD":  {"fill": "#FFFFFF", "border": "#D86400", "width": "4.0",
+             "style": "line", "shape": "roundrectangle"},
+    # Structural Virtual (blue border, BLACK fill per EM canonical)
+    "USVs": {"fill": "#000000", "border": "#248FE7", "width": "4.0",
+             "style": "line", "shape": "parallelogram"},
+    # Non-Structural Virtual (green border, BLACK fill per EM canonical)
+    "USVn": {"fill": "#000000", "border": "#31792D", "width": "4.0",
+             "style": "line", "shape": "hexagon"},
+    # Special Find (yellow border)
+    "SF":   {"fill": "#FFFFFF", "border": "#D8BD30", "width": "4.0",
+             "style": "line", "shape": "octagon"},
+    # Virtual Special Find (olive border, BLACK fill)
+    "VSF":  {"fill": "#000000", "border": "#B19F61", "width": "4.0",
+             "style": "line", "shape": "octagon"},
+    # Working Unit (green border family)
+    "UL":   {"fill": "#FFFFFF", "border": "#31792D", "width": "4.0",
+             "style": "line", "shape": "octagon"},
+    # Continuity (small dark dot)
+    "CON":  {"fill": "#000000", "border": "#000000", "width": "2.0",
+             "style": "line", "shape": "ellipse"},
+    # Documents and paradata-tooling shapes — pyarchinit-specific
+    # since these are not nodes in the canonical EM palette.
+    "DOC":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
+             "style": "line", "shape": "roundrectangle"},
+    "EXT":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
+             "style": "line", "shape": "roundrectangle"},
+    "Extractor": {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
+                  "style": "line", "shape": "roundrectangle"},
+    "Combinar":  {"fill": "#F0E68C", "border": "#806040", "width": "2.0",
+                  "style": "line", "shape": "trapezoid"},
+    "property":  {"fill": "#FFFFFF", "border": "#888888", "width": "2.0",
+                  "style": "line", "shape": "ellipse"},
+    "SUS":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "4.0",
+             "style": "line", "shape": "rectangle"},
 }
 
 # Light-hue palette cycled across epoch swimlane rows so each period
@@ -512,15 +578,24 @@ def _apply_pyarchinit_visual_overrides(
                 border_el = shape_el.find(f"{{{NS_Y}}}BorderStyle")
                 if border_el is not None:
                     border_el.set("color", visual["border"])
+                    if "width" in visual:
+                        border_el.set("width", visual["width"])
+                    if "style" in visual:
+                        border_el.set("type", visual["style"])
                 shape_inner = shape_el.find(f"{{{NS_Y}}}Shape")
                 if shape_inner is not None:
                     shape_inner.set("type", visual["shape"])
             # Prefix the label with the display abbreviation.
+            # When the fill is dark (e.g. USVs/USVn/VSF black fill per
+            # EM 1.5 canon), the label must use white text to stay
+            # readable; otherwise stay with the default black.
             label_el = shape_el.find(f"{{{NS_Y}}}NodeLabel")
             if label_el is not None and label_el.text:
                 bare = label_el.text.strip()
                 if bare and not bare.startswith(display_abbrev):
                     label_el.text = f"{display_abbrev} {bare}"
+                if visual and visual.get("fill") == "#000000":
+                    label_el.set("textColor", "#FFFFFF")
 
     # --- 3. Cycle epoch row colors ----------------------------------------
     # Rows live inside <y:TableNode>/<y:Table>/<y:Rows>/<y:Row ...>.
