@@ -228,21 +228,31 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
             pass  # missing table is tolerated; epoch_count just stays 0
 
         # ---- 2. has_first_epoch edges and rapporti edges ----------
+        # Also propagate `sito` and `area` to attributes so
+        # _filter_by_site can match — the upstream PyArchInitImporter
+        # mapping JSON only emits 5 columns and `sito` is not one of
+        # them, leaving us_node.attributes empty post-import.
         try:
             cursor.execute(
-                "SELECT us, periodo_iniziale, fase_iniziale, rapporti "
-                "FROM us_table"
+                "SELECT us, sito, area, periodo_iniziale, fase_iniziale, "
+                "rapporti FROM us_table"
             )
             rows = cursor.fetchall()
         except sqlite3.Error:
             rows = []
 
         edge_seq = 0
-        for us_val, periodo_ini, fase_ini, rapporti_raw in rows:
+        for us_val, sito, area, periodo_ini, fase_ini, rapporti_raw in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name or us_name not in strat_by_name:
                 continue
             us_node = strat_by_name[us_name]
+
+            # Propagate identity attributes so site/area filters work.
+            if sito is not None:
+                us_node.attributes["sito"] = str(sito)
+            if area is not None:
+                us_node.attributes["area"] = str(area)
 
             # 2a. has_first_epoch edge
             if periodo_ini is not None:
@@ -428,19 +438,32 @@ def export_graphml(
     epoch_count = sum(
         1 for n in graph.nodes if isinstance(n, EpochNode))
 
+    warnings = list(getattr(graph, "warnings", []))
+
     # tred_removed_edges via arithmetic fallback (see comment above):
     # number of temporal-input edges minus number of is_after edges
     # actually emitted by the exporter after transitive reduction.
     # Cap at 0 to defend against off-by-one or unforeseen exporter
     # heuristics — never report a negative reduction.
-    try:
-        emitted_xml = output_path.read_text(encoding="utf-8")
-        is_after_emitted = _count_is_after_edges_in_xml(emitted_xml)
-        tred_removed = max(0, temporal_input_count - is_after_emitted)
-    except OSError:
+    #
+    # CYCLE FALLBACK: when the TemporalInferenceEngine detects a cycle,
+    # it skips reduction and emits ALL input edges verbatim. The
+    # arithmetic difference would then equal the number of edges the
+    # engine derived from topological-only relations (cuts/fills/...)
+    # which is misleading — no reduction actually happened. Detect
+    # the cycle warning and report 0.
+    cycle_detected = any(
+        "cycle" in str(w).lower() for w in warnings
+    )
+    if cycle_detected:
         tred_removed = 0
-
-    warnings = list(getattr(graph, "warnings", []))
+    else:
+        try:
+            emitted_xml = output_path.read_text(encoding="utf-8")
+            is_after_emitted = _count_is_after_edges_in_xml(emitted_xml)
+            tred_removed = max(0, temporal_input_count - is_after_emitted)
+        except OSError:
+            tred_removed = 0
 
     return ExportResult(
         output_path=str(output_path),
