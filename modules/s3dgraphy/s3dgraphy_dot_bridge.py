@@ -21,10 +21,11 @@ from .s3dgraphy_integration import S3DGraphyIntegration
 
 # Make QGIS imports optional
 try:
-    from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, 
+    from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
                                      QLabel, QPushButton, QComboBox,
                                      QCheckBox, QGroupBox, QMessageBox,
-                                     QFileDialog, QProgressBar)
+                                     QFileDialog, QProgressBar,
+                                     QTabWidget, QWidget, QLineEdit)
     from qgis.PyQt.QtCore import Qt
     from qgis.core import QgsMessageLog, Qgis
     QGIS_AVAILABLE = True
@@ -309,78 +310,117 @@ if QGIS_AVAILABLE:
             
         def setupUI(self):
             layout = QVBoxLayout()
-            
-            # Title
-            title = QLabel("<h3>Export Extended Matrix with s3dgraphy Integration</h3>")
+
+            # Title (unchanged from AI03)
+            title = QLabel("<h3>Extended Matrix — s3dgraphy Bridge</h3>")
             layout.addWidget(title)
-            
-            # Description
+
+            # Tabs
+            self.tabs = QTabWidget()
+            layout.addWidget(self.tabs)
+
+            # ---- Tab "Export" — existing AI03 body, untouched ----
+            export_tab = QWidget()
+            export_layout = QVBoxLayout()
+
             desc = QLabel(
                 "This export combines s3dgraphy Extended Matrix processing with "
                 "yEd-compatible GraphML output for advanced visualization."
             )
             desc.setWordWrap(True)
-            layout.addWidget(desc)
-            
-            # Format selection
+            export_layout.addWidget(desc)
+
             format_group = QGroupBox("Export Formats")
             format_layout = QVBoxLayout()
-            
             self.cb_dot = QCheckBox("DOT Format (Graphviz)")
             self.cb_dot.setChecked(True)
             format_layout.addWidget(self.cb_dot)
-            
             self.cb_graphml = QCheckBox("GraphML Format (yEd compatible)")
             self.cb_graphml.setChecked(True)
             format_layout.addWidget(self.cb_graphml)
-            
             self.cb_json = QCheckBox("JSON Format (s3dgraphy native)")
             self.cb_json.setChecked(True)
             format_layout.addWidget(self.cb_json)
-            
             self.cb_phased = QCheckBox("Phased Matrix (chronological analysis)")
             self.cb_phased.setChecked(False)
             format_layout.addWidget(self.cb_phased)
-            
             format_group.setLayout(format_layout)
-            layout.addWidget(format_group)
-            
-            # Processing options
+            export_layout.addWidget(format_group)
+
             options_group = QGroupBox("Processing Options")
             options_layout = QVBoxLayout()
-            
             self.cb_validate = QCheckBox("Validate stratigraphic sequence")
             self.cb_validate.setChecked(True)
             options_layout.addWidget(self.cb_validate)
-            
             self.cb_auto_layout = QCheckBox("Generate yEd auto-layout hints")
             self.cb_auto_layout.setChecked(True)
             options_layout.addWidget(self.cb_auto_layout)
-            
             self.cb_period_colors = QCheckBox("Apply period-based coloring")
             self.cb_period_colors.setChecked(True)
             options_layout.addWidget(self.cb_period_colors)
-
             options_group.setLayout(options_layout)
-            layout.addWidget(options_group)
-            
-            # Progress bar
+            export_layout.addWidget(options_group)
+
             self.progress = QProgressBar()
             self.progress.setVisible(False)
-            layout.addWidget(self.progress)
-            
-            # Buttons
-            button_layout = QHBoxLayout()
-            
+            export_layout.addWidget(self.progress)
+
+            export_btn_layout = QHBoxLayout()
             self.btn_export = QPushButton("Export")
             self.btn_export.clicked.connect(self.on_export)
-            button_layout.addWidget(self.btn_export)
-            
+            export_btn_layout.addWidget(self.btn_export)
+            export_layout.addLayout(export_btn_layout)
+
+            export_tab.setLayout(export_layout)
+            self.tabs.addTab(export_tab, "Export")
+
+            # ---- Tab "Import" — NEW (AI04) ----
+            import_tab = QWidget()
+            import_layout = QVBoxLayout()
+
+            import_desc = QLabel(
+                "Import a GraphML file produced by s3dgraphy / Heriverse / EM\n"
+                "Datacenter back into the pyarchinit DB. Default is dry-run\n"
+                "preview; click Anteprima first, review the diff, then Applica."
+            )
+            import_desc.setWordWrap(True)
+            import_layout.addWidget(import_desc)
+
+            file_row = QHBoxLayout()
+            self.le_import_file = QLineEdit()
+            self.le_import_file.setPlaceholderText("/path/to/external.graphml")
+            self.btn_browse = QPushButton("Browse…")
+            self.btn_browse.clicked.connect(self._on_browse_import)
+            file_row.addWidget(self.le_import_file)
+            file_row.addWidget(self.btn_browse)
+            import_layout.addLayout(file_row)
+
+            self.cb_create_epochs = QCheckBox("Crea periodi mancanti se assenti")
+            self.cb_create_epochs.setChecked(False)
+            import_layout.addWidget(self.cb_create_epochs)
+
+            import_btn_layout = QHBoxLayout()
+            self.btn_preview = QPushButton("Anteprima")
+            self.btn_preview.clicked.connect(self._on_import_preview)
+            self.btn_apply = QPushButton("Applica")
+            self.btn_apply.setEnabled(False)
+            self.btn_apply.clicked.connect(self._on_import_apply)
+            import_btn_layout.addWidget(self.btn_preview)
+            import_btn_layout.addWidget(self.btn_apply)
+            import_layout.addLayout(import_btn_layout)
+
+            self.import_summary = QLabel("(no preview yet)")
+            self.import_summary.setWordWrap(True)
+            import_layout.addWidget(self.import_summary)
+
+            import_tab.setLayout(import_layout)
+            self.tabs.addTab(import_tab, "Import")
+
+            # ---- Common bottom row ----
             self.btn_cancel = QPushButton("Cancel")
             self.btn_cancel.clicked.connect(self.reject)
-            button_layout.addWidget(self.btn_cancel)
-            
-            layout.addLayout(button_layout)
+            layout.addWidget(self.btn_cancel)
+
             self.setLayout(layout)
         
         def on_export(self):
@@ -486,6 +526,102 @@ if QGIS_AVAILABLE:
                 )
             finally:
                 self.progress.setVisible(False)
+
+        def _on_browse_import(self):
+            """File picker for the Import tab."""
+            path, _ = QFileDialog.getOpenFileName(
+                self, "Select GraphML to import", "",
+                "GraphML files (*.graphml);;All files (*)")
+            if path:
+                self.le_import_file.setText(path)
+
+        def _on_import_preview(self):
+            """Run dry-run populate_list and show summary."""
+            from pathlib import Path
+            try:
+                from s3dgraphy.importer.import_graphml import GraphMLImporter
+            except ImportError:
+                from s3dgraphy.importer.graphml_importer import GraphMLImporter
+            from modules.s3dgraphy.sync.graph_ingestor import (
+                GraphIngestor, GraphSyncError)
+            graphml_path = self.le_import_file.text().strip()
+            if not graphml_path or not Path(graphml_path).exists():
+                QMessageBox.warning(self, "No file",
+                                    "Please pick a .graphml file first.")
+                return
+            try:
+                graph = GraphMLImporter(filepath=graphml_path).parse()
+                db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
+                if db_path is None:
+                    QMessageBox.critical(
+                        self, "No SQLite DB",
+                        "Import requires a SQLite-backed pyarchinit project.")
+                    return
+                result = GraphIngestor().populate_list(
+                    graph, db_path,
+                    sito=self.site,
+                    dry_run=True,
+                    create_missing_epochs=self.cb_create_epochs.isChecked(),
+                )
+            except GraphSyncError as e:
+                QMessageBox.critical(
+                    self, type(e).__name__,
+                    f"{type(e).__name__}: {e}")
+                return
+            except Exception as e:
+                QMessageBox.critical(
+                    self, "Import preview failed",
+                    f"{type(e).__name__}: {e}")
+                return
+            self._last_preview_result = result
+            self._last_preview_path = graphml_path
+            self.import_summary.setText(
+                f"Preview: applied={result.applied} "
+                f"(inserted={result.inserted}, updated={result.updated}, "
+                f"skipped={result.skipped}, conflicts={len(result.conflicts)}, "
+                f"epochs_created={result.epochs_created})")
+            self.btn_apply.setEnabled(True)
+
+        def _on_import_apply(self):
+            """Run write-mode populate_list."""
+            from pathlib import Path
+            try:
+                from s3dgraphy.importer.import_graphml import GraphMLImporter
+            except ImportError:
+                from s3dgraphy.importer.graphml_importer import GraphMLImporter
+            from modules.s3dgraphy.sync.graph_ingestor import (
+                GraphIngestor, GraphSyncError)
+            try:
+                graph = GraphMLImporter(
+                    filepath=self._last_preview_path).parse()
+                db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
+                if db_path is None:
+                    QMessageBox.critical(
+                        self, "No SQLite DB",
+                        "Import requires a SQLite-backed pyarchinit project.")
+                    return
+                result = GraphIngestor().populate_list(
+                    graph, db_path,
+                    sito=self.site,
+                    dry_run=False,
+                    create_missing_epochs=self.cb_create_epochs.isChecked(),
+                )
+            except GraphSyncError as e:
+                QMessageBox.critical(self, type(e).__name__, str(e))
+                return
+            except Exception as e:
+                QMessageBox.critical(
+                    self, "Import failed", f"{type(e).__name__}: {e}")
+                return
+            QMessageBox.information(
+                self, "Import complete",
+                f"Applied: {result.applied}\n"
+                f"  inserted: {result.inserted}\n"
+                f"  updated: {result.updated}\n"
+                f"  skipped: {result.skipped}\n"
+                f"  epochs created: {result.epochs_created}\n"
+                f"  conflicts (resolved as graph_wins): {len(result.conflicts)}")
+            self.btn_apply.setEnabled(False)
 
 
     def integrate_with_us_usm(us_usm_instance):
