@@ -160,3 +160,43 @@ def test_remove_us_from_group(tmp_path):
     assert store.list_members(g) == ["u1", "u3"]
     store.remove_us_from_group(g, "not-present")  # idempotent
     assert store.list_members(g) == ["u1", "u3"]
+
+
+def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
+    """AC-3: simulate os.replace crash, assert original untouched."""
+    from modules.s3dgraphy.sync.group_store import (
+        GroupStore, GroupWriteError)
+
+    store = GroupStore(_make_db(tmp_path), "X")
+    store.add_group("Original", member_us_uuids=["u1"])
+    original_bytes = store.file_path.read_bytes()
+    assert len(original_bytes) > 0
+
+    real_replace = os.replace
+
+    def boom(src, dst):
+        raise OSError("simulated crash mid-rename")
+    monkeypatch.setattr("os.replace", boom)
+
+    with pytest.raises(GroupWriteError):
+        store.add_group("New")
+
+    assert store.file_path.read_bytes() == original_bytes
+    assert not store.file_path.with_suffix(".graphml.tmp").exists()
+
+
+def test_init_validates_sito(tmp_path):
+    """Empty sito at construction raises ValidationError."""
+    from modules.s3dgraphy.sync.group_store import (
+        GroupStore, GroupValidationError)
+    with pytest.raises(GroupValidationError):
+        GroupStore(_make_db(tmp_path), "")
+
+
+def test_add_group_validates_name(tmp_path):
+    """Empty name raises ValidationError."""
+    from modules.s3dgraphy.sync.group_store import (
+        GroupStore, GroupValidationError)
+    store = GroupStore(_make_db(tmp_path), "X")
+    with pytest.raises(GroupValidationError):
+        store.add_group("")
