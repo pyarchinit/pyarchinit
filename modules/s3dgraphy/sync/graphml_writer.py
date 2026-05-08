@@ -257,7 +257,31 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                 "SELECT periodo, fase, cron_iniziale, cron_finale, "
                 "descrizione FROM periodizzazione_table"
             )
-            for periodo, fase, cron_ini, cron_fin, descr in cursor.fetchall():
+            raw_rows = cursor.fetchall()
+        except sqlite3.Error:
+            raw_rows = []
+        # Sort the periodizzazione rows by (periodo asc, fase asc) so
+        # that when we add EpochNodes to the graph, ties on cron_iniziale
+        # are broken by the natural phase numbering. The swimlane
+        # generator at `epoch_generator.py:298` uses Python's stable
+        # `sorted(..., reverse=True)`, so ties preserve insertion order:
+        # phases inserted earlier here will end up above phases inserted
+        # later in the rendered matrix when their cron_iniziale tie.
+        def _sort_key(row):
+            periodo, fase, *_ = row
+            try:
+                p_num = int(periodo) if periodo is not None else 0
+            except (TypeError, ValueError):
+                p_num = 0
+            try:
+                f_num = float(fase) if fase is not None else 0.0
+            except (TypeError, ValueError):
+                f_num = 0.0
+            return (p_num, f_num)
+        rows_sorted = sorted(raw_rows, key=_sort_key)
+
+        try:
+            for periodo, fase, cron_ini, cron_fin, descr in rows_sorted:
                 if periodo is None:
                     continue
                 key = (int(periodo), str(fase) if fase is not None else "")
@@ -269,19 +293,6 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                     continue
                 start = float(cron_ini) if cron_ini is not None else 0.0
                 end = float(cron_fin) if cron_fin is not None else 0.0
-                # Tie-break: when two phases share the same chronology
-                # (e.g. user data has both fase "2.1" and "3" with
-                # cron_iniziale=1451), s3dgraphy's swimlane sort by
-                # start_time becomes unstable and adjacent rows can
-                # swap. Apply a sub-second offset derived from the
-                # fase string so the order is deterministic and follows
-                # the natural numeric sequence of phase identifiers.
-                try:
-                    fase_numeric = float(key[1]) if key[1] else 0.0
-                except ValueError:
-                    fase_numeric = 0.0
-                start += fase_numeric * 1e-3
-                end += fase_numeric * 1e-3
                 label = descr or f"Period {key[0]} Phase {key[1]}"
                 # Cycle a pastel palette across epochs so each
                 # swimlane row renders in a distinct background colour.
