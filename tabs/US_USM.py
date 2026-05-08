@@ -16969,7 +16969,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.BROWSE_STATUS = "b"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
             else:
                 self.empty_fields()
@@ -17007,7 +17007,7 @@ DATABASE SCHEMA KNOWLEDGE:
                         self.pyQGIS.charge_usm_layers(self.DATA_LIST)
 
                 self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
         except:
             pass
@@ -17120,7 +17120,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
-                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
                 self.iconListWidget.update()
             else:
@@ -17186,7 +17186,7 @@ DATABASE SCHEMA KNOWLEDGE:
                 self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
                 self.charge_list()
                 self.fill_fields()
-                self.setComboBoxEnable(["self.comboBox_area"], "False")
+                self.setComboBoxEnable(["self.comboBox_area"], "True")
                 self.setComboBoxEnable(["self.lineEdit_us"], "False")
                 self.iconListWidget.update()
             else:
@@ -21508,7 +21508,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.setComboBoxEditable(["self.comboBox_area"], 1)
                     self.setComboBoxEditable(["self.comboBox_unita_tipo"], 1)
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_area"], "False")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.update_dating()
@@ -24220,7 +24220,7 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.BROWSE_STATUS = "b"
                     self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_area"], "False")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.textEdit_descrizione"], "True")
@@ -24280,7 +24280,7 @@ DATABASE SCHEMA KNOWLEDGE:
                                 self.pyQGIS.charge_usm_layers(self.DATA_LIST)
 
                     self.setComboBoxEnable(["self.comboBox_sito"], "False")
-                    self.setComboBoxEnable(["self.comboBox_area"], "False")
+                    self.setComboBoxEnable(["self.comboBox_area"], "True")
                     self.setComboBoxEnable(["self.lineEdit_us"], "False")
                     self.setComboBoxEnable(["self.comboBox_unita_tipo"], "True")
                     self.setTableEnable(
