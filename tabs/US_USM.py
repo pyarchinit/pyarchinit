@@ -9991,37 +9991,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_sito_rappcheck.setHidden(True)
         self.comboBox_area_rappcheck.setHidden(True)
         self.pushButton_rapp_check.setHidden(True)
+        #self.tableWidget_rapporti2.setHidden(True)
         self.pushButton_insert_row_rapporti2.setHidden(True)
         self.pushButton_remove_row_rapporti2.setHidden(True)
+        #self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
-
-        # AI03 / Phase 2: the legacy "Rapporti Stratigrafici per EM"
-        # tab + the standalone GraphML/CSV interchange buttons are
-        # superseded by the unified s3dgraphy export (AI03). Hide them
-        # so they don't confuse users; the underlying widget objects
-        # are kept so the controller's signal/slot bindings stay live.
-        try:
-            if hasattr(self, "tab_13") and hasattr(self, "tabWidget"):
-                idx = self.tabWidget.indexOf(self.tab_13)
-                if idx >= 0:
-                    self.tabWidget.removeTab(idx)
-        except Exception:
-            pass
-        for _attr in (
-            "pushButton_graphml",
-            "pushButton_graphml2csv",
-            "pushButton_csv2us",
-            "pushButton_export_extended_matrix",
-            "cb_export_extended_matrix",
-            "checkBox_export_extended_matrix",
-        ):
-            w = getattr(self, _attr, None)
-            if w is not None:
-                try:
-                    w.setHidden(True)
-                except Exception:
-                    pass
         self.currentLayerId = None
 
         # Initialize Concurrency Management
