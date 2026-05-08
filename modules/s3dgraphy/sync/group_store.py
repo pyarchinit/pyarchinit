@@ -364,3 +364,49 @@ class GroupStore:
     def remove_group(self, group_uuid: str) -> None:
         """Alias for remove_node — high-level naming."""
         self.remove_node(group_uuid)
+
+    def add_us_to_group(self, group_uuid: str, us_uuid: str) -> None:
+        """Append us_uuid to the group's member list. Idempotent on
+        duplicate. Raises GroupNotFoundError if group_uuid unknown."""
+        if not us_uuid:
+            raise GroupValidationError("us_uuid required")
+        graph = self.read()
+        target = next((n for n in graph.nodes
+                       if getattr(n, "node_id", None) == group_uuid), None)
+        if target is None:
+            raise GroupNotFoundError(f"Group {group_uuid} not found")
+        attrs = getattr(target, "attributes", None) or {}
+        members_csv = str(attrs.get("member_us_uuids", "") or "")
+        members = [m for m in members_csv.split(",") if m]
+        if us_uuid in members:
+            return  # idempotent
+        members.append(us_uuid)
+        attrs["member_us_uuids"] = ",".join(members)
+        target.attributes = attrs
+        self.write(graph)
+
+    def remove_us_from_group(self, group_uuid: str, us_uuid: str) -> None:
+        """Idempotent — no error if us_uuid not in member list."""
+        graph = self.read()
+        target = next((n for n in graph.nodes
+                       if getattr(n, "node_id", None) == group_uuid), None)
+        if target is None:
+            return  # idempotent on missing group too
+        attrs = getattr(target, "attributes", None) or {}
+        members_csv = str(attrs.get("member_us_uuids", "") or "")
+        members = [m for m in members_csv.split(",") if m]
+        if us_uuid not in members:
+            return
+        members.remove(us_uuid)
+        attrs["member_us_uuids"] = ",".join(members)
+        target.attributes = attrs
+        self.write(graph)
+
+    def list_members(self, group_uuid: str) -> list:
+        """Return the list of us_uuid strings of a group."""
+        for n in self.read().nodes:
+            if getattr(n, "node_id", None) == group_uuid:
+                attrs = getattr(n, "attributes", None) or {}
+                csv = str(attrs.get("member_us_uuids", "") or "")
+                return [m for m in csv.split(",") if m]
+        return []

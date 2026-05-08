@@ -129,3 +129,34 @@ def test_remove_group(tmp_path):
     assert len(store.list_groups()) == 1
     store.remove_group(uuid)
     assert len(store.list_groups()) == 0
+
+
+def test_add_us_to_group(tmp_path):
+    """add_us_to_group appends to the member list."""
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    store = GroupStore(_make_db(tmp_path), "X")
+    g = store.add_group("test", member_us_uuids=["u1"])
+    store.add_us_to_group(g, "u2")
+    members = store.list_members(g)
+    assert members == ["u1", "u2"]
+
+
+def test_add_us_to_group_idempotent(tmp_path):
+    """add_us_to_group with duplicate is a no-op (idempotent)."""
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    store = GroupStore(_make_db(tmp_path), "X")
+    g = store.add_group("test", member_us_uuids=["u1"])
+    store.add_us_to_group(g, "u1")  # duplicate — must not append twice
+    store.add_us_to_group(g, "u1")
+    assert store.list_members(g) == ["u1"]
+
+
+def test_remove_us_from_group(tmp_path):
+    """remove_us_from_group removes the entry, idempotent on missing."""
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    store = GroupStore(_make_db(tmp_path), "X")
+    g = store.add_group("test", member_us_uuids=["u1", "u2", "u3"])
+    store.remove_us_from_group(g, "u2")
+    assert store.list_members(g) == ["u1", "u3"]
+    store.remove_us_from_group(g, "not-present")  # idempotent
+    assert store.list_members(g) == ["u1", "u3"]
