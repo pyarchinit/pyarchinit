@@ -552,6 +552,36 @@ _PARADATA_UNITA_TIPI = frozenset({
     "DOC", "EXT", "Extractor", "Combinar", "property",
 })
 
+# Mapping from unita_tipo to the y:Resources/y:Resource refid that
+# yEd should reference for the node icon. Refids match those used
+# by the legacy dottoxml.py pipeline (id="1" Extractor, id="2"
+# Combinar, id="3" Continuity).
+_PARADATA_SVG_REFID = {
+    "CON": "3",
+    "Extractor": "1",
+    "EXT": "1",
+    "Combinar": "2",
+}
+
+# Mapping from unita_tipo to the BPMN type used by yEd's
+# com.yworks.bpmn.Artifact.withShadow GenericNode configuration.
+# DOC ↔ data-object (page with corner fold); property ↔ annotation
+# (open bracket on the left).
+_PARADATA_BPMN_TYPE = {
+    "DOC": "ARTIFACT_TYPE_DATA_OBJECT",
+    "property": "ARTIFACT_TYPE_ANNOTATION",
+}
+
+# Geometry overrides for paradata icons — the legacy dot.py used
+# specific sizes per icon to keep the visual proportions reasonable.
+_PARADATA_ICON_GEOMETRY = {
+    "CON":       {"height": "26.0", "width": "26.0"},
+    "Extractor": {"height": "25.0", "width": "25.0"},
+    "EXT":       {"height": "25.0", "width": "25.0"},
+    "Combinar":  {"height": "25.0", "width": "25.0"},
+    "DOC":       {"height": "55.0", "width": "35.0"},
+}
+
 # `_EPOCH_ROW_PALETTE` is defined earlier (above _enrich_pyarchinit_graph)
 # so that the enrichment step can assign per-epoch colors before export.
 
@@ -596,6 +626,151 @@ def _resolve_display_label(unita_tipo: str, us_number: str,
     if unita_tipo == "property":
         return descrizione.strip() or f"property{n}"
     return f"{unita_tipo}{n}"
+
+
+def _convert_shape_to_svg_node(shape_el, etree, NS_Y, refid: str,
+                                geometry: dict) -> None:
+    """Convert a ``<y:ShapeNode>`` element in place into a
+    ``<y:SVGNode>`` referencing the legacy SVG resource id ``refid``.
+
+    Legacy dottoxml.py used SVGNodes with custom Inkscape SVGs to
+    render Continuity, Extractor and Combinar icons. We preserve the
+    Geometry/Fill/BorderStyle/NodeLabel children verbatim and just
+    change the parent tag and append <y:SVGNodeProperties> +
+    <y:SVGModel>/<y:SVGContent> instead of <y:Shape>.
+    """
+    shape_el.tag = f"{{{NS_Y}}}SVGNode"
+    # Apply legacy icon geometry overrides.
+    geom_el = shape_el.find(f"{{{NS_Y}}}Geometry")
+    if geom_el is not None:
+        if "height" in geometry:
+            geom_el.set("height", geometry["height"])
+        if "width" in geometry:
+            geom_el.set("width", geometry["width"])
+    # Drop the <y:Shape type="..."> child if present — SVGNode does
+    # not accept it.
+    inner_shape = shape_el.find(f"{{{NS_Y}}}Shape")
+    if inner_shape is not None:
+        shape_el.remove(inner_shape)
+    # Append SVG plumbing.
+    svg_props = etree.SubElement(shape_el, f"{{{NS_Y}}}SVGNodeProperties")
+    svg_props.set("usingVisualBounds", "true")
+    svg_model = etree.SubElement(shape_el, f"{{{NS_Y}}}SVGModel")
+    svg_model.set("svgBoundsPolicy", "0")
+    svg_content = etree.SubElement(svg_model, f"{{{NS_Y}}}SVGContent")
+    svg_content.set("refid", refid)
+
+
+def _convert_shape_to_bpmn_node(shape_el, etree, NS_Y, bpmn_type: str,
+                                 geometry: dict) -> None:
+    """Convert a ``<y:ShapeNode>`` element in place into a
+    ``<y:GenericNode>`` with BPMN artifact configuration matching
+    ``bpmn_type`` (ARTIFACT_TYPE_DATA_OBJECT for DOC,
+    ARTIFACT_TYPE_ANNOTATION for property).
+
+    Legacy dottoxml.py used GenericNodes with the BPMN artifact
+    configuration to render DOC and property nodes. We preserve the
+    Geometry/Fill/BorderStyle/NodeLabel children verbatim and replace
+    the <y:Shape> child with the BPMN <y:StyleProperties> block.
+    """
+    shape_el.tag = f"{{{NS_Y}}}GenericNode"
+    shape_el.set("configuration", "com.yworks.bpmn.Artifact.withShadow")
+    geom_el = shape_el.find(f"{{{NS_Y}}}Geometry")
+    if geom_el is not None:
+        if "height" in geometry:
+            geom_el.set("height", geometry["height"])
+        if "width" in geometry:
+            geom_el.set("width", geometry["width"])
+    inner_shape = shape_el.find(f"{{{NS_Y}}}Shape")
+    if inner_shape is not None:
+        shape_el.remove(inner_shape)
+    style_props = etree.SubElement(shape_el, f"{{{NS_Y}}}StyleProperties")
+    for prop_name, prop_class, prop_value in (
+        ("com.yworks.bpmn.icon.line.color", "java.awt.Color", "#000000"),
+        ("com.yworks.bpmn.icon.fill2", "java.awt.Color", "#d4d4d4cc"),
+        ("com.yworks.bpmn.icon.fill", "java.awt.Color", "#ffffffe6"),
+        ("com.yworks.bpmn.type",
+         "com.yworks.yfiles.bpmn.view.BPMNTypeEnum", bpmn_type),
+    ):
+        prop_el = etree.SubElement(style_props, f"{{{NS_Y}}}Property")
+        prop_el.set("class", prop_class)
+        prop_el.set("name", prop_name)
+        prop_el.set("value", prop_value)
+
+
+def _ensure_resources_block(root, etree, NS_GRAPHML, NS_Y,
+                             needed_refids: set) -> None:
+    """Make sure ``<graphml>`` has a ``<key yfiles.type="resources">``
+    declaration AND a matching ``<data>`` child carrying a
+    ``<y:Resources>`` block with the requested SVG resource ids.
+
+    Idempotent: if the resources block already exists for the given
+    ids, do nothing. Otherwise create the missing pieces by appending
+    new elements; preserves any existing keys/data.
+
+    *needed_refids* is a set of strings like {"1", "2", "3"} matching
+    the keys of `_legacy_paradata_svgs.SVG_RESOURCES`.
+    """
+    if not needed_refids:
+        return
+    from . import _legacy_paradata_svgs as svgs
+
+    # Find or allocate the resources <key>.
+    res_key_id = None
+    used_ids = set()
+    for k_el in root.findall(f"{{{NS_GRAPHML}}}key"):
+        kid = k_el.get("id")
+        if kid:
+            used_ids.add(kid)
+        if k_el.get("yfiles.type") == "resources":
+            res_key_id = kid
+    if res_key_id is None:
+        # Allocate a fresh "dN" id that doesn't clash.
+        n = 0
+        while f"d{n}" in used_ids:
+            n += 1
+        res_key_id = f"d{n}"
+        key_el = etree.Element(f"{{{NS_GRAPHML}}}key")
+        key_el.set("for", "graphml")
+        key_el.set("id", res_key_id)
+        key_el.set("yfiles.type", "resources")
+        # Insert after the last existing <key>, before <graph>.
+        existing_keys = root.findall(f"{{{NS_GRAPHML}}}key")
+        if existing_keys:
+            last_key = existing_keys[-1]
+            last_key.addnext(key_el)
+        else:
+            root.insert(0, key_el)
+
+    # Find or create the matching <data> child of <graphml>.
+    res_data_el = None
+    for d_el in root.findall(f"{{{NS_GRAPHML}}}data"):
+        if d_el.get("key") == res_key_id:
+            res_data_el = d_el
+            break
+    if res_data_el is None:
+        res_data_el = etree.SubElement(root, f"{{{NS_GRAPHML}}}data")
+        res_data_el.set("key", res_key_id)
+
+    # Find or create the <y:Resources> child.
+    resources_el = res_data_el.find(f"{{{NS_Y}}}Resources")
+    if resources_el is None:
+        resources_el = etree.SubElement(res_data_el, f"{{{NS_Y}}}Resources")
+
+    # Add only the resources that are not already present.
+    existing_resource_ids = {
+        r.get("id")
+        for r in resources_el.findall(f"{{{NS_Y}}}Resource")
+    }
+    for refid in sorted(needed_refids):
+        if refid in existing_resource_ids:
+            continue
+        if refid not in svgs.SVG_RESOURCES:
+            continue
+        r_el = etree.SubElement(resources_el, f"{{{NS_Y}}}Resource")
+        r_el.set("id", refid)
+        r_el.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
+        r_el.text = svgs.SVG_RESOURCES[refid]
 
 
 def _apply_pyarchinit_visual_overrides(
@@ -660,6 +835,8 @@ def _apply_pyarchinit_visual_overrides(
     # Track ParadataNodeGroup wrapper nodes — those are the targets of
     # the US→PD edges and need to drive dashed-edge selection too.
     paradata_group_node_ids: set[str] = set()
+    # Collect SVG resource ids needed by paradata nodes we synthesize.
+    needed_svg_refids: set[str] = set()
     for node_el in root.iter(f"{{{NS_GRAPHML}}}node"):
         # ParadataNodeGroup wrappers carry a nested <graph> child
         # holding their paradata members. Mark them so we can later
@@ -691,7 +868,8 @@ def _apply_pyarchinit_visual_overrides(
             unita_tipo, us_number, language, descrizione)
 
         # Patch the ShapeNode block, if any
-        for shape_el in node_el.iter(f"{{{NS_Y}}}ShapeNode"):
+        shape_nodes = list(node_el.iter(f"{{{NS_Y}}}ShapeNode"))
+        for shape_el in shape_nodes:
             if visual:
                 fill_el = shape_el.find(f"{{{NS_Y}}}Fill")
                 if fill_el is not None:
@@ -720,6 +898,20 @@ def _apply_pyarchinit_visual_overrides(
                         label_el.set("underlinedText", "true")
                     else:
                         label_el.set("underlinedText", "false")
+
+        # If this paradata type needs an SVG / BPMN icon (legacy
+        # dottoxml.py convention), morph the ShapeNode in place into
+        # the appropriate yEd container element.
+        svg_refid = _PARADATA_SVG_REFID.get(unita_tipo)
+        bpmn_type = _PARADATA_BPMN_TYPE.get(unita_tipo)
+        icon_geom = _PARADATA_ICON_GEOMETRY.get(unita_tipo, {})
+        if svg_refid and shape_nodes:
+            _convert_shape_to_svg_node(
+                shape_nodes[0], etree, NS_Y, svg_refid, icon_geom)
+            needed_svg_refids.add(svg_refid)
+        elif bpmn_type and shape_nodes:
+            _convert_shape_to_bpmn_node(
+                shape_nodes[0], etree, NS_Y, bpmn_type, icon_geom)
 
     # --- 2b. Patch edges: dashed when one endpoint is paradata --------------
     # pyarchinit-legacy convention: stratigraphic edges (US↔US, USM↔USM,
@@ -759,6 +951,15 @@ def _apply_pyarchinit_visual_overrides(
             fill_el = etree.SubElement(row_el, f"{{{NS_Y}}}Fill")
             fill_el.set("color", color)
             fill_el.set("transparent", "false")
+
+    # --- 4. Embed legacy paradata SVG resources -------------------------
+    # If we converted any ShapeNode → SVGNode in step 1+2, the produced
+    # GraphML now references <y:SVGContent refid="N"/> for some N. yEd
+    # resolves these against a sibling <y:Resources> block carried in a
+    # <data key="..."> child of <graphml> with yfiles.type="resources".
+    # Add the block (or extend an existing one) so the icons render.
+    _ensure_resources_block(
+        root, etree, NS_GRAPHML, NS_Y, needed_svg_refids)
 
     tree.write(str(xml_path), encoding="UTF-8", xml_declaration=True)
 
