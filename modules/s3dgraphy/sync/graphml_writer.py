@@ -509,27 +509,34 @@ _VISUAL_BY_UNITA_TIPO = {
     # Working Unit (green border)
     "UL":   {"fill": "#FFFFFF", "border": "#31792D", "width": "3.0",
              "style": "line", "shape": "octagon"},
-    # Continuity — same red-bordered rectangle as US per legacy
-    # (the legacy output renders CON500 as a rectangle, NOT a black
-    # dot like the EM 1.5dev1 palette suggests)
-    "CON":  {"fill": "#FFFFFF", "border": "#9B3333", "width": "3.0",
-             "style": "line", "shape": "rectangle"},
-    # Paradata tooling — DOC/Extractor/Combinar/property: white
-    # rectangle with thin black border, bold text. Differentiated
-    # only by the label format and (for Extractor) underlined text.
-    "DOC":       {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+    # Continuity — black diamond/rhombus per legacy pyarchinit
+    # (Scavo archeologico.graphml uses an SVG square rotated 45°;
+    # rendering the same as a yEd built-in "diamond" shape with
+    # solid-black fill and border preserves the visual.)
+    "CON":  {"fill": "#000000", "border": "#000000", "width": "3.0",
+             "style": "line", "shape": "diamond",
+             "font_style": "plain"},
+    # Paradata tooling, calibrated against the EM 1.5dev1 palette and
+    # the user's brief:
+    #   - DOC: BPMN data-object look (yEd ShapeNode rectangle with
+    #     fill #FFFFFFE6, thin black border 1.0). Label "D.<n>"
+    #     centered, bold, NOT underlined.
+    #   - Extractor: lavender rectangle (#CCCCFF), thin black border
+    #     1.0. Label "D.<n>" UNDERLINED.
+    #   - Combinar: lavender rectangle, label "C.<n>" NOT underlined.
+    #   - property: BPMN annotation look, fill #FFFFFFE6, thin black
+    #     border, label = d_stratigrafica (e.g. "Materiale"),
+    #     plain (non-bold) text, NOT underlined.
+    "DOC":       {"fill": "#FFFFFFE6", "border": "#000000", "width": "1.0",
                   "style": "line", "shape": "rectangle"},
-    "EXT":       {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+    "EXT":       {"fill": "#CCCCFF", "border": "#000000", "width": "1.0",
                   "style": "line", "shape": "rectangle",
                   "underlined": True},
-    "Extractor": {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+    "Extractor": {"fill": "#CCCCFF", "border": "#000000", "width": "1.0",
                   "style": "line", "shape": "rectangle",
                   "underlined": True},
-    "Combinar":  {"fill": "#FFFFFF", "border": "#000000", "width": "1.0",
+    "Combinar":  {"fill": "#CCCCFF", "border": "#000000", "width": "1.0",
                   "style": "line", "shape": "rectangle"},
-    # property — light cream fill, plain (not bold) text; the label
-    # for property nodes is the d_stratigrafica field (e.g.
-    # "Materiale", "Pavimento", ...) rather than an abbrev+number.
     "property":  {"fill": "#FFFFFFE6", "border": "#000000", "width": "1.0",
                   "style": "line", "shape": "rectangle",
                   "font_style": "plain"},
