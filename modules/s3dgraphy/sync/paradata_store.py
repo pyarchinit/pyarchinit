@@ -52,6 +52,18 @@ _PARADATA_NODE_TYPES: frozenset[str] = frozenset({
     "AuthorNode", "LicenseNode", "EmbargoNode",
 })
 
+# Meta-keys produced by s3dgraphy's GraphMLImporter when it materializes
+# a node (``original_id``, ``graph_id``) plus our own JSON-blob channel
+# (``paradata_attrs``) that the importer additionally surfaces on
+# ``node.attributes`` because we declare it as a ``<key>`` in the
+# minimal GraphML emitter. These must NEVER be merged back from the
+# decoded blob during _hydrate_paradata_attrs — otherwise the next
+# write() would re-serialize them inside a fresh JSON blob, growing
+# the file ~300 bytes per round-trip and breaking idempotency.
+_PARADATA_HYDRATE_SKIP_KEYS: frozenset[str] = frozenset({
+    "original_id", "graph_id", "paradata_attrs",
+})
+
 
 def _sito_slug(sito: str) -> str:
     """Filename-safe lowercase slug for a sito identifier."""
@@ -179,7 +191,17 @@ class ParadataStore:
                     attrs = n.attributes
                 except Exception:
                     continue
+            # Strip s3dgraphy importer meta-keys + the raw JSON blob
+            # the importer surfaced from our <key id="d5"> declaration.
+            # Leaving these on .attributes would cause the next write()
+            # to re-serialize them inside a fresh JSON blob, growing
+            # the file ~300 bytes per round-trip and breaking the
+            # idempotency invariant.
+            for skip_key in _PARADATA_HYDRATE_SKIP_KEYS:
+                attrs.pop(skip_key, None)
             for k, v in blob.items():
+                if k in _PARADATA_HYDRATE_SKIP_KEYS:
+                    continue
                 if attrs.get(k) in (None, ""):
                     attrs[k] = v
 
