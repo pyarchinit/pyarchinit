@@ -139,6 +139,18 @@ class GraphProjector:
             raise ProjectionError(
                 f"Enrichment failed for sito={sito!r}: {e}") from e
 
+        # Stage 2b: propagate node_uuid, us, and the remaining mapped
+        # columns from the DB so the GraphIngestor can do its
+        # `WHERE node_uuid = ?` round-trip. The upstream
+        # `_enrich_pyarchinit_graph` only sets 4 attributes
+        # (sito/area/unita_tipo/d_stratigrafica) — AI04 needs the full
+        # MAPPED_COLUMNS set on each StratigraphicUnit.
+        try:
+            self._propagate_node_uuid_and_us(graph, db_path, sito)
+        except Exception as e:
+            raise ProjectionError(
+                f"node_uuid propagation failed: {e}") from e
+
         # Filter post-enrichment: keep only nodes whose attributes['sito']
         # match (defence in depth — _enrich already filters us_table rows
         # but EpochNodes are global and may belong to other sites).
@@ -156,6 +168,74 @@ class GraphProjector:
                        or _is_epoch_node(n)]
 
         return graph
+
+
+    def _propagate_node_uuid_and_us(self, graph, db_path, sito) -> None:
+        """Set attributes['node_uuid'], 'us' and the remaining mapped
+        columns on each StratigraphicUnit-family node.
+
+        Match nodes by `name` (the importer emits name=str(us_table.us))
+        within the requested sito. Idempotent: re-running yields the
+        same attribute values.
+        """
+        # Build a name -> node index over the importer-emitted strat nodes.
+        strat_by_name = {}
+        for n in graph.nodes:
+            cls = type(n).__name__
+            if cls.startswith("Stratigraphic") or cls == "USNode":
+                strat_by_name[str(getattr(n, "name", ""))] = n
+        if not strat_by_name:
+            return  # nothing to propagate
+
+        conn = sqlite3.connect(str(db_path))
+        cur = conn.cursor()
+        try:
+            cur.execute(
+                "SELECT us, node_uuid, sito, area, unita_tipo, "
+                "periodo_iniziale, fase_iniziale, rapporti, "
+                "d_stratigrafica, d_interpretativa, attivita, struttura "
+                "FROM us_table WHERE sito = ?",
+                (sito,),
+            )
+            rows = cur.fetchall()
+        finally:
+            conn.close()
+
+        for (us_val, node_uuid, sito_v, area, unita_tipo,
+             periodo_ini, fase_ini, rapporti_raw, d_strat,
+             d_interp, attivita, struttura) in rows:
+            us_name = str(us_val) if us_val is not None else None
+            if not us_name or us_name not in strat_by_name:
+                continue
+            node = strat_by_name[us_name]
+            attrs = node.attributes
+            # Always set node_uuid + us (these are the lookup keys).
+            if node_uuid is not None:
+                attrs["node_uuid"] = str(node_uuid)
+            attrs["us"] = us_name
+            # Also propagate any other MAPPED_COLUMNS not already set
+            # by _enrich (defensive overwrite — projector wins by
+            # definition for round-trip identity).
+            if sito_v is not None:
+                attrs["sito"] = str(sito_v)
+            if area is not None:
+                attrs["area"] = str(area)
+            if unita_tipo is not None:
+                attrs["unita_tipo"] = str(unita_tipo)
+            if periodo_ini is not None:
+                attrs["periodo_iniziale"] = str(periodo_ini)
+            if fase_ini is not None:
+                attrs["fase_iniziale"] = str(fase_ini)
+            if rapporti_raw is not None:
+                attrs["rapporti"] = str(rapporti_raw)
+            if d_strat is not None:
+                attrs["d_stratigrafica"] = str(d_strat)
+            if d_interp is not None:
+                attrs["d_interpretativa"] = str(d_interp)
+            if attivita is not None:
+                attrs["attivita"] = str(attivita)
+            if struttura is not None:
+                attrs["struttura"] = str(struttura)
 
 
 def _is_epoch_node(node) -> bool:

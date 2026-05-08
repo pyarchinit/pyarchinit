@@ -122,3 +122,38 @@ def test_populate_list_schema_check_raises(tmp_path):
     g = GraphIngestor()
     with pytest.raises(SchemaMismatchError):
         g.populate_list(Graph(graph_id="X"), db, sito="X")
+
+
+def test_populate_list_dry_run_no_writes(mini_volterra):
+    """D3 — dry_run=True must not change the DB (sha256 invariant)."""
+    import hashlib
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    sito = _read_sito(mini_volterra)
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    sha_before = hashlib.sha256(mini_volterra.read_bytes()).hexdigest()
+    g = GraphIngestor()
+    result = g.populate_list(graph, mini_volterra, sito=sito, dry_run=True)
+    sha_after = hashlib.sha256(mini_volterra.read_bytes()).hexdigest()
+    assert sha_before == sha_after, "dry_run modified the DB"
+    assert result.dry_run is True
+    assert result.applied == 0
+
+
+def test_populate_list_dry_run_counts_skipped_when_unchanged(mini_volterra):
+    """Round-trip the projector → ingestor: every node should be
+    'skipped' (no diff vs the source)."""
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
+    sito = _read_sito(mini_volterra)
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    result = GraphIngestor().populate_list(
+        graph, mini_volterra, sito=sito, dry_run=True)
+    # Every projected node is already in DB, no value differences →
+    # all skipped.
+    n_strat = sum(1 for n in graph.nodes
+                  if (getattr(n, "attributes", None) or {}).get("us") is not None)
+    assert result.skipped == n_strat
+    assert result.inserted == 0
+    assert result.updated == 0
+    assert len(result.conflicts) == 0

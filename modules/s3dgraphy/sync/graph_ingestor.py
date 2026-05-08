@@ -157,7 +157,105 @@ class GraphIngestor:
                     f"sito={node_sito!r}, expected {sito!r}")
 
     def _run(self, graph, db_path, sito, *, dry_run, create_missing_epochs):
-        """Group C minimal version: returns an empty IngestResult.
-        Group C.2-C.4 fill in the actual logic."""
-        return IngestResult(applied=0, inserted=0, updated=0, skipped=0,
-                            epochs_created=0, dry_run=dry_run)
+        inserted = updated = skipped = 0
+        epochs_created = 0
+        conflicts: list[ConflictRecord] = []
+        errors: list[str] = []
+
+        # Open the transaction (we always use BEGIN even in dry-run so
+        # any side effects from other code paths get isolated and
+        # ROLLBACK'd).
+        conn = sqlite3.connect(str(db_path))
+        conn.execute("BEGIN")
+        try:
+            cur = conn.cursor()
+            for node in graph.nodes:
+                # Skip non-stratigraphic / non-attribute nodes (e.g. EpochNode).
+                attrs = getattr(node, "attributes", None) or {}
+                if _is_epoch_node_local(node):
+                    continue
+                # Look up by node_uuid. Prefer the explicit attribute
+                # (set by GraphProjector._propagate_node_uuid_and_us);
+                # fall back to node_id when the graph was built outside
+                # the projector and node_id IS the DB uuid.
+                node_uuid = attrs.get("node_uuid") or getattr(
+                    node, "node_id", None)
+                if not node_uuid:
+                    continue
+                # Skip nodes that obviously aren't strat units (no `us`
+                # attribute means the importer didn't tie this node to
+                # us_table — e.g. PropertyNode, GeoPositionNode).
+                if "us" not in attrs:
+                    continue
+                cur.execute(
+                    "SELECT * FROM us_table WHERE node_uuid = ?",
+                    (node_uuid,),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    inserted += 1
+                    continue
+                # Build {col: db_val} dict from row + cursor.description
+                col_names = [d[0] for d in cur.description]
+                db_row = dict(zip(col_names, row))
+                row_changed = False
+                for col in MAPPED_COLUMNS:
+                    if col not in attrs:
+                        continue
+                    db_val = db_row.get(col)
+                    graph_val = attrs.get(col)
+                    if _values_equal(col, db_val, graph_val):
+                        continue
+                    row_changed = True
+                    self._resolver.resolve(
+                        db_row=db_row, graph_value=graph_val, field=col)
+                    conflicts.append(ConflictRecord(
+                        node_uuid=node_uuid, field=col,
+                        db_value=db_val, graph_value=graph_val,
+                        resolution=ConflictResolution.GRAPH_WINS.value,
+                    ))
+                if row_changed:
+                    updated += 1
+                else:
+                    skipped += 1
+
+            applied = inserted + updated  # Group D will write; for now counts only
+            # Always ROLLBACK in this Group (Group D adds COMMIT for non-dry-run)
+            conn.rollback()
+            applied = applied if dry_run else 0
+        except GraphSyncError:
+            conn.rollback()
+            raise
+        except Exception as e:
+            conn.rollback()
+            raise GraphIngestError(f"Ingest failed: {e}") from e
+        finally:
+            conn.close()
+
+        return IngestResult(
+            applied=applied,
+            inserted=inserted, updated=updated, skipped=skipped,
+            epochs_created=epochs_created,
+            conflicts=tuple(conflicts), errors=tuple(errors),
+            dry_run=dry_run,
+        )
+
+
+def _values_equal(col: str, a, b) -> bool:
+    """Loose equality matching the conventions in graphml_writer
+    enrichment. JSON-serialised columns (rapporti) get parse-then-compare."""
+    if a is None and b is None:
+        return True
+    if a is None or b is None:
+        return False
+    if col == "rapporti":
+        try:
+            import ast
+            return ast.literal_eval(str(a)) == ast.literal_eval(str(b))
+        except (ValueError, SyntaxError):
+            return str(a) == str(b)
+    return str(a) == str(b)
+
+
+def _is_epoch_node_local(node) -> bool:
+    return type(node).__name__ == "EpochNode"
