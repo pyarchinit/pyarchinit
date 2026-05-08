@@ -1073,6 +1073,166 @@ def _embed_pyarchinit_data_keys(graph, xml_path: Path) -> None:
     tree.write(str(xml_path), encoding="UTF-8", xml_declaration=True)
 
 
+_PARADATA_INJECT_TYPES: frozenset[str] = frozenset({
+    "AuthorNode", "LicenseNode", "EmbargoNode",
+})
+
+
+def _inject_isolated_paradata_nodes(graph, xml_path: Path) -> None:
+    """Append AuthorNode / LicenseNode / EmbargoNode entries to the
+    GraphMLExporter output for site-level paradata that has no
+    ParadataNodeGroup anchor.
+
+    GraphMLExporter only renders paradata when it sits inside a
+    ParadataNodeGroup attached to a stratigraphic unit. AI05's
+    site-level paradata (D9 in spec — Author/License/Embargo apply
+    to the site as a whole, not to specific US) gets silently
+    dropped. This post-processor fixes that by re-injecting them
+    post-export.
+
+    Each injected node gets:
+      - the existing EMID key for round-trip identity
+      - the existing description key with `_s3d_node_type:<Type>`
+        marker (so re-import recognises the subclass)
+      - the existing nodegraphics key with a minimal yEd ImageNode
+        + NodeLabel (display name)
+      - the AI05 paradata_attrs JSON blob via key "pyarchinit.paradata_attrs"
+    """
+    paradata_nodes = [
+        n for n in getattr(graph, "nodes", [])
+        if type(n).__name__ in _PARADATA_INJECT_TYPES
+    ]
+    if not paradata_nodes:
+        return
+
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    NS_Y = "http://www.yworks.com/xml/graphml"
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # Resolve key IDs for the attr.names we need by scanning
+    # registered <key> elements.
+    attrname_to_kid: dict[str, str] = {}
+    for k in root.findall(f"{{{NS_GRAPHML}}}key"):
+        if k.get("for") != "node":
+            continue
+        attr_name = k.get("attr.name")
+        yfiles_type = k.get("yfiles.type")
+        if attr_name == "EMID":
+            attrname_to_kid["EMID"] = k.get("id")
+        elif attr_name == "description":
+            attrname_to_kid["description"] = k.get("id")
+        elif yfiles_type == "nodegraphics":
+            attrname_to_kid["nodegraphics"] = k.get("id")
+        elif attr_name == "pyarchinit.paradata_attrs":
+            attrname_to_kid["paradata_attrs"] = k.get("id")
+        elif attr_name == "pyarchinit.sito":
+            attrname_to_kid["sito"] = k.get("id")
+
+    # If essential keys are missing (shouldn't happen — they're
+    # registered by GraphMLExporter + _embed_pyarchinit_data_keys),
+    # bail out gracefully.
+    if "EMID" not in attrname_to_kid or "nodegraphics" not in attrname_to_kid:
+        return
+
+    # Collect existing EMIDs in the output so we don't double-inject.
+    existing_emids: set[str] = set()
+    emid_kid = attrname_to_kid["EMID"]
+    for node_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        for d_el in node_el.findall(f"{{{NS_GRAPHML}}}data"):
+            if d_el.get("key") == emid_kid and d_el.text:
+                existing_emids.add(d_el.text.strip())
+                break
+
+    # Find the <graph> element to append into.
+    graph_el = root.find(f"{{{NS_GRAPHML}}}graph")
+    if graph_el is None:
+        return
+
+    # Per-node-type yEd colour palette (matches em_visual_rules
+    # paradata category by default — kept simple here).
+    type_colours = {
+        "AuthorNode": "#FFCCCC",
+        "LicenseNode": "#CCFFCC",
+        "EmbargoNode": "#CCCCFF",
+    }
+
+    import json as _json
+    injected = 0
+    for node in paradata_nodes:
+        emid = str(getattr(node, "node_id", "") or "")
+        if not emid or emid in existing_emids:
+            continue
+        type_name = type(node).__name__
+        display = str(getattr(node, "name", "") or type_name)
+
+        n_el = etree.SubElement(graph_el, f"{{{NS_GRAPHML}}}node")
+        n_el.set("id", emid)
+
+        # EMID
+        d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+        d.set("key", emid_kid)
+        d.text = emid
+
+        # description w/ round-trip marker
+        if "description" in attrname_to_kid:
+            d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+            d.set("key", attrname_to_kid["description"])
+            d.text = f"_s3d_node_type:{type_name}"
+
+        # nodegraphics — minimal yEd ImageNode w/ NodeLabel
+        d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+        d.set("key", attrname_to_kid["nodegraphics"])
+        img = etree.SubElement(d, f"{{{NS_Y}}}ImageNode")
+        geom = etree.SubElement(img, f"{{{NS_Y}}}Geometry")
+        geom.set("height", "30.0")
+        geom.set("width", "30.0")
+        geom.set("x", "0.0")
+        geom.set("y", "0.0")
+        fill = etree.SubElement(img, f"{{{NS_Y}}}Fill")
+        fill.set("color", type_colours.get(type_name, "#CCCCCC"))
+        fill.set("transparent", "false")
+        bs = etree.SubElement(img, f"{{{NS_Y}}}BorderStyle")
+        bs.set("color", "#000000")
+        bs.set("type", "line")
+        bs.set("width", "1.0")
+        nl = etree.SubElement(img, f"{{{NS_Y}}}NodeLabel")
+        nl.text = display
+
+        # paradata_attrs JSON blob (AI05 round-trip channel)
+        if "paradata_attrs" in attrname_to_kid:
+            attrs = getattr(node, "attributes", None) or {}
+            if attrs:
+                _SKIP = {"original_id", "graph_id", "paradata_attrs"}
+                clean = {k: v for k, v in attrs.items()
+                         if k not in _SKIP and v not in (None, "")}
+                if clean:
+                    d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+                    d.set("key", attrname_to_kid["paradata_attrs"])
+                    d.text = _json.dumps(clean, ensure_ascii=False)
+
+        # sito for filter-on-import compat with AI04
+        if "sito" in attrname_to_kid:
+            attrs = getattr(node, "attributes", None) or {}
+            sito = attrs.get("sito") if attrs else None
+            if sito:
+                d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+                d.set("key", attrname_to_kid["sito"])
+                d.text = str(sito)
+
+        injected += 1
+
+    if injected:
+        tree.write(str(xml_path), encoding="UTF-8",
+                   xml_declaration=True, pretty_print=True)
+
+
 def export_graphml(
     db_path,
     mapping: str,
@@ -1195,6 +1355,19 @@ def export_graphml(
         if hasattr(graph, "add_warning"):
             graph.add_warning(
                 f"Data-key embedding skipped: {type(e).__name__}: {e}")
+
+    # Stage 4d: inject isolated paradata nodes (AuthorNode /
+    # LicenseNode / EmbargoNode) that GraphMLExporter silently
+    # drops when they're not anchored to a ParadataNodeGroup. AI05
+    # site-level paradata (D9) lives on the graph with no edges to
+    # specific stratigraphic units, so we append them post-export
+    # via a dedicated post-processor.
+    try:
+        _inject_isolated_paradata_nodes(graph, output_path)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"Paradata injection skipped: {type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.
     from s3dgraphy.nodes.epoch_node import EpochNode
