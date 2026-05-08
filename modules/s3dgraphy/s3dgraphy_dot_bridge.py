@@ -125,16 +125,21 @@ class S3DGraphyDotBridge:
         return dot_content
     
     def export_integrated_matrix(self, site: str, area: Optional[str] = None,
-                                output_dir: str = None, formats: List[str] = None) -> Dict[str, str]:
+                                output_dir: str = None, formats: List[str] = None,
+                                groups: Optional[List[str]] = None) -> Dict[str, str]:
         """
         Export Extended Matrix in multiple formats with s3dgraphy integration
-        
+
         Args:
             site: Site name
             area: Optional area filter
             output_dir: Output directory (default: temp)
             formats: List of formats to export ['dot', 'graphml', 'json', 'phased']
-            
+            groups: AI06 — list of group dimensions to materialize into
+                yEd folder nodes (subset of {area, struttura, attivita,
+                settore, ambient, saggio, quad_par, adhoc}). Default
+                None / [] preserves AC-2 byte-identical baseline.
+
         Returns:
             Dictionary of format: filepath
         """
@@ -216,6 +221,7 @@ class S3DGraphyDotBridge:
                         site_filter=site,
                         persist_auxiliary=False,
                         language=_locale,
+                        groups=groups,                # NEW (AI06)
                     )
                     exported_files['graphml'] = graphml_path
                     exported_files['graphml_result'] = result
@@ -361,6 +367,21 @@ if QGIS_AVAILABLE:
             options_group.setLayout(options_layout)
             export_layout.addWidget(options_group)
 
+            # AI06: Group US by ... (optional)
+            self.gb_groups = QGroupBox("Group US by (optional)")
+            gb_layout = QVBoxLayout()
+            self.cb_grp = {}
+            for dim in ("area", "struttura", "attivita", "settore",
+                        "ambient", "saggio", "quad_par"):
+                cb = QCheckBox(dim)
+                self.cb_grp[dim] = cb
+                gb_layout.addWidget(cb)
+            self.cb_grp_adhoc = QCheckBox(
+                "ad-hoc (from groups_*.graphml)")
+            gb_layout.addWidget(self.cb_grp_adhoc)
+            self.gb_groups.setLayout(gb_layout)
+            export_layout.addWidget(self.gb_groups)
+
             self.progress = QProgressBar()
             self.progress.setVisible(False)
             export_layout.addWidget(self.progress)
@@ -411,6 +432,16 @@ if QGIS_AVAILABLE:
             self.cb_create_epochs.setChecked(False)
             import_layout.addWidget(self.cb_create_epochs)
 
+            # AI06: opt-in SQL UPDATE for SQL-derived group kinds
+            # (struttura/area/attivita/settore/ambient/saggio/quad_par).
+            # Default OFF — D5-C safe default; ad-hoc groups never go
+            # to SQL regardless of this flag.
+            self.cb_sql_apply_groups = QCheckBox(
+                "Update SQL on import (struttura/area/attivita/settore/"
+                "ambient/saggio/quad_par)")
+            self.cb_sql_apply_groups.setChecked(False)
+            import_layout.addWidget(self.cb_sql_apply_groups)
+
             import_btn_layout = QHBoxLayout()
             self.btn_preview = QPushButton("Anteprima")
             self.btn_preview.clicked.connect(self._on_import_preview)
@@ -434,7 +465,67 @@ if QGIS_AVAILABLE:
             layout.addWidget(self.btn_cancel)
 
             self.setLayout(layout)
-        
+
+            # AI06: preselect populated grouping dimensions on open +
+            # whenever the Import-tab sito combo changes (the sito
+            # combo is the closest equivalent of a global sito selector
+            # for the dialog; the Export tab uses self.site).
+            try:
+                self._preselect_groups()
+            except Exception:
+                pass
+            try:
+                self.cb_sito.currentTextChanged.connect(
+                    lambda _: self._preselect_groups())
+            except Exception:
+                pass
+
+        def _preselect_groups(self):
+            """AI06: pre-check the 7 dim checkboxes for dimensions with
+            non-empty values in us_table for the current sito; pre-check
+            ad-hoc if groups_*.graphml exists. PostgreSQL backend (no
+            SQLite path) is a no-op."""
+            if self.db_manager is None:
+                return
+            try:
+                db_path = self.db_manager.get_sqlite_path()
+            except Exception:
+                db_path = None
+            if db_path is None:
+                return
+            sito = ""
+            # Prefer the Import-tab sito (user-selectable), fall back
+            # to the parent-form sito.
+            try:
+                sito = self.cb_sito.currentText().strip()
+            except Exception:
+                pass
+            if not sito:
+                sito = (self.site or "").strip()
+            if not sito:
+                return
+            try:
+                from .sync.group_projector import dimensions_with_data
+                populated = set(dimensions_with_data(db_path, sito))
+            except Exception:
+                populated = set()
+            for dim, cb in self.cb_grp.items():
+                cb.setChecked(dim in populated)
+            try:
+                from .sync.group_store import GroupStore
+                self.cb_grp_adhoc.setChecked(
+                    GroupStore(db_path, sito).exists())
+            except Exception:
+                pass
+
+        def _build_groups_arg(self):
+            """AI06: assemble the list[str] passed to export_graphml's
+            groups= kwarg. Empty list preserves the AC-2 baseline."""
+            out = [d for d, cb in self.cb_grp.items() if cb.isChecked()]
+            if self.cb_grp_adhoc.isChecked():
+                out.append("adhoc")
+            return out
+
         def on_export(self):
             """Handle export button click"""
             # Get output directory
@@ -472,10 +563,11 @@ if QGIS_AVAILABLE:
             try:
                 # Export using bridge
                 self.exported_files = self.bridge.export_integrated_matrix(
-                    self.site, 
-                    self.area, 
-                    output_dir, 
-                    formats
+                    self.site,
+                    self.area,
+                    output_dir,
+                    formats,
+                    groups=self._build_groups_arg(),  # NEW (AI06)
                 )
                 
                 # Update progress
@@ -690,6 +782,7 @@ if QGIS_AVAILABLE:
                         dry_run=False,
                         create_missing_epochs=self.cb_create_epochs.isChecked(),
                         graphml_path=self._last_preview_path,
+                        sql_apply_groups=self.cb_sql_apply_groups.isChecked(),  # NEW (AI06)
                     )
                 except TypeError:
                     # Stale module cache fallback (see preview handler).
