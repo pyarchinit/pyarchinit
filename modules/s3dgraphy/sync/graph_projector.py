@@ -88,11 +88,51 @@ class GraphProjector:
         # Delegate to the existing AI03 enrichment routine.
         try:
             from s3dgraphy import Graph
+            from s3dgraphy.importer.pyarchinit_importer import (
+                PyArchInitImporter)
             from .graphml_writer import _enrich_pyarchinit_graph
         except ImportError as e:
             raise ProjectionError(f"s3dgraphy import failed: {e}") from e
 
+        # Stage 1: import the StratigraphicUnit nodes from us_table via
+        # the upstream PyArchInitImporter (spec §3.2: "Reuses the
+        # already-existing s3dgraphy.importer.pyarchinit_importer as
+        # base"). The importer creates one Graph with `graph_id` derived
+        # from the file basename; we then transplant its nodes/edges
+        # into a graph keyed by `sito` for AI04 single-site semantics.
+        try:
+            importer = PyArchInitImporter(
+                filepath=str(db_path),
+                mapping_name="pyarchinit_us_mapping",
+            )
+            imported = importer.parse()
+        except Exception as e:
+            raise ProjectionError(
+                f"Importer failed for db={db_path}: {e}") from e
+
         graph = Graph(graph_id=sito)
+        # Transplant imported nodes/edges into the sito-keyed graph.
+        # Skip the auto-created GeoPositionNode of `imported` (graph
+        # already has its own from Graph.__init__).
+        for node in list(imported.nodes):
+            if type(node).__name__ == "GeoPositionNode":
+                continue
+            try:
+                graph.add_node(node, overwrite=True)
+            except Exception:
+                # Defensive: best-effort; fall through to enrichment.
+                pass
+        for edge in list(imported.edges):
+            try:
+                graph.add_edge(
+                    edge_id=edge.edge_id,
+                    edge_source=edge.edge_source,
+                    edge_target=edge.edge_target,
+                    edge_type=edge.edge_type,
+                )
+            except Exception:
+                pass
+
         try:
             _enrich_pyarchinit_graph(graph, db_path, sito_filter=sito)
         except Exception as e:
