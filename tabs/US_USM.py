@@ -9997,6 +9997,38 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         #self.pushButton_update.setHidden(True)
         self.progressBar_2.setHidden(True)
         self.progressBar_3.setHidden(True)
+
+        # AI03 / Phase 2: hide the legacy "Rapporti Stratigrafici per
+        # EM" tab and the standalone GraphML/CSV interchange widgets.
+        # The unified s3dgraphy export (S3DGraphyExportDialog) covers
+        # all of these, so leaving them visible only causes confusion.
+        # We hide rather than remove so any controller code still
+        # referencing these widgets continues to work; the tab is
+        # hidden via setTabVisible (Qt ≥ 5.15) which keeps tab indices
+        # intact and is reversible.
+        try:
+            if hasattr(self, "tab_13") and hasattr(self, "tabWidget"):
+                idx = self.tabWidget.indexOf(self.tab_13)
+                if idx >= 0:
+                    if hasattr(self.tabWidget, "setTabVisible"):
+                        self.tabWidget.setTabVisible(idx, False)
+                    else:
+                        self.tab_13.hide()
+        except Exception:
+            pass
+        for _attr in (
+            "checkBox_ED",          # "Export to Extended Matrix" flag
+            "pushButton_3",         # "Export Graphml" button
+            "pushButton_graphml2csv",
+            "pushButton_csv2us",
+        ):
+            w = getattr(self, _attr, None)
+            if w is not None:
+                try:
+                    w.setHidden(True)
+                except Exception:
+                    pass
+
         self.currentLayerId = None
 
         # Initialize Concurrency Management
