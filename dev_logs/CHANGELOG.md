@@ -5,6 +5,32 @@
 
 ---
 
+## [5.5.0-alpha] - 2026-05-08
+
+### Italiano
+
+- **Phase 2 / AI06 — Node grouping nell'export Extended Matrix.** Aggiunto raggruppamento opt-in delle US per qualunque sottoinsieme delle 7 colonne `us_table` (`area`, `struttura`, `attivita`, `settore`, `ambient`, `saggio`, `quad_par`) più gruppi ad-hoc creati dall'utente. Default invariato (no checkbox = no raggruppamento, AC-2 baseline preservato byte-identical).
+- **Rendering yEd canonico.** Ogni gruppo è un folder yEd (`yfiles.foldertype="group"`, border tratteggiato, fill `#F5F5F5`, label in alto su sfondo `#EBEBEB`) nidificato dentro lo swimlane delle epoche, con geometria che attraversa tutte le righe epoca dei suoi membri.
+- **Knowledge graph.** Ogni gruppo è un `s3dgraphy.ActivityNodeGroup` con attributo `group_kind` discriminator (struttura/area/attivita/...) e edge `is_in_activity` da ogni US membro.
+- **GroupStore.** Nuova classe `modules/s3dgraphy/sync/group_store.py` per gestire gruppi ad-hoc in `groups_{sito_slug}.graphml` accanto al DB. CRUD atomic-safe via `os.replace()`. Specchio del `ParadataStore` di AI05.
+- **Dialog "Manage paradata" → 4 tab.** Aggiunta tab "Groups" con form Add (name + kind + Pick US members) e tabella esistenti.
+- **Export dialog → 7 checkbox.** Pulsante verde "Esporta Extended Matrix" mostra "Group US by" con preselect automatico delle dimensioni popolate.
+- **Round-trip configurabile.** Tab Import ha checkbox "Update SQL on import" (default OFF). Quando attivo, lo spostamento di una US in un altro gruppo via yEd aggiorna `us_table` con transazione atomica e rollback su errore.
+- **CLI** con 4 nuovi sub-subcomandi `paradata add-group/list-groups/add-us-to-group/remove-group` e flag `export --group-by struttura,attivita,adhoc`.
+- **Issue upstream aperta** ([zalmoxes-laran/s3Dgraphy#5](https://github.com/zalmoxes-laran/s3Dgraphy/issues/5)) per `LocationNodeGroup` + edge `is_in_location` — migrazione AI07 quando upstream landa.
+
+### English
+
+- **Phase 2 / AI06 — Node grouping in Extended Matrix export.** Adds opt-in US grouping by any subset of 7 `us_table` columns (`area`, `struttura`, `attivita`, `settore`, `ambient`, `saggio`, `quad_par`) plus user-authored ad-hoc groups. Default unchanged (no checkbox = no grouping, AC-2 baseline byte-identical preserved).
+- **EM canonical yEd rendering.** Each group is a yEd folder (`yfiles.foldertype="group"`, dashed border, fill `#F5F5F5`, NodeLabel top with bg `#EBEBEB`) nested inside the epoch swimlane, with geometry spanning all epoch rows of its member US.
+- **Knowledge graph.** Each group is a `s3dgraphy.ActivityNodeGroup` with `group_kind` discriminator attribute (struttura/area/attivita/...) and `is_in_activity` edge from each member US.
+- **GroupStore.** New `modules/s3dgraphy/sync/group_store.py` class for ad-hoc groups stored in `groups_{sito_slug}.graphml` next to the DB. Atomic-safe CRUD via `os.replace()`. Mirror of AI05's `ParadataStore`.
+- **"Manage paradata" dialog → 4 tabs.** Adds "Groups" tab with Add form (name + kind + Pick US members) and existing-groups table.
+- **Export dialog → 7 checkboxes.** Green "Esporta Extended Matrix" button now shows "Group US by" with auto-preselect of populated dimensions.
+- **Configurable round-trip.** Import tab has "Update SQL on import" checkbox (default OFF). When enabled, moving a US to a different group folder in yEd writes back to `us_table` in an atomic transaction with rollback on error.
+- **CLI** with 4 new sub-subcommands `paradata add-group/list-groups/add-us-to-group/remove-group` plus `export --group-by struttura,attivita,adhoc` flag.
+- **Upstream issue opened** ([zalmoxes-laran/s3Dgraphy#5](https://github.com/zalmoxes-laran/s3Dgraphy/issues/5)) for `LocationNodeGroup` + `is_in_location` edge — AI07 migration target when upstream lands.
+
 ## [5.4.0-alpha] - 2026-05-08
 
 ### Italiano
