@@ -5,6 +5,24 @@
 
 ---
 
+## [5.4.0-alpha] - 2026-05-08
+
+### Italiano
+
+- **Phase 2 / AI05 — ParadataStore + UI authoring + chiusura Phase 2.** Nuova classe `ParadataStore` per la gestione atomica di `paradata_{sito}.graphml` (Author/License/Embargo per sito). API low-level (`read`/`write`/`add_node`/`remove_node`/`find`) e high-level (`add_author`/`add_license`/`add_embargo` + `list_*`).
+- **Dialog "Manage paradata".** Nuovo bottone nella scheda US/USM apre un dialog 3-tab (Authors / Licenses / Embargoes) per CRUD visuale. Versionable in Git accanto al DB.
+- **GraphProjector Strategy A promotion.** Il body di `_enrich_pyarchinit_graph` è stato spostato dentro `GraphProjector` (la funzione standalone in `graphml_writer.py` è stata eliminata). `populate_graph(..., include_paradata=True)` di default fonde strat + paradata.
+- **Edge styling automation.** Nuovo modulo `edge_registry` legge `s3Dgraphy_connections_datamodel.json` + `em_visual_rules.json` per classificazione e style automatici. Override-wins via `_PYARCHINIT_EDGE_OVERRIDES`.
+- **CLI `s3dgraphy_sync.py paradata`** con 7 sub-subcomandi: add-author / list-authors / add-license / list-licenses / add-embargo / list-embargos / remove.
+
+### English
+
+- **Phase 2 / AI05 — ParadataStore + UI authoring + Phase 2 closure.** New `ParadataStore` class managing `paradata_{sito}.graphml` atomically (site-level Author/License/Embargo). Low-level API (`read`/`write`/`add_node`/`remove_node`/`find`) and high-level helpers (`add_author`/`add_license`/`add_embargo` + `list_*`).
+- **"Manage paradata" dialog.** New button in the US/USM scheda opens a 3-tab dialog (Authors / Licenses / Embargoes) for visual CRUD. Versionable in Git next to the DB.
+- **GraphProjector Strategy A promotion.** The `_enrich_pyarchinit_graph` body was moved into `GraphProjector` (the standalone function in `graphml_writer.py` is now DELETED). `populate_graph(..., include_paradata=True)` defaults to merging strat + paradata.
+- **Edge styling automation.** New `edge_registry` module reads `s3Dgraphy_connections_datamodel.json` + `em_visual_rules.json` for automatic classification and styling. Override-wins via `_PYARCHINIT_EDGE_OVERRIDES`.
+- **CLI `s3dgraphy_sync.py paradata`** with 7 sub-subcommands: add-author / list-authors / add-license / list-licenses / add-embargo / list-embargos / remove.
+
 ## [5.3.0-alpha] - 2026-05-08
 
 ### Italiano
