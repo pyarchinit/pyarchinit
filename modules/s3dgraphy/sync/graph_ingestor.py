@@ -170,10 +170,15 @@ class GraphIngestor:
         try:
             cur = conn.cursor()
             for node in graph.nodes:
-                # Skip non-stratigraphic / non-attribute nodes (e.g. EpochNode).
-                attrs = getattr(node, "attributes", None) or {}
-                if _is_epoch_node_local(node):
+                # Skip wrapper / metadata node types that have no SQL
+                # counterpart in us_table (PropertyNode etc. land in
+                # paradata.graphml under AI05; GeoPositionNode and
+                # ParadataNodeGroup are layout-only; EpochNode is
+                # handled in its own loop below).
+                type_name = type(node).__name__
+                if type_name in _NON_STRAT_TYPES:
                     continue
+                attrs = dict(getattr(node, "attributes", None) or {})
                 # Look up by node_uuid. Prefer the explicit attribute
                 # (set by GraphProjector._propagate_node_uuid_and_us);
                 # fall back to node_id when the graph was built outside
@@ -182,11 +187,19 @@ class GraphIngestor:
                     node, "node_id", None)
                 if not node_uuid:
                     continue
-                # Skip nodes that obviously aren't strat units (no `us`
-                # attribute means the importer didn't tie this node to
-                # us_table — e.g. PropertyNode, GeoPositionNode).
-                if "us" not in attrs:
-                    continue
+                # Make sure the node carries a `us` value. The projector
+                # populates attrs["us"]; the s3dgraphy GraphMLImporter
+                # puts it in node.name. Use whichever is present.
+                if "us" not in attrs or attrs["us"] is None:
+                    fallback_us = getattr(node, "name", None)
+                    if not fallback_us:
+                        continue
+                    attrs["us"] = str(fallback_us)
+                # Likewise: external graphml round-trip drops the sito
+                # attribute, but the populate_list call provides it as
+                # parameter. Backfill so INSERT path has a sito to write.
+                if "sito" not in attrs or attrs["sito"] is None:
+                    attrs["sito"] = sito
                 cur.execute(
                     "SELECT * FROM us_table WHERE node_uuid = ?",
                     (node_uuid,),
@@ -261,9 +274,10 @@ class GraphIngestor:
             applied = 0
             if not dry_run:
                 for node in graph.nodes:
-                    if _is_epoch_node_local(node):
+                    type_name = type(node).__name__
+                    if type_name in _NON_STRAT_TYPES:
                         continue
-                    attrs = getattr(node, "attributes", None) or {}
+                    attrs = dict(getattr(node, "attributes", None) or {})
                     # Same priority as the detection loop above:
                     # explicit attrs.node_uuid wins (projector-built graphs),
                     # node_id is the fallback (graphs built outside the
@@ -272,8 +286,13 @@ class GraphIngestor:
                         node, "node_id", None)
                     if not node_uuid:
                         continue
-                    if "us" not in attrs:
-                        continue
+                    if "us" not in attrs or attrs["us"] is None:
+                        fallback_us = getattr(node, "name", None)
+                        if not fallback_us:
+                            continue
+                        attrs["us"] = str(fallback_us)
+                    if "sito" not in attrs or attrs["sito"] is None:
+                        attrs["sito"] = sito
                     cur.execute(
                         "SELECT * FROM us_table WHERE node_uuid = ?",
                         (node_uuid,),
@@ -385,3 +404,21 @@ def _values_equal(col: str, a, b) -> bool:
 
 def _is_epoch_node_local(node) -> bool:
     return type(node).__name__ == "EpochNode"
+
+
+# Node types that have no us_table counterpart and must be skipped by
+# the per-node loop. EpochNode is in its own loop and intentionally
+# excluded from this set so the EpochNode branch can still see it.
+_NON_STRAT_TYPES: frozenset[str] = frozenset({
+    "EpochNode",
+    "GeoPositionNode",
+    "PropertyNode",
+    "ParadataNodeGroup",
+    "AuthorNode",
+    "LicenseNode",
+    "EmbargoNode",
+    "DocumentNode",
+    "ExtractorNode",
+    "CombinerNode",
+    "VirtualSpecialFindUnit",  # paradata-only, AI05 territory
+})
