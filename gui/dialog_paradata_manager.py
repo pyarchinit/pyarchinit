@@ -212,6 +212,14 @@ if QGIS_AVAILABLE:
                 self.table_embargoes.item(i, 0).setData(
                     Qt.UserRole, r["node_uuid"])
 
+        def _diag(self, msg: str) -> None:
+            """Print to QGIS Python console + stderr — survives even when
+            the main pyarchinit logger isn't wired up."""
+            try:
+                print(f"[ParadataManager] {msg}")
+            except Exception:
+                pass
+
         def _on_add_author(self):
             store = self._store()
             if store is None:
@@ -220,19 +228,33 @@ if QGIS_AVAILABLE:
             if not name:
                 QMessageBox.warning(self, "Invalid", "Name is required.")
                 return
+            self._diag(f"add_author start: sito={self.sito!r} name={name!r} "
+                       f"file={store.file_path}")
             try:
-                store.add_author(
+                uuid = store.add_author(
                     name,
                     orcid=self.le_auth_orcid.text().strip() or None,
                     role=self.le_auth_role.text().strip() or None,
                 )
+                self._diag(f"add_author OK: uuid={uuid} "
+                           f"file_size={store.file_path.stat().st_size if store.exists() else 0}")
             except Exception as e:
-                QMessageBox.critical(self, type(e).__name__, str(e))
+                self._diag(f"add_author FAILED: {type(e).__name__}: {e}")
+                import traceback
+                self._diag(traceback.format_exc())
+                QMessageBox.critical(
+                    self, type(e).__name__,
+                    f"Cannot add author: {e}\n\n"
+                    f"File: {store.file_path}\n"
+                    f"See QGIS Python Console for full traceback.")
                 return
             self.le_auth_name.clear()
             self.le_auth_orcid.clear()
             self.le_auth_role.clear()
             self._load_data()
+            after = store.list_authors()
+            self._diag(f"after refresh: {len(after)} authors in store; "
+                       f"file_size={store.file_path.stat().st_size if store.exists() else 0}")
 
         def _on_add_license(self):
             store = self._store()
@@ -242,11 +264,19 @@ if QGIS_AVAILABLE:
             if not spdx:
                 QMessageBox.warning(self, "Invalid", "SPDX ID is required.")
                 return
+            self._diag(f"add_license start: spdx={spdx!r} file={store.file_path}")
             try:
-                store.add_license(
+                uuid = store.add_license(
                     spdx, url=self.le_lic_url.text().strip() or None)
+                self._diag(f"add_license OK: uuid={uuid} "
+                           f"file_size={store.file_path.stat().st_size if store.exists() else 0}")
             except Exception as e:
-                QMessageBox.critical(self, type(e).__name__, str(e))
+                self._diag(f"add_license FAILED: {type(e).__name__}: {e}")
+                import traceback
+                self._diag(traceback.format_exc())
+                QMessageBox.critical(
+                    self, type(e).__name__,
+                    f"Cannot add license: {e}\n\nSee QGIS Python Console for traceback.")
                 return
             self.le_lic_spdx.clear()
             self.le_lic_url.clear()
@@ -260,13 +290,21 @@ if QGIS_AVAILABLE:
             if not until:
                 QMessageBox.warning(self, "Invalid", "Until date is required.")
                 return
+            self._diag(f"add_embargo start: until={until!r} file={store.file_path}")
             try:
-                store.add_embargo(
+                uuid = store.add_embargo(
                     until,
                     reason=self.le_emb_reason.text().strip() or None,
                 )
+                self._diag(f"add_embargo OK: uuid={uuid} "
+                           f"file_size={store.file_path.stat().st_size if store.exists() else 0}")
             except Exception as e:
-                QMessageBox.critical(self, type(e).__name__, str(e))
+                self._diag(f"add_embargo FAILED: {type(e).__name__}: {e}")
+                import traceback
+                self._diag(traceback.format_exc())
+                QMessageBox.critical(
+                    self, type(e).__name__,
+                    f"Cannot add embargo: {e}\n\nSee QGIS Python Console for traceback.")
                 return
             self.le_emb_until.clear()
             self.le_emb_reason.clear()
