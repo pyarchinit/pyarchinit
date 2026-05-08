@@ -9953,7 +9953,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if hasattr(self, 'pushButton_export_extended_matrix'):
                 # Check if we should use integrated export (with DOT/GraphML bridge)
                 use_integrated_export = True  # Set to True to use new integrated export
-                
+
                 if use_integrated_export:
                     # Use new integrated export with s3dgraphy + DOT/GraphML
                     self.pushButton_export_extended_matrix.clicked.connect(self.on_pushButton_export_extended_matrix_integrated)
@@ -9968,6 +9968,28 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         except Exception as e:
             print(f"Error creating S3DGraphy button: {e}")
+            import traceback
+            traceback.print_exc()
+
+        # AI05: paradata management button — opens ParadataManagerDialog
+        # for the currently selected sito. Sits next to the green
+        # Extended Matrix export button in the same parent layout.
+        try:
+            self.pushButton_paradata = QPushButton(self)
+            self.pushButton_paradata.setText("Manage paradata")
+            self.pushButton_paradata.setToolTip(
+                "Manage Author/License/Embargo metadata for the current site "
+                "(stored in paradata.graphml next to the SQLite DB).")
+            self.pushButton_paradata.clicked.connect(
+                self._on_pushButton_paradata_clicked)
+            # Insert into the same parent layout as the Extended Matrix
+            # button so it appears next to it in the UI.
+            if hasattr(self, 'pushButton_export_extended_matrix'):
+                parent_widget = self.pushButton_export_extended_matrix.parentWidget()
+                if parent_widget is not None and parent_widget.layout() is not None:
+                    parent_widget.layout().addWidget(self.pushButton_paradata)
+        except Exception as e:
+            print(f"Error creating paradata button: {e}")
             import traceback
             traceback.print_exc()
 
@@ -20457,6 +20479,29 @@ DATABASE SCHEMA KNOWLEDGE:
             self.on_pushButton_export_matrix_pressed()
         else:
             pass
+
+    def _on_pushButton_paradata_clicked(self):
+        """Open ParadataManagerDialog for the currently selected sito."""
+        sito = self.comboBox_sito.currentText().strip()
+        if not sito:
+            from qgis.PyQt.QtWidgets import QMessageBox
+            QMessageBox.warning(
+                self, "No site selected",
+                "Please select a site before managing paradata.")
+            return
+        try:
+            from ..gui.dialog_paradata_manager import ParadataManagerDialog
+            dialog = ParadataManagerDialog(
+                parent=self,
+                db_manager=self.DB_MANAGER,
+                sito=sito,
+            )
+            dialog.exec_()
+        except Exception as e:
+            from qgis.PyQt.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                self, type(e).__name__,
+                f"Cannot open paradata manager: {e}")
 
     def export_extended_matrix_action(self):
         """
