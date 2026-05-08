@@ -269,6 +269,19 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                     continue
                 start = float(cron_ini) if cron_ini is not None else 0.0
                 end = float(cron_fin) if cron_fin is not None else 0.0
+                # Tie-break: when two phases share the same chronology
+                # (e.g. user data has both fase "2.1" and "3" with
+                # cron_iniziale=1451), s3dgraphy's swimlane sort by
+                # start_time becomes unstable and adjacent rows can
+                # swap. Apply a sub-second offset derived from the
+                # fase string so the order is deterministic and follows
+                # the natural numeric sequence of phase identifiers.
+                try:
+                    fase_numeric = float(key[1]) if key[1] else 0.0
+                except ValueError:
+                    fase_numeric = 0.0
+                start += fase_numeric * 1e-3
+                end += fase_numeric * 1e-3
                 label = descr or f"Period {key[0]} Phase {key[1]}"
                 # Cycle a pastel palette across epochs so each
                 # swimlane row renders in a distinct background colour.
@@ -307,7 +320,6 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
         except sqlite3.Error:
             rows = []
 
-        edge_seq = 0
         for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
              rapporti_raw, d_stratigrafica) in rows:
             us_name = str(us_val) if us_val is not None else None
@@ -389,9 +401,13 @@ def _enrich_pyarchinit_graph(graph, db_path: Path) -> None:
                     (target_node, us_node) if swap
                     else (us_node, target_node)
                 )
-                edge_seq += 1
-                edge_id = (f"rap_{src_node.node_id}_{dst_node.node_id}_"
-                           f"{edge_type}_{edge_seq}")
+                # Stable ID keyed on (src, dst, edge_type): when both
+                # endpoints declare the same relation in their rapporti
+                # (e.g. 102 says "> 6" and 6 says "< 102", both
+                # encoding "102 is_after 6"), only one edge is added.
+                edge_id = (
+                    f"rap_{src_node.node_id}_{dst_node.node_id}_"
+                    f"{edge_type}")
                 if graph.find_edge_by_id(edge_id) is None:
                     graph.add_edge(
                         edge_id=edge_id,

@@ -59,7 +59,9 @@ def test_apply_rewrites_in_place(tmp_path: Path):
     conn = sqlite3.connect(db)
     rows = conn.execute("SELECT unita_tipo FROM us_table ORDER BY id_us").fetchall()
     conn.close()
-    assert [r[0] for r in rows] == ["US", "USVs", "USVs", "USVn", "USVs"]
+    # USVA → USVs (parallelogram), USVB → USVn (hexagon, was a bug
+    # that mapped both to USVs), USVC → USVn.
+    assert [r[0] for r in rows] == ["US", "USVs", "USVn", "USVn", "USVs"]
 
 
 def test_apply_idempotent(tmp_path: Path):
@@ -70,10 +72,13 @@ def test_apply_idempotent(tmp_path: Path):
     conn = sqlite3.connect(db)
     rows = conn.execute("SELECT unita_tipo FROM us_table ORDER BY id_us").fetchall()
     conn.close()
-    assert [r[0] for r in rows] == ["US", "USVs", "USVs", "USVn", "USVs"]
+    assert [r[0] for r in rows] == ["US", "USVs", "USVn", "USVn", "USVs"]
 
 
 def test_replacements_constant():
     assert REPLACEMENTS["USVA"] == "USVs"
-    assert REPLACEMENTS["USVB"] == "USVs"
+    # USVB → USVn (was incorrectly mapped to USVs in the original
+    # 5.1.0-alpha migration; legacy dot.py renders USVB as a hexagon
+    # = Non-Structural Virtual SU = USVn).
+    assert REPLACEMENTS["USVB"] == "USVn"
     assert REPLACEMENTS["USVC"] == "USVn"

@@ -8,9 +8,18 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+# Mapping from legacy pyarchinit unit-type abbreviations to the
+# EM 1.5dev1 canonical names used by the s3dgraphy GraphMLExporter.
+#
+# Per legacy resources/dbfiles/dot.py:
+#   USVA → parallelogram (Structural Virtual SU = USV/s)
+#   USVB → hexagon (Non-Structural Virtual SU = USV/n)
+#   USVC → ellipse (Series of USV — pyarchinit had no separate
+#                   "series" type so we collapse to USV/n which
+#                   shares the green border palette).
 REPLACEMENTS = {
     "USVA": "USVs",
-    "USVB": "USVs",
+    "USVB": "USVn",
     "USVC": "USVn",
 }
 
