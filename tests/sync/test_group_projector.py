@@ -88,3 +88,61 @@ def test_dimensions_with_data_empty_for_unpopulated_sito(mini_volterra):
     sito = _read_sito(mini_volterra)
     found = dimensions_with_data(mini_volterra, sito)
     assert found == []
+
+
+def test_build_groups_handles_all_seven_dimensions(mini_volterra):
+    """D1: every one of the 7 dims must be a valid input."""
+    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    sito = _read_sito(mini_volterra)
+    # Seed at least one row per dimension
+    for col, val in [("area", "A1"), ("struttura", "basilica"),
+                      ("attivita", "1"), ("settore", "N"),
+                      ("ambient", "stanza-1"), ("saggio", "S1"),
+                      ("quad_par", "Q1")]:
+        _seed_dimension(mini_volterra, sito, col, val, 1)
+    specs = build_groups_from_sql(
+        mini_volterra, sito,
+        dimensions=["area", "struttura", "attivita", "settore",
+                    "ambient", "saggio", "quad_par"])
+    kinds = {s.group_kind for s in specs}
+    # All 7 dimensions produced at least one GroupSpec
+    assert kinds == {"area", "struttura", "attivita", "settore",
+                     "ambient", "saggio", "quad_par"}
+
+
+def test_build_groups_skips_unknown_dimension(mini_volterra):
+    """Unknown dim name (typo) is silently dropped, no exception."""
+    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    sito = _read_sito(mini_volterra)
+    _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
+    specs = build_groups_from_sql(
+        mini_volterra, sito,
+        dimensions=["struttura", "bogus_dimension"])
+    assert all(s.group_kind == "struttura" for s in specs)
+
+
+def test_group_uuid_deterministic_across_exports(mini_volterra):
+    """AC-7: SQL-derived UUID5 stable across exports."""
+    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    sito = _read_sito(mini_volterra)
+    _seed_dimension(mini_volterra, sito, "struttura", "basilica", 3)
+    specs1 = build_groups_from_sql(
+        mini_volterra, sito, dimensions=["struttura"])
+    specs2 = build_groups_from_sql(
+        mini_volterra, sito, dimensions=["struttura"])
+    assert {s.group_uuid for s in specs1} == {s.group_uuid for s in specs2}
+
+
+def test_build_groups_collects_member_us_uuids(mini_volterra):
+    """Each GroupSpec.member_us_uuids has the node_uuid (Phase 1
+    UUID) of every US in that group."""
+    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    sito = _read_sito(mini_volterra)
+    _seed_dimension(mini_volterra, sito, "struttura", "basilica", 3)
+    specs = build_groups_from_sql(
+        mini_volterra, sito, dimensions=["struttura"])
+    basilica = next(s for s in specs if s.name == "basilica")
+    assert len(basilica.member_us_uuids) == 3
+    # All UUIDs should be non-empty Phase 1 node_uuid values
+    assert all(isinstance(u, str) and len(u) >= 32
+               for u in basilica.member_us_uuids)

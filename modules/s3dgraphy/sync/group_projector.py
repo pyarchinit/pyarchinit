@@ -71,3 +71,57 @@ def dimensions_with_data(db_path: Path, sito: str) -> List[str]:
     finally:
         conn.close()
     return out
+
+
+def build_groups_from_sql(
+    db_path: Path,
+    sito: str,
+    dimensions: List[str],
+) -> List[GroupSpec]:
+    """For each requested dimension, scan us_table for distinct
+    non-empty values within sito, and emit one GroupSpec per
+    (dimension, value) pair.
+
+    UUID generation: deterministic UUID5 from
+    (sito, group_kind, name) so re-export produces identical
+    UUIDs (AC-7 idempotent invariant).
+
+    Unknown dimension names (typos) are silently skipped (logged).
+    """
+    out: List[GroupSpec] = []
+    if not dimensions:
+        return out
+
+    valid_dims = [d for d in dimensions if d in _SQL_DIMENSIONS]
+    if len(valid_dims) != len(dimensions):
+        bogus = set(dimensions) - set(valid_dims)
+        _log.warning(f"Unknown grouping dimensions skipped: {bogus}")
+
+    conn = sqlite3.connect(str(db_path))
+    try:
+        for dim in valid_dims:
+            # Distinct values + member UUIDs in one pass
+            rows = conn.execute(
+                f"SELECT {dim}, node_uuid FROM us_table "
+                f"WHERE sito=? AND {dim} IS NOT NULL "
+                f"AND TRIM({dim})<>'' AND node_uuid IS NOT NULL",
+                (sito,),
+            ).fetchall()
+            # Group by value
+            buckets: dict = {}
+            for value, node_uuid in rows:
+                buckets.setdefault(str(value), []).append(node_uuid)
+            for name, member_uuids in buckets.items():
+                # Deterministic UUID5 from (sito, dim, name)
+                key = f"{sito}|{dim}|{name}"
+                group_uuid = str(uuid.uuid5(
+                    _PYARCHINIT_GROUP_NAMESPACE, key))
+                out.append(GroupSpec(
+                    group_uuid=group_uuid,
+                    name=name,
+                    group_kind=dim,
+                    member_us_uuids=list(member_uuids),
+                ))
+    finally:
+        conn.close()
+    return out
