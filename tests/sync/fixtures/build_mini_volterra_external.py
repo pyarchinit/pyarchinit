@@ -105,6 +105,9 @@ def main() -> int:
 
     # 3. pre-cooked paradata fixture
     _emit_paradata_fixture()
+
+    # 4. pre-cooked groups fixture
+    _emit_groups_fixture()
     return 0
 
 
@@ -147,6 +150,49 @@ def _emit_paradata_fixture():
     out = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "paradata_volterra.graphml"
     shutil.copy2(store.file_path, out)
     print(f"OK — paradata_volterra.graphml ({out.stat().st_size} bytes)")
+
+
+def _emit_groups_fixture():
+    """Generate groups_volterra.graphml — pre-cooked ad-hoc group
+    fixture used by AI06 round-trip / idempotent tests."""
+    import sqlite3
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+    SRC_DB = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "mini_volterra.sqlite"
+
+    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+        add_columns, backfill_uuids,
+    )
+    tmp_db = Path(tempfile.mkdtemp()) / "mini_volterra.sqlite"
+    shutil.copy2(SRC_DB, tmp_db)
+    add_columns(tmp_db); backfill_uuids(tmp_db)
+
+    sito = sqlite3.connect(tmp_db).execute(
+        "SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()[0]
+
+    # Pick 3 real US node_uuids
+    conn = sqlite3.connect(tmp_db)
+    rows = conn.execute(
+        "SELECT node_uuid FROM us_table WHERE sito=? LIMIT 3",
+        (sito,)).fetchall()
+    member_uuids = [r[0] for r in rows]
+    conn.close()
+
+    from modules.s3dgraphy.sync.group_store import GroupStore
+    store = GroupStore(tmp_db, sito)
+    store.add_group(
+        "restauri-2023",
+        group_kind="adhoc",
+        member_us_uuids=member_uuids,
+        description="Restauri eseguiti nel 2023",
+    )
+
+    out = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "groups_volterra.graphml"
+    shutil.copy2(store.file_path, out)
+    print(f"OK — groups_volterra.graphml ({out.stat().st_size} bytes)")
 
 
 if __name__ == "__main__":

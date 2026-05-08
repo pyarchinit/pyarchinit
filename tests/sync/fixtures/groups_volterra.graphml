@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:y="http://www.yworks.com/xml/graphml">
+  <key id="d0" for="node" attr.name="url" attr.type="string"/>
+  <key id="d1" for="node" attr.name="description" attr.type="string"/>
+  <key id="d2" for="node" yfiles.type="nodegraphics"/>
+  <key id="d3" for="node" attr.name="EMID" attr.type="string"/>
+  <key id="d4" for="node" attr.name="URI" attr.type="string"/>
+  <key id="d5" for="node" attr.name="pyarchinit.group_attrs" attr.type="string"/>
+  <key for="node" id="d6" attr.name="pyarchinit.us" attr.type="string"/><key for="node" id="d7" attr.name="pyarchinit.area" attr.type="string"/><key for="node" id="d8" attr.name="pyarchinit.sito" attr.type="string"/><key for="node" id="d9" attr.name="pyarchinit.unita_tipo" attr.type="string"/><key for="node" id="d10" attr.name="pyarchinit.periodo_iniziale" attr.type="string"/><key for="node" id="d11" attr.name="pyarchinit.fase_iniziale" attr.type="string"/><key for="node" id="d12" attr.name="pyarchinit.rapporti" attr.type="string"/><key for="node" id="d13" attr.name="pyarchinit.d_stratigrafica" attr.type="string"/><key for="node" id="d14" attr.name="pyarchinit.documentazione" attr.type="string"/><key for="node" id="d15" attr.name="pyarchinit.node_uuid" attr.type="string"/><key for="node" id="d16" attr.name="pyarchinit.struttura" attr.type="string"/><key for="node" id="d17" attr.name="pyarchinit.attivita" attr.type="string"/><key for="node" id="d18" attr.name="pyarchinit.settore" attr.type="string"/><key for="node" id="d19" attr.name="pyarchinit.ambient" attr.type="string"/><key for="node" id="d20" attr.name="pyarchinit.saggio" attr.type="string"/><key for="node" id="d21" attr.name="pyarchinit.quad_par" attr.type="string"/><key for="node" id="d22" attr.name="pyarchinit.periodo" attr.type="string"/><key for="node" id="d23" attr.name="pyarchinit.fase" attr.type="string"/><key for="node" id="d24" attr.name="pyarchinit.cron_iniziale" attr.type="string"/><key for="node" id="d25" attr.name="pyarchinit.cron_finale" attr.type="string"/><key for="node" id="d26" attr.name="pyarchinit.datazione_estesa" attr.type="string"/><graph id="groups_testsite" edgedefault="directed">
+    <node id="019e095f-8240-7966-9309-75fe4518a96e" yfiles.foldertype="group">
+      <data key="d1">_s3d_node_type:ActivityNodeGroup</data>
+      <data key="d2">
+        <y:GroupNode>
+          <y:NodeLabel backgroundColor="#CCFFFF">restauri-2023</y:NodeLabel>
+        </y:GroupNode>
+      </data>
+      <data key="d3">019e095f-8240-7966-9309-75fe4518a96e</data>
+      <data key="d5">{"group_kind": "adhoc", "sito": "TestSite", "name": "restauri-2023", "member_us_uuids": "019e095f-822f-7887-9599-db1b2c50c3f3,019e095f-8235-70d0-a3b1-a58a2ba09118,019e095f-8235-70d0-a3b1-a58a2ba09119", "description": "Restauri eseguiti nel 2023", "group_uuid": "019e095f-8240-7966-9309-75fe4518a96e"}</data>
+    <data key="d8">TestSite</data></node>
+  </graph>
+</graphml>
