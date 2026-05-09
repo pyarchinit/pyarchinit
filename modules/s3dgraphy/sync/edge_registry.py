@@ -50,6 +50,51 @@ _HARDCODED_PARADATA_EDGES: frozenset[str] = frozenset({
 })
 
 
+# ----------------------------------------------------------------------
+# Public catalogue of edge types known to the pyarchinit ↔ s3dgraphy
+# bridge. Downstream projectors / ingestors / validators can introspect
+# this set to decide whether an incoming edge_type is a first-class
+# structural / paradata edge or an unknown extension.
+#
+# Sourced statically from the union of:
+#   - structural / EM edges declared in em_visual_rules.json (0.1.41)
+#   - the hardcoded paradata fallback set above
+#
+# AI07 (2026-05-09) adds "is_in_location" — the canonical edge type
+# for spatial / locational membership shipped by s3dgraphy 0.1.41
+# alongside LocationNodeGroup. Keep this set sorted alphabetically
+# for stable diffs.
+# ----------------------------------------------------------------------
+KNOWN_EDGE_TYPES: frozenset[str] = frozenset({
+    # Structural / EM edges (from em_visual_rules.json)
+    "changed_from",
+    "contrasts_with",
+    "generic_connection",
+    "has_geoposition",
+    "has_linked_resource",
+    "has_representation_model",
+    "has_same_time",
+    "has_semantic_shape",
+    "has_timebranch",
+    "is_before",
+    "is_in_activity",         # functional / activity grouping
+    "is_in_location",         # AI07: spatial / locational membership
+    "is_in_paradata_nodegroup",
+    "is_in_timebranch",
+    # Paradata flow edges (mirror _HARDCODED_PARADATA_EDGES)
+    "combines",
+    "extracted_from",
+    "has_author",
+    "has_data_provenance",
+    "has_embargo",
+    "has_first_epoch",
+    "has_license",
+    "has_paradata_nodegroup",
+    "has_property",
+    "survive_in_epoch",
+})
+
+
 _EXT_LIBS_S3DG = (
     Path(__file__).resolve().parents[3] / "ext_libs" / "s3dgraphy"
 )
@@ -123,6 +168,19 @@ def resolve_edge_style(edge_type: str) -> dict | None:
     return dict(style)
 
 
+# ----------------------------------------------------------------------
+# Structural override set — edges that are definitively NOT paradata
+# regardless of what the connections datamodel says about their
+# `allowed_connections`. AI07 is_in_location is the canonical case:
+# the datamodel allows paradata-class sources (PropertyNode etc.) to
+# carry a location, but the edge type itself is a structural /
+# locational membership, not a paradata-flow edge.
+# ----------------------------------------------------------------------
+_STRUCTURAL_NON_PARADATA_EDGES: frozenset[str] = frozenset({
+    "is_in_location",   # AI07: spatial / locational membership
+})
+
+
 def is_paradata_edge(edge_type: str) -> bool:
     """True iff *edge_type* is a paradata-flow edge (rendered dashed in
     the AI03 post-processor; excluded from rapporti round-trip in AI04).
@@ -132,7 +190,15 @@ def is_paradata_edge(edge_type: str) -> bool:
     DocumentNode / ExtractorNode / CombinerNode. Falls back to the
     hardcoded `_HARDCODED_PARADATA_EDGES` set when the datamodel is
     unavailable.
+
+    Structural edges listed in `_STRUCTURAL_NON_PARADATA_EDGES` are
+    always reported as non-paradata, even if their connections-datamodel
+    `allowed_connections` includes paradata-class endpoints (e.g.
+    `is_in_location` allows PropertyNode sources for "this property
+    measurement was taken at this place").
     """
+    if edge_type in _STRUCTURAL_NON_PARADATA_EDGES:
+        return False
     if edge_type in _HARDCODED_PARADATA_EDGES:
         return True
     connections = _load_connections_datamodel()
