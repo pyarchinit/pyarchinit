@@ -247,6 +247,17 @@ class GraphProjector:
         if include_paradata:
             self._merge_paradata(graph, db_path, sito)
 
+        # Stage 3 (AI07): toponym chain from site_table.
+        # Runs BEFORE _merge_groups so compute_primary's toponym filter
+        # operates on a graph that already contains the toponym memberships.
+        try:
+            self._emit_toponym_chain(graph, db_path, sito)
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(
+                f"_emit_toponym_chain failed, continuing without "
+                f"toponym chain: {e}")
+
         # AI06: optional grouping by us_table dimensions + ad-hoc
         if groups:
             try:
@@ -817,6 +828,126 @@ class GraphProjector:
             except Exception:
                 # Edge validation may reject if connection rules don't accept
                 # the source type — keep AI06 behaviour (silent skip)
+                pass
+
+
+    def _emit_toponym_chain(self, graph, db_path, sito):
+        """AI07 Stage 3: emit a recursive LocationNodeGroup(kind='toponym')
+        chain from site_table.{nazione,regione,provincia,comune}.
+
+        Empty levels are skipped (Q4=c). If all 4 levels are empty, no
+        chain is emitted.
+
+        Cross-site dedupe: each (name, "toponym") pair maps to a
+        deterministic group_uuid (sha1) so two sites in the same comune
+        share the node.
+
+        Each US in the projected graph gets one is_in_location edge to
+        the DEEPEST non-empty level (typically `comune`), always
+        is_primary=false (toponym never primary).
+
+        The chain itself is structured top-down via is_in_location edges:
+        nazione ← regione ← provincia ← comune (each lower level
+        "is_in_location" of the next level up).
+        """
+        import hashlib
+        try:
+            conn = sqlite3.connect(str(db_path))
+            try:
+                cur = conn.execute(
+                    "SELECT nazione, regione, provincia, comune "
+                    "FROM site_table WHERE sito=?",
+                    (sito,),
+                )
+                row = cur.fetchone()
+            finally:
+                conn.close()
+        except sqlite3.Error:
+            return  # site_table missing or corrupt — log INFO, skip
+        if row is None:
+            return  # sito not in site_table
+
+        levels: list = []  # (level_name, value)
+        for col_idx, col_name in enumerate(
+            ("nazione", "regione", "provincia", "comune")
+        ):
+            v = row[col_idx]
+            if v is not None and str(v).strip():
+                levels.append((col_name, str(v).strip()))
+
+        if not levels:
+            return  # all empty — no chain
+
+        # Lazy import (vendored 0.1.41)
+        from s3dgraphy.nodes.group_node import LocationNodeGroup
+
+        def _toponym_uuid(name: str) -> str:
+            return hashlib.sha1(f"{name}|toponym".encode()).hexdigest()[:32]
+
+        existing_ids = {getattr(n, "node_id", None) for n in graph.nodes}
+
+        # Get-or-create each level
+        level_uuids: list = []
+        for level_name, value in levels:
+            uid = _toponym_uuid(value)
+            level_uuids.append(uid)
+            if uid in existing_ids:
+                continue  # cross-site dedupe — already there
+            node = LocationNodeGroup(
+                node_id=uid,
+                name=value,
+                kind="toponym",
+                description=f"Administrative level: {level_name}",
+            )
+            node.attributes = {
+                "group_kind": "toponym",
+                "level": level_name,
+                "name": value,
+                "group_uuid": uid,
+            }
+            graph.add_node(node)
+            existing_ids.add(uid)
+
+        # Chain edges: lower → upper (deeper → broader)
+        # comune is_in_location provincia, provincia is_in_location regione, ...
+        for lower_idx in range(len(level_uuids) - 1, 0, -1):
+            lower = level_uuids[lower_idx]
+            upper = level_uuids[lower_idx - 1]
+            edge_id = f"chain_{lower}_{upper}"
+            try:
+                edge = graph.add_edge(
+                    edge_id=edge_id,
+                    edge_source=lower,
+                    edge_target=upper,
+                    edge_type="is_in_location",
+                )
+                # Stamp is_primary=False on the edge attributes
+                if edge is not None:
+                    if getattr(edge, "attributes", None) is None:
+                        edge.attributes = {}
+                    edge.attributes["is_primary"] = False
+            except Exception:
+                pass
+
+        # US edges: each US connects to the DEEPEST level (last in `levels`)
+        deepest_uuid = level_uuids[-1]
+        us_nodes = [n for n in graph.nodes
+                    if type(n).__name__ in ("StratigraphicUnit", "USNode")
+                    or "Stratigraphic" in type(n).__name__]
+        for us in us_nodes:
+            edge_id = f"top_{us.node_id}_{deepest_uuid}"
+            try:
+                edge = graph.add_edge(
+                    edge_id=edge_id,
+                    edge_source=us.node_id,
+                    edge_target=deepest_uuid,
+                    edge_type="is_in_location",
+                )
+                if edge is not None:
+                    if getattr(edge, "attributes", None) is None:
+                        edge.attributes = {}
+                    edge.attributes["is_primary"] = False
+            except Exception:
                 pass
 
 
