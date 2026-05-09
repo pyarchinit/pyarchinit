@@ -84,7 +84,12 @@ def test_group_node_uses_yfiles_foldertype_group(mini_volterra, tmp_path):
 
 
 def test_group_visual_matches_em_template(mini_volterra, tmp_path):
-    """AC-9: dashed border, fill #F5F5F5, NodeLabel top + bg #EBEBEB."""
+    """AC-9: dashed border, NodeLabel top + bg #EBEBEB.
+
+    Note: AI08-F2 replaced the AI06 single-color rendering with a
+    per-dimension palette; struttura now uses fill #FFE6CC80 and
+    border #C66B33 (D2-C). Label background and geometry remain as
+    AI06."""
     sito = _read_sito(mini_volterra)
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
     out = tmp_path / "out.graphml"
@@ -99,7 +104,8 @@ def test_group_visual_matches_em_template(mini_volterra, tmp_path):
     border = realizer.find(f"{Y}BorderStyle")
     assert border.get("type") == "dashed"
     fill = realizer.find(f"{Y}Fill")
-    assert fill.get("color") == "#F5F5F5"
+    # AI08-F2: struttura → #FFE6CC80 (pastel-soft orange, 50% alpha)
+    assert fill.get("color") == "#FFE6CC80"
 
     label = realizer.find(f"{Y}NodeLabel")
     assert label.get("backgroundColor") == "#EBEBEB"
@@ -175,3 +181,230 @@ def test_default_groups_empty_preserves_ac2_baseline(mini_volterra, tmp_path):
     folders = [n for n in tree.iter(f"{NS}node")
                if n.get("id", "").startswith("grp_")]
     assert folders == []
+
+
+# ---------------------------------------------------------------------------
+# AI08-F2 — Per-dimension visual style
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def expected_palette():
+    """The pinned palette from spec §3.1 (D1-A pastel-soft + D2-C 50% alpha)."""
+    return {
+        "area":      ("#FFE0E680", "#C84A5F"),
+        "struttura": ("#FFE6CC80", "#C66B33"),
+        "attivita":  ("#FFF5CC80", "#A89A33"),
+        "settore":   ("#E6FFCC80", "#6BC633"),
+        "ambient":   ("#CCFFE680", "#33A86B"),
+        "saggio":    ("#CCF5FF80", "#3389A8"),
+        "quad_par":  ("#E0CCFF80", "#6633C6"),
+        "adhoc":     ("#F5F5F580", "#666666"),
+    }
+
+
+def _seed_all_dimensions(db, sito):
+    """Set us_table.<col>=<value> for one row each of the 7 SQL dimensions.
+
+    The mini_volterra fixture pre-populates `area="1"` on all 5 rows;
+    we must clear it first so the per-row seeded values don't collide
+    with the attivita="1" label below."""
+    conn = sqlite3.connect(db)
+    # Clear pre-existing dimension values so each seeded row owns its
+    # group label exclusively (no label collisions across group_kinds).
+    for col in ("area", "struttura", "attivita",
+                "settore", "ambient", "saggio", "quad_par"):
+        conn.execute(
+            f"UPDATE us_table SET {col}='' WHERE sito=?", (sito,))
+    rows = list(conn.execute(
+        "SELECT id_us FROM us_table WHERE sito=? LIMIT 7", (sito,)))
+    pairs = [
+        ("area",      "A1"),
+        ("struttura", "basilica"),
+        ("attivita",  "1"),
+        ("settore",   "N"),
+        ("ambient",   "stanza-1"),
+        ("saggio",    "S1"),
+        ("quad_par",  "Q1"),
+    ]
+    for (id_us,), (col, val) in zip(rows, pairs):
+        conn.execute(
+            f"UPDATE us_table SET {col}=? WHERE id_us=?",
+            (val, id_us))
+    conn.commit()
+    conn.close()
+
+
+def test_per_dimension_fill_color(mini_volterra, tmp_path, expected_palette):
+    """AC-1 + AC-4: each rendered group folder's <y:Fill color> matches the
+    palette entry for its group_kind, and the alpha suffix is always '80'
+    (50% transparency, D2-C)."""
+    sito = _read_sito(mini_volterra)
+    _seed_all_dimensions(mini_volterra, sito)
+
+    out = tmp_path / "out.graphml"
+    _export_with_groups(
+        mini_volterra, sito, out,
+        ["area", "struttura", "attivita", "settore",
+         "ambient", "saggio", "quad_par"])
+
+    tree = ET.parse(str(out))
+    folders = [n for n in tree.iter(f"{NS}node")
+               if n.get("yfiles.foldertype") == "group"
+               and n.get("id", "").startswith("grp_")]
+    # mini_volterra has 5 US rows; the zip in _seed_all_dimensions
+    # therefore seeds only the first 5 dimensions (area / struttura /
+    # attivita / settore / ambient). saggio + quad_par are NOT seeded.
+    assert len(folders) >= 5, (
+        f"expected >=5 group folders (one per seeded dim), got "
+        f"{len(folders)}")
+
+    # For each folder: read <y:NodeLabel> text (group name) and verify
+    # its <y:Fill color> matches one of the expected palette entries.
+    fills_by_label = {}
+    for folder in folders:
+        nl = folder.find(f".//{Y}GroupNode/{Y}NodeLabel")
+        fill = folder.find(f".//{Y}GroupNode/{Y}Fill")
+        assert nl is not None and fill is not None
+        fills_by_label[(nl.text or "").strip()] = fill.get("color")
+
+    # Each label maps to a known seeded value; resolve back to dim:
+    label_to_dim = {
+        "A1":       "area",
+        "basilica": "struttura",
+        "1":        "attivita",
+        "N":        "settore",
+        "stanza-1": "ambient",
+        "S1":       "saggio",
+        "Q1":       "quad_par",
+    }
+    for label, color in fills_by_label.items():
+        dim = label_to_dim.get(label)
+        if dim is None:
+            continue  # unrelated folder (shouldn't happen)
+        expected_fill, _ = expected_palette[dim]
+        assert color == expected_fill, (
+            f"folder '{label}' (group_kind={dim}): "
+            f"expected fill={expected_fill}, got {color}")
+        # AC-4: alpha suffix == '80'
+        assert color.endswith("80"), (
+            f"fill {color} is missing the 50% alpha suffix '80'")
+
+
+def test_per_dimension_border_color(mini_volterra, tmp_path, expected_palette):
+    """AC-2: each rendered group folder's <y:BorderStyle color> matches
+    the palette entry for its group_kind."""
+    sito = _read_sito(mini_volterra)
+    _seed_all_dimensions(mini_volterra, sito)
+
+    out = tmp_path / "out.graphml"
+    _export_with_groups(
+        mini_volterra, sito, out,
+        ["area", "struttura", "attivita", "settore",
+         "ambient", "saggio", "quad_par"])
+
+    tree = ET.parse(str(out))
+    folders = [n for n in tree.iter(f"{NS}node")
+               if n.get("yfiles.foldertype") == "group"
+               and n.get("id", "").startswith("grp_")]
+
+    label_to_dim = {
+        "A1": "area", "basilica": "struttura", "1": "attivita",
+        "N": "settore", "stanza-1": "ambient", "S1": "saggio",
+        "Q1": "quad_par",
+    }
+    for folder in folders:
+        nl = folder.find(f".//{Y}GroupNode/{Y}NodeLabel")
+        bs = folder.find(f".//{Y}GroupNode/{Y}BorderStyle")
+        assert nl is not None and bs is not None
+        label = (nl.text or "").strip()
+        dim = label_to_dim.get(label)
+        if dim is None:
+            continue
+        _, expected_border = expected_palette[dim]
+        assert bs.get("color") == expected_border, (
+            f"folder '{label}' (group_kind={dim}): "
+            f"expected border={expected_border}, got {bs.get('color')}")
+        assert bs.get("type") == "dashed"
+
+
+def test_unknown_group_kind_falls_back_to_default(mini_volterra, tmp_path):
+    """AC-3: a group with an unrecognized group_kind gets the default
+    (#F5F5F580 fill + #000000 border). Synthesized via direct call to
+    _inject_group_folders with a fake snapshot — bypasses the projector."""
+    from modules.s3dgraphy.sync.graphml_writer import (
+        _inject_group_folders, _GROUP_KIND_PALETTE,
+        _GROUP_DEFAULT_FILL, _GROUP_DEFAULT_BORDER,
+    )
+    # Sanity: the default values match the spec §3.1
+    assert _GROUP_DEFAULT_FILL == "#F5F5F580"
+    assert _GROUP_DEFAULT_BORDER == "#000000"
+    # And "totally_bogus" is not in the palette
+    assert "totally_bogus" not in _GROUP_KIND_PALETTE
+
+    # First do a real export so we have a valid GraphML to inject into
+    sito = _read_sito(mini_volterra)
+    _seed(mini_volterra, sito, "struttura", "basilica", 3)
+    out = tmp_path / "out.graphml"
+    _export_with_groups(mini_volterra, sito, out, ["struttura"])
+
+    # Read the EMIDs of 2 strat US already in the output (member candidates)
+    tree = ET.parse(str(out))
+    NS_local = "{http://graphml.graphdrawing.org/xmlns}"
+    Y_local = "{http://www.yworks.com/xml/graphml}"
+    emid_kid = None
+    for k in tree.getroot().findall(f"{NS_local}key"):
+        if k.get("attr.name") == "EMID":
+            emid_kid = k.get("id")
+            break
+    assert emid_kid is not None
+    emids = []
+    for n in tree.iter(f"{NS_local}node"):
+        for d in n.findall(f"{NS_local}data"):
+            if d.get("key") == emid_kid and d.text:
+                emids.append(d.text.strip())
+    candidate_emids = [e for e in emids
+                        if not (e or "").startswith("grp_")][:2]
+    assert len(candidate_emids) >= 2
+
+    # Build a fake snapshot with an unknown group_kind
+    class _FakeNode:
+        def __init__(self):
+            self.node_id = "test-bogus-uuid"
+            self.name = "BogusGroup"
+            self.attributes = {
+                "group_kind": "totally_bogus",
+                "sito":       sito,
+                "name":       "BogusGroup",
+            }
+    fake_snapshot = [_FakeNode()]
+    fake_members = {"test-bogus-uuid": candidate_emids}
+
+    # Inject into a fresh copy
+    out2 = tmp_path / "out_bogus.graphml"
+    import shutil
+    shutil.copy2(out, out2)
+    # Strip pre-existing grp_* folder so the inject finds clean strat
+    tree2 = ET.parse(str(out2))
+    parent_of = {c: p for p in tree2.iter() for c in p}
+    for f in list(tree2.iter(f"{NS_local}node")):
+        if f.get("id", "").startswith("grp_"):
+            par = parent_of.get(f)
+            if par is not None:
+                par.remove(f)
+    tree2.write(str(out2), encoding="UTF-8",
+                xml_declaration=True, pretty_print=True)
+
+    _inject_group_folders(fake_snapshot, fake_members, out2)
+
+    # Read back the output and verify default colors applied
+    tree3 = ET.parse(str(out2))
+    bogus_folders = [n for n in tree3.iter(f"{NS_local}node")
+                     if n.get("yfiles.foldertype") == "group"
+                     and n.get("id", "") == "grp_test-bogus-uuid"]
+    assert len(bogus_folders) == 1
+    folder = bogus_folders[0]
+    fill = folder.find(f".//{Y_local}GroupNode/{Y_local}Fill")
+    bs = folder.find(f".//{Y_local}GroupNode/{Y_local}BorderStyle")
+    assert fill is not None and bs is not None
+    assert fill.get("color") == _GROUP_DEFAULT_FILL
+    assert bs.get("color") == _GROUP_DEFAULT_BORDER

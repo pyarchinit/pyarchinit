@@ -1261,6 +1261,26 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
 _GROUP_INJECT_TYPE = "ActivityNodeGroup"
 
 
+# AI08-F2: per-dimension palette. Pastel-soft (D1-A) with 50% alpha
+# fill (D2-C) so the epoch swimlane rows underneath stay visible,
+# plus a darker solid border. Keys are group_kind values produced
+# by group_projector.build_groups_from_sql + the "adhoc" kind from
+# user-authored GroupStore entries.
+_GROUP_KIND_PALETTE: dict = {
+    # group_kind     : (fill_rgba_50pct,    border_solid)
+    "area":            ("#FFE0E680",         "#C84A5F"),
+    "struttura":       ("#FFE6CC80",         "#C66B33"),
+    "attivita":        ("#FFF5CC80",         "#A89A33"),
+    "settore":         ("#E6FFCC80",         "#6BC633"),
+    "ambient":         ("#CCFFE680",         "#33A86B"),
+    "saggio":          ("#CCF5FF80",         "#3389A8"),
+    "quad_par":        ("#E0CCFF80",         "#6633C6"),
+    "adhoc":           ("#F5F5F580",         "#666666"),
+}
+_GROUP_DEFAULT_FILL = "#F5F5F580"
+_GROUP_DEFAULT_BORDER = "#000000"
+
+
 def _inject_group_folders(
     group_snapshot: list,
     members_map: dict,
@@ -1427,12 +1447,18 @@ def _inject_group_folders(
         geom.set("width", f"{bw:.4f}")
         geom.set("height", f"{bh:.4f}")
 
+        # AI08-F2: per-dimension palette lookup (D2-C). Default falls
+        # back to AI06 grey + black for unknown group_kind values.
+        group_kind = attrs.get("group_kind", "")
+        fill_rgba, border_rgb = _GROUP_KIND_PALETTE.get(
+            group_kind, (_GROUP_DEFAULT_FILL, _GROUP_DEFAULT_BORDER))
+
         fill = etree.SubElement(gn, f"{{{NS_Y}}}Fill")
-        fill.set("color", "#F5F5F5")
+        fill.set("color", fill_rgba)
         fill.set("transparent", "false")
 
         bs = etree.SubElement(gn, f"{{{NS_Y}}}BorderStyle")
-        bs.set("color", "#000000")
+        bs.set("color", border_rgb)
         bs.set("type", "dashed")
         bs.set("width", "1.0")
 
