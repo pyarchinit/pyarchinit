@@ -195,5 +195,67 @@ def _emit_groups_fixture():
     print(f"OK — groups_volterra.graphml ({out.stat().st_size} bytes)")
 
 
+def _emit_toponym_volterra():
+    """Generate toponym_volterra.sqlite — variant with site_table
+    populated so AC-15 (round-trip identity) and AC-20 (cross-site
+    dedupe) tests have a fixture with non-empty admin levels.
+
+    Three sites are inserted:
+    - Volterra: full chain (Italia/Toscana/Pisa/Volterra)
+    - Volterra2: shares comune='Volterra' with site #1 (AC-20 dedupe)
+    - Pompei_test: empty provincia (AC-15 skip-empty)
+
+    The Phase-1 node_uuid migration is applied so the fixture is a
+    drop-in input to GraphProjector.populate_graph (strict_schema=True).
+    """
+    import sqlite3
+    import shutil
+    from pathlib import Path
+
+    PLUGIN_ROOT = Path(__file__).resolve().parents[3]
+    SRC_DB = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "mini_volterra.sqlite"
+    out = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "toponym_volterra.sqlite"
+
+    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+        add_columns, backfill_uuids,
+    )
+
+    if out.exists():
+        out.unlink()
+    shutil.copy2(SRC_DB, out)
+    add_columns(out)
+    backfill_uuids(out)
+
+    conn = sqlite3.connect(str(out))
+    try:
+        # Site #1: full toponym chain (Italia/Toscana/Pisa/Volterra)
+        conn.execute(
+            "INSERT OR IGNORE INTO site_table "
+            "(sito, nazione, regione, provincia, comune, descrizione) "
+            "VALUES ('Volterra', 'Italia', 'Toscana', 'Pisa', 'Volterra', "
+            "        'Volterra full toponym chain')"
+        )
+        # Site #2: shares comune='Volterra' with site #1 (AC-20 dedupe)
+        conn.execute(
+            "INSERT OR IGNORE INTO site_table "
+            "(sito, nazione, regione, provincia, comune, descrizione) "
+            "VALUES ('Volterra2', 'Italia', 'Toscana', 'Pisa', 'Volterra', "
+            "        'Second site for cross-site dedupe test')"
+        )
+        # Site #3: empty provincia (AC-15 skip-empty)
+        conn.execute(
+            "INSERT OR IGNORE INTO site_table "
+            "(sito, nazione, regione, provincia, comune, descrizione) "
+            "VALUES ('Pompei_test', 'Italia', 'Campania', '', 'Pompei', "
+            "        'Site with empty provincia for skip-empty test')"
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    print(f"OK — toponym_volterra.sqlite ({out.stat().st_size} bytes)")
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    rc = main()
+    _emit_toponym_volterra()
+    raise SystemExit(rc)
