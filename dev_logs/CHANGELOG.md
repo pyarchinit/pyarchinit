@@ -5,6 +5,39 @@
 
 ---
 
+## [housekeeping] - 2026-05-09 (commit `6c9c97c0`)
+
+### Italiano
+
+**Tre task di housekeeping post-pausa Phase 2, raggruppati in un unico commit:**
+
+- **Tooltips Area + US (TEXT, non integer) in tutte le 10 lingue.** I campi `lineEdit_us` e `comboBox_area` nella Scheda US ora mostrano un tooltip che chiarisce: "Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'." Aggiunto anche `setPlaceholderText` per `lineEdit_us`. Tradotto in 10 lingue (`it/en/de/fr/es/ar/ca/ro/pt/el`) con 30 nuovi `<message>` nei file `.ts`, ricompilati a `.qm` con `pyside6-lrelease`.
+
+- **Tutorial 36 "Extended Matrix Export & s3dgraphy Bridge" in 10 lingue.** Nuovo file `36_extended_matrix_s3dgraphy.md` per ogni lingua con 8 sezioni (intro 5.2.0-alpha, prerequisiti, dialog Export, dialog Manage Paradata 4 tab, palette per-dimension visual style, round-trip Import, CLI alternativa, troubleshooting + riferimenti tecnici). Registrato in entrambi i registry: `tabs/Tutorial_viewer.py::TUTORIALS_METADATA` (10 lingue) e `pyarchinitDockWidget.py::TUTORIALS_METADATA` (6 lingue supportate dal dockwidget). Aggiunto al toctree Sphinx in `docs/tutorials/{lang}/index.rst` per 7 lingue (gap pre-esistente: ro/pt/el non hanno `index.rst`).
+
+- **Conversione MD → DOCX per condivisione su Microsoft Teams.** Tutti i markdown in `docs/superpowers/{specs,plans,dev-log}/` sono stati convertiti in `.docx` via pandoc (gfm → docx). Versionati per facilitare la condivisione dei documenti Phase 2 (AI03 → AI08-F2) con stakeholder non tecnici.
+
+### English
+
+**Three post-pause Phase 2 housekeeping tasks bundled in one commit:**
+
+- **Tooltips for Area + US fields (TEXT, not integer) in all 10 languages.** The `lineEdit_us` and `comboBox_area` widgets in the Scheda US now display a tooltip clarifying: "Enter as TEXT (not integer). The field accepts alphanumeric values like '1', '1A', '42-bis', 'USM01'." Also added `setPlaceholderText` to `lineEdit_us`. Translated in 10 languages (`it/en/de/fr/es/ar/ca/ro/pt/el`) via 30 new `<message>` entries in `.ts` files, recompiled to `.qm` with `pyside6-lrelease`.
+
+- **Tutorial 36 "Extended Matrix Export & s3dgraphy Bridge" in 10 languages.** New file `36_extended_matrix_s3dgraphy.md` per language with 8 sections (intro 5.2.0-alpha, prerequisites, Export dialog, Manage Paradata dialog 4 tabs, per-dimension visual style palette, Import round-trip, CLI alternative, troubleshooting + technical references). Registered in both registries: `tabs/Tutorial_viewer.py::TUTORIALS_METADATA` (10 langs) and `pyarchinitDockWidget.py::TUTORIALS_METADATA` (6 langs supported by dockwidget). Added to Sphinx toctree in `docs/tutorials/{lang}/index.rst` for 7 langs (pre-existing gap: ro/pt/el have no `index.rst`).
+
+- **MD → DOCX conversion for Microsoft Teams sharing.** All markdown files in `docs/superpowers/{specs,plans,dev-log}/` converted to `.docx` via pandoc (gfm → docx). Versioned to ease sharing of Phase 2 (AI03 → AI08-F2) documents with non-technical stakeholders.
+
+### Files modified
+- `tabs/US_USM.py` (tooltips)
+- `i18n/pyarchinit_plugin_*.{ts,qm}` × 10
+- `docs/tutorials/{10 langs}/36_extended_matrix_s3dgraphy.md` (new)
+- `docs/tutorials/{7 langs}/index.rst` (toctree update)
+- `tabs/Tutorial_viewer.py` (TUTORIALS_METADATA × 10 langs)
+- `pyarchinitDockWidget.py` (TUTORIALS_METADATA × 6 langs)
+- `docs/superpowers/**/*.docx` (15 files generated/updated)
+
+---
+
 ## [5.5.2-alpha] - 2026-05-09
 
 ### Italiano
