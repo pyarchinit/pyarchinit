@@ -65,7 +65,11 @@ _HARDCODED_PARADATA_EDGES: frozenset[str] = frozenset({
 # alongside LocationNodeGroup. Keep this set sorted alphabetically
 # for stable diffs.
 # ----------------------------------------------------------------------
-KNOWN_EDGE_TYPES: frozenset[str] = frozenset({
+# Structural / EM edges + paradata-flow edges. The paradata block is
+# computed from `_HARDCODED_PARADATA_EDGES` (defined above) via set
+# union to prevent drift — if a paradata edge is added there, it
+# automatically enters this set.
+_STRUCTURAL_EDGE_TYPES: frozenset[str] = frozenset({
     # Structural / EM edges (from em_visual_rules.json)
     "changed_from",
     "contrasts_with",
@@ -81,18 +85,13 @@ KNOWN_EDGE_TYPES: frozenset[str] = frozenset({
     "is_in_location",         # AI07: spatial / locational membership
     "is_in_paradata_nodegroup",
     "is_in_timebranch",
-    # Paradata flow edges (mirror _HARDCODED_PARADATA_EDGES)
-    "combines",
-    "extracted_from",
-    "has_author",
-    "has_data_provenance",
-    "has_embargo",
-    "has_first_epoch",
-    "has_license",
-    "has_paradata_nodegroup",
-    "has_property",
-    "survive_in_epoch",
 })
+
+# Public set: structural ∪ paradata. Downstream projectors / ingestors
+# / validators introspect this set to decide whether to accept an edge.
+KNOWN_EDGE_TYPES: frozenset[str] = (
+    _STRUCTURAL_EDGE_TYPES | _HARDCODED_PARADATA_EDGES
+)
 
 
 _EXT_LIBS_S3DG = (

@@ -420,9 +420,14 @@ def test_locationnodegroup_palette_keyed_by_kind():
     assert "struttura" in _GROUP_KIND_PALETTE  # functional
     assert "area" in _GROUP_KIND_PALETTE       # study
     # AI07 also indexes by kind enum value:
-    assert "toponym" in _GROUP_KIND_PALETTE
-    fill, border = _GROUP_KIND_PALETTE["toponym"]
-    assert fill.endswith("80"), f"toponym fill must be 50% alpha, got {fill}"
+    for kind_key in ("toponym", "study", "functional"):
+        assert kind_key in _GROUP_KIND_PALETTE, \
+            f"{kind_key} missing from palette"
+        fill, border = _GROUP_KIND_PALETTE[kind_key]
+        assert fill.endswith("80"), \
+            f"{kind_key} fill must be 50% alpha, got {fill}"
+        assert border.startswith("#") and len(border) == 7, \
+            f"{kind_key} border must be 7-char hex, got {border}"
     # Resolver helper picks dimension first, falls back to kind
     assert _resolve_group_visual(group_kind="struttura", kind="functional") == \
            _GROUP_KIND_PALETTE["struttura"]
