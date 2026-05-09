@@ -9868,6 +9868,30 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
         self.setupUi(self)
 
+        # Tooltips for Area + US fields — must be entered as TEXT not integer
+        # (the columns are TEXT/VARCHAR in us_table; numeric-only entries
+        # get string-cast on insert, but text values like "1A", "settore_2",
+        # "ED01/FC01" are valid and required for round-trip).
+        try:
+            self.lineEdit_us.setToolTip(self.tr(
+                "Inserire come TESTO (non numero intero). "
+                "Il campo accetta valori alfanumerici come '1', '1A', "
+                "'42-bis', 'USM01'. Le US sono identificate per "
+                "(sito, area, us, unita_tipo)."
+            ))
+            self.lineEdit_us.setPlaceholderText(self.tr("es. 1, 1A, 42-bis"))
+        except Exception:
+            pass
+        try:
+            self.comboBox_area.setToolTip(self.tr(
+                "Inserire come TESTO (non numero intero). "
+                "Il campo accetta valori alfanumerici come 'A', '1', "
+                "'settore_N', 'area_sacrale'. Identifica una sub-area "
+                "del sito."
+            ))
+        except Exception:
+            pass
+
         # Apply theme
         ThemeManager.apply_theme(self)
 

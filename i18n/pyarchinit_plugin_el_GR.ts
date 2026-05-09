@@ -16949,6 +16949,21 @@ This keeps the similarity search index up-to-date without manual rebuild.</sourc
         <source>Interroga il database con linguaggio naturale usando GPT-5</source>
         <translation>Υποβάλετε ερώτημα στη βάση δεδομένων με φυσική γλώσσα χρησιμοποιώντας το GPT-5</translation>
     </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</source>
+        <translation>Εισάγετε ως ΚΕΙΜΕΝΟ (όχι ως ακέραιο). Το πεδίο δέχεται αλφαριθμητικές τιμές όπως '1', '1A', '42-bis', 'USM01'. Οι ΣΕ προσδιορίζονται από (θέση, περιοχή, σε, τύπος_μονάδας).</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>es. 1, 1A, 42-bis</source>
+        <translation>π.χ. 1, 1A, 42-bis</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</source>
+        <translation>Εισάγετε ως ΚΕΙΜΕΝΟ (όχι ως ακέραιο). Το πεδίο δέχεται αλφαριθμητικές τιμές όπως 'A', '1', 'τομέας_N', 'ιερός_χώρος'. Προσδιορίζει μια υπο-περιοχή της θέσης.</translation>
+    </message>
 </context>
 <context>
     <name>pyarchinit_code</name>

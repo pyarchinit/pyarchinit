@@ -119,6 +119,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_make_your_map.md", "Make Your Map", "Generazione mappe"),
             ("30_ai_query_database.md", "AI Query", "Query con AI"),
             ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "Bridge s3dgraphy: export Extended Matrix con paradata e gruppi"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup and database"),
@@ -152,6 +153,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_make_your_map.md", "Make Your Map", "Map generation"),
             ("30_ai_query_database.md", "AI Query", "AI database query"),
             ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy bridge: Extended Matrix export with paradata and groups"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung und Datenbank"),
@@ -185,6 +187,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_karte_erstellen.md", "Karte erstellen", "Kartenerstellung"),
             ("30_ki_datenbankabfrage.md", "KI-Abfrage", "KI-Datenbankabfrage"),
             ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy-Bridge: Extended Matrix Export mit Paradata und Gruppen"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -218,6 +221,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_make_your_map.md", "Creează Harta", "Generare hărți și tipărire"),
             ("30_ai_query_database.md", "AI Query Database", "Interogare bază de date cu AI (Text2SQL)"),
             ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
+            ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy: export Extended Matrix cu paradata și grupuri"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -251,6 +255,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_make_your_map.md", "Criar Mapa", "Geração de mapas e impressão"),
             ("30_ai_query_database.md", "AI Query Database", "Consulta à base de dados com IA (Text2SQL)"),
             ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
+            ("36_extended_matrix_s3dgraphy.md", "Exportação Extended Matrix", "Bridge s3dgraphy: exportação Extended Matrix com paradata e grupos"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -284,6 +289,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("29_make_your_map.md", "Δημιουργία Χάρτη", "Δημιουργία χαρτών και εκτύπωση"),
             ("30_ai_query_database.md", "AI Query Database", "Ερωτήματα βάσης δεδομένων με AI (Text2SQL)"),
             ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
+            ("36_extended_matrix_s3dgraphy.md", "Εξαγωγή Extended Matrix", "Γέφυρα s3dgraphy: εξαγωγή Extended Matrix με paradata και ομάδες"),
         ],
     }
 

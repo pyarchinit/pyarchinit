@@ -16328,6 +16328,21 @@ This keeps the similarity search index up-to-date without manual rebuild.</trans
         <source>Interroga il database con linguaggio naturale usando GPT-5</source>
         <translation>Interroga il database con linguaggio naturale usando GPT-5</translation>
     </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</source>
+        <translation>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>es. 1, 1A, 42-bis</source>
+        <translation>es. 1, 1A, 42-bis</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</source>
+        <translation>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</translation>
+    </message>
 </context>
 <context>
     <name>quantPanel</name>

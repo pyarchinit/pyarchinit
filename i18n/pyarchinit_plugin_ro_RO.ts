@@ -16960,6 +16960,21 @@ Acest lucru menține actualizat indexul de căutare a similarității fără rec
         <source>Interroga il database con linguaggio naturale usando GPT-5</source>
         <translation>Interogați baza de date cu limbaj natural folosind GPT-5</translation>
     </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</source>
+        <translation>Introduceți ca TEXT (nu ca număr întreg). Câmpul acceptă valori alfanumerice precum '1', '1A', '42-bis', 'USM01'. UE sunt identificate prin (sit, arie, ue, tip_unitate).</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>es. 1, 1A, 42-bis</source>
+        <translation>ex. 1, 1A, 42-bis</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</source>
+        <translation>Introduceți ca TEXT (nu ca număr întreg). Câmpul acceptă valori alfanumerice precum 'A', '1', 'sector_N', 'zonă_sacră'. Identifică o sub-zonă a sitului.</translation>
+    </message>
 </context>
 <context>
     <name>pyarchinit_code</name>

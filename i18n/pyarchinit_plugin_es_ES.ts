@@ -16845,6 +16845,21 @@ This keeps the similarity search index up-to-date without manual rebuild.</sourc
         <source>Interroga il database con linguaggio naturale usando GPT-5</source>
         <translation>Interroga la base de datos con lenguaje natural usando GPT-5</translation>
     </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</source>
+        <translation>Introducir como TEXTO (no como entero). El campo acepta valores alfanuméricos como '1', '1A', '42-bis', 'USM01'. Las UE se identifican por (sitio, área, ue, tipo_unidad).</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>es. 1, 1A, 42-bis</source>
+        <translation>ej. 1, 1A, 42-bis</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</source>
+        <translation>Introducir como TEXTO (no como entero). El campo acepta valores alfanuméricos como 'A', '1', 'sector_N', 'área_sagrada'. Identifica una sub-área del sitio.</translation>
+    </message>
 </context>
 <context>
     <name>pyarchinit_code</name>

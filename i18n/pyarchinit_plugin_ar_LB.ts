@@ -16833,6 +16833,21 @@ This keeps the similarity search index up-to-date without manual rebuild.</sourc
         <source>Interroga il database con linguaggio naturale usando GPT-5</source>
         <translation>استفسر عن قاعدة البيانات باستخدام اللغة الطبيعية مع GPT-5</translation>
     </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come '1', '1A', '42-bis', 'USM01'. Le US sono identificate per (sito, area, us, unita_tipo).</source>
+        <translation>أدخل كنص (وليس كعدد صحيح). يقبل الحقل قيمًا أبجدية رقمية مثل '1' أو '1A' أو '42-bis' أو 'USM01'. تُعرَّف الوحدات الطبقية بـ (موقع، منطقة، وحدة، نوع_الوحدة).</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>es. 1, 1A, 42-bis</source>
+        <translation>مثال: 1, 1A, 42-bis</translation>
+    </message>
+    <message>
+        <location filename="../tabs/US_USM.py" line="9871"/>
+        <source>Inserire come TESTO (non numero intero). Il campo accetta valori alfanumerici come 'A', '1', 'settore_N', 'area_sacrale'. Identifica una sub-area del sito.</source>
+        <translation>أدخل كنص (وليس كعدد صحيح). يقبل الحقل قيمًا أبجدية رقمية مثل 'A' أو '1' أو 'sector_N' أو 'area_sacrale'. يُعرِّف منطقة فرعية من الموقع.</translation>
+    </message>
 </context>
 <context>
     <name>pyarchinit_code</name>

@@ -107,6 +107,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Analisi geostatistica per la ricerca archeologica"),
             ("34_movecost.md", "MoveCost", "Analisi dei percorsi di minor costo"),
             ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "Bridge s3dgraphy: export Extended Matrix con paradata e gruppi"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup, database connection, paths"),
@@ -144,6 +145,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistical analysis for archaeological research"),
             ("34_movecost.md", "MoveCost", "Least-cost path analysis"),
             ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy bridge: Extended Matrix export with paradata and groups"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung, Datenbankverbindung, Pfade"),
@@ -181,6 +183,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Geostatistische Analyse für die archäologische Forschung"),
             ("34_movecost.md", "MoveCost", "Wegkostenanalyse"),
             ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy-Bridge: Extended Matrix Export mit Paradata und Gruppen"),
         ],
         'fr': [
             ("01_configuration.md", "Configuration", "Configuration initiale, connexion base de données, chemins"),
@@ -218,6 +221,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Analyse géostatistique pour la recherche archéologique"),
             ("34_movecost.md", "MoveCost", "Analyse des chemins de moindre coût"),
             ("35_gestion_chantier.md", "Gestion de Chantier", "Tableau de bord, personnel, présences, équipements, budget"),
+            ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy : export Extended Matrix avec paradata et groupes"),
         ],
         'es': [
             ("01_configuracion.md", "Configuración", "Configuración inicial, conexión de base de datos, rutas"),
@@ -255,6 +259,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Análisis geoestadístico para la investigación arqueológica"),
             ("34_movecost.md", "MoveCost", "Análisis de rutas de menor coste"),
             ("35_gestion_obra.md", "Gestión de Obra", "Panel de obra, personal, asistencia, equipamiento, presupuesto"),
+            ("36_extended_matrix_s3dgraphy.md", "Exportación Extended Matrix", "Bridge s3dgraphy: exportación Extended Matrix con paradata y grupos"),
         ],
         'ar': [
             ("01_التكوين.md", "التكوين", "الإعداد الأولي، اتصال قاعدة البيانات، المسارات"),
@@ -292,6 +297,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "التحليل الجيوإحصائي للبحث الأثري"),
             ("34_movecost.md", "MoveCost", "تحليل مسارات أقل تكلفة"),
             ("35_إدارة_الموقع.md", "إدارة الموقع", "لوحة القيادة، الموظفون، الحضور، المعدات، الميزانية"),
+            ("36_extended_matrix_s3dgraphy.md", "تصدير Extended Matrix", "جسر s3dgraphy: تصدير Extended Matrix مع البيانات الفوقية والمجموعات"),
         ],
         'ca': [
             ("01_configuracio.md", "Configuració", "Configuració inicial, connexió de base de dades, camins"),
@@ -329,6 +335,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Anàlisi geoestadística per a la recerca arqueològica"),
             ("34_movecost.md", "MoveCost", "Anàlisi de camins de menor cost"),
             ("35_gestio_obra.md", "Gestió d'Obra", "Tauler d'obra, personal, assistència, equipament, pressupost"),
+            ("36_extended_matrix_s3dgraphy.md", "Exportació Extended Matrix", "Bridge s3dgraphy: exportació Extended Matrix amb paradata i grups"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -366,6 +373,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Analiză geostatistică pentru cercetarea arheologică"),
             ("34_movecost.md", "MoveCost", "Analiza rutelor cu cel mai mic cost"),
             ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
+            ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy: export Extended Matrix cu paradata și grupuri"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -403,6 +411,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Análise geoestatística para pesquisa arqueológica"),
             ("34_movecost.md", "MoveCost", "Análise de caminhos de menor custo"),
             ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
+            ("36_extended_matrix_s3dgraphy.md", "Exportação Extended Matrix", "Bridge s3dgraphy: exportação Extended Matrix com paradata e grupos"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -440,6 +449,7 @@ class TutorialViewerDialog(QDialog):
             ("33_geoarchaeo.md", "GeoArchaeo", "Γεωστατιστική ανάλυση για αρχαιολογική έρευνα"),
             ("34_movecost.md", "MoveCost", "Ανάλυση διαδρομών ελάχιστου κόστους"),
             ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
+            ("36_extended_matrix_s3dgraphy.md", "Εξαγωγή Extended Matrix", "Γέφυρα s3dgraphy: εξαγωγή Extended Matrix με paradata και ομάδες"),
         ],
     }
 

@@ -91,6 +91,7 @@ Bienvenue dans la documentation complète de PyArchInit. Ce guide couvre tous le
 
    31_stratigraph_uuid
    32_stratigraph_sync
+   36_extended_matrix_s3dgraphy
 
 ----
 
