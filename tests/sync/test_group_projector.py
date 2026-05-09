@@ -244,3 +244,23 @@ def test_adhoc_resolves_to_locationnodegroup_functional_default():
     cls, kind = _resolve_node_class_and_kind("adhoc")
     assert cls == "LocationNodeGroup"
     assert kind == "functional"
+
+
+def test_toponym_resolves_to_locationnodegroup_kind_toponym():
+    """AI07 B.1 + Group D prep: toponym chain entries dispatch to LocationNodeGroup with kind='toponym'."""
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    cls, kind = _resolve_node_class_and_kind("toponym")
+    assert cls == "LocationNodeGroup"
+    assert kind == "toponym"
+
+
+def test_unknown_group_kind_falls_back_to_locationnodegroup_functional():
+    """AI07 B.1: defensive default for unknown group_kind (never raises)."""
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    cls, kind = _resolve_node_class_and_kind("nonexistent_dimension_2026")
+    assert cls == "LocationNodeGroup"
+    assert kind == "functional"
