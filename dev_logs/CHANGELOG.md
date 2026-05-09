@@ -5,6 +5,24 @@
 
 ---
 
+## [5.5.1-alpha] - 2026-05-09
+
+### Italiano
+
+- **Phase 2 / AI08-F2 — Stile visivo per dimensione nei group folder.** Ogni dimensione di raggruppamento (area / struttura / attivita / settore / ambient / saggio / quad_par / adhoc) ora ha un fill pastello distinto al 50% di trasparenza più un bordo solido colorato della stessa famiglia. Il fill 50% lascia intravedere le righe delle epoche dietro il rettangolo del gruppo.
+- **Palette hardcoded** in `modules/s3dgraphy/sync/graphml_writer.py` come constante `_GROUP_KIND_PALETTE`. Niente file di config — 8 entry, ognuna `(fill_rgba_50pct, border_solid)`.
+- **Default invariato.** Senza checkbox spuntate (`groups=None`) il pulsante verde produce lo stesso GraphML byte-identico al baseline AC-2. La palette si attiva solo quando i gruppi sono materializzati.
+- **Background label** (`#EBEBEB`) e geometry restano AI06. Solo `<y:Fill>` e `<y:BorderStyle>` cambiano per dimensione.
+- **Round-trip preservato.** L'output AI06 importava i folder via `yfiles.foldertype="group"` + prefix `grp_*` (lxml-based, color-agnostic) — nessun impatto su `sql_apply_groups`.
+
+### English
+
+- **Phase 2 / AI08-F2 — Per-dimension visual style for group folders.** Each grouping dimension (area / struttura / attivita / settore / ambient / saggio / quad_par / adhoc) now has its own pastel fill at 50% transparency plus a matching solid darker border. The 50% alpha lets the epoch row swimlanes show through the group rectangle.
+- **Hardcoded palette** in `modules/s3dgraphy/sync/graphml_writer.py` as the `_GROUP_KIND_PALETTE` constant. No config file — 8 entries, each `(fill_rgba_50pct, border_solid)`.
+- **Default unchanged.** Without checked checkboxes (`groups=None`) the green Export button produces the same GraphML byte-identical to the AC-2 baseline. The palette only kicks in when groups are materialised.
+- **Label background** (`#EBEBEB`) and geometry remain as in AI06. Only `<y:Fill>` and `<y:BorderStyle>` vary per dimension.
+- **Round-trip preserved.** The AI06 import path identifies group folders by `yfiles.foldertype="group"` + `grp_*` id prefix (lxml-based, color-agnostic) — no impact on `sql_apply_groups`.
+
 ## [5.5.0-alpha] - 2026-05-08
 
 ### Italiano
