@@ -5,6 +5,56 @@
 
 ---
 
+## [s3dgraphy-0.1.41-bump] - 2026-05-09
+
+### Italiano
+
+**Bump della libreria `s3dgraphy` da 0.1.40 a 0.1.41 + sblocco di AI07.**
+
+- **`requirements.txt`** aggiornato: `s3dgraphy>=0.1.41` (riga 79). I nuovi installer prendono 0.1.41+.
+- **`ext_libs/s3dgraphy/`** aggiornato in locale a 0.1.41 (datamodel 1.5.5). La cartella è in `.gitignore`, quindi l'aggiornamento per l'utente finale arriva tramite `requirements.txt` + `modules_installer.py`.
+- **Test regression-free**: 179 passed, 3 skipped (uguale al baseline pre-bump).
+
+**Cosa porta 0.1.41 (per AI07):**
+
+- `LocationNodeGroup` con `kind ∈ {toponym, study, functional}` e `propagation = "additive"`.
+- Nuovo edge type `is_in_location` con doppio mapping CIDOC (`P53 has former or current location` per node→location, `P89 falls within` per la gerarchia ricorsiva location→location).
+- Attributo opzionale `is_primary: true` su un singolo `is_in_location` per disambiguare il rendering yEd (m:n membership con un primario per visualizzazione).
+- `ActivityNodeGroup` mantenuto, **non deprecato**.
+
+**Decisioni di Emanuel** (issue [zalmoxes-laran/s3Dgraphy#5](https://github.com/zalmoxes-laran/s3Dgraphy/issues/5)):
+
+- **Q1 — `attivita`**: resta `ActivityNodeGroup`. La semantica di "attività di scavo" è intentional/historical activity, non spaziale. Possibile futuro `kind` (historical/recording) su ActivityNodeGroup se servirà mai.
+- **Q2 — Backward compat 5.5.x**: la libreria 0.1.41 legge `ActivityNodeGroup + group_kind` come opaque metadata, **senza promozione automatica a LocationNodeGroup**. La up-conversion vive nel projector di pyarchinit (AI07), non nella libreria — separazione corretta tra layer consumer e layer dato.
+- **Multi-projection georef**: siblings paritari (multipli `P161 has spatial projection`), niente canonical-vs-alternates split.
+
+**AI07 ora è ACTIVE** — vedi memory note `project_ai07_active.md` per il piano dettagliato. La self-deadline 2026-05-23 (option B fallback) decade automaticamente.
+
+### English
+
+**Bumped `s3dgraphy` library 0.1.40 → 0.1.41 + AI07 unblocked.**
+
+- **`requirements.txt`** updated: `s3dgraphy>=0.1.41` (line 79). New installs pick up 0.1.41+.
+- **`ext_libs/s3dgraphy/`** updated locally to 0.1.41 (datamodel 1.5.5). Directory is `.gitignore`'d — end-user upgrade flows via `requirements.txt` + `modules_installer.py`.
+- **Tests regression-free**: 179 passed, 3 skipped (identical to pre-bump baseline).
+
+**What 0.1.41 brings (for AI07):**
+
+- `LocationNodeGroup` with `kind ∈ {toponym, study, functional}` and `propagation = "additive"`.
+- New `is_in_location` edge type with dual CIDOC mapping (`P53 has former or current location` for node→location, `P89 falls within` for the recursive location→location hierarchy).
+- Optional `is_primary: true` attribute on a single `is_in_location` per source to disambiguate yEd rendering (m:n membership with one primary for visualization).
+- `ActivityNodeGroup` retained, **not deprecated**.
+
+**Emanuel's decisions** (issue [zalmoxes-laran/s3Dgraphy#5](https://github.com/zalmoxes-laran/s3Dgraphy/issues/5)):
+
+- **Q1 — `attivita`**: stays as `ActivityNodeGroup`. "Recording activity" semantics read as intentional/historical activity, not spatial. Future `kind` (historical/recording) on ActivityNodeGroup possible if real attivita data ever requires it.
+- **Q2 — Backward compat for 5.5.x**: 0.1.41 reads `ActivityNodeGroup + group_kind` as opaque metadata, **no automatic promotion to LocationNodeGroup**. Up-conversion lives in pyarchinit's projector (AI07), not in the library — correct separation between consumer layer and data layer.
+- **Multi-projection georef**: paritary siblings (multiple `P161 has spatial projection`), no canonical-vs-alternate split.
+
+**AI07 is now ACTIVE** — see memory note `project_ai07_active.md` for the detailed plan. Self-deadline 2026-05-23 (option B fallback) is now obsolete.
+
+---
+
 ## [housekeeping] - 2026-05-09 (commit `6c9c97c0`)
 
 ### Italiano

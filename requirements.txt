@@ -75,8 +75,10 @@ vtk>=9.2.0
 # Vector search
 faiss-cpu>=1.7.4
 
-# Graph
-s3dgraphy>=0.1.40
+# Graph — 0.1.41 introduces LocationNodeGroup + is_in_location with kind
+# discriminator (toponym/study/functional), required by AI07 spatial-grouping
+# migration. ActivityNodeGroup remains supported (not deprecated).
+s3dgraphy>=0.1.41
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0
