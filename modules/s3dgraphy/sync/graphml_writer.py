@@ -887,6 +887,8 @@ _PYARCHINIT_NODE_DATA_KEYS = (
     ("fase_iniziale", "pyarchinit.fase_iniziale"),
     ("rapporti", "pyarchinit.rapporti"),
     ("d_stratigrafica", "pyarchinit.d_stratigrafica"),
+    # AI08-F2 hotfix: also expose the interpretative description per US
+    ("d_interpretativa", "pyarchinit.d_interpretativa"),
     ("documentazione", "pyarchinit.documentazione"),  # DOC URL/path
     # AI06: persist DB node_uuid so round-trip via GraphMLImporter
     # (which generates a fresh internal node_id) can still identify
@@ -903,6 +905,9 @@ _PYARCHINIT_NODE_DATA_KEYS = (
     ("ambient", "pyarchinit.ambient"),
     ("saggio", "pyarchinit.saggio"),
     ("quad_par", "pyarchinit.quad_par"),
+    # AI08-F2 hotfix: per-US datazione_estesa resolved from
+    # periodizzazione_table by (sito, periodo_iniziale, fase_iniziale).
+    ("datazione_estesa", "pyarchinit.datazione_estesa"),
 )
 _PYARCHINIT_EPOCH_DATA_KEYS = (
     ("periodo", "pyarchinit.periodo"),

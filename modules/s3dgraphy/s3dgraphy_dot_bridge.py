@@ -551,15 +551,53 @@ if QGIS_AVAILABLE:
                 formats.append('phased')
             
             if not formats:
-                QMessageBox.warning(self, "No Formats Selected", 
+                QMessageBox.warning(self, "No Formats Selected",
                                   "Please select at least one export format.")
                 return
-            
+
+            # AI08-F2 hotfix (5.5.2-alpha): single-dimension limit on
+            # group-folder export. AI06's _inject_group_folders uses
+            # yEd folder containment (yfiles.foldertype="group" + inner
+            # <graph>) which re-parents each member US into ONE folder.
+            # When 2+ dimensions share members (the common case), only
+            # the last-processed dimension contains the US; the other
+            # folders render as empty rectangles. Until F1 (hierarchical
+            # nesting) ships, restrict the export to a single dimension
+            # at a time and warn the user.
+            groups_arg = self._build_groups_arg()
+            if len(groups_arg) > 1:
+                msg = (
+                    f"Hai selezionato {len(groups_arg)} dimensioni di "
+                    f"raggruppamento ({', '.join(groups_arg)}).\n\n"
+                    "L'export multi-dimensionale richiede l'annidamento "
+                    "gerarchico dei folder yEd, non ancora supportato "
+                    "(in arrivo con AI08-F1).\n\n"
+                    "Ogni US può appartenere a un solo folder yEd alla "
+                    "volta: con più dimensioni i folder \"perdenti\" "
+                    "verrebbero renderizzati vuoti.\n\n"
+                    f"Vuoi procedere usando SOLO la prima dimensione "
+                    f"selezionata (\"{groups_arg[0]}\")? Le altre "
+                    f"verranno ignorate per questo export.\n\n"
+                    "[Sì] Procedi con una sola dimensione\n"
+                    "[No] Annulla — torna al dialog per modificare la "
+                    "selezione"
+                )
+                reply = QMessageBox.warning(
+                    self,
+                    "Multi-dim export non ancora supportato",
+                    msg,
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.No,
+                )
+                if reply != QMessageBox.Yes:
+                    return
+                groups_arg = [groups_arg[0]]
+
             # Show progress
             self.progress.setVisible(True)
             self.progress.setMaximum(len(formats))
             self.progress.setValue(0)
-            
+
             try:
                 # Export using bridge
                 self.exported_files = self.bridge.export_integrated_matrix(
@@ -567,7 +605,7 @@ if QGIS_AVAILABLE:
                     self.area,
                     output_dir,
                     formats,
-                    groups=self._build_groups_arg(),  # NEW (AI06)
+                    groups=groups_arg,  # AI06 + AI08-F2 hotfix
                 )
                 
                 # Update progress

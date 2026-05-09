@@ -293,17 +293,36 @@ class GraphProjector:
             cur.execute(
                 "SELECT us, node_uuid, sito, area, unita_tipo, "
                 "periodo_iniziale, fase_iniziale, rapporti, "
-                "d_stratigrafica, d_interpretativa, attivita, struttura "
+                "d_stratigrafica, d_interpretativa, attivita, struttura, "
+                "settore, ambient, saggio, quad_par, documentazione "
                 "FROM us_table WHERE sito = ?",
                 (sito,),
             )
             rows = cur.fetchall()
+
+            # AI08-F2 hotfix: lookup datazione_estesa per (periodo, fase)
+            # from periodizzazione_table so each US can carry its
+            # period's full date string.
+            period_datazione: dict = {}
+            try:
+                for p_per, p_fase, p_dat in cur.execute(
+                    "SELECT periodo, fase, datazione_estesa "
+                    "FROM periodizzazione_table WHERE sito = ?",
+                    (sito,),
+                ).fetchall():
+                    if p_dat:
+                        period_datazione[
+                            (str(p_per), str(p_fase))
+                        ] = str(p_dat)
+            except Exception:
+                period_datazione = {}
         finally:
             conn.close()
 
         for (us_val, node_uuid, sito_v, area, unita_tipo,
              periodo_ini, fase_ini, rapporti_raw, d_strat,
-             d_interp, attivita, struttura) in rows:
+             d_interp, attivita, struttura,
+             settore, ambient, saggio, quad_par, documentazione) in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name or us_name not in strat_by_name:
                 continue
@@ -336,6 +355,27 @@ class GraphProjector:
                 attrs["attivita"] = str(attivita)
             if struttura is not None:
                 attrs["struttura"] = str(struttura)
+            # AI08-F2 hotfix: also propagate the 4 grouping dimensions
+            # + documentazione + datazione_estesa per-US so they show
+            # in yEd's node properties panel.
+            if settore is not None and str(settore).strip():
+                attrs["settore"] = str(settore)
+            if ambient is not None and str(ambient).strip():
+                attrs["ambient"] = str(ambient)
+            if saggio is not None and str(saggio).strip():
+                attrs["saggio"] = str(saggio)
+            if quad_par is not None and str(quad_par).strip():
+                attrs["quad_par"] = str(quad_par)
+            if documentazione is not None and str(documentazione).strip() \
+                    and str(documentazione).strip() != "[]":
+                attrs["documentazione"] = str(documentazione)
+            # datazione_estesa from periodizzazione_table (matched on
+            # this US's periodo_iniziale + fase_iniziale).
+            dat_key = (str(periodo_ini) if periodo_ini is not None else "",
+                       str(fase_ini) if fase_ini is not None else "")
+            dat_value = period_datazione.get(dat_key)
+            if dat_value:
+                attrs["datazione_estesa"] = dat_value
 
     def _enrich_into(self, graph, db_path, sito_filter=None):
         """Phase 2 / Strategy A — full-class implementation.

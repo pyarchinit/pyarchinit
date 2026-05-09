@@ -5,6 +5,30 @@
 
 ---
 
+## [5.5.2-alpha] - 2026-05-09
+
+### Italiano
+
+**Due hot-fix discovered durante smoke test su DB sintetico (50 US × 7 dimensioni):**
+
+- **Fix #1 — Limite single-dimension per export multi-dim con avviso.** AI06's `_inject_group_folders` re-parenta ogni US dentro un folder yEd via `parent.remove(me); inner.append(me)` — ma ogni elemento XML ha UN solo parent. Quando l'utente spuntava 2+ checkbox di raggruppamento (caso comune con strutture/attività che condividono US), solo l'ULTIMA dimensione processata conteneva effettivamente le US; le altre N-1 dimensioni renderizzavano come folder vuoti. **Workaround** in `S3DGraphyExportDialog.on_export()`: se sono spuntate >1 checkbox, mostra `QMessageBox.warning` con due opzioni: (a) Procedi con SOLO la prima dimensione selezionata, (b) Annulla. Default Annulla. Soluzione strutturale rimandata ad **AI08-F1** (hierarchical nesting), ora a priorità più alta.
+
+- **Fix #2 — Campi mancanti nelle property dei nodi US esportati.** `_propagate_node_uuid_and_us` in `graph_projector.py` interrogava solo 12 colonne di `us_table`, lasciando empty in yEd 5+ campi: `settore`, `ambient`, `saggio`, `quad_par`, `documentazione`. Inoltre `d_interpretativa` non era registrata in `_PYARCHINIT_NODE_DATA_KEYS`. E `datazione_estesa` (per-US, derivata da `periodizzazione_table` via `(periodo, fase)`) mancava completamente per-nodo. **Fix**: estesa la SELECT a 17 colonne, aggiunto lookup `periodizzazione_table → datazione_estesa`, registrate `d_interpretativa` + `datazione_estesa` nei data keys per-US. Risultato: ogni US esportato ora porta 17 campi `pyarchinit.*` popolati invece di 12 (più i due nuovi extra).
+
+- Nessuna modifica al backend di base (AC-2 baseline byte-identical preservato; `_inject_group_folders` invariato). 11 critical regression guards verdi (179/179 passed).
+
+### English
+
+**Two hot-fixes discovered during smoke test on synthetic 50-US × 7-dim DB:**
+
+- **Fix #1 — Single-dimension limit on multi-dim export with warning.** AI06's `_inject_group_folders` re-parents each US into a yEd folder via `parent.remove(me); inner.append(me)` — but each XML element has only ONE parent. When the user checked 2+ grouping checkboxes (common case with structures/activities sharing members), only the LAST processed dimension actually contained the US; the other N-1 rendered as empty rectangles. **Workaround** in `S3DGraphyExportDialog.on_export()`: if >1 checkboxes checked, show `QMessageBox.warning` with two options: (a) proceed with ONLY the first selected dimension, (b) cancel. Default cancel. Structural fix deferred to **AI08-F1** (hierarchical nesting), now higher priority.
+
+- **Fix #2 — Missing fields in exported US node properties.** `_propagate_node_uuid_and_us` in `graph_projector.py` queried only 12 us_table columns, leaving 5+ empty in yEd: `settore`, `ambient`, `saggio`, `quad_par`, `documentazione`. Also `d_interpretativa` was not registered in `_PYARCHINIT_NODE_DATA_KEYS`. And `datazione_estesa` (per-US, derived from `periodizzazione_table` via `(periodo, fase)`) was missing entirely per-node. **Fix**: extended SELECT to 17 columns, added `periodizzazione_table → datazione_estesa` lookup, registered `d_interpretativa` + `datazione_estesa` in per-US data keys. Result: each exported US now carries 17 populated `pyarchinit.*` fields (vs 12 before).
+
+- No core backend changes (AC-2 baseline byte-identical preserved; `_inject_group_folders` untouched). All 11 critical regression guards green (179/179 passed).
+
+---
+
 ## [5.5.1-alpha] - 2026-05-09
 
 ### Italiano
