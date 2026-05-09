@@ -27,6 +27,47 @@ class ProjectionError(GraphSyncError):
     """Read-side failure during GraphProjector.populate_graph()."""
 
 
+# AI07: hardcoded priority order for compute_primary. Toponym is
+# explicitly excluded — toponym memberships are NEVER primary.
+DEFAULT_PRIMARY_PRIORITY: list = [
+    "struttura", "attivita", "area", "settore",
+    "ambient", "saggio", "quad_par",
+]
+
+
+def compute_primary(memberships: list, priority_order: list) -> dict:
+    """Pick exactly one primary group_uuid per us_id following priority.
+
+    memberships: list of dicts with at least these keys:
+      - us_id: graph node_id of the US
+      - group_uuid: target group node_id
+      - group_kind: pyarchinit dimension (struttura, area, ..., toponym)
+
+    priority_order: list of group_kind names, highest priority first.
+      Toponym is excluded automatically (never primary).
+
+    Returns: dict us_id → group_uuid (the primary). US without any
+    eligible spatial/activity membership get no entry.
+    """
+    by_us: dict = {}  # us_id → {group_kind → group_uuid}
+    for m in memberships:
+        if m["group_kind"] == "toponym":
+            continue  # toponym never primary
+        by_us.setdefault(m["us_id"], {})[m["group_kind"]] = m["group_uuid"]
+
+    out: dict = {}
+    for us_id, dims in by_us.items():
+        for dim in priority_order:
+            if dim in dims:
+                out[us_id] = dims[dim]
+                break
+        else:
+            # Fallback: take any non-toponym membership (e.g. adhoc)
+            if dims:
+                out[us_id] = next(iter(dims.values()))
+    return out
+
+
 class GraphProjector:
     """Stratigraphic-layer projection from PyArchInit DB to s3dgraphy Graph.
 
@@ -56,6 +97,7 @@ class GraphProjector:
         include_paradata: bool = True,
         strict_schema: bool = True,
         groups: list = None,                # NEW (AI06 D7-A: None = no grouping)
+        primary_priority: list = None,      # NEW (AI07 C: per-US is_primary order)
     ) -> "s3dgraphy.Graph":
         """Build and return a s3dgraphy.Graph populated with the
         stratigraphic rows of `sito` from the SQLite at `db_path`.
@@ -81,6 +123,11 @@ class GraphProjector:
                 which only needs labels/edges/swimlanes — node_uuid is
                 irrelevant there and AC-2 fixtures pre-date the
                 migration.
+            primary_priority: optional list of dimension names ordered
+                from highest to lowest priority for the AI07
+                ``is_primary`` selection (compute_primary). When None,
+                ``DEFAULT_PRIMARY_PRIORITY`` is used. Toponym is
+                always excluded.
 
         Returns:
             A populated `s3dgraphy.Graph`. Empty graph (zero nodes) is
@@ -203,7 +250,8 @@ class GraphProjector:
         # AI06: optional grouping by us_table dimensions + ad-hoc
         if groups:
             try:
-                self._merge_groups(graph, db_path, sito, groups)
+                self._merge_groups(graph, db_path, sito, groups,
+                                   primary_priority)
             except Exception as e:
                 import logging
                 logging.getLogger(__name__).warning(
@@ -639,14 +687,19 @@ class GraphProjector:
         finally:
             conn.close()
 
-    def _merge_groups(self, graph, db_path, sito, dimensions):
-        """Materialize ActivityNodeGroup nodes + is_in_activity edges
-        from SQL columns and ad-hoc store. Each group node carries
-        a ``group_kind`` attribute distinguishing the dimension."""
+    def _merge_groups(self, graph, db_path, sito, dimensions,
+                      primary_priority=None):
+        """Materialize group nodes per dimension. AI07: dispatch per
+        dimension — 6 spatial dims → LocationNodeGroup + is_in_location,
+        attivita → ActivityNodeGroup + is_in_activity (unchanged).
+
+        primary_priority: list[str] of dimension names ordered from highest
+        to lowest priority for is_primary selection. None = use
+        DEFAULT_PRIMARY_PRIORITY.
+        """
         from .group_projector import (
             build_groups_from_sql, merge_adhoc_groups,
         )
-        # SQL-derived dims (anything except 'adhoc')
         sql_dims = [d for d in dimensions if d != "adhoc"]
         specs = build_groups_from_sql(db_path, sito, sql_dims)
 
@@ -655,18 +708,12 @@ class GraphProjector:
             store = GroupStore(db_path, sito)
             specs = merge_adhoc_groups(specs, store)
 
-        # Materialize as s3dgraphy ActivityNodeGroup nodes
-        from s3dgraphy.nodes.group_node import ActivityNodeGroup
+        # AI07: lazy import both classes from the vendored 0.1.41
+        from s3dgraphy.nodes.group_node import (
+            ActivityNodeGroup, LocationNodeGroup,
+        )
 
-        # Build node_uuid (DB) -> node_id (graph) map for stratigraphic
-        # nodes: GroupSpec.member_us_uuids are us_table.node_uuid values
-        # but the s3dgraphy node_id is an importer-assigned UUID4. We
-        # bridge via the `name`/`us` attribute (importer emits name=str(us)
-        # — see _propagate_node_uuid_and_us docstring).
-        # Path 1 (strict_schema=True): node.attributes['node_uuid'] is
-        # already populated by Stage 2b — direct lookup.
-        # Path 2 (strict_schema=False): query us_table for the
-        # node_uuid -> us mapping and chain through name -> node.
+        # Build node_uuid → node_id map (unchanged from AI06)
         node_uuid_to_id: dict = {}
         strat_by_name: dict = {}
         for n in graph.nodes:
@@ -695,18 +742,35 @@ class GraphProjector:
                 finally:
                     conn.close()
             except sqlite3.Error:
-                # Defensive: leave map partial — falls back to raw UUID.
                 pass
 
+        # AI07: gather all memberships first, so compute_primary has the
+        # full picture per US before any edge is added.
+        memberships: list = []  # {us_id, group_uuid, group_kind, ...}
         existing_ids = {getattr(n, "node_id", None) for n in graph.nodes}
+
         for spec in specs:
             if spec.group_uuid in existing_ids:
-                continue  # idempotent — don't double-add on retry
-            node = ActivityNodeGroup(
-                node_id=spec.group_uuid,
-                name=spec.name,
-                description=spec.description or "",
-            )
+                continue  # idempotent
+
+            # Dispatch class per spec
+            if spec.node_class == "LocationNodeGroup":
+                node = LocationNodeGroup(
+                    node_id=spec.group_uuid,
+                    name=spec.name,
+                    kind=spec.kind or "functional",  # defensive default
+                    description=spec.description or "",
+                )
+                edge_type = "is_in_location"
+            else:
+                node = ActivityNodeGroup(
+                    node_id=spec.group_uuid,
+                    name=spec.name,
+                    description=spec.description or "",
+                )
+                edge_type = "is_in_activity"
+
+            # Carry pyarchinit metadata as attributes (round-trip)
             data_key = f"pyarchinit.{spec.group_kind}"
             node.attributes = {
                 "group_kind": spec.group_kind,
@@ -718,27 +782,42 @@ class GraphProjector:
             graph.add_node(node)
             existing_ids.add(spec.group_uuid)
 
-            # is_in_activity edge from each US member to this group.
-            # Translate DB node_uuid -> graph node_id when available;
-            # fall back to the raw UUID (round-trip / external reference).
+            # Collect memberships for compute_primary
             for us_uuid in spec.member_us_uuids:
                 src_id = node_uuid_to_id.get(str(us_uuid), us_uuid)
-                # Edge ID uses full UUIDs to avoid collisions among
-                # members whose node_uuids share an 8-char prefix
-                # (UUID7 timestamps make this common in batched seeds).
-                edge_id = f"grp_{us_uuid}_{spec.group_uuid}"
-                try:
-                    graph.add_edge(
-                        edge_id=edge_id,
-                        edge_source=src_id,
-                        edge_target=spec.group_uuid,
-                        edge_type="is_in_activity",
-                    )
-                except Exception:
-                    # Edge validation may reject if connection
-                    # rules don't accept the source type — log
-                    # and continue (defensive).
-                    pass
+                memberships.append({
+                    "us_id": src_id,
+                    "group_uuid": spec.group_uuid,
+                    "group_kind": spec.group_kind,
+                    "edge_type": edge_type,
+                    "us_uuid": us_uuid,
+                })
+
+        # AI07: compute is_primary per US using priority order
+        priority = primary_priority or DEFAULT_PRIMARY_PRIORITY
+        primaries: dict = compute_primary(memberships, priority)
+
+        # Materialize edges with is_primary attribute
+        for m in memberships:
+            edge_id = f"grp_{m['us_uuid']}_{m['group_uuid']}"
+            is_primary = primaries.get(m["us_id"]) == m["group_uuid"]
+            try:
+                edge = graph.add_edge(
+                    edge_id=edge_id,
+                    edge_source=m["us_id"],
+                    edge_target=m["group_uuid"],
+                    edge_type=m["edge_type"],
+                )
+                # Stamp is_primary on the edge attributes (post-construction:
+                # s3dgraphy.Graph.add_edge has no attributes kwarg in 0.1.41).
+                if edge is not None:
+                    if getattr(edge, "attributes", None) is None:
+                        edge.attributes = {}
+                    edge.attributes["is_primary"] = is_primary
+            except Exception:
+                # Edge validation may reject if connection rules don't accept
+                # the source type — keep AI06 behaviour (silent skip)
+                pass
 
 
 def _is_epoch_node(node) -> bool:

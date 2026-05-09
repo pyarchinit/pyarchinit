@@ -1632,18 +1632,25 @@ def export_graphml(
     # which retains only StratigraphicNode + EpochNode and would
     # drop our ActivityNodeGroup instances. Same lesson as AI05
     # paradata snapshot.
+    # AI07: also accept LocationNodeGroup (spatial dims dispatch)
+    # and is_in_location edges. The downstream _inject_group_folders
+    # is class-agnostic — it reads attrs["group_kind"] for palette
+    # lookup, and Group C's _merge_groups stamps that attribute on
+    # both classes uniformly.
+    _GROUP_NODE_CLASSES = ("ActivityNodeGroup", "LocationNodeGroup")
+    _GROUP_EDGE_TYPES = ("is_in_activity", "is_in_location")
     _group_snapshot = [
         n for n in graph.nodes
-        if type(n).__name__ == "ActivityNodeGroup"
+        if type(n).__name__ in _GROUP_NODE_CLASSES
         and (getattr(n, "attributes", None) or {}).get("group_kind")
     ]
     # Build members_map (group_uuid → [us_emid, ...]) from the
-    # is_in_activity edges currently in the graph.
+    # is_in_activity / is_in_location edges currently in the graph.
     _group_member_uuids = {
         gn.node_id: [] for gn in _group_snapshot
     }
     for edge in list(getattr(graph, "edges", []) or []):
-        if (getattr(edge, "edge_type", "") == "is_in_activity"
+        if (getattr(edge, "edge_type", "") in _GROUP_EDGE_TYPES
                 and edge.edge_target in _group_member_uuids):
             _group_member_uuids[edge.edge_target].append(edge.edge_source)
     print(f"[ExportGraphML] group snapshot: "

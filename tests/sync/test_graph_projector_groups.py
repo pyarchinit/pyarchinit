@@ -64,9 +64,11 @@ def test_default_groups_empty_no_group_nodes(mini_volterra):
     assert "ActivityNodeGroup" not in types
 
 
-def test_groups_arg_materializes_activity_node_group(mini_volterra):
-    """D4 / AC-4: groups=['struttura'] yields ActivityNodeGroup
-    instances with attributes['group_kind']='struttura'."""
+def test_groups_arg_materializes_locationnodegroup_for_struttura(
+        mini_volterra):
+    """AI07 update: groups=['struttura'] yields LocationNodeGroup
+    instances (was ActivityNodeGroup pre-5.6.0). attributes['group_kind']
+    must still be 'struttura' for AC-2 palette lookup."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     sito = _read_sito(mini_volterra)
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
@@ -74,16 +76,18 @@ def test_groups_arg_materializes_activity_node_group(mini_volterra):
     graph = GraphProjector().populate_graph(
         mini_volterra, sito=sito, groups=["struttura"])
     groups = [n for n in graph.nodes
-              if type(n).__name__ == "ActivityNodeGroup"]
+              if type(n).__name__ == "LocationNodeGroup"]
     assert len(groups) >= 1
+    # struttura → kind="functional" per spec mapping table
+    assert all(getattr(g, "kind", None) == "functional" for g in groups)
     g = groups[0]
     attrs = getattr(g, "attributes", None) or {}
     assert attrs.get("group_kind") == "struttura"
 
 
-def test_groups_arg_adds_is_in_activity_edges(mini_volterra):
-    """AC-5: edges from each US member to its group, type
-    is_in_activity."""
+def test_groups_arg_adds_is_in_location_edges_for_struttura(mini_volterra):
+    """AI07 update: edges from each US member to its struttura group
+    are now is_in_location (was is_in_activity pre-5.6.0)."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     sito = _read_sito(mini_volterra)
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
@@ -91,16 +95,17 @@ def test_groups_arg_adds_is_in_activity_edges(mini_volterra):
     graph = GraphProjector().populate_graph(
         mini_volterra, sito=sito, groups=["struttura"])
     group_ids = {n.node_id for n in graph.nodes
-                 if type(n).__name__ == "ActivityNodeGroup"}
+                 if type(n).__name__ == "LocationNodeGroup"}
     rel_edges = [e for e in graph.edges
                  if getattr(e, "edge_target", None) in group_ids
-                 and getattr(e, "edge_type", "") == "is_in_activity"]
+                 and getattr(e, "edge_type", "") == "is_in_location"]
     assert len(rel_edges) >= 3
 
 
 def test_export_with_groups_emits_yed_folder_node(mini_volterra, tmp_path):
     """Stage 4e: export with groups=['struttura'] produces a yEd
-    folder node in the GraphML output."""
+    folder node in the GraphML output. AI07: works for the new
+    LocationNodeGroup dispatch via writer's class-agnostic snapshot."""
     from modules.s3dgraphy.sync.graphml_writer import export_graphml
     sito = _read_sito(mini_volterra)
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
