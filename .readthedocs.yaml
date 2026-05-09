@@ -1,0 +1,19 @@
+# Read the Docs configuration — pyarchinit
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+#
+# The API reference site lives in api-doc/. RTD only builds that subtree;
+# the plugin code itself is not auto-documented from this config.
+
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.12"
+
+mkdocs:
+  configuration: api-doc/mkdocs.yml
+
+python:
+  install:
+    - requirements: api-doc/requirements.txt

@@ -1,0 +1,190 @@
+# resources/dbfiles/dot.py
+
+## Overview
+
+This file contains 30 documented elements.
+
+## Classes
+
+### Node
+
+a single node in the graph 
+
+#### Methods
+
+##### __init__(self)
+
+Initializes a new `Node` instance with default values for all instance attributes. Sets `label` to an empty string, `id` to `0`, `attribs` to an empty dictionary, `referenced` to `False`, `sections` to an empty list, and the coordinates `x` and `y` to `0.0`.
+
+##### initFromString(self, line)
+
+extract node info from the given text line 
+
+##### getLabel(self, conf, multiline)
+
+return the label of the node 
+
+##### getLabelWidth(self, conf, multiline)
+
+return the maximum width label of the node label
+
+##### complementAttributes(self, node)
+
+from node copy all new attributes, that do not exist in self 
+
+##### exportDot(self, o, conf)
+
+write the node in DOT format to the given file 
+
+##### exportGDF(self, o, conf)
+
+write the node in GDF format to the given file 
+
+##### exportGML(self, o, conf)
+
+write the node in GML format to the given file 
+
+##### get_y(self, epoch, nome_us)
+
+*No description available.*
+Iterates over the `epoch` sequence to determine a vertical position value for a given unit name `nome_us`. For each element in `epoch` that is also present in `nome_us`, the method updates `y_value` to the product of the element's index and `1000`. Returns the final computed `y_value` as an integer representing the y-coordinate position.
+
+##### exportGraphml(self, doc, parent, conf, epoch_sigla)
+
+export the node in Graphml format and append it to the parent XML node 
+
+### Edge
+
+a single edge in the graph 
+
+#### Methods
+
+##### __init__(self)
+
+Initializes a new `Edge` instance with default values for all instance attributes. Sets `id` to `0`, `src` and `dest` to empty strings, and `attribs` to an empty dictionary. No parameters are required beyond the implicit `self` reference.
+
+##### initFromString(self, line)
+
+extract edge info from the given text line 
+
+##### getLabel(self, nodes, conf)
+
+return the label of the edge 
+
+##### complementAttributes(self, edge)
+
+from edge copy all new attributes, that do not exist in self 
+
+##### exportDot(self, o, nodes, conf)
+
+write the edge in DOT format to the given file 
+
+##### exportGDF(self, o, nodes, conf)
+
+write the edge in GDF format to the given file 
+
+##### exportGML(self, o, nodes, conf)
+
+write the edge in GML format to the given file 
+
+##### exportGraphml(self, doc, parent, nodes, conf)
+
+export the edge in Graphml format and append it to the parent XML node 
+
+## Functions
+
+### compileAttributes(attribs)
+
+return the list of attributes as a DOT text string 
+
+**Parameters:**
+- `attribs`
+
+### parseAttributes(attribs)
+
+parse the attribute list and return a key/value dict for it 
+
+**Parameters:**
+- `attribs`
+
+### getLabelAttributes(label)
+
+return the sections of the label attributes in a list structure 
+
+**Parameters:**
+- `label`
+
+### colorNameToRgb(fcol, defaultcol)
+
+convert the color name fcol to an RGB string, if required 
+
+**Parameters:**
+- `fcol`
+- `defaultcol`
+
+### getColorAttribute(attribs, key, defaultcol, conf)
+
+extract the color for the attribute key and convert it
+to RGB format if required
+
+**Parameters:**
+- `attribs`
+- `key`
+- `defaultcol`
+- `conf`
+
+### escapeNewlines(label)
+
+convert the newline escape sequences in the given label 
+
+**Parameters:**
+- `label`
+
+### findUnescapedQuote(string, spos, qchar)
+
+Return the position of the next unescaped quote
+character in the given string, starting at the
+position spos.
+Returns a -1, if no occurrence was found.
+
+**Parameters:**
+- `string`
+- `spos`
+- `qchar`
+
+### findUnquoted(string, char, spos, qchar)
+
+Return the position of the next unquoted
+character char in the given string.
+Searching for the next position starts at
+spos, while parsing the quote characters is
+always done from the start of the string.
+Returns a -1, if no occurrence was found.
+Warning: Assumes that the user never searches for an
+actual quote char with this, but uses findUnescapedQuote
+instead (see above).
+
+**Parameters:**
+- `string`
+- `char`
+- `spos`
+- `qchar`
+
+### findLastUnquoted(string, char, spos, qchar)
+
+Return the position of the last unquoted
+character char in the given string.
+Searching for the last position starts at
+spos, while parsing the quote characters is
+always done from the start of the string.
+Returns a -1, if no occurrence was found.
+Warning: Assumes that the user never searches for an
+actual quote char with this, but uses findUnescapedQuote
+instead (see above).
+
+**Parameters:**
+- `string`
+- `char`
+- `spos`
+- `qchar`
+

@@ -3,6 +3,10 @@
 /copy_excelfile.py
 /t_4707.py
 
+# mkdocs build output for api-doc/
+/api-doc/site/
+/api-doc/.cache/
+
 # Python cache files
 __pycache__/
 *.pyc
