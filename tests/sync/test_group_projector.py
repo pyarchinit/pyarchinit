@@ -190,3 +190,57 @@ def test_merge_adhoc_groups_warns_on_name_collision(tmp_path, mini_volterra, cap
     adhoc_names = {s.name for s in merged if s.group_kind == "adhoc"}
     assert "basilica" not in adhoc_names
     assert any("collision" in r.message.lower() for r in caplog.records)
+
+
+def test_groupspec_has_node_class_field():
+    """AI07 B.1: GroupSpec carries node_class to dispatch ActivityNodeGroup vs LocationNodeGroup."""
+    from modules.s3dgraphy.sync.group_projector import GroupSpec
+    spec = GroupSpec(
+        group_uuid="abc",
+        name="X",
+        group_kind="struttura",
+        member_us_uuids=[],
+        node_class="LocationNodeGroup",
+        kind="functional",
+    )
+    assert spec.node_class == "LocationNodeGroup"
+    assert spec.kind == "functional"
+
+
+def test_attivita_resolves_to_activitynodegroup_no_kind():
+    """AI07 B.1 + Q1: attivita stays as ActivityNodeGroup with kind=None."""
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    cls, kind = _resolve_node_class_and_kind("attivita")
+    assert cls == "ActivityNodeGroup"
+    assert kind is None
+
+
+def test_struttura_ambient_resolve_to_locationnodegroup_functional():
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    for dim in ("struttura", "ambient"):
+        cls, kind = _resolve_node_class_and_kind(dim)
+        assert cls == "LocationNodeGroup"
+        assert kind == "functional"
+
+
+def test_area_settore_saggio_quad_par_resolve_to_locationnodegroup_study():
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    for dim in ("area", "settore", "saggio", "quad_par"):
+        cls, kind = _resolve_node_class_and_kind(dim)
+        assert cls == "LocationNodeGroup"
+        assert kind == "study"
+
+
+def test_adhoc_resolves_to_locationnodegroup_functional_default():
+    from modules.s3dgraphy.sync.group_projector import (
+        _resolve_node_class_and_kind,
+    )
+    cls, kind = _resolve_node_class_and_kind("adhoc")
+    assert cls == "LocationNodeGroup"
+    assert kind == "functional"
