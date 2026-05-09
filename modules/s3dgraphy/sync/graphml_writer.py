@@ -1266,12 +1266,13 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
 _GROUP_INJECT_TYPE = "ActivityNodeGroup"
 
 
-# AI08-F2: per-dimension palette. Pastel-soft (D1-A) with 50% alpha
-# fill (D2-C) so the epoch swimlane rows underneath stay visible,
-# plus a darker solid border. Keys are group_kind values produced
-# by group_projector.build_groups_from_sql + the "adhoc" kind from
-# user-authored GroupStore entries.
+# AI06 dimension-keyed entries + AI07 kind-enum entries. Lookup order
+# in _resolve_group_visual: try dimension first (e.g. "struttura"), then
+# fall back to s3dgraphy LocationNodeGroup.kind enum value (e.g.
+# "toponym"). The dimension-key entries match AI06+F2 exactly so
+# AC-2 byte-identical regression stays green for all existing dims.
 _GROUP_KIND_PALETTE: dict = {
+    # AI06 + F2: pyarchinit dimension keys
     # group_kind     : (fill_rgba_50pct,    border_solid)
     "area":            ("#FFE0E680",         "#C84A5F"),
     "struttura":       ("#FFE6CC80",         "#C66B33"),
@@ -1281,9 +1282,33 @@ _GROUP_KIND_PALETTE: dict = {
     "saggio":          ("#CCF5FF80",         "#3389A8"),
     "quad_par":        ("#E0CCFF80",         "#6633C6"),
     "adhoc":           ("#F5F5F580",         "#666666"),
+    # AI07: s3dgraphy LocationNodeGroup.kind enum keys
+    "toponym":         ("#E6E6FA80",         "#9370DB"),  # lavender / dark slate
+    "study":           ("#FFFFE080",         "#888888"),  # ivory / mid grey
+    "functional":      ("#E0FFFF80",         "#008B8B"),  # light cyan / dark cyan
 }
 _GROUP_DEFAULT_FILL = "#F5F5F580"
 _GROUP_DEFAULT_BORDER = "#000000"
+
+
+def _resolve_group_visual(
+    group_kind: str | None = None,
+    kind: str | None = None,
+) -> tuple[str, str]:
+    """Resolve fill + border for a group folder.
+
+    Lookup order:
+    1. dimension key (e.g. "struttura") — AI06 + F2 path, preserves
+       byte-identical AC-2 baseline for all existing dimensions
+    2. s3dgraphy LocationNodeGroup.kind enum (e.g. "toponym") — AI07
+       fallback for nodes that have no dimension-key palette entry
+    3. defaults (grey + black) — last resort
+    """
+    if group_kind and group_kind in _GROUP_KIND_PALETTE:
+        return _GROUP_KIND_PALETTE[group_kind]
+    if kind and kind in _GROUP_KIND_PALETTE:
+        return _GROUP_KIND_PALETTE[kind]
+    return (_GROUP_DEFAULT_FILL, _GROUP_DEFAULT_BORDER)
 
 
 def _inject_group_folders(

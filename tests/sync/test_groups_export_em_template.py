@@ -408,3 +408,23 @@ def test_unknown_group_kind_falls_back_to_default(mini_volterra, tmp_path):
     assert fill is not None and bs is not None
     assert fill.get("color") == _GROUP_DEFAULT_FILL
     assert bs.get("color") == _GROUP_DEFAULT_BORDER
+
+
+def test_locationnodegroup_palette_keyed_by_kind():
+    """AI07 A.2: LocationNodeGroup folders pick fill/border from kind enum."""
+    from modules.s3dgraphy.sync.graphml_writer import (
+        _GROUP_KIND_PALETTE,
+        _resolve_group_visual,
+    )
+    # The 8 existing entries (AI06 + F2) are dimension-keyed.
+    assert "struttura" in _GROUP_KIND_PALETTE  # functional
+    assert "area" in _GROUP_KIND_PALETTE       # study
+    # AI07 also indexes by kind enum value:
+    assert "toponym" in _GROUP_KIND_PALETTE
+    fill, border = _GROUP_KIND_PALETTE["toponym"]
+    assert fill.endswith("80"), f"toponym fill must be 50% alpha, got {fill}"
+    # Resolver helper picks dimension first, falls back to kind
+    assert _resolve_group_visual(group_kind="struttura", kind="functional") == \
+           _GROUP_KIND_PALETTE["struttura"]
+    assert _resolve_group_visual(group_kind="<unknown>", kind="toponym") == \
+           _GROUP_KIND_PALETTE["toponym"]
