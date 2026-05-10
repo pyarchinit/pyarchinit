@@ -169,6 +169,20 @@ class GraphIngestor:
                 # Defensive: if hydration fails, the graph still has
                 # whatever attributes the s3dgraphy importer preserved.
                 pass
+        # AI07 Stage B: promote legacy 5.5.x ActivityNodeGroup nodes
+        # with spatial group_kind to LocationNodeGroup (in-memory only;
+        # emits DeprecationWarning if any). Run after the hydrator so
+        # `pyarchinit.<dim>` data keys are visible on node attrs for
+        # the fallback detection path.
+        try:
+            _promote_legacy_activitynodegroup(graph)
+        except Exception as _e:
+            # Defensive: never block ingestion on a promotion failure.
+            import logging as _logging
+            _logging.getLogger(__name__).warning(
+                "_promote_legacy_activitynodegroup failed, continuing: %s",
+                _e,
+            )
         # 2. Schema check
         self._verify_schema(db_path)
         # 3. Run the actual ingestion (Group C: dry-run only)
@@ -573,6 +587,119 @@ _GROUP_KIND_TO_COL: frozenset = frozenset({
     "area", "struttura", "attivita", "settore",
     "ambient", "saggio", "quad_par",
 })
+
+
+# AI07: subset of SQL-backed kinds that map to LocationNodeGroup.
+# Excludes "attivita" (Q1 — stays as ActivityNodeGroup) and "adhoc"
+# (already LocationNodeGroup at projection time).
+SQL_BACKED_KINDS_SPATIAL: frozenset = frozenset({
+    "area", "struttura", "settore", "ambient", "saggio", "quad_par",
+})
+
+
+# AI07: dimension → s3dgraphy LocationNodeGroup.kind enum value
+_DIM_TO_KIND: dict = {
+    "area":      "study",
+    "settore":   "study",
+    "saggio":    "study",
+    "quad_par":  "study",
+    "struttura": "functional",
+    "ambient":   "functional",
+}
+
+
+def _promote_legacy_activitynodegroup(graph) -> int:
+    """AI07 Stage B: scan *graph* for ActivityNodeGroup nodes whose
+    attributes carry ``group_kind`` ∈ ``SQL_BACKED_KINDS_SPATIAL``, and
+    promote them in-memory to ``LocationNodeGroup`` with ``kind`` set
+    per :data:`_DIM_TO_KIND`. Also rewires incoming ``is_in_activity``
+    edges to ``is_in_location``.
+
+    Detection: looks at ``node.attributes`` for either:
+
+    - direct key ``'group_kind'`` (newer AI07 exports), or
+    - any ``'pyarchinit.<dim>'`` key where ``<dim>`` is in
+      ``SQL_BACKED_KINDS_SPATIAL`` (legacy 5.5.x exports that retained
+      the data attributes through the importer).
+
+    Emits exactly one ``DeprecationWarning`` per call (not per node) if
+    any promotion happens. The warning references AI07 / pyarchinit
+    5.6.0+ and instructs the user to re-export to migrate the on-disk
+    representation.
+
+    Returns: number of nodes promoted.
+    """
+    import warnings as _warnings
+    from s3dgraphy.nodes.group_node import LocationNodeGroup
+
+    promotions: list = []  # list of (old_node, new_node, group_kind)
+    for n in list(graph.nodes):
+        if type(n).__name__ != "ActivityNodeGroup":
+            continue
+        attrs = getattr(n, "attributes", None) or {}
+        # Try direct group_kind attribute first
+        gk = attrs.get("group_kind")
+        if not gk:
+            # Fallback: find pyarchinit.<dim> key in attributes
+            for key in attrs:
+                if isinstance(key, str) and key.startswith("pyarchinit."):
+                    candidate = key.split(".", 1)[1]
+                    if candidate in SQL_BACKED_KINDS_SPATIAL:
+                        gk = candidate
+                        break
+        if gk not in SQL_BACKED_KINDS_SPATIAL:
+            continue  # attivita / adhoc / unknown — leave alone
+        kind_enum = _DIM_TO_KIND.get(gk, "functional")
+        new_node = LocationNodeGroup(
+            node_id=n.node_id,
+            name=n.name,
+            kind=kind_enum,
+            description=getattr(n, "description", "") or "",
+        )
+        new_node.attributes = dict(attrs)
+        # Ensure group_kind is also set as a direct attribute
+        new_node.attributes["group_kind"] = gk
+        # Re-stamp kind/propagation onto attributes (LocationNodeGroup
+        # constructor sets these but we just clobbered the dict)
+        new_node.attributes["kind"] = kind_enum
+        new_node.attributes.setdefault("propagation", "additive")
+        promotions.append((n, new_node, gk))
+
+    if not promotions:
+        return 0
+
+    # Replace in-place: Graph.nodes is a list — find indices.
+    nodes_list = graph.nodes
+    for old, new, _gk in promotions:
+        try:
+            idx = nodes_list.index(old)
+            nodes_list[idx] = new
+        except ValueError:
+            graph.add_node(new)
+
+    # Rewire is_in_activity → is_in_location for promoted targets.
+    promoted_ids = {old.node_id for old, _, _ in promotions}
+    for e in getattr(graph, "edges", []):
+        target = getattr(e, "edge_target", None)
+        etype = getattr(e, "edge_type", None)
+        if target in promoted_ids and etype == "is_in_activity":
+            try:
+                e.edge_type = "is_in_location"
+            except (AttributeError, TypeError):
+                # Edge may freeze edge_type; skip silently.
+                pass
+
+    n_count = len(promotions)
+    _warnings.warn(
+        f"Found {n_count} legacy ActivityNodeGroup nodes with "
+        f"group_kind in {{area, struttura, settore, ambient, saggio, "
+        f"quad_par}}. Promoting in-memory to LocationNodeGroup + kind. "
+        f"Re-export the file via 'Esporta Extended Matrix' to migrate "
+        f"the on-disk representation. AI07 / pyarchinit 5.6.0+.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return n_count
 
 
 def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
@@ -1065,5 +1192,6 @@ _NON_STRAT_TYPES: frozenset[str] = frozenset({
     # AI06: Group folder nodes — never written to us_table.
     "GroupNode",
     "ActivityNodeGroup",
+    "LocationNodeGroup",       # AI07: new spatial group node class
     "TimeBranchNodeGroup",
 })
