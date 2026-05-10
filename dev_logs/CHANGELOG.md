@@ -5,6 +5,42 @@
 
 ---
 
+## [5.6.2-alpha] - 2026-05-10
+
+### Italiano
+
+**Foundation per PostgreSQL compat — machinery only, nessun caller cambiato.**
+
+Primo step della Phase 3 (PG-compat refactor del bridge s3dgraphy). Rilascia l'infrastruttura `DbHandle` + shim resolver + dialect-aware introspection senza modificare alcun call site di produzione. Tutti i 234 test SQLite esistenti restano verdi.
+
+- **`DbHandle` dataclass**: wrapper immutabile attorno a un `Engine` SQLAlchemy che traccia se il backend è PostgreSQL, conserva il path SQLite (quando applicabile) e la conn string originale per derivare slugs.
+- **`_resolve_db_handle()` shim**: accetta 5 tipi di input (`Path`, `str`, `DbManager`, `Engine`, `DbHandle` passthrough) e li normalizza a `DbHandle`. I `Path` callers ricevono `DeprecationWarning` (continuano a funzionare per tutta la durata di PG-A/B/C/D).
+- **`_columns_of()` introspection**: dispatch su `engine.dialect.name` — `PRAGMA table_info` su SQLite, `information_schema.columns` su PostgreSQL, fallback a SQLAlchemy reflection. Sostituisce il path SQLite-only in `GraphIngestor._verify_schema` (cambio caller deferito a PG-C).
+- **3 nuove eccezioni**: `DbHandleError`, `UnsupportedBackendError`, `PgConnectionError` (tutte subclass di `GraphSyncError`).
+- **Test infrastructure**: `tests/sync/conftest_pg.py` (`pg_engine` + `clean_pg` fixtures, schema bootstrap su `localhost:5433/pyarchinit_test_pg`) + `tests/sync/test_pg_smoke.py`. Skip puliti quando PG è offline o psycopg2 mancante — niente fallimenti CI senza PG locale.
+- **`psycopg2-binary>=2.9`** aggiunto a `requirements.txt`.
+- **API pubblica**: `DbHandle` + 3 eccezioni esportate da `modules.s3dgraphy.sync`.
+
+13 nuovi test (12 unit + 1 PG smoke). Test count: 234 → 245 passed, 5 skipped (PG offline) o 247 passed, 3 skipped (PG online con psycopg2). AC-2 byte-identical preservato.
+
+### English
+
+**Foundation for PostgreSQL compat — machinery only, no callers changed.**
+
+First step of Phase 3 (PG-compat refactor of the s3dgraphy bridge). Lands the `DbHandle` + resolver shim + dialect-aware introspection infrastructure without changing any production call site. All 234 existing SQLite tests stay green.
+
+- **`DbHandle` dataclass**: immutable wrapper around a SQLAlchemy `Engine` tracking whether the backend is PostgreSQL, the SQLite path (when applicable), and the original conn string for slug derivation.
+- **`_resolve_db_handle()` shim**: accepts 5 input types (`Path`, `str`, `DbManager`, `Engine`, `DbHandle` passthrough) and normalises them to `DbHandle`. `Path` callers receive a `DeprecationWarning` (continue to work for the full lifetime of PG-A/B/C/D).
+- **`_columns_of()` introspection**: dispatches on `engine.dialect.name` — `PRAGMA table_info` on SQLite, `information_schema.columns` on PostgreSQL, SQLAlchemy reflection fallback. Replaces the SQLite-only path in `GraphIngestor._verify_schema` (caller swap deferred to PG-C).
+- **3 new exceptions**: `DbHandleError`, `UnsupportedBackendError`, `PgConnectionError` (all subclass of `GraphSyncError`).
+- **Test infrastructure**: `tests/sync/conftest_pg.py` (`pg_engine` + `clean_pg` fixtures, schema bootstrap on `localhost:5433/pyarchinit_test_pg`) + `tests/sync/test_pg_smoke.py`. Skips cleanly when PG is offline or psycopg2 absent — no CI failures without a local PG.
+- **`psycopg2-binary>=2.9`** added to `requirements.txt`.
+- **Public API**: `DbHandle` + 3 exceptions exported from `modules.s3dgraphy.sync`.
+
+13 new tests (12 unit + 1 PG smoke). Test count: 234 → 245 passed, 5 skipped (PG offline) or 247 passed, 3 skipped (PG online with psycopg2). AC-2 byte-identical preserved.
+
+---
+
 ## [5.6.1-alpha] - 2026-05-10
 
 ### Italiano
