@@ -1311,6 +1311,98 @@ def _resolve_group_visual(
     return (_GROUP_DEFAULT_FILL, _GROUP_DEFAULT_BORDER)
 
 
+def _inject_other_locations_data(
+    us_other_locations: dict,
+    xml_path: Path,
+) -> None:
+    """AI07/F1 §5.4: emit `<data key="s3d:other_locations">` on US
+    nodes for non-primary memberships.
+
+    yEd folders can host a node under at most ONE parent (the primary
+    membership). Other memberships are preserved on the US side as a
+    JSON-serialised list under the ``s3d:other_locations`` data key,
+    so downstream tools (yEd visual-rules badges, triplestore
+    reconstruction) can recover them without folder re-parenting.
+
+    Schema per entry: ``{"name": str, "kind": str, "group_uuid": str}``.
+
+    Args:
+        us_other_locations: dict mapping us_emid → list of memberships.
+            Empty dict is a no-op.
+        xml_path: path to the GraphML output to post-process.
+    """
+    if not us_other_locations:
+        return
+
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    import json as _json
+
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # Allocate a fresh data-key id and register it at document level.
+    used_ids = {k.get("id") for k in root.findall(f"{{{NS_GRAPHML}}}key")
+                if k.get("id")}
+    next_n = 0
+    while f"d{next_n}" in used_ids:
+        next_n += 1
+    other_kid = f"d{next_n}"
+
+    key_el = etree.Element(f"{{{NS_GRAPHML}}}key")
+    key_el.set("for", "node")
+    key_el.set("id", other_kid)
+    key_el.set("attr.name", "s3d:other_locations")
+    key_el.set("attr.type", "string")
+    # Insert after the last existing <key>
+    existing_keys = root.findall(f"{{{NS_GRAPHML}}}key")
+    if existing_keys:
+        last = existing_keys[-1]
+        last.addnext(key_el)
+    else:
+        root.insert(0, key_el)
+
+    # Resolve EMID → node element (EMID is registered as a data key
+    # by GraphMLExporter; iterate <data> children to find it).
+    emid_kid = None
+    for k in root.findall(f"{{{NS_GRAPHML}}}key"):
+        if k.get("attr.name") == "EMID" and k.get("for") == "node":
+            emid_kid = k.get("id")
+            break
+
+    if emid_kid is None:
+        return  # GraphML doesn't carry EMID — can't anchor the data
+
+    emid_to_node_el: dict = {}
+    for n_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        for d in n_el.findall(f"{{{NS_GRAPHML}}}data"):
+            if d.get("key") == emid_kid and d.text:
+                emid_to_node_el[d.text.strip()] = n_el
+
+    injected = 0
+    for us_emid, memberships in us_other_locations.items():
+        n_el = emid_to_node_el.get(us_emid)
+        if n_el is None:
+            continue
+        d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+        d.set("key", other_kid)
+        d.text = _json.dumps(memberships, ensure_ascii=False, sort_keys=True)
+        injected += 1
+    print(f"[OtherLocations] injected on {injected}/{len(us_other_locations)} US")
+
+    tree.write(
+        str(xml_path),
+        encoding="UTF-8",
+        xml_declaration=True,
+        standalone=False,
+    )
+
+
 def _inject_group_folders(
     group_snapshot: list,
     members_map: dict,
@@ -1667,14 +1759,33 @@ def export_graphml(
     _group_member_uuids = {
         gn.node_id: [] for gn in _group_snapshot
     }
+    # AI07/F1 §5.4: non-primary memberships per US, surfaced via
+    # `<data key="s3d:other_locations">` on the US node element so
+    # downstream tools (yEd visual rules, triplestore reconstruction)
+    # can recover them without folder re-parenting.
+    # Map: us_emid → [{"name", "kind", "group_uuid"}, ...]
+    _us_other_locations: dict[str, list[dict]] = {}
+    _id_to_group_node = {gn.node_id: gn for gn in _group_snapshot}
     for edge in list(getattr(graph, "edges", []) or []):
         if (getattr(edge, "edge_type", "") in _GROUP_EDGE_TYPES
                 and edge.edge_target in _group_member_uuids):
             edge_attrs = getattr(edge, "attributes", None) or {}
             if edge_attrs.get("is_primary", True) is True:
                 _group_member_uuids[edge.edge_target].append(edge.edge_source)
+            else:
+                # Non-primary — record on the US side for s3d:other_locations.
+                gn = _id_to_group_node.get(edge.edge_target)
+                if gn is None:
+                    continue
+                gattrs = getattr(gn, "attributes", None) or {}
+                _us_other_locations.setdefault(edge.edge_source, []).append({
+                    "name": gattrs.get("name") or getattr(gn, "name", "") or "",
+                    "kind": getattr(gn, "kind", None) or "activity",
+                    "group_uuid": edge.edge_target,
+                })
     print(f"[ExportGraphML] group snapshot: "
-          f"{len(_group_snapshot)} groups")
+          f"{len(_group_snapshot)} groups; "
+          f"non-primary US memberships: {len(_us_other_locations)}")
 
     # Stage 2: filter
     try:
@@ -1765,6 +1876,18 @@ def export_graphml(
         if hasattr(graph, "add_warning"):
             graph.add_warning(
                 f"Group folder injection skipped: "
+                f"{type(e).__name__}: {e}")
+
+    # Stage 4f (AI07/F1 §5.4): emit `<data key="s3d:other_locations">`
+    # on US nodes for non-primary memberships. Default no-op when
+    # _us_other_locations is empty (single-dim or AI06 baseline).
+    try:
+        _inject_other_locations_data(
+            _us_other_locations, output_path)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"s3d:other_locations injection skipped: "
                 f"{type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.

@@ -552,3 +552,83 @@ def test_inject_group_folders_skips_non_primary_memberships(tmp_path):
         f"Basilica (primary struttura) folder missing; labels={folder_labels}"
     assert "ZoneX" not in folder_labels, \
         f"ZoneX (non-primary area) emitted as empty folder; labels={folder_labels}"
+
+
+def test_other_locations_data_emitted_for_non_primary_memberships(tmp_path):
+    """AI07/F1 §5.4: non-primary memberships surface as
+    `<data key="s3d:other_locations">` on the US node element.
+
+    With seed `struttura='Basilica'` + `area='ZoneX'` on every US and
+    `groups=['struttura', 'area']`, struttura wins primary (folder),
+    area becomes non-primary → must appear on each US as
+    s3d:other_locations data.
+
+    Toponym chain (Italia/Toscana/Pisa/Volterra) is unconditionally
+    emitted by Stage 3, also as non-primary → also in the data.
+    """
+    import json
+    import re
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+
+    fixtures = Path(__file__).parent / "fixtures"
+    src = fixtures / "toponym_volterra.sqlite"
+    if not src.exists():
+        import pytest as _pytest
+        _pytest.skip("toponym_volterra.sqlite not generated yet")
+    db = tmp_path / "x.sqlite"
+    db.write_bytes(src.read_bytes())
+    conn = sqlite3.connect(str(db))
+    try:
+        row = conn.execute("SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()
+        sito = row[0] if row else "Volterra"
+        conn.execute(
+            "UPDATE us_table SET struttura='Basilica', area='ZoneX' "
+            "WHERE sito=?",
+            (sito,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    out = tmp_path / "smoke.graphml"
+    export_graphml(
+        db_path=str(db),
+        mapping="pyarchinit",
+        output_path=str(out),
+        site_filter=sito,
+        groups=["struttura", "area"],
+    )
+    text = out.read_text(encoding="utf-8")
+
+    # 1. Data key registered at document level
+    assert 's3d:other_locations' in text, \
+        "data key s3d:other_locations must be registered at document level"
+
+    # 2. At least one US carries the data attribute
+    other_loc_payloads = re.findall(
+        r'<data key="d\d+">(\[\{[^<]*?"name"[^<]*?\}\])</data>',
+        text,
+    )
+    parsed = []
+    for p in other_loc_payloads:
+        try:
+            data = json.loads(p)
+            if data and isinstance(data[0], dict) and "kind" in data[0]:
+                parsed.append(data)
+        except (json.JSONDecodeError, IndexError):
+            continue
+    assert parsed, \
+        "expected at least one US with s3d:other_locations JSON payload"
+
+    # 3. ZoneX (non-primary area) appears in payloads
+    flat = [m for arr in parsed for m in arr]
+    names = {m.get("name") for m in flat}
+    assert "ZoneX" in names, \
+        f"ZoneX (non-primary area) missing from s3d:other_locations; got names={names}"
+
+    # 4. Each entry has the required schema keys
+    for m in flat[:5]:  # sample
+        assert "name" in m and "kind" in m and "group_uuid" in m, \
+            f"membership entry missing schema keys: {m}"
