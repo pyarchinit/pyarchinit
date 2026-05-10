@@ -1461,7 +1461,11 @@ def _inject_group_folders(
         if "description" in attrname_to_kid:
             d_desc = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
             d_desc.set("key", attrname_to_kid["description"])
-            d_desc.text = "_s3d_node_type:ActivityNodeGroup"
+            # AI07: use actual node class — LocationNodeGroup for the 6
+            # spatial dims + toponym, ActivityNodeGroup for `attivita`.
+            # Hardcoding it broke round-trip class detection on legacy
+            # parsers (Group H smoke catch).
+            d_desc.text = f"_s3d_node_type:{type(group_node).__name__}"
 
         # nodegraphics: ProxyAutoBoundsNode → Realizers → GroupNode
         d_gfx = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")

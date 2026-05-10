@@ -433,3 +433,62 @@ def test_locationnodegroup_palette_keyed_by_kind():
            _GROUP_KIND_PALETTE["struttura"]
     assert _resolve_group_visual(group_kind="<unknown>", kind="toponym") == \
            _GROUP_KIND_PALETTE["toponym"]
+
+
+def test_inject_group_folders_writes_actual_node_class_in_s3d_node_type(tmp_path):
+    """AI07 H.5 smoke catch (regression test).
+
+    Background: `_inject_group_folders` previously hardcoded
+    `_s3d_node_type:ActivityNodeGroup` for every folder. After AI07
+    Group C started emitting `LocationNodeGroup` instances for the
+    6 spatial dims, the data attribute was still wrongly stamped as
+    `ActivityNodeGroup`, breaking class detection on legacy parsers.
+
+    Pinned via a minimal end-to-end run with `groups=['struttura']`
+    on `mini_volterra.sqlite` after seeding struttura on the rows.
+    Asserts the resulting GraphML contains exactly
+    `_s3d_node_type:LocationNodeGroup` (not ActivityNodeGroup) for
+    spatial dim folders.
+    """
+    import re
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+
+    fixtures = Path(__file__).parent / "fixtures"
+    # Use toponym_volterra.sqlite (Group D fixture, has node_uuid migration).
+    src = fixtures / "toponym_volterra.sqlite"
+    if not src.exists():
+        import pytest as _pytest
+        _pytest.skip("toponym_volterra.sqlite not generated yet")
+    db = tmp_path / "x.sqlite"
+    db.write_bytes(src.read_bytes())
+    # Seed struttura on all rows so the projector emits a folder.
+    conn = sqlite3.connect(str(db))
+    try:
+        # Discover the actual sito in the fixture (Group D adapted to TestSite)
+        row = conn.execute("SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()
+        sito = row[0] if row else "Volterra"
+        conn.execute("UPDATE us_table SET struttura='Basilica' WHERE sito=?",
+                     (sito,))
+        conn.commit()
+    finally:
+        conn.close()
+
+    out = tmp_path / "smoke.graphml"
+    export_graphml(
+        db_path=str(db),
+        mapping="pyarchinit",
+        output_path=str(out),
+        site_filter=sito,
+        groups=["struttura"],
+    )
+    text = out.read_text(encoding="utf-8")
+    types = set(re.findall(r"_s3d_node_type:([A-Za-z]+)", text))
+    # struttura is a spatial dimension → LocationNodeGroup
+    assert "LocationNodeGroup" in types, \
+        f"expected LocationNodeGroup in _s3d_node_type stamps, got {types}"
+    # ActivityNodeGroup must NOT leak when only spatial dims are selected
+    # (this was the H.5 bug: hardcoded string ignored the actual class).
+    assert "ActivityNodeGroup" not in types, \
+        f"hardcoded ActivityNodeGroup leaked despite LocationNodeGroup nodes; got {types}"
