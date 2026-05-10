@@ -773,10 +773,34 @@ if QGIS_AVAILABLE:
                         create_missing_epochs=self.cb_create_epochs.isChecked(),
                     )
             except GraphSyncError as e:
-                QMessageBox.critical(
-                    self, type(e).__name__,
-                    f"{type(e).__name__}: {e}")
-                return
+                # AI07/H.5 follow-up: auto-detect missing node_uuid
+                # column (Phase 1 migration not yet applied on this DB)
+                # and offer to run the backfill in-place. On success,
+                # retry the populate_list call once.
+                from modules.s3dgraphy.sync.graph_ingestor import (
+                    SchemaMismatchError)
+                if isinstance(e, SchemaMismatchError):
+                    if self._offer_node_uuid_migration(db_path, e):
+                        try:
+                            result = GraphIngestor().populate_list(
+                                graph, db_path,
+                                sito=target_sito,
+                                dry_run=True,
+                                create_missing_epochs=self.cb_create_epochs.isChecked(),
+                                graphml_path=graphml_path,
+                            )
+                        except Exception as retry_err:
+                            QMessageBox.critical(
+                                self, "Import preview failed (post-migration)",
+                                f"{type(retry_err).__name__}: {retry_err}")
+                            return
+                    else:
+                        return
+                else:
+                    QMessageBox.critical(
+                        self, type(e).__name__,
+                        f"{type(e).__name__}: {e}")
+                    return
             except Exception as e:
                 QMessageBox.critical(
                     self, "Import preview failed",
@@ -834,8 +858,30 @@ if QGIS_AVAILABLE:
                         create_missing_epochs=self.cb_create_epochs.isChecked(),
                     )
             except GraphSyncError as e:
-                QMessageBox.critical(self, type(e).__name__, str(e))
-                return
+                # AI07/H.5: same auto-migration logic as preview path.
+                from modules.s3dgraphy.sync.graph_ingestor import (
+                    SchemaMismatchError)
+                if isinstance(e, SchemaMismatchError):
+                    if self._offer_node_uuid_migration(db_path, e):
+                        try:
+                            result = GraphIngestor().populate_list(
+                                graph, db_path,
+                                sito=target_sito,
+                                dry_run=False,
+                                create_missing_epochs=self.cb_create_epochs.isChecked(),
+                                graphml_path=self._last_preview_path,
+                                sql_apply_groups=self.cb_sql_apply_groups.isChecked(),
+                            )
+                        except Exception as retry_err:
+                            QMessageBox.critical(
+                                self, "Import failed (post-migration)",
+                                f"{type(retry_err).__name__}: {retry_err}")
+                            return
+                    else:
+                        return
+                else:
+                    QMessageBox.critical(self, type(e).__name__, str(e))
+                    return
             except Exception as e:
                 QMessageBox.critical(
                     self, "Import failed", f"{type(e).__name__}: {e}")
@@ -849,6 +895,76 @@ if QGIS_AVAILABLE:
                 f"  epochs created: {result.epochs_created}\n"
                 f"  conflicts (resolved as graph_wins): {len(result.conflicts)}")
             self.btn_apply.setEnabled(False)
+
+        def _offer_node_uuid_migration(self, db_path, error) -> bool:
+            """AI07/H.5 follow-up: offer to auto-apply the Phase 1
+            node_uuid backfill migration on the current DB.
+
+            Triggered when populate_list raises SchemaMismatchError
+            because the user opened a fresh DB (or one created from a
+            template that pre-dates AI03) without running the
+            migration. Shows a confirmation dialog with the migration
+            details, then applies via the same auto_backup +
+            add_columns + backfill_uuids path used by the menu action
+            in pyarchinitPlugin._run_uuid_backfill_migration.
+
+            Returns True iff the migration was applied successfully
+            and the caller should retry the import.
+            """
+            from pathlib import Path as _Path
+            db = _Path(db_path)
+            reply = QMessageBox.question(
+                self,
+                "Migrazione node_uuid richiesta",
+                f"{error}\n\n"
+                f"Il database selezionato non ha la colonna `node_uuid` "
+                f"richiesta dal bridge s3dgraphy (Phase 1 migration).\n\n"
+                f"Vuoi applicare la migrazione adesso?\n"
+                f"- Verrà fatto un backup automatico del DB\n"
+                f"- La colonna `node_uuid` (TEXT) sarà aggiunta a tutte "
+                f"le tabelle stratigrafiche\n"
+                f"- A ogni record verrà assegnato un UUID v7",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes,
+            )
+            if reply != QMessageBox.Yes:
+                return False
+            try:
+                # Both relative (plugin loader) and absolute (CLI / test)
+                # imports — same dance as pyarchinitPlugin.
+                try:
+                    from ..scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                        add_columns,
+                        backfill_uuids,
+                    )
+                    from ..scripts.migrations._common import auto_backup_sqlite
+                except ImportError:
+                    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                        add_columns,
+                        backfill_uuids,
+                    )
+                    from scripts.migrations._common import auto_backup_sqlite
+                backup = auto_backup_sqlite(db, tag="node_uuid_backfill")
+                add_columns(db)
+                counts = backfill_uuids(db)
+            except Exception as mig_err:
+                QMessageBox.critical(
+                    self,
+                    "Errore migrazione",
+                    f"La migrazione è fallita:\n"
+                    f"{type(mig_err).__name__}: {mig_err}",
+                )
+                return False
+            counts_msg = "\n".join(
+                f"  {table}: {n} row(s)" for table, n in counts.items())
+            QMessageBox.information(
+                self,
+                "Migrazione completata",
+                f"Backup: {backup}\n\n"
+                f"UUID v7 assegnati:\n{counts_msg}\n\n"
+                f"Riprovo l'import.",
+            )
+            return True
 
 
     def integrate_with_us_usm(us_usm_instance):

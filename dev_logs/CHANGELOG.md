@@ -5,6 +5,48 @@
 
 ---
 
+## [5.6.1-alpha] - 2026-05-10
+
+### Italiano
+
+**Hot-fix post-AI07 driven dal primo smoke test su file EM-native.**
+
+Due fix bounded driven dal feedback dell'utente dopo aver provato a importare un file `EM_demo_02.graphml` (formato EMtools nativo, NON pyarchinit-export) in un DB vuoto:
+
+- **Fix #1 — Shorthand `< > << >>` per non-US/USM nei rapporti**: l'importer ora rispetta la convenzione pyarchinit per i tipi unità non canonici. Su read di un edge stratigrafico, il rapporto label viene scelto dal `unita_tipo` di source/target:
+  - **Both ∈ {US, USM}** → verbose Italian ("Copre", "Coperto da", "Si lega a", "Tagliato da", ...) — invariato
+  - **Either is CON (Continuity)** → single arrow `>` / `<`
+  - **Other non-canonical** (USVs, USVn, SF, VSF, USD, DOC, ...) → double arrow `>>` / `<<`
+  - Direzione (`>` vs `<`, `>>` vs `<<`) deriva dall'edge_type (overlies/cuts/is_after = `>`, inversi = `<`)
+  - Round-trip identity: ora un rapporto utente `>` torna come `>` invece di "Copre"
+
+- **Fix #2 — Auto-detect Phase 1 `node_uuid` migration**: il dialog Import (preview + apply) ora intercetta `SchemaMismatchError` e propone all'utente di applicare la migrazione node_uuid in-place. Click "Sì" → backup automatico + add_columns + backfill UUID v7 + retry dell'import. L'utente non vede più il messaggio criptico "run scripts/migrations/2026_05_node_uuid_backfill.py --apply" su DB freschi.
+
+- 10 nuovi test (`test_rapporti_shorthand_dispatch.py`) che pinnano la dispatch logic in 7 scenari (US-US, USM-US, CON, USVs, DOC, SF/VSF/USVn/USD, unknown) + 3 helper coverage.
+
+- 224 → 234 passed, 3 skipped. AC-2 byte-identical preservato.
+
+### English
+
+**Post-AI07 hot-fix driven by the first smoke test on an EM-native file.**
+
+Two bounded fixes driven by user feedback after attempting to import an `EM_demo_02.graphml` file (EMtools native format, NOT a pyarchinit-export) into an empty DB:
+
+- **Fix #1 — `< > << >>` shorthand for non-US/USM rapporti**: the importer now respects the pyarchinit convention for non-canonical unit types. On reading a stratigraphic edge, the rapporti label is chosen from source/target `unita_tipo`:
+  - **Both ∈ {US, USM}** → verbose Italian ("Copre", "Coperto da", "Si lega a", "Tagliato da", ...) — unchanged
+  - **Either is CON (Continuity)** → single arrow `>` / `<`
+  - **Other non-canonical** (USVs, USVn, SF, VSF, USD, DOC, ...) → double arrow `>>` / `<<`
+  - Direction (`>` vs `<`, `>>` vs `<<`) derives from edge_type (overlies/cuts/is_after = `>`, inverses = `<`)
+  - Round-trip identity: a user-typed `>` now comes back as `>` instead of "Copre"
+
+- **Fix #2 — Auto-detect Phase 1 `node_uuid` migration**: the Import dialog (preview + apply) now catches `SchemaMismatchError` and offers the user to apply the node_uuid migration in-place. Click "Yes" → auto-backup + add_columns + backfill UUID v7 + retry the import. The user no longer sees the cryptic "run scripts/migrations/2026_05_node_uuid_backfill.py --apply" message on fresh DBs.
+
+- 10 new tests (`test_rapporti_shorthand_dispatch.py`) pinning the dispatch logic across 7 scenarios (US-US, USM-US, CON, USVs, DOC, SF/VSF/USVn/USD, unknown) + 3 helper coverage cases.
+
+- 224 → 234 passed, 3 skipped. AC-2 byte-identical preserved.
+
+---
+
 ## [5.6.0-alpha] - 2026-05-10
 
 ### Italiano

@@ -886,6 +886,9 @@ def _is_epoch_node_local(node) -> bool:
 # Inverse mapping of `_RAPPORTI_TO_EDGE_TYPE` from graphml_writer.py:
 # convert s3dgraphy edge_type back to the Italian rapporti label that
 # pyarchinit stores in us_table.rapporti.
+#
+# Used for **canonical Harris units** (US/USM ↔ US/USM): the verbose
+# Italian terms that the user sees in Scheda US.
 _EDGE_TYPE_TO_RAPPORTI_IT: dict[str, str] = {
     "overlies": "Copre",
     "is_overlain_by": "Coperto da",
@@ -899,6 +902,54 @@ _EDGE_TYPE_TO_RAPPORTI_IT: dict[str, str] = {
     "is_abutted_by": "Gli si appoggia",
     "is_after": "Copre",       # default fallback for temporal precedence
     "generic_connection": "Connesso a",
+}
+
+
+# AI07/H.5 follow-up: shorthand `< > << >>` rapporti tokens for
+# non-canonical unit types per pyarchinit author convention
+# (May 2026 — symmetric to graphml_writer._RAPPORTI_SHORTHAND).
+#
+# Convention:
+#   US / USM (in any UI language) → verbose terms ("Copre"/"Coperto da"/
+#                                   "Si lega a"/...). The reader always
+#                                   normalises to Italian for storage.
+#   CON (Continuity)              → single arrow `>` / `<`
+#   All other non-US/USM types
+#   (USVs, USVn, SF, VSF, USD,
+#   DOC, Extractor, Combinar,
+#   property, ...)               → double arrow `>>` / `<<`
+#
+# The decision tree in `_build_rapporti_from_edges` looks at the
+# unita_tipo of BOTH source and target nodes:
+#   - both ∈ _CANONICAL_UNIT_TYPES → verbose Italian
+#   - either ∈ _CONTINUITY_UNIT_TYPES → single arrow `>` / `<`
+#   - otherwise (any other non-canonical) → double arrow `>>` / `<<`
+
+_CANONICAL_UNIT_TYPES: frozenset[str] = frozenset({"US", "USM"})
+
+# CON = Continuity. Single-arrow shorthand reserved for this type.
+_CONTINUITY_UNIT_TYPES: frozenset[str] = frozenset({"CON"})
+
+# Edge-type → "covers/follows" direction. True means the rapporti
+# token reads as `>` / `>>` (source covers target), False means
+# `<` / `<<` (source is covered by target).
+_EDGE_TYPE_DIRECTION_FORWARD: dict[str, bool] = {
+    "overlies": True,
+    "is_overlain_by": False,
+    "cuts": True,
+    "is_cut_by": False,
+    "fills": True,
+    "is_filled_by": False,
+    "is_physically_equal_to": True,   # equality conventionally `>`
+    "is_bonded_to": True,
+    "abuts": True,
+    "is_abutted_by": False,
+    "is_after": True,
+    "is_before": False,
+    "generic_connection": True,
+    "extracted_from": True,
+    "combines": True,
+    "has_property": True,
 }
 
 
@@ -1082,6 +1133,52 @@ def _rewrite_rapporti_sito(rapporti_str: str, target_sito: str) -> str:
     return str(out)
 
 
+def _resolve_unita_tipo_for_dispatch(node) -> str | None:
+    """AI07/H.5: best-effort lookup of pyarchinit `unita_tipo` for a
+    graph node, used by `_select_rapporti_label` to decide between
+    verbose and shorthand rapporti tokens.
+
+    Lookup order:
+      1. node.attributes['unita_tipo']  (set by the AI03 enrichment)
+      2. _S3DGRAPHY_TYPE_TO_UNITA_TIPO[type(node).__name__]
+      3. None — caller treats as "unknown" (fall through to shorthand)
+    """
+    attrs = getattr(node, "attributes", None) or {}
+    ut = attrs.get("unita_tipo")
+    if ut:
+        return str(ut)
+    cls_name = type(node).__name__
+    return _S3DGRAPHY_TYPE_TO_UNITA_TIPO.get(cls_name)
+
+
+def _select_rapporti_label(edge_type: str,
+                           src_unita_tipo: str | None,
+                           tgt_unita_tipo: str | None) -> str:
+    """AI07/H.5: pick the rapporti token for an edge based on the
+    unit types of both endpoints.
+
+    - Both ∈ {US, USM}            → verbose Italian (e.g. "Copre")
+    - Either ∈ {CON} (Continuity) → single arrow `>` / `<`
+    - Otherwise                   → double arrow `>>` / `<<`
+
+    Direction (`>` vs `<`, `>>` vs `<<`) follows the edge type:
+    `overlies` / `cuts` / `is_after` / etc. emit `>` / `>>` (source
+    covers target); their inverses emit `<` / `<<`.
+    """
+    src = src_unita_tipo or ""
+    tgt = tgt_unita_tipo or ""
+    both_canonical = (src in _CANONICAL_UNIT_TYPES
+                      and tgt in _CANONICAL_UNIT_TYPES)
+    if both_canonical:
+        return _EDGE_TYPE_TO_RAPPORTI_IT.get(edge_type, str(edge_type))
+    forward = _EDGE_TYPE_DIRECTION_FORWARD.get(edge_type, True)
+    is_continuity = (src in _CONTINUITY_UNIT_TYPES
+                     or tgt in _CONTINUITY_UNIT_TYPES)
+    if is_continuity:
+        return ">" if forward else "<"
+    return ">>" if forward else "<<"
+
+
 def _build_rapporti_from_edges(graph, default_sito: str) -> dict:
     """Walk graph.edges and return a dict {source_node_id: rapporti_list}
     where each rapporti_list is the pyarchinit list-of-lists serialisation
@@ -1090,6 +1187,13 @@ def _build_rapporti_from_edges(graph, default_sito: str) -> dict:
     The `target_us` is extracted from the target node's name with the
     unita_tipo prefix stripped. `area` defaults to '1' when the graph
     didn't preserve it (compatible with most legacy pyarchinit data).
+
+    AI07/H.5 follow-up: rapporti label dispatch by unit type.
+    - Both ends ∈ {US, USM} → verbose Italian ("Copre", "Coperto da", ...)
+    - Either end is paradata (DOC, Extractor, Combinar, property) →
+      double-arrow shorthand `>>` / `<<`
+    - Otherwise (one or both non-canonical structural — USVs, USVn,
+      SF, VSF, USD, CON, ...) → single-arrow shorthand `>` / `<`
     """
     # Index nodes by id for fast lookup
     by_id = {}
@@ -1111,11 +1215,15 @@ def _build_rapporti_from_edges(graph, default_sito: str) -> dict:
                   "has_property", "extracted_from", "combines",
                   "survive_in_epoch", "has_same_time"):
             continue
-        rapporti_label = _EDGE_TYPE_TO_RAPPORTI_IT.get(et, str(et))
-        # Resolve target's us value
+        # Resolve source + target unita_tipo (used for shorthand dispatch)
+        src_node = by_id.get(src)
         tgt_node = by_id.get(tgt)
         if tgt_node is None:
             continue
+        src_unita_tipo = _resolve_unita_tipo_for_dispatch(src_node)
+        tgt_unita_tipo = _resolve_unita_tipo_for_dispatch(tgt_node)
+        rapporti_label = _select_rapporti_label(
+            et, src_unita_tipo, tgt_unita_tipo)
         tgt_attrs = getattr(tgt_node, "attributes", None) or {}
         tgt_us = tgt_attrs.get("us")
         if not tgt_us:
