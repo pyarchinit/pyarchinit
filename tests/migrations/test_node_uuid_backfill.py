@@ -119,3 +119,39 @@ def test_backfill_idempotent(tmp_path: Path):
     second = backfill_uuids(db)
     for table in TABLES:
         assert second[table] == 0
+
+
+def test_argv_db_and_conn_str_mutex():
+    """parse_argv: --db and --conn-str cannot be passed together."""
+    import pytest
+    from scripts.migrations._common import parse_argv
+    with pytest.raises(SystemExit):
+        parse_argv(["--db", "/tmp/x.sqlite",
+                    "--conn-str", "postgresql://x:y@h/d",
+                    "--apply"])
+
+
+def test_argv_conn_str_sqlite_accepted():
+    """parse_argv: --conn-str sqlite:///... is accepted (not just PG)."""
+    from scripts.migrations._common import parse_argv
+    args = parse_argv(["--conn-str", "sqlite:///tmp/x.sqlite", "--apply"])
+    assert args.conn_str == "sqlite:///tmp/x.sqlite"
+    assert args.db is None
+    assert args.apply is True
+
+
+def test_auto_backup_postgres_when_pg_dump_missing(tmp_path, monkeypatch):
+    """auto_backup_postgres returns None + raises BackupSkipped when
+    pg_dump is missing from PATH."""
+    import pytest
+    pytest.importorskip("psycopg2")
+    from sqlalchemy import create_engine
+    from scripts.migrations._common import (
+        BackupSkipped, auto_backup_postgres,
+    )
+    monkeypatch.setattr("shutil.which", lambda name: None)
+    engine = create_engine(
+        "postgresql+psycopg2://postgres:postgres@localhost:5433/dummy"
+    )
+    with pytest.raises(BackupSkipped):
+        auto_backup_postgres(engine, tag="x", dest_dir=tmp_path)
