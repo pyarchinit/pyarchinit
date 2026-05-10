@@ -255,7 +255,50 @@ def _emit_toponym_volterra():
     print(f"OK — toponym_volterra.sqlite ({out.stat().st_size} bytes)")
 
 
+def _emit_legacy_5_5_x_fixture():
+    """Hand-crafted GraphML mimicking AI06 output: 4 ActivityNodeGroup
+    folders with pyarchinit.<kind> data attributes.
+
+    AI07's on-read up-conversion (Group F) must promote 3 of these
+    (struttura, area, settore) to LocationNodeGroup; attivita stays
+    untouched per Q1.
+    """
+    HERE = Path(__file__).resolve().parent
+    out = HERE / "legacy_5_5_x.graphml"
+    template = '''<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:y="http://www.yworks.com/xml/graphml">
+  <key id="d_kind_attivita" for="node" attr.name="pyarchinit.attivita"/>
+  <key id="d_kind_struttura" for="node" attr.name="pyarchinit.struttura"/>
+  <key id="d_kind_area" for="node" attr.name="pyarchinit.area"/>
+  <key id="d_kind_settore" for="node" attr.name="pyarchinit.settore"/>
+  <key id="d_node_type" for="node" attr.name="_s3d_node_type"/>
+  <graph id="G" edgedefault="directed">
+    <node id="grp_attivita" yfiles.foldertype="group">
+      <data key="d_node_type">ActivityNodeGroup</data>
+      <data key="d_kind_attivita">Saggio_I</data>
+    </node>
+    <node id="grp_struttura" yfiles.foldertype="group">
+      <data key="d_node_type">ActivityNodeGroup</data>
+      <data key="d_kind_struttura">Basilica</data>
+    </node>
+    <node id="grp_area" yfiles.foldertype="group">
+      <data key="d_node_type">ActivityNodeGroup</data>
+      <data key="d_kind_area">A</data>
+    </node>
+    <node id="grp_settore" yfiles.foldertype="group">
+      <data key="d_node_type">ActivityNodeGroup</data>
+      <data key="d_kind_settore">Settore_N</data>
+    </node>
+  </graph>
+</graphml>
+'''
+    out.write_text(template, encoding="utf-8")
+    print(f"Wrote {out}")
+
+
 if __name__ == "__main__":
     rc = main()
     _emit_toponym_volterra()
+    _emit_legacy_5_5_x_fixture()
     raise SystemExit(rc)
