@@ -126,7 +126,9 @@ class S3DGraphyDotBridge:
     
     def export_integrated_matrix(self, site: str, area: Optional[str] = None,
                                 output_dir: str = None, formats: List[str] = None,
-                                groups: Optional[List[str]] = None) -> Dict[str, str]:
+                                groups: Optional[List[str]] = None,
+                                primary_priority: Optional[List[str]] = None
+                                ) -> Dict[str, str]:
         """
         Export Extended Matrix in multiple formats with s3dgraphy integration
 
@@ -139,6 +141,11 @@ class S3DGraphyDotBridge:
                 yEd folder nodes (subset of {area, struttura, attivita,
                 settore, ambient, saggio, quad_par, adhoc}). Default
                 None / [] preserves AC-2 byte-identical baseline.
+            primary_priority: AI07 — optional list of dimension names
+                ordered from highest to lowest priority for the
+                ``is_primary`` selection on is_in_location edges. When
+                None, ``DEFAULT_PRIMARY_PRIORITY`` is used. Toponym is
+                always excluded from primary regardless.
 
         Returns:
             Dictionary of format: filepath
@@ -222,6 +229,7 @@ class S3DGraphyDotBridge:
                         persist_auxiliary=False,
                         language=_locale,
                         groups=groups,                # NEW (AI06)
+                        primary_priority=primary_priority,  # NEW (AI07)
                     )
                     exported_files['graphml'] = graphml_path
                     exported_files['graphml_result'] = result
@@ -379,6 +387,24 @@ if QGIS_AVAILABLE:
             self.cb_grp_adhoc = QCheckBox(
                 "ad-hoc (from groups_*.graphml)")
             gb_layout.addWidget(self.cb_grp_adhoc)
+
+            # AI07: Primary dimension combobox
+            primary_row = QHBoxLayout()
+            primary_row.addWidget(QLabel("Primary dimension:"))
+            self.cb_primary_dim = QComboBox()
+            for dim in ("struttura", "attivita", "area", "settore",
+                        "ambient", "saggio", "quad_par"):
+                self.cb_primary_dim.addItem(dim)
+            self.cb_primary_dim.setCurrentText("struttura")  # default
+            self.cb_primary_dim.setToolTip(
+                "When a US belongs to multiple groups, which dimension "
+                "wins as the visual yEd folder. Toponym chain is never "
+                "primary."
+            )
+            primary_row.addWidget(self.cb_primary_dim)
+            primary_row.addStretch()
+            gb_layout.addLayout(primary_row)
+
             self.gb_groups.setLayout(gb_layout)
             export_layout.addWidget(self.gb_groups)
 
@@ -555,43 +581,19 @@ if QGIS_AVAILABLE:
                                   "Please select at least one export format.")
                 return
 
-            # AI08-F2 hotfix (5.5.2-alpha): single-dimension limit on
-            # group-folder export. AI06's _inject_group_folders uses
-            # yEd folder containment (yfiles.foldertype="group" + inner
-            # <graph>) which re-parents each member US into ONE folder.
-            # When 2+ dimensions share members (the common case), only
-            # the last-processed dimension contains the US; the other
-            # folders render as empty rectangles. Until F1 (hierarchical
-            # nesting) ships, restrict the export to a single dimension
-            # at a time and warn the user.
+            # AI07 + AI08-F1: multi-dim is now natively supported via
+            # is_primary on the is_in_location edges. The 5.5.2-alpha
+            # workaround warning is removed.
             groups_arg = self._build_groups_arg()
-            if len(groups_arg) > 1:
-                msg = (
-                    f"Hai selezionato {len(groups_arg)} dimensioni di "
-                    f"raggruppamento ({', '.join(groups_arg)}).\n\n"
-                    "L'export multi-dimensionale richiede l'annidamento "
-                    "gerarchico dei folder yEd, non ancora supportato "
-                    "(in arrivo con AI08-F1).\n\n"
-                    "Ogni US può appartenere a un solo folder yEd alla "
-                    "volta: con più dimensioni i folder \"perdenti\" "
-                    "verrebbero renderizzati vuoti.\n\n"
-                    f"Vuoi procedere usando SOLO la prima dimensione "
-                    f"selezionata (\"{groups_arg[0]}\")? Le altre "
-                    f"verranno ignorate per questo export.\n\n"
-                    "[Sì] Procedi con una sola dimensione\n"
-                    "[No] Annulla — torna al dialog per modificare la "
-                    "selezione"
+            primary_dim = self.cb_primary_dim.currentText()
+            # Reorder primary_priority to put the user's choice first
+            primary_priority = [primary_dim] + [
+                d for d in (
+                    "struttura", "attivita", "area", "settore",
+                    "ambient", "saggio", "quad_par",
                 )
-                reply = QMessageBox.warning(
-                    self,
-                    "Multi-dim export non ancora supportato",
-                    msg,
-                    QMessageBox.Yes | QMessageBox.No,
-                    QMessageBox.No,
-                )
-                if reply != QMessageBox.Yes:
-                    return
-                groups_arg = [groups_arg[0]]
+                if d != primary_dim
+            ]
 
             # Show progress
             self.progress.setVisible(True)
@@ -605,7 +607,8 @@ if QGIS_AVAILABLE:
                     self.area,
                     output_dir,
                     formats,
-                    groups=groups_arg,  # AI06 + AI08-F2 hotfix
+                    groups=groups_arg,  # AI06
+                    primary_priority=primary_priority,  # AI07
                 )
                 
                 # Update progress

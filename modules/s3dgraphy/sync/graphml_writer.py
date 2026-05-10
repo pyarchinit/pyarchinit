@@ -1556,6 +1556,7 @@ def export_graphml(
     persist_auxiliary: bool = False,
     language: str = "it",
     groups: list = None,                  # NEW (AI06)
+    primary_priority: list = None,        # NEW (AI07)
 ) -> ExportResult:
     """Run PyArchInitImporter → optional site filter → GraphMLExporter.
 
@@ -1569,6 +1570,11 @@ def export_graphml(
         language: 2-letter QGIS locale code used to localize US/USM
             display labels (Italian by default). EM-canonical types
             (USVs/USVn/SF/...) are language-neutral and unaffected.
+        primary_priority: AI07 — optional list of dimension names
+            ordered from highest to lowest priority for the
+            ``is_primary`` selection on is_in_location edges. When
+            None, ``DEFAULT_PRIMARY_PRIORITY`` is used (struttura first).
+            Toponym is always excluded from primary.
 
     Returns:
         ExportResult with metrics + warnings.
@@ -1606,6 +1612,7 @@ def export_graphml(
             include_paradata=True,
             strict_schema=False,
             groups=groups,                # NEW (AI06)
+            primary_priority=primary_priority,   # NEW (AI07)
         )
         para_count = sum(1 for n in graph.nodes
                          if type(n).__name__ in
