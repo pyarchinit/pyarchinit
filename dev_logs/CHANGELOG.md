@@ -5,6 +5,76 @@
 
 ---
 
+## [5.6.0-alpha] - 2026-05-10
+
+### Italiano
+
+**AI07 — Migrazione `LocationNodeGroup` + AI08-F1 m:n hierarchical (fusi).**
+
+Le 6 dimensioni spaziali (`area`, `struttura`, `settore`, `ambient`,
+`saggio`, `quad_par`) ora producono nodi `LocationNodeGroup` di
+s3dgraphy 0.1.41 con `kind ∈ {functional, study}` e edge
+`is_in_location`. La dimensione `attivita` resta `ActivityNodeGroup`
+con edge `is_in_activity` (Q1 — Emanuel 2026-05-09).
+
+- **m:n membership**: ogni US può appartenere a più gruppi
+  contemporaneamente; `is_primary=true` su un singolo edge
+  determina il folder yEd visivo. Le altre membership sono
+  emesse come `<data key="s3d:other_locations">` array sul
+  nodo US per render badge inline.
+- **Toponym chain**: da `site_table.{nazione, regione, provincia,
+  comune}` viene emesso un chain ricorsivo di
+  `LocationNodeGroup(kind="toponym")`, con dedupe cross-site
+  (stesso comune in 2 siti = 1 nodo condiviso, UUID deterministico).
+- **On-read up-conversion**: i file 5.5.x esistenti vengono
+  promossi in-memory automaticamente — il projector intercetta
+  `ActivityNodeGroup + group_kind ∈ {area, ..., quad_par}` e li
+  converte. Una sola `DeprecationWarning` per chiamata.
+- **Multi-dim export warning rimosso**: il workaround di
+  5.5.2-alpha (single-dimension only) decade, sostituito dal
+  modello m:n con `is_primary`.
+- **Dialog combobox "Primary dimension"**: l'utente può
+  sovrascrivere la priorità default (struttura > attivita > ...)
+  per quel singolo export.
+- **Walker ricorsivo**: `_apply_group_folders_to_sql` ora
+  discende in folder-in-folder nesting yEd con detection cicli
+  via `CycleDetectedError`.
+
+### English
+
+**AI07 — `LocationNodeGroup` migration + AI08-F1 m:n hierarchical (fused).**
+
+The 6 spatial dimensions (`area`, `struttura`, `settore`, `ambient`,
+`saggio`, `quad_par`) now produce s3dgraphy 0.1.41
+`LocationNodeGroup` nodes with `kind ∈ {functional, study}` and
+`is_in_location` edges. The `attivita` dimension stays as
+`ActivityNodeGroup` with `is_in_activity` edges (Q1 — Emanuel
+2026-05-09).
+
+- **m:n membership**: each US can belong to multiple groups;
+  `is_primary=true` on exactly one edge determines the visual
+  yEd folder. Other memberships emit `<data key="s3d:other_locations">`
+  on the US node for inline badge rendering.
+- **Toponym chain**: from `site_table.{nazione, regione, provincia,
+  comune}`, a recursive
+  `LocationNodeGroup(kind="toponym")` chain is emitted with
+  cross-site dedupe (same comune across 2 sites = 1 shared node,
+  deterministic UUID).
+- **On-read up-conversion**: legacy 5.5.x files are promoted
+  in-memory automatically — projector intercepts
+  `ActivityNodeGroup + group_kind ∈ {area, ..., quad_par}` and
+  converts. One `DeprecationWarning` per call.
+- **Multi-dim export warning removed**: the 5.5.2-alpha workaround
+  (single-dimension only) is obsolete, replaced by the m:n model
+  with `is_primary`.
+- **Dialog combobox "Primary dimension"**: user can override the
+  default priority (struttura > attivita > ...) for a single export.
+- **Recursive walker**: `_apply_group_folders_to_sql` now descends
+  into yEd folder-in-folder nesting with cycle detection
+  (`CycleDetectedError`).
+
+---
+
 ## [s3dgraphy-0.1.41-bump] - 2026-05-09
 
 ### Italiano
