@@ -896,73 +896,101 @@ if QGIS_AVAILABLE:
                 f"  conflicts (resolved as graph_wins): {len(result.conflicts)}")
             self.btn_apply.setEnabled(False)
 
-        def _offer_node_uuid_migration(self, db_path, error) -> bool:
-            """AI07/H.5 follow-up: offer to auto-apply the Phase 1
-            node_uuid backfill migration on the current DB.
+        def _offer_node_uuid_migration(self, db_input, error) -> bool:
+            """Offer to auto-apply the Phase 1 node_uuid backfill migration.
 
-            Triggered when populate_list raises SchemaMismatchError
-            because the user opened a fresh DB (or one created from a
-            template that pre-dates AI03) without running the
-            migration. Shows a confirmation dialog with the migration
-            details, then applies via the same auto_backup +
-            add_columns + backfill_uuids path used by the menu action
-            in pyarchinitPlugin._run_uuid_backfill_migration.
+            PG-A (5.7.0-alpha): db_input may be a Path (legacy SQLite call
+            sites) or a DbManager / conn-str / DbHandle (new). Backend
+            detected via _resolve_db_handle.
 
-            Returns True iff the migration was applied successfully
-            and the caller should retry the import.
+            Returns True iff the migration was applied successfully and
+            the caller should retry the import.
             """
-            from pathlib import Path as _Path
-            db = _Path(db_path)
+            try:
+                from ..s3dgraphy.sync._db_handle import _resolve_db_handle
+                from ..scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                    add_columns, backfill_uuids,
+                )
+                from ..scripts.migrations._common import (
+                    BackupSkipped, auto_backup_postgres, auto_backup_sqlite,
+                )
+            except ImportError:
+                from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+                from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+                    add_columns, backfill_uuids,
+                )
+                from scripts.migrations._common import (
+                    BackupSkipped, auto_backup_postgres, auto_backup_sqlite,
+                )
+
+            try:
+                handle = _resolve_db_handle(db_input)
+            except Exception as e:
+                QMessageBox.critical(
+                    self, "Errore di connessione",
+                    f"Impossibile aprire il DB per la migrazione:\n{e}",
+                )
+                return False
+
+            backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                             + "/" + str(handle.engine.url.database or "")
+                             if handle.is_postgres
+                             else f"SQLite: {handle.sqlite_path}")
             reply = QMessageBox.question(
                 self,
                 "Migrazione node_uuid richiesta",
                 f"{error}\n\n"
-                f"Il database selezionato non ha la colonna `node_uuid` "
-                f"richiesta dal bridge s3dgraphy (Phase 1 migration).\n\n"
+                f"Backend: {backend_label}\n\n"
+                f"Il database non ha la colonna `node_uuid` richiesta dal "
+                f"bridge s3dgraphy (Phase 1 migration).\n\n"
                 f"Vuoi applicare la migrazione adesso?\n"
-                f"- Verrà fatto un backup automatico del DB\n"
-                f"- La colonna `node_uuid` (TEXT) sarà aggiunta a tutte "
-                f"le tabelle stratigrafiche\n"
+                f"- Verrà fatto un backup automatico\n"
+                f"- La colonna `node_uuid` (TEXT) sarà aggiunta alle "
+                f"tabelle stratigrafiche\n"
                 f"- A ogni record verrà assegnato un UUID v7",
                 QMessageBox.Yes | QMessageBox.No,
                 QMessageBox.Yes,
             )
             if reply != QMessageBox.Yes:
                 return False
+
             try:
-                # Both relative (plugin loader) and absolute (CLI / test)
-                # imports — same dance as pyarchinitPlugin.
-                try:
-                    from ..scripts.migrations._2026_05_node_uuid_backfill_lib import (
-                        add_columns,
-                        backfill_uuids,
+                if handle.is_postgres:
+                    from pathlib import Path as _P
+                    dest_dir = (_P.home() / "pyarchinit"
+                                / "pyarchinit_DB_folder" / "_pga_backups")
+                    try:
+                        backup = auto_backup_postgres(
+                            handle.engine, tag="node_uuid_backfill",
+                            dest_dir=dest_dir,
+                        )
+                    except BackupSkipped as e:
+                        skip = QMessageBox.question(
+                            self, "Backup non disponibile",
+                            f"{e}\n\nProcedere SENZA backup (sconsigliato)?",
+                            QMessageBox.Yes | QMessageBox.No,
+                            QMessageBox.No,
+                        )
+                        if skip != QMessageBox.Yes:
+                            return False
+                        backup = None
+                else:
+                    backup = auto_backup_sqlite(
+                        handle.sqlite_path, tag="node_uuid_backfill",
                     )
-                    from ..scripts.migrations._common import auto_backup_sqlite
-                except ImportError:
-                    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
-                        add_columns,
-                        backfill_uuids,
-                    )
-                    from scripts.migrations._common import auto_backup_sqlite
-                backup = auto_backup_sqlite(db, tag="node_uuid_backfill")
-                add_columns(db)
-                counts = backfill_uuids(db)
+                add_columns(handle)
+                counts = backfill_uuids(handle)
             except Exception as mig_err:
                 QMessageBox.critical(
-                    self,
-                    "Errore migrazione",
-                    f"La migrazione è fallita:\n"
-                    f"{type(mig_err).__name__}: {mig_err}",
+                    self, "Errore migrazione",
+                    f"La migrazione è fallita:\n{mig_err}",
                 )
                 return False
-            counts_msg = "\n".join(
-                f"  {table}: {n} row(s)" for table, n in counts.items())
+
             QMessageBox.information(
-                self,
-                "Migrazione completata",
-                f"Backup: {backup}\n\n"
-                f"UUID v7 assegnati:\n{counts_msg}\n\n"
-                f"Riprovo l'import.",
+                self, "Migrazione applicata",
+                f"Backup: {backup}\n\nUUID v7 assegnati:\n"
+                + "\n".join(f"  {t}: {n}" for t, n in counts.items())
             )
             return True
 

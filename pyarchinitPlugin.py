@@ -2769,40 +2769,65 @@ class PyArchInitPlugin(object):
         )
 
     def _run_uuid_backfill_migration(self):
-        """File-picker + confirmation + add_columns + backfill (with backup)."""
-        from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox
+        """Backfill node_uuid on the currently-connected pyarchinit DB.
+
+        PG-A (5.7.0-alpha): no file picker — uses the conn-str from the
+        plugin's Connection() helper. Backup helper dispatches per backend.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_node_uuid_backfill_lib import (
-                TABLES,
-                add_columns,
-                backfill_uuids,
+                TABLES, add_columns, backfill_uuids,
             )
-            from .scripts.migrations._common import auto_backup_sqlite
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
         except Exception:
-            # Fall back to absolute import (when not running under the QGIS
-            # plugin loader that registers the package).
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_node_uuid_backfill_lib import (
-                TABLES,
-                add_columns,
-                backfill_uuids,
+                TABLES, add_columns, backfill_uuids,
             )
-            from scripts.migrations._common import auto_backup_sqlite
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
 
-        db_path, _ = QFileDialog.getOpenFileName(
-            self.iface.mainWindow(),
-            "Seleziona il database pyarchinit (.sqlite)",
-            "",
-            "SQLite databases (*.sqlite)",
-        )
-        if not db_path:
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione)."
+            )
             return
-        db = Path(db_path)
 
+        try:
+            handle = _resolve_db_handle(conn_str)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile aprire la connessione al DB:\n{e}",
+            )
+            return
+
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or "")
+                         if handle.is_postgres
+                         else f"SQLite: {handle.sqlite_path}")
         tables_list = "\n".join(f"  - {t}" for t in TABLES)
         confirm = QMessageBox.question(
             self.iface.mainWindow(),
             "Conferma backfill node_uuid",
+            f"Backend: {backend_label}\n\n"
             "Verrà aggiunta la colonna node_uuid (TEXT) e assegnato un "
             "UUID v7 a ogni record nelle tabelle:\n"
             f"{tables_list}\n\n"
@@ -2811,23 +2836,52 @@ class PyArchInitPlugin(object):
         )
         if confirm != QMessageBox.Yes:
             return
+
+        backup_path = None
         try:
-            backup = auto_backup_sqlite(db, tag="node_uuid_backfill")
-            add_columns(db)
-            counts = backfill_uuids(db)
+            if handle.is_postgres:
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                            / "_pga_backups")
+                try:
+                    backup_path = auto_backup_postgres(
+                        handle.engine, tag="node_uuid_backfill",
+                        dest_dir=dest_dir,
+                    )
+                except BackupSkipped as e:
+                    skip = QMessageBox.question(
+                        self.iface.mainWindow(),
+                        "Backup non disponibile",
+                        f"{e}\n\nProcedere SENZA backup automatico "
+                        "(sconsigliato)?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+                    if skip != QMessageBox.Yes:
+                        return
+                    backup_path = None
+            else:
+                backup_path = auto_backup_sqlite(
+                    handle.sqlite_path, tag="node_uuid_backfill",
+                )
+            add_columns(handle)
+            counts = backfill_uuids(handle)
         except Exception as e:
+            msg = (f"La migrazione è fallita:\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else f"La migrazione è fallita:\n{e}\n\nNessun backup creato."
             QMessageBox.critical(
                 self.iface.mainWindow(),
                 "Errore migrazione",
-                f"La migrazione è fallita:\n{e}",
+                msg,
             )
             return
+
         counts_msg = "\n".join(
             f"  {table}: {n} row(s)" for table, n in counts.items())
         QMessageBox.information(
             self.iface.mainWindow(),
             "Backfill completato",
-            f"Backup: {backup}\n\nUUID v7 assegnati:\n{counts_msg}",
+            f"Backup: {backup_path}\n\nUUID v7 assegnati:\n{counts_msg}",
         )
 
     def _unload_stratigraph_sync(self):
