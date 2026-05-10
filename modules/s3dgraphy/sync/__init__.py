@@ -15,6 +15,12 @@ from .vocab_types import (
     VisualRule,
     VocabularyVersion,
 )
+from ._db_handle import (
+    DbHandle,
+    DbHandleError,
+    PgConnectionError,
+    UnsupportedBackendError,
+)
 
 __all__ = [
     "VocabProviderCore",
@@ -24,6 +30,10 @@ __all__ = [
     "UnitType",
     "VisualRule",
     "VocabularyVersion",
+    "DbHandle",
+    "DbHandleError",
+    "PgConnectionError",
+    "UnsupportedBackendError",
 ]
 
 # The Qt-aware wrapper (VocabProvider) is imported lazily on first call to

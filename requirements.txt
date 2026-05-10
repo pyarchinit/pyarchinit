@@ -7,6 +7,10 @@
 SQLAlchemy>=2.0.0
 SQLAlchemy-Utils>=0.41.0
 GeoAlchemy2>=0.14.0
+# PostgreSQL driver — only needed at runtime when connecting to a PG backend
+# Was implicit dep via SQLAlchemy + pyarchinit_db_manager; now explicit
+# for the s3dgraphy bridge PG-compat refactor (5.6.2-alpha foundation).
+psycopg2-binary>=2.9
 
 # Reports & data
 reportlab>=4.0.0
