@@ -20,7 +20,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from .graph_ingestor import GraphSyncError
@@ -127,3 +127,46 @@ def _resolve_db_handle(arg) -> DbHandle:
         f"cannot resolve db_handle from {type(arg).__name__}: {arg!r} "
         f"(expected Path, str, DbManager, Engine, or DbHandle)"
     )
+
+
+def _columns_of(engine: Engine, table: str) -> set[str]:
+    """Backend-agnostic column-name introspection.
+
+    Dispatches on engine.dialect.name:
+      - sqlite → PRAGMA table_info(table)
+      - postgresql → information_schema.columns
+      - other → uses SQLAlchemy reflection as fallback
+
+    Returns an empty set if the table does not exist (does not raise).
+    """
+    dialect = engine.dialect.name
+    if dialect == "sqlite":
+        try:
+            with engine.connect() as conn:
+                rows = conn.execute(
+                    text(f"PRAGMA table_info({table})")
+                ).fetchall()
+                return {r[1] for r in rows}
+        except Exception:
+            return set()
+    if dialect == "postgresql":
+        try:
+            with engine.connect() as conn:
+                rows = conn.execute(
+                    text(
+                        "SELECT column_name FROM information_schema.columns "
+                        "WHERE table_name = :t "
+                        "AND table_schema = current_schema()"
+                    ),
+                    {"t": table},
+                ).fetchall()
+                return {r[0] for r in rows}
+        except Exception:
+            return set()
+    # Other dialects: reflection fallback
+    try:
+        from sqlalchemy import inspect
+        inspector = inspect(engine)
+        return {col["name"] for col in inspector.get_columns(table)}
+    except Exception:
+        return set()

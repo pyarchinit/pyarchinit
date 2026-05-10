@@ -122,3 +122,28 @@ def test_resolve_unknown_str_raises():
     )
     with pytest.raises(UnsupportedBackendError):
         _resolve_db_handle("mysql://foo/bar")
+
+
+def test_columns_of_sqlite(tmp_path):
+    """_columns_of() returns column names from SQLite via PRAGMA."""
+    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from sqlalchemy import create_engine, text
+    p = tmp_path / "x.sqlite"
+    engine = create_engine(f"sqlite:///{p}")
+    with engine.begin() as conn:
+        conn.execute(text(
+            "CREATE TABLE foo (id INTEGER PRIMARY KEY, "
+            "name TEXT NOT NULL, node_uuid TEXT)"
+        ))
+    cols = _columns_of(engine, "foo")
+    assert cols == {"id", "name", "node_uuid"}
+
+
+def test_columns_of_returns_empty_for_missing_table(tmp_path):
+    """_columns_of() on a non-existent table returns empty set (not raise)."""
+    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from sqlalchemy import create_engine
+    p = tmp_path / "y.sqlite"
+    engine = create_engine(f"sqlite:///{p}")
+    cols = _columns_of(engine, "nonexistent_table")
+    assert cols == set()
