@@ -9,7 +9,7 @@ Starting with **5.2.0-alpha** PyArchInit integrates a **bidirectional bridge** w
 - **Attach paradata** (Author / License / Embargo) at site level
 - **Group** SUs by dimension (struttura, area, attivita, settore, ambient, saggio, quad_par or ad-hoc groups)
 
-Current tag: `phase2-ai08f2-hotfix-5.5.2-alpha` (2026-05-09).
+Current tag: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
 
 ---
 
@@ -37,17 +37,12 @@ The dialog shows:
 - **Output formats**: check DOT / GraphML / JSON / phased JSON (recommended: GraphML)
 - **Group US by (optional)**: 7 checkboxes for grouping dimensions + 1 "ad-hoc" checkbox
   - Dimensions populated in the DB are **auto-checked** at dialog open
+- **Primary dimension combobox** (default `struttura`): when an SU has memberships across 2+ dimensions, the primary one wins as the visible yEd folder (hierarchical parent). Secondary dimensions show as inline badges below the SU node. `toponym` is never primary regardless of selection.
 - **"Select Output Directory"**: target folder
 
-### 2.3 Single-dimension limit (5.5.2-alpha)
+From 5.6.0-alpha you can check **2+ dimensions**: the export works natively thanks to the m:n model with `is_primary` (see "Multi-dimension membership" section).
 
-If you check **2 or more** grouping checkboxes, a warning appears:
-
-> *"Multi-dim export not supported yet. Proceed with ONLY the first selected dimension?"*
-
-Choose **Yes** (export with the first checked dimension) or **Cancel** (modify selection). Hierarchical nesting (struttura > attivita > US) ships with AI08-F1.
-
-### 2.4 Click "Export"
+### 2.3 Click "Export"
 
 4 files are generated with prefix `Extended_Matrix_<site>[_<area>]`:
 - `.dot` — Graphviz DOT
@@ -75,7 +70,7 @@ Files are saved next to the SQLite DB and are **Git-versionable**.
 
 ---
 
-## 4. Per-dimension visual style (5.5.1-alpha)
+## 4. Per-dimension visual style (5.5.1-alpha + 5.6.0-alpha)
 
 Each grouping dimension has a distinct color in GraphML:
 
@@ -90,7 +85,32 @@ Each grouping dimension has a distinct color in GraphML:
 | `quad_par` | pastel violet `#E0CCFF80` | `#6633C6` |
 | `adhoc` | pastel grey `#F5F5F580` | `#666666` |
 
+From 5.6.0-alpha, `LocationNodeGroup` items are distinguished by `kind`:
+
+| `kind` | Fill (50% transparency) | Border |
+|---|---|---|
+| `toponym` | pastel lavender `#E6E6FA80` | `#9370DB` |
+| `study` | pastel ivory `#FFFFE080` | `#888888` |
+| `functional` | pastel cyan `#E0FFFF80` | `#008B8B` |
+
 The 50% alpha lets epoch swimlane rows stay visible behind the group rectangle.
+
+### 4.1 Toponym chain (5.6.0-alpha)
+
+The fields `site_table.{nazione, regione, provincia, comune}` are auto-emitted as a recursive `LocationNodeGroup(kind="toponym")` chain (parent: nazione → regione → provincia → comune). Empty admin levels are skipped without breaking the chain. A cross-site dedupe ensures that the same `comune` present in 2 sites becomes **one shared node** in the GraphML.
+
+---
+
+## 4.2 Multi-dimension membership (5.6.0-alpha)
+
+From 5.6.0-alpha an SU can belong to **multiple dimensions simultaneously** thanks to the m:n model with the `is_primary` flag. Only the primary dimension becomes the visible yEd folder; the others appear as **inline badges** below the SU node and as JSON in `<data key="s3d:other_locations">` for downstream tools.
+
+Example: an SU with `struttura=basilica` and `area=B` (primary `struttura`) yields:
+- yEd folder "struttura: basilica" as the visible parent;
+- below the SU node, an inline badge `also: B (study), TestCity (toponym)`;
+- in the GraphML, the `s3d:other_locations` attribute with a JSON array of secondary memberships.
+
+The primary dimension is controlled via the combobox in §2.2.
 
 ---
 
@@ -105,6 +125,8 @@ To update the SQL database by moving SUs between groups in GraphML:
 5. Load the modified GraphML
 
 The system runs an atomic transaction: if anything fails, **full rollback** (the DB stays unchanged). `adhoc` groups never write SQL — they only update `groups_<site>.graphml`.
+
+From 5.6.0-alpha the import walker is **recursive** and supports nested folders (e.g. toponym chain `nazione > regione > provincia > comune > SU`). When cycles are detected in the folder graph, a `CycleDetectedError` is raised and the import is aborted with rollback.
 
 ---
 
@@ -138,9 +160,9 @@ Exit codes: 0 = success, 1 = bridge error, 2 = argparse error.
 |---|---|---|
 | "no such column: node_uuid" | Phase 1 migration not run | Restart QGIS, reopen the DB |
 | Empty GraphML | DB without rapporti / area filter too strict | Verify us_table.rapporti is populated |
-| Empty group folder in yEd | You're checking 2+ dimensions (5.5.2-alpha limit) | Check only one dimension, retry |
 | "rapporti fields must be TEXT" | Entered a number as integer | US/Area fields are **TEXT**, not integer |
 | Wrong capitalization on rapporti | Lowercase "copre" in DB | Use "Copre", "Coperto da" capitalized |
+| `DeprecationWarning` on 5.5.x file | Legacy `ActivityNodeGroup + group_kind` file | The projector promotes it in-memory to `LocationNodeGroup`. Re-export to migrate the file on disk. |
 
 ---
 
@@ -153,12 +175,14 @@ For architecture deep dives, design decisions and roadmap:
 - Dev log: `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md`
 
 Deferred carry-overs:
-- **AI07**: `LocationNodeGroup` migration (upstream deadline 2026-05-23)
-- **AI08-F1**: hierarchical nesting (for clean multi-dim export)
-- **AI08-F3**: auto-layout heuristics (sub-group bin-packing)
-- **AI09**: TimeBranchNodeGroup mapping
-- **Phase 3**: SyncEngine + REST API
-- **Phase 4**: GraphDBBackend + SPARQL
+- **AI08-F3**: auto-layout heuristics (sub-group bin-packing) — still deferred
+- **AI09**: TimeBranchNodeGroup mapping — future
+- **Phase 3**: SyncEngine + REST API — future
+- **Phase 4**: GraphDBBackend + SPARQL — future
+
+Shipped:
+- **AI07** (5.6.0-alpha, 2026-05-10): `LocationNodeGroup` migration with `kind` enum + toponym chain + multi-dim memberships
+- **AI08-F1** (fused into AI07): native hierarchical nesting via `is_primary`
 
 ---
 

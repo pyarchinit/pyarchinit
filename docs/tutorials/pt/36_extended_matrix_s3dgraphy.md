@@ -9,7 +9,7 @@ A partir da versão **5.2.0-alpha** o PyArchInit integra um **bridge bidireciona
 - **Anexar paradata** (Author / License / Embargo) a nível de sítio
 - **Agrupar** UE por dimensão (struttura, area, attivita, settore, ambient, saggio, quad_par ou grupos ad-hoc)
 
-Tag atual: `phase2-ai08f2-hotfix-5.5.2-alpha` (2026-05-09).
+Tag atual: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
 
 ---
 
@@ -37,17 +37,12 @@ O diálogo mostra:
 - **Output formats**: marca DOT / GraphML / JSON / phased JSON (recomendado: GraphML)
 - **Group US by (optional)**: 7 checkboxes de dimensões + 1 "ad-hoc"
   - As dimensões com valores no DB são **autoselecionadas** ao abrir
+- **Caixa de seleção dimensão primária** (predefinição `struttura`): quando uma UE tem pertença em 2+ dimensões, a primária ganha como folder yEd visível (parent hierárquico). As outras dimensões aparecem como etiquetas inline sob o nó UE. `toponym` nunca é primária, independentemente da seleção.
 - **"Select Output Directory"**: pasta de destino
 
-### 2.3 Limite single-dimension (5.5.2-alpha)
+A partir de 5.6.0-alpha podes marcar **2+ dimensões**: a exportação funciona nativamente graças ao modelo m:n com `is_primary` (ver secção "Pertença multidimensional").
 
-Se marcas **2 ou mais** checkboxes de agrupamento, aparece um aviso:
-
-> *"Exportação multi-dim ainda não suportada. Continuar com APENAS a primeira dimensão selecionada?"*
-
-Escolhe **Sim** (exporta com a primeira marcada) ou **Cancelar** (modificar seleção). O nesting hierárquico (struttura > attivita > UE) chega com AI08-F1.
-
-### 2.4 Clica em "Export"
+### 2.3 Clica em "Export"
 
 São gerados 4 ficheiros com prefixo `Extended_Matrix_<sítio>[_<area>]`:
 - `.dot` — Graphviz DOT
@@ -75,7 +70,7 @@ Os ficheiros são guardados ao lado do DB SQLite e são **versionáveis em Git**
 
 ---
 
-## 4. Estilo visual por dimensão (5.5.1-alpha)
+## 4. Estilo visual por dimensão (5.5.1-alpha + 5.6.0-alpha)
 
 Cada dimensão de agrupamento tem uma cor distintiva em GraphML:
 
@@ -90,7 +85,32 @@ Cada dimensão de agrupamento tem uma cor distintiva em GraphML:
 | `quad_par` | violeta pastel `#E0CCFF80` | `#6633C6` |
 | `adhoc` | cinza pastel `#F5F5F580` | `#666666` |
 
+A partir de 5.6.0-alpha, os `LocationNodeGroup` são distinguidos por `kind`:
+
+| `kind` | Fill (50% transparência) | Border |
+|---|---|---|
+| `toponym` | lavanda pastel `#E6E6FA80` | `#9370DB` |
+| `study` | marfim pastel `#FFFFE080` | `#888888` |
+| `functional` | ciano pastel `#E0FFFF80` | `#008B8B` |
+
 O alpha 50% deixa visíveis as swimlanes das épocas atrás do retângulo do grupo.
+
+### 4.1 Cadeia toponímica (5.6.0-alpha)
+
+Os campos `site_table.{nazione, regione, provincia, comune}` são emitidos automaticamente como uma cadeia recursiva de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Os níveis administrativos vazios são saltados sem quebrar a cadeia. Uma desduplicação cross-sítio garante que a mesma `comune` presente em 2 sítios se torne **um único nó partilhado** no GraphML.
+
+---
+
+## 4.2 Pertença multidimensional (5.6.0-alpha)
+
+A partir de 5.6.0-alpha uma UE pode pertencer a **múltiplas dimensões em simultâneo** graças ao modelo m:n com flag `is_primary`. Apenas a dimensão primária se torna o folder yEd visível; as outras aparecem como **etiquetas inline** sob o nó UE e como JSON em `<data key="s3d:other_locations">` para ferramentas downstream.
+
+Exemplo: uma UE com `struttura=basilica` e `area=B` (primária `struttura`) produz:
+- folder yEd "struttura: basilica" como parent visível;
+- sob o nó UE, uma etiqueta inline `also: B (study), TestCity (toponym)`;
+- no GraphML, o atributo `s3d:other_locations` com array JSON das pertenças secundárias.
+
+A dimensão primária controla-se via caixa de seleção em §2.2.
 
 ---
 
@@ -105,6 +125,8 @@ Para modificar a base SQL movendo UE entre grupos em GraphML:
 5. Carrega o GraphML modificado
 
 O sistema executa uma transação atómica: se algo falhar, **rollback completo** (o DB fica inalterado). Os grupos `adhoc` nunca escrevem SQL — apenas atualizam `groups_<sítio>.graphml`.
+
+A partir de 5.6.0-alpha o walker de import é **recursivo** e suporta folders aninhados (p. ex. cadeia toponímica `nazione > regione > provincia > comune > UE`). Quando ciclos são detetados no grafo de folders, é levantada a exceção `CycleDetectedError` e o import é abortado com rollback.
 
 ---
 
@@ -138,9 +160,9 @@ Exit codes: 0 = sucesso, 1 = erro de bridge, 2 = erro argparse.
 |---|---|---|
 | "no such column: node_uuid" | Migração Phase 1 não executada | Reiniciar QGIS, reabrir o DB |
 | GraphML vazio | DB sem rapporti / filtro de area demasiado restrito | Verificar us_table.rapporti |
-| Pasta de grupo vazia no yEd | Marcando 2+ dimensões (limite 5.5.2-alpha) | Marcar apenas uma, repetir |
 | "rapporti devem ser TEXT" | Inseriste um número como integer | Os campos UE/Area são **TEXT**, não integer |
 | Capitalização errada em rapporti | "copre" minúsculo no DB | Usa "Copre", "Coperto da" capitalizados |
+| `DeprecationWarning` em ficheiro 5.5.x | Ficheiro legacy `ActivityNodeGroup + group_kind` | O projector promove-o em memória para `LocationNodeGroup`. Reexporta para migrar o ficheiro em disco. |
 
 ---
 
@@ -153,12 +175,14 @@ Para aprofundar arquitetura, decisões de design e roadmap:
 - Dev log: `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md`
 
 Carry-over diferidos:
-- **AI07**: migração `LocationNodeGroup` (deadline upstream 2026-05-23)
-- **AI08-F1**: nesting hierárquico (para multi-dim export limpo)
-- **AI08-F3**: heurísticas de auto-layout (bin-packing de sub-grupos)
-- **AI09**: TimeBranchNodeGroup mapping
-- **Phase 3**: SyncEngine + REST API
-- **Phase 4**: GraphDBBackend + SPARQL
+- **AI08-F3**: heurísticas de auto-layout (bin-packing de sub-grupos) — ainda diferido
+- **AI09**: TimeBranchNodeGroup mapping — futuro
+- **Phase 3**: SyncEngine + REST API — futuro
+- **Phase 4**: GraphDBBackend + SPARQL — futuro
+
+Entregues:
+- **AI07** (5.6.0-alpha, 2026-05-10): migração `LocationNodeGroup` com enum `kind` + cadeia toponímica + pertenças multidimensionais
+- **AI08-F1** (fundido em AI07): nesting hierárquico nativo via `is_primary`
 
 ---
 

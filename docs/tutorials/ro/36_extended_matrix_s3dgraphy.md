@@ -9,7 +9,7 @@
 - **Atașarea paradatelor** (Author / License / Embargo) la nivelul sitului
 - **Gruparea** UE după dimensiune (struttura, area, attivita, settore, ambient, saggio, quad_par sau grupuri ad-hoc)
 
-Tag curent: `phase2-ai08f2-hotfix-5.5.2-alpha` (2026-05-09).
+Tag curent: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
 
 ---
 
@@ -37,17 +37,12 @@ Dialogul afișează:
 - **Output formats**: bifează DOT / GraphML / JSON / phased JSON (recomandat: GraphML)
 - **Group US by (optional)**: 7 checkbox-uri pentru dimensiuni + 1 "ad-hoc"
   - Dimensiunile populate în DB sunt **bifate automat** la deschidere
+- **Combobox dimensiune primară** (implicit `struttura`): când o UE are apartenențe pe 2+ dimensiuni, dimensiunea primară câștigă ca folder yEd vizibil (parent ierarhic). Celelalte dimensiuni apar ca insigne inline sub nodul UE. `toponym` nu este niciodată primar, indiferent de selecție.
 - **"Select Output Directory"**: folderul destinație
 
-### 2.3 Limită single-dimension (5.5.2-alpha)
+Începând cu 5.6.0-alpha poți bifa **2+ dimensiuni**: exportul funcționează nativ datorită modelului m:n cu `is_primary` (vezi secțiunea "Apartenență multidimensională").
 
-Dacă bifezi **2 sau mai multe** checkbox-uri de grupare, apare un avertisment:
-
-> *"Export multi-dim încă nesuportat. Continuă cu DOAR prima dimensiune selectată?"*
-
-Alege **Da** (exportă cu prima dimensiune bifată) sau **Anulează** (modifică selecția). Nesting-ul ierarhic (struttura > attivita > UE) sosește cu AI08-F1.
-
-### 2.4 Click pe "Export"
+### 2.3 Click pe "Export"
 
 Se generează 4 fișiere cu prefixul `Extended_Matrix_<sit>[_<area>]`:
 - `.dot` — Graphviz DOT
@@ -75,7 +70,7 @@ Fișierele se salvează lângă DB SQLite și sunt **versionabile în Git**.
 
 ---
 
-## 4. Stil vizual per dimensiune (5.5.1-alpha)
+## 4. Stil vizual per dimensiune (5.5.1-alpha + 5.6.0-alpha)
 
 Fiecare dimensiune de grupare are o culoare distinctivă în GraphML:
 
@@ -90,7 +85,32 @@ Fiecare dimensiune de grupare are o culoare distinctivă în GraphML:
 | `quad_par` | violet pastel `#E0CCFF80` | `#6633C6` |
 | `adhoc` | gri pastel `#F5F5F580` | `#666666` |
 
+Începând cu 5.6.0-alpha, elementele `LocationNodeGroup` se disting prin `kind`:
+
+| `kind` | Fill (50% transparență) | Border |
+|---|---|---|
+| `toponym` | lavandă pastel `#E6E6FA80` | `#9370DB` |
+| `study` | fildeș pastel `#FFFFE080` | `#888888` |
+| `functional` | cyan pastel `#E0FFFF80` | `#008B8B` |
+
 Alpha 50% lasă vizibile swimlane-urile epocilor în spatele dreptunghiului grupului.
+
+### 4.1 Lanț toponim (5.6.0-alpha)
+
+Câmpurile `site_table.{nazione, regione, provincia, comune}` sunt emise automat ca un lanț recursiv de `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). Nivelurile administrative goale sunt sărite fără a întrerupe lanțul. O deduplicare cross-sit garantează că aceeași `comune` prezentă în 2 situri devine **un singur nod partajat** în GraphML.
+
+---
+
+## 4.2 Apartenență multidimensională (5.6.0-alpha)
+
+Începând cu 5.6.0-alpha o UE poate aparține **mai multor dimensiuni simultan** datorită modelului m:n cu flag-ul `is_primary`. Doar dimensiunea primară devine folderul yEd vizibil; celelalte apar ca **insigne inline** sub nodul UE și ca JSON în `<data key="s3d:other_locations">` pentru tool-urile downstream.
+
+Exemplu: o UE cu `struttura=basilica` și `area=B` (primar `struttura`) produce:
+- folder yEd "struttura: basilica" ca parent vizibil;
+- sub nodul UE, o insignă inline `also: B (study), TestCity (toponym)`;
+- în GraphML, atributul `s3d:other_locations` cu array JSON al apartenențelor secundare.
+
+Dimensiunea primară se controlează prin combobox în §2.2.
 
 ---
 
@@ -105,6 +125,8 @@ Pentru a modifica baza SQL mutând UE între grupuri în GraphML:
 5. Încarcă GraphML modificat
 
 Sistemul rulează o tranzacție atomică: la eșec, **rollback complet** (DB rămâne nealterată). Grupurile `adhoc` nu scriu niciodată SQL — actualizează doar `groups_<sit>.graphml`.
+
+Începând cu 5.6.0-alpha walker-ul de import este **recursiv** și suportă foldere imbricate (de ex. lanț toponim `nazione > regione > provincia > comune > UE`). La detectarea ciclurilor în graful folderelor, este ridicată excepția `CycleDetectedError` și importul este abandonat cu rollback.
 
 ---
 
@@ -138,9 +160,9 @@ Exit codes: 0 = succes, 1 = eroare bridge, 2 = eroare argparse.
 |---|---|---|
 | "no such column: node_uuid" | Migrarea Phase 1 neexecutată | Repornește QGIS, redeschide DB |
 | GraphML gol | DB fără rapporti / filtru area prea strict | Verifică us_table.rapporti |
-| Folder grup gol în yEd | Bifezi 2+ dimensiuni (limită 5.5.2-alpha) | Bifează doar una, reîncearcă |
 | "rapporti trebuie să fie TEXT" | Ai introdus un număr ca integer | Câmpurile UE/Area sunt **TEXT**, nu integer |
 | Capitalizare greșită în rapporti | "copre" cu litere mici în DB | Folosește "Copre", "Coperto da" capitalizate |
+| `DeprecationWarning` pe fișier 5.5.x | Fișier legacy `ActivityNodeGroup + group_kind` | Projector-ul îl promovează în memorie la `LocationNodeGroup`. Reexportă pentru a migra fișierul pe disc. |
 
 ---
 
@@ -153,12 +175,14 @@ Pentru aprofundare arhitectură, decizii de design și roadmap:
 - Dev log: `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md`
 
 Carry-over amânate:
-- **AI07**: migrare `LocationNodeGroup` (deadline upstream 2026-05-23)
-- **AI08-F1**: nesting ierarhic (pentru multi-dim export curat)
-- **AI08-F3**: euristici auto-layout (bin-packing sub-grupuri)
-- **AI09**: TimeBranchNodeGroup mapping
-- **Phase 3**: SyncEngine + REST API
-- **Phase 4**: GraphDBBackend + SPARQL
+- **AI08-F3**: euristici auto-layout (bin-packing sub-grupuri) — încă amânat
+- **AI09**: TimeBranchNodeGroup mapping — viitor
+- **Phase 3**: SyncEngine + REST API — viitor
+- **Phase 4**: GraphDBBackend + SPARQL — viitor
+
+Livrate:
+- **AI07** (5.6.0-alpha, 2026-05-10): migrare `LocationNodeGroup` cu enum `kind` + lanț toponim + apartenențe multidimensionale
+- **AI08-F1** (fuzionat în AI07): nesting ierarhic nativ via `is_primary`
 
 ---
 

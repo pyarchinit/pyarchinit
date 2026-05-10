@@ -9,7 +9,7 @@ A partire dalla versione **5.2.0-alpha** PyArchInit integra un **bridge bidirezi
 - **Allegare paradata** (Author / License / Embargo) a livello sito
 - **Raggruppare** US per dimensione (struttura, area, attivita, settore, ambient, saggio, quad_par o gruppi ad-hoc)
 
-Tag corrente: `phase2-ai08f2-hotfix-5.5.2-alpha` (2026-05-09).
+Tag corrente: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
 
 ---
 
@@ -37,17 +37,12 @@ Il dialog mostra:
 - **Output formats**: spunta DOT / GraphML / JSON / phased JSON (raccomandato: GraphML)
 - **Group US by (optional)**: 7 checkbox per le dimensioni di raggruppamento + 1 checkbox "ad-hoc"
   - Le dimensioni con valori popolati nel DB vengono **auto-spuntate** all'apertura
+- **Combobox dimensione primaria** (default `struttura`): quando una US ha membership su 2+ dimensioni, la dimensione primaria vince come folder yEd visibile (parent gerarchico). Le altre dimensioni appaiono come badge inline sotto il nodo US. `toponym` non è mai primario, indipendentemente dalla scelta.
 - **"Select Output Directory"**: cartella di destinazione
 
-### 2.3 Limite single-dimension (5.5.2-alpha)
+Da 5.6.0-alpha è possibile spuntare **2+ dimensioni**: l'export funziona nativamente grazie al modello m:n con `is_primary` (vedi sez. "Membership multidimensionale").
 
-Se spunti **2 o più** checkbox di raggruppamento, appare un warning:
-
-> *"Multi-dim export non ancora supportato. Procedi con SOLO la prima dimensione selezionata?"*
-
-Scegli **Sì** (esporta con la prima checkbox spuntata) o **Annulla** (modifica selezione). L'annidamento gerarchico (struttura > attività > US) sarà disponibile con AI08-F1.
-
-### 2.4 Click "Export"
+### 2.3 Click "Export"
 
 Vengono generati 4 file con prefisso `Extended_Matrix_<sito>[_<area>]`:
 - `.dot` — Graphviz DOT
@@ -75,7 +70,7 @@ I file vengono salvati accanto al DB SQLite e sono **versionabili in Git**.
 
 ---
 
-## 4. Stile visivo per dimensione (5.5.1-alpha)
+## 4. Stile visivo per dimensione (5.5.1-alpha + 5.6.0-alpha)
 
 Ogni dimensione di raggruppamento ha un colore distintivo nel GraphML:
 
@@ -90,7 +85,32 @@ Ogni dimensione di raggruppamento ha un colore distintivo nel GraphML:
 | `quad_par` | viola pastello `#E0CCFF80` | `#6633C6` |
 | `adhoc` | grigio pastello `#F5F5F580` | `#666666` |
 
+A partire da 5.6.0-alpha, i `LocationNodeGroup` sono distinti per `kind`:
+
+| `kind` | Fill (50% trasparenza) | Border |
+|---|---|---|
+| `toponym` | lavanda pastello `#E6E6FA80` | `#9370DB` |
+| `study` | avorio pastello `#FFFFE080` | `#888888` |
+| `functional` | ciano pastello `#E0FFFF80` | `#008B8B` |
+
 L'alpha 50% lascia visibili le swimlane delle epoche dietro al rettangolo del gruppo.
+
+### 4.1 Catena toponym (5.6.0-alpha)
+
+I campi `site_table.{nazione, regione, provincia, comune}` vengono emessi automaticamente come catena ricorsiva di `LocationNodeGroup(kind="toponym")` (parent: nazione → regione → provincia → comune). I livelli amministrativi vuoti vengono saltati senza interrompere la catena. Un dedupe cross-sito garantisce che lo stesso comune presente in 2 siti diventi **un solo nodo condiviso** nel GraphML.
+
+---
+
+## 4.2 Membership multidimensionale (5.6.0-alpha)
+
+Da 5.6.0-alpha una US può appartenere a **più dimensioni contemporaneamente** grazie al modello m:n con flag `is_primary`. Solo la dimensione primaria diventa il folder yEd visibile; le altre appaiono come **badge inline** sotto il nodo US e come JSON in `<data key="s3d:other_locations">` per i tool downstream.
+
+Esempio: una US con `struttura=basilica` e `area=B` (con `struttura` primario) avrà:
+- folder yEd "struttura: basilica" come parent visibile;
+- sotto il nodo US, un badge inline `also: B (study), TestCity (toponym)`;
+- nel GraphML, l'attributo `s3d:other_locations` con array JSON delle membership secondarie.
+
+La dimensione primaria si controlla via combobox in §2.2.
 
 ---
 
@@ -105,6 +125,8 @@ Per modificare il database SQL spostando US tra gruppi nel GraphML:
 5. Carica il GraphML modificato
 
 Il sistema esegue una transazione atomica: se qualcosa fallisce, **rollback completo** (il DB resta invariato). I gruppi `adhoc` non scrivono mai SQL — aggiornano solo `groups_<sito>.graphml`.
+
+Da 5.6.0-alpha il walker di import è **ricorsivo** e supporta folder annidati (es. catena toponym `nazione > regione > provincia > comune > US`). In presenza di cicli nel grafo dei folder viene sollevata l'eccezione `CycleDetectedError` e l'import viene abortito con rollback.
 
 ---
 
@@ -138,9 +160,9 @@ Exit codes: 0 = success, 1 = errore di bridge, 2 = errore argparse.
 |---|---|---|
 | "no such column: node_uuid" | Migrazione Phase 1 non eseguita | Riavvia QGIS, riapri il DB |
 | GraphML vuoto | DB privo di rapporti / area filter troppo stretto | Verifica us_table.rapporti popolato |
-| Folder gruppo vuoto in yEd | Stai spuntando 2+ dimensioni (limite 5.5.2-alpha) | Spunta una sola dimensione, riprova |
 | "i campi rapporti devono essere TESTO" | Hai inserito un numero come integer | I campi US/Area sono **TEXT**, non integer |
 | Capitalizzazione errata sui rapporti | "copre" minuscolo nel DB | Usa "Copre", "Coperto da" capitalizzati |
+| `DeprecationWarning` su file 5.5.x | File legacy `ActivityNodeGroup + group_kind` | Il projector promuove in-memory a `LocationNodeGroup`. Ri-esporta per migrare il file su disco. |
 
 ---
 
@@ -153,12 +175,14 @@ Per approfondimenti su architettura, decisioni di design e roadmap:
 - Dev log: `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md`
 
 Carry-over deferiti:
-- **AI07**: migrazione `LocationNodeGroup` (deadline upstream 2026-05-23)
-- **AI08-F1**: hierarchical nesting (per multi-dim export pulito)
-- **AI08-F3**: auto-layout heuristics (bin-packing dei sub-gruppi)
-- **AI09**: TimeBranchNodeGroup mapping
-- **Phase 3**: SyncEngine + REST API
-- **Phase 4**: GraphDBBackend + SPARQL
+- **AI08-F3**: auto-layout heuristics (bin-packing dei sub-gruppi) — ancora differito
+- **AI09**: TimeBranchNodeGroup mapping — futuro
+- **Phase 3**: SyncEngine + REST API — futuro
+- **Phase 4**: GraphDBBackend + SPARQL — futuro
+
+Completati:
+- **AI07** (5.6.0-alpha, 2026-05-10): migrazione `LocationNodeGroup` con `kind` enum + catena toponym + multi-dim memberships
+- **AI08-F1** (fuso in AI07): hierarchical nesting nativo grazie a `is_primary`
 
 ---
 
