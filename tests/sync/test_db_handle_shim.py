@@ -45,3 +45,80 @@ def test_db_handle_from_engine_detects_postgres():
     h_sqlite = DbHandle.from_engine(sqlite_eng, "sqlite:///:memory:")
     assert h_sqlite.is_postgres is False
     assert h_sqlite.sqlite_path is None  # in-memory has no path
+
+
+def test_resolve_from_path(tmp_path):
+    """Path → SQLite engine via shim, with DeprecationWarning."""
+    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    p = tmp_path / "x.sqlite"
+    p.touch()
+    with pytest.warns(DeprecationWarning):
+        h = _resolve_db_handle(p)
+    assert h.is_postgres is False
+    assert h.sqlite_path == p
+
+
+def test_resolve_from_sqlite_conn_str(tmp_path):
+    """str starting with 'sqlite:' → engine."""
+    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    h = _resolve_db_handle("sqlite:///:memory:")
+    assert h.is_postgres is False
+
+
+def test_resolve_from_postgresql_conn_str():
+    """str starting with 'postgresql:' → engine (PG dialect detected).
+
+    Skipped when psycopg2 is not installed: SQLAlchemy 1.4 eagerly imports
+    the DBAPI driver at create_engine() time, so this test requires
+    psycopg2 in the env. Group E adds psycopg2-binary to requirements.txt.
+    """
+    pytest.importorskip("psycopg2")
+    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    h = _resolve_db_handle("postgresql+psycopg2://x:y@localhost/z")
+    assert h.is_postgres is True
+    assert h.sqlite_path is None
+
+
+def test_resolve_from_db_manager():
+    """DbManager → use existing .engine attribute."""
+    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from sqlalchemy import create_engine
+
+    class FakeDbManager:
+        engine = create_engine("sqlite:///:memory:")
+        conn_str = "sqlite:///:memory:"
+
+    h = _resolve_db_handle(FakeDbManager())
+    assert h.is_postgres is False
+    assert h.engine is FakeDbManager.engine
+
+
+def test_resolve_from_engine():
+    """SQLAlchemy Engine → wrap as DbHandle."""
+    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from sqlalchemy import create_engine
+    eng = create_engine("sqlite:///:memory:")
+    h = _resolve_db_handle(eng)
+    assert h.is_postgres is False
+    assert h.engine is eng
+
+
+def test_resolve_from_db_handle_passthrough(tmp_path):
+    """DbHandle → return as-is (idempotent)."""
+    from modules.s3dgraphy.sync._db_handle import (
+        DbHandle, _resolve_db_handle,
+    )
+    p = tmp_path / "y.sqlite"
+    p.touch()
+    original = DbHandle.from_path(p)
+    h = _resolve_db_handle(original)
+    assert h is original
+
+
+def test_resolve_unknown_str_raises():
+    """str with unknown dialect prefix → UnsupportedBackendError."""
+    from modules.s3dgraphy.sync._db_handle import (
+        _resolve_db_handle, UnsupportedBackendError,
+    )
+    with pytest.raises(UnsupportedBackendError):
+        _resolve_db_handle("mysql://foo/bar")

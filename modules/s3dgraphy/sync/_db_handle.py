@@ -70,3 +70,60 @@ class DbHandle:
             sqlite_path = Path(conn_str[len("sqlite:///"):])
         return cls(engine=engine, is_postgres=is_pg, sqlite_path=sqlite_path,
                    conn_str=conn_str)
+
+
+def _resolve_db_handle(arg) -> DbHandle:
+    """Backward-compat shim — accept any of:
+
+      - Path: SQLite file path (emits DeprecationWarning)
+      - str: SQLAlchemy conn string (sqlite:// or postgresql://)
+      - DbManager: pyarchinit Pyarchinit_db_management instance
+                   (uses existing .engine + .conn_str)
+      - Engine: SQLAlchemy engine (constructs DbHandle around it)
+      - DbHandle: passthrough (idempotent)
+
+    Raises UnsupportedBackendError for str with unknown dialect prefix.
+    """
+    import warnings
+
+    # Order matters: check DbHandle FIRST (it's a dataclass — could
+    # accidentally match other branches via duck-typing).
+    if isinstance(arg, DbHandle):
+        return arg
+
+    if isinstance(arg, Path):
+        warnings.warn(
+            "Passing db_path: Path to the s3dgraphy bridge is "
+            "deprecated since 5.7.0 — pass db_manager (the "
+            "Pyarchinit_db_management instance) instead. The Path "
+            "argument will continue to work via this shim but will "
+            "be removed in a future release. See "
+            "docs/superpowers/specs/2026-05-10-postgres-compat-design.md",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return DbHandle.from_path(arg)
+
+    if isinstance(arg, str):
+        if arg.startswith("sqlite:") or arg.startswith("postgresql"):
+            engine = create_engine(arg)
+            return DbHandle.from_engine(engine, arg)
+        raise UnsupportedBackendError(
+            f"unrecognised conn string dialect: {arg!r} "
+            f"(expected 'sqlite://...' or 'postgresql://...')"
+        )
+
+    if isinstance(arg, Engine):
+        # Best-effort conn_str reconstruction from engine URL
+        return DbHandle.from_engine(arg, str(arg.url))
+
+    # DbManager duck-typing: has .engine attribute (SQLAlchemy Engine)
+    # and either .conn_str string or default to engine URL string
+    if hasattr(arg, "engine") and isinstance(arg.engine, Engine):
+        conn_str = getattr(arg, "conn_str", None) or str(arg.engine.url)
+        return DbHandle.from_engine(arg.engine, conn_str)
+
+    raise DbHandleError(
+        f"cannot resolve db_handle from {type(arg).__name__}: {arg!r} "
+        f"(expected Path, str, DbManager, Engine, or DbHandle)"
+    )
