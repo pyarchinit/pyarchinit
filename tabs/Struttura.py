@@ -2580,7 +2580,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         sigla_struttura_vl = []
 
         for i in range(len(sigla_struttura)):
-            sigla_struttura_vl.append(sigla_struttura[i].sigla)
+            sigla_struttura_vl.append(sigla_struttura[i].sigla_estesa)
 
         sigla_struttura_vl.sort()
         self.comboBox_sigla_struttura.addItems(sigla_struttura_vl)
