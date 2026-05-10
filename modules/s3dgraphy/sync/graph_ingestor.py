@@ -48,6 +48,10 @@ class GraphIngestError(GraphSyncError):
     """Write-side failure. Always means DB rolled back to pre-call state."""
 
 
+class CycleDetectedError(GraphIngestError):
+    """AI07: recursive walker detected a cycle in yEd folder nesting."""
+
+
 class SchemaMismatchError(GraphIngestError):
     """us_table.node_uuid column missing (Phase 1 migration not applied).
 
@@ -703,17 +707,14 @@ def _promote_legacy_activitynodegroup(graph) -> int:
 
 
 def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
-    """Parse *graphml_path* for ``yfiles.foldertype="group"`` folder
-    nodes whose id starts with ``grp_`` and apply
-    ``UPDATE us_table SET <kind>=<group_name>`` for every member US.
+    """AI07: recursive walker — descend yEd folder-in-folder structures
+    and apply ``UPDATE us_table SET <kind>=<group_name>`` per
+    SQL-backed folder.
 
-    *cur* is an open SQLite cursor inside the caller's transaction —
-    we never commit / rollback here. A failure raises and the caller
-    rolls back.
+    Toponym / unknown / ad-hoc kinds are skipped (AC-14 unchanged).
 
-    Returns the number of UPDATEs queued. Folders without a
-    discoverable SQL ``group_kind`` (i.e. ad-hoc) are skipped entirely
-    — they never write to SQL regardless of caller flag (AC-14).
+    Cycle detection: a `visited` set guards against malformed GraphML
+    where folder A contains folder B contains folder A.
 
     Member US identification: prefer ``pyarchinit.node_uuid`` (when
     available, byte-identical match to the DB row); fall back to
@@ -757,68 +758,108 @@ def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
         elif short == "sito":
             sito_kid = k.get("id")
 
-    applied = 0
-    for folder in _tree.iter(f"{NS_G}node"):
-        if folder.get("yfiles.foldertype") != "group":
-            continue
-        if not (folder.get("id") or "").startswith("grp_"):
-            continue
-        # Read group label
-        nl = folder.find(f".//{NS_Y}GroupNode/{NS_Y}NodeLabel")
-        if nl is None or not (nl.text or "").strip():
-            continue
-        group_name = nl.text.strip()
-        # Discover group_kind from the data keys on this folder.
+    visited: set = set()
+
+    def _visit_folder(folder_elem) -> int:
+        fid = folder_elem.get("id") or ""
+        if fid and fid in visited:
+            raise CycleDetectedError(
+                f"Cycle detected: folder {fid!r} visited twice"
+            )
+        if fid:
+            visited.add(fid)
+
+        # Discover this folder's group_kind + group_name from data
+        # entries. Prefer the explicit pyarchinit.<kind> data key; fall
+        # back to NodeLabel text if data key has no text (preserves
+        # backwards-compat with AI06 writer where the label IS the
+        # canonical name and data text mirrors it).
         group_kind = None
-        for d in folder.findall(f"{NS_G}data"):
+        group_name = None
+        for d in folder_elem.findall(f"{NS_G}data"):
             kind = kid_to_kind.get(d.get("key"))
             if kind:
                 group_kind = kind
+                group_name = (d.text or "").strip() or None
                 break
-        if not group_kind:
-            # Ad-hoc or unknown — skip SQL UPDATE (AC-14).
-            continue
-        # Walk the folder's inner <graph> for member US elements.
-        inner = folder.find(f"{NS_G}graph")
+        if group_name is None and group_kind is not None:
+            nl = folder_elem.find(f".//{NS_Y}GroupNode/{NS_Y}NodeLabel")
+            if nl is not None and (nl.text or "").strip():
+                group_name = nl.text.strip()
+
+        inner = folder_elem.find(f"{NS_G}graph")
         if inner is None:
-            continue
-        for member in inner.findall(f"{NS_G}node"):
-            # Member identification — prefer node_uuid; fall back to
-            # (us, area, sito).
-            node_uuid = None
-            us_val = None
-            area_val = None
-            sito_val = None
-            for md in member.findall(f"{NS_G}data"):
-                kid = md.get("key")
-                txt = (md.text or "").strip()
-                if not txt:
+            return 0
+
+        local_applied = 0
+        # Apply SQL UPDATE for direct US members of this folder
+        # (only if group_kind is SQL-backed — toponym/adhoc skipped).
+        if group_kind in _GROUP_KIND_TO_COL and group_name:
+            for member in inner.findall(f"{NS_G}node"):
+                # Skip nested folders — they get walked recursively below
+                if member.get("yfiles.foldertype") == "group":
                     continue
-                if kid == node_uuid_kid:
-                    node_uuid = txt
-                elif kid == us_kid:
-                    us_val = txt
-                elif kid == area_kid:
-                    area_val = txt
-                elif kid == sito_kid:
-                    sito_val = txt
-            if node_uuid:
-                cur.execute(
-                    f"UPDATE us_table SET {group_kind}=? "
-                    f"WHERE node_uuid=? AND sito=?",
-                    (group_name, node_uuid, sito))
-                applied += cur.rowcount if cur.rowcount > 0 else 0
-            elif us_val:
-                # Fall back to (us, area, sito) match. Use the caller
-                # `sito` param as authoritative (matches AI04 import
-                # semantics — sito_val from the file may be the source
-                # site for cross-site imports).
-                area_val = area_val or "1"
-                cur.execute(
-                    f"UPDATE us_table SET {group_kind}=? "
-                    f"WHERE us=? AND area=? AND sito=?",
-                    (group_name, us_val, area_val, sito))
-                applied += cur.rowcount if cur.rowcount > 0 else 0
+                # Identify US member (prefer node_uuid, fall back to
+                # us+area).
+                node_uuid = None
+                us_val = None
+                area_val = None
+                for md in member.findall(f"{NS_G}data"):
+                    kid = md.get("key")
+                    txt = (md.text or "").strip()
+                    if not txt:
+                        continue
+                    if kid == node_uuid_kid:
+                        node_uuid = txt
+                    elif kid == us_kid:
+                        us_val = txt
+                    elif kid == area_kid:
+                        area_val = txt
+                if node_uuid:
+                    cur.execute(
+                        f"UPDATE us_table SET {group_kind}=? "
+                        f"WHERE node_uuid=? AND sito=?",
+                        (group_name, node_uuid, sito),
+                    )
+                    local_applied += (
+                        cur.rowcount if cur.rowcount and cur.rowcount > 0
+                        else 0)
+                elif us_val:
+                    # Fall back to (us, area, sito) match.
+                    area_val = area_val or "1"
+                    cur.execute(
+                        f"UPDATE us_table SET {group_kind}=? "
+                        f"WHERE us=? AND area=? AND sito=?",
+                        (group_name, us_val, area_val, sito),
+                    )
+                    local_applied += (
+                        cur.rowcount if cur.rowcount and cur.rowcount > 0
+                        else 0)
+
+        # Recurse into nested folders
+        for child in inner.findall(f"{NS_G}node"):
+            if child.get("yfiles.foldertype") == "group":
+                local_applied += _visit_folder(child)
+
+        return local_applied
+
+    applied = 0
+    # Walk top-level folders only (nested ones are visited via
+    # recursion). A folder is "top-level" if its parent <graph>'s
+    # parent is NOT a <node> (i.e. it lives directly under the root
+    # <graph>, not inside another folder's inner <graph>).
+    for folder in root.iter(f"{NS_G}node"):
+        if folder.get("yfiles.foldertype") != "group":
+            continue
+        parent = folder.getparent()
+        if parent is not None and parent.tag == f"{NS_G}graph":
+            grandparent = parent.getparent()
+            if grandparent is not None and grandparent.tag == f"{NS_G}node":
+                # this folder is nested — skip; it'll be visited by its
+                # parent
+                continue
+        applied += _visit_folder(folder)
+
     return applied
 
 
