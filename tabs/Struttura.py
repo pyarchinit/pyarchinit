@@ -3053,9 +3053,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_iniz.clear()
         self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Find"):
             self.comboBox_per_iniz.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Current"):
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -3080,9 +3080,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_per_fin.clear()
         self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Find"):
             self.comboBox_per_fin.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Current"):
             if len(self.DATA_LIST) > 0:
                 try:
                     self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -3113,7 +3113,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Find"):
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -3144,7 +3144,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Find"):
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -3172,7 +3172,7 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 self.comboBox_datazione_estesa.clear()
                 datazione_list.sort()
                 self.comboBox_datazione_estesa.addItems(self.UTILITY.remove_dup_from_list(datazione_list))
-                if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Find":
+                if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Find"):
                     self.comboBox_datazione_estesa.setEditText("")
                 else:
                     self.comboBox_datazione_estesa.setEditText(self.DATA_LIST[self.rec_num].datazione_estesa)

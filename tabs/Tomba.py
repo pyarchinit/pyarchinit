@@ -2595,9 +2595,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             #
             self.comboBox_per_iniz.clear()
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_per_iniz.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+            elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -2629,9 +2629,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_per_fin.clear()
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_per_fin.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+            elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
@@ -2661,7 +2661,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_iniz.clear()
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_fas_iniz.setEditText("")
             else:
                 self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
@@ -2689,7 +2689,7 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_fas_fin.clear()
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_fas_fin.setEditText("")
             else:
                 self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
@@ -2778,10 +2778,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_nr_struttura.clear()
         nr_struttura_list.sort()
         self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(nr_struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 
                 self.comboBox_nr_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -2808,10 +2808,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(sigla_struttura_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_sigla_struttura.setEditText("")
                 
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -2840,9 +2840,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_nr_individuo.clear()
             self.comboBox_nr_individuo.addItems(self.UTILITY.remove_dup_from_list(inv_list))
 
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_nr_individuo.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+            elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     self.comboBox_nr_individuo.setEditText(self.DATA_LIST[self.rec_num].nr_individuo)
 
@@ -2869,9 +2869,9 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_oggetti_esterno.clear()
             self.comboBox_oggetti_esterno.addItems(self.UTILITY.remove_dup_from_list(inv_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_oggetti_esterno.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+            elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_oggetti_esterno.setEditText(self.DATA_LIST[self.rec_num].oggetti_esterno)

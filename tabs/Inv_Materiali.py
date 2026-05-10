@@ -6484,9 +6484,9 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 pass
             self.comboBox_struttura.clear()
             self.comboBox_struttura.addItems(self.UTILITY.remove_dup_from_list(struttura_list))
-            if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+            if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_struttura.setEditText("")
-            elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+            elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
                         self.comboBox_struttura.setEditText(self.DATA_LIST[self.rec_num].struttura)

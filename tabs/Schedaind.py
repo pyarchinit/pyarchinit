@@ -915,10 +915,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_nr_struttura.clear()
         nr_struttura_list.sort()
         self.comboBox_nr_struttura.addItems(self.UTILITY.remove_dup_from_list(nr_struttura_list))
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 
                 self.comboBox_nr_struttura.setEditText("")
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -945,10 +945,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
 
         self.comboBox_sigla_struttura.addItems(self.UTILITY.remove_dup_from_list(sigla_struttura_list))
 
-        if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 self.comboBox_sigla_struttura.setEditText("")
                 
-        elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
             try:    
                 if len(self.DATA_LIST) > 0:
         
@@ -976,11 +976,11 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         # self.comboBox_area.clear()
         # nr_area_list.sort()
         # self.comboBox_area.addItems(self.UTILITY.remove_dup_from_list(nr_area_list))
-        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        # if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 
             # self.comboBox_area.setEditText("")
         
-        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        # elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 
             # if len(self.DATA_LIST) > 0:
                 # try:
@@ -1011,10 +1011,10 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         # self.comboBox_us.clear()
         # nr_us_list.sort()
         # self.comboBox_us.addItems(self.UTILITY.remove_dup_from_list(nr_us_list))
-        # if self.STATUS_ITEMS[self.BROWSE_STATUS] == "Trova" or "Finden" or "Find":
+        # if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
                 
             # self.comboBox_us.setEditText("")
-        # elif self.STATUS_ITEMS[self.BROWSE_STATUS] == "Usa" or "Aktuell " or "Current":
+        # elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
             # try:    
                 # if len(self.DATA_LIST) > 0:
         
