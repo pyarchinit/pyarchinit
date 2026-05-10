@@ -198,15 +198,18 @@ class GraphIngestor:
 
     # ------------------------------------------------------------------ helpers
     def _verify_schema(self, db_path: Path) -> None:
+        # PG-A (5.7.0-alpha): cross-backend introspection via Foundation's
+        # _columns_of dispatcher. db_path is still a Path here because
+        # populate_list (the only caller) is SQLite-only until PG-C ships.
+        # Internally we resolve to a DbHandle so the same code path will
+        # work on PG once populate_list flips its signature.
+        from ._db_handle import _columns_of, _resolve_db_handle
         if not db_path.exists():
             raise GraphIngestError(f"DB file not found: {db_path}")
         try:
-            conn = sqlite3.connect(str(db_path))
-            cur = conn.cursor()
-            cur.execute("PRAGMA table_info(us_table)")
-            cols = {row[1] for row in cur.fetchall()}
-            conn.close()
-        except sqlite3.Error as e:
+            handle = _resolve_db_handle(db_path)
+            cols = _columns_of(handle.engine, "us_table")
+        except Exception as e:
             raise GraphIngestError(f"Cannot read us_table schema: {e}") from e
         if "node_uuid" not in cols:
             raise SchemaMismatchError(
