@@ -1311,6 +1311,101 @@ def _resolve_group_visual(
     return (_GROUP_DEFAULT_FILL, _GROUP_DEFAULT_BORDER)
 
 
+def _inject_other_locations_badges(
+    us_other_locations: dict,
+    xml_path: Path,
+) -> None:
+    """AI07/F1: render non-primary memberships as inline yEd NodeLabel
+    badges below each US's main label, so the user can SEE the
+    non-primary memberships in yEd directly without a custom Property
+    Mapper.
+
+    Format: a single sandwich-position NodeLabel reading
+    ``also: <name> (<kind>), <name> (<kind>), ...``.
+
+    yEd renders multiple NodeLabels per ShapeNode by stacking them
+    according to ``modelName`` + ``modelPosition``. We use
+    ``modelName="sandwich"`` ``modelPosition="s"`` to place the badge
+    just below the existing main label.
+
+    Args:
+        us_other_locations: dict mapping us_emid → list of memberships
+            (each: ``{"name", "kind", "group_uuid"}``).
+        xml_path: path to the GraphML output to post-process.
+    """
+    if not us_other_locations:
+        return
+
+    try:
+        from lxml import etree
+    except ImportError:
+        return
+
+    NS_GRAPHML = "http://graphml.graphdrawing.org/xmlns"
+    NS_Y = "http://www.yworks.com/xml/graphml"
+    parser = etree.XMLParser(remove_blank_text=False)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    # EMID lookup (same pattern as _inject_other_locations_data)
+    emid_kid = None
+    for k in root.findall(f"{{{NS_GRAPHML}}}key"):
+        if k.get("attr.name") == "EMID" and k.get("for") == "node":
+            emid_kid = k.get("id")
+            break
+    if emid_kid is None:
+        return
+
+    emid_to_node_el: dict = {}
+    for n_el in root.iter(f"{{{NS_GRAPHML}}}node"):
+        for d in n_el.findall(f"{{{NS_GRAPHML}}}data"):
+            if d.get("key") == emid_kid and d.text:
+                emid_to_node_el[d.text.strip()] = n_el
+
+    badged = 0
+    for us_emid, memberships in us_other_locations.items():
+        n_el = emid_to_node_el.get(us_emid)
+        if n_el is None:
+            continue
+        # Find the ShapeNode (US visual). May be inside a <data key=…>
+        # block. Search any descendant ShapeNode.
+        shape = n_el.find(f".//{{{NS_Y}}}ShapeNode")
+        if shape is None:
+            continue
+        # Build the badge text
+        parts = [
+            f"{m.get('name','')} ({m.get('kind','')})"
+            for m in memberships
+            if m.get("name")
+        ]
+        if not parts:
+            continue
+        badge_text = "also: " + ", ".join(parts)
+        # Append a NodeLabel under the existing one(s)
+        label = etree.SubElement(shape, f"{{{NS_Y}}}NodeLabel")
+        label.set("alignment", "center")
+        label.set("autoSizePolicy", "content")
+        label.set("fontFamily", "Dialog")
+        label.set("fontSize", "9")
+        label.set("fontStyle", "italic")
+        label.set("hasBackgroundColor", "false")
+        label.set("hasLineColor", "false")
+        label.set("modelName", "sandwich")
+        label.set("modelPosition", "s")
+        label.set("textColor", "#666666")
+        label.set("visible", "true")
+        label.text = badge_text
+        badged += 1
+    print(f"[OtherLocationsBadges] rendered on {badged}/{len(us_other_locations)} US")
+
+    tree.write(
+        str(xml_path),
+        encoding="UTF-8",
+        xml_declaration=True,
+        standalone=False,
+    )
+
+
 def _inject_other_locations_data(
     us_other_locations: dict,
     xml_path: Path,
@@ -1888,6 +1983,18 @@ def export_graphml(
         if hasattr(graph, "add_warning"):
             graph.add_warning(
                 f"s3d:other_locations injection skipped: "
+                f"{type(e).__name__}: {e}")
+
+    # Stage 4g (AI07/F1): inline NodeLabel badges below each US's
+    # main label so the user can SEE the non-primary memberships in
+    # yEd directly without configuring a Property Mapper.
+    try:
+        _inject_other_locations_badges(
+            _us_other_locations, output_path)
+    except Exception as e:  # pragma: no cover (defensive)
+        if hasattr(graph, "add_warning"):
+            graph.add_warning(
+                f"s3d:other_locations badge rendering skipped: "
                 f"{type(e).__name__}: {e}")
 
     # Build the result. Counts come from the post-export graph.

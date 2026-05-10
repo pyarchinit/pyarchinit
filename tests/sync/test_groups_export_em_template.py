@@ -632,3 +632,63 @@ def test_other_locations_data_emitted_for_non_primary_memberships(tmp_path):
     for m in flat[:5]:  # sample
         assert "name" in m and "kind" in m and "group_uuid" in m, \
             f"membership entry missing schema keys: {m}"
+
+
+def test_other_locations_inline_badges_rendered_in_yed_shape(tmp_path):
+    """AI07/F1: non-primary memberships render as visible yEd
+    NodeLabel badges (sandwich position) below each US's main label
+    so the user sees them directly without configuring a Property
+    Mapper.
+
+    Format expected: ``also: <name> (<kind>), ...`` with
+    modelName=sandwich and italic 9pt grey text.
+    """
+    import re
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+
+    fixtures = Path(__file__).parent / "fixtures"
+    src = fixtures / "toponym_volterra.sqlite"
+    if not src.exists():
+        import pytest as _pytest
+        _pytest.skip("toponym_volterra.sqlite not generated yet")
+    db = tmp_path / "x.sqlite"
+    db.write_bytes(src.read_bytes())
+    conn = sqlite3.connect(str(db))
+    try:
+        row = conn.execute("SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()
+        sito = row[0] if row else "Volterra"
+        conn.execute(
+            "UPDATE us_table SET struttura='Basilica', area='ZoneX' "
+            "WHERE sito=?",
+            (sito,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    out = tmp_path / "smoke.graphml"
+    export_graphml(
+        db_path=str(db),
+        mapping="pyarchinit",
+        output_path=str(out),
+        site_filter=sito,
+        groups=["struttura", "area"],
+    )
+    text = out.read_text(encoding="utf-8")
+    # 1. Sandwich-position labels appear (the badge model)
+    assert 'modelName="sandwich"' in text, \
+        "no sandwich-position NodeLabels emitted"
+    # 2. The "also: ..." badge text appears with the non-primary area
+    assert "also:" in text, "no 'also:' badge prefix found"
+    assert "ZoneX" in text and "(study)" in text, \
+        "non-primary area ZoneX missing from badges"
+    # 3. Badge font size is small (9pt)
+    badges = re.findall(
+        r'<y:NodeLabel[^>]*modelName="sandwich"[^>]*>([^<]+)</y:NodeLabel>',
+        text,
+    )
+    assert badges, "regex matched no sandwich-position NodeLabels"
+    assert all(b.startswith("also:") for b in badges), \
+        f"unexpected sandwich-label content: {badges[:3]}"
