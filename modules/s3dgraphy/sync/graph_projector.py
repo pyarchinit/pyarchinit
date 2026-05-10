@@ -13,6 +13,7 @@ underlying implementation evolves.
 from __future__ import annotations
 
 import ast
+import logging
 import sqlite3
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
@@ -21,6 +22,14 @@ from .graph_ingestor import GraphSyncError
 
 if TYPE_CHECKING:
     import s3dgraphy
+
+
+__all__ = [
+    "GraphProjector",
+    "ProjectionError",
+    "DEFAULT_PRIMARY_PRIORITY",
+    "compute_primary",
+]
 
 
 class ProjectionError(GraphSyncError):
@@ -62,10 +71,17 @@ def compute_primary(memberships: list, priority_order: list) -> dict:
                 out[us_id] = dims[dim]
                 break
         else:
-            # Fallback: take any non-toponym membership (e.g. adhoc)
+            # Fallback: take the membership with the alphabetically-first
+            # group_kind for cross-process determinism (deferred Group C nit).
             if dims:
-                out[us_id] = next(iter(dims.values()))
+                out[us_id] = dims[sorted(dims.keys())[0]]
     return out
+
+
+def _is_us_node(node) -> bool:
+    """Return True if *node* is a stratigraphic unit (US/USM/USVs/...)."""
+    cls_name = type(node).__name__
+    return cls_name == "USNode" or cls_name.startswith("Stratigraphic")
 
 
 class GraphProjector:
@@ -248,12 +264,14 @@ class GraphProjector:
             self._merge_paradata(graph, db_path, sito)
 
         # Stage 3 (AI07): toponym chain from site_table.
-        # Runs BEFORE _merge_groups so compute_primary's toponym filter
-        # operates on a graph that already contains the toponym memberships.
+        # Always-on: the toponym chain is derived from project-level
+        # metadata (site_table.{nazione,regione,provincia,comune}),
+        # NOT from the `groups` parameter. It is unconditional even
+        # when `groups=None`. To opt out, future callers may add an
+        # `include_toponym=False` kwarg.
         try:
             self._emit_toponym_chain(graph, db_path, sito)
         except Exception as e:
-            import logging
             logging.getLogger(__name__).warning(
                 f"_emit_toponym_chain failed, continuing without "
                 f"toponym chain: {e}")
@@ -264,7 +282,6 @@ class GraphProjector:
                 self._merge_groups(graph, db_path, sito, groups,
                                    primary_priority)
             except Exception as e:
-                import logging
                 logging.getLogger(__name__).warning(
                     f"_merge_groups failed, continuing without groups: {e}")
 
@@ -732,8 +749,7 @@ class GraphProjector:
             nu = attrs.get("node_uuid")
             if nu:
                 node_uuid_to_id[str(nu)] = getattr(n, "node_id", None)
-            cls = type(n).__name__
-            if cls.startswith("Stratigraphic") or cls == "USNode":
+            if _is_us_node(n):
                 strat_by_name[str(getattr(n, "name", ""))] = n
         if strat_by_name and not node_uuid_to_id:
             try:
@@ -825,10 +841,11 @@ class GraphProjector:
                     if getattr(edge, "attributes", None) is None:
                         edge.attributes = {}
                     edge.attributes["is_primary"] = is_primary
-            except Exception:
-                # Edge validation may reject if connection rules don't accept
-                # the source type — keep AI06 behaviour (silent skip)
-                pass
+            except ValueError as e:
+                # Connection-rule rejection or duplicate edge_id — log and skip.
+                logging.getLogger(__name__).debug(
+                    "_merge_groups: skipping edge %s (%s)", edge_id, e
+                )
 
 
     def _emit_toponym_chain(self, graph, db_path, sito):
@@ -862,10 +879,20 @@ class GraphProjector:
                 row = cur.fetchone()
             finally:
                 conn.close()
-        except sqlite3.Error:
-            return  # site_table missing or corrupt — log INFO, skip
+        except sqlite3.Error as e:
+            logging.getLogger(__name__).info(
+                "_emit_toponym_chain: site_table not accessible (%s); "
+                "skipping toponym chain",
+                e,
+            )
+            return
         if row is None:
-            return  # sito not in site_table
+            logging.getLogger(__name__).info(
+                "_emit_toponym_chain: sito '%s' not in site_table; "
+                "skipping toponym chain",
+                sito,
+            )
+            return
 
         levels: list = []  # (level_name, value)
         for col_idx, col_name in enumerate(
@@ -876,7 +903,12 @@ class GraphProjector:
                 levels.append((col_name, str(v).strip()))
 
         if not levels:
-            return  # all empty — no chain
+            logging.getLogger(__name__).info(
+                "_emit_toponym_chain: all admin levels empty for sito '%s'; "
+                "skipping toponym chain",
+                sito,
+            )
+            return
 
         # Lazy import (vendored 0.1.41)
         from s3dgraphy.nodes.group_node import LocationNodeGroup
@@ -926,14 +958,14 @@ class GraphProjector:
                     if getattr(edge, "attributes", None) is None:
                         edge.attributes = {}
                     edge.attributes["is_primary"] = False
-            except Exception:
-                pass
+            except ValueError as e:
+                logging.getLogger(__name__).debug(
+                    "_emit_toponym_chain: skipping edge %s (%s)", edge_id, e
+                )
 
         # US edges: each US connects to the DEEPEST level (last in `levels`)
         deepest_uuid = level_uuids[-1]
-        us_nodes = [n for n in graph.nodes
-                    if type(n).__name__ in ("StratigraphicUnit", "USNode")
-                    or "Stratigraphic" in type(n).__name__]
+        us_nodes = [n for n in graph.nodes if _is_us_node(n)]
         for us in us_nodes:
             edge_id = f"top_{us.node_id}_{deepest_uuid}"
             try:
@@ -947,8 +979,10 @@ class GraphProjector:
                     if getattr(edge, "attributes", None) is None:
                         edge.attributes = {}
                     edge.attributes["is_primary"] = False
-            except Exception:
-                pass
+            except ValueError as e:
+                logging.getLogger(__name__).debug(
+                    "_emit_toponym_chain: skipping edge %s (%s)", edge_id, e
+                )
 
 
 def _is_epoch_node(node) -> bool:
