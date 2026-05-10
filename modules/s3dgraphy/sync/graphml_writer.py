@@ -1657,13 +1657,22 @@ def export_graphml(
     ]
     # Build members_map (group_uuid → [us_emid, ...]) from the
     # is_in_activity / is_in_location edges currently in the graph.
+    # AI07/F1: only include edges with is_primary=True (or no is_primary
+    # attribute, for AI06 backward compat). yEd folders can host a node
+    # under at most ONE parent — non-primary memberships are tracked
+    # separately for the upcoming `s3d:other_locations` US-side data
+    # emission, NOT for folder re-parenting. This eliminates the empty
+    # secondary folders ("area B with 0 children") that confused users
+    # in 5.5.2-alpha multi-dim exports.
     _group_member_uuids = {
         gn.node_id: [] for gn in _group_snapshot
     }
     for edge in list(getattr(graph, "edges", []) or []):
         if (getattr(edge, "edge_type", "") in _GROUP_EDGE_TYPES
                 and edge.edge_target in _group_member_uuids):
-            _group_member_uuids[edge.edge_target].append(edge.edge_source)
+            edge_attrs = getattr(edge, "attributes", None) or {}
+            if edge_attrs.get("is_primary", True) is True:
+                _group_member_uuids[edge.edge_target].append(edge.edge_source)
     print(f"[ExportGraphML] group snapshot: "
           f"{len(_group_snapshot)} groups")
 

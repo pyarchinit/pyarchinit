@@ -492,3 +492,63 @@ def test_inject_group_folders_writes_actual_node_class_in_s3d_node_type(tmp_path
     # (this was the H.5 bug: hardcoded string ignored the actual class).
     assert "ActivityNodeGroup" not in types, \
         f"hardcoded ActivityNodeGroup leaked despite LocationNodeGroup nodes; got {types}"
+
+
+def test_inject_group_folders_skips_non_primary_memberships(tmp_path):
+    """AI07 H.5 follow-up: with multi-dim export, secondary folders
+    (where no US has is_primary=true) must NOT be emitted as empty
+    yEd folders — yEd allows only one folder parent per node, so
+    non-primary memberships go through the s3d:other_locations channel
+    (US-side data attribute), not as empty folders.
+
+    Regression: 5.5.2-alpha exports with struttura + area produced
+    8 folders (5 struttura + 2 area + 1 toponym), with area B and
+    toponym empty because all US went to their primary struttura folder.
+    """
+    import re
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+
+    fixtures = Path(__file__).parent / "fixtures"
+    src = fixtures / "toponym_volterra.sqlite"
+    if not src.exists():
+        import pytest as _pytest
+        _pytest.skip("toponym_volterra.sqlite not generated yet")
+    db = tmp_path / "x.sqlite"
+    db.write_bytes(src.read_bytes())
+    # Seed BOTH struttura and area on all rows; struttura wins primary.
+    conn = sqlite3.connect(str(db))
+    try:
+        row = conn.execute("SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()
+        sito = row[0] if row else "Volterra"
+        conn.execute(
+            "UPDATE us_table SET struttura='Basilica', area='ZoneX' "
+            "WHERE sito=?",
+            (sito,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    out = tmp_path / "smoke.graphml"
+    export_graphml(
+        db_path=str(db),
+        mapping="pyarchinit",
+        output_path=str(out),
+        site_filter=sito,
+        groups=["struttura", "area"],
+    )
+    text = out.read_text(encoding="utf-8")
+    # Count folders by their NodeLabel
+    labels = re.findall(
+        r'<y:NodeLabel[^>]*>([^<]+)</y:NodeLabel>',
+        text,
+    )
+    folder_labels = [l.strip() for l in labels]
+    # struttura is the primary dimension → "Basilica" folder must have members.
+    # area is NON-primary → "ZoneX" folder must NOT be emitted (would be empty).
+    assert "Basilica" in folder_labels, \
+        f"Basilica (primary struttura) folder missing; labels={folder_labels}"
+    assert "ZoneX" not in folder_labels, \
+        f"ZoneX (non-primary area) emitted as empty folder; labels={folder_labels}"
