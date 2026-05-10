@@ -5,6 +5,42 @@
 
 ---
 
+## [5.7.0-alpha] - 2026-05-10
+
+### Italiano
+
+**PG-A — Phase 1 `node_uuid` backfill ora funziona su PostgreSQL.**
+
+Primo milestone post-Foundation della Phase 3. Ribalta il primo caller di produzione (lo script di migrazione `node_uuid`) sull'infrastruttura cross-backend. Tutti i 245 test SQLite di Foundation restano verdi via shim. Nessuna modifica a `populate_list`, projector, paradata store — quelli sono PG-B/C/D.
+
+- **Migration lib SQLAlchemy-everywhere**: `add_columns(db)` e `backfill_uuids(db)` accettano `DbHandle | Path` (backward compat via shim). `engine.begin()` invece di `sqlite3.connect()` ovunque. Atomic via transazione SQLAlchemy.
+- **PK discovery cross-dialect**: `sqlalchemy.inspect(engine).get_pk_constraint(table)["constrained_columns"]` rimpiazza il `PRAGMA table_info` SQLite-only. Funziona identicamente su entrambi i backend.
+- **`auto_backup_postgres(engine, tag, dest_dir)`**: wrapper di `pg_dump` via `subprocess.run` con timeout 5min, PGPASSWORD in env (mai in argv). Solleva `BackupSkipped` se `pg_dump` non è nel PATH; il caller (CLI o QGIS dialog) decide se procedere senza backup.
+- **CLI `--db` / `--conn-str` mutex**: l'argparse richiede esattamente uno dei due. `--conn-str` accetta sia `sqlite:///path` che `postgresql://...`.
+- **QGIS handler senza file-picker**: `Migrazioni → Backfill node_uuid` legge la conn-str da `Connection().conn_str()`. Dialog di conferma mostra il backend (sqlite path o pg host/db). Backup dispatch automatico per backend. Errore se nessuna connessione è configurata.
+- **`GraphIngestor._verify_schema` cross-dialect**: usa `_columns_of` di Foundation invece di `PRAGMA table_info`. Signature `db_path: Path` preservata (il flip a `DbHandle` è PG-C).
+- **Bridge `_offer_node_uuid_migration`**: il dialog di auto-migration nel bridge accetta Path, DbManager, conn-str, o DbHandle.
+
+12 nuovi test (3 lib unit + 3 mutex/backup unit + 6 PG L2). Test count: 245 → 250 passed (PG offline, 12 skip) o 256 passed (PG online + psycopg2). AC-2 byte-identical preservato.
+
+### English
+
+**PG-A — Phase 1 `node_uuid` backfill now works on PostgreSQL.**
+
+First post-Foundation milestone of Phase 3. Flips the first production caller (the `node_uuid` migration script) onto the cross-backend infrastructure. All 245 Foundation SQLite tests stay green via the shim. No changes to `populate_list`, projector, paradata store — those are PG-B/C/D.
+
+- **Migration lib SQLAlchemy-everywhere**: `add_columns(db)` and `backfill_uuids(db)` accept `DbHandle | Path` (backward compat via shim). `engine.begin()` instead of `sqlite3.connect()` throughout. Atomic via SQLAlchemy transactions.
+- **Cross-dialect PK discovery**: `sqlalchemy.inspect(engine).get_pk_constraint(table)["constrained_columns"]` replaces SQLite-only `PRAGMA table_info`. Identical behaviour on both backends.
+- **`auto_backup_postgres(engine, tag, dest_dir)`**: `pg_dump` subprocess wrapper with 5-minute timeout, PGPASSWORD in env (never on argv). Raises `BackupSkipped` when `pg_dump` is missing from PATH; caller (CLI or QGIS dialog) decides whether to proceed without backup.
+- **CLI `--db` / `--conn-str` mutex**: argparse requires exactly one. `--conn-str` accepts both `sqlite:///path` and `postgresql://...`.
+- **QGIS handler without file picker**: `Migrazioni → Backfill node_uuid` reads conn-str from `Connection().conn_str()`. Confirmation dialog shows the backend (sqlite path or pg host/db). Backup helper dispatches per backend. Error dialog when no connection is configured.
+- **`GraphIngestor._verify_schema` cross-dialect**: uses Foundation's `_columns_of` instead of `PRAGMA table_info`. `db_path: Path` signature preserved (the `DbHandle` flip is PG-C).
+- **Bridge `_offer_node_uuid_migration`**: the auto-migration dialog now accepts Path, DbManager, conn-str, or DbHandle.
+
+12 new tests (3 lib unit + 3 mutex/backup unit + 6 PG L2). Test count: 245 → 250 passed (PG offline, 12 skip) or 256 passed (PG online + psycopg2). AC-2 byte-identical preserved.
+
+---
+
 ## [5.6.2-alpha] - 2026-05-10
 
 ### Italiano
