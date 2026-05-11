@@ -1,16 +1,24 @@
-"""PG-D Workspace path resolution for ParadataStore + GroupStore.
+"""Workspace path resolution for ParadataStore + GroupStore.
 
 For SQLite: workspace = parent dir of the .sqlite file (legacy behaviour).
-For PostgreSQL: workspace = ~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/
+For PostgreSQL: workspace = <root> / <conn_slug> / <sito>/
+  where <root> is resolved via _resolve_workspace_root() (env var, QSettings,
+  or default ~/pyarchinit/pyarchinit_DB_folder).
 
 Created on-demand via mkdir(parents=True, exist_ok=True).
 
 _conn_slug() is the single source of truth for the PG connection slug
-used as a filesystem-safe directory name. Future code (e.g.,
-Consolidation 5.7.4) may adopt this helper for other paths.
+used as a filesystem-safe directory name.
+
+_resolve_workspace_root() (added in Consolidation 5.7.4-alpha) does
+3-tier fallback:
+  1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
+  2. QSettings 'pyarchinit/paradata_workspace' (UI override)
+  3. Default: ~/pyarchinit/pyarchinit_DB_folder
 """
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 
@@ -35,14 +43,43 @@ def _conn_slug(handle: DbHandle) -> str:
     return re.sub(r"[^a-zA-Z0-9_-]", "_", raw)
 
 
+def _resolve_workspace_root() -> Path:
+    """Resolve the workspace root directory using 3-tier fallback.
+
+    1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
+    2. QSettings 'pyarchinit/paradata_workspace' (UI override)
+    3. Default: ~/pyarchinit/pyarchinit_DB_folder
+
+    Returns a Path (existence not guaranteed; caller must mkdir if needed).
+
+    Added in Consolidation 5.7.4-alpha to support the
+    `pyarchinitConfigDialog.py` UI override deferred from PG-D Q1=b.
+    Empty values (env var or QSettings) are treated as unset and fall
+    through to the next layer.
+    """
+    env_override = os.environ.get("PYARCHINIT_WORKSPACE_DIR")
+    if env_override:
+        return Path(env_override).expanduser()
+    try:
+        from qgis.PyQt.QtCore import QSettings
+        qs_value = QSettings().value("pyarchinit/paradata_workspace", "")
+        if qs_value:
+            return Path(str(qs_value)).expanduser()
+    except ImportError:
+        # Not in QGIS env (e.g., pytest): skip QSettings layer transparently
+        pass
+    return Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+
+
 def _resolve_workspace_dir(handle: DbHandle, sito: str) -> Path:
     """Resolve the per-site workspace directory for paradata/group files.
 
     SQLite: parent dir of the .sqlite file (legacy behaviour, byte-identical
     to the pre-PG-D `self._db_path.parent` access).
 
-    PostgreSQL: `~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/`,
-    created via `mkdir(parents=True, exist_ok=True)`.
+    PostgreSQL: `<root>/<conn_slug>/<sito>/`, created via
+    `mkdir(parents=True, exist_ok=True)`. <root> is resolved via
+    `_resolve_workspace_root()` which honours env var + QSettings overrides.
 
     Raises:
         ValueError: SQLite handle with no `sqlite_path` (e.g., `:memory:`).
@@ -58,12 +95,6 @@ def _resolve_workspace_dir(handle: DbHandle, sito: str) -> Path:
     slug = _conn_slug(handle)
     # Sanitize sito for directory use (same pattern as conn_slug)
     sito_safe = re.sub(r"[^a-zA-Z0-9_-]", "_", sito)
-    workspace = (
-        Path.home()
-        / "pyarchinit"
-        / "pyarchinit_DB_folder"
-        / slug
-        / sito_safe
-    )
+    workspace = _resolve_workspace_root() / slug / sito_safe
     workspace.mkdir(parents=True, exist_ok=True)
     return workspace
