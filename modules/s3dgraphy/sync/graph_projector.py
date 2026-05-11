@@ -14,10 +14,12 @@ from __future__ import annotations
 
 import ast
 import logging
-import sqlite3
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 
+from sqlalchemy import text
+
+from ._db_handle import DbHandle, _columns_of, _resolve_db_handle
 from .graph_ingestor import GraphSyncError
 
 if TYPE_CHECKING:
@@ -107,7 +109,7 @@ class GraphProjector:
 
     def populate_graph(
         self,
-        db_path: Path,
+        db_path,  # Path | DbHandle | str — PG-B: accepts shim input
         sito: str,
         *,
         include_paradata: bool = True,
@@ -119,7 +121,10 @@ class GraphProjector:
         stratigraphic rows of `sito` from the SQLite at `db_path`.
 
         Args:
-            db_path: filesystem path to the pyarchinit SQLite DB.
+            db_path: filesystem path to the pyarchinit SQLite DB, or a
+                DbHandle / conn-string. PG-B (5.7.1-alpha): accepts
+                ``Path | DbHandle | str`` via ``_resolve_db_handle``.
+                Existing callers passing ``Path`` continue to work.
             sito: site identifier (`us_table.sito` value). Mandatory
                 — multi-graph projections are out of scope for AI04.
             include_paradata: when True (default), merge any
@@ -287,21 +292,17 @@ class GraphProjector:
 
         return graph
 
-    def _verify_node_uuid_column(self, db_path: Path) -> None:
+    def _verify_node_uuid_column(self, db_path) -> None:
         """Ensure the Phase-1 migration that added ``us_table.node_uuid``
         has been applied. Raises :class:`ProjectionError` otherwise.
 
-        Extracted from ``populate_graph`` in AI05 Group C step 2 so the
-        schema-check is testable in isolation and reusable by any future
-        method that touches strat tables.
+        PG-B (5.7.1-alpha): accepts ``Path | DbHandle | str`` via shim.
+        Cross-backend introspection via Foundation's ``_columns_of``.
         """
         try:
-            conn = sqlite3.connect(str(db_path))
-            cur = conn.cursor()
-            cur.execute("PRAGMA table_info(us_table)")
-            cols = {row[1] for row in cur.fetchall()}
-            conn.close()
-        except sqlite3.Error as e:
+            handle = _resolve_db_handle(db_path)
+            cols = _columns_of(handle.engine, "us_table")
+        except Exception as e:
             raise ProjectionError(f"Cannot read us_table schema: {e}") from e
         if "node_uuid" not in cols:
             raise ProjectionError(
@@ -363,28 +364,30 @@ class GraphProjector:
         if not strat_by_name:
             return  # nothing to propagate
 
-        conn = sqlite3.connect(str(db_path))
-        cur = conn.cursor()
-        try:
-            cur.execute(
-                "SELECT us, node_uuid, sito, area, unita_tipo, "
-                "periodo_iniziale, fase_iniziale, rapporti, "
-                "d_stratigrafica, d_interpretativa, attivita, struttura, "
-                "settore, ambient, saggio, quad_par, documentazione "
-                "FROM us_table WHERE sito = ?",
-                (sito,),
-            )
-            rows = cur.fetchall()
+        handle = _resolve_db_handle(db_path)
+        with handle.engine.connect() as conn:
+            rows = conn.execute(
+                text(
+                    "SELECT us, node_uuid, sito, area, unita_tipo, "
+                    "periodo_iniziale, fase_iniziale, rapporti, "
+                    "d_stratigrafica, d_interpretativa, attivita, struttura, "
+                    "settore, ambient, saggio, quad_par, documentazione "
+                    "FROM us_table WHERE sito = :sito"
+                ),
+                {"sito": sito},
+            ).fetchall()
 
             # AI08-F2 hotfix: lookup datazione_estesa per (periodo, fase)
             # from periodizzazione_table so each US can carry its
             # period's full date string.
             period_datazione: dict = {}
             try:
-                for p_per, p_fase, p_dat in cur.execute(
-                    "SELECT periodo, fase, datazione_estesa "
-                    "FROM periodizzazione_table WHERE sito = ?",
-                    (sito,),
+                for p_per, p_fase, p_dat in conn.execute(
+                    text(
+                        "SELECT periodo, fase, datazione_estesa "
+                        "FROM periodizzazione_table WHERE sito = :sito"
+                    ),
+                    {"sito": sito},
                 ).fetchall():
                     if p_dat:
                         period_datazione[
@@ -392,8 +395,6 @@ class GraphProjector:
                         ] = str(p_dat)
             except Exception:
                 period_datazione = {}
-        finally:
-            conn.close()
 
         for (us_val, node_uuid, sito_v, area, unita_tipo,
              periodo_ini, fase_ini, rapporti_raw, d_strat,
@@ -505,9 +506,9 @@ class GraphProjector:
             return  # nothing to enrich
 
         try:
-            conn = sqlite3.connect(str(db_path))
-            cursor = conn.cursor()
-        except sqlite3.Error:
+            handle = _resolve_db_handle(db_path)
+            conn = handle.engine.connect()
+        except Exception:
             return
 
         try:
@@ -516,12 +517,13 @@ class GraphProjector:
             # we read defensively. Each (periodo, fase) is one epoch.
             epoch_by_key = {}  # (periodo:int, fase:str) -> EpochNode
             try:
-                cursor.execute(
-                    "SELECT periodo, fase, cron_iniziale, cron_finale, "
-                    "descrizione FROM periodizzazione_table"
-                )
-                raw_rows = cursor.fetchall()
-            except sqlite3.Error:
+                raw_rows = conn.execute(
+                    text(
+                        "SELECT periodo, fase, cron_iniziale, cron_finale, "
+                        "descrizione FROM periodizzazione_table"
+                    )
+                ).fetchall()
+            except Exception:
                 raw_rows = []
             # Sort the periodizzazione rows by (periodo asc, fase asc) so
             # that when we add EpochNodes to the graph, ties on cron_iniziale
@@ -591,7 +593,7 @@ class GraphProjector:
                         ep.attributes["datazione_estesa"] = str(descr)
                     graph.add_node(ep)
                     epoch_by_key[key] = ep
-            except sqlite3.Error:
+            except Exception:
                 pass  # missing table is tolerated; epoch_count just stays 0
 
             # ---- 2. has_first_epoch edges and rapporti edges ----------
@@ -601,20 +603,23 @@ class GraphProjector:
             # them, leaving us_node.attributes empty post-import.
             try:
                 if sito_filter is not None:
-                    cursor.execute(
-                        "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
-                        "fase_iniziale, rapporti, d_stratigrafica "
-                        "FROM us_table WHERE sito = ?",
-                        (sito_filter,),
-                    )
+                    rows = conn.execute(
+                        text(
+                            "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                            "fase_iniziale, rapporti, d_stratigrafica "
+                            "FROM us_table WHERE sito = :sito"
+                        ),
+                        {"sito": sito_filter},
+                    ).fetchall()
                 else:
-                    cursor.execute(
-                        "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
-                        "fase_iniziale, rapporti, d_stratigrafica "
-                        "FROM us_table"
-                    )
-                rows = cursor.fetchall()
-            except sqlite3.Error:
+                    rows = conn.execute(
+                        text(
+                            "SELECT us, sito, area, unita_tipo, periodo_iniziale, "
+                            "fase_iniziale, rapporti, d_stratigrafica "
+                            "FROM us_table"
+                        )
+                    ).fetchall()
+            except Exception:
                 rows = []
 
             for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
@@ -753,22 +758,22 @@ class GraphProjector:
                 strat_by_name[str(getattr(n, "name", ""))] = n
         if strat_by_name and not node_uuid_to_id:
             try:
-                conn = sqlite3.connect(str(db_path))
-                try:
-                    cur = conn.execute(
-                        "SELECT node_uuid, us FROM us_table "
-                        "WHERE sito=? AND node_uuid IS NOT NULL",
-                        (sito,),
-                    )
-                    for nu, us_val in cur.fetchall():
+                handle = _resolve_db_handle(db_path)
+                with handle.engine.connect() as conn:
+                    rows = conn.execute(
+                        text(
+                            "SELECT node_uuid, us FROM us_table "
+                            "WHERE sito=:sito AND node_uuid IS NOT NULL"
+                        ),
+                        {"sito": sito},
+                    ).fetchall()
+                    for nu, us_val in rows:
                         if nu is None or us_val is None:
                             continue
                         node = strat_by_name.get(str(us_val))
                         if node is not None:
                             node_uuid_to_id[str(nu)] = node.node_id
-                finally:
-                    conn.close()
-            except sqlite3.Error:
+            except Exception:
                 pass
 
         # AI07: gather all memberships first, so compute_primary has the
@@ -869,17 +874,16 @@ class GraphProjector:
         """
         import hashlib
         try:
-            conn = sqlite3.connect(str(db_path))
-            try:
-                cur = conn.execute(
-                    "SELECT nazione, regione, provincia, comune "
-                    "FROM site_table WHERE sito=?",
-                    (sito,),
-                )
-                row = cur.fetchone()
-            finally:
-                conn.close()
-        except sqlite3.Error as e:
+            handle = _resolve_db_handle(db_path)
+            with handle.engine.connect() as conn:
+                row = conn.execute(
+                    text(
+                        "SELECT nazione, regione, provincia, comune "
+                        "FROM site_table WHERE sito=:sito"
+                    ),
+                    {"sito": sito},
+                ).fetchone()
+        except Exception as e:
             logging.getLogger(__name__).info(
                 "_emit_toponym_chain: site_table not accessible (%s); "
                 "skipping toponym chain",
