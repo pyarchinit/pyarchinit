@@ -5,6 +5,40 @@
 
 ---
 
+## [5.7.1-alpha] - 2026-05-10
+
+### Italiano
+
+**PG-B — La pipeline di export ora funziona su PostgreSQL.**
+
+Secondo milestone post-Foundation della Phase 3. Ribalta il secondo gruppo di caller di produzione (GraphProjector + GraphMLWriter + GroupProjector — il lato export del bridge s3dgraphy) sull'infrastruttura cross-backend. Tutti i 250 test SQLite di PG-A restano verdi via shim. Round-trip CI fixture suite (PR #6) intatta. AC-2 byte-identical preservato.
+
+- **11 `sqlite3.connect()` siti swappati a SQLAlchemy**: 5 in `graph_projector.py` (`_verify_node_uuid_column`, `_propagate_node_uuid_and_us`, `_enrich_into`, `_merge_groups`, `_emit_toponym_chain`), 2 in `group_projector.py` (`dimensions_with_data`, `build_groups_from_sql`), 1 in `graphml_writer.py` (`_read_first_sito`).
+- **Pattern uniforme**: ogni site usa `with handle.engine.connect() as conn:` (read-only) o `engine.begin()` (read+write). Tutte le query usano `text("... :name")` con named params. Tutti gli `except sqlite3.Error` → `except Exception`.
+- **NESSUNA modifica al contenuto delle query SQL** — solo wrap della connessione e sintassi placeholder. Il rischio AC-2 è quindi minimo per design.
+- **Public API senza breaking change**: `populate_graph(db_path, sito, ...)`, `export_graphml(db_path=..., ...)`, `dimensions_with_data(db_path, sito)`, `build_groups_from_sql(db_path, sito, dimensions)` mantengono il nome `db_path` ma accettano `Path | DbHandle | str` via shim Foundation. Esistenti call site (AC-2 test, PR #6, QGIS dialog) restano invariati.
+- **`load_sqlite_into_pg(sqlite_path, pg_engine, tables=None)` helper** in `conftest_pg.py`: riflette lo schema SQLite via SQLAlchemy `Inspector`, esegue `CREATE TABLE IF NOT EXISTS` su PG, `TRUNCATE`, e `executemany INSERT`. Idempotente. Riusabile per PG-C/D.
+- **6 nuovi test L2 PG**: 5 in `test_export_pg.py` + 1 AC-2 cousin in `test_ai03_export_pg_structural.py` (il gate del milestone: verifica che il fingerprint strutturale PG corrisponda alla baseline SQLite). Tutti skippano puliti quando PG offline o psycopg2 mancante.
+
+Test count: 250 → 250 passed, 18 skipped (PG offline) o 256 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preservato dopo ogni Group A/B/C.
+
+### English
+
+**PG-B — Export pipeline now works on PostgreSQL.**
+
+Second post-Foundation milestone of Phase 3. Flips the second batch of production callers (GraphProjector + GraphMLWriter + GroupProjector — the export side of the s3dgraphy bridge) onto the cross-backend infrastructure. All 250 PG-A SQLite tests stay green via shim. Round-trip CI fixture suite (PR #6) intact. AC-2 byte-identical preserved.
+
+- **11 `sqlite3.connect()` sites swapped to SQLAlchemy**: 5 in `graph_projector.py` (`_verify_node_uuid_column`, `_propagate_node_uuid_and_us`, `_enrich_into`, `_merge_groups`, `_emit_toponym_chain`), 2 in `group_projector.py` (`dimensions_with_data`, `build_groups_from_sql`), 1 in `graphml_writer.py` (`_read_first_sito`).
+- **Uniform pattern**: each site uses `with handle.engine.connect() as conn:` (read-only) or `engine.begin()` (read+write). All queries use `text("... :name")` named params. All `except sqlite3.Error` → `except Exception`.
+- **NO SQL query content changes** — only connection wrapping + placeholder syntax. AC-2 risk minimized by design.
+- **Public API zero-breaking-change**: `populate_graph(db_path, sito, ...)`, `export_graphml(db_path=..., ...)`, `dimensions_with_data(db_path, sito)`, `build_groups_from_sql(db_path, sito, dimensions)` keep the `db_path` keyword but accept `Path | DbHandle | str` via the Foundation shim. Existing call sites (AC-2 test, PR #6, QGIS dialog) unchanged.
+- **`load_sqlite_into_pg(sqlite_path, pg_engine, tables=None)` helper** in `conftest_pg.py`: reflects SQLite schema via SQLAlchemy `Inspector`, emits `CREATE TABLE IF NOT EXISTS` on PG, `TRUNCATE`, and `executemany INSERT`. Idempotent. Reusable for PG-C/D.
+- **6 new L2 PG tests**: 5 in `test_export_pg.py` + 1 AC-2 cousin in `test_ai03_export_pg_structural.py` (the milestone gate: verifies PG structural fingerprint matches SQLite baseline). All skip cleanly when PG offline or psycopg2 missing.
+
+Test count: 250 → 250 passed, 18 skipped (PG offline) or 256 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preserved after every Group A/B/C.
+
+---
+
 ## [5.7.0-alpha] - 2026-05-10
 
 ### Italiano
