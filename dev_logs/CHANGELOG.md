@@ -5,6 +5,42 @@
 
 ---
 
+## [5.7.2-alpha] - 2026-05-11
+
+### Italiano
+
+**PG-C — Il pipeline di IMPORT ora funziona su PostgreSQL.**
+
+Terzo milestone post-Foundation della Phase 3. Ribalta il pipeline di import (`GraphIngestor.populate_list`) sull'infrastruttura cross-backend. Tutti i 250 test SQLite di PG-B restano verdi via shim, INCLUSO il critical `test_round_trip.py` che esercita populate_list end-to-end su SQLite. AC-2 byte-identical preservato (PG-C non tocca export).
+
+- **1 `sqlite3.connect()` sito swappato a `engine.begin()`**: il singolo punto di transazione atomica che wrappa l'intero `_run` body diventa `with handle.engine.begin() as conn:`. Semantica BEGIN/COMMIT/ROLLBACK identica su entrambi i backend.
+- **~10 query interne tradotte**: SELECT COUNT/INSERT su site_table, SELECT */INSERT/UPDATE su us_table (loop di detection + write block, con `cur.description` → `result.keys()` per i nomi colonna), SELECT/INSERT su periodizzazione_table, 2 UPDATE in `_apply_group_folders_to_sql` (signature `cur` → `conn`). Tutte usano `text(":name")` con named params.
+- **Public API senza breaking change**: `populate_list(graph, db_path, sito, ...)` mantiene il keyword `db_path` ma accetta `Path | DbHandle | str` via shim Foundation. Linea 152 `db_path = Path(db_path)` coercion **RIMOSSA** (avrebbe rotto i caller DbHandle — stessa trap catturata in PG-B Group C). Internal `_run(graph, handle, ...)` ricezione handle direttamente.
+- **`_DryRunRollback` internal sentinel exception**: pattern necessario perché `engine.begin()` non ha "conditional rollback". In dry_run mode, alla fine del blocco `with` solleviamo `_DryRunRollback()` per forzare il rollback automatico del context manager, poi swallow l'eccezione fuori dal `with`. Preserva la semantica "dry_run = nessuna modifica DB" su entrambi i backend.
+- **ConflictResolver verificato pure in-memory**: zero modifiche a `conflict_resolver.py`. Il policy GRAPH_WINS di AI04 funziona identicamente su PG.
+- **`import sqlite3` rimosso da `graph_ingestor.py`**. Dopo PG-C, l'unico sqlite3 residuo in `modules/s3dgraphy/sync/` è in `paradata_store.py` / `group_store.py` (scope PG-D).
+- **7 nuovi test L2 PG**: 6 in `test_ingest_pg.py` (DbHandle acceptance, dry_run rollback — il critical per `_DryRunRollback`, ConflictResolver, MissingEpochError, create_missing_epochs, atomic rollback su mock failure) + 1 round-trip identity in `test_round_trip_pg.py` (il gate del milestone). Tutti skippano puliti quando PG offline o psycopg2 mancante.
+
+Test count: 250 → 250 passed, 25 skipped (PG offline) o 257 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preservato. SQLite round-trip preservato.
+
+### English
+
+**PG-C — Import pipeline now works on PostgreSQL.**
+
+Third post-Foundation milestone of Phase 3. Flips the import pipeline (`GraphIngestor.populate_list`) onto the cross-backend infrastructure. All 250 PG-B SQLite tests stay green via shim, INCLUDING the critical `test_round_trip.py` that exercises populate_list end-to-end on SQLite. AC-2 byte-identical preserved (PG-C doesn't touch export).
+
+- **1 `sqlite3.connect()` site swapped to `engine.begin()`**: the single atomic-transaction point wrapping the entire `_run` body becomes `with handle.engine.begin() as conn:`. BEGIN/COMMIT/ROLLBACK semantics identical on both backends.
+- **~10 inner queries translated**: SELECT COUNT / INSERT on site_table, SELECT */INSERT/UPDATE on us_table (detection loop + write block, with `cur.description` → `result.keys()` for column names), SELECT/INSERT on periodizzazione_table, 2 UPDATEs in `_apply_group_folders_to_sql` (signature `cur` → `conn`). All use `text(":name")` with named params.
+- **Public API zero-breaking-change**: `populate_list(graph, db_path, sito, ...)` keeps the `db_path` keyword but accepts `Path | DbHandle | str` via the Foundation shim. Line 152 `db_path = Path(db_path)` coercion **REMOVED** (would have broken DbHandle callers — same trap caught in PG-B Group C). Internal `_run(graph, handle, ...)` receives the handle directly.
+- **`_DryRunRollback` internal sentinel exception**: pattern required because `engine.begin()` has no conditional rollback. In dry_run mode, at end of the `with` block we raise `_DryRunRollback()` to force the context manager to roll back, then swallow outside the `with`. Preserves the "dry_run = no DB writes" semantic on both backends.
+- **ConflictResolver verified pure in-memory**: zero changes to `conflict_resolver.py`. AI04's GRAPH_WINS policy works identically on PG.
+- **`import sqlite3` removed from `graph_ingestor.py`**. After PG-C, the only remaining sqlite3 usage in `modules/s3dgraphy/sync/` is in `paradata_store.py` / `group_store.py` (PG-D scope).
+- **7 new L2 PG tests**: 6 in `test_ingest_pg.py` (DbHandle acceptance, dry_run rollback — the critical test for `_DryRunRollback`, ConflictResolver, MissingEpochError, create_missing_epochs, atomic rollback on mock failure) + 1 round-trip identity in `test_round_trip_pg.py` (the milestone gate). All skip cleanly when PG offline or psycopg2 missing.
+
+Test count: 250 → 250 passed, 25 skipped (PG offline) or 257 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preserved. SQLite round-trip preserved.
+
+---
+
 ## [5.7.1-alpha] - 2026-05-10
 
 ### Italiano
