@@ -10,6 +10,7 @@
 7. [Separador PostgreSQL](#separador-postgresql)
 8. [Separador Ajuda](#separador-ajuda)
 9. [Separador FTP para Lizmap](#separador-ftp-para-lizmap)
+10. [Workspace de Paradata (apenas PostgreSQL)](#workspace-de-paradata-apenas-postgresql)
 
 ---
 
@@ -205,6 +206,50 @@ Configuracao para publicacao web com Lizmap.
 | **FTP User** | Nome de utilizador FTP |
 | **FTP Password** | Palavra-passe FTP |
 | **Remote Path** | Caminho de destino no servidor |
+
+---
+
+## Workspace de Paradata (apenas PostgreSQL)
+
+No **Separador DB Sync** da janela de configuracao encontra-se a seccao **Paradata Workspace**, que permite personalizar a pasta onde sao guardados os ficheiros `paradata_<sitio>.graphml` e `groups_<sitio>.graphml` quando se trabalha com uma base de dados PostgreSQL.
+
+> **Apenas PostgreSQL**: os utilizadores de SQLite nao sao afetados por esta opcao. Com SQLite, os ficheiros de paradata continuam a ser guardados ao lado do ficheiro `.sqlite` (comportamento legado byte-identico).
+
+### Caminho predefinido
+
+Sem override, o caminho resolvido e:
+
+```
+~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sitio>/
+```
+
+Exemplo: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+### Personalizar o caminho
+
+- **Procurar...** abre um dialogo de ficheiros para escolher uma pasta. O caminho e guardado imediatamente nas QSettings do QGIS.
+- Tambem se pode **escrever** o caminho diretamente no campo de texto: o valor e persistido ao sair do campo (sinal `editingFinished`). Deixar o campo vazio remove o override.
+- **Repor** limpa o campo, remove a chave das QSettings e restaura o caminho predefinido.
+
+### Cadeia de resolucao (quem ganha)
+
+O caminho efetivo segue uma cadeia de fallback em 3 niveis:
+
+1. **Variavel de ambiente `PYARCHINIT_WORKSPACE_DIR`** (prioridade maxima — util para scripts CI/teste).
+2. **QSettings `pyarchinit/paradata_workspace`** (override da UI — esta seccao).
+3. **Predefinido** `~/pyarchinit/pyarchinit_DB_folder/`.
+
+Valores vazios sao ignorados: se `PYARCHINIT_WORKSPACE_DIR=""`, a resolucao passa para o nivel 2; se as QSettings tambem estiverem vazias, usa-se o predefinido.
+
+### Quando produz efeito
+
+As alteracoes sao **imediatas**: o proximo acesso a ParadataStore / GroupStore (por exemplo, gravar paradata numa ficha US ou exportar uma Matrix) usa o novo caminho. **Nao e necessario reiniciar o QGIS.**
+
+### Casos de uso
+
+- **Unidade de rede partilhada**: apontar o workspace para um caminho de rede (ex. `/Volumes/team/pyarchinit_workspace`) para partilhar paradata entre utilizadores num PostgreSQL centralizado.
+- **Backup separado**: manter os ficheiros de paradata fora da pasta pessoal para facilitar copias de seguranca dedicadas.
+- **Testes isolados**: definir `PYARCHINIT_WORKSPACE_DIR` em scripts de teste para nao poluir o workspace predefinido.
 
 ---
 

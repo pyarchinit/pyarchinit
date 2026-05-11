@@ -189,6 +189,50 @@ Permet de publier les données sur un serveur Lizmap pour la visualisation web.
 
 ---
 
+## Espace de travail Paradata (PostgreSQL uniquement)
+
+Dans l'**onglet DB Sync** de la fenêtre de configuration se trouve la section **Paradata Workspace**, qui permet de personnaliser le répertoire où sont enregistrés les fichiers `paradata_<site>.graphml` et `groups_<site>.graphml` lorsque l'on travaille avec une base de données PostgreSQL.
+
+> **PostgreSQL uniquement** : les utilisateurs SQLite ne sont pas concernés. Avec SQLite, les fichiers paradata sont toujours stockés à côté du fichier `.sqlite` (comportement hérité, byte-identique).
+
+### Chemin par défaut
+
+Sans override, le chemin résolu est :
+
+```
+~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<site>/
+```
+
+Exemple : `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+### Personnaliser le chemin
+
+- **Parcourir...** ouvre une boîte de dialogue pour choisir un répertoire. Le chemin est immédiatement enregistré dans les QSettings de QGIS.
+- Vous pouvez également **saisir** le chemin directement dans le champ texte : la valeur est persistée à la sortie du champ (signal `editingFinished`). Laisser le champ vide supprime l'override.
+- **Réinitialiser** efface le champ, supprime la clé des QSettings et restaure le chemin par défaut.
+
+### Chaîne de résolution (qui l'emporte)
+
+Le chemin effectif suit une chaîne de fallback à 3 niveaux :
+
+1. **Variable d'environnement `PYARCHINIT_WORKSPACE_DIR`** (priorité maximale — utile pour les scripts CI/test).
+2. **QSettings `pyarchinit/paradata_workspace`** (override de l'UI — cette section).
+3. **Valeur par défaut** `~/pyarchinit/pyarchinit_DB_folder/`.
+
+Les valeurs vides sont ignorées : si `PYARCHINIT_WORKSPACE_DIR=""`, la résolution passe au niveau 2 ; si les QSettings sont également vides, on utilise la valeur par défaut.
+
+### Quand le changement prend effet
+
+Les modifications sont **immédiates** : le prochain accès à ParadataStore / GroupStore (par exemple, sauvegarde de paradata sur une fiche US ou export d'une Matrix) utilise le nouveau chemin. **Aucun redémarrage de QGIS n'est nécessaire.**
+
+### Cas d'usage
+
+- **Lecteur réseau partagé** : pointer le workspace vers un chemin réseau (ex. `/Volumes/team/pyarchinit_workspace`) pour partager les paradata entre utilisateurs sur un PostgreSQL centralisé.
+- **Sauvegarde séparée** : garder les fichiers paradata en dehors du répertoire utilisateur pour faciliter les sauvegardes dédiées.
+- **Tests isolés** : définir `PYARCHINIT_WORKSPACE_DIR` dans les scripts de test pour ne pas polluer le workspace par défaut.
+
+---
+
 ## Workflow Recommandé pour Nouveau Projet
 
 1. **Ouvrir la Configuration** depuis le menu PyArchInit

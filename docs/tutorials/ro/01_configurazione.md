@@ -10,6 +10,7 @@
 7. [Fila PostgreSQL](#fila-postgresql)
 8. [Fila Ajutor](#fila-ajutor)
 9. [Fila FTP catre Lizmap](#fila-ftp-catre-lizmap)
+10. [Workspace Paradata (doar PostgreSQL)](#workspace-paradata-doar-postgresql)
 
 ---
 
@@ -205,6 +206,50 @@ Configurare pentru publicare web cu Lizmap.
 | **FTP User** | Numele de utilizator FTP |
 | **FTP Password** | Parola FTP |
 | **Remote Path** | Calea de destinatie pe server |
+
+---
+
+## Workspace Paradata (doar PostgreSQL)
+
+In **Fila DB Sync** a ferestrei de configurare se gaseste sectiunea **Paradata Workspace**, care permite personalizarea directorului in care sunt salvate fisierele `paradata_<sit>.graphml` si `groups_<sit>.graphml` cand se foloseste o baza de date PostgreSQL.
+
+> **Doar PostgreSQL**: utilizatorii SQLite nu sunt afectati de aceasta setare. Cu SQLite, fisierele paradata sunt in continuare stocate langa fisierul `.sqlite` (comportament legacy, byte-identic).
+
+### Cale implicita
+
+Fara override, calea rezolvata este:
+
+```
+~/pyarchinit/pyarchinit_DB_folder/<host>_<port>_<dbname>/<sit>/
+```
+
+Exemplu: `~/pyarchinit/pyarchinit_DB_folder/localhost_5432_pyarchinit/Volterra/`
+
+### Personalizarea caii
+
+- **Browse...** deschide un dialog pentru a alege un director. Calea este salvata imediat in QSettings QGIS.
+- Calea poate fi si **tastata** direct in campul text: valoarea este persistata la iesirea din camp (semnalul `editingFinished`). Lasarea campului gol elimina override-ul.
+- **Reset** goleste campul, elimina cheia din QSettings si restaureaza calea implicita.
+
+### Lantul de rezolutie (cine castiga)
+
+Calea efectiva urmeaza un lant de fallback in 3 nivele:
+
+1. **Variabila de mediu `PYARCHINIT_WORKSPACE_DIR`** (prioritate maxima — utila pentru scripturi CI/test).
+2. **QSettings `pyarchinit/paradata_workspace`** (override UI — aceasta sectiune).
+3. **Implicit** `~/pyarchinit/pyarchinit_DB_folder/`.
+
+Valorile goale sunt sarite: daca `PYARCHINIT_WORKSPACE_DIR=""`, rezolutia trece la nivelul 2; daca si QSettings este gol, se foloseste calea implicita.
+
+### Cand are efect
+
+Modificarile sunt **imediate**: urmatorul acces la ParadataStore / GroupStore (de ex. salvarea de paradata pe o fisa US sau exportul unei Matrix) foloseste noua cale. **Nu este necesara repornirea QGIS.**
+
+### Cazuri de utilizare
+
+- **Drive de retea partajat**: directionarea workspace-ului catre o cale de retea (ex. `/Volumes/team/pyarchinit_workspace`) pentru a partaja paradata intre utilizatori pe un PostgreSQL centralizat.
+- **Backup separat**: mentinerea fisierelor paradata in afara directorului home pentru a facilita backup-uri dedicate.
+- **Teste izolate**: setarea `PYARCHINIT_WORKSPACE_DIR` in scripturi de test pentru a nu polua workspace-ul implicit.
 
 ---
 
