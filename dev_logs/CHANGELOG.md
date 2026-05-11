@@ -5,6 +5,46 @@
 
 ---
 
+## [5.7.3-alpha] - 2026-05-11
+
+### Italiano
+
+**PG-D — ParadataStore + GroupStore lavorano su PostgreSQL.**
+
+Quarto e ultimo milestone "core" della Phase 3. Ribalta i due file system store (paradata + groups) sull'infrastruttura cross-backend. Tutti i 250 test SQLite di PG-C restano verdi via shim, INCLUSO i 3 critical gate (test_round_trip_with_paradata, test_round_trip_with_groups, test_graph_projector_paradata). AC-2 byte-identical preservato.
+
+- **NEW `modules/s3dgraphy/sync/_workspace.py`**: helper module con `_resolve_workspace_dir(handle, sito) -> Path` e `_conn_slug(handle) -> str`. SQLite branch ritorna `handle.sqlite_path.parent` (byte-identical al comportamento pre-PG-D). PG branch ritorna `~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/` con `mkdir(parents=True, exist_ok=True)`.
+- **`_conn_slug`**: formula deterministica `slugify(f"{host}_{port}_{dbname}")` con regex `[^a-zA-Z0-9_-]` → `_`. Single source of truth per identificatori filesystem-safe basati su URL PG.
+- **`paradata_store.py` + `group_store.py`**: constructor accetta `Path | DbHandle | str` via shim Foundation. Property `file_path` chiama `_resolve_workspace_dir` invece di `self._db_path.parent`. Filename pattern uniforme su entrambi i backend (`paradata_<sito>.graphml` / `groups_<sito>.graphml`).
+- **Zero SQL refactor**: questi file non hanno query SQL. PG-D è il più piccolo milestone PG-X (~360 LOC vs PG-A/B/C ~470-660 LOC).
+- **SQLite preservation**: i 15 caller esistenti (1 bridge, 2 graph_projector, 11 scripts/s3dgraphy_sync, 6 test) continuano a passare `Path` e funzionano invariati via shim. Comportamento file system byte-identical per SQLite users.
+- **NO QSettings UI** (deferred to Consolidation 5.7.4 per Q1=b).
+- **8 nuovi test L2 PG**: 4 in `test_paradata_store_pg.py` + 4 in `test_group_store_pg.py`. Tutti usano `monkeypatch` su `Path.home()` per non polluire il home dir reale. Skippano puliti quando PG offline o psycopg2 mancante.
+
+**Phase 3 è ora completa modulo Consolidation 5.7.4-alpha** (rename `db_path → db_input` + QSettings UI + cleanup).
+
+Test count: 250 → 250 passed, 33 skipped (PG offline) o 258 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preservato.
+
+### English
+
+**PG-D — ParadataStore + GroupStore work on PostgreSQL.**
+
+Fourth and final "core" milestone of Phase 3. Flips the two filesystem stores (paradata + groups) onto the cross-backend infrastructure. All 250 PG-C SQLite tests stay green via shim, INCLUDING the 3 critical gates (test_round_trip_with_paradata, test_round_trip_with_groups, test_graph_projector_paradata). AC-2 byte-identical preserved.
+
+- **NEW `modules/s3dgraphy/sync/_workspace.py`**: helper module with `_resolve_workspace_dir(handle, sito) -> Path` and `_conn_slug(handle) -> str`. SQLite branch returns `handle.sqlite_path.parent` (byte-identical to pre-PG-D behaviour). PG branch returns `~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/` with `mkdir(parents=True, exist_ok=True)`.
+- **`_conn_slug`**: deterministic formula `slugify(f"{host}_{port}_{dbname}")` with regex `[^a-zA-Z0-9_-]` → `_`. Single source of truth for filesystem-safe PG identifiers.
+- **`paradata_store.py` + `group_store.py`**: constructor accepts `Path | DbHandle | str` via Foundation shim. `file_path` property calls `_resolve_workspace_dir` instead of `self._db_path.parent`. Filename pattern uniform across backends (`paradata_<sito>.graphml` / `groups_<sito>.graphml`).
+- **Zero SQL refactor**: these files have no SQL queries. PG-D is the smallest PG-X milestone (~360 LOC vs PG-A/B/C ~470-660 LOC).
+- **SQLite preservation**: the 15 existing callers (1 bridge, 2 graph_projector, 11 scripts/s3dgraphy_sync, 6 tests) continue to pass `Path` and work unchanged via shim. File-system behaviour byte-identical for SQLite users.
+- **NO QSettings UI** (deferred to Consolidation 5.7.4 per Q1=b).
+- **8 new L2 PG tests**: 4 in `test_paradata_store_pg.py` + 4 in `test_group_store_pg.py`. All use `monkeypatch` on `Path.home()` to avoid polluting the real home dir. Skip cleanly when PG offline or psycopg2 missing.
+
+**Phase 3 is now complete modulo Consolidation 5.7.4-alpha** (rename `db_path → db_input` + QSettings UI + cleanup).
+
+Test count: 250 → 250 passed, 33 skipped (PG offline) or 258 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preserved.
+
+---
+
 ## [5.7.2-alpha] - 2026-05-11
 
 ### Italiano
