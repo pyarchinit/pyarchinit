@@ -89,13 +89,26 @@ class MissingEpochError(GraphIngestError):
 # GraphIngestor (Groups C–D)
 # ---------------------------------------------------------------------------
 import logging
-import sqlite3
 from pathlib import Path
 from typing import TYPE_CHECKING
+
+from sqlalchemy import text
 
 from .conflict_resolver import ConflictResolver
 from .ingest_result import (
     ConflictRecord, ConflictResolution, IngestResult)
+
+
+class _DryRunRollback(Exception):
+    """Internal sentinel to force rollback at end of dry-run.
+
+    PG-C (5.7.2-alpha): required because SQLAlchemy's engine.begin()
+    context manager has no conditional rollback — it commits on clean
+    exit and rolls back on any exception. To preserve the original
+    dry_run semantic (run the whole block then roll back), we raise
+    this sentinel at the very end of a dry-run, and swallow it just
+    outside the `with` block.
+    """
 
 if TYPE_CHECKING:
     import s3dgraphy
@@ -117,7 +130,7 @@ class GraphIngestor:
     def populate_list(
         self,
         graph: "s3dgraphy.Graph",
-        db_path: Path,
+        db_path,  # Path | DbHandle | str — resolved via _resolve_db_handle shim
         sito: str,
         *,
         dry_run: bool = False,
@@ -148,8 +161,11 @@ class GraphIngestor:
         of a Graph, the importer auto-loads it as a Graph via
         s3dgraphy's GraphMLImporter and uses the same path for
         graphml_path. This lets callers pass just the .graphml file.
+
+        PG-C (5.7.2-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+        via the ``_resolve_db_handle`` shim from Foundation. Backward
+        compat preserved for legacy callers passing a Path.
         """
-        db_path = Path(db_path)
         # AI06: graph may be a Path-like (graphml file). Auto-load.
         from pathlib import Path as _P
         if isinstance(graph, (str, _P)):
@@ -166,6 +182,10 @@ class GraphIngestor:
         # 1. Sito parameter must be non-empty (cheap check, do first
         # so we fail fast even when db_path is invalid).
         self._verify_sito(graph, sito)
+        # PG-C: resolve shim once at entry, propagate handle to _run/_verify_schema
+        # Lazy import to avoid circular: _db_handle imports GraphSyncError from us.
+        from ._db_handle import _resolve_db_handle
+        handle = _resolve_db_handle(db_path)
         if graphml_path is not None:
             try:
                 _hydrate_pyarchinit_data_keys(graph, Path(graphml_path))
@@ -187,27 +207,23 @@ class GraphIngestor:
                 "_promote_legacy_activitynodegroup failed, continuing: %s",
                 _e,
             )
-        # 2. Schema check
-        self._verify_schema(db_path)
-        # 3. Run the actual ingestion (Group C: dry-run only)
-        return self._run(graph, db_path, sito,
+        # 2. Schema check (accepts handle directly — PG-A shim)
+        self._verify_schema(handle)
+        # 3. Run the actual ingestion
+        return self._run(graph, handle, sito,
                          dry_run=dry_run,
                          create_missing_epochs=create_missing_epochs,
                          graphml_path=graphml_path,
                          sql_apply_groups=sql_apply_groups)
 
     # ------------------------------------------------------------------ helpers
-    def _verify_schema(self, db_path: Path) -> None:
-        # PG-A (5.7.0-alpha): cross-backend introspection via Foundation's
-        # _columns_of dispatcher. db_path is still a Path here because
-        # populate_list (the only caller) is SQLite-only until PG-C ships.
-        # Internally we resolve to a DbHandle so the same code path will
-        # work on PG once populate_list flips its signature.
-        from ._db_handle import _columns_of, _resolve_db_handle
-        if not db_path.exists():
-            raise GraphIngestError(f"DB file not found: {db_path}")
+    def _verify_schema(self, handle) -> None:
+        # PG-C (5.7.2-alpha): accepts DbHandle directly from populate_list.
+        # The file-existence check is gone (PG has no file); we rely on
+        # _columns_of returning empty set on connection / missing-table
+        # failure to surface as SchemaMismatchError below.
+        from ._db_handle import _columns_of
         try:
-            handle = _resolve_db_handle(db_path)
             cols = _columns_of(handle.engine, "us_table")
         except Exception as e:
             raise GraphIngestError(f"Cannot read us_table schema: {e}") from e
@@ -230,11 +246,12 @@ class GraphIngestor:
                 "sito parameter is mandatory; AI04 only supports "
                 "single-site graphs.")
 
-    def _run(self, graph, db_path, sito, *, dry_run, create_missing_epochs,
+    def _run(self, graph, handle, sito, *, dry_run, create_missing_epochs,
              graphml_path=None, sql_apply_groups=False):
         inserted = updated = skipped = 0
         epochs_created = 0
         sito_created = False
+        applied = 0
         conflicts: list[ConflictRecord] = []
         errors: list[str] = []
 
@@ -242,341 +259,362 @@ class GraphIngestor:
         # path can populate us_table.rapporti as JSON-list-of-lists.
         rapporti_by_source = _build_rapporti_from_edges(graph, sito)
 
-        # Open the transaction (we always use BEGIN even in dry-run so
-        # any side effects from other code paths get isolated and
-        # ROLLBACK'd).
-        conn = sqlite3.connect(str(db_path))
-        conn.execute("BEGIN")
+        # PG-C (5.7.2-alpha): engine.begin() opens an atomic transaction
+        # that commits on clean exit / rolls back on exception. Identical
+        # semantics to the old sqlite3 BEGIN/COMMIT/ROLLBACK pattern on
+        # both SQLite and PostgreSQL backends. dry_run uses the
+        # _DryRunRollback sentinel to force rollback at the end.
         try:
-            cur = conn.cursor()
-            # Ensure site_table has a row for `sito` — create if missing.
-            cur.execute(
-                "SELECT COUNT(*) FROM site_table WHERE sito = ?", (sito,))
-            if cur.fetchone()[0] == 0:
-                if not dry_run:
-                    cur.execute(
-                        "INSERT INTO site_table (sito, nazione, regione, "
-                        "definizione_sito) VALUES (?, '', '', "
-                        "'auto-created by AI04 import')",
-                        (sito,),
-                    )
-                sito_created = True
-            for node in graph.nodes:
-                # Skip wrapper / metadata node types that have no SQL
-                # counterpart in us_table (PropertyNode etc. land in
-                # paradata.graphml under AI05; GeoPositionNode and
-                # ParadataNodeGroup are layout-only; EpochNode is
-                # handled in its own loop below).
-                type_name = type(node).__name__
-                if type_name in _NON_STRAT_TYPES:
-                    continue
-                attrs = dict(getattr(node, "attributes", None) or {})
-                # Look up by node_uuid. Prefer the explicit attribute
-                # (set by GraphProjector._propagate_node_uuid_and_us);
-                # fall back to node_id when the graph was built outside
-                # the projector and node_id IS the DB uuid.
-                node_uuid = attrs.get("node_uuid") or getattr(
-                    node, "node_id", None)
-                if not node_uuid:
-                    continue
-                # Make sure the node carries a `us` value. Priority:
-                #   1. attrs["us"] (set by GraphProjector)
-                #   2. node.name with prefix stripped (graphml-imported)
-                # Examples of stripping:
-                #   "USM6"   → "6"
-                #   "USV102" → "102"
-                #   "US103a" → "103a"  (us column is TEXT)
-                if "us" not in attrs or attrs["us"] is None:
-                    fallback_us = getattr(node, "name", None)
-                    if not fallback_us:
-                        continue
-                    attrs["us"] = _strip_us_prefix(str(fallback_us))
-                # Always force sito to the populate_list parameter so
-                # the user can import a graph (made for ANY sito) into
-                # the chosen target sito (#3 H.4 fix).
-                attrs["sito"] = sito
-                # unita_tipo is best resolved from the s3dgraphy class
-                # name when attrs has lost it via round-trip.
-                if "unita_tipo" not in attrs or attrs["unita_tipo"] is None:
-                    resolved_tipo = _resolve_unita_tipo(node, attrs)
-                    if resolved_tipo:
-                        attrs["unita_tipo"] = resolved_tipo
-                # DocumentNode: stash its `url` field into the
-                # documentazione column (#6 H.4 fix). Path is typically
-                # relative, e.g. "documents/scheda_1.pdf".
-                if (type_name == "DocumentNode"
-                        and not attrs.get("documentazione")):
-                    doc_url = (getattr(node, "url", None)
-                               or attrs.get("url"))
-                    if doc_url:
-                        attrs["documentazione"] = str(doc_url)
-                cur.execute(
-                    "SELECT * FROM us_table WHERE node_uuid = ?",
-                    (node_uuid,),
-                )
-                row = cur.fetchone()
-                if row is None:
-                    inserted += 1
-                    continue
-                # Build {col: db_val} dict from row + cursor.description
-                col_names = [d[0] for d in cur.description]
-                db_row = dict(zip(col_names, row))
-                row_changed = False
-                for col in MAPPED_COLUMNS:
-                    if col not in attrs:
-                        continue
-                    db_val = db_row.get(col)
-                    graph_val = attrs.get(col)
-                    if _values_equal(col, db_val, graph_val):
-                        continue
-                    row_changed = True
-                    self._resolver.resolve(
-                        db_row=db_row, graph_value=graph_val, field=col)
-                    conflicts.append(ConflictRecord(
-                        node_uuid=node_uuid, field=col,
-                        db_value=db_val, graph_value=graph_val,
-                        resolution=ConflictResolution.GRAPH_WINS.value,
-                    ))
-                if row_changed:
-                    updated += 1
-                else:
-                    skipped += 1
-
-            # ---- EpochNode loop ----
-            # Read existing (periodo, fase) pairs FOR THIS SITO. The
-            # UNIQUE constraint on periodizzazione_table is
-            # (sito, periodo, fase) so the same period/phase combo
-            # can legitimately exist for a different site.
-            cur.execute(
-                "SELECT CAST(periodo AS TEXT), CAST(fase AS TEXT) "
-                "FROM periodizzazione_table WHERE sito = ?",
-                (sito,))
-            existing_epochs = {(r[0], r[1]) for r in cur.fetchall()}
-            missing_epochs: list[tuple] = []
-            for node in graph.nodes:
-                if not _is_epoch_node_local(node):
-                    continue
-                attrs = getattr(node, "attributes", None) or {}
-                periodo = attrs.get("periodo")
-                fase = attrs.get("fase")
-                if periodo is None:
-                    continue
-                key = (str(periodo), str(fase) if fase is not None else "")
-                if key in existing_epochs:
-                    continue
-                if create_missing_epochs:
-                    epochs_created += 1
-                    # Group D writes the actual INSERT here. For dry-run, just count.
-                else:
-                    # Coerce periodo back to int for the error payload
-                    try:
-                        p_int = int(periodo)
-                    except (TypeError, ValueError):
-                        p_int = periodo
-                    missing_epochs.append((p_int, str(fase)))
-            if missing_epochs:
-                # rollback now and let the outer except GraphSyncError
-                # branch re-raise (it also calls rollback, which is a
-                # no-op once the transaction is already rolled back).
-                raise MissingEpochError(missing=missing_epochs)
-
-            # ---- Write block (Group D): INSERT new rows + UPDATE existing ----
-            # In dry-run mode, this loop is skipped entirely and the
-            # transaction is rolled back below. In write mode, we re-walk
-            # graph.nodes to replay the same decisions made in the
-            # detection loop above, this time issuing actual SQL writes.
-            applied = 0
-            if not dry_run:
+            with handle.engine.begin() as conn:
+                # Ensure site_table has a row for `sito` — create if missing.
+                count_row = conn.execute(
+                    text("SELECT COUNT(*) FROM site_table WHERE sito = :sito"),
+                    {"sito": sito},
+                ).fetchone()
+                if count_row[0] == 0:
+                    if not dry_run:
+                        conn.execute(
+                            text(
+                                "INSERT INTO site_table (sito, nazione, regione, "
+                                "definizione_sito) VALUES (:sito, '', '', "
+                                "'auto-created by AI04 import')"
+                            ),
+                            {"sito": sito},
+                        )
+                    sito_created = True
                 for node in graph.nodes:
+                    # Skip wrapper / metadata node types that have no SQL
+                    # counterpart in us_table (PropertyNode etc. land in
+                    # paradata.graphml under AI05; GeoPositionNode and
+                    # ParadataNodeGroup are layout-only; EpochNode is
+                    # handled in its own loop below).
                     type_name = type(node).__name__
                     if type_name in _NON_STRAT_TYPES:
                         continue
                     attrs = dict(getattr(node, "attributes", None) or {})
-                    # Same priority as the detection loop above:
-                    # explicit attrs.node_uuid wins (projector-built graphs),
-                    # node_id is the fallback (graphs built outside the
-                    # projector where node_id IS the DB uuid).
+                    # Look up by node_uuid. Prefer the explicit attribute
+                    # (set by GraphProjector._propagate_node_uuid_and_us);
+                    # fall back to node_id when the graph was built outside
+                    # the projector and node_id IS the DB uuid.
                     node_uuid = attrs.get("node_uuid") or getattr(
                         node, "node_id", None)
                     if not node_uuid:
                         continue
+                    # Make sure the node carries a `us` value. Priority:
+                    #   1. attrs["us"] (set by GraphProjector)
+                    #   2. node.name with prefix stripped (graphml-imported)
+                    # Examples of stripping:
+                    #   "USM6"   → "6"
+                    #   "USV102" → "102"
+                    #   "US103a" → "103a"  (us column is TEXT)
                     if "us" not in attrs or attrs["us"] is None:
                         fallback_us = getattr(node, "name", None)
                         if not fallback_us:
                             continue
                         attrs["us"] = _strip_us_prefix(str(fallback_us))
-                    # Force sito to parameter (override anything the
-                    # graph carried — the user's choice is authoritative).
+                    # Always force sito to the populate_list parameter so
+                    # the user can import a graph (made for ANY sito) into
+                    # the chosen target sito (#3 H.4 fix).
                     attrs["sito"] = sito
-                    if ("unita_tipo" not in attrs
-                            or attrs["unita_tipo"] is None):
+                    # unita_tipo is best resolved from the s3dgraphy class
+                    # name when attrs has lost it via round-trip.
+                    if "unita_tipo" not in attrs or attrs["unita_tipo"] is None:
                         resolved_tipo = _resolve_unita_tipo(node, attrs)
                         if resolved_tipo:
                             attrs["unita_tipo"] = resolved_tipo
+                    # DocumentNode: stash its `url` field into the
+                    # documentazione column (#6 H.4 fix). Path is typically
+                    # relative, e.g. "documents/scheda_1.pdf".
                     if (type_name == "DocumentNode"
                             and not attrs.get("documentazione")):
                         doc_url = (getattr(node, "url", None)
                                    or attrs.get("url"))
                         if doc_url:
                             attrs["documentazione"] = str(doc_url)
-                    # area is part of the UNIQUE constraint
-                    # (sito, area, us, unita_tipo) — default to "1"
-                    # if the graph doesn't carry it.
-                    if "area" not in attrs or attrs["area"] is None:
-                        attrs["area"] = "1"
-                    # rapporti from edges (#4): walk graph edges grouped
-                    # by source node_id and serialise as the pyarchinit
-                    # list-of-lists format. Edges-derived takes priority
-                    # over a graphml-hydrated rapporti string because
-                    # the latter may carry the SOURCE sito (e.g.
-                    # "TestSite") which we want overridden to the
-                    # target sito.
-                    if node_uuid in rapporti_by_source:
-                        attrs["rapporti"] = str(
-                            rapporti_by_source[node_uuid])
-                    elif "rapporti" in attrs and attrs["rapporti"]:
-                        # Hydrated string — rewrite the sito in each
-                        # rapporto to the target sito.
-                        attrs["rapporti"] = _rewrite_rapporti_sito(
-                            attrs["rapporti"], sito)
-                    # periodizzazione from has_first_epoch edges (#5).
-                    p_iniz, f_iniz = _find_first_epoch(
-                        graph, node_uuid)
-                    if p_iniz is not None and (
-                            "periodo_iniziale" not in attrs
-                            or not attrs["periodo_iniziale"]):
-                        attrs["periodo_iniziale"] = str(p_iniz)
-                    if f_iniz is not None and (
-                            "fase_iniziale" not in attrs
-                            or not attrs["fase_iniziale"]):
-                        attrs["fase_iniziale"] = str(f_iniz)
-                    cur.execute(
-                        "SELECT * FROM us_table WHERE node_uuid = ?",
-                        (node_uuid,),
+                    result = conn.execute(
+                        text("SELECT * FROM us_table WHERE node_uuid = :uuid"),
+                        {"uuid": node_uuid},
                     )
-                    existing = cur.fetchone()
-                    col_payload = {col: attrs.get(col)
-                                   for col in MAPPED_COLUMNS
-                                   if col in attrs}
-                    col_payload["node_uuid"] = node_uuid
-                    col_payload["sito"] = sito
-                    if existing is None:
-                        # INSERT
-                        cols = list(col_payload.keys())
-                        placeholders = ",".join("?" for _ in cols)
-                        col_list = ",".join(cols)
-                        cur.execute(
-                            f"INSERT INTO us_table ({col_list}) VALUES "
-                            f"({placeholders})",
-                            [col_payload[c] for c in cols],
-                        )
-                        applied += 1
+                    row = result.fetchone()
+                    if row is None:
+                        inserted += 1
+                        continue
+                    # Build {col: db_val} dict from row + result.keys()
+                    col_names = list(result.keys())
+                    db_row = dict(zip(col_names, row))
+                    row_changed = False
+                    for col in MAPPED_COLUMNS:
+                        if col not in attrs:
+                            continue
+                        db_val = db_row.get(col)
+                        graph_val = attrs.get(col)
+                        if _values_equal(col, db_val, graph_val):
+                            continue
+                        row_changed = True
+                        self._resolver.resolve(
+                            db_row=db_row, graph_value=graph_val, field=col)
+                        conflicts.append(ConflictRecord(
+                            node_uuid=node_uuid, field=col,
+                            db_value=db_val, graph_value=graph_val,
+                            resolution=ConflictResolution.GRAPH_WINS.value,
+                        ))
+                    if row_changed:
+                        updated += 1
                     else:
-                        # UPDATE selettivo: only the MAPPED_COLUMNS that
-                        # actually differ. Any column not in attrs and
-                        # any us_table column not in MAPPED_COLUMNS is
-                        # left untouched (preserves descrizione, foto,
-                        # etc.).
-                        col_names = [d[0] for d in cur.description]
-                        db_row = dict(zip(col_names, existing))
-                        diff_cols = []
-                        diff_vals = []
-                        for col in MAPPED_COLUMNS:
-                            if col not in attrs:
+                        skipped += 1
+
+                # ---- EpochNode loop ----
+                # Read existing (periodo, fase) pairs FOR THIS SITO. The
+                # UNIQUE constraint on periodizzazione_table is
+                # (sito, periodo, fase) so the same period/phase combo
+                # can legitimately exist for a different site.
+                existing_epochs = {
+                    (r[0], r[1])
+                    for r in conn.execute(
+                        text(
+                            "SELECT CAST(periodo AS TEXT), CAST(fase AS TEXT) "
+                            "FROM periodizzazione_table WHERE sito = :sito"
+                        ),
+                        {"sito": sito},
+                    ).fetchall()
+                }
+                missing_epochs: list[tuple] = []
+                for node in graph.nodes:
+                    if not _is_epoch_node_local(node):
+                        continue
+                    attrs = getattr(node, "attributes", None) or {}
+                    periodo = attrs.get("periodo")
+                    fase = attrs.get("fase")
+                    if periodo is None:
+                        continue
+                    key = (str(periodo), str(fase) if fase is not None else "")
+                    if key in existing_epochs:
+                        continue
+                    if create_missing_epochs:
+                        epochs_created += 1
+                        # Group D writes the actual INSERT here. For dry-run, just count.
+                    else:
+                        # Coerce periodo back to int for the error payload
+                        try:
+                            p_int = int(periodo)
+                        except (TypeError, ValueError):
+                            p_int = periodo
+                        missing_epochs.append((p_int, str(fase)))
+                if missing_epochs:
+                    # rollback now and let the outer except GraphSyncError
+                    # branch re-raise (it also calls rollback, which is a
+                    # no-op once the transaction is already rolled back).
+                    raise MissingEpochError(missing=missing_epochs)
+
+                # ---- Write block (Group D): INSERT new rows + UPDATE existing ----
+                # In dry-run mode, this loop is skipped entirely and the
+                # transaction is rolled back below. In write mode, we re-walk
+                # graph.nodes to replay the same decisions made in the
+                # detection loop above, this time issuing actual SQL writes.
+                if not dry_run:
+                    for node in graph.nodes:
+                        type_name = type(node).__name__
+                        if type_name in _NON_STRAT_TYPES:
+                            continue
+                        attrs = dict(getattr(node, "attributes", None) or {})
+                        # Same priority as the detection loop above:
+                        # explicit attrs.node_uuid wins (projector-built graphs),
+                        # node_id is the fallback (graphs built outside the
+                        # projector where node_id IS the DB uuid).
+                        node_uuid = attrs.get("node_uuid") or getattr(
+                            node, "node_id", None)
+                        if not node_uuid:
+                            continue
+                        if "us" not in attrs or attrs["us"] is None:
+                            fallback_us = getattr(node, "name", None)
+                            if not fallback_us:
                                 continue
-                            if _values_equal(col, db_row.get(col),
-                                              attrs.get(col)):
-                                continue
-                            diff_cols.append(col)
-                            diff_vals.append(attrs.get(col))
-                        if diff_cols:
-                            set_clause = ", ".join(
-                                f"{c} = ?" for c in diff_cols)
-                            cur.execute(
-                                f"UPDATE us_table SET {set_clause} "
-                                f"WHERE node_uuid = ?",
-                                [*diff_vals, node_uuid],
+                            attrs["us"] = _strip_us_prefix(str(fallback_us))
+                        # Force sito to parameter (override anything the
+                        # graph carried — the user's choice is authoritative).
+                        attrs["sito"] = sito
+                        if ("unita_tipo" not in attrs
+                                or attrs["unita_tipo"] is None):
+                            resolved_tipo = _resolve_unita_tipo(node, attrs)
+                            if resolved_tipo:
+                                attrs["unita_tipo"] = resolved_tipo
+                        if (type_name == "DocumentNode"
+                                and not attrs.get("documentazione")):
+                            doc_url = (getattr(node, "url", None)
+                                       or attrs.get("url"))
+                            if doc_url:
+                                attrs["documentazione"] = str(doc_url)
+                        # area is part of the UNIQUE constraint
+                        # (sito, area, us, unita_tipo) — default to "1"
+                        # if the graph doesn't carry it.
+                        if "area" not in attrs or attrs["area"] is None:
+                            attrs["area"] = "1"
+                        # rapporti from edges (#4): walk graph edges grouped
+                        # by source node_id and serialise as the pyarchinit
+                        # list-of-lists format. Edges-derived takes priority
+                        # over a graphml-hydrated rapporti string because
+                        # the latter may carry the SOURCE sito (e.g.
+                        # "TestSite") which we want overridden to the
+                        # target sito.
+                        if node_uuid in rapporti_by_source:
+                            attrs["rapporti"] = str(
+                                rapporti_by_source[node_uuid])
+                        elif "rapporti" in attrs and attrs["rapporti"]:
+                            # Hydrated string — rewrite the sito in each
+                            # rapporto to the target sito.
+                            attrs["rapporti"] = _rewrite_rapporti_sito(
+                                attrs["rapporti"], sito)
+                        # periodizzazione from has_first_epoch edges (#5).
+                        p_iniz, f_iniz = _find_first_epoch(
+                            graph, node_uuid)
+                        if p_iniz is not None and (
+                                "periodo_iniziale" not in attrs
+                                or not attrs["periodo_iniziale"]):
+                            attrs["periodo_iniziale"] = str(p_iniz)
+                        if f_iniz is not None and (
+                                "fase_iniziale" not in attrs
+                                or not attrs["fase_iniziale"]):
+                            attrs["fase_iniziale"] = str(f_iniz)
+                        result = conn.execute(
+                            text("SELECT * FROM us_table WHERE node_uuid = :uuid"),
+                            {"uuid": node_uuid},
+                        )
+                        existing = result.fetchone()
+                        col_payload = {col: attrs.get(col)
+                                       for col in MAPPED_COLUMNS
+                                       if col in attrs}
+                        col_payload["node_uuid"] = node_uuid
+                        col_payload["sito"] = sito
+                        if existing is None:
+                            # INSERT
+                            cols = list(col_payload.keys())
+                            placeholders = ",".join(f":{c}" for c in cols)
+                            col_list = ",".join(cols)
+                            conn.execute(
+                                text(
+                                    f"INSERT INTO us_table ({col_list}) VALUES "
+                                    f"({placeholders})"
+                                ),
+                                {c: col_payload[c] for c in cols},
                             )
                             applied += 1
+                        else:
+                            # UPDATE selettivo: only the MAPPED_COLUMNS that
+                            # actually differ. Any column not in attrs and
+                            # any us_table column not in MAPPED_COLUMNS is
+                            # left untouched (preserves descrizione, foto,
+                            # etc.).
+                            col_names = list(result.keys())
+                            db_row = dict(zip(col_names, existing))
+                            diff_cols = []
+                            diff_vals = []
+                            for col in MAPPED_COLUMNS:
+                                if col not in attrs:
+                                    continue
+                                if _values_equal(col, db_row.get(col),
+                                                  attrs.get(col)):
+                                    continue
+                                diff_cols.append(col)
+                                diff_vals.append(attrs.get(col))
+                            if diff_cols:
+                                set_clause = ", ".join(
+                                    f"{c} = :{c}" for c in diff_cols)
+                                params = {c: v for c, v in zip(diff_cols, diff_vals)}
+                                params["__node_uuid"] = node_uuid
+                                conn.execute(
+                                    text(
+                                        f"UPDATE us_table SET {set_clause} "
+                                        f"WHERE node_uuid = :__node_uuid"
+                                    ),
+                                    params,
+                                )
+                                applied += 1
 
-                # Epoch INSERT (D5-B path, write mode only).
-                # Populate cron_iniziale/cron_finale and datazione when
-                # the EpochNode carries them. start_time/end_time are
-                # numeric (year), datazione is the human label.
-                if create_missing_epochs:
-                    for node in graph.nodes:
-                        if not _is_epoch_node_local(node):
-                            continue
-                        eattrs = getattr(node, "attributes", None) or {}
-                        periodo = eattrs.get("periodo")
-                        fase = eattrs.get("fase")
-                        # Fall back to parsing from node_id when attrs
-                        # are stripped by the importer.
-                        if periodo is None:
-                            tid = getattr(node, "node_id", "") or ""
-                            m = _re.match(
-                                r"^epoch_([^_]+)_(.+?)(_synthetic)?$",
-                                str(tid))
-                            if m:
-                                periodo, fase = m.group(1), m.group(2)
-                        if periodo is None:
-                            continue
-                        ekey = (str(periodo),
-                                str(fase) if fase is not None else "")
-                        if ekey in existing_epochs:
-                            continue
-                        descrizione = getattr(node, "name", "") or ""
-                        cron_ini = getattr(node, "start_time", None)
-                        cron_fin = getattr(node, "end_time", None)
-                        # cron columns are INTEGER in pyarchinit
-                        cron_ini_i = (int(cron_ini)
-                                      if cron_ini not in (None, 0, 0.0)
-                                      else None)
-                        cron_fin_i = (int(cron_fin)
-                                      if cron_fin not in (None, 0, 0.0)
-                                      else None)
-                        # datazione_estesa: free-text human label,
-                        # often the epoch name for external graphs.
-                        datazione = (eattrs.get("datazione")
-                                     or eattrs.get("datazione_estesa")
-                                     or descrizione)
-                        # The UNIQUE constraint on periodizzazione_table
-                        # is (sito, periodo, fase), so populate sito.
-                        try:
-                            periodo_i = int(periodo)
-                        except (TypeError, ValueError):
-                            periodo_i = None
-                        cur.execute(
-                            "INSERT INTO periodizzazione_table "
-                            "(sito, periodo, fase, descrizione, "
-                            " cron_iniziale, cron_finale, "
-                            " datazione_estesa) "
-                            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                            (sito, periodo_i, fase, descrizione,
-                             cron_ini_i, cron_fin_i, datazione),
-                        )
+                    # Epoch INSERT (D5-B path, write mode only).
+                    # Populate cron_iniziale/cron_finale and datazione when
+                    # the EpochNode carries them. start_time/end_time are
+                    # numeric (year), datazione is the human label.
+                    if create_missing_epochs:
+                        for node in graph.nodes:
+                            if not _is_epoch_node_local(node):
+                                continue
+                            eattrs = getattr(node, "attributes", None) or {}
+                            periodo = eattrs.get("periodo")
+                            fase = eattrs.get("fase")
+                            # Fall back to parsing from node_id when attrs
+                            # are stripped by the importer.
+                            if periodo is None:
+                                tid = getattr(node, "node_id", "") or ""
+                                m = _re.match(
+                                    r"^epoch_([^_]+)_(.+?)(_synthetic)?$",
+                                    str(tid))
+                                if m:
+                                    periodo, fase = m.group(1), m.group(2)
+                            if periodo is None:
+                                continue
+                            ekey = (str(periodo),
+                                    str(fase) if fase is not None else "")
+                            if ekey in existing_epochs:
+                                continue
+                            descrizione = getattr(node, "name", "") or ""
+                            cron_ini = getattr(node, "start_time", None)
+                            cron_fin = getattr(node, "end_time", None)
+                            # cron columns are INTEGER in pyarchinit
+                            cron_ini_i = (int(cron_ini)
+                                          if cron_ini not in (None, 0, 0.0)
+                                          else None)
+                            cron_fin_i = (int(cron_fin)
+                                          if cron_fin not in (None, 0, 0.0)
+                                          else None)
+                            # datazione_estesa: free-text human label,
+                            # often the epoch name for external graphs.
+                            datazione = (eattrs.get("datazione")
+                                         or eattrs.get("datazione_estesa")
+                                         or descrizione)
+                            # The UNIQUE constraint on periodizzazione_table
+                            # is (sito, periodo, fase), so populate sito.
+                            try:
+                                periodo_i = int(periodo)
+                            except (TypeError, ValueError):
+                                periodo_i = None
+                            conn.execute(
+                                text(
+                                    "INSERT INTO periodizzazione_table "
+                                    "(sito, periodo, fase, descrizione, "
+                                    " cron_iniziale, cron_finale, "
+                                    " datazione_estesa) "
+                                    "VALUES (:sito, :periodo, :fase, :descrizione, "
+                                    " :cron_ini, :cron_fin, :datazione)"
+                                ),
+                                {
+                                    "sito": sito, "periodo": periodo_i, "fase": fase,
+                                    "descrizione": descrizione,
+                                    "cron_ini": cron_ini_i, "cron_fin": cron_fin_i,
+                                    "datazione": datazione,
+                                },
+                            )
 
-            # AI06 D.2: optional SQL UPDATE from group folders in the
-            # source GraphML. Runs INSIDE the same atomic transaction
-            # so a failure here rolls back everything (AI04 contract
-            # preserved). Default safe — gated by sql_apply_groups=True.
-            if sql_apply_groups and not dry_run and graphml_path:
-                applied += _apply_group_folders_to_sql(
-                    cur, Path(graphml_path), sito)
+                # AI06 D.2: optional SQL UPDATE from group folders in the
+                # source GraphML. Runs INSIDE the same atomic transaction
+                # so a failure here rolls back everything (AI04 contract
+                # preserved). Default safe — gated by sql_apply_groups=True.
+                if sql_apply_groups and not dry_run and graphml_path:
+                    applied += _apply_group_folders_to_sql(
+                        conn, Path(graphml_path), sito)
 
-            # Commit or rollback
-            if dry_run:
-                conn.rollback()
-            else:
-                conn.commit()
+                # PG-C: at the very end of a dry-run, raise the
+                # internal sentinel to force engine.begin() to roll
+                # back. Clean exit (success path) auto-commits.
+                if dry_run:
+                    raise _DryRunRollback()
+        except _DryRunRollback:
+            pass  # dry-run completed; rollback already happened
         except GraphSyncError:
-            conn.rollback()
+            # engine.begin() already rolled back on the exception path;
+            # just re-raise so the caller sees the same error type.
             raise
         except Exception as e:
-            conn.rollback()
             raise GraphIngestError(f"Ingest failed: {e}") from e
-        finally:
-            conn.close()
 
         return IngestResult(
             applied=applied,
@@ -709,7 +747,7 @@ def _promote_legacy_activitynodegroup(graph) -> int:
     return n_count
 
 
-def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
+def _apply_group_folders_to_sql(conn, graphml_path: Path, sito: str) -> int:
     """AI07: recursive walker — descend yEd folder-in-folder structures
     and apply ``UPDATE us_table SET <kind>=<group_name>`` per
     SQL-backed folder.
@@ -819,24 +857,31 @@ def _apply_group_folders_to_sql(cur, graphml_path: Path, sito: str) -> int:
                     elif kid == area_kid:
                         area_val = txt
                 if node_uuid:
-                    cur.execute(
-                        f"UPDATE us_table SET {group_kind}=? "
-                        f"WHERE node_uuid=? AND sito=?",
-                        (group_name, node_uuid, sito),
+                    upd_result = conn.execute(
+                        text(
+                            f"UPDATE us_table SET {group_kind}=:group_name "
+                            f"WHERE node_uuid=:node_uuid AND sito=:sito"
+                        ),
+                        {"group_name": group_name, "node_uuid": node_uuid, "sito": sito},
                     )
                     local_applied += (
-                        cur.rowcount if cur.rowcount and cur.rowcount > 0
+                        upd_result.rowcount
+                        if upd_result.rowcount and upd_result.rowcount > 0
                         else 0)
                 elif us_val:
                     # Fall back to (us, area, sito) match.
                     area_val = area_val or "1"
-                    cur.execute(
-                        f"UPDATE us_table SET {group_kind}=? "
-                        f"WHERE us=? AND area=? AND sito=?",
-                        (group_name, us_val, area_val, sito),
+                    upd_result = conn.execute(
+                        text(
+                            f"UPDATE us_table SET {group_kind}=:group_name "
+                            f"WHERE us=:us AND area=:area AND sito=:sito"
+                        ),
+                        {"group_name": group_name, "us": us_val,
+                         "area": area_val, "sito": sito},
                     )
                     local_applied += (
-                        cur.rowcount if cur.rowcount and cur.rowcount > 0
+                        upd_result.rowcount
+                        if upd_result.rowcount and upd_result.rowcount > 0
                         else 0)
 
         # Recurse into nested folders

@@ -136,16 +136,16 @@ def test_locationnodegroup_with_us_members_writes_sql(tmp_path):
   </graph>
 </graphml>
 """, encoding="utf-8")
-    conn = sqlite3.connect(str(db))
-    cur = conn.cursor()
-    n = _apply_group_folders_to_sql(cur, gp, sito)
-    conn.commit()
+    from sqlalchemy import create_engine, text as sa_text
+    engine = create_engine(f"sqlite:///{db}")
+    with engine.begin() as sa_conn:
+        n = _apply_group_folders_to_sql(sa_conn, gp, sito)
     assert n >= 1, f"expected >=1 UPDATE, got {n}"
-    after = conn.execute(
-        "SELECT struttura FROM us_table WHERE sito=? AND us=?",
-        (sito, us_val),
-    ).fetchone()
-    conn.close()
+    with engine.connect() as sa_conn:
+        after = sa_conn.execute(
+            sa_text("SELECT struttura FROM us_table WHERE sito=:sito AND us=:us"),
+            {"sito": sito, "us": str(us_val)},
+        ).fetchone()
     assert after[0] == "NewBasilica"
 
 
@@ -183,14 +183,14 @@ def test_mixed_locationnodegroup_and_activitynodegroup(tmp_path):
   </graph>
 </graphml>
 """, encoding="utf-8")
-    conn = sqlite3.connect(str(db))
-    cur = conn.cursor()
-    n = _apply_group_folders_to_sql(cur, gp, sito)
-    conn.commit()
-    after = conn.execute(
-        "SELECT struttura, attivita FROM us_table WHERE sito=? "
-        "AND us=?", (sito, us_val),
-    ).fetchone()
-    conn.close()
+    from sqlalchemy import create_engine, text as sa_text
+    engine = create_engine(f"sqlite:///{db}")
+    with engine.begin() as sa_conn:
+        n = _apply_group_folders_to_sql(sa_conn, gp, sito)
+    with engine.connect() as sa_conn:
+        after = sa_conn.execute(
+            sa_text("SELECT struttura, attivita FROM us_table WHERE sito=:sito AND us=:us"),
+            {"sito": sito, "us": str(us_val)},
+        ).fetchone()
     assert after[0] == "B1"
     assert after[1] == "SaggioX"
