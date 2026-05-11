@@ -14,10 +14,13 @@ No Qt imports — runnable from bare pytest.
 from __future__ import annotations
 
 import re
-import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
+
+from sqlalchemy import text
+
+from ._db_handle import _resolve_db_handle
 
 
 @dataclass(frozen=True)
@@ -133,16 +136,16 @@ def _read_first_sito(db_path: Path) -> str:
     or unreadable.
     """
     try:
-        conn = sqlite3.connect(str(db_path))
-        try:
+        handle = _resolve_db_handle(db_path)
+        with handle.engine.connect() as conn:
             row = conn.execute(
-                "SELECT sito FROM us_table "
-                "WHERE sito IS NOT NULL AND sito <> '' "
-                "ORDER BY sito LIMIT 1"
+                text(
+                    "SELECT sito FROM us_table "
+                    "WHERE sito IS NOT NULL AND sito <> '' "
+                    "ORDER BY sito LIMIT 1"
+                )
             ).fetchone()
-        finally:
-            conn.close()
-    except sqlite3.Error as e:
+    except Exception as e:
         raise GraphMLExportError(
             "import",
             RuntimeError(f"Cannot read us_table.sito: {e}"),
@@ -1751,8 +1754,14 @@ def export_graphml(
 ) -> ExportResult:
     """Run PyArchInitImporter → optional site filter → GraphMLExporter.
 
+    PG-B (5.7.1-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+    via the ``_resolve_db_handle`` shim from Foundation. Backward
+    compat preserved for legacy callers passing a Path.
+
     Args:
-        db_path: filesystem path to the SQLite DB (str or Path).
+        db_path: Path | DbHandle | str — resolved by _resolve_db_handle
+            shim. Legacy callers passing a plain ``Path`` or ``str``
+            file path continue to work unchanged.
         mapping: name of the s3dgraphy mapping to use, e.g. "pyarchinit".
         output_path: filesystem path where to write the GraphML.
         site_filter: optional `sito` value to restrict the export.
@@ -1775,7 +1784,6 @@ def export_graphml(
         GraphMLExportError(stage=...): wraps any failure in import,
             filter, export or write stages.
     """
-    db_path = Path(db_path)
     output_path = Path(output_path)
 
     # Stage 1: import + enrichment via GraphProjector (Strategy A,
