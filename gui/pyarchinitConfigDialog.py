@@ -1185,6 +1185,20 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             ))
             workspace_path_row.addWidget(self._workspace_lineedit, stretch=1)
 
+            def _on_workspace_edit_finished():
+                # Persist manually-typed paths. Empty text removes the
+                # override (so the resolver falls back to the default).
+                _text = self._workspace_lineedit.text().strip()
+                _qs = _QSettings()
+                if _text:
+                    _qs.setValue("pyarchinit/paradata_workspace", _text)
+                else:
+                    _qs.remove("pyarchinit/paradata_workspace")
+                _qs.sync()
+
+            self._workspace_lineedit.editingFinished.connect(
+                _on_workspace_edit_finished)
+
             workspace_browse_btn = QPushButton(self.tr("Browse..."))
 
             def _on_workspace_browse():
@@ -1194,8 +1208,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 )
                 if _dir:
                     self._workspace_lineedit.setText(_dir)
-                    _QSettings().setValue(
-                        "pyarchinit/paradata_workspace", _dir)
+                    _qs = _QSettings()
+                    _qs.setValue("pyarchinit/paradata_workspace", _dir)
+                    _qs.sync()
 
             workspace_browse_btn.clicked.connect(_on_workspace_browse)
             workspace_path_row.addWidget(workspace_browse_btn)
@@ -1204,7 +1219,9 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             def _on_workspace_reset():
                 self._workspace_lineedit.clear()
-                _QSettings().remove("pyarchinit/paradata_workspace")
+                _qs = _QSettings()
+                _qs.remove("pyarchinit/paradata_workspace")
+                _qs.sync()
 
             workspace_reset_btn.clicked.connect(_on_workspace_reset)
             workspace_path_row.addWidget(workspace_reset_btn)

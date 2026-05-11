@@ -62,12 +62,18 @@ def _resolve_workspace_root() -> Path:
         return Path(env_override).expanduser()
     try:
         from qgis.PyQt.QtCore import QSettings
-        qs_value = QSettings().value("pyarchinit/paradata_workspace", "")
-        if qs_value:
-            return Path(str(qs_value)).expanduser()
     except ImportError:
         # Not in QGIS env (e.g., pytest): skip QSettings layer transparently
         pass
+    else:
+        try:
+            qs_value = QSettings().value("pyarchinit/paradata_workspace", "")
+            if qs_value:
+                return Path(str(qs_value)).expanduser()
+        except Exception:
+            # Defensive: Qt installed but no QCoreApplication, or other
+            # runtime error — fall through to the default branch
+            pass
     return Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
 
 
