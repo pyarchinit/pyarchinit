@@ -5,6 +5,60 @@
 
 ---
 
+## [5.7.4-alpha] - 2026-05-11
+
+### Italiano
+
+**Consolidation — chiusura ufficiale di Phase 3.**
+
+Sesto e ultimo milestone di Phase 3. Aggiunge l'override UI del workspace dir (deferito da PG-D Q1=b) e il docs pass di chiusura. Scope minimale (~310 LOC + polish) per chiudere la fase senza churn API.
+
+- **`_resolve_workspace_root()` helper** in `modules/s3dgraphy/sync/_workspace.py`: 3-tier fallback chain.
+  1. `PYARCHINIT_WORKSPACE_DIR` env var (priorità massima — utile per CI/test)
+  2. QSettings `pyarchinit/paradata_workspace` (UI override persistente)
+  3. Default `~/pyarchinit/pyarchinit_DB_folder/`
+  Import QSettings lazy con try/except ImportError, instantiation runtime con try/except Exception. Non-Qt env (es. pytest) saltano trasparentemente il layer QSettings; Qt-installato-ma-no-QCoreApplication ricade defensivamente sul default.
+- **`_resolve_workspace_dir()` PG branch** ora chiama il nuovo helper invece di hardcodare il default. SQLite branch INVARIATO (`handle.sqlite_path.parent`).
+- **Sezione UI "Paradata Workspace"** in `gui/pyarchinitConfigDialog.py` (tab DB Sync). QLineEdit + Browse + Reset. Read/write QSettings con `sync()` defensivo. `editingFinished` signal sul QLineEdit persiste path digitati a mano. Persistente tra sessioni QGIS. NON influenza SQLite users (il loro path resta accanto al `.sqlite`).
+- **6 test L0** in `tests/sync/test_workspace_root.py`: 4 test env-var/default (env precedence, default fallback, empty env skip-through, tilde expansion) + 2 test QSettings mock (success path + defensive runtime-error fall-through). Pure pytest, no Qt, no PG dependency.
+- **Phase 3 closure summary** nel dev-log: tutti i 6 tag + statistiche cumulative + items deferred.
+
+**Items deferred** (saranno gestiti in Phase 4 / 5.8.x):
+- Rename `db_path` -> `db_input` su 5 API pubbliche con DeprecationWarning cycle
+- Test parametrizzati SQLite + PG (low ROI — gli env PG-offline già skippano puliti)
+- Adozione opzionale di `_conn_slug` in `_common.py:auto_backup_postgres`
+
+**Phase 3 chiusura ufficiale**: 6 tag (Foundation + PG-A + PG-B + PG-C + PG-D + Consolidation), ~2500 LOC totali, ~36+ commit, AC-2 byte-identical preservato dall'inizio alla fine, zero residui `sqlite3.connect()` in `modules/s3dgraphy/sync/`. Phase 4 (SyncEngine + REST API) può essere brainstormata quando l'utente è pronto.
+
+Test count: 250 -> 256 passed, 33 skipped (PG offline) o 264 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preservato.
+
+### English
+
+**Consolidation — official Phase 3 closure.**
+
+Sixth and final Phase 3 milestone. Adds the deferred UI override for the workspace dir (from PG-D Q1=b) and the closure docs pass. Minimal scope (~310 LOC + polish) to close the phase without API churn.
+
+- **`_resolve_workspace_root()` helper** in `modules/s3dgraphy/sync/_workspace.py`: 3-tier fallback chain.
+  1. `PYARCHINIT_WORKSPACE_DIR` env var (highest priority — useful for CI/tests)
+  2. QSettings `pyarchinit/paradata_workspace` (persistent UI override)
+  3. Default `~/pyarchinit/pyarchinit_DB_folder/`
+  QSettings import is lazy with try/except ImportError, instantiation runtime with try/except Exception. Non-Qt environments (e.g., pytest) skip the QSettings layer transparently; Qt-installed-but-no-QCoreApplication defensively falls through to the default.
+- **`_resolve_workspace_dir()` PG branch** now calls the new helper instead of hardcoding the default. SQLite branch UNCHANGED (`handle.sqlite_path.parent`).
+- **UI "Paradata Workspace" section** in `gui/pyarchinitConfigDialog.py` (DB Sync tab). QLineEdit + Browse + Reset. Read/write QSettings with defensive `sync()`. `editingFinished` signal on the QLineEdit persists manually-typed paths. Persists across QGIS sessions. Does NOT affect SQLite users (their path stays next to the `.sqlite`).
+- **6 L0 tests** in `tests/sync/test_workspace_root.py`: 4 env-var/default tests (env precedence, default fallback, empty env skip-through, tilde expansion) + 2 QSettings mock tests (success path + defensive runtime-error fall-through). Pure pytest, no Qt, no PG dependency.
+- **Phase 3 closure summary** in the dev-log: all 6 tags + cumulative stats + deferred items.
+
+**Deferred items** (will be handled in Phase 4 / 5.8.x):
+- Rename `db_path` -> `db_input` on 5 public APIs with DeprecationWarning cycle
+- Parametrized SQLite + PG tests (low ROI — PG-offline environments already skip cleanly)
+- Optional adoption of `_conn_slug` in `_common.py:auto_backup_postgres`
+
+**Phase 3 official closure**: 6 tags (Foundation + PG-A + PG-B + PG-C + PG-D + Consolidation), ~2500 LOC total, ~36+ commits, AC-2 byte-identical preserved from start to finish, zero residual `sqlite3.connect()` in `modules/s3dgraphy/sync/`. Phase 4 (SyncEngine + REST API) can be brainstormed when the user is ready.
+
+Test count: 250 -> 256 passed, 33 skipped (PG offline) or 264 passed, 12 skipped (PG online + psycopg2). AC-2 byte-identical preserved.
+
+---
+
 ## [5.7.3-alpha] - 2026-05-11
 
 ### Italiano
