@@ -1145,6 +1145,74 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             sync_layout.addLayout(btn_row1)
 
+            # ----- Paradata Workspace section (Consolidation 5.7.4-alpha) -----
+            # Lets the user override the workspace directory where PG
+            # paradata + groups .graphml files are stored. The override
+            # is written to QSettings 'pyarchinit/paradata_workspace'
+            # and picked up by modules.s3dgraphy.sync._workspace
+            # ._resolve_workspace_root() on each ParadataStore /
+            # GroupStore .file_path access. Empty = use default
+            # (~/pyarchinit/pyarchinit_DB_folder).
+            from qgis.PyQt.QtCore import QSettings as _QSettings
+            from pathlib import Path
+            workspace_group = QGroupBox(self.tr("Paradata Workspace"))
+            workspace_group.setStyleSheet("""
+                QGroupBox { font-weight: bold; border: 2px solid #607D8B; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
+                QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 5px; }
+            """)
+            workspace_layout = QVBoxLayout(workspace_group)
+
+            workspace_info_label = QLabel(self.tr(
+                "Override the workspace directory where PostgreSQL paradata "
+                "and group files are stored. SQLite continues to store these "
+                "files next to the .sqlite database (this setting does not "
+                "affect SQLite). Leave blank to use the default "
+                "(~/pyarchinit/pyarchinit_DB_folder)."
+            ))
+            workspace_info_label.setWordWrap(True)
+            workspace_layout.addWidget(workspace_info_label)
+
+            workspace_path_row = QHBoxLayout()
+            workspace_path_label = QLabel(self.tr("Workspace dir:"))
+            workspace_path_row.addWidget(workspace_path_label)
+
+            self._workspace_lineedit = QLineEdit()
+            _current_ws = _QSettings().value(
+                "pyarchinit/paradata_workspace", "") or ""
+            self._workspace_lineedit.setText(str(_current_ws))
+            self._workspace_lineedit.setPlaceholderText(self.tr(
+                "(default: ~/pyarchinit/pyarchinit_DB_folder)"
+            ))
+            workspace_path_row.addWidget(self._workspace_lineedit, stretch=1)
+
+            workspace_browse_btn = QPushButton(self.tr("Browse..."))
+
+            def _on_workspace_browse():
+                _dir = QFileDialog.getExistingDirectory(
+                    self, self.tr("Select Paradata Workspace Directory"),
+                    self._workspace_lineedit.text() or str(Path.home()),
+                )
+                if _dir:
+                    self._workspace_lineedit.setText(_dir)
+                    _QSettings().setValue(
+                        "pyarchinit/paradata_workspace", _dir)
+
+            workspace_browse_btn.clicked.connect(_on_workspace_browse)
+            workspace_path_row.addWidget(workspace_browse_btn)
+
+            workspace_reset_btn = QPushButton(self.tr("Reset"))
+
+            def _on_workspace_reset():
+                self._workspace_lineedit.clear()
+                _QSettings().remove("pyarchinit/paradata_workspace")
+
+            workspace_reset_btn.clicked.connect(_on_workspace_reset)
+            workspace_path_row.addWidget(workspace_reset_btn)
+
+            workspace_layout.addLayout(workspace_path_row)
+            sync_layout.addWidget(workspace_group)
+            # ----- end Paradata Workspace section -----
+
             # ========== SYNC BUTTONS GROUP ==========
             buttons_group = QGroupBox(self.tr("Synchronization Operations"))
             buttons_group.setStyleSheet("""
