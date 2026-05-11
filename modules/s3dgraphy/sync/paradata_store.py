@@ -18,6 +18,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ._db_handle import _resolve_db_handle
+from ._workspace import _resolve_workspace_dir
 from .graph_ingestor import GraphSyncError
 
 
@@ -82,18 +84,40 @@ class ParadataStore:
     perform actual I/O).
     """
 
-    def __init__(self, db_path: Path, sito: str) -> None:
+    def __init__(self, db_path, sito: str) -> None:
+        """Construct a site-scoped paradata store.
+
+        PG-D (5.7.3-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+        via the ``_resolve_db_handle`` shim from Foundation. Backward
+        compat preserved for legacy callers passing a Path.
+        """
         if not sito:
             raise ParadataValidationError(
                 "sito is required for ParadataStore")
-        self._db_path = Path(db_path)
+        self._handle = _resolve_db_handle(db_path)
+        # Preserve self._db_path for any defensive code that reads it
+        # directly (currently only used here for repr/debug, but keep
+        # the attribute to avoid breaking subclasses).
+        self._db_path = (
+            self._handle.sqlite_path
+            if self._handle.sqlite_path is not None
+            else Path(self._handle.conn_str)
+        )
         self._sito = sito
         self._slug = _sito_slug(sito)
 
     @property
     def file_path(self) -> Path:
-        """Resolved paradata file path for this (db, sito) pair."""
-        return self._db_path.parent / f"paradata_{self._slug}.graphml"
+        """Resolved paradata file path for this (db, sito) pair.
+
+        PG-D (5.7.3-alpha): SQLite returns `<sqlite_parent>/paradata_<sito>.graphml`
+        (byte-identical to pre-PG-D). PG returns
+        `~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/paradata_<sito>.graphml`.
+        """
+        return (
+            _resolve_workspace_dir(self._handle, self._sito)
+            / f"paradata_{self._slug}.graphml"
+        )
 
     def exists(self) -> bool:
         """Whether the paradata file is present on disk."""

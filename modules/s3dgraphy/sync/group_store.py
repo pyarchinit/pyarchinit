@@ -22,6 +22,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from ._db_handle import _resolve_db_handle
+from ._workspace import _resolve_workspace_dir
 from .graph_ingestor import GraphSyncError
 
 
@@ -71,17 +73,39 @@ def _sito_slug(sito: str) -> str:
 class GroupStore:
     """Site-scoped CRUD for groups.graphml."""
 
-    def __init__(self, db_path: Path, sito: str) -> None:
+    def __init__(self, db_path, sito: str) -> None:
+        """Construct a site-scoped group store.
+
+        PG-D (5.7.3-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+        via the ``_resolve_db_handle`` shim from Foundation. Backward
+        compat preserved for legacy callers passing a Path.
+        """
         if not sito:
             raise GroupValidationError(
                 "sito is required for GroupStore")
-        self._db_path = Path(db_path)
+        self._handle = _resolve_db_handle(db_path)
+        # Preserve self._db_path for any defensive code that reads it
+        # directly. Same pattern as ParadataStore.
+        self._db_path = (
+            self._handle.sqlite_path
+            if self._handle.sqlite_path is not None
+            else Path(self._handle.conn_str)
+        )
         self._sito = sito
         self._slug = _sito_slug(sito)
 
     @property
     def file_path(self) -> Path:
-        return self._db_path.parent / f"groups_{self._slug}.graphml"
+        """Resolved groups file path for this (db, sito) pair.
+
+        PG-D (5.7.3-alpha): SQLite returns `<sqlite_parent>/groups_<sito>.graphml`
+        (byte-identical to pre-PG-D). PG returns
+        `~/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/groups_<sito>.graphml`.
+        """
+        return (
+            _resolve_workspace_dir(self._handle, self._sito)
+            / f"groups_{self._slug}.graphml"
+        )
 
     def exists(self) -> bool:
         return self.file_path.exists()
