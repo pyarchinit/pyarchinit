@@ -14,11 +14,14 @@ by GroupStore (AC-7 second clause).
 from __future__ import annotations
 
 import logging
-import sqlite3
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
+
+from sqlalchemy import text
+
+from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
 
 
 _log = logging.getLogger("pyarchinit.s3dgraphy.sync.groups")
@@ -84,36 +87,43 @@ class GroupSpec:
     kind: str | None = None
 
 
-def dimensions_with_data(db_path: Path, sito: str) -> List[str]:
+def dimensions_with_data(db_path, sito: str) -> List[str]:
     """Return subset of {area, struttura, attivita, settore,
     ambient, saggio, quad_par} that has at least one non-empty
     value in us_table for *sito*. Used by the dialog UI to
-    pre-check the right boxes (D2)."""
+    pre-check the right boxes (D2).
+
+    PG-B (5.7.1-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+    via the ``_resolve_db_handle`` shim from Foundation.
+    """
     out = []
-    conn = sqlite3.connect(str(db_path))
-    try:
+    handle = _resolve_db_handle(db_path)
+    with handle.engine.connect() as conn:
         for col in _SQL_DIMENSIONS:
             row = conn.execute(
-                f"SELECT 1 FROM us_table "
-                f"WHERE sito=? AND {col} IS NOT NULL AND TRIM({col})<>'' "
-                f"LIMIT 1",
-                (sito,),
+                text(
+                    f"SELECT 1 FROM us_table "
+                    f"WHERE sito=:sito AND {col} IS NOT NULL "
+                    f"AND TRIM({col})<>'' LIMIT 1"
+                ),
+                {"sito": sito},
             ).fetchone()
             if row is not None:
                 out.append(col)
-    finally:
-        conn.close()
     return out
 
 
 def build_groups_from_sql(
-    db_path: Path,
+    db_path,
     sito: str,
     dimensions: List[str],
 ) -> List[GroupSpec]:
     """For each requested dimension, scan us_table for distinct
     non-empty values within sito, and emit one GroupSpec per
     (dimension, value) pair.
+
+    PG-B (5.7.1-alpha): ``db_path`` accepts ``Path | DbHandle | str``
+    via the ``_resolve_db_handle`` shim from Foundation.
 
     UUID generation: deterministic UUID5 from
     (sito, group_kind, name) so re-export produces identical
@@ -130,15 +140,17 @@ def build_groups_from_sql(
         bogus = set(dimensions) - set(valid_dims)
         _log.warning(f"Unknown grouping dimensions skipped: {bogus}")
 
-    conn = sqlite3.connect(str(db_path))
-    try:
+    handle = _resolve_db_handle(db_path)
+    with handle.engine.connect() as conn:
         for dim in valid_dims:
             # Distinct values + member UUIDs in one pass
             rows = conn.execute(
-                f"SELECT {dim}, node_uuid FROM us_table "
-                f"WHERE sito=? AND {dim} IS NOT NULL "
-                f"AND TRIM({dim})<>'' AND node_uuid IS NOT NULL",
-                (sito,),
+                text(
+                    f"SELECT {dim}, node_uuid FROM us_table "
+                    f"WHERE sito=:sito AND {dim} IS NOT NULL "
+                    f"AND TRIM({dim})<>'' AND node_uuid IS NOT NULL"
+                ),
+                {"sito": sito},
             ).fetchall()
             # Group by value
             buckets: dict = {}
@@ -158,8 +170,6 @@ def build_groups_from_sql(
                     node_class=node_class,
                     kind=kind_enum,
                 ))
-    finally:
-        conn.close()
     return out
 
 
