@@ -127,3 +127,61 @@ def test_classify_uses_yed_document_order(tmp_path):
     assert len(result) == 4
     assert [n.label for n in result] == ["US01", "USV101", "SF105", "D.01"]
     assert [n.yed_id for n in result] == ["n0", "n1", "n2", "n3"]
+
+
+def test_classify_usvs_usvn_formal_wins_over_usv_generic(tmp_path):
+    """USVs / USVn (bare or numbered) match USV_FORMAL, NOT USV_VIRTUAL.
+
+    Verifies the order-sensitive regex list: USV_FORMAL (^USVs\\d*$ |
+    ^USVn\\d*$) precedes USV_VIRTUAL (^USV\\d+). Labels like USVs01,
+    USVn05 are common in archaeological field practice for formal
+    virtual stratigraphic units (structural / negative) and must NOT
+    be classified as generic USV.
+    """
+    # Bare forms
+    bare_dir = tmp_path / "bare"
+    bare_dir.mkdir()
+    path_bare = _make_graphml(bare_dir, ["USVs", "USVn"])
+    result_bare = classify_leaves(path_bare)
+    assert len(result_bare) == 2
+    assert result_bare[0].auto_kind == ClassificationKind.USV_FORMAL
+    assert result_bare[1].auto_kind == ClassificationKind.USV_FORMAL
+
+    # Numbered forms (the regression caught by code review)
+    num_dir = tmp_path / "num"
+    num_dir.mkdir()
+    path_num = _make_graphml(num_dir, ["USVs01", "USVn05"])
+    result_num = classify_leaves(path_num)
+    assert len(result_num) == 2
+    assert result_num[0].auto_kind == ClassificationKind.USV_FORMAL
+    assert result_num[1].auto_kind == ClassificationKind.USV_FORMAL
+
+    # USV + digits stays as USV_VIRTUAL
+    virt_dir = tmp_path / "virt"
+    virt_dir.mkdir()
+    path_virt = _make_graphml(virt_dir, ["USV101"])
+    result_virt = classify_leaves(path_virt)
+    assert len(result_virt) == 1
+    assert result_virt[0].auto_kind == ClassificationKind.USV_VIRTUAL
+
+
+def test_classify_rules_override_parameter(tmp_path):
+    """Caller can pass rules= to override DEFAULT_CLASSIFIER_RULES.
+    This is the MVP extension point for future config-driven classification
+    (yE-Closure or iteration 2)."""
+    import re
+    custom = [
+        (re.compile(r"^FOO\d+"), ClassificationKind.SKIP),
+        (re.compile(r"^BAR\d+"), ClassificationKind.UNKNOWN),
+    ]
+    path = _make_graphml(tmp_path, ["FOO42", "BAR7", "US01"])
+    result = classify_leaves(path, rules=custom)
+    assert len(result) == 3
+    assert result[0].auto_kind == ClassificationKind.SKIP, \
+        f"FOO42 should match custom rule -> SKIP, got {result[0].auto_kind}"
+    assert result[1].auto_kind == ClassificationKind.UNKNOWN, \
+        f"BAR7 should match custom rule -> UNKNOWN, got {result[1].auto_kind}"
+    # US01 doesn't match any of the custom rules -> default UNKNOWN
+    # (the default rules are NOT applied when rules= is provided)
+    assert result[2].auto_kind == ClassificationKind.UNKNOWN, \
+        f"US01 with custom rules-only should be UNKNOWN, got {result[2].auto_kind}"

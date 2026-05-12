@@ -45,7 +45,7 @@ class ClassificationKind(str, Enum):
 # Specific prefixes (USV, USM, USD, VSF) MUST precede generic
 # ones (US, SF) to avoid mis-classification.
 DEFAULT_CLASSIFIER_RULES: list[tuple[re.Pattern, ClassificationKind]] = [
-    (re.compile(r"^USVs\b|^USVn\b"),                ClassificationKind.USV_FORMAL),
+    (re.compile(r"^USVs\d*$|^USVn\d*$"),            ClassificationKind.USV_FORMAL),
     (re.compile(r"^USV\d+"),                        ClassificationKind.USV_VIRTUAL),
     (re.compile(r"^USM\d+|^USR\d+|^USS\d+"),        ClassificationKind.US_MASONRY),
     (re.compile(r"^USD\d+"),                        ClassificationKind.US_DOCUMENTARY),
