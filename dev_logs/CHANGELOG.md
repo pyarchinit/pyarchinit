@@ -5,6 +5,84 @@
 
 ---
 
+## [5.7.7-alpha] - 2026-05-12
+
+### Italiano
+
+**yE-C Parsers — terzo milestone del feature yEd-aware graphml import.**
+
+Aggiunge due parser standalone (`yed_table_parser.py` + `yed_group_walker.py`) wirati nel branch hook esistente. All'import di un file yEd-raw, il log ora mostra una sintesi a 3 righe: classifier counts + periods detected + group folders detected. Più il nuovo field `IngestResult.parsed_drafts: dict | None` per forward-compat con il pipeline yE-D.
+
+Esempio su EM_demo_02.graphml (82 leaf, 6 folder, 2 periods):
+```
+yEd-raw graphml detected at <path>.
+  Classified 82 leaves: combiner: 3, document: 38, property: 25, ...
+  Detected 2 periods: Period01, Contemporary era.
+  Detected 6 group folders: VA01 (attivita, N members), ...
+  Yed-aware import path not yet wired (yE-C parsers only).
+  Falling through to legacy path.
+```
+
+- **NEW `modules/s3dgraphy/sync/yed_table_parser.py`**: estrae yEd TableNode swimlane → list[PeriodCandidate]. 10 field (yed_row_id, auto_label, user_label, 1-based auto_periodo, auto_fase=1, user_periodo/fase, member_yed_ids da Y-coord, y_min/y_max). Leaf nell'header area (Y < primo row.y_min) esclusi dalla membership. datazione_iniziale/finale restano NULL (yEd non encoda date) — l'utente compila dopo nel tab pyarchinit Periodizzazione.
+- **NEW `modules/s3dgraphy/sync/yed_group_walker.py`**: descende yfiles.foldertype="group" hierarchy → list[FolderCandidate]. 10 field (yed_id, full_label, auto/user_dimension, auto/user_value, member_yed_ids direct only, nested_folder_ids, parent_folder_id, extra_attrs). `DEFAULT_FOLDER_PREFIX_MAP` con 7 pattern (VA→attivita, AR→area, ST→struttura, SE→settore, AM→ambient, SG→saggio, QP→quad_par). Auto-value extracts prefix via regex `^([A-Z]+\d+)`; description tail va in `extra_attrs["description"]`. Top-level TableNode swimlane recursed-into per nested folders ma NON registrato. Cycle detection riusa `CycleDetectedError` esistente.
+- **NEW field `IngestResult.parsed_drafts: dict | None = None`** in `ingest_result.py`. Default None preserva back-compat. Shape: `{"classified": [...], "periods": [...], "folders": [...]}`. yE-D consumerà questo per le DB writes.
+- **MODIFY `graph_ingestor.py:169-196`**: branch hook yE-B aggiornato per orchestrare classify + extract_periods + walk_folders + 3-line summary log. Local var `_yed_parsed_drafts` inizializzata a None; popolata se yEd-raw detectato. Threaded come kwarg a `_run()` (il vero construction site di `IngestResult(...)`). Passata come `parsed_drafts=_yed_parsed_drafts` a construction time — mutation post-construction è vietata perché `IngestResult` è `frozen=True`.
+- **NEW 13 test L0** + **3 test L1**: per-parser + cross-parser consistency check su `em_demo_02_mini.graphml`.
+
+**Correzione architetturale durante esecuzione**: lo spec §7 diceva "attach to result before final return" — non possibile (`IngestResult` è frozen). Plan corretto a "pass `parsed_drafts=` a construction". Durante l'esecuzione l'implementer ha scoperto che il vero construction site è dentro `_run()` (helper privato chiamato da `populate_list()`), non `populate_list()` stesso. Fix: threaded `_yed_parsed_drafts` come kwarg a `_run()`. Soluzione più pulita.
+
+**Eredita dal parent spec §6 + §7** specializzato per MVP:
+- Input Path-only (NON Graph union)
+- TableNode swimlane escluso da walk_folders
+- DEFAULT_FOLDER_PREFIX_MAP è l'unico ruleset; override dialog deferito a yE-E
+
+**Garanzie regressione (tutte verdi post-yE-C):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates
+- 5 yE-A + 12 yE-B preservati
+- 8 PG-D L2 (skip puliti offline)
+
+Test count: 273 → 289 passed, 33 skipped (PG offline) o 281 → 297 passed, 12 skipped (PG online + psycopg2).
+
+### English
+
+**yE-C Parsers — third milestone of the yEd-aware graphml import feature.**
+
+Adds two standalone parsers (`yed_table_parser.py` + `yed_group_walker.py`) wired into the existing branch hook. On import of a yEd-raw file, the log now shows a 3-line summary: classifier counts + periods detected + group folders detected. Plus the new `IngestResult.parsed_drafts: dict | None` field for forward-compat with the yE-D pipeline.
+
+Example on EM_demo_02.graphml (82 leaves, 6 folders, 2 periods):
+```
+yEd-raw graphml detected at <path>.
+  Classified 82 leaves: combiner: 3, document: 38, property: 25, ...
+  Detected 2 periods: Period01, Contemporary era.
+  Detected 6 group folders: VA01 (attivita, N members), ...
+  Yed-aware import path not yet wired (yE-C parsers only).
+  Falling through to legacy path.
+```
+
+- **NEW `modules/s3dgraphy/sync/yed_table_parser.py`**: extracts yEd TableNode swimlane → list[PeriodCandidate]. 10 fields (yed_row_id, auto_label, user_label, 1-based auto_periodo, auto_fase=1, user counterparts, member_yed_ids by Y-coord, y_min/y_max). Leaves in the header area (Y < first row.y_min) excluded from membership. datazione_iniziale/finale stay NULL (yEd doesn't encode dates) — user fills later in pyarchinit Periodizzazione tab.
+- **NEW `modules/s3dgraphy/sync/yed_group_walker.py`**: descends yfiles.foldertype="group" hierarchy → list[FolderCandidate]. 10 fields (yed_id, full_label, auto/user_dimension, auto/user_value, member_yed_ids direct only, nested_folder_ids, parent_folder_id, extra_attrs). `DEFAULT_FOLDER_PREFIX_MAP` with 7 patterns (VA→attivita, AR→area, ST→struttura, SE→settore, AM→ambient, SG→saggio, QP→quad_par). Auto-value extracts prefix via regex `^([A-Z]+\d+)`; description tail goes to `extra_attrs["description"]`. Top-level TableNode swimlane recursed-into for nested folders but NOT recorded. Cycle detection reuses existing `CycleDetectedError`.
+- **NEW field `IngestResult.parsed_drafts: dict | None = None`** in `ingest_result.py`. Default None preserves back-compat. Shape: `{"classified": [...], "periods": [...], "folders": [...]}`. yE-D will consume this for DB writes.
+- **MODIFY `graph_ingestor.py:169-196`**: yE-B branch hook updated to orchestrate classify + extract_periods + walk_folders + 3-line summary log. Local var `_yed_parsed_drafts` initialized to None; populated if yEd-raw detected. Threaded as kwarg to `_run()` (the actual `IngestResult(...)` construction site). Passed as `parsed_drafts=_yed_parsed_drafts` at construction time — mutation after construction is forbidden because `IngestResult` is `frozen=True`.
+- **NEW 13 L0 tests** + **3 L1 tests**: per-parser + cross-parser consistency check on `em_demo_02_mini.graphml`.
+
+**Architectural correction during execution**: spec §7 said "attach to result before final return" — not possible (`IngestResult` is frozen). Plan corrected to "pass `parsed_drafts=` at construction". During execution the implementer discovered the actual construction site is inside `_run()` (private helper called from `populate_list()`), not `populate_list()` itself. Fix: threaded `_yed_parsed_drafts` as a kwarg to `_run()`. Cleaner solution.
+
+**Inherits parent spec §6 + §7** specialized for MVP:
+- Input is Path-only (NOT Graph union)
+- TableNode swimlane excluded from walk_folders
+- DEFAULT_FOLDER_PREFIX_MAP is the only ruleset; dialog override deferred to yE-E
+
+**Regression guarantees (all green post-yE-C):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates
+- 5 yE-A + 12 yE-B preserved
+- 8 PG-D L2 (skip cleanly offline)
+
+Test count: 273 → 289 passed, 33 skipped (PG offline) or 281 → 297 passed, 12 skipped (PG online + psycopg2).
+
+---
+
 ## [5.7.6-alpha] - 2026-05-12
 
 ### Italiano
