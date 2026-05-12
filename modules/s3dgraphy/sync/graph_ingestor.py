@@ -166,6 +166,27 @@ class GraphIngestor:
         via the ``_resolve_db_handle`` shim from Foundation. Backward
         compat preserved for legacy callers passing a Path.
         """
+        # yE-A Foundation (5.7.5-alpha): yEd-raw detection hook.
+        # When graphml_path is provided AND it's a yEd-raw file (no
+        # pyarchinit.* keys), log a warning and fall through to the
+        # existing path. yE-B+ will replace this no-op with real
+        # dispatch to yed_import_pipeline.import_yed_raw().
+        if graphml_path is not None:
+            try:
+                from .yed_detector import detect_flavor
+                if detect_flavor(graphml_path) == "yed-raw":
+                    import logging
+                    logging.getLogger(__name__).warning(
+                        "yEd-raw graphml detected at %s -- yed-aware "
+                        "import path not yet implemented (yE-A "
+                        "foundation only). Falling through to legacy "
+                        "path. Expect partial/incorrect ingestion.",
+                        graphml_path,
+                    )
+            except Exception:
+                # Detection is best-effort; never block the legacy path
+                pass
+        # -- existing pyarchinit-projected path UNCHANGED below --
         # AI06: graph may be a Path-like (graphml file). Auto-load.
         from pathlib import Path as _P
         if isinstance(graph, (str, _P)):
