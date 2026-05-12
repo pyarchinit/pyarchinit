@@ -9,61 +9,65 @@
 
 ### Italiano
 
-**PG-UIFix — hotfix milestone Phase 3 PG-compat UI.**
+**PG-UIFix — hotfix milestone Phase 3 PG-compat UI (scope PARZIALE).**
 
-Rimuove 5 guards SQLite-only obsoleti in `gui/dialog_paradata_manager.py` e `modules/s3dgraphy/s3dgraphy_dot_bridge.py` rimasti dopo Phase 3 PG-Compat (2026-05-10/11) e che bloccavano gli utenti PostgreSQL.
+Rimuove i guards SQLite-only obsoleti in `gui/dialog_paradata_manager.py` (Bug 1, SHIPPATO) e i 2 import-flow guards in `modules/s3dgraphy/s3dgraphy_dot_bridge.py` (parte di Bug 2 SHIPPATA). **Bug 2 graphml export DEFERITO a milestone PG-Bv2** dopo che il test utente ha rivelato che PG-B (5.7.1-alpha) non aveva completato il supporto PG per `populate_graph()`.
 
-**Bug fixati:**
+**Bug fixati (SHIPPATO):**
 
 - **Bug 1** (Paradata manager + Group manager + US picker bloccati su PG): tre guards `"requires a SQLite-backed pyarchinit project"` rimossi da `dialog_paradata_manager.py`. `_store()` e `_group_store()` passano `db_manager` direttamente a `ParadataStore` / `GroupStore` (shim `_resolve_db_handle` da PG-D accetta `Path | DbHandle | str`). US picker RISCRITTO con SQLAlchemy via engine del `db_manager` (era raw `sqlite3.connect`, SQLite-only).
-- **Bug 2** (GraphML export skippato su PG): branch `if db_path is None:` (PG-skip equivalent) rimosso da `s3dgraphy_dot_bridge.py:191-206`. `export_graphml()` da PG-B (5.7.1-alpha, 2026-05-10) gestisce entrambi SQLite e PG via `DbHandle`. Più 2 guards Import-flow simili (righe 746 + 834).
+- **Bug 2 (parziale — Import-flow guards)**: rimossi 2 guards `"Import requires a SQLite-backed pyarchinit project"` da `s3dgraphy_dot_bridge.py:742 + 830` (ingest path, non export). `GraphIngestor.populate_list` accetta `db_manager` via `_resolve_db_handle` dal PG-C (5.7.2-alpha).
+
+**Bug DEFERITI:**
+
+- **Bug 2 (graphml export su PG)**: **DEFERITO a milestone PG-Bv2**. Causa: test utente su raw PG ha sollevato `TypeError: expected str, bytes or os.PathLike object, not Pyarchinit_db_management`. Root cause: PG-B (commit `3a2597ab`, 2026-05-10) aveva flippato 5 helper SQL in `modules/s3dgraphy/sync/graph_projector.py` (siti 303, 367, 509, 761, 877) ma aveva mancato l'orchestratore `populate_graph()` stesso: linea 165 fa `Path(db_path)` incondizionale + linea 190 chiama `PyArchInitImporter(filepath=str(db_path))` — l'importer upstream in `ext_libs/s3dgraphy/importer/pyarchinit_importer.py` usa `sqlite3` direttamente ed accetta solo path filesystem. Fix proprio richiede ~80 LOC (o sostituzione importer con reader SQLAlchemy + costruzione manuale `StratigraphicNode`, o wrapper temp-SQLite roundtrip). Scope-creep evitato — fix originale revertito, branch `if db_path is None: skip` ripristinato con messaggio onesto: `"GraphML export on PostgreSQL backend is not yet supported: pending PG-Bv2 milestone (upstream PyArchInitImporter is SQLite-only). DOT and JSON exports are unaffected."`
 - **Bug 3** (media non caricati nei form US/Pottery/Artefact su PG): **DEFERITO** a milestone separato post-diagnosi (root cause sconosciuta, serve error logs dall'utente). Workaround: Media Manager funziona.
 
-**Test:** 2 nuovi test L0 in `tests/sync/test_pg_uifix.py` con pattern source-inspection (asserzioni che le stringhe di errore obsolete non sono più nel source). Guard contro future refactor che reintrodurrebbero i check SQLite-only. Entrambi runnano in environments non-Qt.
+**Test:** 2 test L0 in `tests/sync/test_pg_uifix.py` (entrambi passano):
+1. `test_paradata_manager_does_not_block_on_pg_handle` (Bug 1) — asserisce assenza dei 3 guard SQLite-only obsoleti.
+2. `test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2` (Bug 2 deferred-state pin) — asserisce **presenza** del messaggio `"pending PG-Bv2 milestone"` e del nuovo status `"postgresql backend deferred to PG-Bv2"`. Documenta che quando PG-Bv2 shippa, il test va cancellato e l'asserzione originale `no_skip_branch` ripristinata.
 
-**Polish durante esecuzione**: code quality reviewer ha catturato 2 item actionable, fixati in commit polish:
-1. `_handle.engine.begin()` → `_handle.engine.connect()` nel US picker (read-only query, match precedent del codebase)
-2. Drop `pytest.importorskip("qgis.PyQt.QtWidgets")` dal test paradata regression (puro source-inspection, no Qt needed)
+**Side-effect sulla rollout**: PG-UIFix riserva il tag `pg-uifix-5.7.8-alpha`. yE-D shifta da `yed-import-pipeline-5.7.8-alpha` (era pianificato) a `yed-import-pipeline-5.7.9-alpha`. yE-E e yE-Closure shifano corrispondentemente. **Nuovo milestone PG-Bv2** aperto come follow-up (no version reserved yet — orderable post yE-Closure o prima su richiesta utente).
 
-**Adattamento architetturale durante l'esecuzione**: il plan diceva `if backend_is_postgres:` come trigger del PG-skip branch, ma il source attuale aveva `if db_path is None:` (preceduto da `db_path = self.db_manager.get_sqlite_path()`). Semanticamente equivalente — `get_sqlite_path()` ritorna None su PG. L'implementer ha adattato correttamente.
-
-**Side-effect sulla rollout**: PG-UIFix riserva il tag `pg-uifix-5.7.8-alpha`. yE-D shifta da `yed-import-pipeline-5.7.8-alpha` (era pianificato) a `yed-import-pipeline-5.7.9-alpha`. yE-E e yE-Closure shifano corrispondentemente.
+**Lezione**: PG-B (5.7.1-alpha) aveva dichiarato "graphml export su PG supportato" basato sulla flippatura di 5 helper SQL, ma `populate_graph()` non era mai stato testato end-to-end su raw PG (i test L2 PG-D coprono paradata/group store, non export pipeline). PG-Bv2 chiuderà il gap.
 
 **Garanzie regressione (tutte verdi post-PG-UIFix):**
 - AC-2 byte-identical
 - 3 critical SQLite gates
 - 5 yE-A + 12 yE-B + 16 yE-C + 8 PG-D L2 preservati
 
-Test count: 289 → 291 passed, 33 skipped (PG offline) o 297 → 299 passed, 12 skipped (PG online + psycopg2).
+Test count: 289 → 291 passed, 33 skipped (PG offline) — 2 PG-UIFix L0 tests aggiunti, count finale invariato dopo revert (test Bug 2 invertito, non rimosso).
 
 ### English
 
-**PG-UIFix — Phase 3 PG-compat UI hotfix milestone.**
+**PG-UIFix — Phase 3 PG-compat UI hotfix milestone (PARTIAL scope).**
 
-Removes 5 obsolete SQLite-only guards in `gui/dialog_paradata_manager.py` and `modules/s3dgraphy/s3dgraphy_dot_bridge.py` left in place after Phase 3 PG-Compat shipped (2026-05-10/11) that block PostgreSQL backend users.
+Removes obsolete SQLite-only guards in `gui/dialog_paradata_manager.py` (Bug 1, SHIPPED) and the 2 import-flow guards in `modules/s3dgraphy/s3dgraphy_dot_bridge.py` (part of Bug 2, SHIPPED). **Bug 2 graphml export DEFERRED to PG-Bv2 milestone** after user testing revealed that PG-B (5.7.1-alpha) had not completed PG support for `populate_graph()`.
 
-**Bugs fixed:**
+**Bugs fixed (SHIPPED):**
 
 - **Bug 1** (Paradata manager + Group manager + US picker blocked on PG): three `"requires a SQLite-backed pyarchinit project"` guards removed from `dialog_paradata_manager.py`. `_store()` and `_group_store()` now pass `db_manager` directly to `ParadataStore` / `GroupStore` (`_resolve_db_handle` shim from PG-D accepts `Path | DbHandle | str`). US picker REWRITTEN with SQLAlchemy via `db_manager` engine (was raw `sqlite3.connect`, SQLite-only).
-- **Bug 2** (GraphML export skipped on PG): `if db_path is None:` (PG-skip equivalent) branch removed from `s3dgraphy_dot_bridge.py:191-206`. `export_graphml()` from PG-B (5.7.1-alpha, 2026-05-10) handles both SQLite and PG via `DbHandle`. Plus 2 Import-flow guards (lines 746 + 834).
+- **Bug 2 (partial — Import-flow guards)**: removed 2 `"Import requires a SQLite-backed pyarchinit project"` guards from `s3dgraphy_dot_bridge.py:742 + 830` (ingest path, not export). `GraphIngestor.populate_list` accepts `db_manager` via `_resolve_db_handle` since PG-C (5.7.2-alpha).
+
+**Bugs DEFERRED:**
+
+- **Bug 2 (graphml export on PG)**: **DEFERRED to PG-Bv2 milestone**. Cause: user testing on raw PG raised `TypeError: expected str, bytes or os.PathLike object, not Pyarchinit_db_management`. Root cause: PG-B (commit `3a2597ab`, 2026-05-10) had flipped 5 SQL helpers in `modules/s3dgraphy/sync/graph_projector.py` (sites 303, 367, 509, 761, 877) but missed the orchestrator `populate_graph()` itself: line 165 does unconditional `Path(db_path)` + line 190 calls `PyArchInitImporter(filepath=str(db_path))` — the upstream importer in `ext_libs/s3dgraphy/importer/pyarchinit_importer.py` uses `sqlite3` directly and accepts only filesystem paths. Proper fix requires ~80 LOC (either replace the importer with a SQLAlchemy-based reader that constructs `StratigraphicNode` objects manually, or wrap with a temp-SQLite roundtrip). Scope-creep avoided — original fix reverted, `if db_path is None: skip` branch restored with honest message: `"GraphML export on PostgreSQL backend is not yet supported: pending PG-Bv2 milestone (upstream PyArchInitImporter is SQLite-only). DOT and JSON exports are unaffected."`
 - **Bug 3** (media not loading in US/Pottery/Artefact forms on PG): **DEFERRED** to separate milestone post-diagnosis (root cause unknown, needs user-provided error logs). Workaround: Media Manager works.
 
-**Tests:** 2 new L0 tests in `tests/sync/test_pg_uifix.py` using source-inspection pattern (assert obsolete error strings are gone from source). Guards against future refactor re-introducing the SQLite-only checks. Both run in non-Qt environments.
+**Tests:** 2 L0 tests in `tests/sync/test_pg_uifix.py` (both pass):
+1. `test_paradata_manager_does_not_block_on_pg_handle` (Bug 1) — asserts absence of the 3 obsolete SQLite-only guards.
+2. `test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2` (Bug 2 deferred-state pin) — asserts **presence** of the `"pending PG-Bv2 milestone"` message and the new status `"postgresql backend deferred to PG-Bv2"`. Documents that when PG-Bv2 ships, this test must be deleted and the original `no_skip_branch` assertion restored.
 
-**Polish during execution**: code quality reviewer caught 2 actionable items, fixed in polish commit:
-1. `_handle.engine.begin()` → `_handle.engine.connect()` in US picker (read-only query, matches codebase precedent)
-2. Dropped `pytest.importorskip("qgis.PyQt.QtWidgets")` from paradata regression test (pure source-inspection, no Qt needed)
+**Rollout side-effect**: PG-UIFix reserves tag `pg-uifix-5.7.8-alpha`. yE-D shifts from `yed-import-pipeline-5.7.8-alpha` (originally planned) to `yed-import-pipeline-5.7.9-alpha`. yE-E and yE-Closure shift correspondingly. **New PG-Bv2 milestone** opened as follow-up (no version reserved yet — orderable post yE-Closure or earlier on user demand).
 
-**Architectural adaptation during execution**: plan said `if backend_is_postgres:` as the PG-skip branch trigger; actual source had `if db_path is None:` (preceded by `db_path = self.db_manager.get_sqlite_path()`). Semantically equivalent — `get_sqlite_path()` returns None on PG. Implementer adapted correctly.
-
-**Rollout side-effect**: PG-UIFix reserves tag `pg-uifix-5.7.8-alpha`. yE-D shifts from `yed-import-pipeline-5.7.8-alpha` (originally planned) to `yed-import-pipeline-5.7.9-alpha`. yE-E and yE-Closure shift correspondingly.
+**Lesson**: PG-B (5.7.1-alpha) claimed "graphml export on PG supported" based on flipping 5 SQL helpers, but `populate_graph()` was never tested end-to-end on raw PG (PG-D L2 tests cover paradata/group store, not the export pipeline). PG-Bv2 will close the gap.
 
 **Regression guarantees (all green post-PG-UIFix):**
 - AC-2 byte-identical
 - 3 critical SQLite gates
 - 5 yE-A + 12 yE-B + 16 yE-C + 8 PG-D L2 preserved
 
-Test count: 289 → 291 passed, 33 skipped (PG offline) or 297 → 299 passed, 12 skipped (PG online + psycopg2).
+Test count: 289 → 291 passed, 33 skipped (PG offline) — 2 PG-UIFix L0 tests added, final count unchanged after revert (Bug 2 test inverted, not removed).
 
 ---
 

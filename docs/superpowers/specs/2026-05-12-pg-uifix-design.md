@@ -7,6 +7,73 @@
 
 ---
 
+## 0. Post-execution amendment (2026-05-12) — Bug 2 DEFERRED to PG-Bv2
+
+User testing on raw PG (immediately after the initial PG-UIFix
+tagging at `63b4b01e`) surfaced a `TypeError` on graphml export:
+
+    GraphML import failed: TypeError: expected str, bytes or
+    os.PathLike object, not Pyarchinit_db_management
+
+Root cause investigation showed PG-B (5.7.1-alpha, 2026-05-10,
+commit `3a2597ab`) had flipped 5 SQL helpers in
+`modules/s3dgraphy/sync/graph_projector.py` to use
+`_resolve_db_handle` (sites 303, 367, 509, 761, 877) but it
+MISSED the orchestrator `populate_graph()` itself which still has:
+
+- line 165: `db_path = Path(db_path)` — unconditional `Path()`
+  coercion that throws TypeError on `Pyarchinit_db_management`
+  instances
+- line 190: `PyArchInitImporter(filepath=str(db_path), ...)` —
+  the upstream importer in
+  `ext_libs/s3dgraphy/importer/pyarchinit_importer.py` uses
+  `sqlite3` directly and accepts only filesystem paths
+
+**Decision** (commit `bc90c86c`): revert the PG-UIFix Bug 2
+export fix in `s3dgraphy_dot_bridge.py:191-206`. Restore the
+`if db_path is None: skip` branch with an honest message
+referencing the new follow-up milestone PG-Bv2:
+
+    GraphML export on PostgreSQL backend is not yet supported:
+    pending PG-Bv2 milestone (upstream PyArchInitImporter is
+    SQLite-only). DOT and JSON exports are unaffected.
+
+**Why a new milestone, not scope-creep into PG-UIFix**: proper
+fix needs ~80 LOC — either (a) replace the upstream importer
+call with a SQLAlchemy-based `us_table` reader that constructs
+`StratigraphicNode` objects manually using the mapping JSON, or
+(b) wrap with a temp `PG → SQLite dump → import → cleanup`
+roundtrip. Both are architectural changes deserving their own
+spec → plan → implementation cycle. PG-UIFix is a hotfix.
+
+**PG-UIFix scope shrinks to** (still SHIPPED in `5.7.8-alpha`):
+- Bug 1 (paradata/group manager + US picker on PG) — all 3 spots
+- Bug 2 partial (the 2 import-flow guards at lines 742 + 830 —
+  unrelated to export)
+
+**PG-UIFix scope removed**:
+- Bug 2 export-skip branch removal at lines 191-206
+
+**Test 2 in `tests/sync/test_pg_uifix.py` is INVERTED**: instead
+of asserting the absence of the skip branch, it now asserts the
+PRESENCE of the `"pending PG-Bv2 milestone"` message and the new
+status `"postgresql backend deferred to PG-Bv2"`. When PG-Bv2
+ships, this test must be DELETED and the original
+`no_skip_branch` assertion restored.
+
+**Lesson surfaced for future Phase 3+ migrations**: PG-B's claim
+of "graphml export on PG supported" was based on flipping the 5
+SQL READ sites in `graph_projector.py` to DbHandle, but
+`populate_graph()` itself was never tested end-to-end on raw PG
+(the PG-D L2 tests cover paradata/group store, not the export
+pipeline). PG-Bv2 will close the gap; the rest of this spec
+documents the original (pre-amendment) plan for archival
+context. Sections 2-11 describe what was originally planned;
+sections affected by the amendment are tagged with `[AMENDED →
+deferred to PG-Bv2]`.
+
+---
+
 ## 1. Goal
 
 Hotfix milestone introduced **between yE-C and yE-D** to unblock PostgreSQL backend users. Removes 5 obsolete SQLite-only guards in UI and bridge code that should have been removed when Phase 3 PG-Compat shipped (Foundation + PG-A through PG-D, 2026-05-10/11) but were left in place by oversight.
