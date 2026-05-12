@@ -5,6 +5,50 @@
 
 ---
 
+## [5.7.5-alpha] - 2026-05-12
+
+### Italiano
+
+**yE-A Foundation — primo milestone del feature yEd-aware graphml import.**
+
+Apre la rollout in 6 milestone della feature di import yEd-raw (graphml authored in yEd da team archeologici esterni, senza data keys `pyarchinit.*`). yE-A shippa **solo la detection** + un hook no-op nel codice ingestor: nessun cambiamento visibile per l'utente, ma la fondazione per le milestone successive (yE-B Classifier → yE-C Parsers → yE-D Pipeline → yE-E Dialog → yE-Closure).
+
+- **NEW `modules/s3dgraphy/sync/yed_detector.py`**: helper `detect_flavor(graphml_path) -> "pyarchinit-projected" | "yed-raw"`. Header scan O(1) via `lxml.etree.iterparse` (con fallback `xml.etree`), stop al primo `<graph>` element. Default sicuro `"yed-raw"` su file vuoto / malformato / mancante (la pipeline a valle in yE-B+ gestisce il problema).
+- **Detection marker**: presenza di QUALSIASI `pyarchinit.<*>` key in top-level `<key>` declarations (NON specificamente `pyarchinit.node_uuid` come scritto nello spec — quella key è emessa condizionalmente, il namespace prefix è il marker robusto, confermato da evidenza sui fixture esistenti).
+- **MODIFY `modules/s3dgraphy/sync/graph_ingestor.py`**: aggiunto un if-branch di 21 righe al top di `populate_list()`. Quando rileva yEd-raw, emette un warning log + cade attraverso al path esistente (no-op placeholder). yE-B+ sostituirà il no-op con dispatch reale a `yed_import_pipeline.import_yed_raw()`.
+- **NEW fixture `tests/sync/fixtures/em_demo_02_mini.graphml`**: yEd-raw minimale (~108 righe XML, ~4 KB) con 1 TableNode con 2 row Period01/Period02, 2 group folder (VA01 attivita + AR01 area), 6 leaf (2 US + 1 USV + 1 SF + 1 VSF + 1 PropertyNode), 5 edge (2 leaf-to-leaf + 1 folder-to-leaf + 1 leaf-to-folder + 1 folder-to-folder). Sarà riusato in yE-B/C/D/E.
+- **NEW 5 test L0** in `tests/sync/test_yed_detector.py`: detection corretta su baseline AC-2 + fixture nuova + malformed XML + file vuoto + file mancante.
+
+**Garanzie regressione (tutte verde post-yE-A):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates (`test_round_trip_with_paradata`, `test_round_trip_with_groups`, `test_graph_projector_paradata`)
+- 8 PG-D L2 (skip cleanly offline, pass online)
+- Pipeline pyarchinit-projected esistente: invariata byte-by-byte
+
+Test count: 256 → 261 passed, 33 skipped (PG offline) o 269 passed, 12 skipped (PG online + psycopg2).
+
+### English
+
+**yE-A Foundation — first milestone of the yEd-aware graphml import feature.**
+
+Opens the 6-milestone rollout of the yEd-raw graphml import feature (graphmls authored in yEd by external archaeological teams, without `pyarchinit.*` data keys). yE-A ships **detection only** + a no-op hook in the ingestor code: no user-visible behavior change, but the foundation for subsequent milestones (yE-B Classifier → yE-C Parsers → yE-D Pipeline → yE-E Dialog → yE-Closure).
+
+- **NEW `modules/s3dgraphy/sync/yed_detector.py`**: helper `detect_flavor(graphml_path) -> "pyarchinit-projected" | "yed-raw"`. O(1) header scan via `lxml.etree.iterparse` (with `xml.etree` fallback), stops at first `<graph>` element. Safe default `"yed-raw"` on empty / malformed / missing file (the downstream pipeline in yE-B+ surfaces the issue).
+- **Detection marker**: presence of ANY `pyarchinit.<*>` key in top-level `<key>` declarations (NOT specifically `pyarchinit.node_uuid` as the spec said — that key is conditionally emitted; the namespace prefix is the robust marker, confirmed by evidence on existing fixtures).
+- **MODIFY `modules/s3dgraphy/sync/graph_ingestor.py`**: added a 21-line if-branch at the top of `populate_list()`. On yEd-raw detection, emits a warning log + falls through to the existing path (no-op placeholder). yE-B+ will replace the no-op with real dispatch to `yed_import_pipeline.import_yed_raw()`.
+- **NEW fixture `tests/sync/fixtures/em_demo_02_mini.graphml`**: minimal yEd-raw (~108 XML lines, ~4 KB) with 1 TableNode + 2 rows Period01/Period02, 2 group folders (VA01 attivita + AR01 area), 6 leaves (2 US + 1 USV + 1 SF + 1 VSF + 1 PropertyNode), 5 edges (2 leaf-to-leaf + 1 folder-to-leaf + 1 leaf-to-folder + 1 folder-to-folder). Will be reused in yE-B/C/D/E.
+- **NEW 5 L0 tests** in `tests/sync/test_yed_detector.py`: correct detection on AC-2 baseline + new fixture + malformed XML + empty file + missing file.
+
+**Regression guarantees (all green post-yE-A):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates (`test_round_trip_with_paradata`, `test_round_trip_with_groups`, `test_graph_projector_paradata`)
+- 8 PG-D L2 (skip cleanly offline, pass online)
+- Existing pyarchinit-projected pipeline: byte-by-byte unchanged
+
+Test count: 256 → 261 passed, 33 skipped (PG offline) or 269 passed, 12 skipped (PG online + psycopg2).
+
+---
+
 ## [5.7.4-alpha] - 2026-05-11
 
 ### Italiano
