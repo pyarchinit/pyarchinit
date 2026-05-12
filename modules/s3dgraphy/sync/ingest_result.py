@@ -53,3 +53,12 @@ class IngestResult:
     conflicts: tuple[ConflictRecord, ...] = ()
     errors: tuple[str, ...] = ()
     dry_run: bool = False
+    # yE-C (5.7.7-alpha): structured output from the yEd-raw parse
+    # phase. Populated by populate_list() when graphml_path is
+    # yEd-raw; None for pyarchinit-projected graphmls.
+    # Shape when populated:
+    #   {"classified": list[ClassifiedNode],
+    #    "periods": list[PeriodCandidate],
+    #    "folders": list[FolderCandidate]}
+    # Forward-compat with yE-D pipeline.
+    parsed_drafts: dict | None = None

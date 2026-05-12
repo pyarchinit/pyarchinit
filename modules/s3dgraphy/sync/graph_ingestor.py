@@ -166,11 +166,14 @@ class GraphIngestor:
         via the ``_resolve_db_handle`` shim from Foundation. Backward
         compat preserved for legacy callers passing a Path.
         """
-        # yE-A + yE-B: yEd-raw detection + classifier preview.
+        # yE-A + yE-B + yE-C: yEd-raw detection + classify + parse.
         # When graphml_path is provided AND it's a yEd-raw file (no
-        # pyarchinit.* keys), classify its leaves and log a summary.
-        # Then fall through to the existing legacy path (full pipeline
-        # wiring lands in yE-C+).
+        # pyarchinit.* keys), classify leaves, extract periods, walk
+        # folders. Log a 3-line summary + populate
+        # _yed_parsed_drafts (passed to IngestResult below). Then
+        # fall through to legacy path (full pipeline wiring lands
+        # in yE-D).
+        _yed_parsed_drafts = None  # populated below if yEd-raw detected
         if graphml_path is not None:
             try:
                 from .yed_detector import detect_flavor
@@ -178,20 +181,47 @@ class GraphIngestor:
                     import logging
                     from collections import Counter
                     from .yed_classifier import classify_leaves
+                    from .yed_table_parser import extract_periods
+                    from .yed_group_walker import walk_folders
                     classified = classify_leaves(graphml_path)
+                    periods = extract_periods(graphml_path)
+                    folders = walk_folders(graphml_path)
                     counts = Counter(n.auto_kind.value for n in classified)
-                    summary = ", ".join(
+                    classifier_summary = ", ".join(
                         f"{k}: {v}" for k, v in sorted(counts.items())
                     )
-                    logging.getLogger(__name__).warning(
-                        "yEd-raw graphml detected at %s. Classified %d "
-                        "leaves: %s. Yed-aware import path not yet wired "
-                        "(yE-B classifier only). Falling through to legacy "
-                        "path. Expect partial/incorrect ingestion.",
-                        graphml_path, len(classified), summary,
+                    period_summary = (
+                        ", ".join(p.auto_label for p in periods)
+                        if periods else "(no TableNode found)"
                     )
+                    folder_summary = (
+                        ", ".join(
+                            f"{f.auto_value} ({f.auto_dimension or 'unknown'}, "
+                            f"{len(f.member_yed_ids)} members)"
+                            for f in folders
+                        )
+                        if folders else "(no group folders found)"
+                    )
+                    logging.getLogger(__name__).warning(
+                        "yEd-raw graphml detected at %s.\n"
+                        "  Classified %d leaves: %s.\n"
+                        "  Detected %d periods: %s.\n"
+                        "  Detected %d group folders: %s.\n"
+                        "  Yed-aware import path not yet wired "
+                        "(yE-C parsers only). Falling through to legacy "
+                        "path. Expect partial/incorrect ingestion.",
+                        graphml_path,
+                        len(classified), classifier_summary,
+                        len(periods), period_summary,
+                        len(folders), folder_summary,
+                    )
+                    _yed_parsed_drafts = {
+                        "classified": classified,
+                        "periods": periods,
+                        "folders": folders,
+                    }
             except Exception:
-                # Detection + classification is best-effort;
+                # Detection + parsing is best-effort;
                 # never block the legacy path
                 pass
         # -- existing pyarchinit-projected path UNCHANGED below --
@@ -243,7 +273,8 @@ class GraphIngestor:
                          dry_run=dry_run,
                          create_missing_epochs=create_missing_epochs,
                          graphml_path=graphml_path,
-                         sql_apply_groups=sql_apply_groups)
+                         sql_apply_groups=sql_apply_groups,
+                         _yed_parsed_drafts=_yed_parsed_drafts)
 
     # ------------------------------------------------------------------ helpers
     def _verify_schema(self, handle) -> None:
@@ -276,7 +307,8 @@ class GraphIngestor:
                 "single-site graphs.")
 
     def _run(self, graph, handle, sito, *, dry_run, create_missing_epochs,
-             graphml_path=None, sql_apply_groups=False):
+             graphml_path=None, sql_apply_groups=False,
+             _yed_parsed_drafts=None):
         inserted = updated = skipped = 0
         epochs_created = 0
         sito_created = False
@@ -651,6 +683,7 @@ class GraphIngestor:
             epochs_created=epochs_created,
             conflicts=tuple(conflicts), errors=tuple(errors),
             dry_run=dry_run,
+            parsed_drafts=_yed_parsed_drafts,
         )
 
 
