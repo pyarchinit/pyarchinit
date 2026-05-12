@@ -2905,8 +2905,24 @@ class Pyarchinit_db_management(object):
             # Clean the value if it's a string with quotes
             if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
                 value = value.strip("'")
+            # pg-media-fix (5.7.9.1-alpha): PostgreSQL is strict about type
+            # comparisons — `BIGINT id_entity = '42'::text` silently returns
+            # no rows and the calling form (e.g. loadMediaPreview() in
+            # US_USM/Pottery/Struttura/Tafonomia) bails on empty result with
+            # no UI feedback. SQLite tolerates loose comparisons. Coerce
+            # string-encoded numeric values to the column's python_type so
+            # both backends match. Safe for SQLite (no behavior change).
+            if isinstance(value, str) and column is not None:
+                try:
+                    col_pytype = column.type.python_type
+                    if col_pytype in (int, float):
+                        value = col_pytype(value)
+                except (NotImplementedError, ValueError, AttributeError):
+                    # Column type lacks python_type, or value isn't numeric.
+                    # Fall through with original string — same as pre-fix.
+                    pass
             conditions.append(column == value)
-        
+
         # Construct the query with the conditions
         query = session.query(table_class).filter(and_(*conditions))
         

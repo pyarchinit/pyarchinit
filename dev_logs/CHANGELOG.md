@@ -5,6 +5,64 @@
 
 ---
 
+## [5.7.9.1-alpha] - 2026-05-12
+
+### Italiano
+
+**pg-media-fix — bottone "Carica Media" non funzionante su PostgreSQL.**
+
+L'utente ha segnalato 2026-05-12 sera: il bottone "Carica Media" nei form **US**, **Pottery**, **Struttura**, **Tafonomia**, **Inventario Materiali** non fa nulla quando cliccato su un progetto PostgreSQL. Il Media Manager invece funziona.
+
+**Root cause**: `Pyarchinit_db_management.query_bool()` in `modules/db/pyarchinit_db_manager.py` riceve dai form handler una `search_dict` con pattern legacy `{'id_entity': "'42'", 'entity_type': "'US'"}`. Il metodo strippa le virgolette esterne ma lascia il valore come stringa `'42'`. La colonna `MEDIATOENTITY.id_entity` è `BIGINT` su PG (Integer nell'entity SQLAlchemy). PostgreSQL è strict sui tipi: `BIGINT = 'text'` ritorna silently zero righe. SQLite è type-loose e coerce automaticamente — bug invisibile su SQLite, manifesto su PG. Il handler `loadMediaPreview()` (es. `tabs/US_USM.py:18707`) ha `if not record_us_list: return` → silent exit → bottone "non fa nulla".
+
+**Fix**: aggiunto in `query_bool` (linea ~2908) un blocco di coercion che ispeziona `column.type.python_type`. Se la colonna è numerica (int/float) e il valore è stringa, coerce con `col_pytype(value)`. Sicuro con try/except per `NotImplementedError, ValueError, AttributeError`. ~10 LOC.
+
+**Universale**: il fix opera a runtime sulla declaration SQLAlchemy dell'entity, NON sullo schema DB fisico. Funziona su:
+- Nuovi DB PG (id_entity BIGINT) → coerce string→int → match ✓
+- Vecchi DB PG (es. khutm2) → stessa coerce → match ✓
+- SQLite (nuovo o vecchio) → coerce è no-op behaviour-wise (era loose-comparison prima, ora int-comparison) → nessuna regressione
+
+Nessuna migrazione DB richiesta.
+
+**Test**: 4 nuovi L0 in `tests/migrations/test_pg_media_fix.py`:
+1. `test_query_bool_has_numeric_coercion_block` — source-inspection guard (lettura filesystem perché modulo importa QGIS)
+2. `test_query_bool_coerces_string_to_int_for_integer_column` — end-to-end con SQLite + Integer column + insert+query, verifica match esatto
+3. `test_query_bool_coercion_safe_for_non_numeric_column` — coerce NON deve toccare String columns
+4. `test_query_bool_coercion_resilient_to_garbage_input` — input non-numerico (`'abc'`) per colonna Integer → coercion solleva ValueError → except preserva valore originale → no crash
+
+**Test count**: 298 → 302 passed, 37 skipped (PG offline). +4 L0 sempre verdi.
+
+**Versioning**: patch increment `5.7.9 → 5.7.9.1-alpha`. NESSUNO shift su yE-D (resta `5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-bv2-5.7.9-alpha` (commit `97e2ec13`, pushato).
+
+### English
+
+**pg-media-fix — "Carica Media" button does nothing on PostgreSQL.**
+
+User-reported 2026-05-12 evening: the "Carica Media" button in **US**, **Pottery**, **Struttura**, **Tafonomia**, **Inventario Materiali** forms does nothing when clicked on a PostgreSQL project. Media Manager works fine.
+
+**Root cause**: `Pyarchinit_db_management.query_bool()` in `modules/db/pyarchinit_db_manager.py` receives from form handlers a `search_dict` with legacy pattern `{'id_entity': "'42'", 'entity_type': "'US'"}`. The method strips outer quotes but leaves the value as string `'42'`. The `MEDIATOENTITY.id_entity` column is `BIGINT` on PG (Integer in the SQLAlchemy entity). PostgreSQL is strict on types: `BIGINT = 'text'` silently returns zero rows. SQLite is type-loose and auto-coerces — bug invisible on SQLite, manifest on PG. The handler `loadMediaPreview()` (e.g. `tabs/US_USM.py:18707`) has `if not record_us_list: return` → silent exit → button "does nothing".
+
+**Fix**: added in `query_bool` (line ~2908) a coercion block that inspects `column.type.python_type`. If the column is numeric (int/float) and the value is a string, coerce with `col_pytype(value)`. Safe via try/except for `NotImplementedError, ValueError, AttributeError`. ~10 LOC.
+
+**Universal**: the fix operates at runtime on the SQLAlchemy entity declaration, NOT on the physical DB schema. Works on:
+- New PG DBs (id_entity BIGINT) → coerce string→int → match ✓
+- Legacy PG DBs (e.g. khutm2) → same coerce → match ✓
+- SQLite (new or old) → coerce is behaviorally a no-op (was loose-comparison before, now int-comparison) → no regression
+
+No DB migration required.
+
+**Tests**: 4 new L0 in `tests/migrations/test_pg_media_fix.py`:
+1. `test_query_bool_has_numeric_coercion_block` — source-inspection guard (filesystem read because module imports QGIS)
+2. `test_query_bool_coerces_string_to_int_for_integer_column` — end-to-end with SQLite + Integer column + insert+query, verifies exact match
+3. `test_query_bool_coercion_safe_for_non_numeric_column` — coerce must NOT touch String columns
+4. `test_query_bool_coercion_resilient_to_garbage_input` — non-numeric input (`'abc'`) for Integer column → coercion raises ValueError → except preserves original value → no crash
+
+**Test count**: 298 → 302 passed, 37 skipped (PG offline). +4 L0 always-green.
+
+**Versioning**: patch increment `5.7.9 → 5.7.9.1-alpha`. NO shift on yE-D (stays `5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-bv2-5.7.9-alpha` (commit `97e2ec13`, pushed).
+
+---
+
 ## [5.7.9-alpha] - 2026-05-12
 
 ### Italiano
