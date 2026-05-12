@@ -1,18 +1,13 @@
-"""PG-UIFix (5.7.8-alpha): regression tests for partial-scope hotfix.
+"""PG-UIFix (5.7.8-alpha) + PG-Bv2 (5.7.9-alpha): regression tests.
 
 Bug 1 (paradata/group manager + US picker) — SHIPPED on PG via
 ParadataStore/GroupStore which route db_manager through
 _resolve_db_handle shim (PG-D, 2026-05-11). Test 1 pins the
 obsolete SQLite-only guards as ABSENT.
 
-Bug 2 (graphml export on PG) — DEFERRED to PG-Bv2 milestone.
-PG-B (5.7.1-alpha, 2026-05-10) flipped 5 SQL helpers in
-graph_projector.py to DbHandle but left the orchestrator
-populate_graph() with `Path(db_path)` at line 165 + the upstream
-PyArchInitImporter call at line 190, which is SQLite-only.
-The user-facing skip-branch in s3dgraphy_dot_bridge.py is restored
-with an honest 'pending PG-Bv2' message. Test 2 pins the skip-branch
-as PRESENT until PG-Bv2 ships.
+Bug 2 (graphml export on PG) — SHIPPED in PG-Bv2 (5.7.9-alpha,
+2026-05-12). Test 2 now asserts skip-branch markers are GONE.
+End-to-end coverage in tests/sync/test_pg_bv2_pg_importer.py.
 """
 from __future__ import annotations
 
@@ -51,40 +46,32 @@ def test_paradata_manager_does_not_block_on_pg_handle():
         "Obsolete SQLite-only guard still present in US picker"
 
 
-def test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2():
-    """Bug 2 deferred-state pin.
+def test_graphml_export_runs_on_pg_backend():
+    """Bug 2 SHIPPED (PG-Bv2 5.7.9-alpha).
 
-    PG-UIFix (5.7.8-alpha) ships only Bug 1. Bug 2 (graphml export
-    on PG) is deferred to PG-Bv2 because populate_graph() in
-    modules/s3dgraphy/sync/graph_projector.py still calls the
-    upstream SQLite-only PyArchInitImporter at line ~190 + does
-    Path(db_path) at line ~165.
-
-    The user-facing skip-branch in s3dgraphy_dot_bridge.py is kept
-    with an honest message referencing PG-Bv2. This test asserts:
-
-    - the skip branch IS present (so users don't get TypeError)
-    - the honest 'pending PG-Bv2' message IS in source
-    - the obsolete 'AI04' wording is NOT in source (was the original
-      pre-PG-UIFix message that misleadingly named AI04)
-
-    When PG-Bv2 ships, this test should be DELETED and the original
-    'no_skip_branch' assertion restored.
-
-    The Bug 1-like import-flow guards at lines ~742 and ~830 in
-    s3dgraphy_dot_bridge are REMOVED by PG-UIFix (those are about
-    ingest, not export — and GraphIngestor.populate_list accepts
-    db_manager via _resolve_db_handle since PG-C, 2026-05-11).
-    """
+    Asserts the skip-branch is GONE from s3dgraphy_dot_bridge and the
+    obsolete deferred-state markers have been cleaned up. Companion
+    to L2 PG end-to-end tests in test_pg_bv2_pg_importer.py."""
     from modules.s3dgraphy import s3dgraphy_dot_bridge as bridge
 
     import inspect
     src = inspect.getsource(bridge)
-    assert "pending PG-Bv2 milestone" in src, \
-        "PG-Bv2 follow-up message missing from skip-branch"
-    assert "postgresql backend deferred to PG-Bv2" in src, \
-        "Skip-branch status reason missing"
-    assert "PostgreSQL support arrives with AI04" not in src, \
-        "Obsolete AI04 wording still present (should be PG-Bv2)"
-    assert "Import requires a SQLite-backed" not in src, \
-        "Obsolete SQLite-only import-flow guard still present"
+    assert "pending PG-Bv2 milestone" not in src, (
+        "Obsolete PG-Bv2 deferred-state message still present "
+        "(should have been removed when PG-Bv2 shipped)"
+    )
+    assert "postgresql backend deferred to PG-Bv2" not in src, (
+        "Obsolete PG-Bv2 deferred-state status reason still present"
+    )
+    # The graphml-export-specific PG-skip envelope used the pattern
+    # "db_path = self.db_manager.get_sqlite_path()" followed by
+    # "if db_path is None:" to skip on PG. Verify both halves gone
+    # from the graphml export block (a separate _preselect_groups
+    # helper has a legitimate get_sqlite_path guard — that's fine).
+    assert "postgresql backend deferred" not in src, (
+        "Obsolete PG-skip graphml envelope still present in graphml export — "
+        "PG-Bv2 should have removed it"
+    )
+    assert "Import requires a SQLite-backed" not in src, (
+        "PG-UIFix Bug 2 import-flow guard still present (regression)"
+    )

@@ -162,35 +162,57 @@ class GraphProjector:
             raise ProjectionError(
                 "sito parameter is mandatory for GraphProjector.populate_graph(); "
                 "AI04 only supports single-site graphs.")
-        db_path = Path(db_path)
-        if not db_path.exists():
-            raise ProjectionError(f"DB file not found: {db_path}")
+
+        # PG-Bv2 (5.7.9-alpha): route through DbHandle shim. Path
+        # coercion + SQLite-only importer call are PG-fenced now;
+        # SQLite path kept unchanged to preserve AC-2 byte-identical
+        # baseline (α-narrow approach).
+        # Pre-normalize: if db_path is a plain filesystem-path string
+        # (not a SQLAlchemy URL), convert to Path so _resolve_db_handle
+        # can dispatch to its Path branch (emits DeprecationWarning but
+        # works). Callers passing a real conn-string / DbHandle / Engine
+        # are passed through unchanged.
+        from ._db_handle import _resolve_db_handle
+        if (isinstance(db_path, str)
+                and not db_path.startswith("sqlite:")
+                and not db_path.startswith("postgresql")):
+            db_path = Path(db_path)
+        handle = _resolve_db_handle(db_path)
+
+        if not handle.is_postgres:
+            sqlite_path = Path(db_path) if not isinstance(
+                db_path, Path) else db_path
+            if not sqlite_path.exists():
+                raise ProjectionError(f"DB file not found: {sqlite_path}")
 
         # Verify Phase 1 migration applied: us_table.node_uuid column.
         # Skipped when strict_schema=False (AI03 export path).
         if strict_schema:
-            self._verify_node_uuid_column(db_path)
+            self._verify_node_uuid_column(handle)
 
-        # Delegate to the existing AI03 enrichment routine.
         try:
             from s3dgraphy import Graph
-            from s3dgraphy.importer.pyarchinit_importer import (
-                PyArchInitImporter)
         except ImportError as e:
             raise ProjectionError(f"s3dgraphy import failed: {e}") from e
 
-        # Stage 1: import the StratigraphicUnit nodes from us_table via
-        # the upstream PyArchInitImporter (spec §3.2: "Reuses the
-        # already-existing s3dgraphy.importer.pyarchinit_importer as
-        # base"). The importer creates one Graph with `graph_id` derived
-        # from the file basename; we then transplant its nodes/edges
-        # into a graph keyed by `sito` for AI04 single-site semantics.
+        # Stage 1: import the StratigraphicUnit nodes from us_table.
+        # PG → new SQLAlchemy native reader (PG-Bv2).
+        # SQLite → upstream PyArchInitImporter (unchanged for AC-2).
         try:
-            importer = PyArchInitImporter(
-                filepath=str(db_path),
-                mapping_name="pyarchinit_us_mapping",
-            )
-            imported = importer.parse()
+            if handle.is_postgres:
+                from .pyarchinit_pg_importer import import_from_pg
+                imported = import_from_pg(
+                    handle, sito,
+                    mapping_name="pyarchinit_us_mapping",
+                )
+            else:
+                from s3dgraphy.importer.pyarchinit_importer import (
+                    PyArchInitImporter)
+                importer = PyArchInitImporter(
+                    filepath=str(db_path),
+                    mapping_name="pyarchinit_us_mapping",
+                )
+                imported = importer.parse()
         except Exception as e:
             raise ProjectionError(
                 f"Importer failed for db={db_path}: {e}") from e
