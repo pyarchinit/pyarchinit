@@ -5,6 +5,80 @@
 
 ---
 
+## [5.7.8.1-alpha] - 2026-05-12
+
+### Italiano
+
+**PG-UUIDFix — hotfix patch sulla migrazione UUID per dump PG legacy.**
+
+L'utente ha segnalato fallimento della migrazione UUID v7 su PG con dump `khutm2.sql`:
+
+```
+periodizzazione_table: no primary key declared on PostgreSQL — cannot backfill safely
+```
+
+**Root cause**: il backfill di PG-A (`phase3-pgcompat-a-migration-5.7.0-alpha`, 2026-05-10) ha un check difensivo che fallisce quando la tabella PG non ha `PRIMARY KEY` dichiarata. Il dump dell'utente è stato creato da uno schema pre-2018 (o template legacy) che non emette il vincolo, anche se lo schema SQLAlchemy di `Periodizzazione_table.py` lo dichiara correttamente. I 3 schema SQL ufficiali (`pyarchinit_schema_updated.sql`, `pyarchinit_schema_clean.sql`, `pyarchinit_update_postgres.sql`) hanno tutti i PK corretti — audit confermato. Solo DB esistenti come `khutm2.sql` sono affetti.
+
+**Fix**: trasformato il check difensivo in **auto-fix**:
+
+- `scripts/migrations/_2026_05_node_uuid_backfill_lib.py`: aggiunta mappa `_CANONICAL_PK` (`us_table → id_us`, `inventario_materiali_table → id_invmat`, `periodizzazione_table → id_perfas`). Quando PG ritorna 0 PK colonne per una tabella, il backfill ora: (1) verifica che la colonna canonica esista nello schema live, (2) controlla che non ci siano duplicati via `GROUP BY ... HAVING COUNT(*) > 1 LIMIT 5`, (3) esegue `ALTER TABLE ... ADD CONSTRAINT {table}_pkey PRIMARY KEY ({pk_col})` dentro lo stesso `engine.begin()`, (4) procede al backfill normale. Se duplicati: errore chiaro con sample degli ID conflittuali, no data corruption. Backup automatico di PG-A copre la transazione.
+
+**Verifica utente pre-fix** (test3_graphml.sqlite SQLite, 34 righe in us_table): tutti i 34 UUID v7 erano stati assegnati correttamente. periodizzazione_table SQLite vuota → 0 UUID (idempotente). Confermato che SQLite path è OK; bug solo su PG legacy.
+
+**Tests**: 4 nuovi test in `tests/migrations/test_node_uuid_backfill.py`:
+1. `test_canonical_pk_mapping_covers_all_target_tables` (L0): mappa `_CANONICAL_PK` deve coprire ogni TABLES entry con convenzione `id_<short>`.
+2. `test_backfill_auto_pk_source_inspection` (L0): source-inspection guard su `ADD CONSTRAINT` + `PRIMARY KEY` + `HAVING COUNT(*) > 1` + error fallback.
+3. `test_backfill_pg_legacy_schema_auto_adds_pk` (L2 PG): crea tabella throwaway senza PK su live PG, runna backfill, verifica PK aggiunto + UUID assegnati. Skip clean se PG offline.
+4. `test_backfill_pg_legacy_rejects_duplicate_ids` (L2 PG): tabella con `id_perfas` duplicati → `RuntimeError("duplicate values")`. Skip clean se PG offline.
+
+**Schema files**: NON modificati. Audit confermato che tutti i 3 hanno già i `{table}_pkey` constraint sui 3 TABLES.
+
+**Garanzie regressione (tutte verdi)**:
+- AC-2 byte-identical
+- 3 critical SQLite gates
+- 8 PG-D L2 + 5 yE-A + 12 yE-B + 16 yE-C + 2 PG-UIFix L0 tests preservati
+
+Test count: 291 → 293 passed, 35 skipped (PG offline +2 new L2 skip). 
+
+**Versioning**: patch increment a `5.7.8.1-alpha`, NESSUNO shift su yE-D (resta `5.7.9-alpha`) né su PG-Bv2 (TBD). Predecessor: `pg-uifix-5.7.8-alpha` (commit `e35e137c`).
+
+### English
+
+**PG-UUIDFix — UUID migration hotfix for legacy PG dumps.**
+
+User reported PG UUID v7 migration failure with `khutm2.sql` dump:
+
+```
+periodizzazione_table: no primary key declared on PostgreSQL — cannot backfill safely
+```
+
+**Root cause**: PG-A's backfill (`phase3-pgcompat-a-migration-5.7.0-alpha`, 2026-05-10) has a defensive check that fails when a PG table lacks a declared `PRIMARY KEY`. The user's dump was created from a pre-2018 schema (or legacy template) that doesn't emit the constraint, even though the SQLAlchemy structure at `Periodizzazione_table.py` declares it correctly. All 3 official schema SQL files (`pyarchinit_schema_updated.sql`, `pyarchinit_schema_clean.sql`, `pyarchinit_update_postgres.sql`) have correct PKs — audit confirmed. Only existing DBs like `khutm2.sql` are affected.
+
+**Fix**: turned the defensive check into **auto-fix**:
+
+- `scripts/migrations/_2026_05_node_uuid_backfill_lib.py`: added `_CANONICAL_PK` map (`us_table → id_us`, `inventario_materiali_table → id_invmat`, `periodizzazione_table → id_perfas`). When PG returns 0 PK columns for a table, backfill now: (1) verifies the canonical column exists in the live schema, (2) checks no duplicate values via `GROUP BY ... HAVING COUNT(*) > 1 LIMIT 5`, (3) runs `ALTER TABLE ... ADD CONSTRAINT {table}_pkey PRIMARY KEY ({pk_col})` inside the same `engine.begin()`, (4) proceeds to normal backfill. On duplicates: clear error with sample of conflicting IDs, no data corruption. PG-A's auto-backup covers the transaction.
+
+**User pre-fix verification** (test3_graphml.sqlite SQLite, 34 us_table rows): all 34 UUID v7 had been assigned correctly. periodizzazione_table SQLite empty → 0 UUIDs (idempotent). Confirmed SQLite path is OK; bug only on legacy PG.
+
+**Tests**: 4 new in `tests/migrations/test_node_uuid_backfill.py`:
+1. `test_canonical_pk_mapping_covers_all_target_tables` (L0): `_CANONICAL_PK` must cover every TABLES entry with `id_<short>` convention.
+2. `test_backfill_auto_pk_source_inspection` (L0): source-inspection guard on `ADD CONSTRAINT` + `PRIMARY KEY` + `HAVING COUNT(*) > 1` + error fallback.
+3. `test_backfill_pg_legacy_schema_auto_adds_pk` (L2 PG): creates throwaway PK-less table on live PG, runs backfill, asserts PK added + UUIDs assigned. Skip clean when PG offline.
+4. `test_backfill_pg_legacy_rejects_duplicate_ids` (L2 PG): table with duplicate `id_perfas` → `RuntimeError("duplicate values")`. Skip clean when PG offline.
+
+**Schema files**: NOT modified. Audit confirmed all 3 already declare `{table}_pkey` constraint for the 3 TABLES.
+
+**Regression guarantees (all green)**:
+- AC-2 byte-identical
+- 3 critical SQLite gates
+- 8 PG-D L2 + 5 yE-A + 12 yE-B + 16 yE-C + 2 PG-UIFix L0 tests preserved
+
+Test count: 291 → 293 passed, 35 skipped (PG offline, +2 new L2 skip).
+
+**Versioning**: patch increment to `5.7.8.1-alpha`, NO shift on yE-D (stays `5.7.9-alpha`) or PG-Bv2 (TBD). Predecessor: `pg-uifix-5.7.8-alpha` (commit `e35e137c`).
+
+---
+
 ## [5.7.8-alpha] - 2026-05-12
 
 ### Italiano
