@@ -428,7 +428,7 @@ if QGIS_AVAILABLE:
                     _resolve_db_handle)
                 from sqlalchemy import text
                 _handle = _resolve_db_handle(self.db_manager)
-                with _handle.engine.begin() as conn:
+                with _handle.engine.connect() as conn:
                     rows = conn.execute(
                         text(
                             "SELECT node_uuid, us, area, unita_tipo "

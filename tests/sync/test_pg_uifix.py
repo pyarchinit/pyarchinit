@@ -26,11 +26,12 @@ def test_paradata_manager_does_not_block_on_pg_handle():
     Post-PG-UIFix: _store() passes db_manager directly to
     ParadataStore() which uses _resolve_db_handle shim to accept
     both Path (SQLite) and DbHandle (PG/SQLite).
-    """
-    pytest.importorskip("qgis.PyQt.QtWidgets")  # skip if no Qt env
 
-    # Import the dialog class WITHOUT showing it (use __new__ to skip
-    # __init__ which expects a real parent QWidget + DB setup).
+    Pure source-inspection: reads the module .py file via
+    inspect.getsource() + linecache. No Qt rendering needed, so the
+    test runs in non-Qt environments too (no importorskip).
+    """
+    # Inspect the module source (no Qt instantiation needed).
     from gui import dialog_paradata_manager as dpm
 
     # Verify the obsolete error message is no longer in source.
