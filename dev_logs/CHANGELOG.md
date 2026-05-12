@@ -5,6 +5,68 @@
 
 ---
 
+## [5.7.8-alpha] - 2026-05-12
+
+### Italiano
+
+**PG-UIFix — hotfix milestone Phase 3 PG-compat UI.**
+
+Rimuove 5 guards SQLite-only obsoleti in `gui/dialog_paradata_manager.py` e `modules/s3dgraphy/s3dgraphy_dot_bridge.py` rimasti dopo Phase 3 PG-Compat (2026-05-10/11) e che bloccavano gli utenti PostgreSQL.
+
+**Bug fixati:**
+
+- **Bug 1** (Paradata manager + Group manager + US picker bloccati su PG): tre guards `"requires a SQLite-backed pyarchinit project"` rimossi da `dialog_paradata_manager.py`. `_store()` e `_group_store()` passano `db_manager` direttamente a `ParadataStore` / `GroupStore` (shim `_resolve_db_handle` da PG-D accetta `Path | DbHandle | str`). US picker RISCRITTO con SQLAlchemy via engine del `db_manager` (era raw `sqlite3.connect`, SQLite-only).
+- **Bug 2** (GraphML export skippato su PG): branch `if db_path is None:` (PG-skip equivalent) rimosso da `s3dgraphy_dot_bridge.py:191-206`. `export_graphml()` da PG-B (5.7.1-alpha, 2026-05-10) gestisce entrambi SQLite e PG via `DbHandle`. Più 2 guards Import-flow simili (righe 746 + 834).
+- **Bug 3** (media non caricati nei form US/Pottery/Artefact su PG): **DEFERITO** a milestone separato post-diagnosi (root cause sconosciuta, serve error logs dall'utente). Workaround: Media Manager funziona.
+
+**Test:** 2 nuovi test L0 in `tests/sync/test_pg_uifix.py` con pattern source-inspection (asserzioni che le stringhe di errore obsolete non sono più nel source). Guard contro future refactor che reintrodurrebbero i check SQLite-only. Entrambi runnano in environments non-Qt.
+
+**Polish durante esecuzione**: code quality reviewer ha catturato 2 item actionable, fixati in commit polish:
+1. `_handle.engine.begin()` → `_handle.engine.connect()` nel US picker (read-only query, match precedent del codebase)
+2. Drop `pytest.importorskip("qgis.PyQt.QtWidgets")` dal test paradata regression (puro source-inspection, no Qt needed)
+
+**Adattamento architetturale durante l'esecuzione**: il plan diceva `if backend_is_postgres:` come trigger del PG-skip branch, ma il source attuale aveva `if db_path is None:` (preceduto da `db_path = self.db_manager.get_sqlite_path()`). Semanticamente equivalente — `get_sqlite_path()` ritorna None su PG. L'implementer ha adattato correttamente.
+
+**Side-effect sulla rollout**: PG-UIFix riserva il tag `pg-uifix-5.7.8-alpha`. yE-D shifta da `yed-import-pipeline-5.7.8-alpha` (era pianificato) a `yed-import-pipeline-5.7.9-alpha`. yE-E e yE-Closure shifano corrispondentemente.
+
+**Garanzie regressione (tutte verdi post-PG-UIFix):**
+- AC-2 byte-identical
+- 3 critical SQLite gates
+- 5 yE-A + 12 yE-B + 16 yE-C + 8 PG-D L2 preservati
+
+Test count: 289 → 291 passed, 33 skipped (PG offline) o 297 → 299 passed, 12 skipped (PG online + psycopg2).
+
+### English
+
+**PG-UIFix — Phase 3 PG-compat UI hotfix milestone.**
+
+Removes 5 obsolete SQLite-only guards in `gui/dialog_paradata_manager.py` and `modules/s3dgraphy/s3dgraphy_dot_bridge.py` left in place after Phase 3 PG-Compat shipped (2026-05-10/11) that block PostgreSQL backend users.
+
+**Bugs fixed:**
+
+- **Bug 1** (Paradata manager + Group manager + US picker blocked on PG): three `"requires a SQLite-backed pyarchinit project"` guards removed from `dialog_paradata_manager.py`. `_store()` and `_group_store()` now pass `db_manager` directly to `ParadataStore` / `GroupStore` (`_resolve_db_handle` shim from PG-D accepts `Path | DbHandle | str`). US picker REWRITTEN with SQLAlchemy via `db_manager` engine (was raw `sqlite3.connect`, SQLite-only).
+- **Bug 2** (GraphML export skipped on PG): `if db_path is None:` (PG-skip equivalent) branch removed from `s3dgraphy_dot_bridge.py:191-206`. `export_graphml()` from PG-B (5.7.1-alpha, 2026-05-10) handles both SQLite and PG via `DbHandle`. Plus 2 Import-flow guards (lines 746 + 834).
+- **Bug 3** (media not loading in US/Pottery/Artefact forms on PG): **DEFERRED** to separate milestone post-diagnosis (root cause unknown, needs user-provided error logs). Workaround: Media Manager works.
+
+**Tests:** 2 new L0 tests in `tests/sync/test_pg_uifix.py` using source-inspection pattern (assert obsolete error strings are gone from source). Guards against future refactor re-introducing the SQLite-only checks. Both run in non-Qt environments.
+
+**Polish during execution**: code quality reviewer caught 2 actionable items, fixed in polish commit:
+1. `_handle.engine.begin()` → `_handle.engine.connect()` in US picker (read-only query, matches codebase precedent)
+2. Dropped `pytest.importorskip("qgis.PyQt.QtWidgets")` from paradata regression test (pure source-inspection, no Qt needed)
+
+**Architectural adaptation during execution**: plan said `if backend_is_postgres:` as the PG-skip branch trigger; actual source had `if db_path is None:` (preceded by `db_path = self.db_manager.get_sqlite_path()`). Semantically equivalent — `get_sqlite_path()` returns None on PG. Implementer adapted correctly.
+
+**Rollout side-effect**: PG-UIFix reserves tag `pg-uifix-5.7.8-alpha`. yE-D shifts from `yed-import-pipeline-5.7.8-alpha` (originally planned) to `yed-import-pipeline-5.7.9-alpha`. yE-E and yE-Closure shift correspondingly.
+
+**Regression guarantees (all green post-PG-UIFix):**
+- AC-2 byte-identical
+- 3 critical SQLite gates
+- 5 yE-A + 12 yE-B + 16 yE-C + 8 PG-D L2 preserved
+
+Test count: 289 → 291 passed, 33 skipped (PG offline) or 297 → 299 passed, 12 skipped (PG online + psycopg2).
+
+---
+
 ## [5.7.7-alpha] - 2026-05-12
 
 ### Italiano
