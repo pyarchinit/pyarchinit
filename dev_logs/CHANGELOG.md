@@ -5,6 +5,78 @@
 
 ---
 
+## [5.7.6-alpha] - 2026-05-12
+
+### Italiano
+
+**yE-B Classifier — secondo milestone del feature yEd-aware graphml import.**
+
+Aggiunge il classifier label-prefix per i leaf node dei graphml yEd-raw + wiring nel branch hook esistente (introdotto in yE-A). All'import di un file yEd-raw, il log ora mostra una sintesi della classificazione (esempio su EM_demo_02.graphml, 82 leaf):
+
+```
+yEd-raw graphml detected at <path>. Classified 82 leaves:
+  combiner: 3, document: 38, property: 25, special_find: 2,
+  us_real: 4, usv_virtual: 8, virtual_find: 2.
+Falling through to legacy path.
+```
+
+- **NEW `modules/s3dgraphy/sync/yed_classifier.py`**: helper `classify_leaves(graphml_path)` con enum `ClassificationKind` (12 valori: US_REAL, US_MASONRY, US_DOCUMENTARY, USV_VIRTUAL, USV_FORMAL, SPECIAL_FIND, VIRTUAL_FIND, DOCUMENT, COMBINER, PROPERTY, UNKNOWN, SKIP), regex map `DEFAULT_CLASSIFIER_RULES` (10 pattern order-sensitive — USV* prima di US*, USM* prima di US*, USD* prima di US*, VSF* prima di SF*), e dataclass `ClassifiedNode`.
+- **Esclusione folder**: i nodi con `yfiles.foldertype="group"` NON vengono classificati — quelli sono territorio di yE-C `yed_group_walker`.
+- **Sicurezza**: parse error / file mancante → lista vuota (safe default, fall-through al path legacy preservato).
+- **MODIFY `modules/s3dgraphy/sync/graph_ingestor.py:169-196`**: il bare warning di yE-A viene sostituito con invocazione di `classify_leaves()` + summary `Counter` nel log. Outer `try/except Exception: pass` di yE-A preservato (classifier errors non possono rompere il path legacy). Import lazy preservati.
+- **NEW 11 test L0** in `tests/sync/test_yed_classifier.py`: ordering prefix, case insensitivity, unknown fallback, document order, USV_FORMAL bare/numbered semantics, `rules=` override mechanism.
+- **NEW 1 test L1** in `tests/sync/test_yed_classifier_integration.py`: integration su `em_demo_02_mini.graphml` (fixture yE-A) — verifica count breakdown e esclusione folder.
+
+**Polish durante l'esecuzione**: il code quality reviewer ha catturato un bug a livello spec carried into the plan: il pattern `^USVs\b|^USVn\b` non matchava label reali come `USVs01` o `USVn05` perché `\b` richiede una transizione word→non-word, ma `s→0`/`n→0` è word→word. Corretto a `^USVs\d*$|^USVn\d*$` che matcha sia bare che numbered forms.
+
+**Eredita dal parent spec** (`docs/superpowers/specs/2026-05-12-yed-aware-graphml-import-design.md` §5) ma specializza:
+- Input è Path-only (NON union `Graph | Path | str`) — consistenza con `yed_detector.detect_flavor`
+- DEFAULT_CLASSIFIER_RULES è l'unico ruleset shippato; override utente via dialog deferito a yE-E
+
+**Garanzie regressione (tutte verdi post-yE-B):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates
+- 5 yE-A detector tests
+- 8 PG-D L2 (skip puliti offline)
+
+Test count: 261 → 273 passed, 33 skipped (PG offline) o 269 → 281 passed, 12 skipped (PG online + psycopg2).
+
+### English
+
+**yE-B Classifier — second milestone of the yEd-aware graphml import feature.**
+
+Adds the label-prefix classifier for yEd-raw graphml leaf nodes + wiring into the existing branch hook (introduced in yE-A). On import of a yEd-raw file, the log now shows a classification summary (example on EM_demo_02.graphml, 82 leaves):
+
+```
+yEd-raw graphml detected at <path>. Classified 82 leaves:
+  combiner: 3, document: 38, property: 25, special_find: 2,
+  us_real: 4, usv_virtual: 8, virtual_find: 2.
+Falling through to legacy path.
+```
+
+- **NEW `modules/s3dgraphy/sync/yed_classifier.py`**: helper `classify_leaves(graphml_path)` with `ClassificationKind` enum (12 values: US_REAL, US_MASONRY, US_DOCUMENTARY, USV_VIRTUAL, USV_FORMAL, SPECIAL_FIND, VIRTUAL_FIND, DOCUMENT, COMBINER, PROPERTY, UNKNOWN, SKIP), `DEFAULT_CLASSIFIER_RULES` regex map (10 order-sensitive patterns — USV* before US*, USM* before US*, USD* before US*, VSF* before SF*), and `ClassifiedNode` dataclass.
+- **Folder exclusion**: nodes with `yfiles.foldertype="group"` are NOT classified — those are yE-C `yed_group_walker` territory.
+- **Safety**: parse error / missing file → empty list (safe default, legacy path fall-through preserved).
+- **MODIFY `modules/s3dgraphy/sync/graph_ingestor.py:169-196`**: the yE-A bare warning is replaced with `classify_leaves()` invocation + `Counter` summary log. The yE-A outer `try/except Exception: pass` is preserved (classifier errors cannot break the legacy path). Lazy imports preserved.
+- **NEW 11 L0 tests** in `tests/sync/test_yed_classifier.py`: prefix ordering, case insensitivity, unknown fallback, document order, USV_FORMAL bare/numbered semantics, `rules=` override mechanism.
+- **NEW 1 L1 test** in `tests/sync/test_yed_classifier_integration.py`: integration on `em_demo_02_mini.graphml` (yE-A fixture) — verifies count breakdown and folder exclusion.
+
+**Polish during execution**: code quality reviewer caught a spec-level bug carried into the plan: the `^USVs\b|^USVn\b` pattern didn't match real-world labels like `USVs01` or `USVn05` because `\b` requires a word→non-word transition, but `s→0`/`n→0` is word→word. Fixed to `^USVs\d*$|^USVn\d*$` which matches both bare and numbered forms.
+
+**Inherits parent spec** (`docs/superpowers/specs/2026-05-12-yed-aware-graphml-import-design.md` §5) but specializes:
+- Input is Path-only (NOT `Graph | Path | str` union) — consistency with `yed_detector.detect_flavor`
+- DEFAULT_CLASSIFIER_RULES is the only ruleset shipped; user override via dialog deferred to yE-E
+
+**Regression guarantees (all green post-yE-B):**
+- AC-2 byte-identical (`test_ai03_export_byte_identical`)
+- 3 critical SQLite gates
+- 5 yE-A detector tests
+- 8 PG-D L2 (skip cleanly offline)
+
+Test count: 261 → 273 passed, 33 skipped (PG offline) or 269 → 281 passed, 12 skipped (PG online + psycopg2).
+
+---
+
 ## [5.7.5-alpha] - 2026-05-12
 
 ### Italiano
