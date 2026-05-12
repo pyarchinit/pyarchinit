@@ -196,25 +196,34 @@ if QGIS_AVAILABLE:
             self.tabs.addTab(tab, "Groups")
 
         def _store(self):
+            # PG-UIFix (5.7.8-alpha): pass db_manager directly to
+            # ParadataStore. The _resolve_db_handle shim (PG-D era)
+            # accepts Path | DbHandle | str so both SQLite and
+            # PostgreSQL backends work.
             from modules.s3dgraphy.sync.paradata_store import ParadataStore
-            db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
-            if db_path is None:
+            if self.db_manager is None:
                 QMessageBox.critical(
-                    self, "No SQLite DB",
-                    "Paradata management requires a SQLite-backed pyarchinit project.")
+                    self, "No DB",
+                    "Paradata management requires an active pyarchinit "
+                    "project.")
                 return None
-            return ParadataStore(db_path, self.sito)
+            return ParadataStore(self.db_manager, self.sito)
 
         def _group_store(self):
-            """AI06: GroupStore factory analogous to _store()."""
+            """AI06: GroupStore factory analogous to _store().
+
+            PG-UIFix (5.7.8-alpha): db_manager pass-through; both
+            SQLite and PostgreSQL backends supported via
+            _resolve_db_handle shim from Foundation.
+            """
             from modules.s3dgraphy.sync.group_store import GroupStore
-            db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
-            if db_path is None:
+            if self.db_manager is None:
                 QMessageBox.critical(
-                    self, "No SQLite DB",
-                    "Group management requires a SQLite-backed pyarchinit project.")
+                    self, "No DB",
+                    "Group management requires an active pyarchinit "
+                    "project.")
                 return None
-            return GroupStore(db_path, self.sito)
+            return GroupStore(self.db_manager, self.sito)
 
         def _load_data(self):
             store = self._store()
@@ -404,21 +413,30 @@ if QGIS_AVAILABLE:
 
             lst = QListWidget()
             lst.setSelectionMode(QListWidget.MultiSelection)
-            # Load US for sito
+            # Load US for sito.
+            # PG-UIFix (5.7.8-alpha): rewritten to use SQLAlchemy via
+            # the db_manager engine so it works on both SQLite and
+            # PostgreSQL backends. Replaces the previous raw
+            # sqlite3.connect(...) which was SQLite-only.
             try:
-                import sqlite3
-                db = self.db_manager.get_sqlite_path() if self.db_manager else None
-                if db is None:
+                if self.db_manager is None:
                     QMessageBox.critical(
-                        dlg, "No SQLite DB",
-                        "US picker requires a SQLite-backed pyarchinit project.")
+                        dlg, "No DB",
+                        "US picker requires an active pyarchinit project.")
                     return
-                conn = sqlite3.connect(str(db))
-                rows = conn.execute(
-                    "SELECT node_uuid, us, area, unita_tipo "
-                    "FROM us_table WHERE sito=? ORDER BY us",
-                    (self.sito,)).fetchall()
-                conn.close()
+                from modules.s3dgraphy.sync._db_handle import (
+                    _resolve_db_handle)
+                from sqlalchemy import text
+                _handle = _resolve_db_handle(self.db_manager)
+                with _handle.engine.begin() as conn:
+                    rows = conn.execute(
+                        text(
+                            "SELECT node_uuid, us, area, unita_tipo "
+                            "FROM us_table WHERE sito = :sito "
+                            "ORDER BY us"
+                        ),
+                        {"sito": self.sito},
+                    ).fetchall()
                 for node_uuid, us, area, unita_tipo in rows:
                     if not node_uuid:
                         continue

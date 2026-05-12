@@ -187,80 +187,71 @@ class S3DGraphyDotBridge:
         # epoch swimlanes, transitive reduction, and full EM 1.5 edge styling.
         if 'graphml' in formats:
             graphml_path = os.path.join(output_dir, f"{base_name}.graphml")
-            db_path = None
-            if self.db_manager is not None:
-                db_path = self.db_manager.get_sqlite_path()
-            if db_path is None:
-                # PG backend (or no db_manager). Skip GraphML and
-                # surface a friendly status — DOT/JSON still produced.
+            # PG-UIFix (5.7.8-alpha): the previous
+            # 'if db_path is None: skip with PG-not-yet-supported'
+            # branch was obsolete -- PG-B
+            # (phase3-pgcompat-b-export-5.7.1-alpha, 2026-05-10)
+            # shipped graphml export on PG via DbHandle. Now both
+            # backends route through export_graphml() unconditionally
+            # by passing db_manager directly (resolved by
+            # _resolve_db_handle shim).
+            db_path = self.db_manager
+            from .sync.graphml_writer import (
+                export_graphml,
+                EmptyGraphError,
+                GraphMLExportError,
+            )
+            # Language for label localization (US/USM display).
+            # Read the QGIS locale; default to 'it' on any failure.
+            _locale = "it"
+            try:
+                from qgis.core import QgsSettings
+                _full = (QgsSettings().value(
+                    "locale/userLocale", "") or "")
+                _locale = _full[:2].lower() or "it"
+            except Exception:
+                pass
+            try:
+                result = export_graphml(
+                    db_path=db_path,
+                    mapping='pyarchinit_us_mapping',
+                    output_path=graphml_path,
+                    site_filter=site,
+                    persist_auxiliary=False,
+                    language=_locale,
+                    groups=groups,                # NEW (AI06)
+                    primary_priority=primary_priority,  # NEW (AI07)
+                )
+                exported_files['graphml'] = graphml_path
+                exported_files['graphml_result'] = result
+            except (FileNotFoundError, EmptyGraphError) as e:
+                exported_files['graphml_status'] = {
+                    'level': 'warning',
+                    'reason': str(e),
+                }
                 if QGIS_AVAILABLE:
                     QgsMessageLog.logMessage(
-                        "GraphML export requires SQLite backend; "
-                        "PostgreSQL support arrives with AI04. "
-                        "DOT and JSON exports are unaffected.",
-                        "PyArchInit", Qgis.Info,
+                        f"GraphML skipped: {e}",
+                        "PyArchInit", Qgis.Warning,
                     )
+            except GraphMLExportError as e:
+                import traceback
                 exported_files['graphml_status'] = {
-                    'level': 'info',
-                    'reason': 'postgresql backend not yet supported',
+                    'level': 'error',
+                    'stage': e.stage,
+                    'reason': str(e),
+                    'traceback': traceback.format_exc(),
                 }
-            else:
-                from .sync.graphml_writer import (
-                    export_graphml,
-                    EmptyGraphError,
-                    GraphMLExportError,
-                )
-                # Language for label localization (US/USM display).
-                # Read the QGIS locale; default to 'it' on any failure.
-                _locale = "it"
-                try:
-                    from qgis.core import QgsSettings
-                    _full = (QgsSettings().value(
-                        "locale/userLocale", "") or "")
-                    _locale = _full[:2].lower() or "it"
-                except Exception:
-                    pass
-                try:
-                    result = export_graphml(
-                        db_path=db_path,
-                        mapping='pyarchinit_us_mapping',
-                        output_path=graphml_path,
-                        site_filter=site,
-                        persist_auxiliary=False,
-                        language=_locale,
-                        groups=groups,                # NEW (AI06)
-                        primary_priority=primary_priority,  # NEW (AI07)
+                if QGIS_AVAILABLE:
+                    QgsMessageLog.logMessage(
+                        f"GraphML export failed at {e.stage}: "
+                        f"{e.original}",
+                        "PyArchInit", Qgis.Critical,
                     )
-                    exported_files['graphml'] = graphml_path
-                    exported_files['graphml_result'] = result
-                except (FileNotFoundError, EmptyGraphError) as e:
-                    exported_files['graphml_status'] = {
-                        'level': 'warning',
-                        'reason': str(e),
-                    }
-                    if QGIS_AVAILABLE:
-                        QgsMessageLog.logMessage(
-                            f"GraphML skipped: {e}",
-                            "PyArchInit", Qgis.Warning,
-                        )
-                except GraphMLExportError as e:
-                    import traceback
-                    exported_files['graphml_status'] = {
-                        'level': 'error',
-                        'stage': e.stage,
-                        'reason': str(e),
-                        'traceback': traceback.format_exc(),
-                    }
-                    if QGIS_AVAILABLE:
-                        QgsMessageLog.logMessage(
-                            f"GraphML export failed at {e.stage}: "
-                            f"{e.original}",
-                            "PyArchInit", Qgis.Critical,
-                        )
-                        QgsMessageLog.logMessage(
-                            traceback.format_exc(),
-                            "PyArchInit", Qgis.Critical,
-                        )
+                    QgsMessageLog.logMessage(
+                        traceback.format_exc(),
+                        "PyArchInit", Qgis.Critical,
+                    )
         
         # Export native s3dgraphy JSON format
         if 'json' in formats:
@@ -739,12 +730,16 @@ if QGIS_AVAILABLE:
                 return
             try:
                 graph = GraphMLImporter(filepath=graphml_path).parse()
-                db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
-                if db_path is None:
+                # PG-UIFix (5.7.8-alpha): GraphIngestor.populate_list
+                # accepts db_manager (Path | DbHandle | str) via the
+                # _resolve_db_handle shim from Foundation. Both SQLite
+                # and PostgreSQL backends supported since PG-C.
+                if self.db_manager is None:
                     QMessageBox.critical(
-                        self, "No SQLite DB",
-                        "Import requires a SQLite-backed pyarchinit project.")
+                        self, "No DB",
+                        "Import requires an active pyarchinit project.")
                     return
+                db_path = self.db_manager
                 target_sito = (self.cb_sito.currentText().strip()
                                or self.site)
                 if not target_sito:
@@ -827,12 +822,14 @@ if QGIS_AVAILABLE:
             try:
                 graph = GraphMLImporter(
                     filepath=self._last_preview_path).parse()
-                db_path = self.db_manager.get_sqlite_path() if self.db_manager else None
-                if db_path is None:
+                # PG-UIFix (5.7.8-alpha): db_manager pass-through;
+                # both backends supported via _resolve_db_handle shim.
+                if self.db_manager is None:
                     QMessageBox.critical(
-                        self, "No SQLite DB",
-                        "Import requires a SQLite-backed pyarchinit project.")
+                        self, "No DB",
+                        "Import requires an active pyarchinit project.")
                     return
+                db_path = self.db_manager
                 target_sito = (self.cb_sito.currentText().strip()
                                or self.site)
                 if not target_sito:
