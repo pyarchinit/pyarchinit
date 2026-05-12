@@ -2,10 +2,10 @@
 
 **Date:** 2026-05-12 (amended 2026-05-12 post PG-UIFix)
 **Branch:** Stratigraph_00001
-**Predecessor tag:** `pg-uifix-5.7.8-alpha` (commit `e35e137c`) — was originally `yed-import-parsers-5.7.7-alpha` (`5d666c67`) before PG-UIFix interleaved
-**Target tag:** `yed-import-pipeline-5.7.9-alpha` (shifted from `5.7.8-alpha` because PG-UIFix reserved that tag 2026-05-12)
+**Predecessor tag:** `pg-bv2-5.7.9-alpha` (commit TBD after Group A ships) — was previously `pg-uifix-5.7.8-alpha` then `pg-uuidfix-5.7.8.1-alpha` before PG-Bv2 interleaved
+**Target tag:** `yed-import-pipeline-5.8.0-alpha` (shifted from `5.7.9-alpha` because PG-Bv2 reserved that tag 2026-05-12)
 
-> **Note** — PG-UIFix milestone interleaved between yE-C and yE-D, reserving `pg-uifix-5.7.8-alpha`. yE-D shifts by one minor: `yed-import-pipeline-5.7.9-alpha`. yE-E and yE-Closure also shift to `5.8.0-alpha` and `5.8.1-alpha`. The user has ALSO requested that **PG-Bv2** (graphml export on PG via DbHandle-aware populate_graph) be prioritized BEFORE yE-D given the partial-scope of PG-UIFix Bug 2. PG-Bv2 timing/version TBD in next brainstorm.
+> **Note** — PG-UIFix milestone interleaved between yE-C and yE-D, reserving `pg-uifix-5.7.8-alpha`. PG-UUIDFix then reserved `pg-uuidfix-5.7.8.1-alpha`. PG-Bv2 then reserved `pg-bv2-5.7.9-alpha`. yE-D now shifts to: `yed-import-pipeline-5.8.0-alpha`. yE-E and yE-Closure also shift to `5.8.1-alpha` and `5.8.2-alpha`.
 
 ---
 
@@ -66,8 +66,8 @@ Components shipped:
 |---|---|---|
 | `modules/s3dgraphy/sync/graph_ingestor.py:169-227` | **MAJOR CHANGE**: branch hook dispatches to `import_yed_raw()` and RETURNS its `IngestResult` (no fall-through to legacy for yEd-raw) | +30/-20 |
 | Vocab source (located plan-time) | Add `'VA'` to `UNITA_TIPO` whitelist for SYNTHETIC policy | ~50 |
-| `metadata.txt` | 5.7.8-alpha → 5.7.9-alpha | 1 |
-| `dev_logs/CHANGELOG.md` | Prepend bilingual `[5.7.9-alpha]` section | ~60 |
+| `metadata.txt` | 5.7.9-alpha → 5.8.0-alpha | 1 |
+| `dev_logs/CHANGELOG.md` | Prepend bilingual `[5.8.0-alpha]` section | ~60 |
 | `docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md` | Prepend yE-D section above yE-C | ~50 |
 
 ### Files NOT touched
@@ -327,7 +327,7 @@ Find:
 
 ### Patch strategy
 
-- **If pure Python whitelist**: add `'VA'` directly to the tuple/set definition + add a comment block: `# yE-D (5.7.9-alpha): 'VA' added for FolderEdgePolicy.SYNTHETIC` virtual activity rows`
+- **If pure Python whitelist**: add `'VA'` directly to the tuple/set definition + add a comment block: `# yE-D (5.8.0-alpha): 'VA' added for FolderEdgePolicy.SYNTHETIC` virtual activity rows`
 - **If JSON**: add `'VA'` to the relevant JSON file; update vocab_provider to reload if needed
 - **If DB CHECK constraint**: schema migration required → escalate to plan author, possibly defer SYNTHETIC implementation again
 
@@ -444,8 +444,8 @@ PYTHONPATH="$PWD" python -m pytest tests/sync/ tests/migrations/ -q --tb=no
 |---|---|---|---|
 | **Group 0** | Pre-flight + rollback tag `pre-yed-import-pipeline` + plan-time investigation (UNITA_TIPO whitelist location, ParadataStore API, mini fixture geometry validation) | Controller (pure git + grep) | — |
 | **Group A** | Production: 2 new modules + CLI + vocab patch + hook MAJOR change + 15 L0 + 9 L1 tests. Single commit. | 1 subagent | ~880 prod + ~930 test |
-| **Group B** | Docs: bump 5.7.8 → 5.7.9-alpha + bilingual CHANGELOG + dev-log yE-D section above yE-C | 1 subagent | ~110 |
-| **Group C** | Annotated tag `yed-import-pipeline-5.7.9-alpha` + USER APPROVAL GATE + push | 1 subagent (stop at C.4); controller pushes | — |
+| **Group B** | Docs: bump 5.7.9-alpha → 5.8.0-alpha + bilingual CHANGELOG + dev-log yE-D section above PG-Bv2 | 1 subagent | ~110 |
+| **Group C** | Annotated tag `yed-import-pipeline-5.8.0-alpha` + USER APPROVAL GATE + push | 1 subagent (stop at C.4); controller pushes | — |
 | **Memory** | Update `project_yed_import_progress.md` with yE-D SHIPPED + `MEMORY.md` index | Controller | — |
 
 ### Effort estimate
@@ -471,14 +471,14 @@ PYTHONPATH="$PWD" python -m pytest tests/sync/ tests/migrations/ -q --tb=no
 
 ### Per Group B
 
-- `metadata.txt` shows `version=5.7.9-alpha`
+- `metadata.txt` shows `version=5.8.0-alpha`
 - Bilingual CHANGELOG entry prepended
-- Dev-log yE-D section above yE-C
+- Dev-log yE-D section above PG-Bv2
 - Strict trailer check returns 0
 
 ### Per Group C
 
-- Annotated tag `yed-import-pipeline-5.7.9-alpha` created (local first)
+- Annotated tag `yed-import-pipeline-5.8.0-alpha` created (local first)
 - Tag points to Group B commit
 - Trailer check on tag message returns 0
 - **STOP at Task C.4**: user manual test plan presented

@@ -5,6 +5,68 @@
 
 ---
 
+## [5.7.9-alpha] - 2026-05-12
+
+### Italiano
+
+**PG-Bv2 — GraphML export su PostgreSQL backend.**
+
+Chiude il gap PG lasciato aperto da PG-B (`phase3-pgcompat-b-export-5.7.1-alpha`, 2026-05-10): l'export GraphML dal matrix viewer ora funziona end-to-end su DB PostgreSQL.
+
+**Cosa shipa**:
+
+- **NEW** `modules/s3dgraphy/sync/pyarchinit_pg_importer.py` (~120 LOC): nuova funzione `import_from_pg(handle, sito, mapping_name)` che sostituisce l'upstream `PyArchInitImporter` (SQLite-only) per il branch PG. Legge `us_table` via SQLAlchemy + costruisce `StratigraphicNode` + `PropertyNode` dal mapping `pyarchinit_us_mapping.json`. Approccio **α-narrow**: solo PG usa il nuovo reader, SQLite continua su upstream (preserva AC-2 byte-identical).
+- **MODIFIED** `graph_projector.py:populate_graph()`: routing via `_resolve_db_handle` + branch `if handle.is_postgres: import_from_pg() else: PyArchInitImporter()`. I 5 helper a valle accettano già DbHandle (PG-B).
+- **MODIFIED** `s3dgraphy_dot_bridge.py`: rimosso il branch `if db_path is None: skip` ripristinato dal revert PG-UIFix. Ora sicuro perché `populate_graph()` supporta PG end-to-end.
+- **INVERTED** test `tests/sync/test_pg_uifix.py::test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2` → `test_graphml_export_runs_on_pg_backend` (asserisce assenza dei marker deferred-state).
+- **NEW** `tests/sync/test_pg_bv2_pg_importer.py`: 2 L0 (mapping load + mock row build) + 2 L2 PG (end-to-end export + SQLite-vs-PG structural equivalence usando `pg_with_volterra`).
+
+**Garanzie regressione (tutte verdi)**:
+- AC-2 byte-identical (SQLite path invariato)
+- 3 critical SQLite gates
+- 8 PG-D L2 + 5 yE-A + 12 yE-B + 16 yE-C + 2 PG-UIFix L0 + 7 PG-UUIDFix tests
+
+Test count: 298 passed, 37 skipped (PG offline) — +4 delta (2 L0 passed + 2 L2 added to skip; matches plan's 296→300 progression target with actual baseline of 298).
+
+**Side-effect sulla rollout yEd-aware**:
+
+- yE-D Pipeline: `yed-import-pipeline-5.7.9-alpha` → `yed-import-pipeline-5.8.0-alpha`
+- yE-E Dialog: `yed-import-dialog-5.8.0-alpha` → `yed-import-dialog-5.8.1-alpha`
+- yE-Closure: `yed-import-closure-5.8.1-alpha` → `yed-import-closure-5.8.2-alpha`
+
+Spec yE-D aggiornato in commit separato.
+
+### English
+
+**PG-Bv2 — GraphML export on PostgreSQL backend.**
+
+Closes the PG gap left by PG-B (`phase3-pgcompat-b-export-5.7.1-alpha`, 2026-05-10): graphml export from the matrix viewer now works end-to-end on PostgreSQL databases.
+
+**What ships**:
+
+- **NEW** `modules/s3dgraphy/sync/pyarchinit_pg_importer.py` (~120 LOC): new `import_from_pg(handle, sito, mapping_name)` function replacing the upstream SQLite-only `PyArchInitImporter` for the PG branch. Reads `us_table` via SQLAlchemy + builds `StratigraphicNode` + `PropertyNode` from `pyarchinit_us_mapping.json`. **α-narrow** approach: only PG uses the new reader, SQLite keeps upstream (preserves AC-2 byte-identical).
+- **MODIFIED** `graph_projector.py:populate_graph()`: routes through `_resolve_db_handle` + branches `if handle.is_postgres: import_from_pg() else: PyArchInitImporter()`. The 5 downstream helpers already accept DbHandle (PG-B).
+- **MODIFIED** `s3dgraphy_dot_bridge.py`: removed the `if db_path is None: skip` envelope restored by PG-UIFix revert. Safe now because `populate_graph()` supports PG end-to-end.
+- **INVERTED** `tests/sync/test_pg_uifix.py::test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2` → `test_graphml_export_runs_on_pg_backend` (asserts deferred-state markers absent).
+- **NEW** `tests/sync/test_pg_bv2_pg_importer.py`: 2 L0 (mapping load + mocked row build) + 2 L2 PG (end-to-end export + SQLite-vs-PG structural equivalence via `pg_with_volterra`).
+
+**Regression guarantees (all green)**:
+- AC-2 byte-identical (SQLite path untouched)
+- 3 critical SQLite gates
+- 8 PG-D L2 + 5 yE-A + 12 yE-B + 16 yE-C + 2 PG-UIFix L0 + 7 PG-UUIDFix tests
+
+Test count: 298 passed, 37 skipped (PG offline) — +4 delta (2 L0 passed + 2 L2 added to skip; matches plan's 296→300 progression target with actual baseline of 298).
+
+**Rollout cascade**:
+
+- yE-D Pipeline: `yed-import-pipeline-5.7.9-alpha` → `yed-import-pipeline-5.8.0-alpha`
+- yE-E Dialog: `yed-import-dialog-5.8.0-alpha` → `yed-import-dialog-5.8.1-alpha`
+- yE-Closure: `yed-import-closure-5.8.1-alpha` → `yed-import-closure-5.8.2-alpha`
+
+yE-D spec updated in separate commit.
+
+---
+
 ## [5.7.8.1-alpha] - 2026-05-12
 
 ### Italiano
