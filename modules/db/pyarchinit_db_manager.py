@@ -2762,17 +2762,91 @@ class Pyarchinit_db_management(object):
                 session.close()
             return {}
 
+    def _normalize_query_params(self, params: dict, table_class_name: str) -> dict:
+        """pg-media-fix (5.7.9.1-alpha): canonicalize params before cache.
+
+        Two-step normalization that mirrors what ``query_bool`` used to
+        do inline AFTER the cache lookup (which was the bug source — a
+        stale empty result keyed by the pre-coercion string shadowed
+        the fix):
+
+        1. Strip outer single quotes from legacy quoted-string values
+           (``"'42'"`` → ``"42"``). Some callers still build the dict
+           this way for compatibility with raw-SQL paths.
+        2. Coerce string-encoded numeric values to the column's
+           ``python_type`` when the SQLAlchemy column declaration is
+           Integer/Float-shaped. PostgreSQL is strict on types:
+           ``BIGINT = '42'`` silently returns zero rows. SQLite is
+           type-loose so the bug was invisible there. After this step
+           ``42`` (int) replaces ``"42"`` (str) and the cache key
+           changes, busting any stale empty cache.
+
+        Returns the normalized dict (does NOT mutate ``params``).
+        Unknown table classes pass through with quote-stripping only.
+        Unknown columns pass through unchanged. Failures in coercion
+        (e.g. ``int("abc")``) fall through with the original value.
+        """
+        # Resolve the table class via module globals (entities are
+        # imported at module top with names matching the ``table_classes``
+        # dict keys in ``query_bool``). If unknown (placeholder name in
+        # tests), fall back to quote-strip only.
+        table_class = globals().get(table_class_name)
+        mapped_table = None
+        if table_class is not None:
+            try:
+                from sqlalchemy.orm import class_mapper
+                mapped_table = class_mapper(table_class).mapped_table
+            except Exception:
+                mapped_table = None
+
+        normalized: dict = {}
+        for key, value in params.items():
+            # Step 1: strip outer single quotes.
+            if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
+                value = value.strip("'")
+            # Step 2: numeric coercion driven by SQLAlchemy column type.
+            if isinstance(value, str) and table_class is not None:
+                column = None
+                if hasattr(table_class, key):
+                    attr = getattr(table_class, key)
+                    if hasattr(attr, '__clause_element__') or hasattr(attr, 'property'):
+                        column = attr
+                if column is None and mapped_table is not None and key in mapped_table.c:
+                    column = mapped_table.c[key]
+                if column is not None:
+                    try:
+                        col_pytype = column.type.python_type
+                        if col_pytype in (int, float):
+                            value = col_pytype(value)
+                    except (NotImplementedError, ValueError, AttributeError):
+                        # Column lacks python_type, or value isn't numeric.
+                        # Keep original — downstream compare will return
+                        # the same (empty) result as pre-fix.
+                        pass
+            normalized[key] = value
+        return normalized
+
     def query_bool(self, params, table_class_name):
         _perf_log(f"query_bool({table_class_name}, {params}) START")
+
+        # pg-media-fix (5.7.9.1-alpha): normalize params BEFORE the cache
+        # lookup so the cache key reflects the COERCED values. Without
+        # this pre-normalization, a session that ran `query_bool` with
+        # the legacy quoted-string pattern (e.g. id_entity="'42'") on PG
+        # before the coercion fix was active would have cached an empty
+        # result keyed by the STRING value; subsequent calls hit the
+        # stale cache and never exercise the coercion. Pre-normalizing
+        # produces an int-keyed cache entry on the first new call.
+        u = Utility()
+        params = u.remove_empty_items_fr_dict(params)
+        params = self._normalize_query_params(params, table_class_name)
+
         # Cache per query_bool (molto usato nelle schede)
         cache_key = self._get_cache_key('query_bool', params, table_class_name)
         cached_result = self._get_cached_result(cache_key, cache_timeout=300)  # 5 minuti
         if cached_result is not None:
             _perf_log(f"query_bool({table_class_name}) CACHED")
             return cached_result
-        
-        u = Utility()
-        params = u.remove_empty_items_fr_dict(params)
 
         # Handle thesaurus table name compatibility
         if table_class_name == 'PYARCHINIT_THESAURUS_SIGLE' and 'nome_tabella' in params:
@@ -2902,25 +2976,11 @@ class Pyarchinit_db_management(object):
                 print(f"[PyArchInit] Column {key} not found for {table_class_name}, skipping in search")
                 continue
 
-            # Clean the value if it's a string with quotes
-            if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
-                value = value.strip("'")
-            # pg-media-fix (5.7.9.1-alpha): PostgreSQL is strict about type
-            # comparisons — `BIGINT id_entity = '42'::text` silently returns
-            # no rows and the calling form (e.g. loadMediaPreview() in
-            # US_USM/Pottery/Struttura/Tafonomia) bails on empty result with
-            # no UI feedback. SQLite tolerates loose comparisons. Coerce
-            # string-encoded numeric values to the column's python_type so
-            # both backends match. Safe for SQLite (no behavior change).
-            if isinstance(value, str) and column is not None:
-                try:
-                    col_pytype = column.type.python_type
-                    if col_pytype in (int, float):
-                        value = col_pytype(value)
-                except (NotImplementedError, ValueError, AttributeError):
-                    # Column type lacks python_type, or value isn't numeric.
-                    # Fall through with original string — same as pre-fix.
-                    pass
+            # pg-media-fix (5.7.9.1-alpha): outer-quote strip + numeric
+            # coercion were moved to ``_normalize_query_params`` which
+            # runs BEFORE the cache key is computed (see top of method).
+            # At this point ``value`` is already the canonical Python
+            # type (int/float/str). No further normalization needed.
             conditions.append(column == value)
 
         # Construct the query with the conditions

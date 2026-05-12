@@ -23,9 +23,10 @@ import inspect
 
 
 def test_query_bool_has_numeric_coercion_block():
-    """Source-inspection guard: confirm the coercion block is present
-    in query_bool, with the docstring referencing pg-media-fix and
-    the safety net (try/except).
+    """Source-inspection guard: confirm the coercion logic is present
+    in the ``_normalize_query_params`` helper and is invoked BEFORE
+    the cache lookup in ``query_bool``. The pre-cache order is
+    essential — see test_query_bool_normalize_runs_before_cache.
 
     Reads the module file directly via filesystem path because
     ``import modules.db.pyarchinit_db_manager`` triggers QGIS imports
@@ -37,8 +38,13 @@ def test_query_bool_has_numeric_coercion_block():
     assert target.exists(), f"target file missing: {target}"
     src = target.read_text(encoding="utf-8")
     assert "pg-media-fix" in src, (
-        "coercion block missing or pg-media-fix reference removed — "
+        "coercion logic missing or pg-media-fix reference removed — "
         "MEDIATOENTITY queries will silently fail on PG again"
+    )
+    assert "_normalize_query_params" in src, (
+        "_normalize_query_params helper missing — pg-media-fix relies "
+        "on extracting the coercion into a callable that runs before "
+        "the cache lookup"
     )
     assert "column.type.python_type" in src, (
         "column type introspection missing from coercion logic"
@@ -50,6 +56,51 @@ def test_query_bool_has_numeric_coercion_block():
     assert "NotImplementedError" in src and "ValueError" in src, (
         "defensive try/except removed — unhandled type lookups would "
         "raise and break every query_bool call"
+    )
+
+
+def test_query_bool_normalize_runs_before_cache():
+    """Critical ordering guard for pg-media-fix.
+
+    The user-reported regression (2026-05-12 evening) was that
+    ``query_bool`` returned a STALE empty result from cache on every
+    button click because the cache was populated BEFORE the coercion
+    was active. Pre-fix order:
+
+        cache_key = _get_cache_key(params)  # keyed by "'42'" str
+        cached = _get_cached_result(cache_key) → empty
+        return cached  # bug: bypasses coercion forever
+
+    Post-fix order MUST be:
+
+        params = _normalize_query_params(params, ...)  # coerce first
+        cache_key = _get_cache_key(params)  # keyed by 42 int
+        cached = _get_cached_result(cache_key) → miss
+        ... actually run the query
+
+    This test fails if a future refactor moves the cache lookup back
+    above the normalize call."""
+    from pathlib import Path
+    here = Path(__file__).resolve()
+    repo_root = here.parents[2]
+    target = repo_root / "modules" / "db" / "pyarchinit_db_manager.py"
+    src = target.read_text(encoding="utf-8")
+
+    # Find the ``def query_bool`` definition and extract its body
+    # (everything up to the next top-level ``def`` at the same indent).
+    start = src.index("    def query_bool(")
+    rest = src[start:]
+    next_def = rest.index("\n    def ", 1)
+    body = rest[:next_def]
+
+    norm_idx = body.find("_normalize_query_params")
+    cache_idx = body.find("_get_cache_key")
+    assert norm_idx > 0, "_normalize_query_params call missing from query_bool"
+    assert cache_idx > 0, "_get_cache_key call missing from query_bool"
+    assert norm_idx < cache_idx, (
+        "_normalize_query_params must run BEFORE _get_cache_key, "
+        "otherwise the stale-string cache key shadows the coercion "
+        f"(norm_idx={norm_idx}, cache_idx={cache_idx})"
     )
 
 
