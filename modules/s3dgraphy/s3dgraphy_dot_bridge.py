@@ -187,71 +187,92 @@ class S3DGraphyDotBridge:
         # epoch swimlanes, transitive reduction, and full EM 1.5 edge styling.
         if 'graphml' in formats:
             graphml_path = os.path.join(output_dir, f"{base_name}.graphml")
-            # PG-UIFix (5.7.8-alpha): the previous
-            # 'if db_path is None: skip with PG-not-yet-supported'
-            # branch was obsolete -- PG-B
-            # (phase3-pgcompat-b-export-5.7.1-alpha, 2026-05-10)
-            # shipped graphml export on PG via DbHandle. Now both
-            # backends route through export_graphml() unconditionally
-            # by passing db_manager directly (resolved by
-            # _resolve_db_handle shim).
-            db_path = self.db_manager
-            from .sync.graphml_writer import (
-                export_graphml,
-                EmptyGraphError,
-                GraphMLExportError,
-            )
-            # Language for label localization (US/USM display).
-            # Read the QGIS locale; default to 'it' on any failure.
-            _locale = "it"
-            try:
-                from qgis.core import QgsSettings
-                _full = (QgsSettings().value(
-                    "locale/userLocale", "") or "")
-                _locale = _full[:2].lower() or "it"
-            except Exception:
-                pass
-            try:
-                result = export_graphml(
-                    db_path=db_path,
-                    mapping='pyarchinit_us_mapping',
-                    output_path=graphml_path,
-                    site_filter=site,
-                    persist_auxiliary=False,
-                    language=_locale,
-                    groups=groups,                # NEW (AI06)
-                    primary_priority=primary_priority,  # NEW (AI07)
+            db_path = None
+            if self.db_manager is not None:
+                db_path = self.db_manager.get_sqlite_path()
+            if db_path is None:
+                # PG-UIFix (5.7.8-alpha) — Bug 2 DEFERRED to PG-Bv2.
+                # PG-B (5.7.1-alpha, 2026-05-10) flipped 5 SQL helpers
+                # in graph_projector.py to DbHandle, but the
+                # orchestrator populate_graph() at line 165 still does
+                # `Path(db_path)` + at line 190 calls
+                # PyArchInitImporter(filepath=str(db_path)) which is
+                # SQLite-only (ext_libs/s3dgraphy/importer/
+                # pyarchinit_importer.py uses sqlite3 directly).
+                # Restoring the skip-branch with an honest message
+                # until PG-Bv2 ships a DbHandle-aware import path
+                # (likely by replacing the upstream importer call
+                # with a SQLAlchemy-based us_table reader that
+                # constructs StratigraphicNode objects manually).
+                if QGIS_AVAILABLE:
+                    QgsMessageLog.logMessage(
+                        "GraphML export on PostgreSQL backend is not "
+                        "yet supported: pending PG-Bv2 milestone "
+                        "(upstream PyArchInitImporter is SQLite-only). "
+                        "DOT and JSON exports are unaffected.",
+                        "PyArchInit", Qgis.Info,
+                    )
+                exported_files['graphml_status'] = {
+                    'level': 'info',
+                    'reason': 'postgresql backend deferred to PG-Bv2',
+                }
+            else:
+                from .sync.graphml_writer import (
+                    export_graphml,
+                    EmptyGraphError,
+                    GraphMLExportError,
                 )
-                exported_files['graphml'] = graphml_path
-                exported_files['graphml_result'] = result
-            except (FileNotFoundError, EmptyGraphError) as e:
-                exported_files['graphml_status'] = {
-                    'level': 'warning',
-                    'reason': str(e),
-                }
-                if QGIS_AVAILABLE:
-                    QgsMessageLog.logMessage(
-                        f"GraphML skipped: {e}",
-                        "PyArchInit", Qgis.Warning,
+                # Language for label localization (US/USM display).
+                # Read the QGIS locale; default to 'it' on any failure.
+                _locale = "it"
+                try:
+                    from qgis.core import QgsSettings
+                    _full = (QgsSettings().value(
+                        "locale/userLocale", "") or "")
+                    _locale = _full[:2].lower() or "it"
+                except Exception:
+                    pass
+                try:
+                    result = export_graphml(
+                        db_path=db_path,
+                        mapping='pyarchinit_us_mapping',
+                        output_path=graphml_path,
+                        site_filter=site,
+                        persist_auxiliary=False,
+                        language=_locale,
+                        groups=groups,                # NEW (AI06)
+                        primary_priority=primary_priority,  # NEW (AI07)
                     )
-            except GraphMLExportError as e:
-                import traceback
-                exported_files['graphml_status'] = {
-                    'level': 'error',
-                    'stage': e.stage,
-                    'reason': str(e),
-                    'traceback': traceback.format_exc(),
-                }
-                if QGIS_AVAILABLE:
-                    QgsMessageLog.logMessage(
-                        f"GraphML export failed at {e.stage}: "
-                        f"{e.original}",
-                        "PyArchInit", Qgis.Critical,
-                    )
-                    QgsMessageLog.logMessage(
-                        traceback.format_exc(),
-                        "PyArchInit", Qgis.Critical,
-                    )
+                    exported_files['graphml'] = graphml_path
+                    exported_files['graphml_result'] = result
+                except (FileNotFoundError, EmptyGraphError) as e:
+                    exported_files['graphml_status'] = {
+                        'level': 'warning',
+                        'reason': str(e),
+                    }
+                    if QGIS_AVAILABLE:
+                        QgsMessageLog.logMessage(
+                            f"GraphML skipped: {e}",
+                            "PyArchInit", Qgis.Warning,
+                        )
+                except GraphMLExportError as e:
+                    import traceback
+                    exported_files['graphml_status'] = {
+                        'level': 'error',
+                        'stage': e.stage,
+                        'reason': str(e),
+                        'traceback': traceback.format_exc(),
+                    }
+                    if QGIS_AVAILABLE:
+                        QgsMessageLog.logMessage(
+                            f"GraphML export failed at {e.stage}: "
+                            f"{e.original}",
+                            "PyArchInit", Qgis.Critical,
+                        )
+                        QgsMessageLog.logMessage(
+                            traceback.format_exc(),
+                            "PyArchInit", Qgis.Critical,
+                        )
         
         # Export native s3dgraphy JSON format
         if 'json' in formats:

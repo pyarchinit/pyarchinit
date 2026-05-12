@@ -1,12 +1,18 @@
-"""PG-UIFix (5.7.8-alpha): regression tests pinning the absence of
-SQLite-only guards in dialog_paradata_manager and s3dgraphy_dot_bridge.
+"""PG-UIFix (5.7.8-alpha): regression tests for partial-scope hotfix.
 
-These tests guard against a future refactor accidentally re-introducing
-the obsolete 'requires SQLite-backed' check (Bug 1) or
-'postgresql backend not yet supported' branch (Bug 2). Both blocks
-are obsolete since Phase 3 PG-Compat shipped 2026-05-10/11 (tags
-phase3-pgcompat-b-export-5.7.1-alpha and
-phase3-pgcompat-d-paradata-5.7.3-alpha).
+Bug 1 (paradata/group manager + US picker) — SHIPPED on PG via
+ParadataStore/GroupStore which route db_manager through
+_resolve_db_handle shim (PG-D, 2026-05-11). Test 1 pins the
+obsolete SQLite-only guards as ABSENT.
+
+Bug 2 (graphml export on PG) — DEFERRED to PG-Bv2 milestone.
+PG-B (5.7.1-alpha, 2026-05-10) flipped 5 SQL helpers in
+graph_projector.py to DbHandle but left the orchestrator
+populate_graph() with `Path(db_path)` at line 165 + the upstream
+PyArchInitImporter call at line 190, which is SQLite-only.
+The user-facing skip-branch in s3dgraphy_dot_bridge.py is restored
+with an honest 'pending PG-Bv2' message. Test 2 pins the skip-branch
+as PRESENT until PG-Bv2 ships.
 """
 from __future__ import annotations
 
@@ -45,23 +51,40 @@ def test_paradata_manager_does_not_block_on_pg_handle():
         "Obsolete SQLite-only guard still present in US picker"
 
 
-def test_graphml_export_runs_on_pg_backend_no_skip_branch():
-    """Bug 2 regression test.
+def test_graphml_export_pg_skip_branch_is_present_pending_pg_bv2():
+    """Bug 2 deferred-state pin.
 
-    Pre-PG-UIFix: s3dgraphy_dot_bridge had 'if backend_is_postgres:
-    skip graphml export' branch that set
-    exported_files['graphml_status']['reason'] =
-    'postgresql backend not yet supported'.
+    PG-UIFix (5.7.8-alpha) ships only Bug 1. Bug 2 (graphml export
+    on PG) is deferred to PG-Bv2 because populate_graph() in
+    modules/s3dgraphy/sync/graph_projector.py still calls the
+    upstream SQLite-only PyArchInitImporter at line ~190 + does
+    Path(db_path) at line ~165.
 
-    Post-PG-UIFix: the skip branch is removed. The
-    'postgresql backend not yet supported' string is gone from
-    source.
+    The user-facing skip-branch in s3dgraphy_dot_bridge.py is kept
+    with an honest message referencing PG-Bv2. This test asserts:
+
+    - the skip branch IS present (so users don't get TypeError)
+    - the honest 'pending PG-Bv2' message IS in source
+    - the obsolete 'AI04' wording is NOT in source (was the original
+      pre-PG-UIFix message that misleadingly named AI04)
+
+    When PG-Bv2 ships, this test should be DELETED and the original
+    'no_skip_branch' assertion restored.
+
+    The Bug 1-like import-flow guards at lines ~742 and ~830 in
+    s3dgraphy_dot_bridge are REMOVED by PG-UIFix (those are about
+    ingest, not export — and GraphIngestor.populate_list accepts
+    db_manager via _resolve_db_handle since PG-C, 2026-05-11).
     """
     from modules.s3dgraphy import s3dgraphy_dot_bridge as bridge
 
     import inspect
     src = inspect.getsource(bridge)
-    assert "postgresql backend not yet supported" not in src, \
-        "Obsolete PG-skip branch still present in graphml export"
+    assert "pending PG-Bv2 milestone" in src, \
+        "PG-Bv2 follow-up message missing from skip-branch"
+    assert "postgresql backend deferred to PG-Bv2" in src, \
+        "Skip-branch status reason missing"
+    assert "PostgreSQL support arrives with AI04" not in src, \
+        "Obsolete AI04 wording still present (should be PG-Bv2)"
     assert "Import requires a SQLite-backed" not in src, \
-        "Obsolete SQLite-only import guard still present"
+        "Obsolete SQLite-only import-flow guard still present"
