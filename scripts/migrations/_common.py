@@ -38,7 +38,17 @@ def auto_backup_sqlite(db_path: Path, tag: str) -> Path:
     return backup
 
 
-def auto_backup_postgres(engine: Engine, tag: str, dest_dir: Path) -> Path:
+#: Default ``pg_dump`` subprocess timeout. 30 minutes is the upper bound
+#: for typical remote/large pyarchinit DBs (e.g., user-reported case
+#: 2026-05-12: ``khutm2`` at ``137.204.128.220:5432`` hit the old 300s
+#: cap and the migration aborted without backup). Override via
+#: ``PYARCHINIT_PG_DUMP_TIMEOUT`` env var when needed (huge DBs over a
+#: slow network may need more).
+_DEFAULT_PG_DUMP_TIMEOUT_SECONDS = 1800
+
+
+def auto_backup_postgres(engine: Engine, tag: str, dest_dir: Path,
+                         timeout: int | None = None) -> Path:
     """Run ``pg_dump`` on the engine's database; return path of the dump file.
 
     Discovers ``pg_dump`` via ``shutil.which``. If missing, raises
@@ -47,7 +57,13 @@ def auto_backup_postgres(engine: Engine, tag: str, dest_dir: Path) -> Path:
 
     Output path: ``<dest_dir>/<dbname>.sql.pre_<tag>_<ts>``.
     Subprocess is invoked with PGPASSWORD in env (never on the command line).
-    Subprocess timeout is 5 minutes.
+
+    ``timeout`` (seconds) defaults to 30 minutes
+    (``_DEFAULT_PG_DUMP_TIMEOUT_SECONDS``). The env var
+    ``PYARCHINIT_PG_DUMP_TIMEOUT``, if set to a positive integer,
+    overrides the default — useful for very large or geographically
+    distant PG instances. Passing ``timeout`` explicitly takes
+    precedence over the env var.
     """
     pg_dump = shutil.which("pg_dump")
     if pg_dump is None:
@@ -55,6 +71,12 @@ def auto_backup_postgres(engine: Engine, tag: str, dest_dir: Path) -> Path:
             "pg_dump not found on PATH. Install PostgreSQL client tools "
             "or skip the backup explicitly."
         )
+    if timeout is None:
+        env_override = os.environ.get("PYARCHINIT_PG_DUMP_TIMEOUT", "").strip()
+        if env_override.isdigit() and int(env_override) > 0:
+            timeout = int(env_override)
+        else:
+            timeout = _DEFAULT_PG_DUMP_TIMEOUT_SECONDS
     url = engine.url
     dbname = url.database or "unknown"
     stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
@@ -70,8 +92,24 @@ def auto_backup_postgres(engine: Engine, tag: str, dest_dir: Path) -> Path:
         "-f", str(out),
     ]
     env = {"PGPASSWORD": str(url.password or ""), "PATH": os.environ.get("PATH", "")}
-    proc = subprocess.run(cmd, env=env, timeout=300, check=False,
-                          capture_output=True, text=True)
+    try:
+        proc = subprocess.run(cmd, env=env, timeout=timeout, check=False,
+                              capture_output=True, text=True)
+    except subprocess.TimeoutExpired as e:
+        # Best-effort cleanup of the partial dump file so a future retry
+        # doesn't see a half-written .sql we can't trust.
+        try:
+            if out.exists():
+                out.unlink()
+        except OSError:
+            pass
+        raise BackupSkipped(
+            f"pg_dump timed out after {timeout} seconds. The DB is too "
+            f"large or the network is too slow for the current timeout. "
+            f"Set PYARCHINIT_PG_DUMP_TIMEOUT to a higher value (seconds) "
+            f"and retry, or run pg_dump manually then skip the automated "
+            f"backup. Original error: {e}"
+        ) from e
     if proc.returncode != 0:
         raise BackupSkipped(
             f"pg_dump exited {proc.returncode}: {proc.stderr.strip()}"

@@ -284,6 +284,111 @@ def test_backfill_pg_legacy_schema_auto_adds_pk():
             conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))
 
 
+def test_auto_backup_postgres_default_timeout_is_1800s():
+    """PG-UUIDFix follow-up: ``auto_backup_postgres`` default timeout
+    must be 30 minutes, not the old 300 seconds that aborted the
+    user's khutm2 backup on a remote PG (2026-05-12).
+    Source-inspection guard."""
+    import inspect
+    from scripts.migrations import _common
+    src = inspect.getsource(_common)
+    assert "_DEFAULT_PG_DUMP_TIMEOUT_SECONDS = 1800" in src, (
+        "default pg_dump timeout regression — must stay 1800s"
+    )
+    assert "PYARCHINIT_PG_DUMP_TIMEOUT" in src, (
+        "env-var override missing — power users on huge DBs can't tune"
+    )
+
+
+def test_auto_backup_postgres_env_override(monkeypatch, tmp_path):
+    """PG-UUIDFix follow-up: ``PYARCHINIT_PG_DUMP_TIMEOUT`` env var
+    overrides the default timeout. Passing ``timeout`` kwarg takes
+    precedence over the env var.
+
+    Uses a SQLite URL for the SQLAlchemy ``Engine`` (the function only
+    reads URL fields, doesn't connect) so the test runs without
+    requiring psycopg2 to be installed locally."""
+    from sqlalchemy import create_engine
+    from scripts.migrations._common import (
+        auto_backup_postgres,
+        _DEFAULT_PG_DUMP_TIMEOUT_SECONDS,
+    )
+    import subprocess
+
+    # The default must be 30 minutes regardless of monkeypatching the
+    # env var (sanity).
+    assert _DEFAULT_PG_DUMP_TIMEOUT_SECONDS == 1800
+
+    captured = {}
+
+    def fake_run(cmd, **kwargs):
+        captured["timeout"] = kwargs.get("timeout")
+        class P:
+            returncode = 0
+            stderr = ""
+        return P()
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/pg_dump")
+    engine = create_engine("sqlite:///:memory:")
+
+    # 1) No env var → default 1800.
+    monkeypatch.delenv("PYARCHINIT_PG_DUMP_TIMEOUT", raising=False)
+    auto_backup_postgres(engine, tag="x", dest_dir=tmp_path)
+    assert captured["timeout"] == 1800
+
+    # 2) Env var set → use it.
+    monkeypatch.setenv("PYARCHINIT_PG_DUMP_TIMEOUT", "3600")
+    auto_backup_postgres(engine, tag="x", dest_dir=tmp_path)
+    assert captured["timeout"] == 3600
+
+    # 3) Explicit kwarg takes precedence over env var.
+    auto_backup_postgres(engine, tag="x", dest_dir=tmp_path, timeout=900)
+    assert captured["timeout"] == 900
+
+    # 4) Garbage env var falls back to default.
+    monkeypatch.setenv("PYARCHINIT_PG_DUMP_TIMEOUT", "garbage")
+    auto_backup_postgres(engine, tag="x", dest_dir=tmp_path)
+    assert captured["timeout"] == 1800
+
+
+def test_auto_backup_postgres_timeout_raises_skipped(monkeypatch, tmp_path):
+    """When pg_dump exceeds the timeout, the function must raise
+    ``BackupSkipped`` with a helpful message naming
+    ``PYARCHINIT_PG_DUMP_TIMEOUT`` and cleanup the partial .sql file.
+
+    Uses a SQLite engine URL for ``create_engine`` (the function only
+    reads URL fields, doesn't connect) so the test runs in non-PG
+    environments too."""
+    import pytest
+    from sqlalchemy import create_engine
+    from scripts.migrations._common import (
+        BackupSkipped, auto_backup_postgres,
+    )
+    import subprocess
+
+    def fake_run(cmd, **kwargs):
+        # Touch the output file to simulate a partial pg_dump write,
+        # then raise TimeoutExpired so the cleanup path runs.
+        out_path = Path(cmd[cmd.index("-f") + 1])
+        out_path.write_text("partial garbage\n")
+        raise subprocess.TimeoutExpired(cmd, timeout=kwargs.get("timeout"))
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    monkeypatch.setattr("shutil.which", lambda name: "/usr/bin/pg_dump")
+    engine = create_engine("sqlite:///:memory:")
+
+    with pytest.raises(BackupSkipped, match="PYARCHINIT_PG_DUMP_TIMEOUT"):
+        auto_backup_postgres(engine, tag="x", dest_dir=tmp_path, timeout=1)
+
+    # Partial dump must be cleaned up so a future retry doesn't see a
+    # half-written .sql we can't trust.
+    leftovers = list(tmp_path.glob("*.pre_x_*"))
+    assert leftovers == [], (
+        f"partial pg_dump output not cleaned up: {leftovers}"
+    )
+
+
 def test_backfill_pg_legacy_rejects_duplicate_ids():
     """L2 integration: legacy PG dump with duplicate ``id_perfas``
     values cannot be auto-PK'd safely. ``backfill_uuids`` must raise
