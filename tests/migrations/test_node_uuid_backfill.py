@@ -155,3 +155,181 @@ def test_auto_backup_postgres_when_pg_dump_missing(tmp_path, monkeypatch):
     )
     with pytest.raises(BackupSkipped):
         auto_backup_postgres(engine, tag="x", dest_dir=tmp_path)
+
+
+# ---------------------------------------------------------------------
+# PG-UUIDFix (5.7.8.1-alpha) regression tests
+# ---------------------------------------------------------------------
+
+def test_canonical_pk_mapping_covers_all_target_tables():
+    """``_CANONICAL_PK`` must declare a column for every entry in
+    ``TABLES``. PG-UUIDFix depends on this mapping when a legacy PG
+    dump lacks the ``PRIMARY KEY`` constraint declared by the
+    SQLAlchemy structures."""
+    from scripts.migrations._2026_05_node_uuid_backfill_lib import (
+        _CANONICAL_PK,
+    )
+    for table in TABLES:
+        assert table in _CANONICAL_PK, (
+            f"{table} missing from _CANONICAL_PK — backfill_uuids "
+            f"cannot auto-add PRIMARY KEY on legacy PG dumps without it"
+        )
+        assert _CANONICAL_PK[table].startswith("id_"), (
+            f"_CANONICAL_PK[{table!r}] = {_CANONICAL_PK[table]!r} "
+            f"breaks the id_<short> convention"
+        )
+
+
+def test_backfill_auto_pk_source_inspection():
+    """Source-inspection guard: confirm the PG branch of
+    ``backfill_uuids`` auto-adds the PRIMARY KEY constraint and runs
+    the duplicate-check that protects against silently dropping
+    rows. Belt-and-braces for the L2 PG fixture which may not run
+    in every environment."""
+    import inspect
+    from scripts.migrations import _2026_05_node_uuid_backfill_lib as lib
+    src = inspect.getsource(lib.backfill_uuids)
+    assert "ADD CONSTRAINT" in src, (
+        "PG-UUIDFix auto-PK ALTER TABLE missing from backfill_uuids"
+    )
+    assert "PRIMARY KEY" in src
+    assert "HAVING COUNT(*) > 1" in src, (
+        "duplicate-pk-value check missing — auto-adding the constraint "
+        "would crash on dupes"
+    )
+    assert "no primary key declared on PostgreSQL" in src, (
+        "fallback error message removed — should still raise when no "
+        "canonical id column is available"
+    )
+
+
+def test_backfill_pg_legacy_schema_auto_adds_pk():
+    """L2 integration: simulate a legacy PG dump where
+    ``periodizzazione_table`` has no ``PRIMARY KEY``. ``backfill_uuids``
+    must (a) auto-add ``periodizzazione_table_pkey`` on ``id_perfas``
+    and (b) populate ``node_uuid``. Skips cleanly when PG offline or
+    psycopg2 missing.
+
+    Uses an isolated PG engine (NOT the shared ``pg_engine`` fixture)
+    so the schema mutation doesn't bleed into other tests."""
+    import pytest
+    pytest.importorskip("psycopg2")
+    from sqlalchemy import create_engine, inspect as sa_inspect, text
+    PG_CONN_STR = (
+        "postgresql+psycopg2://postgres:postgres@localhost:5433/"
+        "pyarchinit_test_pg"
+    )
+    try:
+        engine = create_engine(PG_CONN_STR)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        pytest.skip(f"PG unreachable: {e}")
+
+    test_table = "periodizzazione_table_legacy_uuidfix"
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))
+            # No PRIMARY KEY — mimics khutm2.sql legacy dump shape.
+            conn.execute(text(f"""
+                CREATE TABLE {test_table} (
+                    id_perfas BIGINT NOT NULL,
+                    sito TEXT,
+                    periodo INTEGER,
+                    fase TEXT
+                )
+            """))
+            conn.execute(text(
+                f"INSERT INTO {test_table} (id_perfas, sito, periodo, fase) "
+                "VALUES (1, 'S', 1, 'I'), (2, 'S', 2, 'II')"
+            ))
+
+        # Patch TABLES + _CANONICAL_PK to point at the throwaway table
+        # so we exercise the auto-PK branch without disturbing the
+        # shared fixture's periodizzazione_table.
+        from unittest.mock import patch
+        from scripts.migrations import (
+            _2026_05_node_uuid_backfill_lib as lib,
+        )
+        from modules.s3dgraphy.sync._db_handle import DbHandle
+        handle = DbHandle.from_engine(engine, PG_CONN_STR)
+
+        with patch.object(lib, "TABLES", (test_table,)), \
+             patch.dict(lib._CANONICAL_PK, {test_table: "id_perfas"}):
+            lib.add_columns(handle)
+            counts = lib.backfill_uuids(handle)
+
+        assert counts[test_table] == 2, (
+            f"expected 2 rows backfilled, got {counts[test_table]}"
+        )
+
+        inspector = sa_inspect(engine)
+        pk = inspector.get_pk_constraint(test_table)["constrained_columns"]
+        assert pk == ["id_perfas"], (
+            f"PRIMARY KEY not added: get_pk_constraint returned {pk}"
+        )
+
+        with engine.connect() as conn:
+            rows = conn.execute(
+                text(f"SELECT id_perfas, node_uuid FROM {test_table} "
+                     "ORDER BY id_perfas")
+            ).fetchall()
+        assert len(rows) == 2
+        for (_id, node_uuid) in rows:
+            assert node_uuid is not None
+            assert len(node_uuid) == 36
+
+    finally:
+        with engine.begin() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))
+
+
+def test_backfill_pg_legacy_rejects_duplicate_ids():
+    """L2 integration: legacy PG dump with duplicate ``id_perfas``
+    values cannot be auto-PK'd safely. ``backfill_uuids`` must raise
+    a clear ``RuntimeError`` naming the duplicate sample, NOT silently
+    drop or corrupt data."""
+    import pytest
+    pytest.importorskip("psycopg2")
+    from sqlalchemy import create_engine, text
+    PG_CONN_STR = (
+        "postgresql+psycopg2://postgres:postgres@localhost:5433/"
+        "pyarchinit_test_pg"
+    )
+    try:
+        engine = create_engine(PG_CONN_STR)
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception as e:
+        pytest.skip(f"PG unreachable: {e}")
+
+    test_table = "periodizzazione_table_dupes_uuidfix"
+    try:
+        with engine.begin() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))
+            conn.execute(text(f"""
+                CREATE TABLE {test_table} (
+                    id_perfas BIGINT,
+                    sito TEXT
+                )
+            """))
+            conn.execute(text(
+                f"INSERT INTO {test_table} VALUES (1, 'S'), (1, 'S'), (2, 'T')"
+            ))
+
+        from unittest.mock import patch
+        from scripts.migrations import (
+            _2026_05_node_uuid_backfill_lib as lib,
+        )
+        from modules.s3dgraphy.sync._db_handle import DbHandle
+        handle = DbHandle.from_engine(engine, PG_CONN_STR)
+
+        with patch.object(lib, "TABLES", (test_table,)), \
+             patch.dict(lib._CANONICAL_PK, {test_table: "id_perfas"}):
+            lib.add_columns(handle)
+            with pytest.raises(RuntimeError, match="duplicate values"):
+                lib.backfill_uuids(handle)
+
+    finally:
+        with engine.begin() as conn:
+            conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))

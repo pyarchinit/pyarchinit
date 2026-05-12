@@ -30,6 +30,19 @@ TABLES: tuple[str, ...] = (
     "periodizzazione_table",
 )
 
+#: Canonical primary key column per target table, as declared in the
+#: pyarchinit SQLAlchemy structures (``modules/db/structures/*.py``).
+#: Used by ``backfill_uuids`` to auto-add a missing ``PRIMARY KEY``
+#: constraint on legacy PostgreSQL dumps that were created from older
+#: schema definitions or via paths that lost the constraint
+#: (PG-UUIDFix 5.7.8.1-alpha — legacy dumps like ``khutm2.sql`` lacked
+#: ``periodizzazione_table_pkey``).
+_CANONICAL_PK: dict[str, str] = {
+    "us_table": "id_us",
+    "inventario_materiali_table": "id_invmat",
+    "periodizzazione_table": "id_perfas",
+}
+
 #: Type alias for the public migration API.
 #: NOTE: ``_resolve_db_handle()`` itself accepts more (``str`` conn-strings,
 #: SQLAlchemy ``Engine``, any DbManager-shaped object). ``DbInput`` is
@@ -85,12 +98,39 @@ def backfill_uuids(db: DbInput) -> dict[str, int]:
             if pks:
                 pk_col = pks[0]
             elif handle.is_postgres:
-                # PG has no rowid fallback — every pyarchinit table has a PK
-                # by design, but defend explicitly.
-                raise RuntimeError(
-                    f"{table}: no primary key declared on PostgreSQL — "
-                    "cannot backfill safely"
-                )
+                # PG-UUIDFix (5.7.8.1-alpha): legacy PG dumps may lack the
+                # PRIMARY KEY constraint that the pyarchinit SQLAlchemy
+                # schema declares (e.g. ``khutm2.sql`` from a pre-2018
+                # template). Auto-add it before the backfill: look up the
+                # canonical id column for the table, verify there are no
+                # duplicate values (which would block the constraint),
+                # then ``ALTER TABLE ... ADD PRIMARY KEY``. All inside
+                # the same ``engine.begin()`` so PG-A's auto-backup
+                # protects the user on failure.
+                pk_col = _CANONICAL_PK.get(table)
+                if pk_col is None or pk_col not in _columns_of(
+                        handle.engine, table):
+                    raise RuntimeError(
+                        f"{table}: no primary key declared on PostgreSQL "
+                        f"and no canonical id column found — cannot "
+                        f"backfill safely"
+                    )
+                dupes = conn.execute(
+                    text(f"SELECT {pk_col} FROM {table} "
+                         f"GROUP BY {pk_col} HAVING COUNT(*) > 1 "
+                         f"ORDER BY {pk_col} LIMIT 5")
+                ).fetchall()
+                if dupes:
+                    sample = ", ".join(str(r[0]) for r in dupes)
+                    raise RuntimeError(
+                        f"{table}: column {pk_col} has duplicate values "
+                        f"(sample: {sample}) — cannot auto-add PRIMARY "
+                        f"KEY. Resolve duplicates manually then re-run."
+                    )
+                conn.execute(text(
+                    f"ALTER TABLE {table} ADD CONSTRAINT "
+                    f"{table}_pkey PRIMARY KEY ({pk_col})"
+                ))
             else:
                 pk_col = "rowid"
             rows = conn.execute(
