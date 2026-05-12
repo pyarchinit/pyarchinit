@@ -166,25 +166,33 @@ class GraphIngestor:
         via the ``_resolve_db_handle`` shim from Foundation. Backward
         compat preserved for legacy callers passing a Path.
         """
-        # yE-A Foundation (5.7.5-alpha): yEd-raw detection hook.
+        # yE-A + yE-B: yEd-raw detection + classifier preview.
         # When graphml_path is provided AND it's a yEd-raw file (no
-        # pyarchinit.* keys), log a warning and fall through to the
-        # existing path. yE-B+ will replace this no-op with real
-        # dispatch to yed_import_pipeline.import_yed_raw().
+        # pyarchinit.* keys), classify its leaves and log a summary.
+        # Then fall through to the existing legacy path (full pipeline
+        # wiring lands in yE-C+).
         if graphml_path is not None:
             try:
                 from .yed_detector import detect_flavor
                 if detect_flavor(graphml_path) == "yed-raw":
                     import logging
+                    from collections import Counter
+                    from .yed_classifier import classify_leaves
+                    classified = classify_leaves(graphml_path)
+                    counts = Counter(n.auto_kind.value for n in classified)
+                    summary = ", ".join(
+                        f"{k}: {v}" for k, v in sorted(counts.items())
+                    )
                     logging.getLogger(__name__).warning(
-                        "yEd-raw graphml detected at %s -- yed-aware "
-                        "import path not yet implemented (yE-A "
-                        "foundation only). Falling through to legacy "
+                        "yEd-raw graphml detected at %s. Classified %d "
+                        "leaves: %s. Yed-aware import path not yet wired "
+                        "(yE-B classifier only). Falling through to legacy "
                         "path. Expect partial/incorrect ingestion.",
-                        graphml_path,
+                        graphml_path, len(classified), summary,
                     )
             except Exception:
-                # Detection is best-effort; never block the legacy path
+                # Detection + classification is best-effort;
+                # never block the legacy path
                 pass
         # -- existing pyarchinit-projected path UNCHANGED below --
         # AI06: graph may be a Path-like (graphml file). Auto-load.
