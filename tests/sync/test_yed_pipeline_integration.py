@@ -484,3 +484,89 @@ def test_yed_d_idempotent_on_re_run(
 
     assert us_after_second == us_after_first
     assert period_after_second == period_after_first
+
+
+# ---------------------------------------------------------------------------
+# yE-E (5.8.2-alpha) — overrides applied end-to-end on em_demo_02_mini
+# ---------------------------------------------------------------------------
+
+def test_apply_overrides_e2e_classifier_changes_us_count(
+    tmp_path: Path, workspace_env,
+) -> None:
+    """Forcing one PROPERTY leaf back into us_table via classifier
+    override → us_table row count increments by 1 vs the auto run.
+
+    The fixture has 1 PROPERTY leaf 'material' classified as PROPERTY.
+    Auto routing: paradata. With an override that re-routes it to
+    US_REAL, it should land in us_table (unita_tipo='US')."""
+    from modules.s3dgraphy.sync.yed_classifier import ClassificationKind
+    from modules.s3dgraphy.sync.yed_import_pipeline import YedOverrides
+    handle = _make_handle(tmp_path)
+    drafts = _drafts_from_fixture()
+
+    # Find the PROPERTY leaf's yed_id.
+    property_yed_id = None
+    for c in drafts["classified"]:
+        if c.auto_kind == ClassificationKind.PROPERTY:
+            property_yed_id = c.yed_id
+            break
+    assert property_yed_id is not None, "fixture invariant: needs a PROPERTY leaf"
+
+    ov = YedOverrides(classifier={property_yed_id: ClassificationKind.US_REAL})
+
+    result = import_yed_raw(
+        handle, FIXTURE, sito="DEMO_SITE", drafts=drafts,
+        policy=FolderEdgePolicy.SKIP,
+        overrides=ov,
+    )
+    assert result.errors == ()
+
+    with handle.engine.connect() as conn:
+        us_rows = list(conn.execute(
+            text("SELECT us, unita_tipo FROM us_table "
+                 "WHERE sito = :s ORDER BY us"),
+            {"s": "DEMO_SITE"},
+        ))
+    # Baseline (no override): 2 US_REAL + 1 USV_VIRTUAL = 3 rows.
+    # With override re-routing PROPERTY 'material' to US_REAL: 4 rows.
+    assert len(us_rows) == 4
+    assert any(r[0] == "material" and r[1] == "US" for r in us_rows)
+
+
+def test_apply_overrides_e2e_folder_skip(
+    tmp_path: Path, workspace_env,
+) -> None:
+    """A folder override with dimension='skip' must exclude that
+    folder from the _apply_yed_folder_dimensions UPDATE pass.
+
+    Auto run: each us_table row gets attivita = the folder's
+    auto_value. With override skipping the folder, attivita stays NULL
+    for those member rows."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import YedOverrides
+    handle = _make_handle(tmp_path)
+    drafts = _drafts_from_fixture()
+
+    # Pick the first folder and force-skip it.
+    folder = drafts["folders"][0]
+    ov = YedOverrides(folders={folder.yed_id: {"dimension": "skip"}})
+
+    result = import_yed_raw(
+        handle, FIXTURE, sito="DEMO_SITE", drafts=drafts,
+        policy=FolderEdgePolicy.SKIP,
+        overrides=ov,
+    )
+    assert result.errors == ()
+
+    with handle.engine.connect() as conn:
+        # Members of the skipped folder must have NULL attivita.
+        # `flatten_members` of folder[0] = direct + nested. Query
+        # us_table for all rows tied to the site and check attivita
+        # is NULL for at least one of them (the folder's members).
+        rows = list(conn.execute(
+            text("SELECT us, attivita FROM us_table WHERE sito = :s"),
+            {"s": "DEMO_SITE"},
+        ))
+    # At least one row has NULL attivita because the folder was skipped.
+    assert any(r[1] is None or r[1] == "" for r in rows), (
+        f"expected at least one row with NULL attivita; got: {rows}"
+    )

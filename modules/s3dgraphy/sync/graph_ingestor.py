@@ -196,13 +196,43 @@ class GraphIngestor:
                     # passed db_path (Path / str / DbHandle).
                     from ._db_handle import _resolve_db_handle
                     _yed_handle = _resolve_db_handle(db_path)
-                    # yE-D: dispatch + return; NO fall-through to legacy.
-                    # MVP: SKIP policy default. yE-E dialog will let
-                    # the user pick policy / per-classification overrides.
+
+                    # yE-E (5.8.2-alpha): when a QApplication is alive
+                    # (interactive QGIS session), open the override
+                    # wizard and pass the user's choices through. CLI /
+                    # headless callers (tests, scripts) have no
+                    # QApplication and skip straight to yE-D defaults.
+                    _yed_overrides = None
+                    _yed_policy = FolderEdgePolicy.SKIP
+                    try:
+                        from qgis.PyQt.QtWidgets import QApplication
+                        if QApplication.instance() is not None:
+                            from pyarchinit.gui.yed_import_dialog import (
+                                YedImportDialog,
+                            )
+                            dlg = YedImportDialog(
+                                drafts, graphml_path,
+                                _yed_handle, sito,
+                            )
+                            if dlg.exec() != dlg.DialogCode.Accepted:
+                                from .ingest_result import IngestResult
+                                return IngestResult(
+                                    applied=0,
+                                    errors=("Import cancelled by user",),
+                                )
+                            _yed_overrides = dlg.get_overrides()
+                            _yed_policy = dlg.get_policy()
+                    except ImportError:
+                        # Qt / pyarchinit.gui unavailable — fall through
+                        # to defaults. CLI + tests land here.
+                        pass
+
+                    # yE-D dispatch + return; NO fall-through to legacy.
                     return import_yed_raw(
                         _yed_handle, graphml_path, sito, drafts,
-                        policy=FolderEdgePolicy.SKIP,
+                        policy=_yed_policy,
                         dry_run=dry_run,
+                        overrides=_yed_overrides,
                     )
             except Exception as _e:
                 # Defensive fallback: if yEd-raw detection / parsing
