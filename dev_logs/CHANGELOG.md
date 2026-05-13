@@ -9,6 +9,21 @@
 
 ### Italiano
 
+**Fix post-Group-D (commit `cafde15b`)** — feedback utente sul primo smoke test in QGIS:
+
+1. **USV* in `us_table`**: `_classify_destination` ora instrada `USV_VIRTUAL` + `USV_FORMAL` in `sql_us` (erano in paradata). Le unità stratigrafiche virtuali sono "unità tipo" come le altre US e vanno nello stesso table con `unita_tipo` dedicato (`USV`, `USVs`, `USVn`, `USVc`). Solo DOC/COMB/PROP/VIRTUAL_FIND restano paradata. Helper `_resolve_unita_tipo()` deriva il valore corretto: USV_VIRTUAL→`USV`, USV_FORMAL→prefisso 4 caratteri del label.
+2. **Rapporti target = us label, non yed_id**: `_write_rapporti` ora riceve `id_to_label` (yed_id → us label) e produce tuple `[type, sito, area, us_label]` con il label leggibile (`"US02"`, `"USV101"`), NON l'id interno graphml (`"n0::n4::n12"` come prima). Rapporti il cui target non è in us_table (paradata, inventario) sono dropped con debug log — pyarchinit non li join'erebbe comunque.
+
+Smoke E2E su EM_demo_02.graphml (CLI):
+- us_table: **12 righe** (4 US + 8 USV) — era 4
+- rapporti corretti con label reali — era yed_id
+- attivita VA01..VA06 applicato a tutte e 12 — era applicato a 4
+- inv_mat 2 + periodi 2 invariati
+
+5 test L1 aggiornati per riflettere il comportamento corretto. Suite invariata: 336 passed / 42 skipped.
+
+---
+
 **yE-D Pipeline — primo milestone con DB write dal branch yEd-raw.**
 
 Quarto dei 6 milestone della rollout yEd-aware-graphml-import. Dopo yE-A (foundation), yE-B (classifier), yE-C (parsers), yE-D è la prima milestone che effettivamente **scrive nel database** dalla branch yEd-raw del dispatcher. Importare `EM_demo_02.graphml` (o qualsiasi file yEd-raw) ora produce `us_table` + `inventario_materiali_table` + `periodizzazione_table` + paradata popolati correttamente, invece del comportamento buggato pre-yE-D dove cadeva nel legacy path e produceva 17 righe distorte in `us_table`.
