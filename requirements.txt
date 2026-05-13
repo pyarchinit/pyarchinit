@@ -82,7 +82,11 @@ faiss-cpu>=1.7.4
 # Graph — 0.1.41 introduces LocationNodeGroup + is_in_location with kind
 # discriminator (toponym/study/functional), required by AI07 spatial-grouping
 # migration. ActivityNodeGroup remains supported (not deprecated).
-s3dgraphy>=0.1.41
+# 0.1.42 introduces ReusedSpecialFind (spolia / RSF), serUSD export dispatch
+# fix, semantic NodeLabel-regex dispatch in node_registry export pipeline,
+# and the public S3DgraphyPaletteWarning. RSF wired through pyarchinit yE-D
+# (5.8.1-alpha) — see CHANGELOG entry for s3dgraphy-bump.
+s3dgraphy>=0.1.42
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0

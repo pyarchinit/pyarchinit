@@ -90,6 +90,17 @@ def test_classify_virtual_find_wins_over_special(tmp_path):
     assert result[0].auto_kind == ClassificationKind.VIRTUAL_FIND
 
 
+def test_classify_reused_special_find(tmp_path):
+    """s3dgraphy-bump 0.1.42: RSF42 (Reused Special Find / spolia) →
+    REUSED_SPECIAL_FIND. Regex `^RSF\\d+` matches before the generic
+    SF rule (which starts with S, not R, so no real collision; the
+    test pins explicit recognition)."""
+    path = _make_graphml(tmp_path, ["RSF42"])
+    result = classify_leaves(path)
+    assert len(result) == 1
+    assert result[0].auto_kind == ClassificationKind.REUSED_SPECIAL_FIND
+
+
 def test_classify_document_with_subdots(tmp_path):
     """D.01.03 -> DOCUMENT (regex ^D\\.\\d+ matches the leading D.NN
     portion; trailing .03 is allowed)."""

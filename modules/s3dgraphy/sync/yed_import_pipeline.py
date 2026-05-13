@@ -77,6 +77,10 @@ _SQL_US_KINDS: frozenset = frozenset({
     # unita_tipo values: USV / USVs / USVn / USVc / ...), not to paradata.
     ClassificationKind.USV_VIRTUAL,
     ClassificationKind.USV_FORMAL,
+    # s3dgraphy 0.1.42: RSF (Reused Special Find) is a stratigraphic
+    # unit too (spolia — re-used architectural / decorative element
+    # with its own stratigraphic identity, family=real, non-series).
+    ClassificationKind.REUSED_SPECIAL_FIND,
 })
 _SQL_INVENTARIO_KINDS: frozenset = frozenset({
     ClassificationKind.SPECIAL_FIND,
@@ -96,6 +100,7 @@ _CLASSIFIED_KIND_TO_UNITA_TIPO: dict = {
     ClassificationKind.US_MASONRY: "USM",
     ClassificationKind.US_DOCUMENTARY: "USD",
     ClassificationKind.USV_VIRTUAL: "USV",
+    ClassificationKind.REUSED_SPECIAL_FIND: "RSF",
 }
 
 

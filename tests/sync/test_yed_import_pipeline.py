@@ -179,6 +179,22 @@ def test_classify_destination_splits_correctly() -> None:
     assert {c.yed_id for c in result["skipped"]} == {"x1", "x2"}
 
 
+def test_classify_destination_routes_rsf_to_us_table() -> None:
+    """s3dgraphy-bump 0.1.42: REUSED_SPECIAL_FIND (RSF / spolia) goes
+    to us_table (sql_us bucket) with unita_tipo='RSF', NOT to
+    inventario_materiali nor paradata."""
+    nodes = [
+        _leaf("r1", ClassificationKind.REUSED_SPECIAL_FIND, "RSF42"),
+        _leaf("s1", ClassificationKind.SPECIAL_FIND, "SF99"),
+    ]
+    result = _classify_destination(nodes)
+    assert {c.yed_id for c in result["sql_us"]} == {"r1"}
+    assert {c.yed_id for c in result["sql_inv"]} == {"s1"}
+    # _resolve_unita_tipo + _CLASSIFIED_KIND_TO_UNITA_TIPO contract.
+    from modules.s3dgraphy.sync.yed_import_pipeline import _resolve_unita_tipo
+    assert _resolve_unita_tipo(nodes[0]) == "RSF"
+
+
 # ---------------------------------------------------------------------------
 # Test 2 — _flatten_members recursive
 # ---------------------------------------------------------------------------

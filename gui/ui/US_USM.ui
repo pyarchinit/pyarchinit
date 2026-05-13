@@ -42718,6 +42718,11 @@ QPushButton:pressed {
         </item>
         <item>
          <property name="text">
+          <string>RSF</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>SUS</string>
          </property>
         </item>

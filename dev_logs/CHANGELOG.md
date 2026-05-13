@@ -5,6 +5,57 @@
 
 ---
 
+## [5.8.1-alpha] - 2026-05-13
+
+### Italiano
+
+**s3dgraphy-bump — vendoring 0.1.41 → 0.1.42 + integrazione RSF (Reused Special Find).**
+
+Emanuel ha rilasciato `s3dgraphy 0.1.42` su PyPI il 2026-05-10. Cambiamenti principali:
+
+1. **RSF (Reused Special Find)** — nuovo tipo stratigrafico per "spolia" (elementi architettonici/decorativi riutilizzati). Famiglia `real`, `is_series=false`. Visual: ottagono, bordo rosso `#9B3333`, fill bianco. Origine: DP-26, ultimo Development Project prima di EM 1.5 cut. Classe Python `ReusedSpecialFind` in `stratigraphic_node.py`, registrato in `STRATIGRAPHIC_CLASS_MAP`, datamodel JSON, visual rules, palette template.
+2. **`serUSD` export dispatch fixed** — la classe esisteva già ma l'exporter routava silently allo stencil default. Chiusa l'asimmetria export/import.
+3. **Export refactor — semantic dispatch** — `node_registry.py` (+162/-31): selezione palette per regex sul `<y:NodeLabel>` invece di dispatch posizionale per id GraphML. Robusto a riordini palette in yEd.
+4. **`S3DgraphyPaletteWarning`** — nuovo simbolo pubblico (subclass di `UserWarning`) emesso su label non riconosciuto o palette mancante stencil canonical. Backfill da defaults hardcoded.
+
+**Vendor copia** in `ext_libs/s3dgraphy/`: 9 file production aggiornati (`__init__.py` con version `0.1.42`, `JSON_config/em_visual_rules.json`, `JSON_config/s3Dgraphy_node_datamodel.json`, `exporter/graphml/node_generator.py`, `exporter/graphml/node_registry.py`, `nodes/__init__.py`, `nodes/stratigraphic_node.py`, `templates/em_palette_template.graphml`, `utils/utils.py`).
+
+**AC-2 byte-identical PRESERVATO**: `test_ai03_export_byte_identical.py` verde senza alcuna baseline regenerata. Emanuel ha mantenuto la promessa "round-trip identity preserved for all existing fixtures" — il refactor semantico produce output equivalente byte-by-byte.
+
+**Integrazione RSF in pyarchinit**:
+- `yed_classifier.py`: aggiunto `REUSED_SPECIAL_FIND` a `ClassificationKind` enum (13 valori totali) + regola regex `^RSF\d+` in `DEFAULT_CLASSIFIER_RULES` (posizionata tra VSF e SF).
+- `yed_import_pipeline.py`: aggiunto `REUSED_SPECIAL_FIND` a `_SQL_US_KINDS` (RSF va in us_table come gli altri US-family, decisione utente "è unità tipo, va in us_table") + entry `REUSED_SPECIAL_FIND: "RSF"` in `_CLASSIFIED_KIND_TO_UNITA_TIPO`.
+- `graph_ingestor.py`: aggiunto `"ReusedSpecialFind": "RSF"` a `_S3DGRAPHY_TYPE_TO_UNITA_TIPO` (round-trip recovery per graphml exportati con la nuova classe s3dgraphy).
+- `gui/ui/US_USM.ui`: nuovo `<item><string>RSF</string></item>` in `comboBox_unita_tipo` (visible nel form US/USM).
+
+**Smoke E2E**: import graphml con `RSF42` + `US01` + `SF99` + edge `RSF42→US01` → DB risultante: 2 righe us_table (`US01` unita_tipo='US', `RSF42` unita_tipo='RSF') + 1 riga inventario_materiali (`SF99`) + rapporto risolto correttamente con label (non yed_id).
+
+**Test**: 2 nuovi L0 in `tests/sync/test_yed_classifier.py::test_classify_reused_special_find` + `tests/sync/test_yed_import_pipeline.py::test_classify_destination_routes_rsf_to_us_table`. Suite: 336 → 338 passed, 42 skipped. AC-2 verde.
+
+**Versioning**: minor bump `5.8.0 → 5.8.1-alpha`. yE-E shifta a `5.8.2-alpha`, yE-Closure a `5.8.3-alpha`. Predecessor: `yed-import-pipeline-5.8.0-alpha` (commit `bfd9c858`, pushato).
+
+### English
+
+**s3dgraphy-bump — vendoring 0.1.41 → 0.1.42 + RSF integration.**
+
+Emanuel released `s3dgraphy 0.1.42` on PyPI 2026-05-10. Key changes: **RSF (Reused Special Find)** new stratigraphic node type for spolia (re-used architectural/decorative elements, family=real non-series, octagon shape #9B3333 border); **serUSD export dispatch** fixed (class existed but exporter silently fell back to default); **export refactor — semantic dispatch** in `node_registry.py` (regex on `<y:NodeLabel>` instead of GraphML-id positional, robust to palette reordering in yEd); **`S3DgraphyPaletteWarning`** new public warning class.
+
+Vendor copy: 9 production files updated in `ext_libs/s3dgraphy/` (full version `0.1.42`). **AC-2 byte-identical PRESERVED** — `test_ai03_export_byte_identical.py` green without regenerating baselines.
+
+RSF integration in pyarchinit:
+- `yed_classifier.py`: new `REUSED_SPECIAL_FIND` ClassificationKind + `^RSF\d+` regex rule.
+- `yed_import_pipeline.py`: RSF routed to `_SQL_US_KINDS` (us_table) with `unita_tipo='RSF'` per user decision ("è unità tipo, va in us_table").
+- `graph_ingestor.py`: `"ReusedSpecialFind": "RSF"` added to `_S3DGRAPHY_TYPE_TO_UNITA_TIPO`.
+- `gui/ui/US_USM.ui`: new `<item><string>RSF</string></item>` in `comboBox_unita_tipo`.
+
+Smoke E2E: RSF42 + US01 + SF99 graphml → 2 us_table rows (US01 'US' + RSF42 'RSF') + 1 inventario row (SF99) + rapporto correctly resolved to label.
+
+2 new L0 tests. Suite: 336 → 338 passed, 42 skipped. AC-2 green.
+
+Versioning: minor bump `5.8.0 → 5.8.1-alpha`. yE-E shifts to `5.8.2-alpha`, yE-Closure to `5.8.3-alpha`. Predecessor: `yed-import-pipeline-5.8.0-alpha` (commit `bfd9c858`, pushed).
+
+---
+
 ## [5.8.0-alpha] - 2026-05-13
 
 ### Italiano

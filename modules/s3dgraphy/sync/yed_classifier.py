@@ -26,7 +26,7 @@ from pathlib import Path
 
 
 class ClassificationKind(str, Enum):
-    """12-value enum for leaf classification destinations."""
+    """Leaf classification destinations (13 values since s3dgraphy 0.1.42)."""
     US_REAL          = "us_real"
     US_MASONRY       = "us_masonry"
     US_DOCUMENTARY   = "us_documentary"
@@ -34,6 +34,12 @@ class ClassificationKind(str, Enum):
     USV_FORMAL       = "usv_formal"
     SPECIAL_FIND     = "special_find"
     VIRTUAL_FIND     = "virtual_find"
+    # s3dgraphy 0.1.42 introduced ReusedSpecialFind for spolia: re-used
+    # architectural / decorative elements with a stratigraphic identity
+    # of their own (family=real, non-series). DP-26 last pre-EM-1.5
+    # Development Project. Routed to us_table like the other US family
+    # members with unita_tipo='RSF'.
+    REUSED_SPECIAL_FIND = "reused_special_find"
     DOCUMENT         = "document"
     COMBINER         = "combiner"
     PROPERTY         = "property"
@@ -42,7 +48,7 @@ class ClassificationKind(str, Enum):
 
 
 # Default regex map (ORDER-SENSITIVE -- first match wins).
-# Specific prefixes (USV, USM, USD, VSF) MUST precede generic
+# Specific prefixes (USV, USM, USD, VSF, RSF) MUST precede generic
 # ones (US, SF) to avoid mis-classification.
 DEFAULT_CLASSIFIER_RULES: list[tuple[re.Pattern, ClassificationKind]] = [
     (re.compile(r"^USVs\d*$|^USVn\d*$"),            ClassificationKind.USV_FORMAL),
@@ -51,6 +57,10 @@ DEFAULT_CLASSIFIER_RULES: list[tuple[re.Pattern, ClassificationKind]] = [
     (re.compile(r"^USD\d+"),                        ClassificationKind.US_DOCUMENTARY),
     (re.compile(r"^US\d+"),                         ClassificationKind.US_REAL),
     (re.compile(r"^VSF\d+"),                        ClassificationKind.VIRTUAL_FIND),
+    # RSF MUST precede SF (RSF labels start with R, but kept explicit
+    # for documentation — a stricter `^SF\d+` would still match e.g.
+    # 'SF101' but not 'RSF101').
+    (re.compile(r"^RSF\d+"),                        ClassificationKind.REUSED_SPECIAL_FIND),
     (re.compile(r"^SF\d+"),                         ClassificationKind.SPECIAL_FIND),
     (re.compile(r"^D\.\d+"),                        ClassificationKind.DOCUMENT),
     (re.compile(r"^C\.\d+"),                        ClassificationKind.COMBINER),

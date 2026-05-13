@@ -1373,6 +1373,10 @@ _S3DGRAPHY_TYPE_TO_UNITA_TIPO: dict[str, str] = {
     # policy in yed_import_pipeline.py for folder-derived synthetic
     # us_table rows (unita_tipo='VA').
     "VirtualActivity": "VA",
+    # s3dgraphy-bump (5.8.1-alpha): ReusedSpecialFind ("spolia"),
+    # introduced in s3dgraphy 0.1.42 (DP-26). Family=real, non-series.
+    # Routed to us_table by yE-D pipeline (unita_tipo='RSF').
+    "ReusedSpecialFind": "RSF",
 }
 
 
