@@ -32,6 +32,8 @@ Emanuel ha rilasciato `s3dgraphy 0.1.42` su PyPI il 2026-05-10. Cambiamenti prin
 
 **Test**: 2 nuovi L0 in `tests/sync/test_yed_classifier.py::test_classify_reused_special_find` + `tests/sync/test_yed_import_pipeline.py::test_classify_destination_routes_rsf_to_us_table`. Suite: 336 → 338 passed, 42 skipped. AC-2 verde.
 
+**Cleanup `ext_libs/` stale dist-info** (commit `34f94215`): l'utente ha segnalato che `ext_libs/s3dgraphy-0.1.40.dist-info`, `0.1.41.dist-info` e `0.1.42.dist-info` coesistevano side-by-side dopo upgrade ripetuti. `importlib.metadata.version("s3dgraphy")` ritornava la prima alfabetica (`0.1.40`) invece di quella attiva, e file rimossi tra versioni restavano on-disk venendo importati. Fix: `modules_installer.py` ora pre-cleanup `<pkg>-*.dist-info/` dirs + `__pycache__/` per ogni package in `requirements.txt` prima del `pip install --upgrade`. Logica wheel-name-normalised (lowercase + underscore→dash), idempotente, robusta a `ext_libs/` assente. Applica a tutti i package, non solo s3dgraphy.
+
 **Versioning**: minor bump `5.8.0 → 5.8.1-alpha`. yE-E shifta a `5.8.2-alpha`, yE-Closure a `5.8.3-alpha`. Predecessor: `yed-import-pipeline-5.8.0-alpha` (commit `bfd9c858`, pushato).
 
 ### English
