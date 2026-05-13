@@ -3545,86 +3545,22 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_n_reperto ON inventario_materiali_table(si
 -- Dependencies: 20
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
-CREATE OR REPLACE FUNCTION delete_media_table()
-  RETURNS trigger AS
-$BODY$
+--
+-- media-fk-migration 5.7.9.3-alpha: replaces pre-existing killer triggers
+-- (delete_media_table + delete_media_to_entity_table on media_thumb_table)
+-- with proper master -> derived FK ON DELETE CASCADE. The legacy triggers
+-- contained the tautology `IF OLD.id_media != OLD.id_media` which always
+-- evaluated FALSE, making the ELSE branch fire on every UPDATE/DELETE on
+-- media_thumb_table and cascade-deleting the master media_table row.
+-- See docs/superpowers/specs/2026-05-13-media-fk-migration-design.md.
+--
+ALTER TABLE media_thumb_table
+  ADD CONSTRAINT fk_media_thumb_to_media
+  FOREIGN KEY (id_media) REFERENCES media_table(id_media) ON DELETE CASCADE;
 
-BEGIN
-IF OLD.id_media!=OLD.id_media THEN
-update media_table set id_media=OLD.id_media;
-
-else
-
-DELETE from media_table
-where id_media = OLD.id_media ;
-end if;
-RETURN OLD;
-END;
-
-
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-ALTER FUNCTION delete_media_table()
-  OWNER TO postgres;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_table') THEN
-        CREATE TRIGGER delete_media_table
-		  AFTER UPDATE OR DELETE
-		  ON media_thumb_table
-		  FOR EACH ROW
-		  EXECUTE PROCEDURE delete_media_table();
-
-    END IF;
-END
-$$;
-
- ---------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION delete_media_to_entity_table()
-  RETURNS trigger AS
-$BODY$
-
-
-
-
-
-
-BEGIN
-IF OLD.id_media!=OLD.id_media THEN
-update media_to_entity_table set id_media=OLD.id_media;
-
-else
-
-DELETE from media_to_entity_table
-where id_media = OLD.id_media ;
-end if;
-RETURN OLD;
-END;
-
-
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
-ALTER FUNCTION delete_media_to_entity_table()
-  OWNER TO postgres;
-
-
-
-
- DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'delete_media_to_entity_table') THEN
-        CREATE TRIGGER delete_media_to_entity_table
-  AFTER UPDATE OR DELETE
-  ON media_thumb_table
-  FOR EACH ROW
-  EXECUTE PROCEDURE delete_media_to_entity_table();
-
-    END IF;
-END
-$$;
+ALTER TABLE media_to_entity_table
+  ADD CONSTRAINT fk_mte_to_media
+  FOREIGN KEY (id_media) REFERENCES media_table(id_media) ON DELETE CASCADE;
 
 CREATE OR REPLACE FUNCTION public.create_geom()
     RETURNS trigger
