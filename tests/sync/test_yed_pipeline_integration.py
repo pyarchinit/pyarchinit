@@ -191,19 +191,34 @@ def test_yed_d_end_to_end_skip_policy(tmp_path: Path, workspace_env) -> None:
             {"s": "DEMO_SITE"},
         ).scalar()
 
-    assert len(us_rows) == 2
-    assert {r[0] for r in us_rows} == {"US01", "US02"}
-    assert all(r[1] == "US" for r in us_rows)
+    # User-feedback 2026-05-13: USV_VIRTUAL now joins us_table → 3 rows.
+    assert len(us_rows) == 3
+    assert {r[0] for r in us_rows} == {"US01", "US02", "USV101"}
+    # unita_tipo: US / US / USV — virtual leaves carry the generic
+    # USV prefix (USV_FORMAL labels like USVs/USVn would carry the
+    # 4-char prefix; the mini fixture only has USV_VIRTUAL).
+    by_us = {r[0]: r[1] for r in us_rows}
+    assert by_us["US01"] == "US"
+    assert by_us["US02"] == "US"
+    assert by_us["USV101"] == "USV"
     assert inv_count == 1
     assert per_count == 2
 
     # No VA synthetic rows under SKIP.
     assert all(r[1] != "VA" for r in us_rows)
 
-    # Exactly one us_table row has rapporti written (US01 — source of
-    # the only leaf-to-leaf edge whose source lives in us_table).
+    # After USV moved into sql_us, both US01 and USV101 are leaf-to-leaf
+    # edge sources whose targets also live in us_table → 2 rapporti
+    # rows written. Verify targets are LABELS (us values), not yed_ids.
     rapporti_filled = [r for r in us_rows if r[2]]
-    assert len(rapporti_filled) == 1
+    assert len(rapporti_filled) == 2
+    # Rapporti target resolution: the JSON list must reference us
+    # labels like "US01"/"US02", NEVER yed_ids like "n0::n4::n12".
+    for r in rapporti_filled:
+        rapp_json = r[2]
+        assert "::" not in rapp_json, (
+            f"rapporti contains yed_id (target unresolved): {rapp_json}"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -335,8 +350,9 @@ def test_yed_d_end_to_end_synthetic_policy(
     assert any("VA01" in lbl for lbl in labels)
     assert any("AR01" in lbl for lbl in labels)
 
-    # Total = 2 US_REAL + 2 VA synthetic = 4 rows.
-    assert total == 4
+    # Total = 2 US_REAL + 1 USV_VIRTUAL + 2 VA synthetic = 5 rows.
+    # (USV_VIRTUAL moved into sql_us per 2026-05-13 user feedback.)
+    assert total == 5
 
 
 # ---------------------------------------------------------------------------
@@ -346,9 +362,11 @@ def test_yed_d_end_to_end_synthetic_policy(
 def test_yed_d_paradata_written_via_store(
     tmp_path: Path, workspace_env,
 ) -> None:
-    """The fixture has 3 paradata leaves (USV101, material, VSF107);
-    `_write_paradata_via_store` is invoked for each, and the count
-    reported in parsed_drafts must match.
+    """The fixture has 2 paradata leaves after the 2026-05-13 fix
+    (USV_VIRTUAL moved into sql_us): only PROPERTY ('material') and
+    VIRTUAL_FIND (VSF107) remain in paradata. `_write_paradata_via_store`
+    is invoked for each, and the count reported in parsed_drafts must
+    match.
 
     Note: ParadataStore lacks several add_* methods (PG-D era only
     added a few); the dispatch logs a skip for missing methods but
@@ -364,8 +382,9 @@ def test_yed_d_paradata_written_via_store(
 
     assert result.errors == ()
     assert result.parsed_drafts is not None
-    # 3 paradata leaves attempted (USV_VIRTUAL + PROPERTY + VIRTUAL_FIND).
-    assert result.parsed_drafts["paradata_count"] == 3
+    # 2 paradata leaves attempted (PROPERTY + VIRTUAL_FIND);
+    # USV_VIRTUAL moved into sql_us.
+    assert result.parsed_drafts["paradata_count"] == 2
 
 
 # ---------------------------------------------------------------------------
@@ -401,7 +420,12 @@ def test_yed_d_dry_run_rolls_back(tmp_path: Path, workspace_env) -> None:
     # Counts that WOULD have been applied are reported in parsed_drafts.
     assert result.parsed_drafts is not None
     assert "would_apply" in result.parsed_drafts
-    assert result.parsed_drafts["would_apply"]["us_inserted"] == 2
+    # Post 2026-05-13 fix: 2 US_REAL + 1 USV_VIRTUAL = 3 us-class
+    # rows would be inserted (USV moved into sql_us). SYNTHETIC adds 2
+    # synthetic VA rows on top, but the SYNTHETIC INSERTs come from
+    # `_write_rapporti`, NOT `_write_us_rows`, so they aren't counted
+    # in `us_inserted` (kept as `rapporti_updated` semantics).
+    assert result.parsed_drafts["would_apply"]["us_inserted"] == 3
 
 
 # ---------------------------------------------------------------------------

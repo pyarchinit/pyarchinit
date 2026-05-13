@@ -72,25 +72,49 @@ _SQL_US_KINDS: frozenset = frozenset({
     ClassificationKind.US_REAL,
     ClassificationKind.US_MASONRY,
     ClassificationKind.US_DOCUMENTARY,
+    # User-feedback 2026-05-13: virtual stratigraphic units are still
+    # "unità tipo" — they belong to us_table (with different
+    # unita_tipo values: USV / USVs / USVn / USVc / ...), not to paradata.
+    ClassificationKind.USV_VIRTUAL,
+    ClassificationKind.USV_FORMAL,
 })
 _SQL_INVENTARIO_KINDS: frozenset = frozenset({
     ClassificationKind.SPECIAL_FIND,
 })
 _PARADATA_KINDS: frozenset = frozenset({
-    ClassificationKind.USV_VIRTUAL,
-    ClassificationKind.USV_FORMAL,
     ClassificationKind.VIRTUAL_FIND,
     ClassificationKind.DOCUMENT,
     ClassificationKind.COMBINER,
     ClassificationKind.PROPERTY,
 })
 
-# Map ClassifiedKind -> us_table.unita_tipo value.
+# Static map ClassifiedKind -> us_table.unita_tipo. USV_FORMAL is
+# resolved label-by-label via ``_resolve_unita_tipo`` since the prefix
+# (USVs / USVn / USVc) determines the value.
 _CLASSIFIED_KIND_TO_UNITA_TIPO: dict = {
     ClassificationKind.US_REAL: "US",
     ClassificationKind.US_MASONRY: "USM",
     ClassificationKind.US_DOCUMENTARY: "USD",
+    ClassificationKind.USV_VIRTUAL: "USV",
 }
+
+
+def _resolve_unita_tipo(c: ClassifiedNode) -> str | None:
+    """Resolve us_table.unita_tipo for a classified leaf.
+
+    USV_FORMAL labels carry the unita_tipo in the prefix (e.g.
+    ``USVs5`` → ``USVs``, ``USVn112`` → ``USVn``, ``USVc04`` → ``USVc``);
+    the static map can't represent that. For other kinds, the static
+    map is authoritative.
+    """
+    if c.user_kind == ClassificationKind.USV_FORMAL:
+        # Read the first 3 or 4 characters of the label, prefer the
+        # 4-char variant when the 4th char is a recognised suffix
+        # (s / n / c). Defensive: anything shorter falls back to "USV".
+        if len(c.label) >= 4 and c.label[3] in ("s", "n", "c", "S", "N", "C"):
+            return c.label[:4]
+        return "USV"
+    return _CLASSIFIED_KIND_TO_UNITA_TIPO.get(c.user_kind)
 
 # Set of folder dimension column names that are eligible for the
 # auto-UPDATE pass (matches yed_group_walker.DEFAULT_FOLDER_PREFIX_MAP).
@@ -209,7 +233,7 @@ def _write_us_rows(
     count = 0
     uuid_map: dict[str, str] = {}
     for c in sql_us_classified:
-        unita_tipo = _CLASSIFIED_KIND_TO_UNITA_TIPO.get(c.user_kind)
+        unita_tipo = _resolve_unita_tipo(c)
         if unita_tipo is None:
             log.warning(
                 "_write_us_rows: skipping %r (unmapped kind %s)",
@@ -409,6 +433,7 @@ def _write_rapporti(
     expanded: ExpandedRapporti,
     sito: str,
     uuid_map: dict[str, str],
+    id_to_label: dict[str, str] | None = None,
 ) -> int:
     """Write us_table.rapporti for each leaf-to-leaf pair.
 
@@ -416,26 +441,29 @@ def _write_rapporti(
     non-empty, INSERT one us_table row per synthetic dict first;
     each carries ``node_uuid``, ``unita_tipo='VA'``, ``us=<label>``.
     The synthetic node_uuids are also folded into ``uuid_map`` so
-    subsequent rapporti UPDATEs can target them.
+    subsequent rapporti UPDATEs can target them; the synthetic
+    label is folded into ``id_to_label`` so target resolution works.
 
     The pyarchinit ``rapporti`` column is a JSON list of
     ``[type, sito, area, us_target]`` tuples (one per outbound edge).
     yE-D MVP: ``type='covers'`` when ``edge_type`` is None,
     ``area='1'`` (matches the yE-D default in ``_write_us_rows``),
-    ``us_target`` = the target's ``us`` label resolved via reverse
-    lookup on ``uuid_map`` (and on the source/target yed_ids that
-    map to leaf labels for non-synthetic rows).
+    ``us_target`` = the target's ``us`` label, resolved via
+    ``id_to_label`` (yed_id → label). When a rapporto target is NOT
+    present in ``id_to_label`` (e.g. the target leaf was classified
+    as paradata / inventario, not as a us_table row), the rapporto is
+    SKIPPED with a debug log — pyarchinit's rapporti join requires
+    the target to exist in us_table.
 
     Returns total count of UPDATE statements run (one per source
-    that has at least one rapporto).
+    that has at least one resolvable rapporto).
     """
+    id_to_label = dict(id_to_label or {})  # local mutable copy
+
     # SYNTHETIC: insert virtual-activity rows first.
     for sr in expanded.synthetic_us_rows:
         node_uuid = sr.get("node_uuid")
         us_label = sr.get("us") or ""
-        # Synthetic rows from Group A use uuid.uuid4().hex; we keep
-        # them as-is here (no re-mint) so the rapporti rewires
-        # produced by Group A remain valid.
         conn.execute(
             text(
                 "INSERT INTO us_table "
@@ -450,20 +478,15 @@ def _write_rapporti(
                 "node_uuid": node_uuid,
             },
         )
-        # The synthetic node_uuid is already the leaf-id in
-        # expanded.rapporti (see Group A SYNTHETIC branch), so the
-        # rewire below works directly without map lookup. But we
-        # still feed an identity mapping so reverse lookups on the
-        # source side find the synthetic row's `us` label.
+        # The synthetic node_uuid is the leaf-id used by Group A's
+        # SYNTHETIC branch when it rewired folder edges. Feed both
+        # the uuid_map (for the source-side UPDATE WHERE clause) and
+        # the id_to_label map (for target resolution).
         if node_uuid:
             uuid_map[node_uuid] = node_uuid
+            if us_label:
+                id_to_label[node_uuid] = us_label
 
-    # Build a reverse map (yed_id -> us-label) to resolve targets.
-    # For non-synthetic leaves, the yed_id is the rapporti tuple's
-    # entry; we read the row back from us_table via node_uuid.
-    # MVP: we don't read back labels — instead, we build the rapporti
-    # list using yed_id as the surrogate us-label. yE-E dialog can
-    # rewire to real labels.
     # ── Group rapporti by source ────────────────────────────────────
     by_source: dict[str, list[tuple[str, str | None]]] = {}
     for src, tgt, edge_type in expanded.rapporti:
@@ -481,11 +504,16 @@ def _write_rapporti(
             continue
         rapporti_list = []
         for tgt, edge_type in edges:
+            target_label = id_to_label.get(tgt)
+            if target_label is None:
+                log.debug(
+                    "_write_rapporti: target %r has no us_table row, "
+                    "skipping rapporto", tgt,
+                )
+                continue
             rapp_type = edge_type or "covers"
-            # MVP us-label of the target = the target yed_id, since
-            # we don't have a real us-number yet.
             rapporti_list.append([
-                rapp_type, sito, "1", tgt,
+                rapp_type, sito, "1", target_label,
             ])
         if not rapporti_list:
             continue
@@ -691,8 +719,13 @@ def import_yed_raw(
             counts["us_updated_dim"] = _apply_yed_folder_dimensions(
                 conn, folders, sito, uuid_map,
             )
+            # Build yed_id -> us-label map for rapporti target resolution.
+            # Includes every leaf that landed in us_table (sql_us bucket),
+            # so the rapporti tuples reference real us values, not yed
+            # internal ids. Synthetic rows are merged inside _write_rapporti.
+            id_to_label = {c.yed_id: c.label for c in sql_us}
             counts["rapporti_updated"] = _write_rapporti(
-                conn, expanded, sito, uuid_map,
+                conn, expanded, sito, uuid_map, id_to_label,
             )
             # Paradata writes go through ParadataStore which manages
             # its own file I/O. ParadataStore IS NOT inside the SQL

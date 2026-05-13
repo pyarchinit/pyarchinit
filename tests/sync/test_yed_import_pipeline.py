@@ -145,13 +145,20 @@ def _folder(yed_id: str, label: str, *,
 # ---------------------------------------------------------------------------
 
 def test_classify_destination_splits_correctly() -> None:
-    """Mixed kinds split into sql_us / sql_inv / paradata / skipped."""
+    """Mixed kinds split into sql_us / sql_inv / paradata / skipped.
+
+    User-feedback 2026-05-13: virtual stratigraphic units (USV*) are
+    "unità tipo" and belong to us_table, NOT paradata. The pipeline's
+    destination map was corrected to route USV_VIRTUAL + USV_FORMAL
+    into the sql_us bucket alongside US_REAL / US_MASONRY / US_DOCUMENTARY.
+    """
     nodes = [
         _leaf("u1", ClassificationKind.US_REAL, "US1"),
         _leaf("u2", ClassificationKind.US_MASONRY, "USM1"),
         _leaf("u3", ClassificationKind.US_DOCUMENTARY, "USD1"),
         _leaf("s1", ClassificationKind.SPECIAL_FIND, "SF1"),
         _leaf("v1", ClassificationKind.USV_VIRTUAL, "USV1"),
+        _leaf("vs1", ClassificationKind.USV_FORMAL, "USVs1"),
         _leaf("vf1", ClassificationKind.VIRTUAL_FIND, "VSF1"),
         _leaf("d1", ClassificationKind.DOCUMENT, "D.1"),
         _leaf("p1", ClassificationKind.PROPERTY, "material"),
@@ -161,10 +168,13 @@ def test_classify_destination_splits_correctly() -> None:
 
     result = _classify_destination(nodes)
 
-    assert {c.yed_id for c in result["sql_us"]} == {"u1", "u2", "u3"}
+    # USV_* now joins us_table alongside the US family.
+    assert {c.yed_id for c in result["sql_us"]} == {
+        "u1", "u2", "u3", "v1", "vs1",
+    }
     assert {c.yed_id for c in result["sql_inv"]} == {"s1"}
     assert {c.yed_id for c in result["paradata"]} == {
-        "v1", "vf1", "d1", "p1",
+        "vf1", "d1", "p1",
     }
     assert {c.yed_id for c in result["skipped"]} == {"x1", "x2"}
 
