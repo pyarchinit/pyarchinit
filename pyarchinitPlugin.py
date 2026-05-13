@@ -2699,6 +2699,19 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionUuidBackfill)
 
+            # media-fk-migration 5.7.9.3-alpha: drop the legacy killer
+            # triggers on media_thumb_table and replace them with proper
+            # FK ON DELETE CASCADE. PG-only (SQLite templates were
+            # already cleaned in-place by this milestone).
+            self.actionMediaFkMigration = QAction(
+                "Migrazioni → Fix trigger media (cascade pericoloso)",
+                self.iface.mainWindow())
+            self.actionMediaFkMigration.triggered.connect(
+                self._run_media_fk_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionMediaFkMigration)
+
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
@@ -2882,6 +2895,209 @@ class PyArchInitPlugin(object):
             self.iface.mainWindow(),
             "Backfill completato",
             f"Backup: {backup_path}\n\nUUID v7 assegnati:\n{counts_msg}",
+        )
+
+    def _run_media_fk_migration(self):
+        """media-fk-migration 5.7.9.3-alpha: drop the killer triggers on
+        media_thumb_table, clean orphans, install FK ON DELETE CASCADE.
+
+        PG-only. SQLite installs receive the cleaned template binary as
+        part of this milestone (no runtime migration needed there).
+
+        Pattern mirrors ``_run_uuid_backfill_migration``: resolve handle
+        from the configured Connection, detect, count, confirm,
+        auto-backup, apply, verify, summarize.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from pathlib import Path
+        try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .scripts.migrations._2026_05_media_fk_cascade_lib import (
+                apply_migration,
+                count_orphans,
+                detect_killer_triggers,
+                verify_post_migration,
+            )
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+            )
+        except Exception:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
+            from scripts.migrations._2026_05_media_fk_cascade_lib import (
+                apply_migration,
+                count_orphans,
+                detect_killer_triggers,
+                verify_post_migration,
+            )
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+            )
+
+        # Step 1: resolve the active DB connection (same path as
+        # _run_uuid_backfill_migration).
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione).",
+            )
+            return
+
+        try:
+            handle = _resolve_db_handle(conn_str)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile aprire la connessione al DB:\n{e}",
+            )
+            return
+
+        # Step 2: PG-only gate. SQLite installs already received the
+        # cleaned template — there is nothing to do at runtime.
+        if not handle.is_postgres:
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "Fix trigger media",
+                "Migrazione PG-only. I database SQLite ricevono "
+                "il template già bonificato da questa release.",
+            )
+            return
+
+        # Step 3: detect killer triggers; bail out cleanly on no-op.
+        try:
+            det = detect_killer_triggers(handle)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore rilevamento trigger",
+                f"Impossibile interrogare information_schema:\n{e}",
+            )
+            return
+        if not det["has_triggers"]:
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "Fix trigger media",
+                "Database già pulito — nessun trigger killer rilevato.",
+            )
+            return
+
+        # Step 4: count orphans + build preview dialog text.
+        try:
+            orph = count_orphans(handle)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore conteggio orfani",
+                f"Impossibile contare gli orfani:\n{e}",
+            )
+            return
+
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or ""))
+        names_block = "\n  ".join(det["trigger_names"])
+        msg = (
+            f"Backend: {backend_label}\n\n"
+            f"Rilevati {len(det['trigger_names'])} trigger killer da "
+            f"rimuovere:\n  {names_block}\n\n"
+            f"Orfani in media_thumb_table: {orph['thumb_orphans']}\n"
+            f"Orfani in media_to_entity_table: {orph['mte_orphans']}\n\n"
+            "Verrà eseguito un pg_dump di backup prima della migrazione.\n"
+            "Procedere?"
+        )
+        reply = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Fix trigger media",
+            msg,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+        if reply != QMessageBox.Yes:
+            return
+
+        # Step 5: auto-backup (same dest_dir convention as PG-A).
+        backup_path = None
+        dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                    / "_pga_backups")
+        try:
+            backup_path = auto_backup_postgres(
+                handle.engine, tag="media_fk_migration",
+                dest_dir=dest_dir,
+            )
+        except BackupSkipped as e:
+            skip = QMessageBox.question(
+                self.iface.mainWindow(),
+                "Backup non disponibile",
+                f"{e}\n\nProcedere SENZA backup automatico "
+                "(sconsigliato)?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No,
+            )
+            if skip != QMessageBox.Yes:
+                return
+            backup_path = None
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Backup fallito",
+                f"pg_dump è fallito:\n{e}\n\nMigrazione annullata.",
+            )
+            return
+
+        # Step 6: apply (single transaction, rollback on error).
+        try:
+            res = apply_migration(handle, dry_run=False)
+        except Exception as e:
+            msg = (f"La migrazione è fallita (rollback automatico):\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else (f"La migrazione è fallita "
+                      f"(rollback automatico):\n{e}\n\n"
+                      "Nessun backup creato.")
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore migrazione",
+                msg,
+            )
+            return
+
+        # Step 7: verify post-migration is clean.
+        try:
+            v = verify_post_migration(handle)
+        except Exception as e:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Verifica post-migrazione fallita",
+                f"Migrazione applicata ma la verifica finale è fallita:"
+                f"\n{e}",
+            )
+            return
+        if not v["is_clean"]:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Verifica post-migrazione non pulita",
+                f"Migrazione applicata ma stato finale non pulito: {v}",
+            )
+            return
+
+        # Step 8: summary dialog.
+        summary = (
+            "Migrazione completata.\n\n"
+            f"Trigger droppati: {res['triggers_dropped']}\n"
+            f"Orfani thumb cancellati: {res['thumb_orphans_deleted']}\n"
+            f"Orfani MTE cancellati: {res['mte_orphans_deleted']}\n"
+            f"FK installate: {res['fks_installed']}\n\n"
+            f"Backup: {backup_path or '(non eseguito)'}"
+        )
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Fix trigger media",
+            summary,
         )
 
     def _unload_stratigraph_sync(self):

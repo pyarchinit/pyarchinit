@@ -611,3 +611,68 @@ def test_dry_run_rolls_back(pg_with_volterra):
             )
     finally:
         _teardown_media_tables(pg_with_volterra)
+
+
+# ---------------------------------------------------------------------------
+# Group C — SQLite template-binary guards (L1, no PG required)
+#
+# The two shipped SQLite template DBs (``resources/dbfiles/pyarchinit.sqlite``
+# + ``resources/dbfiles/pyarchinit_db.sqlite``) were created decades ago and
+# embed a SQLite-flavour version of the killer trigger
+# ``delete_media_table`` (AFTER DELETE on media_thumb_table, cascading into
+# media_table). On every fresh SQLite install the user inherited the bug.
+#
+# Group C drops the trigger from both binaries (in-place sqlite3 surgery,
+# then VACUUM to compact). These two L1 tests open the binaries directly
+# via the ``sqlite3`` stdlib module and assert ``sqlite_master`` carries
+# no ``delete_media*`` triggers, so any future regeneration of the
+# templates that re-introduces the trigger will fail CI immediately.
+# ---------------------------------------------------------------------------
+
+
+def test_sqlite_template_pyarchinit_has_no_killer_trigger():
+    """The shipped pyarchinit.sqlite template (used by new SQLite
+    installations) must not contain the killer trigger that ships
+    pre-5.7.9.3-alpha. Reads the binary directly via sqlite3."""
+    import sqlite3
+    from pathlib import Path
+    here = Path(__file__).resolve()
+    plugin_root = here.parents[2]
+    template = plugin_root / "resources" / "dbfiles" / "pyarchinit.sqlite"
+    assert template.exists(), f"template missing: {template}"
+    conn = sqlite3.connect(str(template))
+    try:
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='trigger' "
+            "AND name LIKE 'delete_media%'"
+        ).fetchall()
+    finally:
+        conn.close()
+    assert rows == [], (
+        f"killer trigger(s) still present in template: {rows}. "
+        "Regenerate per docs/superpowers/specs/"
+        "2026-05-13-media-fk-migration-design.md"
+    )
+
+
+def test_sqlite_template_pyarchinit_db_has_no_killer_trigger():
+    """Same guard for the second template pyarchinit_db.sqlite."""
+    import sqlite3
+    from pathlib import Path
+    here = Path(__file__).resolve()
+    plugin_root = here.parents[2]
+    template = plugin_root / "resources" / "dbfiles" / "pyarchinit_db.sqlite"
+    assert template.exists(), f"template missing: {template}"
+    conn = sqlite3.connect(str(template))
+    try:
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='trigger' "
+            "AND name LIKE 'delete_media%'"
+        ).fetchall()
+    finally:
+        conn.close()
+    assert rows == [], (
+        f"killer trigger(s) still present in template: {rows}. "
+        "Regenerate per docs/superpowers/specs/"
+        "2026-05-13-media-fk-migration-design.md"
+    )
