@@ -77,6 +77,17 @@ def _project_to_graphml(db_path, sito, out_path, *, mutate_field=None,
         del sys.modules[m]
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     from s3dgraphy.exporter.graphml.graphml_exporter import GraphMLExporter
+    # yE-D (5.8.0-alpha): the branch hook in graph_ingestor.populate_list
+    # now dispatches yEd-raw graphmls to import_yed_raw() (no
+    # fall-through to legacy). The raw s3dgraphy exporter does NOT
+    # embed the ``pyarchinit.<*>`` <key> declarations the
+    # detect_flavor() probe looks for, so the resulting graphml would
+    # be misclassified as yEd-raw. Call _embed_pyarchinit_data_keys
+    # after export so the produced file carries the marker keys and
+    # detect_flavor() returns ``"pyarchinit-projected"``.
+    from modules.s3dgraphy.sync.graphml_writer import (
+        _embed_pyarchinit_data_keys,
+    )
     graph = GraphProjector().populate_graph(db_path, sito=sito)
     if mutate_field is not None:
         for n in graph.nodes:
@@ -86,6 +97,7 @@ def _project_to_graphml(db_path, sito, out_path, *, mutate_field=None,
                 break
     GraphMLExporter(graph).export(str(out_path),
                                   persist_auxiliary=False)
+    _embed_pyarchinit_data_keys(graph, out_path)
     return out_path
 
 

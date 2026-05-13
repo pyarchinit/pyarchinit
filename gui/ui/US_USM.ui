@@ -42713,6 +42713,11 @@ QPushButton:pressed {
         </item>
         <item>
          <property name="text">
+          <string>VA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
           <string>SUS</string>
          </property>
         </item>

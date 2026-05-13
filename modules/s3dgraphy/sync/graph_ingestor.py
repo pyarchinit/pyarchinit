@@ -166,64 +166,56 @@ class GraphIngestor:
         via the ``_resolve_db_handle`` shim from Foundation. Backward
         compat preserved for legacy callers passing a Path.
         """
-        # yE-A + yE-B + yE-C: yEd-raw detection + classify + parse.
-        # When graphml_path is provided AND it's a yEd-raw file (no
-        # pyarchinit.* keys), classify leaves, extract periods, walk
-        # folders. Log a 3-line summary + populate
-        # _yed_parsed_drafts (passed to IngestResult below). Then
-        # fall through to legacy path (full pipeline wiring lands
-        # in yE-D).
-        _yed_parsed_drafts = None  # populated below if yEd-raw detected
+        # yE-A + yE-B + yE-C + yE-D: yEd-raw detection -> dedicated
+        # pipeline dispatch. When graphml_path is provided AND it's a
+        # yEd-raw file (no pyarchinit.* keys), classify leaves +
+        # extract periods + walk folders, then dispatch to
+        # `import_yed_raw()` and RETURN its IngestResult — the legacy
+        # `_run()` path is NOT executed for yEd-raw graphmls.
+        #
+        # yE-D (5.8.0-alpha): branch hook is now a dispatcher. The
+        # pyarchinit-projected branch (after this block) is UNCHANGED
+        # and remains sacred for AC-2 byte-identical contract.
+        _yed_parsed_drafts = None  # legacy carry-over; remains None
         if graphml_path is not None:
             try:
                 from .yed_detector import detect_flavor
                 if detect_flavor(graphml_path) == "yed-raw":
-                    import logging
-                    from collections import Counter
                     from .yed_classifier import classify_leaves
                     from .yed_table_parser import extract_periods
                     from .yed_group_walker import walk_folders
-                    classified = classify_leaves(graphml_path)
-                    periods = extract_periods(graphml_path)
-                    folders = walk_folders(graphml_path)
-                    counts = Counter(n.auto_kind.value for n in classified)
-                    classifier_summary = ", ".join(
-                        f"{k}: {v}" for k, v in sorted(counts.items())
-                    )
-                    period_summary = (
-                        ", ".join(p.auto_label for p in periods)
-                        if periods else "(no TableNode found)"
-                    )
-                    folder_summary = (
-                        ", ".join(
-                            f"{f.auto_value} ({f.auto_dimension or 'unknown'}, "
-                            f"{len(f.member_yed_ids)} members)"
-                            for f in folders
-                        )
-                        if folders else "(no group folders found)"
-                    )
-                    logging.getLogger(__name__).warning(
-                        "yEd-raw graphml detected at %s.\n"
-                        "  Classified %d leaves: %s.\n"
-                        "  Detected %d periods: %s.\n"
-                        "  Detected %d group folders: %s.\n"
-                        "  Yed-aware import path not yet wired "
-                        "(yE-C parsers only). Falling through to legacy "
-                        "path. Expect partial/incorrect ingestion.",
-                        graphml_path,
-                        len(classified), classifier_summary,
-                        len(periods), period_summary,
-                        len(folders), folder_summary,
-                    )
-                    _yed_parsed_drafts = {
-                        "classified": classified,
-                        "periods": periods,
-                        "folders": folders,
+                    from .yed_import_pipeline import import_yed_raw
+                    from .yed_rapporti_policy import FolderEdgePolicy
+                    drafts = {
+                        "classified": classify_leaves(graphml_path),
+                        "periods":    extract_periods(graphml_path),
+                        "folders":    walk_folders(graphml_path),
                     }
-            except Exception:
-                # Detection + parsing is best-effort;
-                # never block the legacy path
-                pass
+                    # Resolve handle just-in-time so import_yed_raw
+                    # receives a DbHandle regardless of how the caller
+                    # passed db_path (Path / str / DbHandle).
+                    from ._db_handle import _resolve_db_handle
+                    _yed_handle = _resolve_db_handle(db_path)
+                    # yE-D: dispatch + return; NO fall-through to legacy.
+                    # MVP: SKIP policy default. yE-E dialog will let
+                    # the user pick policy / per-classification overrides.
+                    return import_yed_raw(
+                        _yed_handle, graphml_path, sito, drafts,
+                        policy=FolderEdgePolicy.SKIP,
+                        dry_run=dry_run,
+                    )
+            except Exception as _e:
+                # Defensive fallback: if yEd-raw detection / parsing
+                # / dispatch throws unexpectedly (e.g. corrupted
+                # graphml), fall through to the legacy path so the
+                # existing pyarchinit-projected importers keep
+                # working. A normal IngestResult-with-errors return
+                # value from import_yed_raw is NOT routed here — it
+                # propagates out of the `return` above.
+                log.warning(
+                    "yEd-raw dispatch failed, falling back to legacy: %s",
+                    _e,
+                )
         # -- existing pyarchinit-projected path UNCHANGED below --
         # AI06: graph may be a Path-like (graphml file). Auto-load.
         from pathlib import Path as _P
@@ -1377,6 +1369,10 @@ _S3DGRAPHY_TYPE_TO_UNITA_TIPO: dict[str, str] = {
     "DocumentNode": "DOC",
     "ExtractorNode": "Extractor",
     "CombinerNode": "Combinar",
+    # yE-D (5.8.0-alpha): VirtualActivity used by SYNTHETIC folder
+    # policy in yed_import_pipeline.py for folder-derived synthetic
+    # us_table rows (unita_tipo='VA').
+    "VirtualActivity": "VA",
 }
 
 
