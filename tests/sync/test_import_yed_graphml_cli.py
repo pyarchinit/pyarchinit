@@ -19,6 +19,20 @@ PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = PLUGIN_ROOT / "tests" / "sync" / "fixtures" / "em_demo_02_mini.graphml"
 
 
+def test_cli_argparse_has_overrides_flag():
+    """yE-E (5.8.2-alpha): CLI exposes --overrides PATH."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "_yed_cli_under_test_e",
+        PLUGIN_ROOT / "scripts" / "import_yed_graphml.py",
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    parser = mod.build_parser()
+    actions = {a.dest: a for a in parser._actions}
+    assert "overrides" in actions, "--overrides missing"
+
+
 def test_cli_argparse_basic():
     """L0: build_parser() exposes the documented flags + policy choices."""
     # Import via module loader to avoid triggering main().

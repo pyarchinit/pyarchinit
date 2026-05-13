@@ -5,6 +5,59 @@
 
 ---
 
+## [5.8.2-alpha] - 2026-05-13
+
+### Italiano
+
+**yE-E Dialog UX — Qt wizard 5 pagine per override su yEd-raw import.**
+
+Quinto dei 6 milestone del rollout yEd-aware-graphml-import. yE-D ha shippato hardcoded defaults (classifier auto, period auto, folder dimension auto, rapporti SKIP). yE-E aggiunge la Qt dialog che apre **prima del commit** e permette all'utente di overridare le scelte.
+
+**Componenti**:
+
+1. **`YedOverrides` dataclass** in `yed_import_pipeline.py`: 4 campi opzionali (`classifier`, `periods`, `folders`, `policy`) che catturano i diff utente. `apply_overrides_to_drafts(drafts, overrides)` è una pure function che ritorna un nuovo drafts dict con `user_*` valorizzati. `import_yed_raw()` accetta nuovo parametro `overrides: YedOverrides | None = None` (None = comportamento yE-D, AC-1 preservato).
+
+2. **`gui/yed_import_dialog.py`** (~570 LOC): `YedImportDialog(QWizard)` con 5 `QWizardPage`:
+   - **1/5 Classifier**: tabella con combobox per riga (13 ClassificationKind options compreso RSF di s3dgraphy 0.1.42), bottone "Accetta auto".
+   - **2/5 Periods**: tabella editable per `periodo` + `fase`, bottone "Ripristina auto".
+   - **3/5 Folders**: combobox per riga con 7 dimension valide + `'skip'` sentinel + value text.
+   - **4/5 Rapporti policy**: 4 radio button SKIP/FAN_OUT/REPRESENTATIVE/SYNTHETIC.
+   - **5/5 Preview**: dry-run pass di `import_yed_raw(overrides=...)` con count display.
+   
+   Costruzione programmatica delle pagine (no .ui XML): table content dinamico dai drafts → più pulito senza Qt Designer XML. Pattern allineato con altri `gui/*.py` del progetto.
+
+3. **Sidecar JSON `<graphml>.yed_overrides.json`**: load al `__init__` del wizard (preload widgets), save on Finish (`QWizard.accept()` override). Schema versionato (`"version": 1`). Forward-compat: ClassificationKind values unrecognized (es. da future s3dgraphy releases) skippati silently.
+
+4. **Branch hook in `graph_ingestor.py`**: probe `QApplication.instance()` → se presente apre il wizard, else fall-through ai defaults yE-D. CLI/tests/headless calls non vedono mai la dialog. Defensive ImportError catch su qgis.PyQt + pyarchinit.gui.yed_import_dialog.
+
+5. **CLI `--overrides PATH`** in `scripts/import_yed_graphml.py`: carica YedOverrides da JSON e passa a `import_yed_raw(overrides=...)`. Use case: CI/scripted re-runs con overrides riproducibili.
+
+**i18n**: tutte le stringhe visibili in `self.tr(...)`. Il progetto ha file `.ts` monolitici per 10 lingue in `i18n/`; le nuove stringhe saranno auto-estratte al prossimo `pyside6-lupdate`. No file `.ts` dedicato per il dialog.
+
+**Test**: 14 totali aggiunti (6 L0 `apply_overrides_to_drafts` + 5 L0 sidecar JSON + 2 L1 e2e classifier+folder_skip + 1 CLI `--overrides`). Suite: 338 → 352 passed, 42 skipped.
+
+**AC-2 preservato**: pyarchinit-projected branch in `graph_ingestor.populate_list()` byte-identical (le modifiche sono tutte nella yEd-raw branch).
+
+**Manual gate**: aprire QGIS → import yEd-raw graphml via menu → wizard apre → walk 5 pagine → Finish/Cancel → verify DB.
+
+**Out of scope**: persistence multi-file (sidecar è per-graphml), drag-reorder dei rows, undo/redo within wizard (Cancel discards, Finish commits).
+
+**Versioning**: minor bump `5.8.1 → 5.8.2-alpha`. yE-Closure shifta a `5.8.3-alpha`. Predecessor: `s3dgraphy-bump-5.8.1-alpha` (commit `7f5f82a8`, pushato).
+
+### English
+
+**yE-E Dialog UX — Qt wizard 5-page user-overrides for yEd-raw import.**
+
+Fifth of the 6 yEd-aware-graphml-import rollout milestones. yE-D ships hardcoded defaults; yE-E adds a Qt wizard that opens BEFORE commit, letting the user review + override classifier kinds, periods, folder dimensions, and rapporti policy.
+
+Components: **YedOverrides** dataclass + `apply_overrides_to_drafts` pure helper + `import_yed_raw(overrides=None)` parameter (yE-D regression preserved); **YedImportDialog** QWizard with 5 pages (programmatic, no .ui XML); sidecar JSON `<graphml>.yed_overrides.json` persistence; **branch hook** in `graph_ingestor.py` probes QApplication and opens the wizard when alive; **CLI** gets `--overrides PATH` flag for scripted runs.
+
+i18n: all visible strings tr()-wrapped; auto-merged at next pyside6-lupdate. AC-2 preserved. 14 new tests. 338 → 352 passed, 42 skipped.
+
+Versioning: minor bump `5.8.1 → 5.8.2-alpha`. yE-Closure shifts to `5.8.3-alpha`. Predecessor: `s3dgraphy-bump-5.8.1-alpha`.
+
+---
+
 ## [5.8.1-alpha] - 2026-05-13
 
 ### Italiano

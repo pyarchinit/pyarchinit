@@ -88,6 +88,15 @@ def build_parser() -> argparse.ArgumentParser:
         help="Execute pipeline in a transaction, then roll back.",
     )
     p.add_argument(
+        "--overrides", type=Path, default=None,
+        help=(
+            "Path to a YedOverrides JSON file (sidecar format from "
+            "yE-E wizard). When set, overrides are applied to drafts "
+            "before pipeline execution. Same schema as the wizard's "
+            "<graphml>.yed_overrides.json sidecar."
+        ),
+    )
+    p.add_argument(
         "-v", "--verbose", action="store_true",
         help="Raise log level to DEBUG.",
     )
@@ -131,6 +140,57 @@ def main(argv: list[str] | None = None) -> int:
         len(drafts["folders"]),
     )
 
+    # yE-E (5.8.2-alpha): optional sidecar override load.
+    overrides = None
+    if args.overrides is not None:
+        if not args.overrides.exists():
+            log.error("overrides file not found: %s", args.overrides)
+            return 2
+        try:
+            from gui.yed_import_dialog import load_sidecar
+            # load_sidecar takes a graphml path and looks for
+            # ``<path>.yed_overrides.json`` — but the user passed
+            # the JSON file directly. Bypass the path-derivation by
+            # reading the JSON ourselves.
+            import json as _json
+            from modules.s3dgraphy.sync.yed_classifier import (
+                ClassificationKind,
+            )
+            from modules.s3dgraphy.sync.yed_import_pipeline import (
+                YedOverrides,
+            )
+            from modules.s3dgraphy.sync.yed_rapporti_policy import (
+                FolderEdgePolicy,
+            )
+            raw = _json.loads(args.overrides.read_text())
+            kind_by_value = {k.value: k for k in ClassificationKind}
+            classifier = {
+                k: kind_by_value[v]
+                for k, v in (raw.get("classifier") or {}).items()
+                if v in kind_by_value
+            }
+            policy_value = raw.get("policy")
+            policy_obj = None
+            if policy_value is not None:
+                policy_by_value = {p.value: p for p in FolderEdgePolicy}
+                policy_obj = policy_by_value.get(policy_value)
+            overrides = YedOverrides(
+                classifier=classifier,
+                periods=dict(raw.get("periods") or {}),
+                folders=dict(raw.get("folders") or {}),
+                policy=policy_obj,
+            )
+            log.info(
+                "Overrides loaded: %d classifier + %d periods + %d folders"
+                + (", policy=%s" % policy_obj.value if policy_obj else ""),
+                len(overrides.classifier),
+                len(overrides.periods),
+                len(overrides.folders),
+            )
+        except Exception as e:  # noqa: BLE001
+            log.error("overrides load failed: %s", e)
+            return 2
+
     result = import_yed_raw(
         handle,
         args.graphml,
@@ -138,6 +198,7 @@ def main(argv: list[str] | None = None) -> int:
         drafts,
         policy=_POLICY_MAP[args.policy],
         dry_run=args.dry_run,
+        overrides=overrides,
     )
 
     # Print result summary.
