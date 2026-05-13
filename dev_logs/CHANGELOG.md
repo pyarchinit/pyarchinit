@@ -5,6 +5,58 @@
 
 ---
 
+## [5.7.9.3-alpha] - 2026-05-13
+
+### Italiano
+
+**media-fk-migration — i killer trigger del media_thumb_table sono stati sostituiti con FK ON DELETE CASCADE.**
+
+L'utente ha segnalato 2026-05-13 pomeriggio che il database `khutm2` aveva perso ~5156 righe in `media_table` e ~5758 in `media_to_entity_table`. Investigazione live ha rivelato due trigger plpgsql su `media_thumb_table` con check tautologico `IF OLD.id_media != OLD.id_media THEN ... ELSE DELETE FROM media_table ...` — la condizione è SEMPRE falsa (valore confrontato con sé stesso), quindi il ramo ELSE (cascade DELETE) si attivava su ogni UPDATE/DELETE di un thumb, cancellando in cascata `media_table` + `media_to_entity_table`. Recupero su khutm2 da `bk20260513.backup` via additive `INSERT ... ON CONFLICT DO NOTHING`. Trigger droppati e FK ON DELETE CASCADE installate nella direzione corretta (master → derivati).
+
+**Universalità del bug**: gli stessi trigger sono nei file schema `pyarchinit_schema_clean.sql` (linee 3548-3627) + `pyarchinit_schema_updated.sql` (3524-3603) — quindi presenti in **ogni** installazione PG di pyarchinit. SQLite ha una versione attenuata (solo `AFTER DELETE`, no `UPDATE`, no MTE trigger) presente nei template binari `pyarchinit.sqlite` + `pyarchinit_db.sqlite`.
+
+**Fix shipped**:
+
+1. **Schema PG aggiornati** (file `pyarchinit_schema_clean.sql` + `pyarchinit_schema_updated.sql`): rimossi i 2 trigger killer + le 2 funzioni + i 2 DO `$$ ... $$` block che li installano. Aggiunte 2 `ALTER TABLE ... ADD CONSTRAINT FOREIGN KEY (id_media) REFERENCES media_table(id_media) ON DELETE CASCADE` per `media_thumb_table` e `media_to_entity_table`. Nuovi DB PG nascono puliti.
+
+2. **Template SQLite ripuliti** in-place (`resources/dbfiles/pyarchinit.sqlite` 4297728→4289536 bytes, `pyarchinit_db.sqlite` 8997888→8975360 bytes via DROP TRIGGER + VACUUM). Nessuna FK retroattiva (limitazione SQLite — richiederebbe table-recreate; deferred). Nuove installazioni SQLite non subiscono il trigger killer.
+
+3. **Migration library** `scripts/migrations/_2026_05_media_fk_cascade_lib.py` + **CLI** `scripts/migrations/2026_05_media_fk_cascade.py` per i DB PG **esistenti** che ancora portano i trigger. API: `detect_killer_triggers`, `count_orphans`, `apply_migration(handle, dry_run=False)`, `verify_post_migration`. Idempotente. Ordine in single-transaction: DROP TRIGGER → DROP FUNCTION → DELETE orfani → ADD CONSTRAINT (l'ordine è obbligatorio — PG rifiuta FK con orfani). Dry-run via `_DryRunRollback` sentinel (pattern PG-C). CLI ha 3 modes mutex (`--detect`/`--dry-run`/`--apply`) + mutex `--db`/`--conn-str` (pattern PG-A node_uuid). `--apply` invoca `auto_backup_postgres` prima.
+
+4. **Menu QGIS wire** in `pyarchinitPlugin.py` linee 2706-2713 (entry "Migrazioni → Fix trigger media (cascade pericoloso)") + handler `_run_media_fk_migration` linee 2900-3101 che fa: PG-only check → detect → count orphans + dialog preview → confirm → auto-backup → apply → verify → summary. Mirror del pattern `_run_uuid_backfill_migration`.
+
+**Test**: 13 totali nel file `tests/migrations/test_media_fk_migration.py` (4 L0 schema PG + 2 L0 lib/CLI + 2 L1 SQLite template + 5 L1 PG fixture). Suite: 304 → 312 passed offline (PG-L1 skipped per assenza psycopg2) / 317 online expected. `tests/migrations/test_media_fk_migration.py` da solo: 8 passed, 5 skipped.
+
+**Out of scope**: SQLite existing DB migration (FK retrofit invasivo, danno minore — deferred); audit altri DB PG (festos2025, pyarchinit_v2 — non raggiungibili dalla rete dev oggi); riscrittura "rename propagator" trigger con `NEW != OLD` corretto (utilità marginale, `id_media` è sequence-driven PK).
+
+**Versioning**: patch `5.7.9.2 → 5.7.9.3-alpha`. NESSUNO shift su yE-D (`5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-bv2-hotfix-5.7.9.2-alpha` (commit `c26e7763`).
+
+### English
+
+**media-fk-migration — killer triggers on media_thumb_table replaced with FK ON DELETE CASCADE.**
+
+User-reported 2026-05-13 afternoon: production DB `khutm2` had lost ~5156 rows in `media_table` and ~5758 in `media_to_entity_table`. Live investigation revealed two plpgsql triggers on `media_thumb_table` with the tautology check `IF OLD.id_media != OLD.id_media THEN ... ELSE DELETE FROM media_table ...` — the condition is ALWAYS false (value compared to itself), so the ELSE branch (cascade DELETE) fired on every UPDATE/DELETE of a thumb, cascade-deleting `media_table` + `media_to_entity_table`. Recovered on khutm2 from `bk20260513.backup` via additive `INSERT ... ON CONFLICT DO NOTHING`. Triggers dropped and FK ON DELETE CASCADE installed in the natural direction (master → derived).
+
+**Universal bug**: the same triggers are in schema files `pyarchinit_schema_clean.sql` (lines 3548-3627) + `pyarchinit_schema_updated.sql` (3524-3603) — so present in **every** pyarchinit PG installation. SQLite has a milder version (only `AFTER DELETE`, no `UPDATE`, no MTE trigger) in the binary templates `pyarchinit.sqlite` + `pyarchinit_db.sqlite`.
+
+**Fix shipped**:
+
+1. **PG schemas updated** (`pyarchinit_schema_clean.sql` + `pyarchinit_schema_updated.sql`): killer triggers + 2 functions + 2 DO `$$ ... $$` install blocks removed. Two `ALTER TABLE ... ADD CONSTRAINT FOREIGN KEY (id_media) REFERENCES media_table(id_media) ON DELETE CASCADE` added for `media_thumb_table` and `media_to_entity_table`. New PG DBs are born clean.
+
+2. **SQLite templates cleaned** in-place (`resources/dbfiles/pyarchinit.sqlite` 4297728→4289536 bytes, `pyarchinit_db.sqlite` 8997888→8975360 bytes via DROP TRIGGER + VACUUM). No retroactive FK (SQLite limitation — would require table recreate; deferred). New SQLite installations don't carry the killer trigger.
+
+3. **Migration library** `scripts/migrations/_2026_05_media_fk_cascade_lib.py` + **CLI** `scripts/migrations/2026_05_media_fk_cascade.py` for **existing** PG DBs that still carry the triggers. API: `detect_killer_triggers`, `count_orphans`, `apply_migration(handle, dry_run=False)`, `verify_post_migration`. Idempotent. Single-transaction order: DROP TRIGGER → DROP FUNCTION → DELETE orphans → ADD CONSTRAINT (order mandatory — PG rejects FK with orphans). Dry-run via `_DryRunRollback` sentinel (PG-C pattern). CLI has 3 mutex modes (`--detect`/`--dry-run`/`--apply`) + `--db`/`--conn-str` mutex (PG-A node_uuid pattern). `--apply` invokes `auto_backup_postgres` first.
+
+4. **QGIS menu wire** in `pyarchinitPlugin.py` lines 2706-2713 (entry "Migrazioni → Fix trigger media (cascade pericoloso)") + handler `_run_media_fk_migration` lines 2900-3101: PG-only check → detect → count orphans + preview dialog → confirm → auto-backup → apply → verify → summary. Mirror of `_run_uuid_backfill_migration` pattern.
+
+**Tests**: 13 total in `tests/migrations/test_media_fk_migration.py` (4 L0 PG schema + 2 L0 lib/CLI + 2 L1 SQLite template + 5 L1 PG fixture). Suite: 304 → 312 passed offline (PG-L1 skipped — psycopg2 absent) / 317 online expected. Module alone: 8 passed, 5 skipped.
+
+**Out of scope**: SQLite existing DB migration (FK retrofit invasive, smaller damage — deferred); audit of other PG DBs (festos2025, pyarchinit_v2 — unreachable from dev network today); rewrite of "rename propagator" trigger with correct `NEW != OLD` (marginal utility — `id_media` is sequence-driven PK).
+
+**Versioning**: patch `5.7.9.2 → 5.7.9.3-alpha`. NO shift on yE-D (`5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-bv2-hotfix-5.7.9.2-alpha` (commit `c26e7763`).
+
+---
+
 ## [5.7.9.2-alpha] - 2026-05-13
 
 ### Italiano
