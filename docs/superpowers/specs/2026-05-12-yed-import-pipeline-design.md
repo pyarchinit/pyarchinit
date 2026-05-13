@@ -1,11 +1,31 @@
 # yE-D Pipeline + Policy — Design Spec
 
-**Date:** 2026-05-12 (amended 2026-05-12 post PG-UIFix)
+**Date:** 2026-05-12 (amended 2026-05-13 post media-fk-migration)
 **Branch:** Stratigraph_00001
-**Predecessor tag:** `pg-bv2-5.7.9-alpha` (commit TBD after Group A ships) — was previously `pg-uifix-5.7.8-alpha` then `pg-uuidfix-5.7.8.1-alpha` before PG-Bv2 interleaved
-**Target tag:** `yed-import-pipeline-5.8.0-alpha` (shifted from `5.7.9-alpha` because PG-Bv2 reserved that tag 2026-05-12)
+**Predecessor tag:** `media-fk-migration-5.7.9.3-alpha` (commit `0919f5ce`, pushed 2026-05-13)
+**Target tag:** `yed-import-pipeline-5.8.0-alpha`
 
-> **Note** — PG-UIFix milestone interleaved between yE-C and yE-D, reserving `pg-uifix-5.7.8-alpha`. PG-UUIDFix then reserved `pg-uuidfix-5.7.8.1-alpha`. PG-Bv2 then reserved `pg-bv2-5.7.9-alpha`. yE-D now shifts to: `yed-import-pipeline-5.8.0-alpha`. yE-E and yE-Closure also shift to `5.8.1-alpha` and `5.8.2-alpha`.
+> **Predecessor chain since spec was authored (2026-05-12)**:
+> - `pg-bv2-5.7.9-alpha` (commit `97e2ec13`) — PG graphml export
+> - `pg-media-fix-5.7.9.1-alpha` (commit `f8bdfc0e`) — `query_bool` coercion + cache-bust
+> - `pg-bv2-hotfix-5.7.9.2-alpha` (commit `c26e7763`) — SQLite graphml regression fix
+> - `media-fk-migration-5.7.9.3-alpha` (commit `0919f5ce`) — killer trigger removal + FK CASCADE
+>
+> yE-D target tag unchanged at `5.8.0-alpha`. yE-E (`5.8.1-alpha`) and yE-Closure (`5.8.2-alpha`) likewise unchanged.
+
+## Amendments 2026-05-13 (brainstorm refresh)
+
+Six dimensions revisited after 4 interleaved milestones shipped between spec authoring and yE-D execution:
+
+| # | Topic | Decision (2026-05-13) | Effect on spec |
+|---|---|---|---|
+| **N1** | Commit groups | **γ — 4 groups** (Policy / Pipeline / Hook+Vocab+L1 / CLI+Docs) | Splits the original "single milestone" execution into 4 review-cycles. See § 11 (NEW). |
+| **N2** | Backend coverage | **β — PG + SQLite via DbHandle** | All 5 write functions accept `DbHandle`. Atomic via `engine.begin()`. Pattern inherited from PG-C `populate_list`. ~+50 LOC overhead. |
+| **N4** | Vocab patch location | **Resolved**: (a) `gui/ui/Us_usm.ui` near line 42712 (add `<item><string>VA</string></item>` to `comboBox_unita_tipo`); (b) `modules/s3dgraphy/sync/graph_ingestor.py:1364` (add `"VirtualActivity": "VA"` to `_S3DGRAPHY_TYPE_TO_UNITA_TIPO`). | ~5 LOC total (no DB CHECK constraint exists; no app validator exists). Replaces the spec's "~50 LOC located plan-time" estimate. |
+| **N5** | Execution model | **Subagent-driven**, 4 groups sequential | Same pattern proven in PG-Bv2, media-fk-migration. USER GATE before tag push. |
+| **N6** | yE-E hooks readiness | **α — No hooks**, defaults hardcoded | yE-D ships `import_yed_raw(handle, source_path, sito, *, policy=SKIP, dry_run=False) → IngestResult`. yE-E adds an `overrides: YedOverrides \| None = None` parameter and rewires call sites. Avoids premature API. |
+
+**No other section of this spec is invalidated.** Q1–Q7 from § 2 stand. Architecture (§ 4), policy semantics (§ 5), pipeline contract (§ 6), L1 test plan (§ 6 + § 7), CLI shape (§ 8) all hold.
 
 ---
 
