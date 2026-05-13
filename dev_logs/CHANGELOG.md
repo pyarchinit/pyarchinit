@@ -5,6 +5,66 @@
 
 ---
 
+## [5.8.0-alpha] - 2026-05-13
+
+### Italiano
+
+**yE-D Pipeline — primo milestone con DB write dal branch yEd-raw.**
+
+Quarto dei 6 milestone della rollout yEd-aware-graphml-import. Dopo yE-A (foundation), yE-B (classifier), yE-C (parsers), yE-D è la prima milestone che effettivamente **scrive nel database** dalla branch yEd-raw del dispatcher. Importare `EM_demo_02.graphml` (o qualsiasi file yEd-raw) ora produce `us_table` + `inventario_materiali_table` + `periodizzazione_table` + paradata popolati correttamente, invece del comportamento buggato pre-yE-D dove cadeva nel legacy path e produceva 17 righe distorte in `us_table`.
+
+**Architettura — 4 commit groups subagent-driven**:
+
+1. `feat(yE-D): folder-edge policy module with 4 active policies` (commit `b90138f8`) — `modules/s3dgraphy/sync/yed_rapporti_policy.py` (~376 LOC) con `FolderEdgePolicy` StrEnum + 3 dataclass + `analyze_edges()` + `apply_policy()`. 4 policy attive: SKIP (default), FAN_OUT (espansione N×M), REPRESENTATIVE (primo membro proxy), SYNTHETIC (us virtuale VA per folder, rapporti rewired). Filtro universale per self-loop folder edges. 7 L0 tests.
+
+2. `feat(yE-D): import_yed_raw orchestrator + 5 write functions + paradata` (commit `9f053264`) — `modules/s3dgraphy/sync/yed_import_pipeline.py` (~510 LOC). `import_yed_raw(handle, graphml_path, sito, drafts, *, policy=SKIP, dry_run=False)` orchestra single-transaction `engine.begin()` (PG+SQLite via DbHandle). 5 write functions: `_write_us_rows` (assegna `uuid7()` node_uuid), `_write_inventario_rows`, `_write_periodizzazione_rows` (no dates), `_apply_yed_folder_dimensions` (UPDATE us_table.<dim> con allowlist column-name per safety), `_write_rapporti` (UPDATE rapporti JSON + INSERT synthetic VA rows). `_write_paradata_via_store` dispatcha a ParadataStore (Path B per PropertyNode: no US linkage in yE-D, yE-E userà dialog). `_DryRunRollback` sentinel pattern ereditato da PG-C. 8 L0 tests.
+
+3. `feat(yE-D): branch hook dispatch + VA vocab + 7 L1 integration tests` (commit `cab0d243`) — `graph_ingestor.py:166-216` rewritten: detection yEd-raw + costruzione drafts + dispatch a `import_yed_raw()` + RETURN IngestResult. Legacy `_run()` NON eseguito per yEd-raw. Pyarchinit-projected branch UNCHANGED (AC-2 byte-identical sacro). Defensive try/except fallback al legacy solo per exception inattese in detection/parsing (NON sul normal error return di `import_yed_raw`). Vocab patch in 2 punti: `graph_ingestor.py:1375` (`"VirtualActivity": "VA"` in `_S3DGRAPHY_TYPE_TO_UNITA_TIPO`) + `gui/ui/US_USM.ui:42716` (nuovo `<item><string>VA</string></item>` in `comboBox_unita_tipo`). 7 L1 integration tests su `em_demo_02_mini.graphml` (4 policy E2E + paradata writes + dry_run rollback + idempotency).
+
+4. `feat(yE-D): cli scripts/import_yed_graphml.py + 2 cli tests` — `scripts/import_yed_graphml.py` (~150 LOC) argparse CLI per batch/CI: positional graphml + `--site` + `--db`/`--conn-str` mutex + `--policy` choice + `--dry-run` + `-v` verbose. 2 CLI tests (argparse smoke + subprocess dry-run E2E).
+
+**Test count progression**: 312 (baseline post media-fk-migration) → 319 (Group A) → 327 (Group B) → 334 (Group C) → 336 (Group D). +24 tests totali. PG-L1 5 skipped offline (psycopg2 assente).
+
+**Plan-time decisions risolte**:
+- PropertyNode linkage: **Path B** (standalone, no US linkage al yE-D-time) — yE-E dialog assegnerà target.
+- Vocab whitelist source: **pure code edits** (UI XML + ingestor dict map). Nessun JSON file né DB CHECK constraint esistono.
+- DbHandle: **sì** per tutte le 5 write functions (pattern PG-C `engine.begin()`).
+- No hooks readiness: **α** (defaults hardcoded in yE-D; yE-E rewires aggiungendo `overrides: YedOverrides | None = None` parameter).
+
+**AC-2**: pyarchinit-projected branch in `graph_ingestor.populate_list()` byte-identical. Verifica: `test_ai03_export_byte_identical` + `test_graph_ingestor` + `test_cli_helper` tutti verdi (25/25 critical regression). `test_cli_helper.py::_project_to_graphml` ha richiesto una correzione minore (chiamata aggiuntiva a `_embed_pyarchinit_data_keys` per produrre graphml con marker keys che rotteano l'export del raw s3dgraphy — il test esercita il legacy path, non yE-D).
+
+**Versioning**: minor bump `5.7.9.3 → 5.8.0-alpha`. Predecessor: `media-fk-migration-5.7.9.3-alpha` (commit `0919f5ce`). Successor: `yE-E Dialog → 5.8.1-alpha`, `yE-Closure → 5.8.2-alpha`.
+
+### English
+
+**yE-D Pipeline — first milestone with DB writes from the yEd-raw branch.**
+
+Fourth of the 6 yEd-aware-graphml-import rollout milestones. After yE-A (foundation), yE-B (classifier), yE-C (parsers), yE-D is the first milestone that actually **writes to the database** from the yEd-raw branch of the dispatcher. Importing `EM_demo_02.graphml` (or any yEd-raw file) now produces correctly populated `us_table` + `inventario_materiali_table` + `periodizzazione_table` + paradata, instead of the pre-yE-D buggy behaviour where it fell through to the legacy path and produced 17 distorted rows in `us_table`.
+
+**Architecture — 4 subagent-driven commit groups**:
+
+1. `feat(yE-D): folder-edge policy module with 4 active policies` (commit `b90138f8`) — `modules/s3dgraphy/sync/yed_rapporti_policy.py` (~376 LOC) with `FolderEdgePolicy` StrEnum + 3 dataclasses + `analyze_edges()` + `apply_policy()`. 4 active policies: SKIP (default), FAN_OUT (N×M expansion), REPRESENTATIVE (first-member proxy), SYNTHETIC (virtual VA us per folder, rapporti rewired). Universal filter for self-loop folder edges. 7 L0 tests.
+
+2. `feat(yE-D): import_yed_raw orchestrator + 5 write functions + paradata` (commit `9f053264`) — `modules/s3dgraphy/sync/yed_import_pipeline.py` (~510 LOC). `import_yed_raw(handle, graphml_path, sito, drafts, *, policy=SKIP, dry_run=False)` orchestrates a single-transaction `engine.begin()` (PG+SQLite via DbHandle). 5 write functions: `_write_us_rows` (assigns `uuid7()` node_uuid), `_write_inventario_rows`, `_write_periodizzazione_rows` (no dates), `_apply_yed_folder_dimensions` (UPDATE us_table.<dim> with column-name allowlist for safety), `_write_rapporti` (UPDATE rapporti JSON + INSERT synthetic VA rows). `_write_paradata_via_store` dispatches to ParadataStore (Path B for PropertyNode: no US linkage in yE-D, yE-E will use dialog). `_DryRunRollback` sentinel pattern inherited from PG-C. 8 L0 tests.
+
+3. `feat(yE-D): branch hook dispatch + VA vocab + 7 L1 integration tests` (commit `cab0d243`) — `graph_ingestor.py:166-216` rewritten: yEd-raw detection + drafts build + dispatch to `import_yed_raw()` + RETURN IngestResult. Legacy `_run()` NOT executed for yEd-raw. Pyarchinit-projected branch UNCHANGED (AC-2 byte-identical sacred). Defensive try/except falls back to legacy ONLY on unexpected detection/parsing exceptions (NOT on `import_yed_raw`'s normal error return). Vocab patch in 2 spots: `graph_ingestor.py:1375` (`"VirtualActivity": "VA"` in `_S3DGRAPHY_TYPE_TO_UNITA_TIPO`) + `gui/ui/US_USM.ui:42716` (new `<item><string>VA</string></item>` in `comboBox_unita_tipo`). 7 L1 integration tests on `em_demo_02_mini.graphml` (4 policy E2E + paradata writes + dry_run rollback + idempotency).
+
+4. `feat(yE-D): cli scripts/import_yed_graphml.py + 2 cli tests` — `scripts/import_yed_graphml.py` (~150 LOC) argparse CLI for batch/CI: positional graphml + `--site` + `--db`/`--conn-str` mutex + `--policy` choice + `--dry-run` + `-v` verbose. 2 CLI tests (argparse smoke + subprocess dry-run E2E).
+
+**Test count progression**: 312 (baseline post media-fk-migration) → 319 (Group A) → 327 (Group B) → 334 (Group C) → 336 (Group D). +24 tests total. PG-L1 5 skipped offline (psycopg2 absent).
+
+**Plan-time decisions resolved**:
+- PropertyNode linkage: **Path B** (standalone, no US linkage at yE-D time) — yE-E dialog will assign target.
+- Vocab whitelist source: **pure code edits** (UI XML + ingestor dict map). No JSON file or DB CHECK constraint exists.
+- DbHandle: **yes** for all 5 write functions (PG-C `engine.begin()` pattern).
+- No hooks readiness: **α** (defaults hardcoded in yE-D; yE-E rewires by adding `overrides: YedOverrides | None = None` parameter).
+
+**AC-2**: pyarchinit-projected branch in `graph_ingestor.populate_list()` byte-identical. Verification: `test_ai03_export_byte_identical` + `test_graph_ingestor` + `test_cli_helper` all green (25/25 critical regression). `test_cli_helper.py::_project_to_graphml` needed a minor correction (extra `_embed_pyarchinit_data_keys` call to produce a graphml with marker keys — without it the raw s3dgraphy export got misclassified as yEd-raw under the new dispatch; the test exercises the legacy path, not yE-D).
+
+**Versioning**: minor bump `5.7.9.3 → 5.8.0-alpha`. Predecessor: `media-fk-migration-5.7.9.3-alpha` (commit `0919f5ce`). Successor: `yE-E Dialog → 5.8.1-alpha`, `yE-Closure → 5.8.2-alpha`.
+
+---
+
 ## [5.7.9.3-alpha] - 2026-05-13
 
 ### Italiano
