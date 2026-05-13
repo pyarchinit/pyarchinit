@@ -5,6 +5,46 @@
 
 ---
 
+## [5.7.9.2-alpha] - 2026-05-13
+
+### Italiano
+
+**pg-bv2-hotfix — esportazione GraphML rotta su SQLite dopo PG-Bv2.**
+
+L'utente ha segnalato 2026-05-13 mattina: dopo il rilascio di `pg-bv2-5.7.9-alpha` (commit `97e2ec13`) l'export GraphML è rotto su SQLite con `TypeError: expected str, bytes or os.PathLike object, not Pyarchinit_db_management`. L'export di DOT/JSON/Phased JSON funziona — il problema è isolato a `populate_graph` nel branch SQLite.
+
+**Root cause**: PG-Bv2 ha aggiornato `s3dgraphy_dot_bridge.py:195` a passare `self.db_manager` (un `Pyarchinit_db_management`) come `db_path` invece di un `Path`. Il branch SQLite di `GraphProjector.populate_graph` in `modules/s3dgraphy/sync/graph_projector.py:183` faceva ancora `Path(db_path)` direttamente sull'istanza DbManager → TypeError. Stessa cosa alla riga 212 con `str(db_path)` passato come `filepath` al `PyArchInitImporter` upstream.
+
+**Fix** (`graph_projector.py:182-201`): nel branch `not handle.is_postgres`, deriva `sqlite_path` da `handle.sqlite_path` (già estratto da `DbHandle.from_engine` — funziona per Path, str conn-string, Engine, DbManager). Fallback a `Path(db_path)` solo quando `db_path` è già `str|Path` (callers legacy). `PyArchInitImporter(filepath=str(sqlite_path))` invece di `str(db_path)`.
+
+**Test regressione**: `test_populate_graph_accepts_db_manager_on_sqlite` in `tests/sync/test_graph_projector.py` — `FakeDbManager(conn_str + engine)` puntato al fixture `mini_volterra.sqlite` → `populate_graph(mgr, sito=...)` deve produrre grafo non vuoto. Pre-fix solleva `TypeError`, post-fix passa.
+
+**Backward-compat preservata**: callers che passano `Path` direttamente continuano a funzionare via la branch fallback. AC-2 (export byte-identical) preservato — solo derivazione path, nessun cambio nel pipeline downstream.
+
+**Test count**: 303 → 304 passed, 37 skipped. +1 L0 regressione mirata.
+
+**Versioning**: patch increment `5.7.9.1 → 5.7.9.2-alpha`. NESSUNO shift su yE-D (`5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-media-fix-5.7.9.1-alpha` (commit `f8bdfc0e`, locale).
+
+### English
+
+**pg-bv2-hotfix — GraphML export broken on SQLite after PG-Bv2.**
+
+User-reported 2026-05-13 morning: after `pg-bv2-5.7.9-alpha` (commit `97e2ec13`) shipped, GraphML export is broken on SQLite with `TypeError: expected str, bytes or os.PathLike object, not Pyarchinit_db_management`. DOT/JSON/Phased JSON exports still work — issue is isolated to `populate_graph` SQLite branch.
+
+**Root cause**: PG-Bv2 updated `s3dgraphy_dot_bridge.py:195` to pass `self.db_manager` (a `Pyarchinit_db_management`) as `db_path` instead of a `Path`. The SQLite branch of `GraphProjector.populate_graph` at `modules/s3dgraphy/sync/graph_projector.py:183` still did `Path(db_path)` directly on the DbManager instance → TypeError. Same at line 212 where `str(db_path)` was passed as `filepath` to the upstream `PyArchInitImporter`.
+
+**Fix** (`graph_projector.py:182-201`): in the `not handle.is_postgres` branch, derive `sqlite_path` from `handle.sqlite_path` (already extracted by `DbHandle.from_engine` — works for Path, str conn-string, Engine, DbManager). Fall back to `Path(db_path)` only when `db_path` is already `str|Path` (legacy callers). `PyArchInitImporter(filepath=str(sqlite_path))` instead of `str(db_path)`.
+
+**Regression test**: `test_populate_graph_accepts_db_manager_on_sqlite` in `tests/sync/test_graph_projector.py` — `FakeDbManager(conn_str + engine)` pointing at the `mini_volterra.sqlite` fixture → `populate_graph(mgr, sito=...)` must produce a non-empty graph. Pre-fix raises `TypeError`, post-fix passes.
+
+**Backward-compat preserved**: callers passing `Path` directly still work via the fallback branch. AC-2 (byte-identical export) preserved — only path derivation changed, no downstream pipeline change.
+
+**Test count**: 303 → 304 passed, 37 skipped. +1 targeted regression L0.
+
+**Versioning**: patch increment `5.7.9.1 → 5.7.9.2-alpha`. NO shift on yE-D (`5.8.0-alpha`), yE-E, yE-Closure. Predecessor: `pg-media-fix-5.7.9.1-alpha` (commit `f8bdfc0e`, local).
+
+---
+
 ## [5.7.9.1-alpha] - 2026-05-12
 
 ### Italiano

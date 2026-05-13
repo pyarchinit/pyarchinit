@@ -120,3 +120,34 @@ def test_projector_delegates_to_enrich_method(mini_volterra, monkeypatch):
     assert len(calls) == 1, (
         "GraphProjector must call its own _enrich_into method")
     assert calls[0][1] == sito, "sito_filter must be propagated"
+
+
+def test_populate_graph_accepts_db_manager_on_sqlite(mini_volterra):
+    """Regression 2026-05-13 (post PG-Bv2): when the bridge passes a
+    Pyarchinit_db_management instance instead of a Path, the SQLite
+    branch of populate_graph used to do ``Path(db_path)`` and
+    ``str(db_path)`` directly on the object, raising
+    ``TypeError: expected str, bytes or os.PathLike object,
+    not Pyarchinit_db_management``. The fix derives the filesystem path
+    from ``handle.sqlite_path`` (set by DbHandle.from_engine). This
+    test pins the contract: a fake DbManager whose .conn_str points to
+    a real SQLite file must work end-to-end.
+    """
+    from sqlalchemy import create_engine
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+
+    class FakeDbManager:
+        def __init__(self, db_path):
+            self.conn_str = f"sqlite:///{db_path}"
+            self.engine = create_engine(self.conn_str)
+
+    import sqlite3
+    conn = sqlite3.connect(mini_volterra)
+    sito = conn.execute(
+        "SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()[0]
+    conn.close()
+
+    mgr = FakeDbManager(mini_volterra)
+    graph = GraphProjector().populate_graph(mgr, sito=sito)
+    assert len(graph.nodes) > 0, (
+        "DbManager input must work the same as a Path input")

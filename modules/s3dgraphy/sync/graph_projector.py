@@ -179,9 +179,20 @@ class GraphProjector:
             db_path = Path(db_path)
         handle = _resolve_db_handle(db_path)
 
+        # SQLite-only: derive a concrete filesystem path for the
+        # PyArchInitImporter call below. Prefer handle.sqlite_path
+        # (set by DbHandle.from_engine/from_path); fall back to
+        # Path(db_path) only when db_path is itself a Path/str — never
+        # mangle a DbManager instance (PG-Bv2 regression 2026-05-13).
+        sqlite_path: Optional[Path] = None
         if not handle.is_postgres:
-            sqlite_path = Path(db_path) if not isinstance(
-                db_path, Path) else db_path
+            sqlite_path = handle.sqlite_path
+            if sqlite_path is None and isinstance(db_path, (str, Path)):
+                sqlite_path = Path(db_path)
+            if sqlite_path is None:
+                raise ProjectionError(
+                    "Cannot resolve SQLite filesystem path from "
+                    f"db_path={type(db_path).__name__}")
             if not sqlite_path.exists():
                 raise ProjectionError(f"DB file not found: {sqlite_path}")
 
@@ -209,7 +220,7 @@ class GraphProjector:
                 from s3dgraphy.importer.pyarchinit_importer import (
                     PyArchInitImporter)
                 importer = PyArchInitImporter(
-                    filepath=str(db_path),
+                    filepath=str(sqlite_path),
                     mapping_name="pyarchinit_us_mapping",
                 )
                 imported = importer.parse()
