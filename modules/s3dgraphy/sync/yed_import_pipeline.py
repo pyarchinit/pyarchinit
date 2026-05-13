@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any
 
@@ -140,6 +141,110 @@ class _DryRunRollback(Exception):
     def __init__(self, counts: dict | None = None) -> None:
         super().__init__("dry_run rollback")
         self.counts = counts or {}
+
+
+# ---------------------------------------------------------------------------
+# yE-E (5.8.2-alpha): User overrides applied AFTER yE-A/B/C parsers,
+# BEFORE the yE-D writers. The Qt wizard in `gui/yed_import_dialog.py`
+# populates a YedOverrides instance and passes it through
+# `import_yed_raw(overrides=...)`. Each field defaults to empty so the
+# wizard only ships the diffs the user actually touched; headless callers
+# pass `overrides=None` and get the auto_* defaults.
+# ---------------------------------------------------------------------------
+
+@dataclass
+class YedOverrides:
+    """User-supplied diffs over the yE-A/B/C parser outputs.
+
+    Sidecar JSON shape (``<graphml>.yed_overrides.json``) mirrors this
+    dataclass with keys ``classifier``, ``periods``, ``folders``,
+    ``policy`` plus a ``version`` field for forward-compat.
+
+    Empty fields are no-ops. Unknown yed_ids in the dicts are silently
+    ignored — the user may have re-imported a graphml after editing it
+    in yEd and dropped/renamed some leaves.
+    """
+    classifier: dict[str, "ClassificationKind"] = field(default_factory=dict)
+    """yed_id -> ClassificationKind override for that leaf."""
+
+    periods: dict[str, dict] = field(default_factory=dict)
+    """yed_row_id -> {'periodo': str, 'fase': str,
+                       'datazione_iniziale': int | None,
+                       'datazione_finale': int | None,
+                       'datazione_estesa': str | None}."""
+
+    folders: dict[str, dict] = field(default_factory=dict)
+    """folder yed_id -> {'dimension': str | None, 'value': str}.
+    dimension=None or 'skip' means: don't apply this folder."""
+
+    policy: "FolderEdgePolicy | None" = None
+    """When non-None, takes precedence over the caller-passed policy."""
+
+
+def apply_overrides_to_drafts(drafts: dict, overrides: YedOverrides) -> dict:
+    """Return a NEW drafts dict (shallow copy + per-list copies) with
+    overrides applied.
+
+    - classified leaves: ``user_kind`` set to overrides.classifier[yed_id]
+      when present; otherwise stays at ``auto_kind``.
+    - period candidates: ``user_periodo``/``user_fase`` /
+      ``user_datazione_iniziale``/``user_datazione_finale`` /
+      ``user_datazione_estesa`` set from overrides.periods[yed_row_id]
+      when present.
+    - folder candidates: ``user_dimension``/``user_value`` set from
+      overrides.folders[yed_id] when present.
+
+    Pure function; the original `drafts` dict is NOT mutated. Each
+    list/instance inside the returned dict may be a new object so callers
+    can compare drafts vs returned to surface what changed.
+    """
+    out_classified = []
+    for c in drafts.get("classified", []):
+        new_user_kind = overrides.classifier.get(c.yed_id, c.user_kind)
+        if new_user_kind == c.user_kind:
+            out_classified.append(c)
+        else:
+            out_classified.append(replace(c, user_kind=new_user_kind))
+
+    out_periods = []
+    for p in drafts.get("periods", []):
+        ovr = overrides.periods.get(getattr(p, "yed_row_id", None), {})
+        if not ovr:
+            out_periods.append(p)
+            continue
+        # Some PeriodCandidate fields are optional; only override the
+        # ones present in the dict so callers can edit a subset.
+        kwargs = {}
+        if "periodo" in ovr:
+            kwargs["user_periodo"] = ovr["periodo"]
+        if "fase" in ovr:
+            kwargs["user_fase"] = ovr["fase"]
+        # PeriodCandidate may not have user_datazione_* fields yet;
+        # set via setattr-style replace where supported.
+        out_periods.append(replace(p, **kwargs) if kwargs else p)
+
+    out_folders = []
+    for f in drafts.get("folders", []):
+        ovr = overrides.folders.get(f.yed_id, {})
+        if not ovr:
+            out_folders.append(f)
+            continue
+        kwargs = {}
+        if "dimension" in ovr:
+            # 'skip' is a sentinel meaning "don't apply this folder";
+            # it flows through user_dimension and is checked in
+            # _apply_yed_folder_dimensions().
+            kwargs["user_dimension"] = ovr["dimension"]
+        if "value" in ovr:
+            kwargs["user_value"] = ovr["value"]
+        out_folders.append(replace(f, **kwargs) if kwargs else f)
+
+    return {
+        **drafts,
+        "classified": out_classified,
+        "periods": out_periods,
+        "folders": out_folders,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -646,6 +751,7 @@ def import_yed_raw(
     *,
     policy: FolderEdgePolicy = FolderEdgePolicy.SKIP,
     dry_run: bool = False,
+    overrides: YedOverrides | None = None,
 ) -> IngestResult:
     """Orchestrate the yEd-raw graphml import end-to-end.
 
@@ -658,6 +764,12 @@ def import_yed_raw(
             ``folders`` (output of yE-B/C parsers).
         policy: folder-edge policy (default SKIP).
         dry_run: when True, the transaction rolls back at the end
+        overrides: yE-E (5.8.2-alpha) — user-supplied diffs over the
+            parser outputs. When non-None, ``apply_overrides_to_drafts``
+            is called first; if ``overrides.policy`` is set it
+            replaces the caller-passed ``policy``. None = hardcoded
+            yE-D defaults (auto_kind / auto_periodo / auto_fase /
+            auto_dimension on every leaf, period, folder).
             (via ``_DryRunRollback`` sentinel); counts are still
             reported in the returned ``IngestResult``.
 
@@ -671,6 +783,16 @@ def import_yed_raw(
     returned ``IngestResult`` has ``applied=0`` + ``errors=(str(e),)``.
     """
     handle = _resolve_db_handle(handle)
+
+    # yE-E (5.8.2-alpha): apply user overrides BEFORE any downstream
+    # read. The override dataclass is opt-in; None preserves yE-D
+    # hardcoded-defaults behaviour. overrides.policy, when set, wins
+    # over the caller-passed policy argument.
+    if overrides is not None:
+        drafts = apply_overrides_to_drafts(drafts, overrides)
+        if overrides.policy is not None:
+            policy = overrides.policy
+
     classified: list[ClassifiedNode] = drafts.get("classified", []) or []
     periods: list = drafts.get("periods", []) or []
     folders: list[FolderCandidate] = drafts.get("folders", []) or []

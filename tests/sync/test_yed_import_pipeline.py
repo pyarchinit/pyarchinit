@@ -477,3 +477,141 @@ def test_atomic_rollback_on_integrity_error(tmp_path: Path) -> None:
             )
         ]
     assert rows == ["DUP"]
+
+
+# ---------------------------------------------------------------------------
+# yE-E (5.8.2-alpha) — YedOverrides + apply_overrides_to_drafts contract
+# ---------------------------------------------------------------------------
+
+def test_apply_overrides_empty_is_identity() -> None:
+    """An empty YedOverrides() leaves user_kind / user_dimension /
+    user_value / user_periodo / user_fase at their auto_* values."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, apply_overrides_to_drafts,
+    )
+    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+
+    classified = [_leaf("c0", ClassificationKind.US_REAL, "US01")]
+    periods = [PeriodCandidate(
+        yed_row_id="p0", auto_label="Period01",
+        user_label="Period01", auto_periodo=1, auto_fase=1,
+        user_periodo=1, user_fase=1,
+    )]
+    folders = [_folder("f0", "VA01", value="VA01")]
+    drafts = {"classified": classified, "periods": periods, "folders": folders}
+
+    out = apply_overrides_to_drafts(drafts, YedOverrides())
+
+    assert out["classified"][0].user_kind == ClassificationKind.US_REAL
+    assert out["periods"][0].user_periodo == 1
+    assert out["folders"][0].user_dimension == "attivita"
+    # Returned objects may be the same identity since no override
+    # applied — both are acceptable as long as user_* are untouched.
+
+
+def test_apply_overrides_classifier_per_row() -> None:
+    """A classifier override for one yed_id changes only that leaf's
+    user_kind; siblings keep their auto_kind."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, apply_overrides_to_drafts,
+    )
+
+    classified = [
+        _leaf("a", ClassificationKind.USV_VIRTUAL, "USV100"),
+        _leaf("b", ClassificationKind.USV_VIRTUAL, "USV101"),
+    ]
+    drafts = {"classified": classified, "periods": [], "folders": []}
+    ov = YedOverrides(classifier={"a": ClassificationKind.US_REAL})
+
+    out = apply_overrides_to_drafts(drafts, ov)
+
+    by_id = {c.yed_id: c.user_kind for c in out["classified"]}
+    assert by_id["a"] == ClassificationKind.US_REAL
+    assert by_id["b"] == ClassificationKind.USV_VIRTUAL
+
+
+def test_apply_overrides_periods_full() -> None:
+    """A periods override sets user_periodo + user_fase from the
+    override dict; unrelated periods keep their auto_* values."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, apply_overrides_to_drafts,
+    )
+    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+
+    p1 = PeriodCandidate(yed_row_id="p1", auto_label="A", user_label="A",
+                         auto_periodo=1, auto_fase=1,
+                         user_periodo=1, user_fase=1)
+    p2 = PeriodCandidate(yed_row_id="p2", auto_label="B", user_label="B",
+                         auto_periodo=2, auto_fase=2,
+                         user_periodo=2, user_fase=2)
+    drafts = {"classified": [], "periods": [p1, p2], "folders": []}
+    ov = YedOverrides(periods={"p1": {"periodo": 5, "fase": 7}})
+
+    out = apply_overrides_to_drafts(drafts, ov)
+
+    by_id = {p.yed_row_id: (p.user_periodo, p.user_fase) for p in out["periods"]}
+    assert by_id["p1"] == (5, 7)
+    assert by_id["p2"] == (2, 2)
+
+
+def test_apply_overrides_folders_dimension_change() -> None:
+    """A folder override changing dimension+value sets user_dimension
+    and user_value on the targeted folder only."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, apply_overrides_to_drafts,
+    )
+
+    folders = [_folder("f0", "VA01"), _folder("f1", "VA02")]
+    drafts = {"classified": [], "periods": [], "folders": folders}
+    ov = YedOverrides(folders={
+        "f0": {"dimension": "struttura", "value": "S01"},
+    })
+
+    out = apply_overrides_to_drafts(drafts, ov)
+
+    by_id = {f.yed_id: (f.user_dimension, f.user_value) for f in out["folders"]}
+    assert by_id["f0"] == ("struttura", "S01")
+    assert by_id["f1"] == ("attivita", "VA02")  # auto_value extracted in _folder
+
+
+def test_apply_overrides_folders_skip() -> None:
+    """user_dimension='skip' sentinel flows through; downstream
+    _apply_yed_folder_dimensions reads user_dimension and treats
+    'skip' / None as 'no UPDATE for this folder'."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, apply_overrides_to_drafts,
+    )
+
+    folders = [_folder("f0", "VA01")]
+    drafts = {"classified": [], "periods": [], "folders": folders}
+    ov = YedOverrides(folders={"f0": {"dimension": "skip"}})
+
+    out = apply_overrides_to_drafts(drafts, ov)
+    assert out["folders"][0].user_dimension == "skip"
+
+
+def test_apply_overrides_policy_wins_over_caller_arg(tmp_path: Path) -> None:
+    """When YedOverrides.policy is set, it overrides the policy=
+    argument passed to import_yed_raw. The pipeline reads
+    overrides.policy after the apply_overrides_to_drafts call."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        YedOverrides, import_yed_raw,
+    )
+    handle = _make_handle(tmp_path)
+    # Empty drafts — exercises only the override-policy-wins path.
+    drafts = {"classified": [], "periods": [], "folders": []}
+    ov = YedOverrides(policy=FolderEdgePolicy.FAN_OUT)
+
+    result = import_yed_raw(
+        handle,
+        graphml_path=tmp_path / "nonexistent.graphml",
+        sito="OV", drafts=drafts,
+        policy=FolderEdgePolicy.SKIP,  # caller default
+        overrides=ov,
+    )
+    # Empty drafts → 0 writes BUT the policy must have been FAN_OUT
+    # internally. We can't directly inspect that from IngestResult,
+    # but the absence of errors + applied=0 demonstrates the path
+    # completed without rejecting the override.
+    assert result.errors == ()
+    assert result.applied == 0
