@@ -1,0 +1,771 @@
+"""yE-D Group B: yEd-raw graphml import pipeline orchestrator.
+
+Consumes drafts (output of yE-B/C parsers) and writes them to the
+target pyarchinit DB in a single atomic transaction. Supports both
+SQLite and PostgreSQL backends through the `DbHandle` abstraction
+(Foundation 5.6.2-alpha) — all SQL is expressed as SQLAlchemy
+``text()`` statements with named bind parameters.
+
+Public API:
+
+    import_yed_raw(handle, graphml_path, sito, drafts, *,
+                   policy=SKIP, dry_run=False) -> IngestResult
+
+Internal helpers (testable in isolation):
+
+    _classify_destination(classified)
+    _flatten_members(folder, all_folders)
+    _write_us_rows(conn, sql_us_classified, sito, periods_map,
+                   folders_map)
+    _write_inventario_rows(conn, sql_inv_classified, sito)
+    _write_periodizzazione_rows(conn, periods, sito)
+    _apply_yed_folder_dimensions(conn, folders, sito, uuid_map)
+    _write_rapporti(conn, expanded, sito, uuid_map)
+    _write_paradata_via_store(handle, paradata_classified, sito)
+
+The function order matches the dispatch order inside ``import_yed_raw``
+(write US rows first so subsequent UPDATEs have a uuid_map; write
+inventario / periodizzazione next; folder dimensions UPDATE; rapporti
+UPDATE; paradata last).
+
+The ``_DryRunRollback`` sentinel mirrors the PG-C precedent in
+``graph_ingestor.py`` — raised inside ``engine.begin()`` to force
+the transaction to roll back at the end of a dry run; caught
+immediately outside the ``with`` block and translated into an
+``IngestResult(dry_run=True)``.
+
+Atomic-only error policy (Q3 α): any exception (other than
+``_DryRunRollback``) triggers a transaction rollback via
+``engine.begin()`` semantics, and ``import_yed_raw`` returns an
+``IngestResult(applied=0, errors=(str(e),))``.
+
+Added in yE-D (yed-import-pipeline-5.8.0-alpha).
+"""
+from __future__ import annotations
+
+import json
+import logging
+from pathlib import Path
+from typing import Any
+
+from sqlalchemy import text
+
+from ._db_handle import DbHandle, _resolve_db_handle
+from .ingest_result import IngestResult
+from .uuid7 import uuid7
+from .yed_classifier import ClassificationKind, ClassifiedNode
+from .yed_group_walker import FolderCandidate
+from .yed_rapporti_policy import (
+    ExpandedRapporti,
+    FolderEdgePolicy,
+    analyze_edges,
+    apply_policy,
+)
+
+log = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Destination classification constants (spec § 6).
+# ---------------------------------------------------------------------------
+_SQL_US_KINDS: frozenset = frozenset({
+    ClassificationKind.US_REAL,
+    ClassificationKind.US_MASONRY,
+    ClassificationKind.US_DOCUMENTARY,
+})
+_SQL_INVENTARIO_KINDS: frozenset = frozenset({
+    ClassificationKind.SPECIAL_FIND,
+})
+_PARADATA_KINDS: frozenset = frozenset({
+    ClassificationKind.USV_VIRTUAL,
+    ClassificationKind.USV_FORMAL,
+    ClassificationKind.VIRTUAL_FIND,
+    ClassificationKind.DOCUMENT,
+    ClassificationKind.COMBINER,
+    ClassificationKind.PROPERTY,
+})
+
+# Map ClassifiedKind -> us_table.unita_tipo value.
+_CLASSIFIED_KIND_TO_UNITA_TIPO: dict = {
+    ClassificationKind.US_REAL: "US",
+    ClassificationKind.US_MASONRY: "USM",
+    ClassificationKind.US_DOCUMENTARY: "USD",
+}
+
+# Set of folder dimension column names that are eligible for the
+# auto-UPDATE pass (matches yed_group_walker.DEFAULT_FOLDER_PREFIX_MAP).
+_ALLOWED_FOLDER_DIMENSIONS: frozenset = frozenset({
+    "attivita", "area", "struttura", "settore",
+    "ambient", "saggio", "quad_par",
+})
+
+
+class _DryRunRollback(Exception):
+    """Sentinel raised inside engine.begin() to force a rollback.
+
+    Mirrors the PG-C precedent in graph_ingestor.py. The instance
+    carries the counts dict so the outer handler can build an
+    IngestResult populated with the writes that WOULD have happened.
+    """
+
+    def __init__(self, counts: dict | None = None) -> None:
+        super().__init__("dry_run rollback")
+        self.counts = counts or {}
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _classify_destination(classified: list[ClassifiedNode]) -> dict:
+    """Split classified leaves into write destinations.
+
+    Returns a dict with four lists:
+      - sql_us:   classified leaves that go into us_table
+      - sql_inv:  classified leaves that go into inventario_materiali_table
+      - paradata: classified leaves that go into paradata.graphml
+      - skipped:  anything outside the 3 buckets (UNKNOWN, SKIP, ...)
+    """
+    sql_us: list[ClassifiedNode] = []
+    sql_inv: list[ClassifiedNode] = []
+    paradata: list[ClassifiedNode] = []
+    skipped: list[ClassifiedNode] = []
+    for c in classified:
+        kind = c.user_kind
+        if kind in _SQL_US_KINDS:
+            sql_us.append(c)
+        elif kind in _SQL_INVENTARIO_KINDS:
+            sql_inv.append(c)
+        elif kind in _PARADATA_KINDS:
+            paradata.append(c)
+        else:
+            skipped.append(c)
+    return {
+        "sql_us": sql_us,
+        "sql_inv": sql_inv,
+        "paradata": paradata,
+        "skipped": skipped,
+    }
+
+
+def _flatten_members(
+    folder: FolderCandidate,
+    all_folders: list[FolderCandidate],
+) -> list[str]:
+    """Recursive flatten: direct members + nested folders' members.
+
+    Returns list of yed_id strings (leaves only; nested folder ids
+    not in `all_folders` are skipped defensively).
+    """
+    by_id: dict[str, FolderCandidate] = {f.yed_id: f for f in all_folders}
+    out: list[str] = []
+    seen: set[str] = set()
+
+    def _walk(f: FolderCandidate) -> None:
+        if f.yed_id in seen:
+            return
+        seen.add(f.yed_id)
+        out.extend(f.member_yed_ids)
+        for nested_id in f.nested_folder_ids:
+            nested = by_id.get(nested_id)
+            if nested is None:
+                continue
+            _walk(nested)
+
+    _walk(folder)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# SQL writers
+# ---------------------------------------------------------------------------
+
+def _write_us_rows(
+    conn,
+    sql_us_classified: list[ClassifiedNode],
+    sito: str,
+    periods_map: dict | None = None,
+    folders_map: dict | None = None,
+) -> tuple[int, dict]:
+    """INSERT one row into us_table per US-class leaf.
+
+    Each row gets:
+      - node_uuid: fresh uuid7().hex
+      - sito:      caller-provided
+      - area:      '1' (yE-D MVP default)
+      - us:        ClassifiedNode.label (the yEd label)
+      - unita_tipo: US / USM / USD per the kind
+
+    Returns ``(count, uuid_map)`` where ``uuid_map`` is a dict
+    mapping ``yed_id -> node_uuid`` so downstream UPDATEs can target
+    the row by uuid.
+
+    ``periods_map`` and ``folders_map`` are reserved for future use
+    (e.g., FK assignment to periodizzazione_table) — currently
+    unused. yE-E will wire them up via the dialog.
+    """
+    _ = periods_map  # reserved
+    _ = folders_map  # reserved
+    count = 0
+    uuid_map: dict[str, str] = {}
+    for c in sql_us_classified:
+        unita_tipo = _CLASSIFIED_KIND_TO_UNITA_TIPO.get(c.user_kind)
+        if unita_tipo is None:
+            log.warning(
+                "_write_us_rows: skipping %r (unmapped kind %s)",
+                c.yed_id, c.user_kind,
+            )
+            continue
+        node_uuid = uuid7().hex
+        conn.execute(
+            text(
+                "INSERT INTO us_table "
+                "(sito, area, us, unita_tipo, node_uuid) "
+                "VALUES (:sito, :area, :us, :unita_tipo, :node_uuid)"
+            ),
+            {
+                "sito": sito,
+                "area": "1",
+                "us": c.label,
+                "unita_tipo": unita_tipo,
+                "node_uuid": node_uuid,
+            },
+        )
+        uuid_map[c.yed_id] = node_uuid
+        count += 1
+    return count, uuid_map
+
+
+def _write_inventario_rows(
+    conn,
+    sql_inv_classified: list[ClassifiedNode],
+    sito: str,
+) -> int:
+    """INSERT one row into inventario_materiali_table per SPECIAL_FIND."""
+    count = 0
+    for idx, c in enumerate(sql_inv_classified, start=1):
+        # We don't get a numero_inventario from yEd labels; use a
+        # negative placeholder offset so multiple imports don't collide
+        # immediately (real numbers assigned during finds workflow).
+        # MVP: assign sequential positive ints derived from idx; the
+        # UNIQUE (sito, numero_inventario, sub_inv) constraint will
+        # catch real collisions on re-import (atomic rollback).
+        conn.execute(
+            text(
+                "INSERT INTO inventario_materiali_table "
+                "(sito, numero_inventario, tipo_reperto, definizione, "
+                " area, us) "
+                "VALUES (:sito, :ninv, :tipo, :defn, :area, :us)"
+            ),
+            {
+                "sito": sito,
+                "ninv": idx,
+                "tipo": "SF",
+                "defn": c.label,
+                "area": "1",
+                "us": c.label,
+            },
+        )
+        count += 1
+    return count
+
+
+def _write_periodizzazione_rows(
+    conn,
+    periods: list,  # list[PeriodCandidate]
+    sito: str,
+) -> int:
+    """INSERT one row into periodizzazione_table per PeriodCandidate.
+
+    Uses ``user_periodo`` / ``user_fase`` / ``user_label`` (or their
+    auto_* fallback in yE-D, since the dialog hasn't run yet).
+    ``cron_iniziale`` / ``cron_finale`` stay NULL — yEd doesn't
+    encode dates on table rows; the user fills them later in the
+    Periodizzazione tab.
+    """
+    count = 0
+    for p in periods:
+        periodo = getattr(p, "user_periodo", None) or getattr(
+            p, "auto_periodo", None,
+        )
+        fase = getattr(p, "user_fase", None) or getattr(p, "auto_fase", None)
+        label = (
+            getattr(p, "user_label", None)
+            or getattr(p, "auto_label", None)
+            or ""
+        )
+        try:
+            periodo_i = int(periodo) if periodo is not None else None
+        except (ValueError, TypeError):
+            periodo_i = None
+        # periodizzazione_table.fase is TEXT in pyarchinit schema.
+        fase_str = str(fase) if fase is not None else None
+        conn.execute(
+            text(
+                "INSERT INTO periodizzazione_table "
+                "(sito, periodo, fase, descrizione, datazione_estesa) "
+                "VALUES (:sito, :periodo, :fase, :descr, :datazione)"
+            ),
+            {
+                "sito": sito,
+                "periodo": periodo_i,
+                "fase": fase_str,
+                "descr": label,
+                "datazione": label,
+            },
+        )
+        count += 1
+    return count
+
+
+def _apply_yed_folder_dimensions(
+    conn,
+    folders: list[FolderCandidate],
+    sito: str,
+    uuid_map: dict[str, str],
+) -> int:
+    """UPDATE us_table SET <dim>=<value> for each folder's members.
+
+    For every FolderCandidate whose ``user_dimension`` (or, in yE-D
+    where the dialog hasn't run, ``auto_dimension``) is a known
+    pyarchinit column name and not ``'skip'``, run an UPDATE setting
+    that column to the folder's value for every leaf member resolved
+    via ``uuid_map``.
+
+    Members not in ``uuid_map`` (e.g. paradata leaves) are silently
+    skipped — we log them at debug level.
+
+    Returns the count of rows UPDATEd (sum across folders).
+    """
+    total = 0
+    for folder in folders:
+        dim = (
+            getattr(folder, "user_dimension", None)
+            or folder.auto_dimension
+        )
+        if not dim or dim == "skip":
+            log.debug(
+                "_apply_yed_folder_dimensions: skipping folder %r (no dim)",
+                folder.yed_id,
+            )
+            continue
+        if dim not in _ALLOWED_FOLDER_DIMENSIONS:
+            log.warning(
+                "_apply_yed_folder_dimensions: folder %r has dim %r "
+                "not in allowed set — skipping",
+                folder.yed_id, dim,
+            )
+            continue
+        value = (
+            getattr(folder, "user_value", None)
+            or folder.auto_value
+        )
+        if not value:
+            continue
+        members = _flatten_members(folder, folders)
+        node_uuids = [
+            uuid_map[m] for m in members if m in uuid_map
+        ]
+        if not node_uuids:
+            log.debug(
+                "_apply_yed_folder_dimensions: folder %r had no "
+                "us_table members (uuid_map miss) — skipping",
+                folder.yed_id,
+            )
+            continue
+        # Build named bind parameters for IN clause (backend-portable).
+        # SQLAlchemy text() supports list expansion via the
+        # `bindparam(name, expanding=True)` API, but for simplicity
+        # we generate fresh placeholder names per call.
+        params: dict[str, Any] = {
+            "sito": sito,
+            "val": value,
+        }
+        placeholders: list[str] = []
+        for i, nu in enumerate(node_uuids):
+            key = f"u{i}"
+            params[key] = nu
+            placeholders.append(f":{key}")
+        in_clause = ", ".join(placeholders)
+        # Use safe column-name embedding: dim is validated against
+        # the allowlist above so it's safe to f-string here.
+        sql = (
+            f"UPDATE us_table SET {dim} = :val "
+            f"WHERE sito = :sito AND node_uuid IN ({in_clause})"
+        )
+        result = conn.execute(text(sql), params)
+        # SQLAlchemy result.rowcount may be -1 for some drivers,
+        # so default to len(node_uuids) when unknown.
+        affected = (
+            result.rowcount if getattr(result, "rowcount", -1) != -1
+            else len(node_uuids)
+        )
+        total += affected
+    return total
+
+
+def _write_rapporti(
+    conn,
+    expanded: ExpandedRapporti,
+    sito: str,
+    uuid_map: dict[str, str],
+) -> int:
+    """Write us_table.rapporti for each leaf-to-leaf pair.
+
+    SYNTHETIC pre-step: when ``expanded.synthetic_us_rows`` is
+    non-empty, INSERT one us_table row per synthetic dict first;
+    each carries ``node_uuid``, ``unita_tipo='VA'``, ``us=<label>``.
+    The synthetic node_uuids are also folded into ``uuid_map`` so
+    subsequent rapporti UPDATEs can target them.
+
+    The pyarchinit ``rapporti`` column is a JSON list of
+    ``[type, sito, area, us_target]`` tuples (one per outbound edge).
+    yE-D MVP: ``type='covers'`` when ``edge_type`` is None,
+    ``area='1'`` (matches the yE-D default in ``_write_us_rows``),
+    ``us_target`` = the target's ``us`` label resolved via reverse
+    lookup on ``uuid_map`` (and on the source/target yed_ids that
+    map to leaf labels for non-synthetic rows).
+
+    Returns total count of UPDATE statements run (one per source
+    that has at least one rapporto).
+    """
+    # SYNTHETIC: insert virtual-activity rows first.
+    for sr in expanded.synthetic_us_rows:
+        node_uuid = sr.get("node_uuid")
+        us_label = sr.get("us") or ""
+        # Synthetic rows from Group A use uuid.uuid4().hex; we keep
+        # them as-is here (no re-mint) so the rapporti rewires
+        # produced by Group A remain valid.
+        conn.execute(
+            text(
+                "INSERT INTO us_table "
+                "(sito, area, us, unita_tipo, node_uuid) "
+                "VALUES (:sito, :area, :us, :unita_tipo, :node_uuid)"
+            ),
+            {
+                "sito": sito,
+                "area": "1",
+                "us": us_label,
+                "unita_tipo": sr.get("unita_tipo", "VA"),
+                "node_uuid": node_uuid,
+            },
+        )
+        # The synthetic node_uuid is already the leaf-id in
+        # expanded.rapporti (see Group A SYNTHETIC branch), so the
+        # rewire below works directly without map lookup. But we
+        # still feed an identity mapping so reverse lookups on the
+        # source side find the synthetic row's `us` label.
+        if node_uuid:
+            uuid_map[node_uuid] = node_uuid
+
+    # Build a reverse map (yed_id -> us-label) to resolve targets.
+    # For non-synthetic leaves, the yed_id is the rapporti tuple's
+    # entry; we read the row back from us_table via node_uuid.
+    # MVP: we don't read back labels — instead, we build the rapporti
+    # list using yed_id as the surrogate us-label. yE-E dialog can
+    # rewire to real labels.
+    # ── Group rapporti by source ────────────────────────────────────
+    by_source: dict[str, list[tuple[str, str | None]]] = {}
+    for src, tgt, edge_type in expanded.rapporti:
+        by_source.setdefault(src, []).append((tgt, edge_type))
+
+    update_count = 0
+    for src, edges in by_source.items():
+        if src not in uuid_map:
+            # The source isn't an us_table row — skip (paradata,
+            # inventario, or a leaf that classify_destination
+            # routed elsewhere). yE-E dialog will let user pick.
+            log.debug(
+                "_write_rapporti: src %r not in us_table uuid_map", src,
+            )
+            continue
+        rapporti_list = []
+        for tgt, edge_type in edges:
+            rapp_type = edge_type or "covers"
+            # MVP us-label of the target = the target yed_id, since
+            # we don't have a real us-number yet.
+            rapporti_list.append([
+                rapp_type, sito, "1", tgt,
+            ])
+        if not rapporti_list:
+            continue
+        conn.execute(
+            text(
+                "UPDATE us_table SET rapporti = :rapp "
+                "WHERE sito = :sito AND node_uuid = :nu"
+            ),
+            {
+                "rapp": json.dumps(rapporti_list, ensure_ascii=False),
+                "sito": sito,
+                "nu": uuid_map[src],
+            },
+        )
+        update_count += 1
+    return update_count
+
+
+def _write_paradata_via_store(
+    handle: DbHandle,
+    paradata_classified: list[ClassifiedNode],
+    sito: str,
+) -> int:
+    """Dispatch each paradata leaf to the ParadataStore API.
+
+    Path B decision (no US linkage at yE-D time):
+      USV_VIRTUAL / USV_FORMAL → add_virtual_us (if API exists; else skip+log)
+      DOCUMENT                  → add_document (if API exists; else skip+log)
+      VIRTUAL_FIND              → add_virtual_find (if API exists; else skip+log)
+      COMBINER                  → add_combiner (if API exists; else skip+log)
+      PROPERTY                  → add_property (if API exists; else skip+log)
+
+    Reads ParadataStore via getattr lookups; missing methods are
+    logged as skips. Returns count of paradata writes ATTEMPTED.
+    """
+    if not paradata_classified:
+        return 0
+    try:
+        from .paradata_store import ParadataStore
+    except Exception as e:
+        log.warning(
+            "_write_paradata_via_store: cannot import ParadataStore: %s", e,
+        )
+        return 0
+    try:
+        store = ParadataStore(handle, sito)
+    except Exception as e:
+        log.warning(
+            "_write_paradata_via_store: cannot instantiate "
+            "ParadataStore(handle=%r, sito=%r): %s",
+            handle, sito, e,
+        )
+        return 0
+
+    # Map ClassifiedKind -> (method name, kw-key-for-label).
+    # When a method is missing we skip+log.
+    dispatch: dict[ClassificationKind, tuple[str, str]] = {
+        ClassificationKind.USV_VIRTUAL: ("add_virtual_us", "label"),
+        ClassificationKind.USV_FORMAL: ("add_virtual_us", "label"),
+        ClassificationKind.VIRTUAL_FIND: ("add_virtual_find", "label"),
+        ClassificationKind.DOCUMENT: ("add_document", "label"),
+        ClassificationKind.COMBINER: ("add_combiner", "label"),
+        ClassificationKind.PROPERTY: ("add_property", "label"),
+    }
+    count = 0
+    for c in paradata_classified:
+        method_name, _label_key = dispatch.get(c.user_kind, ("", ""))
+        if not method_name:
+            log.debug(
+                "_write_paradata_via_store: no dispatch for %s",
+                c.user_kind,
+            )
+            continue
+        method = getattr(store, method_name, None)
+        if method is None or not callable(method):
+            if c.user_kind == ClassificationKind.PROPERTY:
+                log.warning(
+                    "PropertyNode %r written without US linkage — "
+                    "yE-E dialog will let user assign target "
+                    "(ParadataStore.%s missing)",
+                    c.label, method_name,
+                )
+            else:
+                log.info(
+                    "_write_paradata_via_store: %s (%s) skipped — "
+                    "ParadataStore.%s not implemented",
+                    c.label, c.user_kind.value, method_name,
+                )
+            count += 1  # counted as attempted per spec § 6 line 307
+            continue
+        try:
+            # Best-effort invocation. The exact signature varies; we
+            # call with the label as the first positional arg and
+            # tolerate TypeErrors.
+            method(c.label)
+        except TypeError:
+            try:
+                # Try with no args (some methods may auto-allocate).
+                method()
+            except Exception as e:
+                log.warning(
+                    "_write_paradata_via_store: ParadataStore.%s(%r) "
+                    "failed: %s",
+                    method_name, c.label, e,
+                )
+        except Exception as e:
+            log.warning(
+                "_write_paradata_via_store: ParadataStore.%s(%r) "
+                "failed: %s",
+                method_name, c.label, e,
+            )
+        count += 1
+    return count
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
+def import_yed_raw(
+    handle: DbHandle,
+    graphml_path: Path | str,
+    sito: str,
+    drafts: dict,
+    *,
+    policy: FolderEdgePolicy = FolderEdgePolicy.SKIP,
+    dry_run: bool = False,
+) -> IngestResult:
+    """Orchestrate the yEd-raw graphml import end-to-end.
+
+    Args:
+        handle: target DbHandle (SQLite or PostgreSQL).
+        graphml_path: path to the .graphml file (already detected
+            as yEd-raw by the branch hook).
+        sito: target site name (forced onto every inserted row).
+        drafts: dict with keys ``classified`` / ``periods`` /
+            ``folders`` (output of yE-B/C parsers).
+        policy: folder-edge policy (default SKIP).
+        dry_run: when True, the transaction rolls back at the end
+            (via ``_DryRunRollback`` sentinel); counts are still
+            reported in the returned ``IngestResult``.
+
+    Returns:
+        IngestResult with applied / inserted counts populated and
+        ``parsed_drafts`` carrying a snapshot of the drafts inputs +
+        the expanded rapporti / paradata counts.
+
+    Error policy: atomic. On any exception (other than
+    ``_DryRunRollback``), the transaction rolls back and the
+    returned ``IngestResult`` has ``applied=0`` + ``errors=(str(e),)``.
+    """
+    handle = _resolve_db_handle(handle)
+    classified: list[ClassifiedNode] = drafts.get("classified", []) or []
+    periods: list = drafts.get("periods", []) or []
+    folders: list[FolderCandidate] = drafts.get("folders", []) or []
+
+    # 1. Classify destinations BEFORE the transaction so we can short-
+    #    circuit on a fully-empty draft.
+    buckets = _classify_destination(classified)
+    sql_us = buckets["sql_us"]
+    sql_inv = buckets["sql_inv"]
+    paradata = buckets["paradata"]
+
+    # 2. Rapporti analysis runs OUTSIDE the transaction (read-only).
+    folder_ids: set[str] = {f.yed_id for f in folders}
+    _ = folder_ids  # kept for clarity / future use
+    report = analyze_edges(graphml_path, classified, folders)
+    expanded = apply_policy(
+        report,
+        policy,
+        all_folders=folders,
+        classified=classified,
+    )
+
+    # Counters populated inside the transaction; we'll feed them
+    # into _DryRunRollback if dry_run flips, or into the final
+    # IngestResult on success.
+    counts = {
+        "us_inserted": 0,
+        "inv_inserted": 0,
+        "period_inserted": 0,
+        "us_updated_dim": 0,
+        "rapporti_updated": 0,
+        "paradata_written": 0,
+    }
+
+    try:
+        with handle.engine.begin() as conn:
+            us_count, uuid_map = _write_us_rows(
+                conn, sql_us, sito,
+                periods_map={p.yed_row_id: p for p in periods
+                             if hasattr(p, "yed_row_id")},
+                folders_map={f.yed_id: f for f in folders},
+            )
+            counts["us_inserted"] = us_count
+
+            counts["inv_inserted"] = _write_inventario_rows(
+                conn, sql_inv, sito,
+            )
+            counts["period_inserted"] = _write_periodizzazione_rows(
+                conn, periods, sito,
+            )
+            counts["us_updated_dim"] = _apply_yed_folder_dimensions(
+                conn, folders, sito, uuid_map,
+            )
+            counts["rapporti_updated"] = _write_rapporti(
+                conn, expanded, sito, uuid_map,
+            )
+            # Paradata writes go through ParadataStore which manages
+            # its own file I/O. ParadataStore IS NOT inside the SQL
+            # transaction — yE-D ships best-effort paradata writes
+            # (atomic guarantees apply to SQL only).
+            counts["paradata_written"] = _write_paradata_via_store(
+                handle, paradata, sito,
+            )
+
+            if dry_run:
+                raise _DryRunRollback(counts)
+    except _DryRunRollback as drr:
+        log.info("import_yed_raw: dry_run rollback — counts=%r", drr.counts)
+        return IngestResult(
+            applied=0,
+            inserted=0,
+            updated=0,
+            skipped=0,
+            epochs_created=0,
+            conflicts=(),
+            errors=(),
+            dry_run=True,
+            parsed_drafts={
+                "classified": classified,
+                "periods": periods,
+                "folders": folders,
+                "expanded_rapporti": expanded,
+                "paradata_count": counts["paradata_written"],
+                "would_apply": counts,
+            },
+        )
+    except Exception as e:
+        log.exception("import_yed_raw: pipeline failed — rolling back")
+        return IngestResult(
+            applied=0,
+            inserted=0,
+            updated=0,
+            skipped=0,
+            epochs_created=0,
+            conflicts=(),
+            errors=(str(e),),
+            dry_run=False,
+            parsed_drafts={
+                "classified": classified,
+                "periods": periods,
+                "folders": folders,
+                "expanded_rapporti": expanded,
+                "paradata_count": 0,
+            },
+        )
+
+    inserted = (
+        counts["us_inserted"]
+        + counts["inv_inserted"]
+        + counts["period_inserted"]
+    )
+    updated = counts["us_updated_dim"] + counts["rapporti_updated"]
+    applied = inserted + updated
+    return IngestResult(
+        applied=applied,
+        inserted=inserted,
+        updated=updated,
+        skipped=0,
+        epochs_created=counts["period_inserted"],
+        conflicts=(),
+        errors=(),
+        dry_run=False,
+        parsed_drafts={
+            "classified": classified,
+            "periods": periods,
+            "folders": folders,
+            "expanded_rapporti": expanded,
+            "paradata_count": counts["paradata_written"],
+            "counts": counts,
+        },
+    )
