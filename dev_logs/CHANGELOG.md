@@ -5,6 +5,70 @@
 
 ---
 
+## [5.8.2.3-alpha] - 2026-05-14
+
+### Italiano
+
+**pg-pottery-typefix — schema declaration disallineata: `Pottery_table.us` + `US_table.us` dichiarati Integer ma il DB ha TEXT.**
+
+Diagnosi finale dell'errore `operator does not exist: text = integer LINE 3: ... pottery_table.us = 672` persistente attraverso 5.8.2.1 e 5.8.2.2. La full traceback ha rivelato:
+
+```
+File "tabs/pyarchinit_Pottery_mainapp.py", line 3645, in on_pushButton_search_go_pressed
+    res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
+```
+
+Il caller passava `us = "672"` (str da `lineEdit_us.text()`). Il mio `_normalize_query_params` + belt-and-braces leggevano `column.type.python_type` per decidere la coercion. Per `pottery_table.us`, il `python_type` era **`int`** — perché `modules/db/structures/Pottery_table.py:19` dichiarava `Column('us', Integer)`. Quindi:
+
+- input: `us = "672"` (str)
+- coercion: `isinstance(str) AND col_pytype in (int, float)` → True → `int("672")` → **672**
+- SQL bind: `us_1 = 672` (int)
+- PG: TEXT column rifiuta `text = integer` → ERROR
+
+**Il vero problema**: pyarchinit declared **Integer** ma PG schema (e tutti i deploy reali archeologici) usano **TEXT** per la colonna `us`. SQLite type-loose nascondeva il bug; PG strict-typing lo ha esposto.
+
+**Fix definitivo**: allineamento delle declaration al DB reale:
+
+| File | Was | Now |
+|---|---|---|
+| `modules/db/structures/Pottery_table.py:19` | `Column('us', Integer)` | `Column('us', Text)` |
+| `modules/db/structures/US_table.py:20` | `Column('us', Integer)` | `Column('us', Text)` |
+
+**Audit corollario** (eseguito): altre tabelle con colonna `us` su PG online khutm2:
+- `archeozoology_table.us` → TEXT ✓
+- `campioni_table.us` → TEXT ✓
+- `individui_table.us` → TEXT ✓
+- `inventario_materiali_table.us` → TEXT (già allineato, declaration `Column('us', Text)`) ✓
+- `pottery_table.us` → TEXT (**fix shipped**)
+- `us_table.us` → TEXT (**fix shipped**)
+- `media_to_us_table.us` → bigint (declaration matches, BIGINT)
+- `periodizzazione_table.us` → integer
+- `fauna.us` → integer (legacy backup table, no fix needed)
+
+**Effetti collaterali**: nessuno su SQLite (type-loose, accetta sia int che str). Su PG il bug `text = integer` non si presenterà più per pottery_table e us_table. La bidirectional coercion (5.8.2.1-alpha) + belt-and-braces (5.8.2.2-alpha) restano come safety net per altre tabelle che dovessero avere disallineamenti analoghi futuri.
+
+**Versioning**: patch `5.8.2.2 → 5.8.2.3-alpha`. Predecessor: `pg-pottery-fix-belt-and-braces-5.8.2.2-alpha` (commit `3f6956d2`, pushato).
+
+### English
+
+**pg-pottery-typefix — schema declaration mismatch: `Pottery_table.us` + `US_table.us` declared Integer but PG schema is TEXT.**
+
+Final diagnosis of the persistent `operator does not exist: text = integer` error through 5.8.2.1 and 5.8.2.2. Full traceback revealed the caller passes `us = "672"` (str from `lineEdit_us.text()`). My `_normalize_query_params` + belt-and-braces read `column.type.python_type` to decide coercion. For `pottery_table.us`, `python_type` returned **`int`** because `Pottery_table.py:19` declared `Column('us', Integer)`. So the bidirectional logic coerced str "672" → int 672, SQL bound `us_1=672` (int), and PG TEXT column rejected `text = integer`.
+
+**Root cause**: pyarchinit declared Integer but PG schema (and all real archaeological deploys) use TEXT for the `us` column. SQLite's type-loose comparison hid the bug; PG strict-typing exposed it.
+
+**Fix**: align the declarations to the actual DB schema:
+- `modules/db/structures/Pottery_table.py:19`: `Integer` → `Text`.
+- `modules/db/structures/US_table.py:20`: `Integer` → `Text`.
+
+Audit confirmed `Inventario_materiali_table.py` already had `Column('us', Text)`. No other us-column mismatches found across `archeozoology / campioni / individui / pottery / us / inventario / media_to_us / periodizzazione`.
+
+Side effects: none on SQLite. PG `text = integer` error gone for pottery and us tables. The bidirectional coercion (5.8.2.1) + belt-and-braces (5.8.2.2) remain as safety net for any future type-mismatch discoveries.
+
+Versioning: patch `5.8.2.2 → 5.8.2.3-alpha`. Predecessor: `pg-pottery-fix-belt-and-braces-5.8.2.2-alpha` (commit `3f6956d2`).
+
+---
+
 ## [5.8.2.2-alpha] - 2026-05-14
 
 ### Italiano

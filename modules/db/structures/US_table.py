@@ -17,7 +17,7 @@ class US_table:
                      Column('id_us', Integer, primary_key=True),  # 0
                      Column('sito', Text),  # 1
                      Column('area', String(20)),  # 2
-                     Column('us', Integer),  # 3
+                     Column('us', Text),  # 3 — pg-pottery-typefix 2026-05-14: was Integer, PG schema is TEXT
                      Column('d_stratigrafica', String(255)),  # 4
                      Column('d_interpretativa', String(255)),  # 5
                      Column('descrizione', Text),  # 6

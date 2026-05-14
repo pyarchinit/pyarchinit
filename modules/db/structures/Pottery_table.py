@@ -16,7 +16,7 @@ class Pottery_table:
 					Column('id_number', Integer),
 					Column('sito', Text),
 					Column('area', Text),
-					Column('us', Integer),
+					Column('us', Text),  # pg-pottery-typefix 2026-05-14: was Integer, PG schema is TEXT
 					Column('box', Integer),
 					Column('photo', Text),
 					Column('drawing', Text),
