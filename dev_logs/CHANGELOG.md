@@ -5,6 +5,69 @@
 
 ---
 
+## [5.8.3-alpha] - 2026-05-14
+
+### Italiano
+
+**yE-Closure — sign-off del rollout yEd-aware import (6/6 milestone shipped).**
+
+Sesto e ultimo milestone della rollout `yEd-aware-graphml-import`. Sign-off + documentazione user-facing + dev-log + CHANGELOG. Nessun codice di produzione modificato.
+
+**Tutorial 36** (`docs/tutorials/<lang>/36_extended_matrix_s3dgraphy.md`) — esteso con nuova sezione **"5. yEd-aware Import"** in **IT + EN** (deferred per le altre 8 langs: de/es/fr/ar/ca/ro/pt/el — saranno aggiornate via `tutorial-updater` agent in batch separato). La sezione copre:
+- Rollout 6-milestone con tabella tag
+- User flow del 5-page wizard (`YedImportDialog`)
+- Routing destinazioni per ogni ClassificationKind (US/USM/USD/USV/USVs/USVn/USVc/RSF/SF/VSF/DOC/COMB/PROP)
+- Sidecar JSON `<graphml>.yed_overrides.json` schema versionato
+- CLI `scripts/import_yed_graphml.py` con `--overrides PATH`
+- Limiti noti (date editing assente, ParadataStore API parziale, PropertyNode Path B, sidecar per-graphml)
+- Test coverage finale: 354 passed / 42 skipped
+
+**Dev-log T5.4** (`docs/superpowers/dev-log/T5.4_PyArchInit_Dev_Log.md`) — prepend sezione yE-Closure + yE-E + yE-D sopra le sezioni esistenti yE-C/B/A. La sezione yE-Closure include:
+- Sign-off summary (cosa è stato consegnato)
+- Tag chronology (10 tag dal 2026-05-12 al 2026-05-14: 6 yE + s3dgraphy-bump + 3 pg-pottery fix)
+- Test coverage breakdown per suite file
+- AC-2 byte-identical preservation summary
+- Known follow-ups deferred (ParadataStore upstream, PropertyNode linkage, 8 lang translation, api-docs RTD)
+- TODO list dettagliato per il PR api-docs su repo esterno
+
+**api-docs RTD** — DEFERRED. Sandbox macOS blocca `~/Downloads/pyarchinit-api-docs/` da questa session. TODO list completa nel dev-log con elenco dei nuovi simboli pubblici da documentare (`YedOverrides`, `apply_overrides_to_drafts`, `import_yed_raw`, `FolderEdgePolicy`, `YedImportDialog`, etc.) e mappatura file `.rst` target. Il PR è autosufficiente: docstring sono già in place, basta aggiungere `.. automodule::` entries.
+
+**Versioning**: patch `5.8.2.3 → 5.8.3-alpha`. Chiude la serie 5.8.x della rollout yEd-aware import. Predecessor: `pg-pottery-typefix-5.8.2.3-alpha` (commit `3f30d368`, pushato).
+
+**Test count finale**: 354 passed / 42 skipped, invariato (yE-Closure è doc-only, nessuna modifica produzione).
+
+**Bilancio rollout** (2026-05-12 → 2026-05-14, 3 giorni):
+- 6 yE milestone (yE-A/B/C/D/E/Closure)
+- 1 dependency bump (s3dgraphy 0.1.41 → 0.1.42 con RSF integration)
+- 3 PG-pottery hotfix (coercion bidirezionale + belt-and-braces + declaration align)
+- +56 test (298 → 354)
+- AC-2 byte-identical preservato su tutti e 10 i tag
+
+### English
+
+**yE-Closure — sign-off of the yEd-aware import rollout (6/6 milestones shipped).**
+
+Sixth and final milestone of the `yEd-aware-graphml-import` rollout. Sign-off + user-facing documentation + dev-log + CHANGELOG. No production code touched.
+
+**Tutorial 36** (`docs/tutorials/<lang>/36_extended_matrix_s3dgraphy.md`) — extended with a new **"5. yEd-aware Import"** section in **IT + EN** (other 8 langs deferred: de/es/fr/ar/ca/ro/pt/el — to be updated via `tutorial-updater` agent in a separate batch). Section covers: 6-milestone tag chronology, user flow of the 5-page wizard, destination routing per ClassificationKind, sidecar JSON schema, CLI `--overrides` flag, known limits, final test coverage.
+
+**Dev-log T5.4** — prepended yE-Closure + yE-E + yE-D sections above existing yE-C/B/A. yE-Closure section includes sign-off summary, 10-tag chronology, per-suite test coverage breakdown, AC-2 preservation summary, deferred follow-ups, detailed TODO list for the external api-docs PR.
+
+**api-docs RTD** — DEFERRED. macOS sandbox blocks `~/Downloads/pyarchinit-api-docs/` from this session. Complete TODO list in the dev-log with new public symbols to document and target `.rst` file mapping. Self-contained PR (docstrings already in place, just add `.. automodule::` entries).
+
+**Versioning**: patch `5.8.2.3 → 5.8.3-alpha`. Closes the 5.8.x series of the yEd-aware import rollout. Predecessor: `pg-pottery-typefix-5.8.2.3-alpha` (commit `3f30d368`).
+
+Suite count unchanged: 354 passed / 42 skipped (doc-only milestone).
+
+**Rollout balance sheet** (2026-05-12 → 2026-05-14, 3 days):
+- 6 yE milestones (yE-A/B/C/D/E/Closure)
+- 1 dependency bump (s3dgraphy 0.1.41 → 0.1.42 with RSF integration)
+- 3 PG-pottery hotfixes (bidirectional coercion + belt-and-braces + declaration align)
+- +56 tests (298 → 354)
+- AC-2 byte-identical preserved across all 10 tags
+
+---
+
 ## [5.8.2.3-alpha] - 2026-05-14
 
 ### Italiano
