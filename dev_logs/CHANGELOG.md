@@ -5,6 +5,47 @@
 
 ---
 
+## [5.8.2.1-alpha] - 2026-05-14
+
+### Italiano
+
+**pg-pottery-fix — `_normalize_query_params` bidirezionale per coercion int→str su colonne TEXT in PG.**
+
+L'utente ha segnalato 2026-05-14 mattina che aprire un pottery sul DB online khutm2 (PG) fallisce con `psycopg2.errors.UndefinedFunction: operator does not exist: text = integer LINE 3: ... pottery_table.us = 672`. Stessa famiglia di bug di `pg-media-fix` (5.7.9.1-alpha) ma direzione inversa:
+
+- pg-media-fix: caller passava `'42'` (str) ma colonna `MEDIATOENTITY.id_entity` era BIGINT → coercion `str → int`.
+- **pg-pottery-fix**: caller passa `672` (int, da uno SpinBox widget) ma colonna `pottery_table.us` è TEXT → PostgreSQL strict-typing rifiuta `text = integer`.
+
+**Root cause**: `_normalize_query_params` in `modules/db/pyarchinit_db_manager.py:2802-2827` (introdotto da pg-media-fix) catturava solo `isinstance(value, str) AND col_pytype in (int, float)`. Il caso inverso (`value` int + colonna TEXT) restava non-coerced e finiva nella query SQLAlchemy ORM, dove `pottery_table.us == 672` generava il SQL `WHERE pottery_table.us = %(us_1)s` con bind param int → PG error.
+
+**Fix** (~13 LOC delta): esteso `_normalize_query_params` per essere **bidirezionale**. Ora il blocco coercion riconosce 2 direzioni:
+- `str + numeric column` → `col_pytype(value)` (pre-esistente pg-media-fix).
+- `int/float + str column` → `str(value)` (nuovo pg-pottery-fix). Esclude `bool` (sotto-tipo di int) per evitare di convertire `True/False` in `"True"/"False"`.
+
+**Test**: 2 nuovi L0 in `tests/migrations/test_pg_media_fix.py` (5 → 7 totali nel file):
+- `test_query_bool_coerces_int_to_str_for_text_column`: caller passa `672` int + colonna TEXT, dopo coercion → `'672'` (str).
+- `test_query_bool_int_to_str_coercion_safe_for_numeric_column`: caller passa `42` int + colonna Integer → resta int (la coercion inversa non deve sparare).
+
+**Universalità**: come pg-media-fix, opera a runtime sulla declaration SQLAlchemy dell'entity. Funziona su tutti i DB PG pyarchinit (vecchi e nuovi) senza migrazioni. SQLite type-loose è no-op behaviour-wise.
+
+**Test count**: 352 → 354 passed, 42 skipped.
+
+**Versioning**: patch `5.8.2 → 5.8.2.1-alpha`. Predecessor: `yed-import-dialog-5.8.2-alpha` (commit `7120dc23`, locale non-pushato; il push avviene con questo hotfix). yE-Closure resta `5.8.3-alpha`.
+
+### English
+
+**pg-pottery-fix — `_normalize_query_params` bidirectional, int→str coercion for TEXT 'us' on PG.**
+
+User-reported 2026-05-14: opening a pottery record on the online khutm2 PG fails with `psycopg2 UndefinedFunction: operator does not exist: text = integer`. Same family as pg-media-fix but inverse direction: caller passes int (from SpinBox), `pottery_table.us` is TEXT.
+
+Fix: extended `_normalize_query_params` to be bidirectional — int/float + str column → coerce to str; pre-existing str + numeric column → coerce to int/float. `bool` excluded to avoid `True → "True"`.
+
+2 new L0 tests. Suite: 352 → 354 passed, 42 skipped.
+
+Versioning: patch `5.8.2 → 5.8.2.1-alpha`. Predecessor: `yed-import-dialog-5.8.2-alpha` (commit `7120dc23`).
+
+---
+
 ## [5.8.2-alpha] - 2026-05-13
 
 ### Italiano

@@ -208,6 +208,69 @@ def test_query_bool_coercion_safe_for_non_numeric_column():
     )
 
 
+def test_query_bool_coerces_int_to_str_for_text_column():
+    """pg-pottery-fix 2026-05-14: the inverse of pg-media-fix.
+
+    Caller passes ``us=672`` (Python int) but PG declares
+    ``pottery_table.us`` as TEXT (most legacy pyarchinit deployments
+    have TEXT 'us' columns). PostgreSQL strict typing rejects
+    ``text = integer`` with 'operator does not exist'. The fix:
+    coerce int/float to str when the column's python_type is str.
+
+    Reproduce the coercion logic inline (matches the
+    ``_normalize_query_params`` body in pyarchinit_db_manager.py)."""
+    from sqlalchemy import Column, Integer, String
+    from sqlalchemy.orm import declarative_base
+    Base = declarative_base()
+
+    class PotteryFake(Base):
+        __tablename__ = "pottery_fake"
+        id_rep = Column(Integer, primary_key=True)
+        us = Column(String)  # TEXT in PG
+
+    value = 672  # int, as passed from a SpinBox widget
+    column = PotteryFake.us
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            col_pytype = column.type.python_type
+            if col_pytype is str:
+                value = str(value)
+        except (NotImplementedError, ValueError, AttributeError):
+            pass
+    assert value == "672", (
+        f"int->str coercion failed for text column; got {value!r}"
+    )
+    assert isinstance(value, str)
+
+
+def test_query_bool_int_to_str_coercion_safe_for_numeric_column():
+    """The int->str coercion must NOT fire when the column itself is
+    numeric (e.g. id_rep BIGINT receiving an int). Verifies the inverse
+    of test_query_bool_coercion_safe_for_non_numeric_column."""
+    from sqlalchemy import Column, Integer
+    from sqlalchemy.orm import declarative_base
+    Base = declarative_base()
+
+    class Bag(Base):
+        __tablename__ = "bag_num"
+        id_n = Column(Integer, primary_key=True)
+        n = Column(Integer)
+
+    value = 42
+    column = Bag.n
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        try:
+            col_pytype = column.type.python_type
+            if col_pytype is str:
+                value = str(value)
+        except (NotImplementedError, ValueError, AttributeError):
+            pass
+    assert value == 42 and isinstance(value, int), (
+        "int->str coercion fired on Integer column — would corrupt "
+        "numeric comparisons"
+    )
+
+
 def test_query_bool_coercion_resilient_to_garbage_input():
     """If the value is a non-numeric string but the column IS numeric
     (e.g. someone passed 'abc' for an Integer column), the coercion

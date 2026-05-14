@@ -2804,8 +2804,16 @@ class Pyarchinit_db_management(object):
             # Step 1: strip outer single quotes.
             if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
                 value = value.strip("'")
-            # Step 2: numeric coercion driven by SQLAlchemy column type.
-            if isinstance(value, str) and table_class is not None:
+            # Step 2: type coercion driven by SQLAlchemy column type.
+            # Bidirectional since pg-pottery-fix 2026-05-14:
+            #   - str value + numeric column → coerce to int/float
+            #     (pg-media-fix 2026-05-13, MEDIATOENTITY.id_entity case).
+            #   - int/float value + str column → coerce to str
+            #     (pg-pottery-fix 2026-05-14, pottery_table.us case;
+            #      PG's "operator does not exist: text = integer" error).
+            if table_class is not None and (
+                isinstance(value, (str, int, float)) and not isinstance(value, bool)
+            ):
                 column = None
                 if hasattr(table_class, key):
                     attr = getattr(table_class, key)
@@ -2816,12 +2824,15 @@ class Pyarchinit_db_management(object):
                 if column is not None:
                     try:
                         col_pytype = column.type.python_type
-                        if col_pytype in (int, float):
+                        if isinstance(value, str) and col_pytype in (int, float):
                             value = col_pytype(value)
+                        elif isinstance(value, (int, float)) and col_pytype is str:
+                            value = str(value)
                     except (NotImplementedError, ValueError, AttributeError):
-                        # Column lacks python_type, or value isn't numeric.
-                        # Keep original — downstream compare will return
-                        # the same (empty) result as pre-fix.
+                        # Column lacks python_type, or value isn't
+                        # coercible — keep original (downstream compare
+                        # will surface the typing mismatch instead of
+                        # us silently producing wrong results).
                         pass
             normalized[key] = value
         return normalized
