@@ -186,6 +186,118 @@ Livré :
 
 ---
 
+## 5. yEd-aware Import — importer des graphmls édités en externe (5.8.x)
+
+À partir de **5.8.0-alpha** le bridge est **bidirectionnel également pour les graphmls créés directement dans yEd** (c'est-à-dire sans passer d'abord par un export pyarchinit). Pyarchinit reconnaît automatiquement les graphmls « yEd-raw » — ceux qui ne portent pas les data keys `pyarchinit.*` — et les importe via un dispatch dédié qui mappe le préfixe du label de nœud → type stratigraphique, reconnaît les lignes de TableNode comme périodes, parcourt les group folders comme dimensions archéologiques et laisse l'utilisateur choisir une politique pour les edges qui touchent des folders.
+
+### 5.1 Déploiement en 6 jalons
+
+| Jalon | Tag | Apport |
+|---|---|---|
+| **yE-A** | `yed-import-foundation-5.7.5-alpha` | `yed_detector.py` — flag de flavor `yed-raw` / `pyarchinit-projected` |
+| **yE-B** | `yed-import-classifier-5.7.6-alpha` | `yed_classifier.py` — enum `ClassificationKind` à 13 valeurs (US/USV/SF/VSF/RSF/DOC/COMB/PROP/...) + regex order-sensitive |
+| **yE-C** | `yed-import-parsers-5.7.7-alpha` | `yed_table_parser.py` (PeriodCandidate depuis les lignes de TableNode) + `yed_group_walker.py` (FolderCandidate avec auto-dimension depuis le préfixe du label : VA01→attivita / AR01→area / etc.) |
+| **yE-D** | `yed-import-pipeline-5.8.0-alpha` | `yed_import_pipeline.py` — orchestrateur `import_yed_raw()` + 5 write functions + `FolderEdgePolicy` (SKIP/FAN_OUT/REPRESENTATIVE/SYNTHETIC) + paradata via `ParadataStore` + sentinelle `_DryRunRollback` + DbHandle PG+SQLite |
+| **yE-E** | `yed-import-dialog-5.8.2-alpha` | `gui/yed_import_dialog.py` — `YedImportDialog(QWizard)` à 5 pages (classifier / periods / folders / policy / preview) + dataclass `YedOverrides` + persistance sidecar `<graphml>.yed_overrides.json` |
+| **yE-Closure** | `yed-import-closure-5.8.3-alpha` | Cette documentation + dev-log + CHANGELOG. |
+
+### 5.2 Comment ça marche — flux utilisateur
+
+1. **Ouvrez un graphml dans QGIS via le menu Import GraphML** (même path que le flux pyarchinit-projected existant).
+2. Pyarchinit détecte automatiquement qu'il s'agit de yEd-raw (pas de keys `pyarchinit.*`) → dispatche vers le nouveau branch au lieu de retomber sur le path legacy.
+3. L'assistant `YedImportDialog` s'ouvre avec **5 pages** :
+   - **1/5 Classifier** — tableau avec une ligne par leaf node. Chaque ligne affiche `label` + `auto_kind` (par ex. `us_real` / `usv_virtual` / `property`) + une combobox d'override `user_kind`. Le bouton **Accepter auto** remet chaque ligne à son `auto_kind` (efface tous les overrides).
+   - **2/5 Periods** — une ligne par TableNode-row parsée, colonnes éditables `periodo` + `fase`. Les dates (`datazione_iniziale`/`finale`) restent vides : les graphmls yEd-raw ne portent pas de dates.
+   - **3/5 Folders** — une ligne par group folder. Combobox `dimension` (attivita / area / struttura / settore / ambient / saggio / quad_par / `skip` pour exclure). `value` éditable (default = `auto_value` dérivé du préfixe du label).
+   - **4/5 Rapporti policy** — 4 radio buttons pour traiter les edges qui touchent des folders :
+     - **SKIP** (default) : abandonne les edges folder-touching. Les edges leaf-to-leaf passent intactes.
+     - **FAN_OUT** : une edge `folder_A → folder_B` se développe en `N×M` paires de leaves (produit cartésien des membres).
+     - **REPRESENTATIVE** : utilise le premier membre de chaque folder comme proxy.
+     - **SYNTHETIC** : crée une ligne us_table par folder (`unita_tipo='VA'` virtual activity) + reconnecte les edges via ces ancres.
+   - **5/5 Preview** — dry-run de `import_yed_raw(overrides=..., dry_run=True)`. Affiche les counts (us / inv / period / paradata) **sans commit**. Cliquer **Finish** valide, **Cancel** abandonne.
+4. Au clic sur **Finish**, l'assistant enregistre vos overrides dans un **sidecar JSON** `<graphml>.yed_overrides.json` à côté du fichier. Rouvrir le même graphml précharge le sidecar : vos overrides précédents reviennent pré-appliqués.
+
+### 5.3 Routage des destinations
+
+Le dispatch utilise `_classify_destination` (dans `yed_import_pipeline.py`) pour aiguiller chaque leaf :
+
+| ClassificationKind | Destination | Note |
+|---|---|---|
+| US_REAL | `us_table` (`unita_tipo='US'`) | depuis label `^US\d+` |
+| US_MASONRY | `us_table` (`unita_tipo='USM'`) | depuis `^USM|USR|USS` |
+| US_DOCUMENTARY | `us_table` (`unita_tipo='USD'`) | depuis `^USD\d+` |
+| USV_VIRTUAL | `us_table` (`unita_tipo='USV'`) | depuis `^USV\d+` |
+| USV_FORMAL | `us_table` (`unita_tipo` dérivé du préfixe du label : USVs/USVn/USVc) | depuis `^USVs|USVn\d*$` |
+| **REUSED_SPECIAL_FIND** (RSF — **5.8.1**) | `us_table` (`unita_tipo='RSF'`) | depuis `^RSF\d+` (s3dgraphy 0.1.42, spolia) |
+| SPECIAL_FIND | `inventario_materiali_table` | depuis `^SF\d+` |
+| VIRTUAL_FIND | `paradata` (via `ParadataStore`) | depuis `^VSF\d+` |
+| DOCUMENT | `paradata` | depuis `^D\.\d+` |
+| COMBINER | `paradata` | depuis `^C\.\d+` |
+| PROPERTY | `paradata` | mot-clé dans le label (`material`/`position`/`width`/...) |
+
+**Décision utilisateur 2026-05-13** : les USV* (virtuelles) sont des « unità tipo » (toujours des unités stratigraphiques) et vont dans `us_table`, pas dans paradata. Seuls DOC/COMB/PROP/VIRTUAL_FIND restent dans paradata.
+
+### 5.4 Sidecar JSON — schéma
+
+Versionné pour la forward-compat :
+
+```json
+{
+  "version": 1,
+  "saved_at": "2026-05-13T17:57:00+00:00",
+  "graphml_path": "/absolute/path/to/file.graphml",
+  "classifier": {
+    "n0::n0::n0": "us_real",
+    "n0::n0::n2": "us_real"
+  },
+  "periods": {
+    "p0": {"periodo": 5, "fase": 7}
+  },
+  "folders": {
+    "f0": {"dimension": "struttura", "value": "S01"}
+  },
+  "policy": "fan_out"
+}
+```
+
+Seuls les champs MODIFIÉS par l'utilisateur sont persistés (diff). Les valeurs `ClassificationKind` inconnues (par ex. issues de futures releases de s3dgraphy) sont silencieusement skippées au chargement.
+
+### 5.5 CLI pour ingest scripté
+
+Pour CI / re-runs batch :
+
+```bash
+python scripts/import_yed_graphml.py /path/to/file.graphml \
+    --site Al-Khutm \
+    --db /path/to/khutm2.sqlite \
+    --policy skip \
+    --overrides /path/to/file.graphml.yed_overrides.json \
+    --dry-run
+```
+
+Mutex `--db` / `--conn-str` pour backend SQLite vs PostgreSQL. `--overrides` est optionnel (pas d'overrides = defaults yE-D). `--auto-defaults` est un flag no-op forward-compat.
+
+### 5.6 Limitations connues
+
+- **Pas d'édition des dates dans l'assistant** : les graphmls yEd-raw ne portent pas `datazione_iniziale`/`datazione_finale`. La page Periods n'édite que `periodo` + `fase` (les targets FK).
+- **API ParadataStore partielle** : l'upstream s3dgraphy ne fournit pas encore `add_virtual_us` / `add_document` / `add_combiner` / `add_property`. yE-D logge « skip — method missing » par leaf paradata mais comptabilise les tentatives dans le preview.
+- **PropertyNode → Path B (pas de lien US)** : les nœuds PROPERTY sont écrits sans US cible. L'assistant émet un warning. Futur : follow-up yE-Closure pour ajouter « assign target » dans l'UI.
+- **Multi-DB** : le sidecar JSON est par graphml, pas par DB. Importer le même graphml dans plusieurs DBs réutilise les mêmes overrides pour toutes.
+
+### 5.7 Couverture de tests finale
+
+| Suite | Test | Couverture |
+|---|---|---|
+| yE-A | `test_yed_detector.py` | détection de flavor |
+| yE-B | `test_yed_classifier.py` | 13 ClassificationKind + regex order-sensitive |
+| yE-C | `test_yed_table_parser.py` + `test_yed_group_walker.py` | parse PeriodCandidate + FolderCandidate |
+| yE-D | `test_yed_rapporti_policy.py` (7) + `test_yed_import_pipeline.py` (15) + `test_yed_pipeline_integration.py` (9 incl. 2 L1 overrides e2e) | policies + write functions + dispatch |
+| yE-E | `test_yed_import_dialog.py` (5 sidecar JSON) + `test_import_yed_graphml_cli.py` (3) | persistance sidecar + CLI |
+
+**Suite totale post-rollout** : 354 passed / 42 skipped (PG-L1 requièrent psycopg2).
+
+---
+
 ## Références
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

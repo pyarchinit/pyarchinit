@@ -186,6 +186,118 @@ Livrate:
 
 ---
 
+## 5. yEd-aware Import — importul de graphml editate extern (5.8.x)
+
+Începând cu **5.8.0-alpha** bridge-ul este **bidirecțional și pentru graphml-uri create direct în yEd** (adică fără să treci mai întâi printr-un export pyarchinit). Pyarchinit recunoaște automat graphml-urile „yEd-raw" — cele care nu au data keys `pyarchinit.*` — și le importă printr-un dispatch dedicat care mapează prefixul label-ului nodului → tip stratigrafic, recunoaște rândurile de TableNode ca perioade, parcurge group folders ca dimensiuni arheologice și lasă utilizatorul să aleagă o politică pentru edges care ating folders.
+
+### 5.1 Rollout în 6 etape
+
+| Etapă | Tag | Ce adaugă |
+|---|---|---|
+| **yE-A** | `yed-import-foundation-5.7.5-alpha` | `yed_detector.py` — flag de flavor `yed-raw` / `pyarchinit-projected` |
+| **yE-B** | `yed-import-classifier-5.7.6-alpha` | `yed_classifier.py` — enum `ClassificationKind` cu 13 valori (US/USV/SF/VSF/RSF/DOC/COMB/PROP/...) + regex order-sensitive |
+| **yE-C** | `yed-import-parsers-5.7.7-alpha` | `yed_table_parser.py` (PeriodCandidate din rândurile de TableNode) + `yed_group_walker.py` (FolderCandidate cu auto-dimension din prefixul label-ului: VA01→attivita / AR01→area / etc.) |
+| **yE-D** | `yed-import-pipeline-5.8.0-alpha` | `yed_import_pipeline.py` — orchestrator `import_yed_raw()` + 5 write functions + `FolderEdgePolicy` (SKIP/FAN_OUT/REPRESENTATIVE/SYNTHETIC) + paradata via `ParadataStore` + sentinel `_DryRunRollback` + DbHandle PG+SQLite |
+| **yE-E** | `yed-import-dialog-5.8.2-alpha` | `gui/yed_import_dialog.py` — `YedImportDialog(QWizard)` cu 5 pagini (classifier / periods / folders / policy / preview) + dataclass `YedOverrides` + persistență sidecar `<graphml>.yed_overrides.json` |
+| **yE-Closure** | `yed-import-closure-5.8.3-alpha` | Această documentație + dev-log + CHANGELOG. |
+
+### 5.2 Cum funcționează — flux utilizator
+
+1. **Deschide un graphml în QGIS prin meniul Import GraphML** (același path ca fluxul pyarchinit-projected existent).
+2. Pyarchinit detectează automat că este yEd-raw (fără keys `pyarchinit.*`) → face dispatch pe noul branch în loc să cadă pe path-ul legacy.
+3. Se deschide wizard-ul `YedImportDialog` cu **5 pagini**:
+   - **1/5 Classifier** — tabel cu un rând per leaf node. Fiecare rând arată `label` + `auto_kind` (de ex. `us_real` / `usv_virtual` / `property`) + un combobox de override `user_kind`. Butonul **Acceptă auto** resetează fiecare rând la `auto_kind` (șterge toate override-urile).
+   - **2/5 Periods** — un rând per TableNode-row parsat, coloane editabile `periodo` + `fase`. Datele (`datazione_iniziale`/`finale`) rămân goale: graphml-urile yEd-raw nu poartă date.
+   - **3/5 Folders** — un rând per group folder. Combobox de `dimension` (attivita / area / struttura / settore / ambient / saggio / quad_par / `skip` pentru excludere). `value` editabil (default = `auto_value` derivat din prefixul label-ului).
+   - **4/5 Rapporti policy** — 4 radio buttons pentru tratarea edges care ating folders:
+     - **SKIP** (default): aruncă edges folder-touching. Edges leaf-to-leaf trec intacte.
+     - **FAN_OUT**: o edge `folder_A → folder_B` se expandează la `N×M` perechi de leaves (produs cartezian al membrilor).
+     - **REPRESENTATIVE**: folosește primul membru al fiecărui folder ca proxy.
+     - **SYNTHETIC**: creează un rând us_table per folder (`unita_tipo='VA'` virtual activity) + reconectează edges prin aceste ancore.
+   - **5/5 Preview** — dry-run al `import_yed_raw(overrides=..., dry_run=True)`. Afișează counts (us / inv / period / paradata) **fără commit**. Click pe **Finish** confirmă, **Cancel** abandonează.
+4. La **Finish** wizard-ul salvează override-urile tale într-un **sidecar JSON** `<graphml>.yed_overrides.json` lângă fișier. Redeschiderea aceluiași graphml preîncarcă sidecar-ul, deci override-urile anterioare revin preaplicate.
+
+### 5.3 Rutarea destinațiilor
+
+Dispatch-ul folosește `_classify_destination` (în `yed_import_pipeline.py`) pentru a clasifica fiecare leaf:
+
+| ClassificationKind | Destinație | Notă |
+|---|---|---|
+| US_REAL | `us_table` (`unita_tipo='US'`) | din label `^US\d+` |
+| US_MASONRY | `us_table` (`unita_tipo='USM'`) | din `^USM|USR|USS` |
+| US_DOCUMENTARY | `us_table` (`unita_tipo='USD'`) | din `^USD\d+` |
+| USV_VIRTUAL | `us_table` (`unita_tipo='USV'`) | din `^USV\d+` |
+| USV_FORMAL | `us_table` (`unita_tipo` derivat din prefixul label-ului: USVs/USVn/USVc) | din `^USVs|USVn\d*$` |
+| **REUSED_SPECIAL_FIND** (RSF — **5.8.1**) | `us_table` (`unita_tipo='RSF'`) | din `^RSF\d+` (s3dgraphy 0.1.42, spolia) |
+| SPECIAL_FIND | `inventario_materiali_table` | din `^SF\d+` |
+| VIRTUAL_FIND | `paradata` (via `ParadataStore`) | din `^VSF\d+` |
+| DOCUMENT | `paradata` | din `^D\.\d+` |
+| COMBINER | `paradata` | din `^C\.\d+` |
+| PROPERTY | `paradata` | cuvânt-cheie în label (`material`/`position`/`width`/...) |
+
+**Decizie utilizator 2026-05-13**: USV* (virtuale) sunt „unità tipo" (rămân unități stratigrafice) și aparțin în `us_table`, nu în paradata. Doar DOC/COMB/PROP/VIRTUAL_FIND rămân în paradata.
+
+### 5.4 Sidecar JSON — schemă
+
+Versionat pentru forward-compat:
+
+```json
+{
+  "version": 1,
+  "saved_at": "2026-05-13T17:57:00+00:00",
+  "graphml_path": "/absolute/path/to/file.graphml",
+  "classifier": {
+    "n0::n0::n0": "us_real",
+    "n0::n0::n2": "us_real"
+  },
+  "periods": {
+    "p0": {"periodo": 5, "fase": 7}
+  },
+  "folders": {
+    "f0": {"dimension": "struttura", "value": "S01"}
+  },
+  "policy": "fan_out"
+}
+```
+
+Se persistă doar câmpurile MODIFICATE de utilizator (diff). Valorile `ClassificationKind` necunoscute (de ex. din release-uri viitoare s3dgraphy) sunt skip-uite tăcut la încărcare.
+
+### 5.5 CLI pentru ingest scripted
+
+Pentru CI / re-runs în batch:
+
+```bash
+python scripts/import_yed_graphml.py /path/to/file.graphml \
+    --site Al-Khutm \
+    --db /path/to/khutm2.sqlite \
+    --policy skip \
+    --overrides /path/to/file.graphml.yed_overrides.json \
+    --dry-run
+```
+
+Mutex `--db` / `--conn-str` pentru backend SQLite vs PostgreSQL. `--overrides` este opțional (fără overrides = defaults yE-D). `--auto-defaults` este un flag no-op forward-compat.
+
+### 5.6 Limite cunoscute
+
+- **Fără editare de date în wizard**: graphml-urile yEd-raw nu poartă `datazione_iniziale`/`datazione_finale`. Pagina Periods editează doar `periodo` + `fase` (targets FK).
+- **API ParadataStore parțial**: upstream s3dgraphy încă nu furnizează `add_virtual_us` / `add_document` / `add_combiner` / `add_property`. yE-D loghează „skip — method missing" pentru fiecare leaf paradata dar numără încercările în preview.
+- **PropertyNode → Path B (fără legătură US)**: nodurile PROPERTY se scriu fără US target. Wizard-ul emite un warning. Viitor: follow-up yE-Closure pentru a adăuga „assign target" în UI.
+- **Multi-DB**: sidecar-ul JSON este per graphml, nu per DB. Dacă imporți același graphml în DB-uri diferite, se reutilizează aceleași overrides pentru toate.
+
+### 5.7 Acoperire teste finală
+
+| Suite | Test | Acoperire |
+|---|---|---|
+| yE-A | `test_yed_detector.py` | detectare flavor |
+| yE-B | `test_yed_classifier.py` | 13 ClassificationKind + regex order-sensitive |
+| yE-C | `test_yed_table_parser.py` + `test_yed_group_walker.py` | parse PeriodCandidate + FolderCandidate |
+| yE-D | `test_yed_rapporti_policy.py` (7) + `test_yed_import_pipeline.py` (15) + `test_yed_pipeline_integration.py` (9 incl. 2 L1 overrides e2e) | politici + write functions + dispatch |
+| yE-E | `test_yed_import_dialog.py` (5 sidecar JSON) + `test_import_yed_graphml_cli.py` (3) | persistență sidecar + CLI |
+
+**Suite totală post-rollout**: 354 passed / 42 skipped (PG-L1 necesită psycopg2).
+
+---
+
 ## Referințe
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5
