@@ -2991,7 +2991,23 @@ class Pyarchinit_db_management(object):
             # coercion were moved to ``_normalize_query_params`` which
             # runs BEFORE the cache key is computed (see top of method).
             # At this point ``value`` is already the canonical Python
-            # type (int/float/str). No further normalization needed.
+            # type (int/float/str).
+            #
+            # pg-pottery-fix-belt-and-braces (5.8.2.2-alpha): defense in
+            # depth — if a caller managed to bypass _normalize_query_params
+            # (e.g. by calling this method through an old cached module
+            # in sys.modules after a hot-reload), do the same coercion
+            # here so PG strict-typing never sees a mismatched bind.
+            # Safe no-op when value already matches the column type.
+            if not isinstance(value, bool):
+                try:
+                    _col_pytype = column.type.python_type
+                    if isinstance(value, str) and _col_pytype in (int, float):
+                        value = _col_pytype(value)
+                    elif isinstance(value, (int, float)) and _col_pytype is str:
+                        value = str(value)
+                except (NotImplementedError, ValueError, AttributeError):
+                    pass
             conditions.append(column == value)
 
         # Construct the query with the conditions

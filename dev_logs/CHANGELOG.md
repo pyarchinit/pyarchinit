@@ -5,6 +5,30 @@
 
 ---
 
+## [5.8.2.2-alpha] - 2026-05-14
+
+### Italiano
+
+**pg-pottery-fix belt-and-braces — coercion replicata anche dentro `query_bool` loop.**
+
+L'utente ha segnalato che dopo 5.8.2.1-alpha l'errore `operator does not exist: text = integer LINE 3: ... pottery_table.us = 672` persisteva. Diagnosi: il fix in `_normalize_query_params` era corretto on-disk (test inline confermato: `{us: 672}` → `{us: '672'}`), ma **Plugin Reloader di QGIS non rimuove i moduli da `sys.modules`** — quindi la classe `Pyarchinit_db_management` retained in memoria continuava a invocare la vecchia `_normalize_query_params` senza il blocco bidirezionale.
+
+**Fix preventivo**: aggiunta una **seconda coercion DENTRO il loop di `query_bool`** (linea ~2996-3010), subito prima di `conditions.append(column == value)`. Anche se `_normalize_query_params` viene bypassato (per stale cache, hot-reload, future refactor), il valore viene comunque coerced contro `column.type.python_type` prima di finire nella query SQLAlchemy. Stessa logica bidirezionale di `_normalize_query_params`. Idempotente: no-op quando `value` è già del tipo corretto. Costo: 1 attribute access + 1 isinstance per ogni param di ogni `query_bool` (trascurabile vs DB roundtrip).
+
+**Versioning**: patch `5.8.2.1 → 5.8.2.2-alpha`. Predecessor: `pg-pottery-fix-5.8.2.1-alpha` (commit `2788ccf7`, pushato).
+
+### English
+
+**pg-pottery-fix belt-and-braces — coercion replicated inside `query_bool` loop.**
+
+User reported the `text = integer` error persisted after 5.8.2.1-alpha. Diagnosis: the fix in `_normalize_query_params` is correct on-disk (inline test confirms `{us: 672}` → `{us: '672'}`), but **QGIS Plugin Reloader does NOT remove modules from `sys.modules`** — the `Pyarchinit_db_management` class instance kept in memory used the cached pre-fix `_normalize_query_params`.
+
+**Defensive fix**: added a **second coercion INSIDE the `query_bool` loop** (line ~2996-3010), right before `conditions.append(column == value)`. Even if `_normalize_query_params` is bypassed (stale cache / hot-reload / future refactor), the value is coerced against `column.type.python_type` before reaching SQLAlchemy. Same bidirectional logic as `_normalize_query_params`. Idempotent: no-op when value already matches. Negligible cost.
+
+Versioning: patch `5.8.2.1 → 5.8.2.2-alpha`. Predecessor: `pg-pottery-fix-5.8.2.1-alpha` (commit `2788ccf7`).
+
+---
+
 ## [5.8.2.1-alpha] - 2026-05-14
 
 ### Italiano
