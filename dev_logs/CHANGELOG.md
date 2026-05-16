@@ -5,6 +5,70 @@
 
 ---
 
+## [5.9.0-alpha] - 2026-05-16
+
+### Italiano
+
+**yE-F multi-folder paradata — fold-to-one-row model che supera il trade-off Bug R B1.**
+
+Tag `yed-f-multifolder-5.9.0-alpha` (commit `83d82f40` su branch `Stratigraph_00001`). yE-F sostituisce il trade-off Bug R B1 introdotto in `5.8.5-alpha` (una riga `us_table` per ogni occorrenza yEd di paradata multi-folder, con suffisso `_2`/`_3`) con un modello a **una sola riga canonica per paradata** che porta una lista di "altre attività" e produce N copie visive in export. Identity-dedup ripristinata, multi-folder visibility preservata. 16 task pianificati, 16 commit indipendentemente revertabili.
+
+**Modello dati**:
+
+- **Nuova colonna `us_table.other_locations`** (TEXT, JSON list dei codici attività secondari). Migration lib `scripts/migrations/_2026_05_yef_other_locations_lib.py` + CLI `scripts/migrations/2026_05_yef_other_locations.py` + wire menu QGIS **Plugins → pyArchInit → "Migrazioni → Aggiungi colonna other_locations (yE-F)"** (file-picker + auto-backup + conferma).
+
+**Pipeline**:
+
+- **Import fold** (`modules/s3dgraphy/sync/yed_import_pipeline.py`): `_write_us_rows` ora produce **una sola riga `us_table`** per ogni label paradata unica, indipendentemente dal numero di occorrenze yEd. `attivita` = primo folder incontrato; folder successivi accodati a `other_locations` JSON. Niente più suffissi `_2`/`_3` su `us` per i kinds paradata.
+- **Export fan-out** (`modules/s3dgraphy/sync/graphml_writer.py`): nuovo `_apply_yef_fan_out` emette N copie visive yEd per ogni riga paradata multi-folder (1 primary + N-1 secondaries), tutte con lo stesso `node_uuid` canonico per il round-trip identity.
+- **Edge resolver** (`modules/s3dgraphy/sync/graph_projector.py`): nuovo `_resolve_target_for_folder` seleziona, per ogni edge che punta a un target multi-folder, la copia il cui `attivita` matcha il folder della source; fallback alla primary copy se nessun match.
+
+**UI**:
+
+- Nuovo `listWidget_other_locations` (QListWidget, MultiSelection) + `label_other_locations` in `gui/ui/US_USM.ui` tab_2.
+- Handler populate/save in `tabs/US_USM.py`; visibilità reattiva al `comboBox_unita_tipo` (mostra solo per paradata kinds: DOC/Combinar/Extractor/property).
+- i18n in **10 lingue**: it/en/de/es/fr/ar/ca/ro/pt/el.
+
+**Coesistenza con dati B1**:
+
+- I dati multi-row B1 esistenti in `pyarchinit_test{002..010}.sqlite` (suffissi `_2`/`_3` ancora in `us`) restano leggibili: pre-load loop con degradazione a 2 livelli + resolver no-op quando `_yef_copies_by_canonical` è vuoto.
+
+**Test**: 312 → **351 sync tests** (+39 nuovi test yE-F), 35 skipped (PG offline), 0 failed. AC-2 byte-identical preservato (resolver attivo solo quando fan-out ha già modificato il graph).
+
+**Versioning**: minor `5.8.5 → 5.9.0-alpha`. Predecessor: `yed-fastfix-5.8.5-alpha` (commit `a5e8502b`).
+
+### English
+
+**yE-F multi-folder paradata — fold-to-one-row model superseding the Bug R B1 trade-off.**
+
+Tag `yed-f-multifolder-5.9.0-alpha` (commit `83d82f40` on `Stratigraph_00001`). yE-F replaces the Bug R B1 trade-off introduced in `5.8.5-alpha` (one `us_table` row per yEd occurrence of multi-folder paradata, with `_2`/`_3` suffix) with a **single canonical row per paradata** carrying a list of "other activities" and producing N visual copies on export. Identity-dedup restored, multi-folder visibility preserved. 16 planned tasks, 16 independently revertable commits.
+
+**Data model**:
+
+- **New `us_table.other_locations` column** (TEXT, JSON list of secondary activity codes). Migration lib `scripts/migrations/_2026_05_yef_other_locations_lib.py` + CLI `scripts/migrations/2026_05_yef_other_locations.py` + QGIS menu wire **Plugins → pyArchInit → "Migrazioni → Aggiungi colonna other_locations (yE-F)"** (file-picker + auto-backup + confirm).
+
+**Pipeline**:
+
+- **Import fold** (`modules/s3dgraphy/sync/yed_import_pipeline.py`): `_write_us_rows` now produces **one `us_table` row** per unique paradata label, regardless of N yEd occurrences. `attivita` = first folder encountered; subsequent folders appended to `other_locations` JSON. No more `_2`/`_3` suffixes on `us` for paradata kinds.
+- **Export fan-out** (`modules/s3dgraphy/sync/graphml_writer.py`): new `_apply_yef_fan_out` emits N visual yEd copies per multi-folder paradata row (1 primary + N-1 secondaries), all sharing the canonical `node_uuid` for round-trip identity.
+- **Edge resolver** (`modules/s3dgraphy/sync/graph_projector.py`): new `_resolve_target_for_folder` picks, for each edge pointing to a multi-folder target, the copy whose `attivita` matches the source's folder; falls back to the primary copy if no match.
+
+**UI**:
+
+- New `listWidget_other_locations` (QListWidget, MultiSelection) + `label_other_locations` in `gui/ui/US_USM.ui` tab_2.
+- Populate/save handlers in `tabs/US_USM.py`; visibility reactive to `comboBox_unita_tipo` (shown only for paradata kinds: DOC/Combinar/Extractor/property).
+- i18n in **10 languages**: it/en/de/es/fr/ar/ca/ro/pt/el.
+
+**Coexistence with B1 data**:
+
+- Existing B1 multi-row data in `pyarchinit_test{002..010}.sqlite` (`_2`/`_3` suffixes still in `us`) remains readable: pre-load loop with 2-tier degradation + resolver is a no-op when `_yef_copies_by_canonical` is empty.
+
+**Tests**: 312 → **351 sync tests** (+39 new yE-F tests), 35 skipped (PG offline), 0 failed. AC-2 byte-identical preserved (resolver only activates when fan-out has already touched the graph).
+
+**Versioning**: minor `5.8.5 → 5.9.0-alpha`. Predecessor: `yed-fastfix-5.8.5-alpha` (commit `a5e8502b`).
+
+---
+
 ## [5.8.5-alpha] - 2026-05-16
 
 ### Italiano
