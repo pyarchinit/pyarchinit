@@ -1144,6 +1144,42 @@ _PARADATA_INJECT_TYPES: frozenset[str] = frozenset({
 # get attached via the normal _enrich_into path.
 
 
+def _clone_node_for_location(primary_node, location: str, idx: int,
+                             canonical_uuid: str):
+    """Return a deep-copy clone of ``primary_node`` placed in
+    ``location`` folder.
+
+    Used by ``_apply_yef_fan_out`` (yE-F design spec §6) to emit N
+    visual yEd ``<node>`` copies per multi-folder paradata row.
+
+    The clone:
+      - Has node_id ``f"{canonical_uuid}_loc_{idx}"`` (unique within graph)
+      - Inherits Python class (StratigraphicUnit subclass), name, description
+      - Copies attributes dict with overrides:
+          attivita = location
+          _yef_canonical_uuid = canonical_uuid (for downstream resolver)
+          _yef_is_copy = True (filter marker)
+          node_uuid = canonical_uuid (round-trip identity in graphml output)
+
+    Mutating the clone's attributes does NOT affect the primary
+    (deep-copy semantics).
+    """
+    cls = type(primary_node)
+    clone = cls(
+        node_id=f"{canonical_uuid}_loc_{idx}",
+        name=str(getattr(primary_node, "name", "")),
+        description=str(getattr(primary_node, "description", "")),
+    )
+    base_attrs = getattr(primary_node, "attributes", None) or {}
+    new_attrs = dict(base_attrs)
+    new_attrs["attivita"] = location
+    new_attrs["_yef_canonical_uuid"] = canonical_uuid
+    new_attrs["_yef_is_copy"] = True
+    new_attrs["node_uuid"] = canonical_uuid
+    clone.attributes = new_attrs
+    return clone
+
+
 def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
     """Append AuthorNode / LicenseNode / EmbargoNode entries to the
     GraphMLExporter output for site-level paradata that has no
