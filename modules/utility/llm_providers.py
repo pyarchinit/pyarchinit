@@ -38,26 +38,45 @@ PROVIDER_DEFAULTS = {
         "needs_api_key": True,
         "is_local": False,
         "default_models": [
+            "gpt-5.5",
+            "gpt-5.5-2026-04-23",
+            "gpt-5",
+            "gpt-5-mini",
+            "gpt-5-nano",
+            "gpt-4.1",
             "gpt-4o",
             "gpt-4o-mini",
             "gpt-4-turbo",
-            "gpt-4-vision-preview",
             "gpt-4",
             "gpt-3.5-turbo",
         ],
-        "vision_models": ["gpt-4o", "gpt-4-turbo", "gpt-4-vision-preview"],
+        "vision_models": [
+            "gpt-5.5",
+            "gpt-5.5-2026-04-23",
+            "gpt-5",
+            "gpt-5-mini",
+            "gpt-4.1",
+            "gpt-4o",
+            "gpt-4-turbo",
+        ],
     },
     LLMProvider.ANTHROPIC: {
         "base_url": "https://api.anthropic.com",
         "needs_api_key": True,
         "is_local": False,
         "default_models": [
+            "claude-opus-4-7",
+            "claude-sonnet-4-6",
+            "claude-haiku-4-5",
             "claude-opus-4-5-20251021",
             "claude-sonnet-4-5-20250929",
             "claude-3-5-sonnet-20241022",
             "claude-3-5-haiku-20241022",
         ],
         "vision_models": [
+            "claude-opus-4-7",
+            "claude-sonnet-4-6",
+            "claude-haiku-4-5",
             "claude-opus-4-5-20251021",
             "claude-sonnet-4-5-20250929",
             "claude-3-5-sonnet-20241022",
@@ -78,6 +97,22 @@ PROVIDER_DEFAULTS = {
         "vision_models": [],
     },
 }
+
+
+# OpenAI families that reject `max_tokens` and require `max_completion_tokens`
+# instead — the GPT-5 family and o-series reasoning models. Match by prefix so
+# dated snapshots (e.g. "gpt-5.5-2026-04-23") are caught too.
+OPENAI_MAX_COMPLETION_TOKENS_PREFIXES = ("gpt-5", "o1", "o3", "o4")
+
+
+def _openai_token_param(model: str) -> str:
+    """Return the right token-limit parameter name for an OpenAI model."""
+    m = (model or "").lower()
+    return (
+        "max_completion_tokens"
+        if any(m.startswith(p) for p in OPENAI_MAX_COMPLETION_TOKENS_PREFIXES)
+        else "max_tokens"
+    )
 
 
 VISION_MODEL_HINTS = (
@@ -389,6 +424,13 @@ class LLMProviderManager:
         kwargs = dict(model=config.model, messages=messages, stream=True)
         if temperature is not None:
             kwargs["temperature"] = temperature
+        if max_tokens is not None and config.provider == LLMProvider.OPENAI:
+            # GPT-5 family / o-series reject `max_tokens` — they require
+            # `max_completion_tokens`. Local OpenAI-compatible backends
+            # (Ollama, LM Studio) still expect `max_tokens`.
+            kwargs[_openai_token_param(config.model)] = max_tokens
+        elif max_tokens is not None:
+            kwargs["max_tokens"] = max_tokens
         try:
             response = client.chat.completions.create(**kwargs)
             for chunk in response:
