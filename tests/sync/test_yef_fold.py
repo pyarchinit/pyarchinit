@@ -117,3 +117,66 @@ def test_write_us_rows_yef_fold_first_occurrence_primary(tmp_path):
     assert secondary == ["VA04", "VA05"]
     assert d_strat == "material"
     assert len(set(uuid_map.values())) == 1
+
+
+def test_write_us_rows_yef_idempotent_on_re_run(tmp_path):
+    """Second run of the same drafts → 0 new inserts, other_locations unchanged."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import _write_us_rows
+    handle = _make_yef_handle(tmp_path)
+    leaves = [
+        _leaf("m1", ClassificationKind.PROPERTY, "material"),
+        _leaf("m2", ClassificationKind.PROPERTY, "material"),
+    ]
+    folders = [
+        _folder("F1", "VA01", members=["m1"]),
+        _folder("F4", "VA04", members=["m2"]),
+    ]
+    folders_map = {f.yed_id: f for f in folders}
+
+    with handle.engine.begin() as conn:
+        count1, _ = _write_us_rows(conn, leaves, sito="X", folders_map=folders_map)
+    assert count1 == 1
+
+    with handle.engine.begin() as conn:
+        count2, uuid_map2 = _write_us_rows(conn, leaves, sito="X", folders_map=folders_map)
+    assert count2 == 0, f"expected 0 inserts on re-run, got {count2}"
+
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(text(
+            "SELECT us, attivita, other_locations FROM us_table WHERE sito = 'X'"
+        )))
+    assert len(rows) == 1
+    us, attivita, ol = rows[0]
+    assert us == "material"
+    assert attivita == "VA01"
+    import json
+    assert json.loads(ol) == ["VA04"]
+
+
+def test_write_us_rows_yef_appends_new_folder_on_re_import(tmp_path):
+    """Second run with an EXTRA folder occurrence appends to other_locations."""
+    from modules.s3dgraphy.sync.yed_import_pipeline import _write_us_rows
+    handle = _make_yef_handle(tmp_path)
+
+    leaves_1 = [
+        _leaf("m1", ClassificationKind.PROPERTY, "material"),
+        _leaf("m2", ClassificationKind.PROPERTY, "material"),
+    ]
+    folders_1 = {
+        "F1": _folder("F1", "VA01", members=["m1"]),
+        "F4": _folder("F4", "VA04", members=["m2"]),
+    }
+    with handle.engine.begin() as conn:
+        _write_us_rows(conn, leaves_1, sito="X", folders_map=folders_1)
+
+    leaves_2 = leaves_1 + [_leaf("m3", ClassificationKind.PROPERTY, "material")]
+    folders_2 = {**folders_1, "F6": _folder("F6", "VA06", members=["m3"])}
+    with handle.engine.begin() as conn:
+        _write_us_rows(conn, leaves_2, sito="X", folders_map=folders_2)
+
+    with handle.engine.connect() as conn:
+        ol_row = conn.execute(text(
+            "SELECT other_locations FROM us_table WHERE sito = 'X' AND us = 'material'"
+        )).first()
+    import json
+    assert json.loads(ol_row[0]) == ["VA04", "VA06"]

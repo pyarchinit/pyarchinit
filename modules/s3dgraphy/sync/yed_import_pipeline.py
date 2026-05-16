@@ -546,26 +546,81 @@ def _write_us_rows(
     # IntegrityErrors (data corruption, race) still bubble up and the
     # outer transaction rolls back atomically.
     #
-    # yE-F idempotency for paradata is layered in Task 6 (re-import
-    # against an existing primary row reuses its node_uuid + appends
-    # newly-seen folders to other_locations). For Task 5 the pre-load
-    # populates only key_to_node_uuid so non-paradata dedup still
-    # benefits from the existing-row map.
+    # yE-F idempotency for paradata (Task 6, 2026-05-16): the pre-load
+    # also surfaces existing paradata-primary rows (DOC / Combinar /
+    # Extractor / property) into ``paradata_primary_by_label`` so a
+    # re-import against the same DB reuses the existing node_uuid +
+    # appends only newly-seen folders to ``other_locations``. The
+    # ``d_stratigrafica`` column carries the original (pre-strip)
+    # paradata label and is the join key. ``other_locations`` is a
+    # JSON list of secondary activity codes.
+    #
+    # Two-tier degradation: legacy DBs without the ``other_locations``
+    # column fall back to the Task-5 short SELECT (key_to_node_uuid
+    # only) so re-import idempotency for stratigraphic rows survives
+    # on un-migrated schemas. Truly-broken DBs (no us_table at all)
+    # land in the outer except and pre-load is skipped entirely.
     try:
-        for r in conn.execute(
-            text(
-                "SELECT us, unita_tipo, node_uuid "
-                "FROM us_table WHERE sito = :sito"
-            ),
-            {"sito": sito},
-        ):
-            us_existing, ut_existing, nu_existing = r[0], r[1], r[2]
+        try:
+            cursor = conn.execute(
+                text(
+                    "SELECT us, unita_tipo, node_uuid, d_stratigrafica, "
+                    "attivita, other_locations "
+                    "FROM us_table WHERE sito = :sito"
+                ),
+                {"sito": sito},
+            )
+            rows = list(cursor)
+            yef_columns = True
+        except Exception as exc_full:
+            log.debug(
+                "_write_us_rows: yE-F pre-load full SELECT failed "
+                "(%s); falling back to legacy short SELECT", exc_full,
+            )
+            cursor = conn.execute(
+                text(
+                    "SELECT us, unita_tipo, node_uuid "
+                    "FROM us_table WHERE sito = :sito"
+                ),
+                {"sito": sito},
+            )
+            rows = list(cursor)
+            yef_columns = False
+        for r in rows:
+            if yef_columns:
+                us_existing, ut_existing, nu_existing, d_existing, \
+                    attiv_existing, ol_existing = (
+                        r[0], r[1], r[2], r[3], r[4], r[5],
+                    )
+            else:
+                us_existing, ut_existing, nu_existing = r[0], r[1], r[2]
+                d_existing = attiv_existing = ol_existing = None
             if us_existing is None or ut_existing is None or nu_existing is None:
                 continue
             key_to_node_uuid[(us_existing, ut_existing)] = nu_existing
+            if (
+                yef_columns
+                and ut_existing in _PARADATA_NODEDUP_UTS
+                and d_existing
+            ):
+                import json
+                secondary: list[str] = []
+                if ol_existing:
+                    try:
+                        parsed = json.loads(ol_existing)
+                        if isinstance(parsed, list):
+                            secondary = [str(x) for x in parsed]
+                    except (ValueError, TypeError):
+                        pass
+                paradata_primary_by_label[
+                    (str(d_existing), ut_existing)
+                ] = (
+                    nu_existing, str(us_existing), secondary,
+                    attiv_existing,
+                )
     except Exception as exc:
         log.debug(
-            "_write_us_rows: skip-existing pre-load failed (%s); "
+            "_write_us_rows: yE-F pre-load failed (%s); "
             "falling back to insert-only mode", exc,
         )
     for c in sql_us_classified:
