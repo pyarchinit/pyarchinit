@@ -296,6 +296,18 @@ python scripts/import_yed_graphml.py /path/to/file.graphml \
 
 **مجموع الـ suite بعد الطرح**: 354 passed / 42 skipped (PG-L1 تتطلّب psycopg2).
 
+### 5.8 تحديث 5.8.5-alpha (yed-fastfix)
+
+حزمة إصلاحات سلوكية فوق `5.8.3-alpha` تُحسّن جودة إعادة تصدير GraphML بعد استيراد yEd-aware. تغييرات تهمّ المستخدم النهائي:
+
+- **paradata متعدد الـ folders**: تسميات DOC / Combinar / Extractor / property المشتركة بين عدّة folders في yEd (مثلاً `material` المُشار إليها من VA01 + VA04 + VA05) تُنشئ الآن سطراً واحداً في `us_table` لكل ظهور — استعادة الرؤية متعددة الـ folders في GraphML المُعاد تصديره. مقايضة: لم يعد dedup الهوية (دمج `D.01` / `D.01-2` / `D.01bis` في سطر واحد) ينطبق على الظهور الثاني/الثالث.
+- **rapporti متبادلة**: كل edge في yEd `a → b` يكتب الـ rapporto الأمامي على سطر `a` والعكسي على سطر `b` (`<<` / «Coperto da» / إلخ). تُظهر الآن DOCs جميع اتصالات extractor الواردة في نموذج Scheda US.
+- **إزالة بادئة `us` الرقمية**: `US100` → `us='100'` `unita_tipo='US'` (سابقاً `us='US100'`). تُكتب SF/VSF/RSF بكتابة مزدوجة في `us_table` + `inventario_materiali`.
+- **تعبئة تلقائية للـ periodo/fase**: انتماء صف TableNode في yEd إلى فترة ينتشر إلى `us_table.periodo_iniziale`/`fase_iniziale` + `periodizzazione.cont_per`.
+- **classifier متوافق مع BPMN**: `D.NN` (BPMN data-object) → `DocumentNode`، و`D.NN.MM` (plain) → `ExtractorNode` — يحافظ على التمييز الدلالي لـ EM 1.5.
+- **إعادة استيراد idempotent**: إعادة تشغيل نفس الاستيراد تتخطّى الصفوف الموجودة مسبقاً؛ لا rollback بسبب تصادم UNIQUE في الجولة المُكرَّرة.
+- **لوحة ألوان USV**: تُرسم عقد USV الآن بمتوازي الأضلاع الأزرق القانوني الخاص بـ EM (سابقاً مستطيل بحدود حمراء).
+
 ---
 
 ## المراجع

@@ -296,6 +296,18 @@ Mutex `--db` / `--conn-str` pentru backend SQLite vs PostgreSQL. `--overrides` e
 
 **Suite totală post-rollout**: 354 passed / 42 skipped (PG-L1 necesită psycopg2).
 
+### 5.8 Actualizare 5.8.5-alpha (yed-fastfix)
+
+Pachet de corecții comportamentale peste `5.8.3-alpha` care îmbunătățește calitatea re-exportului GraphML după un import yEd-aware. Modificări relevante pentru utilizatorul final:
+
+- **Paradata multi-folder**: label-urile DOC / Combinar / Extractor / property partajate între mai multe foldere yEd (de ex. `material` referențiat din VA01 + VA04 + VA05) generează acum UN rând în `us_table` PER apariție — vizibilitate multi-folder restabilită în GraphML-ul re-exportat. Compromis: dedup-ul după identitate (colapsarea `D.01` / `D.01-2` / `D.01bis` într-un singur rând) nu se mai aplică pentru a doua/a treia apariție.
+- **Rapporti reciproce**: fiecare edge yEd `a → b` scrie rapporto-ul direct pe rândul lui `a` ȘI inversul pe rândul lui `b` (`<<` / „Coperto da" / etc.). DOC-urile arată acum toate conexiunile extractor de intrare în formularul Scheda US.
+- **Strip al prefixului `us` numeric**: `US100` → `us='100'` `unita_tipo='US'` (înainte `us='US100'`). SF/VSF/RSF se scriu dual în `us_table` + `inventario_materiali`.
+- **Auto-fill periodo/fază**: apartenența unui rând TableNode yEd la o perioadă se propagă către `us_table.periodo_iniziale`/`fase_iniziale` + `periodizzazione.cont_per`.
+- **Classifier BPMN-aware**: `D.NN` (BPMN data-object) → `DocumentNode`, `D.NN.MM` (plain) → `ExtractorNode` — păstrează distincția semantică EM 1.5.
+- **Re-import idempotent**: re-rularea aceluiași import sare peste rândurile deja prezente; fără rollback pentru coliziune UNIQUE la pasul repetat.
+- **Paletă USV**: nodurile USV se randează acum cu paralelogramul albastru canonic EM (înainte dreptunghi cu bordură roșie).
+
 ---
 
 ## Referințe

@@ -296,6 +296,18 @@ Mutex `--db` / `--conn-str` für SQLite- vs. PostgreSQL-Backend. `--overrides` i
 
 **Gesamt-Suite nach Rollout**: 354 passed / 42 skipped (PG-L1 benötigt psycopg2).
 
+### 5.8 Update 5.8.5-alpha (yed-fastfix)
+
+Verhaltens-Fixpack auf Basis von `5.8.3-alpha`, das die Qualität des GraphML-Re-Exports nach einem yEd-aware-Import verbessert. Für Endanwender relevante Änderungen:
+
+- **Multi-Folder-Paradata**: DOC- / Combinar- / Extractor- / Property-Labels, die zwischen yEd-Foldern geteilt werden (z. B. `material`, referenziert aus VA01 + VA04 + VA05), erzeugen jetzt EINE Zeile in `us_table` PRO Vorkommen — Multi-Folder-Sichtbarkeit im re-exportierten GraphML wiederhergestellt. Trade-off: Identitäts-Dedup (`D.01` / `D.01-2` / `D.01bis` werden zu einer einzigen Zeile zusammengefasst) gilt nicht mehr für das zweite/dritte Vorkommen.
+- **Reziproke Rapporti**: jede yEd-Edge `a → b` schreibt den Vorwärts-Rapporto in die Zeile von `a` UND die Umkehrung in die Zeile von `b` (`<<` / „Coperto da" / usw.). DOCs zeigen jetzt alle eingehenden Extractor-Verbindungen im Scheda-US-Formular.
+- **Stripping des numerischen `us`-Präfixes**: `US100` → `us='100'` `unita_tipo='US'` (vorher `us='US100'`). SF/VSF/RSF werden dual nach `us_table` + `inventario_materiali` geschrieben.
+- **Periodo/Fase Auto-Fill**: Die Zugehörigkeit einer yEd-TableNode-Row zu einer Periode propagiert in `us_table.periodo_iniziale`/`fase_iniziale` + `periodizzazione.cont_per`.
+- **BPMN-aware Classifier**: `D.NN` (BPMN-Data-Object) → `DocumentNode`, `D.NN.MM` (plain) → `ExtractorNode` — bewahrt die semantische EM-1.5-Unterscheidung.
+- **Idempotenter Re-Import**: Erneutes Ausführen desselben Imports überspringt bereits vorhandene Zeilen; kein Rollback bei UNIQUE-Kollision beim wiederholten Lauf.
+- **USV-Palette**: USV-Nodes werden jetzt mit dem EM-kanonischen blauen Parallelogramm dargestellt (vorher Rechteck mit rotem Rand).
+
 ---
 
 ## Referenzen

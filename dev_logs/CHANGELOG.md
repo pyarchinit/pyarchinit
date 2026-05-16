@@ -5,6 +5,104 @@
 
 ---
 
+## [5.8.5-alpha] - 2026-05-16
+
+### Italiano
+
+**yed-fastfix — 19 bug (A→T) corretti sul pipeline yEd-aware import, scoperti tramite test manuali su `pyarchinit_test{002..010}.sqlite`.**
+
+Tag `yed-fastfix-5.8.5-alpha` (commit `a5e8502b` su branch `Stratigraph_00001`). Round di hardening intensivo post-5.8.3 sul percorso yEd-aware import: 19 bug nominali risolti, tutti scoperti via test manuali iterativi su 9 fixture SQLite (`pyarchinit_test002.sqlite` → `pyarchinit_test010.sqlite`). Nessun bug architetturale, tutto comportamentale/edge-case.
+
+**Bug breakdown per modulo**:
+
+**`modules/s3dgraphy/sync/yed_import_pipeline.py`** (core del fix):
+
+- **A — rapporti tuple format**: tuple `[type, us_target, area, sito]` aveva posizioni 1 e 3 scambiate; reader pyarchinit non risolveva il target.
+- **B — period_iniziale/fase_iniziale** propagati a `us_table` dai `PeriodCandidate.member_yed_ids`.
+- **C — periodizzazione_table.cont_per** popolato (campo UI "Codice periodo" ora valorizzato).
+- **E — us stripped + dual-write**: `us_table.us` stripped del prefisso `unita_tipo` (`'US100'` → `'100'`); SF/VSF/RSF dual-write su `us_table` + `inventario_materiali`.
+- **F — rapporti tokens via `_select_rapporti_label`** per `unita_tipo`: verboso IT per US/USM, `>>`/`<<` per altri, `>`/`<` per CON.
+- **G — DOC/Combinar/Extractor/property** diventano record `us_table` con `unita_tipo` corretto, **non** `paradata.graphml`.
+- **H — idempotent re-import**: skip-if-exists su `us_table`, `inventario`, `periodizzazione`.
+- **M — default edge_type=`generic_connection`** quando endpoint paradata (overrides `overlies` invalido US↔Document).
+- **R — B1 multi-folder trade-off**: i paradata kinds saltano il dedup-by-identity; ogni occorrenza yEd è una sua riga; `us` suffix `_2`/`_3` per disambiguare; `d_stratigrafica` = label originale. **Trade-off scelto**: multi-folder visibility > identity-dedup per le paradata families.
+- **S — rapporti target resolved at per-occurrence us value** (es. `01_2`, `01_3`), non shared stripped label.
+- **T — rapporti reciprocity**: forward sulla riga del source + inverse (`<<`, "Coperto da") sulla riga del target.
+
+**`modules/s3dgraphy/sync/yed_classifier.py`**:
+
+- **D — EXTRACTOR**: aggiunto a `ClassificationKind` enum + regex `^E\.\d+`.
+- **I — BPMN-aware classifier**: D.NN con BPMN data-object → DOCUMENT; D.NN.MM senza → EXTRACTOR. Senza questa distinzione il dedup collassava i due tipi in una sola riga e gli edges sparivano.
+
+**`modules/s3dgraphy/sync/graph_projector.py`**:
+
+- **K — composite-key `(name, unita_tipo)` → node_by_key index**: evita aliasing su `_find_node_by_name` del bridge.
+- **N — reorder**: `_propagate_node_uuid_and_us` PRIMA di `_enrich_into`; family-preference target resolution per attributo `unita_tipo`.
+- **P — row-paradata as StratigraphicNode-class instances**: `StratigraphicUnit` con `attributes['unita_tipo']='DOC'/'Combinar'/etc.` per swimlane integration in `GraphMLExporter`. Reverte l'approccio precedente (Bug O) che le trattava come paradata-class isolate.
+
+**`modules/s3dgraphy/sync/graphml_writer.py`**:
+
+- **Q — USV palette entry** aggiunta (mirrora USVs — parallelogramma blu, fill nero, testo bianco); property label legge `d_stratigrafica` con fallback (basta con `'propertymaterial'`).
+
+**`gui/yed_import_dialog.py`**:
+
+- **J — `_kind_choices`** include ora EXTRACTOR (fixa `ValueError` nel wizard).
+
+**Trade-off principale** (Bug R): per le paradata families la multi-folder visibility ha avuto precedenza sull'identity-dedup. Ogni occorrenza yEd di un Documento/Combinar/Extractor produce ora una propria riga `us_table` (con suffisso `_2`/`_3`), per garantire che la struttura visiva yEd (folder placement) sopravviva al round-trip. Conseguenza: contenuto duplicato in `d_stratigrafica` per le righe figlie, ma rapporti coerenti per ciascuna occorrenza (Bug S+T).
+
+**Test**: 311 → **329 passed** (+18 regression tests aggiunti), 0 regression. AC-2 byte-identical preservato.
+
+**Versioning**: minor `5.8.3 → 5.8.5-alpha` (salto 5.8.4 — riservato a dry-run interno non-rilasciato). Predecessor: `yed-import-closure-5.8.3-alpha` (commit `cbc2a5b7`).
+
+### English
+
+**yed-fastfix — 19 bugs (A→T) fixed across the yEd-aware import pipeline, discovered via manual testing on `pyarchinit_test{002..010}.sqlite`.**
+
+Tag `yed-fastfix-5.8.5-alpha` (commit `a5e8502b` on `Stratigraph_00001`). Intensive post-5.8.3 hardening round on the yEd-aware import path: 19 named bugs resolved, all discovered via iterative manual testing against 9 SQLite fixtures. No architectural bugs, all behavioral / edge-case.
+
+**Bug breakdown by module**:
+
+**`modules/s3dgraphy/sync/yed_import_pipeline.py`** (main work):
+
+- **A — rapporti tuple format**: tuple `[type, us_target, area, sito]` had positions 1 and 3 swapped; pyarchinit reader could not resolve the target.
+- **B — period_iniziale/fase_iniziale** propagated to `us_table` from `PeriodCandidate.member_yed_ids`.
+- **C — periodizzazione_table.cont_per** populated (UI "Codice periodo" field).
+- **E — us stripped + dual-write**: `us_table.us` stripped of `unita_tipo` prefix (`'US100'` → `'100'`); SF/VSF/RSF dual-write to `us_table` + `inventario_materiali`.
+- **F — rapporti tokens via `_select_rapporti_label`** by `unita_tipo`: verbose IT for US/USM, `>>`/`<<` for others, `>`/`<` for CON.
+- **G — DOC/Combinar/Extractor/property** become `us_table` records with proper `unita_tipo`, **not** `paradata.graphml`.
+- **H — idempotent re-import**: skip-if-exists on `us_table`, `inventario`, `periodizzazione`.
+- **M — default edge_type=`generic_connection`** when paradata endpoint (overrides invalid `overlies` US↔Document).
+- **R — B1 multi-folder trade-off**: paradata kinds skip dedup-by-identity; each yEd occurrence becomes its own row; `us` suffix `_2`/`_3` to disambiguate; `d_stratigrafica` keeps the original label. **Trade-off chosen**: multi-folder visibility > identity-dedup for paradata families.
+- **S — rapporti target resolved at per-occurrence us value** (e.g. `01_2`, `01_3`), not shared stripped label.
+- **T — rapporti reciprocity**: forward on source row + inverse (`<<`, "Coperto da") on target row.
+
+**`modules/s3dgraphy/sync/yed_classifier.py`**:
+
+- **D — EXTRACTOR** added to `ClassificationKind` enum + regex `^E\.\d+`.
+- **I — BPMN-aware classifier**: D.NN with BPMN data-object → DOCUMENT; D.NN.MM without → EXTRACTOR. Without this distinction the dedup collapsed both types into a single row and edges disappeared.
+
+**`modules/s3dgraphy/sync/graph_projector.py`**:
+
+- **K — composite-key `(name, unita_tipo)` → node_by_key index**: avoids aliasing in the bridge's `_find_node_by_name`.
+- **N — reorder**: `_propagate_node_uuid_and_us` BEFORE `_enrich_into`; family-preference target resolution by `unita_tipo` attribute.
+- **P — row-paradata as StratigraphicNode-class instances**: `StratigraphicUnit` with `attributes['unita_tipo']='DOC'/'Combinar'/etc.` for swimlane integration in `GraphMLExporter`. Reverts the earlier (Bug O) approach that treated them as isolated paradata classes.
+
+**`modules/s3dgraphy/sync/graphml_writer.py`**:
+
+- **Q — USV palette entry** added (mirrors USVs — blue parallelogram, black fill, white text); property label reads `d_stratigrafica` with fallback (no more `'propertymaterial'`).
+
+**`gui/yed_import_dialog.py`**:
+
+- **J — `_kind_choices`** now includes EXTRACTOR (fixes `ValueError` in the wizard).
+
+**Main trade-off** (Bug R): for paradata families, multi-folder visibility took precedence over identity-dedup. Each yEd occurrence of a Document/Combinar/Extractor now produces its own `us_table` row (with `_2`/`_3` suffix) so the yEd visual structure (folder placement) survives the round-trip. Consequence: duplicated content in `d_stratigrafica` for child rows, but coherent rapporti per occurrence (Bug S+T).
+
+**Tests**: 311 → **329 passed** (+18 regression tests added), 0 regressions. AC-2 byte-identical preserved.
+
+**Versioning**: minor `5.8.3 → 5.8.5-alpha` (skipped 5.8.4 — reserved for internal unreleased dry-run). Predecessor: `yed-import-closure-5.8.3-alpha` (commit `cbc2a5b7`).
+
+---
+
 ## [5.8.3-alpha] - 2026-05-14
 
 ### Italiano
