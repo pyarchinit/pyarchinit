@@ -1005,21 +1005,38 @@ class GraphProjector:
                         return "paradata" if ut in _PARADATA_UTS else "strat"
                     src_attrs = getattr(us_node, "attributes", None) or {}
                     src_family = _ut_family(src_attrs.get("unita_tipo") or "US")
+                    src_folder = src_attrs.get("attivita")
                     candidates = nodes_by_name.get(target_us, [])
                     target_node = None
-                    if candidates:
-                        # 1st pass: same unita_tipo family.
+                    # yE-F resolver: when the target has multi-folder
+                    # copies via _apply_yef_fan_out, pick the copy in
+                    # the source's folder. Falls through to family-
+                    # preference for non-multi-folder targets (the
+                    # resolver returns the input unchanged when
+                    # ``_yef_copies_by_canonical`` is empty/absent).
+                    if candidates and src_folder:
                         for c in candidates:
-                            c_attrs = getattr(c, "attributes", None) or {}
-                            c_family = _ut_family(
-                                c_attrs.get("unita_tipo") or "US")
-                            if c_family == src_family:
-                                target_node = c
+                            resolved = _resolve_target_for_folder(
+                                c, src_folder, graph,
+                            )
+                            if resolved is not c:
+                                target_node = resolved
                                 break
-                        # 2nd pass: cross-family fallback (rare —
-                        # e.g. US → property links).
-                        if target_node is None:
-                            target_node = candidates[0]
+                    # Fallback: existing family-preference logic.
+                    if target_node is None:
+                        if candidates:
+                            # 1st pass: same unita_tipo family.
+                            for c in candidates:
+                                c_attrs = getattr(c, "attributes", None) or {}
+                                c_family = _ut_family(
+                                    c_attrs.get("unita_tipo") or "US")
+                                if c_family == src_family:
+                                    target_node = c
+                                    break
+                            # 2nd pass: cross-family fallback (rare —
+                            # e.g. US → property links).
+                            if target_node is None:
+                                target_node = candidates[0]
                     if target_node is None:
                         continue
 
