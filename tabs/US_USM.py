@@ -134,6 +134,17 @@ DEBUG = False
 # these two functions via ast and execs them in a clean namespace, so they
 # MUST stay self-contained (only the stdlib ``json`` module is allowed).
 # ---------------------------------------------------------------------------
+_YEF_PARADATA_UTS = frozenset({"DOC", "Combinar", "Extractor", "property"})
+
+
+def _yef_widget_visible_for_unita_tipo(unita_tipo):
+    """Return True iff the other_locations widget should be visible for
+    the given ``unita_tipo``. Visible for paradata kinds only; hidden for
+    the stratigraphic family (US/USM/USV/SF/...).
+    """
+    return (unita_tipo or "") in _YEF_PARADATA_UTS
+
+
 def _populate_other_locations_logic(widget, db_rows_distinct_attivita,
                                     current_other_locations_json):
     """Populate ``widget`` with DISTINCT non-NULL activity codes drawn from
@@ -15661,6 +15672,14 @@ DATABASE SCHEMA KNOWLEDGE:
         lbl = get_unit_type_label(ut, self.L)
         if lbl:
             self.label_5.setText(lbl)
+        # yE-F other_locations visibility: paradata kinds only
+        try:
+            _yef_visible = _yef_widget_visible_for_unita_tipo(ut)
+            self.listWidget_other_locations.setVisible(_yef_visible)
+            self.label_other_locations.setVisible(_yef_visible)
+        except AttributeError:
+            # Widgets may be absent in older .ui files — silent no-op.
+            pass
 
 
     def refresh(self):
@@ -25015,6 +25034,29 @@ DATABASE SCHEMA KNOWLEDGE:
             except Exception:
                 # Column may not exist on pre-migration DBs, or widget may be
                 # missing in older .ui files — silent no-op is safe here.
+                pass
+            # yE-F other_locations: i18n label + initial visibility for paradata kinds
+            try:
+                from modules.utility.pyarchinit_i18n_stratigraphic import (
+                    get_other_locations_label as _yef_get_label,
+                )
+                _yef_lang = getattr(self, "L", "en") or "en"
+                self.label_other_locations.setText(_yef_get_label(_yef_lang))
+            except Exception:
+                # i18n adapter missing or label widget absent — leave .ui default.
+                pass
+            try:
+                _yef_current_ut = getattr(
+                    self.DATA_LIST[self.rec_num], "unita_tipo", ""
+                ) or ""
+                _yef_visible_init = _yef_widget_visible_for_unita_tipo(
+                    _yef_current_ut
+                )
+                self.listWidget_other_locations.setVisible(_yef_visible_init)
+                self.label_other_locations.setVisible(_yef_visible_init)
+            except (AttributeError, IndexError):
+                # Widgets may not exist in older .ui files; rec_num may be out
+                # of range during initialization — silent no-op is safe.
                 pass
             str(self.lineEdit_anno.setText(self.DATA_LIST[self.rec_num].anno_scavo))  # 14 - anno scavo
             str(self.comboBox_metodo.setEditText(self.DATA_LIST[self.rec_num].metodo_di_scavo))  # 15 - metodo

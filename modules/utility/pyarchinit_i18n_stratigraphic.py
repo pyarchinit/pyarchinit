@@ -322,6 +322,32 @@ def get_unit_type_label(unit_type, lang):
 
 
 # ---------------------------------------------------------------------------
+# yE-F "Other locations" UI label (used by US/USM form's other_locations widget)
+# ---------------------------------------------------------------------------
+
+_OTHER_LOCATIONS_LABEL = {
+    'it': 'Altre attività',
+    'en': 'Other locations',
+    'de': 'Weitere Aktivitäten',
+    'es': 'Otras actividades',
+    'fr': 'Autres activités',
+    'ar': 'أنشطة أخرى',
+    'ca': 'Altres activitats',
+    'ro': 'Alte activități',
+    'pt': 'Outras atividades',
+    'el': 'Άλλες δραστηριότητες',
+}
+
+
+def get_other_locations_label(lang):
+    """Return the localized label for the yE-F 'Other locations' widget.
+
+    Falls back to English when *lang* is unknown.
+    """
+    return _OTHER_LOCATIONS_LABEL.get(lang, _OTHER_LOCATIONS_LABEL['en'])
+
+
+# ---------------------------------------------------------------------------
 # Stratigraphic Relationships (10 terms x 10 languages)
 # ---------------------------------------------------------------------------
 # Index:  0=Uguale a  1=Si lega a  2=Copre  3=Coperto da  4=Riempie
