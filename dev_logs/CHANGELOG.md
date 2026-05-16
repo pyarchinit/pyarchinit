@@ -5,6 +5,54 @@
 
 ---
 
+## [post-5.9.0.1-alpha] - 2026-05-16 — LLM models refresh
+
+> Commit `e05229a0` su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Aggiornamento puntuale al selettore modelli AI usato dal dialog "Interrogazione Database con AI (RAG)" e da tutte le feature LLM.
+
+### Italiano
+
+**Aggiunti GPT-5.5 e Claude Sonnet 4.6 nel selettore provider; routing automatico `max_completion_tokens` per famiglia GPT-5 e o-series.**
+
+File toccato: `modules/utility/llm_providers.py` (+44 / −2).
+
+**Modelli aggiunti**:
+
+- **OpenAI** `default_models` (in testa): `gpt-5.5`, `gpt-5.5-2026-04-23`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`. Rimosso `gpt-4-vision-preview` (deprecato). `vision_models` allineata. Modelli legacy (`gpt-4o*`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`) conservati per chi è ancora pinnato.
+- **Anthropic** `default_models` (in testa): `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5`. `vision_models` allineata. ID dated 4-5 e 3-5 conservati.
+
+**Token-param shim**:
+
+- Nuova costante `OPENAI_MAX_COMPLETION_TOKENS_PREFIXES = ("gpt-5", "o1", "o3", "o4")` + helper `_openai_token_param(model)`.
+- `LLMProviderManager.stream_chat()` branch OpenAI: ora invia `max_completion_tokens=N` per famiglia GPT-5 / o-series (che restituiscono 400 con `max_tokens`), e mantiene `max_tokens=N` per i modelli legacy + backend OpenAI-compatibili locali (Ollama, LM Studio).
+- Branch Anthropic invariato: `max_tokens=` è il nome param ufficiale Anthropic.
+
+**Verifica live**: chiamata reale a `api.openai.com` con `model='gpt-5.5'`, `max_tokens=20`, prompt "Reply with just OK.", risposta `'OK'`. Shim verificato su 8 model id (gpt-5.5, gpt-5.5-2026-04-23, gpt-5, gpt-5-mini, gpt-4o, gpt-3.5-turbo, o3-mini, o4-mini).
+
+**Impatto UI**: i nuovi modelli compaiono nel dropdown del `RAGQueryDialog` (`tabs/US_USM.py:4079`) e in ogni altro consumer di `LLMSelectorWidget` al prossimo "Aggiorna modelli" o restart QGIS. La selezione salvata in QSettings non viene toccata.
+
+### English
+
+**Added GPT-5.5 and Claude Sonnet 4.6 to the provider selector; automatic `max_completion_tokens` routing for the GPT-5 family and o-series.**
+
+File touched: `modules/utility/llm_providers.py` (+44 / −2).
+
+**Models added**:
+
+- **OpenAI** `default_models` (prepended): `gpt-5.5`, `gpt-5.5-2026-04-23`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-4.1`. Removed `gpt-4-vision-preview` (deprecated). `vision_models` mirrored. Legacy models (`gpt-4o*`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`) kept for users still pinned.
+- **Anthropic** `default_models` (prepended): `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5`. `vision_models` mirrored. Dated 4-5 / 3-5 IDs kept.
+
+**Token-param shim**:
+
+- New constant `OPENAI_MAX_COMPLETION_TOKENS_PREFIXES = ("gpt-5", "o1", "o3", "o4")` + helper `_openai_token_param(model)`.
+- `LLMProviderManager.stream_chat()` OpenAI branch: now sends `max_completion_tokens=N` for the GPT-5 / o-series family (which 400 on `max_tokens`), keeps `max_tokens=N` for legacy models and OpenAI-compatible local backends (Ollama, LM Studio).
+- Anthropic branch unchanged: `max_tokens=` is Anthropic's own param name.
+
+**Live verification**: real call to `api.openai.com` with `model='gpt-5.5'`, `max_tokens=20`, prompt "Reply with just OK.", reply `'OK'`. Shim verified on 8 model IDs (gpt-5.5, gpt-5.5-2026-04-23, gpt-5, gpt-5-mini, gpt-4o, gpt-3.5-turbo, o3-mini, o4-mini).
+
+**UI impact**: new models appear in the `RAGQueryDialog` dropdown (`tabs/US_USM.py:4079`) and in every other `LLMSelectorWidget` consumer at next "Refresh models" or QGIS restart. Saved QSettings selection is left untouched.
+
+---
+
 ## [5.9.0.1-alpha] - 2026-05-16
 
 ### Italiano
