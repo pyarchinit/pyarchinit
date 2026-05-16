@@ -1976,6 +1976,20 @@ def export_graphml(
     except Exception as e:
         raise GraphMLExportError("import", e) from e
 
+    # yE-F fan-out (design spec §6): emit N visual copies per
+    # multi-folder paradata row. Must run AFTER populate_graph
+    # (which propagates other_locations into node.attributes) and
+    # BEFORE _filter_by_site (so sito-filtering keeps the copies).
+    try:
+        copies_created = _apply_yef_fan_out(graph)
+        if copies_created:
+            print(
+                f"[ExportGraphML] yE-F fan-out emitted {copies_created} "
+                f"visual copies"
+            )
+    except Exception as exc:
+        print(f"[ExportGraphML] yE-F fan-out skipped: {exc}")
+
     # Capture paradata snapshot BEFORE the site filter — the AI04
     # `_filter_by_site` only retains StratigraphicNode + EpochNode
     # (it doesn't know about AI05 paradata classes), so it drops
