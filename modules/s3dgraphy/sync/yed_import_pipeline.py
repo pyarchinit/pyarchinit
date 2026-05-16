@@ -253,6 +253,11 @@ _ALLOWED_FOLDER_DIMENSIONS: frozenset = frozenset({
 })
 
 
+_PARADATA_NODEDUP_UTS: frozenset[str] = frozenset({
+    "DOC", "Combinar", "Extractor", "property",
+})
+
+
 class _DryRunRollback(Exception):
     """Sentinel raised inside engine.begin() to force a rollback.
 
@@ -527,9 +532,6 @@ def _write_us_rows(
     # short-lived Bug R "no-dedup" branch which wrote one row per
     # occurrence with suffix-disambiguated us values.
     key_to_node_uuid: dict[tuple[str, str], str] = {}
-    _PARADATA_NODEDUP_UTS: frozenset[str] = frozenset({
-        "DOC", "Combinar", "Extractor", "property",
-    })
     # yE-F fold index: (label, unita_tipo) → (primary_node_uuid,
     # primary_us, secondary_folders_list, primary_folder). First
     # encounter of a shared paradata label registers the primary row;
@@ -963,6 +965,33 @@ def _apply_yed_folder_dimensions(
                 folder.yed_id,
             )
             continue
+        # yE-F duplicate-primary fix (2026-05-16): for dim=='attivita',
+        # exclude paradata fold rows. _write_us_rows has already set
+        # attivita = first-folder-in-document-order; letting this UPDATE
+        # run would overwrite it with the LAST iterated folder and also
+        # duplicate the primary in other_locations on subsequent passes.
+        if dim == "attivita" and node_uuids:
+            check_placeholders: list[str] = []
+            check_params: dict[str, Any] = {}
+            for i, nu in enumerate(node_uuids):
+                k = f"pu{i}"
+                check_placeholders.append(f":{k}")
+                check_params[k] = nu
+            check_in = ", ".join(check_placeholders)
+            paradata_uuids = {
+                r[0] for r in conn.execute(
+                    text(
+                        f"SELECT node_uuid FROM us_table "
+                        f"WHERE unita_tipo IN "
+                        f"('DOC','Combinar','Extractor','property') "
+                        f"AND node_uuid IN ({check_in})"
+                    ),
+                    check_params,
+                )
+            }
+            node_uuids = [nu for nu in node_uuids if nu not in paradata_uuids]
+            if not node_uuids:
+                continue
         # Build named bind parameters for IN clause (backend-portable).
         # SQLAlchemy text() supports list expansion via the
         # `bindparam(name, expanding=True)` API, but for simplicity

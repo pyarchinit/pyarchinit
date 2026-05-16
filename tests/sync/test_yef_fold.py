@@ -180,3 +180,69 @@ def test_write_us_rows_yef_appends_new_folder_on_re_import(tmp_path):
         )).first()
     import json
     assert json.loads(ol_row[0]) == ["VA04", "VA06"]
+
+
+def test_apply_yed_folder_dimensions_skips_paradata_attivita(tmp_path):
+    """Regression — yE-F primary attivita must NOT be overwritten by
+    ``_apply_yed_folder_dimensions`` for paradata fold rows.
+
+    Pre-fix bug: for paradata multi-folder rows (e.g. DOC.01 appearing
+    in folders VA02/VA04/VA05), ``_write_us_rows`` correctly set
+    ``attivita=VA02`` (first in document order) + ``other_locations=
+    ['VA04','VA05']``. But ``_apply_yed_folder_dimensions`` then
+    iterated folders VA02/VA04/VA05 and ran one UPDATE per folder on
+    the shared node_uuid, with the LAST iteration winning — so
+    ``attivita`` ended up as VA05. Worse, the primary ended up
+    duplicated in ``other_locations`` on subsequent re-imports.
+
+    Fix: skip paradata node_uuids when ``dim=='attivita'``; yE-F has
+    already written the correct value during fold INSERT.
+    """
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        _write_us_rows, _apply_yed_folder_dimensions,
+    )
+    handle = _make_yef_handle(tmp_path)
+    leaves = [
+        _leaf("d1", ClassificationKind.DOCUMENT, "D.01"),
+        _leaf("d2", ClassificationKind.DOCUMENT, "D.01"),
+        _leaf("d3", ClassificationKind.DOCUMENT, "D.01"),
+    ]
+    folders = [
+        _folder("F2", "VA02", members=["d1"]),
+        _folder("F4", "VA04", members=["d2"]),
+        _folder("F5", "VA05", members=["d3"]),
+    ]
+    folders_map = {f.yed_id: f for f in folders}
+
+    with handle.engine.begin() as conn:
+        _, uuid_map = _write_us_rows(
+            conn, leaves, sito="X", folders_map=folders_map,
+        )
+
+    # Simulate the rest of the pipeline that calls
+    # _apply_yed_folder_dimensions AFTER _write_us_rows.
+    with handle.engine.begin() as conn:
+        _apply_yed_folder_dimensions(conn, folders, "X", uuid_map)
+
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(text(
+            "SELECT us, attivita, other_locations FROM us_table "
+            "WHERE sito = 'X' AND unita_tipo = 'DOC'"
+        )))
+    assert len(rows) == 1, "yE-F should fold 3 D.01 occurrences to 1 row"
+    us, attivita, ol = rows[0]
+    assert us == "01"
+    # Primary must be the FIRST folder in document order, NOT the last.
+    assert attivita == "VA02", (
+        f"attivita should stay 'VA02' (first folder) but got {attivita!r} "
+        f"— _apply_yed_folder_dimensions overwrote yE-F primary"
+    )
+    import json
+    secondary = json.loads(ol) if ol else []
+    assert secondary == ["VA04", "VA05"], (
+        f"other_locations should be ['VA04','VA05'] but got {secondary!r}"
+    )
+    # Critical: primary must NOT appear in other_locations.
+    assert attivita not in secondary, (
+        f"primary {attivita!r} duplicated in other_locations {secondary!r}"
+    )
