@@ -54,7 +54,8 @@ def _apply_pyarchinit_schema(engine: Engine) -> None:
                 saggio TEXT,
                 quad_par TEXT,
                 unita_tipo TEXT DEFAULT 'US',
-                node_uuid TEXT
+                node_uuid TEXT,
+                other_locations TEXT
             )
         """))
         conn.execute(text("""
