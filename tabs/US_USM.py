@@ -125,6 +125,57 @@ from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer, Qt
 # Debug flag - set to True to enable debug output
 DEBUG = False
 
+
+# ---------------------------------------------------------------------------
+# yE-F other_locations widget helpers (pure logic, no Qt required).
+#
+# Placed at module-top so they remain importable and unit-testable from the
+# tests/sync/ suite even when QGIS is absent — the test file source-extracts
+# these two functions via ast and execs them in a clean namespace, so they
+# MUST stay self-contained (only the stdlib ``json`` module is allowed).
+# ---------------------------------------------------------------------------
+def _populate_other_locations_logic(widget, db_rows_distinct_attivita,
+                                    current_other_locations_json):
+    """Populate ``widget`` with DISTINCT non-NULL activity codes drawn from
+    ``db_rows_distinct_attivita`` (iterable of 1-tuples). Pre-select items
+    present in ``current_other_locations_json`` (JSON list str or None).
+    """
+    widget.clear()
+    seen = set()
+    activities = []
+    for (a,) in db_rows_distinct_attivita:
+        if a is None or a == "" or a in seen:
+            continue
+        seen.add(a)
+        activities.append(a)
+    activities.sort()
+    for a in activities:
+        widget.addItem(a)
+    selected = []
+    if current_other_locations_json:
+        try:
+            parsed = json.loads(current_other_locations_json)
+            if isinstance(parsed, list):
+                selected = [str(x) for x in parsed]
+        except (ValueError, TypeError):
+            selected = []
+    for s in selected:
+        widget.select(s)
+
+
+def _save_other_locations_logic(widget, current_attivita):
+    """Serialise selected items in ``widget`` into a JSON list string,
+    excluding ``current_attivita`` (the primary activity).
+
+    Returns ``None`` when no items are selected (DB NULL semantics).
+    """
+    selected = [item.text() for item in widget.selectedItems()]
+    selected = [s for s in selected if s != current_attivita]
+    if not selected:
+        return None
+    return json.dumps(selected, ensure_ascii=False)
+
+
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
 
@@ -24423,6 +24474,35 @@ DATABASE SCHEMA KNOWLEDGE:
                                    [int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))],
                                    self.TABLE_FIELDS,
                                    self.rec_toupdate())
+            # yE-F other_locations save (side-channel, not in TABLE_FIELDS).
+            # The widget value is JSON-serialised then written via a direct
+            # SQL UPDATE so we don't have to extend the positional TABLE_FIELDS
+            # list (which would ripple through insert_values / set_LIST_REC_TEMP /
+            # fill_fields and risk breaking unrelated callers).
+            try:
+                from sqlalchemy import text as _yef_text
+                _yef_value = _save_other_locations_logic(
+                    self.listWidget_other_locations,
+                    current_attivita=str(self.lineEdit_attivita.text()),
+                )
+                _yef_id = int(getattr(self.DATA_LIST[self.REC_CORR], self.ID_TABLE))
+                _yef_engine = getattr(self.DB_MANAGER, "conn", None) or \
+                    getattr(self.DB_MANAGER, "engine", None)
+                if _yef_engine is not None:
+                    with _yef_engine.begin() as _yef_conn:
+                        _yef_conn.execute(
+                            _yef_text(
+                                "UPDATE us_table SET other_locations = :v "
+                                "WHERE id_us = :i"
+                            ),
+                            {"v": _yef_value, "i": _yef_id},
+                        )
+            except AttributeError:
+                # Widget missing in older .ui files — non-fatal.
+                pass
+            except Exception:
+                # Column may not exist on pre-migration DBs — non-fatal.
+                pass
             return 1
         except Exception as e:
             # Check if it's a permission error first
@@ -24910,6 +24990,32 @@ DATABASE SCHEMA KNOWLEDGE:
             str(self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale))  # 11 - fase finale
             str(self.comboBox_scavato.setEditText(self.DATA_LIST[self.rec_num].scavato))  # 12 - scavato
             str(self.lineEdit_attivita.setText(self.DATA_LIST[self.rec_num].attivita))  # 13 - attivita
+            # yE-F other_locations populate (additive, safe on pre-migration DBs)
+            try:
+                from sqlalchemy import text as _yef_text
+                _yef_engine = getattr(self.DB_MANAGER, "conn", None) or \
+                    getattr(self.DB_MANAGER, "engine", None)
+                if _yef_engine is not None:
+                    with _yef_engine.connect() as _yef_conn:
+                        _yef_rows = _yef_conn.execute(
+                            _yef_text(
+                                "SELECT DISTINCT attivita FROM us_table "
+                                "WHERE sito = :s AND attivita IS NOT NULL"
+                            ),
+                            {"s": str(self.comboBox_sito.currentText())},
+                        ).fetchall()
+                    _yef_current_ol = getattr(
+                        self.DATA_LIST[self.rec_num], "other_locations", None
+                    )
+                    _populate_other_locations_logic(
+                        self.listWidget_other_locations,
+                        _yef_rows,
+                        _yef_current_ol,
+                    )
+            except Exception:
+                # Column may not exist on pre-migration DBs, or widget may be
+                # missing in older .ui files — silent no-op is safe here.
+                pass
             str(self.lineEdit_anno.setText(self.DATA_LIST[self.rec_num].anno_scavo))  # 14 - anno scavo
             str(self.comboBox_metodo.setEditText(self.DATA_LIST[self.rec_num].metodo_di_scavo))  # 15 - metodo
             self.tableInsertData("self.tableWidget_inclusi", self.DATA_LIST[self.rec_num].inclusi)  # 16 - inclusi

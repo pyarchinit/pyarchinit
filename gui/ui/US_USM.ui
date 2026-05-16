@@ -13404,6 +13404,38 @@ p, li { white-space: pre-wrap; }
            </property>
           </widget>
          </item>
+         <item row="11" column="0" colspan="4">
+          <widget class="QLabel" name="label_other_locations">
+           <property name="font">
+            <font>
+             <family>Damascus</family>
+             <pointsize>11</pointsize>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Other locations (yE-F)</string>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Secondary activity codes for paradata rows that appear in multiple yEd folders. The primary attivita above is always included implicitly; select here only the OTHER activities where this US should also be visible.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="4" colspan="5">
+          <widget class="QListWidget" name="listWidget_other_locations">
+           <property name="selectionMode">
+            <enum>QAbstractItemView::MultiSelection</enum>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>120</height>
+            </size>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
       </layout>
