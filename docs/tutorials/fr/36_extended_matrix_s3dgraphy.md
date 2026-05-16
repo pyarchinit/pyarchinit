@@ -308,6 +308,20 @@ Pack de corrections comportementales au-dessus de `5.8.3-alpha` qui améliore la
 - **Ré-import idempotent** : ré-exécuter le même import saute les lignes déjà présentes ; aucun rollback pour collision UNIQUE lors d'une passe répétée.
 - **Palette USV** : les nœuds USV s'affichent désormais avec le parallélogramme bleu canonique EM (auparavant rectangle à bordure rouge).
 
+### 5.9 yE-F paradata multi-dossiers (5.9.0-alpha)
+
+Évolution structurelle de `yed-fastfix-5.8.5-alpha` : le compromis du Bug R B1 (une ligne `us_table` par occurrence, avec `us='D.01_2'` / `us='D.01_3'`) a été dépassé. Une feuille paradata (DOC / Combinar / Extractor / property) partagée entre plusieurs dossiers yEd produit désormais **une seule ligne** dans `us_table` par label canonique, et la multi-appartenance est conservée dans une nouvelle colonne `other_locations`.
+
+Changements visibles pour l'utilisateur final :
+
+1. **Nouveau widget « Autres activités » dans la fiche US/USM** : dans l'onglet *Periodizzazione* apparaît un `QListWidget` étiqueté « Autres activités » — visible **uniquement** lorsque `unita_tipo` est une typologie paradata (`DOC`, `Combinar`, `Extractor`, `property`). L'utilisateur peut sélectionner plusieurs codes d'activité ; la sélection est sérialisée comme liste JSON dans la nouvelle colonne `other_locations`.
+2. **Nouvelle entrée de menu QGIS** : `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Doit être exécutée **une fois** sur chaque DB préexistante pour ajouter la nouvelle colonne (les DB créées après 5.9 ont déjà la colonne).
+3. **Import yEd-aware amélioré** : une feuille paradata qui apparaît dans N dossiers yEd génère désormais **une seule** ligne `us_table` (plus de N lignes avec suffixe `_2`/`_3` comme en 5.8.5). Le premier dossier rencontré devient l'`attivita` principale ; les dossiers secondaires sont listés dans `other_locations`. À l'**export**, N copies visuelles yEd sont émises (une par dossier), toutes partageant le même `node_uuid` canonique pour garantir l'identité round-trip.
+
+**Rétrocompatibilité** : les données produites par le Bug R B1 en 5.8.5-alpha (lignes avec suffixe `_2`/`_3`) restent lisibles sans aucune conversion automatique. La nouvelle logique s'applique aux nouveaux imports ; les lignes legacy continuent de se comporter comme avant.
+
+Prédécesseur : voir la section 5.8 (`yed-fastfix-5.8.5-alpha`) pour le comportement remplacé.
+
 ---
 
 ## Références

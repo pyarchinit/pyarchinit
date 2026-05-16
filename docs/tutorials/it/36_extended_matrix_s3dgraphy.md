@@ -308,6 +308,20 @@ Pacchetto di correzioni comportamentali sopra `5.8.3-alpha` che alza la qualità
 - **Re-import idempotente**: ri-eseguire lo stesso import salta le righe già presenti; nessun rollback per collisione UNIQUE alla seconda passata.
 - **Palette USV**: i nodi USV sono ora resi col parallelogramma blu canonico EM (prima rettangolo con bordo rosso).
 
+### 5.9 yE-F paradata multi-folder (5.9.0-alpha)
+
+Evoluzione strutturale di `yed-fastfix-5.8.5-alpha`: il trade-off del Bug R B1 (una riga `us_table` per occorrenza, con `us='D.01_2'` / `us='D.01_3'`) è stato superato. Ora una foglia paradata (DOC / Combinar / Extractor / property) condivisa fra più folder yEd produce **una sola riga** in `us_table` per label canonico, e la multi-appartenenza è preservata in un nuovo campo `other_locations`.
+
+Modifiche visibili all'utente finale:
+
+1. **Nuovo widget "Altre attività" nella Scheda US/USM**: nel tab *Periodizzazione* compare un `QListWidget` etichettato "Altre attività" — visibile **solo** quando `unita_tipo` è una tipologia paradata (`DOC`, `Combinar`, `Extractor`, `property`). L'utente può selezionare più codici attività; la selezione viene serializzata come JSON list nella nuova colonna `other_locations`.
+2. **Nuova voce di menu QGIS**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Va eseguita **una volta** su ogni DB pre-esistente per aggiungere la nuova colonna (i DB creati post-5.9 hanno già la colonna).
+3. **Import yEd-aware migliorato**: una foglia paradata che compare in N folder yEd genera **1 sola** riga `us_table` (non più N righe con suffisso `_2`/`_3` come in 5.8.5). Il primo folder incontrato diventa l'`attivita` primario; i folder secondari vengono elencati in `other_locations`. In **export** vengono emesse N copie visuali yEd (una per folder), tutte condividenti lo stesso `node_uuid` canonico per garantire la round-trip identity.
+
+**Backward compatibility**: i dati prodotti dal Bug R B1 in 5.8.5-alpha (righe con suffisso `_2`/`_3`) restano leggibili senza alcuna conversione automatica. La nuova logica si applica ai nuovi import; le righe legacy continuano a comportarsi come prima.
+
+Predecessore: vedi sezione 5.8 (`yed-fastfix-5.8.5-alpha`) per il comportamento sostituito.
+
 ---
 
 ## Riferimenti

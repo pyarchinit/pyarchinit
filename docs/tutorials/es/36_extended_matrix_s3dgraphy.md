@@ -308,6 +308,20 @@ Pack de correcciones de comportamiento sobre `5.8.3-alpha` que mejora la calidad
 - **Re-import idempotente**: volver a ejecutar el mismo import omite las filas ya presentes; sin rollback por colisión UNIQUE en la pasada repetida.
 - **Paleta USV**: los nodos USV se renderizan ahora con el paralelogramo azul canónico de EM (antes rectángulo con borde rojo).
 
+### 5.9 yE-F paradata multi-carpeta (5.9.0-alpha)
+
+Evolución estructural de `yed-fastfix-5.8.5-alpha`: el compromiso del Bug R B1 (una fila `us_table` por ocurrencia, con `us='D.01_2'` / `us='D.01_3'`) ha sido superado. Una hoja paradata (DOC / Combinar / Extractor / property) compartida entre varias carpetas yEd ahora produce **una sola fila** en `us_table` por label canónico, y la multi-pertenencia se preserva en una nueva columna `other_locations`.
+
+Cambios visibles para el usuario final:
+
+1. **Nuevo widget "Otras actividades" en la ficha US/USM**: en la pestaña *Periodizzazione* aparece un `QListWidget` etiquetado "Otras actividades" — visible **solo** cuando `unita_tipo` es una tipología paradata (`DOC`, `Combinar`, `Extractor`, `property`). El usuario puede seleccionar varios códigos de actividad; la selección se serializa como lista JSON en la nueva columna `other_locations`.
+2. **Nueva entrada de menú QGIS**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Debe ejecutarse **una vez** en cada DB preexistente para añadir la nueva columna (las DB creadas post-5.9 ya tienen la columna).
+3. **Import yEd-aware mejorado**: una hoja paradata que aparece en N carpetas yEd genera ahora **solo 1** fila `us_table` (ya no N filas con sufijo `_2`/`_3` como en 5.8.5). La primera carpeta encontrada se convierte en la `attivita` principal; las carpetas secundarias se listan en `other_locations`. En **export** se emiten N copias visuales yEd (una por carpeta), todas compartiendo el mismo `node_uuid` canónico para garantizar la identidad round-trip.
+
+**Compatibilidad hacia atrás**: los datos producidos por el Bug R B1 en 5.8.5-alpha (filas con sufijo `_2`/`_3`) siguen siendo legibles sin ninguna conversión automática. La nueva lógica se aplica a los nuevos imports; las filas legacy continúan comportándose como antes.
+
+Predecesor: véase la sección 5.8 (`yed-fastfix-5.8.5-alpha`) para el comportamiento sustituido.
+
 ---
 
 ## Referencias

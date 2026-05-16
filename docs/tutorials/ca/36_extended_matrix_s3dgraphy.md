@@ -308,6 +308,20 @@ Pack de correccions de comportament sobre `5.8.3-alpha` que millora la qualitat 
 - **Re-import idempotent**: tornar a executar el mateix import salta les files ja presents; cap rollback per col·lisió UNIQUE en la passada repetida.
 - **Paleta USV**: els nodes USV es renderitzen ara amb el paral·lelogram blau canònic d'EM (abans rectangle amb vora vermella).
 
+### 5.9 yE-F paradata multi-carpeta (5.9.0-alpha)
+
+Evolució estructural de `yed-fastfix-5.8.5-alpha`: el compromís del Bug R B1 (una fila `us_table` per ocurrència, amb `us='D.01_2'` / `us='D.01_3'`) ha estat superat. Una fulla paradata (DOC / Combinar / Extractor / property) compartida entre diverses carpetes yEd produeix ara **una sola fila** a `us_table` per label canònic, i la multi-pertinença es preserva en una nova columna `other_locations`.
+
+Canvis visibles per a l'usuari final:
+
+1. **Nou widget "Altres activitats" a la fitxa US/USM**: a la pestanya *Periodizzazione* apareix un `QListWidget` etiquetat "Altres activitats" — visible **només** quan `unita_tipo` és una tipologia paradata (`DOC`, `Combinar`, `Extractor`, `property`). L'usuari pot seleccionar diversos codis d'activitat; la selecció es serialitza com a llista JSON a la nova columna `other_locations`.
+2. **Nova entrada de menú QGIS**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Cal executar-la **una vegada** a cada DB preexistent per afegir la nova columna (les DB creades post-5.9 ja tenen la columna).
+3. **Import yEd-aware millorat**: una fulla paradata que apareix en N carpetes yEd genera ara **només 1** fila `us_table` (ja no N files amb sufix `_2`/`_3` com a 5.8.5). La primera carpeta trobada es converteix en l'`attivita` principal; les carpetes secundàries es llisten a `other_locations`. En **export** s'emeten N còpies visuals yEd (una per carpeta), totes compartint el mateix `node_uuid` canònic per garantir la identitat round-trip.
+
+**Compatibilitat enrere**: les dades produïdes pel Bug R B1 a 5.8.5-alpha (files amb sufix `_2`/`_3`) continuen sent llegibles sense cap conversió automàtica. La nova lògica s'aplica als nous imports; les files legacy continuen comportant-se com abans.
+
+Predecessor: vegeu la secció 5.8 (`yed-fastfix-5.8.5-alpha`) per al comportament substituït.
+
 ---
 
 ## Referències

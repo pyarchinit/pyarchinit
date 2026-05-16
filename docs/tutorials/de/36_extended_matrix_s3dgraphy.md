@@ -308,6 +308,20 @@ Verhaltens-Fixpack auf Basis von `5.8.3-alpha`, das die Qualität des GraphML-Re
 - **Idempotenter Re-Import**: Erneutes Ausführen desselben Imports überspringt bereits vorhandene Zeilen; kein Rollback bei UNIQUE-Kollision beim wiederholten Lauf.
 - **USV-Palette**: USV-Nodes werden jetzt mit dem EM-kanonischen blauen Parallelogramm dargestellt (vorher Rechteck mit rotem Rand).
 
+### 5.9 yE-F Mehrordner-Paradata (5.9.0-alpha)
+
+Strukturelle Weiterentwicklung von `yed-fastfix-5.8.5-alpha`: Der Trade-off von Bug R B1 (eine `us_table`-Zeile pro Vorkommen, mit `us='D.01_2'` / `us='D.01_3'`) wurde abgelöst. Ein Paradata-Leaf (DOC / Combinar / Extractor / property), das von mehreren yEd-Foldern geteilt wird, erzeugt nun **eine einzige Zeile** in `us_table` pro kanonischem Label, und die Mehrfach-Zugehörigkeit wird in einer neuen Spalte `other_locations` bewahrt.
+
+Für Endanwender sichtbare Änderungen:
+
+1. **Neues Widget „Weitere Aktivitäten" im US/USM-Formular**: Im Tab *Periodizzazione* erscheint ein `QListWidget` mit dem Label „Weitere Aktivitäten" — sichtbar **nur**, wenn `unita_tipo` eine Paradata-Tipologie ist (`DOC`, `Combinar`, `Extractor`, `property`). Der Anwender kann mehrere Activity-Codes auswählen; die Auswahl wird als JSON-Liste in der neuen Spalte `other_locations` serialisiert.
+2. **Neuer QGIS-Menüeintrag**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Muss **einmal** auf jeder bestehenden DB ausgeführt werden, um die neue Spalte hinzuzufügen (DBs, die nach 5.9 erstellt wurden, haben die Spalte bereits).
+3. **Verbesserter yEd-aware Import**: Ein Paradata-Leaf, das in N yEd-Foldern auftritt, erzeugt jetzt **nur 1** `us_table`-Zeile (keine N Zeilen mehr mit Suffix `_2`/`_3` wie in 5.8.5). Der erste angetroffene Folder wird zur primären `attivita`; sekundäre Folder werden in `other_locations` gelistet. Beim **Export** werden N visuelle yEd-Kopien erzeugt (eine pro Folder), alle mit derselben kanonischen `node_uuid`, um die Round-Trip-Identität zu garantieren.
+
+**Rückwärtskompatibilität**: Daten, die durch Bug R B1 in 5.8.5-alpha erzeugt wurden (Zeilen mit Suffix `_2`/`_3`), bleiben ohne automatische Konvertierung lesbar. Die neue Logik gilt für neue Imports; Legacy-Zeilen verhalten sich weiterhin wie zuvor.
+
+Vorgänger: siehe Abschnitt 5.8 (`yed-fastfix-5.8.5-alpha`) für das abgelöste Verhalten.
+
 ---
 
 ## Referenzen

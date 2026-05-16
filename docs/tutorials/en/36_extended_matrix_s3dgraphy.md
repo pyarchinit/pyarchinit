@@ -308,6 +308,20 @@ Behavioural fix pack on top of `5.8.3-alpha` that improves the quality of the Gr
 - **Idempotent re-import**: re-running the same import skips rows that are already present; no UNIQUE-collision rollback on the repeat pass.
 - **USV palette**: USV nodes now render with the EM canonical blue parallelogram (was rectangle with red border).
 
+### 5.9 yE-F multi-folder paradata (5.9.0-alpha)
+
+Structural evolution of `yed-fastfix-5.8.5-alpha`: the Bug R B1 trade-off (one `us_table` row per occurrence, with `us='D.01_2'` / `us='D.01_3'`) has been superseded. A paradata leaf (DOC / Combinar / Extractor / property) shared across multiple yEd folders now produces **a single row** in `us_table` per canonical label, and multi-membership is preserved in a new `other_locations` column.
+
+End-user-visible changes:
+
+1. **New "Other locations" widget in the US/USM form**: a `QListWidget` labelled "Other locations" appears in the *Periodizzazione* tab — visible **only** when `unita_tipo` is a paradata kind (`DOC`, `Combinar`, `Extractor`, `property`). The user can select multiple activity codes; the selection is serialised as a JSON list in the new `other_locations` column.
+2. **New QGIS menu item**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Must be run **once** on every pre-existing DB to add the new column (DBs created post-5.9 already have the column).
+3. **Improved yEd-aware import**: a paradata leaf that appears in N yEd folders now produces **just 1** `us_table` row (no more N rows with `_2`/`_3` suffix as in 5.8.5). The first folder encountered becomes the primary `attivita`; secondary folders are listed in `other_locations`. On **export**, N visual yEd copies are emitted (one per folder), all sharing the same canonical `node_uuid` to guarantee round-trip identity.
+
+**Backward compatibility**: data produced by Bug R B1 in 5.8.5-alpha (rows with `_2`/`_3` suffix) remain readable without any automatic conversion. The new logic applies to new imports; legacy rows continue to behave as before.
+
+Predecessor: see section 5.8 (`yed-fastfix-5.8.5-alpha`) for the superseded behaviour.
+
 ---
 
 ## References

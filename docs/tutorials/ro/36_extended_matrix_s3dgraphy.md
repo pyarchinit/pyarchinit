@@ -308,6 +308,20 @@ Pachet de corecții comportamentale peste `5.8.3-alpha` care îmbunătățește 
 - **Re-import idempotent**: re-rularea aceluiași import sare peste rândurile deja prezente; fără rollback pentru coliziune UNIQUE la pasul repetat.
 - **Paletă USV**: nodurile USV se randează acum cu paralelogramul albastru canonic EM (înainte dreptunghi cu bordură roșie).
 
+### 5.9 yE-F paradata multi-folder (5.9.0-alpha)
+
+Evoluție structurală a `yed-fastfix-5.8.5-alpha`: compromisul Bug R B1 (un rând `us_table` per apariție, cu `us='D.01_2'` / `us='D.01_3'`) a fost depășit. O frunză paradata (DOC / Combinar / Extractor / property) partajată între mai multe foldere yEd produce acum **un singur rând** în `us_table` per label canonic, iar apartenența multiplă este păstrată într-o nouă coloană `other_locations`.
+
+Modificări vizibile pentru utilizatorul final:
+
+1. **Widget nou „Alte activități" în fișa US/USM**: în tab-ul *Periodizzazione* apare un `QListWidget` etichetat „Alte activități" — vizibil **doar** când `unita_tipo` este o tipologie paradata (`DOC`, `Combinar`, `Extractor`, `property`). Utilizatorul poate selecta mai multe coduri de activitate; selecția este serializată ca listă JSON în noua coloană `other_locations`.
+2. **Element de meniu QGIS nou**: `Plugins → pyArchInit → Migrazioni → Aggiungi colonna other_locations (yE-F)`. Trebuie executat **o singură dată** pe fiecare DB preexistentă pentru a adăuga noua coloană (DB-urile create post-5.9 au deja coloana).
+3. **Import yEd-aware îmbunătățit**: o frunză paradata care apare în N foldere yEd generează acum **doar 1** rând `us_table` (nu N rânduri cu sufix `_2`/`_3` ca în 5.8.5). Primul folder întâlnit devine `attivita` principală; folderele secundare sunt listate în `other_locations`. La **export** se emit N copii vizuale yEd (una per folder), toate împărtășind același `node_uuid` canonic pentru a garanta identitatea round-trip.
+
+**Compatibilitate înapoi**: datele produse de Bug R B1 în 5.8.5-alpha (rânduri cu sufix `_2`/`_3`) rămân lizibile fără nicio conversie automată. Logica nouă se aplică noilor importuri; rândurile legacy continuă să se comporte ca înainte.
+
+Predecesor: vezi secțiunea 5.8 (`yed-fastfix-5.8.5-alpha`) pentru comportamentul înlocuit.
+
 ---
 
 ## Referințe
