@@ -5,6 +5,46 @@
 
 ---
 
+## [5.9.0.1-alpha] - 2026-05-16
+
+### Italiano
+
+**yE-F hotfix — primary `attivita` non più sovrascritta dall'ultimo folder iterato, niente più duplicato in `other_locations`.**
+
+Tag `yed-f-fix-duplicate-primary-5.9.0.1-alpha` (commit `1653363c` su branch `Stratigraph_00001`). Hotfix immediato post-5.9.0 scoperto su `Extended_Matrix_test_1.graphml` (5 occorrenze D.01 in 5 folder VA01-VA05).
+
+**Bug**: dopo un import yE-F pulito, la `attivita` primaria della riga fold finiva sovrascritta dal **last folder iterato** (es. D.01 atterrava su `attivita='VA01'` anziché `'VA02'` primo-in-doc-order), e il valore primario veniva anche **duplicato dentro `other_locations`**.
+
+**Root cause**: `_apply_yed_folder_dimensions` (chiamata dopo `_write_us_rows`) itera ogni folder ed esegue `UPDATE us_table SET <dim>=<value> WHERE node_uuid IN (...)`. Per le righe fold paradata (5 occorrenze yEd → 1 riga `us_table` → 1 `node_uuid` condiviso), l'UPDATE di ogni folder colpiva la stessa riga; vinceva l'ultima iterazione.
+
+**Fix**: quando `dim == "attivita"`, skip dei `node_uuid` paradata in `_apply_yed_folder_dimensions` — yE-F ha già scritto la primary corretta (primo folder in document order) durante l'INSERT del fold. Promosso `_PARADATA_NODEDUP_UTS` a costante module-level. Aggiunto test regressione `test_apply_yed_folder_dimensions_skips_paradata_attivita` che asserisce che `attivita` resta sul folder primo-in-doc-order e non viene duplicato in `other_locations`.
+
+**Test**: 351 → **352 sync tests passed** (+1 regression test), 35 skipped (PG offline), 0 failed. AC-2 byte-identical preservato.
+
+**Compatibilità**: fix SQL portabile (`text()` + named bind params). Funziona sia su SQLite che PostgreSQL. PG `conftest_pg.py` DDL esteso con colonna `other_locations`.
+
+**Versioning**: patch `5.9.0 → 5.9.0.1-alpha`. Predecessor: `yed-f-multifolder-5.9.0-alpha` (commit `83d82f40`).
+
+### English
+
+**yE-F hotfix — primary `attivita` no longer overwritten by the last iterated folder, no more duplicate in `other_locations`.**
+
+Tag `yed-f-fix-duplicate-primary-5.9.0.1-alpha` (commit `1653363c` on branch `Stratigraph_00001`). Immediate post-5.9.0 hotfix discovered on `Extended_Matrix_test_1.graphml` (5 D.01 occurrences in 5 folders VA01-VA05).
+
+**Bug**: after a clean yE-F import, the primary `attivita` of the fold row ended up overwritten by the **last folder iterated** (e.g. D.01 landed on `attivita='VA01'` instead of `'VA02'` first-in-doc-order), and the primary value was also **duplicated inside `other_locations`**.
+
+**Root cause**: `_apply_yed_folder_dimensions` (called after `_write_us_rows`) iterates every folder and runs `UPDATE us_table SET <dim>=<value> WHERE node_uuid IN (...)`. For paradata fold rows (5 yEd occurrences → 1 `us_table` row → 1 shared `node_uuid`), every folder's UPDATE hit the same row; the last iteration won.
+
+**Fix**: when `dim == "attivita"`, skip paradata `node_uuid`s in `_apply_yed_folder_dimensions` — yE-F has already written the correct primary (first folder in document order) during fold INSERT. Promoted `_PARADATA_NODEDUP_UTS` to module-level constant. Added regression test `test_apply_yed_folder_dimensions_skips_paradata_attivita` asserting `attivita` stays on the first-in-doc-order folder and is not duplicated in `other_locations`.
+
+**Tests**: 351 → **352 sync tests passed** (+1 regression test), 35 skipped (PG offline), 0 failed. AC-2 byte-identical preserved.
+
+**Compatibility**: portable SQL fix (`text()` + named bind params). Works on both SQLite and PostgreSQL. PG `conftest_pg.py` DDL extended with `other_locations` column.
+
+**Versioning**: patch `5.9.0 → 5.9.0.1-alpha`. Predecessor: `yed-f-multifolder-5.9.0-alpha` (commit `83d82f40`).
+
+---
+
 ## [5.9.0-alpha] - 2026-05-16
 
 ### Italiano
