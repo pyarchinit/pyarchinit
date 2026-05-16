@@ -79,6 +79,11 @@ CREATE TABLE us_table (
     ambient TEXT,
     saggio TEXT,
     quad_par TEXT,
+    periodo_iniziale TEXT,
+    fase_iniziale TEXT,
+    periodo_finale TEXT,
+    fase_finale TEXT,
+    d_stratigrafica TEXT,
     node_uuid TEXT,
     UNIQUE (sito, area, us, unita_tipo)
 )
@@ -108,6 +113,7 @@ CREATE TABLE periodizzazione_table (
     cron_finale INTEGER,
     descrizione TEXT,
     datazione_estesa TEXT,
+    cont_per INTEGER,
     UNIQUE (sito, periodo, fase)
 )
 """
@@ -191,29 +197,39 @@ def test_yed_d_end_to_end_skip_policy(tmp_path: Path, workspace_env) -> None:
             {"s": "DEMO_SITE"},
         ).scalar()
 
-    # User-feedback 2026-05-13: USV_VIRTUAL now joins us_table → 3 rows.
-    assert len(us_rows) == 3
-    assert {r[0] for r in us_rows} == {"US01", "US02", "USV101"}
-    # unita_tipo: US / US / USV — virtual leaves carry the generic
-    # USV prefix (USV_FORMAL labels like USVs/USVn would carry the
-    # 4-char prefix; the mini fixture only has USV_VIRTUAL).
+    # User-feedback 2026-05-13: USV_VIRTUAL joins us_table.
+    # User-feedback 2026-05-15: SF + VSF also join us_table (dual-write).
+    # User-feedback 2026-05-15 v2: PROPERTY 'material' also joins
+    # us_table (unita_tipo='property') per the pyarchinit convention.
+    # So fixture's 6 classified leaves produce 6 us_table rows.
+    # us values are stripped: 'US01'→'01', 'USV101'→'101',
+    # 'SF105'→'105', 'VSF107'→'107'; 'material' is a canonical
+    # PROPERTY name so it stays as-is.
+    assert len(us_rows) == 6
+    assert {r[0] for r in us_rows} == {
+        "01", "02", "101", "105", "107", "material",
+    }
     by_us = {r[0]: r[1] for r in us_rows}
-    assert by_us["US01"] == "US"
-    assert by_us["US02"] == "US"
-    assert by_us["USV101"] == "USV"
-    assert inv_count == 1
+    assert by_us["01"] == "US"
+    assert by_us["02"] == "US"
+    assert by_us["101"] == "USV"
+    assert by_us["105"] == "SF"
+    assert by_us["107"] == "VSF"
+    assert by_us["material"] == "property"
+    # SF + VSF dual-write into inventario.
+    assert inv_count == 2
     assert per_count == 2
 
     # No VA synthetic rows under SKIP.
     assert all(r[1] != "VA" for r in us_rows)
 
-    # After USV moved into sql_us, both US01 and USV101 are leaf-to-leaf
-    # edge sources whose targets also live in us_table → 2 rapporti
-    # rows written. Verify targets are LABELS (us values), not yed_ids.
+    # After USV/SF/VSF moved into sql_us, multiple leaves are valid
+    # rapporti sources whose targets also live in us_table.
+    # Verify targets are LABELS (us values), not yed_ids.
     rapporti_filled = [r for r in us_rows if r[2]]
-    assert len(rapporti_filled) == 2
+    assert len(rapporti_filled) >= 2
     # Rapporti target resolution: the JSON list must reference us
-    # labels like "US01"/"US02", NEVER yed_ids like "n0::n4::n12".
+    # labels (stripped numeric), NEVER yed_ids like "n0::n4::n12".
     for r in rapporti_filled:
         rapp_json = r[2]
         assert "::" not in rapp_json, (
@@ -255,9 +271,9 @@ def test_yed_d_end_to_end_fan_out_policy(
 
     by_us = {us: rapp for us, rapp in us_rows}
     # Both US_REAL rows touched: FAN_OUT routes folder->leaf and
-    # leaf->folder pairs through US01 and US02 respectively.
-    assert by_us.get("US01"), "US01 must have FAN_OUT rapporti"
-    assert by_us.get("US02"), "US02 must have FAN_OUT rapporti"
+    # leaf->folder pairs through US01 ('01') and US02 ('02').
+    assert by_us.get("01"), "US01 must have FAN_OUT rapporti"
+    assert by_us.get("02"), "US02 must have FAN_OUT rapporti"
     # FAN_OUT must produce strictly more rapporti routed through us_table
     # than SKIP (which produced only US01).
     filled = sum(1 for v in by_us.values() if v)
@@ -302,8 +318,9 @@ def test_yed_d_end_to_end_representative_policy(
         ))
 
     by_us = {us: rapp for us, rapp in us_rows}
-    assert by_us.get("US01"), "US01 first-member proxy must have rapporti"
-    assert by_us.get("US02"), "US02 must have rapporti to first-member VA01"
+    # us values are stripped: US01→'01', US02→'02'.
+    assert by_us.get("01"), "US01 first-member proxy must have rapporti"
+    assert by_us.get("02"), "US02 must have rapporti to first-member VA01"
 
 
 # ---------------------------------------------------------------------------
@@ -350,27 +367,26 @@ def test_yed_d_end_to_end_synthetic_policy(
     assert any("VA01" in lbl for lbl in labels)
     assert any("AR01" in lbl for lbl in labels)
 
-    # Total = 2 US_REAL + 1 USV_VIRTUAL + 2 VA synthetic = 5 rows.
-    # (USV_VIRTUAL moved into sql_us per 2026-05-13 user feedback.)
-    assert total == 5
+    # Total = 2 US_REAL + 1 USV_VIRTUAL + 1 SF + 1 VSF + 1 PROPERTY +
+    # 2 VA synthetic = 8 rows. All 4 paradata-family kinds joined
+    # sql_us per 2026-05-15 v2 user feedback (DOC/Combinar/Extractor/
+    # property unita_tipo); SF / VSF / RSF additionally dual-write
+    # into inventario_materiali (subset _DUAL_WRITE_INV_KINDS).
+    assert total == 8
 
 
 # ---------------------------------------------------------------------------
 # Test 5 — ParadataStore dispatched for paradata leaves
 # ---------------------------------------------------------------------------
 
-def test_yed_d_paradata_written_via_store(
+def test_yed_d_paradata_bucket_is_empty(
     tmp_path: Path, workspace_env,
 ) -> None:
-    """The fixture has 2 paradata leaves after the 2026-05-13 fix
-    (USV_VIRTUAL moved into sql_us): only PROPERTY ('material') and
-    VIRTUAL_FIND (VSF107) remain in paradata. `_write_paradata_via_store`
-    is invoked for each, and the count reported in parsed_drafts must
-    match.
-
-    Note: ParadataStore lacks several add_* methods (PG-D era only
-    added a few); the dispatch logs a skip for missing methods but
-    still increments the attempted counter (spec § 6 line 307).
+    """After 2026-05-15 v2 user feedback, NO label-prefix classifier
+    target routes to the paradata.graphml bucket — DOCUMENT / COMBINER
+    / EXTRACTOR / PROPERTY are now us_table records too. The dispatch
+    count is 0 and the paradata.graphml file is never created via this
+    path.
     """
     handle = _make_handle(tmp_path)
     drafts = _drafts_from_fixture()
@@ -382,9 +398,18 @@ def test_yed_d_paradata_written_via_store(
 
     assert result.errors == ()
     assert result.parsed_drafts is not None
-    # 2 paradata leaves attempted (PROPERTY + VIRTUAL_FIND);
-    # USV_VIRTUAL moved into sql_us.
-    assert result.parsed_drafts["paradata_count"] == 2
+    # paradata bucket empty after the 2026-05-15 v2 refactor.
+    assert result.parsed_drafts["paradata_count"] == 0
+
+    # The PROPERTY 'material' lands in us_table, NOT paradata.graphml.
+    with handle.engine.connect() as conn:
+        prop_row = conn.execute(
+            text("SELECT us, unita_tipo FROM us_table "
+                 "WHERE sito = :s AND unita_tipo = 'property'"),
+            {"s": "DEMO_SITE"},
+        ).first()
+    assert prop_row is not None
+    assert prop_row[0] == "material"
 
 
 # ---------------------------------------------------------------------------
@@ -420,12 +445,12 @@ def test_yed_d_dry_run_rolls_back(tmp_path: Path, workspace_env) -> None:
     # Counts that WOULD have been applied are reported in parsed_drafts.
     assert result.parsed_drafts is not None
     assert "would_apply" in result.parsed_drafts
-    # Post 2026-05-13 fix: 2 US_REAL + 1 USV_VIRTUAL = 3 us-class
-    # rows would be inserted (USV moved into sql_us). SYNTHETIC adds 2
-    # synthetic VA rows on top, but the SYNTHETIC INSERTs come from
-    # `_write_rapporti`, NOT `_write_us_rows`, so they aren't counted
-    # in `us_inserted` (kept as `rapporti_updated` semantics).
-    assert result.parsed_drafts["would_apply"]["us_inserted"] == 3
+    # Post 2026-05-15 v2: 2 US_REAL + 1 USV_VIRTUAL + 1 SF + 1 VSF +
+    # 1 PROPERTY = 6 us-class rows. All paradata-family kinds joined
+    # sql_us (DOC/Combinar/Extractor/property unita_tipo). SYNTHETIC
+    # adds 2 synthetic VA rows on top via `_write_rapporti`, not
+    # counted here.
+    assert result.parsed_drafts["would_apply"]["us_inserted"] == 6
 
 
 # ---------------------------------------------------------------------------
@@ -435,12 +460,16 @@ def test_yed_d_dry_run_rolls_back(tmp_path: Path, workspace_env) -> None:
 def test_yed_d_idempotent_on_re_run(
     tmp_path: Path, workspace_env,
 ) -> None:
-    """Running the pipeline twice against the same SQLite + sito must
-    leave the DB in the first-run state.
+    """Bug H (2026-05-15 user feedback): re-running the pipeline twice
+    against the same SQLite + sito must SKIP existing rows silently,
+    NOT trigger an atomic rollback. The first run's data stays intact
+    and the second run reports 0 new inserts but no errors.
 
-    Mechanism: the second run hits the UNIQUE (sito, area, us,
-    unita_tipo) constraint when inserting US01 again — the whole
-    transaction rolls back so we never see partial second-run data.
+    Mechanism: ``_write_us_rows`` / ``_write_inventario_rows`` /
+    ``_write_periodizzazione_rows`` each pre-load existing keys for
+    the sito and skip leaves whose dedup_key is already present.
+    Existing us_table rows are surfaced into ``uuid_map`` so
+    downstream rapporti continue to resolve.
     """
     handle = _make_handle(tmp_path)
     drafts = _drafts_from_fixture()
@@ -463,13 +492,13 @@ def test_yed_d_idempotent_on_re_run(
             text("SELECT COUNT(*) FROM periodizzazione_table"),
         ).scalar()
 
-    # Second run — must error out with UNIQUE violation, atomic.
+    # Second run — must be idempotent: no errors, no new inserts.
     second = import_yed_raw(
         handle, FIXTURE, sito="DEMO_SITE", drafts=drafts,
         policy=FolderEdgePolicy.SKIP,
     )
-    assert second.applied == 0
-    assert len(second.errors) >= 1
+    assert second.errors == ()
+    assert second.inserted == 0  # everything skipped as existing
 
     # First run's data must be intact.
     with handle.engine.connect() as conn:
@@ -527,10 +556,17 @@ def test_apply_overrides_e2e_classifier_changes_us_count(
                  "WHERE sito = :s ORDER BY us"),
             {"s": "DEMO_SITE"},
         ))
-    # Baseline (no override): 2 US_REAL + 1 USV_VIRTUAL = 3 rows.
-    # With override re-routing PROPERTY 'material' to US_REAL: 4 rows.
-    assert len(us_rows) == 4
+    # Baseline (no override): 2 US_REAL + 1 USV_VIRTUAL + 1 SF + 1 VSF
+    # + 1 PROPERTY = 6 rows (PROPERTY 'material' now lives in us_table
+    # with unita_tipo='property'). Override re-routes 'material' from
+    # property → US_REAL → still 6 rows total but the 'material' row
+    # has unita_tipo='US' instead of 'property'.
+    assert len(us_rows) == 6
     assert any(r[0] == "material" and r[1] == "US" for r in us_rows)
+    # And NOT 'property' anymore (the override took precedence).
+    assert not any(
+        r[0] == "material" and r[1] == "property" for r in us_rows
+    )
 
 
 def test_apply_overrides_e2e_folder_skip(

@@ -69,6 +69,14 @@ def _filter_by_site(graph, site_filter: Optional[str]):
       it via a `has_first_epoch` edge.
     - Edges kept iff BOTH endpoints are kept.
 
+    Bug P (2026-05-15 v2 user feedback): row-paradata nodes are now
+    StratigraphicNode-class instances (with attributes['unita_tipo']
+    distinguishing DOC/Combinar/Extractor/property), so the existing
+    StratigraphicNode branch below handles them naturally — no
+    paradata-specific filter logic needed here. Site-level paradata
+    (Author/License/Embargo) is handled by ``_inject_isolated_paradata_nodes``
+    via the ``_PARADATA_INJECT_TYPES`` snapshot/inject path.
+
     `site_filter=None` returns the original graph unchanged.
     """
     if site_filter is None:
@@ -86,7 +94,11 @@ def _filter_by_site(graph, site_filter: Optional[str]):
         description=getattr(graph, "description", ""),
     )
 
-    # Pass 1: keep stratigraphic nodes matching site_filter
+    # Pass 1: keep stratigraphic nodes matching site_filter.
+    # Bug P (2026-05-15 v2): row-paradata are StratigraphicNode subclasses
+    # now (with attributes['unita_tipo'] set), so they're handled by the
+    # ``isinstance(n, StratigraphicNode)`` check below — no separate
+    # branch needed.
     kept_strat_ids = set()
     for n in graph.nodes:
         if isinstance(n, StratigraphicNode):
@@ -406,6 +418,15 @@ _VISUAL_BY_UNITA_TIPO = {
     "USVn": {"fill": "#000000", "border": "#31792D", "width": "3.0",
              "style": "line", "shape": "hexagon",
              "text_color": "#FFFFFF", "font_style": "plain"},
+    # Bug Q (2026-05-15 user feedback): pyarchinit's UI uses ``USV``
+    # as the canonical unita_tipo for generic virtual SU (the user
+    # form's combobox value, not the EM-internal ``USVs``/``USVn``
+    # distinction). Render with the same EM canonical shape as USVs
+    # (blue parallelogram, black fill, white text) so the round-trip
+    # to yEd matches the EM 1.5 palette.
+    "USV":  {"fill": "#000000", "border": "#248FE7", "width": "3.0",
+             "style": "line", "shape": "parallelogram",
+             "text_color": "#FFFFFF", "font_style": "plain"},
     # Special Find (yellow border)
     "SF":   {"fill": "#FFFFFF", "border": "#D8BD30", "width": "3.0",
              "style": "line", "shape": "octagon"},
@@ -525,12 +546,26 @@ def _resolve_display_label(unita_tipo: str, us_number: str,
         return f"{unita_tipo}{n}"
     if unita_tipo == "CON":
         return f"CON{n}"
+    # Bug R (2026-05-15 user feedback): paradata kinds are no longer
+    # dedup'd at import — every yEd occurrence is its own row with a
+    # synthesised us value (e.g. ``material_2``, ``01_3``). The
+    # original label (``material``, ``D.01``, ``C.02``, ``E.005``)
+    # lives in ``d_stratigrafica`` (passed in as ``descrizione``).
+    # Prefer that for display so the rendered NodeLabel matches the
+    # yEd-authored label, regardless of the us suffix.
     if unita_tipo in ("DOC", "EXT", "Extractor"):
-        return f"D.{n}"
+        return descrizione.strip() or f"D.{n}"
     if unita_tipo == "Combinar":
-        return f"C.{n}"
+        return descrizione.strip() or f"C.{n}"
     if unita_tipo == "property":
-        return descrizione.strip() or f"property{n}"
+        if descrizione.strip():
+            return descrizione.strip()
+        # Legacy fallback (no descrizione): when imported from yEd
+        # before Bug R, property NAME lived in us_table.us. Honour
+        # that path for pre-Bug-R DBs.
+        if n and not n.isdigit():
+            return n
+        return f"property{n}"
     return f"{unita_tipo}{n}"
 
 
@@ -1099,6 +1134,14 @@ def _embed_pyarchinit_data_keys(graph, xml_path: Path) -> None:
 _PARADATA_INJECT_TYPES: frozenset[str] = frozenset({
     "AuthorNode", "LicenseNode", "EmbargoNode",
 })
+# Bug P (2026-05-15 v2 user feedback): DO NOT inject row-paradata
+# (DocumentNode / CombinerNode / ExtractorNode / PropertyNode) via
+# this post-processor — that appends them OUTSIDE the swimlane with
+# no edges, which is the wrong UX for us_table records. Instead the
+# projector creates them as StratigraphicNode-class instances with
+# ``attributes['unita_tipo']`` set, so the GraphMLExporter renders
+# them inside the swimlane like USV/SF/VSF and the rapporti edges
+# get attached via the normal _enrich_into path.
 
 
 def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
@@ -1165,6 +1208,12 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
             attrname_to_kid["paradata_attrs"] = k.get("id")
         elif attr_name == "pyarchinit.sito":
             attrname_to_kid["sito"] = k.get("id")
+        elif attr_name == "pyarchinit.us":
+            attrname_to_kid["us"] = k.get("id")
+        elif attr_name == "pyarchinit.unita_tipo":
+            attrname_to_kid["unita_tipo"] = k.get("id")
+        elif attr_name == "pyarchinit.area":
+            attrname_to_kid["area"] = k.get("id")
 
     # If essential keys are missing (shouldn't happen — they're
     # registered by GraphMLExporter + _embed_pyarchinit_data_keys),
@@ -1188,10 +1237,17 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
 
     # Per-node-type yEd colour palette (matches em_visual_rules
     # paradata category by default — kept simple here).
+    # Bug O (2026-05-15 user feedback): added row-paradata colours
+    # roughly matching the EM 1.5 BPMN palette so they're visually
+    # distinguishable in yEd after round-trip.
     type_colours = {
-        "AuthorNode": "#FFCCCC",
-        "LicenseNode": "#CCFFCC",
-        "EmbargoNode": "#CCCCFF",
+        "AuthorNode":    "#FFCCCC",
+        "LicenseNode":   "#CCFFCC",
+        "EmbargoNode":   "#CCCCFF",
+        "DocumentNode":  "#FFFFCC",  # pale yellow — BPMN data object
+        "CombinerNode":  "#FFE4B5",  # moccasin — combiner
+        "ExtractorNode": "#E6E6FA",  # lavender — extractor
+        "PropertyNode":  "#F0E68C",  # khaki — BPMN annotation
     }
 
     import json as _json
@@ -1256,6 +1312,22 @@ def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
                 d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
                 d.set("key", attrname_to_kid["sito"])
                 d.text = str(sito)
+
+        # Bug O (2026-05-15 user feedback): row-paradata classes need
+        # ``pyarchinit.us``, ``pyarchinit.unita_tipo``, ``pyarchinit.area``
+        # data keys so re-import via GraphProjector picks them up by
+        # composite (us, unita_tipo) key. Author/License/Embargo
+        # nodes don't carry these (they're site-level metadata, not
+        # us_table records), so we only emit when the attrs are
+        # present.
+        attrs = getattr(node, "attributes", None) or {}
+        for extra_key in ("us", "unita_tipo", "area"):
+            kid = attrname_to_kid.get(extra_key)
+            val = attrs.get(extra_key)
+            if kid and val not in (None, ""):
+                d = etree.SubElement(n_el, f"{{{NS_GRAPHML}}}data")
+                d.set("key", kid)
+                d.text = str(val)
 
         injected += 1
 

@@ -73,6 +73,7 @@ def test_cli_dry_run_subprocess_on_mini_fixture(tmp_path):
             sito TEXT, area TEXT DEFAULT '1', us TEXT,
             unita_tipo TEXT, node_uuid TEXT,
             rapporti TEXT, periodo_iniziale TEXT, fase_iniziale TEXT,
+            periodo_finale TEXT, fase_finale TEXT,
             d_stratigrafica TEXT, d_interpretativa TEXT,
             attivita TEXT, struttura TEXT, settore TEXT,
             ambient TEXT, saggio TEXT, quad_par TEXT, documentazione TEXT,
@@ -89,7 +90,8 @@ def test_cli_dry_run_subprocess_on_mini_fixture(tmp_path):
             id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
             sito TEXT, periodo TEXT, fase TEXT,
             datazione_iniziale INTEGER, datazione_finale INTEGER,
-            datazione_estesa TEXT, descrizione TEXT, node_uuid TEXT
+            datazione_estesa TEXT, descrizione TEXT, node_uuid TEXT,
+            cont_per INTEGER
         );
     """)
     conn.commit()

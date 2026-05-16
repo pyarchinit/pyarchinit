@@ -149,3 +149,47 @@ def test_filter_by_site_returns_unfiltered_when_none():
     out = _filter_by_site(g, None)
     assert len(out.nodes) == len(g.nodes)
     assert len(out.edges) == len(g.edges)
+
+
+def test_filter_by_site_keeps_row_level_paradata_nodes():
+    """Bug P (2026-05-15 v2): row-paradata are StratigraphicNode-class
+    instances now (with ``attributes['unita_tipo']`` set to
+    DOC/Combinar/Extractor/property). They flow through the same
+    ``isinstance(StratigraphicNode)`` filter branch as US/USV/SF/VSF
+    — no row-paradata-specific filter is needed.
+
+    The site filter must keep all 5 us_table records when sito
+    matches, regardless of unita_tipo semantic value, and drop the
+    one with a different sito.
+    """
+    from s3dgraphy import Graph
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    from modules.s3dgraphy.sync.graphml_writer import _filter_by_site
+
+    g = Graph(graph_id="t")
+    # Row-paradata: StratigraphicUnit class + unita_tipo attribute.
+    def _node(node_id, name, sito, unita_tipo):
+        n = StratigraphicUnit(node_id=node_id, name=name, description="")
+        n.attributes["sito"] = sito
+        n.attributes["unita_tipo"] = unita_tipo
+        return n
+
+    nodes = [
+        _node("us1",  "01",       "S", "US"),
+        _node("doc1", "01",       "S", "DOC"),
+        _node("cmb1", "01",       "S", "Combinar"),
+        _node("ext1", "01.03",    "S", "Extractor"),
+        _node("prop1","material", "S", "property"),
+        # Different sito — must NOT survive.
+        _node("doc2", "02",       "OTHER", "DOC"),
+    ]
+    for n in nodes:
+        g.add_node(n)
+
+    out = _filter_by_site(g, "S")
+    kept = {n.node_id for n in out.nodes}
+    must_keep = {"us1", "doc1", "cmb1", "ext1", "prop1"}
+    assert must_keep <= kept, (
+        f"missing some: expected superset of {must_keep}, got {kept}"
+    )
+    assert "doc2" not in kept

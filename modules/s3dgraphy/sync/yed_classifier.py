@@ -26,7 +26,7 @@ from pathlib import Path
 
 
 class ClassificationKind(str, Enum):
-    """Leaf classification destinations (13 values since s3dgraphy 0.1.42)."""
+    """Leaf classification destinations (14 values since EXTRACTOR added)."""
     US_REAL          = "us_real"
     US_MASONRY       = "us_masonry"
     US_DOCUMENTARY   = "us_documentary"
@@ -42,6 +42,7 @@ class ClassificationKind(str, Enum):
     REUSED_SPECIAL_FIND = "reused_special_find"
     DOCUMENT         = "document"
     COMBINER         = "combiner"
+    EXTRACTOR        = "extractor"
     PROPERTY         = "property"
     UNKNOWN          = "unknown"
     SKIP             = "skip"
@@ -64,6 +65,7 @@ DEFAULT_CLASSIFIER_RULES: list[tuple[re.Pattern, ClassificationKind]] = [
     (re.compile(r"^SF\d+"),                         ClassificationKind.SPECIAL_FIND),
     (re.compile(r"^D\.\d+"),                        ClassificationKind.DOCUMENT),
     (re.compile(r"^C\.\d+"),                        ClassificationKind.COMBINER),
+    (re.compile(r"^E\.\d+"),                        ClassificationKind.EXTRACTOR),
     (re.compile(
         r"^(material|position|width|length|height|heigth|type|color|weight|proportion|size)$",
         re.I,
@@ -146,12 +148,40 @@ def classify_leaves(
                     label = txt
                     break
 
+            # Bug I (2026-05-15 user feedback): mirror the s3dgraphy
+            # importer's discrimination logic so D.NN (BPMN data
+            # object) → DocumentNode and D.NN.MM (no BPMN type) →
+            # ExtractorNode. Without this, both labels match the same
+            # ``D\.\d+`` regex → both classified as DOCUMENT → the
+            # us_table dedup collapses them into ONE row → edges from
+            # extractors back to their parent document become self-
+            # loops and get dropped. The check inspects:
+            #   * ``<y:Property name="...dataObjectType"
+            #       value="DATA_OBJECT_TYPE_PLAIN"/>`` → DocumentNode
+            #   * ``<y:Property name="...type"
+            #       value="ARTIFACT_TYPE_ANNOTATION"/>`` → PropertyNode
+            # These take precedence over the label-prefix rules.
+            bpmn_kind = _detect_bpmn_kind(elem, Y_NS)
+
             # Run rules in order; first match wins
             kind = ClassificationKind.UNKNOWN
             for pattern, target_kind in active_rules:
                 if pattern.match(label):
                     kind = target_kind
                     break
+
+            # BPMN signal overrides label-based fallback for paradata:
+            # mirrors s3dgraphy's import_graphml.py dispatch order
+            # (document → property → extractor → combiner).
+            if bpmn_kind is not None:
+                kind = bpmn_kind
+            elif kind == ClassificationKind.DOCUMENT and "." in label[2:]:
+                # Label-only fallback: ``D.NN.MM`` (multi-level path
+                # after the alphabetic prefix) is an Extractor in the
+                # EM convention, NOT a Document. The DOCUMENT regex
+                # ``^D\.\d+`` only matched the prefix — the second dot
+                # tells us this is hierarchical.
+                kind = ClassificationKind.EXTRACTOR
 
             result.append(ClassifiedNode(
                 yed_id=yed_id,
@@ -165,3 +195,28 @@ def classify_leaves(
         return []
 
     return result
+
+
+def _detect_bpmn_kind(node_element, y_ns: str):
+    """Read yEd BPMN ``<y:Property>`` markers to discriminate paradata
+    flavors that share the same label prefix.
+
+    Returns ``ClassificationKind.DOCUMENT`` if the node carries the
+    BPMN data-object property; ``ClassificationKind.PROPERTY`` if it
+    carries the BPMN annotation property; ``None`` otherwise (caller
+    falls back to label-prefix rules).
+
+    Used by ``classify_leaves`` to mirror s3dgraphy's importer
+    (``import_graphml.py:1718-1799``) so the round-trip through
+    pyArchInit doesn't lose the Document/Extractor distinction.
+    """
+    for prop in node_element.iter(f"{y_ns}Property"):
+        name = prop.attrib.get("name", "")
+        value = prop.attrib.get("value", "")
+        if (name.endswith("dataObjectType")
+                and value == "DATA_OBJECT_TYPE_PLAIN"):
+            return ClassificationKind.DOCUMENT
+        if (name.endswith(".type")
+                and value == "ARTIFACT_TYPE_ANNOTATION"):
+            return ClassificationKind.PROPERTY
+    return None

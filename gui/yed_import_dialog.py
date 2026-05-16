@@ -175,6 +175,7 @@ def _kind_choices() -> list[ClassificationKind]:
         ClassificationKind.REUSED_SPECIAL_FIND,
         ClassificationKind.DOCUMENT,
         ClassificationKind.COMBINER,
+        ClassificationKind.EXTRACTOR,
         ClassificationKind.PROPERTY,
         ClassificationKind.UNKNOWN,
         ClassificationKind.SKIP,

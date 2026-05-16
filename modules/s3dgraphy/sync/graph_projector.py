@@ -34,6 +34,107 @@ __all__ = [
 ]
 
 
+# Bug K (2026-05-15 user feedback): map us_table.unita_tipo → s3dgraphy
+# node class. Used to disambiguate (name, unita_tipo) collisions in
+# ``_propagate_node_uuid_and_us`` and to create-on-demand any paradata
+# node that the pyarchinit_importer bridge's name-aliasing collapsed.
+#
+# Stratigraphic-family rows (US/USM/USD/USV/USVs/USVn/USVc/SF/VSF/RSF)
+# stay as the StratigraphicNode subclass the bridge already produced —
+# the bridge picks the right subclass via ``get_stratigraphic_node_class``
+# from the mapping config. We never need to CREATE one here because the
+# bridge always emits at least one stratigraphic node per name (the
+# first-encountered row wins via ``_find_node_by_name``).
+_PARADATA_UNITA_TIPO_TO_CLASS_PATH: dict[str, tuple[str, str]] = {
+    "DOC":       ("s3dgraphy.nodes.document_node",  "DocumentNode"),
+    "Combinar":  ("s3dgraphy.nodes.combiner_node",  "CombinerNode"),
+    "Extractor": ("s3dgraphy.nodes.extractor_node", "ExtractorNode"),
+    "property":  ("s3dgraphy.nodes.property_node",  "PropertyNode"),
+}
+
+
+def _create_paradata_node_for_unita_tipo(
+    unita_tipo: str,
+    name: str,
+    node_uuid: str,
+):
+    """Instantiate a StratigraphicUnit-class node for a row-paradata
+    record (DOC / Combinar / Extractor / property).
+
+    Bug P (2026-05-15 v2 user feedback): row-paradata are us_table
+    records — they must be rendered IN the swimlane alongside US/USV/
+    SF/VSF, with their rapporti edges. The s3dgraphy GraphMLExporter
+    achieves this for StratigraphicNode subclasses; isolated
+    DocumentNode/CombinerNode/ExtractorNode/PropertyNode get dropped
+    (or appended outside the swimlane via _inject_isolated_paradata_nodes,
+    which is the wrong UX for row records).
+
+    We return a StratigraphicUnit instance and rely on
+    ``attributes['unita_tipo']`` to drive per-row visual style in the
+    writer (it dispatches BPMN shape / colour by unita_tipo value:
+    ``DOC`` → data-object, ``property`` → annotation, etc.). The
+    Python class is the swimlane-rendering target; the unita_tipo
+    attr carries the EM semantic identity.
+
+    Returns ``None`` for ``unita_tipo`` values that aren't row-paradata
+    (callers continue with their own creation path).
+    """
+    if unita_tipo not in _PARADATA_UNITA_TIPO_TO_CLASS_PATH:
+        return None
+    try:
+        from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    except Exception:
+        return None
+    try:
+        node = StratigraphicUnit(
+            node_id=str(node_uuid),
+            name=str(name),
+            description="",
+        )
+        # Stash the EM-semantic unita_tipo so the writer renders the
+        # right BPMN shape; downstream consumers (round-trip importer,
+        # CIDOC mapper) read this attribute, not the Python class.
+        if not hasattr(node, "attributes") or node.attributes is None:
+            node.attributes = {}
+        node.attributes["unita_tipo"] = str(unita_tipo)
+        return node
+    except Exception:
+        return None
+
+
+def _create_stratigraphic_node_for_unita_tipo(
+    unita_tipo: str,
+    name: str,
+    node_uuid: str,
+):
+    """Instantiate the right s3dgraphy stratigraphic subclass for
+    ``unita_tipo``. Used by the projector to back-fill stratigraphic
+    rows whose StratigraphicUnit placeholder was claimed by a
+    paradata-flavored row earlier in the iteration (same name).
+
+    Falls back to ``StratigraphicNode`` for unknown types.
+    """
+    try:
+        from s3dgraphy.utils.utils import get_stratigraphic_node_class
+    except Exception:
+        return None
+    try:
+        node_class = get_stratigraphic_node_class(unita_tipo)
+        return node_class(
+            node_id=str(node_uuid),
+            name=str(name),
+            description="",
+        )
+    except Exception:
+        return None
+
+
+# Reverse of _PARADATA_UNITA_TIPO_TO_CLASS_PATH for index building.
+_PARADATA_CLASS_TO_UNITA_TIPO: dict[str, str] = {
+    cn: ut for ut, (_, cn) in _PARADATA_UNITA_TIPO_TO_CLASS_PATH.items()
+}
+
+
 class ProjectionError(GraphSyncError):
     """Read-side failure during GraphProjector.populate_graph()."""
 
@@ -251,22 +352,14 @@ class GraphProjector:
             except Exception:
                 pass
 
-        try:
-            self._enrich_into(graph, db_path, sito_filter=sito)
-        except Exception as e:
-            raise ProjectionError(
-                f"Enrichment failed for sito={sito!r}: {e}") from e
-
-        # Stage 2b: propagate node_uuid, us, and the remaining mapped
-        # columns from the DB so the GraphIngestor can do its
-        # `WHERE node_uuid = ?` round-trip. The upstream
-        # `_enrich_pyarchinit_graph` only sets 4 attributes
-        # (sito/area/unita_tipo/d_stratigrafica) — AI04 needs the full
-        # MAPPED_COLUMNS set on each StratigraphicUnit.
-        # AI06 D.2: also try in non-strict mode (best-effort) so the
-        # GraphML round-trip can recover node_uuid via embedded data
-        # keys. Pre-migration fixtures without the node_uuid column
-        # silently skip.
+        # Bug N (2026-05-15 user feedback): run _propagate_node_uuid_and_us
+        # BEFORE _enrich_into. The propagation pass creates the right
+        # paradata classes (DocumentNode / CombinerNode / ExtractorNode
+        # / PropertyNode) for us_table rows that the bridge collapsed
+        # under a single StratigraphicUnit. Without this reorder,
+        # _enrich_into adds rapporti edges referencing the bridge's
+        # placeholder uuids, which the propagation pass then aliases
+        # to wrong-class nodes (US→document with overlies, etc.).
         if strict_schema:
             try:
                 self._propagate_node_uuid_and_us(graph, db_path, sito)
@@ -280,6 +373,12 @@ class GraphProjector:
                 # Defensive — AC-2 baseline fixtures may lack the
                 # node_uuid column. Best-effort only; export proceeds.
                 pass
+
+        try:
+            self._enrich_into(graph, db_path, sito_filter=sito)
+        except Exception as e:
+            raise ProjectionError(
+                f"Enrichment failed for sito={sito!r}: {e}") from e
 
         # Filter post-enrichment: keep only nodes whose attributes['sito']
         # match (defence in depth — _enrich already filters us_table rows
@@ -388,13 +487,32 @@ class GraphProjector:
         within the requested sito. Idempotent: re-running yields the
         same attribute values.
         """
-        # Build a name -> node index over the importer-emitted strat nodes.
-        strat_by_name = {}
+        # Bug K (2026-05-15 user feedback): same ``us`` value can appear
+        # across DIFFERENT unita_tipo (e.g. us='01' with US, DOC,
+        # Combinar — all valid simultaneous records per the UNIQUE
+        # (sito, area, us, unita_tipo) constraint). The pyarchinit
+        # bridge's ``_find_node_by_name`` collapses them to ONE node
+        # because it doesn't disambiguate by unita_tipo. We compensate
+        # here by:
+        #   1. Building a composite index ``(name, unita_tipo) → node``
+        #      so we can look up by the right tuple. Stratigraphic-
+        #      family nodes are claimed by the first matching row; we
+        #      keep a ``__STRAT__`` slot per name to support that.
+        #   2. Creating on-the-fly DocumentNode / CombinerNode /
+        #      ExtractorNode / PropertyNode for paradata rows whose
+        #      node the bridge collapsed — otherwise these rows are
+        #      silently dropped on re-export.
+        nodes_by_key: dict[tuple[str, str], object] = {}
         for n in graph.nodes:
             cls = type(n).__name__
+            name = str(getattr(n, "name", ""))
+            paradata_ut = _PARADATA_CLASS_TO_UNITA_TIPO.get(cls)
+            if paradata_ut is not None:
+                nodes_by_key[(name, paradata_ut)] = n
+                continue
             if cls.startswith("Stratigraphic") or cls == "USNode":
-                strat_by_name[str(getattr(n, "name", ""))] = n
-        if not strat_by_name:
+                nodes_by_key[(name, "__STRAT__")] = n
+        if not nodes_by_key:
             return  # nothing to propagate
 
         handle = _resolve_db_handle(db_path)
@@ -434,9 +552,64 @@ class GraphProjector:
              d_interp, attivita, struttura,
              settore, ambient, saggio, quad_par, documentazione) in rows:
             us_name = str(us_val) if us_val is not None else None
-            if not us_name or us_name not in strat_by_name:
+            if not us_name:
                 continue
-            node = strat_by_name[us_name]
+            ut_str = str(unita_tipo) if unita_tipo is not None else ""
+            node = None
+            # Direct hit by composite key (paradata that the bridge
+            # correctly classified OR a stratigraphic node already
+            # claimed by a prior row of the same unita_tipo).
+            if ut_str:
+                node = nodes_by_key.get((us_name, ut_str))
+            # Stratigraphic-family row: try to claim the bridge's
+            # generic StratigraphicUnit for this name; if it's already
+            # been claimed (or replaced) by an earlier paradata row
+            # with the same name, CREATE a fresh stratigraphic-class
+            # node so the US/USM/SF/... row doesn't get silently
+            # dropped. The bridge collapses by name only and can be
+            # outpaced by paradata rows that appear FIRST in DB rowid
+            # order (e.g. yEd document order interleaves US01 and
+            # DOC.01 — DOC.01 might claim the bridge's '01' placeholder
+            # before US01 row is iterated).
+            if node is None and ut_str in (
+                "US", "USM", "USD", "USV", "USVs", "USVn", "USVc",
+                "SF", "VSF", "RSF",
+            ):
+                node = nodes_by_key.pop((us_name, "__STRAT__"), None)
+                if node is None:
+                    node = _create_stratigraphic_node_for_unita_tipo(
+                        ut_str, us_name, node_uuid or us_name,
+                    )
+                    if node is not None:
+                        try:
+                            graph.add_node(node)
+                        except Exception:
+                            pass
+                if node is not None:
+                    nodes_by_key[(us_name, ut_str)] = node
+            # Paradata row (DOC / Combinar / Extractor / property):
+            # ALWAYS create a fresh node of the right class. Don't
+            # reuse the bridge's StratigraphicUnit uuid — that would
+            # silently aliase edges added by ``_enrich_into`` (which
+            # ran before this function) to the new paradata class,
+            # producing semantically-invalid edges (e.g. ``US →
+            # document`` with ``overlies``). Bug N (2026-05-15 user
+            # feedback): keep the placeholder alongside; the orphan
+            # cleanup below removes it after all rows have had a
+            # chance to claim it.
+            if node is None and ut_str in _PARADATA_UNITA_TIPO_TO_CLASS_PATH:
+                fresh_uuid = node_uuid or f"para_{us_name}_{ut_str}"
+                node = _create_paradata_node_for_unita_tipo(
+                    ut_str, us_name, fresh_uuid,
+                )
+                if node is not None:
+                    try:
+                        graph.add_node(node)
+                    except Exception:
+                        pass
+                    nodes_by_key[(us_name, ut_str)] = node
+            if node is None:
+                continue
             attrs = node.attributes
             # Always set node_uuid + us (these are the lookup keys).
             if node_uuid is not None:
@@ -487,6 +660,32 @@ class GraphProjector:
             if dat_value:
                 attrs["datazione_estesa"] = dat_value
 
+        # Bug N cleanup (2026-05-15 user feedback): the bridge always
+        # emits a StratigraphicUnit per unique us_table name, but for
+        # paradata-only names (e.g. ``01.03`` exists only as an
+        # ExtractorNode row) my fix above creates the right paradata
+        # class alongside. That leaves the bridge's StratigraphicUnit
+        # as an orphan — never claimed by any stratigraphic-family
+        # row.
+        #
+        # ONLY remove orphans that are DUPLICATES of paradata nodes we
+        # created for the same name; bridge nodes that no row of the
+        # current sito touched (e.g. cross-sito rows the bridge picked
+        # up via its global SELECT) stay alone in the graph and are
+        # filtered out later by ``_filter_by_site``. This avoids
+        # nuking the toponym test's fixture (which has rows for a
+        # different sito than the one we're projecting).
+        paradata_names = {
+            name for (name, ut) in nodes_by_key
+            if ut in _PARADATA_UNITA_TIPO_TO_CLASS_PATH
+        }
+        for (name, ut), n in list(nodes_by_key.items()):
+            if ut == "__STRAT__" and name in paradata_names:
+                try:
+                    graph.nodes.remove(n)
+                except (ValueError, AttributeError):
+                    pass
+
     def _enrich_into(self, graph, db_path, sito_filter=None):
         """Phase 2 / Strategy A — full-class implementation.
 
@@ -523,19 +722,47 @@ class GraphProjector:
             _EPOCH_ROW_PALETTE,
         )
 
-        # Build a name → StratigraphicNode index over the existing
-        # importer-emitted nodes; rapporti reference US by their numeric
-        # name, not by the importer-generated UUIDs.
-        strat_by_name = {}
+        # Bug N (2026-05-15 user feedback): build TWO indexes:
+        #   - ``nodes_by_us_ut``: keyed by (name, unita_tipo) for exact
+        #     source lookup per us_table row. The unita_tipo is derived
+        #     from the node class via _PARADATA_CLASS_TO_UNITA_TIPO,
+        #     or from ``node.attributes['unita_tipo']`` for the
+        #     stratigraphic family (set by the prior
+        #     _propagate_node_uuid_and_us pass).
+        #   - ``nodes_by_name``: keyed by name, mapping to a list of
+        #     candidate nodes for target-side lookup (rapporti targets
+        #     are unita_tipo-less in the JSON tuple). The resolver
+        #     prefers same-family-as-source first, then any match.
+        nodes_by_us_ut: dict[tuple[str, str], object] = {}
+        nodes_by_name: dict[str, list] = {}
         for n in graph.nodes:
-            # Importer emits `name = str(us_number)` for stratigraphic
-            # rows. Skip PropertyNodes (they have a name like
-            # "Interpretation" rather than the US id).
             nclass = type(n).__name__
+            name = str(getattr(n, "name", ""))
+            if not name:
+                continue
+            paradata_ut = _PARADATA_CLASS_TO_UNITA_TIPO.get(nclass)
+            if paradata_ut is not None:
+                nodes_by_us_ut[(name, paradata_ut)] = n
+                nodes_by_name.setdefault(name, []).append(n)
+                continue
             if nclass.startswith("Stratigraphic") or nclass == "USNode":
-                strat_by_name[str(n.name)] = n
+                attrs = getattr(n, "attributes", None) or {}
+                ut = attrs.get("unita_tipo") or "US"
+                nodes_by_us_ut[(name, ut)] = n
+                nodes_by_name.setdefault(name, []).append(n)
 
-        if not strat_by_name:
+        # Keep the legacy alias used by the has_first_epoch logic
+        # below — it just needs ANY stratigraphic node per name (epoch
+        # edges aren't unita_tipo-discriminated).
+        strat_by_name: dict[str, object] = {}
+        for name, candidates in nodes_by_name.items():
+            for c in candidates:
+                ccls = type(c).__name__
+                if ccls.startswith("Stratigraphic") or ccls == "USNode":
+                    strat_by_name[name] = c
+                    break
+
+        if not nodes_by_us_ut:
             return  # nothing to enrich
 
         try:
@@ -658,9 +885,22 @@ class GraphProjector:
             for (us_val, sito, area, unita_tipo, periodo_ini, fase_ini,
                  rapporti_raw, d_stratigrafica) in rows:
                 us_name = str(us_val) if us_val is not None else None
-                if not us_name or us_name not in strat_by_name:
+                if not us_name:
                     continue
-                us_node = strat_by_name[us_name]
+                # Bug N composite-key source lookup: each us_table row has
+                # its own (us, unita_tipo) tuple → resolve the EXACT node
+                # of the right class (StratigraphicUnit for US/USM/...,
+                # DocumentNode for DOC, CombinerNode for Combinar,
+                # ExtractorNode for Extractor, PropertyNode for property).
+                ut_str = str(unita_tipo) if unita_tipo is not None else "US"
+                us_node = nodes_by_us_ut.get((us_name, ut_str))
+                if us_node is None:
+                    # Defensive fallback to name-only stratigraphic
+                    # lookup (handles legacy fixtures without paradata
+                    # rows where the bridge already produced everything).
+                    us_node = strat_by_name.get(us_name)
+                if us_node is None:
+                    continue
 
                 # Propagate identity attributes so site/area filters work
                 # and so the post-processor can drive per-type styling.
@@ -719,7 +959,35 @@ class GraphProjector:
                     rel_raw = str(rapporto[0]).strip()
                     rel_type_named = rel_raw.lower()
                     target_us = str(rapporto[1]).strip()
-                    target_node = strat_by_name.get(target_us)
+                    # Bug P (2026-05-15 v2): all row records are
+                    # StratigraphicNode-class now; family is
+                    # discriminated by ``attributes['unita_tipo']``:
+                    #   - canonical stratigraphic (US/USM/USD/USV*/SF/VSF/RSF)
+                    #   - row-paradata (DOC/Combinar/Extractor/property)
+                    # Same-family preference picks the right target
+                    # when multiple us_table rows share a name.
+                    _PARADATA_UTS: frozenset[str] = frozenset({
+                        "DOC", "Combinar", "Extractor", "property",
+                    })
+                    def _ut_family(ut: str) -> str:
+                        return "paradata" if ut in _PARADATA_UTS else "strat"
+                    src_attrs = getattr(us_node, "attributes", None) or {}
+                    src_family = _ut_family(src_attrs.get("unita_tipo") or "US")
+                    candidates = nodes_by_name.get(target_us, [])
+                    target_node = None
+                    if candidates:
+                        # 1st pass: same unita_tipo family.
+                        for c in candidates:
+                            c_attrs = getattr(c, "attributes", None) or {}
+                            c_family = _ut_family(
+                                c_attrs.get("unita_tipo") or "US")
+                            if c_family == src_family:
+                                target_node = c
+                                break
+                        # 2nd pass: cross-family fallback (rare —
+                        # e.g. US → property links).
+                        if target_node is None:
+                            target_node = candidates[0]
                     if target_node is None:
                         continue
 

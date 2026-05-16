@@ -65,6 +65,11 @@ CREATE TABLE us_table (
     ambient TEXT,
     saggio TEXT,
     quad_par TEXT,
+    periodo_iniziale TEXT,
+    fase_iniziale TEXT,
+    periodo_finale TEXT,
+    fase_finale TEXT,
+    d_stratigrafica TEXT,
     node_uuid TEXT,
     UNIQUE (sito, area, us, unita_tipo)
 )
@@ -94,6 +99,7 @@ CREATE TABLE periodizzazione_table (
     cron_finale INTEGER,
     descrizione TEXT,
     datazione_estesa TEXT,
+    cont_per INTEGER,
     UNIQUE (sito, periodo, fase)
 )
 """
@@ -147,10 +153,16 @@ def _folder(yed_id: str, label: str, *,
 def test_classify_destination_splits_correctly() -> None:
     """Mixed kinds split into sql_us / sql_inv / paradata / skipped.
 
-    User-feedback 2026-05-13: virtual stratigraphic units (USV*) are
-    "unità tipo" and belong to us_table, NOT paradata. The pipeline's
-    destination map was corrected to route USV_VIRTUAL + USV_FORMAL
-    into the sql_us bucket alongside US_REAL / US_MASONRY / US_DOCUMENTARY.
+    User-feedback 2026-05-15 (yed-fastfix v2): EVERY pyarchinit
+    archaeological-record kind goes to us_table — including the
+    paradata-family DOCUMENT / COMBINER / EXTRACTOR / PROPERTY (with
+    unita_tipo='DOC' / 'Combinar' / 'Extractor' / 'property' per the
+    pyarchinit convention verified against ``pyarchinit_db.sqlite``).
+    The paradata.graphml dispatch is now an empty path; nothing
+    reaches it via the label-prefix classifier.
+
+    SF / VSF / RSF additionally dual-write into inventario_materiali
+    (subset _DUAL_WRITE_INV_KINDS).
     """
     nodes = [
         _leaf("u1", ClassificationKind.US_REAL, "US1"),
@@ -161,6 +173,8 @@ def test_classify_destination_splits_correctly() -> None:
         _leaf("vs1", ClassificationKind.USV_FORMAL, "USVs1"),
         _leaf("vf1", ClassificationKind.VIRTUAL_FIND, "VSF1"),
         _leaf("d1", ClassificationKind.DOCUMENT, "D.1"),
+        _leaf("c1", ClassificationKind.COMBINER, "C.1"),
+        _leaf("e1", ClassificationKind.EXTRACTOR, "E.1"),
         _leaf("p1", ClassificationKind.PROPERTY, "material"),
         _leaf("x1", ClassificationKind.UNKNOWN, "??"),
         _leaf("x2", ClassificationKind.SKIP, "skipme"),
@@ -168,31 +182,39 @@ def test_classify_destination_splits_correctly() -> None:
 
     result = _classify_destination(nodes)
 
-    # USV_* now joins us_table alongside the US family.
+    # Every recognised kind goes to us_table.
     assert {c.yed_id for c in result["sql_us"]} == {
-        "u1", "u2", "u3", "v1", "vs1",
+        "u1", "u2", "u3", "v1", "vs1", "s1", "vf1",
+        "d1", "c1", "e1", "p1",
     }
-    assert {c.yed_id for c in result["sql_inv"]} == {"s1"}
-    assert {c.yed_id for c in result["paradata"]} == {
-        "vf1", "d1", "p1",
-    }
+    # SF / VSF dual-written: appear ALSO in sql_inv (DOC/COMBINER/
+    # EXTRACTOR/PROPERTY are NOT in the dual-write subset).
+    assert {c.yed_id for c in result["sql_inv"]} == {"s1", "vf1"}
+    # Paradata bucket empty (no label-prefix kind targets paradata.graphml).
+    assert result["paradata"] == []
     assert {c.yed_id for c in result["skipped"]} == {"x1", "x2"}
 
 
 def test_classify_destination_routes_rsf_to_us_table() -> None:
     """s3dgraphy-bump 0.1.42: REUSED_SPECIAL_FIND (RSF / spolia) goes
-    to us_table (sql_us bucket) with unita_tipo='RSF', NOT to
-    inventario_materiali nor paradata."""
+    to us_table (sql_us bucket) with unita_tipo='RSF'.
+
+    User-feedback 2026-05-15 (yed-fastfix): RSF is ALSO dual-written
+    into inventario_materiali (alongside SF / VSF).
+    """
     nodes = [
         _leaf("r1", ClassificationKind.REUSED_SPECIAL_FIND, "RSF42"),
         _leaf("s1", ClassificationKind.SPECIAL_FIND, "SF99"),
     ]
     result = _classify_destination(nodes)
-    assert {c.yed_id for c in result["sql_us"]} == {"r1"}
-    assert {c.yed_id for c in result["sql_inv"]} == {"s1"}
+    # Both RSF and SF land in us_table now.
+    assert {c.yed_id for c in result["sql_us"]} == {"r1", "s1"}
+    # Both also dual-write to inventario.
+    assert {c.yed_id for c in result["sql_inv"]} == {"r1", "s1"}
     # _resolve_unita_tipo + _CLASSIFIED_KIND_TO_UNITA_TIPO contract.
     from modules.s3dgraphy.sync.yed_import_pipeline import _resolve_unita_tipo
     assert _resolve_unita_tipo(nodes[0]) == "RSF"
+    assert _resolve_unita_tipo(nodes[1]) == "SF"
 
 
 # ---------------------------------------------------------------------------
@@ -228,7 +250,12 @@ def test_flatten_members_recursive() -> None:
 # ---------------------------------------------------------------------------
 
 def test_write_us_rows_assigns_node_uuid(tmp_path: Path) -> None:
-    """2 US_REAL leaves → 2 us_table rows with fresh node_uuids."""
+    """2 US_REAL leaves → 2 us_table rows with fresh node_uuids.
+
+    User-feedback 2026-05-15 (yed-fastfix): the ``us`` column stores
+    the numeric portion only; the prefix lives in ``unita_tipo``. So
+    label='US1' → us='1', unita_tipo='US'.
+    """
     handle = _make_handle(tmp_path)
     leaves = [
         _leaf("y1", ClassificationKind.US_REAL, "US1"),
@@ -252,9 +279,10 @@ def test_write_us_rows_assigns_node_uuid(tmp_path: Path) -> None:
             {"s": "X"},
         ))
     assert len(rows) == 2
-    assert rows[0][0] == "US1"
+    # us column carries the STRIPPED numeric portion only.
+    assert rows[0][0] == "1"
     assert rows[0][1] == "US"
-    assert rows[1][0] == "US2"
+    assert rows[1][0] == "2"
     assert rows[0][2] == uuid_map["y1"]
     assert rows[1][2] == uuid_map["y2"]
 
@@ -294,7 +322,13 @@ def test_write_inventario_rows_uses_special_find_kind(
 def test_write_periodizzazione_rows_creates_one_per_period(
     tmp_path: Path,
 ) -> None:
-    """3 PeriodCandidates → 3 rows in periodizzazione_table."""
+    """3 PeriodCandidates → 3 rows in periodizzazione_table.
+
+    User-feedback 2026-05-15 (yed-fastfix): the UI ``Codice periodo``
+    field maps to column ``cont_per`` (Integer). Populated with the
+    same sequential integer as ``periodo`` so the form's read path
+    resolves cleanly.
+    """
     handle = _make_handle(tmp_path)
 
     # Build PeriodCandidate-shaped objects locally (avoid importing
@@ -319,14 +353,17 @@ def test_write_periodizzazione_rows_creates_one_per_period(
     assert count == 3
     with handle.engine.connect() as conn:
         rows = list(conn.execute(
-            text("SELECT sito, periodo, fase, descrizione "
+            text("SELECT sito, periodo, fase, descrizione, cont_per "
                  "FROM periodizzazione_table ORDER BY periodo"),
         ))
     assert len(rows) == 3
     assert rows[0][0] == "X"
     assert rows[0][1] == 1
-    # cron_iniziale + cron_finale stay NULL (verified by absence in
-    # the SELECT list above; defensive double-check below).
+    # cont_per is filled with the same sequential integer as periodo.
+    assert rows[0][4] == 1
+    assert rows[1][4] == 2
+    assert rows[2][4] == 3
+    # cron_iniziale + cron_finale stay NULL.
     with handle.engine.connect() as conn:
         nulls = conn.execute(
             text("SELECT cron_iniziale, cron_finale "
@@ -375,9 +412,10 @@ def test_apply_yed_folder_dimensions_updates_attivita_column(
             {"s": "X"},
         ))
     by_us = {us: attivita for us, attivita in rows}
-    assert by_us["US1"] == "VA01"
-    assert by_us["US2"] == "VA01"
-    assert by_us["US3"] is None  # not a member
+    # us values are stripped of the 'US' prefix per yed-fastfix.
+    assert by_us["1"] == "VA01"
+    assert by_us["2"] == "VA01"
+    assert by_us["3"] is None  # not a member
 
 
 # ---------------------------------------------------------------------------
@@ -428,13 +466,24 @@ def test_dry_run_rollback_sentinel_works(tmp_path: Path) -> None:
 # Test 8 — atomic rollback on IntegrityError
 # ---------------------------------------------------------------------------
 
-def test_atomic_rollback_on_integrity_error(tmp_path: Path) -> None:
-    """A draft that forces a UNIQUE-constraint violation must commit
-    nothing — earlier inserts must roll back."""
+def test_idempotent_skip_on_existing_us_row(tmp_path: Path) -> None:
+    """Bug H (2026-05-15 user feedback): a draft containing leaves
+    whose (us, unita_tipo) keys already exist in us_table must NOT
+    rollback the transaction — the existing rows are surfaced into
+    uuid_map (so rapporti continue to resolve) and the import
+    continues with the truly-new leaves.
+
+    Pre-existing row: us='100', unita_tipo='US', sito='X'.
+    Drafts:
+      - 'US100' → dedup_key=('100','US') matches pre-existing → SKIP
+      - 'US200' → fresh → INSERT
+    Expected: 2 us_table rows total ('100' kept + '200' inserted),
+    no errors, applied > 0.
+    """
     handle = _make_handle(tmp_path)
 
-    # Pre-populate us_table with one row that will collide on the
-    # second draft insert (same sito + area + us + unita_tipo).
+    # Pre-populate us_table with one row that simulates a previous
+    # import that left this key in place.
     with handle.engine.begin() as conn:
         conn.execute(
             text(
@@ -442,16 +491,15 @@ def test_atomic_rollback_on_integrity_error(tmp_path: Path) -> None:
                 "(sito, area, us, unita_tipo, node_uuid) "
                 "VALUES (:s, :a, :u, :t, :n)"
             ),
-            {"s": "X", "a": "1", "u": "DUP", "t": "US", "n": "deadbeef"},
+            {"s": "X", "a": "1", "u": "100", "t": "US", "n": "deadbeef"},
         )
 
     drafts = {
-        # First leaf would insert clean. Second leaf collides with the
-        # pre-existing 'DUP' row → IntegrityError → rollback the whole
-        # transaction → "fresh" leaf does NOT survive.
         "classified": [
-            _leaf("y_fresh", ClassificationKind.US_REAL, "FRESH"),
-            _leaf("y_dup", ClassificationKind.US_REAL, "DUP"),
+            # US100 → strip → '100', collides with pre-existing
+            _leaf("y_dup", ClassificationKind.US_REAL, "US100"),
+            # US200 → strip → '200', fresh
+            _leaf("y_fresh", ClassificationKind.US_REAL, "US200"),
         ],
         "periods": [],
         "folders": [],
@@ -466,17 +514,30 @@ def test_atomic_rollback_on_integrity_error(tmp_path: Path) -> None:
         dry_run=False,
     )
 
-    assert result.applied == 0
-    assert len(result.errors) == 1
-    # Only the pre-existing DUP row survives — FRESH must be rolled back.
+    # No error — the dup leaf is silently skipped, the fresh one is
+    # inserted. applied > 0 (1 INSERT).
+    assert result.errors == ()
+    assert result.applied == 1
+    assert result.inserted == 1
+    # Two us_table rows: the pre-existing one + the new one.
     with handle.engine.connect() as conn:
-        rows = [
+        rows = sorted(
             r[0] for r in conn.execute(
                 text("SELECT us FROM us_table WHERE sito = :s"),
                 {"s": "X"},
             )
-        ]
-    assert rows == ["DUP"]
+        )
+    assert rows == ["100", "200"]
+    # Pre-existing row's node_uuid preserved (not rewritten).
+    with handle.engine.connect() as conn:
+        dup_uuid = conn.execute(
+            text(
+                "SELECT node_uuid FROM us_table "
+                "WHERE sito = :s AND us = :u"
+            ),
+            {"s": "X", "u": "100"},
+        ).scalar()
+    assert dup_uuid == "deadbeef"
 
 
 # ---------------------------------------------------------------------------
@@ -615,3 +676,464 @@ def test_apply_overrides_policy_wins_over_caller_arg(tmp_path: Path) -> None:
     # completed without rejecting the override.
     assert result.errors == ()
     assert result.applied == 0
+
+
+# ---------------------------------------------------------------------------
+# yed-fastfix 2026-05-15 — regression tests for the user-reported bugs
+# ---------------------------------------------------------------------------
+
+def test_strip_unita_tipo_prefix_examples() -> None:
+    """Bug E: us value must be the numeric portion only; unita_tipo
+    carries the prefix. Regression for the helper that owns the rule.
+
+    Bug G (2026-05-15 v2): paradata labels like ``D.001`` carry an
+    alphabetic prefix + dot that does NOT match the corresponding
+    unita_tipo string (``DOC``). The fallback path extracts the first
+    numeric run after the dot, which naturally collapses identity
+    variants (D.001 / D.001-2 / D.001bis → '001').
+    """
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        _strip_unita_tipo_prefix,
+    )
+    # Path 1: prefix matches unita_tipo verbatim.
+    assert _strip_unita_tipo_prefix("US100", "US") == "100"
+    assert _strip_unita_tipo_prefix("USV200", "USV") == "200"
+    assert _strip_unita_tipo_prefix("USVs5", "USVs") == "5"
+    assert _strip_unita_tipo_prefix("SF01", "SF") == "01"
+    assert _strip_unita_tipo_prefix("VSF42", "VSF") == "42"
+    assert _strip_unita_tipo_prefix("RSF7", "RSF") == "7"
+    # Separator dash is trimmed.
+    assert _strip_unita_tipo_prefix("USM-15", "USM") == "15"
+    # Case-insensitive prefix match.
+    assert _strip_unita_tipo_prefix("us123", "US") == "123"
+    # Defensive: stripped-to-empty returns the original label so we
+    # never end up with us=''.
+    assert _strip_unita_tipo_prefix("US", "US") == "US"
+    # Defensive: label not starting with prefix returns label unchanged.
+    assert _strip_unita_tipo_prefix("foo", "US") == "foo"
+    # Defensive: None / empty prefix returns label unchanged.
+    assert _strip_unita_tipo_prefix("US100", None) == "US100"
+    assert _strip_unita_tipo_prefix("US100", "") == "US100"
+
+    # Path 2 (Bug G): paradata fallback — alphabetic prefix + dot.
+    assert _strip_unita_tipo_prefix("D.001", "DOC") == "001"
+    assert _strip_unita_tipo_prefix("C.42", "Combinar") == "42"
+    assert _strip_unita_tipo_prefix("E.005", "Extractor") == "005"
+    # DocumentNode identity variants collapse to the same numeric base
+    # — this is the dedup mechanism: 3 yed_ids → 1 us_table row.
+    assert _strip_unita_tipo_prefix("D.001-2", "DOC") == "001"
+    assert _strip_unita_tipo_prefix("D.001bis", "DOC") == "001"
+    assert _strip_unita_tipo_prefix("D.001/3", "DOC") == "001"
+    # Bug I: ExtractorNode preserves the multi-level hierarchy so
+    # D.01.03 and D.01.04 remain DISTINCT rows (they're separate
+    # extractors of the same parent document D.01). Without this,
+    # the DOC-style dedup would collapse all extractors of a doc.
+    assert _strip_unita_tipo_prefix("D.01.03", "Extractor") == "01.03"
+    assert _strip_unita_tipo_prefix("D.01.04", "Extractor") == "01.04"
+    assert _strip_unita_tipo_prefix("D.02.01", "Extractor") == "02.01"
+    # PROPERTY labels are canonical names — no numeric prefix, kept verbatim.
+    assert _strip_unita_tipo_prefix("material", "property") == "material"
+    assert _strip_unita_tipo_prefix("height", "property") == "height"
+
+
+def test_build_member_to_period_inverts_period_membership() -> None:
+    """Bug B: PeriodCandidate.member_yed_ids inverts into
+    {yed_id → (periodo, fase)} so _write_us_rows can set
+    periodo_iniziale + fase_iniziale on each member.
+    """
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        _build_member_to_period,
+    )
+    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+    periods = [
+        PeriodCandidate(
+            yed_row_id="r0", auto_label="Period01",
+            user_label="Period01", auto_periodo=1, auto_fase=1,
+            user_periodo=1, user_fase=1,
+            member_yed_ids=["leaf_a", "leaf_b"],
+        ),
+        PeriodCandidate(
+            yed_row_id="r1", auto_label="Period02",
+            user_label="Period02", auto_periodo=2, auto_fase=1,
+            user_periodo=2, user_fase=1,
+            member_yed_ids=["leaf_c"],
+        ),
+    ]
+    mtp = _build_member_to_period(periods)
+    assert mtp == {
+        "leaf_a": ("1", "1"),
+        "leaf_b": ("1", "1"),
+        "leaf_c": ("2", "1"),
+    }
+
+
+def test_write_us_rows_populates_period_iniziale_from_periods(
+    tmp_path: Path,
+) -> None:
+    """Bug B regression: when member_to_period is passed, us_table rows
+    pick up periodo_iniziale + fase_iniziale + periodo_finale +
+    fase_finale (MVP: inizio==fine, user edits in form)."""
+    handle = _make_handle(tmp_path)
+    leaves = [
+        _leaf("y1", ClassificationKind.US_REAL, "US1"),
+        _leaf("y2", ClassificationKind.US_REAL, "US2"),
+    ]
+    member_to_period = {
+        "y1": ("3", "2"),
+        # y2 NOT in map → its period fields stay NULL
+    }
+    with handle.engine.begin() as conn:
+        count, _ = _write_us_rows(
+            conn, leaves, sito="X",
+            member_to_period=member_to_period,
+        )
+    assert count == 2
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(
+            text("SELECT us, periodo_iniziale, fase_iniziale, "
+                 "periodo_finale, fase_finale "
+                 "FROM us_table WHERE sito = :s ORDER BY us"),
+            {"s": "X"},
+        ))
+    by_us = {r[0]: r for r in rows}
+    # y1 was in member_to_period → period fields populated, both
+    # iniziale and finale set to the same (single-period US) value.
+    r1 = by_us["1"]
+    assert r1[1] == "3"
+    assert r1[2] == "2"
+    assert r1[3] == "3"
+    assert r1[4] == "2"
+    # y2 wasn't in the map → fields stay NULL.
+    r2 = by_us["2"]
+    assert r2[1] is None
+    assert r2[2] is None
+
+
+def test_write_rapporti_format_is_type_us_area_sito(
+    tmp_path: Path,
+) -> None:
+    """Bug A regression: the rapporti tuple order must be
+    [type, us_target, area, sito]. pos 1 = us_target (read at
+    graph_projector.py:721); pos 3 = sito (rewritten at
+    graph_ingestor.py:1259). Before the fix pos 1 held sito and pos 3
+    held us_target, breaking every rapporti join.
+
+    Bug F regression: US ↔ US edge gets the verbose Italian token
+    'Copre' (default edge_type='overlies' resolves via the canonical
+    {US, USM}² map), NOT the placeholder 'covers'."""
+    import json
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        _write_rapporti, _write_us_rows,
+    )
+    from modules.s3dgraphy.sync.yed_rapporti_policy import (
+        ExpandedRapporti, FolderEdgePolicy,
+    )
+    handle = _make_handle(tmp_path)
+    leaves = [
+        _leaf("y1", ClassificationKind.US_REAL, "US01"),
+        _leaf("y2", ClassificationKind.US_REAL, "US02"),
+    ]
+    with handle.engine.begin() as conn:
+        _, uuid_map = _write_us_rows(conn, leaves, sito="X")
+
+        expanded = ExpandedRapporti(
+            policy=FolderEdgePolicy.SKIP,
+            rapporti=[("y1", "y2", None)],  # y1 -> y2
+        )
+        _write_rapporti(
+            conn, expanded, sito="X", uuid_map=uuid_map,
+            id_to_label={"y1": "01", "y2": "02"},
+            unita_tipo_by_yed_id={"y1": "US", "y2": "US"},
+        )
+
+    with handle.engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT rapporti FROM us_table WHERE us = :u "
+                 "AND sito = :s"),
+            {"u": "01", "s": "X"},
+        ).first()
+    assert row is not None
+    rapporti = json.loads(row[0])
+    # One outbound edge.
+    assert len(rapporti) == 1
+    rapporto = rapporti[0]
+    # Canonical pyarchinit order: [type, us_target, area, sito].
+    # US → US default → verbose IT 'Copre' (Bug F: was hardcoded 'covers').
+    assert rapporto[0] == "Copre"        # type
+    assert rapporto[1] == "02"           # us_target — NOT sito
+    assert rapporto[2] == "1"            # area
+    assert rapporto[3] == "X"            # sito — NOT us_target
+
+
+def test_write_rapporti_token_dispatch_by_unita_tipo(
+    tmp_path: Path,
+) -> None:
+    """Bug F regression: the rapporti token depends on the unita_tipo
+    of both endpoints — verbose Italian for US/USM, '>>' for any
+    other non-canonical (USV / SF / VSF / RSF / VA), '>' if either
+    is CON (continuity).
+    """
+    import json
+    from modules.s3dgraphy.sync.yed_import_pipeline import (
+        _write_rapporti, _write_us_rows,
+    )
+    from modules.s3dgraphy.sync.yed_rapporti_policy import (
+        ExpandedRapporti, FolderEdgePolicy,
+    )
+    handle = _make_handle(tmp_path)
+    leaves = [
+        _leaf("y_us",  ClassificationKind.US_REAL,     "US10"),
+        _leaf("y_usm", ClassificationKind.US_MASONRY,  "USM20"),
+        _leaf("y_usv", ClassificationKind.USV_VIRTUAL, "USV30"),
+        _leaf("y_sf",  ClassificationKind.SPECIAL_FIND, "SF40"),
+    ]
+    with handle.engine.begin() as conn:
+        _, uuid_map = _write_us_rows(conn, leaves, sito="X")
+
+        # Several edges with different endpoint type combinations.
+        expanded = ExpandedRapporti(
+            policy=FolderEdgePolicy.SKIP,
+            rapporti=[
+                ("y_us",  "y_usm", None),  # US  → USM  → verbose 'Copre'
+                ("y_usv", "y_us",  None),  # USV → US   → '>>'
+                ("y_sf",  "y_usv", None),  # SF  → USV  → '>>'
+            ],
+        )
+        _write_rapporti(
+            conn, expanded, sito="X", uuid_map=uuid_map,
+            id_to_label={
+                "y_us":  "10", "y_usm": "20",
+                "y_usv": "30", "y_sf":  "40",
+            },
+            unita_tipo_by_yed_id={
+                "y_us":  "US",  "y_usm": "USM",
+                "y_usv": "USV", "y_sf":  "SF",
+            },
+        )
+
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(
+            text("SELECT us, rapporti FROM us_table "
+                 "WHERE sito = :s ORDER BY us"),
+            {"s": "X"},
+        ))
+    by_us = {r[0]: r[1] for r in rows}
+
+    # US (10) → USM (20): both canonical → verbose IT.
+    us_rapp = json.loads(by_us["10"])
+    assert us_rapp[0][0] == "Copre"
+    # USV (30) → US (10): one non-canonical → '>>' shorthand.
+    usv_rapp = json.loads(by_us["30"])
+    assert usv_rapp[0][0] == ">>"
+    # SF (40) → USV (30): both non-canonical → '>>' shorthand.
+    sf_rapp = json.loads(by_us["40"])
+    assert sf_rapp[0][0] == ">>"
+
+
+def test_paradata_store_add_document_dedups_same_identity(
+    tmp_path: Path,
+) -> None:
+    """Bug D regression: D.001, D.001-2, D.001bis must collapse to ONE
+    DocumentNode (same dedup_key 'D.001'). Subsequent add_document
+    calls return the existing node_uuid instead of creating a new one.
+
+    For SQLite the paradata file lives next to the .sqlite file
+    (``handle.sqlite_path.parent``), so no PYARCHINIT_WORKSPACE_DIR
+    monkeypatch is needed — tmp_path is already isolated.
+    """
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+
+    dbfile = tmp_path / "dedup.sqlite"
+    handle = DbHandle.from_path(dbfile)
+    # No DDL needed — ParadataStore writes to .graphml, not to SQL.
+    store = ParadataStore(handle, "DEMO_SITE")
+
+    uuid1 = store.add_document("D.001")
+    uuid2 = store.add_document("D.001-2")
+    uuid3 = store.add_document("D.001bis")
+    uuid4 = store.add_document("D.002")  # different identity
+
+    # Same dedup_key → identical node_uuid returned.
+    assert uuid1 == uuid2 == uuid3, (
+        f"dedup failed: uuid1={uuid1} uuid2={uuid2} uuid3={uuid3}; "
+        f"file={store.file_path}; docs={store.list_documents()}"
+    )
+    # Different identity → fresh node_uuid.
+    assert uuid4 != uuid1
+
+    docs = store.list_documents()
+    assert len(docs) == 2
+    keys = {d["dedup_key"] for d in docs}
+    assert keys == {"D.001", "D.002"}
+
+
+def test_paradata_store_add_extractor_combiner_roundtrip(
+    tmp_path: Path,
+) -> None:
+    """Bug D regression: ExtractorNode and CombinerNode go through
+    add_extractor / add_combiner and survive the read round-trip
+    (the s3dgraphy importer drops them; our _merge_extended_paradata_nodes
+    reconstructs from the _s3d_node_type marker)."""
+    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+
+    dbfile = tmp_path / "rt.sqlite"
+    handle = DbHandle.from_path(dbfile)
+    store = ParadataStore(handle, "DEMO_SITE")
+
+    store.add_extractor("E.005")
+    store.add_combiner("C.07")
+    store.add_property("material")
+
+    # Build a fresh store on the same path — forces a real read from disk.
+    store2 = ParadataStore(handle, "DEMO_SITE")
+    assert len(store2.list_extractors()) == 1
+    assert len(store2.list_combiners()) == 1
+    assert len(store2.list_properties()) == 1
+    assert store2.list_extractors()[0]["label"] == "E.005"
+    assert store2.list_combiners()[0]["label"] == "C.07"
+    assert store2.list_properties()[0]["label"] == "material"
+
+
+def test_write_us_rows_paradata_no_dedup_one_row_per_occurrence(
+    tmp_path: Path,
+) -> None:
+    """Bug R regression (2026-05-15 user feedback): paradata kinds
+    (DOC / Combinar / Extractor / property) SKIP dedup-by-identity
+    so each yEd occurrence becomes its own us_table row. This
+    enables multi-folder visibility (the same ``material`` label
+    referenced from VA01 + VA04 + VA05 yields 3 rows, each carrying
+    its own ``attivita`` after the folder-dimensions pass).
+
+    The original label is preserved in ``d_stratigrafica`` so the
+    writer's _resolve_display_label renders ``D.001`` regardless of
+    the us suffix.
+    """
+    handle = _make_handle(tmp_path)
+    leaves = [
+        _leaf("y1", ClassificationKind.DOCUMENT, "D.001"),
+        _leaf("y2", ClassificationKind.DOCUMENT, "D.001-2"),
+        _leaf("y3", ClassificationKind.DOCUMENT, "D.001bis"),
+        _leaf("y4", ClassificationKind.DOCUMENT, "D.002"),
+    ]
+
+    with handle.engine.begin() as conn:
+        count, uuid_map = _write_us_rows(conn, leaves, sito="X")
+
+    # 4 INSERTs — every occurrence is its own row.
+    assert count == 4
+    # All 4 uuids distinct.
+    assert len({uuid_map[k] for k in ("y1", "y2", "y3", "y4")}) == 4
+
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(
+            text(
+                "SELECT us, unita_tipo, d_stratigrafica FROM us_table "
+                "WHERE sito = :s ORDER BY us"
+            ),
+            {"s": "X"},
+        ))
+    assert len(rows) == 4
+    # us values are synthesised: first stays as-is, later occurrences
+    # get the _<seq> suffix.
+    us_values = sorted(r[0] for r in rows)
+    # The two D.001 variants reduce to '001' base; the third hits the
+    # _2 / _3 sequence; D.002 keeps base '002'.
+    assert us_values == ["001", "001_2", "001_3", "002"]
+    # All unita_tipo == DOC.
+    assert all(r[1] == "DOC" for r in rows)
+    # d_stratigrafica preserves the ORIGINAL label per row so the
+    # writer can render the user-visible name.
+    d_strats = sorted(r[2] for r in rows)
+    assert d_strats == ["D.001", "D.001-2", "D.001bis", "D.002"]
+
+
+def test_classifier_extracts_extractor_kind() -> None:
+    """Bug D regression: ``E.NNN`` labels must classify as EXTRACTOR.
+    Before yed-fastfix the regex was missing and Extractor nodes fell
+    to UNKNOWN → skipped from every bucket."""
+    from modules.s3dgraphy.sync.yed_classifier import (
+        DEFAULT_CLASSIFIER_RULES,
+        ClassificationKind,
+    )
+    # Find a rule that matches 'E.001'.
+    matched_kind = None
+    for pat, kind in DEFAULT_CLASSIFIER_RULES:
+        if pat.match("E.001"):
+            matched_kind = kind
+            break
+    assert matched_kind == ClassificationKind.EXTRACTOR
+
+
+def test_classifier_distinguishes_document_from_extractor(
+    tmp_path: Path,
+) -> None:
+    """Bug I regression: the s3dgraphy EM convention is
+
+        D.NN  (BPMN DATA_OBJECT_TYPE_PLAIN)  → DocumentNode
+        D.NN.MM (no BPMN type)               → ExtractorNode
+
+    Without this, both labels match the same ``^D\\.\\d+`` regex and
+    end up as DOCUMENT — the us_table dedup then collapses them into
+    ONE row, dropping every extractor → document edge as a self-loop.
+
+    Two signals discriminate:
+      1. yEd BPMN ``<y:Property>`` markers (highest priority)
+      2. Label depth fallback (D.NN.MM has 2 dots → Extractor)
+    """
+    from modules.s3dgraphy.sync.yed_classifier import (
+        classify_leaves,
+        ClassificationKind,
+    )
+
+    # Build a minimal graphml with 3 nodes: D.01 (BPMN data object),
+    # D.01.03 (plain, no BPMN — should fall to Extractor via label
+    # depth), and D.02 (also BPMN data object).
+    graphml = """<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:y="http://www.yworks.com/xml/graphml">
+  <key id="d2" for="node" yfiles.type="nodegraphics"/>
+  <graph edgedefault="directed">
+    <node id="n_doc1">
+      <data key="d2">
+        <y:GenericNode configuration="BPMNNode">
+          <y:NodeLabel>D.01</y:NodeLabel>
+          <y:StyleProperties>
+            <y:Property name="com.yworks.bpmn.dataObjectType"
+                        value="DATA_OBJECT_TYPE_PLAIN"/>
+          </y:StyleProperties>
+        </y:GenericNode>
+      </data>
+    </node>
+    <node id="n_ext1">
+      <data key="d2">
+        <y:ShapeNode>
+          <y:NodeLabel>D.01.03</y:NodeLabel>
+        </y:ShapeNode>
+      </data>
+    </node>
+    <node id="n_doc2">
+      <data key="d2">
+        <y:GenericNode configuration="BPMNNode">
+          <y:NodeLabel>D.02</y:NodeLabel>
+          <y:StyleProperties>
+            <y:Property name="com.yworks.bpmn.dataObjectType"
+                        value="DATA_OBJECT_TYPE_PLAIN"/>
+          </y:StyleProperties>
+        </y:GenericNode>
+      </data>
+    </node>
+  </graph>
+</graphml>
+"""
+    fp = tmp_path / "doc_vs_extractor.graphml"
+    fp.write_text(graphml)
+
+    results = classify_leaves(fp)
+    by_id = {c.yed_id: c for c in results}
+    # BPMN-typed D.01 / D.02 → DocumentNode
+    assert by_id["n_doc1"].auto_kind == ClassificationKind.DOCUMENT
+    assert by_id["n_doc2"].auto_kind == ClassificationKind.DOCUMENT
+    # Plain D.01.03 (label depth fallback: 2 dots) → ExtractorNode
+    assert by_id["n_ext1"].auto_kind == ClassificationKind.EXTRACTOR

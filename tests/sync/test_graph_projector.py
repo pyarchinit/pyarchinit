@@ -151,3 +151,89 @@ def test_populate_graph_accepts_db_manager_on_sqlite(mini_volterra):
     graph = GraphProjector().populate_graph(mgr, sito=sito)
     assert len(graph.nodes) > 0, (
         "DbManager input must work the same as a Path input")
+
+
+def test_projector_handles_paradata_name_collisions(tmp_path):
+    """Bug K (2026-05-15 user feedback): the s3dgraphy bridge's
+    ``_find_node_by_name`` collapses us_table rows that share the
+    same ``us`` value across different ``unita_tipo``. Before this
+    fix the projector indexed nodes by name alone — paradata rows
+    (DOC / Combinar / Extractor / property) at the same name as a
+    stratigraphic row got silently dropped on re-export.
+
+    This test builds a minimal DB with 3 rows all named '01'
+    (US / DOC / Combinar) plus 1 each at '02' (Extractor + property)
+    and asserts the projected graph contains EXACTLY one node per
+    (us, unita_tipo) tuple, of the right s3dgraphy class.
+    """
+    from collections import Counter
+    from sqlalchemy import text
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+
+    db = tmp_path / "paradata_collisions.sqlite"
+    handle = DbHandle.from_path(db)
+    with handle.engine.begin() as conn:
+        conn.execute(text("""
+            CREATE TABLE us_table (
+                id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+                sito TEXT, area TEXT DEFAULT '1', us TEXT,
+                unita_tipo TEXT, node_uuid TEXT,
+                rapporti TEXT, periodo_iniziale TEXT, fase_iniziale TEXT,
+                periodo_finale TEXT, fase_finale TEXT,
+                d_stratigrafica TEXT, d_interpretativa TEXT,
+                attivita TEXT, struttura TEXT, settore TEXT,
+                ambient TEXT, saggio TEXT, quad_par TEXT,
+                documentazione TEXT,
+                UNIQUE(sito, area, us, unita_tipo)
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE periodizzazione_table (
+                id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
+                sito TEXT, periodo INTEGER, fase TEXT,
+                cron_iniziale INTEGER, cron_finale INTEGER,
+                descrizione TEXT, datazione_estesa TEXT, cont_per INTEGER
+            )
+        """))
+        # 3 rows at '01' (paradata BEFORE stratigraphic in rowid order —
+        # this reproduces yEd document order interleaving that caused the
+        # original bug).
+        rows = [
+            ("01", "DOC",       "uuid-01-doc"),
+            ("01", "Combinar",  "uuid-01-cmb"),
+            ("01", "US",        "uuid-01-us"),
+            ("02", "Extractor", "uuid-02-ext"),
+            ("02", "property",  "uuid-02-prop"),
+        ]
+        for us, ut, uu in rows:
+            conn.execute(
+                text("INSERT INTO us_table (sito, area, us, unita_tipo, "
+                     "node_uuid) VALUES (:s, '1', :u, :t, :n)"),
+                {"s": "S", "u": us, "t": ut, "n": uu},
+            )
+
+    proj = GraphProjector()
+    graph = proj.populate_graph(db, sito="S")
+
+    by_class_and_ut = Counter()
+    for n in graph.nodes:
+        cls = type(n).__name__
+        ut = (getattr(n, "attributes", None) or {}).get("unita_tipo", "")
+        by_class_and_ut[(cls, ut)] += 1
+
+    # Bug P (2026-05-15 v2): row-paradata are StratigraphicNode-class
+    # instances (StratigraphicUnit) with ``attributes['unita_tipo']``
+    # carrying the EM semantic identity. The writer dispatches BPMN
+    # shape / colour by unita_tipo, not by Python class.
+    assert by_class_and_ut[("StratigraphicUnit", "DOC")] == 1
+    assert by_class_and_ut[("StratigraphicUnit", "Combinar")] == 1
+    assert by_class_and_ut[("StratigraphicUnit", "Extractor")] == 1
+    assert by_class_and_ut[("StratigraphicUnit", "property")] == 1
+    assert by_class_and_ut[("StratigraphicUnit", "US")] == 1
+    # No duplicates: total row-derived StratigraphicUnit nodes = 5.
+    row_derived = sum(
+        v for (cls, ut), v in by_class_and_ut.items()
+        if cls == "StratigraphicUnit" and ut
+    )
+    assert row_derived == 5

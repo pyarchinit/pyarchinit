@@ -52,7 +52,37 @@ class ParadataNotFoundError(ParadataStoreError):
 # ---------------------------------------------------------------------------
 _PARADATA_NODE_TYPES: frozenset[str] = frozenset({
     "AuthorNode", "LicenseNode", "EmbargoNode",
+    # 2026-05-15 yed-fastfix: the Extended Matrix paradata family also
+    # spans Document / Combiner / Extractor / Property nodes. yE-D
+    # dispatches each ClassificationKind → ``add_<kind>`` here; before
+    # the fix only the authorship trio existed so 100% of the dispatch
+    # silently skipped (manifested as paradata file never created).
+    "DocumentNode", "CombinerNode", "ExtractorNode", "PropertyNode",
 })
+
+
+# Dedup key regex: paradata nodes that share an identity but differ by
+# trailing suffix/sequence (e.g. ``D.001`` / ``D.001-2`` / ``D.001bis``)
+# collapse to a single node with multiple inbound edges. The key is the
+# prefix + first decimal run; anything after is discarded.
+_PARADATA_DEDUP_RE = re.compile(r"^([A-Za-z]+\.?\d+)")
+
+
+def _paradata_dedup_key(label: str) -> str:
+    """Compute a dedup key for a paradata leaf label.
+
+    Examples:
+      'D.001'        → 'D.001'
+      'D.001-2'      → 'D.001'
+      'D.001bis'     → 'D.001'
+      'D.001/3'      → 'D.001'
+      'material'     → 'material'   (PROPERTY labels — no numeric suffix)
+      'C.42'         → 'C.42'
+    """
+    if not label:
+        return ""
+    m = _PARADATA_DEDUP_RE.match(label)
+    return m.group(1) if m else label
 
 # Meta-keys produced by s3dgraphy's GraphMLImporter when it materializes
 # a node (``original_id``, ``graph_id``) plus our own JSON-blob channel
@@ -164,7 +194,187 @@ class ParadataStore:
             n for n in graph.nodes
             if type(n).__name__ in _PARADATA_NODE_TYPES
         ]
+
+        # yed-fastfix 2026-05-15: GraphMLImporter._create_paradata_image_node
+        # only recognises Author / AuthorAI / License / Embargo. DocumentNode
+        # / CombinerNode / ExtractorNode / PropertyNode emitted by the yE-D
+        # paradata writers carry the same ``_s3d_node_type:`` round-trip
+        # marker but are dropped on read. Scan the XML directly and
+        # reconstruct those four types so the round-trip is symmetric.
+        try:
+            self._merge_extended_paradata_nodes(graph)
+        except Exception:
+            # Defensive: never let the extended-merge break a successful
+            # importer pass.
+            pass
+
         return graph
+
+    _EXTENDED_PARADATA_TYPES: frozenset[str] = frozenset({
+        "DocumentNode", "CombinerNode", "ExtractorNode", "PropertyNode",
+    })
+
+    def _merge_extended_paradata_nodes(self, graph) -> None:
+        """Reconcile DocumentNode / CombinerNode / ExtractorNode /
+        PropertyNode after the s3dgraphy GraphMLImporter.
+
+        Two distinct cases the importer mishandles:
+
+        1. **Drop** — Author / AuthorAI / License / Embargo round-trip
+           via ``_create_paradata_image_node`` (Signal 1 marker
+           handled). Document / Combiner / Extractor / Property are
+           NOT supported there, so the importer just drops them.
+
+        2. **Mis-classify** — the importer also runs a hardcoded
+           "label starts with ``D.``  → ExtractorNode" rule
+           (``import_graphml.py:1820``) that fires REGARDLESS of any
+           ``_s3d_node_type:`` marker. A DocumentNode written with
+           label ``D.001`` and a ``DocumentNode`` marker comes back
+           as an ExtractorNode unless we override.
+
+        Strategy: scan the file ourselves, find every ``<node>`` whose
+        description ``<data>`` carries ``_s3d_node_type:<one of the 4>``;
+        if a node with the same node_id is already in the graph but of
+        the wrong class, REMOVE it and re-add with the correct subclass.
+        Missing nodes are appended.
+        """
+        from lxml import etree as ET
+        import json as _json
+        NS = "http://graphml.graphdrawing.org/xmlns"
+        marker = "_s3d_node_type:"
+
+        try:
+            tree = ET.parse(str(self.file_path))
+        except Exception:
+            return
+        root = tree.getroot()
+
+        # Resolve key ids by attr.name.
+        key_by_name: dict[str, str] = {}
+        for k in root.findall(f"{{{NS}}}key"):
+            name = k.get("attr.name")
+            if name:
+                key_by_name[name] = k.get("id")
+        desc_kid = key_by_name.get("description")
+        attrs_kid = key_by_name.get("pyarchinit.paradata_attrs")
+
+        existing_by_id = {
+            getattr(n, "node_id", None): n for n in graph.nodes
+        }
+
+        for node_el in root.iter(f"{{{NS}}}node"):
+            node_id = node_el.get("id")
+            if not node_id:
+                continue
+
+            # Read description data
+            description_text = ""
+            attrs_blob = None
+            for d_el in node_el.findall(f"{{{NS}}}data"):
+                kid = d_el.get("key")
+                if kid == desc_kid and d_el.text:
+                    description_text = d_el.text
+                elif kid == attrs_kid and d_el.text:
+                    try:
+                        attrs_blob = _json.loads(d_el.text)
+                    except (ValueError, TypeError):
+                        attrs_blob = None
+
+            # Detect type marker
+            idx = description_text.find(marker)
+            if idx < 0:
+                continue
+            tail = description_text[idx + len(marker):]
+            import re as _re
+            m = _re.match(r"([A-Za-z_][A-Za-z0-9_]*)", tail)
+            if not m:
+                continue
+            type_name = m.group(1)
+            if type_name not in self._EXTENDED_PARADATA_TYPES:
+                continue
+
+            # If the importer already produced this node_id with the
+            # SAME type, leave it alone. Otherwise drop the misclassified
+            # instance so we can re-add with the correct subclass.
+            already = existing_by_id.get(node_id)
+            if already is not None and type(already).__name__ == type_name:
+                continue
+            if already is not None:
+                graph.nodes = [
+                    n for n in graph.nodes
+                    if getattr(n, "node_id", None) != node_id
+                ]
+                existing_by_id.pop(node_id, None)
+
+            # Extract label from y:NodeLabel
+            label_text = ""
+            for nl in node_el.iter(
+                    "{http://www.yworks.com/xml/graphml}NodeLabel"):
+                if nl.text and nl.text.strip():
+                    label_text = nl.text.strip()
+                    break
+
+            # Strip the round-trip marker from description.
+            clean_desc = _re.sub(
+                r"\s*" + _re.escape(marker)
+                + r"[A-Za-z_][A-Za-z0-9_]*\s*",
+                "", description_text,
+            ).strip()
+
+            try:
+                if type_name == "DocumentNode":
+                    from s3dgraphy.nodes.document_node import DocumentNode
+                    node = DocumentNode(
+                        node_id=node_id,
+                        name=label_text or node_id,
+                        description=clean_desc,
+                    )
+                elif type_name == "CombinerNode":
+                    from s3dgraphy.nodes.combiner_node import CombinerNode
+                    node = CombinerNode(
+                        node_id=node_id,
+                        name=label_text or node_id,
+                        description=clean_desc,
+                    )
+                elif type_name == "ExtractorNode":
+                    from s3dgraphy.nodes.extractor_node import ExtractorNode
+                    node = ExtractorNode(
+                        node_id=node_id,
+                        name=label_text or node_id,
+                        description=clean_desc,
+                    )
+                elif type_name == "PropertyNode":
+                    from s3dgraphy.nodes.property_node import PropertyNode
+                    try:
+                        node = PropertyNode(
+                            node_id=node_id,
+                            name=label_text or node_id,
+                            description=clean_desc,
+                            property_type=label_text or node_id,
+                        )
+                    except TypeError:
+                        node = PropertyNode(
+                            node_id=node_id,
+                            name=label_text or node_id,
+                            description=clean_desc,
+                        )
+                else:
+                    continue
+            except Exception:
+                continue
+
+            # Hydrate attributes from the d5 JSON blob
+            attrs = {}
+            if isinstance(attrs_blob, dict):
+                for k, v in attrs_blob.items():
+                    if k in _PARADATA_HYDRATE_SKIP_KEYS:
+                        continue
+                    attrs[k] = v
+            try:
+                node.attributes = attrs
+            except Exception:
+                pass
+            graph.nodes.append(node)
 
     def _hydrate_paradata_attrs(self, graph) -> None:
         """Re-parse the paradata file and merge the JSON-blob
@@ -536,5 +746,207 @@ class ParadataStore:
                 "until_date": (attrs.get("until_date", "")
                                or data.get("embargo_end", "")),
                 "reason": attrs.get("reason", "") or data.get("reason", ""),
+            })
+        return out
+
+    # ---- yed-fastfix 2026-05-15: Extended Matrix paradata writers ----
+
+    def _find_by_dedup_key(self, type_name: str,
+                          dedup_key: str) -> str | None:
+        """Return an existing node_uuid for ``type_name`` whose
+        dedup_key (computed from its ``name`` or stored
+        ``attributes['dedup_key']``) matches ``dedup_key``.
+
+        Used to collapse paradata leaves that share an identity but
+        differ by trailing suffix (D.001 / D.001-2 / D.001bis) into a
+        single node with multiple inbound edges.
+        """
+        if not dedup_key:
+            return None
+        for n in self.read().nodes:
+            if type(n).__name__ != type_name:
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            stored_key = attrs.get("dedup_key")
+            if not stored_key:
+                stored_key = _paradata_dedup_key(
+                    getattr(n, "name", "") or "")
+            if stored_key == dedup_key:
+                return getattr(n, "node_id", "") or None
+        return None
+
+    def add_document(self, label: str, description: str = "") -> str:
+        """Create or dedup a DocumentNode. Returns the node_uuid
+        (existing one if a dedup match is found)."""
+        if not label or not str(label).strip():
+            raise ParadataValidationError(
+                "DocumentNode requires a non-empty label")
+        dedup_key = _paradata_dedup_key(str(label))
+        existing = self._find_by_dedup_key("DocumentNode", dedup_key)
+        if existing:
+            return existing
+        from s3dgraphy.nodes.document_node import DocumentNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = DocumentNode(
+            node_id=node_uuid,
+            name=str(label),
+            description=description or "",
+        )
+        node.attributes = {
+            "sito": self._sito,
+            "label": str(label),
+            "dedup_key": dedup_key,
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def add_combiner(self, label: str, description: str = "") -> str:
+        """Create or dedup a CombinerNode."""
+        if not label or not str(label).strip():
+            raise ParadataValidationError(
+                "CombinerNode requires a non-empty label")
+        dedup_key = _paradata_dedup_key(str(label))
+        existing = self._find_by_dedup_key("CombinerNode", dedup_key)
+        if existing:
+            return existing
+        from s3dgraphy.nodes.combiner_node import CombinerNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = CombinerNode(
+            node_id=node_uuid,
+            name=str(label),
+            description=description or "",
+        )
+        node.attributes = {
+            "sito": self._sito,
+            "label": str(label),
+            "dedup_key": dedup_key,
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def add_extractor(self, label: str, description: str = "") -> str:
+        """Create or dedup an ExtractorNode."""
+        if not label or not str(label).strip():
+            raise ParadataValidationError(
+                "ExtractorNode requires a non-empty label")
+        dedup_key = _paradata_dedup_key(str(label))
+        existing = self._find_by_dedup_key("ExtractorNode", dedup_key)
+        if existing:
+            return existing
+        from s3dgraphy.nodes.extractor_node import ExtractorNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        node = ExtractorNode(
+            node_id=node_uuid,
+            name=str(label),
+            description=description or "",
+        )
+        node.attributes = {
+            "sito": self._sito,
+            "label": str(label),
+            "dedup_key": dedup_key,
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def add_property(self, label: str, value: str = "",
+                     description: str = "") -> str:
+        """Create or dedup a PropertyNode.
+
+        PROPERTY labels are usually canonical names (``material``,
+        ``height``, ``width``, ...); dedup falls back to the label
+        itself when no numeric prefix is present.
+        """
+        if not label or not str(label).strip():
+            raise ParadataValidationError(
+                "PropertyNode requires a non-empty label")
+        dedup_key = _paradata_dedup_key(str(label))
+        existing = self._find_by_dedup_key("PropertyNode", dedup_key)
+        if existing:
+            return existing
+        from s3dgraphy.nodes.property_node import PropertyNode
+        from .uuid7 import uuid7
+        node_uuid = str(uuid7())
+        # PropertyNode signature varies across s3dgraphy versions;
+        # try the rich signature first, fall back to the minimal one.
+        try:
+            node = PropertyNode(
+                node_id=node_uuid,
+                name=str(label),
+                description=description or "",
+                value=value or "",
+                property_type=str(label),
+            )
+        except TypeError:
+            node = PropertyNode(
+                node_id=node_uuid,
+                name=str(label),
+                description=description or "",
+            )
+        node.attributes = {
+            "sito": self._sito,
+            "label": str(label),
+            "dedup_key": dedup_key,
+            "value": value or "",
+            "node_uuid": node_uuid,
+        }
+        self.add_node(node)
+        return node_uuid
+
+    def list_documents(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "DocumentNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "label": attrs.get("label", "") or getattr(n, "name", ""),
+                "dedup_key": attrs.get("dedup_key", ""),
+            })
+        return out
+
+    def list_combiners(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "CombinerNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "label": attrs.get("label", "") or getattr(n, "name", ""),
+                "dedup_key": attrs.get("dedup_key", ""),
+            })
+        return out
+
+    def list_extractors(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "ExtractorNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "label": attrs.get("label", "") or getattr(n, "name", ""),
+                "dedup_key": attrs.get("dedup_key", ""),
+            })
+        return out
+
+    def list_properties(self) -> list[dict]:
+        out = []
+        for n in self.read().nodes:
+            if type(n).__name__ != "PropertyNode":
+                continue
+            attrs = getattr(n, "attributes", None) or {}
+            out.append({
+                "node_uuid": getattr(n, "node_id", ""),
+                "label": attrs.get("label", "") or getattr(n, "name", ""),
+                "value": attrs.get("value", ""),
+                "dedup_key": attrs.get("dedup_key", ""),
             })
         return out

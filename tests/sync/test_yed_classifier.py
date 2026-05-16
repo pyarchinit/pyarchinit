@@ -102,12 +102,19 @@ def test_classify_reused_special_find(tmp_path):
 
 
 def test_classify_document_with_subdots(tmp_path):
-    """D.01.03 -> DOCUMENT (regex ^D\\.\\d+ matches the leading D.NN
-    portion; trailing .03 is allowed)."""
+    """Bug I (2026-05-15 user feedback): in the Extended Matrix
+    convention, ``D.NN.MM`` is an ExtractorNode (extraction MM from
+    document NN), NOT a DocumentNode. The classifier reads BPMN
+    properties first; in their absence it falls back to label depth:
+    a ``D.`` label with TWO dots (multi-level path after the prefix)
+    is treated as Extractor. Before this fix the regex matched
+    ``^D\\.\\d+`` for both labels and the us_table dedup collapsed
+    extractor + document into one row, dropping edges as self-loops.
+    """
     path = _make_graphml(tmp_path, ["D.01.03"])
     result = classify_leaves(path)
     assert len(result) == 1
-    assert result[0].auto_kind == ClassificationKind.DOCUMENT
+    assert result[0].auto_kind == ClassificationKind.EXTRACTOR
 
 
 def test_classify_property_case_insensitive(tmp_path):
