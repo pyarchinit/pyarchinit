@@ -442,6 +442,32 @@ def _flatten_members(
     return out
 
 
+def _resolve_folder_for_leaf(
+    yed_id: str,
+    folders: list[FolderCandidate],
+) -> str | None:
+    """Return the activity code of the folder containing ``yed_id``.
+
+    Iterates ``folders``; the FIRST folder with
+    ``auto_dimension == "attivita"`` (or user-overridden) whose
+    flattened member set includes ``yed_id`` wins. Nested folders
+    are walked recursively via ``_flatten_members``. Returns ``None``
+    when the leaf is orphan (no parent folder) or the parent folder
+    is of a non-activity dimension.
+
+    Used by the yE-F fold branch in ``_write_us_rows`` to compute the
+    primary or secondary activity for a paradata leaf.
+    """
+    for folder in folders:
+        dim = getattr(folder, "user_dimension", None) or folder.auto_dimension
+        if dim != "attivita":
+            continue
+        members = _flatten_members(folder, folders)
+        if yed_id in members:
+            return getattr(folder, "user_value", None) or folder.auto_value
+    return None
+
+
 # ---------------------------------------------------------------------------
 # SQL writers
 # ---------------------------------------------------------------------------
