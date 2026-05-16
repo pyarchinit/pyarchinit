@@ -53,6 +53,38 @@ _PARADATA_UNITA_TIPO_TO_CLASS_PATH: dict[str, tuple[str, str]] = {
 }
 
 
+def _resolve_target_for_folder(target_canonical_node, source_folder, graph):
+    """Pick the copy of ``target_canonical_node`` whose
+    ``attributes['attivita']`` equals ``source_folder``.
+
+    Used by ``_enrich_into`` rapporti edges loop (yE-F design spec §7)
+    when both endpoints are nodes in the graph and the target is a
+    multi-folder paradata row that was fanned out by
+    ``_apply_yef_fan_out`` upstream.
+
+    Lookup contract:
+      1. If the graph has no ``_yef_copies_by_canonical`` mapping or
+         the target isn't in it, return ``target_canonical_node``
+         (the target is single-folder or non-paradata).
+      2. Otherwise scan the copy list for an attivita match.
+      3. Fallback to the primary (first entry) when no copy matches —
+         covers the case "source folder is not in target's folder set"
+         (rare cross-folder reference).
+    """
+    if target_canonical_node is None:
+        return None
+    g_attrs = getattr(graph, "attributes", None) or {}
+    copies_map = g_attrs.get("_yef_copies_by_canonical") or {}
+    copies = copies_map.get(target_canonical_node.node_id)
+    if not copies:
+        return target_canonical_node
+    for c in copies:
+        cattrs = getattr(c, "attributes", None) or {}
+        if cattrs.get("attivita") == source_folder:
+            return c
+    return target_canonical_node
+
+
 def _create_paradata_node_for_unita_tipo(
     unita_tipo: str,
     name: str,
