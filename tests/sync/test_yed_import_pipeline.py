@@ -70,6 +70,7 @@ CREATE TABLE us_table (
     periodo_finale TEXT,
     fase_finale TEXT,
     d_stratigrafica TEXT,
+    other_locations TEXT,
     node_uuid TEXT,
     UNIQUE (sito, area, us, unita_tipo)
 )
@@ -996,57 +997,53 @@ def test_paradata_store_add_extractor_combiner_roundtrip(
     assert store2.list_properties()[0]["label"] == "material"
 
 
-def test_write_us_rows_paradata_no_dedup_one_row_per_occurrence(
+def test_write_us_rows_yef_fold_collapses_multiple_yed_occurrences(
     tmp_path: Path,
 ) -> None:
-    """Bug R regression (2026-05-15 user feedback): paradata kinds
-    (DOC / Combinar / Extractor / property) SKIP dedup-by-identity
-    so each yEd occurrence becomes its own us_table row. This
-    enables multi-folder visibility (the same ``material`` label
-    referenced from VA01 + VA04 + VA05 yields 3 rows, each carrying
-    its own ``attivita`` after the folder-dimensions pass).
+    """Bug R is superseded by yE-F: multiple yEd occurrences of the
+    same paradata label fold into ONE us_table row.
 
-    The original label is preserved in ``d_stratigrafica`` so the
-    writer's _resolve_display_label renders ``D.001`` regardless of
-    the us suffix.
+    yE-F replaces the previous no-dedup B1 behaviour (which produced
+    N rows with synthesised us suffixes ``_2``/``_3``). The fold key
+    per the design spec (§5.1) is ``(c.label, unita_tipo)`` — i.e.
+    identical labels collapse. Variant labels (D.001 vs D.001-2)
+    remain separate folds at the import boundary; collapsing those
+    is handled by ParadataStore.add_document dedup-by-identity (see
+    test_paradata_store_add_document_dedups_same_identity).
+
+    This test exercises the import-fold contract: 3 yEd occurrences
+    of ``D.001`` collapse to 1 row, and a separate label ``D.002``
+    gets its own row.
     """
     handle = _make_handle(tmp_path)
     leaves = [
         _leaf("y1", ClassificationKind.DOCUMENT, "D.001"),
-        _leaf("y2", ClassificationKind.DOCUMENT, "D.001-2"),
-        _leaf("y3", ClassificationKind.DOCUMENT, "D.001bis"),
+        _leaf("y2", ClassificationKind.DOCUMENT, "D.001"),
+        _leaf("y3", ClassificationKind.DOCUMENT, "D.001"),
         _leaf("y4", ClassificationKind.DOCUMENT, "D.002"),
     ]
-
     with handle.engine.begin() as conn:
         count, uuid_map = _write_us_rows(conn, leaves, sito="X")
 
-    # 4 INSERTs — every occurrence is its own row.
-    assert count == 4
-    # All 4 uuids distinct.
-    assert len({uuid_map[k] for k in ("y1", "y2", "y3", "y4")}) == 4
+    # 3 D.001 occurrences fold to 1 row; D.002 is its own row.
+    assert count == 2
+    assert uuid_map["y1"] == uuid_map["y2"] == uuid_map["y3"]
+    assert uuid_map["y4"] != uuid_map["y1"]
 
     with handle.engine.connect() as conn:
         rows = list(conn.execute(
-            text(
-                "SELECT us, unita_tipo, d_stratigrafica FROM us_table "
-                "WHERE sito = :s ORDER BY us"
-            ),
+            text("SELECT us, unita_tipo, d_stratigrafica, other_locations "
+                 "FROM us_table WHERE sito = :s ORDER BY us"),
             {"s": "X"},
         ))
-    assert len(rows) == 4
-    # us values are synthesised: first stays as-is, later occurrences
-    # get the _<seq> suffix.
-    us_values = sorted(r[0] for r in rows)
-    # The two D.001 variants reduce to '001' base; the third hits the
-    # _2 / _3 sequence; D.002 keeps base '002'.
-    assert us_values == ["001", "001_2", "001_3", "002"]
-    # All unita_tipo == DOC.
-    assert all(r[1] == "DOC" for r in rows)
-    # d_stratigrafica preserves the ORIGINAL label per row so the
-    # writer can render the user-visible name.
-    d_strats = sorted(r[2] for r in rows)
-    assert d_strats == ["D.001", "D.001-2", "D.001bis", "D.002"]
+    assert len(rows) == 2
+    assert {r[0] for r in rows} == {"001", "002"}
+    by_us = {r[0]: r for r in rows}
+    assert by_us["001"][2] == "D.001"
+    assert by_us["002"][2] == "D.002"
+    # No folders supplied → other_locations stays empty (None / [] / '').
+    assert by_us["001"][3] in (None, "", "[]")
+    assert by_us["002"][3] in (None, "", "[]")
 
 
 def test_classifier_extracts_extractor_kind() -> None:

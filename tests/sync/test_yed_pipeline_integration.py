@@ -84,6 +84,7 @@ CREATE TABLE us_table (
     periodo_finale TEXT,
     fase_finale TEXT,
     d_stratigrafica TEXT,
+    other_locations TEXT,
     node_uuid TEXT,
     UNIQUE (sito, area, us, unita_tipo)
 )

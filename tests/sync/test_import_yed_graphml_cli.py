@@ -77,6 +77,7 @@ def test_cli_dry_run_subprocess_on_mini_fixture(tmp_path):
             d_stratigrafica TEXT, d_interpretativa TEXT,
             attivita TEXT, struttura TEXT, settore TEXT,
             ambient TEXT, saggio TEXT, quad_par TEXT, documentazione TEXT,
+            other_locations TEXT,
             UNIQUE(sito, area, us, unita_tipo)
         );
         CREATE TABLE inventario_materiali_table (
