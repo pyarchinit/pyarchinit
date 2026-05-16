@@ -1,6 +1,8 @@
 """yE-F schema migration tests — ADD COLUMN other_locations TEXT
 idempotent on both SQLite and PG (PG paths skipped if psycopg2 missing)."""
 from __future__ import annotations
+import subprocess
+import sys
 from pathlib import Path
 from sqlalchemy import text
 import pytest
@@ -110,3 +112,43 @@ def test_add_other_locations_column_on_pg(pg_engine):
     # Cleanup.
     with handle.engine.begin() as conn:
         conn.execute(text("DROP TABLE IF EXISTS us_table CASCADE"))
+
+
+# --- CLI wrapper tests ---
+
+
+def test_cli_apply_adds_column(tmp_path):
+    """CLI ``--apply --db <path>`` runs the migration and exits 0."""
+    handle = _make_sqlite_handle(tmp_path)
+    dbfile = handle.sqlite_path
+    plugin_root = Path(__file__).resolve().parents[2]
+    cli = (plugin_root / "scripts" / "migrations"
+           / "2026_05_yef_other_locations.py")
+    env = {"PYTHONPATH": str(plugin_root), "PATH": "/usr/bin:/bin"}
+    proc = subprocess.run(
+        [sys.executable, str(cli), "--apply", "--db", str(dbfile)],
+        env=env, capture_output=True, text=True, timeout=30,
+    )
+
+    assert proc.returncode == 0, (
+        f"stdout={proc.stdout}\nstderr={proc.stderr}"
+    )
+    assert "other_locations" in _columns_of(handle.engine, "us_table")
+
+
+def test_cli_dry_run_reports_state(tmp_path):
+    """``--dry-run`` reports state without changing the DB."""
+    handle = _make_sqlite_handle(tmp_path)
+    dbfile = handle.sqlite_path
+    plugin_root = Path(__file__).resolve().parents[2]
+    cli = (plugin_root / "scripts" / "migrations"
+           / "2026_05_yef_other_locations.py")
+    env = {"PYTHONPATH": str(plugin_root), "PATH": "/usr/bin:/bin"}
+    proc = subprocess.run(
+        [sys.executable, str(cli), "--dry-run", "--db", str(dbfile)],
+        env=env, capture_output=True, text=True, timeout=30,
+    )
+
+    assert proc.returncode == 0
+    assert "other_locations present=False" in proc.stdout
+    assert "other_locations" not in _columns_of(handle.engine, "us_table")
