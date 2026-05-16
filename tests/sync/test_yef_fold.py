@@ -48,3 +48,72 @@ def test_resolve_folder_for_leaf_skips_non_attivita_dim():
     )
     folders = [_folder("F1", "AR05", members=["y1"], dim="area")]
     assert _resolve_folder_for_leaf("y1", folders) is None
+
+
+_US_TABLE_DDL = """
+CREATE TABLE us_table (
+    id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+    sito TEXT, area TEXT, us TEXT,
+    unita_tipo TEXT, rapporti TEXT, attivita TEXT,
+    periodo_iniziale TEXT, fase_iniziale TEXT,
+    periodo_finale TEXT, fase_finale TEXT,
+    d_stratigrafica TEXT, node_uuid TEXT,
+    other_locations TEXT,
+    UNIQUE (sito, area, us, unita_tipo)
+)
+"""
+
+
+def _make_yef_handle(tmp_path):
+    dbfile = tmp_path / "yef_fold.sqlite"
+    handle = DbHandle.from_path(dbfile)
+    with handle.engine.begin() as conn:
+        conn.execute(text(_US_TABLE_DDL))
+    return handle
+
+
+def _leaf(yed_id, kind, label=None):
+    return ClassifiedNode(
+        yed_id=yed_id, label=label or yed_id,
+        auto_kind=kind, user_kind=kind,
+    )
+
+
+def test_write_us_rows_yef_fold_first_occurrence_primary(tmp_path):
+    """3 'material' leaves in folders VA01/VA04/VA05 → 1 us_table row
+    with attivita='VA01' (first folder) + other_locations=['VA04','VA05'].
+    """
+    from modules.s3dgraphy.sync.yed_import_pipeline import _write_us_rows
+    handle = _make_yef_handle(tmp_path)
+    leaves = [
+        _leaf("m1", ClassificationKind.PROPERTY, "material"),
+        _leaf("m2", ClassificationKind.PROPERTY, "material"),
+        _leaf("m3", ClassificationKind.PROPERTY, "material"),
+    ]
+    folders = [
+        _folder("F1", "VA01", members=["m1"]),
+        _folder("F4", "VA04", members=["m2"]),
+        _folder("F5", "VA05", members=["m3"]),
+    ]
+
+    with handle.engine.begin() as conn:
+        count, uuid_map = _write_us_rows(
+            conn, leaves, sito="X", folders_map={f.yed_id: f for f in folders},
+        )
+
+    assert count == 1, f"expected 1 INSERT, got {count}"
+    with handle.engine.connect() as conn:
+        rows = list(conn.execute(text(
+            "SELECT us, unita_tipo, attivita, other_locations, "
+            "d_stratigrafica FROM us_table WHERE sito = 'X'"
+        )))
+    assert len(rows) == 1
+    us, ut, attivita, ol, d_strat = rows[0]
+    assert us == "material"
+    assert ut == "property"
+    assert attivita == "VA01"
+    import json
+    secondary = json.loads(ol) if ol else []
+    assert secondary == ["VA04", "VA05"]
+    assert d_strat == "material"
+    assert len(set(uuid_map.values())) == 1

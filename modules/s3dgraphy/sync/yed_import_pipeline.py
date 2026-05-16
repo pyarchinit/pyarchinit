@@ -516,25 +516,29 @@ def _write_us_rows(
     # leaves (US / USM / USV / SF / VSF / RSF / USD) dedup-by-identity
     # so multiple yed_ids referring to the same record collapse.
     #
-    # Bug R (2026-05-15 user feedback): paradata kinds (DOC /
-    # Combinar / Extractor / property) skip dedup — each yEd
-    # occurrence is its own us_table row, so a property like
-    # ``material`` referenced from folders VA01 + VA04 + VA05 gets
-    # three rows (each with its own attivita and node_uuid). This
-    # preserves multi-folder visibility in the re-exported graphml.
-    # The trade-off: identity-variant dedup (D.001 / D.001-2 / D.001bis
-    # collapsing to one row) goes away — every yEd ``<node>`` is its
-    # own us_table row. Future yE-F design will offer a proper
-    # multi-folder mechanism (single row + other_locations attr +
-    # render-time fan-out) without this trade-off.
+    # yE-F (2026-05-16 spec §5): paradata kinds (DOC / Combinar /
+    # Extractor / property) are FOLDED — N yEd occurrences of a
+    # shared paradata label collapse to ONE us_table row whose
+    # ``attivita`` carries the first folder in document order and
+    # whose ``other_locations`` JSON list carries the secondary
+    # folders. All sibling yEd ids share the same node_uuid; export
+    # fans the single row back out to N nodes (render-time multi-
+    # folder visibility) via _apply_yef_fan_out. This supersedes the
+    # short-lived Bug R "no-dedup" branch which wrote one row per
+    # occurrence with suffix-disambiguated us values.
     key_to_node_uuid: dict[tuple[str, str], str] = {}
     _PARADATA_NODEDUP_UTS: frozenset[str] = frozenset({
         "DOC", "Combinar", "Extractor", "property",
     })
-    # Per-(unita_tipo, base_us) sequence counter used to disambiguate
-    # the second/third/… occurrence of a paradata label (e.g.
-    # ``material`` → ``material_2``, ``material_3``).
-    paradata_seq: dict[tuple[str, str], int] = {}
+    # yE-F fold index: (label, unita_tipo) → (primary_node_uuid,
+    # primary_us, secondary_folders_list, primary_folder). First
+    # encounter of a shared paradata label registers the primary row;
+    # subsequent encounters append to ``secondary_folders_list`` (and
+    # UPDATE other_locations on the primary row) when their folder
+    # differs from the primary folder.
+    paradata_primary_by_label: dict[
+        tuple[str, str], tuple[str, str, list[str], str | None]
+    ] = {}
     # Bug H (2026-05-15 user feedback): pre-load existing (us, unita_tipo)
     # rows for this sito so re-import is idempotent. New keys still get
     # INSERTed; existing keys are surfaced into uuid_map so rapporti /
@@ -542,38 +546,23 @@ def _write_us_rows(
     # IntegrityErrors (data corruption, race) still bubble up and the
     # outer transaction rolls back atomically.
     #
-    # Bug R idempotency for paradata: also pre-load by
-    # ``d_stratigrafica`` since the us column for paradata kinds is
-    # synthesised (``material``, ``material_2``, ``material_3`` …).
-    # Re-running the same import must reuse the existing rows; we
-    # match by ``(d_stratigrafica, unita_tipo)`` and pop one entry
-    # per new candidate, so the cardinality stays stable.
-    # Bug R rapporti fix: track (us, node_uuid) per label so the
-    # paradata reuse path can both surface the uuid AND remember the
-    # actual us value (e.g. ``material_2``) — used by the caller's
-    # id_to_label so rapporti targets resolve to the correct row.
-    existing_paradata: dict[tuple[str, str], list[tuple[str, str]]] = {}
+    # yE-F idempotency for paradata is layered in Task 6 (re-import
+    # against an existing primary row reuses its node_uuid + appends
+    # newly-seen folders to other_locations). For Task 5 the pre-load
+    # populates only key_to_node_uuid so non-paradata dedup still
+    # benefits from the existing-row map.
     try:
         for r in conn.execute(
             text(
-                "SELECT us, unita_tipo, node_uuid, d_stratigrafica "
+                "SELECT us, unita_tipo, node_uuid "
                 "FROM us_table WHERE sito = :sito"
             ),
             {"sito": sito},
         ):
-            us_existing, ut_existing, nu_existing, d_existing = (
-                r[0], r[1], r[2], r[3],
-            )
+            us_existing, ut_existing, nu_existing = r[0], r[1], r[2]
             if us_existing is None or ut_existing is None or nu_existing is None:
                 continue
             key_to_node_uuid[(us_existing, ut_existing)] = nu_existing
-            if (
-                ut_existing in _PARADATA_NODEDUP_UTS
-                and d_existing
-            ):
-                existing_paradata.setdefault(
-                    (str(d_existing), ut_existing), [],
-                ).append((str(us_existing), str(nu_existing)))
     except Exception as exc:
         log.debug(
             "_write_us_rows: skip-existing pre-load failed (%s); "
@@ -588,71 +577,70 @@ def _write_us_rows(
             )
             continue
         us_value = _strip_unita_tipo_prefix(c.label, unita_tipo)
-        # Bug R paradata branch: every yEd occurrence creates a
-        # dedicated us_table row. Disambiguate us values within
-        # (sito, unita_tipo) by appending an incrementing suffix
-        # (``material``, ``material_2``, ``material_3`` …) and stash
-        # the original label in ``d_stratigrafica`` so the writer's
-        # _resolve_display_label can show ``material`` instead of
-        # the synthesised us value.
         if unita_tipo in _PARADATA_NODEDUP_UTS:
-            # Bug R idempotency: if a row with the same label
-            # (d_stratigrafica) and unita_tipo already exists in the
-            # DB, REUSE it instead of inserting a new sequence-suffixed
-            # row. The list is consumed in order so cardinality
-            # matches across re-imports of the same yEd graphml.
-            paradata_label_key = (c.label, unita_tipo)
-            existing_uuids_for_label = existing_paradata.get(
-                paradata_label_key, [])
-            if existing_uuids_for_label:
-                reused_us, reused_uuid = existing_uuids_for_label.pop(0)
-                uuid_map[c.yed_id] = reused_uuid
-                if us_by_yed_id_out is not None:
-                    us_by_yed_id_out[c.yed_id] = reused_us
-                continue
-            base = us_value
-            seq_key = (unita_tipo, base)
-            # Honour pre-existing DB rows: if ``base`` already taken,
-            # bump until free. The seq counter is per batch; combined
-            # with the pre-loaded ``key_to_node_uuid`` it guarantees
-            # uniqueness against the existing DB state too.
-            attempt = paradata_seq.get(seq_key, 0)
-            while True:
-                candidate = base if attempt == 0 else f"{base}_{attempt + 1}"
-                if (candidate, unita_tipo) not in key_to_node_uuid:
-                    break
-                attempt += 1
-            paradata_seq[seq_key] = attempt + 1
-            node_uuid = uuid7().hex
-            pi, fi = mtp.get(c.yed_id, (None, None))
-            conn.execute(
-                text(
-                    "INSERT INTO us_table "
-                    "(sito, area, us, unita_tipo, node_uuid, "
-                    " periodo_iniziale, fase_iniziale, "
-                    " periodo_finale, fase_finale, "
-                    " d_stratigrafica) "
-                    "VALUES (:sito, :area, :us, :unita_tipo, "
-                    "        :node_uuid, :pi, :fi, :pf, :ff, :d_strat)"
-                ),
-                {
-                    "sito": sito,
-                    "area": "1",
-                    "us": candidate,
-                    "unita_tipo": unita_tipo,
-                    "node_uuid": node_uuid,
-                    "pi": pi,
-                    "fi": fi,
-                    "pf": pi,
-                    "ff": fi,
-                    "d_strat": c.label,
-                },
+            # yE-F fold (2026-05-16 spec §5): each yEd occurrence of a
+            # paradata label is folded to ONE us_table row + JSON list
+            # of secondary activity codes. First-in-document-order
+            # becomes primary; subsequent ones append to other_locations.
+            label_key = (c.label, unita_tipo)
+            current_folder = _resolve_folder_for_leaf(
+                c.yed_id, list((folders_map or {}).values()),
             )
-            key_to_node_uuid[(candidate, unita_tipo)] = node_uuid
-            uuid_map[c.yed_id] = node_uuid
-            if us_by_yed_id_out is not None:
-                us_by_yed_id_out[c.yed_id] = candidate
-            count += 1
+            existing = paradata_primary_by_label.get(label_key)
+            if existing is None:
+                node_uuid = uuid7().hex
+                pi, fi = mtp.get(c.yed_id, (None, None))
+                conn.execute(
+                    text(
+                        "INSERT INTO us_table "
+                        "(sito, area, us, unita_tipo, node_uuid, "
+                        " periodo_iniziale, fase_iniziale, "
+                        " periodo_finale, fase_finale, "
+                        " d_stratigrafica, attivita, other_locations) "
+                        "VALUES (:sito, :area, :us, :unita_tipo, :nu, "
+                        "        :pi, :fi, :pf, :ff, :d_strat, "
+                        "        :attivita, :ol)"
+                    ),
+                    {
+                        "sito": sito, "area": "1",
+                        "us": us_value, "unita_tipo": unita_tipo,
+                        "nu": node_uuid,
+                        "pi": pi, "fi": fi, "pf": pi, "ff": fi,
+                        "d_strat": c.label,
+                        "attivita": current_folder,
+                        "ol": None,
+                    },
+                )
+                paradata_primary_by_label[label_key] = (
+                    node_uuid, us_value, [], current_folder,
+                )
+                key_to_node_uuid[(us_value, unita_tipo)] = node_uuid
+                uuid_map[c.yed_id] = node_uuid
+                if us_by_yed_id_out is not None:
+                    us_by_yed_id_out[c.yed_id] = us_value
+                count += 1
+            else:
+                primary_uuid, primary_us, secondary, primary_folder = existing
+                if (
+                    current_folder
+                    and current_folder != primary_folder
+                    and current_folder not in secondary
+                ):
+                    secondary.append(current_folder)
+                    import json
+                    conn.execute(
+                        text(
+                            "UPDATE us_table SET other_locations = :ol "
+                            "WHERE sito = :sito AND node_uuid = :nu"
+                        ),
+                        {
+                            "ol": json.dumps(secondary),
+                            "sito": sito, "nu": primary_uuid,
+                        },
+                    )
+                uuid_map[c.yed_id] = primary_uuid
+                if us_by_yed_id_out is not None:
+                    us_by_yed_id_out[c.yed_id] = primary_us
             continue
         # Stratigraphic (US / USM / USV / SF / VSF / RSF / USD) — keep
         # dedup-by-identity: multiple yed_ids of the same record
