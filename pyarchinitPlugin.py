@@ -2699,6 +2699,17 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionUuidBackfill)
 
+            # yE-F other_locations column migration (yed-f-multifolder-5.9.0-alpha):
+            # add us_table.other_locations TEXT column on legacy DBs.
+            self.actionYefOtherLocations = QAction(
+                "Migrazioni → Aggiungi colonna other_locations (yE-F)",
+                self.iface.mainWindow())
+            self.actionYefOtherLocations.triggered.connect(
+                self._run_yef_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionYefOtherLocations)
+
             # media-fk-migration 5.7.9.3-alpha: drop the legacy killer
             # triggers on media_thumb_table and replace them with proper
             # FK ON DELETE CASCADE. PG-only (SQLite templates were
@@ -2895,6 +2906,123 @@ class PyArchInitPlugin(object):
             self.iface.mainWindow(),
             "Backfill completato",
             f"Backup: {backup_path}\n\nUUID v7 assegnati:\n{counts_msg}",
+        )
+
+    def _run_yef_migration(self):
+        """yE-F other_locations column migration (yed-f-multifolder-5.9.0-alpha).
+
+        Adds the ``other_locations`` TEXT column to ``us_table`` so the
+        multi-folder paradata feature can persist secondary location
+        memberships per US record.
+
+        Pattern mirrors ``_run_uuid_backfill_migration``: resolve handle
+        from the configured Connection (no file picker), confirm,
+        auto-backup, apply via the migration lib, summarize.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from pathlib import Path
+        try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .scripts.migrations._2026_05_yef_other_locations_lib import (
+                add_other_locations_column,
+            )
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+        except Exception:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
+            from scripts.migrations._2026_05_yef_other_locations_lib import (
+                add_other_locations_column,
+            )
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione).",
+            )
+            return
+
+        try:
+            handle = _resolve_db_handle(conn_str)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile aprire la connessione al DB:\n{e}",
+            )
+            return
+
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or "")
+                         if handle.is_postgres
+                         else f"SQLite: {handle.sqlite_path}")
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma migrazione yE-F",
+            f"Backend: {backend_label}\n\n"
+            "Verrà aggiunta la colonna TEXT ``other_locations`` a "
+            "us_table (idempotente: salta la tabella se già presente).\n\n"
+            "Procedere con --apply (con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        backup_path = None
+        try:
+            if handle.is_postgres:
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                            / "_pga_backups")
+                try:
+                    backup_path = auto_backup_postgres(
+                        handle.engine, tag="yef_other_locations",
+                        dest_dir=dest_dir,
+                    )
+                except BackupSkipped as e:
+                    skip = QMessageBox.question(
+                        self.iface.mainWindow(),
+                        "Backup non disponibile",
+                        f"{e}\n\nProcedere SENZA backup automatico "
+                        "(sconsigliato)?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+                    if skip != QMessageBox.Yes:
+                        return
+                    backup_path = None
+            else:
+                backup_path = auto_backup_sqlite(
+                    handle.sqlite_path, tag="yef_other_locations",
+                )
+            added = add_other_locations_column(handle)
+        except Exception as e:
+            msg = (f"La migrazione è fallita:\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else f"La migrazione è fallita:\n{e}\n\nNessun backup creato."
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore migrazione",
+                msg,
+            )
+            return
+
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Migrazione yE-F completata",
+            f"Backup: {backup_path}\n\n"
+            f"Colonna other_locations: {added} (1=aggiunta, 0=già presente)",
         )
 
     def _run_media_fk_migration(self):

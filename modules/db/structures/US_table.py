@@ -132,6 +132,7 @@ class US_table:
                      Column('rapporti2', Text),  #95 ok
                      Column('doc_usv', Text),  #95 ok
                      Column('entity_uuid', Text),
+                     Column('other_locations', Text),  # 65 — yE-F multi-folder paradata (yed-f-multifolder-5.9.0-alpha)
 
                      # explicit/composite unique constraint.  'name' is optional.
                      UniqueConstraint('sito', 'area', 'us','unita_tipo', name='ID_us_unico')
