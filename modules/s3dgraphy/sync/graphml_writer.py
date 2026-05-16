@@ -1180,6 +1180,53 @@ def _clone_node_for_location(primary_node, location: str, idx: int,
     return clone
 
 
+def _apply_yef_fan_out(graph) -> int:
+    """yE-F render fan-out (design spec §6).
+
+    For each StratigraphicUnit-class node with non-empty
+    ``attributes['other_locations']``, emit N-1 visual copies via
+    ``_clone_node_for_location``. The N copies (primary + secondaries)
+    share the canonical ``pyarchinit.node_uuid`` data key for round-
+    trip identity, but have distinct yEd ``<node>`` ids
+    (``<canonical>_loc_<idx>``).
+
+    Stashes ``graph.attributes['_yef_copies_by_canonical']`` =
+    ``dict[canonical_uuid, list[primary_and_copies]]`` for the
+    per-folder edge resolver (yE-F-D).
+
+    Returns the number of copies created (0 if no yE-F rows in graph).
+    Non-paradata rows and empty ``other_locations`` are ignored.
+    """
+    import json
+    canonical_to_copies: dict[str, list] = {}
+    copies_created = 0
+    for n in list(graph.nodes):
+        attrs = getattr(n, "attributes", None) or {}
+        ol_raw = attrs.get("other_locations")
+        if not ol_raw:
+            continue
+        try:
+            secondary_locs = json.loads(ol_raw)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(secondary_locs, list) or not secondary_locs:
+            continue
+        primary_uuid = n.node_id
+        attrs["_yef_canonical_uuid"] = primary_uuid
+        canonical_to_copies[primary_uuid] = [n]
+        for idx, loc in enumerate(secondary_locs, start=1):
+            copy = _clone_node_for_location(
+                n, str(loc), idx, primary_uuid,
+            )
+            graph.add_node(copy)
+            canonical_to_copies[primary_uuid].append(copy)
+            copies_created += 1
+    if not hasattr(graph, "attributes") or graph.attributes is None:
+        graph.attributes = {}
+    graph.attributes["_yef_copies_by_canonical"] = canonical_to_copies
+    return copies_created
+
+
 def _inject_isolated_paradata_nodes(paradata_nodes, xml_path: Path) -> None:
     """Append AuthorNode / LicenseNode / EmbargoNode entries to the
     GraphMLExporter output for site-level paradata that has no
