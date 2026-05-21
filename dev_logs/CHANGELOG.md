@@ -5,6 +5,84 @@
 
 ---
 
+## [post-5.9.0.1-alpha] - 2026-05-21 (cont. 2) — Box labels: professional A4 portrait redesign + QR code
+
+> Commit `402faba2` su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Continuazione della giornata test PDF su `pyarchinit-AA39.sqlite`: dopo aver fatto funzionare la generazione del `Etichette Casse Materiali.pdf`, l'utente ha chiesto un redesign professionale "applicabili alla cassa" con QR code.
+
+### Italiano
+
+**Box label PDF: redesign professionale + QR code.**
+
+Il vecchio formato delle etichette casse (`Box_labels_Finds_pdf_sheet.create_sheet`) era una tabella 4-righe senza stile: solo testo su pagina bianca, identica al data-dump di `build_index_Casse`. Visualmente inutilizzabile come etichetta da applicare a una cassa fisica di magazzino archeologico.
+
+**Nuovo layout** (`modules/utility/pyarchinit_exp_Findssheet_pdf.py:Box_labels_Finds_pdf_sheet`):
+
+- **Formato**: A4 portrait (21×29.7 cm), 1 etichetta per pagina (full-page → ritagli a misura o stampi su carta adesiva A4)
+- **Banner header**: logo (sinistra) + nome sito (centro, 22pt bold blu scuro) + **badge cassa GIGANTE** (64pt bianco su sfondo blu scuro `#1a2d4a`) — leggibile da 1-2m di distanza per scaffalatura
+- **Banda luogo conservazione**: sfondo grigio chiaro (`#f0f2f7`), 14pt, evidenzia "dove sta la cassa"
+- **Body a 2 colonne**:
+  - Sinistra (~13cm): "Unità Stratigrafiche" (header 13pt bold blu) + lista una-per-riga; "Elenco materiali" (header 13pt bold blu) + lista una-per-riga
+  - Destra (~5.5cm): QR code 5×5cm + hint "Scansiona per ID" (9pt grigio)
+- **Footer**: "Generato il DATA — pyArchInit" (8pt italic grigio, sfondo grigio chiaro)
+- **Bordo esterno** in blue scuro `#1a2d4a` (1pt)
+
+**QR code payload strutturato pipe-delimited**:
+
+```
+PYARCHINIT|SITE:Geta|BOX:5|PLACE:Magazzino C - Lucerne|US:Area:1,US:10|ITEMS:Nr.inv:9/LIT,Nr.inv:10/CER|GEN:2026-05-21
+```
+
+Tre proprietà desiderate: (1) compatto (<150 chars tipici, stays nei limiti di QR version 10), (2) human-readable quando scansionato a un QR reader generico smartphone, (3) parseable da future app pyArchInit mobile. ITEMS auto-truncato a ~400 chars max per non sforare la capacity QR. Fallback a placeholder testuale se libreria `qrcode` mancante (è già in `requirements.txt`).
+
+**Refactor bonus**:
+
+- I 3 metodi duplicati `create_sheet[_de/_en]` (~100 righe l'uno, ~300 righe totali) collassati in un singolo `_render_label(lang)` + dict `TR_LABEL` (it/de/en) con tutte le stringhe i18n. Risultato: **-287 / +322 righe** nel file, codice più mantenibile, design consistente per tutte le lingue.
+- Helpers module-level aggiunti vicino al safe_eval block: `_strip_html`, `_make_qr_image`, `_build_qr_payload`, `TR_LABEL` dict.
+
+**Build size change**: `build_box_labels_Finds[_de/_en]` ora usa A4 portrait `(21 × 29.7 cm)` invece di A4 landscape `(29 × 21 cm)`. L'orientamento verticale matcha tipiche dimensioni di casse archeologiche e dà più spazio verticale per la lista materiali.
+
+**Public API invariato**: `tabs/Inv_Materiali.py:on_pushButton_print_pressed` continua a chiamare `Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)` senza modifiche.
+
+**Test isolation**: helpers (`_strip_html`, `_build_qr_payload`, `_make_qr_image`, `TR_LABEL`) verificati in standalone Python senza dipendenze QGIS — tutti OK (QR image 5×5cm generata, strip HTML rimuove `<b>5</b>`, payload 131 chars per la cassa di test).
+
+### English
+
+**Box label PDF: professional redesign + QR code.**
+
+The old box label format (`Box_labels_Finds_pdf_sheet.create_sheet`) was a 4-row unstyled table — just text on a white page, identical to the data dump from `build_index_Casse`. Visually unusable as an adhesive label on a physical archive box.
+
+**New layout** (`modules/utility/pyarchinit_exp_Findssheet_pdf.py:Box_labels_Finds_pdf_sheet`):
+
+- **Format**: A4 portrait (21×29.7 cm), 1 label per page (full-page → trim to fit or print on A4 adhesive paper)
+- **Header banner**: logo (left) + site name (centre, 22pt bold dark blue) + **HUGE cassa badge** (64pt white on dark blue `#1a2d4a` background) — readable from 1-2m for shelf identification
+- **Storage location band**: light grey background (`#f0f2f7`), 14pt, highlights "where the box lives"
+- **2-column body**:
+  - Left (~13cm): "Stratigraphic Units" (13pt bold blue header) + one-per-line list; "Materials list" (13pt bold blue header) + one-per-line list
+  - Right (~5.5cm): QR code 5×5cm + "Scan for ID" hint (9pt grey)
+- **Footer**: "Generated on DATE — pyArchInit" (8pt italic grey, light grey background)
+- **Outer border** in dark blue `#1a2d4a` (1pt)
+
+**Structured pipe-delimited QR payload**:
+
+```
+PYARCHINIT|SITE:Geta|BOX:5|PLACE:Magazzino C - Lucerne|US:Area:1,US:10|ITEMS:Nr.inv:9/LIT,Nr.inv:10/CER|GEN:2026-05-21
+```
+
+Three desired properties: (1) compact (<150 chars typical, fits QR version 10 limits), (2) human-readable when scanned with a generic smartphone QR reader, (3) parseable by future pyArchInit mobile apps. ITEMS auto-truncated to ~400 chars max to stay within QR capacity. Falls back to a text placeholder if `qrcode` lib missing (already in `requirements.txt`).
+
+**Refactor bonus**:
+
+- The 3 duplicated `create_sheet[_de/_en]` methods (~100 lines each, ~300 total) collapsed into a single `_render_label(lang)` + `TR_LABEL` dict (it/de/en) with all i18n strings. Result: **-287 / +322 lines** in the file, more maintainable code, consistent design across all languages.
+- Module-level helpers added near the safe_eval block: `_strip_html`, `_make_qr_image`, `_build_qr_payload`, `TR_LABEL` dict.
+
+**Build size change**: `build_box_labels_Finds[_de/_en]` now use A4 portrait `(21 × 29.7 cm)` instead of A4 landscape `(29 × 21 cm)`. The vertical orientation matches typical archive box dimensions and gives more vertical room for the materials list.
+
+**Public API unchanged**: `tabs/Inv_Materiali.py:on_pushButton_print_pressed` keeps calling `Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)` without modification.
+
+**Isolation test**: helpers (`_strip_html`, `_build_qr_payload`, `_make_qr_image`, `TR_LABEL`) verified standalone (no QGIS deps) — all OK (5×5cm QR image generated, HTML strip removes `<b>5</b>`, 131-char payload for the test box).
+
+---
+
 ## [post-5.9.0.1-alpha] - 2026-05-21 (cont.) — Safe eval override + Etichette Casse + nr_cassa quoting + unload recursion regression
 
 > Continuazione della stessa sessione del 21-05. Tre fix legati al test end-to-end dell'export PDF Inventario Materiali su `pyarchinit-AA39.sqlite` (sito Geta, 10 reperti seed).
