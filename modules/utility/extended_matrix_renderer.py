@@ -536,19 +536,29 @@ class _GroupLayout:
     y: float = 0.0
 
 
+# Header geometry constants (used in both layout sizing and rendering)
+_HEADER_HEIGHT = 30.0   # vertical space reserved at top of group for label
+_HEADER_PAD_TOP = 4.0   # gap between group top edge and the label pill
+
+
 def _compute_group_layouts(scene: _Scene,
-                           node_w: float = 80.0,
-                           node_h: float = 35.0,
-                           cell_x_pad: float = 30.0,
-                           cell_y_pad: float = 25.0,
-                           group_margin: float = 35.0,
-                           group_internal_pad: float = 25.0,
-                           uniform_group_width: bool = True
+                           node_w: float = 60.0,
+                           node_h: float = 25.0,
+                           cell_x_pad: float = 18.0,
+                           cell_y_pad: float = 18.0,
+                           group_margin: float = 25.0,
+                           group_internal_pad: float = 14.0,
+                           uniform_group_width: bool = False
                            ) -> Tuple[List[_GroupLayout], float, float]:
     """Compute per-group layered layout + global positions.
 
     Returns (group_layouts, total_width, total_height) all in
     matplotlib coordinate units (we use yEd-like units: pixels).
+
+    Default node size REDUCED from 80x35 to 60x25 (user feedback:
+    "simboli troppo grandi"). Uniform width DEFAULTS off so small
+    groups (VA04 with 6 children, VA06 with 9) don't get padded out
+    to match the biggest one.
     """
     groups_out: List[_GroupLayout] = []
     cell_w = node_w + cell_x_pad
@@ -569,7 +579,8 @@ def _compute_group_layouts(scene: _Scene,
             group_id=g.group_id, label=g.label, layers=layers,
             reduced_edges=set(reduced_edges),
             width=max_w_cells * cell_w + 2 * group_internal_pad,
-            height=len(layers) * cell_h + 2 * group_internal_pad + 40.0,  # +40 for header
+            height=(len(layers) * cell_h + 2 * group_internal_pad
+                    + _HEADER_HEIGHT),
         )
         groups_out.append(gl)
 
@@ -595,16 +606,16 @@ def _compute_group_layouts(scene: _Scene,
 
 
 def _node_positions(scene: _Scene, group_layouts: List[_GroupLayout],
-                    node_w: float = 80.0, node_h: float = 35.0,
-                    cell_x_pad: float = 30.0, cell_y_pad: float = 25.0,
-                    group_internal_pad: float = 25.0) -> Dict[str, Tuple[float, float]]:
+                    node_w: float = 60.0, node_h: float = 25.0,
+                    cell_x_pad: float = 18.0, cell_y_pad: float = 18.0,
+                    group_internal_pad: float = 14.0) -> Dict[str, Tuple[float, float]]:
     """Map each non-group node to its absolute (cx, cy) centre position."""
     positions: Dict[str, Tuple[float, float]] = {}
     cell_w = node_w + cell_x_pad
     cell_h = node_h + cell_y_pad
     for g in group_layouts:
-        # Header eats top 40 px of group; layers start below it.
-        inner_top = g.y + group_internal_pad + 40.0
+        # Header eats the top _HEADER_HEIGHT px; layers start below it.
+        inner_top = g.y + group_internal_pad + _HEADER_HEIGHT
         for layer_idx, layer in enumerate(g.layers):
             n_in_layer = len(layer)
             row_y = inner_top + layer_idx * cell_h + cell_h / 2.0
@@ -673,8 +684,8 @@ def render_extended_matrix(graphml_path: Union[str, Path],
                            *,
                            format: str = "png",
                            dpi: int = 150,
-                           node_width: float = 80.0,
-                           node_height: float = 35.0,
+                           node_width: float = 60.0,
+                           node_height: float = 25.0,
                            background: str = "#eef2f7") -> Path:
     """Render the Extended Matrix to PNG/JPEG/SVG.
 
@@ -732,14 +743,21 @@ def render_extended_matrix(graphml_path: Union[str, Path],
             linewidth=1.0,
             zorder=0,
         ))
-        # Group header pill at top-left
+        # Group header pill at top-left. Sized to fit inside the
+        # _HEADER_HEIGHT reserved strip; nodes' inner_top is BELOW
+        # this so they don't overlap.
         if g.label:
+            pill_h = _HEADER_HEIGHT - 2 * _HEADER_PAD_TOP
+            pill_w = max(60.0, 7.0 * len(g.label))  # auto-fit label
             ax.add_patch(Rectangle(
-                (g.x + 8, g.y + 6), 70.0, 22.0,
+                (g.x + _HEADER_PAD_TOP, g.y + _HEADER_PAD_TOP),
+                pill_w, pill_h,
                 facecolor="#1a2d4a", edgecolor="#1a2d4a", zorder=1,
             ))
-            ax.text(g.x + 8 + 35, g.y + 6 + 11, g.label,
-                    ha="center", va="center", fontsize=10,
+            ax.text(g.x + _HEADER_PAD_TOP + pill_w / 2,
+                    g.y + _HEADER_PAD_TOP + pill_h / 2,
+                    g.label,
+                    ha="center", va="center", fontsize=9,
                     color="#ffffff", fontweight="bold", zorder=2)
 
     # 2) Edges — typed + orthogonal routing + transitive-reduction filter
@@ -754,14 +772,19 @@ def render_extended_matrix(graphml_path: Union[str, Path],
                 node_to_group[nid] = g.group_id
     group_lookup = {g.group_id: g for g in group_layouts}
 
-    from matplotlib.patches import FancyArrowPatch
+    # True orthogonal edges: drawn as plain Manhattan polylines via
+    # ax.plot (3 segments: vertical-out, horizontal-traverse, vertical-in).
+    # No matplotlib arrowheads — direction is unambiguous from the
+    # layered layout (parent on top, child below). User rejected the
+    # previous FancyArrowPatch arrowheads as visually overwhelming
+    # ("simboli troppo grandi"). For directional hint we draw a small
+    # filled triangle at the target end via plain ax.fill().
     pos = positions
     for e in scene.edges:
         if e.source not in pos or e.target not in pos:
             continue
         src_grp = node_to_group.get(e.source)
         tgt_grp = node_to_group.get(e.target)
-        # Within-group: skip if transitive reduction dropped this edge.
         if src_grp and src_grp == tgt_grp:
             grp = group_lookup.get(src_grp)
             if grp is not None and grp.reduced_edges and \
@@ -769,34 +792,40 @@ def render_extended_matrix(graphml_path: Union[str, Path],
                 continue
         x1, y1 = pos[e.source]
         x2, y2 = pos[e.target]
-        # Orthogonal routing: angle3 produces a single 90° bend
-        # between source and target. Pick the bend angles based on
-        # the relative position (mostly-vertical → bend at top
-        # going down then right; mostly-horizontal → bend at right
-        # going across then down).
-        dx = x2 - x1
-        dy = y2 - y1
-        if abs(dy) >= abs(dx):
-            # Mostly vertical (parent→child): leave node downward (90),
-            # arrive horizontally (180 or 0).
-            angleA, angleB = 90, 180 if dx < 0 else 0
+        # Build a 3-segment Manhattan path. y inverted (down = larger).
+        src_bottom = y1 + node_height / 2.0
+        tgt_top = y2 - node_height / 2.0
+        if abs(y2 - y1) < 2.0:
+            # Same-row edges (rare): route ABOVE the row via a small
+            # detour so it doesn't draw through the nodes' centres.
+            mid_y = y1 - node_height * 0.6
+            path_x = [x1, x1, x2, x2]
+            path_y = [y1 - node_height / 2.0, mid_y, mid_y,
+                      y2 - node_height / 2.0]
         else:
-            # Mostly horizontal (sibling-ish): leave node sideways,
-            # arrive top/bottom.
-            angleA = 180 if dx < 0 else 0
-            angleB = 90 if dy < 0 else 270
-        arrow = FancyArrowPatch(
-            (x1, y1), (x2, y2),
-            connectionstyle=f"angle,angleA={angleA},angleB={angleB},rad=2",
-            arrowstyle="->,head_width=4,head_length=6",
-            color=e.color,
-            linewidth=e.linewidth,
-            linestyle=e.linestyle,
-            alpha=e.alpha,
-            shrinkA=node_height * 0.55, shrinkB=node_height * 0.55,
-            mutation_scale=10,
-        )
-        ax.add_patch(arrow)
+            mid_y = (src_bottom + tgt_top) / 2.0
+            path_x = [x1, x1, x2, x2]
+            path_y = [src_bottom, mid_y, mid_y, tgt_top]
+        ax.plot(path_x, path_y,
+                color=e.color,
+                linewidth=e.linewidth,
+                linestyle=e.linestyle,
+                alpha=e.alpha,
+                solid_capstyle="butt",
+                solid_joinstyle="miter",
+                zorder=2)
+        # Small filled triangle at the target end, only for
+        # stratigraphic (high-priority) relations — keep paradata
+        # << / >> edges arrowhead-free to reduce clutter.
+        if e.relation not in ("<<", ">>"):
+            arrow_tip_size = 3.5
+            tip_x, tip_y = path_x[-1], path_y[-1]
+            tri = [(tip_x, tip_y),
+                   (tip_x - arrow_tip_size, tip_y - arrow_tip_size * 1.4),
+                   (tip_x + arrow_tip_size, tip_y - arrow_tip_size * 1.4)]
+            ax.fill(*zip(*tri),
+                    color=e.color, alpha=e.alpha, zorder=3,
+                    edgecolor="none")
 
     # 3) Nodes (on top)
     for nid, (cx, cy) in positions.items():
