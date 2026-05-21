@@ -301,16 +301,21 @@ _FLAT_NODE_TYPE_FALLBACK = {
     "stratigraphic_unit":  "US",
     "masonry_unit":        "USM",
     "virtual_unit":        "USVs",
+    "virtual_feature":     "VSF",   # newer pyarchinit JSON dialect
     "documentary_unit":    "USD",
     "special_finding":     "SF",
+    "special_find":        "SF",    # newer pyarchinit JSON dialect
     "geo_position":        "geo_position",
     "epoch":               "EpochNode",
 }
 
 # Stratigraphic kinds (excludes paradata, epochs, geo) — used to set
 # `bucket="stratigraphic"` so the swimlane layout knows what to place.
+# Includes both the EM canonical forms (USVs / USVn) AND the truncated
+# form (USV) that the pyArchInit flat export uses for virtual units
+# without distinguishing structural / non-structural.
 _STRATIGRAPHIC_KINDS = {
-    "US", "USM", "USVs", "USVn", "USD", "SF", "VSF", "RSF",
+    "US", "USM", "USV", "USVs", "USVn", "USD", "SF", "VSF", "RSF",
     "TSU", "SE", "serSU", "serUSVs", "serUSVn", "unknown",
 }
 
@@ -389,13 +394,50 @@ def _load_flat(doc: Dict[str, Any]) -> S3DGraphData:
         if relation == "has_first_epoch" and src not in node_to_epoch:
             node_to_epoch[src] = tgt
 
+    # Synthesise epochs from inline `periodo` field if no explicit
+    # EpochNode was found. Most pyArchInit DBs assign the period as a
+    # plain numeric/string value on each US row (`periodo_iniziale`
+    # column → exported as `periodo` in the JSON) WITHOUT materialising
+    # an Epoch graph node. Without this fallback the swimlane renderer
+    # would degenerate to the unita_tipo-rows fallback even though
+    # period info IS present in the data.
+    if not epoch_id_seen:
+        seen_periodi: Dict[str, List[str]] = {}
+        for node_id, attrs in nx_graph.nodes(data=True):
+            data_dict = attrs.get("data") or {}
+            periodo = (data_dict.get("periodo") or "").strip()
+            if not periodo:
+                continue
+            seen_periodi.setdefault(periodo, []).append(node_id)
+        if seen_periodi:
+            # Numeric sort when possible (period "1" before "10"),
+            # else lexicographic. None of these are real BC/AD dates,
+            # so we use the periodo string as both id and label.
+            def _period_sort_key(p: str):
+                try:
+                    return (0, float(p))
+                except ValueError:
+                    return (1, p)
+            for periodo in sorted(seen_periodi.keys(), key=_period_sort_key):
+                synth_id = f"__synth_periodo_{periodo}"
+                epoch_id_seen[synth_id] = EpochInfo(
+                    epoch_id=synth_id,
+                    name=f"Periodo {periodo}",
+                    start_time=None,
+                    end_time=None,
+                    color=None,
+                )
+                for nid in seen_periodi[periodo]:
+                    node_to_epoch.setdefault(nid, synth_id)
+
     # Ensure every stratigraphic node has an entry in node_to_epoch
     # (None if unassigned — the layout creates a fallback row).
     for node_id, attrs in nx_graph.nodes(data=True):
         if attrs.get("bucket") == "stratigraphic":
             node_to_epoch.setdefault(node_id, None)
 
-    # Build chronologically-sorted epoch list.
+    # Build chronologically-sorted epoch list. For synthesised periodi
+    # (no start_time) keep insertion order via the dict.
     epochs_list = sorted(
         epoch_id_seen.values(),
         key=lambda e: (e.start_time is None, e.start_time or 0.0),

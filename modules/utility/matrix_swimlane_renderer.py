@@ -49,6 +49,8 @@ from .s3d_json_loader import S3DGraphData, load_s3d_json
 # style that should represent it. Keep this small and explicit.
 KIND_TO_PALETTE_LABEL = {
     "US":      "USM01",      # Standard archaeological US — rectangle
+    "USM":     "USM01",      # Masonry stratigraphic — rectangle (red border)
+    "USV":     "USV100",     # Generic virtual SU (truncated form) — parallelogram
     "USVs":    "USV100",     # Virtual structural — parallelogram
     "USVn":    "USV102",     # Virtual non-structural — hexagon
     "USD":     "USD10",      # Documentary stratigraphic — roundrect orange
