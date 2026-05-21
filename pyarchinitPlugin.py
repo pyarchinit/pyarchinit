@@ -2319,8 +2319,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
             self.iface.removeToolBarIcon(self.actionDbmanagment)
-            self.dockWidget.setVisible(False)
-            self.iface.removeDockWidget(self.dockWidget)
+            self._unload_main_dockwidget()
 
             if self.plugin_window:
                 self.plugin_window.close()
@@ -2409,8 +2408,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
             self.iface.removeToolBarIcon(self.actionDbmanagment)
-            self.dockWidget.setVisible(False)
-            self.iface.removeDockWidget(self.dockWidget)
+            self._unload_main_dockwidget()
             # Gestione Cantiere cleanup
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionPersonale)
@@ -2493,8 +2491,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
             self.iface.removeToolBarIcon(self.actionDbmanagment)
-            self.dockWidget.setVisible(False)
-            self.iface.removeDockWidget(self.dockWidget)
+            self._unload_main_dockwidget()
 
             # Gestione Cantiere cleanup
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
@@ -2578,8 +2575,7 @@ class PyArchInitPlugin(object):
             self.iface.removeToolBarIcon(self.actionThesaurus)
             self.iface.removeToolBarIcon(self.actionInfo)
             self.iface.removeToolBarIcon(self.actionDbmanagment)
-            self.dockWidget.setVisible(False)
-            self.iface.removeDockWidget(self.dockWidget)
+            self._unload_main_dockwidget()
 
             # Gestione Cantiere cleanup
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionCantiere)
@@ -3532,14 +3528,40 @@ class PyArchInitPlugin(object):
         )
 
     def _unload_stratigraph_sync(self):
-        """Tear down the StratiGraph sync subsystem."""
+        """Tear down the StratiGraph sync subsystem.
+
+        Calls ``deleteLater()`` on the dock widget and nulls the
+        attribute — without this, QGIS on plugin reload reports
+        "removing duplicated widget(s) not cleaned up by the plugin
+        during unload: StratiGraphSyncPan" because ``removeDockWidget``
+        detaches from the layout but does NOT destroy the QObject.
+        """
         if getattr(self, 'sync_orchestrator', None) is not None:
             self.sync_orchestrator.stop()
         if getattr(self, 'sync_panel', None) is not None:
             self.sync_panel.setVisible(False)
             self.iface.removeDockWidget(self.sync_panel)
+            self.sync_panel.deleteLater()
+            self.sync_panel = None
         if getattr(self, 'actionStratiGraphSync', None) is not None:
             self.iface.removeToolBarIcon(self.actionStratiGraphSync)
+            self.actionStratiGraphSync = None
+
+    def _unload_main_dockwidget(self):
+        """Idempotently tear down the main ``self.dockWidget``.
+
+        Called once per locale branch in ``unload()`` (4 branches:
+        it/en/de/fr). The ``deleteLater()`` + ``None`` assignment is
+        required to avoid the "removing duplicated widget(s) not cleaned
+        up by the plugin during unload: PyarchinitPlugin" warning on
+        plugin reload — ``iface.removeDockWidget`` only detaches from
+        layout, the QObject survives until the Qt event loop disposes
+        of it (which it never does without ``deleteLater``).
+        """
+        if getattr(self, 'dockWidget', None) is not None:
+            self._unload_main_dockwidget()
+            self.dockWidget.deleteLater()
+            self.dockWidget = None
 
     def _toggle_sync_panel(self, checked):
         if self.sync_panel is not None:
