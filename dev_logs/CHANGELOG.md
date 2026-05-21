@@ -5,6 +5,72 @@
 
 ---
 
+## [post-5.9.0.1-alpha] - 2026-05-21 — Inventario Materiali "Elenco Casse" crash + DB schema repair
+
+> Commit su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Bugfix sull'export PDF Elenco Casse + nuovo strumento di **schema repair** generico (tabelle + colonne mancanti) per DB legacy che l'auto-update del config dialog non riesce a migrare. Scoperto su `pyarchinit-AA39.sqlite` dove mancavano sia 5 colonne (`schedatore`, `date_scheda`, `punto_rinv`, `negativo_photo`, `diapositiva` su `inventario_materiali_table`) sia 1 colonna (`other_locations` su `us_table`) sia 1 intera tabella (`tomba_table`).
+
+### Italiano
+
+**Bug 1 — `build_index_Casse` crashava con TypeError quando l'elenco casse era vuoto.**
+
+`tabs/Inv_Materiali.py:on_pushButton_print_pressed` chiamava `Mat_casse_pdf.build_index_Casse(data_list, sito_ec)` senza controllo, mentre `generate_el_casse_pdf` aveva il `return data_for_pdf` **dentro il try**: se una qualsiasi query SQL falliva (es. `res_luogo_conservazione[0]` su lista vuota → `IndexError`), l'`except` mostrava il warning fuorviante "Il campo cassa non deve essere vuoto" e **ritornava `None` implicitamente**. Il caller passava quel `None` a `build_index_Casse` che crashava su `range(len(None))`.
+
+**Fix in 4 punti**:
+- `generate_el_casse_pdf` (line 5020): l'`except` ora ritorna `[]` esplicitamente + mostra messaggio con tipo eccezione/messaggio/traceback completo (rimosso il testo fuorviante).
+- 3 call site di `on_pushButton_print_pressed` (line 4751 it, 4811 de, 4907 en): aggiunto `if not data_list:` con warning localizzato ("Nessuna cassa trovata" / "Keine Kisten gefunden" / "No boxes found") che salta la generazione PDF invece di crashare.
+
+**Bug 2 — DB schema drift su DB importate da backup vecchi.**
+
+L'auto-migration in `modules/db/pyarchinit_db_update.py:446-459` aggiunge le 5 colonne schedatore SE `safe_load_table('inventario_materiali_table')` ritorna la tabella, MA per DB importate da backup o create da plugin molto vecchi `safe_load_table` ritorna `None` e l'intero blocco ADD COLUMN viene saltato silenziosamente. Stesso pattern per `us_table.other_locations` (migrazione yE-F del 5.9.0-alpha) e per tabelle intere (es. `tomba_table`).
+
+**Due nuove migrazioni standalone idempotenti** (pattern `2026_05_yef_other_locations.py`):
+
+1. **`scripts/migrations/2026_05_inventario_materiali_schedatore_fields.py` + lib**: aggiunge le 5 colonne TEXT (`schedatore`, `date_scheda`, `punto_rinv`, `negativo_photo`, `diapositiva`) su `inventario_materiali_table` se mancanti.
+2. **`scripts/migrations/2026_05_schema_repair.py` + lib**: audit completo + fix generico. Discover dinamico di tutti i `modules/db/structures/*.py` (47 file), crea le tabelle mancanti via `MetaData.create_all` (idempotente), poi delega alle migration granulari per le colonne note (`add_schedatore_columns` + `add_other_locations_column`). Returns un report `{tables_created, columns_added}`. Quando lanciato da CLI standalone (no env QGIS) traccia esplicitamente i moduli non importabili così l'utente capisce che l'audit è parziale; dentro QGIS l'audit è completo.
+
+**Wire QGIS menu** (`pyarchinitPlugin.py`):
+- `Migrazioni → Aggiungi colonne schedatore (inventario_materiali)` → handler con conferma + auto-backup + apply + report colonne aggiunte/già presenti.
+- `Migrazioni → Schema repair (tabelle + colonne mancanti)` → handler con dry-run preview (tabelle mancanti listate) + warning se discovery parziale + conferma + auto-backup + apply + report completo.
+
+**Applicato manualmente su `pyarchinit-AA39.sqlite`** durante il troubleshooting:
+- Backup pre-fix: `pyarchinit-AA39.sqlite.backup_20260521_085102_pre_schedatore_fix` (6.8 MB).
+- 5 colonne aggiunte a `inventario_materiali_table` (era a 0 righe).
+- 1 colonna aggiunta a `us_table` (268 US preservate, count invariato).
+- 1 tabella creata: `tomba_table` con schema da `modules/db/structures/Tomba_table.py`.
+- Row count post-fix verificato: us_table=268, site_table=1, media_table=10 (tutti invariati vs backup). **Nessun dato perso.**
+
+### English
+
+**Bug 1 — `build_index_Casse` crashed with TypeError on empty box list.**
+
+`tabs/Inv_Materiali.py:on_pushButton_print_pressed` called `Mat_casse_pdf.build_index_Casse(data_list, sito_ec)` without checks, while `generate_el_casse_pdf` had its `return data_for_pdf` **inside the try block**: if any SQL query raised (e.g. `res_luogo_conservazione[0]` on empty list → `IndexError`), the `except` showed the misleading warning "Il campo cassa non deve essere vuoto" and **implicitly returned `None`**. The caller passed that `None` to `build_index_Casse` which crashed on `range(len(None))`.
+
+**Fix in 4 places**:
+- `generate_el_casse_pdf` (line 5020): the `except` now explicitly returns `[]` + shows a message with exception type/message/full traceback (misleading text removed).
+- 3 call sites of `on_pushButton_print_pressed` (line 4751 it, 4811 de, 4907 en): added `if not data_list:` with localized warning that skips PDF generation instead of crashing.
+
+**Bug 2 — DB schema drift on DBs imported from old backups.**
+
+The auto-migration in `modules/db/pyarchinit_db_update.py:446-459` adds the 5 schedatore columns IF `safe_load_table('inventario_materiali_table')` returns the table, BUT for DBs imported from backups or created by very old plugin versions `safe_load_table` returns `None` and the entire ADD COLUMN block is silently skipped. Same pattern for `us_table.other_locations` (yE-F 5.9.0-alpha migration) and for whole tables (e.g. `tomba_table`).
+
+**Two new standalone idempotent migrations** (following `2026_05_yef_other_locations.py` pattern):
+
+1. **`scripts/migrations/2026_05_inventario_materiali_schedatore_fields.py` + lib**: adds the 5 TEXT columns (`schedatore`, `date_scheda`, `punto_rinv`, `negativo_photo`, `diapositiva`) to `inventario_materiali_table` if missing.
+2. **`scripts/migrations/2026_05_schema_repair.py` + lib**: full audit + generic fix. Dynamically discovers all `modules/db/structures/*.py` (47 files), creates missing tables via `MetaData.create_all` (idempotent), then delegates to granular migrations for known columns (`add_schedatore_columns` + `add_other_locations_column`). Returns a `{tables_created, columns_added}` report. When run via standalone CLI (no QGIS env) explicitly tracks non-importable modules so the user understands the audit is partial; inside QGIS the audit is complete.
+
+**QGIS menu wire** (`pyarchinitPlugin.py`):
+- `Migrazioni → Aggiungi colonne schedatore (inventario_materiali)` → handler with confirm + auto-backup + apply + report of added/already-present columns.
+- `Migrazioni → Schema repair (tabelle + colonne mancanti)` → handler with dry-run preview (missing tables listed) + warning if discovery partial + confirm + auto-backup + apply + full report.
+
+**Manually applied on `pyarchinit-AA39.sqlite`** during troubleshooting:
+- Pre-fix backup: `pyarchinit-AA39.sqlite.backup_20260521_085102_pre_schedatore_fix` (6.8 MB).
+- 5 columns added to `inventario_materiali_table` (was at 0 rows).
+- 1 column added to `us_table` (268 US preserved, count unchanged).
+- 1 table created: `tomba_table` with schema from `modules/db/structures/Tomba_table.py`.
+- Post-fix row count verified: us_table=268, site_table=1, media_table=10 (all unchanged vs backup). **No data lost.**
+
+---
+
 ## [post-5.9.0.1-alpha] - 2026-05-16 — LLM models refresh
 
 > Commit `e05229a0` su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Aggiornamento puntuale al selettore modelli AI usato dal dialog "Interrogazione Database con AI (RAG)" e da tutte le feature LLM.

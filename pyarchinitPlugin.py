@@ -2723,6 +2723,34 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionMediaFkMigration)
 
+            # inventario_materiali schedatore fields (post-5.9.0.1-alpha):
+            # add 5 TEXT columns missing on DBs whose auto-migration in
+            # pyarchinit_db_update.py:446-459 silently skipped (typical
+            # of DBs imported from backups or older plugin installs).
+            self.actionSchedatoreFields = QAction(
+                "Migrazioni → Aggiungi colonne schedatore "
+                "(inventario_materiali)",
+                self.iface.mainWindow())
+            self.actionSchedatoreFields.triggered.connect(
+                self._run_schedatore_fields_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionSchedatoreFields)
+
+            # Schema repair (post-5.9.0.1-alpha): full audit + fix.
+            # Use this when the "Update DB" button in the config dialog
+            # fails to migrate everything (typical symptom: "no such
+            # table" or "no such column" errors after opening a legacy
+            # DB). Idempotent: safe to re-run.
+            self.actionSchemaRepair = QAction(
+                "Migrazioni → Schema repair (tabelle + colonne mancanti)",
+                self.iface.mainWindow())
+            self.actionSchemaRepair.triggered.connect(
+                self._run_schema_repair_migration)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionSchemaRepair)
+
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
@@ -3023,6 +3051,281 @@ class PyArchInitPlugin(object):
             "Migrazione yE-F completata",
             f"Backup: {backup_path}\n\n"
             f"Colonna other_locations: {added} (1=aggiunta, 0=già presente)",
+        )
+
+    def _run_schedatore_fields_migration(self):
+        """Add 5 missing TEXT columns to inventario_materiali_table
+        (schedatore, date_scheda, punto_rinv, negativo_photo, diapositiva).
+
+        Pattern mirrors ``_run_yef_migration``: resolve handle from the
+        configured Connection, confirm, auto-backup, apply via the
+        migration lib, summarize.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from pathlib import Path
+        try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
+                SCHEDATORE_COLUMNS,
+                add_schedatore_columns,
+            )
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+        except Exception:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
+            from scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
+                SCHEDATORE_COLUMNS,
+                add_schedatore_columns,
+            )
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione).",
+            )
+            return
+
+        try:
+            handle = _resolve_db_handle(conn_str)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile aprire la connessione al DB:\n{e}",
+            )
+            return
+
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or "")
+                         if handle.is_postgres
+                         else f"SQLite: {handle.sqlite_path}")
+        cols_str = ", ".join(SCHEDATORE_COLUMNS)
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma migrazione schedatore",
+            f"Backend: {backend_label}\n\n"
+            f"Verranno aggiunte le 5 colonne TEXT a "
+            f"inventario_materiali_table (idempotente: salta quelle "
+            f"già presenti):\n  {cols_str}\n\n"
+            "Procedere con --apply (con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        backup_path = None
+        try:
+            if handle.is_postgres:
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                            / "_pga_backups")
+                try:
+                    backup_path = auto_backup_postgres(
+                        handle.engine, tag="schedatore_fields",
+                        dest_dir=dest_dir,
+                    )
+                except BackupSkipped as e:
+                    skip = QMessageBox.question(
+                        self.iface.mainWindow(),
+                        "Backup non disponibile",
+                        f"{e}\n\nProcedere SENZA backup automatico "
+                        "(sconsigliato)?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+                    if skip != QMessageBox.Yes:
+                        return
+                    backup_path = None
+            else:
+                backup_path = auto_backup_sqlite(
+                    handle.sqlite_path, tag="schedatore_fields",
+                )
+            result = add_schedatore_columns(handle)
+        except Exception as e:
+            msg = (f"La migrazione è fallita:\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else f"La migrazione è fallita:\n{e}\n\nNessun backup creato."
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore migrazione",
+                msg,
+            )
+            return
+
+        added = sum(result.values())
+        details = "\n".join(f"  {c}: {'added' if v else 'already present'}"
+                            for c, v in result.items())
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Migrazione schedatore completata",
+            f"Backup: {backup_path}\n\n"
+            f"Colonne aggiunte: {added}/{len(result)}\n\n{details}",
+        )
+
+    def _run_schema_repair_migration(self):
+        """Full schema repair: create missing tables + add known
+        missing columns. Use when the regular "Update DB" button has
+        failed to migrate everything (typical for DBs imported from
+        backups or created by very old plugin versions). Idempotent.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from pathlib import Path
+        try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .scripts.migrations._2026_05_schema_repair_lib import (
+                _collect_canonical_tables,
+                _existing_table_names,
+                repair_schema,
+            )
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+        except Exception:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
+            from scripts.migrations._2026_05_schema_repair_lib import (
+                _collect_canonical_tables,
+                _existing_table_names,
+                repair_schema,
+            )
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione).",
+            )
+            return
+
+        try:
+            handle = _resolve_db_handle(conn_str)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile aprire la connessione al DB:\n{e}",
+            )
+            return
+
+        # Dry-run preview before asking for confirmation.
+        canonical, failed_imports = _collect_canonical_tables()
+        present = _existing_table_names(handle.engine)
+        missing_tables = sorted(set(canonical) - present)
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or "")
+                         if handle.is_postgres
+                         else f"SQLite: {handle.sqlite_path}")
+        missing_text = (
+            "\n  ".join(missing_tables) if missing_tables
+            else "(nessuna)"
+        )
+        warning_text = ""
+        if failed_imports:
+            warning_text = (
+                f"\n\n⚠️  ATTENZIONE: {len(failed_imports)} moduli "
+                f"structure non sono importabili — l'audit è parziale. "
+                f"Vedi log QGIS per i dettagli."
+            )
+            for name, reason in failed_imports:
+                QgsMessageLog.logMessage(
+                    f"schema_repair: import failed for {name}: {reason}",
+                    "PyArchInit", Qgis.MessageLevel.Warning,
+                )
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma schema repair",
+            f"Backend: {backend_label}\n\n"
+            f"Tabelle nel DB: {len(present)} / canoniche: {len(canonical)}\n\n"
+            f"Tabelle mancanti da creare:\n  {missing_text}{warning_text}\n\n"
+            "Saranno anche aggiunte le colonne mancanti note "
+            "(inventario_materiali_table.schedatore e affini, "
+            "us_table.other_locations).\n\n"
+            "L'operazione è idempotente. Procedere con --apply "
+            "(con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        backup_path = None
+        try:
+            if handle.is_postgres:
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                            / "_pga_backups")
+                try:
+                    backup_path = auto_backup_postgres(
+                        handle.engine, tag="schema_repair",
+                        dest_dir=dest_dir,
+                    )
+                except BackupSkipped as e:
+                    skip = QMessageBox.question(
+                        self.iface.mainWindow(),
+                        "Backup non disponibile",
+                        f"{e}\n\nProcedere SENZA backup automatico "
+                        "(sconsigliato)?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+                    if skip != QMessageBox.Yes:
+                        return
+                    backup_path = None
+            else:
+                backup_path = auto_backup_sqlite(
+                    handle.sqlite_path, tag="schema_repair",
+                )
+            report = repair_schema(handle)
+        except Exception as e:
+            msg = (f"Lo schema repair è fallito:\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else f"Lo schema repair è fallito:\n{e}\n\nNessun backup creato."
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore schema repair",
+                msg,
+            )
+            return
+
+        created = report["tables_created"]
+        cols = report["columns_added"]
+        details = []
+        if created:
+            details.append("Tabelle create:")
+            details.extend(f"  + {t}" for t in created)
+        else:
+            details.append("Nessuna tabella da creare.")
+        if cols:
+            details.append("\nColonne aggiunte:")
+            for table_name, col_map in cols.items():
+                for c, added in col_map.items():
+                    details.append(f"  + {table_name}.{c}")
+        else:
+            details.append("\nNessuna colonna da aggiungere.")
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Schema repair completato",
+            f"Backup: {backup_path}\n\n" + "\n".join(details),
         )
 
     def _run_media_fk_migration(self):

@@ -4748,8 +4748,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
-                Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-                QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.StandardButton.Ok)
+                if not data_list:
+                    QMessageBox.warning(self, 'ATTENZIONE',
+                        f"Nessuna cassa trovata per il sito '{sito_ec}'. "
+                        f"Esportazione Elenco Casse annullata.",
+                        QMessageBox.StandardButton.Ok)
+                else:
+                    Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.StandardButton.Ok)
 
 
             else:
@@ -4802,8 +4808,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
-                Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
-                QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.StandardButton.Ok)
+                if not data_list:
+                    QMessageBox.warning(self, 'Warnung',
+                        f"Keine Kisten für die Fundstelle '{sito_ec}' gefunden. "
+                        f"Export der Kistenliste abgebrochen.",
+                        QMessageBox.StandardButton.Ok)
+                else:
+                    Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.StandardButton.Ok)
 
 
             else:
@@ -4892,8 +4904,14 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 Mat_casse_pdf = generate_reperti_pdf()
                 data_list = self.generate_el_casse_pdf(sito_ec)
 
-                Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
-                QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.StandardButton.Ok)
+                if not data_list:
+                    QMessageBox.warning(self, 'Warning',
+                        f"No boxes found for site '{sito_ec}'. "
+                        f"Box list export cancelled.",
+                        QMessageBox.StandardButton.Ok)
+                else:
+                    Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.StandardButton.Ok)
 
 
             else:
@@ -5124,7 +5142,19 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 # QMessageBox.warning(self,'tk',str(data_for_pdf), QMessageBox.Ok)
             return data_for_pdf
         except Exception as e:
-            QMessageBox.warning(self,'Warning','Il campo cassa non deve essere vuoto', QMessageBox.StandardButton.Ok)
+            import traceback
+            tb = traceback.format_exc()
+            QMessageBox.warning(
+                self,
+                'Errore generazione elenco casse',
+                f"Impossibile generare l'elenco casse per il sito '{self.sito_ec}'.\n"
+                f"Causa: {type(e).__name__}: {e}\n\n"
+                f"Verifica che ogni record INVENTARIO_MATERIALI del sito abbia il campo "
+                f"'nr_cassa' valorizzato e che la US referenziata esista.\n\n"
+                f"Dettaglio tecnico:\n{tb}",
+                QMessageBox.StandardButton.Ok,
+            )
+            return []
     ####################################################
     def on_pushButton_esporta_a5_pressed(self):
         """Esporta la scheda inventario in formato A5 con immagine"""
