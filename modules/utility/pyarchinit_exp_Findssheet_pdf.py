@@ -48,6 +48,113 @@ def _safe_eval(expr, *args, **kwargs):
         return []
 eval = _safe_eval
 # ----------------------------------------------------------------------------
+
+# --- Box labels helpers (post-2026-05-21: professional redesign + QR) -------
+import io as _io
+import re as _re
+try:
+    import qrcode as _qrcode
+    _QR_AVAILABLE = True
+except ImportError:
+    _QR_AVAILABLE = False
+
+
+def _strip_html(s):
+    """Strip HTML tags + collapse whitespace. Defensive against None."""
+    if s is None:
+        return ''
+    return _re.sub(r'\s+', ' ', _re.sub(r'<[^>]+>', '', str(s))).strip()
+
+
+def _build_qr_payload(sito, cassa_num, luogo, us_list, items_list, date_str):
+    """Build a structured pipe-delimited payload for a box label QR code.
+
+    Format::
+        PYARCHINIT|SITE:Geta|BOX:5|PLACE:Magazzino C|US:Area:1,US:10|ITEMS:Nr.inv:9/LIT|GEN:2026-05-21
+
+    Compact + human-readable when scanned to a phone, parseable by future
+    inventory apps. Uses ASCII-only field separators to avoid encoding
+    issues. Maximum length kept under QR version 10 capacity (~440 chars
+    alphanumeric / ~340 bytes binary) by truncating ITEMS if needed.
+    """
+    parts = [
+        "PYARCHINIT",
+        f"SITE:{_strip_html(sito)}",
+        f"BOX:{_strip_html(cassa_num)}",
+    ]
+    if luogo:
+        parts.append(f"PLACE:{_strip_html(luogo)}")
+    if us_list:
+        parts.append(f"US:{_strip_html(us_list)}")
+    if items_list:
+        items_txt = _strip_html(items_list)
+        # Truncate if total payload would exceed ~400 chars (safe QR v10)
+        max_items_len = max(50, 400 - sum(len(p) + 1 for p in parts) - len("ITEMS:"))
+        if len(items_txt) > max_items_len:
+            items_txt = items_txt[:max_items_len - 3] + "..."
+        parts.append(f"ITEMS:{items_txt}")
+    parts.append(f"GEN:{date_str}")
+    return "|".join(parts)
+
+
+def _make_qr_image(text, size_cm=5.0):
+    """Generate a QR code as a ReportLab Image flowable. Returns None if
+    the qrcode lib isn't installed (falls back to text label in caller)."""
+    if not _QR_AVAILABLE or not text:
+        return None
+    qr = _qrcode.QRCode(
+        version=None,  # auto-fit to data size
+        error_correction=_qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
+        border=2,
+    )
+    qr.add_data(text)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = _io.BytesIO()
+    img.save(buf, format='PNG')
+    buf.seek(0)
+    # Import here to avoid module-load order issues with reportlab
+    from reportlab.lib.units import cm as _cm
+    from reportlab.platypus import Image as _RLImage
+    return _RLImage(buf, width=size_cm * _cm, height=size_cm * _cm)
+
+
+# i18n strings for box labels (3 languages currently supported by the
+# old code; falls back to 'it' for unknown lang codes).
+TR_LABEL = {
+    'it': {
+        'sito': 'Sito',
+        'cassa': 'Cassa',
+        'luogo': 'Luogo di conservazione',
+        'us': 'Unità Stratigrafiche',
+        'materiali': 'Elenco materiali',
+        'generato': 'Generato il',
+        'scan_hint': 'Scansiona per ID',
+        'no_data': '—',
+    },
+    'de': {
+        'sito': 'Fundstelle',
+        'cassa': 'Kiste',
+        'luogo': 'Aufbewahrungsort',
+        'us': 'Stratigraphische Einheiten',
+        'materiali': 'Materialliste',
+        'generato': 'Erstellt am',
+        'scan_hint': 'Scannen für ID',
+        'no_data': '—',
+    },
+    'en': {
+        'sito': 'Site',
+        'cassa': 'Box',
+        'luogo': 'Storage location',
+        'us': 'Stratigraphic Units',
+        'materiali': 'Materials list',
+        'generato': 'Generated on',
+        'scan_hint': 'Scan for ID',
+        'no_data': '—',
+    },
+}
+# ----------------------------------------------------------------------------
 from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
@@ -1147,299 +1254,227 @@ class Box_labels_Finds_pdf_sheet(object):
         today = now.strftime("%d-%m-%Y")
         return today
 
+    # ---- Box label: professional layout + QR (redesigned 2026-05-21) ----
+    # Single _render_label(lang) replaces the 3 duplicated create_sheet*
+    # methods (it/de/en) that lived here before. Old layout was an unstyled
+    # 4-row table; new layout uses A4 portrait with a banner header (logo
+    # + site + huge cassa badge), a storage band, a 2-column body (US +
+    # materials | QR code), and a footer band. QR encodes a structured
+    # PYARCHINIT pipe-delimited payload (site/box/place/us/items/date)
+    # that future inventory apps can parse.
+
+    def _render_label(self, lang='it'):
+        t = TR_LABEL.get(lang, TR_LABEL['it'])
+
+        # --- Styles ---
+        styles = getSampleStyleSheet()
+        styBanner = ParagraphStyle(
+            'BoxLabelBanner', parent=styles['Normal'],
+            fontName='cambriab', fontSize=22, leading=26,
+            textColor=colors.HexColor('#1a2d4a'),
+            alignment=0, spaceBefore=0, spaceAfter=0,
+        )
+        styCassaBadge = ParagraphStyle(
+            'BoxLabelCassaBadge', parent=styles['Normal'],
+            fontName='cambriab', fontSize=64, leading=70,
+            textColor=colors.white,
+            alignment=1, spaceBefore=0, spaceAfter=0,
+        )
+        styCassaLabel = ParagraphStyle(
+            'BoxLabelCassaSmallLabel', parent=styles['Normal'],
+            fontName='Cambria', fontSize=10, leading=12,
+            textColor=colors.white,
+            alignment=1, spaceBefore=0, spaceAfter=0,
+        )
+        styStorage = ParagraphStyle(
+            'BoxLabelStorage', parent=styles['Normal'],
+            fontName='Cambria', fontSize=14, leading=18,
+            textColor=colors.HexColor('#333333'),
+            alignment=0, spaceBefore=0, spaceAfter=0,
+        )
+        stySectionHeader = ParagraphStyle(
+            'BoxLabelSectionHeader', parent=styles['Normal'],
+            fontName='cambriab', fontSize=13, leading=16,
+            textColor=colors.HexColor('#1a2d4a'),
+            alignment=0, spaceBefore=0, spaceAfter=4,
+        )
+        styBody = ParagraphStyle(
+            'BoxLabelBody', parent=styles['Normal'],
+            fontName='Cambria', fontSize=11, leading=14,
+            textColor=colors.black,
+            alignment=0, spaceBefore=0, spaceAfter=0,
+        )
+        styScanHint = ParagraphStyle(
+            'BoxLabelScanHint', parent=styles['Normal'],
+            fontName='Cambria', fontSize=9, leading=11,
+            textColor=colors.HexColor('#666666'),
+            alignment=1, spaceBefore=2, spaceAfter=0,
+        )
+        styFooter = ParagraphStyle(
+            'BoxLabelFooter', parent=styles['Normal'],
+            fontName='VeraIt', fontSize=8, leading=10,
+            textColor=colors.HexColor('#888888'),
+            alignment=0, spaceBefore=0, spaceAfter=0,
+        )
+
+        # --- Data prep ---
+        sito_txt = _strip_html(self.sito) or t['no_data']
+        cassa_num = _strip_html(self.cassa) or '?'
+        luogo_txt = _strip_html(self.luogo_conservazione) or t['no_data']
+        us_txt = _strip_html(self.elenco_us) or t['no_data']
+        items_txt = _strip_html(self.elenco_inv_tip_rep) or t['no_data']
+        today_str = self.datestrfdate()
+
+        # --- Logo (resilient if missing) ---
+        try:
+            home = os.environ['PYARCHINIT_HOME']
+            conn = Connection()
+            lo_path = conn.logo_path()
+            lo_path_str = lo_path['logo']
+            home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
+            logo_path = lo_path_str if lo_path_str else '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
+            logo = Image(logo_path)
+            logo.drawHeight = 2.0 * cm * logo.drawHeight / logo.drawWidth
+            logo.drawWidth = 2.0 * cm
+        except Exception:
+            logo = Paragraph("", styBody)
+
+        # --- Header banner: logo + site + cassa badge (right) ---
+        site_block = Paragraph(
+            f"<b>{t['sito']}:</b> {sito_txt}", styBanner
+        )
+        cassa_badge_inner = Table(
+            [
+                [Paragraph(t['cassa'].upper(), styCassaLabel)],
+                [Paragraph(f"<b>{cassa_num}</b>", styCassaBadge)],
+            ],
+            colWidths=[4.5 * cm],
+            rowHeights=[0.6 * cm, 2.4 * cm],
+            style=TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#1a2d4a')),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+                ('LINEABOVE', (0, 1), (-1, 1), 0.5, colors.HexColor('#7d8aa5')),
+            ]),
+        )
+
+        header_row = Table(
+            [[logo, site_block, cassa_badge_inner]],
+            colWidths=[2.5 * cm, None, 5.0 * cm],
+            rowHeights=[3.2 * cm],
+            style=TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 6),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('LINEBELOW', (0, 0), (-1, -1), 1.5, colors.HexColor('#1a2d4a')),
+            ]),
+        )
+
+        # --- Storage band ---
+        storage_block = Paragraph(
+            f"<b>{t['luogo']}:</b> {luogo_txt}", styStorage
+        )
+        storage_row = Table(
+            [[storage_block]],
+            colWidths=[None],
+            rowHeights=[1.4 * cm],
+            style=TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0f2f7')),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.HexColor('#1a2d4a')),
+            ]),
+        )
+
+        # --- Body: 2 columns (US + items | QR) ---
+        us_section = [
+            Paragraph(t['us'], stySectionHeader),
+            Paragraph(us_txt.replace(', ', '<br/>'), styBody),
+            Spacer(0, 0.4 * cm),
+            Paragraph(t['materiali'], stySectionHeader),
+            Paragraph(items_txt.replace(',', '<br/>'), styBody),
+        ]
+
+        qr_payload = _build_qr_payload(
+            sito_txt, cassa_num, luogo_txt, us_txt, items_txt, today_str
+        )
+        qr_img = _make_qr_image(qr_payload, size_cm=5.0)
+        if qr_img is None:
+            qr_cell = Paragraph(
+                f"<font size=\'8\'>QR n/d<br/>(install qrcode)</font>", styBody
+            )
+        else:
+            qr_cell = Table(
+                [[qr_img], [Paragraph(t['scan_hint'], styScanHint)]],
+                colWidths=[5.2 * cm],
+                style=TableStyle([
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('TOPPADDING', (0, 0), (-1, -1), 0),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                ]),
+            )
+
+        body_row = Table(
+            [[us_section, qr_cell]],
+            colWidths=[None, 5.5 * cm],
+            style=TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (0, 0), 10),
+                ('RIGHTPADDING', (0, 0), (0, 0), 10),
+                ('TOPPADDING', (0, 0), (-1, -1), 12),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+                ('LEFTPADDING', (1, 0), (1, 0), 4),
+                ('RIGHTPADDING', (1, 0), (1, 0), 4),
+            ]),
+        )
+
+        # --- Footer ---
+        footer_row = Table(
+            [[Paragraph(f"{t['generato']} {today_str}  —  pyArchInit", styFooter)]],
+            colWidths=[None],
+            rowHeights=[0.8 * cm],
+            style=TableStyle([
+                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f8f8f8')),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 8),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+                ('LINEABOVE', (0, 0), (-1, -1), 0.3, colors.HexColor('#cccccc')),
+            ]),
+        )
+
+        # --- Outer wrapper with border ---
+        label = Table(
+            [[header_row], [storage_row], [body_row], [footer_row]],
+            colWidths=[None],
+            style=TableStyle([
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('BOX', (0, 0), (-1, -1), 1.0, colors.HexColor('#1a2d4a')),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+                ('TOPPADDING', (0, 0), (-1, -1), 0),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ]),
+        )
+        return label
+
     def create_sheet(self):
-        styleSheet = getSampleStyleSheet()
-
-        styleSheet.add(ParagraphStyle(name='Cassa Label'))
-        styleSheet.add(ParagraphStyle(name='Sito Label'))
-
-        styCassaLabel = styleSheet['Cassa Label']
-        styCassaLabel.spaceBefore = 0
-        styCassaLabel.spaceAfter = 0
-        styCassaLabel.alignment = 2  # RIGHT
-        styCassaLabel.leading = 25
-        styCassaLabel.fontSize = 30
-
-        styCassaLabel.fontName = 'Cambria'
-        stySitoLabel = styleSheet['Sito Label']
-        stySitoLabel.spaceBefore = 0
-        stySitoLabel.spaceAfter = 0
-        stySitoLabel.alignment = 0  # LEFT
-        stySitoLabel.leading = 25
-        stySitoLabel.fontSize = 18
-        stySitoLabel.fontStyle = 'bold'
-        stySitoLabel.fontName = 'Cambria'
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 10
-        styNormal.spaceAfter = 10
-        styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 14
-        styNormal.leading = 15
-        styNormal.fontName = 'Cambria'
-
-        # format labels
-        home = os.environ['PYARCHINIT_HOME']
-
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path=lo_path_str
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        num_cassa = Paragraph("<b>N° Cassa </b>" + str(self.cassa), styCassaLabel)
-        sito = Paragraph("<b>Sito: </b>" + str(self.sito), stySitoLabel)
-
-        if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo materiale</b><br/>", styNormal)
-        else:
-            elenco_inv_tip_rep = Paragraph("<b>Elenco n. inv. / Tipo materiale</b><br/>" + str(self.elenco_inv_tip_rep),
-                                           styNormal)
-
-        if self.elenco_us == None:
-            elenco_us = Paragraph("<b>Elenco US/(struttura)</b>", styNormal)
-        else:
-            elenco_us = Paragraph("<b>Elenco US/(struttura)</b><br/>" + str(self.elenco_us), styNormal)
-
-            # luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),styNormal)
-
-            # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [logo, '01', '02', '03', '04', '05', num_cassa, '07', '08', '09'],
-            [sito, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_us, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_inv_tip_rep, '01', '02', '03', '04', '05', '06', '07', '08', '09']
-
-        ]
-
-        # table style
-        table_style = [
-
-            ('GRID', (0, 0), (-1, -1), 0, colors.white),  # ,0.0,colors.black
-            # 0 row
-            ('SPAN', (0, 0), (5, 0)),  # elenco US
-            ('SPAN', (6, 0), (9, 0)),  # elenco US
-            ('HALIGN', (0, 0), (9, 0), 'LEFT'),
-            ('VALIGN', (6, 0), (9, 0), 'TOP'),
-            ('HALIGN', (6, 0), (9, 0), 'RIGHT'),
-
-            ('SPAN', (0, 1), (9, 1)),  # elenco US
-            ('HALIGN', (0, 1), (9, 1), 'LEFT'),
-
-            ('SPAN', (0, 2), (9, 2)),  # intestazione
-            ('VALIGN', (0, 2), (9, 2), 'TOP'),
-            # 1 row
-            ('SPAN', (0, 3), (9, 3)),  # elenco US
-            ('VALIGN', (0, 3), (9, 3), 'TOP')
-
-        ]
-
-        colWidths = None
-        rowHeights = None
-        # colWidths=[80,80,80, 80,80, 80,80,80,80, 80]
-        t = Table(cell_schema, colWidths, rowHeights, style=table_style)
-
-        return t
+        return self._render_label(lang='it')
 
     def create_sheet_de(self):
-        styleSheet = getSampleStyleSheet()
+        return self._render_label(lang='de')
 
-        styleSheet.add(ParagraphStyle(name='Cassa Label'))
-        styleSheet.add(ParagraphStyle(name='Sito Label'))
-
-        styCassaLabel = styleSheet['Cassa Label']
-        styCassaLabel.spaceBefore = 0
-        styCassaLabel.spaceAfter = 0
-        styCassaLabel.alignment = 2  # RIGHT
-        styCassaLabel.leading = 25
-        styCassaLabel.fontSize = 30
-
-        stySitoLabel = styleSheet['Sito Label']
-        stySitoLabel.spaceBefore = 0
-        stySitoLabel.spaceAfter = 0
-        stySitoLabel.alignment = 0  # LEFT
-        stySitoLabel.leading = 25
-        stySitoLabel.fontSize = 18
-        stySitoLabel.fontStyle = 'bold'
-
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 10
-        styNormal.spaceAfter = 10
-        styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 14
-        styNormal.leading = 15
-
-        # format labels
-        home = os.environ['PYARCHINIT_HOME']
-
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-        num_cassa = Paragraph("<b>N° Box</b>" + str(self.cassa), styCassaLabel)
-        sito = Paragraph("<b>Ausgrabungsstättesstätte: </b>" + str(self.sito), stySitoLabel)
-
-        if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>", styNormal)
-        else:
-            elenco_inv_tip_rep = Paragraph("<b>Liste N° Inv. / Art material</b><br/>" + str(self.elenco_inv_tip_rep),
-                                           styNormal)
-
-        if self.elenco_us == None:
-            elenco_us = Paragraph("<b>Liste SE/(Struktur)</b>", styNormal)
-        else:
-            elenco_us = Paragraph("<b>Liste SE/(Struktur)</b><br/>" + str(self.elenco_us), styNormal)
-
-            # luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),styNormal)
-
-            # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [logo, '01', '02', '03', '04', '05', num_cassa, '07', '08', '09'],
-            [sito, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_us, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_inv_tip_rep, '01', '02', '03', '04', '05', '06', '07', '08', '09']
-
-        ]
-
-        # table style
-        table_style = [
-
-            ('GRID', (0, 0), (-1, -1), 0, colors.white),  # ,0.0,colors.black
-            # 0 row
-            ('SPAN', (0, 0), (5, 0)),  # elenco US
-            ('SPAN', (6, 0), (9, 0)),  # elenco US
-            ('HALIGN', (0, 0), (9, 0), 'LEFT'),
-            ('VALIGN', (6, 0), (9, 0), 'TOP'),
-            ('HALIGN', (6, 0), (9, 0), 'RIGHT'),
-
-            ('SPAN', (0, 1), (9, 1)),  # elenco US
-            ('HALIGN', (0, 1), (9, 1), 'LEFT'),
-
-            ('SPAN', (0, 2), (9, 2)),  # intestazione
-            ('VALIGN', (0, 2), (9, 2), 'TOP'),
-            # 1 row
-            ('SPAN', (0, 3), (9, 3)),  # elenco US
-            ('VALIGN', (0, 3), (9, 3), 'TOP')
-
-        ]
-
-        colWidths = None
-        rowHeights = None
-        # colWidths=[80,80,80, 80,80, 80,80,80,80, 80]
-        t = Table(cell_schema, colWidths, rowHeights, style=table_style)
-
-        return t
-        
     def create_sheet_en(self):
-        styleSheet = getSampleStyleSheet()
+        return self._render_label(lang='en')
 
-        styleSheet.add(ParagraphStyle(name='Cassa Label'))
-        styleSheet.add(ParagraphStyle(name='Sito Label'))
 
-        styCassaLabel = styleSheet['Cassa Label']
-        styCassaLabel.spaceBefore = 0
-        styCassaLabel.spaceAfter = 0
-        styCassaLabel.alignment = 2  # RIGHT
-        styCassaLabel.leading = 25
-        styCassaLabel.fontSize = 30
-
-        stySitoLabel = styleSheet['Sito Label']
-        stySitoLabel.spaceBefore = 0
-        stySitoLabel.spaceAfter = 0
-        stySitoLabel.alignment = 0  # LEFT
-        stySitoLabel.leading = 25
-        stySitoLabel.fontSize = 18
-        stySitoLabel.fontStyle = 'bold'
-
-        styNormal = styleSheet['Normal']
-        styNormal.spaceBefore = 10
-        styNormal.spaceAfter = 10
-        styNormal.alignment = 0  # LEFT
-        styNormal.fontSize = 14
-        styNormal.leading = 15
-
-        # format labels
-        home = os.environ['PYARCHINIT_HOME']
-
-        conn = Connection()
-        lo_path = conn.logo_path()
-        lo_path_str = lo_path['logo']
-        home_DB_path = '{}{}{}'.format(home, os.sep, 'pyarchinit_DB_folder')
-        logo_path=lo_path_str
-        if not bool(lo_path_str):
-            logo_path = '{}{}{}'.format(home_DB_path, os.sep, 'logo.jpg')
-        else:
-            logo_path=lo_path_str
-        logo = Image(logo_path)
-        logo.drawHeight = 1.5 * inch * logo.drawHeight / logo.drawWidth
-        logo.drawWidth = 1.5 * inch
-
-        num_cassa = Paragraph("<b>Box</b>" + str(self.cassa), styCassaLabel)
-        sito = Paragraph("<b>Site: </b>" + str(self.sito), stySitoLabel)
-
-        if self.elenco_inv_tip_rep == None:
-            elenco_inv_tip_rep = Paragraph("<b>List N° Inv. / Material type</b><br/>", styNormal)
-        else:
-            elenco_inv_tip_rep = Paragraph("<b>List N° Inv. / Material type</b><br/>" + str(self.elenco_inv_tip_rep),
-                                           styNormal)
-
-        if self.elenco_us == None:
-            elenco_us = Paragraph("<b>List SU/(Structure)</b>", styNormal)
-        else:
-            elenco_us = Paragraph("<b>List SU/(Structure)</b><br/>" + str(self.elenco_us), styNormal)
-
-            # luogo_conservazione = Paragraph("<b>Luogo di conservazione</b><br/>" + str(self.luogo_conservazione),styNormal)
-
-            # schema
-        cell_schema = [  # 00, 01, 02, 03, 04, 05, 06, 07, 08, 09 rows
-            [logo, '01', '02', '03', '04', '05', num_cassa, '07', '08', '09'],
-            [sito, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_us, '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-            [elenco_inv_tip_rep, '01', '02', '03', '04', '05', '06', '07', '08', '09']
-
-        ]
-
-        # table style
-        table_style = [
-
-            ('GRID', (0, 0), (-1, -1), 0, colors.white),  # ,0.0,colors.black
-            # 0 row
-            ('SPAN', (0, 0), (5, 0)),  # elenco US
-            ('SPAN', (6, 0), (9, 0)),  # elenco US
-            ('HALIGN', (0, 0), (9, 0), 'LEFT'),
-            ('VALIGN', (6, 0), (9, 0), 'TOP'),
-            ('HALIGN', (6, 0), (9, 0), 'RIGHT'),
-
-            ('SPAN', (0, 1), (9, 1)),  # elenco US
-            ('HALIGN', (0, 1), (9, 1), 'LEFT'),
-
-            ('SPAN', (0, 2), (9, 2)),  # intestazione
-            ('VALIGN', (0, 2), (9, 2), 'TOP'),
-            # 1 row
-            ('SPAN', (0, 3), (9, 3)),  # elenco US
-            ('VALIGN', (0, 3), (9, 3), 'TOP')
-
-        ]
-
-        colWidths = None
-        rowHeights = None
-        # colWidths=[80,80,80, 80,80, 80,80,80,80, 80]
-        t = Table(cell_schema, colWidths, rowHeights, style=table_style)
-
-        return t    
 class CASSE_index_pdf_sheet(object):
     def __init__(self, data):
         self.cassa = data[0]  # 1 - Cassa
@@ -2977,7 +3012,7 @@ class generate_reperti_pdf(object):
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'Etichette Casse Materiali.pdf')
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29.7 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)
         doc.build(elements)
         f.close()
@@ -2989,7 +3024,7 @@ class generate_reperti_pdf(object):
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'liste_box_material.pdf')
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29.7 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)
         doc.build(elements)
         f.close()
@@ -3001,7 +3036,7 @@ class generate_reperti_pdf(object):
             elements.append(PageBreak())
         filename = '{}{}{}'.format(self.PDF_path, os.sep, 'list_box_material.pdf')
         f = open(filename, "wb")
-        doc = SimpleDocTemplate(f, pagesize=(29 * cm, 21 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
+        doc = SimpleDocTemplate(f, pagesize=(21 * cm, 29.7 * cm), showBoundary=0.0, topMargin=20, bottomMargin=20,
                                 leftMargin=20, rightMargin=20)
         doc.build(elements)
         f.close()   
