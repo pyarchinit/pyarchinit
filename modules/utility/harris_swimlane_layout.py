@@ -111,10 +111,34 @@ def _group_within_row(node_ids: List[str], data: S3DGraphData,
     return groups
 
 
+def _kind_fallback_rows(data: S3DGraphData) -> List[Tuple[str, List[str]]]:
+    """When the JSON has no epochs, fall back to one row per unique
+    ``unita_tipo`` (or ``kind`` if unita_tipo is empty), so the
+    renderer still produces a meaningful visualization instead of
+    cramming 250+ nodes into a single "Senza periodo" row.
+
+    Returns ordered ``[(label, [node_ids])]`` with US-family kinds
+    appearing first (most-common stratigraphic) then USM/USV/etc.
+    """
+    nx = data.networkx
+    buckets: Dict[str, List[str]] = {}
+    for nid, attrs in nx.nodes(data=True):
+        if attrs.get("bucket") != "stratigraphic":
+            continue
+        # Prefer unita_tipo (from flat exports) — falls back to kind.
+        ut = (attrs.get("data", {}) or {}).get("unita_tipo")
+        label = ut.strip() if isinstance(ut, str) and ut.strip() else attrs.get("kind", "?")
+        buckets.setdefault(label, []).append(nid)
+    # Stable order: US first, then alphabetical for the rest.
+    ordered_keys = sorted(buckets.keys(), key=lambda k: (k != "US", k))
+    return [(k, buckets[k]) for k in ordered_keys]
+
+
 def compute_layout(data: S3DGraphData,
                    group_by: Optional[str] = None,
                    intergroup_gap: float = 0.5,
-                   row_height: float = 1.0) -> SwimlaneLayout:
+                   row_height: float = 1.0,
+                   max_nodes_per_row: int = 30) -> SwimlaneLayout:
     """Compute swimlane positions for a parsed s3dgraphy graph.
 
     :param data: output of :func:`s3d_json_loader.load_s3d_json`
@@ -124,60 +148,119 @@ def compute_layout(data: S3DGraphData,
         groups when ``group_by`` is active (default 0.5 of a node slot).
     :param row_height: vertical extent of each row in logical units
         (default 1.0 — renderer scales).
+    :param max_nodes_per_row: when a row would exceed this width, it
+        is split into multiple visual sub-rows (same epoch label,
+        stacked vertically). Default 30 keeps figures readable.
+        Set to a very large number to disable wrapping.
 
     Convention: OLDEST epoch at y=0 (bottom), newest at the top, then
     a synthetic "unassigned" row on top of that.
+
+    **Fallback when no epochs are assigned**: if ``data.epochs`` is
+    empty (typical for early/incomplete pyArchInit DBs that never set
+    periodo on US records), the layout creates synthetic rows from
+    the ``unita_tipo`` attribute (one row per US / USM / USVs ...).
+    Renderer behaviour is otherwise identical.
     """
     nx = data.networkx
-
-    # 1) Bucket stratigraphic nodes per epoch_id.
-    nodes_per_epoch: Dict[Optional[str], List[str]] = {}
-    for node_id, attrs in nx.nodes(data=True):
-        if attrs.get("bucket") != "stratigraphic":
-            continue
-        epoch_id = data.node_to_epoch.get(node_id)
-        nodes_per_epoch.setdefault(epoch_id, []).append(node_id)
-
-    # 2) Row order: epochs chronological (oldest first => row 0 at bottom),
-    # then synthetic "unassigned" on top.
-    ordered_epoch_ids: List[Optional[str]] = [e.epoch_id for e in data.epochs]
-    has_unassigned = None in nodes_per_epoch and bool(nodes_per_epoch.get(None))
 
     rows: List[RowInfo] = []
     layout = SwimlaneLayout()
 
-    # Build RowInfo for each epoch, oldest-first (y=0 bottom).
-    for row_index, epoch_id in enumerate(ordered_epoch_ids):
-        epoch = data.epochs[row_index]
-        node_ids_here = nodes_per_epoch.get(epoch_id, [])
-        y_bottom = row_index * row_height
-        y_top = y_bottom + row_height
-        rows.append(RowInfo(
-            epoch_id=epoch_id,
-            label=epoch.name or epoch_id,
-            epoch_color=epoch.color,
-            y_center=(y_top + y_bottom) / 2.0,
-            y_top=y_top,
-            y_bottom=y_bottom,
-            node_ids=node_ids_here,
-            start_time=epoch.start_time,
-            end_time=epoch.end_time,
-        ))
+    # --- Decide the row source: real epochs OR unita_tipo fallback ---
+    use_kind_fallback = not data.epochs
 
-    # Synthetic "Senza periodo" row on top, if any unassigned stratigraphic.
-    if has_unassigned:
-        row_index = len(rows)
-        y_bottom = row_index * row_height
-        y_top = y_bottom + row_height
-        rows.append(RowInfo(
-            epoch_id=None,
-            label="Senza periodo",
-            epoch_color=None,
-            y_center=(y_top + y_bottom) / 2.0,
-            y_top=y_top,
-            y_bottom=y_bottom,
-            node_ids=nodes_per_epoch[None],
-        ))
+    if use_kind_fallback:
+        # Build synthetic rows from unita_tipo.
+        synthetic = _kind_fallback_rows(data)
+        for row_index, (label, node_ids) in enumerate(synthetic):
+            y_bottom = row_index * row_height
+            y_top = y_bottom + row_height
+            rows.append(RowInfo(
+                epoch_id=None,
+                label=label,
+                epoch_color=None,
+                y_center=(y_top + y_bottom) / 2.0,
+                y_top=y_top,
+                y_bottom=y_bottom,
+                node_ids=node_ids,
+            ))
+    else:
+        # 1) Bucket stratigraphic nodes per epoch_id.
+        nodes_per_epoch: Dict[Optional[str], List[str]] = {}
+        for node_id, attrs in nx.nodes(data=True):
+            if attrs.get("bucket") != "stratigraphic":
+                continue
+            epoch_id = data.node_to_epoch.get(node_id)
+            nodes_per_epoch.setdefault(epoch_id, []).append(node_id)
+
+        ordered_epoch_ids: List[Optional[str]] = [e.epoch_id for e in data.epochs]
+        has_unassigned = None in nodes_per_epoch and bool(nodes_per_epoch.get(None))
+
+        # Build RowInfo for each epoch, oldest-first (y=0 bottom).
+        for row_index, epoch_id in enumerate(ordered_epoch_ids):
+            epoch = data.epochs[row_index]
+            node_ids_here = nodes_per_epoch.get(epoch_id, [])
+            y_bottom = row_index * row_height
+            y_top = y_bottom + row_height
+            rows.append(RowInfo(
+                epoch_id=epoch_id,
+                label=epoch.name or epoch_id,
+                epoch_color=epoch.color,
+                y_center=(y_top + y_bottom) / 2.0,
+                y_top=y_top,
+                y_bottom=y_bottom,
+                node_ids=node_ids_here,
+                start_time=epoch.start_time,
+                end_time=epoch.end_time,
+            ))
+
+        # Synthetic "Senza periodo" row on top, if any unassigned stratigraphic.
+        if has_unassigned:
+            row_index = len(rows)
+            y_bottom = row_index * row_height
+            y_top = y_bottom + row_height
+            rows.append(RowInfo(
+                epoch_id=None,
+                label="Senza periodo",
+                epoch_color=None,
+                y_center=(y_top + y_bottom) / 2.0,
+                y_top=y_top,
+                y_bottom=y_bottom,
+                node_ids=nodes_per_epoch[None],
+            ))
+
+    # --- Row wrapping: split any row that would exceed max_nodes_per_row ---
+    # We rebuild the rows list, inserting multiple visual sub-rows when
+    # needed. Sub-rows share the SAME epoch metadata (label + color +
+    # start/end_time) so the renderer's period band drawing still works.
+    expanded: List[RowInfo] = []
+    for row in rows:
+        if len(row.node_ids) <= max_nodes_per_row:
+            expanded.append(row)
+            continue
+        # Need wrapping: split node_ids into chunks of max_nodes_per_row.
+        chunks = [row.node_ids[i:i + max_nodes_per_row]
+                  for i in range(0, len(row.node_ids), max_nodes_per_row)]
+        for chunk_idx, chunk in enumerate(chunks):
+            suffix = f"  ({chunk_idx + 1}/{len(chunks)})"
+            expanded.append(RowInfo(
+                epoch_id=row.epoch_id,
+                label=row.label + suffix,
+                epoch_color=row.epoch_color,
+                y_center=0,  # recomputed below
+                y_top=0,
+                y_bottom=0,
+                node_ids=chunk,
+                start_time=row.start_time,
+                end_time=row.end_time,
+            ))
+    # Re-assign y coordinates to the expanded list (bottom-up).
+    for new_idx, row in enumerate(expanded):
+        row.y_bottom = new_idx * row_height
+        row.y_top = row.y_bottom + row_height
+        row.y_center = (row.y_top + row.y_bottom) / 2.0
+    rows = expanded
 
     # 3) Compute max row width (in logical slots, with grouping accounted for).
     grouped_rows: List[List[List[str]]] = []

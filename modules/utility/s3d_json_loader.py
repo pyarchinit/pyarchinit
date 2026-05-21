@@ -170,12 +170,26 @@ def load_s3d_json(json_input: Union[str, Path, Dict[str, Any]],
                   graph_id: Optional[str] = None) -> S3DGraphData:
     """Parse an s3dgraphy JSON export into :class:`S3DGraphData`.
 
-    Accepts either a file path (str / Path) or an already-loaded dict
-    (useful for tests).
+    Accepts either a file path (str / Path) or an already-loaded dict.
 
-    If the export contains multiple graphs and ``graph_id`` is not
-    specified, the FIRST graph in document order is used (s3dgraphy
-    JSON v1.5 typically has one graph per file but supports multi).
+    Supports TWO JSON shapes (both produced by the pyarchinit
+    ecosystem at the time of writing):
+
+    1) **Hierarchical** (s3dgraphy >=1.5 ``JSONExporter``): top-level
+       ``{"version": "1.5", "graphs": {<graph_id>: {...}}}`` with each
+       graph carrying ``nodes`` (dict-per-category) and ``edges``
+       (dict-per-relation-type).
+
+    2) **Flat** (``S3DGraphyIntegration.export_to_json`` shipped with
+       the pyarchinit plugin's s3dgraphy module): top-level
+       ``{"graph_id", "name", "description", "metadata", "nodes": [...],
+       "edges": [...]}`` where ``nodes`` is a LIST of dicts each with
+       ``node_id``, ``node_type``, ``unita_tipo``, ``sito``, ``area``,
+       ``us``, ``periodo``, ``fase``, ``d_stratigrafica`` etc., and
+       ``edges`` is a LIST of dicts with ``edge_source``, ``edge_target``,
+       ``edge_type``.
+
+    Both shapes converge to the same :class:`S3DGraphData` output.
     """
     # Load JSON
     if isinstance(json_input, dict):
@@ -187,9 +201,23 @@ def load_s3d_json(json_input: Union[str, Path, Dict[str, Any]],
         with path.open("r", encoding="utf-8") as f:
             doc = json.load(f)
 
-    graphs = doc.get("graphs", {})
-    if not graphs:
-        raise ValueError("No 'graphs' section in JSON export")
+    # Detect which shape: hierarchical (has "graphs") vs flat (has top-level
+    # "nodes" + "edges" as LISTS).
+    if "graphs" in doc and isinstance(doc.get("graphs"), dict) and doc["graphs"]:
+        return _load_hierarchical(doc, graph_id)
+    if isinstance(doc.get("nodes"), list) and isinstance(doc.get("edges"), list):
+        return _load_flat(doc)
+    raise ValueError(
+        "Unrecognised JSON shape: missing both 'graphs' (hierarchical) "
+        "and 'nodes'/'edges' lists (flat). Keys present: "
+        f"{sorted(doc.keys())}"
+    )
+
+
+def _load_hierarchical(doc: Dict[str, Any],
+                       graph_id: Optional[str]) -> S3DGraphData:
+    """Parser for s3dgraphy JSONExporter v1.5 shape (with 'graphs' wrapper)."""
+    graphs = doc["graphs"]
     if graph_id is None:
         graph_id = next(iter(graphs))
     if graph_id not in graphs:
@@ -256,6 +284,127 @@ def load_s3d_json(json_input: Union[str, Path, Dict[str, Any]],
         graph_id=graph_id,
         name=g_data.get("name", "") or "",
         description=g_data.get("description", "") or "",
+        networkx=nx_graph,
+        epochs=epochs_list,
+        node_to_epoch=node_to_epoch,
+    )
+
+
+# --- Flat format parser (S3DGraphyIntegration.export_to_json) -------------
+
+# Map flat `node_type` values to semantic kind. The flat format collapses
+# the granular stratigraphic taxonomy into broad node_type strings AND
+# carries the EM-canonical label in the inline `unita_tipo` field. We
+# prefer `unita_tipo` when present (it matches the palette labels:
+# "US", "USM", "USVs", ...) and fall back to a node_type translation.
+_FLAT_NODE_TYPE_FALLBACK = {
+    "stratigraphic_unit":  "US",
+    "masonry_unit":        "USM",
+    "virtual_unit":        "USVs",
+    "documentary_unit":    "USD",
+    "special_finding":     "SF",
+    "geo_position":        "geo_position",
+    "epoch":               "EpochNode",
+}
+
+# Stratigraphic kinds (excludes paradata, epochs, geo) — used to set
+# `bucket="stratigraphic"` so the swimlane layout knows what to place.
+_STRATIGRAPHIC_KINDS = {
+    "US", "USM", "USVs", "USVn", "USD", "SF", "VSF", "RSF",
+    "TSU", "SE", "serSU", "serUSVs", "serUSVn", "unknown",
+}
+
+
+def _load_flat(doc: Dict[str, Any]) -> S3DGraphData:
+    """Parser for S3DGraphyIntegration.export_to_json (flat shape).
+
+    Top-level keys: graph_id, name, description, metadata, nodes (list),
+    edges (list). Each node carries inline pyarchinit fields
+    (unita_tipo, sito, area, us, periodo, fase, ...). Each edge has
+    edge_source, edge_target, edge_type.
+    """
+    nx_graph = nx.DiGraph()
+    raw_nodes = doc.get("nodes", [])
+    raw_edges = doc.get("edges", [])
+
+    # First pass: build nodes.
+    epoch_id_seen: Dict[str, EpochInfo] = {}
+    node_to_epoch: Dict[str, Optional[str]] = {}
+
+    for raw in raw_nodes:
+        if not isinstance(raw, dict):
+            continue
+        node_id = raw.get("node_id")
+        if not node_id:
+            continue
+        # Prefer the EM canonical label from unita_tipo; fall back to
+        # translating node_type.
+        unita_tipo = (raw.get("unita_tipo") or "").strip()
+        node_type = (raw.get("node_type") or "").strip()
+        kind = unita_tipo or _FLAT_NODE_TYPE_FALLBACK.get(node_type, node_type or "unknown")
+
+        # Determine bucket: stratigraphic (drawn in swimlane) vs other.
+        if kind in _STRATIGRAPHIC_KINDS:
+            bucket = "stratigraphic"
+        elif kind == "EpochNode":
+            bucket = "epochs"
+        elif kind == "geo_position":
+            bucket = "geo"
+        else:
+            bucket = "other"
+
+        nx_graph.add_node(
+            node_id,
+            kind=kind,
+            name=raw.get("name") or "",
+            description=raw.get("description") or "",
+            data={k: v for k, v in raw.items()
+                  if k not in ("node_id", "name", "description", "node_type")},
+            bucket=bucket,
+        )
+
+        # Inline epoch info (some flat exports embed start/end here).
+        if bucket == "epochs":
+            epoch_id_seen[node_id] = EpochInfo(
+                epoch_id=node_id,
+                name=raw.get("name") or node_id,
+                start_time=_coerce_time(raw.get("start_time")),
+                end_time=_coerce_time(raw.get("end_time")),
+                color=(raw.get("color") or "").strip() or None,
+            )
+
+    # Second pass: build edges (all under the same flat list).
+    for raw in raw_edges:
+        if not isinstance(raw, dict):
+            continue
+        src = raw.get("edge_source")
+        tgt = raw.get("edge_target")
+        if not src or not tgt:
+            continue
+        if src not in nx_graph or tgt not in nx_graph:
+            continue
+        relation = raw.get("edge_type", "") or ""
+        nx_graph.add_edge(src, tgt, relation=relation, id=raw.get("edge_id"))
+        # Bootstrap node_to_epoch from has_first_epoch edges (if any).
+        if relation == "has_first_epoch" and src not in node_to_epoch:
+            node_to_epoch[src] = tgt
+
+    # Ensure every stratigraphic node has an entry in node_to_epoch
+    # (None if unassigned — the layout creates a fallback row).
+    for node_id, attrs in nx_graph.nodes(data=True):
+        if attrs.get("bucket") == "stratigraphic":
+            node_to_epoch.setdefault(node_id, None)
+
+    # Build chronologically-sorted epoch list.
+    epochs_list = sorted(
+        epoch_id_seen.values(),
+        key=lambda e: (e.start_time is None, e.start_time or 0.0),
+    )
+
+    return S3DGraphData(
+        graph_id=str(doc.get("graph_id") or ""),
+        name=doc.get("name") or "",
+        description=doc.get("description") or "",
         networkx=nx_graph,
         epochs=epochs_list,
         node_to_epoch=node_to_epoch,
