@@ -4755,7 +4755,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.StandardButton.Ok)
                 else:
                     Mat_casse_pdf.build_index_Casse(data_list, sito_ec)
-                    QMessageBox.warning(self, 'Ok',"Esportazione terminata Elenco Casse",QMessageBox.StandardButton.Ok)
+                    Mat_casse_pdf.build_box_labels_Finds(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',
+                        "Esportazione terminata: Elenco Casse + Etichette Casse",
+                        QMessageBox.StandardButton.Ok)
 
 
             else:
@@ -4815,7 +4818,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.StandardButton.Ok)
                 else:
                     Mat_casse_pdf.build_index_Casse_de(data_list, sito_ec)
-                    QMessageBox.warning(self, 'Ok',"Export beendet",QMessageBox.StandardButton.Ok)
+                    Mat_casse_pdf.build_box_labels_Finds_de(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',
+                        "Export beendet: Kistenliste + Etiketten",
+                        QMessageBox.StandardButton.Ok)
 
 
             else:
@@ -4911,7 +4917,10 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                         QMessageBox.StandardButton.Ok)
                 else:
                     Mat_casse_pdf.build_index_Casse_en(data_list, sito_ec)
-                    QMessageBox.warning(self, 'Ok',"Exportation list box complited",QMessageBox.StandardButton.Ok)
+                    Mat_casse_pdf.build_box_labels_Finds_en(data_list, sito_ec)
+                    QMessageBox.warning(self, 'Ok',
+                        "Export complete: Box list + Box labels",
+                        QMessageBox.StandardButton.Ok)
 
 
             else:

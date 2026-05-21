@@ -5,6 +5,58 @@
 
 ---
 
+## [post-5.9.0.1-alpha] - 2026-05-21 (cont.) — Safe eval override + Etichette Casse + nr_cassa quoting + unload recursion regression
+
+> Continuazione della stessa sessione del 21-05. Tre fix legati al test end-to-end dell'export PDF Inventario Materiali su `pyarchinit-AA39.sqlite` (sito Geta, 10 reperti seed).
+
+### Italiano
+
+**(A) Safe eval override in `pyarchinit_exp_Findssheet_pdf.py`.**
+12 chiamate `eval(self.<campo>)` non protette su campi `elementi_reperto`, `misurazioni`, `tecnologie`, `rif_biblio` crashavano con `NameError` quando l'utente inseriva testo libero invece del literal Python atteso (es. `"orlo, collo"` → `eval` cercava variabili `orlo` e `collo`). La memoria del 13-04 indicava "Protected ~80 eval() calls", ma 12 erano scappati. Fix: shadow di `eval` a livello modulo (`_safe_eval` che ritorna `[]` su qualsiasi eccezione) — copre tutti i call site senza dover patchare 12+ punti uno per uno. I literal validi continuano a parsare normalmente.
+
+**(B) Wire `build_box_labels_Finds` in 3 locale branches.**
+Quando l'utente clicca "Esporta Elenco Casse" ora viene generato sia `Elenco Casse.pdf` sia `Etichette Casse Materiali.pdf` in un'unica azione. Funzione `build_box_labels_Finds(records, sito)` esisteva già in `pyarchinit_exp_Findssheet_pdf.py` ma era commentata nei caller. Decommentata e attivata per it/de/en (con messaggi di conferma localizzati).
+
+**(C) Quoting drift `nr_cassa` → IndexError fix.**
+`generate_el_casse_pdf` line 5106 costruiva `params_dict = {..., 'nr_cassa': '"' + str(cassa) + '"'}` wrappando un INT in `'"5"'` (3 chars: quote-5-quote). `_normalize_query_params` Step 1 strippava solo single quotes, quindi `'"5"'` sopravviveva → coerce `int('"5"')` falliva → fallback alla stringa originale → SQL `nr_cassa = '"5"'` mai matchava INT su PG (silenzioso 0 righe, IndexError su `res[0]` sul client). Fix triplo: caller passa `cassa` plain INT senza quote; `_normalize_query_params` ora strippa anche double quotes (difensivo per altri caller); aggiunto guard `if not res_luogo_conservazione: continue` nel loop.
+
+**(D) Regression fix: `_unload_main_dockwidget` ricorsione infinita.**
+Il commit precedente di unload cleanup (`b84634fe`) aveva fatto `replace_all` di `setVisible(False)+removeDockWidget` per delegare a un nuovo helper, MA il pattern matchava anche le 2 righe DENTRO il body dell'helper stesso → metodo che chiama se stesso → `RecursionError: maximum recursion depth exceeded` al primo unload. Corretto.
+
+**(E) PK rebuild `inventario_materiali_table` su AA39 (operativo, non in repo).**
+DB AA39 aveva `id_invmat INT` (no PK), causando `id_invmat=NULL` su INSERT da SQLAlchemy. L'ORM raggruppava tutte le righe NULL in una sola identity → DATA_LIST vuota → form mostrava 0 record. Rebuild via `PRAGMA writable_schema=ON` + `UPDATE sqlite_master` (Python sqlite3, perché il CLI macOS ha `SQLITE_DBCONFIG_DEFENSIVE=ON` di default). Tentativo CREATE+INSERT+DROP+RENAME standard è fallito perché trigger Spatialite `ISO_metadata_reference_row_id_value_insert` ha bug noto (referenzia `rowid` in subquery inline). 10 record + valori id_invmat 1..10 preservati, INSERT post-rebuild senza id_invmat → auto-assegna 11 ✓. Backup pre-rebuild salvato. **Questa parte è solo locale su AA39, non c'è codice da committare.**
+
+**Test path completo end-to-end (post questi fix):**
+1. Riavvia QGIS → carica plugin con safe eval override + box labels wired + unload recursion fixed
+2. Apri Inventario Materiali sito=Geta → 10 record visibili con tutti i campi popolati (inclusi i list-format `elementi_reperto`/`misurazioni`/`tecnologie`)
+3. Click `pushButton_print` con `checkBox_e_us` checked → genera **2 PDF**: `Elenco Casse.pdf` (5 casse) + `Etichette Casse Materiali.pdf` (10 etichette)
+4. Aggiungi nuovo reperto da form → riceve `id_invmat=11` auto-assegnato
+
+### English
+
+**(A) Safe eval override in `pyarchinit_exp_Findssheet_pdf.py`.**
+12 unprotected `eval(self.<field>)` calls on `elementi_reperto`, `misurazioni`, `tecnologie`, `rif_biblio` crashed with `NameError` when users entered free text instead of the expected Python literal (e.g. `"orlo, collo"` → eval looked up variables `orlo` and `collo`). Memory note from Apr 13 said "Protected ~80 eval() calls" but 12 slipped through. Fix: module-level `eval` shadow (`_safe_eval` that returns `[]` on any exception) — covers all call sites without patching 12+ places individually. Valid literals still parse normally.
+
+**(B) Wire `build_box_labels_Finds` in 3 locale branches.**
+Clicking "Export Box List" now generates both `Elenco Casse.pdf` and `Etichette Casse Materiali.pdf` in one action. Function existed in `pyarchinit_exp_Findssheet_pdf.py` but was commented out at the call sites. Now active for it/de/en with localized confirm messages.
+
+**(C) `nr_cassa` quoting drift → IndexError fix.**
+`generate_el_casse_pdf` line 5106 built `params_dict = {..., 'nr_cassa': '"' + str(cassa) + '"'}` wrapping an INT in `'"5"'`. `_normalize_query_params` Step 1 only stripped single quotes, so `'"5"'` survived → `int('"5"')` failed → fell through with the string → SQL `nr_cassa = '"5"'` never matched the INT column on PG. Triple fix: caller passes plain INT; `_normalize_query_params` now also strips double quotes (defensive); added `if not res_luogo_conservazione: continue` guard.
+
+**(D) Regression fix: `_unload_main_dockwidget` infinite recursion.**
+Previous unload cleanup commit (`b84634fe`) used `replace_all` to delegate `setVisible(False)+removeDockWidget` to a new helper, BUT the pattern ALSO matched the 2 lines INSIDE the helper body → method calling itself → `RecursionError` on first unload. Fixed.
+
+**(E) PK rebuild on `inventario_materiali_table` for AA39 (operational, not in repo).**
+AA39 had `id_invmat INT` (no PK), causing `id_invmat=NULL` on SQLAlchemy INSERTs. ORM coalesced all NULL-PK rows into one identity → DATA_LIST empty → form showed 0 records. Rebuild via `PRAGMA writable_schema=ON` + `UPDATE sqlite_master` (Python sqlite3 because macOS CLI has `SQLITE_DBCONFIG_DEFENSIVE=ON` default). Standard CREATE+INSERT+DROP+RENAME failed because the Spatialite trigger `ISO_metadata_reference_row_id_value_insert` has a known bug (references `rowid` in an inline subquery). 10 records + id_invmat 1..10 preserved, post-rebuild INSERT auto-assigns 11 ✓. Backup saved. **Local-only fix on AA39, no code to commit.**
+
+**Full end-to-end test path (post these fixes):**
+1. Restart QGIS → loads plugin with safe eval override + box labels wired + unload recursion fixed
+2. Open Inventario Materiali site=Geta → 10 records visible with all fields populated
+3. Click `pushButton_print` with `checkBox_e_us` → generates **2 PDFs**: `Elenco Casse.pdf` (5 boxes) + `Etichette Casse Materiali.pdf` (10 labels)
+4. Add new record via form → receives auto-assigned `id_invmat=11`
+
+---
+
 ## [post-5.9.0.1-alpha] - 2026-05-21 — Inventario Materiali "Elenco Casse" crash + DB schema repair
 
 > Commit su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Bugfix sull'export PDF Elenco Casse + nuovo strumento di **schema repair** generico (tabelle + colonne mancanti) per DB legacy che l'auto-update del config dialog non riesce a migrare. Scoperto su `pyarchinit-AA39.sqlite` dove mancavano sia 5 colonne (`schedatore`, `date_scheda`, `punto_rinv`, `negativo_photo`, `diapositiva` su `inventario_materiali_table`) sia 1 colonna (`other_locations` su `us_table`) sia 1 intera tabella (`tomba_table`).

@@ -24,6 +24,30 @@ import datetime
 from datetime import date
 from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from reportlab.lib import colors
+
+# --- Safe eval override (post-2026-05-21 hotfix) ----------------------------
+# This module stores some DB-side text fields (elementi_reperto, misurazioni,
+# tecnologie, rif_biblio) as Python literal strings (e.g. "[('orlo','cm','1')]")
+# and `eval()`s them in 12+ places with the pattern:
+#     if self.X and eval(self.X):
+#         for i in (eval(self.X) if self.X else []):
+# When a user enters plain text instead of a literal (e.g. "orlo, collo"),
+# eval() raises NameError/SyntaxError and aborts the WHOLE PDF export.
+# Defining a module-level `eval` shadow that returns [] on any failure makes
+# every call site degrade gracefully: the `if X and eval(X):` skips, and the
+# `for i in eval(X):` iterates over the empty list. Legitimate literals still
+# round-trip unchanged. This avoids touching the 12+ call sites individually.
+# (Note: this only shadows `eval` within THIS module's namespace.)
+import builtins as _builtins
+def _safe_eval(expr, *args, **kwargs):
+    if not expr:
+        return []
+    try:
+        return _builtins.eval(expr, *args, **kwargs)
+    except Exception:
+        return []
+eval = _safe_eval
+# ----------------------------------------------------------------------------
 from reportlab.lib.pagesizes import (A4,A3)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch, cm, mm
