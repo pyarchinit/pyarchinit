@@ -82,6 +82,44 @@ class _GroupFolder:
 class _Edge:
     source: str
     target: str
+    relation: str = ""           # "Copre" / "Taglia" / "<<" / ">>" / etc.
+    color: str = "#3a4d5c"
+    linewidth: float = 0.8
+    linestyle: str = "-"
+    alpha: float = 0.6
+
+
+# Italian EM relation vocabulary → matplotlib styling. Pairs (forward,
+# reverse) generally have the SAME visual style; the directionality
+# of the arrow is what conveys the asymmetry.
+_REL_STYLES = {
+    # Stratigraphic primary relations
+    "Copre":         {"color": "#1a2d4a", "linewidth": 1.2, "linestyle": "-",  "alpha": 0.85},
+    "Coperto da":    {"color": "#1a2d4a", "linewidth": 1.2, "linestyle": "-",  "alpha": 0.85},
+    "Taglia":        {"color": "#9B3333", "linewidth": 1.4, "linestyle": "--", "alpha": 0.90},
+    "Tagliato da":   {"color": "#9B3333", "linewidth": 1.4, "linestyle": "--", "alpha": 0.90},
+    "Riempie":       {"color": "#1f4e8a", "linewidth": 1.2, "linestyle": ":",  "alpha": 0.85},
+    "Riempito da":   {"color": "#1f4e8a", "linewidth": 1.2, "linestyle": ":",  "alpha": 0.85},
+    "Si appoggia a": {"color": "#666666", "linewidth": 1.0, "linestyle": "-.", "alpha": 0.75},
+    "Gli si appoggia": {"color": "#666666", "linewidth": 1.0, "linestyle": "-.", "alpha": 0.75},
+    "Si lega a":     {"color": "#31792D", "linewidth": 1.3, "linestyle": "-",  "alpha": 0.85},
+    "Uguale a":      {"color": "#1a2d4a", "linewidth": 2.0, "linestyle": "-",  "alpha": 0.90},
+    # Paradata / group-membership relations
+    ">>":            {"color": "#9aa6b3", "linewidth": 0.6, "linestyle": "-",  "alpha": 0.55},
+    "<<":            {"color": "#9aa6b3", "linewidth": 0.6, "linestyle": "-",  "alpha": 0.55},
+}
+_REL_DEFAULT_STYLE = {"color": "#3a4d5c", "linewidth": 0.8,
+                      "linestyle": "-", "alpha": 0.6}
+
+
+def _style_edge(e: "_Edge") -> "_Edge":
+    """Apply colour/width/linestyle/alpha based on e.relation."""
+    style = _REL_STYLES.get(e.relation, _REL_DEFAULT_STYLE)
+    e.color = style["color"]
+    e.linewidth = style["linewidth"]
+    e.linestyle = style["linestyle"]
+    e.alpha = style["alpha"]
+    return e
 
 
 @dataclass
@@ -175,10 +213,40 @@ def _extract_style(node_elem: ET.Element) -> _NodeStyle:
 
 
 def _parse_graphml(graphml_path: Path) -> _Scene:
-    """Walk the graphml and extract nodes / groups / edges."""
+    """Walk the graphml and extract nodes / groups / edges.
+
+    Edges are derived from the per-node ``pyarchinit.rapporti`` data
+    field (key ``d15``) which carries the TYPED EM relations
+    (``Copre`` / ``Taglia`` / ``Riempie`` / ``<<`` / ``>>`` / ...).
+    The graphml's top-level ``<edge>`` elements are kept as a fallback
+    for older exports that lack the rapporti field.
+
+    Each node's rapporti looks like::
+
+        [["Coperto da", "03", "1", "test"],
+         ["Copre",      "01", "1", "test"],
+         ["<<",         "101", "1", "test"]]
+
+    Format: ``[tipo, us, area, sito]``. We resolve ``(us, area, sito)``
+    back to a node_id via a reverse index built from d0/d1/d2 (us, area,
+    sito) of each node.
+    """
     tree = ET.parse(str(graphml_path))
     root = tree.getroot()
     scene = _Scene(title=graphml_path.stem)
+
+    # Per-node raw data (collected during the walk; used for rapporti
+    # post-processing). Keyed by graphml node id.
+    raw_data: Dict[str, Dict[str, str]] = {}
+
+    def _collect_data(n_elem: ET.Element, node_id: str):
+        bag: Dict[str, str] = {}
+        for d in n_elem.findall(f"{{{_NS['g']}}}data"):
+            k = d.attrib.get("key", "")
+            t = (d.text or "").strip()
+            if k and t:
+                bag[k] = t
+        raw_data[node_id] = bag
 
     def _walk(parent_node: Optional[ET.Element], parent_group_id: Optional[str]):
         """Recurse into <graph> children under parent_node."""
@@ -187,14 +255,13 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
                 node_id = n.attrib.get("id", "")
                 if not node_id:
                     continue
+                _collect_data(n, node_id)
                 label = _extract_label(n)
                 is_group = n.attrib.get("yfiles.foldertype") in ("group", "folder")
                 if is_group:
                     g = _GroupFolder(group_id=node_id, label=label)
                     scene.groups[node_id] = g
-                    # Recurse into the group's nested <graph>
                     _walk(n, node_id)
-                    # member_ids will be filled after the walk completes
                 else:
                     style = _extract_style(n)
                     scene.nodes[node_id] = _Node(
@@ -206,11 +273,11 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
     top_graph = root.find(f"{{{_NS['g']}}}graph")
     if top_graph is None:
         return scene
-    # Top-level nodes
     for n in top_graph.findall(f"{{{_NS['g']}}}node"):
         node_id = n.attrib.get("id", "")
         if not node_id:
             continue
+        _collect_data(n, node_id)
         label = _extract_label(n)
         is_group = n.attrib.get("yfiles.foldertype") in ("group", "folder")
         if is_group:
@@ -228,12 +295,55 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
         if n.group_id and n.group_id in scene.groups:
             scene.groups[n.group_id].member_ids.append(n.node_id)
 
-    # Edges (top-level)
-    for e in root.iter(f"{{{_NS['g']}}}edge"):
-        src = e.attrib.get("source", "")
-        tgt = e.attrib.get("target", "")
-        if src and tgt:
-            scene.edges.append(_Edge(src, tgt))
+    # --- Build (us, area, sito) -> node_id reverse index (case-insensitive
+    # on us value, since pyarchinit stores both '02' and '2'-typed-string
+    # forms in different code paths).
+    by_uas: Dict[Tuple[str, str, str], str] = {}
+    for nid, bag in raw_data.items():
+        us = bag.get("d0", "").strip()
+        area = bag.get("d1", "").strip()
+        sito = bag.get("d2", "").strip()
+        if us and nid in scene.nodes:
+            by_uas[(us.lower(), area.lower(), sito.lower())] = nid
+
+    # --- Derive typed edges from the rapporti field ---
+    import ast as _ast
+    edges_from_rapporti = 0
+    for nid, bag in raw_data.items():
+        if nid not in scene.nodes:
+            continue
+        rapporti_raw = bag.get("d15", "")
+        if not rapporti_raw:
+            continue
+        try:
+            rap_list = _ast.literal_eval(rapporti_raw)
+        except (ValueError, SyntaxError):
+            continue
+        if not isinstance(rap_list, (list, tuple)):
+            continue
+        for entry in rap_list:
+            if not isinstance(entry, (list, tuple)) or len(entry) < 4:
+                continue
+            tipo, target_us, target_area, target_sito = (
+                str(entry[0]), str(entry[1]), str(entry[2]), str(entry[3])
+            )
+            key = (target_us.lower(), target_area.lower(), target_sito.lower())
+            target_nid = by_uas.get(key)
+            if target_nid is None or target_nid == nid:
+                continue
+            scene.edges.append(_style_edge(_Edge(
+                source=nid, target=target_nid, relation=tipo,
+            )))
+            edges_from_rapporti += 1
+
+    # Fallback: if no rapporti-derived edges, fall back to graphml <edge>
+    # elements (older exports lacking the d15 field).
+    if edges_from_rapporti == 0:
+        for e in root.iter(f"{{{_NS['g']}}}edge"):
+            src = e.attrib.get("source", "")
+            tgt = e.attrib.get("target", "")
+            if src and tgt:
+                scene.edges.append(_style_edge(_Edge(src, tgt)))
 
     return scene
 
@@ -501,7 +611,7 @@ def render_extended_matrix(graphml_path: Union[str, Path],
                     ha="center", va="center", fontsize=10,
                     color="#ffffff", fontweight="bold", zorder=2)
 
-    # 2) Edges (under nodes)
+    # 2) Edges (under nodes) — typed by EM relation
     pos = positions
     for e in scene.edges:
         if e.source not in pos or e.target not in pos:
@@ -514,7 +624,10 @@ def render_extended_matrix(graphml_path: Union[str, Path],
             xytext=(x1, y1), textcoords="data",
             arrowprops=dict(
                 arrowstyle="->,head_width=0.4,head_length=0.6",
-                color="#3a4d5c", linewidth=0.8, alpha=0.6,
+                color=e.color,
+                linewidth=e.linewidth,
+                linestyle=e.linestyle,
+                alpha=e.alpha,
                 shrinkA=node_height * 0.55, shrinkB=node_height * 0.55,
             ),
             zorder=2,
