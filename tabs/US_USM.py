@@ -21018,6 +21018,46 @@ DATABASE SCHEMA KNOWLEDGE:
                     if layers:
                         exported_files.append("QGIS Layers created")
 
+            # ---- NEW swimlane PNG render (parallel to Graphviz path) ----
+            # When the user exports the Extended Matrix as GraphML, ALSO
+            # generate <base_name>_swimlane.png in the same export folder
+            # via the matplotlib+EM-palette renderer (introduced
+            # 2026-05-21 by commits d3752bba..50e76486). The old
+            # GraphvizVisualizer path (line ~20938 above) remains intact
+            # — both PNGs coexist so the user can compare visually.
+            # Failure here MUST NOT break the rest of the export: it's
+            # an additive feature, the user already has GraphML + JSON.
+            if cb_graphml.isChecked():
+                try:
+                    from ..modules.utility.matrix_swimlane_renderer import (
+                        render_to_file as _swim_render_to_file,
+                    )
+                    swim_json = os.path.join(export_dir, f"{base_name}.json")
+                    swim_json_was_temp = not cb_json.isChecked()
+                    if not os.path.exists(swim_json):
+                        integration.export_to_json(swim_json)
+                    if os.path.exists(swim_json):
+                        swim_png = os.path.join(
+                            export_dir, f"{base_name}_swimlane.png"
+                        )
+                        _swim_render_to_file(
+                            swim_json, swim_png, format="png",
+                        )
+                        if os.path.exists(swim_png):
+                            exported_files.append(swim_png)
+                    if swim_json_was_temp and os.path.exists(swim_json):
+                        # Cleanup the temp JSON only if user didn't ask for it.
+                        try:
+                            os.remove(swim_json)
+                        except OSError:
+                            pass
+                except Exception as _swim_err:
+                    # Log but don't fail: this is an additive output
+                    # parallel to the still-working Graphviz path above.
+                    import traceback as _tb
+                    print(f"[matrix swimlane render] failed: {_swim_err}")
+                    _tb.print_exc()
+
             # Open folder if requested
             if cb_open_folder.isChecked():
                 import subprocess
