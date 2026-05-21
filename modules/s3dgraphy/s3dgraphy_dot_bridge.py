@@ -275,38 +275,63 @@ class S3DGraphyDotBridge:
         # is ADDITIVE — at worst, the swimlane PNG is missing.
         if 'graphml' in formats:
             try:
-                from modules.utility.matrix_swimlane_renderer import (
-                    render_to_file as _swim_render,
+                # New (2026-05-21 cont.) Extended Matrix renderer: reads the
+                # graphml just produced, extracts AI06 group folders
+                # (VA01/VA02/... attivita groups), computes a fresh per-group
+                # Harris layered layout, and renders containers + nodes +
+                # edges as a yEd-style swimlane PNG. Falls back to the
+                # JSON-based flat swimlane renderer if anything goes wrong.
+                _swim_png = os.path.join(
+                    output_dir, f"{base_name}_swimlane.png"
                 )
-                # Need the JSON as input. If 'json' was in the requested
-                # formats, the file already exists from the block above.
-                # Otherwise write a temp JSON, render, cleanup.
-                _swim_json = exported_files.get('json')
-                _swim_json_was_temp = False
-                if not _swim_json:
-                    _swim_json = os.path.join(
-                        output_dir, f"{base_name}_s3dgraphy.json"
-                    )
-                    if not os.path.exists(_swim_json):
-                        _swim_json_was_temp = self.s3d_integration.export_to_json(_swim_json)
-                if _swim_json and os.path.exists(_swim_json):
-                    _swim_png = os.path.join(
-                        output_dir, f"{base_name}_swimlane.png"
-                    )
-                    _swim_render(_swim_json, _swim_png, format="png")
-                    if os.path.exists(_swim_png):
-                        exported_files['swimlane_png'] = _swim_png
+                _graphml_path = exported_files.get('graphml') or os.path.join(
+                    output_dir, f"{base_name}.graphml"
+                )
+                _used_extended = False
+                if _graphml_path and os.path.exists(_graphml_path):
+                    try:
+                        from modules.utility.extended_matrix_renderer import (
+                            render_extended_matrix as _ext_render,
+                        )
+                        _ext_render(_graphml_path, _swim_png, format="png")
+                        _used_extended = os.path.exists(_swim_png)
+                    except Exception as _ext_err:
                         if QGIS_AVAILABLE:
                             QgsMessageLog.logMessage(
-                                f"Swimlane PNG generated: {_swim_png}",
-                                "PyArchInit", Qgis.Info,
+                                f"Extended Matrix renderer failed, "
+                                f"falling back to flat swimlane: {_ext_err}",
+                                "PyArchInit", Qgis.Warning,
                             )
-                # Cleanup temp JSON if we created it (user didn't request).
-                if _swim_json_was_temp and os.path.exists(_swim_json):
-                    try:
-                        os.remove(_swim_json)
-                    except OSError:
-                        pass
+                # Fallback: legacy JSON-based flat swimlane render. Used
+                # when extended fails (e.g. graphml has no group folders).
+                if not _used_extended:
+                    from modules.utility.matrix_swimlane_renderer import (
+                        render_to_file as _swim_render,
+                    )
+                    _swim_json = exported_files.get('json')
+                    _swim_json_was_temp = False
+                    if not _swim_json:
+                        _swim_json = os.path.join(
+                            output_dir, f"{base_name}_s3dgraphy.json"
+                        )
+                        if not os.path.exists(_swim_json):
+                            _swim_json_was_temp = self.s3d_integration.export_to_json(_swim_json)
+                    if _swim_json and os.path.exists(_swim_json):
+                        _swim_render(_swim_json, _swim_png, format="png")
+                    if _swim_json_was_temp and os.path.exists(_swim_json):
+                        try:
+                            os.remove(_swim_json)
+                        except OSError:
+                            pass
+                if os.path.exists(_swim_png):
+                    exported_files['swimlane_png'] = _swim_png
+                    if QGIS_AVAILABLE:
+                        QgsMessageLog.logMessage(
+                            f"Swimlane PNG generated "
+                            f"({'extended' if _used_extended else 'flat'}): "
+                            f"{_swim_png}",
+                            "PyArchInit", Qgis.Info,
+                        )
             except Exception as _swim_err:
                 import traceback as _tb
                 _tb_str = _tb.format_exc()
