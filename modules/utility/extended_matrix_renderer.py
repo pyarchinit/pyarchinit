@@ -307,7 +307,24 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
             by_uas[(us.lower(), area.lower(), sito.lower())] = nid
 
     # --- Derive typed edges from the rapporti field ---
+    # Direction semantics: pyarchinit rapporti are stored on the
+    # ORIGIN node (the row owner). For each [tipo, target_us, area, sito]:
+    #
+    #   ">>" means "I am the PARENT, listed target is my CHILD"
+    #        → edge orientation: this_node → target  (keep as-is)
+    #
+    #   "<<" means "I am the CHILD, listed target is my PARENT"
+    #        → edge orientation: target → this_node  (REVERSED)
+    #
+    # This matters for the layered layout: parents end up at the TOP
+    # of the group, children at the bottom. Stratigraphic relations
+    # follow EM convention: "Copre" means "I cover X" (I'm above),
+    # "Coperto da" means "I am covered by X" (X is above me, REVERSED).
     import ast as _ast
+
+    _REVERSED_RELATIONS = {"<<", "Coperto da", "Tagliato da", "Riempito da",
+                           "Gli si appoggia"}
+    edge_seen: set = set()  # dedup: (source, target, relation)
     edges_from_rapporti = 0
     for nid, bag in raw_data.items():
         if nid not in scene.nodes:
@@ -331,8 +348,16 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
             target_nid = by_uas.get(key)
             if target_nid is None or target_nid == nid:
                 continue
+            if tipo in _REVERSED_RELATIONS:
+                src, tgt = target_nid, nid
+            else:
+                src, tgt = nid, target_nid
+            dedup_key = (src, tgt, tipo)
+            if dedup_key in edge_seen:
+                continue
+            edge_seen.add(dedup_key)
             scene.edges.append(_style_edge(_Edge(
-                source=nid, target=target_nid, relation=tipo,
+                source=src, target=tgt, relation=tipo,
             )))
             edges_from_rapporti += 1
 
@@ -353,19 +378,35 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
 # ----------------------------------------------------------------------
 
 def _topological_layers(member_ids: List[str], edges: List[_Edge],
-                        member_set: Optional[set] = None) -> List[List[str]]:
-    """Return ordered list of layers (roots first, leaves last).
+                        member_set: Optional[set] = None
+                        ) -> Tuple[List[List[str]], List[Tuple[str, str]]]:
+    """Sugiyama-style layering with transitive reduction.
 
-    Uses SCC condensation to handle reciprocal edge cycles. Within
-    each layer, nodes are returned in insertion order.
+    Pipeline:
+      1. Induce subgraph over ``member_ids``.
+      2. Break cycles deterministically via SCC condensation
+         (each SCC collapses to a representative node; intra-SCC
+         edges dropped).
+      3. ``nx.transitive_reduction`` → keep only the necessary edges
+         (drops A→C when A→B→C also exists).
+      4. Longest-path layering: layer[v] = max(layer[u]+1) over
+         predecessors u in the reduced DAG.
+      5. Barycenter ordering: iterate up/down passes to minimise edge
+         crossings between adjacent layers.
+
+    Returns ``(layers, reduced_edges)`` where:
+      - ``layers`` is the ordered list of layers (top → bottom)
+        with each layer being a list of node_ids in left→right order.
+      - ``reduced_edges`` is the (src, tgt) edge list AFTER transitive
+        reduction — the renderer should prefer drawing these (with
+        styling carried from the original _Edge objects that match).
     """
     if not member_ids:
-        return []
+        return [], []
     try:
         import networkx as nx
     except ImportError:
-        # Fall back: one layer with everything.
-        return [list(member_ids)]
+        return [list(member_ids)], []
 
     mset = member_set if member_set is not None else set(member_ids)
     sub = nx.DiGraph()
@@ -375,26 +416,112 @@ def _topological_layers(member_ids: List[str], edges: List[_Edge],
             sub.add_edge(e.source, e.target)
 
     if sub.number_of_edges() == 0:
-        return [list(member_ids)]
+        return [sorted(member_ids)], []
 
+    # 1) Condense SCCs into a DAG. Within each SCC pick a "representative"
+    # node (lexicographically smallest id). The other SCC members get
+    # placed in the same layer as the representative.
     cond = nx.condensation(sub)
     members_attr = nx.get_node_attributes(cond, "members")
+    # Map scc_idx → representative node_id
+    rep_of: Dict[int, str] = {
+        idx: sorted(members_attr.get(idx, []))[0]
+        for idx in cond.nodes if members_attr.get(idx)
+    }
+    # Build a clean DAG over representatives only.
+    dag = nx.DiGraph()
+    dag.add_nodes_from(rep_of.values())
+    for u, v in cond.edges:
+        if u in rep_of and v in rep_of:
+            dag.add_edge(rep_of[u], rep_of[v])
 
-    if cond.number_of_edges() == 0:
-        # Disconnected SCCs → one per layer, smaller first (top).
-        sccs = [(scc_idx, members_attr.get(scc_idx, set()))
-                for scc_idx in cond.nodes]
-        sccs.sort(key=lambda kv: len(kv[1]))
-        return [sorted(s) for _, s in sccs if s]
+    # 2) Transitive reduction (removes redundant long-arrow edges).
+    if dag.number_of_edges() > 0:
+        try:
+            reduced = nx.transitive_reduction(dag)
+        except Exception:
+            reduced = dag
+    else:
+        reduced = dag
 
-    out = []
-    for gen in nx.topological_generations(cond):
-        layer = []
-        for scc_idx in gen:
-            layer.extend(sorted(members_attr.get(scc_idx, set())))
-        if layer:
-            out.append(layer)
-    return out
+    # 3) Longest-path layer assignment.
+    layer_of: Dict[str, int] = {n: 0 for n in reduced.nodes}
+    for n in nx.topological_sort(reduced):
+        preds = list(reduced.predecessors(n))
+        if preds:
+            layer_of[n] = max(layer_of[p] for p in preds) + 1
+
+    max_layer = max(layer_of.values()) if layer_of else 0
+    layers_by_idx: List[List[str]] = [[] for _ in range(max_layer + 1)]
+    for rep, lvl in layer_of.items():
+        layers_by_idx[lvl].append(rep)
+
+    # 4) Expand SCC members back into their representative's layer
+    # (non-representative SCC siblings sit in the same layer).
+    rep_to_scc_members: Dict[str, List[str]] = {}
+    for idx, ms in members_attr.items():
+        rep = rep_of.get(idx)
+        if rep is None:
+            continue
+        siblings = sorted(ms)
+        rep_to_scc_members[rep] = siblings  # rep is first in sorted list
+
+    expanded_layers: List[List[str]] = []
+    for layer in layers_by_idx:
+        out_layer: List[str] = []
+        for rep in layer:
+            out_layer.extend(rep_to_scc_members.get(rep, [rep]))
+        if out_layer:
+            expanded_layers.append(out_layer)
+
+    # 5) Barycenter ordering: minimise edge crossings between layers.
+    #    A few iterations of alternating down/up passes converge.
+    _barycenter_ordering(expanded_layers, sub)
+
+    # Reduced edges to return (in the representative DAG; expand to
+    # actual node pairs by SCC representative).
+    reduced_edges = [(u, v) for u, v in reduced.edges]
+
+    return expanded_layers, reduced_edges
+
+
+def _barycenter_ordering(layers: List[List[str]], graph) -> None:
+    """In-place barycenter heuristic to minimise inter-layer crossings.
+
+    Two passes (down then up) usually achieve most of the reduction.
+    Stable: nodes with no neighbours in the reference layer keep
+    their original position.
+    """
+    if len(layers) < 2:
+        return
+
+    def _do_pass(direction: int):
+        # direction = +1 means use PREVIOUS layer as reference (top→bottom)
+        # direction = -1 means use NEXT layer as reference (bottom→up)
+        if direction > 0:
+            iterator = range(1, len(layers))
+        else:
+            iterator = range(len(layers) - 2, -1, -1)
+        for idx in iterator:
+            ref_layer = layers[idx - direction]
+            ref_pos = {n: i for i, n in enumerate(ref_layer)}
+            current = layers[idx]
+            scores = []
+            for i, n in enumerate(current):
+                if direction > 0:
+                    neighbours = list(graph.predecessors(n)) if n in graph else []
+                else:
+                    neighbours = list(graph.successors(n)) if n in graph else []
+                ref_positions = [ref_pos[m] for m in neighbours if m in ref_pos]
+                bary = (sum(ref_positions) / len(ref_positions)
+                        if ref_positions else i)
+                scores.append((bary, i, n))
+            scores.sort()
+            layers[idx] = [n for _bary, _i, n in scores]
+
+    for _ in range(3):
+        _do_pass(+1)
+        _do_pass(-1)
 
 
 @dataclass
@@ -402,6 +529,7 @@ class _GroupLayout:
     group_id: str
     label: str
     layers: List[List[str]] = field(default_factory=list)
+    reduced_edges: set = field(default_factory=set)  # {(src, tgt)} kept after TR
     width: float = 0.0
     height: float = 0.0
     x: float = 0.0         # absolute origin (top-left)
@@ -431,12 +559,15 @@ def _compute_group_layouts(scene: _Scene,
         if not g.member_ids:
             continue
         member_set = set(g.member_ids)
-        layers = _topological_layers(g.member_ids, scene.edges, member_set)
+        layers, reduced_edges = _topological_layers(
+            g.member_ids, scene.edges, member_set,
+        )
         if not layers:
             continue
         max_w_cells = max(len(L) for L in layers)
         gl = _GroupLayout(
             group_id=g.group_id, label=g.label, layers=layers,
+            reduced_edges=set(reduced_edges),
             width=max_w_cells * cell_w + 2 * group_internal_pad,
             height=len(layers) * cell_h + 2 * group_internal_pad + 40.0,  # +40 for header
         )
@@ -611,27 +742,61 @@ def render_extended_matrix(graphml_path: Union[str, Path],
                     ha="center", va="center", fontsize=10,
                     color="#ffffff", fontweight="bold", zorder=2)
 
-    # 2) Edges (under nodes) — typed by EM relation
+    # 2) Edges — typed + orthogonal routing + transitive-reduction filter
+    # Build a node→group_id index so we can decide whether an edge is
+    # within-group (subject to that group's reduced-edge filter) or
+    # cross-group (always kept — those are the real stratigraphic
+    # links between activities).
+    node_to_group: Dict[str, str] = {}
+    for g in group_layouts:
+        for layer in g.layers:
+            for nid in layer:
+                node_to_group[nid] = g.group_id
+    group_lookup = {g.group_id: g for g in group_layouts}
+
+    from matplotlib.patches import FancyArrowPatch
     pos = positions
     for e in scene.edges:
         if e.source not in pos or e.target not in pos:
             continue
+        src_grp = node_to_group.get(e.source)
+        tgt_grp = node_to_group.get(e.target)
+        # Within-group: skip if transitive reduction dropped this edge.
+        if src_grp and src_grp == tgt_grp:
+            grp = group_lookup.get(src_grp)
+            if grp is not None and grp.reduced_edges and \
+                    (e.source, e.target) not in grp.reduced_edges:
+                continue
         x1, y1 = pos[e.source]
         x2, y2 = pos[e.target]
-        ax.annotate(
-            "",
-            xy=(x2, y2), xycoords="data",
-            xytext=(x1, y1), textcoords="data",
-            arrowprops=dict(
-                arrowstyle="->,head_width=0.4,head_length=0.6",
-                color=e.color,
-                linewidth=e.linewidth,
-                linestyle=e.linestyle,
-                alpha=e.alpha,
-                shrinkA=node_height * 0.55, shrinkB=node_height * 0.55,
-            ),
-            zorder=2,
+        # Orthogonal routing: angle3 produces a single 90° bend
+        # between source and target. Pick the bend angles based on
+        # the relative position (mostly-vertical → bend at top
+        # going down then right; mostly-horizontal → bend at right
+        # going across then down).
+        dx = x2 - x1
+        dy = y2 - y1
+        if abs(dy) >= abs(dx):
+            # Mostly vertical (parent→child): leave node downward (90),
+            # arrive horizontally (180 or 0).
+            angleA, angleB = 90, 180 if dx < 0 else 0
+        else:
+            # Mostly horizontal (sibling-ish): leave node sideways,
+            # arrive top/bottom.
+            angleA = 180 if dx < 0 else 0
+            angleB = 90 if dy < 0 else 270
+        arrow = FancyArrowPatch(
+            (x1, y1), (x2, y2),
+            connectionstyle=f"angle,angleA={angleA},angleB={angleB},rad=2",
+            arrowstyle="->,head_width=4,head_length=6",
+            color=e.color,
+            linewidth=e.linewidth,
+            linestyle=e.linestyle,
+            alpha=e.alpha,
+            shrinkA=node_height * 0.55, shrinkB=node_height * 0.55,
+            mutation_scale=10,
         )
+        ax.add_patch(arrow)
 
     # 3) Nodes (on top)
     for nid, (cx, cy) in positions.items():
