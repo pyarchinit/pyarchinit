@@ -319,6 +319,17 @@ _STRATIGRAPHIC_KINDS = {
     "TSU", "SE", "serSU", "serUSVs", "serUSVn", "unknown",
 }
 
+# Paradata kinds — drawn in a separate band ABOVE the stratigraphic
+# period rows (Extended Matrix convention: documentation +
+# extractors + combiners + properties annotate stratigraphic units).
+# Covers both canonical (lower-case singular) and pyArchInit
+# unita_tipo dialect (capitalised / abbreviated).
+_PARADATA_KINDS = {
+    "property", "document", "extractor", "combiner",
+    "Extractor", "Combinar", "DOC",   # pyArchInit flat-export forms
+    "Property", "Document",
+}
+
 
 def _load_flat(doc: Dict[str, Any]) -> S3DGraphData:
     """Parser for S3DGraphyIntegration.export_to_json (flat shape).
@@ -348,9 +359,13 @@ def _load_flat(doc: Dict[str, Any]) -> S3DGraphData:
         node_type = (raw.get("node_type") or "").strip()
         kind = unita_tipo or _FLAT_NODE_TYPE_FALLBACK.get(node_type, node_type or "unknown")
 
-        # Determine bucket: stratigraphic (drawn in swimlane) vs other.
+        # Determine bucket: stratigraphic + paradata are drawn in
+        # swimlane; epochs / geo / other are kept for metadata but
+        # not placed in the visual grid.
         if kind in _STRATIGRAPHIC_KINDS:
             bucket = "stratigraphic"
+        elif kind in _PARADATA_KINDS:
+            bucket = "paradata"
         elif kind == "EpochNode":
             bucket = "epochs"
         elif kind == "geo_position":

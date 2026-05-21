@@ -388,11 +388,64 @@ def compute_layout(data: S3DGraphData,
         # Reverse: deepest layer first (lower y, appears at bottom of
         # period band), roots last (higher y, appears at top of band).
         reordered.extend(reversed(by_epoch[ep_id]))
-    for new_idx, row in enumerate(reordered):
+
+    # --- Paradata bands (Extended Matrix convention: top of figure) ---
+    # Each paradata kind (Extractor / property / document / combiner)
+    # gets ITS OWN row, placed ABOVE all stratigraphic period rows.
+    # This mirrors how yEd renders EM diagrams: paradata sits in a
+    # documentation strip above the strat units, with arrows
+    # crossing down to whichever US they annotate.
+    paradata_by_kind: Dict[str, List[str]] = defaultdict(list)
+    for node_id, attrs in nx.nodes(data=True):
+        if attrs.get("bucket") == "paradata":
+            paradata_by_kind[attrs.get("kind", "paradata")].append(node_id)
+    paradata_rows: List[RowInfo] = []
+    if paradata_by_kind:
+        # Stable kind order: combiner / extractor / document / property
+        # (most-aggregated first). Unknown kinds go alphabetical last.
+        canonical_order = ["combiner", "Combinar", "extractor", "Extractor",
+                           "document", "Document", "DOC",
+                           "property", "Property"]
+        kind_index = {k: i for i, k in enumerate(canonical_order)}
+        kinds_sorted = sorted(
+            paradata_by_kind.keys(),
+            key=lambda k: (kind_index.get(k, 999), k),
+        )
+        for kind in kinds_sorted:
+            ids = paradata_by_kind[kind]
+            # Wrap paradata if too wide too.
+            chunks = ([ids] if len(ids) <= max_nodes_per_row
+                      else [ids[i:i + max_nodes_per_row]
+                            for i in range(0, len(ids), max_nodes_per_row)])
+            for chunk_idx, chunk in enumerate(chunks):
+                # Pretty label per kind. Translate the pyArchInit
+                # flat-export forms to human-friendly labels.
+                pretty = {
+                    "combiner": "Combiners", "Combinar": "Combiners",
+                    "extractor": "Extractors", "Extractor": "Extractors",
+                    "document": "Documenti", "Document": "Documenti", "DOC": "Documenti",
+                    "property": "Properties", "Property": "Properties",
+                }.get(kind, kind)
+                suffix = f" ({chunk_idx + 1}/{len(chunks)})" if len(chunks) > 1 else ""
+                paradata_rows.append(RowInfo(
+                    epoch_id=None,
+                    label=f"▸ {pretty}{suffix}",
+                    epoch_color=None,
+                    y_center=0, y_top=0, y_bottom=0,
+                    node_ids=sorted(chunk, key=lambda nid: _natural_sort_key(
+                        nx.nodes[nid].get("name") or nid)),
+                ))
+
+    # Append paradata AFTER strat rows so they sit at the top in
+    # matplotlib coords (highest y). Order: reverse so the "highest
+    # priority" paradata kind (combiners) ends up at the very top.
+    final_rows = reordered + list(reversed(paradata_rows))
+
+    for new_idx, row in enumerate(final_rows):
         row.y_bottom = new_idx * row_height
         row.y_top = row.y_bottom + row_height
         row.y_center = (row.y_top + row.y_bottom) / 2.0
-    rows = reordered
+    rows = final_rows
 
     # 3) Compute max row width (in logical slots, with grouping accounted for).
     grouped_rows: List[List[List[str]]] = []

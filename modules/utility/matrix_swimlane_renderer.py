@@ -167,6 +167,29 @@ def _node_label_text(name: str, max_chars: int = 14) -> str:
     return name[:max_chars - 1] + "…"
 
 
+def _readable_text_color(fill_hex: str) -> str:
+    """Pick white or black text depending on the fill's luminance.
+
+    Uses the WCAG-style relative luminance approximation: a fill with
+    luminance < 0.5 (rough mid-grey threshold) gets white text;
+    otherwise black. Strips alpha from RRGGBBAA inputs.
+    """
+    if not fill_hex or not fill_hex.startswith("#"):
+        return "#000000"
+    hex_part = fill_hex[1:7]  # drop '#' and any alpha
+    if len(hex_part) < 6:
+        return "#000000"
+    try:
+        r = int(hex_part[0:2], 16) / 255.0
+        g = int(hex_part[2:4], 16) / 255.0
+        b = int(hex_part[4:6], 16) / 255.0
+    except ValueError:
+        return "#000000"
+    # Quick perceptual luminance (sRGB → linear approximation):
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return "#ffffff" if lum < 0.5 else "#000000"
+
+
 def render_swimlane(data: S3DGraphData,
                     layout: SwimlaneLayout,
                     palette: Palette,
@@ -188,18 +211,18 @@ def render_swimlane(data: S3DGraphData,
         raise ValueError("Layout has no positions — nothing to render. "
                          "Was the stratigraphic bucket empty?")
 
-    # --- Figure size: 1 inch per ~1.2 logical units, capped sensibly.
+    # --- Figure size: tight to content, no excessive white space.
     width_lu = layout.max_row_width + config.row_label_pad + 1.0  # +1 for right margin
-    height_lu = len(layout.rows) * 1.0 + 1.0                       # +1 for title margin
-    fig_w_in = max(8.0, min(40.0, width_lu * 0.8))
-    fig_h_in = max(5.0, min(40.0, height_lu * 0.9))
+    height_lu = len(layout.rows) * 1.0 + 0.2                       # tight top margin (no title overflow)
+    fig_w_in = max(8.0, min(40.0, width_lu * 0.7))
+    fig_h_in = max(3.0, min(40.0, height_lu * 0.75))
     fig, ax = plt.subplots(figsize=(fig_w_in, fig_h_in),
                            dpi=config.figure_dpi,
                            facecolor=config.background_color)
 
     # X spans [-row_label_pad, max_row_width + 0.5]; Y spans [0, num_rows].
     ax.set_xlim(-config.row_label_pad - 0.3, layout.max_row_width + 0.5)
-    ax.set_ylim(-0.2, len(layout.rows) + 0.2)
+    ax.set_ylim(-0.1, len(layout.rows) + 0.1)
     ax.set_aspect("equal", adjustable="box")
     ax.axis("off")
 
@@ -255,11 +278,12 @@ def render_swimlane(data: S3DGraphData,
                 xy=(x2, y2), xycoords="data",
                 xytext=(x1, y1), textcoords="data",
                 arrowprops=dict(
-                    arrowstyle="->,head_width=0.25,head_length=0.35",
+                    arrowstyle="->,head_width=0.5,head_length=0.7",
                     linestyle=style["linestyle"],
                     color=style["color"],
-                    linewidth=style["linewidth"],
+                    linewidth=max(0.9, style["linewidth"]),
                     alpha=style["alpha"],
+                    shrinkA=8, shrinkB=8,  # don't touch node borders
                 ),
                 zorder=2,
             )
@@ -273,20 +297,27 @@ def render_swimlane(data: S3DGraphData,
         palette_label = KIND_TO_PALETTE_LABEL.get(kind, kind)
         style = palette.get(palette_label)
         _draw_node_patch(ax, x, y, style, w, h, patches_mod)
+        # Auto-pick white or black text depending on fill luminance —
+        # USV / VSF have black fills, default black text was invisible.
+        text_color = _readable_text_color(style.fill)
         ax.text(
             x, y,
             _node_label_text(attrs.get("name") or node_id),
             ha="center", va="center",
             fontsize=config.node_fontsize,
-            color="#000000",
+            color=text_color,
             zorder=4,
             wrap=True,
         )
 
-    # --- Title ---
+    # --- Title (inline, low overhead) ---
     title = config.title or (data.name and f"Matrix Harris — {data.name}")
     if title:
-        fig.suptitle(title, fontsize=config.title_fontsize, color="#1a2d4a", y=0.995)
+        # Place title close to top edge to avoid white-space gap.
+        fig.suptitle(title, fontsize=config.title_fontsize,
+                     color="#1a2d4a", y=0.985)
+    # Tighter padding so the matrix doesn't float in white.
+    fig.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.02)
 
     # --- Save ---
     output_path = Path(output_path)
