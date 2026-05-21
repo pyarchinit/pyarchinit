@@ -5121,9 +5121,20 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
                 single_cassa.append(us_res_list)
 
                 ###cerca il luogo di conservazione della cassa
-                params_dict = {'sito': '"' + str(self.sito_ec) + '"', 'nr_cassa': '"' + str(cassa) + '"'}
+                # nr_cassa è INT (PG strict): non wrappare in quote, lascia
+                # che _normalize_query_params coerca al tipo colonna.
+                # sito è TEXT, ma il vecchio pattern legacy con doppie
+                # quote viene gestito dallo strip difensivo aggiunto in
+                # _normalize_query_params (2026-05-21).
+                params_dict = {'sito': str(self.sito_ec), 'nr_cassa': cassa}
                 res_luogo_conservazione = self.DB_MANAGER.query_bool(params_dict, 'INVENTARIO_MATERIALI')
-                luogo_conservazione = res_luogo_conservazione[0].luogo_conservazione
+                if not res_luogo_conservazione:
+                    # Skip questa cassa: nessun record IM con quel
+                    # (sito, nr_cassa) — può succedere se i dati hanno
+                    # nr_cassa con typing inconsistente o luogo_conservazione
+                    # è stato cancellato. Niente IndexError sulla [0].
+                    continue
+                luogo_conservazione = res_luogo_conservazione[0].luogo_conservazione or ''
                 single_cassa.append(luogo_conservazione)  # inserisce la sigla di cassa
 
                 ##          ###cerca le singole area/us presenti in quella cassa

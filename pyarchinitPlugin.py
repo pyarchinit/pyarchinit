@@ -3559,7 +3559,8 @@ class PyArchInitPlugin(object):
         of it (which it never does without ``deleteLater``).
         """
         if getattr(self, 'dockWidget', None) is not None:
-            self._unload_main_dockwidget()
+            self.dockWidget.setVisible(False)
+            self.iface.removeDockWidget(self.dockWidget)
             self.dockWidget.deleteLater()
             self.dockWidget = None
 

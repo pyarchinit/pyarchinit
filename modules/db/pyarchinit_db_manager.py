@@ -2801,9 +2801,19 @@ class Pyarchinit_db_management(object):
 
         normalized: dict = {}
         for key, value in params.items():
-            # Step 1: strip outer single quotes.
-            if isinstance(value, str) and value.startswith("'") and value.endswith("'"):
-                value = value.strip("'")
+            # Step 1: strip outer single OR double quotes. Several legacy
+            # callers (e.g. generate_el_casse_pdf pre-2026-05-21) wrap
+            # values as '"' + str(v) + '"' for raw-SQL compatibility.
+            # Without stripping, the Step 2 numeric coercion sees
+            # '"5"' → int('"5"') raises → falls through to a string
+            # value that never matches the INT column on PG (silently
+            # returns 0 rows; manifests as IndexError on res[0] in
+            # the caller). SQLite type-loose hid this for years.
+            if isinstance(value, str) and len(value) >= 2:
+                if value.startswith("'") and value.endswith("'"):
+                    value = value.strip("'")
+                elif value.startswith('"') and value.endswith('"'):
+                    value = value.strip('"')
             # Step 2: type coercion driven by SQLAlchemy column type.
             # Bidirectional since pg-pottery-fix 2026-05-14:
             #   - str value + numeric column → coerce to int/float
