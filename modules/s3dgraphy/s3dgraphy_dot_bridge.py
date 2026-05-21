@@ -261,7 +261,65 @@ class S3DGraphyDotBridge:
             phased_path = os.path.join(output_dir, f"{base_name}_phased.json")
             if self.s3d_integration.export_phased_matrix(phased_path):
                 exported_files['phased'] = phased_path
-        
+
+        # ---- NEW: swimlane PNG render alongside GraphML (post-2026-05-21) ----
+        # Auto-generate <base_name>_swimlane.png using the matplotlib
+        # + EM-palette renderer (modules/utility/matrix_swimlane_renderer.py
+        # introduced by commits d3752bba..50e76486). Triggered when GraphML
+        # is requested — matches the user's mental model "image goes next
+        # to the .graphml". The OLD Graphviz path (dot.py / dottoxml.py) is
+        # untouched.
+        #
+        # Defensive: any failure in this block must NOT prevent the
+        # existing exports from being reported to the caller. The renderer
+        # is ADDITIVE — at worst, the swimlane PNG is missing.
+        if 'graphml' in formats:
+            try:
+                from modules.utility.matrix_swimlane_renderer import (
+                    render_to_file as _swim_render,
+                )
+                # Need the JSON as input. If 'json' was in the requested
+                # formats, the file already exists from the block above.
+                # Otherwise write a temp JSON, render, cleanup.
+                _swim_json = exported_files.get('json')
+                _swim_json_was_temp = False
+                if not _swim_json:
+                    _swim_json = os.path.join(
+                        output_dir, f"{base_name}_s3dgraphy.json"
+                    )
+                    if not os.path.exists(_swim_json):
+                        _swim_json_was_temp = self.s3d_integration.export_to_json(_swim_json)
+                if _swim_json and os.path.exists(_swim_json):
+                    _swim_png = os.path.join(
+                        output_dir, f"{base_name}_swimlane.png"
+                    )
+                    _swim_render(_swim_json, _swim_png, format="png")
+                    if os.path.exists(_swim_png):
+                        exported_files['swimlane_png'] = _swim_png
+                        if QGIS_AVAILABLE:
+                            QgsMessageLog.logMessage(
+                                f"Swimlane PNG generated: {_swim_png}",
+                                "PyArchInit", Qgis.Info,
+                            )
+                # Cleanup temp JSON if we created it (user didn't request).
+                if _swim_json_was_temp and os.path.exists(_swim_json):
+                    try:
+                        os.remove(_swim_json)
+                    except OSError:
+                        pass
+            except Exception as _swim_err:
+                import traceback as _tb
+                _tb_str = _tb.format_exc()
+                if QGIS_AVAILABLE:
+                    QgsMessageLog.logMessage(
+                        f"Swimlane PNG render failed (skipping, other "
+                        f"exports still produced): {_swim_err}\n{_tb_str}",
+                        "PyArchInit", Qgis.Warning,
+                    )
+                else:
+                    print(f"[swimlane render] failed: {_swim_err}")
+                    print(_tb_str)
+
         return exported_files
     
     # Legacy fallback used when VocabProvider's get_visual_rule() returns
