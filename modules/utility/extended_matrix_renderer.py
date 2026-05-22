@@ -121,6 +121,74 @@ _SYMMETRIC_RELATIONS = {"Uguale a", "Si lega a"}
 
 
 # ----------------------------------------------------------------------
+# EM-palette icon resolution (paradata nodes use the official PNG icons
+# shipped by s3dgraphy, NOT generic box/parallelogram shapes).
+# ----------------------------------------------------------------------
+
+# Map ``unita_tipo`` (canonical pyArchInit dialect) to the icon file
+# basename shipped under s3dgraphy/JSON_config/src/2D/.
+# Covers:
+# - DOC / document → document.png (paper sheet outline)
+# - Combinar / combiner → combiner.png (two overlapping rectangles)
+# - Extractor / extractor → extractor.png (gear-like circle)
+# - property → property.png (rounded rectangle with label)
+# The keys cover both the new canonical names and the legacy
+# pyArchInit unita_tipo values seen in real exports.
+_KIND_TO_ICON_NAME: Dict[str, str] = {
+    # Documents
+    "DOC":        "document",
+    "document":   "document",
+    "Document":   "document",
+    # Combiners (note: pyArchInit historical spelling "Combinar")
+    "Combinar":   "combiner",
+    "Combiner":   "combiner",
+    "combiner":   "combiner",
+    # Extractors
+    "Extractor":  "extractor",
+    "extractor":  "extractor",
+    # Properties
+    "property":   "property",
+    "Property":   "property",
+    # Other s3dgraphy paradata icons available for future kinds:
+    # continuity, serSU, serUSD, serUSV, RSF, SF, TSU, US, USD,
+    # USVn, USVs, VSF (all stratigraphic — those keep their yEd
+    # graphic shapes, not icons).
+}
+
+
+def _icon_dir() -> Optional[Path]:
+    """Locate s3dgraphy's 2D icon directory via importlib find_spec.
+
+    Returns None if s3dgraphy isn't importable (in that case the
+    renderer falls back to the yEd-derived shapes).
+    """
+    try:
+        from importlib.util import find_spec
+        spec = find_spec("s3dgraphy")
+        if spec is not None and spec.submodule_search_locations:
+            pkg_dir = Path(next(iter(spec.submodule_search_locations)))
+            icon_dir = pkg_dir / "JSON_config" / "src" / "2D"
+            if icon_dir.is_dir():
+                return icon_dir
+    except Exception:
+        pass
+    return None
+
+
+def _resolve_icon_path(kind: str) -> Optional[Path]:
+    """Return absolute path to the EM-palette PNG icon for ``kind``,
+    or None if no icon is registered for this kind."""
+    icon_name = _KIND_TO_ICON_NAME.get(kind)
+    if not icon_name:
+        return None
+    icon_dir = _icon_dir()
+    if icon_dir is None:
+        return None
+    candidate = icon_dir / f"{icon_name}.png"
+    return candidate if candidate.exists() else None
+
+
+# ----------------------------------------------------------------------
 # DOT binary discovery
 # ----------------------------------------------------------------------
 
@@ -160,6 +228,11 @@ class _NodeData:
     rounded: bool = False       # True for roundrectangle yEd nodes
     text_color: str = "#000000"
     group_id: Optional[str] = None
+    # For paradata kinds (DOC / Combinar / Extractor / property)
+    # we override shape with the EM-palette PNG icon shipped by
+    # s3dgraphy. unita_tipo is what drives the icon lookup.
+    unita_tipo: str = ""
+    icon_path: Optional[str] = None  # absolute path, set during parse
 
 
 @dataclass
@@ -296,6 +369,16 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
     K_UNITA     = name_to_key.get("pyarchinit.unita_tipo", "")
     K_RAPPORTI  = name_to_key.get("pyarchinit.rapporti",   "")
 
+    # Cache EM-palette icon dir resolution once.
+    _icon_cache: Dict[str, Optional[str]] = {}
+
+    def _icon_for_kind(kind: str) -> Optional[str]:
+        if kind in _icon_cache:
+            return _icon_cache[kind]
+        path = _resolve_icon_path(kind)
+        _icon_cache[kind] = str(path) if path else None
+        return _icon_cache[kind]
+
     def _collect_data(n_elem: ET.Element, nid: str) -> None:
         bag: Dict[str, str] = {}
         for d in n_elem.findall(f"{{{_NS['g']}}}data"):
@@ -319,11 +402,15 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
                     _walk(n, nid)
                 else:
                     fill, border, bw, shape, rounded = _extract_style(n)
+                    unita = raw_data.get(nid, {}).get(K_UNITA, "").strip() if K_UNITA else ""
+                    icon = _icon_for_kind(unita) if unita else None
                     scene.nodes[nid] = _NodeData(
                         node_id=nid, label=label, fill=fill, border=border,
                         border_width=bw, shape=shape, rounded=rounded,
                         text_color=_readable_text_color(fill),
                         group_id=parent_grp,
+                        unita_tipo=unita,
+                        icon_path=icon,
                     )
 
     top_graph = root.find(f"{{{_NS['g']}}}graph")
@@ -341,11 +428,15 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
             _walk(n, nid)
         else:
             fill, border, bw, shape, rounded = _extract_style(n)
+            unita = raw_data.get(nid, {}).get(K_UNITA, "").strip() if K_UNITA else ""
+            icon = _icon_for_kind(unita) if unita else None
             scene.nodes[nid] = _NodeData(
                 node_id=nid, label=label, fill=fill, border=border,
                 border_width=bw, shape=shape, rounded=rounded,
                 text_color=_readable_text_color(fill),
                 group_id=None,
+                unita_tipo=unita,
+                icon_path=icon,
             )
 
     for n in scene.nodes.values():
@@ -566,8 +657,32 @@ def _format_node_decl(n: _NodeData) -> str:
     Adaptive size: don't fix width/height — dot auto-fits to the
     label text (user feedback: "le icone troppo grandi falle più
     piccole o comunque che si adattino").
+
+    Paradata kinds (DOC/Combinar/Extractor/property) override the
+    yEd-derived shape with the official EM-palette PNG icon
+    shipped by s3dgraphy. The DOT trick: ``shape=none`` removes
+    the surrounding box so the image is the visible node;
+    ``image=...`` points at the PNG; ``imagescale=true`` lets dot
+    scale the image to the node's bounding box; ``labelloc=b``
+    places the label BELOW the icon so the picture is unobstructed.
     """
     label = _dot_escape(n.label or n.node_id[:8])
+
+    if n.icon_path:
+        # Escape backslashes in the path for DOT.
+        icon = n.icon_path.replace("\\", "/")
+        attrs = (
+            f'label="{label}" '
+            f'shape=none '
+            f'image="{icon}" '
+            f'imagescale=true '
+            f'labelloc=b '
+            f'fontcolor="#000000" '
+            f'fixedsize=true '
+            f'width=0.5 height=0.5'
+        )
+        return f'{_dot_id(n.node_id)} [{attrs}];'
+
     style = "filled,rounded" if n.rounded else "filled"
     attrs = (f'label="{label}" '
              f'shape={n.shape} '
