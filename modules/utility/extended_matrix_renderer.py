@@ -542,22 +542,36 @@ def _dot_escape(text: str) -> str:
 def _build_dot_source(scene: _Scene,
                       *,
                       rankdir: str = "TB",
-                      ranksep: float = 0.35,
-                      nodesep: float = 0.18,
-                      fontsize: int = 8) -> str:
+                      ranksep: float = 0.7,   # more vertical breathing room
+                      nodesep: float = 0.45,  # more horizontal breathing room
+                      fontsize: int = 8,
+                      vertical_page: bool = True) -> str:
     """Generate a DOT source string from the parsed Scene.
 
     Node defaults: smaller default size (width=0.45, height=0.22,
     fontsize=8) so symbols don't dominate the canvas. Per-node
     declarations omit width/height — letting dot auto-fit to the label,
     which gives the "adaptive sizing" the user asked for.
+
+    ``vertical_page=True`` sets ``ratio="1.4"`` (height:width ≈ 1.4)
+    which tells dot to stretch the layout vertically, biasing toward
+    portrait-orientation pages — user feedback: "se puoi renderizzare
+    in verticale". (Not using size="W,H!" because that compresses
+    the graph and squashes nodes; `ratio` is the looser hint.)
     """
     lines: List[str] = []
     lines.append("digraph ExtendedMatrix {")
-    lines.append(f'  graph [splines=ortho rankdir={rankdir} '
-                 f'ranksep={ranksep} nodesep={nodesep} '
-                 f'compound=true bgcolor="#eef2f7" '
-                 f'fontname="Helvetica" fontsize={fontsize + 2}];')
+    graph_attrs = (f'splines=ortho rankdir={rankdir} '
+                   f'ranksep={ranksep} nodesep={nodesep} '
+                   f'compound=true bgcolor="#eef2f7" '
+                   f'fontname="Helvetica" fontsize={fontsize + 2}')
+    if vertical_page:
+        # ratio=1.4 means "render with aspect h/w ≈ 1.4" (taller than
+        # wide). pack=true + packmode="array_t" hint clusters to be
+        # packed top-down (column-major) so 7 small clusters stack
+        # into ~2 columns instead of spreading into 4-5 columns wide.
+        graph_attrs += (' ratio=1.4 pack=true packmode="array_t2"')
+    lines.append(f'  graph [{graph_attrs}];')
     lines.append(f'  node  [shape=box style=filled fontname="Helvetica" '
                  f'fontsize={fontsize} margin="0.06,0.025"];')
     lines.append(f'  edge  [arrowsize=0.55 fontname="Helvetica" '
@@ -651,12 +665,32 @@ def _build_dot_source(scene: _Scene,
     return "\n".join(lines)
 
 
+# Per-kind icon sizing in inches (DOT width/height units).
+# Combinar / Extractor are circular icons that look visually heavier
+# than the document/property rectangles at the same bounding box, so
+# they get a smaller size to match perceptually (user feedback:
+# "combinar e extractor falli più piccoli").
+_ICON_SIZE_BY_KIND: Dict[str, float] = {
+    "Combinar":  0.32,
+    "Combiner":  0.32,
+    "combiner":  0.32,
+    "Extractor": 0.32,
+    "extractor": 0.32,
+    "DOC":       0.42,
+    "document":  0.42,
+    "Document":  0.42,
+    "property":  0.55,   # wider than tall — the icon is a horizontal pill
+    "Property":  0.55,
+}
+_ICON_DEFAULT_SIZE = 0.45
+
+
 def _format_node_decl(n: _NodeData) -> str:
     """Format a single DOT node declaration.
 
-    Adaptive size: don't fix width/height — dot auto-fits to the
-    label text (user feedback: "le icone troppo grandi falle più
-    piccole o comunque che si adattino").
+    Adaptive size: don't fix width/height for shape-based nodes —
+    dot auto-fits to the label text (user feedback: "le icone
+    troppo grandi falle più piccole o comunque che si adattino").
 
     Paradata kinds (DOC/Combinar/Extractor/property) override the
     yEd-derived shape with the official EM-palette PNG icon
@@ -665,12 +699,15 @@ def _format_node_decl(n: _NodeData) -> str:
     ``image=...`` points at the PNG; ``imagescale=true`` lets dot
     scale the image to the node's bounding box; ``labelloc=b``
     places the label BELOW the icon so the picture is unobstructed.
+
+    Per-kind sizing in _ICON_SIZE_BY_KIND: combiner/extractor
+    smaller than document/property to balance their visual weight.
     """
     label = _dot_escape(n.label or n.node_id[:8])
 
     if n.icon_path:
-        # Escape backslashes in the path for DOT.
         icon = n.icon_path.replace("\\", "/")
+        size = _ICON_SIZE_BY_KIND.get(n.unita_tipo, _ICON_DEFAULT_SIZE)
         attrs = (
             f'label="{label}" '
             f'shape=none '
@@ -679,7 +716,7 @@ def _format_node_decl(n: _NodeData) -> str:
             f'labelloc=b '
             f'fontcolor="#000000" '
             f'fixedsize=true '
-            f'width=0.5 height=0.5'
+            f'width={size} height={size}'
         )
         return f'{_dot_id(n.node_id)} [{attrs}];'
 
@@ -701,7 +738,8 @@ def _format_node_decl(n: _NodeData) -> str:
 def render_extended_matrix(graphml_path: Union[str, Path],
                            output_path: Union[str, Path],
                            *,
-                           format: str = "png") -> Path:
+                           format: str = "png",
+                           dpi: int = 300) -> Path:
     """Render the Extended Matrix to PNG/JPEG/SVG via Graphviz dot.
 
     Raises RuntimeError if `dot` is not installed — the caller in
@@ -741,7 +779,8 @@ def render_extended_matrix(graphml_path: Union[str, Path],
     dot_aux.write_text(dot_source, encoding="utf-8")
 
     result = subprocess.run(
-        [dot_binary, f"-T{fmt}", "-o", str(output_path), str(dot_aux)],
+        [dot_binary, f"-T{fmt}", f"-Gdpi={dpi}",
+         "-o", str(output_path), str(dot_aux)],
         capture_output=True, text=True, timeout=120,
     )
     if result.returncode != 0:
