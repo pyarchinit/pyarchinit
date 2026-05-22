@@ -68,26 +68,56 @@ _YED_TO_GV_SHAPE = {
 
 
 # EM relation vocabulary → DOT edge styling.
+# Convention (EM standard):
+#   - Stratigraphic positive (Copre/Coperto da, Riempie/Riempito da,
+#     Si appoggia/Gli si appoggia) → solid black arrowed line
+#   - Stratigraphic NEGATIVE (Taglia/Tagliato da) → RED DASHED line
+#     with arrow (cuts are destructive relations).
+#   - Continuity (Uguale a, Si lega a) → black DOUBLE line, NO arrows,
+#     same rank (units are at the same stratigraphic level / time).
+#   - Paradata (DOC/Combiner/Extractor/property → US via << / >>) →
+#     grey DASHED line (these aren't stratigraphic relations, they're
+#     documentation/inference links).
 _REL_DOT_STYLES = {
-    "Copre":           {"color": "#1a2d4a", "penwidth": 1.4, "style": "solid"},
-    "Coperto da":      {"color": "#1a2d4a", "penwidth": 1.4, "style": "solid"},
-    "Taglia":          {"color": "#9B3333", "penwidth": 1.5, "style": "dashed"},
-    "Tagliato da":     {"color": "#9B3333", "penwidth": 1.5, "style": "dashed"},
-    "Riempie":         {"color": "#1f4e8a", "penwidth": 1.3, "style": "dotted"},
-    "Riempito da":     {"color": "#1f4e8a", "penwidth": 1.3, "style": "dotted"},
-    "Si appoggia a":   {"color": "#666666", "penwidth": 1.1, "style": "dashed"},
-    "Gli si appoggia": {"color": "#666666", "penwidth": 1.1, "style": "dashed"},
-    "Si lega a":       {"color": "#31792D", "penwidth": 1.3, "style": "solid"},
-    "Uguale a":        {"color": "#1a2d4a", "penwidth": 2.0, "style": "solid"},
-    ">>":              {"color": "#9aa6b3", "penwidth": 0.6, "style": "solid"},
-    "<<":              {"color": "#9aa6b3", "penwidth": 0.6, "style": "solid"},
+    "Copre":           {"color": "#1a2d4a", "penwidth": 1.2, "style": "solid",
+                        "arrowhead": "normal"},
+    "Coperto da":      {"color": "#1a2d4a", "penwidth": 1.2, "style": "solid",
+                        "arrowhead": "normal"},
+    # NEGATIVE: red dashed with arrow.
+    "Taglia":          {"color": "#C0392B", "penwidth": 1.3, "style": "dashed",
+                        "arrowhead": "normal"},
+    "Tagliato da":     {"color": "#C0392B", "penwidth": 1.3, "style": "dashed",
+                        "arrowhead": "normal"},
+    "Riempie":         {"color": "#1f4e8a", "penwidth": 1.2, "style": "solid",
+                        "arrowhead": "normal"},
+    "Riempito da":     {"color": "#1f4e8a", "penwidth": 1.2, "style": "solid",
+                        "arrowhead": "normal"},
+    "Si appoggia a":   {"color": "#1a2d4a", "penwidth": 1.0, "style": "solid",
+                        "arrowhead": "normal"},
+    "Gli si appoggia": {"color": "#1a2d4a", "penwidth": 1.0, "style": "solid",
+                        "arrowhead": "normal"},
+    # CONTINUITY: double black line, no arrows, same rank (horizontal).
+    "Si lega a":       {"color": "#1a2d4a", "penwidth": 1.0, "style": "solid",
+                        "arrowhead": "none", "double": True, "samerank": True},
+    "Uguale a":        {"color": "#1a2d4a", "penwidth": 1.0, "style": "solid",
+                        "arrowhead": "none", "double": True, "samerank": True},
+    # PARADATA membership / inference: dashed grey, with normal arrow.
+    ">>":              {"color": "#7a8a99", "penwidth": 0.7, "style": "dashed",
+                        "arrowhead": "normal"},
+    "<<":              {"color": "#7a8a99", "penwidth": 0.7, "style": "dashed",
+                        "arrowhead": "normal"},
 }
-_REL_DOT_DEFAULT = {"color": "#3a4d5c", "penwidth": 0.8, "style": "solid"}
+_REL_DOT_DEFAULT = {"color": "#3a4d5c", "penwidth": 0.8, "style": "solid",
+                    "arrowhead": "normal"}
 
 # Relations that should be REVERSED when reading from rapporti so the
 # edge points from parent → child consistently in the DAG.
 _REVERSED_RELATIONS = {"<<", "Coperto da", "Tagliato da",
                        "Riempito da", "Gli si appoggia"}
+
+# Symmetric relations: should be drawn only ONCE per (A, B) unordered
+# pair, never two arrows for A→B and B→A.
+_SYMMETRIC_RELATIONS = {"Uguale a", "Si lega a"}
 
 
 # ----------------------------------------------------------------------
@@ -232,12 +262,39 @@ def _extract_style(n_elem: ET.Element) -> Tuple[str, str, float, str, bool]:
     return fill, border, border_w, dot_shape, rounded
 
 
+def _resolve_data_keys(root: ET.Element) -> Dict[str, str]:
+    """Build {attr_name: key_id} from the graphml <key> declarations.
+
+    Different exports use different key id numbering (d0..d37 etc.)
+    depending on which optional schema fields are emitted. Hard-coding
+    id strings like 'd15' breaks silently when the order changes. This
+    helper resolves the stable attr.name (e.g. 'pyarchinit.rapporti')
+    to whatever id was assigned in THIS file.
+    """
+    out: Dict[str, str] = {}
+    for k in root.iter(f"{{{_NS['g']}}}key"):
+        name = k.attrib.get("attr.name")
+        kid = k.attrib.get("id")
+        if name and kid:
+            out[name] = kid
+    return out
+
+
 def _parse_graphml(graphml_path: Path) -> _Scene:
     """Walk the graphml and build a _Scene."""
     tree = ET.parse(str(graphml_path))
     root = tree.getroot()
     scene = _Scene(title=graphml_path.stem)
     raw_data: Dict[str, Dict[str, str]] = {}
+
+    # Resolve data-key ids from declarations (NOT hardcoded — varies
+    # between exports based on optional field presence).
+    name_to_key = _resolve_data_keys(root)
+    K_US        = name_to_key.get("pyarchinit.us",         "")
+    K_AREA      = name_to_key.get("pyarchinit.area",       "")
+    K_SITO      = name_to_key.get("pyarchinit.sito",       "")
+    K_UNITA     = name_to_key.get("pyarchinit.unita_tipo", "")
+    K_RAPPORTI  = name_to_key.get("pyarchinit.rapporti",   "")
 
     def _collect_data(n_elem: ET.Element, nid: str) -> None:
         bag: Dict[str, str] = {}
@@ -300,56 +357,73 @@ def _parse_graphml(graphml_path: Path) -> _Scene:
     for nid, bag in raw_data.items():
         if nid not in scene.nodes:
             continue
-        us = bag.get("d0", "").strip()
-        area = bag.get("d1", "").strip()
-        sito = bag.get("d2", "").strip()
+        us = bag.get(K_US, "").strip() if K_US else ""
+        area = bag.get(K_AREA, "").strip() if K_AREA else ""
+        sito = bag.get(K_SITO, "").strip() if K_SITO else ""
         if us:
             by_uas[(us.lower(), area.lower(), sito.lower())] = nid
 
-    edge_seen: Set[Tuple[str, str, str]] = set()
+    # Canonical-pair dedup: for ANY relation, we never want two arrows
+    # between the same pair of nodes. Reciprocal rapporti (A says
+    # 'Copre B', B says 'Coperto da A') describe the SAME edge and
+    # would otherwise produce two arrows pointing both ways.
+    # Strategy: normalize each edge to a canonical (parent, child) form
+    # using _REVERSED_RELATIONS, then dedup by the unordered node pair
+    # ALONE (not by relation type — the first relation wins, which
+    # matters very little because reciprocal pairs share semantics).
+    pair_seen: Set[frozenset] = set()
     edges_from_rapporti = 0
-    for nid, bag in raw_data.items():
-        if nid not in scene.nodes:
-            continue
-        rap = bag.get("d15", "")
-        if not rap:
-            continue
-        try:
-            rap_list = ast.literal_eval(rap)
-        except (ValueError, SyntaxError):
-            continue
-        if not isinstance(rap_list, (list, tuple)):
-            continue
-        for entry in rap_list:
-            if not isinstance(entry, (list, tuple)) or len(entry) < 4:
+    if K_RAPPORTI:
+        for nid, bag in raw_data.items():
+            if nid not in scene.nodes:
                 continue
-            tipo = str(entry[0])
-            target_us, target_area, target_sito = (
-                str(entry[1]), str(entry[2]), str(entry[3])
-            )
-            tnid = by_uas.get(
-                (target_us.lower(), target_area.lower(), target_sito.lower())
-            )
-            if not tnid or tnid == nid:
+            rap = bag.get(K_RAPPORTI, "")
+            if not rap:
                 continue
-            if tipo in _REVERSED_RELATIONS:
-                src, tgt = tnid, nid
-            else:
-                src, tgt = nid, tnid
-            key = (src, tgt, tipo)
-            if key in edge_seen:
+            try:
+                rap_list = ast.literal_eval(rap)
+            except (ValueError, SyntaxError):
                 continue
-            edge_seen.add(key)
-            scene.edges.append(_EdgeData(source=src, target=tgt, relation=tipo))
-            edges_from_rapporti += 1
+            if not isinstance(rap_list, (list, tuple)):
+                continue
+            for entry in rap_list:
+                if not isinstance(entry, (list, tuple)) or len(entry) < 4:
+                    continue
+                tipo = str(entry[0])
+                target_us, target_area, target_sito = (
+                    str(entry[1]), str(entry[2]), str(entry[3])
+                )
+                tnid = by_uas.get(
+                    (target_us.lower(), target_area.lower(),
+                     target_sito.lower())
+                )
+                if not tnid or tnid == nid:
+                    continue
+                if tipo in _REVERSED_RELATIONS:
+                    src, tgt = tnid, nid
+                else:
+                    src, tgt = nid, tnid
+                pair_key = frozenset((src, tgt))
+                if pair_key in pair_seen:
+                    continue
+                pair_seen.add(pair_key)
+                scene.edges.append(_EdgeData(
+                    source=src, target=tgt, relation=tipo,
+                ))
+                edges_from_rapporti += 1
 
     # Fallback: top-level <edge> when rapporti absent.
     if edges_from_rapporti == 0:
         for e in root.iter(f"{{{_NS['g']}}}edge"):
             src = e.attrib.get("source", "")
             tgt = e.attrib.get("target", "")
-            if src and tgt:
-                scene.edges.append(_EdgeData(source=src, target=tgt))
+            if not src or not tgt:
+                continue
+            pair_key = frozenset((src, tgt))
+            if pair_key in pair_seen:
+                continue
+            pair_seen.add(pair_key)
+            scene.edges.append(_EdgeData(source=src, target=tgt))
 
     return scene
 
@@ -377,10 +451,16 @@ def _dot_escape(text: str) -> str:
 def _build_dot_source(scene: _Scene,
                       *,
                       rankdir: str = "TB",
-                      ranksep: float = 0.45,
-                      nodesep: float = 0.25,
-                      fontsize: int = 9) -> str:
-    """Generate a DOT source string from the parsed Scene."""
+                      ranksep: float = 0.35,
+                      nodesep: float = 0.18,
+                      fontsize: int = 8) -> str:
+    """Generate a DOT source string from the parsed Scene.
+
+    Node defaults: smaller default size (width=0.45, height=0.22,
+    fontsize=8) so symbols don't dominate the canvas. Per-node
+    declarations omit width/height — letting dot auto-fit to the label,
+    which gives the "adaptive sizing" the user asked for.
+    """
     lines: List[str] = []
     lines.append("digraph ExtendedMatrix {")
     lines.append(f'  graph [splines=ortho rankdir={rankdir} '
@@ -388,8 +468,8 @@ def _build_dot_source(scene: _Scene,
                  f'compound=true bgcolor="#eef2f7" '
                  f'fontname="Helvetica" fontsize={fontsize + 2}];')
     lines.append(f'  node  [shape=box style=filled fontname="Helvetica" '
-                 f'fontsize={fontsize} width=0.6 height=0.3 margin="0.05,0.02"];')
-    lines.append(f'  edge  [arrowsize=0.6 fontname="Helvetica" '
+                 f'fontsize={fontsize} margin="0.06,0.025"];')
+    lines.append(f'  edge  [arrowsize=0.55 fontname="Helvetica" '
                  f'fontsize={fontsize - 1}];')
 
     # Title label at the top
@@ -421,24 +501,72 @@ def _build_dot_source(scene: _Scene,
         if n.group_id is None:
             lines.append(f'  {_format_node_decl(n)}')
 
-    # 3) Edges (typed)
+    # 3) Same-rank constraint blocks for continuity relations
+    #    (Uguale a / Si lega a): pin pairs to the same horizontal
+    #    level so the double line is drawn horizontally as required.
+    same_rank_pairs: List[Tuple[str, str]] = []
+    for e in scene.edges:
+        if e.source not in scene.nodes or e.target not in scene.nodes:
+            continue
+        style = _REL_DOT_STYLES.get(e.relation, _REL_DOT_DEFAULT)
+        if style.get("samerank"):
+            same_rank_pairs.append((e.source, e.target))
+    for src, tgt in same_rank_pairs:
+        lines.append(
+            f'  {{rank=same; {_dot_id(src)}; {_dot_id(tgt)};}}'
+        )
+
+    # 4) Edges (typed). Special-case for continuity relations:
+    #    draw as DOUBLE line (style="solid" with high penwidth + a
+    #    parallel undecorated line via xlabel trick is too fragile;
+    #    instead we use the dot "doubled" trick: dir=none + style=
+    #    "solid" with very thick black + an inner edge with white
+    #    inset is also fragile. Simplest reliable: pair them with
+    #    a constraint=false reverse edge AND use the
+    #    arrowhead/arrowtail=none on a constraint=false second edge).
+    #    Honestly: we emit a primary thick edge (penwidth 1.0) + a
+    #    parallel constraint=false thin white edge through the
+    #    middle — produces a visible "double line" effect at
+    #    rendering time.
     for e in scene.edges:
         if e.source not in scene.nodes or e.target not in scene.nodes:
             continue
         style = _REL_DOT_STYLES.get(e.relation, _REL_DOT_DEFAULT)
         s = _dot_id(e.source)
         t = _dot_id(e.target)
-        attrs = (f'color="{style["color"]}" '
-                 f'penwidth={style["penwidth"]} '
-                 f'style="{style["style"]}"')
-        lines.append(f'  {s} -> {t} [{attrs}];')
+        arrowhead = style.get("arrowhead", "normal")
+        attr_parts = [
+            f'color="{style["color"]}"',
+            f'penwidth={style["penwidth"]}',
+            f'style="{style["style"]}"',
+            f'arrowhead={arrowhead}',
+            f'arrowtail=none',
+            f'dir={"none" if arrowhead == "none" else "forward"}',
+        ]
+        # Continuity relations: no arrows, drawn as a double line.
+        # Graphviz trick: use color="c1:white:c1" to fake a double line
+        # via a stacked-color edge (works with splines=ortho too).
+        if style.get("double"):
+            attr_parts[0] = f'color="{style["color"]}:white:{style["color"]}"'
+            attr_parts[1] = f'penwidth=2.4'   # thicker so the white stripe is visible
+            attr_parts[3] = 'arrowhead=none'
+            attr_parts[5] = 'dir=none'
+        # Same-rank edges should not push siblings into separate ranks.
+        if style.get("samerank"):
+            attr_parts.append('constraint=false')
+        lines.append(f'  {s} -> {t} [{", ".join(attr_parts)}];')
 
     lines.append("}")
     return "\n".join(lines)
 
 
 def _format_node_decl(n: _NodeData) -> str:
-    """Format a single DOT node declaration."""
+    """Format a single DOT node declaration.
+
+    Adaptive size: don't fix width/height — dot auto-fits to the
+    label text (user feedback: "le icone troppo grandi falle più
+    piccole o comunque che si adattino").
+    """
     label = _dot_escape(n.label or n.node_id[:8])
     style = "filled,rounded" if n.rounded else "filled"
     attrs = (f'label="{label}" '
