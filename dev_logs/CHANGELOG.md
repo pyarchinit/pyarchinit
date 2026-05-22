@@ -5,6 +5,89 @@
 
 ---
 
+## [5.10.0-alpha] - 2026-05-22 — Extended Matrix renderer (Graphviz dot + EM palette icons)
+
+> Tag `5.10.0-alpha` su branch `Stratigraph_00001`. Bump minor (5.9 → 5.10) per nuova feature: pipeline rendering automatico del matrix Harris/Extended Matrix in PNG accanto all'export GraphML (prima richiedeva apertura manuale in yEd + Apply Swimlane Layout). 11 commit cumulati `7cf297fd..5d990988`.
+
+### Italiano
+
+**Nuovo: 3-generation matrix renderer pipeline.**
+
+Dopo `pushButton_export_extended_matrix` (sito → graphml + json), il plugin genera AUTOMATICAMENTE un `<base>_swimlane.png` nella stessa cartella usando **Graphviz `dot`** come engine di layout (hierarchical + orthogonal + bin-packed clusters). Output visualmente equivalente a "Apply Swimlane Layout + Orthogonal Edges" in yEd, ma in batch senza intervento manuale.
+
+**File nuovi (5 moduli, ~1900 righe):**
+
+- `modules/utility/em_palette_parser.py` — parser EM palette graphml shippata da s3dgraphy (auto-aggiorna su `pip install -U s3dgraphy`)
+- `modules/utility/s3d_json_loader.py` — JSON s3dgraphy 1.5 → NetworkX DiGraph (supporta sia hierarchical sia flat format)
+- `modules/utility/harris_swimlane_layout.py` — Sugiyama layered layout fallback (matplotlib path)
+- `modules/utility/matrix_swimlane_renderer.py` — matplotlib renderer fallback
+- `modules/utility/extended_matrix_renderer.py` — **renderer principale**: usa Graphviz `dot` per layout autoritativo + EM palette icons ufficiali (combiner.png, extractor.png, document.png, property.png da s3dgraphy)
+
+**Caratteristiche renderer principale**:
+
+- **Layout via dot binary** (`splines=ortho`, `rankdir=TB`, `compound=true`, `pack=true`): cluster boxes auto-bin-packed in colonne, edge ortogonali Manhattan veri (no curve)
+- **EM palette icons**: nodi paradata (DOC/Combinar/Extractor/property) usano le PNG ufficiali shippate da s3dgraphy invece di rectangle/parallelogram generici. Size adattivo per kind: Combinar/Extractor 0.32", DOC 0.42", property 0.55"
+- **Edge tipizzati** da `pyarchinit.rapporti` field (lista `[tipo, us, area, sito]`):
+  - **Copre / Coperto da / Riempie / Riempito da** → linea solid blu navy con freccia
+  - **Taglia / Tagliato da** → linea **dashed rossa** (#C0392B) con freccia (rapporti negativi)
+  - **Uguale a / Si lega a** → **linea doppia nera orizzontale senza frecce** (trick `color="black:white:black"` + `dir=none` + `{rank=same}` subgraph)
+  - **Si appoggia a / Gli si appoggia** → linea solid sottile
+  - **`<<` / `>>`** (paradata connections) → **linea dashed grigia** con freccia
+- **Dedup edge reciproci** (A↔B → 1 edge) via `frozenset((src,tgt))` → riduce edge count 204→118 sul test_1
+- **300 dpi output** (configurabile), formato A3 portrait per stampa professionale
+- **Dynamic key lookup** via `<key attr.name="...">` declarations (no hardcoded d-ids → resistente a schema drift)
+
+**Wire pipeline** (`modules/s3dgraphy/s3dgraphy_dot_bridge.py:export_extended_matrix_multi_format`):
+
+```
+graphml export → try extended_matrix_renderer (dot-based)
+              → fallback matrix_swimlane_renderer (matplotlib) on failure
+              → save <base>_swimlane.png + <base>_swimlane.dot
+```
+
+Output utente: 2 file aggiunti per ogni export (PNG render + DOT source). Il `.dot` apribile in xdot/yEd/VS Code per ispezione/tweak.
+
+**Dipendenza esterna**: richiede Graphviz `dot` binary installato (`brew install graphviz` macOS, `apt-get install graphviz` Linux, `choco install graphviz` Windows). Se mancante → fallback matplotlib automatico (visualmente meno bello ma funzionante). Auto-discovery via `shutil.which("dot")` + path fallback (`/opt/homebrew/bin/dot`, `/usr/local/bin/dot`, `/usr/bin/dot`).
+
+**Output validato su `test_1.graphml`** (sito test, 7 group folder VA01-VA06, 83 nodi, 118 edge dedup):
+- PNG 1.1 MB a 300 dpi, 8046×11331 px (≈A3 portrait)
+- 66/83 nodi paradata renderizzati con EM palette icons ufficiali
+- Layout hierarchical entro ogni cluster (USV in cima → property/extractor → US in basso)
+- 7 cluster bin-packed in ~3 colonne portrait-oriented (`ratio=1.4` + `packmode="array_t2"`)
+
+### English
+
+**New: 3-generation matrix renderer pipeline.**
+
+After `pushButton_export_extended_matrix` (site → graphml + json), the plugin AUTOMATICALLY generates a `<base>_swimlane.png` in the same folder using **Graphviz `dot`** as the layout engine (hierarchical + orthogonal + bin-packed clusters). Output visually equivalent to "Apply Swimlane Layout + Orthogonal Edges" in yEd, but batch without manual intervention.
+
+**5 new modules (~1900 lines)** in `modules/utility/`: em_palette_parser, s3d_json_loader, harris_swimlane_layout, matrix_swimlane_renderer, **extended_matrix_renderer** (primary, dot-based).
+
+**Primary renderer features**:
+
+- **dot binary layout**: `splines=ortho`, `rankdir=TB`, `compound=true`, `pack=true` → auto-bin-packed clusters, true Manhattan orthogonal edges (no curves)
+- **Official EM palette icons** for paradata (DOC/Combinar/Extractor/property) from s3dgraphy's bundled PNGs, with per-kind sizing (Combiner/Extractor smaller than Document/property for visual balance)
+- **Typed edges** from `pyarchinit.rapporti` data field:
+  - **Copre / Coperto da / Riempie / Riempito da** → solid navy with arrow
+  - **Taglia / Tagliato da** → **red dashed** (#C0392B) with arrow (negative relations)
+  - **Uguale a / Si lega a** → **black double horizontal line, no arrows** (Graphviz `color="black:white:black"` trick + `dir=none` + `{rank=same}` subgraph)
+  - **Si appoggia a / Gli si appoggia** → thin solid
+  - **`<<` / `>>`** (paradata membership) → **dashed grey** with arrow
+- **Reciprocal edge dedup** (A↔B → 1 edge) via `frozenset((src,tgt))` → reduces edge count from 204 to 118 on test_1
+- **300 dpi output** (configurable), A3 portrait format
+- **Dynamic key lookup** via `<key attr.name>` declarations (no hardcoded d-ids → robust to schema drift)
+
+**Pipeline wiring** in `modules/s3dgraphy/s3dgraphy_dot_bridge.py`:
+1. Try `extended_matrix_renderer.render_extended_matrix()` (dot-based)
+2. Fall back to `matrix_swimlane_renderer.render_to_file()` (matplotlib) on failure
+3. Save `<base>_swimlane.png` + `<base>_swimlane.dot` (source for inspection/tweak)
+
+**External dependency**: Graphviz `dot` binary (`brew install graphviz` / `apt-get install graphviz` / `choco install graphviz`). Auto-discovery via `shutil.which("dot")` + fallback paths. If missing → graceful matplotlib fallback.
+
+**Validated on test_1.graphml** (7 group folders VA01-VA06, 83 nodes, 118 deduped edges): PNG 1.1 MB @ 300 dpi, 8046×11331 px (≈A3 portrait), 66/83 paradata nodes with EM icons, hierarchical layout within each cluster.
+
+---
+
 ## [post-5.9.0.1-alpha] - 2026-05-21 (cont. 2) — Box labels: professional A4 portrait redesign + QR code
 
 > Commit `402faba2` su branch `Stratigraph_00001`, **senza nuovo tag né bump di `metadata.txt`** (resta `5.9.0.1-alpha`). Continuazione della giornata test PDF su `pyarchinit-AA39.sqlite`: dopo aver fatto funzionare la generazione del `Etichette Casse Materiali.pdf`, l'utente ha chiesto un redesign professionale "applicabili alla cassa" con QR code.
