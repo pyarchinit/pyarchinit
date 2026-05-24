@@ -1,4 +1,6 @@
 /.idea/
+/.ai/
+/.docugenius/
 
 /train_groq.py
 /copy_excelfile.py
