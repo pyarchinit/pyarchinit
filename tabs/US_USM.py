@@ -6519,12 +6519,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             if sito:
                 stmt = stmt.where(area_table.c.sito == sito)
 
-            result = connection.execute(stmt)
-            areas = result.fetchall()
-
+            areas = connection.execute(stmt).fetchall()
 
             # Fetch all rows from the result and return only the area names
-            all_areas = [row['area'] for row in result]
+            all_areas = [row['area'] for row in areas if row['area']]
 
         return all_areas
 
@@ -6690,11 +6688,27 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
                             for sublist in rapporti_list:
                                 try:
-                                    # Verifica che la sottolista abbia abbastanza elementi
-                                    if len(sublist) < 3:
-                                        error_msg = f"Sottolista troppo corta per US {id_us}: {sublist}"
+                                    # Se manca anche us_id (len < 2) non possiamo recuperare nulla
+                                    if len(sublist) < 2:
+                                        error_msg = f"Sottolista non recuperabile (manca us_id) per US {id_us}: {sublist}"
                                         log_error(error_msg, "WARNING")
+                                        updated_rapporti_list.append(sublist)
                                         continue
+
+                                    # Padding: completa sottoliste corte con area del record e sito corrente
+                                    # (evita la cancellazione dei rapporti quando l'utente ha lasciato vuote
+                                    # le colonne area/sito nel tableWidget_rapporti al momento del salvataggio)
+                                    if len(sublist) < 4:
+                                        padded = list(sublist)
+                                        record_area = row_j.area if row_j.area else ""
+                                        while len(padded) < 3:
+                                            padded.append(record_area)
+                                        while len(padded) < 4:
+                                            padded.append(var1 if var1 else "")
+                                        log_error(
+                                            f"Sottolista paddata per US {id_us}: {sublist} -> {padded}",
+                                            "INFO")
+                                        sublist = padded
 
                                     us_id = sublist[1]
                                     current_area = sublist[2]
@@ -13663,8 +13677,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def insert_new_rec(self):
         # TableWidget
         #Rapporti
-        rapporti = self.table2dict("self.tableWidget_rapporti")
-        rapporti2 = self.table2dict("self.tableWidget_rapporti2")
+        rapporti = self.table2dict("self.tableWidget_rapporti", preserve_empty=True)
+        rapporti2 = self.table2dict("self.tableWidget_rapporti2", preserve_empty=True)
         #Inclusi
         inclusi = self.table2dict("self.tableWidget_inclusi")
         #Campioni
@@ -15089,7 +15103,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         now = date.today()
         year = now.strftime("%Y")
         return year
-    def table2dict(self, n):
+    def table2dict(self, n, preserve_empty=False):
         self.tablename = n
         row = eval(self.tablename + ".rowCount()")
         col = eval(self.tablename + ".columnCount()")
@@ -15098,8 +15112,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             sub_list = []
             for c in range(col):
                 value = eval(self.tablename + ".item(r,c)")
-                if value != None:
+                if value is not None:
                     sub_list.append(str(value.text()))
+                elif preserve_empty:
+                    sub_list.append("")
             if bool(sub_list):
                 lista.append(sub_list)
         return lista
@@ -15665,8 +15681,8 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_TEMP(self):
 
         ##Rapporti
-        rapporti = self.table2dict("self.tableWidget_rapporti")
-        rapporti2 = self.table2dict("self.tableWidget_rapporti2")
+        rapporti = self.table2dict("self.tableWidget_rapporti", preserve_empty=True)
+        rapporti2 = self.table2dict("self.tableWidget_rapporti2", preserve_empty=True)
         ##Inclusi
         inclusi = self.table2dict("self.tableWidget_inclusi")
         ##Campioni
