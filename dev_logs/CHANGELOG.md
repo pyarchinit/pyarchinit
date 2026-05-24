@@ -5,6 +5,74 @@
 
 ---
 
+## [5.10.1-alpha] - 2026-05-24 — US-USM rapporti save: positional consistency for empty cells
+
+> Bump patch (5.10.0 → 5.10.1) su branch `Stratigraph_00001`. Fix surfacing in `tabs/US_USM.py` del residuo "Bug C" che era stato già osservato e parzialmente mitigato dalla riscrittura di Phase 2 di `update_rapporti_col_2` su questo branch. Il bug "wipe completo dei rapporti" descritto in audio WhatsApp del 2026-05-24 (utente UNIPA, Roma) è già coperto qui dal helper `_update_rapporti_add_area_sito` (commit di Phase 2 precedente); questa patch chiude il caso al momento del **salvataggio iniziale**, non solo del successivo update master.
+
+### Italiano
+
+**Fix: `table2dict()` ora preserva le celle vuote del rapporti table widget come stringhe vuote.**
+
+**Problema osservato.** In `tableWidget_rapporti` (4 colonne: `tipo, us, area, sito`) e `tableWidget_rapporti2` (7 colonne: `tipo, us, unita_tipo, descr, periodo, area, sito`), quando l'utente lasciava una cella **non toccata** (`item(r,c)` ritorna `None`, non un `QTableWidgetItem` vuoto), `table2dict` la **saltava** invece di salvare `""`. Risultato: sottoliste a lunghezza variabile salvate nel campo `rapporti` (`TEXT`):
+
+| Input utente | Salvato in DB |
+|---|---|
+| tipo+us+area+sito | `['Coperto da', '7', 'A1', 'Roma']` (len 4) ✓ |
+| solo tipo+us (area, sito intoccate) | `['Coperto da', '7']` (len 2) ⚠️ |
+| tipo+us+area | `['Coperto da', '7', 'A1']` (len 3) ⚠️ |
+| **tipo+us+sito** (col 2 saltata) | `['Coperto da', '7', 'Roma']` (len 3) ⚠️⚠️ **dato posizionalmente corrotto** |
+
+L'ultimo caso è il più grave: `"Roma"` finisce nella posizione 2 (area) anziché 3 (sito). Il master update (bottone `pushButton_area_sito_update` / hotkey `Ctrl+U`) chiama `_update_rapporti_add_area_sito` che fa lookup `find_correct_area_for_us(us=7, sito)` nel DB e ripara la posizione 2, ma **solo se l'US referenziata esiste con area non NULL**. Se l'US 7 ha area NULL nel DB, fallback a `sub[2]` = "Roma" → salvato `['Coperto da', '7', 'Roma', 'Roma']`.
+
+**Fix applicato.** Aggiunto parametro opt-in `preserve_empty: bool = False` a `table2dict()` (riga 24630). Quando `True`, le celle `None` vengono serializzate come `""` invece di essere saltate. Attivato a `True` ai 4 call site dei rapporti widget:
+
+- `insert_new_rec()` riga 23167-23168 (insert nuovo record US)
+- `set_LIST_REC_TEMP()` riga 25420-25421 (aggiornamento record corrente in memoria pre-save)
+
+Altri tableWidget (`inclusi`, `campioni`, `organici`, `inorganici`, `documentazione`, `colore_legante_usm`, ecc.) **non sono toccati** — usano il default `preserve_empty=False` e mantengono il comportamento skip-None precedente. Filtro chirurgico: cambio comportamento solo dove serve.
+
+**Confronto con master.** Su `master` (versione `4.9.7`) abbiamo dovuto applicare 3 fix concatenati:
+- Fix A: `get_all_areas` cursore esaurito → su `Stratigraph_00001` **già fixato** in Phase 2 (`[row[0] for row in result.fetchall()]`)
+- Fix B: `update_rapporti_col_2` droppava sublist `len<3` → su `Stratigraph_00001` **già fixato** (helper `_update_rapporti_add_area_sito` + `_update_rapporti2_add_area_sito` con padding intelligente)
+- Fix C: `table2dict` saltava None → **applicato ora con questo bump**
+
+Phase 2 è quindi una base più robusta. Questo commit chiude l'ultimo gap residuo.
+
+**Nessuna migrazione necessaria.** Le sottoliste corte già nel DB vengono riparate dal prossimo `update_all_areas` (bottone o `Ctrl+U`).
+
+### English
+
+**Fix: `table2dict()` now preserves empty cells in rapporti table widgets as empty strings.**
+
+**Observed problem.** In `tableWidget_rapporti` (4-col: `tipo, us, area, sito`) and `tableWidget_rapporti2` (7-col: `tipo, us, unita_tipo, descr, periodo, area, sito`), when the user left a cell **untouched** (`item(r,c)` returns `None` instead of an empty `QTableWidgetItem`), `table2dict` **skipped it** rather than saving `""`. This produced length-variable sublists in the `rapporti` field (`TEXT`):
+
+| User input | Saved to DB |
+|---|---|
+| type+us+area+sito | `['Coperto da', '7', 'A1', 'Roma']` (len 4) ✓ |
+| only type+us (area, sito untouched) | `['Coperto da', '7']` (len 2) ⚠️ |
+| type+us+area | `['Coperto da', '7', 'A1']` (len 3) ⚠️ |
+| **type+us+sito** (col 2 skipped) | `['Coperto da', '7', 'Roma']` (len 3) ⚠️⚠️ **positionally corrupted** |
+
+The last case is the worst: `"Roma"` lands in position 2 (area) instead of 3 (sito). The master update (`pushButton_area_sito_update` button / `Ctrl+U` hotkey) calls `_update_rapporti_add_area_sito`, which performs a `find_correct_area_for_us(us=7, sito)` DB lookup and fixes position 2 — **but only if the referenced US exists with a non-NULL area**. If US 7 has NULL area in the DB, fallback to `sub[2]` = "Roma" → saved as `['Coperto da', '7', 'Roma', 'Roma']`.
+
+**Fix applied.** Added opt-in `preserve_empty: bool = False` parameter to `table2dict()` (line 24630). When `True`, `None` cells are serialized as `""` instead of being skipped. Enabled at the 4 rapporti widget call sites:
+
+- `insert_new_rec()` lines 23167-23168 (new US record insert)
+- `set_LIST_REC_TEMP()` lines 25420-25421 (current record in-memory update pre-save)
+
+Other tableWidgets (`inclusi`, `campioni`, `organici`, `inorganici`, `documentazione`, `colore_legante_usm`, etc.) **are untouched** — they keep the default `preserve_empty=False` and the previous skip-None behavior. Surgical opt-in: behavior changes only where needed.
+
+**Comparison with master.** On `master` (version `4.9.7`) we had to apply 3 concatenated fixes:
+- Fix A: `get_all_areas` exhausted cursor → already fixed on `Stratigraph_00001` in Phase 2 (`[row[0] for row in result.fetchall()]`)
+- Fix B: `update_rapporti_col_2` dropped `len<3` sublists → already fixed on `Stratigraph_00001` (helpers `_update_rapporti_add_area_sito` + `_update_rapporti2_add_area_sito` with smart padding)
+- Fix C: `table2dict` skipped None → applied now with this bump
+
+Phase 2 is therefore a more robust baseline. This commit closes the last remaining gap.
+
+**No migration needed.** Short sublists already in the DB are repaired by the next `update_all_areas` run (button or `Ctrl+U`).
+
+---
+
 ## [5.10.0-alpha] - 2026-05-22 — Extended Matrix renderer (Graphviz dot + EM palette icons)
 
 > Tag `5.10.0-alpha` su branch `Stratigraph_00001`. Bump minor (5.9 → 5.10) per nuova feature: pipeline rendering automatico del matrix Harris/Extended Matrix in PNG accanto all'export GraphML (prima richiedeva apertura manuale in yEd + Apply Swimlane Layout). 11 commit cumulati `7cf297fd..5d990988`.

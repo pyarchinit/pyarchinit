@@ -23164,8 +23164,8 @@ DATABASE SCHEMA KNOWLEDGE:
     def insert_new_rec(self):
         # TableWidget
         #Rapporti
-        rapporti = self.table2dict("self.tableWidget_rapporti")
-        rapporti2 = self.table2dict("self.tableWidget_rapporti2")
+        rapporti = self.table2dict("self.tableWidget_rapporti", preserve_empty=True)
+        rapporti2 = self.table2dict("self.tableWidget_rapporti2", preserve_empty=True)
         #Inclusi
         inclusi = self.table2dict("self.tableWidget_inclusi")
         #Campioni
@@ -24627,7 +24627,7 @@ DATABASE SCHEMA KNOWLEDGE:
         now = date.today()
         year = now.strftime("%Y")
         return year
-    def table2dict(self, n):
+    def table2dict(self, n, preserve_empty=False):
         self.tablename = n
         table = getattr(self, self.tablename.replace("self.", "") if self.tablename.startswith("self.") else self.tablename)
         row = table.rowCount()
@@ -24637,8 +24637,10 @@ DATABASE SCHEMA KNOWLEDGE:
             sub_list = []
             for c in range(col):
                 value = table.item(r, c)
-                if value != None:
+                if value is not None:
                     sub_list.append(str(value.text()))
+                elif preserve_empty:
+                    sub_list.append("")
             if bool(sub_list):
                 lista.append(sub_list)
         return lista
@@ -25415,8 +25417,8 @@ DATABASE SCHEMA KNOWLEDGE:
     def set_LIST_REC_TEMP(self):
 
         ##Rapporti
-        rapporti = self.table2dict("self.tableWidget_rapporti")
-        rapporti2 = self.table2dict("self.tableWidget_rapporti2")
+        rapporti = self.table2dict("self.tableWidget_rapporti", preserve_empty=True)
+        rapporti2 = self.table2dict("self.tableWidget_rapporti2", preserve_empty=True)
         ##Inclusi
         inclusi = self.table2dict("self.tableWidget_inclusi")
         ##Campioni

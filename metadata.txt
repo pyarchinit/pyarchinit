@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.10.0-alpha
+version=5.10.1-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,27 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.2.0-alpha (2026-05-07) [Phase 2 / AI03: GraphML delegation to s3Dgraphy]:
+changelog=5.10.1-alpha (2026-05-24) [US-USM rapporti save: positional consistency for empty cells]:
+    - Fix: table2dict() now has opt-in preserve_empty parameter; when True,
+      None cells in the QTableWidget are serialized as empty strings instead
+      of being skipped. Enabled for tableWidget_rapporti (4-col: tipo, us,
+      area, sito) and tableWidget_rapporti2 (7-col) at all 4 call sites in
+      insert_new_rec() and set_LIST_REC_TEMP(). Other widgets (inclusi,
+      campioni, etc.) keep the previous skip-None behavior.
+    - Rationale: when the user left the area/sito columns of a rapporto
+      empty, table2dict produced length-variable sublists (e.g. ['Coperto da',
+      '7'] instead of ['Coperto da', '7', '', '']). Worse, if the user
+      jumped over column 2 (area) and only filled column 3 (sito), the
+      saved sublist had sito misplaced in the area position, producing
+      silently corrupted positional data. Master update (button or Ctrl+U)
+      was repairing most cases via find_correct_area_for_us(), but any
+      direct read of the rapporti field (reports, exports, custom queries,
+      future StratiGraph sync) would see malformed data at rest.
+    - Result: rapporti and rapporti2 sublists now always saved with full
+      positional structure; the master update becomes a refresh operation
+      rather than a repair operation. No migration needed: existing short
+      sublists in the DB are still repaired by the master update on next run.
+  5.2.0-alpha (2026-05-07) [Phase 2 / AI03: GraphML delegation to s3Dgraphy]:
     - Feature: GraphML branch of the 'Extended Matrix' export now uses
       s3dgraphy.PyArchInitImporter + s3dgraphy.exporter.graphml.GraphMLExporter.
       Closes the four EM limitations from Phase 1: empty graphml on grouping
