@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Enzo Cocca (CNR-ISPC / adArte / DISCI-UNIBO)" />
+  <title>PyArchInit SRS - StratiGraph (v3)</title>
+  <style>
+
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+</style>
+  <style type="text/css">:root { color-scheme: light; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+max-width: 820px;
+margin: 2.5rem auto;
+padding: 0 1.5rem 4rem;
+color: #1a1a1a;
+line-height: 1.55;
+font-size: 16px;
+background: #ffffff;
+}
+h1 { font-size: 2rem; color: #1f4e79; border-bottom: 2px solid #1f4e79; padding-bottom: .3rem; margin-top: 2.5rem; }
+h2 { font-size: 1.4rem; color: #1f4e79; margin-top: 2rem; }
+h3 { font-size: 1.1rem; color: #2e75b6; margin-top: 1.6rem; }
+h4 { font-size: 1rem; color: #2e75b6; margin-top: 1.2rem; }
+table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
+th, td { border: 1px solid #c7c7c7; padding: .5rem .7rem; text-align: left; vertical-align: top; }
+th { background: #1f4e79; color: #fff; }
+tr:nth-child(even) td { background: #f5f8fb; }
+blockquote {
+background: #eef4fb;
+border-left: 4px solid #1f4e79;
+padding: .8rem 1rem;
+margin: 1.2rem 0;
+color: #1a1a1a;
+}
+code { background: #f1f1f1; padding: 0 .25rem; border-radius: 3px; font-size: .92em; }
+hr { border: none; border-top: 1px solid #c7c7c7; margin: 2rem 0; }
+nav#TOC { background: #f7f7f7; border: 1px solid #d8d8d8; padding: 1rem 1.4rem; border-radius: 6px; margin: 1.5rem 0 2rem; }
+nav#TOC ul { padding-left: 1.2rem; }
+.postscript {
+background: #fff8e6;
+border: 1px solid #d6b656;
+border-left: 6px solid #d6b656;
+padding: 1.2rem 1.4rem;
+margin: 2.5rem 0;
+border-radius: 4px;
+}
+.postscript h2 { color: #806400; border-bottom: 1px solid #d6b656; padding-bottom: .25rem; }
+@media print {
+body { max-width: none; margin: 0; padding: 1.5cm; font-size: 11pt; }
+h1, h2, h3 { page-break-after: avoid; }
+table, blockquote, .postscript { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">PyArchInit SRS - StratiGraph (v3)</h1>
+<p class="subtitle">What it is, what it does, and why it matters for an
+archaeologist</p>
+<p class="author">Enzo Cocca (CNR-ISPC / adArte / DISCI-UNIBO)</p>
+<p class="date">May 2026</p>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#pyarchinit-what-it-is-what-it-does-and-why-it-matters-for-an-archaeologist" id="toc-pyarchinit-what-it-is-what-it-does-and-why-it-matters-for-an-archaeologist">PyArchInit
+— What it is, what it does, and why it matters for an archaeologist</a>
+<ul>
+<li><a href="#what-pyarchinit-is-in-one-paragraph" id="toc-what-pyarchinit-is-in-one-paragraph">1. What PyArchInit is, in
+one paragraph</a></li>
+<li><a href="#the-idea-behind-it" id="toc-the-idea-behind-it">2. The
+idea behind it</a></li>
+<li><a href="#who-it-is-for" id="toc-who-it-is-for">3. Who it is
+for</a></li>
+<li><a href="#what-it-covers" id="toc-what-it-covers">4. What it
+covers</a></li>
+<li><a href="#what-you-can-obtain-from-it" id="toc-what-you-can-obtain-from-it">5. What you can obtain from
+it</a></li>
+<li><a href="#beyond-the-core-analysis-animation-site-management" id="toc-beyond-the-core-analysis-animation-site-management">6. Beyond
+the core: analysis, animation, site management</a></li>
+<li><a href="#the-compromises-the-honest-part" id="toc-the-compromises-the-honest-part">7. The compromises (the honest
+part)</a></li>
+<li><a href="#what-pyarchinit-is-not" id="toc-what-pyarchinit-is-not">8.
+What PyArchInit is not</a></li>
+<li><a href="#what-pyarchinit-talks-to" id="toc-what-pyarchinit-talks-to">9. What PyArchInit talks to</a></li>
+<li><a href="#one-page-summary" id="toc-one-page-summary">10. One-page
+summary</a></li>
+<li><a href="#where-stratigraph-fits" id="toc-where-stratigraph-fits">Where StratiGraph fits</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="pyarchinit-what-it-is-what-it-does-and-why-it-matters-for-an-archaeologist">PyArchInit
+— What it is, what it does, and why it matters for an archaeologist</h1>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Project</strong></td>
+<td>StratiGraph (Horizon Europe)</td>
+</tr>
+<tr>
+<td><strong>Partner</strong></td>
+<td>3D Research / adArte Srl</td>
+</tr>
+<tr>
+<td><strong>Document type</strong></td>
+<td>High-level functional description (narrative SRS)</td>
+</tr>
+<tr>
+<td><strong>Target reader</strong></td>
+<td>Archaeologist, project officer, scientific reviewer</td>
+</tr>
+<tr>
+<td><strong>Version</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>Date</strong></td>
+<td>May 2026</td>
+</tr>
+<tr>
+<td><strong>Author</strong></td>
+<td>Enzo Cocca (CNR-ISPC / adArte / DISCI-UNIBO)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>This document describes PyArchInit at the level of <em>what it
+does</em> for the archaeologist, not <em>how</em> it does it. There are
+no step-by-step instructions, no menus to click, no code. The purpose is
+to give the reader an honest map of what the system covers, what it
+produces, the compromises it asks for, and where its limits are. On top
+of this map, technical documentation, tutorials and developer guides can
+be built separately, and will evolve over time without invalidating what
+is written here.</p>
+</blockquote>
+<hr />
+<h2 id="what-pyarchinit-is-in-one-paragraph">1. What PyArchInit is, in
+one paragraph</h2>
+<p>PyArchInit is an archaeological information system that lives inside
+QGIS. In practice it is a plugin: you install QGIS, you install
+PyArchInit on top of it, and from that moment your GIS stops being only
+a map and becomes also an excavation archive. All the records that an
+archaeologist normally fills in on paper or in a spreadsheet — site
+sheets, stratigraphic units, finds, structures, periods, photos,
+drawings — are kept in a single database that is automatically linked to
+the cartography. The aim is simple: every drawn polygon corresponds to a
+real record, every record can be found on the map, and nothing has to be
+re-entered twice.</p>
+<p>PyArchInit was born in 2005 from the work of Luca Mandolesi and has
+grown since then into a community project, hosted on GitHub and
+distributed through the official QGIS plugin repository. It is open
+source, free, and used in academic, professional and institutional
+contexts in Italy and abroad. It is not a product sold by a company: it
+is a tool maintained by archaeologists who also develop software.</p>
+<blockquote>
+<p><strong>In short:</strong> a single working environment where the
+stratigraphy, the materials, the photos, the drawings and the map of an
+excavation live together, talk to each other, and can be queried as a
+whole.</p>
+</blockquote>
+<h2 id="the-idea-behind-it">2. The idea behind it</h2>
+<p>Archaeological documentation has a structural problem: the same
+information is recorded many times, in different places, by different
+people, with different conventions. The paper US form, the photo log,
+the find inventory, the field drawing, the digitised plan in CAD or GIS,
+the final report — every step risks reintroducing errors or losing the
+link between the object and its context.</p>
+<p>PyArchInit takes a precise position on this problem: the primary unit
+is not the document, it is the <strong>record in the database</strong>.
+The site sheet, the US, the find, the structure are rows in tables.
+Maps, photos, matrices and PDF sheets are <strong>views</strong> of
+those rows. Change the row and everything downstream updates. Delete a
+relationship and the Harris Matrix changes accordingly. Reclassify a US
+to a different period and the periodised plan reflects it the next time
+you open it.</p>
+<p>This is the most important conceptual point of the system, and it is
+the reason for almost every design choice that follows: <strong>the data
+is the source of truth; everything else is produced from
+it.</strong></p>
+<h2 id="who-it-is-for">3. Who it is for</h2>
+<p>PyArchInit is built for the people who actually do excavation
+documentation. Concretely:</p>
+<ul>
+<li><strong>The field archaeologist</strong> who needs to record US
+sheets, attach photos and drawings, mark finds, and not lose anything
+between the trench and the lab.</li>
+<li><strong>The site director / scientific responsible</strong> who
+needs to keep the overall picture coherent: periodisation, structures,
+validation, final reports.</li>
+<li><strong>The materials specialist</strong> who works with the finds
+inventory, the typologies, the quantifications, and needs to
+cross-reference materials with their stratigraphic context.</li>
+<li><strong>The GIS / data manager</strong> who keeps the database
+healthy, manages the projection systems, the backups, the imports from
+external sources, the team accounts on the server.</li>
+<li><strong>The reviewer in the Soprintendenza or in an
+institution</strong> who receives the catalogue and expects an
+ICCD-compatible deliverable, not a custom format that nobody else
+uses.</li>
+</ul>
+<p>PyArchInit is not for casual users who just want to draw on a map.
+The investment of learning it makes sense when there is real
+archaeological data to manage, a real archive to keep alive, and real
+deliverables to produce.</p>
+<h2 id="what-it-covers">4. What it covers</h2>
+<p>PyArchInit is organised internally around a set of
+<strong>schede</strong> (forms), each corresponding to one of the
+objects that an archaeologist routinely records. These are not pages of
+a website: they are the categories around which archaeological
+documentation is built. The main ones are:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Area</th>
+<th>What you can do with it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Site (Scheda Sito)</td>
+<td>Define the site, its location, the responsible, the type of
+investigation, the chronology. This is the top-level container;
+everything else hangs from here.</td>
+</tr>
+<tr>
+<td>Stratigraphic Units (US / USM)</td>
+<td>Record every stratigraphic unit with description, interpretation,
+definition, formation, components, and — most importantly — its
+stratigraphic relations with other units (covers, is covered by, cuts,
+is cut by, fills, abuts, equals, and the rest of the standard set).</td>
+</tr>
+<tr>
+<td>Periodisation</td>
+<td>Define the periods and phases of the site and assign units to them.
+From this you get period-based queries, period-coloured plans, and the
+matrix grouped by phase.</td>
+</tr>
+<tr>
+<td>Structures</td>
+<td>Group US/USM into structures (a wall, a building, a tomb chamber, an
+entire phase of a complex). Useful when the unit of analysis is bigger
+than the single stratigraphic unit.</td>
+</tr>
+<tr>
+<td>Finds inventory (Reperti / RA)</td>
+<td>Catalogue every find with provenance, class, type, state of
+conservation, dating, position. Each find is linked to its US and
+inherits its context automatically.</td>
+</tr>
+<tr>
+<td>Materials / pottery (incl. TMA)</td>
+<td>Specialised cataloguing for ceramic, lithic, glass, metal and
+organic materials, with the ICCD-compliant TMA (Tabella Materiali
+Archeologici) for container-based registration, quantitative fields, and
+the possibility to run quantifications (NMI, weights, fragment counts)
+on whatever subset you query.</td>
+</tr>
+<tr>
+<td>Taphonomy / burials</td>
+<td>Specific forms for the documentation of burials, individuals, and
+taphonomic observations, where the excavation has this dimension.</td>
+</tr>
+<tr>
+<td>Multimedia</td>
+<td>Photos, drawings, 3D models, documents linked to any record. Once
+attached, a photo of a US is reachable from the US sheet, from the find
+that came from that US, and from the map.</td>
+</tr>
+<tr>
+<td>Thesaurus</td>
+<td>Controlled vocabularies for the descriptive fields. Reduces
+free-text noise, makes queries actually work, and aligns terminology
+across operators.</td>
+</tr>
+<tr>
+<td>UT — Topographic Units</td>
+<td>For landscape archaeology and survey: documentation of topographic
+units at a scale broader than the single excavation.</td>
+</tr>
+<tr>
+<td>Spatial layers</td>
+<td>A set of geographic layers (US polygons, finds, elevations, section
+lines, reference points, structural hypotheses) that mirror the database
+and let the archaeologist work on the map as naturally as on the
+form.</td>
+</tr>
+</tbody>
+</table>
+<p>All of these areas are interconnected. The site contains the units,
+the units carry the relations, the relations build the matrix, the
+matrix feeds the periodisation, the periodisation drives the plans, the
+finds are anchored to the units, the media to everything. This is the
+value of the system: not the individual form, but the connections
+between them.</p>
+<h2 id="what-you-can-obtain-from-it">5. What you can obtain from it</h2>
+<p>This is the section that matters most for a reader who has to decide
+whether PyArchInit fits a project. The list below is concrete: things
+that come out of the system as a deliverable, an output, or an answer to
+a question.</p>
+<h3 id="the-harris-matrix-built-for-you">5.1 The Harris Matrix, built
+for you</h3>
+<p>You record the stratigraphic relations one by one on the US sheets.
+PyArchInit, on demand, reads all of them and draws the Harris Matrix
+automatically. You do not draw it by hand, and you do not have to keep
+it consistent by hand.</p>
+<p>More importantly: the system <strong>checks the relations</strong>.
+If you say that US 5 covers US 7, but on US 7 you forgot to write that
+it is covered by US 5, PyArchInit detects the asymmetry. The classical
+“inverse relations” problem — the single most common source of errors in
+stratigraphic documentation — is handled by the system. It tells you
+what is missing, what is contradictory, what is dangling, and lets you
+fix it before the matrix is generated.</p>
+<p>The matrix can be exported as a graphic file (PDF, PNG, SVG) and can
+be grouped by period and phase, so what you publish is not the raw graph
+but the interpreted one.</p>
+<h3 id="periodised-plans-and-thematic-maps">5.2 Periodised plans and
+thematic maps</h3>
+<p>Because every US is linked to its polygon on the map and to its
+periodisation, the system can produce a periodised plan by simply asking
+it. Pick a period, get a map of the units active in that period, with
+the units that survive into it automatically included. Repeat for the
+next period. The interpretive plan of the site, divided by phases, is a
+query, not a manual drafting exercise.</p>
+<p>Thematic maps work the same way for any other dimension: by
+definition (cut, layer, structure, surface), by interpreter, by year, by
+material content of the layer. The map is a live view on the
+database.</p>
+<h3 id="iccd-style-sheets-and-printable-catalogues">5.3 ICCD-style
+sheets and printable catalogues</h3>
+<p>PyArchInit produces printable sheets in the layout used by the
+Italian heritage authority (ICCD) for the main record types — US, USM,
+RA, structures, periodisation. These are PDFs that can be delivered to a
+Soprintendenza as part of an excavation report.</p>
+<blockquote>
+<p><strong>Honest note on customisation:</strong> ICCD layouts are a
+moving target, and every Soprintendenza tends to ask for slightly
+different things — an extra logo, a specific header, a different
+ordering of fields, a slightly tweaked form. PyArchInit covers the
+standard ICCD layout reliably. Going beyond that, towards the exact
+preference of a specific Soprintendenza, is possible but requires
+customising the templates. Out of the box you get the standard; with
+effort you get the local variant. This is a real-world compromise that
+the project should plan for, not a defect to hide.</p>
+</blockquote>
+<h3 id="quantifications-on-materials">5.4 Quantifications on
+materials</h3>
+<p>Once the materials are entered, PyArchInit runs quantifications on
+them: counts, weights, NMI, distributions by class, by type, by US, by
+period. You decide which subset to quantify and on which field; the
+system aggregates. The output is a table that you can export and that
+updates automatically when you change the underlying records.</p>
+<h3 id="cross-queries-between-context-and-content">5.5 Cross-queries
+between context and content</h3>
+<p>Because everything is in a single database, you can ask the kind of
+questions that on paper take days: how many Hellenistic amphorae
+fragments came from contexts cut by Roman structures; which US of phase
+II yielded coins; which structures share at least one US dated to the
+same period. These are not built-in reports — they are queries that the
+data model makes possible. The system gives the archaeologist (or the
+GIS manager) the substrate to formulate them.</p>
+<h3 id="a-real-archive-not-just-a-working-file">5.6 A real archive, not
+just a working file</h3>
+<p>When the excavation is over, what remains of PyArchInit is a database
+(SpatiaLite or PostgreSQL) plus the media folder. This is the archive:
+structured, queryable, portable, and independent from the version of the
+plugin that produced it. Years later, the same database can be reopened,
+re-queried, re-published, migrated to a new schema, or fed into a
+research project completely different from the one that generated
+it.</p>
+<h2 id="beyond-the-core-analysis-animation-site-management">6. Beyond
+the core: analysis, animation, site management</h2>
+<p>The features in §5 form the <strong>scientific backbone</strong> of
+PyArchInit — what one might call the <em>stratigraphic core</em>. Around
+this core, the plugin has grown a set of tools that broaden its reach
+into landscape analysis, spatial statistics, animated visualisation,
+cartographic output, and operational management of an excavation. They
+are not the soul of the system, but they are the reason a project can
+run end-to-end inside PyArchInit instead of jumping between half a dozen
+disconnected tools.</p>
+<h3 id="time-manager-replaying-the-stratigraphy-in-time">6.1 Time
+Manager — replaying the stratigraphy in time</h3>
+<p>The Harris Matrix is, by nature, a static graph. The Time Manager
+turns the same stratigraphic order into something you can
+<em>replay</em>: a dial advances through the order of deposition, the
+map shows which units are visible at each step, units appear and
+disappear as the timeline moves, and the system can record the sequence
+as an animation or video. Useful for outreach, didactics, and as a
+sanity check on the periodisation: if the playback looks wrong, the
+periodisation usually is.</p>
+<h3 id="make-your-map-cartographic-outputs-from-a-template">6.2 Make
+Your Map — cartographic outputs from a template</h3>
+<p>The QGIS canvas is good for working; a Soprintendenza wants a
+<em>plate</em>: title, scale, north arrow, legend, project code. Make
+Your Map provides a set of print templates (A4 / A3, portrait /
+landscape, with periodised variants) that consume the current view and
+produce a publication-ready PDF, PNG or SVG. It is a small feature with
+a large practical effect: the time from “finished interpretation” to
+“deliverable plate” drops from hours of layout work to minutes.</p>
+<h3 id="geoarchaeo-geostatistics-for-archaeological-data">6.3 GeoArchaeo
+— geostatistics for archaeological data</h3>
+<p>Archaeological distributions — find density, layer thickness,
+geochemistry, anthropic indicators — are spatial signals. GeoArchaeo
+brings the standard geostatistics workflow inside the plugin: variogram
+modelling, kriging interpolation, machine-learning predictions on the
+spatial pattern, and the design of sampling strategies for future
+campaigns. Output is both a set of maps and a structured analytical
+report. The audience is landscape archaeology, predictive modelling, and
+any campaign that needs to decide <em>where to dig next</em> on more
+than intuition.</p>
+<h3 id="movecost-least-cost-paths-for-landscape-archaeology">6.4
+MoveCost — least-cost paths for landscape archaeology</h3>
+<p>How did people move across a territory? Least-Cost Path Analysis
+(LCPA) answers this question on a digital terrain model, with
+anisotropic cost functions that account for slope and direction.
+MoveCost packages the well-known cost models (Tobler, Llobera and
+others) behind a single dialog, runs them on a chosen DTM and start/end
+points, and returns the optimal paths as proper GIS layers ready to be
+queried, exported, and overlaid with the archaeological record.
+Previously it was buried inside the Site form; it is now a standalone
+analysis tool.</p>
+<h3 id="gestione-cantiere-the-operational-side-of-an-excavation">6.5
+Gestione Cantiere — the operational side of an excavation</h3>
+<p>An excavation is also a workplace. Personnel, attendance, equipment,
+budget, volumes excavated (<em>computo metrico</em>) are normally kept
+in Excel sheets that have no connection with the scientific archive.
+Gestione Cantiere folds them into the same PyArchInit database: a
+dashboard with the operational KPIs, a personnel registry, an attendance
+log, an equipment inventory, a budget broken down by category, and
+DEM-based volume calculations. Exports for both PDF (for the funder) and
+CSV (for accounting) are built in.</p>
+<blockquote>
+<p><strong>Honest note:</strong> this module is <em>operational</em>,
+not scientific. It serves the site director and the project
+administration, not the stratigrapher. Including it in PyArchInit is a
+deliberate choice — it keeps a single archive instead of forcing a
+project to maintain two — but its lifecycle is distinct from the
+stratigraphic core and a project that does not need it can simply ignore
+it.</p>
+</blockquote>
+<h3 id="ai-query-database-asking-the-database-in-plain-language">6.6 AI
+Query Database — asking the database in plain language</h3>
+<p>PyArchInit can be queried in natural language: the user types
+something like <em>“show all ceramic finds from the Roman phase of site
+X”</em>, the system generates the corresponding SQL, executes it on the
+database, and returns the results, with an explanation of the generated
+query for those who want to learn from it. Three backends are supported:
+OpenAI (GPT-class models, online), Ollama (local models for sensitive
+datasets), and a fallback free API.</p>
+<p>This is the only AI feature that PyArchInit ships in mature form
+today. The rest of the AI surface — matrix consistency checking,
+typological classification, automated quality control, retrieval over a
+CIDOC-CRM knowledge graph — is part of the frontier described in the
+closing postscript and is not claimed as an existing capability.</p>
+<h2 id="the-compromises-the-honest-part">7. The compromises (the honest
+part)</h2>
+<p>Every tool comes with a price. PyArchInit is no exception, and this
+section makes its costs explicit so that the project can decide them
+with open eyes.</p>
+<h3 id="you-have-to-follow-the-data-model">7.1 You have to follow the
+data model</h3>
+<p>PyArchInit is opinionated. It assumes the classic Italian
+stratigraphic tradition: US/USM, ICCD finds inventory, Harris Matrix,
+periodisation by phases. If a project uses a very different recording
+tradition — different unit names, different relation types, different
+sheet content — PyArchInit can be adapted, but it will not feel native.
+The system rewards those who work inside its assumptions.</p>
+<h3 id="customisation-is-possible-but-it-is-work">7.2 Customisation is
+possible, but it is work</h3>
+<p>Adding a new field, a new form, a new export layout, a new ICCD
+variant is technically possible — the system is open source and modular.
+But it requires touching the code, the schema, or the report templates.
+There is no graphical configurator that lets a non-developer reshape the
+system. For a project of the scale of StratiGraph, this means that
+customisations should be planned, scoped and developed as explicit
+tasks, not improvised.</p>
+<h3 id="some-standards-drift-over-time">7.3 Some standards drift over
+time</h3>
+<p>ICCD schemas evolve, soprintendenze update their requirements,
+controlled vocabularies are revised. PyArchInit keeps up with this drift
+but with a delay: when a new ICCD release comes out, the corresponding
+mapping has to be updated in the plugin. Until that happens, exports
+follow the previous version. This is the nature of any tool tied to
+external standards, not a specific weakness.</p>
+<h3 id="the-gis-is-part-of-the-tool">7.4 The GIS is part of the
+tool</h3>
+<p>PyArchInit cannot be used outside QGIS. It is not a web application,
+it is not a standalone desktop program. The archaeologist who uses it
+must be at least minimally comfortable with QGIS: opening a project,
+managing layers, understanding coordinate systems. This is a feature,
+not a bug — PyArchInit gains everything from being in QGIS — but it is
+also a constraint to communicate honestly.</p>
+<h3 id="field-data-entry-is-not-always-practical">7.5 Field data entry
+is not always practical</h3>
+<p>On a real excavation, a laptop in the trench is often impractical:
+dust, sun, power, rain, time. The traditional answer is paper first,
+transcription later — with the errors that come with both steps.
+PyArchInit acknowledges this reality and is increasingly paired with
+companion tools (mobile apps, lightweight web interfaces, QField-style
+workflows, and the independent <em>pyarchinit-mini</em> initiative) to
+bridge the field-to-database gap. The main plugin is the post-processing
+and archival hub; the field tools are part of the surrounding
+ecosystem.</p>
+<h3 id="multi-user-is-real-but-needs-a-server">7.6 Multi-user is real,
+but needs a server</h3>
+<p>On a single laptop with SpatiaLite, PyArchInit works fine for one
+person. To have a team working on the same archive at the same time, a
+PostgreSQL/PostGIS server is required, with the usual server-side
+concerns: hosting, backups, access control, network. This is not a high
+bar, but it is a decision that has to be taken at project setup, not
+improvised mid-season.</p>
+<h2 id="what-pyarchinit-is-not">8. What PyArchInit is not</h2>
+<p>An equally honest list, because the absence of features is often more
+useful to know than their presence.</p>
+<ul>
+<li><strong>It is not a 3D platform.</strong> PyArchInit stores 3D
+models as attached media and links them to records, but it does not
+manipulate point clouds, meshes or photogrammetric models. That is the
+job of dedicated tools (Blender, CloudCompare, Metashape, and — within
+StratiGraph — the dedicated 3D components).</li>
+<li><strong>It is not a publication platform.</strong> It exports data
+in formats that other systems can ingest (GeoJSON, GeoPackage, PDF,
+structured tables), but it does not host a public website of the
+excavation.</li>
+<li><strong>It is not a CAD.</strong> Drafting precise architectural
+sections or detailed elevations is done in QGIS or in dedicated
+CAD/photogrammetry software; PyArchInit consumes those drawings, it does
+not produce them from scratch.</li>
+<li><strong>It is not a finished product.</strong> It is a community
+project under continuous development. Features mature at different
+rates, some areas are very stable (US, matrix, ICCD sheets), others are
+more recent and evolve faster (materials specialisations, mobile
+companions, 3D integration).</li>
+</ul>
+<h2 id="what-pyarchinit-talks-to">9. What PyArchInit talks to</h2>
+<p>PyArchInit lives in an ecosystem. It is built to exchange data with
+the tools that an archaeological project actually uses.</p>
+<ul>
+<li><strong>QGIS</strong> is the host environment: layers, projects,
+styles, print layouts are all native QGIS, fully reusable.</li>
+<li><strong>PostgreSQL / PostGIS</strong> for team and institutional
+deployments, with the usual benefits of a real server database.</li>
+<li><strong>SpatiaLite</strong> for single-user, offline, portable
+archives.</li>
+<li><strong>Graphviz</strong> for the rendering of the Harris
+Matrix.</li>
+<li><strong>R</strong> for the statistical analyses behind GeoArchaeo
+and MoveCost, and for any further bespoke analysis on materials and
+distributions through bridges that PyArchInit exposes.</li>
+<li><strong>Blender and 3D pipelines</strong> for the visualisation and
+modelling of structures and finds, with media references kept in the
+PyArchInit archive.</li>
+<li><strong>yEd Graph Editor</strong> for visual editing of
+Harris-Matrix-style stratigraphic graphs exchanged as GraphML.</li>
+<li><strong>Total Open Station</strong> and total-station workflows for
+the import of survey data.</li>
+<li><strong>QField and mobile companions</strong> (including the
+independent <em>pyarchinit-mini</em>) for field acquisition, with
+synchronisation back to the main archive.</li>
+<li><strong>External catalogues and open data portals</strong> through
+export in GeoJSON, GeoPackage, CSV and structured tables.</li>
+</ul>
+<h2 id="one-page-summary">10. One-page summary</h2>
+<blockquote>
+<p><strong>What it is.</strong> A plugin that turns QGIS into an
+archaeological information system. Open source, free, maintained by an
+active community since 2005.</p>
+</blockquote>
+<blockquote>
+<p><strong>What it does.</strong> Keeps the excavation data — sites,
+stratigraphic units, relations, periodisation, structures, finds,
+materials, media — in a single database tightly linked to the
+cartography. From this database it produces the Harris Matrix, the
+periodised plans, the ICCD-style sheets, the quantifications and the
+structured exports. Around this scientific core it offers tools for
+temporal animation of the stratigraphy, cartographic plate output,
+geostatistical analysis, least-cost path modelling, operational
+management of the excavation, and natural-language querying of the
+database.</p>
+</blockquote>
+<blockquote>
+<p><strong>What it gives the archaeologist.</strong> A single source of
+truth, automatic checks on stratigraphic logic, deliverables compatible
+with national heritage standards, and an archive that survives the end
+of the excavation.</p>
+</blockquote>
+<blockquote>
+<p><strong>What it asks in return.</strong> Acceptance of an opinionated
+data model, basic comfort with QGIS, and the planning of customisations
+as explicit work rather than improvisations.</p>
+</blockquote>
+<blockquote>
+<p><strong>What it is not.</strong> A 3D tool, a web publishing
+platform, a CAD, or a finished commercial product.</p>
+</blockquote>
+<blockquote>
+<p><strong>What comes next.</strong> The closing postscript below frames
+the five archaeological problems that PyArchInit, today, still leaves on
+the table — and that the StratiGraph project sets out to address.</p>
+</blockquote>
+<hr />
+<section id="where-stratigraph-fits" class="postscript">
+<h2>Where StratiGraph fits</h2>
+<p>PyArchInit, as described in the previous ten sections, is a working,
+mature system. After two decades of development it solves most of the
+day-to-day problems of an Italian-tradition excavation archive, and it
+does so in a way that an archaeologist can adopt without becoming a
+software engineer.</p>
+<p>It still leaves five archaeological problems on the table. Not
+because the plugin is incomplete, but because these problems require
+infrastructure that lives at the European level, not at the level of a
+single QGIS plugin. The <strong>StratiGraph</strong> project sets out to
+address them. The list below is deliberately framed as <em>problem →
+direction</em>: it describes the open issue and the kind of solution the
+project will pursue, without prescribing the specific tools, panels or
+versions that will deliver it.</p>
+<h3 id="problem-1-persistent-record-identity">Problem 1 — Persistent
+record identity</h3>
+<p>Today, when an archive is copied between institutions, or when two
+campaigns are merged, the local IDs collide and break. There is no way
+to say <em>“this US 100 is the same one I described five years ago in
+another database, in another country, with a different schema”</em>. The
+internal numbering of each PyArchInit installation is locally consistent
+but globally meaningless.</p>
+<p><strong>Direction.</strong> Assign every record a globally stable
+identifier from the day it is created, so the same row can be
+recognised, linked and cited across institutions and across time — a
+prerequisite for any aggregated European catalogue.</p>
+<h3 id="problem-2-offline-first-field-documentation">Problem 2 —
+Offline-first field documentation</h3>
+<p>Trenches do not have WiFi, and traditional sync solutions assume a
+connected environment. The current workflow loses data — typed once on
+paper, retyped in the lab, sometimes lost in the gap. Even when a laptop
+is present in the field, a temporary disconnection at the end of the day
+can mean an entire shift of records left in limbo.</p>
+<p><strong>Direction.</strong> A documentation workflow that
+<em>expects</em> to be offline. Local edits are queued and validated as
+soon as they are made; when connectivity returns, the queue is merged
+upstream with explicit replay and conflict resolution. The archaeologist
+sees a single archive; the underlying machinery handles the network.</p>
+<h3 id="problem-3-stratigraphy-3d">Problem 3 — Stratigraphy ↔︎ 3D</h3>
+<p>The Harris Matrix is, by construction, a 2D abstraction of relations.
+The structures it describes — walls, tombs, building phases — are 3D
+objects, modelled separately in Blender or in photogrammetry pipelines.
+Today there is no shared vocabulary that lets a US in the matrix talk to
+its 3D counterpart, with the same identifier and the same paradata: who
+recorded it, under which licence, with which embargo.</p>
+<p><strong>Direction.</strong> An explicit, bi-directional bridge
+between the stratigraphic record and a 3D-aware extended-matrix model.
+Editing on one side reflects on the other; paradata travel with the
+entity, not with the file format.</p>
+<h3 id="problem-4-european-semantic-interoperability">Problem 4 —
+European semantic interoperability</h3>
+<p>PyArchInit speaks Italian standards (ICCD, US, RA, MA). Pan-European
+platforms and aggregators speak CIDOC-CRM, CRMarchaeo and adjacent
+ontologies. Today the export from one to the other is a manual mapping
+written ad hoc for each contribution; the same effort is re-done at
+every submission.</p>
+<p><strong>Direction.</strong> A maintained, transparent mapping between
+the PyArchInit data model and CIDOC-CRM, so that submission to an
+aggregator (Europeana, ARIADNE, the future Knowledge Graph of
+StratiGraph itself) is a configuration step, not a project.</p>
+<h3 id="problem-5-ai-for-quality-and-classification">Problem 5 — AI for
+quality and classification</h3>
+<p>The database can be queried in natural language (§6.6), but the AI
+does not yet <em>help</em> with the archaeological work itself.
+Detecting inconsistencies in the matrix, suggesting typological
+classifications for materials, flagging records that fall outside the
+patterns of the rest of the archive — these are tasks where supervised
+AI can save weeks of work per campaign and, more importantly, catch
+errors that a tired human would miss.</p>
+<p><strong>Direction.</strong> A small set of focused AI assistants,
+embedded in the forms, trained on archaeological data, and always under
+the archaeologist’s review. Not a chatbot, not a replacement: a second
+pair of eyes that never gets tired and is always honest about its
+confidence.</p>
+<h3 id="closing">Closing</h3>
+<p>PyArchInit will not be replaced by StratiGraph. It will be
+<strong>extended</strong>. The result, at the end of the project, will
+be a system that is at the same time a personal working environment for
+an archaeologist and a node in a European archaeological infrastructure
+— without forcing the archaeologist to choose between the two.</p>
+</section>
+<p><em>End of document.</em></p>
+</body>
+</html>
