@@ -89,14 +89,62 @@ class MissingEpochError(GraphIngestError):
 # GraphIngestor (Groups C–D)
 # ---------------------------------------------------------------------------
 import logging
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from sqlalchemy import text
 
 from .conflict_resolver import ConflictResolver
 from .ingest_result import (
     ConflictRecord, ConflictResolution, IngestResult)
+from .yed_rapporti_policy import FolderEdgePolicy
+
+
+# ---------------------------------------------------------------------------
+# yEd-raw override hook (s3dgraphy #10 decoupling)
+#
+# The yEd-raw import branch historically opened a Qt dialog to collect
+# user overrides + folder-edge policy. To keep this module free of
+# `qgis.*` / `PyQt*` / `pyarchinit.*` imports (s3dgraphy policy +
+# precondition for moving GraphIngestor into the s3dgraphy package),
+# the GUI logic is registered from outside via `register_yed_override_hook`.
+#
+# When no hook is registered (CLI, tests, headless), populate_list()
+# uses yE-D defaults: no overrides, FolderEdgePolicy.SKIP.
+# ---------------------------------------------------------------------------
+@dataclass
+class YedOverrideResult:
+    """Outcome of the yEd-raw override prompt.
+
+    cancelled=True signals the caller chose to abort the import; the
+    other fields are ignored in that case.
+    """
+    overrides: Optional[dict[str, Any]] = None
+    policy: FolderEdgePolicy = FolderEdgePolicy.SKIP
+    cancelled: bool = False
+
+
+YedOverrideHook = Callable[
+    [dict, Path, Any, str],  # drafts, graphml_path, handle, sito
+    YedOverrideResult,
+]
+
+_yed_override_hook: Optional[YedOverrideHook] = None
+
+
+def register_yed_override_hook(hook: YedOverrideHook) -> None:
+    """Install the yEd-raw override hook. Called by host applications
+    (e.g. pyArchInit plugin at initGui) to plug in a GUI prompt.
+    """
+    global _yed_override_hook
+    _yed_override_hook = hook
+
+
+def clear_yed_override_hook() -> None:
+    """Remove any registered yEd-raw override hook. Mostly for tests."""
+    global _yed_override_hook
+    _yed_override_hook = None
 
 
 class _DryRunRollback(Exception):
@@ -185,7 +233,6 @@ class GraphIngestor:
                     from .yed_table_parser import extract_periods
                     from .yed_group_walker import walk_folders
                     from .yed_import_pipeline import import_yed_raw
-                    from .yed_rapporti_policy import FolderEdgePolicy
                     drafts = {
                         "classified": classify_leaves(graphml_path),
                         "periods":    extract_periods(graphml_path),
@@ -197,35 +244,30 @@ class GraphIngestor:
                     from ._db_handle import _resolve_db_handle
                     _yed_handle = _resolve_db_handle(db_path)
 
-                    # yE-E (5.8.2-alpha): when a QApplication is alive
-                    # (interactive QGIS session), open the override
-                    # wizard and pass the user's choices through. CLI /
-                    # headless callers (tests, scripts) have no
-                    # QApplication and skip straight to yE-D defaults.
+                    # yE-E (5.8.2-alpha): when a yEd-raw override hook
+                    # is registered (interactive QGIS session via
+                    # `register_yed_override_hook`), call it to collect
+                    # user overrides + policy. CLI / headless callers
+                    # (tests, scripts) leave the hook unset and skip
+                    # straight to yE-D defaults.
                     _yed_overrides = None
                     _yed_policy = FolderEdgePolicy.SKIP
-                    try:
-                        from qgis.PyQt.QtWidgets import QApplication
-                        if QApplication.instance() is not None:
-                            from pyarchinit.gui.yed_import_dialog import (
-                                YedImportDialog,
+                    if _yed_override_hook is not None:
+                        _res = _yed_override_hook(
+                            drafts, graphml_path,
+                            _yed_handle, sito,
+                        )
+                        if _res.cancelled:
+                            return IngestResult(
+                                applied=0,
+                                inserted=0,
+                                updated=0,
+                                skipped=0,
+                                epochs_created=0,
+                                errors=("Import cancelled by user",),
                             )
-                            dlg = YedImportDialog(
-                                drafts, graphml_path,
-                                _yed_handle, sito,
-                            )
-                            if dlg.exec() != dlg.DialogCode.Accepted:
-                                from .ingest_result import IngestResult
-                                return IngestResult(
-                                    applied=0,
-                                    errors=("Import cancelled by user",),
-                                )
-                            _yed_overrides = dlg.get_overrides()
-                            _yed_policy = dlg.get_policy()
-                    except ImportError:
-                        # Qt / pyarchinit.gui unavailable — fall through
-                        # to defaults. CLI + tests land here.
-                        pass
+                        _yed_overrides = _res.overrides
+                        _yed_policy = _res.policy
 
                     # yE-D dispatch + return; NO fall-through to legacy.
                     return import_yed_raw(

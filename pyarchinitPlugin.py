@@ -434,6 +434,19 @@ class PyArchInitPlugin(object):
         # Load configuration from config.cfg FIRST to get EXPERIMENTAL setting
         self.load_config()
 
+        # s3dgraphy #10 decoupling: register the yEd-raw override hook
+        # so GraphIngestor.populate_list can prompt the user without
+        # importing Qt/pyarchinit.gui itself. Lazy/optional — failures
+        # here must not block plugin startup.
+        try:
+            from modules.s3dgraphy.sync.graph_ingestor import (
+                register_yed_override_hook,
+            )
+            from pyarchinit.gui.yed_override_hook import yed_override_hook
+            register_yed_override_hook(yed_override_hook)
+        except Exception:
+            pass
+
         l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             settings = QgsSettings()
