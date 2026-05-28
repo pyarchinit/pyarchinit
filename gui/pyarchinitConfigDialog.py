@@ -1149,12 +1149,23 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             # Lets the user override the workspace directory where PG
             # paradata + groups .graphml files are stored. The override
             # is written to QSettings 'pyarchinit/paradata_workspace'
-            # and picked up by modules.s3dgraphy.sync._workspace
-            # ._resolve_workspace_root() on each ParadataStore /
-            # GroupStore .file_path access. Empty = use default
-            # (~/pyarchinit/pyarchinit_DB_folder).
+            # and ALSO mirrored into the PYARCHINIT_WORKSPACE_DIR env var
+            # (s3dgraphy #10: env var is the single channel s3dgraphy.sync
+            # reads — it no longer touches QSettings directly). Empty =
+            # use default (~/pyarchinit/pyarchinit_DB_folder).
+            import os as _os
             from qgis.PyQt.QtCore import QSettings as _QSettings
             from pathlib import Path
+
+            def _propagate_workspace_to_env():
+                """Mirror QSettings paradata_workspace into the env var
+                so modules.s3dgraphy.sync._workspace sees the override."""
+                _v = _QSettings().value(
+                    "pyarchinit/paradata_workspace", "") or ""
+                if _v:
+                    _os.environ["PYARCHINIT_WORKSPACE_DIR"] = str(_v)
+                else:
+                    _os.environ.pop("PYARCHINIT_WORKSPACE_DIR", None)
             workspace_group = QGroupBox(self.tr("Paradata Workspace"))
             workspace_group.setStyleSheet("""
                 QGroupBox { font-weight: bold; border: 2px solid #607D8B; border-radius: 5px; margin-top: 8px; padding-top: 8px; }
@@ -1195,6 +1206,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     _qs.remove("pyarchinit/paradata_workspace")
                 _qs.sync()
+                _propagate_workspace_to_env()
 
             self._workspace_lineedit.editingFinished.connect(
                 _on_workspace_edit_finished)
@@ -1211,6 +1223,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     _qs = _QSettings()
                     _qs.setValue("pyarchinit/paradata_workspace", _dir)
                     _qs.sync()
+                    _propagate_workspace_to_env()
 
             workspace_browse_btn.clicked.connect(_on_workspace_browse)
             workspace_path_row.addWidget(workspace_browse_btn)
@@ -1222,6 +1235,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 _qs = _QSettings()
                 _qs.remove("pyarchinit/paradata_workspace")
                 _qs.sync()
+                _propagate_workspace_to_env()
 
             workspace_reset_btn.clicked.connect(_on_workspace_reset)
             workspace_path_row.addWidget(workspace_reset_btn)

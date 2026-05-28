@@ -447,6 +447,19 @@ class PyArchInitPlugin(object):
         except Exception:
             pass
 
+        # s3dgraphy #10: propagate the QSettings paradata_workspace
+        # override (if any) into PYARCHINIT_WORKSPACE_DIR so
+        # modules.s3dgraphy.sync._workspace can read it without
+        # importing QSettings itself. Re-applied on every config-dialog
+        # save (see pyarchinitConfigDialog._propagate_workspace_to_env).
+        try:
+            _ws = QgsSettings().value(
+                "pyarchinit/paradata_workspace", "") or ""
+            if _ws:
+                os.environ["PYARCHINIT_WORKSPACE_DIR"] = str(_ws)
+        except Exception:
+            pass
+
         l=QgsSettings().value("locale/userLocale", "it", type=str)[:2]
         if l == 'it':
             settings = QgsSettings()

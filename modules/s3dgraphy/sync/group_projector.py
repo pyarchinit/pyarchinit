@@ -21,7 +21,7 @@ from typing import List, Optional
 
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+from ._db_handle import _resolve_db_handle
 
 
 _log = logging.getLogger("pyarchinit.s3dgraphy.sync.groups")

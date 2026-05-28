@@ -47,33 +47,25 @@ def _resolve_workspace_root() -> Path:
     """Resolve the workspace root directory using 3-tier fallback.
 
     1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
-    2. QSettings 'pyarchinit/paradata_workspace' (UI override)
-    3. Default: ~/pyarchinit/pyarchinit_DB_folder
+    2. Default: ~/pyarchinit/pyarchinit_DB_folder
 
     Returns a Path (existence not guaranteed; caller must mkdir if needed).
 
     Added in Consolidation 5.7.4-alpha to support the
     `pyarchinitConfigDialog.py` UI override deferred from PG-D Q1=b.
-    Empty values (env var or QSettings) are treated as unset and fall
-    through to the next layer.
+    Empty env var values are treated as unset and fall through.
+
+    s3dgraphy #10: the host application is responsible for propagating
+    any UI-level workspace override (e.g. QGIS QSettings
+    'pyarchinit/paradata_workspace') into the env var BEFORE calling
+    into this module. In pyArchInit this happens in
+    `pyarchinitPlugin.initGui` and on config-dialog save. This keeps
+    s3dgraphy.sync free of `qgis.*` / `PyQt*` imports per upstream
+    policy.
     """
     env_override = os.environ.get("PYARCHINIT_WORKSPACE_DIR")
     if env_override:
         return Path(env_override).expanduser()
-    try:
-        from qgis.PyQt.QtCore import QSettings
-    except ImportError:
-        # Not in QGIS env (e.g., pytest): skip QSettings layer transparently
-        pass
-    else:
-        try:
-            qs_value = QSettings().value("pyarchinit/paradata_workspace", "")
-            if qs_value:
-                return Path(str(qs_value)).expanduser()
-        except Exception:
-            # Defensive: Qt installed but no QCoreApplication, or other
-            # runtime error — fall through to the default branch
-            pass
     return Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
 
 
