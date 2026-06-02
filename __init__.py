@@ -26,6 +26,14 @@ from importlib.metadata import distributions
 from shlex import quote as shlex_quote
 from typing import Dict, List, Optional, Set
 
+# Plugin-local directory for pip-installed dependencies (see PackageManager.install).
+# Prepended to sys.path so these deps are importable and take priority over the
+# read-only packages bundled inside the QGIS app (required on macOS, where pip
+# cannot write into the app bundle).
+_EXT_LIBS_DIR = os.path.join(os.path.dirname(__file__), 'ext_libs')
+if _EXT_LIBS_DIR not in sys.path:
+    sys.path.insert(0, _EXT_LIBS_DIR)
+
 from qgis.PyQt.QtCore import QObject, QThread, pyqtSignal
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import (QCheckBox, QDialog, QHeaderView, QLabel,
@@ -201,14 +209,36 @@ class PackageManager:
             subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
-            for qgis_type in ['standard', 'ltr']:
+            # Install into the plugin-local ext_libs dir: pip cannot write inside
+            # the read-only QGIS app bundle on macOS (raises PermissionError),
+            # which is why a bare `pip install` silently fails here.
+            os.makedirs(_EXT_LIBS_DIR, exist_ok=True)
+            # Candidate Python interpreters, covering both the legacy
+            # Contents/MacOS/bin layout and the Frameworks-based bundle (QGIS 3.40+).
+            # NOTE: don't quote `package` (shell=False + list args => quoting breaks it).
+            candidates = []
+            for qgis_base in QGIS_PATHS.values():
+                contents = os.path.dirname(qgis_base)
+                for subdir in (os.path.join(qgis_base, 'bin'),
+                               os.path.join(contents, 'Frameworks', 'Python.framework',
+                                            'Versions', 'Current', 'bin')):
+                    for name in ('python3', 'python3.12', 'python3.11',
+                                 'python3.10', 'python3.9'):
+                        cand = os.path.join(subdir, name)
+                        if os.path.exists(cand) and cand not in candidates:
+                            candidates.append(cand)
+            installed = False
+            for python_executable in candidates:
                 try:
-                    python_executable = os.path.join(QGIS_PATHS[qgis_type], 'bin', 'python3')
-                    subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+                    subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
+                                    "--target", _EXT_LIBS_DIR, package],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    installed = True
                     break
                 except Exception as e:
-                    print(f"Error installing {package} on {qgis_type}: {e}")
+                    print(f"Error installing {package} with {python_executable}: {e}")
+            if not installed:
+                print(f"Failed to install {package} on macOS into {_EXT_LIBS_DIR}")
 
     @staticmethod
     def remove_opencv_directories() -> None:
