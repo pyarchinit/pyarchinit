@@ -59,6 +59,11 @@ OPENCV_PATHS = {
     'ltr': "/Applications/QGIS-LTR.app/Contents/Resources/python/site-packages/opencv_contrib_python-4.3.0.36-py3.9-macosx-10.13.0-x86_64.egg/"
 }
 
+# Pinned, mutually-compatible DB stack. pyArchInit targets the SQLAlchemy 1.4
+# API; the bundled GeoAlchemy2 imports `with_metaclass`, which SQLAlchemy removed
+# in 2.0. Kept in sync with requirements.txt (see PackageManager.repair_db_dependencies).
+_PINNED_DB_DEPS = ["SQLAlchemy==1.4.27", "GeoAlchemy2==0.9.1"]
+
 
 class PipManager:
     """Manages pip installation and updates."""
@@ -239,6 +244,46 @@ class PackageManager:
                     print(f"Error installing {package} with {python_executable}: {e}")
             if not installed:
                 print(f"Failed to install {package} on macOS into {_EXT_LIBS_DIR}")
+
+    @staticmethod
+    def repair_db_dependencies() -> None:
+        """
+        Repair an incompatible SQLAlchemy / GeoAlchemy2 installation.
+
+        pyArchInit targets the SQLAlchemy 1.4 API and ships with a GeoAlchemy2
+        that imports ``with_metaclass`` from ``sqlalchemy.util`` (removed in
+        SQLAlchemy 2.0). If a newer SQLAlchemy 2.x ends up shadowing 1.4 — e.g.
+        pulled into the per-user site-packages by another package or a Python
+        update — the plugin crashes at import with:
+            ImportError: cannot import name 'with_metaclass' from 'sqlalchemy.util'
+
+        Detect that case from package metadata (WITHOUT importing sqlalchemy, so
+        the process stays clean) and restore the pinned, compatible pair before
+        the plugin imports them.
+        """
+        try:
+            from importlib.metadata import PackageNotFoundError, version
+            try:
+                sa_version = version('SQLAlchemy')
+            except PackageNotFoundError:
+                return  # not installed yet -> normal install flow handles it
+            try:
+                sa_major = int(sa_version.split('.')[0])
+            except (ValueError, IndexError):
+                return
+            if sa_major < 2:
+                return  # 1.x is what we want; nothing to repair
+        except Exception as e:
+            print(f"Could not check SQLAlchemy version: {e}")
+            return
+
+        print(f"Incompatible SQLAlchemy {sa_version} detected; "
+              f"restoring pinned 1.4 stack for GeoAlchemy2 compatibility...")
+        for spec in _PINNED_DB_DEPS:
+            try:
+                PackageManager.install(spec)
+            except Exception as e:
+                print(f"Error repairing {spec}: {e}")
 
     @staticmethod
     def remove_opencv_directories() -> None:
@@ -584,6 +629,8 @@ def classFactory(iface):
         PyArchInitPlugin instance
     """
     initialize_environment()
+    # Repair an incompatible SQLAlchemy 2.x before anything imports the DB stack.
+    PackageManager.repair_db_dependencies()
     check_and_install_dependencies()
 
     from .pyarchinitPlugin import PyArchInitPlugin
