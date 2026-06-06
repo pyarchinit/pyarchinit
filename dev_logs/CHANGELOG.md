@@ -5,6 +5,36 @@
 
 ---
 
+## [5.12.0-alpha] - 2026-06-06 — Verifica rapporti stratigrafici + auto-fix conservativo + import copia
+
+> Branch `Stratigraph_00001`. Spec/piano in `docs/superpowers/specs|plans/2026-06-06-rapporti-validation-autofix*`.
+
+### Italiano
+
+**Nuova funzione "Verifica rapporti stratigrafici" (menu pyArchInit) + helper import-copia.**
+
+I validatori di s3dgraphy esistono ma non erano collegati al flusso pyArchInit: incongruenze nei rapporti (cicli Harris, self-loop, reciprocità mancante) passavano silenziose. Su dati reali khutm la verifica trova 3 self-loop, 13 cicli (9 multi-nodo + 4 contraddizioni dirette) e 110 reciprocità a un solo lato.
+
+- **`modules/utility/rapporti_check.py`** (core Qt-free): costruisce il grafo del sito (`GraphProjector`) ed esegue `detect_stratigraphic_cycles` + `validate_connection` di s3dgraphy + uno scan di reciprocità derivato dai rapporti — **ristretto ai soli nodi US reali** (i placeholder sintetici del projector con `us=None`, es. `_synth_BR_654`, sono esclusi così un fix non scrive mai su righe inesistenti). **Fix conservativi**: self-loop → rimuove l'auto-relazione; **reciprocità mancante → CREA** il rapporto inverso sull'altra US (etichetta localizzata via `get_inverse_relationship`, additivo); contraddizioni dirette e cicli multi-nodo → mostrati per scelta manuale (nessun fix automatico). `apply_edits` fa snapshot dei rapporti toccati poi scrive via `DbHandle` (SQLite + PostgreSQL); `rollback` ripristina **byte-identico**.
+- **`gui/rapporti_check_dialog.py`** + voce di menu "Verifica rapporti stratigrafici": scegli sito → esegui → report ad albero per tipo (auto-fix pre-selezionati) → anteprima (diff prima/dopo) → **Applica** (protetto da snapshot) / **Annulla ultimo fix**.
+- **Import copia** (anti-rename): `regenerate_node_uuids(graph)` + flag `--copy` in `scripts/s3dgraphy_sync.py` (path `populate_list`) → rigenera i node_uuid così l'import INSERISCE una copia nel sito target invece di abbinare/rinominare le righe esistenti. *(Il wiring nel dialog GUI di import è in sospeso — i due path di import hanno semantiche di match diverse: populate_list per node_uuid, import_yed_raw per (us, unita_tipo).)*
+
+Test: `tests/sync/test_rapporti_check.py` (rilevamento, fix IT/EN localizzati, esclusione placeholder sintetici, apply+rollback byte-identico) + `tests/sync/test_import_copy_mode.py`. Suite 389 passed / 0 fallimenti non-PG / 6 xfailed / 9+9 PG pre-esistenti.
+
+### English
+
+**New "Verifica rapporti stratigrafici" tool (pyArchInit menu) + import-copy helper.**
+
+s3dgraphy's validators existed but were not wired into pyArchInit, so rapporti inconsistencies (Harris cycles, self-loops, missing reciprocity) passed silently. On real khutm data the check finds 3 self-loops, 13 cycles (9 multi-node + 4 direct contradictions) and 110 one-sided reciprocity gaps.
+
+- **`modules/utility/rapporti_check.py`** (Qt-free core): builds the site graph (`GraphProjector`), runs s3dgraphy `detect_stratigraphic_cycles` + `validate_connection` + a column-derived reciprocity scan, restricted to REAL us_table-backed US nodes (synthetic projector placeholders excluded so a fix never targets a non-existent row). Conservative fixes: self-loop → remove the self-entry; missing reciprocity → CREATE the localized inverse rapporto on the other US (additive); direct contradictions / multi-node cycles → surfaced for manual choice. `apply_edits` snapshots then writes via `DbHandle` (SQLite + PostgreSQL); `rollback` restores byte-identical.
+- **`gui/rapporti_check_dialog.py`** + menu action: site picker → run → report tree → preview → Apply (snapshot-protected) / Rollback.
+- **Import copy** (anti-rename): `regenerate_node_uuids` + `--copy` flag in `scripts/s3dgraphy_sync.py` (the `populate_list` path) → INSERT a fresh copy under the target site instead of matching/renaming existing rows. *(GUI import-dialog wiring pending — the two import paths match differently.)*
+
+Tests added. Suite 389 passed / 0 non-PG failures / 6 xfailed / 9+9 pre-existing PG.
+
+---
+
 ## [5.11.4-alpha] - 2026-06-06 — DB update: coercion '' → NULL per colonne numeriche (PG strict-typing)
 
 > Branch `Stratigraph_00001`. Emerso navigando la scheda Periodizzazione su un DB PostgreSQL (khutm2).

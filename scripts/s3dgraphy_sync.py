@@ -89,6 +89,16 @@ def cmd_import(args) -> int:
               file=sys.stderr)
         return 1
 
+    # Copy mode: regenerate node_uuids so the ingest does NOT match (and
+    # rewrite the sito of) existing rows — it INSERTs a fresh copy under
+    # --sito instead. Without this, re-importing an export carries the
+    # original node_uuids and populate_list renames the source site.
+    if getattr(args, "copy", False):
+        from modules.utility.rapporti_check import regenerate_node_uuids
+        n = regenerate_node_uuids(graph)
+        print(f"[copy mode] regenerated {n} node_uuids — importing as a new "
+              f"copy into sito={args.sito!r} (existing rows untouched)")
+
     g = GraphIngestor()
     try:
         result = g.populate_list(
@@ -216,6 +226,10 @@ def main(argv: list[str]) -> int:
                        help="actually write to DB (default: dry-run)")
     p_imp.add_argument("--create-epochs", action="store_true",
                        help="auto-create missing periodizzazione rows")
+    p_imp.add_argument("--copy", action="store_true",
+                       help="import as a COPY into --sito: regenerate every "
+                            "node_uuid so the ingest INSERTs new rows instead "
+                            "of matching/renaming existing ones")
     p_imp.set_defaults(func=cmd_import)
 
     p_para = sub.add_parser("paradata", help="Manage paradata.graphml")
