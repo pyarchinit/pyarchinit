@@ -347,3 +347,25 @@ def test_update_preserves_unmapped_columns(mini_volterra):
     assert descr == "PRESERVED_BY_AI04", \
         f"unmapped column overwritten (got {descr!r})"
     assert dstrat == "AI04_NEW_VALUE", "mapped column not updated"
+
+
+def test_resync_pg_serial_sequences_is_noop_on_sqlite():
+    """The pre-write sequence realignment (which fixes legacy-PG dumps whose
+    id_perfas/id_us serial sequences lag the data → UniqueViolation on
+    auto-PK INSERT) must be a strict no-op on SQLite: AUTOINCREMENT is
+    self-correcting, and the helper must never touch the connection."""
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        _resync_pg_serial_sequences)
+
+    class _FakeConn:
+        def execute(self, *a, **k):
+            raise AssertionError("must not execute on SQLite")
+
+        def begin_nested(self):
+            raise AssertionError("must not open a savepoint on SQLite")
+
+    class _FakeHandle:
+        is_postgres = False
+
+    # Must return cleanly without calling execute()/begin_nested().
+    _resync_pg_serial_sequences(_FakeConn(), _FakeHandle())

@@ -164,6 +164,49 @@ if TYPE_CHECKING:
 log = logging.getLogger("modules.s3dgraphy.sync.graph_ingestor")
 
 
+#: Tables this ingestor INSERTs into, with their serial primary key, for
+#: the pre-write sequence realignment below.
+_SERIAL_PK_TABLES: tuple[tuple[str, str], ...] = (
+    ("us_table", "id_us"),
+    ("periodizzazione_table", "id_perfas"),
+)
+
+
+def _resync_pg_serial_sequences(conn, handle) -> None:
+    """Realign each table's serial sequence to ``MAX(pk)`` before writing.
+
+    A legacy PostgreSQL dump leaves a serial sequence behind the data
+    (``pg_restore`` doesn't reset sequences), so an auto-PK INSERT raises
+    ``UniqueViolation`` on the primary key — e.g. creating epochs for a
+    new target site fails on ``periodizzazione_table_pkey``. ``setval`` is
+    non-transactional, so the correction sticks even if the ingest later
+    rolls back (dry-run / error) — which is fine: ``MAX(pk)`` is always the
+    correct sequence value.
+
+    No-op on SQLite (``AUTOINCREMENT`` is self-correcting) and best-effort:
+    a missing table/sequence (minimal test schemas) never blocks the ingest.
+    """
+    if not getattr(handle, "is_postgres", False):
+        return
+    for table, pk in _SERIAL_PK_TABLES:
+        # Each attempt runs inside its own SAVEPOINT: in PostgreSQL a failed
+        # statement aborts the WHOLE transaction, so a plain try/except would
+        # not recover (every later INSERT would fail with "current
+        # transaction is aborted"). begin_nested() lets a missing
+        # table/column/sequence roll back just this savepoint and leave the
+        # ingest transaction intact.
+        try:
+            with conn.begin_nested():
+                conn.execute(text(
+                    f"SELECT setval("
+                    f"pg_get_serial_sequence('{table}', '{pk}'), "
+                    f"GREATEST((SELECT COALESCE(MAX({pk}), 0) "
+                    f"FROM {table}), 1))"
+                ))
+        except Exception:  # pragma: no cover - housekeeping must not block
+            pass
+
+
 class GraphIngestor:
     """Persist a s3dgraphy Graph back to the PyArchInit SQL tables.
 
@@ -391,6 +434,16 @@ class GraphIngestor:
         # _DryRunRollback sentinel to force rollback at the end.
         try:
             with handle.engine.begin() as conn:
+                # Robustness: realign the serial sequences of the tables we
+                # INSERT into (us_table, periodizzazione_table) to MAX(pk)
+                # BEFORE writing. A legacy PostgreSQL dump leaves these
+                # sequences behind the data (pg_restore doesn't reset them),
+                # so an auto-PK INSERT — e.g. creating epochs for a new
+                # target site — raises UniqueViolation on id_perfas/id_us.
+                # No-op on SQLite (AUTOINCREMENT is self-correcting). Runs in
+                # dry-run too, because dry-run executes the INSERTs (then
+                # rolls back) and would otherwise crash on the preview.
+                _resync_pg_serial_sequences(conn, handle)
                 # Ensure site_table has a row for `sito` — create if missing.
                 count_row = conn.execute(
                     text("SELECT COUNT(*) FROM site_table WHERE sito = :sito"),

@@ -5,6 +5,32 @@
 
 ---
 
+## [5.11.3-alpha] - 2026-06-06 — Import: epoch INSERT robusto al desync di sequence PostgreSQL
+
+> Branch `Stratigraph_00001`. L'import del GraphML in un sito target nuovo crashava su `periodizzazione_table_pkey`.
+
+### Italiano
+
+**Fix: l'import non crasha più per sequence PostgreSQL disallineate (`id_perfas`/`id_us`).**
+
+**Problema.** Importando il GraphML esportato in un **sito target nuovo** (es. `test_import`), anche in **anteprima**: `UniqueViolation ... periodizzazione_table_pkey Key (id_perfas)=(12) already exists`. Non è un bug di logica: lo skip per `(sito, periodo, fase)` è corretto (è per-sito, quindi un sito nuovo crea legittimamente le sue epoche). La causa è che il DB PostgreSQL (es. khutm2) ha le **sequence serial rimaste indietro** rispetto ai dati (tipico dopo un `pg_restore`, che non resetta le sequence), quindi l'INSERT auto-PK collide. Colpiva anche l'anteprima perché il dry-run esegue gli INSERT e poi fa rollback.
+
+**Fix** (`modules/s3dgraphy/sync/graph_ingestor.py`): nuovo `_resync_pg_serial_sequences(conn, handle)` chiamato all'apertura della transazione di `populate_list` → riallinea con `setval` le sequence di `us_table.id_us` e `periodizzazione_table.id_perfas` a `MAX(pk)` prima di scrivere. **Solo PostgreSQL; no-op su SQLite** (l'AUTOINCREMENT si autocorregge). Ogni `setval` gira in un proprio `SAVEPOINT` (`begin_nested`): in PG uno statement fallito aborta l'intera transazione, quindi un semplice try/except non basterebbe — il savepoint isola una tabella/colonna assente (schemi minimali di test) senza bloccare l'ingest.
+
+Verificato su PG reale: con `us_table` assente, il savepoint rolla indietro, la transazione sopravvive, `periodizzazione` viene resincronizzata → insert auto-PK `id_perfas=13`, nessuna collisione. Test: `tests/sync/test_graph_ingestor.py::test_resync_pg_serial_sequences_is_noop_on_sqlite`. Suite 380 passed / 6 xfailed / 9+9 PG pre-esistenti.
+
+Nota: questo auto-ripara l'import; le altre sequence disallineate del DB (campioni, media_thumb, ecc.) restano un tema di manutenzione DB separato (un `setval`-all su khutm2 è consigliato per la UI).
+
+### English
+
+**Fix: import no longer crashes on desynced PostgreSQL serial sequences (`id_perfas`/`id_us`).**
+
+Importing the exported GraphML into a **new target site** (e.g. `test_import`), even in **preview**, raised `UniqueViolation ... periodizzazione_table_pkey Key (id_perfas)=(12)`. Not a logic bug — the `(sito, periodo, fase)` skip is per-site and a new site legitimately creates its epochs. Root cause: the PostgreSQL DB (e.g. khutm2) has serial sequences lagging the data (typical after `pg_restore`, which doesn't reset sequences), so the auto-PK INSERT collides. Hit the preview too because dry-run executes the INSERTs then rolls back.
+
+**Fix** (`modules/s3dgraphy/sync/graph_ingestor.py`): `_resync_pg_serial_sequences(conn, handle)` at the start of `populate_list`'s transaction `setval`s the `us_table.id_us` + `periodizzazione_table.id_perfas` sequences to `MAX(pk)` before writing. **PostgreSQL-only; no-op on SQLite**. Each `setval` runs in its own `SAVEPOINT` (`begin_nested`) so a missing table/column can't abort the ingest transaction (a plain try/except can't recover an aborted PG transaction). Verified on real PG. Test added. Suite 380 passed / 6 xfailed / 9+9 pre-existing PG.
+
+---
+
 ## [5.11.2-alpha] - 2026-06-06 — GraphProjector: riconoscimento US/USM multilingua (export DB non italiani)
 
 > Branch `Stratigraph_00001`. Follow-up del fix d13: su DB non italiani l'export costruiva pochissimi nodi/relazioni.
