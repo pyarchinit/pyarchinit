@@ -2847,6 +2847,47 @@ class Pyarchinit_db_management(object):
             normalized[key] = value
         return normalized
 
+    def _coerce_numeric_blanks(self, params: dict, table_class_name: str) -> dict:
+        """Write-path companion to ``_normalize_query_params``.
+
+        Qt line-edits hand back an empty string ``''`` for untouched
+        fields. PostgreSQL rejects ``''`` for Integer/Float columns
+        (``InvalidTextRepresentation: invalid input syntax for type
+        bigint: ""``) on INSERT/UPDATE, while SQLite is type-loose and
+        stores it silently. This coerces ``''`` (and whitespace-only) to
+        ``None`` for columns whose SQLAlchemy ``python_type`` is
+        int/float, so optional numeric fields (e.g.
+        ``periodizzazione_table.cont_per``, ``cron_iniziale``) save as
+        NULL. Non-numeric columns and non-blank values pass through
+        unchanged. Returns a new dict (does NOT mutate ``params``).
+        """
+        table_class = globals().get(table_class_name)
+        if table_class is None:
+            return params
+        mapped_table = None
+        try:
+            from sqlalchemy.orm import class_mapper
+            mapped_table = class_mapper(table_class).mapped_table
+        except Exception:
+            mapped_table = None
+        out: dict = {}
+        for key, value in params.items():
+            if isinstance(value, str) and value.strip() == "":
+                column = None
+                if hasattr(table_class, key):
+                    column = getattr(table_class, key)
+                if column is None and mapped_table is not None \
+                        and key in mapped_table.c:
+                    column = mapped_table.c[key]
+                if column is not None:
+                    try:
+                        if column.type.python_type in (int, float):
+                            value = None
+                    except (NotImplementedError, AttributeError):
+                        pass
+            out[key] = value
+        return out
+
     def query_bool(self, params, table_class_name):
         _perf_log(f"query_bool({table_class_name}, {params}) START")
 
@@ -3285,6 +3326,12 @@ class Pyarchinit_db_management(object):
             column_list.append(column_str)
 
         u.add_item_to_dict(changes_dict, list(zip(self.columns_name_list, update_value_list)))
+
+        # PG strict-typing: coerce empty-string '' -> None for numeric
+        # columns so optional numeric fields (e.g. periodizzazione cont_per)
+        # save as NULL instead of raising InvalidTextRepresentation on
+        # PostgreSQL. No-op on SQLite (already type-loose).
+        changes_dict = self._coerce_numeric_blanks(changes_dict, table_class_str)
 
         print(f"[DB_MANAGER DEBUG] update: changes_dict keys={list(changes_dict.keys())}")
         print(f"[DB_MANAGER DEBUG] update: changes_dict={changes_dict}")

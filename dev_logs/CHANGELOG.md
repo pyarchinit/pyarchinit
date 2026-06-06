@@ -5,6 +5,30 @@
 
 ---
 
+## [5.11.4-alpha] - 2026-06-06 — DB update: coercion '' → NULL per colonne numeriche (PG strict-typing)
+
+> Branch `Stratigraph_00001`. Emerso navigando la scheda Periodizzazione su un DB PostgreSQL (khutm2).
+
+### Italiano
+
+**Fix: l'UPDATE non crasha più passando stringa vuota a una colonna numerica su PostgreSQL.**
+
+**Problema.** Muovendosi tra i record della scheda Periodizzazione (che fa un UPDATE di auto-save): `(psycopg2.errors.InvalidTextRepresentation) invalid input syntax for type bigint: "" ... cont_per=''`. La colonna `cont_per` ("codice periodo", numerico sequenziale) — come `cron_iniziale/finale`, `periodo` — è `Integer`/`bigint`. Il form passa `''` (stringa vuota dal line-edit) per il campo non valorizzato; PostgreSQL rifiuta `''` per una colonna numerica, mentre SQLite la tollera (type-loose). Audit fatto: **nessun drift di schema** — la dichiarazione ORM è correttamente `Integer`; il problema è il `''` sul path di scrittura. Il path INSERT del form (`insert_new_rec`) già coerce `cont_per=None`; mancava sul path **UPDATE** centrale.
+
+**Fix** (`modules/db/pyarchinit_db_manager.py`): nuovo `_coerce_numeric_blanks(params, table_class_name)` — companion in scrittura di `_normalize_query_params` (lettura) — chiamato dentro `update()`. Per ogni colonna il cui `python_type` SQLAlchemy è int/float, converte `''` (e stringhe di soli spazi) in `None`. Le colonne testuali e i valori non vuoti restano invariati. Generale: vale per **tutte** le schede in UPDATE sotto PostgreSQL; **no-op su SQLite**. Verificato che `cont_per`/`cron_*` vuoti → `None`, mentre `sito`/`fase`/`descrizione` vuoti restano `''` e i valori numerici valorizzati restano invariati.
+
+**Nota:** `cont_per` (codice periodo, sequenziale periodo→fase) resta `NULL` dopo l'import del GraphML; va ricalcolato con la funzione esistente "Codice periodo" (`update_cont_per`) se serve.
+
+### English
+
+**Fix: UPDATE no longer crashes passing an empty string to a numeric column on PostgreSQL.**
+
+Navigating Periodizzazione records (an auto-save UPDATE) raised `InvalidTextRepresentation: invalid input syntax for type bigint: "" ... cont_per=''`. `cont_per`/`cron_*`/`periodo` are Integer/bigint; the form hands back `''` for an untouched line-edit, which PostgreSQL rejects for a numeric column (SQLite tolerates it). Audit: **no schema drift** — the ORM declares `Integer` correctly; the write path just sent `''`. The form's INSERT path already coerced to `None`; the central UPDATE path didn't.
+
+**Fix** (`modules/db/pyarchinit_db_manager.py`): `_coerce_numeric_blanks()` — the write-path companion of `_normalize_query_params()` — called inside `update()`, converts `''`/whitespace to `None` for columns whose SQLAlchemy `python_type` is int/float. Text columns and non-blank values pass through. Generic across all forms' UPDATE on PostgreSQL; no-op on SQLite. `cont_per` stays NULL after a GraphML import — recompute via the existing "period code" function if needed.
+
+---
+
 ## [5.11.3-alpha] - 2026-06-06 — Import: epoch INSERT robusto al desync di sequence PostgreSQL
 
 > Branch `Stratigraph_00001`. L'import del GraphML in un sito target nuovo crashava su `periodizzazione_table_pkey`.
