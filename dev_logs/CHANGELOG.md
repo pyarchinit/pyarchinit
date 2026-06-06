@@ -5,6 +5,40 @@
 
 ---
 
+## [5.11.1-alpha] - 2026-06-06 — d13 physical_relationships: US/USM multilingua + etichette localizzate
+
+> Branch `Stratigraph_00001`. Fix segnalato su dati khutm (inglese): il d13 `physical_relationships` scriveva `<<`/`>>` per US/USM reali invece del rapporto.
+
+### Italiano
+
+**Fix: il d13 riconosce gli US/USM in tutte le lingue e mostra l'etichetta localizzata in Maiuscolo.**
+
+**Problema.** Il packed string d13 lo costruisce il *core exporter* s3dgraphy via `from ...sync.rapporti import serialize_rapporti_from_edges`. Il dispatch verbose/shorthand in `rapporti.py` riconosceva come unità stratigrafica canonica **solo i codici italiani** `{"US","USM"}`. Su un DB inglese (`unita_tipo` = `SU`/`WSU`, da `UNIT_TYPE_ABBREV`) gli US/USM reali cadevano nello shorthand `>>`/`<<`.
+
+**Fix** (in `modules/s3dgraphy/sync/rapporti.py`):
+- `CANONICAL_UNIT_TYPES` esteso multilingua: US,USM,SU,WSU,SE,MSE,UE,UEM,USZ,ΣΜ,ΤΣΜ (da `pyarchinit_i18n_stratigraphic.UNIT_TYPE_ABBREV`).
+- `serialize_rapporti_from_edges`: quando il dispatch è verbose (US/USM, qualunque lingua) preferisce l'etichetta originale del campo `rapporti` del nodo sorgente, normalizzata in Maiuscolo (`Covers`/`Copre`/`Liegt über`…); fallback al canonico se assente (grafi yEd). Le unità virtuali restano `>>`/`<<`, la continuità `>`/`<`.
+
+**Durabilità (monkeypatch al boot).** Il d13 dell'export usa `ext_libs/s3dgraphy/sync/rapporti.py`, che è git-ignored e si riscarica da PyPI. Nuovo `modules/s3dgraphy/sync/ext_rapporti_patch.py` (`apply()`) ricopia i simboli corretti sul modulo ext_libs al caricamento del plugin (`pyarchinitPlugin.initGui`). `ext_libs` resta pristino (= pip); il fix vive nel codice tracciato. Verificato: su ext_libs pulito, prima `select('overlies','SU','SU')`=`>>`, dopo `apply()` l'export d13 = `[['Covers','2','1','Al-Khutm']]`. **Riavviare QGIS** per caricare la patch. Da rimuovere quando il fix sarà a monte (s3Dgraphy > 1.6.0.dev7) e `requirements` lo includerà — issue/PR a Emanuel in apertura.
+
+Test: `tests/sync/test_rapporti_multilingual_d13.py` (16 casi). Suite 378 passed / 6 xfailed / 9+9 PG pre-esistenti.
+
+### English
+
+**Fix: d13 recognises US/USM in every language and shows the localized label, capitalized.**
+
+**Problem.** The d13 packed string is built by the s3dgraphy *core exporter* via `from ...sync.rapporti import serialize_rapporti_from_edges`. The verbose/shorthand dispatch in `rapporti.py` only treated the **Italian** codes `{"US","USM"}` as canonical Harris units. On an English DB (`unita_tipo` = `SU`/`WSU`, per `UNIT_TYPE_ABBREV`) real US/USM fell through to the `>>`/`<<` shorthand.
+
+**Fix** (in `modules/s3dgraphy/sync/rapporti.py`):
+- `CANONICAL_UNIT_TYPES` extended multilingual: US,USM,SU,WSU,SE,MSE,UE,UEM,USZ,ΣΜ,ΤΣΜ.
+- `serialize_rapporti_from_edges`: on the verbose branch (US/USM, any language) prefer the source node's own `rapporti` column label, capitalized (`Covers`/`Copre`/…); fall back to the canonical label when absent (yEd graphs). Virtual units keep `>>`/`<<`, continuity `>`/`<`.
+
+**Durability (boot monkeypatch).** The export d13 imports rapporti from `ext_libs/s3dgraphy/sync/rapporti.py` (git-ignored, reinstalled from PyPI). New `modules/s3dgraphy/sync/ext_rapporti_patch.py` (`apply()`) copies the corrected symbols onto the ext_libs module at plugin start (`pyarchinitPlugin.initGui`); ext_libs stays pristine. Verified end-to-end on a clean ext_libs. **Restart QGIS** to load the patch. Remove once fixed upstream and pinned — issue/PR to Emanuel pending.
+
+Tests: `tests/sync/test_rapporti_multilingual_d13.py` (16 cases). Suite 378 passed / 6 xfailed / 9+9 pre-existing PG.
+
+---
+
 ## [5.11.0-alpha] - 2026-06-06 — Allineamento a s3dgraphy 1.6.0.dev7 (Phase 1)
 
 > Branch `s3dgraphy-1.6-migration` (da `Stratigraph_00001`). Non ancora committato/taggato al momento della scrittura. Allineamento Phase 1 "in-place / due alberi": Emanuel ha mergeato upstream le nostre PR #11 (sync package, Qt-decoupled) + #12 (Postgres read backend) e pubblicato `s3dgraphy==1.6.0.dev7` su PyPI, con sopra la serie *canonical-edges*. Questo bump porta `rapporti` + `physical_relationships (d13)` nell'albero sync attivo del plugin, **senza churn ai call-site** (path `modules.s3dgraphy.sync.*` invariato).

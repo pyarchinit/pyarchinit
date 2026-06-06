@@ -186,9 +186,30 @@ EDGE_TYPE_DIRECTION_FORWARD: dict[str, bool] = {
 # ---------------------------------------------------------------------------
 # Unit-type frozensets driving the verbose-vs-shorthand dispatch
 # ---------------------------------------------------------------------------
-#: Unit types where both endpoints get the verbose Italian dispatch
-#: ("Copre", "Coperto da", ...). Stratigraphic Harris atoms only.
-CANONICAL_UNIT_TYPES: frozenset[str] = frozenset({"US", "USM"})
+#: Unit types where both endpoints get the verbose dispatch
+#: ("Copre"/"Covers"/..., "Coperto da"/"Covered by"/...). Stratigraphic
+#: Harris atoms only.
+#:
+#: pyArchInit localises the US / USM codes per UI language (see
+#: ``modules/utility/pyarchinit_i18n_stratigraphic.UNIT_TYPE_ABBREV`` —
+#: the single source of truth). All of these denote a real Harris
+#: stratigraphic unit, so every language variant must take the verbose
+#: branch; otherwise non-Italian sites (e.g. an English DB using "SU"/
+#: "WSU") fall through to the ``>>`` / ``<<`` shorthand by mistake.
+#:   US  → US (it/fr/ro) · SU (en/ar) · SE (de) · UE (es/ca/pt) · ΣΜ (el)
+#:   USM → USM (it/fr) · WSU (en/ar) · MSE (de) · UEM (es/ca/pt) ·
+#:         USZ (ro) · ΤΣΜ (el)
+#: The abbreviations are a pyArchInit UI convention, not part of the
+#: s3dgraphy formalism — kept here because this module is the
+#: pyArchInit ↔ canonical-edge bridge.
+CANONICAL_UNIT_TYPES: frozenset[str] = frozenset({
+    "US", "USM",                            # it, fr
+    "SU", "WSU",                            # en, ar
+    "SE", "MSE",                            # de
+    "UE", "UEM",                            # es, ca, pt
+    "USZ",                                  # ro (USM; US stays "US")
+    "ΣΜ", "ΤΣΜ",   # el: ΣΜ, ΤΣΜ
+})
 
 
 #: Continuity unit type. Single-arrow shorthand ``>`` / ``<`` is
@@ -464,6 +485,51 @@ def _coerce_to_list(value):
     return []
 
 
+#: Arrow tokens emitted by :func:`select_rapporti_label` for
+#: non-canonical endpoints. When the dispatch returns one of these we do
+#: NOT override it with a verbose label (virtual units keep ``>>`` / ``<<``,
+#: continuity keeps ``>`` / ``<`` — the pyArchInit author convention).
+_SHORTHAND_TOKENS: frozenset[str] = frozenset({">", "<", ">>", "<<"})
+
+
+def _source_rapporti_label(src_node, target_us: str, edge_type: str):
+    """Original pyArchInit ``rapporti`` label on *src_node* for *target_us*.
+
+    Returns the verbatim term the site stored in ``us_table.rapporti``
+    (in the site's UI language — "Covers" / "Couvre" / "Copre" / …) so
+    the d13 packed string mirrors the column instead of the canonical
+    Italian. The label language can't be reconstructed from
+    ``edge_type`` alone (e.g. "US" is shared by it / fr / ro), so the
+    only reliable source is the node's own stored term.
+
+    Matching prefers the entry whose label maps to the SAME canonical
+    ``edge_type`` (disambiguates multiple relations to one target),
+    falling back to any verbose entry pointing at ``target_us``. Returns
+    ``None`` when the node carries no usable ``rapporti`` attribute
+    (e.g. a yEd-imported graph) — the caller then keeps the canonical
+    dispatch label.
+    """
+    attrs = getattr(src_node, "attributes", None) or {}
+    fallback = None
+    for entry in _coerce_to_list(attrs.get("rapporti")):
+        if not isinstance(entry, (list, tuple)) or len(entry) < 2:
+            continue
+        lbl = str(entry[0]).strip()
+        tgt = str(entry[1]).strip()
+        if tgt != str(target_us) or not lbl or lbl in _SHORTHAND_TOKENS:
+            continue
+        # Normalize to the canonical display casing pyArchInit shows in
+        # the Scheda US (first letter upper, rest lower) — matches the
+        # RELATIONSHIPS table form: "Covers" / "Covered by" / "Copre".
+        # The stored column is often lowercase ("covers").
+        lbl = lbl.capitalize()
+        if RAPPORTI_TO_EDGE_TYPE.get(lbl.lower()) == edge_type:
+            return lbl
+        if fallback is None:
+            fallback = lbl
+    return fallback
+
+
 def serialize_rapporti_from_edges(graph, default_sito: str):
     """Walk *graph*'s edges and produce per-US rapporti lists ready
     for the pyarchinit ``us_table.rapporti`` column.
@@ -512,8 +578,6 @@ def serialize_rapporti_from_edges(graph, default_sito: str):
             continue
         src_unita_tipo = resolve_unita_tipo_for_dispatch(src_node)
         tgt_unita_tipo = resolve_unita_tipo_for_dispatch(tgt_node)
-        rapporti_label = select_rapporti_label(
-            et, src_unita_tipo, tgt_unita_tipo)
         tgt_attrs = getattr(tgt_node, "attributes", None) or {}
         tgt_us = tgt_attrs.get("us")
         if not tgt_us:
@@ -521,6 +585,18 @@ def serialize_rapporti_from_edges(graph, default_sito: str):
             if not tgt_name:
                 continue
             tgt_us = strip_us_prefix(str(tgt_name))
+        rapporti_label = select_rapporti_label(
+            et, src_unita_tipo, tgt_unita_tipo)
+        # Localized-label preference: when the dispatch picks a *verbose*
+        # label (both endpoints are real US/USM units, any language),
+        # prefer the original term from the source node's own pyArchInit
+        # ``rapporti`` column so the d13 packed string matches the DB
+        # verbatim in the site's UI language. Virtual units (``>>`` /
+        # ``<<``) and continuity (``>`` / ``<``) keep their shorthand.
+        if rapporti_label not in _SHORTHAND_TOKENS:
+            original = _source_rapporti_label(src_node, str(tgt_us), et)
+            if original:
+                rapporti_label = original
         tgt_area = str(tgt_attrs.get("area") or "1")
         tgt_sito = default_sito
         rapporto = [rapporti_label, str(tgt_us), tgt_area, tgt_sito]
