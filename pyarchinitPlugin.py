@@ -789,7 +789,14 @@ class PyArchInitPlugin(object):
             self.menu = QMenu("pyArchInit")
             self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionPer, self.actionStruttura])
+            self.actionRapportiCheck = QAction(
+                "Verifica rapporti stratigrafici", self.iface.mainWindow())
+            self.actionRapportiCheck.setWhatsThis(
+                "Rileva e corregge incongruenze nei rapporti stratigrafici "
+                "(cicli, self-loop, reciprocità mancante)")
+            self.actionRapportiCheck.triggered.connect(self.runRapportiCheck)
+            self.menu.addActions([self.actionPer, self.actionStruttura,
+                                  self.actionRapportiCheck])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.is_experimental_enabled():
@@ -1166,7 +1173,14 @@ class PyArchInitPlugin(object):
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
             self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionPer, self.actionStruttura])
+            self.actionRapportiCheck = QAction(
+                "Verifica rapporti stratigrafici", self.iface.mainWindow())
+            self.actionRapportiCheck.setWhatsThis(
+                "Rileva e corregge incongruenze nei rapporti stratigrafici "
+                "(cicli, self-loop, reciprocità mancante)")
+            self.actionRapportiCheck.triggered.connect(self.runRapportiCheck)
+            self.menu.addActions([self.actionPer, self.actionStruttura,
+                                  self.actionRapportiCheck])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.is_experimental_enabled():
@@ -1541,7 +1555,14 @@ class PyArchInitPlugin(object):
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
             self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionPer, self.actionStruttura])
+            self.actionRapportiCheck = QAction(
+                "Verifica rapporti stratigrafici", self.iface.mainWindow())
+            self.actionRapportiCheck.setWhatsThis(
+                "Rileva e corregge incongruenze nei rapporti stratigrafici "
+                "(cicli, self-loop, reciprocità mancante)")
+            self.actionRapportiCheck.triggered.connect(self.runRapportiCheck)
+            self.menu.addActions([self.actionPer, self.actionStruttura,
+                                  self.actionRapportiCheck])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.is_experimental_enabled():
@@ -1918,7 +1939,14 @@ class PyArchInitPlugin(object):
             # self.pyarchinitSite = pyarchinit_Site(self.iface)
             self.menu.addActions([self.actionSite, self.actionUS, self.actionInr, self.actionCampioni, self.actionPottery, self.actionTma])
             self.menu.addSeparator()
-            self.menu.addActions([self.actionPer, self.actionStruttura])
+            self.actionRapportiCheck = QAction(
+                "Verifica rapporti stratigrafici", self.iface.mainWindow())
+            self.actionRapportiCheck.setWhatsThis(
+                "Rileva e corregge incongruenze nei rapporti stratigrafici "
+                "(cicli, self-loop, reciprocità mancante)")
+            self.actionRapportiCheck.triggered.connect(self.runRapportiCheck)
+            self.menu.addActions([self.actionPer, self.actionStruttura,
+                                  self.actionRapportiCheck])
             self.menu.addSeparator()
             self.menu.addActions([self.actionTomba, self.actionSchedaind])
             if self.is_experimental_enabled():
@@ -1995,6 +2023,17 @@ class PyArchInitPlugin(object):
         pluginGui = pyarchinit_Periodizzazione(self.iface)
         pluginGui.show()
         self.pluginGui = pluginGui  # save
+
+    def runRapportiCheck(self):
+        try:
+            from .gui.rapporti_check_dialog import RapportiCheckDialog
+            dlg = RapportiCheckDialog(self.iface, self.iface.mainWindow())
+            dlg.exec_()
+        except Exception as e:
+            from qgis.PyQt.QtWidgets import QMessageBox
+            QMessageBox.critical(self.iface.mainWindow(), "pyArchInit",
+                                 "Verifica rapporti: {}".format(e))
+
     def runStruttura(self):
         from .tabs.Struttura import pyarchinit_Struttura
         pluginGui = pyarchinit_Struttura(self.iface)
