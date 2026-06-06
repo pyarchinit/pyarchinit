@@ -179,64 +179,17 @@ def _read_first_sito(db_path: Path) -> str:
 # So the orchestrator below performs the missing enrichment by
 # reading those tables directly and adding edges/EpochNodes that
 # the GraphMLExporter + TemporalInferenceEngine then consume.
-_RAPPORTI_TO_EDGE_TYPE = {
-    # Italian
-    "copre": "overlies",
-    "coperto da": "is_overlain_by",
-    "taglia": "cuts",
-    "tagliato da": "is_cut_by",
-    "riempie": "fills",
-    "riempito da": "is_filled_by",
-    "uguale a": "is_physically_equal_to",
-    "si lega a": "is_bonded_to",
-    "si appoggia a": "abuts",
-    "gli si appoggia": "is_abutted_by",
-    # English
-    "covers": "overlies",
-    "covered by": "is_overlain_by",
-    "cuts": "cuts",
-    "cut by": "is_cut_by",
-    "fills": "fills",
-    "filled by": "is_filled_by",
-    "same as": "is_physically_equal_to",
-    "bonds with": "is_bonded_to",
-    "abuts": "abuts",
-}
-
-
-# pyarchinit-specific shorthand tokens for relations between non-US/USM
-# units (USVs/USVn/SF/CON/Combinar/Extractor/property/DOC). The user
-# enters these in the rapporti field as ">", ">>", "<", "<<".
 #
-# Convention (per the pyarchinit author, May 2026):
-#  - single arrow ">" / "<" carries simple temporal precedence
-#  - double arrow ">>" / "<<" carries paradata-style data flow
-#    (Extractor/Combinar/property/DOC chains)
-#
-# Each entry returns (edge_type, swap) where swap=True means we emit
-# the edge with source and target swapped relative to how the user
-# wrote it. Rationale: ">" reads as "source is older than target",
-# which in EM is encoded as `target is_after source` — so we swap.
-# Similarly for ">>" → "target extracted_from source" (target depends
-# on source's data).
-# Per pyarchinit author (May 2026):
-#   `>` and `>>` mean "the source COVERS the target" = source is above
-#       in the stratigraphic matrix = source is_after target temporally.
-#   `<` and `<<` mean "the source is COVERED by the target" = source is
-#       below the target = target is_after source.
-# The token A > B therefore produces edge `A is_after B` directly (no
-# swap); A < B produces `B is_after A` (swap source/target).
-# Single arrow `>` / `<` is used for Continuity (CON) and other
-# stratigraphic-only relations; double arrow `>>` / `<<` is paradata
-# data flow (DOC / Extractor / Combinar / property chains) and uses
-# `generic_connection` because the writer filters extracted_from /
-# combines as PARADATA_EDGE_TYPES (graphml_exporter.py:147).
-_RAPPORTI_SHORTHAND = {
-    ">":  ("is_after", False),           # A > B  ⇒  A is_after B
-    "<":  ("is_after", True),            # A < B  ⇒  B is_after A
-    ">>": ("generic_connection", False), # A >> B ⇒  A → B
-    "<<": ("generic_connection", True),  # A << B ⇒  B → A
-}
+# The canonical home for these constants is `s3dgraphy.sync.rapporti`
+# (introduced in v1.6 as the public surface for pyArchInit rapporti
+# ↔ canonical-edge translation across all sync code paths). The
+# names below are kept as private re-export aliases so legacy
+# imports `from s3dgraphy.sync.graphml_writer import _RAPPORTI_…`
+# keep working unchanged.
+from .rapporti import (
+    RAPPORTI_TO_EDGE_TYPE as _RAPPORTI_TO_EDGE_TYPE,
+    RAPPORTI_SHORTHAND as _RAPPORTI_SHORTHAND,
+)
 
 
 # Light-hue palette cycled across epoch swimlane rows so each period

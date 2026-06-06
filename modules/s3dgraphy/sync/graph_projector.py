@@ -12,7 +12,6 @@ underlying implementation evolves.
 """
 from __future__ import annotations
 
-import ast
 import logging
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
@@ -230,8 +229,8 @@ class GraphProjector:
     SF / VSF / CON / DOC / Extractor / Combinar / property nodes plus
     EpochNodes for the (periodo, fase) tuples present in the filtered
     rows. Edges follow the rapporti column conventions decoded by
-    `_RAPPORTI_TO_EDGE_TYPE` and `_RAPPORTI_SHORTHAND` in
-    graphml_writer.py.
+    `parse_rapporti` in `s3dgraphy.sync.rapporti` (the public home for
+    the pyArchInit ↔ canonical-edge vocabulary).
     """
 
     def __init__(self, vocab_provider=None) -> None:
@@ -745,14 +744,17 @@ class GraphProjector:
         expected tables.
         """
         from s3dgraphy.nodes.epoch_node import EpochNode
-        # Lazy-import the rapporti tables and palette from graphml_writer
-        # to avoid duplicating these constants — they remain authoritative
-        # in the writer module.
-        from .graphml_writer import (
-            _RAPPORTI_TO_EDGE_TYPE,
-            _RAPPORTI_SHORTHAND,
-            _EPOCH_ROW_PALETTE,
-        )
+        # Canonical-edges series, commit 3: parse pyArchInit `rapporti`
+        # column values through the public API in `s3dgraphy.sync.rapporti`
+        # rather than reaching into graphml_writer for the constant
+        # tables. Behaviour is identical (same vocabulary, same swap
+        # convention) — the rapporti module is the central home for
+        # that logic now.
+        from .rapporti import parse_rapporti
+        # The epoch-row palette is unrelated to rapporti; still
+        # imported from graphml_writer because that's where the
+        # cycling palette of swimlane background colours lives.
+        from .graphml_writer import _EPOCH_ROW_PALETTE
 
         # Bug N (2026-05-15 user feedback): build TWO indexes:
         #   - ``nodes_by_us_ut``: keyed by (name, unita_tipo) for exact
@@ -975,22 +977,24 @@ class GraphProjector:
                                 )
 
                 # 2b. rapporti → topological edges
-                if not rapporti_raw or rapporti_raw == "[]":
-                    continue
-                try:
-                    rapporti = ast.literal_eval(rapporti_raw)
-                except (ValueError, SyntaxError):
-                    continue
-                if not isinstance(rapporti, list):
-                    continue
-                for rapporto in rapporti:
-                    if not isinstance(rapporto, list) or len(rapporto) < 2:
-                        continue
-                    # Preserve case for the shorthand tokens (>, >>, <, <<);
-                    # the named relations (copre/cuts/...) are case-folded.
-                    rel_raw = str(rapporto[0]).strip()
-                    rel_type_named = rel_raw.lower()
-                    target_us = str(rapporto[1]).strip()
+                # The pyArchInit `rapporti` column is a Python-literal
+                # list-of-lists; the public parser in
+                # `s3dgraphy.sync.rapporti` knows the vocabulary
+                # (Italian / English named relations + shorthand
+                # tokens `>`/`<`/`>>`/`<<`) and yields canonical
+                # 5-tuples `(edge_type, target_us, area, sito, swap)`.
+                # Returns [] for empty / malformed inputs, so no
+                # try/except needed at this layer.
+                _PARADATA_UTS: frozenset[str] = frozenset({
+                    "DOC", "Combinar", "Extractor", "property",
+                })
+                def _ut_family(ut: str) -> str:
+                    return "paradata" if ut in _PARADATA_UTS else "strat"
+                src_attrs = getattr(us_node, "attributes", None) or {}
+                src_family = _ut_family(src_attrs.get("unita_tipo") or "US")
+                src_folder = src_attrs.get("attivita")
+                for (edge_type, target_us, _area, _sito, swap) in \
+                        parse_rapporti(rapporti_raw):
                     # Bug P (2026-05-15 v2): all row records are
                     # StratigraphicNode-class now; family is
                     # discriminated by ``attributes['unita_tipo']``:
@@ -998,14 +1002,6 @@ class GraphProjector:
                     #   - row-paradata (DOC/Combinar/Extractor/property)
                     # Same-family preference picks the right target
                     # when multiple us_table rows share a name.
-                    _PARADATA_UTS: frozenset[str] = frozenset({
-                        "DOC", "Combinar", "Extractor", "property",
-                    })
-                    def _ut_family(ut: str) -> str:
-                        return "paradata" if ut in _PARADATA_UTS else "strat"
-                    src_attrs = getattr(us_node, "attributes", None) or {}
-                    src_family = _ut_family(src_attrs.get("unita_tipo") or "US")
-                    src_folder = src_attrs.get("attivita")
                     candidates = nodes_by_name.get(target_us, [])
                     target_node = None
                     # yE-F resolver: when the target has multi-folder
@@ -1039,15 +1035,6 @@ class GraphProjector:
                                 target_node = candidates[0]
                     if target_node is None:
                         continue
-
-                    # Try named-relation table first, then shorthand tokens.
-                    edge_type = _RAPPORTI_TO_EDGE_TYPE.get(rel_type_named)
-                    swap = False
-                    if edge_type is None:
-                        shorthand = _RAPPORTI_SHORTHAND.get(rel_raw)
-                        if shorthand is None:
-                            continue
-                        edge_type, swap = shorthand
 
                     src_node, dst_node = (
                         (target_node, us_node) if swap

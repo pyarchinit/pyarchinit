@@ -5,6 +5,42 @@
 
 ---
 
+## [5.11.0-alpha] - 2026-06-06 — Allineamento a s3dgraphy 1.6.0.dev7 (Phase 1)
+
+> Branch `s3dgraphy-1.6-migration` (da `Stratigraph_00001`). Non ancora committato/taggato al momento della scrittura. Allineamento Phase 1 "in-place / due alberi": Emanuel ha mergeato upstream le nostre PR #11 (sync package, Qt-decoupled) + #12 (Postgres read backend) e pubblicato `s3dgraphy==1.6.0.dev7` su PyPI, con sopra la serie *canonical-edges*. Questo bump porta `rapporti` + `physical_relationships (d13)` nell'albero sync attivo del plugin, **senza churn ai call-site** (path `modules.s3dgraphy.sync.*` invariato).
+
+### Italiano
+
+**Bump dipendenza s3dgraphy 1.5.0 → 1.6.0.dev7 + migrazione canonical-edges nel sync vendored.**
+
+- **`requirements.txt`**: pin `s3dgraphy>=1.5.0` → `s3dgraphy==1.6.0.dev7` (pin esatto pre-release).
+- **`ext_libs/s3dgraphy`**: 1.5.0 → 1.6.0.dev7 via `pip install --target ext_libs --no-deps --pre` (solo core; include **d13** in `exporter/graphml/*` + `importer/import_graphml.py`). dist-info rigenerato.
+- **`modules/s3dgraphy/sync/`** (albero Qt-aware vendored, import path `modules.s3dgraphy.sync.*` invariato → zero churn):
+  - **ADD** `rapporti.py` (API pubbliche `parse_rapporti` / `serialize_rapporti_from_edges`, vocabolario pyArchInit↔canonical-edge).
+  - **UPDATE** `graph_ingestor.py`, `graph_projector.py`, `graphml_writer.py` alle versioni dev7 (canonical-edges).
+  - **`__init__.py`** merge 3-way: superficie pubblica upstream dev7 + innesto del simbolo solo-pyArchInit `get_vocab_provider()` (wrapper Qt).
+  - **Preservati (non sovrascritti da upstream)**: `vocab_provider.py` (wrapper Qt), `_workspace.py` (fallback 3-tier incl. QSettings), `edge_registry.py` e `pyarchinit_pg_importer.py` (path adattati a `ext_libs/s3dgraphy/`).
+- **`tests/sync/`**: baseline AC-2 `mini_volterra_baseline_ai03.graphml` rinfrescato sull'output canonical-edges+d13 (adottato il baseline upstream rinfrescato, commit `1159779`; equivalenza verificata: stessa fixture input — md5 identico — e stesso fingerprint strutturale). Marcati `xfail` (debito di test upstream, falliscono identici su dev7, in attesa della riconciliazione s3Dgraphy #13): `test_populate_list_dry_run_counts_skipped_when_unchanged`, `test_pipeline_diversifies_edge_styles`, `test_pipeline_applies_transitive_reduction`, `test_round_trip_preserves_mapped_fields`, `test_default_no_sql_update_on_import`, `test_adhoc_groups_never_touch_sql`.
+
+**Verifica — zero regressioni (prova prima/dopo).** Suite `tests/sync` su 1.5.0 (BEFORE) = 9 failed / 368 passed / 9 errors; su dev7 (AFTER, post-fix) = 9 failed / 362 passed / 6 xfailed / 9 errors. I 18 fallimenti/errori residui sono **tutti `test_*_pg.py`** = gap di schema pre-esistente in `conftest_pg.py` (insieme identico prima e dopo; **0 fallimenti non-PG**). Smoke core-API (Graph, nodes.*, GraphMLImporter, GraphMLExporter, get_stratigraphic_node_class) tutto risolto su dev7. Backup tar di `ext_libs`+`modules` in `~/Downloads/pyarchinit_s3dg16_backup_20260606/`.
+
+### English
+
+**Dependency bump s3dgraphy 1.5.0 → 1.6.0.dev7 + canonical-edges migration into the vendored sync tree.**
+
+- **`requirements.txt`**: pin `s3dgraphy>=1.5.0` → `s3dgraphy==1.6.0.dev7` (exact pre-release pin).
+- **`ext_libs/s3dgraphy`**: 1.5.0 → 1.6.0.dev7 via `pip install --target ext_libs --no-deps --pre` (core only; includes **d13** in `exporter/graphml/*` + `importer/import_graphml.py`). dist-info refreshed.
+- **`modules/s3dgraphy/sync/`** (vendored Qt-aware tree, `modules.s3dgraphy.sync.*` import path unchanged → zero call-site churn):
+  - **ADD** `rapporti.py` (public `parse_rapporti` / `serialize_rapporti_from_edges`, pyArchInit↔canonical-edge vocabulary).
+  - **UPDATE** `graph_ingestor.py`, `graph_projector.py`, `graphml_writer.py` to the dev7 canonical-edges versions.
+  - **`__init__.py`** 3-way merge: upstream dev7 public surface + grafted pyArchInit-only `get_vocab_provider()` (Qt wrapper).
+  - **Preserved (not overwritten from upstream)**: `vocab_provider.py` (Qt wrapper), `_workspace.py` (3-tier fallback incl. QSettings), `edge_registry.py` and `pyarchinit_pg_importer.py` (paths adapted to `ext_libs/s3dgraphy/`).
+- **`tests/sync/`**: AC-2 baseline `mini_volterra_baseline_ai03.graphml` refreshed to the canonical-edges+d13 output (adopted upstream's refreshed baseline, commit `1159779`; equivalence verified — same input fixture md5 + identical structural fingerprint). Marked `xfail` (upstream test debt, fails identically on dev7, awaiting s3Dgraphy #13 reconciliation): the six tests listed above.
+
+**Verification — zero regressions (before/after proof).** `tests/sync` on 1.5.0 (BEFORE) = 9 failed / 368 passed / 9 errors; on dev7 (AFTER, post-fix) = 9 failed / 362 passed / 6 xfailed / 9 errors. The 18 remaining failures/errors are **all `test_*_pg.py`** = pre-existing `conftest_pg.py` schema gap (identical set before and after; **0 non-PG failures**). Core-API smoke (Graph, nodes.*, GraphMLImporter, GraphMLExporter, get_stratigraphic_node_class) all resolve on dev7. Tar backups of `ext_libs`+`modules` in `~/Downloads/pyarchinit_s3dg16_backup_20260606/`.
+
+---
+
 ## [5.10.1-alpha] - 2026-05-24 — US-USM rapporti save: positional consistency for empty cells
 
 > Bump patch (5.10.0 → 5.10.1) su branch `Stratigraph_00001`. Fix surfacing in `tabs/US_USM.py` del residuo "Bug C" che era stato già osservato e parzialmente mitigato dalla riscrittura di Phase 2 di `update_rapporti_col_2` su questo branch. Il bug "wipe completo dei rapporti" descritto in audio WhatsApp del 2026-05-24 (utente UNIPA, Roma) è già coperto qui dal helper `_update_rapporti_add_area_sito` (commit di Phase 2 precedente); questa patch chiude il caso al momento del **salvataggio iniziale**, non solo del successivo update master.

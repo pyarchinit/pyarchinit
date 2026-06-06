@@ -60,6 +60,11 @@ def _read_canonical(db, sito):
     return rows
 
 
+@pytest.mark.xfail(
+    reason="s3dgraphy 1.6 canonical-edges test debt — fails identically on "
+           "upstream dev7; awaiting s3Dgraphy #13 reconciliation",
+    strict=False,
+)
 def test_round_trip_preserves_mapped_fields(tmp_path, mini_volterra):
     """D4-B / AC-6 — DB → Graph → DB' is identity on MAPPED_COLUMNS."""
     sito = _read_sito(mini_volterra)

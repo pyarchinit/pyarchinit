@@ -1057,74 +1057,29 @@ def _is_epoch_node_local(node) -> bool:
     return type(node).__name__ == "EpochNode"
 
 
-# Inverse mapping of `_RAPPORTI_TO_EDGE_TYPE` from graphml_writer.py:
-# convert s3dgraphy edge_type back to the Italian rapporti label that
-# pyarchinit stores in us_table.rapporti.
+# The Italian-rapporti / unit-type / direction tables previously
+# defined inline here moved to `s3dgraphy.sync.rapporti` in v1.6
+# (single home for the pyArchInit ↔ canonical-edge translation,
+# consumed by graph_ingestor, graphml_writer, graph_projector and
+# the yEd-import pipeline alike). The names below are kept as
+# private re-export aliases so call sites in this file and in
+# `yed_import_pipeline.py` (which already imports
+# `_select_rapporti_label` from here) keep working unchanged.
 #
-# Used for **canonical Harris units** (US/USM ↔ US/USM): the verbose
-# Italian terms that the user sees in Scheda US.
-_EDGE_TYPE_TO_RAPPORTI_IT: dict[str, str] = {
-    "overlies": "Copre",
-    "is_overlain_by": "Coperto da",
-    "cuts": "Taglia",
-    "is_cut_by": "Tagliato da",
-    "fills": "Riempie",
-    "is_filled_by": "Riempito da",
-    "is_physically_equal_to": "Uguale a",
-    "is_bonded_to": "Si lega a",
-    "abuts": "Si appoggia a",
-    "is_abutted_by": "Gli si appoggia",
-    "is_after": "Copre",       # default fallback for temporal precedence
-    "generic_connection": "Connesso a",
-}
-
-
-# AI07/H.5 follow-up: shorthand `< > << >>` rapporti tokens for
-# non-canonical unit types per pyarchinit author convention
-# (May 2026 — symmetric to graphml_writer._RAPPORTI_SHORTHAND).
-#
-# Convention:
-#   US / USM (in any UI language) → verbose terms ("Copre"/"Coperto da"/
-#                                   "Si lega a"/...). The reader always
-#                                   normalises to Italian for storage.
-#   CON (Continuity)              → single arrow `>` / `<`
-#   All other non-US/USM types
-#   (USVs, USVn, SF, VSF, USD,
-#   DOC, Extractor, Combinar,
-#   property, ...)               → double arrow `>>` / `<<`
-#
-# The decision tree in `_build_rapporti_from_edges` looks at the
+# AI07/H.5 follow-up: the verbose-Italian / single-arrow /
+# double-arrow dispatch is implemented by `_select_rapporti_label`
+# (still defined later in this module — that function moves to
+# `s3dgraphy.sync.rapporti` in a follow-up commit). It looks at the
 # unita_tipo of BOTH source and target nodes:
 #   - both ∈ _CANONICAL_UNIT_TYPES → verbose Italian
 #   - either ∈ _CONTINUITY_UNIT_TYPES → single arrow `>` / `<`
 #   - otherwise (any other non-canonical) → double arrow `>>` / `<<`
-
-_CANONICAL_UNIT_TYPES: frozenset[str] = frozenset({"US", "USM"})
-
-# CON = Continuity. Single-arrow shorthand reserved for this type.
-_CONTINUITY_UNIT_TYPES: frozenset[str] = frozenset({"CON"})
-
-# Edge-type → "covers/follows" direction. True means the rapporti
-# token reads as `>` / `>>` (source covers target), False means
-# `<` / `<<` (source is covered by target).
-_EDGE_TYPE_DIRECTION_FORWARD: dict[str, bool] = {
-    "overlies": True,
-    "is_overlain_by": False,
-    "cuts": True,
-    "is_cut_by": False,
-    "fills": True,
-    "is_filled_by": False,
-    "is_physically_equal_to": True,   # equality conventionally `>`
-    "is_bonded_to": True,
-    "abuts": True,
-    "is_abutted_by": False,
-    "is_after": True,
-    "is_before": False,
-    "generic_connection": True,
-    "extracted_from": True,
-    "combines": True,
-    "has_property": True,
-}
+from .rapporti import (
+    EDGE_TYPE_TO_RAPPORTI_IT as _EDGE_TYPE_TO_RAPPORTI_IT,
+    CANONICAL_UNIT_TYPES as _CANONICAL_UNIT_TYPES,
+    CONTINUITY_UNIT_TYPES as _CONTINUITY_UNIT_TYPES,
+    EDGE_TYPE_DIRECTION_FORWARD as _EDGE_TYPE_DIRECTION_FORWARD,
+)
 
 
 def _hydrate_pyarchinit_data_keys(graph, graphml_path: Path) -> None:
@@ -1307,190 +1262,29 @@ def _rewrite_rapporti_sito(rapporti_str: str, target_sito: str) -> str:
     return str(out)
 
 
-def _resolve_unita_tipo_for_dispatch(node) -> str | None:
-    """AI07/H.5: best-effort lookup of pyarchinit `unita_tipo` for a
-    graph node, used by `_select_rapporti_label` to decide between
-    verbose and shorthand rapporti tokens.
-
-    Lookup order:
-      1. node.attributes['unita_tipo']  (set by the AI03 enrichment)
-      2. _S3DGRAPHY_TYPE_TO_UNITA_TIPO[type(node).__name__]
-      3. None — caller treats as "unknown" (fall through to shorthand)
-    """
-    attrs = getattr(node, "attributes", None) or {}
-    ut = attrs.get("unita_tipo")
-    if ut:
-        return str(ut)
-    cls_name = type(node).__name__
-    return _S3DGRAPHY_TYPE_TO_UNITA_TIPO.get(cls_name)
-
-
-def _select_rapporti_label(edge_type: str,
-                           src_unita_tipo: str | None,
-                           tgt_unita_tipo: str | None) -> str:
-    """AI07/H.5: pick the rapporti token for an edge based on the
-    unit types of both endpoints.
-
-    - Both ∈ {US, USM}            → verbose Italian (e.g. "Copre")
-    - Either ∈ {CON} (Continuity) → single arrow `>` / `<`
-    - Otherwise                   → double arrow `>>` / `<<`
-
-    Direction (`>` vs `<`, `>>` vs `<<`) follows the edge type:
-    `overlies` / `cuts` / `is_after` / etc. emit `>` / `>>` (source
-    covers target); their inverses emit `<` / `<<`.
-    """
-    src = src_unita_tipo or ""
-    tgt = tgt_unita_tipo or ""
-    both_canonical = (src in _CANONICAL_UNIT_TYPES
-                      and tgt in _CANONICAL_UNIT_TYPES)
-    if both_canonical:
-        return _EDGE_TYPE_TO_RAPPORTI_IT.get(edge_type, str(edge_type))
-    forward = _EDGE_TYPE_DIRECTION_FORWARD.get(edge_type, True)
-    is_continuity = (src in _CONTINUITY_UNIT_TYPES
-                     or tgt in _CONTINUITY_UNIT_TYPES)
-    if is_continuity:
-        return ">" if forward else "<"
-    return ">>" if forward else "<<"
-
-
-def _build_rapporti_from_edges(graph, default_sito: str) -> dict:
-    """Walk graph.edges and return a dict {source_node_id: rapporti_list}
-    where each rapporti_list is the pyarchinit list-of-lists serialisation
-    `[[type, target_us, area, sito], …]`.
-
-    The `target_us` is extracted from the target node's name with the
-    unita_tipo prefix stripped. `area` defaults to '1' when the graph
-    didn't preserve it (compatible with most legacy pyarchinit data).
-
-    AI07/H.5 follow-up: rapporti label dispatch by unit type.
-    - Both ends ∈ {US, USM} → verbose Italian ("Copre", "Coperto da", ...)
-    - Either end is paradata (DOC, Extractor, Combinar, property) →
-      double-arrow shorthand `>>` / `<<`
-    - Otherwise (one or both non-canonical structural — USVs, USVn,
-      SF, VSF, USD, CON, ...) → single-arrow shorthand `>` / `<`
-    """
-    # Index nodes by id for fast lookup
-    by_id = {}
-    for n in graph.nodes:
-        nid = getattr(n, "node_id", None)
-        if nid:
-            by_id[nid] = n
-    out: dict[str, list[list]] = {}
-    for e in getattr(graph, "edges", None) or []:
-        src = getattr(e, "edge_source", None)
-        tgt = getattr(e, "edge_target", None)
-        et = getattr(e, "edge_type", None)
-        if not src or not tgt or not et:
-            continue
-        # Skip non-stratigraphic relationships (e.g. has_first_epoch
-        # connects US → EpochNode; has_paradata_nodegroup connects US →
-        # PD wrapper). Only is_after/cuts/abuts/etc. become rapporti.
-        if et in ("has_first_epoch", "has_paradata_nodegroup",
-                  "has_property", "extracted_from", "combines",
-                  "survive_in_epoch", "has_same_time"):
-            continue
-        # Resolve source + target unita_tipo (used for shorthand dispatch)
-        src_node = by_id.get(src)
-        tgt_node = by_id.get(tgt)
-        if tgt_node is None:
-            continue
-        src_unita_tipo = _resolve_unita_tipo_for_dispatch(src_node)
-        tgt_unita_tipo = _resolve_unita_tipo_for_dispatch(tgt_node)
-        rapporti_label = _select_rapporti_label(
-            et, src_unita_tipo, tgt_unita_tipo)
-        tgt_attrs = getattr(tgt_node, "attributes", None) or {}
-        tgt_us = tgt_attrs.get("us")
-        if not tgt_us:
-            tgt_name = getattr(tgt_node, "name", None)
-            if not tgt_name:
-                continue
-            tgt_us = _strip_us_prefix(str(tgt_name))
-        tgt_area = str(tgt_attrs.get("area") or "1")
-        # Always use the target sito (caller's choice) rather than
-        # whatever the graph carried — this matches the
-        # "import to a NEW sito" workflow.
-        tgt_sito = default_sito
-        rapporto = [rapporti_label, str(tgt_us), tgt_area, tgt_sito]
-        # Dedup: pyarchinit `tred` already runs in AI03 export but
-        # external graphml may carry duplicate edges for the same
-        # (label, target). Drop duplicates here so us_table.rapporti
-        # stays clean.
-        bucket = out.setdefault(src, [])
-        if rapporto not in bucket:
-            bucket.append(rapporto)
-    return out
-
-
-# Map s3dgraphy class names to pyarchinit `unita_tipo` codes.
-# When a graphml round-trip strips attribute metadata, the only
-# semantic info that survives is the s3dgraphy node CLASS name —
-# we use it to recover unita_tipo.
-_S3DGRAPHY_TYPE_TO_UNITA_TIPO: dict[str, str] = {
-    "StratigraphicUnit": "US",
-    "StructuralVirtualStratigraphicUnit": "USVs",
-    "VirtualStratigraphicStructuralUnit": "USVs",
-    "VirtualStratigraphicNonStructuralUnit": "USVn",
-    "NonStructuralVirtualStratigraphicUnit": "USVn",
-    "StratigraphicUnitMasonry": "USM",
-    "DocumentaryStratigraphicUnit": "USD",
-    "SpecialFindUnit": "SF",
-    "VirtualSpecialFindUnit": "VSF",
-    "TransformationStratigraphicUnit": "TSU",
-    "WorkingUnit": "UL",
-    "ContinuityNode": "CON",
-    "DocumentNode": "DOC",
-    "ExtractorNode": "Extractor",
-    "CombinerNode": "Combinar",
-    # yE-D (5.8.0-alpha): VirtualActivity used by SYNTHETIC folder
-    # policy in yed_import_pipeline.py for folder-derived synthetic
-    # us_table rows (unita_tipo='VA').
-    "VirtualActivity": "VA",
-    # s3dgraphy-bump (5.8.1-alpha): ReusedSpecialFind ("spolia"),
-    # introduced in s3dgraphy 0.1.42 (DP-26). Family=real, non-series.
-    # Routed to us_table by yE-D pipeline (unita_tipo='RSF').
-    "ReusedSpecialFind": "RSF",
-}
-
-
-# Multilingual prefix-strip regex. Pyarchinit displays US labels with
-# language-aware prefixes (US/SU/SE/UE/...), USM/WSU/MSE/..., USVs/USVn
-# both rendered as "USV<n>", SF/VSF, CON, D./C. for paradata.
-# We strip ANY of these prefixes (longest match first) and return
-# whatever remains (which is the bare us identifier — text, e.g.
-# "6", "102", "103a").
-import re as _re
-
-_US_PREFIX_PATTERN = _re.compile(
-    r"^(?P<prefix>"
-    r"USVs|USVn|USVA|USVB|USVC|USV|"
-    r"USM|USD|USN|"
-    r"VSF|SF|"
-    r"CON|"
-    r"WSU|MSE|TSU|SUS|UE|UM|UC|UL|"
-    r"D\.|C\.|"
-    r"US|SU|SE"
-    r")\s*",
-    _re.IGNORECASE,
+# The verbose-vs-shorthand dispatch function, the multilingual
+# prefix-strip helper, the class-name → unita_tipo table, the
+# rapporti serialiser — all moved into the canonical home
+# `s3dgraphy.sync.rapporti` in v1.6 (commit 2 of the canonical-edges
+# refactor). The names below are kept as private re-export aliases so
+# call sites that still import them from `graph_ingestor` keep
+# working unchanged — notably the in-file users below and the
+# `from .graph_ingestor import _select_rapporti_label` line in
+# `yed_import_pipeline.py:1073`.
+from .rapporti import (
+    S3DGRAPHY_TYPE_TO_UNITA_TIPO as _S3DGRAPHY_TYPE_TO_UNITA_TIPO,
+    strip_us_prefix as _strip_us_prefix,
+    resolve_unita_tipo_for_dispatch as _resolve_unita_tipo_for_dispatch,
+    select_rapporti_label as _select_rapporti_label,
+    serialize_rapporti_from_edges as _build_rapporti_from_edges,
 )
 
-
-def _strip_us_prefix(name: str) -> str:
-    """Strip the unita-tipo prefix from a node name.
-
-    Examples:
-        "USM6"   → "6"
-        "USV102" → "102"
-        "US103a" → "103a"
-        "D.4001" → "4001"
-        "C.900"  → "900"
-        "6"      → "6"  (no prefix → unchanged)
-    """
-    if not name:
-        return name
-    m = _US_PREFIX_PATTERN.match(str(name))
-    if m:
-        return str(name)[m.end():]
-    return str(name)
+# The `re` module was historically imported here as `_re` (right above
+# the now-extracted `_strip_us_prefix` regex). Two unrelated call
+# sites in this file (the epoch-id parser at ~line 673 and the
+# periodizzazione-row matcher at ~line 1233) still reach for `_re`,
+# so we keep the local alias to avoid name-error regressions.
+import re as _re
 
 
 def _resolve_unita_tipo(node, attrs: dict) -> str | None:
