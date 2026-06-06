@@ -166,6 +166,38 @@ _PARADATA_CLASS_TO_UNITA_TIPO: dict[str, str] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Multilingual US / USM unita_tipo → canonical code (for structural decisions)
+# ---------------------------------------------------------------------------
+#: pyArchInit localises ONLY the US / USM unita_tipo codes per UI language
+#: (``pyarchinit_i18n_stratigraphic.UNIT_TYPE_ABBREV`` — the source of
+#: truth). The projector's stratigraphic-row gating and the s3dgraphy node
+#: class factory key off the Italian codes, so a non-Italian DB (e.g. an
+#: English site using ``SU``/``WSU``) would have every real stratigraphic
+#: row skipped → no ``us`` attribute, no rapporti edges, no grouping. This
+#: map normalises the localised code to the canonical ``US`` / ``USM`` for
+#: those two decisions ONLY; the ORIGINAL code is preserved in
+#: ``attributes['unita_tipo']`` so round-trip import writes it back verbatim
+#: and the rapporti dispatch keeps the site's language.
+_UNITA_TIPO_CANONICAL: dict[str, str] = {
+    # US: US (it/fr/ro) · SU (en/ar) · SE (de) · UE (es/ca/pt) · ΣΜ (el)
+    "US": "US", "SU": "US", "SE": "US", "UE": "US", "ΣΜ": "US",
+    # USM: USM (it/fr) · WSU (en/ar) · MSE (de) · UEM (es/ca/pt) ·
+    #      USZ (ro) · ΤΣΜ (el)
+    "USM": "USM", "WSU": "USM", "MSE": "USM", "UEM": "USM",
+    "USZ": "USM", "ΤΣΜ": "USM",
+}
+
+
+def _canonical_unita_tipo(ut: str) -> str:
+    """Map a (possibly localised) US/USM code to its canonical form.
+
+    Non-US/USM codes (USV*, SF, CON, DOC, …) and unknown values pass
+    through unchanged.
+    """
+    return _UNITA_TIPO_CANONICAL.get(ut, ut)
+
+
 class ProjectionError(GraphSyncError):
     """Read-side failure during GraphProjector.populate_graph()."""
 
@@ -586,6 +618,13 @@ class GraphProjector:
             if not us_name:
                 continue
             ut_str = str(unita_tipo) if unita_tipo is not None else ""
+            # Canonical US/USM code for the structural decisions below
+            # (stratigraphic gating + s3dgraphy node-class factory), so
+            # localised codes (SU/WSU/SE/… ) are recognised as real
+            # stratigraphic units. attributes['unita_tipo'] keeps the
+            # ORIGINAL code (set further down) for round-trip + the
+            # language-aware rapporti dispatch.
+            ut_canon = _canonical_unita_tipo(ut_str)
             node = None
             # Direct hit by composite key (paradata that the bridge
             # correctly classified OR a stratigraphic node already
@@ -602,14 +641,14 @@ class GraphProjector:
             # order (e.g. yEd document order interleaves US01 and
             # DOC.01 — DOC.01 might claim the bridge's '01' placeholder
             # before US01 row is iterated).
-            if node is None and ut_str in (
+            if node is None and ut_canon in (
                 "US", "USM", "USD", "USV", "USVs", "USVn", "USVc",
                 "SF", "VSF", "RSF",
             ):
                 node = nodes_by_key.pop((us_name, "__STRAT__"), None)
                 if node is None:
                     node = _create_stratigraphic_node_for_unita_tipo(
-                        ut_str, us_name, node_uuid or us_name,
+                        ut_canon, us_name, node_uuid or us_name,
                     )
                     if node is not None:
                         try:

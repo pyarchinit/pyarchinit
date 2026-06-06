@@ -5,6 +5,32 @@
 
 ---
 
+## [5.11.2-alpha] - 2026-06-06 — GraphProjector: riconoscimento US/USM multilingua (export DB non italiani)
+
+> Branch `Stratigraph_00001`. Follow-up del fix d13: su DB non italiani l'export costruiva pochissimi nodi/relazioni.
+
+### Italiano
+
+**Fix: il GraphProjector riconosce gli US/USM in tutte le lingue → l'export di DB non italiani costruisce davvero il grafo stratigrafico.**
+
+**Problema (più profondo del d13).** In `graph_projector.py` il gating della riga stratigrafica usava una tupla **solo italiana** (`"US","USM","USD","USV","USVs","USVn","USVc","SF","VSF","RSF"`). Su un DB inglese (khutm/Al-Khutm: 479 righe su 485 sono `SU`/`WSU`) ogni US/USM non italiano finiva in `continue` → nessun attributo `us`, nessun edge dei rapporti, nessun raggruppamento. Diagnosi su khutm2 reale: `populate_graph` produceva **6 nodi-us / 0 strat-edge** (le 6 righe `unita_tipo='US'`), da cui i sintomi "solo 5-6 nodi raggruppati in area 1, gli altri in italiano".
+
+**Fix** (`modules/s3dgraphy/sync/graph_projector.py`): nuova mappa `_UNITA_TIPO_CANONICAL` + `_canonical_unita_tipo()`; il gating stratigrafico e la factory `_create_stratigraphic_node_for_unita_tipo` usano ora il codice **canonico** (`ut_canon`), mentre `attributes['unita_tipo']` conserva l'**originale** (round-trip + dispatch rapporti language-aware). Dopo il fix, sul vero Al-Khutm: **485 nodi-us / 2368 strat-edge / d13 tutto in inglese** (Covered by, Covers, Abuts, Same as, Cut by/Cuts, Fills/Filled by) — zero italiano, zero shorthand. Sistema anche la copertura del raggruppamento per area. Il projector è la copia `modules/` usata dall'export → durevole in codice tracciato, senza monkeypatch.
+
+Test: `tests/sync/test_graph_projector.py::test_projector_recognizes_localized_su_wsu`. Suite 379 passed / 6 xfailed / 9+9 PG pre-esistenti.
+
+### English
+
+**Fix: GraphProjector recognises US/USM in every language → exporting non-Italian DBs actually builds the stratigraphic graph.**
+
+**Problem (deeper than the d13 label).** `graph_projector.py` gated stratigraphic-row building on an **Italian-only** tuple (`"US","USM","USD","USV","USVs","USVn","USVc","SF","VSF","RSF"`). On an English DB (khutm/Al-Khutm: 479 of 485 rows are `SU`/`WSU`) every non-Italian US/USM row hit `continue` → no `us` attribute, no rapporti edges, no grouping. Diagnosed on the real khutm2 DB: `populate_graph` produced **6 us-nodes / 0 strat-edges** (the 6 `unita_tipo='US'` rows), explaining "only 5-6 nodes grouped in area 1, the rest in Italian".
+
+**Fix** (`modules/s3dgraphy/sync/graph_projector.py`): new `_UNITA_TIPO_CANONICAL` map + `_canonical_unita_tipo()`; the stratigraphic gating and the `_create_stratigraphic_node_for_unita_tipo` factory now use the **canonical** code (`ut_canon`), while `attributes['unita_tipo']` keeps the **original** (round-trip + language-aware rapporti dispatch). After the fix, on the real Al-Khutm: **485 us-nodes / 2368 strat-edges / d13 all English** — zero Italian, zero shorthand. Also fixes area-grouping coverage. The projector is the `modules/` copy used by export → durable in tracked code, no monkeypatch.
+
+Tests: `tests/sync/test_graph_projector.py::test_projector_recognizes_localized_su_wsu`. Suite 379 passed / 6 xfailed / 9+9 pre-existing PG.
+
+---
+
 ## [5.11.1-alpha] - 2026-06-06 — d13 physical_relationships: US/USM multilingua + etichette localizzate
 
 > Branch `Stratigraph_00001`. Fix segnalato su dati khutm (inglese): il d13 `physical_relationships` scriveva `<<`/`>>` per US/USM reali invece del rapporto.
