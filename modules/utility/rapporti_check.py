@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from modules.s3dgraphy.sync.rapporti import (
     NON_RAPPORTI_EDGE_TYPES,
     RAPPORTI_TO_EDGE_TYPE,
+    _REL_INDEX_EDGE_TYPE,
     _coerce_to_list,
     strip_us_prefix,
 )
@@ -93,12 +94,167 @@ def _strat_edges(graph):
     return out
 
 
-def check_rapporti(graph, *, sito, validate=True, inverse_label=None) -> RapportiReport:
-    """Detect rapporti inconsistencies. Edit computation is filled in by
-    :func:`_fill_edits` (Task 2)."""
+# ---------------------------------------------------------------------------
+# Localisation (report messages follow the QGIS UI language)
+# ---------------------------------------------------------------------------
+# Relationship WORDS come from pyArchInit's i18n RELATIONSHIPS table (all 10
+# languages). The surrounding template phrases are provided for the Latin-
+# script UI languages; any other language falls back to English (the
+# relationship words stay localised regardless).
+_EDGE_TYPE_TO_REL_INDEX = {et: i for i, et in enumerate(_REL_INDEX_EDGE_TYPE)}
+
+_L = {
+    "it": {
+        "t_self_loop": "Self-loop (US in relazione con sé stessa)",
+        "t_missing_reciprocity": "Reciprocità mancante (verrà creata)",
+        "t_contradiction_redundant": "Contraddizione ridondante",
+        "t_contradiction_ambiguous": "Contraddizione diretta (scelta manuale)",
+        "t_cycle": "Ciclo stratigrafico (scelta manuale)",
+        "t_illegal_connection": "Tipo relazione non valido (solo segnalazione)",
+        "s_self": "{us} è in relazione con sé stessa",
+        "s_recip": "Manca il reciproco su {b} per {a} (rapporto «{rel}»)",
+        "s_contr": "Contraddizione: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— tieni una sola direzione, elimina l'altra",
+        "s_cycle": "Ciclo: {chain} — spezza l'anello eliminando il rapporto errato",
+        "s_illegal": "Tipo relazione non valido: {a} → {b}",
+    },
+    "en": {
+        "t_self_loop": "Self-loop (US related to itself)",
+        "t_missing_reciprocity": "Missing reciprocity (will be created)",
+        "t_contradiction_redundant": "Redundant contradiction",
+        "t_contradiction_ambiguous": "Direct contradiction (manual choice)",
+        "t_cycle": "Stratigraphic cycle (manual choice)",
+        "t_illegal_connection": "Invalid relationship type (report only)",
+        "s_self": "{us} is related to itself",
+        "s_recip": "Missing reciprocal on {b} for {a} (relationship “{rel}”)",
+        "s_contr": "Contradiction: {a} “{lab1}” {b}  ⇄  {b} “{lab2}” {a} "
+                   "— keep one direction, remove the other",
+        "s_cycle": "Cycle: {chain} — break the loop by removing the wrong relationship",
+        "s_illegal": "Invalid relationship type: {a} → {b}",
+    },
+    "de": {
+        "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
+        "t_missing_reciprocity": "Fehlende Reziprozität (wird erstellt)",
+        "t_contradiction_redundant": "Redundanter Widerspruch",
+        "t_contradiction_ambiguous": "Direkter Widerspruch (manuelle Wahl)",
+        "t_cycle": "Stratigraphischer Zyklus (manuelle Wahl)",
+        "t_illegal_connection": "Ungültiger Beziehungstyp (nur Hinweis)",
+        "s_self": "{us} steht in Beziehung zu sich selbst",
+        "s_recip": "Fehlende Reziprozität bei {b} für {a} (Beziehung „{rel}“)",
+        "s_contr": "Widerspruch: {a} „{lab1}“ {b}  ⇄  {b} „{lab2}“ {a} "
+                   "— eine Richtung behalten, die andere entfernen",
+        "s_cycle": "Zyklus: {chain} — die Schleife durch Entfernen der falschen "
+                   "Beziehung auflösen",
+        "s_illegal": "Ungültiger Beziehungstyp: {a} → {b}",
+    },
+    "es": {
+        "t_self_loop": "Self-loop (US relacionada consigo misma)",
+        "t_missing_reciprocity": "Reciprocidad ausente (se creará)",
+        "t_contradiction_redundant": "Contradicción redundante",
+        "t_contradiction_ambiguous": "Contradicción directa (elección manual)",
+        "t_cycle": "Ciclo estratigráfico (elección manual)",
+        "t_illegal_connection": "Tipo de relación no válido (solo aviso)",
+        "s_self": "{us} está relacionada consigo misma",
+        "s_recip": "Falta el recíproco en {b} para {a} (relación «{rel}»)",
+        "s_contr": "Contradicción: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— conserva una dirección, elimina la otra",
+        "s_cycle": "Ciclo: {chain} — rompe el bucle eliminando la relación errónea",
+        "s_illegal": "Tipo de relación no válido: {a} → {b}",
+    },
+    "fr": {
+        "t_self_loop": "Self-loop (US en relation avec elle-même)",
+        "t_missing_reciprocity": "Réciprocité manquante (sera créée)",
+        "t_contradiction_redundant": "Contradiction redondante",
+        "t_contradiction_ambiguous": "Contradiction directe (choix manuel)",
+        "t_cycle": "Cycle stratigraphique (choix manuel)",
+        "t_illegal_connection": "Type de relation non valide (signalement)",
+        "s_self": "{us} est en relation avec elle-même",
+        "s_recip": "Réciproque manquant sur {b} pour {a} (relation «{rel}»)",
+        "s_contr": "Contradiction : {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— gardez une direction, supprimez l'autre",
+        "s_cycle": "Cycle : {chain} — brisez la boucle en supprimant la relation "
+                   "erronée",
+        "s_illegal": "Type de relation non valide : {a} → {b}",
+    },
+    "pt": {
+        "t_self_loop": "Self-loop (US relacionada consigo mesma)",
+        "t_missing_reciprocity": "Reciprocidade ausente (será criada)",
+        "t_contradiction_redundant": "Contradição redundante",
+        "t_contradiction_ambiguous": "Contradição direta (escolha manual)",
+        "t_cycle": "Ciclo estratigráfico (escolha manual)",
+        "t_illegal_connection": "Tipo de relação inválido (apenas aviso)",
+        "s_self": "{us} está relacionada consigo mesma",
+        "s_recip": "Falta o recíproco em {b} para {a} (relação «{rel}»)",
+        "s_contr": "Contradição: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
+                   "— mantenha uma direção, remova a outra",
+        "s_cycle": "Ciclo: {chain} — quebre o ciclo removendo a relação errada",
+        "s_illegal": "Tipo de relação inválido: {a} → {b}",
+    },
+}
+
+
+def _t(lang, key):
+    """Localised template string (falls back to English)."""
+    return _L.get(lang, _L["en"]).get(key) or _L["en"][key]
+
+
+def kind_title(kind, lang="it"):
+    """Localised group title for an issue *kind* (used by the report UI)."""
+    return _t(lang, "t_" + kind)
+
+
+def _unit_prefix(lang):
+    try:
+        from modules.utility.pyarchinit_i18n_stratigraphic import UNIT_TYPE_ABBREV
+        return UNIT_TYPE_ABBREV.get(lang, UNIT_TYPE_ABBREV.get("en", ("US",)))[0]
+    except Exception:
+        return "US"
+
+
+def _utok(us, lang):
+    """US display token in the UI language, e.g. 'US 661' / 'SU 661' / 'SE 661'."""
+    return f"{_unit_prefix(lang)} {us}"
+
+
+def _rel_label(et, lang):
+    """Localised rapporti word for an edge type (e.g. overlies → Copre / Covers)."""
+    try:
+        from modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
+        terms = RELATIONSHIPS.get(lang) or RELATIONSHIPS.get("en")
+    except Exception:
+        terms = None
+    idx = _EDGE_TYPE_TO_REL_INDEX.get(et)
+    if terms is not None and idx is not None:
+        return terms[idx]
+    if terms is not None and et == "is_after":
+        return terms[2]      # temporal precedence shown as "covers"
+    if terms is not None and et == "is_before":
+        return terms[3]      # "covered by"
+    return et or "→"
+
+
+def check_rapporti(graph, *, sito, lang="it", validate=True,
+                   inverse_label=None) -> RapportiReport:
+    """Detect rapporti inconsistencies. *lang* (2-letter QGIS UI locale)
+    localises every issue ``summary``. Edit computation is in
+    :func:`_fill_edits`."""
     rep = RapportiReport(sito=sito)
     edges = _strat_edges(graph)
     edge_set = {(s, t, et) for (s, t, et) in edges}
+
+    # Direction lookup over ALL graph edges so cycle/contradiction summaries
+    # can name the actual relationship of each step (overlies→Copre/Covers…).
+    all_dir = {}
+    for e in getattr(graph, "edges", None) or []:
+        es = getattr(e, "edge_source", None)
+        et2 = getattr(e, "edge_target", None)
+        ety = getattr(e, "edge_type", None)
+        if es and et2 and ety:
+            all_dir.setdefault((es, et2), ety)
+
+    def _step(x, y):
+        ety = all_dir.get((x, y)) or all_dir.get((y, x))
+        return _rel_label(ety, lang) if ety else "→"
 
     # Cycles + self-loops (s3dgraphy SCC detector). Only report cycles whose
     # members are ALL real us_table-backed US nodes; skip any cycle that
@@ -110,15 +266,25 @@ def check_rapporti(graph, *, sito, validate=True, inverse_label=None) -> Rapport
         if any(u is None for u in us_real):
             continue
         us_path = us_real
-        if len(cyc) == 1:
-            rep.issues.append(Issue(SELF_LOOP, us_path, True,
-                                    f"US {us_path[0]} è in relazione con sé stessa"))
-        elif len(cyc) == 2:
-            rep.issues.append(Issue(CONTRADICTION_AMBIGUOUS, us_path, False,
-                                    f"Contraddizione diretta {us_path[0]} ↔ {us_path[1]}"))
+        n = len(cyc)
+        if n == 1:
+            rep.issues.append(Issue(
+                SELF_LOOP, us_path, True,
+                _t(lang, "s_self").format(us=_utok(us_path[0], lang))))
+        elif n == 2:
+            rep.issues.append(Issue(
+                CONTRADICTION_AMBIGUOUS, us_path, False,
+                _t(lang, "s_contr").format(
+                    a=_utok(us_path[0], lang), b=_utok(us_path[1], lang),
+                    lab1=_step(cyc[0], cyc[1]), lab2=_step(cyc[1], cyc[0]))))
         else:
-            rep.issues.append(Issue(CYCLE, us_path, False,
-                                    "Ciclo: " + " → ".join(us_path + [us_path[0]])))
+            # "US102 «Copre» US103 «Coperto da» US101 … US102"
+            parts = [f"{_utok(us_real[i], lang)} «{_step(cyc[i], cyc[(i + 1) % n])}»"
+                     for i in range(n)]
+            chain = " ".join(parts) + f" {_utok(us_real[0], lang)}"
+            rep.issues.append(Issue(
+                CYCLE, us_path, False,
+                _t(lang, "s_cycle").format(chain=chain)))
 
     # Missing reciprocity: for A→B(ET) with no B→A(inverse ET). ONLY between
     # two real us_table-backed US nodes — the fix writes a rapporto into the
@@ -136,7 +302,9 @@ def check_rapporti(graph, *, sito, validate=True, inverse_label=None) -> Rapport
             continue
         rep.issues.append(Issue(
             MISSING_RECIPROCITY, [a_us, b_us], True,
-            f"Manca il reciproco su US {b_us} per US {a_us}"))
+            _t(lang, "s_recip").format(
+                a=_utok(a_us, lang), b=_utok(b_us, lang),
+                rel=_rel_label(et, lang))))
 
     # Connection-type legality (report-only).
     if validate:
@@ -158,8 +326,9 @@ def check_rapporti(graph, *, sito, validate=True, inverse_label=None) -> Rapport
                 rep.issues.append(Issue(
                     ILLEGAL_CONNECTION,
                     [str(_us_of(sn)), str(_us_of(tn))], False,
-                    f"Tipo relazione non valido: {getattr(sn,'node_type',None)} "
-                    f"--{et}--> {getattr(tn,'node_type',None)}"))
+                    _t(lang, "s_illegal").format(
+                        a=_utok(_us_of(sn), lang), b=_utok(_us_of(tn), lang))
+                    + f"  («{_rel_label(et, lang)}»)"))
 
     _fill_edits(rep, graph, inverse_label=inverse_label)
     return rep

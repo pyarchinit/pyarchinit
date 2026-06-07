@@ -183,3 +183,27 @@ def test_parse_rapporti_knows_multilingual_is_abutted_by():
                   "Wird gestützt von", "Υποστηρίζει", "Apoiado por"):
         parsed = parse_rapporti("[['%s','1','1','S']]" % label)
         assert parsed and parsed[0][0] == "is_abutted_by", label
+
+
+# ---------------------------------------------------------------------------
+# Localized, directional summaries for cycles/contradictions (QGIS language).
+# ---------------------------------------------------------------------------
+
+def test_contradiction_summary_is_localized_and_directional():
+    g = _G([_N("a", "US", rap="[['copre','2','1','S']]", us="1"),
+            _N("b", "US", rap="[['copre','1','1','S']]", us="2")],
+           [_E("a", "b", "overlies"), _E("b", "a", "overlies")])
+    it = RC.check_rapporti(g, sito="S", lang="it")
+    c = [i for i in it.issues if i.kind == RC.CONTRADICTION_AMBIGUOUS]
+    assert c, "no contradiction detected"
+    assert "Contraddizione" in c[0].summary and "Copre" in c[0].summary
+    en = RC.check_rapporti(g, sito="S", lang="en")
+    c2 = [i for i in en.issues if i.kind == RC.CONTRADICTION_AMBIGUOUS]
+    assert "Contradiction" in c2[0].summary and "Covers" in c2[0].summary
+    assert "SU 1" in c2[0].summary  # unit prefix follows language (US/SU)
+
+
+def test_kind_title_localized_with_fallback():
+    assert RC.kind_title(RC.CYCLE, "it").startswith("Ciclo")
+    assert RC.kind_title(RC.CYCLE, "en").startswith("Stratigraphic cycle")
+    assert RC.kind_title(RC.CYCLE, "zz") == RC.kind_title(RC.CYCLE, "en")

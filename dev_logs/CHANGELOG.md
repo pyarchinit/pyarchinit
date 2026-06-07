@@ -5,6 +5,34 @@
 
 ---
 
+## [5.12.5-alpha] - 2026-06-07 — Verifica rapporti: dettaglio direzionale di cicli/contraddizioni, localizzato
+
+> Branch `Stratigraph_00001`. Richiesta utente: scrivere il dettaglio dei cicli/contraddizioni nella verifica stessa, nella lingua di QGIS.
+
+### Italiano
+
+**Cicli e contraddizioni ora mostrano la catena completa con il rapporto di ogni passo, nella lingua impostata in QGIS.**
+
+Prima il report diceva solo "Contraddizione diretta 616 ↔ 618" e "Ciclo: 102 → 103 → …": l'utente non vedeva *quale* rapporto fosse in conflitto. Ora:
+
+- **Contraddizione**: `US 616 «Coperto da» US 618  ⇄  US 618 «Coperto da» US 616 — tieni una sola direzione, elimina l'altra`.
+- **Ciclo**: `US 102 «Coperto da» US 103 «Coperto da» US 101 … US 102 — spezza l'anello eliminando il rapporto errato`.
+
+Così l'utente vede subito su quale US e quale rapporto intervenire a mano (cicli e contraddizioni non sono auto-correggibili: richiedono la scelta archeologica).
+
+- **`modules/utility/rapporti_check.py`**: `check_rapporti(..., lang=...)`; le parole dei rapporti vengono dalla tabella i18n `RELATIONSHIPS` di pyArchInit (**tutte le 10 lingue**), il prefisso unità segue la lingua (US/SU/SE/UE/…), e i template dei messaggi sono tradotti per it/en/de/es/fr/pt (fallback inglese per le altre, con le parole dei rapporti comunque localizzate). Nuova `kind_title(kind, lang)` per i titoli di gruppo.
+- **`gui/rapporti_check_dialog.py`**: legge la lingua da `QgsSettings("locale/userLocale")` e la passa alla verifica; i titoli usano `kind_title`.
+
+Test: `test_contradiction_summary_is_localized_and_directional`, `test_kind_title_localized_with_fallback`. Suite `tests/sync` 397 passed, zero nuove regressioni.
+
+### English
+
+**Cycles and contradictions now show the full chain with each step's relationship, in the QGIS UI language.**
+
+Before, the report only said "Direct contradiction 616 ↔ 618" / "Cycle: 102 → 103 → …" without naming the conflicting relationship. Now each step shows its rapporto (e.g. `SU 102 «Covered by» SU 103 … SU 102 — break the loop by removing the wrong relationship`), so the user sees exactly which US and which relationship to fix by hand. `check_rapporti(..., lang=...)`: relationship words from pyArchInit's i18n table (all 10 languages), unit prefix follows the language (US/SU/SE/…), message templates translated for it/en/de/es/fr/pt (English fallback otherwise). Dialog reads the QGIS locale and passes it through. Tests added; suite 397 passed.
+
+---
+
 ## [5.12.4-alpha] - 2026-06-07 — Reciprocità rapporti: copertura completa di tutte le 10 lingue pyArchInit
 
 > Branch `Stratigraph_00001`. Completa/corregge [5.12.2-alpha] su indicazione dell'utente: il reciproco va preso dal vocabolario pyArchInit, per **tutte** le lingue.

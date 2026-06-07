@@ -18,17 +18,17 @@ from qgis.PyQt.QtWidgets import (
 
 from modules.utility import rapporti_check as RC
 
-# Human-readable group titles per issue kind.
-_KIND_TITLE = {
-    RC.SELF_LOOP: "Self-loop (US in relazione con sé stessa)",
-    RC.MISSING_RECIPROCITY: "Reciprocità mancante (verrà creata)",
-    RC.CONTRADICTION_REDUNDANT: "Contraddizione ridondante",
-    RC.CONTRADICTION_AMBIGUOUS: "Contraddizione diretta (scelta manuale)",
-    RC.CYCLE: "Ciclo stratigrafico (scelta manuale)",
-    RC.ILLEGAL_CONNECTION: "Tipo relazione non valido (solo segnalazione)",
-}
-
 _USER_ROLE = int(Qt.UserRole)
+
+
+def _qgis_lang():
+    """Current QGIS UI language (2-letter), defaulting to Italian."""
+    try:
+        from qgis.core import QgsSettings
+        return (QgsSettings().value("locale/userLocale", "it", type=str)
+                or "it")[:2]
+    except Exception:
+        return "it"
 
 
 class RapportiCheckPanel(QWidget):
@@ -45,6 +45,7 @@ class RapportiCheckPanel(QWidget):
         super().__init__(parent)
         self.iface = iface
         self._db_provider = db_provider
+        self._lang = _qgis_lang()
         self._report = None
         self._token = None
         self._build_ui()
@@ -135,7 +136,7 @@ class RapportiCheckPanel(QWidget):
             from modules.s3dgraphy.sync.graph_projector import GraphProjector
             handle = self._handle()
             graph = GraphProjector().populate_graph(handle, sito=sito)
-            self._report = RC.check_rapporti(graph, sito=sito)
+            self._report = RC.check_rapporti(graph, sito=sito, lang=self._lang)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit",
                                  f"Verifica fallita: {exc}")
@@ -149,7 +150,7 @@ class RapportiCheckPanel(QWidget):
             groups.setdefault(iss.kind, []).append(iss)
         n_auto = 0
         for kind, issues in groups.items():
-            title = _KIND_TITLE.get(kind, kind)
+            title = RC.kind_title(kind, self._lang)
             top = QTreeWidgetItem([f"{title}  ({len(issues)})"])
             self.tree.addTopLevelItem(top)
             for iss in issues:
