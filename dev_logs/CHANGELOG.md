@@ -5,6 +5,34 @@
 
 ---
 
+## [5.12.2-alpha] - 2026-06-07 — Fix auto-fix reciprocità: l'inverso di "abuts" ora round-trippa (vocab + guardia onestà)
+
+> Branch `Stratigraph_00001`. Risolve "la verifica dice 'Applicare 113 correzioni' ma ne corregge ~6".
+
+### Italiano
+
+**Il fix automatico della reciprocità sulle relazioni `abuts` (si appoggia) non funzionava sui siti in inglese.**
+
+Su `test_6` (khutm, etichette inglesi) la verifica dichiarava 113 correzioni ma ne risolveva ~6: le 107 relazioni "Abuts" restavano. Causa: **due vocabolari disallineati**. Il fix calcola l'inverso con l'i18n di pyArchInit (`get_inverse_relationship("Abuts") → "Supports"`), ma `RAPPORTI_TO_EDGE_TYPE` di s3dgraphy **non aveva alcuna etichetta inglese per `is_abutted_by`** (solo l'italiano "Gli si appoggia") → `parse_rapporti("Supports")` la scartava silenziosamente → l'edge reciproco non nasceva mai → la reciprocità restava "mancante" a ogni ri-scansione. (Copre/Taglia/Riempie invece round-trippavano e si correggevano — da qui i ~6.)
+
+- **`modules/s3dgraphy/sync/rapporti.py`**: aggiunti gli alias inglesi mancanti per `is_abutted_by` in `RAPPORTI_TO_EDGE_TYPE` — `"supports"`, `"abutted by"`, `"is abutted by"`. Ora "Supports" round-trippa; le voci già scritte da un apply precedente diventano valide retroattivamente (su `test_6`: reciprocità **107 → 0**).
+- **`modules/utility/rapporti_check.py`** — *guardia di onestà*: una reciprocità è marcata auto-correggibile **solo se** l'etichetta inversa round-trippa all'edge type inverso corretto (`RAPPORTI_TO_EDGE_TYPE[inv] == _EDGE_TYPE_INVERSE[et]`), altrimenti è mostrata come scelta manuale. Così il conteggio in anteprima è sempre veritiero — mai più "dice N, ne applica M".
+
+Test: `test_abuts_reciprocity_fix_label_round_trips` + `test_parse_rapporti_knows_english_is_abutted_by`. Suite `tests/sync`: 394 passed, zero nuove regressioni (9+9 PG pre-esistenti). *Follow-up upstream: la lacuna del vocabolario inglese `is_abutted_by` esiste anche in s3dgraphy — candidata a PR per Emanuel.*
+
+### English
+
+**The reciprocity auto-fix failed on `abuts` relationships for English-language sites.**
+
+On `test_6` (khutm, English labels) the check claimed 113 corrections but resolved ~6: the 107 "Abuts" relations stayed. Root cause: **two misaligned vocabularies**. The fix derives the inverse via pyArchInit i18n (`get_inverse_relationship("Abuts") → "Supports"`), but s3dgraphy's `RAPPORTI_TO_EDGE_TYPE` had **no English label for `is_abutted_by`** (only Italian "Gli si appoggia"), so `parse_rapporti("Supports")` silently dropped it → the reciprocal edge never formed → reciprocity stayed "missing" on every re-scan. (Covers/cuts/fills did round-trip → the ~6 that stuck.)
+
+- **`rapporti.py`**: added the missing English aliases for `is_abutted_by` — `"supports"`, `"abutted by"`, `"is abutted by"`. Entries already written by a prior apply become valid retroactively (`test_6`: reciprocity 107 → 0).
+- **`rapporti_check.py`** — *honesty guard*: a reciprocity is auto-fixable only when the inverse label round-trips to the correct inverse edge type; otherwise it is surfaced as a manual choice, so the preview count is always truthful.
+
+Tests added. Suite: 394 passed, zero new regressions. *Upstream follow-up: the English `is_abutted_by` gap exists in s3dgraphy too — PR candidate.*
+
+---
+
 ## [5.12.1-alpha] - 2026-06-07 — Fix import round-trip: copia cross-sito invece di spostamento + skip nodi sintetici
 
 > Branch `Stratigraph_00001`. Risolve l'"import azzera le US" segnalato su khutm2.

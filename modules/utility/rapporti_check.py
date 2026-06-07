@@ -212,6 +212,20 @@ def _fill_edits(rep, graph, *, inverse_label=None):
             area = str(entry[2]) if len(entry) > 2 else "1"
             sito = str(entry[3]) if len(entry) > 3 else rep.sito
             inv = inverse_label(term) or term
+            # Honesty guard: only auto-fix when the inverse label round-trips
+            # to the correct inverse edge type. Otherwise parse_rapporti
+            # silently drops it (the projector never builds the reciprocal
+            # edge), so the fix could never satisfy reciprocity and the issue
+            # re-appears on every re-scan — the bug where the dialog claimed
+            # "113 fixes" but only ~6 stuck (abuts → "Supports", which had no
+            # edge-type mapping). Surface non-round-tripping cases as manual.
+            et = RAPPORTI_TO_EDGE_TYPE.get(str(term).lower())
+            inv_et = _EDGE_TYPE_INVERSE.get(et) if et else None
+            if (inv_et is None
+                    or RAPPORTI_TO_EDGE_TYPE.get(str(inv).lower()) != inv_et):
+                iss.auto = False
+                iss.edits = []
+                continue
             iss.edits = [Edit(us=b_us, add=((inv, a_us, area, sito),))]
         # CONTRADICTION_AMBIGUOUS / CYCLE / ILLEGAL_CONNECTION: no auto edits
     return rep

@@ -148,3 +148,33 @@ def test_apply_and_rollback(tmp_path):
     got2 = con.execute("SELECT rapporti FROM us_table WHERE us='2'").fetchone()[0]
     con.close()
     assert got2 == "[]"   # restored
+
+
+# ---------------------------------------------------------------------------
+# Regression: abuts reciprocity fix must write a round-trippable inverse
+# (the "dialog claims 113 fixes but only ~6 stick" bug). The inverse of
+# "abuts" is is_abutted_by; s3dgraphy lacked an English label for it, so the
+# fix wrote "Supports" which parse_rapporti silently dropped → the reciprocal
+# edge never formed and the issue re-appeared on every re-scan.
+# ---------------------------------------------------------------------------
+
+def test_abuts_reciprocity_fix_label_round_trips():
+    from modules.s3dgraphy.sync.rapporti import parse_rapporti
+    g = _G([_N("a", "US", rap="[['abuts','2','1','S']]", us="1"),
+            _N("b", "US", us="2")],
+           [_E("a", "b", "abuts")])
+    rep = RC.check_rapporti(g, sito="S")
+    recs = [i for i in rep.issues if i.kind == RC.MISSING_RECIPROCITY]
+    assert recs and recs[0].auto and recs[0].edits, \
+        "abuts missing-reciprocity must be auto-fixable"
+    inv_label = recs[0].edits[0].add[0][0]
+    parsed = parse_rapporti("[['%s','1','1','S']]" % inv_label)
+    assert parsed and parsed[0][0] == "is_abutted_by", \
+        "inverse label %r does not round-trip to is_abutted_by" % inv_label
+
+
+def test_parse_rapporti_knows_english_is_abutted_by():
+    from modules.s3dgraphy.sync.rapporti import parse_rapporti
+    for label in ("supports", "Supports", "abutted by", "is abutted by"):
+        parsed = parse_rapporti("[['%s','1','1','S']]" % label)
+        assert parsed and parsed[0][0] == "is_abutted_by", label

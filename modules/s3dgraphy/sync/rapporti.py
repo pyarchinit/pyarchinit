@@ -87,6 +87,14 @@ RAPPORTI_TO_EDGE_TYPE: dict[str, str] = {
     "same as": "is_physically_equal_to",
     "bonds with": "is_bonded_to",
     "abuts": "abuts",
+    # English reverse of `abuts` (is_abutted_by). s3dgraphy historically
+    # only carried the Italian "gli si appoggia"; without an English alias
+    # the reciprocity auto-fix wrote "Supports" (pyArchInit i18n term) which
+    # parse_rapporti silently dropped, so the reciprocal edge never formed
+    # and the fix could never satisfy abuts reciprocity. Accept all three.
+    "is abutted by": "is_abutted_by",
+    "abutted by": "is_abutted_by",
+    "supports": "is_abutted_by",
 }
 
 
