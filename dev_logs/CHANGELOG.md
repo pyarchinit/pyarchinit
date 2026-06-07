@@ -5,6 +5,26 @@
 
 ---
 
+## [5.12.6-alpha] - 2026-06-07 — s3dgraphy bump 1.6.0.dev7 → 1.6.0.dev8
+
+> Branch `Stratigraph_00001`. Emanuel ha mergiato il nostro PR #22 (multilingual US/USM unita_tipo, issue #21) e pubblicato 1.6.0.dev8 su PyPI.
+
+### Italiano
+
+**Allineamento alla release upstream `1.6.0.dev8`.**
+
+- **`requirements.txt`**: pin `s3dgraphy==1.6.0.dev7` → `==1.6.0.dev8`.
+- **`ext_libs/s3dgraphy`** ri-vendorizzato a dev8 (`pip install … --no-deps --target ext_libs`). dev8 = dev7 + il fix multilingual unita_tipo del PR #22 (`UNITA_TIPO_CANONICAL` dict + `canonical_unita_tipo()` + `_SHORTHAND_TOKENS` + `_source_rapporti_label`), già equivalente alle modifiche locali che avevamo applicato direttamente a ext_libs — ora ufficialmente upstream. Nessun breaking change (puramente additivo; il core importer/exporter/graph/diagnostics è invariato dev7→dev8 a parte docstring).
+- **Resta locale** in `modules/s3dgraphy/sync/rapporti.py` (NON ancora upstream): il vocabolario **multilingue dei rapporti** (10×10 `RAPPORTI_TO_EDGE_TYPE` + `"supports"→is_abutted_by`). Il monkeypatch `ext_rapporti_patch.py` resta attivo: la parte unita_tipo ora è ridondante (ext_libs dev8 ce l'ha), ma il bridge serializzazione continua a passare per esso. → candidato a un secondo PR upstream.
+
+Suite `tests/sync` col core dev8: **399 passed**, zero nuove regressioni (9+9 PG pre-esistenti, infra). ext_libs è git-ignored: in repo cambia solo il pin in `requirements.txt`.
+
+### English
+
+**Align to upstream `1.6.0.dev8`.** `requirements.txt` pin dev7→dev8; `ext_libs/s3dgraphy` re-vendored (`--no-deps`). dev8 = dev7 + the merged PR #22 multilingual unita_tipo fix (now official upstream, superseding the equivalent local ext_libs edits). The multilingual **relationship-label** vocabulary stays local in `modules/s3dgraphy/sync/rapporti.py` (not yet upstream) — candidate for a second PR. No breaking changes. Suite 399 passed with the dev8 core; only `requirements.txt` changes in-repo (ext_libs is git-ignored).
+
+---
+
 ## [5.12.5-alpha] - 2026-06-07 — Verifica rapporti: dettaglio direzionale di cicli/contraddizioni, localizzato
 
 > Branch `Stratigraph_00001`. Richiesta utente: scrivere il dettaglio dei cicli/contraddizioni nella verifica stessa, nella lingua di QGIS.

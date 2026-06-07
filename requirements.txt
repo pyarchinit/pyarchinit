@@ -91,7 +91,11 @@ faiss-cpu>=1.7.4
 # sync.rapporti (parse/serialize) and core physical_relationships (d13)
 # GraphML packed-string. Pinned exact (pre-release) to match the migrated
 # modules/s3dgraphy/sync canonical-edges tree.
-s3dgraphy==1.6.0.dev7
+# 1.6.0.dev8: PR #22 (multilingual US/USM unita_tipo recognition, #21) merged
+# upstream. NOTE: the multilingual *relationship* (rapporti label) vocabulary
+# we carry in modules/s3dgraphy/sync/rapporti.py is NOT yet upstream — kept
+# local + applied to ext_libs via ext_rapporti_patch until a follow-up PR lands.
+s3dgraphy==1.6.0.dev8
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0
