@@ -5,6 +5,36 @@
 
 ---
 
+## [5.12.1-alpha] - 2026-06-07 — Fix import round-trip: copia cross-sito invece di spostamento + skip nodi sintetici
+
+> Branch `Stratigraph_00001`. Risolve l'"import azzera le US" segnalato su khutm2.
+
+### Italiano
+
+**Importare un GraphML in un sito NUOVO ora copia le righe invece di spostarle; gli artefatti sintetici non inquinano più `us_table`.**
+
+Causa radice (riprodotta headless con la fixture `mini_volterra`): `GraphIngestor.populate_list` abbinava le righe per `node_uuid` **senza filtro sito** (`SELECT ... WHERE node_uuid = :uuid`) e forzava `sito` al target → importare il GraphML di un sito A dentro un sito B faceva una UPDATE che **spostava** le righe di A in B, azzerando A (`TestSite` 5→0, `NewSite` 0→8 nel repro). In più, i nodi diamante `_synth_BR_*` che l'export materializza dalla continuità tornavano all'import come finte US (`us='_synth_BR_1'`).
+
+- **`graph_ingestor._resolve_target_row()`**: stesso sito (node_uuid già presente in `sito`) → UPDATE in place (round-trip idempotente, contratto AC-2 preservato); **cross-sito** (node_uuid appartiene a un altro sito) → **INSERT di una copia con `node_uuid` nuovo (uuid7)**, lasciando la sorgente intatta; re-import della copia → match per chiave naturale `(sito, area, us, unita_tipo)` → UPDATE (idempotente, niente duplicati / violazioni UNIQUE).
+- **`graph_ingestor._is_synthetic_node()`**: i nodi `_synth_*` (artefatti del grafo) sono saltati in entrambi i loop (detection + write) → niente più righe US spurie.
+- `node_uuid` (identità della riga) non viene mai riscritto in UPDATE.
+
+Test: nuovo `tests/sync/test_round_trip_file.py` (round-trip su FILE) — same-site senza perdita/sintetici, **import in sito nuovo copia e NON sposta** (sorgente intatta, uuid freschi, rapporti ri-targettati al nuovo sito), re-import idempotente. Suite `tests/sync`: 392 passed, zero nuove regressioni (i 9+9 fallimenti `*_pg` sono pre-esistenti, infra/API-drift, falliscono a setup/costruzione prima di questo codice); 2 round-trip prima `xfail` ora passano.
+
+### English
+
+**Importing a GraphML into a NEW site now copies rows instead of moving them; synthetic artifacts no longer pollute `us_table`.**
+
+Root cause (reproduced headless with the `mini_volterra` fixture): `GraphIngestor.populate_list` matched rows by `node_uuid` with **no sito filter** and forced `sito` to the target, so importing site A's GraphML into site B issued an UPDATE that **moved** A's rows into B, emptying A. Also, the `_synth_BR_*` diamond nodes the exporter materializes from continuity came back on import as bogus US rows.
+
+- **`graph_ingestor._resolve_target_row()`**: same site → UPDATE in place (idempotent round-trip; AC-2 preserved); **cross-site** → INSERT a copy with a fresh `node_uuid` (uuid7), source untouched; copy re-import → natural-key `(sito, area, us, unita_tipo)` match → UPDATE (idempotent, no duplicates/UNIQUE violations).
+- **`graph_ingestor._is_synthetic_node()`**: `_synth_*` graph artifacts skipped in both detection + write loops.
+- `node_uuid` (row identity) is never rewritten on UPDATE.
+
+Tests: new `tests/sync/test_round_trip_file.py`. Suite: 392 passed, zero new regressions (9+9 pre-existing PG infra/API-drift); 2 previously-xfail round-trips now pass.
+
+---
+
 ## [5.12.0-alpha] - 2026-06-06 — Verifica rapporti stratigrafici + auto-fix conservativo + import copia
 
 > Branch `Stratigraph_00001`. Spec/piano in `docs/superpowers/specs|plans/2026-06-06-rapporti-validation-autofix*`.

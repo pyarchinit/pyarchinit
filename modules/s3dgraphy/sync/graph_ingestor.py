@@ -96,6 +96,7 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 from sqlalchemy import text
 
 from .conflict_resolver import ConflictResolver
+from .uuid7 import uuid7
 from .ingest_result import (
     ConflictRecord, ConflictResolution, IngestResult)
 from .yed_rapporti_policy import FolderEdgePolicy
@@ -205,6 +206,75 @@ def _resync_pg_serial_sequences(conn, handle) -> None:
                 ))
         except Exception:  # pragma: no cover - housekeeping must not block
             pass
+
+
+def _is_synthetic_node(node) -> bool:
+    """True for graph artifacts that must NEVER become a us_table row.
+
+    The s3dgraphy export *materializes* continuity into ``_synth_BR_*``
+    diamond nodes (see ext_libs/.../transforms/materialize_continuity.py).
+    On reimport those come back as ``StratigraphicUnit`` nodes named
+    ``_synth_BR_<label>`` with no ``pyarchinit.*`` data. Without this guard
+    they were inserted as bogus US rows (``us='_synth_BR_1'``).
+    """
+    name = getattr(node, "name", None)
+    if name and str(name).startswith("_synth"):
+        return True
+    nid = getattr(node, "node_id", None)
+    if nid and str(nid).startswith("_synth"):
+        return True
+    attrs = getattr(node, "attributes", None) or {}
+    us = attrs.get("us")
+    return us is not None and str(us).startswith("_synth")
+
+
+def _resolve_target_row(conn, node_uuid, sito, area, us, unita_tipo):
+    """Map a graph node onto a us_table row for the *target* ``sito``.
+
+    Returns ``(existing_row_dict | None, effective_node_uuid)``.
+
+    * **Same-site re-sync** — a row with this ``node_uuid`` already lives
+      in ``sito`` → return it for UPDATE (idempotent round-trip; preserves
+      the AC-2 byte-identical contract for export→edit→reimport).
+    * **Cross-site import / copy** — the ``node_uuid`` belongs to a row in
+      a *different* sito (the user is importing a graph built for site A
+      into site B). We must NOT move the source row (that was the "import
+      azzera le US" bug). Instead:
+        - if the target sito already has a row with the same natural key
+          ``(sito, area, us, unita_tipo)`` → return it for UPDATE
+          (idempotent re-import of an existing copy), carrying that row's
+          own ``node_uuid``;
+        - otherwise return ``(None, fresh uuid7)`` so the caller INSERTs an
+          independent copy with its own identity — leaving the source site
+          untouched.
+    * **Brand-new** — ``node_uuid`` unknown to the DB → INSERT, keeping it.
+    """
+    res = conn.execute(
+        text("SELECT * FROM us_table WHERE node_uuid = :u AND sito = :s"),
+        {"u": node_uuid, "s": sito})
+    row = res.fetchone()
+    if row is not None:
+        return dict(zip(res.keys(), row)), node_uuid
+    owner = conn.execute(
+        text("SELECT sito FROM us_table WHERE node_uuid = :u LIMIT 1"),
+        {"u": node_uuid}).fetchone()
+    if owner is None:
+        # Brand-new record for this DB — keep the graph's node_uuid.
+        return None, node_uuid
+    # node_uuid exists but in another sito (or the same sito under a
+    # changed natural key): never move it. Look for an existing copy in
+    # the target site by natural key.
+    res = conn.execute(
+        text("SELECT * FROM us_table WHERE sito = :s AND area = :a "
+             "AND us = :us AND unita_tipo = :ut"),
+        {"s": sito, "a": str(area),
+         "us": str(us), "ut": str(unita_tipo)})
+    row = res.fetchone()
+    if row is not None:
+        keys = list(res.keys())
+        return dict(zip(keys, row)), row[keys.index("node_uuid")]
+    # No copy yet — INSERT a fresh, independent identity for the copy.
+    return None, str(uuid7())
 
 
 class GraphIngestor:
@@ -469,6 +539,10 @@ class GraphIngestor:
                     type_name = type(node).__name__
                     if type_name in _NON_STRAT_TYPES:
                         continue
+                    # Skip graph artifacts (materialized _synth_BR_* diamonds)
+                    # so they never become bogus us_table rows.
+                    if _is_synthetic_node(node):
+                        continue
                     attrs = dict(getattr(node, "attributes", None) or {})
                     # Look up by node_uuid. Prefer the explicit attribute
                     # (set by GraphProjector._propagate_node_uuid_and_us);
@@ -509,20 +583,25 @@ class GraphIngestor:
                                    or attrs.get("url"))
                         if doc_url:
                             attrs["documentazione"] = str(doc_url)
-                    result = conn.execute(
-                        text("SELECT * FROM us_table WHERE node_uuid = :uuid"),
-                        {"uuid": node_uuid},
-                    )
-                    row = result.fetchone()
-                    if row is None:
+                    # area is part of the natural key used by
+                    # _resolve_target_row to detect an existing cross-site copy.
+                    area = attrs.get("area") or "1"
+                    # Resolve the target row: same-site UPDATE, cross-site
+                    # COPY (INSERT, fresh uuid) or idempotent copy re-import.
+                    db_row, _eff_uuid = _resolve_target_row(
+                        conn, node_uuid, sito, area,
+                        attrs.get("us"), attrs.get("unita_tipo"))
+                    if db_row is None:
                         inserted += 1
                         continue
-                    # Build {col: db_val} dict from row + result.keys()
-                    col_names = list(result.keys())
-                    db_row = dict(zip(col_names, row))
                     row_changed = False
                     for col in MAPPED_COLUMNS:
                         if col not in attrs:
+                            continue
+                        if col == "node_uuid":
+                            # Identity column — never counts as a change
+                            # (a natural-key copy match has a different uuid
+                            # by design and must not be rewritten).
                             continue
                         db_val = db_row.get(col)
                         graph_val = attrs.get(col)
@@ -594,6 +673,8 @@ class GraphIngestor:
                         type_name = type(node).__name__
                         if type_name in _NON_STRAT_TYPES:
                             continue
+                        if _is_synthetic_node(node):
+                            continue
                         attrs = dict(getattr(node, "attributes", None) or {})
                         # Same priority as the detection loop above:
                         # explicit attrs.node_uuid wins (projector-built graphs),
@@ -653,15 +734,18 @@ class GraphIngestor:
                                 "fase_iniziale" not in attrs
                                 or not attrs["fase_iniziale"]):
                             attrs["fase_iniziale"] = str(f_iniz)
-                        result = conn.execute(
-                            text("SELECT * FROM us_table WHERE node_uuid = :uuid"),
-                            {"uuid": node_uuid},
-                        )
-                        existing = result.fetchone()
+                        # Resolve the target row. Same-site → UPDATE in
+                        # place; cross-site → COPY (INSERT with eff_uuid =
+                        # fresh uuid7) so the source site is never moved /
+                        # azzerato; idempotent copy re-import → UPDATE the
+                        # existing copy (eff_uuid = that row's own uuid).
+                        existing, eff_uuid = _resolve_target_row(
+                            conn, node_uuid, sito, attrs.get("area") or "1",
+                            attrs.get("us"), attrs.get("unita_tipo"))
                         col_payload = {col: attrs.get(col)
                                        for col in MAPPED_COLUMNS
                                        if col in attrs}
-                        col_payload["node_uuid"] = node_uuid
+                        col_payload["node_uuid"] = eff_uuid
                         col_payload["sito"] = sito
                         if existing is None:
                             # INSERT
@@ -678,16 +762,15 @@ class GraphIngestor:
                             applied += 1
                         else:
                             # UPDATE selettivo: only the MAPPED_COLUMNS that
-                            # actually differ. Any column not in attrs and
-                            # any us_table column not in MAPPED_COLUMNS is
-                            # left untouched (preserves descrizione, foto,
-                            # etc.).
-                            col_names = list(result.keys())
-                            db_row = dict(zip(col_names, existing))
+                            # actually differ. node_uuid (identity) is never
+                            # rewritten. Any column not in attrs and any
+                            # us_table column not in MAPPED_COLUMNS is left
+                            # untouched (preserves descrizione, foto, etc.).
+                            db_row = existing
                             diff_cols = []
                             diff_vals = []
                             for col in MAPPED_COLUMNS:
-                                if col not in attrs:
+                                if col not in attrs or col == "node_uuid":
                                     continue
                                 if _values_equal(col, db_row.get(col),
                                                   attrs.get(col)):
@@ -698,7 +781,7 @@ class GraphIngestor:
                                 set_clause = ", ".join(
                                     f"{c} = :{c}" for c in diff_cols)
                                 params = {c: v for c, v in zip(diff_cols, diff_vals)}
-                                params["__node_uuid"] = node_uuid
+                                params["__node_uuid"] = eff_uuid
                                 conn.execute(
                                     text(
                                         f"UPDATE us_table SET {set_clause} "
