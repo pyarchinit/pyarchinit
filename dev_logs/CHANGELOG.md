@@ -5,6 +5,32 @@
 
 ---
 
+## [5.12.3-alpha] - 2026-06-07 — "Verifica rapporti" spostata da menu a tab del dialog di import
+
+> Branch `Stratigraph_00001`. Richiesta utente: "invece di inserirlo nel menu inseriscilo come tab dopo import del graphml".
+
+### Italiano
+
+**La "Verifica rapporti stratigrafici" non è più una voce di menu separata: è un tab del dialog di import s3dgraphy.**
+
+- **`gui/rapporti_check_dialog.py`**: la logica (site picker → report ad albero → anteprima → Applica/Annulla) è estratta in `RapportiCheckPanel(QWidget)` riutilizzabile, con un parametro `db_provider` opzionale (callable → `DbHandle`) così il pannello può puntare al DB del progetto attivo. `RapportiCheckDialog(QDialog)` resta come wrapper sottile.
+- **`modules/s3dgraphy/s3dgraphy_dot_bridge.py`**: aggiunto il tab **"Verifica rapporti"** in `S3DGraphyExportDialog` (accanto a Export/Import), alimentato dal `db_manager` del progetto. Dopo un **import** riuscito il dialog passa automaticamente a quel tab e preseleziona il sito appena importato, pronto per la verifica.
+- **`pyarchinitPlugin.py`**: rimossa l'azione di menu `actionRapportiCheck` (4 rami `initGui`) e l'handler `runRapportiCheck`.
+
+Nessun test automatico (cambiamento GUI) — da verificare in QGIS ricaricando il plugin. La logica core (`rapporti_check`) è invariata e coperta dai test esistenti.
+
+### English
+
+**"Verifica rapporti stratigrafici" is no longer a separate menu entry — it is a tab in the s3dgraphy import dialog.**
+
+- **`gui/rapporti_check_dialog.py`**: the logic is extracted into a reusable `RapportiCheckPanel(QWidget)` with an optional `db_provider` callable so it can target the active project DB; `RapportiCheckDialog(QDialog)` remains as a thin wrapper.
+- **`s3dgraphy_dot_bridge.py`**: added a "Verifica rapporti" tab to `S3DGraphyExportDialog`; after a successful import the dialog switches to it and pre-selects the just-imported site.
+- **`pyarchinitPlugin.py`**: removed the `actionRapportiCheck` menu action (4 initGui branches) and the `runRapportiCheck` handler.
+
+GUI change — verify in QGIS by reloading the plugin. The `rapporti_check` core is unchanged and covered by existing tests.
+
+---
+
 ## [5.12.2-alpha] - 2026-06-07 — Fix auto-fix reciprocità: l'inverso di "abuts" ora round-trippa (vocab + guardia onestà)
 
 > Branch `Stratigraph_00001`. Risolve "la verifica dice 'Applicare 113 correzioni' ma ne corregge ~6".

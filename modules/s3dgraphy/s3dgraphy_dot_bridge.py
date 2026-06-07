@@ -556,6 +556,23 @@ if QGIS_AVAILABLE:
             import_tab.setLayout(import_layout)
             self.tabs.addTab(import_tab, "Import")
 
+            # ---- Verifica rapporti tab ----
+            # Same validators + conservative auto-fix as the former
+            # standalone menu dialog, embedded here so the user can verify
+            # and repair the stratigraphic rapporti right after importing.
+            # db_provider routes the panel at the active project DB (the
+            # same backend the import wrote into).
+            try:
+                from gui.rapporti_check_dialog import RapportiCheckPanel
+                self.rapporti_panel = RapportiCheckPanel(
+                    db_provider=lambda: self.db_manager)
+                self.tabs.addTab(self.rapporti_panel, "Verifica rapporti")
+            except Exception as _rc_exc:
+                self.rapporti_panel = None
+                import logging as _lg
+                _lg.getLogger(__name__).warning(
+                    "Verifica rapporti tab unavailable: %s", _rc_exc)
+
             # ---- Common bottom row ----
             self.btn_cancel = QPushButton("Cancel")
             self.btn_cancel.clicked.connect(self.reject)
@@ -972,6 +989,16 @@ if QGIS_AVAILABLE:
                 f"  epochs created: {result.epochs_created}\n"
                 f"  conflicts (resolved as graph_wins): {len(result.conflicts)}")
             self.btn_apply.setEnabled(False)
+
+            # Steer the user to the "Verifica rapporti" tab on the site just
+            # imported, so they can immediately check / repair its rapporti.
+            if getattr(self, "rapporti_panel", None) is not None:
+                try:
+                    self.rapporti_panel._load_sites()
+                    self.rapporti_panel.select_sito(target_sito)
+                    self.tabs.setCurrentWidget(self.rapporti_panel)
+                except Exception:
+                    pass
 
         def _offer_node_uuid_migration(self, db_input, error) -> bool:
             """Offer to auto-apply the Phase 1 node_uuid backfill migration.

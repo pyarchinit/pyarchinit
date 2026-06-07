@@ -1,16 +1,19 @@
-"""Verifica rapporti stratigrafici — Qt dialog.
+"""Verifica rapporti stratigrafici — Qt panel + dialog.
 
-On-demand UI over ``modules.utility.rapporti_check``: pick a site, run the
+UI over ``modules.utility.rapporti_check``: pick a site, run the
 s3dgraphy-backed validators (cycles / self-loops / connection legality /
 reciprocity), preview the conservative fixes, apply them (snapshot-protected)
 and roll back. See docs/superpowers/specs/2026-06-06-rapporti-validation-autofix-design.md.
+
+``RapportiCheckPanel`` is a reusable ``QWidget`` (embedded as a tab in the
+s3dgraphy import dialog); ``RapportiCheckDialog`` is a thin standalone wrapper.
 """
 from __future__ import annotations
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import (
-    QDialog, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton, QTreeWidget,
-    QTreeWidgetItem, QTextEdit, QLabel, QMessageBox, QSplitter,
+    QDialog, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton,
+    QTreeWidget, QTreeWidgetItem, QTextEdit, QLabel, QMessageBox, QSplitter,
 )
 
 from modules.utility import rapporti_check as RC
@@ -28,20 +31,30 @@ _KIND_TITLE = {
 _USER_ROLE = int(Qt.UserRole)
 
 
-class RapportiCheckDialog(QDialog):
-    """Site picker → report → preview → apply / rollback."""
+class RapportiCheckPanel(QWidget):
+    """Site picker → report → preview → apply / rollback.
 
-    def __init__(self, iface=None, parent=None):
+    ``db_provider`` (optional): a zero-arg callable returning a backend
+    ``DbHandle``. When omitted the panel resolves the active pyArchInit
+    project connection itself (standalone use). The import dialog passes
+    its own ``db_manager`` so the verifica runs against the same DB it
+    just imported into.
+    """
+
+    def __init__(self, iface=None, parent=None, db_provider=None):
         super().__init__(parent)
         self.iface = iface
+        self._db_provider = db_provider
         self._report = None
         self._token = None
-        self.setWindowTitle("Verifica rapporti stratigrafici")
         self._build_ui()
         self._load_sites()
 
-    # -- db plumbing (self-sufficient, backend-agnostic) -------------------
+    # -- db plumbing (backend-agnostic) ------------------------------------
     def _handle(self):
+        if self._db_provider is not None:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            return _resolve_db_handle(self._db_provider())
         from modules.db.pyarchinit_conn_strings import Connection
         from modules.db.pyarchinit_db_manager import get_db_manager
         from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
@@ -85,7 +98,6 @@ class RapportiCheckDialog(QDialog):
         self.btnApply.clicked.connect(self._apply)
         btns.addWidget(self.btnApply)
         lay.addLayout(btns)
-        self.resize(760, 680)
 
     def _load_sites(self):
         try:
@@ -96,10 +108,23 @@ class RapportiCheckDialog(QDialog):
                     "SELECT DISTINCT sito FROM us_table "
                     "WHERE sito IS NOT NULL AND sito <> '' ORDER BY sito")
                 ).fetchall()
+            self.cboSite.clear()
             self.cboSite.addItems([str(r[0]) for r in rows])
         except Exception as exc:  # pragma: no cover - UI guard
             QMessageBox.warning(self, "pyArchInit",
                                 f"Impossibile leggere i siti: {exc}")
+
+    def select_sito(self, sito):
+        """Pre-select *sito* in the picker (used by the import dialog to
+        focus the verifica on the site just imported)."""
+        if not sito:
+            return
+        idx = self.cboSite.findText(str(sito))
+        if idx >= 0:
+            self.cboSite.setCurrentIndex(idx)
+        else:
+            self.cboSite.addItem(str(sito))
+            self.cboSite.setCurrentText(str(sito))
 
     # -- actions ------------------------------------------------------------
     def _run(self):
@@ -209,3 +234,16 @@ class RapportiCheckDialog(QDialog):
         self.btnRollback.setEnabled(False)
         QMessageBox.information(self, "pyArchInit", "Ultimo fix annullato.")
         self._run()
+
+
+class RapportiCheckDialog(QDialog):
+    """Standalone wrapper around :class:`RapportiCheckPanel`."""
+
+    def __init__(self, iface=None, parent=None, db_provider=None):
+        super().__init__(parent)
+        self.iface = iface
+        self.setWindowTitle("Verifica rapporti stratigrafici")
+        lay = QVBoxLayout(self)
+        self.panel = RapportiCheckPanel(iface=iface, db_provider=db_provider)
+        lay.addWidget(self.panel)
+        self.resize(760, 680)
