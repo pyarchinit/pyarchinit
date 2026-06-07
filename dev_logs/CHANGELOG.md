@@ -5,6 +5,32 @@
 
 ---
 
+## [5.12.4-alpha] - 2026-06-07 — Reciprocità rapporti: copertura completa di tutte le 10 lingue pyArchInit
+
+> Branch `Stratigraph_00001`. Completa/corregge [5.12.2-alpha] su indicazione dell'utente: il reciproco va preso dal vocabolario pyArchInit, per **tutte** le lingue.
+
+### Italiano
+
+**`parse_rapporti` ora riconosce le etichette di rapporto in tutte e 10 le lingue gestite da pyArchInit** (it, en, de, es, fr, ar, ca, ro, pt, el), non solo it/en.
+
+In [5.12.2] avevo tappato solo il caso inglese `abuts` con alias inventati (`"is abutted by"`, `"abutted by"`). Errato: il reciproco di "Abuts" nel vocabolario pyArchInit è **"Supports"** (indice 9 della tabella `RELATIONSHIPS`), e il problema valeva per ogni lingua — un sito in tedesco/greco/arabo ecc. avrebbe avuto lo stesso fallimento di round-trip su qualsiasi relazione, non solo abuts.
+
+- **`modules/s3dgraphy/sync/rapporti.py`**: rimossi gli alias non canonici; aggiunta la copertura completa **10 relazioni × 10 lingue** in `RAPPORTI_TO_EDGE_TYPE`, derivata dalla tabella i18n `RELATIONSHIPS` di pyArchInit (indice → edge type: 0 `is_physically_equal_to`, 1 `is_bonded_to`, 2/3 `overlies`/`is_overlain_by`, 4/5 `fills`/`is_filled_by`, 6/7 `cuts`/`is_cut_by`, 8/9 `abuts`/`is_abutted_by`). La tabella è **duplicata** (non importata) per non accoppiare il package sync a `pyarchinit.*`. Da 20 → 97 chiavi.
+- **`tests/sync/test_rapporti_multilingual_map.py`** (nuovo): verifica di consistenza — la tabella embedded deve combaciare **esattamente** con `RELATIONSHIPS` di pyArchInit; ogni termine i18n mappa all'edge type giusto; le coppie inverse i18n sono coerenti con `_EDGE_TYPE_INVERSE` del detector. Fallisce se le due tabelle divergono.
+- **`tests/sync/test_rapporti_check.py`**: il test sugli alias inglesi inventati è sostituito da uno multilingue (`Supports` / `Gli si appoggia` / `Wird gestützt von` / `Υποστηρίζει` / `Apoiado por` → `is_abutted_by`).
+
+Suite `tests/sync`: 397 passed, zero nuove regressioni. *Follow-up upstream: la copertura multilingue è candidata a PR per s3dgraphy (oggi porta solo it/en parziale).*
+
+### English
+
+**`parse_rapporti` now recognises relationship labels in all 10 languages pyArchInit supports**, not just it/en.
+
+[5.12.2] only patched the English `abuts` case with invented aliases — wrong: pyArchInit's reciprocal of "Abuts" is **"Supports"** (index 9 of `RELATIONSHIPS`), and the round-trip failure affected every language. Replaced with the full 10×10 mapping in `RAPPORTI_TO_EDGE_TYPE`, derived from pyArchInit's i18n table (duplicated, not imported, to keep the sync package decoupled; 20 → 97 keys). Added a consistency test that fails if the duplicate drifts from the i18n source of truth.
+
+Suite: 397 passed, zero new regressions.
+
+---
+
 ## [5.12.3-alpha] - 2026-06-07 — "Verifica rapporti" spostata da menu a tab del dialog di import
 
 > Branch `Stratigraph_00001`. Richiesta utente: "invece di inserirlo nel menu inseriscilo come tab dopo import del graphml".

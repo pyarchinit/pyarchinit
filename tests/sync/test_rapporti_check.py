@@ -173,8 +173,13 @@ def test_abuts_reciprocity_fix_label_round_trips():
         "inverse label %r does not round-trip to is_abutted_by" % inv_label
 
 
-def test_parse_rapporti_knows_english_is_abutted_by():
+def test_parse_rapporti_knows_multilingual_is_abutted_by():
+    """The reciprocal of 'abuts' (is_abutted_by) must parse in every
+    pyArchInit language — its canonical labels are the index-9 terms of the
+    i18n RELATIONSHIPS table (EN 'Supports', IT 'Gli si appoggia',
+    DE 'Wird gestützt von', EL 'Υποστηρίζει', PT 'Apoiado por', ...)."""
     from modules.s3dgraphy.sync.rapporti import parse_rapporti
-    for label in ("supports", "Supports", "abutted by", "is abutted by"):
+    for label in ("Supports", "supports", "Gli si appoggia",
+                  "Wird gestützt von", "Υποστηρίζει", "Apoiado por"):
         parsed = parse_rapporti("[['%s','1','1','S']]" % label)
         assert parsed and parsed[0][0] == "is_abutted_by", label
