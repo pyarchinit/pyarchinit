@@ -5,6 +5,28 @@
 
 ---
 
+## [5.12.8-alpha] - 2026-06-08 — fix schema: `us_table.other_locations` su updater + template
+
+> Branch `Stratigraph_00001`. Un DB creato dal template dava `OperationalError: no such column: us_table.other_locations` all'apertura.
+
+### Italiano
+
+**La colonna `other_locations` (yE-F, `yed-f-multifolder-5.9.0-alpha`) ora viene aggiunta automaticamente.**
+
+Causa: `other_locations` è dichiarata nell'ORM (`US_table.py`) e selezionata ad ogni query, ma esisteva solo come **migrazione manuale** (`scripts/migrations/2026_05_yef_other_locations.py`) — non era nel template `resources/dbfiles/pyarchinit.sqlite` (del 13/05, antecedente a yE-F) né negli updater on-open. Quindi qualunque DB nato da quel template falliva all'apertura finché non si lanciava la migrazione a mano.
+
+- **`modules/db/sqlite_db_updater.py`** (`update_us_table`): aggiunge `other_locations TEXT` via `add_column_if_missing`.
+- **`modules/db/postgres_db_updater.py`**: nuovo `update_us_table()` (chiamato in `run_essential_migrations`, eseguito ad ogni connessione) che aggiunge `other_locations`.
+- **Template** `resources/dbfiles/pyarchinit.sqlite` e `pyarchinit_db.sqlite`: colonna aggiunta così i nuovi DB nascono già corretti.
+
+I DB esistenti si auto-riparano alla riconnessione; i nuovi nascono completi.
+
+### English
+
+**`us_table.other_locations` (yE-F) is now added automatically.** The column is in the ORM and selected on every query, but only existed as a manual migration — absent from the pre-yE-F shipped template and from the on-open updaters, so any DB created from that template errored on open. Added to the SQLite `update_us_table` and a new PostgreSQL `update_us_table` (run on every connection via `run_essential_migrations`), and added to both shipped sqlite templates. Existing DBs self-heal on reconnect; new DBs are born complete.
+
+---
+
 ## [5.12.7-alpha] - 2026-06-08 — s3dgraphy bump 1.6.0.dev8 → 1.6.0.dev9 + stop-gap ritirato
 
 > Branch `Stratigraph_00001`. Emanuel ha mergiato il nostro PR #23 (multilingual relationship-label vocabulary) e pubblicato `1.6.0.dev9` su PyPI. Lo stop-gap che tenevamo in locale non serve più.

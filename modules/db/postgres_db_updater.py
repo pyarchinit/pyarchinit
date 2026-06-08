@@ -67,8 +67,23 @@ class PostgresDbUpdater:
             self.update_computo_metrico_table()
             # Aggiunge voci thesaurus per tabelle gestione cantiere (14.x)
             self.update_site_management_thesaurus()
+            # Aggiunge colonne us_table mancanti (es. other_locations, yE-F)
+            self.update_us_table()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
+
+    def update_us_table(self):
+        """Aggiunge le colonne us_table mancanti richieste dall'ORM.
+
+        yE-F multi-folder paradata (yed-f-multifolder-5.9.0-alpha) introduced
+        ``us_table.other_locations``; the ORM selects it, so a DB that predates
+        the yE-F migration errors on open until the column exists.
+        """
+        try:
+            if self.table_exists('us_table'):
+                self.add_column_if_missing('us_table', 'other_locations', 'TEXT')
+        except Exception as e:
+            self.log_message(f"update_us_table: {e}")
 
     def check_and_update_database(self):
         """Controlla e aggiorna il database PostgreSQL"""

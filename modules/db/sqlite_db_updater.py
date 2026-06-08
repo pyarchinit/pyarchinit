@@ -526,7 +526,11 @@ class SQLiteDBUpdater:
             self.add_column_if_missing('us_table', 'organici', 'TEXT')
             self.add_column_if_missing('us_table', 'inorganici', 'TEXT')
             self.add_column_if_missing('us_table', 'cont_per', 'TEXT')
-    
+            # yE-F multi-folder paradata (yed-f-multifolder-5.9.0-alpha): the ORM
+            # selects us_table.other_locations, so DBs born from a pre-yE-F
+            # template fail on open until this column is present.
+            self.add_column_if_missing('us_table', 'other_locations', 'TEXT')
+
     def update_site_table(self):
         """Aggiorna la tabella site_table"""
         # Check if table exists
