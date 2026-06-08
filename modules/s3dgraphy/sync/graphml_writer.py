@@ -2040,10 +2040,23 @@ def export_graphml(
     except Exception as e:
         raise GraphMLExportError("export", e) from e
 
-    # Stage 4: write
+    # Stage 4: write. pyArchInit does NOT want the auto-injected continuity
+    # diamonds (``_synth_BR_*``) in the export — continuity is modelled
+    # explicitly via CON (ContinuityNode) rows. Pass continuity_diamonds=False
+    # when the exporter supports it (defensive: a re-vendored ext_libs without
+    # the kwarg falls back to the default rather than crashing).
+    import inspect as _inspect
+    _export_kw = {}
+    try:
+        if "continuity_diamonds" in _inspect.signature(
+                exporter.export).parameters:
+            _export_kw["continuity_diamonds"] = False
+    except (TypeError, ValueError):
+        pass
     try:
         exporter.export(
-            str(output_path), persist_auxiliary=persist_auxiliary)
+            str(output_path), persist_auxiliary=persist_auxiliary,
+            **_export_kw)
     except Exception as e:
         raise GraphMLExportError("write", e) from e
 

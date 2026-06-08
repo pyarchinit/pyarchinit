@@ -5,6 +5,25 @@
 
 ---
 
+## [5.12.10-alpha] - 2026-06-08 — Export EM: niente diamanti di continuità auto-generati
+
+> Branch `Stratigraph_00001`. Richiesta utente: nell'export non devono comparire i nodi sintetici `_synth_BR_*` (diamanti di continuità); la continuità si modella con le unità **CON** esplicite.
+
+### Italiano
+
+**L'export GraphML di pyArchInit non inietta più i diamanti di continuità automatici.** Il GraphMLExporter di s3dgraphy, ad ogni export, esegue `materialize_continuity` che inietta un nodo sintetico `_synth_BR_<us>` (ContinuityNode/BR) per ogni unità stratigrafica con durata-epoch limitata, per il round-trip con EM/Blender. In pyArchInit non li vogliamo (clutter del matrix; la continuità è gestita con righe `unita_tipo='CON'`).
+
+- **`modules/s3dgraphy/sync/graphml_writer.py`**: la chiamata a `GraphMLExporter.export()` ora passa `continuity_diamonds=False` quando l'exporter lo supporta (controllo difensivo via `inspect.signature`, così un `ext_libs` ri-vendorizzato senza il parametro non va in errore — torna al default).
+- **`ext_libs/s3dgraphy` (stop-gap live, git-ignored)**: aggiunto il flag `continuity_diamonds` a `GraphMLExporter.export()` e lo skip dei paradata in `materialize_continuity`. Durevole dopo il merge del PR upstream + bump; nel frattempo va ri-applicato a ogni re-vendor (il fallback difensivo evita crash).
+
+Verifica headless sull'export del DB di test: **0 occorrenze `_synth_BR_`** nel `.graphml`. Suite `tests/sync` **415 passed**, zero nuove regressioni.
+
+### English
+
+**pyArchInit's GraphML export no longer injects the auto continuity diamonds.** s3dgraphy's GraphMLExporter runs `materialize_continuity` on every export, injecting a synthetic `_synth_BR_<us>` ContinuityNode per bounded-life stratigraphic unit (for EM/Blender round-trip). pyArchInit doesn't want them (matrix clutter; continuity is modelled via explicit `unita_tipo='CON'` rows). `graphml_writer` now passes `continuity_diamonds=False` to `export()` when supported (defensive `inspect.signature` check so a re-vendored ext_libs without the param doesn't crash). The `ext_libs` side (flag on `export()` + paradata skip in `materialize_continuity`) is a live stop-gap until the upstream PR lands. Headless: 0 `_synth_BR_` in the exported `.graphml`. Suite 415 passed.
+
+---
+
 ## [5.12.9-alpha] - 2026-06-08 — Export EM: edge paradata tipizzati + USV/SF connessi
 
 > Branch `Stratigraph_00001`. Nell'export verso GraphML/EM-tools i nodi paradata (DOC/Combinar/Extractor/property) e gli USV/SF risultavano scollegati o con relazioni generiche. Ora la catena paradata EM si tipizza correttamente.
