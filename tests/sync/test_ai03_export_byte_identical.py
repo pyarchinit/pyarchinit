@@ -19,6 +19,15 @@ regression.
 
 If this test ever goes red, AI04 has regressed AI03 in a way the
 fingerprint surfaces — block on it.
+
+Baseline regenerated for the EM paradata-export-rendering change
+(5.12.11-alpha): pyArchInit now exports paradata as visible edges
+(``paradata_as_groups=False``) instead of folder groups, so the
+per-US ``*_PD`` ParadataNodeGroup folders and their
+``has_paradata_nodegroup`` edges are no longer emitted for this
+fixture (whose paradata are modelled as PropertyNode/DocumentNode
+folder members rather than top-level bridge StratigraphicNodes). The
+fingerprint below reflects that intentional policy change.
 """
 from __future__ import annotations
 import re

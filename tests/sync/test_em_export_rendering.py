@@ -38,3 +38,31 @@ def test_paradata_labels_are_us_values(tmp_path):
     assert "C.1" in labels, labels        # combiner
     assert not any(l in ("Documento", "Combiner", "Extractor", "Proprieta")
                    for l in labels), labels
+
+
+def _edges(root):
+    return [(e.get("source"), e.get("target")) for e in root.iter(N + "edge")]
+
+
+def _node_degrees(root):
+    import collections
+    deg = collections.Counter()
+    for s, t in _edges(root):
+        deg[s] += 1
+        deg[t] += 1
+    # map id -> label
+    id2lab = {}
+    for nd in root.iter(N + "node"):
+        for tx in nd.iter():
+            if tx.tag.endswith("}NodeLabel") and tx.text and tx.text.strip():
+                id2lab[nd.get("id")] = tx.text.strip()
+                break
+    return {id2lab.get(k, k): v for k, v in deg.items()}
+
+
+def test_paradata_nodes_are_connected(tmp_path):
+    deg = _node_degrees(_export(tmp_path))
+    # combiner / extractor / a document must have at least one edge
+    assert deg.get("C.1", 0) >= 1, deg
+    assert deg.get("D.1.1", 0) >= 1, deg     # extractor
+    assert deg.get("D.1", 0) >= 1, deg       # document

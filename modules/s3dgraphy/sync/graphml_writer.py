@@ -2037,12 +2037,17 @@ def export_graphml(
     # explicitly via CON (ContinuityNode) rows. Pass continuity_diamonds=False
     # when the exporter supports it (defensive: a re-vendored ext_libs without
     # the kwarg falls back to the default rather than crashing).
+    # Likewise pyArchInit wants the EM paradata drawn as visible nodes/edges,
+    # NOT collapsed into folder groups — pass paradata_as_groups=False when the
+    # exporter supports it (same defensive inspect.signature gate).
     import inspect as _inspect
     _export_kw = {}
     try:
-        if "continuity_diamonds" in _inspect.signature(
-                exporter.export).parameters:
+        _sig_params = _inspect.signature(exporter.export).parameters
+        if "continuity_diamonds" in _sig_params:
             _export_kw["continuity_diamonds"] = False
+        if "paradata_as_groups" in _sig_params:
+            _export_kw["paradata_as_groups"] = False
     except (TypeError, ValueError):
         pass
     try:
