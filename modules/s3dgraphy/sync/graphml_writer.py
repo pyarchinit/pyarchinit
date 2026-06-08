@@ -499,26 +499,18 @@ def _resolve_display_label(unita_tipo: str, us_number: str,
         return f"{unita_tipo}{n}"
     if unita_tipo == "CON":
         return f"CON{n}"
-    # Bug R (2026-05-15 user feedback): paradata kinds are no longer
-    # dedup'd at import — every yEd occurrence is its own row with a
-    # synthesised us value (e.g. ``material_2``, ``01_3``). The
-    # original label (``material``, ``D.01``, ``C.02``, ``E.005``)
-    # lives in ``d_stratigrafica`` (passed in as ``descrizione``).
-    # Prefer that for display so the rendered NodeLabel matches the
-    # yEd-authored label, regardless of the us suffix.
+    # EM paradata export (2026-06-08, fix #6): paradata nodes are
+    # labelled by their ``us`` value (e.g. ``D.1``, ``D.1.1``, ``C.1``,
+    # ``prop1``), NOT by ``d_stratigrafica`` (which carries the EM kind
+    # name ``Documento`` / ``Combiner`` / ``Extractor`` / ``Proprieta``).
+    # The EM/yEd convention shows the us code on the node. ``descrizione``
+    # remains the fallback when ``us`` is empty.
     if unita_tipo in ("DOC", "EXT", "Extractor"):
-        return descrizione.strip() or f"D.{n}"
+        return n or descrizione.strip()
     if unita_tipo == "Combinar":
-        return descrizione.strip() or f"C.{n}"
+        return n or descrizione.strip()
     if unita_tipo == "property":
-        if descrizione.strip():
-            return descrizione.strip()
-        # Legacy fallback (no descrizione): when imported from yEd
-        # before Bug R, property NAME lived in us_table.us. Honour
-        # that path for pre-Bug-R DBs.
-        if n and not n.isdigit():
-            return n
-        return f"property{n}"
+        return n or descrizione.strip()
     return f"{unita_tipo}{n}"
 
 
