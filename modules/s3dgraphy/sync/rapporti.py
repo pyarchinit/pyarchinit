@@ -94,19 +94,15 @@ RAPPORTI_TO_EDGE_TYPE: dict[str, str] = {
 # ---------------------------------------------------------------------------
 # Full multilingual coverage
 # ---------------------------------------------------------------------------
-# pyArchInit accepts relationship labels in every language its UI supports,
-# so parse_rapporti must recognise them all — otherwise a graph projected
-# from a non-IT/EN site builds no edges, and the reciprocity auto-fix's
-# inverse label (taken from pyArchInit's own i18n, e.g. EN "Abuts" → its
-# reciprocal "Supports" = is_abutted_by) silently fails to round-trip.
+# pyArchInit (and any EM tool with a localized UI) stores relationship labels
+# in the user's language, so parse_rapporti must recognise them all —
+# otherwise a graph projected from a non-IT/EN site builds no edges, and a
+# reciprocity round-trip (e.g. the reciprocal of "Abuts" is "Supports" =
+# is_abutted_by) silently fails. The 10×10 table below mirrors the EM/
+# pyArchInit stratigraphic-relationship vocabulary (10 relations × 10 UI
+# languages: it/en/de/es/fr/ar/ca/ro/pt/el).
 #
-# The 10×10 table below mirrors RELATIONSHIPS / _INVERSE_PAIRS in
-# modules/utility/pyarchinit_i18n_stratigraphic.py and is duplicated here
-# (not imported) to keep this sync package free of pyarchinit.* imports.
-# A consistency test (tests/sync/test_rapporti_multilingual_map.py) fails if
-# the two ever diverge.
-#
-# Index → s3dgraphy edge type (same order as the i18n RELATIONSHIPS lists):
+# Index → canonical edge type (same order as each language's term list):
 _REL_INDEX_EDGE_TYPE: tuple[str, ...] = (
     "is_physically_equal_to",  # 0  Uguale a / Same as
     "is_bonded_to",            # 1  Si lega a / Connected to
@@ -160,9 +156,9 @@ _REL_TERMS_BY_LANG: dict[str, tuple[str, ...]] = {
            "Εφάπτεται", "Υποστηρίζει"),
 }
 
-# Extend the canonical IT/EN dict with every language's terms (keys lowercased
-# to match parse_rapporti's lookup). setdefault keeps explicit aliases already
-# declared above (e.g. "bonds with").
+# Fold every language's terms into RAPPORTI_TO_EDGE_TYPE (keys lowercased to
+# match parse_rapporti's lookup). setdefault keeps the explicit aliases above
+# (e.g. "bonds with").
 for _terms in _REL_TERMS_BY_LANG.values():
     for _i, _term in enumerate(_terms):
         RAPPORTI_TO_EDGE_TYPE.setdefault(_term.lower(), _REL_INDEX_EDGE_TYPE[_i])
@@ -265,30 +261,41 @@ EDGE_TYPE_DIRECTION_FORWARD: dict[str, bool] = {
 # ---------------------------------------------------------------------------
 # Unit-type frozensets driving the verbose-vs-shorthand dispatch
 # ---------------------------------------------------------------------------
-#: Unit types where both endpoints get the verbose dispatch
-#: ("Copre"/"Covers"/..., "Coperto da"/"Covered by"/...). Stratigraphic
-#: Harris atoms only.
+#: Localized US / USM ``unita_tipo`` code → canonical code. pyArchInit
+#: localizes ONLY the US / USM abbreviations per UI language (its
+#: ``pyarchinit_i18n_stratigraphic.UNIT_TYPE_ABBREV`` is the source of
+#: truth). This module is the pyArchInit↔canonical bridge, and the
+#: prefix-strip regex above already enumerates SU|SE|WSU|MSE|UE|…, so the
+#: gating set lives here too. The mapping doubles as the normalization
+#: source: any code path that needs the canonical form calls
+#: :func:`canonical_unita_tipo`. ``attributes['unita_tipo']`` is kept
+#: VERBATIM (original code) elsewhere so round-trip stays byte-identical;
+#: only the verbose/shorthand dispatch and the projector's stratigraphic
+#: gating read through this alias map.
 #:
-#: pyArchInit localises the US / USM codes per UI language (see
-#: ``modules/utility/pyarchinit_i18n_stratigraphic.UNIT_TYPE_ABBREV`` —
-#: the single source of truth). All of these denote a real Harris
-#: stratigraphic unit, so every language variant must take the verbose
-#: branch; otherwise non-Italian sites (e.g. an English DB using "SU"/
-#: "WSU") fall through to the ``>>`` / ``<<`` shorthand by mistake.
 #:   US  → US (it/fr/ro) · SU (en/ar) · SE (de) · UE (es/ca/pt) · ΣΜ (el)
 #:   USM → USM (it/fr) · WSU (en/ar) · MSE (de) · UEM (es/ca/pt) ·
 #:         USZ (ro) · ΤΣΜ (el)
-#: The abbreviations are a pyArchInit UI convention, not part of the
-#: s3dgraphy formalism — kept here because this module is the
-#: pyArchInit ↔ canonical-edge bridge.
-CANONICAL_UNIT_TYPES: frozenset[str] = frozenset({
-    "US", "USM",                            # it, fr
-    "SU", "WSU",                            # en, ar
-    "SE", "MSE",                            # de
-    "UE", "UEM",                            # es, ca, pt
-    "USZ",                                  # ro (USM; US stays "US")
-    "ΣΜ", "ΤΣΜ",   # el: ΣΜ, ΤΣΜ
-})
+UNITA_TIPO_CANONICAL: dict[str, str] = {
+    "US": "US", "SU": "US", "SE": "US", "UE": "US", "ΣΜ": "US",
+    "USM": "USM", "WSU": "USM", "MSE": "USM", "UEM": "USM",
+    "USZ": "USM", "ΤΣΜ": "USM",
+}
+
+
+def canonical_unita_tipo(unita_tipo) -> str:
+    """Map a (possibly localized) US/USM code to its canonical form.
+
+    Non-US/USM codes (USV*, SF, CON, DOC, …) and unknown values pass
+    through unchanged.
+    """
+    return UNITA_TIPO_CANONICAL.get(unita_tipo, unita_tipo)
+
+
+#: Unit types where both endpoints get the verbose dispatch ("Copre"/
+#: "Covers"/…, "Coperto da"/"Covered by"/…). All language variants of the
+#: Harris US/USM atoms, derived from the alias map so the two never drift.
+CANONICAL_UNIT_TYPES: frozenset[str] = frozenset(UNITA_TIPO_CANONICAL)
 
 
 #: Continuity unit type. Single-arrow shorthand ``>`` / ``<`` is
@@ -566,27 +573,29 @@ def _coerce_to_list(value):
 
 #: Arrow tokens emitted by :func:`select_rapporti_label` for
 #: non-canonical endpoints. When the dispatch returns one of these we do
-#: NOT override it with a verbose label (virtual units keep ``>>`` / ``<<``,
-#: continuity keeps ``>`` / ``<`` — the pyArchInit author convention).
+#: NOT override it with a verbose row term (virtual units keep ``>>`` /
+#: ``<<``, continuity keeps ``>`` / ``<``).
 _SHORTHAND_TOKENS: frozenset[str] = frozenset({">", "<", ">>", "<<"})
 
 
 def _source_rapporti_label(src_node, target_us: str, edge_type: str):
-    """Original pyArchInit ``rapporti`` label on *src_node* for *target_us*.
+    """Original pyArchInit ``rapporti`` term on *src_node* for *target_us*.
 
-    Returns the verbatim term the site stored in ``us_table.rapporti``
-    (in the site's UI language — "Covers" / "Couvre" / "Copre" / …) so
-    the d13 packed string mirrors the column instead of the canonical
-    Italian. The label language can't be reconstructed from
-    ``edge_type`` alone (e.g. "US" is shared by it / fr / ro), so the
-    only reliable source is the node's own stored term.
+    The d13 packed string is wire format that should byte-match the
+    originating ``us_table.rapporti``, so for a verbose relation we anchor
+    the label on the source row's own stored term (in the site's UI
+    language — "Covers" / "Couvre" / "Copre" / …) rather than the canonical
+    Italian. The label language can't be reconstructed from ``edge_type``
+    alone (e.g. "US" is shared by it / fr / ro), so the node's own term is
+    the only reliable source.
 
-    Matching prefers the entry whose label maps to the SAME canonical
-    ``edge_type`` (disambiguates multiple relations to one target),
-    falling back to any verbose entry pointing at ``target_us``. Returns
-    ``None`` when the node carries no usable ``rapporti`` attribute
-    (e.g. a yEd-imported graph) — the caller then keeps the canonical
-    dispatch label.
+    Returned in the canonical display casing (first letter upper, rest
+    lower — the form pyArchInit shows). Matching prefers the entry whose
+    label maps to the SAME canonical ``edge_type`` (disambiguates multiple
+    relations to one target), falling back to any verbose entry pointing at
+    ``target_us``. Returns ``None`` when the node carries no usable
+    ``rapporti`` attribute (e.g. a yEd-imported graph) — the caller then
+    keeps the canonical dispatch label.
     """
     attrs = getattr(src_node, "attributes", None) or {}
     fallback = None
@@ -597,10 +606,6 @@ def _source_rapporti_label(src_node, target_us: str, edge_type: str):
         tgt = str(entry[1]).strip()
         if tgt != str(target_us) or not lbl or lbl in _SHORTHAND_TOKENS:
             continue
-        # Normalize to the canonical display casing pyArchInit shows in
-        # the Scheda US (first letter upper, rest lower) — matches the
-        # RELATIONSHIPS table form: "Covers" / "Covered by" / "Copre".
-        # The stored column is often lowercase ("covers").
         lbl = lbl.capitalize()
         if RAPPORTI_TO_EDGE_TYPE.get(lbl.lower()) == edge_type:
             return lbl
@@ -666,12 +671,12 @@ def serialize_rapporti_from_edges(graph, default_sito: str):
             tgt_us = strip_us_prefix(str(tgt_name))
         rapporti_label = select_rapporti_label(
             et, src_unita_tipo, tgt_unita_tipo)
-        # Localized-label preference: when the dispatch picks a *verbose*
-        # label (both endpoints are real US/USM units, any language),
-        # prefer the original term from the source node's own pyArchInit
-        # ``rapporti`` column so the d13 packed string matches the DB
-        # verbatim in the site's UI language. Virtual units (``>>`` /
-        # ``<<``) and continuity (``>`` / ``<``) keep their shorthand.
+        # For a verbose relation (both endpoints real US/USM, any language)
+        # anchor the term on the source row's own rapporti column so the
+        # packed string byte-matches the DB in the site's UI language;
+        # fall back to the canonical label when the source carries no
+        # rapporti attribute (e.g. yEd-imported graphs). Virtual units
+        # (``>>`` / ``<<``) and continuity (``>`` / ``<``) keep shorthand.
         if rapporti_label not in _SHORTHAND_TOKENS:
             original = _source_rapporti_label(src_node, str(tgt_us), et)
             if original:
@@ -691,6 +696,8 @@ __all__ = [
     "EDGE_TYPE_TO_RAPPORTI_IT",
     "RAPPORTI_SHORTHAND",
     "EDGE_TYPE_DIRECTION_FORWARD",
+    "UNITA_TIPO_CANONICAL",
+    "canonical_unita_tipo",
     "CANONICAL_UNIT_TYPES",
     "CONTINUITY_UNIT_TYPES",
     "NON_RAPPORTI_EDGE_TYPES",

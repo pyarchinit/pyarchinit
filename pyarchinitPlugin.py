@@ -447,19 +447,6 @@ class PyArchInitPlugin(object):
         except Exception:
             pass
 
-        # Stop-gap: make the vendored ext_libs s3dgraphy.sync.rapporti use
-        # pyArchInit's multilingual / localized-d13 fix (the d13 export path
-        # imports rapporti from ext_libs, which is reinstalled from PyPI).
-        # Remove once requirements pins an s3dgraphy release that includes
-        # the fix. See modules/s3dgraphy/sync/ext_rapporti_patch.py.
-        try:
-            from modules.s3dgraphy.sync.ext_rapporti_patch import (
-                apply as _apply_rapporti_patch,
-            )
-            _apply_rapporti_patch()
-        except Exception:
-            pass
-
         # s3dgraphy #10: propagate the QSettings paradata_workspace
         # override (if any) into PYARCHINIT_WORKSPACE_DIR so
         # modules.s3dgraphy.sync._workspace can read it without

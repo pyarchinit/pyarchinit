@@ -91,11 +91,14 @@ faiss-cpu>=1.7.4
 # sync.rapporti (parse/serialize) and core physical_relationships (d13)
 # GraphML packed-string. Pinned exact (pre-release) to match the migrated
 # modules/s3dgraphy/sync canonical-edges tree.
-# 1.6.0.dev8: PR #22 (multilingual US/USM unita_tipo recognition, #21) merged
-# upstream. NOTE: the multilingual *relationship* (rapporti label) vocabulary
-# we carry in modules/s3dgraphy/sync/rapporti.py is NOT yet upstream — kept
-# local + applied to ext_libs via ext_rapporti_patch until a follow-up PR lands.
-s3dgraphy==1.6.0.dev8
+# 1.6.0.dev8: PR #22 (multilingual US/USM unita_tipo recognition, #21) merged.
+# 1.6.0.dev9: PR #23 (multilingual *relationship* / rapporti-label vocabulary,
+# 10 relations × 10 UI languages) merged upstream. Stop-gap retired:
+# modules/s3dgraphy/sync/rapporti.py is now re-synced verbatim from dev9 (no
+# more pyArchInit-local vocab divergence) and the ext_rapporti_patch boot
+# monkeypatch is deleted — the d13 export path resolves the multilingual vocab
+# natively from this pinned release.
+s3dgraphy==1.6.0.dev9
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0

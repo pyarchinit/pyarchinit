@@ -5,6 +5,28 @@
 
 ---
 
+## [5.12.7-alpha] - 2026-06-08 — s3dgraphy bump 1.6.0.dev8 → 1.6.0.dev9 + stop-gap ritirato
+
+> Branch `Stratigraph_00001`. Emanuel ha mergiato il nostro PR #23 (multilingual relationship-label vocabulary) e pubblicato `1.6.0.dev9` su PyPI. Lo stop-gap che tenevamo in locale non serve più.
+
+### Italiano
+
+**Allineamento a `1.6.0.dev9` e rimozione dello stop-gap multilingue.**
+
+- **`requirements.txt`**: pin `s3dgraphy==1.6.0.dev8` → `==1.6.0.dev9`.
+- **`ext_libs/s3dgraphy`** ri-vendorizzato a dev9 (`pip install … --no-deps --target ext_libs`, pulizia del `.dist-info` dev8 stantio). dev9 = dev8 + il PR #23 (vocabolario **multilingue dei rapporti**, 10 relazioni × 10 lingue UI + `"supports"→is_abutted_by`), ora ufficialmente upstream.
+- **`modules/s3dgraphy/sync/rapporti.py`** ri-sincronizzato **verbatim** da dev9: il blocco vocabolario locale (`_REL_INDEX_EDGE_TYPE` / `_REL_TERMS_BY_LANG` / fold in `RAPPORTI_TO_EDGE_TYPE`) non è più una divergenza pyArchInit ma il file upstream. Tutti i simboli consumati dal tree modules (`graph_ingestor`/`graphml_writer`/`graph_projector`: `CANONICAL_UNIT_TYPES`, `strip_us_prefix`, `select_rapporti_label`, …) restano esportati da dev9 (backward-compat preservata) → nessun import rotto.
+- **Eliminato il monkeypatch** `modules/s3dgraphy/sync/ext_rapporti_patch.py` e la sua chiamata in `pyarchinitPlugin.initGui()`: il percorso d'export d13 risolve ora il vocabolario multilingue (unita_tipo + rapporti) nativamente da ext_libs dev9.
+- **`tests/sync/test_rapporti_multilingual_map.py`** invariato: continua a passare e ora fa da guardia anti-drift fra il vocabolario upstream e l'i18n `RELATIONSHIPS` di pyArchInit.
+
+Suite `tests/sync` col core dev9: **399 passed**, zero nuove regressioni (i 9 failed + 9 errors sono PG/Spatialite pre-esistenti, infra headless — `no such module: VirtualSpatialIndex`). ext_libs è git-ignored: in repo cambiano `requirements.txt`, `modules/s3dgraphy/sync/rapporti.py`, `pyarchinitPlugin.py` e la rimozione di `ext_rapporti_patch.py`.
+
+### English
+
+**Align to upstream `1.6.0.dev9` and retire the multilingual stop-gap.** `requirements.txt` pin dev8→dev9; `ext_libs/s3dgraphy` re-vendored (`--no-deps`, stale dev8 `.dist-info` cleaned). dev9 = dev8 + merged PR #23 (relationship-label vocabulary, 10 relations × 10 UI languages + `"supports"→is_abutted_by`), now official upstream. `modules/s3dgraphy/sync/rapporti.py` re-synced **verbatim** from dev9 — the local vocab block is no longer a pyArchInit divergence but the upstream file; every symbol the modules tree consumes (`CANONICAL_UNIT_TYPES`, `strip_us_prefix`, `select_rapporti_label`, …) is still exported by dev9 (backward-compat), so no import breaks. **Removed** the `ext_rapporti_patch.py` boot monkeypatch and its `initGui()` call — the d13 export path now resolves the multilingual vocab natively from ext_libs dev9. The consistency test stays as an upstream-vs-i18n drift guard. Suite **399 passed** with the dev9 core; the 9 failed + 9 errors are pre-existing PG/Spatialite headless-infra issues. In-repo changes: `requirements.txt`, `modules/s3dgraphy/sync/rapporti.py`, `pyarchinitPlugin.py`, deletion of `ext_rapporti_patch.py`.
+
+---
+
 ## [5.12.6-alpha] - 2026-06-07 — s3dgraphy bump 1.6.0.dev7 → 1.6.0.dev8
 
 > Branch `Stratigraph_00001`. Emanuel ha mergiato il nostro PR #22 (multilingual US/USM unita_tipo, issue #21) e pubblicato 1.6.0.dev8 su PyPI.
