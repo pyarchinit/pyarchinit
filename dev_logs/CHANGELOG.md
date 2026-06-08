@@ -5,6 +5,29 @@
 
 ---
 
+## [5.12.11-alpha] - 2026-06-08 — Export EM: paradata connessi, CON visibili, contemporaneità a doppio arco
+
+> Branch `Stratigraph_00001`. Spec `docs/superpowers/specs/2026-06-08-em-paradata-export-rendering-design.md`, piano `docs/superpowers/plans/2026-06-08-em-paradata-export-rendering.md`. 4 fix di rendering dell'export EM, implementati via subagent + verifica avversariale.
+
+### Italiano
+
+**L'export GraphML rende ora correttamente paradata, continuità e contemporaneità secondo la convenzione Extended Matrix.**
+
+1. **Label paradata = valore `us`** (`modules/s3dgraphy/sync/graphml_writer.py`, `_resolve_display_label`): DOC/Extractor/Combinar/property mostrano il loro `us` (`D.1`, `D.1.1`, `C.1`, …) invece della descrizione (`Documento`/`Combiner`/…).
+2. **Archi paradata visibili** (flag `paradata_as_groups` su `GraphMLExporter.export()`, core s3dgraphy): i paradata sono nodi collegati da `extracted_from`/`combines`/`has_property`/`has_documentation`/`has_data_provenance` (stile dashed) invece di essere raggruppati in folder. `graphml_writer` passa `paradata_as_groups=False` in modo difensivo (`inspect.signature`, niente crash su ext_libs ri-vendorizzato).
+3. **Contemporaneità a doppio arco senza freccia** (core `edge_generator`/`graphml_exporter`): le relazioni di contemporaneità (`has_same_time` e affini) sono emesse come **due archi paralleli** (bend ±6) entrambi senza testa di freccia; la stessa-linea la fa il layout yEd.
+4. **CON espliciti renderizzati** (`graph_projector` + `graphml_writer` + core exporter): le righe `unita_tipo='CON'` ora sopravvivono al projector (aggiunte al back-fill stratigrafico, label de-doppiata CON) e compaiono come diamante di continuità; i diamanti sintetici `_synth_BR_*` restano soppressi.
+
+Verifica avversariale (export headless + ispezione XML diretta): label corrette, C.1/D.1.1/D.1 con grado ≥1, US9~US10 = 2 archi senza freccia, CON1/CON2 presenti e zero `_synth_BR_`. Suite `tests/sync`: **419 passed** (415 + 4 nuovi test in `tests/sync/test_em_export_rendering.py`), 9+9 PG/Spatialite pre-esistenti, **zero nuove regressioni**.
+
+Parte core (#1/#2/#3, parte di #2 lato exporter) applicata a `ext_libs` (stop-gap live) e committata nel fork (`fix/em-paradata-export-rendering`) per il PR upstream — **non pushato**, in attesa di approvazione + validazione del round-trip EM-tools. Note: lo stdout del projector riporta ancora "0 paradata" (cosmetico; l'artefatto GraphML è corretto).
+
+### English
+
+**The GraphML export now renders paradata, continuity and contemporaneity per the Extended Matrix convention.** (1) Paradata node labels are the `us` value (`D.1`, `D.1.1`, `C.1`) not the description, via `_resolve_display_label`. (2) Paradata are drawn as connected nodes (`extracted_from`/`combines`/`has_property`/`has_documentation`/`has_data_provenance`) instead of folders, via a `paradata_as_groups` flag on the s3dgraphy `GraphMLExporter` (pyArchInit passes `False` defensively). (3) Contemporaneity relations render as two parallel no-arrowhead edges (yEd layout gives same-line). (4) Explicit `unita_tipo='CON'` rows now survive the projector (added to the stratigraphic back-fill, de-doubled CON label) and render as continuity diamonds; synthetic `_synth_BR_*` stay suppressed. Adversarially verified by headless export + XML inspection. Suite 419 passed (+4 new EM tests), no new regressions. Core parts in ext_libs (live stop-gap) + fork branch `fix/em-paradata-export-rendering` (not pushed; PR gated on approval + EM-tools round-trip validation).
+
+---
+
 ## [5.12.10-alpha] - 2026-06-08 — Export EM: niente diamanti di continuità auto-generati
 
 > Branch `Stratigraph_00001`. Richiesta utente: nell'export non devono comparire i nodi sintetici `_synth_BR_*` (diamanti di continuità); la continuità si modella con le unità **CON** esplicite.
