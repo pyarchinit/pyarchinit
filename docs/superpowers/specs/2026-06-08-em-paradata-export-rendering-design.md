@@ -114,10 +114,14 @@ approved "archi visibili" choice). `edge_generator` already styles
 `extracted_from` as dashed; the remaining paradata edge types need a style entry
 (default acceptable, dashed preferred for provenance-family).
 
-Open sub-decision (resolve in the plan): whether to *remove* the paradata-group
-code path or *gate* it behind a flag (`paradata_as_groups=False`) so other
-consumers keep the folder behaviour. Recommendation: gate behind a flag, default
-to edges for the pyArchInit export call, to stay non-destructive upstream.
+**Decided**: gate the paradata-group code path behind a flag
+`paradata_as_groups: bool = True` on `GraphMLExporter.export()`. Upstream
+default stays `True` (folders — non-destructive for other consumers). The
+pyArchInit export call passes `paradata_as_groups=False`, which keeps the
+paradata edges in `export_edges` (drawn as visible edges) and skips the folder
+rendering. `graphml_writer` passes the flag defensively via `inspect.signature`
+(same pattern as `continuity_diamonds`), so a re-vendored `ext_libs` without the
+param falls back to the default rather than crashing.
 
 Test: headless export → `extracted_from` / `combines` / `has_property` /
 `has_documentation` present as `<edge>` elements; Combiner / Extractor / property
@@ -133,20 +137,19 @@ contemporaneity edge types (`is_physically_equal_to`, `is_bonded_to`, and the
 canonical aliases `equals`, `bonded_to`, plus `has_same_time`):
 
 - **No arrowhead**: `Arrows source='none' target='none'`.
-- **Double line**: render the EM "contemporaneity" double stroke.
+- **Double line = two parallel edges** (DECIDED). The exporter emits **two**
+  `<edge>` elements between the same source/target for each contemporaneity
+  relation, each with no arrowhead, so yEd renders two parallel arcs (the EM
+  contemporaneity convention). Give the two edges distinct edge ids and small
+  opposite bend offsets so they don't overlap into a single line.
 
 Same-line placement is **not** forced by the exporter — it is achieved when the
 user applies the yEd layout, because a no-arrow edge is treated as
 non-directional (same rank).
 
-OPEN QUESTION (must be answered before implementing Component 3): yEd's native
-`LineStyle` has no "double line". The exact representation EM-tools expects must
-be confirmed with the user — candidates: (a) a yEd line style that reads as
-double, (b) two parallel edges, (c) a custom EM marker. The arrowhead removal is
-unambiguous and can ship regardless.
-
-Test: headless export → these edge types have `Arrows source='none'
-target='none'`; double-line marker present once its representation is fixed.
+Test: headless export → for each contemporaneity relation there are **two**
+`<edge>` elements between the same endpoints, both with `Arrows source='none'
+target='none'`.
 
 ### Component 4 — Render CON nodes (fix #2)
 
@@ -189,9 +192,9 @@ Test: headless export → `CON1` / `CON2` nodes present (diamond shape) + their
 ## Risks / notes
 
 - **ext_libs durability**: components 1–3 (and 4) live in `ext_libs` until the
-  upstream PR lands; re-vendoring wipes them. pyArchInit callers stay defensive.
-- **Double-line representation** (Component 3) is the one unresolved detail and
-  gates only that component; the rest can proceed.
+  upstream PR lands; re-vendoring wipes them. pyArchInit callers stay defensive
+  (both `continuity_diamonds` and `paradata_as_groups` are passed via
+  `inspect.signature` detection).
 - **EM-tools round-trip**: switching paradata from folders to visible edges may
   affect how EM-tools (Blender) re-imports the GraphML. Validate with the user's
   EM-tools workflow before merging the upstream PR.
