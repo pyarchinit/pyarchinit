@@ -670,6 +670,19 @@ class GraphProjector:
             if node is None and ut_canon in (
                 "US", "USM", "USD", "USV", "USVs", "USVn", "USVc",
                 "SF", "VSF", "RSF",
+                # EM paradata export (2026-06-08, fix #2): explicit
+                # continuity rows (unita_tipo='CON') are stratigraphic-
+                # family records too. Without CON here the bridge's
+                # ``1.CON.CONn`` placeholder is never claimed/enriched
+                # (no sito/us/unita_tipo set), so ``_filter_by_site``
+                # drops it and the CON node is lost on export. Adding
+                # CON makes the projector back-fill a stratigraphic node
+                # named by the ``us`` value (``CON1``) with the right
+                # attributes, so it survives the site filter and the
+                # GraphML writer relabels + renders it as a continuity
+                # diamond. (Auto ``_synth_BR_`` diamonds stay suppressed
+                # via ``continuity_diamonds=False``.)
+                "CON",
             ):
                 node = nodes_by_key.pop((us_name, "__STRAT__"), None)
                 if node is None:

@@ -66,3 +66,40 @@ def test_paradata_nodes_are_connected(tmp_path):
     assert deg.get("C.1", 0) >= 1, deg
     assert deg.get("D.1.1", 0) >= 1, deg     # extractor
     assert deg.get("D.1", 0) >= 1, deg       # document
+
+
+def _edges_with_arrows(root):
+    out = []
+    for e in root.iter(N + "edge"):
+        src_arrow = tgt_arrow = None
+        for a in e.iter():
+            if a.tag.endswith("}Arrows"):
+                src_arrow = a.get("source"); tgt_arrow = a.get("target")
+        out.append((e.get("source"), e.get("target"), src_arrow, tgt_arrow))
+    return out
+
+
+def test_contemporaneity_double_no_arrow(tmp_path):
+    root = _export(tmp_path)
+    # us 9 "Uguale a" 10 (is_physically_equal_to) -> exported as has_same_time
+    # find the two stratigraphic nodes' ids by label
+    id2lab = {}
+    for nd in root.iter(N + "node"):
+        for tx in nd.iter():
+            if tx.tag.endswith("}NodeLabel") and tx.text and tx.text.strip():
+                id2lab[tx.text.strip()] = nd.get("id"); break
+    eq_pair = {id2lab.get("US9"), id2lab.get("US10")}
+    edges = [(s, t, sa, ta) for (s, t, sa, ta) in _edges_with_arrows(root)
+             if {s, t} == eq_pair]
+    # two parallel edges, both no-arrow
+    assert len(edges) == 2, edges
+    assert all(sa == "none" and ta == "none" for (_, _, sa, ta) in edges), edges
+
+
+def test_explicit_con_nodes_rendered(tmp_path):
+    root = _export(tmp_path)
+    labels = _node_labels(root)
+    assert "CON1" in labels, labels
+    assert "CON2" in labels, labels
+    # no auto synthetic continuity diamonds
+    assert not any(l.startswith("_synth_BR_") for l in labels), labels

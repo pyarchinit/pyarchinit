@@ -498,7 +498,12 @@ def _resolve_display_label(unita_tipo: str, us_number: str,
     if unita_tipo in ("SF", "VSF"):
         return f"{unita_tipo}{n}"
     if unita_tipo == "CON":
-        return f"CON{n}"
+        # The ``us`` value of a continuity row already carries the
+        # ``CON`` prefix in practice (e.g. ``CON1``), so concatenating a
+        # second prefix would yield ``CONCON1``. Guard against the
+        # double-prefix: only prepend ``CON`` when the us value doesn't
+        # already start with it.
+        return n if n.upper().startswith("CON") else f"CON{n}"
     # EM paradata export (2026-06-08, fix #6): paradata nodes are
     # labelled by their ``us`` value (e.g. ``D.1``, ``D.1.1``, ``C.1``,
     # ``prop1``), NOT by ``d_stratigrafica`` (which carries the EM kind
