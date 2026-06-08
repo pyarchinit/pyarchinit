@@ -245,9 +245,17 @@ def compute_primary(memberships: list, priority_order: list) -> dict:
 
 
 def _is_us_node(node) -> bool:
-    """Return True if *node* is a stratigraphic unit (US/USM/USVs/...)."""
-    cls_name = type(node).__name__
-    return cls_name == "USNode" or cls_name.startswith("Stratigraphic")
+    """Return True if *node* is any stratigraphic unit (US/USM/USVs/USVn/SF/
+    VSF/RSF/USD/CON/...).
+
+    All stratigraphic kinds subclass ``StratigraphicNode``, but their class
+    NAMES don't share a common prefix — ``StructuralVirtualStratigraphicUnit``,
+    ``SpecialFindUnit``, ``VirtualSpecialFindUnit`` start with Structural/
+    Special/Virtual, not "Stratigraphic". A name-prefix test therefore missed
+    USV/SF/VSF, so their ``rapporti`` were never turned into edges (the source
+    node wasn't indexed). Walk the MRO instead."""
+    names = {c.__name__ for c in type(node).__mro__}
+    return "StratigraphicNode" in names or "USNode" in names
 
 
 class GraphProjector:
@@ -485,6 +493,24 @@ class GraphProjector:
                 logging.getLogger(__name__).warning(
                     f"_merge_groups failed, continuing without groups: {e}")
 
+        # EM paradata edge typing (datamodel-driven): retype generic_connection
+        # edges — the EM shorthand >> / << that pyArchInit stores for
+        # virtual/paradata links — into the specific data-model edge types
+        # (extracted_from / combines / has_property / has_documentation /
+        # has_data_provenance / is_part_of) based on the endpoint node classes.
+        # Combiner/Extractor have no rule linking them to a plain US/USM, so
+        # those edges correctly stay generic_connection.
+        try:
+            from .paradata_edge_resolver import refine_generic_connections
+            n_retyped = refine_generic_connections(graph)
+            if n_retyped:
+                logging.getLogger(__name__).info(
+                    f"paradata edge refinement: retyped {n_retyped} "
+                    f"generic_connection edge(s)")
+        except Exception as e:
+            logging.getLogger(__name__).warning(
+                f"paradata edge refinement skipped: {e}")
+
         return graph
 
     def _verify_node_uuid_column(self, db_path) -> None:
@@ -573,7 +599,7 @@ class GraphProjector:
             if paradata_ut is not None:
                 nodes_by_key[(name, paradata_ut)] = n
                 continue
-            if cls.startswith("Stratigraphic") or cls == "USNode":
+            if _is_us_node(n):
                 nodes_by_key[(name, "__STRAT__")] = n
         if not nodes_by_key:
             return  # nothing to propagate
@@ -818,7 +844,7 @@ class GraphProjector:
                 nodes_by_us_ut[(name, paradata_ut)] = n
                 nodes_by_name.setdefault(name, []).append(n)
                 continue
-            if nclass.startswith("Stratigraphic") or nclass == "USNode":
+            if _is_us_node(n):
                 attrs = getattr(n, "attributes", None) or {}
                 ut = attrs.get("unita_tipo") or "US"
                 nodes_by_us_ut[(name, ut)] = n
@@ -830,8 +856,7 @@ class GraphProjector:
         strat_by_name: dict[str, object] = {}
         for name, candidates in nodes_by_name.items():
             for c in candidates:
-                ccls = type(c).__name__
-                if ccls.startswith("Stratigraphic") or ccls == "USNode":
+                if _is_us_node(c):
                     strat_by_name[name] = c
                     break
 

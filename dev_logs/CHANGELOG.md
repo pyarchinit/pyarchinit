@@ -5,6 +5,26 @@
 
 ---
 
+## [5.12.9-alpha] - 2026-06-08 — Export EM: edge paradata tipizzati + USV/SF connessi
+
+> Branch `Stratigraph_00001`. Nell'export verso GraphML/EM-tools i nodi paradata (DOC/Combinar/Extractor/property) e gli USV/SF risultavano scollegati o con relazioni generiche. Ora la catena paradata EM si tipizza correttamente.
+
+### Italiano
+
+**Due fix lato proiettore rendono corretto il grafo paradata EM.**
+
+1. **Nuovo `modules/s3dgraphy/sync/paradata_edge_resolver.py`** (+ post-pass in `graph_projector.populate_graph`): dopo la costruzione del grafo, ri-tipizza gli edge `generic_connection` (lo shorthand EM `>>`/`<<` che pyArchInit salva per i collegamenti virtuali/paradata) negli edge **specifici** del datamodel s3dgraphy — `extracted_from` (Extractor→Document), `combines` (Combiner→Extractor), `has_property` ((US/USV|Document)→Property), `has_documentation` ((US/USV/SF)→Document), `has_data_provenance` (Property→Extractor/Combiner), `is_part_of` (SF/VSF→US) — leggendo le `allowed_connections` dal datamodel. La direzione viene scambiata quando la regola combacia solo al contrario. **Combiner/Extractor non si collegano mai a US/USM** (nessuna regola lo consente → restano generic). Il tipo EM del nodo è preso da `attributes['unita_tipo']` (i paradata sono `StratigraphicUnit` + attr per design, *Bug P*), non dalla classe Python. 16 test in `tests/sync/test_paradata_edge_resolver.py`.
+
+2. **`graph_projector._is_us_node` (+3 punti in `_propagate`/`_enrich`)**: il riconoscimento della famiglia stratigrafica usava un test sul **prefisso del nome classe** (`startswith("Stratigraphic")`) che escludeva `StructuralVirtualStratigraphicUnit` / `SpecialFindUnit` / `VirtualSpecialFindUnit` (iniziano con Structural/Special/Virtual). Risultato: USV/SF/VSF non venivano indicizzati e i loro `rapporti` non diventavano mai edge. Ora si usa la MRO (qualsiasi sottoclasse di `StratigraphicNode`), così gli edge stratigrafici degli USV e i collegamenti SF/USV→DOC si formano.
+
+Verifica headless sul DB di test: `extracted_from`/`combines`/`has_data_provenance`/`has_property`/`has_documentation`/`is_part_of` tutti presenti, USV/SF connessi. Suite `tests/sync` **415 passed**, zero nuove regressioni (9+9 PG/Spatialite pre-esistenti).
+
+### English
+
+**Two projector-side fixes make the EM paradata graph correct on export.** New `paradata_edge_resolver.py` runs a post-pass over `populate_graph`'s graph, retyping the EM-shorthand `generic_connection` edges into the specific s3dgraphy datamodel edge types (`extracted_from`/`combines`/`has_property`/`has_documentation`/`has_data_provenance`/`is_part_of`) by looking up `allowed_connections` from the node classes — derived from `attributes['unita_tipo']` (pyArchInit stores row-paradata as `StratigraphicUnit` + attr by design), with direction swap when the rule matches in reverse. Combiner/Extractor never link a plain US/USM. Second fix: `_is_us_node` (+3 call sites) walked a class-name prefix that missed `StructuralVirtualStratigraphicUnit`/`SpecialFindUnit`/`VirtualSpecialFindUnit`, so USV/SF/VSF nodes were never indexed and their rapporti never became edges — now it walks the MRO. Suite **415 passed**, no new regressions. 16 new resolver tests.
+
+---
+
 ## [5.12.8-alpha] - 2026-06-08 — fix schema: `us_table.other_locations` su updater + template
 
 > Branch `Stratigraph_00001`. Un DB creato dal template dava `OperationalError: no such column: us_table.other_locations` all'apertura.
