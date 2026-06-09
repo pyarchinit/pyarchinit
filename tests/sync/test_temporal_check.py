@@ -128,6 +128,58 @@ def test_placeholder_excluded():
     assert TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it") == []
 
 
+# ---------------------------------------------------------------------------
+# Task 4: solve_fixes (majority heuristic + target period)
+# ---------------------------------------------------------------------------
+
+def _mk(rels):
+    """rels = list of (src_us, edge_type, tgt_us). Returns graph with one
+    node per us."""
+    us_set = {u for (s, _e, t) in rels for u in (s, t)}
+    nodes = [_N(u, us=u) for u in us_set]
+    edges = [_E(s, t, e) for (s, e, t) in rels]
+    return _G(nodes, edges)
+
+def test_solve_tie_leaves_suggestion():
+    g = _mk([("US5", "overlies", "US7")])
+    up = {"US5": ("1", "1", "1", "1"), "US7": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    assert iss[0].auto is False and iss[0].edits == []  # 1 vs 1 conflict = tie
+
+def test_solve_moves_majority_outlier():
+    # US5 covers US7 and US8; US5 wrongly in period 1 (older) -> US5 is outlier
+    g = _mk([("US5", "overlies", "US7"), ("US5", "overlies", "US8")])
+    up = {"US5": ("1", "1", "1", "1"),
+          "US7": ("3", "1", "3", "1"), "US8": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert inv and all(i.auto for i in inv)
+    moved = inv[0].edits[0]
+    assert moved.us == "US5"
+    assert dict(moved.set_fields)["periodo_iniziale"] == "3"  # minimal move to >=3
+
+def test_solve_skips_multiperiod_unit():
+    g = _mk([("CON_US5", "overlies", "US7"), ("CON_US5", "overlies", "US8")])
+    up = {"CON_US5": ("1", "1", "2", "1"),    # spans periods -> not auto-movable
+          "US7": ("3", "1", "3", "1"), "US8": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert inv and all(i.edits == [] for i in inv)  # suggestion only
+
+def test_solve_gap_fill_contemporaneity():
+    g = _mk([("US5", "is_bonded_to", "US9")])
+    up = {"US5": ("2", "1", "2", "1"), "US9": ("", "", "", "")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    c = [i for i in iss if i.kind == TC.TEMPORAL_CONTEMPORANEITY][0]
+    assert c.auto is True
+    assert c.edits[0].us == "US9"
+    assert dict(c.edits[0].set_fields)["periodo_iniziale"] == "2"
+
+
 def test_unevaluable_summary_is_generic_for_all_langs():
     """s_temporal_uneval summary must be factually correct for BOTH
     contemporaneous (is_physically_equal_to / is_bonded_to) and order

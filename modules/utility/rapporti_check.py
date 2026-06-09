@@ -38,11 +38,13 @@ _EDGE_TYPE_INVERSE = {
 
 @dataclass(frozen=True)
 class Edit:
-    """One change to a single US's ``rapporti`` column. ``add``/``remove``
-    hold ``(label, target_us, area, sito)`` 4-tuples."""
+    """One change to a single US's row. ``add``/``remove`` hold
+    ``(label, target_us, area, sito)`` rapporti 4-tuples; ``set_fields`` holds
+    ``(column, value)`` pairs for non-rapporti columns (e.g. period fields)."""
     us: str
     add: tuple = ()
     remove: tuple = ()
+    set_fields: tuple = ()
 
 
 @dataclass

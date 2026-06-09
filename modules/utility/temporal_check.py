@@ -189,10 +189,165 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
                 _t(lang, "s_temporal_uneval").format(
                     a=_utok(later, lang), b=_utok(earlier, lang))))
             continue
-        if sp_l[1] < sp_e[0]:   # later entirely before earlier → inversion
+        if sp_l[1] <= sp_e[0]:   # later ends at or before earlier starts → inversion
             issues.append(Issue(
                 TEMPORAL_INVERSION, [later, earlier], False,
                 _t(lang, "s_temporal_inv").format(
                     a=_utok(later, lang), pa=_periodo(later, unit_periods),
                     b=_utok(earlier, lang), pb=_periodo(earlier, unit_periods))))
     return issues
+
+
+# ---------------------------------------------------------------------------
+# Task 4: solve_fixes (majority heuristic + target period)
+# ---------------------------------------------------------------------------
+
+def _build_adjacency(graph, id_to_us):
+    """us -> list of (neighbor_us, role) where role describes us vs neighbor:
+    'later' (us is later than nb), 'earlier', or 'contemp'."""
+    adj = {}
+    for (s, t, et) in _strat_edges(graph):
+        rel = _classify_relation(et)
+        if rel is None:
+            continue
+        us_s, us_t = id_to_us.get(s), id_to_us.get(t)
+        if not us_s or not us_t or us_s == us_t:
+            continue
+        if rel == "contemp":
+            adj.setdefault(us_s, []).append((us_t, "contemp"))
+            adj.setdefault(us_t, []).append((us_s, "contemp"))
+        else:
+            later, earlier = (us_s, us_t) if rel == "later" else (us_t, us_s)
+            adj.setdefault(later, []).append((earlier, "later"))
+            adj.setdefault(earlier, []).append((later, "earlier"))
+    return adj
+
+
+def _violated(role, su, sn):
+    """Return True when the candidate span *su* violates the constraint imposed
+    by *role* with neighbor span *sn*.
+
+    The boundary condition uses strict ordering (``<=``): periods that only
+    touch at a single point are still considered non-overlapping and therefore
+    still violating.  This ensures that ``_best_target_period`` picks a period
+    that genuinely precedes/follows the neighbor rather than merely touching it.
+
+    Examples:
+      - role='later', su=(0,100), sn=(100,200) → su[1]=100 <= sn[0]=100 → True
+        (period touching the neighbor's start is not "after" it)
+      - role='later', su=(100,200), sn=(100,200) → 200 <= 100 → False  (same period OK)
+    """
+    if su is None or sn is None:
+        return False
+    if role == "later":
+        return su[1] <= sn[0]
+    if role == "earlier":
+        return sn[1] <= su[0]
+    if role == "contemp":
+        return su[1] < sn[0] or sn[1] < su[0]
+    return False
+
+
+def _is_mono(us, unit_periods):
+    p = unit_periods.get(us)
+    return p is not None and bool(p[0]) and p[0] == p[2]
+
+
+def _best_target_period(m, adj, work, chrono):
+    """Pick the (periodo, fase) satisfying ALL of m's constraints against
+    neighbors' CURRENT spans, with the smallest chronological shift. None if
+    no candidate satisfies."""
+    cur = unit_span(work.get(m), chrono)
+    cur_ini = cur[0] if cur else None
+    best, best_dist = None, None
+    for (periodo, fase), (ci, cf) in chrono.items():
+        if ci is None or cf is None:
+            continue
+        cand = (ci, cf)
+        ok = True
+        for (nb, role) in adj.get(m, ()):
+            if _violated(role, cand, unit_span(work.get(nb), chrono)):
+                ok = False
+                break
+        if not ok:
+            continue
+        dist = abs(ci - cur_ini) if cur_ini is not None else abs(ci)
+        if best is None or dist < best_dist:
+            best, best_dist = (periodo, fase), dist
+    return best
+
+
+def _set_fields_for(periodo, fase):
+    return (("periodo_iniziale", periodo), ("fase_iniziale", fase),
+            ("periodo_finale", periodo), ("fase_finale", fase))
+
+
+def solve_fixes(issues, graph, chrono, unit_periods, *, sito):
+    """Populate iss.edits (auto) where resolvable; leave suggestions otherwise.
+    Greedy single pass: each accepted move updates an in-memory period map so
+    later decisions see its effect. Mutates the Issue objects in place."""
+    work = dict(unit_periods)
+    id_to_us = _node_us_map(graph)
+    adj = _build_adjacency(graph, id_to_us)
+
+    def span_work(us):
+        return unit_span(work.get(us), chrono)
+
+    def conflict_score(us):
+        return sum(1 for (nb, role) in adj.get(us, ())
+                   if _violated(role, span_work(us), span_work(nb)))
+
+    # Build set of contemp pairs from the adjacency map for gap-fill detection.
+    # A TEMPORAL_UNEVALUABLE issue arising from a contemp edge (one side undated)
+    # is gap-fillable: assign the undated unit the dated neighbour's period.
+    contemp_pairs = frozenset(
+        frozenset((us, nb))
+        for us, neighbors in adj.items()
+        for (nb, role) in neighbors
+        if role == "contemp"
+    )
+
+    targetable = [i for i in issues
+                  if i.kind in (TEMPORAL_INVERSION, TEMPORAL_CONTEMPORANEITY,
+                                TEMPORAL_UNEVALUABLE)]
+    targetable.sort(key=lambda i: -sum(conflict_score(u) for u in i.us_path))
+
+    for iss in targetable:
+        a, b = iss.us_path[0], iss.us_path[1]
+        sp_a, sp_b = span_work(a), span_work(b)
+
+        # gap-fill: one side undated, connected by a contemporaneity edge
+        is_contemp_pair = frozenset((a, b)) in contemp_pairs
+        if is_contemp_pair and (sp_a is None) != (sp_b is None):
+            dated, undated = (a, b) if sp_a is not None else (b, a)
+            dp = work.get(dated)
+            if dp and dp[0]:
+                work[undated] = (dp[0], dp[1], dp[0], dp[1])
+                iss.kind = TEMPORAL_CONTEMPORANEITY
+                iss.auto = True
+                iss.edits = [Edit(us=undated,
+                                  set_fields=_set_fields_for(dp[0], dp[1]))]
+            continue
+
+        if sp_a is None or sp_b is None:
+            continue
+        if iss.kind == TEMPORAL_UNEVALUABLE:
+            continue                      # order-edge unevaluable, no fix
+        ca, cb = conflict_score(a), conflict_score(b)
+        if ca == cb:
+            # Tie — but check if a prior move already resolved this inversion.
+            # If neither unit violates the other any more, the issue was fixed
+            # as a side effect; mark auto=True with an empty edits list.
+            if iss.kind == TEMPORAL_INVERSION and not _violated("later", sp_a, sp_b):
+                iss.auto = True
+            continue
+        m = a if ca > cb else b
+        if not _is_mono(m, unit_periods):
+            continue                      # multi-period -> suggestion
+        target = _best_target_period(m, adj, work, chrono)
+        if target is None:
+            continue                      # no valid period -> suggestion
+        periodo, fase = target
+        work[m] = (periodo, fase, periodo, fase)
+        iss.auto = True
+        iss.edits = [Edit(us=m, set_fields=_set_fields_for(periodo, fase))]
