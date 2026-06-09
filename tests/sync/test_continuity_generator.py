@@ -31,3 +31,44 @@ def test_scan_excludes_non_us_usm_types():
 def test_scan_inherits_all_areas_via_other_locations():
     c = scan_candidates([_rec(other_locations='["2","3"]')])[0]
     assert c.other_locations == '["2","3"]'
+
+
+# ---------------------------------------------------------------------------
+# Task 3: build_con_record + desired_rapporti (pure)
+# ---------------------------------------------------------------------------
+from modules.s3dgraphy.sync.continuity_generator import (
+    build_con_record, desired_rapporti, con_us_code,
+)
+from modules.s3dgraphy.sync.rapporti import continuity_label, parse_rapporti
+
+def test_con_us_code():
+    assert con_us_code("US5") == "CON_US5"
+    assert con_us_code("USM6") == "CON_USM6"
+
+def test_build_con_record_fields():
+    c = scan_candidates([_rec(other_locations='["2"]')])[0]
+    rec = build_con_record(c, schedatore="enzo", lang="it")
+    assert rec["us"] == "CON_US5"
+    assert rec["unita_tipo"] == "CON"
+    assert rec["sito"] == "S"
+    assert rec["area"] == "1"
+    assert rec["struttura"] == "M1"
+    assert rec["other_locations"] == '["2"]'
+    assert rec["periodo_iniziale"] == "1" and rec["periodo_finale"] == "3"
+    assert rec["fase_iniziale"] == "1" and rec["fase_finale"] == "2"
+    assert rec["d_stratigrafica"] == "Continuità"
+    assert "US5" in rec["descrizione"] and "1" in rec["descrizione"]
+    assert rec["schedatore"] == "enzo"
+    # CON-side rapporti: forward continuity to the madre
+    fwd = continuity_label("it", "forward")
+    assert rec["rapporti"] == [[fwd, "US5", "1", "S"]]
+
+def test_desired_rapporti_pair_directions():
+    c = scan_candidates([_rec()])[0]
+    con_entry, madre_entry = desired_rapporti(c, lang="it")
+    # CON row -> forward -> CON is_after US (no swap)
+    p_con = parse_rapporti([con_entry])
+    assert p_con == [("is_after", "US5", "1", "S", False)]
+    # madre row -> reverse -> swap -> still CON is_after US
+    p_madre = parse_rapporti([madre_entry])
+    assert p_madre == [("is_after", "CON_US5", "1", "S", True)]

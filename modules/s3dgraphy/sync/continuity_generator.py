@@ -13,7 +13,9 @@ Spec: docs/superpowers/specs/2026-06-09-genera-continuita-con-design.md
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+from .rapporti import continuity_label
 
 #: Source unit types that can bear a continuity (per spec: US / USM only).
 CONTINUITY_SOURCE_TYPES = frozenset({"US", "USM"})
@@ -71,3 +73,52 @@ def scan_candidates(records) -> list[Candidate]:
             other_locations=r.get("other_locations"),
         ))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Task 3: build_con_record + desired_rapporti (pure)
+# ---------------------------------------------------------------------------
+
+def con_us_code(us_madre: str) -> str:
+    """Deterministic CON identity for a madre US (idempotency key)."""
+    return f"CON_{us_madre}"
+
+
+def desired_rapporti(cand: Candidate, *, lang: str = "it"):
+    """Return (con_side_entry, madre_side_entry) rapporti rows.
+
+    Both are 4-lists ``[label, target_us, area, sito]`` in pyArchInit's
+    column convention. The CON side carries the forward label, the madre
+    side the reverse label (swap → same CON is_after US edge)."""
+    area = cand.area or "1"
+    sito = cand.sito
+    con_us = con_us_code(cand.us)
+    fwd = continuity_label(lang, "forward")
+    rev = continuity_label(lang, "reverse")
+    con_entry = [fwd, cand.us, area, sito]
+    madre_entry = [rev, con_us, area, sito]
+    return con_entry, madre_entry
+
+
+def build_con_record(cand: Candidate, *, schedatore: str = "",
+                     lang: str = "it") -> dict:
+    """Build the CON scheda dict for a candidate (no DB I/O, no uuids)."""
+    con_entry, _ = desired_rapporti(cand, lang=lang)
+    descr = (f"Continuità di {cand.us} dal periodo "
+             f"{cand.periodo_iniziale} al periodo {cand.periodo_finale}")
+    return {
+        "sito": cand.sito,
+        "us": con_us_code(cand.us),
+        "unita_tipo": "CON",
+        "area": cand.area,
+        "struttura": cand.struttura,
+        "periodo_iniziale": cand.periodo_iniziale,
+        "fase_iniziale": cand.fase_iniziale,
+        "periodo_finale": cand.periodo_finale,
+        "fase_finale": cand.fase_finale,
+        "other_locations": cand.other_locations,
+        "d_stratigrafica": "Continuità",
+        "descrizione": descr,
+        "rapporti": [con_entry],
+        "schedatore": schedatore,
+    }
