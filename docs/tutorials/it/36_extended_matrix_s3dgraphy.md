@@ -324,6 +324,33 @@ Predecessore: vedi sezione 5.8 (`yed-fastfix-5.8.5-alpha`) per il comportamento 
 
 ---
 
+## 6. Genera continuità (schede CON)
+
+Nel pannello **"Verifica rapporti"** — disponibile come tab all'interno del dialog di import/export s3dgraphy — è presente il pulsante **"Genera continuità"**. La funzione crea automaticamente, per il sito attualmente selezionato, le **schede di continuità** delle US/USM che attraversano più di un periodo.
+
+### 6.1 Cosa fa
+
+1. Scansiona tutte le US/USM del sito in cui **periodo iniziale ≠ periodo finale** (cioè la cui vita si estende su più periodi).
+2. Per ognuna crea o aggiorna una scheda di continuità denominata **`CON_<us>`** (es. `US5` → `CON_US5`).
+3. La scheda CON **eredita** dall'unità madre: sito, area (più le aree secondarie), struttura e l'intero arco di periodi (iniziale → finale). La descrizione viene generata automaticamente.
+4. Scrive un **rapporto di continuità reciproco** su entrambi i lati: sulla CON e sull'unità madre.
+
+### 6.2 Idempotenza
+
+L'operazione è **idempotente**: rilanciarla non duplica le schede già presenti, ma aggiorna le `CON_<us>` esistenti se i dati dell'unità madre sono cambiati.
+
+### 6.3 Anteprima (dry-run) e backup
+
+Prima di scrivere viene mostrata un'**anteprima dry-run** con i conteggi: quante schede da **creare**, da **aggiornare**, **invariate** e quante **orfane**. Le modifiche vengono applicate **solo dopo conferma** (pulsante "Genera"). Al momento dell'applicazione viene eseguito automaticamente un **backup del database**.
+
+Una scheda CON è **orfana** quando l'unità madre non attraversa più periodi (ad es. periodo iniziale e finale sono stati resi uguali). Di default le orfane vengono solo **segnalate**; una **casella di spunta** ("Rimuovi anche le CON orfane") consente di rimuoverle.
+
+### 6.4 In export Extended Matrix
+
+Le schede `CON_<us>` così generate compaiono nell'export GraphML dell'Extended Matrix come **elementi di continuità**.
+
+---
+
 ## Riferimenti
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

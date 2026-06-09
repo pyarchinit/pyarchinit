@@ -324,6 +324,33 @@ Predecessor: ver secção 5.8 (`yed-fastfix-5.8.5-alpha`) para o comportamento s
 
 ---
 
+## 6. Gerar continuidade (fichas CON)
+
+No painel **«Verifica rapporti»** — disponível como separador dentro do diálogo de importação/exportação do s3dgraphy — encontra-se o botão **«Genera continuità»** (rótulo mantido em italiano como no plugin). Para o sítio atualmente selecionado, esta funcionalidade cria automaticamente as **fichas de continuidade** das US/USM cuja vida se estende por mais de um período.
+
+### 6.1 O que faz
+
+1. Percorre todas as US/USM do sítio em que **período inicial ≠ período final** (ou seja, cuja vida se estende por mais do que um período).
+2. Para cada uma cria ou atualiza uma ficha de continuidade chamada **`CON_<us>`** (p. ex. `US5` → `CON_US5`).
+3. A ficha CON **herda** da unidade-mãe: sítio, área (mais as áreas secundárias), estrutura e todo o intervalo de períodos (inicial → final). A sua descrição é gerada automaticamente.
+4. Escreve uma **relação de continuidade recíproca** em ambos os lados: na CON e na sua unidade-mãe.
+
+### 6.2 Idempotência
+
+A operação é **idempotente**: voltar a executá-la não duplica as fichas existentes — atualiza as `CON_<us>` existentes se os dados da unidade-mãe tiverem mudado.
+
+### 6.3 Pré-visualização (dry-run) e cópia de segurança
+
+Antes de escrever é mostrada uma **pré-visualização dry-run** com as contagens: quantas fichas há a **criar**, a **atualizar**, **inalteradas** e quantas **órfãs**. As alterações são aplicadas **apenas após confirmação** (botão «Genera»). Ao aplicar é feita primeiro uma **cópia de segurança da base de dados** automática.
+
+Uma ficha CON é **órfã** quando a sua unidade-mãe já não se estende por vários períodos (p. ex. o seu período inicial e final foram tornados iguais). Por predefinição as órfãs são apenas **assinaladas**; uma **caixa de seleção** («Rimuovi anche le CON orfane») permite optar por removê-las.
+
+### 6.4 Na exportação Extended Matrix
+
+As fichas `CON_<us>` geradas desta forma aparecem na exportação GraphML do Extended Matrix como **elementos de continuidade**.
+
+---
+
 ## Referências
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

@@ -324,6 +324,33 @@ Predecesor: vezi secțiunea 5.8 (`yed-fastfix-5.8.5-alpha`) pentru comportamentu
 
 ---
 
+## 6. Generare continuitate (fișe CON)
+
+În panoul **„Verifica rapporti"** — disponibil ca tab în interiorul dialogului de import/export s3dgraphy — există butonul **„Genera continuità"** (etichetă păstrată în italiană ca în plugin). Pentru situl selectat curent, această funcție creează automat **fișele de continuitate** ale US/USM a căror viață se întinde pe mai mult de o perioadă.
+
+### 6.1 Ce face
+
+1. Scanează toate US/USM din sit la care **perioada inițială ≠ perioada finală** (adică a căror viață se întinde pe mai multe perioade).
+2. Pentru fiecare creează sau actualizează o fișă de continuitate denumită **`CON_<us>`** (de ex. `US5` → `CON_US5`).
+3. Fișa CON **moștenește** de la unitatea-mamă: situl, aria (plus ariile secundare), structura și întregul interval de perioade (inițială → finală). Descrierea ei este generată automat.
+4. Scrie o **relație de continuitate reciprocă** pe ambele părți: pe CON și pe unitatea-mamă.
+
+### 6.2 Idempotență
+
+Operația este **idempotentă**: rularea repetată nu duplică fișele existente — actualizează `CON_<us>` existente dacă datele unității-mamă s-au schimbat.
+
+### 6.3 Previzualizare (dry-run) și backup
+
+Înainte de scriere se afișează o **previzualizare dry-run** cu numărătorile: câte fișe trebuie **create**, **actualizate**, **neschimbate** și câte **orfane**. Modificările se aplică **doar după confirmare** (butonul „Genera"). La aplicare se face mai întâi un **backup al bazei de date** automat.
+
+O fișă CON este **orfană** atunci când unitatea ei mamă nu se mai întinde pe mai multe perioade (de ex. perioada inițială și cea finală au fost făcute egale). În mod implicit orfanele sunt doar **semnalate**; o **casetă de bifare** („Rimuovi anche le CON orfane") permite optarea pentru eliminarea lor.
+
+### 6.4 În exportul Extended Matrix
+
+Fișele `CON_<us>` generate astfel apar în exportul GraphML al Extended Matrix ca **elemente de continuitate**.
+
+---
+
 ## Referințe
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

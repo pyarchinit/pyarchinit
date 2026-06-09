@@ -324,6 +324,33 @@ Predecessor: vegeu la secció 5.8 (`yed-fastfix-5.8.5-alpha`) per al comportamen
 
 ---
 
+## 6. Generar continuïtat (fitxes CON)
+
+Al panell **«Verifica rapporti»** — disponible com a pestanya dins del diàleg d'importació/exportació de s3dgraphy — hi ha el botó **«Genera continuità»** (etiqueta mantinguda en italià com al connector). Per al jaciment actualment seleccionat, aquesta funció crea automàticament les **fitxes de continuïtat** de les US/USM la vida de les quals abasta més d'un període.
+
+### 6.1 Què fa
+
+1. Escaneja totes les US/USM del jaciment on **període inicial ≠ període final** (és a dir, la vida de les quals abasta més d'un període).
+2. Per a cadascuna crea o actualitza una fitxa de continuïtat anomenada **`CON_<us>`** (p. ex. `US5` → `CON_US5`).
+3. La fitxa CON **hereta** de la unitat mare: jaciment, àrea (més les àrees secundàries), estructura i tot l'arc de períodes (inicial → final). La seva descripció es genera automàticament.
+4. Escriu una **relació de continuïtat recíproca** a tots dos costats: a la CON i a la seva unitat mare.
+
+### 6.2 Idempotència
+
+L'operació és **idempotent**: tornar-la a executar no duplica les fitxes existents — actualitza les `CON_<us>` existents si les dades de la unitat mare han canviat.
+
+### 6.3 Previsualització (dry-run) i còpia de seguretat
+
+Abans d'escriure es mostra una **previsualització dry-run** amb els recomptes: quantes fitxes cal **crear**, **actualitzar**, **sense canvis** i quantes **òrfenes**. Els canvis s'apliquen **només després de la confirmació** (botó «Genera»). En aplicar-los es fa primer una **còpia de seguretat de la base de dades** automàtica.
+
+Una fitxa CON és **òrfena** quan la seva unitat mare ja no abasta diversos períodes (p. ex. se n'han igualat el període inicial i final). Per defecte les òrfenes només se **senyalen**; una **casella de selecció** («Rimuovi anche le CON orfane») permet optar per eliminar-les.
+
+### 6.4 A l'exportació Extended Matrix
+
+Les fitxes `CON_<us>` generades així apareixen a l'exportació GraphML de l'Extended Matrix com a **elements de continuïtat**.
+
+---
+
 ## Referències
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

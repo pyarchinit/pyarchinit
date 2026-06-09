@@ -324,6 +324,33 @@ Prédécesseur : voir la section 5.8 (`yed-fastfix-5.8.5-alpha`) pour le comport
 
 ---
 
+## 6. Générer la continuité (fiches CON)
+
+Dans le panneau **« Verifica rapporti »** — disponible sous forme d'onglet dans la boîte de dialogue d'import/export s3dgraphy — se trouve le bouton **« Genera continuità »** (libellé conservé en italien comme dans le plugin). Pour le site actuellement sélectionné, cette fonction crée automatiquement les **fiches de continuité** des US/USM dont la vie s'étend sur plus d'une période.
+
+### 6.1 Ce qu'elle fait
+
+1. Elle parcourt toutes les US/USM du site dont la **période initiale ≠ période finale** (c'est-à-dire dont la vie s'étend sur plusieurs périodes).
+2. Pour chacune, elle crée ou met à jour une fiche de continuité nommée **`CON_<us>`** (p. ex. `US5` → `CON_US5`).
+3. La fiche CON **hérite** de l'unité mère : site, aire (plus les aires secondaires), structure et tout l'arc des périodes (initiale → finale). Sa description est générée automatiquement.
+4. Elle écrit une **relation de continuité réciproque** des deux côtés : sur la CON et sur son unité mère.
+
+### 6.2 Idempotence
+
+L'opération est **idempotente** : la relancer ne duplique pas les fiches existantes — elle met à jour les `CON_<us>` existantes si les données de l'unité mère ont changé.
+
+### 6.3 Aperçu (dry-run) et sauvegarde
+
+Avant l'écriture, un **aperçu dry-run** est affiché avec les comptages : combien de fiches à **créer**, à **mettre à jour**, **inchangées** et combien d'**orphelines**. Les modifications ne sont appliquées **qu'après confirmation** (bouton « Genera »). À l'application, une **sauvegarde de la base de données** automatique est effectuée au préalable.
+
+Une fiche CON est **orpheline** lorsque son unité mère ne s'étend plus sur plusieurs périodes (p. ex. ses périodes initiale et finale ont été rendues égales). Par défaut, les orphelines sont seulement **signalées** ; une **case à cocher** (« Rimuovi anche le CON orfane ») permet d'opter pour leur suppression.
+
+### 6.4 Dans l'export Extended Matrix
+
+Les fiches `CON_<us>` ainsi générées apparaissent dans l'export GraphML de l'Extended Matrix comme **éléments de continuité**.
+
+---
+
 ## Références
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

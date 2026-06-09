@@ -324,6 +324,33 @@ Vorgänger: siehe Abschnitt 5.8 (`yed-fastfix-5.8.5-alpha`) für das abgelöste 
 
 ---
 
+## 6. Kontinuität generieren (CON-Datensätze)
+
+Im Panel **„Verifica rapporti"** — verfügbar als Tab innerhalb des s3dgraphy-Import-/Export-Dialogs — befindet sich die Schaltfläche **„Genera continuità"** (Label wie im Plugin auf Italienisch belassen). Für die aktuell ausgewählte Fundstelle erzeugt diese Funktion automatisch die **Kontinuitäts-Datensätze** der US/USM, deren Lebensdauer sich über mehr als eine Periode erstreckt.
+
+### 6.1 Was sie tut
+
+1. Sie durchsucht alle US/USM der Fundstelle, bei denen **Anfangsperiode ≠ Endperiode** ist (deren Leben sich also über mehrere Perioden erstreckt).
+2. Für jede erzeugt oder aktualisiert sie einen Kontinuitäts-Datensatz mit dem Namen **`CON_<us>`** (z. B. `US5` → `CON_US5`).
+3. Der CON-Datensatz **erbt** von der Mutter-Einheit: Fundstelle, Area (plus etwaige sekundäre Areas), Struktur und die gesamte Periodenspanne (Anfang → Ende). Seine Beschreibung wird automatisch generiert.
+4. Sie schreibt eine **reziproke Kontinuitäts-Beziehung** auf beiden Seiten: auf dem CON und auf der Mutter-Einheit.
+
+### 6.2 Idempotenz
+
+Der Vorgang ist **idempotent**: Ein erneuter Lauf dupliziert vorhandene Datensätze nicht — er aktualisiert die bestehenden `CON_<us>`, wenn sich die Daten der Mutter-Einheit geändert haben.
+
+### 6.3 Dry-Run-Vorschau und Backup
+
+Vor dem Schreiben wird eine **Dry-Run-Vorschau** mit den Zählungen angezeigt: wie viele Datensätze zu **erstellen**, zu **aktualisieren**, **unverändert** sind und wie viele **verwaist** sind. Änderungen werden **erst nach Bestätigung** angewendet (Schaltfläche „Genera"). Beim Anwenden wird zuvor automatisch ein **Datenbank-Backup** erstellt.
+
+Ein CON-Datensatz ist **verwaist**, wenn seine Mutter-Einheit sich nicht mehr über mehrere Perioden erstreckt (z. B. wurden Anfangs- und Endperiode gleichgesetzt). Standardmäßig werden Verwaiste nur **markiert**; eine **Checkbox** („Rimuovi anche le CON orfane") erlaubt es, sie zu entfernen.
+
+### 6.4 Im Extended-Matrix-Export
+
+Die so erzeugten `CON_<us>`-Datensätze erscheinen im Extended-Matrix-GraphML-Export als **Kontinuitäts-Elemente**.
+
+---
+
 ## Referenzen
 
 - Upstream-Issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

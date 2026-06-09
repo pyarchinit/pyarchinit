@@ -324,6 +324,33 @@ Predecessor: see section 5.8 (`yed-fastfix-5.8.5-alpha`) for the superseded beha
 
 ---
 
+## 6. Generate continuity (CON records)
+
+In the **"Verifica rapporti"** panel — available as a tab inside the s3dgraphy import/export dialog — there is a **"Genera continuità"** button (label kept in Italian as in the plugin). For the currently selected site, this feature automatically builds the **continuity records** of the US/USM whose life spans more than one period.
+
+### 6.1 What it does
+
+1. It scans every US/USM in the site whose **initial period ≠ final period** (i.e. whose life spans more than one period).
+2. For each one it creates or updates a continuity record named **`CON_<us>`** (e.g. `US5` → `CON_US5`).
+3. The CON record **inherits** from the parent unit: site, area (plus any secondary areas), structure and the full period span (initial → final). Its description is auto-generated.
+4. It writes a **reciprocal continuity relationship** on both sides: on the CON and on its parent unit.
+
+### 6.2 Idempotency
+
+The operation is **idempotent**: re-running it does not duplicate existing records — it updates the existing `CON_<us>` if the parent unit's data has changed.
+
+### 6.3 Dry-run preview and backup
+
+Before writing, a **dry-run preview** is shown with the counts: how many records to **create**, to **update**, **unchanged** and how many **orphan**. Changes are applied **only after confirmation** (the "Genera" button). On apply, an automatic **database backup** is made first.
+
+A CON record is **orphan** when its parent unit no longer spans periods (e.g. its initial and final period were made equal). By default orphans are only **flagged**; a **checkbox** ("Rimuovi anche le CON orfane") lets you opt into removing them.
+
+### 6.4 In the Extended Matrix export
+
+The `CON_<us>` records produced this way appear in the Extended Matrix GraphML export as **continuity elements**.
+
+---
+
 ## References
 
 - Upstream issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5
