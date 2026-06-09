@@ -149,19 +149,19 @@ rapporti non segnali la CON come priva di reciproco.
 | `sito` | = madre |
 | `us` | `CON_<us_madre>` |
 | `unita_tipo` | `CON` |
-| `area` | = **tutte** le aree della madre (set multi-valore preservato) |
+| `area` | = `area` primaria della madre; aree secondarie ereditate via `other_locations` |
 | `struttura` | = madre |
 | `periodo_iniziale` / `fase_iniziale` | = madre (nascita) |
 | `periodo_finale` / `fase_finale` | = madre (fine) → la CON **copre l'intervallo** |
 | `d_stratigrafica` | `Continuità` |
 | `descrizione` | auto: *"Continuità di {us_madre} dal periodo {pi} al periodo {pf}"* (rigenerata ad ogni run) |
-| `rapporti` | `[["Continuità successiva a", "<us_madre>", "", "", ""]]` |
+| `rapporti` | `[["Continuità successiva a", "<us_madre>", "<area>", "<sito>"]]` (forma a 4 elementi, contratto `parse_rapporti` dev9) |
 | `schedatore` | utente corrente (dalla UI) |
 | `node_uuid` | UUID v7 nuovo (backfill per pipeline grafo) |
 | `entity_uuid` | UUID nuovo (identità entità, ≠ node_uuid) |
 
 Sulla **madre**, l'azione aggiunge — solo se assente — il rapporto reciproco
-`["Continuità precedente a", "CON_<us>", "", "", ""]`, **senza** toccare gli altri
+`["Continuità precedente a", "CON_<us>", "<area>", "<sito>"]`, **senza** toccare gli altri
 rapporti esistenti.
 
 ## 6. Flusso dati
