@@ -230,6 +230,55 @@ RAPPORTI_SHORTHAND: dict[str, tuple[str, bool]] = {
 
 
 # ---------------------------------------------------------------------------
+# pyArchInit continuity vocabulary (candidate for upstream)
+# ---------------------------------------------------------------------------
+#: Verbose, human-readable directional labels for CON (continuità) units,
+#: one (forward, reverse) pair per pyArchInit UI language. The "Genera
+#: continuità" action writes these into us_table.rapporti instead of the
+#: bare ``>`` / ``<`` shorthand so the Scheda US shows a meaningful term.
+#:
+#: Direction semantics mirror the shorthand:
+#:   * forward  → ("is_after", swap=False): the CON terminates the US life
+#:                (``CON is_after US``);
+#:   * reverse  → ("is_after", swap=True):  the madre's reciprocal entry
+#:                yields the SAME ``CON is_after US`` edge (no reverse edge,
+#:                no 2-cycle, no false "missing reciprocity" — is_after is
+#:                not in rapporti_check._EDGE_TYPE_INVERSE).
+CONTINUITY_LABELS: dict[str, tuple[str, str]] = {
+    "it": ("Continuità successiva a", "Continuità precedente a"),
+    "en": ("Subsequent continuity of", "Prior continuity of"),
+    "de": ("Nachfolgende Kontinuität von", "Vorherige Kontinuität von"),
+    "es": ("Continuidad posterior a", "Continuidad anterior a"),
+    "fr": ("Continuité postérieure à", "Continuité antérieure à"),
+    "pt": ("Continuidade posterior a", "Continuidade anterior a"),
+    "ca": ("Continuïtat posterior a", "Continuïtat anterior a"),
+    "ro": ("Continuitate ulterioară a", "Continuitate anterioară a"),
+    "ar": ("استمرارية لاحقة لـ", "استمرارية سابقة لـ"),
+    "el": ("Μεταγενέστερη συνέχεια του", "Προγενέστερη συνέχεια του"),
+}
+
+
+def continuity_label(lang: str, direction: str) -> str:
+    """Return the continuity label for *lang* ('forward'|'reverse').
+    Falls back to Italian for unknown languages."""
+    pair = CONTINUITY_LABELS.get((lang or "it")[:2], CONTINUITY_LABELS["it"])
+    return pair[0] if direction == "forward" else pair[1]
+
+
+# Register every continuity label as shorthand DATA (no parse_rapporti
+# logic change): forward → no swap, reverse → swap. Both exact-case and
+# lowercased keys are added because parse_rapporti looks up
+# RAPPORTI_SHORTHAND with the raw (original-case) label after the verbose
+# RAPPORTI_TO_EDGE_TYPE miss.
+for _fwd, _rev in CONTINUITY_LABELS.values():
+    RAPPORTI_SHORTHAND.setdefault(_fwd, ("is_after", False))
+    RAPPORTI_SHORTHAND.setdefault(_fwd.lower(), ("is_after", False))
+    RAPPORTI_SHORTHAND.setdefault(_rev, ("is_after", True))
+    RAPPORTI_SHORTHAND.setdefault(_rev.lower(), ("is_after", True))
+del _fwd, _rev
+
+
+# ---------------------------------------------------------------------------
 # Edge-type direction for shorthand serialise
 # ---------------------------------------------------------------------------
 #: Per-edge-type direction. ``True`` means the rapporti token reads as
@@ -701,6 +750,9 @@ __all__ = [
     "CANONICAL_UNIT_TYPES",
     "CONTINUITY_UNIT_TYPES",
     "NON_RAPPORTI_EDGE_TYPES",
+    # Continuity vocabulary (Task 1)
+    "CONTINUITY_LABELS",
+    "continuity_label",
     # Type / prefix helpers (commit 2)
     "S3DGRAPHY_TYPE_TO_UNITA_TIPO",
     "strip_us_prefix",
