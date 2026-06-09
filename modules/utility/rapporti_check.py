@@ -494,6 +494,11 @@ def _read_rapporti(conn, text, sito, us):
     return (row[0] if row else None)
 
 
+_PERIOD_COL_WHITELIST = frozenset({
+    "periodo_iniziale", "fase_iniziale", "periodo_finale", "fase_finale",
+})
+
+
 def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
     from sqlalchemy import text
     # group edits by us
@@ -503,7 +508,15 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
     snapshot = {}
     with handle.engine.begin() as conn:
         for us, us_edits in by_us.items():
-            cur = _read_rapporti(conn, text, sito, us) if sito else None
+            touch_rapporti = any(e.add or e.remove for e in us_edits)
+            # Collect period columns touched by set_fields (whitelist-validated)
+            field_cols = []
+            for e in us_edits:
+                for (col, _v) in e.set_fields:
+                    if col in _PERIOD_COL_WHITELIST and col not in field_cols:
+                        field_cols.append(col)
+
+            # Determine row sito and read original values for snapshot/rollback
             if sito is None:
                 row = conn.execute(text(
                     "SELECT sito, rapporti FROM us_table WHERE us = :u"),
@@ -512,31 +525,67 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
                 cur = row[1] if row else None
             else:
                 row_sito = sito
-            snapshot[us] = (row_sito, cur)
-            lst = _coerce_to_list(cur)
-            lst = [list(map(str, x)) for x in lst
-                   if isinstance(x, (list, tuple))]
+                cur = _read_rapporti(conn, text, sito, us)
+
+            # Snapshot: capture rapporti + all period columns that will change
+            orig = {}
+            if touch_rapporti:
+                orig["rapporti"] = cur
+            if field_cols:
+                sel = ", ".join(field_cols)
+                r = conn.execute(text(
+                    f"SELECT {sel} FROM us_table WHERE sito = :s AND us = :u"),
+                    {"s": row_sito, "u": us}).fetchone()
+                if r is not None:
+                    for i, c in enumerate(field_cols):
+                        orig[c] = r[i]
+            snapshot[us] = (row_sito, orig)
+
+            # Build new values dict
+            new_vals = {}
+            if touch_rapporti:
+                lst = _coerce_to_list(cur)
+                lst = [list(map(str, x)) for x in lst
+                       if isinstance(x, (list, tuple))]
+                for e in us_edits:
+                    for r in e.remove:
+                        rr = list(map(str, r))
+                        lst = [x for x in lst if x != rr]
+                    for ad in e.add:
+                        aa = list(map(str, ad))
+                        if aa not in lst:
+                            lst.append(aa)
+                new_vals["rapporti"] = str(lst)
             for e in us_edits:
-                for r in e.remove:
-                    rr = list(map(str, r))
-                    lst = [x for x in lst if x != rr]
-                for ad in e.add:
-                    aa = list(map(str, ad))
-                    if aa not in lst:
-                        lst.append(aa)
+                for (col, val) in e.set_fields:
+                    if col in _PERIOD_COL_WHITELIST:
+                        new_vals[col] = val
+
+            if not new_vals:
+                continue
+            set_clause = ", ".join(f"{c} = :v_{c}" for c in new_vals)
+            params = {f"v_{c}": v for c, v in new_vals.items()}
+            params["s"] = row_sito
+            params["u"] = us
             conn.execute(text(
-                "UPDATE us_table SET rapporti = :r WHERE sito = :s AND us = :u"),
-                {"r": str(lst), "s": row_sito, "u": us})
+                f"UPDATE us_table SET {set_clause} WHERE sito = :s AND us = :u"),
+                params)
     return RollbackToken(sito=sito or "", snapshot=snapshot)
 
 
 def rollback(token, handle):
     from sqlalchemy import text
     with handle.engine.begin() as conn:
-        for us, (row_sito, original) in token.snapshot.items():
+        for us, (row_sito, orig) in token.snapshot.items():
+            if not orig:
+                continue
+            set_clause = ", ".join(f"{c} = :v_{c}" for c in orig)
+            params = {f"v_{c}": v for c, v in orig.items()}
+            params["s"] = row_sito
+            params["u"] = us
             conn.execute(text(
-                "UPDATE us_table SET rapporti = :r WHERE sito = :s AND us = :u"),
-                {"r": original, "s": row_sito, "u": us})
+                f"UPDATE us_table SET {set_clause} WHERE sito = :s AND us = :u"),
+                params)
 
 
 # ---------------------------------------------------------------------------

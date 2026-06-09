@@ -207,3 +207,69 @@ def test_kind_title_localized_with_fallback():
     assert RC.kind_title(RC.CYCLE, "it").startswith("Ciclo")
     assert RC.kind_title(RC.CYCLE, "en").startswith("Stratigraphic cycle")
     assert RC.kind_title(RC.CYCLE, "zz") == RC.kind_title(RC.CYCLE, "en")
+
+
+# ---------------------------------------------------------------------------
+# Fix: apply_edits must write set_fields (period columns) to DB + rollback
+# ---------------------------------------------------------------------------
+
+def _apply_db(tmp_path):
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+    p = tmp_path / "apply.sqlite"
+    c = sqlite3.connect(p)
+    c.execute("CREATE TABLE us_table (sito TEXT, us TEXT, rapporti TEXT,"
+              " periodo_iniziale TEXT, fase_iniziale TEXT,"
+              " periodo_finale TEXT, fase_finale TEXT)")
+    c.execute("INSERT INTO us_table VALUES ('S','US5','[]','1','1','1','1')")
+    c.commit(); c.close()
+    return DbHandle.from_path(p)
+
+
+def test_apply_set_fields_writes_period_and_rolls_back(tmp_path):
+    from sqlalchemy import text
+    h = _apply_db(tmp_path)
+    e = RC.Edit(us="US5", set_fields=(("periodo_iniziale", "3"),
+                                      ("fase_iniziale", "1"),
+                                      ("periodo_finale", "3"),
+                                      ("fase_finale", "1")))
+    tok = RC.apply_edits([e], h, sito="S")
+    with h.engine.connect() as c:
+        row = c.execute(text("SELECT periodo_iniziale, periodo_finale "
+                             "FROM us_table WHERE us='US5'")).fetchone()
+    assert row == ("3", "3"), f"expected ('3','3'), got {row}"
+    RC.rollback(tok, h)
+    with h.engine.connect() as c:
+        row = c.execute(text("SELECT periodo_iniziale, periodo_finale "
+                             "FROM us_table WHERE us='US5'")).fetchone()
+    assert row == ("1", "1"), f"rollback failed, got {row}"
+
+
+def test_apply_mixed_rapporti_and_fields(tmp_path):
+    from sqlalchemy import text
+    h = _apply_db(tmp_path)
+    e = RC.Edit(us="US5", add=(("Copre", "7", "1", "S"),),
+                set_fields=(("periodo_iniziale", "2"),))
+    RC.apply_edits([e], h, sito="S")
+    with h.engine.connect() as c:
+        rap, pi = c.execute(text("SELECT rapporti, periodo_iniziale "
+                                 "FROM us_table WHERE us='US5'")).fetchone()
+    assert "Copre" in rap, f"rapporti not updated: {rap}"
+    assert pi == "2", f"periodo_iniziale not updated: {pi}"
+
+
+def test_set_fields_only_no_rapporti_unchanged(tmp_path):
+    """When Edit has only set_fields (no add/remove), rapporti column must be
+    left untouched — the old apply_edits always rewrote rapporti even when
+    set_fields was the only change."""
+    import sqlite3
+    from sqlalchemy import text
+    h = _apply_db(tmp_path)
+    original_rap = "[]"
+    e = RC.Edit(us="US5", set_fields=(("periodo_iniziale", "2"),))
+    RC.apply_edits([e], h, sito="S")
+    with h.engine.connect() as c:
+        rap = c.execute(text("SELECT rapporti FROM us_table WHERE us='US5'")).scalar()
+    assert rap == original_rap, (
+        f"rapporti was rewritten when only set_fields was present: {rap!r}")

@@ -204,8 +204,12 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
 
 def _build_adjacency(graph, id_to_us):
     """us -> list of (neighbor_us, role) where role describes us vs neighbor:
-    'later' (us is later than nb), 'earlier', or 'contemp'."""
-    adj = {}
+    'later' (us is later than nb), 'earlier', or 'contemp'.
+
+    Parallel edges between the same US pair (e.g. both 'overlies' and 'cuts')
+    are deduplicated: each (neighbor, role) pair appears at most once so that
+    conflict_score counts relationships, not individual edge occurrences."""
+    adj_sets = {}   # us -> set of (neighbor_us, role)
     for (s, t, et) in _strat_edges(graph):
         rel = _classify_relation(et)
         if rel is None:
@@ -214,13 +218,13 @@ def _build_adjacency(graph, id_to_us):
         if not us_s or not us_t or us_s == us_t:
             continue
         if rel == "contemp":
-            adj.setdefault(us_s, []).append((us_t, "contemp"))
-            adj.setdefault(us_t, []).append((us_s, "contemp"))
+            adj_sets.setdefault(us_s, set()).add((us_t, "contemp"))
+            adj_sets.setdefault(us_t, set()).add((us_s, "contemp"))
         else:
             later, earlier = (us_s, us_t) if rel == "later" else (us_t, us_s)
-            adj.setdefault(later, []).append((earlier, "later"))
-            adj.setdefault(earlier, []).append((later, "earlier"))
-    return adj
+            adj_sets.setdefault(later, set()).add((earlier, "later"))
+            adj_sets.setdefault(earlier, set()).add((later, "earlier"))
+    return {us: list(entries) for us, entries in adj_sets.items()}
 
 
 def _violated(role, su, sn):
@@ -285,7 +289,12 @@ def _set_fields_for(periodo, fase):
 def solve_fixes(issues, graph, chrono, unit_periods, *, sito):
     """Populate iss.edits (auto) where resolvable; leave suggestions otherwise.
     Greedy single pass: each accepted move updates an in-memory period map so
-    later decisions see its effect. Mutates the Issue objects in place."""
+    later decisions see its effect. Mutates the Issue objects in place.
+
+    Kind mutations: gap-fill contemp cases promote iss.kind from
+    TEMPORAL_UNEVALUABLE to TEMPORAL_CONTEMPORANEITY when one side of a
+    contemporaneity edge is undated and the other is dated — the fix copies the
+    dated unit's period to the undated one, resolving the gap."""
     work = dict(unit_periods)
     id_to_us = _node_us_map(graph)
     adj = _build_adjacency(graph, id_to_us)

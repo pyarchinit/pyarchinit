@@ -180,6 +180,30 @@ def test_solve_gap_fill_contemporaneity():
     assert dict(c.edits[0].set_fields)["periodo_iniziale"] == "2"
 
 
+def test_build_adjacency_deduplicates_parallel_edges():
+    """Parallel edges between the same US pair (e.g. 'overlies' AND 'cuts')
+    must not produce duplicate (neighbor, role) entries — otherwise
+    conflict_score would be inflated and tie-breaks could flip incorrectly."""
+    # US5 overlies US7 AND cuts US7 (two edges between the same pair)
+    g = _mk([("US5", "overlies", "US7"), ("US5", "cuts", "US7")])
+    id_to_us = {n.node_id: n.attributes["us"] for n in g.nodes}
+    adj = TC._build_adjacency(g, id_to_us)
+    # US5 should see US7 exactly once (as 'later'), not twice
+    us5_neighbors = adj.get("US5", [])
+    us7_entries = [(nb, role) for (nb, role) in us5_neighbors if nb == "US7"]
+    assert len(us7_entries) == 1, (
+        f"expected 1 entry for (US7, later), got {us7_entries}")
+    # Verify conflict_score is 1, not 2
+    up = {"US5": ("1", "1", "1", "1"), "US7": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    # With two issues (both parallel edges → same inversion), each with 1 vs 1
+    # conflict after dedup → tie → suggestion (auto=False). With duplicates the
+    # score would be 2 vs 1 → US5 would wrongly be moved.
+    # But detect_temporal also deduplicates via seen set, so only 1 issue.
+    assert len(iss) == 1, f"expected 1 issue (seen-dedup), got {len(iss)}"
+
+
 def test_unevaluable_summary_is_generic_for_all_langs():
     """s_temporal_uneval summary must be factually correct for BOTH
     contemporaneous (is_physically_equal_to / is_bonded_to) and order
