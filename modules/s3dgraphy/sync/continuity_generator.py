@@ -349,3 +349,45 @@ def apply_plan(handle, plan, *, remove_orphans=False, lang="it") -> Report:
                                   "AND unita_tipo='CON'"), {"u": us})
                 rep.orphans_removed += 1
     return rep
+
+
+# ---------------------------------------------------------------------------
+# Task 6: generate_continuity orchestrator + auto-backup
+# ---------------------------------------------------------------------------
+
+def build_plan(handle, sito, *, schedatore="", lang="it") -> Plan:
+    """Read site → scan → build desired → diff existing. Pure of writes
+    (used by the UI to show a dry-run preview before applying)."""
+    records = load_site_records(handle, sito)
+    desired = [build_con_record(c, schedatore=schedatore, lang=lang)
+               for c in scan_candidates(records)]
+    return diff_continuity(load_existing_con(handle, sito), desired)
+
+
+def auto_backup(handle, tag="genera_continuita"):
+    """Best-effort pre-write backup. SQLite → file copy; PG → pg_dump.
+    Returns the backup path, or None when skipped (caller may warn)."""
+    from pathlib import Path
+    try:
+        from scripts.migrations._common import (
+            auto_backup_sqlite, auto_backup_postgres, BackupSkipped)
+    except Exception:
+        return None
+    try:
+        if handle.is_postgres:
+            return auto_backup_postgres(handle.engine, tag, Path.cwd())
+        if handle.sqlite_path:
+            return auto_backup_sqlite(Path(handle.sqlite_path), tag)
+    except BackupSkipped:
+        return None
+    return None
+
+
+def generate_continuity(handle, sito, *, schedatore="", lang="it",
+                        remove_orphans=False, do_backup=False) -> Report:
+    """End-to-end: build plan, optionally back up, apply, return Report."""
+    plan = build_plan(handle, sito, schedatore=schedatore, lang=lang)
+    if do_backup and (plan.to_create or plan.to_update or
+                      (remove_orphans and plan.orphan)):
+        auto_backup(handle)
+    return apply_plan(handle, plan, remove_orphans=remove_orphans, lang=lang)
