@@ -103,6 +103,9 @@ def desired_rapporti(cand: Candidate, *, lang: str = "it"):
 def build_con_record(cand: Candidate, *, schedatore: str = "",
                      lang: str = "it") -> dict:
     """Build the CON scheda dict for a candidate (no DB I/O, no uuids)."""
+    # Resolve area once so the record dict and the rapporti entry are
+    # consistent: a NULL/empty area in the madre defaults to "1" everywhere.
+    area = cand.area or "1"
     con_entry, _ = desired_rapporti(cand, lang=lang)
     descr = (f"Continuità di {cand.us} dal periodo "
              f"{cand.periodo_iniziale} al periodo {cand.periodo_finale}")
@@ -110,7 +113,7 @@ def build_con_record(cand: Candidate, *, schedatore: str = "",
         "sito": cand.sito,
         "us": con_us_code(cand.us),
         "unita_tipo": "CON",
-        "area": cand.area,
+        "area": area,
         "struttura": cand.struttura,
         "periodo_iniziale": cand.periodo_iniziale,
         "fase_iniziale": cand.fase_iniziale,

@@ -72,3 +72,18 @@ def test_desired_rapporti_pair_directions():
     # madre row -> reverse -> swap -> still CON is_after US
     p_madre = parse_rapporti([madre_entry])
     assert p_madre == [("is_after", "CON_US5", "1", "S", True)]
+
+def test_build_con_record_area_default():
+    """area=None/empty must default to "1" consistently in both the
+    record dict and the embedded rapporti entry — guards against the
+    spatial mismatch where record["area"]=None but rapporti[0][2]="1"."""
+    c = scan_candidates([_rec(area="")])[0]
+    rec = build_con_record(c, schedatore="x", lang="it")
+    # The record field must use the resolved default, not the raw empty value
+    assert rec["area"] == "1", (
+        "record['area'] should default to '1' when madre.area is empty"
+    )
+    # The rapporti entry must use the same resolved default
+    assert rec["rapporti"][0][2] == "1", (
+        "rapporti[0][2] (area) should match record['area'] == '1'"
+    )
