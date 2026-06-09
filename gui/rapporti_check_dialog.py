@@ -231,7 +231,12 @@ class RapportiCheckPanel(QWidget):
                     auto_backup_sqlite, auto_backup_postgres, BackupSkipped)
                 h = self._handle()
                 if h.is_postgres:
-                    auto_backup_postgres(h.engine, "temporal_fix", Path.cwd())
+                    _backup_dir = (
+                        Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                        / "_pga_backups"
+                    )
+                    _backup_dir.mkdir(parents=True, exist_ok=True)
+                    auto_backup_postgres(h.engine, "temporal_fix", _backup_dir)
                 elif h.sqlite_path:
                     auto_backup_sqlite(Path(h.sqlite_path), "temporal_fix")
             except BackupSkipped:
