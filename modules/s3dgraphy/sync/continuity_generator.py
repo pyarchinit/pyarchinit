@@ -320,8 +320,13 @@ def _madre_entry_for(rec, us_madre, lang):
     return ([fwd, us_madre, area, sito], [rev, rec["us"], area, sito])
 
 
-def apply_plan(handle, plan, *, remove_orphans=False, lang="it") -> Report:
-    """Apply a Plan in a single transaction; return a Report."""
+def apply_plan(handle, plan, sito, *, remove_orphans=False, lang="it") -> Report:
+    """Apply a Plan in a single transaction; return a Report.
+
+    *sito* is required so that the orphan DELETE is always site-scoped,
+    preventing accidental deletion of identically-named CON rows in other
+    sites (critical for multi-site databases shared across excavations).
+    """
     from sqlalchemy import text
     from ._db_handle import _columns_of
     rep = Report(unchanged=len(plan.unchanged))
@@ -345,8 +350,10 @@ def apply_plan(handle, plan, *, remove_orphans=False, lang="it") -> Report:
             rep.updated += 1
         if remove_orphans:
             for us in plan.orphan:
-                conn.execute(text("DELETE FROM us_table WHERE us=:u "
-                                  "AND unita_tipo='CON'"), {"u": us})
+                conn.execute(
+                    text("DELETE FROM us_table "
+                         "WHERE sito=:sito AND us=:u AND unita_tipo='CON'"),
+                    {"sito": sito, "u": us})
                 rep.orphans_removed += 1
     return rep
 
@@ -378,7 +385,9 @@ def auto_backup(handle, tag="genera_continuita"):
             return auto_backup_postgres(handle.engine, tag, Path.cwd())
         if handle.sqlite_path:
             return auto_backup_sqlite(Path(handle.sqlite_path), tag)
-    except BackupSkipped:
+    except Exception:
+        # Best-effort: never block the write for any backup failure
+        # (BackupSkipped, IOError, OSError, CalledProcessError, etc.)
         return None
     return None
 
@@ -390,4 +399,5 @@ def generate_continuity(handle, sito, *, schedatore="", lang="it",
     if do_backup and (plan.to_create or plan.to_update or
                       (remove_orphans and plan.orphan)):
         auto_backup(handle)
-    return apply_plan(handle, plan, remove_orphans=remove_orphans, lang=lang)
+    return apply_plan(handle, plan, sito,
+                      remove_orphans=remove_orphans, lang=lang)

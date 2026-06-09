@@ -232,7 +232,7 @@ def test_apply_plan_creates_con_and_reciprocal(tmp_path):
     desired = [build_con_record(c, schedatore="enzo", lang="it")
                for c in scan_candidates(recs)]
     plan = diff_continuity(load_existing_con(h, "S"), desired)
-    report = apply_plan(h, plan, remove_orphans=False)
+    report = apply_plan(h, plan, "S", remove_orphans=False)
     assert report.created == 1
     # CON row exists with unita_tipo CON
     con_rows = load_existing_con(h, "S")
@@ -271,3 +271,36 @@ def test_apply_plan_removes_orphan_only_when_opted_in(tmp_path):
                              remove_orphans=True)
     assert "CON_US9" not in load_existing_con(h, "S")  # removed
     assert r2.orphans_removed == 1
+
+
+def test_orphan_delete_is_site_scoped(tmp_path):
+    """Orphan DELETE must not touch identically-named CON rows in other sites.
+
+    Regression guard for the critical multi-site bug: without AND sito=:sito
+    in the DELETE, a CON_US9 orphan in site 'S' would silently delete
+    CON_US9 in site 'S2' as well.
+    """
+    h = _make_db(tmp_path)
+    from sqlalchemy import text
+    from modules.s3dgraphy.sync.continuity_generator import generate_continuity
+    with h.engine.begin() as c:
+        # Orphan CON_US9 in site S (US9 has no period span → no candidate)
+        c.execute(text("INSERT INTO us_table (id_us,sito,area,us,unita_tipo,"
+                       "periodo_iniziale,periodo_finale) VALUES"
+                       " (2,'S','1','CON_US9','CON','1','3')"))
+        # Identically-named CON_US9 in a second site S2
+        c.execute(text("INSERT INTO us_table (id_us,sito,area,us,unita_tipo,"
+                       "periodo_iniziale,periodo_finale) VALUES"
+                       " (3,'S2','1','CON_US9','CON','1','3')"))
+    # Running generate_continuity for site S with remove_orphans=True
+    # should remove S's CON_US9 but leave S2's intact
+    generate_continuity(h, "S", schedatore="x", lang="it",
+                        remove_orphans=True)
+    # S's orphan must be gone
+    assert "CON_US9" not in load_existing_con(h, "S"), (
+        "CON_US9 in site S should have been removed as an orphan"
+    )
+    # S2's identically-named row must survive
+    assert "CON_US9" in load_existing_con(h, "S2"), (
+        "CON_US9 in site S2 must not be touched by site S orphan cleanup"
+    )
