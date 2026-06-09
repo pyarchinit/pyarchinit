@@ -5,6 +5,28 @@
 
 ---
 
+## [5.12.12-alpha] - 2026-06-09 — "Genera continuità": automatismo schede CON (Feature A)
+
+> Branch `Stratigraph_00001`. Spec `docs/superpowers/specs/2026-06-09-genera-continuita-con-design.md`, piano `docs/superpowers/plans/2026-06-09-genera-continuita-con.md`. Implementato in modalità subagent-driven (7 task implement→spec-review→quality-review + regressione + final review opus).
+
+### Italiano
+
+**Nuova azione esplicita "Genera continuità"** che crea/aggiorna automaticamente le schede CON di continuità, così non vanno più inserite a mano. Una CON rappresenta la persistenza di una US/USM da quando nasce a quando finisce (più periodi).
+
+- **Pulsante "Genera continuità"** nel pannello *Verifica rapporti* del dialog s3dgraphy (`gui/rapporti_check_dialog.py`). Sul **sito selezionato**, scansiona le US/USM con `periodo_iniziale ≠ periodo_finale` e per ognuna crea/aggiorna una scheda **`CON_<us_madre>`** (es. `US5` → `CON_US5`) che eredita `sito`, `area` primaria (+ aree secondarie via `other_locations`), `struttura` e l'intero span di periodi/fasi della madre; `descrizione` auto-generata.
+- **Rapporto reciproco di continuità**: sulla CON "Continuità successiva a" la madre, sulla madre "Continuità precedente a" la CON.
+- **Idempotente** (chiave = nome `CON_<us>`): ri-eseguire aggiorna, non duplica. **Anteprima dry-run** (da creare / da aggiornare / invariate / orfane) con conferma; **auto-backup** del DB prima di scrivere; **CON orfane** (madre che non attraversa più periodi) solo segnalate, rimozione **opt-in** con checkbox.
+- **Nuovo modulo Qt-free** `modules/s3dgraphy/sync/continuity_generator.py`: funzioni pure (`scan_candidates`/`build_con_record`/`desired_rapporti`/`diff_continuity`) + superficie I/O (`load_site_records`/`load_existing_con`/`apply_plan`/`generate_continuity`), backend-agnostico via `DbHandle` (PostgreSQL + SQLite). `node_uuid` valorizzato solo se la colonna esiste; `id_us = MAX+1` (cross-backend); scrittura in transazione (rollback su errore parziale).
+- **Vocabolario continuità multilingue (10 lingue)** in `rapporti.py`, aggiunto come **dati** in `RAPPORTI_SHORTHAND` (forward → `is_after` no-swap, reverse → `is_after` swap → **stesso** edge `CON is_after US`, niente arco inverso/2-ciclo). Nessuna modifica alla logica di `parse_rapporti`; blocco marcato *candidate for upstream*. Nessun falso "reciprocità mancante" (`is_after` non è in `_EDGE_TYPE_INVERSE`).
+
+Test: `tests/sync/test_continuity_generator.py` + `test_continuity_vocab.py` (**44 passed**, inclusi round-trip DB e idempotenza al secondo run = 0 scritture). Suite `tests/sync` completa: **463 passed**, **zero nuove regressioni** (9+9 PG/Spatialite pre-esistenti d'ambiente). Baseline AC-2 (`mini_volterra_baseline_ai03.graphml`) byte-identica (il generatore non gira all'export).
+
+### English
+
+**New explicit "Genera continuità" action** that automatically creates/updates CON continuity records, so they no longer have to be entered by hand. A CON models a US/USM's persistence across periods (birth → end). A button in the *Verifica rapporti* panel (`gui/rapporti_check_dialog.py`) scans the **selected site**'s US/USM with `periodo_iniziale ≠ periodo_finale` and idempotently creates/updates a **`CON_<us_madre>`** record spanning the madre's period interval, inheriting `sito`/`area` (+ secondary areas via `other_locations`)/`struttura`. It writes a reciprocal continuity rapporto (CON "Continuità successiva a" madre + madre "Continuità precedente a" CON). Idempotent (key = `CON_<us>`), with a dry-run preview (create/update/unchanged/orphan), auto-backup before write, and opt-in orphan removal. New Qt-free `modules/s3dgraphy/sync/continuity_generator.py` (pure scan/build/diff + DbHandle-based I/O, PG+SQLite; `node_uuid` set only when the column exists; `id_us = MAX+1`; transactional). New 10-language continuity vocabulary added to `rapporti.py` as data in `RAPPORTI_SHORTHAND` (forward → `is_after` no-swap, reverse → `is_after` swap → the **same** `CON is_after US` edge; no reverse edge/2-cycle; no false "missing reciprocity"). 44 continuity tests pass; full `tests/sync` 463 passed, zero new regressions; AC-2 baseline byte-identical.
+
+---
+
 ## [5.12.11-alpha] - 2026-06-08 — Export EM: paradata connessi, CON visibili, contemporaneità a doppio arco
 
 > Branch `Stratigraph_00001`. Spec `docs/superpowers/specs/2026-06-08-em-paradata-export-rendering-design.md`, piano `docs/superpowers/plans/2026-06-08-em-paradata-export-rendering.md`. 4 fix di rendering dell'export EM, implementati via subagent + verifica avversariale.
