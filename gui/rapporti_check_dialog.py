@@ -73,6 +73,12 @@ class RapportiCheckPanel(QWidget):
         self.btnRun = QPushButton("Esegui verifica")
         self.btnRun.clicked.connect(self._run)
         top.addWidget(self.btnRun)
+        self.btnContinuity = QPushButton("Genera continuità")
+        self.btnContinuity.setToolTip(
+            "Crea/aggiorna le schede CON per le US/USM che attraversano "
+            "più periodi (periodo iniziale ≠ finale).")
+        self.btnContinuity.clicked.connect(self._run_genera_continuita)
+        top.addWidget(self.btnContinuity)
         lay.addLayout(top)
 
         split = QSplitter(Qt.Vertical)
@@ -222,6 +228,81 @@ class RapportiCheckPanel(QWidget):
                                f"{len(edits)} correzioni applicate.")
         self._run()  # re-scan to show the cleaned-up state
         self.btnRollback.setEnabled(True)
+
+    def _run_genera_continuita(self):
+        sito = self.cboSite.currentText().strip()
+        if not sito:
+            return
+        from qgis.PyQt.QtWidgets import QCheckBox, QDialogButtonBox
+        from modules.s3dgraphy.sync import continuity_generator as CG
+        try:
+            handle = self._handle()
+            schedatore = self._current_user()
+            plan = CG.build_plan(handle, sito, schedatore=schedatore,
+                                 lang=self._lang)
+        except Exception as exc:
+            QMessageBox.critical(self, "pyArchInit",
+                                 f"Genera continuità fallita: {exc}")
+            return
+        if not (plan.to_create or plan.to_update or plan.orphan):
+            QMessageBox.information(
+                self, "pyArchInit",
+                f"Nessuna continuità da generare per '{sito}'.\n"
+                f"({len(plan.unchanged)} già allineate)")
+            return
+        # Preview dialog
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Anteprima continuità")
+        lay = QVBoxLayout(dlg)
+        summary = QTextEdit(); summary.setReadOnly(True)
+        lines = [f"Sito: {sito}",
+                 f"Da creare: {len(plan.to_create)}",
+                 f"Da aggiornare: {len(plan.to_update)}",
+                 f"Invariate: {len(plan.unchanged)}",
+                 f"Orfane: {len(plan.orphan)}", ""]
+        for d in plan.to_create:
+            lines.append(f"  + {d['us']}  (periodi {d['periodo_iniziale']}→"
+                         f"{d['periodo_finale']})")
+        for d in plan.to_update:
+            lines.append(f"  ~ {d['us']}  (periodi {d['periodo_iniziale']}→"
+                         f"{d['periodo_finale']})")
+        for us in plan.orphan:
+            lines.append(f"  ? {us}  (orfana)")
+        summary.setPlainText("\n".join(lines))
+        lay.addWidget(summary)
+        chkOrphans = QCheckBox("Rimuovi anche le CON orfane")
+        chkOrphans.setEnabled(bool(plan.orphan))
+        lay.addWidget(chkOrphans)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.button(QDialogButtonBox.Ok).setText("Genera")
+        bb.accepted.connect(dlg.accept); bb.rejected.connect(dlg.reject)
+        lay.addWidget(bb)
+        dlg.resize(520, 460)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+        try:
+            rep = CG.generate_continuity(
+                handle, sito, schedatore=schedatore, lang=self._lang,
+                remove_orphans=chkOrphans.isChecked(), do_backup=True)
+        except Exception as exc:
+            QMessageBox.critical(self, "pyArchInit",
+                                 f"Generazione fallita: {exc}")
+            return
+        msg = (f"Continuità generata per '{sito}'.\n"
+               f"Create: {rep.created} · Aggiornate: {rep.updated} · "
+               f"Invariate: {rep.unchanged} · "
+               f"Orfane rimosse: {rep.orphans_removed}")
+        if rep.warnings:
+            msg += "\n\nAvvisi:\n" + "\n".join(f"• {w}" for w in rep.warnings)
+        QMessageBox.information(self, "pyArchInit", msg)
+
+    def _current_user(self):
+        try:
+            from qgis.core import QgsSettings
+            return (QgsSettings().value("pyarchinit/operatore", "", type=str)
+                    or "")
+        except Exception:
+            return ""
 
     def _rollback(self):
         if self._token is None:

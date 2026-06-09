@@ -273,6 +273,13 @@ def test_apply_plan_removes_orphan_only_when_opted_in(tmp_path):
     assert r2.orphans_removed == 1
 
 
+def test_build_plan_smoke(tmp_path):
+    h = _make_db(tmp_path)
+    from modules.s3dgraphy.sync.continuity_generator import build_plan
+    plan = build_plan(h, "S", schedatore="enzo", lang="it")
+    assert [d["us"] for d in plan.to_create] == ["CON_US5"]
+
+
 def test_orphan_delete_is_site_scoped(tmp_path):
     """Orphan DELETE must not touch identically-named CON rows in other sites.
 
