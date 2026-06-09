@@ -5,13 +5,13 @@ using periodizzazione_table chronology (cron_iniziale/finale). Stratigraphy is
 the observed reference; auto-fixes move PERIODS (not relations). See
 docs/superpowers/specs/2026-06-09-temporal-paradox-detection-design.md.
 
-Import note: this module imports helpers from rapporti_check at top level;
-rapporti_check imports THIS module lazily (inside check_rapporti) to avoid a
-circular import.
+Import note: imports helpers from rapporti_check at module level. Future tasks
+will wire this module into check_rapporti; no circular-import risk exists
+because rapporti_check has no back-reference to this module.
 """
 from __future__ import annotations
 
-from modules.utility.rapporti_check import (
+from modules.utility.rapporti_check import (  # noqa: F401  # pre-staged for Task 2+
     Edit, Issue, _real_us, _strat_edges, _utok, _t,
 )
 
