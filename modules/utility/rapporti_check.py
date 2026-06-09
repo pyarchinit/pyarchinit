@@ -111,12 +111,25 @@ _L = {
         "t_contradiction_ambiguous": "Contraddizione diretta (scelta manuale)",
         "t_cycle": "Ciclo stratigrafico (scelta manuale)",
         "t_illegal_connection": "Tipo relazione non valido (solo segnalazione)",
+        "t_temporal_inversion": "Paradosso temporale (inversione di periodo)",
+        "t_temporal_contemporaneity": "Paradosso temporale (contemporaneità non sovrapposta)",
+        "t_temporal_unevaluable": "Coerenza temporale non valutabile (periodo mancante)",
         "s_self": "{us} è in relazione con sé stessa",
         "s_recip": "Manca il reciproco su {b} per {a} (rapporto «{rel}»)",
         "s_contr": "Contraddizione: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
                    "— tieni una sola direzione, elimina l'altra",
         "s_cycle": "Ciclo: {chain} — spezza l'anello eliminando il rapporto errato",
         "s_illegal": "Tipo relazione non valido: {a} → {b}",
+        "s_temporal_inv": "{a} (periodo {pa}) risulta interamente più antica di "
+                          "{b} (periodo {pb}) pur essendone stratigraficamente più "
+                          "recente — sposta {a} a un periodo ≥ {pb}, oppure {b} ≤ "
+                          "{pa}, oppure verifica il rapporto",
+        "s_temporal_contemp": "{a} (periodo {pa}) e {b} (periodo {pb}) sono "
+                              "dichiarate contemporanee ma i periodi non si "
+                              "sovrappongono — assegnale allo stesso periodo",
+        "s_temporal_uneval": "{a} è in relazione d'ordine con {b} ma manca la "
+                             "datazione di periodo per valutarne la coerenza — "
+                             "assegna il periodo mancante",
     },
     "en": {
         "t_self_loop": "Self-loop (US related to itself)",
@@ -125,12 +138,24 @@ _L = {
         "t_contradiction_ambiguous": "Direct contradiction (manual choice)",
         "t_cycle": "Stratigraphic cycle (manual choice)",
         "t_illegal_connection": "Invalid relationship type (report only)",
+        "t_temporal_inversion": "Temporal paradox (period inversion)",
+        "t_temporal_contemporaneity": "Temporal paradox (non-overlapping contemporaneity)",
+        "t_temporal_unevaluable": "Temporal consistency not evaluable (missing period)",
         "s_self": "{us} is related to itself",
-        "s_recip": "Missing reciprocal on {b} for {a} (relationship “{rel}”)",
-        "s_contr": "Contradiction: {a} “{lab1}” {b}  ⇄  {b} “{lab2}” {a} "
+        "s_recip": "Missing reciprocal on {b} for {a} (relationship \"{rel}\")",
+        "s_contr": "Contradiction: {a} \"{lab1}\" {b}  ⇄  {b} \"{lab2}\" {a} "
                    "— keep one direction, remove the other",
         "s_cycle": "Cycle: {chain} — break the loop by removing the wrong relationship",
         "s_illegal": "Invalid relationship type: {a} → {b}",
+        "s_temporal_inv": "{a} (period {pa}) is entirely older than {b} (period "
+                          "{pb}) yet stratigraphically more recent — move {a} to a "
+                          "period ≥ {pb}, or {b} ≤ {pa}, or check the relationship",
+        "s_temporal_contemp": "{a} (period {pa}) and {b} (period {pb}) are declared "
+                              "contemporary but their periods do not overlap — "
+                              "assign them to the same period",
+        "s_temporal_uneval": "{a} has an order relationship with {b} but a period "
+                             "date is missing to evaluate consistency — assign the "
+                             "missing period",
     },
     "de": {
         "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
@@ -139,13 +164,24 @@ _L = {
         "t_contradiction_ambiguous": "Direkter Widerspruch (manuelle Wahl)",
         "t_cycle": "Stratigraphischer Zyklus (manuelle Wahl)",
         "t_illegal_connection": "Ungültiger Beziehungstyp (nur Hinweis)",
+        "t_temporal_inversion": "Zeitliches Paradoxon (Periodenumkehrung)",
+        "t_temporal_contemporaneity": "Zeitliches Paradoxon (nicht überlappende Gleichzeitigkeit)",
+        "t_temporal_unevaluable": "Zeitliche Konsistenz nicht bewertbar (fehlende Periode)",
         "s_self": "{us} steht in Beziehung zu sich selbst",
-        "s_recip": "Fehlende Reziprozität bei {b} für {a} (Beziehung „{rel}“)",
-        "s_contr": "Widerspruch: {a} „{lab1}“ {b}  ⇄  {b} „{lab2}“ {a} "
+        "s_recip": "Fehlende Reziprozität bei {b} für {a} (Beziehung \"{rel}\")",
+        "s_contr": "Widerspruch: {a} \"{lab1}\" {b}  ⇄  {b} \"{lab2}\" {a} "
                    "— eine Richtung behalten, die andere entfernen",
         "s_cycle": "Zyklus: {chain} — die Schleife durch Entfernen der falschen "
                    "Beziehung auflösen",
         "s_illegal": "Ungültiger Beziehungstyp: {a} → {b}",
+        "s_temporal_inv": "{a} (Periode {pa}) ist vollständig älter als {b} (Periode "
+                          "{pb}), obwohl stratigraphisch jünger — {a} in eine Periode "
+                          "≥ {pb} verschieben, oder {b} ≤ {pa}, oder Beziehung prüfen",
+        "s_temporal_contemp": "{a} (Periode {pa}) und {b} (Periode {pb}) sind als "
+                              "gleichzeitig deklariert, aber ihre Perioden überlappen "
+                              "sich nicht — derselben Periode zuweisen",
+        "s_temporal_uneval": "{a} hat eine Ordnungsbeziehung zu {b}, aber eine "
+                             "Periodendatierung fehlt — fehlende Periode zuweisen",
     },
     "es": {
         "t_self_loop": "Self-loop (US relacionada consigo misma)",
@@ -154,12 +190,24 @@ _L = {
         "t_contradiction_ambiguous": "Contradicción directa (elección manual)",
         "t_cycle": "Ciclo estratigráfico (elección manual)",
         "t_illegal_connection": "Tipo de relación no válido (solo aviso)",
+        "t_temporal_inversion": "Paradoja temporal (inversión de período)",
+        "t_temporal_contemporaneity": "Paradoja temporal (contemporaneidad no solapada)",
+        "t_temporal_unevaluable": "Consistencia temporal no evaluable (período faltante)",
         "s_self": "{us} está relacionada consigo misma",
         "s_recip": "Falta el recíproco en {b} para {a} (relación «{rel}»)",
         "s_contr": "Contradicción: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
                    "— conserva una dirección, elimina la otra",
         "s_cycle": "Ciclo: {chain} — rompe el bucle eliminando la relación errónea",
         "s_illegal": "Tipo de relación no válido: {a} → {b}",
+        "s_temporal_inv": "{a} (período {pa}) es completamente más antigua que {b} "
+                          "(período {pb}) aunque estratigráficamente más reciente — "
+                          "mueve {a} a un período ≥ {pb}, o {b} ≤ {pa}, o verifica "
+                          "la relación",
+        "s_temporal_contemp": "{a} (período {pa}) y {b} (período {pb}) se declaran "
+                              "contemporáneas pero sus períodos no se solapan — "
+                              "asígnalas al mismo período",
+        "s_temporal_uneval": "{a} tiene una relación de orden con {b} pero falta la "
+                             "datación de período — asigna el período faltante",
     },
     "fr": {
         "t_self_loop": "Self-loop (US en relation avec elle-même)",
@@ -168,6 +216,9 @@ _L = {
         "t_contradiction_ambiguous": "Contradiction directe (choix manuel)",
         "t_cycle": "Cycle stratigraphique (choix manuel)",
         "t_illegal_connection": "Type de relation non valide (signalement)",
+        "t_temporal_inversion": "Paradoxe temporel (inversion de période)",
+        "t_temporal_contemporaneity": "Paradoxe temporel (contemporanéité non chevauchante)",
+        "t_temporal_unevaluable": "Cohérence temporelle non évaluable (période manquante)",
         "s_self": "{us} est en relation avec elle-même",
         "s_recip": "Réciproque manquant sur {b} pour {a} (relation «{rel}»)",
         "s_contr": "Contradiction : {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
@@ -175,6 +226,15 @@ _L = {
         "s_cycle": "Cycle : {chain} — brisez la boucle en supprimant la relation "
                    "erronée",
         "s_illegal": "Type de relation non valide : {a} → {b}",
+        "s_temporal_inv": "{a} (période {pa}) est entièrement plus ancienne que {b} "
+                          "(période {pb}) bien que stratigraphiquement plus récente — "
+                          "déplacez {a} vers une période ≥ {pb}, ou {b} ≤ {pa}, ou "
+                          "vérifiez la relation",
+        "s_temporal_contemp": "{a} (période {pa}) et {b} (période {pb}) sont déclarées "
+                              "contemporaines mais leurs périodes ne se chevauchent pas "
+                              "— assignez-les à la même période",
+        "s_temporal_uneval": "{a} a une relation d'ordre avec {b} mais la datation de "
+                             "période est manquante — assignez la période manquante",
     },
     "pt": {
         "t_self_loop": "Self-loop (US relacionada consigo mesma)",
@@ -183,12 +243,24 @@ _L = {
         "t_contradiction_ambiguous": "Contradição direta (escolha manual)",
         "t_cycle": "Ciclo estratigráfico (escolha manual)",
         "t_illegal_connection": "Tipo de relação inválido (apenas aviso)",
+        "t_temporal_inversion": "Paradoxo temporal (inversão de período)",
+        "t_temporal_contemporaneity": "Paradoxo temporal (contemporaneidade não sobreposta)",
+        "t_temporal_unevaluable": "Consistência temporal não avaliável (período em falta)",
         "s_self": "{us} está relacionada consigo mesma",
         "s_recip": "Falta o recíproco em {b} para {a} (relação «{rel}»)",
         "s_contr": "Contradição: {a} «{lab1}» {b}  ⇄  {b} «{lab2}» {a} "
                    "— mantenha uma direção, remova a outra",
         "s_cycle": "Ciclo: {chain} — quebre o ciclo removendo a relação errada",
         "s_illegal": "Tipo de relação inválido: {a} → {b}",
+        "s_temporal_inv": "{a} (período {pa}) é inteiramente mais antiga que {b} "
+                          "(período {pb}) embora estratigraficamente mais recente — "
+                          "mova {a} para um período ≥ {pb}, ou {b} ≤ {pa}, ou "
+                          "verifique a relação",
+        "s_temporal_contemp": "{a} (período {pa}) e {b} (período {pb}) são declaradas "
+                              "contemporâneas mas os seus períodos não se sobrepõem — "
+                              "atribua-as ao mesmo período",
+        "s_temporal_uneval": "{a} tem uma relação de ordem com {b} mas a datação de "
+                             "período está em falta — atribua o período em falta",
     },
 }
 

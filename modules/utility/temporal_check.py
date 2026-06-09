@@ -105,3 +105,87 @@ def unit_span(periods, chrono):
     if ci is None or cf is None:
         return None
     return (ci, cf)
+
+
+# ---------------------------------------------------------------------------
+# Task 3: detect_temporal + localized summaries
+# ---------------------------------------------------------------------------
+
+def _node_us_map(graph):
+    m = {}
+    for n in getattr(graph, "nodes", None) or []:
+        u = _real_us(n)
+        if u is not None:
+            m[n.node_id] = str(u)
+    return m
+
+
+def _periodo(us, unit_periods):
+    p = unit_periods.get(us)
+    return p[0] if p and p[0] else "?"
+
+
+def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
+    """Return temporal-paradox Issues (no edits yet — see solve_fixes)."""
+    issues = []
+    if not chrono:
+        return issues
+    id_to_us = _node_us_map(graph)
+    seen = set()
+
+    def span(us):
+        return unit_span(unit_periods.get(us), chrono)
+
+    for (s, t, et) in _strat_edges(graph):
+        rel = _classify_relation(et)
+        if rel is None:
+            continue
+        us_s, us_t = id_to_us.get(s), id_to_us.get(t)
+        if not us_s or not us_t or us_s == us_t:
+            continue
+        if rel == "contemp":
+            key = ("c", frozenset((us_s, us_t)))
+            if key in seen:
+                continue
+            seen.add(key)
+            sp_s, sp_t = span(us_s), span(us_t)
+            if sp_s is None or sp_t is None:
+                # dated + undated → gap-fillable; both undated → skip
+                if sp_s is None and sp_t is None:
+                    continue
+                issues.append(Issue(
+                    TEMPORAL_CONTEMPORANEITY, [us_s, us_t], False,
+                    _t(lang, "s_temporal_contemp").format(
+                        a=_utok(us_s, lang), pa=_periodo(us_s, unit_periods),
+                        b=_utok(us_t, lang), pb=_periodo(us_t, unit_periods))))
+                continue
+            if sp_s[1] < sp_t[0] or sp_t[1] < sp_s[0]:
+                issues.append(Issue(
+                    TEMPORAL_CONTEMPORANEITY, [us_s, us_t], False,
+                    _t(lang, "s_temporal_contemp").format(
+                        a=_utok(us_s, lang), pa=_periodo(us_s, unit_periods),
+                        b=_utok(us_t, lang), pb=_periodo(us_t, unit_periods))))
+            continue
+        # order relation → normalize to (later, earlier)
+        later, earlier = (us_s, us_t) if rel == "later" else (us_t, us_s)
+        key = ("i", later, earlier)
+        if key in seen:
+            continue
+        seen.add(key)
+        sp_l, sp_e = span(later), span(earlier)
+        if sp_l is None or sp_e is None:
+            # only actionable if one side is dated (hint to date the other)
+            if sp_l is None and sp_e is None:
+                continue
+            issues.append(Issue(
+                TEMPORAL_UNEVALUABLE, [later, earlier], False,
+                _t(lang, "s_temporal_uneval").format(
+                    a=_utok(later, lang), b=_utok(earlier, lang))))
+            continue
+        if sp_l[1] < sp_e[0]:   # later entirely before earlier → inversion
+            issues.append(Issue(
+                TEMPORAL_INVERSION, [later, earlier], False,
+                _t(lang, "s_temporal_inv").format(
+                    a=_utok(later, lang), pa=_periodo(later, unit_periods),
+                    b=_utok(earlier, lang), pb=_periodo(earlier, unit_periods))))
+    return issues
