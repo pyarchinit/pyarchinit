@@ -87,3 +87,48 @@ def test_build_con_record_area_default():
     assert rec["rapporti"][0][2] == "1", (
         "rapporti[0][2] (area) should match record['area'] == '1'"
     )
+
+
+# ---------------------------------------------------------------------------
+# Task 4: diff_continuity (pure, idempotent)
+# ---------------------------------------------------------------------------
+from modules.s3dgraphy.sync.continuity_generator import diff_continuity, Plan
+
+def _desired_for(*recs):
+    return [build_con_record(c, schedatore="x", lang="it")
+            for c in scan_candidates(list(recs))]
+
+def test_diff_creates_when_absent():
+    desired = _desired_for(_rec())
+    plan = diff_continuity({}, desired)
+    assert isinstance(plan, Plan)
+    assert [d["us"] for d in plan.to_create] == ["CON_US5"]
+    assert plan.to_update == [] and plan.unchanged == [] and plan.orphan == []
+
+def test_diff_unchanged_when_identical():
+    desired = _desired_for(_rec())
+    # existing CON identical to desired (same comparable fields)
+    existing = {"CON_US5": dict(desired[0])}
+    plan = diff_continuity(existing, desired)
+    assert plan.unchanged == ["CON_US5"]
+    assert plan.to_create == [] and plan.to_update == []
+
+def test_diff_updates_when_span_changed():
+    desired = _desired_for(_rec(periodo_finale="4"))   # span now 1..4
+    existing = {"CON_US5": dict(_desired_for(_rec(periodo_finale="3"))[0])}
+    plan = diff_continuity(existing, desired)
+    assert [d["us"] for d in plan.to_update] == ["CON_US5"]
+
+def test_diff_marks_orphan():
+    # existing CON whose madre no longer jumps periods (no desired entry)
+    existing = {"CON_US9": {"us": "CON_US9", "sito": "S"}}
+    plan = diff_continuity(existing, [])
+    assert plan.orphan == ["CON_US9"]
+
+def test_diff_is_idempotent_second_pass():
+    desired = _desired_for(_rec())
+    # simulate state after first apply: existing == desired
+    existing = {d["us"]: dict(d) for d in desired}
+    plan = diff_continuity(existing, desired)
+    assert plan.to_create == [] and plan.to_update == []
+    assert plan.unchanged == ["CON_US5"]

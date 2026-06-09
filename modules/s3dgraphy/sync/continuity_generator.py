@@ -13,7 +13,7 @@ Spec: docs/superpowers/specs/2026-06-09-genera-continuita-con-design.md
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .rapporti import continuity_label
 
@@ -125,3 +125,61 @@ def build_con_record(cand: Candidate, *, schedatore: str = "",
         "rapporti": [con_entry],
         "schedatore": schedatore,
     }
+
+
+# ---------------------------------------------------------------------------
+# Task 4: diff_continuity (pure, idempotent)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Plan:
+    to_create: list = field(default_factory=list)   # CON record dicts
+    to_update: list = field(default_factory=list)   # CON record dicts
+    unchanged: list = field(default_factory=list)   # us codes
+    orphan: list = field(default_factory=list)      # us codes
+
+
+#: CON fields compared to decide create/update/unchanged.
+_COMPARE_FIELDS = (
+    "area", "struttura", "periodo_iniziale", "fase_iniziale",
+    "periodo_finale", "fase_finale", "other_locations",
+    "d_stratigrafica", "descrizione",
+)
+
+
+def _norm_rapporti(value):
+    """Order-insensitive normalised form of a rapporti value for compare."""
+    from .rapporti import _coerce_to_list
+    rows = []
+    for e in _coerce_to_list(value):
+        if isinstance(e, (list, tuple)) and len(e) >= 2:
+            rows.append((str(e[0]).strip(), str(e[1]).strip()))
+    return sorted(rows)
+
+
+def _record_matches(existing: dict, desired: dict) -> bool:
+    for f in _COMPARE_FIELDS:
+        if _nz(existing.get(f)) != _nz(desired.get(f)):
+            return False
+    return _norm_rapporti(existing.get("rapporti")) == \
+        _norm_rapporti(desired.get("rapporti"))
+
+
+def diff_continuity(existing_con: dict, desired: list) -> Plan:
+    """Compare desired CON records against existing ones (keyed by us)."""
+    plan = Plan()
+    desired_keys = set()
+    for d in desired:
+        key = d["us"]
+        desired_keys.add(key)
+        cur = existing_con.get(key)
+        if cur is None:
+            plan.to_create.append(d)
+        elif _record_matches(cur, d):
+            plan.unchanged.append(key)
+        else:
+            plan.to_update.append(d)
+    for key in existing_con:
+        if key not in desired_keys:
+            plan.orphan.append(key)
+    return plan
