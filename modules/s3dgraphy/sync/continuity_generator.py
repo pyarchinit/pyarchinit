@@ -13,9 +13,7 @@ Spec: docs/superpowers/specs/2026-06-09-genera-continuita-con-design.md
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-
-from .rapporti import continuity_label
+from dataclasses import dataclass
 
 #: Source unit types that can bear a continuity (per spec: US / USM only).
 CONTINUITY_SOURCE_TYPES = frozenset({"US", "USM"})
