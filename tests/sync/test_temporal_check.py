@@ -126,3 +126,36 @@ def test_placeholder_excluded():
     g = _G([_N("a", us="US5"), _N("b")], [_E("a", "b", "overlies")])  # b us=None
     up = {"US5": ("1", "1", "1", "1")}
     assert TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it") == []
+
+
+def test_unevaluable_summary_is_generic_for_all_langs():
+    """s_temporal_uneval summary must be factually correct for BOTH
+    contemporaneous (is_physically_equal_to / is_bonded_to) and order
+    (overlies / cuts / …) edge types — i.e. must NOT say 'order relationship'
+    when the edge is a contemporaneity declaration."""
+    up = {"US5": ("1", "1", "1", "1"), "US9": ("", "", "", "")}
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        # contemp edge (is_physically_equal_to) with one undated unit
+        g_c = _G([_N("a", us="US5"), _N("b", us="US9")],
+                 [_E("a", "b", "is_physically_equal_to")])
+        iss_c = TC.detect_temporal(g_c, _CHRONO, up, sito="S", lang=lang)
+        assert len(iss_c) == 1, f"[{lang}] contemp: expected 1 issue"
+        assert iss_c[0].kind == TC.TEMPORAL_UNEVALUABLE
+        # The summary must NOT imply an ordering relation
+        summ_c = iss_c[0].summary.lower()
+        assert "order" not in summ_c, (
+            f"[{lang}] contemp summary implies ordering: {iss_c[0].summary!r}")
+        assert "ordine" not in summ_c, (
+            f"[{lang}] contemp summary implies ordering: {iss_c[0].summary!r}")
+        assert "ordnung" not in summ_c, (
+            f"[{lang}] contemp summary implies ordering: {iss_c[0].summary!r}")
+        assert "orden" not in summ_c, (
+            f"[{lang}] contemp summary implies ordering: {iss_c[0].summary!r}")
+        assert "ordre" not in summ_c, (
+            f"[{lang}] contemp summary implies ordering: {iss_c[0].summary!r}")
+        # order edge (overlies) with one undated unit → same kind, also generic
+        g_o = _G([_N("a", us="US5"), _N("b", us="US9")],
+                 [_E("a", "b", "overlies")])
+        iss_o = TC.detect_temporal(g_o, _CHRONO, up, sito="S", lang=lang)
+        assert len(iss_o) == 1, f"[{lang}] order: expected 1 issue"
+        assert iss_o[0].kind == TC.TEMPORAL_UNEVALUABLE

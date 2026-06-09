@@ -127,7 +127,7 @@ _L = {
         "s_temporal_contemp": "{a} (periodo {pa}) e {b} (periodo {pb}) sono "
                               "dichiarate contemporanee ma i periodi non si "
                               "sovrappongono — assegnale allo stesso periodo",
-        "s_temporal_uneval": "{a} è in relazione d'ordine con {b} ma manca la "
+        "s_temporal_uneval": "{a} e {b} condividono una relazione ma manca la "
                              "datazione di periodo per valutarne la coerenza — "
                              "assegna il periodo mancante",
     },
@@ -153,9 +153,9 @@ _L = {
         "s_temporal_contemp": "{a} (period {pa}) and {b} (period {pb}) are declared "
                               "contemporary but their periods do not overlap — "
                               "assign them to the same period",
-        "s_temporal_uneval": "{a} has an order relationship with {b} but a period "
-                             "date is missing to evaluate consistency — assign the "
-                             "missing period",
+        "s_temporal_uneval": "{a} and {b} share a relationship but a period date is "
+                             "missing to evaluate consistency — assign the missing "
+                             "period",
     },
     "de": {
         "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
@@ -180,7 +180,7 @@ _L = {
         "s_temporal_contemp": "{a} (Periode {pa}) und {b} (Periode {pb}) sind als "
                               "gleichzeitig deklariert, aber ihre Perioden überlappen "
                               "sich nicht — derselben Periode zuweisen",
-        "s_temporal_uneval": "{a} hat eine Ordnungsbeziehung zu {b}, aber eine "
+        "s_temporal_uneval": "{a} und {b} stehen in einer Beziehung, aber eine "
                              "Periodendatierung fehlt — fehlende Periode zuweisen",
     },
     "es": {
@@ -206,7 +206,7 @@ _L = {
         "s_temporal_contemp": "{a} (período {pa}) y {b} (período {pb}) se declaran "
                               "contemporáneas pero sus períodos no se solapan — "
                               "asígnalas al mismo período",
-        "s_temporal_uneval": "{a} tiene una relación de orden con {b} pero falta la "
+        "s_temporal_uneval": "{a} y {b} comparten una relación pero falta la "
                              "datación de período — asigna el período faltante",
     },
     "fr": {
@@ -233,7 +233,7 @@ _L = {
         "s_temporal_contemp": "{a} (période {pa}) et {b} (période {pb}) sont déclarées "
                               "contemporaines mais leurs périodes ne se chevauchent pas "
                               "— assignez-les à la même période",
-        "s_temporal_uneval": "{a} a une relation d'ordre avec {b} mais la datation de "
+        "s_temporal_uneval": "{a} et {b} partagent une relation mais la datation de "
                              "période est manquante — assignez la période manquante",
     },
     "pt": {
@@ -259,7 +259,7 @@ _L = {
         "s_temporal_contemp": "{a} (período {pa}) e {b} (período {pb}) são declaradas "
                               "contemporâneas mas os seus períodos não se sobrepõem — "
                               "atribua-as ao mesmo período",
-        "s_temporal_uneval": "{a} tem uma relação de ordem com {b} mas a datação de "
+        "s_temporal_uneval": "{a} e {b} partilham uma relação mas a datação de "
                              "período está em falta — atribua o período em falta",
     },
 }
