@@ -114,6 +114,14 @@ def test_unevaluable_when_one_dated_one_not():
     iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
     assert [i.kind for i in iss] == [TC.TEMPORAL_UNEVALUABLE]
 
+def test_unevaluable_contemp_one_dated_one_not():
+    # contemporaneous pair where one unit has no period → unevaluable, not contemp
+    g = _G([_N("a", us="US5"), _N("b", us="US9")],
+           [_E("a", "b", "is_physically_equal_to")])
+    up = {"US5": ("1", "1", "1", "1"), "US9": ("", "", "", "")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    assert [i.kind for i in iss] == [TC.TEMPORAL_UNEVALUABLE]
+
 def test_placeholder_excluded():
     g = _G([_N("a", us="US5"), _N("b")], [_E("a", "b", "overlies")])  # b us=None
     up = {"US5": ("1", "1", "1", "1")}

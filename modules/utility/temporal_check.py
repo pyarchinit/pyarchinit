@@ -126,7 +126,15 @@ def _periodo(us, unit_periods):
 
 
 def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
-    """Return temporal-paradox Issues (no edits yet — see solve_fixes)."""
+    """Return temporal-paradox Issues (no edits yet — see solve_fixes).
+
+    *sito* is accepted as a keyword-only parameter for API symmetry with
+    callers that pre-filter ``unit_periods`` and ``chrono`` by site before
+    calling this function.  It is not read inside the function body because
+    the data dictionaries are already site-scoped by their loaders
+    (``load_unit_periods`` / ``build_chronology``).  Reserved for a future
+    refactor where loading would happen intra-function.
+    """
     issues = []
     if not chrono:
         return issues
@@ -150,14 +158,13 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
             seen.add(key)
             sp_s, sp_t = span(us_s), span(us_t)
             if sp_s is None or sp_t is None:
-                # dated + undated → gap-fillable; both undated → skip
+                # dated + undated → cannot evaluate overlap; both undated → skip
                 if sp_s is None and sp_t is None:
                     continue
                 issues.append(Issue(
-                    TEMPORAL_CONTEMPORANEITY, [us_s, us_t], False,
-                    _t(lang, "s_temporal_contemp").format(
-                        a=_utok(us_s, lang), pa=_periodo(us_s, unit_periods),
-                        b=_utok(us_t, lang), pb=_periodo(us_t, unit_periods))))
+                    TEMPORAL_UNEVALUABLE, [us_s, us_t], False,
+                    _t(lang, "s_temporal_uneval").format(
+                        a=_utok(us_s, lang), b=_utok(us_t, lang))))
                 continue
             if sp_s[1] < sp_t[0] or sp_t[1] < sp_s[0]:
                 issues.append(Issue(
