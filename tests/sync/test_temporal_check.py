@@ -257,6 +257,28 @@ def test_check_rapporti_skips_temporal_without_chrono():
     assert not any(i.kind == TC.TEMPORAL_INVERSION for i in rep.issues)
 
 
+def test_check_rapporti_solve_fixes_majority_outlier_wired():
+    """End-to-end: solve_fixes populates edits when called through check_rapporti.
+
+    US5 overlies both US7 and US8 (both period 3); US5 is wrongly in period 1.
+    Conflict score: US5=2 vs US7=1, US8=1 -> US5 is the majority outlier.
+    solve_fixes must set auto=True and populate edits on the TEMPORAL_INVERSION
+    issues, proving the wired path (not the isolated solve_fixes call) works.
+    """
+    g_majority = _mk([("US5", "overlies", "US7"), ("US5", "overlies", "US8")])
+    up_majority = {
+        "US5": ("1", "1", "1", "1"),
+        "US7": ("3", "1", "3", "1"),
+        "US8": ("3", "1", "3", "1"),
+    }
+    rep = RC.check_rapporti(
+        g_majority, sito="S", chrono=_CHRONO, unit_periods=up_majority)
+    assert any(
+        i.kind == TC.TEMPORAL_INVERSION and i.auto
+        for i in rep.issues
+    ), "Expected at least one auto-fixed TEMPORAL_INVERSION from majority-outlier path"
+
+
 def test_kind_title_localized():
     assert RC.kind_title(TC.TEMPORAL_INVERSION, "it")
     assert RC.kind_title(TC.TEMPORAL_INVERSION, "en")

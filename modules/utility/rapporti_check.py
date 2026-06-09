@@ -413,7 +413,8 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
             graph, chrono, unit_periods, sito=sito, lang=lang)
         _TC.solve_fixes(
             [i for i in rep.issues if i.kind in (
-                _TC.TEMPORAL_INVERSION, _TC.TEMPORAL_CONTEMPORANEITY)],
+                _TC.TEMPORAL_INVERSION, _TC.TEMPORAL_CONTEMPORANEITY,
+                _TC.TEMPORAL_UNEVALUABLE)],
             graph, chrono, unit_periods, sito=sito)
 
     return rep
