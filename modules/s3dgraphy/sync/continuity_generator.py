@@ -148,12 +148,17 @@ _COMPARE_FIELDS = (
 
 
 def _norm_rapporti(value):
-    """Order-insensitive normalised form of a rapporti value for compare."""
+    """Order-insensitive normalised form of a rapporti value for compare.
+
+    All four elements (label, target_us, area, sito) are included so that
+    drift in the area/sito slots baked into rapporti entries is detected and
+    triggers an update, not silently treated as unchanged.
+    """
     from .rapporti import _coerce_to_list
     rows = []
     for e in _coerce_to_list(value):
         if isinstance(e, (list, tuple)) and len(e) >= 2:
-            rows.append((str(e[0]).strip(), str(e[1]).strip()))
+            rows.append(tuple(str(e[i]).strip() for i in range(min(len(e), 4))))
     return sorted(rows)
 
 
@@ -166,11 +171,20 @@ def _record_matches(existing: dict, desired: dict) -> bool:
 
 
 def diff_continuity(existing_con: dict, desired: list) -> Plan:
-    """Compare desired CON records against existing ones (keyed by us)."""
+    """Compare desired CON records against existing ones (keyed by us).
+
+    Duplicate entries with the same ``us`` key in *desired* (e.g. from
+    duplicate DB rows returned by scan_candidates) are silently deduplicated:
+    the first occurrence wins and subsequent occurrences are dropped.
+    """
     plan = Plan()
     desired_keys = set()
+    seen: set = set()
     for d in desired:
         key = d["us"]
+        if key in seen:
+            continue
+        seen.add(key)
         desired_keys.add(key)
         cur = existing_con.get(key)
         if cur is None:

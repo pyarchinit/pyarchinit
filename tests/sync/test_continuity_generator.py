@@ -132,3 +132,62 @@ def test_diff_is_idempotent_second_pass():
     plan = diff_continuity(existing, desired)
     assert plan.to_create == [] and plan.to_update == []
     assert plan.unchanged == ["CON_US5"]
+
+
+def test_diff_dedup_duplicate_candidates():
+    """If desired contains two entries with identical us key (e.g. from
+    duplicate DB rows), diff_continuity must not emit both as to_create —
+    the second should be silently dropped (first-seen wins)."""
+    desired = _desired_for(_rec(), _rec())   # two identical records → same key
+    # sanity: both have the same 'us' key
+    assert desired[0]["us"] == desired[1]["us"] == "CON_US5"
+    plan = diff_continuity({}, desired)
+    assert len(plan.to_create) == 1, (
+        "duplicate desired entries for the same us key must be deduped"
+    )
+    assert plan.to_create[0]["us"] == "CON_US5"
+
+
+def test_norm_rapporti_includes_area_and_sito():
+    """_norm_rapporti must include area and sito in the comparison tuple so
+    that rapporti drift (different area/sito baked in) is detected as a
+    change, not silently treated as unchanged."""
+    from modules.s3dgraphy.sync.continuity_generator import _norm_rapporti
+
+    entry_a = ["è continuità di", "US5", "1", "S"]
+    entry_b = ["è continuità di", "US5", "2", "S"]   # area differs
+    assert _norm_rapporti([entry_a]) != _norm_rapporti([entry_b]), (
+        "_norm_rapporti must distinguish entries with different area"
+    )
+
+    entry_c = ["è continuità di", "US5", "1", "S"]
+    entry_d = ["è continuità di", "US5", "1", "OTHER"]   # sito differs
+    assert _norm_rapporti([entry_c]) != _norm_rapporti([entry_d]), (
+        "_norm_rapporti must distinguish entries with different sito"
+    )
+
+
+def test_record_matches_detects_rapporti_area_drift():
+    """_record_matches must return False when rapporti area inside the
+    existing record differs from the desired (e.g. after a manual DB edit)."""
+    from modules.s3dgraphy.sync.continuity_generator import _record_matches
+    fwd = continuity_label("it", "forward")
+    existing = {
+        "sito": "S", "us": "CON_US5", "area": "1",
+        "struttura": "M1", "periodo_iniziale": "1", "fase_iniziale": "1",
+        "periodo_finale": "3", "fase_finale": "2", "other_locations": None,
+        "d_stratigrafica": "Continuità",
+        "descrizione": "Continuità di US5 dal periodo 1 al periodo 3",
+        "rapporti": [[fwd, "US5", "999", "S"]],   # area baked in is "999"
+    }
+    desired = {
+        "sito": "S", "us": "CON_US5", "area": "1",
+        "struttura": "M1", "periodo_iniziale": "1", "fase_iniziale": "1",
+        "periodo_finale": "3", "fase_finale": "2", "other_locations": None,
+        "d_stratigrafica": "Continuità",
+        "descrizione": "Continuità di US5 dal periodo 1 al periodo 3",
+        "rapporti": [[fwd, "US5", "1", "S"]],     # correct area "1"
+    }
+    assert not _record_matches(existing, desired), (
+        "_record_matches must detect drift when rapporti area differs"
+    )
