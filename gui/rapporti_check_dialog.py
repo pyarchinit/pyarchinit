@@ -140,12 +140,16 @@ class RapportiCheckPanel(QWidget):
             return
         try:
             from modules.s3dgraphy.sync.graph_projector import GraphProjector
+            from modules.utility import temporal_check as TC
             handle = self._handle()
             graph = GraphProjector().populate_graph(handle, sito=sito)
-            self._report = RC.check_rapporti(graph, sito=sito, lang=self._lang)
+            chrono = TC.build_chronology(handle, sito)
+            unit_periods = TC.load_unit_periods(handle, sito)
+            self._report = RC.check_rapporti(
+                graph, sito=sito, lang=self._lang,
+                chrono=chrono, unit_periods=unit_periods)
         except Exception as exc:
-            QMessageBox.critical(self, "pyArchInit",
-                                 f"Verifica fallita: {exc}")
+            QMessageBox.critical(self, "pyArchInit", f"Verifica fallita: {exc}")
             return
         self._render()
 
@@ -202,6 +206,8 @@ class RapportiCheckPanel(QWidget):
                 lines.append(f"US {e.us}: rimuovi  {list(r)}")
             for a in e.add:
                 lines.append(f"US {e.us}: aggiungi {list(a)}")
+            for (col, val) in getattr(e, "set_fields", ()):
+                lines.append(f"US {e.us}: imposta {col} = {val}")
         self.preview.setPlainText("\n".join(lines))
 
     def _apply(self):
@@ -218,6 +224,24 @@ class RapportiCheckPanel(QWidget):
                 f"(potrai annullare con 'Annulla ultimo fix')",
                 QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
             return
+        if any(getattr(e, "set_fields", ()) for e in edits):
+            try:
+                from pathlib import Path
+                from scripts.migrations._common import (
+                    auto_backup_sqlite, auto_backup_postgres, BackupSkipped)
+                h = self._handle()
+                if h.is_postgres:
+                    auto_backup_postgres(h.engine, "temporal_fix", Path.cwd())
+                elif h.sqlite_path:
+                    auto_backup_sqlite(Path(h.sqlite_path), "temporal_fix")
+            except BackupSkipped:
+                if QMessageBox.question(
+                        self, "Backup non disponibile",
+                        "pg_dump non trovato: procedo senza backup?",
+                        QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
+                    return
+            except Exception:
+                pass   # backup is best-effort; rollback still protects
         try:
             self._token = RC.apply_edits(edits, self._handle(), sito=sito)
         except Exception as exc:
