@@ -235,3 +235,28 @@ def test_unevaluable_summary_is_generic_for_all_langs():
         iss_o = TC.detect_temporal(g_o, _CHRONO, up, sito="S", lang=lang)
         assert len(iss_o) == 1, f"[{lang}] order: expected 1 issue"
         assert iss_o[0].kind == TC.TEMPORAL_UNEVALUABLE
+
+
+# ---------------------------------------------------------------------------
+# Task 6: Wire temporal_check into check_rapporti
+# ---------------------------------------------------------------------------
+
+from modules.utility import rapporti_check as RC
+
+
+def test_check_rapporti_appends_temporal_when_chrono_given():
+    g = _mk([("US5", "overlies", "US7")])
+    up = {"US5": ("1", "1", "1", "1"), "US7": ("3", "1", "3", "1")}
+    rep = RC.check_rapporti(g, sito="S", chrono=_CHRONO, unit_periods=up)
+    assert any(i.kind == TC.TEMPORAL_INVERSION for i in rep.issues)
+
+
+def test_check_rapporti_skips_temporal_without_chrono():
+    g = _mk([("US5", "overlies", "US7")])
+    rep = RC.check_rapporti(g, sito="S")   # no chrono -> backward compatible
+    assert not any(i.kind == TC.TEMPORAL_INVERSION for i in rep.issues)
+
+
+def test_kind_title_localized():
+    assert RC.kind_title(TC.TEMPORAL_INVERSION, "it")
+    assert RC.kind_title(TC.TEMPORAL_INVERSION, "en")

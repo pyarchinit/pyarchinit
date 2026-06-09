@@ -308,7 +308,7 @@ def _rel_label(et, lang):
 
 
 def check_rapporti(graph, *, sito, lang="it", validate=True,
-                   inverse_label=None) -> RapportiReport:
+                   inverse_label=None, chrono=None, unit_periods=None) -> RapportiReport:
     """Detect rapporti inconsistencies. *lang* (2-letter QGIS UI locale)
     localises every issue ``summary``. Edit computation is in
     :func:`_fill_edits`."""
@@ -405,6 +405,17 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
                     + f"  («{_rel_label(et, lang)}»)"))
 
     _fill_edits(rep, graph, inverse_label=inverse_label)
+
+    # Temporal paradoxes (only when chronology + period spans are supplied).
+    if chrono and unit_periods is not None:
+        from modules.utility import temporal_check as _TC   # lazy: avoid import cycle
+        rep.issues += _TC.detect_temporal(
+            graph, chrono, unit_periods, sito=sito, lang=lang)
+        _TC.solve_fixes(
+            [i for i in rep.issues if i.kind in (
+                _TC.TEMPORAL_INVERSION, _TC.TEMPORAL_CONTEMPORANEITY)],
+            graph, chrono, unit_periods, sito=sito)
+
     return rep
 
 
