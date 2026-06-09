@@ -197,3 +197,155 @@ def diff_continuity(existing_con: dict, desired: list) -> Plan:
         if key not in desired_keys:
             plan.orphan.append(key)
     return plan
+
+
+# ---------------------------------------------------------------------------
+# Task 5: I/O — readers + apply_plan (DbHandle, SQLite integration)
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Report:
+    created: int = 0
+    updated: int = 0
+    unchanged: int = 0
+    orphans_removed: int = 0
+    warnings: list = field(default_factory=list)
+
+
+def load_site_records(handle, sito) -> list[dict]:
+    """Read US/USM rows for *sito* (only the columns scan/build need)."""
+    from sqlalchemy import text
+    cols = ", ".join(_READ_COLUMNS)
+    with handle.engine.connect() as conn:
+        rows = conn.execute(
+            text(f"SELECT {cols} FROM us_table WHERE sito = :s"),
+            {"s": sito}).mappings().fetchall()
+    return [dict(r) for r in rows]
+
+
+def load_existing_con(handle, sito) -> dict:
+    """Read existing CON_* rows for *sito*, keyed by us. Includes the
+    comparable fields + rapporti so diff_continuity can classify them."""
+    from sqlalchemy import text
+    cols = ("us, area, struttura, periodo_iniziale, fase_iniziale, "
+            "periodo_finale, fase_finale, other_locations, "
+            "d_stratigrafica, descrizione, rapporti")
+    with handle.engine.connect() as conn:
+        rows = conn.execute(
+            text(f"SELECT {cols} FROM us_table "
+                 "WHERE sito = :s AND unita_tipo = 'CON'"),
+            {"s": sito}).mappings().fetchall()
+    return {r["us"]: dict(r) for r in rows}
+
+
+def _next_id(conn):
+    from sqlalchemy import text
+    row = conn.execute(text("SELECT MAX(id_us) FROM us_table")).fetchone()
+    return (row[0] or 0) + 1
+
+
+def _insert_con(conn, rec, next_id, has_node_uuid):
+    """Insert one CON row. Sets id_us explicitly (cross-backend safe),
+    entity_uuid always, node_uuid only when the column exists."""
+    from sqlalchemy import text
+    from .uuid7 import uuid7
+    fields = {
+        "id_us": next_id,
+        "sito": rec["sito"], "area": rec["area"], "us": rec["us"],
+        "unita_tipo": "CON", "struttura": rec["struttura"],
+        "periodo_iniziale": rec["periodo_iniziale"],
+        "fase_iniziale": rec["fase_iniziale"],
+        "periodo_finale": rec["periodo_finale"],
+        "fase_finale": rec["fase_finale"],
+        "other_locations": rec["other_locations"],
+        "d_stratigrafica": rec["d_stratigrafica"],
+        "descrizione": rec["descrizione"],
+        "rapporti": str([list(map(str, e)) for e in rec["rapporti"]]),
+        "schedatore": rec["schedatore"],
+        "entity_uuid": str(uuid7()),
+    }
+    if has_node_uuid:
+        fields["node_uuid"] = str(uuid7())
+    cols = ", ".join(fields)
+    binds = ", ".join(f":{k}" for k in fields)
+    conn.execute(text(f"INSERT INTO us_table ({cols}) VALUES ({binds})"),
+                 fields)
+
+
+def _update_con(conn, rec):
+    from sqlalchemy import text
+    sets = ("area=:area, struttura=:struttura, "
+            "periodo_iniziale=:pi, fase_iniziale=:fi, "
+            "periodo_finale=:pf, fase_finale=:ff, "
+            "other_locations=:ol, d_stratigrafica=:ds, "
+            "descrizione=:descr, rapporti=:rap")
+    conn.execute(text(f"UPDATE us_table SET {sets} "
+                      "WHERE sito=:sito AND us=:us AND unita_tipo='CON'"),
+                 {"area": rec["area"], "struttura": rec["struttura"],
+                  "pi": rec["periodo_iniziale"], "fi": rec["fase_iniziale"],
+                  "pf": rec["periodo_finale"], "ff": rec["fase_finale"],
+                  "ol": rec["other_locations"], "ds": rec["d_stratigrafica"],
+                  "descr": rec["descrizione"],
+                  "rap": str([list(map(str, e)) for e in rec["rapporti"]]),
+                  "sito": rec["sito"], "us": rec["us"]})
+
+
+def _add_reciprocal_to_madre(conn, sito, us_madre, madre_entry):
+    """Append the reverse continuity rapporto to the madre row if absent."""
+    from sqlalchemy import text
+    from .rapporti import _coerce_to_list
+    row = conn.execute(
+        text("SELECT rapporti FROM us_table WHERE sito=:s AND us=:u"),
+        {"s": sito, "u": us_madre}).fetchone()
+    if row is None:
+        return
+    lst = [list(map(str, e)) for e in _coerce_to_list(row[0])
+           if isinstance(e, (list, tuple))]
+    target = list(map(str, madre_entry))
+    # de-dup on (label, target_us)
+    if any(x[:2] == target[:2] for x in lst):
+        return
+    lst.append(target)
+    conn.execute(
+        text("UPDATE us_table SET rapporti=:r WHERE sito=:s AND us=:u"),
+        {"r": str(lst), "s": sito, "u": us_madre})
+
+
+def _madre_entry_for(rec, us_madre, lang):
+    """Rebuild the (con_entry, madre_entry) pair from a CON record dict."""
+    area = rec.get("area") or "1"
+    sito = rec["sito"]
+    fwd = continuity_label(lang, "forward")
+    rev = continuity_label(lang, "reverse")
+    return ([fwd, us_madre, area, sito], [rev, rec["us"], area, sito])
+
+
+def apply_plan(handle, plan, *, remove_orphans=False, lang="it") -> Report:
+    """Apply a Plan in a single transaction; return a Report."""
+    from sqlalchemy import text
+    from ._db_handle import _columns_of
+    rep = Report(unchanged=len(plan.unchanged))
+    has_node_uuid = "node_uuid" in _columns_of(handle.engine, "us_table")
+    with handle.engine.begin() as conn:
+        nid = _next_id(conn)
+        for rec in plan.to_create:
+            if not rec.get("area"):
+                rep.warnings.append(f"{rec['us']}: madre senza area")
+            _insert_con(conn, rec, nid, has_node_uuid)
+            nid += 1
+            us_madre = rec["us"].split("CON_", 1)[-1]
+            _, madre_entry = _madre_entry_for(rec, us_madre, lang)
+            _add_reciprocal_to_madre(conn, rec["sito"], us_madre, madre_entry)
+            rep.created += 1
+        for rec in plan.to_update:
+            _update_con(conn, rec)
+            us_madre = rec["us"].split("CON_", 1)[-1]
+            _, madre_entry = _madre_entry_for(rec, us_madre, lang)
+            _add_reciprocal_to_madre(conn, rec["sito"], us_madre, madre_entry)
+            rep.updated += 1
+        if remove_orphans:
+            for us in plan.orphan:
+                conn.execute(text("DELETE FROM us_table WHERE us=:u "
+                                  "AND unita_tipo='CON'"), {"u": us})
+                rep.orphans_removed += 1
+    return rep

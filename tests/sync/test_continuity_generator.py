@@ -191,3 +191,83 @@ def test_record_matches_detects_rapporti_area_drift():
     assert not _record_matches(existing, desired), (
         "_record_matches must detect drift when rapporti area differs"
     )
+
+
+# ---------------------------------------------------------------------------
+# Task 5: I/O — readers + apply_plan (DbHandle, SQLite integration)
+# ---------------------------------------------------------------------------
+import sqlite3
+import pytest
+from pathlib import Path
+from modules.s3dgraphy.sync._db_handle import DbHandle
+from modules.s3dgraphy.sync.continuity_generator import (
+    load_site_records, load_existing_con, apply_plan,
+)
+from modules.s3dgraphy.sync.rapporti import continuity_label, _coerce_to_list
+
+
+def _make_db(tmp_path: Path) -> DbHandle:
+    p = tmp_path / "con_test.sqlite"
+    con = sqlite3.connect(p)
+    con.executescript(
+        "CREATE TABLE us_table ("
+        " id_us INTEGER PRIMARY KEY, sito TEXT, area TEXT, us TEXT,"
+        " d_stratigrafica TEXT, descrizione TEXT, periodo_iniziale TEXT,"
+        " fase_iniziale TEXT, periodo_finale TEXT, fase_finale TEXT,"
+        " rapporti TEXT, schedatore TEXT, struttura TEXT, unita_tipo TEXT,"
+        " other_locations TEXT, entity_uuid TEXT, node_uuid TEXT);")
+    con.execute(
+        "INSERT INTO us_table (id_us,sito,area,us,unita_tipo,"
+        "periodo_iniziale,periodo_finale,struttura,rapporti) VALUES"
+        " (1,'S','1','US5','US','1','3','M1','[]')")
+    con.commit(); con.close()
+    return DbHandle.from_path(p)
+
+
+def test_apply_plan_creates_con_and_reciprocal(tmp_path):
+    h = _make_db(tmp_path)
+    recs = load_site_records(h, "S")
+    from modules.s3dgraphy.sync.continuity_generator import (
+        scan_candidates, build_con_record, diff_continuity)
+    desired = [build_con_record(c, schedatore="enzo", lang="it")
+               for c in scan_candidates(recs)]
+    plan = diff_continuity(load_existing_con(h, "S"), desired)
+    report = apply_plan(h, plan, remove_orphans=False)
+    assert report.created == 1
+    # CON row exists with unita_tipo CON
+    con_rows = load_existing_con(h, "S")
+    assert "CON_US5" in con_rows
+    # reciprocal written on madre US5
+    with h.engine.connect() as c:
+        from sqlalchemy import text
+        rap = c.execute(text("SELECT rapporti FROM us_table WHERE us='US5'"
+                             " AND sito='S'")).fetchone()[0]
+    rev = continuity_label("it", "reverse")
+    assert any(e[0] == rev and e[1] == "CON_US5"
+               for e in _coerce_to_list(rap))
+
+
+def test_apply_plan_idempotent_second_run(tmp_path):
+    h = _make_db(tmp_path)
+    from modules.s3dgraphy.sync.continuity_generator import generate_continuity
+    r1 = generate_continuity(h, "S", schedatore="enzo", lang="it")
+    assert r1.created == 1
+    r2 = generate_continuity(h, "S", schedatore="enzo", lang="it")
+    assert r2.created == 0 and r2.updated == 0
+
+
+def test_apply_plan_removes_orphan_only_when_opted_in(tmp_path):
+    h = _make_db(tmp_path)
+    from sqlalchemy import text
+    with h.engine.begin() as c:
+        c.execute(text("INSERT INTO us_table (id_us,sito,area,us,unita_tipo,"
+                       "periodo_iniziale,periodo_finale) VALUES"
+                       " (2,'S','1','CON_US9','CON','1','3')"))
+    from modules.s3dgraphy.sync.continuity_generator import generate_continuity
+    r = generate_continuity(h, "S", schedatore="x", lang="it",
+                            remove_orphans=False)
+    assert "CON_US9" in load_existing_con(h, "S")     # kept
+    r2 = generate_continuity(h, "S", schedatore="x", lang="it",
+                             remove_orphans=True)
+    assert "CON_US9" not in load_existing_con(h, "S")  # removed
+    assert r2.orphans_removed == 1
