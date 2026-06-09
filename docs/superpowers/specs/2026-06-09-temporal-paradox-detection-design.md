@@ -72,25 +72,28 @@ Qt-free. Riusa i predicati su nodi reali di `rapporti_check` (`_real_us`,
 | Funzione | Firma | Responsabilità |
 |---|---|---|
 | `build_chronology` | `(handle, sito) -> dict[(str,str), tuple[int\|None,int\|None]]` | da `periodizzazione_table` (sito): `(periodo, fase) → (cron_iniziale, cron_finale)` |
-| `unit_span` | `(node, chrono) -> tuple[int,int] \| None` | arco `(cron_ini, cron_fin)` dell'unità dai suoi `periodo_iniziale/fase` → `periodo_finale/fase`; `None` se non databile |
-| `detect_temporal` | `(graph, chrono, *, sito, lang) -> list[Issue]` | rileva `TEMPORAL_INVERSION` + `TEMPORAL_CONTEMPORANEITY` (+ informativi non valutabili) |
-| `solve_fixes` | `(issues, graph, chrono, *, sito) -> None` | popola `iss.edits` (auto) o lascia il suggerimento (manuale) con l'euristica della maggioranza |
+| `load_unit_periods` | `(handle, sito) -> dict[str, tuple[str,str,str,str]]` | da `us_table` (sito): `us → (periodo_iniziale, fase_iniziale, periodo_finale, fase_finale)`. **Necessario perché il grafo NON porta `periodo_finale/fase_finale`** (il projector attacca solo `periodo_iniziale/fase_iniziale`, righe 736-739) |
+| `unit_span` | `(periods, chrono) -> tuple[int,int] \| None` | arco `(cron_ini, cron_fin)` dalla tupla `(pi, fi, pf, ff)`: `cron_ini` dalla riga `(pi, fi)`, `cron_fin` dalla riga `(pf, ff)`; `None` se non databile |
+| `detect_temporal` | `(graph, chrono, unit_periods, *, sito, lang) -> list[Issue]` | rileva `TEMPORAL_INVERSION` + `TEMPORAL_CONTEMPORANEITY` (+ informativi non valutabili) |
+| `solve_fixes` | `(issues, graph, chrono, unit_periods, *, sito) -> None` | popola `iss.edits` (auto) o lascia il suggerimento (manuale) con l'euristica della maggioranza |
 
-`build_chronology`/`unit_span`/`detect_temporal`/`solve_fixes` sono **pure** salvo
-`build_chronology` (unica lettura DB).
+`unit_span`/`detect_temporal`/`solve_fixes` sono **pure**; `build_chronology` e
+`load_unit_periods` sono le uniche due letture DB (fatte dal pannello).
 
 ### 4.2 Integrazione — `modules/utility/rapporti_check.py`
 
 * `check_rapporti(graph, *, sito, lang, validate=True, inverse_label=None,
-  chrono=None)` — **nuovo parametro opzionale `chrono`** (la mappa già costruita
-  da `build_chronology`). Quando `chrono` è fornito: dopo i controlli esistenti,
-  `rep.issues += temporal_check.detect_temporal(graph, chrono, sito=sito, lang=lang)`
-  e `temporal_check.solve_fixes(...)`. Quando `chrono is None` (default) i controlli
-  temporali sono **saltati** → backward-compatible coi chiamanti/test esistenti che
-  invocano `check_rapporti(g, sito=...)`.
-  **Nota:** `check_rapporti` resta DB-free; l'unica lettura DB (`build_chronology`)
-  è fatta dal chiamante. `RapportiCheckPanel._run` ha già `self._handle()` →
-  costruisce `chrono` e lo passa.
+  chrono=None, unit_periods=None)` — **due nuovi parametri opzionali** (`chrono` da
+  `build_chronology`, `unit_periods` da `load_unit_periods`). Quando **entrambi**
+  sono forniti: dopo i controlli esistenti,
+  `rep.issues += temporal_check.detect_temporal(graph, chrono, unit_periods, sito=sito, lang=lang)`
+  poi `temporal_check.solve_fixes(...)`. Se uno dei due è `None` (default) i
+  controlli temporali sono **saltati** → backward-compatible coi chiamanti/test
+  esistenti che invocano `check_rapporti(g, sito=...)`.
+  **Nota:** `check_rapporti` resta DB-free; le due letture DB
+  (`build_chronology`, `load_unit_periods`) sono fatte dal chiamante.
+  `RapportiCheckPanel._run` ha già `self._handle()` → costruisce i due dict e li
+  passa.
 * Nuovi `kind`: `TEMPORAL_INVERSION`, `TEMPORAL_CONTEMPORANEITY`,
   `TEMPORAL_UNEVALUABLE` (informativo, no fix). Titoli + summary aggiunti al
   dizionario `_L` (it/en/de/es/fr/pt, fallback EN), come gli altri kind.
@@ -184,7 +187,8 @@ Con candidato concreto in pareggio, nomina entrambe le opzioni coi target calcol
 ## 8. Testing
 
 **Unit (logica pura):**
-* `build_chronology`/`unit_span`: mappa cron corretta; `None` su periodo mancante.
+* `build_chronology`/`load_unit_periods`/`unit_span`: mappa cron + span per-US
+  corretti; `unit_span` → `None` su periodo mancante o senza `cron`.
 * `detect_temporal`: inversione stretta rilevata; stesso-periodo/sovrapposizione
   **non** segnalati; contemporaneità disgiunta rilevata; non-databile →
   `TEMPORAL_UNEVALUABLE`; placeholder esclusi.
@@ -206,7 +210,7 @@ Con candidato concreto in pareggio, nomina entrambe le opzioni coi target calcol
 |---|---|---|
 | `modules/utility/temporal_check.py` | **nuovo** | cronologia + detection + solve (puro) |
 | `modules/utility/rapporti_check.py` | modifica | `Edit.set_fields`, apply/rollback generalizzati, `_L` nuovi kind, chiamata a `temporal_check` in `check_rapporti(... handle ...)` |
-| `gui/rapporti_check_dialog.py` | modifica | costruisce `chrono` (`build_chronology`) e lo passa a `check_rapporti`; auto-backup pre-apply se `set_fields`; `_preview` mostra `set_fields` |
+| `gui/rapporti_check_dialog.py` | modifica | costruisce `chrono` + `unit_periods` (`build_chronology`/`load_unit_periods`) e li passa a `check_rapporti`; auto-backup pre-apply se `set_fields`; `_preview` mostra `set_fields` |
 | `tests/sync/test_temporal_check.py` | **nuovo** | unit + integrazione |
 | `tests/sync/test_rapporti_check.py` | modifica | apply/rollback con `set_fields` |
 | `dev_logs/CHANGELOG.md` | modifica | entry bilingue |
