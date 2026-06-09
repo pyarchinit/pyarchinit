@@ -13,7 +13,7 @@ Spec: docs/superpowers/specs/2026-06-09-genera-continuita-con-design.md
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from .rapporti import continuity_label
 
