@@ -155,6 +155,17 @@ anteprima (`_preview` mostra `set_fields` oltre a add/remove) e
   quelle il cui arco `cron` soddisfa **tutti** i vincoli di M contro i periodi
   **correnti** dei vicini; scelta quella a **spostamento minimo**. **Set vuoto →
   suggerimento.** Scrive `periodo_iniziale = periodo_finale` (+ `fase_*`) = target.
+* **Asimmetria rilevamento ↔ correzione** (confine "tocca"): il *rilevamento*
+  usa la soglia stretta `<` (§5), quindi due periodi **adiacenti che si toccano**
+  in un solo punto `cron` non sono un paradosso (benefit-of-the-doubt). Il
+  *target* dell'auto-fix è però più esigente sulle relazioni d'**ordine**: non
+  basta toccare il vicino, l'unità spostata dev'essere **genuinamente** più
+  recente/antica (sovrapposizione, non solo confine condiviso) — altrimenti
+  un'unità che "copre" un'altra resterebbe di fatto coeva-al-limite. Per la
+  **contemporaneità** il tocco vale già come sovrapposizione e resta valido.
+  In codice: `_violated` (stretto, = rilevamento) guida `conflict_score` e il
+  tie-break; `_fix_satisfies` (rifiuta il tocco per le relazioni d'ordine) guida
+  la sola scelta del periodo target.
 * **Restrizione**: auto-spostamento solo su unità **mono-periodo**
   (`periodo_iniziale == periodo_finale`); multi-periodo → suggerimento.
 * **Colma-vuoto** (contemporaneità, datata + non databile): scrive sull'unità non
@@ -190,8 +201,12 @@ Con candidato concreto in pareggio, nomina entrambe le opzioni coi target calcol
 * `build_chronology`/`load_unit_periods`/`unit_span`: mappa cron + span per-US
   corretti; `unit_span` → `None` su periodo mancante o senza `cron`.
 * `detect_temporal`: inversione stretta rilevata; stesso-periodo/sovrapposizione
-  **non** segnalati; contemporaneità disgiunta rilevata; non-databile →
-  `TEMPORAL_UNEVALUABLE`; placeholder esclusi.
+  **non** segnalati; **confine che si tocca** (periodi adiacenti) **non**
+  segnalato — né inversione né contemporaneità — in entrambe le direzioni d'arco;
+  contemporaneità disgiunta rilevata; non-databile → `TEMPORAL_UNEVALUABLE`;
+  placeholder esclusi.
+* `_violated` / `_fix_satisfies`: il confine che si tocca **non** è violazione
+  (rilevamento) ma **non** è un target valido per le relazioni d'ordine (fix).
 * `solve_fixes`: outlier scelto per maggioranza; pareggio → suggerimento (no edit);
   target a spostamento minimo; set vuoto → suggerimento; multi-periodo →
   suggerimento; colma-vuoto contemporaneità → edit auto.

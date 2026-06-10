@@ -101,6 +101,32 @@ def test_no_inversion_same_or_overlapping_period():
     up2 = {"US5": ("2", "1", "2", "1"), "US7": ("2", "1", "2", "1")}  # same period
     assert TC.detect_temporal(g, _CHRONO, up2, sito="S", lang="it") == []
 
+def test_no_inversion_touching_boundary():
+    # Strict rule (spec §5): an inversion needs cron_finale(later) STRICTLY <
+    # cron_iniziale(earlier). Adjacent periods that merely touch at one cron
+    # point overlap and are NOT flagged. p1=(-100,0) touches p2=(0,100) at 0.
+    # later=US5 in p1 (ends at 0), earlier=US7 in p2 (starts at 0): 0 < 0 False.
+    g = _G([_N("a", us="US5"), _N("b", us="US7")], [_E("a", "b", "overlies")])
+    up = {"US5": ("1", "1", "1", "1"), "US7": ("2", "1", "2", "1")}
+    assert TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it") == []
+    # Same touching pair via an 'earlier' edge (is_overlain_by) — symmetric:
+    # US7 is_overlain_by US5 → later=US5(p1), earlier=US7(p2) → still touching.
+    g2 = _G([_N("a", us="US7"), _N("b", us="US5")],
+            [_E("a", "b", "is_overlain_by")])
+    assert TC.detect_temporal(g2, _CHRONO, up, sito="S", lang="it") == []
+    # Contrast: a one-period GAP (p1 vs p3, 0 < 100) is strictly disjoint → flagged.
+    up_gap = {"US5": ("1", "1", "1", "1"), "US7": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up_gap, sito="S", lang="it")
+    assert [i.kind for i in iss] == [TC.TEMPORAL_INVERSION]
+
+def test_no_contemp_violation_touching_boundary():
+    # Contemporaneity uses the same strict boundary: touching periods overlap,
+    # so a contemp edge across a touching boundary is NOT a violation.
+    g = _G([_N("a", us="US5"), _N("b", us="US7")],
+           [_E("a", "b", "is_physically_equal_to")])
+    up = {"US5": ("1", "1", "1", "1"), "US7": ("2", "1", "2", "1")}  # touch at 0
+    assert TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it") == []
+
 def test_detect_contemporaneity_disjoint():
     g = _G([_N("a", us="US5"), _N("b", us="US7")],
            [_E("a", "b", "is_physically_equal_to")])
@@ -161,11 +187,15 @@ def test_solve_moves_majority_outlier():
     assert dict(moved.set_fields)["periodo_iniziale"] == "3"  # minimal move to >=3
 
 def test_solve_skips_multiperiod_unit():
+    # Local chrono with a real GAP (p2 ends at 50, p3 starts at 100) so the
+    # multi-period span (-100,50) is STRICTLY before p3 (100,200) → a genuine
+    # inversion under the strict-< rule, not a touching boundary.
+    chrono = {("1", "1"): (-100, 0), ("2", "1"): (0, 50), ("3", "1"): (100, 200)}
     g = _mk([("CON_US5", "overlies", "US7"), ("CON_US5", "overlies", "US8")])
     up = {"CON_US5": ("1", "1", "2", "1"),    # spans periods -> not auto-movable
           "US7": ("3", "1", "3", "1"), "US8": ("3", "1", "3", "1")}
-    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
-    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    iss = TC.detect_temporal(g, chrono, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, chrono, up, sito="S")
     inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
     assert inv and all(i.edits == [] for i in inv)  # suggestion only
 
@@ -202,6 +232,26 @@ def test_build_adjacency_deduplicates_parallel_edges():
     # score would be 2 vs 1 → US5 would wrongly be moved.
     # But detect_temporal also deduplicates via seen set, so only 1 issue.
     assert len(iss) == 1, f"expected 1 issue (seen-dedup), got {len(iss)}"
+
+
+def test_violated_touching_boundary():
+    """_violated drives conflict_score and fix-acceptance; it must use the SAME
+    strict boundary as detect_temporal so a touching pair is never counted as a
+    conflict that detection left unflagged (and a touching period stays a valid
+    fix target)."""
+    # role='later': su must end >= neighbor start to overlap. Touching = OK.
+    assert TC._violated("later", (-100, 0), (0, 100)) is False   # touch at 0
+    assert TC._violated("later", (-100, -1), (0, 100)) is True   # strictly before
+    assert TC._violated("later", (100, 200), (100, 200)) is False  # same period
+    # role='earlier': symmetric. Touching = OK.
+    assert TC._violated("earlier", (0, 100), (-100, 0)) is False  # touch at 0
+    assert TC._violated("earlier", (1, 100), (-100, 0)) is True   # strictly after
+    # role='contemp' was already strict; touching still counts as overlap = OK.
+    assert TC._violated("contemp", (-100, 0), (0, 100)) is False
+    assert TC._violated("contemp", (-100, -1), (0, 100)) is True
+    # None spans never violate (undatable).
+    assert TC._violated("later", None, (0, 100)) is False
+    assert TC._violated("earlier", (0, 100), None) is False
 
 
 def test_unevaluable_summary_is_generic_for_all_langs():

@@ -5,9 +5,16 @@ using periodizzazione_table chronology (cron_iniziale/finale). Stratigraphy is
 the observed reference; auto-fixes move PERIODS (not relations). See
 docs/superpowers/specs/2026-06-09-temporal-paradox-detection-design.md.
 
-Import note: imports helpers from rapporti_check at module level. Future tasks
-will wire this module into check_rapporti; no circular-import risk exists
-because rapporti_check has no back-reference to this module.
+Boundary semantics (strict): two units are "temporally disjoint" only when one
+span ends STRICTLY before the other begins (cron_finale(A) < cron_iniziale(B)).
+Spans that merely touch at a single cron point count as overlapping — neither an
+inversion nor a contemporaneity violation. The inversion, contemporaneity and
+``_violated`` predicates all use the same strict rule so detection and
+fix-acceptance never disagree on a touching boundary.
+
+Import note: imports helpers from rapporti_check at module level. check_rapporti
+imports this module lazily (inside the function body), so the back-reference
+introduces no circular-import risk at module load.
 """
 from __future__ import annotations
 
@@ -189,7 +196,7 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
                 _t(lang, "s_temporal_uneval").format(
                     a=_utok(later, lang), b=_utok(earlier, lang))))
             continue
-        if sp_l[1] <= sp_e[0]:   # later ends at or before earlier starts → inversion
+        if sp_l[1] < sp_e[0]:   # later ends STRICTLY before earlier starts → inversion
             issues.append(Issue(
                 TEMPORAL_INVERSION, [later, earlier], False,
                 _t(lang, "s_temporal_inv").format(
@@ -231,25 +238,54 @@ def _violated(role, su, sn):
     """Return True when the candidate span *su* violates the constraint imposed
     by *role* with neighbor span *sn*.
 
-    The boundary condition uses strict ordering (``<=``): periods that only
-    touch at a single point are still considered non-overlapping and therefore
-    still violating.  This ensures that ``_best_target_period`` picks a period
-    that genuinely precedes/follows the neighbor rather than merely touching it.
+    Boundary condition is STRICT (``<``), matching ``detect_temporal``: a span is
+    only "before"/"after" a neighbor when it ends STRICTLY before the neighbor
+    begins. Spans that merely touch at one cron point overlap and do NOT violate.
+    This predicate decides whether a pair is CURRENTLY a paradox, so it is used by
+    ``conflict_score`` and the tie-break check — both of which must agree with
+    detection on every touching boundary. Choosing a *fix target* is a different
+    question (see ``_fix_satisfies``).
 
     Examples:
-      - role='later', su=(0,100), sn=(100,200) → su[1]=100 <= sn[0]=100 → True
-        (period touching the neighbor's start is not "after" it)
-      - role='later', su=(100,200), sn=(100,200) → 200 <= 100 → False  (same period OK)
+      - role='later', su=(0,100), sn=(100,200) → su[1]=100 < sn[0]=100 → False
+        (touching the neighbor's start counts as overlap → not violating)
+      - role='later', su=(0,99), sn=(100,200) → 99 < 100 → True  (strictly before)
+      - role='later', su=(100,200), sn=(100,200) → 200 < 100 → False  (same period OK)
     """
     if su is None or sn is None:
         return False
     if role == "later":
-        return su[1] <= sn[0]
+        return su[1] < sn[0]
     if role == "earlier":
-        return sn[1] <= su[0]
+        return sn[1] < su[0]
     if role == "contemp":
         return su[1] < sn[0] or sn[1] < su[0]
     return False
+
+
+def _fix_satisfies(role, cand, nb):
+    """Whether placing a unit at span *cand* is an ACCEPTABLE auto-fix target
+    with respect to neighbor span *nb*.
+
+    Distinct from ``_violated``: detection is lenient (the user's strict-``<``
+    rule leaves a touching boundary unflagged), but an auto-correction should not
+    leave an *ordered* unit merely touching the neighbour it overlies/cuts — it
+    should land a period where the unit is GENUINELY later/earlier (overlap or
+    beyond). So for ordered roles a touching boundary is rejected here even
+    though ``_violated`` accepts it. Contemporaneity only needs the spans to
+    overlap, and a touching boundary already counts as overlap, so it is kept.
+
+    Returns True when *nb* imposes no usable constraint (undatable neighbor).
+    """
+    if cand is None or nb is None:
+        return True
+    if role == "later":
+        return cand[1] > nb[0]          # ends strictly after nb begins
+    if role == "earlier":
+        return nb[1] > cand[0]          # begins strictly before nb ends
+    if role == "contemp":
+        return cand[1] >= nb[0] and nb[1] >= cand[0]   # overlap (touch OK)
+    return True
 
 
 def _is_mono(us, unit_periods):
@@ -258,9 +294,10 @@ def _is_mono(us, unit_periods):
 
 
 def _best_target_period(m, adj, work, chrono):
-    """Pick the (periodo, fase) satisfying ALL of m's constraints against
-    neighbors' CURRENT spans, with the smallest chronological shift. None if
-    no candidate satisfies."""
+    """Pick the (periodo, fase) that GENUINELY satisfies ALL of m's constraints
+    against neighbors' CURRENT spans (see ``_fix_satisfies`` — touching is not a
+    valid fix for ordered relations), with the smallest chronological shift.
+    None if no candidate satisfies."""
     cur = unit_span(work.get(m), chrono)
     cur_ini = cur[0] if cur else None
     best, best_dist = None, None
@@ -270,7 +307,7 @@ def _best_target_period(m, adj, work, chrono):
         cand = (ci, cf)
         ok = True
         for (nb, role) in adj.get(m, ()):
-            if _violated(role, cand, unit_span(work.get(nb), chrono)):
+            if not _fix_satisfies(role, cand, unit_span(work.get(nb), chrono)):
                 ok = False
                 break
         if not ok:
