@@ -351,6 +351,28 @@ Die so erzeugten `CON_<us>`-Datensätze erscheinen im Extended-Matrix-GraphML-Ex
 
 ---
 
+## 7. Prüfung zeitlicher (stratigrafischer) Widersprüche
+
+Im Bereich **"Verifica rapporti"** (Beziehungsprüfung — ein Reiter des s3dgraphy-Import-/Export-Dialogs) meldet die Prüfung nun auch **zeitliche Widersprüche**: wenn die einer Einheit zugewiesene Periode/Phase der beobachteten Stratigrafie widerspricht. Die Stratigrafie ist das Referenzdatum, daher verschieben die automatischen Korrekturen die **Perioden**, nicht die Beziehungen.
+
+### 7.1 Was sie erkennt
+- **Zeitliche Umkehrung**: zwei datierte Einheiten, die durch eine Ordnungsbeziehung verbunden sind (z. B. US5 «überdeckt» US7), bei denen die stratigrafisch jüngere Einheit nach Periode vollständig **älter** ist.
+- **Inkonsistente Gleichzeitigkeit**: Einheiten, die als gleichzeitig deklariert sind (physische Gleichheit / Bindung), aber mit **disjunkten** chronologischen Intervallen.
+- **Nicht bewertbar**: eine Ordnungsbeziehung, bei der mindestens eine der beiden Einheiten keine datierbare Periode hat (nur gemeldet, keine Korrektur).
+
+Hinweis zur Grenze: zwei **benachbarte Perioden, die sich** an einem einzigen chronologischen Punkt **berühren**, gelten als überlappend → sie sind **kein** Widerspruch (im Zweifel zugunsten).
+
+### 7.2 Automatische Korrektur und Vorschläge
+- Wenn eine einzige Verschiebung den Konflikt löst, schlägt die Prüfung vor, die **Einzelperioden**-Einheit zu verschieben, die im Konflikt mit der Mehrheit ihrer Nachbarn steht, wobei die Periode mit der geringsten Verschiebung gewählt wird; bei Gleichzeitigkeiten mit einer nicht datierbaren Einheit kopiert sie die Periode des datierten Nachbarn.
+- In mehrdeutigen Fällen — Gleichstand, **Mehrperioden**-Einheiten (z. B. CON-Datensätze), keine gültige Periode — korrigiert sie nicht automatisch: sie liefert einen **«Was + Wie»-Vorschlag** (z. B. «Verschiebe US5 auf eine Periode ≥ 3, oder US7 auf eine Periode ≤ 1, oder überprüfe die Beziehung»).
+
+### 7.3 Vorschau und Backup
+- Die **Vorschau** zeigt die vorgeschlagenen Periodenänderungen vor ihrer Anwendung.
+- Vor dem Schreiben der Perioden wird ein **automatisches Datenbank-Backup** durchgeführt (SQLite und PostgreSQL).
+- Führe die Prüfung nach der Anwendung erneut aus, um etwaige verbleibende Widersprüche zu kontrollieren.
+
+---
+
 ## Referenzen
 
 - Upstream-Issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

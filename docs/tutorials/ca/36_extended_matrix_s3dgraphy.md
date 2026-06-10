@@ -351,6 +351,28 @@ Les fitxes `CON_<us>` generades així apareixen a l'exportació GraphML de l'Ext
 
 ---
 
+## 7. Verificació de paradoxes temporals (estratigràfics)
+
+Al panell **"Verifica rapporti"** (Verificar relacions — una pestanya del diàleg d'import/export de s3dgraphy), la verificació ara també assenyala les **paradoxes temporals**: quan el període/fase assignat a una unitat contradiu l'estratigrafia observada. L'estratigrafia és la dada de referència, per això les correccions automàtiques desplacen els **períodes**, no les relacions.
+
+### 7.1 Què detecta
+- **Inversió temporal**: dues unitats datades unides per una relació d'ordre (p. ex. US5 «cobreix» US7) en què la unitat més recent en l'estratigrafia resulta enterament més **antiga** per període.
+- **Contemporaneïtat incoherent**: unitats declarades contemporànies (igualtat física / vincle) però amb intervals cronològics **disjunts**.
+- **No avaluable**: relació d'ordre en què almenys una de les dues unitats no té un període datable (només assenyalat, sense correcció).
+
+Nota sobre el límit: dos períodes **adjacents que es toquen** en un únic punt cronològic es consideren superposats → **no** són una paradoxa (benefici del dubte).
+
+### 7.2 Correcció automàtica i suggeriments
+- Quan un sol desplaçament resol el conflicte, la verificació proposa desplaçar la unitat **monoperíode** en conflicte amb la majoria dels seus veïns, escollint el període de desplaçament mínim; per a les contemporaneïtats amb una unitat no datable copia el període del veí datat.
+- En els casos ambigus — empat, unitats **multiperíode** (p. ex. fitxes CON), cap període vàlid — no corregeix automàticament: proporciona un **suggeriment «què + com»** (p. ex. «Desplaça US5 a un període ≥ 3, o US7 a un període ≤ 1, o verifica la relació»).
+
+### 7.3 Vista prèvia i còpia de seguretat
+- La **vista prèvia** mostra els canvis de període proposats abans d'aplicar-los.
+- Abans d'escriure els períodes es realitza una **còpia de seguretat automàtica de la base de dades** (SQLite i PostgreSQL).
+- Després d'aplicar, torna a llançar la verificació per comprovar eventuals paradoxes residuals.
+
+---
+
 ## Referències
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

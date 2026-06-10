@@ -351,6 +351,28 @@ Les fiches `CON_<us>` ainsi générées apparaissent dans l'export GraphML de l'
 
 ---
 
+## 7. Vérification des paradoxes temporels (stratigraphiques)
+
+Dans le panneau **"Verifica rapporti"** (Vérifier les rapports — un onglet du dialogue d'import/export s3dgraphy), la vérification signale désormais aussi les **paradoxes temporels** : lorsque la période/phase attribuée à une unité contredit la stratigraphie observée. La stratigraphie est la donnée de référence, c'est pourquoi les corrections automatiques déplacent les **périodes**, pas les rapports.
+
+### 7.1 Ce qu'elle détecte
+- **Inversion temporelle** : deux unités datées liées par un rapport d'ordre (ex. US5 « couvre » US7) où l'unité la plus récente dans la stratigraphie s'avère entièrement plus **ancienne** par période.
+- **Contemporanéité incohérente** : unités déclarées contemporaines (égalité physique / lien) mais avec des intervalles chronologiques **disjoints**.
+- **Non évaluable** : rapport d'ordre dans lequel au moins une des deux unités n'a pas de période datable (uniquement signalé, aucune correction).
+
+Note sur la limite : deux périodes **adjacentes qui se touchent** en un seul point chronologique sont considérées comme superposées → ce **n'est pas** un paradoxe (bénéfice du doute).
+
+### 7.2 Correction automatique et suggestions
+- Lorsqu'un seul déplacement résout le conflit, la vérification propose de déplacer l'unité **mono-période** en conflit avec la majorité de ses voisins, en choisissant la période au déplacement minimal ; pour les contemporanéités avec une unité non datable, elle copie la période du voisin daté.
+- Dans les cas ambigus — égalité, unités **multi-périodes** (ex. fiches CON), aucune période valide — elle ne corrige pas automatiquement : elle fournit une **suggestion « quoi + comment »** (ex. « Déplace US5 vers une période ≥ 3, ou US7 vers une période ≤ 1, ou vérifie le rapport »).
+
+### 7.3 Aperçu et sauvegarde
+- L'**aperçu** montre les modifications de période proposées avant de les appliquer.
+- Avant l'écriture des périodes, une **sauvegarde automatique de la base de données** est effectuée (SQLite et PostgreSQL).
+- Après l'application, relance la vérification pour contrôler d'éventuels paradoxes résiduels.
+
+---
+
 ## Références
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

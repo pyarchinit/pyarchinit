@@ -351,6 +351,28 @@ As fichas `CON_<us>` geradas desta forma aparecem na exportação GraphML do Ext
 
 ---
 
+## 7. Verificação de paradoxos temporais (estratigráficos)
+
+No painel **"Verifica rapporti"** (Verificar relações — uma aba do diálogo de import/export do s3dgraphy), a verificação agora também assinala os **paradoxos temporais**: quando o período/fase atribuído a uma unidade contradiz a estratigrafia observada. A estratigrafia é o dado de referência, por isso as correções automáticas deslocam os **períodos**, não as relações.
+
+### 7.1 O que deteta
+- **Inversão temporal**: duas unidades datadas ligadas por uma relação de ordem (p. ex. US5 «cobre» US7) em que a unidade mais recente na estratigrafia se revela inteiramente mais **antiga** por período.
+- **Contemporaneidade incoerente**: unidades declaradas contemporâneas (igualdade física / vínculo) mas com intervalos cronológicos **disjuntos**.
+- **Não avaliável**: relação de ordem em que pelo menos uma das duas unidades não tem um período datável (apenas assinalado, sem correção).
+
+Nota sobre o limite: dois períodos **adjacentes que se tocam** num único ponto cronológico são considerados sobrepostos → **não** constituem um paradoxo (benefício da dúvida).
+
+### 7.2 Correção automática e sugestões
+- Quando um único deslocamento resolve o conflito, a verificação propõe deslocar a unidade **mono-período** em conflito com a maioria dos seus vizinhos, escolhendo o período de deslocamento mínimo; para as contemporaneidades com uma unidade não datável copia o período do vizinho datado.
+- Nos casos ambíguos — empate, unidades **multi-período** (p. ex. fichas CON), nenhum período válido — não corrige automaticamente: fornece uma **sugestão «o quê + como»** (p. ex. «Desloca US5 para um período ≥ 3, ou US7 para um período ≤ 1, ou verifica a relação»).
+
+### 7.3 Pré-visualização e backup
+- A **pré-visualização** mostra as alterações de período propostas antes de as aplicar.
+- Antes de escrever os períodos é efetuado um **backup automático da base de dados** (SQLite e PostgreSQL).
+- Após a aplicação, relança a verificação para controlar eventuais paradoxos residuais.
+
+---
+
 ## Referências
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

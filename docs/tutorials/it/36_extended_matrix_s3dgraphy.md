@@ -351,6 +351,28 @@ Le schede `CON_<us>` così generate compaiono nell'export GraphML dell'Extended 
 
 ---
 
+## 7. Verifica paradossi temporali (stratigrafici)
+
+Nel pannello **"Verifica rapporti"** (tab del dialog di import/export s3dgraphy), la verifica ora segnala anche i **paradossi temporali**: quando il periodo/fase assegnato a un'unità contraddice la stratigrafia osservata. La stratigrafia è il dato di riferimento, quindi le correzioni automatiche spostano i **periodi**, non i rapporti.
+
+### 7.1 Cosa rileva
+- **Inversione temporale**: due unità datate legate da un rapporto d'ordine (es. US5 «copre» US7) in cui l'unità più recente in stratigrafia risulta interamente più **antica** per periodo.
+- **Contemporaneità incoerente**: unità dichiarate contemporanee (uguaglianza fisica / legame) ma con intervalli cronologici **disgiunti**.
+- **Non valutabile**: rapporto d'ordine in cui almeno una delle due unità non ha un periodo databile (solo segnalato, nessuna correzione).
+
+Nota sul confine: due periodi **adiacenti che si toccano** in un solo punto cronologico sono considerati sovrapposti → **non** sono un paradosso (beneficio del dubbio).
+
+### 7.2 Correzione automatica e suggerimenti
+- Quando un solo spostamento risolve il conflitto, la verifica propone di spostare l'unità **mono-periodo** in conflitto con la maggioranza dei vicini, scegliendo il periodo a spostamento minimo; per le contemporaneità con un'unità non databile copia il periodo del vicino datato.
+- Nei casi ambigui — pareggio, unità **multi-periodo** (es. schede CON), nessun periodo valido — non corregge automaticamente: fornisce un **suggerimento «cosa + come»** (es. «Sposta US5 a un periodo ≥ 3, oppure US7 a un periodo ≤ 1, oppure verifica il rapporto»).
+
+### 7.3 Anteprima e backup
+- L'**anteprima** mostra le modifiche di periodo proposte prima di applicarle.
+- Prima di scrivere i periodi viene eseguito un **auto-backup del database** (SQLite e PostgreSQL).
+- Dopo l'applicazione, rilancia la verifica per controllare eventuali paradossi residui.
+
+---
+
 ## Riferimenti
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

@@ -351,6 +351,28 @@ The `CON_<us>` records produced this way appear in the Extended Matrix GraphML e
 
 ---
 
+## 7. Temporal (stratigraphic) paradox check
+
+In the **"Verifica rapporti"** panel (Check relationships — a tab of the s3dgraphy import/export dialog), the check now also flags **temporal paradoxes**: when the period/phase assigned to a unit contradicts the observed stratigraphy. Stratigraphy is the reference datum, so automatic corrections move the **periods**, not the relationships.
+
+### 7.1 What it detects
+- **Temporal inversion**: two dated units linked by an ordering relationship (e.g. US5 "covers" US7) in which the unit that is more recent in stratigraphy turns out to be entirely **older** by period.
+- **Inconsistent contemporaneity**: units declared contemporaneous (physical equality / bond) but with **disjoint** chronological intervals.
+- **Unevaluable**: an ordering relationship in which at least one of the two units has no datable period (flagged only, no correction).
+
+Note on the boundary: two **adjacent periods that touch** at a single chronological point are considered overlapping → they are **not** a paradox (benefit of the doubt).
+
+### 7.2 Automatic correction and suggestions
+- When a single shift resolves the conflict, the check proposes moving the **single-period** unit that conflicts with the majority of its neighbours, choosing the period with the smallest shift; for contemporaneities with a non-datable unit it copies the period of the dated neighbour.
+- In ambiguous cases — a tie, **multi-period** units (e.g. CON records), no valid period — it does not correct automatically: it provides a **"what + how" suggestion** (e.g. "Move US5 to a period ≥ 3, or US7 to a period ≤ 1, or verify the relationship").
+
+### 7.3 Preview and backup
+- The **preview** shows the proposed period changes before applying them.
+- Before writing the periods, an **automatic database backup** is performed (SQLite and PostgreSQL).
+- After applying, re-run the check to look for any residual paradoxes.
+
+---
+
 ## References
 
 - Upstream issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

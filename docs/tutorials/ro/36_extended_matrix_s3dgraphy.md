@@ -351,6 +351,28 @@ Fișele `CON_<us>` generate astfel apar în exportul GraphML al Extended Matrix 
 
 ---
 
+## 7. Verificarea paradoxurilor temporale (stratigrafice)
+
+În panoul **"Verifica rapporti"** (Verificarea relațiilor — o filă din dialogul de import/export s3dgraphy), verificarea semnalează acum și **paradoxurile temporale**: când perioada/faza atribuită unei unități contrazice stratigrafia observată. Stratigrafia este data de referință, prin urmare corecțiile automate mută **perioadele**, nu relațiile.
+
+### 7.1 Ce detectează
+- **Inversiune temporală**: două unități datate legate printr-o relație de ordine (de ex. US5 «acoperă» US7) în care unitatea mai recentă din stratigrafie se dovedește a fi în întregime mai **veche** ca perioadă.
+- **Contemporaneitate incoerentă**: unități declarate contemporane (egalitate fizică / legătură) dar cu intervale cronologice **disjuncte**.
+- **Neevaluabil**: relație de ordine în care cel puțin una dintre cele două unități nu are o perioadă databilă (doar semnalat, fără corecție).
+
+Notă privind limita: două perioade **adiacente care se ating** într-un singur punct cronologic sunt considerate suprapuse → **nu** constituie un paradox (prezumția de bună-credință).
+
+### 7.2 Corecție automată și sugestii
+- Când o singură mutare rezolvă conflictul, verificarea propune mutarea unității **mono-perioadă** aflate în conflict cu majoritatea vecinilor săi, alegând perioada cu mutarea minimă; pentru contemporaneitățile cu o unitate nedatabilă copiază perioada vecinului datat.
+- În cazurile ambigue — egalitate, unități **multi-perioadă** (de ex. fișe CON), nicio perioadă validă — nu corectează automat: oferă o **sugestie «ce + cum»** (de ex. «Mută US5 la o perioadă ≥ 3, sau US7 la o perioadă ≤ 1, sau verifică relația»).
+
+### 7.3 Previzualizare și backup
+- **Previzualizarea** arată modificările de perioadă propuse înainte de a le aplica.
+- Înainte de scrierea perioadelor se efectuează un **backup automat al bazei de date** (SQLite și PostgreSQL).
+- După aplicare, relansează verificarea pentru a controla eventualele paradoxuri reziduale.
+
+---
+
 ## Referințe
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

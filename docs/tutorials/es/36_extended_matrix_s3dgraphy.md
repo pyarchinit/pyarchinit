@@ -351,6 +351,28 @@ Las fichas `CON_<us>` así generadas aparecen en la exportación GraphML del Ext
 
 ---
 
+## 7. Verificación de paradojas temporales (estratigráficas)
+
+En el panel **"Verifica rapporti"** (Verificar relaciones — una pestaña del diálogo de import/export de s3dgraphy), la verificación ahora también señala las **paradojas temporales**: cuando el periodo/fase asignado a una unidad contradice la estratigrafía observada. La estratigrafía es el dato de referencia, por lo que las correcciones automáticas desplazan los **periodos**, no las relaciones.
+
+### 7.1 Qué detecta
+- **Inversión temporal**: dos unidades datadas unidas por una relación de orden (p. ej. US5 «cubre» US7) en la que la unidad más reciente en la estratigrafía resulta enteramente más **antigua** por periodo.
+- **Contemporaneidad incoherente**: unidades declaradas contemporáneas (igualdad física / vínculo) pero con intervalos cronológicos **disjuntos**.
+- **No evaluable**: relación de orden en la que al menos una de las dos unidades no tiene un periodo datable (solo señalado, sin corrección).
+
+Nota sobre el límite: dos periodos **adyacentes que se tocan** en un único punto cronológico se consideran solapados → **no** son una paradoja (beneficio de la duda).
+
+### 7.2 Corrección automática y sugerencias
+- Cuando un solo desplazamiento resuelve el conflicto, la verificación propone desplazar la unidad **mono-periodo** en conflicto con la mayoría de sus vecinos, eligiendo el periodo de desplazamiento mínimo; para las contemporaneidades con una unidad no datable copia el periodo del vecino datado.
+- En los casos ambiguos — empate, unidades **multi-periodo** (p. ej. fichas CON), ningún periodo válido — no corrige automáticamente: proporciona una **sugerencia «qué + cómo»** (p. ej. «Desplaza US5 a un periodo ≥ 3, o US7 a un periodo ≤ 1, o verifica la relación»).
+
+### 7.3 Vista previa y copia de seguridad
+- La **vista previa** muestra los cambios de periodo propuestos antes de aplicarlos.
+- Antes de escribir los periodos se realiza una **copia de seguridad automática de la base de datos** (SQLite y PostgreSQL).
+- Tras aplicar, vuelve a lanzar la verificación para comprobar eventuales paradojas residuales.
+
+---
+
 ## Referencias
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5
