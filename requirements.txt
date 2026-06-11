@@ -47,19 +47,20 @@ anthropic>=0.20.0
 # QGIS 4.x (Python 3.10+): use 1.x line - closes all CVEs (full security coverage)
 #
 # 0.3.x line covers:
-#   langchain-core 0.3.84: serialization injection (#14), template injection (#13), f-string (#24)
+#   langchain 0.3.30: prompt injection via serialized chains (high)
+#   langchain-core 0.3.85: serialization injection (#14), template injection (#13), f-string (#24) + follow-up (<=0.3.84 high)
 #   langchain-text-splitters 0.3.9: XXE (#12)
 #   langchain-community 0.3.27: XXE (#10)
 # 1.x line ADDS coverage for:
 #   langchain-core 1.2.22: path traversal in load_prompt (#23), SSRF image_url (#15)
 #   langchain-text-splitters 1.1.2: SSRF redirect (#26)
 #   langchain-openai 1.1.14: SSRF token counting (#27)
-#   langsmith 0.7.31: streaming token redaction bypass (#25)
-langchain>=0.3.27; python_version<"3.10"
+#   langsmith 0.8.0: streaming token redaction bypass (#25) + <0.8.0 high; 0.7.x/0.8.x require Python >=3.10 (no patched langsmith on 3.9)
+langchain>=0.3.30; python_version<"3.10"
 langchain>=1.2.0; python_version>="3.10"
 langchain-community>=0.3.27; python_version<"3.10"
 langchain-community>=0.4.0; python_version>="3.10"
-langchain-core>=0.3.84; python_version<"3.10"
+langchain-core>=0.3.85; python_version<"3.10"
 langchain-core>=1.2.22; python_version>="3.10"
 langchain-openai>=0.3.16; python_version<"3.10"
 langchain-openai>=1.1.14; python_version>="3.10"
@@ -68,7 +69,7 @@ langchain-anthropic>=1.0.0; python_version>="3.10"
 langchain-text-splitters>=0.3.9; python_version<"3.10"
 langchain-text-splitters>=1.1.2; python_version>="3.10"
 langsmith>=0.3.42; python_version<"3.10"
-langsmith>=0.7.31; python_version>="3.10"
+langsmith>=0.8.0; python_version>="3.10"
 
 # 3D visualization
 pygame>=2.5.0
