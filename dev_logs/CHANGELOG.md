@@ -5,6 +5,24 @@
 
 ---
 
+## [hotfix-master] - 2026-06-11 — Installer pacchetti: parser requirements portato su master
+
+> Commit `2db559f4` direttamente su `master` (il branch `Stratigraph_00001` aveva già il parser corretto). Segue il port del `requirements.txt` indurito (`8445cbd3`, chiusura alert Dependabot).
+
+### Italiano
+
+**Fix del dialog "PyArchInit - Package Installation" rotto dopo l'aggiornamento di master.** Il port del `requirements.txt` con floor `>=`, commenti di sicurezza e marker PEP 508 (`; python_version<"3.10"`) aveva lasciato su master il vecchio parser a differenza-di-insiemi (`riga intera` vs `nome==versione`): ogni riga del file — comprese righe vuote, `#` e frammenti di commento — risultava "pacchetto mancante", compariva nella tabella e veniva passata a pip.
+
+- `__init__.py` → `PackageManager.check_required_packages` sostituito con la versione del branch: salta commenti/righe vuote, rimuove i commenti inline, valuta i marker PEP 508 (tiene solo la variante applicabile all'ambiente), confronta per **nome** di pacchetto con check di versione reali (`==` mismatch major/minor, `>=` floor via `packaging.version`) e scansiona anche i `.dist-info` in `ext_libs/`.
+
+Verifica: parser eseguito standalone contro il `requirements.txt` corrente → 41 spec pulite, 0 righe commento/vuote, dual-line `requests` dedotta correttamente alla sola variante dell'ambiente.
+
+### English
+
+**Fixes the "PyArchInit - Package Installation" dialog broken after the master update.** Porting the hardened `requirements.txt` (patched `>=` floors, security comments, PEP 508 markers) to master had left the old naive set-difference parser in place (whole line vs `name==version`), so every line of the file — blanks, `#`, comment fragments — was reported as a missing package, shown in the table and handed to pip. `PackageManager.check_required_packages` in `__init__.py` is replaced with the `Stratigraph_00001` version: skips comments/blank lines, strips inline comments, evaluates environment markers (keeps only the env-applicable dual-line variant), compares by package name with real version checks (`==` major/minor mismatch, `>=` floor via `packaging.version`), and also scans `ext_libs/` dist-info metadata. Verified standalone against the current `requirements.txt`: 41 clean specs, zero comment/blank leaks, `requests` dual-line correctly resolved to the single applicable variant.
+
+---
+
 ## [5.12.13-alpha] - 2026-06-10 — Verifica rapporti: paradossi temporali/stratigrafici (Feature B)
 
 > Branch `Stratigraph_00001`. Spec `docs/superpowers/specs/2026-06-09-temporal-paradox-detection-design.md`, piano `docs/superpowers/plans/2026-06-09-temporal-paradox-detection.md`. Implementato in modalità subagent-driven (7 task) + remediation del confine d'intervallo dopo final review.
