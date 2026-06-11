@@ -457,6 +457,7 @@ class PackageManager:
         # Also scan ext_libs .dist-info directories for packages installed there
         ext_libs = os.path.join(os.path.dirname(requirements_path), 'ext_libs')
         if os.path.isdir(ext_libs):
+            ext_versions = {}
             for item in os.listdir(ext_libs):
                 if item.endswith('.dist-info'):
                     metadata_file = os.path.join(ext_libs, item, 'METADATA')
@@ -474,10 +475,22 @@ class PackageManager:
                                     if pkg_name and pkg_version:
                                         break
                                 if pkg_name:
-                                    # ext_libs version takes priority
-                                    installed_packages[pkg_name] = pkg_version or ''
+                                    # Stale duplicate dist-infos can survive upgrades
+                                    # (listdir order is arbitrary): keep the highest
+                                    prev = ext_versions.get(pkg_name)
+                                    if prev:
+                                        try:
+                                            from packaging.version import Version
+                                            if Version(pkg_version or '0') <= Version(prev):
+                                                continue
+                                        except Exception:
+                                            if (pkg_version or '') <= prev:
+                                                continue
+                                    ext_versions[pkg_name] = pkg_version or ''
                         except Exception:
                             continue
+            # ext_libs versions take priority over system packages
+            installed_packages.update(ext_versions)
 
         missing_packages = []
         with open(requirements_path, 'r') as f:
