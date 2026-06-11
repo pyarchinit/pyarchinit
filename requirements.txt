@@ -1,30 +1,125 @@
- SQLAlchemy==1.4.27
- SQLAlchemy-Utils==0.38.0
- GeoAlchemy2==0.9.1
- reportlab==4.1.0
- graphviz==0.20.3
- XlsxWriter==3.2.0
- opencv-python==4.10.0.84
- psutil==5.9.8
- openai==1.78.1
- openpyxl==3.1.2
- matplotlib==3.9.0
- requests==2.32.2
- pandas==2.2.2
- PyMuPDF==1.26.5
- nltk==3.9.1
- python-docx==1.1.2
- pygame==2.6.0
- pyvista==0.44.1
- pyvistaqt==0.11.1
- vtk==9.3.1
- anthropic==0.51.0
- langchain==0.3.25
- langchain-community==0.3.24
- langchain-core==0.3.59
- langchain-openai==0.3.16
- langchain-anthropic==0.3.13
- langchain-text-splitters==0.3.8
- langsmith==0.3.42
- beautifulsoup4==4.13.3
- faiss-cpu==1.11.0
+# PyArchInit dependencies
+# Use >= (not ==) to support QGIS Python 3.9 through 3.12+
+# CRITICAL: numpy must be exactly 1.26.4 for QGIS compatibility (numpy 2.x breaks QGIS)
+#numpy==1.26.4
+
+# Core DB packages
+SQLAlchemy>=2.0.0
+SQLAlchemy-Utils>=0.41.0
+GeoAlchemy2>=0.14.0
+# PostgreSQL driver — only needed at runtime when connecting to a PG backend
+# Was implicit dep via SQLAlchemy + pyarchinit_db_manager; now explicit
+# for the s3dgraphy bridge PG-compat refactor (5.6.2-alpha foundation).
+psycopg2-binary>=2.9
+
+# Reports & data
+reportlab>=4.0.0
+graphviz>=0.20
+XlsxWriter>=3.1.0
+openpyxl>=3.1.0
+matplotlib>=3.7.0
+pandas>=2.0.0
+# requests CVEs: #9 .netrc leak patched in 2.32.4 (Python 3.8+), #22 temp file reuse patched in 2.33.0 (Python 3.10+)
+requests>=2.32.4; python_version<"3.10"
+requests>=2.33.0; python_version>="3.10"
+
+# Document & media
+# PyMuPDF path traversal patch (1.26.7) requires Python >=3.10; 1.26.5 is last 3.9-compatible (no fix on Python 3.9)
+PyMuPDF>=1.26.5; python_version<"3.10"
+PyMuPDF>=1.26.7; python_version>="3.10"
+python-docx>=1.0.0
+opencv-python>=4.8.0  # Optional - may already be installed or cause issues on Windows
+qrcode>=7.4
+
+# Utilities
+psutil>=5.9.0
+# nltk security patches (3.9.3+) require Python >=3.10; Python 3.9 (QGIS 3.x) keeps 3.8+ floor
+# WARNING Python 3.9: 6 nltk CVEs (zip slip CRITICAL CVE-2026-0846, arbitrary file read, remote shutdown, XSS, downloader path traversal, JSONTaggedDecoder recursion) cannot be patched - upgrade to QGIS 4.x to fix
+nltk>=3.8.0; python_version<"3.10"
+nltk>=3.9.4; python_version>="3.10"
+beautifulsoup4>=4.12.0
+
+# AI / LLM
+openai>=1.0.0
+anthropic>=0.20.0
+# LangChain ecosystem - dual-line strategy for QGIS 3.x (Python 3.9) and QGIS 4.x (Python >=3.10)
+# QGIS 3.x (Python 3.9): use 0.3.x line - closes most CVEs but not those requiring Python 3.10+
+# QGIS 4.x (Python 3.10+): use 1.x line - closes all CVEs (full security coverage)
+#
+# 0.3.x line covers:
+#   langchain 0.3.30: prompt injection via serialized chains (high)
+#   langchain-core 0.3.85: serialization injection (#14), template injection (#13), f-string (#24) + follow-up (<=0.3.84 high)
+#   langchain-text-splitters 0.3.9: XXE (#12)
+#   langchain-community 0.3.27: XXE (#10)
+# 1.x line ADDS coverage for:
+#   langchain-core 1.2.22: path traversal in load_prompt (#23), SSRF image_url (#15)
+#   langchain-text-splitters 1.1.2: SSRF redirect (#26)
+#   langchain-openai 1.1.14: SSRF token counting (#27)
+#   langsmith 0.8.0: streaming token redaction bypass (#25) + <0.8.0 high; 0.7.x/0.8.x require Python >=3.10 (no patched langsmith on 3.9)
+langchain>=0.3.30; python_version<"3.10"
+langchain>=1.2.0; python_version>="3.10"
+langchain-community>=0.3.27; python_version<"3.10"
+langchain-community>=0.4.0; python_version>="3.10"
+langchain-core>=0.3.85; python_version<"3.10"
+langchain-core>=1.2.22; python_version>="3.10"
+langchain-openai>=0.3.16; python_version<"3.10"
+langchain-openai>=1.1.14; python_version>="3.10"
+langchain-anthropic>=0.3.13; python_version<"3.10"
+langchain-anthropic>=1.0.0; python_version>="3.10"
+langchain-text-splitters>=0.3.9; python_version<"3.10"
+langchain-text-splitters>=1.1.2; python_version>="3.10"
+langsmith>=0.3.42; python_version<"3.10"
+langsmith>=0.8.0; python_version>="3.10"
+
+# 3D visualization
+pygame>=2.5.0
+pyvista>=0.43.0
+pyvistaqt>=0.11.0
+vtk>=9.2.0
+
+# Vector search
+faiss-cpu>=1.7.4
+
+# Graph — 0.1.41 introduces LocationNodeGroup + is_in_location with kind
+# discriminator (toponym/study/functional), required by AI07 spatial-grouping
+# migration. ActivityNodeGroup remains supported (not deprecated).
+# 0.1.42 introduces ReusedSpecialFind (spolia / RSF), serUSD export dispatch
+# fix, semantic NodeLabel-regex dispatch in node_registry export pipeline,
+# and the public S3DgraphyPaletteWarning. RSF wired through pyarchinit yE-D
+# (5.8.1-alpha) — see CHANGELOG entry for s3dgraphy-bump.
+# 1.6.0.dev7: PRs #11 (sync package, Qt-decoupled) + #12 (Postgres read
+# backend) merged upstream, plus the canonical-edges series — public
+# sync.rapporti (parse/serialize) and core physical_relationships (d13)
+# GraphML packed-string. Pinned exact (pre-release) to match the migrated
+# modules/s3dgraphy/sync canonical-edges tree.
+# 1.6.0.dev8: PR #22 (multilingual US/USM unita_tipo recognition, #21) merged.
+# 1.6.0.dev9: PR #23 (multilingual *relationship* / rapporti-label vocabulary,
+# 10 relations × 10 UI languages) merged upstream. Stop-gap retired:
+# modules/s3dgraphy/sync/rapporti.py is now re-synced verbatim from dev9 (no
+# more pyArchInit-local vocab divergence) and the ext_rapporti_patch boot
+# monkeypatch is deleted — the d13 export path resolves the multilingual vocab
+# natively from this pinned release.
+s3dgraphy==1.6.0.dev9
+
+# Remote Storage Backends (optional - install only if using remote storage)
+cloudinary>=1.36.0
+google-auth>=2.22.0
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.90.0
+dropbox>=11.36.0
+boto3>=1.28.0
+webdavclient3>=3.14.0
+
+# R Integration for Archeozoology (optional - requires R installed)
+#pyper>=1.1.2
+
+# Note: The following packages are installed in a virtual environment for Pottery Tools
+# They are NOT installed in QGIS Python to avoid conflicts
+# ultralytics>=8.2.0
+# torch>=2.2.2
+# torchvision>=0.17.2
+# diffusers
+# transformers
+# peft
+# scikit-image
