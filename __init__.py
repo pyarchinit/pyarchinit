@@ -23,7 +23,6 @@ import shutil
 import subprocess
 import sys
 from importlib.metadata import distributions
-from shlex import quote as shlex_quote
 from typing import Dict, List, Optional, Set
 
 # Plugin-local directory for pip-installed dependencies (see PackageManager.install).
@@ -188,7 +187,7 @@ class PackageManager:
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     # Then install the requested version
                     subprocess.run(
-                        [python_executable, "-m", "pip", "install", "--force-reinstall", shlex_quote(package)],
+                        [python_executable, "-m", "pip", "install", "--force-reinstall", package],
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
                     break
                 except Exception as e:
@@ -203,15 +202,15 @@ class PackageManager:
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             except subprocess.CalledProcessError:
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
-                subprocess.run([sys.executable, "-m", "pip", "install", shlex_quote(package)],
+                subprocess.run([sys.executable, "-m", "pip", "install", package],
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif platform.system() == 'Windows' and PackageManager.is_osgeo4w():
             python_executable = PackageManager.get_osgeo4w_python()
-            subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package)],
+            subprocess.run([python_executable, "-m", "pip", "install", package],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Windows':
             python_executable = 'python'
-            subprocess.run([python_executable, "-m", "pip", "install", shlex_quote(package), "--user"],
+            subprocess.run([python_executable, "-m", "pip", "install", package, "--user"],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
         elif platform.system() == 'Darwin':
             # Install into the plugin-local ext_libs dir: pip cannot write inside
@@ -332,6 +331,7 @@ class PackageManager:
         # Also scan ext_libs .dist-info directories for packages installed there
         ext_libs = os.path.join(os.path.dirname(requirements_path), 'ext_libs')
         if os.path.isdir(ext_libs):
+            ext_versions = {}
             for item in os.listdir(ext_libs):
                 if item.endswith('.dist-info'):
                     metadata_file = os.path.join(ext_libs, item, 'METADATA')
@@ -349,10 +349,22 @@ class PackageManager:
                                     if pkg_name and pkg_version:
                                         break
                                 if pkg_name:
-                                    # ext_libs version takes priority
-                                    installed_packages[pkg_name] = pkg_version or ''
+                                    # Stale duplicate dist-infos can survive upgrades
+                                    # (listdir order is arbitrary): keep the highest
+                                    prev = ext_versions.get(pkg_name)
+                                    if prev:
+                                        try:
+                                            from packaging.version import Version
+                                            if Version(pkg_version or '0') <= Version(prev):
+                                                continue
+                                        except Exception:
+                                            if (pkg_version or '') <= prev:
+                                                continue
+                                    ext_versions[pkg_name] = pkg_version or ''
                         except Exception:
                             continue
+            # ext_libs versions take priority over system packages
+            installed_packages.update(ext_versions)
 
         missing_packages = []
         with open(requirements_path, 'r') as f:
