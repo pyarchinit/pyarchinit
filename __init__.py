@@ -403,7 +403,8 @@ class PackageManager:
                                 missing_packages.append(package_spec)
                 elif '>=' in line:
                     # Minimum version - check if installed version is too old
-                    min_version = line.split('>=')[1].strip()
+                    # (tolerate ranges like ">=1.4.27,<2.0": the floor is what we check)
+                    min_version = line.split('>=')[1].split(',')[0].strip()
                     installed_version = installed_packages[pkg_lower]
                     if installed_version:
                         try:

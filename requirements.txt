@@ -4,7 +4,11 @@
 #numpy==1.26.4
 
 # Core DB packages
-SQLAlchemy>=2.0.0
+# MASTER ONLY: master's code still uses the SQLAlchemy 1.4 API
+# (engine.execute(), autocommit=True — both removed in 2.0), so SQLAlchemy
+# must stay on the 1.4 line here. The Stratigraph_00001 branch is migrated
+# to 2.0 and uses SQLAlchemy>=2.0.0 instead.
+SQLAlchemy>=1.4.27,<2.0
 SQLAlchemy-Utils>=0.41.0
 GeoAlchemy2>=0.14.0
 # PostgreSQL driver — only needed at runtime when connecting to a PG backend
