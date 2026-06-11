@@ -49,3 +49,14 @@ _rust_core/target/
 
 # Superpowers brainstorming working directory (visual companion mockups)
 .superpowers/
+
+# Local working files not meant for the repo (2026-06-11 cleanup)
+docs/superpowers/specs/s3dgraphy-bridge-design/lettera-emanuel.*
+docs/superpowers/specs/s3dgraphy-bridge-design/proposta di integrazione*.docx
+resources/dbfiles/*.backup_*
+resources/icons/icon_set_completo_png.zip
+resources/icons_backup_*/
+resources/icons_new/
+/test_graph_output.png
+/test_inverse_relationships.html
+/test_matrix.json

@@ -97,9 +97,22 @@ def test_contemporaneity_double_no_arrow(tmp_path):
 
 
 def test_explicit_con_nodes_rendered(tmp_path):
+    # The external EM test DB's CON rows evolve (the manual CON1/CON2 were
+    # replaced by Genera-continuità CON_<us> records), so assert against the
+    # DB content instead of hardcoded names: every explicit CON row of the
+    # site must be rendered.
+    import sqlite3
     root = _export(tmp_path)
     labels = _node_labels(root)
-    assert "CON1" in labels, labels
-    assert "CON2" in labels, labels
+    con = sqlite3.connect(TESTDB)
+    try:
+        con_us = [r[0] for r in con.execute(
+            "SELECT us FROM us_table"
+            " WHERE unita_tipo='CON' AND sito='Sito_Test_EM'")]
+    finally:
+        con.close()
+    assert con_us, "EM test DB has no explicit CON rows"
+    for us in con_us:
+        assert us in labels, (us, labels)
     # no auto synthetic continuity diamonds
     assert not any(l.startswith("_synth_BR_") for l in labels), labels
