@@ -307,30 +307,117 @@ class PackageManager:
     @staticmethod
     def check_required_packages(requirements_path: str) -> List[str]:
         """
-        Check which required packages are missing.
+        Check which required packages are missing or have wrong versions.
+
+        Searches both standard distributions and the plugin ext_libs directory.
 
         Args:
             requirements_path: Path to the requirements.txt file
 
         Returns:
-            List of missing packages
+            List of missing or outdated packages
         """
-        installed_packages = set()
+        # Build a dict of installed packages: name (lowercase) -> version
+        # Priority: ext_libs packages override system packages
+        installed_packages = {}
         for pkg in distributions():
             try:
                 name = pkg.metadata.get('Name')
-                version = pkg.version
-                if name and version:
-                    installed_packages.add(f"{name}=={version}")
+                version = pkg.metadata.get('Version')
+                if name:
+                    installed_packages[name.lower()] = version or ''
             except Exception:
-                # Skip packages with incomplete metadata
                 continue
 
-        with open(requirements_path, 'r') as f:
-            required_packages = set(line.strip() for line in f)
+        # Also scan ext_libs .dist-info directories for packages installed there
+        ext_libs = os.path.join(os.path.dirname(requirements_path), 'ext_libs')
+        if os.path.isdir(ext_libs):
+            for item in os.listdir(ext_libs):
+                if item.endswith('.dist-info'):
+                    metadata_file = os.path.join(ext_libs, item, 'METADATA')
+                    if not os.path.exists(metadata_file):
+                        metadata_file = os.path.join(ext_libs, item, 'PKG-INFO')
+                    if os.path.exists(metadata_file):
+                        try:
+                            with open(metadata_file, 'r', encoding='utf-8') as mf:
+                                pkg_name = pkg_version = None
+                                for mline in mf:
+                                    if mline.startswith('Name:'):
+                                        pkg_name = mline.split(':', 1)[1].strip().lower()
+                                    elif mline.startswith('Version:'):
+                                        pkg_version = mline.split(':', 1)[1].strip()
+                                    if pkg_name and pkg_version:
+                                        break
+                                if pkg_name:
+                                    # ext_libs version takes priority
+                                    installed_packages[pkg_name] = pkg_version or ''
+                        except Exception:
+                            continue
 
-        missing_packages = required_packages - installed_packages
-        return list(missing_packages)
+        missing_packages = []
+        with open(requirements_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+
+                # Strip inline comments (e.g. "opencv-python>=4.8.0  # Optional")
+                if ' #' in line:
+                    line = line[:line.index(' #')].strip()
+
+                # Handle PEP 508 environment markers (e.g. "pkg>=1.0; python_version<'3.10'")
+                if ';' in line:
+                    spec_part, marker_str = line.split(';', 1)
+                    line = spec_part.strip()
+                    marker_str = marker_str.strip()
+                    try:
+                        from packaging.markers import Marker
+                        if not Marker(marker_str).evaluate():
+                            continue  # this line's marker doesn't apply to current env
+                    except Exception:
+                        # If marker can't be parsed, skip this line conservatively
+                        continue
+
+                package_spec = line
+                package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
+                pkg_lower = package_name.lower()
+
+                if pkg_lower not in installed_packages:
+                    # Package not installed at all
+                    missing_packages.append(package_spec)
+                elif '==' in line:
+                    # Exact version pinned - check major version mismatch
+                    required_version = line.split('==')[1].strip()
+                    installed_version = installed_packages[pkg_lower]
+                    if installed_version and installed_version != required_version:
+                        req_parts = required_version.split('.')
+                        inst_parts = installed_version.split('.')
+                        req_major = req_parts[0]
+                        inst_major = inst_parts[0]
+                        if req_major != inst_major:
+                            missing_packages.append(package_spec)
+                        elif req_major == '0':
+                            req_minor = req_parts[1] if len(req_parts) > 1 else '0'
+                            inst_minor = inst_parts[1] if len(inst_parts) > 1 else '0'
+                            if req_minor != inst_minor:
+                                missing_packages.append(package_spec)
+                elif '>=' in line:
+                    # Minimum version - check if installed version is too old
+                    min_version = line.split('>=')[1].strip()
+                    installed_version = installed_packages[pkg_lower]
+                    if installed_version:
+                        try:
+                            from packaging.version import Version
+                            if Version(installed_version) < Version(min_version):
+                                missing_packages.append(package_spec)
+                        except Exception:
+                            # Fallback: simple tuple comparison
+                            min_parts = tuple(int(x) for x in min_version.split('.'))
+                            inst_parts = tuple(int(x) for x in installed_version.split('.'))
+                            if inst_parts < min_parts:
+                                missing_packages.append(package_spec)
+
+        return missing_packages
 
 
 class Worker(QObject):
