@@ -5,6 +5,28 @@
 
 ---
 
+## [palimpsest-report] - 2026-06-14 — Tab Palimpsest: report narrato + selettore reperti (Part D)
+
+> Branch `Stratigraph_00001`. Implementa la **Part D** dell'handoff `2026-06-14-pyarchinit-PARTD-handoff.md` (Parts A/B/C/E lato R già rilasciate in palimpsestr 0.21.0). Solo `tabs/Palimpsest.py`.
+
+### Italiano
+
+**La tab Palimpsest genera ora un report SEF narrato (PDF/DOCX) e permette di scegliere quali reperti analizzare.**
+
+- **Nuovo pulsante "Genera report (PDF/DOCX)"** che lancia l'algoritmo Processing R `r:palimpsestrreport` (palimpsestr 0.21.0): testo interpretativo + tutti i grafici diagnostici `gg_*` + tabelle. Nuovo `.rsx` `palimpsestr_report_db.rsx` embeddato in `RSX_SCRIPTS` (deploy automatico via `install_scripts()`).
+- **Pannello risultati inline** (`QPlainTextEdit` read-only): mostra la narrativa leggendo il sidecar `<base>.md` che l'algoritmo scrive **sempre** accanto all'output, anche quando mancano LaTeX/pandoc per PDF/DOCX. Pulsanti **Apri PDF / Apri DOCX / Apri cartella** abilitati in base ai file effettivamente prodotti.
+- **Selettore "Reperti (source)"** (Entrambi / Materiali / Ceramica → enum `both;materials;pottery`) **condiviso** da Fit, Intrusions e Report, così i tre algoritmi onorano la stessa selezione di reperti. Aggiunti i controlli **Lingua** (Italiano/English) e **Formato** (PDF+DOCX / PDF / DOCX), il cui `currentIndex()` mappa direttamente sull'ordine dell'enum.
+- **Hint mancanza tooling**: se torna solo il `.md` (niente PDF/DOCX) il dialog suggerisce di installare tinytex/pandoc.
+- **Script R aggiornati per palimpsestr 0.21.0**: `palimpsestr_fit_db.rsx` e `palimpsestr_intrusions_db.rsx` ricevono il parametro `##Source` e passano `source = source_sel` a `read_pyarchinit()` (sourcing corretto delle quote da `pyarchinit_quote`/`quota_usm`; `pottery_table`). I tre `.rsx` embeddati sono byte-identici alle sorgenti `qgis/processing/*.rsx`.
+
+Verifica: sintassi Python OK; i 3 `.rsx` embeddati byte-identici alle sorgenti; pipeline R del report testata end-to-end sul DB di esempio `villa_romana_pyarchinit.sqlite` (615 reperti, 54 US) → `.md` + `.pdf` + `.docx` scritti e file `Report` dichiarato presente.
+
+### English
+
+**The Palimpsest tab now generates a narrated SEF report (PDF/DOCX) and lets you choose which finds to analyse.** A new "Genera report (PDF/DOCX)" button runs the `r:palimpsestrreport` Processing R algorithm (palimpsestr 0.21.0 — interpretive narrative + all `gg_*` diagnostic plots + tables); its `.rsx` is embedded in `RSX_SCRIPTS` and auto-deployed by `install_scripts()`. An inline read-only results panel shows the narrative by reading the `<base>.md` sidecar the algorithm always writes next to the output (so it works even without LaTeX/pandoc), with Open PDF / Open DOCX / Open folder buttons enabled per the files actually produced. A shared "Source" selector (both/materials/pottery) now drives Fit, Intrusions and Report alike, plus Language (it/en) and Format (both/pdf/docx) combos whose `currentIndex()` maps onto the enum order. If only the `.md` comes back, the dialog hints to install tinytex/pandoc. The fit and intrusions `.rsx` gained the `##Source` parameter and pass `source = source_sel` to `read_pyarchinit()` (corrected quota sourcing for palimpsestr 0.21.0); all three embedded `.rsx` are byte-identical to the `qgis/processing/*.rsx` sources. Verified: Python syntax OK, byte-identical scripts, and the report R pipeline tested end-to-end on the example DB (615 finds / 54 units) producing `.md`+`.pdf`+`.docx`.
+
+---
+
 ## [hotfix-master] - 2026-06-11 — Installer pacchetti: parser requirements portato su master
 
 > Commit `2db559f4` + `0bbbdcb9` + `e5f19372` + `179fa405` direttamente su `master` (il branch `Stratigraph_00001` aveva già il parser corretto). Segue il port del `requirements.txt` indurito (`8445cbd3`, chiusura alert Dependabot).

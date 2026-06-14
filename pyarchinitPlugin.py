@@ -678,9 +678,12 @@ class PyArchInitPlugin(object):
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Analisi Costi di Percorso", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Analisi dei costi di percorso basata su pendenza")
             self.actionMovecost.triggered.connect(self.runMovecost)
+            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
+            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1056,9 +1059,12 @@ class PyArchInitPlugin(object):
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
+            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
+            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1430,9 +1436,12 @@ class PyArchInitPlugin(object):
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Wegkostenanalyse", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Hangneigungsabhängige Wegkostenanalyse")
             self.actionMovecost.triggered.connect(self.runMovecost)
+            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
+            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1808,9 +1817,12 @@ class PyArchInitPlugin(object):
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
+            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
+            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -2156,6 +2168,18 @@ class PyArchInitPlugin(object):
                 "MoveCost",
                 f"Error opening MoveCost dialog:\n{str(e)}"
             )
+
+    def runPalimpsest(self):
+        """Open the palimpsestr palimpsest-analysis dialog."""
+        try:
+            from .tabs.Palimpsest import pyarchinit_Palimpsest
+            dlg = pyarchinit_Palimpsest(self.iface)
+            dlg.show()
+            self.pluginGui = dlg
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(), "palimpsestr",
+                f"Error opening Palimpsest dialog:\n{str(e)}")
 
     def runTomba(self):
         from .tabs.Tomba import pyarchinit_Tomba
