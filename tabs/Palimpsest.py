@@ -14,12 +14,12 @@ file).
 @author: Enzo Cocca <enzo.ccc@gmail.com>
 """
 import os
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 from qgis.PyQt.QtWidgets import (
     QDialog, QVBoxLayout, QFormLayout, QHBoxLayout, QLabel, QSpinBox,
     QDoubleSpinBox, QComboBox, QCheckBox, QLineEdit, QPushButton, QMessageBox,
-    QPlainTextEdit)
+    QPlainTextEdit, QTableWidget, QTableWidgetItem, QHeaderView, QFileDialog)
 from qgis.core import (QgsApplication, QgsCategorizedSymbolRenderer,
                        QgsRendererCategory, QgsSymbol, QgsProject)
 from qgis.PyQt.QtGui import QColor
@@ -32,12 +32,39 @@ FIT_ALG = "r:palimpsestrfit"
 INTRUSIONS_ALG = "r:palimpsestrintrusions"
 REPORT_ALG = "r:palimpsestrreport"
 
+# Optional per-US absolute-chronology table that read_pyarchinit() auto-detects
+# and uses in place of the free-text datazione (palimpsestr >= 0.22.0).
+CHRONOLOGY_TABLE = "palimpsest_chronology"
+
+# Plain Rscript driver (NOT a Processing .rsx) that calibrates radiocarbon dates
+# with OxCal via oxcAAR and reduces them to a calendar interval with
+# palimpsestr::chronology_from_oxcal(). Reads a samples CSV (id,c14_bp,c14_error)
+# and writes an out CSV (id,start,end) with calendar years (BCE negative). The
+# table write itself is done in Python so it honours the active backend.
+CHRONO_OXCAL_R = r"""args <- commandArgs(trailingOnly = TRUE)
+samples_csv <- args[1]; out_csv <- args[2]
+suppressMessages({ library(oxcAAR); library(palimpsestr) })
+s <- read.csv(samples_csv, stringsAsFactors = FALSE, colClasses = "character")
+op <- getOption("oxcAAR.oxcal_path")
+if (is.null(op) || !nzchar(op)) oxcAAR::quickSetupOxcal()
+ids <- as.character(s$id)
+cal <- oxcAAR::oxcalCalibrate(as.numeric(s$c14_bp), as.numeric(s$c14_error), ids)
+res <- palimpsestr::chronology_from_oxcal(cal, ids = ids, bce_negative = TRUE)
+out <- data.frame(id = as.character(res$id),
+                  start = as.integer(round(res$date_min)),
+                  end   = as.integer(round(res$date_max)),
+                  stringsAsFactors = FALSE)
+write.csv(out, out_csv, row.names = FALSE)
+cat("calibrated ", nrow(out), " sample(s)\n", sep = "")
+"""
+
 # Processing R scripts shipped with palimpsestr, embedded so the dialog can
 # install/update them itself.
 RSX_SCRIPTS = {
     "palimpsestr_fit_db.rsx": r"""##palimpsestr=group
 ##Palimpsestr Fit=name
-##Database_file=file
+##Database_file=optional file
+##PG_connection=optional string
 ##Site=string all
 ##K=number 4
 ##Class_model=enum literal multinomial;gaussian
@@ -56,9 +83,19 @@ library(palimpsestr)
 library(sf)
 library(DBI)
 
-con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
-geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
-                 error = function(e) NULL)
+# Connection: PostgreSQL/PostGIS when PG_connection (a libpq DSN, e.g.
+# "host=... port=5432 dbname=pyarchinit user=... password=...") is given,
+# otherwise the SQLite/Spatialite Database_file.
+use_pg <- exists("PG_connection") && is.character(PG_connection) && nzchar(PG_connection)
+if (use_pg) {
+  con  <- DBI::dbConnect(RPostgres::Postgres(), dbname = PG_connection)
+  geom <- tryCatch(sf::st_read(con, query = "SELECT us_s, the_geom FROM pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+} else {
+  con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
+  geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+}
 
 site       <- if (exists("Site") && nchar(Site) > 0 && Site != "all") Site else NULL
 source_sel <- if (is.numeric(Source)) c("both", "materials", "pottery")[Source + 1] else as.character(Source)
@@ -81,7 +118,8 @@ Diagnostics <- as_phase_table(fit)
 """,
     "palimpsestr_intrusions_db.rsx": r"""##palimpsestr=group
 ##Palimpsestr Intrusions=name
-##Database_file=file
+##Database_file=optional file
+##PG_connection=optional string
 ##Site=string all
 ##K=number 4
 ##Threshold=number 0.5
@@ -96,9 +134,18 @@ library(palimpsestr)
 library(sf)
 library(DBI)
 
-con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
-geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
-                 error = function(e) NULL)
+# Connection: PostgreSQL/PostGIS when PG_connection (a libpq DSN) is given,
+# otherwise the SQLite/Spatialite Database_file.
+use_pg <- exists("PG_connection") && is.character(PG_connection) && nzchar(PG_connection)
+if (use_pg) {
+  con  <- DBI::dbConnect(RPostgres::Postgres(), dbname = PG_connection)
+  geom <- tryCatch(sf::st_read(con, query = "SELECT us_s, the_geom FROM pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+} else {
+  con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
+  geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+}
 
 site       <- if (exists("Site") && nchar(Site) > 0 && Site != "all") Site else NULL
 source_sel <- if (is.numeric(Source)) c("both", "materials", "pottery")[Source + 1] else as.character(Source)
@@ -121,7 +168,8 @@ Intrusions <- pts
 """,
     "palimpsestr_report_db.rsx": r"""##palimpsestr=group
 ##Palimpsestr Report=name
-##Database_file=file
+##Database_file=optional file
+##PG_connection=optional string
 ##Site=string all
 ##K=number 4
 ##Class_model=enum literal multinomial;gaussian
@@ -139,9 +187,18 @@ library(palimpsestr)
 library(sf)
 library(DBI)
 
-con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
-geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
-                 error = function(e) NULL)
+# Connection: PostgreSQL/PostGIS when PG_connection (a libpq DSN) is given,
+# otherwise the SQLite/Spatialite Database_file.
+use_pg <- exists("PG_connection") && is.character(PG_connection) && nzchar(PG_connection)
+if (use_pg) {
+  con  <- DBI::dbConnect(RPostgres::Postgres(), dbname = PG_connection)
+  geom <- tryCatch(sf::st_read(con, query = "SELECT us_s, the_geom FROM pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+} else {
+  con  <- DBI::dbConnect(RSQLite::SQLite(), Database_file)
+  geom <- tryCatch(sf::st_read(Database_file, layer = "pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+}
 
 site        <- if (exists("Site") && nchar(Site) > 0 && Site != "all") Site else NULL
 class_model <- if (is.numeric(Class_model)) c("multinomial", "gaussian")[Class_model + 1] else as.character(Class_model)
@@ -267,6 +324,16 @@ class pyarchinit_Palimpsest(QDialog):
         open_row.addWidget(self.btn_open_dir)
         layout.addLayout(open_row)
 
+        # Absolute chronology (OxCal) — optional per-US dating table.
+        chrono_row = QHBoxLayout()
+        self.btn_chrono = QPushButton("Cronologia assoluta (OxCal)…")
+        self.btn_chrono.setToolTip(
+            "Crea/popola la tabella palimpsest_chronology (date calibrate "
+            "per US) usata da palimpsestr al posto della datazione testuale.")
+        self.btn_chrono.clicked.connect(self.open_chronology)
+        chrono_row.addWidget(self.btn_chrono)
+        layout.addLayout(chrono_row)
+
     # ----------------------------------------------------- active DB info ---
     def _active_conn_str(self):
         try:
@@ -292,14 +359,57 @@ class pyarchinit_Palimpsest(QDialog):
         cs = self._active_conn_str()
         return bool(cs) and cs.startswith('postgres')
 
+    def _pg_dsn(self):
+        """libpq DSN from the active SQLAlchemy URL, or None if not PostgreSQL.
+
+        pyArchInit stores e.g.
+        ``postgresql://user:pwd@host:5432/db?sslmode=allow``; palimpsestr's
+        .rsx connect with ``RPostgres::Postgres(dbname = <DSN>)``.
+        """
+        cs = self._active_conn_str()
+        if not cs or not cs.startswith('postgres'):
+            return None
+        u = urlparse(cs)
+        parts = []
+        if u.hostname:
+            parts.append("host=%s" % u.hostname)
+        if u.port:
+            parts.append("port=%s" % u.port)
+        if u.path and u.path != '/':
+            parts.append("dbname=%s" % u.path.lstrip('/'))
+        if u.username:
+            parts.append("user=%s" % u.username)
+        if u.password:
+            parts.append("password=%s" % u.password)
+        qs = parse_qs(u.query)
+        if qs.get('sslmode'):
+            parts.append("sslmode=%s" % qs['sslmode'][0])
+        return " ".join(parts)
+
+    def _db_params(self):
+        """Processing params selecting the active backend, or None.
+
+        PostgreSQL/PostGIS when a PG connection is active (``PG_connection``
+        libpq DSN), otherwise the SQLite/Spatialite ``Database_file``. Warns
+        and returns None when nothing usable is connected.
+        """
+        dsn = self._pg_dsn()
+        if dsn:
+            return {'PG_connection': dsn}
+        path = self._require_sqlite()
+        if not path:
+            return None
+        return {'Database_file': path}
+
     def _describe_db(self):
         p = self._sqlite_path()
         if p:
             return "Active database (SQLite/Spatialite): %s" % p
         if self._is_postgres():
-            return ("Active database is PostgreSQL. These algorithms currently "
-                    "read SQLite/Spatialite databases; connect to a SQLite "
-                    "pyArchInit database, or run read_pyarchinit() in R.")
+            u = urlparse(self._active_conn_str())
+            where = "%s/%s" % (u.hostname or "?", (u.path or "").lstrip('/') or "?")
+            return ("Active database (PostgreSQL/PostGIS): %s. The palimpsestr "
+                    "algorithms read it directly." % where)
         return "No active pyArchInit database connection detected."
 
     # ----------------------------------------------------------- run algos ---
@@ -334,8 +444,8 @@ class pyarchinit_Palimpsest(QDialog):
     def run_fit(self):
         if not self._check_provider():
             return
-        path = self._require_sqlite()
-        if not path:
+        db = self._db_params()
+        if db is None:
             return
         import tempfile
         out = tempfile.mkdtemp(prefix="palimpsestr_")
@@ -343,13 +453,13 @@ class pyarchinit_Palimpsest(QDialog):
         lk = os.path.join(out, "sef_links.gpkg")
         dg = os.path.join(out, "sef_diagnostics.csv")
         params = {
-            'Database_file': path,
             'Site': self._site(),
             'K': self.spin_k.value(),
             'Class_model': self.combo_model.currentIndex(),
             'Noise': self.check_noise.isChecked(),
             'Source': self.combo_source.currentIndex(),
             'Phases': ph, 'Links': lk, 'Diagnostics': dg}
+        params.update(db)
         try:
             res = processing.run(FIT_ALG, params)
         except Exception as e:
@@ -368,19 +478,19 @@ class pyarchinit_Palimpsest(QDialog):
     def run_intrusions(self):
         if not self._check_provider():
             return
-        path = self._require_sqlite()
-        if not path:
+        db = self._db_params()
+        if db is None:
             return
         import tempfile
         out = tempfile.mkdtemp(prefix="palimpsestr_")
         ip = os.path.join(out, "sef_intrusions.gpkg")
         params = {
-            'Database_file': path,
             'Site': self._site(),
             'K': self.spin_k.value(),
             'Threshold': self.spin_thr.value(),
             'Source': self.combo_source.currentIndex(),
             'Intrusions': ip}
+        params.update(db)
         try:
             res = processing.run(INTRUSIONS_ALG, params)
         except Exception as e:
@@ -465,8 +575,8 @@ class pyarchinit_Palimpsest(QDialog):
     def run_report(self):
         if not self._check_provider_report():
             return
-        path = self._require_sqlite()
-        if not path:
+        db = self._db_params()
+        if db is None:
             return
         # QGIS's minimal GUI PATH usually hides pandoc/LaTeX from R; make them
         # discoverable so the report renders to PDF/DOCX rather than only .md.
@@ -475,7 +585,6 @@ class pyarchinit_Palimpsest(QDialog):
         out_dir = tempfile.mkdtemp(prefix="palimpsestr_report_")
         report = os.path.join(out_dir, "sef_report.pdf")
         params = {
-            'Database_file': path,
             'Site': self._site(),
             'K': self.spin_k.value(),
             'Class_model': self.combo_model.currentIndex(),
@@ -484,6 +593,7 @@ class pyarchinit_Palimpsest(QDialog):
             'Language': self.combo_lang.currentIndex(),
             'Format': self.combo_format.currentIndex(),
             'Report': report}
+        params.update(db)
         try:
             processing.run(REPORT_ALG, params)
         except Exception as e:
@@ -543,6 +653,16 @@ class pyarchinit_Palimpsest(QDialog):
         from qgis.PyQt.QtCore import QUrl
         if p:
             QDesktopServices.openUrl(QUrl.fromLocalFile(p))
+
+    def open_chronology(self):
+        if not (self._pg_dsn() or self._sqlite_path()):
+            QMessageBox.warning(
+                self, "palimpsestr",
+                "No active pyArchInit database connection.\n\n"
+                "Connect to a SQLite or PostgreSQL pyArchInit database first.")
+            return
+        dlg = PalimpsestChronologyDialog(self)
+        dlg.exec()
 
     def _load_outputs(self, items):
         """Load (path, name, is_phase) outputs into the project; return count."""
@@ -620,6 +740,379 @@ class pyarchinit_Palimpsest(QDialog):
             layer.triggerRepaint()
         except Exception:
             pass
+
+
+def _stretch_mode():
+    """QHeaderView Stretch resize mode, across PyQt5 (Qt5) and PyQt6 (Qt6)."""
+    try:
+        return QHeaderView.ResizeMode.Stretch
+    except AttributeError:
+        return QHeaderView.Stretch
+
+
+class PalimpsestChronologyDialog(QDialog):
+    """Create/populate the optional ``palimpsest_chronology`` table.
+
+    palimpsestr >= 0.22.0's ``read_pyarchinit()`` auto-detects this per-US
+    table and uses its calibrated ``start``/``end`` (calendar years, BCE
+    negative) in place of the free-text ``datazione``. Two ways to fill it:
+    enter radiocarbon dates and calibrate them with OxCal (oxcAAR +
+    ``chronology_from_oxcal``), or import a CSV of already-calibrated ranges.
+    The table write honours the active backend (SQLite or PostgreSQL).
+    """
+
+    def __init__(self, parent_dlg):
+        super().__init__(parent_dlg)
+        self.p = parent_dlg
+        self.setWindowTitle("palimpsestr — Cronologia assoluta (OxCal)")
+        self.resize(700, 440)
+        self._build_ui()
+
+    def _build_ui(self):
+        lay = QVBoxLayout(self)
+        lay.addWidget(QLabel(
+            "Date assolute per US nella tabella <b>palimpsest_chronology</b>, "
+            "usata da palimpsestr al posto della datazione testuale.<br>"
+            "Inserisci le date radiocarboniche (BP ± errore) e premi "
+            "<b>Calibra e salva</b> per ottenere gli intervalli calendariali "
+            "via OxCal, oppure importa un CSV già calibrato "
+            "(<i>sito, area, us, start, end, lab_code, source</i>)."))
+
+        self.table = QTableWidget(0, 6)
+        self.table.setHorizontalHeaderLabels(
+            ["Sito", "Area", "US", "C14 BP", "± errore", "Lab code"])
+        self.table.horizontalHeader().setSectionResizeMode(_stretch_mode())
+        lay.addWidget(self.table)
+        site = self.p.edit_site.text().strip()
+        self._add_row(site if site and site != "all" else "")
+
+        row1 = QHBoxLayout()
+        b_add = QPushButton("Aggiungi riga")
+        b_add.clicked.connect(lambda: self._add_row())
+        b_del = QPushButton("Rimuovi riga")
+        b_del.clicked.connect(self._remove_row)
+        b_imps = QPushButton("Importa campioni CSV…")
+        b_imps.clicked.connect(self._import_samples_csv)
+        row1.addWidget(b_add); row1.addWidget(b_del); row1.addWidget(b_imps)
+        lay.addLayout(row1)
+
+        row2 = QHBoxLayout()
+        b_ddl = QPushButton("Crea/aggiorna tabella")
+        b_ddl.clicked.connect(self._create_table)
+        b_cal = QPushButton("Calibra e salva (OxCal)")
+        b_cal.clicked.connect(self._calibrate_and_save)
+        b_impc = QPushButton("Importa range calibrati (CSV)…")
+        b_impc.clicked.connect(self._import_calibrated_csv)
+        b_close = QPushButton("Chiudi")
+        b_close.clicked.connect(self.accept)
+        row2.addWidget(b_ddl); row2.addWidget(b_cal)
+        row2.addWidget(b_impc); row2.addWidget(b_close)
+        lay.addLayout(row2)
+
+        self.status = QLabel("")
+        self.status.setWordWrap(True)
+        lay.addWidget(self.status)
+
+    # --------------------------------------------------------------- table ---
+    def _add_row(self, sito="", area="", us="", bp="", err="", lab=""):
+        r = self.table.rowCount()
+        self.table.insertRow(r)
+        for c, v in enumerate([sito, area, us, bp, err, lab]):
+            self.table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
+
+    def _remove_row(self):
+        rows = sorted({i.row() for i in self.table.selectedIndexes()}, reverse=True)
+        for r in rows:
+            self.table.removeRow(r)
+
+    def _collect_rows(self, require_c14):
+        """Read the table into dicts; show a message and return None on error."""
+        rows = []
+        for r in range(self.table.rowCount()):
+            def cell(c):
+                it = self.table.item(r, c)
+                return it.text().strip() if it and it.text() else ""
+            sito, area, us = cell(0), cell(1) or None, cell(2)
+            bp, err, lab = cell(3), cell(4), cell(5) or None
+            if not any([sito, area, us, bp, err, lab]):
+                continue
+            if not sito or not us:
+                QMessageBox.warning(self, "palimpsestr",
+                                    "Riga %d: Sito e US sono obbligatori." % (r + 1))
+                return None
+            try:
+                us_i = int(us)
+            except ValueError:
+                QMessageBox.warning(self, "palimpsestr",
+                                    "Riga %d: US dev'essere un intero." % (r + 1))
+                return None
+            rec = {"sito": sito, "area": area, "us": us_i, "lab_code": lab}
+            if require_c14:
+                try:
+                    rec["c14_bp"] = float(bp)
+                    rec["c14_error"] = float(err)
+                except ValueError:
+                    QMessageBox.warning(
+                        self, "palimpsestr",
+                        "Riga %d: C14 BP ed errore devono essere numeri." % (r + 1))
+                    return None
+            rows.append(rec)
+        return rows
+
+    # ----------------------------------------------------------- backend DB ---
+    def _conn(self):
+        """(connection, kind, placeholder) for the active backend, or None."""
+        dsn = self.p._pg_dsn()
+        if dsn:
+            try:
+                import psycopg2
+            except Exception as e:
+                QMessageBox.critical(self, "palimpsestr",
+                                     "psycopg2 is required for PostgreSQL:\n%s" % e)
+                return None, None, None
+            return psycopg2.connect(dsn), "pg", "%s"
+        path = self.p._sqlite_path()
+        if path and os.path.exists(path):
+            import sqlite3
+            return sqlite3.connect(path), "sqlite", "?"
+        QMessageBox.warning(self, "palimpsestr",
+                            "Nessuna connessione al database attiva.")
+        return None, None, None
+
+    def _ddl(self, conn, kind):
+        pk = "SERIAL PRIMARY KEY" if kind == "pg" else "INTEGER PRIMARY KEY"
+        # "start"/"end" quoted: end is a reserved word in PostgreSQL.
+        conn.cursor().execute(
+            'CREATE TABLE IF NOT EXISTS %s ('
+            ' id %s, sito TEXT, area TEXT, us INTEGER,'
+            ' "start" INTEGER, "end" INTEGER, lab_code TEXT, source TEXT)'
+            % (CHRONOLOGY_TABLE, pk))
+        conn.commit()
+
+    def _save_rows(self, rows):
+        """Upsert (sito,area,us)-keyed rows; returns the count written."""
+        conn, kind, ph = self._conn()
+        if conn is None:
+            return 0
+        try:
+            self._ddl(conn, kind)
+            cur = conn.cursor()
+            for (sito, area, us, start, end, lab, source) in rows:
+                cur.execute(
+                    "DELETE FROM %s WHERE sito = %s AND us = %s "
+                    "AND COALESCE(area,'') = COALESCE(%s,'')"
+                    % (CHRONOLOGY_TABLE, ph, ph, ph), (sito, us, area))
+                cur.execute(
+                    'INSERT INTO %s (sito, area, us, "start", "end", lab_code, '
+                    'source) VALUES (%s, %s, %s, %s, %s, %s, %s)'
+                    % (CHRONOLOGY_TABLE, ph, ph, ph, ph, ph, ph, ph),
+                    (sito, area, us, start, end, lab, source))
+            conn.commit()
+            return len(rows)
+        except Exception as e:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            QMessageBox.critical(self, "palimpsestr", "Scrittura fallita:\n%s" % e)
+            return 0
+        finally:
+            conn.close()
+
+    def _create_table(self):
+        conn, kind, _ph = self._conn()
+        if conn is None:
+            return
+        try:
+            self._ddl(conn, kind)
+        except Exception as e:
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Creazione tabella fallita:\n%s" % e)
+            return
+        finally:
+            conn.close()
+        self.status.setText("Tabella %s pronta (%s)." % (CHRONOLOGY_TABLE, kind))
+        QMessageBox.information(self, "palimpsestr",
+                               "Tabella %s pronta." % CHRONOLOGY_TABLE)
+
+    # ------------------------------------------------------- OxCal calibrate ---
+    def _find_rscript(self):
+        import glob
+        exe = "Rscript.exe" if os.name == "nt" else "Rscript"
+        cands = []
+        try:
+            from qgis.core import QgsSettings
+            folder = QgsSettings().value("Processing/Configuration/R_FOLDER", "",
+                                         type=str)
+            if folder:
+                cands += [os.path.join(folder, exe),
+                          os.path.join(folder, "bin", exe)]
+        except Exception:
+            pass
+        cands += ["/usr/local/bin/" + exe, "/opt/homebrew/bin/" + exe,
+                  "/usr/bin/" + exe]
+        if os.name == "nt":
+            cands += glob.glob(r"C:\Program Files\R\R-*\bin\\" + exe)
+        for c in cands:
+            if c and os.path.isfile(c):
+                return c
+        return exe  # rely on PATH as a last resort
+
+    def _calibrate(self, samples):
+        """Run the OxCal driver; returns {id: (start, end)} or None on failure."""
+        import tempfile, subprocess, csv
+        d = tempfile.mkdtemp(prefix="palimpsestr_chrono_")
+        sin = os.path.join(d, "samples.csv")
+        sout = os.path.join(d, "calibrated.csv")
+        rdrv = os.path.join(d, "calibrate.R")
+        with open(sin, "w", newline="", encoding="utf-8") as f:
+            w = csv.writer(f)
+            w.writerow(["id", "c14_bp", "c14_error"])
+            for s in samples:
+                w.writerow([s["id"], s["c14_bp"], s["c14_error"]])
+        with open(rdrv, "w", encoding="utf-8") as f:
+            f.write(CHRONO_OXCAL_R)
+        # Help the R child find tools (pandoc not needed here, but java/oxcal
+        # may live in dirs hidden from QGIS's minimal GUI PATH).
+        try:
+            self.p._augment_render_env()
+        except Exception:
+            pass
+        rscript = self._find_rscript()
+        try:
+            proc = subprocess.run([rscript, rdrv, sin, sout],
+                                  capture_output=True, text=True, timeout=3600)
+        except Exception as e:
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Impossibile eseguire R (Rscript):\n%s" % e)
+            return None
+        if proc.returncode != 0 or not os.path.exists(sout):
+            msg = (proc.stderr or proc.stdout or "")[-2000:]
+            QMessageBox.critical(
+                self, "palimpsestr",
+                "Calibrazione OxCal fallita.\n\nServono R con i pacchetti "
+                "oxcAAR + palimpsestr e il motore OxCal (oxcAAR::quickSetupOxcal "
+                "lo scarica; richiede Java e rete al primo uso).\n\n%s" % msg)
+            return None
+        out = {}
+        with open(sout, encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                try:
+                    out[row["id"]] = (int(float(row["start"])),
+                                      int(float(row["end"])))
+                except (KeyError, ValueError):
+                    continue
+        return out
+
+    def _calibrate_and_save(self):
+        rows_in = self._collect_rows(require_c14=True)
+        if rows_in is None:
+            return
+        if not rows_in:
+            QMessageBox.warning(self, "palimpsestr",
+                                "Aggiungi almeno una riga con data C14.")
+            return
+        samples = [{"id": str(i), "c14_bp": r["c14_bp"], "c14_error": r["c14_error"]}
+                   for i, r in enumerate(rows_in)]
+        self.status.setText(
+            "Calibrazione di %d campione/i con OxCal… (il primo avvio "
+            "scarica OxCal)" % len(samples))
+        try:
+            from qgis.PyQt.QtWidgets import QApplication
+            QApplication.processEvents()
+        except Exception:
+            pass
+        cal = self._calibrate(samples)
+        if cal is None:
+            self.status.setText("")
+            return
+        save = []
+        for i, r in enumerate(rows_in):
+            se = cal.get(str(i))
+            if not se:
+                continue
+            save.append((r["sito"], r["area"], r["us"], se[0], se[1],
+                         r["lab_code"], "oxcal"))
+        n = self._save_rows(save)
+        self.status.setText("Salvate %d data/e US calibrate in %s."
+                            % (n, CHRONOLOGY_TABLE))
+        if n:
+            QMessageBox.information(
+                self, "palimpsestr",
+                "Salvate %d data/e calibrate in %s." % (n, CHRONOLOGY_TABLE))
+
+    # --------------------------------------------------------------- import ---
+    def _import_samples_csv(self):
+        import csv
+        fn, _ = QFileDialog.getOpenFileName(
+            self, "Importa campioni C14 (CSV)", self.p.HOME, "CSV (*.csv)")
+        if not fn:
+            return
+        try:
+            with open(fn, encoding="utf-8-sig", newline="") as f:
+                rd = csv.DictReader(f)
+                cols = {c.lower().strip(): c for c in (rd.fieldnames or [])}
+
+                def g(row, *keys):
+                    for k in keys:
+                        if k in cols:
+                            return (row.get(cols[k]) or "").strip()
+                    return ""
+                for row in rd:
+                    self._add_row(g(row, "sito"), g(row, "area"), g(row, "us"),
+                                  g(row, "c14_bp", "bp"),
+                                  g(row, "c14_error", "error", "std"),
+                                  g(row, "lab_code", "lab"))
+        except Exception as e:
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Impossibile leggere il CSV:\n%s" % e)
+
+    def _import_calibrated_csv(self):
+        import csv
+        fn, _ = QFileDialog.getOpenFileName(
+            self, "Importa range calibrati (CSV)", self.p.HOME, "CSV (*.csv)")
+        if not fn:
+            return
+        save = []
+        try:
+            with open(fn, encoding="utf-8-sig", newline="") as f:
+                rd = csv.DictReader(f)
+                cols = {c.lower().strip(): c for c in (rd.fieldnames or [])}
+                if not all(k in cols for k in ("sito", "us", "start", "end")):
+                    QMessageBox.warning(
+                        self, "palimpsestr",
+                        "Il CSV deve avere almeno le colonne: sito, us, start, "
+                        "end (opzionali: area, lab_code, source).")
+                    return
+
+                def g(row, k):
+                    return (row.get(cols[k]) or "").strip() if k in cols else ""
+                for row in rd:
+                    sito, us = g(row, "sito"), g(row, "us")
+                    if not sito or not us:
+                        continue
+                    try:
+                        save.append((sito, g(row, "area") or None, int(us),
+                                     int(float(g(row, "start"))),
+                                     int(float(g(row, "end"))),
+                                     g(row, "lab_code") or None,
+                                     g(row, "source") or "import"))
+                    except ValueError:
+                        continue
+        except Exception as e:
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Impossibile leggere il CSV:\n%s" % e)
+            return
+        if not save:
+            QMessageBox.warning(self, "palimpsestr",
+                                "Nessuna riga valida trovata nel CSV.")
+            return
+        n = self._save_rows(save)
+        self.status.setText("Importate %d data/e US calibrate." % n)
+        if n:
+            QMessageBox.information(
+                self, "palimpsestr",
+                "Importate %d data/e calibrate in %s." % (n, CHRONOLOGY_TABLE))
 
 
 # ---------------------------------------------------------------------------
