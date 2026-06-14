@@ -406,12 +406,71 @@ class pyarchinit_Palimpsest(QDialog):
             return False
         return True
 
+    def _augment_render_env(self):
+        """Make pandoc + a LaTeX engine discoverable by the R subprocess.
+
+        QGIS (a GUI app) launches with a minimal PATH that usually omits
+        Homebrew (/opt/homebrew/bin), MacTeX (/Library/TeX/texbin) and
+        TinyTeX, so rmarkdown's pandoc/LaTeX discovery fails and the report
+        silently falls back to markdown only (no PDF/DOCX). Probe common
+        install locations and prepend the ones we find to PATH (+ set
+        RSTUDIO_PANDOC, which rmarkdown honours) for this process and the R
+        child it spawns. Returns (pandoc_found, latex_found).
+        """
+        import glob
+        home = os.path.expanduser("~")
+        is_win = os.name == "nt"
+        exe = ".exe" if is_win else ""
+        pandoc_dirs = [
+            "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin",
+            "/Applications/RStudio.app/Contents/Resources/app/bin/quarto/bin/tools",
+            "/Applications/RStudio.app/Contents/Resources/app/bin/pandoc",
+            "/Applications/RStudio.app/Contents/MacOS/pandoc",
+            "/Applications/quarto/bin/tools"]
+        latex_dirs = ["/Library/TeX/texbin", "/usr/local/bin",
+                      "/opt/homebrew/bin", "/usr/bin"]
+        latex_dirs += glob.glob(os.path.join(home, "Library", "TinyTeX", "bin", "*"))
+        latex_dirs += glob.glob(os.path.join(home, ".TinyTeX", "bin", "*"))
+        if is_win:
+            la = os.environ.get("LOCALAPPDATA", "")
+            ap = os.environ.get("APPDATA", "")
+            pandoc_dirs += [os.path.join(la, "Pandoc"), r"C:\Program Files\Pandoc",
+                            r"C:\Program Files\RStudio\resources\app\bin\quarto\bin\tools"]
+            latex_dirs += [os.path.join(ap, "TinyTeX", "bin", "windows"),
+                           os.path.join(la, "Programs", "MiKTeX", "miktex", "bin", "x64")]
+
+        def _first_with(dirs, names):
+            for d in dirs:
+                if d and any(os.path.isfile(os.path.join(d, n)) for n in names):
+                    return d
+            return None
+
+        extra = []
+        pandoc_dir = _first_with(pandoc_dirs, ["pandoc" + exe])
+        if pandoc_dir:
+            if not os.environ.get("RSTUDIO_PANDOC"):
+                os.environ["RSTUDIO_PANDOC"] = pandoc_dir
+            extra.append(pandoc_dir)
+        latex_dir = _first_with(
+            latex_dirs, ["pdflatex" + exe, "xelatex" + exe, "tlmgr" + exe])
+        if latex_dir:
+            extra.append(latex_dir)
+        if extra:
+            sep = os.pathsep
+            parts = os.environ.get("PATH", "").split(sep)
+            os.environ["PATH"] = sep.join(
+                [d for d in extra if d not in parts] + parts)
+        return pandoc_dir is not None, latex_dir is not None
+
     def run_report(self):
         if not self._check_provider_report():
             return
         path = self._require_sqlite()
         if not path:
             return
+        # QGIS's minimal GUI PATH usually hides pandoc/LaTeX from R; make them
+        # discoverable so the report renders to PDF/DOCX rather than only .md.
+        pandoc_ok, _latex_ok = self._augment_render_env()
         import tempfile
         out_dir = tempfile.mkdtemp(prefix="palimpsestr_report_")
         report = os.path.join(out_dir, "sef_report.pdf")
@@ -431,9 +490,17 @@ class pyarchinit_Palimpsest(QDialog):
             QMessageBox.critical(self, "palimpsestr", "Report failed:\n%s" % e)
             return
         base = os.path.splitext(report)[0]
-        self._show_report(base)
+        self._show_report(base, pandoc_ok)
 
-    def _show_report(self, base):
+    @staticmethod
+    def _has_magic(path, magic):
+        try:
+            with open(path, "rb") as f:
+                return f.read(len(magic)) == magic
+        except Exception:
+            return False
+
+    def _show_report(self, base, pandoc_ok=True):
         """Load the markdown narrative into the panel and enable open buttons."""
         md = base + ".md"
         if os.path.exists(md):
@@ -443,21 +510,33 @@ class pyarchinit_Palimpsest(QDialog):
             self.results_panel.setPlainText(
                 "The report ran but no markdown narrative was found next to:\n"
                 "%s" % base)
-        self._report_pdf = base + ".pdf" if os.path.exists(base + ".pdf") else None
-        self._report_docx = base + ".docx" if os.path.exists(base + ".docx") else None
+        # Validate by content, not extension: when pandoc/LaTeX are missing the
+        # algorithm copies the .md onto the declared .pdf output, so a file with
+        # a .pdf name may actually be markdown. Only offer genuine files
+        # (PDF starts with %PDF, DOCX is a zip starting with PK\x03\x04).
+        pdf, docx = base + ".pdf", base + ".docx"
+        self._report_pdf = pdf if self._has_magic(pdf, b"%PDF") else None
+        self._report_docx = docx if self._has_magic(docx, b"PK\x03\x04") else None
         self._report_dir = os.path.dirname(base)
         self.btn_open_pdf.setEnabled(bool(self._report_pdf))
         self.btn_open_docx.setEnabled(bool(self._report_docx))
         self.btn_open_dir.setEnabled(True)
-        # If only the .md sidecar came back, PDF/DOCX rendering tooling is
-        # missing — surface a hint rather than leaving the user wondering.
-        if os.path.exists(md) and not self._report_pdf and not self._report_docx:
-            QMessageBox.information(
-                self, "palimpsestr",
-                "Only the Markdown narrative was produced.\n\n"
-                "To also get PDF/DOCX, install a LaTeX engine (e.g. tinytex: "
-                "in R run tinytex::install_tinytex()) and pandoc, then run the "
-                "report again.")
+        # No genuine PDF/DOCX → only the markdown narrative was rendered.
+        if not self._report_pdf and not self._report_docx:
+            if pandoc_ok:
+                hint = ("Only the Markdown narrative could be produced.\n\n"
+                        "pandoc was found but a LaTeX engine is needed for PDF "
+                        "(install with tinytex::install_tinytex() in R). The "
+                        "narrative above and the PNG figures in the report "
+                        "folder are complete.")
+            else:
+                hint = ("Only the Markdown narrative could be produced because "
+                        "pandoc/LaTeX were not found.\n\n"
+                        "Install pandoc and a LaTeX engine (in R: "
+                        "tinytex::install_tinytex()), then run the report "
+                        "again. The narrative above and the PNG figures in the "
+                        "report folder are complete.")
+            QMessageBox.information(self, "palimpsestr", hint)
 
     def _open(self, p):
         from qgis.PyQt.QtGui import QDesktopServices
