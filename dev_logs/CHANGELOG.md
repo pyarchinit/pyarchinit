@@ -5,6 +5,23 @@
 
 ---
 
+## [palimpsest-ai] - 2026-06-15 — Palimpsest: icona, report AI multi-agente, dati OxCal di esempio, tutorial 10 lingue
+
+> Branch `Stratigraph_00001`. Estende la scheda Palimpsest (Part D) con report AI, icona, dati di esempio e documentazione.
+
+### Italiano
+
+- **Icona dedicata** per la scheda palimpsestr (`resources/icons/palimpsest.png`, strati stratigrafici nella palette delle fasi con reperti ordinati per fase); collegata in tutti e 4 i blocchi `actionPalimpsest` di `pyarchinitPlugin.py`.
+- **Report AI (analisi descrittiva)** — nuovo `tabs/palimpsest_ai_report.py`: pipeline di **3 agenti specializzati** (metodologo, analista, redattore) sui risultati SEF di palimpsestr (narrativa R + diagnostiche + figure `gg_*`). Il report **spiega esplicitamente le scelte** — modello (multinomiale vs gaussiano), valore di **K** e relative evidenze diagnostiche, **soglia**/rumore, selezione reperti, uso della cronologia OxCal — poi interpreta fasi/cronologia/residualità e compone una relazione coesa. Output in **tutte le 10 lingue** di pyArchInit (it/en/de/es/fr/pt/ca/ro/el/ar), in **DOCX** (figure incorporate) o **Markdown**. Provider via `LLMSelectorWidget` + `LLMProviderManager.stream_chat` (OpenAI/Anthropic/Ollama/LM Studio) su thread separato. Wiring in `tabs/Palimpsest.py` (`open_ai_report`, `_gather_sef_facts`, `_has_chronology`).
+- **Dati OxCal di esempio** (`docs/examples/`): date C14 calibrate realmente con **OxCal v4.4.4** per 12 US della Villa Romana (CSV campioni per la calibrazione + CSV già calibrato per l'import); caricati anche nella `palimpsest_chronology` del DB di test `villa_romana_pyarchinit.sqlite` (con backup del DB).
+- **Tutorial 37 "Analisi dei palinsesti"** creato in **10 lingue** (`docs/tutorials/<lang>/37_palimpsest.md`): report PDF/DOCX, PostgreSQL, cronologia OxCal, report AI. Registrato nei due `TUTORIALS_METADATA` (`Tutorial_viewer.py` 10 lingue, `pyarchinitDockWidget.py` 6 lingue) e nel toctree Sphinx delle 7 lingue con `index.rst`.
+
+### English
+
+- **Dedicated icon** for the palimpsestr dialog (`resources/icons/palimpsest.png`), wired into all four `actionPalimpsest` blocks. **AI descriptive report** (`tabs/palimpsest_ai_report.py`): a 3-agent pipeline (methodologist / analyst / editor) over the palimpsestr SEF results that explicitly explains the methodological choices (class model multinomial vs gaussian, the K value and its diagnostic evidence, the noise/threshold, the finds source, OxCal chronology use), interprets the results and produces a cohesive narrative in any of the 10 pyArchInit languages, as DOCX (figures embedded) or Markdown — driven by the shared `LLMSelectorWidget` + `LLMProviderManager.stream_chat` on a worker thread; wired in `tabs/Palimpsest.py`. **OxCal sample data** in `docs/examples/`: real OxCal v4.4.4 calibrated C14 dates for 12 Villa Romana US (samples CSV + pre-calibrated CSV), also loaded into the test DB's `palimpsest_chronology`. **Tutorial 37 "Palimpsest analysis"** authored in all 10 languages, registered in both `TUTORIALS_METADATA` registries and in the Sphinx toctree of the 7 languages that have an `index.rst`.
+
+---
+
 ## [palimpsest-report] - 2026-06-14 — Tab Palimpsest: report narrato, reperti, PostgreSQL e cronologia OxCal (Part D)
 
 > Branch `Stratigraph_00001`. Implementa la **Part D** dell'handoff `2026-06-14-pyarchinit-PARTD-handoff.md` (Parts A/B/C/E lato R già rilasciate in palimpsestr **0.22.0**). Solo `tabs/Palimpsest.py`.
