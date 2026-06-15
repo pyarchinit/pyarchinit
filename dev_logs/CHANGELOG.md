@@ -5,6 +5,22 @@
 
 ---
 
+## [5.13.3-alpha] - 2026-06-15 — Palimpsest: lettura del taf spostata in read_pyarchinit (upstream)
+
+> Branch `Stratigraph_00001`. Refactor: la lettura del taf per US è ora **a monte** nel pacchetto R; gli `.rsx` tornano byte-identici a upstream.
+
+### Italiano
+
+- **`read_pyarchinit()` legge il taf dalla tabella cronologia** (palimpsestr **0.22.1**): quando `taf` è `NULL` (default) e `palimpsest_chronology` ha una colonna `taf`, i valori per US popolano `taf_score` (default 0.5 per le US senza valore). Modifica fatta nel pacchetto R dell'autore (`R/db_connect.R`, versione 0.22.1, NEWS aggiornato).
+- **Rimosso il blocco taf pyArchInit-local** dai tre `.rsx` Processing e da `SEF_FACTS_R`: ora il taf arriva da `read_pyarchinit`. I tre `.rsx` embeddati tornano **byte-identici** alle sorgenti `qgis/processing/*.rsx`. **Richiede palimpsestr ≥ 0.22.1** perché il taf sia onorato (con 0.22.0 il taf viene salvato ma ignorato, senza errori).
+- Verificato: `read_pyarchinit` (senza arg `taf`) restituisce US 21=1.0, US 76=0.4, resto 0.5; i 3 `.rsx` byte-identici; `SEF_FACTS_R` continua ad applicare il taf via pacchetto.
+
+### English
+
+- **`read_pyarchinit()` reads taf from the chronology table** (palimpsestr **0.22.1**): when `taf` is `NULL` and `palimpsest_chronology` has a `taf` column, the per-US values populate `taf_score` (0.5 default). Done in the author's R package (`R/db_connect.R`, v0.22.1). The pyArchInit-local taf block is removed from the three Processing `.rsx` and from `SEF_FACTS_R`, so the embedded `.rsx` are **byte-identical** to `qgis/processing/*.rsx` again. **Requires palimpsestr ≥ 0.22.1** for taf to be honoured (on 0.22.0 taf is stored but ignored, no error). Verified: `read_pyarchinit` (no `taf` arg) returns US 21=1.0, US 76=0.4, rest 0.5; the 3 `.rsx` byte-identical; `SEF_FACTS_R` still applies taf via the package.
+
+---
+
 ## [5.13.2-alpha] - 2026-06-15 — Palimpsest: campo taphonomico (taf) per US nel dialog cronologia
 
 > Branch `Stratigraph_00001`. Aggiunge il punteggio tafonomico (taf) come dato per-US, modificabile e usato dal report AI.

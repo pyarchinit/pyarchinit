@@ -146,19 +146,8 @@ if (!is.null(site) && nrow(chrono)) chrono <- chrono[chrono$sito == site, , drop
 if (nrow(chrono) && !("taf" %in% names(chrono))) chrono$taf <- NA_real_
 write.csv(chrono, file.path(out_dir, "chronology.csv"), row.names = FALSE)
 
-# Apply the per-US taphonomic score (taf) from palimpsest_chronology, if any,
-# so fit_sef down-weights redeposited/disturbed units. Finds without a taf row
-# keep read_pyarchinit's default weight.
-if (nrow(chrono) && "taf" %in% names(chrono) && "context" %in% names(d) &&
-    "taf_score" %in% names(d)) {
-  tm <- chrono[!is.na(chrono$taf), ]
-  if (nrow(tm)) {
-    taf_map <- stats::setNames(as.numeric(tm$taf), as.character(tm$us))
-    hit <- as.character(d$context) %in% names(taf_map)
-    if (any(hit)) d$taf_score[hit] <- taf_map[as.character(d$context)[hit]]
-  }
-}
-
+# read_pyarchinit() already applied the per-US taphonomic score (taf) from
+# palimpsest_chronology (palimpsestr >= 0.22.1), so d$taf_score is set.
 fit <- reorder_phases(fit_sef(d, k = K, context = "context",
                               tafonomy = "taf_score", class_model = class_model,
                               noise = use_noise))
@@ -243,21 +232,7 @@ if (use_pg) {
 site       <- if (exists("Site") && nchar(Site) > 0 && Site != "all") Site else NULL
 source_sel <- if (is.numeric(Source)) c("both", "materials", "pottery")[Source + 1] else as.character(Source)
 d <- read_pyarchinit(con, us_geometry = geom, sito = site, source = source_sel)
-# pyArchInit-local: apply the per-US taphonomic score (taf) from
-# palimpsest_chronology, if present, before disconnecting. (Divergence from
-# upstream palimpsestr; the clean home for this is read_pyarchinit upstream.)
-taf_tbl <- tryCatch(
-  if ("palimpsest_chronology" %in% DBI::dbListTables(con) &&
-      "taf" %in% DBI::dbListFields(con, "palimpsest_chronology"))
-    DBI::dbGetQuery(con, "SELECT us, taf FROM palimpsest_chronology WHERE taf IS NOT NULL")
-  else NULL, error = function(e) NULL)
 DBI::dbDisconnect(con)
-if (!is.null(taf_tbl) && nrow(taf_tbl) && "context" %in% names(d) &&
-    "taf_score" %in% names(d)) {
-  tm <- stats::setNames(as.numeric(taf_tbl$taf), as.character(taf_tbl$us))
-  hit <- as.character(d$context) %in% names(tm)
-  if (any(hit)) d$taf_score[hit] <- tm[as.character(d$context)[hit]]
-}
 
 class_model <- if (is.numeric(Class_model)) c("multinomial", "gaussian")[Class_model + 1] else as.character(Class_model)
 use_noise   <- isTRUE(as.logical(Noise))
@@ -307,21 +282,7 @@ if (use_pg) {
 site       <- if (exists("Site") && nchar(Site) > 0 && Site != "all") Site else NULL
 source_sel <- if (is.numeric(Source)) c("both", "materials", "pottery")[Source + 1] else as.character(Source)
 d <- read_pyarchinit(con, us_geometry = geom, sito = site, source = source_sel)
-# pyArchInit-local: apply the per-US taphonomic score (taf) from
-# palimpsest_chronology, if present, before disconnecting. (Divergence from
-# upstream palimpsestr; the clean home for this is read_pyarchinit upstream.)
-taf_tbl <- tryCatch(
-  if ("palimpsest_chronology" %in% DBI::dbListTables(con) &&
-      "taf" %in% DBI::dbListFields(con, "palimpsest_chronology"))
-    DBI::dbGetQuery(con, "SELECT us, taf FROM palimpsest_chronology WHERE taf IS NOT NULL")
-  else NULL, error = function(e) NULL)
 DBI::dbDisconnect(con)
-if (!is.null(taf_tbl) && nrow(taf_tbl) && "context" %in% names(d) &&
-    "taf_score" %in% names(d)) {
-  tm <- stats::setNames(as.numeric(taf_tbl$taf), as.character(taf_tbl$us))
-  hit <- as.character(d$context) %in% names(tm)
-  if (any(hit)) d$taf_score[hit] <- tm[as.character(d$context)[hit]]
-}
 
 fit <- fit_sef(d, k = as.integer(K), context = "context",
                tafonomy = "taf_score", noise = TRUE)
@@ -380,21 +341,7 @@ fmt         <- if (fmt_sel == "both") c("pdf", "docx") else fmt_sel
 use_noise   <- isTRUE(as.logical(Noise))
 
 d <- read_pyarchinit(con, us_geometry = geom, sito = site, source = source_sel)
-# pyArchInit-local: apply the per-US taphonomic score (taf) from
-# palimpsest_chronology, if present, before disconnecting. (Divergence from
-# upstream palimpsestr; the clean home for this is read_pyarchinit upstream.)
-taf_tbl <- tryCatch(
-  if ("palimpsest_chronology" %in% DBI::dbListTables(con) &&
-      "taf" %in% DBI::dbListFields(con, "palimpsest_chronology"))
-    DBI::dbGetQuery(con, "SELECT us, taf FROM palimpsest_chronology WHERE taf IS NOT NULL")
-  else NULL, error = function(e) NULL)
 DBI::dbDisconnect(con)
-if (!is.null(taf_tbl) && nrow(taf_tbl) && "context" %in% names(d) &&
-    "taf_score" %in% names(d)) {
-  tm <- stats::setNames(as.numeric(taf_tbl$taf), as.character(taf_tbl$us))
-  hit <- as.character(d$context) %in% names(tm)
-  if (any(hit)) d$taf_score[hit] <- tm[as.character(d$context)[hit]]
-}
 
 fit <- fit_sef(d, k = as.integer(K), context = "context",
                tafonomy = "taf_score", class_model = class_model, noise = use_noise)

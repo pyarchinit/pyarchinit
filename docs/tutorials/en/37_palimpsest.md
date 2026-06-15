@@ -30,7 +30,7 @@ lets you:
 ## 1. Prerequisites
 
 - **R** installed and the **Processing R Provider** plugin enabled in QGIS.
-- R package **palimpsestr ≥ 0.22.0** (and dependencies: `sf`, `DBI`, `RSQLite`;
+- R package **palimpsestr ≥ 0.22.0** (≥ 0.22.1 for the taf score) (and dependencies: `sf`, `DBI`, `RSQLite`;
   `RPostgres` for PostgreSQL).
 - For the **PDF/DOCX report**: **pandoc** and a **LaTeX** engine (e.g. TinyTeX).
   If missing, the Markdown `.md` narrative + PNG figures are still produced.

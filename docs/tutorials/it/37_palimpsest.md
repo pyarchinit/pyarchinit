@@ -30,7 +30,7 @@ pyArchInit) consente di:
 ## 1. Prerequisiti
 
 - **R** installato e il plugin **Processing R Provider** attivo in QGIS.
-- Pacchetto R **palimpsestr ≥ 0.22.0** (e dipendenze: `sf`, `DBI`, `RSQLite`;
+- Pacchetto R **palimpsestr ≥ 0.22.0** (≥ 0.22.1 per il punteggio taf) (e dipendenze: `sf`, `DBI`, `RSQLite`;
   `RPostgres` per PostgreSQL).
 - Per il **report PDF/DOCX**: **pandoc** e un motore **LaTeX** (es. TinyTeX). Se
   mancano, viene comunque prodotta la narrativa Markdown `.md` + le figure PNG.
