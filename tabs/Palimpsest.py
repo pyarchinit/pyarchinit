@@ -45,8 +45,21 @@ CHRONO_OXCAL_R = r"""args <- commandArgs(trailingOnly = TRUE)
 samples_csv <- args[1]; out_csv <- args[2]
 suppressMessages({ library(oxcAAR); library(palimpsestr) })
 s <- read.csv(samples_csv, stringsAsFactors = FALSE, colClasses = "character")
-op <- getOption("oxcAAR.oxcal_path")
-if (is.null(op) || !nzchar(op)) oxcAAR::quickSetupOxcal()
+# Persistent OxCal engine: install once into a stable directory (override with
+# the PYARCHINIT_OXCAL_DIR env var) and reuse it across R sessions via
+# setOxcalExecutablePath(), instead of re-downloading into tempdir() each run.
+oxcal_dir <- Sys.getenv("PYARCHINIT_OXCAL_DIR",
+                        unset = file.path(path.expand("~"), ".pyarchinit", "oxcal"))
+oxcal_exe <- switch(Sys.info()[["sysname"]],
+  Darwin  = file.path(oxcal_dir, "OxCal", "bin", "OxCalMac"),
+  Windows = file.path(oxcal_dir, "OxCal", "bin", "OxCalWin.exe"),
+  file.path(oxcal_dir, "OxCal", "bin", "OxCalLinux"))
+if (file.exists(oxcal_exe)) {
+  oxcAAR::setOxcalExecutablePath(oxcal_exe)
+} else {
+  dir.create(oxcal_dir, recursive = TRUE, showWarnings = FALSE)
+  oxcAAR::quickSetupOxcal(path = oxcal_dir)
+}
 ids <- as.character(s$id)
 cal <- oxcAAR::oxcalCalibrate(as.numeric(s$c14_bp), as.numeric(s$c14_error), ids)
 res <- palimpsestr::chronology_from_oxcal(cal, ids = ids, bce_negative = TRUE)
