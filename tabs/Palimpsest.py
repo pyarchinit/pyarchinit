@@ -63,21 +63,124 @@ if (file.exists(oxcal_exe)) {
 }
 ids <- as.character(s$id)
 cal <- oxcAAR::oxcalCalibrate(as.numeric(s$c14_bp), as.numeric(s$c14_error), ids)
+res <- palimpsestr::chronology_from_oxcal(cal, ids = ids, bce_negative = TRUE)
+res <- res[match(ids, as.character(res$id)), ]
 if (nzchar(plot_png)) {
+  # Rich, descriptive per-US panels: shaded posterior probability curve over
+  # the calendar axis, 95% HPD interval marked, BP +/- error in the title.
   tryCatch({
-    grDevices::png(plot_png, width = 1100,
-                   height = max(500L, 150L * nrow(s)), res = 130)
-    graphics::plot(cal)
+    nC <- length(cal)
+    fmt_yr <- function(y) {
+      y <- as.integer(round(y))
+      if (y < 0) sprintf("%d a.C.", -y) else sprintf("%d d.C.", y)
+    }
+    grDevices::png(plot_png, width = 1200,
+                   height = max(460L, 270L * nC), res = 130)
+    op <- graphics::par(mfrow = c(nC, 1), mar = c(4.2, 4.4, 3.6, 1.0))
+    on.exit(graphics::par(op), add = TRUE)
+    for (i in seq_len(nC)) {
+      g <- cal[[i]]$raw_probabilities
+      x <- as.numeric(g$dates); y <- as.numeric(g$probabilities)
+      keep <- is.finite(x) & is.finite(y)
+      x <- x[keep]; y <- y[keep]
+      if (!length(x)) { graphics::plot.new(); next }
+      o <- order(x); x <- x[o]; y <- y[o]
+      lo <- res$date_min[i]; hi <- res$date_max[i]
+      graphics::plot(x, y, type = "n",
+        xlab = "anni calendariali (negativo = a.C.)", ylab = "probabilita",
+        main = sprintf("US %s  -  %s ± %s BP\n95%% HPD: %s - %s",
+                       ids[i], s$c14_bp[i], s$c14_error[i],
+                       fmt_yr(lo), fmt_yr(hi)),
+        cex.main = 0.95)
+      graphics::rect(lo, graphics::par("usr")[3], hi, graphics::par("usr")[4],
+                     col = grDevices::adjustcolor("steelblue", 0.16), border = NA)
+      graphics::polygon(c(x[1], x, x[length(x)]), c(0, y, 0),
+                        col = grDevices::adjustcolor("grey50", 0.55), border = NA)
+      graphics::lines(x, y, col = "grey25")
+      graphics::abline(v = c(lo, hi), col = "firebrick", lty = 2, lwd = 1.4)
+    }
     grDevices::dev.off()
   }, error = function(e) {})
 }
-res <- palimpsestr::chronology_from_oxcal(cal, ids = ids, bce_negative = TRUE)
 out <- data.frame(id = as.character(res$id),
                   start = as.integer(round(res$date_min)),
                   end   = as.integer(round(res$date_max)),
                   stringsAsFactors = FALSE)
 write.csv(out, out_csv, row.names = FALSE)
 cat("calibrated ", nrow(out), " sample(s)\n", sep = "")
+"""
+
+# Driver for the AI report: fits the SEF model once and writes the *facts* the
+# AI agents need — per-phase summary, per-class composition, per-US diagnostics,
+# the absolute-chronology rows, the gg_* diagnostic figures (always produced,
+# unlike export_sef_report which embeds them in the PDF/DOCX), and the R
+# interpretive narrative (.md). Args: db, is_pg(0/1), site, K, class_model,
+# noise(0/1), source, out_dir.
+SEF_FACTS_R = r"""args <- commandArgs(trailingOnly = TRUE)
+db_arg <- args[1]; is_pg <- args[2] == "1"; site_arg <- args[3]
+K <- as.integer(args[4]); class_model <- args[5]; use_noise <- args[6] == "1"
+source_sel <- args[7]; out_dir <- args[8]
+suppressMessages({ library(palimpsestr); library(sf); library(DBI); library(ggplot2) })
+if (is_pg) {
+  con  <- DBI::dbConnect(RPostgres::Postgres(), dbname = db_arg)
+  geom <- tryCatch(sf::st_read(con, query = "SELECT us_s, the_geom FROM pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+} else {
+  con  <- DBI::dbConnect(RSQLite::SQLite(), db_arg)
+  geom <- tryCatch(sf::st_read(db_arg, layer = "pyunitastratigrafiche", quiet = TRUE),
+                   error = function(e) NULL)
+}
+site <- if (nchar(site_arg) > 0 && site_arg != "all") site_arg else NULL
+d <- read_pyarchinit(con, us_geometry = geom, sito = site, source = source_sel)
+chrono <- tryCatch({
+  if ("palimpsest_chronology" %in% DBI::dbListTables(con))
+    DBI::dbGetQuery(con, 'SELECT sito, area, us, "start", "end", lab_code, source FROM palimpsest_chronology')
+  else data.frame()
+}, error = function(e) data.frame())
+DBI::dbDisconnect(con)
+if (!is.null(site) && nrow(chrono)) chrono <- chrono[chrono$sito == site, , drop = FALSE]
+write.csv(chrono, file.path(out_dir, "chronology.csv"), row.names = FALSE)
+
+fit <- reorder_phases(fit_sef(d, k = K, context = "context",
+                              tafonomy = "taf_score", class_model = class_model,
+                              noise = use_noise))
+
+pts <- as_sf_phase(fit, crs = NA_integer_)
+df  <- sf::st_drop_geometry(pts)
+agg <- do.call(rbind, lapply(split(df, df$dominant_phase), function(g) data.frame(
+  phase = g$dominant_phase[1], n_finds = nrow(g),
+  mean_date = round(mean((g$date_min + g$date_max) / 2, na.rm = TRUE)),
+  n_us = length(unique(g$context)), stringsAsFactors = FALSE)))
+agg$pct <- round(100 * agg$n_finds / sum(agg$n_finds), 1)
+write.csv(agg, file.path(out_dir, "phase_summary.csv"), row.names = FALSE)
+write.csv(as_phase_table(fit), file.path(out_dir, "diagnostics.csv"), row.names = FALSE)
+if ("class" %in% names(df)) {
+  comp <- as.data.frame(table(phase = df$dominant_phase, class = df$class))
+  comp <- comp[comp$Freq > 0, ]
+  write.csv(comp, file.path(out_dir, "composition.csv"), row.names = FALSE)
+}
+
+figdir <- file.path(out_dir, "figs"); dir.create(figdir, showWarnings = FALSE)
+save_gg <- function(name, fn) tryCatch({
+  p <- fn(fit)
+  if (inherits(p, "ggplot"))
+    ggplot2::ggsave(file.path(figdir, paste0(name, ".png")), p,
+                    width = 8, height = 5, dpi = 130)
+}, error = function(e) {})
+save_gg("phasefield", gg_phasefield)
+save_gg("phase_composition", gg_phase_composition)
+save_gg("entropy", gg_entropy)
+save_gg("energy", gg_energy)
+save_gg("intrusions", gg_intrusions)
+save_gg("direction", gg_direction)
+save_gg("outliers", gg_outliers)
+save_gg("unit_coherence", gg_unit_coherence)
+
+tryCatch(export_sef_report(fit, file.path(out_dir, "sef_report.pdf"),
+                           format = "docx", lang = "it", site = site),
+         error = function(e) {})
+cat("facts ready: ", nrow(agg), " phases, ", nrow(chrono), " chronology rows, ",
+    length(list.files(figdir, pattern = "png$")), " figures\n", sep = "")
 """
 
 # Processing R scripts shipped with palimpsestr, embedded so the dialog can
@@ -721,44 +824,83 @@ class pyarchinit_Palimpsest(QDialog):
         except Exception:
             return False
 
+    def _find_rscript(self):
+        import glob
+        exe = "Rscript.exe" if os.name == "nt" else "Rscript"
+        cands = []
+        try:
+            from qgis.core import QgsSettings
+            folder = QgsSettings().value("Processing/Configuration/R_FOLDER", "",
+                                         type=str)
+            if folder:
+                cands += [os.path.join(folder, exe),
+                          os.path.join(folder, "bin", exe)]
+        except Exception:
+            pass
+        cands += ["/usr/local/bin/" + exe, "/opt/homebrew/bin/" + exe,
+                  "/usr/bin/" + exe]
+        if os.name == "nt":
+            cands += glob.glob(r"C:\Program Files\R\R-*\bin\\" + exe)
+        for c in cands:
+            if c and os.path.isfile(c):
+                return c
+        return exe
+
     def _gather_sef_facts(self):
-        """Run the SEF report (R) and collect facts for the AI agents, or None."""
-        db = self._db_params()
-        if db is None:
-            return None
+        """Fit SEF (R) and collect facts for the AI agents (figures, per-phase
+        summary, composition, diagnostics, chronology, narrative), or None."""
+        import tempfile, subprocess, csv
+        dsn = self._pg_dsn()
+        if dsn:
+            db_arg, is_pg = dsn, "1"
+        else:
+            path = self._require_sqlite()
+            if not path:
+                return None
+            db_arg, is_pg = path, "0"
         self._augment_render_env()
-        import tempfile
         out_dir = tempfile.mkdtemp(prefix="palimpsestr_ai_")
-        report = os.path.join(out_dir, "sef_report.pdf")
-        params = {
-            'Site': self._site(),
-            'K': self.spin_k.value(),
-            'Class_model': self.combo_model.currentIndex(),
-            'Noise': self.check_noise.isChecked(),
-            'Source': self.combo_source.currentIndex(),
-            'Language': self.combo_lang.currentIndex(),
-            'Format': self.combo_format.currentIndex(),
-            'Report': report}
-        params.update(db)
+        rdrv = os.path.join(out_dir, "sef_facts.R")
+        with open(rdrv, "w", encoding="utf-8") as f:
+            f.write(SEF_FACTS_R)
+        args = [self._find_rscript(), rdrv, db_arg, is_pg, self._site(),
+                str(self.spin_k.value()),
+                ["multinomial", "gaussian"][self.combo_model.currentIndex()],
+                "1" if self.check_noise.isChecked() else "0",
+                ["both", "materials", "pottery"][self.combo_source.currentIndex()],
+                out_dir]
         from qgis.PyQt.QtWidgets import QApplication
         from qgis.PyQt.QtCore import Qt
         QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
-            processing.run(REPORT_ALG, params)
+            proc = subprocess.run(args, capture_output=True, text=True,
+                                  timeout=3600)
         except Exception as e:
             QApplication.restoreOverrideCursor()
             QMessageBox.critical(self, "palimpsestr",
-                                 "Analisi SEF (R) fallita:\n%s" % e)
+                                 "Impossibile eseguire R (Rscript):\n%s" % e)
             return None
         finally:
             QApplication.restoreOverrideCursor()
-        base = os.path.splitext(report)[0]
-        md = base + ".md"
+        if proc.returncode != 0:
+            QMessageBox.critical(
+                self, "palimpsestr", "Analisi SEF (R) fallita:\n\n%s"
+                % ((proc.stderr or proc.stdout or "")[-2000:]))
+            return None
+
+        def _read_csv(name):
+            p = os.path.join(out_dir, name)
+            if not os.path.exists(p):
+                return []
+            with open(p, encoding="utf-8-sig", newline="") as fh:
+                return list(csv.DictReader(fh))
+
+        md = os.path.join(out_dir, "sef_report.md")
         r_markdown = ""
         if os.path.exists(md):
-            with open(md, encoding="utf-8") as f:
-                r_markdown = f.read()
-        figs_dir = base + "_figs"
+            with open(md, encoding="utf-8") as fh:
+                r_markdown = fh.read()
+        figs_dir = os.path.join(out_dir, "figs")
         figures = []
         if os.path.isdir(figs_dir):
             figures = sorted(os.path.splitext(f)[0]
@@ -766,7 +908,7 @@ class pyarchinit_Palimpsest(QDialog):
         from .palimpsest_ai_report import _model_name, _source_name
         return {
             "site": self._site(),
-            "backend": "PostgreSQL/PostGIS" if self._pg_dsn() else "SQLite/Spatialite",
+            "backend": "PostgreSQL/PostGIS" if dsn else "SQLite/Spatialite",
             "k": self.spin_k.value(),
             "class_model": _model_name(self.combo_model.currentIndex()),
             "noise": self.check_noise.isChecked(),
@@ -774,13 +916,15 @@ class pyarchinit_Palimpsest(QDialog):
             "source": _source_name(self.combo_source.currentIndex()),
             "has_chronology": self._has_chronology(),
             "r_markdown": r_markdown,
+            "phase_summary": _read_csv("phase_summary.csv"),
+            "composition": _read_csv("composition.csv"),
+            "diagnostics": _read_csv("diagnostics.csv"),
+            "chronology": _read_csv("chronology.csv"),
             "figures": figures,
             "figures_dir": figs_dir,
         }
 
     def open_ai_report(self):
-        if not self._check_provider_report():
-            return
         if not (self._pg_dsn() or self._sqlite_path()):
             QMessageBox.warning(
                 self, "palimpsestr",
@@ -790,10 +934,10 @@ class pyarchinit_Palimpsest(QDialog):
         facts = self._gather_sef_facts()
         if facts is None:
             return
-        if not facts.get("r_markdown"):
+        if not facts.get("phase_summary") and not facts.get("r_markdown"):
             QMessageBox.warning(
                 self, "palimpsestr",
-                "L'analisi SEF non ha prodotto una narrativa leggibile "
+                "L'analisi SEF non ha prodotto risultati leggibili "
                 "(dati insufficienti?). Verifica il contenuto del database.")
             return
         from .palimpsest_ai_report import PalimpsestAIReportDialog
