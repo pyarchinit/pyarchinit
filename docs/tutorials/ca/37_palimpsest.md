@@ -161,4 +161,31 @@ l'informe d'excavació.
 
 ---
 
+## 9. Modificar les dates, gràfic OxCal, PDF i nota sobre el taf
+
+- **Les dates desades es poden modificar**: el diàleg *Cronologia absoluta*
+  **carrega en obrir-se** les dates ja presents a `palimpsest_chronology` (botó
+  "Ricarica dal DB"). Pots modificar a mà les columnes **start/end** i prémer
+  "Salva modifiche (start/end)"; o bé introduir noves dates C14 i prémer
+  "Calibra e salva". Les dates **persisteixen** a la base de dades: no cal
+  reintroduir-les cada vegada.
+- **Gràfic de calibratge**: després de "Calibra e salva" els botons "Mostra
+  grafico OxCal" / "Esporta grafico (PNG)" mostren un panell per US amb la corba
+  de probabilitat, la banda 95% HPD i l'interval calendari.
+- **Informe AI en PDF**: a més de DOCX i Markdown, l'informe AI es pot desar en
+  **PDF** (botó "Salva PDF…"), amb taules i figures incorporades.
+- **Puntuació tafonòmica (taf)**: és un valor **interpretatiu** dins de `[0,1]`
+  (0 = troballa del tot pertorbada/redipositada, 1 = íntegra in situ) que pondera
+  les troballes en l'estimació. **No es calcula automàticament**: l'assigna
+  l'arqueòleg en funció del context deposicional (p. ex. 1.0 dipòsits in situ;
+  0.5–0.7 acumulacions/anivellaments; 0.3 farciments clarament redipositats).
+- **Límits a recordar** (l'informe AI els declara automàticament): el model
+  assumeix **estratigrafia horitzontal** (z com a indicador cronològic; cautela
+  amb farciments de talls, esfondraments, terrasses); la **resolució està
+  limitada per la dada**: amb coordenades del centroide US i dates lligades a
+  l'US, un PDI≈1 i entropia≈0 reflecteixen el **registre**, no una seqüència
+  perfectament resolta.
+
+---
+
 *Documentació PyArchInit — Juny 2026*

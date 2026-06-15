@@ -157,4 +157,29 @@ excavation report.
 
 ---
 
+## 9. Editing dates, the OxCal plot, PDF, and a note on taf
+
+- **Saved dates are editable**: the *Cronologia assoluta* dialog **loads on
+  open** the dates already in `palimpsest_chronology` (*Ricarica dal DB*
+  button). You can edit the **start/end** columns by hand and press **Salva
+  modifiche (start/end)**, or enter new C14 dates and press *Calibra e salva*.
+  Dates **persist** in the database — no need to re-enter them every time.
+- **Calibration plot**: after *Calibra e salva*, the **Mostra grafico OxCal** /
+  **Esporta grafico (PNG)** buttons show a per-US panel with the probability
+  curve, the 95% HPD band and the calendar interval.
+- **AI report as PDF**: besides DOCX and Markdown, the AI report can be saved as
+  **PDF** (*Salva PDF…* button), with tables and figures embedded.
+- **Taphonomic score (taf)**: an **interpretive** value in `[0,1]`
+  (0 = fully disturbed/redeposited find, 1 = pristine in situ) that weights
+  finds in the estimation. It is **not computed automatically**: the excavator
+  assigns it from the depositional context (e.g. 1.0 in-situ deposits; 0.5–0.7
+  accumulation/levelling layers; 0.3 clearly redeposited fills).
+- **Limitations to keep in mind** (the AI report states them automatically):
+  the model assumes **horizontal stratigraphy** (z as a chronological proxy; be
+  cautious with cut fills, collapses, terracing); the **resolution is bounded by
+  the data**: with US-centroid coordinates and unit-tied dates, a PDI≈1 and zero
+  entropy reflect the **recording**, not a perfectly resolved sequence.
+
+---
+
 *PyArchInit documentation — June 2026*

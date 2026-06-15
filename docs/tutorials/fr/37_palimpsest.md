@@ -166,4 +166,35 @@ le rapport de fouille.
 
 ---
 
+## 9. Modifier les dates, le graphique OxCal, le PDF et une note sur le taf
+
+- **Les dates enregistrées sont modifiables** : la fenêtre *Cronologia assoluta*
+  **charge à l'ouverture** les dates déjà présentes dans
+  `palimpsest_chronology` (bouton *Ricarica dal DB*). Vous pouvez modifier à la
+  main les colonnes **start/end** et appuyer sur **Salva modifiche (start/end)**,
+  ou saisir de nouvelles dates C14 et appuyer sur *Calibra e salva*. Les dates
+  **persistent** dans la base de données — inutile de les ressaisir à chaque
+  fois.
+- **Graphique de calibration** : après *Calibra e salva*, les boutons **Mostra
+  grafico OxCal** / **Esporta grafico (PNG)** affichent un panneau par US avec la
+  courbe de probabilité, la bande 95% HPD et l'intervalle calendaire.
+- **Rapport IA en PDF** : outre DOCX et Markdown, le rapport IA peut être
+  enregistré en **PDF** (bouton *Salva PDF…*), avec tableaux et figures
+  incorporés.
+- **Score taphonomique (taf)** : c'est une valeur **interprétative** dans `[0,1]`
+  (0 = mobilier entièrement perturbé/redéposé, 1 = intact en place) qui pondère
+  les mobiliers dans l'estimation. Il **n'est pas calculé automatiquement** :
+  c'est l'archéologue qui l'attribue d'après le contexte de dépôt (par ex. 1.0
+  pour les dépôts en place ; 0.5–0.7 pour les accumulations/nivellements ; 0.3
+  pour les remblais nettement redéposés).
+- **Limites à garder à l'esprit** (le rapport IA les déclare automatiquement) :
+  le modèle suppose une **stratigraphie horizontale** (z comme proxy
+  chronologique ; prudence avec les remblais de creusements, les effondrements,
+  les terrassements) ; la **résolution est bornée par la donnée** : avec des
+  coordonnées de centroïde d'US et des dates liées à l'US, un PDI≈1 et une
+  entropie≈0 reflètent l'**enregistrement**, et non une séquence parfaitement
+  résolue.
+
+---
+
 *Documentation PyArchInit — Juin 2026*

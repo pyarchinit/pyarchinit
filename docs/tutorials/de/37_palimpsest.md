@@ -163,4 +163,33 @@ Grabungsbericht.
 
 ---
 
+## 9. Daten bearbeiten, OxCal-Grafik, PDF und ein Hinweis zu taf
+
+- **Gespeicherte Daten sind bearbeitbar**: Der Dialog *Cronologia assoluta*
+  **lädt beim Öffnen** die bereits in `palimpsest_chronology` vorhandenen Daten
+  (Schaltfläche *Ricarica dal DB*). Du kannst die Spalten **start/end** von Hand
+  bearbeiten und **Salva modifiche (start/end)** drücken oder neue C14-Daten
+  eingeben und *Calibra e salva* drücken. Die Daten **bleiben** in der Datenbank
+  erhalten — sie müssen nicht jedes Mal neu eingegeben werden.
+- **Kalibrierungsgrafik**: Nach *Calibra e salva* zeigen die Schaltflächen
+  **Mostra grafico OxCal** / **Esporta grafico (PNG)** ein Feld pro US mit der
+  Wahrscheinlichkeitskurve, dem 95%-HPD-Band und dem Kalenderintervall.
+- **KI-Bericht als PDF**: Neben DOCX und Markdown kann der KI-Bericht auch als
+  **PDF** gespeichert werden (Schaltfläche *Salva PDF…*), mit eingebetteten
+  Tabellen und Abbildungen.
+- **Taphonomischer Wert (taf)**: ein **interpretativer** Wert in `[0,1]`
+  (0 = vollständig gestörter/umgelagerter Fund, 1 = unversehrt in situ), der die
+  Funde bei der Schätzung gewichtet. Er wird **nicht automatisch berechnet**: Der
+  Archäologe vergibt ihn anhand des Ablagerungskontexts (z. B. 1.0 In-situ-
+  Ablagerungen; 0.5–0.7 Akkumulations-/Planierungsschichten; 0.3 eindeutig
+  umgelagerte Verfüllungen).
+- **Zu beachtende Grenzen** (der KI-Bericht nennt sie automatisch): Das Modell
+  setzt eine **horizontale Stratigraphie** voraus (z als chronologischer Proxy;
+  Vorsicht bei Grubenverfüllungen, Einstürzen, Terrassierungen); die **Auflösung
+  ist durch die Daten begrenzt**: Bei US-Zentroid-Koordinaten und an die US
+  gebundenen Daten spiegeln ein PDI≈1 und eine Entropie≈0 die **Erfassung**
+  wider, nicht eine perfekt aufgelöste Sequenz.
+
+---
+
 *PyArchInit-Dokumentation — Juni 2026*

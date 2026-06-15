@@ -158,4 +158,29 @@ săpătură.
 
 ---
 
+## 9. Modificarea datelor, graficul OxCal, PDF și o notă despre taf
+
+- **Datele salvate sunt editabile**: fereastra *Cronologia assoluta* **încarcă la
+  deschidere** datele deja prezente în `palimpsest_chronology` (butonul *Ricarica
+  dal DB*). Poți modifica manual coloanele **start/end** și apăsa **Salva
+  modifiche (start/end)**, sau introduce date C14 noi și apăsa *Calibra e salva*.
+  Datele **persistă** în baza de date — nu trebuie reintroduse de fiecare dată.
+- **Graficul de calibrare**: după *Calibra e salva*, butoanele **Mostra grafico
+  OxCal** / **Esporta grafico (PNG)** afișează un panou per US cu curba de
+  probabilitate, banda 95% HPD și intervalul calendaristic.
+- **Raportul AI în PDF**: pe lângă DOCX și Markdown, raportul AI poate fi salvat
+  în **PDF** (butonul *Salva PDF…*), cu tabele și figuri încorporate.
+- **Scorul tafonomic (taf)**: este o valoare **interpretativă** în `[0,1]`
+  (0 = material complet deranjat/redepus, 1 = integru în poziție) care ponderează
+  materialele în estimare. **Nu este calculat automat**: îl atribuie arheologul în
+  funcție de contextul depozițional (de ex. 1.0 depozite in situ; 0.5–0.7 straturi
+  de acumulare/nivelare; 0.3 umpluturi clar redepuse).
+- **Limite de reținut** (raportul AI le declară automat): modelul presupune
+  **stratigrafie orizontală** (z ca proxy cronologic; prudență cu umpluturi de
+  tăieturi, prăbușiri, terasări); **rezoluția este limitată de dată**: cu
+  coordonate ale centroidului US și date legate de US, un PDI≈1 și entropie≈0
+  reflectă **înregistrarea**, nu o secvență perfect rezolvată.
+
+---
+
 *Documentație PyArchInit — Iunie 2026*

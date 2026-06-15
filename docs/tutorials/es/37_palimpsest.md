@@ -156,4 +156,32 @@ relación de excavación.
 
 ---
 
+## 9. Editar las fechas, gráfico OxCal, PDF y nota sobre el taf
+
+- **Las fechas guardadas se pueden editar**: el cuadro de diálogo *Cronología
+  absoluta* **carga al abrirse** las fechas ya presentes en
+  `palimpsest_chronology` (botón *Ricarica dal DB*). Puedes editar a mano las
+  columnas **start/end** y pulsar **Salva modifiche (start/end)**; o introducir
+  nuevas fechas C14 y pulsar *Calibra e salva*. Las fechas **persisten** en la
+  base de datos: no hay que reintroducirlas cada vez.
+- **Gráfico de calibración**: tras *Calibra e salva*, los botones **Mostra
+  grafico OxCal** / **Esporta grafico (PNG)** muestran un panel por US con la
+  curva de probabilidad, la banda 95% HPD y el intervalo calendario.
+- **Informe IA en PDF**: además de DOCX y Markdown, el informe IA puede
+  guardarse en **PDF** (botón *Salva PDF…*), con tablas y figuras incorporadas.
+- **Puntuación tafonómica (taf)**: es un valor **interpretativo** en `[0,1]`
+  (0 = hallazgo completamente perturbado/redepositado, 1 = íntegro en posición)
+  que pondera los hallazgos en la estimación. **No se calcula automáticamente**:
+  lo asigna el arqueólogo según el contexto deposicional (p. ej. 1.0 depósitos
+  in situ; 0.5–0.7 acumulaciones/nivelaciones; 0.3 rellenos claramente
+  redepositados).
+- **Límites que conviene recordar** (el informe IA los declara automáticamente):
+  el modelo asume **estratigrafía horizontal** (z como proxy cronológico;
+  cautela con rellenos de cortes, derrumbes, aterrazamientos); la **resolución
+  está limitada por el dato**: con coordenadas del centroide de la US y fechas
+  ligadas a la US, un PDI≈1 y entropía≈0 reflejan el **registro**, no una
+  secuencia perfectamente resuelta.
+
+---
+
 *Documentación PyArchInit — Junio 2026*
