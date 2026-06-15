@@ -331,7 +331,14 @@ class pyarchinit_Palimpsest(QDialog):
             "Crea/popola la tabella palimpsest_chronology (date calibrate "
             "per US) usata da palimpsestr al posto della datazione testuale.")
         self.btn_chrono.clicked.connect(self.open_chronology)
+        self.btn_ai = QPushButton("Report AI (analisi descrittiva)…")
+        self.btn_ai.setToolTip(
+            "Genera una relazione descrittiva dell'analisi SEF con agenti AI "
+            "specializzati (metodologo, analista, redattore), in qualsiasi "
+            "lingua, con spiegazione delle scelte di modello/K/soglia e figure.")
+        self.btn_ai.clicked.connect(self.open_ai_report)
         chrono_row.addWidget(self.btn_chrono)
+        chrono_row.addWidget(self.btn_ai)
         layout.addLayout(chrono_row)
 
     # ----------------------------------------------------- active DB info ---
@@ -662,6 +669,113 @@ class pyarchinit_Palimpsest(QDialog):
                 "Connect to a SQLite or PostgreSQL pyArchInit database first.")
             return
         dlg = PalimpsestChronologyDialog(self)
+        dlg.exec()
+
+    # ------------------------------------------------------------ AI report ---
+    def _has_chronology(self):
+        """True if palimpsest_chronology exists with rows for the active site."""
+        site = self.edit_site.text().strip()
+        try:
+            dsn = self._pg_dsn()
+            if dsn:
+                import psycopg2
+                conn = psycopg2.connect(dsn); ph = "%s"
+            else:
+                path = self._sqlite_path()
+                if not path or not os.path.exists(path):
+                    return False
+                import sqlite3
+                conn = sqlite3.connect(path); ph = "?"
+            try:
+                cur = conn.cursor()
+                if site and site != "all":
+                    cur.execute("SELECT COUNT(*) FROM %s WHERE sito = %s"
+                                % (CHRONOLOGY_TABLE, ph), (site,))
+                else:
+                    cur.execute("SELECT COUNT(*) FROM %s" % CHRONOLOGY_TABLE)
+                return (cur.fetchone() or [0])[0] > 0
+            finally:
+                conn.close()
+        except Exception:
+            return False
+
+    def _gather_sef_facts(self):
+        """Run the SEF report (R) and collect facts for the AI agents, or None."""
+        db = self._db_params()
+        if db is None:
+            return None
+        self._augment_render_env()
+        import tempfile
+        out_dir = tempfile.mkdtemp(prefix="palimpsestr_ai_")
+        report = os.path.join(out_dir, "sef_report.pdf")
+        params = {
+            'Site': self._site(),
+            'K': self.spin_k.value(),
+            'Class_model': self.combo_model.currentIndex(),
+            'Noise': self.check_noise.isChecked(),
+            'Source': self.combo_source.currentIndex(),
+            'Language': self.combo_lang.currentIndex(),
+            'Format': self.combo_format.currentIndex(),
+            'Report': report}
+        params.update(db)
+        from qgis.PyQt.QtWidgets import QApplication
+        from qgis.PyQt.QtCore import Qt
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            processing.run(REPORT_ALG, params)
+        except Exception as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Analisi SEF (R) fallita:\n%s" % e)
+            return None
+        finally:
+            QApplication.restoreOverrideCursor()
+        base = os.path.splitext(report)[0]
+        md = base + ".md"
+        r_markdown = ""
+        if os.path.exists(md):
+            with open(md, encoding="utf-8") as f:
+                r_markdown = f.read()
+        figs_dir = base + "_figs"
+        figures = []
+        if os.path.isdir(figs_dir):
+            figures = sorted(os.path.splitext(f)[0]
+                             for f in os.listdir(figs_dir) if f.endswith(".png"))
+        from .palimpsest_ai_report import _model_name, _source_name
+        return {
+            "site": self._site(),
+            "backend": "PostgreSQL/PostGIS" if self._pg_dsn() else "SQLite/Spatialite",
+            "k": self.spin_k.value(),
+            "class_model": _model_name(self.combo_model.currentIndex()),
+            "noise": self.check_noise.isChecked(),
+            "threshold": self.spin_thr.value(),
+            "source": _source_name(self.combo_source.currentIndex()),
+            "has_chronology": self._has_chronology(),
+            "r_markdown": r_markdown,
+            "figures": figures,
+            "figures_dir": figs_dir,
+        }
+
+    def open_ai_report(self):
+        if not self._check_provider_report():
+            return
+        if not (self._pg_dsn() or self._sqlite_path()):
+            QMessageBox.warning(
+                self, "palimpsestr",
+                "Nessuna connessione al database attiva.\n\n"
+                "Connetti un database pyArchInit (SQLite o PostgreSQL).")
+            return
+        facts = self._gather_sef_facts()
+        if facts is None:
+            return
+        if not facts.get("r_markdown"):
+            QMessageBox.warning(
+                self, "palimpsestr",
+                "L'analisi SEF non ha prodotto una narrativa leggibile "
+                "(dati insufficienti?). Verifica il contenuto del database.")
+            return
+        from .palimpsest_ai_report import PalimpsestAIReportDialog
+        dlg = PalimpsestAIReportDialog(self, facts)
         dlg.exec()
 
     def _load_outputs(self, items):

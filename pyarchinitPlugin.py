@@ -675,10 +675,11 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
+            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Analisi Costi di Percorso", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Analisi dei costi di percorso basata su pendenza")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
             self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
             self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
@@ -1056,10 +1057,11 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
+            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
             self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
             self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
@@ -1433,10 +1435,11 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
+            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Wegkostenanalyse", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Hangneigungsabhängige Wegkostenanalyse")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
             self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
             self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
@@ -1814,10 +1817,11 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
+            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction("palimpsestr - Analisi palinsesti", self.iface.mainWindow())
+            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
             self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
             self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 

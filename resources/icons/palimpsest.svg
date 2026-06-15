@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- pyArchInit palimpsestr (SEF) tool icon: overlaid stratigraphic layers
+       (the "palimpsest") decomposed into colour-coded phases, with finds
+       (dots) sorted by phase. Shapes only — no <text> (renders consistently
+       across browsers/Qt). Colours follow the plugin PHASE_COLOURS palette. -->
+  <defs>
+    <clipPath id="card">
+      <rect x="40" y="40" width="432" height="432" rx="60" ry="60"/>
+    </clipPath>
+  </defs>
+
+  <!-- card background -->
+  <rect x="40" y="40" width="432" height="432" rx="60" ry="60" fill="#2b2b33"/>
+
+  <g clip-path="url(#card)">
+    <!-- stratigraphic bands (older at the bottom), wavy interfaces -->
+    <path d="M40,360 C140,330 260,392 472,352 L472,472 L40,472 Z" fill="#8a5a2b"/>
+    <path d="M40,300 C150,272 250,332 472,292 L472,360 C260,392 140,330 40,360 Z" fill="#CC79A7"/>
+    <path d="M40,242 C160,214 250,272 472,234 L472,292 C250,332 150,272 40,300 Z" fill="#009E73"/>
+    <path d="M40,186 C150,156 260,214 472,176 L472,234 C250,272 160,214 40,242 Z" fill="#56B4E9"/>
+    <path d="M40,40  L472,40 L472,176 C260,214 150,156 40,186 Z" fill="#E69F00"/>
+
+    <!-- translucent "overwritten" palimpsest sheet across the strata -->
+    <rect x="40" y="40" width="432" height="432" fill="#ffffff" opacity="0.06"/>
+
+    <!-- finds: dots coloured by the phase band they belong to -->
+    <g stroke="#2b2b33" stroke-width="5">
+      <circle cx="120" cy="118" r="17" fill="#E69F00"/>
+      <circle cx="300" cy="96"  r="14" fill="#E69F00"/>
+      <circle cx="392" cy="138" r="16" fill="#E69F00"/>
+      <circle cx="150" cy="210" r="15" fill="#56B4E9"/>
+      <circle cx="330" cy="196" r="17" fill="#56B4E9"/>
+      <circle cx="230" cy="262" r="16" fill="#009E73"/>
+      <circle cx="400" cy="258" r="14" fill="#009E73"/>
+      <circle cx="118" cy="320" r="16" fill="#CC79A7"/>
+      <circle cx="286" cy="332" r="15" fill="#CC79A7"/>
+      <circle cx="200" cy="404" r="16" fill="#f0e8df"/>
+      <circle cx="372" cy="398" r="14" fill="#f0e8df"/>
+    </g>
+  </g>
+
+  <!-- frame -->
+  <rect x="40" y="40" width="432" height="432" rx="60" ry="60"
+        fill="none" stroke="#1c1c22" stroke-width="10"/>
+</svg>

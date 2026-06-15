@@ -36,6 +36,7 @@ __pycache__/
 !/docs/animations/
 !/docs/superpowers/
 !/docs/stratigraph/
+!/docs/examples/
 /docs/tutorials/_build/
 /examples/
 /export/
