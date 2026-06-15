@@ -159,6 +159,11 @@ excavation report.
 
 ## 9. Editing dates, the OxCal plot, PDF, and a note on taf
 
+- **Per-US editor (Chronology & taphonomy)**: the dialog pre-loads **all the
+  site's US** with two info columns **Period** and **N. finds**, so you can
+  assign the **taf** to every US (not only the dated ones). taf is honoured by
+  Fit, Intrusions, Report and the AI report: it **down-weights redeposited or
+  disturbed US**. Only filled US (with taf and/or a date) are saved.
 - **Saved dates are editable**: the *Cronologia assoluta* dialog **loads on
   open** the dates already in `palimpsest_chronology` (*Ricarica dal DB*
   button). You can edit the **start/end** columns by hand and press **Salva

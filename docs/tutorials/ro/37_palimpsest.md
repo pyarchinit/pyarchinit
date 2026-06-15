@@ -160,6 +160,7 @@ săpătură.
 
 ## 9. Modificarea datelor, graficul OxCal, PDF și o notă despre taf
 
+- **Editor per US (Cronologie și tafonomie)**: fereastra de dialog preîncarcă **toate US-urile sitului** cu două coloane informative **Perioadă** și **Nr. reperelor**, astfel încât poți atribui valoarea **taf** fiecărui US (nu doar celor datate). taf este respectată de Fit, Intrusions, Report și de raportul AI: reduce ponderea US-urilor redepuse sau deranjate. Se salvează doar US-urile completate (cu taf și/sau o dată).
 - **Datele salvate sunt editabile**: fereastra *Cronologia assoluta* **încarcă la
   deschidere** datele deja prezente în `palimpsest_chronology` (butonul *Ricarica
   dal DB*). Poți modifica manual coloanele **start/end** și apăsa **Salva

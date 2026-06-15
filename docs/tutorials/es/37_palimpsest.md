@@ -158,6 +158,12 @@ relación de excavación.
 
 ## 9. Editar las fechas, gráfico OxCal, PDF y nota sobre el taf
 
+- **Editor por US (Cronología y tafonomía)**: el cuadro de diálogo **precarga
+  todas las US del yacimiento** con dos columnas informativas **Período** y
+  **N.º de hallazgos**, de modo que puedes asignar el **taf** a cada US (no solo
+  a las datadas). El taf se tiene en cuenta en Fit, Intrusions, Report y el
+  informe de IA: reduce el peso de las US redepositadas o alteradas. Solo se
+  guardan las US rellenadas (con taf o con una fecha).
 - **Las fechas guardadas se pueden editar**: el cuadro de diálogo *Cronología
   absoluta* **carga al abrirse** las fechas ya presentes en
   `palimpsest_chronology` (botón *Ricarica dal DB*). Puedes editar a mano las

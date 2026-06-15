@@ -165,6 +165,7 @@ Grabungsbericht.
 
 ## 9. Daten bearbeiten, OxCal-Grafik, PDF und ein Hinweis zu taf
 
+- **Editor pro US (Chronologie & Taphonomie)**: Der Dialog lädt vorab **alle US der Fundstätte** mit zwei Infospalten **Periode** und **Anzahl Funde**, sodass du die **taf** jeder US zuweisen kannst (nicht nur den datierten). taf wird von Fit, Intrusions, Report und dem KI-Report berücksichtigt: Es gewichtet umgelagerte oder gestörte US herab. Es werden nur ausgefüllte US (mit taf und/oder einem Datum) gespeichert.
 - **Gespeicherte Daten sind bearbeitbar**: Der Dialog *Cronologia assoluta*
   **lädt beim Öffnen** die bereits in `palimpsest_chronology` vorhandenen Daten
   (Schaltfläche *Ricarica dal DB*). Du kannst die Spalten **start/end** von Hand

@@ -158,6 +158,7 @@ relatório de escavação.
 
 ## 9. Editar as datas, gráfico OxCal, PDF e nota sobre o taf
 
+- **Editor por US (Cronologia e tafonomia)**: o diálogo pré-carrega **todas as US do sítio** com duas colunas informativas **Período** e **N.º de achados**, para que possa atribuir o **taf** a cada US (não apenas às datadas). O taf é tido em conta pelo Fit, pelas Intrusions, pelo Report e pelo relatório da IA: reduz o peso das US redepositadas ou perturbadas. Apenas as US preenchidas (com taf e/ou uma data) são guardadas.
 - **As datas guardadas podem ser editadas**: o diálogo *Cronologia assoluta*
   **carrega ao abrir** as datas já presentes em `palimpsest_chronology` (botão
   *Ricarica dal DB*). Pode editar manualmente as colunas **start/end** e premir

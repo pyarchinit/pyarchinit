@@ -158,6 +158,11 @@ relazione di scavo.
 
 ## 9. Modificare le date, grafico OxCal, PDF e nota sul taf
 
+- **Editor per US (Cronologia & tafonomia)**: il dialog precarica **tutte le US
+  del sito** con due colonne informative **Periodo** e **N. reperti**, così
+  assegni il **taf** a ogni US (non solo a quelle datate). Il taf è onorato da
+  Fit, Intrusions, Report e dal report AI: **pesa meno le US redeposte o
+  disturbate**. Vengono salvate solo le US compilate (con taf e/o data).
 - **Le date salvate si modificano**: il dialog *Cronologia assoluta* **carica
   all'apertura** le date già presenti in `palimpsest_chronology` (pulsante
   *Ricarica dal DB*). Puoi modificare a mano le colonne **start/end** e premere

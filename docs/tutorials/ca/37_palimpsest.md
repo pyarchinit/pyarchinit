@@ -163,6 +163,7 @@ l'informe d'excavació.
 
 ## 9. Modificar les dates, gràfic OxCal, PDF i nota sobre el taf
 
+- **Editor per US (Cronologia i tafonomia)**: el diàleg precarrega **totes les US del jaciment** amb dues columnes informatives **Període** i **N. troballes**, de manera que pots assignar el **taf** a cada US (no només a les datades). El taf és tingut en compte per Fit, Intrusions, Report i l'informe d'IA: redueix el pes de les US redipositades o alterades. Només es desen les US emplenades (amb taf i/o una data).
 - **Les dates desades es poden modificar**: el diàleg *Cronologia absoluta*
   **carrega en obrir-se** les dates ja presents a `palimpsest_chronology` (botó
   "Ricarica dal DB"). Pots modificar a mà les columnes **start/end** i prémer

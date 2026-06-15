@@ -168,6 +168,8 @@ le rapport de fouille.
 
 ## 9. Modifier les dates, le graphique OxCal, le PDF et une note sur le taf
 
+- **Éditeur par US (Chronologie et taphonomie)** : la fenêtre **précharge toutes les US du site** avec deux colonnes d'information **Période** et **Nbr. trouvailles**, afin que vous puissiez attribuer le **taf** à chaque US (et pas seulement à celles datées). Le taf est pris en compte par Fit, Intrusions, Report et le rapport IA : il sous-pondère les US redéposées ou perturbées. Seules les US renseignées (avec un taf et/ou une date) sont enregistrées.
+
 - **Les dates enregistrées sont modifiables** : la fenêtre *Cronologia assoluta*
   **charge à l'ouverture** les dates déjà présentes dans
   `palimpsest_chronology` (bouton *Ricarica dal DB*). Vous pouvez modifier à la
