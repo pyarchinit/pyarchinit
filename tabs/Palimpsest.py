@@ -1069,18 +1069,22 @@ class PalimpsestChronologyDialog(QDialog):
     def _build_ui(self):
         lay = QVBoxLayout(self)
         lay.addWidget(QLabel(
-            "Date assolute per US nella tabella <b>palimpsest_chronology</b>, "
-            "usata da palimpsestr al posto della datazione testuale.<br>"
-            "Le date già salvate vengono <b>caricate all'apertura</b>: puoi "
-            "modificare <b>start/end</b> direttamente e premere <b>Salva "
-            "modifiche</b>. Per nuove date inserisci <b>C14 BP ± errore</b> e "
-            "premi <b>Calibra e salva</b>, oppure importa un CSV."))
+            "Cronologia & tafonomia per US (tabella <b>palimpsest_chronology</b>, "
+            "usata da palimpsestr al posto della datazione testuale).<br>"
+            "All'apertura vengono <b>caricate tutte le US del sito</b> con "
+            "<b>Periodo</b> e <b>n. reperti</b> (colonne informative): assegna il "
+            "<b>taf [0-1]</b> a ogni US e, dove hai una data, le colonne OxCal. "
+            "Modifica <b>start/end/taf</b> e premi <b>Salva modifiche</b>; per "
+            "nuove date inserisci <b>C14 BP ± errore</b> e premi <b>Calibra e "
+            "salva</b>. Vengono salvate solo le US con taf e/o data."))
 
-        # Cols: Sito, Area, US, C14 BP, ± err, start, end, taf, Lab code, source
-        self.table = QTableWidget(0, 10)
+        # Cols: Sito, Area, US, Periodo(RO), N.rep(RO), taf, C14 BP, ± err,
+        #       start, end, Lab code, source
+        self.table = QTableWidget(0, 12)
         self.table.setHorizontalHeaderLabels(
-            ["Sito", "Area", "US", "C14 BP", "± errore",
-             "start (cal)", "end (cal)", "taf [0-1]", "Lab code", "source"])
+            ["Sito", "Area", "US", "Periodo", "N. rep.", "taf [0-1]",
+             "C14 BP", "± errore", "start (cal)", "end (cal)", "Lab code",
+             "source"])
         self.table.horizontalHeader().setSectionResizeMode(_stretch_mode())
         lay.addWidget(self.table)
 
@@ -1133,24 +1137,39 @@ class PalimpsestChronologyDialog(QDialog):
         self._load_existing()
 
     # --------------------------------------------------------------- table ---
-    def _add_row(self, sito="", area="", us="", bp="", err="",
-                 start="", end="", taf="", lab="", source=""):
+    def _add_row(self, sito="", area="", us="", periodo="", nrep="", taf="",
+                 bp="", err="", start="", end="", lab="", source=""):
+        from qgis.PyQt.QtCore import Qt
         r = self.table.rowCount()
         self.table.insertRow(r)
-        cells = [sito, area, us, bp, err, start, end, taf, lab, source]
+        cells = [sito, area, us, periodo, nrep, taf, bp, err, start, end,
+                 lab, source]
         for c, v in enumerate(cells):
-            self.table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
+            it = QTableWidgetItem("" if v is None else str(v))
+            if c in (3, 4):  # Periodo / N. rep. are read-only info columns
+                it.setFlags(it.flags() & ~Qt.ItemIsEditable)
+            self.table.setItem(r, c, it)
 
     def _remove_row(self):
         rows = sorted({i.row() for i in self.table.selectedIndexes()}, reverse=True)
         for r in rows:
             self.table.removeRow(r)
 
+    @staticmethod
+    def _periodo_str(pi, fi, pf, ff):
+        a = ("%s/%s" % (pi or "", fi or "")).strip("/")
+        b = ("%s/%s" % (pf or "", ff or "")).strip("/")
+        if a and b and a != b:
+            return "%s–%s" % (a, b)
+        return a or b or ""
+
     def _load_existing(self):
-        """Populate the table with the saved palimpsest_chronology rows."""
+        """Seed the table with ALL US of the site (Periodo + n. finds, read-only)
+        and merge any saved palimpsest_chronology values (taf, start/end, ...)."""
         self.table.setRowCount(0)
         site = self.p.edit_site.text().strip()
-        fetched = []
+        site_f = site if site and site != "all" else None
+        us_rows, counts, chrono = [], {}, {}
         try:
             dsn = self.p._pg_dsn()
             kind = None
@@ -1165,29 +1184,64 @@ class PalimpsestChronologyDialog(QDialog):
                     conn = sqlite3.connect(path); ph = "?"; kind = "sqlite"
             if conn is not None:
                 try:
-                    self._ddl(conn, kind)  # ensure taf column exists
-                    q = ('SELECT sito, area, us, "start", "end", taf, lab_code, '
-                         'source FROM %s' % CHRONOLOGY_TABLE)
-                    params = ()
-                    if site and site != "all":
-                        q += " WHERE sito = " + ph
-                        params = (site,)
-                    q += " ORDER BY CAST(us AS INTEGER)"
-                    cur = conn.cursor(); cur.execute(q, params)
-                    fetched = cur.fetchall()
+                    self._ddl(conn, kind)  # ensure the taf column exists
+                    cur = conn.cursor()
+                    # saved chronology/taf
+                    cq = ('SELECT sito, area, us, "start", "end", taf, lab_code, '
+                          'source FROM %s' % CHRONOLOGY_TABLE)
+                    cp = ()
+                    if site_f:
+                        cq += " WHERE sito = " + ph; cp = (site_f,)
+                    cur.execute(cq, cp)
+                    for r in cur.fetchall():
+                        chrono[(r[0], str(r[2]))] = r[3:]  # start,end,taf,lab,source
+                    # all US of the site
+                    uq = ("SELECT sito, area, us, periodo_iniziale, fase_iniziale, "
+                          "periodo_finale, fase_finale FROM us_table")
+                    up = ()
+                    if site_f:
+                        uq += " WHERE sito = " + ph; up = (site_f,)
+                    uq += " ORDER BY CAST(us AS INTEGER)"
+                    cur.execute(uq, up)
+                    us_rows = cur.fetchall()
+                    # material counts per (sito, us)
+                    for tbl in ("inventario_materiali_table", "pottery_table"):
+                        try:
+                            mq = "SELECT sito, us, COUNT(*) FROM %s" % tbl
+                            mp = ()
+                            if site_f:
+                                mq += " WHERE sito = " + ph; mp = (site_f,)
+                            mq += " GROUP BY sito, us"
+                            cur.execute(mq, mp)
+                            for (s, u, n) in cur.fetchall():
+                                counts[(s, str(u))] = counts.get((s, str(u)), 0) + n
+                        except Exception:
+                            pass
                 except Exception:
-                    fetched = []
+                    us_rows = []
                 finally:
                     conn.close()
         except Exception:
-            fetched = []
-        for rr in fetched:
-            sito, area, us, st, en, taf, lab, src = rr
-            self._add_row(sito, area, us, "", "", st, en, taf, lab, src)
+            us_rows = []
+
+        n_chr = 0
+        for r in us_rows:
+            sito, area, us = r[0], r[1], r[2]
+            periodo = self._periodo_str(r[3], r[4], r[5], r[6])
+            nrep = counts.get((sito, str(us)), 0)
+            ch = chrono.get((sito, str(us)))
+            if ch:
+                st, en, taf, lab, src = ch
+                n_chr += 1
+            else:
+                st = en = taf = lab = src = ""
+            self._add_row(sito, area, us, periodo, nrep, taf, "", "",
+                          st, en, lab, src)
         if self.table.rowCount() == 0:
-            self._add_row(site if site and site != "all" else "")
+            self._add_row(site_f or "")
         else:
-            self.status.setText("Caricate %d date dal DB." % len(fetched))
+            self.status.setText("Caricate %d US (%d con cronologia/taf)."
+                                % (len(us_rows), n_chr))
 
     def _collect_rows(self, require_c14):
         """Read the table into dicts; show a message and return None on error.
@@ -1202,10 +1256,16 @@ class PalimpsestChronologyDialog(QDialog):
                 it = self.table.item(r, c)
                 return it.text().strip() if it and it.text() else ""
             sito, area, us = cell(0), cell(1) or None, cell(2)
-            bp, err = cell(3), cell(4)
-            start, end, taf = cell(5), cell(6), cell(7)
-            lab, source = cell(8) or None, cell(9) or None
-            if not any([sito, area, us, bp, err, start, end, taf, lab, source]):
+            taf = cell(5)
+            bp, err = cell(6), cell(7)
+            start, end = cell(8), cell(9)
+            lab, source = cell(10) or None, cell(11) or None
+            # Only process rows the user actually filled for this action:
+            # calibration needs C14; a direct save needs taf and/or a date.
+            if require_c14:
+                if not (bp or err):
+                    continue
+            elif not (taf or start or end):
                 continue
             if not sito or not us:
                 QMessageBox.warning(self, "palimpsestr",
@@ -1448,10 +1508,10 @@ class PalimpsestChronologyDialog(QDialog):
             se = cal.get(str(i))
             if not se:
                 continue
-            # write the calibrated start/end back into the table (cols 5,6)
-            self.table.setItem(r["_row"], 5, QTableWidgetItem(str(se[0])))
-            self.table.setItem(r["_row"], 6, QTableWidgetItem(str(se[1])))
-            self.table.setItem(r["_row"], 9, QTableWidgetItem("oxcal"))
+            # write the calibrated start/end back into the table (cols 8,9)
+            self.table.setItem(r["_row"], 8, QTableWidgetItem(str(se[0])))
+            self.table.setItem(r["_row"], 9, QTableWidgetItem(str(se[1])))
+            self.table.setItem(r["_row"], 11, QTableWidgetItem("oxcal"))
             save.append((r["sito"], r["area"], r["us"], se[0], se[1],
                          r["taf"], r["lab_code"], "oxcal"))
         n = self._save_rows(save)
@@ -1530,11 +1590,14 @@ class PalimpsestChronologyDialog(QDialog):
                             return (row.get(cols[k]) or "").strip()
                     return ""
                 for row in rd:
-                    self._add_row(g(row, "sito"), g(row, "area"), g(row, "us"),
-                                  g(row, "c14_bp", "bp"),
-                                  g(row, "c14_error", "error", "std"),
-                                  g(row, "start"), g(row, "end"), g(row, "taf"),
-                                  g(row, "lab_code", "lab"), g(row, "source"))
+                    self._add_row(
+                        g(row, "sito"), g(row, "area"), g(row, "us"),
+                        "", "",  # Periodo / N.rep (info, not in a samples CSV)
+                        g(row, "taf"),
+                        g(row, "c14_bp", "bp"),
+                        g(row, "c14_error", "error", "std"),
+                        g(row, "start"), g(row, "end"),
+                        g(row, "lab_code", "lab"), g(row, "source"))
         except Exception as e:
             QMessageBox.critical(self, "palimpsestr",
                                  "Impossibile leggere il CSV:\n%s" % e)
