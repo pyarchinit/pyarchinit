@@ -5,6 +5,22 @@
 
 ---
 
+## [5.13.2-alpha] - 2026-06-15 — Palimpsest: campo taphonomico (taf) per US nel dialog cronologia
+
+> Branch `Stratigraph_00001`. Aggiunge il punteggio tafonomico (taf) come dato per-US, modificabile e usato dal report AI.
+
+### Italiano
+
+- **Colonna `taf [0-1]`** nella tabella del dialog *Cronologia assoluta (OxCal)* (10ª colonna, tra `end` e `Lab code`): valore tafonomico per US (0 = reperto del tutto disturbato/redeposto, 1 = integro in posto), **interpretativo**, da assegnare a mano (non calcolato). Persistito in una **nuova colonna `taf`** di `palimpsest_chronology` (migrazione `ALTER TABLE` idempotente per i DB esistenti). Caricato/modificato/salvato come le date (anche per US senza data assoluta: `start`/`end` ora opzionali in *Salva modifiche*); validato in `[0,1]`; supportato anche negli import/export CSV.
+- **Il report AI usa il taf**: il driver `SEF_FACTS_R` legge il taf per US da `palimpsest_chronology` e sovrascrive `taf_score` prima di `fit_sef`, così la stima **pesa meno le US redeposte/disturbate**; la tabella cronologia mostrata agli agenti e nell'appendice DOCX/PDF include la colonna `taf`.
+- **Nota**: i tre algoritmi Processing (`r:palimpsestrfit/intrusions/report`) restano byte-identici a palimpsestr 0.22.0 e **non** leggono ancora il taf dalla tabella; per farglielo onorare conviene aggiungere la lettura del taf da `palimpsest_chronology` a monte in `read_pyarchinit` (upstream).
+
+### English
+
+- **`taf [0-1]` column** in the *Cronologia assoluta (OxCal)* dialog table (per-US taphonomic score, 0 = fully disturbed/redeposited, 1 = pristine in situ; an interpretive value, assigned by hand, not computed), persisted in a new `taf` column of `palimpsest_chronology` (idempotent `ALTER TABLE` migration). Loaded/edited/saved like the dates (US without an absolute date are allowed — `start`/`end` optional in *Salva modifiche*); validated to `[0,1]`; handled in CSV import/export. **The AI report uses it**: `SEF_FACTS_R` reads per-US taf and overrides `taf_score` before `fit_sef`, so the estimate down-weights redeposited/disturbed units; the chronology table shown to the agents and in the DOCX/PDF appendix gains a `taf` column. The three Processing algorithms stay byte-identical to palimpsestr 0.22.0 and do not yet read taf from the table (cleanest path: add taf reading to upstream `read_pyarchinit`).
+
+---
+
 ## [5.13.1-alpha] - 2026-06-15 — Palimpsest hotfix: conoscenza del paper negli agenti AI + fix report/cronologia
 
 > Branch `Stratigraph_00001`, tag `palimpsest-5.13.1-alpha`. Consolida i fix post-`5.13.0-alpha` (vedi voce sotto: report AI non troncato, grafico OxCal descrittivo, rendering DOCX/PDF con tabelle e figure, crash `%`, vista/modifica cronologia) **+** la base di conoscenza del pacchetto R.

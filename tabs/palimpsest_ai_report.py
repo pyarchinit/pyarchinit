@@ -195,10 +195,11 @@ def _facts_block(facts):
                                  ["Fase", "Classe", "N"])]
     ch = facts.get("chronology") or []
     if ch:
-        lines += ["", "CRONOLOGIA ASSOLUTA OxCal (per US; anni calendariali, "
-                  "negativo = a.C.):",
-                  _rows_md_table(ch, ["us", "start", "end", "lab_code", "source"],
-                                 ["US", "start", "end", "lab", "source"])]
+        lines += ["", "CRONOLOGIA ASSOLUTA OxCal + punteggio tafonomico (per US; "
+                  "anni calendariali, negativo = a.C.; taf in [0,1], vuoto = "
+                  "peso uniforme):",
+                  _rows_md_table(ch, ["us", "start", "end", "taf", "lab_code", "source"],
+                                 ["US", "start", "end", "taf", "lab", "source"])]
     if facts.get("r_markdown"):
         lines += ["", "NARRATIVA E DIAGNOSTICHE prodotte da palimpsestr "
                   "(fonte di verità):", facts["r_markdown"]]
@@ -451,10 +452,11 @@ def _appendix_md(facts):
                                  ["Fase", "N reperti", "%", "Data media", "N US"])]
     ch = facts.get("chronology") or []
     if ch:
-        parts += ["## Appendice — cronologia assoluta OxCal",
-                  "Date calibrate per US (anni calendariali, negativo = a.C.):",
-                  _rows_md_table(ch, ["us", "start", "end", "lab_code", "source"],
-                                 ["US", "start", "end", "lab", "source"])]
+        parts += ["## Appendice — cronologia assoluta OxCal e taphonomia",
+                  "Date calibrate e punteggio tafonomico (taf) per US (anni "
+                  "calendariali, negativo = a.C.):",
+                  _rows_md_table(ch, ["us", "start", "end", "taf", "lab_code", "source"],
+                                 ["US", "start", "end", "taf", "lab", "source"])]
     return "\n\n".join(parts)
 
 

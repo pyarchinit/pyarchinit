@@ -133,13 +133,31 @@ if (is_pg) {
 site <- if (nchar(site_arg) > 0 && site_arg != "all") site_arg else NULL
 d <- read_pyarchinit(con, us_geometry = geom, sito = site, source = source_sel)
 chrono <- tryCatch({
-  if ("palimpsest_chronology" %in% DBI::dbListTables(con))
-    DBI::dbGetQuery(con, 'SELECT sito, area, us, "start", "end", lab_code, source FROM palimpsest_chronology')
-  else data.frame()
+  if ("palimpsest_chronology" %in% DBI::dbListTables(con)) {
+    cols <- DBI::dbListFields(con, "palimpsest_chronology")
+    sel <- if ("taf" %in% cols)
+      'sito, area, us, "start", "end", taf, lab_code, source'
+    else 'sito, area, us, "start", "end", lab_code, source'
+    DBI::dbGetQuery(con, paste0("SELECT ", sel, " FROM palimpsest_chronology"))
+  } else data.frame()
 }, error = function(e) data.frame())
 DBI::dbDisconnect(con)
 if (!is.null(site) && nrow(chrono)) chrono <- chrono[chrono$sito == site, , drop = FALSE]
+if (nrow(chrono) && !("taf" %in% names(chrono))) chrono$taf <- NA_real_
 write.csv(chrono, file.path(out_dir, "chronology.csv"), row.names = FALSE)
+
+# Apply the per-US taphonomic score (taf) from palimpsest_chronology, if any,
+# so fit_sef down-weights redeposited/disturbed units. Finds without a taf row
+# keep read_pyarchinit's default weight.
+if (nrow(chrono) && "taf" %in% names(chrono) && "context" %in% names(d) &&
+    "taf_score" %in% names(d)) {
+  tm <- chrono[!is.na(chrono$taf), ]
+  if (nrow(tm)) {
+    taf_map <- stats::setNames(as.numeric(tm$taf), as.character(tm$us))
+    hit <- as.character(d$context) %in% names(taf_map)
+    if (any(hit)) d$taf_score[hit] <- taf_map[as.character(d$context)[hit]]
+  }
+}
 
 fit <- reorder_phases(fit_sef(d, k = K, context = "context",
                               tafonomy = "taf_score", class_model = class_model,
@@ -1058,11 +1076,11 @@ class PalimpsestChronologyDialog(QDialog):
             "modifiche</b>. Per nuove date inserisci <b>C14 BP ± errore</b> e "
             "premi <b>Calibra e salva</b>, oppure importa un CSV."))
 
-        # Cols: Sito, Area, US, C14 BP, ± err, start, end, Lab code, source
-        self.table = QTableWidget(0, 9)
+        # Cols: Sito, Area, US, C14 BP, ± err, start, end, taf, Lab code, source
+        self.table = QTableWidget(0, 10)
         self.table.setHorizontalHeaderLabels(
             ["Sito", "Area", "US", "C14 BP", "± errore",
-             "start (cal)", "end (cal)", "Lab code", "source"])
+             "start (cal)", "end (cal)", "taf [0-1]", "Lab code", "source"])
         self.table.horizontalHeader().setSectionResizeMode(_stretch_mode())
         lay.addWidget(self.table)
 
@@ -1116,10 +1134,11 @@ class PalimpsestChronologyDialog(QDialog):
 
     # --------------------------------------------------------------- table ---
     def _add_row(self, sito="", area="", us="", bp="", err="",
-                 start="", end="", lab="", source=""):
+                 start="", end="", taf="", lab="", source=""):
         r = self.table.rowCount()
         self.table.insertRow(r)
-        for c, v in enumerate([sito, area, us, bp, err, start, end, lab, source]):
+        cells = [sito, area, us, bp, err, start, end, taf, lab, source]
+        for c, v in enumerate(cells):
             self.table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
 
     def _remove_row(self):
@@ -1134,19 +1153,21 @@ class PalimpsestChronologyDialog(QDialog):
         fetched = []
         try:
             dsn = self.p._pg_dsn()
+            kind = None
             if dsn:
                 import psycopg2
-                conn = psycopg2.connect(dsn); ph = "%s"
+                conn = psycopg2.connect(dsn); ph = "%s"; kind = "pg"
             else:
                 path = self.p._sqlite_path()
                 conn = None
                 if path and os.path.exists(path):
                     import sqlite3
-                    conn = sqlite3.connect(path); ph = "?"
+                    conn = sqlite3.connect(path); ph = "?"; kind = "sqlite"
             if conn is not None:
                 try:
-                    q = ('SELECT sito, area, us, "start", "end", lab_code, source '
-                         'FROM %s' % CHRONOLOGY_TABLE)
+                    self._ddl(conn, kind)  # ensure taf column exists
+                    q = ('SELECT sito, area, us, "start", "end", taf, lab_code, '
+                         'source FROM %s' % CHRONOLOGY_TABLE)
                     params = ()
                     if site and site != "all":
                         q += " WHERE sito = " + ph
@@ -1161,8 +1182,8 @@ class PalimpsestChronologyDialog(QDialog):
         except Exception:
             fetched = []
         for rr in fetched:
-            sito, area, us, st, en, lab, src = rr
-            self._add_row(sito, area, us, "", "", st, en, lab, src)
+            sito, area, us, st, en, taf, lab, src = rr
+            self._add_row(sito, area, us, "", "", st, en, taf, lab, src)
         if self.table.rowCount() == 0:
             self._add_row(site if site and site != "all" else "")
         else:
@@ -1182,9 +1203,9 @@ class PalimpsestChronologyDialog(QDialog):
                 return it.text().strip() if it and it.text() else ""
             sito, area, us = cell(0), cell(1) or None, cell(2)
             bp, err = cell(3), cell(4)
-            start, end = cell(5), cell(6)
-            lab, source = cell(7) or None, cell(8) or None
-            if not any([sito, area, us, bp, err, start, end, lab, source]):
+            start, end, taf = cell(5), cell(6), cell(7)
+            lab, source = cell(8) or None, cell(9) or None
+            if not any([sito, area, us, bp, err, start, end, taf, lab, source]):
                 continue
             if not sito or not us:
                 QMessageBox.warning(self, "palimpsestr",
@@ -1196,8 +1217,22 @@ class PalimpsestChronologyDialog(QDialog):
                 QMessageBox.warning(self, "palimpsestr",
                                     "Riga %d: US dev'essere un intero." % (r + 1))
                 return None
+            taf_val = None
+            if taf:
+                try:
+                    taf_val = float(taf)
+                except ValueError:
+                    QMessageBox.warning(self, "palimpsestr",
+                                        "Riga %d: taf dev'essere un numero in "
+                                        "[0,1]." % (r + 1))
+                    return None
+                if not (0.0 <= taf_val <= 1.0):
+                    QMessageBox.warning(self, "palimpsestr",
+                                        "Riga %d: taf dev'essere tra 0 e 1."
+                                        % (r + 1))
+                    return None
             rec = {"_row": r, "sito": sito, "area": area, "us": us_i,
-                   "lab_code": lab, "source": source}
+                   "taf": taf_val, "lab_code": lab, "source": source}
             if require_c14:
                 try:
                     rec["c14_bp"] = float(bp)
@@ -1208,14 +1243,20 @@ class PalimpsestChronologyDialog(QDialog):
                         "Riga %d: C14 BP ed errore devono essere numeri." % (r + 1))
                     return None
             else:
-                try:
-                    rec["start"] = int(float(start))
-                    rec["end"] = int(float(end))
-                except ValueError:
-                    QMessageBox.warning(
-                        self, "palimpsestr",
-                        "Riga %d: start ed end devono essere interi." % (r + 1))
-                    return None
+                # start/end optional in direct-save mode (a US may carry only a
+                # taf value, with no absolute date).
+                if start or end:
+                    try:
+                        rec["start"] = int(float(start))
+                        rec["end"] = int(float(end))
+                    except ValueError:
+                        QMessageBox.warning(
+                            self, "palimpsestr",
+                            "Riga %d: start ed end devono essere interi." % (r + 1))
+                        return None
+                else:
+                    rec["start"] = None
+                    rec["end"] = None
             rows.append(rec)
         return rows
 
@@ -1242,11 +1283,21 @@ class PalimpsestChronologyDialog(QDialog):
     def _ddl(self, conn, kind):
         pk = "SERIAL PRIMARY KEY" if kind == "pg" else "INTEGER PRIMARY KEY"
         # "start"/"end" quoted: end is a reserved word in PostgreSQL.
-        conn.cursor().execute(
+        # taf = taphonomic score in [0,1] (per US), optional.
+        cur = conn.cursor()
+        cur.execute(
             'CREATE TABLE IF NOT EXISTS %s ('
             ' id %s, sito TEXT, area TEXT, us INTEGER,'
-            ' "start" INTEGER, "end" INTEGER, lab_code TEXT, source TEXT)'
-            % (CHRONOLOGY_TABLE, pk))
+            ' "start" INTEGER, "end" INTEGER, taf REAL, lab_code TEXT,'
+            ' source TEXT)' % (CHRONOLOGY_TABLE, pk))
+        # Migrate older tables that predate the taf column.
+        try:
+            cur.execute("ALTER TABLE %s ADD COLUMN taf REAL" % CHRONOLOGY_TABLE)
+        except Exception:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
         conn.commit()
 
     def _save_rows(self, rows):
@@ -1257,16 +1308,16 @@ class PalimpsestChronologyDialog(QDialog):
         try:
             self._ddl(conn, kind)
             cur = conn.cursor()
-            for (sito, area, us, start, end, lab, source) in rows:
+            for (sito, area, us, start, end, taf, lab, source) in rows:
                 cur.execute(
                     "DELETE FROM %s WHERE sito = %s AND us = %s "
                     "AND COALESCE(area,'') = COALESCE(%s,'')"
                     % (CHRONOLOGY_TABLE, ph, ph, ph), (sito, us, area))
                 cur.execute(
-                    'INSERT INTO %s (sito, area, us, "start", "end", lab_code, '
-                    'source) VALUES (%s, %s, %s, %s, %s, %s, %s)'
-                    % (CHRONOLOGY_TABLE, ph, ph, ph, ph, ph, ph, ph),
-                    (sito, area, us, start, end, lab, source))
+                    'INSERT INTO %s (sito, area, us, "start", "end", taf, '
+                    'lab_code, source) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)'
+                    % (CHRONOLOGY_TABLE, ph, ph, ph, ph, ph, ph, ph, ph),
+                    (sito, area, us, start, end, taf, lab, source))
             conn.commit()
             return len(rows)
         except Exception as e:
@@ -1400,9 +1451,9 @@ class PalimpsestChronologyDialog(QDialog):
             # write the calibrated start/end back into the table (cols 5,6)
             self.table.setItem(r["_row"], 5, QTableWidgetItem(str(se[0])))
             self.table.setItem(r["_row"], 6, QTableWidgetItem(str(se[1])))
-            self.table.setItem(r["_row"], 8, QTableWidgetItem("oxcal"))
+            self.table.setItem(r["_row"], 9, QTableWidgetItem("oxcal"))
             save.append((r["sito"], r["area"], r["us"], se[0], se[1],
-                         r["lab_code"], "oxcal"))
+                         r["taf"], r["lab_code"], "oxcal"))
         n = self._save_rows(save)
         if n:
             self._load_existing()
@@ -1422,7 +1473,8 @@ class PalimpsestChronologyDialog(QDialog):
                                 "Inserisci almeno una riga con start/end.")
             return
         save = [(r["sito"], r["area"], r["us"], r["start"], r["end"],
-                 r["lab_code"], r["source"] or "manual") for r in rows_in]
+                 r["taf"], r["lab_code"], r["source"] or "manual")
+                for r in rows_in]
         n = self._save_rows(save)
         if n:
             self._load_existing()
@@ -1481,7 +1533,7 @@ class PalimpsestChronologyDialog(QDialog):
                     self._add_row(g(row, "sito"), g(row, "area"), g(row, "us"),
                                   g(row, "c14_bp", "bp"),
                                   g(row, "c14_error", "error", "std"),
-                                  g(row, "start"), g(row, "end"),
+                                  g(row, "start"), g(row, "end"), g(row, "taf"),
                                   g(row, "lab_code", "lab"), g(row, "source"))
         except Exception as e:
             QMessageBox.critical(self, "palimpsestr",
@@ -1511,10 +1563,12 @@ class PalimpsestChronologyDialog(QDialog):
                     sito, us = g(row, "sito"), g(row, "us")
                     if not sito or not us:
                         continue
+                    taf_s = g(row, "taf")
                     try:
                         save.append((sito, g(row, "area") or None, int(us),
                                      int(float(g(row, "start"))),
                                      int(float(g(row, "end"))),
+                                     float(taf_s) if taf_s else None,
                                      g(row, "lab_code") or None,
                                      g(row, "source") or "import"))
                     except ValueError:
