@@ -27,6 +27,7 @@ the figures embedded) or Markdown.
 @author: Enzo Cocca <enzo.ccc@gmail.com>
 """
 import os
+import inspect
 
 from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.PyQt.QtWidgets import (
@@ -174,15 +175,30 @@ class PalimpsestAIReportWorker(QThread):
     # truncated regardless of the model's per-response cap.
     _PER_CALL_TOKENS = 4096
 
+    @staticmethod
+    def _supports_meta():
+        # Old in-memory builds of LLMProviderManager.stream_chat (before a QGIS
+        # reload) lack the 'meta' kwarg — detect it to avoid a TypeError.
+        try:
+            return "meta" in inspect.signature(
+                LLMProviderManager.stream_chat).parameters
+        except Exception:
+            return False
+
     def _run_agent(self, prompt, emit_live, max_rounds=8):
+        supports_meta = self._supports_meta()
+        if not supports_meta:
+            max_rounds = 1  # cannot detect truncation → single pass, no continue
         messages = [{"role": "user", "content": prompt}]
         pieces = []
         for _ in range(max_rounds):
             meta = {}
             buf = []
+            kwargs = dict(max_tokens=self._PER_CALL_TOKENS)
+            if supports_meta:
+                kwargs["meta"] = meta
             for ch in LLMProviderManager.stream_chat(
-                    self.config, messages=messages,
-                    max_tokens=self._PER_CALL_TOKENS, meta=meta):
+                    self.config, messages=messages, **kwargs):
                 buf.append(ch)
                 if emit_live:
                     self.chunk.emit(ch)

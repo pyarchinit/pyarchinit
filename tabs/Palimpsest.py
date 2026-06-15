@@ -43,6 +43,7 @@ CHRONOLOGY_TABLE = "palimpsest_chronology"
 # table write itself is done in Python so it honours the active backend.
 CHRONO_OXCAL_R = r"""args <- commandArgs(trailingOnly = TRUE)
 samples_csv <- args[1]; out_csv <- args[2]
+plot_png <- if (length(args) >= 3) args[3] else ""
 suppressMessages({ library(oxcAAR); library(palimpsestr) })
 s <- read.csv(samples_csv, stringsAsFactors = FALSE, colClasses = "character")
 # Persistent OxCal engine: install once into a stable directory (override with
@@ -62,6 +63,14 @@ if (file.exists(oxcal_exe)) {
 }
 ids <- as.character(s$id)
 cal <- oxcAAR::oxcalCalibrate(as.numeric(s$c14_bp), as.numeric(s$c14_error), ids)
+if (nzchar(plot_png)) {
+  tryCatch({
+    grDevices::png(plot_png, width = 1100,
+                   height = max(500L, 150L * nrow(s)), res = 130)
+    graphics::plot(cal)
+    grDevices::dev.off()
+  }, error = function(e) {})
+}
 res <- palimpsestr::chronology_from_oxcal(cal, ids = ids, bce_negative = TRUE)
 out <- data.frame(id = as.character(res$id),
                   start = as.integer(round(res$date_min)),
@@ -936,6 +945,20 @@ class PalimpsestChronologyDialog(QDialog):
         row2.addWidget(b_impc); row2.addWidget(b_close)
         lay.addLayout(row2)
 
+        # OxCal calibration plot (filled after "Calibra e salva").
+        self._last_plot = None
+        row3 = QHBoxLayout()
+        self.btn_show_plot = QPushButton("Mostra grafico OxCal")
+        self.btn_show_plot.clicked.connect(self._show_plot)
+        self.btn_show_plot.setEnabled(False)
+        self.btn_save_plot = QPushButton("Esporta grafico (PNG)…")
+        self.btn_save_plot.clicked.connect(self._save_plot)
+        self.btn_save_plot.setEnabled(False)
+        row3.addWidget(self.btn_show_plot)
+        row3.addWidget(self.btn_save_plot)
+        row3.addStretch()
+        lay.addLayout(row3)
+
         self.status = QLabel("")
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
@@ -1091,6 +1114,7 @@ class PalimpsestChronologyDialog(QDialog):
         d = tempfile.mkdtemp(prefix="palimpsestr_chrono_")
         sin = os.path.join(d, "samples.csv")
         sout = os.path.join(d, "calibrated.csv")
+        splot = os.path.join(d, "oxcal_plot.png")
         rdrv = os.path.join(d, "calibrate.R")
         with open(sin, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
@@ -1107,7 +1131,7 @@ class PalimpsestChronologyDialog(QDialog):
             pass
         rscript = self._find_rscript()
         try:
-            proc = subprocess.run([rscript, rdrv, sin, sout],
+            proc = subprocess.run([rscript, rdrv, sin, sout, splot],
                                   capture_output=True, text=True, timeout=3600)
         except Exception as e:
             QMessageBox.critical(self, "palimpsestr",
@@ -1129,6 +1153,7 @@ class PalimpsestChronologyDialog(QDialog):
                                       int(float(row["end"])))
                 except (KeyError, ValueError):
                     continue
+        self._last_plot = splot if os.path.exists(splot) else None
         return out
 
     def _calibrate_and_save(self):
@@ -1149,10 +1174,14 @@ class PalimpsestChronologyDialog(QDialog):
             QApplication.processEvents()
         except Exception:
             pass
+        self._last_plot = None
         cal = self._calibrate(samples)
         if cal is None:
             self.status.setText("")
             return
+        has_plot = bool(self._last_plot)
+        self.btn_show_plot.setEnabled(has_plot)
+        self.btn_save_plot.setEnabled(has_plot)
         save = []
         for i, r in enumerate(rows_in):
             se = cal.get(str(i))
@@ -1167,6 +1196,34 @@ class PalimpsestChronologyDialog(QDialog):
             QMessageBox.information(
                 self, "palimpsestr",
                 "Salvate %d data/e calibrate in %s." % (n, CHRONOLOGY_TABLE))
+
+    # ----------------------------------------------------------- OxCal plot ---
+    def _show_plot(self):
+        if self._last_plot and os.path.exists(self._last_plot):
+            self.p._open(self._last_plot)
+        else:
+            QMessageBox.information(self, "palimpsestr",
+                                    "Nessun grafico disponibile. Esegui prima "
+                                    "una calibrazione OxCal.")
+
+    def _save_plot(self):
+        if not (self._last_plot and os.path.exists(self._last_plot)):
+            return
+        fn, _ = QFileDialog.getSaveFileName(
+            self, "Esporta grafico OxCal (PNG)",
+            os.path.join(self.p.HOME, "oxcal_calibration.png"), "PNG (*.png)")
+        if not fn:
+            return
+        if not fn.lower().endswith(".png"):
+            fn += ".png"
+        try:
+            import shutil
+            shutil.copyfile(self._last_plot, fn)
+        except Exception as e:
+            QMessageBox.critical(self, "palimpsestr",
+                                 "Esportazione fallita:\n%s" % e)
+            return
+        self.status.setText("Grafico esportato: %s" % fn)
 
     # --------------------------------------------------------------- import ---
     def _import_samples_csv(self):
