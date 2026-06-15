@@ -168,28 +168,50 @@ class PalimpsestAIReportWorker(QThread):
         self.lang_code = lang_code
         self.lang_name = lang_name
 
-    def _run_agent(self, prompt, emit_live):
-        out = []
-        for ch in LLMProviderManager.stream_chat(
-                self.config, messages=[{"role": "user", "content": prompt}],
-                max_tokens=4096):
-            out.append(ch)
-            if emit_live:
-                self.chunk.emit(ch)
-        return "".join(out)
+    # Per-call budget kept at the universal 4096 floor (every model accepts it);
+    # length is achieved by continuing the generation when the model reports it
+    # was cut off (finish_reason == length / max_tokens), so reports are never
+    # truncated regardless of the model's per-response cap.
+    _PER_CALL_TOKENS = 4096
+
+    def _run_agent(self, prompt, emit_live, max_rounds=8):
+        messages = [{"role": "user", "content": prompt}]
+        pieces = []
+        for _ in range(max_rounds):
+            meta = {}
+            buf = []
+            for ch in LLMProviderManager.stream_chat(
+                    self.config, messages=messages,
+                    max_tokens=self._PER_CALL_TOKENS, meta=meta):
+                buf.append(ch)
+                if emit_live:
+                    self.chunk.emit(ch)
+            text = "".join(buf)
+            pieces.append(text)
+            if not meta.get("truncated") or not text:
+                break
+            # The model hit the per-response cap: ask it to continue seamlessly.
+            messages.append({"role": "assistant", "content": text})
+            messages.append({"role": "user", "content":
+                             "Continua ESATTAMENTE da dove ti sei interrotto, "
+                             "senza ripetere il testo già scritto e senza "
+                             "reintrodurre titoli o sezioni già presenti."})
+        return "".join(pieces)
 
     def run(self):
         try:
             self.status.emit("methodology")
             method = self._run_agent(
-                _methodologist_prompt(self.facts, self.lang_name), emit_live=False)
+                _methodologist_prompt(self.facts, self.lang_name),
+                emit_live=False, max_rounds=4)
             self.status.emit("analysis")
             analysis = self._run_agent(
-                _analyst_prompt(self.facts, self.lang_name), emit_live=False)
+                _analyst_prompt(self.facts, self.lang_name),
+                emit_live=False, max_rounds=4)
             self.status.emit("synthesis")
             final = self._run_agent(
                 _synthesis_prompt(self.facts, self.lang_name, method, analysis),
-                emit_live=True)
+                emit_live=True, max_rounds=10)
             self.finished_ok.emit(final.strip())
         except Exception as e:  # noqa: BLE001 — surfaced to the UI thread
             self.failed.emit(str(e))

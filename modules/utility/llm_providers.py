@@ -386,6 +386,7 @@ class LLMProviderManager:
         messages: list,
         max_tokens: int = 4096,
         temperature: Optional[float] = None,
+        meta: Optional[dict] = None,
     ) -> Iterator[str]:
         """Unified streaming generator yielding text chunks.
 
@@ -393,6 +394,12 @@ class LLMProviderManager:
         follows the OpenAI shape ``[{"role": "system"|"user"|"assistant",
         "content": "..."}]``; for Anthropic the system message is extracted
         and passed via ``system=`` (Anthropic's required convention).
+
+        If a mutable ``meta`` dict is passed, after the stream ends it is
+        filled with ``finish_reason`` and ``truncated`` (True when the model
+        stopped because it hit ``max_tokens``). Callers can use this to
+        continue a cut-off generation. Existing callers that omit ``meta`` are
+        unaffected.
         """
         LLMProviderManager._validate_local_model(config)
         client = LLMProviderManager.get_chat_client(config)
@@ -417,6 +424,14 @@ class LLMProviderManager:
                 with client.messages.stream(**kwargs) as stream:
                     for text in stream.text_stream:
                         yield text
+                    if meta is not None:
+                        try:
+                            fm = stream.get_final_message()
+                            sr = getattr(fm, "stop_reason", None)
+                            meta["finish_reason"] = sr
+                            meta["truncated"] = (sr == "max_tokens")
+                        except Exception:
+                            pass
             except Exception as e:
                 raise LLMProviderManager._annotate_error(config, e) from e
             return
@@ -433,13 +448,20 @@ class LLMProviderManager:
             kwargs["max_tokens"] = max_tokens
         try:
             response = client.chat.completions.create(**kwargs)
+            finish = None
             for chunk in response:
                 try:
-                    delta = chunk.choices[0].delta.content
+                    choice = chunk.choices[0]
+                    delta = choice.delta.content
+                    if getattr(choice, "finish_reason", None):
+                        finish = choice.finish_reason
                 except (AttributeError, IndexError):
                     delta = None
                 if delta is not None:
                     yield delta
+            if meta is not None:
+                meta["finish_reason"] = finish
+                meta["truncated"] = (finish == "length")
         except Exception as e:
             raise LLMProviderManager._annotate_error(config, e) from e
 
