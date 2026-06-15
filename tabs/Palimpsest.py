@@ -1053,27 +1053,30 @@ class PalimpsestChronologyDialog(QDialog):
         lay.addWidget(QLabel(
             "Date assolute per US nella tabella <b>palimpsest_chronology</b>, "
             "usata da palimpsestr al posto della datazione testuale.<br>"
-            "Inserisci le date radiocarboniche (BP ± errore) e premi "
-            "<b>Calibra e salva</b> per ottenere gli intervalli calendariali "
-            "via OxCal, oppure importa un CSV già calibrato "
-            "(<i>sito, area, us, start, end, lab_code, source</i>)."))
+            "Le date già salvate vengono <b>caricate all'apertura</b>: puoi "
+            "modificare <b>start/end</b> direttamente e premere <b>Salva "
+            "modifiche</b>. Per nuove date inserisci <b>C14 BP ± errore</b> e "
+            "premi <b>Calibra e salva</b>, oppure importa un CSV."))
 
-        self.table = QTableWidget(0, 6)
+        # Cols: Sito, Area, US, C14 BP, ± err, start, end, Lab code, source
+        self.table = QTableWidget(0, 9)
         self.table.setHorizontalHeaderLabels(
-            ["Sito", "Area", "US", "C14 BP", "± errore", "Lab code"])
+            ["Sito", "Area", "US", "C14 BP", "± errore",
+             "start (cal)", "end (cal)", "Lab code", "source"])
         self.table.horizontalHeader().setSectionResizeMode(_stretch_mode())
         lay.addWidget(self.table)
-        site = self.p.edit_site.text().strip()
-        self._add_row(site if site and site != "all" else "")
 
         row1 = QHBoxLayout()
         b_add = QPushButton("Aggiungi riga")
         b_add.clicked.connect(lambda: self._add_row())
         b_del = QPushButton("Rimuovi riga")
         b_del.clicked.connect(self._remove_row)
+        b_reload = QPushButton("Ricarica dal DB")
+        b_reload.clicked.connect(self._load_existing)
         b_imps = QPushButton("Importa campioni CSV…")
         b_imps.clicked.connect(self._import_samples_csv)
-        row1.addWidget(b_add); row1.addWidget(b_del); row1.addWidget(b_imps)
+        row1.addWidget(b_add); row1.addWidget(b_del)
+        row1.addWidget(b_reload); row1.addWidget(b_imps)
         lay.addLayout(row1)
 
         row2 = QHBoxLayout()
@@ -1081,12 +1084,14 @@ class PalimpsestChronologyDialog(QDialog):
         b_ddl.clicked.connect(self._create_table)
         b_cal = QPushButton("Calibra e salva (OxCal)")
         b_cal.clicked.connect(self._calibrate_and_save)
+        b_edit = QPushButton("Salva modifiche (start/end)")
+        b_edit.clicked.connect(self._save_edits)
         b_impc = QPushButton("Importa range calibrati (CSV)…")
         b_impc.clicked.connect(self._import_calibrated_csv)
         b_close = QPushButton("Chiudi")
         b_close.clicked.connect(self.accept)
         row2.addWidget(b_ddl); row2.addWidget(b_cal)
-        row2.addWidget(b_impc); row2.addWidget(b_close)
+        row2.addWidget(b_edit); row2.addWidget(b_impc); row2.addWidget(b_close)
         lay.addLayout(row2)
 
         # OxCal calibration plot (filled after "Calibra e salva").
@@ -1107,11 +1112,14 @@ class PalimpsestChronologyDialog(QDialog):
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
 
+        self._load_existing()
+
     # --------------------------------------------------------------- table ---
-    def _add_row(self, sito="", area="", us="", bp="", err="", lab=""):
+    def _add_row(self, sito="", area="", us="", bp="", err="",
+                 start="", end="", lab="", source=""):
         r = self.table.rowCount()
         self.table.insertRow(r)
-        for c, v in enumerate([sito, area, us, bp, err, lab]):
+        for c, v in enumerate([sito, area, us, bp, err, start, end, lab, source]):
             self.table.setItem(r, c, QTableWidgetItem("" if v is None else str(v)))
 
     def _remove_row(self):
@@ -1119,16 +1127,64 @@ class PalimpsestChronologyDialog(QDialog):
         for r in rows:
             self.table.removeRow(r)
 
+    def _load_existing(self):
+        """Populate the table with the saved palimpsest_chronology rows."""
+        self.table.setRowCount(0)
+        site = self.p.edit_site.text().strip()
+        fetched = []
+        try:
+            dsn = self.p._pg_dsn()
+            if dsn:
+                import psycopg2
+                conn = psycopg2.connect(dsn); ph = "%s"
+            else:
+                path = self.p._sqlite_path()
+                conn = None
+                if path and os.path.exists(path):
+                    import sqlite3
+                    conn = sqlite3.connect(path); ph = "?"
+            if conn is not None:
+                try:
+                    q = ('SELECT sito, area, us, "start", "end", lab_code, source '
+                         'FROM %s' % CHRONOLOGY_TABLE)
+                    params = ()
+                    if site and site != "all":
+                        q += " WHERE sito = " + ph
+                        params = (site,)
+                    q += " ORDER BY CAST(us AS INTEGER)"
+                    cur = conn.cursor(); cur.execute(q, params)
+                    fetched = cur.fetchall()
+                except Exception:
+                    fetched = []
+                finally:
+                    conn.close()
+        except Exception:
+            fetched = []
+        for rr in fetched:
+            sito, area, us, st, en, lab, src = rr
+            self._add_row(sito, area, us, "", "", st, en, lab, src)
+        if self.table.rowCount() == 0:
+            self._add_row(site if site and site != "all" else "")
+        else:
+            self.status.setText("Caricate %d date dal DB." % len(fetched))
+
     def _collect_rows(self, require_c14):
-        """Read the table into dicts; show a message and return None on error."""
+        """Read the table into dicts; show a message and return None on error.
+
+        require_c14=True  -> needs C14 BP/error (for calibration)
+        require_c14=False -> needs start/end    (direct edit/save)
+        Each dict carries ``_row`` (the table row index).
+        """
         rows = []
         for r in range(self.table.rowCount()):
             def cell(c):
                 it = self.table.item(r, c)
                 return it.text().strip() if it and it.text() else ""
             sito, area, us = cell(0), cell(1) or None, cell(2)
-            bp, err, lab = cell(3), cell(4), cell(5) or None
-            if not any([sito, area, us, bp, err, lab]):
+            bp, err = cell(3), cell(4)
+            start, end = cell(5), cell(6)
+            lab, source = cell(7) or None, cell(8) or None
+            if not any([sito, area, us, bp, err, start, end, lab, source]):
                 continue
             if not sito or not us:
                 QMessageBox.warning(self, "palimpsestr",
@@ -1140,7 +1196,8 @@ class PalimpsestChronologyDialog(QDialog):
                 QMessageBox.warning(self, "palimpsestr",
                                     "Riga %d: US dev'essere un intero." % (r + 1))
                 return None
-            rec = {"sito": sito, "area": area, "us": us_i, "lab_code": lab}
+            rec = {"_row": r, "sito": sito, "area": area, "us": us_i,
+                   "lab_code": lab, "source": source}
             if require_c14:
                 try:
                     rec["c14_bp"] = float(bp)
@@ -1149,6 +1206,15 @@ class PalimpsestChronologyDialog(QDialog):
                     QMessageBox.warning(
                         self, "palimpsestr",
                         "Riga %d: C14 BP ed errore devono essere numeri." % (r + 1))
+                    return None
+            else:
+                try:
+                    rec["start"] = int(float(start))
+                    rec["end"] = int(float(end))
+                except ValueError:
+                    QMessageBox.warning(
+                        self, "palimpsestr",
+                        "Riga %d: start ed end devono essere interi." % (r + 1))
                     return None
             rows.append(rec)
         return rows
@@ -1331,15 +1397,40 @@ class PalimpsestChronologyDialog(QDialog):
             se = cal.get(str(i))
             if not se:
                 continue
+            # write the calibrated start/end back into the table (cols 5,6)
+            self.table.setItem(r["_row"], 5, QTableWidgetItem(str(se[0])))
+            self.table.setItem(r["_row"], 6, QTableWidgetItem(str(se[1])))
+            self.table.setItem(r["_row"], 8, QTableWidgetItem("oxcal"))
             save.append((r["sito"], r["area"], r["us"], se[0], se[1],
                          r["lab_code"], "oxcal"))
         n = self._save_rows(save)
-        self.status.setText("Salvate %d data/e US calibrate in %s."
-                            % (n, CHRONOLOGY_TABLE))
         if n:
+            self._load_existing()
+            self.status.setText("Salvate %d data/e US calibrate in %s."
+                                % (n, CHRONOLOGY_TABLE))
             QMessageBox.information(
                 self, "palimpsestr",
                 "Salvate %d data/e calibrate in %s." % (n, CHRONOLOGY_TABLE))
+
+    def _save_edits(self):
+        """Save the table's start/end directly (manual edit, no calibration)."""
+        rows_in = self._collect_rows(require_c14=False)
+        if rows_in is None:
+            return
+        if not rows_in:
+            QMessageBox.warning(self, "palimpsestr",
+                                "Inserisci almeno una riga con start/end.")
+            return
+        save = [(r["sito"], r["area"], r["us"], r["start"], r["end"],
+                 r["lab_code"], r["source"] or "manual") for r in rows_in]
+        n = self._save_rows(save)
+        if n:
+            self._load_existing()
+            self.status.setText("Salvate/aggiornate %d date in %s."
+                                % (n, CHRONOLOGY_TABLE))
+            QMessageBox.information(
+                self, "palimpsestr",
+                "Salvate/aggiornate %d date in %s." % (n, CHRONOLOGY_TABLE))
 
     # ----------------------------------------------------------- OxCal plot ---
     def _show_plot(self):
@@ -1390,7 +1481,8 @@ class PalimpsestChronologyDialog(QDialog):
                     self._add_row(g(row, "sito"), g(row, "area"), g(row, "us"),
                                   g(row, "c14_bp", "bp"),
                                   g(row, "c14_error", "error", "std"),
-                                  g(row, "lab_code", "lab"))
+                                  g(row, "start"), g(row, "end"),
+                                  g(row, "lab_code", "lab"), g(row, "source"))
         except Exception as e:
             QMessageBox.critical(self, "palimpsestr",
                                  "Impossibile leggere il CSV:\n%s" % e)
@@ -1436,8 +1528,9 @@ class PalimpsestChronologyDialog(QDialog):
                                 "Nessuna riga valida trovata nel CSV.")
             return
         n = self._save_rows(save)
-        self.status.setText("Importate %d data/e US calibrate." % n)
         if n:
+            self._load_existing()
+            self.status.setText("Importate %d data/e US calibrate." % n)
             QMessageBox.information(
                 self, "palimpsestr",
                 "Importate %d data/e calibrate in %s." % (n, CHRONOLOGY_TABLE))

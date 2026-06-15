@@ -139,7 +139,7 @@ def _methodologist_prompt(facts, lang_name):
         "per la lettura della residualità.\n"
         "4. La selezione dei reperti e l'uso della cronologia assoluta OxCal.\n"
         "Indica limiti e cautele. NON inventare numeri: usa solo quelli forniti. "
-        "Scrivi ESCLUSIVAMENTE in %s." % lang_name)
+        "Scrivi ESCLUSIVAMENTE in " + lang_name + ".")
 
 
 def _analyst_prompt(facts, lang_name):
@@ -154,8 +154,8 @@ def _analyst_prompt(facts, lang_name):
         "direzione cronologica; collega le date alle fasi.\n"
         "3. Residualità e intrusioni: cosa dicono sui processi di formazione.\n"
         "4. Eventuale pattern spaziale.\n"
-        "Fonda ogni affermazione sui dati forniti. Scrivi ESCLUSIVAMENTE in %s."
-        % lang_name)
+        "Fonda ogni affermazione sui dati forniti. Scrivi ESCLUSIVAMENTE in "
+        + lang_name + ".")
 
 
 def _synthesis_prompt(facts, lang_name, methodology, analysis):
@@ -178,7 +178,7 @@ def _synthesis_prompt(facts, lang_name, methodology, analysis):
         "- richiama le figure pertinenti per nome quando illustrano un punto;\n"
         "- chiudi con conclusioni e raccomandazioni operative.\n"
         "Usa tabelle Markdown vere (con `|`). NON inventare numeri. Scrivi "
-        "ESCLUSIVAMENTE in %s." % lang_name)
+        "ESCLUSIVAMENTE in " + lang_name + ".")
 
 
 # --------------------------------------------------------------- worker thread ---
