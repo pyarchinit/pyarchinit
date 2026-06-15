@@ -5,6 +5,20 @@
 
 ---
 
+## [5.13.1-alpha] - 2026-06-15 — Palimpsest hotfix: conoscenza del paper negli agenti AI + fix report/cronologia
+
+> Branch `Stratigraph_00001`, tag `palimpsest-5.13.1-alpha`. Consolida i fix post-`5.13.0-alpha` (vedi voce sotto: report AI non troncato, grafico OxCal descrittivo, rendering DOCX/PDF con tabelle e figure, crash `%`, vista/modifica cronologia) **+** la base di conoscenza del pacchetto R.
+
+### Italiano
+
+- **Conoscenza di riferimento su palimpsestr negli agenti AI** (`PALIMPSESTR_KNOWLEDGE` in `tabs/palimpsest_ai_report.py`, distillata dal paper *palimpsestR v0.21.0* — Cocca, Montagnetti, Cattani): iniettata in tutti e tre gli agenti. Copre cos'è/come funziona il modello SEF, il senso dei parametri (multinomiale vs gaussiano, K e selezione, noise, Harris/strat_dynamic, chrono_uncertainty), il significato delle diagnostiche (PDI, entropia, ESE, intrusioni, SEI) e — soprattutto — i **limiti**: assunzione di stratigrafia orizzontale (z come proxy cronologico; non valida per riempimenti di tagli/pendii), **risoluzione vincolata dal dato** (con coordinate di centroide US e date unit-tied, PDI≈1 ed entropia≈0 riflettono la registrazione, NON una sequenza perfettamente risolta), mescolamento funzionale vs deposizionale, direzione richiede datazione per-reperto, SEI non confrontabile tra siti, e il **punteggio tafonomico (taf)** = valore interpretativo in [0,1] assegnato dall'archeologo (non calcolato automaticamente). Il redattore deve includere una sezione **"Limiti e cautele"**.
+
+### English
+
+- **palimpsestr reference knowledge in the AI agents** (`PALIMPSESTR_KNOWLEDGE`, distilled from the *palimpsestR v0.21.0* methods paper): injected into all three agents so the report respects how the SEF model works, what the diagnostics mean and the package's limitations — especially that on unit-tied/centroid data a near-perfect PDI and zero entropy reflect the **recording resolution, not a perfectly resolved sequence**; the horizontal-stratigraphy assumption; functional-vs-depositional mixing; and that the taphonomic score (taf) is an interpretive [0,1] value assigned by the excavator, not computed automatically. The synthesiser must add a **"Limits and caveats"** section. Bundles the post-5.13.0 fixes (untruncated AI report, descriptive OxCal plot, DOCX/PDF rendering with tables+figures, `%` crash, chronology view/edit).
+
+---
+
 ## [5.13.0-alpha] - 2026-06-15 — Palimpsest (palimpsestr/SEF): report AI multi-agente, OxCal permanente, dati esempio, tutorial 10 lingue
 
 > Branch `Stratigraph_00001`, tag `palimpsest-5.13.0-alpha`. Release che consolida la scheda Palimpsest: Part D (report narrato + reperti + PostgreSQL + cronologia OxCal, voce `[palimpsest-report]` sotto) **+** icona, report AI multi-agente, OxCal permanente, dati di esempio e documentazione.

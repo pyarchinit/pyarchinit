@@ -61,6 +61,89 @@ FIGURE_CAPTIONS = {
 }
 
 
+# Authoritative reference knowledge about the palimpsestr R package, distilled
+# from the methods paper (Cocca, Montagnetti, Cattani — palimpsestR v0.21.0).
+# Injected into every agent so the report respects how the model works, what the
+# diagnostics mean, and — crucially — the package's known LIMITATIONS, so the AI
+# never over-reads results (e.g. a perfect PDI on unit-tied data is a property of
+# the RECORDING, not proof of a perfectly resolved sequence).
+PALIMPSESTR_KNOWLEDGE = """CONOSCENZA DI RIFERIMENTO SU palimpsestr (paper v0.21.0) — usala per
+interpretare correttamente e con cautela; NON contraddirla.
+
+COS'È / COME FUNZIONA
+- palimpsestr implementa lo Stratigraphic Entanglement Field (SEF): scompone
+  in modo probabilistico un palinsesto (deposito in cui materiale di più fasi è
+  sovrapposto e parzialmente rimescolato). Obiettivo primario: assegnare a ogni
+  reperto un punteggio probabilistico di possibile redeposizione e, per
+  aggregazione, una misura di "carattere palinsesto" per US e per fase.
+- Modello: mistura finita mista fittata via EM. Le feature numeriche (x, y, z,
+  punto medio e ampiezza dell'intervallo cronologico) seguono una gaussiana a
+  covarianza diagonale per fase; la classe culturale è modellata come
+  distribuzione categoriale (multinomiale) per fase.
+- 4 domini di evidenza: coordinate orizzontali, quota verticale, intervallo
+  cronologico, classe culturale.
+
+PARAMETRI E LORO SENSO
+- class_model: "multinomial" (default, CONSIGLIATO: tiene le US coerenti, non le
+  frammenta per tipologia) vs "gaussian" (legacy one-hot: sovra-sicuro, può
+  spezzare una stessa US su più fasi per sola tipologia → evitare).
+- K (numero di fasi/eventi): scelto al minimo BIC MA con plausibilità
+  archeologica; compare_k() confronta K. Oltre un certo K si suddivide per
+  tipologia, non per cronologia. Se le fasi sono molto distanti nel tempo usare
+  "macro-evento" non "fase".
+- noise=TRUE: componente uniforme di fondo → la probabilità di intrusione è una
+  VERA posterior (assoluta, non riscalata; può non coprire [0,1] e non flaggare
+  nulla se l'assemblaggio è pulito).
+- Vincolo Harris/stratigrafico (penalità soft sulla E-step; strat_dynamic =
+  Neighborhood-EM); chrono_uncertainty propaga l'ampiezza dell'intervallo di
+  datazione.
+
+DIAGNOSTICHE
+- PDI = 1 - H_media/log(K): 0 = mescolamento completo, 1 = separazione perfetta;
+  > 0.7 = fasi ben risolte.
+- Entropia di Shannon per reperto: bassa = assegnazione sicura.
+- ESE (Excavation Stratigraphic Energy): dissimilarità di fase dai vicini
+  spaziali; alta = disturbo/rimescolamento locale.
+- Intrusione: posterior della componente di rumore; con direzione
+  (older-/younger-than-context) e offset in anni.
+- SEI: entanglement a coppie (spaziale+verticale+overlap temporale+classe).
+
+LIMITI FONDAMENTALI (DA CONSIDERARE SEMPRE)
+- Assunzione di stratigrafia orizzontale: z è un proxy della posizione
+  cronologica relativa. Valida SOLO per depositi a strati sub-orizzontali e non
+  disturbati. NON valida per depositi inclinati, crolli di pendio, riempimenti
+  di tagli (fosse, buche di palo), sedimenti terrazzati, dove reperti a z diversa
+  possono appartenere a un unico evento. Cautela nei contesti geometricamente
+  complessi.
+- Risoluzione vincolata dal dato: la risoluzione di fase è limitata dalla
+  risoluzione spaziale e cronologica. Se i reperti ereditano coordinate del
+  CENTROIDE di US e date legate all'US (unit-tied), il modello risolve SOLO a
+  livello di US e macro-evento; entropia/PDI a livello di reperto diventano non
+  informativi (PDI satura ~1, entropia ~0). **Un PDI≈1 ed entropia≈0 in questo
+  caso riflettono la REGISTRAZIONE, non una sequenza perfettamente risolta**: va
+  dichiarato esplicitamente. Per il mescolamento intra-US servono registrazione
+  per-reperto e datazione tipologica per-reperto.
+- Mescolamento funzionale vs deposizionale: il modello segnala materiale
+  eterogeneo anche quando l'eterogeneità è funzionale (es. un focolare);
+  distinguere richiede l'interpretazione dell'archeologo.
+- Le diagnostiche di direzione (older/younger-than-context) sono informative solo
+  con datazione per-reperto distinta; con date unit-tied ogni reperto è
+  "in-context".
+- Covarianza diagonale (indipendenza condizionata); SEI normalizzato per-dataset
+  (non confrontabile tra siti: usare PDI/entropia media/ARI); SEI/ESE O(n²) per
+  n grandi.
+
+PUNTEGGIO TAFONOMICO (taf_score)
+- Numerico in [0,1]: 0 = reperto del tutto disturbato/redeposto, 1 = integro in
+  posto. Pesa i reperti nella stima (M-step: down-weight dei mal conservati).
+- NON è calcolato automaticamente: è un valore INTERPRETATIVO assegnato
+  dall'archeologo in base al contesto deposizionale (es. 1.0 depositi in situ;
+  0.5–0.7 strati di accumulo/livellamento; 0.3 riempimenti chiaramente
+  redeposti). Se assente, il peso è uniforme. Riportare se il taf è stato usato
+  o meno e l'effetto sulla lettura della residualità.
+"""
+
+
 def _model_name(idx):
     return ("multinomial", "gaussian")[idx] if idx in (0, 1) else str(idx)
 
@@ -86,6 +169,8 @@ def _rows_md_table(rows, columns, headers=None):
 def _facts_block(facts):
     """Compact, data-rich description of the run, fed to every agent."""
     lines = [
+        PALIMPSESTR_KNOWLEDGE, "",
+        "=== DATI DI QUESTA ANALISI ===",
         "PARAMETRI DELL'ANALISI SEF (palimpsestr):",
         "- Sito: %s" % facts.get("site", "tutti"),
         "- Backend dati: %s" % facts.get("backend", "?"),
@@ -175,6 +260,12 @@ def _synthesis_prompt(facts, lang_name, methodology, analysis):
         "significato di soglia/rumore, la selezione dei reperti;\n"
         "- interpreta i risultati (fasi, cronologia, residualità) in modo "
         "comprensibile;\n"
+        "- includi una sezione **Limiti e cautele** basata sulla conoscenza di "
+        "riferimento: assunzione di stratigrafia orizzontale, risoluzione "
+        "vincolata dal dato (se i dati sono unit-tied, dichiara che PDI≈1 ed "
+        "entropia≈0 riflettono la REGISTRAZIONE, non una sequenza perfettamente "
+        "risolta), mescolamento funzionale vs deposizionale, uso o meno del "
+        "punteggio tafonomico (taf);\n"
         "- richiama le figure pertinenti per nome quando illustrano un punto;\n"
         "- chiudi con conclusioni e raccomandazioni operative.\n"
         "Usa tabelle Markdown vere (con `|`). NON inventare numeri. Scrivi "
