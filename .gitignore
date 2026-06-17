@@ -18,6 +18,7 @@ __pycache__/
 /tests/*
 !/tests/sync/
 !/tests/migrations/
+!/tests/utility/
 
 # Local scratch notes (inventory dumps, throwaway diagnostics)
 .scratch/

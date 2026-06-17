@@ -373,12 +373,24 @@ class LLMProviderManager:
         Without this, an LLM error from a misconfigured client looks identical
         to an error from the right server, making debugging impossible.
         Returning a new exception keeps the stack but makes the cause obvious.
+
+        We try to preserve the original exception type, but several SDK errors
+        (e.g. ``anthropic.APIStatusError`` and subclasses, whose ``__init__`` is
+        ``(message, *, response, body)``) cannot be rebuilt from a message
+        alone; rebuilding them raised the cryptic
+        ``__init__() missing 2 required keyword-only arguments: 'response' and
+        'body'`` and *hid* the real cause. Fall back to ``RuntimeError`` in that
+        case so the underlying message (and the chained cause) survive.
         """
         ctx = (
             f"[provider={config.provider.value} base_url={config.base_url} "
             f"model={config.model!r}]"
         )
-        return type(exc)(f"{exc} {ctx}")
+        msg = f"{exc} {ctx}"
+        try:
+            return type(exc)(msg)
+        except Exception:
+            return RuntimeError(msg)
 
     @staticmethod
     def stream_chat(
