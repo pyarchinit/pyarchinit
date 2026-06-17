@@ -30,7 +30,8 @@ pyArchInit) permite:
 ## 1. Pré-requisitos
 
 - **R** instalado e o plugin **Processing R Provider** ativo no QGIS.
-- Pacote R **palimpsestr ≥ 0.22.0** (e dependências: `sf`, `DBI`, `RSQLite`;
+- Pacote R **palimpsestr ≥ 0.22.0** (**≥ 0.22.1** para a pontuação taf; **≥ 0.23.0**
+  para as coordenadas pontuais dos achados) (e dependências: `sf`, `DBI`, `RSQLite`;
   `RPostgres` para PostgreSQL).
 - Para o **relatório PDF/DOCX**: **pandoc** e um motor **LaTeX** (ex.: TinyTeX). Se
   faltarem, é mesmo assim produzida a narrativa Markdown `.md` + as figuras PNG.
@@ -175,11 +176,21 @@ relatório de escavação.
   os achados na estimativa. **Não é calculado automaticamente**: é o arqueólogo
   que o atribui com base no contexto deposicional (ex.: 1.0 depósitos in situ;
   0.5–0.7 acumulações/nivelamentos; 0.3 enchimentos claramente redepositados).
+- **Coordenadas pontuais dos achados** (palimpsestr ≥ 0.23.0): quando um achado
+  é desenhado como ponto em `pyarchinit_reperti` (ligado a
+  `inventario_materiali_table` pela junção `pyarchinit_reperti_view`, ou seja
+  sítio + número de inventário = `id_rep`), a análise usa as suas próprias x, y
+  (e z a partir da `quota` do ponto) em vez do centroide da US. Os achados sem
+  ponto mantêm o centroide da US. Onde o desenho pontual está disponível, isto
+  confere uma resolução espacial ao nível do achado e atenua a limitação do
+  centroide indicada a seguir. Não há nada a configurar — o diálogo deteta e usa
+  os pontos automaticamente.
 - **Limites a recordar** (o relatório AI declara-os automaticamente): o modelo
   pressupõe **estratigrafia horizontal** (z como proxy cronológico; cautela com
   enchimentos de cortes, colapsos, terraçamentos); a **resolução está vinculada
   ao dado**: com coordenadas do centroide da US e datas ligadas à US, um PDI≈1 e
-  entropia≈0 refletem o **registo**, não uma sequência perfeitamente resolvida.
+  entropia≈0 refletem o **registo**, não uma sequência perfeitamente resolvida
+  (os achados pontuais, quando presentes, melhoram a resolução espacial).
 
 ---
 

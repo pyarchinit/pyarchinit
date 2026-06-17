@@ -30,8 +30,9 @@ pyArchInit) permet de :
 ## 1. Prérequis
 
 - **R** installé et le plugin **Processing R Provider** activé dans QGIS.
-- Paquet R **palimpsestr ≥ 0.22.0** (et ses dépendances : `sf`, `DBI`, `RSQLite` ;
-  `RPostgres` pour PostgreSQL).
+- Paquet R **palimpsestr ≥ 0.22.0** (≥ 0.22.1 pour le score taf ; ≥ 0.23.0 pour
+  les coordonnées des mobiliers relevés point par point) (et ses dépendances :
+  `sf`, `DBI`, `RSQLite` ; `RPostgres` pour PostgreSQL).
 - Pour le **rapport PDF/DOCX** : **pandoc** et un moteur **LaTeX** (par ex.
   TinyTeX). En leur absence, la narration Markdown `.md` + les figures PNG sont
   tout de même produites.
@@ -189,13 +190,23 @@ le rapport de fouille.
   c'est l'archéologue qui l'attribue d'après le contexte de dépôt (par ex. 1.0
   pour les dépôts en place ; 0.5–0.7 pour les accumulations/nivellements ; 0.3
   pour les remblais nettement redéposés).
+- **Coordonnées des mobiliers relevés point par point** (palimpsestr ≥ 0.23.0) :
+  lorsqu'un mobilier est dessiné comme un point dans `pyarchinit_reperti` (lié à
+  `inventario_materiali_table` par la jointure `pyarchinit_reperti_view`, c.-à-d.
+  site + numéro d'inventaire = `id_rep`), l'analyse utilise ses propres x, y (et z
+  d'après la `quota` du point) au lieu du centroïde de l'US. Les mobiliers sans
+  point conservent le centroïde de l'US. Là où le relevé point par point est
+  disponible, cela offre une résolution spatiale au niveau du mobilier et atténue
+  la limite du centroïde signalée ci-dessous. Rien à configurer — la fenêtre
+  détecte et utilise les points automatiquement.
 - **Limites à garder à l'esprit** (le rapport IA les déclare automatiquement) :
   le modèle suppose une **stratigraphie horizontale** (z comme proxy
   chronologique ; prudence avec les remblais de creusements, les effondrements,
   les terrassements) ; la **résolution est bornée par la donnée** : avec des
   coordonnées de centroïde d'US et des dates liées à l'US, un PDI≈1 et une
   entropie≈0 reflètent l'**enregistrement**, et non une séquence parfaitement
-  résolue.
+  résolue (les mobiliers relevés point par point, lorsqu'ils sont présents,
+  améliorent la résolution spatiale).
 
 ---
 

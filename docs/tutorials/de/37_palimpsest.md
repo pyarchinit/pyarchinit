@@ -32,8 +32,9 @@ Werkzeugleiste) ermöglicht es:
 ## 1. Voraussetzungen
 
 - **R** installiert und das Plugin **Processing R Provider** in QGIS aktiviert.
-- R-Paket **palimpsestr ≥ 0.22.0** (und Abhängigkeiten: `sf`, `DBI`, `RSQLite`;
-  `RPostgres` für PostgreSQL).
+- R-Paket **palimpsestr ≥ 0.22.0** (≥ 0.22.1 für den taf-Wert; ≥ 0.23.0 für
+  punktgenau eingemessene Fundkoordinaten) (und Abhängigkeiten: `sf`, `DBI`,
+  `RSQLite`; `RPostgres` für PostgreSQL).
 - Für den **PDF/DOCX-Bericht**: **pandoc** und eine **LaTeX**-Engine (z. B.
   TinyTeX). Fehlen diese, werden dennoch die Markdown-Erzählung `.md` + die
   PNG-Abbildungen erzeugt.
@@ -184,12 +185,22 @@ Grabungsbericht.
   Archäologe vergibt ihn anhand des Ablagerungskontexts (z. B. 1.0 In-situ-
   Ablagerungen; 0.5–0.7 Akkumulations-/Planierungsschichten; 0.3 eindeutig
   umgelagerte Verfüllungen).
+- **Punktgenau eingemessene Fundkoordinaten** (palimpsestr ≥ 0.23.0): Wenn ein
+  Fund in `pyarchinit_reperti` als Punkt eingezeichnet ist (über den Join
+  `pyarchinit_reperti_view` mit der `inventario_materiali_table` verknüpft, also
+  Fundstätte + Inventarnummer = `id_rep`), verwendet die Analyse dessen eigene
+  x, y (und z aus der `quota` des Punktes) anstelle des US-Zentroids. Funde ohne
+  Punkt behalten den US-Zentroid. Wo eine punktgenaue Einmessung vorliegt, ergibt
+  dies eine räumliche Auflösung auf Fundebene und mildert die unten genannte
+  Zentroid-Grenze. Es ist nichts zu konfigurieren — der Dialog erkennt und
+  verwendet die Punkte automatisch.
 - **Zu beachtende Grenzen** (der KI-Bericht nennt sie automatisch): Das Modell
   setzt eine **horizontale Stratigraphie** voraus (z als chronologischer Proxy;
   Vorsicht bei Grubenverfüllungen, Einstürzen, Terrassierungen); die **Auflösung
   ist durch die Daten begrenzt**: Bei US-Zentroid-Koordinaten und an die US
   gebundenen Daten spiegeln ein PDI≈1 und eine Entropie≈0 die **Erfassung**
-  wider, nicht eine perfekt aufgelöste Sequenz.
+  wider, nicht eine perfekt aufgelöste Sequenz (punktgenau eingemessene Funde
+  verbessern, sofern vorhanden, die räumliche Auflösung).
 
 ---
 

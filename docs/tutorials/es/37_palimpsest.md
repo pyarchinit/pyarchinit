@@ -30,8 +30,9 @@ herramientas pyArchInit) permite:
 ## 1. Requisitos previos
 
 - **R** instalado y el plugin **Processing R Provider** activo en QGIS.
-- Paquete R **palimpsestr ≥ 0.22.0** (y dependencias: `sf`, `DBI`, `RSQLite`;
-  `RPostgres` para PostgreSQL).
+- Paquete R **palimpsestr ≥ 0.22.0** (**≥ 0.22.1** para la puntuación taf; **≥ 0.23.0**
+  para las coordenadas de hallazgos representados individualmente como puntos) (y
+  dependencias: `sf`, `DBI`, `RSQLite`; `RPostgres` para PostgreSQL).
 - Para el **informe PDF/DOCX**: **pandoc** y un motor **LaTeX** (p. ej. TinyTeX). Si
   faltan, igualmente se produce la narrativa Markdown `.md` + las figuras PNG.
 - Para la **cronología OxCal**: paquete R **oxcAAR** y **Java** (el motor OxCal
@@ -181,12 +182,23 @@ relación de excavación.
   lo asigna el arqueólogo según el contexto deposicional (p. ej. 1.0 depósitos
   in situ; 0.5–0.7 acumulaciones/nivelaciones; 0.3 rellenos claramente
   redepositados).
+- **Coordenadas de hallazgos representados individualmente como puntos**
+  (palimpsestr ≥ 0.23.0): cuando un hallazgo se dibuja como punto en
+  `pyarchinit_reperti` (vinculado a `inventario_materiali_table` mediante el join
+  `pyarchinit_reperti_view`, es decir, sitio + número de inventario = `id_rep`), el
+  análisis utiliza sus propias x, y (y la z a partir de la `quota` del punto) en
+  lugar del centroide de la US. Los hallazgos sin punto conservan el centroide de
+  la US. Allí donde está disponible el dibujo individual por puntos, esto
+  proporciona una resolución espacial a nivel de hallazgo y mitiga la limitación
+  del centroide indicada a continuación. No hay nada que configurar: el cuadro de
+  diálogo detecta y usa los puntos automáticamente.
 - **Límites que conviene recordar** (el informe IA los declara automáticamente):
   el modelo asume **estratigrafía horizontal** (z como proxy cronológico;
   cautela con rellenos de cortes, derrumbes, aterrazamientos); la **resolución
   está limitada por el dato**: con coordenadas del centroide de la US y fechas
   ligadas a la US, un PDI≈1 y entropía≈0 reflejan el **registro**, no una
-  secuencia perfectamente resuelta.
+  secuencia perfectamente resuelta (los hallazgos representados individualmente
+  como puntos, cuando están presentes, mejoran la resolución espacial).
 
 ---
 

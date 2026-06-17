@@ -30,7 +30,8 @@ lets you:
 ## 1. Prerequisites
 
 - **R** installed and the **Processing R Provider** plugin enabled in QGIS.
-- R package **palimpsestr ≥ 0.22.0** (≥ 0.22.1 for the taf score) (and dependencies: `sf`, `DBI`, `RSQLite`;
+- R package **palimpsestr ≥ 0.22.0** (≥ 0.22.1 for the taf score; ≥ 0.23.0 for
+  piece-plotted find coordinates) (and dependencies: `sf`, `DBI`, `RSQLite`;
   `RPostgres` for PostgreSQL).
 - For the **PDF/DOCX report**: **pandoc** and a **LaTeX** engine (e.g. TinyTeX).
   If missing, the Markdown `.md` narrative + PNG figures are still produced.
@@ -179,11 +180,21 @@ excavation report.
   finds in the estimation. It is **not computed automatically**: the excavator
   assigns it from the depositional context (e.g. 1.0 in-situ deposits; 0.5–0.7
   accumulation/levelling layers; 0.3 clearly redeposited fills).
+- **Piece-plotted find coordinates** *(palimpsestr ≥ 0.23.0)*: when a find is
+  drawn as a **point** in `pyarchinit_reperti` (linked to
+  `inventario_materiali_table` by the `pyarchinit_reperti_view` join, i.e.
+  site + inventory number = `id_rep`), the analysis uses **its own** x, y (and z
+  from the point's `quota`) **instead of the US centroid**. Finds without a point
+  keep the US centroid. Where piece-plotting is available this gives
+  **find-level spatial resolution** and mitigates the centroid limitation noted
+  below. Nothing to configure — the dialog detects and uses the points
+  automatically.
 - **Limitations to keep in mind** (the AI report states them automatically):
   the model assumes **horizontal stratigraphy** (z as a chronological proxy; be
   cautious with cut fills, collapses, terracing); the **resolution is bounded by
   the data**: with US-centroid coordinates and unit-tied dates, a PDI≈1 and zero
-  entropy reflect the **recording**, not a perfectly resolved sequence.
+  entropy reflect the **recording**, not a perfectly resolved sequence
+  (piece-plotted finds, when present, improve the spatial resolution).
 
 ---
 

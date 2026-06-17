@@ -30,8 +30,9 @@ pyArchInit) permet:
 ## 1. Requisits previs
 
 - **R** instal·lat i el connector **Processing R Provider** actiu a QGIS.
-- Paquet R **palimpsestr ≥ 0.22.0** (i dependències: `sf`, `DBI`, `RSQLite`;
-  `RPostgres` per a PostgreSQL).
+- Paquet R **palimpsestr ≥ 0.22.0** (**≥ 0.22.1** per a la puntuació taf; **≥ 0.23.0**
+  per a les coordenades de troballes registrades puntualment) (i dependències: `sf`,
+  `DBI`, `RSQLite`; `RPostgres` per a PostgreSQL).
 - Per a l'**informe PDF/DOCX**: **pandoc** i un motor **LaTeX** (p. ex. TinyTeX).
   Si manquen, igualment es produeix la narrativa Markdown `.md` + les figures PNG.
 - Per a la **cronologia OxCal**: paquet R **oxcAAR** i **Java** (el motor OxCal es
@@ -180,12 +181,22 @@ l'informe d'excavació.
   les troballes en l'estimació. **No es calcula automàticament**: l'assigna
   l'arqueòleg en funció del context deposicional (p. ex. 1.0 dipòsits in situ;
   0.5–0.7 acumulacions/anivellaments; 0.3 farciments clarament redipositats).
+- **Coordenades de troballes registrades puntualment** (palimpsestr ≥ 0.23.0): quan
+  una troballa es dibuixa com a punt a `pyarchinit_reperti` (vinculada a
+  `inventario_materiali_table` mitjançant la unió `pyarchinit_reperti_view`, és a dir
+  lloc + número d'inventari = `id_rep`), l'anàlisi utilitza les seves pròpies x, y (i
+  la z a partir de la `quota` del punt) en lloc del centroide de l'US. Les troballes
+  sense punt conserven el centroide de l'US. Allà on hi ha registre puntual, això
+  proporciona una resolució espacial a nivell de troballa i mitiga la limitació del
+  centroide indicada a continuació. No cal configurar res — el diàleg detecta i
+  utilitza els punts automàticament.
 - **Límits a recordar** (l'informe AI els declara automàticament): el model
   assumeix **estratigrafia horitzontal** (z com a indicador cronològic; cautela
   amb farciments de talls, esfondraments, terrasses); la **resolució està
   limitada per la dada**: amb coordenades del centroide US i dates lligades a
   l'US, un PDI≈1 i entropia≈0 reflecteixen el **registre**, no una seqüència
-  perfectament resolta.
+  perfectament resolta (les troballes registrades puntualment, quan hi són,
+  milloren la resolució espacial).
 
 ---
 

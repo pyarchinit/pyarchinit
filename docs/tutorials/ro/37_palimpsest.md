@@ -30,8 +30,9 @@ instrumente pyArchInit) permite:
 ## 1. Cerințe prealabile
 
 - **R** instalat și pluginul **Processing R Provider** activ în QGIS.
-- Pachetul R **palimpsestr ≥ 0.22.0** (și dependențele: `sf`, `DBI`, `RSQLite`;
-  `RPostgres` pentru PostgreSQL).
+- Pachetul R **palimpsestr ≥ 0.22.0** (≥ 0.22.1 pentru scorul taf; ≥ 0.23.0
+  pentru coordonatele punctuale ale reperelor) (și dependențele: `sf`, `DBI`,
+  `RSQLite`; `RPostgres` pentru PostgreSQL).
 - Pentru **raportul PDF/DOCX**: **pandoc** și un motor **LaTeX** (de ex. TinyTeX).
   Dacă lipsesc, sunt produse oricum narațiunea Markdown `.md` + figurile PNG.
 - Pentru **cronologia OxCal**: pachetul R **oxcAAR** și **Java** (motorul OxCal
@@ -176,11 +177,21 @@ săpătură.
   materialele în estimare. **Nu este calculat automat**: îl atribuie arheologul în
   funcție de contextul depozițional (de ex. 1.0 depozite in situ; 0.5–0.7 straturi
   de acumulare/nivelare; 0.3 umpluturi clar redepuse).
+- **Coordonatele punctuale ale reperelor** (palimpsestr ≥ 0.23.0): când un reper
+  este desenat ca punct în `pyarchinit_reperti` (legat de
+  `inventario_materiali_table` prin joinul `pyarchinit_reperti_view`, adică sit +
+  numărul de inventar = `id_rep`), analiza folosește propriile sale coordonate x, y
+  (și z din `quota` punctului) în locul centroidului US. Reperele fără punct
+  păstrează centroidul US. Acolo unde înregistrarea punctuală este disponibilă,
+  aceasta oferă o rezoluție spațială la nivel de reper și atenuează limita
+  centroidului menționată mai jos. Nu este nimic de configurat — fereastra de
+  dialog detectează și folosește punctele automat.
 - **Limite de reținut** (raportul AI le declară automat): modelul presupune
   **stratigrafie orizontală** (z ca proxy cronologic; prudență cu umpluturi de
   tăieturi, prăbușiri, terasări); **rezoluția este limitată de dată**: cu
   coordonate ale centroidului US și date legate de US, un PDI≈1 și entropie≈0
-  reflectă **înregistrarea**, nu o secvență perfect rezolvată.
+  reflectă **înregistrarea**, nu o secvență perfect rezolvată (reperele cu
+  coordonate punctuale, când sunt prezente, îmbunătățesc rezoluția spațială).
 
 ---
 

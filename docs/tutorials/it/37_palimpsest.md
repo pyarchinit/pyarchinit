@@ -30,8 +30,9 @@ pyArchInit) consente di:
 ## 1. Prerequisiti
 
 - **R** installato e il plugin **Processing R Provider** attivo in QGIS.
-- Pacchetto R **palimpsestr ≥ 0.22.0** (≥ 0.22.1 per il punteggio taf) (e dipendenze: `sf`, `DBI`, `RSQLite`;
-  `RPostgres` per PostgreSQL).
+- Pacchetto R **palimpsestr ≥ 0.22.0** (≥ 0.22.1 per il punteggio taf;
+  ≥ 0.23.0 per le coordinate puntuali dei reperti) (e dipendenze: `sf`, `DBI`,
+  `RSQLite`; `RPostgres` per PostgreSQL).
 - Per il **report PDF/DOCX**: **pandoc** e un motore **LaTeX** (es. TinyTeX). Se
   mancano, viene comunque prodotta la narrativa Markdown `.md` + le figure PNG.
 - Per la **cronologia OxCal**: pacchetto R **oxcAAR** e **Java** (il motore OxCal
@@ -179,12 +180,22 @@ relazione di scavo.
   reperti nella stima. **Non è calcolato automaticamente**: lo assegna
   l'archeologo in base al contesto deposizionale (es. 1.0 depositi in situ;
   0.5–0.7 accumuli/livellamenti; 0.3 riempimenti chiaramente redeposti).
+- **Coordinate puntuali dei reperti (piece-plotting)** *(palimpsestr ≥ 0.23.0)*:
+  se un reperto è disegnato come **punto** in `pyarchinit_reperti` (collegato a
+  `inventario_materiali_table` dalla vista `pyarchinit_reperti_view`, ovvero
+  sito + numero inventario = `id_rep`), l'analisi usa le **sue** coordinate
+  x, y (e la z dalla `quota` del punto) **invece del centroide della US**. I
+  reperti senza punto continuano a usare il centroide della US. Dove il
+  piece-plotting è disponibile questo dà una **risoluzione spaziale a livello di
+  reperto** e attenua il limite del centroide descritto qui sotto. Non serve
+  configurare nulla: la scheda rileva e usa i punti automaticamente.
 - **Limiti da ricordare** (il report AI li dichiara automaticamente): il modello
   assume **stratigrafia orizzontale** (z come proxy cronologico; cautela con
   riempimenti di tagli, crolli, terrazzamenti); la **risoluzione è vincolata dal
   dato**: con coordinate del centroide US e date legate all'US, un PDI≈1 ed
   entropia≈0 riflettono la **registrazione**, non una sequenza perfettamente
-  risolta.
+  risolta (il piece-plotting dei reperti, quando presente, migliora la
+  risoluzione spaziale).
 
 ---
 
