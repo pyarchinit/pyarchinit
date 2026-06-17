@@ -1755,7 +1755,10 @@ class GenerateReportThread(QThread):
         try:
             from langchain_openai import OpenAIEmbeddings
             from langchain_community.vectorstores import FAISS
-            from langchain.text_splitter import RecursiveCharacterTextSplitter
+            try:
+                from langchain_text_splitters import RecursiveCharacterTextSplitter  # langchain >=0.2 / 1.x
+            except ImportError:
+                from langchain.text_splitter import RecursiveCharacterTextSplitter  # legacy <0.2
         except ImportError as e:
             self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.", "error")
             return None
@@ -1835,8 +1838,11 @@ class GenerateReportThread(QThread):
         """
         # Lazy import to avoid pydantic conflicts
         try:
-            from langchain.chains import RetrievalQA
-            from langchain.prompts import PromptTemplate
+            try:
+                from langchain.chains import RetrievalQA  # langchain 0.3.x
+            except ImportError:
+                from langchain_classic.chains import RetrievalQA  # langchain 1.x (legacy chains)
+            from langchain_core.prompts import PromptTemplate
         except ImportError as e:
             self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain.", "error")
             return None
@@ -2902,7 +2908,7 @@ class GenerateReportThread(QThread):
                             self.log_message.emit(f"Using direct approach due to optimization", "info")
 
                         # Initialize LLM for RAG with streaming
-                        from langchain.callbacks.base import BaseCallbackHandler
+                        from langchain_core.callbacks.base import BaseCallbackHandler
 
                         class StreamingHandler(BaseCallbackHandler):
                             def __init__(self, parent_thread):
@@ -2967,7 +2973,7 @@ class GenerateReportThread(QThread):
                         simplified_prompt = base_prompt.replace(data_summary, simplified_data_summary)
 
                         # Create streaming handler for overview
-                        from langchain.callbacks.base import BaseCallbackHandler
+                        from langchain_core.callbacks.base import BaseCallbackHandler
 
                         class OverviewStreamHandler(BaseCallbackHandler):
                             def __init__(self, parent_thread):
@@ -3244,7 +3250,7 @@ Provide detailed answers for each question, clearly numbered."""
                             # Fall through to the normal processing below
                     else:
                         # For smaller datasets, process normally with streaming
-                        from langchain.callbacks.base import BaseCallbackHandler
+                        from langchain_core.callbacks.base import BaseCallbackHandler
 
                         class StreamHandler(BaseCallbackHandler):
                             def __init__(self, parent_thread):
@@ -3364,7 +3370,7 @@ Provide detailed answers for each question, clearly numbered."""
                                 simplified_prompt += "\n\nAnalizza i dati disponibili e fornisci un'analisi generale. Indica chiaramente che l'analisi è basata su un campione ridotto dei dati."
 
                                 # Process with simplified data with streaming
-                                from langchain.callbacks.base import BaseCallbackHandler
+                                from langchain_core.callbacks.base import BaseCallbackHandler
 
                                 class SimplifiedStreamHandler(BaseCallbackHandler):
                                     def __init__(self, parent_thread):
@@ -6280,8 +6286,14 @@ class RAGQueryWorker(QThread):
         try:
             from langchain_openai import ChatOpenAI, OpenAIEmbeddings
             from langchain_community.vectorstores import FAISS
-            from langchain.text_splitter import RecursiveCharacterTextSplitter
-            from langchain.agents import Tool
+            try:
+                from langchain_text_splitters import RecursiveCharacterTextSplitter  # langchain >=0.2 / 1.x
+            except ImportError:
+                from langchain.text_splitter import RecursiveCharacterTextSplitter  # legacy <0.2
+            try:
+                from langchain_core.tools import Tool  # canonical (langchain 0.1+ and 1.x)
+            except ImportError:
+                from langchain.agents import Tool  # legacy re-export
         except ImportError as e:
             self.error_occurred.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.")
             return
@@ -7639,7 +7651,10 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
     def create_analysis_tools(self, data, vectorstore):
         """Create analysis tools"""
         # Lazy import to avoid pydantic conflicts
-        from langchain.agents import Tool
+        try:
+            from langchain_core.tools import Tool  # canonical (langchain 0.1+ and 1.x)
+        except ImportError:
+            from langchain.agents import Tool  # legacy re-export
 
         return [
             Tool(
@@ -10719,7 +10734,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         try:
             from langchain_openai import OpenAIEmbeddings
             from langchain_community.vectorstores import FAISS
-            from langchain.text_splitter import RecursiveCharacterTextSplitter
+            try:
+                from langchain_text_splitters import RecursiveCharacterTextSplitter  # langchain >=0.2 / 1.x
+            except ImportError:
+                from langchain.text_splitter import RecursiveCharacterTextSplitter  # legacy <0.2
         except ImportError as e:
             self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain and openai.", "error")
             return None
@@ -10799,8 +10817,11 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         """
         # Lazy import to avoid pydantic conflicts
         try:
-            from langchain.chains import RetrievalQA
-            from langchain.prompts import PromptTemplate
+            try:
+                from langchain.chains import RetrievalQA  # langchain 0.3.x
+            except ImportError:
+                from langchain_classic.chains import RetrievalQA  # langchain 1.x (legacy chains)
+            from langchain_core.prompts import PromptTemplate
         except ImportError as e:
             self.log_message.emit(f"Error importing AI libraries: {str(e)}. Please install langchain.", "error")
             return None
@@ -11239,7 +11260,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def create_analysis_tools(self, report_data, site_data, us_data, materials_data, pottery_data):
         """Create analysis tools for the LangChain agent"""
-        from langchain.agents import Tool
+        try:
+            from langchain_core.tools import Tool  # canonical (langchain 0.1+ and 1.x)
+        except ImportError:
+            from langchain.agents import Tool  # legacy re-export
         return [
             Tool(
                 name="AnalisiContestoSito",
@@ -11292,7 +11316,10 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
 
     def create_validation_tools(self, site_data, us_data, materials_data, pottery_data):
         """Create validation tools for the LangChain agent"""
-        from langchain.agents import Tool
+        try:
+            from langchain_core.tools import Tool  # canonical (langchain 0.1+ and 1.x)
+        except ImportError:
+            from langchain.agents import Tool  # legacy re-export
         return [
             Tool(
                 name="ValidazioneUS",
@@ -11546,7 +11573,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
     def create_system_message(self):
         """Create the system message for the LangChain agent with full schema knowledge"""
         # Lazy import to avoid pydantic conflicts on Windows
-        from langchain.schema import SystemMessage
+        from langchain_core.messages import SystemMessage
 
         # Import database schema knowledge
         try:
@@ -12057,7 +12084,10 @@ DATABASE SCHEMA KNOWLEDGE:
                 # Step 10: Set up LangChain components
                 # Lazy imports to avoid pydantic conflicts on Windows
                 from langchain_openai import ChatOpenAI
-                from langchain.memory import ConversationSummaryMemory
+                try:
+                    from langchain.memory import ConversationSummaryMemory  # langchain 0.3.x
+                except ImportError:
+                    from langchain_classic.memory import ConversationSummaryMemory  # langchain 1.x (legacy memory)
 
                 # Build chat LLM honouring the chosen provider.
                 # OpenAI / Ollama / LM Studio share ChatOpenAI (with base_url

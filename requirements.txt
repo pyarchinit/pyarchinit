@@ -69,6 +69,11 @@ langchain-anthropic>=0.3.13; python_version<"3.10"
 langchain-anthropic>=1.0.0; python_version>="3.10"
 langchain-text-splitters>=0.3.9; python_version<"3.10"
 langchain-text-splitters>=1.1.2; python_version>="3.10"
+# langchain-classic: in the 1.x line the legacy chains (RetrievalQA) and memory
+# (ConversationSummaryMemory) were moved out of the core ``langchain`` namespace
+# into this package. Only needed on 1.x; on the 0.3.x line they still ship inside
+# langchain itself, so no extra dependency there.
+langchain-classic>=1.0.0; python_version>="3.10"
 langsmith>=0.3.42; python_version<"3.10"
 langsmith>=0.8.0; python_version>="3.10"
 
