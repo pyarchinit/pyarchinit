@@ -6404,7 +6404,10 @@ class RAGQueryWorker(QThread):
                                 f"[AI Query] Embeddings call failed at {_embed_url} "
                                 f"(model={_embed_model!r}): {_emb_e}"
                             )
-                            raise type(_emb_e)(
+                            # RuntimeError (not type(_emb_e)(...)): SDK errors whose
+                            # __init__ needs keyword-only response/body can't be rebuilt
+                            # from a message and would mask the real cause.
+                            raise RuntimeError(
                                 f"{_emb_e} [embed_url={_embed_url} embed_model={_embed_model!r}]"
                             ) from _emb_e
 
@@ -6463,6 +6466,55 @@ class RAGQueryWorker(QThread):
                         self.parent_thread = parent_thread
                         self.enable_streaming = enable_streaming
                         self.raw_data = raw_data or {}
+
+                    def _site_context(self):
+                        """Instruction telling the model which site to report on.
+
+                        One site in the DB -> use it automatically as the
+                        'current site'. Several sites -> use the one currently
+                        selected; if none is selected and the request doesn't
+                        name a site, ask which one.
+                        """
+                        cur, sites = "", []
+                        try:
+                            combo = getattr(getattr(self.parent_thread, "parent", None),
+                                            "comboBox_sito", None)
+                            if combo is not None:
+                                cur = str(combo.currentText()).strip()
+                                sites = [str(combo.itemText(i)).strip()
+                                         for i in range(combo.count())]
+                        except Exception:
+                            pass
+                        if not sites:  # fall back to distinct 'sito' in the loaded records
+                            seen = []
+                            for key in ("us", "inventario_materiali", "pottery", "site"):
+                                for r in (self.raw_data.get(key) or []):
+                                    try:
+                                        s = str(r.get("sito", "")).strip()
+                                    except AttributeError:
+                                        s = ""
+                                    if s and s not in seen:
+                                        seen.append(s)
+                            sites = seen
+                        skip = {"", "tutti", "all", "-", "seleziona"}
+                        sites = [s for s in sites if s and s.lower() not in skip]
+                        if len(sites) == 1:
+                            return (f"CONTESTO SITO: il database contiene un solo sito, "
+                                    f"'{sites[0]}'. Usalo automaticamente come 'sito corrente' "
+                                    f"in ogni risposta e NON chiedere all'utente di specificare "
+                                    f"il sito.")
+                        if len(sites) > 1:
+                            lst = ", ".join(sites)
+                            if cur and cur in sites:
+                                return (f"CONTESTO SITO: siti nel database: {lst}. Sito corrente "
+                                        f"selezionato: '{cur}'. Se l'utente dice 'sito corrente' "
+                                        f"o non specifica il sito, rispondi per '{cur}'.")
+                            return (f"CONTESTO SITO: siti nel database: {lst}. Se la richiesta "
+                                    f"non specifica il sito, chiedi su quale sito operare.")
+                        if cur:
+                            return (f"CONTESTO SITO: sito corrente: '{cur}'. Usalo se non viene "
+                                    f"specificato un altro sito.")
+                        return ""
 
                     def _get_available_tables_info(self):
                         """Get info about tables that actually have data"""
@@ -6710,6 +6762,8 @@ class RAGQueryWorker(QThread):
 
                             full_prompt = f"""Sei un assistente archeologico esperto e amichevole. Rispondi in modo naturale e colloquiale.
 
+{self._site_context()}
+
 TABELLE DISPONIBILI CON DATI:
 {available_tables}
 
@@ -6760,6 +6814,8 @@ Risposta:"""
                             available_tables = self._get_available_tables_info()
 
                             full_prompt = f"""Sei un assistente archeologico esperto.
+
+{self._site_context()}
 
 La domanda riguarda: {query}
 
