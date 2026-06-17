@@ -5,6 +5,28 @@
 
 ---
 
+## [5.13.5-alpha] - 2026-06-17 — Palimpsest AI/RAG: provider Anthropic, sito corrente, materiali reali, export PDF
+
+> Branch `Stratigraph_00001`. Soli fix lato plugin del tab "Interrogazione Database con AI (RAG)" (`tabs/US_USM.py`) e di `modules/utility/llm_providers.py`; nessuna modifica a palimpsestr o agli `.rsx`.
+
+### Italiano
+
+- **L'interrogazione AI (RAG) funziona con Anthropic/Claude.** Lo streaming costruiva un client OpenAI dall'oggetto LangChain (`self.llm.openai_api_key`), che con provider Anthropic è un `ChatAnthropic` privo di quell'attributo → crash `'ChatAnthropic' object has no attribute 'openai_api_key'`. Ora lo streaming passa dal modello LangChain stesso (`self.llm.stream()`), agnostico al provider (OpenAI, Anthropic, Ollama/LM Studio), con fallback a `invoke()`.
+- **Errori dell'SDK non più mascherati.** `LLMProviderManager._annotate_error` ricostruiva l'eccezione con `type(exc)(msg)`: per le eccezioni dell'SDK Anthropic (firma `(message, *, response, body)`) generava il criptico `__init__() missing 2 required keyword-only arguments: 'response' and 'body'`, nascondendo la causa reale. Ora mantiene il tipo solo se ricostruibile, altrimenti `RuntimeError` (causa reale + catena preservate). Stesso fix sul path embeddings. Test di regressione in `tests/utility/`.
+- **Il RAG riconosce il sito corrente.** Prima rispondeva "non so qual è il sito corrente" perché il prompt non aveva contesto sul sito. Ora: **un solo sito** nel DB → lo usa in automatico; **più siti** → usa quello selezionato in `comboBox_sito` per "sito corrente"/richieste generiche, altrimenti chiede quale.
+- **Il RAG riporta i materiali reali, non inventati.** Le query ampie ("resoconto/elenco materiali") si affidavano solo alla *similarity_search*, che non restituisce dati aggregati: l'AI inventava struttura e SQL e diceva "nessun record". Ora inietta nel prompt i **conteggi reali da `raw_data`** (inventario_materiali e pottery per area, tipo_reperto, classe ware/material), filtrati sul sito corrente, con log diagnostico `[AI materials]`.
+- **Export PDF del report.** `platypus.Image` di reportlab legge il PNG del grafico in modo *lazy* durante `doc.build()`, ma il file temporaneo veniva `os.unlink`-ato prima del build → `Cannot open resource`. Ora il PNG si cancella **dopo** `doc.build()`.
+
+### English
+
+- **AI (RAG) query works with Anthropic/Claude.** Streaming built a raw OpenAI client from the LangChain object (`self.llm.openai_api_key`), which is a `ChatAnthropic` without that attribute under the Anthropic provider → `'ChatAnthropic' object has no attribute 'openai_api_key'`. Streaming now goes through the LangChain model itself (`self.llm.stream()`), provider-agnostic (OpenAI, Anthropic, Ollama/LM Studio), with an `invoke()` fallback.
+- **SDK errors no longer masked.** `LLMProviderManager._annotate_error` rebuilt the exception via `type(exc)(msg)`; for Anthropic SDK errors (`(message, *, response, body)` signature) this raised the cryptic `__init__() missing 2 required keyword-only arguments: 'response' and 'body'`, hiding the real cause. It now keeps the type only when reconstructible, else `RuntimeError` (real message + chained cause kept). Same fix on the embeddings path. Regression test in `tests/utility/`.
+- **RAG resolves the current site.** It used to answer "I don't know the current site" because the prompt carried no site context. Now a single site → used automatically; several sites → the one selected in `comboBox_sito` for "current site"/generic requests, else it asks which.
+- **RAG reports real materials, not guesses.** Broad "report/list materials" queries relied only on similarity_search, which doesn't surface aggregates, so the model invented structures/SQL and claimed "no records". It now injects **real counts from `raw_data`** (inventory and pottery by area, tipo_reperto, ware/material class), site-filtered, with an `[AI materials]` diagnostic log.
+- **Report PDF export.** reportlab's `platypus.Image` reads the chart PNG lazily during `doc.build()`, but the temp file was `os.unlink`ed before the build → `Cannot open resource`. The PNG is now deleted **after** `doc.build()`.
+
+---
+
 ## [5.13.4-alpha] - 2026-06-17 — Palimpsest: coordinate puntuali dei reperti (piece-plotting, palimpsestr 0.23.0)
 
 > Branch `Stratigraph_00001`. Feature upstream: i reperti disegnati come punti usano le proprie coordinate invece del centroide US. Nessuna modifica al codice del plugin; gli `.rsx` restano byte-identici.
