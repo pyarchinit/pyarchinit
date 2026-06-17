@@ -5,6 +5,23 @@
 
 ---
 
+## [5.13.4-alpha] - 2026-06-17 — Palimpsest: coordinate puntuali dei reperti (piece-plotting, palimpsestr 0.23.0)
+
+> Branch `Stratigraph_00001`. Feature upstream: i reperti disegnati come punti usano le proprie coordinate invece del centroide US. Nessuna modifica al codice del plugin; gli `.rsx` restano byte-identici.
+
+### Italiano
+
+- **`read_pyarchinit()` usa le coordinate puntuali dei reperti** (palimpsestr **0.23.0**): quando un reperto è disegnato come **punto** nel layer `pyarchinit_reperti` — collegato a `inventario_materiali_table` dalla vista `pyarchinit_reperti_view` (sito + `numero_inventario` = `id_rep`) — l'analisi usa la sua x, y e la z (dalla colonna `quota` del punto, o dalla Z della geometria) **invece del centroide del poligono US**. I reperti senza punto continuano a usare il centroide US (fallback). Nuovi parametri di `read_pyarchinit()`: `reperti_table` (default `"pyarchinit_reperti"`) e `reperti_geometry`. Il layer è letto via sf/GDAL (SpatiaLite + PostGIS); gli `.rsx` lo passano come già fanno con `us_geometry`.
+- **Risoluzione spaziale a livello di reperto** dove il piece-plotting è disponibile: attenua il noto limite del centroide US (PDI≈1 / entropia bassa che riflettono la registrazione più che una sequenza risolta).
+- **pyArchInit: nessuna modifica al codice del plugin.** I tre `.rsx` Processing (`palimpsestr_fit_db` / `intrusions_db` / `report_db`) restano **byte-identici** alle sorgenti upstream `qgis/processing/*.rsx`. Serve solo **palimpsestr ≥ 0.23.0**. Aggiornato il Tutorial 37 (palinsesti) in tutte e 10 le lingue: nota di versione (§1) e nuovo punto (§9).
+- **Upstream**: palimpsestr 0.23.0 pubblicato su `enzococca/palimpsestr` (commit `f2b3031`); aggiunto il Ciclo 7 di test (3 casi testthat) per override punto, riempimento z dal punto e fallback al centroide — tutti passano.
+
+### English
+
+- **`read_pyarchinit()` uses piece-plotted find coordinates** (palimpsestr **0.23.0**): when a find is drawn as a **point** in the `pyarchinit_reperti` layer — linked to `inventario_materiali_table` by the `pyarchinit_reperti_view` join (site + `numero_inventario` = `id_rep`) — the analysis uses its own x, y and z (from the point's `quota` column, or the geometry Z) **instead of the US polygon centroid**. Finds without a point keep the US centroid (fallback). New `read_pyarchinit()` parameters: `reperti_table` (default `"pyarchinit_reperti"`) and `reperti_geometry`. The layer is read via sf/GDAL (SpatiaLite + PostGIS); the `.rsx` pass it the same way they pass `us_geometry`. This gives find-level spatial resolution where piece-plotting is available, mitigating the known US-centroid resolution limit. **No plugin code change**: the three Processing `.rsx` stay **byte-identical** to upstream `qgis/processing/*.rsx`; only **palimpsestr ≥ 0.23.0** is required. Tutorial 37 updated in all 10 languages (§1 version note, new §9 bullet). Upstream: palimpsestr 0.23.0 pushed to `enzococca/palimpsestr` (commit `f2b3031`) with a new test Cycle 7 (3 testthat cases: point override, point-z fill-in, centroid fallback) — all pass.
+
+---
+
 ## [5.13.3-alpha] - 2026-06-15 — Palimpsest: lettura del taf spostata in read_pyarchinit (upstream)
 
 > Branch `Stratigraph_00001`. Refactor: la lettura del taf per US è ora **a monte** nel pacchetto R; gli `.rsx` tornano byte-identici a upstream.
