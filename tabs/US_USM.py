@@ -6772,39 +6772,27 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
 
                         # Use streaming if enabled
                         if self.enable_streaming and self.parent_thread:
-                            # Use OpenAI client directly for streaming.
-                            # CRITICAL: re-use the base_url from the LangChain
-                            # LLM, otherwise the call defaults to api.openai.com
-                            # even when the user picked Ollama/LM Studio.
-                            from openai import OpenAI
-                            api_key_value = self.llm.openai_api_key
-                            if hasattr(api_key_value, 'get_secret_value'):
-                                api_key_value = api_key_value.get_secret_value()
-                            llm_base_url = getattr(self.llm, "openai_api_base", None)
-                            client = OpenAI(
-                                api_key=api_key_value or "not-needed",
-                                base_url=llm_base_url,
-                            )
-
-                            response_stream = client.chat.completions.create(
-                                model=self.llm.model_name,
-                                messages=[
-                                    {"role": "system", "content": "Sei un assistente archeologico esperto."},
-                                    {"role": "user", "content": full_prompt}
-                                ],
-                                max_completion_tokens=4000,
-                                stream=True
-                            )
-
+                            # Stream through the LangChain chat model itself, so
+                            # this works for every provider (OpenAI, Anthropic,
+                            # Ollama/LM Studio) and keeps the model's configured
+                            # base_url. Building a raw OpenAI client here used to
+                            # crash on Anthropic ("'ChatAnthropic' object has no
+                            # attribute 'openai_api_key'").
                             full_response = ""
-                            for chunk in response_stream:
-                                if chunk.choices[0].delta.content is not None:
-                                    chunk_text = chunk.choices[0].delta.content
-                                    full_response += chunk_text
-                                    # Emit streaming token
-                                    if self.parent_thread:
-                                        self.parent_thread.stream_token.emit(chunk_text)
-
+                            try:
+                                for chunk in self.llm.stream(full_prompt):
+                                    chunk_text = getattr(chunk, "content", "") or ""
+                                    if not isinstance(chunk_text, str):
+                                        chunk_text = str(chunk_text)
+                                    if chunk_text:
+                                        full_response += chunk_text
+                                        if self.parent_thread:
+                                            self.parent_thread.stream_token.emit(chunk_text)
+                            except Exception:
+                                # Fall back to one non-streamed call if the
+                                # provider/model can't stream.
+                                response = self.llm.invoke(full_prompt)
+                                full_response = response.content if hasattr(response, 'content') else str(response)
                             return {"output": full_response}
                         else:
                             # Non-streaming direct LLM call
