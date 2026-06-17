@@ -5023,31 +5023,37 @@ class RAGQueryDialog(QDialog):
         canvas = FigureCanvas(fig)
         ax = fig.add_subplot(111)
 
-        # Create chart based on type
+        # Create chart based on type. Keys vary by source (x/y or labels/values);
+        # accept both so a pie chart doesn't crash with KeyError.
         chart_type = chart_data.get('type', 'bar')
+        x = chart_data.get('x') or chart_data.get('labels') or []
+        y = chart_data.get('y') or chart_data.get('values') or chart_data.get('data') or []
 
-        if chart_type == 'bar':
-            ax.bar(chart_data['x'], chart_data['y'])
-            ax.set_xlabel(chart_data.get('x_label', ''))
-            ax.set_ylabel(chart_data.get('y_label', ''))
-
-        elif chart_type == 'pie':
-            ax.pie(chart_data['values'], labels=chart_data['labels'], autopct='%1.1f%%')
-
+        if chart_type == 'pie':
+            values = chart_data.get('values') or y
+            labels = chart_data.get('labels') or x
+            if values and len(labels) == len(values):
+                ax.pie(values, labels=labels, autopct='%1.1f%%')
+            else:
+                ax.text(0.5, 0.5, 'Dati insufficienti per il grafico a torta',
+                        ha='center', va='center')
         elif chart_type == 'line':
-            ax.plot(chart_data['x'], chart_data['y'], marker='o')
+            ax.plot(x, y, marker='o')
             ax.set_xlabel(chart_data.get('x_label', ''))
             ax.set_ylabel(chart_data.get('y_label', ''))
-
         elif chart_type == 'scatter':
-            ax.scatter(chart_data['x'], chart_data['y'])
+            ax.scatter(x, y)
+            ax.set_xlabel(chart_data.get('x_label', ''))
+            ax.set_ylabel(chart_data.get('y_label', ''))
+        else:  # bar (default)
+            ax.bar(x, y)
             ax.set_xlabel(chart_data.get('x_label', ''))
             ax.set_ylabel(chart_data.get('y_label', ''))
 
         ax.set_title(chart_data.get('title', 'Grafico'))
 
         # Rotate x labels if needed
-        if chart_type in ['bar', 'line'] and len(chart_data.get('x', [])) > 5:
+        if chart_type in ['bar', 'line'] and len(x) > 5:
             plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha='right')
 
         fig.tight_layout()
@@ -7862,19 +7868,51 @@ Posso aiutarti a capire come strutturare la query o cosa cercare. Come posso aiu
         else:
             chart_data['type'] = 'bar'  # Default
 
-        # Try to extract data from the context
-        # This is simplified - in production would need better parsing
-        if data.get('us'):
-            from collections import Counter
-            areas = [us.get('area', 'Unknown') for us in data['us']]
-            area_counts = Counter(areas)
+        # Build the series. Always set both x/y and labels/values so any chart
+        # type (incl. pie) can render. Prefer materials (inventory + pottery by
+        # class) when the answer is about materials or there are no US.
+        from collections import Counter
 
+        def _g(r, k, d=''):
+            try:
+                return str(r.get(k, d) or d).strip() or d
+            except AttributeError:
+                return d
+
+        text_l = text.lower()
+        wants_materials = any(w in text_l for w in
+                              ("material", "repert", "ceramic", "anfor", "inventar",
+                               "vetro", "metall", "numismat"))
+        inv = data.get('inventario_materiali') or []
+        pot = data.get('pottery') or []
+
+        if (wants_materials or not data.get('us')) and (inv or pot):
+            c = Counter()
+            for r in inv:
+                c[_g(r, 'tipo_reperto', 'Altro')] += 1
+            for r in pot:
+                c[_g(r, 'ware') or _g(r, 'material') or 'Ceramica'] += 1
+            items = c.most_common(12)
+            if items:
+                chart_data['x'] = [k for k, _ in items]
+                chart_data['y'] = [v for _, v in items]
+                chart_data['labels'] = chart_data['x']
+                chart_data['values'] = chart_data['y']
+                chart_data['title'] = 'Materiali per classe'
+                chart_data['x_label'] = 'Classe'
+                chart_data['y_label'] = 'Numero reperti'
+                return chart_data
+
+        if data.get('us'):
+            areas = [_g(us, 'area', 'Unknown') for us in data['us']]
+            area_counts = Counter(areas)
             chart_data['x'] = list(area_counts.keys())
             chart_data['y'] = list(area_counts.values())
+            chart_data['labels'] = chart_data['x']
+            chart_data['values'] = chart_data['y']
             chart_data['title'] = 'Distribuzione US per Area'
             chart_data['x_label'] = 'Area'
             chart_data['y_label'] = 'Numero US'
-
             return chart_data
 
         return None

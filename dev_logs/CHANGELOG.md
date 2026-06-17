@@ -16,6 +16,7 @@
 - **Il RAG riconosce il sito corrente.** Prima rispondeva "non so qual è il sito corrente" perché il prompt non aveva contesto sul sito. Ora: **un solo sito** nel DB → lo usa in automatico; **più siti** → usa quello selezionato in `comboBox_sito` per "sito corrente"/richieste generiche, altrimenti chiede quale.
 - **Il RAG riporta i materiali reali, non inventati.** Le query ampie ("resoconto/elenco materiali") si affidavano solo alla *similarity_search*, che non restituisce dati aggregati: l'AI inventava struttura e SQL e diceva "nessun record". Ora inietta nel prompt i **conteggi reali da `raw_data`** (inventario_materiali e pottery per area, tipo_reperto, classe ware/material), filtrati sul sito corrente, con log diagnostico `[AI materials]`.
 - **Export PDF del report.** `platypus.Image` di reportlab legge il PNG del grafico in modo *lazy* durante `doc.build()`, ma il file temporaneo veniva `os.unlink`-ato prima del build → `Cannot open resource`. Ora il PNG si cancella **dopo** `doc.build()`.
+- **Grafico a torta.** Crash `KeyError: 'values'`: `extract_chart_data` produceva solo `x`/`y` mentre `display_chart` per la torta pretendeva `values`/`labels`. Ora il render accetta entrambi gli schemi (`x/y` o `labels/values`) e non crasha su dati vuoti, e `extract_chart_data` costruisce il grafico **per classe di materiale** (inventario `tipo_reperto` + ceramica `ware`/`material`) per le query sui materiali, con fallback a US-per-area.
 
 ### English
 
@@ -24,6 +25,7 @@
 - **RAG resolves the current site.** It used to answer "I don't know the current site" because the prompt carried no site context. Now a single site → used automatically; several sites → the one selected in `comboBox_sito` for "current site"/generic requests, else it asks which.
 - **RAG reports real materials, not guesses.** Broad "report/list materials" queries relied only on similarity_search, which doesn't surface aggregates, so the model invented structures/SQL and claimed "no records". It now injects **real counts from `raw_data`** (inventory and pottery by area, tipo_reperto, ware/material class), site-filtered, with an `[AI materials]` diagnostic log.
 - **Report PDF export.** reportlab's `platypus.Image` reads the chart PNG lazily during `doc.build()`, but the temp file was `os.unlink`ed before the build → `Cannot open resource`. The PNG is now deleted **after** `doc.build()`.
+- **Pie chart.** `KeyError: 'values'` crash: `extract_chart_data` only produced `x`/`y` while `display_chart` expected `values`/`labels` for pies. The renderer now accepts both schemas (`x/y` or `labels/values`) and no longer crashes on empty data, and `extract_chart_data` builds a **by-material-class** chart (inventory `tipo_reperto` + pottery `ware`/`material`) for material queries, falling back to US-by-area.
 
 ---
 
