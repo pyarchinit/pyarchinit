@@ -5367,22 +5367,24 @@ class RAGQueryDialog(QDialog):
                     story.append(t)
                     story.append(Spacer(1, 20))
 
-            # Chart
+            # Chart. Keep the temp PNG alive until AFTER doc.build():
+            # reportlab's platypus.Image reads the file lazily during build, so
+            # deleting it earlier raised 'Cannot open resource'.
+            chart_tmp = None
             if 'chart' in self.current_results and self.chart_layout.count() > 0:
-                story.append(Paragraph("<b>Grafico:</b>", styles['Heading3']))
-
-                # Save chart to temp file
                 canvas = self.chart_layout.itemAt(0).widget()
                 if canvas:
                     with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-                        canvas.figure.savefig(tmp.name, dpi=150, bbox_inches='tight')
-                        chart_img = Image(tmp.name, width=14*cm, height=10*cm)
-                        story.append(chart_img)
-                        story.append(Spacer(1, 20))
-                    os.unlink(tmp.name)
+                        chart_tmp = tmp.name
+                    canvas.figure.savefig(chart_tmp, dpi=150, bbox_inches='tight')
+                    story.append(Paragraph("<b>Grafico:</b>", styles['Heading3']))
+                    story.append(Image(chart_tmp, width=14*cm, height=10*cm))
+                    story.append(Spacer(1, 20))
 
-            # Build PDF
+            # Build PDF (reads the chart image here), then clean up the temp file
             doc.build(story)
+            if chart_tmp and os.path.exists(chart_tmp):
+                os.unlink(chart_tmp)
             QMessageBox.information(self, "Successo", f"Report PDF esportato:\n{file_path}")
 
         except ImportError:
