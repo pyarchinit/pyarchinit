@@ -6516,6 +6516,73 @@ class RAGQueryWorker(QThread):
                                     f"specificato un altro sito.")
                         return ""
 
+                    def _current_site(self):
+                        """Currently selected site from the parent dialog combo."""
+                        try:
+                            combo = getattr(getattr(self.parent_thread, "parent", None),
+                                            "comboBox_sito", None)
+                            if combo is not None:
+                                return str(combo.currentText()).strip()
+                        except Exception:
+                            pass
+                        return ""
+
+                    def _materials_summary(self, query):
+                        """Real inventory/pottery counts from raw_data for the current
+                        site, injected for broad 'materials' queries so the model
+                        reports actual data instead of guessing. '' when not a
+                        materials query or there is no data.
+                        """
+                        ql = (query or "").lower()
+                        kw = ("material", "repert", "inventar", "ceramic", "pottery",
+                              "anfor", "resocont", "riepilog", "elenc", "quant",
+                              "statistic", "vetro", "metall", "numismat")
+                        if not any(w in ql for w in kw):
+                            return ""
+                        rd = getattr(self, "raw_data", None) or {}
+                        inv = rd.get("inventario_materiali") or []
+                        pot = rd.get("pottery") or []
+                        cur = self._current_site()
+
+                        def _f(r, field, default=""):
+                            try:
+                                return str(r.get(field, default) or default).strip()
+                            except AttributeError:
+                                return default
+
+                        def keep(r):
+                            return (not cur) or _f(r, "sito") == cur
+                        inv = [r for r in inv if keep(r)]
+                        pot = [r for r in pot if keep(r)]
+                        try:
+                            from qgis.core import QgsMessageLog, Qgis
+                            QgsMessageLog.logMessage(
+                                f"[AI materials] site={cur!r} inv={len(inv)} pot={len(pot)}",
+                                "pyArchInit", Qgis.Info)
+                        except Exception:
+                            pass
+                        if not inv and not pot:
+                            return ""
+                        from collections import Counter
+                        out = [f"DATI REALI DAL DATABASE per il sito '{cur or 'corrente'}': "
+                               f"inventario_materiali = {len(inv)} reperti, pottery (ceramica) "
+                               f"= {len(pot)} record. Usa QUESTI dati reali; non dire che mancano."]
+
+                        def _top(counter, n=20):
+                            return ", ".join(f"{k}={v}" for k, v in
+                                             sorted(counter.items(), key=lambda x: -x[1])[:n])
+                        if inv:
+                            out.append("Reperti per area: " + _top(
+                                Counter(_f(r, "area", "?") or "?" for r in inv)))
+                            out.append("Reperti per tipo_reperto: " + _top(
+                                Counter(_f(r, "tipo_reperto", "?") or "?" for r in inv)))
+                        if pot:
+                            out.append("Ceramica per area: " + _top(
+                                Counter(_f(r, "area", "?") or "?" for r in pot)))
+                            out.append("Ceramica per classe (ware/material): " + _top(
+                                Counter((_f(r, "ware") or _f(r, "material") or "?") for r in pot)))
+                        return "\n".join(out)
+
                     def _get_available_tables_info(self):
                         """Get info about tables that actually have data"""
                         available = []
@@ -6764,6 +6831,8 @@ class RAGQueryWorker(QThread):
 
 {self._site_context()}
 
+{self._materials_summary(query)}
+
 TABELLE DISPONIBILI CON DATI:
 {available_tables}
 
@@ -6817,9 +6886,11 @@ Risposta:"""
 
 {self._site_context()}
 
+{self._materials_summary(query)}
+
 La domanda riguarda: {query}
 
-Non ho trovato dati specifici nel database per questa query.
+Se sopra ci sono "DATI REALI DAL DATABASE", USALI per rispondere. Altrimenti non ho trovato dati specifici nel database per questa query.
 
 Tabelle con dati disponibili:
 {available_tables}
