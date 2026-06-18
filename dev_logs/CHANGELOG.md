@@ -5,6 +5,24 @@
 
 ---
 
+## [5.13.8-alpha] - 2026-06-18 — RAG/fastembed: shim Pillow.Resampling per QGIS con Pillow vecchio
+
+> Branch `Stratigraph_00001`. Fix lato plugin (`modules/utility/llm_providers.py`, `requirements.txt`). Nessuna modifica a palimpsestr o agli `.rsx`.
+
+### Italiano
+
+- **`fastembed` non si rompe più su QGIS con Pillow < 9.1.** Con provider Anthropic (che usa il fallback `fastembed`) alcune build di QGIS davano `module 'PIL.Image' has no attribute 'Resampling'`: le trasformazioni immagine di fastembed usano `PIL.Image.Resampling` (enum introdotto in **Pillow 9.1**), assente nel Pillow più vecchio impacchettato in QGIS. `LLMProviderManager.build_embeddings` ora applica uno **shim** (`_ensure_pil_resampling`) **prima** di importare fastembed: se `PIL.Image.Resampling` manca, espone un `IntEnum` minimo mappato sulle costanti legacy (`NEAREST/LANCZOS/BILINEAR/BICUBIC/BOX/HAMMING`). Idempotente e silenzioso se Pillow è assente.
+- **Costruzione di fastembed protetta**: se l'inizializzazione fallisce comunque, l'errore è chiaro e azionabile (reinstalla `fastembed` + `Pillow>=9.1`, oppure usa OpenAI/Ollama/LM Studio) invece di un'eccezione criptica.
+- **Pin `Pillow>=9.1.0`** in `requirements.txt` (lo shim copre comunque i casi in cui l'aggiornamento di Pillow in QGIS non è possibile).
+
+### English
+
+- **`fastembed` no longer breaks on QGIS shipping Pillow < 9.1.** Under the Anthropic provider (which uses the `fastembed` fallback) some QGIS builds raised `module 'PIL.Image' has no attribute 'Resampling'`: fastembed's image transforms use `PIL.Image.Resampling` (an enum added in **Pillow 9.1**) missing from the older Pillow bundled with QGIS. `LLMProviderManager.build_embeddings` now applies a **shim** (`_ensure_pil_resampling`) **before** importing fastembed: when `PIL.Image.Resampling` is absent it exposes a minimal `IntEnum` mapped to the legacy constants (`NEAREST/LANCZOS/BILINEAR/BICUBIC/BOX/HAMMING`). Idempotent and silent if Pillow is absent.
+- **Guarded fastembed construction**: if initialization still fails, the error is clear and actionable (reinstall `fastembed` + `Pillow>=9.1`, or use OpenAI/Ollama/LM Studio) instead of a cryptic exception.
+- **Pin `Pillow>=9.1.0`** in `requirements.txt` (the shim still covers cases where upgrading Pillow inside QGIS is not possible).
+
+---
+
 ## [5.13.7-alpha] - 2026-06-18 — RAG: embeddings per provider (Anthropic/OpenAI/Ollama/LM Studio) + fallback offline fastembed
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`tabs/US_USM.py`, `modules/utility/llm_providers.py`, `requirements.txt`). Nessuna modifica a palimpsestr o agli `.rsx`.

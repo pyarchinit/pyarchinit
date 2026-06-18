@@ -90,6 +90,12 @@ faiss-cpu>=1.7.4
 # available. fastembed is ONNX-based (no torch) and downloads a small model
 # (~50 MB) on first use.
 fastembed>=0.3.0
+# Pillow >= 9.1 provides PIL.Image.Resampling, used by fastembed's image
+# transforms; older Pillow bundled with some QGIS builds breaks fastembed
+# ("module 'PIL.Image' has no attribute 'Resampling'"). A runtime shim in
+# llm_providers.build_embeddings also covers the case where this newer Pillow
+# cannot be installed.
+Pillow>=9.1.0
 
 # Graph — 0.1.41 introduces LocationNodeGroup + is_in_location with kind
 # discriminator (toponym/study/functional), required by AI07 spatial-grouping

@@ -337,22 +337,52 @@ class LLMProviderManager:
                 )
 
         # Anthropic / local-without-embedding-model / OpenAI-without-key -> offline.
-        try:
-            from langchain_community.embeddings import FastEmbedEmbeddings
-        except Exception as e:
-            raise RuntimeError(
-                f"Il provider '{config.provider.value}' non fornisce embeddings "
-                "(Anthropic non ha un'API di embeddings) e il fallback offline "
-                "'fastembed' non e' installato. Reinstalla le dipendenze del "
-                "plugin per ottenere 'fastembed', oppure usa OpenAI / Ollama / "
-                f"LM Studio con un modello di embedding. Dettaglio: {e}"
-            ) from e
+        # fastembed's image transforms reference PIL.Image.Resampling (Pillow >= 9.1);
+        # some QGIS builds bundle an older Pillow -> shim it before importing fastembed.
+        LLMProviderManager._ensure_pil_resampling()
         if log:
             try:
                 log(f"Embeddings offline: fastembed ({LLMProviderManager.FASTEMBED_MODEL}).")
             except Exception:
                 pass
-        return FastEmbedEmbeddings(model_name=LLMProviderManager.FASTEMBED_MODEL)
+        try:
+            from langchain_community.embeddings import FastEmbedEmbeddings
+            return FastEmbedEmbeddings(model_name=LLMProviderManager.FASTEMBED_MODEL)
+        except Exception as e:
+            raise RuntimeError(
+                f"Il provider '{config.provider.value}' non fornisce embeddings "
+                "(Anthropic non ha un'API di embeddings) e il fallback offline "
+                "'fastembed' non e' disponibile. Reinstalla le dipendenze del "
+                "plugin (fastembed + Pillow>=9.1), oppure usa OpenAI / Ollama / "
+                f"LM Studio con un modello di embedding. Dettaglio: {e}"
+            ) from e
+
+    @staticmethod
+    def _ensure_pil_resampling():
+        """Back-compat shim for old Pillow (< 9.1) under fastembed.
+
+        fastembed's image transforms use ``PIL.Image.Resampling`` (an enum added
+        in Pillow 9.1). Some QGIS builds bundle an older Pillow where it is
+        missing -> ``module 'PIL.Image' has no attribute 'Resampling'``. Expose a
+        minimal ``Resampling`` enum mapped to the legacy module-level constants.
+        Idempotent; silent on any failure (incl. Pillow absent).
+        """
+        try:
+            from PIL import Image as _Img
+            if hasattr(_Img, "Resampling"):
+                return
+            import enum
+            members = {
+                "NEAREST": getattr(_Img, "NEAREST", 0),
+                "LANCZOS": getattr(_Img, "LANCZOS", getattr(_Img, "ANTIALIAS", 1)),
+                "BILINEAR": getattr(_Img, "BILINEAR", 2),
+                "BICUBIC": getattr(_Img, "BICUBIC", 3),
+                "BOX": getattr(_Img, "BOX", 4),
+                "HAMMING": getattr(_Img, "HAMMING", 5),
+            }
+            _Img.Resampling = enum.IntEnum("Resampling", members)
+        except Exception:
+            pass
 
     @staticmethod
     def discover_all_models(provider: LLMProvider, timeout: float = 3.0) -> List[dict]:
