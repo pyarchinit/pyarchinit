@@ -279,6 +279,81 @@ class LLMProviderManager:
             return [m for m in installed if any(h in m.lower() for h in hints)]
         return []
 
+    # Offline fallback model id (ONNX, no torch, downloaded on first use).
+    FASTEMBED_MODEL = "BAAI/bge-small-en-v1.5"
+
+    @staticmethod
+    def embeddings_signature(config: "LLMConfig") -> str:
+        """Short tag identifying the embeddings backend, for cache keying.
+
+        MUST mirror :meth:`build_embeddings` exactly: different backends emit
+        vectors of different dimensionality, so switching provider has to
+        invalidate a cached FAISS index (OpenAI ada-002 = 1536-d vs
+        fastembed bge-small = 384-d).
+        """
+        try:
+            if config.provider == LLMProvider.OPENAI and (config.api_key or ""):
+                return "openai:text-embedding-ada-002"
+            if getattr(config, "is_local", False):
+                models = LLMProviderManager.discover_embedding_models(config.provider)
+                if models:
+                    return f"local:{config.base_url}|{models[0]}"
+        except Exception:
+            pass
+        return f"fastembed:{LLMProviderManager.FASTEMBED_MODEL}"
+
+    @staticmethod
+    def build_embeddings(config: "LLMConfig", log=None):
+        """Return a LangChain Embeddings honouring the chosen provider.
+
+        - **OpenAI** (with a key) -> OpenAI cloud embeddings.
+        - **Ollama / LM Studio** with an embedding model loaded -> that model.
+        - **Anthropic** (no embeddings API), or a local server without an
+          embedding model, or OpenAI without a key -> offline ``fastembed``
+          (local ONNX, no API key).
+
+        Anthropic does NOT expose an embeddings endpoint, so the provider key
+        must NEVER be handed to OpenAIEmbeddings (that produced the 401
+        "Incorrect API key provided: sk-ant-..." when chatting with Claude).
+
+        Raises ``RuntimeError`` with an actionable message only if the offline
+        ``fastembed`` fallback is itself unavailable.
+        """
+        from langchain_openai import OpenAIEmbeddings
+
+        if config.provider == LLMProvider.OPENAI and (config.api_key or ""):
+            return OpenAIEmbeddings(api_key=config.api_key)
+
+        if getattr(config, "is_local", False):
+            try:
+                models = LLMProviderManager.discover_embedding_models(config.provider)
+            except Exception:
+                models = []
+            if models:
+                return OpenAIEmbeddings(
+                    api_key=config.api_key or "not-needed",
+                    base_url=config.base_url,
+                    model=models[0],
+                )
+
+        # Anthropic / local-without-embedding-model / OpenAI-without-key -> offline.
+        try:
+            from langchain_community.embeddings import FastEmbedEmbeddings
+        except Exception as e:
+            raise RuntimeError(
+                f"Il provider '{config.provider.value}' non fornisce embeddings "
+                "(Anthropic non ha un'API di embeddings) e il fallback offline "
+                "'fastembed' non e' installato. Reinstalla le dipendenze del "
+                "plugin per ottenere 'fastembed', oppure usa OpenAI / Ollama / "
+                f"LM Studio con un modello di embedding. Dettaglio: {e}"
+            ) from e
+        if log:
+            try:
+                log(f"Embeddings offline: fastembed ({LLMProviderManager.FASTEMBED_MODEL}).")
+            except Exception:
+                pass
+        return FastEmbedEmbeddings(model_name=LLMProviderManager.FASTEMBED_MODEL)
+
     @staticmethod
     def discover_all_models(provider: LLMProvider, timeout: float = 3.0) -> List[dict]:
         """Return *all* models on a local provider with metadata.

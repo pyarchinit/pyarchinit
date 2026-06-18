@@ -85,6 +85,11 @@ vtk>=9.2.0
 
 # Vector search
 faiss-cpu>=1.7.4
+# Offline embeddings fallback for the RAG when the chat provider has no
+# embeddings API (Anthropic) and no OpenAI key / local embedding model is
+# available. fastembed is ONNX-based (no torch) and downloads a small model
+# (~50 MB) on first use.
+fastembed>=0.3.0
 
 # Graph — 0.1.41 introduces LocationNodeGroup + is_in_location with kind
 # discriminator (toponym/study/functional), required by AI07 spatial-grouping

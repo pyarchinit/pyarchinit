@@ -5,6 +5,24 @@
 
 ---
 
+## [5.13.7-alpha] - 2026-06-18 — RAG: embeddings per provider (Anthropic/OpenAI/Ollama/LM Studio) + fallback offline fastembed
+
+> Branch `Stratigraph_00001`. Fix lato plugin (`tabs/US_USM.py`, `modules/utility/llm_providers.py`, `requirements.txt`). Nessuna modifica a palimpsestr o agli `.rsx`.
+
+### Italiano
+
+- **Il RAG funziona con Anthropic/Claude (e con OpenAI, Ollama, LM Studio).** Con provider **Anthropic** il RAG dava `Error code: 401 - Incorrect API key provided: sk-ant-…` perché gli embeddings (indice FAISS) venivano sempre richiesti a **OpenAI** ma passando la chiave **Anthropic** (Anthropic **non ha** un'API di embeddings). Ora `_get_embeddings` (3 copie: report thread, RAG query worker, scheda US) delega a `LLMProviderManager.build_embeddings`, che sceglie il backend in base al provider: **OpenAI** → embeddings OpenAI (chiave OpenAI); **Ollama / LM Studio** → modello di embedding locale se caricato; **Anthropic** (o locale senza modello di embedding, o OpenAI senza chiave) → **`fastembed` offline** (ONNX locale, nessuna chiave, modello ~50 MB scaricato al primo uso). La chiave del provider non viene mai più inoltrata a OpenAI.
+- **Cache dell'indice FAISS legata al backend.** `embeddings_signature` entra nella hash della cache (in memoria e su disco): cambiando provider — quindi dimensione dei vettori diversa (OpenAI 1536-d vs fastembed 384-d) — l'indice viene **ricostruito** invece di caricare un indice incompatibile.
+- **Nuova dipendenza** `fastembed>=0.3.0` in `requirements.txt`: per abilitare il fallback offline occorre **reinstallare le dipendenze** (riavvio del plugin oppure `python scripts/modules_installer.py`).
+
+### English
+
+- **RAG works with Anthropic/Claude (and OpenAI, Ollama, LM Studio).** Under the **Anthropic** provider the RAG raised `Error code: 401 - Incorrect API key provided: sk-ant-…` because the embeddings (FAISS index) were always requested from **OpenAI** while passing the **Anthropic** key (Anthropic has **no** embeddings API). `_get_embeddings` (3 copies) now delegates to `LLMProviderManager.build_embeddings`, which picks the backend by provider: **OpenAI** → OpenAI embeddings (OpenAI key); **Ollama / LM Studio** → local embedding model when loaded; **Anthropic** (or a local server without an embedding model, or OpenAI without a key) → **offline `fastembed`** (local ONNX, no key, ~50 MB model downloaded on first use). The provider key is never forwarded to OpenAI again.
+- **FAISS index cache keyed by backend.** `embeddings_signature` is folded into the cache hash (in-memory and on-disk): switching provider — hence different vector dimensionality (OpenAI 1536-d vs fastembed 384-d) — **rebuilds** the index instead of loading an incompatible one.
+- **New dependency** `fastembed>=0.3.0` in `requirements.txt`: to enable the offline fallback, **reinstall the dependencies** (restart the plugin or run `python scripts/modules_installer.py`).
+
+---
+
 ## [5.13.6-alpha] - 2026-06-18 — Compatibilità langchain 1.x (Windows / QGIS 4.x) + tutorial
 
 > Branch `Stratigraph_00001`. Tag `palimpsest-5.13.6-alpha`. Fix lato plugin (`tabs/US_USM.py`, `requirements.txt`) + documentazione (tutorial 37 e 30). Nessuna modifica a palimpsestr o agli `.rsx`.

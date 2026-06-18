@@ -1691,37 +1691,17 @@ class GenerateReportThread(QThread):
         return ChatOpenAI(**kwargs)
 
     def _get_embeddings(self):
-        """Return a LangChain Embeddings backed by the active provider.
+        """Embeddings for the active provider — OpenAI (cloud), a local
+        Ollama/LM Studio embedding model, or offline ``fastembed``.
 
-        Anthropic doesn't expose embeddings — we transparently fall back to
-        OpenAI in that case (the embeddings are only used for the FAISS index
-        and don't have to match the chat model).
-
-        For local providers (Ollama / LM Studio) we ALSO check that an
-        embedding model is actually loaded — many users load only a chat
-        model. If none, we fall back to OpenAI to avoid the cryptic
-        ``No models loaded`` 400 from ``/v1/embeddings``.
+        Anthropic has NO embeddings API, so its key must never be sent to
+        OpenAI; that case (and a local server without an embedding model)
+        falls back to offline ``fastembed``. See
+        ``LLMProviderManager.build_embeddings``.
         """
         cfg = self._effective_config()
-        from langchain_openai import OpenAIEmbeddings
-
-        if cfg.provider == LLMProvider.ANTHROPIC:
-            return OpenAIEmbeddings(api_key=self.api_key)
-        if cfg.is_local:
-            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
-            if not embed_models:
-                self.log_message.emit(
-                    f"Nessun modello di embeddings caricato su {cfg.provider.value}: "
-                    "fallback su OpenAI per l'indice FAISS.",
-                    "warning",
-                )
-                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
-            return OpenAIEmbeddings(
-                api_key=cfg.api_key or "not-needed",
-                base_url=cfg.base_url,
-                model=embed_models[0],
-            )
-        return OpenAIEmbeddings(api_key=cfg.api_key or "not-needed")
+        return LLMProviderManager.build_embeddings(
+            cfg, log=lambda m: self.log_message.emit(m, "info"))
 
     def _provider_chat_completion(self, messages, max_tokens=4000, streaming=False):
         """Direct chat completion through ``LLMProviderManager`` (no LangChain).
@@ -6124,23 +6104,13 @@ class RAGQueryWorker(QThread):
         return LLMConfig(provider=LLMProvider.OPENAI, model=self.model, api_key=self.api_key)
 
     def _get_embeddings(self):
-        from langchain_openai import OpenAIEmbeddings
-
+        # OpenAI / local embedding model / offline fastembed. Anthropic has no
+        # embeddings API, so its key is never sent to OpenAI (was the cause of
+        # the 401 "Incorrect API key provided: sk-ant-..." when chatting with
+        # Claude). See LLMProviderManager.build_embeddings.
         cfg = self._effective_config()
-        if cfg.provider == LLMProvider.ANTHROPIC:
-            return OpenAIEmbeddings(api_key=self.api_key)
-        if cfg.is_local:
-            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
-            if not embed_models:
-                # No embedding model loaded on the local server — fall back
-                # to OpenAI cloud so the FAISS index can still be built.
-                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
-            return OpenAIEmbeddings(
-                api_key=cfg.api_key or "not-needed",
-                base_url=cfg.base_url,
-                model=embed_models[0],
-            )
-        return OpenAIEmbeddings(api_key=cfg.api_key or self.api_key or "not-needed")
+        return LLMProviderManager.build_embeddings(
+            cfg, log=lambda m: self.progress_update.emit(m))
 
     def _load_media_paths(self):
         """Load media paths from config.cfg"""
@@ -6304,17 +6274,7 @@ class RAGQueryWorker(QThread):
         # a 400 from the right server.
         try:
             _cfg = self._effective_config()
-            _embed_models = (
-                LLMProviderManager.discover_embedding_models(_cfg.provider)
-                if _cfg.is_local else []
-            )
-            _embed_path = (
-                f"local:{_cfg.base_url}|{_embed_models[0]}"
-                if _cfg.is_local and _embed_models
-                else "openai-cloud-fallback"
-                if _cfg.is_local
-                else f"openai-cloud|api-key-{'set' if (self.api_key or '') else 'missing'}"
-            )
+            _embed_path = LLMProviderManager.embeddings_signature(_cfg)
             print(
                 f"[AI Query] provider={_cfg.provider.value} "
                 f"chat_url={_cfg.base_url} chat_model={_cfg.model!r} "
@@ -6350,7 +6310,14 @@ class RAGQueryWorker(QThread):
                 import hashlib
                 import json
                 data_str = json.dumps(data, sort_keys=True, default=str)
-                current_data_hash = hashlib.md5(data_str.encode()).hexdigest()
+                # Fold the embeddings backend into the cache key: different
+                # backends emit different vector dims, so switching provider
+                # (e.g. OpenAI 1536-d -> fastembed 384-d) must rebuild the index.
+                try:
+                    _embed_sig = LLMProviderManager.embeddings_signature(self._effective_config())
+                except Exception:
+                    _embed_sig = "default"
+                current_data_hash = hashlib.md5((data_str + "|" + _embed_sig).encode()).hexdigest()
 
                 # Check if we can use cached vectorstore (data loaded but vectorstore might be valid)
                 if (not self.force_reload and
@@ -10696,28 +10663,14 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         return len(text) // 4
 
     def _get_embeddings(self):
-        """Return embeddings honouring the provider chosen in QSettings ('us_report' scope).
+        """Embeddings honouring the provider chosen in QSettings ('us_report').
 
-        For local providers (Ollama / LM Studio) we verify an embedding model
-        is actually loaded before pointing OpenAIEmbeddings there; otherwise
-        we fall back to OpenAI cloud to keep the FAISS index building.
-        Falls back to OpenAI with ``self.api_key`` if no preference is saved.
+        OpenAI (cloud), a local Ollama/LM Studio embedding model, or offline
+        ``fastembed``. Anthropic has no embeddings API, so its key is never
+        sent to OpenAI. See ``LLMProviderManager.build_embeddings``.
         """
-        from langchain_openai import OpenAIEmbeddings
-
         cfg = LLMProviderManager.resolve_config(scope="us_report")
-        if cfg.provider == LLMProvider.ANTHROPIC:
-            return OpenAIEmbeddings(api_key=self.api_key)
-        if cfg.is_local:
-            embed_models = LLMProviderManager.discover_embedding_models(cfg.provider)
-            if not embed_models:
-                return OpenAIEmbeddings(api_key=self.api_key or "not-needed")
-            return OpenAIEmbeddings(
-                api_key=cfg.api_key or "not-needed",
-                base_url=cfg.base_url,
-                model=embed_models[0],
-            )
-        return OpenAIEmbeddings(api_key=cfg.api_key or self.api_key or "not-needed")
+        return LLMProviderManager.build_embeddings(cfg)
 
     def create_vector_db(self, data, table_name):
         """
