@@ -165,6 +165,21 @@ Le rapport explique explicitement **pourquoi** le modèle, le K et le seuil ont
 été choisis, et interprète les résultats de façon compréhensible — l'idéal pour
 le rapport de fouille.
 
+> **Fournisseur IA et compatibilité.** Le rapport IA du palimpseste utilise le
+> fournisseur LLM configuré (OpenAI, Anthropic, Ollama ou LM Studio) via
+> `LLMProviderManager` ; les erreurs de fournisseur/SDK sont désormais affichées
+> avec un **message clair** au lieu d'une exception cryptique. Le rapport IA
+> fonctionne aussi bien sur **QGIS 3.x** (Python 3.9) que sur **QGIS 4.x**
+> (Python ≥ 3.10), avec installation automatique des dépendances.
+>
+> L'**Interrogation IA de la base de données (RAG / Text2SQL)** est une
+> fonctionnalité **distincte** du palimpseste (voir *Tutorial 30 — AI Query
+> Database*) : sur QGIS 4.x, elle utilise langchain 1.x et a été rendue
+> compatible dans la **5.13.5-alpha**. Si une fonctionnalité IA s'arrête avec une
+> erreur d'import de langchain (par ex. `No module named 'langchain.text_splitter'`
+> ou `cannot import name 'Tool' from 'langchain.agents'`), mettez à jour le plugin
+> et réinstallez les dépendances.
+
 ---
 
 ## 9. Modifier les dates, le graphique OxCal, le PDF et une note sur le taf

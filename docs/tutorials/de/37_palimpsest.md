@@ -162,6 +162,21 @@ Der Bericht erläutert ausdrücklich, **warum** das Modell, das K und die Schwel
 gewählt wurden, und interpretiert die Ergebnisse verständlich — ideal für den
 Grabungsbericht.
 
+> **KI-Provider & Kompatibilität.** Der KI-Bericht des Palimpsests nutzt den
+> konfigurierten LLM-Provider (OpenAI, Anthropic, Ollama oder LM Studio) über
+> `LLMProviderManager`; Provider-/SDK-Fehler werden jetzt mit einer **klaren
+> Meldung** angezeigt statt mit einer kryptischen Ausnahme. Der KI-Bericht
+> funktioniert sowohl unter **QGIS 3.x** (Python 3.9) als auch unter **QGIS 4.x**
+> (Python ≥ 3.10), mit automatischer Installation der Abhängigkeiten.
+>
+> Die **KI-Datenbankabfrage (RAG / Text2SQL)** ist eine vom Palimpsest
+> **getrennte** Funktion (siehe *Tutorial 30 — AI Query Database*): Unter
+> QGIS 4.x verwendet sie langchain 1.x und wurde in **5.13.5-alpha**
+> kompatibel gemacht. Wenn eine KI-Funktion mit einem langchain-Importfehler
+> abbricht (z. B. `No module named 'langchain.text_splitter'` oder
+> `cannot import name 'Tool' from 'langchain.agents'`), aktualisiere das Plugin
+> und installiere die Abhängigkeiten neu.
+
 ---
 
 ## 9. Daten bearbeiten, OxCal-Grafik, PDF und ein Hinweis zu taf

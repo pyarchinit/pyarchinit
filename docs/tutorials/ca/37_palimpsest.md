@@ -160,6 +160,21 @@ L'informe explica explícitament **per què** s'han triat el model, la K i el
 llindar, i interpreta els resultats de manera comprensible — l'ideal per a
 l'informe d'excavació.
 
+> **Proveïdor AI i compatibilitat.** L'informe AI del palimpsest utilitza el
+> proveïdor LLM configurat (OpenAI, Anthropic, Ollama o LM Studio) mitjançant
+> `LLMProviderManager`; els errors del proveïdor/SDK ara es mostren amb un
+> **missatge clar** en lloc d'una excepció críptica. L'informe AI funciona tant
+> a **QGIS 3.x** (Python 3.9) com a **QGIS 4.x** (Python ≥ 3.10), amb instal·lació
+> automàtica de les dependències.
+>
+> La **Consulta AI de la base de dades (RAG / Text2SQL)** és una funcionalitat
+> **independent** del palimpsest (vegeu *Tutorial 30 — AI Query Database*): a
+> QGIS 4.x utilitza langchain 1.x i es va fer compatible a la **5.13.5-alpha**.
+> Si una funcionalitat AI s'atura amb un error d'importació de langchain (p. ex.
+> `No module named 'langchain.text_splitter'` o
+> `cannot import name 'Tool' from 'langchain.agents'`), actualitza el connector i
+> reinstal·la les dependències.
+
 ---
 
 ## 9. Modificar les dates, gràfic OxCal, PDF i nota sobre el taf

@@ -155,6 +155,10 @@ El informe explica explícitamente **por qué** se eligieron el modelo, el K y
 el umbral, e interpreta los resultados de modo comprensible — lo ideal para la
 relación de excavación.
 
+> **Proveedor de IA y compatibilidad.** El informe IA del palimpsesto utiliza el proveedor LLM configurado (OpenAI, Anthropic, Ollama o LM Studio) a través de `LLMProviderManager`; los errores de proveedor/SDK ahora se muestran con un **mensaje claro** en lugar de una excepción críptica. El informe IA funciona tanto en **QGIS 3.x** (Python 3.9) como en **QGIS 4.x** (Python ≥ 3.10), con instalación automática de las dependencias.
+>
+> La **Consulta de base de datos con IA (RAG / Text2SQL)** es una función **separada** del palimpsesto (ver *Tutorial 30 — AI Query Database*): en QGIS 4.x utiliza langchain 1.x y se hizo compatible en **5.13.5-alpha**. Si una función de IA se detiene con un error de importación de langchain (p. ej. `No module named 'langchain.text_splitter'` o `cannot import name 'Tool' from 'langchain.agents'`), actualiza el plugin y reinstala las dependencias.
+
 ---
 
 ## 9. Editar las fechas, gráfico OxCal, PDF y nota sobre el taf

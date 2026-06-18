@@ -255,6 +255,26 @@ AND quota_min_usm < 10
 - Start `ollama serve`
 - Download required model
 
+### langchain import error (QGIS 4.x / Windows)
+
+**Symptom**:
+- `Error importing AI libraries: No module named 'langchain.text_splitter'`
+  when the AI (RAG) query starts
+- `cannot import name 'Tool' from 'langchain.agents'` during report generation
+
+**Cause**: on **QGIS 4.x / Python ≥ 3.10** the plugin installs the **langchain
+1.x** line, which removed the old import paths the AI features (RAG and report)
+relied on. On QGIS 3.x (Python 3.9, langchain 0.3.x) the issue does not occur.
+
+**Fix**:
+- Update the plugin to **5.13.5-alpha** or later (imports now point to the
+  canonical `langchain_core` / `langchain_text_splitters` paths, with a fallback
+  to the old paths).
+- Reinstall the dependencies (restart the plugin or run
+  `python scripts/modules_installer.py`): on Python ≥ 3.10 the installer also
+  pulls **`langchain-classic`**, required by `RetrievalQA` and the report's
+  conversation memory.
+
 ## References
 
 ### Source Files
@@ -282,4 +302,4 @@ AND quota_min_usm < 10
 
 ---
 
-*Last updated: January 2026*
+*Last updated: June 2026*

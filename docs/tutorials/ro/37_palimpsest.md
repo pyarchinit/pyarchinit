@@ -157,6 +157,20 @@ Raportul explică în mod explicit **de ce** au fost alese modelul, K-ul și pra
 și interpretează rezultatele într-un mod inteligibil — ideal pentru raportul de
 săpătură.
 
+> **Furnizorul AI și compatibilitatea.** Raportul AI al palimpsestului folosește
+> furnizorul LLM configurat (OpenAI, Anthropic, Ollama sau LM Studio) prin
+> `LLMProviderManager`; erorile de furnizor/SDK sunt acum afișate cu un **mesaj
+> clar** în loc de o excepție criptică. Raportul AI funcționează atât pe
+> **QGIS 3.x** (Python 3.9), cât și pe **QGIS 4.x** (Python ≥ 3.10), cu
+> instalarea automată a dependențelor.
+>
+> **Interogarea AI a bazei de date (RAG / Text2SQL)** este o funcționalitate
+> **separată** de palimpsest (vezi *Tutorial 30 — Interogare AI a bazei de
+> date*): pe QGIS 4.x folosește langchain 1.x și a fost făcută compatibilă în
+> **5.13.5-alpha**. Dacă o funcție AI se oprește cu o eroare de import langchain
+> (de ex. `No module named 'langchain.text_splitter'` sau `cannot import name 'Tool' from 'langchain.agents'`),
+> actualizează pluginul și reinstalează dependențele.
+
 ---
 
 ## 9. Modificarea datelor, graficul OxCal, PDF și o notă despre taf

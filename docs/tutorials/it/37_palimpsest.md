@@ -155,6 +155,20 @@ Il report spiega esplicitamente **perché** sono stati scelti il modello, il K e
 la soglia, e interpreta i risultati in modo comprensibile — l'ideale per la
 relazione di scavo.
 
+> **Provider AI e compatibilità.** Il report AI del palinsesto usa il provider
+> LLM configurato (OpenAI, Anthropic, Ollama o LM Studio) tramite
+> `LLMProviderManager`; gli errori del provider/SDK ora vengono mostrati con un
+> **messaggio chiaro** invece di un'eccezione criptica. Il report AI funziona
+> sia su **QGIS 3.x** (Python 3.9) sia su **QGIS 4.x** (Python ≥ 3.10), con
+> installazione automatica delle dipendenze.
+>
+> La **Interrogazione DB con AI (RAG / Text2SQL)** è una funzione **distinta**
+> dal palinsesto (vedi *Tutorial 30 — AI Query Database*): su QGIS 4.x usa
+> langchain 1.x ed è stata resa compatibile nella **5.13.5-alpha**. Se una
+> funzione AI si interrompe con un errore di import di langchain (es.
+> `No module named 'langchain.text_splitter'` oppure `cannot import name 'Tool'
+> from 'langchain.agents'`), aggiorna il plugin e reinstalla le dipendenze.
+
 ---
 
 ## 9. Modificare le date, grafico OxCal, PDF e nota sul taf

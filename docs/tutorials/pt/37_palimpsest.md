@@ -155,6 +155,10 @@ O relatório explica explicitamente **porquê** foram escolhidos o modelo, o K e
 o limiar, e interpreta os resultados de modo compreensível — o ideal para o
 relatório de escavação.
 
+> **Provedor de IA e compatibilidade.** O relatório de IA do palimpsest usa o provedor LLM configurado (OpenAI, Anthropic, Ollama ou LM Studio) através de `LLMProviderManager`; os erros de provedor/SDK são agora apresentados com uma **mensagem clara** em vez de uma exceção críptica. O relatório de IA funciona tanto em **QGIS 3.x** (Python 3.9) como em **QGIS 4.x** (Python ≥ 3.10), com instalação automática das dependências.
+>
+> A **Consulta à base de dados com IA (RAG / Text2SQL)** é uma funcionalidade **separada** do palimpsest (ver *Tutorial 30 — AI Query Database*): no QGIS 4.x usa langchain 1.x e foi tornada compatível na versão **5.13.5-alpha**. Se uma funcionalidade de IA parar com um erro de importação do langchain (por exemplo `No module named 'langchain.text_splitter'` ou `cannot import name 'Tool' from 'langchain.agents'`), atualize o plugin e reinstale as dependências.
+
 ---
 
 ## 9. Editar as datas, gráfico OxCal, PDF e nota sobre o taf

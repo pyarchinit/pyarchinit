@@ -255,6 +255,18 @@ AND quota_min_usm < 10
 - Porniti `ollama serve`
 - Descarcati modelul necesar
 
+### Eroare de import langchain (QGIS 4.x / Windows)
+
+**Simptom**:
+- `Error importing AI libraries: No module named 'langchain.text_splitter'` la pornirea interogarii AI (RAG)
+- `cannot import name 'Tool' from 'langchain.agents'` in timpul generarii raportului
+
+**Cauza**: pe **QGIS 4.x / Python ≥ 3.10** pluginul instaleaza linia **langchain 1.x**, care a eliminat vechile cai de import pe care se bazau functiile AI (RAG si raport). Pe QGIS 3.x (Python 3.9, langchain 0.3.x) problema nu apare.
+
+**Solutie**:
+- Actualizati pluginul la **5.13.5-alpha** sau o versiune ulterioara (importurile indica acum caile canonice `langchain_core` / `langchain_text_splitters`, cu revenire la caile vechi ca rezerva).
+- Reinstalati dependentele (reporniti pluginul sau rulati `python scripts/modules_installer.py`): pe Python ≥ 3.10 programul de instalare aduce de asemenea **`langchain-classic`**, necesar pentru `RetrievalQA` si memoria conversatiei a raportului.
+
 ## Referinte
 
 ### Fisiere sursa
@@ -282,4 +294,4 @@ AND quota_min_usm < 10
 
 ---
 
-*Ultima actualizare: ianuarie 2026*
+*Ultima actualizare: iunie 2026*

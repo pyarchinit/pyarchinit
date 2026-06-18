@@ -156,6 +156,20 @@ The report explicitly explains **why** the model, the K and the threshold were
 chosen, and interprets the results in an understandable way — ideal for the
 excavation report.
 
+> **AI provider & compatibility.** The palimpsest AI report uses the configured
+> LLM provider (OpenAI, Anthropic, Ollama or LM Studio) through
+> `LLMProviderManager`; provider/SDK errors are now shown with a **clear
+> message** instead of a cryptic exception. The AI report works on both
+> **QGIS 3.x** (Python 3.9) and **QGIS 4.x** (Python ≥ 3.10), with automatic
+> dependency installation.
+>
+> The **AI Database Query (RAG / Text2SQL)** is a feature **separate** from the
+> palimpsest (see *Tutorial 30 — AI Query Database*): on QGIS 4.x it uses
+> langchain 1.x and was made compatible in **5.13.5-alpha**. If an AI feature
+> stops with a langchain import error (e.g.
+> `No module named 'langchain.text_splitter'` or `cannot import name 'Tool' from
+> 'langchain.agents'`), update the plugin and reinstall the dependencies.
+
 ---
 
 ## 9. Editing dates, the OxCal plot, PDF, and a note on taf
