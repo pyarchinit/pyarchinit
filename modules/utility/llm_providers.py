@@ -298,6 +298,9 @@ class LLMProviderManager:
                 models = LLMProviderManager.discover_embedding_models(config.provider)
                 if models:
                     return f"local:{config.base_url}|{models[0]}"
+            # Non-OpenAI / local-without-embed -> OpenAI cloud if a key is saved.
+            if LLMProviderManager.get_api_key(LLMProvider.OPENAI):
+                return "openai:text-embedding-ada-002"
         except Exception:
             pass
         return f"fastembed:{LLMProviderManager.FASTEMBED_MODEL}"
@@ -309,8 +312,10 @@ class LLMProviderManager:
         - **OpenAI** (with a key) -> OpenAI cloud embeddings.
         - **Ollama / LM Studio** with an embedding model loaded -> that model.
         - **Anthropic** (no embeddings API), or a local server without an
-          embedding model, or OpenAI without a key -> offline ``fastembed``
-          (local ONNX, no API key).
+          embedding model -> OpenAI cloud embeddings **if** an OpenAI key is
+          saved (read independently of the chat provider; embeddings need not
+          match the chat model), otherwise offline ``fastembed`` (local ONNX,
+          no API key).
 
         Anthropic does NOT expose an embeddings endpoint, so the provider key
         must NEVER be handed to OpenAIEmbeddings (that produced the 401
@@ -336,7 +341,15 @@ class LLMProviderManager:
                     model=models[0],
                 )
 
-        # Anthropic / local-without-embedding-model / OpenAI-without-key -> offline.
+        # Non-OpenAI chat provider (e.g. Anthropic) or a local server without an
+        # embedding model: use OpenAI cloud embeddings IF an OpenAI key is saved
+        # (embeddings need not match the chat model). The key is read on its own
+        # so the Anthropic key is never handed to OpenAI.
+        _openai_key = LLMProviderManager.get_api_key(LLMProvider.OPENAI)
+        if _openai_key:
+            return OpenAIEmbeddings(api_key=_openai_key)
+
+        # No OpenAI key either -> offline fastembed.
         # fastembed's image transforms reference PIL.Image.Resampling (Pillow >= 9.1);
         # some QGIS builds bundle an older Pillow -> shim it before importing fastembed.
         LLMProviderManager._ensure_pil_resampling()

@@ -5,18 +5,20 @@
 
 ---
 
-## [5.13.8-alpha] - 2026-06-18 — RAG/fastembed: shim Pillow.Resampling per QGIS con Pillow vecchio
+## [5.13.8-alpha] - 2026-06-18 — RAG embeddings: OpenAI-se-disponibile / fastembed offline + shim Pillow.Resampling
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`modules/utility/llm_providers.py`, `requirements.txt`). Nessuna modifica a palimpsestr o agli `.rsx`.
 
 ### Italiano
 
+- **Selezione embeddings: OpenAI se la chiave c'è, altrimenti offline.** Con un provider di chat senza API di embeddings (es. **Anthropic**) o un server locale senza modello di embedding, il RAG ora usa gli **embeddings OpenAI se è salvata una chiave OpenAI** (`~/pyarchinit/bin/gpt_api_key.txt`, letta in modo indipendente dal provider di chat — la chiave Anthropic non viene mai inviata a OpenAI); **solo se non c'è chiave OpenAI** ricade su **fastembed** offline. La firma della cache FAISS (`embeddings_signature`) rispecchia la scelta, così cambiando la disponibilità della chiave l'indice si ricostruisce.
 - **`fastembed` non si rompe più su QGIS con Pillow < 9.1.** Con provider Anthropic (che usa il fallback `fastembed`) alcune build di QGIS davano `module 'PIL.Image' has no attribute 'Resampling'`: le trasformazioni immagine di fastembed usano `PIL.Image.Resampling` (enum introdotto in **Pillow 9.1**), assente nel Pillow più vecchio impacchettato in QGIS. `LLMProviderManager.build_embeddings` ora applica uno **shim** (`_ensure_pil_resampling`) **prima** di importare fastembed: se `PIL.Image.Resampling` manca, espone un `IntEnum` minimo mappato sulle costanti legacy (`NEAREST/LANCZOS/BILINEAR/BICUBIC/BOX/HAMMING`). Idempotente e silenzioso se Pillow è assente.
 - **Costruzione di fastembed protetta**: se l'inizializzazione fallisce comunque, l'errore è chiaro e azionabile (reinstalla `fastembed` + `Pillow>=9.1`, oppure usa OpenAI/Ollama/LM Studio) invece di un'eccezione criptica.
 - **Pin `Pillow>=9.1.0`** in `requirements.txt` (lo shim copre comunque i casi in cui l'aggiornamento di Pillow in QGIS non è possibile).
 
 ### English
 
+- **Embeddings selection: OpenAI if a key is saved, else offline.** With a chat provider that has no embeddings API (e.g. **Anthropic**) or a local server without an embedding model, the RAG now uses **OpenAI embeddings if an OpenAI key is saved** (`~/pyarchinit/bin/gpt_api_key.txt`, read independently of the chat provider — the Anthropic key is never sent to OpenAI); **only when no OpenAI key exists** does it fall back to offline **fastembed**. The FAISS cache signature (`embeddings_signature`) reflects the choice, so the index rebuilds when key availability changes.
 - **`fastembed` no longer breaks on QGIS shipping Pillow < 9.1.** Under the Anthropic provider (which uses the `fastembed` fallback) some QGIS builds raised `module 'PIL.Image' has no attribute 'Resampling'`: fastembed's image transforms use `PIL.Image.Resampling` (an enum added in **Pillow 9.1**) missing from the older Pillow bundled with QGIS. `LLMProviderManager.build_embeddings` now applies a **shim** (`_ensure_pil_resampling`) **before** importing fastembed: when `PIL.Image.Resampling` is absent it exposes a minimal `IntEnum` mapped to the legacy constants (`NEAREST/LANCZOS/BILINEAR/BICUBIC/BOX/HAMMING`). Idempotent and silent if Pillow is absent.
 - **Guarded fastembed construction**: if initialization still fails, the error is clear and actionable (reinstall `fastembed` + `Pillow>=9.1`, or use OpenAI/Ollama/LM Studio) instead of a cryptic exception.
 - **Pin `Pillow>=9.1.0`** in `requirements.txt` (the shim still covers cases where upgrading Pillow inside QGIS is not possible).
