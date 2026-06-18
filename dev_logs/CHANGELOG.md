@@ -5,13 +5,28 @@
 
 ---
 
-## [5.13.5-alpha] - 2026-06-17 — Palimpsest AI/RAG: provider Anthropic, sito corrente, materiali reali, export PDF
+## [5.13.6-alpha] - 2026-06-18 — Compatibilità langchain 1.x (Windows / QGIS 4.x) + tutorial
 
-> Branch `Stratigraph_00001`. Soli fix lato plugin del tab "Interrogazione Database con AI (RAG)" (`tabs/US_USM.py`), di `modules/utility/llm_providers.py` e di `requirements.txt`; nessuna modifica a palimpsestr o agli `.rsx`.
+> Branch `Stratigraph_00001`. Tag `palimpsest-5.13.6-alpha`. Fix lato plugin (`tabs/US_USM.py`, `requirements.txt`) + documentazione (tutorial 37 e 30). Nessuna modifica a palimpsestr o agli `.rsx`.
 
 ### Italiano
 
 - **Le funzioni AI/RAG si avviano anche con langchain 1.x (Windows / QGIS 4.x).** Su Python ≥ 3.10 il plugin installa la linea langchain 1.x, che ha rimosso gli shim legacy: `langchain.text_splitter` non esiste più (→ `No module named 'langchain.text_splitter'` all'avvio del RAG) e `Tool` non è più riesportato da `langchain.agents` (→ `cannot import name 'Tool' from 'langchain.agents'` durante la generazione del report). Gli import in `tabs/US_USM.py` sono stati spostati ai percorsi canonici e stabili — `langchain_text_splitters`, `langchain_core.tools`, `langchain_core.callbacks`, `langchain_core.prompts`, `langchain_core.messages` — con fallback ai vecchi percorsi per langchain 0.3.x (QGIS 3.x / Python 3.9). Le chain/memory legacy (`RetrievalQA`, `ConversationSummaryMemory`), spostate in `langchain-classic` nella 1.x, usano un fallback `try/except` e la dipendenza `langchain-classic>=1.0.0; python_version>="3.10"` è stata aggiunta a `requirements.txt` (sulla linea 0.3.x restano dentro `langchain` stesso).
+- **Tutorial aggiornati.** Tutorial 37 (palinsesto) in 10 lingue: nota nel report AI (provider OpenAI/Anthropic/Ollama/LM Studio, errori del provider chiari, QGIS 3.x/4.x) + rimando alla query AI sul DB. Tutorial 30 (AI Query Database) in 5 lingue (it/en/ro/pt/el): nuova sezione di troubleshooting per l'errore di import langchain + data footer a giugno 2026.
+
+### English
+
+- **AI/RAG features now start under langchain 1.x (Windows / QGIS 4.x).** On Python ≥ 3.10 the plugin installs the langchain 1.x line, which dropped the legacy shims: `langchain.text_splitter` is gone (→ `No module named 'langchain.text_splitter'` when the RAG starts) and `Tool` is no longer re-exported from `langchain.agents` (→ `cannot import name 'Tool' from 'langchain.agents'` during report generation). Imports in `tabs/US_USM.py` were moved to the stable canonical paths — `langchain_text_splitters`, `langchain_core.tools`, `langchain_core.callbacks`, `langchain_core.prompts`, `langchain_core.messages` — with fallbacks to the old paths for langchain 0.3.x (QGIS 3.x / Python 3.9). Legacy chains/memory (`RetrievalQA`, `ConversationSummaryMemory`), moved to `langchain-classic` in 1.x, use a `try/except` fallback, and the `langchain-classic>=1.0.0; python_version>="3.10"` dependency was added to `requirements.txt` (on the 0.3.x line they still ship inside `langchain` itself).
+- **Tutorials updated.** Tutorial 37 (palimpsest) in 10 languages: AI report note (provider OpenAI/Anthropic/Ollama/LM Studio, clear provider errors, QGIS 3.x/4.x) + cross-reference to the AI database query. Tutorial 30 (AI Query Database) in 5 languages (it/en/ro/pt/el): new troubleshooting section for the langchain import error + footer date bumped to June 2026.
+
+---
+
+## [5.13.5-alpha] - 2026-06-17 — Palimpsest AI/RAG: provider Anthropic, sito corrente, materiali reali, export PDF
+
+> Branch `Stratigraph_00001`. Soli fix lato plugin del tab "Interrogazione Database con AI (RAG)" (`tabs/US_USM.py`) e di `modules/utility/llm_providers.py`; nessuna modifica a palimpsestr o agli `.rsx`.
+
+### Italiano
+
 - **L'interrogazione AI (RAG) funziona con Anthropic/Claude.** Lo streaming costruiva un client OpenAI dall'oggetto LangChain (`self.llm.openai_api_key`), che con provider Anthropic è un `ChatAnthropic` privo di quell'attributo → crash `'ChatAnthropic' object has no attribute 'openai_api_key'`. Ora lo streaming passa dal modello LangChain stesso (`self.llm.stream()`), agnostico al provider (OpenAI, Anthropic, Ollama/LM Studio), con fallback a `invoke()`.
 - **Errori dell'SDK non più mascherati.** `LLMProviderManager._annotate_error` ricostruiva l'eccezione con `type(exc)(msg)`: per le eccezioni dell'SDK Anthropic (firma `(message, *, response, body)`) generava il criptico `__init__() missing 2 required keyword-only arguments: 'response' and 'body'`, nascondendo la causa reale. Ora mantiene il tipo solo se ricostruibile, altrimenti `RuntimeError` (causa reale + catena preservate). Stesso fix sul path embeddings. Test di regressione in `tests/utility/`.
 - **Il RAG riconosce il sito corrente.** Prima rispondeva "non so qual è il sito corrente" perché il prompt non aveva contesto sul sito. Ora: **un solo sito** nel DB → lo usa in automatico; **più siti** → usa quello selezionato in `comboBox_sito` per "sito corrente"/richieste generiche, altrimenti chiede quale.
@@ -21,7 +36,6 @@
 
 ### English
 
-- **AI/RAG features now start under langchain 1.x (Windows / QGIS 4.x).** On Python ≥ 3.10 the plugin installs the langchain 1.x line, which dropped the legacy shims: `langchain.text_splitter` is gone (→ `No module named 'langchain.text_splitter'` when the RAG starts) and `Tool` is no longer re-exported from `langchain.agents` (→ `cannot import name 'Tool' from 'langchain.agents'` during report generation). Imports in `tabs/US_USM.py` were moved to the stable canonical paths — `langchain_text_splitters`, `langchain_core.tools`, `langchain_core.callbacks`, `langchain_core.prompts`, `langchain_core.messages` — with fallbacks to the old paths for langchain 0.3.x (QGIS 3.x / Python 3.9). Legacy chains/memory (`RetrievalQA`, `ConversationSummaryMemory`), moved to `langchain-classic` in 1.x, use a `try/except` fallback, and the `langchain-classic>=1.0.0; python_version>="3.10"` dependency was added to `requirements.txt` (on the 0.3.x line they still ship inside `langchain` itself).
 - **AI (RAG) query works with Anthropic/Claude.** Streaming built a raw OpenAI client from the LangChain object (`self.llm.openai_api_key`), which is a `ChatAnthropic` without that attribute under the Anthropic provider → `'ChatAnthropic' object has no attribute 'openai_api_key'`. Streaming now goes through the LangChain model itself (`self.llm.stream()`), provider-agnostic (OpenAI, Anthropic, Ollama/LM Studio), with an `invoke()` fallback.
 - **SDK errors no longer masked.** `LLMProviderManager._annotate_error` rebuilt the exception via `type(exc)(msg)`; for Anthropic SDK errors (`(message, *, response, body)` signature) this raised the cryptic `__init__() missing 2 required keyword-only arguments: 'response' and 'body'`, hiding the real cause. It now keeps the type only when reconstructible, else `RuntimeError` (real message + chained cause kept). Same fix on the embeddings path. Regression test in `tests/utility/`.
 - **RAG resolves the current site.** It used to answer "I don't know the current site" because the prompt carried no site context. Now a single site → used automatically; several sites → the one selected in `comboBox_sito` for "current site"/generic requests, else it asks which.
