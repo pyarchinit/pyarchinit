@@ -116,6 +116,8 @@ PyArchInit supporta anche storage remoto:
 ![Storage Remoto](images/01_configurazione/08_remote_storage.png)
 *Figura 8: Esempio configurazione storage remoto*
 
+> **Nota — credenziali WebDAV e certificati self-signed.** Le credenziali WebDAV (username e password) si impostano nella finestra **Remote Storage Config** (pulsante *Remote Storage Config* nella scheda di configurazione), tab **WebDAV**. Se il server usa un **certificato self-signed** — tipico dei server su indirizzo IP nudo o porta HTTPS non standard — imposta il menu **"Verify SSL"** su **No (Self-signed certificates)**, altrimenti la connessione fallisce in modo silenzioso. Per i server con certificato valido (es. Nextcloud/ownCloud) lascia **Yes (Verify certificates)** (impostazione predefinita).
+
 ### Sezione Experimental
 
 | Campo | Descrizione |

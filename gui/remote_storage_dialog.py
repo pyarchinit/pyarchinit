@@ -300,6 +300,20 @@ class RemoteStorageDialog(QDialog):
         form_layout.addRow("Password:", self.webdav_password)
 
         layout.addWidget(form_group)
+
+        # SSL Options group
+        ssl_group = QGroupBox("SSL Options")
+        ssl_layout = QFormLayout(ssl_group)
+
+        self.webdav_verify_ssl = QComboBox()
+        self.webdav_verify_ssl.addItems(
+            ["Yes (Verify certificates)", "No (Self-signed certificates)"])
+        self.webdav_verify_ssl.setToolTip(
+            "Disable SSL verification for servers with self-signed certificates "
+            "(e.g. a WebDAV server on a bare IP / non-standard HTTPS port)")
+        ssl_layout.addRow("Verify SSL:", self.webdav_verify_ssl)
+
+        layout.addWidget(ssl_group)
         layout.addStretch()
 
         self.tab_widget.addTab(tab, "WebDAV")
@@ -477,6 +491,10 @@ class RemoteStorageDialog(QDialog):
             self.settings.value("pyarchinit/storage/webdav/username", ""))
         self.webdav_password.setText(
             self.settings.value("pyarchinit/storage/webdav/password", ""))
+        webdav_verify_ssl = self.settings.value(
+            "pyarchinit/storage/webdav/verify_ssl", "true")
+        self.webdav_verify_ssl.setCurrentIndex(
+            0 if webdav_verify_ssl.lower() in ('true', '1', 'yes') else 1)
 
         # HTTP
         self.http_api_key.setText(
@@ -549,6 +567,9 @@ class RemoteStorageDialog(QDialog):
                                self.webdav_username.text())
         self.settings.setValue("pyarchinit/storage/webdav/password",
                                self.webdav_password.text())
+        self.settings.setValue(
+            "pyarchinit/storage/webdav/verify_ssl",
+            "true" if self.webdav_verify_ssl.currentIndex() == 0 else "false")
 
         # HTTP
         self.settings.setValue("pyarchinit/storage/http/api_key",
@@ -767,6 +788,9 @@ class RemoteStorageDialog(QDialog):
                           self.webdav_username.text())
         settings.setValue("pyarchinit/storage/webdav/password",
                           self.webdav_password.text())
+        settings.setValue(
+            "pyarchinit/storage/webdav/verify_ssl",
+            "true" if self.webdav_verify_ssl.currentIndex() == 0 else "false")
 
         # HTTP
         settings.setValue("pyarchinit/storage/http/api_key",

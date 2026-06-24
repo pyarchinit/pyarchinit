@@ -5,6 +5,24 @@
 
 ---
 
+## [5.13.9-alpha] - 2026-06-24 — WebDAV: opzione "Verify SSL" per server con certificato self-signed
+
+> Branch `Stratigraph_00001`. Fix lato plugin (`gui/remote_storage_dialog.py`, `modules/storage/credentials.py`, `modules/storage/webdav_backend.py`). Nessuna modifica a palimpsestr o agli `.rsx`.
+
+### Italiano
+
+- **Connessione WebDAV ai server con certificato self-signed.** Con un server WebDAV su IP nudo o porta HTTPS non standard (certificato auto-firmato) la connessione falliva **in silenzio**: `webdavclient3` usa `requests`, che rifiuta i certificati non validi, e `WebDAVBackend.connect()` cattura l'eccezione restituendo `False` senza alcun messaggio. Il tab **WebDAV** della finestra *Remote Storage Config* ha ora un menu **"Verify SSL"** — **Yes (Verify certificates)** di default, **No (Self-signed certificates)** per disattivare la verifica.
+- **Propagazione della scelta.** Il valore è salvato in `pyarchinit/storage/webdav/verify_ssl` (`"true"`/`"false"`) e arriva al backend tramite il `CredentialsManager` (nuova chiave `verify_ssl` in `ENV_NAMES[WEBDAV]`, impostabile anche con la variabile d'ambiente `PYARCHINIT_WEBDAV_VERIFY_SSL`). `WebDAVBackend.connect()` imposta `client.verify` di conseguenza e, quando la verifica è disattivata, silenzia gli `InsecureRequestWarning` di urllib3.
+- **Default invariato e sicuro.** Per gli utenti esistenti (es. Nextcloud/ownCloud con certificato valido) il comportamento resta la verifica attiva; disattivarla è una scelta esplicita per i soli server self-signed.
+
+### English
+
+- **WebDAV connection to servers with a self-signed certificate.** With a WebDAV server on a bare IP or a non-standard HTTPS port (self-signed certificate) the connection failed **silently**: `webdavclient3` uses `requests`, which rejects invalid certificates, and `WebDAVBackend.connect()` swallows the exception and returns `False` with no message. The **WebDAV** tab of the *Remote Storage Config* dialog now has a **"Verify SSL"** menu — **Yes (Verify certificates)** by default, **No (Self-signed certificates)** to disable verification.
+- **Choice propagation.** The value is stored in `pyarchinit/storage/webdav/verify_ssl` (`"true"`/`"false"`) and reaches the backend via the `CredentialsManager` (new `verify_ssl` key in `ENV_NAMES[WEBDAV]`, also settable through the `PYARCHINIT_WEBDAV_VERIFY_SSL` environment variable). `WebDAVBackend.connect()` sets `client.verify` accordingly and, when verification is off, silences urllib3's `InsecureRequestWarning`.
+- **Unchanged, safe default.** For existing users (e.g. Nextcloud/ownCloud with a valid certificate) the behaviour stays verification-on; disabling it is an explicit choice for self-signed servers only.
+
+---
+
 ## [5.13.8-alpha] - 2026-06-18 — RAG embeddings: OpenAI-se-disponibile / fastembed offline + shim Pillow.Resampling
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`modules/utility/llm_providers.py`, `requirements.txt`). Nessuna modifica a palimpsestr o agli `.rsx`.

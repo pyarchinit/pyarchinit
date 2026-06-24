@@ -112,6 +112,7 @@ class CredentialsManager:
         StorageType.WEBDAV: {
             'username': 'WEBDAV_USERNAME',
             'password': 'WEBDAV_PASSWORD',
+            'verify_ssl': 'WEBDAV_VERIFY_SSL',
         },
         StorageType.HTTP: {
             'username': 'HTTP_USERNAME',

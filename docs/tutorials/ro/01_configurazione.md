@@ -105,6 +105,8 @@ PyArchInit suporta si stocare la distanta:
 ![Stocare la Distanta](images/01_configurazione/08_remote_storage.png)
 *Figura 8: Exemplu de configurare stocare la distanta*
 
+> **Nota — Credentiale WebDAV si certificate auto-semnate.** Credentialele WebDAV (nume de utilizator si parola) se seteaza in dialogul **Remote Storage Config** (butonul *Remote Storage Config* din fereastra de configurare), fila **WebDAV**. Daca serverul foloseste un **certificat auto-semnat** — tipic pentru servere aflate pe o adresa IP simpla sau pe un port HTTPS non-standard — setati meniul **"Verify SSL"** (Verificare SSL) pe **No (Self-signed certificates)** (Nu — certificate auto-semnate), altfel conexiunea esueaza in tacere. Pentru servere cu un certificat valid (de ex. Nextcloud/ownCloud) lasati-l pe **Yes (Verify certificates)** (Da — verificare certificate), care este valoarea implicita.
+
 ### Sectiunea Setari Santier
 
 | Camp | Descriere |

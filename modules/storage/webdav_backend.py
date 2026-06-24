@@ -76,6 +76,23 @@ class WebDAVBackend(StorageBackend):
 
             self._client = Client(options)
 
+            # SSL verification: enabled by default, can be disabled for servers
+            # with self-signed certificates (e.g. a WebDAV server on a bare IP /
+            # non-standard HTTPS port). Stored as the string "true"/"false".
+            verify_ssl = self.credentials.get('verify_ssl', True)
+            if isinstance(verify_ssl, str):
+                verify_ssl = verify_ssl.strip().lower() in ('true', '1', 'yes')
+            verify_ssl = bool(verify_ssl)
+            # webdavclient3 reads ``Client.verify`` for every request.
+            self._client.verify = verify_ssl
+            if not verify_ssl:
+                # Silence the per-request InsecureRequestWarning spam.
+                try:
+                    import urllib3
+                    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                except Exception:
+                    pass
+
             # Test connection
             self._client.check()
 

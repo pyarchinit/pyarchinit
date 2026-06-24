@@ -88,6 +88,8 @@ PyArchInit soporta también almacenamiento remoto:
 - **WebDAV**: `webdav://server/path/`
 - **HTTP/HTTPS**: `https://server/path/`
 
+> **Nota — Credenciales WebDAV y certificados autofirmados.** Las credenciales WebDAV (nombre de usuario y contraseña) se configuran en el diálogo **Remote Storage Config** (el botón *Remote Storage Config* del formulario de configuración), pestaña **WebDAV**. Si el servidor utiliza un **certificado autofirmado** — típico de servidores en una dirección IP a secas o en un puerto HTTPS no estándar — establece el menú **"Verify SSL"** en **No (Self-signed certificates)** (No, certificados autofirmados); de lo contrario, la conexión falla silenciosamente. Para servidores con un certificado válido (p. ej. Nextcloud/ownCloud) déjalo en **Yes (Verify certificates)** (Sí, verificar certificados), que es el valor predeterminado.
+
 ### Sección Experimental
 
 | Campo | Descripción |
