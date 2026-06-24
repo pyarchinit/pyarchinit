@@ -5,6 +5,22 @@
 
 ---
 
+## [5.13.9.1-alpha] - 2026-06-24 — Fix: ON CONFLICT non quotato rompe l'inserimento media su PostgreSQL
+
+> Branch `Stratigraph_00001`. Fix lato plugin (`gui/pyarchinitConfigDialog.py`).
+
+### Italiano
+
+- **Aggiungere un'immagine non dà più `column "id_mediatoentity" does not exist` su PostgreSQL.** Le opzioni di import del dialog di configurazione (**ignora / aggiorna / abort** duplicati) registrano hook globali `@compiles(Insert)` che accodano una clausola `ON CONFLICT (...) DO NOTHING/DO UPDATE` a **ogni** INSERT. Gli hook **ignore** e **abort** interpolavano i nomi di colonna **non quotati**: per un PK in camelCase come `media_to_entity_table.id_mediaToEntity`, PostgreSQL ripiega l'identificatore non quotato in minuscolo (`id_mediatoentity`) → `UndefinedColumn`. Ora entrambi usano `compiler.preparer.quote(...)`, così il nome diventa `ON CONFLICT ("id_mediaToEntity")` (la variante **replace** era già corretta). I PK in minuscolo (es. `id_us`) restano invariati (nessuna quota superflua).
+- **Nota d'uso:** questi hook `@compiles(Insert)` sono **globali e persistono per l'intera sessione QGIS** una volta attivati da un import con quelle spunte. Dopo questo fix occorre **riavviare QGIS** per scaricare l'hook bacato già registrato nella sessione corrente.
+
+### English
+
+- **Adding an image no longer raises `column "id_mediatoentity" does not exist` on PostgreSQL.** The configuration dialog's import options (**ignore / replace / abort** duplicates) register global `@compiles(Insert)` hooks that append an `ON CONFLICT (...) DO NOTHING/DO UPDATE` clause to **every** INSERT. The **ignore** and **abort** hooks interpolated column names **unquoted**: for a camelCase PK such as `media_to_entity_table.id_mediaToEntity`, PostgreSQL folds the unquoted identifier to lowercase (`id_mediatoentity`) → `UndefinedColumn`. Both now use `compiler.preparer.quote(...)`, yielding `ON CONFLICT ("id_mediaToEntity")` (the **replace** variant was already fixed). Lowercase PKs (e.g. `id_us`) are left unquoted (no spurious quoting).
+- **Usage note:** these `@compiles(Insert)` hooks are **global and persist for the whole QGIS session** once triggered by an import with those checkboxes. After this fix, **restart QGIS** to drop the buggy hook already registered in the current session.
+
+---
+
 ## [5.13.9-alpha] - 2026-06-24 — WebDAV: opzione "Verify SSL" per server con certificato self-signed
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`gui/remote_storage_dialog.py`, `modules/storage/credentials.py`, `modules/storage/webdav_backend.py`). Nessuna modifica a palimpsestr o agli `.rsx`.

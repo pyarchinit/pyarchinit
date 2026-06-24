@@ -5188,7 +5188,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         # pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
                         c = next(x for x in ck if isinstance(x, sa.UniqueConstraint))
-                        column_names = [col.name for col in c.columns]
+                        # Quote identifiers so PostgreSQL preserves mixed-case
+                        # column names (e.g. id_mediaToEntity); unquoted names
+                        # are folded to lowercase -> UndefinedColumn.
+                        column_names = [compiler.preparer.quote(col.name) for col in c.columns]
                         s = ", ".join(column_names)
                         conflict_clause = f'ON CONFLICT ({s}) DO NOTHING'
                         # ON CONFLICT must come before RETURNING (if present)
@@ -5269,7 +5272,10 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         #return compiler.visit_insert(insert.prefix_with(''), **kw)
                         pk = insert_srt.table.primary_key
                         insert = compiler.visit_insert(insert_srt, **kw)
-                        conflict_clause = f'ON CONFLICT ({",".join(c.name for c in pk)}) DO NOTHING'
+                        # Quote identifiers so PostgreSQL preserves mixed-case PK
+                        # names (e.g. id_mediaToEntity); unquoted names are folded
+                        # to lowercase -> UndefinedColumn.
+                        conflict_clause = f'ON CONFLICT ({",".join(compiler.preparer.quote(c.name) for c in pk)}) DO NOTHING'
                         # ON CONFLICT must come before RETURNING (if present)
                         if ' RETURNING ' in insert:
                             ret_idx = insert.index(' RETURNING ')
