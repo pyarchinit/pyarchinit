@@ -1745,10 +1745,10 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
             file_path_3 = str(res_3[0].path_resize)
 
             # Check if path_resize is already a full path (starts with protocol)
-            if file_path_3.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+            if file_path_3.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://', '/')):
                 # path_resize is already a full path, use it directly
                 full_path = file_path_3
-            elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+            elif thumb_resize_str and thumb_resize_str.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
                 # URL path: use forward slash
                 full_path = thumb_resize_str.rstrip('/') + '/' + file_path_3.lstrip('/')
             else:

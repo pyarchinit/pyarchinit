@@ -5,6 +5,26 @@
 
 ---
 
+## [5.13.9.2-alpha] - 2026-06-24 — Fix: media WebDAV end-to-end (upload `disable_check` + path raddoppiato + download)
+
+> Branch `Stratigraph_00001`. Fix lato plugin: `modules/storage/webdav_backend.py` + `modules/utility/remote_image_loader.py` + tuple di prefissi remoti in 10 file (`tabs/{Struttura,Image_viewer,Image_search,Images_directory_export,Inv_Materiali,US_USM,pyarchinit_Pottery_mainapp}.py`, `modules/utility/{remote_image_loader,pyarchinit_OS_utility}.py`, `modules/db/pyarchinit_OS_utility.py`).
+
+### Italiano
+
+- **Upload WebDAV non più fallito con server "incompatibili" (es. Synology :5006).** `webdavclient3`, prima di ogni `list`/`upload` su un sottopercorso, fa un controllo di esistenza (`check()`/PROPFIND) interno; alcuni server rispondono in modo che la libreria interpreta come "non esiste", anche quando la risorsa esiste **ed è scrivibile** → ogni upload falliva con un finto `RemoteResourceNotFound`/`RemoteParentNotFound` (nel log del plugin: `Failed to upload original file, using local path`, quindi l'immagine restava solo locale). `WebDAVBackend.connect()` ora imposta **`disable_check=True`** sul client (salta quel pre-controllo); `ensure_directory()` non si appoggia più a `check()` (crea ogni cartella con `mkdir` per componente, ignorando "già esistente"). Diagnosi confermata: con `disable_check` `list`/`mkdir`/`upload` funzionano.
+- **Niente più errori muti.** `connect()`/`write()` ora **loggano** l'eccezione reale (`[WebDAV] connect failed: …` / `write failed: …`) invece di un `return False` silenzioso, e segnalano `webdavclient3` mancante.
+- **Le immagini su WebDAV non danno più "File non trovato" con URL raddoppiato.** I controlli di percorso (es. `is_remote_url` e i rami "il path è già completo" / "la base è remota") usavano una lista di prefissi remoti **incompleta** — `('unibo://', 'http://', 'https://', 'cloudinary://')` — che **ometteva `webdav://`** (e anche `gdrive/dropbox/s3/r2/sftp`). Per WebDAV un `path_resize` già completo non veniva riconosciuto come tale, quindi la base configurata veniva **anteposta una seconda volta** → `webdav://…/thumb_resize/webdav://…/thumb_resize/1_test.png`. Tutte le liste (30 occorrenze in 10 file + l'helper `RemoteImageLoader.is_remote_url`) ora includono l'elenco completo degli schemi remoti.
+- **Download WebDAV per la visualizzazione.** Il loader scaricava i remoti non-unibo/cloudinary con `requests.get`, che **non conosce lo schema `webdav://`** (né gdrive/dropbox/s3/sftp). Aggiunto un ramo dedicato in `load_pixmap` (`is_storage_backend_path` + `_download_via_storage`) che recupera i byte tramite il `StorageManager`/backend (lo stesso usato in upload da `resample_images`). Vale sia per le miniature (`load_icon`) sia per l'anteprima a tutto schermo (`imageViewer.show_image`, che già passa dal loader). Degrada in modo sicuro (fallback al file locale) se il download fallisce.
+
+### English
+
+- **WebDAV upload no longer fails on "incompatible" servers (e.g. Synology :5006).** Before every sub-path `list`/`upload`, `webdavclient3` runs an internal existence check (`check()`/PROPFIND); some servers answer in a way the library reads as "not found", even when the resource exists **and is writable** → every upload failed with a spurious `RemoteResourceNotFound`/`RemoteParentNotFound` (plugin log: `Failed to upload original file, using local path`, so the image stayed local-only). `WebDAVBackend.connect()` now sets **`disable_check=True`** on the client (skips that pre-check); `ensure_directory()` no longer relies on `check()` (it `mkdir`s each component, ignoring "already exists"). Confirmed by diagnosis: with `disable_check`, `list`/`mkdir`/`upload` all work.
+- **No more silent errors.** `connect()`/`write()` now **log** the real exception (`[WebDAV] connect failed: …` / `write failed: …`) instead of a silent `return False`, and report a missing `webdavclient3`.
+- **WebDAV images no longer fail with a "File not found" doubled URL.** The path checks (e.g. `is_remote_url` and the "path already full" / "base is remote" branches) used an **incomplete** remote-prefix list — `('unibo://', 'http://', 'https://', 'cloudinary://')` — that **omitted `webdav://`** (and `gdrive/dropbox/s3/r2/sftp`). For WebDAV an already-complete `path_resize` was not recognized as such, so the configured base was **prepended a second time** → `webdav://…/thumb_resize/webdav://…/thumb_resize/1_test.png`. All lists (30 occurrences across 10 files + the `RemoteImageLoader.is_remote_url` helper) now include the full set of remote schemes.
+- **WebDAV download for display.** The loader fetched non-unibo/cloudinary remotes with `requests.get`, which **cannot speak the `webdav://` scheme** (nor gdrive/dropbox/s3/sftp). Added a dedicated branch in `load_pixmap` (`is_storage_backend_path` + `_download_via_storage`) that reads the bytes through the `StorageManager`/backend (the same one `resample_images` uses for upload). Applies to both thumbnails (`load_icon`) and the full-size preview (`imageViewer.show_image`, which already routes through the loader). Degrades safely (local-file fallback) if the download fails.
+
+---
+
 ## [5.13.9.1-alpha] - 2026-06-24 — Fix: ON CONFLICT non quotato rompe l'inserimento media su PostgreSQL
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`gui/pyarchinitConfigDialog.py`).

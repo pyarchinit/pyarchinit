@@ -46,7 +46,7 @@ class pyarchinit_OS_Utility:
         Supports local paths and remote URLs (unibo://, http://, https://, cloudinary://).
         """
         # Check if source is a remote URL
-        is_remote = f and f.startswith(('unibo://', 'http://', 'https://', 'cloudinary://'))
+        is_remote = f and f.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://'))
 
         if is_remote:
             # Handle remote files by downloading them first

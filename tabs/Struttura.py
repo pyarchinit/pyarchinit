@@ -1748,9 +1748,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
         def show_media(file_path, media_type):
             # Check if file_path is already a full path (starts with protocol)
-            if file_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+            if file_path.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://', '/')):
                 full_path = file_path
-            elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+            elif thumb_resize_str and thumb_resize_str.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
                 full_path = thumb_resize_str.rstrip('/') + '/' + file_path.lstrip('/')
             else:
                 full_path = os.path.join(thumb_resize_str, file_path)
@@ -1783,9 +1783,9 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                 # Construct path properly for remote URLs
                 path_resize = str(res[0].path_resize)
                 # Check if path_resize is already a full path
-                if path_resize.startswith(('unibo://', 'http://', 'https://', 'cloudinary://', '/')):
+                if path_resize.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://', '/')):
                     file_path = process_file_path(path_resize)
-                elif thumb_resize_str and thumb_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+                elif thumb_resize_str and thumb_resize_str.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
                     file_path = process_file_path(thumb_resize_str.rstrip('/') + '/' + path_resize.lstrip('/'))
                 else:
                     file_path = process_file_path(os.path.join(thumb_resize_str, path_resize))

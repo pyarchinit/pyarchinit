@@ -71,7 +71,14 @@ class WebDAVBackend(StorageBackend):
                 'webdav_hostname': f"{parsed.scheme}://{parsed.netloc}",
                 'webdav_login': username,
                 'webdav_password': password,
-                'webdav_root': parsed.path or '/'
+                'webdav_root': parsed.path or '/',
+                # Some servers (e.g. Synology WebDAV on :5006) answer
+                # webdavclient3's internal existence check (PROPFIND) in a way
+                # it reads as "not found", so every list/upload on a sub-path
+                # fails with a spurious RemoteResourceNotFound / RemoteParent
+                # NotFound even though the resource exists and is writable.
+                # Disabling that pre-check lets the real request through.
+                'disable_check': True,
             }
 
             self._client = Client(options)
@@ -101,8 +108,11 @@ class WebDAVBackend(StorageBackend):
 
         except ImportError:
             # webdavclient3 not installed
+            print("[WebDAV] webdavclient3 not installed — run "
+                  "scripts/modules_installer.py")
             return False
-        except Exception:
+        except Exception as e:
+            print(f"[WebDAV] connect failed: {type(e).__name__}: {e}")
             self._connected = False
             return False
 
@@ -164,7 +174,9 @@ class WebDAVBackend(StorageBackend):
             self._client.upload_to(buffer, filename)
             return True
 
-        except Exception:
+        except Exception as e:
+            print(f"[WebDAV] write failed for {filename!r}: "
+                  f"{type(e).__name__}: {e}")
             return False
 
     def exists(self, filename: str) -> bool:
@@ -290,21 +302,25 @@ class WebDAVBackend(StorageBackend):
         if not path:
             return True
 
-        try:
-            # Create all parent directories
-            parts = path.strip('/').split('/')
-            current_path = ''
+        # Create each parent directory in turn. We do NOT gate on
+        # ``check()`` first: on some servers that pre-check wrongly reports
+        # "not found" (the same reason we set ``disable_check`` on the client),
+        # and ``mkdir`` on an already-existing collection just raises, which we
+        # ignore. Each component is attempted independently so an existing
+        # ancestor never blocks creation of a deeper, missing folder.
+        parts = path.strip('/').split('/')
+        current_path = ''
 
-            for part in parts:
-                current_path = f"{current_path}/{part}" if current_path else part
+        for part in parts:
+            current_path = f"{current_path}/{part}" if current_path else part
+            try:
+                self._client.mkdir(current_path)
+            except Exception:
+                # Directory likely already exists (MKCOL on an existing
+                # collection) — harmless; continue with the next component.
+                pass
 
-                if not self._client.check(current_path):
-                    self._client.mkdir(current_path)
-
-            return True
-
-        except Exception:
-            return False
+        return True
 
     def copy(self, source: str, destination: str) -> bool:
         """

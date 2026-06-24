@@ -53,11 +53,11 @@ class pyarchinit_Images_directory_export(QDialog, MAIN_DIALOG_CLASS):
         """
         path_resize_str = str(path_resize)
         # Check if path_resize is already a full path
-        if path_resize_str.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+        if path_resize_str.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
             return path_resize_str
         elif path_resize_str.startswith('/'):
             return path_resize_str
-        elif base_path and base_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+        elif base_path and base_path.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
             return base_path.rstrip('/') + '/' + path_resize_str.lstrip('/')
         else:
             return str(base_path) + str(path_resize_str)

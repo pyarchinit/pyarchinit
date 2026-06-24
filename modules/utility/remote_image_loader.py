@@ -177,7 +177,20 @@ class RemoteImageLoader:
         """
         if not path:
             return False
-        return path.lower().startswith(('http://', 'https://', 'cloudinary://', 'unibo://'))
+        return path.lower().startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://'))
+
+    # Remote schemes that are served by a StorageManager backend (read/write via
+    # the backend API) rather than a plain HTTP GET. http/https/cloudinary go
+    # through _download_image; unibo has its own downloader.
+    _STORAGE_BACKEND_PREFIXES = ('webdav://', 'gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://')
+
+    @classmethod
+    def is_storage_backend_path(cls, path: str) -> bool:
+        """True if the path must be fetched through a StorageManager backend
+        (WebDAV/Google Drive/Dropbox/S3/R2/SFTP) instead of a plain HTTP GET."""
+        if not path:
+            return False
+        return path.lower().startswith(cls._STORAGE_BACKEND_PREFIXES)
 
     @classmethod
     def is_unibo_path(cls, path: str) -> bool:
@@ -294,6 +307,25 @@ class RemoteImageLoader:
         return None
 
     @classmethod
+    def _download_via_storage(cls, path: str):
+        """Download raw bytes for a StorageManager-backed remote path
+        (webdav/gdrive/dropbox/s3/r2/sftp). Mirrors the read pattern used by
+        the media upload path. Returns None on any failure (caller falls back
+        to the local-file branch)."""
+        try:
+            from .pyarchinit_media_utility import get_storage_manager
+            storage = get_storage_manager()
+            if storage is None:
+                return None
+            backend = storage.get_backend(path)
+            if backend is None:
+                return None
+            _, _, relative_path = storage.parse_path(path)
+            return backend.read(relative_path or os.path.basename(path))
+        except Exception:
+            return None
+
+    @classmethod
     def load_pixmap(cls, path: str) -> QPixmap:
         """
         Load an image as QPixmap from local path, remote URL, Cloudinary, or Unibo path.
@@ -322,6 +354,11 @@ class RemoteImageLoader:
             # Convert cloudinary:// to HTTPS URL and download
             download_url = cls.cloudinary_to_url(path)
             data = cls._download_image(download_url)
+        elif cls.is_storage_backend_path(path):
+            # WebDAV / Google Drive / Dropbox / S3 / R2 / SFTP — fetch the bytes
+            # through the StorageManager backend (requests cannot speak these
+            # schemes); falls back to local-file load if it returns None.
+            data = cls._download_via_storage(path)
         elif cls.is_remote_url(path):
             # Download from HTTP/HTTPS URL
             data = cls._download_image(path)
@@ -579,7 +616,7 @@ def join_path(base_path: str, *parts: str) -> str:
         return os.path.join('', *parts) if parts else ''
 
     # Check if it's a remote URL
-    if base_path.startswith(('unibo://', 'http://', 'https://', 'cloudinary://')):
+    if base_path.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://')):
         # Use forward slash for URLs
         result = base_path.rstrip('/')
         for part in parts:

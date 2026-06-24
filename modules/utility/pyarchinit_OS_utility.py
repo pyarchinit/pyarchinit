@@ -54,7 +54,7 @@ class Pyarchinit_OS_Utility(object):
             0 on success
         """
         # Check if source is a remote URL
-        is_remote = f and f.startswith(('unibo://', 'http://', 'https://', 'cloudinary://'))
+        is_remote = f and f.startswith(('gdrive://', 'dropbox://', 's3://', 'r2://', 'sftp://', 'webdav://', 'http://', 'https://', 'cloudinary://', 'unibo://'))
 
         if is_remote:
             # Handle remote files by downloading them first
