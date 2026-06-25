@@ -5,6 +5,24 @@
 
 ---
 
+## [5.13.9.3-alpha] - 2026-06-25 — Fix: gli hook ON CONFLICT dell'import non "perdono" più sull'intera sessione
+
+> Branch `Stratigraph_00001`. Fix lato plugin (`gui/pyarchinitConfigDialog.py`).
+
+### Italiano
+
+- **Le opzioni di import (ignora / aggiorna / abort duplicati) non alterano più ogni INSERT della sessione.** Quei comportamenti sono implementati con hook globali `@compiles(Insert)` che aggiungono `ON CONFLICT`/`OR IGNORE` a ogni INSERT. Venivano registrati dentro `check()`, chiamato sia al cambio di un checkbox sia **all'apertura del dialog di configurazione** (riga ~264), e **non venivano mai rimossi**: bastava aprire la configurazione (o fare un import) con un'opzione spuntata perché *tutti* gli insert successivi della sessione QGIS portassero quella clausola — causa, tra l'altro, dell'errore `ON CONFLICT` sulle tabelle media aggiungendo un'immagine (5.13.9.1).
+- **Hook confinato al solo import (Approccio A).** La registrazione è stata tolta da `check()` (ora no-op) e spostata in `_install_import_conflict_hook()`, chiamato **solo** dal gestore di import; un wrapper sottile su `on_pushButton_import_pressed` avvolge la copia in `try/finally` e chiama `_remove_import_conflict_hook()` (`sqlalchemy.ext.compiler.deregister(Insert)`) **anche in caso di errore o `return` anticipato** (il corpo dell'import è stato rinominato `_run_import_tabledata`). Verificato: stock → hook attivo durante l'import → `deregister` → di nuovo stock.
+- **Effetto collaterale positivo:** l'import geometrie (`on_pushButton_import_geometry_pressed`) ora gira sempre con INSERT normali invece di ereditare in modo ambiguo lo stato globale lasciato da `check()` (niente più `DO NOTHING` silenzioso che poteva saltare righe).
+
+### English
+
+- **The import options (ignore / replace / abort duplicates) no longer alter every INSERT in the session.** Those behaviours are implemented with global `@compiles(Insert)` hooks that append `ON CONFLICT`/`OR IGNORE` to every INSERT. They were registered inside `check()`, called both on checkbox change and **when the configuration dialog opens** (line ~264), and were **never removed**: merely opening the config (or running an import) with an option ticked made *every* later insert in the QGIS session carry that clause — which also caused the media-table `ON CONFLICT` error when adding an image (5.13.9.1).
+- **Hook scoped to the import only (Approach A).** Registration was removed from `check()` (now a no-op) and moved into `_install_import_conflict_hook()`, called **only** by the import handler; a thin wrapper on `on_pushButton_import_pressed` wraps the copy in `try/finally` and calls `_remove_import_conflict_hook()` (`sqlalchemy.ext.compiler.deregister(Insert)`) **even on error or early `return`** (the import body was renamed `_run_import_tabledata`). Verified: stock → hook active during import → `deregister` → stock again.
+- **Positive side effect:** the geometry import (`on_pushButton_import_geometry_pressed`) now always runs with plain INSERTs instead of ambiguously inheriting whatever global state `check()` left behind (no more silent `DO NOTHING` that could skip rows).
+
+---
+
 ## [5.13.9.2-alpha] - 2026-06-24 — Fix: media WebDAV end-to-end (upload `disable_check` + path raddoppiato + download)
 
 > Branch `Stratigraph_00001`. Fix lato plugin: `modules/storage/webdav_backend.py` + `modules/utility/remote_image_loader.py` + tuple di prefissi remoti in 10 file (`tabs/{Struttura,Image_viewer,Image_search,Images_directory_export,Inv_Materiali,US_USM,pyarchinit_Pottery_mainapp}.py`, `modules/utility/{remote_image_loader,pyarchinit_OS_utility}.py`, `modules/db/pyarchinit_OS_utility.py`).

@@ -5171,9 +5171,25 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
         
     
     def check(self):
+        # No-op: the import duplicate-handling hooks (OR IGNORE / OR REPLACE /
+        # ON CONFLICT) used to be registered here as global @compiles(Insert)
+        # hooks on every checkbox change AND at dialog init (line ~264), which
+        # then mangled EVERY insert for the rest of the QGIS session (e.g.
+        # adding an image -> ON CONFLICT on the media tables). They are now
+        # installed only for the duration of an import — see
+        # _install_import_conflict_hook(), wrapped around
+        # on_pushButton_import_pressed().
+        return
+
+    def _install_import_conflict_hook(self):
+        """Register the @compiles(Insert) hook for the duplicate-handling mode
+        selected in the import dialog (ignore / replace / abort).
+
+        WARNING: this mutates SQLAlchemy globally, so it MUST be paired with
+        _remove_import_conflict_hook() in a try/finally around the import only.
+        """
         try:
             if self.checkBox_ignore.isChecked():
-                self.message()
                 @compiles(Insert)
                 def _prefix_insert_with_ignore(insert_srt, compiler, **kw):
 
@@ -5205,7 +5221,6 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         
            
             if self.checkBox_replace.isChecked():
-                self.message()
                 @compiles(Insert)
                 def _prefix_insert_with_replace(insert_srt, compiler, **kw):
                     ##############importo i dati nuovi aggiornando i vecchi dati########################
@@ -5285,8 +5300,19 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                         return upsert
         
         
-        except:
+        except Exception:
             pass
+
+    def _remove_import_conflict_hook(self):
+        """Remove the import @compiles(Insert) hook, restoring stock INSERT
+        compilation for the rest of the session. Safe to call even if no hook
+        was installed."""
+        try:
+            from sqlalchemy.ext.compiler import deregister
+            deregister(Insert)
+        except Exception:
+            pass
+
     def summary(self):
         # Skip update if we're in the middle of database creation
         if not hasattr(self, 'skip_combo_update'):
@@ -8301,6 +8327,16 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                     QMessageBox.critical(self, "Error", f"Error applying constraints:\n{str(e)}")
 
     def on_pushButton_import_pressed(self):
+        """Install the import duplicate-handling INSERT hook for the duration of
+        the import ONLY, then remove it (even on error / early return), so the
+        chosen import option never leaks into the rest of the QGIS session."""
+        self._install_import_conflict_hook()
+        try:
+            return self._run_import_tabledata()
+        finally:
+            self._remove_import_conflict_hook()
+
+    def _run_import_tabledata(self):
         if self.L=='it':
 
             msg = QMessageBox.warning(self, "Attenzione", "Il sistema aggiornerà le tabelle con i dati importati. Schiaccia Annulla per abortire altrimenti schiaccia Ok per contiunuare." ,  QMessageBox.Ok  | QMessageBox.Cancel)
