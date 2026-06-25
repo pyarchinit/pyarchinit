@@ -33,9 +33,23 @@ import ast
 import csv
 import datetime as _dt
 import os
+import re
 import sys
 import uuid
 from collections import OrderedDict
+
+# Separatori multipli di US nelle celle GIALLE: virgola, punto, punto e virgola.
+# (Excel salva i "35.36" come numeri float -> uno zero finale eventuale e' perso,
+#  es. "2004.2010" diventa "2004.201": questi casi vanno verificati a mano.)
+US_SPLIT_RE = re.compile(r"[.,;]+")
+
+# Override manuali per celle dove Excel, salvando la US come numero, ha perso
+# lo zero finale (es. "2004.2010" memorizzato come "2004.201"). La chiave e' il
+# testo US letto dalla cella; il valore e' la lista corretta di US. Confermato
+# con Marianna.
+US_OVERRIDES = {
+    "2004.201": ["2004", "2010"],
+}
 
 import openpyxl
 
@@ -124,13 +138,22 @@ def merge_values(values):
     return " / ".join(seen.keys())
 
 
-def render_ogtm(materials):
-    """materials: lista (eventualmente con doppioni) di categorie presenti."""
+def cat_list(materials):
+    """Lista ordinata-unica di categorie in sentence-case (solo la 1a lettera
+    maiuscola), es. "CERAMICA" -> "Ceramica". Usata sia per ``ogtm`` (testo)
+    sia per le righe di ``tma_materiali_ripetibili`` (campo ``macc``)."""
     seen = OrderedDict()
     for m in materials:
-        if m and m not in seen:
-            seen[m] = True
-    return ", ".join(seen.keys())
+        m = (m or "").strip()
+        if m:
+            k = m.capitalize()
+            seen.setdefault(k, True)
+    return list(seen.keys())
+
+
+def render_ogtm(materials):
+    """Testo riepilogo materiali: categorie sentence-case separate da ', '."""
+    return ", ".join(cat_list(materials))
 
 
 def build_column_index(ws):
@@ -178,9 +201,18 @@ def parse_excel(path, sheet, site):
         base["dtzg"] = ""
         for header, field in SRC_MAP.items():
             base[field] = to_text(cellval(row, header))
-        # deso = Descrizione + Note
-        base["deso"] = merge_values([to_text(cellval(row, DESC_HEADER)),
-                                     to_text(cellval(row, NOTE_HEADER))])
+        # "Inventariati": in `inventario` (RA) tieni SOLO i veri numeri
+        # d'inventario (contengono cifre). Il testo descrittivo — es.
+        # "Vasi inventariati", "Scoria", "Osso lavorato" — NON e' un numero RA:
+        # va in `deso` e `inventario` resta vuoto (evita anche i conflitti sul
+        # vincolo UNIQUE parziale (sito, area, inventario, dscu)).
+        deso_parts = [to_text(cellval(row, DESC_HEADER)),
+                      to_text(cellval(row, NOTE_HEADER))]
+        inv = base.get("inventario", "")
+        if inv and not any(ch.isdigit() for ch in inv):
+            deso_parts.append(inv)
+            base["inventario"] = ""
+        base["deso"] = merge_values(deso_parts)
         materials = [m for m in MAT_CATEGORIES if is_present(cellval(row, m))]
 
         us_raw = to_text(cellval(row, US_HEADER))
@@ -191,14 +223,18 @@ def parse_excel(path, sheet, site):
 
         if kind == "yellow":
             stats["yellow"] += 1
-            tokens = [t.strip() for t in us_raw.split(",") if t.strip()]
+            if us_raw in US_OVERRIDES:
+                tokens = list(US_OVERRIDES[us_raw])
+            else:
+                tokens = [t.strip() for t in US_SPLIT_RE.split(us_raw) if t.strip()]
             if not tokens:
                 tokens = [""]
             stats["split_extra"] += max(0, len(tokens) - 1)
             for tok in tokens:
                 rec = dict(base)
                 rec["dscu"] = tok
-                rec["ogtm"] = render_ogtm(materials)
+                rec["_materials"] = cat_list(materials)
+                rec["ogtm"] = ", ".join(rec["_materials"])
                 rec["_origine"] = f"giallo/split US riga {row}"
                 records.append(rec)
 
@@ -215,7 +251,8 @@ def parse_excel(path, sheet, site):
             stats["plain"] += 1
             rec = dict(base)
             rec["dscu"] = us_raw
-            rec["ogtm"] = render_ogtm(materials)
+            rec["_materials"] = cat_list(materials)
+            rec["ogtm"] = ", ".join(rec["_materials"])
             rec["_origine"] = f"riga {row}"
             records.append(rec)
 
@@ -232,7 +269,8 @@ def parse_excel(path, sheet, site):
         all_mats = []
         for g in group:
             all_mats.extend(g.get("_materials", []))
-        merged["ogtm"] = render_ogtm(all_mats)
+        merged["_materials"] = cat_list(all_mats)
+        merged["ogtm"] = ", ".join(merged["_materials"])
         rows = ", ".join(str(g["_row"]) for g in group)
         merged["_origine"] = f"azzurro/unifica {len(group)} righe ({rows})"
         records.append(merged)
@@ -304,27 +342,78 @@ def apply_to_db(records, cfg):
         w.writerows(cur.fetchall())
     print(f"[backup] {table} -> {backup}")
 
-    # --- id di partenza (PK manuale, come fa il plugin) ---
-    cur.execute(f'SELECT COALESCE(MAX(id), 0) FROM "{table}"')
-    next_id = cur.fetchone()[0] + 1
-
     now = _dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    insert_cols = ["id"] + TMA_FIELDS + ["created_at", "created_by", "entity_uuid"]
+
+    # --- gestione id ---
+    # Se la colonna id ha una sequenza (serial), risincronizziamo la sequenza
+    # al max(id) corrente e lasciamo che sia il DEFAULT ad assegnare gli id:
+    # cosi' non desincronizziamo la sequenza per i futuri insert da GUI. Se non
+    # c'e' sequenza, ripieghiamo sull'assegnazione esplicita max+1.
+    cur.execute("SELECT pg_get_serial_sequence(%s, 'id')", (table,))
+    seq = cur.fetchone()[0]
+    use_explicit_id = seq is None
+    next_id = None
+    if seq:
+        cur.execute(f'SELECT setval(%s, (SELECT COALESCE(MAX(id), 1) FROM "{table}"))', (seq,))
+        print(f"[apply] sequenza {seq} risincronizzata a max(id).")
+        insert_cols = TMA_FIELDS + ["created_at", "created_by", "entity_uuid"]
+    else:
+        cur.execute(f'SELECT COALESCE(MAX(id), 0) + 1 FROM "{table}"')
+        next_id = cur.fetchone()[0]
+        insert_cols = ["id"] + TMA_FIELDS + ["created_at", "created_by", "entity_uuid"]
+
     placeholders = ", ".join(["%s"] * len(insert_cols))
     quoted = ", ".join(f'"{c}"' for c in insert_cols)
-    sql = f'INSERT INTO "{table}" ({quoted}) VALUES ({placeholders})'
+    # Vincolo UNIQUE parziale idx_tma_unique_record (sito, area, inventario,
+    # dscu) WHERE inventario non vuoto: salta in silenzio le poche duplicazioni
+    # genuine (stesso numero d'inventario, stessa area/US) invece di abortire.
+    # RETURNING id serve per collegare le righe materiali ripetibili.
+    sql = (f'INSERT INTO "{table}" ({quoted}) VALUES ({placeholders}) '
+           f"ON CONFLICT (sito, area, inventario, dscu) "
+           f"WHERE inventario IS NOT NULL AND inventario <> '' DO NOTHING "
+           f"RETURNING id")
 
-    n = 0
+    # Materiali ripetibili: una riga per categoria, SOLO la categoria
+    # (macc = madi = categoria sentence-case), collegata via id_tma. La form TMA
+    # legge la griglia "Materiali" da qui.
+    rip_table = "tma_materiali_ripetibili"
+    cur.execute("SELECT pg_get_serial_sequence(%s, 'id')", (rip_table,))
+    rip_seq = cur.fetchone()[0]
+    if rip_seq:
+        cur.execute(f'SELECT setval(%s, (SELECT COALESCE(MAX(id), 1) FROM "{rip_table}"))',
+                    (rip_seq,))
+    rip_sql = (f'INSERT INTO "{rip_table}" '
+               f'(id_tma, macc, madi, created_at, created_by, entity_uuid) '
+               f'VALUES (%s, %s, %s, %s, %s, %s)')
+
+    inserted = 0
+    skipped = 0
+    rip_rows = 0
     for rec in records:
-        vals = [next_id] + [rec.get(f, "") for f in TMA_FIELDS] + [
+        base = [rec.get(f, "") for f in TMA_FIELDS] + [
             now, "tma_excel_import", str(uuid.uuid4())]
+        vals = ([next_id] + base) if use_explicit_id else base
+        if use_explicit_id:
+            next_id += 1
         cur.execute(sql, vals)
-        next_id += 1
-        n += 1
+        row = cur.fetchone()
+        if row is None:          # conflitto -> saltata, niente ripetibili
+            skipped += 1
+            continue
+        inserted += 1
+        pid = row[0]
+        for cat in rec.get("_materials", []):
+            cur.execute(rip_sql, (pid, cat, cat, now, "tma_excel_import",
+                                  str(uuid.uuid4())))
+            rip_rows += 1
     conn.commit()
+    cur.execute(f'SELECT COUNT(*), MAX(id) FROM "{table}"')
+    tot, mx = cur.fetchone()
     cur.close()
     conn.close()
-    print(f"[apply] inserite {n} righe in append in '{table}'.")
+    print(f"[apply] inserite {inserted} righe in '{table}' "
+          f"(saltate {skipped} dup su vincolo UNIQUE) + {rip_rows} righe in "
+          f"'{rip_table}'. Totale {table}: {tot} (max id {mx}).")
 
 
 def main():
