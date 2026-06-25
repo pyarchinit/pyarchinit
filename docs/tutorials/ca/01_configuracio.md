@@ -79,7 +79,12 @@ PyArchInit suporta també emmagatzematge remot:
 - **WebDAV**: `webdav://server/path/`
 - **HTTP/HTTPS**: `https://server/path/`
 
-> **Nota — Credencials WebDAV i certificats autofirmats.** Les credencials de WebDAV (nom d'usuari i contrasenya) es configuren al diàleg **Remote Storage Config** (el botó *Remote Storage Config* del formulari de configuració), pestanya **WebDAV**. Si el servidor utilitza un **certificat autofirmat** —típic dels servidors amb una adreça IP directa o un port HTTPS no estàndard— estableix el menú **"Verify SSL"** a **No (Self-signed certificates)** (No, certificats autofirmats), altrament la connexió falla silenciosament. Per als servidors amb un certificat vàlid (p. ex. Nextcloud/ownCloud) deixa'l a **Yes (Verify certificates)** (Sí, verifica els certificats) (el valor per defecte).
+> **Configuració de mèdia a WebDAV.** Per utilitzar un servidor WebDAV com a emmagatzematge d'imatges:
+>
+> 1. **Credencials** — diàleg **Remote Storage Config**, pestanya **WebDAV**: introdueix el *Nom d'usuari* i la *Contrasenya*.
+> 2. **Verify SSL** (mateixa pestanya) — si el servidor utilitza un **certificat autofirmat** (típic dels servidors amb una adreça IP directa o un port HTTPS no estàndard), estableix **"Verify SSL" → No (Self-signed certificates)**: amb la verificació activada contra un servidor autofirmat la connexió falla silenciosament. Per als servidors amb un certificat vàlid (p. ex. Nextcloud/ownCloud) deixa-la a **Yes (Verify certificates)**, que és el valor per defecte.
+> 3. **Rutes** — als camps **Thumbnail path** i **Thumbnail resize** utilitza el format `webdav://server:port/folder/` (p. ex. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
+> 4. **Reinicia QGIS** després de desar perquè la nova configuració d'emmagatzematge tingui efecte.
 
 ### Secció Experimental
 

@@ -105,7 +105,12 @@ O PyArchInit tambem suporta armazenamento remoto:
 ![Armazenamento Remoto](images/01_configurazione/08_remote_storage.png)
 *Figura 8: Exemplo de configuracao de armazenamento remoto*
 
-> **Nota — Credenciais WebDAV e certificados autoassinados.** As credenciais WebDAV (nome de utilizador e palavra-passe) sao definidas no dialogo **Remote Storage Config** (o botao *Remote Storage Config* no formulario de configuracao), separador **WebDAV**. Se o servidor utilizar um **certificado autoassinado** — tipico de servidores num endereco IP simples ou numa porta HTTPS nao padrao — defina o menu **"Verify SSL"** (Verificar SSL) para **No (Self-signed certificates)** (Nao — certificados autoassinados), caso contrario a ligacao falha silenciosamente. Para servidores com um certificado valido (ex.: Nextcloud/ownCloud) deixe-o em **Yes (Verify certificates)** (Sim — verificar certificados), que e a predefinicao.
+> **Configurar media em WebDAV.** Para utilizar um servidor WebDAV como armazenamento de imagens:
+>
+> 1. **Credenciais** — dialogo **Remote Storage Config**, separador **WebDAV**: introduza o *Nome de utilizador* e a *Palavra-passe*.
+> 2. **Verify SSL** (mesmo separador) — se o servidor utilizar um **certificado autoassinado** (tipico de servidores num endereco IP simples ou numa porta HTTPS nao padrao), defina **"Verify SSL" → No (Self-signed certificates)**: com a verificacao ativa contra um servidor autoassinado, a ligacao falha silenciosamente. Para servidores com um certificado valido (ex.: Nextcloud/ownCloud) deixe-a em **Yes (Verify certificates)**, que e a predefinicao.
+> 3. **Caminhos** — nos campos **Thumbnail path** e **Thumbnail resize** utilize o formato `webdav://servidor:porta/pasta/` (ex.: `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
+> 4. **Reinicie o QGIS** apos guardar para que as novas definicoes de armazenamento tenham efeito.
 
 ### Seccao Definicoes do Sitio
 

@@ -105,7 +105,12 @@ PyArchInit suporta si stocare la distanta:
 ![Stocare la Distanta](images/01_configurazione/08_remote_storage.png)
 *Figura 8: Exemplu de configurare stocare la distanta*
 
-> **Nota — Credentiale WebDAV si certificate auto-semnate.** Credentialele WebDAV (nume de utilizator si parola) se seteaza in dialogul **Remote Storage Config** (butonul *Remote Storage Config* din fereastra de configurare), fila **WebDAV**. Daca serverul foloseste un **certificat auto-semnat** — tipic pentru servere aflate pe o adresa IP simpla sau pe un port HTTPS non-standard — setati meniul **"Verify SSL"** (Verificare SSL) pe **No (Self-signed certificates)** (Nu — certificate auto-semnate), altfel conexiunea esueaza in tacere. Pentru servere cu un certificat valid (de ex. Nextcloud/ownCloud) lasati-l pe **Yes (Verify certificates)** (Da — verificare certificate), care este valoarea implicita.
+> **Configurarea media pe WebDAV.** Pentru a folosi un server WebDAV ca spatiu de stocare a imaginilor:
+>
+> 1. **Credentiale** — dialogul **Remote Storage Config**, fila **WebDAV**: introduceti *Username* si *Password*.
+> 2. **Verify SSL** (aceeasi fila) — daca serverul foloseste un **certificat auto-semnat** (tipic pentru servere aflate pe o adresa IP simpla sau pe un port HTTPS non-standard), setati **"Verify SSL" → No (Self-signed certificates)**: cu verificarea activata fata de un server auto-semnat conexiunea esueaza in tacere. Pentru servere cu un certificat valid (de ex. Nextcloud/ownCloud) lasati-l pe **Yes (Verify certificates)**, care este valoarea implicita.
+> 3. **Cai** — in campurile **Thumbnail path** si **Thumbnail resize** folositi formatul `webdav://server:port/folder/` (de ex. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
+> 4. **Reporniti QGIS** dupa salvare, pentru ca noile setari de stocare sa intre in vigoare.
 
 ### Sectiunea Setari Santier
 
