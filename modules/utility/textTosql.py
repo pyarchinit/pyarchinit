@@ -247,7 +247,7 @@ class MakeSQL:
         """Ottiene l'API key di OpenAI dal file di configurazione"""
         api_key = ""
         
-        # Usa il percorso corretto: home_utente/pyarchinit/bin
+        # Usa il percorso corretto: <PYARCHINIT_HOME>/bin
         BIN = pyarchinit_home_bin()
         path_key = os.path.join(BIN, 'gpt_api_key.txt')
         
