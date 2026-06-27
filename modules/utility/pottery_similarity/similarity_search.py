@@ -31,6 +31,7 @@ from .embedding_models import (
     EmbeddingModel
 )
 from .index_manager import PotterySimilarityIndexManager, compute_image_hash
+from ..pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 
 
 def get_thumb_resize_path() -> Optional[str]:
@@ -38,7 +39,7 @@ def get_thumb_resize_path() -> Optional[str]:
     Read THUMB_RESIZE path from pyarchinit config.cfg file.
     This is the base directory where resized images are stored.
     """
-    config_path = Path.home() / 'pyarchinit' / 'pyarchinit_DB_folder' / 'config.cfg'
+    config_path = Path(pyarchinit_home()) / 'pyarchinit_DB_folder' / 'config.cfg'
     if not config_path.exists():
         return None
 
@@ -347,7 +348,7 @@ class PotterySimilaritySearchEngine:
             from openai import OpenAI
 
             # Load API key
-            api_key_path = os.path.expanduser("~/pyarchinit/bin/gpt_api_key.txt")
+            api_key_path = os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")
             if not os.path.exists(api_key_path):
                 print(f"OpenAI API key not found at {api_key_path}")
                 return empty_result

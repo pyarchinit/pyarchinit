@@ -80,6 +80,7 @@ except ImportError:
     HAS_REMOTE_LOADER = False
 
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_Pottery_ui.ui'))
@@ -5389,7 +5390,7 @@ Use well-structured paragraphs with headings for each section.
             api_key, ok = QInputDialog.getText(
                 self, 'OpenAI API Key',
                 'API key non trovata.\nInserisci la tua OpenAI API key:\n\n'
-                '(Verrà salvata in ~/pyarchinit/bin/gpt_api_key.txt)'
+                f'(Verrà salvata in {os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")})'
             )
             if ok and api_key:
                 with open(path_key, 'w') as f:
@@ -7564,7 +7565,7 @@ Use well-structured paragraphs with headings for each section.
         import datetime
         from qgis.PyQt.QtWidgets import QFileDialog
 
-        index_dir = os.path.expanduser('~/pyarchinit/bin/pottery_similarity')
+        index_dir = os.path.join(pyarchinit_home_bin(), 'pottery_similarity')
 
         if not os.path.exists(index_dir):
             QMessageBox.warning(self, "No Indexes",
@@ -7628,7 +7629,7 @@ Use well-structured paragraphs with headings for each section.
         import zipfile
         from qgis.PyQt.QtWidgets import QFileDialog
 
-        index_dir = os.path.expanduser('~/pyarchinit/bin/pottery_similarity')
+        index_dir = os.path.join(pyarchinit_home_bin(), 'pottery_similarity')
 
         # Ask for ZIP file
         file_path, _ = QFileDialog.getOpenFileName(
@@ -7790,10 +7791,10 @@ Use well-structured paragraphs with headings for each section.
         """Run the KhutmML indexing pipeline after training"""
         import subprocess
 
-        venv_python = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
-        indexer_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_indexer.py')
-        faiss_script = os.path.expanduser('~/pyarchinit/bin/import_embeddings_to_faiss.py')
-        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+        venv_python = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
+        indexer_script = os.path.join(pyarchinit_home_bin(), 'khutm_clip_indexer.py')
+        faiss_script = os.path.join(pyarchinit_home_bin(), 'import_embeddings_to_faiss.py')
+        model_dir = os.path.join(pyarchinit_home_bin(), 'models', 'khutm_clip')
 
         # Check scripts exist
         if not os.path.exists(indexer_script) or not os.path.exists(faiss_script):
@@ -7863,7 +7864,7 @@ Use well-structured paragraphs with headings for each section.
         import zipfile
         from datetime import datetime
 
-        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+        model_dir = os.path.join(pyarchinit_home_bin(), 'models', 'khutm_clip')
 
         # Check if model exists
         if not os.path.exists(model_dir):
@@ -7929,7 +7930,7 @@ Use well-structured paragraphs with headings for each section.
         import zipfile
         import shutil
 
-        model_dir = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+        model_dir = os.path.join(pyarchinit_home_bin(), 'models', 'khutm_clip')
 
         # Ask for ZIP file
         zip_path, _ = QFileDialog.getOpenFileName(
@@ -8094,7 +8095,7 @@ class KhutmTrainingDialog(QDialog):
         output_group = QGroupBox("Model Output")
         output_layout = QHBoxLayout()
         self.lineEdit_output = QLineEdit()
-        self.lineEdit_output.setText(os.path.expanduser('~/pyarchinit/bin/models/khutm_clip'))
+        self.lineEdit_output.setText(os.path.join(pyarchinit_home_bin(), 'models', 'khutm_clip'))
         self.lineEdit_output.setToolTip(self.tr("Directory where trained model will be saved"))
         output_layout.addWidget(self.lineEdit_output)
         self.btn_browse_output = QPushButton("Browse...")
@@ -8162,8 +8163,8 @@ class KhutmTrainingDialog(QDialog):
             return
 
         # Prepare command
-        trainer_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_trainer.py')
-        python_exec = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        trainer_script = os.path.join(pyarchinit_home_bin(), 'khutm_clip_trainer.py')
+        python_exec = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
 
         if not os.path.exists(trainer_script):
             QMessageBox.warning(self, "Error",
@@ -8385,7 +8386,7 @@ class DatasetPreparationDialog(QDialog):
         output_layout = QHBoxLayout()
         output_layout.addWidget(QLabel("Output Folder:"))
         self.lineEdit_output = QLineEdit()
-        self.lineEdit_output.setText(os.path.expanduser('~/pyarchinit/bin/training_data'))
+        self.lineEdit_output.setText(os.path.join(pyarchinit_home_bin(), 'training_data'))
         output_layout.addWidget(self.lineEdit_output)
         self.btn_browse = QPushButton("Browse...")
         self.btn_browse.clicked.connect(self.browse_output)

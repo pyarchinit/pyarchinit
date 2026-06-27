@@ -34,6 +34,8 @@ from qgis.gui import QgsMapLayerComboBox, QgsMapCanvas
 
 from qgis.utils import iface
 
+from modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
+
 # Import map tools for interactive modes
 try:
     from modules.gis.sam_map_tools import SamPointMapTool, SamBoxMapTool, SamPolygonMapTool
@@ -59,8 +61,8 @@ class SamApiWorkerThread(QThread):
     def run(self):
         """Run SAM API segmentation via external subprocess"""
         try:
-            venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
-            worker_script = os.path.expanduser('~/pyarchinit/bin/sam_api_worker.py')
+            venv_python = os.path.join(pyarchinit_home_bin(), 'sam_venv', 'bin', 'python')
+            worker_script = os.path.join(pyarchinit_home_bin(), 'sam_api_worker.py')
 
             if not os.path.exists(venv_python):
                 self.finished.emit(False, "SAM virtual environment not found", "")
@@ -122,12 +124,12 @@ class SamSegmentationWorkerThread(QThread):
     def run(self):
         """Run SAM segmentation in subprocess using official segment-anything"""
         try:
-            venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
+            venv_python = os.path.join(pyarchinit_home_bin(), 'sam_venv', 'bin', 'python')
             # Use new local worker that uses official segment-anything
-            worker_script = os.path.expanduser('~/pyarchinit/bin/sam_local_worker.py')
+            worker_script = os.path.join(pyarchinit_home_bin(), 'sam_local_worker.py')
 
             if not os.path.exists(venv_python):
-                self.finished.emit(False, "SAM virtual environment not found at ~/pyarchinit/bin/sam_venv/", "")
+                self.finished.emit(False, f"SAM virtual environment not found at {os.path.join(pyarchinit_home_bin(), 'sam_venv')}", "")
                 return
 
             if not os.path.exists(worker_script):
@@ -189,8 +191,8 @@ class Sam3RoboflowWorkerThread(QThread):
     def run(self):
         """Run SAM3 segmentation via Roboflow API"""
         try:
-            venv_python = os.path.expanduser('~/pyarchinit/bin/sam_venv/bin/python')
-            worker_script = os.path.expanduser('~/pyarchinit/bin/sam3_roboflow_worker.py')
+            venv_python = os.path.join(pyarchinit_home_bin(), 'sam_venv', 'bin', 'python')
+            worker_script = os.path.join(pyarchinit_home_bin(), 'sam3_roboflow_worker.py')
 
             if not os.path.exists(venv_python):
                 self.finished.emit(False, "SAM virtual environment not found", "")
@@ -540,7 +542,7 @@ class SamSegmentationDialog(QDialog):
     def _load_site_from_config(self):
         """Load site from PyArchInit config"""
         try:
-            config_path = os.path.expanduser('~/pyarchinit/pyarchinit_DB_folder/config.cfg')
+            config_path = os.path.join(pyarchinit_home(), 'pyarchinit_DB_folder', 'config.cfg')
             if os.path.exists(config_path):
                 with open(config_path, 'r') as f:
                     config_str = f.read()
@@ -1192,7 +1194,7 @@ class SamSegmentationDialog(QDialog):
 
             # Copy to permanent location in pyarchinit folder
             import shutil
-            pyarchinit_dir = os.path.expanduser('~/pyarchinit/pyarchinit_DB_folder')
+            pyarchinit_dir = os.path.join(pyarchinit_home(), 'pyarchinit_DB_folder')
             os.makedirs(pyarchinit_dir, exist_ok=True)
 
             timestamp = __import__('datetime').datetime.now().strftime('%Y%m%d_%H%M%S')

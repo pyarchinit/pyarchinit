@@ -23,6 +23,7 @@ from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsMessageLog, Qgis
 
 # Import PyArchInit modules
+from ..modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
@@ -1981,7 +1982,7 @@ print("PLATFORM:", platform.system())
                 return
 
             # Get path to runner script
-            runner_script = os.path.join(os.path.expanduser("~/pyarchinit/bin"), "yolo_runner.py")
+            runner_script = os.path.join(pyarchinit_home_bin(), "yolo_runner.py")
 
             total_images = len(self.extracted_images)
             for idx, img_path in enumerate(self.extracted_images):
@@ -2072,8 +2073,8 @@ print("PLATFORM:", platform.system())
             self.progressBar.setValue(0)
 
     def create_yolo_runner_script(self):
-        """Create a standalone YOLO runner script in ~/pyarchinit/bin"""
-        bin_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin")
+        """Create a standalone YOLO runner script in <home>/bin"""
+        bin_dir = pyarchinit_home_bin()
         os.makedirs(bin_dir, exist_ok=True)
 
         script_path = os.path.join(bin_dir, "yolo_runner.py")

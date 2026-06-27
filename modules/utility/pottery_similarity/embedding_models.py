@@ -16,6 +16,8 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 import numpy as np
 
+from ..pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
+
 
 class EmbeddingModel(ABC):
     """Abstract base class for embedding models"""
@@ -73,7 +75,7 @@ class CLIPEmbeddingModel(EmbeddingModel):
 
     def _find_venv_python(self) -> str:
         """Find the pottery_venv Python executable"""
-        venv_path = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        venv_path = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
         if os.path.exists(venv_path):
             return venv_path
         # Fallback to system python
@@ -81,7 +83,7 @@ class CLIPEmbeddingModel(EmbeddingModel):
 
     def _get_runner_script_path(self) -> str:
         """Get path to the embedding runner script"""
-        return os.path.expanduser('~/pyarchinit/bin/pottery_embedding_runner.py')
+        return os.path.join(pyarchinit_home_bin(), 'pottery_embedding_runner.py')
 
     @property
     def model_name(self) -> str:
@@ -189,14 +191,14 @@ class DINOv2EmbeddingModel(EmbeddingModel):
 
     def _find_venv_python(self) -> str:
         """Find the pottery_venv Python executable"""
-        venv_path = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        venv_path = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
         if os.path.exists(venv_path):
             return venv_path
         return sys.executable
 
     def _get_runner_script_path(self) -> str:
         """Get path to the embedding runner script"""
-        return os.path.expanduser('~/pyarchinit/bin/pottery_embedding_runner.py')
+        return os.path.join(pyarchinit_home_bin(), 'pottery_embedding_runner.py')
 
     @property
     def model_name(self) -> str:
@@ -338,7 +340,7 @@ Be detailed but concise, focusing on features useful for finding similar pottery
 
     def _load_api_key(self) -> Optional[str]:
         """Load API key from file"""
-        key_path = os.path.expanduser('~/pyarchinit/bin/gpt_api_key.txt')
+        key_path = os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')
         if os.path.exists(key_path):
             with open(key_path, 'r') as f:
                 return f.read().strip()
@@ -476,7 +478,7 @@ class KhutmCLIPEmbeddingModel(EmbeddingModel):
     """
 
     EMBEDDING_DIM = 512  # Same as CLIP
-    MODEL_DIR = os.path.expanduser('~/pyarchinit/bin/models/khutm_clip')
+    MODEL_DIR = os.path.join(pyarchinit_home_bin(), 'models', 'khutm_clip')
 
     def __init__(self, venv_python: str = None, model_dir: str = None):
         self.venv_python = venv_python or self._find_venv_python()
@@ -490,7 +492,7 @@ class KhutmCLIPEmbeddingModel(EmbeddingModel):
 
     def _find_venv_python(self) -> str:
         """Find the pottery_venv Python executable"""
-        venv_path = os.path.expanduser('~/pyarchinit/bin/pottery_venv/bin/python')
+        venv_path = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
         if os.path.exists(venv_path):
             return venv_path
         return sys.executable
@@ -535,7 +537,7 @@ class KhutmCLIPEmbeddingModel(EmbeddingModel):
             )
 
         # Use khutm_clip inference script
-        runner_script = os.path.expanduser('~/pyarchinit/bin/khutm_clip_inference.py')
+        runner_script = os.path.join(pyarchinit_home_bin(), 'khutm_clip_inference.py')
 
         # If inference script doesn't exist, fall back to creating embedding inline
         if not os.path.exists(runner_script):
