@@ -26,7 +26,7 @@
 
 **Files:**
 - Create: `modules/utility/pyarchinit_home.py`
-- Test: `tests/test_pyarchinit_home.py`
+- Test: `tests/utility/test_pyarchinit_home.py`
 
 **Interfaces:**
 - Produces:
@@ -39,7 +39,7 @@
 - [ ] **Step 1: Write the failing tests**
 
 ```python
-# tests/test_pyarchinit_home.py
+# tests/utility/test_pyarchinit_home.py
 """L0 unit tests for the data-home resolver (pyarchinit_5 rename)."""
 import os
 from pathlib import Path
@@ -108,7 +108,7 @@ def test_migrate_db_folder_source_wins_on_conflict(tmp_path):
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `python -m pytest tests/test_pyarchinit_home.py -v`
+Run: `python -m pytest tests/utility/test_pyarchinit_home.py -v`
 Expected: FAIL — `ModuleNotFoundError: No module named 'modules.utility.pyarchinit_home'`
 
 - [ ] **Step 3: Write the resolver module**
@@ -165,13 +165,13 @@ def migrate_db_folder(src_home: str, dst_home: str) -> bool:
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `python -m pytest tests/test_pyarchinit_home.py -v`
+Run: `python -m pytest tests/utility/test_pyarchinit_home.py -v`
 Expected: PASS (8 passed)
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git -c commit.gpgsign=false add modules/utility/pyarchinit_home.py tests/test_pyarchinit_home.py
+git -c commit.gpgsign=false add modules/utility/pyarchinit_home.py tests/utility/test_pyarchinit_home.py
 git -c commit.gpgsign=false commit --no-verify -m "feat(home): add pyarchinit_home resolver (default ~/pyarchinit_5)"
 ```
 
@@ -587,45 +587,85 @@ git -c commit.gpgsign=false commit --no-verify -m "refactor(home): bin/ AI tooli
 
 ---
 
-### Task 7: User-facing path strings + TMA script default
+### Task 7: All remaining home-path forms (gap) + user-facing strings + TMA script
+
+> **Scope note:** Task 6's brief inventory (built from a grep of only the
+> `expanduser("~/pyarchinit/...")` single-string form) MISSED several other
+> forms the codebase uses for the SAME data home: split-component joins
+> (`os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", ...)`),
+> `home_dir`-variable joins (`os.path.join(home_dir, "pyarchinit", "bin", ...)`),
+> env-aware-with-default (`os.environ.get("PYARCHINIT_HOME", os.path.join(os.path.expanduser("~"), "pyarchinit"))`),
+> and one Path-division (`os.path.expanduser('~/pyarchinit')` then `/'bin'`).
+> This task converts ALL of them so the rename is consistent. **Method:
+> grep each file to find every occurrence (line numbers below are indicative
+> and WILL have drifted), then convert by content match.**
 
 **Files (modify):**
-- `tabs/US_USM.py:4840`
-- `tabs/Inv_Materiali.py:7713-7715`
-- `tabs/pyarchinit_Pottery_mainapp.py:5392`
-- `modules/utility/textTosql.py` (lines 377, 540)
-- `scripts/import_tma_excel.py:424`
+- `tabs/Pottery_tools.py`
+- `tabs/US_USM.py`
+- `tabs/Inv_Materiali.py`
+- `tabs/pyarchinit_Pottery_mainapp.py`
+- `modules/utility/pottery_utilities.py`
+- `modules/utility/llm_providers.py`
+- `modules/utility/pottery_similarity/index_manager.py`
+- `modules/utility/textTosql.py` (message strings only)
+- `scripts/import_tma_excel.py`
 
 **Interfaces:**
 - Consumes: `pyarchinit_home`, `pyarchinit_home_bin` from Task 1.
 
-- [ ] **Step 1: Make API-key prompt strings reflect the real path**
+**Transformation rules (same as Task 6, generalized to all forms):**
+- Any path under `.../bin/...` → `os.path.join(pyarchinit_home_bin(), <segments after bin>)`.
+- Any path that is the home base or under a non-bin subfolder (e.g. `pyarchinit_DB_folder`, `pottery_extracted`, `pottery_ink_output`) → `os.path.join(pyarchinit_home(), <segments after the home>)` (or `pyarchinit_home()` alone if it IS the base).
+- The `/`-segments must be split into ordered `os.path.join` args, none dropped/reordered.
+- env-aware-with-default forms (`os.environ.get("PYARCHINIT_HOME", <default>)`) collapse to just `pyarchinit_home()` (the resolver already does the env read) — e.g. `HOME = os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))` → `HOME = pyarchinit_home()`.
+- DO NOT touch `modules/s3dgraphy/sync/pyarchinit_pg_importer.py` line ~35 — its `/ "pyarchinit"` is a MAPPINGS subfolder under `ext_libs/s3dgraphy/mappings/pyarchinit/`, NOT the data home. Verify by reading the surrounding lines.
 
-For each message string mentioning `~/pyarchinit/bin/gpt_api_key.txt` (US_USM.py:4840, Inv_Materiali.py:7713-7715, pyarchinit_Pottery_mainapp.py:5392, textTosql.py:377 & 540 — some mention `claude_api_key.txt`), read the line, then interpolate the resolved path. Example:
-- `tabs/US_USM.py:4840` `"Please set your OpenAI API key in ~/pyarchinit/bin/gpt_api_key.txt"` → `f"Please set your OpenAI API key in {os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')}"`
-Ensure `pyarchinit_home_bin` is imported in each file (add `from modules.utility.pyarchinit_home import pyarchinit_home_bin` if absent). For Inv_Materiali.py the it/en ternary keeps both branches; interpolate the path into each.
+- [ ] **Step 1: Find every site per file**
 
-- [ ] **Step 2: import_tma_excel.py default config path**
-
-Read `scripts/import_tma_excel.py:420-426`. Replace the default `"~/pyarchinit/pyarchinit_DB_folder/config.cfg"` with a resolver-based default. Add import (the script runs standalone — confirm it already adds the plugin root to sys.path; if so) `from modules.utility.pyarchinit_home import pyarchinit_home`, then:
-```python
-os.path.join(pyarchinit_home(), "pyarchinit_DB_folder", "config.cfg")
-```
-If the script does NOT put the plugin root on sys.path, instead inline the same logic locally (avoid a fragile import): `os.path.join(os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5"), "pyarchinit_DB_folder", "config.cfg")`. Choose based on what you read.
-
-- [ ] **Step 3: Syntax check**
-
-Run:
+Run, then convert each hit with the rules above:
 ```bash
-for f in tabs/US_USM.py tabs/Inv_Materiali.py tabs/pyarchinit_Pottery_mainapp.py modules/utility/textTosql.py scripts/import_tma_excel.py; do python -c "import ast; ast.parse(open('$f').read())" && echo "ok $f"; done
+grep -nE "expanduser\((['\"])~\1\)\s*,\s*(['\"])pyarchinit\2|[a-z_]*home[a-z_]*\s*,\s*(['\"])pyarchinit\3|expanduser\((['\"])~/pyarchinit|environ\.get\((['\"])PYARCHINIT_HOME\6\s*,|os\.sep\s*\+\s*(['\"])pyarchinit\7" tabs/Pottery_tools.py tabs/US_USM.py tabs/Inv_Materiali.py tabs/pyarchinit_Pottery_mainapp.py modules/utility/pottery_utilities.py modules/utility/llm_providers.py modules/utility/pottery_similarity/index_manager.py
 ```
-Expected: `ok` for all five.
+Indicative sites to expect (verify by grep — DO NOT trust these line numbers):
+- `Pottery_tools.py`: ~139 (bin/pottery_venv), 739 (pottery_extracted → home, NOT bin), 919 (bin/pottery_ink_model.pkl), 955 (bin/models), 1796 (bin), 1827 (bin), 3006 (pottery_ink_output → home, NOT bin), 3051 (bin/models). After converting, check whether `home_dir = os.path.expanduser('~')` (≈138, 1795, 1826) is now unused on that line's scope; remove only if it has no other use in the same function, else leave it.
+- `US_USM.py`: ~4832 (home_dir,bin,gpt_api_key.txt → bin), 5956 (env-aware faiss_index → bin), 5957 (env-aware faiss_index_hash.txt → bin).
+- `Inv_Materiali.py`: ~7688, 7909 (env-aware HOME default → `pyarchinit_home()`).
+- `pyarchinit_Pottery_mainapp.py`: ~5361 (env-aware HOME default → `pyarchinit_home()`).
+- `pottery_utilities.py`: ~201, 203, 211, 277 (home_dir,bin,... → bin), 1259 (expanduser,bin/models → bin).
+- `llm_providers.py`: ~617 (bin/gpt_api_key.txt), ~620 (bin/claude_api_key.txt, multiline), ~635 (bin/anthropic_api_key.txt, multiline) — read the multiline join blocks before editing.
+- `index_manager.py`: ~38 `INDEX_BASE_PATH = os.path.join(os.path.expanduser('~/pyarchinit'), 'bin', 'pottery_similarity')` → `os.path.join(pyarchinit_home_bin(), 'pottery_similarity')`.
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 2: Add the resolver import to each file (check first; don't duplicate)**
+
+- `tabs/*` (Pottery_tools, US_USM, Inv_Materiali, pyarchinit_Pottery_mainapp): some already gained the import in Task 6 (Pottery_tools, pyarchinit_Pottery_mainapp). For the others add `from modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin` matching the file's import style.
+- `modules/utility/pottery_utilities.py`, `modules/utility/llm_providers.py`: siblings of the resolver → `from .pyarchinit_home import pyarchinit_home, pyarchinit_home_bin` (match the file's existing relative/bare style — read the import header first).
+- `modules/utility/pottery_similarity/index_manager.py`: one level down → `from ..pyarchinit_home import pyarchinit_home_bin` (two dots) OR bare `from modules.utility.pyarchinit_home import pyarchinit_home_bin` — match the file's existing style.
+
+- [ ] **Step 3: Make API-key prompt MESSAGE strings reflect the real path**
+
+For each human-readable string mentioning a `~/pyarchinit/bin/...` path, interpolate the resolved path:
+- `tabs/US_USM.py:~4840` `"Please set your OpenAI API key in ~/pyarchinit/bin/gpt_api_key.txt"` → `f"Please set your OpenAI API key in {os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')}"`
+- `tabs/Inv_Materiali.py:~7713-7715` (it/en ternary, both branches) and `tabs/pyarchinit_Pottery_mainapp.py:~5392` ("Verrà salvata in ~/pyarchinit/bin/gpt_api_key.txt") — interpolate the bin path.
+- `modules/utility/textTosql.py:~377 & ~540` (gpt_api_key.txt / claude_api_key.txt messages), `modules/utility/pottery_utilities.py:~286` ("YOLO model not found in ~/pyarchinit/bin/") — interpolate. textTosql already imports `pyarchinit_home`; add `pyarchinit_home_bin` to that import.
+
+- [ ] **Step 4: import_tma_excel.py default config path**
+
+Read `scripts/import_tma_excel.py` around the default config path (`"~/pyarchinit/pyarchinit_DB_folder/config.cfg"`). Confirm whether the script puts the plugin root on `sys.path`. If it does, add `from modules.utility.pyarchinit_home import pyarchinit_home` and use `os.path.join(pyarchinit_home(), "pyarchinit_DB_folder", "config.cfg")`. If NOT, inline (no fragile import): `os.path.join(os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5"), "pyarchinit_DB_folder", "config.cfg")`.
+
+- [ ] **Step 5: Verify + syntax check**
+
+Run the Step 1 grep again over ALL nine files — expect NO output except the deliberately-skipped `pg_importer.py` (not in the list) and any comment/docstring you consciously left. Then:
+```bash
+for f in tabs/Pottery_tools.py tabs/US_USM.py tabs/Inv_Materiali.py tabs/pyarchinit_Pottery_mainapp.py modules/utility/pottery_utilities.py modules/utility/llm_providers.py modules/utility/pottery_similarity/index_manager.py modules/utility/textTosql.py scripts/import_tma_excel.py; do python -c "import ast; ast.parse(open('$f').read())" && echo "ok $f"; done
+```
+Expected: `ok` for all nine.
+
+- [ ] **Step 6: Commit**
 
 ```bash
-git -c commit.gpgsign=false add tabs/US_USM.py tabs/Inv_Materiali.py tabs/pyarchinit_Pottery_mainapp.py modules/utility/textTosql.py scripts/import_tma_excel.py
-git -c commit.gpgsign=false commit --no-verify -m "refactor(home): user-facing path strings + TMA script default follow pyarchinit_home()"
+git -c commit.gpgsign=false add tabs/Pottery_tools.py tabs/US_USM.py tabs/Inv_Materiali.py tabs/pyarchinit_Pottery_mainapp.py modules/utility/pottery_utilities.py modules/utility/llm_providers.py modules/utility/pottery_similarity/index_manager.py modules/utility/textTosql.py scripts/import_tma_excel.py
+git -c commit.gpgsign=false commit --no-verify -m "refactor(home): remaining home-path forms + user-facing strings + TMA script use resolver"
 ```
 
 ---
@@ -636,7 +676,7 @@ git -c commit.gpgsign=false commit --no-verify -m "refactor(home): user-facing p
 
 - [ ] **Step 1: Run the home-related test suites**
 
-Run: `python -m pytest tests/test_pyarchinit_home.py tests/sync/test_workspace_root.py -v`
+Run: `python -m pytest tests/utility/test_pyarchinit_home.py tests/sync/test_workspace_root.py -v`
 Expected: all PASS.
 
 - [ ] **Step 2: Run the broader suite to catch regressions**
@@ -644,13 +684,19 @@ Expected: all PASS.
 Run: `python -m pytest tests/ -q`
 Expected: same pass/skip profile as before this work (PG-dependent skips are expected offline). Compare against a pre-change baseline if unsure: `git stash` is NOT needed — just confirm no NEW failures referencing home paths.
 
-- [ ] **Step 3: Repo-wide residual scan**
+- [ ] **Step 3: Repo-wide residual scan (ALL forms)**
 
-Run:
+Run the comprehensive scan — this catches EVERY way the data home is spelled (single-string, split-join, `home_dir` var, env-aware default, `Path.home()/`, `os.sep +`):
 ```bash
-grep -rnE "Path\.home\(\) */ *\"pyarchinit\"|expanduser\(\"~\"\) *\+ *os\.sep *\+ *'pyarchinit'|expanduser\('~/pyarchinit/|expanduser\(\"~/pyarchinit/" --include=*.py . | grep -v -E "pyarchinit_home\.py|/analyze_correct_db\.py|/analyze_tma_areas\.py|/show_all_thesaurus_areas\.py|/verify_mapping\.py|/check_table_names\.py"
+grep -rnE "[\"']pyarchinit[\"']" --include='*.py' tabs modules gui __init__.py scripts \
+  | grep -vE "pyarchinit_home|legacy_pyarchinit|import pyarchinit|from pyarchinit|\.pyarchinit" \
+  | grep -vE "/analyze_correct_db\.py|/analyze_tma_areas\.py|/show_all_thesaurus_areas\.py|/verify_mapping\.py|/check_table_names\.py"
 ```
-Expected: only matches inside comments/docstrings or the `legacy_pyarchinit_home`/migration helper. Inspect each remaining hit; if any is live runtime code (not comment, not out-of-scope script, not legacy helper), fix it with the appropriate rule from Tasks 4-7 and re-commit.
+Triage every hit. Legitimate remaining matches are ONLY:
+- comments / docstrings mentioning `~/pyarchinit`;
+- `modules/s3dgraphy/sync/pyarchinit_pg_importer.py` — the `"pyarchinit"` MAPPINGS subfolder under `ext_libs/s3dgraphy/mappings/pyarchinit/` (NOT the data home);
+- any string that is genuinely not a data-home path component.
+If ANY hit is live runtime code building a data-home path (in any form), it was missed — fix it with the Task 4/6/7 rules and re-commit. Also re-run the bin-specific grep from Task 6 Step 3 and the Task 7 Step 1 grep and confirm both are clean.
 
 - [ ] **Step 4: Confirm the env-set authority**
 
@@ -659,9 +705,10 @@ Expected: `init ok` (full QGIS import can't run headless; this confirms syntax +
 
 - [ ] **Step 5: Final commit (if Step 3 required fixes)**
 
+Add ONLY the specific files you fixed by name — do NOT use `git add -A` (the working tree has unrelated untracked files: `AGENTS.md`, `pyarchinitPlugin.py.bak_palimpsest`, and a mid-feature `dev_logs/CHANGELOG.md` edit that the controller reconciles separately).
 ```bash
-git -c commit.gpgsign=false add -A
-git -c commit.gpgsign=false commit --no-verify -m "refactor(home): residual ~/pyarchinit literals → pyarchinit_home()"
+git -c commit.gpgsign=false add <only the files you changed in this step>
+git -c commit.gpgsign=false commit --no-verify -m "refactor(home): residual data-home literals → resolver"
 ```
 
 ---
