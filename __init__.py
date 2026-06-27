@@ -44,9 +44,14 @@ from qgis.core import QgsSettings
 
 from .modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_installation
+from .modules.utility.pyarchinit_home import (
+    pyarchinit_home, legacy_pyarchinit_home, migrate_db_folder)
 
 # Constants for paths
-PYARCHINIT_HOME = os.path.expanduser("~") + os.sep + 'pyarchinit'
+PYARCHINIT_HOME = pyarchinit_home()
+# Earliest authority: every later pyarchinit_home() / os.environ read resolves
+# to the same value (default ~/pyarchinit_5, or an external override).
+os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
 
 # Constants for QGIS paths on MacOS
 QGIS_PATHS = {
@@ -816,15 +821,42 @@ def initialize_environment(splash=None) -> None:
 
     # Create necessary directories
     fi = pyarchinit_Folder_installation()
+
+    # First-run migration: if the new home is absent but a legacy
+    # ~/pyarchinit exists, offer to copy its DB folder (config + DBs).
+    migrated = False
+    if not os.path.exists(PYARCHINIT_HOME):
+        legacy = legacy_pyarchinit_home()
+        if os.path.isdir(os.path.join(legacy, "pyarchinit_DB_folder")):
+            try:
+                reply = QMessageBox.question(
+                    None, "pyArchInit",
+                    "Trovata un'installazione pyArchInit esistente in:\n"
+                    f"{legacy}\n\n"
+                    "Vuoi copiare configurazione e database nella nuova "
+                    "cartella?\n"
+                    f"{PYARCHINIT_HOME}\n\n"
+                    "(Gli strumenti AI in bin/ NON vengono copiati: vanno "
+                    "reinstallati o copiati manualmente.)",
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No,
+                    QMessageBox.StandardButton.Yes)
+                if reply == QMessageBox.StandardButton.Yes:
+                    migrated = migrate_db_folder(legacy, PYARCHINIT_HOME)
+            except Exception as _exc:
+                print(f"[pyArchInit] home migration skipped: {_exc}")
+
     if not os.path.exists(PYARCHINIT_HOME):
         fi.install_dir()
     else:
         os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
-        # Even on existing installs, refresh bundled maintenance
-        # files (dot.py, dottoxml.py, …) when the plugin shipped a
-        # newer version. Without this, fixes inside the plugin's
-        # resources/dbfiles/ never reach ~/pyarchinit/bin/ where
-        # they actually run.
+        if migrated:
+            # Migration created only pyarchinit_DB_folder; create the rest
+            # of the tree (bin/, exports, …). create_dir + copy_file are
+            # idempotent and non-clobbering, so migrated files survive.
+            fi.install_dir()
+        # Refresh bundled maintenance files (dot.py, dottoxml.py, …) when the
+        # plugin shipped a newer version, so fixes reach <home>/bin/.
         try:
             fi.install_or_update_maintenance_files()
         except Exception as _exc:

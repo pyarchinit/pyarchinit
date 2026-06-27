@@ -22,12 +22,11 @@ import os
 from os.path import expanduser
 import zipfile
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
+from .pyarchinit_home import pyarchinit_home
 
 
 class pyarchinit_Folder_installation(object):
-    HOME = expanduser("~")
-    HOME += os.sep + 'pyarchinit'
-    os.environ['PYARCHINIT_HOME'] = HOME
+    HOME = pyarchinit_home()
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
 
     OS_UTILITY = Pyarchinit_OS_Utility()
