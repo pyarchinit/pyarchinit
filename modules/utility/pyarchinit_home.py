@@ -44,3 +44,22 @@ def migrate_db_folder(src_home: str, dst_home: str) -> bool:
     dst_db = os.path.join(dst_home, "pyarchinit_DB_folder")
     shutil.copytree(src_db, dst_db, dirs_exist_ok=True)
     return True
+
+
+def should_offer_migration(home: str = None, legacy: str = None) -> bool:
+    """Whether to offer copying the legacy install into the new data home.
+
+    True when the new home has NO `pyarchinit_DB_folder/config.cfg` yet (i.e.
+    not set up) but the legacy `~/pyarchinit` install has one. Keyed on
+    config-file presence, NOT on base-dir existence, because the home base can
+    be created early by unrelated code paths (paradata workspace mkdir, bin/
+    creation) — a base-existence check would suppress the offer forever once
+    any stray folder appeared. Once the new home has its own config.cfg
+    (migrated or freshly installed) this returns False, so the user is never
+    nagged again.
+    """
+    home = home or pyarchinit_home()
+    legacy = legacy or legacy_pyarchinit_home()
+    new_config = os.path.join(home, "pyarchinit_DB_folder", "config.cfg")
+    legacy_config = os.path.join(legacy, "pyarchinit_DB_folder", "config.cfg")
+    return (not os.path.isfile(new_config)) and os.path.isfile(legacy_config)
