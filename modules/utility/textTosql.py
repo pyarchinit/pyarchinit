@@ -14,6 +14,7 @@ from qgis.PyQt.QtCore import Qt, pyqtSignal, QObject
 
 from . import database_schema
 from .llm_providers import LLMConfig, LLMProvider, LLMProviderManager
+from .pyarchinit_home import pyarchinit_home
 from .llm_selector_widget import LLMSelectorWidget
 
 
@@ -248,7 +249,7 @@ class MakeSQL:
         
         # Usa il percorso corretto: home_utente/pyarchinit/bin
         HOME = os.path.expanduser("~")
-        PYARCHINIT_HOME = os.path.join(HOME, "pyarchinit")
+        PYARCHINIT_HOME = pyarchinit_home()
         BIN = os.path.join(PYARCHINIT_HOME, "bin")
         path_key = os.path.join(BIN, 'gpt_api_key.txt')
         

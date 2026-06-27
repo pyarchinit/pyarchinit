@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from .pyarchinit_home import pyarchinit_home
 from typing import Dict, Optional, Union
 from xml.etree import ElementTree as ET
 
@@ -239,5 +241,5 @@ def default_palette_path() -> Path:
         pass
     # Legacy fallback (pre-s3dgraphy-1.5.0 layout).
     import os
-    home = os.environ.get("PYARCHINIT_HOME") or str(Path.home() / "pyarchinit")
+    home = pyarchinit_home()
     return Path(home) / "bin" / "EM_palette.graphml"

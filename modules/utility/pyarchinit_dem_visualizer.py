@@ -14,6 +14,8 @@ from __future__ import absolute_import
 
 import os
 import re
+
+from .pyarchinit_home import pyarchinit_home
 from datetime import datetime
 
 from qgis.PyQt.QtGui import QColor
@@ -48,11 +50,10 @@ def ensure_output_dir(sito):
     Return the absolute directory where per-site dashboard artifacts are saved.
 
     ``${PYARCHINIT_HOME}/site_dashboard/<sanitized-sito>`` — created as needed.
-    Falls back to ``~/pyarchinit/site_dashboard/<sito>`` when PYARCHINIT_HOME
+    Falls back to ``~/pyarchinit_5/site_dashboard/<sito>`` when PYARCHINIT_HOME
     is not set.
     """
-    home = os.environ.get('PYARCHINIT_HOME') or os.path.join(
-        os.path.expanduser('~'), 'pyarchinit')
+    home = pyarchinit_home()
     out_dir = os.path.join(home, 'site_dashboard', _sanitize(sito))
     os.makedirs(out_dir, exist_ok=True)
     return out_dir
