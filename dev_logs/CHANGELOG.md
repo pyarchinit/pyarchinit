@@ -5,6 +5,27 @@
 
 ---
 
+## [fix] - 2026-06-27 — Fix: home `~/pyarchinit_5` — `install_dir()` eseguito sempre + dialog di migrazione affidabile
+
+> Branch `Stratigraph_00001`. Commit `f3f90418`. Fix runtime della creazione cartelle e della migrazione al primo avvio.
+> File modificati: `__init__.py`, `modules/utility/pyarchinit_home.py`, `tests/utility/test_pyarchinit_home.py`.
+
+### Italiano
+
+- **Bug: cartella `~/pyarchinit_5` creata incompleta e nessun dialog di import.** La cartella base può essere creata *in anticipo* da altri percorsi di codice (il `mkdir(parents=True)` del workspace paradata, `os.makedirs(bin)` in `get_openai_api_key`, il refresh dei file di manutenzione). Il vecchio controllo `if not os.path.exists(PYARCHINIT_HOME)` trovava quindi la base già presente e **saltava sia `install_dir()` sia il dialog di migrazione** → restavano solo `bin/` + `pyarchinit_DB_folder/`, mancavano le ~12 altre sottocartelle (`pyarchinit_PDF_folder`, `pyarchinit_EXCEL_folder`, `pyarchinit_Matrix_folder`, `pyarchinit_Thumbnails_folder`, `pyarchinit_MAPS_folder`, `pyarchinit_Report_folder`, `pyarchinit_Quantificazioni_folder`, `pyarchinit_Test_folder`, `pyarchinit_db_backup`, `pyarchinit_image_export`, `pyarchinit_R_export`, `DosCo`) e il database di esempio, e non veniva mai proposto l'import dal vecchio `~/pyarchinit`.
+- **`install_dir()` ora viene eseguito incondizionatamente a ogni avvio.** È idempotente: `create_dir` ignora "già esistente" e `copy_file` salta i file presenti → i file migrati o modificati dall'utente sono preservati, mentre qualsiasi sottocartella o file di corredo mancante (DB di esempio, `config.cfg`, loghi) viene (ri)creato. Robusto a una base pre-creata da altro codice.
+- **Dialog di migrazione agganciato alla presenza di `config.cfg`** (`should_offer_migration()`), non all'esistenza della cartella base: appare quando `~/pyarchinit_5/pyarchinit_DB_folder/config.cfg` non esiste ma `~/pyarchinit/pyarchinit_DB_folder/config.cfg` sì; non si ripresenta una volta configurata la nuova home.
+- **Test: +5** (gate di migrazione robusto al base pre-creato; `install_dir` crea l'albero completo + DB di esempio ed è idempotente/non-clobbering) → 13/13 verdi.
+
+### English
+
+- **Bug: `~/pyarchinit_5` created incomplete and no import dialog.** The base folder can be created *early* by other code paths (the paradata workspace `mkdir(parents=True)`, `os.makedirs(bin)` in `get_openai_api_key`, the maintenance-files refresh). The old `if not os.path.exists(PYARCHINIT_HOME)` check therefore found the base already present and **skipped both `install_dir()` and the migration dialog** → only `bin/` + `pyarchinit_DB_folder/` remained, the ~12 other subfolders (`pyarchinit_PDF_folder`, `pyarchinit_EXCEL_folder`, `pyarchinit_Matrix_folder`, `pyarchinit_Thumbnails_folder`, `pyarchinit_MAPS_folder`, `pyarchinit_Report_folder`, `pyarchinit_Quantificazioni_folder`, `pyarchinit_Test_folder`, `pyarchinit_db_backup`, `pyarchinit_image_export`, `pyarchinit_R_export`, `DosCo`) and the example database were missing, and importing from the legacy `~/pyarchinit` was never offered.
+- **`install_dir()` now runs unconditionally on every startup.** It is idempotent: `create_dir` ignores "already exists" and `copy_file` skips existing files → migrated or user-edited files are preserved, while any missing subfolder or bundled file (example DB, `config.cfg`, logos) is (re)created. Robust to a base dir pre-created by other code.
+- **Migration dialog keyed on `config.cfg` presence** (`should_offer_migration()`), not base-dir existence: it appears when `~/pyarchinit_5/pyarchinit_DB_folder/config.cfg` is absent but `~/pyarchinit/pyarchinit_DB_folder/config.cfg` exists; it never nags again once the new home is set up.
+- **Tests: +5** (migration gate robust to a pre-created base; `install_dir` creates the full tree + example DB and is idempotent/non-clobbering) → 13/13 green.
+
+---
+
 ## [refactor] - 2026-06-27 — Refactor: tutti i percorsi home residui centralizzati nel resolver + stringhe utente + script TMA
 
 > Branch `Stratigraph_00001`. Commit `0f498179`. Refactoring puro — nessun comportamento visibile all'utente modificato (salvo stringhe di errore che ora mostrano il percorso reale).
