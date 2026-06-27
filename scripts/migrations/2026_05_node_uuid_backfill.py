@@ -19,6 +19,7 @@ from pathlib import Path
 from sqlalchemy import text
 
 from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+from modules.utility.pyarchinit_home import pyarchinit_home
 from scripts.migrations._common import (
     BackupSkipped, auto_backup_postgres, auto_backup_sqlite, parse_argv,
 )
@@ -66,8 +67,8 @@ def _apply(handle, args) -> int:
             backup = auto_backup_postgres(
                 handle.engine,
                 tag="node_uuid_backfill",
-                dest_dir=Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
-                                       / "_pga_backups",
+                dest_dir=Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                             / "_pga_backups",
             )
             log.info("PG backup created: %s", backup)
         except BackupSkipped as e:

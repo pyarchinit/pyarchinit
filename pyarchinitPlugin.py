@@ -39,6 +39,11 @@ try:
 except Exception:
     pass
 
+try:
+    from .modules.utility.pyarchinit_home import pyarchinit_home
+except Exception:
+    from modules.utility.pyarchinit_home import pyarchinit_home
+
 
 filepath = os.path.dirname(__file__)
 
@@ -2943,7 +2948,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3062,7 +3067,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3180,7 +3185,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3323,7 +3328,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3505,7 +3510,7 @@ class PyArchInitPlugin(object):
 
         # Step 5: auto-backup (same dest_dir convention as PG-A).
         backup_path = None
-        dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+        dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                     / "_pga_backups")
         try:
             backup_path = auto_backup_postgres(

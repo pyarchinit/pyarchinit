@@ -30,6 +30,7 @@ import sys
 from pathlib import Path
 
 from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+from modules.utility.pyarchinit_home import pyarchinit_home
 from scripts.migrations._common import (
     BackupSkipped, auto_backup_postgres,
 )
@@ -140,8 +141,8 @@ def _run_apply(handle) -> int:
         backup = auto_backup_postgres(
             handle.engine,
             tag="media_fk_cascade",
-            dest_dir=Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
-                                   / "_media_fk_backups",
+            dest_dir=Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                         / "_media_fk_backups",
         )
         log.info("PG backup created: %s", backup)
     except BackupSkipped as e:

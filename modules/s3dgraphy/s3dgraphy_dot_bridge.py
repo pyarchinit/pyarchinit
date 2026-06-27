@@ -16,6 +16,8 @@ parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
 if parent_dir not in sys.path:
     sys.path.append(parent_dir)
 
+from modules.utility.pyarchinit_home import pyarchinit_home
+
 # Import s3dgraphy integration
 from .s3dgraphy_integration import S3DGraphyIntegration
 
@@ -1061,8 +1063,8 @@ if QGIS_AVAILABLE:
             try:
                 if handle.is_postgres:
                     from pathlib import Path as _P
-                    dest_dir = (_P.home() / "pyarchinit"
-                                / "pyarchinit_DB_folder" / "_pga_backups")
+                    dest_dir = (_P(pyarchinit_home()) / "pyarchinit_DB_folder"
+                                / "_pga_backups")
                     try:
                         backup = auto_backup_postgres(
                             handle.engine, tag="node_uuid_backfill",

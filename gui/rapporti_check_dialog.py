@@ -17,6 +17,7 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from modules.utility import rapporti_check as RC
+from modules.utility.pyarchinit_home import pyarchinit_home
 
 _USER_ROLE = int(Qt.UserRole)
 
@@ -232,7 +233,7 @@ class RapportiCheckPanel(QWidget):
                 h = self._handle()
                 if h.is_postgres:
                     _backup_dir = (
-                        Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+                        Path(pyarchinit_home()) / "pyarchinit_DB_folder"
                         / "_pga_backups"
                     )
                     _backup_dir.mkdir(parents=True, exist_ok=True)
