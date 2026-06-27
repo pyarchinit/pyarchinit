@@ -70,6 +70,20 @@ PyArchInit supporte également le stockage distant :
 > 3. **Chemins** — dans les champs **Thumbnail path** et **Thumbnail resize**, utilisez le format `webdav://serveur:port/dossier/` (par ex. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Redémarrez QGIS** après l'enregistrement pour que les nouveaux paramètres de stockage prennent effet.
 
+### Dossier de données de pyArchInit 5 (`~/pyarchinit_5`)
+
+pyArchInit 5 stocke toutes ses données de travail — `config.cfg`, bases de données, exports, sauvegardes, paradata et le dossier `bin/` contenant les outils IA — dans un dossier dédié du répertoire utilisateur : **`~/pyarchinit_5/`**.
+
+Ce dossier est distinct du pyArchInit classique, qui continue d'utiliser **`~/pyarchinit/`**. Les deux versions ne partagent donc **pas** leurs données, ce qui permet d'exécuter pyArchInit 5 tandis que l'installation précédente et ses bases de données restent intactes.
+
+**Premier démarrage — copie des données existantes.** Lors du premier démarrage de pyArchInit 5, si `~/pyarchinit_5` n'existe pas encore mais qu'une installation précédente `~/pyarchinit` est trouvée, une boîte de dialogue demande si la configuration et les bases de données doivent être copiées dans le nouveau dossier :
+
+- Choisissez **Oui** pour copier `pyarchinit_DB_folder` (c'est-à-dire `config.cfg` et les bases SQLite) dans `~/pyarchinit_5`, afin de pouvoir continuer à travailler immédiatement avec vos données existantes.
+- Le **dossier `bin/` n'est pas copié**, car il contient de volumineux assets IA (environnements virtuels SAM et céramique, modèles CLIP, index FAISS, fichiers de clés API). Recréez-les en exécutant à nouveau les fonctions IA concernées, ou copiez manuellement `~/pyarchinit/bin` dans `~/pyarchinit_5/bin`.
+- Si vous choisissez **Non**, pyArchInit 5 crée simplement une nouvelle structure de dossiers vide, comme lors d'une installation fraîche.
+
+**Emplacement personnalisé (avancé).** Pour utiliser un dossier de données différent, définissez la variable d'environnement `PYARCHINIT_HOME` avant de démarrer QGIS ; lorsqu'elle est définie, elle remplace l'emplacement par défaut `~/pyarchinit_5`.
+
 ### Boutons d'Action
 
 | Bouton | Fonction |

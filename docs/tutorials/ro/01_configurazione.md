@@ -112,6 +112,20 @@ PyArchInit suporta si stocare la distanta:
 > 3. **Cai** — in campurile **Thumbnail path** si **Thumbnail resize** folositi formatul `webdav://server:port/folder/` (de ex. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Reporniti QGIS** dupa salvare, pentru ca noile setari de stocare sa intre in vigoare.
 
+### Folderul de date pyArchInit 5 (`~/pyarchinit_5`)
+
+pyArchInit 5 stocheaza toate datele de lucru — `config.cfg`, baze de date, exporturi, copii de siguranta, paradata si folderul `bin/` cu instrumentele AI — intr-un folder dedicat din directorul personal: **`~/pyarchinit_5/`**.
+
+Acesta este separat de pyArchInit classic, care continua sa foloseasca **`~/pyarchinit/`**. Cele doua versiuni prin urmare **nu** partajeaza date, astfel incat puteti rula pyArchInit 5 in timp ce instalarea anterioara si bazele sale de date raman neatinse.
+
+**Prima lansare — copierea datelor existente.** Prima data cand pyArchInit 5 porneste, daca `~/pyarchinit_5` nu exista inca dar o instalare anterioara `~/pyarchinit` este gasita, apare un dialog care intreaba daca doriti sa copiati configuratia si bazele de date in noul folder:
+
+- Alegeti **Da** pentru a copia `pyarchinit_DB_folder` (adica `config.cfg` si bazele de date SQLite) in `~/pyarchinit_5`, astfel incat sa puteti continua sa lucrati imediat cu datele existente.
+- **Folderul `bin/` nu este copiat**, deoarece contine resurse AI de dimensiuni mari (medii virtuale SAM si ceramica, modele CLIP, indecsi FAISS, fisiere cu chei API). Recreati-le ruland din nou functiile AI relevante, sau copiati manual `~/pyarchinit/bin` in `~/pyarchinit_5/bin`.
+- Daca alegeti **Nu**, pyArchInit 5 creeaza pur si simplu o noua structura de foldere goala, ca la o instalare noua.
+
+**Locatie personalizata (avansat).** Pentru a utiliza un folder de date diferit, setati variabila de mediu `PYARCHINIT_HOME` inainte de a porni QGIS; cand este setata, suprascrie locatia implicita `~/pyarchinit_5`.
+
 ### Sectiunea Setari Santier
 
 | Camp | Descriere |

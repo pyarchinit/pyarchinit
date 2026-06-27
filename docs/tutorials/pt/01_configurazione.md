@@ -112,6 +112,20 @@ O PyArchInit tambem suporta armazenamento remoto:
 > 3. **Caminhos** — nos campos **Thumbnail path** e **Thumbnail resize** utilize o formato `webdav://servidor:porta/pasta/` (ex.: `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Reinicie o QGIS** apos guardar para que as novas definicoes de armazenamento tenham efeito.
 
+### Pasta de dados do pyArchInit 5 (`~/pyarchinit_5`)
+
+O pyArchInit 5 guarda todos os seus dados de trabalho — `config.cfg`, bases de dados, exportacoes, copias de seguranca, paradata e a pasta `bin/` com as ferramentas de IA — numa pasta dedicada no diretorio pessoal: **`~/pyarchinit_5/`**.
+
+Esta pasta e independente do pyArchInit classico, que continua a usar **`~/pyarchinit/`**. As duas versoes portanto **nao** partilham dados, pelo que e possivel executar o pyArchInit 5 enquanto a instalacao anterior e as suas bases de dados ficam intactas.
+
+**Primeiro arranque — copia dos dados existentes.** Da primeira vez que o pyArchInit 5 e iniciado, se `~/pyarchinit_5` ainda nao existir mas for encontrada uma instalacao anterior de `~/pyarchinit`, aparece um dialogo a perguntar se a configuracao e as bases de dados devem ser copiadas para a nova pasta:
+
+- Escolha **Sim** para copiar `pyarchinit_DB_folder` (ou seja, `config.cfg` e as bases de dados SQLite) para `~/pyarchinit_5`, de modo a poder continuar a trabalhar imediatamente com os dados existentes.
+- A **pasta `bin/` nao e copiada**, porque contem assets de IA de grande dimensao (ambientes virtuais SAM e ceramica, modelos CLIP, indices FAISS, ficheiros de chaves API). Recrie-os executando de novo as funcoes de IA correspondentes, ou copie manualmente `~/pyarchinit/bin` para `~/pyarchinit_5/bin`.
+- Se escolher **Nao**, o pyArchInit 5 cria simplesmente uma nova estrutura de pastas vazia, como numa instalacao limpa.
+
+**Localizacao personalizada (avancado).** Para usar uma pasta de dados diferente, defina a variavel de ambiente `PYARCHINIT_HOME` antes de iniciar o QGIS; quando definida, substitui a localizacao predefinida `~/pyarchinit_5`.
+
 ### Seccao Definicoes do Sitio
 
 | Campo | Descricao |

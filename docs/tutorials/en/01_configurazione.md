@@ -112,6 +112,20 @@ PyArchInit also supports remote storage:
 > 3. **Paths** — in the **Thumbnail path** and **Thumbnail resize** fields use the format `webdav://server:port/folder/` (e.g. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Restart QGIS** after saving so the new storage settings take effect.
 
+### pyArchInit 5 data folder (`~/pyarchinit_5`)
+
+pyArchInit 5 stores all of its working data — `config.cfg`, databases, exports, backups, paradata, and the `bin/` folder with AI tools — in a dedicated folder in your home directory: **`~/pyarchinit_5/`**.
+
+This is separate from the classic pyArchInit, which keeps using **`~/pyarchinit/`**. The two versions therefore do **not** share data, so you can run pyArchInit 5 while your previous installation and its databases stay untouched.
+
+**First launch — copying your existing data.** The first time pyArchInit 5 starts, if `~/pyarchinit_5` does not yet exist but a previous `~/pyarchinit` installation is found, a dialog asks whether to copy your configuration and databases into the new folder:
+
+- Choose **Yes** to copy the `pyarchinit_DB_folder` (your `config.cfg` and the SQLite databases) into `~/pyarchinit_5`, so you can keep working with your existing data right away.
+- The **`bin/` folder is not copied**, because it contains large AI assets (SAM and pottery virtual environments, CLIP models, FAISS indexes, API-key files). Re-create them by running the relevant AI features again, or copy `~/pyarchinit/bin` into `~/pyarchinit_5/bin` manually.
+- If you choose **No**, pyArchInit 5 simply creates a new, empty folder structure, as on a fresh installation.
+
+**Custom location (advanced).** To use a different data folder, set the `PYARCHINIT_HOME` environment variable before starting QGIS; when set, it overrides the default `~/pyarchinit_5`.
+
 ### Site Settings Section
 
 | Field | Description |

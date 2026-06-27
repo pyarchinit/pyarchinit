@@ -123,6 +123,20 @@ PyArchInit supporta anche storage remoto:
 > 3. **Percorsi** — nei campi **Thumbnail path** e **Thumbnail resize** usa il formato `webdav://server:porta/cartella/` (es. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Riavvia QGIS** dopo aver salvato, così le nuove impostazioni di storage vengono applicate.
 
+### Cartella dati di pyArchInit 5 (`~/pyarchinit_5`)
+
+pyArchInit 5 archivia tutti i propri dati di lavoro — `config.cfg`, database, esportazioni, backup, paradata e la cartella `bin/` con gli strumenti AI — in una cartella dedicata nella home dell'utente: **`~/pyarchinit_5/`**.
+
+Questa è separata dal pyArchInit classico, che continua a usare **`~/pyarchinit/`**. Le due versioni quindi **non** condividono i dati, il che significa che è possibile eseguire pyArchInit 5 mentre la precedente installazione e i suoi database rimangono intatti.
+
+**Primo avvio — copia dei dati esistenti.** La prima volta che pyArchInit 5 si avvia, se `~/pyarchinit_5` non esiste ancora ma è presente una precedente installazione `~/pyarchinit`, viene mostrata una finestra di dialogo che chiede se copiare la configurazione e i database nella nuova cartella:
+
+- Scegli **Sì** per copiare `pyarchinit_DB_folder` (ovvero `config.cfg` e i database SQLite) in `~/pyarchinit_5`, così da poter continuare a lavorare subito con i dati esistenti.
+- La **cartella `bin/` non viene copiata**, perché contiene asset AI di grandi dimensioni (ambienti virtuali SAM e pottery, modelli CLIP, indici FAISS, file con le chiavi API). Ricreali avviando di nuovo le relative funzioni AI, oppure copia manualmente `~/pyarchinit/bin` in `~/pyarchinit_5/bin`.
+- Se scegli **No**, pyArchInit 5 crea semplicemente una nuova struttura di cartelle vuota, come in un'installazione pulita.
+
+**Posizione personalizzata (avanzato).** Per usare una cartella dati diversa, imposta la variabile d'ambiente `PYARCHINIT_HOME` prima di avviare QGIS; quando impostata, sostituisce il percorso predefinito `~/pyarchinit_5`.
+
 ### Sezione Experimental
 
 | Campo | Descrizione |

@@ -112,6 +112,20 @@ PyArchInit unterstützt auch Remote-Speicher:
 > 3. **Pfade** — verwenden Sie in den Feldern **Thumbnail path** und **Thumbnail resize** das Format `webdav://server:port/folder/` (z. B. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **QGIS neu starten** nach dem Speichern, damit die neuen Speichereinstellungen wirksam werden.
 
+### pyArchInit-5-Datenordner (`~/pyarchinit_5`)
+
+pyArchInit 5 speichert alle Arbeitsdaten — `config.cfg`, Datenbanken, Exporte, Backups, Paradata und den `bin/`-Ordner mit den KI-Werkzeugen — in einem dedizierten Ordner im Home-Verzeichnis: **`~/pyarchinit_5/`**.
+
+Dieser Ordner ist vom klassischen pyArchInit getrennt, das weiterhin **`~/pyarchinit/`** verwendet. Die beiden Versionen teilen daher **keine** Daten, sodass pyArchInit 5 ausgeführt werden kann, während die frühere Installation und deren Datenbanken unberührt bleiben.
+
+**Erster Start — Kopieren vorhandener Daten.** Beim ersten Start von pyArchInit 5 erscheint, sofern `~/pyarchinit_5` noch nicht existiert, aber eine frühere `~/pyarchinit`-Installation gefunden wird, ein Dialog, der fragt, ob Konfiguration und Datenbanken in den neuen Ordner kopiert werden sollen:
+
+- Wählen Sie **Ja**, um `pyarchinit_DB_folder` (also `config.cfg` und die SQLite-Datenbanken) nach `~/pyarchinit_5` zu kopieren, damit Sie sofort mit Ihren vorhandenen Daten weiterarbeiten können.
+- Der **`bin/`-Ordner wird nicht kopiert**, da er große KI-Assets enthält (virtuelle Umgebungen für SAM und Keramik, CLIP-Modelle, FAISS-Indizes, API-Schlüsseldateien). Erstellen Sie diese neu, indem Sie die entsprechenden KI-Funktionen erneut ausführen, oder kopieren Sie `~/pyarchinit/bin` manuell nach `~/pyarchinit_5/bin`.
+- Wenn Sie **Nein** wählen, erstellt pyArchInit 5 einfach eine neue, leere Ordnerstruktur, wie bei einer Neuinstallation.
+
+**Benutzerdefinierter Speicherort (erweitert).** Um einen anderen Datenordner zu verwenden, setzen Sie die Umgebungsvariable `PYARCHINIT_HOME` vor dem Start von QGIS; wenn gesetzt, überschreibt sie den Standardpfad `~/pyarchinit_5`.
+
 ### Abschnitt Experimentell
 
 | Feld | Beschreibung |

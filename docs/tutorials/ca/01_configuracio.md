@@ -86,6 +86,20 @@ PyArchInit suporta també emmagatzematge remot:
 > 3. **Rutes** — als camps **Thumbnail path** i **Thumbnail resize** utilitza el format `webdav://server:port/folder/` (p. ex. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Reinicia QGIS** després de desar perquè la nova configuració d'emmagatzematge tingui efecte.
 
+### Carpeta de dades de pyArchInit 5 (`~/pyarchinit_5`)
+
+pyArchInit 5 desa totes les seves dades de treball — `config.cfg`, bases de dades, exportacions, còpies de seguretat, paradata i la carpeta `bin/` amb les eines d'IA — en una carpeta dedicada al directori d'inici: **`~/pyarchinit_5/`**.
+
+Aquesta carpeta és independent del pyArchInit clàssic, que continua usant **`~/pyarchinit/`**. Les dues versions per tant **no** comparteixen dades, de manera que és possible executar pyArchInit 5 mentre la instal·lació anterior i les seves bases de dades romanen intactes.
+
+**Primer inici — còpia de les dades existents.** La primera vegada que pyArchInit 5 s'inicia, si `~/pyarchinit_5` encara no existeix però es troba una instal·lació prèvia de `~/pyarchinit`, apareix un diàleg que pregunta si es vol copiar la configuració i les bases de dades a la nova carpeta:
+
+- Tria **Sí** per copiar `pyarchinit_DB_folder` (és a dir, `config.cfg` i les bases de dades SQLite) a `~/pyarchinit_5`, de manera que puguis continuar treballant immediatament amb les dades existents.
+- La **carpeta `bin/` no es copia**, perquè conté assets d'IA de gran mida (entorns virtuals de SAM i ceràmica, models CLIP, índexs FAISS, fitxers de claus API). Torna a crear-los executant de nou les funcions d'IA corresponents, o copia manualment `~/pyarchinit/bin` a `~/pyarchinit_5/bin`.
+- Si tries **No**, pyArchInit 5 simplement crea una nova estructura de carpetes buida, com en una instal·lació nova.
+
+**Ubicació personalitzada (avançat).** Per usar una carpeta de dades diferent, defineix la variable d'entorn `PYARCHINIT_HOME` abans d'iniciar QGIS; quan s'estableix, substitueix la ubicació predeterminada `~/pyarchinit_5`.
+
 ### Secció Experimental
 
 | Camp | Descripció |

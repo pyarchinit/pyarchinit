@@ -95,6 +95,20 @@ PyArchInit soporta también almacenamiento remoto:
 > 3. **Rutas** — en los campos **Thumbnail path** y **Thumbnail resize** usa el formato `webdav://server:port/folder/` (p. ej. `webdav://192.0.2.10:5006/pyarchinit_media/thumb_resize/`).
 > 4. **Reinicia QGIS** después de guardar para que la nueva configuración de almacenamiento surta efecto.
 
+### Carpeta de datos de pyArchInit 5 (`~/pyarchinit_5`)
+
+pyArchInit 5 almacena todos sus datos de trabajo — `config.cfg`, bases de datos, exportaciones, copias de seguridad, paradatos y la carpeta `bin/` con las herramientas de IA — en una carpeta dedicada en el directorio de inicio: **`~/pyarchinit_5/`**.
+
+Esta carpeta es independiente del pyArchInit clásico, que sigue usando **`~/pyarchinit/`**. Las dos versiones por tanto **no** comparten datos, de modo que es posible ejecutar pyArchInit 5 mientras la instalación anterior y sus bases de datos permanecen intactas.
+
+**Primer inicio — copia de los datos existentes.** La primera vez que pyArchInit 5 se inicia, si `~/pyarchinit_5` aún no existe pero se encuentra una instalación previa de `~/pyarchinit`, aparece un diálogo que pregunta si se desea copiar la configuración y las bases de datos a la nueva carpeta:
+
+- Elige **Sí** para copiar `pyarchinit_DB_folder` (es decir, `config.cfg` y las bases de datos SQLite) en `~/pyarchinit_5`, de modo que puedas seguir trabajando con tus datos existentes de inmediato.
+- La **carpeta `bin/` no se copia**, porque contiene assets de IA de gran tamaño (entornos virtuales de SAM y cerámica, modelos CLIP, índices FAISS, archivos de claves API). Vuelve a crearlos ejecutando de nuevo las funciones de IA correspondientes, o copia manualmente `~/pyarchinit/bin` en `~/pyarchinit_5/bin`.
+- Si eliges **No**, pyArchInit 5 simplemente crea una nueva estructura de carpetas vacía, como en una instalación limpia.
+
+**Ubicación personalizada (avanzado).** Para usar una carpeta de datos diferente, establece la variable de entorno `PYARCHINIT_HOME` antes de iniciar QGIS; cuando se establece, reemplaza la ubicación predeterminada `~/pyarchinit_5`.
+
 ### Sección Experimental
 
 | Campo | Descripción |
