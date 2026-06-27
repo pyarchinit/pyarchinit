@@ -5358,7 +5358,6 @@ Use well-structured paragraphs with headings for each section.
 
     def get_openai_api_key(self):
         """Get OpenAI API key from file or prompt user to enter it"""
-        HOME = pyarchinit_home()
         BIN = pyarchinit_home_bin()
 
         # Ensure bin directory exists

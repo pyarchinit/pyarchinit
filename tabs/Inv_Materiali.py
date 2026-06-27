@@ -7686,7 +7686,6 @@ The tone should be professional and scientific, suitable for an archaeological p
 
     def get_openai_api_key(self):
         """Get OpenAI API key from file or prompt user to enter it"""
-        HOME = pyarchinit_home()
         BIN = pyarchinit_home_bin()
 
         if not os.path.exists(BIN):
