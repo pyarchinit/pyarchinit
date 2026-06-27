@@ -13,8 +13,8 @@ used as a filesystem-safe directory name.
 _resolve_workspace_root() (added in Consolidation 5.7.4-alpha) does
 3-tier fallback:
   1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
-  2. QSettings 'pyarchinit/paradata_workspace' (UI override)
-  3. Default: ~/pyarchinit/pyarchinit_DB_folder
+  2. PYARCHINIT_HOME env var (data-home override)
+  3. Default: $PYARCHINIT_HOME/pyarchinit_DB_folder (else ~/pyarchinit_5/...)
 """
 from __future__ import annotations
 
@@ -47,7 +47,8 @@ def _resolve_workspace_root() -> Path:
     """Resolve the workspace root directory using 3-tier fallback.
 
     1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
-    2. Default: ~/pyarchinit/pyarchinit_DB_folder
+    2. PYARCHINIT_HOME env var (data-home override)
+    3. Default: $PYARCHINIT_HOME/pyarchinit_DB_folder (else ~/pyarchinit_5/...)
 
     Returns a Path (existence not guaranteed; caller must mkdir if needed).
 
@@ -66,7 +67,12 @@ def _resolve_workspace_root() -> Path:
     env_override = os.environ.get("PYARCHINIT_WORKSPACE_DIR")
     if env_override:
         return Path(env_override).expanduser()
-    return Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+    # Default base follows the data-home (PYARCHINIT_HOME env var, set by the
+    # host plugin); falls back to ~/pyarchinit_5. Kept as a bare env read so
+    # this module stays free of qgis.*/pyarchinit imports (s3dgraphy policy).
+    home = os.environ.get("PYARCHINIT_HOME")
+    base = Path(home) if home else Path.home() / "pyarchinit_5"
+    return base / "pyarchinit_DB_folder"
 
 
 def _resolve_workspace_dir(handle: DbHandle, sito: str) -> Path:

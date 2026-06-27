@@ -1,10 +1,11 @@
 # tests/sync/test_workspace_root.py
 """L0 unit tests for _resolve_workspace_root().
 
-Verifies the 2-tier fallback chain (Consolidation 5.7.4-alpha, simplified
-in s3dgraphy #10 decoupling):
+Verifies the 3-tier fallback chain (Consolidation 5.7.4-alpha, simplified
+in s3dgraphy #10 decoupling; data-home rename 2026-06-27):
   1. PYARCHINIT_WORKSPACE_DIR env var (highest priority)
-  2. Default: ~/pyarchinit/pyarchinit_DB_folder
+  2. PYARCHINIT_HOME env var (data-home override)
+  3. Default: ~/pyarchinit_5/pyarchinit_DB_folder
 
 The previous QSettings tier was removed so this module stays free of
 `qgis.*` / `PyQt*` imports (s3dgraphy policy). The host application
@@ -18,12 +19,13 @@ from pathlib import Path
 
 
 def test_default_when_env_unset(monkeypatch):
-    """With env var unset, _resolve_workspace_root() returns
-    ~/pyarchinit/pyarchinit_DB_folder."""
+    """With both env vars unset, the root defaults to
+    ~/pyarchinit_5/pyarchinit_DB_folder."""
     monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    monkeypatch.delenv("PYARCHINIT_HOME", raising=False)
     from modules.s3dgraphy.sync._workspace import _resolve_workspace_root
     root = _resolve_workspace_root()
-    assert root == Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+    assert root == Path.home() / "pyarchinit_5" / "pyarchinit_DB_folder"
 
 
 def test_env_var_override_takes_precedence(monkeypatch, tmp_path):
@@ -36,12 +38,12 @@ def test_env_var_override_takes_precedence(monkeypatch, tmp_path):
 
 
 def test_empty_env_var_falls_through_to_default(monkeypatch):
-    """An empty env var is treated as unset and the function falls
-    through to the default."""
+    """Empty workspace + home env vars fall through to the default."""
     monkeypatch.setenv("PYARCHINIT_WORKSPACE_DIR", "")
+    monkeypatch.delenv("PYARCHINIT_HOME", raising=False)
     from modules.s3dgraphy.sync._workspace import _resolve_workspace_root
     root = _resolve_workspace_root()
-    assert root == Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
+    assert root == Path.home() / "pyarchinit_5" / "pyarchinit_DB_folder"
 
 
 def test_env_var_with_tilde_expanded(monkeypatch):
@@ -52,3 +54,12 @@ def test_env_var_with_tilde_expanded(monkeypatch):
     assert root == Path.home() / "test_workspace_consol"
     # Sanity: the tilde was actually expanded (not literal)
     assert "~" not in str(root)
+
+
+def test_pyarchinit_home_env_drives_default(monkeypatch, tmp_path):
+    """When PYARCHINIT_WORKSPACE_DIR is unset, PYARCHINIT_HOME drives the base."""
+    monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path / "h"))
+    from modules.s3dgraphy.sync._workspace import _resolve_workspace_root
+    root = _resolve_workspace_root()
+    assert root == tmp_path / "h" / "pyarchinit_DB_folder"
