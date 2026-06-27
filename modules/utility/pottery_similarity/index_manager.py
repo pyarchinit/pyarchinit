@@ -12,6 +12,7 @@ import os
 import json
 import pickle
 import hashlib
+from ..pyarchinit_home import pyarchinit_home_bin
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 import numpy as np
@@ -35,8 +36,7 @@ class PotterySimilarityIndexManager:
     """
 
     INDEX_BASE_PATH = os.path.join(
-        os.path.expanduser('~/pyarchinit'),
-        'bin', 'pottery_similarity'
+        pyarchinit_home_bin(), 'pottery_similarity'
     )
 
     # Embedding dimensions for each model

@@ -98,6 +98,7 @@ from ..modules.utility.report_generator import ReportGenerator
 from ..modules.utility.llm_providers import LLMConfig, LLMProvider, LLMProviderManager
 from ..modules.utility.llm_selector_widget import LLMSelectorWidget
 from ..modules.utility.VideoPlayer import VideoPlayerWindow
+from ..modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.response_sql import ResponseSQL
 from ..modules.utility.textTosql import *
@@ -4828,8 +4829,7 @@ class RAGQueryDialog(QDialog):
         # If no parent or parent doesn't have apikey_gpt, read from file directly
         if not api_key:
             try:
-                home_dir = os.path.expanduser("~")
-                path_key = os.path.join(home_dir, "pyarchinit", "bin", "gpt_api_key.txt")
+                path_key = os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")
                 if os.path.exists(path_key):
                     with open(path_key, 'r') as f:
                         api_key = f.read().strip()
@@ -4837,7 +4837,7 @@ class RAGQueryDialog(QDialog):
                 pass
 
         if not api_key:
-            QMessageBox.warning(self, "API Key Required", "Please set your OpenAI API key in ~/pyarchinit/bin/gpt_api_key.txt")
+            QMessageBox.warning(self, "API Key Required", f"Please set your OpenAI API key in {os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')}")
             return
 
         # Add query to conversation history
@@ -5953,8 +5953,8 @@ class RAGQueryWorker(QThread):
     _cached_data = None  # Cache loaded data to avoid reloading
 
     # Path for persistent vectorstore storage
-    FAISS_INDEX_PATH = os.path.join(os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~/pyarchinit')), 'bin', 'faiss_index')
-    FAISS_HASH_FILE = os.path.join(os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~/pyarchinit')), 'bin', 'faiss_index_hash.txt')
+    FAISS_INDEX_PATH = os.path.join(pyarchinit_home_bin(), 'faiss_index')
+    FAISS_HASH_FILE = os.path.join(pyarchinit_home_bin(), 'faiss_index_hash.txt')
 
     # Configuration for all tables to include in RAG
     RAG_TABLE_CONFIG = {

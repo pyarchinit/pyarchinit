@@ -17,6 +17,7 @@ scripts can also use it.
 import json
 import os
 import socket
+from .pyarchinit_home import pyarchinit_home_bin
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Iterator
@@ -614,11 +615,9 @@ class LLMProviderManager:
     @staticmethod
     def _key_file_path(provider: LLMProvider) -> Optional[str]:
         if provider == LLMProvider.OPENAI:
-            return os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "gpt_api_key.txt")
+            return os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")
         if provider == LLMProvider.ANTHROPIC:
-            return os.path.join(
-                os.path.expanduser("~"), "pyarchinit", "bin", "claude_api_key.txt"
-            )
+            return os.path.join(pyarchinit_home_bin(), "claude_api_key.txt")
         return None
 
     @staticmethod
@@ -631,9 +630,7 @@ class LLMProviderManager:
             return ""
         # Anthropic legacy filename
         if provider == LLMProvider.ANTHROPIC and not os.path.exists(path):
-            legacy = os.path.join(
-                os.path.expanduser("~"), "pyarchinit", "bin", "anthropic_api_key.txt"
-            )
+            legacy = os.path.join(pyarchinit_home_bin(), "anthropic_api_key.txt")
             if os.path.exists(legacy):
                 path = legacy
         try:

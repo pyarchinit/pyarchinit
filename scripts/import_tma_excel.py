@@ -420,8 +420,9 @@ def main():
     ap = argparse.ArgumentParser(description="Parser/importer schede TMA da Excel")
     ap.add_argument("--excel", required=True, help="file .xlsx sorgente")
     ap.add_argument("--sheet", default="ELENCO", help="nome foglio (default ELENCO)")
-    ap.add_argument("--config", default=os.path.expanduser(
-        "~/pyarchinit/pyarchinit_DB_folder/config.cfg"),
+    ap.add_argument("--config", default=os.path.join(
+        os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5"),
+        "pyarchinit_DB_folder", "config.cfg"),
         help="percorso config.cfg")
     ap.add_argument("--site", default="Festòs_2025", help="valore campo 'sito'")
     ap.add_argument("--apply", action="store_true",

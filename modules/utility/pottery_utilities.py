@@ -10,6 +10,7 @@ import re
 import random
 import io
 from pathlib import Path
+from .pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 from typing import List, Tuple, Optional, Dict, Any
 
 try:
@@ -196,11 +197,10 @@ class PDFExtractor:
         import sys
 
         # Find pottery_venv Python
-        home_dir = os.path.expanduser('~')
         if sys.platform == 'win32':
-            venv_python = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv', 'Scripts', 'python.exe')
+            venv_python = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'Scripts', 'python.exe')
         else:
-            venv_python = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv', 'bin', 'python')
+            venv_python = os.path.join(pyarchinit_home_bin(), 'pottery_venv', 'bin', 'python')
 
         if not os.path.exists(venv_python):
             QgsMessageLog.logMessage(f"pottery_venv not found: {venv_python}",
@@ -208,7 +208,7 @@ class PDFExtractor:
             return None
 
         # Find YOLO model
-        model_path = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_yolo.pt')
+        model_path = os.path.join(pyarchinit_home_bin(), 'pottery_yolo.pt')
         if not os.path.exists(model_path):
             QgsMessageLog.logMessage(f"YOLO model not found: {model_path}",
                                    "PyArchInit", Qgis.Warning)
@@ -273,8 +273,7 @@ class PDFExtractor:
             from ultralytics import YOLO
 
             # Check in user home directory under pyarchinit/bin
-            home_dir = os.path.expanduser('~')
-            model_path = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_yolo.pt')
+            model_path = os.path.join(pyarchinit_home_bin(), 'pottery_yolo.pt')
 
             if os.path.exists(model_path):
                 self.yolo_model = YOLO(model_path)
@@ -283,7 +282,7 @@ class PDFExtractor:
                                        "PyArchInit", Qgis.Info)
                 return True
             else:
-                QgsMessageLog.logMessage("YOLO model not found in ~/pyarchinit/bin/",
+                QgsMessageLog.logMessage(f"YOLO model not found in {pyarchinit_home_bin()}/",
                                        "PyArchInit", Qgis.Warning)
                 return False
         except Exception as e:
@@ -1256,7 +1255,7 @@ else:
 
             # Find model if not provided
             if not model_path:
-                models_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "models")
+                models_dir = os.path.join(pyarchinit_home_bin(), "models")
                 # Try to find any available model
                 for model_name in ['model_10k.pkl', '6h-MCG.pkl', '6h-MC.pkl', '4h-PAINT.pkl']:
                     potential_path = os.path.join(models_dir, model_name)

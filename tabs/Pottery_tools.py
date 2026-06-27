@@ -135,8 +135,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 return
                 
             # Define venv path
-            home_dir = os.path.expanduser('~')
-            self.venv_path = os.path.join(home_dir, 'pyarchinit', 'bin', 'pottery_venv')
+            self.venv_path = os.path.join(pyarchinit_home_bin(), 'pottery_venv')
 
             # Check if venv exists
             if platform.system() == 'Windows':
@@ -736,7 +735,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 os.remove(test_file)
             except (OSError, IOError, PermissionError):
                 # Fall back to home directory
-                fallback_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "pottery_extracted")
+                fallback_dir = os.path.join(pyarchinit_home(), "pottery_extracted")
                 output_dir = os.path.join(fallback_dir, output_folder_name)
                 os.makedirs(output_dir, exist_ok=True)
                 self.log_message(f"Source folder is read-only. Saving to: {output_dir}")
@@ -916,7 +915,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
                 return True
 
             # Use default model path (you might want to add UI for this)
-            model_path = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "pottery_ink_model.pkl")
+            model_path = os.path.join(pyarchinit_home_bin(), "pottery_ink_model.pkl")
 
             # Process images
             results = self.pottery_ink.batch_process(
@@ -952,7 +951,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         """Download PotteryInk models from HuggingFace"""
         try:
             # Create models directory in the correct location
-            models_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "models")
+            models_dir = os.path.join(pyarchinit_home_bin(), "models")
             os.makedirs(models_dir, exist_ok=True)
 
             self.log_message("Downloading PotteryInk models...")
@@ -1792,8 +1791,7 @@ print("PLATFORM:", platform.system())
     def check_model_status(self):
         """Check if YOLO model is installed"""
         # Check in user home directory under pyarchinit/bin
-        home_dir = os.path.expanduser('~')
-        models_dir = os.path.join(home_dir, 'pyarchinit', 'bin')
+        models_dir = pyarchinit_home_bin()
 
         # Check for different possible model names
         model_names = ['BasicModelv8_v01.pt', 'pottery_yolo.pt']
@@ -1823,8 +1821,7 @@ print("PLATFORM:", platform.system())
             self.log_message("Downloading YOLO model for pottery detection...")
 
             # Create models directory in user home if it doesn't exist
-            home_dir = os.path.expanduser('~')
-            models_dir = os.path.join(home_dir, 'pyarchinit', 'bin')
+            models_dir = pyarchinit_home_bin()
             os.makedirs(models_dir, exist_ok=True)
 
             # Model names from PyPotteryLens
@@ -3003,7 +3000,7 @@ if __name__ == '__main__':
                           else "10k Model (General)")
             
             # Create output directory
-            output_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "pottery_ink_output")
+            output_dir = os.path.join(pyarchinit_home(), "pottery_ink_output")
             os.makedirs(output_dir, exist_ok=True)
 
             self.text_pottery_log.append(f"\nStarting enhancement with {model_name}...")
@@ -3048,7 +3045,7 @@ if __name__ == '__main__':
                             }
                             selected = self.combo_pottery_ink_model.currentText()
                             if selected in model_name_map:
-                                models_dir = os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", "models")
+                                models_dir = os.path.join(pyarchinit_home_bin(), "models")
                                 model_path = os.path.join(models_dir, model_name_map[selected])
                                 if not os.path.exists(model_path):
                                     model_path = None

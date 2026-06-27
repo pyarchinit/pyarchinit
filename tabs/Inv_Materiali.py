@@ -50,6 +50,7 @@ from collections import OrderedDict
 
 # GPTWindow is imported lazily in sketchgpt to avoid PyMuPDF DLL conflicts on Windows
 from ..modules.utility.VideoPlayerArtefact import VideoPlayerWindow
+from ..modules.utility.pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import get_db_manager
@@ -7685,8 +7686,8 @@ The tone should be professional and scientific, suitable for an archaeological p
 
     def get_openai_api_key(self):
         """Get OpenAI API key from file or prompt user to enter it"""
-        HOME = os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))
-        BIN = os.path.join(HOME, 'bin')
+        HOME = pyarchinit_home()
+        BIN = pyarchinit_home_bin()
 
         if not os.path.exists(BIN):
             os.makedirs(BIN, exist_ok=True)
@@ -7710,9 +7711,9 @@ The tone should be professional and scientific, suitable for an archaeological p
                         f.write(api_key)
                     return api_key
         else:
-            msg = 'API key non trovata.\nInserisci la tua OpenAI API key:\n\n(Verrà salvata in ~/pyarchinit/bin/gpt_api_key.txt)' if self.L == 'it' else \
+            msg = f'API key non trovata.\nInserisci la tua OpenAI API key:\n\n(Verrà salvata in {os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")})' if self.L == 'it' else \
                   'API-Schlüssel nicht gefunden.\nGeben Sie Ihren OpenAI API-Schlüssel ein:' if self.L == 'de' else \
-                  'API key not found.\nEnter your OpenAI API key:\n\n(Will be saved to ~/pyarchinit/bin/gpt_api_key.txt)'
+                  f'API key not found.\nEnter your OpenAI API key:\n\n(Will be saved to {os.path.join(pyarchinit_home_bin(), "gpt_api_key.txt")})'
             api_key, ok = QInputDialog.getText(self, 'OpenAI API Key', msg)
             if ok and api_key:
                 with open(path_key, 'w') as f:
@@ -7906,7 +7907,7 @@ The tone should be professional and scientific, suitable for an archaeological p
                     'saved_msg': "PDF report saved to:\n"
                 }
 
-            HOME = os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))
+            HOME = pyarchinit_home()
             PDFFOLDER = os.path.join(HOME, "pyarchinit_PDF_folder")
 
             filename, _ = QFileDialog.getSaveFileName(

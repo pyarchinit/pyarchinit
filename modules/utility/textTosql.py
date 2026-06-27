@@ -14,7 +14,7 @@ from qgis.PyQt.QtCore import Qt, pyqtSignal, QObject
 
 from . import database_schema
 from .llm_providers import LLMConfig, LLMProvider, LLMProviderManager
-from .pyarchinit_home import pyarchinit_home
+from .pyarchinit_home import pyarchinit_home, pyarchinit_home_bin
 from .llm_selector_widget import LLMSelectorWidget
 
 
@@ -248,9 +248,7 @@ class MakeSQL:
         api_key = ""
         
         # Usa il percorso corretto: home_utente/pyarchinit/bin
-        HOME = os.path.expanduser("~")
-        PYARCHINIT_HOME = pyarchinit_home()
-        BIN = os.path.join(PYARCHINIT_HOME, "bin")
+        BIN = pyarchinit_home_bin()
         path_key = os.path.join(BIN, 'gpt_api_key.txt')
         
         # Verifica se il file esiste
@@ -375,7 +373,7 @@ Regole importanti:
                 QMessageBox.critical(parent, "Errore API Key", 
                                    f"Errore di autenticazione OpenAI.\n\n"
                                    f"Verifica che l'API key sia valida nel file:\n"
-                                   f"~/pyarchinit/bin/gpt_api_key.txt\n\n"
+                                   f"{os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')}\n\n"
                                    f"Errore: {error_msg}")
             else:
                 QMessageBox.critical(parent, "Errore", f"Errore OpenAI: {error_msg}")
@@ -426,8 +424,7 @@ Includi:
     def get_anthropic_api_key(parent=None):
         """Ottiene l'API key di Anthropic dal file di configurazione"""
         api_key = ""
-        HOME = os.path.expanduser("~")
-        BIN = os.path.join(HOME, "pyarchinit", "bin")
+        BIN = pyarchinit_home_bin()
         # Try both filenames for backward compatibility
         path_key = os.path.join(BIN, "claude_api_key.txt")
         if not os.path.isfile(path_key):
@@ -538,7 +535,7 @@ Regole importanti:
                 QMessageBox.critical(parent, "Errore API Key",
                                    f"Errore di autenticazione Anthropic.\n\n"
                                    f"Verifica che l'API key sia valida nel file:\n"
-                                   f"~/pyarchinit/bin/claude_api_key.txt\n\n"
+                                   f"{os.path.join(pyarchinit_home_bin(), 'claude_api_key.txt')}\n\n"
                                    f"Errore: {error_msg}")
             else:
                 QMessageBox.critical(parent, "Errore", f"Errore Anthropic: {error_msg}")
@@ -820,7 +817,7 @@ Explanation in Italian:"""
         # Ignora l'apikey passata e usa quella di OpenAI da ~/pyarchinit/bin/gpt_api_key.txt
         # Questo metodo è mantenuto solo per compatibilità con il codice esistente
         
-        print("Info: Text2SQL ora usa OpenAI GPT-4 con l'API key da ~/pyarchinit/bin/gpt_api_key.txt")
+        print(f"Info: Text2SQL ora usa OpenAI GPT-4 con l'API key da {os.path.join(pyarchinit_home_bin(), 'gpt_api_key.txt')}")
         
         # Usa il nuovo metodo OpenAI
         sql_query, explanation = MakeSQL.make_openai_request(prompt, db, None)
