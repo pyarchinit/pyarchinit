@@ -5,6 +5,48 @@
 
 ---
 
+## [refactor] - 2026-06-27 — Refactor: tutti i percorsi home residui centralizzati nel resolver + stringhe utente + script TMA
+
+> Branch `Stratigraph_00001`. Commit `0f498179`. Refactoring puro — nessun comportamento visibile all'utente modificato (salvo stringhe di errore che ora mostrano il percorso reale).
+> File modificati: `tabs/Pottery_tools.py`, `tabs/US_USM.py`, `tabs/Inv_Materiali.py`, `tabs/pyarchinit_Pottery_mainapp.py`, `modules/utility/pottery_utilities.py`, `modules/utility/llm_providers.py`, `modules/utility/pottery_similarity/index_manager.py`, `modules/utility/textTosql.py`, `scripts/import_tma_excel.py`.
+
+### Italiano
+
+- **28 occorrenze di percorsi home hardcoded eliminate da 9 file.** Il Task 6 aveva convertito solo la forma `expanduser("~/pyarchinit/...")` singola stringa. Rimanevano tre forme diverse per la stessa home: join a componenti separati (`os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", ...)`), variabile intermedia (`home_dir = os.path.expanduser('~')` poi `os.path.join(home_dir, "pyarchinit", ...)`), e form env-aware con default (`os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))`). Tutte convertite.
+- **Funzione corretta in base al segmento.** Percorsi sotto `bin/` → `pyarchinit_home_bin()`; percorsi alla home base o sottodirectory non-bin (`pottery_extracted`, `pottery_ink_output`, `pyarchinit_PDF_folder`) → `pyarchinit_home()`.
+- **Stringhe utente aggiornate.** Messaggi di errore e prompt che contenevano `~/pyarchinit/bin/gpt_api_key.txt` o percorsi simili ora interpolano il percorso reale tramite f-string (in `US_USM.py`, `Inv_Materiali.py`, `textTosql.py`, `pottery_utilities.py`).
+- **Script TMA usa l'inline resolver.** `scripts/import_tma_excel.py` è uno script CLI autonomo (nessun `sys.path` al plugin root): il percorso default di `config.cfg` usa `os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5")` — logica identica al resolver, senza importarlo.
+- **Variabili `home_dir` inutilizzate rimosse** dopo la conversione (Pottery_tools, pottery_utilities, US_USM, textTosql).
+
+### English
+
+- **28 hardcoded home-path occurrences removed from 9 files.** Task 6 only converted the single-string `expanduser("~/pyarchinit/...")` form. Three other forms remained for the same data home: split-component joins (`os.path.join(os.path.expanduser("~"), "pyarchinit", "bin", ...)`), intermediate-variable joins (`home_dir = os.path.expanduser('~')` then `os.path.join(home_dir, "pyarchinit", ...)`), and env-aware-with-default (`os.environ.get('PYARCHINIT_HOME', os.path.join(os.path.expanduser('~'), 'pyarchinit'))`). All converted.
+- **Correct function chosen by path segment.** Paths under `bin/` → `pyarchinit_home_bin()`; home-base or non-bin subdirectory paths (`pottery_extracted`, `pottery_ink_output`, `pyarchinit_PDF_folder`) → `pyarchinit_home()`.
+- **User-facing strings updated.** Error messages and prompts that mentioned `~/pyarchinit/bin/gpt_api_key.txt` or similar paths now interpolate the real resolved path via f-string (in `US_USM.py`, `Inv_Materiali.py`, `textTosql.py`, `pottery_utilities.py`).
+- **TMA script uses inline resolver.** `scripts/import_tma_excel.py` is a standalone CLI (no plugin-root `sys.path`): the `config.cfg` default path uses `os.environ.get("PYARCHINIT_HOME") or os.path.join(os.path.expanduser("~"), "pyarchinit_5")` — identical logic to the resolver without importing it.
+- **Unused `home_dir` variables removed** after conversion (Pottery_tools, pottery_utilities, US_USM, textTosql).
+
+---
+
+## [refactor] - 2026-06-27 — Refactor: percorsi bin/ degli strumenti AI centralizzati in `pyarchinit_home_bin()`
+
+> Branch `Stratigraph_00001`. Commit `87ebe955`. Refactoring puro — nessun comportamento visibile all'utente modificato.
+> File modificati: `tabs/pyarchinit_Pottery_mainapp.py`, `tabs/Sam_Segmentation_Dialog.py`, `modules/utility/pottery_similarity/embedding_models.py`, `modules/utility/pottery_similarity/similarity_search.py`, `tabs/Pottery_tools.py`.
+
+### Italiano
+
+- **Percorsi `bin/` hardcoded eliminati da 5 file.** Quattro moduli nella pipeline AI (similarità ceramiche, segmentazione SAM, strumenti ceramica, finestra principale Pottery) costruivano il percorso alla directory `~/pyarchinit/bin/` in modo autonomo — con espansioni di tilde o concatenazioni dirette — duplicando la logica e rendendo difficile qualsiasi rilocazione futura della home del plugin.
+- **Centralizzazione tramite `pyarchinit_home_bin()`.** Tutti questi percorsi ora chiamano `pyarchinit_home_bin()` da `modules/utility/pyarchinit_home.py`, la funzione già esistente che calcola il percorso corretto su ogni piattaforma (Windows, macOS, Linux). Un'unica modifica a `pyarchinit_home.py` aggiorna automaticamente tutti i punti di utilizzo.
+- **Nessun cambiamento funzionale.** Il refactoring non altera né le funzionalità degli strumenti AI né la struttura del file system; il percorso risolto è identico a prima.
+
+### English
+
+- **Hardcoded `bin/` paths removed from 5 files.** Four modules in the AI pipeline (pottery similarity, SAM segmentation, pottery tools, Pottery main window) each constructed the path to `~/pyarchinit/bin/` independently — via tilde expansions or manual concatenation — duplicating logic and making any future relocation of the plugin home directory error-prone.
+- **Centralised via `pyarchinit_home_bin()`.** All these paths now call `pyarchinit_home_bin()` from `modules/utility/pyarchinit_home.py`, the existing function that resolves the correct path per platform (Windows, macOS, Linux). A single change to `pyarchinit_home.py` now propagates automatically to every call site.
+- **No functional change.** The refactoring alters neither the AI tooling behaviour nor the filesystem layout; the resolved path is identical to before.
+
+---
+
 ## [5.13.9.3-alpha] - 2026-06-25 — Fix: gli hook ON CONFLICT dell'import non "perdono" più sull'intera sessione
 
 > Branch `Stratigraph_00001`. Fix lato plugin (`gui/pyarchinitConfigDialog.py`).
