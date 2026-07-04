@@ -1001,6 +1001,10 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
         self.msg_sito()
         self.numero_invetario()
         self.update_dating()
+        # Set the corredo table headers at startup: the textChanged signal alone
+        # never fires here because nr_scheda is filled by fill_fields() before
+        # the connect, leaving the Qt Designer "New Column" placeholders visible.
+        self.loadCorredolist()
         init_remote_loader()
 
     def numero_invetario(self):
