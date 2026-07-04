@@ -1947,27 +1947,27 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <column>
             <property name="text">
-             <string>Item ID</string>
+             <string>ID Reperto</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Indv. ID</string>
+             <string>ID Indv.</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Material</string>
+             <string>Materiale</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Position in trousseau</string>
+             <string>Posizione del corredo</string>
             </property>
            </column>
            <column>
             <property name="text">
-             <string>Position in trousseau</string>
+             <string>Posizione nel corredo</string>
             </property>
            </column>
           </widget>

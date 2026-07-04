@@ -4068,6 +4068,12 @@ class pyarchinit_Tomba(QDialog, MAIN_DIALOG_CLASS):
             self.comboBox_sepoltura.setEditText(str(self.DATA_LIST[self.rec_num].tipo_sepoltura))  # 15 - orientamento asse        
             self.comboBox_corredo_presenza.setEditText(str(self.DATA_LIST[self.rec_num].corredo_presenza))  # 16 - corredo presenza
             self.textEdit_descrizione_corredo.setText(str(self.DATA_LIST[self.rec_num].corredo_descrizione))
+            # Refresh the corredo table headers/delegates for the current
+            # record BEFORE inserting its data: loadCorredolist() is only
+            # wired to lineEdit_nr_scheda.textChanged, which does not fire
+            # when navigating between records with the same nr_scheda text,
+            # leaving the .ui default column headers on screen.
+            self.loadCorredolist()
             self.tableInsertData("self.tableWidget_corredo_tipo", self.DATA_LIST[self.rec_num].corredo_tipo)  # 27 - corredo tipo
             
 
