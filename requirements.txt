@@ -38,27 +38,33 @@ requests==2.33.0; python_version>="3.10"
 PyMuPDF==1.26.5; python_version<"3.10"
 PyMuPDF==1.26.7; python_version>="3.10"
 # nltk: security patches (3.9.4) require py3.10+; py3.9 keeps 3.9.1 (CVEs unpatchable there)
+# NOTE: CVE-2026-54293 (URL-encoded path traversal in nltk.data.load()) affects ALL
+# releases <= 3.9.4 and has no patched release yet — alert dismissed as tolerable risk
+# (desktop plugin, no attacker-controlled nltk: URLs); bump as soon as a fix ships.
 nltk==3.9.1; python_version<"3.10"
 nltk==3.9.4; python_version>="3.10"
 
 # AI / LLM — the langchain family moves together per python line:
 #   py3.9  -> 0.3.x patched set (langchain-core 0.3.85 closes serialization/template/f-string CVEs)
-#   py3.10 -> 1.x patched set (adds path traversal #23, SSRF #15/#26/#27, langsmith redaction #25)
+#   py3.10 -> 1.x patched set (adds path traversal #23, SSRF #15/#26/#27, langsmith redaction #25,
+#             file-search path traversal GHSA-gr75-jv2w-4656 (langchain 1.3.9 / langchain-anthropic 1.4.6),
+#             langsmith TracingMiddleware file read GHSA-f4xh-w4cj-qxq8 (0.8.18))
+#   langchain 1.3.9 + langchain-anthropic 1.4.6 require langchain-core>=1.4.6 and anthropic>=0.96
 openai==1.78.1; python_version<"3.10"
 openai==2.26.0; python_version>="3.10"
 anthropic==0.51.0; python_version<"3.10"
-anthropic==0.69.0; python_version>="3.10"
+anthropic==0.116.0; python_version>="3.10"
 langchain==0.3.30; python_version<"3.10"
-langchain==1.2.0; python_version>="3.10"
+langchain==1.3.9; python_version>="3.10"
 langchain-community==0.3.27; python_version<"3.10"
 langchain-community==0.4.0; python_version>="3.10"
 langchain-core==0.3.85; python_version<"3.10"
-langchain-core==1.3.3; python_version>="3.10"
+langchain-core==1.4.6; python_version>="3.10"
 langchain-openai==0.3.16; python_version<"3.10"
 langchain-openai==1.1.14; python_version>="3.10"
 langchain-anthropic==0.3.13; python_version<"3.10"
-langchain-anthropic==1.0.0; python_version>="3.10"
+langchain-anthropic==1.4.6; python_version>="3.10"
 langchain-text-splitters==0.3.9; python_version<"3.10"
 langchain-text-splitters==1.1.2; python_version>="3.10"
 langsmith==0.3.42; python_version<"3.10"
-langsmith==0.8.0; python_version>="3.10"
+langsmith==0.8.18; python_version>="3.10"
