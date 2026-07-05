@@ -7,20 +7,22 @@
 
 ## [fix] - 2026-07-04 — Fix: Scheda Tomba — intestazioni tabella "Corredo tomba" mostravano "Nuova colonna"
 
-> Branch `Stratigraph_00001`. Fix UI della scheda Tomba, tab "Corredo".
+> Branch `Stratigraph_00001`. Commit `b79f4812`. Fix UI della scheda Tomba, tab "Corredo".
 > File modificati: `tabs/Tomba.py`, `gui/ui/Tomba.ui`.
 
 ### Italiano
 
-- **Bug: le 5 colonne di `tableWidget_corredo_tipo` mostravano il placeholder "Nuova colonna".** Le intestazioni corrette ('ID Reperto', 'ID Indv.', 'Materiale', 'Posizione del corredo', 'Posizione nel corredo') sono impostate da `loadCorredolist()`, collegata solo al segnale `textChanged` di `lineEdit_nr_scheda`. All'apertura della scheda però `fill_fields()` valorizza il campo **prima** del `connect`, quindi il segnale non scattava mai e restavano i placeholder di Qt Designer.
-- **Fix: chiamata esplicita a `self.loadCorredolist()` in `__init__`** (dopo `update_dating()`), così le intestazioni vengono impostate subito all'apertura nella lingua corrente (it/de/en).
-- **Rete di sicurezza nel `.ui`:** i 5 placeholder "New Column" in `Tomba.ui` sostituiti con etichette di default in inglese, visibili anche se `loadCorredolist()` non venisse eseguita.
+- **Bug: le 5 colonne di `tableWidget_corredo_tipo` mostravano il placeholder "Nuova colonna".** Le intestazioni corrette ('ID Reperto', 'ID Indv.', 'Materiale', 'Posizione del corredo', 'Posizione nel corredo') sono impostate da `loadCorredolist()`, collegata solo al segnale `textChanged` di `lineEdit_nr_scheda`. Il segnale però non scattava in due casi: (a) all'apertura della scheda, perché `fill_fields()` valorizza il campo **prima** del `connect`; (b) navigando tra record che condividono lo stesso `nr_scheda`, perché il testo non cambia. In entrambi restavano visibili i placeholder di Qt Designer.
+- **Fix 1 — apertura scheda: chiamata esplicita a `self.loadCorredolist()` in `__init__`** (dopo `update_dating()`), così le intestazioni vengono impostate subito all'apertura nella lingua corrente (it/de/en).
+- **Fix 2 — navigazione record: chiamata a `self.loadCorredolist()` in `fill_fields()`** (prima di inserire le righe del corredo del record), così intestazioni e delegate vengono aggiornate a ogni record anche quando il `nr_scheda` non cambia.
+- **Rete di sicurezza nel `.ui`:** i 5 placeholder "New Column" in `Tomba.ui` sostituiti con etichette di default in italiano (lingua sorgente dei `.ui`; le altre lingue arrivano dai `.ts`/`.qm`), visibili anche se `loadCorredolist()` non venisse eseguita.
 
 ### English
 
-- **Bug: the 5 columns of `tableWidget_corredo_tipo` showed the "New Column" placeholder** (rendered as "Nuova colonna" in Italian). The real headers ('ID Reperto', 'ID Indv.', 'Materiale', ...) are set by `loadCorredolist()`, which is only connected to the `textChanged` signal of `lineEdit_nr_scheda`. On form open, `fill_fields()` populates that field **before** the connect, so the signal never fired and the Qt Designer placeholders remained.
-- **Fix: explicit `self.loadCorredolist()` call in `__init__`** (after `update_dating()`), so headers are set immediately on open in the current language (it/de/en).
-- **Safety net in the `.ui`:** the 5 "New Column" placeholders in `Tomba.ui` replaced with English default labels, visible even if `loadCorredolist()` were never to run.
+- **Bug: the 5 columns of `tableWidget_corredo_tipo` showed the "New Column" placeholder** (rendered as "Nuova colonna" in Italian). The real headers ('ID Reperto', 'ID Indv.', 'Materiale', ...) are set by `loadCorredolist()`, which is only connected to the `textChanged` signal of `lineEdit_nr_scheda`. That signal never fired in two cases: (a) on form open, because `fill_fields()` populates the field **before** the connect; (b) when navigating between records sharing the same `nr_scheda`, because the text does not change. In both cases the Qt Designer placeholders remained.
+- **Fix 1 — form open: explicit `self.loadCorredolist()` call in `__init__`** (after `update_dating()`), so headers are set immediately on open in the current language (it/de/en).
+- **Fix 2 — record navigation: `self.loadCorredolist()` call in `fill_fields()`** (before inserting the record's corredo rows), so headers and delegates refresh for every record even when `nr_scheda` does not change.
+- **Safety net in the `.ui`:** the 5 "New Column" placeholders in `Tomba.ui` replaced with Italian default labels (the source language of `.ui` files; other languages come from the `.ts`/`.qm` translations), visible even if `loadCorredolist()` were never to run.
 
 ---
 
