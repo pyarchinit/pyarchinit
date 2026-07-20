@@ -5,6 +5,66 @@
 
 ---
 
+## [fix] - 2026-07-20 — Fix: Scheda utenti — il nuovo utente non appariva (INSERT silenzioso fallito)
+
+> Branch `Stratigraph_00001`. Commit `4de94adc`. Fix del dialog "Gestione Utenti e Permessi".
+> File modificati: `gui/user_management_dialog.py`, `modules/db/pyarchinit_db_manager.py`, `sql/create_user_management_system.sql`, `sql/pyarchinit_schema_update.sql` (+ nuovo test locale `tests/test_user_site_filter_column.py`; `/tests/*` è gitignorato).
+
+### Italiano
+
+- **Bug: creando un nuovo utente dal dialog "Gestione Utenti e Permessi" compariva "utente salvato", ma l'utente non appariva mai nella lista**, nemmeno dopo un nuovo login. Il ruolo di login PostgreSQL veniva comunque creato (`create_postgres_user`), quindi le credenziali funzionavano per la connessione — ma la riga non arrivava mai in `pyarchinit_users`: l'utente era invisibile nella scheda e non poteva ricevere permessi per-tabella (FK `pyarchinit_permissions.user_id`).
+- **Causa (2 difetti concorrenti):** (1) `save_changes()` (`gui/user_management_dialog.py`) faceva INSERT/UPDATE di una colonna `site_filter` su `pyarchinit_users` che **nessuno schema distribuito ha mai dichiarato** (`site_filter` esisteva solo su `pyarchinit_permissions`) → l'INSERT falliva sempre, su ogni DB. (2) `Pyarchinit_db_management.execute_sql()` (`modules/db/pyarchinit_db_manager.py`) **ingoiava l'eccezione e restituiva 0**, quindi il dialog mostrava un finto popup di successo e creava comunque il ruolo PG.
+- **Fix — `execute_sql()` con `raise_on_error`:** nuovo kwarg opzionale `raise_on_error=False` (retrocompatibile); con `True` gli errori vengono ri-sollevati invece di restituire `[]`/`0`.
+- **Fix — auto-riparazione dello schema:** nuova funzione a livello modulo `ensure_site_filter_column(db_manager)` — aggiunge `site_filter VARCHAR(500)` a `pyarchinit_users` se manca (PostgreSQL + SQLite, tollera la tabella assente); chiamata in `UserManagementDialog.__init__`, così ogni DB legacy si auto-ripara alla prima apertura del dialog.
+- **Fix — niente più falsi successi:** `save_changes()` esegue l'INSERT/UPDATE con `raise_on_error=True` e solleva se 0 righe scritte — dialog di errore reale, nessun finto successo, nessun ruolo PG orfano.
+- **Dichiarazioni di schema aggiornate** per includere `site_filter` su `pyarchinit_users`: SQL inline di `get_user_tables_sql()`, `sql/create_user_management_system.sql`, `sql/pyarchinit_schema_update.sql`.
+- **Test:** nuovo file locale `tests/test_user_site_filter_column.py` (4 test verdi; `/tests/*` è gitignorato).
+- **Diagnosi dal vivo sul DB PG festos:** ruolo PG 'marianna' esistente senza riga in `pyarchinit_users` — firma esatta del bug.
+- **Nota:** gli utenti creati dalla web app pyarchinit-mini vivono nella tabella separata `users` (bcrypt, ADMIN/OPERATOR) e intenzionalmente non compaiono nella scheda QGIS; l'allineamento web↔QGIS è rinviato per decisione.
+
+### English
+
+- **Bug: creating a new user from the "Gestione Utenti e Permessi" (user management) dialog reported "utente salvato", but the user never appeared in the users list**, not even after re-login. The PostgreSQL login role WAS created (`create_postgres_user`), so the credentials worked for connecting — but the row never landed in `pyarchinit_users`: the user was invisible in the scheda and could not receive per-table permissions (`pyarchinit_permissions.user_id` FK).
+- **Root cause (2 concurrent defects):** (1) `save_changes()` (`gui/user_management_dialog.py`) INSERTed/UPDATEd a `site_filter` column on `pyarchinit_users` that **no shipped schema ever declared** (`site_filter` existed only on `pyarchinit_permissions`) → the INSERT always failed, on every DB. (2) `Pyarchinit_db_management.execute_sql()` (`modules/db/pyarchinit_db_manager.py`) **swallowed the exception and returned 0**, so the dialog showed a fake success popup and still created the PG role.
+- **Fix — `execute_sql()` with `raise_on_error`:** new optional kwarg `raise_on_error=False` (backward compatible); when `True`, errors re-raise instead of returning `[]`/`0`.
+- **Fix — schema self-healing:** new module-level function `ensure_site_filter_column(db_manager)` — adds `site_filter VARCHAR(500)` to `pyarchinit_users` if missing (PostgreSQL + SQLite, tolerates a missing table); called in `UserManagementDialog.__init__`, so every legacy DB self-heals on first open of the dialog.
+- **Fix — no more fake successes:** `save_changes()` executes the INSERT/UPDATE with `raise_on_error=True` and raises if 0 rows were written — real error dialog, no fake success, no orphan PG role.
+- **Schema declarations updated** to include `site_filter` on `pyarchinit_users`: `get_user_tables_sql()` inline SQL, `sql/create_user_management_system.sql`, `sql/pyarchinit_schema_update.sql`.
+- **Tests:** new local file `tests/test_user_site_filter_column.py` (4 tests pass; `/tests/*` is gitignored).
+- **Diagnosed live on the festos PG DB:** PG role 'marianna' existed without a `pyarchinit_users` row — exact signature of the bug.
+- **Note:** users created from the pyarchinit-mini web app live in the separate `users` table (bcrypt, ADMIN/OPERATOR) and are intentionally not shown in the QGIS scheda; web↔QGIS alignment deferred by decision.
+
+---
+
+## [feat] - 2026-07-20 — Feat: i nuovi DB nascono già con `node_uuid` e `other_locations`
+
+> Branch `Stratigraph_00001`. Schema dei DB nuovi allineato alle feature s3dgraphy (Phase 1 `node_uuid`) e yE-F (`other_locations`).
+> File modificati: `modules/db/sqlite_db_updater.py`, `modules/db/postgres_db_updater.py`, `resources/dbfiles/pyarchinit_db.sqlite`, `resources/dbfiles/pyarchinit.sqlite`, `resources/dbfiles/pyarchinit_schema_updated.sql`.
+
+### Italiano
+
+- **Richiesta: i database SQLite/PostgreSQL appena creati devono già contenere le colonne `node_uuid` (uuid7, bridge s3dgraphy Phase 1) e `other_locations` (yE-F);** il sistema di migrazione resta solo per i database VECCHI.
+- **Prima:** `other_locations` era già nei template SQLite + auto-aggiunta da entrambi gli updater DB, ma mancava dal dump di creazione PG; `node_uuid` non era MAI presente in nessun DB nuovo (solo migrazione manuale), causando `SchemaMismatchError("us_table.node_uuid column missing")` in `GraphIngestor.populate_list` sui DB freschi.
+- **Fix (ricalca il pattern di `other_locations`; tabelle interessate: `us_table`, `inventario_materiali_table`, `periodizzazione_table`):**
+  - `modules/db/sqlite_db_updater.py`: nuova `update_node_uuid_columns()` chiamata da `update_database()` — `add_column_if_missing` `node_uuid TEXT` + indice unico parziale `ix_<table>_node_uuid` (`WHERE node_uuid IS NOT NULL`, stessi nomi della migrazione manuale, idempotente). Solo la colonna; il backfill uuid7 resta alla migrazione manuale / sync yEd (i NULL sono tollerati via matching su chiave naturale).
+  - `modules/db/postgres_db_updater.py`: stesso schema via `update_node_uuid_columns()` chiamata da `run_essential_migrations()` — gira a ogni connessione, quindi anche i vecchi DB PG si auto-riparano all'apertura.
+  - `resources/dbfiles/pyarchinit_db.sqlite` + `pyarchinit.sqlite` (template binari): applicata la migrazione ufficiale — colonna + indice unico parziale sulle 3 tabelle, uuid7 backfillato (510+100+120 righe in `pyarchinit_db.sqlite`; il template bin è vuoto). Verificato 0 righe con `node_uuid` NULL.
+  - `resources/dbfiles/pyarchinit_schema_updated.sql` (dump PG per DB nuovi): `node_uuid text` aggiunto ai 3 `CREATE TABLE`, `other_locations text` a `us_table`, + 3 `CREATE UNIQUE INDEX IF NOT EXISTS` parziali.
+- **Verifica:** `tests/sync` + `tests/migrations` + `tests/modules` eseguiti su HEAD baseline vs branch in ambiente identico: 14 failed/14 errors (problemi d'ambiente pre-esistenti) vs 9 failed/14 errors — zero nuove failure. Nuovi test `site_filter` 4/4 verdi.
+
+### English
+
+- **Request: newly created SQLite/PostgreSQL databases must already contain the `node_uuid` (uuid7, s3dgraphy bridge Phase 1) and `other_locations` (yE-F) columns;** the migration system remains only for OLD databases.
+- **Before:** `other_locations` was already in the SQLite templates + auto-added by both DB updaters, but missing from the PG creation dump; `node_uuid` was NEVER present in any new DB (manual migration only), causing `SchemaMismatchError("us_table.node_uuid column missing")` in `GraphIngestor.populate_list` on fresh DBs.
+- **Fix (mirrors the `other_locations` pattern; targets `us_table`, `inventario_materiali_table`, `periodizzazione_table`):**
+  - `modules/db/sqlite_db_updater.py`: new `update_node_uuid_columns()` called from `update_database()` — `add_column_if_missing` `node_uuid TEXT` + partial unique index `ix_<table>_node_uuid` (`WHERE node_uuid IS NOT NULL`, same names as the manual migration, idempotent). Column only; the uuid7 backfill stays with the manual migration / yEd sync (NULLs tolerated via natural-key matching).
+  - `modules/db/postgres_db_updater.py`: same via `update_node_uuid_columns()` called from `run_essential_migrations()` — runs at every connection, so old PG DBs self-heal on open too.
+  - `resources/dbfiles/pyarchinit_db.sqlite` + `pyarchinit.sqlite` (binary templates): official migration applied — column + partial unique index on the 3 tables, uuid7 backfilled (510+100+120 rows in `pyarchinit_db.sqlite`; the bin template is empty). Verified 0 rows with NULL `node_uuid`.
+  - `resources/dbfiles/pyarchinit_schema_updated.sql` (PG new-DB dump): `node_uuid text` added to the 3 `CREATE TABLE`s, `other_locations text` to `us_table`, + 3 partial `CREATE UNIQUE INDEX IF NOT EXISTS`.
+- **Verification:** `tests/sync` + `tests/migrations` + `tests/modules` run on baseline HEAD vs branch in an identical env: 14 failed/14 errors (pre-existing env issues) vs 9 failed/14 errors — zero new failures. New `site_filter` tests 4/4 pass.
+
+---
+
 ## [fix] - 2026-07-04 — Fix: Scheda Tomba — intestazioni tabella "Corredo tomba" mostravano "Nuova colonna"
 
 > Branch `Stratigraph_00001`. Commit `b79f4812`. Fix UI della scheda Tomba, tab "Corredo".

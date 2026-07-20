@@ -69,6 +69,8 @@ class PostgresDbUpdater:
             self.update_site_management_thesaurus()
             # Aggiunge colonne us_table mancanti (es. other_locations, yE-F)
             self.update_us_table()
+            # Aggiunge node_uuid (bridge s3dgraphy, Phase 1) se mancante
+            self.update_node_uuid_columns()
         except Exception as e:
             self.log_message(f"Errore durante migrazioni essenziali: {e}")
 
@@ -84,6 +86,32 @@ class PostgresDbUpdater:
                 self.add_column_if_missing('us_table', 'other_locations', 'TEXT')
         except Exception as e:
             self.log_message(f"update_us_table: {e}")
+
+    def update_node_uuid_columns(self):
+        """Aggiunge node_uuid (bridge s3dgraphy, Phase 1) alle tabelle target.
+
+        Stesso schema della migrazione manuale
+        scripts/migrations/2026_05_node_uuid_backfill.py (colonna TEXT +
+        indice UNIQUE parziale con lo stesso nome, così la migrazione resta
+        idempotente). Qui si aggiunge solo la colonna: il backfill dei
+        valori uuid7 resta a carico della migrazione manuale o del sync
+        yEd, che tollerano i NULL (match su chiave naturale).
+        """
+        from sqlalchemy import text
+        for table in ('us_table', 'inventario_materiali_table',
+                      'periodizzazione_table'):
+            try:
+                if not self.table_exists(table):
+                    continue
+                self.add_column_if_missing(table, 'node_uuid', 'TEXT')
+                with self.db_manager.engine.connect() as conn:
+                    conn.execute(text(
+                        f"CREATE UNIQUE INDEX IF NOT EXISTS "
+                        f"ix_{table}_node_uuid ON {table}(node_uuid) "
+                        f"WHERE node_uuid IS NOT NULL"))
+                    conn.execute(text("COMMIT"))
+            except Exception as e:
+                self.log_message(f"update_node_uuid_columns({table}): {e}")
 
     def check_and_update_database(self):
         """Controlla e aggiorna il database PostgreSQL"""

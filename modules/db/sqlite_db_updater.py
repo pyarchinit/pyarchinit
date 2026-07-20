@@ -369,6 +369,7 @@ class SQLiteDBUpdater:
 
             # Add missing columns to various tables
             self.update_us_table()
+            self.update_node_uuid_columns()
             self.update_site_table()
             self.update_ut_table()
             self.update_fauna_table()
@@ -530,6 +531,33 @@ class SQLiteDBUpdater:
             # selects us_table.other_locations, so DBs born from a pre-yE-F
             # template fail on open until this column is present.
             self.add_column_if_missing('us_table', 'other_locations', 'TEXT')
+
+    def update_node_uuid_columns(self):
+        """Aggiunge node_uuid (bridge s3dgraphy, Phase 1) alle tabelle target.
+
+        Stesso schema della migrazione manuale
+        scripts/migrations/2026_05_node_uuid_backfill.py (colonna TEXT +
+        indice UNIQUE parziale con lo stesso nome, così la migrazione resta
+        idempotente). Qui si aggiunge solo la colonna: il backfill dei
+        valori uuid7 resta a carico della migrazione manuale o del sync
+        yEd, che tollerano i NULL (match su chiave naturale).
+        """
+        for table in ('us_table', 'inventario_materiali_table',
+                      'periodizzazione_table'):
+            self.cursor.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                (table,))
+            if not self.cursor.fetchone():
+                continue
+            self.add_column_if_missing(table, 'node_uuid', 'TEXT')
+            try:
+                self.cursor.execute(
+                    f"CREATE UNIQUE INDEX IF NOT EXISTS ix_{table}_node_uuid "
+                    f"ON {table}(node_uuid) WHERE node_uuid IS NOT NULL")
+            except Exception as e:
+                self.log_message(
+                    f"Errore creando indice ix_{table}_node_uuid: {e}",
+                    Qgis.Warning if QGIS_AVAILABLE else None)
 
     def update_site_table(self):
         """Aggiorna la tabella site_table"""

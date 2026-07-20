@@ -449,8 +449,11 @@ CREATE TABLE public.inventario_materiali_table (
 	last_modified_by VARCHAR(100) DEFAULT 'system',
 	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	audit_trail text,
-	entity_uuid text
+	entity_uuid text,
+	node_uuid text
 );
+CREATE UNIQUE INDEX IF NOT EXISTS ix_inventario_materiali_table_node_uuid ON public.inventario_materiali_table(node_uuid) WHERE node_uuid IS NOT NULL;
+
 
 
 ALTER TABLE public.inventario_materiali_table OWNER TO postgres;
@@ -781,8 +784,11 @@ CREATE TABLE public.periodizzazione_table (
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
 	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	entity_uuid text
+	entity_uuid text,
+	node_uuid text
 );
+CREATE UNIQUE INDEX IF NOT EXISTS ix_periodizzazione_table_node_uuid ON public.periodizzazione_table(node_uuid) WHERE node_uuid IS NOT NULL;
+
 
 
 ALTER TABLE public.periodizzazione_table OWNER TO postgres;
@@ -1215,8 +1221,12 @@ CREATE TABLE public.us_table (
 	editing_since TIMESTAMP,
 	last_modified_by VARCHAR(100) DEFAULT 'system',
 	last_modified_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	entity_uuid text
+	entity_uuid text,
+	other_locations text,
+	node_uuid text
 );
+CREATE UNIQUE INDEX IF NOT EXISTS ix_us_table_node_uuid ON public.us_table(node_uuid) WHERE node_uuid IS NOT NULL;
+
 
 
 ALTER TABLE public.us_table OWNER TO postgres;
