@@ -16,6 +16,36 @@ import hashlib
 import getpass
 from datetime import datetime
 
+
+def ensure_site_filter_column(db_manager):
+    """Garantisce che pyarchinit_users abbia la colonna site_filter.
+
+    Gli schemi storici (sql/create_user_management_system.sql e simili) non
+    la dichiarano, ma save_changes() la scrive: senza questa colonna
+    l'INSERT del nuovo utente falliva in silenzio e l'utente non appariva
+    mai nella scheda. Funziona sia su PostgreSQL che su SQLite; se la
+    tabella non esiste ancora, non fa nulla.
+    """
+    try:
+        db_manager.execute_sql(
+            "SELECT site_filter FROM pyarchinit_users LIMIT 1",
+            raise_on_error=True)
+        return True  # colonna già presente
+    except Exception:
+        pass
+    try:
+        db_manager.execute_sql(
+            "ALTER TABLE pyarchinit_users ADD COLUMN site_filter VARCHAR(500)",
+            raise_on_error=True)
+        print("pyarchinit_users: colonna site_filter aggiunta")
+        return True
+    except Exception as e:
+        # Tabella assente o permessi insufficienti: lo segnala soltanto,
+        # la scheda mostra comunque il messaggio "tabella non trovata".
+        print(f"pyarchinit_users: impossibile aggiungere site_filter: {e}")
+        return False
+
+
 class UserManagementDialog(QDialog):
     """Dialog per gestione utenti e permessi - Solo per Admin"""
 
@@ -962,6 +992,10 @@ class UserManagementDialog(QDialog):
     def __init__(self, db_manager, parent=None):
         super().__init__(parent)
         self.db_manager = db_manager
+
+        # Fix schema legacy: senza site_filter su pyarchinit_users ogni
+        # INSERT/UPDATE utente fallirebbe (vedi save_changes).
+        ensure_site_filter_column(self.db_manager)
 
         # Detect language
         self.L = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
@@ -1996,8 +2030,15 @@ class UserManagementDialog(QDialog):
                     'site_filter': site_filter_value or None
                 }
 
-            # Execute the query
-            result = self.db_manager.execute_sql(query, params)
+            # Execute the query. raise_on_error=True: un INSERT/UPDATE
+            # fallito (es. colonna mancante) deve arrivare all'utente come
+            # errore, non come falso "utente salvato" (bug storico: il
+            # ruolo PostgreSQL veniva creato ma la riga in pyarchinit_users
+            # no, e l'utente spariva dalla scheda).
+            result = self.db_manager.execute_sql(query, params, raise_on_error=True)
+            if not result:
+                raise RuntimeError(
+                    f"nessuna riga scritta in pyarchinit_users per '{username}'")
 
             # Force commit if using PostgreSQL
             try:
@@ -2484,7 +2525,8 @@ CREATE TABLE IF NOT EXISTS pyarchinit_users (
     created_by VARCHAR(50),
     last_login TIMESTAMP,
     last_ip VARCHAR(50),
-    notes TEXT
+    notes TEXT,
+    site_filter VARCHAR(500)
 );
 
 -- Tabella permessi

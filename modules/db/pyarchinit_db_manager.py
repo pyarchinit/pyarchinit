@@ -2392,8 +2392,14 @@ class Pyarchinit_db_management(object):
 
         # query statement
 
-    def execute_sql(self, query_string, params=None):
-        """Execute a raw SQL query and return results"""
+    def execute_sql(self, query_string, params=None, raise_on_error=False):
+        """Execute a raw SQL query and return results.
+
+        With raise_on_error=False (default, legacy behaviour) errors are
+        swallowed and an empty result is returned; callers that need to
+        distinguish a failed INSERT/UPDATE from a successful one must pass
+        raise_on_error=True.
+        """
         try:
             from sqlalchemy import text
             Session = sessionmaker(bind=self.engine)
@@ -2419,6 +2425,8 @@ class Pyarchinit_db_management(object):
             print(f"Error executing SQL: {e}")
             if 'session' in locals():
                 session.close()
+            if raise_on_error:
+                raise
             # Return empty list for SELECT, 0 for other operations
             if query_string.strip().upper().startswith('SELECT'):
                 return []

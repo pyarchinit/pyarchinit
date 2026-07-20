@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS pyarchinit_users (
     created_by VARCHAR(50),
     last_login TIMESTAMP,
     last_ip VARCHAR(50),
-    notes TEXT
+    notes TEXT,
+    site_filter VARCHAR(500) -- Elenco siti autorizzati (separati da virgola)
 );
 
 -- 2. TABELLA PERMESSI PER TABELLA
