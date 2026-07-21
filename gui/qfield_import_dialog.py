@@ -293,6 +293,10 @@ class QFieldImportDialog(QDialog):
         self.copy_media_check.setChecked(True)
         self.thumbs_check = QCheckBox(self.tr_('opt_thumbs'))
         self.thumbs_check.setChecked(True)
+        # Le thumbnail leggono il file gia' copiato nel backend media: senza
+        # copia i filepath restano relativi al progetto QField e ogni
+        # thumbnail fallirebbe. Legano quindi "Genera thumbnail" alla copia.
+        self.copy_media_check.toggled.connect(self._on_copy_media_toggled)
         for w in (self.geom_dedup_check, self.copy_media_check,
                   self.thumbs_check):
             opts_layout.addWidget(w)
@@ -399,6 +403,14 @@ class QFieldImportDialog(QDialog):
         self.worker.failed.connect(self._on_failed)
         self.worker.start()
 
+    def _on_copy_media_toggled(self, checked):
+        """Senza copia foto le thumbnail non hanno un file leggibile: la
+        checkbox 'Genera thumbnail' viene disattivata (e deselezionata)
+        quando 'Copia foto' e' spenta, riattivata quando si riaccende."""
+        self.thumbs_check.setEnabled(checked)
+        if not checked:
+            self.thumbs_check.setChecked(False)
+
     def _set_running(self, running):
         for w in (self.preview_btn, self.import_btn, self.browse_btn,
                   self.close_btn, self.dir_edit, self.site_combo,
@@ -407,6 +419,9 @@ class QFieldImportDialog(QDialog):
                   self.thumbs_check):
             w.setEnabled(not running)
         self.progress.setVisible(running)
+        # Ripristina il vincolo thumbnail↔copia dopo il lockout del run.
+        if not running:
+            self.thumbs_check.setEnabled(self.copy_media_check.isChecked())
 
     def closeEvent(self, event):
         if self.worker is not None and self.worker.isRunning():
