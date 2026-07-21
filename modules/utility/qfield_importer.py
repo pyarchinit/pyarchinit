@@ -75,6 +75,9 @@ class QFieldImportResult:
     media_upload_failures: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
     dry_run: bool = True
+    #: (source_file, dest_root, basename) accodati da import_media, copiati
+    #: da copy_media_files() dopo il commit.
+    _pending_copies: list = field(default_factory=list)
 
     def summary_lines(self):
         rows = [
@@ -584,9 +587,6 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
     media_id_map = {}
     new_media_id = next_id(conn, media_table, "id_media")
 
-    if not hasattr(result, "_pending_copies"):
-        result._pending_copies = []
-
     for row in media_rows:
         try:
             source_id = (row.get("id_media")
@@ -599,17 +599,10 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
             source_file = str(Path(qfield_dir) / filepath)
 
             final_path = filepath
+            basename = None
             if copy_media and media_dest:
                 basename = os.path.basename(filepath) or filename_full
                 final_path = media_dest.rstrip("/") + "/" + basename
-                if os.path.exists(source_file):
-                    result._pending_copies.append(
-                        (source_file, media_dest, basename))
-                else:
-                    result.warnings.append(
-                        f"Foto {basename} non trovata in {source_file} "
-                        "(registro comunque il record)")
-                    log_fn(f"  ? Foto {basename} non trovata in {source_file}")
 
             key = normalize_key(final_path)
             if key in existing_paths:
@@ -618,6 +611,17 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
                 log_fn(f"  Media {filename_full} già presente "
                        f"(id_media={existing_paths[key]}): salto")
                 continue
+
+            if copy_media and media_dest:
+                if os.path.exists(source_file):
+                    if not dry_run:
+                        result._pending_copies.append(
+                            (source_file, media_dest, basename))
+                else:
+                    result.warnings.append(
+                        f"Foto {basename} non trovata in {source_file} "
+                        "(registro comunque il record)")
+                    log_fn(f"  ? Foto {basename} non trovata in {source_file}")
 
             payload = row_payload(row, media_table,
                                   exclude=("id_media", "filepath"))
@@ -664,13 +668,17 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
             id_media = media_id_map.get(row.get("id_media"))
             if id_entity is None:
                 result.links.skipped += 1
-                log_fn("  Collegamento media: id_entity sorgente "
+                msg = ("Collegamento media: id_entity sorgente "
                        f"{row.get('id_entity')} non rimappabile: salto")
+                result.warnings.append(msg)
+                log_fn(f"  {msg}")
                 continue
             if id_media is None:
                 result.links.skipped += 1
-                log_fn("  Collegamento media: id_media sorgente "
+                msg = ("Collegamento media: id_media sorgente "
                        f"{row.get('id_media')} non rimappabile: salto")
+                result.warnings.append(msg)
+                log_fn(f"  {msg}")
                 continue
             entity_type = row.get("entity_type") or "US"
             if (id_entity, normalize_key(entity_type), id_media) in existing_links:
@@ -698,7 +706,7 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
 def copy_media_files(result, log_fn):
     """Copia/carica i file accodati da import_media (chiamare DOPO il
     commit). I fallimenti finiscono in result.media_upload_failures."""
-    pending = getattr(result, "_pending_copies", [])
+    pending = result._pending_copies
     for source_file, dest_root, basename in pending:
         try:
             final = store_media_file(source_file, dest_root, basename)
