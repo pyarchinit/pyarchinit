@@ -499,3 +499,211 @@ def import_quote(conn, metadata, engine, rows, result, dry_run, log_fn,
         except Exception as e:
             result.quote.errors += 1
             log_fn(f"  ! Quota fid={row.get('_fid')}: {e}")
+
+
+# --------------------------------------------------------------------------
+#  Media: copia locale/WebDAV + record + collegamenti alle US
+# --------------------------------------------------------------------------
+
+def _get_storage():
+    """StorageManager del plugin (lazy: dipende dall'ambiente QGIS)."""
+    try:
+        from modules.utility.pyarchinit_media_utility import get_storage_manager
+    except ImportError:
+        from .pyarchinit_media_utility import get_storage_manager
+    return get_storage_manager()
+
+
+#: stessi prefissi di pyarchinit_media_utility.is_remote_path — duplicati
+#: qui perché quel modulo importa la catena qgis a livello top e questo
+#: modulo deve restare importabile con un python qualsiasi.
+REMOTE_PREFIXES = ('gdrive://', 'dropbox://', 's3://', 'r2://', 'webdav://',
+                   'http://', 'https://', 'sftp://', 'cloudinary://',
+                   'unibo://')
+
+
+def _is_remote(path):
+    if not path:
+        return False
+    return any(path.lower().startswith(p) for p in REMOTE_PREFIXES)
+
+
+def default_media_dest(thumb_path_str):
+    """Cartella/URL media di default = parent della cartella thumb.
+
+    'webdav://h:p/pyarchinit_media/thumb/' -> 'webdav://h:p/pyarchinit_media/'
+    '/percorso/thumb/'                     -> '/percorso/'
+    """
+    if not thumb_path_str:
+        return ""
+    trimmed = thumb_path_str.rstrip("/")
+    parent = trimmed.rsplit("/", 1)[0]
+    return parent + "/"
+
+
+def store_media_file(src_path, dest_root, filename):
+    """Copia/carica un file nel backend di destinazione. Ritorna il path
+    finale. Solleva su errore (chiamare DOPO il commit, mai dentro)."""
+    final_path = dest_root.rstrip("/") + "/" + filename
+    if _is_remote(final_path):
+        storage = _get_storage()
+        if storage is None:
+            raise RuntimeError("Storage manager non disponibile per "
+                               f"destinazione remota {dest_root}")
+        with open(src_path, "rb") as fh:
+            data = fh.read()
+        backend = storage.get_backend(final_path)
+        _, _, relative = storage.parse_path(final_path)
+        backend.write(relative or filename, data)
+    else:
+        import shutil
+        os.makedirs(os.path.dirname(final_path), exist_ok=True)
+        if not os.path.exists(final_path):
+            shutil.copy2(src_path, final_path)
+    return final_path
+
+
+def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
+                 qfield_dir, media_dest, result, dry_run, log_fn,
+                 copy_media=True):
+    """Importa media_table + media_to_entity_table.
+
+    La copia file NON avviene qui: i file da copiare vengono accodati in
+    result._pending_copies e copiati da copy_media_files() dopo il commit.
+    Ritorna la lista dei record media inseriti (per le thumbnail).
+    """
+    media_table = reflected(metadata, engine, "media_table")
+    link_table = reflected(metadata, engine, "media_to_entity_table")
+
+    existing_paths = {}
+    for record in conn.execute(select(media_table.c.id_media,
+                                      media_table.c.filepath)):
+        existing_paths[normalize_key(record.filepath)] = record.id_media
+
+    inserted_media = []
+    media_id_map = {}
+    new_media_id = next_id(conn, media_table, "id_media")
+
+    if not hasattr(result, "_pending_copies"):
+        result._pending_copies = []
+
+    for row in media_rows:
+        try:
+            source_id = (row.get("id_media")
+                         if row.get("id_media") not in (None, "", 0)
+                         else row["_fid"])
+            filepath = row.get("filepath") or ""
+            filename_full = row.get("filename") or os.path.basename(filepath)
+            if "." in os.path.basename(filepath) and not row.get("filetype"):
+                row["filetype"] = os.path.basename(filepath).rsplit(".", 1)[1]
+            source_file = str(Path(qfield_dir) / filepath)
+
+            final_path = filepath
+            if copy_media and media_dest:
+                basename = os.path.basename(filepath) or filename_full
+                final_path = media_dest.rstrip("/") + "/" + basename
+                if os.path.exists(source_file):
+                    result._pending_copies.append(
+                        (source_file, media_dest, basename))
+                else:
+                    result.warnings.append(
+                        f"Foto {basename} non trovata in {source_file} "
+                        "(registro comunque il record)")
+                    log_fn(f"  ? Foto {basename} non trovata in {source_file}")
+
+            key = normalize_key(final_path)
+            if key in existing_paths:
+                media_id_map[source_id] = existing_paths[key]
+                result.media.skipped += 1
+                log_fn(f"  Media {filename_full} già presente "
+                       f"(id_media={existing_paths[key]}): salto")
+                continue
+
+            payload = row_payload(row, media_table,
+                                  exclude=("id_media", "filepath"))
+            payload["id_media"] = new_media_id
+            payload["filepath"] = final_path
+            if not dry_run:
+                # SAVEPOINT per-riga (vedi _insert_geom_row): senza, un
+                # errore su PG abortirebbe l'intera transazione.
+                with conn.begin_nested():
+                    conn.execute(media_table.insert().values(**payload))
+            existing_paths[key] = new_media_id
+            media_id_map[source_id] = new_media_id
+            inserted_media.append({
+                "id_media": new_media_id,
+                "filename": os.path.splitext(
+                    os.path.basename(final_path))[0],
+                "filetype": payload.get("filetype", ""),
+                "filepath": final_path,
+                "mediatype": payload.get("mediatype", "image"),
+            })
+            log_fn(f"  + Media {filename_full} -> id_media={new_media_id}")
+            new_media_id += 1
+            result.media.inserted += 1
+        except Exception as e:
+            result.media.errors += 1
+            log_fn(f"  ! Media fid={row.get('_fid')}: {e}")
+
+    # collegamenti
+    existing_links = set()
+    for record in conn.execute(select(link_table.c.id_entity,
+                                      link_table.c.entity_type,
+                                      link_table.c.id_media)):
+        existing_links.add((record.id_entity,
+                            normalize_key(record.entity_type),
+                            record.id_media))
+
+    link_pk = ("id_mediaToEntity"
+               if "id_mediaToEntity" in link_table.columns
+               else "id_media_to_entity")
+    new_link_id = next_id(conn, link_table, link_pk)
+    for row in link_rows:
+        try:
+            id_entity = us_id_map.get(row.get("id_entity"))
+            id_media = media_id_map.get(row.get("id_media"))
+            if id_entity is None:
+                result.links.skipped += 1
+                log_fn("  Collegamento media: id_entity sorgente "
+                       f"{row.get('id_entity')} non rimappabile: salto")
+                continue
+            if id_media is None:
+                result.links.skipped += 1
+                log_fn("  Collegamento media: id_media sorgente "
+                       f"{row.get('id_media')} non rimappabile: salto")
+                continue
+            entity_type = row.get("entity_type") or "US"
+            if (id_entity, normalize_key(entity_type), id_media) in existing_links:
+                result.links.skipped += 1
+                continue
+            payload = row_payload(row, link_table,
+                                  exclude=(link_pk, "id_entity", "id_media"))
+            payload[link_pk] = new_link_id
+            payload["id_entity"] = id_entity
+            payload["id_media"] = id_media
+            if not dry_run:
+                with conn.begin_nested():
+                    conn.execute(link_table.insert().values(**payload))
+            existing_links.add((id_entity, normalize_key(entity_type), id_media))
+            log_fn(f"  + Collegamento media {id_media} -> US id_us={id_entity}")
+            new_link_id += 1
+            result.links.inserted += 1
+        except Exception as e:
+            result.links.errors += 1
+            log_fn(f"  ! Collegamento fid={row.get('_fid')}: {e}")
+
+    return inserted_media
+
+
+def copy_media_files(result, log_fn):
+    """Copia/carica i file accodati da import_media (chiamare DOPO il
+    commit). I fallimenti finiscono in result.media_upload_failures."""
+    pending = getattr(result, "_pending_copies", [])
+    for source_file, dest_root, basename in pending:
+        try:
+            final = store_media_file(source_file, dest_root, basename)
+            log_fn(f"  Foto {basename} -> {final}")
+        except Exception as e:
+            result.media_upload_failures.append(f"{source_file}: {e}")
+            log_fn(f"  ! Copia {basename} fallita: {e}")
+    result._pending_copies = []
