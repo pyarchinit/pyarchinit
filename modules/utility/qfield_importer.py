@@ -762,16 +762,17 @@ def make_thumbnails(engine, inserted_media, thumb_path_str, thumb_resize_str,
                           thumb_resize_str, RESIZE_SUFFIX)
                 filename_thumb = f"{m['id_media']}_{m['filename']}{THUMB_SUFFIX}"
                 filename_resize = f"{m['id_media']}_{m['filename']}{RESIZE_SUFFIX}"
-                conn.execute(thumb_table.insert().values(
-                    id_media_thumb=new_thumb_id,
-                    id_media=m["id_media"],
-                    mediatype=m.get("mediatype", "image"),
-                    media_filename=m["filename"],
-                    media_thumb_filename=filename_thumb,
-                    filetype=m.get("filetype", ""),
-                    filepath=filename_thumb,
-                    path_resize=filename_resize,
-                ))
+                with conn.begin_nested():
+                    conn.execute(thumb_table.insert().values(
+                        id_media_thumb=new_thumb_id,
+                        id_media=m["id_media"],
+                        mediatype=m.get("mediatype", "image"),
+                        media_filename=m["filename"],
+                        media_thumb_filename=filename_thumb,
+                        filetype=m.get("filetype", ""),
+                        filepath=filename_thumb,
+                        path_resize=filename_resize,
+                    ))
                 log_fn(f"  + Thumbnail {filename_thumb}")
                 new_thumb_id += 1
                 result.thumbs.inserted += 1
