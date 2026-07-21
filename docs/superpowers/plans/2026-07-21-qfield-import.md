@@ -336,7 +336,7 @@ git -C "/Users/enzo/Library/Application Support/QGIS/QGIS3/profiles/default/pyth
 
 **Interfaces:**
 - Consumes: helpers Task 1 (`normalize_key`, `is_empty`, `row_payload`, `next_id`, `reflected`, `new_node_uuid`, `apply_provenance`, `TableCounts`, `QFieldImportResult`, `US_KEY`, `MAT_KEY`, `FILL_EMPTY_PROTECTED`)
-- Produces: `import_us(conn, metadata, engine, rows, result, dry_run, log_fn) -> dict` (ritorna id_map sorgente→id_us DB), `import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn) -> None`, `fill_empty_fields(conn, table, pk_name, pk_value, db_row, src_row, result, counts, table_label, key_label, dry_run, log_fn) -> int` (`counts` = il TableCounts della tabella, es. `result.us`)
+- Produces: `import_us(conn, metadata, engine, rows, result, dry_run, log_fn) -> dict` (ritorna id_map sorgente→id_us DB), `import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn) -> None`, `fill_empty_fields(conn, table, pk_name, pk_value, db_row, src_row, result, counts, table_label, key_label, dry_run, log_fn) -> dict` (ritorna il dict dei campi riempiti, vuoto se nessuno; `counts` = il TableCounts della tabella, es. `result.us`; il chiamante DEVE aggiornare la cache `existing[key] = {**db_row, **updates}` quando il dict non è vuoto — fix post-review Task 2)
 
 - [ ] **Step 1: Scrivi conftest con mini-schema SQLite in-memory**
 
@@ -711,7 +711,11 @@ def _insert_geom_row(conn, table, row, payload, geom_column,
     params = ", ".join(":" + c for c in payload)
     statement = text(
         f'INSERT INTO {table.name} ({columns}) VALUES ({params}, {geom_sql})')
-    conn.execute(statement, {**payload, "wkt": row["_wkt"], "srid": int(srid)})
+    # SAVEPOINT per-riga: su PostgreSQL un errore senza savepoint
+    # avvelenerebbe l'intera transazione (InFailedSqlTransaction).
+    with conn.begin_nested():
+        conn.execute(statement,
+                     {**payload, "wkt": row["_wkt"], "srid": int(srid)})
 
 
 def import_geometrie(conn, metadata, engine, rows, result, dry_run, log_fn,
@@ -1063,7 +1067,10 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
             payload["id_media"] = new_media_id
             payload["filepath"] = final_path
             if not dry_run:
-                conn.execute(media_table.insert().values(**payload))
+                # SAVEPOINT per-riga (vedi _insert_geom_row): senza, un
+                # errore su PG abortirebbe l'intera transazione.
+                with conn.begin_nested():
+                    conn.execute(media_table.insert().values(**payload))
             existing_paths[key] = new_media_id
             media_id_map[source_id] = new_media_id
             inserted_media.append({
@@ -1118,7 +1125,8 @@ def import_media(conn, metadata, engine, media_rows, link_rows, us_id_map,
             payload["id_entity"] = id_entity
             payload["id_media"] = id_media
             if not dry_run:
-                conn.execute(link_table.insert().values(**payload))
+                with conn.begin_nested():
+                    conn.execute(link_table.insert().values(**payload))
             existing_links.add((id_entity, normalize_key(entity_type), id_media))
             log_fn(f"  + Collegamento media {id_media} -> US id_us={id_entity}")
             new_link_id += 1
