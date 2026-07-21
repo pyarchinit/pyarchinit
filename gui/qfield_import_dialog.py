@@ -10,7 +10,7 @@ si blocca durante la copia foto/WebDAV. DB risolto dal config del plugin
 
 import os
 
-from qgis.PyQt.QtCore import Qt, QThread, pyqtSignal
+from qgis.PyQt.QtCore import QThread, pyqtSignal
 from qgis.PyQt.QtWidgets import (
     QCheckBox, QDialog, QFileDialog, QGridLayout, QGroupBox, QHBoxLayout,
     QLabel, QLineEdit, QComboBox, QMessageBox, QProgressBar, QPushButton,
@@ -157,6 +157,28 @@ TRANSLATIONS = {
         'pt': "Escolha primeiro a pasta do projeto QField.",
         'el': "Επιλέξτε πρώτα τον φάκελο του έργου QField.",
     },
+    'srid_invalid': {
+        'it': "SRID non valido: inserisci un numero intero (es. 32633) "
+              "o lascia vuoto.",
+        'en': "Invalid SRID: enter an integer (e.g. 32633) or leave "
+              "empty.",
+        'de': "Ungültige SRID: Gib eine Ganzzahl ein (z. B. 32633) "
+              "oder lasse das Feld leer.",
+        'es': "SRID no válido: introduce un número entero (p. ej. "
+              "32633) o déjalo vacío.",
+        'fr': "SRID non valide : saisissez un nombre entier "
+              "(ex. 32633) ou laissez vide.",
+        'ar': "SRID غير صالح: أدخل رقمًا صحيحًا (مثل 32633) أو اتركه "
+              "فارغًا.",
+        'ca': "SRID no vàlid: introdueix un nombre enter (p. ex. "
+              "32633) o deixa'l buit.",
+        'ro': "SRID invalid: introdu un număr întreg (ex. 32633) sau "
+              "lasă gol.",
+        'pt': "SRID inválido: insira um número inteiro (ex. 32633) "
+              "ou deixe vazio.",
+        'el': "Μη έγκυρο SRID: εισαγάγετε έναν ακέραιο αριθμό (π.χ. "
+              "32633) ή αφήστε το κενό.",
+    },
 }
 
 
@@ -244,9 +266,9 @@ class QFieldImportDialog(QDialog):
         grid.addWidget(QLabel(self.tr_('qfield_dir')), 0, 0)
         self.dir_edit = QLineEdit()
         grid.addWidget(self.dir_edit, 0, 1)
-        browse = QPushButton(self.tr_('browse'))
-        browse.clicked.connect(self._choose_dir)
-        grid.addWidget(browse, 0, 2)
+        self.browse_btn = QPushButton(self.tr_('browse'))
+        self.browse_btn.clicked.connect(self._choose_dir)
+        grid.addWidget(self.browse_btn, 0, 2)
 
         grid.addWidget(QLabel(self.tr_('site')), 1, 0)
         self.site_combo = QComboBox()
@@ -290,12 +312,12 @@ class QFieldImportDialog(QDialog):
         self.preview_btn.clicked.connect(lambda: self._start(dry_run=True))
         self.import_btn = QPushButton(self.tr_('import_btn'))
         self.import_btn.clicked.connect(lambda: self._start(dry_run=False))
-        close_btn = QPushButton(self.tr_('close'))
-        close_btn.clicked.connect(self.close)
+        self.close_btn = QPushButton(self.tr_('close'))
+        self.close_btn.clicked.connect(self.close)
         buttons.addWidget(self.preview_btn)
         buttons.addWidget(self.import_btn)
         buttons.addStretch()
-        buttons.addWidget(close_btn)
+        buttons.addWidget(self.close_btn)
         layout.addLayout(buttons)
 
     # -- interazioni ---------------------------------------------------------
@@ -351,6 +373,8 @@ class QFieldImportDialog(QDialog):
         }
 
     def _start(self, dry_run):
+        if self.worker is not None and self.worker.isRunning():
+            return
         if not self.dir_edit.text().strip():
             QMessageBox.warning(self, self.tr_('error'),
                                 self.tr_('choose_dir_first'))
@@ -361,22 +385,38 @@ class QFieldImportDialog(QDialog):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
             if reply != QMessageBox.StandardButton.Yes:
                 return
+        try:
+            params = self._params(dry_run)
+        except ValueError:
+            QMessageBox.warning(self, self.tr_('error'),
+                                self.tr_('srid_invalid'))
+            return
         self.log_view.clear()
         self._set_running(True)
-        self.worker = QFieldImportWorker(self.db_manager,
-                                         self._params(dry_run), self)
+        self.worker = QFieldImportWorker(self.db_manager, params, self)
         self.worker.log_message.connect(self.log_view.append)
         self.worker.finished_ok.connect(self._on_done)
         self.worker.failed.connect(self._on_failed)
         self.worker.start()
 
     def _set_running(self, running):
-        for w in (self.preview_btn, self.import_btn, self.dir_edit,
-                  self.site_combo, self.srid_edit, self.media_dest_edit,
+        for w in (self.preview_btn, self.import_btn, self.browse_btn,
+                  self.close_btn, self.dir_edit, self.site_combo,
+                  self.srid_edit, self.media_dest_edit,
                   self.geom_dedup_check, self.copy_media_check,
                   self.thumbs_check):
             w.setEnabled(not running)
         self.progress.setVisible(running)
+
+    def closeEvent(self, event):
+        if self.worker is not None and self.worker.isRunning():
+            self.log_view.append(
+                "Import in corso: chiudi dopo il completamento."
+                if self.L == 'it' else
+                "Import running: close after it finishes.")
+            event.ignore()
+            return
+        super().closeEvent(event)
 
     def _on_done(self, result):
         self._set_running(False)
