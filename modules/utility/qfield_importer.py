@@ -715,3 +715,66 @@ def copy_media_files(result, log_fn):
             result.media_upload_failures.append(f"{source_file}: {e}")
             log_fn(f"  ! Copia {basename} fallita: {e}")
     result._pending_copies = []
+
+
+# --------------------------------------------------------------------------
+#  Thumbnail (convenzioni di tabs/Image_viewer.py, glue via reflection)
+# --------------------------------------------------------------------------
+
+THUMB_SUFFIX = "_thumb.png"
+RESIZE_SUFFIX = ".png"
+
+
+def _default_resamplers():
+    try:
+        from modules.utility.pyarchinit_media_utility import (
+            Media_utility, Media_utility_resize)
+    except ImportError:
+        from .pyarchinit_media_utility import Media_utility, Media_utility_resize
+    return Media_utility().resample_images, Media_utility_resize().resample_images
+
+
+def make_thumbnails(engine, inserted_media, thumb_path_str, thumb_resize_str,
+                    result, log_fn, resampler=None):
+    """Genera thumb+resize e inserisce le righe in media_thumb_table per i
+    soli media inseriti. Chiamare DOPO il commit dell'import (transazione
+    propria); i fallimenti contano in result.thumbs.errors, non bloccano."""
+    if not inserted_media:
+        return
+    if not thumb_path_str or not thumb_resize_str:
+        result.warnings.append(
+            "thumb_path/thumb_resize non configurati: thumbnail saltate")
+        return
+    if resampler is None:
+        thumb_fn, resize_fn = _default_resamplers()
+    else:
+        thumb_fn = resize_fn = resampler
+
+    metadata = MetaData()
+    thumb_table = reflected(metadata, engine, "media_thumb_table")
+    with engine.begin() as conn:
+        new_thumb_id = next_id(conn, thumb_table, "id_media_thumb")
+        for m in inserted_media:
+            try:
+                thumb_fn(m["id_media"], m["filepath"], m["filename"],
+                         thumb_path_str, THUMB_SUFFIX)
+                resize_fn(m["id_media"], m["filepath"], m["filename"],
+                          thumb_resize_str, RESIZE_SUFFIX)
+                filename_thumb = f"{m['id_media']}_{m['filename']}{THUMB_SUFFIX}"
+                filename_resize = f"{m['id_media']}_{m['filename']}{RESIZE_SUFFIX}"
+                conn.execute(thumb_table.insert().values(
+                    id_media_thumb=new_thumb_id,
+                    id_media=m["id_media"],
+                    mediatype=m.get("mediatype", "image"),
+                    media_filename=m["filename"],
+                    media_thumb_filename=filename_thumb,
+                    filetype=m.get("filetype", ""),
+                    filepath=filename_thumb,
+                    path_resize=filename_resize,
+                ))
+                log_fn(f"  + Thumbnail {filename_thumb}")
+                new_thumb_id += 1
+                result.thumbs.inserted += 1
+            except Exception as e:
+                result.thumbs.errors += 1
+                log_fn(f"  ! Thumbnail id_media={m['id_media']}: {e}")
