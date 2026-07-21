@@ -219,8 +219,11 @@ def fill_empty_fields(conn, table, pk_name, pk_value, db_row, src_row,
     """Riempi i soli campi vuoti del record DB con i valori dal campo.
 
     db_row: dict colonna->valore del record esistente nel DB.
-    Ritorna il numero di campi riempiti (e aggiorna counts.updated di 1
-    se almeno un campo è stato riempito).
+    Ritorna il dict updates applicato (vuoto se nessun campo è stato
+    riempito) e aggiorna counts.updated di 1 se almeno un campo è stato
+    riempito. Il chiamante deve usare il dict ritornato per rinfrescare
+    la propria cache `existing[key]`, così una riga successiva con la
+    stessa chiave non trova più questi campi come vuoti.
     """
     updates = {}
     for column in table.columns:
@@ -234,16 +237,17 @@ def fill_empty_fields(conn, table, pk_name, pk_value, db_row, src_row,
         if is_empty(db_row.get(name)):
             updates[name] = src_value
     if not updates:
-        return 0
+        return updates
     if not dry_run:
-        conn.execute(table.update()
-                     .where(table.c[pk_name] == pk_value)
-                     .values(**updates))
+        with conn.begin_nested():
+            conn.execute(table.update()
+                         .where(table.c[pk_name] == pk_value)
+                         .values(**updates))
     counts.updated += 1
     for name, value in sorted(updates.items()):
         result.filled_fields.append((table.name, key_label, name, value))
         log_fn(f"  ~ {table_label} {key_label}: campo vuoto '{name}' <- {value!r}")
-    return len(updates)
+    return updates
 
 
 def import_us(conn, metadata, engine, rows, result, dry_run, log_fn):
@@ -270,10 +274,12 @@ def import_us(conn, metadata, engine, rows, result, dry_run, log_fn):
             if key in existing:
                 db_row = existing[key]
                 id_map[source_id] = db_row["id_us"]
-                filled = fill_empty_fields(
+                updates = fill_empty_fields(
                     conn, table, "id_us", db_row["id_us"], db_row, row,
                     result, result.us, "US", key_label, dry_run, log_fn)
-                if not filled:
+                if updates:
+                    existing[key] = {**db_row, **updates}
+                else:
                     result.us.skipped += 1
                     log_fn(f"  US {key_label} già presente "
                            f"(id_us={db_row['id_us']}): salto")
@@ -284,7 +290,8 @@ def import_us(conn, metadata, engine, rows, result, dry_run, log_fn):
                 payload["node_uuid"] = new_node_uuid()
             apply_provenance(payload, table)
             if not dry_run:
-                conn.execute(table.insert().values(**payload))
+                with conn.begin_nested():
+                    conn.execute(table.insert().values(**payload))
             id_map[source_id] = new_id
             existing[key] = dict(payload)
             log_fn(f"  + US {key_label} -> id_us={new_id}")
@@ -313,11 +320,13 @@ def import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn):
             key_label = " n.inv ".join(key)
             if key in existing:
                 db_row = existing[key]
-                filled = fill_empty_fields(
+                updates = fill_empty_fields(
                     conn, table, "id_invmat", db_row["id_invmat"], db_row, row,
                     result, result.materiali, "Reperto", key_label,
                     dry_run, log_fn)
-                if not filled:
+                if updates:
+                    existing[key] = {**db_row, **updates}
+                else:
                     result.materiali.skipped += 1
                     log_fn(f"  Reperto {key_label} già presente: salto")
                 continue
@@ -327,7 +336,8 @@ def import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn):
                 payload["node_uuid"] = new_node_uuid()
             apply_provenance(payload, table)
             if not dry_run:
-                conn.execute(table.insert().values(**payload))
+                with conn.begin_nested():
+                    conn.execute(table.insert().values(**payload))
             existing[key] = dict(payload)
             log_fn(f"  + Reperto {key_label} -> id_invmat={new_id}")
             new_id += 1
