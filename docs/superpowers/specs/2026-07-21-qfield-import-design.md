@@ -58,7 +58,7 @@ def run_qfield_import(
 ```
 
 `QFieldImportResult` (dataclass): per ciascuna tabella
-(`us`, `materiali`, `geometrie`, `media`, `links`, `thumbs`) i contatori
+(`us`, `materiali`, `geometrie`, `quote`, `media`, `links`, `thumbs`) i contatori
 `inserted / updated / skipped / errors`, più:
 
 - `filled_fields`: lista `(tabella, chiave_record, campo, valore)` dei campi
@@ -73,7 +73,11 @@ Struttura interna: le funzioni dello script originale, adattate —
 
 Tabelle trattate (nomi layer GPKG = nomi tabella DB):
 `us_table`, `inventario_materiali_table`, `pyunitastratigrafiche`,
-`media_table`, `media_to_entity_table`.
+`pyarchinit_quote`, `media_table`, `media_to_entity_table`.
+
+`read_features(..., force_multi=True)`: i poligoni US vengono forzati a
+MULTIPOLYGON; per `pyarchinit_quote` (punti) `force_multi=False` e la
+INSERT non applica `ST_Multi`/`CastToMultiPolygon`.
 
 ### `scripts/import_qfield.py`
 
@@ -127,6 +131,7 @@ Handler: apre il dialog senza `db_manager` (auto-risoluzione).
 | `us_table` | `sito+area+us` (normalizzati) | INSERT | **UPDATE dei soli campi vuoti** |
 | `inventario_materiali_table` | `sito+numero_inventario` | INSERT | **UPDATE dei soli campi vuoti** |
 | `pyunitastratigrafiche` | `scavo_s+area_s+us_s` | INSERT | skip (disattivabile) |
+| `pyarchinit_quote` | `sito_q+area_q+us_q+quota_q` | INSERT | skip |
 | `media_table` | `filepath` finale | INSERT | skip |
 | `media_to_entity_table` | `(id_entity, entity_type, id_media)` rimappati | INSERT | skip |
 
@@ -154,9 +159,13 @@ conseguenza; link con sorgente non rimappabile → skip + warning.
 ### Geometrie e SRID
 
 - SRID sorgente: dal GPKG (`AutoIdentifyEPSG`), override con `srid=`.
-- SRID target: letto da `geometry_columns` per `pyunitastratigrafiche`;
-  se diverso dal sorgente → `ST_Transform` (PG) / `Transform` (SpatiaLite)
-  dentro la INSERT. Geometrie forzate a MULTIPOLYGON come nello script.
+- SRID target: letto da `geometry_columns` per `pyunitastratigrafiche` e
+  `pyarchinit_quote`; se diverso dal sorgente → `ST_Transform` (PG) /
+  `Transform` (SpatiaLite) dentro la INSERT. Poligoni US forzati a
+  MULTIPOLYGON come nello script; punti quota inseriti come POINT nativo.
+- Filtro sito per layer: `scavo_s` (pyunitastratigrafiche), `sito_q`
+  (pyarchinit_quote), `sito` (us/reperti); media/link mai filtrati
+  direttamente (passano dalla rimappatura).
 - SpatiaLite: `mod_spatialite` caricato con listener `connect` sull'engine
   (come nello script) — se il caricamento fallisce, errore strutturale.
 
@@ -195,8 +204,8 @@ conseguenza; link con sorgente non rimappabile → skip + warning.
 ## Test (pytest, senza Qt, in `tests/` — gitignorato ma locale)
 
 Fixture: GPKG minimale generato con OGR in tmp (2 US, 1 reperto,
-1 geometria, 2 media + link), DB SQLite creato dal template o schema
-minimo in-memory.
+1 geometria poligonale, 1 punto quota, 2 media + link), DB SQLite creato
+dal template o schema minimo in-memory.
 
 Casi:
 1. dry-run: contatori corretti e **zero scritture** (rollback verificato);
