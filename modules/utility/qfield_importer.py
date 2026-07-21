@@ -779,3 +779,155 @@ def make_thumbnails(engine, inserted_media, thumb_path_str, thumb_resize_str,
             except Exception as e:
                 result.thumbs.errors += 1
                 log_fn(f"  ! Thumbnail id_media={m['id_media']}: {e}")
+
+
+# --------------------------------------------------------------------------
+#  Orchestratore
+# --------------------------------------------------------------------------
+
+def sito_field_for(table_name):
+    return {"pyunitastratigrafiche": "scavo_s",
+            "pyarchinit_quote": "sito_q"}.get(table_name, "sito")
+
+
+def _resolve_engine(db):
+    """Accetta engine, conn-str o oggetto con .engine (db_manager)."""
+    if isinstance(db, str):
+        return create_engine(db)
+    if hasattr(db, "engine"):
+        return db.engine
+    return db
+
+
+def _wire_spatialite(engine, warnings):
+    if engine.dialect.name != "sqlite":
+        return
+    from sqlalchemy import event
+
+    @event.listens_for(engine, "connect")
+    def _load_spatialite(dbapi_conn, _record):
+        try:
+            dbapi_conn.enable_load_extension(True)
+            dbapi_conn.load_extension("mod_spatialite")
+        except Exception as error:
+            warnings.append(f"mod_spatialite non caricato ({error}): "
+                            "import geometrie non disponibile su SpatiaLite")
+
+
+def run_qfield_import(db, qfield_dir, *, sito=None, srid=None, dry_run=True,
+                      geom_dedup=True, copy_media=True, make_thumbs=True,
+                      media_dest=None, thumb_path=None, thumb_resize=None,
+                      log=print, layers_override=None, rows_override=None):
+    """Esegue l'intero import QField. Vedi spec 2026-07-21.
+
+    Scritture DB in un'unica transazione (dry_run -> rollback).
+    Copia foto e thumbnail avvengono DOPO il commit e non lo annullano.
+    """
+    result = QFieldImportResult()
+    result.dry_run = dry_run
+    engine = _resolve_engine(db)
+
+    # --- lettura sorgenti -------------------------------------------------
+    if rows_override is not None:
+        data = {name: list(rows_override.get(name, []))
+                for name in SOURCE_TABLES}
+    else:
+        layers = layers_override or find_gpkg_layers(qfield_dir)
+        if not layers:
+            raise QFieldImportError(
+                "Nessun layer pyArchInit trovato nei GPKG della cartella")
+        log("Layer trovati:")
+        for name, (path, layer_name) in layers.items():
+            log(f"  {name:<28} {path} ({layer_name})")
+        data = {}
+        for name in SOURCE_TABLES:
+            if name not in layers:
+                data[name] = []
+                continue
+            path, layer_name = layers[name]
+            with_geom = name in ("pyunitastratigrafiche", "pyarchinit_quote")
+            data[name] = read_features(
+                path, layer_name, with_geometry=with_geom,
+                force_multi=(name == "pyunitastratigrafiche"))
+
+    if sito:
+        wanted = str(sito).strip()
+        for name in ("us_table", "inventario_materiali_table",
+                     "pyunitastratigrafiche", "pyarchinit_quote"):
+            f = sito_field_for(name)
+            data[name] = [r for r in data[name]
+                          if normalize_key(r.get(f)) == wanted]
+        # media/link non filtrati: passano dalla rimappatura id
+
+    log(f"\nRecord letti: {len(data['us_table'])} US, "
+        f"{len(data['inventario_materiali_table'])} reperti, "
+        f"{len(data['pyunitastratigrafiche'])} geometrie, "
+        f"{len(data['pyarchinit_quote'])} quote, "
+        f"{len(data['media_table'])} media, "
+        f"{len(data['media_to_entity_table'])} collegamenti")
+    if dry_run:
+        log(">>> DRY RUN: nessuna scrittura sul database <<<")
+
+    _wire_spatialite(engine, result.warnings)
+    metadata = MetaData()
+    inserted_media = []
+
+    with engine.connect() as conn:
+        transaction = conn.begin()
+        try:
+            log("\n== us_table ==")
+            us_id_map = import_us(conn, metadata, engine, data["us_table"],
+                                  result, dry_run, log)
+
+            log("\n== inventario_materiali_table ==")
+            import_materiali(conn, metadata, engine,
+                             data["inventario_materiali_table"],
+                             result, dry_run, log)
+
+            if data["pyunitastratigrafiche"]:
+                log("\n== pyunitastratigrafiche ==")
+                import_geometrie(conn, metadata, engine,
+                                 data["pyunitastratigrafiche"], result,
+                                 dry_run, log, dedup=geom_dedup,
+                                 srid_override=srid)
+
+            if data["pyarchinit_quote"]:
+                log("\n== pyarchinit_quote ==")
+                import_quote(conn, metadata, engine, data["pyarchinit_quote"],
+                             result, dry_run, log, srid_override=srid)
+
+            if data["media_table"] or data["media_to_entity_table"]:
+                log("\n== media_table / media_to_entity_table ==")
+                inserted_media = import_media(
+                    conn, metadata, engine, data["media_table"],
+                    data["media_to_entity_table"], us_id_map, qfield_dir,
+                    media_dest, result, dry_run, log, copy_media=copy_media)
+
+            if dry_run:
+                log("\nDRY RUN completato: rollback della transazione.")
+                transaction.rollback()
+            else:
+                transaction.commit()
+        except Exception:
+            transaction.rollback()
+            raise
+
+    # --- post-commit: file e thumbnail (mai dentro la transazione) --------
+    if not dry_run:
+        if copy_media:
+            copy_media_files(result, log)
+        if make_thumbs and inserted_media:
+            log("\n== thumbnails ==")
+            make_thumbnails(engine, inserted_media, thumb_path, thumb_resize,
+                            result, log)
+
+    log("\n================= RIEPILOGO =================")
+    for line in result.summary_lines():
+        log(line)
+    if result.media_upload_failures:
+        log("\nFile NON copiati (da recuperare a mano):")
+        for f in result.media_upload_failures:
+            log(f"  - {f}")
+    if not dry_run:
+        log("\nFatto. Ricontrolla i rapporti stratigrafici delle US importate.")
+    return result
