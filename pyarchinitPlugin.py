@@ -2652,6 +2652,12 @@ class PyArchInitPlugin(object):
 
             # remove tool bar
             del self.toolBar
+
+        if hasattr(self, 'actionQFieldImport'):
+            self.iface.removePluginMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionQFieldImport)
+
     def showHideDockWidget(self):
         if self.dockWidget.isVisible():
             self.dockWidget.hide()
@@ -2806,6 +2812,16 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu(
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionSchemaRepair)
+
+            # --- Importa da QField (GPKG) --------------------------------
+            self.actionQFieldImport = QAction(
+                "Importa da QField (GPKG)",
+                self.iface.mainWindow())
+            self.actionQFieldImport.triggered.connect(
+                self._open_qfield_import)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionQFieldImport)
 
             self._migrations_menu_wired = True
         except Exception as e:
@@ -2991,6 +3007,21 @@ class PyArchInitPlugin(object):
             "Backfill completato",
             f"Backup: {backup_path}\n\nUUID v7 assegnati:\n{counts_msg}",
         )
+
+    def _open_qfield_import(self):
+        """Apre il dialog Importa da QField (DB auto-risolto dal config)."""
+        try:
+            from .gui.qfield_import_dialog import QFieldImportDialog
+        except ImportError:
+            from gui.qfield_import_dialog import QFieldImportDialog
+        try:
+            dialog = QFieldImportDialog(parent=self.iface.mainWindow())
+            dialog.exec()
+        except Exception as e:
+            from qgis.PyQt.QtWidgets import QMessageBox
+            QMessageBox.critical(
+                self.iface.mainWindow(), "Importa da QField",
+                f"Impossibile aprire il dialog:\n{e}")
 
     def _run_yef_migration(self):
         """yE-F other_locations column migration (yed-f-multifolder-5.9.0-alpha).
