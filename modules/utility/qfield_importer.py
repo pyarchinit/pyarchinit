@@ -208,3 +208,130 @@ def read_features(gpkg_path, layer_name, with_geometry=False, force_multi=True):
         rows.append(row)
     ds = None
     return rows
+
+
+# --------------------------------------------------------------------------
+#  Import US + reperti (con policy fill-empty)
+# --------------------------------------------------------------------------
+
+def fill_empty_fields(conn, table, pk_name, pk_value, db_row, src_row,
+                      result, counts, table_label, key_label, dry_run, log_fn):
+    """Riempi i soli campi vuoti del record DB con i valori dal campo.
+
+    db_row: dict colonna->valore del record esistente nel DB.
+    Ritorna il numero di campi riempiti (e aggiorna counts.updated di 1
+    se almeno un campo è stato riempito).
+    """
+    updates = {}
+    for column in table.columns:
+        name = column.name
+        if (name == pk_name or name in FILL_EMPTY_PROTECTED
+                or name in table.primary_key.columns):
+            continue
+        src_value = src_row.get(name)
+        if is_empty(src_value):
+            continue
+        if is_empty(db_row.get(name)):
+            updates[name] = src_value
+    if not updates:
+        return 0
+    if not dry_run:
+        conn.execute(table.update()
+                     .where(table.c[pk_name] == pk_value)
+                     .values(**updates))
+    counts.updated += 1
+    for name, value in sorted(updates.items()):
+        result.filled_fields.append((table.name, key_label, name, value))
+        log_fn(f"  ~ {table_label} {key_label}: campo vuoto '{name}' <- {value!r}")
+    return len(updates)
+
+
+def import_us(conn, metadata, engine, rows, result, dry_run, log_fn):
+    """Importa us_table. Ritorna id_map {id sorgente -> id_us DB}.
+    Chiave sorgente: id_us del GPKG se valorizzato, altrimenti il fid."""
+    table = reflected(metadata, engine, "us_table")
+    existing = {}
+    for record in conn.execute(select(table)):
+        row = dict(record._mapping)
+        key = (normalize_key(row["sito"]), normalize_key(row["area"]),
+               normalize_key(row["us"]))
+        existing[key] = row
+
+    id_map = {}
+    new_id = next_id(conn, table, "id_us")
+    for row in rows:
+        try:
+            source_id = (row.get("id_us")
+                         if row.get("id_us") not in (None, "", 0)
+                         else row["_fid"])
+            key = (normalize_key(row.get("sito")), normalize_key(row.get("area")),
+                   normalize_key(row.get("us")))
+            key_label = "/".join(key)
+            if key in existing:
+                db_row = existing[key]
+                id_map[source_id] = db_row["id_us"]
+                filled = fill_empty_fields(
+                    conn, table, "id_us", db_row["id_us"], db_row, row,
+                    result, result.us, "US", key_label, dry_run, log_fn)
+                if not filled:
+                    result.us.skipped += 1
+                    log_fn(f"  US {key_label} già presente "
+                           f"(id_us={db_row['id_us']}): salto")
+                continue
+            payload = row_payload(row, table, exclude=("id_us",))
+            payload["id_us"] = new_id
+            if "node_uuid" in table.columns:
+                payload["node_uuid"] = new_node_uuid()
+            apply_provenance(payload, table)
+            if not dry_run:
+                conn.execute(table.insert().values(**payload))
+            id_map[source_id] = new_id
+            existing[key] = dict(payload)
+            log_fn(f"  + US {key_label} -> id_us={new_id}")
+            new_id += 1
+            result.us.inserted += 1
+        except Exception as e:
+            result.us.errors += 1
+            log_fn(f"  ! US fid={row.get('_fid')}: {e}")
+    return id_map
+
+
+def import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn):
+    table = reflected(metadata, engine, "inventario_materiali_table")
+    existing = {}
+    for record in conn.execute(select(table)):
+        row = dict(record._mapping)
+        key = (normalize_key(row["sito"]),
+               normalize_key(row["numero_inventario"]))
+        existing[key] = row
+
+    new_id = next_id(conn, table, "id_invmat")
+    for row in rows:
+        try:
+            key = (normalize_key(row.get("sito")),
+                   normalize_key(row.get("numero_inventario")))
+            key_label = " n.inv ".join(key)
+            if key in existing:
+                db_row = existing[key]
+                filled = fill_empty_fields(
+                    conn, table, "id_invmat", db_row["id_invmat"], db_row, row,
+                    result, result.materiali, "Reperto", key_label,
+                    dry_run, log_fn)
+                if not filled:
+                    result.materiali.skipped += 1
+                    log_fn(f"  Reperto {key_label} già presente: salto")
+                continue
+            payload = row_payload(row, table, exclude=("id_invmat",))
+            payload["id_invmat"] = new_id
+            if "node_uuid" in table.columns:
+                payload["node_uuid"] = new_node_uuid()
+            apply_provenance(payload, table)
+            if not dry_run:
+                conn.execute(table.insert().values(**payload))
+            existing[key] = dict(payload)
+            log_fn(f"  + Reperto {key_label} -> id_invmat={new_id}")
+            new_id += 1
+            result.materiali.inserted += 1
+        except Exception as e:
+            result.materiali.errors += 1
+            log_fn(f"  ! Reperto fid={row.get('_fid')}: {e}")
