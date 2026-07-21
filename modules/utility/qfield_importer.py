@@ -21,6 +21,11 @@ from sqlalchemy import MetaData, Table, create_engine, func, select, text
 
 log = logging.getLogger("qfield_importer")
 
+
+class QFieldImportError(Exception):
+    """Errore strutturale: interrompe l'import (rollback totale)."""
+
+
 #: layer cercati nei GPKG del progetto QField (nome layer -> tabella DB)
 SOURCE_TABLES = {
     "us_table": "us_table",
@@ -345,3 +350,152 @@ def import_materiali(conn, metadata, engine, rows, result, dry_run, log_fn):
         except Exception as e:
             result.materiali.errors += 1
             log_fn(f"  ! Reperto fid={row.get('_fid')}: {e}")
+
+
+# --------------------------------------------------------------------------
+#  Geometrie: pyunitastratigrafiche (MULTIPOLYGON) + pyarchinit_quote (POINT)
+# --------------------------------------------------------------------------
+
+def target_srid(conn, engine, table_name, geom_column):
+    """SRID della colonna geometrica nel DB (geometry_columns), o None."""
+    try:
+        if engine.dialect.name.startswith("postgres"):
+            q = text("SELECT srid FROM geometry_columns WHERE "
+                     "f_table_name = :t AND f_geometry_column = :g")
+        else:
+            q = text("SELECT srid FROM geometry_columns WHERE "
+                     "f_table_name = :t AND f_geometry_column = :g")
+        value = conn.execute(q, {"t": table_name, "g": geom_column}).scalar()
+        return int(value) if value else None
+    except Exception:
+        return None
+
+
+def build_geom_sql(is_postgres, force_multi, needs_transform, target):
+    """Espressione SQL per la INSERT della geometria da :wkt/:srid."""
+    if is_postgres:
+        expr = "ST_GeomFromText(:wkt, :srid)"
+        if needs_transform:
+            expr = f"ST_Transform({expr}, {int(target)})"
+        if force_multi:
+            expr = f"ST_Multi({expr})"
+    else:
+        expr = "GeomFromText(:wkt, :srid)"
+        if needs_transform:
+            expr = f"Transform({expr}, {int(target)})"
+        if force_multi:
+            expr = f"CastToMultiPolygon({expr})"
+    return expr
+
+
+def _insert_geom_row(conn, table, row, payload, geom_column,
+                     is_postgres, force_multi, srid, tgt):
+    needs_transform = bool(tgt) and int(srid) != int(tgt)
+    geom_sql = build_geom_sql(is_postgres, force_multi, needs_transform, tgt)
+    columns = ", ".join([f'"{c}"' for c in payload] + [f'"{geom_column}"'])
+    params = ", ".join(":" + c for c in payload)
+    statement = text(
+        f'INSERT INTO {table.name} ({columns}) VALUES ({params}, {geom_sql})')
+    # SAVEPOINT per-riga: su PostgreSQL un errore senza savepoint
+    # avvelenerebbe l'intera transazione (InFailedSqlTransaction).
+    with conn.begin_nested():
+        conn.execute(statement,
+                     {**payload, "wkt": row["_wkt"], "srid": int(srid)})
+
+
+def import_geometrie(conn, metadata, engine, rows, result, dry_run, log_fn,
+                     dedup=True, srid_override=None):
+    table = reflected(metadata, engine, "pyunitastratigrafiche")
+    is_postgres = engine.dialect.name.startswith("postgres")
+    geom_column = "the_geom" if "the_geom" in table.columns else "geom"
+    tgt = target_srid(conn, engine, "pyunitastratigrafiche", geom_column)
+
+    existing = set()
+    if dedup:
+        for record in conn.execute(select(
+                table.c.scavo_s, table.c.area_s, table.c.us_s)):
+            existing.add((normalize_key(record.scavo_s),
+                          normalize_key(record.area_s),
+                          normalize_key(record.us_s)))
+
+    new_gid = next_id(conn, table, "gid")
+    for row in rows:
+        try:
+            key = (normalize_key(row.get("scavo_s")),
+                   normalize_key(row.get("area_s")),
+                   normalize_key(row.get("us_s")))
+            if dedup and key in existing:
+                result.geometrie.skipped += 1
+                log_fn(f"  Geometria US {'/'.join(key)} già presente: salto")
+                continue
+            if not row.get("_wkt"):
+                result.geometrie.skipped += 1
+                log_fn(f"  Feature fid={row['_fid']} senza geometria: salto")
+                continue
+            srid = srid_override or row.get("_srid")
+            if not srid:
+                raise QFieldImportError(
+                    "SRID non determinabile dal GPKG: specifica lo SRID")
+            payload = row_payload(row, table, exclude=("gid", geom_column))
+            payload["gid"] = new_gid
+            if not dry_run:
+                _insert_geom_row(conn, table, row, payload, geom_column,
+                                 is_postgres, True, srid, tgt)
+            existing.add(key)
+            log_fn(f"  + Geometria US {'/'.join(key)} -> gid={new_gid} "
+                   f"(SRID {srid}{f'->{tgt}' if tgt and int(tgt) != int(srid) else ''})")
+            new_gid += 1
+            result.geometrie.inserted += 1
+        except QFieldImportError:
+            raise
+        except Exception as e:
+            result.geometrie.errors += 1
+            log_fn(f"  ! Geometria fid={row.get('_fid')}: {e}")
+
+
+def import_quote(conn, metadata, engine, rows, result, dry_run, log_fn,
+                 srid_override=None):
+    """Punti quota. Dedup su sito_q+area_q+us_q+quota_q; POINT nativo."""
+    table = reflected(metadata, engine, "pyarchinit_quote")
+    is_postgres = engine.dialect.name.startswith("postgres")
+    geom_column = "the_geom" if "the_geom" in table.columns else "geom"
+    tgt = target_srid(conn, engine, "pyarchinit_quote", geom_column)
+
+    existing = set()
+    for record in conn.execute(select(
+            table.c.sito_q, table.c.area_q, table.c.us_q, table.c.quota_q)):
+        existing.add((normalize_key(record.sito_q), normalize_key(record.area_q),
+                      normalize_key(record.us_q), normalize_key(record.quota_q)))
+
+    new_gid = next_id(conn, table, "gid")
+    for row in rows:
+        try:
+            key = (normalize_key(row.get("sito_q")), normalize_key(row.get("area_q")),
+                   normalize_key(row.get("us_q")), normalize_key(row.get("quota_q")))
+            if key in existing:
+                result.quote.skipped += 1
+                log_fn(f"  Quota {row.get('quota_q')} (US {row.get('us_q')})"
+                       " già presente: salto")
+                continue
+            if not row.get("_wkt"):
+                result.quote.skipped += 1
+                continue
+            srid = srid_override or row.get("_srid")
+            if not srid:
+                raise QFieldImportError(
+                    "SRID non determinabile dal GPKG quote: specifica lo SRID")
+            payload = row_payload(row, table, exclude=("gid", geom_column))
+            payload["gid"] = new_gid
+            if not dry_run:
+                _insert_geom_row(conn, table, row, payload, geom_column,
+                                 is_postgres, False, srid, tgt)
+            existing.add(key)
+            log_fn(f"  + Quota {row.get('quota_q')} m (US {row.get('us_q')})"
+                   f" -> gid={new_gid}")
+            new_gid += 1
+            result.quote.inserted += 1
+        except QFieldImportError:
+            raise
+        except Exception as e:
+            result.quote.errors += 1
+            log_fn(f"  ! Quota fid={row.get('_fid')}: {e}")
