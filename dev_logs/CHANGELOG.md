@@ -5,6 +5,41 @@
 
 ---
 
+## [feat] - 2026-07-21 — Feat: Importa da QField (GPKG)
+
+> Branch `Stratigraph_00001`. Commit `3cbf70d6..47774a50` (12 commit). Importa i dati raccolti sul campo con QField (plugin companion `pyarchinit-qfield`) dentro il DB pyArchInit (PostGIS o SpatiaLite).
+> File: `modules/utility/qfield_importer.py` (NUOVO — pipeline riusabile, zero Qt/QGIS/osgeo a livello di modulo), `scripts/import_qfield.py` (NUOVO — wrapper CLI, dry-run di default, `--apply` per scrivere), `gui/qfield_import_dialog.py` (NUOVO — dialog Qt, worker QThread, anteprima dry-run, i18n 10 lingue), `pyarchinitPlugin.py` (nuova voce di menu "Importa da QField (GPKG)").
+
+### Italiano
+
+- **Nuova funzione "Importa da QField (GPKG)":** scansiona i file `.gpkg` di una cartella progetto QField e accoda, in UN'UNICA transazione, dentro `us_table`, `inventario_materiali_table`, `pyunitastratigrafiche` (poligoni US), `pyarchinit_quote` (punti quota), `media_table` + `media_to_entity_table`.
+- **Deduplica:** US su sito+area+us, reperti su sito+numero_inventario, geometrie su scavo/area/US (disattivabile), quote su sito_q+area_q+us_q+quota_q, media sul filepath finale, link sulla terna rimappata (id_entity, entity_type, id_media).
+- **Policy "riempi solo i vuoti" su US e reperti:** se il record esiste già, vengono valorizzati SOLO i campi vuoti nel DB a partire dal dato di campo — i valori esistenti non vengono mai sovrascritti; PK, chiavi di dedup, `node_uuid` e colonne di concorrenza non vengono mai toccati.
+- **Legame foto→US preservato anche quando il DB assegna un nuovo `id_us`:** la pipeline costruisce una mappa id-sorgente→nuovo-`id_us` e riscrive di conseguenza `media_to_entity` (per US già esistente, le foto si agganciano al suo `id_us` esistente).
+- **Foto copiate/caricate sul backend media configurato** (cartella locale OPPURE WebDAV) tramite lo StorageManager del plugin; `media_table.filepath` riflette il percorso finale; la copia avviene dopo il commit e un upload fallito non fa mai il rollback dei record DB.
+- **Thumbnail (thumb + resize) generate automaticamente** per i media importati e registrate in `media_thumb_table` (stessa convenzione di naming del Media Manager) — niente più rigenerazione manuale.
+- **Provenienza e identità:** ogni riga US/reperto importata nasce con `node_uuid` (uuid7) e marcatore `created_by='qfield_import'`.
+- **SRID:** letto dal GPKG (override disponibile); se differisce dallo SRID della colonna geometria di destinazione, la geometria viene trasformata (`ST_Transform` / `Transform`) all'inserimento.
+- **Anteprima (dry-run):** default nella CLI e pulsante dedicato nel dialog — esegue l'intera pipeline in una transazione con rollback e riporta i conteggi + esattamente quali campi vuoti verrebbero riempiti, senza scrivere nulla.
+- **Sicurezza cross-backend:** SAVEPOINT per-riga, così una singola riga difettosa viene saltata (loggata + conteggiata) senza abortire l'intera transazione PostgreSQL.
+- **Esempi CLI:** `python3 scripts/import_qfield.py --qfield-dir ~/qfield/scavo2026` (dry-run sul DB configurato del plugin); aggiungere `--apply` per scrivere; `--db <sqlite>` / `--conn-str postgresql://...` per puntare a un DB specifico.
+
+### English
+
+- **New "Importa da QField (GPKG)" feature:** scans the `.gpkg` files of a QField project folder and appends, in ONE transaction, into `us_table`, `inventario_materiali_table`, `pyunitastratigrafiche` (US polygons), `pyarchinit_quote` (elevation points), `media_table` + `media_to_entity_table`.
+- **Dedup:** US on sito+area+us, finds on sito+numero_inventario, geometries on scavo/area/US (toggleable), quotes on sito_q+area_q+us_q+quota_q, media on the final filepath, links on the remapped (id_entity, entity_type, id_media).
+- **Fill-empty policy on US and finds:** if the record already exists, ONLY empty DB fields are filled from the field data — existing values are never overwritten; PK, dedup keys, `node_uuid` and concurrency columns are never touched.
+- **Photo→US link preserved even when the DB assigns a new `id_us`:** the pipeline builds a source-id→new-`id_us` map and rewrites `media_to_entity` accordingly (for an existing US, photos attach to its existing `id_us`).
+- **Photos copied/uploaded to the configured media backend** (local folder OR WebDAV) via the plugin's StorageManager; `media_table.filepath` reflects the final path; the copy happens after commit and a failed upload never rolls back the DB records.
+- **Thumbnails (thumb + resize) auto-generated** for the imported media and registered in `media_thumb_table` (same naming convention as the Media Manager) — no more manual regeneration.
+- **Provenance and identity:** every imported US/find row is born with `node_uuid` (uuid7) and provenance marker `created_by='qfield_import'`.
+- **SRID:** read from the GPKG (override available); if it differs from the target geometry column's SRID, the geometry is transformed (`ST_Transform` / `Transform`) on insert.
+- **Preview (dry-run):** the default in the CLI and a dedicated button in the dialog — runs the whole pipeline in a rolled-back transaction and reports counts + exactly which empty fields would be filled, writing nothing.
+- **Cross-backend safety:** per-row SAVEPOINTs, so a single bad row is skipped (logged + counted) without aborting the whole PostgreSQL transaction.
+- **CLI usage:** `python3 scripts/import_qfield.py --qfield-dir ~/qfield/scavo2026` (dry-run on the plugin's configured DB); add `--apply` to write; `--db <sqlite>` / `--conn-str postgresql://...` to target a specific DB.
+
+---
+
 ## [fix] - 2026-07-20 — Fix: Scheda utenti — il nuovo utente non appariva (INSERT silenzioso fallito)
 
 > Branch `Stratigraph_00001`. Commit `4de94adc`. Fix del dialog "Gestione Utenti e Permessi".

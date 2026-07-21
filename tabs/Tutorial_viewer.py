@@ -109,6 +109,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "Bridge s3dgraphy: export Extended Matrix con paradata e gruppi"),
             ("37_palimpsest.md", "Analisi palinsesti (palimpsestr)", "palimpsestr/SEF: decomposizione palinsesti, report PDF/DOCX, PostgreSQL, cronologia OxCal, report AI"),
+            ("38_qfield_import.md", "Importa da QField (GPKG)", "Importa i dati di campo QField (GPKG + foto): anteprima dry-run, riempie i campi vuoti, foto e thumbnail, CLI"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup, database connection, paths"),
@@ -148,6 +149,7 @@ class TutorialViewerDialog(QDialog):
             ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy bridge: Extended Matrix export with paradata and groups"),
             ("37_palimpsest.md", "Palimpsest analysis (palimpsestr)", "palimpsestr/SEF: palimpsest decomposition, PDF/DOCX report, PostgreSQL, OxCal chronology, AI report"),
+            ("38_qfield_import.md", "Import from QField (GPKG)", "Import QField field data (GPKG + photos): dry-run preview, fills empty fields, photos and thumbnails, CLI"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung, Datenbankverbindung, Pfade"),
@@ -187,6 +189,7 @@ class TutorialViewerDialog(QDialog):
             ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy-Bridge: Extended Matrix Export mit Paradata und Gruppen"),
             ("37_palimpsest.md", "Palimpsest-Analyse (palimpsestr)", "palimpsestr/SEF: Palimpsest-Dekomposition, PDF/DOCX-Bericht, PostgreSQL, OxCal-Chronologie, KI-Bericht"),
+            ("38_qfield_import.md", "Import aus QField (GPKG)", "QField-Felddaten importieren (GPKG + Fotos): Probelauf-Vorschau, füllt leere Felder, Fotos und Thumbnails, CLI"),
         ],
         'fr': [
             ("01_configuration.md", "Configuration", "Configuration initiale, connexion base de données, chemins"),
@@ -226,6 +229,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestion_chantier.md", "Gestion de Chantier", "Tableau de bord, personnel, présences, équipements, budget"),
             ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy : export Extended Matrix avec paradata et groupes"),
             ("37_palimpsest.md", "Analyse des palimpsestes (palimpsestr)", "palimpsestr/SEF : décomposition des palimpsestes, rapport PDF/DOCX, PostgreSQL, chronologie OxCal, rapport IA"),
+            ("38_qfield_import.md", "Importer depuis QField (GPKG)", "Importer les données de terrain QField (GPKG + photos) : aperçu simulation, remplit les champs vides, photos et vignettes, CLI"),
         ],
         'es': [
             ("01_configuracion.md", "Configuración", "Configuración inicial, conexión de base de datos, rutas"),
@@ -265,6 +269,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestion_obra.md", "Gestión de Obra", "Panel de obra, personal, asistencia, equipamiento, presupuesto"),
             ("36_extended_matrix_s3dgraphy.md", "Exportación Extended Matrix", "Bridge s3dgraphy: exportación Extended Matrix con paradata y grupos"),
             ("37_palimpsest.md", "Análisis de palimpsestos (palimpsestr)", "palimpsestr/SEF: descomposición de palimpsestos, informe PDF/DOCX, PostgreSQL, cronología OxCal, informe IA"),
+            ("38_qfield_import.md", "Importar desde QField (GPKG)", "Importar datos de campo QField (GPKG + fotos): vista previa en simulación, rellena campos vacíos, fotos y miniaturas, CLI"),
         ],
         'ar': [
             ("01_التكوين.md", "التكوين", "الإعداد الأولي، اتصال قاعدة البيانات، المسارات"),
@@ -304,6 +309,7 @@ class TutorialViewerDialog(QDialog):
             ("35_إدارة_الموقع.md", "إدارة الموقع", "لوحة القيادة، الموظفون، الحضور، المعدات، الميزانية"),
             ("36_extended_matrix_s3dgraphy.md", "تصدير Extended Matrix", "جسر s3dgraphy: تصدير Extended Matrix مع البيانات الفوقية والمجموعات"),
             ("37_palimpsest.md", "تحليل الطبقات المتراكبة (palimpsestr)", "palimpsestr/SEF: تفكيك الطبقات المتراكبة، تقرير PDF/DOCX، PostgreSQL، تسلسل OxCal الزمني، تقرير بالذكاء الاصطناعي"),
+            ("38_qfield_import.md", "الاستيراد من QField (GPKG)", "استيراد بيانات ميدان QField (GPKG + صور): معاينة تجريبية، ملء الحقول الفارغة، صور ومصغّرات، CLI"),
         ],
         'ca': [
             ("01_configuracio.md", "Configuració", "Configuració inicial, connexió de base de dades, camins"),
@@ -343,6 +349,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestio_obra.md", "Gestió d'Obra", "Tauler d'obra, personal, assistència, equipament, pressupost"),
             ("36_extended_matrix_s3dgraphy.md", "Exportació Extended Matrix", "Bridge s3dgraphy: exportació Extended Matrix amb paradata i grups"),
             ("37_palimpsest.md", "Anàlisi de palimpsests (palimpsestr)", "palimpsestr/SEF: descomposició de palimpsests, informe PDF/DOCX, PostgreSQL, cronologia OxCal, informe IA"),
+            ("38_qfield_import.md", "Importar des de QField (GPKG)", "Importa dades de camp QField (GPKG + fotos): previsualització en simulació, omple camps buits, fotos i miniatures, CLI"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -382,6 +389,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
             ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy: export Extended Matrix cu paradata și grupuri"),
             ("37_palimpsest.md", "Analiza palimpsestelor (palimpsestr)", "palimpsestr/SEF: descompunerea palimpsestelor, raport PDF/DOCX, PostgreSQL, cronologie OxCal, raport AI"),
+            ("38_qfield_import.md", "Import din QField (GPKG)", "Importă date de teren QField (GPKG + foto): previzualizare simulare, completează câmpurile goale, foto și miniaturi, CLI"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -421,6 +429,7 @@ class TutorialViewerDialog(QDialog):
             ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
             ("36_extended_matrix_s3dgraphy.md", "Exportação Extended Matrix", "Bridge s3dgraphy: exportação Extended Matrix com paradata e grupos"),
             ("37_palimpsest.md", "Análise de palimpsestos (palimpsestr)", "palimpsestr/SEF: decomposição de palimpsestos, relatório PDF/DOCX, PostgreSQL, cronologia OxCal, relatório IA"),
+            ("38_qfield_import.md", "Importar do QField (GPKG)", "Importa dados de campo QField (GPKG + fotos): pré-visualização em simulação, preenche campos vazios, fotos e miniaturas, CLI"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -460,6 +469,7 @@ class TutorialViewerDialog(QDialog):
             ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
             ("36_extended_matrix_s3dgraphy.md", "Εξαγωγή Extended Matrix", "Γέφυρα s3dgraphy: εξαγωγή Extended Matrix με paradata και ομάδες"),
             ("37_palimpsest.md", "Ανάλυση παλίμψηστων (palimpsestr)", "palimpsestr/SEF: αποσύνθεση παλίμψηστων, αναφορά PDF/DOCX, PostgreSQL, χρονολόγηση OxCal, αναφορά AI"),
+            ("38_qfield_import.md", "Εισαγωγή από QField (GPKG)", "Εισαγωγή δεδομένων πεδίου QField (GPKG + φωτογραφίες): προεπισκόπηση δοκιμαστικής εκτέλεσης, συμπλήρωση κενών πεδίων, φωτογραφίες και μικρογραφίες, CLI"),
         ],
     }
 

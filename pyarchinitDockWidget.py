@@ -121,6 +121,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_gestione_cantiere.md", "Gestione Cantiere", "Dashboard cantiere, personale, presenze, attrezzature, budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "Bridge s3dgraphy: export Extended Matrix con paradata e gruppi"),
             ("37_palimpsest.md", "Analisi palinsesti (palimpsestr)", "palimpsestr/SEF: decomposizione palinsesti, report PDF/DOCX, PostgreSQL, cronologia OxCal, report AI"),
+            ("38_qfield_import.md", "Importa da QField (GPKG)", "Importa i dati di campo QField (GPKG + foto): anteprima dry-run, riempie i campi vuoti, foto e thumbnail, CLI"),
         ],
         'en': [
             ("01_configurazione.md", "Configuration", "Initial setup and database"),
@@ -156,6 +157,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_site_management.md", "Site Management", "Site dashboard, personnel, attendance, equipment, budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy bridge: Extended Matrix export with paradata and groups"),
             ("37_palimpsest.md", "Palimpsest analysis (palimpsestr)", "palimpsestr/SEF: palimpsest decomposition, PDF/DOCX report, PostgreSQL, OxCal chronology, AI report"),
+            ("38_qfield_import.md", "Import from QField (GPKG)", "Import QField field data (GPKG + photos): dry-run preview, fills empty fields, photos and thumbnails, CLI"),
         ],
         'de': [
             ("01_konfiguration.md", "Konfiguration", "Ersteinrichtung und Datenbank"),
@@ -191,6 +193,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_baustellenverwaltung.md", "Baustellenverwaltung", "Baustellen-Dashboard, Personal, Anwesenheit, Ausrüstung, Budget"),
             ("36_extended_matrix_s3dgraphy.md", "Extended Matrix Export", "s3dgraphy-Bridge: Extended Matrix Export mit Paradata und Gruppen"),
             ("37_palimpsest.md", "Palimpsest-Analyse (palimpsestr)", "palimpsestr/SEF: Palimpsest-Dekomposition, PDF/DOCX-Bericht, PostgreSQL, OxCal-Chronologie, KI-Bericht"),
+            ("38_qfield_import.md", "Import aus QField (GPKG)", "QField-Felddaten importieren (GPKG + Fotos): Probelauf-Vorschau, füllt leere Felder, Fotos und Thumbnails, CLI"),
         ],
         'ro': [
             ("01_configurazione.md", "Configurare", "Configurare inițială, conexiune bază de date, căi"),
@@ -226,6 +229,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_gestiune_santier.md", "Gestiune Șantier", "Panou șantier, personal, prezențe, echipamente, buget"),
             ("36_extended_matrix_s3dgraphy.md", "Export Extended Matrix", "Bridge s3dgraphy: export Extended Matrix cu paradata și grupuri"),
             ("37_palimpsest.md", "Analiza palimpsestelor (palimpsestr)", "palimpsestr/SEF: descompunerea palimpsestelor, raport PDF/DOCX, PostgreSQL, cronologie OxCal, raport AI"),
+            ("38_qfield_import.md", "Import din QField (GPKG)", "Importă date de teren QField (GPKG + foto): previzualizare simulare, completează câmpurile goale, foto și miniaturi, CLI"),
         ],
         'pt': [
             ("01_configurazione.md", "Configuração", "Configuração inicial, conexão de base de dados, caminhos"),
@@ -261,6 +265,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_gestao_obra.md", "Gestão de Obra", "Painel de obra, pessoal, presenças, equipamentos, orçamento"),
             ("36_extended_matrix_s3dgraphy.md", "Exportação Extended Matrix", "Bridge s3dgraphy: exportação Extended Matrix com paradata e grupos"),
             ("37_palimpsest.md", "Análise de palimpsestos (palimpsestr)", "palimpsestr/SEF: decomposição de palimpsestos, relatório PDF/DOCX, PostgreSQL, cronologia OxCal, relatório IA"),
+            ("38_qfield_import.md", "Importar do QField (GPKG)", "Importa dados de campo QField (GPKG + fotos): pré-visualização em simulação, preenche campos vazios, fotos e miniaturas, CLI"),
         ],
         'el': [
             ("01_configurazione.md", "Διαμόρφωση", "Αρχική ρύθμιση, σύνδεση βάσης δεδομένων, διαδρομές"),
@@ -296,6 +301,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
             ("35_διαχειριση_εργοταξιου.md", "Διαχείριση Εργοταξίου", "Πίνακας εργοταξίου, προσωπικό, παρουσίες, εξοπλισμός, προϋπολογισμός"),
             ("36_extended_matrix_s3dgraphy.md", "Εξαγωγή Extended Matrix", "Γέφυρα s3dgraphy: εξαγωγή Extended Matrix με paradata και ομάδες"),
             ("37_palimpsest.md", "Ανάλυση παλίμψηστων (palimpsestr)", "palimpsestr/SEF: αποσύνθεση παλίμψηστων, αναφορά PDF/DOCX, PostgreSQL, χρονολόγηση OxCal, αναφορά AI"),
+            ("38_qfield_import.md", "Εισαγωγή από QField (GPKG)", "Εισαγωγή δεδομένων πεδίου QField (GPKG + φωτογραφίες): προεπισκόπηση δοκιμαστικής εκτέλεσης, συμπλήρωση κενών πεδίων, φωτογραφίες και μικρογραφίες, CLI"),
         ],
     }
 

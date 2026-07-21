@@ -93,6 +93,7 @@ Benvenuto alla documentazione completa di PyArchInit. Questa guida copre tutti g
    32_stratigraph_sync
    36_extended_matrix_s3dgraphy
    37_palimpsest
+   38_qfield_import
 
 ----
 
