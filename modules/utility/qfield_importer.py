@@ -800,18 +800,36 @@ def _resolve_engine(db):
 
 
 def _wire_spatialite(engine, warnings):
+    """Registra il listener 'connect' per mod_spatialite UNA SOLA VOLTA per
+    engine (guardia via attributo sull'oggetto engine): con un engine
+    riutilizzato tra più import (es. il db_manager di sessione della GUI),
+    richiamare questa funzione ad ogni run non deve accumulare listener
+    duplicati, ognuno chiuso su una `warnings` list di un run precedente.
+
+    Il flag di fallimento va comunque riportato nel `warnings` del run
+    CORRENTE: per questo il controllo `qfield_spatialite_failed` avviene ad
+    ogni chiamata, anche quando la registrazione è già stata fatta in un
+    run precedente (solo la registrazione del listener è guardata)."""
     if engine.dialect.name != "sqlite":
         return
-    from sqlalchemy import event
+    if not getattr(engine, "_qfield_spatialite_wired", False):
+        engine._qfield_spatialite_wired = True
+        from sqlalchemy import event
 
-    @event.listens_for(engine, "connect")
-    def _load_spatialite(dbapi_conn, _record):
-        try:
-            dbapi_conn.enable_load_extension(True)
-            dbapi_conn.load_extension("mod_spatialite")
-        except Exception as error:
-            warnings.append(f"mod_spatialite non caricato ({error}): "
-                            "import geometrie non disponibile su SpatiaLite")
+        @event.listens_for(engine, "connect")
+        def _load_spatialite(dbapi_conn, _record):
+            try:
+                dbapi_conn.enable_load_extension(True)
+                dbapi_conn.load_extension("mod_spatialite")
+            except Exception as error:
+                engine._qfield_spatialite_failed = str(error)
+                log.warning("mod_spatialite non caricato (%s): import "
+                           "geometrie non disponibile su SpatiaLite", error)
+
+    failed = getattr(engine, "_qfield_spatialite_failed", None)
+    if failed:
+        warnings.append(f"mod_spatialite non caricato ({failed}): "
+                        "import geometrie non disponibile su SpatiaLite")
 
 
 def run_qfield_import(db, qfield_dir, *, sito=None, srid=None, dry_run=True,
@@ -832,7 +850,8 @@ def run_qfield_import(db, qfield_dir, *, sito=None, srid=None, dry_run=True,
         data = {name: list(rows_override.get(name, []))
                 for name in SOURCE_TABLES}
     else:
-        layers = layers_override or find_gpkg_layers(qfield_dir)
+        layers = (layers_override if layers_override is not None
+                  else find_gpkg_layers(qfield_dir))
         if not layers:
             raise QFieldImportError(
                 "Nessun layer pyArchInit trovato nei GPKG della cartella")

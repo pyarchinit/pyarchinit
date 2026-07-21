@@ -93,7 +93,8 @@ def main(argv=None):
 
     errors = (result.us.errors + result.materiali.errors +
               result.geometrie.errors + result.quote.errors +
-              result.media.errors + result.links.errors)
+              result.media.errors + result.links.errors +
+              result.thumbs.errors)
     return 1 if errors else 0
 
 
