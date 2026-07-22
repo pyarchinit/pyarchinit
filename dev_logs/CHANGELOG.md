@@ -5,6 +5,29 @@
 
 ---
 
+## [feat] - 2026-07-22 — Feat: "Importa da QField (GPKG)" anche nella toolbar (dropdown strumenti di analisi)
+
+> Branch `Stratigraph_00001`. Commit `8748f704` (icona) + `44732910` (azione toolbar). Follow-up della feature QField del 2026-07-21.
+> File: `resources/icons/qfield_import.svg` (NUOVO), `resources/icons/qfield_import.png` (NUOVO), `pyarchinitPlugin.py` (modificato).
+
+### Italiano
+
+- **"Importa da QField (GPKG)" ora è anche nella toolbar di pyArchInit:** azione aggiunta in coda al dropdown degli strumenti di analisi (`analysisToolButton`), dopo SAM, Pottery Tools, TOPS, Ricerca Immagini, GeoArchaeo, MoveCost e Palimpsest. Etichetta invariata: "Importa da QField (GPKG)".
+- **Nuova icona dedicata** (`resources/icons/qfield_import.svg` sorgente + `qfield_import.png` 512×512): design custom pin+vassoio nel verde QField, nessun logo/marchio di terze parti.
+- **Wiring in `pyarchinitPlugin.py`:** aggancio single-site in `_init_migrations_menu()` — eseguito una sola volta, DOPO che il blocco della lingua attiva di `initGui()` ha costruito la toolbar; guardia `hasattr` su `analysisToolButton`, così la voce di menu sopravvive anche senza toolbar.
+- **Nessuna modifica a `unload()`:** le azioni del `QToolButton` vengono smontate insieme alla toolbar. La voce di menu esistente resta invariata.
+- **Verifica:** `py_compile` OK; suite `tests/qfield` 33/33 verdi prima e dopo.
+
+### English
+
+- **"Importa da QField (GPKG)" is now also in the pyArchInit toolbar:** action appended to the analysis-tools dropdown (`analysisToolButton`), after SAM, Pottery Tools, TOPS, Ricerca Immagini, GeoArchaeo, MoveCost and Palimpsest. Label unchanged: "Importa da QField (GPKG)".
+- **New dedicated icon** (`resources/icons/qfield_import.svg` source + `qfield_import.png` 512×512): custom pin+tray design in QField green, no third-party logo/trademark.
+- **Wiring in `pyarchinitPlugin.py`:** single-site hookup in `_init_migrations_menu()` — runs once, AFTER the active-language block of `initGui()` has built the toolbar; `hasattr` guard on `analysisToolButton`, so the menu entry survives even without a toolbar.
+- **No `unload()` changes needed:** `QToolButton` actions are torn down with the toolbar. The existing menu entry stays unchanged.
+- **Verification:** `py_compile` OK; `tests/qfield` suite 33/33 passed before and after.
+
+---
+
 ## [feat] - 2026-07-21 — Feat: Importa da QField (GPKG)
 
 > Branch `Stratigraph_00001`. Commit `3cbf70d6..47774a50` (12 commit). Importa i dati raccolti sul campo con QField (plugin companion `pyarchinit-qfield`) dentro il DB pyArchInit (PostGIS o SpatiaLite).
