@@ -31,11 +31,20 @@ confirmare — se lansează **Importul** real într-o singură tranzacție.
 
 ## 2. Deschiderea dialogului
 
-Bara de meniu **pyArchInit → Import din QField (GPKG)**.
+Comanda poate fi deschisă în **două moduri**:
 
-Se deschide dialogul *Import din QField*: QGIS **nu se blochează** în timpul
-operației, deoarece copierea fotografiilor și accesul WebDAV rulează într-un fir
-separat.
+1. **Meniu**: **Plugin → pyArchInit - Archaeological GIS Tools → Importa da
+   QField (GPKG)**.
+2. **Bară de instrumente** (noutate): în bara de instrumente pyArchInit,
+   deschide **butonul derulant al instrumentelor de analiză** — același care
+   găzduiește GeoArchaeo, MoveCost, Palimpsest și alte instrumente — și alege
+   **Importa da QField (GPKG)**. Intrarea se recunoaște după **noua pictogramă
+   dedicată**: o plăcuță verde rotunjită în stil QField, cu un marcator alb
+   care coboară într-o tavă de import.
+
+În ambele cazuri se deschide dialogul *Import din QField*: QGIS **nu se
+blochează** în timpul operației, deoarece copierea fotografiilor și accesul
+WebDAV rulează într-un fir separat.
 
 ---
 

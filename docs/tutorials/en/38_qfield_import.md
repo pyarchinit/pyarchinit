@@ -32,10 +32,20 @@ confirmation — you launch the real **Import** in a single transaction.
 
 ## 2. Open the dialog
 
-Menu bar **pyArchInit → Import from QField (GPKG)**.
+The command can be reached in **two ways**:
 
-The *Import from QField* dialog opens: QGIS **does not freeze** during the
-operation because copying photos and accessing WebDAV run in a separate thread.
+1. **Menu**: **Plugin → pyArchInit - Archaeological GIS Tools → Importa da
+   QField (GPKG)**.
+2. **Toolbar** (new): in the pyArchInit toolbar, open the **analysis-tools
+   drop-down button** — the same one that hosts GeoArchaeo, MoveCost,
+   Palimpsest and other tools — and choose **Importa da QField (GPKG)**. The
+   entry is easy to spot thanks to its **new dedicated icon**: a green
+   QField-style rounded tile with a white map pin descending into an import
+   tray.
+
+In both cases the *Import from QField* dialog opens: QGIS **does not freeze**
+during the operation because copying photos and accessing WebDAV run in a
+separate thread.
 
 ---
 
