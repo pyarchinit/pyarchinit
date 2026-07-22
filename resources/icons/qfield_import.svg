@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- QField-green rounded tile -->
+  <rect x="16" y="16" width="480" height="480" rx="96" fill="#79c945"/>
+  <!-- map pin descending into the tray = import from the field -->
+  <path d="M256 76c-66 0-120 54-120 120 0 92 120 184 120 184s120-92 120-184c0-66-54-120-120-120zm0 172a52 52 0 1 1 0-104 52 52 0 0 1 0 104z" fill="#ffffff"/>
+  <!-- import tray -->
+  <path d="M108 348v48a28 28 0 0 0 28 28h240a28 28 0 0 0 28-28v-48" fill="none" stroke="#ffffff" stroke-width="34" stroke-linecap="round"/>
+</svg>
