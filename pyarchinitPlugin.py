@@ -2814,7 +2814,11 @@ class PyArchInitPlugin(object):
                 self.actionSchemaRepair)
 
             # --- Importa da QField (GPKG) --------------------------------
+            icon_qfield = '{}{}'.format(
+                filepath, os.path.join(os.sep, 'resources', 'icons',
+                                       'qfield_import.png'))
             self.actionQFieldImport = QAction(
+                QIcon(icon_qfield),
                 "Importa da QField (GPKG)",
                 self.iface.mainWindow())
             self.actionQFieldImport.triggered.connect(
@@ -2822,6 +2826,10 @@ class PyArchInitPlugin(object):
             self.iface.addPluginToMenu(
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionQFieldImport)
+            # toolbar: analysis-tools dropdown (GeoArchaeo, MoveCost, ...);
+            # guard because the toolbar is built by initGui's language block
+            if hasattr(self, 'analysisToolButton'):
+                self.analysisToolButton.addAction(self.actionQFieldImport)
 
             self._migrations_menu_wired = True
         except Exception as e:
