@@ -40,7 +40,7 @@ TRANSLATIONS = {
     'browse': {
         'it': "Sfoglia…", 'en': "Browse…", 'de': "Durchsuchen…",
         'es': "Examinar…", 'fr': "Parcourir…", 'ar': "تصفح…",
-        'ca': "Navega…", 'ro': "Răsfoiești…", 'pt': "Procurar…",
+        'ca': "Navega…", 'ro': "Răsfoiește…", 'pt': "Procurar…",
         'el': "Αναζήτηση…",
     },
     'zip_browse': {
