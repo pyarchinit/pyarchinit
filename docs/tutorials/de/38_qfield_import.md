@@ -50,13 +50,33 @@ separaten Thread laufen.
 
 ---
 
-## 3. QField-Projektordner auswählen
+## 3. Quelle auswählen: Ordner oder ZIP-Archiv
 
-1. Klicken Sie auf **Durchsuchen…** und wählen Sie den **QField-Projektordner**.
-2. Der Dialog **durchsucht die GeoPackages** und füllt das Kombinationsfeld
-   **Fundort** automatisch mit den gefundenen Fundorten.
-3. Wählen Sie einen bestimmten Fundort oder belassen Sie **Alle Fundorte**, um
+1. Klicken Sie auf **Durchsuchen…** und wählen Sie den
+   **QField-Projektordner**, oder klicken Sie auf **ZIP-Archiv…** und wählen
+   Sie ein **`.zip`**-Archiv des QField-Projekts (die Dateiauswahl filtert
+   auf `*.zip`). In beiden Fällen erscheint der gewählte Pfad im selben
+   Quellfeld.
+2. Wählen Sie einen Ordner, **durchsucht** der Dialog die GeoPackages und
+   füllt das Kombinationsfeld **Fundort** automatisch mit den gefundenen
+   Fundorten.
+3. Wählen Sie ein ZIP-Archiv, wird es **automatisch in einen temporären
+   Ordner entpackt** und das Kombinationsfeld **Fundort** setzt sich auf
+   **Alle Fundorte** zurück (aus einem Zip erfolgt kein Vorab-Scan der
+   Fundorte): Der Import (Vorschau/Probelauf oder Import, einschließlich
+   Fotos und Thumbnails) läuft auf dem entpackten Verzeichnisbaum, und der
+   temporäre Ordner wird am Ende des Vorgangs **automatisch entfernt**,
+   auch im Fehlerfall.
+4. Wählen Sie einen bestimmten Fundort oder belassen Sie **Alle Fundorte**, um
    alles zu importieren.
+
+> Während ein Import läuft, sind sowohl **Durchsuchen…** als auch
+> **ZIP-Archiv…** **deaktiviert**, wie alle anderen Dialogelemente auch.
+
+> Ist das gewählte Archiv **beschädigt oder ungültig**, wird ein eindeutiger
+> Fehler angezeigt: **„Archivio ZIP non valido o corrotto: …“**. Enthält das
+> Zip keine **`.gpkg`**-Datei, erscheint stattdessen die übliche Meldung
+> „keine Layer gefunden“.
 
 ---
 
@@ -116,11 +136,18 @@ werden.
 
 Für fortgeschrittene oder Headless-Anwendungen steht ein CLI-Skript zur
 Verfügung. Der **Probelauf ist das Standardverhalten**; fügen Sie `--apply`
-hinzu, um tatsächlich zu schreiben:
+hinzu, um tatsächlich zu schreiben. Der Parameter `--qfield-dir` akzeptiert
+sowohl den **Projektordner** als auch ein **`.zip`**-Archiv: Verweist er auf
+ein Zip, wird es automatisch in einen temporären Ordner entpackt, der am Ende
+des Laufs entfernt wird. Eine nicht existierende Quelle beendet das Skript mit
+dem Fehler **„Sorgente non trovata (cartella o archivio .zip): …“**.
 
 ```bash
-# Vorschau (Probelauf, Standard)
+# Vorschau (Probelauf, Standard) aus einem Ordner
 python3 scripts/import_qfield.py --qfield-dir <Ordner>
+
+# Vorschau (Probelauf, Standard) aus einem ZIP-Archiv
+python3 scripts/import_qfield.py --qfield-dir <Archiv.zip>
 
 # Echter Import
 python3 scripts/import_qfield.py --qfield-dir <Ordner> --apply

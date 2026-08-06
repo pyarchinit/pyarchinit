@@ -49,12 +49,28 @@ separate thread.
 
 ---
 
-## 3. Select the QField project folder
+## 3. Select the source: folder or ZIP archive
 
-1. Click **Browse…** and choose the **QField project folder**.
-2. The dialog **scans the GeoPackages** and automatically fills the **Site**
-   combo box with the sites it finds.
-3. Choose a specific site or leave **All sites** to import everything.
+1. Click **Browse…** and choose the **QField project folder**, or click
+   **ZIP archive…** and choose a **`.zip`** archive of the QField project
+   (the file picker filters on `*.zip`). Either way, the chosen path appears
+   in the same source field.
+2. If you choose a folder, the dialog **scans the GeoPackages** and
+   automatically fills the **Site** combo box with the sites it finds.
+3. If you choose a ZIP archive, it is **extracted automatically** to a
+   temporary folder and the **Site** combo box resets to **All sites** (no
+   site pre-scan is performed from a zip): the import (Preview/dry-run or
+   Import, photos and thumbnails included) runs on the extracted tree, and
+   the temporary folder is **automatically removed** at the end of the run,
+   even on error.
+4. Choose a specific site or leave **All sites** to import everything.
+
+> While an import is running, both **Browse…** and **ZIP archive…** are
+> **disabled**, like all the other dialog controls.
+
+> If the chosen archive is **corrupt or invalid**, a clear error is shown:
+> **"Archivio ZIP non valido o corrotto: …"**. If the zip contains no
+> **`.gpkg`** file, the usual "no layers found" error is shown instead.
 
 ---
 
@@ -109,11 +125,18 @@ derived automatically** and must be completed by hand in the SU form.
 ## 8. Command-line alternative (CLI)
 
 For advanced or headless use a CLI script is available. **Dry-run is the default
-behaviour**; add `--apply` to actually write:
+behaviour**; add `--apply` to actually write. The `--qfield-dir` parameter
+accepts either the **project folder** or a **`.zip`** archive: if it points to
+a zip, the archive is extracted automatically to a temporary folder, which is
+removed at the end of the run. A source that does not exist exits with the
+error **"Sorgente non trovata (cartella o archivio .zip): …"**.
 
 ```bash
-# Preview (dry-run, default)
+# Preview (dry-run, default) from a folder
 python3 scripts/import_qfield.py --qfield-dir <folder>
+
+# Preview (dry-run, default) from a ZIP archive
+python3 scripts/import_qfield.py --qfield-dir <archive.zip>
 
 # Real import
 python3 scripts/import_qfield.py --qfield-dir <folder> --apply
