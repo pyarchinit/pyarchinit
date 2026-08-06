@@ -441,7 +441,7 @@ class QFieldImportDialog(QDialog):
 
     def _set_running(self, running):
         for w in (self.preview_btn, self.import_btn, self.browse_btn,
-                  self.close_btn, self.dir_edit, self.site_combo,
+                  self.zip_btn, self.close_btn, self.dir_edit, self.site_combo,
                   self.srid_edit, self.media_dest_edit,
                   self.geom_dedup_check, self.copy_media_check,
                   self.thumbs_check):
