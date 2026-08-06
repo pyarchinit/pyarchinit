@@ -40,8 +40,21 @@ TRANSLATIONS = {
     'browse': {
         'it': "Sfoglia…", 'en': "Browse…", 'de': "Durchsuchen…",
         'es': "Examinar…", 'fr': "Parcourir…", 'ar': "تصفح…",
-        'ca': "Navega…", 'ro': "Răsfoiește…", 'pt': "Procurar…",
+        'ca': "Navega…", 'ro': "Răsfoiești…", 'pt': "Procurar…",
         'el': "Αναζήτηση…",
+    },
+    'zip_browse': {
+        'it': "Archivio ZIP…", 'en': "ZIP archive…", 'de': "ZIP-Archiv…",
+        'es': "Archivo ZIP…", 'fr': "Archive ZIP…", 'ar': "أرشيف ZIP…",
+        'ca': "Arxiu ZIP…", 'ro': "Arhivă ZIP…", 'pt': "Arquivo ZIP…",
+        'el': "Αρχείο ZIP…",
+    },
+    'zip_filter': {
+        'it': "Archivi ZIP (*.zip)", 'en': "ZIP archives (*.zip)",
+        'de': "ZIP-Archive (*.zip)", 'es': "Archivos ZIP (*.zip)",
+        'fr': "Archives ZIP (*.zip)", 'ar': "أرشيفات ZIP (*.zip)",
+        'ca': "Arxius ZIP (*.zip)", 'ro': "Arhive ZIP (*.zip)",
+        'pt': "Arquivos ZIP (*.zip)", 'el': "Αρχεία ZIP (*.zip)",
     },
     'site': {
         'it': "Sito:", 'en': "Site:", 'de': "Fundort:", 'es': "Sitio:",
@@ -269,6 +282,9 @@ class QFieldImportDialog(QDialog):
         self.browse_btn = QPushButton(self.tr_('browse'))
         self.browse_btn.clicked.connect(self._choose_dir)
         grid.addWidget(self.browse_btn, 0, 2)
+        self.zip_btn = QPushButton(self.tr_('zip_browse'))
+        self.zip_btn.clicked.connect(self._choose_zip)
+        grid.addWidget(self.zip_btn, 0, 3)
 
         grid.addWidget(QLabel(self.tr_('site')), 1, 0)
         self.site_combo = QComboBox()
@@ -333,6 +349,18 @@ class QFieldImportDialog(QDialog):
             return
         self.dir_edit.setText(directory)
         self._scan_sites(directory)
+
+    def _choose_zip(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, self.tr_('zip_browse'), os.path.expanduser("~"),
+            self.tr_('zip_filter'))
+        if not path:
+            return
+        self.dir_edit.setText(path)
+        # niente scansione siti dal .zip (servirebbe estrarlo nel main
+        # thread): la combo torna a "Tutti i siti"
+        self.site_combo.clear()
+        self.site_combo.addItem(self.tr_('all_sites'), None)
 
     def _scan_sites(self, directory):
         """Popola la combo siti dai GPKG (scan veloce, main thread ok)."""
