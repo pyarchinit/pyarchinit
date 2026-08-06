@@ -5,6 +5,39 @@
 
 ---
 
+## [feat] - 2026-08-06 — Feat: "Importa da QField (GPKG)" — supporto sorgente ZIP
+
+> Branch `Stratigraph_00001`. Commit `902ef916`..`5d213841` (16 commit: spec, piano, feature, 3 fix, tutorial in 10 lingue).
+> File: `modules/utility/qfield_importer.py` (nuovo helper `_resolve_qfield_source`, `run_qfield_import` diventa wrapper sottile su `_run_qfield_import_on_dir`), `scripts/import_qfield.py`, `gui/qfield_import_dialog.py`, `docs/tutorials/{it,en,de,es,fr,ca,ro,pt,el,ar}/*` (tutorial 38), `docs/superpowers/specs/2026-08-06-qfield-zip-import-design.md` (NUOVO), `docs/superpowers/plans/2026-08-06-qfield-zip-import.md` (NUOVO).
+
+### Italiano
+
+- **La sorgente dell'import QField ora può essere anche un archivio `.zip`**, non solo una cartella. Nuovo helper `_resolve_qfield_source` in `modules/utility/qfield_importer.py`: se la sorgente è una cartella, passa invariata (passthrough); se è un file con suffisso `.zip` (case-insensitive), lo estrae PER INTERO in una directory temporanea (`tempfile.mkdtemp(prefix="pyarchinit_qfield_zip_")`).
+- **Cleanup garantito:** la directory temporanea viene rimossa con `shutil.rmtree(ignore_errors=True)` in un blocco `finally` — copre sia il percorso di successo sia quello di errore, inclusi la copia media e la generazione thumbnail post-commit.
+- **Firma pubblica invariata:** `run_qfield_import` resta la stessa funzione con la stessa firma; ora è un wrapper sottile che risolve la sorgente e delega al corpo esistente (rinominato `_run_qfield_import_on_dir`).
+- **Nota comportamentale (breaking minore):** un percorso sorgente inesistente ora solleva `ValueError` invece del precedente `QFieldImportError("nessun layer trovato")`.
+- **Gestione errori sullo zip:** `BadZipFile` → `ValueError("Archivio ZIP non valido o corrotto")`; percorso non valido → `ValueError` esplicito. Lo zip-slip è coperto dalla stdlib (`zipfile.extractall` sanifica percorsi assoluti e `..`).
+- **CLI (`scripts/import_qfield.py`):** `--qfield-dir` ora accetta anche un archivio `.zip`; messaggio aggiornato "Sorgente non trovata (cartella o archivio .zip): …"; `except (QFieldImportError, ValueError)` così uno zip corrotto termina con "Errore: …" invece di un traceback.
+- **Dialog (`gui/qfield_import_dialog.py`):** nuovo pulsante "Archivio ZIP…" (grid 0,3) con handler `_choose_zip` (filtro `*.zip`, resetta il combo siti su "Tutti i siti"); 2 nuove chiavi `TRANSLATIONS` (`zip_browse`, `zip_filter`) in 10 lingue; `zip_btn` aggiunto al lockout `_set_running` (disabilitato durante l'import).
+- **Fix minori dalla review finale:** traduzione ro del pulsante Sfoglia ripristinata ("Răsfoiește…", alterata per errore da un commit precedente); `except` della CLI esteso a `ValueError`.
+- **Tutorial 38 aggiornato** con la nuova sorgente ZIP in tutte le 10 lingue (it, en, de, es, fr, ca, ro, pt, el, ar).
+- **Verifica:** 41/41 test locali `tests/qfield/` (gitignorata) verdi, `py_compile` pulito. Sviluppo subagent-driven, review per task + review finale di branch (2 fix one-liner emersi dalla review finale). **Resta da fare a mano:** verifica visiva in QGIS reale (pulsante e import da zip con media/thumbnail).
+
+### English
+
+- **The QField import source can now also be a `.zip` archive**, not just a folder. New helper `_resolve_qfield_source` in `modules/utility/qfield_importer.py`: if the source is a folder, it passes through unchanged; if it's a file with a `.zip` suffix (case-insensitive), it extracts the FULL archive into a temporary directory (`tempfile.mkdtemp(prefix="pyarchinit_qfield_zip_")`).
+- **Guaranteed cleanup:** the temp directory is removed with `shutil.rmtree(ignore_errors=True)` in a `finally` block — covers both the success and error paths, including the post-commit media copy and thumbnail generation.
+- **Public signature unchanged:** `run_qfield_import` is still the same function with the same signature; it is now a thin wrapper that resolves the source and delegates to the existing body (renamed `_run_qfield_import_on_dir`).
+- **Behavioral note (minor breaking change):** a non-existent source path now raises `ValueError` instead of the previous `QFieldImportError("no layers found")`.
+- **Zip error handling:** `BadZipFile` → `ValueError("Archivio ZIP non valido o corrotto")`; invalid path → explicit `ValueError`. Zip-slip is covered by the stdlib (`zipfile.extractall` sanitizes absolute paths and `..`).
+- **CLI (`scripts/import_qfield.py`):** `--qfield-dir` now also accepts a `.zip` archive; updated message "Sorgente non trovata (cartella o archivio .zip): …"; `except (QFieldImportError, ValueError)` so a corrupt zip exits with "Errore: …" instead of a traceback.
+- **Dialog (`gui/qfield_import_dialog.py`):** new "Archivio ZIP…" button (grid 0,3) with `_choose_zip` handler (`*.zip` filter, resets the site combo to "Tutti i siti"); 2 new `TRANSLATIONS` keys (`zip_browse`, `zip_filter`) in 10 languages; `zip_btn` added to the `_set_running` lockout (disabled during import).
+- **Minor fixes from the final review:** restored the ro translation of the Browse button ("Răsfoiește…", accidentally altered by a previous commit); CLI `except` extended to `ValueError`.
+- **Tutorial 38 updated** with the new ZIP source in all 10 languages (it, en, de, es, fr, ca, ro, pt, el, ar).
+- **Verification:** 41/41 local tests in `tests/qfield/` (gitignored) passing, clean `py_compile`. Subagent-driven development, per-task review plus a final branch review (2 one-liner fixes surfaced by the final review). **Manual follow-up remaining:** visual verification in real QGIS (button + zip import with media/thumbnail).
+
+---
+
 ## [feat] - 2026-07-22 — Feat: "Importa da QField (GPKG)" anche nella toolbar (dropdown strumenti di analisi)
 
 > Branch `Stratigraph_00001`. Commit `8748f704` (icona) + `44732910` (azione toolbar). Follow-up della feature QField del 2026-07-21.
