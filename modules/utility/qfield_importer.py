@@ -876,6 +876,30 @@ def run_qfield_import(db, qfield_dir, *, sito=None, srid=None, dry_run=True,
                       geom_dedup=True, copy_media=True, make_thumbs=True,
                       media_dest=None, thumb_path=None, thumb_resize=None,
                       log=print, layers_override=None, rows_override=None):
+    """Esegue l'intero import QField. Vedi spec 2026-07-21 e 2026-08-06.
+
+    ``qfield_dir`` può essere la cartella progetto QField oppure un
+    archivio ``.zip``: l'archivio viene estratto in una cartella
+    temporanea rimossa a fine run (anche in caso di errore), DOPO la
+    copia media e le thumbnail che leggono dall'albero estratto.
+    """
+    source_dir, cleanup = _resolve_qfield_source(qfield_dir)
+    try:
+        return _run_qfield_import_on_dir(
+            db, source_dir, sito=sito, srid=srid, dry_run=dry_run,
+            geom_dedup=geom_dedup, copy_media=copy_media,
+            make_thumbs=make_thumbs, media_dest=media_dest,
+            thumb_path=thumb_path, thumb_resize=thumb_resize, log=log,
+            layers_override=layers_override, rows_override=rows_override)
+    finally:
+        if cleanup is not None:
+            cleanup()
+
+
+def _run_qfield_import_on_dir(db, qfield_dir, *, sito=None, srid=None, dry_run=True,
+                              geom_dedup=True, copy_media=True, make_thumbs=True,
+                              media_dest=None, thumb_path=None, thumb_resize=None,
+                              log=print, layers_override=None, rows_override=None):
     """Esegue l'intero import QField. Vedi spec 2026-07-21.
 
     Scritture DB in un'unica transazione (dry_run -> rollback).
