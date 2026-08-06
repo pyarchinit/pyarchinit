@@ -45,7 +45,8 @@ def main(argv=None):
         description="Importa i dati QField (pyarchinit-qfield) nel DB "
                     "pyArchInit. Dry-run di default: --apply per scrivere.")
     parser.add_argument("--qfield-dir", required=True,
-                        help="Cartella del progetto QField (contiene i .gpkg)")
+                        help="Cartella del progetto QField (contiene i .gpkg) "
+                             "oppure archivio .zip del progetto")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--db", help="Percorso SQLite/SpatiaLite")
     group.add_argument("--conn-str", help="postgresql://user:pw@host/db")
@@ -63,8 +64,11 @@ def main(argv=None):
                         help="Non generare thumbnail")
     args = parser.parse_args(argv)
 
-    if not Path(args.qfield_dir).is_dir():
-        sys.exit(f"Cartella non trovata: {args.qfield_dir}")
+    src = Path(args.qfield_dir)
+    if not (src.is_dir() or (src.is_file()
+                             and src.suffix.lower() == ".zip")):
+        sys.exit("Sorgente non trovata (cartella o archivio .zip): "
+                 f"{args.qfield_dir}")
 
     thumb_path = thumb_resize = None
     if args.db:
