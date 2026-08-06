@@ -14,6 +14,9 @@ Origine: script standalone pyarchinit_qfield_import.py (Enzo Cocca, GPL-2.0).
 
 import logging
 import os
+import shutil
+import tempfile
+import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -146,6 +149,43 @@ def apply_provenance(payload, table):
     elif "last_modified_by" in table.columns:
         payload.setdefault("last_modified_by", PROVENANCE)
     return payload
+
+
+def _resolve_qfield_source(path):
+    """Risolve la sorgente dell'import: cartella o archivio .zip.
+
+    Ritorna (source_dir, cleanup):
+    - cartella          -> (path, None)
+    - file .zip valido  -> estrae TUTTO l'archivio in una temp dir
+                           (prefisso pyarchinit_qfield_zip_) e ritorna
+                           (temp_dir, cleanup); cleanup() la rimuove
+    - altrimenti        -> ValueError con messaggio esplicito
+
+    extract()/extractall() di zipfile sanificano percorsi assoluti e
+    componenti '..': zip-slip coperto dalla stdlib.
+    """
+    p = Path(path)
+    if p.is_dir():
+        return str(p), None
+    if p.is_file() and p.suffix.lower() == ".zip":
+        tmpdir = tempfile.mkdtemp(prefix="pyarchinit_qfield_zip_")
+
+        def cleanup():
+            shutil.rmtree(tmpdir, ignore_errors=True)
+
+        try:
+            with zipfile.ZipFile(str(p)) as zf:
+                zf.extractall(tmpdir)
+        except zipfile.BadZipFile as exc:
+            cleanup()
+            raise ValueError(
+                f"Archivio ZIP non valido o corrotto: {path}") from exc
+        except Exception:
+            cleanup()
+            raise
+        return tmpdir, cleanup
+    raise ValueError(
+        f"Sorgente QField non valida (né cartella né archivio .zip): {path}")
 
 
 # --------------------------------------------------------------------------
