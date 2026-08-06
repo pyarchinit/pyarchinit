@@ -92,7 +92,7 @@ def main(argv=None):
             copy_media=not args.no_media, make_thumbs=not args.no_thumbs,
             media_dest=media_dest, thumb_path=thumb_path,
             thumb_resize=thumb_resize)
-    except QFieldImportError as e:
+    except (QFieldImportError, ValueError) as e:
         sys.exit(f"Errore: {e}")
 
     errors = (result.us.errors + result.materiali.errors +
