@@ -47,12 +47,29 @@ girano in un thread separato.
 
 ---
 
-## 3. Selezionare la cartella del progetto QField
+## 3. Selezionare la sorgente: cartella o archivio ZIP
 
-1. Premi **Sfoglia…** e scegli la **cartella del progetto QField**.
-2. Il dialog **scansiona i GeoPackage** e popola automaticamente la tendina
-   **Sito** con i siti trovati.
-3. Scegli un sito specifico oppure lascia **Tutti i siti** per importare tutto.
+1. Premi **Sfoglia…** e scegli la **cartella del progetto QField**, oppure
+   premi **Archivio ZIP…** e scegli un archivio **`.zip`** del progetto
+   QField (il selettore file filtra su `*.zip`). In entrambi i casi il
+   percorso scelto compare nello stesso campo sorgente.
+2. Se scegli una cartella, il dialog **scansiona i GeoPackage** e popola
+   automaticamente la tendina **Sito** con i siti trovati.
+3. Se scegli un archivio ZIP, l'archivio viene **estratto automaticamente**
+   in una cartella temporanea e la tendina **Sito** si azzera su **Tutti i
+   siti** (da uno zip non viene eseguita alcuna pre-scansione dei siti):
+   l'importazione (Anteprima/dry-run o Importa, foto e miniature incluse)
+   gira sull'albero estratto, e la cartella temporanea viene **rimossa
+   automaticamente** al termine dell'operazione, anche in caso di errore.
+4. Scegli un sito specifico oppure lascia **Tutti i siti** per importare
+   tutto.
+
+> Durante un'importazione in corso, sia **Sfoglia…** sia **Archivio ZIP…**
+> sono **disabilitati**, come tutti gli altri controlli del dialog.
+
+> Se l'archivio scelto è **corrotto o non valido**, viene mostrato l'errore
+> **"Archivio ZIP non valido o corrotto: …"**. Se lo zip non contiene alcun
+> file **`.gpkg`**, viene mostrato il consueto errore "nessun layer trovato".
 
 ---
 
@@ -107,11 +124,19 @@ dedotti automaticamente** e vanno completati a mano nella scheda US.
 ## 8. Alternativa da riga di comando (CLI)
 
 Per usi avanzati o headless è disponibile lo script CLI. Il **dry-run è il
-comportamento predefinito**; aggiungi `--apply` per scrivere davvero:
+comportamento predefinito**; aggiungi `--apply` per scrivere davvero. Il
+parametro `--qfield-dir` accetta sia la **cartella del progetto** sia un
+**archivio `.zip`**: se punta a uno zip, viene estratto automaticamente in
+una cartella temporanea, rimossa al termine dell'esecuzione. Una sorgente
+inesistente termina con l'errore **"Sorgente non trovata (cartella o
+archivio .zip): …"**.
 
 ```bash
-# Anteprima (dry-run, default)
+# Anteprima (dry-run, default) da cartella
 python3 scripts/import_qfield.py --qfield-dir <cartella>
+
+# Anteprima (dry-run, default) da archivio ZIP
+python3 scripts/import_qfield.py --qfield-dir <archivio.zip>
 
 # Importazione reale
 python3 scripts/import_qfield.py --qfield-dir <cartella> --apply
