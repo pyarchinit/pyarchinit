@@ -51,12 +51,31 @@ ejecutan en un hilo separado.
 
 ---
 
-## 3. Seleccionar la carpeta del proyecto QField
+## 3. Seleccionar la fuente: carpeta o archivo ZIP
 
-1. Pulsa **Examinar…** y elige la **carpeta del proyecto QField**.
-2. El diálogo **escanea los GeoPackages** y rellena automáticamente el
-   desplegable **Sitio** con los sitios encontrados.
-3. Elige un sitio concreto o deja **Todos los sitios** para importarlo todo.
+1. Pulsa **Examinar…** y elige la **carpeta del proyecto QField**, o pulsa
+   **Archivo ZIP…** y elige un archivo **`.zip`** del proyecto QField (el
+   selector de archivos filtra por `*.zip`). En ambos casos, la ruta elegida
+   aparece en el mismo campo de origen.
+2. Si eliges una carpeta, el diálogo **escanea los GeoPackages** y rellena
+   automáticamente el desplegable **Sitio** con los sitios encontrados.
+3. Si eliges un archivo ZIP, se **extrae automáticamente** a una carpeta
+   temporal y el desplegable **Sitio** se restablece a **Todos los sitios**
+   (no se realiza ningún escaneo previo de sitios desde un zip): la
+   importación (Vista previa/simulación o Importar, fotos y miniaturas
+   incluidas) se ejecuta sobre el árbol extraído, y la carpeta temporal se
+   **elimina automáticamente** al finalizar la operación, incluso en caso de
+   error.
+4. Elige un sitio concreto o deja **Todos los sitios** para importarlo todo.
+
+> Mientras una importación está en curso, tanto **Examinar…** como
+> **Archivo ZIP…** están **deshabilitados**, como el resto de controles del
+> diálogo.
+
+> Si el archivo elegido está **corrupto o no es válido**, se muestra un error
+> claro: **«Archivio ZIP non valido o corrotto: …»**. Si el zip no contiene
+> ningún archivo **`.gpkg`**, se muestra en su lugar el habitual error de
+> «no se han encontrado capas».
 
 ---
 
@@ -111,11 +130,19 @@ deducen automáticamente** y deben completarse a mano en la ficha UE.
 ## 8. Alternativa por línea de comandos (CLI)
 
 Para usos avanzados o sin interfaz hay un script CLI disponible. La **simulación
-es el comportamiento predeterminado**; añade `--apply` para escribir realmente:
+es el comportamiento predeterminado**; añade `--apply` para escribir realmente.
+El parámetro `--qfield-dir` acepta tanto la **carpeta del proyecto** como un
+**archivo `.zip`**: si apunta a un zip, se extrae automáticamente a una
+carpeta temporal, que se elimina al finalizar la ejecución. Un origen
+inexistente termina con el error **«Sorgente non trovata (cartella o archivio
+.zip): …»**.
 
 ```bash
-# Vista previa (simulación, por defecto)
+# Vista previa (simulación, por defecto) desde una carpeta
 python3 scripts/import_qfield.py --qfield-dir <carpeta>
+
+# Vista previa (simulación, por defecto) desde un archivo ZIP
+python3 scripts/import_qfield.py --qfield-dir <archivo.zip>
 
 # Importación real
 python3 scripts/import_qfield.py --qfield-dir <carpeta> --apply

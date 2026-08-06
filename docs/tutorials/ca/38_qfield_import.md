@@ -50,12 +50,29 @@ s'executen en un fil separat.
 
 ---
 
-## 3. Seleccionar la carpeta del projecte QField
+## 3. Seleccionar la font: carpeta o arxiu ZIP
 
-1. Prem **Navega…** i tria la **carpeta del projecte QField**.
-2. El diàleg **escaneja els GeoPackages** i omple automàticament el desplegable
-   **Lloc** amb els llocs trobats.
-3. Tria un lloc concret o deixa **Tots els llocs** per importar-ho tot.
+1. Prem **Navega…** i tria la **carpeta del projecte QField**, o prem
+   **Arxiu ZIP…** i tria un arxiu **`.zip`** del projecte QField (el
+   selector de fitxers filtra per `*.zip`). En ambdós casos, el camí triat
+   apareix al mateix camp d'origen.
+2. Si tries una carpeta, el diàleg **escaneja els GeoPackages** i omple
+   automàticament el desplegable **Lloc** amb els llocs trobats.
+3. Si tries un arxiu ZIP, s'**extreu automàticament** a una carpeta temporal
+   i el desplegable **Lloc** torna a **Tots els llocs** (no es fa cap
+   escaneig previ de llocs des d'un zip): la importació (Previsualització/
+   simulació o Importa, fotos i miniatures incloses) s'executa sobre l'arbre
+   extret, i la carpeta temporal s'**elimina automàticament** en acabar
+   l'operació, fins i tot en cas d'error.
+4. Tria un lloc concret o deixa **Tots els llocs** per importar-ho tot.
+
+> Mentre una importació és en curs, tant **Navega…** com **Arxiu ZIP…**
+> estan **desactivats**, com la resta de controls del diàleg.
+
+> Si l'arxiu triat és **corrupte o no vàlid**, es mostra un error clar:
+> **«Archivio ZIP non valido o corrotto: …»**. Si el zip no conté cap
+> fitxer **`.gpkg`**, es mostra en el seu lloc l'error habitual de «no
+> s'han trobat capes».
 
 ---
 
@@ -111,11 +128,18 @@ dedueixen automàticament** i s'han de completar a mà a la fitxa UE.
 
 Per a usos avançats o sense interfície hi ha un script CLI disponible. La
 **simulació és el comportament per defecte**; afegeix `--apply` per escriure
-realment:
+realment. El paràmetre `--qfield-dir` accepta tant la **carpeta del
+projecte** com un arxiu **`.zip`**: si apunta a un zip, s'extreu
+automàticament a una carpeta temporal, que s'elimina en acabar l'execució.
+Un origen inexistent atura l'script amb l'error **«Sorgente non trovata
+(cartella o archivio .zip): …»**.
 
 ```bash
-# Previsualització (simulació, per defecte)
+# Previsualització (simulació, per defecte) des d'una carpeta
 python3 scripts/import_qfield.py --qfield-dir <carpeta>
+
+# Previsualització (simulació, per defecte) des d'un arxiu ZIP
+python3 scripts/import_qfield.py --qfield-dir <arxiu.zip>
 
 # Importació real
 python3 scripts/import_qfield.py --qfield-dir <carpeta> --apply

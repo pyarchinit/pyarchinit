@@ -50,12 +50,32 @@ WebDAV s'exécutent dans un fil d'exécution séparé.
 
 ---
 
-## 3. Sélectionner le dossier du projet QField
+## 3. Sélectionner la source : dossier ou archive ZIP
 
-1. Cliquez sur **Parcourir…** et choisissez le **dossier du projet QField**.
-2. La boîte de dialogue **analyse les GeoPackages** et remplit automatiquement la
-   liste déroulante **Site** avec les sites trouvés.
-3. Choisissez un site précis ou laissez **Tous les sites** pour tout importer.
+1. Cliquez sur **Parcourir…** et choisissez le **dossier du projet QField**,
+   ou cliquez sur **Archive ZIP…** et choisissez une archive **`.zip`** du
+   projet QField (le sélecteur de fichiers filtre sur `*.zip`). Dans les deux
+   cas, le chemin choisi apparaît dans le même champ source.
+2. Si vous choisissez un dossier, la boîte de dialogue **analyse les
+   GeoPackages** et remplit automatiquement la liste déroulante **Site** avec
+   les sites trouvés.
+3. Si vous choisissez une archive ZIP, celle-ci est **extraite
+   automatiquement** dans un dossier temporaire et la liste déroulante
+   **Site** revient à **Tous les sites** (aucune pré-analyse des sites n'est
+   effectuée depuis une archive zip) : l'import (Aperçu/simulation ou Import,
+   photos et vignettes incluses) s'exécute sur l'arborescence extraite, et le
+   dossier temporaire est **automatiquement supprimé** à la fin de
+   l'opération, même en cas d'erreur.
+4. Choisissez un site précis ou laissez **Tous les sites** pour tout importer.
+
+> Pendant qu'un import est en cours, **Parcourir…** et **Archive ZIP…** sont
+> tous deux **désactivés**, comme tous les autres contrôles de la boîte de
+> dialogue.
+
+> Si l'archive choisie est **corrompue ou invalide**, un message d'erreur
+> clair s'affiche : **« Archivio ZIP non valido o corrotto : … »**. Si
+> l'archive ne contient aucun fichier **`.gpkg`**, l'erreur habituelle
+> « aucune couche trouvée » s'affiche à la place.
 
 ---
 
@@ -114,11 +134,18 @@ fiche US.
 
 Pour un usage avancé ou sans interface, un script CLI est disponible. La
 **simulation est le comportement par défaut** ; ajoutez `--apply` pour écrire
-réellement :
+réellement. Le paramètre `--qfield-dir` accepte aussi bien le **dossier du
+projet** qu'une archive **`.zip`** : s'il pointe vers une archive zip, celle-ci
+est extraite automatiquement dans un dossier temporaire, supprimé à la fin de
+l'exécution. Une source inexistante interrompt le script avec l'erreur
+**« Sorgente non trovata (cartella o archivio .zip) : … »**.
 
 ```bash
-# Aperçu (simulation, par défaut)
+# Aperçu (simulation, par défaut) depuis un dossier
 python3 scripts/import_qfield.py --qfield-dir <dossier>
+
+# Aperçu (simulation, par défaut) depuis une archive ZIP
+python3 scripts/import_qfield.py --qfield-dir <archive.zip>
 
 # Import réel
 python3 scripts/import_qfield.py --qfield-dir <dossier> --apply
