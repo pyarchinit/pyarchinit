@@ -49,12 +49,32 @@ WebDAV correm num fio separado.
 
 ---
 
-## 3. Selecionar a pasta do projeto QField
+## 3. Selecionar a origem: pasta ou arquivo ZIP
 
-1. Clique em **Procurar…** e escolha a **pasta do projeto QField**.
-2. A caixa de diálogo **analisa os GeoPackages** e preenche automaticamente a
-   lista pendente **Sítio** com os sítios encontrados.
-3. Escolha um sítio específico ou deixe **Todos os sítios** para importar tudo.
+1. Clique em **Procurar…** e escolha a **pasta do projeto QField**, ou
+   clique em **Arquivo ZIP…** e escolha um arquivo **`.zip`** do projeto
+   QField (o seletor de ficheiros filtra por `*.zip`). Em ambos os casos, o
+   caminho escolhido aparece no mesmo campo de origem.
+2. Se escolher uma pasta, a caixa de diálogo **analisa os GeoPackages** e
+   preenche automaticamente a lista pendente **Sítio** com os sítios
+   encontrados.
+3. Se escolher um arquivo ZIP, este é **extraído automaticamente** para uma
+   pasta temporária e a lista pendente **Sítio** volta a **Todos os sítios**
+   (não é feita nenhuma pré-análise de sítios a partir de um zip): a
+   importação (Pré-visualização/simulação ou Importação, incluindo fotos e
+   miniaturas) é executada sobre a árvore extraída, e a pasta temporária é
+   **removida automaticamente** no final da operação, mesmo em caso de erro.
+4. Escolha um sítio específico ou deixe **Todos os sítios** para importar
+   tudo.
+
+> Enquanto uma importação está em curso, tanto **Procurar…** como
+> **Arquivo ZIP…** ficam **desativados**, tal como todos os outros
+> controlos da caixa de diálogo.
+
+> Se o arquivo escolhido estiver **corrompido ou for inválido**, é mostrado
+> um erro claro: **"Archivio ZIP non valido o corrotto: …"**. Se o zip não
+> contiver nenhum ficheiro **`.gpkg`**, é mostrado em vez disso o erro
+> habitual de "nenhuma camada encontrada".
 
 ---
 
@@ -109,11 +129,19 @@ automaticamente** e devem ser completadas à mão na ficha UE.
 ## 8. Alternativa por linha de comandos (CLI)
 
 Para usos avançados ou sem interface está disponível um script CLI. A **simulação
-é o comportamento predefinido**; acrescente `--apply` para escrever realmente:
+é o comportamento predefinido**; acrescente `--apply` para escrever realmente.
+O parâmetro `--qfield-dir` aceita tanto a **pasta do projeto** como um
+arquivo **`.zip`**: se apontar para um zip, este é extraído automaticamente
+para uma pasta temporária, removida no final da execução. Uma origem
+inexistente termina o script com o erro **"Sorgente non trovata (cartella o
+archivio .zip): …"**.
 
 ```bash
-# Pré-visualização (simulação, predefinição)
+# Pré-visualização (simulação, predefinição) a partir de uma pasta
 python3 scripts/import_qfield.py --qfield-dir <pasta>
+
+# Pré-visualização (simulação, predefinição) a partir de um arquivo ZIP
+python3 scripts/import_qfield.py --qfield-dir <arquivo.zip>
 
 # Importação real
 python3 scripts/import_qfield.py --qfield-dir <pasta> --apply

@@ -48,12 +48,30 @@ WebDAV rulează într-un fir separat.
 
 ---
 
-## 3. Selectarea folderului proiectului QField
+## 3. Selectarea sursei: folder sau arhivă ZIP
 
-1. Apasă **Răsfoiește…** și alege **folderul proiectului QField**.
-2. Dialogul **scanează GeoPackage-urile** și completează automat lista derulantă
-   **Sit** cu siturile găsite.
-3. Alege un sit anume sau lasă **Toate siturile** pentru a importa tot.
+1. Apasă **Răsfoiește…** și alege **folderul proiectului QField**, sau apasă
+   **Arhivă ZIP…** și alege o arhivă **`.zip`** a proiectului QField
+   (selectorul de fișiere filtrează după `*.zip`). În ambele cazuri, calea
+   aleasă apare în același câmp de sursă.
+2. Dacă alegi un folder, dialogul **scanează GeoPackage-urile** și
+   completează automat lista derulantă **Sit** cu siturile găsite.
+3. Dacă alegi o arhivă ZIP, aceasta este **extrasă automat** într-un folder
+   temporar, iar lista derulantă **Sit** revine la **Toate siturile** (nu se
+   face nicio prescanare a siturilor dintr-o arhivă zip): importul
+   (Previzualizare/simulare sau Import, inclusiv fotografii și miniaturi)
+   rulează pe arborele extras, iar folderul temporar este **eliminat
+   automat** la finalul operațiunii, chiar și în caz de eroare.
+4. Alege un sit anume sau lasă **Toate siturile** pentru a importa tot.
+
+> Cât timp un import este în curs, atât **Răsfoiește…**, cât și
+> **Arhivă ZIP…** sunt **dezactivate**, la fel ca toate celelalte controale
+> din dialog.
+
+> Dacă arhiva aleasă este **coruptă sau nevalidă**, se afișează o eroare
+> clară: **„Archivio ZIP non valido o corrotto: …”**. Dacă arhiva zip nu
+> conține niciun fișier **`.gpkg`**, se afișează în schimb eroarea obișnuită
+> „nu s-au găsit straturi”.
 
 ---
 
@@ -110,11 +128,18 @@ automat** și trebuie completate manual în fișa US.
 
 Pentru utilizări avansate sau fără interfață este disponibil un script CLI.
 **Simularea este comportamentul implicit**; adaugă `--apply` pentru a scrie
-efectiv:
+efectiv. Parametrul `--qfield-dir` acceptă atât **folderul proiectului**, cât
+și o arhivă **`.zip`**: dacă indică o arhivă zip, aceasta este extrasă automat
+într-un folder temporar, care este eliminat la finalul rulării. O sursă
+inexistentă oprește scriptul cu eroarea **„Sorgente non trovata (cartella o
+archivio .zip): …”**.
 
 ```bash
-# Previzualizare (simulare, implicit)
+# Previzualizare (simulare, implicit) dintr-un folder
 python3 scripts/import_qfield.py --qfield-dir <folder>
+
+# Previzualizare (simulare, implicit) dintr-o arhivă ZIP
+python3 scripts/import_qfield.py --qfield-dir <arhiva.zip>
 
 # Import real
 python3 scripts/import_qfield.py --qfield-dir <folder> --apply
