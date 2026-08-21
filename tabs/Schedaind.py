@@ -1744,9 +1744,8 @@ class pyarchinit_Schedaind(QDialog, MAIN_DIALOG_CLASS):
         table_clear_cmd = ("%s.clearContents()") % (self.table_name)
         eval(table_clear_cmd)
 
-        for i in range(table_col_count):
-            table_rem_row_cmd = ("%s.removeRow(%d)") % (self.table_name, i)
-            eval(table_rem_row_cmd)
+        # drop ALL rows (removeRow(i) for i < columnCount() left stale rows behind)
+        eval("%s.setRowCount(0)" % self.table_name)
 
         #for i in range(len(self.data_list)):
             #self.insert_new_row(self.table_name)

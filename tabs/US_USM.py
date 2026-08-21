@@ -15116,7 +15116,9 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                     sub_list.append(str(value.text()))
                 elif preserve_empty:
                     sub_list.append("")
-            if bool(sub_list):
+            # A row whose cells are all blank carries no data (an unused "+"
+            # row, or a leftover of a stale reload): never persist it.
+            if any(cell.strip() for cell in sub_list):
                 lista.append(sub_list)
         return lista
     def tableInsertData(self, t, d):
@@ -15127,12 +15129,12 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         # column table count
         table_col_count_cmd = "{}.columnCount()".format(self.table_name)
         table_col_count = eval(table_col_count_cmd)
-        # clear table
-        table_clear_cmd = "{}.clearContents()".format(self.table_name)
-        eval(table_clear_cmd)
-        for i in range(table_col_count):
-            table_rem_row_cmd = "{}.removeRow(int({}))".format(self.table_name, i)
-            eval(table_rem_row_cmd)
+        # clear table: drop ALL rows. The previous
+        # `for i in range(columnCount()): removeRow(i)` removed at most
+        # 4 rows (and only every other one, indexes shift), so stale rows
+        # survived every reload and were persisted as ['', '', '', ''].
+        eval("{}.clearContents()".format(self.table_name))
+        eval("{}.setRowCount(0)".format(self.table_name))
         for row in range(len(self.data_list)):
             cmd = '{}.insertRow(int({}))'.format(self.table_name, row)
             eval(cmd)
