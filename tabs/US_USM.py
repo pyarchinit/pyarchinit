@@ -24779,7 +24779,9 @@ DATABASE SCHEMA KNOWLEDGE:
                     sub_list.append(str(value.text()))
                 elif preserve_empty:
                     sub_list.append("")
-            if bool(sub_list):
+            # A row whose cells are all blank carries no data (an unused "+"
+            # row, or a leftover of a stale reload): never persist it.
+            if any(cell.strip() for cell in sub_list):
                 lista.append(sub_list)
         return lista
     def tableInsertData(self, t, d):
@@ -24805,11 +24807,12 @@ DATABASE SCHEMA KNOWLEDGE:
         widget_name = t.replace('self.', '') if t.startswith('self.') else t
         table = getattr(self, widget_name)
 
-        table_col_count = table.columnCount()
+        # Drop ALL existing rows before loading the record. The previous
+        # `for i in range(columnCount()): removeRow(i)` removed at most
+        # 4 rows (and only every other one, indexes shift), so stale rows
+        # survived every reload and were persisted as ['', '', '', ''].
         table.clearContents()
-
-        for i in range(table_col_count):
-            table.removeRow(i)
+        table.setRowCount(0)
 
         for row in range(len(self.data_list)):
             table.insertRow(row)
