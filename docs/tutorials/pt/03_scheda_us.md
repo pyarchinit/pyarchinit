@@ -399,6 +399,26 @@ O botao **Check relationships** verifica a consistencia das relacoes:
 ![Verificacao de Relacoes](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Resultado da verificacao de relacoes*
 
+### Linhas vazias nas relacoes (reparacao)
+
+Nas versoes anteriores (ate a 4.9.9 e as 5.x anteriores a agosto de 2026) a tabela **Relacoes estratigraficas** do **primeiro registo da BD** (normalmente a UE 1) podia acumular linhas completamente vazias `['', '', '', '']`: sempre que a ficha era aberta ou um novo registo era guardado, a tabela nao era totalmente esvaziada antes de ser recarregada e as linhas residuais eram guardadas ao responder **OK** a "O registo foi modificado. Deseja guardar?". O numero de linhas triplicava aproximadamente em cada sessao (ate dezenas de milhares), tornando a abertura da ficha muito lenta; as relacoes reais nao se perdiam, mas ficavam soterradas no fim da tabela. A partir desta versao o problema esta resolvido: a tabela e esvaziada por completo ao recarregar e as linhas totalmente vazias nunca sao guardadas (nem sequer uma linha adicionada com **+** e deixada em branco).
+
+Para limpar uma BD ja afetada, utilize a entrada de menu dedicada:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migracoes → Reparar relacoes vazias)
+2. A ferramenta analisa a BD ligada em modo so de leitura e mostra uma **pre-visualizacao** com o numero de registos e de linhas vazias encontradas (ex. "US 1 rapporti: 78676 → 2 righe")
+3. Confirme: e criada uma **copia de seguranca automatica** (copia do ficheiro SQLite junto ao original, ou `pg_dump` para PostgreSQL em `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. Sao removidas **apenas** as linhas completamente vazias; no fim e mostrado um resumo
+5. Volte a abrir a Ficha de UE para ver as relacoes limpas
+
+A ferramenta e idempotente: se a BD ja estiver limpa indica "Rapporti già puliti" (relacoes ja limpas). As relacoes preenchidas nunca sao tocadas, e os registos ja contaminados tambem se corrigem sozinhos na proxima gravacao a partir da ficha.
+
+> **Utilizadores avancados (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <ficheiro.sqlite>` para a pre-visualizacao e depois `--apply` para aplicar (para PostgreSQL use `--conn-str <postgresql://...>`).
+
+<!-- IMAGE: Pre-visualizacao da reparacao de relacoes vazias -->
+![Reparar relacoes vazias](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
+*Figura 34: Pre-visualizacao da reparacao de relacoes vazias*
+
 ---
 
 ## Separador Relacoes da Matrix Estendida
