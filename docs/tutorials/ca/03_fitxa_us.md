@@ -362,6 +362,26 @@ El botó **Check relacions** verifica la coherència de les relacions:
 - Troba inconsistències
 - Senyala errors lògics
 
+### Files buides a les relacions (reparació)
+
+A les versions anteriors (fins a la 4.9.9 i les 5.x prèvies a l'agost de 2026) la taula **Relacions estratigràfiques** del **primer registre de la BD** (normalment la US 1) podia acumular files completament buides `['', '', '', '']`: cada vegada que s'obria la fitxa o es desava un registre nou, la taula no es buidava del tot abans de recarregar-se i les files residuals es desaven en respondre **OK** a "El registre s'ha modificat. Voleu desar?". El nombre de files es triplicava aproximadament a cada sessió (fins a desenes de milers), alentint molt l'obertura de la fitxa; les relacions reals no es perdien, però quedaven soterrades al final de la taula. Des d'aquesta versió el problema està resolt: la taula es buida completament en recarregar-se i les files totalment buides no es desen mai (ni tan sols una fila afegida amb **+** i deixada en blanc).
+
+Per netejar una BD ja afectada, utilitzeu l'entrada de menú dedicada:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migracions → Reparar relacions buides)
+2. L'eina analitza la BD connectada en mode de només lectura i mostra una **previsualització** amb el nombre de registres i de files buides trobades (p. ex. "US 1 rapporti: 78676 → 2 righe")
+3. Confirmeu: es crea una **còpia de seguretat automàtica** (còpia del fitxer SQLite al costat de l'original, o `pg_dump` per a PostgreSQL a `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. S'eliminen **només** les files completament buides; en acabar es mostra un resum
+5. Torneu a obrir la Fitxa US per veure les relacions netejades
+
+L'eina és idempotent: si la BD ja està neta indica "Rapporti già puliti" (relacions ja netes). Les relacions emplenades no es toquen mai, i els registres ja contaminats també es corregeixen sols en el següent desament des de la fitxa.
+
+> **Usuaris avançats (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <fitxer.sqlite>` per a la previsualització i després `--apply` per aplicar (per a PostgreSQL utilitzeu `--conn-str <postgresql://...>`).
+
+<!-- IMATGE: Previsualització de la reparació de relacions buides -->
+![Reparar relacions buides](images/03_fitxa_us/01_ripara_rapporti_vuoti.png)
+*Figura 1: Previsualització de la reparació de relacions buides*
+
 ---
 
 ## Pestanya Dades Físiques

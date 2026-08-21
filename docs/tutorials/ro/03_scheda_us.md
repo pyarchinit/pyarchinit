@@ -399,6 +399,26 @@ Butonul **Verificare relatii** verifica consistenta relatiilor:
 ![Verificare Relatii](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Rezultatul verificarii relatiilor*
 
+### Randuri goale in relatii (reparare)
+
+In versiunile anterioare (pana la 4.9.9 si versiunile 5.x dinainte de august 2026) tabelul **Relatii stratigrafice** al **primei inregistrari din BD** (de obicei US 1) putea acumula randuri complet goale `['', '', '', '']`: la fiecare deschidere a fisei sau salvare a unei inregistrari noi, tabelul nu era golit complet inainte de reincarcare, iar randurile ramase erau salvate cand se raspundea **OK** la "Inregistrarea a fost modificata. Doriti sa salvati?". Numarul de randuri se tripla aproximativ la fiecare sesiune (pana la zeci de mii), incetinind mult deschiderea fisei; relatiile reale nu se pierdeau, dar ajungeau ingropate la sfarsitul tabelului. Incepand cu aceasta versiune problema este rezolvata: tabelul este golit complet la reincarcare, iar randurile complet goale nu sunt niciodata salvate (nici macar un rand adaugat cu **+** si lasat gol).
+
+Pentru a curata o BD deja afectata, folositi intrarea de meniu dedicata:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migrari → Repara relatiile goale)
+2. Instrumentul analizeaza BD conectata doar in citire si afiseaza o **previzualizare** cu numarul de inregistrari si de randuri goale gasite (ex. "US 1 rapporti: 78676 → 2 righe")
+3. Confirmati: se creeaza un **backup automat** (copie a fisierului SQLite langa original sau `pg_dump` pentru PostgreSQL in `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. Sunt eliminate **doar** randurile complet goale; la final apare un rezumat
+5. Redeschideti Fisa US pentru a vedea relatiile curatate
+
+Instrumentul este idempotent: daca BD este deja curata, semnaleaza "Rapporti già puliti" (relatii deja curate). Relatiile completate nu sunt niciodata atinse, iar inregistrarile deja afectate se corecteaza singure si la urmatoarea salvare din fisa.
+
+> **Utilizatori avansati (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <fisier.sqlite>` pentru previzualizare, apoi `--apply` pentru aplicare (pentru PostgreSQL folositi `--conn-str <postgresql://...>`).
+
+<!-- IMAGINE: Previzualizarea repararii relatiilor goale -->
+![Repara relatiile goale](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
+*Figura 34: Previzualizarea repararii relatiilor goale*
+
 ---
 
 ## Fila Relatii Extended Matrix
