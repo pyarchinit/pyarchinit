@@ -5,6 +5,81 @@
 
 ---
 
+## [fix] - 2026-08-21 — Fix: righe vuote nei rapporti stratigrafici che si moltiplicano (US 1) + riparazione DB
+
+> Branch `Stratigraph_00001`. Commit `7bb98fcf` (fix `US_USM.py`), `5676e83c` (stesso fix nelle altre schede), `14ebde65` (libreria + CLI di riparazione + voce di menu), `a47c9dfa` (test), `091256de`..`95ebe38f` (tutorial 03 in 10 lingue).
+> File: `tabs/US_USM.py`, `tabs/Schedaind.py`, `tabs/Tomba.py`, `tabs/Tafonomia.py`, `tabs/UT.py`, `tabs/Image_viewer.py`, `pyarchinitPlugin.py`, `scripts/migrations/_2026_08_rapporti_blank_rows_lib.py` (NUOVO), `scripts/migrations/2026_08_rapporti_blank_rows.py` (NUOVO), `tests/utility/test_us_rapporti_table.py` (NUOVO), `tests/migrations/test_rapporti_blank_rows.py` (NUOVO), `docs/tutorials/{it,en,de,es,fr,ar,ca,ro,pt,el}/03_*.md`.
+
+### Italiano
+
+#### Contesto
+
+- **Segnalazione utente (2026-08-20, plugin 4.9.9 su `master`):** nel DB dell'utente la colonna `us_table.rapporti` della US 1 aveva raggiunto **78 676 righe**, di cui 78 674 erano `['', '', '', '']`; i 2 rapporti reali erano sepolti in mezzo alle righe vuote. La crescita era di circa ×3 per sessione di QGIS e colpiva solo il primo record (`DATA_LIST[0]`).
+- **Causa radice (`tabs/US_USM.py`):** `tableInsertData` "svuotava" la griglia dei rapporti con `for i in range(columnCount()): removeRow(i)` — che rimuove al massimo 4 righe, e solo una sì e una no perché gli indici scalano dopo ogni `removeRow`. Le righe residue sopravvivevano quindi a ogni `fill_fields()` non preceduto da `empty_fields()`: in `__init__` il record 0 viene caricato tre volte di seguito (`on_pushButton_connect_pressed` → `fill_fields()` → `set_sito()`), più `set_sito` dopo il salvataggio di un nuovo record e `on_pushButton_sort_pressed`. Da af431e71 (4.9.7) `table2dict(preserve_empty=True)` trasforma quelle righe residue in `['', '', '', '']`, che `records_equal_check` segnala come modifica e `update_record` persiste: il bug era latente, `preserve_empty=True` lo ha reso visibile.
+
+#### Fix UI
+
+- **`tableInsertData` (`7bb98fcf`, `tabs/US_USM.py`):** ora esegue `clearContents()` + `setRowCount(0)` — la griglia viene davvero svuotata prima di caricare il record.
+- **`table2dict` (`7bb98fcf`):** non emette mai una riga le cui celle sono tutte vuote (`any(cell.strip() for cell in sub_list)`) — copre le righe "+" non usate e i record già inquinati, che si auto-riparano al salvataggio successivo. Le righe parziali come `['Copre', '2', '', '']` restano preservate (guardia per af431e71 / 4.9.7, che ha introdotto `preserve_empty=True`).
+- **Stesso ciclo difettoso sostituito da `setRowCount(0)` (`5676e83c`)** in `tabs/Schedaind.py`, `tabs/Tomba.py`, `tabs/Tafonomia.py`, `tabs/UT.py`, `tabs/Image_viewer.py`.
+
+#### Riparazione DB
+
+- **Libreria `scripts/migrations/_2026_08_rapporti_blank_rows_lib.py` (NUOVA, `14ebde65`):** `is_blank_row`, `strip_blank_rows`, `repair_blank_rapporti(handle, dry_run)` → `RepairResult` con `rows_scanned` / `rows_changed` / `blank_rows_removed` / `details`. Rimuove le sottoliste tutte vuote da `us_table.rapporti` e `rapporti2`, lascia intatti i valori non parsabili, una sola transazione, idempotente, cross-backend (SQLite/PostgreSQL) via `DbHandle`.
+- **CLI `scripts/migrations/2026_08_rapporti_blank_rows.py` (NUOVA):** `--dry-run` / `--apply` / `--rollback`, backup automatico via `_common` (copia SQLite / `pg_dump`).
+- **Voce di menu in `pyarchinitPlugin.py`:** "Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])" (`actionRapportiBlankRows`, handler `_run_rapporti_blank_rows_repair`): anteprima dry-run con fino a 15 righe di dettaglio, conferma, backup automatico (copia SQLite / `pg_dump`), applicazione, riepilogo; mostra "Rapporti già puliti" quando non c'è nulla da fare.
+- **Verificato sul DB dell'utente segnalante:** 1311 record scansionati, US 1 da 78 676 a 2 righe, nient'altro toccato.
+
+#### Test
+
+- **`tests/utility/test_us_rapporti_table.py` (NUOVO, `a47c9dfa`, 6 test):** estrae via AST le vere `table2dict` / `tableInsertData` da `tabs/US_USM.py` e le lega a un `QTableWidget`; rigioca il triplo caricamento di `__init__`; protegge le righe parziali di af431e71.
+- **`tests/migrations/test_rapporti_blank_rows.py` (NUOVO, 5 test):** strip, dry-run senza mutazioni, apply, idempotenza.
+- **Esito:** 11/11 verdi.
+
+#### Documentazione
+
+- **Tutorial 03 (Scheda US)** in 10 lingue (it, en, de, es, fr, ar, ca, ro, pt, el): nuova sottosezione "Righe vuote nei rapporti (riparazione)" (`091256de`, `b9dedd5e`, `43cf8f0e`, `95ebe38f`).
+
+#### Note per master
+
+- Lo stesso fix UI più una riparazione standalone compatibile con SQLAlchemy 1.4 (`modules/utility/rapporti_repair.py`, CLI `scripts/repair_rapporti.py`, voce di menu "Ripara rapporti vuoti") sono pronti per `master` sul branch locale `fix/rapporti-blank-rows-master` (commit `c6af62ef`, `8a733b2f`, basati su `origin/master` e11bbf78), **non ancora pushati**.
+
+### English
+
+#### Context
+
+- **User bug report (2026-08-20, plugin 4.9.9 on `master`):** in the user's DB the `us_table.rapporti` column of US 1 had reached **78,676 rows**, of which 78,674 were `['', '', '', '']`; the 2 real relationships were buried among the blank rows. Growth was about ×3 per QGIS session and only the first record (`DATA_LIST[0]`) was affected.
+- **Root cause (`tabs/US_USM.py`):** `tableInsertData` "emptied" the rapporti grid with `for i in range(columnCount()): removeRow(i)` — which removes at most 4 rows, and only every other one because indexes shift after each `removeRow`. Leftover rows therefore survived every `fill_fields()` not preceded by `empty_fields()`: in `__init__` record 0 is loaded three times in a row (`on_pushButton_connect_pressed` → `fill_fields()` → `set_sito()`), plus `set_sito` after saving a new record and `on_pushButton_sort_pressed`. Since af431e71 (4.9.7) `table2dict(preserve_empty=True)` turns those leftover rows into `['', '', '', '']`, which `records_equal_check` reports as a change and `update_record` persists: the bug was latent, `preserve_empty=True` exposed it.
+
+#### UI fix
+
+- **`tableInsertData` (`7bb98fcf`, `tabs/US_USM.py`):** now does `clearContents()` + `setRowCount(0)` — the grid is really emptied before loading the record.
+- **`table2dict` (`7bb98fcf`):** never emits a row whose cells are all blank (`any(cell.strip() for cell in sub_list)`) — covers unused "+" rows and already-polluted records, which self-heal on the next save. Partial rows such as `['Copre', '2', '', '']` are still preserved (guard for af431e71 / 4.9.7, which introduced `preserve_empty=True`).
+- **Same faulty loop replaced by `setRowCount(0)` (`5676e83c`)** in `tabs/Schedaind.py`, `tabs/Tomba.py`, `tabs/Tafonomia.py`, `tabs/UT.py`, `tabs/Image_viewer.py`.
+
+#### DB repair
+
+- **Library `scripts/migrations/_2026_08_rapporti_blank_rows_lib.py` (NEW, `14ebde65`):** `is_blank_row`, `strip_blank_rows`, `repair_blank_rapporti(handle, dry_run)` → `RepairResult` with `rows_scanned` / `rows_changed` / `blank_rows_removed` / `details`. Strips all-blank sublists from `us_table.rapporti` and `rapporti2`, leaves unparseable values untouched, one transaction, idempotent, cross-backend (SQLite/PostgreSQL) via `DbHandle`.
+- **CLI `scripts/migrations/2026_08_rapporti_blank_rows.py` (NEW):** `--dry-run` / `--apply` / `--rollback`, auto-backup via `_common` (SQLite copy / `pg_dump`).
+- **Menu entry in `pyarchinitPlugin.py`:** "Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])" (`actionRapportiBlankRows`, handler `_run_rapporti_blank_rows_repair`): dry-run preview with up to 15 rows of detail, confirmation, auto-backup (SQLite copy / `pg_dump`), apply, summary; says "Rapporti già puliti" when there is nothing to do.
+- **Verified on the reporting user's DB:** 1311 records scanned, US 1 from 78,676 down to 2 rows, nothing else touched.
+
+#### Tests
+
+- **`tests/utility/test_us_rapporti_table.py` (NEW, `a47c9dfa`, 6 tests):** extracts the real `table2dict` / `tableInsertData` from `tabs/US_USM.py` via AST and binds them to a `QTableWidget`; replays the `__init__` triple load; guards the af431e71 partial rows.
+- **`tests/migrations/test_rapporti_blank_rows.py` (NEW, 5 tests):** strip, dry-run without mutation, apply, idempotency.
+- **Result:** 11/11 passing.
+
+#### Documentation
+
+- **Tutorial 03 (US form)** in 10 languages (it, en, de, es, fr, ar, ca, ro, pt, el): new subsection "Righe vuote nei rapporti (riparazione)" (`091256de`, `b9dedd5e`, `43cf8f0e`, `95ebe38f`).
+
+#### Notes for master
+
+- The same UI fix plus a standalone SQLAlchemy-1.4-compatible repair (`modules/utility/rapporti_repair.py`, CLI `scripts/repair_rapporti.py`, menu entry "Ripara rapporti vuoti") were prepared for `master` on the local branch `fix/rapporti-blank-rows-master` (commits `c6af62ef`, `8a733b2f`, based on `origin/master` e11bbf78), **not yet pushed**.
+
+---
+
 ## [feat] - 2026-08-06 — Feat: "Importa da QField (GPKG)" — supporto sorgente ZIP
 
 > Branch `Stratigraph_00001`. Commit `902ef916`..`5d213841` (16 commit: spec, piano, feature, 3 fix, tutorial in 10 lingue).
