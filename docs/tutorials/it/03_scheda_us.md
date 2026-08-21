@@ -399,6 +399,26 @@ Il bottone **Check rapporti** verifica la coerenza dei rapporti:
 ![Controllo Rapporti](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Risultato controllo rapporti*
 
+### Righe vuote nei rapporti (riparazione)
+
+Nelle versioni precedenti (fino alla 4.9.9 e alle 5.x antecedenti ad agosto 2026) la tabella **Rapporti stratigrafici** del **primo record del DB** (di solito la US 1) poteva accumulare righe completamente vuote `['', '', '', '']`: a ogni apertura della scheda o salvataggio di un nuovo record la tabella non veniva svuotata del tutto prima del ricaricamento e le righe residue venivano salvate rispondendo **OK** a "Il record è stato modificato. Vuoi salvare?". Il numero di righe cresceva di circa tre volte a sessione (fino a decine di migliaia), rallentando molto l'apertura della scheda; i rapporti reali non andavano persi, ma finivano sepolti in fondo alla tabella. Da questa release il problema è risolto: la tabella viene svuotata completamente al ricaricamento, le righe tutte vuote non vengono mai salvate (nemmeno una riga aggiunta con **+** e lasciata in bianco).
+
+Per ripulire un DB già interessato usare la voce di menu dedicata:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])`
+2. Il tool analizza il DB connesso in sola lettura e mostra un'**anteprima** con il numero di record e di righe vuote trovate (es. "US 1 rapporti: 78676 → 2 righe")
+3. Confermare: viene creato un **backup automatico** (copia del file SQLite accanto all'originale, oppure `pg_dump` per PostgreSQL in `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. Vengono rimosse **solo** le righe completamente vuote; al termine compare un riepilogo
+5. Riaprire la Scheda US per vedere i rapporti ripuliti
+
+Il tool è idempotente: se il DB è già pulito segnala "Rapporti già puliti". I rapporti compilati non vengono mai toccati e i record già inquinati si correggono da soli anche al successivo salvataggio dalla scheda.
+
+> **Utenti avanzati (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <file.sqlite>` per l'anteprima, poi `--apply` per applicare (per PostgreSQL usare `--conn-str <postgresql://...>`).
+
+<!-- IMMAGINE: Anteprima riparazione rapporti vuoti -->
+![Ripara rapporti vuoti](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
+*Figura 34: Anteprima della riparazione dei rapporti vuoti*
+
 ---
 
 ## Tab Rapporti per Extended Matrix
@@ -1045,6 +1065,7 @@ Per completare questa documentazione, inserire le seguenti immagini nella cartel
 | 24 | `24_gis_integration.png` | Integrazione GIS |
 | 25 | `25_esportazione_pdf.png` | Esportazione PDF |
 | 26-33 | `26_workflow_step*.png` | Steps workflow |
+| 34 | `34_ripara_rapporti_vuoti.png` | Anteprima riparazione rapporti vuoti |
 
 ## Lista Video da Inserire
 

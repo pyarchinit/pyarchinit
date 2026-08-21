@@ -399,6 +399,26 @@ The **Check relationships** button verifies relationship consistency:
 ![Relationship Check](images/03_scheda_us/12_controllo_rapporti.png)
 *Figure 12: Relationship check result*
 
+### Blank rows in relationships (repair)
+
+In earlier versions (up to 4.9.9 and the 5.x releases before August 2026) the **Stratigraphic relationships** table of the **first record in the DB** (usually SU 1) could accumulate completely blank rows `['', '', '', '']`: every time the form was opened or a new record was saved, the table was not fully cleared before being reloaded, and the leftover rows were saved when answering **OK** to "The record has been modified. Do you want to save?". The row count grew roughly threefold per session (up to tens of thousands), making the form very slow to open; the real relationships were not lost, but ended up buried at the end of the table. From this release the problem is fixed: the table is fully cleared on reload and all-blank rows are never saved (not even a row added with **+** and left empty).
+
+To clean up a DB that is already affected, use the dedicated menu entry:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migrations → Repair blank relationships)
+2. The tool analyses the connected DB in read-only mode and shows a **preview** with the number of records and blank rows found (e.g. "US 1 rapporti: 78676 → 2 righe")
+3. Confirm: an **automatic backup** is created (a copy of the SQLite file next to the original, or a `pg_dump` for PostgreSQL in `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. **Only** completely blank rows are removed; a summary is shown at the end
+5. Reopen the SU Form to see the cleaned relationships
+
+The tool is idempotent: if the DB is already clean it reports "Rapporti già puliti" (relationships already clean). Compiled relationships are never touched, and already-polluted records also self-heal the next time they are saved from the form.
+
+> **Advanced users (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <file.sqlite>` for the preview, then `--apply` to apply (for PostgreSQL use `--conn-str <postgresql://...>`).
+
+<!-- IMAGE: Preview of the blank relationships repair -->
+![Repair blank relationships](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
+*Figure 34: Preview of the blank relationships repair*
+
 ---
 
 ## Extended Matrix Relationships Tab
