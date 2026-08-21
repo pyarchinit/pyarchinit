@@ -240,6 +240,26 @@ Lorsque vous insérez une relation, vous pouvez créer automatiquement l'inverse
 | US 1 **coupe** US 2 | US 2 **coupée par** US 1 |
 | US 1 **remplit** US 2 | US 2 **remplie par** US 1 |
 
+### Lignes vides dans les relations (réparation)
+
+Dans les versions précédentes (jusqu'à la 4.9.9 et les 5.x antérieures à août 2026), le tableau **Relations stratigraphiques** du **premier enregistrement de la BD** (généralement l'US 1) pouvait accumuler des lignes entièrement vides `['', '', '', '']` : à chaque ouverture de la fiche ou enregistrement d'une nouvelle fiche, le tableau n'était pas complètement vidé avant le rechargement et les lignes résiduelles étaient enregistrées en répondant **OK** à « L'enregistrement a été modifié. Voulez-vous sauvegarder ? ». Le nombre de lignes triplait environ à chaque session (jusqu'à plusieurs dizaines de milliers), ce qui ralentissait fortement l'ouverture de la fiche ; les relations réelles n'étaient pas perdues, mais se retrouvaient enfouies à la fin du tableau. À partir de cette version, le problème est résolu : le tableau est entièrement vidé au rechargement et les lignes totalement vides ne sont jamais enregistrées (pas même une ligne ajoutée avec **+** et laissée vide).
+
+Pour nettoyer une BD déjà touchée, utilisez l'entrée de menu dédiée :
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migrations → Réparer les relations vides)
+2. L'outil analyse la BD connectée en lecture seule et affiche un **aperçu** avec le nombre d'enregistrements et de lignes vides trouvés (ex. « US 1 rapporti: 78676 → 2 righe »)
+3. Confirmez : une **sauvegarde automatique** est créée (copie du fichier SQLite à côté de l'original, ou `pg_dump` pour PostgreSQL dans `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. **Seules** les lignes entièrement vides sont supprimées ; un récapitulatif s'affiche à la fin
+5. Rouvrez la Fiche US pour voir les relations nettoyées
+
+L'outil est idempotent : si la BD est déjà propre, il indique « Rapporti già puliti » (relations déjà nettoyées). Les relations renseignées ne sont jamais touchées, et les enregistrements déjà pollués se corrigent aussi d'eux-mêmes lors de la prochaine sauvegarde depuis la fiche.
+
+> **Utilisateurs avancés (CLI)** : `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <fichier.sqlite>` pour l'aperçu, puis `--apply` pour appliquer (pour PostgreSQL, utilisez `--conn-str <postgresql://...>`).
+
+<!-- IMAGE : Aperçu de la réparation des relations vides -->
+![Réparer les relations vides](images/03_fiche_us/01_ripara_rapporti_vuoti.png)
+*Figure 1 : Aperçu de la réparation des relations vides*
+
 ---
 
 ## Onglet Données Physiques

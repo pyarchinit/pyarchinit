@@ -362,6 +362,26 @@ El botón **Check relaciones** verifica la coherencia de las relaciones:
 - Encuentra inconsistencias
 - Señala errores lógicos
 
+### Filas vacías en las relaciones (reparación)
+
+En las versiones anteriores (hasta la 4.9.9 y las 5.x previas a agosto de 2026) la tabla **Relaciones estratigráficas** del **primer registro de la BD** (normalmente la UE 1) podía acumular filas completamente vacías `['', '', '', '']`: cada vez que se abría la ficha o se guardaba un registro nuevo, la tabla no se vaciaba del todo antes de recargarse y las filas residuales se guardaban al responder **OK** a "El registro ha sido modificado. ¿Desea guardar?". El número de filas se triplicaba aproximadamente en cada sesión (hasta decenas de miles), ralentizando mucho la apertura de la ficha; las relaciones reales no se perdían, pero quedaban sepultadas al final de la tabla. Desde esta versión el problema está resuelto: la tabla se vacía por completo al recargarse y las filas totalmente vacías nunca se guardan (ni siquiera una fila añadida con **+** y dejada en blanco).
+
+Para limpiar una BD ya afectada, utilice la entrada de menú dedicada:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migraciones → Reparar relaciones vacías)
+2. La herramienta analiza la BD conectada en modo de solo lectura y muestra una **vista previa** con el número de registros y de filas vacías encontradas (p. ej. "US 1 rapporti: 78676 → 2 righe")
+3. Confirme: se crea una **copia de seguridad automática** (copia del archivo SQLite junto al original, o `pg_dump` para PostgreSQL en `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. Se eliminan **solo** las filas completamente vacías; al terminar se muestra un resumen
+5. Vuelva a abrir la Ficha UE para ver las relaciones limpias
+
+La herramienta es idempotente: si la BD ya está limpia indica "Rapporti già puliti" (relaciones ya limpias). Las relaciones rellenadas nunca se tocan, y los registros ya contaminados también se corrigen solos en el siguiente guardado desde la ficha.
+
+> **Usuarios avanzados (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <archivo.sqlite>` para la vista previa y después `--apply` para aplicar (para PostgreSQL use `--conn-str <postgresql://...>`).
+
+<!-- IMAGEN: Vista previa de la reparación de relaciones vacías -->
+![Reparar relaciones vacías](images/03_ficha_ue/01_ripara_rapporti_vuoti.png)
+*Figura 1: Vista previa de la reparación de relaciones vacías*
+
 ---
 
 ## Pestaña Datos Físicos

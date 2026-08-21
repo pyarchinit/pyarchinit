@@ -402,6 +402,25 @@ Die Schaltfläche **Beziehungen prüfen** überprüft die Konsistenz:
 ![Beziehungsprüfung](images/03_se_formular/12_controllo_rapporti.png)
 *Abbildung 12: Ergebnis der Beziehungsprüfung*
 
+### Leere Zeilen in den Beziehungen (Reparatur)
+
+In früheren Versionen (bis 4.9.9 und den 5.x-Versionen vor August 2026) konnte die Tabelle **Stratigraphische Beziehungen** des **ersten Datensatzes der DB** (in der Regel SE 1) vollständig leere Zeilen `['', '', '', '']` ansammeln: Bei jedem Öffnen des Formulars oder Speichern eines neuen Datensatzes wurde die Tabelle vor dem Neuladen nicht vollständig geleert, und die verbliebenen Zeilen wurden gespeichert, sobald man die Frage „Der Datensatz wurde geändert. Speichern?" mit **OK** bestätigte. Die Zeilenzahl verdreifachte sich etwa pro Sitzung (bis zu Zehntausenden), wodurch sich das Formular nur noch sehr langsam öffnen ließ; die echten Beziehungen gingen nicht verloren, lagen aber am Ende der Tabelle begraben. Ab dieser Version ist das Problem behoben: Die Tabelle wird beim Neuladen vollständig geleert, und komplett leere Zeilen werden nie gespeichert (auch keine mit **+** hinzugefügte und leer gelassene Zeile).
+
+Um eine bereits betroffene DB zu bereinigen, den eigenen Menüeintrag verwenden:
+
+1. `Plugins → pyArchInit → Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])` (Migrationen → Leere Beziehungen reparieren)
+2. Das Werkzeug analysiert die verbundene DB nur lesend und zeigt eine **Vorschau** mit der Anzahl der gefundenen Datensätze und leeren Zeilen (z. B. „US 1 rapporti: 78676 → 2 righe")
+3. Bestätigen: Es wird ein **automatisches Backup** erstellt (Kopie der SQLite-Datei neben dem Original bzw. `pg_dump` für PostgreSQL in `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`)
+4. Es werden **ausschließlich** vollständig leere Zeilen entfernt; am Ende erscheint eine Zusammenfassung
+5. Das SE-Formular erneut öffnen, um die bereinigten Beziehungen zu sehen
+
+Das Werkzeug ist idempotent: Ist die DB bereits sauber, meldet es „Rapporti già puliti" (Beziehungen bereits bereinigt). Ausgefüllte Beziehungen werden nie angetastet, und bereits betroffene Datensätze korrigieren sich auch beim nächsten Speichern aus dem Formular von selbst.
+
+> **Fortgeschrittene Anwender (CLI)**: `python3 scripts/migrations/2026_08_rapporti_blank_rows.py --dry-run --db <datei.sqlite>` für die Vorschau, danach `--apply` zum Anwenden (für PostgreSQL `--conn-str <postgresql://...>` verwenden).
+
+![Leere Beziehungen reparieren](images/03_se_formular/34_ripara_rapporti_vuoti.png)
+*Abbildung 34: Vorschau der Reparatur leerer Beziehungen*
+
 ---
 
 ## Tab Physische Daten
