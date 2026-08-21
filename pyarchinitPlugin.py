@@ -2813,6 +2813,19 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionSchemaRepair)
 
+            # Rapporti blank-rows repair (2026-08): strip the
+            # ['', '', '', ''] rows that 4.9.7–4.9.9 / 5.x left in
+            # us_table.rapporti/rapporti2 (tableInsertData stale rows +
+            # preserve_empty). Dry-run preview first, then apply.
+            self.actionRapportiBlankRows = QAction(
+                "Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])",
+                self.iface.mainWindow())
+            self.actionRapportiBlankRows.triggered.connect(
+                self._run_rapporti_blank_rows_repair)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionRapportiBlankRows)
+
             # --- Importa da QField (GPKG) --------------------------------
             icon_qfield = '{}{}'.format(
                 filepath, os.path.join(os.sep, 'resources', 'icons',
@@ -3146,6 +3159,138 @@ class PyArchInitPlugin(object):
             "Migrazione yE-F completata",
             f"Backup: {backup_path}\n\n"
             f"Colonna other_locations: {added} (1=aggiunta, 0=già presente)",
+        )
+
+    def _run_rapporti_blank_rows_repair(self):
+        """Strip blank ['', '', '', ''] rows from us_table.rapporti/rapporti2.
+
+        Repairs DBs polluted by the tableInsertData stale-rows bug (fixed
+        in the same release). Flow: resolve handle from the configured
+        Connection, dry-run preview, confirm, auto-backup, apply,
+        summarize. Idempotent.
+        """
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from pathlib import Path
+        try:
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.db.pyarchinit_conn_strings import Connection
+            from .scripts.migrations._2026_08_rapporti_blank_rows_lib import (
+                repair_blank_rapporti,
+            )
+            from .scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+        except Exception:
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.db.pyarchinit_conn_strings import Connection
+            from scripts.migrations._2026_08_rapporti_blank_rows_lib import (
+                repair_blank_rapporti,
+            )
+            from scripts.migrations._common import (
+                BackupSkipped,
+                auto_backup_postgres,
+                auto_backup_sqlite,
+            )
+
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(),
+                "Connessione non configurata",
+                "Connetti prima un DB pyarchinit dalle Settings (menu "
+                "Database → Configurazione).",
+            )
+            return
+
+        try:
+            handle = _resolve_db_handle(conn_str)
+            preview = repair_blank_rapporti(handle, dry_run=True)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore di connessione",
+                f"Impossibile analizzare il DB:\n{e}",
+            )
+            return
+
+        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
+                         + "/" + str(handle.engine.url.database or "")
+                         if handle.is_postgres
+                         else f"SQLite: {handle.sqlite_path}")
+        if preview.rows_changed == 0:
+            QMessageBox.information(
+                self.iface.mainWindow(),
+                "Rapporti già puliti",
+                f"Backend: {backend_label}\n\n"
+                f"Esaminati {preview.rows_scanned} record: nessuna riga "
+                "vuota nei rapporti stratigrafici.",
+            )
+            return
+
+        sample = "\n".join(
+            f"  - US {d.us} (area {d.area}) {d.column}: "
+            f"{d.before_rows} → {d.after_rows} righe"
+            for d in preview.details[:15])
+        if len(preview.details) > 15:
+            sample += f"\n  … e altri {len(preview.details) - 15}"
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(),
+            "Conferma riparazione rapporti",
+            f"Backend: {backend_label}\n\n{preview.summary()}\n\n"
+            f"{sample}\n\n"
+            "Vengono rimosse SOLO le righe completamente vuote; i rapporti "
+            "compilati restano invariati.\n\n"
+            "Procedere (con backup automatico)?",
+            QMessageBox.Yes | QMessageBox.No,
+        )
+        if confirm != QMessageBox.Yes:
+            return
+
+        backup_path = None
+        try:
+            if handle.is_postgres:
+                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                            / "_pga_backups")
+                try:
+                    backup_path = auto_backup_postgres(
+                        handle.engine, tag="rapporti_blank_rows",
+                        dest_dir=dest_dir,
+                    )
+                except BackupSkipped as e:
+                    skip = QMessageBox.question(
+                        self.iface.mainWindow(),
+                        "Backup non disponibile",
+                        f"{e}\n\nProcedere SENZA backup automatico "
+                        "(sconsigliato)?",
+                        QMessageBox.Yes | QMessageBox.No,
+                        QMessageBox.No,
+                    )
+                    if skip != QMessageBox.Yes:
+                        return
+                    backup_path = None
+            else:
+                backup_path = auto_backup_sqlite(
+                    handle.sqlite_path, tag="rapporti_blank_rows",
+                )
+            result = repair_blank_rapporti(handle, dry_run=False)
+        except Exception as e:
+            msg = (f"La riparazione è fallita:\n{e}\n\n"
+                   f"Backup creato: {backup_path}") if backup_path \
+                else f"La riparazione è fallita:\n{e}\n\nNessun backup creato."
+            QMessageBox.critical(
+                self.iface.mainWindow(),
+                "Errore riparazione",
+                msg,
+            )
+            return
+
+        QMessageBox.information(
+            self.iface.mainWindow(),
+            "Riparazione rapporti completata",
+            f"Backup: {backup_path}\n\n{result.summary()}\n\n"
+            "Riapri la scheda US per vedere i rapporti puliti.",
         )
 
     def _run_schedatore_fields_migration(self):
