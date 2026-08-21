@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.10.1-alpha
+version=5.13.11-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,23 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.10.1-alpha (2026-05-24) [US-USM rapporti save: positional consistency for empty cells]:
+changelog=5.13.11-alpha (2026-08-21) [US-USM: blank rapporti rows multiplying + DB repair]:
+    - Fix: tableInsertData() cleared at most 4 rows (removeRow(i) for i in
+      range(columnCount()), every other row due to index shift) before
+      reloading a record, so stale rows survived every fill_fields() not
+      preceded by empty_fields() (__init__ loads record 0 three times,
+      set_sito after saving a new record, sort). Since 5.10.1-alpha
+      table2dict(preserve_empty=True) turned them into ['', '', '', ''] and
+      they were persisted on "record modificato, salvare?" (~x3 per session;
+      a user DB reached 78 674 blank rows on US 1). Now clearContents() +
+      setRowCount(0); table2dict() never emits an all-blank row (partial
+      rows like ['Copre', '2', '', ''] still preserved). Same loop fixed in
+      Schedaind, Tomba, Tafonomia, UT, Image_viewer.
+    - New: menu "Migrazioni -> Ripara rapporti vuoti" + CLI
+      scripts/migrations/2026_08_rapporti_blank_rows.py (dry-run preview,
+      auto-backup, idempotent) to strip blank rows already stored in
+      us_table.rapporti/rapporti2. Tests + tutorial 03 (10 languages).
+  5.10.1-alpha (2026-05-24) [US-USM rapporti save: positional consistency for empty cells]:
     - Fix: table2dict() now has opt-in preserve_empty parameter; when True,
       None cells in the QTableWidget are serialized as empty strings instead
       of being skipped. Enabled for tableWidget_rapporti (4-col: tipo, us,
