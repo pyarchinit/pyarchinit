@@ -913,6 +913,93 @@ class PyArchInitPlugin(object):
             menuBar.addMenu(self.menu)
         else:
             pass
+        self._init_repair_menu()
+
+    def _init_repair_menu(self):
+        """Menu entry for the rapporti blank-rows repair (language-independent).
+
+        Strips the ['', '', '', ''] rows that 4.9.7–4.9.9 left in
+        us_table.rapporti/rapporti2 (tableInsertData stale rows +
+        preserve_empty). Dry-run preview first, then apply.
+        """
+        try:
+            self.actionRapportiRepair = QAction(
+                "Ripara rapporti vuoti (righe ['', '', '', ''])",
+                self.iface.mainWindow())
+            self.actionRapportiRepair.setWhatsThis(
+                "Rimuove le righe vuote dai rapporti stratigrafici")
+            self.actionRapportiRepair.triggered.connect(self.runRapportiRepair)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools", self.actionRapportiRepair)
+        except Exception as e:
+            print(f"pyArchInit: repair menu not wired: {e}")
+
+    def runRapportiRepair(self):
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from .modules.db.pyarchinit_conn_strings import Connection
+        from .modules.utility.rapporti_repair import (
+            backup_sqlite, repair_blank_rapporti, sqlite_path_of,
+        )
+
+        conn_str = Connection().conn_str()
+        if not conn_str:
+            QMessageBox.warning(
+                self.iface.mainWindow(), "Connessione non configurata",
+                "Configura prima il DB pyarchinit (Configurazione plugin).")
+            return
+        try:
+            preview = repair_blank_rapporti(conn_str, dry_run=True)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(), "Errore di connessione",
+                f"Impossibile analizzare il DB:\n{e}")
+            return
+
+        sqlite_path = sqlite_path_of(conn_str)
+        backend_label = (f"SQLite: {sqlite_path}" if sqlite_path
+                         else "PostgreSQL")
+        if preview.rows_changed == 0:
+            QMessageBox.information(
+                self.iface.mainWindow(), "Rapporti già puliti",
+                f"Backend: {backend_label}\n\n"
+                f"Esaminati {preview.rows_scanned} record: nessuna riga "
+                "vuota nei rapporti stratigrafici.")
+            return
+
+        sample = "\n".join(
+            f"  - US {d.us} (area {d.area}) {d.column}: "
+            f"{d.before_rows} → {d.after_rows} righe"
+            for d in preview.details[:15])
+        if len(preview.details) > 15:
+            sample += f"\n  … e altri {len(preview.details) - 15}"
+        backup_note = ("Prima della modifica viene creata una copia di "
+                       "backup del file SQLite." if sqlite_path else
+                       "Backend PostgreSQL: nessun backup automatico, fai "
+                       "un dump prima se necessario.")
+        confirm = QMessageBox.question(
+            self.iface.mainWindow(), "Conferma riparazione rapporti",
+            f"Backend: {backend_label}\n\n{preview.summary()}\n\n{sample}\n\n"
+            "Vengono rimosse SOLO le righe completamente vuote; i rapporti "
+            f"compilati restano invariati.\n{backup_note}\n\nProcedere?",
+            QMessageBox.Yes | QMessageBox.No)
+        if confirm != QMessageBox.Yes:
+            return
+
+        backup_path = None
+        try:
+            if sqlite_path:
+                backup_path = backup_sqlite(sqlite_path)
+            result = repair_blank_rapporti(conn_str, dry_run=False)
+        except Exception as e:
+            QMessageBox.critical(
+                self.iface.mainWindow(), "Errore riparazione",
+                f"La riparazione è fallita:\n{e}\n\n"
+                f"Backup: {backup_path or 'nessuno'}")
+            return
+        QMessageBox.information(
+            self.iface.mainWindow(), "Riparazione rapporti completata",
+            f"Backup: {backup_path or 'nessuno'}\n\n{result.summary()}\n\n"
+            "Riapri la scheda US per vedere i rapporti puliti.")
 
     def runSite(self):
         pluginGui = pyarchinit_Site(self.iface)
@@ -1029,6 +1116,9 @@ class PyArchInitPlugin(object):
         self.pluginGui = pluginExcel  # save
     def unload(self):
         # Remove the plugin
+        if getattr(self, "actionRapportiRepair", None) is not None:
+            self.iface.removePluginMenu(
+                "&pyArchInit - Archaeological GIS Tools", self.actionRapportiRepair)
         l=QgsSettings().value("locale/userLocale")[0:2] 
         if l == 'it':
             self.iface.removePluginMenu("&pyArchInit - Archaeological GIS Tools", self.actionSite)
