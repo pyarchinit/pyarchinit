@@ -438,3 +438,70 @@ def test_backfill_pg_legacy_rejects_duplicate_ids():
     finally:
         with engine.begin() as conn:
             conn.execute(text(f"DROP TABLE IF EXISTS {test_table}"))
+
+
+def _tiny_cache_handle(db: Path):
+    """DbHandle whose SQLite connections spill dirty pages almost at once.
+
+    Regression for the 2026-08 "database is locked" report: on a real
+    11 MB DB the backfill's write transaction spilled its page cache,
+    escalating to an EXCLUSIVE lock, while the SQLAlchemy Inspector read
+    ``sqlite_master`` through a *second* pooled connection → self-deadlock
+    → ``sqlite3.OperationalError: database is locked`` after the busy
+    timeout. ``cache_size=1`` makes the spill happen on a tiny fixture and
+    a short ``timeout`` keeps the failing case fast.
+    """
+    from sqlalchemy import create_engine, event
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+
+    url = f"sqlite:///{db}"
+    engine = create_engine(url, connect_args={"timeout": 0.3})
+
+    @event.listens_for(engine, "connect")
+    def _spill_early(dbapi_conn, _record):
+        dbapi_conn.execute("PRAGMA cache_size=1")
+        dbapi_conn.execute("PRAGMA cache_spill=1")
+
+    return DbHandle.from_engine(engine, url)
+
+
+def _seed_wide_db(p: Path, n_rows: int = 50):
+    """Like _seed_db but with enough row bytes to dirty many pages."""
+    conn = sqlite3.connect(p)
+    conn.execute("""
+        CREATE TABLE us_table (
+            id_us INTEGER PRIMARY KEY,
+            sito TEXT, area TEXT, us TEXT, rapporti TEXT
+        )""")
+    conn.execute("""
+        CREATE TABLE inventario_materiali_table (
+            id_invmat INTEGER PRIMARY KEY, sito TEXT
+        )""")
+    conn.execute("""
+        CREATE TABLE periodizzazione_table (
+            id_perfas INTEGER PRIMARY KEY, sito TEXT
+        )""")
+    conn.executemany(
+        "INSERT INTO us_table VALUES (?, 'S', '1', ?, ?)",
+        [(i, str(i), "x" * 2000) for i in range(1, n_rows + 1)])
+    conn.execute("INSERT INTO inventario_materiali_table VALUES (1, 'S')")
+    conn.execute("INSERT INTO periodizzazione_table VALUES (1, 'S')")
+    conn.commit()
+    conn.close()
+
+
+def test_backfill_survives_page_cache_spill(tmp_path: Path):
+    """The write transaction must not block its own reflection queries."""
+    db = tmp_path / "wide.sqlite"
+    _seed_wide_db(db)
+    handle = _tiny_cache_handle(db)
+    add_columns(handle)
+    counts = backfill_uuids(handle)  # used to raise "database is locked"
+    assert counts["us_table"] == 50
+    conn = sqlite3.connect(db)
+    try:
+        assert conn.execute(
+            "SELECT count(*) FROM us_table WHERE node_uuid IS NULL"
+        ).fetchone()[0] == 0
+    finally:
+        conn.close()

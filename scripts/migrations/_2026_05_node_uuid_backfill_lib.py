@@ -69,9 +69,14 @@ def add_columns(db: DbInput) -> None:
     partial unique index allows recovery from partial backfill.
     """
     handle = _resolve_db_handle(db)
+    # Introspect BEFORE opening the write transaction: ``_columns_of``
+    # uses its own pooled connection, and on SQLite a second connection
+    # must never read while this one may hold a RESERVED/EXCLUSIVE lock
+    # (see ``backfill_uuids`` for the self-deadlock this caused).
+    existing = {table: _columns_of(handle.engine, table) for table in TABLES}
     with handle.engine.begin() as conn:
         for table in TABLES:
-            cols = _columns_of(handle.engine, table)
+            cols = existing[table]
             if "node_uuid" not in cols:
                 conn.execute(
                     text(f"ALTER TABLE {table} ADD COLUMN node_uuid TEXT")
@@ -88,11 +93,20 @@ def backfill_uuids(db: DbInput) -> dict[str, int]:
 
     Idempotent: a second invocation returns ``{table: 0, ...}`` because every
     row now carries a value. Atomic via SQLAlchemy ``engine.begin()``.
+
+    The Inspector is bound to the transaction's own ``conn`` (2026-08
+    fix): with ``inspect(engine)`` reflection ran on a *second* pooled
+    connection, and on SQLite — once the UPDATEs dirtied more pages than
+    the page cache holds — the writer escalated to an EXCLUSIVE lock, so
+    the reflection ``SELECT ... FROM sqlite_master`` for the next table
+    waited on our own transaction and failed with
+    ``OperationalError: database is locked`` (seen on an 11 MB DB with
+    1311 US).
     """
     handle = _resolve_db_handle(db)
     counts: dict[str, int] = {}
-    inspector = inspect(handle.engine)
     with handle.engine.begin() as conn:
+        inspector = inspect(conn)
         for table in TABLES:
             pks = inspector.get_pk_constraint(table)["constrained_columns"]
             if pks:
