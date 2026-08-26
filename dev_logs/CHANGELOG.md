@@ -5,6 +5,89 @@
 
 ---
 
+## [fix] - 2026-08-26 — Fix: DB grandi — backfill `node_uuid` "database is locked", scheda US PDF con centinaia di rapporti, Harris Matrix oltre 600 archi
+
+> Branch `Stratigraph_00001`. Commit `f6be96bc` (fix migrazione `node_uuid`), `763993d2` (fix PDF scheda US + elenco US), `c9d13345` (policy graphviz per matrici grandi).
+> File: `scripts/migrations/_2026_05_node_uuid_backfill_lib.py`, `tests/migrations/test_node_uuid_backfill.py`, `modules/utility/pyarchinit_exp_USsheet_pdf.py`, `tests/utility/test_us_pdf_rapporti_overflow.py` (NUOVO), `modules/utility/matrix_layout_policy.py` (NUOVO), `modules/utility/pyarchinit_matrix_exp.py`, `tests/utility/test_matrix_layout_policy.py` (NUOVO).
+
+### Italiano
+
+#### Contesto
+
+- Tre malfunzionamenti distinti emersi sullo stesso DB utente (`SanGiovanniinMarignano_RN_Invaso_Ventena_FINALE.sqlite`, 11 MB, 1311 US, rapporti reciproci al 100%, due "hub" US 8 e US 143 con ~545 rapporti ciascuna): la migrazione `node_uuid` si bloccava da sola, "Stampa scheda US" e "Elenco US" morivano con `LayoutError` di ReportLab, l'export della Harris Matrix non terminava mai. Il comportamento del vecchio codice è stato misurato su quel DB prima di ogni fix.
+
+#### 1. Migrazione `node_uuid`: SQLite auto-bloccato (`f6be96bc`)
+
+- **Sintomo:** "Migrazioni → Backfill node_uuid" falliva con `sqlite3.OperationalError: database is locked` sulla query `SELECT sql FROM sqlite_master WHERE name = ?` per `periodizzazione_table`; il backup veniva creato, colonne e indici restavano al loro posto ma ogni `node_uuid` rimaneva `NULL`.
+- **Causa radice (`scripts/migrations/_2026_05_node_uuid_backfill_lib.py`, riprodotta fuori da QGIS):** `backfill_uuids()` rifletteva le chiavi primarie con `inspect(handle.engine)`, cioè su una SECONDA connessione del pool, mentre gli `UPDATE` giravano dentro `engine.begin()` sulla prima. Appena le scritture sporcavano più pagine di quante ne contenga la page cache di SQLite (default ~2 MB, `page_size` 1024 su quel DB), il writer passava a lock EXCLUSIVE: la query di riflessione della tabella successiva aspettava la nostra stessa transazione e cadeva sul busy timeout di 5 s. Confermato in entrambi i sensi: `inspect(conn)` sulla stessa connessione passa in 0,1 s; il codice originale passa con una page cache da 200 MB.
+- **Fix:** l'`Inspector` è legato al `conn` della transazione (`inspector = inspect(conn)` dentro `engine.begin()`); `add_columns()` legge le colonne esistenti via `_columns_of()` PRIMA di aprire la transazione di scrittura (dict `existing` precalcolato per tutte le `TABLES`).
+- **Azione utente:** ricaricare il plugin e rilanciare la voce di menu — la migrazione è idempotente.
+
+#### 2. PDF scheda US ed elenco US con centinaia di rapporti (`763993d2`)
+
+- **Sintomo:** "Stampa scheda US" su US 8 (544 "Tagliato da") e US 143 (545 "Copre") → `reportlab.platypus.doctemplate.LayoutError: Flowable ... with cell(0,0) containing 'UGUALE A'(515 x 1634.4) ... too large on page 16`. L'elenco US ("Elenco US") falliva allo stesso modo (una riga da 3282 pt).
+- **Causa radice (`modules/utility/pyarchinit_exp_USsheet_pdf.py`):** la scheda ICCD è un'unica `Table` ReportLab; le righe 13-22 (blocco rapporti) sono vincolate insieme dai row-span `SPAN (12,13)-(12,22)`, `(13,13)-(17,17)`, `(13,18)-(17,22)`, quindi ReportLab non può mai spezzare il blocco: una cella rapporti enorme lo rende più alto del frame (780 pt). `Table(splitInRow=1)` provato e scartato: costruisce, ma rende ~90 caratteri (una riga) per pagina → 45 pagine per la sola US 8.
+- **Fix:** costanti di modulo `MAX_INLINE_RAPPORTI = 80`, `MAX_INLINE_RAPPORTI_INDEX = 40`, `ANNEX_TARGETS_PER_ROW = 60`, `_RAPPORTI_I18N` (etichette it/en/de/fr/es); helper `_cap_rapporti(obj, limit, more_fmt)` (idempotente, conserva le liste complete in `_rapporti_full`, imposta `rapporti_overflow`); `single_US_pdf_sheet.cap_rapporti_for_sheet(lang)` chiamato subito dopo `unzip_rapporti_stratigrafici*()` in `create_sheet_archeo3_usm_fields_2` / `create_sheet_en` / `create_sheet_de`; `single_US_pdf_sheet.create_rapporti_annex(lang)` restituisce `[Spacer, Paragraph titolo, Table]` con una riga ogni 60 target (si spezza per riga) oppure `[]`; tutte e sette le `build_US_sheets*` (it/en/de/fr/es/ar/ca) accodano l'allegato dopo la scheda; `US_index_pdf_sheet.getTable/getTable_en/getTable_de` tagliano a 40 con suffisso `… (+N)`.
+- **Resa:** la cella inline mostra i primi 80 target poi `… (+N, vedi allegato)` / `see annex` / `siehe Anhang`; i record entro il limite stampano esattamente come prima (byte-identici).
+- **Verificato sul DB reale:** schede US 8/143/6/3 → 10 pagine in 0,4 s; build EN/DE ed elenco US OK.
+
+#### 3. Harris Matrix grandi: policy graphviz size-aware (`c9d13345`)
+
+- **Misure sullo stesso DB** (1311 nodi, 2039 archi dopo lo split `sequence/negative/contemporary`, due hub da ~545 rapporti): layout `dot` con `splines=ortho` = 1 s a 400 archi, 12 s a 800, ancora in esecuzione dopo 25 minuti a 2039 (ucciso); `polyline`/`spline`/`line` lo impaginano in ≤1 s; `tred` riduce solo 2039→1923 archi. Il grafo impaginato è largo 79 873 pt (≈1109 in): a 300 dpi cairo rifiuta la bitmap — il JPG veniva scritto in silenzio come file da 0 byte, il PNG scalato ×0,098 (illeggibile); SVG/PDF corretti.
+- **Nuovo `modules/utility/matrix_layout_policy.py`** (helper puri, niente Qt): `LARGE_MATRIX_EDGES = 600`; `is_large_matrix(n_edges)`; `apply_large_graph_policy(graph_attr, n_edges)` sostituisce `splines=ortho` → `polyline` e imposta `nodesep=0.3`, `ranksep=1`; `laid_out_size_points(dot_text)` legge il `bb` del grafo radice (non dei cluster); `safe_raster_dpi(dot_text, requested, max_px=32000, min_dpi=12)` restituisce il dpi massimo ≤ richiesto che tiene la bitmap sotto il limite cairo di 32767 px; `set_dot_dpi(dot_text, dpi)` riscrive l'attributo dpi radice.
+- **Wiring in `modules/utility/pyarchinit_matrix_exp.py`:** `_clamp_raster_dpi(dot_path, requested)` (deve girare PRIMA di qualsiasi cleanup che rimuova `bb`), `_render_vector_copies(dot_path)` (scrive `.svg` + `.pdf` accanto al raster), `_large_matrix_notice(dpi)`; agganciati in `HarrisMatrix.export_matrix`, `HarrisMatrix.export_matrix_2`, `ViewHarrisMatrix.export_matrix` e `ViewHarrisMatrix.export_matrix_3` (anche dentro il suo ciclo di retry sul dpi). Quando il dpi è stato ridotto l'utente riceve un `QMessageBox` informativo ("Matrix molto grande: … usa i file .svg / .pdf …"). Bridge Rust non disponibile su questa macchina → percorso subprocess `tred`.
+- **End-to-end sullo stesso DB:** layout 0,5 s, dpi ridotto 150→55, JPG/PNG validi 30983×3218 px, SVG 1 MB + PDF 187 KB, 5,5 s totali.
+
+#### Test
+
+- **`tests/migrations/test_node_uuid_backfill.py::test_backfill_survives_page_cache_spill` (NUOVO):** DB seminato con 50 righe, `PRAGMA cache_size=1` + `cache_spill=1`, busy timeout 0,3 s — falliva in 0,8 s sul vecchio codice. 18/18 verdi nei due file di test del backfill.
+- **`tests/utility/test_us_pdf_rapporti_overflow.py` (NUOVO, 11 test):** stub di `qgis` e `Connection` per girare nell'interprete puro; record da 545 rapporti costruiti in ogni lingua (`test_it_sheet_with_hundreds_of_relations_builds`, `test_other_language_sheets_build`, `test_usm_sheet_with_hundreds_of_relations_builds`), l'allegato elenca ogni target (`test_inline_cell_is_capped_and_annex_has_every_target`), record piccoli byte-identici senza allegato (`test_small_record_is_unchanged_and_has_no_annex`), confine del limite (`test_cap_boundary_exactly_max_is_inline`), elenco US (`test_index_list_with_hundreds_of_relations_builds`).
+- **`tests/utility/test_matrix_layout_policy.py` (NUOVO, 5 test):** grafo piccolo mantiene `ortho`, grafo grande passa a `polyline` e stringe le spaziature, `bb` letto dal grafo radice e non dal cluster, clamp del dpi solo quando la bitmap sforerebbe, `set_dot_dpi` riscrive o aggiunge l'attributo radice.
+
+#### Note per master
+
+- I fix 2 e 3 sono stati portati su `master` nel branch locale `fix/large-relations-master` (commit `7626fef2` PDF, `1a4656b2` matrix), **non ancora pushati**. Differenze: su master la scheda PDF ha solo le build it/en/de e usa un `_esc()` a livello di modulo al posto di `escape_html`; `matrix_layout_policy.py` copiato tale e quale e agganciato nei quattro metodi di export; in più `ViewHarrisMatrix.export_matrix` di master ora chiama `proc.wait()` sul `Popen` di `tred` (leggeva il file di output senza attendere).
+
+### English
+
+#### Context
+
+- Three separate failures surfaced on the same user DB (`SanGiovanniinMarignano_RN_Invaso_Ventena_FINALE.sqlite`, 11 MB, 1311 US, relationships 100% reciprocal, two "hub" records US 8 and US 143 with ~545 relations each): the `node_uuid` migration deadlocked on itself, "Stampa scheda US" and "Elenco US" died with a ReportLab `LayoutError`, and the Harris Matrix export never finished. The old code's behaviour was measured on that DB before each fix.
+
+#### 1. `node_uuid` migration: self-locked SQLite (`f6be96bc`)
+
+- **Symptom:** "Migrazioni → Backfill node_uuid" failed with `sqlite3.OperationalError: database is locked` on `SELECT sql FROM sqlite_master WHERE name = ?` for `periodizzazione_table`; the backup was created, columns and indexes were left in place, but every `node_uuid` stayed `NULL`.
+- **Root cause (`scripts/migrations/_2026_05_node_uuid_backfill_lib.py`, reproduced outside QGIS):** `backfill_uuids()` reflected the primary keys with `inspect(handle.engine)`, i.e. on a SECOND pooled connection, while the `UPDATE`s ran inside `engine.begin()` on the first. Once the writes dirtied more pages than the SQLite page cache holds (default ~2 MB, `page_size` 1024 on that DB), the writer escalated to an EXCLUSIVE lock: the reflection query for the next table waited on our own transaction and hit the 5 s busy timeout. Confirmed both ways: `inspect(conn)` on the same connection passes in 0.1 s; the original code passes with a 200 MB page cache.
+- **Fix:** the `Inspector` is bound to the transaction's `conn` (`inspector = inspect(conn)` inside `engine.begin()`); `add_columns()` reads the existing columns via `_columns_of()` BEFORE opening the write transaction (an `existing` dict precomputed for all `TABLES`).
+- **User action:** reload the plugin and re-run the menu entry — the migration is idempotent.
+
+#### 2. US sheet PDF and US index with hundreds of relations (`763993d2`)
+
+- **Symptom:** "Stampa scheda US" on US 8 (544 "Tagliato da") and US 143 (545 "Copre") → `reportlab.platypus.doctemplate.LayoutError: Flowable ... with cell(0,0) containing 'UGUALE A'(515 x 1634.4) ... too large on page 16`. The US index list ("Elenco US") failed the same way (one 3282-pt row).
+- **Root cause (`modules/utility/pyarchinit_exp_USsheet_pdf.py`):** the ICCD sheet is a single ReportLab `Table`; rows 13-22 (relation block) are locked together by the row-spans `SPAN (12,13)-(12,22)`, `(13,13)-(17,17)`, `(13,18)-(17,22)`, so ReportLab can never split the block: one huge relation cell makes it taller than the frame (780 pt). `Table(splitInRow=1)` was tried and rejected: it builds, but renders ~90 characters (one line) per page → 45 pages for US 8 alone.
+- **Fix:** module constants `MAX_INLINE_RAPPORTI = 80`, `MAX_INLINE_RAPPORTI_INDEX = 40`, `ANNEX_TARGETS_PER_ROW = 60`, `_RAPPORTI_I18N` (it/en/de/fr/es labels); helper `_cap_rapporti(obj, limit, more_fmt)` (idempotent, keeps the full lists in `_rapporti_full`, sets `rapporti_overflow`); `single_US_pdf_sheet.cap_rapporti_for_sheet(lang)` called right after `unzip_rapporti_stratigrafici*()` in `create_sheet_archeo3_usm_fields_2` / `create_sheet_en` / `create_sheet_de`; `single_US_pdf_sheet.create_rapporti_annex(lang)` returns `[Spacer, title Paragraph, Table]` with one row per 60 targets (splits by row) or `[]`; all seven `build_US_sheets*` (it/en/de/fr/es/ar/ca) append the annex after the sheet; `US_index_pdf_sheet.getTable/getTable_en/getTable_de` cap at 40 with the suffix `… (+N)`.
+- **Rendering:** the inline cell shows the first 80 targets then `… (+N, vedi allegato)` / `see annex` / `siehe Anhang`; records within the cap print exactly as before (byte-identical).
+- **Verified on the real DB:** sheets for US 8/143/6/3 → 10 pages in 0.4 s; EN/DE builds and the US index OK.
+
+#### 3. Large Harris matrices: size-aware graphviz policy (`c9d13345`)
+
+- **Measurements on the same DB** (1311 nodes, 2039 edges after the `sequence/negative/contemporary` split, two hubs with ~545 relations): `dot` layout with `splines=ortho` = 1 s at 400 edges, 12 s at 800, still running after 25 minutes at 2039 (killed); `polyline`/`spline`/`line` lay it out in ≤1 s; `tred` only reduces 2039→1923 edges. The laid-out graph is 79,873 pt (≈1109 in) wide: at 300 dpi cairo refuses the bitmap — the JPG was silently written as a 0-byte file, the PNG scaled ×0.098 (unreadable); SVG/PDF fine.
+- **New `modules/utility/matrix_layout_policy.py`** (pure helpers, no Qt): `LARGE_MATRIX_EDGES = 600`; `is_large_matrix(n_edges)`; `apply_large_graph_policy(graph_attr, n_edges)` swaps `splines=ortho` → `polyline` and sets `nodesep=0.3`, `ranksep=1`; `laid_out_size_points(dot_text)` reads the root graph `bb` (not the clusters'); `safe_raster_dpi(dot_text, requested, max_px=32000, min_dpi=12)` returns the largest dpi ≤ requested that keeps the bitmap under cairo's 32767-px limit; `set_dot_dpi(dot_text, dpi)` rewrites the root dpi attribute.
+- **Wiring in `modules/utility/pyarchinit_matrix_exp.py`:** `_clamp_raster_dpi(dot_path, requested)` (must run BEFORE any cleanup that strips `bb`), `_render_vector_copies(dot_path)` (writes `.svg` + `.pdf` next to the raster), `_large_matrix_notice(dpi)`; hooked into `HarrisMatrix.export_matrix`, `HarrisMatrix.export_matrix_2`, `ViewHarrisMatrix.export_matrix` and `ViewHarrisMatrix.export_matrix_3` (also inside its dpi-retry loop). When the dpi was clamped the user gets an info `QMessageBox` ("Matrix molto grande: … usa i file .svg / .pdf …"). Rust bridge unavailable on this machine → `tred` subprocess path.
+- **End-to-end on the same DB:** layout 0.5 s, dpi clamped 150→55, valid 30983×3218 px JPG/PNG, SVG 1 MB + PDF 187 KB, 5.5 s total.
+
+#### Tests
+
+- **`tests/migrations/test_node_uuid_backfill.py::test_backfill_survives_page_cache_spill` (NEW):** 50-row seeded DB, `PRAGMA cache_size=1` + `cache_spill=1`, busy timeout 0.3 s — failed in 0.8 s on the old code. 18/18 passing across the two backfill test files.
+- **`tests/utility/test_us_pdf_rapporti_overflow.py` (NEW, 11 tests):** stubs `qgis` and `Connection` so they run under the plain interpreter; 545-relation records build in every language (`test_it_sheet_with_hundreds_of_relations_builds`, `test_other_language_sheets_build`, `test_usm_sheet_with_hundreds_of_relations_builds`), the annex lists every target (`test_inline_cell_is_capped_and_annex_has_every_target`), small records byte-identical with no annex (`test_small_record_is_unchanged_and_has_no_annex`), cap boundary (`test_cap_boundary_exactly_max_is_inline`), US index (`test_index_list_with_hundreds_of_relations_builds`).
+- **`tests/utility/test_matrix_layout_policy.py` (NEW, 5 tests):** small graph keeps `ortho`, large graph switches to `polyline` and tightens spacing, `bb` read from the root graph not the cluster, dpi clamped only when the bitmap would overflow, `set_dot_dpi` rewrites or adds the root attribute.
+
+#### Notes for master
+
+- Fixes 2 and 3 were ported to `master` on the local branch `fix/large-relations-master` (commits `7626fef2` PDF, `1a4656b2` matrix), **not yet pushed**. Differences: on master the PDF sheet has only the it/en/de builds and uses a module-level `_esc()` instead of `escape_html`; `matrix_layout_policy.py` copied verbatim and hooked into the four export methods; additionally master's `ViewHarrisMatrix.export_matrix` now calls `proc.wait()` on the `tred` `Popen` (it read the output file without waiting).
+
+---
+
 ## [fix] - 2026-08-21 — Fix: righe vuote nei rapporti stratigrafici che si moltiplicano (US 1) + riparazione DB
 
 > Branch `Stratigraph_00001`. Commit `7bb98fcf` (fix `US_USM.py`), `5676e83c` (stesso fix nelle altre schede), `14ebde65` (libreria + CLI di riparazione + voce di menu), `a47c9dfa` (test), `091256de`..`95ebe38f` (tutorial 03 in 10 lingue).
