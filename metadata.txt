@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.11-alpha
+version=5.13.12-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,35 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.11-alpha (2026-08-21) [US-USM: blank rapporti rows multiplying + DB repair]:
+changelog=5.13.12-alpha (2026-08-27) [Large DBs: node_uuid backfill lock, US sheet PDF annex, Harris matrix policy]:
+    - Fix: "Migrazioni -> Backfill node_uuid" failed with "database is locked"
+      on an 11 MB SQLite DB (1311 US): backfill_uuids() reflected the primary
+      keys via inspect(engine), i.e. a second pooled connection, while the
+      UPDATEs ran inside engine.begin() on the first; once the writes spilled
+      the SQLite page cache the writer held an EXCLUSIVE lock and the
+      reflection query waited on our own transaction (5 s busy timeout).
+      The Inspector is now bound to the transaction connection and
+      add_columns() introspects before opening the write transaction.
+      Test: test_backfill_survives_page_cache_spill (PRAGMA cache_size=1).
+    - Fix: US sheet PDF (ICCD) and US index list raised ReportLab LayoutError
+      on records with hundreds of relationships (544 "Tagliato da"): the
+      relationship block (rows 13-22) is locked by row-spans and cannot be
+      split across pages (splitInRow=1 rejected: one line per page).
+      Relationship cells now cap at 80 targets + "… (+N, vedi allegato)" and
+      the complete lists are printed in an annex table after the sheet
+      (splits by row); the index list caps at 40. Records within the cap are
+      unchanged. All sheet languages (it/en/de/fr/es/ar/ca); 11 tests.
+    - Perf: Harris matrix -- new modules/utility/matrix_layout_policy.py:
+      above 600 edges splines=ortho (>25 min on 2039 edges) is swapped for
+      polyline (~1 s) with tighter nodesep/ranksep; the raster dpi is clamped
+      from the laid-out bb so the bitmap stays within the 32767-px cairo
+      limit (300 dpi produced a 0-byte JPG); .svg/.pdf copies are written
+      next to the JPG and an info dialog points to them. Wired into
+      export_matrix, export_matrix_2, ViewHarrisMatrix.export_matrix and
+      export_matrix_3. 5 tests.
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), tutorials 03 + 11 in 10 languages.
+      The PDF and matrix fixes also shipped on master as 4.9.11.
+  5.13.11-alpha (2026-08-21) [US-USM: blank rapporti rows multiplying + DB repair]:
     - Fix: tableInsertData() cleared at most 4 rows (removeRow(i) for i in
       range(columnCount()), every other row due to index shift) before
       reloading a record, so stale rows survived every fill_fields() not
