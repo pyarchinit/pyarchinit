@@ -23,6 +23,58 @@ from qgis.core import QgsSettings
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ...tabs.pyarchinit_setting_matrix import *
+from .matrix_layout_policy import (
+    apply_large_graph_policy, safe_raster_dpi, set_dot_dpi,
+)
+
+
+def _clamp_raster_dpi(dot_path, requested_dpi):
+    """Lower the ``dpi`` inside the laid-out *dot_path* so that the bitmap
+    graphviz will produce stays within the cairo limit (32767 px/side).
+
+    Must run while the file still carries the root ``bb``. Returns
+    ``(dpi_used, clamped)``. On the 2026-08 test DB (1311 US) the 300-dpi
+    JPG was a 0-byte file and the PNG was scaled ×0.098; see
+    ``matrix_layout_policy``.
+    """
+    try:
+        with open(dot_path, 'r', encoding='utf-8', errors='replace') as fh:
+            text = fh.read()
+    except OSError:
+        return requested_dpi, False
+    dpi = safe_raster_dpi(text, requested_dpi)
+    try:
+        requested = int(float(requested_dpi))
+    except (TypeError, ValueError):
+        requested = dpi
+    if dpi >= requested:
+        return requested, False
+    with open(dot_path, 'w', encoding='utf-8') as fh:
+        fh.write(set_dot_dpi(text, dpi))
+    print(f"matrix: a {requested}-dpi bitmap would exceed the cairo limit; "
+          f"rendering at {dpi} dpi and writing .svg/.pdf copies")
+    return dpi, True
+
+
+def _render_vector_copies(dot_path, formats=('svg', 'pdf')):
+    """Write ``<dot_path>.svg`` / ``.pdf`` next to the raster: a matrix too
+    wide for a bitmap is still fully readable (zoomable) as vector."""
+    written = []
+    for fmt in formats:
+        try:
+            written.append(Source.from_file(dot_path, format=fmt).render())
+        except Exception as e:
+            print(f"matrix: {fmt} render failed: {e}")
+    return written
+
+
+def _large_matrix_notice(dpi):
+    return ("Matrix molto grande: l'immagine JPG è stata generata a "
+            f"{dpi} dpi (limite del renderer bitmap). Per la versione "
+            "leggibile usa i file .svg / .pdf salvati nella stessa "
+            "cartella (pyarchinit_Matrix_folder).")
+
+
 class HarrisMatrix:
     """
         This class is used to create a Harris Matrix, a tool used in archaeology to depict the temporal succession of archaeological contexts.
@@ -350,6 +402,11 @@ class HarrisMatrix:
 
 
 
+            # Large graphs: ortho routing is unusable (>15 min at ~2000
+            # edges) → polyline + tighter spacing (matrix_layout_policy).
+            apply_large_graph_policy(
+                G.graph_attr, len(elist1) + len(elist2) + len(elist3))
+
             # Rendering del file DOT
             G.format = 'dot'
             try:
@@ -386,14 +443,18 @@ class HarrisMatrix:
         else:
             print()#showMessage("Nessun errore riportato da `tred`.")
 
+        raster_dpi, clamped = _clamp_raster_dpi(
+            tred_output_file_path, self.dialog.lineEdit_dpi.text())
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            print()#showMessage("Rendering del grafico completato.")
+            if clamped:
+                _render_vector_copies(tred_output_file_path)
+                showMessage(_large_matrix_notice(raster_dpi),
+                            title='Matrix', icon=QMessageBox.Information)
             # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
-            print()#showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-                        #icon=QMessageBox.Critical)
+            print(f"export_matrix: graphviz render failed: {e}")
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -561,6 +622,10 @@ class HarrisMatrix:
             matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
             filename = 'Harris_matrix2ED'
 
+            apply_large_graph_policy(
+                G.graph_attr,
+                len(elist1) + len(elist2) + len(elist3) + len(elist4) + len(elist5))
+
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
@@ -594,14 +659,18 @@ class HarrisMatrix:
         else:
             print()#showMessage("Nessun errore riportato da `tred`.")
 
+        raster_dpi, clamped = _clamp_raster_dpi(
+            tred_output_file_path, self.dialog.lineEdit_dpi.text())
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            #showMessage("Rendering del grafico completato.")
+            if clamped:
+                _render_vector_copies(tred_output_file_path)
+                showMessage(_large_matrix_notice(raster_dpi),
+                            title='Matrix', icon=QMessageBox.Information)
             # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
-            print()#showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
-                        #icon=QMessageBox.Critical)
+            print(f"graphml export_matrix: render failed: {e}")
 
 
 class ViewHarrisMatrix:
@@ -720,6 +789,9 @@ class ViewHarrisMatrix:
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = 'Harris_matrix'
         # f = open(filename, "w")
+        apply_large_graph_policy(
+            G.graph_attr,
+            len(elist1) + len(elist2) + len(elist3) + len(elist4) + len(elist5))
         G.format = 'dot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         # For MS-Windows, we need to hide the console window.
@@ -731,17 +803,22 @@ class ViewHarrisMatrix:
         # dotargs = shlex.split(cmd)
         with open(os.path.join(matrix_path, filename + '_viewtred.dot'), "w") as out, \
                 open(os.path.join(matrix_path, 'matrix_error.txt'), "w") as err:
-            subprocess.Popen(['tred', dot_file],
-                             # shell=True,
-                             stdout=out,
-                             stderr=err,
-                             startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+            proc = subprocess.Popen(['tred', dot_file],
+                                    # shell=True,
+                                    stdout=out,
+                                    stderr=err,
+                                    startupinfo=si if Pyarchinit_OS_Utility.isWindows() else None)
+            proc.wait()  # the file is read right below
         tred_file = os.path.join(matrix_path, filename + '_viewtred.dot')
 
+        raster_dpi, clamped = _clamp_raster_dpi(tred_file, G.graph_attr.get('dpi', '150'))
         f = Source.from_file(tred_file, format='png')
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
+        if clamped:
+            _render_vector_copies(tred_file)
+            print(_large_matrix_notice(raster_dpi))
         return g, f
         # return f
 
@@ -907,6 +984,9 @@ class ViewHarrisMatrix:
             matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
             filename = 'Harris_matrix'
 
+            apply_large_graph_policy(
+                G.graph_attr, len(elist1) + len(elist2) + len(elist3))
+
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
@@ -939,10 +1019,15 @@ class ViewHarrisMatrix:
         else:
             pass#showMessage("Nessun errore riportato da `tred`.")
 
+        raster_dpi, clamped = _clamp_raster_dpi(
+            tred_output_file_path, G.graph_attr.get('dpi', '300'))
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
-            #showMessage("Rendering del grafico completato.")
+            if clamped:
+                _render_vector_copies(tred_output_file_path)
+                showMessage(_large_matrix_notice(raster_dpi),
+                            title='Matrix', icon=QMessageBox.Information)
             # return g (Considera che in una GUI, potresti voler gestire il risultato in modo diverso)
         except Exception as e:
             showMessage(f"Errore durante il rendering del grafico finale: {e}", title='Errore',
