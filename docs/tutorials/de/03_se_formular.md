@@ -706,6 +706,15 @@ Das SE-Formular ist eng mit QGIS integriert.
 | **Fotoliste ohne Thumbnails** | Einfache Liste |
 | **SE-Formulare** | Vollständige Formulare |
 
+### Sehr viele Beziehungen (Anhang)
+
+Hat eine SE Hunderte stratigraphischer Beziehungen (z. B. eine Schicht, die von 500 Gruben geschnitten wird), schlug der Export des Formulars bisher mit dem ReportLab-Fehler `LayoutError ... too large on page` fehl. Ab dieser Version wird das Formular wie folgt gesetzt:
+
+- jede Beziehungszelle (Liegt über, Liegt unter, Schneidet, Geschnitten von, Verfüllt, Verfüllt von, Verbunden mit, Gleich, Stützt sich auf, Wird gestützt von sowie die zusammengesetzten Zellen SPÄTER ALS / FRÜHER ALS) zeigt höchstens **80** SE, gefolgt von `… (+N, siehe Anhang)`;
+- die vollständige Liste wird direkt nach dem Formular in der Tabelle `ANHANG – STRATIGRAPHISCHE BEZIEHUNGEN SE <n> (vollständige Liste)` gedruckt: eine Zeile pro Beziehungstyp, 60 SE pro Zeile, seitenübergreifend fortgesetzt, Fortsetzungszeilen tragen die Kennzeichnung `(cont.)`;
+- SE mit 80 oder weniger Beziehungen pro Typ werden genau wie bisher gedruckt, ohne Anhang;
+- in der **SE-Liste** ist jede Beziehungsspalte auf **40** SE mit `… (+N)` begrenzt: die vollständige Liste steht im Anhang des Formulars.
+
 ---
 
 ## Operativer Arbeitsablauf

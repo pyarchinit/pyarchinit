@@ -247,6 +247,18 @@ As caixas coloridas representam periodos/fases:
 3. Utilizar View Matrix para areas individuais
 4. Exportar para formato vetorial (DOT) e abrir com yEd
 
+### Matrix de Grandes Dimensoes
+
+Com matrix muito grandes (p. ex. 1300 UEs e cerca de 2000 relacoes) a exportacao com ligacoes ortogonais podia demorar mais de 25 minutos e produzir um JPG vazio (0 bytes). A partir desta versao **Export Matrix** e **View Matrix** adaptam-se automaticamente:
+
+| Situacao | O que acontece |
+|----------|----------------|
+| Mais de **600** relacoes | As ligacoes passam automaticamente de ortogonais (`ortho`) para polilinhas retas com espacamento mais compacto: a mesma matrix e paginada em cerca de um segundo. Abaixo do limiar o estilo ortogonal mantem-se inalterado |
+| Imagem que excede o limite do renderizador bitmap (32 767 px por lado) | O DPI de JPG/PNG e reduzido automaticamente (o valor definido em Setting_Matrix e um maximo) e junto a imagem, em `pyarchinit_Matrix_folder`, sao guardadas as copias vetoriais `.svg` e `.pdf` (`Harris_matrix_tred.dot.svg/.pdf`; para View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Aviso "Matrix molto grande" (matrix muito grande: o JPG foi gerado a N dpi, use os ficheiros .svg / .pdf) | Abrir o ficheiro `.svg` ou `.pdf` (browser, Inkscape, visualizador PDF) para uma versao legivel e ampliavel sem perda de qualidade |
+
+Os ficheiros `.dot` continuam a ser produzidos como antes.
+
 ## Resultados e Ficheiros Gerados
 
 ### Pasta de Resultados
@@ -257,6 +269,8 @@ As caixas coloridas representam periodos/fases:
 |-- Harris_matrix_tred.dot      # Apos reducao transitiva
 |-- Harris_matrix_tred.dot.jpg  # Imagem JPG final
 |-- Harris_matrix_tred.dot.png  # Imagem PNG final
+|-- Harris_matrix_tred.dot.svg  # Vetorial (so matrix grandes)
+|-- Harris_matrix_tred.dot.pdf  # Vetorial (so matrix grandes)
 |-- Harris_matrix2ED.dot        # Versao estendida
 |-- Harris_matrix2ED_graphml.dot # Para exportacao GraphML
 +-- matrix_error.txt            # Registo de erros
@@ -269,6 +283,7 @@ As caixas coloridas representam periodos/fases:
 | *.jpg/*.png | Inserir em relatorios |
 | *.dot | Editar com editor Graphviz |
 | _graphml.dot | Importar para yEd para edicao avancada |
+| *.svg/*.pdf | Versao vetorial ampliavel (matrix grandes) |
 
 ## Boas Praticas
 

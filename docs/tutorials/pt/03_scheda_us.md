@@ -898,6 +898,15 @@ Quando o modo GIS esta ativo:
 | **Photo List without Thumbnail** | Lista simples |
 | **SU Forms** | Fichas completas |
 
+### Relacoes muito numerosas (anexo)
+
+Se uma UE tem centenas de relacoes estratigraficas (p. ex. uma camada cortada por 500 fossas), a exportacao da ficha falhava antes com o erro ReportLab `LayoutError ... too large on page`. A partir desta versao a ficha e paginada assim:
+
+- cada celula de relacoes (Copre, Coperto da, Taglia, Tagliato da, Riempie, Riempito da, Si lega a, Uguale a, Si appoggia a, Gli si appoggia e as celulas compostas POSTERIORE A / ANTERIORE A) mostra no maximo **80** UEs, seguidas de `… (+N, vedi allegato)` (ou `see annex` na ficha em ingles);
+- a lista completa e impressa logo a seguir a ficha na tabela `ALLEGATO – RAPPORTI STRATIGRAFICI US <n> (elenco completo)` (`ANNEX – STRATIGRAPHIC RELATIONSHIPS SU <n> (complete list)` em ingles): uma linha por tipo de relacao, 60 UEs por linha, continuando em varias paginas com a etiqueta `(segue)` / `(cont.)` nas linhas de continuacao;
+- as UEs com 80 relacoes ou menos por tipo sao impressas exatamente como antes, sem anexo;
+- na **SU List** cada coluna de relacoes e limitada a **40** UEs com `… (+N)`: a lista completa encontra-se no anexo da ficha.
+
 ### Conversao para Word
 
 O botao **Convert to Word** permite:

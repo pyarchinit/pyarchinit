@@ -898,6 +898,15 @@ Cand modul GIS este activ:
 | **Lista Foto fara Miniatura** | Lista simpla |
 | **Fise US** | Fise complete |
 
+### Relatii foarte numeroase (anexa)
+
+Daca o US are sute de relatii stratigrafice (de ex. un strat taiat de 500 de gropi), exportul fisei esua inainte cu eroarea ReportLab `LayoutError ... too large on page`. Din aceasta versiune fisa este paginata astfel:
+
+- fiecare celula de relatii (Copre, Coperto da, Taglia, Tagliato da, Riempie, Riempito da, Si lega a, Uguale a, Si appoggia a, Gli si appoggia si celulele compuse POSTERIORE A / ANTERIORE A) afiseaza cel mult **80** de US, urmate de `… (+N, vedi allegato)` (sau `see annex` in fisa in engleza);
+- lista completa este tiparita imediat dupa fisa in tabelul `ALLEGATO – RAPPORTI STRATIGRAFICI US <n> (elenco completo)` (`ANNEX – STRATIGRAPHIC RELATIONSHIPS SU <n> (complete list)` in engleza): un rand pentru fiecare tip de relatie, 60 de US pe rand, continuand pe mai multe pagini cu eticheta `(segue)` / `(cont.)` pe randurile de continuare;
+- US-urile cu 80 sau mai putine relatii pe tip sunt tiparite exact ca inainte, fara anexa;
+- in **Lista US** fiecare coloana de relatii este limitata la **40** de US cu `… (+N)`: lista completa se gaseste in anexa fisei.
+
 ### Conversie Word
 
 Butonul **Convertire in Word** permite:

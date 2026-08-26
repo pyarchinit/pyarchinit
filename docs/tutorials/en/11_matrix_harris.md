@@ -247,6 +247,18 @@ Colored boxes represent periods/phases:
 3. Use View Matrix for single areas
 4. Export to vector format (DOT) and open with yEd
 
+### Very Large Matrices
+
+With very large matrices (e.g. 1300 SU and about 2000 relationships) the export with orthogonal edges could take more than 25 minutes and produce an empty (0-byte) JPG. From this release **Export Matrix** and **View Matrix** adapt automatically:
+
+| Situation | What happens |
+|-----------|--------------|
+| More than **600** relationships | Edges switch automatically from orthogonal (`ortho`) to straight polylines with tighter spacing: the same matrix is laid out in about one second. Below the threshold the orthogonal style is unchanged |
+| Image exceeding the bitmap renderer limit (32,767 px per side) | The JPG/PNG DPI is reduced automatically (the value set in Setting_Matrix is a maximum) and vector copies `.svg` and `.pdf` are saved next to the image in `pyarchinit_Matrix_folder` (`Harris_matrix_tred.dot.svg/.pdf`; for View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Information dialog "Matrix molto grande" (very large matrix: the JPG was generated at N dpi, use the .svg / .pdf files) | Open the `.svg` or `.pdf` file (browser, Inkscape, PDF viewer) for a readable, zoomable version with no loss of quality |
+
+The `.dot` files are still produced as before.
+
 ## Output and Generated Files
 
 ### Output Folder
@@ -257,6 +269,8 @@ Colored boxes represent periods/phases:
 ├── Harris_matrix_tred.dot      # After transitive reduction
 ├── Harris_matrix_tred.dot.jpg  # Final JPG image
 ├── Harris_matrix_tred.dot.png  # Final PNG image
+├── Harris_matrix_tred.dot.svg  # Vector copy (large matrices only)
+├── Harris_matrix_tred.dot.pdf  # Vector copy (large matrices only)
 ├── Harris_matrix2ED.dot        # Extended version
 ├── Harris_matrix2ED_graphml.dot # For GraphML export
 └── matrix_error.txt            # Error log
@@ -269,6 +283,7 @@ Colored boxes represent periods/phases:
 | *.jpg/*.png | Insert in reports |
 | *.dot | Edit with Graphviz editor |
 | _graphml.dot | Import to yEd for advanced editing |
+| *.svg/*.pdf | Zoomable vector version (large matrices) |
 
 ## Best Practices
 

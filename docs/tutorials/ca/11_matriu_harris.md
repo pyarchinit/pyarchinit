@@ -247,6 +247,18 @@ Els requadres acolorits representen períodes/fases:
 3. Usar el View Matrix per a àrees individuals
 4. Exportar en format vectorial (DOT) i obrir amb yEd
 
+### Matrius de Grans Dimensions
+
+Amb matrius molt grans (p. ex. 1300 US i unes 2000 relacions) l'exportació amb connexions ortogonals podia trigar més de 25 minuts i produir un JPG buit (0 bytes). A partir d'aquesta versió **Exporta Matrix** i **View Matrix** s'adapten automàticament:
+
+| Situació | Què passa |
+|----------|-----------|
+| Més de **600** relacions | Les connexions passen automàticament d'ortogonals (`ortho`) a polilínies rectes amb espaiat més compacte: la mateixa matriu es compagina en aproximadament un segon. Per sota del llindar l'estil ortogonal no canvia |
+| Imatge que supera el límit del renderitzador bitmap (32 767 px per costat) | El DPI de JPG/PNG es redueix automàticament (el valor configurat a Setting_Matrix és un màxim) i al costat de la imatge, a `pyarchinit_Matrix_folder`, es desen les còpies vectorials `.svg` i `.pdf` (`Harris_matrix_tred.dot.svg/.pdf`; per a View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Avís "Matrix molto grande" (matriu molt gran: el JPG s'ha generat a N dpi, fes servir els fitxers .svg / .pdf) | Obrir el fitxer `.svg` o `.pdf` (navegador, Inkscape, visor PDF) per a una versió llegible i ampliable sense pèrdua de qualitat |
+
+Els fitxers `.dot` es generen com abans.
+
 ### US No Agrupades per Període
 
 **Causa**: Falta la periodització o no està habilitada
@@ -266,6 +278,8 @@ Els requadres acolorits representen períodes/fases:
 ├── Harris_matrix_tred.dot      # Després de reducció transitiva
 ├── Harris_matrix_tred.dot.jpg  # Imatge final JPG
 ├── Harris_matrix_tred.dot.png  # Imatge final PNG
+├── Harris_matrix_tred.dot.svg  # Vectorial (només matrius grans)
+├── Harris_matrix_tred.dot.pdf  # Vectorial (només matrius grans)
 ├── Harris_matrix2ED.dot        # Versió estesa
 ├── Harris_matrix2ED_graphml.dot # Per exportació GraphML
 └── matrix_error.txt            # Log errors
@@ -278,6 +292,7 @@ Els requadres acolorits representen períodes/fases:
 | *.jpg/*.png | Inserció a informes |
 | *.dot | Modificació amb editor Graphviz |
 | _graphml.dot | Import a yEd per a edició avançada |
+| *.svg/*.pdf | Versió vectorial ampliable (matrius grans) |
 
 ## Bones Pràctiques
 

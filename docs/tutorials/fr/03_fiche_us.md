@@ -398,6 +398,15 @@ La Fiche US est étroitement intégrée avec QGIS.
 | **Liste Photos avec Miniatures** | Liste avec aperçus |
 | **Fiches US** | Fiches complètes |
 
+### Rapports très nombreux (annexe)
+
+Si une US possède des centaines de rapports stratigraphiques (par ex. une couche recoupée par 500 fosses), l'exportation de la fiche échouait auparavant avec l'erreur ReportLab `LayoutError ... too large on page`. À partir de cette version la fiche est mise en page ainsi :
+
+- chaque cellule de rapports (Couvre, Couvert par, Coupe, Coupé par, Remplit, Rempli par, Se lie à, Égal à, S'appuie à, Lui s'appuie, ainsi que les cellules composites POSTÉRIEUR À / ANTÉRIEUR À) affiche au maximum **80** US, suivies de `… (+N, voir annexe)` ;
+- la liste complète est imprimée juste après la fiche dans le tableau `ANNEXE – RAPPORTS STRATIGRAPHIQUES US <n> (liste complète)` : une ligne par type de rapport, 60 US par ligne, se poursuivant sur plusieurs pages avec l'étiquette `(cont.)` sur les lignes de continuation ;
+- les US ayant 80 rapports ou moins par type sont imprimées exactement comme avant, sans annexe ;
+- dans la **Liste US**, chaque colonne de rapports est limitée à **40** US avec `… (+N)` : la liste complète se trouve dans l'annexe de la fiche.
+
 ---
 
 ## Workflow Opérationnel

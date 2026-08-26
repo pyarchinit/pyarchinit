@@ -247,6 +247,18 @@ Casetele colorate reprezintă perioade/faze:
 3. Folosiți Vizualizare Matrice pentru zone individuale
 4. Exportați în format vectorial (DOT) și deschideți cu yEd
 
+### Matrice de Dimensiuni Mari
+
+Cu matrice foarte mari (de ex. 1300 US și circa 2000 de relații) exportul cu conexiuni ortogonale putea dura peste 25 de minute și producea un JPG gol (0 octeți). Din această versiune **Export Matrice** și **Vizualizare Matrice** se adaptează automat:
+
+| Situație | Ce se întâmplă |
+|----------|----------------|
+| Peste **600** de relații | Conexiunile trec automat de la ortogonale (`ortho`) la polilinii drepte cu spațiere mai compactă: aceeași matrice este paginată în aproximativ o secundă. Sub prag stilul ortogonal rămâne neschimbat |
+| Imagine care depășește limita renderer-ului bitmap (32 767 px pe latură) | DPI-ul pentru JPG/PNG este redus automat (valoarea setată în Setting_Matrix este un maxim) și lângă imagine, în `pyarchinit_Matrix_folder`, sunt salvate copiile vectoriale `.svg` și `.pdf` (`Harris_matrix_tred.dot.svg/.pdf`; pentru Vizualizare Matrice `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Dialog de informare „Matrix molto grande" (matrice foarte mare: JPG-ul a fost generat la N dpi, folosiți fișierele .svg / .pdf) | Deschideți fișierul `.svg` sau `.pdf` (browser, Inkscape, vizualizator PDF) pentru o versiune lizibilă și scalabilă fără pierdere de calitate |
+
+Fișierele `.dot` sunt produse ca înainte.
+
 ## Fișierele Generate și Ieșiri
 
 ### Folderul de Ieșire
@@ -257,6 +269,8 @@ Casetele colorate reprezintă perioade/faze:
 ├── Harris_matrix_tred.dot      # După reducerea tranzitivă
 ├── Harris_matrix_tred.dot.jpg  # Imagine JPG finală
 ├── Harris_matrix_tred.dot.png  # Imagine PNG finală
+├── Harris_matrix_tred.dot.svg  # Vectorial (doar matrice mari)
+├── Harris_matrix_tred.dot.pdf  # Vectorial (doar matrice mari)
 ├── Harris_matrix2ED.dot        # Versiune extinsă
 ├── Harris_matrix2ED_graphml.dot # Pentru export GraphML
 └── matrix_error.txt            # Jurnal erori
@@ -269,6 +283,7 @@ Casetele colorate reprezintă perioade/faze:
 | *.jpg/*.png | Inserare în rapoarte |
 | *.dot | Editare cu editor Graphviz |
 | _graphml.dot | Import în yEd pentru editare avansată |
+| *.svg/*.pdf | Versiune vectorială scalabilă (matrice mari) |
 
 ## Bune Practici
 

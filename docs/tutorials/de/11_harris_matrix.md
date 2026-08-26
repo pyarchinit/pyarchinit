@@ -257,6 +257,18 @@ Die farbigen Boxen repräsentieren Perioden/Phasen:
 3. Matrix-Anzeige für einzelne Areale verwenden
 4. In Vektorformat (DOT) exportieren und mit yEd öffnen
 
+### Sehr große Matrizen
+
+Bei sehr großen Matrizen (z. B. 1300 SE und rund 2000 Beziehungen) konnte der Export mit orthogonalen Verbindungen mehr als 25 Minuten dauern und ein leeres JPG (0 Byte) erzeugen. Ab dieser Version passen sich **Matrix exportieren** und **Matrix anzeigen** automatisch an:
+
+| Situation | Was passiert |
+|-----------|--------------|
+| Mehr als **600** Beziehungen | Die Verbindungen wechseln automatisch von orthogonal (`ortho`) zu geraden Polylinien mit engerem Abstand: dieselbe Matrix wird in etwa einer Sekunde gesetzt. Unterhalb der Schwelle bleibt der orthogonale Stil unverändert |
+| Bild über dem Limit des Bitmap-Renderers (32 767 px pro Seite) | Die DPI von JPG/PNG wird automatisch reduziert (der in Setting_Matrix eingestellte Wert ist ein Maximum) und neben dem Bild werden in `pyarchinit_Matrix_folder` die Vektorkopien `.svg` und `.pdf` gespeichert (`Harris_matrix_tred.dot.svg/.pdf`; bei Matrix anzeigen `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Hinweisdialog „Matrix molto grande" (sehr große Matrix: das JPG wurde mit N dpi erzeugt, die .svg-/.pdf-Dateien verwenden) | Die `.svg`- oder `.pdf`-Datei öffnen (Browser, Inkscape, PDF-Viewer) für eine lesbare, verlustfrei zoombare Version |
+
+Die `.dot`-Dateien werden wie bisher erzeugt.
+
 ### SE nicht nach Periode gruppiert
 
 **Ursache**: Periodisierung fehlt oder nicht aktiviert
@@ -276,6 +288,8 @@ Die farbigen Boxen repräsentieren Perioden/Phasen:
 ├── Harris_matrix_tred.dot      # Nach transitiver Reduktion
 ├── Harris_matrix_tred.dot.jpg  # Finales JPG-Bild
 ├── Harris_matrix_tred.dot.png  # Finales PNG-Bild
+├── Harris_matrix_tred.dot.svg  # Vektorkopie (nur große Matrizen)
+├── Harris_matrix_tred.dot.pdf  # Vektorkopie (nur große Matrizen)
 ├── Harris_matrix2ED.dot        # Erweiterte Version
 ├── Harris_matrix2ED_graphml.dot # Für GraphML-Export
 └── matrix_error.txt            # Fehlerprotokoll
@@ -288,6 +302,7 @@ Die farbigen Boxen repräsentieren Perioden/Phasen:
 | *.jpg/*.png | Einfügung in Berichte |
 | *.dot | Bearbeitung mit Graphviz-Editor |
 | _graphml.dot | Import in yEd für erweiterte Bearbeitung |
+| *.svg/*.pdf | Zoombare Vektorversion (große Matrizen) |
 
 ## Best Practices
 

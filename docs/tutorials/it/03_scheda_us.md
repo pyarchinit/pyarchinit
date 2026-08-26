@@ -896,6 +896,15 @@ Quando la modalita GIS e attiva:
 | **Elenco Foto senza Thumbnail** | Lista semplice |
 | **Schede US** | Schede complete |
 
+### Rapporti molto numerosi (allegato)
+
+Se una US ha centinaia di rapporti stratigrafici (es. uno strato tagliato da 500 fosse), in passato l'esportazione della scheda falliva con l'errore ReportLab `LayoutError ... too large on page`. Da questa release la scheda viene impaginata così:
+
+- ogni cella dei rapporti (Copre, Coperto da, Taglia, Tagliato da, Riempie, Riempito da, Si lega a, Uguale a, Si appoggia a, Gli si appoggia e le celle composite POSTERIORE A / ANTERIORE A) mostra al massimo **80** US, seguite da `… (+N, vedi allegato)`;
+- l'elenco completo viene stampato subito dopo la scheda nella tabella `ALLEGATO – RAPPORTI STRATIGRAFICI US <n> (elenco completo)`: una riga per tipo di rapporto, 60 US per riga, che prosegue su più pagine con l'etichetta `(segue)` nelle righe di continuazione;
+- le US con 80 o meno rapporti per tipo vengono stampate esattamente come prima, senza allegato;
+- nell'**Elenco US** ogni colonna dei rapporti è limitata a **40** US con `… (+N)`: l'elenco completo si trova nell'allegato della scheda.
+
 ### Conversione Word
 
 Il bottone **Converti in Word** permette di:

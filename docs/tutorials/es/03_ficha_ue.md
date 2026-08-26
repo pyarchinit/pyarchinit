@@ -677,6 +677,15 @@ La Ficha UE está estrechamente integrada con QGIS.
 | **Listado Fotos sin Miniatura** | Lista simple |
 | **Fichas UE** | Fichas completas |
 
+### Relaciones muy numerosas (anexo)
+
+Si una UE tiene cientos de relaciones estratigráficas (p. ej. un estrato cortado por 500 fosas), antes la exportación de la ficha fallaba con el error de ReportLab `LayoutError ... too large on page`. Desde esta versión la ficha se compagina así:
+
+- cada celda de relaciones (Cubre, Cubierta por, Corta, Cortada por, Rellena, Rellenada por, Se une a, Igual a, Se apoya en, Le apoya y las celdas compuestas POSTERIOR A / ANTERIOR A) muestra como máximo **80** UE, seguidas de `… (+N, ver anexo)`;
+- la lista completa se imprime justo después de la ficha en la tabla `ANEXO – RELACIONES ESTRATIGRÁFICAS UE <n> (lista completa)`: una fila por tipo de relación, 60 UE por fila, continuando en varias páginas con la etiqueta `(cont.)` en las filas de continuación;
+- las UE con 80 relaciones o menos por tipo se imprimen exactamente como antes, sin anexo;
+- en el **Listado UE** cada columna de relaciones se limita a **40** UE con `… (+N)`: la lista completa está en el anexo de la ficha.
+
 ---
 
 ## Workflow Operativo

@@ -898,6 +898,15 @@ When GIS mode is active:
 | **Photo List without Thumbnail** | Simple list |
 | **SU Forms** | Complete forms |
 
+### Very numerous relationships (annex)
+
+If a SU has hundreds of stratigraphic relationships (e.g. a layer cut by 500 pits), exporting the sheet used to fail with the ReportLab error `LayoutError ... too large on page`. From this release the sheet is laid out as follows:
+
+- each relationship cell (Covers, Covered by, Cuts, Cut by, Fills, Filled by, Bonds with, Same as, Abuts, Supports, and the composite LATER THAN / EARLIER THAN cells) shows at most **80** SU, followed by `… (+N, see annex)`;
+- the complete list is printed right after the sheet in the table `ANNEX – STRATIGRAPHIC RELATIONSHIPS SU <n> (complete list)`: one row per relationship type, 60 SU per row, continuing across pages with the label `(cont.)` on continuation rows;
+- SU with 80 or fewer relationships per type are printed exactly as before, without annex;
+- in the **SU List** each relationship column is capped at **40** SU with `… (+N)`: the full list is in the sheet annex.
+
 ### Word Conversion
 
 The **Convert to Word** button allows:

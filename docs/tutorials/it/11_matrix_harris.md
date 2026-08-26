@@ -257,6 +257,18 @@ I box colorati rappresentano periodi/fasi:
 3. Usare il View Matrix per singole aree
 4. Esportare in formato vettoriale (DOT) e aprire con yEd
 
+### Matrix di grandi dimensioni
+
+Con matrix molto grandi (es. 1300 US e circa 2000 rapporti) l'esportazione con connessioni ortogonali poteva richiedere più di 25 minuti e produrre un JPG vuoto (0 byte). Da questa release **Esporta Matrix** e **View Matrix** si adattano automaticamente:
+
+| Situazione | Cosa succede |
+|------------|--------------|
+| Più di **600** rapporti | Le connessioni passano automaticamente da ortogonali (`ortho`) a polilinee dritte con spaziatura più compatta: lo stesso matrix viene impaginato in circa un secondo. Sotto la soglia lo stile ortogonale resta invariato |
+| Immagine oltre il limite del renderer bitmap (32 767 px per lato) | Il DPI di JPG/PNG viene ridotto automaticamente (il valore impostato in Setting_Matrix è un massimo) e accanto all'immagine, in `pyarchinit_Matrix_folder`, vengono salvate le copie vettoriali `.svg` e `.pdf` (`Harris_matrix_tred.dot.svg/.pdf`; per View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Avviso "Matrix molto grande: l'immagine JPG è stata generata a N dpi … usa i file .svg / .pdf" | Aprire il file `.svg` o `.pdf` (browser, Inkscape, visualizzatore PDF) per una versione leggibile e ingrandibile senza perdita di qualità |
+
+I file `.dot` vengono prodotti come prima.
+
 ### US Non Raggruppate per Periodo
 
 **Causa**: Manca la periodizzazione o non e abilitata
@@ -276,6 +288,8 @@ I box colorati rappresentano periodi/fasi:
 ├── Harris_matrix_tred.dot      # Dopo riduzione transitiva
 ├── Harris_matrix_tred.dot.jpg  # Immagine finale JPG
 ├── Harris_matrix_tred.dot.png  # Immagine finale PNG
+├── Harris_matrix_tred.dot.svg  # Vettoriale (solo matrix grandi)
+├── Harris_matrix_tred.dot.pdf  # Vettoriale (solo matrix grandi)
 ├── Harris_matrix2ED.dot        # Versione estesa
 ├── Harris_matrix2ED_graphml.dot # Per export GraphML
 └── matrix_error.txt            # Log errori
@@ -288,6 +302,7 @@ I box colorati rappresentano periodi/fasi:
 | *.jpg/*.png | Inserimento in relazioni |
 | *.dot | Modifica con editor Graphviz |
 | _graphml.dot | Import in yEd per editing avanzato |
+| *.svg/*.pdf | Versione vettoriale ingrandibile (matrix grandi) |
 
 ## Best Practices
 

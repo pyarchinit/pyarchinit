@@ -729,6 +729,15 @@ Quan el mode GIS està actiu:
 | **Llistat Fotos sense Thumbnail** | Llista senzilla |
 | **Fitxes US** | Fitxes completes |
 
+### Relacions molt nombroses (annex)
+
+Si una US té centenars de relacions estratigràfiques (p. ex. un estrat tallat per 500 fosses), abans l'exportació de la fitxa fallava amb l'error de ReportLab `LayoutError ... too large on page`. A partir d'aquesta versió la fitxa es compagina així:
+
+- cada cel·la de relacions (Cobreix, Cobert per, Talla, Tallat per, Omple, Omplert per, Es lliga a, Igual a, S'adossa a, Li s'adossa i les cel·les compostes POSTERIOR A / ANTERIOR A) mostra com a màxim **80** US, seguides de `… (+N, vedi allegato)` (o `see annex` a la fitxa en anglès);
+- la llista completa s'imprimeix just després de la fitxa a la taula `ALLEGATO – RAPPORTI STRATIGRAFICI US <n> (elenco completo)` (`ANNEX – STRATIGRAPHIC RELATIONSHIPS SU <n> (complete list)` en anglès): una fila per tipus de relació, 60 US per fila, continuant en diverses pàgines amb l'etiqueta `(segue)` / `(cont.)` a les files de continuació;
+- les US amb 80 relacions o menys per tipus s'imprimeixen exactament com abans, sense annex;
+- al **Llistat US** cada columna de relacions es limita a **40** US amb `… (+N)`: la llista completa es troba a l'annex de la fitxa.
+
 ### Conversió a Word
 
 El botó **Converteix a Word** permet:

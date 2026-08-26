@@ -257,6 +257,18 @@ Les cadres colorés représentent les périodes/phases :
 3. Utiliser le View Matrix pour zones individuelles
 4. Exporter en format vectoriel (DOT) et ouvrir avec yEd
 
+### Matrices de Grande Taille
+
+Avec des matrices très grandes (par ex. 1300 US et environ 2000 rapports), l'export avec connexions orthogonales pouvait prendre plus de 25 minutes et produire un JPG vide (0 octet). À partir de cette version, **Exporter Matrix** et **View Matrix** s'adaptent automatiquement :
+
+| Situation | Ce qui se passe |
+|-----------|-----------------|
+| Plus de **600** rapports | Les connexions passent automatiquement de l'orthogonal (`ortho`) à des polylignes droites avec un espacement plus serré : la même matrice est mise en page en une seconde environ. Sous le seuil, le style orthogonal reste inchangé |
+| Image dépassant la limite du moteur bitmap (32 767 px par côté) | Le DPI du JPG/PNG est réduit automatiquement (la valeur définie dans Setting_Matrix est un maximum) et des copies vectorielles `.svg` et `.pdf` sont enregistrées à côté de l'image dans `pyarchinit_Matrix_folder` (`Harris_matrix_tred.dot.svg/.pdf` ; pour View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Message d'information « Matrix molto grande » (matrice très grande : le JPG a été généré à N dpi, utiliser les fichiers .svg / .pdf) | Ouvrir le fichier `.svg` ou `.pdf` (navigateur, Inkscape, lecteur PDF) pour une version lisible et zoomable sans perte de qualité |
+
+Les fichiers `.dot` sont toujours produits comme avant.
+
 ### US Non Regroupées par Période
 
 **Cause** : Périodisation manquante ou non activée
@@ -282,6 +294,8 @@ pyarchinit_Matrix_folder/
 ├── Harris_matrix_tred.dot      # Après réduction transitive
 ├── Harris_matrix_tred.dot.jpg  # Image finale JPG
 ├── Harris_matrix_tred.dot.png  # Image finale PNG
+├── Harris_matrix_tred.dot.svg  # Vectoriel (grandes matrices seulement)
+├── Harris_matrix_tred.dot.pdf  # Vectoriel (grandes matrices seulement)
 ├── Harris_matrix2ED.dot        # Version étendue
 ├── Harris_matrix2ED_graphml.dot # Pour export GraphML
 └── matrix_error.txt            # Log erreurs
@@ -294,6 +308,7 @@ pyarchinit_Matrix_folder/
 | *.jpg/*.png | Insertion dans rapports |
 | *.dot | Modification avec éditeur Graphviz |
 | _graphml.dot | Import dans yEd pour édition avancée |
+| *.svg/*.pdf | Version vectorielle zoomable (grandes matrices) |
 
 ## Bonnes Pratiques
 

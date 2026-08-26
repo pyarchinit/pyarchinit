@@ -257,6 +257,18 @@ Las cajas coloreadas representan periodos/fases:
 3. Usar el View Matrix para áreas individuales
 4. Exportar en formato vectorial (DOT) y abrir con yEd
 
+### Matrix de Gran Tamaño
+
+Con matrix muy grandes (p. ej. 1300 UE y unas 2000 relaciones) la exportación con conexiones ortogonales podía tardar más de 25 minutos y producir un JPG vacío (0 bytes). Desde esta versión **Exportar Matrix** y **View Matrix** se adaptan automáticamente:
+
+| Situación | Qué ocurre |
+|-----------|------------|
+| Más de **600** relaciones | Las conexiones pasan automáticamente de ortogonales (`ortho`) a polilíneas rectas con espaciado más compacto: el mismo matrix se compagina en aproximadamente un segundo. Por debajo del umbral el estilo ortogonal no cambia |
+| Imagen que supera el límite del renderizador bitmap (32 767 px por lado) | El DPI de JPG/PNG se reduce automáticamente (el valor configurado en Setting_Matrix es un máximo) y junto a la imagen, en `pyarchinit_Matrix_folder`, se guardan las copias vectoriales `.svg` y `.pdf` (`Harris_matrix_tred.dot.svg/.pdf`; para View Matrix `Harris_matrix_viewtred.dot.svg/.pdf`) |
+| Aviso "Matrix molto grande" (matrix muy grande: el JPG se ha generado a N dpi, usa los archivos .svg / .pdf) | Abrir el archivo `.svg` o `.pdf` (navegador, Inkscape, visor PDF) para una versión legible y ampliable sin pérdida de calidad |
+
+Los archivos `.dot` se generan como antes.
+
 ### UE No Agrupadas por Periodo
 
 **Causa**: Falta la periodización o no está habilitada
@@ -276,6 +288,8 @@ Las cajas coloreadas representan periodos/fases:
 ├── Harris_matrix_tred.dot      # Después de reducción transitiva
 ├── Harris_matrix_tred.dot.jpg  # Imagen final JPG
 ├── Harris_matrix_tred.dot.png  # Imagen final PNG
+├── Harris_matrix_tred.dot.svg  # Vectorial (solo matrix grandes)
+├── Harris_matrix_tred.dot.pdf  # Vectorial (solo matrix grandes)
 ├── Harris_matrix2ED.dot        # Versión extendida
 ├── Harris_matrix2ED_graphml.dot # Para export GraphML
 └── matrix_error.txt            # Log de errores
@@ -288,6 +302,7 @@ Las cajas coloreadas representan periodos/fases:
 | *.jpg/*.png | Inserción en informes |
 | *.dot | Modificación con editor Graphviz |
 | _graphml.dot | Import en yEd para edición avanzada |
+| *.svg/*.pdf | Versión vectorial ampliable (matrix grandes) |
 
 ## Buenas Prácticas
 
