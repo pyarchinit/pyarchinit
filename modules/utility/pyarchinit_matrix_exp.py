@@ -24,6 +24,9 @@ from qgis.core import QgsSettings
 from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .pyarchinit_i18n_stratigraphic import RELATIONSHIPS
+from .matrix_layout_policy import (
+    apply_large_graph_policy, safe_raster_dpi, set_dot_dpi,
+)
 from ...tabs.pyarchinit_setting_matrix import *
 
 
@@ -217,6 +220,53 @@ def _clean_tred_output(tred_file):
             fh.write('\n'.join(clean_lines) + '\n')
     except Exception as e:
         print(f"_clean_tred_output: cleanup failed ({e}), trying render anyway")
+
+
+def _clamp_raster_dpi(dot_path, requested_dpi):
+    """Lower the ``dpi`` inside the laid-out *dot_path* so that the bitmap
+    graphviz will produce stays within the cairo limit (32767 px/side).
+
+    Must run while the file still carries the root ``bb`` (i.e. before any
+    cleanup that strips layout attributes). Returns ``(dpi_used, clamped)``.
+    On the 2026-08 test DB (1311 US) the 300-dpi JPG was a 0-byte file and
+    the PNG was scaled ×0.098; see ``matrix_layout_policy``.
+    """
+    try:
+        with open(dot_path, 'r', encoding='utf-8', errors='replace') as fh:
+            text = fh.read()
+    except OSError:
+        return requested_dpi, False
+    dpi = safe_raster_dpi(text, requested_dpi)
+    try:
+        requested = int(float(requested_dpi))
+    except (TypeError, ValueError):
+        requested = dpi
+    if dpi >= requested:
+        return requested, False
+    with open(dot_path, 'w', encoding='utf-8') as fh:
+        fh.write(set_dot_dpi(text, dpi))
+    print(f"matrix: a {requested}-dpi bitmap would exceed the cairo limit; "
+          f"rendering at {dpi} dpi and writing .svg/.pdf copies")
+    return dpi, True
+
+
+def _render_vector_copies(dot_path, formats=('svg', 'pdf')):
+    """Write ``<dot_path>.svg`` / ``.pdf`` next to the raster: a matrix too
+    wide for a bitmap is still fully readable (zoomable) as vector."""
+    written = []
+    for fmt in formats:
+        try:
+            written.append(Source.from_file(dot_path, format=fmt).render())
+        except Exception as e:
+            print(f"matrix: {fmt} render failed: {e}")
+    return written
+
+
+def _large_matrix_notice(dpi):
+    return ("Matrix molto grande: l'immagine JPG è stata generata a "
+            f"{dpi} dpi (limite del renderer bitmap). Per la versione "
+            "leggibile usa i file .svg / .pdf salvati nella stessa "
+            "cartella (pyarchinit_Matrix_folder).")
 
 
 def rust_layout_to_dot(layout_result, edges, node_labels,
@@ -641,6 +691,11 @@ class HarrisMatrix:
 
 
 
+            # Large graphs: ortho routing is unusable (>15 min at ~2000
+            # edges) → polyline + tighter spacing (matrix_layout_policy).
+            apply_large_graph_policy(
+                G.graph_attr, len(elist1) + len(elist2) + len(elist3))
+
             # Rendering del file DOT
             G.format = 'dot'
             try:
@@ -683,9 +738,13 @@ class HarrisMatrix:
         # worse visual on Harris-matrix data). If the render fails
         # because tred left orphan attribute fragments behind, then
         # apply _clean_tred_output() and retry.
+        raster_dpi, clamped = _clamp_raster_dpi(
+            tred_output_file_path, self.dialog.lineEdit_dpi.text())
+        rendered = False
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
+            rendered = True
         except Exception as first_err:
             print(f"export_matrix: first render failed ({first_err}), "
                   f"applying tred cleanup and retrying")
@@ -694,11 +753,16 @@ class HarrisMatrix:
                 g = Source.from_file(
                     tred_output_file_path, format='jpg')
                 g.render()
+                rendered = True
             except Exception as e:
                 # Surface the error instead of silently swallowing
                 # it — users were seeing only the .dot file with no
                 # image and no diagnostic.
                 print(f"export_matrix: graphviz render failed: {e}")
+        if rendered and clamped:
+            _render_vector_copies(tred_output_file_path)
+            showMessage(_large_matrix_notice(raster_dpi),
+                        title='Matrix', icon=QMessageBox.Information)
     @property
     def export_matrix_2(self):
         G = Digraph(engine='dot',strict=False)
@@ -866,6 +930,10 @@ class HarrisMatrix:
             matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
             filename = 'Harris_matrix2ED'
 
+            apply_large_graph_policy(
+                G.graph_attr,
+                len(elist1) + len(elist2) + len(elist3) + len(elist4) + len(elist5))
+
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
@@ -900,9 +968,13 @@ class HarrisMatrix:
 
         # Same render-first-cleanup-on-failure strategy as in
         # export_matrix above (see comment there for rationale).
+        raster_dpi, clamped = _clamp_raster_dpi(
+            tred_output_file_path, self.dialog.lineEdit_dpi.text())
+        rendered = False
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
             g.render()
+            rendered = True
         except Exception as first_err:
             print(f"graphml export_matrix: first render failed "
                   f"({first_err}), applying tred cleanup and retrying")
@@ -911,8 +983,13 @@ class HarrisMatrix:
                 g = Source.from_file(
                     tred_output_file_path, format='jpg')
                 g.render()
+                rendered = True
             except Exception as e:
                 print(f"graphml export_matrix: render failed: {e}")
+        if rendered and clamped:
+            _render_vector_copies(tred_output_file_path)
+            showMessage(_large_matrix_notice(raster_dpi),
+                        title='Matrix', icon=QMessageBox.Information)
 
 
 class ViewHarrisMatrix:
@@ -1030,6 +1107,9 @@ class ViewHarrisMatrix:
 
         matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
         filename = 'Harris_matrix'
+        apply_large_graph_policy(
+            G.graph_attr,
+            len(elist1) + len(elist2) + len(elist3) + len(elist4) + len(elist5))
         G.format = 'dot'
         dot_file = G.render(directory=matrix_path, filename=filename)
         tred_file = os.path.join(matrix_path, filename + '_viewtred.dot')
@@ -1051,6 +1131,10 @@ class ViewHarrisMatrix:
                                         stderr=err,
                                         startupinfo=si)
                 proc.wait()
+
+        # Clamp the dpi while the root bb is still in the file (the cleanup
+        # below strips it); vector copies are written after the render.
+        raster_dpi, clamped = _clamp_raster_dpi(tred_file, G.graph_attr.get('dpi', '150'))
 
         # Clean tred output: strip ALL layout attributes added by tred/dot
         # (pos, width, height, bb) that cause syntax errors on re-render
@@ -1093,6 +1177,9 @@ class ViewHarrisMatrix:
         f.render()
         g = Source.from_file(tred_file, format='jpg')
         g.render()
+        if clamped:
+            _render_vector_copies(tred_file)
+            print(_large_matrix_notice(raster_dpi))
         return g, f
 
     @property
@@ -1258,6 +1345,9 @@ class ViewHarrisMatrix:
             matrix_path = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_Matrix_folder")
             filename = 'Harris_matrix'
 
+            apply_large_graph_policy(
+                G.graph_attr, len(elist1) + len(elist2) + len(elist3))
+
             # Rendering del file DOT
             G.format = 'dot'
             dot_file = G.render(directory=matrix_path, filename=filename)
@@ -1314,9 +1404,14 @@ class ViewHarrisMatrix:
                 # initial dot pass — graphviz redoing layout from
                 # scratch produces noticeably worse Harris matrices).
                 if not has_critical_errors:
+                    raster_dpi, clamped = _clamp_raster_dpi(
+                        tred_output_file_path, current_dpi)
                     try:
                         g = Source.from_file(tred_output_file_path, format='jpg')
                         g.render()
+                        if clamped:
+                            _render_vector_copies(tred_output_file_path)
+                            print(_large_matrix_notice(raster_dpi))
                         matrix_generated = True
                         print(f"Matrice generata con successo con DPI {current_dpi}")
                         break  # Successo, esci dal loop
