@@ -53,6 +53,99 @@ from ..db.pyarchinit_conn_strings import Connection
 from .pyarchinit_OS_utility import *
 from PIL import Image as giggino
 from reportlab.lib.utils import ImageReader
+from html import escape as _html_escape
+
+
+# ---------------------------------------------------------------------------
+# Rapporti stratigrafici: cap inline + allegato (fix 2026-08)
+#
+# The ICCD sheet is a single ReportLab Table whose relation block (rows
+# 13-22) is locked together by row-spans, so ReportLab can never split it
+# across pages. A record with hundreds of relations (real case: 545
+# "Tagliato da") made the block taller than the page and the export died
+# with ``LayoutError: Flowable ... too large on page``; the US index list
+# failed the same way (one 3282-pt row). ``Table(splitInRow=1)`` was tried
+# and rejected: it emits one line per page (45 pages for one sheet).
+# Relation strings are therefore capped inline and the complete lists are
+# printed in an annex table appended after the sheet, which splits by row.
+# ---------------------------------------------------------------------------
+
+#: Max targets printed inline in one relation cell of the ICCD sheet.
+MAX_INLINE_RAPPORTI = 80
+#: Same cap for the US index list (narrow 45-58 pt columns).
+MAX_INLINE_RAPPORTI_INDEX = 40
+#: Targets per annex table row (rows are ReportLab's split unit).
+ANNEX_TARGETS_PER_ROW = 60
+#: Suffix used by the index list (language-neutral).
+_MORE_INDEX = '… (+{n})'
+
+_RAPPORTI_ATTRS = ('si_lega_a', 'uguale_a', 'copre', 'coperto_da', 'riempie',
+                   'riempito_da', 'taglia', 'tagliato_da', 'si_appoggia_a',
+                   'gli_si_appoggia')
+
+_RAPPORTI_I18N = {
+    'it': {
+        'more': '… (+{n}, vedi allegato)',
+        'title': 'ALLEGATO – RAPPORTI STRATIGRAFICI US {us} (elenco completo)',
+        'cont': '(segue)',
+        'labels': ('SI LEGA A', 'UGUALE A', 'COPRE', 'COPERTO DA', 'RIEMPIE',
+                   'RIEMPITO DA', 'TAGLIA', 'TAGLIATO DA', 'SI APPOGGIA A',
+                   'GLI SI APPOGGIA'),
+    },
+    'en': {
+        'more': '… (+{n}, see annex)',
+        'title': 'ANNEX – STRATIGRAPHIC RELATIONSHIPS SU {us} (complete list)',
+        'cont': '(cont.)',
+        'labels': ('CONNECTED TO', 'SAME AS', 'COVERS', 'COVERED BY', 'FILLS',
+                   'FILLED BY', 'CUTS', 'CUT BY', 'ABUTS', 'SUPPORTS'),
+    },
+    'de': {
+        'more': '… (+{n}, siehe Anhang)',
+        'title': 'ANHANG – STRATIGRAPHISCHE BEZIEHUNGEN SE {us} (vollständige Liste)',
+        'cont': '(Forts.)',
+        'labels': ('BINDET AN', 'ENTSPRICHT', 'LIEGT ÜBER', 'LIEGT UNTER',
+                   'VERFÜLLT', 'WIRD VERFÜLLT DURCH', 'SCHNEIDET',
+                   'WIRD GESCHNITTEN', 'STÜTZT SICH AUF', 'WIRD GESTÜTZT VON'),
+    },
+}
+
+
+def _rapporti_i18n(lang):
+    return _RAPPORTI_I18N.get((lang or 'en')[:2].lower(), _RAPPORTI_I18N['en'])
+
+
+def _esc(text):
+    return _html_escape('' if text is None else str(text), quote=False)
+
+
+def _split_rapporti_targets(value):
+    """``'2, 5, 9'`` → ``['2', '5', '9']`` (the join used by ``unzip_rapporti_stratigrafici``)."""
+    return [t for t in str(value or '').split(', ') if t.strip()]
+
+
+def _cap_rapporti(obj, limit, more_fmt):
+    """Cap every relation string on *obj* to *limit* targets.
+
+    The untouched lists are stored in ``obj._rapporti_full`` on the first
+    call, so calling twice is harmless. Returns ``{attr: [all targets]}``
+    for the relation types that exceeded the cap (also kept as
+    ``obj.rapporti_overflow`` for the annex).
+    """
+    full = getattr(obj, '_rapporti_full', None)
+    if full is None:
+        full = {attr: _split_rapporti_targets(getattr(obj, attr, ''))
+                for attr in _RAPPORTI_ATTRS}
+        obj._rapporti_full = full
+    overflow = {}
+    for attr, targets in full.items():
+        if len(targets) > limit:
+            overflow[attr] = targets
+            setattr(obj, attr, ', '.join(targets[:limit]) + ' '
+                    + more_fmt.format(n=len(targets) - limit))
+    obj.rapporti_overflow = overflow
+    return overflow
+
+
 class NumberedCanvas_USsheet(canvas.Canvas):
     def __init__(self, *args, **kwargs):
         canvas.Canvas.__init__(self, *args, **kwargs)
@@ -832,6 +925,47 @@ class single_US_pdf_sheet(object):
                         self.gli_si_appoggia += str(rapporto[1])
                     else:
                         self.gli_si_appoggia += ', ' + str(rapporto[1])
+    def cap_rapporti_for_sheet(self, lang='it', limit=MAX_INLINE_RAPPORTI):
+        """Cap the inline relation strings so the ICCD relation block
+        always fits on one page (see the module notes on the 2026-08 fix).
+        Must run after ``unzip_rapporti_stratigrafici*``."""
+        return _cap_rapporti(self, limit, _rapporti_i18n(lang)['more'])
+
+    def create_rapporti_annex(self, lang='it', per_row=ANNEX_TARGETS_PER_ROW):
+        """Flowables listing in full every relation type that was capped
+        inline by :meth:`cap_rapporti_for_sheet`; ``[]`` when nothing was.
+
+        One Table row per *per_row* targets, so ReportLab can split the
+        annex across pages (``splitByRow``) whatever the record size.
+        """
+        overflow = getattr(self, 'rapporti_overflow', None) or {}
+        if not overflow:
+            return []
+        i18n = _rapporti_i18n(lang)
+        sty = ParagraphStyle('rapporti_annex', fontName='Cambria',
+                             fontSize=7, leading=9)
+        sty_title = ParagraphStyle('rapporti_annex_title', parent=sty,
+                                   fontSize=8, leading=10)
+        labels = dict(zip(_RAPPORTI_ATTRS, i18n['labels']))
+        rows = []
+        for attr in _RAPPORTI_ATTRS:
+            targets = overflow.get(attr)
+            if not targets:
+                continue
+            for k in range(0, len(targets), per_row):
+                label = labels[attr] if k == 0 else '%s %s' % (labels[attr], i18n['cont'])
+                rows.append([
+                    Paragraph('<b>%s</b>' % _esc(label), sty),
+                    Paragraph(_esc(', '.join(targets[k:k + per_row])), sty),
+                ])
+        table = Table(rows, colWidths=(110, 405), style=[
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.black),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ])
+        title = Paragraph('<b>%s</b>' % _esc(
+            i18n['title'].format(us=self.us)), sty_title)
+        return [Spacer(0, 10), title, Spacer(0, 4), table]
+
     def unzip_documentazione(self):  #nuova gestione documentazione per ICCD TEST PUSH
 
         if self.documentazione == '':
@@ -1106,6 +1240,7 @@ class single_US_pdf_sheet(object):
 
     def create_sheet_archeo3_usm_fields_2(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici()
+        self.cap_rapporti_for_sheet('it')
         self.unzip_documentazione()
         self.unzip_colore_usm()
         self.unzip_inerti_usm()
@@ -1990,6 +2125,7 @@ class single_US_pdf_sheet(object):
         
     def create_sheet_en(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici_en()
+        self.cap_rapporti_for_sheet('en')
         self.unzip_documentazione_en()
 
         styleSheet = getSampleStyleSheet()
@@ -2878,6 +3014,7 @@ class single_US_pdf_sheet(object):
     
     def create_sheet_de(self): #scheda us in stile ICCD Italiano
         self.unzip_rapporti_stratigrafici_de()
+        self.cap_rapporti_for_sheet('de')
         self.unzip_documentazione_de()
 
         styleSheet = getSampleStyleSheet()
@@ -4032,6 +4169,7 @@ class US_index_pdf_sheet(object):
         styNormal.fontSize = 6
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici()
+        _cap_rapporti(self, MAX_INLINE_RAPPORTI_INDEX, _MORE_INDEX)
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>US</b><br/>" + str(self.us), styNormal)
@@ -4339,6 +4477,7 @@ class US_index_pdf_sheet(object):
         styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_en()
+        _cap_rapporti(self, MAX_INLINE_RAPPORTI_INDEX, _MORE_INDEX)
 
         area = Paragraph("<b>Area</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SU</b><br/>" + str(self.us), styNormal)
@@ -4463,6 +4602,7 @@ class US_index_pdf_sheet(object):
         styNormal.fontSize = 7
         styNormal.fontName = 'Cambria'
         self.unzip_rapporti_stratigrafici_de()
+        _cap_rapporti(self, MAX_INLINE_RAPPORTI_INDEX, _MORE_INDEX)
 
         area = Paragraph("<b>Bereich</b><br/>" + str(self.area), styNormal)
         us = Paragraph("<b>SE</b><br/>" + str(self.us), styNormal)
@@ -4820,6 +4960,7 @@ class generate_US_pdf(object):
             elements_us_iccd.append(logo)
             elements_us_iccd.append(Spacer(4, 6))
             elements_us_iccd.append(single_us_sheet.create_sheet_archeo3_usm_fields_2())
+            elements_us_iccd.extend(single_us_sheet.create_rapporti_annex('it'))
             elements_us_iccd.append(PageBreak())
 
 
@@ -4870,6 +5011,7 @@ class generate_US_pdf(object):
                 elements_us_iccd.append(logo)
                 elements_us_iccd.append(Spacer(4, 6))
                 elements_us_iccd.append(single_us_sheet.create_sheet_en())
+                elements_us_iccd.extend(single_us_sheet.create_rapporti_annex('en'))
                 elements_us_iccd.append(PageBreak())
             except TypeError:
                 QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
@@ -4940,6 +5082,7 @@ class generate_US_pdf(object):
                 elements_us_iccd.append(logo)
                 elements_us_iccd.append(Spacer(4, 6))
                 elements_us_iccd.append(single_us_sheet.create_sheet_de())
+                elements_us_iccd.extend(single_us_sheet.create_rapporti_annex('de'))
                 elements_us_iccd.append(PageBreak())
             except TypeError:
                 QMessageBox.warnig(None, 'attenzione', f"Issue with record: {records[i]}")
