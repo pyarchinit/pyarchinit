@@ -128,6 +128,15 @@ def _filter_by_site(graph, site_filter: Optional[str]):
                 and e.edge_target in kept_node_ids):
             out.add_edge(e.edge_id, e.edge_source, e.edge_target, e.edge_type)
 
+    # Keep diagnostics gathered on the unfiltered graph (e.g. the
+    # periodization chronology check in GraphProjector): the export
+    # summary reads ``graph.warnings`` from the graph returned here.
+    carried = list(getattr(graph, "warnings", None) or [])
+    if carried:
+        if getattr(out, "warnings", None) is None:
+            out.warnings = []
+        out.warnings.extend(w for w in carried if w not in out.warnings)
+
     return out
 
 

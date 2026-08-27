@@ -916,6 +916,23 @@ class GraphProjector:
                     ]
                 except Exception:
                     raw_rows = []
+            # BC years typed without the minus sign (1650 → 1450) sort as
+            # AD and scramble the swimlane order: surface them in the
+            # export summary (graph.warnings → ExportResult.warnings).
+            try:
+                from modules.utility.periodization_checks import (
+                    format_chronology_warning, suspicious_chronologies)
+                bad = suspicious_chronologies(
+                    (r[0], r[1], r[2], r[3], r[5] if len(r) > 5 else r[4])
+                    for r in raw_rows)
+                if bad:
+                    if not hasattr(graph, "warnings") or graph.warnings is None:
+                        graph.warnings = []
+                    graph.warnings.append(format_chronology_warning(bad, 'it'))
+                    print("[GraphProjector] " + format_chronology_warning(bad, 'en'))
+            except Exception:
+                pass
+
             # Sort the periodizzazione rows by (periodo asc, fase asc) so
             # that when we add EpochNodes to the graph, ties on cron_iniziale
             # are broken by the natural phase numbering. The swimlane
