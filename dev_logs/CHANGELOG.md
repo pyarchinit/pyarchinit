@@ -5,6 +5,101 @@
 
 ---
 
+## [feat] - 2026-08-27 — Harris Matrix: copie PDF/SVG apribili in qualsiasi viewer (cap 200 in) + PDF poster multi-pagina per la stampa (A0 default, fogli A0–A3)
+
+> Branch `Stratigraph_00001`. Commit `e3f6536a`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `9bcce646` sopra `1992e1c1`, **non ancora pushato né rilasciato** — release prevista insieme al fix di stamattina).
+> File: `modules/utility/matrix_layout_policy.py`, `modules/utility/matrix_poster.py` (NUOVO), `modules/utility/pyarchinit_matrix_exp.py`, `gui/ui/Setting_Matrix.ui`, `tests/utility/test_matrix_poster.py` (NUOVO), `tests/utility/test_matrix_layout_policy.py`.
+
+### Italiano
+
+#### Contesto
+
+- Dopo i fix di stamattina (`64d65108`) il DB Ventena (1311 US, con periodizzazione) produceva accanto al JPG clampato le copie `.svg`/`.pdf`: il PDF era UNA sola pagina da 30 841 × 5 463 pt (10,9 m × 1,9 m). Acrobat e Anteprima macOS mostrano solo una finestra delle pagine più larghe di 200 in (14 400 pt) per lato → segnalazione utente "vedo solo una parte".
+- Nessun foglio può contenere quel matrix: la larghezza è intrinseca (la US 8 è tagliata da 545 US → 545 nodi sullo stesso rank); `unflatten` aiuta appena con la periodizzazione (46 740 → 41 602 pt).
+- Due risposte complementari: (a) le copie vettoriali vengono scalate da graphviz entro il limite dei viewer (senza perdita, zoomabili); (b) un PDF "poster" multi-pagina per la stampa su plotter, con fogli sovrapposti da assemblare.
+
+#### 1. Copie vettoriali apribili ovunque (`modules/utility/matrix_layout_policy.py`)
+
+- Nuove costanti `MAX_VECTOR_PT = 14400` (200 in) e `VECTOR_SIZE_INCHES = 199`; regex `_SIZE_RE` per l'attributo `size=` radice.
+- `_set_root_attr(dot_text, pattern, assignment)` generalizza `set_dot_dpi` (riscrive l'attributo se presente, altrimenti inserisce `graph [...]` dopo la prima `{`); `set_dot_dpi` ora si appoggia a questo helper.
+- **`vector_dot_source(dot_text, max_pt=MAX_VECTOR_PT, size_inches=VECTOR_SIZE_INCHES)`** (NUOVA): restituisce il DOT per le copie `.svg`/`.pdf` con `dpi=72` (1 pt = 1 pt — prima il dpi del raster, es. 49 o 300, scalava anche l'output vettoriale) e, SOLO quando il `bb` calcolato supera 14 400 pt su un lato, un `size="199,199"` radice così graphviz scala il disegno (lossless, zoomabile) a una pagina che ogni viewer apre. Ventena con periodizzazione: PDF 14 400 × 2 591 pt, SVG 14 328 pt.
+
+#### 2. PDF poster multi-pagina (`modules/utility/matrix_poster.py`, NUOVO)
+
+- `PAPER_PT` (ISO 216 verticale, in punti: A0 2384×3370, A1 1684×2384, A2 1191×1684, A3 842×1191, A4 595×842); `POSTER_SCALE_MODES` = `[('fit_height', "Adatta all'altezza"), ('fit_page', 'Adatta alla pagina'), ('1:1', '1:1'), ('1:2', '1:2'), ('1:3', '1:3')]` (ordine = combo dell'UI); `OVERLAP_PT = 57` (2 cm), `MARGIN_PT = 20`.
+- Dataclass `Tile` (`col`, `row`, `clip` = finestra sulla pagina sorgente, `target` = dove finisce sul foglio) e `PosterPlan` (`paper`, `landscape`, `page_w`/`page_h`, `scale`, `cols`, `rows`, `tiles`; proprietà `pages`, `describe()` → es. "A0 orizzontale, 1 x 5 = 5 fogli, scala 1:3.4").
+- **`plan_poster(content_w, content_h, paper='A0', mode='fit_height', landscape=None, overlap_pt=OVERLAP_PT, margin_pt=MARGIN_PT)`**: aritmetica pura. `fit_height` = una fila di fogli alta quanto l'area utile del foglio (default); `fit_page` = un solo foglio; `fit_width`; `"1:N"` = scala fissa. Non ingrandisce mai (`scale ≤ 1`); con `landscape=None` calcola entrambi gli orientamenti e tiene quello con meno fogli (parità → orizzontale per disegni larghi); i fogli adiacenti si sovrappongono di 2 cm. `ValueError` per carta/modo sconosciuti o dimensioni non positive.
+- **`build_poster_pdf(src_pdf, out_pdf, plan, label=True)`**: con PyMuPDF (`fitz`, dipendenza già dichiarata in `requirements.txt` su entrambi i branch; import lazy) ritaglia un foglio per tile dalla pagina 1 del PDF vettoriale NON limitato (`page.show_pdf_page(target, src, 0, clip=...)`, quindi senza perdita) ed etichetta in basso ogni foglio "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x".
+
+#### 3. Integrazione nell'export (`modules/utility/pyarchinit_matrix_exp.py`)
+
+- **`_pipe(source_text, fmt)`** (NUOVO): `graphviz.Source(text).pipe(format=fmt)` dentro `graphviz_stderr_guard` — stdin → stdout, nulla viene scritto accanto al file tred (prima `_render_vector_copies` usava `Source.from_file(...).render()`, che riscriveva il `.dot` tred su disco).
+- `_render_vector_copies(dot_path)` ora legge il tred, lo passa in `vector_dot_source` e scrive `<dot_path>.svg` / `.pdf` via `_pipe`.
+- **`_poster_settings(dialog)`** (NUOVO): legge `checkBox_poster`, `comboBox_poster_paper` (`currentText`) e `comboBox_poster_scale` (indice → chiave in `POSTER_SCALE_MODES`); default `(False, 'A0', 'fit_height')` quando i widget mancano (dialog vecchi / test).
+- **`_render_matrix_poster(dot_path, paper='A0', mode='fit_height')`** (NUOVO): DOT a `dpi=72` SENZA cap → PDF 1:1 in una directory temporanea (`tempfile.mkdtemp(prefix='pyarchinit_poster_')`) → `plan_poster` sulle dimensioni reali della pagina (`doc[0].rect`) → `build_poster_pdf` in `<stem>_poster_<paper>.pdf` accanto agli altri output (stem = percorso tred senza `_tred.dot`, es. `Harris_matrix_poster_A0.pdf`); directory temporanea rimossa nel `finally`; ogni eccezione viene solo stampata (`matrix: poster PDF failed: …`) e la funzione ritorna `(None, None)` — il poster è un output aggiuntivo e non deve mai rompere l'export.
+- `_large_matrix_notice(dpi, poster=None)` accoda `_poster_notice(poster)` ("Poster per la stampa: <file> (<plan.describe()>, sovrapposizione 2 cm tra i fogli).").
+- In `HarrisMatrix.export_matrix` e `HarrisMatrix.export_matrix_2`: `if rendered and (clamped or poster_requested)` → copie vettoriali + poster; messaggio finale = `_large_matrix_notice` se il dpi è stato clampato, altrimenti solo `_poster_notice` se il poster è stato prodotto. Il poster viene quindi creato quando la casella è attiva OPPURE ogni volta che il dpi del bitmap è stato clampato (il JPG di un matrix simile è comunque illeggibile). Percorsi `ViewHarrisMatrix` invariati (solo copie vettoriali).
+
+#### 4. UI (`gui/ui/Setting_Matrix.ui`)
+
+- Riga 1 di `gridLayout_2`, colonne 4–6: `QCheckBox checkBox_poster` "PDF poster" (tooltip: genera anche un PDF poster multi-pagina con sovrapposizione 2 cm; per i matrix molto grandi viene creato comunque), `QComboBox comboBox_poster_paper` (A0 / A1 / A2 / A3), `QComboBox comboBox_poster_scale` ("Adatta all'altezza" default, "Adatta alla pagina", 1:1, 1:2, 1:3) con tooltip che spiega i tre modi. Nessuna modifica a `tabs/pyarchinit_setting_matrix.py`: i widget sono letti via `getattr` dal modulo di export.
+
+#### Test
+
+- **`tests/utility/test_matrix_poster.py` (NUOVO, 5):** `fit_height` su 46 740 × 7 250 pt (il `bb` reale della matrix con periodizzazione) → A0 orizzontale 1×5 fogli, `scale = (2384 − 2·MARGIN_PT) / H`, tile che coprono tutta la larghezza in ordine con sovrapposizione esattamente `OVERLAP_PT`; `fit_page` → 1 foglio, `1:1` → 4×15 = 60 fogli; matrix piccolo (500×300 pt) su A3 → 1 foglio a scala 1.0 (mai ingrandito); tabelle carta/modi e `ValueError` (`B9`, `1:x`); `build_poster_pdf` (`pytest.importorskip("fitz")`) su un PDF 6000×2000 pt → una pagina per tile, dimensioni = `page_w × page_h`, "END" sull'ultimo foglio, etichetta "1/N" sul primo.
+- **`tests/utility/test_matrix_layout_policy.py` (+1, 8 totali):** `test_vector_dot_source_caps_page_at_200_inches_and_uses_72_dpi` — layout piccolo: solo `dpi=72`, nessun `size=`; `bb` da 253 350 pt: `dpi=72` + `size="199,199"`; un `size=` radice preesistente viene sostituito, non duplicato. 13 test passano nei due file.
+- **E2E** nel python di QGIS sul DB Ventena con periodizzazione: A0 orizzontale, 1×5 fogli in scala 1:3,4, intero export in 2,0 s. DB di esempio (matrix piccolo, casella disattiva) → nessun file extra.
+
+#### Note per master
+
+- Portato su `master` come commit `9bcce646` sul branch locale `fix/large-relations-master` (sopra `1992e1c1`, base `26adb90b` = v4.9.11), **non ancora pushato né rilasciato** — release prevista insieme al fix di stamattina. Il `requirements.txt` di master dichiara già `PyMuPDF==1.24.4`.
+
+### English
+
+#### Context
+
+- After this morning's fixes (`64d65108`) the Ventena DB (1311 US, with periodisation) produced the `.svg`/`.pdf` copies next to the clamped JPG: the PDF was ONE page of 30,841 × 5,463 pt (10.9 m × 1.9 m). Acrobat and macOS Preview only show a window of pages larger than 200 in (14,400 pt) on a side → user report "vedo solo una parte" (I only see a part).
+- No sheet can hold that matrix: the width is intrinsic (US 8 is cut by 545 features → 545 nodes on one rank); `unflatten` barely helps with periods (46,740 → 41,602 pt).
+- Two complementary answers: (a) the vector copies are scaled by graphviz within the viewers' limit (lossless, zoomable); (b) a multi-page "poster" PDF for plotter printing, with overlapping sheets to assemble.
+
+#### 1. Vector copies that open everywhere (`modules/utility/matrix_layout_policy.py`)
+
+- New constants `MAX_VECTOR_PT = 14400` (200 in) and `VECTOR_SIZE_INCHES = 199`; regex `_SIZE_RE` for the root `size=` attribute.
+- `_set_root_attr(dot_text, pattern, assignment)` generalises `set_dot_dpi` (rewrites the attribute when present, otherwise inserts `graph [...]` after the first `{`); `set_dot_dpi` now delegates to it.
+- **`vector_dot_source(dot_text, max_pt=MAX_VECTOR_PT, size_inches=VECTOR_SIZE_INCHES)`** (NEW): returns the DOT for the `.svg`/`.pdf` copies with `dpi=72` (1 pt = 1 pt — previously the raster dpi, e.g. 49 or 300, also scaled the vector output) and, ONLY when the laid-out `bb` exceeds 14,400 pt on a side, a root `size="199,199"` so graphviz scales the (lossless, zoomable) drawing to a page every viewer opens. Ventena with periods: PDF 14,400 × 2,591 pt, SVG 14,328 pt.
+
+#### 2. Multi-page poster PDF (`modules/utility/matrix_poster.py`, NEW)
+
+- `PAPER_PT` (ISO 216 portrait, in points: A0 2384×3370, A1 1684×2384, A2 1191×1684, A3 842×1191, A4 595×842); `POSTER_SCALE_MODES` = `[('fit_height', "Adatta all'altezza"), ('fit_page', 'Adatta alla pagina'), ('1:1', '1:1'), ('1:2', '1:2'), ('1:3', '1:3')]` (order = UI combo); `OVERLAP_PT = 57` (2 cm), `MARGIN_PT = 20`.
+- Dataclasses `Tile` (`col`, `row`, `clip` = window on the source page, `target` = where it lands on the sheet) and `PosterPlan` (`paper`, `landscape`, `page_w`/`page_h`, `scale`, `cols`, `rows`, `tiles`; property `pages`, `describe()` → e.g. "A0 orizzontale, 1 x 5 = 5 fogli, scala 1:3.4").
+- **`plan_poster(content_w, content_h, paper='A0', mode='fit_height', landscape=None, overlap_pt=OVERLAP_PT, margin_pt=MARGIN_PT)`**: pure arithmetic. `fit_height` = one row of sheets as tall as the usable page area (default); `fit_page` = a single sheet; `fit_width`; `"1:N"` = fixed scale. Never enlarges (`scale ≤ 1`); with `landscape=None` it computes both orientations and keeps the one needing fewer sheets (ties → landscape for wide drawings); neighbouring sheets overlap by 2 cm. `ValueError` for unknown paper/mode or non-positive sizes.
+- **`build_poster_pdf(src_pdf, out_pdf, plan, label=True)`**: with PyMuPDF (`fitz`, already a declared dependency in `requirements.txt` on both branches; lazy import) cuts one sheet per tile from page 1 of the UNCAPPED vector PDF (`page.show_pdf_page(target, src, 0, clip=...)`, hence lossless) and labels each sheet at the bottom "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x".
+
+#### 3. Export integration (`modules/utility/pyarchinit_matrix_exp.py`)
+
+- **`_pipe(source_text, fmt)`** (NEW): `graphviz.Source(text).pipe(format=fmt)` inside `graphviz_stderr_guard` — stdin → stdout, nothing is written next to the tred file (previously `_render_vector_copies` used `Source.from_file(...).render()`, which rewrote the tred `.dot` on disk).
+- `_render_vector_copies(dot_path)` now reads the tred, passes it through `vector_dot_source` and writes `<dot_path>.svg` / `.pdf` via `_pipe`.
+- **`_poster_settings(dialog)`** (NEW): reads `checkBox_poster`, `comboBox_poster_paper` (`currentText`) and `comboBox_poster_scale` (index → key in `POSTER_SCALE_MODES`); defaults `(False, 'A0', 'fit_height')` when the widgets are missing (older dialogs / tests).
+- **`_render_matrix_poster(dot_path, paper='A0', mode='fit_height')`** (NEW): DOT at `dpi=72` WITHOUT the cap → 1:1 PDF in a temporary directory (`tempfile.mkdtemp(prefix='pyarchinit_poster_')`) → `plan_poster` on the real page size (`doc[0].rect`) → `build_poster_pdf` into `<stem>_poster_<paper>.pdf` next to the other outputs (stem = tred path without `_tred.dot`, e.g. `Harris_matrix_poster_A0.pdf`); the temp dir is removed in the `finally`; any exception is only printed (`matrix: poster PDF failed: …`) and the function returns `(None, None)` — the poster is a bonus output and must never break the export.
+- `_large_matrix_notice(dpi, poster=None)` appends `_poster_notice(poster)` ("Poster per la stampa: <file> (<plan.describe()>, sovrapposizione 2 cm tra i fogli).").
+- In `HarrisMatrix.export_matrix` and `HarrisMatrix.export_matrix_2`: `if rendered and (clamped or poster_requested)` → vector copies + poster; final message = `_large_matrix_notice` when the dpi was clamped, otherwise just `_poster_notice` when a poster was produced. So the poster is built when the checkbox is on OR whenever the bitmap dpi had to be clamped (the JPG of such a matrix is unreadable anyway). `ViewHarrisMatrix` paths unchanged (vector copies only).
+
+#### 4. UI (`gui/ui/Setting_Matrix.ui`)
+
+- Row 1 of `gridLayout_2`, columns 4–6: `QCheckBox checkBox_poster` "PDF poster" (tooltip: also generates a multi-page poster PDF with 2 cm overlap; for very large matrices it is created anyway), `QComboBox comboBox_poster_paper` (A0 / A1 / A2 / A3), `QComboBox comboBox_poster_scale` ("Adatta all'altezza" default, "Adatta alla pagina", 1:1, 1:2, 1:3) with a tooltip explaining the three modes. No change to `tabs/pyarchinit_setting_matrix.py`: the widgets are read via `getattr` from the export module.
+
+#### Tests
+
+- **`tests/utility/test_matrix_poster.py` (NEW, 5):** `fit_height` on 46,740 × 7,250 pt (the real `bb` of the period matrix) → landscape A0, 1×5 sheets, `scale = (2384 − 2·MARGIN_PT) / H`, tiles covering the whole width in order and overlapping by exactly `OVERLAP_PT`; `fit_page` → 1 sheet, `1:1` → 4×15 = 60 sheets; small matrix (500×300 pt) on A3 → 1 sheet at scale 1.0 (never enlarged); paper/mode tables and `ValueError` (`B9`, `1:x`); `build_poster_pdf` (`pytest.importorskip("fitz")`) on a 6000×2000 pt PDF → one page per tile, size = `page_w × page_h`, "END" on the last sheet, label "1/N" on the first.
+- **`tests/utility/test_matrix_layout_policy.py` (+1, 8 total):** `test_vector_dot_source_caps_page_at_200_inches_and_uses_72_dpi` — small layout: only `dpi=72`, no `size=`; 253,350 pt `bb`: `dpi=72` + `size="199,199"`; a pre-existing root `size=` is replaced, not duplicated. 13 tests pass across the two files.
+- **E2E** under the QGIS python on the Ventena DB with periods: landscape A0, 1×5 sheets at 1:3.4, whole export in 2.0 s. Sample DB (small matrix, checkbox off) → no extra files.
+
+#### Notes for master
+
+- Ported to `master` as commit `9bcce646` on the local branch `fix/large-relations-master` (on top of `1992e1c1`, base `26adb90b` = v4.9.11), **not yet pushed nor released** — release planned together with this morning's fix. master's `requirements.txt` already declares `PyMuPDF==1.24.4`.
+
+---
+
 ## [fix] - 2026-08-27 — Fix: Harris Matrix con periodizzazione (abort su warning di `dot` con `sys.stderr` None, archi duplicati O(n²), `bb` in notazione esponenziale) + GraphML Extended Matrix (righe epoca con `datazione_estesa`, non `descrizione`)
 
 > Branch `Stratigraph_00001`. Commit `64d65108` (fix export matrix con periodizzazione), `a1737a5e` (fix nome `EpochNode` nel GraphML s3dgraphy). Il fix matrix (1) è stato portato anche su `master` (branch locale `fix/large-relations-master`, commit `1992e1c1` su base `26adb90b` = v4.9.11, **non ancora pushato né rilasciato**).
