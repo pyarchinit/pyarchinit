@@ -37,6 +37,8 @@ from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.PyQt.uic import loadUiType
 from qgis.core import QgsSettings
 from ..modules.db.pyarchinit_conn_strings import Connection
+from ..modules.utility.periodization_checks import (
+    format_chronology_warning, suspicious_chronologies)
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import *
@@ -317,6 +319,16 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
         for a in periodizz_data_list:
             periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo, a.fase, a.descrizione])
+
+        # BC years typed without the minus sign (1650 -> 1450) would put
+        # the Bronze Age above the Roman periods: warn, then go on.
+        bad_chronologies = suspicious_chronologies(
+            (a.periodo, a.fase, a.cron_iniziale, a.cron_finale, a.datazione_estesa)
+            for a in periodizz_data_list)
+        if bad_chronologies:
+            QMessageBox.warning(self, "Periodizzazione",
+                                format_chronology_warning(bad_chronologies, self.L),
+                                QMessageBox.StandardButton.Ok)
 
         # Clear the previous contents of the list
         periodi_us_list = []
@@ -730,6 +742,16 @@ class pyarchinit_view_Matrix_pre(QDialog, MAIN_DIALOG_CLASS):
 
         for a in periodizz_data_list:
             periodi_data_values.append([a.cont_per, a.datazione_estesa, a.periodo, a.fase, a.descrizione])
+
+        # BC years typed without the minus sign (1650 -> 1450) would put
+        # the Bronze Age above the Roman periods: warn, then go on.
+        bad_chronologies = suspicious_chronologies(
+            (a.periodo, a.fase, a.cron_iniziale, a.cron_finale, a.datazione_estesa)
+            for a in periodizz_data_list)
+        if bad_chronologies:
+            QMessageBox.warning(self, "Periodizzazione",
+                                format_chronology_warning(bad_chronologies, self.L),
+                                QMessageBox.StandardButton.Ok)
 
         # Clear the previous contents of the list
         periodi_us_list = []
