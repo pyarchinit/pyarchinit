@@ -147,6 +147,8 @@ Site
 - **Type** : LineEdit (numérique)
 - **Format** : Même convention que Chronologie Initiale
 
+> **Note** : saisir les dates av. J.-C. comme nombres positifs (ex. `1650` au lieu de `-1650`) trie la période comme apr. J.-C. et fausse l'ordre des périodes dans les exports de la Matrice de Harris et de l'Extended Matrix (étiquettes "d.C." au lieu de "a.C."). Le plugin avertit désormais lors de l'export lorsque la Chronologie Initiale est supérieure à la Finale.
+
 #### Datation Étendue (Époques Historiques)
 - **Type** : ComboBox éditable avec vocabulaire préchargé
 - **Description** : Sélection depuis un vocabulaire d'époques historiques prédéfinies

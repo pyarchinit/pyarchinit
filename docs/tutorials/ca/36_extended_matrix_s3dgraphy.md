@@ -171,6 +171,7 @@ Exit codes: 0 = èxit, 1 = error de bridge, 2 = error argparse.
 | Capitalització incorrecta a rapporti | "copre" en minúscula a la DB | Usar "Copre", "Coperto da" capitalitzats |
 | `DeprecationWarning` en fitxer 5.5.x | Fitxer legacy `ActivityNodeGroup + group_kind` | El projector el promociona en memòria a `LocationNodeGroup`. Reexporta per migrar el fitxer al disc. |
 | Les files de la swimlane mostren un text llarguíssim | Les versions anteriors usaven la Descrizione de la periodització com a etiqueta | Actualitza el plugin i reexporta, i/o omple **Datazione estesa** amb un nom breu |
+| Les èpoques de la swimlane estan en ordre incorrecte (ex. Bronze per sobre del Tardoantic) | Les files s'ordenen per **Cronologia Inicial**; les dates aC introduïdes com a nombres positius (1650 en lloc de -1650) s'ordenen com a dC | A la Fitxa Periodització introdueix els anys aC com a nombres negatius i reexporta. El resum de l'exportació mostra ara un avís "⚠️ Periodizzazione: ..." amb la llista de períodes a corregir |
 
 ---
 

@@ -294,6 +294,16 @@ I file `.dot` vengono prodotti come prima.
 2. Assegnare periodo/fase iniziale alle US
 3. Abilitare "Mostra Periodi" nelle impostazioni
 
+### Avviso "Periodizzazione: cronologia iniziale maggiore della finale"
+
+**Quando compare**: esportando con **Print Periodizzazione** attivo, se in almeno un periodo/fase la Cronologia Iniziale è maggiore della Cronologia Finale (es. `Periodo 6 Fase 1: 1650 → 1450`). L'export prosegue comunque.
+
+**Causa**: quasi sempre date a.C. inserite senza il segno meno (la convenzione di pyArchInit è a.C. = anni negativi). Il periodo viene ordinato come d.C.: l'Età del Bronzo finisce sopra le fasi romane e le etichette dei cluster riportano "1650 d.C." invece di "1650 a.C.".
+
+**Soluzione**:
+1. Aprire la Scheda Periodizzazione e correggere i periodi elencati nell'avviso inserendo gli anni a.C. come numeri negativi (es. `-1650` → `-1450`)
+2. Rigenerare il Matrix
+
 ## Output e File Generati
 
 ### Cartella di Output

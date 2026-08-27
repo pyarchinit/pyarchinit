@@ -171,6 +171,7 @@ Exit-Codes: 0 = Erfolg, 1 = Bridge-Fehler, 2 = argparse-Fehler.
 | Falsche Großschreibung in rapporti | Kleines "copre" in DB | "Copre", "Coperto da" groß schreiben |
 | `DeprecationWarning` bei 5.5.x-Datei | Legacy-Datei mit `ActivityNodeGroup + group_kind` | Der Projector promoviert sie in-memory zu `LocationNodeGroup`. Erneut exportieren, um die Datei auf der Festplatte zu migrieren. |
 | Swimlane-Zeilen zeigen einen sehr langen Text | Ältere Versionen verwendeten die Descrizione der Periodisierung als Beschriftung | Plugin aktualisieren und erneut exportieren und/oder **Datazione estesa** mit einem kurzen Namen füllen |
+| Swimlane-Epochen in falscher Reihenfolge (z. B. Bronzezeit über der Spätantike) | Die Zeilen werden nach **Anfangschronologie** sortiert; als positive Zahlen eingegebene v. Chr.-Jahre (1650 statt -1650) werden wie n. Chr. sortiert | Im Periodisierungsformular v. Chr.-Jahre als negative Zahlen eingeben und erneut exportieren. Die Export-Zusammenfassung zeigt jetzt eine Warnung "⚠️ Periodizzazione: ..." mit der Liste der zu korrigierenden Perioden |
 
 ---
 

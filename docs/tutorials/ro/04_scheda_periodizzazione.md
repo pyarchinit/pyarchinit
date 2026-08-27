@@ -196,6 +196,8 @@ Santier
 - **Obligatoriu**: Nu
 - **Format**: An numeric (aceleasi conventii ca la Cronologia Initiala)
 
+> **Nota**: introducerea datelor i.Hr. ca numere pozitive (ex. `1650` in loc de `-1650`) ordoneaza perioada ca d.Hr. si strica ordinea perioadelor in exporturile Harris Matrix si Extended Matrix (etichete "d.C." in loc de "a.C."). Plugin-ul avertizeaza acum la export cand Cronologia Initiala este mai mare decat cea Finala.
+
 ![Campuri Cronologie](images/04_scheda_periodizzazione/09_campi_cronologia.png)
 *Figura 9: Campurile Cronologie Initiala si Finala*
 

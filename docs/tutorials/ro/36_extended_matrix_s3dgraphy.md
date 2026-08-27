@@ -171,6 +171,7 @@ Exit codes: 0 = succes, 1 = eroare bridge, 2 = eroare argparse.
 | Capitalizare greșită în rapporti | "copre" cu litere mici în DB | Folosește "Copre", "Coperto da" capitalizate |
 | `DeprecationWarning` pe fișier 5.5.x | Fișier legacy `ActivityNodeGroup + group_kind` | Projector-ul îl promovează în memorie la `LocationNodeGroup`. Reexportă pentru a migra fișierul pe disc. |
 | Rândurile swimlane-ului afișează un text foarte lung | Versiunile anterioare foloseau Descrizione din periodizare ca etichetă | Actualizează plugin-ul și reexportă, și/sau completează **Datazione estesa** cu un nume scurt |
+| Epocile din swimlane sunt în ordine greșită (ex. Bronz deasupra Antichității târzii) | Rândurile sunt ordonate după **Cronologia Inițială**; datele î.Hr. introduse ca numere pozitive (1650 în loc de -1650) sunt ordonate ca d.Hr. | În Fișa de Periodizare introdu anii î.Hr. ca numere negative și reexportă. Rezumatul exportului afișează acum un avertisment „⚠️ Periodizzazione: ..." cu lista perioadelor de corectat |
 
 ---
 

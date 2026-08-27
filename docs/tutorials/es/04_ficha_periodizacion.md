@@ -171,6 +171,8 @@ Sitio
 - **Obligatorio**: No
 - **Formato**: Año numérico (mismas convenciones que Cronología Inicial)
 
+> **Nota**: introducir las fechas a.C. como números positivos (ej. `1650` en lugar de `-1650`) ordena el periodo como d.C. y rompe el orden de los periodos en las exportaciones del Matrix de Harris y del Extended Matrix (etiquetas "d.C." en lugar de "a.C."). El plugin ahora avisa durante la exportación cuando la Cronología Inicial es mayor que la Final.
+
 #### Datación Extendida (Épocas Históricas)
 - **Tipo**: ComboBox editable con vocabulario precargado
 - **Obligatorio**: No

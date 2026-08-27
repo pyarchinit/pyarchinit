@@ -169,6 +169,8 @@ Lloc
 - **Obligatori**: No
 - **Format**: Any numèric (mateixes convencions que Cronologia Inicial)
 
+> **Nota**: introduir les dates aC com a nombres positius (ex. `1650` en lloc de `-1650`) ordena el període com a dC i trenca l'ordre dels períodes a les exportacions de la Matriu de Harris i de l'Extended Matrix (etiquetes "d.C." en lloc de "a.C."). El plugin ara avisa durant l'exportació quan la Cronologia Inicial és més gran que la Final.
+
 #### Datació Estesa
 - **Tipus**: ComboBox
 - **Obligatori**: No

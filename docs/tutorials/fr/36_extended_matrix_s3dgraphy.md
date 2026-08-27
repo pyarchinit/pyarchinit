@@ -171,6 +171,7 @@ Exit codes : 0 = succès, 1 = erreur de bridge, 2 = erreur argparse.
 | Mauvaise capitalisation des rapporti | "copre" en minuscules dans le DB | Utiliser "Copre", "Coperto da" en majuscules |
 | `DeprecationWarning` sur fichier 5.5.x | Fichier legacy `ActivityNodeGroup + group_kind` | Le projector le promeut en mémoire vers `LocationNodeGroup`. Réexporter pour migrer le fichier sur disque. |
 | Les lignes de la swimlane affichent un texte très long | Les versions précédentes utilisaient la Descrizione de la périodisation comme étiquette | Mettre à jour le plugin et réexporter, et/ou remplir **Datazione estesa** avec un nom court |
+| Les époques de la swimlane sont dans le mauvais ordre (ex. Bronze au-dessus de l'Antiquité tardive) | Les lignes sont triées par **Chronologie Initiale** ; les dates av. J.-C. saisies comme nombres positifs (1650 au lieu de -1650) sont triées comme apr. J.-C. | Dans la Fiche Périodisation, saisir les années av. J.-C. comme nombres négatifs et réexporter. Le résumé de l'export affiche désormais un avertissement "⚠️ Periodizzazione: ..." avec la liste des périodes à corriger |
 
 ---
 

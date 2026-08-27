@@ -171,6 +171,7 @@ Exit codes: 0 = éxito, 1 = error de bridge, 2 = error argparse.
 | Capitalización errónea en rapporti | "copre" minúsculo en DB | Usar "Copre", "Coperto da" capitalizados |
 | `DeprecationWarning` en archivo 5.5.x | Archivo legacy `ActivityNodeGroup + group_kind` | El projector lo promociona en memoria a `LocationNodeGroup`. Reexportar para migrar el archivo en disco. |
 | Las filas de la swimlane muestran un texto larguísimo | Las versiones anteriores usaban la Descrizione de la periodización como etiqueta | Actualiza el plugin y reexporta, y/o rellena **Datazione estesa** con un nombre breve |
+| Las épocas de la swimlane están en orden incorrecto (ej. Bronce por encima del Tardoantiguo) | Las filas se ordenan por **Cronología Inicial**; las fechas a.C. introducidas como números positivos (1650 en lugar de -1650) se ordenan como d.C. | En la Ficha de Periodización introduce los años a.C. como números negativos y reexporta. El resumen de la exportación muestra ahora un aviso "⚠️ Periodizzazione: ..." con la lista de periodos a corregir |
 
 ---
 

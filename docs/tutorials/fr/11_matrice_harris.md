@@ -294,6 +294,16 @@ Les fichiers `.dot` sont toujours produits comme avant.
 2. Assigner période/phase initiale aux US
 3. Activer "Afficher Périodes" dans les paramètres
 
+### Avertissement "Périodisation : chronologie initiale supérieure à la finale"
+
+**Quand il apparaît** : lors de l'export avec **Print Periodizzazione** activé, si au moins une période/phase a une Chronologie Initiale supérieure à sa Chronologie Finale (ex. `Periodo 6 Fase 1: 1650 → 1450`). L'export se poursuit malgré tout.
+
+**Cause** : presque toujours des dates av. J.-C. saisies sans le signe moins (la convention de pyArchInit est av. J.-C. = années négatives). La période est triée comme apr. J.-C. : l'Âge du Bronze se retrouve au-dessus des phases romaines et les étiquettes des clusters affichent "1650 d.C." au lieu de "1650 a.C.".
+
+**Solution** :
+1. Ouvrir la Fiche Périodisation et corriger les périodes listées dans l'avertissement en saisissant les années av. J.-C. comme nombres négatifs (ex. `-1650` → `-1450`)
+2. Régénérer la Matrice
+
 ## Sortie et Fichiers Générés
 
 ### Dossier de Sortie

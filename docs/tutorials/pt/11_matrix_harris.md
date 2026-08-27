@@ -275,6 +275,16 @@ Os ficheiros `.dot` continuam a ser produzidos como antes.
 - As copias `.pdf` / `.svg` ficam agora sempre dentro de 200 polegadas (14 400 pt) por lado, o limite a partir do qual o Acrobat e a Pre-visualizacao mostram apenas uma parte da pagina: toda a matrix fica assim visivel e ampliavel (vetorial, sem perda de qualidade). Na base de dados de 1311 UEs com periodos o PDF mede 14 400 × 2 591 pt.
 - Para a imprimir use o PDF poster (checkbox **PDF poster** em Setting_Matrix): para a mesma base de dados, A0 com "Adatta all'altezza" (ajustar a altura) da 5 folhas A0 horizontais a escala 1:3,4 (texto ≈ 4 pt: legivel num plotter; use A0 "1:2" ou "1:1" para texto maior e mais folhas). Uma unica folha A0 ("Adatta alla pagina", ajustar a pagina) e apenas uma visao geral.
 
+### Aviso "Periodizacao: cronologia inicial maior do que a final"
+
+**Quando aparece**: ao exportar com **Print Periodizzazione** ativo, se em pelo menos um periodo/fase a Cronologia Inicial e maior do que a Cronologia Final (ex. `Periodo 6 Fase 1: 1650 → 1450`). A exportacao continua na mesma.
+
+**Causa**: quase sempre datas a.C. inseridas sem o sinal de menos (a convencao do pyArchInit e a.C. = anos negativos). O periodo e ordenado como d.C.: a Idade do Bronze fica acima das fases romanas e as etiquetas dos clusters mostram "1650 d.C." em vez de "1650 a.C.".
+
+**Solucao**:
+1. Abrir a Ficha de Periodizacao e corrigir os periodos listados no aviso inserindo os anos a.C. como numeros negativos (ex. `-1650` → `-1450`)
+2. Regenerar a Matrix
+
 ## Resultados e Ficheiros Gerados
 
 ### Pasta de Resultados

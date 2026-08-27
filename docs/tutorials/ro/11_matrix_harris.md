@@ -275,6 +275,16 @@ Fișierele `.dot` sunt produse ca înainte.
 - Copiile `.pdf` / `.svg` rămân acum întotdeauna în limita a 200 inch (14 400 pt) pe latură, limita dincolo de care Acrobat și Preview afișează doar o parte a paginii: întreaga matrice este astfel vizibilă și poate fi mărită (vectorial, fără pierdere de calitate). Pe baza de date cu 1311 US și perioade PDF-ul măsoară 14 400 × 2 591 pt.
 - Pentru tipărire folosiți PDF-ul poster (caseta **PDF poster** din Setting_Matrix): pentru aceeași bază de date, A0 cu "Adatta all'altezza" (potrivire la înălțime) dă 5 coli A0 în format peisaj la scara 1:3,4 (text ≈ 4 pt: lizibil pe un plotter; folosiți A0 "1:2" sau "1:1" pentru text mai mare și mai multe coli). O singură coală A0 ("Adatta alla pagina", potrivire la pagină) este doar o privire de ansamblu.
 
+### Avertisment „Periodizare: cronologie inițială mai mare decât cea finală"
+
+**Când apare**: la export cu **Print Periodizzazione** activ, dacă la cel puțin o perioadă/fază Cronologia Inițială este mai mare decât Cronologia Finală (ex. `Periodo 6 Fase 1: 1650 → 1450`). Exportul continuă oricum.
+
+**Cauză**: aproape întotdeauna date î.Hr. introduse fără semnul minus (convenția pyArchInit este î.Hr. = ani negativi). Perioada este ordonată ca d.Hr.: Epoca Bronzului ajunge deasupra fazelor romane, iar etichetele clusterelor afișează "1650 d.C." în loc de "1650 a.C.".
+
+**Soluție**:
+1. Deschideți Fișa de Periodizare și corectați perioadele listate în avertisment introducând anii î.Hr. ca numere negative (ex. `-1650` → `-1450`)
+2. Regenerați Matricea
+
 ## Fișierele Generate și Ieșiri
 
 ### Folderul de Ieșire

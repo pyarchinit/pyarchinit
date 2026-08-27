@@ -284,6 +284,16 @@ Els fitxers `.dot` es generen com abans.
 2. Assignar període/fase inicial a les US
 3. Habilitar "Mostra Períodes" a les configuracions
 
+### Avís "Periodització: cronologia inicial més gran que la final"
+
+**Quan apareix**: en exportar amb **Print Periodizzazione** actiu, si en almenys un període/fase la Cronologia Inicial és més gran que la Cronologia Final (ex. `Periodo 6 Fase 1: 1650 → 1450`). L'exportació continua igualment.
+
+**Causa**: gairebé sempre dates aC introduïdes sense el signe menys (la convenció de pyArchInit és aC = anys negatius). El període s'ordena com a dC: l'Edat del Bronze acaba per sobre de les fases romanes i les etiquetes dels clústers mostren "1650 d.C." en lloc de "1650 a.C.".
+
+**Solució**:
+1. Obrir la Fitxa Periodització i corregir els períodes llistats a l'avís introduint els anys aC com a nombres negatius (ex. `-1650` → `-1450`)
+2. Regenerar la Matriu
+
 ## Sortida i Fitxers Generats
 
 ### Carpeta de Sortida

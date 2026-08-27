@@ -196,6 +196,8 @@ Site
 - **Required**: No
 - **Format**: Numeric year (same conventions as Initial Chronology)
 
+> **Note**: entering BC years as positive numbers (e.g. `1650` instead of `-1650`) sorts the period as AD and breaks the order of periods in the Harris Matrix and Extended Matrix exports (labels "d.C." instead of "a.C."). The plugin now warns during export when the Initial Chronology is later than the Final Chronology.
+
 ![Chronology Fields](images/04_scheda_periodizzazione/09_campi_cronologia.png)
 *Figure 9: Initial and Final Chronology fields*
 

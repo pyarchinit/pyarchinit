@@ -196,6 +196,8 @@ Fundort
 - **Pflichtfeld**: Nein
 - **Format**: Numerisches Jahr (gleiche Konventionen wie Anfangschronologie)
 
+> **Hinweis**: Werden v. Chr.-Jahre als positive Zahlen eingegeben (z. B. `1650` statt `-1650`), wird die Periode als n. Chr. sortiert und die Reihenfolge der Perioden in den Exporten der Harris-Matrix und der Extended Matrix stimmt nicht mehr (Beschriftungen "d.C." statt "a.C."). Das Plugin warnt jetzt beim Export, wenn die Anfangschronologie später liegt als die Endchronologie.
+
 ![Chronologiefelder](images/04_periodisierung/09_campi_cronologia.png)
 *Abbildung 9: Felder Anfangs- und Endchronologie*
 

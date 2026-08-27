@@ -294,6 +294,16 @@ Die `.dot`-Dateien werden wie bisher erzeugt.
 2. Den SE Anfangsperiode/-phase zuweisen
 3. "Perioden anzeigen" in den Einstellungen aktivieren
 
+### Warnung "Periodisierung: Anfangschronologie später als Endchronologie"
+
+**Wann sie erscheint**: beim Export mit aktivem **Print Periodizzazione**, wenn bei mindestens einer Periode/Phase die Anfangschronologie später liegt als die Endchronologie (z. B. `Periodo 6 Fase 1: 1650 → 1450`). Der Export wird trotzdem fortgesetzt.
+
+**Ursache**: fast immer v. Chr.-Jahre ohne Minuszeichen (Konvention von pyArchInit: v. Chr. = negative Jahre). Die Periode wird als n. Chr. sortiert: die Bronzezeit landet über den römischen Phasen und die Cluster-Beschriftungen zeigen "1650 d.C." statt "1650 a.C.".
+
+**Lösung**:
+1. Periodisierungsformular öffnen und die in der Warnung aufgelisteten Perioden korrigieren, indem v. Chr.-Jahre als negative Zahlen eingegeben werden (z. B. `-1650` → `-1450`)
+2. Matrix neu generieren
+
 ## Ausgabe und generierte Dateien
 
 ### Ausgabeordner

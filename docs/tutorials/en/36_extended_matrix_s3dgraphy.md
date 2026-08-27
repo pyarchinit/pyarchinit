@@ -171,6 +171,7 @@ Exit codes: 0 = success, 1 = bridge error, 2 = argparse error.
 | Wrong capitalization on rapporti | Lowercase "copre" in DB | Use "Copre", "Coperto da" capitalized |
 | `DeprecationWarning` on 5.5.x file | Legacy `ActivityNodeGroup + group_kind` file | The projector promotes it in-memory to `LocationNodeGroup`. Re-export to migrate the file on disk. |
 | Swimlane rows show a very long text | Older versions used the periodization Descrizione as label | Update the plugin and re-export, and/or fill **Datazione estesa** with a short name |
+| Swimlane epochs are in the wrong order (e.g. Bronze Age above Late Antiquity) | Rows are sorted by **Initial Chronology**; BC years entered as positive numbers (1650 instead of -1650) sort as AD | In the Periodization form enter BC years as negative numbers and re-export. The export summary now shows a "⚠️ Periodizzazione: ..." warning listing the periods to fix |
 
 ---
 

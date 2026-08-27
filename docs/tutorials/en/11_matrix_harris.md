@@ -275,6 +275,16 @@ The `.dot` files are still produced as before.
 - The `.pdf` / `.svg` copies now always stay within 200 inches (14,400 pt) per side, the limit beyond which Acrobat and Preview show only a part of the page: the whole matrix is therefore visible and zoomable (vector, no quality loss). On the 1311-SU database with periods the PDF measures 14,400 × 2,591 pt.
 - To print it, use the poster PDF (**PDF poster** checkbox in Setting_Matrix): for the same database, A0 with "Adatta all'altezza" (fit height) gives 5 landscape A0 sheets at scale 1:3.4 (text ≈ 4 pt: readable on a plotter; use A0 "1:2" or "1:1" for larger text and more sheets). A single A0 sheet ("Adatta alla pagina", fit page) is only an overview.
 
+### Warning "Periodization: start chronology later than the end"
+
+**When it appears**: when exporting with **Print Periodizzazione** enabled, if at least one period/phase has an Initial Chronology later than its Final Chronology (e.g. `Periodo 6 Fase 1: 1650 → 1450`). The export still proceeds.
+
+**Cause**: almost always BC years entered without the minus sign (pyArchInit's convention is BC = negative years). The period is sorted as AD: the Bronze Age ends up above the Roman phases and the cluster labels read "1650 d.C." instead of "1650 a.C.".
+
+**Solution**:
+1. Open the Periodization Form and fix the periods listed in the warning, entering BC years as negative numbers (e.g. `-1650` → `-1450`)
+2. Regenerate the Matrix
+
 ## Output and Generated Files
 
 ### Output Folder

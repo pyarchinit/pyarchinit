@@ -196,6 +196,8 @@ Sito
 - **Obbligatorio**: No
 - **Formato**: Anno numerico (stesse convenzioni di Cronologia Iniziale)
 
+> **Nota**: se le date a.C. vengono inserite come numeri positivi (es. `1650` invece di `-1650`) il periodo viene ordinato come d.C. e l'ordine dei periodi negli export del Matrix di Harris e dell'Extended Matrix risulta errato (etichette "d.C." al posto di "a.C."). Il plugin ora avvisa in fase di export quando la Cronologia Iniziale risulta maggiore della Finale.
+
 ![Campi Cronologia](images/04_scheda_periodizzazione/09_campi_cronologia.png)
 *Figura 9: Campi Cronologia iniziale e finale*
 

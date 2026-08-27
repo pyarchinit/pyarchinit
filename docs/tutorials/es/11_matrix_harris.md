@@ -294,6 +294,16 @@ Los archivos `.dot` se generan como antes.
 2. Asignar periodo/fase inicial a las UE
 3. Habilitar "Mostrar Periodos" en los ajustes
 
+### Aviso "Periodización: cronología inicial mayor que la final"
+
+**Cuándo aparece**: al exportar con **Print Periodizzazione** activo, si en al menos un periodo/fase la Cronología Inicial es mayor que la Cronología Final (ej. `Periodo 6 Fase 1: 1650 → 1450`). La exportación continúa igualmente.
+
+**Causa**: casi siempre fechas a.C. introducidas sin el signo menos (la convención de pyArchInit es a.C. = años negativos). El periodo se ordena como d.C.: la Edad del Bronce acaba por encima de las fases romanas y las etiquetas de los clusters muestran "1650 d.C." en lugar de "1650 a.C.".
+
+**Solución**:
+1. Abrir la Ficha de Periodización y corregir los periodos listados en el aviso introduciendo los años a.C. como números negativos (ej. `-1650` → `-1450`)
+2. Regenerar el Matrix
+
 ## Output y Archivos Generados
 
 ### Carpeta de Salida
