@@ -51,6 +51,11 @@ Matricea Harris este o diagramă care reprezintă:
 | DPI | Rezoluția imaginii | 150-300 |
 | Afișare Perioade | Grupare US pe perioadă/fază | Da |
 | Afișare Legendă | Include legendă în diagramă | Da |
+| PDF poster | Generează și un PDF poster multi-pagină pentru tipărirea matricelor mai late decât o coală: colile se suprapun cu 2 cm și fiecare coală poartă eticheta "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x" (coala n/N - rândul r/R, coloana c/C - A0 scara 1:x). Pentru matricele foarte mari (când DPI-ul JPG-ului trebuie redus) posterul este produs oricum, chiar dacă caseta nu este bifată | Da (pentru tipărire) |
+| Formato (Format) | Formatul colilor posterului: A0, A1, A2, A3 | A0 |
+| Scala (Scară) | Scara posterului: "Adatta all'altezza" (potrivire la înălțime: un singur rând de coli, înălțimea matricei umple coala), "Adatta alla pagina" (potrivire la pagină: o singură coală cu toată matricea), 1:1, 1:2, 1:3 (scară fixă, mai multe coli). Desenul nu este niciodată mărit; orientarea (portret/peisaj) este aleasă automat pentru a folosi mai puține coli | Adatta all'altezza |
+
+Controalele **PDF poster**, **Formato** și **Scala** se află pe al doilea rând al ferestrei (etichetele sunt în italiană în toate limbile interfeței).
 
 #### Tab-ul Noduri „Ante/Post" (Relații Normale)
 
@@ -265,6 +270,11 @@ Fișierele `.dot` sunt produse ca înainte.
 - Pe DB mari exportul cu perioade este mult mai rapid (aceeași bază de date cu 1311 US a trecut de la circa 25–45 s și un DOT de 51 MB la circa 3 s) și fiecare fază primește propriul cluster invizibil, astfel încât nicio fază nu este ignorată în tăcere de Graphviz.
 - Pentru matrice cu perioade foarte late JPG-ul poate fi generat acum chiar sub 12 dpi dacă este necesar (ca referință, matricea cu 1311 US și perioade iese la 49 dpi): este doar o privire de ansamblu; pentru versiunea lizibilă folosiți copiile `.svg` / `.pdf` salvate alături.
 
+**Copii vectoriale și tipărirea posterului**:
+
+- Copiile `.pdf` / `.svg` rămân acum întotdeauna în limita a 200 inch (14 400 pt) pe latură, limita dincolo de care Acrobat și Preview afișează doar o parte a paginii: întreaga matrice este astfel vizibilă și poate fi mărită (vectorial, fără pierdere de calitate). Pe baza de date cu 1311 US și perioade PDF-ul măsoară 14 400 × 2 591 pt.
+- Pentru tipărire folosiți PDF-ul poster (caseta **PDF poster** din Setting_Matrix): pentru aceeași bază de date, A0 cu "Adatta all'altezza" (potrivire la înălțime) dă 5 coli A0 în format peisaj la scara 1:3,4 (text ≈ 4 pt: lizibil pe un plotter; folosiți A0 "1:2" sau "1:1" pentru text mai mare și mai multe coli). O singură coală A0 ("Adatta alla pagina", potrivire la pagină) este doar o privire de ansamblu.
+
 ## Fișierele Generate și Ieșiri
 
 ### Folderul de Ieșire
@@ -277,6 +287,7 @@ Fișierele `.dot` sunt produse ca înainte.
 ├── Harris_matrix_tred.dot.png  # Imagine PNG finală
 ├── Harris_matrix_tred.dot.svg  # Vectorial (doar matrice mari)
 ├── Harris_matrix_tred.dot.pdf  # Vectorial (doar matrice mari)
+├── Harris_matrix_poster_A0.pdf # PDF poster multi-pagină pentru tipărire
 ├── Harris_matrix2ED.dot        # Versiune extinsă
 ├── Harris_matrix2ED_graphml.dot # Pentru export GraphML
 └── matrix_error.txt            # Jurnal erori
@@ -290,6 +301,7 @@ Fișierele `.dot` sunt produse ca înainte.
 | *.dot | Editare cu editor Graphviz |
 | _graphml.dot | Import în yEd pentru editare avansată |
 | *.svg/*.pdf | Versiune vectorială scalabilă (matrice mari) |
+| _poster_A0.pdf | PDF poster multi-pagină pentru tipărire; numele urmează formatul ales (de ex. `_poster_A3.pdf`), pentru Export Matrice 2ED prefixul este `Harris_matrix2ED` |
 
 ## Bune Practici
 

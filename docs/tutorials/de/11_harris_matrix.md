@@ -51,6 +51,11 @@ Vor der Generierung erscheint ein Konfigurationsfenster:
 | DPI | Bildauflösung | 150-300 |
 | Perioden anzeigen | SE nach Periode/Phase gruppieren | Ja |
 | Legende anzeigen | Legende im Diagramm einschließen | Ja |
+| PDF poster | Erzeugt zusätzlich ein mehrseitiges PDF-Poster zum Drucken von Matrizen, die breiter als ein Blatt sind: die Blätter überlappen sich um 2 cm und jedes Blatt trägt die Beschriftung "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x" (Blatt n/N - Zeile r/R, Spalte c/C - A0 Maßstab 1:x). Bei sehr großen Matrizen (wenn die DPI des JPG reduziert werden müssen) wird das Poster in jedem Fall erzeugt, auch ohne Häkchen | Ja (zum Drucken) |
+| Formato (Format) | Blattformat des Posters: A0, A1, A2, A3 | A0 |
+| Scala (Maßstab) | Maßstab des Posters: "Adatta all'altezza" (an Höhe anpassen: eine Reihe von Blättern, die Höhe der Matrix füllt das Blatt), "Adatta alla pagina" (an Seite anpassen: ein einziges Blatt mit der ganzen Matrix), 1:1, 1:2, 1:3 (fester Maßstab, mehr Blätter). Die Zeichnung wird nie vergrößert; die Ausrichtung (Hoch-/Querformat) wird automatisch so gewählt, dass weniger Blätter nötig sind | Adatta all'altezza |
+
+Die Steuerelemente **PDF poster**, **Formato** und **Scala** befinden sich in der zweiten Zeile des Dialogs (die Beschriftungen sind in jeder Sprache der Oberfläche italienisch).
 
 #### Tab Knoten "Ante/Post" (Normale Beziehungen)
 
@@ -275,6 +280,11 @@ Die `.dot`-Dateien werden wie bisher erzeugt.
 - Bei großen DBs ist der Perioden-Export deutlich schneller (dieselbe Datenbank mit 1311 SE ging von etwa 25–45 s und einer 51 MB großen DOT-Datei auf etwa 3 s), und jede Phase erhält einen eigenen unsichtbaren Cluster, sodass keine Phase von Graphviz stillschweigend ignoriert wird.
 - Bei sehr breiten Perioden-Matrizen kann das JPG jetzt bei Bedarf auch unter 12 dpi erzeugt werden (zur Orientierung: die Matrix mit 1311 SE und Perioden kommt auf 49 dpi): es ist nur eine Übersicht; für die lesbare Version die daneben gespeicherten `.svg`-/`.pdf`-Kopien verwenden.
 
+**Vektorkopien und Poster-Druck**:
+
+- Die `.pdf`-/`.svg`-Kopien bleiben jetzt immer innerhalb von 200 Zoll (14 400 pt) pro Seite, dem Limit, ab dem Acrobat und Vorschau nur einen Teil der Seite anzeigen: die ganze Matrix ist damit sichtbar und zoombar (Vektor, ohne Qualitätsverlust). Bei der Datenbank mit 1311 SE und Perioden misst das PDF 14 400 × 2 591 pt.
+- Zum Drucken das Poster-PDF verwenden (Checkbox **PDF poster** in Setting_Matrix): bei derselben Datenbank ergibt A0 mit "Adatta all'altezza" (an Höhe anpassen) 5 A0-Blätter im Querformat im Maßstab 1:3,4 (Text ≈ 4 pt: auf einem Plotter lesbar; A0 "1:2" oder "1:1" für größeren Text und mehr Blätter verwenden). Ein einzelnes A0-Blatt ("Adatta alla pagina", an Seite anpassen) ist nur eine Übersicht.
+
 ### SE nicht nach Periode gruppiert
 
 **Ursache**: Periodisierung fehlt oder nicht aktiviert
@@ -296,6 +306,7 @@ Die `.dot`-Dateien werden wie bisher erzeugt.
 ├── Harris_matrix_tred.dot.png  # Finales PNG-Bild
 ├── Harris_matrix_tred.dot.svg  # Vektorkopie (nur große Matrizen)
 ├── Harris_matrix_tred.dot.pdf  # Vektorkopie (nur große Matrizen)
+├── Harris_matrix_poster_A0.pdf # Mehrseitiges PDF-Poster zum Drucken
 ├── Harris_matrix2ED.dot        # Erweiterte Version
 ├── Harris_matrix2ED_graphml.dot # Für GraphML-Export
 └── matrix_error.txt            # Fehlerprotokoll
@@ -309,6 +320,7 @@ Die `.dot`-Dateien werden wie bisher erzeugt.
 | *.dot | Bearbeitung mit Graphviz-Editor |
 | _graphml.dot | Import in yEd für erweiterte Bearbeitung |
 | *.svg/*.pdf | Zoombare Vektorversion (große Matrizen) |
+| _poster_A0.pdf | Mehrseitiges PDF-Poster zum Drucken; der Name folgt dem gewählten Format (z. B. `_poster_A3.pdf`), beim Matrix 2ED-Export lautet das Präfix `Harris_matrix2ED` |
 
 ## Best Practices
 

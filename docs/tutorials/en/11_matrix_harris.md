@@ -51,6 +51,11 @@ Before generation, a configuration window appears:
 | DPI | Image resolution | 150-300 |
 | Show Periods | Group SU by period/phase | Yes |
 | Show Legend | Include legend in chart | Yes |
+| PDF poster | Also produces a multi-page PDF poster for printing matrices wider than one sheet: sheets overlap by 2 cm and each sheet is labelled "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x" (sheet n/N - row r/R, column c/C - A0 scale 1:x). For very large matrices (when the JPG DPI has to be reduced) the poster is produced anyway, even if unchecked | Yes (for printing) |
+| Formato (Format) | Paper size of the poster sheets: A0, A1, A2, A3 | A0 |
+| Scala (Scale) | Poster scale: "Adatta all'altezza" (fit height: one row of sheets, the matrix height fills the sheet), "Adatta alla pagina" (fit page: one single sheet with the whole matrix), 1:1, 1:2, 1:3 (fixed scale, more sheets). The drawing is never enlarged; the orientation (portrait/landscape) is chosen automatically to use fewer sheets | Adatta all'altezza |
+
+The **PDF poster**, **Formato** and **Scala** controls are on the second row of the dialog (the labels are in Italian in every language of the UI).
 
 #### "Ante/Post" Nodes Tab (Normal Relationships)
 
@@ -265,6 +270,11 @@ The `.dot` files are still produced as before.
 - On large DBs the period export is much faster (the same 1311-SU database went from about 25–45 s and a 51 MB DOT to about 3 s) and each phase gets its own invisible cluster, so no phase is silently ignored by Graphviz.
 - For very wide period matrices the JPG can now be generated even below 12 dpi if needed (for reference, the 1311-SU matrix with periods comes out at 49 dpi): it is only an overview; for the readable version use the `.svg` / `.pdf` copies saved alongside.
 
+**Vector copies and poster printing**:
+
+- The `.pdf` / `.svg` copies now always stay within 200 inches (14,400 pt) per side, the limit beyond which Acrobat and Preview show only a part of the page: the whole matrix is therefore visible and zoomable (vector, no quality loss). On the 1311-SU database with periods the PDF measures 14,400 × 2,591 pt.
+- To print it, use the poster PDF (**PDF poster** checkbox in Setting_Matrix): for the same database, A0 with "Adatta all'altezza" (fit height) gives 5 landscape A0 sheets at scale 1:3.4 (text ≈ 4 pt: readable on a plotter; use A0 "1:2" or "1:1" for larger text and more sheets). A single A0 sheet ("Adatta alla pagina", fit page) is only an overview.
+
 ## Output and Generated Files
 
 ### Output Folder
@@ -277,6 +287,7 @@ The `.dot` files are still produced as before.
 ├── Harris_matrix_tred.dot.png  # Final PNG image
 ├── Harris_matrix_tred.dot.svg  # Vector copy (large matrices only)
 ├── Harris_matrix_tred.dot.pdf  # Vector copy (large matrices only)
+├── Harris_matrix_poster_A0.pdf # Multi-page PDF poster for printing
 ├── Harris_matrix2ED.dot        # Extended version
 ├── Harris_matrix2ED_graphml.dot # For GraphML export
 └── matrix_error.txt            # Error log
@@ -290,6 +301,7 @@ The `.dot` files are still produced as before.
 | *.dot | Edit with Graphviz editor |
 | _graphml.dot | Import to yEd for advanced editing |
 | *.svg/*.pdf | Zoomable vector version (large matrices) |
+| _poster_A0.pdf | Multi-page PDF poster for printing; the name follows the chosen format (e.g. `_poster_A3.pdf`), for Export Matrix 2ED the prefix is `Harris_matrix2ED` |
 
 ## Best Practices
 

@@ -51,6 +51,11 @@ Abans de la generació, apareix una finestra de configuració:
 | DPI | Resolució de la imatge | 150-300 |
 | Mostra Períodes | Agrupa US per període/fase | Sí |
 | Mostra Llegenda | Inclou llegenda al gràfic | Sí |
+| PDF poster | Genera també un PDF pòster multipàgina per imprimir matrius més amples que un full: els fulls se solapen 2 cm i cada full porta l'etiqueta "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x" (full n/N - fila r/R, columna c/C - A0 escala 1:x). Per a matrius molt grans (quan cal reduir el DPI del JPG) el pòster es genera igualment, encara que la casella no estigui marcada | Sí (per a impressió) |
+| Formato (Format) | Format dels fulls del pòster: A0, A1, A2, A3 | A0 |
+| Scala (Escala) | Escala del pòster: "Adatta all'altezza" (ajusta a l'alçada: una fila de fulls, l'alçada de la matriu omple el full), "Adatta alla pagina" (ajusta a la pàgina: un sol full amb tota la matriu), 1:1, 1:2, 1:3 (escala fixa, més fulls). El dibuix no s'amplia mai; l'orientació (vertical/horitzontal) es tria automàticament per fer servir menys fulls | Adatta all'altezza |
+
+Els controls **PDF poster**, **Formato** i **Scala** són a la segona fila de la finestra (les etiquetes són en italià en tots els idiomes de la interfície).
 
 #### Pestanya Nodes "Ante/Post" (Relacions Normals)
 
@@ -265,6 +270,11 @@ Els fitxers `.dot` es generen com abans.
 - En DB grans l'exportació amb períodes és molt més ràpida (la mateixa base de dades de 1311 US ha passat d'uns 25–45 s i un DOT de 51 MB a uns 3 s) i cada fase obté el seu propi clúster invisible, de manera que Graphviz no ignora silenciosament cap fase.
 - Per a matrius amb períodes molt amples el JPG ara es pot generar fins i tot per sota de 12 dpi si cal (com a referència, la matriu de 1311 US amb períodes surt a 49 dpi): és només una visió general; per a la versió llegible fes servir les còpies `.svg` / `.pdf` desades al costat.
 
+**Còpies vectorials i impressió del pòster**:
+
+- Les còpies `.pdf` / `.svg` es mantenen ara sempre dins de 200 polzades (14 400 pt) per costat, el límit a partir del qual Acrobat i Previsualització mostren només una part de la pàgina: tota la matriu queda així visible i ampliable (vectorial, sense pèrdua de qualitat). A la base de dades de 1311 US amb períodes el PDF fa 14 400 × 2 591 pt.
+- Per imprimir-la fes servir el PDF pòster (casella **PDF poster** a Setting_Matrix): per a la mateixa base de dades, A0 amb "Adatta all'altezza" (ajusta a l'alçada) dona 5 fulls A0 horitzontals a escala 1:3,4 (text ≈ 4 pt: llegible en un plòter; fes servir A0 "1:2" o "1:1" per a text més gran i més fulls). Un sol full A0 ("Adatta alla pagina", ajusta a la pàgina) és només una visió general.
+
 ### US No Agrupades per Període
 
 **Causa**: Falta la periodització o no està habilitada
@@ -286,6 +296,7 @@ Els fitxers `.dot` es generen com abans.
 ├── Harris_matrix_tred.dot.png  # Imatge final PNG
 ├── Harris_matrix_tred.dot.svg  # Vectorial (només matrius grans)
 ├── Harris_matrix_tred.dot.pdf  # Vectorial (només matrius grans)
+├── Harris_matrix_poster_A0.pdf # PDF pòster multipàgina per a impressió
 ├── Harris_matrix2ED.dot        # Versió estesa
 ├── Harris_matrix2ED_graphml.dot # Per exportació GraphML
 └── matrix_error.txt            # Log errors
@@ -299,6 +310,7 @@ Els fitxers `.dot` es generen com abans.
 | *.dot | Modificació amb editor Graphviz |
 | _graphml.dot | Import a yEd per a edició avançada |
 | *.svg/*.pdf | Versió vectorial ampliable (matrius grans) |
+| _poster_A0.pdf | PDF pòster multipàgina per a impressió; el nom segueix el format triat (p. ex. `_poster_A3.pdf`), per a Export Matrix 2ED el prefix és `Harris_matrix2ED` |
 
 ## Bones Pràctiques
 

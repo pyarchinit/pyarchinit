@@ -51,6 +51,11 @@ Antes de la generación, aparece una ventana de configuración:
 | DPI | Resolución de la imagen | 150-300 |
 | Mostrar Periodos | Agrupar UE por periodo/fase | Sí |
 | Mostrar Leyenda | Incluir leyenda en el gráfico | Sí |
+| PDF poster | Genera también un PDF póster multipágina para imprimir matrix más anchos que una hoja: las hojas se solapan 2 cm y cada hoja lleva la etiqueta "foglio n/N - riga r/R, colonna c/C - A0 scala 1:x" (hoja n/N - fila r/R, columna c/C - A0 escala 1:x). Para matrix muy grandes (cuando hay que reducir el DPI del JPG) el póster se genera de todos modos, aunque la casilla no esté marcada | Sí (para impresión) |
+| Formato | Formato de las hojas del póster: A0, A1, A2, A3 | A0 |
+| Scala (Escala) | Escala del póster: "Adatta all'altezza" (ajustar a la altura: una fila de hojas, la altura del matrix llena la hoja), "Adatta alla pagina" (ajustar a la página: una sola hoja con todo el matrix), 1:1, 1:2, 1:3 (escala fija, más hojas). El dibujo nunca se amplía; la orientación (vertical/horizontal) se elige automáticamente para usar menos hojas | Adatta all'altezza |
+
+Los controles **PDF poster**, **Formato** y **Scala** están en la segunda fila de la ventana (las etiquetas están en italiano en todos los idiomas de la interfaz).
 
 #### Pestaña Nodos "Ante/Post" (Relaciones Normales)
 
@@ -275,6 +280,11 @@ Los archivos `.dot` se generan como antes.
 - En DB grandes la exportación con periodos es mucho más rápida (la misma base de datos de 1311 UE pasó de unos 25–45 s y un DOT de 51 MB a unos 3 s) y cada fase obtiene su propio clúster invisible, de modo que Graphviz no ignora silenciosamente ninguna fase.
 - Para matrix con periodos muy anchos el JPG ahora puede generarse incluso por debajo de 12 dpi si es necesario (como referencia, el matrix de 1311 UE con periodos sale a 49 dpi): es solo una vista general; para la versión legible usa las copias `.svg` / `.pdf` guardadas al lado.
 
+**Copias vectoriales e impresión del póster**:
+
+- Las copias `.pdf` / `.svg` se mantienen ahora siempre dentro de 200 pulgadas (14 400 pt) por lado, el límite a partir del cual Acrobat y Vista Previa muestran solo una parte de la página: todo el matrix queda así visible y ampliable (vectorial, sin pérdida de calidad). En la base de datos de 1311 UE con periodos el PDF mide 14 400 × 2 591 pt.
+- Para imprimirlo usa el PDF póster (checkbox **PDF poster** en Setting_Matrix): para la misma base de datos, A0 con "Adatta all'altezza" (ajustar a la altura) da 5 hojas A0 horizontales a escala 1:3,4 (texto ≈ 4 pt: legible en un plóter; usa A0 "1:2" o "1:1" para texto más grande y más hojas). Una sola hoja A0 ("Adatta alla pagina", ajustar a la página) es solo una vista general.
+
 ### UE No Agrupadas por Periodo
 
 **Causa**: Falta la periodización o no está habilitada
@@ -296,6 +306,7 @@ Los archivos `.dot` se generan como antes.
 ├── Harris_matrix_tred.dot.png  # Imagen final PNG
 ├── Harris_matrix_tred.dot.svg  # Vectorial (solo matrix grandes)
 ├── Harris_matrix_tred.dot.pdf  # Vectorial (solo matrix grandes)
+├── Harris_matrix_poster_A0.pdf # PDF póster multipágina para impresión
 ├── Harris_matrix2ED.dot        # Versión extendida
 ├── Harris_matrix2ED_graphml.dot # Para export GraphML
 └── matrix_error.txt            # Log de errores
@@ -309,6 +320,7 @@ Los archivos `.dot` se generan como antes.
 | *.dot | Modificación con editor Graphviz |
 | _graphml.dot | Import en yEd para edición avanzada |
 | *.svg/*.pdf | Versión vectorial ampliable (matrix grandes) |
+| _poster_A0.pdf | PDF póster multipágina para impresión; el nombre sigue el formato elegido (p. ej. `_poster_A3.pdf`), para Export Matrix 2ED el prefijo es `Harris_matrix2ED` |
 
 ## Buenas Prácticas
 
