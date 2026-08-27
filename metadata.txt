@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.13-alpha
+version=5.13.14-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,16 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.13-alpha (2026-08-27) [Harris matrix: period export fix, viewer-safe PDF/SVG, A0 poster; GraphML epoch rows]:
+changelog=5.13.14-alpha (2026-08-27) [Periodization: warning when a chronology has start > end (BC years without sign)]:
+    - Feature: BC years typed without the minus sign (1650 -> 1450) sort as
+      AD and scramble the epoch order in the Extended Matrix swimlane and in
+      the Graphviz period clusters ("1650 d.C."). New
+      modules/utility/periodization_checks.py flags periods whose
+      cron_iniziale is later than cron_finale; the GraphML export summary
+      shows a "Periodizzazione: ..." warning (graph.warnings now survive
+      _filter_by_site) and the DOT period export shows a QMessageBox listing
+      the periods and the fix (BC = negative numbers). Tests: 5.
+  5.13.13-alpha (2026-08-27) [Harris matrix: period export fix, viewer-safe PDF/SVG, A0 poster; GraphML epoch rows]:
     - Fix: "Esporta matrix con periodizzazione" aborted with "Errore durante il
       rendering del file DOT: 'NoneType' object has no attribute 'write'":
       graphviz-python echoes dot's stderr via sys.stderr.write(), which is
