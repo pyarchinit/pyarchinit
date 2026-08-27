@@ -50,6 +50,13 @@ From 5.6.0-alpha you can check **2+ dimensions**: the export works natively than
 - `_s3dgraphy.json` — native s3dgraphy format
 - `_phased.json` — per-epoch view
 
+> **Note — swimlane row (epoch) labels**
+>
+> - Each swimlane row (one per period/phase of the periodization table) is labelled with the **Datazione estesa** (`datazione_estesa`, extended dating) field of the Periodization sheet, the same text used by the Graphviz period export. If it is empty the **Descrizione** (description) is used; if both are empty, a generic "Period P Phase F".
+> - The **Descrizione** field goes into the epoch node description (visible in the yEd properties): long descriptive paragraphs no longer appear as row titles.
+> - When several phases share the same Datazione estesa, the label gets the suffix `(periodo P, fase F)` so that each row stays unique (required for the yEd → pyArchInit round-trip).
+> - Practical tip: fill **Datazione estesa** with a short period name (e.g. "Età Tardoromana - IV-VI secolo d.C.") and keep the long text in **Descrizione**.
+
 ---
 
 ## 3. "Manage paradata" Dialog (4 tabs)
@@ -163,6 +170,7 @@ Exit codes: 0 = success, 1 = bridge error, 2 = argparse error.
 | "rapporti fields must be TEXT" | Entered a number as integer | US/Area fields are **TEXT**, not integer |
 | Wrong capitalization on rapporti | Lowercase "copre" in DB | Use "Copre", "Coperto da" capitalized |
 | `DeprecationWarning` on 5.5.x file | Legacy `ActivityNodeGroup + group_kind` file | The projector promotes it in-memory to `LocationNodeGroup`. Re-export to migrate the file on disk. |
+| Swimlane rows show a very long text | Older versions used the periodization Descrizione as label | Update the plugin and re-export, and/or fill **Datazione estesa** with a short name |
 
 ---
 

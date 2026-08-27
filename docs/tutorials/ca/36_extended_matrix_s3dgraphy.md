@@ -50,6 +50,13 @@ Es generen 4 fitxers amb prefix `Extended_Matrix_<lloc>[_<area>]`:
 - `_s3dgraphy.json` — format natiu s3dgraphy
 - `_phased.json` — vista per època
 
+> **Nota — etiquetes de les files (èpoques) de la swimlane**
+>
+> - Cada fila de la swimlane (una per període/fase de la taula de periodització) s'etiqueta amb el camp **Datazione estesa** (`datazione_estesa`, datació estesa) de la fitxa Periodització, el mateix text que fa servir l'exportació Graphviz amb períodes. Si és buit s'usa la **Descrizione** (descripció); si tots dos són buits, un genèric "Period P Phase F".
+> - El camp **Descrizione** va a la descripció del node època (visible a les propietats de yEd): els paràgrafs descriptius llargs ja no apareixen com a títol de fila.
+> - Si diverses fases comparteixen la mateixa Datazione estesa, l'etiqueta rep el sufix `(periodo P, fase F)` perquè cada fila continuï sent única (necessari per al round-trip yEd → pyArchInit).
+> - Consell pràctic: omple **Datazione estesa** amb un nom breu del període (p. ex. "Età Tardoromana - IV-VI secolo d.C.") i deixa el text llarg a **Descrizione**.
+
 ---
 
 ## 3. Diàleg "Manage paradata" (4 pestanyes)
@@ -163,6 +170,7 @@ Exit codes: 0 = èxit, 1 = error de bridge, 2 = error argparse.
 | "rapporti han de ser TEXT" | Has introduït un número com a integer | Els camps UE/Area són **TEXT**, no integer |
 | Capitalització incorrecta a rapporti | "copre" en minúscula a la DB | Usar "Copre", "Coperto da" capitalitzats |
 | `DeprecationWarning` en fitxer 5.5.x | Fitxer legacy `ActivityNodeGroup + group_kind` | El projector el promociona en memòria a `LocationNodeGroup`. Reexporta per migrar el fitxer al disc. |
+| Les files de la swimlane mostren un text llarguíssim | Les versions anteriors usaven la Descrizione de la periodització com a etiqueta | Actualitza el plugin i reexporta, i/o omple **Datazione estesa** amb un nom breu |
 
 ---
 

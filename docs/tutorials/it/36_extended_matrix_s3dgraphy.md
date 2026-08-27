@@ -50,6 +50,13 @@ Vengono generati 4 file con prefisso `Extended_Matrix_<sito>[_<area>]`:
 - `_s3dgraphy.json` — formato nativo s3dgraphy
 - `_phased.json` — vista per epoche
 
+> **Nota — etichette delle righe (epoche) della swimlane**
+>
+> - Ogni riga della swimlane (una per periodo/fase della tabella periodizzazione) è etichettata con il campo **Datazione estesa** (`datazione_estesa`) della scheda Periodizzazione, lo stesso testo usato dall'export Graphviz con periodi. Se è vuoto viene usata la **Descrizione**; se sono vuoti entrambi, un generico "Period P Phase F".
+> - Il campo **Descrizione** finisce nella descrizione del nodo epoca (visibile nelle proprietà di yEd): i paragrafi descrittivi lunghi non compaiono più come titolo di riga.
+> - Se più fasi condividono la stessa Datazione estesa, l'etichetta riceve il suffisso `(periodo P, fase F)` così che ogni riga resti unica (necessario per il round-trip yEd → pyArchInit).
+> - Consiglio pratico: compilare **Datazione estesa** con un nome breve del periodo (es. "Età Tardoromana - IV-VI secolo d.C.") e lasciare il testo lungo in **Descrizione**.
+
 ---
 
 ## 3. Dialog "Manage paradata" (4 tab)
@@ -163,6 +170,7 @@ Exit codes: 0 = success, 1 = errore di bridge, 2 = errore argparse.
 | "i campi rapporti devono essere TESTO" | Hai inserito un numero come integer | I campi US/Area sono **TEXT**, non integer |
 | Capitalizzazione errata sui rapporti | "copre" minuscolo nel DB | Usa "Copre", "Coperto da" capitalizzati |
 | `DeprecationWarning` su file 5.5.x | File legacy `ActivityNodeGroup + group_kind` | Il projector promuove in-memory a `LocationNodeGroup`. Ri-esporta per migrare il file su disco. |
+| Le righe della swimlane mostrano un testo lunghissimo | Nelle versioni precedenti come etichetta veniva usata la Descrizione della periodizzazione | Aggiorna il plugin e ri-esporta, e/o compila **Datazione estesa** con un nome breve |
 
 ---
 

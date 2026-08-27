@@ -50,6 +50,13 @@ Se generează 4 fișiere cu prefixul `Extended_Matrix_<sit>[_<area>]`:
 - `_s3dgraphy.json` — format nativ s3dgraphy
 - `_phased.json` — vizualizare per epocă
 
+> **Notă — etichetele rândurilor (epocilor) din swimlane**
+>
+> - Fiecare rând al swimlane-ului (unul per perioadă/fază din tabelul de periodizare) este etichetat cu câmpul **Datazione estesa** (`datazione_estesa`, datare extinsă) din fișa Periodizare, același text folosit de exportul Graphviz cu perioade. Dacă este gol se folosește **Descrizione** (descrierea); dacă ambele sunt goale, un generic "Period P Phase F".
+> - Câmpul **Descrizione** ajunge în descrierea nodului epocă (vizibilă în proprietățile yEd): paragrafele descriptive lungi nu mai apar ca titlu de rând.
+> - Dacă mai multe faze au aceeași Datazione estesa, eticheta primește sufixul `(periodo P, fase F)` astfel încât fiecare rând să rămână unic (necesar pentru round-trip-ul yEd → pyArchInit).
+> - Sfat practic: completează **Datazione estesa** cu un nume scurt al perioadei (de ex. "Età Tardoromana - IV-VI secolo d.C.") și lasă textul lung în **Descrizione**.
+
 ---
 
 ## 3. Dialog "Manage paradata" (4 tab-uri)
@@ -163,6 +170,7 @@ Exit codes: 0 = succes, 1 = eroare bridge, 2 = eroare argparse.
 | "rapporti trebuie să fie TEXT" | Ai introdus un număr ca integer | Câmpurile UE/Area sunt **TEXT**, nu integer |
 | Capitalizare greșită în rapporti | "copre" cu litere mici în DB | Folosește "Copre", "Coperto da" capitalizate |
 | `DeprecationWarning` pe fișier 5.5.x | Fișier legacy `ActivityNodeGroup + group_kind` | Projector-ul îl promovează în memorie la `LocationNodeGroup`. Reexportă pentru a migra fișierul pe disc. |
+| Rândurile swimlane-ului afișează un text foarte lung | Versiunile anterioare foloseau Descrizione din periodizare ca etichetă | Actualizează plugin-ul și reexportă, și/sau completează **Datazione estesa** cu un nume scurt |
 
 ---
 

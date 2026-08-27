@@ -50,6 +50,13 @@ Ab 5.6.0-alpha kannst du **2+ Dimensionen** ankreuzen: der Export funktioniert d
 - `_s3dgraphy.json` — natives s3dgraphy-Format
 - `_phased.json` — Ansicht pro Epoche
 
+> **Hinweis — Beschriftung der Swimlane-Zeilen (Epochen)**
+>
+> - Jede Swimlane-Zeile (eine pro Periode/Phase der Periodisierungstabelle) wird mit dem Feld **Datazione estesa** (`datazione_estesa`, erweiterte Datierung) des Periodisierungs-Formulars beschriftet, demselben Text, den der Graphviz-Export mit Perioden verwendet. Ist es leer, wird die **Descrizione** (Beschreibung) verwendet; sind beide leer, ein generisches "Period P Phase F".
+> - Das Feld **Descrizione** geht in die Beschreibung des Epochen-Knotens (in den yEd-Eigenschaften sichtbar): lange beschreibende Absätze erscheinen nicht mehr als Zeilentitel.
+> - Teilen sich mehrere Phasen dieselbe Datazione estesa, erhält die Beschriftung das Suffix `(periodo P, fase F)`, damit jede Zeile eindeutig bleibt (für den Round-trip yEd → pyArchInit erforderlich).
+> - Praxistipp: **Datazione estesa** mit einem kurzen Periodennamen füllen (z. B. "Età Tardoromana - IV-VI secolo d.C.") und den langen Text in **Descrizione** lassen.
+
 ---
 
 ## 3. "Manage paradata"-Dialog (4 Tabs)
@@ -163,6 +170,7 @@ Exit-Codes: 0 = Erfolg, 1 = Bridge-Fehler, 2 = argparse-Fehler.
 | "rapporti müssen TEXT sein" | Zahl als Integer eingegeben | SE/Area-Felder sind **TEXT**, nicht Integer |
 | Falsche Großschreibung in rapporti | Kleines "copre" in DB | "Copre", "Coperto da" groß schreiben |
 | `DeprecationWarning` bei 5.5.x-Datei | Legacy-Datei mit `ActivityNodeGroup + group_kind` | Der Projector promoviert sie in-memory zu `LocationNodeGroup`. Erneut exportieren, um die Datei auf der Festplatte zu migrieren. |
+| Swimlane-Zeilen zeigen einen sehr langen Text | Ältere Versionen verwendeten die Descrizione der Periodisierung als Beschriftung | Plugin aktualisieren und erneut exportieren und/oder **Datazione estesa** mit einem kurzen Namen füllen |
 
 ---
 

@@ -50,6 +50,13 @@ Le dialogue affiche :
 - `_s3dgraphy.json` — format natif s3dgraphy
 - `_phased.json` — vue par époque
 
+> **Note — étiquettes des lignes (époques) de la swimlane**
+>
+> - Chaque ligne de la swimlane (une par période/phase de la table de périodisation) est étiquetée avec le champ **Datazione estesa** (`datazione_estesa`, datation étendue) de la fiche Périodisation, le même texte utilisé par l'export Graphviz avec périodes. S'il est vide, la **Descrizione** (description) est utilisée ; si les deux sont vides, un générique "Period P Phase F".
+> - Le champ **Descrizione** va dans la description du nœud époque (visible dans les propriétés yEd) : les longs paragraphes descriptifs n'apparaissent plus comme titre de ligne.
+> - Si plusieurs phases partagent la même Datazione estesa, l'étiquette reçoit le suffixe `(periodo P, fase F)` afin que chaque ligne reste unique (nécessaire pour le round-trip yEd → pyArchInit).
+> - Conseil pratique : remplir **Datazione estesa** avec un nom court de la période (par ex. "Età Tardoromana - IV-VI secolo d.C.") et laisser le texte long dans **Descrizione**.
+
 ---
 
 ## 3. Dialogue "Manage paradata" (4 onglets)
@@ -163,6 +170,7 @@ Exit codes : 0 = succès, 1 = erreur de bridge, 2 = erreur argparse.
 | "rapporti doivent être TEXT" | Saisi un nombre comme integer | Les champs US/Area sont **TEXT**, pas integer |
 | Mauvaise capitalisation des rapporti | "copre" en minuscules dans le DB | Utiliser "Copre", "Coperto da" en majuscules |
 | `DeprecationWarning` sur fichier 5.5.x | Fichier legacy `ActivityNodeGroup + group_kind` | Le projector le promeut en mémoire vers `LocationNodeGroup`. Réexporter pour migrer le fichier sur disque. |
+| Les lignes de la swimlane affichent un texte très long | Les versions précédentes utilisaient la Descrizione de la périodisation comme étiquette | Mettre à jour le plugin et réexporter, et/ou remplir **Datazione estesa** avec un nom court |
 
 ---
 

@@ -269,6 +269,12 @@ Con matrix muy grandes (p. ej. 1300 UE y unas 2000 relaciones) la exportación c
 
 Los archivos `.dot` se generan como antes.
 
+**Exportación con periodización** (checkbox de periodos en Setting_Matrix):
+
+- La exportación ya no se interrumpe con el error `Errore durante il rendering del file DOT: 'NoneType' object has no attribute 'write'`, que aparecía cuando Graphviz emitía un aviso y QGIS no tenía la consola Python abierta (típico en Windows). Los avisos de Graphviz ahora se escriben en la consola Python / el registro de QGIS en lugar de abortar la exportación.
+- En DB grandes la exportación con periodos es mucho más rápida (la misma base de datos de 1311 UE pasó de unos 25–45 s y un DOT de 51 MB a unos 3 s) y cada fase obtiene su propio clúster invisible, de modo que Graphviz no ignora silenciosamente ninguna fase.
+- Para matrix con periodos muy anchos el JPG ahora puede generarse incluso por debajo de 12 dpi si es necesario (como referencia, el matrix de 1311 UE con periodos sale a 49 dpi): es solo una vista general; para la versión legible usa las copias `.svg` / `.pdf` guardadas al lado.
+
 ### UE No Agrupadas por Periodo
 
 **Causa**: Falta la periodización o no está habilitada

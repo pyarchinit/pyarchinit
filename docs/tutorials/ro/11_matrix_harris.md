@@ -259,6 +259,12 @@ Cu matrice foarte mari (de ex. 1300 US și circa 2000 de relații) exportul cu c
 
 Fișierele `.dot` sunt produse ca înainte.
 
+**Export cu periodizare** (caseta perioade din Setting_Matrix):
+
+- Exportul nu se mai oprește cu eroarea `Errore durante il rendering del file DOT: 'NoneType' object has no attribute 'write'`, care apărea când Graphviz emitea un avertisment și QGIS nu avea consola Python deschisă (tipic pe Windows). Avertismentele Graphviz sunt acum scrise în consola Python / jurnalul QGIS în loc să întrerupă exportul.
+- Pe DB mari exportul cu perioade este mult mai rapid (aceeași bază de date cu 1311 US a trecut de la circa 25–45 s și un DOT de 51 MB la circa 3 s) și fiecare fază primește propriul cluster invizibil, astfel încât nicio fază nu este ignorată în tăcere de Graphviz.
+- Pentru matrice cu perioade foarte late JPG-ul poate fi generat acum chiar sub 12 dpi dacă este necesar (ca referință, matricea cu 1311 US și perioade iese la 49 dpi): este doar o privire de ansamblu; pentru versiunea lizibilă folosiți copiile `.svg` / `.pdf` salvate alături.
+
 ## Fișierele Generate și Ieșiri
 
 ### Folderul de Ieșire

@@ -50,6 +50,13 @@
 - `_s3dgraphy.json` — تنسيق s3dgraphy الأصلي
 - `_phased.json` — عرض حسب الحقبة
 
+> **ملاحظة — تسميات صفوف (حقب) الـ swimlane**
+>
+> - يُسمّى كل صف في الـ swimlane (صف لكل فترة/مرحلة في جدول التحقيب) بحقل **Datazione estesa** (‏`datazione_estesa`، التأريخ الموسّع) من بطاقة التحقيب، وهو النص نفسه الذي يستخدمه تصدير Graphviz مع الفترات. إذا كان فارغاً تُستخدم **Descrizione** (الوصف)؛ وإذا كان كلاهما فارغاً يُستخدم نص عام "Period P Phase F".
+> - يذهب حقل **Descrizione** إلى وصف عقدة الحقبة (مرئي في خصائص yEd): لم تعد الفقرات الوصفية الطويلة تظهر كعنوان للصف.
+> - عندما تتشارك عدة مراحل الـ Datazione estesa نفسها، تحصل التسمية على اللاحقة `(periodo P, fase F)` بحيث يبقى كل صف فريداً (ضروري للرحلة ذهاباً وإياباً yEd → pyArchInit).
+> - نصيحة عملية: املأ **Datazione estesa** باسم قصير للفترة (مثلاً "Età Tardoromana - IV-VI secolo d.C.") واترك النص الطويل في **Descrizione**.
+
 ---
 
 ## 3. حوار "Manage paradata" (4 علامات تبويب)
@@ -163,6 +170,7 @@ python scripts/s3dgraphy_sync.py paradata add-author \
 | "يجب أن تكون حقول rapporti نصًا" | أدخلت رقمًا كعدد صحيح | حقول US/Area هي **نص**، وليست أعدادًا صحيحة |
 | كتابة بأحرف صغيرة في rapporti | "copre" بأحرف صغيرة في DB | استخدم "Copre", "Coperto da" بأحرف كبيرة |
 | `DeprecationWarning` على ملف 5.5.x | ملف قديم بـ `ActivityNodeGroup + group_kind` | يقوم projector بترقيته في الذاكرة إلى `LocationNodeGroup`. أعد التصدير لترحيل الملف على القرص. |
+| صفوف الـ swimlane تعرض نصاً طويلاً جداً | كانت الإصدارات السابقة تستخدم Descrizione من التحقيب كتسمية | حدّث الإضافة وأعد التصدير، و/أو املأ **Datazione estesa** باسم قصير |
 
 ---
 
