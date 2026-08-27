@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import sys
+
+import pytest
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parents[2]
@@ -9,7 +11,8 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from modules.utility.matrix_layout_policy import (  # noqa: E402
-    LARGE_MATRIX_EDGES, apply_large_graph_policy, laid_out_size_points,
+    LARGE_MATRIX_EDGES, MIN_RASTER_DPI, apply_large_graph_policy,
+    laid_out_size_points,
     safe_raster_dpi, set_dot_dpi,
 )
 
@@ -42,7 +45,7 @@ def test_safe_dpi_clamps_only_when_bitmap_would_overflow():
     dpi = safe_raster_dpi(BIG, '300')
     assert dpi < 300
     assert (79873 / 72.0) * dpi <= 32000
-    assert safe_raster_dpi(BIG, '300', max_px=1) == 12  # floor
+    assert safe_raster_dpi(BIG, '300', max_px=1) == MIN_RASTER_DPI  # floor
     assert safe_raster_dpi('no bb here', 'garbage') == 150  # fallback
 
 
@@ -52,3 +55,40 @@ def test_set_dot_dpi_rewrites_root_attribute_or_adds_it():
     assert 'dpi=28' in set_dot_dpi('digraph { graph [dpi="150"]; }', 28)
     added = set_dot_dpi('digraph {\n a -> b\n}', 40)
     assert 'dpi=40' in added and added.count('dpi=') == 1
+
+
+# --- 2026-08-27: period export on the same DB -------------------------------
+# dot writes the root bb of very wide layouts in exponent notation.
+BIG_EXP = ('digraph {\n\tgraph [bb="0,0,2.5335e+05,7785",\n\t\tdpi=300,'
+           '\n\t\tsplines=polyline\n\t];\n}')
+
+
+def test_bb_in_exponent_notation_is_parsed_and_clamped():
+    assert laid_out_size_points(BIG_EXP) == (253350.0, 7785.0)
+    dpi = safe_raster_dpi(BIG_EXP, 300)
+    # 253 350 pt = 3519 in → must go below 12 dpi to stay under 32 000 px
+    assert dpi * 253350 / 72 <= 32000
+    assert dpi >= 1
+
+
+def test_stderr_guard_makes_graphviz_render_survive_sys_stderr_none(
+        monkeypatch, tmp_path):
+    """graphviz-python echoes dot's warnings with ``sys.stderr.write()``;
+    under a GUI python (QGIS without the Python console open) sys.stderr
+    is None and the period export died with
+    "'NoneType' object has no attribute 'write'"."""
+    import sys as _sys
+    graphviz = pytest.importorskip("graphviz")
+    from modules.utility.matrix_layout_policy import graphviz_stderr_guard
+    # fixed-size node too small for its label → dot prints a Warning
+    src = graphviz.Source(
+        'digraph { a [shape=box, width=0.1, fixedsize=true, '
+        'label="a rather long node label"] }')
+    monkeypatch.setattr(_sys, "stderr", None)
+    with pytest.raises(AttributeError):
+        src.render(directory=str(tmp_path), filename="bare", format="dot")
+    with graphviz_stderr_guard("dot") as captured:
+        out = src.render(directory=str(tmp_path), filename="guarded",
+                         format="dot")
+    assert Path(out).is_file()
+    assert "size too small for label" in captured.getvalue()

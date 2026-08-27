@@ -15,6 +15,8 @@ Pure functions (no Qt/QGIS imports) so they are unit-testable;
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import re
 from typing import Optional, Tuple
 
@@ -22,13 +24,18 @@ from typing import Optional, Tuple
 LARGE_MATRIX_EDGES = 600
 #: cairo refuses bitmaps wider/taller than 32767 px; keep a margin.
 MAX_RASTER_PX = 32000
-#: Never render below this dpi (vector copies are produced instead).
-MIN_RASTER_DPI = 12
+#: Never render below this dpi.  The period export of the 1311-US DB lays
+#: out 253 350 pt (~88 m) wide: even 12 dpi overflows cairo, so the floor is
+#: 1 — the raster then is only an overview, the .svg/.pdf copies are the
+#: readable output.
+MIN_RASTER_DPI = 1
 #: Graph attributes applied to large graphs (fast router, tighter spacing).
 LARGE_GRAPH_ATTRS = {'splines': 'polyline', 'nodesep': '0.3', 'ranksep': '1'}
 
+# dot prints big coordinates in exponent notation ("2.5335e+05").
+_NUM = r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?'
 _BB_RE = re.compile(
-    r'\bbb="\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*"')
+    r'\bbb="\s*(%s)\s*,\s*(%s)\s*,\s*(%s)\s*,\s*(%s)\s*"' % ((_NUM,) * 4))
 _DPI_RE = re.compile(r'\bdpi=("?)[\d.]+\1')
 
 
@@ -78,3 +85,26 @@ def set_dot_dpi(dot_text: str, dpi: int) -> str:
     if n:
         return text
     return re.sub(r'\{', '{\n\tgraph [%s];' % new, dot_text, count=1)
+
+
+@contextlib.contextmanager
+def graphviz_stderr_guard(label: str = 'graphviz'):
+    """Make ``graphviz.render()`` safe when ``sys.stderr`` is None.
+
+    graphviz-python echoes whatever ``dot`` printed on stderr with
+    ``sys.stderr.write()``.  Under a GUI python (QGIS on Windows without the
+    Python console open, pythonw) ``sys.stderr`` is None, so any dot
+    warning — e.g. "Two clusters named cluster_cont" in the period export —
+    became ``AttributeError: 'NoneType' object has no attribute 'write'``
+    and the export aborted (2026-08-27).  stderr is redirected into a
+    buffer for the duration; the text is re-emitted with ``print()`` (a
+    no-op when stdout is None) and is also available on the yielded buffer.
+    """
+    buf = io.StringIO()
+    try:
+        with contextlib.redirect_stderr(buf):
+            yield buf
+    finally:
+        text = buf.getvalue().strip()
+        if text:
+            print(f"{label}: {text}")
