@@ -284,3 +284,94 @@ def test_projector_handles_paradata_name_collisions(tmp_path):
         if cls == "StratigraphicUnit" and ut
     )
     assert row_derived == 5
+
+
+def test_projector_epoch_name_is_datazione_estesa_not_descrizione(tmp_path):
+    """Regression (2026-08-27, Ventena DB — 1311 US): the swimlane rows of
+    the exported GraphML showed the long free-text ``descrizione`` paragraph
+    of ``periodizzazione_table`` instead of the period name.
+
+    s3dgraphy labels every epoch row with ``EpochNode.name``
+    (``epoch_generator.py``: ``f"{epoch.name} [start:..;end:..]"``), so the
+    projector must feed it the short human label — ``datazione_estesa``,
+    the same field the DOT period export uses for its cluster label — and
+    keep ``descrizione`` as the node *description*. Fallbacks: descrizione
+    when datazione_estesa is empty, then "Period P Phase F".
+    """
+    from sqlalchemy import text
+    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+
+    long_descr = ("Questa fase corrisponde alla conclusione dell'attività "
+                  "produttiva connessa alle calcare di età tardoromana e al "
+                  "conseguente abbandono dell'area.")
+    db = tmp_path / "epoch_labels.sqlite"
+    handle = DbHandle.from_path(db)
+    with handle.engine.begin() as conn:
+        conn.execute(text("""
+            CREATE TABLE us_table (
+                id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+                sito TEXT, area TEXT DEFAULT '1', us TEXT,
+                unita_tipo TEXT, node_uuid TEXT,
+                rapporti TEXT, periodo_iniziale TEXT, fase_iniziale TEXT,
+                periodo_finale TEXT, fase_finale TEXT,
+                d_stratigrafica TEXT, d_interpretativa TEXT,
+                attivita TEXT, struttura TEXT, settore TEXT,
+                ambient TEXT, saggio TEXT, quad_par TEXT,
+                documentazione TEXT,
+                UNIQUE(sito, area, us, unita_tipo)
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE periodizzazione_table (
+                id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
+                sito TEXT, periodo INTEGER, fase TEXT,
+                cron_iniziale INTEGER, cron_finale INTEGER,
+                descrizione TEXT, datazione_estesa TEXT, cont_per INTEGER
+            )
+        """))
+        periods = [
+            # periodo, fase, cron_ini, cron_fin, descrizione, datazione_estesa
+            (3, "1", 301, 600, long_descr, "Età Tardoromana - IV-VI secolo d.C."),
+            (5, "1", 1449, 301, "Eventi alluvionali", ""),
+            (6, "1", 1650, 1450, "", None),
+            # two phases sharing one datazione_estesa (Ventena periodo 4)
+            (4, "1", -300, -100, "Frequentazione", "Tra fine Età del Ferro"),
+            (4, "2", -300, -100, "Abbandono", "Tra fine Età del Ferro"),
+        ]
+        for p, f, ci, cf, descr, dat in periods:
+            conn.execute(
+                text("INSERT INTO periodizzazione_table (sito, periodo, fase, "
+                     "cron_iniziale, cron_finale, descrizione, datazione_estesa) "
+                     "VALUES ('S', :p, :f, :ci, :cf, :d, :dat)"),
+                {"p": p, "f": f, "ci": ci, "cf": cf, "d": descr, "dat": dat},
+            )
+        for i, (p, f, *_rest) in enumerate(periods, start=1):
+            conn.execute(
+                text("INSERT INTO us_table (sito, area, us, unita_tipo, node_uuid, "
+                     "periodo_iniziale, fase_iniziale, rapporti) "
+                     "VALUES ('S', '1', :u, 'US', :n, :p, :f, '[]')"),
+                {"u": str(i), "n": f"uuid-{i}", "p": str(p), "f": f},
+            )
+
+    graph = GraphProjector().populate_graph(db, sito="S")
+    epochs = {n.node_id: n for n in graph.nodes
+              if type(n).__name__ == "EpochNode"}
+    assert set(epochs) == {"epoch_3_1", "epoch_5_1", "epoch_6_1",
+                           "epoch_4_1", "epoch_4_2"}
+
+    tardo = epochs["epoch_3_1"]
+    assert tardo.name == "Età Tardoromana - IV-VI secolo d.C."
+    assert tardo.description == long_descr
+    assert tardo.attributes["datazione_estesa"] == "Età Tardoromana - IV-VI secolo d.C."
+    # Empty datazione_estesa → fall back to the (short) descrizione.
+    assert epochs["epoch_5_1"].name == "Eventi alluvionali"
+    # Nothing at all → synthetic label.
+    assert epochs["epoch_6_1"].name == "Period 6 Phase 1"
+    # Shared datazione_estesa → names stay unique (round-trip hydration
+    # and the yEd rows are keyed by name).
+    assert epochs["epoch_4_1"].name == "Tra fine Età del Ferro (periodo 4, fase 1)"
+    assert epochs["epoch_4_2"].name == "Tra fine Età del Ferro (periodo 4, fase 2)"
+    assert epochs["epoch_4_1"].description == "Frequentazione"
+    names = [n.name for n in epochs.values()]
+    assert len(names) == len(set(names))

@@ -12,6 +12,7 @@ underlying implementation evolves.
 """
 from __future__ import annotations
 
+from collections import Counter
 import logging
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
@@ -887,15 +888,34 @@ class GraphProjector:
             # Schema columns vary slightly across pyArchInit releases;
             # we read defensively. Each (periodo, fase) is one epoch.
             epoch_by_key = {}  # (periodo:int, fase:str) -> EpochNode
+            # ``datazione_estesa`` is the short human label of the period
+            # ("Età Tardoromana - IV-VI secolo d.C.") — the same field the
+            # DOT period export uses for its cluster label — while
+            # ``descrizione`` is free text that can run to whole paragraphs.
+            # s3dgraphy prints ``EpochNode.name`` on every swimlane row, so
+            # the name MUST come from datazione_estesa (2026-08-27 Ventena
+            # DB: rows showed the descrizione paragraphs instead).
             try:
                 raw_rows = conn.execute(
                     text(
                         "SELECT periodo, fase, cron_iniziale, cron_finale, "
-                        "descrizione FROM periodizzazione_table"
+                        "descrizione, datazione_estesa "
+                        "FROM periodizzazione_table"
                     )
                 ).fetchall()
             except Exception:
-                raw_rows = []
+                try:
+                    raw_rows = [
+                        tuple(r) + (None,) for r in conn.execute(
+                            text(
+                                "SELECT periodo, fase, cron_iniziale, "
+                                "cron_finale, descrizione "
+                                "FROM periodizzazione_table"
+                            )
+                        ).fetchall()
+                    ]
+                except Exception:
+                    raw_rows = []
             # Sort the periodizzazione rows by (periodo asc, fase asc) so
             # that when we add EpochNodes to the graph, ties on cron_iniziale
             # are broken by the natural phase numbering. The swimlane
@@ -917,7 +937,23 @@ class GraphProjector:
             rows_sorted = sorted(raw_rows, key=_sort_key)
 
             try:
-                for periodo, fase, cron_ini, cron_fin, descr in rows_sorted:
+                # Names must be unique: the GraphML round-trip hydrates
+                # periodo/fase back onto EpochNodes *by name*
+                # (graph_ingestor, ``pyarchinit.epochs_meta``) and yEd
+                # shows nothing else on the row. The Ventena DB has three
+                # phases sharing one datazione_estesa → suffix those.
+                base_labels = {}
+                for periodo, fase, _ci, _cf, descr, datazione in rows_sorted:
+                    if periodo is None:
+                        continue
+                    key = (int(periodo), str(fase) if fase is not None else "")
+                    base_labels[key] = ((datazione or "").strip()
+                                        or (descr or "").strip()
+                                        or f"Period {key[0]} Phase {key[1]}")
+                label_counts = Counter(base_labels.values())
+
+                for (periodo, fase, cron_ini, cron_fin, descr,
+                     datazione) in rows_sorted:
                     if periodo is None:
                         continue
                     key = (int(periodo), str(fase) if fase is not None else "")
@@ -929,7 +965,11 @@ class GraphProjector:
                         continue
                     start = float(cron_ini) if cron_ini is not None else 0.0
                     end = float(cron_fin) if cron_fin is not None else 0.0
-                    label = descr or f"Period {key[0]} Phase {key[1]}"
+                    descr = (descr or "").strip()
+                    datazione = (datazione or "").strip()
+                    label = base_labels[key]
+                    if label_counts[label] > 1:
+                        label = f"{label} (periodo {key[0]}, fase {key[1]})"
                     # Cycle a pastel palette across epochs so each
                     # swimlane row renders in a distinct background colour.
                     # The s3dgraphy EpochSwimlanesGenerator
@@ -946,6 +986,7 @@ class GraphProjector:
                         start_time=start,
                         end_time=end,
                         color=row_color,
+                        description=descr,
                     )
                     # Stash periodo/fase on the EpochNode so the AI04
                     # graphml round-trip can recover them via the
@@ -960,8 +1001,8 @@ class GraphProjector:
                         ep.attributes["cron_iniziale"] = str(int(cron_ini))
                     if cron_fin is not None:
                         ep.attributes["cron_finale"] = str(int(cron_fin))
-                    if descr:
-                        ep.attributes["datazione_estesa"] = str(descr)
+                    if datazione:
+                        ep.attributes["datazione_estesa"] = datazione
                     graph.add_node(ep)
                     epoch_by_key[key] = ep
             except Exception:
