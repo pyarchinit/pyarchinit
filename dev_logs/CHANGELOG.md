@@ -5,6 +5,77 @@
 
 ---
 
+## [feat] - 2026-08-27 — Periodizzazione: avviso in export quando la cronologia iniziale è maggiore della finale (anni a.C. senza segno)
+
+> Branch `Stratigraph_00001`. Commit `321515b6`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `6c92fe33` sopra `e91f8145` = bump 4.9.12, **non ancora pushato né rilasciato** — release prevista: dev 5.13.14-alpha / master 4.9.13); su master solo `periodization_checks.py` + `Interactive_matrix.py`, la parte GraphML è solo dev.
+> File: `modules/utility/periodization_checks.py` (NUOVO), `modules/s3dgraphy/sync/graph_projector.py`, `modules/s3dgraphy/sync/graphml_writer.py`, `tabs/Interactive_matrix.py`, `tests/utility/test_periodization_checks.py` (NUOVO), `tests/sync/test_export_chronology_warning.py` (NUOVO).
+
+### Italiano
+
+#### Contesto
+
+- Sul DB Ventena (lo stesso dei fix di oggi) l'Extended Matrix GraphML mostrava le epoche in ordine sbagliato: due età contemporanee, poi l'Età del Bronzo, poi la Tardoromana… Causa: DATI, non codice. I periodi a.C. — periodo 4 "Tra fine Età del Ferro e Romanizzazione" (300 → 100), periodo 5 "Post Età del Bronzo Medio" (1449 → 301), periodo 6 "Età del Bronzo Medio" (1650 → 1450) — erano stati inseriti come anni positivi. La convenzione di pyArchInit è a.C. = negativo (tutorial 04 "Scheda periodizzazione": "valori negativi = a.C."; l'export DOT con periodizzazione in `Interactive_matrix.py` scrive "a.C." solo per i valori negativi).
+- Effetto: s3dgraphy ordina le righe delle swimlane per `start_time` decrescente (`epoch_generator.py:298`), quindi 1650 veniva trattato come 1650 d.C. e finiva in cima; i cluster di fase del DOT leggevano "Fase1: da 1650 d.C. a 1450 d.C.". Il segno riconoscibile nei dati è `cron_iniziale > cron_finale` (una cronologia che "va all'indietro").
+- Il DB è stato corretto a mano (5 righe negate; backup `*.pre_cron_sign_fix_20260827T084834Z`) e il plugin ora avvisa l'utente invece di produrre in silenzio un ordine sbagliato.
+
+#### 1. Controllo puro (`modules/utility/periodization_checks.py`, NUOVO)
+
+- Modulo senza Qt. Dataclass `SuspiciousChronology(periodo, fase, cron_iniziale, cron_finale, label='')` (frozen).
+- **`suspicious_chronologies(rows)`**: accetta tuple `(periodo, fase, cron_iniziale, cron_finale[, label])`; coerce gli anni con `_as_int` (`int(float(str(v).strip()))`, quindi anche le stringhe dell'ORM vanno bene), salta `None`/non numerici (niente da confrontare), restituisce nell'ordine di input le righe con inizio > fine.
+- **`format_chronology_warning(bad, lang='it')`**: testo it/en/de (fallback inglese per lingue sconosciute, match sui primi 2 caratteri): intestazione con il conteggio, una riga per periodo "Periodo P Fase F: ini → fin (label)" e il suggerimento "a.C. = numeri negativi, es. -1650 … Correggi i valori nella scheda Periodizzazione".
+
+#### 2. Extended Matrix GraphML (`graph_projector.py`, `graphml_writer.py`)
+
+- `GraphProjector._enrich_into`: subito dopo la lettura di `periodizzazione_table` (le `raw_rows` a 6 o 5 colonne del fix `a1737a5e`) chiama `suspicious_chronologies` con label = `datazione_estesa` (o `descrizione` nel fallback a 5 colonne); se trova qualcosa accoda il testo italiano a `graph.warnings` (lista creata se mancante) e stampa quello inglese in console (`[GraphProjector] …`). Tutto dentro `try/except`: il controllo non deve mai bloccare l'export.
+- `graphml_writer._filter_by_site`: il grafo filtrato per sito è un `Graph` NUOVO, quindi i `graph.warnings` raccolti sul grafo completo venivano persi → ora vengono riportati sul grafo filtrato (senza duplicati). Di conseguenza `ExportResult.warnings` arriva al riepilogo del dialog di export in `modules/s3dgraphy/s3dgraphy_dot_bridge.py` (riga `   ⚠️ …` sotto `✅ GraphML → …`).
+
+#### 3. Export DOT con periodizzazione (`tabs/Interactive_matrix.py`)
+
+- In `pyarchinit_Interactive_Matrix.generate_matrix` e `pyarchinit_view_Matrix_pre.generate_matrix_3` (gli export con cluster periodo/fase): dopo il caricamento di `periodizz_data_list` un `QMessageBox.warning("Periodizzazione", …)` nella lingua dell'interfaccia (`self.L`) elenca i periodi incriminati e il rimedio; l'export poi prosegue (non è bloccante: l'utente può comunque voler vedere il risultato).
+
+#### Test
+
+- **`tests/utility/test_periodization_checks.py` (NUOVO, 3):** tabella con 7 righe (stringhe dall'ORM `"300"`/`"100"`, a.C. corretti `-1650 → -1450`, `None`, `"abc"`) → segnalate solo `(4, "1")` e `(5, "1")`; tabella pulita → `[]`; il testo it/en/de nomina i periodi e il suggerimento ("a.C."/"negativ", "BC", "v. Chr."), lingua sconosciuta == inglese.
+- **`tests/sync/test_export_chronology_warning.py` (NUOVO, 2):** DB SQLite minimale (`us_table` + `periodizzazione_table`, 2 periodi, 2 US) → `export_graphml(..., site_filter="S")` con `1650 → 1450` riporta `"Periodo 2 Fase 1: 1650 → 1450"` e `"a.C."` in `res.warnings` (**ROSSO prima del fix a `_filter_by_site`**: l'avviso stava in `graph.warnings` ma spariva nel grafo filtrato); con `-1650 → -1450` nessun avviso "cronologia". 5/5 nei due file; suite non-PG completa verde.
+
+#### Note per master
+
+- Portato su `master` come commit `6c92fe33` sul branch locale `fix/large-relations-master` (sopra `e91f8145` = bump 4.9.12): solo `periodization_checks.py` + `Interactive_matrix.py` (`modules/s3dgraphy/` non esiste su master). **Non ancora pushato né rilasciato** — release prevista: dev 5.13.14-alpha / master 4.9.13.
+
+### English
+
+#### Context
+
+- On the Ventena DB (the same one as today's fixes) the Extended Matrix GraphML showed the epochs in the wrong order: two contemporary ages, then the Bronze Age, then the Late Roman period… Cause: DATA, not code. The BC periods — periodo 4 "Tra fine Età del Ferro e Romanizzazione" (300 → 100), periodo 5 "Post Età del Bronzo Medio" (1449 → 301), periodo 6 "Età del Bronzo Medio" (1650 → 1450) — had been entered as positive years. pyArchInit's convention is BC = negative (tutorial 04 "Scheda periodizzazione": "valori negativi = a.C."; the DOT period export in `Interactive_matrix.py` prints "a.C." only for negative values).
+- Effect: s3dgraphy sorts the swimlane rows by `start_time` descending (`epoch_generator.py:298`), so 1650 was treated as AD 1650 and landed at the top; the DOT phase clusters read "Fase1: da 1650 d.C. a 1450 d.C.". The tell-tale sign in the data is `cron_iniziale > cron_finale` (a chronology that "runs backwards").
+- The DB was corrected by hand (5 rows negated; backup `*.pre_cron_sign_fix_20260827T084834Z`) and the plugin now warns the user instead of silently producing a wrong order.
+
+#### 1. Pure check (`modules/utility/periodization_checks.py`, NEW)
+
+- No Qt. Dataclass `SuspiciousChronology(periodo, fase, cron_iniziale, cron_finale, label='')` (frozen).
+- **`suspicious_chronologies(rows)`**: takes `(periodo, fase, cron_iniziale, cron_finale[, label])` tuples; coerces years with `_as_int` (`int(float(str(v).strip()))`, so strings from the ORM are fine), skips `None`/non-numeric (nothing to compare), returns the rows with start > end in input order.
+- **`format_chronology_warning(bad, lang='it')`**: it/en/de text (English fallback for unknown locales, matched on the first 2 characters): a header with the count, one line per period "Periodo P Fase F: ini → fin (label)" and the hint "a.C. = numeri negativi, es. -1650 … Correggi i valori nella scheda Periodizzazione" (BC = negative numbers, fix the values in the Periodization form).
+
+#### 2. Extended Matrix GraphML (`graph_projector.py`, `graphml_writer.py`)
+
+- `GraphProjector._enrich_into`: right after reading `periodizzazione_table` (the 6- or 5-column `raw_rows` from fix `a1737a5e`) it calls `suspicious_chronologies` with label = `datazione_estesa` (or `descrizione` in the 5-column fallback); when something is found it appends the Italian text to `graph.warnings` (list created if missing) and prints the English one to the console (`[GraphProjector] …`). All inside `try/except`: the check must never block the export.
+- `graphml_writer._filter_by_site`: the site-filtered graph is a NEW `Graph`, so the `graph.warnings` gathered on the full graph were being dropped → they are now carried over onto the filtered graph (deduplicated). Consequently `ExportResult.warnings` reaches the export dialog summary in `modules/s3dgraphy/s3dgraphy_dot_bridge.py` (the `   ⚠️ …` line under `✅ GraphML → …`).
+
+#### 3. DOT period export (`tabs/Interactive_matrix.py`)
+
+- In `pyarchinit_Interactive_Matrix.generate_matrix` and `pyarchinit_view_Matrix_pre.generate_matrix_3` (the exports with periodo/fase clusters): after loading `periodizz_data_list` a `QMessageBox.warning("Periodizzazione", …)` in the UI language (`self.L`) lists the offending periods and the remedy; the export then continues (non-blocking: the user may still want to see the result).
+
+#### Tests
+
+- **`tests/utility/test_periodization_checks.py` (NEW, 3):** a 7-row table (ORM strings `"300"`/`"100"`, correct BC `-1650 → -1450`, `None`, `"abc"`) → only `(4, "1")` and `(5, "1")` flagged; clean table → `[]`; the it/en/de text names the periods and the hint ("a.C."/"negativ", "BC", "v. Chr."), unknown locale == English.
+- **`tests/sync/test_export_chronology_warning.py` (NEW, 2):** minimal SQLite DB (`us_table` + `periodizzazione_table`, 2 periods, 2 US) → `export_graphml(..., site_filter="S")` with `1650 → 1450` reports `"Periodo 2 Fase 1: 1650 → 1450"` and `"a.C."` in `res.warnings` (**RED before the `_filter_by_site` fix**: the warning was in `graph.warnings` but vanished on the filtered graph); with `-1650 → -1450` no "cronologia" warning. 5/5 across the two files; full non-PG suite green.
+
+#### Notes for master
+
+- Ported to `master` as commit `6c92fe33` on the local branch `fix/large-relations-master` (on top of `e91f8145` = bump 4.9.12): only `periodization_checks.py` + `Interactive_matrix.py` (`modules/s3dgraphy/` does not exist on master). **Not yet pushed nor released** — release planned: dev 5.13.14-alpha / master 4.9.13.
+
+---
+
 ## [feat] - 2026-08-27 — Harris Matrix: copie PDF/SVG apribili in qualsiasi viewer (cap 200 in) + PDF poster multi-pagina per la stampa (A0 default, fogli A0–A3)
 
 > Branch `Stratigraph_00001`. Commit `e3f6536a`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `9bcce646` sopra `1992e1c1`, **non ancora pushato né rilasciato** — release prevista insieme al fix di stamattina).
