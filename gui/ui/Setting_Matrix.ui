@@ -976,6 +976,78 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="4">
+      <widget class="QCheckBox" name="checkBox_poster">
+       <property name="toolTip">
+        <string>Genera anche un PDF poster multi-pagina (fogli con sovrapposizione 2 cm) per stampare matrix più larghi di un foglio. Per i matrix molto grandi viene creato comunque.</string>
+       </property>
+       <property name="text">
+        <string>PDF poster</string>
+       </property>
+       <property name="tristate">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="5">
+      <widget class="QComboBox" name="comboBox_poster_paper">
+       <property name="toolTip">
+        <string>Formato dei fogli del poster</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>A0</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>A1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>A2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>A3</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="1" column="6">
+      <widget class="QComboBox" name="comboBox_poster_scale">
+       <property name="toolTip">
+        <string>Scala del poster: "Adatta all'altezza" = una fila di fogli alta quanto il foglio; "Adatta alla pagina" = un solo foglio; 1:N = scala fissa (più fogli)</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>Adatta all'altezza</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Adatta alla pagina</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1:1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1:2</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1:3</string>
+        </property>
+       </item>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="0">
