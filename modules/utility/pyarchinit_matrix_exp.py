@@ -24,8 +24,22 @@ from graphviz import Digraph, Source
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from ...tabs.pyarchinit_setting_matrix import *
 from .matrix_layout_policy import (
-    apply_large_graph_policy, safe_raster_dpi, set_dot_dpi,
+    apply_large_graph_policy, graphviz_stderr_guard, safe_raster_dpi,
+    set_dot_dpi,
 )
+
+
+def _render(graph, **kwargs):
+    """``graph.render(**kwargs)`` that survives ``sys.stderr is None``.
+
+    graphviz-python re-emits dot's stderr with ``sys.stderr.write()``;
+    inside QGIS without the Python console (Windows GUI process) that is
+    ``None`` and a mere dot *warning* — the period export triggers
+    "Two clusters named ..." — aborted the whole export with
+    "'NoneType' object has no attribute 'write'".
+    """
+    with graphviz_stderr_guard('graphviz'):
+        return graph.render(**kwargs)
 
 
 def _clamp_raster_dpi(dot_path, requested_dpi):
@@ -62,7 +76,7 @@ def _render_vector_copies(dot_path, formats=('svg', 'pdf')):
     written = []
     for fmt in formats:
         try:
-            written.append(Source.from_file(dot_path, format=fmt).render())
+            written.append(_render(Source.from_file(dot_path, format=fmt)))
         except Exception as e:
             print(f"matrix: {fmt} render failed: {e}")
     return written
@@ -187,7 +201,7 @@ class HarrisMatrix:
                                 f.attr(label=fase, labeljust='l',area='200',margin='150',style='filled,dashed', fillcolor='#FFFFE080', color='black',
                                        rank='same', penwidth='1.5')
 
-                                with f.subgraph(name='cluster_cont') as temp:
+                                with f.subgraph(name=f'{fase_key}_cont') as temp:
                                     temp.attr(rankdir='LR',label='',style='invis')
 
                                     negative_sources = {source for source, _ in self.negative}
@@ -237,20 +251,24 @@ class HarrisMatrix:
                 if cc[0] in us_rilevanti and cc[1] in us_rilevanti:
                     a = (f"{cc[0].split('_')[-1]}", f"{cc[1].split('_')[-1]}")
                     elist3.append(a)
-                    with G.subgraph(name='main1') as b:
+            # One subgraph for ALL contemporary edges. Re-opening it inside
+            # the loop re-emitted the growing list at every iteration —
+            # O(n²) duplicate edges (225 576 edge lines for 2 039 relations
+            # on a 1311-US DB: 34 MB layout, 5 s of dot before tred).
+            with G.subgraph(name='main1') as b:
 
-                        b.edges(elist3)
-                        b.node_attr['shape'] = str(self.dialog.combo_box_18.currentText())
-                        b.node_attr['style'] = str(self.dialog.combo_box_22.currentText())
-                        b.node_attr.update(style='filled', fillcolor=str(self.dialog.combo_box_17.currentText()))
-                        b.node_attr['color'] = 'black'
-                        b.node_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
-                        b.edge_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
-                        b.edge_attr['style'] = str(self.dialog.combo_box_23.currentText())
+                b.edges(elist3)
+                b.node_attr['shape'] = str(self.dialog.combo_box_18.currentText())
+                b.node_attr['style'] = str(self.dialog.combo_box_22.currentText())
+                b.node_attr.update(style='filled', fillcolor=str(self.dialog.combo_box_17.currentText()))
+                b.node_attr['color'] = 'black'
+                b.node_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
+                b.edge_attr['penwidth'] = str(self.dialog.combo_box_19.currentText())
+                b.edge_attr['style'] = str(self.dialog.combo_box_23.currentText())
 
-                        b.edge_attr['color'] = '#00000080'
-                        b.edge_attr.update(constraint='False',arrowhead=str(self.dialog.combo_box_21.currentText()),
-                                           arrowsize=str(self.dialog.combo_box_24.currentText()))
+                b.edge_attr['color'] = '#00000080'
+                b.edge_attr.update(constraint='False',arrowhead=str(self.dialog.combo_box_21.currentText()),
+                                   arrowsize=str(self.dialog.combo_box_24.currentText()))
 
 
             for dd in self.negative:
@@ -258,20 +276,21 @@ class HarrisMatrix:
                     a = (f"{dd[0].split('_')[-1]}", f"{dd[1].split('_')[-1]}")
                     elist2.append(a)
 
-                    with G.subgraph(name='main2') as a:
+            # Same for the negative relations (see above).
+            with G.subgraph(name='main2') as a:
 
-                        a.edges(elist2)
-                        a.node_attr['shape'] = str(self.dialog.combo_box_6.currentText())
-                        a.node_attr['style'] = str(self.dialog.combo_box_8.currentText())
-                        a.node_attr.update(style='filled', fillcolor=str(self.dialog.combo_box_2.currentText()))
-                        a.node_attr['color'] = 'black'
-                        a.node_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
-                        a.edge_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
-                        a.edge_attr['style'] = str(self.dialog.combo_box_15.currentText())
-                        a.edge_attr['color'] = '#00000080'
-                        a.edge_attr['len'] = '0'
-                        a.edge_attr.update(arrowhead=str(self.dialog.combo_box_14.currentText()),
-                                           arrowsize=str(self.dialog.combo_box_16.currentText()))
+                a.edges(elist2)
+                a.node_attr['shape'] = str(self.dialog.combo_box_6.currentText())
+                a.node_attr['style'] = str(self.dialog.combo_box_8.currentText())
+                a.node_attr.update(style='filled', fillcolor=str(self.dialog.combo_box_2.currentText()))
+                a.node_attr['color'] = 'black'
+                a.node_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
+                a.edge_attr['penwidth'] = str(self.dialog.combo_box_7.currentText())
+                a.edge_attr['style'] = str(self.dialog.combo_box_15.currentText())
+                a.edge_attr['color'] = '#00000080'
+                a.edge_attr['len'] = '0'
+                a.edge_attr.update(arrowhead=str(self.dialog.combo_box_14.currentText()),
+                                   arrowsize=str(self.dialog.combo_box_16.currentText()))
 
         if bool(self.dialog.checkBox_legend.isChecked()):
             with G.subgraph(name='cluster3') as j:
@@ -410,7 +429,7 @@ class HarrisMatrix:
             # Rendering del file DOT
             G.format = 'dot'
             try:
-                dot_file = G.render(directory=matrix_path, filename=filename)
+                dot_file = _render(G, directory=matrix_path, filename=filename)
             except Exception as e:
                 showMessage(f"Errore durante il rendering del file DOT: {e}", title='Errore', icon=QMessageBox.Critical)
                 return
@@ -447,7 +466,7 @@ class HarrisMatrix:
             tred_output_file_path, self.dialog.lineEdit_dpi.text())
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
-            g.render()
+            _render(g)
             if clamped:
                 _render_vector_copies(tred_output_file_path)
                 showMessage(_large_matrix_notice(raster_dpi),
@@ -628,7 +647,7 @@ class HarrisMatrix:
 
             # Rendering del file DOT
             G.format = 'dot'
-            dot_file = G.render(directory=matrix_path, filename=filename)
+            dot_file = _render(G, directory=matrix_path, filename=filename)
             tred_output_file_path = os.path.join(matrix_path, f"{filename}_graphml.dot")
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
@@ -663,7 +682,7 @@ class HarrisMatrix:
             tred_output_file_path, self.dialog.lineEdit_dpi.text())
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
-            g.render()
+            _render(g)
             if clamped:
                 _render_vector_copies(tred_output_file_path)
                 showMessage(_large_matrix_notice(raster_dpi),
@@ -793,7 +812,7 @@ class ViewHarrisMatrix:
             G.graph_attr,
             len(elist1) + len(elist2) + len(elist3) + len(elist4) + len(elist5))
         G.format = 'dot'
-        dot_file = G.render(directory=matrix_path, filename=filename)
+        dot_file = _render(G, directory=matrix_path, filename=filename)
         # For MS-Windows, we need to hide the console window.
         if Pyarchinit_OS_Utility.isWindows():
             si = subprocess.STARTUPINFO()
@@ -813,9 +832,9 @@ class ViewHarrisMatrix:
 
         raster_dpi, clamped = _clamp_raster_dpi(tred_file, G.graph_attr.get('dpi', '150'))
         f = Source.from_file(tred_file, format='png')
-        f.render()
+        _render(f)
         g = Source.from_file(tred_file, format='jpg')
-        g.render()
+        _render(g)
         if clamped:
             _render_vector_copies(tred_file)
             print(_large_matrix_notice(raster_dpi))
@@ -889,7 +908,7 @@ class ViewHarrisMatrix:
                                    fillcolor='#FFFFE080', color='black',
                                    rank='same', penwidth='1.5')
 
-                            with f.subgraph(name='cluster_cont') as temp:
+                            with f.subgraph(name=f'{fase_key}_cont') as temp:
                                 temp.attr(rankdir='LR', label='', style='invis')
 
                                 negative_sources = {source for source, _ in self.negative}
@@ -941,34 +960,39 @@ class ViewHarrisMatrix:
                 if cc[0] in us_rilevanti and cc[1] in us_rilevanti:
                     a = (f"{cc[0].split('_')[-1]}", f"{cc[1].split('_')[-1]}")
                     elist3.append(a)
-                    with G.subgraph(name='main1') as b:
-                        b.edges(elist3)
-                        b.node_attr['shape'] = 'box'
-                        b.node_attr['style'] = 'solid'
-                        b.node_attr.update(style='filled', fillcolor='white')
-                        b.node_attr['color'] = 'black'
-                        b.node_attr['penwidth'] = '.5'
-                        b.edge_attr['penwidth'] = '.5'
-                        b.edge_attr['style'] = 'solid'
-                        b.edge_attr.update(arrowhead='none',
-                                           arrowsize='.8')
+            # One subgraph for ALL contemporary edges. Re-opening it inside
+            # the loop re-emitted the growing list at every iteration —
+            # O(n²) duplicate edges (225 576 edge lines for 2 039 relations
+            # on a 1311-US DB: 34 MB layout, 5 s of dot before tred).
+            with G.subgraph(name='main1') as b:
+                b.edges(elist3)
+                b.node_attr['shape'] = 'box'
+                b.node_attr['style'] = 'solid'
+                b.node_attr.update(style='filled', fillcolor='white')
+                b.node_attr['color'] = 'black'
+                b.node_attr['penwidth'] = '.5'
+                b.edge_attr['penwidth'] = '.5'
+                b.edge_attr['style'] = 'solid'
+                b.edge_attr.update(arrowhead='none',
+                                   arrowsize='.8')
 
             for dd in self.negative:
                 if dd[0] in us_rilevanti and dd[1] in us_rilevanti:
                     a = (f"{dd[0].split('_')[-1]}", f"{dd[1].split('_')[-1]}")
                     elist2.append(a)
 
-                    with G.subgraph(name='main2') as a:
-                        a.edges(elist2)
-                        a.node_attr['shape'] = 'box'
-                        a.node_attr['style'] = 'solid'
-                        a.node_attr.update(style='filled', fillcolor='gray')
-                        a.node_attr['color'] = 'gray'
-                        a.node_attr['penwidth'] = '.5'
-                        a.edge_attr['penwidth'] = '.5'
-                        a.edge_attr['style'] = 'dashed'
-                        a.edge_attr.update(constraint='False',arrowhead='normal',
-                                           arrowsize='.8')
+            # Same for the negative relations (see above).
+            with G.subgraph(name='main2') as a:
+                a.edges(elist2)
+                a.node_attr['shape'] = 'box'
+                a.node_attr['style'] = 'solid'
+                a.node_attr.update(style='filled', fillcolor='gray')
+                a.node_attr['color'] = 'gray'
+                a.node_attr['penwidth'] = '.5'
+                a.edge_attr['penwidth'] = '.5'
+                a.edge_attr['style'] = 'dashed'
+                a.edge_attr.update(constraint='False',arrowhead='normal',
+                                   arrowsize='.8')
 
 
 
@@ -989,7 +1013,7 @@ class ViewHarrisMatrix:
 
             # Rendering del file DOT
             G.format = 'dot'
-            dot_file = G.render(directory=matrix_path, filename=filename)
+            dot_file = _render(G, directory=matrix_path, filename=filename)
             tred_output_file_path = os.path.join(matrix_path, f"{filename}_viewtred")
 
             error_file_path = os.path.join(matrix_path, 'matrix_error.txt')
@@ -1023,7 +1047,7 @@ class ViewHarrisMatrix:
             tred_output_file_path, G.graph_attr.get('dpi', '300'))
         try:
             g = Source.from_file(tred_output_file_path, format='jpg')
-            g.render()
+            _render(g)
             if clamped:
                 _render_vector_copies(tred_output_file_path)
                 showMessage(_large_matrix_notice(raster_dpi),
