@@ -92,3 +92,21 @@ def test_stderr_guard_makes_graphviz_render_survive_sys_stderr_none(
                          format="dot")
     assert Path(out).is_file()
     assert "size too small for label" in captured.getvalue()
+
+
+# --- 2026-08-27: vector copies must open in every PDF viewer ---------------
+def test_vector_dot_source_caps_page_at_200_inches_and_uses_72_dpi():
+    from modules.utility.matrix_layout_policy import (
+        MAX_VECTOR_PT, vector_dot_source)
+    # small layout: only the dpi changes (1 pt = 1 pt in the PDF)
+    small = vector_dot_source(SMALL)
+    assert 'dpi=72' in small and 'size=' not in small
+    # 253 350 pt wide (the 1311-US period matrix): Acrobat/Preview clip
+    # pages beyond 200 in → ask graphviz to scale the drawing down
+    assert MAX_VECTOR_PT == 14400
+    big = vector_dot_source(BIG_EXP)
+    assert 'dpi=72' in big and 'dpi=300' not in big
+    assert 'size="199,199"' in big
+    # an existing root size= is replaced, not duplicated
+    again = vector_dot_source(big.replace('size="199,199"', 'size="500,500"'))
+    assert again.count('size=') == 1 and 'size="199,199"' in again

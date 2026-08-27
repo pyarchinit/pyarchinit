@@ -26,8 +26,9 @@ from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .pyarchinit_i18n_stratigraphic import RELATIONSHIPS
 from .matrix_layout_policy import (
     apply_large_graph_policy, graphviz_stderr_guard, safe_raster_dpi,
-    set_dot_dpi,
+    set_dot_dpi, vector_dot_source,
 )
+from .matrix_poster import POSTER_SCALE_MODES, build_poster_pdf, plan_poster
 from ...tabs.pyarchinit_setting_matrix import *
 
 
@@ -264,23 +265,96 @@ def _clamp_raster_dpi(dot_path, requested_dpi):
     return dpi, True
 
 
+def _pipe(source_text, fmt):
+    """Render *source_text* with dot and return the bytes (stdin → stdout:
+    nothing is written next to the tred file)."""
+    with graphviz_stderr_guard('graphviz'):
+        return Source(source_text).pipe(format=fmt)
+
+
 def _render_vector_copies(dot_path, formats=('svg', 'pdf')):
     """Write ``<dot_path>.svg`` / ``.pdf`` next to the raster: a matrix too
-    wide for a bitmap is still fully readable (zoomable) as vector."""
+    wide for a bitmap is still fully readable (zoomable) as vector.
+
+    The copies use ``dpi=72`` (1 pt = 1 pt) and, when the drawing exceeds
+    200 in on a side, a graphviz ``size`` cap: Acrobat/Preview otherwise
+    show only a window of the page ("vedo solo una parte").
+    """
+    with open(dot_path, encoding='utf-8') as fh:
+        vector_src = vector_dot_source(fh.read())
     written = []
     for fmt in formats:
+        out = f"{dot_path}.{fmt}"
         try:
-            written.append(_render(Source.from_file(dot_path, format=fmt)))
+            with open(out, 'wb') as fh:
+                fh.write(_pipe(vector_src, fmt))
+            written.append(out)
         except Exception as e:
             print(f"matrix: {fmt} render failed: {e}")
     return written
 
 
-def _large_matrix_notice(dpi):
-    return ("Matrix molto grande: l'immagine JPG è stata generata a "
+def _poster_settings(dialog):
+    """(requested, paper, mode) from the Setting_Matrix widgets; defaults
+    (False, 'A0', 'fit_height') when the dialog has no poster controls."""
+    box = getattr(dialog, 'checkBox_poster', None)
+    requested = bool(box.isChecked()) if box is not None else False
+    paper_combo = getattr(dialog, 'comboBox_poster_paper', None)
+    paper = paper_combo.currentText().strip() if paper_combo is not None else 'A0'
+    mode_combo = getattr(dialog, 'comboBox_poster_scale', None)
+    idx = mode_combo.currentIndex() if mode_combo is not None else 0
+    mode = POSTER_SCALE_MODES[idx][0] if 0 <= idx < len(POSTER_SCALE_MODES) \
+        else POSTER_SCALE_MODES[0][0]
+    return requested, paper or 'A0', mode
+
+
+def _render_matrix_poster(dot_path, paper='A0', mode='fit_height'):
+    """Tile the uncapped 1:1 vector PDF of *dot_path* onto *paper* sheets.
+
+    Returns ``(poster_pdf_path, plan)`` or ``(None, None)`` on failure —
+    the poster is a bonus output and must never break the export.
+    """
+    import shutil
+    import tempfile
+    try:
+        with open(dot_path, encoding='utf-8') as fh:
+            src_72 = set_dot_dpi(fh.read(), 72)   # 1 pt = 1 pt, no size cap
+        tmp_dir = tempfile.mkdtemp(prefix='pyarchinit_poster_')
+        try:
+            full_pdf = os.path.join(tmp_dir, 'matrix_full.pdf')
+            with open(full_pdf, 'wb') as fh:
+                fh.write(_pipe(src_72, 'pdf'))
+            import fitz  # PyMuPDF (plugin dependency)
+            with fitz.open(full_pdf) as doc:
+                rect = doc[0].rect
+            plan = plan_poster(rect.width, rect.height, paper=paper, mode=mode)
+            stem = dot_path[:-len('_tred.dot')] if dot_path.endswith('_tred.dot') \
+                else dot_path
+            out = f"{stem}_poster_{paper}.pdf"
+            build_poster_pdf(full_pdf, out, plan)
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
+        print(f"matrix: poster {os.path.basename(out)} — {plan.describe()}")
+        return out, plan
+    except Exception as e:
+        print(f"matrix: poster PDF failed: {e}")
+        return None, None
+
+
+def _large_matrix_notice(dpi, poster=None):
+    text = ("Matrix molto grande: l'immagine JPG è stata generata a "
             f"{dpi} dpi (limite del renderer bitmap). Per la versione "
             "leggibile usa i file .svg / .pdf salvati nella stessa "
             "cartella (pyarchinit_Matrix_folder).")
+    if poster:
+        text += _poster_notice(poster)
+    return text
+
+
+def _poster_notice(poster):
+    path, plan = poster
+    return (f"\n\nPoster per la stampa: {os.path.basename(path)} "
+            f"({plan.describe()}, sovrapposizione 2 cm tra i fogli).")
 
 
 def rust_layout_to_dot(layout_result, edges, node_labels,
@@ -778,9 +852,22 @@ class HarrisMatrix:
                 # it — users were seeing only the .dot file with no
                 # image and no diagnostic.
                 print(f"export_matrix: graphviz render failed: {e}")
-        if rendered and clamped:
+        poster_requested, poster_paper, poster_mode = _poster_settings(self.dialog)
+        poster = None
+        if rendered and (clamped or poster_requested):
             _render_vector_copies(tred_output_file_path)
-            showMessage(_large_matrix_notice(raster_dpi),
+            # Printable output: the JPG of a huge matrix is unreadable, so
+            # the poster is produced whenever the bitmap had to be clamped
+            # or the user asked for it in Setting_Matrix.
+            poster_path, poster_plan = _render_matrix_poster(
+                tred_output_file_path, poster_paper, poster_mode)
+            if poster_path:
+                poster = (poster_path, poster_plan)
+        if rendered and clamped:
+            showMessage(_large_matrix_notice(raster_dpi, poster),
+                        title='Matrix', icon=QMessageBox.Information)
+        elif poster:
+            showMessage(_poster_notice(poster).strip(),
                         title='Matrix', icon=QMessageBox.Information)
     @property
     def export_matrix_2(self):
@@ -1005,9 +1092,22 @@ class HarrisMatrix:
                 rendered = True
             except Exception as e:
                 print(f"graphml export_matrix: render failed: {e}")
-        if rendered and clamped:
+        poster_requested, poster_paper, poster_mode = _poster_settings(self.dialog)
+        poster = None
+        if rendered and (clamped or poster_requested):
             _render_vector_copies(tred_output_file_path)
-            showMessage(_large_matrix_notice(raster_dpi),
+            # Printable output: the JPG of a huge matrix is unreadable, so
+            # the poster is produced whenever the bitmap had to be clamped
+            # or the user asked for it in Setting_Matrix.
+            poster_path, poster_plan = _render_matrix_poster(
+                tred_output_file_path, poster_paper, poster_mode)
+            if poster_path:
+                poster = (poster_path, poster_plan)
+        if rendered and clamped:
+            showMessage(_large_matrix_notice(raster_dpi, poster),
+                        title='Matrix', icon=QMessageBox.Information)
+        elif poster:
+            showMessage(_poster_notice(poster).strip(),
                         title='Matrix', icon=QMessageBox.Information)
 
 

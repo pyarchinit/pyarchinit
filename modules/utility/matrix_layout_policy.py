@@ -31,12 +31,18 @@ MAX_RASTER_PX = 32000
 MIN_RASTER_DPI = 1
 #: Graph attributes applied to large graphs (fast router, tighter spacing).
 LARGE_GRAPH_ATTRS = {'splines': 'polyline', 'nodesep': '0.3', 'ranksep': '1'}
+#: Acrobat/Preview show only a window of pages larger than 200 in per side
+#: (the 1311-US period matrix PDF was 428 x 76 in: "vedo solo una parte").
+MAX_VECTOR_PT = 14400
+#: graphviz ``size`` (inches) used to keep vector output under MAX_VECTOR_PT.
+VECTOR_SIZE_INCHES = 199
 
 # dot prints big coordinates in exponent notation ("2.5335e+05").
 _NUM = r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?'
 _BB_RE = re.compile(
     r'\bbb="\s*(%s)\s*,\s*(%s)\s*,\s*(%s)\s*,\s*(%s)\s*"' % ((_NUM,) * 4))
 _DPI_RE = re.compile(r'\bdpi=("?)[\d.]+\1')
+_SIZE_RE = re.compile(r'\bsize=("?)[\d.,!]+\1')
 
 
 def is_large_matrix(n_edges: int, threshold: int = LARGE_MATRIX_EDGES) -> bool:
@@ -78,13 +84,30 @@ def safe_raster_dpi(dot_text: str, requested_dpi, max_px: int = MAX_RASTER_PX,
     return max(min_dpi, min(requested, fit))
 
 
-def set_dot_dpi(dot_text: str, dpi: int) -> str:
-    """Rewrite (or add) the root ``dpi`` attribute of a DOT source."""
-    new = 'dpi=%d' % int(dpi)
-    text, n = _DPI_RE.subn(new, dot_text, count=1)
+def _set_root_attr(dot_text: str, pattern, assignment: str) -> str:
+    text, n = pattern.subn(assignment, dot_text, count=1)
     if n:
         return text
-    return re.sub(r'\{', '{\n\tgraph [%s];' % new, dot_text, count=1)
+    return re.sub(r'\{', '{\n\tgraph [%s];' % assignment, dot_text, count=1)
+
+
+def set_dot_dpi(dot_text: str, dpi: int) -> str:
+    """Rewrite (or add) the root ``dpi`` attribute of a DOT source."""
+    return _set_root_attr(dot_text, _DPI_RE, 'dpi=%d' % int(dpi))
+
+
+def vector_dot_source(dot_text: str, max_pt: int = MAX_VECTOR_PT,
+                      size_inches: int = VECTOR_SIZE_INCHES) -> str:
+    """DOT source for the .svg/.pdf copies: 1 pt = 1 pt (``dpi=72``) and,
+    when the laid-out graph exceeds *max_pt* on a side, a root ``size``
+    so graphviz scales the (lossless, zoomable) drawing to a page every
+    viewer can open."""
+    text = set_dot_dpi(dot_text, 72)
+    size = laid_out_size_points(dot_text)
+    if size and max(size) > max_pt:
+        text = _set_root_attr(text, _SIZE_RE,
+                              'size="%d,%d"' % (size_inches, size_inches))
+    return text
 
 
 @contextlib.contextmanager
