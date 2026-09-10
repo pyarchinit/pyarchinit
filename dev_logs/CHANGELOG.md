@@ -5,6 +5,67 @@
 
 ---
 
+## [changed/docs] - 2026-09-10 — Movecost: aggiornamento all'ecosistema movecost R 3.0.0 / plugin QGIS movecost 4.0.0
+
+> Branch `Stratigraph_00001`. NESSUN commit di codice pyArchInit: questa voce documenta un aggiornamento ESTERNO da cui dipende la scheda "Movecost" (`tabs/Movecost.py`), più il refresh dei tutorial. Repo plugin QGIS movecost: https://github.com/enzococca/movecost — commit `3c02c1e`, tag `v4.0.0`, pacchetto `movecost-4.0.0.zip` per plugins.qgis.org (upload manuale in sospeso).
+> File pyArchInit: `tabs/Movecost.py` (INVARIATO, verificato); `docs/tutorials/<lang>/34_movecost.md` aggiornato nelle 10 lingue (commit separato).
+
+### Italiano
+
+#### Contesto
+
+- La scheda "Movecost" di pyArchInit non contiene codice R: invoca gli algoritmi Processing del plugin QGIS movecost (`r:movecost`, `r:movebound`, `r:movecorr`, `r:movealloc`, `r:movecomp`, `r:movenetw`, `r:moverank` più le varianti by-polygon) e ne consuma gli output. Il 2026-06-15 è uscito su CRAN il pacchetto R movecost **3.0.0** (Gianmarco Alberti), che RIMUOVE l'API storica usata dagli script del plugin; il plugin QGIS è stato quindi portato alla nuova API e rilasciato come **4.0.0**. Per pyArchInit non serve alcuna modifica di codice, ma gli utenti devono aggiornare il plugin movecost.
+
+#### 1. Pacchetto R movecost 3.0.0 (CRAN 2026-06-15)
+
+- Le funzioni legacy `movecost()`, `movebound()`, `movecorr()`, `movealloc()`, `movecomp()`, `movenetw()`, `moverank()` ora alzano `.Defunct`. La nuova API costruisce la superficie di costo UNA sola volta con **`mc_surface()`** e la riusa nelle funzioni dedicate: `mc_accum`, `mc_paths`, `mc_corridor`, `mc_boundary`, `mc_alloc`, `mc_network`, `mc_rank`, `mc_comp`; stack terra + sf + igraph, grafici ggplot2.
+- Corretti diversi errori delle funzioni di costo della 2.2 (`ks`, `ma`, `pcf`, `p`, `vl`, `h`, metabolica a velocità dinamica con `V=0`): quei risultati ora differiscono (correttamente) dalla 2.x.
+
+#### 2. Plugin QGIS movecost 4.0.0 (commit `3c02c1e`, tag `v4.0.0`)
+
+- Tutti i 14 script `.rsx` portati all'API `mc_*`; bootstrap delle dipendenze aggiornato (terra/sf/igraph/ggplot2, elevatr per le varianti by-polygon; rimossi chron/gdistance/sp/Matrix).
+- Interfacce dei parametri INVARIATE; due nuovi parametri opzionali: `Corridor_Method` (reach/through) su Movecorr e `Penalty` su Moverank (LCPN non più limitato a 6); `IrregularDTM` mantenuto ma ora automatico.
+- **Contratto di output consumato da `tabs/Movecost.py` PRESERVATO:** campi `cost`, `length_m`, `length_km`, `time_converted`, `area_m2`/`area_km2`/`area_ha` e grafico in `<tempdir>/movecost_plots/movecost_latest_plot.png`.
+- Pacchettizzato come `movecost-4.0.0.zip` per plugins.qgis.org (upload manuale in sospeso).
+
+#### 3. pyArchInit
+
+- Nessuna modifica necessaria in `tabs/Movecost.py`: nomi degli algoritmi e campi degli output invariati.
+- Tutorial `34_movecost` aggiornato nelle 10 lingue (commit separato): gli utenti devono installare il plugin QGIS movecost ≥ 4.0.0 e lasciare che gli script aggiornino il pacchetto R movecost a ≥ 3.0.0.
+
+#### Test
+
+- Harness che emula il provider Processing R sul dataset volc incluso nel pacchetto: **14/14 script passano**, più i casi limite barriere, DTM come `SpatRaster`, tempo in minuti e breaks sovradimensionati. Nessun test pyArchInit toccato (nessun codice cambiato).
+
+### English
+
+#### Context
+
+- pyArchInit's "Movecost" tab contains no R code: it invokes the movecost QGIS plugin's Processing algorithms (`r:movecost`, `r:movebound`, `r:movecorr`, `r:movealloc`, `r:movecomp`, `r:movenetw`, `r:moverank` plus the by-polygon variants) and consumes their outputs. On 2026-06-15 the movecost R package **3.0.0** (Gianmarco Alberti) landed on CRAN, REMOVING the legacy API the plugin's scripts relied on; the QGIS plugin was therefore ported to the new API and released as **4.0.0**. No pyArchInit code change is needed, but users must update the movecost plugin.
+
+#### 1. movecost R package 3.0.0 (CRAN 2026-06-15)
+
+- The legacy functions `movecost()`, `movebound()`, `movecorr()`, `movealloc()`, `movecomp()`, `movenetw()`, `moverank()` now raise `.Defunct`. The new API builds the cost surface ONCE with **`mc_surface()`** and reuses it in the dedicated functions: `mc_accum`, `mc_paths`, `mc_corridor`, `mc_boundary`, `mc_alloc`, `mc_network`, `mc_rank`, `mc_comp`; terra + sf + igraph stack, ggplot2 plots.
+- Several 2.2 cost-function errors were corrected (`ks`, `ma`, `pcf`, `p`, `vl`, `h`, dynamic-speed metabolic with `V=0`): those results now differ (correctly) from 2.x.
+
+#### 2. movecost QGIS plugin 4.0.0 (commit `3c02c1e`, tag `v4.0.0`)
+
+- All 14 `.rsx` scripts ported to the `mc_*` API; dependency bootstrap updated (terra/sf/igraph/ggplot2, elevatr for the by-polygon variants; chron/gdistance/sp/Matrix dropped).
+- Parameter interfaces UNCHANGED; two new optional parameters: `Corridor_Method` (reach/through) on Movecorr and `Penalty` on Moverank (LCPN no longer capped at 6); `IrregularDTM` kept but now automatic.
+- **Output contract consumed by `tabs/Movecost.py` PRESERVED:** fields `cost`, `length_m`, `length_km`, `time_converted`, `area_m2`/`area_km2`/`area_ha` and the plot at `<tempdir>/movecost_plots/movecost_latest_plot.png`.
+- Packaged as `movecost-4.0.0.zip` for plugins.qgis.org (manual upload pending).
+
+#### 3. pyArchInit
+
+- No change needed in `tabs/Movecost.py`: algorithm names and output fields are unchanged.
+- Tutorial `34_movecost` updated in all 10 languages (separate commit): users must install the movecost QGIS plugin ≥ 4.0.0 and let the scripts update the movecost R package to ≥ 3.0.0.
+
+#### Tests
+
+- Provider-emulating harness on the bundled volc dataset: **14/14 scripts pass**, plus the barrier, `SpatRaster` DTM, minutes and oversized-breaks edge cases. No pyArchInit tests touched (no code changed).
+
+---
+
 ## [feat] - 2026-08-27 — Periodizzazione: avviso in export quando la cronologia iniziale è maggiore della finale (anni a.C. senza segno)
 
 > Branch `Stratigraph_00001`. Commit `321515b6`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `6c92fe33` sopra `e91f8145` = bump 4.9.12, **non ancora pushato né rilasciato** — release prevista: dev 5.13.14-alpha / master 4.9.13); su master solo `periodization_checks.py` + `Interactive_matrix.py`, la parte GraphML è solo dev.
