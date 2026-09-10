@@ -112,6 +112,16 @@ class Pyarchinit_db_management(object):
             error_message = f"Error. problema nell' aggiornamento del db: {e}\nTraceback: {traceback.format_exc()}"
             QMessageBox.warning(None, "Message", error_message, QMessageBox.Ok)
             test = False
+
+        if self.conn_str.find("sqlite") == 0:
+            # After DB_update, whose table recreations can drop the R*Tree
+            # triggers: a broken spatial index = invisible layer.
+            try:
+                from .spatial_index_repair import ensure_spatial_indexes
+                ensure_spatial_indexes(self.conn_str.replace('sqlite:///', ''),
+                                       lambda c: self.load_spatialite(c, None))
+            except Exception as e:
+                print(f"spatial index check skipped: {e}")
         return test
 
         # insert statement
