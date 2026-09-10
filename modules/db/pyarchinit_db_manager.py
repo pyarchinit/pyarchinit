@@ -408,6 +408,14 @@ class Pyarchinit_db_management(object):
                 else:
                     print("DEBUG [db_manager]: Skip check db (già fatto o file non esiste)")  # DEBUG
 
+                # After the updater, whose table recreations can drop the
+                # R*Tree triggers: a broken spatial index = invisible layer.
+                try:
+                    from .spatial_index_repair import ensure_spatial_indexes
+                    ensure_spatial_indexes(db_path, lambda c: self.load_spatialite(c, None))
+                except Exception as e:
+                    print(f"spatial index check skipped: {e}")
+
                 # SQLite doesn't support connection pooling parameters
                 self.engine = create_engine(
                     self.conn_str,
