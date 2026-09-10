@@ -213,8 +213,16 @@ def final_postgres_alignment(db_path):
                 if not cursor.fetchone():
                     cursor.execute(f"SELECT RecoverGeometryColumn('{table}', '{geom_col}', {srid}, '{geom_type}', 'XY')")
                     print(f"   ✓ Registrata geometria {table}.{geom_col}")
-            except:
-                pass
+                # DROP TABLE removed the table's triggers but not its
+                # geometry_columns row (so RecoverGeometryColumn is skipped):
+                # rebuild the R*Tree and its gii/giu/gid triggers, otherwise the
+                # layer is invisible in QGIS (template broken 2025-10-12).
+                cursor.execute(f"SELECT DisableSpatialIndex('{table}', '{geom_col}')")
+                cursor.execute(f'DROP TABLE IF EXISTS "idx_{table}_{geom_col}"')
+                cursor.execute(f"SELECT CreateSpatialIndex('{table}', '{geom_col}')")
+                print(f"   ✓ Indice spaziale ricreato {table}.{geom_col}")
+            except Exception as e:
+                print(f"   ✗ Geometria/indice {table}.{geom_col}: {e}")
     
     # 4. CREA TRIGGER per pyunitastratigrafiche (come in PostgreSQL)
     print("\n4. Creazione trigger per coordinate...")
