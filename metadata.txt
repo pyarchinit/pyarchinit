@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.14-alpha
+version=5.13.15-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,26 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.14-alpha (2026-08-27) [Periodization: warning when a chronology has start > end (BC years without sign)]:
+changelog=5.13.15-alpha (2026-09-10) [SQLite: invisible layer geometries — template fix + automatic spatial index repair]:
+    - Fix: since fa58feb8 (2025-10-12) the SQLite template copied by "Crea
+      database SQLite" shipped pyunitastratigrafiche, pyunitastratigrafiche_usm
+      and pyarchinit_us_negative_doc with spatial_index_enabled=1 but without
+      the R*Tree maintenance triggers (gii/giu/gid): every new database showed
+      no US geometry, because QGIS selects the features to draw through the
+      R*Tree. Template and sample DB repaired (sample: 4820/4820 US and 190/190
+      USM now indexed); scripts/fixes/final_postgres_alignment.py (the origin:
+      DROP/CREATE TABLE without rebuilding the index) now rebuilds it;
+      regression test tests/utility/test_shipped_sqlite_spatial_index.py.
+    - Feature: automatic repair when a SQLite DB is connected (new
+      modules/db/spatial_index_repair.py, called in connection() after the
+      SQLite updater): audit without SpatiaLite, once per session per file;
+      broken or out-of-sync indexes are rebuilt after a backup
+      <db>.pre_spatial_index_repair_<UTC>; outcome in the QGIS log, PyArchInit
+      tab; never blocks the connection. Tests: 9 (QGIS python and Homebrew
+      python with SpatiaLite).
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), tutorial 14 (GIS) in 10 languages.
+      Also on master as 4.9.14.
+  5.13.14-alpha (2026-08-27) [Periodization: warning when a chronology has start > end (BC years without sign)]:
     - Feature: BC years typed without the minus sign (1650 -> 1450) sort as
       AD and scramble the epoch order in the Extended Matrix swimlane and in
       the Graphviz period clusters ("1650 d.C."). New
