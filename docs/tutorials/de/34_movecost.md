@@ -83,13 +83,13 @@ Vor der Verwendung von MoveCost muessen die folgenden Komponenten installiert un
 
 ### 2. R-Paket `movecost`
 
-Das Paket innerhalb von R installieren:
+Die erforderliche Version ist **>= 3.0.0**. Die Skripte installieren/aktualisieren das Paket automatisch beim ersten Lauf; alternativ das Paket innerhalb von R installieren:
 
 ```r
 install.packages("movecost")
 ```
 
-Haupt-Abhaengigkeiten werden automatisch installiert: `terra`, `gdistance`, `sp`.
+Haupt-Abhaengigkeiten werden automatisch installiert: `terra`, `sf`, `igraph`, `ggplot2` (plus `elevatr` fuer die "by polygon"-Varianten).
 
 ### 3. QGIS Processing R Provider
 
@@ -112,12 +112,19 @@ Haupt-Abhaengigkeiten werden automatisch installiert: `terra`, `gdistance`, `sp`
 | Voraussetzungen-Checkliste                 |
 +-------------------------------------------+
 | [x] R installiert und im PATH            |
-| [x] movecost-Paket in R installiert      |
+| [x] movecost >= 3.0.0 in R installiert   |
 | [x] Processing R Provider aktiv in QGIS  |
 | [x] DGM im QGIS-Projekt geladen          |
 | [x] Punktlayer mit Urspruengen/Zielen     |
 +-------------------------------------------+
 ```
+
+> **Hinweis -- movecost 3.0**
+>
+> - movecost 3.0 hat das Paket neu aufgebaut: Die Kostenoberflaeche wird einmal berechnet und von jeder Analyse wiederverwendet, dadurch sind Analysen mit mehreren Standorten schneller.
+> - Das movecost-QGIS-Plugin muss >= **4.0.0** sein: Aeltere Plugin-Versionen rufen Funktionen auf, die es in movecost 3.0 nicht mehr gibt, und brechen mit einem R-Fehler ab, der "movecost() was removed in movecost 3.0.0" erwaehnt.
+> - Einige Kostenfunktionen wurden in 3.0 KORRIGIERT (Kondo-Seino, Marin Arroyo, Pandolf mit Korrektur, Hare und die metabolischen Funktionen mit dynamischer Geschwindigkeit V=0): Ergebnisse mit diesen Einstellungen weichen -- korrekterweise -- von der 2.x-Serie ab.
+> - Diagramme basieren jetzt auf ggplot2; sie werden weiterhin wie bisher im Ergebnisbereich von PyArchInit angezeigt.
 
 ---
 
@@ -167,6 +174,8 @@ Algorithmen fuer die Kostenkorridoranalyse und optimale Pfadnetzwerke.
 | **movenetw** | Berechnet das Wegkostenpfad-Netzwerk zwischen mehreren Punkten |
 | **movenetw by polygon** | Wie oben, aber unter Verwendung eines Polygons |
 
+> **Neu in movecost 3.0**: Die **movecorr**-Algorithmen akzeptieren den optionalen Parameter `Corridor_Method`: `reach` (Standard) berechnet den klassischen symmetrischen Korridor mit demselben Ergebnis wie bisher; `through` berechnet den gerichteten Korridor Kosten(A->x)+Kosten(x->B), neu in 3.0, nuetzlich fuer Einwegstrecken mit anisotropen Kostenfunktionen.
+
 ### Gruppe 3: Vergleich und Rangfolge
 
 Algorithmen zum Vergleich von Kostenfunktionen und zur Rangfolge von Zielen.
@@ -177,6 +186,8 @@ Algorithmen zum Vergleich von Kostenfunktionen und zur Rangfolge von Zielen.
 | **movecomp by polygon** | Wie oben, aber unter Verwendung eines Polygons |
 | **moverank** | Ordnet Ziele nach Gehkosten von einem Ursprung |
 | **moverank by polygon** | Wie oben, aber unter Verwendung eines Polygons |
+
+> **Neu in movecost 3.0**: Die **moverank**-Algorithmen akzeptieren den optionalen Parameter `Penalty` (Vermeidungsstaerke fuer die eingestuften suboptimalen Pfade, Standard 0.01); ausserdem ist die Anzahl der eingestuften Pfade (LCPN) nicht mehr auf 6 begrenzt.
 
 ### Einen Algorithmus starten
 
@@ -477,7 +488,7 @@ Dieses Beispiel zeigt, wie ein Wegkostenpfad zwischen einer Siedlung und einer W
 **Loesungen**:
 1. R oder RStudio oeffnen
 2. Ausfuehren: `install.packages("movecost")`
-3. Ueberpruefen: `library(movecost)` -- sollte keine Fehler erzeugen
+3. Ueberpruefen: `library(movecost)` -- sollte keine Fehler erzeugen; `packageVersion("movecost")` muss >= 3.0.0 sein
 4. Bei Abhaengigkeitsproblemen: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analyse sehr langsam
@@ -547,7 +558,8 @@ Das R-Paket `movecost` unterstuetzt mehrere anisotrope Kostenfunktionen:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| movecost R-Paket | 1.0+ |
+| movecost R-Paket | 3.0.0+ |
+| movecost QGIS-Plugin | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
 ---

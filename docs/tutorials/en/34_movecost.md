@@ -83,13 +83,13 @@ Before using MoveCost, ensure the following components are installed and configu
 
 ### 2. R Package `movecost`
 
-Install the package from within R:
+The required version is **>= 3.0.0**. The scripts install/update the package automatically on first run; alternatively, install the package from within R:
 
 ```r
 install.packages("movecost")
 ```
 
-Main dependencies installed automatically: `terra`, `gdistance`, `sp`.
+Main dependencies installed automatically: `terra`, `sf`, `igraph`, `ggplot2` (plus `elevatr` for the "by polygon" variants).
 
 ### 3. QGIS Processing R Provider
 
@@ -112,12 +112,19 @@ Main dependencies installed automatically: `terra`, `gdistance`, `sp`.
 | Prerequisites Checklist                    |
 +-------------------------------------------+
 | [x] R installed and in PATH              |
-| [x] movecost package installed in R      |
+| [x] movecost >= 3.0.0 installed in R     |
 | [x] Processing R Provider active in QGIS |
 | [x] DTM loaded in QGIS project           |
 | [x] Point layer with origins/destinations |
 +-------------------------------------------+
 ```
+
+> **Note -- movecost 3.0**
+>
+> - movecost 3.0 rebuilt the package: the cost surface is computed once and reused by every analysis, so multi-location analyses are faster.
+> - The movecost QGIS plugin must be >= **4.0.0**: older plugin versions call functions that no longer exist in movecost 3.0 and stop with an R error mentioning "movecost() was removed in movecost 3.0.0".
+> - Some cost functions were CORRECTED in 3.0 (Kondo-Seino, Marin Arroyo, Pandolf with correction, Hare, and the metabolic functions with dynamic speed V=0): results with those settings differ -- correctly -- from the 2.x series.
+> - Plots are now ggplot2-based; they are still shown in the PyArchInit results panel as before.
 
 ---
 
@@ -167,6 +174,8 @@ Algorithms for cost corridor analysis and optimal path networks.
 | **movenetw** | Calculate least-cost path network between multiple points |
 | **movenetw by polygon** | Same but using a polygon |
 
+> **New in movecost 3.0**: the **movecorr** algorithms accept the optional parameter `Corridor_Method`: `reach` (default) computes the classic symmetric corridor, with the same result as before; `through` computes the directional corridor cost(A->x)+cost(x->B), new in 3.0, useful for one-way journeys with anisotropic cost functions.
+
 ### Group 3: Comparison & Ranking
 
 Algorithms for comparing cost functions and ranking destinations.
@@ -177,6 +186,8 @@ Algorithms for comparing cost functions and ranking destinations.
 | **movecomp by polygon** | Same but using a polygon |
 | **moverank** | Rank destinations by walking cost from an origin |
 | **moverank by polygon** | Same but using a polygon |
+
+> **New in movecost 3.0**: the **moverank** algorithms accept the optional parameter `Penalty` (avoidance strength for the ranked sub-optimal paths, default 0.01); also, the number of ranked paths (LCPN) is no longer capped at 6.
 
 ### How to Launch an Algorithm
 
@@ -477,7 +488,7 @@ This example shows how to calculate a least-cost path between a settlement and a
 **Solutions**:
 1. Open R or RStudio
 2. Run: `install.packages("movecost")`
-3. Verify: `library(movecost)` -- should produce no errors
+3. Verify: `library(movecost)` -- should produce no errors; `packageVersion("movecost")` must be >= 3.0.0
 4. If there are dependency issues: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analysis Very Slow
@@ -547,7 +558,8 @@ The R `movecost` package supports several anisotropic cost functions:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| movecost R package | 1.0+ |
+| movecost R package | 3.0.0+ |
+| movecost QGIS plugin | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
 ---

@@ -83,13 +83,13 @@ Antes de utilizar MoveCost, verificar que los siguientes componentes estan insta
 
 ### 2. Paquete R `movecost`
 
-Instalar el paquete desde R:
+La version requerida es **>= 3.0.0**. Los scripts instalan/actualizan el paquete automaticamente en la primera ejecucion; alternativamente, instalar el paquete desde R:
 
 ```r
 install.packages("movecost")
 ```
 
-Dependencias principales instaladas automaticamente: `terra`, `gdistance`, `sp`.
+Dependencias principales instaladas automaticamente: `terra`, `sf`, `igraph`, `ggplot2` (mas `elevatr` para las variantes "by polygon").
 
 ### 3. QGIS Processing R Provider
 
@@ -112,12 +112,19 @@ Dependencias principales instaladas automaticamente: `terra`, `gdistance`, `sp`.
 | Lista de verificacion de requisitos        |
 +-------------------------------------------+
 | [x] R instalado y en el PATH             |
-| [x] Paquete movecost instalado en R      |
+| [x] movecost >= 3.0.0 instalado en R     |
 | [x] Processing R Provider activo en QGIS |
 | [x] MDT cargado en el proyecto QGIS       |
 | [x] Capa de puntos con origenes/destinos  |
 +-------------------------------------------+
 ```
+
+> **Nota -- movecost 3.0**
+>
+> - movecost 3.0 reconstruyo el paquete: la superficie de coste se calcula una sola vez y se reutiliza en todos los analisis, por lo que los analisis multi-localizacion son mas rapidos.
+> - El plugin QGIS movecost debe ser >= **4.0.0**: las versiones anteriores del plugin llaman a funciones que ya no existen en movecost 3.0 y se detienen con un error de R que menciona "movecost() was removed in movecost 3.0.0".
+> - Algunas funciones de coste fueron CORREGIDAS en la 3.0 (Kondo-Seino, Marin Arroyo, Pandolf con correccion, Hare y las funciones metabolicas con velocidad dinamica V=0): los resultados con esas configuraciones difieren -- correctamente -- de la serie 2.x.
+> - Los graficos ahora se basan en ggplot2; se siguen mostrando en el panel de resultados de PyArchInit como antes.
 
 ---
 
@@ -167,6 +174,8 @@ Algoritmos para el analisis de corredores de coste y redes de rutas optimas.
 | **movenetw** | Calcula la red de rutas de menor coste entre multiples puntos |
 | **movenetw by polygon** | Igual, pero utilizando un poligono |
 
+> **Nuevo en movecost 3.0**: los algoritmos **movecorr** aceptan el parametro opcional `Corridor_Method`: `reach` (predeterminado) calcula el corredor simetrico clasico, con el mismo resultado que antes; `through` calcula el corredor direccional coste(A->x)+coste(x->B), nuevo en la 3.0, util para trayectos de ida con funciones de coste anisotropicas.
+
 ### Grupo 3: Comparacion y clasificacion
 
 Algoritmos para comparar funciones de coste y clasificar destinos.
@@ -177,6 +186,8 @@ Algoritmos para comparar funciones de coste y clasificar destinos.
 | **movecomp by polygon** | Igual, pero utilizando un poligono |
 | **moverank** | Clasifica los destinos por coste de desplazamiento desde un origen |
 | **moverank by polygon** | Igual, pero utilizando un poligono |
+
+> **Nuevo en movecost 3.0**: los algoritmos **moverank** aceptan el parametro opcional `Penalty` (intensidad de evitacion para las rutas sub-optimas clasificadas, predeterminado 0.01); ademas, el numero de rutas clasificadas (LCPN) ya no esta limitado a 6.
 
 ### Como ejecutar un algoritmo
 
@@ -477,7 +488,7 @@ Este ejemplo muestra como calcular una ruta de menor coste entre un asentamiento
 **Soluciones**:
 1. Abrir R o RStudio
 2. Ejecutar: `install.packages("movecost")`
-3. Verificar: `library(movecost)` -- no debe producir errores
+3. Verificar: `library(movecost)` -- no debe producir errores; `packageVersion("movecost")` debe ser >= 3.0.0
 4. Si hay problemas de dependencias: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analisis muy lento
@@ -547,7 +558,8 @@ El paquete R `movecost` soporta varias funciones de coste anisotropicas:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| Paquete movecost (R) | 1.0+ |
+| Paquete movecost (R) | 3.0.0+ |
+| Plugin QGIS movecost | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
 ---

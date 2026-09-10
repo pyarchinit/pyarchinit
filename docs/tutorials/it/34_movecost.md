@@ -83,13 +83,13 @@ Prima di utilizzare MoveCost, verificare che i seguenti componenti siano install
 
 ### 2. Pacchetto R `movecost`
 
-Installare il pacchetto dall'interno di R:
+La versione richiesta e **>= 3.0.0**. Gli script installano/aggiornano automaticamente il pacchetto alla prima esecuzione; in alternativa, installare il pacchetto dall'interno di R:
 
 ```r
 install.packages("movecost")
 ```
 
-Dipendenze principali installate automaticamente: `terra`, `gdistance`, `sp`.
+Dipendenze principali installate automaticamente: `terra`, `sf`, `igraph`, `ggplot2` (piu `elevatr` per le varianti "by polygon").
 
 ### 3. QGIS Processing R Provider
 
@@ -112,12 +112,19 @@ Dipendenze principali installate automaticamente: `terra`, `gdistance`, `sp`.
 | Checklist Prerequisiti                     |
 +-------------------------------------------+
 | [x] R installato e nel PATH              |
-| [x] Pacchetto movecost installato in R   |
+| [x] movecost >= 3.0.0 installato in R    |
 | [x] Processing R Provider attivo in QGIS |
 | [x] DTM caricato nel progetto QGIS       |
 | [x] Layer punti con origini/destinazioni  |
 +-------------------------------------------+
 ```
+
+> **Nota -- movecost 3.0**
+>
+> - movecost 3.0 ha riprogettato il pacchetto: la superficie di costo viene calcolata una sola volta e riutilizzata da tutte le analisi, quindi le analisi multi-localita sono piu veloci.
+> - Il plugin QGIS movecost deve essere >= **4.0.0**: le versioni precedenti del plugin richiamano funzioni che non esistono piu in movecost 3.0 e si fermano con un errore R che menziona "movecost() was removed in movecost 3.0.0".
+> - Alcune funzioni di costo sono state CORRETTE nella 3.0 (Kondo-Seino, Marin Arroyo, Pandolf con correzione, Hare e le funzioni metaboliche con velocita dinamica V=0): i risultati con queste impostazioni differiscono -- correttamente -- dalla serie 2.x.
+> - I grafici sono ora basati su ggplot2; vengono comunque mostrati nel pannello dei risultati di PyArchInit come prima.
 
 ---
 
@@ -167,6 +174,8 @@ Algoritmi per l'analisi di corridoi di costo e reti di percorsi ottimali.
 | **movenetw** | Calcola la rete di percorsi di minor costo tra piu punti |
 | **movenetw by polygon** | Come sopra, ma utilizzando un poligono |
 
+> **Nuovo in movecost 3.0**: gli algoritmi **movecorr** accettano il parametro opzionale `Corridor_Method`: `reach` (predefinito) calcola il classico corridoio simmetrico, con gli stessi risultati di prima; `through` calcola il corridoio direzionale costo(A->x)+costo(x->B), nuovo nella 3.0, utile per viaggi a senso unico con funzioni di costo anisotropiche.
+
 ### Gruppo 3: Confronto e Classificazione
 
 Algoritmi per confrontare funzioni di costo e classificare destinazioni.
@@ -177,6 +186,8 @@ Algoritmi per confrontare funzioni di costo e classificare destinazioni.
 | **movecomp by polygon** | Come sopra, ma utilizzando un poligono |
 | **moverank** | Classifica le destinazioni in base al costo di spostamento da un'origine |
 | **moverank by polygon** | Come sopra, ma utilizzando un poligono |
+
+> **Nuovo in movecost 3.0**: gli algoritmi **moverank** accettano il parametro opzionale `Penalty` (intensita di evitamento per i percorsi sub-ottimali classificati, predefinito 0.01); inoltre il numero di percorsi classificati (LCPN) non e piu limitato a 6.
 
 ### Come Lanciare un Algoritmo
 
@@ -477,7 +488,7 @@ Questo esempio mostra come calcolare un percorso di minor costo tra un insediame
 **Soluzioni**:
 1. Aprire R o RStudio
 2. Eseguire: `install.packages("movecost")`
-3. Verificare: `library(movecost)` -- non deve dare errori
+3. Verificare: `library(movecost)` -- non deve dare errori; `packageVersion("movecost")` deve essere >= 3.0.0
 4. Se ci sono problemi di dipendenze: `install.packages("movecost", dependencies = TRUE)`
 
 ### Analisi molto lenta
@@ -547,7 +558,8 @@ Il pacchetto R `movecost` supporta diverse funzioni di costo anisotropiche:
 | PyArchInit | 5.0.x |
 | QGIS | 3.22+ |
 | R | 4.0+ |
-| Pacchetto movecost (R) | 1.0+ |
+| Pacchetto movecost (R) | 3.0.0+ |
+| Plugin QGIS movecost | 4.0.0+ |
 | Processing R Provider | 2.0+ |
 
 ---
