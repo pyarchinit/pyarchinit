@@ -357,6 +357,27 @@ Operações espaciais disponíveis:
 - Use "Reparar Geometrias"
 - Redesenhe o elemento
 
+### Camada carregada mas geometrias não visíveis (SQLite)
+
+**Sintoma**:
+- Uma camada pyArchInit de uma base de dados SQLite/SpatiaLite (ex. UE `pyunitastratigrafiche`, UEM, materiais, UE negativas) é carregada e a tabela de atributos mostra os registos, mas nada é desenhado no mapa e "Zoom para Camada" não funciona
+
+**Causa**:
+- O índice espacial (R*Tree) da camada não foi mantido: os seus triggers perderam-se quando uma tabela foi recriada (ex. por scripts antigos de atualização do esquema) ou os dados foram importados contornando-os
+- O QGIS escolhe as entidades a desenhar através desse índice, por isso permanecem invisíveis
+- Também foram afetadas as bases de dados criadas a partir do modelo SQLite entre outubro de 2025 e setembro de 2026
+
+**Solução (automática)**:
+- Ao ligar-se a uma base de dados SQLite, o pyArchInit verifica todos os índices espaciais (alguns instantes; nada é escrito se a base de dados estiver íntegra) e reconstrói automaticamente os danificados
+- Antes da reparação guarda uma cópia de segurança junto à base de dados: `<base_de_dados>.sqlite.pre_spatial_index_repair_<data-hora>`
+- O resultado é escrito no painel de mensagens de registo do QGIS (View → Panels → Log Messages), separador "PyArchInit"
+
+**O que fazer**:
+- Nada a iniciar manualmente: a verificação é executada automaticamente na PRIMEIRA ligação a cada base de dados em cada sessão do QGIS (ou seja, após atualizar o plugin ou após reiniciar o QGIS)
+- Se as camadas já estavam carregadas, remova-as e adicione-as novamente (ou reabra o projeto) após a reparação
+- Se o registo "PyArchInit" indicar que um índice NÃO pôde ser reparado (ex. o SpatiaLite não pôde ser carregado), corrija a causa e reinicie o QGIS: a verificação só é repetida numa nova sessão
+- O ficheiro de cópia de segurança pode ser eliminado depois de verificadas as camadas
+
 ## Referências
 
 ### Ficheiros Fonte

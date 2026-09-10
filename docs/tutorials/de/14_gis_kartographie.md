@@ -357,6 +357,27 @@ Verfügbare räumliche Operationen:
 - "Fix Geometries" verwenden
 - Element neu zeichnen
 
+### Layer geladen, aber Geometrien nicht sichtbar (SQLite)
+
+**Symptom**:
+- Ein pyArchInit-Layer einer SQLite/SpatiaLite-Datenbank (z. B. SE `pyunitastratigrafiche`, Mauer-SE, Funde, negative SE) wird geladen und die Attributtabelle zeigt die Datensätze, aber auf der Karte wird nichts gezeichnet und "Auf Layer zoomen" funktioniert nicht
+
+**Ursache**:
+- Der räumliche Index (R*Tree) des Layers wurde nicht gepflegt: seine Trigger gingen verloren, als eine Tabelle neu erstellt wurde (z. B. durch ältere Schema-Update-Skripte), oder Daten wurden unter Umgehung der Trigger importiert
+- QGIS wählt die zu zeichnenden Objekte über diesen Index aus, daher bleiben sie unsichtbar
+- Betroffen sind auch Datenbanken, die zwischen Oktober 2025 und September 2026 aus der SQLite-Vorlage erstellt wurden
+
+**Lösung (automatisch)**:
+- Beim Verbinden mit einer SQLite-Datenbank prüft pyArchInit alle räumlichen Indizes (wenige Augenblicke; bei einer intakten Datenbank wird nichts geschrieben) und baut beschädigte automatisch neu auf
+- Vor der Reparatur wird eine Sicherungskopie neben der Datenbank gespeichert: `<datenbank>.sqlite.pre_spatial_index_repair_<datum-uhrzeit>`
+- Das Ergebnis steht im QGIS-Protokollbedienfeld (Ansicht → Bedienfelder → Protokollmeldungen, Reiter "PyArchInit")
+
+**Vorgehen**:
+- Nichts manuell zu starten: die Prüfung läuft automatisch bei der ERSTEN Verbindung mit jeder Datenbank in jeder QGIS-Sitzung (also nach dem Plugin-Update oder nach einem Neustart von QGIS)
+- Waren die Layer bereits geladen, sie nach der Reparatur entfernen und erneut hinzufügen (oder das Projekt neu öffnen)
+- Meldet das Protokoll "PyArchInit", dass ein Index NICHT repariert werden konnte (z. B. SpatiaLite nicht ladbar), die Ursache beheben und QGIS neu starten: die Prüfung wird erst in einer neuen Sitzung wiederholt
+- Die Sicherungsdatei kann gelöscht werden, sobald die Layer überprüft sind
+
 ## Referenzen
 
 ### Quelldateien

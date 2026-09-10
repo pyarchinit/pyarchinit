@@ -357,6 +357,27 @@ Operacions espacials disponibles:
 - Usar "Fix Geometries"
 - Redibuixar element
 
+### Capa carregada però geometries no visibles (SQLite)
+
+**Símptoma**:
+- Una capa pyArchInit d'una base de dades SQLite/SpatiaLite (p. ex. US `pyunitastratigrafiche`, USM, materials, US negatives) es carrega i la taula d'atributs mostra els registres, però al mapa no es dibuixa res i "Zoom to Layer" no funciona
+
+**Causa**:
+- L'índex espacial (R*Tree) de la capa no s'ha mantingut: els seus triggers es van perdre quan es va recrear una taula (p. ex. amb antics scripts d'actualització de l'esquema) o les dades es van importar saltant-los
+- QGIS tria les entitats a dibuixar mitjançant aquest índex, per tant resten invisibles
+- També s'hi veuen afectades les bases de dades creades amb la plantilla SQLite entre octubre de 2025 i setembre de 2026
+
+**Solució (automàtica)**:
+- En connectar-se a una base de dades SQLite, pyArchInit comprova tots els índexs espacials (uns instants; si la base de dades està sana no escriu res) i reconstrueix automàticament els malmesos
+- Abans de la reparació desa una còpia de seguretat al costat de la base de dades: `<base_de_dades>.sqlite.pre_spatial_index_repair_<data-hora>`
+- El resultat s'escriu al tauler de missatges de registre de QGIS (View → Panels → Log Messages), pestanya "PyArchInit"
+
+**Què fer**:
+- No cal iniciar res a mà: la comprovació s'executa automàticament a la PRIMERA connexió a cada base de dades en cada sessió de QGIS (és a dir, després d'actualitzar el plugin o de reiniciar QGIS)
+- Si les capes ja estaven carregades, treure-les i tornar-les a afegir (o reobrir el projecte) després de la reparació
+- Si el registre "PyArchInit" indica que un índex NO s'ha pogut reparar (p. ex. SpatiaLite no es pot carregar), resoldre la causa i reiniciar QGIS: la comprovació només es repeteix en una nova sessió
+- El fitxer de còpia de seguretat es pot eliminar un cop verificades les capes
+
 ## Referències
 
 ### Fitxers Font

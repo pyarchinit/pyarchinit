@@ -357,6 +357,27 @@ Operații spațiale disponibile:
 - Folosiți „Reparare Geometrii"
 - Redesenați elementul
 
+### Strat încărcat, dar geometrii invizibile (SQLite)
+
+**Simptom**:
+- Un strat pyArchInit dintr-o bază de date SQLite/SpatiaLite (ex. US `pyunitastratigrafiche`, USM, materiale, US negative) se încarcă și tabelul de atribute afișează înregistrările, dar pe hartă nu se desenează nimic, iar „Zoom la Strat" nu funcționează
+
+**Cauză**:
+- Indexul spațial (R*Tree) al stratului nu a fost întreținut: triggerele sale s-au pierdut când un tabel a fost recreat (ex. de scripturi vechi de actualizare a schemei) sau datele au fost importate ocolindu-le
+- QGIS alege entitățile de desenat prin acest index, deci ele rămân invizibile
+- Au fost afectate și bazele de date create din șablonul SQLite între octombrie 2025 și septembrie 2026
+
+**Soluție (automată)**:
+- La conectarea la o bază de date SQLite, pyArchInit verifică toți indecșii spațiali (câteva clipe; nu se scrie nimic dacă baza de date este intactă) și îi reconstruiește automat pe cei deteriorați
+- Înainte de reparare salvează o copie de siguranță lângă baza de date: `<baza_de_date>.sqlite.pre_spatial_index_repair_<data-ora>`
+- Rezultatul este scris în panoul de mesaje jurnal al QGIS (View → Panels → Log Messages), fila „PyArchInit"
+
+**Ce trebuie făcut**:
+- Nimic de pornit manual: verificarea rulează automat la PRIMA conectare la fiecare bază de date în fiecare sesiune QGIS (deci după actualizarea pluginului sau după repornirea QGIS)
+- Dacă straturile erau deja încărcate, eliminați-le și adăugați-le din nou (sau redeschideți proiectul) după reparare
+- Dacă jurnalul „PyArchInit" raportează că un index NU a putut fi reparat (ex. SpatiaLite nu poate fi încărcat), remediați cauza și reporniți QGIS: verificarea se repetă doar într-o sesiune nouă
+- Fișierul de siguranță poate fi șters după verificarea straturilor
+
 ## Referințe
 
 ### Fișiere Sursă

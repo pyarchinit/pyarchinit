@@ -357,6 +357,27 @@ Opérations spatiales disponibles :
 - Utiliser "Réparer les géométries"
 - Redessiner l'élément
 
+### Couche chargée mais géométries non visibles (SQLite)
+
+**Symptôme** :
+- Une couche pyArchInit d'une base SQLite/SpatiaLite (ex. US `pyunitastratigrafiche`, USM, mobilier, US négatives) se charge et sa table attributaire affiche les enregistrements, mais rien n'est dessiné sur la carte et "Zoom sur la couche" ne fonctionne pas
+
+**Cause** :
+- L'index spatial (R*Tree) de la couche n'a pas été maintenu : ses triggers ont été perdus lorsqu'une table a été recréée (ex. par d'anciens scripts de mise à jour du schéma) ou les données ont été importées en les contournant
+- QGIS sélectionne les entités à dessiner via cet index, elles restent donc invisibles
+- Les bases créées à partir du modèle SQLite entre octobre 2025 et septembre 2026 sont également concernées
+
+**Solution (automatique)** :
+- À la connexion à une base SQLite, pyArchInit vérifie tous les index spatiaux (quelques instants ; rien n'est écrit si la base est saine) et reconstruit automatiquement ceux qui sont endommagés
+- Avant la réparation, il enregistre une copie de sauvegarde à côté de la base : `<base>.sqlite.pre_spatial_index_repair_<date-heure>`
+- Le résultat est écrit dans le panneau de journal de QGIS (Vue → Panneaux → Journal des messages, onglet "PyArchInit")
+
+**Que faire** :
+- Rien à lancer manuellement : la vérification s'exécute automatiquement à la PREMIÈRE connexion à chaque base dans chaque session QGIS (donc après la mise à jour du plugin ou après le redémarrage de QGIS)
+- Si les couches étaient déjà chargées, les retirer et les ajouter de nouveau (ou rouvrir le projet) après la réparation
+- Si le journal "PyArchInit" signale qu'un index n'a PAS pu être réparé (ex. SpatiaLite impossible à charger), corriger la cause et redémarrer QGIS : la vérification n'est relancée que dans une nouvelle session
+- Le fichier de sauvegarde peut être supprimé une fois les couches vérifiées
+
 ## Références
 
 ### Fichiers Source

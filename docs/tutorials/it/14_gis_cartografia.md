@@ -357,6 +357,27 @@ Operazioni spaziali disponibili:
 - Usare "Fix Geometries"
 - Ridisegnare elemento
 
+### Layer caricato ma geometrie non visibili (SQLite)
+
+**Sintomo**:
+- Un layer pyArchInit di un database SQLite/SpatiaLite (es. US `pyunitastratigrafiche`, USM, reperti, US negative) si carica e la tabella attributi mostra i record, ma sulla mappa non compare nulla e "Zoom to Layer" non funziona
+
+**Causa**:
+- L'indice spaziale (R*Tree) del layer non è aggiornato: i suoi trigger sono andati persi quando una tabella è stata ricreata (es. da vecchi script di aggiornamento dello schema) oppure i dati sono stati importati scavalcandoli
+- QGIS sceglie le entità da disegnare tramite quell'indice, quindi restano invisibili
+- Coinvolti anche i database creati dal template SQLite tra ottobre 2025 e settembre 2026
+
+**Soluzione (automatica)**:
+- Alla connessione a un database SQLite pyArchInit controlla tutti gli indici spaziali (pochi istanti; se il database è sano non scrive nulla) e ricostruisce automaticamente quelli danneggiati
+- Prima della riparazione salva una copia di backup accanto al database: `<database>.sqlite.pre_spatial_index_repair_<data-ora>`
+- L'esito è scritto nel pannello log di QGIS (Visualizza → Pannelli → Messaggi di log, scheda "PyArchInit")
+
+**Cosa fare**:
+- Nulla da avviare a mano: il controllo parte automaticamente alla PRIMA connessione a ciascun database in ogni sessione di QGIS (quindi dopo l'aggiornamento del plugin o dopo il riavvio di QGIS)
+- Se i layer erano già caricati, rimuoverli e aggiungerli di nuovo (o riaprire il progetto) dopo la riparazione
+- Se il log "PyArchInit" segnala che un indice NON è stato riparato (es. SpatiaLite non caricabile), risolvere la causa e riavviare QGIS: il controllo viene ripetuto solo in una nuova sessione
+- Il file di backup può essere eliminato dopo aver verificato i layer
+
 ## Riferimenti
 
 ### File Sorgente

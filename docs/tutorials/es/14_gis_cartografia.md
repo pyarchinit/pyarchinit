@@ -357,6 +357,27 @@ Operaciones espaciales disponibles:
 - Usar "Fix Geometries"
 - Redibujar elemento
 
+### Capa cargada pero geometrías no visibles (SQLite)
+
+**Síntoma**:
+- Una capa pyArchInit de una base de datos SQLite/SpatiaLite (p. ej. UE `pyunitastratigrafiche`, UEM, materiales, UE negativas) se carga y la tabla de atributos muestra los registros, pero en el mapa no se dibuja nada y "Zoom to Layer" no funciona
+
+**Causa**:
+- El índice espacial (R*Tree) de la capa no se ha mantenido: sus triggers se perdieron al recrear una tabla (p. ej. con antiguos scripts de actualización del esquema) o los datos se importaron eludiéndolos
+- QGIS elige las entidades que dibujar a través de ese índice, por lo que permanecen invisibles
+- También se ven afectadas las bases de datos creadas con la plantilla SQLite entre octubre de 2025 y septiembre de 2026
+
+**Solución (automática)**:
+- Al conectarse a una base de datos SQLite, pyArchInit comprueba todos los índices espaciales (unos instantes; si la base de datos está sana no escribe nada) y reconstruye automáticamente los dañados
+- Antes de la reparación guarda una copia de seguridad junto a la base de datos: `<base_de_datos>.sqlite.pre_spatial_index_repair_<fecha-hora>`
+- El resultado se escribe en el panel de registro de QGIS (Ver → Paneles → Mensajes de registro, pestaña "PyArchInit")
+
+**Qué hacer**:
+- Nada que iniciar a mano: la comprobación se ejecuta automáticamente en la PRIMERA conexión a cada base de datos en cada sesión de QGIS (es decir, tras actualizar el plugin o tras reiniciar QGIS)
+- Si las capas ya estaban cargadas, quitarlas y volver a añadirlas (o reabrir el proyecto) después de la reparación
+- Si el registro "PyArchInit" indica que un índice NO se ha podido reparar (p. ej. SpatiaLite no se puede cargar), resolver la causa y reiniciar QGIS: la comprobación se repite solo en una nueva sesión
+- El archivo de copia de seguridad puede eliminarse una vez verificadas las capas
+
 ## Referencias
 
 ### Archivos Fuente

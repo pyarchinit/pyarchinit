@@ -357,6 +357,27 @@ Available spatial operations:
 - Use "Fix Geometries"
 - Redraw element
 
+### Layer Loaded but Geometries Not Visible (SQLite)
+
+**Symptom**:
+- A pyArchInit layer of a SQLite/SpatiaLite database (e.g. SU `pyunitastratigrafiche`, masonry SU, finds, negative SU) loads and its attribute table shows the records, but nothing is drawn on the map and "Zoom to Layer" does not work
+
+**Cause**:
+- The layer's spatial index (R*Tree) was not maintained: its triggers were lost when a table was recreated (e.g. by older schema-update scripts) or data were imported bypassing them
+- QGIS picks the features to draw through that index, so they stay invisible
+- Databases created from the SQLite template between October 2025 and September 2026 were affected too
+
+**Solution (automatic)**:
+- When pyArchInit connects to a SQLite database it checks every spatial index (a few instants; nothing is written if the database is healthy) and automatically rebuilds any broken one
+- Before repairing it saves a backup copy next to the database: `<database>.sqlite.pre_spatial_index_repair_<date-time>`
+- The result is written in the QGIS log panel (View → Panels → Log Messages, "PyArchInit" tab)
+
+**What to do**:
+- Nothing to start by hand: the check runs automatically at the FIRST connection to each database in every QGIS session (so after updating the plugin or after restarting QGIS)
+- If the layers were already loaded, remove and re-add them (or reopen the project) after the repair
+- If the "PyArchInit" log reports that an index could NOT be repaired (e.g. SpatiaLite could not be loaded), fix the cause and restart QGIS: the check runs again only in a new session
+- The backup file can be deleted once the layers have been verified
+
 ## References
 
 ### Source Files
