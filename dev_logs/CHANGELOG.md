@@ -5,6 +5,97 @@
 
 ---
 
+## [fix] - 2026-09-10 — Template SQLite: i DB creati da zero avevano le geometrie US invisibili (indice spaziale senza trigger)
+
+> Branch `Stratigraph_00001`. Commit `5d61d2f3`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `884c0364` sopra `29094958` = bump 4.9.13, **non ancora pushato né rilasciato**); su master solo `pyarchinit_us_negative_doc`.
+> File: `resources/dbfiles/pyarchinit.sqlite`, `resources/dbfiles/pyarchinit_db.sqlite`, `scripts/fixes/final_postgres_alignment.py`, `tests/utility/test_shipped_sqlite_spatial_index.py` (NUOVO).
+
+### Italiano
+
+#### Contesto
+
+- Segnalazione utente su `Calaforno_2026.sqlite`: il layer `pyunitastratigrafiche` si caricava (5 US nella tabella attributi) ma sulla mappa non veniva disegnato nulla. Le 5 geometrie erano valide (MULTIPOLYGON, SRID 32633 nel blob = SRID registrato), ma l'R*Tree `idx_pyunitastratigrafiche_the_geom` aveva **0 righe** e mancavano i trigger di manutenzione `gii_/giu_/gid_`, mentre `geometry_columns.spatial_index_enabled = 1`. Il provider SpatiaLite di QGIS seleziona le feature da disegnare attraverso l'R*Tree: indice vuoto = layer invisibile. Stesso stato su `pyunitastratigrafiche_usm` e `pyarchinit_us_negative_doc` (lì vuote, difetto latente).
+- **Causa radice:** il template dev `resources/dbfiles/pyarchinit.sqlite` — copiato da `gui/pyarchinitConfigDialog.on_pushButton_crea_database_sl_pressed` e poi passato a `RestoreSchema.update_geom_srid_sl`, che fa solo `UPDATE geometry_columns SET srid = …` e non tocca i trigger — è in quello stato dal commit `fa58feb8` (2025-10-12, "feat(db-updater): add automatic PostgreSQL and SQLite schema alignment tools"); ultima versione sana `246024a7` (2025-06-02).
+- **Meccanismo:** `scripts/fixes/final_postgres_alignment.py` elimina e ricrea esattamente quelle tre tabelle; un semplice `DROP TABLE` rimuove i trigger della tabella ma NON la sua riga in `geometry_columns`, quindi il ramo "RecoverGeometryColumn solo se non registrata" dello script veniva saltato, e un `except: pass` nudo nascondeva qualsiasi errore.
+- **Impatto:** OGNI DB SQLite creato da zero con il branch dev dal 2025-10-12 ha le geometrie US/USM invisibili. Il template di master era sano per US/USM ma aveva lo stesso difetto su `pyarchinit_us_negative_doc`. Anche il DB di esempio dev `pyarchinit_db.sqlite` era difettoso: R*Tree con 482/4820 US e 19/190 USM — era visibile solo il sito di esempio italiano ("Scavo archeologico"), le altre 9 versioni linguistiche del sito di esempio avevano le US invisibili.
+
+#### 1. File SQLite distribuiti (`resources/dbfiles/pyarchinit.sqlite`, `pyarchinit_db.sqlite`)
+
+- Sulle tre tabelle `pyunitastratigrafiche`, `pyunitastratigrafiche_usm`, `pyarchinit_us_negative_doc`: `DisableSpatialIndex` + `DROP TABLE idx_<t>_the_geom` + `CreateSpatialIndex` (SpatiaLite 5.0.1 di QGIS), che ricrea l'R*Tree con il set completo di trigger (gii/giu/gid + guardie tipo/SRID ggi/ggu + tmi/tmu/tmd), poi `UpdateLayerStatistics`.
+- DB di esempio: ora 4820/4820 US e 190/190 USM nell'R*Tree. Il DB di esempio è in modalità WAL (invariata); il WAL è stato checkpointato prima del commit.
+- `iso_metadata` (tabella interna SpatiaLite per i metadati ISO, mai disegnata) lasciata intenzionalmente invariata.
+
+#### 2. Script di allineamento (`scripts/fixes/final_postgres_alignment.py`)
+
+- Dopo aver ricreato le tabelle ora ricostruisce SEMPRE l'indice spaziale (`DisableSpatialIndex` + `DROP TABLE IF EXISTS "idx_<t>_<col>"` + `CreateSpatialIndex`, messaggio `✓ Indice spaziale ricreato …`) e stampa gli errori (`✗ Geometria/indice …: <e>`) invece di inghiottirli con `except: pass`.
+
+#### 3. Test di regressione (`tests/utility/test_shipped_sqlite_spatial_index.py`, NUOVO)
+
+- Per ogni file SQLite distribuito (`pyarchinit.sqlite`, `pyarchinit_db.sqlite`, parametrizzato; skip se assente), ogni colonna geometrica con `spatial_index_enabled = 1` (tranne `iso_metadata`) deve avere i trigger `gii_/giu_/gid_<tabella>_<colonna>` e un R*Tree con numero di righe pari alle geometrie non nulle.
+- Solo `sqlite3` puro (i trigger stanno in `sqlite_master`, l'R*Tree è un modulo built-in), apertura con `mode=ro&immutable=1` così accanto al DB di esempio in WAL non restano file `-wal`/`-shm`.
+
+#### 4. DB dell'utente
+
+- `~/pyarchinit_5/pyarchinit_DB_folder/Calaforno_2026.sqlite` riparato con la stessa sequenza (backup `*.pre_spatial_index_fix_20260910T140252Z`): 5/5 US indicizzate, `integrity_check` ok.
+
+#### ⚠️ Importante per gli utenti
+
+- I DB **GIÀ creati** dal template dev tra il 2025-10-12 e questo fix mantengono il difetto finché non vengono riparati: **il plugin non li ripara ancora automaticamente**. La riparazione è la sequenza `DisableSpatialIndex` / `DROP TABLE idx_<t>_the_geom` / `CreateSpatialIndex` sulle tre tabelle `pyunitastratigrafiche`, `pyunitastratigrafiche_usm`, `pyarchinit_us_negative_doc` (fare prima un backup del file). Attenzione: il problema **non è limitato** ai DB creati dopo il 2025-10-12 — un audit in sola lettura dei DB locali (76 file) ha trovato geometrie invisibili anche in DB più vecchi (es. circa 14.600 US con R*Tree vuoto) e indici R*Tree disallineati pur con i trigger presenti (import che scrivono senza passare dai trigger): la stessa sequenza va applicata a ogni colonna con `spatial_index_enabled = 1` il cui R*Tree non coincide con la tabella.
+
+#### Test
+
+- **`tests/utility/test_shipped_sqlite_spatial_index.py` (NUOVO, 2):** ROSSO prima del fix (2 falliti), VERDE dopo (2 passati).
+- Simulazione di "Crea database SQLite" (copia del template + l'UPDATE dello SRID di `update_geom_srid_sl`) con inserimento di una geometria per layer: prima del fix le geometrie US/USM/negative-doc NON erano restituite dalla query bbox sull'R*Tree (come fa il provider per disegnare), dopo il fix lo sono tutte (dev e master).
+- `tests/utility` 50 passati, `tests/sync` (non-PG) 476 passati.
+
+#### Note per master
+
+- Portato su `master` come commit `884c0364` sul branch locale `fix/large-relations-master` (sopra `29094958` = bump 4.9.13), **non ancora pushato né rilasciato**: stessa riparazione di `pyarchinit_us_negative_doc` nel template e nel DB di esempio di master (US/USM di master erano già sani; lo script `final_postgres_alignment.py` non esiste su master, il test non è stato portato).
+
+### English
+
+#### Context
+
+- User report on `Calaforno_2026.sqlite`: the `pyunitastratigrafiche` layer loaded (5 US in the attribute table) but nothing was drawn on the map. The 5 geometries were valid (MULTIPOLYGON, SRID 32633 in the blob = registered SRID), but the R*Tree `idx_pyunitastratigrafiche_the_geom` had **0 rows** and the maintenance triggers `gii_/giu_/gid_` were missing, while `geometry_columns.spatial_index_enabled = 1`. The QGIS SpatiaLite provider selects the features to draw through the R*Tree: empty index = invisible layer. Same state on `pyunitastratigrafiche_usm` and `pyarchinit_us_negative_doc` (empty there, latent defect).
+- **Root cause:** the dev template `resources/dbfiles/pyarchinit.sqlite` — copied by `gui/pyarchinitConfigDialog.on_pushButton_crea_database_sl_pressed` and then passed to `RestoreSchema.update_geom_srid_sl`, which only does `UPDATE geometry_columns SET srid = …` and does not touch triggers — has been in that state since commit `fa58feb8` (2025-10-12, "feat(db-updater): add automatic PostgreSQL and SQLite schema alignment tools"); last healthy version `246024a7` (2025-06-02).
+- **Mechanism:** `scripts/fixes/final_postgres_alignment.py` drops and recreates exactly those three tables; a plain `DROP TABLE` removes the table's triggers but NOT its `geometry_columns` row, so the script's "RecoverGeometryColumn only if not registered" branch was skipped, and a bare `except: pass` hid any error.
+- **Impact:** EVERY SQLite DB created from scratch with the dev branch since 2025-10-12 has invisible US/USM geometries. Master's template was healthy for US/USM but had the same defect on `pyarchinit_us_negative_doc`. The dev sample DB `pyarchinit_db.sqlite` was affected too: R*Tree with 482/4820 US and 19/190 USM — only the Italian sample site ("Scavo archeologico") was visible; the other 9 language versions of the sample site had invisible US.
+
+#### 1. Shipped SQLite files (`resources/dbfiles/pyarchinit.sqlite`, `pyarchinit_db.sqlite`)
+
+- On the three tables `pyunitastratigrafiche`, `pyunitastratigrafiche_usm`, `pyarchinit_us_negative_doc`: `DisableSpatialIndex` + `DROP TABLE idx_<t>_the_geom` + `CreateSpatialIndex` (SpatiaLite 5.0.1 from QGIS), which recreates the R*Tree with the full trigger set (gii/giu/gid + ggi/ggu type/SRID guards + tmi/tmu/tmd), then `UpdateLayerStatistics`.
+- Sample DB: now 4820/4820 US and 190/190 USM in the R*Tree. The sample DB is in WAL mode (unchanged); the WAL was checkpointed before committing.
+- `iso_metadata` (SpatiaLite-internal ISO metadata table, never drawn) intentionally left untouched.
+
+#### 2. Alignment script (`scripts/fixes/final_postgres_alignment.py`)
+
+- After recreating the tables it now ALWAYS rebuilds the spatial index (`DisableSpatialIndex` + `DROP TABLE IF EXISTS "idx_<t>_<col>"` + `CreateSpatialIndex`, message `✓ Indice spaziale ricreato …`) and prints errors (`✗ Geometria/indice …: <e>`) instead of swallowing them with `except: pass`.
+
+#### 3. Regression test (`tests/utility/test_shipped_sqlite_spatial_index.py`, NEW)
+
+- For every shipped SQLite file (`pyarchinit.sqlite`, `pyarchinit_db.sqlite`, parametrised; skipped when absent), every geometry column with `spatial_index_enabled = 1` (except `iso_metadata`) must have its `gii_/giu_/gid_<table>_<column>` triggers and an R*Tree whose row count equals the non-null geometries.
+- Pure `sqlite3` (the triggers live in `sqlite_master`, the R*Tree is a built-in module), opened with `mode=ro&immutable=1` so no `-wal`/`-shm` files are left next to the WAL-mode sample DB.
+
+#### 4. User DB
+
+- `~/pyarchinit_5/pyarchinit_DB_folder/Calaforno_2026.sqlite` repaired with the same sequence (backup `*.pre_spatial_index_fix_20260910T140252Z`): 5/5 US indexed, `integrity_check` ok.
+
+#### ⚠️ Important for users
+
+- DBs **ALREADY created** from the dev template between 2025-10-12 and this fix keep the defect until repaired: **the plugin does not repair them automatically yet**. The repair is the `DisableSpatialIndex` / `DROP TABLE idx_<t>_the_geom` / `CreateSpatialIndex` sequence on the three tables `pyunitastratigrafiche`, `pyunitastratigrafiche_usm`, `pyarchinit_us_negative_doc` (back up the file first). Note: the problem is **not limited** to DBs created after 2025-10-12 — a read-only audit of the local DBs (76 files) found invisible geometries in older DBs too (e.g. about 14,600 US with an empty R*Tree) and R*Tree indexes out of sync even with the triggers in place (import paths that write without going through the triggers): the same sequence applies to every column with `spatial_index_enabled = 1` whose R*Tree does not match the table.
+
+#### Tests
+
+- **`tests/utility/test_shipped_sqlite_spatial_index.py` (NEW, 2):** RED before the fix (2 failed), GREEN after (2 passed).
+- Simulated "Crea database SQLite" (template copy + the SRID update of `update_geom_srid_sl`) inserting one geometry per layer: before the fix the US/USM/negative-doc geometries were NOT returned by the R*Tree bbox query (as the provider does when drawing), after the fix all of them are (dev and master).
+- `tests/utility` 50 passed, `tests/sync` (non-PG) 476 passed.
+
+#### Notes for master
+
+- Ported to `master` as commit `884c0364` on the local branch `fix/large-relations-master` (on top of `29094958` = bump 4.9.13), **not yet pushed nor released**: same repair of `pyarchinit_us_negative_doc` in master's template and sample DB (master's US/USM were already healthy; `final_postgres_alignment.py` does not exist on master, the test was not ported).
+
+---
+
 ## [changed/docs] - 2026-09-10 — Movecost: aggiornamento all'ecosistema movecost R 3.0.0 / plugin QGIS movecost 4.0.0
 
 > Branch `Stratigraph_00001`. NESSUN commit di codice pyArchInit: questa voce documenta un aggiornamento ESTERNO da cui dipende la scheda "Movecost" (`tabs/Movecost.py`), più il refresh dei tutorial. Repo plugin QGIS movecost: https://github.com/enzococca/movecost — commit `3c02c1e`, tag `v4.0.0`, pacchetto `movecost-4.0.0.zip` per plugins.qgis.org (upload manuale in sospeso).
