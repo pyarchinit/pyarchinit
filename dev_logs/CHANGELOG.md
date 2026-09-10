@@ -5,9 +5,158 @@
 
 ---
 
+## [feat] - 2026-09-10 — Riparazione automatica degli indici spaziali SpatiaLite alla connessione di un DB SQLite
+
+> Branch `Stratigraph_00001`. Commit `5cd15c5e`. Portato anche su `master` come commit `779b7a15` (branch `fix/large-relations-master`, sopra `884c0364`), **pushato su `master`** insieme al fix del template della voce precedente; nessun tag di release ancora.
+> File: `modules/db/spatial_index_repair.py` (NUOVO, identico byte per byte su master), `modules/db/pyarchinit_db_manager.py`, `tests/migrations/test_spatial_index_repair.py` (NUOVO, solo dev). Tutorial 14 (GIS) aggiornato nelle 10 lingue (commit separato).
+
+### Italiano
+
+#### Contesto
+
+- Seguito della voce precedente (template SQLite senza trigger R*Tree). Dopo il fix del template, un audit in sola lettura di **76 DB SQLite locali** ha mostrato che il difetto è diffuso:
+  - **10 DB con geometrie invisibili adesso**, tra cui k2/khutm2 (circa 14.600 US con R*Tree vuoto), villa_romana (54 US + 122 reperti), figline, le quote di isole_interrate e `us_negative_doc` di Ventena (2/4 indicizzate);
+  - **50 DB con il solo difetto latente**: mancano i trigger ma per ora le tabelle sono vuote;
+  - **2 DB con indice stantio**, cioè più righe nell'R*Tree che geometrie;
+  - **14 DB sani**.
+- **Cause:**
+  - le ricreazioni di tabelle (script e updater): un `DROP TABLE` + `CREATE TABLE` mantiene la riga in `geometry_columns` (`spatial_index_enabled = 1`) ma perde i trigger `gii_/giu_/gid_`;
+  - i percorsi di import che scrivono senza passare dai trigger.
+- Il provider SpatiaLite di QGIS seleziona le feature da disegnare attraverso l'R*Tree: indice vuoto o disallineato = layer invisibile o incompleto. Correggere solo il template non guarisce i DB già esistenti degli utenti.
+
+#### 1. Nuovo modulo `modules/db/spatial_index_repair.py`
+
+- Solo `sqlite3` della libreria standard, nessuna dipendenza da Qt/QGIS (il log su QGIS è opzionale). Il file è identico byte per byte su master.
+- **`IndexStatus`** (dataclass frozen `table`, `column`, `geometries`, `indexed`, `triggers`): `ok` vale solo se esistono tutti e 3 i trigger `gii/giu/gid` **e** le righe dell'R*Tree coincidono con le geometrie non nulle. Se la tabella `idx_…` manca, `indexed` è `None`.
+- **`audit_spatial_indexes(con)`**: legge `geometry_columns WHERE spatial_index_enabled = 1` e **non richiede SpatiaLite** (i trigger stanno in `sqlite_master`, l'R*Tree è un modulo built-in di SQLite). Su un DB sano costa qualche `count(*)` e **non scrive nulla**. I DB non spaziali (senza `geometry_columns`) restituiscono `[]`, le colonne registrate su tabelle inesistenti vengono saltate, `iso_metadata` (tabella interna SpatiaLite) è ignorata.
+- **`repair_spatial_indexes(con, statuses)`**: ogni colonna rotta viene riparata nel suo `SAVEPOINT` con la sequenza:
+  1. `DisableSpatialIndex`;
+  2. `DROP TABLE IF EXISTS` della tabella `idx_<t>_<col>` orfana;
+  3. `CreateSpatialIndex` (errore se non restituisce 1). Ripristina anche le guardie tipo/SRID `ggi/ggu`;
+  4. `RecoverSpatialIndex` se il conteggio differisce ancora;
+  5. `UpdateLayerStatistics`.
+
+  Se un passo fallisce, quella colonna viene annullata con `ROLLBACK TO` e le altre proseguono.
+- **`ensure_spatial_indexes(db_path, load_spatialite, force=False, backup=True, log=None)`**:
+  - viene eseguito **una volta per sessione per file** (cache a livello di modulo sul path assoluto, `reset_session_cache()` per i test, `force=True` per ripetere);
+  - SOLO se qualcosa è rotto carica SpatiaLite con il loader del plugin e scrive `<db>.pre_spatial_index_repair_<timestamp UTC>` con la backup API di `sqlite3` (contenuto del WAL incluso); poi ripara in autocommit;
+  - l'esito va nel log dei messaggi di QGIS, scheda "PyArchInit": colonne ricostruite, eventuali colonne NON riparate (livello Warning) e percorso del backup;
+  - **non solleva mai eccezioni**: se SpatiaLite non è caricabile registra solo un avviso e non scrive nulla (niente backup, DB intatto).
+
+#### 2. Aggancio alla connessione (`modules/db/pyarchinit_db_manager.py`)
+
+- **Dev:** nel ramo SQLite di `Pyarchinit_db_management.connection()`, subito dopo `check_and_update_sqlite_db`, perché le ricreazioni di tabelle dell'updater possono far sparire i trigger. Chiamata: `ensure_spatial_indexes(db_path, lambda c: self.load_spatialite(c, None))`, dentro `try/except` (in caso di problemi stampa `spatial index check skipped: …` e la connessione prosegue).
+- **Master (`779b7a15`):** stessa chiamata per le connessioni SQLite (`conn_str` che inizia con `sqlite`) dopo `DB_update(...).update_table()`, con il `load_spatialite` di master.
+
+#### Test
+
+- **`tests/migrations/test_spatial_index_repair.py` (NUOVO, 9):**
+  - riproduce il `DROP/CREATE` dello script di allineamento e verifica che, dopo la riparazione, una geometria appena digitalizzata sia restituita dalla query bbox sull'R*Tree (come fa il provider per disegnare);
+  - un indice disallineato viene ricostruito anche con i trigger presenti;
+  - il backup conserva lo stato rotto;
+  - un DB sano resta identico byte per byte e resta verificabile con un loader che rifiuta SpatiaLite;
+  - con SpatiaLite non caricabile: nessuna eccezione, nessun backup, DB intatto;
+  - il controllo gira una volta per sessione (e di nuovo con `force`);
+  - `iso_metadata` è ignorata;
+  - un DB non spaziale è ignorato.
+- ROSSO prima dell'implementazione (`ImportError`: modulo mancante), poi **9/9 VERDI** con il python di QGIS (SpatiaLite 5.0.1) e con il python 3.12 di Homebrew (SpatiaLite 5.1). Con il python.org 3.13 (senza `load_extension`): 1 passato + 8 saltati.
+- **Regressione:**
+  - `tests/utility` 50 passati;
+  - `tests/sync` 476 passati;
+  - `tests/migrations` 33 passati + 8 saltati, più i 4 errori preesistenti della fixture PG di `test_media_fk_migration` (identici senza la modifica).
+- **E2E:** con il python di QGIS, la vera `Pyarchinit_db_management(...).connection()` su una copia di `villa_romana_pyarchinit.sqlite` ha ricostruito `pyarchinit_reperti` 0 → 122/122 e `pyunitastratigrafiche` 0 → 54/54 (più il difetto latente di `pyarchinit_us_negative_doc`/`_usm`). File di backup creato, `connection()` restituisce `True`.
+
+#### Documentazione
+
+- Tutorial 14 (GIS), sezione risoluzione problemi, aggiornato nelle 10 lingue (commit separato).
+
+#### ⚠️ Importante per gli utenti
+
+- **Non c'è nulla da fare.** Alla prossima connessione a ciascun DB SQLite gli indici rotti vengono ricostruiti una sola volta.
+- Accanto al DB compare un backup `.pre_spatial_index_repair_<timestamp>`: si può eliminare dopo aver verificato che i layer si vedono.
+- I layer già caricati in QGIS vanno ricaricati.
+- Questo supera la nota "il plugin non li ripara ancora automaticamente" della voce precedente.
+
+#### Note per master
+
+- Portato su `master` come commit `779b7a15` (sopra `884c0364`, fix del template di `pyarchinit_us_negative_doc`; entrambi ora **pushati su `master`**, non ancora rilasciati). Il modulo è identico byte per byte; cambia solo il punto di aggancio, dopo `DB_update(...).update_table()`. Il test non è stato portato: vive su dev.
+
+### English
+
+#### Context
+
+- Follow-up to the previous entry (SQLite template without R*Tree triggers). After the template fix, a read-only audit of **76 local SQLite DBs** showed the defect is widespread:
+  - **10 DBs with geometries invisible right now**, among them k2/khutm2 (about 14,600 US with an empty R*Tree), villa_romana (54 US + 122 finds), figline, the isole_interrate quote layers and Ventena's `us_negative_doc` (2/4 indexed);
+  - **50 DBs with only the latent defect**: the triggers are missing but the tables are empty for now;
+  - **2 DBs with a stale index**, i.e. more R*Tree rows than geometries;
+  - **14 healthy DBs**.
+- **Causes:**
+  - table recreations (scripts and updaters): a `DROP TABLE` + `CREATE TABLE` keeps the `geometry_columns` row (`spatial_index_enabled = 1`) but loses the `gii_/giu_/gid_` triggers;
+  - import paths that write without going through the triggers.
+- The QGIS SpatiaLite provider selects the features to draw through the R*Tree: an empty or out-of-sync index means an invisible or incomplete layer. Fixing only the template does not heal users' existing DBs.
+
+#### 1. New module `modules/db/spatial_index_repair.py`
+
+- Standard-library `sqlite3` only, no Qt/QGIS dependency (QGIS logging is optional). The file is byte-identical on master.
+- **`IndexStatus`** (frozen dataclass `table`, `column`, `geometries`, `indexed`, `triggers`): `ok` only when all 3 `gii/giu/gid` triggers exist **and** the R*Tree row count equals the non-null geometries. If the `idx_…` table is missing, `indexed` is `None`.
+- **`audit_spatial_indexes(con)`**: reads `geometry_columns WHERE spatial_index_enabled = 1` and **needs NO SpatiaLite** (the triggers live in `sqlite_master`, the R*Tree is a built-in SQLite module). On a healthy DB it costs a few `count(*)` and **writes nothing**. Non-spatial DBs (no `geometry_columns`) return `[]`, columns registered on missing tables are skipped, and `iso_metadata` (SpatiaLite-internal) is ignored.
+- **`repair_spatial_indexes(con, statuses)`**: each broken column is repaired in its own `SAVEPOINT` with this sequence:
+  1. `DisableSpatialIndex`;
+  2. `DROP TABLE IF EXISTS` of the orphan `idx_<t>_<col>` table;
+  3. `CreateSpatialIndex` (error unless it returns 1). This also restores the `ggi/ggu` type/SRID guards;
+  4. `RecoverSpatialIndex` if the count still differs;
+  5. `UpdateLayerStatistics`.
+
+  If a step fails, that column is rolled back with `ROLLBACK TO` and the others carry on.
+- **`ensure_spatial_indexes(db_path, load_spatialite, force=False, backup=True, log=None)`**:
+  - runs **once per session per file** (module-level cache keyed on the absolute path, `reset_session_cache()` for tests, `force=True` to run again);
+  - ONLY when something is broken, it loads SpatiaLite with the plugin's own loader and writes `<db>.pre_spatial_index_repair_<UTC timestamp>` with the `sqlite3` backup API (WAL content included); then it repairs in autocommit mode;
+  - the outcome goes to the QGIS message log, "PyArchInit" tab: rebuilt columns, any columns NOT repaired (Warning level) and the backup path;
+  - it **never raises**: if SpatiaLite cannot be loaded it only logs a warning and writes nothing (no backup, DB untouched).
+
+#### 2. Hook on connection (`modules/db/pyarchinit_db_manager.py`)
+
+- **Dev:** in the SQLite branch of `Pyarchinit_db_management.connection()`, right after `check_and_update_sqlite_db`, because the updater's table recreations can drop the triggers. Call: `ensure_spatial_indexes(db_path, lambda c: self.load_spatialite(c, None))`, inside `try/except` (on failure it prints `spatial index check skipped: …` and the connection goes on).
+- **Master (`779b7a15`):** same call for SQLite connections (`conn_str` starting with `sqlite`) after `DB_update(...).update_table()`, with master's own `load_spatialite`.
+
+#### Tests
+
+- **`tests/migrations/test_spatial_index_repair.py` (NEW, 9):**
+  - reproduces the alignment script's `DROP/CREATE` and checks that, after the repair, a newly digitised geometry is returned by the R*Tree bbox query (as the provider does when drawing);
+  - an out-of-sync index is rebuilt even with the triggers in place;
+  - the backup keeps the broken state;
+  - a healthy DB stays byte-identical and can still be audited with a loader that refuses SpatiaLite;
+  - with SpatiaLite not loadable: no exception, no backup, DB untouched;
+  - the check runs once per session (and again with `force`);
+  - `iso_metadata` is ignored;
+  - a non-spatial DB is ignored.
+- RED before the implementation (`ImportError`: module missing), then **9/9 GREEN** on the QGIS python (SpatiaLite 5.0.1) and on Homebrew python 3.12 (SpatiaLite 5.1). On the python.org 3.13 build (no `load_extension`): 1 passed + 8 skipped.
+- **Regression:**
+  - `tests/utility` 50 passed;
+  - `tests/sync` 476 passed;
+  - `tests/migrations` 33 passed + 8 skipped, plus the 4 pre-existing PG-fixture errors of `test_media_fk_migration` (identical without the change).
+- **E2E:** under the QGIS python, the real `Pyarchinit_db_management(...).connection()` on a copy of `villa_romana_pyarchinit.sqlite` rebuilt `pyarchinit_reperti` 0 → 122/122 and `pyunitastratigrafiche` 0 → 54/54 (plus the latent defect on `pyarchinit_us_negative_doc`/`_usm`). Backup file created, `connection()` returns `True`.
+
+#### Documentation
+
+- Tutorial 14 (GIS) troubleshooting section updated in all 10 languages (separate commit).
+
+#### ⚠️ Important for users
+
+- **Nothing to do.** On the next connection to each SQLite DB, broken indexes are rebuilt once.
+- A `.pre_spatial_index_repair_<timestamp>` backup appears next to the DB: it can be deleted after checking that the layers are visible.
+- Layers already loaded in QGIS must be reloaded.
+- This supersedes the "the plugin does not repair them automatically yet" note in the previous entry.
+
+#### Notes for master
+
+- Ported to `master` as commit `779b7a15` (on top of `884c0364`, the template fix for `pyarchinit_us_negative_doc`; both now **pushed to `master`**, not yet released). The module is byte-identical; only the hook point differs, after `DB_update(...).update_table()`. The test was not ported: it lives on dev.
+
+---
+
 ## [fix] - 2026-09-10 — Template SQLite: i DB creati da zero avevano le geometrie US invisibili (indice spaziale senza trigger)
 
-> Branch `Stratigraph_00001`. Commit `5d61d2f3`. Portato anche su `master` (branch locale `fix/large-relations-master`, commit `884c0364` sopra `29094958` = bump 4.9.13, **non ancora pushato né rilasciato**); su master solo `pyarchinit_us_negative_doc`.
+> Branch `Stratigraph_00001`. Commit `5d61d2f3`. Portato anche su `master` (commit `884c0364` sopra `29094958` = bump 4.9.13, **pushato su `master`**, non ancora rilasciato); su master solo `pyarchinit_us_negative_doc`.
 > File: `resources/dbfiles/pyarchinit.sqlite`, `resources/dbfiles/pyarchinit_db.sqlite`, `scripts/fixes/final_postgres_alignment.py`, `tests/utility/test_shipped_sqlite_spatial_index.py` (NUOVO).
 
 ### Italiano
@@ -50,7 +199,7 @@
 
 #### Note per master
 
-- Portato su `master` come commit `884c0364` sul branch locale `fix/large-relations-master` (sopra `29094958` = bump 4.9.13), **non ancora pushato né rilasciato**: stessa riparazione di `pyarchinit_us_negative_doc` nel template e nel DB di esempio di master (US/USM di master erano già sani; lo script `final_postgres_alignment.py` non esiste su master, il test non è stato portato).
+- Portato su `master` come commit `884c0364` (sopra `29094958` = bump 4.9.13), **pushato su `master`**, non ancora rilasciato: stessa riparazione di `pyarchinit_us_negative_doc` nel template e nel DB di esempio di master (US/USM di master erano già sani; lo script `final_postgres_alignment.py` non esiste su master, il test non è stato portato).
 
 ### English
 
@@ -92,7 +241,7 @@
 
 #### Notes for master
 
-- Ported to `master` as commit `884c0364` on the local branch `fix/large-relations-master` (on top of `29094958` = bump 4.9.13), **not yet pushed nor released**: same repair of `pyarchinit_us_negative_doc` in master's template and sample DB (master's US/USM were already healthy; `final_postgres_alignment.py` does not exist on master, the test was not ported).
+- Ported to `master` as commit `884c0364` (on top of `29094958` = bump 4.9.13), **pushed to `master`**, not yet released: same repair of `pyarchinit_us_negative_doc` in master's template and sample DB (master's US/USM were already healthy; `final_postgres_alignment.py` does not exist on master, the test was not ported).
 
 ---
 
