@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.15-alpha
+version=5.13.16-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,37 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.15-alpha (2026-09-10) [SQLite: invisible layer geometries — template fix + automatic spatial index repair]:
+changelog=5.13.16-alpha (2026-09-11) [SQLite: spatial views drawn again + first start: questions in front, install progress]:
+    - Fix: SQLite/SpatiaLite spatial views (US, USM, quote, strutture,
+      reperti, UT ...) loaded but drew nothing or the wrong features: QGIS
+      and OGR select what to draw through the view key, which must be the
+      ROWID of the geometry table. The schema updater recreated the us,
+      strutture and reperti views with no ROWID, the quote views took their
+      key from us_table (also the config dialog "update SQLite" button), the
+      UT views were never registered, registrations pointed at views that
+      do not exist, and geometry tables without a spatial index drew nothing
+      with GDAL builds lacking the SpatiaLite functions (QGIS on macOS).
+    - Feature: the automatic check when a SQLite DB is connected now also
+      repairs the views (new modules/db/spatial_view_repair.py and
+      spatial_view_definitions.py): key = ROWID of the geometry table, stale
+      registrations removed, missing standard views recreated, UT views
+      registered, every geometry table indexed. Read-only audit, each fix
+      proven on a TEMP view first, one backup
+      <db>.pre_spatial_index_repair_<UTC>, once per session. Sources fixed
+      (17 CREATE VIEW, tomba_table rename with legacy_alter_table, no views
+      on missing tables); shipped template and sample DB repaired, broken
+      views pyarchinit_pyuscarlinee_view and
+      pyarchinit_uscaratterizzazioni_view removed.
+    - Fix: first start of pyArchInit 5: the question "copy the data of the
+      previous installation into ~/pyarchinit_5?" opened behind the splash
+      and QGIS (above all on Windows) and the start seemed stuck. Questions
+      and the package-install dialog now always stay in front (new
+      modules/utility/startup_ui.py); while the packages install, the
+      splash shows a progress bar with package n/N, percentage and elapsed
+      time; no console windows on Windows.
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), tutorials 01 and 14. Spatial part
+      also on master as 4.9.15.
+  5.13.15-alpha (2026-09-10) [SQLite: invisible layer geometries — template fix + automatic spatial index repair]:
     - Fix: since fa58feb8 (2025-10-12) the SQLite template copied by "Crea
       database SQLite" shipped pyunitastratigrafiche, pyunitastratigrafiche_usm
       and pyarchinit_us_negative_doc with spatial_index_enabled=1 but without
