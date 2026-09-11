@@ -9812,7 +9812,7 @@ msgstr "Matriz de exportación"
 #: ../gui/ui/US_USM.ui:43668
 #, fuzzy
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
+msgid "Ordine stratigrafico"
 msgstr "Orden estratigráfico"
 
 #: ../gui/ui/US_USM.ui:44132

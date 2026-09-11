@@ -9766,8 +9766,8 @@ msgstr "Matrice d'exportation"
 #: ../gui/ui/US_USM.ui:43668
 #, fuzzy
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
-msgstr "Ordre startigraphique"
+msgid "Ordine stratigrafico"
+msgstr "Ordre stratigraphique"
 
 #: ../gui/ui/US_USM.ui:44132
 #, fuzzy

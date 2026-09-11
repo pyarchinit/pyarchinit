@@ -9834,8 +9834,8 @@ msgstr "مصفوفة التصدير"
 #: ../gui/ui/US_USM.ui:43668
 #, fuzzy
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
-msgstr "ترتيب Startigraphic"
+msgid "Ordine stratigrafico"
+msgstr "ترتيب طبقي"
 
 #: ../gui/ui/US_USM.ui:44132
 #, fuzzy

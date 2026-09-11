@@ -38957,7 +38957,7 @@ p, li { white-space: pre-wrap; }
                         </font>
                        </property>
                        <property name="text">
-                        <string>Ordine startigrafico</string>
+                        <string>Ordine stratigrafico</string>
                        </property>
                       </widget>
                      </item>

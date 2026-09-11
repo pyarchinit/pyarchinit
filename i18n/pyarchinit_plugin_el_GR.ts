@@ -10340,8 +10340,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="38928" />
-        <source>Ordine startigrafico</source>
-        <translation>Startigraphic order</translation>
+        <source>Ordine stratigrafico</source>
+        <translation>Στρωματογραφική σειρά</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="37525" />

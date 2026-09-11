@@ -132,13 +132,13 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 us = str(sing_rec.us)
                 un_t = str(sing_rec.unita_tipo)##per inserire il termine US o USM
                 datazione = str(sing_rec.periodo_iniziale)+'-'+str(sing_rec.fase_iniziale)##per inserire la datazione estesa
-                defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione startigrafica
-                doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione startigrafica
+                defin = str(sing_rec.d_interpretativa.replace(' ','_'))##per inserire la definizione stratigrafica
+                doc = str(sing_rec.doc_usv.replace(' ','_'))##per inserire la definizione stratigrafica
             
                 rapporti_stratigrafici = eval(sing_rec.rapporti2) if sing_rec.rapporti2 else []
             except (NameError, SyntaxError) as e: 
                 if self.L=='it':
-                    QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                    QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione stratigrafica nella tablewidget dei rapporti stratigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
                             QMessageBox.StandardButton.Ok)
                     break        
                 elif self.L=='de':
@@ -187,7 +187,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             except Exception as e:
                     
                     if self.L=='it':
-                        QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione startigrafica nella tablewidget dei rapporti startigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
+                        QMessageBox.warning(self, 'ATTENZIONE','Mancano i valori unita tipo e interpretazione stratigrafica nella tablewidget dei rapporti stratigrafici. affinchè il matrix sia esportato correttamente devi inserirli',
                                 QMessageBox.StandardButton.Ok)
                     elif self.L=='de':
                         QMessageBox.warning(self, "Warnung", "Sie müssen den Einheitentyp und die startigraphische Interpretation im Tabellenwidget startigraphic reports eingeben",
@@ -518,7 +518,7 @@ class pyarchinit_view_Matrix(QDialog, MAIN_DIALOG_CLASS):
             us = str(sing_rec.us)
             un_t = str(sing_rec.unita_tipo)  ##per inserire il termine US o USM
             # datazione = str(sing_rec.datazione)##per inserire la datazione estesa
-            # defin = str(sing_rec.d_stratigrafica.replace(' ','_'))##per inserire la definizione startigrafica
+            # defin = str(sing_rec.d_stratigrafica.replace(' ','_'))##per inserire la definizione stratigrafica
             sito = str(sing_rec.sito)
             area = str(sing_rec.area)
             rapporti_stratigrafici = eval(sing_rec.rapporti) if sing_rec.rapporti else []

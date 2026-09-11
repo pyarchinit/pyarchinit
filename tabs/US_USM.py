@@ -10104,18 +10104,39 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
             # Create checkbox for stratigraphic order direction
             if not hasattr(self, 'checkBox_reverse_order'):
                 self.checkBox_reverse_order = QCheckBox(self)
-                self.checkBox_reverse_order.setText("Ordine: Antico → Recente" if self.L == 'it'
-                                                   else "Order: Ancient → Recent" if self.L == 'en'
-                                                   else "Reihenfolge: Alt → Neu")
+                # Label and tooltip in every plugin language (English otherwise)
+                order_labels = {
+                    'it': "Ordine: Antico → Recente", 'en': "Order: Ancient → Recent",
+                    'de': "Reihenfolge: Alt → Neu", 'es': "Orden: Antiguo → Reciente",
+                    'fr': "Ordre : Ancien → Récent", 'ar': "الترتيب: من القديم إلى الحديث",
+                    'ca': "Ordre: Antic → Recent", 'ro': "Ordine: Antic → Recent",
+                    'pt': "Ordem: Antigo → Recente", 'el': "Σειρά: Παλαιό → Νεότερο",
+                }
+                order_tips = {
+                    'it': "Se attivo, ordina da antico (livello 0) a recente (livello N).\n"
+                          "Se disattivo, ordina da recente (livello 0) ad antico (livello N).",
+                    'en': "If checked, orders from ancient (level 0) to recent (level N).\n"
+                          "If unchecked, orders from recent (level 0) to ancient (level N).",
+                    'de': "Wenn aktiviert, sortiert von alt (Ebene 0) bis neu (Ebene N).\n"
+                          "Wenn deaktiviert, sortiert von neu (Ebene 0) bis alt (Ebene N).",
+                    'es': "Si está activado, ordena de antiguo (nivel 0) a reciente (nivel N).\n"
+                          "Si está desactivado, ordena de reciente (nivel 0) a antiguo (nivel N).",
+                    'fr': "Si coché, ordonne de l'ancien (niveau 0) au récent (niveau N).\n"
+                          "Si décoché, ordonne du récent (niveau 0) à l'ancien (niveau N).",
+                    'ar': "إذا كان مفعّلاً، يرتّب من الأقدم (المستوى 0) إلى الأحدث (المستوى N).\n"
+                          "إذا كان غير مفعّل، يرتّب من الأحدث (المستوى 0) إلى الأقدم (المستوى N).",
+                    'ca': "Si està activat, ordena d'antic (nivell 0) a recent (nivell N).\n"
+                          "Si està desactivat, ordena de recent (nivell 0) a antic (nivell N).",
+                    'ro': "Dacă este bifat, ordonează de la vechi (nivelul 0) la recent (nivelul N).\n"
+                          "Dacă nu este bifat, ordonează de la recent (nivelul 0) la vechi (nivelul N).",
+                    'pt': "Se ativado, ordena do antigo (nível 0) ao recente (nível N).\n"
+                          "Se desativado, ordena do recente (nível 0) ao antigo (nível N).",
+                    'el': "Αν είναι ενεργό, ταξινομεί από το παλαιότερο (επίπεδο 0) στο νεότερο (επίπεδο N).\n"
+                          "Αν είναι ανενεργό, ταξινομεί από το νεότερο (επίπεδο 0) στο παλαιότερο (επίπεδο N).",
+                }
+                self.checkBox_reverse_order.setText(order_labels.get(self.L, order_labels['en']))
                 self.checkBox_reverse_order.setChecked(True)  # Default: reverse order (ancient to recent)
-                self.checkBox_reverse_order.setToolTip(
-                    "Se attivo, ordina da antico (livello 0) a recente (livello N).\n"
-                    "Se disattivo, ordina da recente (livello 0) ad antico (livello N)." if self.L == 'it'
-                    else "If checked, orders from ancient (level 0) to recent (level N).\n"
-                         "If unchecked, orders from recent (level 0) to ancient (level N)." if self.L == 'en'
-                    else "Wenn aktiviert, sortiert von alt (Ebene 0) bis neu (Ebene N).\n"
-                         "Wenn deaktiviert, sortiert von neu (Ebene 0) bis alt (Ebene N)."
-                )
+                self.checkBox_reverse_order.setToolTip(order_tips.get(self.L, order_tips['en']))
 
                 # Try multiple strategies to add the checkbox to the UI
                 added = False

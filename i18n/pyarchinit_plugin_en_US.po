@@ -8264,8 +8264,8 @@ msgstr "Export Matrix"
 
 #: ../gui/ui/US_USM.ui:43668
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
-msgstr "Startigraphic order"
+msgid "Ordine stratigrafico"
+msgstr "Stratigraphic order"
 
 #: ../gui/ui/US_USM.ui:44132
 msgctxt "DialogUS|"

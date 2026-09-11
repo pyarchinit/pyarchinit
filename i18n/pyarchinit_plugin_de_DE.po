@@ -8335,8 +8335,8 @@ msgstr "Periodencode erstellen"
 
 #: ../gui/ui/US_USM.ui:43668
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
-msgstr "Startigraphische Ordnung"
+msgid "Ordine stratigrafico"
+msgstr "Stratigraphische Ordnung"
 
 #: ../gui/ui/US_USM.ui:44132
 msgctxt "DialogUS|"

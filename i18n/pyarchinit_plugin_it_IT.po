@@ -7730,7 +7730,7 @@ msgstr ""
 
 #: ../gui/ui/US_USM.ui:6890
 msgctxt "DialogUS|"
-msgid "Ordine startigrafico"
+msgid "Ordine stratigrafico"
 msgstr ""
 
 #: ../gui/ui/US_USM.ui:6931

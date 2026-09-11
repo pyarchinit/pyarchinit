@@ -10305,7 +10305,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="38928"/>
-        <source>Ordine startigrafico</source>
+        <source>Ordine stratigrafico</source>
         <translation>Orden estratigráfico</translation>
     </message>
     <message>

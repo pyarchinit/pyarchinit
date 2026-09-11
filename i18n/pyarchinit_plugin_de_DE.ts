@@ -10321,8 +10321,8 @@ p, li { Leerzeichen: Vorverpackung; }
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="38928"/>
-        <source>Ordine startigrafico</source>
-        <translation>Startigraphische Ordnung</translation>
+        <source>Ordine stratigrafico</source>
+        <translation>Stratigraphische Ordnung</translation>
     </message>
     <message>
         <location filename="../gui/ui/US_USM.ui" line="37525"/>
