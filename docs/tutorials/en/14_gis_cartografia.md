@@ -62,6 +62,21 @@ PyArchInit is deeply integrated with **QGIS**, leveraging all its GIS functional
 2. **"View Record"** button → display single
 3. **"View All"** button → display all results
 
+### Style Choice (SU and USM)
+
+When the SUs or wall SUs (USM) of the search results are loaded on the map, the **Style Choice** window appears ("How do you want to manage the layer style?"):
+
+| Button | Effect |
+|--------|--------|
+| **Save new style** | Builds the style from the chosen field and saves it in the database under a name |
+| **Load existing style** | Applies a style already saved in the database (if there are several, you pick one); if none exists, it works like **Use temporary style** |
+| **Use temporary style** | Builds the style from the chosen field without saving it in the database |
+| **Single symbol (outline only)** | Draws only the outline of the geometries, with no fill |
+
+With **Save new style** and **Use temporary style** you then choose the categorization field (**Select Categorization Field** window): **Stratigraphic Definition**, **SU Type** or **Interpretive Definition**; each value of the field gets its own color. Only the fields present in the layer are listed.
+
+Since 5.13.18-alpha the chosen style (and the categorization field) is also respected with SQLite databases, for both SUs and USMs; previously the map always came out with one color per SU.
+
 ## Layer Styling
 
 ### QML Files

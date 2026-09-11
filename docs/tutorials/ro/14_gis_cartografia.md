@@ -62,6 +62,21 @@ PyArchInit este integrat profund cu **QGIS**, valorificând toate funcționalit�
 2. Butonul **„Vizualizare Înregistrare"** → afișare individuală
 3. Butonul **„Vizualizare Toate"** → afișare toate rezultatele
 
+### Alegerea Stilului (US și USM)
+
+Când US sau US de zidărie (USM) din rezultatele căutării sunt încărcate pe hartă, apare fereastra **Style Choice** („How do you want to manage the layer style?"). Butoanele sunt afișate în engleză:
+
+| Buton | Efect |
+|-------|-------|
+| **Save new style** | Creează stilul pe baza câmpului ales și îl salvează în baza de date cu un nume |
+| **Load existing style** | Aplică un stil deja salvat în baza de date (dacă sunt mai multe, se alege unul); dacă nu există niciunul, funcționează ca **Use temporary style** |
+| **Use temporary style** | Creează stilul pe baza câmpului ales fără a-l salva în baza de date |
+| **Single symbol (outline only)** | Desenează doar conturul geometriilor, fără umplere |
+
+Cu **Save new style** și **Use temporary style** se alege apoi câmpul de categorizare (fereastra **Select Categorization Field**, în engleză): **Stratigraphic Definition** (definiție stratigrafică), **SU Type** (tip US) sau **Interpretive Definition** (definiție interpretativă); fiecare valoare a câmpului primește o culoare proprie. Apar doar câmpurile prezente în strat.
+
+Începând cu 5.13.18-alpha, stilul ales (și câmpul de categorizare) este respectat și cu bazele de date SQLite, atât pentru US, cât și pentru USM; înainte harta apărea întotdeauna cu o culoare pentru fiecare US.
+
 ## Stilizarea Straturilor
 
 ### Fișiere QML

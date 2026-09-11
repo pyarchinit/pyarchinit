@@ -62,6 +62,21 @@ PyArchInit e profondamente integrato con **QGIS**, sfruttandone tutte le funzion
 2. Pulsante **"View Record"** → visualizza singola
 3. Pulsante **"View All"** → visualizza tutti i risultati
 
+### Scelta dello Stile (US e USM)
+
+Quando le US o le USM dei risultati di ricerca vengono caricate sulla mappa compare la finestra **Scelta Stile** ("Come vuoi gestire lo stile del layer?"):
+
+| Pulsante | Effetto |
+|----------|---------|
+| **Salva nuovo stile** | Crea lo stile in base al campo scelto e lo salva nel database con un nome |
+| **Carica stile esistente** | Applica uno stile già salvato nel database (se sono più di uno si sceglie quale); se non ce n'è nessuno funziona come **Usa stile temporaneo** |
+| **Usa stile temporaneo** | Crea lo stile in base al campo scelto senza salvarlo nel database |
+| **Simbolo singolo (solo contorno)** | Disegna solo il contorno delle geometrie, senza riempimento |
+
+Con **Salva nuovo stile** e **Usa stile temporaneo** si sceglie poi il campo di categorizzazione (finestra **Selezione Campo per Categorizzazione**): **Definizione Stratigrafica**, **Tipo US** o **Definizione Interpretativa**; ogni valore del campo riceve un proprio colore. Compaiono solo i campi presenti nel layer.
+
+Dalla 5.13.18-alpha lo stile scelto (e il campo di categorizzazione) viene rispettato anche con i database SQLite, sia per le US sia per le USM; prima la mappa usciva sempre con un colore per ogni US.
+
 ## Styling dei Layer
 
 ### File QML

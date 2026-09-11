@@ -62,6 +62,21 @@ PyArchInit ist tief in **QGIS** integriert und nutzt dessen vollständige GIS-Fu
 2. Schaltfläche **"Datensatz anzeigen"** → zeigt einzelne an
 3. Schaltfläche **"Alle anzeigen"** → zeigt alle Ergebnisse an
 
+### Stilauswahl (SE und USM)
+
+Werden die SE oder die Mauerwerks-SE (USM) der Suchergebnisse auf die Karte geladen, erscheint das Fenster **Style Choice** ("How do you want to manage the layer style?"). Die Schaltflächen erscheinen auf Englisch:
+
+| Schaltfläche | Wirkung |
+|--------------|---------|
+| **Save new style** | Erstellt den Stil anhand des gewählten Feldes und speichert ihn unter einem Namen in der Datenbank |
+| **Load existing style** | Wendet einen bereits in der Datenbank gespeicherten Stil an (bei mehreren wählt man einen aus); ist keiner vorhanden, funktioniert es wie **Use temporary style** |
+| **Use temporary style** | Erstellt den Stil anhand des gewählten Feldes, ohne ihn in der Datenbank zu speichern |
+| **Single symbol (outline only)** | Zeichnet nur die Umrisse der Geometrien, ohne Füllung |
+
+Bei **Save new style** und **Use temporary style** wird anschließend das Kategorisierungsfeld gewählt (Fenster **Kategorisierungsfeld auswählen**): **Stratigraphische Definition**, **SE Typ** oder **Interpretative Definition**; jeder Wert des Feldes erhält eine eigene Farbe. Es werden nur die im Layer vorhandenen Felder angeboten.
+
+Seit 5.13.18-alpha wird der gewählte Stil (und das Kategorisierungsfeld) auch bei SQLite-Datenbanken berücksichtigt, sowohl für die SE als auch für die USM; vorher erschien die Karte immer mit einer Farbe pro SE.
+
 ## Layer-Styling
 
 ### QML-Dateien

@@ -62,6 +62,21 @@ PyArchInit est profondément intégré avec **QGIS**, exploitant toutes ses fonc
 2. Bouton **"View Record"** → visualise unique
 3. Bouton **"View All"** → visualise tous les résultats
 
+### Choix du Style (US et USM)
+
+Lorsque les US ou les US muraires (USM) des résultats de recherche sont chargées sur la carte, la fenêtre **Style Choice** apparaît ("How do you want to manage the layer style?"). Les boutons sont affichés en anglais :
+
+| Bouton | Effet |
+|--------|-------|
+| **Save new style** | Crée le style à partir du champ choisi et l'enregistre dans la base de données sous un nom |
+| **Load existing style** | Applique un style déjà enregistré dans la base de données (s'il y en a plusieurs, on choisit lequel) ; s'il n'y en a aucun, fonctionne comme **Use temporary style** |
+| **Use temporary style** | Crée le style à partir du champ choisi sans l'enregistrer dans la base de données |
+| **Single symbol (outline only)** | Dessine uniquement le contour des géométries, sans remplissage |
+
+Avec **Save new style** et **Use temporary style**, on choisit ensuite le champ de catégorisation (fenêtre **Sélectionner le Champ de Catégorisation**) : **Définition Stratigraphique**, **Type US** ou **Définition Interprétative** ; chaque valeur du champ reçoit sa propre couleur. Seuls les champs présents dans la couche sont proposés.
+
+Depuis la 5.13.18-alpha, le style choisi (et le champ de catégorisation) est respecté aussi avec les bases de données SQLite, pour les US comme pour les USM ; auparavant la carte s'affichait toujours avec une couleur par US.
+
 ## Styling des Couches
 
 ### Fichiers QML

@@ -62,6 +62,21 @@ O PyArchInit está profundamente integrado com o **QGIS**, aproveitando todas as
 2. Botão **"Ver Registo"** → exibição individual
 3. Botão **"Ver Todas"** → exibição de todos os resultados
 
+### Escolha do Estilo (UE e USM)
+
+Quando as UEs ou as UEs de muro (USM) dos resultados da pesquisa são carregadas no mapa, aparece a janela **Style Choice** ("How do you want to manage the layer style?"). Os botões são apresentados em inglês:
+
+| Botão | Efeito |
+|-------|--------|
+| **Save new style** | Cria o estilo com base no campo escolhido e guarda-o na base de dados com um nome |
+| **Load existing style** | Aplica um estilo já guardado na base de dados (se houver vários, escolhe-se qual); se não houver nenhum, funciona como **Use temporary style** |
+| **Use temporary style** | Cria o estilo com base no campo escolhido sem o guardar na base de dados |
+| **Single symbol (outline only)** | Desenha apenas o contorno das geometrias, sem preenchimento |
+
+Com **Save new style** e **Use temporary style** escolhe-se depois o campo de categorização (janela **Select Categorization Field**, em inglês): **Stratigraphic Definition** (definição estratigráfica), **SU Type** (tipo de UE) ou **Interpretive Definition** (definição interpretativa); cada valor do campo recebe uma cor própria. Só aparecem os campos presentes na camada.
+
+Desde a 5.13.18-alpha o estilo escolhido (e o campo de categorização) é respeitado também com as bases de dados SQLite, tanto para as UEs como para as USM; antes o mapa saía sempre com uma cor para cada UE.
+
 ## Estilização de Camadas
 
 ### Ficheiros QML

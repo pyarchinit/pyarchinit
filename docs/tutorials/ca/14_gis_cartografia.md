@@ -62,6 +62,21 @@ PyArchInit està profundament integrat amb **QGIS**, aprofitant totes les seves 
 2. Botó **"View Record"** → visualitza individual
 3. Botó **"View All"** → visualitza tots els resultats
 
+### Elecció de l'Estil (US i USM)
+
+Quan les US o les US muràries (USM) dels resultats de cerca es carreguen al mapa apareix la finestra **Style Choice** ("How do you want to manage the layer style?"). Els botons es mostren en anglès:
+
+| Botó | Efecte |
+|------|--------|
+| **Save new style** | Crea l'estil segons el camp triat i el desa a la base de dades amb un nom |
+| **Load existing style** | Aplica un estil ja desat a la base de dades (si n'hi ha diversos, se'n tria un); si no n'hi ha cap, funciona com **Use temporary style** |
+| **Use temporary style** | Crea l'estil segons el camp triat sense desar-lo a la base de dades |
+| **Single symbol (outline only)** | Dibuixa només el contorn de les geometries, sense emplenament |
+
+Amb **Save new style** i **Use temporary style** després es tria el camp de categorització (finestra **Select Categorization Field**, en anglès): **Stratigraphic Definition** (definició estratigràfica), **SU Type** (tipus US) o **Interpretive Definition** (definició interpretativa); cada valor del camp rep un color propi. Només hi apareixen els camps presents a la capa.
+
+Des de la 5.13.18-alpha l'estil triat (i el camp de categorització) es respecta també amb les bases de dades SQLite, tant per a les US com per a les USM; abans el mapa sortia sempre amb un color per a cada US.
+
 ## Estilització de les Capes
 
 ### Fitxers QML
