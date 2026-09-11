@@ -28,10 +28,24 @@ from typing import Dict, List, Optional, Set
 
 # Plugin-local ext_libs directory for dependency isolation
 # Must be prepended to sys.path BEFORE any third-party imports
-# so that plugin dependencies take priority over QGIS-bundled packages
-_EXT_LIBS_DIR = os.path.join(os.path.dirname(__file__), 'ext_libs')
-if not os.path.exists(_EXT_LIBS_DIR):
-    os.makedirs(_EXT_LIBS_DIR, exist_ok=True)
+# so that plugin dependencies take priority over QGIS-bundled packages.
+# Its compiled packages load only in the Python that installed them: one
+# built for another Python (QGIS 3's 3.9 in a QGIS 4 profile) is parked
+# aside and a fresh one is started (modules/utility/python_env.py).
+from .modules.utility.python_env import ensure_ext_libs, pip_interpreter, probe, write_marker
+
+
+def _startup_log(message):
+    print(message)
+    try:
+        from qgis.core import Qgis, QgsMessageLog
+        levels = getattr(Qgis, 'MessageLevel', Qgis)
+        QgsMessageLog.logMessage(message, 'PyArchInit', levels.Warning)
+    except Exception:
+        pass
+
+
+_EXT_LIBS_DIR = ensure_ext_libs(os.path.dirname(__file__), log=_startup_log)
 if _EXT_LIBS_DIR not in sys.path:
     sys.path.insert(0, _EXT_LIBS_DIR)
 
@@ -122,6 +136,10 @@ class PackageManager:
     # Packages bundled by QGIS that must NOT be installed to ext_libs
     # (overriding them breaks QGIS internals)
     QGIS_PROTECTED_PACKAGES = {"numpy", "scipy", "sip", "pyqt5", "qgis"}
+
+    # Same import package under another distribution name: QGIS 4 ships
+    # psycopg2, the requirements ask for psycopg2-binary
+    REQUIREMENT_ALIASES = {"psycopg2-binary": ("psycopg2",)}
 
     @staticmethod
     def is_osgeo4w() -> bool:
@@ -258,9 +276,82 @@ class PackageManager:
         return ubuntu_packages.get(package.split('==')[0], package)
 
     @staticmethod
+    def _python_fallbacks() -> List[str]:
+        """Interpreters tried after those of the running QGIS; pip_interpreter
+        keeps only one with the running Python's version and architecture."""
+        found = []
+        if platform.system() == 'Windows':
+            if PackageManager.is_osgeo4w():
+                found.append(PackageManager.get_osgeo4w_python())
+            found.append(PackageManager.get_windows_qgis_python())
+        elif platform.system() == 'Darwin':
+            names = ('python3', 'python%d.%d' % sys.version_info[:2])
+            for qgis_base in QGIS_PATHS.values():
+                contents_dir = os.path.dirname(qgis_base)
+                for subdir in (os.path.join(qgis_base, 'bin'),
+                               os.path.join(contents_dir, 'Resources', 'python', 'bin'),
+                               os.path.join(contents_dir, 'Frameworks', 'Python.framework',
+                                            'Versions', 'Current', 'bin')):
+                    found += [os.path.join(subdir, n) for n in names]
+            found += ['/usr/bin/python3', '/opt/homebrew/bin/python3', '/usr/local/bin/python3']
+        return found
+
+    @staticmethod
+    def _pip_install(args: List[str], timeout: int = 900) -> bool:
+        """pip install with a Python of the same version and architecture as
+        the one running QGIS: compiled packages built for another Python
+        (QGIS 3's 3.9 while QGIS 4 runs 3.12) cannot be imported."""
+        found = pip_interpreter(PackageManager._python_fallbacks())
+        if found is None:
+            print(f"pyArchInit: no Python {sys.version_info[0]}.{sys.version_info[1]} "
+                  f"({platform.machine()}) with pip found: {args[-1]} not installed")
+            return False
+        python_cmd, env = found
+        try:
+            subprocess.run([python_cmd, "-m", "pip", "install", "--disable-pip-version-check", *args],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, env=env,
+                           timeout=timeout, shell=python_cmd.lower().endswith('.bat'),
+                           **no_console_window())
+            return True
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as e:
+            err = getattr(e, 'stderr', None)
+            detail = err.decode(errors='replace')[-800:] if isinstance(err, bytes) else str(e)
+            print(f"Error installing {args[-1]}: {detail}")
+            return False
+
+    @staticmethod
+    def _reinstall_pillow_in_qgis(package: str) -> bool:
+        """macOS: replace a broken Pillow in the QGIS site-packages, only with
+        a QGIS Python matching the running one."""
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
+        want = (sys.version_info[0], sys.version_info[1], platform.machine().lower())
+        for qgis_type in ['standard', 'ltr']:
+            qgis_base = QGIS_PATHS[qgis_type]
+            qgis_python = os.path.join(qgis_base, 'bin', 'python3')
+            qgis_site_packages = os.path.join(qgis_base, 'lib', f'python{python_version}', 'site-packages')
+            if not os.path.exists(qgis_python) or not os.path.exists(qgis_site_packages):
+                continue
+            got = probe(qgis_python)
+            if not got or got[:3] != want:
+                continue
+            try:
+                # Try to uninstall existing Pillow first
+                subprocess.run([qgis_python, "-m", "pip", "uninstall", "-y", "Pillow"],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                # Install with --target to QGIS site-packages
+                subprocess.run(
+                    [qgis_python, "-m", "pip", "install", "--force-reinstall",
+                     "--target", qgis_site_packages, package],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                return True
+            except Exception as e:
+                print(f"Error reinstalling Pillow: {e}")
+        return False
+
+    @staticmethod
     def install(package: str) -> None:
         """
-        Install a package using the appropriate method for the current OS.
+        Install a package for the running Python into the plugin's ext_libs.
 
         Args:
             package: The package to install
@@ -273,153 +364,26 @@ class PackageManager:
             print(f"Skipping {package_base} - protected QGIS package")
             return
 
-        # Special handling for Pillow on macOS
-        if package_base == 'Pillow' and platform.system() == 'Darwin':
-            # Get Python version for path
-            python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-
-            # Find QGIS Python and site-packages
-            for qgis_type in ['standard', 'ltr']:
-                qgis_base = QGIS_PATHS[qgis_type]
-                qgis_python = os.path.join(qgis_base, 'bin', 'python3')
-                qgis_site_packages = os.path.join(qgis_base, 'lib', f'python{python_version}', 'site-packages')
-
-                if not os.path.exists(qgis_python) or not os.path.exists(qgis_site_packages):
-                    continue
-
-                try:
-                    # Try to uninstall existing Pillow first
-                    subprocess.run([qgis_python, "-m", "pip", "uninstall", "-y", "Pillow"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                    # Install with --target to QGIS site-packages
-                    subprocess.run(
-                        [qgis_python, "-m", "pip", "install", "--force-reinstall",
-                         "--target", qgis_site_packages, package],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-                    break
-                except Exception as e:
-                    print(f"Error reinstalling Pillow: {e}")
+        if (package_base == 'Pillow' and platform.system() == 'Darwin'
+                and PackageManager._reinstall_pillow_in_qgis(package)):
             return
 
-        # Regular installation process
-        # Note: Don't use shlex_quote() with subprocess list - Python handles escaping automatically
         if PackageManager.is_ubuntu():
             ubuntu_package = PackageManager.get_ubuntu_package_name(package)
             try:
                 subprocess.run(['sudo', 'apt', 'install', '-y', ubuntu_package],
                                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            except subprocess.CalledProcessError:
+                return
+            except (subprocess.CalledProcessError, OSError):
                 print(f"Failed to install {ubuntu_package} via apt. Falling back to pip.")
-                ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
-                os.makedirs(ext_libs, exist_ok=True)
-                try:
-                    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade",
-                                   "--target", ext_libs, package],
-                                   check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                except subprocess.CalledProcessError:
-                    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade",
-                                   package, "--user"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif platform.system() == 'Windows':
-            # On Windows, install to plugin-local ext_libs directory
-            ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
-            os.makedirs(ext_libs, exist_ok=True)
 
-            if PackageManager.is_osgeo4w():
-                python_executable = PackageManager.get_osgeo4w_python()
-            else:
-                python_executable = PackageManager.get_windows_qgis_python()
-
-            try:
-                subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
-                               "--target", ext_libs, package],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True,
-                               **no_console_window())
-            except subprocess.CalledProcessError:
-                # Fallback: try with --user flag
-                try:
-                    subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
-                                   package, "--user"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True,
-                                   **no_console_window())
-                except subprocess.CalledProcessError as e:
-                    print(f"Error installing {package} on Windows: {e}")
-        elif platform.system() == 'Darwin':
-            # On macOS, install to plugin-local ext_libs directory
-            # This avoids permission issues with the QGIS app bundle
-            # and ensures plugin deps take priority over bundled packages
-            ext_libs = os.path.join(os.path.dirname(__file__), 'ext_libs')
-            os.makedirs(ext_libs, exist_ok=True)
-
-            installed = False
-            last_error = None
-
-            # Build list of Python executables to try, in priority order:
-            # 1. QGIS bundled python3 (QGIS 3.x: Contents/MacOS/bin/, QGIS 4.x: Contents/Resources/python/bin/)
-            # 2. System python3 (/usr/bin/python3 or Homebrew)
-            #
-            # NOTE: sys.executable is intentionally NOT used as fallback on macOS.
-            # Inside a running QGIS, sys.executable is the QGIS app binary itself,
-            # not a Python interpreter. Invoking it via subprocess would launch a
-            # new QGIS instance with the package spec interpreted as a file path,
-            # producing "Sorgente Dati non Valida" / "Invalid Data Source" errors.
-            python_candidates = []
-
-            for qgis_type in QGIS_PATHS:
-                qgis_base = QGIS_PATHS[qgis_type]
-                # Search common locations where QGIS bundles its Python interpreter
-                contents_dir = os.path.dirname(qgis_base)  # .../Contents
-                bundle_subdirs = [
-                    os.path.join(qgis_base, 'bin'),
-                    os.path.join(contents_dir, 'Resources', 'python', 'bin'),
-                    os.path.join(contents_dir, 'Frameworks', 'Python.framework',
-                                 'Versions', 'Current', 'bin'),
-                ]
-                for subdir in bundle_subdirs:
-                    if not os.path.isdir(subdir):
-                        continue
-                    for py_name in ['python3', 'python3.13', 'python3.12',
-                                    'python3.11', 'python3.10', 'python3.9']:
-                        candidate = os.path.join(subdir, py_name)
-                        if os.path.exists(candidate) and candidate not in python_candidates:
-                            python_candidates.append(candidate)
-
-            # System python fallbacks (always work with pip)
-            for sys_python in ['/usr/bin/python3', '/opt/homebrew/bin/python3',
-                               '/usr/local/bin/python3']:
-                if os.path.exists(sys_python) and sys_python not in python_candidates:
-                    python_candidates.append(sys_python)
-
-            for python_cmd in python_candidates:
-                # Validate this is actually a Python interpreter, not the QGIS
-                # app binary or another non-python executable that happens to live
-                # at a plausible path.
-                try:
-                    probe = subprocess.run(
-                        [python_cmd, '-c', 'import sys; print(sys.version_info[0])'],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                        timeout=5
-                    )
-                    if probe.returncode != 0 or probe.stdout.strip() != b'3':
-                        continue
-                except (subprocess.TimeoutExpired, OSError):
-                    continue
-
-                try:
-                    result = subprocess.run(
-                        [python_cmd, "-m", "pip", "install", "--upgrade",
-                         "--target", ext_libs, package],
-                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
-                        timeout=120
-                    )
-                    installed = True
-                    break
-                except (subprocess.CalledProcessError, subprocess.TimeoutExpired, OSError) as e:
-                    last_error = getattr(e, 'stderr', b'').decode() if hasattr(e, 'stderr') and e.stderr else str(e)
-                    continue
-
-            if not installed and last_error:
-                print(f"Error installing {package} on macOS: {last_error}")
+        # Plugin-local ext_libs (priority over the QGIS packages; no
+        # permission issues with the QGIS bundle / Program Files)
+        if PackageManager._pip_install(["--upgrade", "--target", _EXT_LIBS_DIR, package]):
+            write_marker(_EXT_LIBS_DIR)
+        elif platform.system() in ('Windows', 'Linux'):
+            # Fallback: the user site of the same Python
+            PackageManager._pip_install(["--upgrade", package, "--user"])
 
     @staticmethod
     def remove_opencv_directories() -> None:
@@ -466,7 +430,7 @@ class PackageManager:
                 continue
 
         # Also scan ext_libs .dist-info directories for packages installed there
-        ext_libs = os.path.join(os.path.dirname(requirements_path), 'ext_libs')
+        ext_libs = _EXT_LIBS_DIR
         if os.path.isdir(ext_libs):
             ext_versions = {}
             for item in os.listdir(ext_libs):
@@ -530,6 +494,9 @@ class PackageManager:
                 package_spec = line
                 package_name = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0].strip()
                 pkg_lower = package_name.lower()
+                for alias in PackageManager.REQUIREMENT_ALIASES.get(pkg_lower, ()):
+                    if pkg_lower not in installed_packages and alias in installed_packages:
+                        installed_packages[pkg_lower] = installed_packages[alias]
 
                 if pkg_lower not in installed_packages:
                     # Package not installed at all
