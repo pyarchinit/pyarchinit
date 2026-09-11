@@ -5,6 +5,51 @@
 
 ---
 
+## [fix] - 2026-09-11 — Scheda US: refuso "Ordine startigrafico" corretto in tutte le lingue, casella dell'ordine tradotta in 10 lingue, tutorial 25 e 03 allineati su `order_layer`
+
+> Branch `Stratigraph_00001`. Commit `fa939631` (codice e traduzioni), tutorial 25 `1cd29589`. Non incluso in una release (dopo 5.13.19-alpha).
+> File: `gui/ui/US_USM.ui`, `tabs/US_USM.py`, `tabs/Interactive_matrix.py`, `i18n/*.ts` (10), file `.po` (en/de/fr/ar), `.qm` ricompilati, `.mo` en rigenerato. Documentazione: tutorial 25 (Time Manager) e 03, in 10 lingue.
+
+### Italiano
+
+#### Contesto
+
+- Fatto il 2026-09-11 su richiesta dell'utente, dopo la verifica del tutorial 25.
+
+#### Correzione
+
+1. **Refuso "Ordine startigrafico"** nel pulsante della scheda US (tab Help → Tool Box, `gui/ui/US_USM.ui`) → "Ordine stratigrafico".
+   - Il refuso era anche la stringa sorgente delle traduzioni e diverse traduzioni lo riportavano: corretta la sorgente nei 10 file `i18n/*.ts` e le traduzioni it "Ordine stratigrafico", en "Stratigraphic order" (era "Startigraphic order"), el "Στρωματογραφική σειρά" e pt "Ordem estratigráfica" (erano l'inglese "Startigraphic order"), de "Stratigraphische Ordnung" (era "Startigraphische"), ro "Ordinea stratigrafică" (era "startigrafică"); ar/ca/es/fr erano già corrette.
+   - Stesse correzioni nei file `.po` (msgstr en/de/fr/ar); `.qm` ricompilati con `pyside6-lrelease` (cambia solo quella voce), `.mo` en rigenerato con `msgfmt`.
+   - Stesso refuso corretto negli avvisi visibili all'utente di `tabs/Interactive_matrix.py`.
+2. **Casella accanto al pulsante** (`checkBox_reverse_order` in `tabs/US_USM.py`): etichetta e tooltip esistevano solo in italiano e inglese, tutte le altre lingue mostravano il tedesco "Reihenfolge: Alt → Neu". Ora etichetta e tooltip nelle 10 lingue del plugin (it, en, de, es, fr, ar, ca, ro, pt, el), inglese come ripiego.
+
+#### Documentazione
+
+- **Tutorial 25 (Time Manager)** corretto in 10 lingue: `order_layer` 0 = più antico, N = più recente, come nel Time Manager e nel tutorial 03 (diceva 1 = più recente); calcolato dal pulsante "Ordine stratigrafico", non da un campo "Indice Stratigrafico"; la modalità cumulativa mostra come si è formato il sito.
+- **Tutorial 03** allineato: in de/es/fr/ca/ar la sezione `order_layer` diceva che i valori partono da 1 senza duplicati e non citava la casella; in tutte le lingue diceva che il campo Order Layer si può modificare a mano, mentre nella scheda è bloccato e viene compilato dal pulsante; pulsante e casella citati con le etichette di ciascuna lingua.
+
+### English
+
+#### Context
+
+- Done on 2026-09-11 at the user's request, after checking tutorial 25.
+
+#### Fix
+
+1. **Typo "Ordine startigrafico"** in the US form button (Help tab → Tool Box, `gui/ui/US_USM.ui`) → "Ordine stratigrafico".
+   - The typo was also the source string of the translations and several translations had it too: fixed the source in the 10 `i18n/*.ts` files and the translations it "Ordine stratigrafico", en "Stratigraphic order" (was "Startigraphic order"), el "Στρωματογραφική σειρά" and pt "Ordem estratigráfica" (were the English "Startigraphic order"), de "Stratigraphische Ordnung" (was "Startigraphische"), ro "Ordinea stratigrafică" (was "startigrafică"); ar/ca/es/fr were already right.
+   - Same fixes in the `.po` files (en/de/fr/ar msgstr); `.qm` recompiled with `pyside6-lrelease` (only that entry changed), en `.mo` regenerated with `msgfmt`.
+   - The same typo fixed in user-visible warnings of `tabs/Interactive_matrix.py`.
+2. **Checkbox next to the button** (`checkBox_reverse_order` in `tabs/US_USM.py`): label and tooltip existed only in Italian and English, every other language showed the German "Reihenfolge: Alt → Neu". Now label and tooltip in all 10 plugin languages (it, en, de, es, fr, ar, ca, ro, pt, el), English as fallback.
+
+#### Documentation
+
+- **Tutorial 25 (Time Manager)** corrected in 10 languages: `order_layer` 0 = oldest, N = most recent, as in the Time Manager and tutorial 03 (it said 1 = most recent); computed by the "Ordine stratigrafico" button, not an "Indice Stratigrafico" field; cumulative mode shows how the site formed.
+- **Tutorial 03** aligned: in de/es/fr/ca/ar the `order_layer` section said values start at 1 without duplicates and did not mention the checkbox; in every language it said the Order Layer field can be edited by hand, while the field is locked in the form and filled by the button; button and checkbox are quoted with each language's labels.
+
+---
+
 ## [fix] - 2026-09-11 — GIS US: "Carica stile esistente" usa un QML come modello, categoria Periodo/Fase (`cont_per`), ordine di disegno come il Time Manager
 
 > Branch `Stratigraph_00001`. Commit `311c07ff`, versione `5.13.19-alpha` (non ancora rilasciata). Master: non portato.
