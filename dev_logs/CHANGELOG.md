@@ -5,6 +5,87 @@
 
 ---
 
+## [fix] - 2026-09-11 — Tutorial: i link dell'indice portano al paragrafo, i link a un altro tutorial lo aprono nel visualizzatore, niente più browser web (Windows)
+
+> Branch `Stratigraph_00001`. Commit: `0acdfa6d`: links …). Non incluso in una release (dopo 5.13.19-alpha).
+> File: `modules/utility/tutorial_links.py` (NUOVO), `tabs/Tutorial_viewer.py`, `pyarchinitDockWidget.py`, `tests/utility/test_tutorial_links.py` (NUOVO). Contenuto dei tutorial: `docs/tutorials/ar/16_بطاقة_الفخار.md`, `docs/tutorials/el/08_scheda_inventario_materiali.md`.
+
+### Italiano
+
+#### Contesto
+
+- Segnalato dall'utente il 2026-09-11: su Windows la scheda dei tutorial apre il browser web e non va alla pagina, al capitolo o al paragrafo cliccato.
+
+#### Causa
+
+- Riguarda entrambi i visualizzatori: `tabs/Tutorial_viewer.py` (finestra Tutorial) e `pyarchinitDockWidget.py` (scheda tutorial del dock).
+- Il `QTextBrowser` gestisce i click da sé (`setOpenLinks(False)`); ogni link che non era un'animazione `.html` finiva in `webbrowser.open()`:
+  - i link dell'"Indice" di ogni tutorial (`'#introduzione'`, 1267 link in tutte le lingue) e i link a un altro tutorial (`'34_movecost.md'`, 24) aprivano il browser web (su Windows su niente di utile);
+  - i file locali venivano aperti come `f'file://{abs_path}'`, malformato su Windows (backslash, niente `file:///`, frammento perso).
+- Inoltre i convertitori Markdown→HTML producevano titoli senza ancore, quindi non c'era nessun punto a cui scorrere.
+
+#### Correzione
+
+1. **Nuovo modulo `modules/utility/tutorial_links.py`** (Python puro):
+   - `slugify()`: ancore in stile GitHub, quelle usate dagli indici (1263 su 1267 corrispondevano già così);
+   - `heading_slugs()`, `add_heading_anchors()`: un `<a name>` in ogni `<h1>`..`<h6>`, titoli ripetuti con `-1`, `-2`;
+   - `classify_link()`: ancora / tutorial `.md` / animazione `.html` / file / esterno; gestiti URL `file:` e percorsi Windows;
+   - `scroll_to_anchor()`, `local_file_url()` (`Path.as_uri()`: `file:///C:/...` su Windows), `follow_link()`.
+2. **Entrambi i visualizzatori:**
+   - i titoli ricevono le ancore;
+   - `'#…'` scorre al paragrafo all'interno del tutorial;
+   - `'NN_x.md#…'` apre quel tutorial nel visualizzatore (selezionandolo nell'elenco) a quel paragrafo;
+   - le animazioni restano nel visualizzatore integrato;
+   - altri file e pagine web vanno al sistema tramite `QDesktopServices`.
+3. **Contenuto dei tutorial:** corretti i 4 link dell'indice che non corrispondevano a nessun titolo:
+   - ar/16: link senza "(Pottery Tools)";
+   - el/08: la traduzione non aveva le sezioni "Λειτουργίες GIS", "Ποσοτικοποιήσεις και Στατιστικά", "Εξαγωγή και Αναφορές" (tradotte dal tutorial 08 italiano e aggiunte).
+
+#### Test e verifica
+
+- **`tests/utility/test_tutorial_links.py`:** slug, ancore, tipi di link, azioni, URL dei file, ogni voce dell'indice di ogni tutorial trova il suo titolo, entrambi i visualizzatori usano il modulo condiviso, un `QTextBrowser` reale scorre.
+- **Verifica reale** sul tutorial it/03 con i convertitori di entrambi i visualizzatori: 22/22 voci dell'indice con ancora; un click su `'#campi-identificativi'` scorre (≈3000 px) e non apre nessun browser.
+- Verificato solo su macOS (il comportamento su Windows discende dalla rimozione del codice `webbrowser.open` / `file://`).
+
+### English
+
+#### Context
+
+- Reported by the user on 2026-09-11: on Windows the tutorial tab opens the web browser and does not go to the page, chapter or paragraph clicked.
+
+#### Cause
+
+- Affects both viewers: `tabs/Tutorial_viewer.py` (Tutorial window) and `pyarchinitDockWidget.py` (tutorial tab of the dock).
+- The `QTextBrowser` handles clicks itself (`setOpenLinks(False)`); every link that was not an `.html` animation ended in `webbrowser.open()`:
+  - the "Indice" links of every tutorial (`'#introduzione'`, 1267 links in all languages) and the links to another tutorial (`'34_movecost.md'`, 24) opened the web browser (on Windows on nothing useful);
+  - local files were opened as `f'file://{abs_path}'`, malformed on Windows (backslashes, no `file:///`, fragment lost).
+- Also the Markdown→HTML converters produced headings without anchors, so there was nowhere to scroll to.
+
+#### Fix
+
+1. **New module `modules/utility/tutorial_links.py`** (pure Python):
+   - `slugify()`: GitHub-style anchors, the ones used by the tables of contents (1263 of 1267 matched as is);
+   - `heading_slugs()`, `add_heading_anchors()`: an `<a name>` in every `<h1>`..`<h6>`, repeated headings get `-1`, `-2`;
+   - `classify_link()`: anchor / tutorial `.md` / animation `.html` / file / external; `file:` URLs and Windows paths handled;
+   - `scroll_to_anchor()`, `local_file_url()` (`Path.as_uri()`: `file:///C:/...` on Windows), `follow_link()`.
+2. **Both viewers:**
+   - headings get anchors;
+   - `'#…'` scrolls to the paragraph inside the tutorial;
+   - `'NN_x.md#…'` opens that tutorial in the viewer (selecting it in the list) at that paragraph;
+   - animations stay in the embedded viewer;
+   - other files and web pages go to the system through `QDesktopServices`.
+3. **Tutorial content:** fixed the 4 table-of-contents links that matched no heading:
+   - ar/16: link without "(Pottery Tools)";
+   - el/08: the translation lacked the sections "Λειτουργίες GIS", "Ποσοτικοποιήσεις και Στατιστικά", "Εξαγωγή και Αναφορές" (translated from the Italian tutorial 08 and added).
+
+#### Tests and verification
+
+- **`tests/utility/test_tutorial_links.py`:** slugs, anchors, link kinds, actions, file URL, every table-of-contents entry of every tutorial finds its heading, both viewers use the shared module, a real `QTextBrowser` scrolls.
+- **Real check** on tutorial it/03 with both viewers' converters: 22/22 table-of-contents entries anchored; a click on `'#campi-identificativi'` scrolls (≈3000 px) and opens no browser.
+- Verified on macOS only (the Windows behaviour follows from the removed `webbrowser.open` / `file://` code).
+
+---
+
 ## [fix] - 2026-09-11 — Scheda US: refuso "Ordine startigrafico" corretto in tutte le lingue, casella dell'ordine tradotta in 10 lingue, tutorial 25 e 03 allineati su `order_layer`
 
 > Branch `Stratigraph_00001`. Commit `fa939631` (codice e traduzioni), tutorial 25 `1cd29589`. Non incluso in una release (dopo 5.13.19-alpha).
