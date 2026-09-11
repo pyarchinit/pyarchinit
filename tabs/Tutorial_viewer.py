@@ -50,6 +50,7 @@ if not HAS_WEB_VIEW:
 
 from qgis.core import QgsSettings
 from modules.utility.pyarchinit_theme_manager import ThemeManager
+from modules.utility.tutorial_links import add_heading_anchors, follow_link, scroll_to_anchor
 
 
 class TutorialViewerDialog(QDialog):
@@ -790,28 +791,32 @@ class TutorialViewerDialog(QDialog):
         return super().eventFilter(obj, event)
 
     def _on_link_clicked(self, url):
-        """Handle link clicks in QTextBrowser — resolve relative paths,
-        load .html animations in embedded viewer or open in browser."""
-        url_str = url.toString()
+        """Handle link clicks in QTextBrowser: '#...' scrolls to that
+        paragraph, another tutorial (.md) opens here at its paragraph,
+        animations (.html) in the embedded viewer, other files and web pages
+        in the system (modules/utility/tutorial_links.py). Before, every
+        other link went to the web browser — on Windows never to the
+        chapter or paragraph clicked."""
+        kind = follow_link(url.toString(), self.current_tutorial_dir, self.content_browser,
+                           open_tutorial=self._open_linked_tutorial,
+                           open_animation=self._load_animation if self.animation_viewer is not None else None)
+        if kind == 'missing':
+            _log_info("Tutorial link target not found: {}".format(url.toString()))
 
-        # Resolve relative paths using current tutorial directory
-        if not url.scheme() or url.scheme() == 'file':
-            if hasattr(self, 'current_tutorial_dir') and self.current_tutorial_dir:
-                relative_path = url.toLocalFile() or url_str
-                abs_path = os.path.normpath(os.path.join(self.current_tutorial_dir, relative_path))
-                if os.path.isfile(abs_path):
-                    # If it's an HTML file, try to load in embedded animation viewer
-                    if abs_path.lower().endswith('.html') and self.animation_viewer is not None:
-                        self._load_animation(abs_path)
-                        return
-                    # Otherwise open in system browser
-                    import webbrowser
-                    webbrowser.open(f'file://{abs_path}')
-                    return
-
-        # External URLs
-        import webbrowser
-        webbrowser.open(url_str)
+    def _open_linked_tutorial(self, path, fragment):
+        """Show another tutorial (picked in the list when it is there) and
+        scroll to the paragraph of the link."""
+        from qgis.PyQt.QtCore import QTimer
+        name = os.path.basename(path)
+        for row in range(self.tutorial_list.count()):
+            item = self.tutorial_list.item(row)
+            if item.data(Qt.ItemDataRole.UserRole) == name:
+                self.tutorial_list.setCurrentItem(item)
+                break
+        else:
+            self.load_tutorial_content(path)
+        if fragment:
+            QTimer.singleShot(0, lambda: scroll_to_anchor(self.content_browser, fragment))
 
     def _load_animation(self, file_path):
         """Load a local HTML animation file into the embedded QWebView."""
@@ -1438,7 +1443,8 @@ class TutorialViewerDialog(QDialog):
         html = re.sub(r'<p>\s*(<hr>)', r'\1', html)
         html = re.sub(r'(<hr>)\s*</p>', r'\1', html)
 
-        return html
+        # Anchors on the headings: the "Indice" links (#...) scroll to them
+        return add_heading_anchors(html)
 
     def convert_tables(self, html):
         """Convert markdown tables to HTML"""

@@ -700,6 +700,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         """Convert markdown to styled HTML with proper image handling"""
         import re
         import base64
+        from modules.utility.tutorial_links import add_heading_anchors
 
         # Basic markdown conversion
         html = md_content
@@ -766,6 +767,9 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         # Paragraphs
         html = re.sub(r'\n\n', '</p><p>', html)
 
+        # Anchors on the headings: the "Indice" links (#...) scroll to them
+        html = add_heading_anchors(html)
+
         direction = 'rtl' if self.current_lang == 'ar' else 'ltr'
 
         return f"""
@@ -818,27 +822,39 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         self.tutorial_content.setHtml(html)
 
     def _on_tutorial_link_clicked(self, url):
-        """Handle link clicks in QTextBrowser — load .html animations in embedded viewer."""
-        url_str = url.toString()
+        """Handle link clicks in QTextBrowser: '#...' scrolls to that
+        paragraph, another tutorial (.md) opens here at its paragraph,
+        animations (.html) in the embedded viewer, other files and web pages
+        in the system (modules/utility/tutorial_links.py). Before, every
+        other link went to the web browser — on Windows never to the
+        chapter or paragraph clicked."""
+        from modules.utility.tutorial_links import follow_link
+        kind = follow_link(url.toString(), getattr(self, 'current_tutorial_dir', None), self.tutorial_content,
+                           open_tutorial=self._open_linked_tutorial,
+                           open_animation=self._load_animation_in_viewer if self.tutorial_animation is not None else None)
+        if kind == 'missing':
+            _dock_log("Tutorial link target not found: {}".format(url.toString()))
 
-        # Resolve relative paths using current tutorial directory
-        if not url.scheme() or url.scheme() == 'file':
-            if hasattr(self, 'current_tutorial_dir') and self.current_tutorial_dir:
-                relative_path = url.toLocalFile() or url_str
-                abs_path = os.path.normpath(os.path.join(self.current_tutorial_dir, relative_path))
-                if os.path.isfile(abs_path):
-                    # If it's an HTML file, try to load in embedded animation viewer
-                    if abs_path.lower().endswith('.html') and self.tutorial_animation is not None:
-                        self._load_animation_in_viewer(abs_path)
-                        return
-                    # Otherwise open in system browser
-                    import webbrowser
-                    webbrowser.open(f'file://{abs_path}')
-                    return
-
-        # External URLs
-        import webbrowser
-        webbrowser.open(url_str)
+    def _open_linked_tutorial(self, path, fragment):
+        """Show another tutorial (picked in the list when it is there) and
+        scroll to the paragraph of the link."""
+        from qgis.PyQt.QtCore import QTimer
+        from modules.utility.tutorial_links import scroll_to_anchor
+        name = os.path.basename(path)
+        for row in range(self.tutorial_list.count()):
+            item = self.tutorial_list.item(row)
+            if item.data(Qt.ItemDataRole.UserRole) == name:
+                self.tutorial_list.setCurrentItem(item)
+                break
+        else:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            self.current_tutorial_dir = os.path.dirname(path)
+            self.tutorial_content_stack.setCurrentIndex(0)
+            self.tutorial_back_button.setVisible(False)
+            self.tutorial_content.setHtml(self.markdown_to_html(content, self.current_tutorial_dir))
+        if fragment:
+            QTimer.singleShot(0, lambda: scroll_to_anchor(self.tutorial_content, fragment))
 
     def _load_animation_in_viewer(self, file_path):
         """Load a local HTML animation file into the embedded QWebEngineView."""
