@@ -3362,7 +3362,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             py8='''DROP VIEW if exists pyarchinit_quote_usm_view;'''
             c.execute(py8)
             py9='''    CREATE VIEW if not exists pyarchinit_quote_usm_view AS
-                    SELECT a.rowid AS rowid,
+                    SELECT b.ROWID AS rowid,
                            a.id_us AS id_us,
                            a.sito AS sito,
                            a.area AS area,
@@ -3425,7 +3425,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
             py8='''DROP VIEW if exists pyarchinit_quote_view;'''
             c.execute(py8)
             py9='''    CREATE VIEW if not exists pyarchinit_quote_view AS
-                    SELECT a.rowid AS rowid,
+                    SELECT b.ROWID AS rowid,
                            a.id_us AS id_us,
                            a.sito AS sito,
                            a.area AS area,
