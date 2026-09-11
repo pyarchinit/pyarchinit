@@ -69,11 +69,11 @@ Das Feld `order_layer` definiert die stratigraphische Anzeigereihenfolge:
 - **0** = Älteste Schicht (tief)
 - **N** = Jüngste Schicht (oberflächlich)
 
-Das ist die Konvention der Schaltfläche **Ordine stratigrafico** (stratigraphische Reihenfolge) mit aktiviertem Kontrollkästchen "Reihenfolge: Alt → Neu" (Standardeinstellung, siehe Tutorial 03): Wurde die Reihenfolge umgekehrt berechnet, zeigen der Time Manager und die Karte die Sequenz auf den Kopf gestellt.
+Das ist die Konvention der Schaltfläche **Stratigraphische Ordnung** mit aktiviertem Kontrollkästchen "Reihenfolge: Alt → Neu" (Standardeinstellung, siehe Tutorial 03): Wurde die Reihenfolge umgekehrt berechnet, zeigen der Time Manager und die Karte die Sequenz auf den Kopf gestellt.
 
 ### order_layer ausfüllen
 
-Im SE-Formular, Tab **Hilfe** → **Tool Box**, berechnet die Schaltfläche **Ordine stratigrafico** (stratigraphische Reihenfolge) `order_layer` aus den stratigraphischen Beziehungen (siehe Tutorial 03); der Wert der aktuellen SE erscheint im Feld unter der Schaltfläche. Regeln:
+Im SE-Formular, Tab **Hilfe** → **Tool Box**, berechnet die Schaltfläche **Stratigraphische Ordnung** `order_layer` aus den stratigraphischen Beziehungen (siehe Tutorial 03); der Wert der aktuellen SE erscheint im Feld unter der Schaltfläche. Regeln:
 1. 0 für die ältesten SE, aufsteigende Werte zu den jüngsten hin (an der Oberfläche)
 2. Zeitgleiche SE können denselben Wert haben
 3. Der Matrix-Sequenz folgen

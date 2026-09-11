@@ -703,7 +703,7 @@ Contem ferramentas avancadas para verificacao e exportacao.
 
 | Ferramenta | Descricao |
 |------------|-----------|
-| **Stratigraphic order** | Calcular a sequencia estratigrafica |
+| **Ordem estratigrafica** | Calcular a sequencia estratigrafica |
 | **Create Period Code** | Gerar codigos de periodo |
 | **csv2us** | Importar UEs a partir de CSV |
 | **Graphml2csv** | Exportar GraphML para CSV |
@@ -731,7 +731,7 @@ O sistema analisa as relacoes estratigraficas (cobre/coberta por, corta/cortada 
 
 1. Efetuar uma **pesquisa** por Sitio e Area (o sistema funciona por sitio/area individual)
 2. Ir ao **Separador Ajuda** -> **Caixa de Ferramentas**
-3. Clicar em **Stratigraphic order**
+3. Clicar em **Ordem estratigrafica**
 4. Confirmar a operacao
 5. Aguardar a conclusao
 
@@ -746,15 +746,15 @@ A ordenacao e **sempre numerica sequencial**:
 - Os numeros sao **sempre consecutivos** (nunca 1, 2, 5, 8 - sempre 1, 2, 3, 4)
 - Sem lacunas na sequencia
 - UEs ao mesmo nivel estratigrafico tem o mesmo numero
-- A ordem pode ser **invertida** (caixa de verificacao "Order: Ancient -> Recent"):
-  - **Ativa**: 0 = mais antiga, N = mais recente
+- A ordem pode ser **invertida** (caixa de verificacao "Ordem: Antigo → Recente"):
+  - **Ativa** (predefinicao): 0 = mais antiga, N = mais recente
   - **Inativa**: 0 = mais recente, N = mais antiga
 
 ### Campo Order Layer
 
 O resultado e guardado no campo **Order Layer** (lineEditOrderLayer) de cada UE. Este campo:
 - E **calculado automaticamente** pelo sistema
-- Pode ser **modificado manualmente** se necessario
+- Esta **bloqueado** no formulario: e preenchido pelo botao **Ordem estratigrafica**
 - E utilizado para ordenar as UEs na visualizacao
 
 ### Erros comuns

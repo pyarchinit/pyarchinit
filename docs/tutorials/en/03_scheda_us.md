@@ -747,14 +747,14 @@ The ordering is **always sequential numeric**:
 - No gaps in the sequence
 - SUs at the same stratigraphic level have the same number
 - Order can be **reversed** (checkbox "Order: Ancient → Recent"):
-  - **Active**: 0 = oldest, N = most recent
+  - **Active** (default): 0 = oldest, N = most recent
   - **Inactive**: 0 = most recent, N = oldest
 
 ### Order Layer Field
 
 The result is saved in the **Order Layer** field (lineEditOrderLayer) of each SU. This field:
 - Is **automatically calculated** by the system
-- Can be **manually modified** if necessary
+- Is **locked** in the form: it is filled in by the **Stratigraphic order** button
 - Is used to sort SUs in the view
 
 ### Common errors

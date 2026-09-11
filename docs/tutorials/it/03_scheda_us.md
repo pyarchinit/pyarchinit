@@ -747,14 +747,14 @@ L'ordinamento e **sempre numerico sequenziale**:
 - Non ci sono salti nella sequenza
 - US allo stesso livello stratigrafico hanno lo stesso numero
 - L'ordine puo essere **inverso** (checkbox "Ordine: Antico → Recente"):
-  - **Attivo**: 0 = piu antico, N = piu recente
+  - **Attivo** (predefinito): 0 = piu antico, N = piu recente
   - **Disattivo**: 0 = piu recente, N = piu antico
 
 ### Campo Order Layer
 
 Il risultato viene salvato nel campo **Order Layer** (lineEditOrderLayer) di ogni US. Questo campo:
 - E **calcolato automaticamente** dal sistema
-- Puo essere **modificato manualmente** se necessario
+- E **bloccato** nella scheda: lo scrive il pulsante **Ordine stratigrafico**
 - Viene usato per ordinare le US nella visualizzazione
 
 ### Errori comuni

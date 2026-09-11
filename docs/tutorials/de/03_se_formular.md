@@ -299,31 +299,43 @@ Das **Struktur**-Feld (`comboBox_struttura`) ist ein Mehrfachauswahlfeld, das mi
 
 ### Feld Schichtordnung
 
-Das **Schichtordnung**-Feld (`order_layer`) definiert die Position der SE in der stratigraphischen Sequenz.
-
-**Wichtige Regeln:**
-- Die Ordnung muss **immer sequentiell** sein: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
-- **Keine Lücken erlaubt**: Sie können nicht 1, 2, 5, 8 haben (3, 4, 6, 7 fehlen)
-- **Keine Duplikate**: Jede SE muss eine eindeutige Ordnungsnummer haben
-- Wenn Sie alphabetische Ordnung verwenden: A, B, C, D, E, F... (auch keine Lücken)
+Das **Schichtordnung**-Feld (`order_layer`) definiert die Position der SE in der stratigraphischen Sequenz. Es befindet sich im **Tab Hilfe** → **Tool Box**, unter der Schaltfläche **Stratigraphische Ordnung**.
 
 **Automatische Berechnung:**
-Die Schichtordnung wird automatisch aus den stratigraphischen Beziehungen berechnet. Das System analysiert die Beziehungen zwischen den SE (liegt über, liegt unter, schneidet, usw.) und weist jedem eine sequentielle Ordnungsnummer zu.
+Die Schichtordnung wird automatisch aus den stratigraphischen Beziehungen berechnet. Das System analysiert die Beziehungen zwischen den SE (liegt über, liegt unter, schneidet, usw.), baut daraus einen gerichteten Graphen und berechnet die topologische Reihenfolge. Dabei vergibt es:
+- **Stufe 0**: die ältesten SE (an der Basis der Stratigraphie)
+- **Stufe 1, 2, 3...**: zunehmend jüngere SE
+- **Stufe N**: die jüngsten SE (an der Spitze der Stratigraphie)
 
-**Beispiel korrekter Ordnung:**
-| SE | Schichtordnung |
-|-----|---------------|
-| US 1 | 1 |
-| US 2 | 2 |
-| US 3 | 3 |
-| US 4 | 4 |
+**Voraussetzungen:**
+1. **Vollständige Beziehungen**: Für alle SE müssen die stratigraphischen Beziehungen eingetragen sein
+2. **Keine Paradoxa**: Es darf keine Zyklen in den Beziehungen geben (z. B. SE 1 liegt über SE 2 und SE 2 liegt über SE 1)
+3. **Inverse Beziehungen**: Jede Beziehung muss ihre Umkehrbeziehung haben
 
-**Beispiel falscher Ordnung (vermeiden):**
-| SE | Schichtordnung |
-|-----|---------------|
-| US 1 | 1 |
-| US 2 | 3 | ← Falsch, 2 fehlt |
-| US 3 | 7 | ← Falsch, 4, 5, 6 fehlen |
+**Berechnung ausführen:**
+1. Eine **Suche** nach Fundort und Areal durchführen (die Berechnung arbeitet auf einem einzelnen Fundort/Areal)
+2. Zu **Tab Hilfe** → **Tool Box** gehen
+3. Auf **Stratigraphische Ordnung** klicken
+4. Den Vorgang bestätigen
+5. Das Ende der Berechnung abwarten
+
+**Wichtige Regeln:**
+- Die Ordnung ist **immer numerisch fortlaufend** und beginnt bei 0: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Keine Lücken**: Die Nummern sind immer aufeinanderfolgend (nie 0, 1, 4, 7 – immer 0, 1, 2, 3)
+- **Gleiche Stufe, gleiche Nummer**: SE auf derselben stratigraphischen Stufe erhalten dieselbe Nummer (doppelte Werte sind also normal)
+- Das Kontrollkästchen **"Reihenfolge: Alt → Neu"** legt die Richtung fest:
+  - **Aktiviert** (Standard): 0 = älteste, N = jüngste
+  - **Deaktiviert**: 0 = jüngste, N = älteste
+- Das Feld ist im Formular **gesperrt**: Es wird von der Schaltfläche **Stratigraphische Ordnung** ausgefüllt, nicht von Hand eingegeben
+
+**Beispiel (Kontrollkästchen aktiviert):**
+| SE | Schichtordnung | Hinweis |
+|-----|---------------|---------|
+| US 1 | 3 | jüngste |
+| US 2 | 2 | |
+| US 3 | 2 | gleiche Stufe wie US 2 |
+| US 4 | 1 | |
+| US 5 | 0 | älteste |
 
 ---
 

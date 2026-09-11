@@ -69,11 +69,11 @@ Campul `order_layer` defineste ordinea de afisare stratigrafice:
 - **0** = Nivelul cel mai vechi (adancime)
 - **N** = Nivelul cel mai recent (suprafata)
 
-Aceasta este conventia butonului **Ordine stratigrafica** cu caseta "Ordine: Antic → Recent" activata (setarea implicita, vezi Tutorialul 03): daca ordonarea a fost calculata invers, Managerul Temporal si harta afiseaza secventa rasturnata.
+Aceasta este conventia butonului **Ordinea stratigrafica** cu caseta "Ordine: Antic → Recent" activata (setarea implicita, vezi Tutorialul 03): daca ordonarea a fost calculata invers, Managerul Temporal si harta afiseaza secventa rasturnata.
 
 ### Completarea order_layer
 
-In formularul US, fila **Ajutor** > **Instrumente**, butonul **Ordine stratigrafica** calculeaza `order_layer` din relatiile stratigrafice (vezi Tutorialul 03); valoarea US curente apare in campul de sub buton. Reguli:
+In formularul US, fila **Ajutor** > **Instrumente**, butonul **Ordinea stratigrafica** calculeaza `order_layer` din relatiile stratigrafice (vezi Tutorialul 03); valoarea US curente apare in campul de sub buton. Reguli:
 1. 0 pentru US cele mai vechi, valori crescatoare spre cele mai recente (la suprafata)
 2. US contemporane pot avea aceeasi valoare
 3. Urmati secventa Matricei

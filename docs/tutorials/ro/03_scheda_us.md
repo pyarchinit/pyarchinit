@@ -703,7 +703,7 @@ Contine instrumente avansate pentru verificare si export.
 
 | Instrument | Descriere |
 |------------|-----------|
-| **Ordine stratigrafica** | Calculeaza secventa stratigrafica |
+| **Ordinea stratigrafica** | Calculeaza secventa stratigrafica |
 | **Creare Cod Perioada** | Genereaza coduri de perioada |
 | **csv2us** | Importa US din CSV |
 | **Graphml2csv** | Exporta GraphML in CSV |
@@ -731,7 +731,7 @@ Sistemul analizeaza relatiile stratigrafice (acopera/acoperit de, taie/taiat de 
 
 1. Efectuati o **cautare** dupa Santier si Zona (sistemul functioneaza pe un singur santier/zona)
 2. Mergeti la **Fila Ajutor** → **Instrumente**
-3. Faceti clic pe **Ordine stratigrafica**
+3. Faceti clic pe **Ordinea stratigrafica**
 4. Confirmati operatiunea
 5. Asteptati finalizarea
 
@@ -747,14 +747,14 @@ Ordonarea este **intotdeauna numeric secventiala**:
 - Fara goluri in secventa
 - US-urile la acelasi nivel stratigrafic au acelasi numar
 - Ordinea poate fi **inversata** (casuta de bifare "Ordine: Antic → Recent"):
-  - **Activ**: 0 = cel mai vechi, N = cel mai recent
+  - **Activ** (implicit): 0 = cel mai vechi, N = cel mai recent
   - **Inactiv**: 0 = cel mai recent, N = cel mai vechi
 
 ### Campul Nivel Strat
 
 Rezultatul este salvat in campul **Nivel Strat** (lineEditOrderLayer) al fiecarui US. Acest camp:
 - Este **calculat automat** de sistem
-- Poate fi **modificat manual** daca este necesar
+- Este **blocat** in formular: il completeaza butonul **Ordinea stratigrafica**
 - Este folosit pentru sortarea US-urilor in vizualizare
 
 ### Erori frecvente

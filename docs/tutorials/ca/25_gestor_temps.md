@@ -69,7 +69,7 @@ El camp `order_layer` defineix l'ordre estratigràfic de visualització:
 - **0** = Nivell més antic (profund)
 - **N** = Nivell més recent (superficial)
 
-És la convenció del botó **Ordre estratigràfic** amb la casella "Order: Ancient → Recent" activa (configuració predeterminada, vegeu el Tutorial 03): si l'ordenació s'ha calculat al revés, el Gestor de Temps i el mapa mostren la seqüència capgirada.
+És la convenció del botó **Ordre estratigràfic** amb la casella "Ordre: Antic → Recent" activa (configuració predeterminada, vegeu el Tutorial 03): si l'ordenació s'ha calculat al revés, el Gestor de Temps i el mapa mostren la seqüència capgirada.
 
 ### Compilació order_layer
 

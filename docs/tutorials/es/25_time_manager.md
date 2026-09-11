@@ -69,11 +69,11 @@ El campo `order_layer` define el orden estratigráfico de visualización:
 - **0** = Nivel más antiguo (profundo)
 - **N** = Nivel más reciente (superficial)
 
-Es la convención del botón **Ordine stratigrafico** (orden estratigráfico) con la casilla "Order: Ancient → Recent" activa (configuración predeterminada, ver Tutorial 03): si la ordenación se calculó al revés, el Time Manager y el mapa muestran la secuencia invertida.
+Es la convención del botón **Orden estratigráfico** con la casilla "Orden: Antiguo → Reciente" activa (configuración predeterminada, ver Tutorial 03): si la ordenación se calculó al revés, el Time Manager y el mapa muestran la secuencia invertida.
 
 ### Completar order_layer
 
-En la Ficha de UE, pestaña **Ayuda** → **Tool Box**, el botón **Ordine stratigrafico** (orden estratigráfico) calcula `order_layer` a partir de las relaciones estratigráficas (ver Tutorial 03); el valor de la UE actual aparece en el campo bajo el botón. Reglas:
+En la Ficha de UE, pestaña **Ayuda** → **Tool Box**, el botón **Orden estratigráfico** calcula `order_layer` a partir de las relaciones estratigráficas (ver Tutorial 03); el valor de la UE actual aparece en el campo bajo el botón. Reglas:
 1. 0 a las UE más antiguas, valores crecientes hacia las más recientes (en superficie)
 2. UE contemporáneas pueden tener el mismo valor
 3. Seguir la secuencia del Matrix

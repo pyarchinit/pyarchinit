@@ -270,31 +270,43 @@ El campo **Estructura** (`comboBox_struttura`) es un campo de selección múltip
 
 ### Campo Orden de Capa
 
-El campo **Orden de Capa** (`order_layer`) define la posición de la UE en la secuencia estratigráfica.
-
-**Reglas importantes:**
-- El orden debe ser **siempre secuencial**: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
-- **No se permiten saltos**: no puede tener 1, 2, 5, 8 (faltan 3, 4, 6, 7)
-- **Sin duplicados**: cada UE debe tener un número de orden único
-- Si usa orden alfabético: A, B, C, D, E, F... (tampoco se permiten saltos)
+El campo **Orden de Capa** (`order_layer`) define la posición de la UE en la secuencia estratigráfica. Se encuentra en la **Pestaña Ayuda** → **Tool Box**, debajo del botón **Orden estratigráfico**.
 
 **Cálculo automático:**
-El orden de capa se calcula automáticamente a partir de las relaciones estratigráficas. El sistema analiza las relaciones entre las UE (cubre, cubierta por, corta, etc.) y asigna un número de orden secuencial a cada una.
+El orden de capa se calcula automáticamente a partir de las relaciones estratigráficas. El sistema analiza las relaciones entre las UE (cubre, cubierta por, corta, etc.), construye un grafo dirigido y calcula el orden topológico, asignando:
+- **Nivel 0**: las UE más antiguas (en la base de la estratigrafía)
+- **Nivel 1, 2, 3...**: UE progresivamente más recientes
+- **Nivel N**: las UE más recientes (en la cima de la estratigrafía)
 
-**Ejemplo de orden correcto:**
-| UE | Orden de capa |
-|----|---------------|
-| UE 1 | 1 |
-| UE 2 | 2 |
-| UE 3 | 3 |
-| UE 4 | 4 |
+**Requisitos:**
+1. **Relaciones completas**: todas las UE deben tener sus relaciones estratigráficas introducidas
+2. **Sin paradojas**: no deben existir ciclos en las relaciones (p. ej., UE 1 cubre UE 2 y UE 2 cubre UE 1)
+3. **Relaciones inversas**: todas las relaciones deben tener su inversa
 
-**Ejemplo de orden incorrecto (evitar):**
-| UE | Orden de capa |
-|----|---------------|
-| UE 1 | 1 |
-| UE 2 | 3 | ← Incorrecto, falta 2 |
-| UE 3 | 7 | ← Incorrecto, faltan 4, 5, 6 |
+**Cómo ejecutar el cálculo:**
+1. Realizar una **búsqueda** por Sitio y Área (el sistema trabaja sobre un único sitio/área)
+2. Ir a **Pestaña Ayuda** → **Tool Box**
+3. Hacer clic en **Orden estratigráfico**
+4. Confirmar la operación
+5. Esperar a que termine el cálculo
+
+**Reglas importantes:**
+- El orden es **siempre numérico y secuencial** y empieza en 0: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Sin saltos**: los números son siempre consecutivos (nunca 0, 1, 4, 7; siempre 0, 1, 2, 3)
+- **Mismo nivel, mismo número**: las UE del mismo nivel estratigráfico reciben el mismo número (por tanto, los valores repetidos son normales)
+- La casilla **"Orden: Antiguo → Reciente"** establece el sentido:
+  - **Activada** (predeterminado): 0 = más antigua, N = más reciente
+  - **Desactivada**: 0 = más reciente, N = más antigua
+- El campo está **bloqueado** en la ficha: lo escribe el botón **Orden estratigráfico**, no se introduce a mano
+
+**Ejemplo (casilla activada):**
+| UE | Orden de capa | Nota |
+|----|---------------|------|
+| UE 1 | 3 | más reciente |
+| UE 2 | 2 | |
+| UE 3 | 2 | mismo nivel que UE 2 |
+| UE 4 | 1 | |
+| UE 5 | 0 | más antigua |
 
 ---
 

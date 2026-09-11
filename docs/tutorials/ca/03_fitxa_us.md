@@ -270,31 +270,43 @@ El camp **Estructura** (`comboBox_struttura`) és un camp de selecció múltiple
 
 ### Camp Ordre de Capa
 
-El camp **Ordre de Capa** (`order_layer`) defineix la posició de l'US a la seqüència estratigràfica.
-
-**Regles importants:**
-- L'ordre ha de ser **sempre seqüencial**: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
-- **No es permeten salts**: no podeu tenir 1, 2, 5, 8 (falten 3, 4, 6, 7)
-- **Sense duplicats**: cada US ha de tenir un número d'ordre únic
-- Si feu servir ordre alfabètic: A, B, C, D, E, F... (tampoc es permeten salts)
+El camp **Ordre de Capa** (`order_layer`) defineix la posició de l'US a la seqüència estratigràfica. Es troba a la **Pestanya Ajuda** → **Tool Box**, sota el botó **Ordre estratigràfic**.
 
 **Càlcul automàtic:**
-L'ordre de capa es calcula automàticament a partir de les relacions estratigràfiques. El sistema analitza les relacions entre les US (cobreix, cobert per, talla, etc.) i assigna un número d'ordre seqüencial a cada una.
+L'ordre de capa es calcula automàticament a partir de les relacions estratigràfiques. El sistema analitza les relacions entre les US (cobreix, cobert per, talla, etc.), construeix un graf dirigit i calcula l'ordre topològic, assignant:
+- **Nivell 0**: les US més antigues (a la base de l'estratigrafia)
+- **Nivell 1, 2, 3...**: US progressivament més recents
+- **Nivell N**: les US més recents (al capdamunt de l'estratigrafia)
 
-**Exemple d'ordre correcte:**
-| US | Ordre de capa |
-|----|---------------|
-| US 1 | 1 |
-| US 2 | 2 |
-| US 3 | 3 |
-| US 4 | 4 |
+**Requisits:**
+1. **Relacions completes**: totes les US han de tenir les relacions estratigràfiques introduïdes
+2. **Sense paradoxes**: no hi ha d'haver cicles a les relacions (p. ex., US 1 cobreix US 2 i US 2 cobreix US 1)
+3. **Relacions inverses**: totes les relacions han de tenir la seva inversa
 
-**Exemple d'ordre incorrecte (evitar):**
-| US | Ordre de capa |
-|----|---------------|
-| US 1 | 1 |
-| US 2 | 3 | ← Incorrecte, falta 2 |
-| US 3 | 7 | ← Incorrecte, falten 4, 5, 6 |
+**Com executar el càlcul:**
+1. Fer una **cerca** per Lloc i Àrea (el sistema treballa sobre un sol lloc/àrea)
+2. Anar a **Pestanya Ajuda** → **Tool Box**
+3. Fer clic a **Ordre estratigràfic**
+4. Confirmar l'operació
+5. Esperar que acabi el càlcul
+
+**Regles importants:**
+- L'ordre és **sempre numèric i seqüencial** i comença per 0: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Sense salts**: els números són sempre consecutius (mai 0, 1, 4, 7; sempre 0, 1, 2, 3)
+- **Mateix nivell, mateix número**: les US del mateix nivell estratigràfic reben el mateix número (per tant, els valors repetits són normals)
+- La casella **"Ordre: Antic → Recent"** fixa el sentit:
+  - **Activada** (predeterminat): 0 = la més antiga, N = la més recent
+  - **Desactivada**: 0 = la més recent, N = la més antiga
+- El camp està **bloquejat** a la fitxa: l'escriu el botó **Ordre estratigràfic**, no s'introdueix a mà
+
+**Exemple (casella activada):**
+| US | Ordre de capa | Nota |
+|----|---------------|------|
+| US 1 | 3 | la més recent |
+| US 2 | 2 | |
+| US 3 | 2 | mateix nivell que US 2 |
+| US 4 | 1 | |
+| US 5 | 0 | la més antiga |
 
 ---
 

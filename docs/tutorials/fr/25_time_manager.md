@@ -69,11 +69,11 @@ Le champ `order_layer` définit l'ordre stratigraphique de visualisation :
 - **0** = Niveau le plus ancien (profond)
 - **N** = Niveau le plus récent (superficiel)
 
-C'est la convention du bouton **Ordine stratigrafico** (ordre stratigraphique) avec la case "Order: Ancient → Recent" cochée (réglage par défaut, voir Tutorial 03) : si l'ordre a été calculé à l'envers, le Time Manager et la carte affichent la séquence inversée.
+C'est la convention du bouton **Ordre stratigraphique** avec la case "Ordre : Ancien → Récent" cochée (réglage par défaut, voir Tutorial 03) : si l'ordre a été calculé à l'envers, le Time Manager et la carte affichent la séquence inversée.
 
 ### Remplissage de order_layer
 
-Dans la Fiche US, onglet **Help** → **Tool Box**, le bouton **Ordine stratigrafico** (ordre stratigraphique) calcule `order_layer` à partir des relations stratigraphiques (voir Tutorial 03) ; la valeur de l'US courante apparaît dans le champ sous le bouton. Règles :
+Dans la Fiche US, onglet **Help** → **Tool Box**, le bouton **Ordre stratigraphique** calcule `order_layer` à partir des relations stratigraphiques (voir Tutorial 03) ; la valeur de l'US courante apparaît dans le champ sous le bouton. Règles :
 1. 0 aux US les plus anciennes, valeurs croissantes vers les plus récentes (en surface)
 2. Les US contemporaines peuvent avoir la même valeur
 3. Suivre la séquence de la Matrice

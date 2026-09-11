@@ -69,11 +69,11 @@ O campo `order_layer` define a ordem de apresentacao estratigrafica:
 - **0** = Nivel mais antigo (profundidade)
 - **N** = Nivel mais recente (superficie)
 
-E a convencao do botao **Stratigraphic order** com a caixa "Order: Ancient -> Recent" ativa (predefinicao, ver Tutorial 03): se a ordenacao foi calculada ao contrario, o Time Manager e o mapa mostram a sequencia invertida.
+E a convencao do botao **Ordem estratigrafica** com a caixa "Ordem: Antigo → Recente" ativa (predefinicao, ver Tutorial 03): se a ordenacao foi calculada ao contrario, o Time Manager e o mapa mostram a sequencia invertida.
 
 ### Preencher o order_layer
 
-No Formulario UE, separador **Ajuda** > **Caixa de Ferramentas**, o botao **Stratigraphic order** calcula o `order_layer` a partir das relacoes estratigraficas (ver Tutorial 03); o valor da UE atual aparece no campo por baixo do botao. Regras:
+No Formulario UE, separador **Ajuda** > **Caixa de Ferramentas**, o botao **Ordem estratigrafica** calcula o `order_layer` a partir das relacoes estratigraficas (ver Tutorial 03); o valor da UE atual aparece no campo por baixo do botao. Regras:
 1. 0 para as UE mais antigas, valores crescentes em direcao as mais recentes (na superficie)
 2. UE contemporaneas podem ter o mesmo valor
 3. Seguir a sequencia da Matrix

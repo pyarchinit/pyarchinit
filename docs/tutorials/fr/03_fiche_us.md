@@ -168,31 +168,43 @@ Le champ **Structure** (`comboBox_struttura`) est un champ à sélection multipl
 
 ### Champ Ordre de Couche
 
-Le champ **Ordre de Couche** (`order_layer`) définit la position de l'US dans la séquence stratigraphique.
-
-**Règles importantes :**
-- L'ordre doit être **toujours séquentiel** : 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
-- **Aucun saut autorisé** : vous ne pouvez pas avoir 1, 2, 5, 8 (3, 4, 6, 7 manquants)
-- **Pas de doublons** : chaque US doit avoir un numéro d'ordre unique
-- Si vous utilisez un ordre alphabétique : A, B, C, D, E, F... (également sans sauts)
+Le champ **Ordre de Couche** (`order_layer`) définit la position de l'US dans la séquence stratigraphique. Il se trouve dans **Onglet Help** → **Tool Box**, sous le bouton **Ordre stratigraphique**.
 
 **Calcul automatique :**
-L'ordre de couche est calculé automatiquement à partir des relations stratigraphiques. Le système analyse les relations entre les US (couvre, couvert par, coupe, etc.) et attribue un numéro d'ordre séquentiel à chacune.
+L'ordre de couche est calculé automatiquement à partir des relations stratigraphiques. Le système analyse les relations entre les US (couvre, couvert par, coupe, etc.), construit un graphe orienté et calcule l'ordre topologique, en attribuant :
+- **Niveau 0** : les US les plus anciennes (à la base de la stratigraphie)
+- **Niveau 1, 2, 3...** : des US progressivement plus récentes
+- **Niveau N** : les US les plus récentes (au sommet de la stratigraphie)
 
-**Exemple d'ordre correct :**
-| US | Ordre de couche |
-|----|-----------------|
-| US 1 | 1 |
-| US 2 | 2 |
-| US 3 | 3 |
-| US 4 | 4 |
+**Prérequis :**
+1. **Relations complètes** : toutes les US doivent avoir leurs relations stratigraphiques saisies
+2. **Aucun paradoxe** : il ne doit pas y avoir de cycles dans les relations (ex. US 1 couvre US 2 et US 2 couvre US 1)
+3. **Relations inverses** : toutes les relations doivent avoir leur inverse
 
-**Exemple d'ordre incorrect (à éviter) :**
-| US | Ordre de couche |
-|----|-----------------|
-| US 1 | 1 |
-| US 2 | 3 | ← Incorrect, 2 manquant |
-| US 3 | 7 | ← Incorrect, 4, 5, 6 manquants |
+**Comment lancer le calcul :**
+1. Effectuer une **recherche** par Site et Zone (le système travaille sur un seul site/zone)
+2. Aller dans **Onglet Help** → **Tool Box**
+3. Cliquer **Ordre stratigraphique**
+4. Confirmer l'opération
+5. Attendre la fin du calcul
+
+**Règles importantes :**
+- L'ordre est **toujours numérique et séquentiel** et commence à 0 : 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13...
+- **Aucun saut** : les numéros sont toujours consécutifs (jamais 0, 1, 4, 7 ; toujours 0, 1, 2, 3)
+- **Même niveau, même numéro** : les US d'un même niveau stratigraphique reçoivent le même numéro (les doublons sont donc normaux)
+- La case **"Ordre : Ancien → Récent"** fixe le sens :
+  - **Cochée** (par défaut) : 0 = la plus ancienne, N = la plus récente
+  - **Décochée** : 0 = la plus récente, N = la plus ancienne
+- Le champ est **bloqué** dans la fiche : c'est le bouton **Ordre stratigraphique** qui le remplit, il ne se saisit pas à la main
+
+**Exemple (case cochée) :**
+| US | Ordre de couche | Note |
+|----|-----------------|------|
+| US 1 | 3 | la plus récente |
+| US 2 | 2 | |
+| US 3 | 2 | même niveau que US 2 |
+| US 4 | 1 | |
+| US 5 | 0 | la plus ancienne |
 
 ---
 
