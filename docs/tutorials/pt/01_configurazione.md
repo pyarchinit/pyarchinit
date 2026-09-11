@@ -128,6 +128,11 @@ Esta pasta e independente do pyArchInit classico, que continua a usar **`~/pyarc
 > - A pergunta "copiar a configuracao e as bases de dados para a nova pasta `~/pyarchinit_5`?" aparece agora sempre em primeiro plano, a frente de qualquer janela. Antes, sobretudo no Windows, podia ficar escondida atras do QGIS ou do ecra de arranque (splash) e o arranque parecia bloqueado. Responda **Sim** ou **Nao** para continuar.
 > - Enquanto os pacotes Python em falta sao instalados, o ecra de arranque do pyArchInit fica em primeiro plano com uma barra de progresso que mostra o pacote n de N, a percentagem e o tempo decorrido. A instalacao pode demorar varios minutos: nao feche o QGIS. No Windows nao se abrem janelas de consola durante a instalacao.
 
+> **Novidade 5.13.17-alpha — QGIS 4 e varias versoes do QGIS no mesmo computador.**
+> - Os pacotes Python do pyArchInit sao instalados com o Python do QGIS que esta a usar (por exemplo Python 3.12 no QGIS 4). Antes, com o QGIS 3 e o QGIS 4 instalados em conjunto no macOS, eram instalados para o Python do QGIS 3 e o QGIS 4 parava com o erro `No module named 'psycopg2._psycopg'`.
+> - Se a pasta do plugin contiver pacotes instalados para outro Python (por exemplo um perfil do QGIS 3 copiado para o QGIS 4), no arranque o pyArchInit move-os para a pasta `ext_libs_cp39` (o nome indica a versao do Python) e reinstala os que sao necessarios: da primeira vez pode demorar alguns minutos, com o progresso no ecra de arranque (splash). A mensagem aparece no painel de registos (log) do QGIS, separador "PyArchInit".
+> - As pastas `ext_libs_cp…` podem ser eliminadas. Se usar o mesmo plugin a partir de duas versoes do QGIS, o pyArchInit volta a colocar no lugar a pasta certa em vez de reinstalar.
+
 **Localizacao personalizada (avancado).** Para usar uma pasta de dados diferente, defina a variavel de ambiente `PYARCHINIT_HOME` antes de iniciar o QGIS; quando definida, substitui a localizacao predefinida `~/pyarchinit_5`.
 
 ### Seccao Definicoes do Sitio

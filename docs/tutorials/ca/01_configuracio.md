@@ -102,6 +102,11 @@ Aquesta carpeta és independent del pyArchInit clàssic, que continua usant **`~
 > - La pregunta "copiar la configuració i les bases de dades a la nova carpeta `~/pyarchinit_5`?" ara apareix sempre en primer pla, davant de qualsevol finestra. Abans, sobretot a Windows, podia quedar amagada darrere de QGIS o de la pantalla d'inici (splash) i l'inici semblava bloquejat. Respon **Sí** o **No** per continuar.
 > - Mentre s'instal·len els paquets de Python que falten, la pantalla d'inici de pyArchInit roman en primer pla amb una barra de progrés que mostra el paquet n de N, el percentatge i el temps transcorregut. La instal·lació pot trigar diversos minuts: no tanquis QGIS. A Windows no s'obre cap finestra de consola durant la instal·lació.
 
+> **Novetat 5.13.17-alpha — QGIS 4 i diverses versions de QGIS al mateix ordinador.**
+> - Els paquets de Python de pyArchInit s'instal·len amb el Python del QGIS que estàs fent servir (per exemple Python 3.12 a QGIS 4). Abans, amb QGIS 3 i QGIS 4 instal·lats alhora a macOS, s'instal·laven per al Python de QGIS 3 i QGIS 4 s'aturava amb l'error `No module named 'psycopg2._psycopg'`.
+> - Si la carpeta del connector conté paquets instal·lats per a un altre Python (per exemple un perfil de QGIS 3 copiat a QGIS 4), en iniciar-se pyArchInit els mou a la carpeta `ext_libs_cp39` (el nom indica la versió de Python) i reinstal·la els que calen: la primera vegada pot trigar uns minuts, amb el progrés a la pantalla d'inici (splash). El missatge apareix al tauler de registre de QGIS, pestanya "PyArchInit".
+> - Les carpetes `ext_libs_cp…` es poden eliminar. Si fas servir el mateix connector des de dues versions de QGIS, pyArchInit torna a posar al seu lloc la carpeta correcta en lloc de reinstal·lar.
+
 **Ubicació personalitzada (avançat).** Per usar una carpeta de dades diferent, defineix la variable d'entorn `PYARCHINIT_HOME` abans d'iniciar QGIS; quan s'estableix, substitueix la ubicació predeterminada `~/pyarchinit_5`.
 
 ### Secció Experimental

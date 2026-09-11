@@ -111,6 +111,11 @@ Esta carpeta es independiente del pyArchInit clásico, que sigue usando **`~/pya
 > - La pregunta "¿copiar la configuración y las bases de datos en la nueva carpeta `~/pyarchinit_5`?" ahora aparece siempre en primer plano, delante de cualquier ventana. Antes, sobre todo en Windows, podía quedar oculta detrás de QGIS o de la pantalla de inicio (splash) y el inicio parecía bloqueado. Responde **Sí** o **No** para continuar.
 > - Mientras se instalan los paquetes de Python que faltan, la pantalla de inicio de pyArchInit permanece en primer plano con una barra de progreso que muestra el paquete n de N, el porcentaje y el tiempo transcurrido. La instalación puede tardar varios minutos: no cierres QGIS. En Windows no se abre ninguna ventana de consola durante la instalación.
 
+> **Novedad 5.13.17-alpha — QGIS 4 y varias versiones de QGIS en el mismo ordenador.**
+> - Los paquetes de Python de pyArchInit se instalan con el Python del QGIS que estás usando (por ejemplo Python 3.12 en QGIS 4). Antes, con QGIS 3 y QGIS 4 instalados juntos en macOS, se instalaban para el Python de QGIS 3 y QGIS 4 se detenía con el error `No module named 'psycopg2._psycopg'`.
+> - Si la carpeta del plugin contiene paquetes instalados para otro Python (por ejemplo un perfil de QGIS 3 copiado en QGIS 4), al iniciarse pyArchInit los mueve a la carpeta `ext_libs_cp39` (el nombre indica la versión de Python) y reinstala los que necesita: la primera vez puede tardar algunos minutos, con el progreso en la pantalla de inicio (splash). El mensaje aparece en el panel de registro de QGIS, pestaña "PyArchInit".
+> - Las carpetas `ext_libs_cp…` se pueden eliminar. Si usas el mismo plugin desde dos versiones de QGIS, pyArchInit vuelve a poner en su sitio la carpeta correcta en lugar de reinstalar.
+
 **Ubicación personalizada (avanzado).** Para usar una carpeta de datos diferente, establece la variable de entorno `PYARCHINIT_HOME` antes de iniciar QGIS; cuando se establece, reemplaza la ubicación predeterminada `~/pyarchinit_5`.
 
 ### Sección Experimental

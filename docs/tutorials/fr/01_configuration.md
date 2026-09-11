@@ -86,6 +86,11 @@ Ce dossier est distinct du pyArchInit classique, qui continue d'utiliser **`~/py
 > - La question « copier la configuration et les bases de données dans le nouveau dossier `~/pyarchinit_5` ? » apparaît désormais toujours au premier plan, devant toutes les fenêtres. Auparavant, surtout sous Windows, elle pouvait rester cachée derrière QGIS ou l'écran de démarrage (splash) et le démarrage semblait bloqué. Répondez **Oui** ou **Non** pour continuer.
 > - Pendant l'installation des paquets Python manquants, l'écran de démarrage de pyArchInit reste au premier plan avec une barre de progression indiquant le paquet n sur N, le pourcentage et le temps écoulé. L'installation peut prendre plusieurs minutes : ne fermez pas QGIS. Sous Windows, aucune fenêtre de console ne s'ouvre pendant l'installation.
 
+> **Nouveauté 5.13.17-alpha — QGIS 4 et plusieurs versions de QGIS sur le même ordinateur.**
+> - Les paquets Python de pyArchInit sont installés avec le Python du QGIS que vous utilisez (par exemple Python 3.12 dans QGIS 4). Auparavant, avec QGIS 3 et QGIS 4 installés ensemble sous macOS, ils étaient installés pour le Python de QGIS 3 et QGIS 4 s'arrêtait avec l'erreur `No module named 'psycopg2._psycopg'`.
+> - Si le dossier du plugin contient des paquets installés pour un autre Python (par exemple un profil QGIS 3 copié dans QGIS 4), au démarrage pyArchInit les déplace dans le dossier `ext_libs_cp39` (le nom indique la version de Python) et réinstalle ceux dont il a besoin : la première fois, cela peut prendre quelques minutes, avec la progression affichée sur l'écran de démarrage (splash). Le message apparaît dans le panneau des journaux de QGIS, onglet « PyArchInit ».
+> - Les dossiers `ext_libs_cp…` peuvent être supprimés. Si vous utilisez le même plugin depuis deux versions de QGIS, pyArchInit remet en place le bon dossier au lieu de réinstaller.
+
 **Emplacement personnalisé (avancé).** Pour utiliser un dossier de données différent, définissez la variable d'environnement `PYARCHINIT_HOME` avant de démarrer QGIS ; lorsqu'elle est définie, elle remplace l'emplacement par défaut `~/pyarchinit_5`.
 
 ### Boutons d'Action

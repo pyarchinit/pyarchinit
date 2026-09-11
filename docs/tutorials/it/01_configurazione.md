@@ -139,6 +139,11 @@ Questa è separata dal pyArchInit classico, che continua a usare **`~/pyarchinit
 > - La domanda "copiare configurazione e database nella nuova cartella `~/pyarchinit_5`?" ora compare sempre in primo piano, davanti a ogni finestra. Prima, soprattutto su Windows, poteva restare nascosta dietro QGIS o dietro lo splash e l'avvio sembrava bloccato. Rispondi **Sì** o **No** per proseguire.
 > - Durante l'installazione dei pacchetti Python mancanti, lo splash di pyArchInit resta in primo piano con una barra di avanzamento che mostra il pacchetto n di N, la percentuale e il tempo trascorso. L'installazione può richiedere diversi minuti: non chiudere QGIS. Su Windows durante l'installazione non si aprono finestre di console.
 
+> **Novità 5.13.17-alpha — QGIS 4 e più versioni di QGIS sullo stesso computer.**
+> - I pacchetti Python di pyArchInit vengono installati con il Python della QGIS che si sta usando (per esempio Python 3.12 in QGIS 4). Prima, con QGIS 3 e QGIS 4 installati insieme su macOS, venivano installati per il Python di QGIS 3 e QGIS 4 si fermava con l'errore `No module named 'psycopg2._psycopg'`.
+> - Se la cartella del plugin contiene pacchetti installati per un altro Python (per esempio un profilo di QGIS 3 copiato in QGIS 4), all'avvio pyArchInit li sposta nella cartella `ext_libs_cp39` (il nome indica la versione di Python) e reinstalla quelli che servono: la prima volta può richiedere alcuni minuti, con l'avanzamento sullo splash. Il messaggio compare nel pannello dei log di QGIS, scheda "PyArchInit".
+> - Le cartelle `ext_libs_cp…` si possono eliminare. Se si usa lo stesso plugin da due versioni di QGIS, pyArchInit rimette al suo posto quella giusta invece di reinstallare.
+
 **Posizione personalizzata (avanzato).** Per usare una cartella dati diversa, imposta la variabile d'ambiente `PYARCHINIT_HOME` prima di avviare QGIS; quando impostata, sostituisce il percorso predefinito `~/pyarchinit_5`.
 
 ### Sezione Experimental

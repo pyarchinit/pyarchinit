@@ -128,6 +128,11 @@ Acesta este separat de pyArchInit classic, care continua sa foloseasca **`~/pyar
 > - Intrebarea "copiati configuratia si bazele de date in noul folder `~/pyarchinit_5`?" apare acum intotdeauna in prim-plan, in fata oricarei ferestre. Inainte, mai ales pe Windows, putea ramane ascunsa in spatele QGIS sau al ecranului de pornire (splash), iar pornirea parea blocata. Raspundeti **Da** sau **Nu** pentru a continua.
 > - Cat timp se instaleaza pachetele Python lipsa, ecranul de pornire pyArchInit ramane in prim-plan cu o bara de progres care arata pachetul n din N, procentul si timpul scurs. Instalarea poate dura cateva minute: nu inchideti QGIS. Pe Windows nu se deschid ferestre de consola in timpul instalarii.
 
+> **Nou in 5.13.17-alpha — QGIS 4 si mai multe versiuni de QGIS pe acelasi computer.**
+> - Pachetele Python ale pyArchInit sunt instalate cu Python-ul versiunii de QGIS pe care o folositi (de exemplu Python 3.12 in QGIS 4). Inainte, cu QGIS 3 si QGIS 4 instalate impreuna pe macOS, erau instalate pentru Python-ul din QGIS 3, iar QGIS 4 se oprea cu eroarea `No module named 'psycopg2._psycopg'`.
+> - Daca folderul plugin-ului contine pachete instalate pentru alt Python (de exemplu un profil QGIS 3 copiat in QGIS 4), la pornire pyArchInit le muta in folderul `ext_libs_cp39` (numele indica versiunea de Python) si le reinstaleaza pe cele necesare: prima data poate dura cateva minute, cu progresul afisat pe ecranul de pornire (splash). Mesajul apare in panoul de jurnal (log) al QGIS, fila "PyArchInit".
+> - Folderele `ext_libs_cp…` pot fi sterse. Daca folositi acelasi plugin din doua versiuni de QGIS, pyArchInit pune la loc folderul potrivit in loc sa reinstaleze.
+
 **Locatie personalizata (avansat).** Pentru a utiliza un folder de date diferit, setati variabila de mediu `PYARCHINIT_HOME` inainte de a porni QGIS; cand este setata, suprascrie locatia implicita `~/pyarchinit_5`.
 
 ### Sectiunea Setari Santier

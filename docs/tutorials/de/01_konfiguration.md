@@ -128,6 +128,11 @@ Dieser Ordner ist vom klassischen pyArchInit getrennt, das weiterhin **`~/pyarch
 > - Die Frage "Konfiguration und Datenbanken in den neuen Ordner `~/pyarchinit_5` kopieren?" erscheint jetzt immer im Vordergrund, vor allen anderen Fenstern. Vorher konnte sie, vor allem unter Windows, hinter QGIS oder dem Startbildschirm (Splash) verborgen bleiben, und der Start schien zu hängen. Antworten Sie mit **Ja** oder **Nein**, um fortzufahren.
 > - Während die fehlenden Python-Pakete installiert werden, bleibt der pyArchInit-Startbildschirm im Vordergrund, mit einem Fortschrittsbalken, der Paket n von N, den Prozentsatz und die verstrichene Zeit anzeigt. Die Installation kann mehrere Minuten dauern: Schließen Sie QGIS nicht. Unter Windows öffnen sich während der Installation keine Konsolenfenster.
 
+> **Neu in 5.13.17-alpha — QGIS 4 und mehrere QGIS-Versionen auf demselben Computer.**
+> - Die Python-Pakete von pyArchInit werden mit dem Python der QGIS-Version installiert, die Sie gerade verwenden (zum Beispiel Python 3.12 in QGIS 4). Vorher wurden sie, wenn QGIS 3 und QGIS 4 gemeinsam unter macOS installiert waren, für das Python von QGIS 3 installiert, und QGIS 4 brach mit dem Fehler `No module named 'psycopg2._psycopg'` ab.
+> - Enthält der Plugin-Ordner Pakete, die für ein anderes Python installiert wurden (zum Beispiel ein nach QGIS 4 kopiertes QGIS-3-Profil), verschiebt pyArchInit sie beim Start in den Ordner `ext_libs_cp39` (der Name gibt die Python-Version an) und installiert die benötigten Pakete neu: Beim ersten Mal kann das einige Minuten dauern, der Fortschritt wird auf dem Startbildschirm (Splash) angezeigt. Die Meldung erscheint im Protokoll-Bedienfeld von QGIS, Registerkarte "PyArchInit".
+> - Die Ordner `ext_libs_cp…` können gelöscht werden. Wenn Sie dasselbe Plugin mit zwei QGIS-Versionen verwenden, stellt pyArchInit den passenden Ordner wieder an seinen Platz, statt neu zu installieren.
+
 **Benutzerdefinierter Speicherort (erweitert).** Um einen anderen Datenordner zu verwenden, setzen Sie die Umgebungsvariable `PYARCHINIT_HOME` vor dem Start von QGIS; wenn gesetzt, überschreibt sie den Standardpfad `~/pyarchinit_5`.
 
 ### Abschnitt Experimentell
