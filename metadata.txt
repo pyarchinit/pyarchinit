@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.17-alpha
+version=5.13.18-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,20 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.17-alpha (2026-09-11) [QGIS 4: packages installed for the Python running QGIS]:
+changelog=5.13.18-alpha (2026-09-11) [GIS SQLite: US/USM layers keep the style chosen by the user]:
+    - Fix: "Visualizza su GIS" from a US search asks how to style the layer
+      (save / load / temporary / outline only) and which field to
+      categorise by (stratigraphic definition, US type, interpretive
+      definition), but on SQLite the map always came out "by US number":
+      the per-US nested symbology added in January replaced the chosen
+      style right after it was applied. The USM layer on SQLite did not
+      even offer the choice. Now both behave as on PostgreSQL: the chosen
+      style is kept, with the stratigraphic feature ordering. The per-US
+      symbology stays where no style is chosen (map preview, matrix,
+      documentation, individuals). Test:
+      tests/utility/test_us_style_choice_respected.py.
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), GIS tutorial.
+  5.13.17-alpha (2026-09-11) [QGIS 4: packages installed for the Python running QGIS]:
     - Fix: on QGIS 4.2.2 for macOS the configuration failed with "No module
       named 'psycopg2._psycopg'". The installer ran pip with the first
       Python found among fixed paths, QGIS 3's Python 3.9 when both QGIS 3
