@@ -124,6 +124,10 @@ This is separate from the classic pyArchInit, which keeps using **`~/pyarchinit/
 - The **`bin/` folder is not copied**, because it contains large AI assets (SAM and pottery virtual environments, CLIP models, FAISS indexes, API-key files). Re-create them by running the relevant AI features again, or copy `~/pyarchinit/bin` into `~/pyarchinit_5/bin` manually.
 - If you choose **No**, pyArchInit 5 simply creates a new, empty folder structure, as on a fresh installation.
 
+> **New in 5.13.16-alpha — clearer first start.**
+> - The question "copy configuration and databases into the new folder `~/pyarchinit_5`?" now always appears in front of every window. Before, above all on Windows, it could stay hidden behind QGIS or the splash screen and the start seemed stuck. Answer **Yes** or **No** to continue.
+> - While the missing Python packages are installed, the pyArchInit splash screen stays in front with a progress bar showing package n of N, the percentage and the elapsed time. The installation can take several minutes: do not close QGIS. On Windows no console windows open during the installation.
+
 **Custom location (advanced).** To use a different data folder, set the `PYARCHINIT_HOME` environment variable before starting QGIS; when set, it overrides the default `~/pyarchinit_5`.
 
 ### Site Settings Section

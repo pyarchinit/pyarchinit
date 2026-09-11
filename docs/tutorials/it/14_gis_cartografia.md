@@ -369,7 +369,13 @@ Operazioni spaziali disponibili:
 
 **Soluzione (automatica)**:
 - Alla connessione a un database SQLite pyArchInit controlla tutti gli indici spaziali (pochi istanti; se il database è sano non scrive nulla) e ricostruisce automaticamente quelli danneggiati
-- Prima della riparazione salva una copia di backup accanto al database: `<database>.sqlite.pre_spatial_index_repair_<data-ora>`
+- Dalla versione 5.13.16-alpha lo stesso controllo ripara anche le **viste spaziali** (`pyarchinit_us_view`, `pyarchinit_quote_view`, strutture, reperti, viste UT, ecc.):
+  - ogni vista viene agganciata al ROWID della sua tabella geometrica
+  - le registrazioni di viste che non esistono più vengono rimosse
+  - le viste standard mancanti vengono ricreate
+  - le viste UT vengono registrate come viste spaziali
+  - le tabelle geometriche senza indice spaziale ne ricevono uno: serve quando il GDAL fornito con QGIS non ha le funzioni SpatiaLite (es. QGIS su macOS), dove senza indice quei layer non disegnavano nulla
+- Prima di modificare qualsiasi cosa salva UNA sola copia di backup accanto al database: `<database>.sqlite.pre_spatial_index_repair_<data-ora UTC>`
 - L'esito è scritto nel pannello log di QGIS (Visualizza → Pannelli → Messaggi di log, scheda "PyArchInit")
 
 **Cosa fare**:
@@ -377,6 +383,8 @@ Operazioni spaziali disponibili:
 - Se i layer erano già caricati, rimuoverli e aggiungerli di nuovo (o riaprire il progetto) dopo la riparazione
 - Se il log "PyArchInit" segnala che un indice NON è stato riparato (es. SpatiaLite non caricabile), risolvere la causa e riavviare QGIS: il controllo viene ripetuto solo in una nuova sessione
 - Il file di backup può essere eliminato dopo aver verificato i layer
+- Per ripetere il controllo (es. dopo aver ripristinato un backup) riavviare QGIS
+- Nota: in `inventario_materiali_view` il punto del sito è ripetuto per ogni reperto, quindi "Identify" su quel punto mostra uno dei reperti
 
 ## Riferimenti
 

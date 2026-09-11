@@ -369,7 +369,13 @@ Operacions espacials disponibles:
 
 **Solució (automàtica)**:
 - En connectar-se a una base de dades SQLite, pyArchInit comprova tots els índexs espacials (uns instants; si la base de dades està sana no escriu res) i reconstrueix automàticament els malmesos
-- Abans de la reparació desa una còpia de seguretat al costat de la base de dades: `<base_de_dades>.sqlite.pre_spatial_index_repair_<data-hora>`
+- Des de la versió 5.13.16-alpha la mateixa comprovació repara també les **vistes espacials** (`pyarchinit_us_view`, `pyarchinit_quote_view`, estructures, materials, les vistes UT, etc.):
+  - cada vista es vincula al ROWID de la seva taula geomètrica
+  - s'eliminen els registres de vistes que ja no existeixen
+  - es tornen a crear les vistes estàndard que falten
+  - les vistes UT es registren com a vistes espacials
+  - les taules geomètriques sense índex espacial en reben un: cal quan el GDAL inclòs amb QGIS no té les funcions SpatiaLite (p. ex. QGIS a macOS), on sense índex aquestes capes no dibuixaven res
+- Abans de modificar res desa UNA sola còpia de seguretat al costat de la base de dades: `<base_de_dades>.sqlite.pre_spatial_index_repair_<data-hora UTC>`
 - El resultat s'escriu al tauler de missatges de registre de QGIS (View → Panels → Log Messages), pestanya "PyArchInit"
 
 **Què fer**:
@@ -377,6 +383,8 @@ Operacions espacials disponibles:
 - Si les capes ja estaven carregades, treure-les i tornar-les a afegir (o reobrir el projecte) després de la reparació
 - Si el registre "PyArchInit" indica que un índex NO s'ha pogut reparar (p. ex. SpatiaLite no es pot carregar), resoldre la causa i reiniciar QGIS: la comprovació només es repeteix en una nova sessió
 - El fitxer de còpia de seguretat es pot eliminar un cop verificades les capes
+- Per repetir la comprovació (p. ex. després de restaurar una còpia de seguretat), reiniciar QGIS
+- Nota: a `inventario_materiali_view` el punt del lloc es repeteix per a cada material, per això "Identify" sobre aquest punt mostra un dels materials
 
 ## Referències
 

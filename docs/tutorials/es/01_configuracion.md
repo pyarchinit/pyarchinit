@@ -107,6 +107,10 @@ Esta carpeta es independiente del pyArchInit clásico, que sigue usando **`~/pya
 - La **carpeta `bin/` no se copia**, porque contiene assets de IA de gran tamaño (entornos virtuales de SAM y cerámica, modelos CLIP, índices FAISS, archivos de claves API). Vuelve a crearlos ejecutando de nuevo las funciones de IA correspondientes, o copia manualmente `~/pyarchinit/bin` en `~/pyarchinit_5/bin`.
 - Si eliges **No**, pyArchInit 5 simplemente crea una nueva estructura de carpetas vacía, como en una instalación limpia.
 
+> **Novedad 5.13.16-alpha — primer inicio más claro.**
+> - La pregunta "¿copiar la configuración y las bases de datos en la nueva carpeta `~/pyarchinit_5`?" ahora aparece siempre en primer plano, delante de cualquier ventana. Antes, sobre todo en Windows, podía quedar oculta detrás de QGIS o de la pantalla de inicio (splash) y el inicio parecía bloqueado. Responde **Sí** o **No** para continuar.
+> - Mientras se instalan los paquetes de Python que faltan, la pantalla de inicio de pyArchInit permanece en primer plano con una barra de progreso que muestra el paquete n de N, el porcentaje y el tiempo transcurrido. La instalación puede tardar varios minutos: no cierres QGIS. En Windows no se abre ninguna ventana de consola durante la instalación.
+
 **Ubicación personalizada (avanzado).** Para usar una carpeta de datos diferente, establece la variable de entorno `PYARCHINIT_HOME` antes de iniciar QGIS; cuando se establece, reemplaza la ubicación predeterminada `~/pyarchinit_5`.
 
 ### Sección Experimental

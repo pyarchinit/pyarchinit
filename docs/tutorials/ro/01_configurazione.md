@@ -124,6 +124,10 @@ Acesta este separat de pyArchInit classic, care continua sa foloseasca **`~/pyar
 - **Folderul `bin/` nu este copiat**, deoarece contine resurse AI de dimensiuni mari (medii virtuale SAM si ceramica, modele CLIP, indecsi FAISS, fisiere cu chei API). Recreati-le ruland din nou functiile AI relevante, sau copiati manual `~/pyarchinit/bin` in `~/pyarchinit_5/bin`.
 - Daca alegeti **Nu**, pyArchInit 5 creeaza pur si simplu o noua structura de foldere goala, ca la o instalare noua.
 
+> **Nou in 5.13.16-alpha — prima lansare mai clara.**
+> - Intrebarea "copiati configuratia si bazele de date in noul folder `~/pyarchinit_5`?" apare acum intotdeauna in prim-plan, in fata oricarei ferestre. Inainte, mai ales pe Windows, putea ramane ascunsa in spatele QGIS sau al ecranului de pornire (splash), iar pornirea parea blocata. Raspundeti **Da** sau **Nu** pentru a continua.
+> - Cat timp se instaleaza pachetele Python lipsa, ecranul de pornire pyArchInit ramane in prim-plan cu o bara de progres care arata pachetul n din N, procentul si timpul scurs. Instalarea poate dura cateva minute: nu inchideti QGIS. Pe Windows nu se deschid ferestre de consola in timpul instalarii.
+
 **Locatie personalizata (avansat).** Pentru a utiliza un folder de date diferit, setati variabila de mediu `PYARCHINIT_HOME` inainte de a porni QGIS; cand este setata, suprascrie locatia implicita `~/pyarchinit_5`.
 
 ### Sectiunea Setari Santier

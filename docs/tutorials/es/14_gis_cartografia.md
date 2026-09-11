@@ -369,7 +369,13 @@ Operaciones espaciales disponibles:
 
 **Solución (automática)**:
 - Al conectarse a una base de datos SQLite, pyArchInit comprueba todos los índices espaciales (unos instantes; si la base de datos está sana no escribe nada) y reconstruye automáticamente los dañados
-- Antes de la reparación guarda una copia de seguridad junto a la base de datos: `<base_de_datos>.sqlite.pre_spatial_index_repair_<fecha-hora>`
+- Desde la versión 5.13.16-alpha la misma comprobación repara también las **vistas espaciales** (`pyarchinit_us_view`, `pyarchinit_quote_view`, estructuras, materiales, las vistas UT, etc.):
+  - cada vista se vincula al ROWID de su tabla geométrica
+  - se eliminan los registros de vistas que ya no existen
+  - se recrean las vistas estándar que faltan
+  - las vistas UT se registran como vistas espaciales
+  - las tablas geométricas sin índice espacial reciben uno: es necesario cuando el GDAL incluido en QGIS no tiene las funciones SpatiaLite (p. ej. QGIS en macOS), donde sin índice esas capas no dibujaban nada
+- Antes de modificar nada guarda UNA sola copia de seguridad junto a la base de datos: `<base_de_datos>.sqlite.pre_spatial_index_repair_<fecha-hora UTC>`
 - El resultado se escribe en el panel de registro de QGIS (Ver → Paneles → Mensajes de registro, pestaña "PyArchInit")
 
 **Qué hacer**:
@@ -377,6 +383,8 @@ Operaciones espaciales disponibles:
 - Si las capas ya estaban cargadas, quitarlas y volver a añadirlas (o reabrir el proyecto) después de la reparación
 - Si el registro "PyArchInit" indica que un índice NO se ha podido reparar (p. ej. SpatiaLite no se puede cargar), resolver la causa y reiniciar QGIS: la comprobación se repite solo en una nueva sesión
 - El archivo de copia de seguridad puede eliminarse una vez verificadas las capas
+- Para repetir la comprobación (p. ej. tras restaurar una copia de seguridad), reiniciar QGIS
+- Nota: en `inventario_materiali_view` el punto del sitio se repite para cada material, por lo que "Identify" sobre ese punto muestra uno de los materiales
 
 ## Referencias
 

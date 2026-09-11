@@ -369,7 +369,13 @@ Available spatial operations:
 
 **Solution (automatic)**:
 - When pyArchInit connects to a SQLite database it checks every spatial index (a few instants; nothing is written if the database is healthy) and automatically rebuilds any broken one
-- Before repairing it saves a backup copy next to the database: `<database>.sqlite.pre_spatial_index_repair_<date-time>`
+- Since version 5.13.16-alpha the same check also repairs the **spatial views** (`pyarchinit_us_view`, `pyarchinit_quote_view`, structures, finds, the UT views, etc.):
+  - each view is keyed on the ROWID of its geometry table
+  - registrations of views that no longer exist are removed
+  - missing standard views are recreated
+  - the UT views are registered as spatial views
+  - geometry tables without a spatial index get one: this is needed when the GDAL bundled with QGIS lacks the SpatiaLite functions (e.g. QGIS on macOS), where without an index those layers drew nothing
+- Before changing anything it saves ONE backup copy next to the database: `<database>.sqlite.pre_spatial_index_repair_<UTC date-time>`
 - The result is written in the QGIS log panel (View → Panels → Log Messages, "PyArchInit" tab)
 
 **What to do**:
@@ -377,6 +383,8 @@ Available spatial operations:
 - If the layers were already loaded, remove and re-add them (or reopen the project) after the repair
 - If the "PyArchInit" log reports that an index could NOT be repaired (e.g. SpatiaLite could not be loaded), fix the cause and restart QGIS: the check runs again only in a new session
 - The backup file can be deleted once the layers have been verified
+- To run the check again (e.g. after restoring a backup), restart QGIS
+- Note: in `inventario_materiali_view` the site point is repeated for every find, so "Identify" on that point shows one of the finds
 
 ## References
 

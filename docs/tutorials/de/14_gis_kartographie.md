@@ -369,7 +369,13 @@ Verfügbare räumliche Operationen:
 
 **Lösung (automatisch)**:
 - Beim Verbinden mit einer SQLite-Datenbank prüft pyArchInit alle räumlichen Indizes (wenige Augenblicke; bei einer intakten Datenbank wird nichts geschrieben) und baut beschädigte automatisch neu auf
-- Vor der Reparatur wird eine Sicherungskopie neben der Datenbank gespeichert: `<datenbank>.sqlite.pre_spatial_index_repair_<datum-uhrzeit>`
+- Seit Version 5.13.16-alpha repariert dieselbe Prüfung auch die **räumlichen Views** (`pyarchinit_us_view`, `pyarchinit_quote_view`, Strukturen, Funde, die UT-Views usw.):
+  - jede View wird an die ROWID ihrer Geometrietabelle gebunden
+  - Registrierungen von Views, die nicht mehr existieren, werden entfernt
+  - fehlende Standard-Views werden neu erstellt
+  - die UT-Views werden als räumliche Views registriert
+  - Geometrietabellen ohne räumlichen Index erhalten einen: nötig, wenn dem mit QGIS gelieferten GDAL die SpatiaLite-Funktionen fehlen (z. B. QGIS unter macOS), wo diese Layer ohne Index nichts zeichneten
+- Bevor etwas geändert wird, wird EINE einzige Sicherungskopie neben der Datenbank gespeichert: `<datenbank>.sqlite.pre_spatial_index_repair_<datum-uhrzeit UTC>`
 - Das Ergebnis steht im QGIS-Protokollbedienfeld (Ansicht → Bedienfelder → Protokollmeldungen, Reiter "PyArchInit")
 
 **Vorgehen**:
@@ -377,6 +383,8 @@ Verfügbare räumliche Operationen:
 - Waren die Layer bereits geladen, sie nach der Reparatur entfernen und erneut hinzufügen (oder das Projekt neu öffnen)
 - Meldet das Protokoll "PyArchInit", dass ein Index NICHT repariert werden konnte (z. B. SpatiaLite nicht ladbar), die Ursache beheben und QGIS neu starten: die Prüfung wird erst in einer neuen Sitzung wiederholt
 - Die Sicherungsdatei kann gelöscht werden, sobald die Layer überprüft sind
+- Um die Prüfung erneut auszuführen (z. B. nach dem Wiederherstellen einer Sicherung), QGIS neu starten
+- Hinweis: In `inventario_materiali_view` wird der Punkt des Fundorts für jeden Fund wiederholt, daher zeigt "Objekte abfragen" (Identify) auf diesem Punkt einen der Funde
 
 ## Referenzen
 

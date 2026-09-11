@@ -369,7 +369,13 @@ Operații spațiale disponibile:
 
 **Soluție (automată)**:
 - La conectarea la o bază de date SQLite, pyArchInit verifică toți indecșii spațiali (câteva clipe; nu se scrie nimic dacă baza de date este intactă) și îi reconstruiește automat pe cei deteriorați
-- Înainte de reparare salvează o copie de siguranță lângă baza de date: `<baza_de_date>.sqlite.pre_spatial_index_repair_<data-ora>`
+- Începând cu versiunea 5.13.16-alpha, aceeași verificare repară și **vederile spațiale** (`pyarchinit_us_view`, `pyarchinit_quote_view`, structuri, materiale, vederile UT etc.):
+  - fiecare vedere este legată de ROWID-ul tabelului său de geometrie
+  - înregistrările vederilor care nu mai există sunt eliminate
+  - vederile standard lipsă sunt recreate
+  - vederile UT sunt înregistrate ca vederi spațiale
+  - tabelele de geometrie fără index spațial primesc unul: necesar când GDAL-ul inclus în QGIS nu are funcțiile SpatiaLite (ex. QGIS pe macOS), unde fără index acele straturi nu desenau nimic
+- Înainte de a modifica ceva, salvează O SINGURĂ copie de siguranță lângă baza de date: `<baza_de_date>.sqlite.pre_spatial_index_repair_<data-ora UTC>`
 - Rezultatul este scris în panoul de mesaje jurnal al QGIS (View → Panels → Log Messages), fila „PyArchInit"
 
 **Ce trebuie făcut**:
@@ -377,6 +383,8 @@ Operații spațiale disponibile:
 - Dacă straturile erau deja încărcate, eliminați-le și adăugați-le din nou (sau redeschideți proiectul) după reparare
 - Dacă jurnalul „PyArchInit" raportează că un index NU a putut fi reparat (ex. SpatiaLite nu poate fi încărcat), remediați cauza și reporniți QGIS: verificarea se repetă doar într-o sesiune nouă
 - Fișierul de siguranță poate fi șters după verificarea straturilor
+- Pentru a repeta verificarea (ex. după restaurarea unei copii de siguranță), reporniți QGIS
+- Notă: în `inventario_materiali_view` punctul șantierului este repetat pentru fiecare material, deci „Identify" pe acel punct afișează unul dintre materiale
 
 ## Referințe
 

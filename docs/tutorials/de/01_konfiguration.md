@@ -124,6 +124,10 @@ Dieser Ordner ist vom klassischen pyArchInit getrennt, das weiterhin **`~/pyarch
 - Der **`bin/`-Ordner wird nicht kopiert**, da er große KI-Assets enthält (virtuelle Umgebungen für SAM und Keramik, CLIP-Modelle, FAISS-Indizes, API-Schlüsseldateien). Erstellen Sie diese neu, indem Sie die entsprechenden KI-Funktionen erneut ausführen, oder kopieren Sie `~/pyarchinit/bin` manuell nach `~/pyarchinit_5/bin`.
 - Wenn Sie **Nein** wählen, erstellt pyArchInit 5 einfach eine neue, leere Ordnerstruktur, wie bei einer Neuinstallation.
 
+> **Neu in 5.13.16-alpha — klarerer erster Start.**
+> - Die Frage "Konfiguration und Datenbanken in den neuen Ordner `~/pyarchinit_5` kopieren?" erscheint jetzt immer im Vordergrund, vor allen anderen Fenstern. Vorher konnte sie, vor allem unter Windows, hinter QGIS oder dem Startbildschirm (Splash) verborgen bleiben, und der Start schien zu hängen. Antworten Sie mit **Ja** oder **Nein**, um fortzufahren.
+> - Während die fehlenden Python-Pakete installiert werden, bleibt der pyArchInit-Startbildschirm im Vordergrund, mit einem Fortschrittsbalken, der Paket n von N, den Prozentsatz und die verstrichene Zeit anzeigt. Die Installation kann mehrere Minuten dauern: Schließen Sie QGIS nicht. Unter Windows öffnen sich während der Installation keine Konsolenfenster.
+
 **Benutzerdefinierter Speicherort (erweitert).** Um einen anderen Datenordner zu verwenden, setzen Sie die Umgebungsvariable `PYARCHINIT_HOME` vor dem Start von QGIS; wenn gesetzt, überschreibt sie den Standardpfad `~/pyarchinit_5`.
 
 ### Abschnitt Experimentell

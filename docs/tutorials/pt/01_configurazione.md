@@ -124,6 +124,10 @@ Esta pasta e independente do pyArchInit classico, que continua a usar **`~/pyarc
 - A **pasta `bin/` nao e copiada**, porque contem assets de IA de grande dimensao (ambientes virtuais SAM e ceramica, modelos CLIP, indices FAISS, ficheiros de chaves API). Recrie-os executando de novo as funcoes de IA correspondentes, ou copie manualmente `~/pyarchinit/bin` para `~/pyarchinit_5/bin`.
 - Se escolher **Nao**, o pyArchInit 5 cria simplesmente uma nova estrutura de pastas vazia, como numa instalacao limpa.
 
+> **Novidade 5.13.16-alpha — primeiro arranque mais claro.**
+> - A pergunta "copiar a configuracao e as bases de dados para a nova pasta `~/pyarchinit_5`?" aparece agora sempre em primeiro plano, a frente de qualquer janela. Antes, sobretudo no Windows, podia ficar escondida atras do QGIS ou do ecra de arranque (splash) e o arranque parecia bloqueado. Responda **Sim** ou **Nao** para continuar.
+> - Enquanto os pacotes Python em falta sao instalados, o ecra de arranque do pyArchInit fica em primeiro plano com uma barra de progresso que mostra o pacote n de N, a percentagem e o tempo decorrido. A instalacao pode demorar varios minutos: nao feche o QGIS. No Windows nao se abrem janelas de consola durante a instalacao.
+
 **Localizacao personalizada (avancado).** Para usar uma pasta de dados diferente, defina a variavel de ambiente `PYARCHINIT_HOME` antes de iniciar o QGIS; quando definida, substitui a localizacao predefinida `~/pyarchinit_5`.
 
 ### Seccao Definicoes do Sitio

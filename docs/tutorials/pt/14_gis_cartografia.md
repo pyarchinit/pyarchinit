@@ -369,7 +369,13 @@ Operações espaciais disponíveis:
 
 **Solução (automática)**:
 - Ao ligar-se a uma base de dados SQLite, o pyArchInit verifica todos os índices espaciais (alguns instantes; nada é escrito se a base de dados estiver íntegra) e reconstrói automaticamente os danificados
-- Antes da reparação guarda uma cópia de segurança junto à base de dados: `<base_de_dados>.sqlite.pre_spatial_index_repair_<data-hora>`
+- Desde a versão 5.13.16-alpha a mesma verificação repara também as **vistas espaciais** (`pyarchinit_us_view`, `pyarchinit_quote_view`, estruturas, materiais, as vistas UT, etc.):
+  - cada vista é associada ao ROWID da respetiva tabela geométrica
+  - os registos de vistas que já não existem são removidos
+  - as vistas padrão em falta são recriadas
+  - as vistas UT são registadas como vistas espaciais
+  - as tabelas geométricas sem índice espacial recebem um: necessário quando o GDAL incluído no QGIS não tem as funções SpatiaLite (ex. QGIS em macOS), onde sem índice essas camadas não desenhavam nada
+- Antes de alterar o que quer que seja guarda UMA única cópia de segurança junto à base de dados: `<base_de_dados>.sqlite.pre_spatial_index_repair_<data-hora UTC>`
 - O resultado é escrito no painel de mensagens de registo do QGIS (View → Panels → Log Messages), separador "PyArchInit"
 
 **O que fazer**:
@@ -377,6 +383,8 @@ Operações espaciais disponíveis:
 - Se as camadas já estavam carregadas, remova-as e adicione-as novamente (ou reabra o projeto) após a reparação
 - Se o registo "PyArchInit" indicar que um índice NÃO pôde ser reparado (ex. o SpatiaLite não pôde ser carregado), corrija a causa e reinicie o QGIS: a verificação só é repetida numa nova sessão
 - O ficheiro de cópia de segurança pode ser eliminado depois de verificadas as camadas
+- Para repetir a verificação (ex. após restaurar uma cópia de segurança), reinicie o QGIS
+- Nota: em `inventario_materiali_view` o ponto do sítio é repetido para cada material, por isso "Identify" nesse ponto mostra um dos materiais
 
 ## Referências
 

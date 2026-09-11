@@ -369,7 +369,13 @@ Opérations spatiales disponibles :
 
 **Solution (automatique)** :
 - À la connexion à une base SQLite, pyArchInit vérifie tous les index spatiaux (quelques instants ; rien n'est écrit si la base est saine) et reconstruit automatiquement ceux qui sont endommagés
-- Avant la réparation, il enregistre une copie de sauvegarde à côté de la base : `<base>.sqlite.pre_spatial_index_repair_<date-heure>`
+- Depuis la version 5.13.16-alpha, la même vérification répare aussi les **vues spatiales** (`pyarchinit_us_view`, `pyarchinit_quote_view`, structures, mobilier, les vues UT, etc.) :
+  - chaque vue est rattachée au ROWID de sa table géométrique
+  - les enregistrements de vues qui n'existent plus sont supprimés
+  - les vues standard manquantes sont recréées
+  - les vues UT sont enregistrées comme vues spatiales
+  - les tables géométriques sans index spatial en reçoivent un : nécessaire lorsque le GDAL fourni avec QGIS n'a pas les fonctions SpatiaLite (ex. QGIS sur macOS), où sans index ces couches ne dessinaient rien
+- Avant de modifier quoi que ce soit, il enregistre UNE seule copie de sauvegarde à côté de la base : `<base>.sqlite.pre_spatial_index_repair_<date-heure UTC>`
 - Le résultat est écrit dans le panneau de journal de QGIS (Vue → Panneaux → Journal des messages, onglet "PyArchInit")
 
 **Que faire** :
@@ -377,6 +383,8 @@ Opérations spatiales disponibles :
 - Si les couches étaient déjà chargées, les retirer et les ajouter de nouveau (ou rouvrir le projet) après la réparation
 - Si le journal "PyArchInit" signale qu'un index n'a PAS pu être réparé (ex. SpatiaLite impossible à charger), corriger la cause et redémarrer QGIS : la vérification n'est relancée que dans une nouvelle session
 - Le fichier de sauvegarde peut être supprimé une fois les couches vérifiées
+- Pour relancer la vérification (ex. après avoir restauré une sauvegarde), redémarrer QGIS
+- Remarque : dans `inventario_materiali_view`, le point du site est répété pour chaque objet du mobilier, donc "Identifier les entités" sur ce point affiche l'un de ces objets
 
 ## Références
 
