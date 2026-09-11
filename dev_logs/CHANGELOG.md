@@ -7,7 +7,7 @@
 
 ## [fix] - 2026-09-11 — Tutorial: i link dell'indice portano al paragrafo, i link a un altro tutorial lo aprono nel visualizzatore, niente più browser web (Windows)
 
-> Branch `Stratigraph_00001`. Commit: `0acdfa6d`: links …). Non incluso in una release (dopo 5.13.19-alpha).
+> Branch `Stratigraph_00001`. Commit `0acdfa6d` (visualizzatori), tutorial `e39c5949`. Non incluso in una release (dopo 5.13.19-alpha).
 > File: `modules/utility/tutorial_links.py` (NUOVO), `tabs/Tutorial_viewer.py`, `pyarchinitDockWidget.py`, `tests/utility/test_tutorial_links.py` (NUOVO). Contenuto dei tutorial: `docs/tutorials/ar/16_بطاقة_الفخار.md`, `docs/tutorials/el/08_scheda_inventario_materiali.md`.
 
 ### Italiano
