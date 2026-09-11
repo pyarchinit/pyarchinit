@@ -5,6 +5,130 @@
 
 ---
 
+## [fix] - 2026-09-11 — QGIS 4: `No module named 'psycopg2._psycopg'` — pacchetti installati per il Python sbagliato (`ext_libs`)
+
+> Branch `Stratigraph_00001`. Commit `02f2dda9`, versione `5.13.17-alpha`. Solo dev: non portato su `master` (master è per QGIS 3).
+> File: `modules/utility/python_env.py` (NUOVO), `__init__.py`, `tests/utility/test_python_env.py` (NUOVO).
+> Documentazione: tutorial 01 (configurazione), nota sulle installazioni con QGIS 4 o più versioni di QGIS, in 10 lingue.
+
+### Italiano
+
+#### Contesto
+
+- Segnalato il 2026-09-11 installando pyArchInit 5.13.16-alpha su QGIS 4.2.2 per macOS: l'apertura della configurazione (`pyarchinitPlugin.runConf` → `gui/pyarchinitConfigDialog` → `modules/db/pyarchinit_db_manager` → `import psycopg2`) falliva con `ModuleNotFoundError: No module named 'psycopg2._psycopg'` da `ext_libs/psycopg2`.
+- **Causa (verificata sulla macchina):**
+  - l'installatore (`PackageManager.install` in `__init__.py`) eseguiva pip con il primo Python funzionante tra percorsi macOS fissi: veniva prima `/Applications/QGIS.app` (QGIS 3, Python 3.9.5, x86_64); la voce `qgis4` era fissata su `QGIS-final-4_0_0.app`; l'interprete del QGIS 4.2.2 in esecuzione (`Contents/MacOS/python3.12`) non veniva mai provato — e non parte nemmeno senza `PYTHONHOME` (il suo prefisso compilato è la cartella di build della CI);
+  - `pip --target ext_libs` metteva quindi nel profilo di QGIS 4 wheel cp39 / x86_64 (`psycopg2_binary` 2.9.12 con tag `cp39-cp39-macosx_10_9_x86_64`, più PIL, numpy, pandas, lxml, yaml, greenlet, charset_normalizer, mmh3, py_rust_stemmers);
+  - `ext_libs` è primo in `sys.path`, quindi nascondeva anche lo psycopg2 2.9.12 incluso in QGIS 4.2.2; il controllo dei requisiti contava quei dist-info come installati, quindi non venivano mai sostituiti.
+- Stesso errore quando un profilo QGIS 3 (`ext_libs` compreso) viene copiato in QGIS 4, e su Windows con più QGIS installati (la scansione di Program Files non controllava la versione).
+
+#### 1. Nuovo modulo `modules/utility/python_env.py`
+
+- Solo libreria standard, importato all'inizio di `__init__.py`.
+- **`ensure_ext_libs()`**:
+  - un `ext_libs` i cui moduli compilati (tag `cpython-XY` / `cpXY` di `.so`/`.pyd`; `abi3` ignorato) o il cui marker appartengono a un altro Python viene rinominato `ext_libs_<tag>` (es. `ext_libs_cp39`; mai eliminato) e si riparte con un `ext_libs` nuovo;
+  - un `ext_libs` parcheggiato che corrisponde al Python in esecuzione viene rimesso al suo posto (una cartella del plugin condivisa da due versioni di QGIS scambia le cartelle invece di reinstallare);
+  - il file marker `.pyarchinit_python` (es. `cp312-arm64`) registra per quale Python è un `ext_libs`, così i controlli successivi sono istantanei;
+  - se la rinomina non è possibile si usa una cartella `ext_libs_<tag>`.
+- **`pip_interpreter()`**: un Python con la stessa versione e la stessa architettura CPU di quello in esecuzione, per primo quello del QGIS in esecuzione:
+  - macOS: accanto al binario di QGIS / `Contents/MacOS` / `<prefix>/bin`, eseguito con `PYTHONHOME=sys.prefix`;
+  - Windows: `python.exe` in `sys.prefix`, `base_prefix`, `QGIS_PREFIX_PATH` `apps/PythonXY`;
+  - Linux: `sys.executable` solo se è un `python*`, poi `pythonX.Y`/`python3` nel PATH;
+  - poi i vecchi percorsi fissi; tutti verificati da una prova (versione, architettura, pip presente); mai il binario di QGIS stesso;
+  - se nessuno corrisponde non si installa nulla (invece di wheel inutilizzabili).
+
+#### 2. Installazione (`__init__.py`)
+
+- `ext_libs` viene da `ensure_ext_libs` (messaggio nel log di QGIS, scheda PyArchInit).
+- **`PackageManager._pip_install`**: un solo percorso pip per tutti i sistemi — ambiente senza `PYTHONPATH`, `PYTHONHOME` solo per l'interprete incluso in QGIS, 900 s per pacchetto, nessuna finestra della console su Windows.
+- Linux non Ubuntu ora installa tramite pip (prima non veniva installato nulla).
+- La riparazione di Pillow su macOS gira solo con un Python di QGIS corrispondente.
+- Marker scritto dopo ogni installazione.
+- `check_required_packages` usa l'`ext_libs` attivo e accetta `psycopg2` per il requisito `psycopg2-binary` (QGIS 4.2.2 include psycopg2 2.9.12).
+
+#### Test
+
+- **`tests/utility/test_python_env.py` (NUOVO):** parcheggio/marker/scambio, tag di versione di macOS/Windows/Linux, ordine dei candidati su macOS/Windows/Linux, scelta dell'interprete, prova del vero python di QGIS 4.2.2 quando è installato, alias psycopg2.
+- Suite completa invariata (stessi fallimenti preesistenti delle fixture PostgreSQL).
+
+#### Verifica
+
+- **QGIS 4.2.2:** Python 3.12.11 arm64, pip 26.2.1 incluso; il binario principale di QGIS ha l'entitlement `com.apple.security.cs.disable-library-validation`, quindi i moduli installati da pip si caricano dentro QGIS (il `python3.12` standalone li rifiuta, ma serve solo a eseguire pip).
+- **Riproduzione con gli interpreti reali:**
+  - `ext_libs` popolato dal Python 3.9 di QGIS 3 come faceva il vecchio installatore → il Python di QGIS 4.2.2 dà esattamente `No module named 'psycopg2._psycopg'`;
+  - con `ensure_ext_libs` la cartella viene parcheggiata come `ext_libs_cp39` e `import psycopg2` carica il 2.9.12 incluso in QGIS 4.2.2.
+- **Installazione simulata con il Python di QGIS 4.2.2:** interprete scelto `Contents/MacOS/python3.12` con `PYTHONHOME=Contents/Frameworks`, modulo compilato installato con tag `cpython-312`, marker `cp312-arm64`, secondo avvio istantaneo.
+- Con un `ext_libs` vuoto a QGIS 4.2.2 mancano ancora 10 requisiti, installati al primo avvio: SQLAlchemy, SQLAlchemy-Utils, GeoAlchemy2, XlsxWriter, nltk (3.9.2 < 3.9.4), langchain-core, langchain-openai, langchain-text-splitters, langsmith, fastembed.
+
+#### ⚠️ Importante per gli utenti
+
+- Chi ha avuto l'errore su QGIS 4 deve solo aggiornare pyArchInit: al prossimo avvio il vecchio `ext_libs` viene spostato in `ext_libs_cp39` e i pacchetti mancanti vengono installati per il Python di QGIS 4 (qualche minuto, avanzamento sullo splash).
+- Le cartelle `ext_libs_cp*` si possono eliminare.
+
+#### Note per master
+
+- Non portato: master è per QGIS 3.
+
+### English
+
+#### Context
+
+- Reported on 2026-09-11 installing pyArchInit 5.13.16-alpha on QGIS 4.2.2 for macOS: opening the configuration (`pyarchinitPlugin.runConf` → `gui/pyarchinitConfigDialog` → `modules/db/pyarchinit_db_manager` → `import psycopg2`) failed with `ModuleNotFoundError: No module named 'psycopg2._psycopg'` from `ext_libs/psycopg2`.
+- **Root cause (verified on the machine):**
+  - the installer (`PackageManager.install` in `__init__.py`) ran pip with the first working Python among fixed macOS paths: `/Applications/QGIS.app` (QGIS 3, Python 3.9.5, x86_64) came first; the `qgis4` entry was hard-coded to `QGIS-final-4_0_0.app`; the interpreter of the running QGIS 4.2.2 (`Contents/MacOS/python3.12`) was never tried — and it cannot even start without `PYTHONHOME` (its compiled-in prefix is the CI build dir);
+  - so `pip --target ext_libs` put cp39 / x86_64 wheels in the QGIS 4 profile (`psycopg2_binary` 2.9.12 tagged `cp39-cp39-macosx_10_9_x86_64`, plus PIL, numpy, pandas, lxml, yaml, greenlet, charset_normalizer, mmh3, py_rust_stemmers);
+  - `ext_libs` is first on `sys.path`, so it also hid the psycopg2 2.9.12 that QGIS 4.2.2 ships; the requirements check counted those dist-info as installed, so they were never replaced.
+- Same failure when a QGIS 3 profile (`ext_libs` included) is copied to QGIS 4, and on Windows with several QGIS installed (the Program Files scan had no version check).
+
+#### 1. New module `modules/utility/python_env.py`
+
+- Standard library only, imported at the very top of `__init__.py`.
+- **`ensure_ext_libs()`**:
+  - an `ext_libs` whose compiled modules (`cpython-XY` / `cpXY` tags of `.so`/`.pyd`; `abi3` ignored) or marker belong to another Python is renamed `ext_libs_<tag>` (e.g. `ext_libs_cp39`; never deleted) and a fresh `ext_libs` is started;
+  - a parked `ext_libs` matching the running Python is put back (a plugin folder shared by two QGIS versions swaps folders instead of reinstalling);
+  - the marker file `.pyarchinit_python` (e.g. `cp312-arm64`) records which Python an `ext_libs` is for, so later checks are instant;
+  - if the rename is impossible, a directory `ext_libs_<tag>` is used.
+- **`pip_interpreter()`**: a Python with the same version and CPU architecture as the running one, the running QGIS's own first:
+  - macOS: next to the QGIS binary / `Contents/MacOS` / `<prefix>/bin`, run with `PYTHONHOME=sys.prefix`;
+  - Windows: `python.exe` in `sys.prefix`, `base_prefix`, `QGIS_PREFIX_PATH` `apps/PythonXY`;
+  - Linux: `sys.executable` only if it is a `python*`, then `pythonX.Y`/`python3` on PATH;
+  - then the old fixed paths; all verified by a probe (version, architecture, pip present); never the QGIS binary itself;
+  - if none matches, nothing is installed (instead of unusable wheels).
+
+#### 2. Installation (`__init__.py`)
+
+- `ext_libs` comes from `ensure_ext_libs` (message in the QGIS log, PyArchInit tab).
+- **`PackageManager._pip_install`**: one pip path for every system — environment without `PYTHONPATH`, `PYTHONHOME` only for the bundled interpreter, 900 s per package, no console window on Windows.
+- Non-Ubuntu Linux now installs via pip (before: nothing was installed).
+- The macOS Pillow repair runs only with a matching QGIS Python.
+- Marker written after each install.
+- `check_required_packages` uses the active `ext_libs` and accepts `psycopg2` for the `psycopg2-binary` requirement (QGIS 4.2.2 ships psycopg2 2.9.12).
+
+#### Tests
+
+- **`tests/utility/test_python_env.py` (NEW):** parking/marker/swap, version tags of macOS/Windows/Linux, candidate order on macOS/Windows/Linux, interpreter choice, probe of the real QGIS 4.2.2 python when installed, psycopg2 alias.
+- Full suite unchanged (same pre-existing PostgreSQL-fixture failures).
+
+#### Verification
+
+- **QGIS 4.2.2:** Python 3.12.11 arm64, pip 26.2.1 bundled; the main QGIS binary has the entitlement `com.apple.security.cs.disable-library-validation`, so modules installed by pip load inside QGIS (the standalone `python3.12` refuses them, but it only runs pip).
+- **Reproduction with the real interpreters:**
+  - `ext_libs` populated by QGIS 3's Python 3.9 as the old installer did → QGIS 4.2.2's Python gives exactly `No module named 'psycopg2._psycopg'`;
+  - with `ensure_ext_libs` the folder is parked as `ext_libs_cp39` and `import psycopg2` loads the 2.9.12 bundled with QGIS 4.2.2.
+- **Simulated install with QGIS 4.2.2's Python:** interpreter chosen `Contents/MacOS/python3.12` with `PYTHONHOME=Contents/Frameworks`, compiled module installed tagged `cpython-312`, marker `cp312-arm64`, second start instant.
+- With an empty `ext_libs`, QGIS 4.2.2 still lacks 10 requirements, installed at the first start: SQLAlchemy, SQLAlchemy-Utils, GeoAlchemy2, XlsxWriter, nltk (3.9.2 < 3.9.4), langchain-core, langchain-openai, langchain-text-splitters, langsmith, fastembed.
+
+#### ⚠️ Important for users
+
+- QGIS 4 users who got the error just update pyArchInit: at the next start the old `ext_libs` is moved to `ext_libs_cp39` and the missing packages are installed for QGIS 4's Python (a few minutes, progress on the splash).
+- The `ext_libs_cp*` folders can be deleted.
+
+#### Notes for master
+
+- Not ported: master targets QGIS 3.
+
+---
+
 ## [fix] - 2026-09-11 — Viste spaziali SQLite/SpatiaLite senza chiave ROWID (layer vuoti o sbagliati): riparazione automatica alla connessione e correzione delle `CREATE VIEW`
 
 > Branch `Stratigraph_00001`. Commit `d0c8b9de`, versione `5.13.16-alpha`. Portato su `master` come commit `8afbcc98` (branch `fix/large-relations-master`, sopra `8f7af2c7` = bump 4.9.14), versione `4.9.15`. Seguito delle due voci del 2026-09-10 sugli indici spaziali.
