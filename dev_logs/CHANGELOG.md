@@ -5,6 +5,75 @@
 
 ---
 
+## [fix] - 2026-09-11 — GIS SQLite: i layer US/USM mantengono lo stile scelto dall'utente (non più sempre "per numero di US")
+
+> Branch `Stratigraph_00001`. Commit `5f68cc2b`, versione `5.13.18-alpha` (non ancora rilasciata). Master non interessato.
+> File: `modules/gis/pyarchinit_pyqgis.py`, `tests/utility/test_us_style_choice_respected.py` (NUOVO).
+
+### Italiano
+
+#### Contesto
+
+- Segnalato il 2026-09-11: con una "query spaziale" (Visualizza su GIS da una ricerca US) una finestra chiede come dare lo stile al layer US/USM — "Salva nuovo stile" / "Carica stile esistente" / "Usa stile temporaneo" / "Simbolo singolo (solo contorno)" — e poi il campo per la categorizzazione: "Definizione Stratigrafica", "Tipo US", "Definizione Interpretativa" (`USViewStyler.ask_user_style_preference` / `ask_user_categorization_field` in `modules/utility/create_style.py`). Qualunque fosse la scelta, la mappa usciva sempre "per numero di US".
+- **Causa** (`modules/gis/pyarchinit_pyqgis.py`):
+  - `charge_vector_layers` (ramo SQLite) applicava lo stile scelto con `styler.apply_style_to_layer(layerUS)` e subito dopo chiamava `create_us_nested_symbology(layerUS, gidstr)`, che sostituisce il renderer con uno a regole: una regola padre per US ("US 1", "US 2" …) e figlie per `stratigraph_index_us`;
+  - la simbologia annidata era stata aggiunta a gennaio 2026 (commit `3b033ea6`, `ac06cd7a`, `7630ca3c`) a vari loader;
+  - `charge_usm_layers` (SQLite) non offriva mai la scelta: solo la simbologia annidata;
+  - i rami PostgreSQL delle due funzioni usavano già solo lo styler.
+
+#### Correzione
+
+- `charge_vector_layers` (SQLite) non chiama più `create_us_nested_symbology` dopo lo styler.
+- `charge_usm_layers` (SQLite) ora usa `USViewStyler` (stessa finestra) + `_apply_us_feature_ordering`, come PostgreSQL.
+- La simbologia annidata per US resta nei loader che non offrono una scelta di stile: anteprima mappa `loadMapPreview_new`, `charge_vector_layers_from_matrix`, `charge_vector_layers_doc_from_scheda_US`, `charge_individui_us`.
+
+#### Test e verifica
+
+- Le viste SQLite `pyarchinit_us_view` e `pyarchinit_usm_view` del DB di esempio espongono tutti i campi necessari allo styler (`stratigraph_index_us`, `tipo_us_s`, `d_stratigrafica`, `d_interpretativa`, `order_layer`).
+- **`tests/utility/test_us_style_choice_respected.py` (NUOVO):** legge i loader con `ast` — lo stile viene offerto su SQLite e PostgreSQL e non viene sostituito. ROSSO sul vecchio codice (3 fallimenti), VERDE dopo.
+- Suite completa invariata a parte i 4 nuovi test (stessi fallimenti preesistenti delle fixture PostgreSQL).
+
+#### ⚠️ Importante per gli utenti
+
+- Nessuna azione richiesta: i layer già caricati mantengono il loro stile, il prossimo "Visualizza su GIS" applica quello scelto.
+
+#### Note per master
+
+- Non interessato: master non ha la simbologia annidata.
+
+### English
+
+#### Context
+
+- Reported on 2026-09-11: with a "spatial query" (Visualizza su GIS from a US search) a dialog asks how to style the US/USM layer — "Salva nuovo stile" / "Carica stile esistente" / "Usa stile temporaneo" / "Simbolo singolo (solo contorno)" — and then which field to categorise by: "Definizione Stratigrafica", "Tipo US", "Definizione Interpretativa" (`USViewStyler.ask_user_style_preference` / `ask_user_categorization_field` in `modules/utility/create_style.py`). Whatever was chosen, the map always came out "by US number".
+- **Root cause** (`modules/gis/pyarchinit_pyqgis.py`):
+  - `charge_vector_layers` (SQLite branch) applied the chosen style with `styler.apply_style_to_layer(layerUS)` and right after called `create_us_nested_symbology(layerUS, gidstr)`, which replaces the renderer with a rule-based one: one parent rule per US ("US 1", "US 2" …) and children per `stratigraph_index_us`;
+  - the nested symbology was added in January 2026 (commits `3b033ea6`, `ac06cd7a`, `7630ca3c`) to several loaders;
+  - `charge_usm_layers` (SQLite) never offered the choice: only the nested symbology;
+  - the PostgreSQL branches of both functions already used only the styler.
+
+#### Fix
+
+- `charge_vector_layers` (SQLite) no longer calls `create_us_nested_symbology` after the styler.
+- `charge_usm_layers` (SQLite) now uses `USViewStyler` (same dialog) + `_apply_us_feature_ordering`, like PostgreSQL.
+- The per-US nested symbology is kept in the loaders that offer no style choice: map preview `loadMapPreview_new`, `charge_vector_layers_from_matrix`, `charge_vector_layers_doc_from_scheda_US`, `charge_individui_us`.
+
+#### Tests and verification
+
+- The SQLite views `pyarchinit_us_view` and `pyarchinit_usm_view` of the sample DB expose every field the styler needs (`stratigraph_index_us`, `tipo_us_s`, `d_stratigrafica`, `d_interpretativa`, `order_layer`).
+- **`tests/utility/test_us_style_choice_respected.py` (NEW):** reads the loaders with `ast` — the style is offered on SQLite and PostgreSQL and not replaced. RED on the old code (3 failures), GREEN after.
+- Full suite unchanged apart from the 4 new tests (same pre-existing PostgreSQL-fixture failures).
+
+#### ⚠️ Important for users
+
+- Nothing to do: layers already loaded keep their style, the next "Visualizza su GIS" applies the chosen one.
+
+#### Notes for master
+
+- Not affected: master has no nested symbology.
+
+---
+
 ## [fix] - 2026-09-11 — QGIS 4: `No module named 'psycopg2._psycopg'` — pacchetti installati per il Python sbagliato (`ext_libs`)
 
 > Branch `Stratigraph_00001`. Commit `02f2dda9`, versione `5.13.17-alpha`. Solo dev: non portato su `master` (master è per QGIS 3).
