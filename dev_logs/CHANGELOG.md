@@ -5,6 +5,246 @@
 
 ---
 
+## [fix] - 2026-09-11 — Viste spaziali SQLite/SpatiaLite senza chiave ROWID (layer vuoti o sbagliati): riparazione automatica alla connessione e correzione delle `CREATE VIEW`
+
+> Branch `Stratigraph_00001`. Commit `d0c8b9de`, versione `5.13.16-alpha`. Portato su `master` come commit `8afbcc98` (branch `fix/large-relations-master`, sopra `8f7af2c7` = bump 4.9.14), versione `4.9.15`. Seguito delle due voci del 2026-09-10 sugli indici spaziali.
+> Documentazione: tutorial 14 (GIS), sezione "layer SQLite caricato ma geometrie non visibili", in 10 lingue.
+> File: `modules/db/spatial_view_repair.py` (NUOVO), `modules/db/spatial_view_definitions.py` (NUOVO), `modules/db/spatial_index_repair.py`, `modules/db/pyarchinit_db_manager.py`, `modules/db/pyarchinit_db_update.py`, `modules/db/sqlite_db_updater.py`, `gui/pyarchinitConfigDialog.py`, `resources/dbfiles/pyarchinit.sqlite`, `resources/dbfiles/pyarchinit_db.sqlite`, `tests/migrations/test_spatial_view_repair.py` (NUOVO), `tests/migrations/test_spatial_view_sql_sources.py` (NUOVO), `tests/migrations/test_spatial_index_repair.py`, `tests/utility/test_shipped_sqlite_spatial_index.py`.
+
+### Italiano
+
+#### Contesto
+
+- Problema trovato sul template e sul DB di esempio distribuiti e sui DB degli utenti (verificato il 2026-09-11). QGIS (provider SpatiaLite, chiave `"ROWID"`) e OGR (chiave = `views_geometry_columns.view_rowid`) disegnano una vista spaziale filtrando la sua chiave con l'R*Tree della tabella geometrica di base: `<chiave> IN (SELECT pkid FROM idx_<base>_<geom> WHERE bbox)`. La chiave deve quindi essere il ROWID della tabella di base.
+- **Difetti trovati:**
+  - l'updater dello schema dev (`modules/db/sqlite_db_updater.py`) ricreava `pyarchinit_us_view`, `pyarchinit_strutture_view` e `pyarchinit_reperti_view` senza alcuna colonna ROWID: il rowid implicito della vista è NULL → non viene disegnato nulla;
+  - `pyarchinit_quote_view` prendeva la chiave da `us_table` invece che da `pyarchinit_quote` → feature sbagliate o duplicate;
+  - le viste UT (`pyarchinit_ut_point_view`, `pyarchinit_ut_line_view`, `pyarchinit_ut_polygon_view`) non avevano chiave e non erano mai registrate come viste spaziali;
+  - registrazioni in `views_geometry_columns` di viste inesistenti, o che nominano una colonna geometrica che la vista non ha;
+  - viste su tabelle inesistenti (`pyarchinit_uscaratterizzazioni_view`, `pyarchinit_pyuscarlinee_view` nel template distribuito);
+  - la correzione INT→TEXT di `tomba_table` rinominava `tomba_table` in `tomba_table_old` senza `legacy_alter_table`: SQLite ≥ 3.26 riscriveva allora `pyarchinit_tomba_view` perché leggesse `tomba_table_old`, che poi veniva eliminata → vista rotta;
+  - tabelle geometriche senza indice spaziale (`spatial_index_enabled = 0`, es. `pyarchinit_siti`, `pyarchinit_quote`, `pyarchinit_punti_rif`): OGR filtra allora con funzioni SQL di SpatiaLite che alcune build di GDAL non hanno (il GDAL incluso in QGIS 3.x su macOS) e non disegna nulla.
+
+#### 1. Nuovi moduli
+
+- **`modules/db/spatial_view_repair.py`**: `audit_spatial_views`, `repair_spatial_views`, `rewrite_view_with_base_rowid` (riscrive la `CREATE VIEW` selezionando il ROWID della tabella di base come chiave).
+- **`modules/db/spatial_view_definitions.py`**: `CANONICAL_VIEWS`, le definizioni delle 13 viste standard prese testualmente dal DB di esempio di master, usate per ricreare le viste standard mancanti o rotte.
+
+#### 2. Riparazione alla connessione (`modules/db/spatial_index_repair.py`, `modules/db/pyarchinit_db_manager.py`)
+
+- **`ensure_spatial_layers`** (resta `ensure_spatial_indexes` come alias) ora ripara indici **e** viste; le colonne geometriche registrate senza indice ne ricevono uno.
+- Gira una volta per sessione quando si connette un DB SQLite (`Pyarchinit_db_management.connection()`, che ora chiama `ensure_spatial_layers`).
+- **Garanzie:**
+  - l'audit non scrive nulla (solo `sqlite3`);
+  - ogni correzione di vista viene prima provata su una vista `TEMP` e applicata solo se la nuova chiave è dimostrata: ogni riga porta il ROWID della riga di base con la stessa geometria (per le viste vuote il controllo si fa sulla definizione);
+  - le viste con `DISTINCT`/`GROUP BY`/`UNION` restano come sono;
+  - un solo backup `<db>.pre_spatial_index_repair_<UTC>` prima di qualsiasi scrittura;
+  - ogni correzione nel suo `SAVEPOINT`;
+  - non solleva mai eccezioni;
+  - SpatiaLite caricato con il loader del plugin (ramo `.dll` per Windows) → Windows, Linux, macOS.
+
+#### 3. Correzioni nei sorgenti
+
+- **17 `CREATE VIEW` SQLite** ora selezionano il ROWID della tabella di base come chiave:
+  - `sqlite_db_updater.py`: viste strutture, us, reperti;
+  - `pyarchinit_db_update._recreate_sqlite_views`: viste quote, quote_usm, uscaratterizzazioni, reperti, tomba;
+  - `pyarchinit_db_manager.ensure_ut_geometry_tables_exist`: le 3 viste UT, in due punti;
+  - `gui/pyarchinitConfigDialog.py`: `sql_view_us` e, nel pulsante "aggiorna SQLite" (`on_pushButton_upd_sqlite_pressed`), `pyarchinit_quote_view` e `pyarchinit_quote_usm_view`, che prendevano la chiave da `us_table` (a ogni pressione avrebbero rotto di nuovo le viste appena riparate).
+- Viste UT registrate con il nuovo `_register_ut_views()`.
+- `_recreate_sqlite_views` salta le viste le cui tabelle non esistono.
+- La correzione di `tomba_table` gira con `PRAGMA legacy_alter_table=ON` (valore precedente ripristinato dopo).
+- Viste PostgreSQL non toccate.
+
+#### 4. File SQLite distribuiti
+
+- `resources/dbfiles/pyarchinit.sqlite` (template): 22 correzioni.
+- `resources/dbfiles/pyarchinit_db.sqlite` (DB di esempio): 34 correzioni.
+- Rimosse le viste rotte `pyarchinit_pyuscarlinee_view` e `pyarchinit_uscaratterizzazioni_view`.
+
+#### Test
+
+- **`tests/migrations/test_spatial_view_repair.py` (NUOVO, 17 funzioni di test).**
+- **`tests/migrations/test_spatial_view_sql_sources.py` (NUOVO):** legge l'SQL direttamente dai file sorgente (compreso il pulsante "aggiorna SQLite" della finestra di configurazione).
+- `tests/migrations/test_spatial_index_repair.py`: + colonna geometrica registrata senza indice.
+- `tests/utility/test_shipped_sqlite_spatial_index.py`: + viste, indici, viste rotte.
+
+#### Verifica
+
+- Riparate le copie di 7 DB (template e DB di esempio di dev e di master, una copia utente di `pyarchinit_db.sqlite`, `Calaforno_2026`, Ventena): ogni layer viene disegnato da OGR, un secondo passaggio non fa nulla, un solo backup per DB.
+- **Noto e accettato:**
+  - `inventario_materiali_view` ripete il punto del sito per ogni reperto (chiave = ROWID del sito, ripetuta per costruzione; l'identificazione mostra uno dei reperti);
+  - nel DB Ventena `pyarchinit_tomba_view` resta rotta (lì `tomba_table` non esiste più): lasciata così di proposito.
+
+#### ⚠️ Importante per gli utenti
+
+- **Non c'è nulla da fare.** Alla prossima connessione a ciascun DB SQLite viste e indici vengono controllati e, se serve, riparati una sola volta.
+- Se è stato scritto qualcosa, accanto al DB compare un backup `.pre_spatial_index_repair_<timestamp>`: si può eliminare dopo aver verificato che i layer si vedono.
+- I layer già caricati in QGIS vanno ricaricati.
+
+#### Note per master
+
+- Commit master `8afbcc98`: gli stessi tre moduli (identici a dev), `gui/pyarchinitConfigDialog.py` (viste quote del pulsante "aggiorna SQLite") e i file SQLite distribuiti riparati (template 17 correzioni, DB di esempio 19).
+- Su master l'hook di `connection()` chiama ancora `ensure_spatial_indexes`, ora alias di `ensure_spatial_layers`: nessuna modifica necessaria. Le altre `CREATE VIEW` SQLite di master avevano già la chiave giusta; master non ha le viste UT né `sqlite_db_updater.py`.
+- Master non ha la cartella `tests/`: i test sono stati copiati temporaneamente nel worktree di master e sono passati (38), poi rimossi.
+
+### English
+
+#### Context
+
+- Problem found on the shipped template and sample DB and on user DBs (verified 2026-09-11). QGIS (SpatiaLite provider, key `"ROWID"`) and OGR (key = `views_geometry_columns.view_rowid`) draw a spatial view by filtering its key with the R*Tree of the geometry (base) table: `<key> IN (SELECT pkid FROM idx_<base>_<geom> WHERE bbox)`. The key must therefore be the ROWID of the base table.
+- **Defects found:**
+  - the dev schema updater (`modules/db/sqlite_db_updater.py`) recreated `pyarchinit_us_view`, `pyarchinit_strutture_view` and `pyarchinit_reperti_view` without any ROWID column: the implicit view rowid is NULL → nothing is drawn;
+  - `pyarchinit_quote_view` took its key from `us_table` instead of `pyarchinit_quote` → wrong or duplicated features;
+  - the UT views (`pyarchinit_ut_point_view`, `pyarchinit_ut_line_view`, `pyarchinit_ut_polygon_view`) had no key and were never registered as spatial views;
+  - `views_geometry_columns` registrations of views that do not exist, or naming a geometry column the view lacks;
+  - views on tables that do not exist (`pyarchinit_uscaratterizzazioni_view`, `pyarchinit_pyuscarlinee_view` in the shipped template);
+  - the `tomba_table` INT→TEXT fix renamed `tomba_table` to `tomba_table_old` without `legacy_alter_table`, so SQLite ≥ 3.26 rewrote `pyarchinit_tomba_view` to read `tomba_table_old`, which was then dropped → broken view;
+  - geometry tables with no spatial index (`spatial_index_enabled = 0`, e.g. `pyarchinit_siti`, `pyarchinit_quote`, `pyarchinit_punti_rif`): OGR then filters with SpatiaLite SQL functions that some GDAL builds lack (the GDAL bundled with QGIS 3.x on macOS) and draws nothing.
+
+#### 1. New modules
+
+- **`modules/db/spatial_view_repair.py`**: `audit_spatial_views`, `repair_spatial_views`, `rewrite_view_with_base_rowid` (rewrites the `CREATE VIEW` so it selects the base table's ROWID as its key).
+- **`modules/db/spatial_view_definitions.py`**: `CANONICAL_VIEWS`, the 13 standard view definitions taken verbatim from master's sample DB, used to recreate missing or broken standard views.
+
+#### 2. Repair on connection (`modules/db/spatial_index_repair.py`, `modules/db/pyarchinit_db_manager.py`)
+
+- **`ensure_spatial_layers`** (`ensure_spatial_indexes` kept as an alias) now repairs indexes **and** views; geometry columns registered with no index get one.
+- Runs once per session when a SQLite DB is connected (`Pyarchinit_db_management.connection()`, which now calls `ensure_spatial_layers`).
+- **Guarantees:**
+  - the audit writes nothing (plain `sqlite3`);
+  - every view fix is first tried on a `TEMP` view and applied only if the new key is proven: every row carries the ROWID of the base row with the same geometry (empty views are checked on the definition);
+  - `DISTINCT`/`GROUP BY`/`UNION` views are left alone;
+  - one backup `<db>.pre_spatial_index_repair_<UTC>` before any write;
+  - each fix in its own `SAVEPOINT`;
+  - never raises;
+  - SpatiaLite loaded through the plugin's own loader (Windows `.dll` branch) → Windows, Linux, macOS.
+
+#### 3. Source fixes
+
+- **17 SQLite `CREATE VIEW` statements** now select the base table's ROWID as their key:
+  - `sqlite_db_updater.py`: strutture, us, reperti views;
+  - `pyarchinit_db_update._recreate_sqlite_views`: quote, quote_usm, uscaratterizzazioni, reperti, tomba views;
+  - `pyarchinit_db_manager.ensure_ut_geometry_tables_exist`: the 3 UT views, in two places;
+  - `gui/pyarchinitConfigDialog.py`: `sql_view_us` and, in the "update SQLite" button (`on_pushButton_upd_sqlite_pressed`), `pyarchinit_quote_view` and `pyarchinit_quote_usm_view`, which took their key from `us_table` (every press would have broken the just-repaired views again).
+- UT views registered via the new `_register_ut_views()`.
+- `_recreate_sqlite_views` skips views whose tables do not exist.
+- The `tomba_table` fix runs with `PRAGMA legacy_alter_table=ON` (previous value restored afterwards).
+- PostgreSQL views untouched.
+
+#### 4. Shipped SQLite files
+
+- `resources/dbfiles/pyarchinit.sqlite` (template): 22 fixes.
+- `resources/dbfiles/pyarchinit_db.sqlite` (sample DB): 34 fixes.
+- Broken views `pyarchinit_pyuscarlinee_view` and `pyarchinit_uscaratterizzazioni_view` removed.
+
+#### Tests
+
+- **`tests/migrations/test_spatial_view_repair.py` (NEW, 17 test functions).**
+- **`tests/migrations/test_spatial_view_sql_sources.py` (NEW):** reads the SQL straight from the source files (including the configuration dialog's "update SQLite" button).
+- `tests/migrations/test_spatial_index_repair.py`: + geometry column registered with no index.
+- `tests/utility/test_shipped_sqlite_spatial_index.py`: + views, indexes, broken views.
+
+#### Verification
+
+- Copies of 7 DBs repaired (dev and master template and sample DB, a user copy of `pyarchinit_db.sqlite`, `Calaforno_2026`, Ventena): every layer drawn by OGR, a second pass does nothing, one backup each.
+- **Known and accepted:**
+  - `inventario_materiali_view` repeats the site point for every find (key = site ROWID, repeated by design; identify shows one of the finds);
+  - in the Ventena DB `pyarchinit_tomba_view` stays broken (`tomba_table` no longer exists there): left as is on purpose.
+
+#### ⚠️ Important for users
+
+- **Nothing to do.** On the next connection to each SQLite DB, views and indexes are checked and, if needed, repaired once.
+- If anything was written, a `.pre_spatial_index_repair_<timestamp>` backup appears next to the DB: it can be deleted after checking that the layers are visible.
+- Layers already loaded in QGIS must be reloaded.
+
+#### Notes for master
+
+- Master commit `8afbcc98`: the same three modules (identical to dev), `gui/pyarchinitConfigDialog.py` (quote views of the "update SQLite" button) and the repaired shipped SQLite files (template 17 fixes, sample DB 19).
+- On master the `connection()` hook still calls `ensure_spatial_indexes`, now an alias of `ensure_spatial_layers`: no change needed. Master's other SQLite `CREATE VIEW` statements already had the right key; master has no UT views and no `sqlite_db_updater.py`.
+- Master has no `tests/` folder: the tests were copied temporarily into the master worktree, passed (38) and were removed.
+
+---
+
+## [fix] - 2026-09-11 — Primo avvio di pyArchInit 5: domande sempre in primo piano, avanzamento dell'installazione sullo splash
+
+> Branch `Stratigraph_00001`. Commit `8a155dab`, versione `5.13.16-alpha`. Solo dev: master non ha la domanda di migrazione verso `~/pyarchinit_5` né lo splash.
+> Documentazione: tutorial 01 (configurazione), sezione sulla cartella dati `~/pyarchinit_5`, in 10 lingue.
+> File: `modules/utility/startup_ui.py` (NUOVO), `__init__.py`, `gui/pyarchinit_splash.py`, `tests/utility/test_startup_ui.py` (NUOVO).
+
+### Italiano
+
+#### Contesto
+
+- Al primo avvio (soprattutto su Windows) la domanda "trovata un'installazione pyArchInit esistente… copiare configurazione e database nella nuova cartella ~/pyarchinit_5?" era una `QMessageBox` senza parent, mostrata mentre era visibile lo splash di caricamento (senza cornice, sempre in primo piano) e in primo piano c'era QGIS o il Gestore plugin: si apriva dietro di loro e l'avvio restava in attesa di un clic che l'utente non poteva vedere.
+- Anche la finestra di installazione dei pacchetti era senza parent. Durante l'installazione la barra di avanzamento stava in quella finestra, sotto lo splash, e lo splash mostrava solo testo: gli utenti aspettavano minuti senza sapere perché.
+- Su Windows ogni esecuzione di pip apriva una finestra della console.
+
+#### 1. Nuovo modulo `modules/utility/startup_ui.py`
+
+- **`bring_to_front(widget)`**: `ApplicationModal` + `WindowStaysOnTopHint`. La modalità viene impostata PER PRIMA, perché `QMessageBox.setWindowModality()` riassegna il parent alla finestra con i soli flag `Qt.Dialog` e farebbe perdere l'hint stay-on-top.
+- **`exec_on_top(box, splash=None)`**: lo splash si fa da parte mentre la domanda è aperta e torna subito dopo.
+- **`ask_yes_no(title, text, splash=None, default_yes=True)`**: domanda Sì/No tenuta in primo piano.
+- **`italian()`**: IT/EN in base alla lingua di QGIS.
+- **`no_console_window()`**: `CREATE_NO_WINDOW` su Windows per pip / pg_dump / dot (vuoto sugli altri sistemi).
+
+#### 2. Avvio (`__init__.py`)
+
+- Domanda di migrazione tramite `ask_yes_no` (IT/EN).
+- Anche l'avviso sul font Cambria (macOS) compare in primo piano.
+- Finestra di installazione dei pacchetti portata in primo piano.
+- Il `Worker` emette l'avanzamento prima e dopo ogni pacchetto (niente 100% mentre si installa l'ultimo) e il messaggio "Installazione pacchetti n/N: <pacchetto> — può richiedere alcuni minuti" / "Installing packages n/N: <package> — this can take several minutes".
+
+#### 3. Splash (`gui/pyarchinit_splash.py`)
+
+- **`set_progress(value, caption)`** disegna una barra di avanzamento sotto il messaggio, con percentuale e tempo trascorso (m:ss), aggiornata ogni secondo.
+
+#### Test
+
+- **`tests/utility/test_startup_ui.py` (NUOVO, 8 test):** Qt offscreen con il python di QGIS.
+
+#### ⚠️ Importante per gli utenti
+
+- Al primo avvio di pyArchInit 5 la domanda sulla copia dei dati della vecchia installazione compare davanti a QGIS e allo splash: rispondere per proseguire.
+- Durante l'installazione dei pacchetti lo splash mostra il pacchetto in corso (n/N), la percentuale e il tempo trascorso: l'installazione può richiedere alcuni minuti.
+
+### English
+
+#### Context
+
+- At the first start (above all on Windows) the question "trovata un'installazione pyArchInit esistente… copiare configurazione e database nella nuova cartella ~/pyarchinit_5?" was a parentless `QMessageBox` shown while the loading splash (frameless, always on top) was visible and QGIS or the Plugin Manager was in front: it opened behind them and startup waited for a click the user could not see.
+- The package-install dialog was parentless too. During installation the progress bar was in that dialog, under the splash, and the splash showed only text, so users waited minutes without knowing why.
+- On Windows every pip run opened a console window.
+
+#### 1. New module `modules/utility/startup_ui.py`
+
+- **`bring_to_front(widget)`**: `ApplicationModal` + `WindowStaysOnTopHint`. Modality is set FIRST, because `QMessageBox.setWindowModality()` re-parents the box with plain `Qt.Dialog` flags and would drop the stay-on-top hint.
+- **`exec_on_top(box, splash=None)`**: the splash steps aside while a question is open and comes back afterwards.
+- **`ask_yes_no(title, text, splash=None, default_yes=True)`**: Yes/No question kept in front.
+- **`italian()`**: IT/EN by QGIS locale.
+- **`no_console_window()`**: `CREATE_NO_WINDOW` on Windows for pip / pg_dump / dot (empty on the other systems).
+
+#### 2. Startup (`__init__.py`)
+
+- Migration question via `ask_yes_no` (IT/EN).
+- The Cambria font warning (macOS) is shown in front too.
+- Package-install dialog brought to front.
+- The `Worker` emits progress before and after each package (no 100% while the last one installs) and the message "Installazione pacchetti n/N: <pacchetto> — può richiedere alcuni minuti" / "Installing packages n/N: <package> — this can take several minutes".
+
+#### 3. Splash (`gui/pyarchinit_splash.py`)
+
+- **`set_progress(value, caption)`** draws a progress bar under the message with percentage and elapsed time (m:ss), refreshed every second.
+
+#### Tests
+
+- **`tests/utility/test_startup_ui.py` (NEW, 8 tests):** Qt offscreen with the QGIS python.
+
+#### ⚠️ Important for users
+
+- At the first start of pyArchInit 5 the question about copying the data of the previous installation appears in front of QGIS and the splash: answer it to continue.
+- While packages are being installed the splash shows the current package (n/N), the percentage and the elapsed time: installation can take several minutes.
+
+---
+
 ## [feat] - 2026-09-10 — Riparazione automatica degli indici spaziali SpatiaLite alla connessione di un DB SQLite
 
 > Branch `Stratigraph_00001`. Commit `5cd15c5e`. Portato anche su `master` come commit `779b7a15` (branch `fix/large-relations-master`, sopra `884c0364`), **pushato su `master`** insieme al fix del template della voce precedente; nessun tag di release ancora.
