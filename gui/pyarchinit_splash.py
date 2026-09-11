@@ -142,6 +142,10 @@ class FuturisticSplashWidget(QWidget):
         self._displayed_text = ""
         self._char_timer = 0.0
 
+        # Progress bar (package installation): None = hidden
+        self.progress = None
+        self.progress_caption = ""
+
         # Animation timer
         self.timer = QTimer(self)
         self.timer.setTimerType(Qt.TimerType.PreciseTimer)
@@ -160,6 +164,12 @@ class FuturisticSplashWidget(QWidget):
             self._status_text = text
             self._displayed_text = ""
             self._char_timer = 0.0
+
+    def set_progress(self, value, caption=""):
+        """Show a progress bar (0-100) under the status text; None hides it."""
+        self.progress = None if value is None else max(0, min(100, int(value)))
+        self.progress_caption = caption or ""
+        self.update()
 
     def _tick(self):
         now = time.perf_counter()
@@ -579,6 +589,20 @@ class FuturisticSplashWidget(QWidget):
         painter.setPen(QPen(QColor(0, 255, 200, 200), 1))
         painter.drawText(QPointF(tx, ty), display)
 
+        # Progress bar (package installation), between status and subtitle
+        if self.progress is not None:
+            bar_w, bar_h = w * 0.4, 4.0
+            bx, by = cx - bar_w * 0.5, h * 0.771
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QBrush(QColor(255, 255, 255, 40)))
+            painter.drawRoundedRect(QRectF(bx, by, bar_w, bar_h), 2.0, 2.0)
+            painter.setBrush(QBrush(QColor(0, 255, 200, 220)))
+            painter.drawRoundedRect(QRectF(bx, by, bar_w * self.progress / 100.0, bar_h), 2.0, 2.0)
+            if self.progress_caption:
+                painter.setFont(QFont("Consolas", 9))
+                painter.setPen(QPen(QColor(0, 255, 200, 200), 1))
+                painter.drawText(QPointF(bx + bar_w + 8, by + bar_h + 3), self.progress_caption)
+
         painter.restore()
 
     def _draw_bottom_info(self, painter, cx, w, h, t):
@@ -777,6 +801,11 @@ class PyArchInitSplash(QDialog):
     def set_message(self, message):
         """Update the status message."""
         self.splash_widget.set_status(message)
+        QApplication.processEvents()
+
+    def set_progress(self, value, caption=""):
+        """Progress bar 0-100 under the message (None hides it)."""
+        self.splash_widget.set_progress(value, caption)
         QApplication.processEvents()
 
     def showEvent(self, event):

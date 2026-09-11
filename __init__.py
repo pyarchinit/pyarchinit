@@ -22,6 +22,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import time
 from importlib.metadata import distributions
 from typing import Dict, List, Optional, Set
 
@@ -47,6 +48,8 @@ from .modules.utility.pyarchinit_folder_installation import pyarchinit_Folder_in
 from .modules.utility.pyarchinit_home import (
     pyarchinit_home, legacy_pyarchinit_home, migrate_db_folder,
     should_offer_migration)
+from .modules.utility.startup_ui import (
+    ask_yes_no, bring_to_front, exec_on_top, italian, no_console_window)
 
 # Constants for paths
 PYARCHINIT_HOME = pyarchinit_home()
@@ -81,7 +84,7 @@ class PipManager:
         """
         command = [python_path if python_path else 'python', '-m', 'pip', 'install', '--upgrade', 'pip']
         try:
-            subprocess.call(command)
+            subprocess.call(command, **no_console_window())
         except subprocess.SubprocessError as e:
             print(f"Error updating pip: {e}")
 
@@ -104,7 +107,7 @@ class PipManager:
 
             elif system == 'Windows':
                 try:
-                    subprocess.call(['python', '-m', 'ensurepip'])
+                    subprocess.call(['python', '-m', 'ensurepip'], **no_console_window())
                     PipManager.update_pip()
                 except subprocess.SubprocessError as e:
                     print(f"Error configuring pip on Windows: {e}")
@@ -330,13 +333,15 @@ class PackageManager:
             try:
                 subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
                                "--target", ext_libs, package],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True,
+                               **no_console_window())
             except subprocess.CalledProcessError:
                 # Fallback: try with --user flag
                 try:
                     subprocess.run([python_executable, "-m", "pip", "install", "--upgrade",
                                    package, "--user"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, shell=True,
+                                   **no_console_window())
                 except subprocess.CalledProcessError as e:
                     print(f"Error installing {package} on Windows: {e}")
         elif platform.system() == 'Darwin':
@@ -580,10 +585,14 @@ class Worker(QObject):
             packages: List of packages to install
         """
         total = len(packages)
+        template = ("Installazione pacchetti {n}/{total}: {package} — può richiedere alcuni minuti"
+                    if italian() else
+                    "Installing packages {n}/{total}: {package} — this can take several minutes")
         for i, package in enumerate(packages):
-            self.package_status.emit(f"Installing {package}...")
-            self.progress.emit(int((i + 1) / total * 100))  # Emit progress signal
+            self.package_status.emit(template.format(n=i + 1, total=total, package=package))
+            self.progress.emit(int(i / total * 100))
             PackageManager.install(package)
+            self.progress.emit(int((i + 1) / total * 100))
 
         self.finished.emit()  # Emit finished signal
 
@@ -601,6 +610,9 @@ class InstallDialog(QDialog):
         super().__init__()
         self.packages = packages
         self.splash = None
+        self._progress_value = 0
+        self._install_started = None
+        self._elapsed_timer = None
         self.initUI()
 
     def initUI(self) -> None:
@@ -640,6 +652,13 @@ class InstallDialog(QDialog):
             from .gui.pyarchinit_splash import PyArchInitSplash
             self.splash = PyArchInitSplash(self, message)
             self.splash.show()
+            self.splash.raise_()
+            # progress bar + elapsed time in front: pip takes minutes
+            self._install_started = time.monotonic()
+            self._refresh_splash_progress()
+            self._elapsed_timer = QTimer(self)
+            self._elapsed_timer.timeout.connect(self._refresh_splash_progress)
+            self._elapsed_timer.start(1000)
             QApplication.processEvents()
         except ImportError:
             # Fallback if splash module not available
@@ -653,9 +672,20 @@ class InstallDialog(QDialog):
 
     def hide_splash(self) -> None:
         """Hide the splash screen."""
+        if self._elapsed_timer:
+            self._elapsed_timer.stop()
+            self._elapsed_timer = None
         if self.splash:
             self.splash.close()
             self.splash = None
+
+    def _refresh_splash_progress(self) -> None:
+        """Progress bar and elapsed time on the splash."""
+        if not self.splash or self._install_started is None:
+            return
+        elapsed = int(time.monotonic() - self._install_started)
+        self.splash.set_progress(self._progress_value,
+                                 f"{self._progress_value}% · {elapsed // 60}:{elapsed % 60:02d}")
 
     def set_icon(self, icon_path: str) -> None:
         """
@@ -732,6 +762,8 @@ class InstallDialog(QDialog):
         """
         self.progress.setValue(value)
         self.label.setText(f"Installing packages... {value}%")
+        self._progress_value = value
+        self._refresh_splash_progress()
 
     def update_progress_mac(self, value: int) -> None:
         """
@@ -743,6 +775,8 @@ class InstallDialog(QDialog):
         # Update the progress bar
         self.progress.setValue(value)
         self.label.setText(f"Installing packages... {value}%")
+        self._progress_value = value
+        self._refresh_splash_progress()
 
         # Force UI update on macOS
         from qgis.PyQt.QtCore import QCoreApplication
@@ -751,6 +785,8 @@ class InstallDialog(QDialog):
     def finish_install(self) -> None:
         """Called when installation is complete."""
         # Update splash message before hiding
+        self._progress_value = 100
+        self._refresh_splash_progress()
         self.update_splash_message("Installation complete!")
 
         # Small delay to show completion message
@@ -778,16 +814,18 @@ class FontManager:
     """Manages font installation."""
 
     @staticmethod
-    def install_fonts() -> None:
+    def install_fonts(splash=None) -> None:
         """Install required fonts for the system."""
         if platform.system() == "Darwin":
             location = os.path.expanduser("~/Library/Fonts")
             if not os.path.exists(location + '/cambria.ttc'):
-                result = QMessageBox.warning(None, 'Pyarchinit',
-                                             "INFO: The Cambria font does not appear to be installed. "
-                                             "Click Ok to install it\nand then double click on cambria.*\n"
-                                             "After that, reload the plugin",
-                                             QMessageBox.StandardButton.Ok)
+                # in front of the splash (always on top) and of QGIS
+                result = exec_on_top(QMessageBox(
+                    QMessageBox.Icon.Warning, 'Pyarchinit',
+                    "INFO: The Cambria font does not appear to be installed. "
+                    "Click Ok to install it\nand then double click on cambria.*\n"
+                    "After that, reload the plugin",
+                    QMessageBox.StandardButton.Ok), splash)
                 if result == QMessageBox.StandardButton.Ok:
                     home = os.environ['PYARCHINIT_HOME']
                     path = f"{home}{os.sep}bin"
@@ -829,21 +867,30 @@ def initialize_environment(splash=None) -> None:
     # base-dir existence — so it still fires when the base was pre-created by
     # other code paths (paradata workspace mkdir, bin/ creation) and never
     # nags once the new home has been set up.
+    # The question must stay in front: parentless, it opened behind the
+    # splash (always on top) and QGIS / the Plugin Manager, above all on
+    # Windows, and startup waited for a click nobody could see.
     if should_offer_migration(PYARCHINIT_HOME):
         try:
-            reply = QMessageBox.question(
-                None, "pyArchInit",
-                "Trovata un'installazione pyArchInit esistente in:\n"
-                f"{legacy_pyarchinit_home()}\n\n"
-                "Vuoi copiare configurazione e database nella nuova "
-                "cartella?\n"
-                f"{PYARCHINIT_HOME}\n\n"
-                "(Gli strumenti AI in bin/ NON vengono copiati: vanno "
-                "reinstallati o copiati manualmente.)",
-                QMessageBox.StandardButton.Yes
-                | QMessageBox.StandardButton.No,
-                QMessageBox.StandardButton.Yes)
-            if reply == QMessageBox.StandardButton.Yes:
+            if italian():
+                text = ("Trovata un'installazione pyArchInit esistente in:\n"
+                        f"{legacy_pyarchinit_home()}\n\n"
+                        "Vuoi copiare configurazione e database nella nuova "
+                        "cartella?\n"
+                        f"{PYARCHINIT_HOME}\n\n"
+                        "(Gli strumenti AI in bin/ NON vengono copiati: vanno "
+                        "reinstallati o copiati manualmente.)")
+            else:
+                text = ("An existing pyArchInit installation was found in:\n"
+                        f"{legacy_pyarchinit_home()}\n\n"
+                        "Copy its configuration and databases into the new "
+                        "folder?\n"
+                        f"{PYARCHINIT_HOME}\n\n"
+                        "(The AI tools in bin/ are NOT copied: reinstall "
+                        "them or copy them by hand.)")
+            if ask_yes_no("pyArchInit", text, splash):
+                _step("Copia di configurazione e database..." if italian()
+                      else "Copying configuration and databases...")
                 migrate_db_folder(legacy_pyarchinit_home(), PYARCHINIT_HOME)
         except Exception as _exc:
             print(f"[pyArchInit] home migration skipped: {_exc}")
@@ -885,7 +932,8 @@ def initialize_environment(splash=None) -> None:
     for cmd, label in [(['pg_dump', '-V'], 'postgres'), (['dot', '-V'], 'graphviz')]:
         try:
             subprocess.run(cmd, timeout=5,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           **no_console_window())
         except (subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
             print(f"Note: {label} not found or timed out: {e}")
         _step()
@@ -893,7 +941,7 @@ def initialize_environment(splash=None) -> None:
     _step("Installing fonts...")
 
     # Install fonts
-    FontManager.install_fonts()
+    FontManager.install_fonts(splash)
     _step()
 
     # Remove OpenCV directories on macOS
@@ -958,6 +1006,8 @@ def show_install_dialog(packages: List[str]) -> None:
         packages: List of packages to install
     """
     dialog = InstallDialog(packages)
+    # parentless: without this it opens behind QGIS / the Plugin Manager
+    bring_to_front(dialog)
     dialog.exec()
 
 
