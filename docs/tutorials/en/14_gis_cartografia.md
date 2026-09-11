@@ -69,11 +69,15 @@ When the SUs or wall SUs (USM) of the search results are loaded on the map, the 
 | Button | Effect |
 |--------|--------|
 | **Save new style** | Builds the style from the chosen field and saves it in the database under a name |
-| **Load existing style** | Applies a style already saved in the database (if there are several, you pick one); if none exists, it works like **Use temporary style** |
+| **Load existing style** | Uses a ready-made style, chosen from a list (see below), as a template and builds the style from the chosen field without saving it in the database |
 | **Use temporary style** | Builds the style from the chosen field without saving it in the database |
 | **Single symbol (outline only)** | Draws only the outline of the geometries, with no fill |
 
-With **Save new style** and **Use temporary style** you then choose the categorization field (**Select Categorization Field** window): **Stratigraphic Definition**, **SU Type** or **Interpretive Definition**; each value of the field gets its own color. Only the fields present in the layer are listed.
+Since 5.13.19-alpha **Load existing style** opens the **Existing style** window ("Choose the style to use as a template:") listing the available styles: the styles saved in the database (*Database: name*), the QML styles shipped with pyArchInit (`us_*.qml`, listed as *pyArchInit: …*) and **Other QML file…**, to pick any `.qml` file. The chosen style is loaded on the layer (labels, transparency and blending come with it) and acts as a **template**: after you choose the categorization field, the values the style already has keep its color and symbol, the others get a copy of its symbol with their own color. If you cancel the choice, it works like **Use temporary style**. Previously it only looked among the styles in the database and, finding none, went straight to the categorization window.
+
+With **Save new style**, **Load existing style** and **Use temporary style** you then choose the categorization field (**Select Categorization Field** window): **Stratigraphic Definition**, **SU Type**, **Interpretive Definition** or **Period/Phase (cont_per)** (since 5.13.19-alpha); each value of the field gets its own color, which since 5.13.19-alpha stays the same every time the layer is loaded. With **Period/Phase (cont_per)** the legend entry of each code also shows the dating of the period/phase taken from the periodization. Only the fields present in the layer are listed.
+
+**Drawing order.** Since 5.13.19-alpha the units are drawn in the order used by the Time Manager: first those without a period, then by period chronology (from the periodization of the SU's initial period/phase, or from `cont_per`), then by `order_layer` (0 = oldest), and finally the cut over its fill, so the most recent units are on top. This applies to every style option, including **Single symbol (outline only)**. When the layers are loaded period by period, the style is asked only once and used for all periods.
 
 Since 5.13.18-alpha the chosen style (and the categorization field) is also respected with SQLite databases, for both SUs and USMs; previously the map always came out with one color per SU.
 

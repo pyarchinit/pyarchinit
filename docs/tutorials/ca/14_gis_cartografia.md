@@ -69,11 +69,15 @@ Quan les US o les US muràries (USM) dels resultats de cerca es carreguen al map
 | Botó | Efecte |
 |------|--------|
 | **Save new style** | Crea l'estil segons el camp triat i el desa a la base de dades amb un nom |
-| **Load existing style** | Aplica un estil ja desat a la base de dades (si n'hi ha diversos, se'n tria un); si no n'hi ha cap, funciona com **Use temporary style** |
+| **Load existing style** | Fa servir com a model un estil ja preparat, triat d'una llista (vegeu més avall), i crea l'estil segons el camp triat sense desar-lo a la base de dades |
 | **Use temporary style** | Crea l'estil segons el camp triat sense desar-lo a la base de dades |
 | **Single symbol (outline only)** | Dibuixa només el contorn de les geometries, sense emplenament |
 
-Amb **Save new style** i **Use temporary style** després es tria el camp de categorització (finestra **Select Categorization Field**, en anglès): **Stratigraphic Definition** (definició estratigràfica), **SU Type** (tipus US) o **Interpretive Definition** (definició interpretativa); cada valor del camp rep un color propi. Només hi apareixen els camps presents a la capa.
+Des de la 5.13.19-alpha **Load existing style** obre la finestra **Existing style** ("Choose the style to use as a template:", en anglès) amb la llista dels estils disponibles: els estils desats a la base de dades (*Database: nom*), els estils QML inclosos amb pyArchInit (`us_*.qml`, llistats com a *pyArchInit: …*) i **Other QML file…**, per triar qualsevol fitxer `.qml`. L'estil triat es carrega a la capa (les etiquetes, la transparència i el mode de fusió hi arriben amb ell) i fa de **model**: després de triar el camp de categorització, els valors que l'estil ja té conserven el seu color i símbol, i els altres reben una còpia del seu símbol amb un color propi. Si s'anul·la la tria, funciona com **Use temporary style**. Abans només buscava entre els estils de la base de dades i, si no en trobava cap, passava directament a la finestra de categorització.
+
+Amb **Save new style**, **Load existing style** i **Use temporary style** després es tria el camp de categorització (finestra **Select Categorization Field**, en anglès): **Stratigraphic Definition** (definició estratigràfica), **SU Type** (tipus US), **Interpretive Definition** (definició interpretativa) o **Period/Phase (cont_per)** (període/fase, des de la 5.13.19-alpha); cada valor del camp rep un color propi, que des de la 5.13.19-alpha és el mateix cada vegada que es carrega la capa. Amb **Period/Phase (cont_per)** l'entrada de la llegenda de cada codi mostra també la datació del període/fase presa de la periodització. Només hi apareixen els camps presents a la capa.
+
+**Ordre de dibuix.** Des de la 5.13.19-alpha les unitats es dibuixen en l'ordre que fa servir el Gestor de Temps (Time Manager): primer les que no tenen període, després per cronologia del període (segons la periodització del període/fase inicial de la US, o segons `cont_per`), després per `order_layer` (0 = el més antic) i finalment el tall sobre el seu farciment, de manera que les unitats més recents queden a sobre. Val per a totes les opcions d'estil, també per a **Single symbol (outline only)**. Quan les capes es carreguen període per període, l'estil es demana una sola vegada i es fa servir per a tots els períodes.
 
 Des de la 5.13.18-alpha l'estil triat (i el camp de categorització) es respecta també amb les bases de dades SQLite, tant per a les US com per a les USM; abans el mapa sortia sempre amb un color per a cada US.
 

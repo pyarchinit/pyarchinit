@@ -86,6 +86,8 @@ In the SU Form, **"Stratigraphic Index"** field:
 | SU004 | 4 | Use floor |
 | SU005 | 5 | Foundation |
 
+Since 5.13.19-alpha the SU and USM layers that pyArchInit loads on the map (see Tutorial 14, *Style Choice*) are drawn in the same order the Time Manager uses: by period chronology, then by `order_layer` (0 = oldest), so the most recent units are on top.
+
 ## Visualization Modes
 
 ### Single Level Mode

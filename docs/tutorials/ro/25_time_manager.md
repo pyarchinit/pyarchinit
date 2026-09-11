@@ -86,6 +86,8 @@ In formularul US, campul **"Index stratigrafic"**:
 | US004 | 4 | Podea de utilizare |
 | US005 | 5 | Fundatie |
 
+Incepand cu 5.13.19-alpha, straturile US si USM pe care pyArchInit le incarca pe harta (vezi Tutorialul 14, *Alegerea Stilului*) sunt desenate in aceeasi ordine folosita de Manager Temporal: dupa cronologia perioadei, apoi dupa `order_layer` (0 = cea mai veche), astfel incat unitatile cele mai recente sunt deasupra.
+
 ## Moduri de vizualizare
 
 ### Modul nivel individual

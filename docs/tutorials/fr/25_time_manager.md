@@ -86,6 +86,8 @@ Dans la Fiche US, champ **"Index Stratigraphique"** :
 | US004 | 4 | Sol d'occupation |
 | US005 | 5 | Fondation |
 
+Depuis la 5.13.19-alpha, les couches US et USM que pyArchInit charge sur la carte (voir Tutorial 14, *Choix du Style*) sont dessinées dans le même ordre que celui du Time Manager : selon la chronologie de la période, puis selon `order_layer` (0 = la plus ancienne), de sorte que les unités les plus récentes sont au-dessus.
+
 ## Modes de Visualisation
 
 ### Mode Niveau Unique

@@ -86,6 +86,8 @@ En la Ficha de UE, campo **"Índice Estratigráfico"**:
 | US004 | 4 | Plano de uso |
 | US005 | 5 | Cimentación |
 
+Desde la 5.13.19-alpha las capas de UE y USM que pyArchInit carga en el mapa (ver Tutorial 14, *Elección del Estilo*) se dibujan en el mismo orden que usa el Time Manager: por cronología del período y después por `order_layer` (0 = más antiguo), de modo que las unidades más recientes quedan encima.
+
 ## Modos de Visualización
 
 ### Modo Nivel Individual

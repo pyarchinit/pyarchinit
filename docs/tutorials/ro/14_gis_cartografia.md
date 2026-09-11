@@ -69,11 +69,15 @@ Când US sau US de zidărie (USM) din rezultatele căutării sunt încărcate pe
 | Buton | Efect |
 |-------|-------|
 | **Save new style** | Creează stilul pe baza câmpului ales și îl salvează în baza de date cu un nume |
-| **Load existing style** | Aplică un stil deja salvat în baza de date (dacă sunt mai multe, se alege unul); dacă nu există niciunul, funcționează ca **Use temporary style** |
+| **Load existing style** | Folosește ca model un stil gata făcut, ales dintr-o listă (vezi mai jos), și creează stilul pe baza câmpului ales fără a-l salva în baza de date |
 | **Use temporary style** | Creează stilul pe baza câmpului ales fără a-l salva în baza de date |
 | **Single symbol (outline only)** | Desenează doar conturul geometriilor, fără umplere |
 
-Cu **Save new style** și **Use temporary style** se alege apoi câmpul de categorizare (fereastra **Select Categorization Field**, în engleză): **Stratigraphic Definition** (definiție stratigrafică), **SU Type** (tip US) sau **Interpretive Definition** (definiție interpretativă); fiecare valoare a câmpului primește o culoare proprie. Apar doar câmpurile prezente în strat.
+Începând cu 5.13.19-alpha, **Load existing style** deschide fereastra **Existing style** („Choose the style to use as a template:", în engleză) cu lista stilurilor disponibile: stilurile salvate în baza de date (*Database: nume*), stilurile QML livrate cu pyArchInit (`us_*.qml`, afișate ca *pyArchInit: …*) și **Other QML file…**, pentru a alege orice fișier `.qml`. Stilul ales este încărcat pe strat (etichetele, transparența și modul de amestecare vin odată cu el) și servește drept **model**: după alegerea câmpului de categorizare, valorile pe care stilul le are deja își păstrează culoarea și simbolul, iar celelalte primesc o copie a simbolului său cu o culoare proprie. Dacă alegerea este anulată, funcționează ca **Use temporary style**. Înainte căuta doar printre stilurile din baza de date și, dacă nu găsea niciunul, trecea direct la fereastra de categorizare.
+
+Cu **Save new style**, **Load existing style** și **Use temporary style** se alege apoi câmpul de categorizare (fereastra **Select Categorization Field**, în engleză): **Stratigraphic Definition** (definiție stratigrafică), **SU Type** (tip US), **Interpretive Definition** (definiție interpretativă) sau **Period/Phase (cont_per)** (perioadă/fază, începând cu 5.13.19-alpha); fiecare valoare a câmpului primește o culoare proprie, care începând cu 5.13.19-alpha rămâne aceeași la fiecare încărcare a stratului. Cu **Period/Phase (cont_per)**, intrarea din legendă a fiecărui cod arată și datarea perioadei/fazei preluată din periodizare. Apar doar câmpurile prezente în strat.
+
+**Ordinea de desenare.** Începând cu 5.13.19-alpha, unitățile sunt desenate în ordinea folosită de Manager Temporal (Time Manager): mai întâi cele fără perioadă, apoi după cronologia perioadei (din periodizarea perioadei/fazei inițiale a US sau din `cont_per`), apoi după `order_layer` (0 = cea mai veche) și, la final, tăierea deasupra umpluturii sale, astfel încât unitățile cele mai recente sunt deasupra. Se aplică tuturor opțiunilor de stil, inclusiv **Single symbol (outline only)**. Când straturile sunt încărcate perioadă cu perioadă, stilul este cerut o singură dată și folosit pentru toate perioadele.
 
 Începând cu 5.13.18-alpha, stilul ales (și câmpul de categorizare) este respectat și cu bazele de date SQLite, atât pentru US, cât și pentru USM; înainte harta apărea întotdeauna cu o culoare pentru fiecare US.
 

@@ -86,6 +86,8 @@ Nella Scheda US, campo **"Indice Stratigrafico"**:
 | US004 | 4 | Piano d'uso |
 | US005 | 5 | Fondazione |
 
+Dalla 5.13.19-alpha i layer US e USM che pyArchInit carica sulla mappa (vedi Tutorial 14, *Scelta dello Stile*) vengono disegnati nello stesso ordine usato dal Time Manager: per cronologia del periodo, poi per `order_layer` (0 = piu antico), cosi le unita piu recenti stanno sopra.
+
 ## Modalita di Visualizzazione
 
 ### Modalita Singolo Livello

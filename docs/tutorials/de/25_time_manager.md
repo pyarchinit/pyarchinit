@@ -86,6 +86,8 @@ Im SE-Formular, Feld **"Stratigraphischer Index"**:
 | SE004 | 4 | Laufhorizont |
 | SE005 | 5 | Fundament |
 
+Seit 5.13.19-alpha werden die SE- und USM-Layer, die pyArchInit auf die Karte lädt (siehe Tutorial 14, *Stilauswahl*), in derselben Reihenfolge gezeichnet, die der Time Manager verwendet: nach der Chronologie der Periode, dann nach `order_layer` (0 = älteste), sodass die jüngsten Einheiten oben liegen.
+
 ## Anzeigemodi
 
 ### Einzelschicht-Modus

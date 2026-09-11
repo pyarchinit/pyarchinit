@@ -86,6 +86,8 @@ No Formulario UE, campo **"Indice Estratigrafico"**:
 | UE004 | 4 | Piso de utilizacao |
 | UE005 | 5 | Fundacao |
 
+Desde a 5.13.19-alpha, as camadas UE e USM que o pyArchInit carrega no mapa (ver Tutorial 14, *Escolha do Estilo*) sao desenhadas pela mesma ordem usada pelo Time Manager: pela cronologia do periodo e depois pelo `order_layer` (0 = mais antiga), de modo que as unidades mais recentes ficam por cima.
+
 ## Modos de Visualizacao
 
 ### Modo de Nivel Individual

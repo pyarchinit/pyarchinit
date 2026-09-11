@@ -69,11 +69,15 @@ Quando as UEs ou as UEs de muro (USM) dos resultados da pesquisa são carregadas
 | Botão | Efeito |
 |-------|--------|
 | **Save new style** | Cria o estilo com base no campo escolhido e guarda-o na base de dados com um nome |
-| **Load existing style** | Aplica um estilo já guardado na base de dados (se houver vários, escolhe-se qual); se não houver nenhum, funciona como **Use temporary style** |
+| **Load existing style** | Usa como modelo um estilo já pronto, escolhido de uma lista (ver abaixo), e cria o estilo com base no campo escolhido sem o guardar na base de dados |
 | **Use temporary style** | Cria o estilo com base no campo escolhido sem o guardar na base de dados |
 | **Single symbol (outline only)** | Desenha apenas o contorno das geometrias, sem preenchimento |
 
-Com **Save new style** e **Use temporary style** escolhe-se depois o campo de categorização (janela **Select Categorization Field**, em inglês): **Stratigraphic Definition** (definição estratigráfica), **SU Type** (tipo de UE) ou **Interpretive Definition** (definição interpretativa); cada valor do campo recebe uma cor própria. Só aparecem os campos presentes na camada.
+Desde a 5.13.19-alpha, **Load existing style** abre a janela **Existing style** ("Choose the style to use as a template:", em inglês) com a lista dos estilos disponíveis: os estilos guardados na base de dados (*Database: nome*), os estilos QML fornecidos com o pyArchInit (`us_*.qml`, listados como *pyArchInit: …*) e **Other QML file…**, para escolher qualquer ficheiro `.qml`. O estilo escolhido é carregado na camada (as etiquetas, a transparência e o modo de mistura vêm com ele) e serve de **modelo**: depois de escolher o campo de categorização, os valores que o estilo já tem mantêm a sua cor e o seu símbolo, os outros recebem uma cópia do seu símbolo com uma cor própria. Se a escolha for cancelada, funciona como **Use temporary style**. Antes procurava apenas entre os estilos da base de dados e, não encontrando nenhum, passava diretamente à janela de categorização.
+
+Com **Save new style**, **Load existing style** e **Use temporary style** escolhe-se depois o campo de categorização (janela **Select Categorization Field**, em inglês): **Stratigraphic Definition** (definição estratigráfica), **SU Type** (tipo de UE), **Interpretive Definition** (definição interpretativa) ou **Period/Phase (cont_per)** (período/fase, desde a 5.13.19-alpha); cada valor do campo recebe uma cor própria, que desde a 5.13.19-alpha é a mesma sempre que a camada é carregada. Com **Period/Phase (cont_per)** a entrada da legenda de cada código mostra também a datação do período/fase retirada da periodização. Só aparecem os campos presentes na camada.
+
+**Ordem de desenho.** Desde a 5.13.19-alpha as unidades são desenhadas pela ordem usada pelo Time Manager: primeiro as que não têm período, depois pela cronologia do período (a partir da periodização do período/fase inicial da UE, ou do `cont_per`), depois pelo `order_layer` (0 = mais antiga) e, por fim, o corte por cima do seu enchimento, de modo que as unidades mais recentes ficam por cima. Aplica-se a todas as opções de estilo, incluindo **Single symbol (outline only)**. Quando as camadas são carregadas período a período, o estilo é pedido uma única vez e usado para todos os períodos.
 
 Desde a 5.13.18-alpha o estilo escolhido (e o campo de categorização) é respeitado também com as bases de dados SQLite, tanto para as UEs como para as USM; antes o mapa saía sempre com uma cor para cada UE.
 

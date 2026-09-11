@@ -69,11 +69,15 @@ Cuando las UE o las UE murarias (USM) de los resultados de búsqueda se cargan e
 | Botón | Efecto |
 |-------|--------|
 | **Save new style** | Crea el estilo según el campo elegido y lo guarda en la base de datos con un nombre |
-| **Load existing style** | Aplica un estilo ya guardado en la base de datos (si hay varios, se elige cuál); si no hay ninguno, funciona como **Use temporary style** |
+| **Load existing style** | Usa como plantilla un estilo ya preparado, elegido de una lista (ver abajo), y crea el estilo según el campo elegido sin guardarlo en la base de datos |
 | **Use temporary style** | Crea el estilo según el campo elegido sin guardarlo en la base de datos |
 | **Single symbol (outline only)** | Dibuja solo el contorno de las geometrías, sin relleno |
 
-Con **Save new style** y **Use temporary style** se elige después el campo de categorización (ventana **Seleccionar Campo de Categorización**): **Definición Estratigráfica**, **Tipo UE** o **Definición Interpretativa**; cada valor del campo recibe su propio color. Solo aparecen los campos presentes en la capa.
+Desde la 5.13.19-alpha **Load existing style** abre la ventana **Existing style** ("Choose the style to use as a template:", en inglés) con la lista de los estilos disponibles: los estilos guardados en la base de datos (*Database: nombre*), los estilos QML incluidos en pyArchInit (`us_*.qml`, listados como *pyArchInit: …*) y **Other QML file…**, para elegir cualquier archivo `.qml`. El estilo elegido se carga en la capa (las etiquetas, la transparencia y el modo de fusión vienen con él) y sirve de **plantilla**: tras elegir el campo de categorización, los valores que el estilo ya tiene conservan su color y su símbolo, los demás reciben una copia de su símbolo con un color propio. Si se cancela la elección, funciona como **Use temporary style**. Antes solo buscaba entre los estilos de la base de datos y, si no encontraba ninguno, pasaba directamente a la ventana de categorización.
+
+Con **Save new style**, **Load existing style** y **Use temporary style** se elige después el campo de categorización (ventana **Seleccionar Campo de Categorización**): **Definición Estratigráfica**, **Tipo UE**, **Definición Interpretativa** o **Período/Fase (cont_per)** (desde la 5.13.19-alpha); cada valor del campo recibe su propio color, que desde la 5.13.19-alpha es el mismo cada vez que se carga la capa. Con **Período/Fase (cont_per)** la entrada de la leyenda de cada código muestra también la datación del período/fase tomada de la periodización. Solo aparecen los campos presentes en la capa.
+
+**Orden de dibujo.** Desde la 5.13.19-alpha las unidades se dibujan en el orden que usa el Time Manager: primero las que no tienen período, luego por cronología del período (según la periodización del período/fase inicial de la UE, o según `cont_per`), después por `order_layer` (0 = más antiguo) y por último el corte sobre su relleno, de modo que las unidades más recientes quedan encima. Vale para todas las opciones de estilo, también para **Single symbol (outline only)**. Cuando las capas se cargan período por período, el estilo se pide una sola vez y se usa para todos los períodos.
 
 Desde la 5.13.18-alpha el estilo elegido (y el campo de categorización) se respeta también con las bases de datos SQLite, tanto para las UE como para las USM; antes el mapa salía siempre con un color para cada UE.
 

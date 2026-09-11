@@ -69,11 +69,15 @@ Werden die SE oder die Mauerwerks-SE (USM) der Suchergebnisse auf die Karte gela
 | Schaltfläche | Wirkung |
 |--------------|---------|
 | **Save new style** | Erstellt den Stil anhand des gewählten Feldes und speichert ihn unter einem Namen in der Datenbank |
-| **Load existing style** | Wendet einen bereits in der Datenbank gespeicherten Stil an (bei mehreren wählt man einen aus); ist keiner vorhanden, funktioniert es wie **Use temporary style** |
+| **Load existing style** | Verwendet einen fertigen Stil, der aus einer Liste gewählt wird (siehe unten), als Vorlage und erstellt den Stil anhand des gewählten Feldes, ohne ihn in der Datenbank zu speichern |
 | **Use temporary style** | Erstellt den Stil anhand des gewählten Feldes, ohne ihn in der Datenbank zu speichern |
 | **Single symbol (outline only)** | Zeichnet nur die Umrisse der Geometrien, ohne Füllung |
 
-Bei **Save new style** und **Use temporary style** wird anschließend das Kategorisierungsfeld gewählt (Fenster **Kategorisierungsfeld auswählen**): **Stratigraphische Definition**, **SE Typ** oder **Interpretative Definition**; jeder Wert des Feldes erhält eine eigene Farbe. Es werden nur die im Layer vorhandenen Felder angeboten.
+Seit 5.13.19-alpha öffnet **Load existing style** das Fenster **Existing style** ("Choose the style to use as a template:", auf Englisch) mit der Liste der verfügbaren Stile: die in der Datenbank gespeicherten Stile (*Database: Name*), die mit pyArchInit gelieferten QML-Stile (`us_*.qml`, aufgeführt als *pyArchInit: …*) und **Other QML file…**, um eine beliebige `.qml`-Datei auszuwählen. Der gewählte Stil wird in den Layer geladen (Beschriftungen, Transparenz und Mischmodus kommen mit) und dient als **Vorlage**: Nach der Wahl des Kategorisierungsfeldes behalten die Werte, die der Stil bereits enthält, seine Farbe und sein Symbol; die übrigen erhalten eine Kopie seines Symbols mit einer eigenen Farbe. Wird die Auswahl abgebrochen, funktioniert es wie **Use temporary style**. Vorher wurde nur unter den Stilen der Datenbank gesucht und, wenn keiner vorhanden war, direkt das Kategorisierungsfenster geöffnet.
+
+Bei **Save new style**, **Load existing style** und **Use temporary style** wird anschließend das Kategorisierungsfeld gewählt (Fenster **Kategorisierungsfeld auswählen**): **Stratigraphische Definition**, **SE Typ**, **Interpretative Definition** oder **Periode/Phase (cont_per)** (seit 5.13.19-alpha); jeder Wert des Feldes erhält eine eigene Farbe, die seit 5.13.19-alpha bei jedem Laden des Layers gleich bleibt. Bei **Periode/Phase (cont_per)** zeigt der Legendeneintrag jedes Codes auch die Datierung der Periode/Phase aus der Periodisierung. Es werden nur die im Layer vorhandenen Felder angeboten.
+
+**Zeichenreihenfolge.** Seit 5.13.19-alpha werden die Einheiten in der Reihenfolge gezeichnet, die der Time Manager verwendet: zuerst die ohne Periode, dann nach der Chronologie der Periode (aus der Periodisierung der Anfangsperiode/-phase der SE oder aus `cont_per`), dann nach `order_layer` (0 = älteste) und schließlich der Schnitt über seiner Verfüllung, sodass die jüngsten Einheiten oben liegen. Das gilt für alle Stiloptionen, auch für **Single symbol (outline only)**. Werden die Layer Periode für Periode geladen, wird der Stil nur einmal abgefragt und für alle Perioden verwendet.
 
 Seit 5.13.18-alpha wird der gewählte Stil (und das Kategorisierungsfeld) auch bei SQLite-Datenbanken berücksichtigt, sowohl für die SE als auch für die USM; vorher erschien die Karte immer mit einer Farbe pro SE.
 

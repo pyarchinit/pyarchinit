@@ -86,6 +86,8 @@ A la Fitxa US, camp **"Índex Estratigràfic"**:
 | US004 | 4 | Pla d'ús |
 | US005 | 5 | Fonamentació |
 
+Des de la 5.13.19-alpha les capes US i USM que pyArchInit carrega al mapa (vegeu el Tutorial 14, *Elecció de l'Estil*) es dibuixen en el mateix ordre que fa servir el Gestor de Temps: per cronologia del període i després per `order_layer` (0 = el més antic), de manera que les unitats més recents queden a sobre.
+
 ## Modalitats de Visualització
 
 ### Modalitat Nivell Individual

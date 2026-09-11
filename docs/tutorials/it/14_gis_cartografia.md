@@ -69,11 +69,15 @@ Quando le US o le USM dei risultati di ricerca vengono caricate sulla mappa comp
 | Pulsante | Effetto |
 |----------|---------|
 | **Salva nuovo stile** | Crea lo stile in base al campo scelto e lo salva nel database con un nome |
-| **Carica stile esistente** | Applica uno stile già salvato nel database (se sono più di uno si sceglie quale); se non ce n'è nessuno funziona come **Usa stile temporaneo** |
+| **Carica stile esistente** | Usa come modello uno stile già pronto, scelto da un elenco (vedi sotto), e crea lo stile in base al campo scelto senza salvarlo nel database |
 | **Usa stile temporaneo** | Crea lo stile in base al campo scelto senza salvarlo nel database |
 | **Simbolo singolo (solo contorno)** | Disegna solo il contorno delle geometrie, senza riempimento |
 
-Con **Salva nuovo stile** e **Usa stile temporaneo** si sceglie poi il campo di categorizzazione (finestra **Selezione Campo per Categorizzazione**): **Definizione Stratigrafica**, **Tipo US** o **Definizione Interpretativa**; ogni valore del campo riceve un proprio colore. Compaiono solo i campi presenti nel layer.
+Dalla 5.13.19-alpha **Carica stile esistente** apre la finestra **Stile esistente** ("Scegli lo stile da usare come modello:") con l'elenco degli stili disponibili: gli stili salvati nel database (*Database: nome*), gli stili QML forniti con pyArchInit (`us_*.qml`, elencati come *pyArchInit: …*) e **Altro file QML…**, che permette di scegliere un qualsiasi file `.qml`. Lo stile scelto viene caricato sul layer (etichette, trasparenza e fusione arrivano con lui) e fa da **modello**: dopo aver scelto il campo di categorizzazione, i valori che lo stile ha già mantengono il suo colore e simbolo, gli altri ricevono una copia del suo simbolo con un proprio colore. Se si annulla la scelta, funziona come **Usa stile temporaneo**. Prima cercava solo tra gli stili del database e, non trovandone, passava direttamente alla finestra di categorizzazione.
+
+Con **Salva nuovo stile**, **Carica stile esistente** e **Usa stile temporaneo** si sceglie poi il campo di categorizzazione (finestra **Selezione Campo per Categorizzazione**): **Definizione Stratigrafica**, **Tipo US**, **Definizione Interpretativa** o **Periodo/Fase (cont_per)** (dalla 5.13.19-alpha); ogni valore del campo riceve un proprio colore, che dalla 5.13.19-alpha resta lo stesso a ogni caricamento del layer. Con **Periodo/Fase (cont_per)** la voce di legenda di ogni codice mostra anche la datazione del periodo/fase presa dalla periodizzazione. Compaiono solo i campi presenti nel layer.
+
+**Ordine di disegno.** Dalla 5.13.19-alpha le unità vengono disegnate nell'ordine usato dal Time Manager: prima quelle senza periodo, poi per cronologia del periodo (dalla periodizzazione del periodo/fase iniziale della US, oppure dal `cont_per`), poi per `order_layer` (0 = più antico) e infine il taglio sopra il suo riempimento, così le unità più recenti stanno sopra. Vale per tutte le opzioni di stile, anche **Simbolo singolo (solo contorno)**. Quando i layer vengono caricati periodo per periodo, lo stile viene chiesto una sola volta e usato per tutti i periodi.
 
 Dalla 5.13.18-alpha lo stile scelto (e il campo di categorizzazione) viene rispettato anche con i database SQLite, sia per le US sia per le USM; prima la mappa usciva sempre con un colore per ogni US.
 
