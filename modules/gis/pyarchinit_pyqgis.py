@@ -1830,8 +1830,8 @@ class Pyarchinit_pyqgis(QDialog):
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                # Applica simbologia nidificata US/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                # No create_us_nested_symbology() here: it would replace the
+                # style the user has just chosen (as on PostgreSQL)
                 QgsProject.instance().addMapLayers([layerUS], False)
 
             else:
@@ -1975,8 +1975,14 @@ class Pyarchinit_pyqgis(QDialog):
             if layerUS and layerUS.isValid():
                 unique_name = self.unique_layer_name(name_layer_s)
                 layerUS.setName(unique_name)
-                # Applica simbologia nidificata USM/stratigraph_index
-                self.create_us_nested_symbology(layerUS, gidstr)
+                # Style chosen by the user (categorised by the chosen field),
+                # as on PostgreSQL
+                try:
+                    usm_styler = USViewStyler(Connection(), sito=str(data[0].sito) if data else None)
+                    usm_styler.apply_style_to_layer(layerUS)
+                except Exception as e:
+                    print(f"USM style not applied: {e}")
+                self._apply_us_feature_ordering(layerUS)
                 group.insertChildNode(-1, QgsLayerTreeLayer(layerUS))
                 QgsProject.instance().addMapLayers([layerUS], False)
 
