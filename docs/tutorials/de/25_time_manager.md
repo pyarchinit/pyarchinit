@@ -2,7 +2,7 @@
 
 ## Einführung
 
-Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur Visualisierung der stratigraphischen Sequenz im zeitlichen Verlauf. Er ermöglicht die "Navigation" durch die Schichten mittels Zeitsteuerung und zeigt progressiv die SE von der jüngsten bis zur ältesten.
+Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur Visualisierung der stratigraphischen Sequenz im zeitlichen Verlauf. Er ermöglicht die "Navigation" durch die Schichten mittels Zeitsteuerung und zeigt progressiv die SE von der ältesten bis zur jüngsten (die Entstehung des Fundorts).
 
 ### Hauptfunktionen
 
@@ -41,7 +41,7 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 |                  /    \                           |
 |                 /______\                          |
 |                                                   |
-|         Schicht: [SpinBox: 1-N]                  |
+|         Schicht: [SpinBox: 0-N]                  |
 +--------------------------------------------------+
 | [x] Kumulativer Modus (zeigt <= Schicht)        |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ Der **Time Manager** (GIS-Zeitsteuerung) ist ein fortgeschrittenes Werkzeug zur 
 ### Was ist order_layer?
 
 Das Feld `order_layer` definiert die stratigraphische Anzeigereihenfolge:
-- **1** = Jüngste Schicht (oberflächlich)
-- **N** = Älteste Schicht (tief)
+- **0** = Älteste Schicht (tief)
+- **N** = Jüngste Schicht (oberflächlich)
+
+Das ist die Konvention der Schaltfläche **Ordine stratigrafico** (stratigraphische Reihenfolge) mit aktiviertem Kontrollkästchen "Reihenfolge: Alt → Neu" (Standardeinstellung, siehe Tutorial 03): Wurde die Reihenfolge umgekehrt berechnet, zeigen der Time Manager und die Karte die Sequenz auf den Kopf gestellt.
 
 ### order_layer ausfüllen
 
-Im SE-Formular, Feld **"Stratigraphischer Index"**:
-1. Von der Oberfläche aufsteigende Werte zuweisen
+Im SE-Formular, Tab **Hilfe** → **Tool Box**, berechnet die Schaltfläche **Ordine stratigrafico** (stratigraphische Reihenfolge) `order_layer` aus den stratigraphischen Beziehungen (siehe Tutorial 03); der Wert der aktuellen SE erscheint im Feld unter der Schaltfläche. Regeln:
+1. 0 für die ältesten SE, aufsteigende Werte zu den jüngsten hin (an der Oberfläche)
 2. Zeitgleiche SE können denselben Wert haben
 3. Der Matrix-Sequenz folgen
 
@@ -80,11 +82,11 @@ Im SE-Formular, Feld **"Stratigraphischer Index"**:
 
 | SE | order_layer | Beschreibung |
 |----|-------------|--------------|
-| SE001 | 1 | Oberflächenhumus |
-| SE002 | 2 | Pflugschicht |
-| SE003 | 3 | Versturz |
-| SE004 | 4 | Laufhorizont |
-| SE005 | 5 | Fundament |
+| SE001 | 4 | Oberflächenhumus |
+| SE002 | 3 | Pflugschicht |
+| SE003 | 2 | Versturz |
+| SE004 | 1 | Laufhorizont |
+| SE005 | 0 | Fundament |
 
 Seit 5.13.19-alpha werden die SE- und USM-Layer, die pyArchInit auf die Karte lädt (siehe Tutorial 14, *Stilauswahl*), in derselben Reihenfolge gezeichnet, die der Time Manager verwendet: nach der Chronologie der Periode, dann nach `order_layer` (0 = älteste), sodass die jüngsten Einheiten oben liegen.
 
@@ -100,8 +102,8 @@ Checkbox **NICHT** aktiviert:
 ### Kumulativer Modus
 
 Checkbox **AKTIVIERT**:
-- Zeigt alle SE bis zur ausgewählten Schicht
-- Simuliert progressive Grabung
+- Zeigt alle SE von Schicht 0 (älteste) bis zur ausgewählten
+- Zeigt die Entstehung des Fundorts, von den ältesten zu den jüngsten SE
 - Realistischere Darstellung
 
 ## Matrix-Integration
@@ -194,7 +196,7 @@ Im Ordner `resources/templates/`:
 
 ### 2. Visualisierung
 
-- Mit Schicht 1 (oberflächlich) beginnen
+- Mit Schicht 0 (älteste) beginnen
 - In aufsteigender Reihenfolge fortfahren
 - Kumulativen Modus für Präsentationen verwenden
 

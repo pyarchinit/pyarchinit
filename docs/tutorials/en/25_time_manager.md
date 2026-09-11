@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing stratigraphic sequence over time. It allows "navigating" through stratigraphic levels using a temporal control, progressively displaying SU from most recent to oldest.
+The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing stratigraphic sequence over time. It allows "navigating" through stratigraphic levels using a temporal control, progressively displaying SU from oldest to most recent (the formation of the site).
 
 ### Main Features
 
@@ -41,7 +41,7 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Level: [SpinBox: 1-N]                   |
+|         Level: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
 | [x] Cumulative Mode (show <= level)             |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ The **Time Manager** (GIS Time Controller) is an advanced tool for visualizing s
 ### What is order_layer?
 
 The `order_layer` field defines the stratigraphic display order:
-- **1** = Most recent level (surface)
-- **N** = Oldest level (deep)
+- **0** = Oldest level (deep)
+- **N** = Most recent level (surface)
+
+This is the convention of **Stratigraphic order** with "Order: Ancient → Recent" checked (the default, see Tutorial 03): if the ordering was calculated the other way round, the Time Manager and the map show the sequence upside down.
 
 ### Filling order_layer
 
-In the SU Form, **"Stratigraphic Index"** field:
-1. Assign increasing values from surface
+In the SU Form, **Help** tab → **Tool Box**, the **Stratigraphic order** button calculates `order_layer` from the stratigraphic relationships (see Tutorial 03); the value of the current SU appears in the field below the button. Rules:
+1. 0 for the oldest SU, increasing values towards the most recent (at the surface)
 2. Contemporary SU can have the same value
 3. Follow the Matrix sequence
 
@@ -80,11 +82,11 @@ In the SU Form, **"Stratigraphic Index"** field:
 
 | SU | order_layer | Description |
 |----|-------------|-------------|
-| SU001 | 1 | Surface humus |
-| SU002 | 2 | Plowed layer |
-| SU003 | 3 | Collapse |
-| SU004 | 4 | Use floor |
-| SU005 | 5 | Foundation |
+| SU001 | 4 | Surface humus |
+| SU002 | 3 | Plowed layer |
+| SU003 | 2 | Collapse |
+| SU004 | 1 | Use floor |
+| SU005 | 0 | Foundation |
 
 Since 5.13.19-alpha the SU and USM layers that pyArchInit loads on the map (see Tutorial 14, *Style Choice*) are drawn in the same order the Time Manager uses: by period chronology, then by `order_layer` (0 = oldest), so the most recent units are on top.
 
@@ -100,8 +102,8 @@ Checkbox **NOT** active:
 ### Cumulative Mode
 
 Checkbox **ACTIVE**:
-- Shows all SU up to selected level
-- Simulates progressive excavation
+- Shows all SU from level 0 (oldest) to the selected one
+- Shows the formation of the site, from the oldest SU to the most recent
 - More realistic visualization
 
 ## Matrix Integration
@@ -194,7 +196,7 @@ In `resources/templates/` folder:
 
 ### 2. Visualization
 
-- Start from level 1 (surface)
+- Start from level 0 (oldest)
 - Proceed in ascending order
 - Use cumulative mode for presentations
 

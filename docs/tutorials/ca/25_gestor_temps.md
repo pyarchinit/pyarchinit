@@ -2,7 +2,7 @@
 
 ## Introducció
 
-El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualitzar la seqüència estratigràfica en el temps. Permet "navegar" a través dels nivells estratigràfics usant un control temporal, visualitzant progressivament les US des de la més recent a la més antiga.
+El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualitzar la seqüència estratigràfica en el temps. Permet "navegar" a través dels nivells estratigràfics usant un control temporal, visualitzant progressivament les US des de la més antiga a la més recent (la formació del lloc).
 
 ### Funcionalitats Principals
 
@@ -41,7 +41,7 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Nivell: [SpinBox: 1-N]                  |
+|         Nivell: [SpinBox: 0-N]                  |
 +--------------------------------------------------+
 | [x] Modalitat Acumulativa (mostra <= nivell)    |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ El **Gestor de Temps** (GIS Time Controller) és una eina avançada per visualit
 ### Què és order_layer?
 
 El camp `order_layer` defineix l'ordre estratigràfic de visualització:
-- **1** = Nivell més recent (superficial)
-- **N** = Nivell més antic (profund)
+- **0** = Nivell més antic (profund)
+- **N** = Nivell més recent (superficial)
+
+És la convenció del botó **Ordre estratigràfic** amb la casella "Order: Ancient → Recent" activa (configuració predeterminada, vegeu el Tutorial 03): si l'ordenació s'ha calculat al revés, el Gestor de Temps i el mapa mostren la seqüència capgirada.
 
 ### Compilació order_layer
 
-A la Fitxa US, camp **"Índex Estratigràfic"**:
-1. Assignar valors creixents des de la superfície
+A la Fitxa US, pestanya **Ajuda** → **Tool Box**, el botó **Ordre estratigràfic** calcula `order_layer` a partir de les relacions estratigràfiques (vegeu el Tutorial 03); el valor de la US actual apareix al camp sota el botó. Regles:
+1. 0 a les US més antigues, valors creixents cap a les més recents (en superfície)
 2. US contemporànies poden tenir el mateix valor
 3. Seguir la seqüència del Matrix
 
@@ -80,11 +82,11 @@ A la Fitxa US, camp **"Índex Estratigràfic"**:
 
 | US | order_layer | Descripció |
 |----|-------------|------------|
-| US001 | 1 | Humus superficial |
-| US002 | 2 | Estrat de llaurada |
-| US003 | 3 | Enderroc |
-| US004 | 4 | Pla d'ús |
-| US005 | 5 | Fonamentació |
+| US001 | 4 | Humus superficial |
+| US002 | 3 | Estrat de llaurada |
+| US003 | 2 | Enderroc |
+| US004 | 1 | Pla d'ús |
+| US005 | 0 | Fonamentació |
 
 Des de la 5.13.19-alpha les capes US i USM que pyArchInit carrega al mapa (vegeu el Tutorial 14, *Elecció de l'Estil*) es dibuixen en el mateix ordre que fa servir el Gestor de Temps: per cronologia del període i després per `order_layer` (0 = el més antic), de manera que les unitats més recents queden a sobre.
 
@@ -100,8 +102,8 @@ Checkbox **NO** actiu:
 ### Modalitat Acumulativa
 
 Checkbox **ACTIU**:
-- Mostra totes les US fins al nivell seleccionat
-- Simula l'excavació progressiva
+- Mostra totes les US des del nivell 0 (més antic) fins al seleccionat
+- Mostra la formació del lloc, de les US més antigues a les més recents
 - Visualització més realista
 
 ## Integració Matrix
@@ -194,7 +196,7 @@ A la carpeta `resources/templates/`:
 
 ### 2. Visualització
 
-- Començar des de nivell 1 (superficial)
+- Començar des del nivell 0 (més antic)
 - Procedir en ordre creixent
 - Usar modalitat acumulativa per presentacions
 

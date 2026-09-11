@@ -2,7 +2,7 @@
 
 ## Introducao
 
-O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para visualizar a sequencia estratigrafica ao longo do tempo. Permite "navegar" pelos niveis estratigraficos utilizando um controlo temporal, apresentando progressivamente as UE da mais recente a mais antiga.
+O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para visualizar a sequencia estratigrafica ao longo do tempo. Permite "navegar" pelos niveis estratigraficos utilizando um controlo temporal, apresentando progressivamente as UE da mais antiga a mais recente (a formacao do sitio).
 
 ### Funcionalidades Principais
 
@@ -41,7 +41,7 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 |                  /    \                            |
 |                 /______\                           |
 |                                                   |
-|         Nivel: [SpinBox: 1-N]                    |
+|         Nivel: [SpinBox: 0-N]                    |
 +--------------------------------------------------+
 | [x] Modo Cumulativo (mostrar <= nivel)           |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ O **Time Manager** (Controlador Temporal SIG) e uma ferramenta avancada para vis
 ### O Que e o order_layer?
 
 O campo `order_layer` define a ordem de apresentacao estratigrafica:
-- **1** = Nivel mais recente (superficie)
-- **N** = Nivel mais antigo (profundidade)
+- **0** = Nivel mais antigo (profundidade)
+- **N** = Nivel mais recente (superficie)
+
+E a convencao do botao **Stratigraphic order** com a caixa "Order: Ancient -> Recent" ativa (predefinicao, ver Tutorial 03): se a ordenacao foi calculada ao contrario, o Time Manager e o mapa mostram a sequencia invertida.
 
 ### Preencher o order_layer
 
-No Formulario UE, campo **"Indice Estratigrafico"**:
-1. Atribuir valores crescentes a partir da superficie
+No Formulario UE, separador **Ajuda** > **Caixa de Ferramentas**, o botao **Stratigraphic order** calcula o `order_layer` a partir das relacoes estratigraficas (ver Tutorial 03); o valor da UE atual aparece no campo por baixo do botao. Regras:
+1. 0 para as UE mais antigas, valores crescentes em direcao as mais recentes (na superficie)
 2. UE contemporaneas podem ter o mesmo valor
 3. Seguir a sequencia da Matrix
 
@@ -80,11 +82,11 @@ No Formulario UE, campo **"Indice Estratigrafico"**:
 
 | UE | order_layer | Descricao |
 |----|-------------|-----------|
-| UE001 | 1 | Humus superficial |
-| UE002 | 2 | Camada de lavoura |
-| UE003 | 3 | Derrube |
-| UE004 | 4 | Piso de utilizacao |
-| UE005 | 5 | Fundacao |
+| UE001 | 4 | Humus superficial |
+| UE002 | 3 | Camada de lavoura |
+| UE003 | 2 | Derrube |
+| UE004 | 1 | Piso de utilizacao |
+| UE005 | 0 | Fundacao |
 
 Desde a 5.13.19-alpha, as camadas UE e USM que o pyArchInit carrega no mapa (ver Tutorial 14, *Escolha do Estilo*) sao desenhadas pela mesma ordem usada pelo Time Manager: pela cronologia do periodo e depois pelo `order_layer` (0 = mais antiga), de modo que as unidades mais recentes ficam por cima.
 
@@ -100,8 +102,8 @@ Caixa de selecao **NAO** ativa:
 ### Modo Cumulativo
 
 Caixa de selecao **ATIVA**:
-- Mostra todas as UE ate ao nivel selecionado
-- Simula escavacao progressiva
+- Mostra todas as UE do nivel 0 (mais antigo) ate ao selecionado
+- Mostra a formacao do sitio, das UE mais antigas as mais recentes
 - Visualizacao mais realista
 
 ## Integracao com Matrix
@@ -194,7 +196,7 @@ Na pasta `resources/templates/`:
 
 ### 2. Visualizacao
 
-- Comecar pelo nivel 1 (superficie)
+- Comecar pelo nivel 0 (mais antigo)
 - Prosseguir em ordem crescente
 - Utilizar modo cumulativo para apresentacoes
 

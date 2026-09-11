@@ -2,7 +2,7 @@
 
 ## Introducción
 
-El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visualizar la secuencia estratigráfica en el tiempo. Permite "navegar" a través de los niveles estratigráficos usando un control temporal, visualizando progresivamente las UE desde la más reciente a la más antigua.
+El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visualizar la secuencia estratigráfica en el tiempo. Permite "navegar" a través de los niveles estratigráficos usando un control temporal, visualizando progresivamente las UE desde la más antigua a la más reciente (la formación del sitio).
 
 ### Funcionalidades Principales
 
@@ -41,7 +41,7 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Nivel: [SpinBox: 1-N]                   |
+|         Nivel: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
 | [x] Modo Acumulativo (muestra <= nivel)         |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ El **Time Manager** (GIS Time Controller) es una herramienta avanzada para visua
 ### ¿Qué es order_layer?
 
 El campo `order_layer` define el orden estratigráfico de visualización:
-- **1** = Nivel más reciente (superficial)
-- **N** = Nivel más antiguo (profundo)
+- **0** = Nivel más antiguo (profundo)
+- **N** = Nivel más reciente (superficial)
+
+Es la convención del botón **Ordine stratigrafico** (orden estratigráfico) con la casilla "Order: Ancient → Recent" activa (configuración predeterminada, ver Tutorial 03): si la ordenación se calculó al revés, el Time Manager y el mapa muestran la secuencia invertida.
 
 ### Completar order_layer
 
-En la Ficha de UE, campo **"Índice Estratigráfico"**:
-1. Asignar valores crecientes desde la superficie
+En la Ficha de UE, pestaña **Ayuda** → **Tool Box**, el botón **Ordine stratigrafico** (orden estratigráfico) calcula `order_layer` a partir de las relaciones estratigráficas (ver Tutorial 03); el valor de la UE actual aparece en el campo bajo el botón. Reglas:
+1. 0 a las UE más antiguas, valores crecientes hacia las más recientes (en superficie)
 2. UE contemporáneas pueden tener el mismo valor
 3. Seguir la secuencia del Matrix
 
@@ -80,11 +82,11 @@ En la Ficha de UE, campo **"Índice Estratigráfico"**:
 
 | UE | order_layer | Descripción |
 |----|-------------|-------------|
-| US001 | 1 | Humus superficial |
-| US002 | 2 | Estrato de arado |
-| US003 | 3 | Derrumbe |
-| US004 | 4 | Plano de uso |
-| US005 | 5 | Cimentación |
+| US001 | 4 | Humus superficial |
+| US002 | 3 | Estrato de arado |
+| US003 | 2 | Derrumbe |
+| US004 | 1 | Plano de uso |
+| US005 | 0 | Cimentación |
 
 Desde la 5.13.19-alpha las capas de UE y USM que pyArchInit carga en el mapa (ver Tutorial 14, *Elección del Estilo*) se dibujan en el mismo orden que usa el Time Manager: por cronología del período y después por `order_layer` (0 = más antiguo), de modo que las unidades más recientes quedan encima.
 
@@ -100,8 +102,8 @@ Checkbox **NO** activo:
 ### Modo Acumulativo
 
 Checkbox **ACTIVO**:
-- Muestra todas las UE hasta el nivel seleccionado
-- Simula la excavación progresiva
+- Muestra todas las UE desde el nivel 0 (más antiguo) hasta el seleccionado
+- Muestra la formación del sitio, de las UE más antiguas a las más recientes
 - Visualización más realista
 
 ## Integración con Matrix
@@ -194,7 +196,7 @@ En la carpeta `resources/templates/`:
 
 ### 2. Visualización
 
-- Comenzar desde nivel 1 (superficial)
+- Comenzar desde el nivel 0 (más antiguo)
 - Proceder en orden creciente
 - Usar modo acumulativo para presentaciones
 

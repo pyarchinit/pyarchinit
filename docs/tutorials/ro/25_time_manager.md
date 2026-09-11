@@ -2,7 +2,7 @@
 
 ## Introducere
 
-**Managerul Temporal** (Controller temporal GIS) este un instrument avansat pentru vizualizarea secventei stratigrafice in timp. Permite "navigarea" prin nivelurile stratigrafice utilizand un control temporal, afisand progresiv US de la cele mai recente la cele mai vechi.
+**Managerul Temporal** (Controller temporal GIS) este un instrument avansat pentru vizualizarea secventei stratigrafice in timp. Permite "navigarea" prin nivelurile stratigrafice utilizand un control temporal, afisand progresiv US de la cele mai vechi la cele mai recente (formarea sitului).
 
 ### Functionalitati principale
 
@@ -41,7 +41,7 @@
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Nivel: [SpinBox: 1-N]                   |
+|         Nivel: [SpinBox: 0-N]                   |
 +--------------------------------------------------+
 | [x] Mod cumulativ (afiseaza <= nivel)            |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@
 ### Ce este order_layer?
 
 Campul `order_layer` defineste ordinea de afisare stratigrafice:
-- **1** = Nivelul cel mai recent (suprafata)
-- **N** = Nivelul cel mai vechi (adancime)
+- **0** = Nivelul cel mai vechi (adancime)
+- **N** = Nivelul cel mai recent (suprafata)
+
+Aceasta este conventia butonului **Ordine stratigrafica** cu caseta "Ordine: Antic → Recent" activata (setarea implicita, vezi Tutorialul 03): daca ordonarea a fost calculata invers, Managerul Temporal si harta afiseaza secventa rasturnata.
 
 ### Completarea order_layer
 
-In formularul US, campul **"Index stratigrafic"**:
-1. Atribuiti valori crescatoare de la suprafata
+In formularul US, fila **Ajutor** > **Instrumente**, butonul **Ordine stratigrafica** calculeaza `order_layer` din relatiile stratigrafice (vezi Tutorialul 03); valoarea US curente apare in campul de sub buton. Reguli:
+1. 0 pentru US cele mai vechi, valori crescatoare spre cele mai recente (la suprafata)
 2. US contemporane pot avea aceeasi valoare
 3. Urmati secventa Matricei
 
@@ -80,11 +82,11 @@ In formularul US, campul **"Index stratigrafic"**:
 
 | US | order_layer | Descriere |
 |----|-------------|-----------|
-| US001 | 1 | Humus de suprafata |
-| US002 | 2 | Strat arat |
-| US003 | 3 | Prabusire |
-| US004 | 4 | Podea de utilizare |
-| US005 | 5 | Fundatie |
+| US001 | 4 | Humus de suprafata |
+| US002 | 3 | Strat arat |
+| US003 | 2 | Prabusire |
+| US004 | 1 | Podea de utilizare |
+| US005 | 0 | Fundatie |
 
 Incepand cu 5.13.19-alpha, straturile US si USM pe care pyArchInit le incarca pe harta (vezi Tutorialul 14, *Alegerea Stilului*) sunt desenate in aceeasi ordine folosita de Manager Temporal: dupa cronologia perioadei, apoi dupa `order_layer` (0 = cea mai veche), astfel incat unitatile cele mai recente sunt deasupra.
 
@@ -100,8 +102,8 @@ Caseta de bifare **NEACTIVATA**:
 ### Modul cumulativ
 
 Caseta de bifare **ACTIVATA**:
-- Afiseaza toate US pana la nivelul selectat
-- Simuleaza excavarea progresiva
+- Afiseaza toate US de la nivelul 0 (cel mai vechi) pana la cel selectat
+- Arata formarea sitului, de la US cele mai vechi la cele mai recente
 - Vizualizare mai realista
 
 ## Integrarea cu Matrix
@@ -194,7 +196,7 @@ In folderul `resources/templates/`:
 
 ### 2. Vizualizare
 
-- Incepeti de la nivelul 1 (suprafata)
+- Incepeti de la nivelul 0 (cel mai vechi)
 - Procedati in ordine crescatoare
 - Utilizati modul cumulativ pentru prezentari
 

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visualiser la séquence stratigraphique dans le temps. Il permet de "naviguer" à travers les niveaux stratigraphiques en utilisant un contrôle temporel, visualisant progressivement les US de la plus récente à la plus ancienne.
+Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visualiser la séquence stratigraphique dans le temps. Il permet de "naviguer" à travers les niveaux stratigraphiques en utilisant un contrôle temporel, visualisant progressivement les US de la plus ancienne à la plus récente (la formation du site).
 
 ### Fonctionnalités Principales
 
@@ -41,7 +41,7 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Niveau : [SpinBox : 1-N]                |
+|         Niveau : [SpinBox : 0-N]                |
 +--------------------------------------------------+
 | [x] Mode Cumulatif (affiche <= niveau)          |
 +--------------------------------------------------+
@@ -66,13 +66,15 @@ Le **Time Manager** (Contrôleur Temporel SIG) est un outil avancé pour visuali
 ### Qu'est-ce que order_layer ?
 
 Le champ `order_layer` définit l'ordre stratigraphique de visualisation :
-- **1** = Niveau le plus récent (superficiel)
-- **N** = Niveau le plus ancien (profond)
+- **0** = Niveau le plus ancien (profond)
+- **N** = Niveau le plus récent (superficiel)
+
+C'est la convention du bouton **Ordine stratigrafico** (ordre stratigraphique) avec la case "Order: Ancient → Recent" cochée (réglage par défaut, voir Tutorial 03) : si l'ordre a été calculé à l'envers, le Time Manager et la carte affichent la séquence inversée.
 
 ### Remplissage de order_layer
 
-Dans la Fiche US, champ **"Index Stratigraphique"** :
-1. Attribuer des valeurs croissantes depuis la surface
+Dans la Fiche US, onglet **Help** → **Tool Box**, le bouton **Ordine stratigrafico** (ordre stratigraphique) calcule `order_layer` à partir des relations stratigraphiques (voir Tutorial 03) ; la valeur de l'US courante apparaît dans le champ sous le bouton. Règles :
+1. 0 aux US les plus anciennes, valeurs croissantes vers les plus récentes (en surface)
 2. Les US contemporaines peuvent avoir la même valeur
 3. Suivre la séquence de la Matrice
 
@@ -80,11 +82,11 @@ Dans la Fiche US, champ **"Index Stratigraphique"** :
 
 | US | order_layer | Description |
 |----|-------------|-------------|
-| US001 | 1 | Humus superficiel |
-| US002 | 2 | Couche de labour |
-| US003 | 3 | Effondrement |
-| US004 | 4 | Sol d'occupation |
-| US005 | 5 | Fondation |
+| US001 | 4 | Humus superficiel |
+| US002 | 3 | Couche de labour |
+| US003 | 2 | Effondrement |
+| US004 | 1 | Sol d'occupation |
+| US005 | 0 | Fondation |
 
 Depuis la 5.13.19-alpha, les couches US et USM que pyArchInit charge sur la carte (voir Tutorial 14, *Choix du Style*) sont dessinées dans le même ordre que celui du Time Manager : selon la chronologie de la période, puis selon `order_layer` (0 = la plus ancienne), de sorte que les unités les plus récentes sont au-dessus.
 
@@ -100,8 +102,8 @@ Case à cocher **NON** active :
 ### Mode Cumulatif
 
 Case à cocher **ACTIVE** :
-- Affiche toutes les US jusqu'au niveau sélectionné
-- Simule la fouille progressive
+- Affiche toutes les US du niveau 0 (le plus ancien) au niveau sélectionné
+- Montre la formation du site, des US les plus anciennes aux plus récentes
 - Visualisation plus réaliste
 
 ## Intégration Matrice
@@ -194,7 +196,7 @@ Dans le dossier `resources/templates/` :
 
 ### 2. Visualisation
 
-- Commencer par le niveau 1 (superficiel)
+- Commencer par le niveau 0 (le plus ancien)
 - Procéder par ordre croissant
 - Utiliser le mode cumulatif pour les présentations
 

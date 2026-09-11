@@ -2,7 +2,7 @@
 
 ## Introduzione
 
-Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizzare la sequenza stratigrafica nel tempo. Permette di "navigare" attraverso i livelli stratigrafici usando un controllo temporale, visualizzando progressivamente le US dalla piu recente alla piu antica.
+Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizzare la sequenza stratigrafica nel tempo. Permette di "navigare" attraverso i livelli stratigrafici usando un controllo temporale, visualizzando progressivamente le US dalla piu antica alla piu recente (la formazione del sito).
 
 ### Funzionalita Principali
 
@@ -41,7 +41,7 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 |                  /    \                          |
 |                 /______\                         |
 |                                                  |
-|         Livello: [SpinBox: 1-N]                 |
+|         Livello: [SpinBox: 0-N]                 |
 +--------------------------------------------------+
 | [x] Modalita Cumulativa (mostra <= livello)     |
 +--------------------------------------------------+
@@ -66,25 +66,27 @@ Il **Time Manager** (GIS Time Controller) e uno strumento avanzato per visualizz
 ### Cos'e order_layer?
 
 Il campo `order_layer` definisce l'ordine stratigrafico di visualizzazione:
-- **1** = Livello piu recente (superficiale)
-- **N** = Livello piu antico (profondo)
+- **0** = Livello piu antico (profondo)
+- **N** = Livello piu recente (superficiale)
+
+E la convenzione dell'**Ordine stratigrafico** con «Ordine: Antico → Recente» attivo (impostazione predefinita, vedi Tutorial 03): se l'ordinamento e stato calcolato al contrario, il Time Manager e la mappa mostrano la sequenza capovolta.
 
 ### Compilazione order_layer
 
-Nella Scheda US, campo **"Indice Stratigrafico"**:
-1. Assegnare valori crescenti dalla superficie
-2. US contemporanee possono avere stesso valore
+Nella Scheda US, tab **Help** → **Tool Box**, il pulsante **Ordine stratigrafico** calcola `order_layer` dai rapporti stratigrafici (vedi Tutorial 03); il valore della US corrente compare nel campo sotto il pulsante. Regole:
+1. 0 alle US piu antiche, valori crescenti verso le piu recenti (in superficie)
+2. US contemporanee possono avere lo stesso valore
 3. Seguire la sequenza del Matrix
 
 ### Esempio
 
 | US | order_layer | Descrizione |
 |----|-------------|-------------|
-| US001 | 1 | Humus superficiale |
-| US002 | 2 | Strato arativo |
-| US003 | 3 | Crollo |
-| US004 | 4 | Piano d'uso |
-| US005 | 5 | Fondazione |
+| US001 | 4 | Humus superficiale |
+| US002 | 3 | Strato arativo |
+| US003 | 2 | Crollo |
+| US004 | 1 | Piano d'uso |
+| US005 | 0 | Fondazione |
 
 Dalla 5.13.19-alpha i layer US e USM che pyArchInit carica sulla mappa (vedi Tutorial 14, *Scelta dello Stile*) vengono disegnati nello stesso ordine usato dal Time Manager: per cronologia del periodo, poi per `order_layer` (0 = piu antico), cosi le unita piu recenti stanno sopra.
 
@@ -100,8 +102,8 @@ Checkbox **NON** attivo:
 ### Modalita Cumulativa
 
 Checkbox **ATTIVO**:
-- Mostra tutte le US fino al livello selezionato
-- Simula lo scavo progressivo
+- Mostra tutte le US dal livello 0 (piu antico) a quello selezionato
+- Mostra la formazione del sito, dalle US piu antiche alle piu recenti
 - Visualizzazione piu realistica
 
 ## Integrazione Matrix
@@ -194,7 +196,7 @@ Nella cartella `resources/templates/`:
 
 ### 2. Visualizzazione
 
-- Iniziare da livello 1 (superficiale)
+- Iniziare dal livello 0 (piu antico)
 - Procedere in ordine crescente
 - Usare modalita cumulativa per presentazioni
 
