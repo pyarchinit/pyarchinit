@@ -409,10 +409,10 @@ class Pyarchinit_db_management(object):
                     print("DEBUG [db_manager]: Skip check db (già fatto o file non esiste)")  # DEBUG
 
                 # After the updater, whose table recreations can drop the
-                # R*Tree triggers: a broken spatial index = invisible layer.
+                # R*Tree triggers and views: broken index or view key = invisible layer.
                 try:
-                    from .spatial_index_repair import ensure_spatial_indexes
-                    ensure_spatial_indexes(db_path, lambda c: self.load_spatialite(c, None))
+                    from .spatial_index_repair import ensure_spatial_layers
+                    ensure_spatial_layers(db_path, lambda c: self.load_spatialite(c, None))
                 except Exception as e:
                     print(f"spatial index check skipped: {e}")
 
@@ -652,6 +652,21 @@ class Pyarchinit_db_management(object):
         except Exception as e:
             print(f"Error in ensure_fauna_table_exists: {str(e)}")
 
+    @staticmethod
+    def _register_ut_views(cursor):
+        """Register the UT views as spatial views (key = ROWID of the geometry
+        table): unregistered, OGR and QGIS load them without geometry."""
+        for view, table in (('pyarchinit_ut_point_view', 'pyarchinit_ut_point'),
+                            ('pyarchinit_ut_line_view', 'pyarchinit_ut_line'),
+                            ('pyarchinit_ut_polygon_view', 'pyarchinit_ut_polygon')):
+            try:
+                cursor.execute(
+                    "INSERT OR REPLACE INTO views_geometry_columns (view_name, view_geometry, "
+                    "view_rowid, f_table_name, f_geometry_column, read_only) "
+                    "VALUES (?, 'the_geom', 'rowid', ?, 'the_geom', 1)", (view, table))
+            except Exception:
+                pass
+
     def ensure_ut_geometry_tables_exist(self):
         """Ensure UT geometry tables and views are created if they don't exist (works for both PostgreSQL and SQLite)"""
         try:
@@ -807,7 +822,7 @@ class Pyarchinit_db_management(object):
                     cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_point_view")
                     cursor.execute("""
                         CREATE VIEW IF NOT EXISTS pyarchinit_ut_point_view AS
-                        SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
+                        SELECT p.ROWID AS ROWID, p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
                                p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
                                u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                         FROM pyarchinit_ut_point p
@@ -817,7 +832,7 @@ class Pyarchinit_db_management(object):
                     cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_line_view")
                     cursor.execute("""
                         CREATE VIEW IF NOT EXISTS pyarchinit_ut_line_view AS
-                        SELECT l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+                        SELECT l.ROWID AS ROWID, l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
                                l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
                                u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                         FROM pyarchinit_ut_line l
@@ -827,13 +842,14 @@ class Pyarchinit_db_management(object):
                     cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_polygon_view")
                     cursor.execute("""
                         CREATE VIEW IF NOT EXISTS pyarchinit_ut_polygon_view AS
-                        SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+                        SELECT p.ROWID AS ROWID, p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
                                p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
                                u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                         FROM pyarchinit_ut_polygon p
                         LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
                     """)
 
+                    self._register_ut_views(cursor)
                     conn.commit()
                     QgsMessageLog.logMessage("PyArchInit - UT geometry tables created for SQLite", "PyArchInit", Qgis.Info)
                 else:
@@ -846,7 +862,7 @@ class Pyarchinit_db_management(object):
                         cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_point_view")
                         cursor.execute("""
                             CREATE VIEW IF NOT EXISTS pyarchinit_ut_point_view AS
-                            SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
+                            SELECT p.ROWID AS ROWID, p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.quota,
                                    p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
                                    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                             FROM pyarchinit_ut_point p
@@ -856,7 +872,7 @@ class Pyarchinit_db_management(object):
                         cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_line_view")
                         cursor.execute("""
                             CREATE VIEW IF NOT EXISTS pyarchinit_ut_line_view AS
-                            SELECT l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
+                            SELECT l.ROWID AS ROWID, l.gid, l.the_geom, l.sito, l.nr_ut, l.def_ut, l.tipo_linea, l.lunghezza,
                                    l.data_rilevamento, l.responsabile AS rilevatore, l.note AS note_geometria,
                                    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                             FROM pyarchinit_ut_line l
@@ -866,13 +882,14 @@ class Pyarchinit_db_management(object):
                         cursor.execute("DROP VIEW IF EXISTS pyarchinit_ut_polygon_view")
                         cursor.execute("""
                             CREATE VIEW IF NOT EXISTS pyarchinit_ut_polygon_view AS
-                            SELECT p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
+                            SELECT p.ROWID AS ROWID, p.gid, p.the_geom, p.sito, p.nr_ut, p.def_ut, p.area_mq, p.perimetro,
                                    p.data_rilevamento, p.responsabile AS rilevatore, p.note AS note_geometria,
                                    u.id_ut, u.progetto, u.ut_letterale, u.descrizione_ut, u.interpretazione_ut
                             FROM pyarchinit_ut_polygon p
                             LEFT JOIN ut_table u ON p.sito = u.progetto AND p.nr_ut = u.nr_ut
                         """)
 
+                        self._register_ut_views(cursor)
                         conn.commit()
                         QgsMessageLog.logMessage("PyArchInit - UT views created", "PyArchInit", Qgis.Info)
                     else:

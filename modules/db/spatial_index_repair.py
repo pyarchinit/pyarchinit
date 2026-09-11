@@ -7,7 +7,10 @@ SpatiaLite provider selects the features to draw through the R*Tree.
 Scripts and updaters that recreate tables (a plain DROP TABLE + CREATE
 TABLE keeps the geometry_columns row but loses the triggers) left many
 databases in that state, including — from 2025-10-12 — the template used
-for new SQLite databases.
+for new SQLite databases. Geometry columns registered with no index at all
+(``spatial_index_enabled = 0``) get one too: without it OGR filters with
+SpatiaLite SQL functions that some GDAL builds lack (QGIS 3.x on macOS) and
+draws nothing.
 
 ``ensure_spatial_indexes`` runs once per session when a SQLite DB is
 connected. The audit uses plain sqlite3 (no SpatiaLite, negligible cost on
@@ -48,12 +51,14 @@ def reset_session_cache() -> None:
 
 
 def audit_spatial_indexes(con) -> list:
-    """Status of every indexed geometry column. Plain sqlite3 is enough:
-    the triggers live in sqlite_master and the R*Tree is a built-in module."""
+    """Status of every geometry column with an R*Tree index or with none
+    (MbrCache columns, spatial_index_enabled = 2, are left alone). Plain
+    sqlite3 is enough: the triggers live in sqlite_master and the R*Tree is
+    a built-in module."""
     try:
         columns = con.execute(
             "SELECT f_table_name, f_geometry_column FROM geometry_columns "
-            "WHERE spatial_index_enabled = 1 "
+            "WHERE spatial_index_enabled IN (0, 1) "
             "ORDER BY f_table_name, f_geometry_column").fetchall()
     except sqlite3.Error:
         return []  # not a SpatiaLite database
@@ -131,12 +136,18 @@ def _default_log(message, warning=False) -> None:
         pass
 
 
-def ensure_spatial_indexes(db_path, load_spatialite, force=False, backup=True, log=None) -> list:
+def ensure_spatial_layers(db_path, load_spatialite, force=False, backup=True, log=None,
+                          canonical_views=None) -> list:
     """Check the SQLite DB at ``db_path`` once per session and repair its
-    broken spatial indexes. ``load_spatialite(con)`` loads the extension
-    into a sqlite3 connection (the plugin passes its own loader). Returns
-    the repaired "table.column" (empty list when nothing had to be done or
-    the repair was not possible); never raises."""
+    broken spatial indexes and spatial views (spatial_view_repair: view key
+    not the ROWID of the geometry table, stale/orphan registrations, missing
+    views, base tables without spatial index). ``load_spatialite(con)``
+    loads the extension into a sqlite3 connection (the plugin passes its
+    own loader). The audit writes nothing; one backup precedes any change.
+    Returns what was repaired (empty when nothing had to be done or the
+    repair was not possible); never raises."""
+    from .spatial_view_repair import audit_spatial_views, has_work, repair_spatial_views
+
     log = log or _default_log
     key = os.path.abspath(db_path)
     if not force and key in _checked:
@@ -148,27 +159,37 @@ def ensure_spatial_indexes(db_path, load_spatialite, force=False, backup=True, l
         con = sqlite3.connect(db_path, timeout=30)
         try:
             broken = [s for s in audit_spatial_indexes(con) if not s.ok]
-            if not broken:
+            views = audit_spatial_views(con, canonical_views)
+            view_work = has_work(views)
+            if not broken and not view_work:
                 return []
-            names = ', '.join(f'{s.table}.{s.column}' for s in broken)
+            todo = [f'{s.table}.{s.column}' for s in broken] + \
+                   [f'{s.view} ({s.state})' for s in views if s.state not in ('ok', 'unsafe')]
             try:
                 load_spatialite(con)
             except Exception as e:
-                log(f"PyArchInit: indici spaziali da ricostruire in {db_path} ({names}) "
+                log(f"PyArchInit: layer spaziali da riparare in {db_path} ({', '.join(todo)}) "
                     f"ma SpatiaLite non è caricabile: {e}", warning=True)
                 return []
             backup_path = _backup(con, db_path) if backup else None
             con.isolation_level = None
             repaired = repair_spatial_indexes(con, broken)
+            if view_work:
+                views = audit_spatial_views(con, canonical_views)  # base indexes just rebuilt
+                repaired += repair_spatial_views(con, views, canonical_views)
             failed = sorted(set(f'{s.table}.{s.column}' for s in broken) - set(repaired))
-            log(f"PyArchInit: indici spaziali ricostruiti in {os.path.basename(db_path)}: "
-                f"{', '.join(repaired) or 'nessuno'}"
-                + (f"; NON riparati: {', '.join(failed)}" if failed else "")
+            log(f"PyArchInit: layer spaziali riparati in {os.path.basename(db_path)}: "
+                f"{'; '.join(repaired) or 'nessuno'}"
+                + (f"; indici NON riparati: {', '.join(failed)}" if failed else "")
                 + (f" (backup: {backup_path})" if backup_path else ""),
                 warning=bool(failed))
             return repaired
         finally:
             con.close()
     except Exception as e:
-        log(f"PyArchInit: controllo indici spaziali non riuscito su {db_path}: {e}", warning=True)
+        log(f"PyArchInit: controllo dei layer spaziali non riuscito su {db_path}: {e}", warning=True)
         return []
+
+
+#: Former name, kept for callers of the index-only version.
+ensure_spatial_indexes = ensure_spatial_layers

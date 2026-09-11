@@ -1815,7 +1815,7 @@ class SQLiteDBUpdater:
 
             create_view_sql = """
                 CREATE VIEW pyarchinit_strutture_view AS
-                SELECT a.gid,
+                SELECT a.ROWID AS ROWID, a.gid,
                     a.sito,
                     a.id_strutt,
                     a.per_iniz,
@@ -2008,7 +2008,7 @@ class SQLiteDBUpdater:
             ('pyarchinit_us_view', '''
                 CREATE VIEW pyarchinit_us_view AS
                 SELECT 
-                    CAST(pyunitastratigrafiche.gid AS INTEGER) as gid,
+                    pyunitastratigrafiche.ROWID AS ROWID, CAST(pyunitastratigrafiche.gid AS INTEGER) as gid,
                     pyunitastratigrafiche.the_geom,
                     pyunitastratigrafiche.tipo_us_s,
                     pyunitastratigrafiche.scavo_s,
@@ -2163,6 +2163,12 @@ class SQLiteDBUpdater:
             for col in columns:
                 if col[1] == 'area' and col[2] != 'TEXT':
                     self.log_message("Correzione campo area in tomba_table da INTEGER a TEXT...")
+                    # legacy mode: SQLite >= 3.26 would otherwise rewrite
+                    # pyarchinit_tomba_view to read tomba_table_old, left broken
+                    # by the DROP below
+                    self.cursor.execute("PRAGMA legacy_alter_table")
+                    prev_legacy = self.cursor.fetchone()[0]
+                    self.cursor.execute("PRAGMA legacy_alter_table=ON")
                     try:
                         # Crea nuova tabella con struttura corretta
                         self.cursor.execute("ALTER TABLE tomba_table RENAME TO tomba_table_old")
@@ -2187,6 +2193,8 @@ class SQLiteDBUpdater:
                             self.cursor.execute("ALTER TABLE tomba_table_old RENAME TO tomba_table")
                         except:
                             pass
+                    finally:
+                        self.cursor.execute(f"PRAGMA legacy_alter_table={'ON' if prev_legacy else 'OFF'}")
 
         # Coerce key string columns that exist as INT/INTEGER in older DBs.
         # These columns are TEXT in the canonical template DB
@@ -2381,7 +2389,7 @@ class SQLiteDBUpdater:
             self.cursor.execute("""
                 CREATE VIEW pyarchinit_reperti_view AS 
                 SELECT
-                    a.gid,
+                    a.ROWID AS ROWID, a.gid,
                     a.the_geom,
                     a.id_rep,
                     a.siti,

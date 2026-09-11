@@ -191,6 +191,32 @@ def test_index_out_of_sync_is_rebuilt_even_with_triggers_in_place(tmp_path):
 
 
 @needs_spatialite
+def test_a_geometry_column_registered_without_index_gets_one(tmp_path):
+    # pyarchinit_punti_rif & co. in the shipped DBs: spatial_index_enabled = 0.
+    # OGR then filters with SpatiaLite SQL functions, missing in some GDAL
+    # builds (QGIS 3.x on macOS), and draws nothing
+    db = _spatial_db(str(tmp_path / "scavo.sqlite"))
+    con = sqlite3.connect(db)
+    load_spatialite(con)
+    con.execute("CREATE TABLE pyarchinit_punti_rif (gid INTEGER PRIMARY KEY AUTOINCREMENT, def_punto TEXT)")
+    con.execute("SELECT AddGeometryColumn('pyarchinit_punti_rif', 'the_geom', 32633, 'POINT', 'XY')")
+    con.execute("INSERT INTO pyarchinit_punti_rif (def_punto, the_geom) VALUES ('a', MakePoint(?, ?, 32633))",
+                (X, Y))
+    con.commit()
+    con.close()
+    assert not _status(db)["pyarchinit_punti_rif"].ok
+
+    assert sir.ensure_spatial_indexes(db, load_spatialite) == ["pyarchinit_punti_rif.the_geom"]
+
+    st = _status(db)["pyarchinit_punti_rif"]
+    assert st.ok and st.indexed == st.geometries == 1
+    con = sqlite3.connect(db)
+    assert con.execute("SELECT spatial_index_enabled FROM geometry_columns "
+                       "WHERE f_table_name = 'pyarchinit_punti_rif'").fetchone()[0] == 1
+    con.close()
+
+
+@needs_spatialite
 def test_a_backup_of_the_broken_db_is_written_before_repairing(tmp_path):
     db = _spatial_db(str(tmp_path / "scavo.sqlite"))
     _recreate_table_like_the_alignment_script(db)

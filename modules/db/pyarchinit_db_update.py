@@ -18,6 +18,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+import re
 import time
 from sqlalchemy import Table
 from sqlalchemy.engine import create_engine
@@ -1846,7 +1847,7 @@ class DB_update(object):
             'pyarchinit_quote_view': """
                 CREATE VIEW pyarchinit_quote_view AS
                 SELECT 
-                    pyarchinit_quote.gid,
+                    pyarchinit_quote.ROWID AS ROWID, pyarchinit_quote.gid,
                     pyarchinit_quote.sito_q, 
                     pyarchinit_quote.area_q, 
                     pyarchinit_quote.us_q, 
@@ -1881,7 +1882,7 @@ class DB_update(object):
             'pyarchinit_quote_usm_view': """
                 CREATE VIEW pyarchinit_quote_usm_view AS
                 SELECT
-                    a.rowid AS rowid,
+                    b.ROWID AS ROWID,
                     a.id_us AS id_us,
                     a.sito AS sito,
                     a.area AS area,
@@ -2038,7 +2039,7 @@ class DB_update(object):
             'pyarchinit_uscaratterizzazioni_view': """
                 CREATE VIEW pyarchinit_uscaratterizzazioni_view AS
                 SELECT 
-                    pyuscaratterizzazioni.gid,
+                    pyuscaratterizzazioni.ROWID AS ROWID, pyuscaratterizzazioni.gid,
                     pyuscaratterizzazioni.the_geom, 
                     pyuscaratterizzazioni.tipo_us_c, 
                     pyuscaratterizzazioni.scavo_c, 
@@ -2069,7 +2070,7 @@ class DB_update(object):
             'pyarchinit_reperti_view': """
                 CREATE VIEW pyarchinit_reperti_view AS 
                 SELECT
-                    a.gid,
+                    a.ROWID AS ROWID, a.gid,
                     a.the_geom,
                     a.id_rep,
                     a.siti,
@@ -2120,7 +2121,7 @@ class DB_update(object):
             'pyarchinit_tomba_view': """
                 CREATE VIEW pyarchinit_tomba_view AS
                 SELECT 
-                    a.id_tomba,
+                    b.ROWID AS ROWID, a.id_tomba,
                     a.sito,
                     a.nr_scheda_taf,
                     a.sigla_struttura,
@@ -2209,7 +2210,13 @@ class DB_update(object):
             """
         }
         
+        # SQLite accepts a view on a missing table and creates it broken
+        # (pyarchinit_uscaratterizzazioni_view without pyuscaratterizzazioni)
+        existing = {r[0].lower() for r in self._execute(
+            "SELECT name FROM sqlite_master WHERE type IN ('table', 'view')").fetchall()}
         for view_name, view_sql in views_sql.items():
+            if any(t.lower() not in existing for t in re.findall(r'\b(?:FROM|JOIN)\s+(\w+)', view_sql, re.I)):
+                continue
             try:
                 self._execute(view_sql)
             except:

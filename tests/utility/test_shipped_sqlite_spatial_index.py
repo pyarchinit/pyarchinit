@@ -11,15 +11,27 @@ pyarchinit_us_negative_doc in that state (the schema-alignment scripts
 dropped and recreated the tables without rebuilding the index), so every
 newly created DB showed no US geometry. Plain sqlite3 is enough: the
 triggers live in sqlite_master and the R*Tree is a built-in module.
+
+2026-09-11: the spatial views too. Views with no ROWID key or a key from
+the attribute table, registrations of missing views, base tables with no
+spatial index (OGR then needs SpatiaLite SQL functions some GDAL builds
+lack) and views on tables that do not exist all drew nothing.
 """
 from __future__ import annotations
 
 import sqlite3
+import sys
 from pathlib import Path
 
 import pytest
 
-_DBFILES = Path(__file__).resolve().parents[2] / "resources" / "dbfiles"
+_ROOT = Path(__file__).resolve().parents[2]
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
+from modules.db.spatial_view_repair import audit_spatial_views  # noqa: E402
+
+_DBFILES = _ROOT / "resources" / "dbfiles"
 SHIPPED = ["pyarchinit.sqlite", "pyarchinit_db.sqlite"]
 # SpatiaLite's own ISO-metadata table: never drawn by pyArchInit.
 IGNORED = {"iso_metadata"}
@@ -52,10 +64,57 @@ def _problems(path: Path) -> list:
         con.close()
 
 
-@pytest.mark.parametrize("name", SHIPPED)
-def test_every_indexed_geometry_column_is_maintained_and_in_sync(name):
+def _shipped(name) -> Path:
     path = _DBFILES / name
     if not path.exists():
         pytest.skip(f"{name} not shipped")
-    problems = _problems(path)
+    return path
+
+
+def _open(path: Path):
+    return sqlite3.connect(f"file:{path}?mode=ro&immutable=1", uri=True)
+
+
+@pytest.mark.parametrize("name", SHIPPED)
+def test_every_indexed_geometry_column_is_maintained_and_in_sync(name):
+    problems = _problems(_shipped(name))
     assert not problems, "\n".join(problems)
+
+
+@pytest.mark.parametrize("name", SHIPPED)
+def test_every_geometry_column_has_a_spatial_index(name):
+    con = _open(_shipped(name))
+    try:
+        unindexed = [t for (t,) in con.execute(
+            "SELECT f_table_name FROM geometry_columns WHERE spatial_index_enabled = 0")
+            if t not in IGNORED]
+    finally:
+        con.close()
+    assert not unindexed
+
+
+@pytest.mark.parametrize("name", SHIPPED)
+def test_every_spatial_view_is_keyed_on_its_geometry_table(name):
+    con = _open(_shipped(name))
+    try:
+        bad = [f"{s.view}.{s.geometry}: {s.state} {s.detail}".strip()
+               for s in audit_spatial_views(con) if s.state != "ok" or s.base_indexed is not True]
+    finally:
+        con.close()
+    assert not bad, "\n".join(bad)
+
+
+@pytest.mark.parametrize("name", SHIPPED)
+def test_no_pyarchinit_view_is_broken(name):
+    con = _open(_shipped(name))
+    try:
+        broken = []
+        for (view,) in con.execute("SELECT name FROM sqlite_master WHERE type = 'view' "
+                                   "AND (name LIKE 'pyarchinit%' OR name LIKE 'inventario%')").fetchall():
+            try:
+                con.execute(f'SELECT 1 FROM "{view}" LIMIT 1').fetchall()
+            except sqlite3.Error as e:
+                broken.append(f"{view}: {e}")
+    finally:
+        con.close()
+    assert not broken, "\n".join(broken)
