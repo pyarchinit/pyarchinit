@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.16-alpha
+version=5.13.17-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,25 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.16-alpha (2026-09-11) [SQLite: spatial views drawn again + first start: questions in front, install progress]:
+changelog=5.13.17-alpha (2026-09-11) [QGIS 4: packages installed for the Python running QGIS]:
+    - Fix: on QGIS 4.2.2 for macOS the configuration failed with "No module
+      named 'psycopg2._psycopg'". The installer ran pip with the first
+      Python found among fixed paths, QGIS 3's Python 3.9 when both QGIS 3
+      and QGIS 4 are installed, so ext_libs got packages built for 3.9
+      (psycopg2, PIL, numpy, pandas, lxml ...) that QGIS 4's Python 3.12
+      cannot load; ext_libs also hid the psycopg2 shipped with QGIS 4.
+      Same failure with a QGIS 3 profile copied to QGIS 4, and on Windows
+      with several QGIS installed.
+    - Feature: new modules/utility/python_env.py. pip now runs with a
+      Python of the same version and architecture as the one running QGIS,
+      that of the running QGIS first (QGIS 4 on macOS: its python3.12 with
+      PYTHONHOME), otherwise nothing is installed. An ext_libs built for
+      another Python is moved to ext_libs_<tag> (never deleted) and a fresh
+      one is started; a marker records the Python it is for. psycopg2
+      shipped with QGIS satisfies psycopg2-binary. Non-Ubuntu Linux now
+      installs the packages too. Tests: tests/utility/test_python_env.py.
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), tutorial 01 in 10 languages.
+  5.13.16-alpha (2026-09-11) [SQLite: spatial views drawn again + first start: questions in front, install progress]:
     - Fix: SQLite/SpatiaLite spatial views (US, USM, quote, strutture,
       reperti, UT ...) loaded but drew nothing or the wrong features: QGIS
       and OGR select what to draw through the view key, which must be the
