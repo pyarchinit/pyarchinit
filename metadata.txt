@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.18-alpha
+version=5.13.19-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,27 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.18-alpha (2026-09-11) [GIS SQLite: US/USM layers keep the style chosen by the user]:
+changelog=5.13.19-alpha (2026-09-11) [GIS US: existing style as template, cont_per, drawing order like the Time Manager]:
+    - Feature: "Carica stile esistente" lets you choose a style saved in
+      the database, a QML shipped with pyArchInit or any .qml file, and
+      uses it as the template of the categories on the chosen field: the
+      values it already has keep its colour, the others get a copy of its
+      symbol with their own colour. Before, it only looked in the database
+      and, finding nothing, went straight to the categorisation window.
+    - Feature: cont_per (period/phase) is a fourth categorisation field,
+      with the dating of the periodization in the legend.
+    - Fix: the drawing order was never applied (setOrderBy was called on
+      the layer, which has none, and the error was swallowed). Now it is
+      set on the renderer and computed like the Time Manager (new
+      modules/utility/stratigraphic_order.py): undated units first, then
+      periods by chronology, order_layer (0 = oldest), the cut over its
+      fill — the most recent units on top, for every style option.
+    - Fix: per-period loads ask the style once; category colours are the
+      same in every session; crash of QGIS with a QML template fixed.
+      Tests: tests/utility/test_stratigraphic_order.py, test_us_styler.py.
+    - Docs: dev_logs/CHANGELOG.md (IT+EN), tutorials 14 (GIS) and 25
+      (Time Manager).
+  5.13.18-alpha (2026-09-11) [GIS SQLite: US/USM layers keep the style chosen by the user]:
     - Fix: "Visualizza su GIS" from a US search asks how to style the layer
       (save / load / temporary / outline only) and which field to
       categorise by (stratigraphic definition, US type, interpretive
