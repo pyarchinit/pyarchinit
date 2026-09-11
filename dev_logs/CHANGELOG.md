@@ -5,6 +5,93 @@
 
 ---
 
+## [fix] - 2026-09-11 — GIS US: "Carica stile esistente" usa un QML come modello, categoria Periodo/Fase (`cont_per`), ordine di disegno come il Time Manager
+
+> Branch `Stratigraph_00001`. Commit `311c07ff`, versione `5.13.19-alpha` (non ancora rilasciata). Master: non portato.
+> File: `modules/utility/create_style.py`, `modules/utility/stratigraphic_order.py` (NUOVO), `modules/gis/pyarchinit_pyqgis.py`, `tests/utility/test_stratigraphic_order.py`, `tests/utility/test_us_styler.py`, `tests/utility/test_us_style_choice_respected.py`.
+
+### Italiano
+
+#### Contesto
+
+- Segnalato dall'utente il 2026-09-11 dopo la 5.13.18-alpha, su tre punti della finestra di stile dei layer US.
+- **"Carica stile esistente" non permetteva di scegliere un QML:** `USViewStyler.load_style_from_db_new` cercava solo gli stili salvati nel database (`layer.listStylesInDatabase`); non trovandone (il DB di esempio non ne ha) ripiegava sullo stile temporaneo e sulla finestra di categorizzazione.
+- **L'ordine di disegno non veniva MAI applicato:** `USViewStyler._apply_feature_ordering` e `Pyarchinit_pyqgis._apply_us_feature_ordering` chiamavano `setOrderBy()` / `setOrderByEnabled()` sul `QgsVectorLayer`, che non ha questi metodi (appartengono al renderer; verificato su QGIS 3.42); l'`AttributeError` veniva ingoiato da un `except`. Solo lo stile temporaneo impostava un ordine dentro il proprio renderer.
+- **Loader per periodo** (`charge_vector_layers_all_period`, SQLite e PostgreSQL): lo stile veniva chiesto, poi chiesto di nuovo dentro `apply_style_to_layer`, e un "carica" riutilizzava direttamente uno stile del database.
+
+#### Correzione
+
+1. **Stile esistente come modello** (`USViewStyler.choose_existing_style` / `_load_template` in `modules/utility/create_style.py`; decisione presa con l'utente):
+   - si sceglie uno stile salvato nel database, un QML incluso in pyArchInit (`modules/gis/styles*`, `modules/utility/styles*`: `us_*.qml`) o un qualsiasi file `.qml` ("Altro file QML…");
+   - il QML viene caricato nel layer (etichette, opacità, fusione arrivano con esso) e usato come MODELLO delle categorie costruite sul campo scelto: i valori già presenti nello stile mantengono il loro simbolo/colore, gli altri ricevono una copia del suo simbolo con un proprio colore.
+2. **`cont_per` come quarto campo di categorizzazione** ("Periodo/Fase (cont_per)"): le etichette della legenda mostrano la datazione (`datazione_estesa`) dei codici da `periodizzazione_table`.
+3. **Ordine di disegno come il Time Manager:**
+   - l'ordine viene impostato sul renderer (`apply_stratigraphic_order` in `create_style.py`);
+   - è calcolato come in `tabs/Gis_Time_controller.py`, che legge `order_layer` come tempo che sale (0 = più antico, `order_layer <= v` costruisce il sito) e colloca una US nel tempo tramite la cronologia di `periodo_iniziale`/`fase_iniziale` in `periodizzazione_table`;
+   - nuovo modulo puro `modules/utility/stratigraphic_order.py`: prima le unità non datate, poi i periodi per cronologia (`cron_iniziale` di `periodo_iniziale`/`fase_iniziale` per sito; `cont_per` come ripiego, il suo codice più antico), poi `order_layer` crescente, poi `stratigraph_index_us` (taglio sopra il riempimento): le unità più recenti vengono disegnate sopra;
+   - normalizzazione testo/numero (`'2'`/`'2.1'` nelle viste contro `2`/`2.1` in `periodizzazione_table`) tramite un'espressione `CASE` costruita sui valori esatti del layer.
+4. **Loader per periodo:** `apply_style_to_layer(layer, choice=...)` chiede scelta/modello/campo una sola volta per styler e li riusa per ogni periodo; l'ordine viene reimpostato dopo che il loader ricostruisce le regole con il filtro del periodo.
+5. **Colori stabili:** i colori delle categorie sono gli stessi in ogni sessione (colore basato su md5 invece di `hash()` di Python, che cambia a ogni avvio di QGIS). Enum compatibili Qt6 (`Qt.PenStyle.*`).
+6. **Crash trovato durante i test:** i simboli di un modello presi da `renderer.categories()` / `legendSymbolItems()` appartengono a copie temporanee e venivano usati dopo essere stati liberati → segmentation fault in QGIS; ora vengono clonati subito.
+
+#### Test e verifica
+
+- **`tests/utility/test_stratigraphic_order.py`** (7, puri).
+- **`tests/utility/test_us_styler.py`** (5, python di QGIS): il QML modello mantiene i colori sul campo scelto, ordine di disegno, solo contorno ordinato, `cont_per` offerto ed etichettato, scelta chiesta una sola volta.
+- **`tests/utility/test_us_style_choice_respected.py`:** + nessun `setOrderBy` sul layer.
+- ROSSO prima, VERDE dopo; 103 test insieme sul python di QGIS; suite completa invariata a parte i nuovi test (stessi fallimenti preesistenti delle fixture PostgreSQL).
+- **Dati reali** (DB di esempio, `pyarchinit_us_view` via OGR, sito "Scavo archeologico", 482 US): stile + ordine in 0,08 s; prime US disegnate 38/39 (periodo 4, 1200, `order_layer` 0–1), ultima US 1 (periodo 1 fase 1, 1800, `order_layer` 22); gli anni non diminuiscono mai lungo l'ordine di disegno e `order_layer` cresce all'interno di ogni periodo.
+
+#### ⚠️ Importante per gli utenti
+
+- Nessuna azione richiesta: il prossimo "Visualizza su GIS" usa il nuovo comportamento; i layer già caricati mantengono il loro stile.
+
+#### Note per master
+
+- Non portato: lo styler di master è diverso.
+
+### English
+
+#### Context
+
+- Reported by the user on 2026-09-11 after 5.13.18-alpha, on three points of the US layer style dialog.
+- **"Carica stile esistente" (Load existing style) did not let you choose a QML:** `USViewStyler.load_style_from_db_new` only looked for styles saved in the database (`layer.listStylesInDatabase`); finding none (the sample DB has none) it fell back to the temporary style and the categorisation window.
+- **The drawing order was NEVER applied:** `USViewStyler._apply_feature_ordering` and `Pyarchinit_pyqgis._apply_us_feature_ordering` called `setOrderBy()` / `setOrderByEnabled()` on the `QgsVectorLayer`, which has no such methods (they belong to the renderer; verified on QGIS 3.42); the `AttributeError` was swallowed by an `except`. Only the temporary style set an order inside its renderer.
+- **Per-period loaders** (`charge_vector_layers_all_period`, SQLite and PostgreSQL): the style was asked, then asked again inside `apply_style_to_layer`, and a "load" reused a database style directly.
+
+#### Fix
+
+1. **Existing style as template** (`USViewStyler.choose_existing_style` / `_load_template` in `modules/utility/create_style.py`; decision taken with the user):
+   - the user picks a style saved in the database, a QML shipped with pyArchInit (`modules/gis/styles*`, `modules/utility/styles*`: `us_*.qml`) or any `.qml` file ("Altro file QML…");
+   - the QML is loaded into the layer (labels, opacity, blending come with it) and used as the TEMPLATE of the categories built on the chosen field: values the style already has keep its symbol/colour, the others get a copy of its symbol with their own colour.
+2. **`cont_per` as a fourth categorisation field** ("Periodo/Fase (cont_per)"): legend labels show the dating (`datazione_estesa`) of the codes from `periodizzazione_table`.
+3. **Drawing order like the Time Manager:**
+   - the order is set on the renderer (`apply_stratigraphic_order` in `create_style.py`);
+   - it is computed like `tabs/Gis_Time_controller.py`, which reads `order_layer` as time going up (0 = oldest, `order_layer <= v` builds the site up) and places a US in time through the chronology of its `periodo_iniziale`/`fase_iniziale` in `periodizzazione_table`;
+   - new pure module `modules/utility/stratigraphic_order.py`: undated units first, then periods by chronology (`cron_iniziale` of `periodo_iniziale`/`fase_iniziale` per site; `cont_per` as fallback, its oldest code), then `order_layer` ascending, then `stratigraph_index_us` (cut over fill): the most recent units are drawn on top;
+   - text/number normalisation (`'2'`/`'2.1'` in the views vs `2`/`2.1` in `periodizzazione_table`) via a `CASE` expression built on the exact values of the layer.
+4. **Per-period loaders:** `apply_style_to_layer(layer, choice=...)` asks choice/template/field once per styler and reuses them for every period; the order is set again after the loader rebuilds the rules with the period filter.
+5. **Stable colours:** category colours are the same in every session (stable md5-based colour instead of Python's `hash()`, which changes at every QGIS start). Qt6-safe enums (`Qt.PenStyle.*`).
+6. **Crash found while testing:** the symbols of a template taken from `renderer.categories()` / `legendSymbolItems()` belong to temporary copies and were used after being freed → segmentation fault in QGIS; now cloned at once.
+
+#### Tests and verification
+
+- **`tests/utility/test_stratigraphic_order.py`** (7, pure).
+- **`tests/utility/test_us_styler.py`** (5, QGIS python): template QML keeps colours on the chosen field, drawing order, outline-only ordered, `cont_per` offered and labelled, choice asked once.
+- **`tests/utility/test_us_style_choice_respected.py`:** + no `setOrderBy` on the layer.
+- RED before, GREEN after; 103 tests together on the QGIS python; full suite unchanged apart from the new tests (same pre-existing PostgreSQL-fixture failures).
+- **Real data** (sample DB, `pyarchinit_us_view` via OGR, site "Scavo archeologico", 482 US): style + order in 0.08 s; drawn first US 38/39 (period 4, 1200, `order_layer` 0–1), last US 1 (period 1 phase 1, 1800, `order_layer` 22); years never decrease along the drawing order and `order_layer` increases within each period.
+
+#### ⚠️ Important for users
+
+- Nothing to do: the next "Visualizza su GIS" uses the new behaviour; layers already loaded keep their style.
+
+#### Notes for master
+
+- Not ported: master's styler is different.
+
+---
+
 ## [fix] - 2026-09-11 — GIS SQLite: i layer US/USM mantengono lo stile scelto dall'utente (non più sempre "per numero di US")
 
 > Branch `Stratigraph_00001`. Commit `5f68cc2b`, versione `5.13.18-alpha` (non ancora rilasciata). Master non interessato.
