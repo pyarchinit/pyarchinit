@@ -1,12 +1,17 @@
+import hashlib
 import os
 import random
+import re
 
 
 from qgis.core import QgsVectorLayer, QgsFillSymbol, QgsRuleBasedRenderer,QgsExpression,QgsFeatureRequest,QgsMapLayerStyle,QgsCategorizedSymbolRenderer, QgsRendererCategory, QgsFeatureRequest, QgsSettings, QgsSingleSymbolRenderer
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtXml import QDomDocument
 
-from qgis.PyQt.QtWidgets import QMessageBox,QInputDialog
+from qgis.PyQt.QtWidgets import QMessageBox,QInputDialog, QFileDialog
+
+from .stratigraphic_order import PERIOD_FIELDS, norm, order_clauses, period_case, period_start, period_starts
 
 # Field labels translations
 FIELD_LABELS = {
@@ -33,7 +38,23 @@ FIELD_LABELS = {
         'es': 'Definición Interpretativa',
         'fr': 'Définition Interprétative',
         'ar': 'التعريف التفسيري'
+    },
+    'cont_per': {
+        'it': 'Periodo/Fase (cont_per)',
+        'en': 'Period/Phase (cont_per)',
+        'de': 'Periode/Phase (cont_per)',
+        'es': 'Período/Fase (cont_per)',
+        'fr': 'Période/Phase (cont_per)',
+        'ar': 'الفترة/المرحلة (cont_per)'
     }
+}
+
+# "Carica stile esistente": where the template style comes from
+STYLE_SOURCE_LABELS = {
+    'title': {'it': 'Stile esistente', 'en': 'Existing style'},
+    'prompt': {'it': 'Scegli lo stile da usare come modello:', 'en': 'Choose the style to use as a template:'},
+    'db': {'it': 'Database', 'en': 'Database'},
+    'other': {'it': 'Altro file QML…', 'en': 'Other QML file…'},
 }
 
 DIALOG_LABELS = {
@@ -57,6 +78,131 @@ DIALOG_LABELS = {
 
 
 from sqlalchemy import create_engine, text
+
+
+def _plain(value):
+    """Attribute value as plain Python (QGIS 3 gives NULL as a null QVariant)."""
+    try:
+        if value.isNull():
+            return None
+    except AttributeError:
+        pass
+    return value
+
+
+def _value_colour(value):
+    """Colour of a category value, the same in every session (Python's
+    hash() of a string changes at every start of QGIS)."""
+    digest = hashlib.md5(str(value).encode('utf-8')).digest()
+    return QColor(digest[0], digest[1], digest[2])
+
+
+def _no_geometry():
+    try:
+        from qgis.core import Qgis
+        return Qgis.FeatureRequestFlag.NoGeometry
+    except AttributeError:
+        return QgsFeatureRequest.NoGeometry
+
+
+def apply_stratigraphic_order(layer, periodization=None, override=True):
+    """Drawing order of a US/USM layer, like the Time Manager: undated
+    units first, then periods by chronology (``periodization``: rows
+    (sito, periodo, fase, cron_iniziale, cont_per) of periodizzazione_table),
+    order_layer, stratigraph_index_us — the most recent end up on top (see
+    modules/utility/stratigraphic_order.py). The order is set on the
+    renderer: QgsVectorLayer has no setOrderBy(). With override=False an
+    order already on the renderer is kept. Returns True when set."""
+    renderer = layer.renderer() if layer is not None else None
+    if renderer is None or (not override and renderer.orderByEnabled()):
+        return False
+    names = layer.fields().names()
+    expression = None
+    fields = [f for f in PERIOD_FIELDS if f in names]
+    if periodization and ('periodo_iniziale' in fields or 'cont_per' in fields):
+        starts = period_starts(periodization)
+        combos = {}
+        request = QgsFeatureRequest().setFlags(_no_geometry()).setSubsetOfAttributes(fields, layer.fields())
+        for feature in layer.getFeatures(request):
+            combos.setdefault(tuple(_plain(feature[f]) for f in fields), None)
+
+        def value(values, field):
+            return values[fields.index(field)] if field in fields else None
+
+        expression = period_case([
+            (dict(zip(fields, values)),
+             period_start(starts, value(values, 'sito'), value(values, 'periodo_iniziale'),
+                          value(values, 'fase_iniziale'), value(values, 'cont_per')))
+            for values in combos])
+    clauses = order_clauses(names, expression)
+    if not clauses:
+        return False
+    renderer.setOrderBy(QgsFeatureRequest.OrderBy(
+        [QgsFeatureRequest.OrderByClause(e, ascending, nulls_first) for e, ascending, nulls_first in clauses]))
+    renderer.setOrderByEnabled(True)
+    layer.triggerRepaint()
+    return True
+
+
+def _is_fill(symbol):
+    return isinstance(symbol, QgsFillSymbol)
+
+
+def _template_symbols(renderer):
+    """Fill symbols of a template style by category value. Cloned at once:
+    categories() and legendSymbolItems() return temporary copies whose
+    symbols are deleted with them."""
+    found = {}
+    if isinstance(renderer, QgsCategorizedSymbolRenderer):
+        for category in renderer.categories():
+            if _is_fill(category.symbol()):
+                found.setdefault(str(category.value()), category.symbol().clone())
+    elif isinstance(renderer, QgsRuleBasedRenderer):
+        for rule in renderer.rootRule().descendants():
+            if not _is_fill(rule.symbol()):
+                continue
+            m = re.search(r"=\s*'((?:[^']|'')*)'", rule.filterExpression() or '')
+            found.setdefault(m.group(1).replace("''", "'") if m else rule.label(), rule.symbol().clone())
+    return found
+
+
+def _template_symbol(renderer):
+    """The fill symbol (a copy) of a template style the new categories
+    start from."""
+    if renderer is None:
+        return None
+    if isinstance(renderer, QgsSingleSymbolRenderer):
+        return renderer.symbol().clone() if _is_fill(renderer.symbol()) else None
+    if isinstance(renderer, QgsCategorizedSymbolRenderer) and _is_fill(renderer.sourceSymbol()):
+        return renderer.sourceSymbol().clone()
+    try:
+        for item in renderer.legendSymbolItems():
+            if _is_fill(item.symbol()):
+                return item.symbol().clone()
+    except Exception:
+        pass
+    return None
+
+
+_STYLE_DIRS = (('gis', 'styles_spatialite'), ('gis', 'styles'), ('utility', 'styles_spatialite'), ('utility', 'styles'))
+
+
+def _shipped_us_styles():
+    """QML files shipped with pyArchInit for the US/USM layers."""
+    modules_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    found, seen = [], set()
+    for sub_dir in _STYLE_DIRS:
+        folder = os.path.join(modules_dir, *sub_dir)
+        try:
+            names = sorted(os.listdir(folder))
+        except OSError:
+            continue
+        for name in names:
+            low = name.lower()
+            if low.endswith('.qml') and low.startswith(('us_', 'usm')) and low not in seen:
+                seen.add(low)
+                found.append(os.path.join(folder, name))
+    return found
 
 
 class ThesaurusStyler:
@@ -145,6 +291,10 @@ class USViewStyler:
         self.DB_SERVER = "sqlite" if self.connection.conn_str().startswith('sqlite') else "postgres"
         self.us_data = self._load_us_data()
         self.us_styles = self._create_styles_for_us()
+        self.periodization = self._load_periodization()
+        # (choice, template, category field): asked once, reused for the
+        # other layers styled by this styler (per-period loads)
+        self._decision = None
 
     def _load_us_data(self):
         if self.sito:
@@ -157,6 +307,17 @@ class USViewStyler:
             with self.engine.connect() as conn:
                 result = conn.execute(query, params)
                 return [row._asdict() if hasattr(row, '_asdict') else dict(zip(result.keys(), row)) for row in result]
+        except Exception:
+            return []
+
+    def _load_periodization(self):
+        """periodizzazione_table rows (sito, periodo, fase, cron_iniziale,
+        cont_per, datazione_estesa) of the site (all sites when None)."""
+        sql = ("SELECT sito, periodo, fase, cron_iniziale, cont_per, datazione_estesa "
+               "FROM periodizzazione_table" + (" WHERE sito = :sito" if self.sito else ""))
+        try:
+            with self.engine.connect() as conn:
+                return [tuple(row) for row in conn.execute(text(sql), {"sito": self.sito} if self.sito else {})]
         except Exception:
             return []
 
@@ -247,7 +408,7 @@ class USViewStyler:
         lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
 
         # Available field names
-        available_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa']
+        available_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per']
 
         # Filter to only fields present in the layer
         if layer is not None:
@@ -386,7 +547,71 @@ class USViewStyler:
             print(f"Errore nel caricamento degli stili: {str(e)}")
             return None
 
-    def apply_style_to_layer(self, layer):
+    def choose_existing_style(self, layer):
+        """Style to use as template: saved in the database, shipped with
+        pyArchInit or any .qml file. Returns ('db', xml) / ('file', path),
+        or None when cancelled."""
+        lang = QgsSettings().value("locale/userLocale", "it", type=str)[:2]
+
+        def label(key):
+            return STYLE_SOURCE_LABELS[key].get(lang, STYLE_SOURCE_LABELS[key]['en'])
+
+        choices = {}
+        try:
+            styles = layer.listStylesInDatabase()
+            if styles and len(styles) > 2:
+                for style_id, name in zip(styles[1], styles[2]):
+                    choices["%s: %s" % (label('db'), name)] = ('db', style_id)
+        except Exception:
+            pass
+        for path in _shipped_us_styles():
+            choices["pyArchInit: %s" % os.path.basename(path)] = ('file', path)
+        other = label('other')
+        item, ok = QInputDialog.getItem(None, label('title'), label('prompt'), list(choices) + [other], 0, False)
+        if not ok or not item:
+            return None
+        if item == other:
+            path, _ = QFileDialog.getOpenFileName(None, label('title'), os.path.expanduser('~'), "QGIS (*.qml)")
+            return ('file', path) if path else None
+        kind, value = choices[item]
+        if kind == 'db':
+            try:
+                xml = layer.getStyleFromDatabase(value)
+                xml = xml[0] if isinstance(xml, tuple) else xml
+                return ('db', xml) if xml else None
+            except Exception as e:
+                print(f"Stile non letto dal database: {e}")
+                return None
+        return ('file', value)
+
+    @staticmethod
+    def _load_template(layer, template):
+        """Load the chosen style into the layer (labels, opacity and blending
+        come with it) and return a copy of its renderer, or None."""
+        kind, value = template
+        try:
+            if kind == 'file':
+                result = layer.loadNamedStyle(value)
+                ok = result[1] if isinstance(result, tuple) else bool(result)
+            else:
+                doc = QDomDocument()
+                doc.setContent(value)
+                result = layer.importNamedStyle(doc)
+                ok = result[0] if isinstance(result, tuple) else bool(result)
+        except Exception as e:
+            print(f"Stile non caricato: {e}")
+            return None
+        if not ok:
+            print(f"Stile non caricato: {value if kind == 'file' else 'database'}")
+            return None
+        return layer.renderer().clone() if layer.renderer() else None
+
+    def apply_style_to_layer(self, layer, choice=None):
+        """Style chosen by the user — save a new one / an existing one as
+        template / temporary / outline only — categorised on the chosen
+        field, then the drawing order of the Time Manager. The choice is
+        asked once per styler and reused for the next layers (the per-period
+        loaders pass ``choice`` when they already asked it)."""
         if not layer.isValid():
             print("Layer non valido")
             return
@@ -395,42 +620,23 @@ class USViewStyler:
         # Base required fields for styling
         required_fields = ['stratigraph_index_us', 'tipo_us_s']
         # Optional categorization fields (at least one should be present)
-        categorization_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa']
+        categorization_fields = ['d_stratigrafica', 'tipo_us_s', 'd_interpretativa', 'cont_per']
 
         if not all(field in fields.names() for field in required_fields):
             print(f"Campi mancanti nel layer. Richiesti: {', '.join(required_fields)}")
             return
-
-        # Check if at least one categorization field is present
-        available_cat_fields = [f for f in categorization_fields if f in fields.names()]
-        if not available_cat_fields:
+        if not any(field in fields.names() for field in categorization_fields):
             print(f"Nessun campo di categorizzazione disponibile. Richiesto almeno uno tra: {', '.join(categorization_fields)}")
             return
 
-        choice = self.ask_user_style_preference()
+        first = self._decision is None
+        if first:
+            choice = choice or self.ask_user_style_preference()
+            template = self.choose_existing_style(layer) if choice == "load" else None
+            category_field = None if choice == "null_fill" else self.ask_user_categorization_field(layer)
+            self._decision = (choice, template, category_field)
+        choice, template, category_field = self._decision
 
-        if choice == "load":
-            saved_style = self.load_style_from_db_new(layer)
-            if saved_style:
-                success = layer.loadNamedStyle(saved_style)
-                if success:
-                    #self.show_message(f"Stile caricato dal database e applicato con successo {success}")
-                    # Verifica che il renderer sia stato effettivamente aggiornato
-                    if isinstance(layer.renderer(), QgsRuleBasedRenderer):
-                        print(f"Renderer aggiornato con {len(layer.renderer().rootRule().children())} regole")
-                    else:
-                        print(f"Attenzione: Il renderer non è QgsRuleBasedRenderer, ma {type(layer.renderer())}")
-                    layer.triggerRepaint()
-                    layer.legendChanged.emit()
-                    # Apply feature ordering also when loading from database
-                    self._apply_feature_ordering(layer)
-                    return  # Usciamo dalla funzione qui per evitare ulteriori modifiche allo stile
-                else:
-                    print("Errore nell'applicazione dello stile caricato")
-            else:
-                print("Nessuno stile salvato trovato o selezione annullata. Verrà creato uno stile temporaneo.")
-
-        # Handle null fill (outline only)
         if choice == "null_fill":
             try:
                 symbol = QgsFillSymbol.createSimple({
@@ -439,174 +645,118 @@ class USViewStyler:
                     'outline_width': '0.3',
                     'outline_style': 'solid'
                 })
-                renderer = QgsSingleSymbolRenderer(symbol)
-                layer.setRenderer(renderer)
-                layer.triggerRepaint()
-                layer.legendChanged.emit()
-                self._apply_feature_ordering(layer)
-                return
+                layer.setRenderer(QgsSingleSymbolRenderer(symbol))
             except Exception as e:
                 print(f"Error applying null fill: {e}")
+        else:
+            template_renderer = self._load_template(layer, template) if template else None
+            print(f"Stile sul campo {category_field}" + (" con uno stile esistente come modello" if template_renderer else ""))
+            self._apply_temp_style(layer, category_field, template_renderer)
 
-        # Se siamo arrivati qui, o l'utente ha scelto "save"/"temp", o il caricamento è fallito
-        # Ask user which field to use for categorization
-        category_field = self.ask_user_categorization_field(layer)
-        print(f"Applicazione dello stile temporaneo con campo: {category_field}")
-        self._apply_temp_style(layer, category_field)
+        # Drawing order: most recent units on top, like the Time Manager
+        self._apply_feature_ordering(layer)
 
-        if choice == "save":
-            success = self.save_style_to_db(layer)
-            if success:
-                print("Stile salvato nel database con successo")
-            else:
-                print("Errore nel salvataggio dello stile nel database")
+        if choice == "save" and first:
+            self.save_style_to_db(layer)
 
         layer.triggerRepaint()
         layer.legendChanged.emit()
-        print(f"Stile applicato con {len(layer.renderer().rootRule().children())} regole")
 
-        # Apply feature ordering for correct stratigraphic rendering
-        self._apply_feature_ordering(layer)
+    def _category_label(self, field, value):
+        """Legend label of a category; cont_per codes also show their dating."""
+        if field != 'cont_per' or value in (None, '', 'non specificato'):
+            return f"{value}"
+        dating = {norm(row[4]): row[5] for row in self.periodization if len(row) > 5 and row[5]}
+        parts = [dating.get(norm(code)) for code in str(value).split('/')]
+        parts = [p for p in parts if p]
+        return f"{value} – {' / '.join(parts)}" if parts else f"{value}"
 
     def _apply_feature_ordering(self, layer):
-        """
-        Apply feature ordering to the layer for correct stratigraphic rendering.
-
-        Ordering:
-        - order_layer ASC: features with lower order_layer values are drawn first (underneath),
-          so older stratigraphic units appear below newer ones
-        - stratigraph_index_us ASC: within same order_layer, features with stratigraph_index_us=1
-          (fill/deposit) are drawn before those with stratigraph_index_us=2 (cut/interface),
-          so the cut boundary appears on top of the fill
-        """
+        """Drawing order like the Time Manager: undated units first, periods
+        by chronology, order_layer (0 = oldest), stratigraph_index_us (the
+        cut over its fill). It lives on the renderer."""
         try:
-            fields = layer.fields()
-
-            # Check if required fields exist
-            if 'order_layer' not in fields.names():
-                print("Campo 'order_layer' non trovato - ordinamento non applicato")
-                return
-            if 'stratigraph_index_us' not in fields.names():
-                print("Campo 'stratigraph_index_us' non trovato - ordinamento non applicato")
-                return
-
-            # Create order by clause
-            order_by = QgsFeatureRequest.OrderBy([
-                QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
-                QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last (2 on top of 1)
-            ])
-
-            # Apply ordering to layer
-            layer.setOrderByEnabled(True)
-            layer.setOrderBy(order_by)
-
-            print(f"Ordinamento feature applicato: order_layer ASC, stratigraph_index_us ASC")
-
+            if apply_stratigraphic_order(layer, [row[:5] for row in self.periodization]):
+                print("Ordinamento come il Time Manager: periodo, order_layer, stratigraph_index_us")
         except Exception as e:
             print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
 
-    def _apply_temp_style(self, layer, category_field="d_stratigrafica"):
+    def _apply_temp_style(self, layer, category_field="d_stratigrafica", template=None):
         """
-        Apply a temporary rule-based style to the layer.
+        Rule-based style: one rule per value of category_field and
+        stratigraph_index_us, legend sorted by order_layer.
 
         Args:
             layer: The QgsVectorLayer to style
-            category_field: Field to use for categorization (d_stratigrafica, tipo_us_s, or d_interpretativa)
+            category_field: d_stratigrafica, tipo_us_s, d_interpretativa or cont_per
+            template: renderer of an existing style — the values it already
+                has keep its symbol, the others get a copy of its symbol with
+                their own colour
         """
         root_rule = QgsRuleBasedRenderer.Rule(None)
         all_rules = []
 
-        # Get unique values for the selected category field from the layer
         field_idx = layer.fields().indexOf(category_field)
         if field_idx == -1:
             print(f"Campo '{category_field}' non trovato nel layer")
             return
 
-        # Check if order_layer field exists
+        known = _template_symbols(template)
+        base = _template_symbol(template)
         has_order_layer = 'order_layer' in layer.fields().names()
 
-        # Get unique combinations of category_field, stratigraph_index_us, and min order_layer
-        # We use a dict to track the minimum order_layer for each combination
+        # Unique combinations of category value, stratigraph_index_us and
+        # tipo_us_s, with their minimum order_layer (legend order)
         unique_combinations = {}
         for feature in layer.getFeatures():
-            cat_value = feature[category_field] or "non specificato"
-            strat_idx = feature['stratigraph_index_us'] or 1
-            tipo_us = feature['tipo_us_s'] or "non specificato"
-            order_layer = feature['order_layer'] if has_order_layer else 0
+            cat_value = _plain(feature[category_field]) or "non specificato"
+            strat_idx = _plain(feature['stratigraph_index_us']) or 1
+            tipo_us = _plain(feature['tipo_us_s']) or "non specificato"
+            order_layer = _plain(feature['order_layer']) if has_order_layer else 0
             if order_layer is None:
                 order_layer = 9999  # Put NULL order_layer at the end
-
             key = (cat_value, strat_idx, tipo_us)
-            if key not in unique_combinations:
-                unique_combinations[key] = order_layer
-            else:
-                # Keep the minimum order_layer for this category
-                unique_combinations[key] = min(unique_combinations[key], order_layer)
+            unique_combinations[key] = min(unique_combinations.get(key, order_layer), order_layer)
 
-        # Create rules for each unique combination
         for (cat_value, stratigraph_index_us, tipo_us_s), min_order_layer in unique_combinations.items():
-            # Create expression for this combination
             if cat_value == "non specificato":
                 expression = f"(\"{category_field}\" IS NULL OR \"{category_field}\" = '') AND \"stratigraph_index_us\" = {stratigraph_index_us}"
             else:
-                # Escape single quotes in cat_value
                 escaped_value = str(cat_value).replace("'", "''")
                 expression = f"\"{category_field}\" = '{escaped_value}' AND \"stratigraph_index_us\" = {stratigraph_index_us}"
 
-            # Create symbol with color based on category value
-            combined_symbol = QgsFillSymbol.createSimple({})
-
-            if stratigraph_index_us == 1:
-                # Generate color from hash of category value
-                color = QColor(
-                    hash(str(cat_value)) % 256,
-                    hash(str(cat_value) * 2) % 256,
-                    hash(str(cat_value) * 3) % 256
-                )
-                combined_symbol.setOpacity(random.uniform(0.5, 1.0))
+            if str(cat_value) in known:
+                symbol = known[str(cat_value)].clone()        # colour of the existing style
+            elif base is not None:
+                symbol = base.clone()                         # existing style as template
+                symbol.setColor(_value_colour(cat_value))
             else:
+                symbol = QgsFillSymbol.createSimple({})
+                symbol.setColor(_value_colour(cat_value))
+                symbol.setOpacity(random.uniform(0.5, 1.0))
+                if str(tipo_us_s).lower() == "negativa":
+                    symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle.DotLine)
+                elif str(tipo_us_s).lower() == "non specificato":
+                    symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle.DashLine)
+                else:
+                    symbol.symbolLayer(0).setStrokeStyle(Qt.PenStyle.SolidLine)
+                symbol.symbolLayer(0).setStrokeColor(QColor(0, 0, 0))
+                symbol.symbolLayer(0).setStrokeWidth(0.5)
+            if stratigraph_index_us != 1:
                 # White for stratigraph_index_us = 2
-                color = QColor(255, 255, 255)
-                combined_symbol.setOpacity(1.0)
+                symbol.setColor(QColor(255, 255, 255))
+                symbol.setOpacity(1.0)
 
-            combined_symbol.setColor(color)
-
-            # Set stroke style based on tipo_us_s
-            if tipo_us_s.lower() == "negativa":
-                combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DotLine)
-            elif tipo_us_s.lower() == "non specificato":
-                combined_symbol.symbolLayer(0).setStrokeStyle(Qt.DashLine)
-            else:
-                combined_symbol.symbolLayer(0).setStrokeStyle(Qt.SolidLine)
-
-            combined_symbol.symbolLayer(0).setStrokeColor(QColor(0, 0, 0))
-            combined_symbol.symbolLayer(0).setStrokeWidth(0.5)
-
-            label = f"{cat_value}"
-            rule = QgsRuleBasedRenderer.Rule(combined_symbol, 0, 0, expression, label)
-            # Store order_layer, stratigraph_index_us, and rule for sorting
+            rule = QgsRuleBasedRenderer.Rule(symbol, 0, 0, expression, self._category_label(category_field, cat_value))
             all_rules.append((min_order_layer, stratigraph_index_us, rule))
 
-        # Sort rules by order_layer ASC, then stratigraph_index_us ASC
-        all_rules.sort(key=lambda x: (x[0], x[1]), reverse=False)
+        # Legend: order_layer ASC, then stratigraph_index_us ASC
+        all_rules.sort(key=lambda x: (x[0], x[1]))
         for _, _, rule in all_rules:
             root_rule.appendChild(rule)
 
-        renderer = QgsRuleBasedRenderer(root_rule)
-
-        # Set ordering on the renderer itself for correct stratigraphic rendering
-        # order_layer ASC, stratigraph_index_us ASC (so 2 is drawn after 1, appearing on top)
-        order_by = QgsFeatureRequest.OrderBy([
-            QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
-            QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last
-        ])
-        renderer.setOrderBy(order_by)
-        renderer.setOrderByEnabled(True)
-
-        layer.setRenderer(renderer)
-        print(f"Stile temporaneo applicato con {len(root_rule.children())} regole (campo: {category_field})")
-
-
+        layer.setRenderer(QgsRuleBasedRenderer(root_rule))
+        print(f"Stile applicato con {len(root_rule.children())} regole (campo: {category_field})")
 
     def show_message(self, message):
         """Mostra un messaggio all'utente."""

@@ -35,3 +35,11 @@ def test_the_user_style_is_applied_on_sqlite_and_postgres(loader):
 def test_the_chosen_style_is_not_replaced_by_the_per_us_symbology(loader):
     assert "create_us_nested_symbology" not in _calls(loader), (
         f"{loader}: create_us_nested_symbology() would overwrite the style the user chose")
+
+
+@pytest.mark.parametrize("source", [_SRC, _SRC.parents[1] / "utility" / "create_style.py"])
+def test_the_drawing_order_is_set_on_the_renderer(source):
+    # QgsVectorLayer has no setOrderBy(): the call raised AttributeError,
+    # swallowed by an except, and no drawing order was ever applied
+    import re
+    assert not re.search(r"\blayer\w*\.setOrderBy(Enabled)?\(", source.read_text(encoding="utf-8")), source.name

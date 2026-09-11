@@ -47,7 +47,7 @@ import hashlib
 import urllib.request
 import urllib.error
 
-from ..utility.create_style import ThesaurusStyler, USViewStyler
+from ..utility.create_style import ThesaurusStyler, USViewStyler, apply_stratigraphic_order
 from ..utility.settings import Settings
 from ..utility.pyarchinit_i18n_stratigraphic import (
     COVERS_GROUP, FILLS_GROUP, CUTS_GROUP, ABUTS_GROUP,
@@ -2057,38 +2057,15 @@ class Pyarchinit_pyqgis(QDialog):
 
     def _apply_us_feature_ordering(self, layer):
         """
-        Apply feature ordering to the US layer for correct stratigraphic rendering.
-
-        Ordering:
-        - order_layer ASC: features with lower order_layer values are drawn first (underneath),
-          so older stratigraphic units appear below newer ones
-        - stratigraph_index_us ASC: within same order_layer, features with stratigraph_index_us=1
-          (fill/deposit) are drawn before those with stratigraph_index_us=2 (cut/interface),
-          so the cut boundary appears on top of the fill
+        Drawing order of a US/USM layer like the Time Manager: order_layer
+        ASC (0 = oldest, the most recent drawn last, on top), then
+        stratigraph_index_us ASC (the cut over its fill). It lives on the
+        renderer (QgsVectorLayer has no setOrderBy); an order already set by
+        the styler, which also sorts by period chronology, is kept.
         """
         try:
-            fields = layer.fields()
-
-            # Check if required fields exist
-            if 'order_layer' not in fields.names():
-                print("Campo 'order_layer' non trovato - ordinamento non applicato")
-                return
-            if 'stratigraph_index_us' not in fields.names():
-                print("Campo 'stratigraph_index_us' non trovato - ordinamento non applicato")
-                return
-
-            # Create order by clause
-            order_by = QgsFeatureRequest.OrderBy([
-                QgsFeatureRequest.OrderByClause('order_layer', True, False),  # ASC, nulls last
-                QgsFeatureRequest.OrderByClause('stratigraph_index_us', True, False)  # ASC, nulls last (2 on top of 1)
-            ])
-
-            # Apply ordering to layer
-            layer.setOrderByEnabled(True)
-            layer.setOrderBy(order_by)
-
-            print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us ASC")
-
+            if apply_stratigraphic_order(layer, override=False):
+                print(f"Ordinamento feature applicato al layer {layer.name()}: order_layer ASC, stratigraph_index_us ASC")
         except Exception as e:
             print(f"Errore nell'applicazione dell'ordinamento: {str(e)}")
 
@@ -2528,23 +2505,9 @@ class Pyarchinit_pyqgis(QDialog):
                     crs = QgsCoordinateReferenceSystem(f"EPSG:{srid}")
                     layerUS.setCrs(crs)
 
-                    # Applica lo stile
-                    if style_choice == "load":
-                        if saved_style is None:
-                            saved_style = styler.load_style_from_db(layerUS)
-                        if saved_style:
-                            success = layerUS.loadNamedStyle(saved_style)
-                            print(f"Caricamento stile dal database: {'Successo' if success else 'Fallito'}")
-                        else:
-                            print("Nessuno stile trovato nel database, applico stile di default")
-                            styler.apply_style_to_layer(layerUS)
-                    elif style_choice == "save" or style_choice == "temp":
-                        styler.apply_style_to_layer(layerUS)
-
-                    if style_choice == "save":
-                        styler.save_style_to_db(layerUS)
-                        style_choice = "load"  # Cambia a "load" per i periodi successivi
-                        saved_style = styler.load_style_from_db(layerUS)
+                    # Applica lo stile: scelta, modello e campo sono chiesti una
+                    # volta sola e riusati per tutti i periodi
+                    styler.apply_style_to_layer(layerUS, choice=style_choice)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2569,6 +2532,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                         new_renderer = QgsRuleBasedRenderer(new_root_rule)
                         layerUS.setRenderer(new_renderer)
+                        styler._apply_feature_ordering(layerUS)  # the new renderer has no drawing order
                         print("Nuovo renderer creato e applicato")
                     else:
                         print(f"Il renderer non è QgsRuleBasedRenderer, ma {type(renderer)}")
@@ -2617,17 +2581,9 @@ class Pyarchinit_pyqgis(QDialog):
                     print(f"Layer US per periodo {periodo} è valido")
 
 
-                    # Applica lo stile
-                    if style_choice == "load" and saved_style:
-                        success = layerUS.loadNamedStyle(saved_style)
-                        print(f"Caricamento stile dal database: {'Successo' if success else 'Fallito'}")
-                    elif style_choice == "save" or style_choice == "temp":
-                        styler.apply_style_to_layer(layerUS)
-
-                    if style_choice == "save":
-                        styler.save_style_to_db(layerUS)
-                        style_choice = "load"  # Cambia a "load" per i periodi successivi
-                        saved_style = styler.load_style_from_db(layerUS)
+                    # Applica lo stile: scelta, modello e campo sono chiesti una
+                    # volta sola e riusati per tutti i periodi
+                    styler.apply_style_to_layer(layerUS, choice=style_choice)
 
                     print("Stile applicato, ora modifico il renderer")
 
@@ -2652,6 +2608,7 @@ class Pyarchinit_pyqgis(QDialog):
 
                         new_renderer = QgsRuleBasedRenderer(new_root_rule)
                         layerUS.setRenderer(new_renderer)
+                        styler._apply_feature_ordering(layerUS)  # the new renderer has no drawing order
                         print("Nuovo renderer creato e applicato")
                     else:
                         print(f"Il renderer non è QgsRuleBasedRenderer, ma {type(renderer)}")
