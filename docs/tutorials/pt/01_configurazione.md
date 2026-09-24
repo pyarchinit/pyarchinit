@@ -182,6 +182,20 @@ Ferramentas para importar dados de fontes externas.
 
 Para importar dados GIS diretamente para as camadas do PyArchInit.
 
+### Migrar toda a base de dados de uma so vez
+
+Para transferir uma base de dados inteira para outra — de SQLite para PostgreSQL, de PostgreSQL para SQLite, ou entre duas do mesmo tipo — nao e preciso repetir a operacao tabela a tabela: escolha **ALL** na lista das tabelas e carregue em **Import**.
+
+Sao copiadas **44 tabelas**: todas as fichas (incluindo orcamento, pessoal, presencas, equipamento, medicoes, inventario de pedras, arqueozoologia, determinacao de sexo e idade) **e todas as geometrias** (UE, UEM, cotas, sitios, acoes, documentacao, achados, individuos, amostras, sepulturas, estruturas, linhas de referencia, divisoes espaciais).
+
+- **Antes de comecar**, se a base de destino ja tiver dados, o pyArchInit avisa e mostra quais tabelas e quantas linhas: onde nao ha restricao de unicidade os registos somam-se aos existentes. Pode cancelar.
+- **Durante**, a barra de progresso indica a tabela em curso.
+- **No fim**, uma unica janela resume quantas linhas passaram por tabela; *Mostrar detalhes* lista tambem o que nao passou, e porque.
+
+O programa trata sozinho de: registar a coluna geometrica com o SRID dos dados quando a tabela de destino esta vazia (uma base SQLite criada do modelo recusaria todas as geometrias); converter em nulo os campos numericos vazios, que o PostgreSQL nao aceita; **manter os identificadores dos registos numa base de destino vazia**, para que as ligacoes (miniaturas, media, relacoes com as UE) continuem a funcionar.
+
+> **Nota**: utilizadores, perfis, permissoes e registos de acesso **nao** sao migrados: pertencem a instalacao e contem as palavras-passe.
+
 ---
 
 ## Separador Graphviz

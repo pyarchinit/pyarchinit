@@ -311,7 +311,15 @@ Questa scheda permette di importare dati da altri database o file CSV.
 | MEDIA_THUMB | Miniature media |
 | MEDIATOENTITY | Relazioni media-entita |
 | UT | Unita Topografiche |
-| ALL | Tutte le tabelle |
+| INVENTARIO_LAPIDEI | Inventario dei lapidei |
+| PDF_ADMINISTRATOR | Amministrazione PDF |
+| FAUNA | Fauna |
+| PERSONALE | Personale di cantiere |
+| PRESENZE | Presenze |
+| ATTREZZATURE | Attrezzature |
+| BUDGET | Budget |
+| COMPUTO_METRICO | Computo metrico |
+| ALL | **Tutto il database**: tutte le tabelle e tutte le geometrie in un colpo solo |
 
 ### Opzioni di Import
 
@@ -325,6 +333,26 @@ Questa scheda permette di importare dati da altri database o file CSV.
 <!-- IMMAGINE: Screenshot opzioni import -->
 ![Opzioni Import](images/01_configurazione/19_opzioni_import.png)
 *Figura 19: Opzioni di importazione*
+
+### Migrare tutto il database in un colpo solo
+
+Per travasare un intero database in un altro — da SQLite a PostgreSQL, da PostgreSQL a SQLite, o fra due database dello stesso tipo — non serve ripetere l'operazione tabella per tabella: basta scegliere **ALL** nell'elenco delle tabelle e premere **Import**.
+
+Vengono copiate **44 tabelle**: tutte le schede (compresi budget, personale, presenze, attrezzature, computo metrico, inventario lapidei, archeozoologia, determinazione sesso ed eta) **e tutte le geometrie** (US, USM, quote, siti, sezioni, documentazione, reperti, individui, campionature, tombe, strutture, linee di riferimento, ripartizioni spaziali).
+
+Cosa aspettarsi:
+
+- **Prima di cominciare**, se il database di destinazione contiene gia dei dati, pyArchInit lo dice e mostra quali tabelle e quante righe: dove non c'e un vincolo di unicita i record verrebbero sommati a quelli presenti. Si puo annullare.
+- **Durante**, la barra di avanzamento indica la tabella in corso.
+- **Alla fine**, una sola finestra riepiloga quante righe sono passate per ogni tabella; il pulsante *Mostra dettagli* elenca anche quello che non e passato e perche.
+
+Alcune accortezze che il programma prende da solo:
+
+- un database SQLite appena creato dal template registra le geometrie senza sistema di riferimento e le rifiuterebbe tutte: se la tabella di destinazione e vuota, la colonna viene registrata con l'SRID dei dati che stanno arrivando;
+- i campi numerici lasciati vuoti diventano nulli, perche PostgreSQL non accetta una stringa vuota in una colonna numerica;
+- **in un database di destinazione vuoto gli identificativi dei record vengono conservati**, cosi i collegamenti (miniature, media, relazioni con le US) continuano a funzionare.
+
+> **Nota**: utenti, ruoli, permessi e registri di accesso **non** vengono migrati: appartengono all'installazione e contengono le password.
 
 ### Import Geometrie
 

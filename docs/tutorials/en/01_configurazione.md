@@ -182,6 +182,20 @@ Tools for importing data from external sources.
 
 For importing GIS data directly into PyArchInit layers.
 
+### Database to Database Migration
+
+To move a whole database into another one — SQLite to PostgreSQL, PostgreSQL to SQLite, or between two databases of the same kind — there is no need to repeat the operation table by table: pick **ALL** in the list of tables and press **Import**.
+
+**44 tables** are copied: every sheet (budget, personnel, attendance, equipment, bill of quantities, stone inventory, archaeozoology, sex and age determination included) **and every geometry** (SU, WSU, levels, sites, sections, documentation, finds, individuals, samples, burials, structures, reference lines, spatial divisions).
+
+- **Before it starts**, if the destination database already holds data, pyArchInit says so and shows which tables and how many rows: where there is no unique constraint the records would pile up on the ones already there. You can stop.
+- **While it runs**, the progress bar names the table being copied.
+- **At the end**, a single window sums up how many rows travelled per table; *Show details* also lists what did not travel, and why.
+
+Taken care of automatically: a SQLite database just created from the template registers its geometries without a reference system and would refuse every one of them — when the destination table is empty the column is registered with the SRID of the incoming data; empty number fields become null, because PostgreSQL does not accept an empty string in a number column; **in an empty destination the identifiers of the records are kept**, so the links (thumbnails, media, relations to the SUs) still work.
+
+> **Note**: users, roles, permissions and access logs are **not** migrated: they belong to the installation and hold the passwords.
+
 ---
 
 ## Graphviz Tab
