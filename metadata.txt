@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.19-alpha
+version=5.13.20-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,22 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.19-alpha (2026-09-11) [GIS US: existing style as template, cont_per, drawing order like the Time Manager]:
+changelog=5.13.20-alpha (2026-09-24) [Sheets: a record nobody touched is no longer reported as modified]
+    - Fix: a column nobody ever filled in is NULL in the database and an
+      empty box in the form; read back as 'None' and compared against '',
+      every record of a database whose rows were not created by the form
+      looked modified, so changing record asked to save a record nobody
+      had touched (measured on a real database of 101 US: 101 of 101
+      before, 0 of 101 now, while a real change is still recognised).
+      The comparison is now shared by the 21 sheets (new
+      modules/utility/record_compare.py), with tests.
+    - Note: master 4.9.16 carries the same comparison together with the
+      two fixes this branch already had — the "Unita tipo" box could not
+      show the value held in the record (not editable, setEditText does
+      nothing), and every sheet read the record with eval("unicode(...)"),
+      so no change to an existing record could be saved.
+
+  5.13.19-alpha (2026-09-11) [GIS US: existing style as template, cont_per, drawing order like the Time Manager]:
     - Feature: "Carica stile esistente" lets you choose a style saved in
       the database, a QML shipped with pyArchInit or any .qml file, and
       uses it as the template of the categories on the chosen field: the
