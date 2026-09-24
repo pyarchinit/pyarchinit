@@ -123,6 +123,7 @@ from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer, Qt
 from ..modules.utility.record_compare import records_equal
+from ..modules.utility.combo_value import show_value
 
 # Debug flag - set to True to enable debug output
 DEBUG = False
@@ -16771,11 +16772,11 @@ DATABASE SCHEMA KNOWLEDGE:
             self.comboBox_per_iniz.clear()
             self.comboBox_per_iniz.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
-                self.comboBox_per_iniz.setEditText("")
+                show_value(self.comboBox_per_iniz, "")
             elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
-                        self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        show_value(self.comboBox_per_iniz, self.DATA_LIST[self.rec_num].periodo_iniziale)
                         self.comboBox_per_iniz.show()
                     except:
                         pass  # non vi sono periodi per questo scavo
@@ -16806,11 +16807,11 @@ DATABASE SCHEMA KNOWLEDGE:
             self.comboBox_per_fin.clear()
             self.comboBox_per_fin.addItems(self.UTILITY.remove_dup_from_list(periodo_list))
             if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
-                self.comboBox_per_fin.setEditText("")
+                show_value(self.comboBox_per_fin, "")
             elif self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Usa", "Aktuell ", "Current"):
                 if len(self.DATA_LIST) > 0:
                     try:
-                        self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale)
+                        show_value(self.comboBox_per_fin, self.DATA_LIST[self.rec_num].periodo_iniziale)
                     except:
                         pass
         except:
@@ -16837,9 +16838,9 @@ DATABASE SCHEMA KNOWLEDGE:
             fase_list.sort()
             self.comboBox_fas_iniz.addItems(self.UTILITY.remove_dup_from_list(fase_list))
             if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
-                self.comboBox_fas_iniz.setEditText("")
+                show_value(self.comboBox_fas_iniz, "")
             else:
-                self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale)
+                show_value(self.comboBox_fas_iniz, self.DATA_LIST[self.rec_num].fase_iniziale)
         except:
             pass
     def charge_fase_fin_list(self):
@@ -16864,9 +16865,9 @@ DATABASE SCHEMA KNOWLEDGE:
             fase_list.sort()
             self.comboBox_fas_fin.addItems(self.UTILITY.remove_dup_from_list(fase_list))
             if self.STATUS_ITEMS.get(self.BROWSE_STATUS, "") in ("Trova", "Finden", "Find"):
-                self.comboBox_fas_fin.setEditText("")
+                show_value(self.comboBox_fas_fin, "")
             else:
-                self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale)
+                show_value(self.comboBox_fas_fin, self.DATA_LIST[self.rec_num].fase_finale)
         except:
             pass
 
@@ -17668,10 +17669,6 @@ DATABASE SCHEMA KNOWLEDGE:
 
         # comboBox customizations
 
-        self.setComboBoxEditable(["self.comboBox_per_fin"], 1)
-        self.setComboBoxEditable(["self.comboBox_fas_fin"], 1)
-        self.setComboBoxEditable(["self.comboBox_per_iniz"], 1)
-        self.setComboBoxEditable(["self.comboBox_fas_iniz"], 1)
         self.setComboBoxEditable(["self.comboBox_struttura"], 1)
         # ref_ra is now a lineEdit, no longer a comboBox
         #self.setComboBoxEditable(["self.comboBox_datazione"],1)
@@ -24876,10 +24873,10 @@ DATABASE SCHEMA KNOWLEDGE:
         self.comboBox_def_intepret.setEditText("")  # 5 - Definizione intepretata
         self.textEdit_descrizione.clear()  # 6 - descrizione
         self.textEdit_interpretazione.clear()  # 7 - interpretazione
-        self.comboBox_per_iniz.setEditText("")  # 8 - periodo iniziale
-        self.comboBox_fas_iniz.setEditText("")  # 9 - fase iniziale
-        self.comboBox_per_fin.setEditText("")  # 10 - periodo finale iniziale
-        self.comboBox_fas_fin.setEditText("")  # 11 - fase finale
+        show_value(self.comboBox_per_iniz, "")  # 8 - periodo iniziale
+        show_value(self.comboBox_fas_iniz, "")  # 9 - fase iniziale
+        show_value(self.comboBox_per_fin, "")  # 10 - periodo finale iniziale
+        show_value(self.comboBox_fas_fin, "")  # 11 - fase finale
         self.comboBox_scavato.setEditText("")  # 12 - scavato
         self.lineEdit_attivita.clear()  # 13 - attivita
         if self.BROWSE_STATUS == "n":
@@ -25039,10 +25036,10 @@ DATABASE SCHEMA KNOWLEDGE:
         self.comboBox_def_intepret.setEditText("")  # 5 - Definizione intepretata
         self.textEdit_descrizione.clear()  # 6 - descrizione
         self.textEdit_interpretazione.clear()  # 7 - interpretazione
-        self.comboBox_per_iniz.setEditText("")  # 8 - periodo iniziale
-        self.comboBox_fas_iniz.setEditText("")  # 9 - fase iniziale
-        self.comboBox_per_fin.setEditText("")  # 10 - periodo finale iniziale
-        self.comboBox_fas_fin.setEditText("")  # 11 - fase finale
+        show_value(self.comboBox_per_iniz, "")  # 8 - periodo iniziale
+        show_value(self.comboBox_fas_iniz, "")  # 9 - fase iniziale
+        show_value(self.comboBox_per_fin, "")  # 10 - periodo finale iniziale
+        show_value(self.comboBox_fas_fin, "")  # 11 - fase finale
         self.comboBox_scavato.setEditText("")  # 12 - scavato
         self.lineEdit_attivita.clear()  # 13 - attivita
         if self.BROWSE_STATUS == "n":
@@ -25208,10 +25205,11 @@ DATABASE SCHEMA KNOWLEDGE:
             str(self.comboBox_def_intepret.setEditText(self.DATA_LIST[self.rec_num].d_interpretativa))  # 5 - Definizione intepretata
             str(self.textEdit_descrizione.setText(self.DATA_LIST[self.rec_num].descrizione))  # 6 - descrizione
             str(self.textEdit_interpretazione.setText(self.DATA_LIST[self.rec_num].interpretazione))  # 7 - interpretazione
-            str(self.comboBox_per_iniz.setEditText(self.DATA_LIST[self.rec_num].periodo_iniziale))  # 8 - periodo iniziale
-            str(self.comboBox_fas_iniz.setEditText(self.DATA_LIST[self.rec_num].fase_iniziale))  # 9 - fase iniziale
-            str(self.comboBox_per_fin.setEditText(self.DATA_LIST[self.rec_num].periodo_finale))  # 10 - periodo finale iniziale
-            str(self.comboBox_fas_fin.setEditText(self.DATA_LIST[self.rec_num].fase_finale))  # 11 - fase finale
+            show_value(self.comboBox_per_iniz, self.DATA_LIST[self.rec_num].periodo_iniziale)  # 8 - periodo iniziale
+            show_value(self.comboBox_fas_iniz, self.DATA_LIST[self.rec_num].fase_iniziale)  # 9 - fase iniziale
+            show_value(self.comboBox_per_fin, self.DATA_LIST[self.rec_num].periodo_finale)  # 10 - periodo finale iniziale
+            show_value(self.comboBox_fas_fin, self.DATA_LIST[self.rec_num].fase_finale)  # 11 - fase finale
+            self.check_v()
             str(self.comboBox_scavato.setEditText(self.DATA_LIST[self.rec_num].scavato))  # 12 - scavato
             str(self.lineEdit_attivita.setText(self.DATA_LIST[self.rec_num].attivita))  # 13 - attivita
             # yE-F other_locations populate (additive, safe on pre-migration DBs)
