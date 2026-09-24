@@ -5,6 +5,62 @@
 
 ---
 
+## [fix] - 2026-09-24 — Tutte le schede: le modifiche a un record esistente si salvano di nuovo (master `v4.9.16`), e un record che nessuno ha toccato non risulta più modificato (dev `5.13.20-alpha`)
+
+> Master: commit `802ec402` + bump `a15f472f`, tag **`v4.9.16`**. Dev: commit `611fa30c` + bump `a7c156a5`, tag **`record-compare-5.13.20-alpha`**. Seguito di `67ef6b95` (scheda US).
+> File nuovi: `modules/utility/record_compare.py` (entrambi i rami), `tests/utility/test_record_compare.py` (dev).
+> Schede toccate: 18 su master, 21 su dev.
+
+### Italiano
+
+#### Contesto
+
+- Dopo la correzione della scheda US (`67ef6b95`), restavano due cose: lo stesso residuo Python 2 in altre 12 schede della master, e — su entrambi i rami — un confronto che considera diversi un `NULL` del database e una casella vuota.
+
+#### Causa
+
+1. **Le modifiche non si salvavano in nessuna scheda della master.** `set_LIST_REC_CORR()` leggeva il record con `eval("unicode(...)")`: in Python 3 `unicode` non esiste, il `NameError` veniva catturato e `records_equal_check()` rispondeva sempre «nessuna modifica», quindi l'UPDATE non partiva mai. Riguardava US, Site, Inventario materiali, Tomba, Struttura, Tafonomia, Campioni, Documentazione, Periodizzazione, Thesaurus, Scheda individuo, Inventario lapidei, Amministrazione PDF.
+2. **Un record mai toccato risultava modificato.** Una colonna mai compilata è `NULL` nel database e casella vuota nella scheda: confrontate come `'None'` contro `''`, ogni record di un database non nato dalla scheda (importazioni, versioni vecchie) chiedeva di essere salvato a ogni cambio di record. Presente su entrambi i rami — sulla master era nascosto dal difetto n. 1, su dev era già attivo.
+
+#### Correzione
+
+1. **Nuovo `modules/utility/record_compare.py`** (Python puro, niente Qt né database): `same_value()` — quel che non è scritto non è scritto, che il database dica `NULL` o la scheda dica `''` — e `records_equal()`, che confronta le due liste e ricade sul confronto diretto quando non sono liste (alcune schede vi parcheggiano l'intero record ORM). Usato da tutte le schede che tengono `DATA_LIST_REC_CORR` e `DATA_LIST_REC_TEMP`: 18 su master, 21 su dev.
+2. **Master:** le 13 schede leggono il record con `str(getattr(...))`.
+3. **Master, trovati strada facendo:** il geocoding della scheda Sito chiamava `unicode()` in 6 punti (stesso errore a runtime), e `tabs/Pdf_administrator.py` non compilava affatto — `from pyarchinit_conn_strings import *` dentro `connect()` è un `SyntaxError` in Python 3 («import * only allowed at module level»), quindi quella scheda era già inutilizzabile; la riga era ridondante (`Connection` è importato in testa) ed è stata tolta.
+
+#### Test e verifica
+
+- **`tests/utility/test_record_compare.py`** (dev, 7 test): valori equivalenti, modifica reale riconosciuta, liste di lunghezza diversa, oggetti non-lista; e due guardie sul sorgente — nessuna scheda confronta le due liste da sé, nessuna scheda legge un record con `eval("unicode(...)")`.
+- **Database reali:** aprendo i record senza toccare nulla, 0 su 101 US di Festòs risultano modificati (senza la normalizzazione erano 101 su 101), mentre una modifica reale US→USM è riconosciuta su tutte e 101; su un database creato dal plugin, 0 falsi positivi su 51 e 48 modifiche riconosciute su 51 (le 3 mancanti sono record già `USM`).
+- **Suite dev:** `tests/utility` + `tests/migrations` 205 passati prima, 212 dopo (i 7 nuovi), stesso errore preesistente (`test_media_fk_migration.py`). Il crash di `tests/sync/test_groups_dialog_smoke.py` è preesistente: si verifica anche su `origin/Stratigraph_00001` pulito.
+- Tutti i file toccati compilano; fine-riga CRLF preservati in `Documentazione.py` e `Inv_Materiali.py`; `metadata.txt` resta leggibile (18 chiavi, changelog integro).
+
+### English
+
+#### Context
+
+- After the US sheet fix (`67ef6b95`) two things were left: the same Python 2 leftover in 12 more sheets of master and, on both branches, a comparison that reads a database `NULL` and an empty box as different values.
+
+#### Cause
+
+1. **No sheet of master could save a change.** `set_LIST_REC_CORR()` read the record with `eval("unicode(...)")`: on Python 3 `unicode` does not exist, the `NameError` was caught and `records_equal_check()` always answered "no changes", so the UPDATE never ran. US, Site, Inv_Materiali, Tomba, Struttura, Tafonomia, Campioni, Documentazione, Periodizzazione, Thesaurus, Schedaind, Inv_Lapidei, Pdf_administrator.
+2. **A record nobody had touched looked modified.** A column never filled in is `NULL` in the database and an empty box in the form: compared as `'None'` against `''`, every record of a database not born from the form (imports, older versions) asked to be saved at each change of record. On both branches — on master it was hidden by defect 1, on dev it was live.
+
+#### Fix
+
+1. **New `modules/utility/record_compare.py`** (pure Python, no Qt, no database): `same_value()` — what is not written is not written, whether the database says `NULL` or the form says `''` — and `records_equal()`, which compares the two lists and falls back to a plain comparison when they are not lists (some sheets park the whole ORM record there). Used by every sheet that keeps `DATA_LIST_REC_CORR` and `DATA_LIST_REC_TEMP`: 18 on master, 21 on dev.
+2. **Master:** the 13 sheets read the record with `str(getattr(...))`.
+3. **Master, found on the way:** the geocoding of the Site sheet called `unicode()` in 6 places (same runtime error), and `tabs/Pdf_administrator.py` did not compile at all — `from pyarchinit_conn_strings import *` inside `connect()` is a `SyntaxError` on Python 3 ("import * only allowed at module level"), so that sheet was already unusable; the line was redundant (`Connection` is imported at module level) and has been removed.
+
+#### Tests and verification
+
+- **`tests/utility/test_record_compare.py`** (dev, 7 tests): equivalent values, a real change recognised, lists of different length, non-list objects; plus two source guards — no sheet compares the two lists by itself, no sheet reads a record with `eval("unicode(...)")`.
+- **Real databases:** opening the records without touching anything, 0 of 101 SUs of Festòs are reported as modified (without the normalisation they were 101 of 101), while a real US → USM change is recognised on all 101; on a database created by the plugin, 0 false positives of 51 and 48 of 51 changes recognised (the 3 missing ones are records already `USM`).
+- **Dev suite:** `tests/utility` + `tests/migrations` 205 passed before, 212 after (the 7 new ones), same pre-existing error (`test_media_fk_migration.py`). The crash of `tests/sync/test_groups_dialog_smoke.py` is pre-existing: it happens on a clean `origin/Stratigraph_00001` too.
+- Every touched file compiles; CRLF line endings preserved in `Documentazione.py` and `Inv_Materiali.py`; `metadata.txt` still parses (18 keys, changelog intact).
+
+---
+
 ## [fix] - 2026-09-24 — Scheda US: la voce «Unità tipo» torna a mostrarsi e a salvarsi, e le modifiche a un record vengono riconosciute
 
 > Branch `master`. Commit `67ef6b95`, sopra il tag `v4.9.15` (non ancora incluso in una release).
