@@ -1681,6 +1681,78 @@
            </item>
            <item>
             <property name="text">
+             <string>INVENTARIO_LAPIDEI</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PDF_ADMINISTRATOR</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>FAUNA</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PERSONALE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>PRESENZE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>ATTREZZATURE</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>BUDGET</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>COMPUTO_METRICO</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../resources/resources.qrc">
+              <normaloff>:/icons/iconUT.png</normaloff>:/icons/iconUT.png</iconset>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>ALL</string>
             </property>
             <property name="icon">

@@ -52,6 +52,7 @@ from modules.db.database_sync import DatabaseSyncManager, get_sync_config_from_s
 
 from modules.db.db_createdump import CreateDatabase, RestoreSchema, DropDatabase, SchemaDump
 from modules.db.media_migration_mapper import MediaMigrationMapper
+from modules.db import db_migrator
 from modules.utility.pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from modules.utility.pyarchinit_theme_manager import ThemeManager
 
@@ -8326,12 +8327,122 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
                 else:
                     QMessageBox.critical(self, "Error", f"Error applying constraints:\n{str(e)}")
 
+    # ------------------------------------------------------------------
+    # Migrazione completa: tutto il database in un colpo solo
+    # ------------------------------------------------------------------
+    def _import_connection(self, side):
+        """Connection string of one half of the import tab: 'rd' is where
+        the data is read, 'wt' where it is written."""
+        server = str(getattr(self, 'comboBox_server_%s' % side).currentText())
+        db_name = str(getattr(self, 'lineEdit_database_%s' % side).text()).strip()
+        if server == 'postgres':
+            return "postgresql://%s:%s@%s:%s/%s?sslmode=allow&client_encoding=utf8" % (
+                str(getattr(self, 'lineEdit_username_%s' % side).text()),
+                str(getattr(self, 'lineEdit_pass_%s' % side).text()),
+                str(getattr(self, 'lineEdit_host_%s' % side).text()),
+                str(getattr(self, 'lineEdit_port_%s' % side).text()),
+                db_name)
+        folder = '{}{}{}'.format(self.HOME, os.sep, "pyarchinit_DB_folder")
+        return "sqlite:///%s%s%s" % (folder, os.sep, db_name)
+
+    def _migration_search_dict(self):
+        """The field=value filter of the tab, empty when nothing is chosen."""
+        field = str(self.mFeature_field_rd.currentText()).strip()
+        value = str(self.mFeature_value_rd.currentText()).strip()
+        return {field: "'" + value + "'"} if field and value else {}
+
+    def _run_migration(self, selection):
+        """Copy whole tables with the shared engine (modules/db/db_migrator.py).
+
+        Used by the "ALL" entry — every sheet and every geometry in one
+        go — and by the sheets the old import never learned to write.
+        """
+        tables = list(db_migrator.ALL_TABLES) if selection == 'ALL' else [selection]
+        testi = {
+            'it': {'chiedi': "Copio %d tabelle (dati e geometrie) dal database di origine a quello di destinazione.\n\nContinuo?",
+                   'piene': "Il database di destinazione contiene già dei dati:\n\n%s\n\nI record verranno aggiunti a quelli presenti: dove non c'è un vincolo di unicità potrebbero risultare doppi, e i collegamenti (media, miniature) delle schede copiate potrebbero non ritrovare il loro record.\n\nContinuo lo stesso?",
+                   'origine': "Non riesco a connettermi al database di origine:\n%s",
+                   'destinazione': "Non riesco a connettermi al database di destinazione:\n%s",
+                   'fatto': "Migrazione conclusa: %d righe copiate in %d tabelle.",
+                   'titolo': "Migrazione"},
+            'de': {'chiedi': "Ich kopiere %d Tabellen (Daten und Geometrien) von der Quelle in das Ziel.\n\nWeiter?",
+                   'piene': "Die Zieldatenbank enthält bereits Daten:\n\n%s\n\nDie Datensätze werden hinzugefügt: ohne Eindeutigkeitsbedingung können sie doppelt erscheinen, und die Verknüpfungen (Medien, Vorschaubilder) der kopierten Karten finden ihren Datensatz möglicherweise nicht.\n\nTrotzdem weiter?",
+                   'origine': "Keine Verbindung zur Quelldatenbank:\n%s",
+                   'destinazione': "Keine Verbindung zur Zieldatenbank:\n%s",
+                   'fatto': "Migration beendet: %d Zeilen in %d Tabellen kopiert.",
+                   'titolo': "Migration"},
+            'en': {'chiedi': "I will copy %d tables (data and geometries) from the source database to the destination one.\n\nGo on?",
+                   'piene': "The destination database already holds data:\n\n%s\n\nThe records will be added to the ones already there: where there is no unique constraint they may end up twice, and the links (media, thumbnails) of the copied sheets may not find their record.\n\nGo on anyway?",
+                   'origine': "I cannot connect to the source database:\n%s",
+                   'destinazione': "I cannot connect to the destination database:\n%s",
+                   'fatto': "Migration finished: %d rows copied into %d tables.",
+                   'titolo': "Migration"},
+        }
+        t = testi.get(self.L, testi['en'])
+
+        if QMessageBox.warning(self, t['titolo'], t['chiedi'] % len(tables),
+                               QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Cancel:
+            return 0
+
+        try:
+            read_manager = Pyarchinit_db_management(self._import_connection('rd'))
+            read_manager.connection()
+        except Exception as e:
+            QMessageBox.warning(self, t['titolo'], t['origine'] % str(e)[:300], QMessageBox.Ok)
+            return 0
+        try:
+            write_manager = Pyarchinit_db_management(self._import_connection('wt'))
+            write_manager.connection()
+        except Exception as e:
+            QMessageBox.warning(self, t['titolo'], t['destinazione'] % str(e)[:300], QMessageBox.Ok)
+            return 0
+
+        filled = db_migrator.already_filled(write_manager, tables)
+        if filled:
+            elenco = '\n'.join('  %s: %d righe' % (name, rows) for name, rows in filled[:12])
+            if len(filled) > 12:
+                elenco += '\n  ...'
+            if QMessageBox.warning(self, t['titolo'], t['piene'] % elenco,
+                                   QMessageBox.Ok | QMessageBox.Cancel) == QMessageBox.Cancel:
+                return 0
+
+        def on_table(index, total, name):
+            self.progress_bar.setValue(int(float(index) / float(total) * 100))
+            self.progress_bar.setFormat('%s (%d/%d)' % (name, index + 1, total))
+            QApplication.processEvents()
+
+        search = self._migration_search_dict() if selection != 'ALL' else {}
+        try:
+            outcomes = db_migrator.migrate(read_manager, write_manager, tables,
+                                           on_table=on_table, search_dict=search)
+        finally:
+            self.progress_bar.setValue(100)
+            self.progress_bar.setFormat('%p%')
+            QApplication.processEvents()
+
+        righe = sum(o.written for o in outcomes)
+        copiate = len([o for o in outcomes if o.written])
+        box = QMessageBox(self)
+        box.setWindowTitle(t['titolo'])
+        box.setIcon(QMessageBox.Information)
+        box.setText(t['fatto'] % (righe, copiate))
+        box.setDetailedText(db_migrator.summary(outcomes))
+        box.exec_()
+        self.progress_bar.reset()
+        return 1
+
     def on_pushButton_import_pressed(self):
         """Install the import duplicate-handling INSERT hook for the duration of
         the import ONLY, then remove it (even on error / early return), so the
         chosen import option never leaks into the rest of the QGIS session."""
         self._install_import_conflict_hook()
         try:
+            scelta = str(self.comboBox_mapper_read.currentText())
+            # "ALL" copia tutto il database in un colpo solo (dati e
+            # geometrie); le schede che il vecchio codice non sapeva
+            # scrivere passano dallo stesso motore.
+            if scelta == 'ALL' or scelta in db_migrator.HANDLED_BY_MIGRATOR:
+                return self._run_migration(scelta)
             return self._run_import_tabledata()
         finally:
             self._remove_import_conflict_hook()
