@@ -5,6 +5,79 @@
 
 ---
 
+## [fix] - 2026-09-24 — Scheda US: la voce «Unità tipo» torna a mostrarsi e a salvarsi, e le modifiche a un record vengono riconosciute
+
+> Branch `master`. Commit `67ef6b95`, sopra il tag `v4.9.15` (non ancora incluso in una release).
+> File: `gui/ui/US_USM.ui`, `tabs/US_USM.py`.
+
+### Italiano
+
+#### Contesto
+
+- Segnalato da un utente della master 4.9.14: «cambio "US" con "USM" nel menù a tendina di *Unità tipo* e salvo; in tutte le schede compilate compare "USM", ma cambiando record la scelta non è memorizzata e ricompare sempre "US"; e anche se la scheda è stata salvata, passando da un record all'altro il programma chiede ancora di salvare».
+- Verificato sulla master corrente (4.9.15, `59f797b1`): il problema c'è, identico in `v4.9.14`.
+
+#### Causa
+
+Due difetti indipendenti che si sommano.
+
+1. **La casella non poteva mostrare il valore del database.** In `gui/ui/US_USM.ui` `comboBox_unita_tipo` aveva `editable = false`, mentre `fill_fields()` (`tabs/US_USM.py`) vi scrive il valore del record con `setEditText()`, che Qt **ignora** sulle combo non editabili. Effetto: la casella restava sul primo elemento dell'elenco («US») e, dopo che l'utente sceglieva un altro tipo, continuava a mostrarlo su ogni record successivo — il tipo sembrava cambiato ovunque e la scelta appariva persa.
+2. **Il confronto «record modificato» andava in errore.** `set_LIST_REC_CORR()` leggeva il record con `eval("unicode(...)")`, residuo di Python 2: in Python 3 `unicode` non esiste (verificato: non è nei builtin, non lo fornisce nessuno degli `import *` della catena — `qgis.core`, `qgis.PyQt.QtCore`, `qgis.PyQt.QtWidgets` — e non è definito da nessuna parte nel ramo). Il `NameError` veniva catturato da `records_equal_check()`, che rispondeva sempre «nessuna modifica»: in modalità sfoglio il pulsante Salva mostrava solo «Non è stata realizzata alcuna modifica» e **non eseguiva mai l'UPDATE**, per qualunque campo della scheda US, non solo per *Unità tipo*.
+
+#### Correzione
+
+1. `gui/ui/US_USM.ui`: `comboBox_unita_tipo` è editabile, come già sul ramo di sviluppo — il valore del record viene mostrato e un `NULL` diventa casella vuota.
+2. `tabs/US_USM.py`: `set_LIST_REC_CORR()` usa `str(getattr(self.DATA_LIST[self.REC_CORR], i))`.
+3. `tabs/US_USM.py`: nuovo `same_value()`, usato da `records_equal_check()`. Un campo mai compilato è `NULL` nel database e casella vuota nella scheda: confrontati come `'None'` contro `''` avrebbero fatto sembrare modificato ogni record dei database importati, chiedendo di salvare a ogni cambio di record (è il terzo sintomo segnalato). Ora i due valori sono considerati uguali.
+
+#### Test e verifica
+
+- Comportamento di Qt verificato con una `QComboBox` reale: su combo non editabile `setEditText('USM')` lascia `currentText() == 'US'`, e dopo una scelta dell'utente il valore resta appiccicato al record successivo; su combo editabile il valore viene mostrato e `None` diventa `''`.
+- Confronto eseguito con il codice vero della master su un record che nel database ha `USM` mentre la scheda mostra `US`: prima `records_equal_check()` restituiva `0` stampando `name 'unicode' is not defined`, ora restituisce `1`.
+- Su un database reale (101 US di Festòs, importate da Excel, con colonne `NULL`): aprendo i record senza toccare nulla, 0 su 101 vengono segnalati come modificati (con il solo porting delle due righe erano 101 su 101), mentre una modifica reale US→USM viene riconosciuta su tutti e 101. Controprova su un database creato dal plugin (51 US): 0 su 51 falsi positivi e 48 su 51 modifiche riconosciute — i 3 mancanti sono i record già `USM`, cioè immutati.
+- `gui/ui/US_USM.ui` resta XML valido: delle 57 combo della scheda, solo `comboBox_unita_tipo` cambia.
+
+#### Non toccato (da valutare)
+
+- Lo stesso residuo `eval("unicode(...)")` è presente in altre 12 schede della master — `Site`, `Inv_Materiali`, `Tomba`, `Struttura`, `Tafonomia`, `Campioni`, `Documentazione`, `Periodizzazione`, `Thesaurus`, `Schedaind`, `Inv_Lapidei`, `Pdf_administrator` — dove produce lo stesso effetto: le modifiche a un record esistente non vengono salvate.
+- Nella scheda US restano non editabili, con lo stesso `setEditText()` che non fa nulla, le quattro caselle di periodo e fase (`comboBox_per_iniz`, `comboBox_fas_iniz`, `comboBox_per_fin`, `comboBox_fas_fin`).
+- Il ramo di sviluppo (`Stratigraph_00001`) ha già i primi due punti, ma non la normalizzazione `NULL`/vuoto: anche lì, su un database con colonne `NULL`, ogni record risulta modificato (misurato: 101 su 101 su Festòs).
+
+### English
+
+#### Context
+
+- Reported by a user of master 4.9.14: "I change 'US' to 'USM' in the *Unit type* drop-down and save; every sheet I filled in then shows 'USM', but when I change record the choice is not kept and 'US' comes back; and although the sheet was saved, moving from one record to another the program still asks me to save".
+- Checked on current master (4.9.15, `59f797b1`): the problem is there, identical in `v4.9.14`.
+
+#### Cause
+
+Two independent defects adding up.
+
+1. **The box could not show the value held in the database.** In `gui/ui/US_USM.ui` `comboBox_unita_tipo` had `editable = false`, while `fill_fields()` (`tabs/US_USM.py`) writes the record's value into it with `setEditText()`, which Qt **ignores** on a combo box that is not editable. So the box stayed on the first item of the list ("US") and, once the user picked another type, went on showing it on every following record — the type looked changed everywhere and the choice looked lost.
+2. **The "record changed" comparison broke.** `set_LIST_REC_CORR()` read the record with `eval("unicode(...)")`, a Python 2 leftover: on Python 3 `unicode` does not exist (checked: not a builtin, not provided by any of the wildcard imports in the chain — `qgis.core`, `qgis.PyQt.QtCore`, `qgis.PyQt.QtWidgets` — and not defined anywhere in the branch). `records_equal_check()` caught the `NameError` and always answered "no changes": in browse mode the Save button only said "Non è stata realizzata alcuna modifica" and **never ran the UPDATE**, for any field of the US sheet, not only *Unit type*.
+
+#### Fix
+
+1. `gui/ui/US_USM.ui`: `comboBox_unita_tipo` is editable, as it already is on the development branch — the record's value is shown and a `NULL` becomes an empty box.
+2. `tabs/US_USM.py`: `set_LIST_REC_CORR()` uses `str(getattr(self.DATA_LIST[self.REC_CORR], i))`.
+3. `tabs/US_USM.py`: new `same_value()`, used by `records_equal_check()`. A field nobody ever filled in is `NULL` in the database and an empty box in the form: compared as `'None'` against `''` they would have made every record of an imported database look modified, asking to save at every change of record (the third symptom reported). The two now count as the same value.
+
+#### Tests and verification
+
+- Qt's behaviour checked with a real `QComboBox`: on a non-editable one `setEditText('USM')` leaves `currentText() == 'US'`, and after the user's choice the value sticks to the next record; on an editable one the value is shown and `None` becomes `''`.
+- The comparison run with master's own code on a record holding `USM` in the database while the form shows `US`: before, `records_equal_check()` returned `0` printing `name 'unicode' is not defined`; now it returns `1`.
+- On a real database (101 SUs of Festòs, imported from Excel, with `NULL` columns): opening the records without touching anything, 0 of 101 are reported as modified (with the two lines alone they were 101 of 101), while a real US → USM change is recognised on all 101. Counter-check on a database created by the plugin (51 SUs): 0 of 51 false positives and 48 of 51 changes recognised — the 3 missing ones are the records already `USM`, that is unchanged.
+- `gui/ui/US_USM.ui` is still valid XML: of the 57 combo boxes of the sheet, only `comboBox_unita_tipo` changes.
+
+#### Left alone (to consider)
+
+- The same `eval("unicode(...)")` leftover is in 12 more sheets of master — `Site`, `Inv_Materiali`, `Tomba`, `Struttura`, `Tafonomia`, `Campioni`, `Documentazione`, `Periodizzazione`, `Thesaurus`, `Schedaind`, `Inv_Lapidei`, `Pdf_administrator` — where it has the same effect: changes to an existing record are not saved.
+- In the US sheet the four period and phase boxes (`comboBox_per_iniz`, `comboBox_fas_iniz`, `comboBox_per_fin`, `comboBox_fas_fin`) are still not editable, with the same `setEditText()` doing nothing.
+- The development branch (`Stratigraph_00001`) already has the first two points, but not the `NULL`/empty normalisation: there too, on a database with `NULL` columns, every record comes out as modified (measured: 101 of 101 on Festòs).
+
+---
+
 ## [fix] - 2026-09-11 — Tutorial: i link dell'indice portano al paragrafo, i link a un altro tutorial lo aprono nel visualizzatore, niente più browser web (Windows)
 
 > Branch `Stratigraph_00001`. Commit `0acdfa6d` (visualizzatori), tutorial `e39c5949`. Non incluso in una release (dopo 5.13.19-alpha).
