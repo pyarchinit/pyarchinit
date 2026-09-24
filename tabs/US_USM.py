@@ -15922,7 +15922,7 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             try:
-                self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+                self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
             except IndexError as e:
                 print(f"IndexError: {e} - self.REC_CORR: {self.REC_CORR}, len(self.DATA_LIST): {len(self.DATA_LIST)}")
                 raise
@@ -15930,13 +15930,22 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 print(f"Unexpected error: {e}")
                 raise
 
+    @staticmethod
+    def same_value(v):
+        """A field nobody ever filled in is NULL in the database and an
+        empty box in the form: read back as 'None' it would look like a
+        change, and the record would be reported as modified although
+        nobody had touched it."""
+        return '' if v is None or v == 'None' else str(v)
+
     def records_equal_check(self):
         try:
             #self.set_sito()
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
-            if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+            if ([self.same_value(v) for v in self.DATA_LIST_REC_CORR] ==
+                    [self.same_value(v) for v in self.DATA_LIST_REC_TEMP]):
                 return 0
             else:
                 return 1
