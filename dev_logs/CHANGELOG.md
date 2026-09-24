@@ -5,6 +5,69 @@
 
 ---
 
+## [fix] - 2026-09-24 — Scheda US: periodo e fase si scelgono dall'elenco, non si scrivono (master `v4.9.17`, dev `5.13.21-alpha`)
+
+> Master: commit `efbd942f` + bump `6bdcd72e`, tag **`v4.9.17`**. Dev: commit `ee9e0eb1` + bump `50f80bf5`, tag **`periodo-fase-choose-5.13.21-alpha`**.
+> File nuovi: `modules/utility/combo_value.py` (entrambi i rami), `tests/utility/test_combo_value.py` (dev). Modificato: `tabs/US_USM.py`.
+
+### Italiano
+
+#### Contesto
+
+- Domanda di Enzo: «nella scheda US dovrebbe leggere il valore dalla scheda Periodizzazione, per questo non è editabile». Giusto come intenzione — ma il codice non la rispettava.
+
+#### Causa
+
+- Le quattro caselle (periodo iniziale/finale, fase iniziale/finale) sono dichiarate **non editabili** nel `.ui`, ma `customize_GUI()` — chiamata in `__init__` — le rendeva editabili all'avvio (`tabs/US_USM.py`, 4 righe). Il motivo è lo stesso del bug di «Unità tipo»: `fill_fields()` scrive il valore del record con `setEditText()`, che su una casella non editabile non fa nulla; rendendola editabile il valore si vedeva, ma si poteva anche **scrivere a mano un periodo che in `periodizzazione_table` non esiste**.
+
+#### Correzione
+
+1. **Nuovo `modules/utility/combo_value.py`** — `show_value(combo, value)`: sceglie il valore nell'elenco invece di scriverlo.
+2. Tolte le 4 righe di `customize_GUI()`: le caselle restano chiuse alla scrittura libera, i valori arrivano solo dalla scheda Periodizzazione.
+3. I 20 punti che scrivevano in quelle caselle (`fill_fields`, `empty_fields`, `empty_fields_nosite`, le quattro `charge_*_list`) ora usano `show_value`.
+4. **I vecchi database non perdono niente**: se il valore del record non è nell'elenco — periodo rinominato o cancellato in Periodizzazione, oppure Periodizzazione mai compilata — il valore viene **aggiunto all'elenco di quella casella**, così la scheda continua a mostrarlo e salvando il record non viene cancellato. Caso reale: `k2.sqlite` (sito Al-Khutm) ha 485 US con periodi 1-7 e la tabella Periodizzazione **vuota**; senza questo accorgimento quelle US avrebbero mostrato la casella vuota e un salvataggio avrebbe azzerato periodo e fase.
+5. Il valore viene impostato **senza svegliare i gestori** della casella: `charge_datazione_list()` ricalcola `lineEdit_datazione` (campo `datazione` del record) dalla Periodizzazione e avrebbe fatto risultare modificato un record che nessuno ha toccato — di nuovo la richiesta «vuoi salvare?» a ogni cambio di record. La casella «valida», che dipende dal periodo iniziale, viene aggiornata esplicitamente in `fill_fields()` (`self.check_v()`).
+
+#### Test e verifica
+
+- **`tests/utility/test_combo_value.py`** (dev, 7 test, `QgsApplication` + `QComboBox` reale): valore dell'elenco mostrato; numero intero mostrato come lo scrive l'elenco; **valore fuori elenco conservato** (il caso dei vecchi database); valore vuoto = casella vuota; **nessun segnale emesso**; più due guardie sul sorgente (nessuna delle 4 caselle viene più resa editabile, nessuna viene più riempita con `setEditText`).
+- Suite dev `tests/utility` + `tests/migrations`: 212 → **219 passati**, stesso errore preesistente.
+- Tutorial: nessuna modifica necessaria, il tutorial 03 dice già «I periodi e le fasi devono essere prima creati nella Scheda Periodizzazione».
+
+#### Non toccato
+
+- In `charge_periodo_list()` e sorelle la condizione `if self.STATUS_ITEMS[...] == "Trova" or "Finden" or "Find":` è sempre vera (difetto vecchio, presente solo su master: su dev è già `in (...)`). Non cambia il risultato visibile, perché il valore del record lo mostra `fill_fields()`.
+
+### English
+
+#### Context
+
+- Enzo's question: "in the US sheet it should read the value from the Periodizzazione sheet, that is why it is not editable". Right as an intention — but the code did not honour it.
+
+#### Cause
+
+- The four boxes (initial/final period, initial/final phase) are declared **not editable** in the `.ui`, but `customize_GUI()` — called from `__init__` — made them editable at start-up (4 lines in `tabs/US_USM.py`). The reason is the one behind the "Unità tipo" bug: `fill_fields()` writes the value of the record with `setEditText()`, which does nothing on a box that is not editable; opening the box made the value visible, but also allowed **typing by hand a period that `periodizzazione_table` does not have**.
+
+#### Fix
+
+1. **New `modules/utility/combo_value.py`** — `show_value(combo, value)`: selects the value in the list instead of writing it.
+2. The 4 lines of `customize_GUI()` are gone: the boxes stay closed to free typing, values come only from the Periodizzazione sheet.
+3. The 20 places that wrote into those boxes (`fill_fields`, `empty_fields`, `empty_fields_nosite`, the four `charge_*_list`) now use `show_value`.
+4. **Old databases lose nothing**: when the value of the record is not in the list — a period renamed or removed in Periodizzazione, or a Periodizzazione never filled in — the value is **added to the list of that box**, so the sheet keeps showing it and saving the record does not wipe it. Real case: `k2.sqlite` (site Al-Khutm) holds 485 SUs with periods 1-7 and an **empty** Periodizzazione table; without this, those records would have shown an empty box and a save would have wiped period and phase.
+5. The value is set **without waking the handlers** of the box: `charge_datazione_list()` recomputes `lineEdit_datazione` (the `datazione` column of the record) from Periodizzazione and would have made a record nobody touched look modified — the "do you want to save?" prompt at every change of record, again. The "valida" checkbox, which follows the initial period, is updated explicitly in `fill_fields()` (`self.check_v()`).
+
+#### Tests and verification
+
+- **`tests/utility/test_combo_value.py`** (dev, 7 tests, real `QgsApplication` + `QComboBox`): a value of the list is shown; an integer is shown the way the list writes it; **a value outside the list is kept** (the old-database case); an empty value leaves the box empty; **no signal is emitted**; plus two source guards (none of the four boxes is made editable any more, none is filled with `setEditText`).
+- Dev suite `tests/utility` + `tests/migrations`: 212 → **219 passed**, same pre-existing error.
+- Tutorials: no change needed, tutorial 03 already says the periods and phases must be created in the Periodizzazione sheet first.
+
+#### Left alone
+
+- In `charge_periodo_list()` and its siblings the condition `if self.STATUS_ITEMS[...] == "Trova" or "Finden" or "Find":` is always true (an old defect, on master only: dev already has `in (...)`). It changes nothing visible, because `fill_fields()` is what shows the value of the record.
+
+---
+
 ## [fix] - 2026-09-24 — Tutte le schede: le modifiche a un record esistente si salvano di nuovo (master `v4.9.16`), e un record che nessuno ha toccato non risulta più modificato (dev `5.13.20-alpha`)
 
 > Master: commit `802ec402` + bump `a15f472f`, tag **`v4.9.16`**. Dev: commit `611fa30c` + bump `a7c156a5`, tag **`record-compare-5.13.20-alpha`**. Seguito di `67ef6b95` (scheda US).
