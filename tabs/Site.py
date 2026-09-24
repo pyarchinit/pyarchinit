@@ -49,6 +49,7 @@ from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from .PlaceSelectionDialog import PlaceSelectionDialog
 from .networkaccessmanager import NetworkAccessManager
 import sys,  json
+from ..modules.utility.record_compare import records_equal
 
 NAM = NetworkAccessManager()
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Site.ui'))
@@ -1377,7 +1378,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -1403,7 +1404,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1
@@ -1478,13 +1479,13 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
             address = geocoder.reverse(pt[0],pt[1])
             self.logMessage(str(address))
             if len(address) == 0:
-                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Empty result</strong>.<br>")))
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), str(QCoreApplication.translate('pyarchinit geocoding', "<strong>Empty result</strong>.<br>")))
             else:
-                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('GeoCoding', "Reverse pyarchinit geocoding"),  unicode(QCoreApplication.translate('v', "Reverse geocoding found the following address:<br><strong>%s</strong>")) %  address[0][0])
+                QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('GeoCoding', "Reverse pyarchinit geocoding"),  str(QCoreApplication.translate('v', "Reverse geocoding found the following address:<br><strong>%s</strong>")) %  address[0][0])
                 # save point
                 self.save_point(point, address[0][0])
         except Exception as e:
-            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), unicode(QCoreApplication.translate('pyarchinit geocoding', "<strong>Unhandled exception</strong>.<br>%s" % e)))
+            QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "Reverse pyarchinit geocoding error"), str(QCoreApplication.translate('pyarchinit geocoding', "<strong>Unhandled exception</strong>.<br>%s" % e)))
         return
     def on_pushButton_locate_pressed(self):
         
@@ -1506,7 +1507,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         # # See if OK was pressed
         # if result == 1 :
         try:
-            result = geocoder.geocode(unicode(self.address.text()).encode('utf-8'))
+            result = geocoder.geocode(str(self.address.text()).encode('utf-8'))
         except Exception as e:
             QMessageBox.information(self.iface.mainWindow(), QCoreApplication.translate('pyarchinit geocoding', "pyarchinit geocoding plugin error"), QCoreApplication.translate('GeoCoding', "Sembra esserci un errore con il servizio geocoding:<br><strong>%s</strong>"% e+"\n\n Controlla l'indirizzo" ))
             return
@@ -1533,7 +1534,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
                     # for place in places:
                         # self.process_point(place, places[place])
                 # else:
-            point = places[unicode(place_dlg.placesComboBox.currentText())]
+            point = places[str(place_dlg.placesComboBox.currentText())]
             self.process_point(place_dlg.placesComboBox.currentText(), point)
         return
     
@@ -1576,7 +1577,7 @@ class pyarchinit_Site(QDialog, MAIN_DIALOG_CLASS):
         # Refresh the map
         self.canvas.refresh()
         # save point
-        self.save_point(point, unicode(place))
+        self.save_point(point, str(place))
 
     def _get_layer_crs(self):
         """get CRS from destination layer or from canvas if the layer does not exist"""

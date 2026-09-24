@@ -38,6 +38,7 @@ from ..modules.utility.delegateComboBox import ComboBoxDelegate
 from ..modules.db.pyarchinit_db_manager import *
 from ..modules.db.pyarchinit_utility import *
 from ..modules.utility.pyarchinit_media_utility import *
+from ..modules.utility.record_compare import records_equal
 # GPTWindow is imported lazily in on_pushButton_gptsketch_pressed to avoid PyMuPDF DLL conflicts on Windows
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'pyarchinit_image_viewer_dialog.ui'))
@@ -2625,7 +2626,7 @@ class Main(QDialog,MAIN_DIALOG_CLASS):
         #test
         #QMessageBox.warning(self, "ATTENZIONE", str(self.DATA_LIST_REC_CORR) + " temp " + str(self.DATA_LIST_REC_TEMP), QMessageBox.Ok)
         check_str = str(self.DATA_LIST_REC_CORR) + " " + str(self.DATA_LIST_REC_TEMP)
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

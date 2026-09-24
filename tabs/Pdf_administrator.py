@@ -32,6 +32,7 @@ from .US_USM import pyarchinit_US
 from ..modules.db.pyarchinit_conn_strings import Connection
 from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.db.pyarchinit_utility import Utility
+from ..modules.utility.record_compare import records_equal
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Pdf_administrator.ui'))
@@ -140,7 +141,6 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.pushButton_sort.setEnabled(n)
 
     def connect(self):
-        from pyarchinit_conn_strings import *
         conn = Connection()
         conn_str = conn.conn_str()
         try:
@@ -572,7 +572,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
             self.DATA_LIST_REC_CORR.append(
-                eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+                str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -598,7 +598,7 @@ class pyarchinit_PDFAdministrator(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

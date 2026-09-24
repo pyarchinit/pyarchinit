@@ -38,6 +38,7 @@ from ..modules.utility.pyarchinit_exp_Documentazionesheet_pdf import generate_do
 from ..gui.sortpanelmain import SortPanelMain
 from ..tabs.Documentazione_preview import pyarchinit_doc_preview
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.record_compare import records_equal
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Documentazione.ui'))
 
 
@@ -1296,7 +1297,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def setComboBoxEnable(self, f, v):
         field_names = f
@@ -1322,7 +1323,7 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

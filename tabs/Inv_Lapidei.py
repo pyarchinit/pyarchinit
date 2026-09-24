@@ -41,6 +41,7 @@ from ..modules.utility.pyarchinit_exp_Findssheet_pdf import generate_reperti_pdf
 from ..modules.utility.pyarchinit_exp_Invlapsheet_pdf import generate_reperti_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.record_compare import records_equal
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Inv_Lapidei.ui'))
 
 
@@ -1816,7 +1817,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
     def set_LIST_REC_CORR(self):
         self.DATA_LIST_REC_CORR = []
         for i in self.TABLE_FIELDS:
-            self.DATA_LIST_REC_CORR.append(eval("unicode(self.DATA_LIST[self.REC_CORR]." + i + ")"))
+            self.DATA_LIST_REC_CORR.append(str(getattr(self.DATA_LIST[self.REC_CORR], i)))
 
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
@@ -1828,7 +1829,7 @@ class pyarchinit_Inventario_Lapidei(QDialog, MAIN_DIALOG_CLASS):
 
         check_str = str(self.DATA_LIST_REC_CORR) + " " + str(self.DATA_LIST_REC_TEMP)
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

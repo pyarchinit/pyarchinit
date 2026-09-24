@@ -55,6 +55,7 @@ from ..modules.db.pyarchinit_db_manager import Pyarchinit_db_management
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.db.pyarchinit_utility import Utility
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
+from ..modules.utility.record_compare import records_equal
 
 
 
@@ -3464,7 +3465,7 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
         #QMessageBox.warning(self, "Error", str(self.DATA_LIST_REC_CORR) + str(self.DATA_LIST_REC_TEMP),  QMessageBox.Ok)
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

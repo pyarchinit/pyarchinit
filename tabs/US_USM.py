@@ -106,6 +106,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..gui.sortpanelmain import SortPanelMain
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
+from ..modules.utility.record_compare import records_equal
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'US_USM.ui'))
@@ -15930,22 +15931,13 @@ class pyarchinit_US(QDialog, MAIN_DIALOG_CLASS):
                 print(f"Unexpected error: {e}")
                 raise
 
-    @staticmethod
-    def same_value(v):
-        """A field nobody ever filled in is NULL in the database and an
-        empty box in the form: read back as 'None' it would look like a
-        change, and the record would be reported as modified although
-        nobody had touched it."""
-        return '' if v is None or v == 'None' else str(v)
-
     def records_equal_check(self):
         try:
             #self.set_sito()
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
-            if ([self.same_value(v) for v in self.DATA_LIST_REC_CORR] ==
-                    [self.same_value(v) for v in self.DATA_LIST_REC_TEMP]):
+            if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
                 return 0
             else:
                 return 1
