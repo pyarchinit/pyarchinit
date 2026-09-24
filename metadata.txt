@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.21-alpha
+version=5.13.22-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,31 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.21-alpha (2026-09-24) [Scheda US: periodo e fase si scelgono, non si scrivono]
+changelog=5.13.22-alpha (2026-09-24) [Importazione: tutto il database in un colpo solo, dati e geometrie]
+    - Feature: the import tab copies a whole database into another one
+      (SQLite or PostgreSQL, in any direction) in one go — 44 tables,
+      geometries included — instead of one table at a time. New engine
+      modules/db/db_migrator.py: the columns come from the mapper, so a
+      sheet added tomorrow travels with the others.
+    - Feature: sheets that had no import at all now have one — budget,
+      personale, presenze, attrezzature, computo metrico, inventario
+      lapidei, archeozoologia, detsesso, deteta, tma materiali,
+      amministrazione PDF, fauna. Four of them were in the list and did
+      nothing when picked, eight were not even offered.
+    - Fix: ARCHEOZOOLOGY was missing from the dictionary query_bool()
+      resolves names with, so that sheet could not be read at all.
+    - Fix: a SpatiaLite database created from the template registers its
+      geometries with srid = -1 and refused everything else; the column
+      is now registered again with the SRID of the data when the
+      destination table is empty. An empty string in a number column
+      (which PostgreSQL refuses) becomes NULL. An empty destination
+      keeps the identifiers of the source, so the links between records
+      still find their target.
+    - The tab shows one summary at the end instead of a dialog per
+      table, warns when the destination already holds data, and names
+      the table being copied on the progress bar.
+
+  5.13.21-alpha (2026-09-24) [Scheda US: periodo e fase si scelgono, non si scrivono]
     - Fix: the period and phase boxes take their values from the
       Periodizzazione sheet, but they were opened to free typing at
       start-up (customize_GUI) only because the sheet writes the value of
