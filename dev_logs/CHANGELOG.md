@@ -5,6 +5,75 @@
 
 ---
 
+## [feat] - 2026-09-24 — Importazione: tutto il database in un colpo solo, dati e geometrie (dev `5.13.22-alpha`)
+
+> Branch `Stratigraph_00001`. Commit `3c051828` + bump `402973c2`, tag **`db-migrator-5.13.22-alpha`**.
+> File nuovi: `modules/db/db_migrator.py`, `tests/migrations/test_db_migrator.py`. Modificati: `gui/pyarchinitConfigDialog.py`, `gui/ui/pyarchinitConfigDialog.ui`, `modules/db/pyarchinit_db_manager.py`.
+
+### Italiano
+
+#### Contesto
+
+- Richiesta di Enzo: «nella scheda di configurazione c'è la tab di importazione tra un db e l'altro, ma al momento si fa tabella per tabella e non tutto insieme: vorrei migrare da un db all'altro in un solo colpo sia le tabelle alfanumeriche che quelle geometriche», e «vedi anche se mancano delle schede da importare come budget ecc».
+
+#### Com'era
+
+- La voce `ALL` esisteva già ma copiava **16 tabelle su 44**, nessuna geometria, e apriva una finestra di avviso per ogni tabella.
+- Il codice di copia elencava le colonne **a mano**, ed era **duplicato due volte** (una per la tabella singola, una dentro `ALL`): ~1.800 righe in `gui/pyarchinitConfigDialog.py`. Ecco perché mancavano delle schede: ognuna richiedeva un centinaio di righe scritte a mano.
+- Quattro voci dell'elenco (`ARCHEOZOOLOGY`, `DETSESSO`, `DETETA`, `TMA_MATERIALI`) **non facevano nulla** se selezionate; otto schede non erano nemmeno offerte (budget, personale, presenze, attrezzature, computo metrico, inventario lapidei, amministrazione PDF, fauna).
+- `ARCHEOZOOLOGY` mancava anche nel dizionario con cui `query_bool()` risolve i nomi: quella scheda non era proprio leggibile.
+
+#### Correzione
+
+1. **Nuovo `modules/db/db_migrator.py`** (puro, senza Qt): le colonne vengono **dal mapper**, quindi ogni tabella mappata si copia allo stesso modo e una scheda aggiunta domani viaggia con le altre. La geometria è una colonna come le altre (GeoAlchemy2, EWKB con il suo SRID). 44 tabelle: 25 alfanumeriche, 16 geometriche, 3 di media.
+2. **Tab di configurazione**: `ALL` usa il motore, un **solo riepilogo finale** (con il dettaglio per tabella), la barra di avanzamento nomina la tabella in corso, e le schede prima inerti passano dallo stesso motore. Le otto mancanti sono state aggiunte all'elenco.
+3. **Tre rifiuti della destinazione, gestiti:**
+   - un database SQLite creato dal template registra le geometrie con `srid = -1` e rifiutava tutto («violates Geometry constraint»): se la tabella di destinazione è vuota la colonna viene registrata di nuovo con l'SRID dei dati (`DiscardGeometryColumn` + `RecoverGeometryColumn`);
+   - SQLite tollera la stringa vuota in una colonna numerica, PostgreSQL no («invalid input syntax for type bigint»): diventa `NULL`;
+   - una destinazione vuota **conserva gli identificativi dell'origine**, così i collegamenti fra record (miniatura → media, media → US) ritrovano il loro bersaglio; su PostgreSQL il contatore della sequenza viene spostato oltre i dati copiati, altrimenti il primo record salvato dalla scheda collidereb­be con uno copiato.
+4. **Se la destinazione contiene già dati** l'utente viene avvisato **prima** di cominciare, con l'elenco delle tabelle e il numero di righe: dove non c'è un vincolo di unicità i record si sommerebbero.
+5. Utenti, ruoli, permessi e log **non** vengono migrati: sono dati dell'installazione e contengono password.
+
+#### Test e verifica
+
+- **`tests/migrations/test_db_migrator.py`** (11 test): guardia che ogni tabella mappata sia migrata o esplicitamente esclusa (se domani aggiungi una scheda e non la registri, il test lo dice); guardia che ogni nome sia risolvibile dal gestore; conversione stringa vuota → `NULL`; riepilogo; migrazione vera dei due database distribuiti col plugin; identificativi conservati; avviso sulla destinazione non vuota; collegamento della tab (nomi dei widget e voci dell'elenco).
+- **Migrazione reale SQLite → SQLite**: database di esempio (510 US, 4820 geometrie) in una copia vuota del template: conteggi identici, geometrie identiche per WKT e SRID, 2,5 secondi.
+- **Migrazione reale SQLite → PostgreSQL 17 + PostGIS 3.4**: conteggi identici, SRID 3004 conservato, 7 miniature su 7 collegate al media giusto, sequenza avanzata.
+- Suite `tests/utility` + `tests/migrations`: 219 → **230 passati**, stesso errore preesistente.
+
+### English
+
+#### Context
+
+- Asked by Enzo: the import tab of the configuration dialog moved one table at a time; he wanted to migrate a whole database in one go, alphanumeric and geometry tables alike, and asked to check which sheets were missing (budget and the like).
+
+#### How it was
+
+- The `ALL` entry existed but copied **16 tables out of 44**, no geometry, and opened a dialog for every table.
+- The copying code named the columns **by hand** and was **written twice** (once for a single table, once inside `ALL`): ~1.800 lines in `gui/pyarchinitConfigDialog.py`. That is why sheets were missing: each one needed about a hundred hand-written lines.
+- Four entries of the list (`ARCHEOZOOLOGY`, `DETSESSO`, `DETETA`, `TMA_MATERIALI`) **did nothing** when picked; eight sheets were not even offered (budget, personale, presenze, attrezzature, computo metrico, inventario lapidei, PDF administration, fauna).
+- `ARCHEOZOOLOGY` was missing from the dictionary `query_bool()` resolves names with, so that sheet could not be read at all.
+
+#### Fix
+
+1. **New `modules/db/db_migrator.py`** (pure, no Qt): the columns come **from the mapper**, so every mapped table is copied the same way and a sheet added tomorrow travels with the others. A geometry is a column like any other (GeoAlchemy2, EWKB with its SRID). 44 tables: 25 alphanumeric, 16 geometry, 3 media.
+2. **Configuration tab**: `ALL` uses the engine, **one summary at the end** (with the detail per table), the progress bar names the table being copied, and the sheets that did nothing go through the same engine. The eight missing ones were added to the list.
+3. **Three refusals of the destination, handled:**
+   - a SQLite database created from the template registers its geometries with `srid = -1` and refused everything else ("violates Geometry constraint"): when the destination table is empty the column is registered again with the SRID of the data (`DiscardGeometryColumn` + `RecoverGeometryColumn`);
+   - SQLite keeps an empty string in a number column, PostgreSQL refuses it ("invalid input syntax for type bigint"): it becomes `NULL`;
+   - an empty destination **keeps the identifiers of the source**, so the links between records (thumbnail → media, media → US) still find their target; on PostgreSQL the sequence counter is moved past the copied data, or the first record saved from a sheet would collide with a copied one.
+4. **When the destination already holds data** the user is told **before** the copy starts, with the tables and their row counts: where there is no unique constraint the records would pile up.
+5. Users, roles, permissions and logs are **not** migrated: they belong to the installation and hold passwords.
+
+#### Tests and verification
+
+- **`tests/migrations/test_db_migrator.py`** (11 tests): a guard that every mapped table is either migrated or explicitly excluded (add a sheet tomorrow and forget to register it, the test says so); a guard that every name can be resolved by the manager; the empty-string → `NULL` conversion; the summary; a real migration of the two databases shipped with the plugin; identifiers kept; the warning about a destination that is not empty; the wiring of the tab (widget names and list entries).
+- **Real SQLite → SQLite migration**: the sample database (510 SUs, 4820 geometries) into an empty copy of the template: same counts, geometries identical by WKT and SRID, 2.5 seconds.
+- **Real SQLite → PostgreSQL 17 + PostGIS 3.4 migration**: same counts, SRID 3004 kept, 7 thumbnails of 7 linked to the right media, sequence advanced.
+- Suite `tests/utility` + `tests/migrations`: 219 → **230 passed**, same pre-existing error.
+
+---
+
 ## [fix] - 2026-09-24 — Scheda US: periodo e fase si scelgono dall'elenco, non si scrivono (master `v4.9.17`, dev `5.13.21-alpha`)
 
 > Master: commit `efbd942f` + bump `6bdcd72e`, tag **`v4.9.17`**. Dev: commit `ee9e0eb1` + bump `50f80bf5`, tag **`periodo-fase-choose-5.13.21-alpha`**.
