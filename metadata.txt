@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.20-alpha
+version=5.13.21-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,24 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.20-alpha (2026-09-24) [Sheets: a record nobody touched is no longer reported as modified]
+changelog=5.13.21-alpha (2026-09-24) [Scheda US: periodo e fase si scelgono, non si scrivono]
+    - Fix: the period and phase boxes take their values from the
+      Periodizzazione sheet, but they were opened to free typing at
+      start-up (customize_GUI) only because the sheet writes the value of
+      the record with setEditText(), which does nothing on a box that is
+      not editable. The value is now selected in the list and the four
+      boxes stay closed to typing (new modules/utility/combo_value.py).
+    - Databases lose nothing: a value the list does not have (a period
+      renamed or removed in Periodizzazione, a database whose
+      Periodizzazione was never filled in) is added to the list of that
+      box, so the sheet keeps showing what the record holds and saving it
+      does not wipe it.
+    - The value is set without waking the handlers of the box, which
+      recompute the dating from Periodizzazione and would make a record
+      nobody touched look modified. Tests:
+      tests/utility/test_combo_value.py.
+
+  5.13.20-alpha (2026-09-24) [Sheets: a record nobody touched is no longer reported as modified]
     - Fix: a column nobody ever filled in is NULL in the database and an
       empty box in the form; read back as 'None' and compared against '',
       every record of a database whose rows were not created by the form
