@@ -46,6 +46,7 @@ from ..modules.utility.pyarchinit_error_check import Error_check
 # MyApp is imported lazily in contenuto to avoid pydantic/openai conflicts on Windows
 from ..gui.sortpanelmain import SortPanelMain
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.record_compare import records_equal
 
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Thesaurus.ui'))
 
@@ -2840,7 +2841,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

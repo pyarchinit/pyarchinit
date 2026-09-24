@@ -38,6 +38,7 @@ from ..gui.imageViewer import ImageViewer
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.record_compare import records_equal
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Detsesso.ui'))
 
 
@@ -1537,7 +1538,7 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
         # f.write(test)
         # f.close()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

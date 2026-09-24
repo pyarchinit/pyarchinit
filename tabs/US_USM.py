@@ -122,6 +122,7 @@ from ..modules.utility.remote_image_loader import load_icon, get_image_path, is_
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from sqlalchemy import create_engine, MetaData, Table, select, update, and_
 from qgis.PyQt.QtCore import QThread, pyqtSignal, QTimer, Qt
+from ..modules.utility.record_compare import records_equal
 
 # Debug flag - set to True to enable debug output
 DEBUG = False
@@ -25831,7 +25832,7 @@ DATABASE SCHEMA KNOWLEDGE:
             self.set_LIST_REC_TEMP()
             self.set_LIST_REC_CORR()
 
-            if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+            if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
                 return 0
             else:
                 return 1

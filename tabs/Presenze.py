@@ -36,6 +36,7 @@ from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.db.pyarchinit_utility import Utility
 from ..modules.utility.pyarchinit_error_check import Error_check
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.record_compare import records_equal
 
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Presenze.ui'))
@@ -1579,7 +1580,7 @@ class pyarchinit_Presenze(QDialog, MAIN_DIALOG_CLASS):
     def records_equal_check(self):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1

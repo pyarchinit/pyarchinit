@@ -36,6 +36,7 @@ from ..modules.utility.pyarchinit_exp_Campsheet_pdf import generate_campioni_pdf
 from ..gui.sortpanelmain import SortPanelMain
 from ..gui.pyarchinitConfigDialog import pyArchInitDialog_Config
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.record_compare import records_equal
 MAIN_DIALOG_CLASS, _ = loadUiType(os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Campioni.ui'))
 
 
@@ -1669,7 +1670,7 @@ class pyarchinit_Campioni(QDialog, MAIN_DIALOG_CLASS):
         self.set_LIST_REC_TEMP()
         self.set_LIST_REC_CORR()
 
-        if self.DATA_LIST_REC_CORR == self.DATA_LIST_REC_TEMP:
+        if records_equal(self.DATA_LIST_REC_CORR, self.DATA_LIST_REC_TEMP):
             return 0
         else:
             return 1
