@@ -82,9 +82,13 @@ def _rows(db, sito):
 
 
 def _export(db, sito, out):
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
-    export_graphml(db_path=db, mapping="pyarchinit_us_mapping",
-                   output_path=out, site_filter=sito)
+    # A4: the writer retired; wild projected files still reach the
+    # one-time import, so the round trip starts from the test fabric
+    # (library exporter + embedded pyarchinit data keys).
+    if str(PLUGIN_ROOT / "tests" / "sync") not in sys.path:
+        sys.path.insert(0, str(PLUGIN_ROOT / "tests" / "sync"))
+    from _projected_graphml import export_projected
+    export_projected(db, sito, out)
     return out
 
 

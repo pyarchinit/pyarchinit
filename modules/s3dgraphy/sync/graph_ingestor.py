@@ -12,7 +12,7 @@ from typing import Iterable
 # Mapped columns — the subset of us_table columns the s3dgraphy bridge
 # round-trips. Composed of the columns covered by
 # pyarchinit_us_mapping.json (5) + the columns added by
-# `_enrich_pyarchinit_graph` in graphml_writer.py (7). Anything else
+# `_enrich_pyarchinit_graph` in the retired writer (7). Anything else
 # in us_table (descrizione, foto, profondita, …) is preserved by
 # UPDATE selettivo and never overwritten.
 # ---------------------------------------------------------------------------
@@ -302,7 +302,8 @@ class GraphIngestor:
 
         When *graphml_path* is provided, AI04's custom data-keys
         (`pyarchinit.us`, `pyarchinit.area`, etc. — see
-        graphml_writer._embed_pyarchinit_data_keys) are parsed from
+        the projected-file fabric, tests/sync/_projected_graphml.py)
+        are parsed from
         the file and merged into graph node attributes, so the
         round-trip preserves columns that s3dgraphy's own importer
         would otherwise drop.
@@ -1176,7 +1177,7 @@ def _apply_group_folders_to_sql(conn, graphml_path: Path, sito: str) -> int:
 
 
 def _values_equal(col: str, a, b) -> bool:
-    """Loose equality matching the conventions in graphml_writer
+    """Loose equality matching the conventions of the projected files
     enrichment. JSON-serialised columns (rapporti) get parse-then-compare."""
     if a is None and b is None:
         return True
@@ -1198,7 +1199,7 @@ def _is_epoch_node_local(node) -> bool:
 # The Italian-rapporti / unit-type / direction tables previously
 # defined inline here moved to `s3dgraphy.sync.rapporti` in v1.6
 # (single home for the pyArchInit ↔ canonical-edge translation,
-# consumed by graph_ingestor, graphml_writer, graph_projector and
+# consumed by graph_ingestor, graph_projector and
 # the yEd-import pipeline alike). The names below are kept as
 # private re-export aliases so call sites in this file and in
 # `yed_import_pipeline.py` (which already imports
@@ -1226,7 +1227,7 @@ def _hydrate_pyarchinit_data_keys(graph, graphml_path: Path) -> None:
     `pyarchinit.unita_tipo`, etc.) into graph node attributes.
 
     This is the IMPORT-side counterpart of
-    graphml_writer._embed_pyarchinit_data_keys. s3dgraphy's
+    the pyarchinit.* data keys of projected files. s3dgraphy's
     GraphMLImporter strips unknown attributes; we recover the
     pyarchinit-specific ones by reading the same XML directly.
 

@@ -48,34 +48,6 @@ def _setup_path() -> None:
         del sys.modules[mod]
 
 
-def cmd_export(args) -> int:
-    _setup_path()
-    from modules.s3dgraphy.sync.graphml_writer import (
-        export_graphml, EmptyGraphError, GraphMLExportError)
-    # AI06: --group-by CSV → groups list
-    groups_arg = None
-    if getattr(args, "group_by", None):
-        groups_arg = [g.strip() for g in args.group_by.split(",")
-                      if g.strip()]
-    out_path = args.graphml
-    try:
-        result = export_graphml(
-            db_path=Path(args.db),
-            mapping=args.mapping,
-            output_path=Path(out_path),
-            site_filter=args.sito,
-            groups=groups_arg,
-        )
-    except (EmptyGraphError, GraphMLExportError) as e:
-        print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
-        return 1
-    print(f"OK — {out_path}")
-    print(f"   {result.node_count} nodes, {result.edge_count} edges, "
-          f"{result.epoch_count} epochs, "
-          f"{result.tred_removed_edges} redundancies removed")
-    return 0
-
-
 def cmd_import(args) -> int:
     _setup_path()
     from s3dgraphy.importer.import_graphml import GraphMLImporter
@@ -203,20 +175,6 @@ def main(argv: list[str]) -> int:
         prog="s3dgraphy_sync",
         description="PyArchInit ↔ s3dgraphy bridge CLI (AI04).")
     sub = parser.add_subparsers(dest="cmd", required=True)
-
-    p_exp = sub.add_parser("export", help="DB → GraphML")
-    p_exp.add_argument("--db", required=True)
-    # --graphml and --output are aliases (same dest); either is required.
-    grp_out = p_exp.add_mutually_exclusive_group(required=True)
-    grp_out.add_argument("--graphml", dest="graphml")
-    grp_out.add_argument("--output", dest="graphml")
-    p_exp.add_argument("--sito", required=True)
-    p_exp.add_argument("--mapping", default="pyarchinit_us_mapping")
-    p_exp.add_argument("--group-by", dest="group_by",
-                       help="CSV of grouping dimensions: "
-                            "area,struttura,attivita,settore,ambient,"
-                            "saggio,quad_par,adhoc")
-    p_exp.set_defaults(func=cmd_export)
 
     p_imp = sub.add_parser("import", help="GraphML → DB")
     p_imp.add_argument("--db", required=True)

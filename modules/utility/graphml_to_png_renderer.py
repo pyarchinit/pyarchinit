@@ -4,7 +4,7 @@ This is the SECOND renderer path in the matrix-image pipeline (the
 first being :mod:`matrix_swimlane_renderer`, which recomputes layout
 from s3dgraphy JSON). This one is much simpler: it reads the node
 positions and styles ALREADY computed by the s3dgraphy GraphML writer
-(``modules.s3dgraphy.sync.graphml_writer.export_graphml``) and just
+(the retired AI03 writer, or saved from yEd) and just
 rasterises them — so the PNG looks identical to what yEd shows when
 opening the same .graphml file.
 

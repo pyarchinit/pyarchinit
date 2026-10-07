@@ -1,6 +1,8 @@
-"""export_graphml() must surface suspicious periodization chronologies
-(BC years typed without the minus sign) in ExportResult.warnings, which
-the export dialog prints as "⚠️ ..." lines (2026-08-27, Ventena DB)."""
+"""The projector must surface suspicious periodization chronologies
+(BC years typed without the minus sign) on graph.warnings (2026-08-27,
+Ventena DB). A4: the GraphML writer retired; the warning lives in
+GraphProjector._warn_suspicious_chronologies and travels with every
+projection (em.json export included)."""
 from __future__ import annotations
 
 import sys
@@ -13,7 +15,7 @@ if str(_ROOT) not in sys.path:
 from sqlalchemy import text  # noqa: E402
 
 from modules.s3dgraphy.sync._db_handle import DbHandle  # noqa: E402
-from modules.s3dgraphy.sync.graphml_writer import export_graphml  # noqa: E402
+from modules.s3dgraphy.sync.graph_projector import GraphProjector  # noqa: E402
 
 
 def _make_db(path, bronze_years):
@@ -58,15 +60,16 @@ def _make_db(path, bronze_years):
     return path
 
 
-def test_bc_years_without_sign_are_reported_in_export_warnings(tmp_path):
+def test_bc_years_without_sign_are_reported_on_the_graph(tmp_path):
     db = _make_db(tmp_path / "bad.sqlite", (1650, 1450))
-    res = export_graphml(db, "pyarchinit", tmp_path / "bad.graphml", site_filter="S")
-    joined = "\n".join(str(w) for w in res.warnings)
+    graph = GraphProjector().populate_graph(db, sito="S")
+    joined = "\n".join(str(w) for w in (getattr(graph, "warnings", None) or []))
     assert "Periodo 2 Fase 1: 1650 → 1450" in joined
     assert "a.C." in joined
 
 
 def test_correct_bc_years_produce_no_chronology_warning(tmp_path):
     db = _make_db(tmp_path / "ok.sqlite", (-1650, -1450))
-    res = export_graphml(db, "pyarchinit", tmp_path / "ok.graphml", site_filter="S")
-    assert not [w for w in res.warnings if "cronologia" in str(w)]
+    graph = GraphProjector().populate_graph(db, sito="S")
+    warns = getattr(graph, "warnings", None) or []
+    assert not [w for w in warns if "cronologia" in str(w)]

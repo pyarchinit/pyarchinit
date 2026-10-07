@@ -51,3 +51,15 @@ def test_the_old_import_path_resolves_to_the_library():
         libs = importlib.import_module("s3dgraphy.sync." + name)
         assert Path(ours.__file__).resolve() == Path(libs.__file__).resolve(), name
         assert "ext_libs" in str(Path(ours.__file__).resolve()), name
+
+
+def test_the_graphml_writer_is_gone():
+    """A4 (spec 2026-10-07, decision 2): the writer retired with B1
+    shipped — em.json is the working format, EMStudio the viewer; the
+    one-time yEd import and the classic DOT matrix stay."""
+    assert not (_ROOT / "modules" / "s3dgraphy" / "sync"
+                / "graphml_writer.py").exists()
+    for probe in ("tabs", "modules", "gui"):
+        for path in (_ROOT / probe).rglob("*.py"):
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            assert "graphml_writer" not in text, path

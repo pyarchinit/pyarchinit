@@ -1,6 +1,13 @@
-"""L1 round-trip: groups → re-import → SQL state.
+"""L1: group folders in an imported file → SQL state.
 
-Pins D5 (configurable, default safe) + AC-12 + AC-13 + AC-14."""
+Pins D5 (configurable, default safe) + AC-12 + AC-13 + AC-14.
+
+A4 (spec 2026-10-07): the GraphML writer retired, but foldered files
+still reach the one-time import — from yEd and from old exports — so
+the tests fabricate the foldered GraphML directly: pyarchinit.* <key>
+declarations, yfiles.foldertype="group" folders carrying the group
+kind/name, members identified by pyarchinit.node_uuid. That is exactly
+the surface _apply_group_folders_to_sql reads."""
 from __future__ import annotations
 import shutil
 import sqlite3
@@ -62,20 +69,76 @@ def _select_struttura_rows(db, sito):
     return rows
 
 
+def _uuids_by_struttura(db, sito):
+    conn = sqlite3.connect(db)
+    rows = list(conn.execute(
+        "SELECT node_uuid, struttura FROM us_table WHERE sito=?", (sito,)))
+    conn.close()
+    out: dict = {}
+    for uuid, s in rows:
+        out.setdefault(s or "", []).append(uuid)
+    return out
+
+
+def _write_foldered_graphml(path, sito, folders):
+    """A minimal pyarchinit-projected file with group folders.
+
+    *folders* = [(kind_or_None, name, [member node_uuids])] — kind None
+    means an ad-hoc folder with only a label (no SQL-backed data key).
+    """
+    G = "http://graphml.graphdrawing.org/xmlns"
+    Y = "http://www.yworks.com/xml/graphml"
+    root = ET.Element(f"{{{G}}}graphml", nsmap={None: G, "y": Y})
+    keys = {}
+    for i, attr in enumerate(
+            ["node_uuid", "us", "area", "sito",
+             "struttura", "attivita"]):
+        k = ET.SubElement(root, f"{{{G}}}key")
+        k.set("id", "d%d" % i)
+        k.set("for", "node")
+        k.set("attr.name", "pyarchinit." + attr)
+        k.set("attr.type", "string")
+        keys[attr] = "d%d" % i
+    g = ET.SubElement(root, f"{{{G}}}graph")
+    g.set("edgedefault", "directed")
+    for fi, (kind, name, members) in enumerate(folders):
+        folder = ET.SubElement(g, f"{{{G}}}node")
+        folder.set("id", "grp_%d" % fi)
+        folder.set("yfiles.foldertype", "group")
+        if kind is not None:
+            d = ET.SubElement(folder, f"{{{G}}}data")
+            d.set("key", keys[kind])
+            d.text = name
+        gn = ET.SubElement(
+            ET.SubElement(folder, f"{{{G}}}data"), f"{{{Y}}}GroupNode")
+        nl = ET.SubElement(gn, f"{{{Y}}}NodeLabel")
+        nl.text = name
+        inner = ET.SubElement(folder, f"{{{G}}}graph")
+        inner.set("edgedefault", "directed")
+        for mi, uuid in enumerate(members):
+            m = ET.SubElement(inner, f"{{{G}}}node")
+            m.set("id", "grp_%d::n%d" % (fi, mi))
+            d = ET.SubElement(m, f"{{{G}}}data")
+            d.set("key", keys["node_uuid"])
+            d.text = uuid
+    ET.ElementTree(root).write(str(path), encoding="UTF-8",
+                               xml_declaration=True)
+    return path
+
+
 def test_default_no_sql_update_on_import(mini_volterra, tmp_path):
-    """AC-12: default safe — no SQL update even when groups in import."""
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    """AC-12: default safe — no SQL update even when folders in import."""
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     sito = _read_sito(mini_volterra)
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
-
-    out = tmp_path / "out.graphml"
-    export_graphml(db_path=mini_volterra, mapping="pyarchinit_us_mapping",
-                   output_path=out, site_filter=sito,
-                   groups=["struttura"])
+    by = _uuids_by_struttura(mini_volterra, sito)
+    # A folder that WOULD move every basilica US to "chiesa"...
+    out = _write_foldered_graphml(
+        tmp_path / "out.graphml", sito,
+        [("struttura", "chiesa", by.get("basilica", []))])
 
     rows_before = _select_struttura_rows(mini_volterra, sito)
-    # Import with default flag (False)
+    # ...imported with the default flag (False)
     GraphIngestor().populate_list(
         out, db_path=mini_volterra, sito=sito)
     rows_after = _select_struttura_rows(mini_volterra, sito)
@@ -83,9 +146,8 @@ def test_default_no_sql_update_on_import(mini_volterra, tmp_path):
 
 
 def test_sql_update_when_flag_enabled(mini_volterra, tmp_path):
-    """AC-13: flag-on, manually move a US to a different group's
-    inner <graph> in the GraphML, re-import → SQL UPDATE applied."""
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    """AC-13: flag-on, a US sits in a different group's folder in the
+    imported file → SQL UPDATE applied."""
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     sito = _read_sito(mini_volterra)
     # Seed 2 US in basilica + 1 in chiesa
@@ -100,42 +162,20 @@ def test_sql_update_when_flag_enabled(mini_volterra, tmp_path):
     conn.commit()
     conn.close()
 
-    out = tmp_path / "out.graphml"
-    export_graphml(db_path=mini_volterra, mapping="pyarchinit_us_mapping",
-                   output_path=out, site_filter=sito,
-                   groups=["struttura"])
-
-    # Manually mutate output: move first US from basilica to chiesa
-    tree = ET.parse(str(out))
-    root = tree.getroot()
-    folders = [n for n in root.iter(f"{NS}node")
-               if n.get("yfiles.foldertype") == "group"
-               and n.get("id", "").startswith("grp_")]
-    # Find label text "basilica" and "chiesa"
-    folder_basilica = next(
-        f for f in folders
-        if any((nl.text or "").strip() == "basilica"
-               for nl in f.iter("{http://www.yworks.com/xml/graphml}NodeLabel"))
-    )
-    folder_chiesa = next(
-        f for f in folders
-        if any((nl.text or "").strip() == "chiesa"
-               for nl in f.iter("{http://www.yworks.com/xml/graphml}NodeLabel"))
-    )
-    inner_basilica = folder_basilica.find(f"{NS}graph")
-    inner_chiesa = folder_chiesa.find(f"{NS}graph")
-    # Take 1 US from basilica, move to chiesa
-    moving_us = inner_basilica.findall(f"{NS}node")[0]
-    inner_basilica.remove(moving_us)
-    inner_chiesa.append(moving_us)
-    tree.write(str(out), encoding="UTF-8", xml_declaration=True)
+    by = _uuids_by_struttura(mini_volterra, sito)
+    basilica = by.get("basilica", [])
+    chiesa = by.get("chiesa", [])
+    # The file moves one US from basilica into chiesa's folder.
+    out = _write_foldered_graphml(
+        tmp_path / "out.graphml", sito,
+        [("struttura", "basilica", basilica[1:]),
+         ("struttura", "chiesa", chiesa + basilica[:1])])
 
     # Import with flag ON
     result = GraphIngestor().populate_list(
         out, db_path=mini_volterra, sito=sito,
         sql_apply_groups=True)
     assert result.applied >= 1  # at least one UPDATE
-    # Verify struttura count for basilica decreased
     rows_after = _select_struttura_rows(mini_volterra, sito)
     basilica_count = sum(1 for _, s in rows_after if s == "basilica")
     chiesa_count = sum(1 for _, s in rows_after if s == "chiesa")
@@ -144,32 +184,21 @@ def test_sql_update_when_flag_enabled(mini_volterra, tmp_path):
 
 
 def test_adhoc_groups_never_touch_sql(mini_volterra, tmp_path):
-    """AC-14: ad-hoc group_kind never triggers SQL UPDATE even with
-    flag on — only updates GroupStore."""
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
+    """AC-14: an ad-hoc folder (label only, no SQL-backed kind) never
+    triggers SQL UPDATE even with the flag on."""
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
-    from modules.s3dgraphy.sync.group_store import GroupStore
     sito = _read_sito(mini_volterra)
-
-    # Add 1 ad-hoc group
-    store = GroupStore(mini_volterra, sito)
-    # Pick a real US to attach
     conn = sqlite3.connect(mini_volterra)
     us_row = conn.execute(
         "SELECT node_uuid FROM us_table WHERE sito=? LIMIT 1",
         (sito,)).fetchone()
     conn.close()
-    us_uuid = us_row[0]
-    store.add_group("restauri-2023", group_kind="adhoc",
-                    member_us_uuids=[us_uuid])
 
-    out = tmp_path / "out.graphml"
-    export_graphml(db_path=mini_volterra, mapping="pyarchinit_us_mapping",
-                   output_path=out, site_filter=sito,
-                   groups=["adhoc"])
+    out = _write_foldered_graphml(
+        tmp_path / "out.graphml", sito,
+        [(None, "restauri-2023", [us_row[0]])])
 
     rows_before = _select_struttura_rows(mini_volterra, sito)
-    # Import with flag ON — ad-hoc must NOT touch SQL
     GraphIngestor().populate_list(
         out, db_path=mini_volterra, sito=sito,
         sql_apply_groups=True)

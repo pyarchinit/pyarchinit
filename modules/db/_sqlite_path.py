@@ -9,7 +9,7 @@ The canonical import path remains
 (re-exported there). Tests use the direct import from this module to
 keep the test runtime QGIS-free.
 
-Used by AI03's ``graphml_writer`` to decide whether to attempt
+Used by the s3dgraphy bridge to decide whether to attempt
 s3dgraphy-based GraphML export (SQLite-only in 5.2.0-alpha; PG support
 deferred to AI04).
 """

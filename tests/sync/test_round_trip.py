@@ -61,8 +61,10 @@ def _read_canonical(db, sito):
 
 
 @pytest.mark.xfail(
-    reason="s3dgraphy 1.6 canonical-edges test debt — fails identically on "
-           "upstream dev7; awaiting s3Dgraphy #13 reconciliation",
+    reason="rapporti serialization is not identity on dev40 either: the "
+           "serializer canonicalizes the spelling (copre→Copre) and emits "
+           "derived shorthand entries ('>>') for edges the projector adds "
+           "— upstream material for s3Dgraphy#25 (one-bridge, 2026-10-07)",
     strict=False,
 )
 def test_round_trip_preserves_mapped_fields(tmp_path, mini_volterra):

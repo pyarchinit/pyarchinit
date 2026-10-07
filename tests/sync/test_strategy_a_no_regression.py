@@ -2,9 +2,8 @@
 
 After AI05 Group C, the standalone _enrich_pyarchinit_graph function
 must NOT exist in production code. Its body lives inside
-GraphProjector._enrich_into. The AI03 export_graphml() path uses
-GraphProjector().populate_graph(..., include_paradata=False) to
-preserve byte-equivalent output.
+the GraphProjector class (A4: the GraphML writer itself retired;
+em.json is the working format).
 """
 from __future__ import annotations
 import re
@@ -38,15 +37,6 @@ def test_enrich_function_removed():
     assert not hits, (
         f"Strategy A incomplete — _enrich_pyarchinit_graph still "
         f"referenced in: {hits}")
-
-
-def test_export_graphml_uses_graph_projector():
-    """D7: export_graphml must call GraphProjector().populate_graph
-    instead of the deleted standalone function."""
-    src = (PLUGIN_ROOT / "modules" / "s3dgraphy" / "sync"
-           / "graphml_writer.py").read_text(encoding="utf-8")
-    assert "GraphProjector" in src, (
-        "graphml_writer must use GraphProjector after Strategy A")
 
 
 def test_graph_projector_owns_the_enrichment_pass():

@@ -153,7 +153,7 @@ class S3DGraphyDotBridge:
             Dictionary of format: filepath
         """
         if formats is None:
-            formats = ['dot', 'graphml', 'json']
+            formats = ['dot', 'json']
             
         if output_dir is None:
             output_dir = tempfile.gettempdir()
@@ -184,75 +184,9 @@ class S3DGraphyDotBridge:
                     f.write(dot_content)
                 exported_files['dot'] = dot_path
         
-        # Export GraphML format via s3dgraphy.GraphMLExporter (AI03 cut-over).
-        # Phase 1's DOT->GraphML pipeline is gone; the produced file now has
-        # epoch swimlanes, transitive reduction, and full EM 1.5 edge styling.
-        if 'graphml' in formats:
-            graphml_path = os.path.join(output_dir, f"{base_name}.graphml")
-            # PG-Bv2 (5.7.9-alpha): the if-db_path-is-None skip branch
-            # restored by PG-UIFix revert (bc90c86c) is now obsolete.
-            # populate_graph() supports PG via the new
-            # pyarchinit_pg_importer module. Pass db_manager directly;
-            # export_graphml() routes through _resolve_db_handle shim.
-            db_path = self.db_manager
-            from .sync.graphml_writer import (
-                export_graphml,
-                EmptyGraphError,
-                GraphMLExportError,
-            )
-            # Language for label localization (US/USM display).
-            # Read the QGIS locale; default to 'it' on any failure.
-            _locale = "it"
-            try:
-                from qgis.core import QgsSettings
-                _full = (QgsSettings().value(
-                    "locale/userLocale", "") or "")
-                _locale = _full[:2].lower() or "it"
-            except Exception:
-                pass
-            try:
-                result = export_graphml(
-                    db_path=db_path,
-                    mapping='pyarchinit_us_mapping',
-                    output_path=graphml_path,
-                    site_filter=site,
-                    persist_auxiliary=False,
-                    language=_locale,
-                    groups=groups,                # NEW (AI06)
-                    primary_priority=primary_priority,  # NEW (AI07)
-                )
-                exported_files['graphml'] = graphml_path
-                exported_files['graphml_result'] = result
-            except (FileNotFoundError, EmptyGraphError) as e:
-                exported_files['graphml_status'] = {
-                    'level': 'warning',
-                    'reason': str(e),
-                }
-                if QGIS_AVAILABLE:
-                    QgsMessageLog.logMessage(
-                        f"GraphML skipped: {e}",
-                        "PyArchInit", Qgis.Warning,
-                    )
-            except GraphMLExportError as e:
-                import traceback
-                exported_files['graphml_status'] = {
-                    'level': 'error',
-                    'stage': e.stage,
-                    'reason': str(e),
-                    'traceback': traceback.format_exc(),
-                }
-                if QGIS_AVAILABLE:
-                    QgsMessageLog.logMessage(
-                        f"GraphML export failed at {e.stage}: "
-                        f"{e.original}",
-                        "PyArchInit", Qgis.Critical,
-                    )
-                    QgsMessageLog.logMessage(
-                        traceback.format_exc(),
-                        "PyArchInit", Qgis.Critical,
-                    )
-        
-        # Export native s3dgraphy JSON format
+        # A4 (spec 2026-10-07): the GraphML export retired — em.json is the
+        # working format (Extended Matrix menu) and EMStudio the viewer.
+        # A 'graphml' entry in *formats* is ignored.
         if 'json' in formats:
             json_path = os.path.join(output_dir, f"{base_name}_s3dgraphy.json")
             if self.s3d_integration.export_to_json(json_path):

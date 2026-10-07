@@ -17,8 +17,8 @@ call sites stay unchanged — Phase 1 migration to 1.6.0.dev7). It mirrors
 the upstream public surface and adds one pyArchInit-only symbol,
 ``get_vocab_provider`` (the Qt-aware wrapper in ``vocab_provider.py``,
 which is not part of upstream). The canonical-edge files
-(``rapporti.py``, ``graph_ingestor.py``, ``graph_projector.py``,
-``graphml_writer.py``) are byte-copies of the dev7 wheel; ``_workspace``,
+(``rapporti.py``, ``graph_ingestor.py``, ``graph_projector.py``, the
+retired GraphML writer) were byte-copies of the dev7 wheel; ``_workspace``,
 ``edge_registry`` and ``pyarchinit_pg_importer`` carry deliberate
 pyArchInit path/config adaptations and must NOT be overwritten from
 upstream.

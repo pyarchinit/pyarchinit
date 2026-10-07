@@ -64,7 +64,9 @@ def _write_graphml(graph, out: Path) -> None:
     _embed_pyarchinit_data_keys post-processor so the fixture
     carries the data keys AI04 import can recover."""
     from s3dgraphy.exporter.graphml.graphml_exporter import GraphMLExporter
-    from modules.s3dgraphy.sync.graphml_writer import (
+    import sys as _sys
+    _sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    from _projected_graphml import (  # A4: fabric replaced the writer
         _embed_pyarchinit_data_keys)
     exporter = GraphMLExporter(graph)
     exporter.export(str(out), persist_auxiliary=False)

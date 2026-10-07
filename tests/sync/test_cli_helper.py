@@ -82,10 +82,13 @@ def _project_to_graphml(db_path, sito, out_path, *, mutate_field=None,
     # fall-through to legacy). The raw s3dgraphy exporter does NOT
     # embed the ``pyarchinit.<*>`` <key> declarations the
     # detect_flavor() probe looks for, so the resulting graphml would
-    # be misclassified as yEd-raw. Call _embed_pyarchinit_data_keys
-    # after export so the produced file carries the marker keys and
-    # detect_flavor() returns ``"pyarchinit-projected"``.
-    from modules.s3dgraphy.sync.graphml_writer import (
+    # be misclassified as yEd-raw. Embed them after export so the file
+    # carries the marker keys and detect_flavor() returns
+    # ``"pyarchinit-projected"`` (fabric moved here with A4: the writer
+    # is retired, the wild projected files still reach the import).
+    if str(PLUGIN_ROOT / "tests" / "sync") not in sys.path:
+        sys.path.insert(0, str(PLUGIN_ROOT / "tests" / "sync"))
+    from _projected_graphml import (
         _embed_pyarchinit_data_keys,
     )
     graph = GraphProjector().populate_graph(db_path, sito=sito)
@@ -99,15 +102,6 @@ def _project_to_graphml(db_path, sito, out_path, *, mutate_field=None,
                                   persist_auxiliary=False)
     _embed_pyarchinit_data_keys(graph, out_path)
     return out_path
-
-
-def test_cli_export_subprocess(tmp_path, mini_volterra):
-    out = tmp_path / "out.graphml"
-    r = _run("export", "--db", str(mini_volterra),
-             "--graphml", str(out),
-             "--sito", _sito(mini_volterra))
-    assert r.returncode == 0, f"stderr={r.stderr!r}"
-    assert out.exists() and out.stat().st_size > 1000
 
 
 def test_cli_import_dry_run_default(tmp_path, mini_volterra):
@@ -149,11 +143,3 @@ def test_cli_import_apply_writes(tmp_path, mini_volterra):
     assert r.returncode == 0, f"stderr={r.stderr!r}\nstdout={r.stdout!r}"
     assert "WRITTEN" in r.stdout
     assert "DRY-RUN" not in r.stdout
-
-
-def test_cli_export_missing_db_exits_1(tmp_path):
-    r = _run("export", "--db", str(tmp_path / "nope.sqlite"),
-             "--graphml", str(tmp_path / "out.graphml"),
-             "--sito", "X")
-    assert r.returncode == 1
-    assert "ERROR" in r.stderr
