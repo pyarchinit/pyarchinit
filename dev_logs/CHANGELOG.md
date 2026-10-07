@@ -5,6 +5,25 @@
 
 ---
 
+## [feat] - 2026-10-07 — Splash: co-brand ufficiale ECHOES + StratiGraph; preparazione al ponte unico s3dgraphy
+
+> Branch `Stratigraph_00001`. Commit `b3d4c9da` (splash) e `bf16b3a9` (preparazione s3dgraphy). Non inclusi in una release (dopo 5.13.23-alpha).
+> File: `resources/icons/logo_horizon_stratigraph.png` (sostituito) + `.svg` (nuovo); `modules/s3dgraphy/sync/pyarchinit_pg_importer.py`, `modules/s3dgraphy/sync/graph_projector.py`, `requirements.txt`, `tests/sync/test_usm_kind_dev40.py` (nuovo).
+
+### Italiano
+
+- **Splash**: il riquadro del logo di progetto conteneva un segnaposto testuale; ora c'è il co-brand ufficiale **ECHOES + StratiGraph** in versione off-white (inviato da Emanuel secondo il guidebook: simbolo ECHOES, linea, StratiGraph — inalterato). PNG 656×210 (il riquadro scala a 36 px mantenendo le proporzioni: resa più nitida), SVG sorgente accanto.
+- **s3dgraphy, preparazione misurata al dev40** (`bf16b3a9`): i tre punti del ponte che creano o arricchiscono nodi stratigrafici dicono ora al nodo il suo *kind* (`set_kind`/`unit_code`, dev40: una USM è una US con `stratigraphic_kind="masonry"`), con guardia: su dev9 non cambia nulla. Il pin resta `1.6.0.dev9` **per misura, non per inerzia**: il bump da solo rompe 26 test del ponte vendorizzato (SU/WSU localizzate perse, ingestor che non scrive, kind dei gruppi) → il bump viaggia con la migrazione a ponte unico. Motivazione accanto al pin; `test_usm_kind_dev40.py` si attiva da solo al bump.
+- **em.json verificato fuori dal plugin** (dev40 in ambiente separato): Al-Khutm (489 US → 2061 nodi, 3514 archi), import 1,48 s → 0,27 s rispetto a dev39, andata-ritorno em.json identico con 0 avvisi; misure postate su ExtendedMatrix/s3Dgraphy#27 insieme al bug `np.int` dell'export GraphML (numpy ≥ 1.24). La dev9 non ha l'export em.json: dentro il plugin arriva con la migrazione.
+
+### English
+
+- **Splash**: the project-logo slot held a text-box placeholder; it now carries the official **ECHOES + StratiGraph** co-brand, off-white version (sent by Emanuel per the guidebook: ECHOES symbol, separator line, StratiGraph — unaltered). PNG 656×210 (the slot scales to 36 px keeping the ratio: sharper rendering), SVG source next to it.
+- **s3dgraphy, measured preparation for dev40** (`bf16b3a9`): the three bridge sites that create or enrich stratigraphic nodes now tell the node its *kind* (`set_kind`/`unit_code`; on dev40 a USM is a US with `stratigraphic_kind="masonry"`), guarded: nothing changes on dev9. The pin stays at `1.6.0.dev9` **by measurement, not inertia**: the bump alone breaks 26 tests of the vendored bridge (localized SU/WSU rows lost, ingestor no longer writing, group kinds) → the bump travels with the one-bridge migration. Rationale next to the pin; `test_usm_kind_dev40.py` arms itself at the bump.
+- **em.json verified outside the plugin** (dev40 in a separate environment): Al-Khutm (489 US → 2061 nodes, 3514 edges), import 1.48 s → 0.27 s against dev39, em.json round-trip identical with 0 warnings; numbers posted on ExtendedMatrix/s3Dgraphy#27 together with the `np.int` GraphML-export bug (numpy ≥ 1.24). dev9 has no em.json export: inside the plugin it arrives with the migration.
+
+---
+
 ## [fix] - 2026-10-07 — Vocabolario delle unità: anche le liste di riserva nominano le unità virtuali come EM (`USVs` / `USVn`)
 
 > Branch `Stratigraph_00001`. Commit `b874661c`. Non incluso in una release (dopo 5.13.22-alpha).
