@@ -123,3 +123,21 @@ def test_unknown_group_kind_left_as_activitynodegroup():
     # No deprecation warning emitted (nothing to promote)
     deprec = [x for x in w if issubclass(x.category, DeprecationWarning)]
     assert len(deprec) == 0
+
+
+def test_promotion_invalidates_the_node_index():
+    """dev40 keeps an incremental node index: after the in-place swap,
+    find_node_by_id must return the PROMOTED LocationNodeGroup, not the
+    stale ActivityNodeGroup the index remembers."""
+    from modules.s3dgraphy.sync.graph_ingestor import (
+        _promote_legacy_activitynodegroup,
+    )
+    g = _build_legacy_graph()
+    # Build the incremental index before the swap.
+    assert type(g.find_node_by_id("grp_struttura")).__name__ == (
+        "ActivityNodeGroup")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        _promote_legacy_activitynodegroup(g)
+    assert type(g.find_node_by_id("grp_struttura")).__name__ == (
+        "LocationNodeGroup")

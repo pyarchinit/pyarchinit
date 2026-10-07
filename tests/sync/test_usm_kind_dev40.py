@@ -67,3 +67,15 @@ def test_the_library_is_the_one_the_plugin_pins():
         pytest.skip("s3dgraphy senza metadata qui")
     assert pinned and pinned.group(1) == installed, (
         "ext_libs ha %s ma requirements.txt chiede %s" % (installed, pinned and pinned.group(1)))
+
+
+def test_the_way_back_resolves_a_masonry_us_to_its_code():
+    """Ingestor side (1.6.12/13): a kind-bearing US whose attrs were
+    stripped by a graphml round-trip must land as a USM/WSU row, not US."""
+    from modules.s3dgraphy.sync.graph_ingestor import _resolve_unita_tipo
+    node = _create_stratigraphic_node_for_unita_tipo("USM", "10", "uuid-10")
+    assert _resolve_unita_tipo(node, {}) == "USM"
+    wsu = _create_stratigraphic_node_for_unita_tipo("WSU", "4", "uuid-4")
+    assert _resolve_unita_tipo(wsu, {}) == "WSU"
+    plain = _create_stratigraphic_node_for_unita_tipo("US", "1", "uuid-1")
+    assert _resolve_unita_tipo(plain, {}) == "US"

@@ -994,6 +994,9 @@ def _promote_legacy_activitynodegroup(graph) -> int:
             except (AttributeError, TypeError):
                 # Edge may freeze edge_type; skip silently.
                 pass
+    # nodes swapped in place and edges retyped: the indices are stale
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
 
     n_count = len(promotions)
     _warnings.warn(
@@ -1428,6 +1431,12 @@ def _resolve_unita_tipo(node, attrs: dict) -> str | None:
     has stripped attrs)."""
     if attrs.get("unita_tipo"):
         return str(attrs["unita_tipo"])
+    # 1.6.12 · a masonry US goes back to pyArchInit as a USM row; 1.6.13 · a
+    # coating US as a USR row, or with the code it came in with (USS, WSU…)
+    from s3dgraphy.nodes.stratigraphic_node import unit_code
+    code = unit_code(node)
+    if code:
+        return code
     type_name = type(node).__name__
     return _S3DGRAPHY_TYPE_TO_UNITA_TIPO.get(type_name)
 
