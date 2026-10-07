@@ -5,6 +5,31 @@
 
 ---
 
+## [feat] - 2026-10-07 — Extended Matrix: esporta il sito in em.json e aprilo in EMStudio — 5.13.25-alpha
+
+> Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`em-export-5.13.25-alpha`**. Commit `e9b0b510` (modulo em_export), `e41a14e6` (menu + apertura EMStudio), `47fecbb4` (bump + tutorial).
+> File: `modules/s3dgraphy/em_export.py` (nuovo), `pyarchinitPlugin.py`, `tests/sync/test_em_export.py` (nuovo), tutorial `01_configurazione.md` (it/en/pt/ro).
+
+### Italiano
+
+- **Nuova voce di menu** «Extended Matrix → Esporta sito in em.json…»: si sceglie un sito dall'elenco e pyArchInit lo porta nel **formato di lavoro dell'Extended Matrix** (B1, spec 2026-10-07 §5). Il grafo viaggia sul percorso DB→grafo della libreria (`PyArchInitImporter` + `pyarchinit_us_mapping`, SQLite e PostgreSQL), il file nasce in `pyarchinit_EM_folder` col nome del sito — qualunque alfabeto («تنقيب أثري» compreso) — e viene **riletto prima di essere consegnato**: un export che non rilegge uguale non si dà all'utente.
+- **Apertura in EMStudio**: alla fine pyArchInit chiede se aprire il file; `open_in_emstudio` non solleva mai — se EMStudio manca, il dialogo dice dov'è il file e da dove scaricare l'app (github.com/ExtendedMatrix/EMStudio/releases). macOS `open -a EMStudio`, Windows associazione `.em.json`, Linux `xdg-open`.
+- **Rifiuti parlanti**: sito senza righe stratigrafiche → «niente da esportare» (dev40 impalca nodi di servizio anche per un sito ignoto: vuoto = nessun nodo stratigrafico); libreria pre-dev40 → «aggiorna le dipendenze del plugin».
+- **Verificato su Al-Khutm** (khutm2@5433): 2061 nodi, 3514 archi, 0 avvisi, 0,61 s — stesso risultato della validazione fuori dal plugin del 2026-10-07; file in `~/Downloads/em_export_b1/Al-Khutm.em.json` per il controllo visivo in EMStudio.
+- **Tutorial**: sezione «Esportare un sito in em.json» in `01_configurazione.md` per it/en/pt/ro.
+- Test: `tests/sync/test_em_export.py` — 7 passati (round-trip, 51 US inglesi, nomi file, sito vuoto, libreria stantia, opener, guard di cablaggio). Sweep completo: 10 fail preesistenti d'ordinamento (PDF), ≤ baseline 13.
+
+### English
+
+- **New menu entry** «Extended Matrix → Esporta sito in em.json…»: pick a site from the list and pyArchInit takes it to the **working format of the Extended Matrix** (B1, spec 2026-10-07 §5). The graph travels the library's DB→graph path (`PyArchInitImporter` + `pyarchinit_us_mapping`, SQLite and PostgreSQL), the file is born in `pyarchinit_EM_folder` named after the site — any script («تنقيب أثري» included) — and is **read back before being handed over**: an export that does not read back identical is not given to the user.
+- **Open in EMStudio**: at the end pyArchInit asks whether to open the file; `open_in_emstudio` never raises — when EMStudio is missing, the dialog says where the file is and where to download the app (github.com/ExtendedMatrix/EMStudio/releases). macOS `open -a EMStudio`, Windows `.em.json` association, Linux `xdg-open`.
+- **Speaking refusals**: a site with no stratigraphic rows → "niente da esportare" (dev40 scaffolds service nodes even for an unknown site: empty = no stratigraphic nodes); a pre-dev40 library → "aggiorna le dipendenze del plugin".
+- **Verified on Al-Khutm** (khutm2@5433): 2061 nodes, 3514 edges, 0 warnings, 0.61 s — matching the 2026-10-07 out-of-plugin validation; file at `~/Downloads/em_export_b1/Al-Khutm.em.json` for the visual check in EMStudio.
+- **Tutorials**: an "Export a site to em.json" section in `01_configurazione.md` for it/en/pt/ro.
+- Tests: `tests/sync/test_em_export.py` — 7 passed (round-trip, the 51 English SU rows, filenames, empty site, stale library, opener, wiring guard). Full sweep: 10 pre-existing ordering failures (PDF), ≤ the 13 baseline.
+
+---
+
 ## [refactor] - 2026-10-07 — Ponte unico: `s3dgraphy.sync` dalla libreria (tappe A1–A3) — 5.13.24-alpha
 
 > Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`one-bridge-5.13.24-alpha`**. Commit `844ee81f` (pin dev40), `250fac26`+`915387a4`+`319009b7` (A1, tre ondate), `95629db1` (A2 projector), `bb104d34` (A3 ingestor), `700480ce` (xfail writer in ritiro).
