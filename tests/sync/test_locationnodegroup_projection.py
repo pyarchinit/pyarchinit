@@ -71,8 +71,11 @@ def test_struttura_emits_locationnodegroup_kind_functional(
     _populate_dim(prepared_db, sito, dim, "Basilica")
     proj = GraphProjector()
     graph = proj.populate_graph(db_path=prepared_db, sito=sito, groups=[dim])
+    # dev40: the importer adds its own area group (kind "study") from the
+    # area column; the pin is on the group of the REQUESTED dimension.
     locs = [n for n in graph.nodes
-            if type(n).__name__ == "LocationNodeGroup"]
+            if type(n).__name__ == "LocationNodeGroup"
+            and n.name == "Basilica"]
     assert len(locs) >= 1
     assert all(loc.kind == expected_kind for loc in locs)
 

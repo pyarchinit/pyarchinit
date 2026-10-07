@@ -95,6 +95,43 @@ for _name in ("yed_group_walker", "yed_detector", "vocab_types",
               "pyarchinit_pg_importer", "rapporti", "_workspace"):
     _sys.modules[__name__ + "." + _name] = _importlib.import_module(
         "s3dgraphy.sync." + _name)
+
+# Continuity vocabulary (Genera continuita, 2026-06-11): pyArchInit-only
+# labels the library's rapporti does not carry (upstream candidate). They
+# ride on the aliased module so `from .rapporti import continuity_label`
+# keeps working, and the labels register into the SHARED shorthand dict so
+# parse_rapporti recognises them in every language.
+CONTINUITY_LABELS: dict = {
+    "it": ("Continuità successiva a", "Continuità precedente a"),
+    "en": ("Subsequent continuity of", "Prior continuity of"),
+    "de": ("Nachfolgende Kontinuität von", "Vorherige Kontinuität von"),
+    "es": ("Continuidad posterior a", "Continuidad anterior a"),
+    "fr": ("Continuité postérieure à", "Continuité antérieure à"),
+    "pt": ("Continuidade posterior a", "Continuidade anterior a"),
+    "ca": ("Continuïtat posterior a", "Continuïtat anterior a"),
+    "ro": ("Continuitate ulterioară a", "Continuitate anterioară a"),
+    "ar": ("استمرارية لاحقة لـ", "استمرارية سابقة لـ"),
+    "el": ("Μεταγενέστερη συνέχεια του", "Προγενέστερη συνέχεια του"),
+}
+
+
+def continuity_label(lang: str, direction: str) -> str:
+    """Return the continuity label for *lang* ('forward'|'reverse').
+    Falls back to Italian for unknown languages."""
+    pair = CONTINUITY_LABELS.get((lang or "it")[:2], CONTINUITY_LABELS["it"])
+    return pair[0] if direction == "forward" else pair[1]
+
+
+_rapporti = _sys.modules[__name__ + ".rapporti"]
+for _mod in (_rapporti, _importlib.import_module("s3dgraphy.rapporti")):
+    _mod.CONTINUITY_LABELS = CONTINUITY_LABELS
+    _mod.continuity_label = continuity_label
+for _fwd, _rev in CONTINUITY_LABELS.values():
+    _rapporti.RAPPORTI_SHORTHAND.setdefault(_fwd, ("is_after", False))
+    _rapporti.RAPPORTI_SHORTHAND.setdefault(_fwd.lower(), ("is_after", False))
+    _rapporti.RAPPORTI_SHORTHAND.setdefault(_rev, ("is_after", True))
+    _rapporti.RAPPORTI_SHORTHAND.setdefault(_rev.lower(), ("is_after", True))
+del _rapporti, _fwd, _rev, _mod
 # -------------------------------------------------------------------------
 
 

@@ -49,8 +49,10 @@ def test_export_graphml_uses_graph_projector():
         "graphml_writer must use GraphProjector after Strategy A")
 
 
-def test_graph_projector_has_enrich_into_method():
-    """The body lives in GraphProjector._enrich_into now."""
+def test_graph_projector_owns_the_enrichment_pass():
+    """The body lives inside the GraphProjector class: _enrich_into up to
+    the one-bridge wrapper (A2, 2026-10-07), _apply_pyarchinit_attributes
+    since — never a standalone function again."""
     src = (PLUGIN_ROOT / "modules" / "s3dgraphy" / "sync"
            / "graph_projector.py").read_text(encoding="utf-8")
-    assert "def _enrich_into" in src
+    assert "def _apply_pyarchinit_attributes" in src

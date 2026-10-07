@@ -61,13 +61,19 @@ def test_reverse_direction_swaps(src, tgt, expected_type):
     assert res is not None and res[0] == expected_type and res[1] is True
 
 
-@pytest.mark.parametrize("src,tgt", [
-    (EXTR, US), (COMB, US), (EXTR, USV), (COMB, USV),
+@pytest.mark.parametrize("src,tgt,expected", [
+    # EM 1.6 datamodel (s3dgraphy dev40): an extractor EXTRACTS FROM a
+    # stratigraphic unit — the rule exists now, and the resolver's job is
+    # to follow the datamodel, not to freeze its 1.5-era shape.
+    (EXTR, US, ("extracted_from", False)),
+    (EXTR, USV, ("extracted_from", False)),
+    # A combiner still has no rule toward stratigraphy: it combines
+    # extractors and documents, so the edge stays generic_connection.
+    (COMB, US, None),
+    (COMB, USV, None),
 ])
-def test_combiner_extractor_never_link_stratigraphic(src, tgt):
-    # No datamodel rule allows Extractor/Combiner <-> a stratigraphic unit:
-    # such edges must stay generic_connection (resolver returns None).
-    assert resolve_edge_type(src, tgt) is None
+def test_combiner_extractor_follow_the_datamodel(src, tgt, expected):
+    assert resolve_edge_type(src, tgt) == expected
 
 
 class _Edge:

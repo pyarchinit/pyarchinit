@@ -1454,4 +1454,8 @@ _NON_STRAT_TYPES: frozenset[str] = frozenset({
     "ActivityNodeGroup",
     "LocationNodeGroup",       # AI07: new spatial group node class
     "TimeBranchNodeGroup",
+    # dev40 parser classes: continuity comes back as ContinuityNode (not
+    # _synth_BR_* StratigraphicUnits) and the swimlane root as GraphNode.
+    "ContinuityNode",
+    "GraphNode",
 })

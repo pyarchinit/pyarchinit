@@ -75,14 +75,15 @@ def test_groups_arg_materializes_locationnodegroup_for_struttura(
 
     graph = GraphProjector().populate_graph(
         mini_volterra, sito=sito, groups=["struttura"])
+    # dev40: the importer adds its own area group (kind "study"); the pin
+    # is on the groups of the REQUESTED dimension (group_kind, AC-2).
     groups = [n for n in graph.nodes
-              if type(n).__name__ == "LocationNodeGroup"]
+              if type(n).__name__ == "LocationNodeGroup"
+              and (getattr(n, "attributes", None) or {})
+              .get("group_kind") == "struttura"]
     assert len(groups) >= 1
     # struttura → kind="functional" per spec mapping table
     assert all(getattr(g, "kind", None) == "functional" for g in groups)
-    g = groups[0]
-    attrs = getattr(g, "attributes", None) or {}
-    assert attrs.get("group_kind") == "struttura"
 
 
 def test_groups_arg_adds_is_in_location_edges_for_struttura(mini_volterra):
