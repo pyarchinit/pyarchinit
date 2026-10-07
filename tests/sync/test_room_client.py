@@ -90,6 +90,8 @@ def test_batches_are_capped_at_1000_and_all_arrive(monkeypatch):
     assert out.sent == 2300 and out.applied == 2300 and out.batches == 3
     assert all("graph_id" not in c[2] for c in posts), \
         "una stanza, un grafo vivo: mai graph_id"
+    assert all("author" not in op for c in posts for op in c[2]["ops"]), \
+        "l'autore lo scrive il server: mai nel payload (spec §6)"
 
 
 def test_a_repeat_reads_as_already_delivered(monkeypatch):
@@ -139,3 +141,38 @@ def test_the_menu_offers_delivery_and_the_node_door():
     unload = re.search(r"def unload\(self\):(.*?)\n    def ", src, re.S)
     assert unload and "actionRoomDelivery" in unload.group(1)
     assert "actionRoomOpen" in unload.group(1)
+
+
+def test_a_db_failure_is_a_sentence_not_a_traceback(monkeypatch, tmp_path):
+    """I5 review: un DB senza us_table (o PG giù) non deve arrivare
+    all'utente come dialogo d'errore Python."""
+    import sqlite3
+    from modules.s3dgraphy.room import room_client
+    db = tmp_path / "bare.sqlite"
+    sqlite3.connect(db).close()
+    st = _settings(monkeypatch)
+    node = FakeNode()
+    with pytest.raises(room_client.RoomRefusal) as err:
+        room_client.deliver_site("sqlite:///%s" % db, "S",
+                                 settings=st, http=node)
+    assert "us_table" in str(err.value) or "database" in str(err.value)
+
+
+def test_a_node_behind_caddy_is_found_at_slash_em(monkeypatch):
+    """I3 review: dietro Caddy l'API vive su /em/v1/… — un utente che
+    scrive la radice dell'host deve essere capito, non respinto con un 404
+    travestito da nodo irraggiungibile."""
+    from modules.s3dgraphy.room import room_client
+
+    class CaddyNode(FakeNode):
+        def __call__(self, method, url, payload, token):
+            if url.endswith("/v1/health") and "/em/" not in url:
+                raise OSError("HTTP Error 404: Not Found")
+            return super().__call__(method, url, payload, token)
+
+    st = _settings(monkeypatch, url="http://nodo.ente.it")
+    node = CaddyNode()
+    health = room_client._require_identity(st, node)
+    assert health.get("ok")
+    assert st.server_url == "http://nodo.ente.it/em", \
+        "la base risolta resta sulle settings: le ops vanno su /em/v1"

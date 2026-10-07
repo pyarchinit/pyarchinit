@@ -201,8 +201,8 @@ A partir de **pyArchInit → Extended Matrix → Consegna sito alla stanza…** 
 
 O que esperar:
 
-- escolhe-se o **sitio**, depois a janela pede o **no** (ex. `http://127.0.0.1:8020`), a **sala** e, apenas se o no o exigir, um **token** (melhor na variavel de ambiente `STRATIGRAPH_TOKEN`: nunca e guardado);
-- o resultado e uma frase: *«210 aplicadas em 210»* na primeira entrega; na segunda *«44 aplicadas, 166 ja presentes»* — **as repeticoes nao duplicam nada**: os nos fundem-se, as arestas conhecidas voltam como «ja presentes»;
+- escolhe-se o **sitio**, depois a janela pede o **no** (ex. `http://127.0.0.1:8020`; para um no institucional `https://no.org/em` — escrever a raiz tambem funciona, `/em` e encontrado sozinho), a **sala** e, apenas se o no o exigir, um **token** (melhor na variavel de ambiente `STRATIGRAPH_TOKEN`: nunca e guardado);
+- o resultado e uma frase: *«129 aplicadas em 129»* na primeira entrega; na segunda *«44 aplicadas em 129, 85 ja presentes»* — **as repeticoes nao duplicam nada**: os nos fundem-se, as arestas conhecidas voltam como «ja presentes»;
 - as linhas que nao podem tornar-se unidades da sala (documentos, extratores, propriedades) sao listadas em *Mostrar detalhes*, nunca inventadas;
 - **quem assina e quem entrega**: o autor e escrito pelo no a partir da identidade verificada, nao pelo payload.
 

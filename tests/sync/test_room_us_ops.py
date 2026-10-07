@@ -117,20 +117,65 @@ def test_swap_means_the_target_is_the_source():
     assert made.ops[0]["target"] == unit_id("S", "1", "1")
 
 
+def test_an_inverse_type_folds_into_its_forward_type():
+    # parse_rapporti dà 'Coperto da' come is_overlain_by (swap=False, misurato):
+    # l'adapter DEVE piegarlo in overlies con gli estremi scambiati, o la
+    # coppia inversa diventa due archi nella stanza condivisa (C1 review).
+    from modules.s3dgraphy.room.us_ops import ops_for_relationships, unit_id
+    known = _known(("S", "1", "1"), ("S", "1", "2"))
+    made = ops_for_relationships(
+        [{"sito": "S", "area": "1", "us": "2", "edge_type": "is_overlain_by",
+          "target_us": "1", "target_area": "1", "target_sito": "S",
+          "swap": False, "verb": "Coperto da"}], known)
+    op = made.ops[0]
+    assert op["edge_type"] == "overlies"
+    assert op["source"] == unit_id("S", "1", "1")
+    assert op["target"] == unit_id("S", "1", "2")
+
+
 def test_the_inverse_pair_collapses_to_one_edge():
-    # 1 Copre 2 + 2 Coperto da 1 → UN arco (stesso edge_id dopo orientazione)
+    # 1 Copre 2 + 2 Coperto da 1 → UN arco, con i tipi VERI del parse
     from modules.s3dgraphy.room.us_ops import ops_for_relationships
     known = _known(("S", "1", "1"), ("S", "1", "2"))
     made = ops_for_relationships([
         {"sito": "S", "area": "1", "us": "1", "edge_type": "overlies",
          "target_us": "2", "target_area": "1", "target_sito": "S",
          "swap": False, "verb": "Copre"},
-        {"sito": "S", "area": "1", "us": "2", "edge_type": "overlies",
+        {"sito": "S", "area": "1", "us": "2", "edge_type": "is_overlain_by",
          "target_us": "1", "target_area": "1", "target_sito": "S",
-         "swap": True, "verb": "Coperto da"},
+         "swap": False, "verb": "Coperto da"},
     ], known)
     assert len(made.ops) == 1
     assert made.counts.get("edges_deduplicated") == 1
+
+
+def test_a_real_reciprocal_pair_through_site_rows_is_one_edge(tmp_path):
+    """La prova che mancava: Copre/Coperto da dalla COLONNA, col parse vero.
+    Sul sito campione la mancanza di questa piega metteva 81 archi doppi
+    nella stanza (misurato dal revisore)."""
+    import sqlite3
+    db = tmp_path / "pair.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, area TEXT, us TEXT, unita_tipo TEXT, node_uuid TEXT,
+        rapporti TEXT, d_stratigrafica TEXT, d_interpretativa TEXT,
+        descrizione TEXT, interpretazione TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT,
+        periodo_finale TEXT, fase_finale TEXT,
+        anno_scavo TEXT, scavato TEXT)""")
+    conn.executemany(
+        "INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
+        "VALUES (?, ?, ?, ?, ?)",
+        [("S", "1", "1", "US", '[["Copre", "2", "1", "S"]]'),
+         ("S", "1", "2", "US", '[["Coperto da", "1", "1", "S"]]')])
+    conn.commit(); conn.close()
+    from modules.s3dgraphy.room import site_rows, us_ops
+    units, rels, _problems = site_rows.load("sqlite:///%s" % db, "S")
+    made = us_ops.deliver(units, rels)
+    edges = [o for o in made.ops if o["op"] == "add_edge"]
+    assert len(edges) == 1, [(e["edge_type"], e["id"]) for e in edges]
+    assert edges[0]["edge_type"] == "overlies"
 
 
 def test_symmetric_edges_have_one_canonical_orientation():
@@ -190,8 +235,9 @@ def test_site_rows_reads_units_and_parses_rapporti(tmp_path):
         "VALUES (?, ?, ?, ?, ?)", rows)
     conn.commit(); conn.close()
     from modules.s3dgraphy.room.site_rows import load
-    units, rels = load("sqlite:///%s" % db, "S")
+    units, rels, problems = load("sqlite:///%s" % db, "S")
     assert {u["us"] for u in units} == {"1", "2"}      # un sito per consegna
+    assert problems == []
     assert len(rels) == 1 and rels[0]["edge_type"] == "overlies"
     assert rels[0]["target_us"] == "2" and rels[0]["verb"] == "Copre"
 
@@ -219,9 +265,64 @@ def test_an_unknown_verb_in_the_middle_does_not_shift_the_words(tmp_path):
          ("S", "1", "3", "US", "[]"), ("S", "1", "4", "US", "[]")])
     conn.commit(); conn.close()
     from modules.s3dgraphy.room.site_rows import load
-    _units, rels = load("sqlite:///%s" % db, "S")
+    _units, rels, problems = load("sqlite:///%s" % db, "S")
+    assert any("VerboInventato" in p_ for p_ in problems)
     by_target = {r["target_us"]: r["verb"] for r in rels}
     assert by_target.get("2") == "Copre"
     assert by_target.get("4") == "Taglia", by_target
     assert "VerboInventato" not in set(by_target.values()) or \
         by_target.get("3") == "VerboInventato"
+
+
+def test_localized_unit_codes_become_us_not_dropped():
+    """C2 review: SU (en/ar), SE (de), UE (es/ca/pt), ΣΜ (el) sono il modo
+    in cui pyArchInit scrive 'US' nelle altre lingue — sul DB campione se ne
+    perdevano 36 per sito. canonical_unita_tipo li conosce già."""
+    from modules.s3dgraphy.room.us_ops import ops_for_units
+    made = ops_for_units([
+        {"sito": "S", "area": "1", "us": str(i + 1), "unita_tipo": code}
+        for i, code in enumerate(("SU", "SE", "UE", "ΣΜ"))])
+    assert len(made.ops) == 4, made.skipped
+    assert {o["node"]["node_type"] for o in made.ops} == {"US"}
+    assert made.counts.get("units_canonicalized_SU") == 1
+
+
+def test_every_unit_op_carries_its_language():
+    """I4 review: il contratto dev40 (crdt.make_op, decisione 12) rifiuta un
+    add_node testuale senza data.lang — lo mette il produttore, una volta."""
+    from modules.s3dgraphy.room.us_ops import ops_for_units
+    made = ops_for_units(
+        [{"sito": "S", "area": "1", "us": "1", "unita_tipo": "US"}],
+        lang="it")
+    assert made.ops[0]["node"]["data"]["lang"] == "it"
+    default = ops_for_units(
+        [{"sito": "S", "area": "1", "us": "1", "unita_tipo": "US"}])
+    assert default.ops[0]["node"]["data"]["lang"] == "und"
+
+
+def test_unreadable_rapporti_are_reported_not_swallowed(tmp_path):
+    """I6 review: una colonna rapporti illeggibile o un verbo sconosciuto
+    devono finire nel rapporto, mai sparire in silenzio."""
+    import sqlite3
+    db = tmp_path / "bad.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, area TEXT, us TEXT, unita_tipo TEXT, node_uuid TEXT,
+        rapporti TEXT, d_stratigrafica TEXT, d_interpretativa TEXT,
+        descrizione TEXT, interpretazione TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT,
+        periodo_finale TEXT, fase_finale TEXT,
+        anno_scavo TEXT, scavato TEXT)""")
+    conn.executemany(
+        "INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
+        "VALUES (?, ?, ?, ?, ?)",
+        [("S", "1", "1", "US", "{non è json né literal"),
+         ("S", "1", "2", "US", '[["VerboInventato", "1", "1", "S"]]')])
+    conn.commit(); conn.close()
+    from modules.s3dgraphy.room.site_rows import load
+    _units, rels, problems = load("sqlite:///%s" % db, "S")
+    assert rels == []
+    assert len(problems) == 2
+    assert any("illeggibil" in p for p in problems)
+    assert any("VerboInventato" in p for p in problems)

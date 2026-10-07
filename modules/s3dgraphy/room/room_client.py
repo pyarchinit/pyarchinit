@@ -142,8 +142,19 @@ def preflight(server_url, http: Http = _urllib_http):
 
 def _require_identity(settings, http: Http = _urllib_http):
     """Regola 2, adattata: l'identità la esige il NODO, non noi. Un nodo
-    dev-no-auth non la chiede; uno vero la chiede PRIMA di ogni POST."""
-    health = preflight(settings.server_url, http)
+    dev-no-auth non la chiede; uno vero la chiede PRIMA di ogni POST.
+
+    Dietro Caddy l'API vive su ``/em/v1/…`` (I3, review 2026-10-07): se la
+    radice non risponde si prova ``/em``, e la base risolta RESTA sulle
+    settings — così anche le ops vanno dalla porta giusta."""
+    try:
+        health = preflight(settings.server_url, http)
+    except RoomRefusal as first:
+        try:
+            health = preflight(settings.server_url + "/em", http)
+        except RoomRefusal:
+            raise first from None
+        settings.server_url = settings.server_url + "/em"
     if health.get("auth") != "dev-no-auth" and not settings.token:
         raise RoomRefusal(
             "Il nodo %s esige un'identità (%s) e %s non è impostata: "
@@ -186,7 +197,8 @@ def _deliver_ops(ops, settings, http: Http = _urllib_http):
     return out
 
 
-def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http):
+def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http,
+                 lang=None):
     """us_table → stanza, nell'ordine che conta: configurazione, identità,
     traduzione, e SOLO POI la rete delle ops."""
     from . import site_rows, us_ops
@@ -202,8 +214,16 @@ def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http):
             "andrebbe dove nessuno ha scelto." % " e ".join(missing))
     _require_identity(settings, http)
 
-    units, relationships = site_rows.load(conn_str, sito)
-    made = us_ops.deliver(units, relationships)
+    # I5 (review): un DB zoppo (us_table assente, PG giù, colonna driftata)
+    # è una frase per l'utente, mai un traceback nel dialogo di QGIS.
+    try:
+        units, relationships, problems = site_rows.load(conn_str, sito)
+    except Exception as exc:
+        raise RoomRefusal(
+            "Lettura di us_table fallita dal database (%s). Niente è stato "
+            "consegnato." % exc) from exc
+    made = us_ops.deliver(units, relationships, lang=lang)
+    made.skipped.extend(problems)
     if not made.ops:
         out = Outcome(room_id=settings.room_id)
         out.skipped = list(made.skipped)
@@ -219,12 +239,13 @@ def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http):
 def rooms_door(server_url, http: Http = _urllib_http):
     """La porta della UI delle stanze: /em/rooms/ dietro Caddy, /rooms/ sul
     nodo nudo. La prima che risponde 200."""
-    for path in ("/em/rooms/", "/rooms/"):
+    base = server_url.rstrip("/")
+    paths = ("/rooms/",) if base.endswith("/em") else ("/em/rooms/", "/rooms/")
+    for path in paths:
         try:
-            status, _body = http("GET", server_url.rstrip("/") + path,
-                                 None, "")
+            status, _body = http("GET", base + path, None, "")
         except Exception:
             continue
         if status == 200:
-            return server_url.rstrip("/") + path
-    return server_url.rstrip("/") + "/em/rooms/"
+            return base + path
+    return base + ("/rooms/" if base.endswith("/em") else "/em/rooms/")

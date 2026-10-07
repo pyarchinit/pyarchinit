@@ -75,19 +75,31 @@ class Delivery:
 
 
 def _resolve_type(declared: str):
-    """(node_type, kind, source_code) per una unita_tipo, o (None, …) = skip."""
+    """(node_type, kind, source_code, canonicalized) per una unita_tipo,
+    o (False, …) = sconosciuta: riportata, mai inventata."""
     if not declared:
-        return DEFAULT_UNIT_TYPE, None, None
+        return DEFAULT_UNIT_TYPE, None, None, False
     if declared in UNIT_TYPES:
-        return UNIT_TYPES[declared], None, None
+        return UNIT_TYPES[declared], None, None, False
     try:
         from s3dgraphy.nodes.stratigraphic_node import KIND_OF_CODE
         kind = KIND_OF_CODE.get(declared)
     except Exception:
         kind = None
     if kind:
-        return "US", kind, declared
-    return False, None, None          # sconosciuta: riportata, mai inventata
+        return "US", kind, declared, False
+    # C2 (review 2026-10-07): le altre lingue scrivono 'US' come SU/SE/UE/ΣΜ
+    # — canonical_unita_tipo le conosce già; senza questo passo un DB non
+    # italiano perdeva ~80% delle unità.
+    try:
+        from s3dgraphy.rapporti import canonical_unita_tipo
+        canonical = canonical_unita_tipo(declared)
+    except Exception:
+        canonical = declared
+    if canonical != declared and canonical in UNIT_TYPES \
+            and UNIT_TYPES[canonical]:
+        return UNIT_TYPES[canonical], None, None, True
+    return False, None, None, False
 
 
 def _node_data(row: Dict[str, Any], kind, source_code) -> Dict[str, Any]:
@@ -105,7 +117,8 @@ def _node_data(row: Dict[str, Any], kind, source_code) -> Dict[str, Any]:
 
 
 def ops_for_units(units: Iterable[Dict[str, Any]],
-                  delivery: Optional[Delivery] = None) -> Delivery:
+                  delivery: Optional[Delivery] = None,
+                  lang: Optional[str] = None) -> Delivery:
     made = delivery if delivery is not None else Delivery()
     for row in units:
         sito, us = row.get("sito"), row.get("us")
@@ -116,7 +129,7 @@ def ops_for_units(units: Iterable[Dict[str, Any]],
             made.bump("units_unidentifiable")
             continue
         declared = str(row.get("unita_tipo") or "").strip()
-        node_type, kind, source_code = _resolve_type(declared)
+        node_type, kind, source_code, canonicalized = _resolve_type(declared)
         if node_type is None:
             made.skipped.append(
                 "%s/%s/%s: %r è paradata, non una unità della stanza"
@@ -132,25 +145,56 @@ def ops_for_units(units: Iterable[Dict[str, Any]],
             continue
         if not declared:
             made.bump("units_typed_by_default")
+        elif canonicalized:
+            made.bump("units_canonicalized_%s" % declared)
         elif declared in UNIT_TYPES and UNIT_TYPES[declared] != declared:
             made.bump("units_remapped_%s_to_%s"
                       % (declared, UNIT_TYPES[declared]))
-        made.ops.append({
-            "op": "add_node",
-            "id": unit_id(sito, row.get("area"), us),
-            "node": {
+        data = _node_data(row, kind, source_code)
+        # dev40, decisione 12: la lingua di un nodo testuale viaggia
+        # NELL'operazione e la decide il produttore; 'und' = non nota.
+        data["lang"] = (lang or "und").strip() or "und"
+        made.ops.append(_make_op(
+            "add_node",
+            id=unit_id(sito, row.get("area"), us),
+            node={
                 "node_type": node_type,
                 "name": str(us).strip(),
                 "description": (row.get("d_stratigrafica") or "").strip() or None,
-                "data": _node_data(row, kind, source_code),
+                "data": data,
             },
-        })
+        ))
         made.bump("units")
     return made
 
 
+def _make_op(kind, **fields):
+    """Il costruttore del contratto (crdt.make_op): valida — p.es. rifiuta un
+    add_node testuale senza data.lang — e non scrive mai author/ts."""
+    try:
+        from s3dgraphy.crdt import make_op
+        return make_op(kind, **fields)
+    except ImportError:
+        out = {"op": kind}
+        out.update(fields)
+        return out
+
+
 SYMMETRIC = {"equals", "bonded_to", "has_same_time",
              "is_physically_equal_to", "is_bonded_to"}
+
+#: parse_rapporti dà il verbo inverso come TIPO inverso (Coperto da →
+#: is_overlain_by, swap=False — misurato): senza questa piega la coppia
+#: reciproca diventa DUE archi nella stanza condivisa, per sempre (C1,
+#: review 2026-10-07: 81 doppi sul solo sito campione).
+INVERSE_TO_FORWARD = {
+    "is_overlain_by": "overlies",
+    "is_cut_by": "cuts",
+    "is_filled_by": "fills",
+    "is_abutted_by": "abuts",
+    "is_leaned_on_by": "leans_on",
+    "is_before": "is_after",
+}
 
 
 def _resolve_target(rel, known):
@@ -199,7 +243,12 @@ def ops_for_relationships(relationships, known, delivery=None):
             made.bump("edges_unresolved")
             continue
         edge_type = rel["edge_type"]
-        source, target = (dst, src) if rel.get("swap") else (src, dst)
+        swap = bool(rel.get("swap"))
+        # la piega degli inversi: stesso arco da qualsiasi lato lo si scriva
+        if edge_type in INVERSE_TO_FORWARD:
+            edge_type = INVERSE_TO_FORWARD[edge_type]
+            swap = not swap
+        source, target = (dst, src) if swap else (src, dst)
         if edge_type in SYMMETRIC and target < source:
             source, target = target, source
         eid = edge_id(source, edge_type, target)
@@ -207,19 +256,19 @@ def ops_for_relationships(relationships, known, delivery=None):
             made.bump("edges_deduplicated")
             continue
         seen.add(eid)
-        made.ops.append({
-            "op": "add_edge", "id": eid,
-            "source": source, "target": target, "edge_type": edge_type,
-            "attributes": {"pyarchinit_relationship": rel.get("verb") or ""},
-        })
+        made.ops.append(_make_op(
+            "add_edge", id=eid,
+            source=source, target=target, edge_type=edge_type,
+            attributes={"pyarchinit_relationship": rel.get("verb") or ""},
+        ))
         made.bump("edges")
     return made
 
 
-def deliver(units, relationships=()):
+def deliver(units, relationships=(), lang=None):
     """Tutto il sito in operazioni: prima i nodi, poi gli archi fra loro."""
     units = list(units)
-    made = ops_for_units(units)
+    made = ops_for_units(units, lang=lang)
     known = {(str(r.get("sito") or "").strip(),
               normalize_area(r.get("area")),
               str(r.get("us") or "").strip()):

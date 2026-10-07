@@ -201,8 +201,8 @@ Din meniul **pyArchInit → Extended Matrix → Consegna sito alla stanza…** u
 
 La ce sa va asteptati:
 
-- se alege **situl**, apoi fereastra cere **nodul** (ex. `http://127.0.0.1:8020`), **camera** si, doar daca nodul o cere, un **token** (cel mai bine in variabila de mediu `STRATIGRAPH_TOKEN`: nu este salvat niciodata);
-- rezultatul este o fraza: *«210 aplicate din 210»* la prima livrare; la a doua *«44 aplicate, 166 deja prezente»* — **repetarile nu dubleaza nimic**: nodurile fuzioneaza, muchiile cunoscute revin ca «deja prezente»;
+- se alege **situl**, apoi fereastra cere **nodul** (ex. `http://127.0.0.1:8020`; pentru un nod institutional `https://nod.org/em` — scrierea radacinii functioneaza si ea, `/em` este gasit singur), **camera** si, doar daca nodul o cere, un **token** (cel mai bine in variabila de mediu `STRATIGRAPH_TOKEN`: nu este salvat niciodata);
+- rezultatul este o fraza: *«129 aplicate din 129»* la prima livrare; la a doua *«44 aplicate din 129, 85 deja prezente»* — **repetarile nu dubleaza nimic**: nodurile fuzioneaza, muchiile cunoscute revin ca «deja prezente»;
 - randurile care nu pot deveni unitati ale camerei (documente, extractoare, proprietati) sunt listate la *Arata detalii*, niciodata inventate;
 - **semnatura apartine celui care livreaza**: autorul este scris de nod din identitatea verificata, nu din payload.
 

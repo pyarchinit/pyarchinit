@@ -18,7 +18,8 @@ _COLUMNS = ("sito", "area", "us", "unita_tipo", "rapporti",
 
 
 def load(conn_str: str, sito: str) -> Tuple[List[Dict[str, Any]],
-                                            List[Dict[str, Any]]]:
+                                            List[Dict[str, Any]],
+                                            List[str]]:
     from sqlalchemy import create_engine, text
 
     from s3dgraphy.rapporti import parse_rapporti
@@ -34,21 +35,32 @@ def load(conn_str: str, sito: str) -> Tuple[List[Dict[str, Any]],
 
     units: List[Dict[str, Any]] = []
     relationships: List[Dict[str, Any]] = []
+    problems: List[str] = []
     for row in rows:
         unit = dict(zip(_COLUMNS, row))
         units.append(unit)
         raw = unit.get("rapporti")
         if not raw:
             continue
+        entries = _entries(raw)
+        if entries is None:
+            problems.append(
+                "US %s/%s/%s: colonna rapporti illeggibile (%.60r)"
+                % (unit["sito"], unit["area"], unit["us"], raw))
+            continue
         # UNA voce per volta: parse_rapporti scarta ciò che non riconosce
         # e uno zip su liste di lunghezza diversa disallineerebbe la
         # «parola dell'archeologo» (pinnato dal test del verbo inventato).
-        for entry in _entries(raw):
+        for entry in entries:
             try:
                 parsed = parse_rapporti([entry])
             except Exception:
                 parsed = []
             if not parsed:
+                problems.append(
+                    "US %s/%s/%s: rapporto non riconosciuto %r"
+                    % (unit["sito"], unit["area"], unit["us"],
+                       str(entry[0]).strip()))
                 continue
             edge_type, target_us, area, t_sito, swap = parsed[0]
             relationships.append({
@@ -57,11 +69,11 @@ def load(conn_str: str, sito: str) -> Tuple[List[Dict[str, Any]],
                 "target_area": area, "target_sito": t_sito or unit["sito"],
                 "swap": swap, "verb": str(entry[0]).strip(),
             })
-    return units, relationships
+    return units, relationships, problems
 
 
-def _entries(raw) -> List[Any]:
-    """Le voci grezze della colonna rapporti, col primo campo non vuoto."""
+def _entries(raw):
+    """Le voci grezze (primo campo non vuoto), o None = colonna illeggibile."""
     import ast
     import json
     try:
@@ -70,7 +82,7 @@ def _entries(raw) -> List[Any]:
         try:
             entries = ast.literal_eval(raw)
         except Exception:
-            return []
+            return None
     return [e for e in entries or []
             if isinstance(e, (list, tuple)) and e
             and str(e[0] or "").strip()]

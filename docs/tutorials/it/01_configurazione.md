@@ -353,8 +353,8 @@ Dal menu **pyArchInit → Extended Matrix → Consegna sito alla stanza…** le 
 
 Cosa aspettarsi:
 
-- si sceglie il **sito**, poi la finestra chiede **nodo** (es. `http://127.0.0.1:8020`), **stanza** e, solo se il nodo lo esige, un **token** (meglio nella variabile d'ambiente `STRATIGRAPH_TOKEN`: non viene mai salvato);
-- l'esito è una frase: *«210 applicate su 210»* alla prima consegna; alla seconda *«44 applicate, 166 già presenti»* — **le ripetizioni non duplicano nulla**: i nodi si fondono, gli archi già noti tornano come «già presenti»;
+- si sceglie il **sito**, poi la finestra chiede **nodo** (es. `http://127.0.0.1:8020`; per un nodo istituzionale `https://nodo.ente.it/em` — se si scrive la radice, `/em` viene trovato da solo), **stanza** e, solo se il nodo lo esige, un **token** (meglio nella variabile d'ambiente `STRATIGRAPH_TOKEN`: non viene mai salvato);
+- l'esito è una frase: *«129 applicate su 129»* alla prima consegna; alla seconda *«44 applicate su 129, 85 già presenti»* — **le ripetizioni non duplicano nulla**: i nodi si fondono, gli archi già noti tornano come «già presenti»;
 - le righe che non possono diventare unità della stanza (documenti, estrattori, proprietà) sono elencate in *Mostra dettagli*, mai inventate;
 - **chi firma è chi consegna**: l'autore lo scrive il nodo dall'identità verificata, non il payload.
 

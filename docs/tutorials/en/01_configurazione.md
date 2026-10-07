@@ -201,8 +201,8 @@ From **pyArchInit → Extended Matrix → Consegna sito alla stanza…** a site'
 
 What to expect:
 
-- pick the **site**, then the dialog asks for the **node** (e.g. `http://127.0.0.1:8020`), the **room** and, only when the node demands it, a **token** (best kept in the `STRATIGRAPH_TOKEN` environment variable: it is never saved);
-- the outcome is a sentence: *"210 applied out of 210"* on the first delivery; on the second *"44 applied, 166 already there"* — **repeats duplicate nothing**: nodes merge, known edges come back as "already there";
+- pick the **site**, then the dialog asks for the **node** (e.g. `http://127.0.0.1:8020`; for an institutional node `https://node.org/em` — writing the root also works, `/em` is found automatically), the **room** and, only when the node demands it, a **token** (best kept in the `STRATIGRAPH_TOKEN` environment variable: it is never saved);
+- the outcome is a sentence: *"129 applied out of 129"* on the first delivery; on the second *"44 applied out of 129, 85 already there"* — **repeats duplicate nothing**: nodes merge, known edges come back as "already there";
 - rows that cannot become room units (documents, extractors, properties) are listed under *Show details*, never invented;
 - **the signature belongs to the deliverer**: the node writes the author from the verified identity, not from the payload.
 

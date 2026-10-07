@@ -2998,11 +2998,23 @@ class PyArchInitPlugin(object):
         qs.setValue(room_client.QSETTINGS_URL, settings.server_url)
         qs.setValue(room_client.QSETTINGS_ROOM, settings.room_id)
 
+        _lang = "und"
+        try:
+            from qgis.core import QgsSettings
+            _lang = ((QgsSettings().value("locale/userLocale", "") or "")[:2]
+                     .lower() or "und")
+        except Exception:
+            pass
         try:
             outcome = room_client.deliver_site(conn_str, site,
-                                               settings=settings)
+                                               settings=settings, lang=_lang)
         except room_client.RoomRefusal as e:
             QMessageBox.warning(self.iface.mainWindow(), "Stanza", str(e))
+            return
+        except Exception as e:                       # noqa: BLE001 — I5 review
+            QMessageBox.warning(
+                self.iface.mainWindow(), "Stanza",
+                "Consegna fallita per un guasto imprevisto:\n%s" % e)
             return
         title = ("Sito già consegnato" if outcome.a_repeat
                  else "Consegna alla stanza")
