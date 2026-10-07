@@ -168,6 +168,15 @@ warnings.
   authorship test: an author field smuggled into the payload does not reach
   the room.
 
+#### Addendum C — conferme di Emanuel e misure sul nodo locale (2026-10-07, sera)
+
+- Il server è **FastAPI/Python** (`StratiGraph-ECCCH/stratigraph-server`, GPL-3), non axum: «StratiGraph Server adds no logic», ogni endpoint chiama `s3dgraphy.api`. La nota sui due livelli: `docs/SYNC-FIELD-TO-CLOUD.md`.
+- pyArchInit sta sul livello **REST**: `POST /v1/rooms/{id}/ops`, ≤ `OPS_BATCH_MAX` (1000) op per chiamata, 413 oltre; serve ruolo **editor**; `author` nel payload scartato (lo scrive il server dal token Keycloak/ORCID).
+- **Misurato in locale** (venv + `EM_SERVER_ALLOW_ANON=1`, porta 8020): 1ª consegna 4/4 applied; riconsegna 3 merge (`add_node` FONDE) + 1 `idempotent` in `refused` su HTTP 200. L'acceptance del §6 («the second delivery returns all refused») va letta così: **i nodi fondono, gli archi rifiutano** — il criterio osservabile è `a_repeat` = ogni op o fusa o `idempotent`, nessun altro rifiuto. **Mai `graph_id` nel payload**: una stanza ha UN grafo vivo, con un id estraneo tutto torna refused («the graph X is not in this study»).
+- Merge CRDT **per campo**: «if you write a field, stamp it» — chi non stampa degrada a last-writer-wins sul nodo, correttamente.
+- Op shape (dal client di riferimento `pyarchinit-mini`, ramo `stratigraph/09-client-stanza`): `add_node` col payload DENTRO `node` (al top level verrebbe accettato e perso); `add_edge` piatto (`source`,`target`,`edge_type`) con id `source__edge_type__target` (convenzione di EMStudio: l'arco disegnato a mano e il nostro sono UNO); id unità `stable_id(ORIGIN,"us",sito,area,us)`.
+- B2 minimo: la UI delle stanze è servita dal nodo stesso — `/em/rooms/` dietro Caddy, `/rooms/` sul nodo nudo.
+
 ## 7. Testing and release rhythm
 
 One alpha release per stage — in order **A1, A2, B1, A3, A4, A5**, then
