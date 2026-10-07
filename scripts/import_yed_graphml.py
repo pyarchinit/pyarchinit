@@ -23,7 +23,16 @@ from pathlib import Path
 
 # Plugin runs this with PYTHONPATH=plugin_root (same as sibling migration
 # CLIs); when invoked directly from another cwd, callers can prepend that
-# path manually.
+# path manually. One bridge (A1): the vendored package resolves its shared
+# modules from the s3dgraphy library, which lives in ext_libs.
+# Inserted BEFORE site-packages: the QGIS interpreter can carry a stray
+# ancient s3dgraphy (0.1.x, found 2026-10-07) that would win over ext_libs
+# if these only went at the end of sys.path.
+_ROOT = Path(__file__).resolve().parents[1]
+for _pos, _entry in enumerate((str(_ROOT), str(_ROOT / "ext_libs")), start=1):
+    if _entry not in sys.path:
+        sys.path.insert(_pos, _entry)
+
 from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
 from modules.s3dgraphy.sync.yed_classifier import classify_leaves
 from modules.s3dgraphy.sync.yed_group_walker import walk_folders

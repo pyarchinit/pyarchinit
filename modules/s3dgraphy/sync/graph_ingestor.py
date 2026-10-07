@@ -40,16 +40,15 @@ MAPPED_COLUMNS: tuple[str, ...] = (
 # ---------------------------------------------------------------------------
 # Exception hierarchy (spec §5.1)
 # ---------------------------------------------------------------------------
-class GraphSyncError(Exception):
-    """Base class for all GraphProjector / GraphIngestor errors."""
-
-
-class GraphIngestError(GraphSyncError):
-    """Write-side failure. Always means DB rolled back to pre-call state."""
-
-
-class CycleDetectedError(GraphIngestError):
-    """AI07: recursive walker detected a cycle in yEd folder nesting."""
+# One bridge (A1, spec 2026-10-07): one identity for the sync exceptions —
+# the library's. The modules already migrated (yed_group_walker among them)
+# raise the library classes; defining the same names here again would make
+# `except CycleDetectedError` miss them.
+from s3dgraphy.sync.graph_ingestor import (  # noqa: F401
+    CycleDetectedError,
+    GraphIngestError,
+    GraphSyncError,
+)
 
 
 class SchemaMismatchError(GraphIngestError):

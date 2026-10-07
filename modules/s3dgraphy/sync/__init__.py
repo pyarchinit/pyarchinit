@@ -74,6 +74,21 @@ A friendly ``ImportError`` is raised on first use if SQLAlchemy is
 missing.
 """
 from __future__ import annotations
+# --- One bridge (A1, spec 2026-10-07) -----------------------------------
+# The modules measured identical to the library now live only there; the
+# old import path stays alive until A5 rewires the callers. Registering
+# them in sys.modules also lets the RELATIVE imports of the files still
+# vendored here (from ._db_handle import ...) resolve to the library.
+import importlib as _importlib
+import sys as _sys
+for _name in ("yed_group_walker", "yed_detector", "vocab_types",
+              "vocab_provider_core", "uuid7", "ingest_result",
+              "group_store", "conflict_resolver",
+              "_legacy_paradata_svgs", "_db_handle"):
+    _sys.modules[__name__ + "." + _name] = _importlib.import_module(
+        "s3dgraphy.sync." + _name)
+# -------------------------------------------------------------------------
+
 
 # Lazy SQLAlchemy probe with a friendly error — happens on package
 # import; users who don't touch s3dgraphy.sync pay nothing.
