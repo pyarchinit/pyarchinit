@@ -11,7 +11,7 @@
 **Spec:** `docs/superpowers/specs/2026-10-07-one-bridge-s3dgraphy-design.md` §5 (B2) + Addendum C; messaggio di Emanuel 2026-10-07 («la strada più semplice è aprire nel pannello la versione web … puntata sulla stanza del sito, in sola lettura»).
 
 **Fatti misurati che il piano usa (2026-10-07):**
-- l'indirizzo per-stanza è `?room=<id>` sulla pagina *work* (`app/rooms_ui/rooms.js:1745`: «`/em/work/?room=<id>` is the stable per-room address»); sul nodo nudo risponde `GET /rooms/work/?room=…` → 200 (misurato sul locale :8020);
+- l'indirizzo per-stanza è `?room=<id>` sulla pagina *work* (`app/rooms_ui/rooms.js:1745`: «`/em/work/?room=<id>` is the stable per-room address»); sul nodo nudo la pagina vive **in cima**: `GET /work/?room=…` → 200 (misurato sul locale :8020); ATTENZIONE: anche `/rooms/work/` risponde 200 ma è una shell senza asset (mount statico) — l'errore che la review ha colto;
 - l'editor/reader di EMStudio (`/em/studio/`, `/em/read/`) è un QUARTO repo servito solo dai nodi che lo montano: il pannello punta alla pagina del NODO, che c'è sempre; quando un nodo istituzionale servirà EMStudio, l'indirizzo resta sotto la stessa base e il pannello non cambia;
 - la sola-lettura è del SERVER (ruolo viewer): il pannello non deve fingerla lato client;
 - Qt WebEngine può mancare in un profilo QGIS: `tabs/DemPlotDialogs.py:_import_qt_webengine()` è il pattern di casa (Qt5/Qt6, None se assente).
@@ -55,7 +55,7 @@ cp -R "$PLUGIN/ext_libs" /Users/enzo/pyarchinit-room-panel/ext_libs
 
 **Interfaces:**
 - Consumes: la logica di base di `rooms_door` (già esistente: base ±`/em`, sonda `_probe_http`).
-- Produces: `room_work_url(server_url, room_id, http=_probe_http) -> str` — l'URL della pagina *work* della stanza: `<base>/em/work/?room=<id>` dietro Caddy, `<base>/rooms/work/?room=<id>` sul nodo nudo; `room_id` quotato; su nodo muto restituisce comunque il candidato Caddy (mai un'eccezione: il pannello mostrerà il suo errore).
+- Produces: `room_work_url(server_url, room_id, http=_probe_http) -> str` — l'URL della pagina *work* della stanza: `<base>/em/work/?room=<id>` dietro Caddy, `<base>/work/?room=<id>` sul nodo nudo; `room_id` quotato; su nodo muto restituisce comunque il candidato Caddy (mai un'eccezione: il pannello mostrerà il suo errore).
 
 - [ ] **Step 1: Test rossi** (in coda a `tests/sync/test_room_client.py`):
 
