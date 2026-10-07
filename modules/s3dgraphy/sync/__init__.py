@@ -89,7 +89,10 @@ for _name in ("yed_group_walker", "yed_detector", "vocab_types",
               # delta era una miglioria della libreria.
               "yed_rapporti_policy", "yed_classifier", "yed_import_pipeline",
               "paradata_store", "edge_registry", "group_projector",
-              "yed_table_parser"):
+              "yed_table_parser",
+              # terza ondata: mapping e workspace dentro la libreria,
+              # rapporti sulle grafie canoniche.
+              "pyarchinit_pg_importer", "rapporti", "_workspace"):
     _sys.modules[__name__ + "." + _name] = _importlib.import_module(
         "s3dgraphy.sync." + _name)
 # -------------------------------------------------------------------------

@@ -33,6 +33,10 @@ _EDGE_TYPE_INVERSE = {
     "abuts": "is_abutted_by", "is_abutted_by": "abuts",
     "is_physically_equal_to": "is_physically_equal_to",
     "is_bonded_to": "is_bonded_to",
+    # canonical spellings since s3dgraphy 2026-09-27 (the old ones stay
+    # readable as spelling_of in the datamodel)
+    "equals": "equals",
+    "bonded_to": "bonded_to",
 }
 
 

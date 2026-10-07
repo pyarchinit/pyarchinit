@@ -82,6 +82,9 @@ EDGE_STYLES = {
     "abuts":          {"linestyle": "-.", "color": "#666666", "linewidth": 1.1, "alpha": 0.80},
     "is_bonded_to":   {"linestyle": "-",  "color": "#31792D", "linewidth": 1.5, "alpha": 0.85},
     "equals":         {"linestyle": "-",  "color": "#1a2d4a", "linewidth": 2.5, "alpha": 0.90},
+    # canonical / older spellings of the two symmetric bonds: same styles
+    "bonded_to":      {"linestyle": "-",  "color": "#31792D", "linewidth": 1.5, "alpha": 0.85},
+    "is_physically_equal_to": {"linestyle": "-", "color": "#1a2d4a", "linewidth": 2.5, "alpha": 0.90},
 }
 DEFAULT_EDGE_STYLE = {"linestyle": "-", "color": "#999999", "linewidth": 0.7, "alpha": 0.55}
 

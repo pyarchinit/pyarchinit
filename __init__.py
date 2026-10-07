@@ -70,6 +70,12 @@ PYARCHINIT_HOME = pyarchinit_home()
 # Earliest authority: every later pyarchinit_home() / os.environ read resolves
 # to the same value (default ~/pyarchinit_5, or an external override).
 os.environ['PYARCHINIT_HOME'] = PYARCHINIT_HOME
+# The s3dgraphy workspace (yEd import staging) follows the data home: the
+# library resolves it from PYARCHINIT_WORKSPACE_DIR alone (s3dgraphy #10
+# dropped the QSettings/PYARCHINIT_HOME tiers to stay Qt-free), so the
+# host mirrors its setting here. An externally-set value is respected.
+os.environ.setdefault('PYARCHINIT_WORKSPACE_DIR',
+                      os.path.join(PYARCHINIT_HOME, 'pyarchinit_DB_folder'))
 
 # Constants for QGIS paths on MacOS
 QGIS_PATHS = {

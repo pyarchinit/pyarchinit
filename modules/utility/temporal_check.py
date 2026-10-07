@@ -33,7 +33,9 @@ _LATER = frozenset({"overlies", "cuts", "fills", "abuts", "is_after"})
 _EARLIER = frozenset({"is_overlain_by", "is_cut_by", "is_filled_by",
                       "is_abutted_by", "is_before"})
 #: contemporaneous (same period required)
-_CONTEMP = frozenset({"is_physically_equal_to", "is_bonded_to"})
+_CONTEMP = frozenset({"is_physically_equal_to", "is_bonded_to",
+                      # canonical spellings since s3dgraphy 2026-09-27
+                      "equals", "bonded_to"})
 
 
 def _classify_relation(et):

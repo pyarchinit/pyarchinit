@@ -28,7 +28,11 @@ FREE_WINS = ("yed_group_walker", "yed_detector", "vocab_types",
 # invalidate_indices, JSON_config resolved inside the package).
 RECONCILED = ("yed_rapporti_policy", "yed_classifier", "yed_import_pipeline",
               "paradata_store", "edge_registry", "group_projector",
-              "yed_table_parser")
+              "yed_table_parser",
+              # third wave: mappings and workspace resolved inside the
+              # library (host mirrors PYARCHINIT_WORKSPACE_DIR), rapporti
+              # on the canonical spellings (equals / bonded_to).
+              "pyarchinit_pg_importer", "rapporti", "_workspace")
 
 
 def test_the_identical_modules_are_gone_from_the_vendored_package():
