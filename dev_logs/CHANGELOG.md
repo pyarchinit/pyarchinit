@@ -5,6 +5,31 @@
 
 ---
 
+## [refactor] - 2026-10-07 — Ponte unico, chiusura (A5): i chiamanti importano la libreria, via lo shim — 5.13.27-alpha
+
+> Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`one-bridge-closing-5.13.27-alpha`**. Commit `56556232`.
+> Catena completa: A1–A3 `one-bridge-5.13.24-alpha` → B1 `em-export-5.13.25-alpha` → A4 `graphml-retire-5.13.26-alpha` → A5 (questa).
+
+### Italiano
+
+- **75 file ricablati**: ogni import `modules.s3dgraphy.sync.<modulo migrato>` ora punta alla libreria (`s3dgraphy.sync.<modulo>`; `rapporti` alla sua casa canonica `s3dgraphy.rapporti`) — in `tabs/`, `modules/`, `gui/`, `scripts/` (migrazioni comprese), `pyarchinitPlugin.py` e in tutti i test.
+- **Lo shim `sys.modules` è morto**: il `__init__` del pacchetto vendorizzato non registra più alias; tiene solo lo strato pyArchInit (`graph_projector` wrapper, `graph_ingestor`, `continuity_generator`, `paradata_edge_resolver`, `vocab_provider` Qt, vocabolario continuità con innesto a import diretti).
+- **Tre guardie permanenti** in `test_one_bridge_shim.py`: nessun file del plugin importa il percorso vendorizzato per i 20 moduli migrati; il vecchio percorso non importa più (alias tornato = rosso); i moduli della libreria vengono da `ext_libs`.
+- **Due test resi a prova di purge** (i test del ponte spurgano `s3dgraphy` da `sys.modules` di proposito, e le classi si sdoppiano per generazione): il walker lega `CycleDetectedError` ai `__globals__` della funzione che chiama; l'hook yEd costruisce la `DbHandle` a tempo di chiamata.
+- Spec aggiornata: **Status = Shipped (A+B1)**; B2 (pannello EMStudio web) e C (consegna REST alla stanza) aspettano il nodo StratiGraph.
+- Suite: `tests/sync` **456 passati, 0 falliti, 1 xfail** (serializzatore rapporti, materiale s3Dgraphy#25), 7 errori ambientali preesistenti; sweep migrations+utility ≤ baseline.
+
+### English
+
+- **75 files rewired**: every `modules.s3dgraphy.sync.<migrated module>` import now points at the library (`s3dgraphy.sync.<module>`; `rapporti` at its canonical home `s3dgraphy.rapporti`) — across `tabs/`, `modules/`, `gui/`, `scripts/` (migrations included), `pyarchinitPlugin.py` and all tests.
+- **The `sys.modules` shim is dead**: the vendored package's `__init__` registers no aliases any more; it holds only the pyArchInit layer (`graph_projector` wrapper, `graph_ingestor`, `continuity_generator`, `paradata_edge_resolver`, Qt `vocab_provider`, the continuity vocabulary grafted with direct imports).
+- **Three permanent guards** in `test_one_bridge_shim.py`: no plugin file imports the vendored path for the 20 migrated modules; the old path no longer imports (an alias coming back turns red); the library modules come from `ext_libs`.
+- **Two tests made purge-proof** (bridge tests purge `s3dgraphy` from `sys.modules` on purpose, splitting classes by generation): the walker binds `CycleDetectedError` to the called function's `__globals__`; the yEd hook builds its `DbHandle` at call time.
+- Spec updated: **Status = Shipped (A+B1)**; B2 (EMStudio web panel) and C (REST room delivery) wait for the StratiGraph node.
+- Suites: `tests/sync` **456 passed, 0 failed, 1 xfailed** (rapporti serializer, s3Dgraphy#25 material), 7 pre-existing environmental errors; migrations+utility sweep ≤ baseline.
+
+---
+
 ## [refactor] - 2026-10-07 — L'export GraphML va in pensione: em.json è il formato di lavoro (A4) — 5.13.26-alpha
 
 > Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`graphml-retire-5.13.26-alpha`**. Commit `56804d58`.
