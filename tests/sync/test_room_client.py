@@ -127,3 +127,15 @@ def test_rooms_door_prefers_the_caddy_path(monkeypatch):
             else (404, {})
 
     assert room_client.rooms_door("http://x", http=bare).endswith("/rooms/")
+
+
+def test_the_menu_offers_delivery_and_the_node_door():
+    import re
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[2]
+    src = (root / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    assert "Consegna sito alla stanza" in src
+    assert "deliver_site" in src and "rooms_door" in src
+    unload = re.search(r"def unload\(self\):(.*?)\n    def ", src, re.S)
+    assert unload and "actionRoomDelivery" in unload.group(1)
+    assert "actionRoomOpen" in unload.group(1)

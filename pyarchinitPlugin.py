@@ -2661,7 +2661,8 @@ class PyArchInitPlugin(object):
         # Migrations-menu entries wired by _init_migrations_menu: without
         # this, a plugin reload duplicates them (final review, deferred
         # minor 2026-10-07). The guard flag resets with the instance.
-        for _name in ("actionEmExport", "actionVocabAlign",
+        for _name in ("actionEmExport", "actionRoomDelivery",
+                      "actionRoomOpen", "actionVocabAlign",
                       "actionUuidBackfill", "actionYefOtherLocations",
                       "actionMediaFkMigration", "actionSchedatoreFields",
                       "actionSchemaRepair", "actionRapportiBlankRows"):
@@ -2867,6 +2868,26 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmExport)
 
+            # --- StratiGraph: consegna alla stanza + porta del nodo (C/B2) --
+            # spec 2026-10-07 §C + addendum: REST, refused-in-200, mai
+            # graph_id; token solo da env, mai persistito.
+            self.actionRoomDelivery = QAction(
+                "Extended Matrix → Consegna sito alla stanza…",
+                self.iface.mainWindow())
+            self.actionRoomDelivery.triggered.connect(
+                self._run_room_delivery)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionRoomDelivery)
+
+            self.actionRoomOpen = QAction(
+                "Extended Matrix → Apri il nodo (stanze)…",
+                self.iface.mainWindow())
+            self.actionRoomOpen.triggered.connect(self._open_rooms_door)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionRoomOpen)
+
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
@@ -2917,6 +2938,109 @@ class PyArchInitPlugin(object):
                     "Scaricalo da: "
                     "https://github.com/ExtendedMatrix/EMStudio/releases"
                     % path)
+
+    def _run_room_delivery(self):
+        """C (spec 2026-10-07 §C + addendum): un sito → una stanza, REST."""
+        from qgis.PyQt.QtCore import QSettings
+        from qgis.PyQt.QtWidgets import (QDialog, QDialogButtonBox,
+                                         QFormLayout, QInputDialog,
+                                         QLineEdit, QMessageBox)
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        from modules.s3dgraphy.room import room_client
+
+        try:
+            conn_str = Connection().conn_str()
+            db = Pyarchinit_db_management(conn_str)
+            db.connection()
+            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
+        except Exception as e:
+            QMessageBox.warning(self.iface.mainWindow(), "Stanza",
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        if not sites:
+            QMessageBox.information(self.iface.mainWindow(), "Stanza",
+                                    "Nessun sito nel database.")
+            return
+        site, ok = QInputDialog.getItem(
+            self.iface.mainWindow(), "Consegna alla stanza", "Sito:",
+            sites, 0, False)
+        if not ok:
+            return
+
+        settings = room_client.NodeSettings()
+        dialog = QDialog(self.iface.mainWindow())
+        dialog.setWindowTitle("Stanza StratiGraph")
+        form = QFormLayout(dialog)
+        url_edit = QLineEdit(settings.server_url)
+        url_edit.setPlaceholderText("http://127.0.0.1:8020")
+        room_edit = QLineEdit(settings.room_id)
+        room_edit.setPlaceholderText("scavo-2026")
+        token_edit = QLineEdit(settings.token)
+        token_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        token_edit.setPlaceholderText(
+            "solo se il nodo lo esige (meglio: env %s)"
+            % room_client.TOKEN_VARIABLE)
+        form.addRow("Nodo:", url_edit)
+        form.addRow("Stanza:", room_edit)
+        form.addRow("Token:", token_edit)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok
+                                   | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        form.addRow(buttons)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+        settings.server_url = url_edit.text().strip().rstrip("/")
+        settings.room_id = room_edit.text().strip()
+        settings.token = token_edit.text().strip()   # mai persistito
+        qs = QSettings()
+        qs.setValue(room_client.QSETTINGS_URL, settings.server_url)
+        qs.setValue(room_client.QSETTINGS_ROOM, settings.room_id)
+
+        try:
+            outcome = room_client.deliver_site(conn_str, site,
+                                               settings=settings)
+        except room_client.RoomRefusal as e:
+            QMessageBox.warning(self.iface.mainWindow(), "Stanza", str(e))
+            return
+        title = ("Sito già consegnato" if outcome.a_repeat
+                 else "Consegna alla stanza")
+        box = QMessageBox(self.iface.mainWindow())
+        box.setWindowTitle(title)
+        box.setText("«%s» → stanza «%s»\n%s"
+                    % (site, outcome.room_id, outcome.summary()))
+        details = []
+        if outcome.other_refusals:
+            details += ["RIFIUTATE:"] + [
+                "  %s: %s" % (r.get("id", "?"), r.get("reason"))
+                for r in outcome.other_refusals]
+        if outcome.skipped:
+            details += ["NON TRADOTTE:"] + [
+                "  " + s for s in outcome.skipped]
+        if details:
+            box.setDetailedText("\n".join(details))
+        box.exec()
+
+    def _open_rooms_door(self):
+        """B2 minimo: la UI delle stanze servita dal nodo, nel browser."""
+        import webbrowser
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from modules.s3dgraphy.room import room_client
+
+        settings = room_client.NodeSettings()
+        if not settings.server_url:
+            QMessageBox.information(
+                self.iface.mainWindow(), "Nodo StratiGraph",
+                "Nessun nodo configurato: consegna prima un sito (la "
+                "finestra chiede l'indirizzo) o imposta %s."
+                % room_client.SERVER_URL_VARIABLE)
+            return
+        try:
+            door = room_client.rooms_door(settings.server_url)
+        except Exception:
+            door = settings.server_url + "/em/rooms/"
+        webbrowser.open(door)
 
     def _run_vocab_alignment_migration(self):
         """File-picker + dry-run preview + confirmation + apply (with backup)."""
