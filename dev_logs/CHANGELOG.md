@@ -5,6 +5,34 @@
 
 ---
 
+## [fix] - 2026-10-07 — Review finale del ponte: il matrix viaggia nell'em.json, il pin dev40 arriva agli utenti — 5.13.28-alpha
+
+> Branch `Stratigraph_00001`. Tag **`one-bridge-fixes-5.13.28-alpha`**. Commit `ce6314a8`.
+> Esito della revisione indipendente dell'intero branch (19 commit, 7bc103e4..812115fa): 2 Critical + 4 Important corretti in un'unica passata, ogni fix con test rosso→verde.
+
+### Italiano
+
+- **C1 — l'em.json non conteneva il matrix**: il grafo passava dall'importer grezzo della libreria, il cui mapping dev40 non ha `relations` (s3Dgraphy#26) — zero archi stratigrafici nel file, confermato sull'export reale di Al-Khutm. Ora il grafo viaggia col **GraphProjector del plugin** (archi `rapporti`, epoche fuse, attributi): Al-Khutm rigenerato = **2042 nodi, 4524 archi** di cui 1024 `overlies`, 107 `abuts`, 72 `equals`, 40 `cuts`, 33 `fills`, 14 `bonded_to` (+ inversi). Specchiato anche `kind`→attributes dei gruppi: l'exporter em.json non serializza `LocationNodeGroup.kind` (gap upstream) e la catena toponimi degradava alla rilettura.
+- **C2 — il pin esatto non arrivava agli utenti**: `check_required_packages` considerava `s3dgraphy==1.6.0.dev40` soddisfatto da un dev9 installato (stessa major): il ponte moriva con l'installer che diceva «tutto a posto». Nuovo `modules/utility/version_pins.py` (uguaglianza `packaging`), guard sul sorgente.
+- **I1 — un sito per proiezione**: su SQLite l'importer legge TUTTA us_table e i nodi dev40 non portano `sito`: proiettare un sito del DB campione dava 210 unità invece di 63. Potatura di ciò che il pass attributi non ha reclamato + decorazione orfana.
+- **I2 — rifiuti parlanti ovunque**: ogni guasto interno di `export_site` (DB senza us_table, PG irraggiungibile, scrittura fallita) esce come `EmExportError`, mai un traceback nel dialogo.
+- **I3 — avvisi veri**: gli avvisi del projector e della rilettura arrivano al dialogo. Primo frutto: l'export di Al-Khutm segnala una cronologia reale invertita (Periodo 3: 1300 → 1100, anni a.C. senza segno).
+- **I4 — il dialogo Harris non offre più GraphML** (ramo già morto: «Export Failed» se unico spuntato); via anche «Group US by»/«Primary dimension» che servivano solo quel ramo, con i loro import relativi rotti.
+- **Bonifica**: 8 import relativi morti (`.s3dgraphy.sync.*`) lasciati dal ricablaggio A5 → import assoluti; 3 guardie nuove (`test_one_bridge_shim`): forme relative ai moduli migrati, tentativi relativi morti, dialogo senza GraphML.
+- Test nuovi: `test_graph_projector_multisite.py` (2), `test_version_pins.py` (4), +5 in `test_em_export.py` (matrix nel file, un solo sito, avvisi, errori parlanti, conteggio per classe). Suite `tests/sync`: **462 passati, 0 falliti, 1 xfail**.
+
+### English
+
+- **C1 — the em.json carried no matrix**: the graph travelled through the library's raw importer, whose dev40 mapping has no `relations` (s3Dgraphy#26) — zero stratigraphic edges in the file, confirmed on the real Al-Khutm export. The graph now travels through the plugin's **GraphProjector** (rapporti edges, merged epochs, attributes): Al-Khutm regenerated = **2042 nodes, 4524 edges**, among them 1024 `overlies`, 107 `abuts`, 72 `equals`, 40 `cuts`, 33 `fills`, 14 `bonded_to` (+ inverses). Group `kind` is mirrored into attributes too: the em.json exporter does not serialise `LocationNodeGroup.kind` (upstream gap) and the toponym chain degraded on read-back.
+- **C2 — the exact pin never reached users**: `check_required_packages` deemed `s3dgraphy==1.6.0.dev40` satisfied by an installed dev9 (same major): the bridge died while the installer reported all fine. New `modules/utility/version_pins.py` (`packaging` equality), source guard.
+- **I1 — one site per projection**: on SQLite the importer reads the WHOLE us_table and dev40 nodes carry no `sito`: projecting one sample site returned 210 units instead of 63. Pruning of whatever the attribute pass did not claim + orphaned decoration.
+- **I2 — speaking refusals everywhere**: any internal failure of `export_site` comes out as `EmExportError`, never a traceback through the dialog.
+- **I3 — real warnings**: projector and read-back warnings reach the dialog. First catch: the Al-Khutm export flags a genuine inverted chronology (Period 3: 1300 → 1100, BC years without the sign).
+- **I4 — the Harris dialog no longer offers GraphML** (the branch was already dead); the «Group US by»/«Primary dimension» blocks that served only that branch leave too, broken relative imports included.
+- **Cleanup**: 8 dead relative imports (`.s3dgraphy.sync.*`) left by the A5 rewiring → absolute; 3 new guards in `test_one_bridge_shim`. New tests: multisite projection (2), version pins (4), +5 in `test_em_export.py`. `tests/sync` suite: **462 passed, 0 failed, 1 xfailed**.
+
+---
+
 ## [refactor] - 2026-10-07 — Ponte unico, chiusura (A5): i chiamanti importano la libreria, via lo shim — 5.13.27-alpha
 
 > Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`one-bridge-closing-5.13.27-alpha`**. Commit `56556232`.
