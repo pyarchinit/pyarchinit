@@ -2658,6 +2658,18 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionQFieldImport)
 
+        # Migrations-menu entries wired by _init_migrations_menu: without
+        # this, a plugin reload duplicates them (final review, deferred
+        # minor 2026-10-07). The guard flag resets with the instance.
+        for _name in ("actionEmExport", "actionVocabAlign",
+                      "actionUuidBackfill", "actionYefOtherLocations",
+                      "actionMediaFkMigration", "actionSchedatoreFields",
+                      "actionSchemaRepair", "actionRapportiBlankRows"):
+            if hasattr(self, _name):
+                self.iface.removePluginMenu(
+                    "&pyArchInit - Archaeological GIS Tools",
+                    getattr(self, _name))
+
     def showHideDockWidget(self):
         if self.dockWidget.isVisible():
             self.dockWidget.hide()

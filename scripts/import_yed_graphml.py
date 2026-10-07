@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -32,6 +33,18 @@ _ROOT = Path(__file__).resolve().parents[1]
 for _pos, _entry in enumerate((str(_ROOT), str(_ROOT / "ext_libs")), start=1):
     if _entry not in sys.path:
         sys.path.insert(_pos, _entry)
+
+# Standalone run: mirror the pyArchInit-5 data home into the library
+# workspace variable, as the plugin does at boot — otherwise the
+# library's default is the pyArchInit-4 folder (~/pyarchinit).
+if "PYARCHINIT_WORKSPACE_DIR" not in os.environ:
+    try:
+        from modules.utility.pyarchinit_home import pyarchinit_home
+        os.environ["PYARCHINIT_WORKSPACE_DIR"] = str(
+            Path(pyarchinit_home()) / "pyarchinit_DB_folder")
+    except Exception:
+        pass
+
 
 from s3dgraphy.sync._db_handle import _resolve_db_handle
 from s3dgraphy.sync.yed_classifier import classify_leaves

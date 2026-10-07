@@ -35,6 +35,35 @@ def site_filename(site):
     return (name or "sito") + ".em.json"
 
 
+def _claim_path(path, site):
+    """The path this site's file may use.
+
+    Two different sites can sanitize to the same name ('Scavo 1' and
+    'Scavo/1' are both Scavo_1.em.json) and the second export silently
+    overwrote the first (deferred minor, final review 2026-10-07).
+    Re-exporting the SAME site keeps overwriting its own file — that is
+    the idempotent case — but a file that belongs to ANOTHER site stays:
+    this site gets the same name with a short stable suffix of its raw
+    name, so the second delivery lands on the same file too.
+    """
+    if not os.path.exists(path):
+        return path
+    try:
+        import json
+        with open(path, encoding="utf-8") as fh:
+            payload = json.load(fh)
+        owner = payload.get("active_graph_id") or next(
+            iter(payload.get("graphs", {}) or {}), None)
+    except Exception:
+        owner = None
+    if owner == str(site):
+        return path
+    import hashlib
+    tag = hashlib.sha1(str(site).encode("utf-8")).hexdigest()[:8]
+    base = path[:-len(".em.json")]
+    return "%s_%s.em.json" % (base, tag)
+
+
 def export_site(connection_url, site, out_dir):
     """Build the site's graph, write <out_dir>/<site>.em.json, read it
     back. Returns (path, n_nodes, n_edges, warnings).
@@ -82,6 +111,7 @@ def export_site(connection_url, site, out_dir):
     try:
         os.makedirs(out_dir, exist_ok=True)
         path = os.path.join(out_dir, site_filename(site))
+        path = _claim_path(path, site)
         export_emjson(graph, path)
     except Exception as e:
         raise EmExportError(
@@ -101,10 +131,49 @@ def export_site(connection_url, site, out_dir):
     return path, len(graph.nodes), len(graph.edges), warnings
 
 
+def _find_emstudio_executable():
+    """The EMStudio executable on Windows/Linux, or None.
+
+    PATH first (`shutil.which`), then the places the installers use.
+    macOS does not come through here (`open -a` resolves the bundle).
+    """
+    import shutil as _shutil
+
+    for name in ("EMStudio", "emstudio", "em-studio", "EMStudio.exe"):
+        exe = _shutil.which(name)
+        if exe:
+            return exe
+    candidates = []
+    local = os.environ.get("LOCALAPPDATA")
+    if local:
+        candidates.append(os.path.join(
+            local, "Programs", "EMStudio", "EMStudio.exe"))
+    for pf in (os.environ.get("PROGRAMFILES"),
+               os.environ.get("PROGRAMFILES(X86)")):
+        if pf:
+            candidates.append(os.path.join(pf, "EMStudio", "EMStudio.exe"))
+    candidates += [
+        "/opt/EMStudio/emstudio",
+        os.path.expanduser("~/.local/bin/emstudio"),
+        os.path.expanduser("~/Applications/EMStudio.AppImage"),
+    ]
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
+    return None
+
+
 def open_in_emstudio(path, runner=None):
-    """Hand the file to EMStudio; True when something opened, False —
-    never an exception — when nothing is installed (the caller then
-    points at the EMStudio releases page)."""
+    """Hand the file to EMStudio; True only when EMStudio itself opened,
+    False — never an exception — otherwise (the caller then points at
+    the EMStudio releases page).
+
+    Deferred-minor fix (final review 2026-10-07): on Windows/Linux the
+    old `os.startfile`/`xdg-open` followed the .json association — an
+    editor opened, the opener said True, and the download hint never
+    showed. Now the file goes to a FOUND EMStudio executable or the
+    opener says False.
+    """
     import platform
     import subprocess
     run = runner or subprocess.run
@@ -113,9 +182,10 @@ def open_in_emstudio(path, runner=None):
         if system == "Darwin":
             return run(["open", "-a", "EMStudio", path],
                        capture_output=True).returncode == 0
-        if system == "Windows":
-            os.startfile(path)      # l'associazione .em.json decide
-            return True
-        return run(["xdg-open", path], capture_output=True).returncode == 0
+        exe = _find_emstudio_executable()
+        if not exe:
+            return False
+        subprocess.Popen([exe, path])
+        return True
     except Exception:
         return False

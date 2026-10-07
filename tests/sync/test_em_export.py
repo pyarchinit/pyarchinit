@@ -190,3 +190,93 @@ def test_the_menu_offers_the_export_and_handles_a_missing_emstudio():
     src = (_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
     assert "Esporta sito in em.json" in src
     assert "open_in_emstudio" in src and "EMStudio/releases" in src
+    # a plugin reload must not duplicate the entry (deferred minor)
+    import re
+    unload = re.search(r"def unload\(self\):(.*?)\n    def ", src, re.S)
+    assert unload and "actionEmExport" in unload.group(1)
+
+
+def test_the_opener_never_claims_success_without_emstudio(monkeypatch, tmp_path):
+    """Deferred minor (final review): on Windows os.startfile and on
+    Linux xdg-open follow the .json association — Notepad or an editor
+    opens, the opener says True, and the 'where to get EMStudio' dialog
+    never shows. Without a findable EMStudio the opener must say False."""
+    import platform
+    target = tmp_path / "x.em.json"
+    target.write_text("{}", encoding="utf-8")
+    for system in ("Windows", "Linux"):
+        monkeypatch.setattr(platform, "system", lambda s=system: s)
+        monkeypatch.setattr(em_export, "_find_emstudio_executable",
+                            lambda: None)
+        assert em_export.open_in_emstudio(str(target)) is False
+
+
+def test_the_opener_launches_a_found_emstudio(monkeypatch, tmp_path):
+    import platform
+    target = tmp_path / "x.em.json"
+    target.write_text("{}", encoding="utf-8")
+    fake_exe = tmp_path / "EMStudio.exe"
+    fake_exe.write_text("")
+    launched = []
+    monkeypatch.setattr(platform, "system", lambda: "Windows")
+    monkeypatch.setattr(em_export, "_find_emstudio_executable",
+                        lambda: str(fake_exe))
+
+    def fake_popen(cmd, **k):
+        launched.append(cmd)
+
+        class P:
+            pass
+        return P()
+
+    import subprocess
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    assert em_export.open_in_emstudio(str(target)) is True
+    assert launched and launched[0][0] == str(fake_exe)
+    assert launched[0][-1] == str(target)
+
+
+def test_two_sites_with_the_same_safe_name_get_two_files(tmp_path):
+    """Deferred minor (final review): 'Scavo 1' and 'Scavo/1' both
+    sanitize to Scavo_1.em.json — the second export silently overwrote
+    the first site's file. Same site -> same file (idempotent re-export);
+    DIFFERENT site behind the same safe name -> a distinct file."""
+    import sqlite3
+    db = tmp_path / "two.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, area TEXT DEFAULT '1', us TEXT, unita_tipo TEXT,
+        node_uuid TEXT, rapporti TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT,
+        periodo_finale TEXT, fase_finale TEXT,
+        d_stratigrafica TEXT, d_interpretativa TEXT,
+        attivita TEXT, struttura TEXT, settore TEXT, ambient TEXT,
+        saggio TEXT, quad_par TEXT, documentazione TEXT,
+        other_locations TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, periodo TEXT, fase TEXT,
+        cron_iniziale INTEGER, cron_finale INTEGER,
+        descrizione TEXT, datazione_estesa TEXT)""")
+    conn.execute("""CREATE TABLE site_table (
+        id_sito INTEGER PRIMARY KEY AUTOINCREMENT, sito TEXT,
+        nazione TEXT, regione TEXT, provincia TEXT, comune TEXT)""")
+    for i, sito in enumerate(("Scavo 1", "Scavo/1")):
+        conn.execute(
+            "INSERT INTO us_table (sito, us, unita_tipo, node_uuid, rapporti) "
+            "VALUES (?, ?, 'US', ?, '[]')", (sito, str(i + 1), "uuid-%d" % i))
+    conn.commit()
+    conn.close()
+    url = "sqlite:///%s" % db
+    out = str(tmp_path / "out")
+
+    path_a, *_ = em_export.export_site(url, "Scavo 1", out)
+    path_a2, *_ = em_export.export_site(url, "Scavo 1", out)
+    assert path_a2 == path_a, "re-exporting the SAME site must reuse its file"
+    path_b, *_ = em_export.export_site(url, "Scavo/1", out)
+    assert path_b != path_a, "a different site must never overwrite another's file"
+
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    assert import_emjson(path_a)[0].graph_id == "Scavo 1"
+    assert import_emjson(path_b)[0].graph_id == "Scavo/1"

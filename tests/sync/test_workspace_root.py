@@ -65,3 +65,17 @@ def test_the_plugin_mirrors_the_data_home_into_the_env_var():
     m = re.search(r"os\.environ\.setdefault\('PYARCHINIT_WORKSPACE_DIR',\s*"
                   r"os\.path\.join\(PYARCHINIT_HOME, 'pyarchinit_DB_folder'\)\)", src)
     assert m, "lo specchio host PYARCHINIT_HOME -> PYARCHINIT_WORKSPACE_DIR manca in __init__.py"
+
+
+def test_the_standalone_clis_mirror_the_data_home_too():
+    """Deferred minor (final review 2026-10-07): the CLIs run outside
+    QGIS, so without their own mirror the library's workspace default
+    fell back to the pyArchInit-4 folder (~/pyarchinit)."""
+    import re
+    root = Path(__file__).resolve().parents[2]
+    for rel in ("scripts/s3dgraphy_sync.py", "scripts/import_yed_graphml.py"):
+        src = (root / rel).read_text(encoding="utf-8")
+        assert re.search(
+            r"PYARCHINIT_WORKSPACE_DIR.*pyarchinit_DB_folder"
+            r"|pyarchinit_DB_folder.*PYARCHINIT_WORKSPACE_DIR",
+            src, re.S), rel

@@ -5,6 +5,31 @@
 
 ---
 
+## [fix] - 2026-10-07 — em.json: i minor della review chiusi (opener onesto, file per sito, reload pulito, CLI, tutorial EL) — 5.13.29-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-export-polish-5.13.29-alpha`**. I 5 minor rinviati della review finale, risolti su richiesta di Enzo.
+
+### Italiano
+
+- **Opener onesto su Windows/Linux**: `open_in_emstudio` non passa più da `os.startfile`/`xdg-open` (aprivano l'editor associato ai .json dicendo «ok»): il file va a un **eseguibile EMStudio trovato** (PATH + percorsi degli installer), altrimenti `False` e il dialogo mostra dov'è il file e il link releases. macOS invariato (`open -a`).
+- **Un file per sito**: due siti che si sanificano uguale («Scavo 1» e «Scavo/1» → `Scavo_1.em.json`) non si sovrascrivono più — il file esistente dichiara il suo sito (`active_graph_id`) e un sito diverso riceve un nome con suffisso stabile; ri-esportare lo stesso sito riusa il suo file (idempotente).
+- **Reload pulito**: `unload()` rimuove `actionEmExport` **e tutte le voci del menu Migrazioni** (stesso bug di duplicazione al ricaricamento del plugin, mai rimosse da sempre).
+- **CLI standalone**: `scripts/s3dgraphy_sync.py` e `scripts/import_yed_graphml.py` specchiano la data-home in `PYARCHINIT_WORKSPACE_DIR` come fa il plugin all'avvio (prima: workspace di ripiego `~/pyarchinit`, la cartella di pyArchInit 4).
+- **Tutorial in greco**: sezione «Εξαγωγή μιας θέσης σε em.json» in `el/01_configurazione.md` — ora la sezione c'è in tutte e 5 le lingue in cui il tutorial 01 esiste (it/en/pt/ro/el).
+- **Scelta dichiarata**: le stringhe di menu/dialogo restano in italiano come ogni voce sorella («Migrazioni → …», «Importa da QField»): la localizzazione dei menu è un lavoro a sé per tutto il plugin, non per una voce.
+- Test: +3 in `test_em_export.py` (opener senza EMStudio → False; opener lancia l'eseguibile trovato; collisione nomi), +1 guard in `test_workspace_root.py` (specchio nelle CLI), guard `unload` esteso. Suite `tests/sync`: 465 passati, 0 falliti, 1 xfail.
+
+### English
+
+- **Honest opener on Windows/Linux**: `open_in_emstudio` no longer goes through `os.startfile`/`xdg-open` (they opened the .json-associated editor while reporting success): the file goes to a **found EMStudio executable** (PATH + installer locations), otherwise `False` and the dialog shows the file location and the releases link. macOS unchanged.
+- **One file per site**: two sites sanitizing to the same name no longer overwrite each other — the existing file declares its site (`active_graph_id`) and a different site gets a stable-suffixed name; re-exporting the same site reuses its file.
+- **Clean reload**: `unload()` removes `actionEmExport` **and every Migrations-menu entry** (same duplication bug on plugin reload, never removed before).
+- **Standalone CLIs** mirror the data home into `PYARCHINIT_WORKSPACE_DIR` as the plugin does at boot.
+- **Greek tutorial** section added — the em.json section now exists in all 5 languages that have tutorial 01 (it/en/pt/ro/el).
+- **Stated choice**: menu/dialog strings stay Italian like every sibling entry; menu localization is a plugin-wide effort, not a one-entry fix.
+
+---
+
 ## [fix] - 2026-10-07 — Review finale del ponte: il matrix viaggia nell'em.json, il pin dev40 arriva agli utenti — 5.13.28-alpha
 
 > Branch `Stratigraph_00001`. Tag **`one-bridge-fixes-5.13.28-alpha`**. Commit `ce6314a8`.

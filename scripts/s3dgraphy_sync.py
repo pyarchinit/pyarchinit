@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -46,6 +47,16 @@ def _setup_path() -> None:
     for mod in [m for m in list(sys.modules)
                 if m == "s3dgraphy" or m.startswith("s3dgraphy.")]:
         del sys.modules[mod]
+    # Standalone run: mirror the pyArchInit-5 data home into the library
+    # workspace variable, as the plugin does at boot — otherwise the
+    # library's default is the pyArchInit-4 folder (~/pyarchinit).
+    if "PYARCHINIT_WORKSPACE_DIR" not in os.environ:
+        try:
+            from modules.utility.pyarchinit_home import pyarchinit_home
+            os.environ["PYARCHINIT_WORKSPACE_DIR"] = str(
+                Path(pyarchinit_home()) / "pyarchinit_DB_folder")
+        except Exception:
+            pass
 
 
 def cmd_import(args) -> int:
