@@ -70,3 +70,25 @@ def test_pruning_takes_the_orphans_with_it(multisite_db):
     # the sample ships ~10 sites; one site's projection must not carry
     # the whole DB's property cloud (was 1010 pre-fix)
     assert len(by_type.get("PropertyNode", [])) < 300
+
+
+def test_only_the_sites_epochs_travel(multisite_db):
+    """Scoperto da Enzo sul demo (2026-10-07, EMStudio): le unità erano
+    filtrate ma le EPOCHE no — 57 epoche in dieci lingue (le
+    periodizzazioni degli altri siti) sopravvivevano alla potatura perché
+    tengono archi fra sé e le proprie date. L'importer le firma per sito
+    (epoch::sito::p::f): quelle d'altri siti non devono viaggiare."""
+    import sqlite3
+    graph = GraphProjector().populate_graph(multisite_db, sito=SITO)
+    epochs = [n for n in graph.nodes if type(n).__name__ == "EpochNode"]
+    foreign = [n.node_id for n in epochs
+               if str(n.node_id).startswith("epoch::")
+               and str(n.node_id).split("::")[1] != SITO]
+    assert foreign == [], foreign[:5]
+    conn = sqlite3.connect(multisite_db)
+    n_periods = conn.execute(
+        "SELECT COUNT(DISTINCT periodo || '/' || fase) "
+        "FROM periodizzazione_table WHERE sito=?", (SITO,)).fetchone()[0]
+    conn.close()
+    assert len(epochs) <= n_periods + 2, (
+        "%d epoche per %d periodi del sito" % (len(epochs), n_periods))

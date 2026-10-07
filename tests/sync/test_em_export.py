@@ -280,3 +280,19 @@ def test_two_sites_with_the_same_safe_name_get_two_files(tmp_path):
     from s3dgraphy.importer.emjson_importer import import_emjson
     assert import_emjson(path_a)[0].graph_id == "Scavo 1"
     assert import_emjson(path_b)[0].graph_id == "Scavo/1"
+
+
+def test_the_file_carries_only_the_sites_epochs(sample_db, tmp_path):
+    """Scoperto da Enzo sul demo in EMStudio: 57 epoche in dieci lingue
+    nel file di un sito solo (e 483 avvisi di sovrapposizione). Nel file
+    devono viaggiare le epoche del sito, non quelle dei vicini."""
+    path, nodes, edges, _ = em_export.export_site(
+        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    check, _w = import_emjson(path)
+    epochs = [n for n in check.nodes if type(n).__name__ == "EpochNode"]
+    foreign = [n.node_id for n in epochs
+               if str(n.node_id).startswith("epoch::")
+               and "Scavo archeologico" not in str(n.node_id)]
+    assert foreign == [], foreign[:5]
+    assert len(epochs) < 15, "%d epoche per un sito solo" % len(epochs)

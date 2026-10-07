@@ -112,26 +112,42 @@ class GraphProjector(_LibGraphProjector):
         drop = {n.node_id for n in graph.nodes
                 if isinstance(n, StratigraphicNode)
                 and (getattr(n, "attributes", None) or {}).get("sito") != sito}
+        # Le epoche degli ALTRI siti non muoiono da orfane: tengono archi
+        # fra sé e le proprie date (misurato da Enzo sul demo: 57 epoche
+        # in dieci lingue nel file di un sito solo). L'importer le firma
+        # per sito — epoch::sito::p::f — quindi si potano per nome.
+        for n in graph.nodes:
+            nid = str(getattr(n, "node_id", ""))
+            if (type(n).__name__ == "EpochNode" and nid.startswith("epoch::")
+                    and nid.split("::")[1] != str(sito)):
+                drop.add(n.node_id)
         if not drop:
             return
         graph.nodes = [n for n in graph.nodes if n.node_id not in drop]
         graph.edges = [e for e in graph.edges
                        if e.edge_source not in drop
                        and e.edge_target not in drop]
-        # Decoration that only served the dropped units: a property or
-        # epoch left with no edge at all is another site's.
-        referenced = set()
-        for e in graph.edges:
-            referenced.add(e.edge_source)
-            referenced.add(e.edge_target)
+        # Decoration that only served the dropped nodes: a property, an
+        # epoch or a date left with no edge at all is another site's.
+        # A FIXPOINT, not one pass: the dates orphaned by a dropped epoch
+        # can orphan something else in turn.
         prunable = ("PropertyNode", "EpochNode", "LocationNodeGroup",
                     "ActivityNodeGroup", "DocumentNode", "AuthorNode")
-        orphans = {n.node_id for n in graph.nodes
-                   if type(n).__name__ in prunable
-                   and n.node_id not in referenced}
-        if orphans:
+        while True:
+            referenced = set()
+            for e in graph.edges:
+                referenced.add(e.edge_source)
+                referenced.add(e.edge_target)
+            orphans = {n.node_id for n in graph.nodes
+                       if type(n).__name__ in prunable
+                       and n.node_id not in referenced}
+            if not orphans:
+                break
             graph.nodes = [n for n in graph.nodes
                            if n.node_id not in orphans]
+            graph.edges = [e for e in graph.edges
+                           if e.edge_source not in orphans
+                           and e.edge_target not in orphans]
         if hasattr(graph, "invalidate_indices"):
             graph.invalidate_indices()
 

@@ -5,6 +5,24 @@
 
 ---
 
+## [fix] - 2026-10-07 — Projector: viaggiano solo le epoche del sito (scoperto da Enzo in EMStudio) — 5.13.33-alpha
+
+> Branch `Stratigraph_00001`. Tag **`site-epochs-5.13.33-alpha`**.
+
+### Italiano
+
+- **Il bug, visto a occhio**: aprendo in EMStudio l'em.json di «Scavo archeologico» (DB demo: 10 siti-lingua da ~50 US), il file portava **57 epoche in dieci lingue** — le periodizzazioni degli ALTRI siti — e EMStudio segnalava 483 sovrapposizioni di cronologia. Le unità erano filtrate (I1, 5.13.28); le epoche no: non muoiono da orfane perché tengono archi fra sé e le proprie date.
+- **Il fix**: l'importer firma le epoche per sito (`epoch::sito::p::f`) — `_prune_foreign_site_nodes` ora pota per nome quelle d'altri siti, e la spazzata degli orfani è un **punto fisso** (le date orfanate da un'epoca caduta orfanano a cascata). Misurato sul demo: 507→**462 nodi**, 950→**764 archi**, epoche del solo sito.
+- Test: `test_only_the_sites_epochs_travel` (multisite) e `test_the_file_carries_only_the_sites_epochs` (rilettura del file), entrambi rosso→verde.
+
+### English
+
+- **The bug, seen with the eyes**: opening the demo site's em.json in EMStudio, the file carried **57 epochs in ten languages** — the OTHER sites' periodizations — and EMStudio flagged 483 chronology overlaps. Units were filtered (I1, 5.13.28); epochs were not: they never orphan, holding edges among themselves and their dates.
+- **The fix**: the importer signs epochs per site (`epoch::sito::p::f`) — `_prune_foreign_site_nodes` now prunes foreign ones by name, and the orphan sweep is a **fixpoint** (dates orphaned by a dropped epoch cascade). Measured on the demo: 507→**462 nodes**, 950→**764 edges**, the site's own epochs only.
+- Tests: multisite + file re-read, both red→green.
+
+---
+
 ## [feat] - 2026-10-07 — B2: la stanza dentro pyArchInit (pannello web del nodo) — 5.13.32-alpha
 
 > Branch `Stratigraph_00001` (feature branch `room-panel`). Tag **`room-panel-5.13.32-alpha`**.
