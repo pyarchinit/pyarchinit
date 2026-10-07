@@ -84,7 +84,12 @@ import sys as _sys
 for _name in ("yed_group_walker", "yed_detector", "vocab_types",
               "vocab_provider_core", "uuid7", "ingest_result",
               "group_store", "conflict_resolver",
-              "_legacy_paradata_svgs", "_db_handle"):
+              "_legacy_paradata_svgs", "_db_handle",
+              # A1, seconda ondata: deriva piccola riconciliata — ogni
+              # delta era una miglioria della libreria.
+              "yed_rapporti_policy", "yed_classifier", "yed_import_pipeline",
+              "paradata_store", "edge_registry", "group_projector",
+              "yed_table_parser"):
     _sys.modules[__name__ + "." + _name] = _importlib.import_module(
         "s3dgraphy.sync." + _name)
 # -------------------------------------------------------------------------

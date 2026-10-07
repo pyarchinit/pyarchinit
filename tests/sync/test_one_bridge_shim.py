@@ -23,9 +23,16 @@ FREE_WINS = ("yed_group_walker", "yed_detector", "vocab_types",
              "group_store", "conflict_resolver",
              "_legacy_paradata_svgs", "_db_handle")
 
+# A1, second wave: small drift reconciled hunk by hunk — every delta was a
+# library-side improvement (reST docstrings, the coating kind of 1.6.13,
+# invalidate_indices, JSON_config resolved inside the package).
+RECONCILED = ("yed_rapporti_policy", "yed_classifier", "yed_import_pipeline",
+              "paradata_store", "edge_registry", "group_projector",
+              "yed_table_parser")
+
 
 def test_the_identical_modules_are_gone_from_the_vendored_package():
-    for name in FREE_WINS:
+    for name in FREE_WINS + RECONCILED:
         assert not (_ROOT / "modules" / "s3dgraphy" / "sync" / (name + ".py")).exists(), name
 
 
@@ -35,7 +42,7 @@ def test_the_old_import_path_resolves_to_the_library():
     # splits the module OBJECTS while both still come from the library's
     # file — the claim that matters here.
     import importlib
-    for name in FREE_WINS:
+    for name in FREE_WINS + RECONCILED:
         ours = importlib.import_module("modules.s3dgraphy.sync." + name)
         libs = importlib.import_module("s3dgraphy.sync." + name)
         assert Path(ours.__file__).resolve() == Path(libs.__file__).resolve(), name
