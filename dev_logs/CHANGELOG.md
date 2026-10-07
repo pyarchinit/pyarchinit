@@ -5,6 +5,33 @@
 
 ---
 
+## [feat] - 2026-10-07 — Consegna di un sito a una stanza StratiGraph (C) + porta del nodo (B2 minimo) — 5.13.30-alpha
+
+> Branch `Stratigraph_00001` (feature branch `room-delivery`). Tag **`room-delivery-5.13.30-alpha`**.
+> Spec: `docs/superpowers/specs/2026-10-07-one-bridge-s3dgraphy-design.md` §C + addendum; piano: `docs/superpowers/plans/2026-10-07-room-delivery-c-b2.md`. Porting dichiarato del client di riferimento `pyarchinit-mini` (ramo `stratigraph/09-client-stanza`).
+
+### Italiano
+
+- **Nuova voce** «Extended Matrix → Consegna sito alla stanza…»: le US di un sito viaggiano verso una stanza di un nodo StratiGraph via **REST** (`POST /v1/rooms/{id}/ops`) — niente WebSocket: pyArchInit «fa uno scavo, consegna le sue US e se ne va» (Emanuel). Tre moduli nuovi in `modules/s3dgraphy/room/`: `us_ops.py` (adapter puro: id con `stable_id("pyarchinit","us",sito,area,us)`, payload DENTRO `node`, archi `source__edge_type__target` — la convenzione di EMStudio, così l'arco disegnato a mano e il nostro sono UNO), `site_rows.py` (rapporti dalla colonna testuale via `parse_rapporti`, UNA voce per volta: un verbo sconosciuto in mezzo non disallinea la parola dell'archeologo), `room_client.py` (preflight `/v1/health`, identità a carico del nodo, pagine ≤1000 senza retry, **refused-in-200 non è un errore**, mai `graph_id`).
+- **Le differenze dal client mini, dichiarate**: i rapporti vengono da `us_table.rapporti` (testo) — un'unità «12a» può essere citata (da loro no: join a interi); il vocabolario è dev40 (USM/WSU/USR → US con `stratigraphic_kind` e `source_code`); un numero ambiguo fra due aree è riportato, mai indovinato; i paradata (DOC, Extractor, Combinar, property, CON) non diventano unità della stanza.
+- **Sicurezza**: il token SOLO da env (`STRATIGRAPH_TOKEN`) o digitato al momento, mai persistito; nodo e stanza in QSettings con override da env (`STRATIGRAPH_SERVER_URL`, `STRATIGRAPH_ROOM_ID`); l'autore lo scrive il NODO dall'identità verificata — un `author` nel payload verrebbe scartato.
+- **«Apri il nodo (stanze)…»** (B2 minimo): la UI delle stanze servita dal nodo, nel browser (`/em/rooms/` dietro Caddy, `/rooms/` sul nodo nudo). Il pannello dentro pyArchInit (B2 pieno) resta un piano a parte.
+- **Collaudato sul nodo locale** (uvicorn :8020, `EM_SERVER_ALLOW_ANON=1`): «Scavo archeologico» → 1ª consegna **210/210 applicate** (44 unità + 166 archi, 4 inversi deduplicati, 0,09 s); 2ª consegna **44 fuse + 166 «già presenti»**, `a_repeat` vero — le ripetizioni non duplicano nulla, come promette il CRDT.
+- Test: `test_room_us_ops.py` (13), `test_room_client.py` (7, nodo finto iniettabile), `test_room_delivery_live.py` (2, si saltano senza nodo — il patto dei `*_pg`). Tutorial in it/en/pt/ro/el. Spec aggiornata con l'addendum C (misure e conferme di Emanuel).
+- **Domanda aperta per Emanuel** (postata su s3Dgraphy#25): `ORIGIN="pyarchinit"` ≠ `"pyarchinit-mini"` — la stessa unità consegnata dai due strumenti sarebbe due nodi; serve un'identità cross-strumento?
+
+### English
+
+- **New menu entry** «Extended Matrix → Consegna sito alla stanza…»: a site's units travel to a StratiGraph room via **REST** (`POST /v1/rooms/{id}/ops`) — no WebSocket: pyArchInit "digs, delivers its units and leaves" (Emanuel). Three new modules in `modules/s3dgraphy/room/`: `us_ops.py` (pure adapter: `stable_id` ids, payload INSIDE `node`, edge ids `source__edge_type__target` — EMStudio's own convention, so a hand-drawn edge and ours are ONE), `site_rows.py` (relations from the textual `rapporti` column via `parse_rapporti`, ONE entry at a time), `room_client.py` (health preflight, identity demanded by the node, pages ≤1000 with no retry, **refused-in-200 is not an error**, never `graph_id`).
+- **Declared differences from the mini client**: relations come from `us_table.rapporti` — a unit «12a» can be cited (they could not: integer join); dev40 vocabulary (USM/WSU/USR → US with `stratigraphic_kind`+`source_code`); an ambiguous bare number is reported, never guessed; paradata rows never become room units.
+- **Security**: the token ONLY from env (`STRATIGRAPH_TOKEN`) or typed on the spot, never persisted; the author is written by the NODE from the verified identity.
+- **«Apri il nodo (stanze)…»** (minimal B2): the node's rooms UI in the browser. The in-plugin panel (full B2) remains a separate plan.
+- **Measured against the local node**: first delivery **210/210 applied** (44 units + 166 edges, 4 inverse pairs deduplicated, 0.09 s); second delivery **44 merged + 166 "already there"**, `a_repeat` true — repeats duplicate nothing, as the CRDT promises.
+- Tests: 13 + 7 + 2 live (skipped without a node). Tutorials in it/en/pt/ro/el. Spec updated with addendum C.
+- **Open question for Emanuel** (posted on s3Dgraphy#25): `ORIGIN="pyarchinit"` ≠ `"pyarchinit-mini"` — the same unit delivered by both tools would be two nodes; is a cross-tool identity wanted?
+
+---
+
 ## [fix] - 2026-10-07 — em.json: i minor della review chiusi (opener onesto, file per sito, reload pulito, CLI, tutorial EL) — 5.13.29-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-export-polish-5.13.29-alpha`**. I 5 minor rinviati della review finale, risolti su richiesta di Enzo.

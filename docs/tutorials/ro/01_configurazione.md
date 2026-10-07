@@ -195,6 +195,19 @@ La ce sa va asteptati:
 
 > **Nota**: GraphML ramane doar ca **import unic din yEd**; formatul pentru vizualizarea si validarea matricei este em.json.
 
+### Livrarea unui sit intr-o camera StratiGraph
+
+Din meniul **pyArchInit → Extended Matrix → Consegna sito alla stanza…** unitatile unui sit calatoresc spre o **camera** a unui nod StratiGraph (REST, o livrare pe rand — nu e nevoie de o conexiune permanenta).
+
+La ce sa va asteptati:
+
+- se alege **situl**, apoi fereastra cere **nodul** (ex. `http://127.0.0.1:8020`), **camera** si, doar daca nodul o cere, un **token** (cel mai bine in variabila de mediu `STRATIGRAPH_TOKEN`: nu este salvat niciodata);
+- rezultatul este o fraza: *«210 aplicate din 210»* la prima livrare; la a doua *«44 aplicate, 166 deja prezente»* — **repetarile nu dubleaza nimic**: nodurile fuzioneaza, muchiile cunoscute revin ca «deja prezente»;
+- randurile care nu pot deveni unitati ale camerei (documente, extractoare, proprietati) sunt listate la *Arata detalii*, niciodata inventate;
+- **semnatura apartine celui care livreaza**: autorul este scris de nod din identitatea verificata, nu din payload.
+
+Cu **Extended Matrix → Apri il nodo (stanze)…** se deschide in browser poarta nodului, cu camerele si grafurile sale.
+
 ### Migrarea intregii baze de date dintr-o singura data
 
 Pentru a muta o baza de date intreaga in alta — din SQLite in PostgreSQL, din PostgreSQL in SQLite sau intre doua de acelasi fel — nu este nevoie sa repetati operatia tabel cu tabel: alegeti **ALL** in lista tabelelor si apasati **Import**.

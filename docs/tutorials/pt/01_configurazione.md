@@ -195,6 +195,19 @@ O que esperar:
 
 > **Nota**: o GraphML sobrevive apenas como **importacao unica a partir do yEd**; o formato para ver e validar a matriz e o em.json.
 
+### Entregar um sitio a uma sala StratiGraph
+
+A partir de **pyArchInit → Extended Matrix → Consegna sito alla stanza…** as unidades de um sitio viajam para uma **sala** de um no StratiGraph (REST, uma entrega de cada vez — nao e preciso ficar ligado).
+
+O que esperar:
+
+- escolhe-se o **sitio**, depois a janela pede o **no** (ex. `http://127.0.0.1:8020`), a **sala** e, apenas se o no o exigir, um **token** (melhor na variavel de ambiente `STRATIGRAPH_TOKEN`: nunca e guardado);
+- o resultado e uma frase: *«210 aplicadas em 210»* na primeira entrega; na segunda *«44 aplicadas, 166 ja presentes»* — **as repeticoes nao duplicam nada**: os nos fundem-se, as arestas conhecidas voltam como «ja presentes»;
+- as linhas que nao podem tornar-se unidades da sala (documentos, extratores, propriedades) sao listadas em *Mostrar detalhes*, nunca inventadas;
+- **quem assina e quem entrega**: o autor e escrito pelo no a partir da identidade verificada, nao pelo payload.
+
+Com **Extended Matrix → Apri il nodo (stanze)…** abre-se no navegador a porta do no, com as suas salas e os seus grafos.
+
 ### Migrar toda a base de dados de uma so vez
 
 Para transferir uma base de dados inteira para outra — de SQLite para PostgreSQL, de PostgreSQL para SQLite, ou entre duas do mesmo tipo — nao e preciso repetir a operacao tabela a tabela: escolha **ALL** na lista das tabelas e carregue em **Import**.

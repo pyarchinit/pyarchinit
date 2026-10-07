@@ -195,6 +195,19 @@ What to expect:
 
 > **Note**: GraphML survives only as the **one-time import from yEd**; the format for looking at and validating the matrix is em.json.
 
+### Delivering a site to a StratiGraph room
+
+From **pyArchInit → Extended Matrix → Consegna sito alla stanza…** a site's stratigraphic units travel to a **room** on a StratiGraph node (REST, one delivery at a time — no standing connection needed).
+
+What to expect:
+
+- pick the **site**, then the dialog asks for the **node** (e.g. `http://127.0.0.1:8020`), the **room** and, only when the node demands it, a **token** (best kept in the `STRATIGRAPH_TOKEN` environment variable: it is never saved);
+- the outcome is a sentence: *"210 applied out of 210"* on the first delivery; on the second *"44 applied, 166 already there"* — **repeats duplicate nothing**: nodes merge, known edges come back as "already there";
+- rows that cannot become room units (documents, extractors, properties) are listed under *Show details*, never invented;
+- **the signature belongs to the deliverer**: the node writes the author from the verified identity, not from the payload.
+
+**Extended Matrix → Apri il nodo (stanze)…** opens the node's front door in the browser, with its rooms and their graphs.
+
 ### Database to Database Migration
 
 To move a whole database into another one — SQLite to PostgreSQL, PostgreSQL to SQLite, or between two databases of the same kind — there is no need to repeat the operation table by table: pick **ALL** in the list of tables and press **Import**.
