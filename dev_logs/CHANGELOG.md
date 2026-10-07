@@ -5,6 +5,24 @@
 
 ---
 
+## [fix] - 2026-10-07 — Projector: una relazione = un arco diretto (via i tipi inversi dal grafo) — 5.13.34-alpha
+
+> Branch `Stratigraph_00001`. Tag **`forward-edges-5.13.34-alpha`**.
+
+### Italiano
+
+- **Dall'avviso datamodel di EMStudio** sul demo («`is_overlain_by` … is not allowed towards a US»): `_build_rapporti_edges` emetteva i tipi come arrivano da `parse_rapporti` — gli INVERSI compresi — così la coppia Copre/Coperto da faceva **due archi**, e una simmetrica dichiarata dai due lati (Uguale a) pure. La stessa piega già collaudata nell'adapter della stanza (C1) ora vive anche nel projector: inverso → tipo diretto con gli estremi scambiati, simmetriche in orientamento canonico, id stabile che collassa le dichiarazioni reciproche.
+- Misurato sul demo: 764 → **683 archi** (−81, esattamente i doppi inversi del sito); nel file em.json nessun tipo inverso, datamodel pulito.
+- Test nuovi: coppia reciproca → un `overlies` orientato giusto; simmetrica doppia → un `equals`; il file parla solo tipi diretti. I camminatori esistenti (d13 multilingue, round-trip, temporal/rapporti check) tutti verdi: 742 passati.
+
+### English
+
+- **From EMStudio's datamodel warning** on the demo: the projector emitted edge types as parsed — inverses included — so Copre/Coperto da made **two edges** (and a doubly-declared symmetric too). The fold already proven in the room adapter (C1) now lives in the projector as well: inverse → forward with swapped endpoints, symmetric in canonical orientation, stable id collapsing reciprocal declarations.
+- Measured on the demo: 764 → **683 edges** (−81, exactly the site's inverse duplicates); no inverse type in the em.json, datamodel-clean.
+- New tests: reciprocal pair → one correctly-oriented `overlies`; double symmetric → one `equals`; the file speaks forward types only. Existing walkers (multilingual d13, round-trip, temporal/rapporti checks) all green: 742 passed.
+
+---
+
 ## [fix] - 2026-10-07 — Projector: viaggiano solo le epoche del sito (scoperto da Enzo in EMStudio) — 5.13.33-alpha
 
 > Branch `Stratigraph_00001`. Tag **`site-epochs-5.13.33-alpha`**.

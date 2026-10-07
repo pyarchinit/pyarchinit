@@ -92,3 +92,69 @@ def test_only_the_sites_epochs_travel(multisite_db):
     conn.close()
     assert len(epochs) <= n_periods + 2, (
         "%d epoche per %d periodi del sito" % (len(epochs), n_periods))
+
+
+def _mini_db(tmp_path, rows):
+    import sqlite3
+    db = tmp_path / "mini.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, area TEXT DEFAULT '1', us TEXT, unita_tipo TEXT,
+        node_uuid TEXT, rapporti TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT,
+        periodo_finale TEXT, fase_finale TEXT,
+        d_stratigrafica TEXT, d_interpretativa TEXT,
+        attivita TEXT, struttura TEXT, settore TEXT, ambient TEXT,
+        saggio TEXT, quad_par TEXT, documentazione TEXT,
+        other_locations TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, periodo TEXT, fase TEXT,
+        cron_iniziale INTEGER, cron_finale INTEGER,
+        descrizione TEXT, datazione_estesa TEXT)""")
+    conn.execute("""CREATE TABLE site_table (
+        id_sito INTEGER PRIMARY KEY AUTOINCREMENT, sito TEXT,
+        nazione TEXT, regione TEXT, provincia TEXT, comune TEXT)""")
+    conn.executemany(
+        "INSERT INTO us_table (sito, area, us, unita_tipo, node_uuid,"
+        " rapporti) VALUES (?, ?, ?, ?, ?, ?)", rows)
+    conn.commit(); conn.close()
+    return db
+
+
+INVERSE_TYPES = {"is_overlain_by", "is_cut_by", "is_filled_by",
+                 "is_abutted_by", "is_leaned_on_by", "is_before"}
+
+
+def test_reciprocal_rapporti_become_one_forward_edge(tmp_path):
+    """Visto negli avvisi di EMStudio sul demo (datamodel:
+    «is_overlain_by … is not allowed towards a US»): il projector
+    emetteva i tipi INVERSI tal quali, e la coppia Copre/Coperto da
+    faceva due archi. Come nell'adapter della stanza: piega nel tipo
+    diretto con gli estremi scambiati, un arco per relazione."""
+    db = _mini_db(tmp_path, [
+        ("S", "1", "1", "US", "u-1", '[["Copre", "2", "1", "S"]]'),
+        ("S", "1", "2", "US", "u-2", '[["Coperto da", "1", "1", "S"]]'),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="S")
+    rap = [e for e in graph.edges
+           if str(getattr(e, "edge_id", "")).startswith("rap_")]
+    assert len(rap) == 1, [(e.edge_type, e.edge_id) for e in rap]
+    edge = rap[0]
+    assert edge.edge_type == "overlies"
+    by_id = {n.node_id: n for n in graph.nodes}
+    assert (by_id[edge.edge_source].attributes or {}).get("us") == "1"
+    assert (by_id[edge.edge_target].attributes or {}).get("us") == "2"
+    assert not [e for e in graph.edges
+                if getattr(e, "edge_type", None) in INVERSE_TYPES]
+
+
+def test_a_symmetric_relation_declared_twice_is_one_edge(tmp_path):
+    db = _mini_db(tmp_path, [
+        ("S", "1", "1", "US", "u-1", '[["Uguale a", "2", "1", "S"]]'),
+        ("S", "1", "2", "US", "u-2", '[["Uguale a", "1", "1", "S"]]'),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="S")
+    eq = [e for e in graph.edges if getattr(e, "edge_type", None) == "equals"]
+    assert len(eq) == 1, [(e.edge_type, e.edge_id) for e in eq]

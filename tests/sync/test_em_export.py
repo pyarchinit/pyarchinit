@@ -296,3 +296,17 @@ def test_the_file_carries_only_the_sites_epochs(sample_db, tmp_path):
                and "Scavo archeologico" not in str(n.node_id)]
     assert foreign == [], foreign[:5]
     assert len(epochs) < 15, "%d epoche per un sito solo" % len(epochs)
+
+
+def test_the_file_speaks_only_forward_edge_types(sample_db, tmp_path):
+    """Avviso datamodel di EMStudio sul demo: «is_overlain_by … is not
+    allowed towards a US». Nel file viaggiano solo i tipi diretti."""
+    path, _n, _e, _w = em_export.export_site(
+        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    check, _ = import_emjson(path)
+    INVERSE = {"is_overlain_by", "is_cut_by", "is_filled_by",
+               "is_abutted_by", "is_leaned_on_by", "is_before"}
+    bad = [e for e in check.edges
+           if getattr(e, "edge_type", None) in INVERSE]
+    assert bad == [], sorted({e.edge_type for e in bad})

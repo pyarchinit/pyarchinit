@@ -365,6 +365,21 @@ class GraphProjector(_LibGraphProjector):
         """
         from s3dgraphy.rapporti import parse_rapporti
 
+        # Il datamodel EM non ammette i tipi inversi verso una US
+        # (avviso di EMStudio sul demo, 2026-10-07): la coppia
+        # Copre/Coperto da deve essere UN arco diretto, come già
+        # nell'adapter della stanza (room/us_ops.INVERSE_TO_FORWARD).
+        inverse_to_forward = {
+            "is_overlain_by": "overlies",
+            "is_cut_by": "cuts",
+            "is_filled_by": "fills",
+            "is_abutted_by": "abuts",
+            "is_leaned_on_by": "leans_on",
+            "is_before": "is_after",
+        }
+        symmetric = {"equals", "bonded_to", "has_same_time",
+                     "is_physically_equal_to", "is_bonded_to"}
+
         paradata = frozenset(_PARADATA_UNITA_TIPO)
 
         def family(ut):
@@ -405,8 +420,14 @@ class GraphProjector(_LibGraphProjector):
                         target_node = candidates[0]
                 if target_node is None:
                     continue
+                if edge_type in inverse_to_forward:
+                    edge_type = inverse_to_forward[edge_type]
+                    swap = not swap
                 src_node, dst_node = ((target_node, us_node) if swap
                                       else (us_node, target_node))
+                if edge_type in symmetric \
+                        and str(dst_node.node_id) < str(src_node.node_id):
+                    src_node, dst_node = dst_node, src_node
                 edge_id = "rap_%s_%s_%s" % (
                     src_node.node_id, dst_node.node_id, edge_type)
                 if graph.find_edge_by_id(edge_id) is None:
