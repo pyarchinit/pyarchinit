@@ -5,7 +5,7 @@ qgisMaximumVersion=4.99
 supportsQt6=True
 description=pyArchInit - Complete Archaeological Data Management System for excavations, stratigraphy, finds, GIS mapping and scientific reporting
 
-version=5.13.22-alpha
+version=5.13.23-alpha
 
 author=Luca Mandolesi & Enzo Cocca
 email=pyarchinit@gmail.com
@@ -31,7 +31,21 @@ tracker=https://github.com/pyarchinit/pyarchinit/issues
 repository=https://github.com/pyarchinit/pyarchinit
 
 
-changelog=5.13.22-alpha (2026-09-24) [Importazione: tutto il database in un colpo solo, dati e geometrie]
+changelog=5.13.23-alpha (2026-10-07) [Vocabolario delle unità: anche le liste di riserva nominano USVs / USVn]
+    - Fix: the unit-type list of the US sheet is rebuilt at start-up from
+      the EM vocabulary (VocabProvider, since 5.1.0-alpha) and already
+      offers USVs / USVn, but two fallbacks still carried pyArchInit's
+      older spelling USVA / USVB / USVC: the items written in US_USM.ui
+      and _LEGACY_COMMON_ITEMS, used when the s3dgraphy bundle cannot be
+      imported (a fresh clone before the dependencies are installed). An
+      install in that state could write the old codes back into a
+      database the vocabulary migration had just aligned.
+    - Existing data is converted by the one-shot migration
+      scripts/migrations/2026_05_us_vocabulary_alignment.py (USVA/USVB →
+      USVs, USVC → USVn), from the plugin menu: Migrazioni → Allinea
+      vocabolario US (dry-run plan, confirmation, automatic backup).
+
+  5.13.22-alpha (2026-09-24) [Importazione: tutto il database in un colpo solo, dati e geometrie]
     - Feature: the import tab copies a whole database into another one
       (SQLite or PostgreSQL, in any direction) in one go — 44 tables,
       geometries included — instead of one table at a time. New engine
