@@ -42710,20 +42710,15 @@ QPushButton:pressed {
         </item>
         <item>
          <property name="text">
-          <string>USVA</string>
+          <string>USVs</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>USVB</string>
+          <string>USVn</string>
          </property>
         </item>
-        <item>
-         <property name="text">
-          <string>USVC</string>
-         </property>
-        </item>
-        <item>
+                <item>
          <property name="text">
           <string>USD</string>
          </property>

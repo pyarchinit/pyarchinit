@@ -69,8 +69,13 @@ ALL_UNIT_ABBREVS = ALL_US_ABBREVS | ALL_USM_ABBREVS
 # Hard-coded fallback used when ext_libs/s3dgraphy/ is unavailable
 # (e.g. fresh clone before pip install --target). Order matters for the
 # unit-type picker dialog.
+# The virtual units are named as EM names them (USVs structural, USVn
+# non-structural): USVA/USVB/USVC were pyArchInit's own spelling, aligned
+# in 5.1.0-alpha and converted in existing databases by
+# scripts/migrations/2026_05_us_vocabulary_alignment.py. A fallback that
+# offered the old ones would let a bundle-less install write them again.
 _LEGACY_COMMON_ITEMS = (
-    'USVA', 'USVB', 'USVC', 'USD', 'CON', 'VSF', 'SF', 'SUS',
+    'USVs', 'USVn', 'USD', 'CON', 'VSF', 'SF', 'SUS',
     'Combinar', 'Extractor', 'DOC', 'property',
 )
 
