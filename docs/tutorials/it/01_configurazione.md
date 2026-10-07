@@ -334,6 +334,19 @@ Questa scheda permette di importare dati da altri database o file CSV.
 ![Opzioni Import](images/01_configurazione/19_opzioni_import.png)
 *Figura 19: Opzioni di importazione*
 
+### Esportare un sito in em.json (Extended Matrix)
+
+Dal menu **pyArchInit → Extended Matrix → Esporta sito in em.json…** si porta un intero sito nel formato di lavoro dell'Extended Matrix, quello che **EMStudio** apre nativamente.
+
+Cosa aspettarsi:
+
+- pyArchInit elenca i siti del database: se ne sceglie **uno**;
+- il file nasce in `pyarchinit_EM_folder` dentro la cartella dati del plugin, col nome del sito (qualunque alfabeto: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
+- prima di consegnarlo, pyArchInit **rilegge il file**: un export che non rilegge uguale non viene dato;
+- alla fine chiede se **aprirlo subito in EMStudio**; se EMStudio non è installato, indica dov'è il file e la pagina da cui scaricarlo (github.com/ExtendedMatrix/EMStudio/releases).
+
+> **Nota**: il GraphML resta solo come **import una tantum da yEd**; per guardare e validare il matrix il formato è em.json.
+
 ### Migrare tutto il database in un colpo solo
 
 Per travasare un intero database in un altro — da SQLite a PostgreSQL, da PostgreSQL a SQLite, o fra due database dello stesso tipo — non serve ripetere l'operazione tabella per tabella: basta scegliere **ALL** nell'elenco delle tabelle e premere **Import**.

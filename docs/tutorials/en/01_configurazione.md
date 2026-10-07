@@ -182,6 +182,19 @@ Tools for importing data from external sources.
 
 For importing GIS data directly into PyArchInit layers.
 
+### Exporting a site to em.json (Extended Matrix)
+
+From the **pyArchInit → Extended Matrix → Esporta sito in em.json…** menu entry a whole site travels to the working format of the Extended Matrix, the one **EMStudio** opens natively.
+
+What to expect:
+
+- pyArchInit lists the sites in the database: pick **one**;
+- the file is born in `pyarchinit_EM_folder` inside the plugin's data folder, named after the site (any script: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
+- before handing it over, pyArchInit **reads the file back**: an export that does not read back identical is not delivered;
+- at the end it asks whether to **open it in EMStudio right away**; when EMStudio is not installed, it tells you where the file is and where to download the app (github.com/ExtendedMatrix/EMStudio/releases).
+
+> **Note**: GraphML survives only as the **one-time import from yEd**; the format for looking at and validating the matrix is em.json.
+
 ### Database to Database Migration
 
 To move a whole database into another one — SQLite to PostgreSQL, PostgreSQL to SQLite, or between two databases of the same kind — there is no need to repeat the operation table by table: pick **ALL** in the list of tables and press **Import**.

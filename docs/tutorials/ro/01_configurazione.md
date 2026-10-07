@@ -182,6 +182,19 @@ Instrumente pentru importul datelor din surse externe.
 
 Pentru importul datelor GIS direct in straturile PyArchInit.
 
+### Exportul unui sit in em.json (Extended Matrix)
+
+Din meniul **pyArchInit → Extended Matrix → Esporta sito in em.json…** un sit intreg trece in formatul de lucru al Extended Matrix, cel pe care **EMStudio** il deschide nativ.
+
+La ce sa va asteptati:
+
+- pyArchInit listeaza siturile din baza de date: se alege **unul**;
+- fisierul se naste in `pyarchinit_EM_folder` in dosarul de date al pluginului, cu numele sitului (orice alfabet: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
+- inainte de a-l preda, pyArchInit **reciteste fisierul**: un export care nu se reciteste identic nu este livrat;
+- la final intreaba daca sa il **deschida imediat in EMStudio**; daca EMStudio nu este instalat, arata unde este fisierul si de unde se descarca aplicatia (github.com/ExtendedMatrix/EMStudio/releases).
+
+> **Nota**: GraphML ramane doar ca **import unic din yEd**; formatul pentru vizualizarea si validarea matricei este em.json.
+
 ### Migrarea intregii baze de date dintr-o singura data
 
 Pentru a muta o baza de date intreaga in alta — din SQLite in PostgreSQL, din PostgreSQL in SQLite sau intre doua de acelasi fel — nu este nevoie sa repetati operatia tabel cu tabel: alegeti **ALL** in lista tabelelor si apasati **Import**.
