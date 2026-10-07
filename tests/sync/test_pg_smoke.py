@@ -19,7 +19,7 @@ from tests.sync.conftest_pg import pg_engine  # noqa: F401
 def test_pg_smoke_columns_of_us_table(pg_engine):
     """pg_engine connects + schema bootstrap created us_table +
     _columns_of() returns the expected columns via information_schema."""
-    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from s3dgraphy.sync._db_handle import _columns_of
     cols = _columns_of(pg_engine, "us_table")
     # Foundation schema declares: id_us, sito, area, us, d_stratigrafica,
     # d_interpretativa, rapporti, periodo_iniziale, fase_iniziale,

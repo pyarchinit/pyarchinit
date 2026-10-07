@@ -13,16 +13,16 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from modules.s3dgraphy.sync.yed_classifier import (
+from s3dgraphy.sync.yed_classifier import (
     ClassificationKind,
     ClassifiedNode,
     classify_leaves,
 )
-from modules.s3dgraphy.sync.yed_group_walker import (
+from s3dgraphy.sync.yed_group_walker import (
     FolderCandidate,
     walk_folders,
 )
-from modules.s3dgraphy.sync.yed_rapporti_policy import (
+from s3dgraphy.sync.yed_rapporti_policy import (
     ExpandedRapporti,
     FolderEdge,
     FolderEdgePolicy,

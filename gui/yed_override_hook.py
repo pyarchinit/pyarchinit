@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from modules.s3dgraphy.sync.graph_ingestor import YedOverrideResult
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 
 def yed_override_hook(

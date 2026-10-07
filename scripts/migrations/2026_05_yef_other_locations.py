@@ -16,7 +16,7 @@ _PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 if str(_PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(_PLUGIN_ROOT))
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 from scripts.migrations._2026_05_yef_other_locations_lib import (
     add_other_locations_column,
 )
@@ -42,7 +42,7 @@ def main(argv: list[str] | None = None) -> int:
         handle = DbHandle.from_engine(engine, args.conn_str)
 
     if args.dry_run:
-        from modules.s3dgraphy.sync._db_handle import _columns_of
+        from s3dgraphy.sync._db_handle import _columns_of
         present = "other_locations" in _columns_of(handle.engine, "us_table")
         print(f"dry_run: other_locations present={present}")
         return 0

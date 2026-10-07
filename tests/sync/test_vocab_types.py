@@ -1,7 +1,7 @@
 """Tests for vocab_types dataclasses."""
 from __future__ import annotations
 
-from modules.s3dgraphy.sync.vocab_types import (
+from s3dgraphy.sync.vocab_types import (
     EdgeType,
     Family,
     UnitType,

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle, _columns_of
+from s3dgraphy.sync._db_handle import DbHandle, _columns_of
 
 
 SCHEDATORE_COLUMNS = (

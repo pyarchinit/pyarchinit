@@ -27,14 +27,14 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
-from modules.s3dgraphy.sync.yed_classifier import (
+from s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync.yed_classifier import (
     ClassificationKind,
     ClassifiedNode,
 )
-from modules.s3dgraphy.sync.yed_group_walker import FolderCandidate
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
-from modules.s3dgraphy.sync.yed_import_pipeline import (
+from s3dgraphy.sync.yed_group_walker import FolderCandidate
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_import_pipeline import (
     _DryRunRollback,
     _apply_yed_folder_dimensions,
     _classify_destination,
@@ -213,7 +213,7 @@ def test_classify_destination_routes_rsf_to_us_table() -> None:
     # Both also dual-write to inventario.
     assert {c.yed_id for c in result["sql_inv"]} == {"r1", "s1"}
     # _resolve_unita_tipo + _CLASSIFIED_KIND_TO_UNITA_TIPO contract.
-    from modules.s3dgraphy.sync.yed_import_pipeline import _resolve_unita_tipo
+    from s3dgraphy.sync.yed_import_pipeline import _resolve_unita_tipo
     assert _resolve_unita_tipo(nodes[0]) == "RSF"
     assert _resolve_unita_tipo(nodes[1]) == "SF"
 
@@ -334,7 +334,7 @@ def test_write_periodizzazione_rows_creates_one_per_period(
 
     # Build PeriodCandidate-shaped objects locally (avoid importing
     # the dataclass to keep this test minimal).
-    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+    from s3dgraphy.sync.yed_table_parser import PeriodCandidate
     periods = [
         PeriodCandidate(
             yed_row_id=f"r{i}",
@@ -548,10 +548,10 @@ def test_idempotent_skip_on_existing_us_row(tmp_path: Path) -> None:
 def test_apply_overrides_empty_is_identity() -> None:
     """An empty YedOverrides() leaves user_kind / user_dimension /
     user_value / user_periodo / user_fase at their auto_* values."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, apply_overrides_to_drafts,
     )
-    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+    from s3dgraphy.sync.yed_table_parser import PeriodCandidate
 
     classified = [_leaf("c0", ClassificationKind.US_REAL, "US01")]
     periods = [PeriodCandidate(
@@ -574,7 +574,7 @@ def test_apply_overrides_empty_is_identity() -> None:
 def test_apply_overrides_classifier_per_row() -> None:
     """A classifier override for one yed_id changes only that leaf's
     user_kind; siblings keep their auto_kind."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, apply_overrides_to_drafts,
     )
 
@@ -595,10 +595,10 @@ def test_apply_overrides_classifier_per_row() -> None:
 def test_apply_overrides_periods_full() -> None:
     """A periods override sets user_periodo + user_fase from the
     override dict; unrelated periods keep their auto_* values."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, apply_overrides_to_drafts,
     )
-    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+    from s3dgraphy.sync.yed_table_parser import PeriodCandidate
 
     p1 = PeriodCandidate(yed_row_id="p1", auto_label="A", user_label="A",
                          auto_periodo=1, auto_fase=1,
@@ -619,7 +619,7 @@ def test_apply_overrides_periods_full() -> None:
 def test_apply_overrides_folders_dimension_change() -> None:
     """A folder override changing dimension+value sets user_dimension
     and user_value on the targeted folder only."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, apply_overrides_to_drafts,
     )
 
@@ -640,7 +640,7 @@ def test_apply_overrides_folders_skip() -> None:
     """user_dimension='skip' sentinel flows through; downstream
     _apply_yed_folder_dimensions reads user_dimension and treats
     'skip' / None as 'no UPDATE for this folder'."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, apply_overrides_to_drafts,
     )
 
@@ -656,7 +656,7 @@ def test_apply_overrides_policy_wins_over_caller_arg(tmp_path: Path) -> None:
     """When YedOverrides.policy is set, it overrides the policy=
     argument passed to import_yed_raw. The pipeline reads
     overrides.policy after the apply_overrides_to_drafts call."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         YedOverrides, import_yed_raw,
     )
     handle = _make_handle(tmp_path)
@@ -693,7 +693,7 @@ def test_strip_unita_tipo_prefix_examples() -> None:
     numeric run after the dot, which naturally collapses identity
     variants (D.001 / D.001-2 / D.001bis → '001').
     """
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         _strip_unita_tipo_prefix,
     )
     # Path 1: prefix matches unita_tipo verbatim.
@@ -742,10 +742,10 @@ def test_build_member_to_period_inverts_period_membership() -> None:
     {yed_id → (periodo, fase)} so _write_us_rows can set
     periodo_iniziale + fase_iniziale on each member.
     """
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         _build_member_to_period,
     )
-    from modules.s3dgraphy.sync.yed_table_parser import PeriodCandidate
+    from s3dgraphy.sync.yed_table_parser import PeriodCandidate
     periods = [
         PeriodCandidate(
             yed_row_id="r0", auto_label="Period01",
@@ -823,10 +823,10 @@ def test_write_rapporti_format_is_type_us_area_sito(
     'Copre' (default edge_type='overlies' resolves via the canonical
     {US, USM}² map), NOT the placeholder 'covers'."""
     import json
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         _write_rapporti, _write_us_rows,
     )
-    from modules.s3dgraphy.sync.yed_rapporti_policy import (
+    from s3dgraphy.sync.yed_rapporti_policy import (
         ExpandedRapporti, FolderEdgePolicy,
     )
     handle = _make_handle(tmp_path)
@@ -875,10 +875,10 @@ def test_write_rapporti_token_dispatch_by_unita_tipo(
     is CON (continuity).
     """
     import json
-    from modules.s3dgraphy.sync.yed_import_pipeline import (
+    from s3dgraphy.sync.yed_import_pipeline import (
         _write_rapporti, _write_us_rows,
     )
-    from modules.s3dgraphy.sync.yed_rapporti_policy import (
+    from s3dgraphy.sync.yed_rapporti_policy import (
         ExpandedRapporti, FolderEdgePolicy,
     )
     handle = _make_handle(tmp_path)
@@ -942,8 +942,8 @@ def test_paradata_store_add_document_dedups_same_identity(
     (``handle.sqlite_path.parent``), so no PYARCHINIT_WORKSPACE_DIR
     monkeypatch is needed — tmp_path is already isolated.
     """
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
 
     dbfile = tmp_path / "dedup.sqlite"
     handle = DbHandle.from_path(dbfile)
@@ -976,8 +976,8 @@ def test_paradata_store_add_extractor_combiner_roundtrip(
     add_extractor / add_combiner and survive the read round-trip
     (the s3dgraphy importer drops them; our _merge_extended_paradata_nodes
     reconstructs from the _s3d_node_type marker)."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
 
     dbfile = tmp_path / "rt.sqlite"
     handle = DbHandle.from_path(dbfile)
@@ -1050,7 +1050,7 @@ def test_classifier_extracts_extractor_kind() -> None:
     """Bug D regression: ``E.NNN`` labels must classify as EXTRACTOR.
     Before yed-fastfix the regex was missing and Extractor nodes fell
     to UNKNOWN → skipped from every bucket."""
-    from modules.s3dgraphy.sync.yed_classifier import (
+    from s3dgraphy.sync.yed_classifier import (
         DEFAULT_CLASSIFIER_RULES,
         ClassificationKind,
     )
@@ -1079,7 +1079,7 @@ def test_classifier_distinguishes_document_from_extractor(
       1. yEd BPMN ``<y:Property>`` markers (highest priority)
       2. Label depth fallback (D.NN.MM has 2 dots → Extractor)
     """
-    from modules.s3dgraphy.sync.yed_classifier import (
+    from s3dgraphy.sync.yed_classifier import (
         classify_leaves,
         ClassificationKind,
     )

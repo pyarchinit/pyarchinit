@@ -4,7 +4,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 from scripts.migrations._2026_08_rapporti_blank_rows_lib import (
     is_blank_row,
     strip_blank_rows,

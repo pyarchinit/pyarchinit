@@ -2,7 +2,7 @@
 
 **Spec date:** 2026-10-07
 **Author:** Enzo (brainstorming session, decisions captured below)
-**Status:** Design approved in chat — spec for review
+**Status:** Shipped (A+B1) — 2026-10-07: A1–A3 `one-bridge-5.13.24-alpha`, B1 `em-export-5.13.25-alpha`, A4 `graphml-retire-5.13.26-alpha`, A5 `one-bridge-closing-5.13.27-alpha`. B2 and C wait for the StratiGraph node.
 **Branch:** `Stratigraph_00001` only (decision of 2026-10-07: no feature ports to `master`)
 **Target s3dgraphy:** `1.6.0.dev40` at the time of writing — pinned **exact** at migration time (never `>=`), re-checked against the then-current dev release
 **Driving threads:** ExtendedMatrix/s3Dgraphy#25 (direction), #26 (US mapping), #27 (performance, fixed in dev40), pyarchinit/pyarchinit#663 (DOT stays), Emanuel's Telegram notes of 2026-10-07 (rooms: REST vs WebSocket; contract; room client; EMStudio viewer)

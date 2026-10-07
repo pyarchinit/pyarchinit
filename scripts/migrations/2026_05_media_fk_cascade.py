@@ -29,7 +29,7 @@ import logging
 import sys
 from pathlib import Path
 
-from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+from s3dgraphy.sync._db_handle import _resolve_db_handle
 from modules.utility.pyarchinit_home import pyarchinit_home
 from scripts.migrations._common import (
     BackupSkipped, auto_backup_postgres,

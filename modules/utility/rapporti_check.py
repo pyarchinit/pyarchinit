@@ -9,7 +9,7 @@ fix. See docs/superpowers/specs/2026-06-06-rapporti-validation-autofix-design.md
 from __future__ import annotations
 from dataclasses import dataclass, field
 
-from modules.s3dgraphy.sync.rapporti import (
+from s3dgraphy.rapporti import (
     NON_RAPPORTI_EDGE_TYPES,
     RAPPORTI_TO_EDGE_TYPE,
     _REL_INDEX_EDGE_TYPE,
@@ -612,7 +612,7 @@ def regenerate_node_uuids(graph) -> int:
     """Assign a fresh uuid7 to every node's ``attributes['node_uuid']`` so a
     copy-import does not match (and overwrite) existing DB rows. Returns the
     count changed."""
-    from modules.s3dgraphy.sync.uuid7 import uuid7
+    from s3dgraphy.sync.uuid7 import uuid7
     n = 0
     for node in getattr(graph, "nodes", None) or []:
         attrs = getattr(node, "attributes", None)

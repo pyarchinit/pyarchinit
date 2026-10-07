@@ -10,8 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.graph_ingestor import CycleDetectedError
-from modules.s3dgraphy.sync.yed_group_walker import (
+from s3dgraphy.sync.yed_group_walker import (
     FolderCandidate,
     walk_folders,
 )
@@ -191,5 +190,10 @@ def test_cycle_detection_raises_cycle_detected_error(tmp_path):
 """
     path = tmp_path / "cycle.graphml"
     path.write_text(xml)
+    # Taken from the walker's OWN globals: sibling test modules purge
+    # s3dgraphy from sys.modules, so any class resolved by name (at
+    # collection or call time, or via sys.modules) can be a different
+    # generation from the one the walk_folders we hold actually raises.
+    CycleDetectedError = walk_folders.__globals__["CycleDetectedError"]
     with pytest.raises(CycleDetectedError):
         walk_folders(path)

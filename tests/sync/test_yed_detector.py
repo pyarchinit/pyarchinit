@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_detector import detect_flavor
+from s3dgraphy.sync.yed_detector import detect_flavor
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

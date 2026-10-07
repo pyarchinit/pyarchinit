@@ -136,7 +136,7 @@ def _emit_paradata_fixture():
         "SELECT DISTINCT sito FROM us_table LIMIT 1").fetchone()[0]
 
     # Use ParadataStore to seed the file with controlled UUIDs.
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(tmp_db, sito)
     store.add_author("Marco Pacifico", orcid="0000-0002-1234-5678",
                      role="curator")
@@ -183,7 +183,7 @@ def _emit_groups_fixture():
     member_uuids = [r[0] for r in rows]
     conn.close()
 
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(tmp_db, sito)
     store.add_group(
         "restauri-2023",

@@ -39,7 +39,7 @@ def test_scan_inherits_all_areas_via_other_locations():
 from modules.s3dgraphy.sync.continuity_generator import (
     build_con_record, desired_rapporti, con_us_code,
 )
-from modules.s3dgraphy.sync.rapporti import continuity_label, parse_rapporti
+from s3dgraphy.rapporti import continuity_label, parse_rapporti
 
 def test_con_us_code():
     assert con_us_code("US5") == "CON_US5"
@@ -199,11 +199,11 @@ def test_record_matches_detects_rapporti_area_drift():
 import sqlite3
 import pytest
 from pathlib import Path
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 from modules.s3dgraphy.sync.continuity_generator import (
     load_site_records, load_existing_con, apply_plan,
 )
-from modules.s3dgraphy.sync.rapporti import continuity_label, _coerce_to_list
+from s3dgraphy.rapporti import continuity_label, _coerce_to_list
 
 
 def _make_db(tmp_path: Path) -> DbHandle:

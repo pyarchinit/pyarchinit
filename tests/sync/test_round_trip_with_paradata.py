@@ -47,7 +47,7 @@ def _read_sito(db):
 def test_round_trip_preserves_paradata_uuids(mini_volterra):
     """D4 invariant extended: round-trip preserves both strat
     mapped columns AND paradata uuids."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
 
     sito = _read_sito(mini_volterra)

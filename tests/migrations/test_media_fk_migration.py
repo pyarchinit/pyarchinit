@@ -414,7 +414,7 @@ def _wrap_handle(pg_engine_obj):
 
     Same pattern as ``tests/sync/test_pg_bv2_pg_importer.py`` tests 3+4.
     """
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     return DbHandle.from_engine(pg_engine_obj, str(pg_engine_obj.url))
 
 

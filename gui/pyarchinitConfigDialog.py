@@ -1160,7 +1160,7 @@ class pyArchInitDialog_Config(QDialog, MAIN_DIALOG_CLASS):
 
             def _propagate_workspace_to_env():
                 """Mirror QSettings paradata_workspace into the env var
-                so modules.s3dgraphy.sync._workspace sees the override."""
+                so s3dgraphy.sync._workspace sees the override."""
                 _v = _QSettings().value(
                     "pyarchinit/paradata_workspace", "") or ""
                 if _v:

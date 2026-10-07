@@ -14,7 +14,7 @@ if str(_ROOT) not in sys.path:
 
 from sqlalchemy import text  # noqa: E402
 
-from modules.s3dgraphy.sync._db_handle import DbHandle  # noqa: E402
+from s3dgraphy.sync._db_handle import DbHandle  # noqa: E402
 from modules.s3dgraphy.sync.graph_projector import GraphProjector  # noqa: E402
 
 

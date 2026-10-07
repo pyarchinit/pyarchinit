@@ -4,14 +4,14 @@ import pytest
 
 
 def test_conflict_resolution_enum_has_three_members():
-    from modules.s3dgraphy.sync.ingest_result import ConflictResolution
+    from s3dgraphy.sync.ingest_result import ConflictResolution
     assert ConflictResolution.GRAPH_WINS.value == "graph_wins"
     assert ConflictResolution.DB_WINS.value == "db_wins"
     assert ConflictResolution.SKIPPED.value == "skipped"
 
 
 def test_conflict_record_is_frozen():
-    from modules.s3dgraphy.sync.ingest_result import ConflictRecord
+    from s3dgraphy.sync.ingest_result import ConflictRecord
     cr = ConflictRecord(
         node_uuid="abc-123",
         field="d_stratigrafica",
@@ -26,7 +26,7 @@ def test_conflict_record_is_frozen():
 
 
 def test_ingest_result_default_values():
-    from modules.s3dgraphy.sync.ingest_result import IngestResult
+    from s3dgraphy.sync.ingest_result import IngestResult
     r = IngestResult(applied=0, inserted=0, updated=0, skipped=0,
                      epochs_created=0)
     assert r.conflicts == ()
@@ -35,7 +35,7 @@ def test_ingest_result_default_values():
 
 
 def test_ingest_result_is_frozen():
-    from modules.s3dgraphy.sync.ingest_result import IngestResult
+    from s3dgraphy.sync.ingest_result import IngestResult
     r = IngestResult(applied=5, inserted=3, updated=2, skipped=0,
                      epochs_created=0)
     with pytest.raises(Exception):
@@ -43,7 +43,7 @@ def test_ingest_result_is_frozen():
 
 
 def test_ingest_result_with_conflicts():
-    from modules.s3dgraphy.sync.ingest_result import (
+    from s3dgraphy.sync.ingest_result import (
         IngestResult, ConflictRecord)
     cr = ConflictRecord(node_uuid="u1", field="f", db_value=1,
                         graph_value=2, resolution="graph_wins")

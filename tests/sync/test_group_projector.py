@@ -59,7 +59,7 @@ def _seed_dimension(db, sito, col, value, n_rows=2):
 
 def test_dimensions_with_data_returns_only_populated(mini_volterra):
     """D2: only the dimensions with at least 1 non-empty value."""
-    from modules.s3dgraphy.sync.group_projector import dimensions_with_data
+    from s3dgraphy.sync.group_projector import dimensions_with_data
     sito = _read_sito(mini_volterra)
     # Mini volterra fixture is mostly empty for grouping cols.
     # Seed: struttura on 2 rows, leave rest empty.
@@ -74,7 +74,7 @@ def test_dimensions_with_data_returns_only_populated(mini_volterra):
 
 def test_dimensions_with_data_empty_for_unpopulated_sito(mini_volterra):
     """All dimensions empty → empty list."""
-    from modules.s3dgraphy.sync.group_projector import dimensions_with_data
+    from s3dgraphy.sync.group_projector import dimensions_with_data
     # Ensure all grouping cols are empty (default fixture state)
     conn = sqlite3.connect(mini_volterra)
     for col in ("area", "struttura", "attivita", "settore",
@@ -92,7 +92,7 @@ def test_dimensions_with_data_empty_for_unpopulated_sito(mini_volterra):
 
 def test_build_groups_handles_all_seven_dimensions(mini_volterra):
     """D1: every one of the 7 dims must be a valid input."""
-    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    from s3dgraphy.sync.group_projector import build_groups_from_sql
     sito = _read_sito(mini_volterra)
     # Seed at least one row per dimension
     for col, val in [("area", "A1"), ("struttura", "basilica"),
@@ -112,7 +112,7 @@ def test_build_groups_handles_all_seven_dimensions(mini_volterra):
 
 def test_build_groups_skips_unknown_dimension(mini_volterra):
     """Unknown dim name (typo) is silently dropped, no exception."""
-    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    from s3dgraphy.sync.group_projector import build_groups_from_sql
     sito = _read_sito(mini_volterra)
     _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
     specs = build_groups_from_sql(
@@ -123,7 +123,7 @@ def test_build_groups_skips_unknown_dimension(mini_volterra):
 
 def test_group_uuid_deterministic_across_exports(mini_volterra):
     """AC-7: SQL-derived UUID5 stable across exports."""
-    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    from s3dgraphy.sync.group_projector import build_groups_from_sql
     sito = _read_sito(mini_volterra)
     _seed_dimension(mini_volterra, sito, "struttura", "basilica", 3)
     specs1 = build_groups_from_sql(
@@ -136,7 +136,7 @@ def test_group_uuid_deterministic_across_exports(mini_volterra):
 def test_build_groups_collects_member_us_uuids(mini_volterra):
     """Each GroupSpec.member_us_uuids has the node_uuid (Phase 1
     UUID) of every US in that group."""
-    from modules.s3dgraphy.sync.group_projector import build_groups_from_sql
+    from s3dgraphy.sync.group_projector import build_groups_from_sql
     sito = _read_sito(mini_volterra)
     _seed_dimension(mini_volterra, sito, "struttura", "basilica", 3)
     specs = build_groups_from_sql(
@@ -150,9 +150,9 @@ def test_build_groups_collects_member_us_uuids(mini_volterra):
 
 def test_merge_adhoc_groups_appends_when_no_collision(tmp_path, mini_volterra):
     """Ad-hoc group with unique name is appended to SQL specs."""
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         build_groups_from_sql, merge_adhoc_groups)
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     sito = _read_sito(mini_volterra)
     _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
 
@@ -170,9 +170,9 @@ def test_merge_adhoc_groups_appends_when_no_collision(tmp_path, mini_volterra):
 def test_merge_adhoc_groups_warns_on_name_collision(tmp_path, mini_volterra, caplog):
     """SQL-name == ad-hoc-name → SQL wins, warning logged."""
     import logging
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         build_groups_from_sql, merge_adhoc_groups)
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     sito = _read_sito(mini_volterra)
     _seed_dimension(mini_volterra, sito, "struttura", "basilica", 2)
 
@@ -194,7 +194,7 @@ def test_merge_adhoc_groups_warns_on_name_collision(tmp_path, mini_volterra, cap
 
 def test_groupspec_has_node_class_field():
     """AI07 B.1: GroupSpec carries node_class to dispatch ActivityNodeGroup vs LocationNodeGroup."""
-    from modules.s3dgraphy.sync.group_projector import GroupSpec
+    from s3dgraphy.sync.group_projector import GroupSpec
     spec = GroupSpec(
         group_uuid="abc",
         name="X",
@@ -209,7 +209,7 @@ def test_groupspec_has_node_class_field():
 
 def test_attivita_resolves_to_activitynodegroup_no_kind():
     """AI07 B.1 + Q1: attivita stays as ActivityNodeGroup with kind=None."""
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     cls, kind = _resolve_node_class_and_kind("attivita")
@@ -218,7 +218,7 @@ def test_attivita_resolves_to_activitynodegroup_no_kind():
 
 
 def test_struttura_ambient_resolve_to_locationnodegroup_functional():
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     for dim in ("struttura", "ambient"):
@@ -228,7 +228,7 @@ def test_struttura_ambient_resolve_to_locationnodegroup_functional():
 
 
 def test_area_settore_saggio_quad_par_resolve_to_locationnodegroup_study():
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     for dim in ("area", "settore", "saggio", "quad_par"):
@@ -238,7 +238,7 @@ def test_area_settore_saggio_quad_par_resolve_to_locationnodegroup_study():
 
 
 def test_adhoc_resolves_to_locationnodegroup_functional_default():
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     cls, kind = _resolve_node_class_and_kind("adhoc")
@@ -248,7 +248,7 @@ def test_adhoc_resolves_to_locationnodegroup_functional_default():
 
 def test_toponym_resolves_to_locationnodegroup_kind_toponym():
     """AI07 B.1 + Group D prep: toponym chain entries dispatch to LocationNodeGroup with kind='toponym'."""
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     cls, kind = _resolve_node_class_and_kind("toponym")
@@ -258,7 +258,7 @@ def test_toponym_resolves_to_locationnodegroup_kind_toponym():
 
 def test_unknown_group_kind_falls_back_to_locationnodegroup_functional():
     """AI07 B.1: defensive default for unknown group_kind (never raises)."""
-    from modules.s3dgraphy.sync.group_projector import (
+    from s3dgraphy.sync.group_projector import (
         _resolve_node_class_and_kind,
     )
     cls, kind = _resolve_node_class_and_kind("nonexistent_dimension_2026")

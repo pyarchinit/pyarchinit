@@ -17,9 +17,9 @@ from gui.yed_import_dialog import (
     save_sidecar,
     sidecar_path,
 )
-from modules.s3dgraphy.sync.yed_classifier import ClassificationKind
-from modules.s3dgraphy.sync.yed_import_pipeline import YedOverrides
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_classifier import ClassificationKind
+from s3dgraphy.sync.yed_import_pipeline import YedOverrides
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 
 def test_sidecar_path_appends_suffix(tmp_path: Path) -> None:

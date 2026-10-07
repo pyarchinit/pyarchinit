@@ -34,7 +34,7 @@ def _make_db(tmp_path) -> Path:
 
 def test_file_path_resolves_per_sito(tmp_path):
     """D6/D7: file path is `{db_dir}/groups_{sito_slug}.graphml`."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     db = _make_db(tmp_path)
     store = GroupStore(db, "Scavo Archeologico")
     assert store.file_path == tmp_path / "groups_scavo_archeologico.graphml"
@@ -42,7 +42,7 @@ def test_file_path_resolves_per_sito(tmp_path):
 
 def test_file_path_slugifies_special_chars(tmp_path):
     """Slug replaces non-word chars with underscore + lowercases."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     db = _make_db(tmp_path)
     store = GroupStore(db, "Site #1 — α")
     assert "groups_site__1" in str(store.file_path).lower()
@@ -50,14 +50,14 @@ def test_file_path_slugifies_special_chars(tmp_path):
 
 def test_exists_false_when_no_file(tmp_path):
     """exists() reflects on-disk presence, defaults False on init."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     assert store.exists() is False
 
 
 def test_read_empty_when_no_file(tmp_path):
     """read() returns empty Graph when file doesn't exist (NOT error)."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     graph = store.read()
     assert len(graph.nodes) == 0
@@ -65,7 +65,7 @@ def test_read_empty_when_no_file(tmp_path):
 
 def test_low_level_add_node_persists(tmp_path):
     """add_node writes to file; subsequent read sees the node."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     from s3dgraphy.nodes.group_node import ActivityNodeGroup
     store = GroupStore(_make_db(tmp_path), "X")
     node = ActivityNodeGroup(node_id="grp-1", name="basilica")
@@ -79,7 +79,7 @@ def test_low_level_add_node_persists(tmp_path):
 
 def test_remove_node_idempotent(tmp_path):
     """remove_node on missing uuid is a no-op (no error)."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     from s3dgraphy.nodes.group_node import ActivityNodeGroup
     store = GroupStore(_make_db(tmp_path), "X")
     store.remove_node("any-uuid")  # must not raise
@@ -92,7 +92,7 @@ def test_remove_node_idempotent(tmp_path):
 
 def test_find_returns_matching_groups(tmp_path):
     """find(group_kind='adhoc', name='X') returns the right group."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     from s3dgraphy.nodes.group_node import ActivityNodeGroup
     store = GroupStore(_make_db(tmp_path), "X")
     for nid, kind, name in [("a", "adhoc", "Marco"),
@@ -107,7 +107,7 @@ def test_find_returns_matching_groups(tmp_path):
 
 def test_add_group_round_trip(tmp_path):
     """High-level add_group + list_groups round-trip (AC-1)."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     uuid = store.add_group("restauri-2023", group_kind="adhoc",
                             member_us_uuids=["u1", "u2", "u3"])
@@ -123,7 +123,7 @@ def test_add_group_round_trip(tmp_path):
 
 def test_remove_group(tmp_path):
     """remove_group deletes the group; list reflects."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     uuid = store.add_group("test", member_us_uuids=["u1"])
     assert len(store.list_groups()) == 1
@@ -133,7 +133,7 @@ def test_remove_group(tmp_path):
 
 def test_add_us_to_group(tmp_path):
     """add_us_to_group appends to the member list."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     g = store.add_group("test", member_us_uuids=["u1"])
     store.add_us_to_group(g, "u2")
@@ -143,7 +143,7 @@ def test_add_us_to_group(tmp_path):
 
 def test_add_us_to_group_idempotent(tmp_path):
     """add_us_to_group with duplicate is a no-op (idempotent)."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     g = store.add_group("test", member_us_uuids=["u1"])
     store.add_us_to_group(g, "u1")  # duplicate — must not append twice
@@ -153,7 +153,7 @@ def test_add_us_to_group_idempotent(tmp_path):
 
 def test_remove_us_from_group(tmp_path):
     """remove_us_from_group removes the entry, idempotent on missing."""
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync.group_store import GroupStore
     store = GroupStore(_make_db(tmp_path), "X")
     g = store.add_group("test", member_us_uuids=["u1", "u2", "u3"])
     store.remove_us_from_group(g, "u2")
@@ -164,7 +164,7 @@ def test_remove_us_from_group(tmp_path):
 
 def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
     """AC-3: simulate os.replace crash, assert original untouched."""
-    from modules.s3dgraphy.sync.group_store import (
+    from s3dgraphy.sync.group_store import (
         GroupStore, GroupWriteError)
 
     store = GroupStore(_make_db(tmp_path), "X")
@@ -187,7 +187,7 @@ def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
 
 def test_init_validates_sito(tmp_path):
     """Empty sito at construction raises ValidationError."""
-    from modules.s3dgraphy.sync.group_store import (
+    from s3dgraphy.sync.group_store import (
         GroupStore, GroupValidationError)
     with pytest.raises(GroupValidationError):
         GroupStore(_make_db(tmp_path), "")
@@ -195,7 +195,7 @@ def test_init_validates_sito(tmp_path):
 
 def test_add_group_validates_name(tmp_path):
     """Empty name raises ValidationError."""
-    from modules.s3dgraphy.sync.group_store import (
+    from s3dgraphy.sync.group_store import (
         GroupStore, GroupValidationError)
     store = GroupStore(_make_db(tmp_path), "X")
     with pytest.raises(GroupValidationError):

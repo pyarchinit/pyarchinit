@@ -26,7 +26,7 @@ def test_pg_importer_mapping_json_resolves():
     """``_load_mapping`` must find pyarchinit_us_mapping.json and
     return a dict with the expected schema (table_settings,
     column_mappings keys)."""
-    from modules.s3dgraphy.sync.pyarchinit_pg_importer import (
+    from s3dgraphy.sync.pyarchinit_pg_importer import (
         _load_mapping,
     )
     mapping = _load_mapping("pyarchinit_us_mapping")
@@ -50,7 +50,7 @@ def test_pg_importer_builds_strat_node_from_mock_row():
     after the is_id column value and PropertyNodes for each
     PropertyNode-typed column. Uses mocked DbHandle to avoid PG
     runtime."""
-    from modules.s3dgraphy.sync.pyarchinit_pg_importer import (
+    from s3dgraphy.sync.pyarchinit_pg_importer import (
         import_from_pg,
     )
 
@@ -86,7 +86,7 @@ def test_pg_importer_builds_strat_node_from_mock_row():
 
     # Each PropertyNode-typed column from the mapping should produce a
     # node whose name is the property_name (e.g. 'Interpretation').
-    from modules.s3dgraphy.sync.pyarchinit_pg_importer import (
+    from s3dgraphy.sync.pyarchinit_pg_importer import (
         _load_mapping,
     )
     mapping = _load_mapping("pyarchinit_us_mapping")
@@ -117,7 +117,7 @@ def test_pg_export_graphml_end_to_end(pg_with_volterra, tmp_path):
     pytest.importorskip("psycopg2")
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     from modules.s3dgraphy.sync.graphml_writer import export_graphml
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
 
     # pg_with_volterra yields a SQLAlchemy Engine — wrap in DbHandle.
     handle = DbHandle.from_engine(pg_with_volterra,
@@ -159,7 +159,7 @@ def test_pg_export_graphml_structural_match_sqlite(
     (IDs may differ); structural."""
     pytest.importorskip("psycopg2")
     from modules.s3dgraphy.sync.graphml_writer import export_graphml
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     import re
 
     # PG side — use the pg_with_volterra fixture.

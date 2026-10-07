@@ -3,8 +3,8 @@ import pytest
 
 
 def test_resolver_always_returns_graph_wins():
-    from modules.s3dgraphy.sync.conflict_resolver import ConflictResolver
-    from modules.s3dgraphy.sync.ingest_result import ConflictResolution
+    from s3dgraphy.sync.conflict_resolver import ConflictResolver
+    from s3dgraphy.sync.ingest_result import ConflictResolution
     resolver = ConflictResolver()
     # Even if every input differs:
     out = resolver.resolve(
@@ -16,8 +16,8 @@ def test_resolver_always_returns_graph_wins():
 
 
 def test_resolver_is_callable_with_any_field():
-    from modules.s3dgraphy.sync.conflict_resolver import ConflictResolver
-    from modules.s3dgraphy.sync.ingest_result import ConflictResolution
+    from s3dgraphy.sync.conflict_resolver import ConflictResolver
+    from s3dgraphy.sync.ingest_result import ConflictResolution
     resolver = ConflictResolver()
     assert resolver.resolve(db_row={}, graph_value=None,
                             field="anything") is ConflictResolution.GRAPH_WINS

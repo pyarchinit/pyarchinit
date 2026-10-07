@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_table_parser import (
+from s3dgraphy.sync.yed_table_parser import (
     PeriodCandidate,
     extract_periods,
 )

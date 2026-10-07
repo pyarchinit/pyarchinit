@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_classifier import classify_leaves
-from modules.s3dgraphy.sync.yed_group_walker import walk_folders
-from modules.s3dgraphy.sync.yed_table_parser import extract_periods
+from s3dgraphy.sync.yed_classifier import classify_leaves
+from s3dgraphy.sync.yed_group_walker import walk_folders
+from s3dgraphy.sync.yed_table_parser import extract_periods
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

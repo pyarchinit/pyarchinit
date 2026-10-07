@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.vocab_provider_core import VocabProviderCore
-from modules.s3dgraphy.sync.vocab_types import Family
+from s3dgraphy.sync.vocab_provider_core import VocabProviderCore
+from s3dgraphy.sync.vocab_types import Family
 
 
 def test_loads_unit_types_from_node_datamodel(vocab_dir: Path, overrides_dir: Path):

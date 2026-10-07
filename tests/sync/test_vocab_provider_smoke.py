@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.vocab_provider_core import VocabProviderCore
-from modules.s3dgraphy.sync.vocab_types import Family
+from s3dgraphy.sync.vocab_provider_core import VocabProviderCore
+from s3dgraphy.sync.vocab_types import Family
 
 BUNDLED = (Path(__file__).resolve().parents[2]
            / "ext_libs" / "s3dgraphy" / "JSON_config")

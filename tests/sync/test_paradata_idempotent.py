@@ -33,7 +33,7 @@ def test_repeated_add_author_creates_distinct_nodes(tmp_path):
     """Adding the same name N times creates N distinct nodes
     (each call produces a fresh uuid7) — this is the EXPECTED
     behavior since name is not a primary key."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     u1 = store.add_author("Marco")
     u2 = store.add_author("Marco")
@@ -45,7 +45,7 @@ def test_repeated_add_author_creates_distinct_nodes(tmp_path):
 def test_re_read_after_write_idempotent(tmp_path):
     """Reading + writing the same graph produces a stable file:
     file_size after run 2 == file_size after run 3."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     store.add_author("Marco")
 

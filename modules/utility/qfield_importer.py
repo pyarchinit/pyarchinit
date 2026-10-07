@@ -136,7 +136,7 @@ def row_payload(row, table, exclude=()):
 def new_node_uuid():
     """uuid7 come stringa; stesso generatore della migrazione node_uuid."""
     try:
-        from modules.s3dgraphy.sync.uuid7 import uuid7
+        from s3dgraphy.sync.uuid7 import uuid7
     except ImportError:
         from ..s3dgraphy.sync.uuid7 import uuid7
     return str(uuid7())

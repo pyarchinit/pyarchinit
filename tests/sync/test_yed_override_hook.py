@@ -21,7 +21,6 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
 from modules.s3dgraphy.sync import graph_ingestor as gi_mod
 from modules.s3dgraphy.sync.graph_ingestor import (
     GraphIngestor,
@@ -29,8 +28,8 @@ from modules.s3dgraphy.sync.graph_ingestor import (
     clear_yed_override_hook,
     register_yed_override_hook,
 )
-from modules.s3dgraphy.sync.ingest_result import IngestResult
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.ingest_result import IngestResult
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 
 FIXTURE = (
@@ -39,10 +38,14 @@ FIXTURE = (
 
 
 @pytest.fixture
-def handle(tmp_path: Path) -> DbHandle:
+def handle(tmp_path: Path):
     """Bare-bones DbHandle; the real import_yed_raw is monkeypatched
     away in every test, so the schema doesn't need to be complete."""
     dbfile = tmp_path / "hook_test.sqlite"
+    # Resolved at call time: the ingestor resolves the handle through
+    # the CURRENT library class, and sibling modules purge s3dgraphy, so
+    # a collection-time DbHandle would fail its isinstance.
+    from s3dgraphy.sync._db_handle import DbHandle
     h = DbHandle.from_path(dbfile)
     # Empty us_table just so _resolve_db_handle's downstream callers
     # don't trip on a totally bare DB if anything peeks. Tests that
@@ -87,7 +90,7 @@ def _spy_import_yed_raw(monkeypatch):
 
     # Patch the symbol on the module where graph_ingestor actually
     # looks it up (lazy `from .yed_import_pipeline import import_yed_raw`).
-    import modules.s3dgraphy.sync.yed_import_pipeline as pipe
+    import s3dgraphy.sync.yed_import_pipeline as pipe
     monkeypatch.setattr(pipe, "import_yed_raw", _spy)
     return captured
 

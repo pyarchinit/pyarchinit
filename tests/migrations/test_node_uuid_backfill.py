@@ -251,7 +251,7 @@ def test_backfill_pg_legacy_schema_auto_adds_pk():
         from scripts.migrations import (
             _2026_05_node_uuid_backfill_lib as lib,
         )
-        from modules.s3dgraphy.sync._db_handle import DbHandle
+        from s3dgraphy.sync._db_handle import DbHandle
         handle = DbHandle.from_engine(engine, PG_CONN_STR)
 
         with patch.object(lib, "TABLES", (test_table,)), \
@@ -426,7 +426,7 @@ def test_backfill_pg_legacy_rejects_duplicate_ids():
         from scripts.migrations import (
             _2026_05_node_uuid_backfill_lib as lib,
         )
-        from modules.s3dgraphy.sync._db_handle import DbHandle
+        from s3dgraphy.sync._db_handle import DbHandle
         handle = DbHandle.from_engine(engine, PG_CONN_STR)
 
         with patch.object(lib, "TABLES", (test_table,)), \
@@ -452,7 +452,7 @@ def _tiny_cache_handle(db: Path):
     a short ``timeout`` keeps the failing case fast.
     """
     from sqlalchemy import create_engine, event
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
 
     url = f"sqlite:///{db}"
     engine = create_engine(url, connect_args={"timeout": 0.3})

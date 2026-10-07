@@ -13,7 +13,7 @@ import pytest
 
 def test_db_handle_is_frozen_dataclass():
     """DbHandle must be immutable (frozen=True)."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from sqlalchemy import create_engine
     eng = create_engine("sqlite:///:memory:")
     h = DbHandle(engine=eng, is_postgres=False, sqlite_path=None,
@@ -24,7 +24,7 @@ def test_db_handle_is_frozen_dataclass():
 
 def test_db_handle_from_path_creates_sqlite_engine(tmp_path):
     """from_path() builds a SQLite engine and records the Path."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     p = tmp_path / "dummy.sqlite"
     p.touch()
     h = DbHandle.from_path(p)
@@ -39,7 +39,7 @@ def test_db_handle_from_path_creates_sqlite_engine(tmp_path):
 
 def test_db_handle_from_engine_detects_postgres():
     """from_engine() honours the dialect (sqlite vs postgresql)."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from sqlalchemy import create_engine
     sqlite_eng = create_engine("sqlite:///:memory:")
     h_sqlite = DbHandle.from_engine(sqlite_eng, "sqlite:///:memory:")
@@ -49,7 +49,7 @@ def test_db_handle_from_engine_detects_postgres():
 
 def test_resolve_from_path(tmp_path):
     """Path → SQLite engine via shim, with DeprecationWarning."""
-    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
     p = tmp_path / "x.sqlite"
     p.touch()
     with pytest.warns(DeprecationWarning):
@@ -60,7 +60,7 @@ def test_resolve_from_path(tmp_path):
 
 def test_resolve_from_sqlite_conn_str(tmp_path):
     """str starting with 'sqlite:' → engine."""
-    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
     h = _resolve_db_handle("sqlite:///:memory:")
     assert h.is_postgres is False
 
@@ -73,7 +73,7 @@ def test_resolve_from_postgresql_conn_str():
     psycopg2 in the env. Group E adds psycopg2-binary to requirements.txt.
     """
     pytest.importorskip("psycopg2")
-    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
     h = _resolve_db_handle("postgresql+psycopg2://x:y@localhost/z")
     assert h.is_postgres is True
     assert h.sqlite_path is None
@@ -81,7 +81,7 @@ def test_resolve_from_postgresql_conn_str():
 
 def test_resolve_from_db_manager():
     """DbManager → use existing .engine attribute."""
-    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
     from sqlalchemy import create_engine
 
     class FakeDbManager:
@@ -95,7 +95,7 @@ def test_resolve_from_db_manager():
 
 def test_resolve_from_engine():
     """SQLAlchemy Engine → wrap as DbHandle."""
-    from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
     from sqlalchemy import create_engine
     eng = create_engine("sqlite:///:memory:")
     h = _resolve_db_handle(eng)
@@ -105,7 +105,7 @@ def test_resolve_from_engine():
 
 def test_resolve_from_db_handle_passthrough(tmp_path):
     """DbHandle → return as-is (idempotent)."""
-    from modules.s3dgraphy.sync._db_handle import (
+    from s3dgraphy.sync._db_handle import (
         DbHandle, _resolve_db_handle,
     )
     p = tmp_path / "y.sqlite"
@@ -117,7 +117,7 @@ def test_resolve_from_db_handle_passthrough(tmp_path):
 
 def test_resolve_unknown_str_raises():
     """str with unknown dialect prefix → UnsupportedBackendError."""
-    from modules.s3dgraphy.sync._db_handle import (
+    from s3dgraphy.sync._db_handle import (
         _resolve_db_handle, UnsupportedBackendError,
     )
     with pytest.raises(UnsupportedBackendError):
@@ -126,7 +126,7 @@ def test_resolve_unknown_str_raises():
 
 def test_columns_of_sqlite(tmp_path):
     """_columns_of() returns column names from SQLite via PRAGMA."""
-    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from s3dgraphy.sync._db_handle import _columns_of
     from sqlalchemy import create_engine, text
     p = tmp_path / "x.sqlite"
     engine = create_engine(f"sqlite:///{p}")
@@ -141,7 +141,7 @@ def test_columns_of_sqlite(tmp_path):
 
 def test_columns_of_returns_empty_for_missing_table(tmp_path):
     """_columns_of() on a non-existent table returns empty set (not raise)."""
-    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from s3dgraphy.sync._db_handle import _columns_of
     from sqlalchemy import create_engine
     p = tmp_path / "y.sqlite"
     engine = create_engine(f"sqlite:///{p}")

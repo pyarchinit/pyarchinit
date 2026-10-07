@@ -18,10 +18,10 @@ from typing import Union
 
 from sqlalchemy import inspect, text
 
-from modules.s3dgraphy.sync._db_handle import (
+from s3dgraphy.sync._db_handle import (
     DbHandle, _columns_of, _resolve_db_handle,
 )
-from modules.s3dgraphy.sync.uuid7 import uuid7
+from s3dgraphy.sync.uuid7 import uuid7
 
 #: Tables that need a stable node identity for the s3dgraphy bridge.
 TABLES: tuple[str, ...] = (

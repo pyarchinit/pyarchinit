@@ -94,11 +94,11 @@ from typing import TYPE_CHECKING, Any, Callable, Optional
 
 from sqlalchemy import text
 
-from .conflict_resolver import ConflictResolver
-from .uuid7 import uuid7
-from .ingest_result import (
+from s3dgraphy.sync.conflict_resolver import ConflictResolver
+from s3dgraphy.sync.uuid7 import uuid7
+from s3dgraphy.sync.ingest_result import (
     ConflictRecord, ConflictResolution, IngestResult)
-from .yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 
 # ---------------------------------------------------------------------------
@@ -340,12 +340,12 @@ class GraphIngestor:
         _yed_parsed_drafts = None  # legacy carry-over; remains None
         if graphml_path is not None:
             try:
-                from .yed_detector import detect_flavor
+                from s3dgraphy.sync.yed_detector import detect_flavor
                 if detect_flavor(graphml_path) == "yed-raw":
-                    from .yed_classifier import classify_leaves
-                    from .yed_table_parser import extract_periods
-                    from .yed_group_walker import walk_folders
-                    from .yed_import_pipeline import import_yed_raw
+                    from s3dgraphy.sync.yed_classifier import classify_leaves
+                    from s3dgraphy.sync.yed_table_parser import extract_periods
+                    from s3dgraphy.sync.yed_group_walker import walk_folders
+                    from s3dgraphy.sync.yed_import_pipeline import import_yed_raw
                     drafts = {
                         "classified": classify_leaves(graphml_path),
                         "periods":    extract_periods(graphml_path),
@@ -354,7 +354,7 @@ class GraphIngestor:
                     # Resolve handle just-in-time so import_yed_raw
                     # receives a DbHandle regardless of how the caller
                     # passed db_path (Path / str / DbHandle).
-                    from ._db_handle import _resolve_db_handle
+                    from s3dgraphy.sync._db_handle import _resolve_db_handle
                     _yed_handle = _resolve_db_handle(db_path)
 
                     # yE-E (5.8.2-alpha): when a yEd-raw override hook
@@ -420,7 +420,7 @@ class GraphIngestor:
         self._verify_sito(graph, sito)
         # PG-C: resolve shim once at entry, propagate handle to _run/_verify_schema
         # Lazy import to avoid circular: _db_handle imports GraphSyncError from us.
-        from ._db_handle import _resolve_db_handle
+        from s3dgraphy.sync._db_handle import _resolve_db_handle
         handle = _resolve_db_handle(db_path)
         if graphml_path is not None:
             try:
@@ -459,7 +459,7 @@ class GraphIngestor:
         # The file-existence check is gone (PG has no file); we rely on
         # _columns_of returning empty set on connection / missing-table
         # failure to surface as SchemaMismatchError below.
-        from ._db_handle import _columns_of
+        from s3dgraphy.sync._db_handle import _columns_of
         try:
             cols = _columns_of(handle.engine, "us_table")
         except Exception as e:
@@ -1213,7 +1213,7 @@ def _is_epoch_node_local(node) -> bool:
 #   - both ∈ _CANONICAL_UNIT_TYPES → verbose Italian
 #   - either ∈ _CONTINUITY_UNIT_TYPES → single arrow `>` / `<`
 #   - otherwise (any other non-canonical) → double arrow `>>` / `<<`
-from .rapporti import (
+from s3dgraphy.rapporti import (
     EDGE_TYPE_TO_RAPPORTI_IT as _EDGE_TYPE_TO_RAPPORTI_IT,
     CANONICAL_UNIT_TYPES as _CANONICAL_UNIT_TYPES,
     CONTINUITY_UNIT_TYPES as _CONTINUITY_UNIT_TYPES,
@@ -1410,7 +1410,7 @@ def _rewrite_rapporti_sito(rapporti_str: str, target_sito: str) -> str:
 # working unchanged — notably the in-file users below and the
 # `from .graph_ingestor import _select_rapporti_label` line in
 # `yed_import_pipeline.py:1073`.
-from .rapporti import (
+from s3dgraphy.rapporti import (
     S3DGRAPHY_TYPE_TO_UNITA_TIPO as _S3DGRAPHY_TYPE_TO_UNITA_TIPO,
     strip_us_prefix as _strip_us_prefix,
     resolve_unita_tipo_for_dispatch as _resolve_unita_tipo_for_dispatch,

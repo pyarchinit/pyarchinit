@@ -43,7 +43,7 @@ def test_populate_graph_includes_paradata_by_default(mini_volterra):
     """D3: default is include_paradata=True. Add a paradata file
     next to the DB and verify it appears in the graph."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     sito = _read_sito(mini_volterra)
     store = ParadataStore(mini_volterra, sito)
     auth_uuid = store.add_author("Marco Pacifico")
@@ -62,7 +62,7 @@ def test_opt_out_disables_merge(mini_volterra):
     """D3 opt-out: include_paradata=False excludes paradata nodes
     even if the file exists."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     sito = _read_sito(mini_volterra)
     ParadataStore(mini_volterra, sito).add_author("Marco")
 
@@ -85,7 +85,7 @@ def test_populate_graph_no_paradata_file_no_error(mini_volterra):
 def test_populate_graph_corrupt_paradata_falls_back(mini_volterra):
     """If paradata file is corrupt, log warning and return strat layer."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     sito = _read_sito(mini_volterra)
     store = ParadataStore(mini_volterra, sito)
     # Write garbage

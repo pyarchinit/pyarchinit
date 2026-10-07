@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .rapporti import continuity_label
+from s3dgraphy.rapporti import continuity_label
 
 #: Source unit types that can bear a continuity (per spec: US / USM only).
 CONTINUITY_SOURCE_TYPES = frozenset({"US", "USM"})
@@ -154,7 +154,7 @@ def _norm_rapporti(value):
     drift in the area/sito slots baked into rapporti entries is detected and
     triggers an update, not silently treated as unchanged.
     """
-    from .rapporti import _coerce_to_list
+    from s3dgraphy.rapporti import _coerce_to_list
     rows = []
     for e in _coerce_to_list(value):
         if isinstance(e, (list, tuple)) and len(e) >= 2:
@@ -248,7 +248,7 @@ def _insert_con(conn, rec, next_id, has_node_uuid):
     """Insert one CON row. Sets id_us explicitly (cross-backend safe),
     entity_uuid always, node_uuid only when the column exists."""
     from sqlalchemy import text
-    from .uuid7 import uuid7
+    from s3dgraphy.sync.uuid7 import uuid7
     fields = {
         "id_us": next_id,
         "sito": rec["sito"], "area": rec["area"], "us": rec["us"],
@@ -293,7 +293,7 @@ def _update_con(conn, rec):
 def _add_reciprocal_to_madre(conn, sito, us_madre, madre_entry):
     """Append the reverse continuity rapporto to the madre row if absent."""
     from sqlalchemy import text
-    from .rapporti import _coerce_to_list
+    from s3dgraphy.rapporti import _coerce_to_list
     row = conn.execute(
         text("SELECT rapporti FROM us_table WHERE sito=:s AND us=:u"),
         {"s": sito, "u": us_madre}).fetchone()
@@ -328,7 +328,7 @@ def apply_plan(handle, plan, sito, *, remove_orphans=False, lang="it") -> Report
     sites (critical for multi-site databases shared across excavations).
     """
     from sqlalchemy import text
-    from ._db_handle import _columns_of
+    from s3dgraphy.sync._db_handle import _columns_of
     rep = Report(unchanged=len(plan.unchanged))
     has_node_uuid = "node_uuid" in _columns_of(handle.engine, "us_table")
     with handle.engine.begin() as conn:

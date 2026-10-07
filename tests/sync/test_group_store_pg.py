@@ -24,8 +24,8 @@ def test_group_store_workspace_dir_on_pg(pg_engine, monkeypatch, tmp_path):
     """GroupStore.file_path on PG resolves to
     <home>/pyarchinit/pyarchinit_DB_folder/<conn_slug>/<sito>/groups_<sito>.graphml."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.group_store import GroupStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store = GroupStore(db_path=handle, sito="TestSite")
@@ -43,8 +43,8 @@ def test_group_store_write_read_roundtrip_on_pg(
         pg_engine, monkeypatch, tmp_path):
     """Construct GroupStore on PG, add an ad-hoc group, read it back."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.group_store import GroupStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store = GroupStore(db_path=handle, sito="TestSite")
@@ -67,8 +67,8 @@ def test_group_store_write_read_roundtrip_on_pg(
 def test_group_store_conn_slug_deterministic_on_pg(pg_engine):
     """Two GroupStore instances with the same handle produce the same
     file_path."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.group_store import GroupStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store1 = GroupStore(db_path=handle, sito="DeterministicSite")
@@ -82,9 +82,9 @@ def test_group_store_uses_same_workspace_as_paradata_on_pg(
     file_paths in the SAME <conn_slug>/<sito>/ dir. Verifies DRY of
     _resolve_workspace_dir."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
-    from modules.s3dgraphy.sync.group_store import GroupStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.group_store import GroupStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     pstore = ParadataStore(db_path=handle, sito="SharedSite")

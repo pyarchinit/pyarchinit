@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover (only when QGIS not available)
     _HAS_QT = False
     QObject = object  # type: ignore[assignment,misc]
 
-from .vocab_provider_core import VocabProviderCore
+from s3dgraphy.sync.vocab_provider_core import VocabProviderCore
 
 
 def _default_bundled_dir() -> Path:

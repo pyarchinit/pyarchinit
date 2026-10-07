@@ -21,7 +21,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import MetaData, Table, inspect as sa_inspect
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Engine

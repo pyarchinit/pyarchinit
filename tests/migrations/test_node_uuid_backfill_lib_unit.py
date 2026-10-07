@@ -33,7 +33,7 @@ def _seed_db(p: Path) -> None:
 
 def test_add_columns_accepts_dbhandle(tmp_path):
     """add_columns(db_handle) works with a DbHandle, not just Path."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from scripts.migrations._2026_05_node_uuid_backfill_lib import (
         TABLES, add_columns,
     )
@@ -54,7 +54,7 @@ def test_add_columns_accepts_dbhandle(tmp_path):
 
 def test_backfill_uuids_accepts_dbhandle_returns_counts(tmp_path):
     """backfill_uuids(db_handle) → returns dict[str, int] of rows updated."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from scripts.migrations._2026_05_node_uuid_backfill_lib import (
         TABLES, add_columns, backfill_uuids,
     )

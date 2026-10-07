@@ -51,7 +51,7 @@ def test_populate_list_accepts_dbhandle_on_pg(pg_engine):
 
     Uses a fresh PG (DDL-only, no data) so insertions are unambiguous.
     """
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     from sqlalchemy import text
 
@@ -83,7 +83,7 @@ def test_populate_list_dry_run_no_changes_on_pg(pg_engine):
     """dry_run=True returns IngestResult but commits NO changes.
 
     THE critical test for _DryRunRollback pattern."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     from sqlalchemy import text
 
@@ -119,7 +119,7 @@ def test_populate_list_conflict_resolution_graph_wins_on_pg(pg_engine):
     column values, populate_list updates the row (GRAPH_WINS policy)
     and IngestResult.conflicts captures the diff."""
     import uuid as _uuid
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     from s3dgraphy import Graph
     from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
@@ -173,7 +173,7 @@ def test_populate_list_missing_epoch_error_on_pg(pg_engine):
     """MissingEpochError raised + transaction rolled back when graph
     has EpochNode whose (periodo, fase) is not in periodizzazione_table
     and create_missing_epochs=False."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_ingestor import (
         GraphIngestor, MissingEpochError,
     )
@@ -219,7 +219,7 @@ def test_populate_list_missing_epoch_error_on_pg(pg_engine):
 def test_populate_list_creates_missing_epochs_on_pg(pg_engine):
     """create_missing_epochs=True inserts the new epoch + returns
     IngestResult.epochs_created=1."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
     from s3dgraphy import Graph
     from s3dgraphy.nodes.epoch_node import EpochNode
@@ -261,7 +261,7 @@ def test_populate_list_creates_missing_epochs_on_pg(pg_engine):
 def test_populate_list_atomic_rollback_on_pg(pg_engine, monkeypatch):
     """Mock text() to raise RuntimeError mid-transaction. Verify that
     engine.begin() rolls back: no partial writes survive."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync import graph_ingestor as gi_mod
     from sqlalchemy import text
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_classifier import (
+from s3dgraphy.sync.yed_classifier import (
     ClassificationKind,
     classify_leaves,
 )

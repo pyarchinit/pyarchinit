@@ -23,7 +23,7 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 
 
 FIXTURE = (
@@ -122,11 +122,11 @@ def test_yef_round_trip_em_demo_02_mini(
     paradata row that carries a non-empty ``other_locations``.
     """
     # Import locally so module-load errors don't suppress the skip.
-    from modules.s3dgraphy.sync.yed_classifier import classify_leaves
-    from modules.s3dgraphy.sync.yed_group_walker import walk_folders
-    from modules.s3dgraphy.sync.yed_table_parser import extract_periods
-    from modules.s3dgraphy.sync.yed_import_pipeline import import_yed_raw
-    from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+    from s3dgraphy.sync.yed_classifier import classify_leaves
+    from s3dgraphy.sync.yed_group_walker import walk_folders
+    from s3dgraphy.sync.yed_table_parser import extract_periods
+    from s3dgraphy.sync.yed_import_pipeline import import_yed_raw
+    from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
     handle = _make_handle(tmp_path)
     drafts = {

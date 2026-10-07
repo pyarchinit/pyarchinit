@@ -7,7 +7,7 @@ from pathlib import Path
 from sqlalchemy import text
 import pytest
 
-from modules.s3dgraphy.sync._db_handle import DbHandle, _columns_of
+from s3dgraphy.sync._db_handle import DbHandle, _columns_of
 
 
 def _make_sqlite_handle(tmp_path: Path) -> DbHandle:

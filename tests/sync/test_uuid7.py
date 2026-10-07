@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 import uuid
 
-from modules.s3dgraphy.sync.uuid7 import uuid7
+from s3dgraphy.sync.uuid7 import uuid7
 
 
 def test_returns_uuid_object():

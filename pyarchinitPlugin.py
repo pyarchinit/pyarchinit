@@ -454,7 +454,7 @@ class PyArchInitPlugin(object):
 
         # s3dgraphy #10: propagate the QSettings paradata_workspace
         # override (if any) into PYARCHINIT_WORKSPACE_DIR so
-        # modules.s3dgraphy.sync._workspace can read it without
+        # s3dgraphy.sync._workspace can read it without
         # importing QSettings itself. Re-applied on every config-dialog
         # save (see pyarchinitConfigDialog._propagate_workspace_to_env).
         try:
@@ -2978,7 +2978,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_node_uuid_backfill_lib import (
                 TABLES, add_columns, backfill_uuids,
@@ -2989,7 +2989,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_node_uuid_backfill_lib import (
                 TABLES, add_columns, backfill_uuids,
@@ -3114,7 +3114,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_yef_other_locations_lib import (
                 add_other_locations_column,
@@ -3125,7 +3125,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_yef_other_locations_lib import (
                 add_other_locations_column,
@@ -3228,7 +3228,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_08_rapporti_blank_rows_lib import (
                 repair_blank_rapporti,
@@ -3239,7 +3239,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_08_rapporti_blank_rows_lib import (
                 repair_blank_rapporti,
@@ -3360,7 +3360,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
                 SCHEDATORE_COLUMNS,
@@ -3372,7 +3372,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
                 SCHEDATORE_COLUMNS,
@@ -3479,7 +3479,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_schema_repair_lib import (
                 _collect_canonical_tables,
@@ -3492,7 +3492,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_schema_repair_lib import (
                 _collect_canonical_tables,
@@ -3638,7 +3638,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_media_fk_cascade_lib import (
                 apply_migration,
@@ -3651,7 +3651,7 @@ class PyArchInitPlugin(object):
                 auto_backup_postgres,
             )
         except Exception:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_media_fk_cascade_lib import (
                 apply_migration,

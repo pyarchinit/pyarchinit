@@ -31,13 +31,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from modules.s3dgraphy.sync.yed_classifier import (
+from s3dgraphy.sync.yed_classifier import (
     ClassificationKind,
     ClassifiedNode,
 )
-from modules.s3dgraphy.sync.yed_group_walker import FolderCandidate
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
-from modules.s3dgraphy.sync.yed_import_pipeline import (
+from s3dgraphy.sync.yed_group_walker import FolderCandidate
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_import_pipeline import (
     YedOverrides,
     import_yed_raw,
 )

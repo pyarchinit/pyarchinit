@@ -18,7 +18,7 @@ from pathlib import Path
 
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+from s3dgraphy.sync._db_handle import _resolve_db_handle
 from modules.utility.pyarchinit_home import pyarchinit_home
 from scripts.migrations._common import (
     BackupSkipped, auto_backup_postgres, auto_backup_sqlite, parse_argv,
@@ -45,7 +45,7 @@ def _resolve_input(args):
 def _dry_run(handle) -> int:
     """Report which tables need ALTER + how many rows need backfill."""
     log.info("Dry-run plan for %s:", handle.conn_str)
-    from modules.s3dgraphy.sync._db_handle import _columns_of
+    from s3dgraphy.sync._db_handle import _columns_of
     with handle.engine.connect() as conn:
         for table in TABLES:
             cols = _columns_of(handle.engine, table)

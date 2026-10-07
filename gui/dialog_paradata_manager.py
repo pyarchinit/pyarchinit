@@ -200,7 +200,7 @@ if QGIS_AVAILABLE:
             # ParadataStore. The _resolve_db_handle shim (PG-D era)
             # accepts Path | DbHandle | str so both SQLite and
             # PostgreSQL backends work.
-            from modules.s3dgraphy.sync.paradata_store import ParadataStore
+            from s3dgraphy.sync.paradata_store import ParadataStore
             if self.db_manager is None:
                 QMessageBox.critical(
                     self, "No DB",
@@ -216,7 +216,7 @@ if QGIS_AVAILABLE:
             SQLite and PostgreSQL backends supported via
             _resolve_db_handle shim from Foundation.
             """
-            from modules.s3dgraphy.sync.group_store import GroupStore
+            from s3dgraphy.sync.group_store import GroupStore
             if self.db_manager is None:
                 QMessageBox.critical(
                     self, "No DB",
@@ -424,7 +424,7 @@ if QGIS_AVAILABLE:
                         dlg, "No DB",
                         "US picker requires an active pyarchinit project.")
                     return
-                from modules.s3dgraphy.sync._db_handle import (
+                from s3dgraphy.sync._db_handle import (
                     _resolve_db_handle)
                 from sqlalchemy import text
                 _handle = _resolve_db_handle(self.db_manager)

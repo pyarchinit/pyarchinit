@@ -27,8 +27,8 @@ def test_paradata_store_workspace_dir_on_pg(pg_engine, monkeypatch, tmp_path):
     doesn't pollute the real user home dir.
     """
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store = ParadataStore(db_path=handle, sito="TestSite")
@@ -52,8 +52,8 @@ def test_paradata_store_write_read_roundtrip_on_pg(
     """Construct ParadataStore on PG, write a paradata graph, read it
     back. End-to-end I/O on the new workspace dir."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store = ParadataStore(db_path=handle, sito="TestSite")
@@ -78,8 +78,8 @@ def test_paradata_store_write_read_roundtrip_on_pg(
 def test_paradata_store_conn_slug_deterministic_on_pg(pg_engine):
     """Two ParadataStore instances with the same handle produce the
     same file_path. _conn_slug is deterministic."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store1 = ParadataStore(db_path=handle, sito="DeterministicSite")
@@ -92,8 +92,8 @@ def test_paradata_store_multiple_sites_isolated_on_pg(
     """Two different sites on the same PG produce file_paths in
     different sito subdirs (isolation under the same conn_slug)."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
-    from modules.s3dgraphy.sync._db_handle import DbHandle
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync.paradata_store import ParadataStore
 
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     store_a = ParadataStore(db_path=handle, sito="SiteAlpha")

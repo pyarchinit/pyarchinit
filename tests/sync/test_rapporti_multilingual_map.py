@@ -3,7 +3,7 @@ vocabulary in EVERY language the UI supports, so a graph projected from a
 non-IT/EN site builds the right edges and the reciprocity auto-fix's inverse
 label round-trips.
 
-The 10×10 table is *duplicated* inside ``modules.s3dgraphy.sync.rapporti``
+The 10×10 table is *duplicated* inside ``s3dgraphy.rapporti``
 (not imported) to keep that package free of ``pyarchinit.*`` imports. These
 tests fail loudly if the duplicate ever drifts from the i18n source of truth.
 """
@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 
 def test_embedded_table_matches_pyarchinit_i18n_exactly():
     from modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
-    from modules.s3dgraphy.sync.rapporti import _REL_TERMS_BY_LANG
+    from s3dgraphy.rapporti import _REL_TERMS_BY_LANG
     assert set(_REL_TERMS_BY_LANG) == set(RELATIONSHIPS), (
         "language sets diverged: "
         f"{set(_REL_TERMS_BY_LANG) ^ set(RELATIONSHIPS)}")
@@ -29,7 +29,7 @@ def test_embedded_table_matches_pyarchinit_i18n_exactly():
 
 def test_every_i18n_term_maps_to_correct_edge_type():
     from modules.utility.pyarchinit_i18n_stratigraphic import RELATIONSHIPS
-    from modules.s3dgraphy.sync.rapporti import (
+    from s3dgraphy.rapporti import (
         RAPPORTI_TO_EDGE_TYPE, _REL_INDEX_EDGE_TYPE)
     for lang, terms in RELATIONSHIPS.items():
         for i, t in enumerate(terms):
@@ -44,7 +44,7 @@ def test_reciprocal_edge_types_consistent_with_inverse_pairs():
     ``_EDGE_TYPE_INVERSE`` — otherwise the auto-fix's inverse label, though it
     parses, would not satisfy the reciprocity check."""
     from modules.utility.pyarchinit_i18n_stratigraphic import _INVERSE_PAIRS
-    from modules.s3dgraphy.sync.rapporti import _REL_INDEX_EDGE_TYPE
+    from s3dgraphy.rapporti import _REL_INDEX_EDGE_TYPE
     from modules.utility.rapporti_check import _EDGE_TYPE_INVERSE
     for a, b in _INVERSE_PAIRS:
         et_a, et_b = _REL_INDEX_EDGE_TYPE[a], _REL_INDEX_EDGE_TYPE[b]

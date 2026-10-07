@@ -1,7 +1,7 @@
 """AI07 Group A: edge_registry recognises is_in_location."""
 from __future__ import annotations
 
-from modules.s3dgraphy.sync.edge_registry import (
+from s3dgraphy.sync.edge_registry import (
     KNOWN_EDGE_TYPES,
     resolve_edge_style,
     is_paradata_edge,

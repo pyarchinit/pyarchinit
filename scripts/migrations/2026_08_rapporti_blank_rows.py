@@ -23,7 +23,7 @@ _PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 if str(_PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(_PLUGIN_ROOT))
 
-from modules.s3dgraphy.sync._db_handle import DbHandle  # noqa: E402
+from s3dgraphy.sync._db_handle import DbHandle  # noqa: E402
 from scripts.migrations._common import (  # noqa: E402
     BackupSkipped, auto_backup_postgres, auto_backup_sqlite, parse_argv,
 )

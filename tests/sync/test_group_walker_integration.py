@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_group_walker import walk_folders
+from s3dgraphy.sync.yed_group_walker import walk_folders
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

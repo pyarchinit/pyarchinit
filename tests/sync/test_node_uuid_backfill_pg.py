@@ -58,7 +58,7 @@ def clean_pg_with_seed(pg_engine):
 
 def test_add_columns_idempotent_on_pg(clean_pg_with_seed):
     """Run #1 adds 3 columns + 3 indexes; run #2 is no-op."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle, _columns_of
+    from s3dgraphy.sync._db_handle import DbHandle, _columns_of
     from scripts.migrations._2026_05_node_uuid_backfill_lib import (
         TABLES, add_columns,
     )
@@ -77,7 +77,7 @@ def test_add_columns_idempotent_on_pg(clean_pg_with_seed):
 
 def test_backfill_uuids_assigns_uuid7_on_pg(clean_pg_with_seed):
     """Every row has a valid UUID v7 after backfill; counts are accurate."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from scripts.migrations._2026_05_node_uuid_backfill_lib import (
         TABLES, add_columns, backfill_uuids,
     )
@@ -105,7 +105,7 @@ def test_partial_unique_index_allows_null_collision(clean_pg_with_seed):
     table A but crashed mid-backfill, a re-run must not blow up on the
     rows still carrying NULL.
     """
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from scripts.migrations._2026_05_node_uuid_backfill_lib import add_columns
     handle = DbHandle.from_engine(clean_pg_with_seed,
                                    str(clean_pg_with_seed.url))
@@ -140,7 +140,7 @@ def test_pk_discovery_on_pg_via_inspector(clean_pg_with_seed):
 def test_atomic_rollback_on_alter_failure(clean_pg_with_seed, monkeypatch):
     """If text() raises mid-add_columns, engine.begin() rolls back -
     no partial column added on the second/third table."""
-    from modules.s3dgraphy.sync._db_handle import DbHandle, _columns_of
+    from s3dgraphy.sync._db_handle import DbHandle, _columns_of
     from scripts.migrations import _2026_05_node_uuid_backfill_lib as lib
 
     handle = DbHandle.from_engine(clean_pg_with_seed,

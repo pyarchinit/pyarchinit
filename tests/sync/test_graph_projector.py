@@ -65,7 +65,7 @@ def test_projector_recognizes_localized_su_wsu(tmp_path):
     add_columns(dst)
     backfill_uuids(dst)
 
-    import modules.s3dgraphy.sync.rapporti as R
+    import s3dgraphy.rapporti as R
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     g = GraphProjector().populate_graph(dst, sito=sito)
 
@@ -215,7 +215,7 @@ def test_projector_handles_paradata_name_collisions(tmp_path):
     """
     from collections import Counter
     from sqlalchemy import text
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
 
     db = tmp_path / "paradata_collisions.sqlite"
@@ -299,7 +299,7 @@ def test_projector_epoch_name_is_datazione_estesa_not_descrizione(tmp_path):
     when datazione_estesa is empty, then "Period P Phase F".
     """
     from sqlalchemy import text
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
 
     long_descr = ("Questa fase corrisponde alla conclusione dell'attività "

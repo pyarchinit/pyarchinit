@@ -40,17 +40,27 @@ def test_the_identical_modules_are_gone_from_the_vendored_package():
         assert not (_ROOT / "modules" / "s3dgraphy" / "sync" / (name + ".py")).exists(), name
 
 
-def test_the_old_import_path_resolves_to_the_library():
-    # File identity, not object identity: several sync tests purge
-    # s3dgraphy* from sys.modules on purpose (conftest included), which
-    # splits the module OBJECTS while both still come from the library's
-    # file — the claim that matters here.
+def test_the_library_modules_come_from_ext_libs():
+    # A5 superseded A1's alias: the old import path is gone (guard
+    # below); here we pin that the library modules really are the
+    # installed ones, not some stray copy.
     import importlib
     for name in FREE_WINS + RECONCILED:
-        ours = importlib.import_module("modules.s3dgraphy.sync." + name)
-        libs = importlib.import_module("s3dgraphy.sync." + name)
-        assert Path(ours.__file__).resolve() == Path(libs.__file__).resolve(), name
-        assert "ext_libs" in str(Path(ours.__file__).resolve()), name
+        mod = "s3dgraphy.rapporti" if name == "rapporti" else (
+            "s3dgraphy.sync." + name)
+        libs = importlib.import_module(mod)
+        assert "ext_libs" in str(Path(libs.__file__).resolve()), name
+
+
+def test_the_old_import_path_is_dead():
+    import importlib
+    for name in FREE_WINS + RECONCILED:
+        try:
+            importlib.import_module("modules.s3dgraphy.sync." + name)
+        except ImportError:
+            continue
+        raise AssertionError(
+            "modules.s3dgraphy.sync.%s still importable (alias back?)" % name)
 
 
 def test_the_graphml_writer_is_gone():
@@ -63,3 +73,27 @@ def test_the_graphml_writer_is_gone():
         for path in (_ROOT / probe).rglob("*.py"):
             text = path.read_text(encoding="utf-8", errors="ignore")
             assert "graphml_writer" not in text, path
+
+
+# A5: every migrated module is imported from the library, nowhere else.
+# graph_projector and graph_ingestor are NOT here: they stayed vendored
+# (the wrapper and the pyArchInit-only ingestor — see the A2/A3 rulings).
+MIGRATED = FREE_WINS + RECONCILED
+
+
+def test_no_plugin_file_imports_the_vendored_path_for_migrated_modules():
+    offenders = []
+    for probe in ("tabs", "modules", "gui"):
+        for path in (_ROOT / probe).rglob("*.py"):
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for name in MIGRATED:
+                if "modules.s3dgraphy.sync.%s" % name in text or \
+                   "from modules.s3dgraphy.sync import %s" % name in text:
+                    offenders.append("%s -> %s" % (path.relative_to(_ROOT), name))
+    assert not offenders, offenders
+
+
+def test_the_transitional_alias_is_gone():
+    init = (_ROOT / "modules" / "s3dgraphy" / "sync"
+            / "__init__.py").read_text(encoding="utf-8")
+    assert "_sys.modules" not in init

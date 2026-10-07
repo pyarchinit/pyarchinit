@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from modules.s3dgraphy.sync.yed_table_parser import extract_periods
+from s3dgraphy.sync.yed_table_parser import extract_periods
 
 FIXTURES = Path(__file__).parent / "fixtures"
 

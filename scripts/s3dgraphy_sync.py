@@ -101,10 +101,10 @@ def cmd_import(args) -> int:
 
 def cmd_paradata(args) -> int:
     _setup_path()
-    from modules.s3dgraphy.sync.paradata_store import (
+    from s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataStoreError,
     )
-    from modules.s3dgraphy.sync.group_store import (
+    from s3dgraphy.sync.group_store import (
         GroupStore, GroupStoreError,
     )
     sub = args.paradata_action

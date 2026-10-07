@@ -55,11 +55,11 @@ class RapportiCheckPanel(QWidget):
     # -- db plumbing (backend-agnostic) ------------------------------------
     def _handle(self):
         if self._db_provider is not None:
-            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
             return _resolve_db_handle(self._db_provider())
         from modules.db.pyarchinit_conn_strings import Connection
         from modules.db.pyarchinit_db_manager import get_db_manager
-        from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+        from s3dgraphy.sync._db_handle import _resolve_db_handle
         conn_str = Connection().conn_str()
         db_manager = get_db_manager(conn_str, use_singleton=True)
         return _resolve_db_handle(db_manager)

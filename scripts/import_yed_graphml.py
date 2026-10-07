@@ -33,12 +33,12 @@ for _pos, _entry in enumerate((str(_ROOT), str(_ROOT / "ext_libs")), start=1):
     if _entry not in sys.path:
         sys.path.insert(_pos, _entry)
 
-from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
-from modules.s3dgraphy.sync.yed_classifier import classify_leaves
-from modules.s3dgraphy.sync.yed_group_walker import walk_folders
-from modules.s3dgraphy.sync.yed_import_pipeline import import_yed_raw
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
-from modules.s3dgraphy.sync.yed_table_parser import extract_periods
+from s3dgraphy.sync._db_handle import _resolve_db_handle
+from s3dgraphy.sync.yed_classifier import classify_leaves
+from s3dgraphy.sync.yed_group_walker import walk_folders
+from s3dgraphy.sync.yed_import_pipeline import import_yed_raw
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync.yed_table_parser import extract_periods
 
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -162,13 +162,13 @@ def main(argv: list[str] | None = None) -> int:
             # the JSON file directly. Bypass the path-derivation by
             # reading the JSON ourselves.
             import json as _json
-            from modules.s3dgraphy.sync.yed_classifier import (
+            from s3dgraphy.sync.yed_classifier import (
                 ClassificationKind,
             )
-            from modules.s3dgraphy.sync.yed_import_pipeline import (
+            from s3dgraphy.sync.yed_import_pipeline import (
                 YedOverrides,
             )
-            from modules.s3dgraphy.sync.yed_rapporti_policy import (
+            from s3dgraphy.sync.yed_rapporti_policy import (
                 FolderEdgePolicy,
             )
             raw = _json.loads(args.overrides.read_text())

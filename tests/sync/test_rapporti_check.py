@@ -135,7 +135,7 @@ def _temp_db(tmp_path, rows):
 
 def test_apply_and_rollback(tmp_path):
     from pathlib import Path
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     db = _temp_db(tmp_path, [("1", "[['Copre','2','1','S']]"), ("2", "[]")])
     handle = DbHandle.from_path(Path(str(db)))
     edits = [RC.Edit(us="2", add=(("Coperto da", "1", "1", "S"),))]
@@ -159,7 +159,7 @@ def test_apply_and_rollback(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_abuts_reciprocity_fix_label_round_trips():
-    from modules.s3dgraphy.sync.rapporti import parse_rapporti
+    from s3dgraphy.rapporti import parse_rapporti
     g = _G([_N("a", "US", rap="[['abuts','2','1','S']]", us="1"),
             _N("b", "US", us="2")],
            [_E("a", "b", "abuts")])
@@ -178,7 +178,7 @@ def test_parse_rapporti_knows_multilingual_is_abutted_by():
     pyArchInit language — its canonical labels are the index-9 terms of the
     i18n RELATIONSHIPS table (EN 'Supports', IT 'Gli si appoggia',
     DE 'Wird gestützt von', EL 'Υποστηρίζει', PT 'Apoiado por', ...)."""
-    from modules.s3dgraphy.sync.rapporti import parse_rapporti
+    from s3dgraphy.rapporti import parse_rapporti
     for label in ("Supports", "supports", "Gli si appoggia",
                   "Wird gestützt von", "Υποστηρίζει", "Apoiado por"):
         parsed = parse_rapporti("[['%s','1','1','S']]" % label)
@@ -216,7 +216,7 @@ def test_kind_title_localized_with_fallback():
 def _apply_db(tmp_path):
     import sqlite3
     from pathlib import Path
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     p = tmp_path / "apply.sqlite"
     c = sqlite3.connect(p)
     c.execute("CREATE TABLE us_table (sito TEXT, us TEXT, rapporti TEXT,"

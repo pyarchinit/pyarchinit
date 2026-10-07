@@ -23,7 +23,7 @@ import pytest
 
 
 def _R():
-    import modules.s3dgraphy.sync.rapporti as R
+    import s3dgraphy.rapporti as R
     return R
 
 

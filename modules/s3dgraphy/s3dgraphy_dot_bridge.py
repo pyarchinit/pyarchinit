@@ -955,7 +955,7 @@ if QGIS_AVAILABLE:
                     BackupSkipped, auto_backup_postgres, auto_backup_sqlite,
                 )
             except ImportError:
-                from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
+                from s3dgraphy.sync._db_handle import _resolve_db_handle
                 from scripts.migrations._2026_05_node_uuid_backfill_lib import (
                     add_columns, backfill_uuids,
                 )

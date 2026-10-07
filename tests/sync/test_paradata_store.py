@@ -35,7 +35,7 @@ def _make_db(tmp_path) -> Path:
 
 def test_file_path_resolves_per_sito(tmp_path):
     """D2: file path is `{db_dir}/paradata_{sito_slug}.graphml`."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     db = _make_db(tmp_path)
     store = ParadataStore(db, "Scavo Archeologico")
     assert store.file_path == tmp_path / "paradata_scavo_archeologico.graphml"
@@ -43,7 +43,7 @@ def test_file_path_resolves_per_sito(tmp_path):
 
 def test_file_path_slugifies_special_chars(tmp_path):
     """Slug replaces non-word chars with underscore + lowercases."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     db = _make_db(tmp_path)
     store = ParadataStore(db, "Site #1 — α")
     assert "paradata_site__1" in str(store.file_path).lower()
@@ -51,14 +51,14 @@ def test_file_path_slugifies_special_chars(tmp_path):
 
 def test_exists_false_when_no_file(tmp_path):
     """exists() reflects on-disk presence, defaults False on init."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     assert store.exists() is False
 
 
 def test_read_empty_when_no_file(tmp_path):
     """read() returns empty Graph when file doesn't exist (NOT error)."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     graph = store.read()
     assert len(graph.nodes) == 0
@@ -78,7 +78,7 @@ def _make_minimal_graph_with_strat_node(sito: str):
 
 def test_low_level_add_node_paradata_only(tmp_path):
     """add_node refuses non-paradata types (D4)."""
-    from modules.s3dgraphy.sync.paradata_store import (
+    from s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataValidationError)
     from s3dgraphy.nodes.base_node import Node
     store = ParadataStore(_make_db(tmp_path), "X")
@@ -88,7 +88,7 @@ def test_low_level_add_node_paradata_only(tmp_path):
 
 def test_low_level_add_node_persists(tmp_path):
     """add_node writes to file; subsequent read sees the node."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     from s3dgraphy.nodes.author_node import AuthorNode
     store = ParadataStore(_make_db(tmp_path), "X")
     node = AuthorNode(node_id="auth-123", name="Marco")
@@ -101,7 +101,7 @@ def test_low_level_add_node_persists(tmp_path):
 
 def test_low_level_remove_node_idempotent(tmp_path):
     """remove_node on missing uuid is a no-op (no error)."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     # File doesn't exist yet
     store.remove_node("any-uuid")  # must not raise
@@ -123,7 +123,7 @@ def test_read_filters_to_paradata_only(tmp_path):
     silently dropped, so the heavy exporter cannot produce the
     "mixed" corrupt input this test needs.
     """
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     from lxml import etree as ET
 
     store = ParadataStore(_make_db(tmp_path), "X")
@@ -174,7 +174,7 @@ def test_read_filters_to_paradata_only(tmp_path):
 
 def test_find_returns_matching_nodes(tmp_path):
     """find(node_type=AuthorNode, name='Marco') returns the right node."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     from s3dgraphy.nodes.author_node import AuthorNode
     store = ParadataStore(_make_db(tmp_path), "X")
     store.add_node(AuthorNode(node_id="a1", name="Marco"))
@@ -186,7 +186,7 @@ def test_find_returns_matching_nodes(tmp_path):
 
 def test_add_author_round_trip(tmp_path):
     """add_author + list_authors round-trip (D5 high-level)."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     auth_uuid = store.add_author(
         "Marco Pacifico", orcid="0000-0002-1234-5678", role="curator")
@@ -202,7 +202,7 @@ def test_add_author_round_trip(tmp_path):
 
 def test_add_author_creates_isolated_node_no_edges(tmp_path):
     """D9: AuthorNode is site-level, no edges to specific units."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     store.add_author("Marco")
     graph = store.read()
@@ -212,7 +212,7 @@ def test_add_author_creates_isolated_node_no_edges(tmp_path):
 
 def test_add_author_validates_name(tmp_path):
     """Empty name → ParadataValidationError."""
-    from modules.s3dgraphy.sync.paradata_store import (
+    from s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataValidationError)
     store = ParadataStore(_make_db(tmp_path), "X")
     with pytest.raises(ParadataValidationError):
@@ -221,7 +221,7 @@ def test_add_author_validates_name(tmp_path):
 
 def test_add_license_round_trip(tmp_path):
     """add_license + list_licenses round-trip."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     lic_uuid = store.add_license(
         "CC-BY-NC-4.0", url="https://creativecommons.org/licenses/by-nc/4.0/")
@@ -234,7 +234,7 @@ def test_add_license_round_trip(tmp_path):
 
 def test_add_embargo_round_trip(tmp_path):
     """add_embargo + list_embargos round-trip."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     emb_uuid = store.add_embargo("2030-12-31", reason="dataset embargo")
     embargos = store.list_embargos()
@@ -246,7 +246,7 @@ def test_add_embargo_round_trip(tmp_path):
 
 def test_remove_high_level_alias(tmp_path):
     """`store.remove(uuid)` is an alias for `remove_node(uuid)`."""
-    from modules.s3dgraphy.sync.paradata_store import ParadataStore
+    from s3dgraphy.sync.paradata_store import ParadataStore
     store = ParadataStore(_make_db(tmp_path), "X")
     auth_uuid = store.add_author("Marco")
     assert len(store.list_authors()) == 1
@@ -257,7 +257,7 @@ def test_remove_high_level_alias(tmp_path):
 def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
     """AC-3: simulate a crash during os.replace, assert original
     file is untouched and tmp file is cleaned up."""
-    from modules.s3dgraphy.sync.paradata_store import (
+    from s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataWriteError)
 
     store = ParadataStore(_make_db(tmp_path), "X")
@@ -285,7 +285,7 @@ def test_atomic_write_no_corruption_on_crash(tmp_path, monkeypatch):
 
 def test_paradata_store_init_validates_sito(tmp_path):
     """Empty sito at construction raises ParadataValidationError."""
-    from modules.s3dgraphy.sync.paradata_store import (
+    from s3dgraphy.sync.paradata_store import (
         ParadataStore, ParadataValidationError)
     db = _make_db(tmp_path)
     with pytest.raises(ParadataValidationError):

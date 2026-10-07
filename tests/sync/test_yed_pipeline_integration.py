@@ -45,12 +45,12 @@ from pathlib import Path
 import pytest
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
-from modules.s3dgraphy.sync.yed_classifier import classify_leaves
-from modules.s3dgraphy.sync.yed_group_walker import walk_folders
-from modules.s3dgraphy.sync.yed_table_parser import extract_periods
-from modules.s3dgraphy.sync.yed_import_pipeline import import_yed_raw
-from modules.s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
+from s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync.yed_classifier import classify_leaves
+from s3dgraphy.sync.yed_group_walker import walk_folders
+from s3dgraphy.sync.yed_table_parser import extract_periods
+from s3dgraphy.sync.yed_import_pipeline import import_yed_raw
+from s3dgraphy.sync.yed_rapporti_policy import FolderEdgePolicy
 
 
 # ---------------------------------------------------------------------------
@@ -529,8 +529,8 @@ def test_apply_overrides_e2e_classifier_changes_us_count(
     The fixture has 1 PROPERTY leaf 'material' classified as PROPERTY.
     Auto routing: paradata. With an override that re-routes it to
     US_REAL, it should land in us_table (unita_tipo='US')."""
-    from modules.s3dgraphy.sync.yed_classifier import ClassificationKind
-    from modules.s3dgraphy.sync.yed_import_pipeline import YedOverrides
+    from s3dgraphy.sync.yed_classifier import ClassificationKind
+    from s3dgraphy.sync.yed_import_pipeline import YedOverrides
     handle = _make_handle(tmp_path)
     drafts = _drafts_from_fixture()
 
@@ -579,7 +579,7 @@ def test_apply_overrides_e2e_folder_skip(
     Auto run: each us_table row gets attivita = the folder's
     auto_value. With override skipping the folder, attivita stays NULL
     for those member rows."""
-    from modules.s3dgraphy.sync.yed_import_pipeline import YedOverrides
+    from s3dgraphy.sync.yed_import_pipeline import YedOverrides
     handle = _make_handle(tmp_path)
     drafts = _drafts_from_fixture()
 

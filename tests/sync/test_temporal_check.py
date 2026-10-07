@@ -36,7 +36,7 @@ def _db(tmp_path):
     c.execute("INSERT INTO us_table VALUES ('S','US7','3','1','3','1')")
     c.execute("INSERT INTO us_table VALUES ('S','US9',NULL,NULL,NULL,NULL)")
     c.commit(); c.close()
-    from modules.s3dgraphy.sync._db_handle import DbHandle
+    from s3dgraphy.sync._db_handle import DbHandle
     return DbHandle.from_path(p)
 
 

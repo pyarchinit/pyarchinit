@@ -1,5 +1,5 @@
 import pytest
-from modules.s3dgraphy.sync.rapporti import (
+from s3dgraphy.rapporti import (
     parse_rapporti, continuity_label, CONTINUITY_LABELS,
 )
 

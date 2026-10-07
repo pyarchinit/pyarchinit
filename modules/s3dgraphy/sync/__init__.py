@@ -11,17 +11,15 @@ zalmoxes-laran/s3Dgraphy#10 for the design discussion.
 
 pyArchInit-local note
 ---------------------
-This is the pyArchInit *vendored* copy of ``s3dgraphy.sync`` (kept at
-``modules/s3dgraphy/sync/`` so the ~80 ``modules.s3dgraphy.sync.*``
-call sites stay unchanged — Phase 1 migration to 1.6.0.dev7). It mirrors
-the upstream public surface and adds one pyArchInit-only symbol,
-``get_vocab_provider`` (the Qt-aware wrapper in ``vocab_provider.py``,
-which is not part of upstream). The canonical-edge files
-(``rapporti.py``, ``graph_ingestor.py``, ``graph_projector.py``, the
-retired GraphML writer) were byte-copies of the dev7 wheel; ``_workspace``,
-``edge_registry`` and ``pyarchinit_pg_importer`` carry deliberate
-pyArchInit path/config adaptations and must NOT be overwritten from
-upstream.
+One bridge (A5, spec 2026-10-07): the 20 modules measured identical or
+reconciled now come ONLY from the library (``s3dgraphy.sync.*``;
+``rapporti`` lives at ``s3dgraphy.rapporti``), and every caller imports
+them there. This package holds just the pyArchInit layer:
+``graph_projector`` (thin wrapper over the library's projector),
+``graph_ingestor`` (synthetic guard, cross-site copy, node_uuid
+identity, PG sequence resync — upstream candidates),
+``continuity_generator``, ``paradata_edge_resolver``,
+``vocab_provider`` (Qt-aware) and the continuity vocabulary below.
 
 Public surface
 ==============
@@ -74,33 +72,11 @@ A friendly ``ImportError`` is raised on first use if SQLAlchemy is
 missing.
 """
 from __future__ import annotations
-# --- One bridge (A1, spec 2026-10-07) -----------------------------------
-# The modules measured identical to the library now live only there; the
-# old import path stays alive until A5 rewires the callers. Registering
-# them in sys.modules also lets the RELATIVE imports of the files still
-# vendored here (from ._db_handle import ...) resolve to the library.
-import importlib as _importlib
-import sys as _sys
-for _name in ("yed_group_walker", "yed_detector", "vocab_types",
-              "vocab_provider_core", "uuid7", "ingest_result",
-              "group_store", "conflict_resolver",
-              "_legacy_paradata_svgs", "_db_handle",
-              # A1, seconda ondata: deriva piccola riconciliata — ogni
-              # delta era una miglioria della libreria.
-              "yed_rapporti_policy", "yed_classifier", "yed_import_pipeline",
-              "paradata_store", "edge_registry", "group_projector",
-              "yed_table_parser",
-              # terza ondata: mapping e workspace dentro la libreria,
-              # rapporti sulle grafie canoniche.
-              "pyarchinit_pg_importer", "rapporti", "_workspace"):
-    _sys.modules[__name__ + "." + _name] = _importlib.import_module(
-        "s3dgraphy.sync." + _name)
 
 # Continuity vocabulary (Genera continuita, 2026-06-11): pyArchInit-only
 # labels the library's rapporti does not carry (upstream candidate). They
-# ride on the aliased module so `from .rapporti import continuity_label`
-# keeps working, and the labels register into the SHARED shorthand dict so
-# parse_rapporti recognises them in every language.
+# are grafted onto the library's rapporti modules, and registered into the
+# SHARED shorthand dict so parse_rapporti recognises them everywhere.
 CONTINUITY_LABELS: dict = {
     "it": ("Continuità successiva a", "Continuità precedente a"),
     "en": ("Subsequent continuity of", "Prior continuity of"),
@@ -122,8 +98,9 @@ def continuity_label(lang: str, direction: str) -> str:
     return pair[0] if direction == "forward" else pair[1]
 
 
-_rapporti = _sys.modules[__name__ + ".rapporti"]
-for _mod in (_rapporti, _importlib.import_module("s3dgraphy.rapporti")):
+import s3dgraphy.rapporti as _rapporti
+import s3dgraphy.sync.rapporti as _sync_rapporti
+for _mod in (_rapporti, _sync_rapporti):
     _mod.CONTINUITY_LABELS = CONTINUITY_LABELS
     _mod.continuity_label = continuity_label
 for _fwd, _rev in CONTINUITY_LABELS.values():
@@ -131,8 +108,7 @@ for _fwd, _rev in CONTINUITY_LABELS.values():
     _rapporti.RAPPORTI_SHORTHAND.setdefault(_fwd.lower(), ("is_after", False))
     _rapporti.RAPPORTI_SHORTHAND.setdefault(_rev, ("is_after", True))
     _rapporti.RAPPORTI_SHORTHAND.setdefault(_rev.lower(), ("is_after", True))
-del _rapporti, _fwd, _rev, _mod
-# -------------------------------------------------------------------------
+del _rapporti, _sync_rapporti, _fwd, _rev, _mod
 
 
 # Lazy SQLAlchemy probe with a friendly error — happens on package
@@ -146,13 +122,13 @@ except ImportError as _e:  # pragma: no cover
         "(add [postgres] extra for the PostgreSQL backend)"
     ) from _e
 
-from ._db_handle import (
+from s3dgraphy.sync._db_handle import (
     DbHandle,
     DbHandleError,
     PgConnectionError,
     UnsupportedBackendError,
 )
-from .conflict_resolver import ConflictResolver
+from s3dgraphy.sync.conflict_resolver import ConflictResolver
 from .graph_ingestor import (
     CycleDetectedError,
     GraphIngestError,
@@ -167,9 +143,9 @@ from .graph_ingestor import (
     register_yed_override_hook,
 )
 from .graph_projector import GraphProjector
-from .ingest_result import ConflictRecord, ConflictResolution, IngestResult
-from .vocab_provider_core import VocabProviderCore
-from .vocab_types import (
+from s3dgraphy.sync.ingest_result import ConflictRecord, ConflictResolution, IngestResult
+from s3dgraphy.sync.vocab_provider_core import VocabProviderCore
+from s3dgraphy.sync.vocab_types import (
     EdgeType,
     Family,
     ParadataType,

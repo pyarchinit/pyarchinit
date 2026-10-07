@@ -90,7 +90,7 @@ def _read_sito(db_path):
 def test_ingestor_construction():
     """Ingestor accepts an optional ConflictResolver."""
     from modules.s3dgraphy.sync.graph_ingestor import GraphIngestor
-    from modules.s3dgraphy.sync.conflict_resolver import ConflictResolver
+    from s3dgraphy.sync.conflict_resolver import ConflictResolver
     g = GraphIngestor()
     assert g._resolver is not None
     g2 = GraphIngestor(conflict_resolver=ConflictResolver())
@@ -228,7 +228,7 @@ def test_populate_list_atomic_on_failure(mini_volterra):
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     from modules.s3dgraphy.sync.graph_ingestor import (
         GraphIngestor, GraphIngestError)
-    from modules.s3dgraphy.sync.conflict_resolver import ConflictResolver
+    from s3dgraphy.sync.conflict_resolver import ConflictResolver
 
     class BombResolver(ConflictResolver):
         def resolve(self, db_row, graph_value, field):

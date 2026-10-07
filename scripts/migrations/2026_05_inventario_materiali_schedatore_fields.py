@@ -16,7 +16,7 @@ _PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 if str(_PLUGIN_ROOT) not in sys.path:
     sys.path.insert(0, str(_PLUGIN_ROOT))
 
-from modules.s3dgraphy.sync._db_handle import DbHandle
+from s3dgraphy.sync._db_handle import DbHandle
 from scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
     SCHEDATORE_COLUMNS,
     add_schedatore_columns,
@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         handle = DbHandle.from_engine(engine, args.conn_str)
 
     if args.dry_run:
-        from modules.s3dgraphy.sync._db_handle import _columns_of
+        from s3dgraphy.sync._db_handle import _columns_of
         present = set(_columns_of(handle.engine, "inventario_materiali_table"))
         for col in SCHEDATORE_COLUMNS:
             status = "present" if col in present else "MISSING"

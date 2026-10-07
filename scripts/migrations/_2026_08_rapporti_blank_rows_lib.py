@@ -28,7 +28,7 @@ from typing import List, Optional, Tuple, Union
 
 from sqlalchemy import text
 
-from modules.s3dgraphy.sync._db_handle import DbHandle, _resolve_db_handle
+from s3dgraphy.sync._db_handle import DbHandle, _resolve_db_handle
 
 #: Columns of ``us_table`` that hold a ``str(list_of_lists)`` of relationships.
 RAPPORTI_COLUMNS: Tuple[str, ...] = ("rapporti", "rapporti2")
