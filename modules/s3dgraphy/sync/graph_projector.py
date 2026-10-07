@@ -158,11 +158,11 @@ def _create_stratigraphic_node_for_unita_tipo(
             description="",
         )
         # s3dgraphy 1.6.0.dev40: USM/USR/USS are a US with a kind, not a
-        # class of their own; localised codes (WSU, MSE, UEM...) are
-        # recognised by kind_of_name.
+        # class of their own; KIND_OF_CODE maps the bare codes, localised
+        # ones (WSU, MSE, UEM...) included.
         try:
-            from s3dgraphy.nodes.stratigraphic_node import kind_of_name, set_kind
-            kind, _ = kind_of_name(unita_tipo)
+            from s3dgraphy.nodes.stratigraphic_node import KIND_OF_CODE, set_kind
+            kind = KIND_OF_CODE.get(str(unita_tipo))
             if kind:
                 set_kind(node, kind, unita_tipo)
         except Exception:
@@ -750,8 +750,8 @@ class GraphProjector:
                 # kind, or a paradata code, is left alone by set_kind.
                 try:
                     from s3dgraphy.nodes.stratigraphic_node import (
-                        kind_of_name, set_kind)
-                    kind, _ = kind_of_name(str(unita_tipo))
+                        KIND_OF_CODE, set_kind)
+                    kind = KIND_OF_CODE.get(str(unita_tipo))
                     if kind:
                         set_kind(node, kind, str(unita_tipo))
                 except Exception:

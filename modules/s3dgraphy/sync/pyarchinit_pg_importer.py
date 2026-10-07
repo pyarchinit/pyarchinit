@@ -124,8 +124,8 @@ def import_from_pg(
         # class). Tell the node its kind and the row's own code, so the
         # way back returns the same code (unit_code).
         try:
-            from s3dgraphy.nodes.stratigraphic_node import kind_of_name, set_kind
-            kind, _ = kind_of_name(unita_tipo)
+            from s3dgraphy.nodes.stratigraphic_node import KIND_OF_CODE, set_kind
+            kind = KIND_OF_CODE.get(str(unita_tipo))
             if kind:
                 set_kind(strat_node, kind, unita_tipo)
         except Exception:

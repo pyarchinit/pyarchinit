@@ -116,15 +116,12 @@ Pillow>=9.1.0
 # more pyArchInit-local vocab divergence) and the ext_rapporti_patch boot
 # monkeypatch is deleted — the d13 export path resolves the multilingual vocab
 # natively from this pinned release.
-# 2026-10-07: 1.6.0.dev40 exists (s3Dgraphy#27: incremental indices, the
-# cycle fix, USM as a US with stratigraphic_kind) but bumping the pin
-# alone broke 26 of our sync tests: the vendored modules/s3dgraphy/sync
-# has drifted from the library and leans on dev9 behaviour (localized
-# SU/WSU recognition, ingestor updates, group kinds, GraphML rendering).
-# The bump therefore travels WITH the one-bridge migration (import
-# s3dgraphy.sync from the library), not before it. The set_kind /
-# unit_code calls are already in place, guarded, and no-ops on dev9.
-s3dgraphy==1.6.0.dev9
+# One bridge (spec docs/superpowers/specs/2026-10-07-one-bridge-s3dgraphy-design.md):
+# the plugin imports s3dgraphy.sync from the library; the vendored copy
+# is reduced to pyArchInit-only extensions. Pin EXACT, never >=: the
+# library moves weekly and every bump is re-measured against tests/sync.
+s3dgraphy==1.6.0.dev40
+dtcstamp>=0.1.4
 
 # Remote Storage Backends (optional - install only if using remote storage)
 cloudinary>=1.36.0
