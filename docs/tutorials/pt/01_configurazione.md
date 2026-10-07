@@ -206,7 +206,7 @@ O que esperar:
 - as linhas que nao podem tornar-se unidades da sala (documentos, extratores, propriedades) sao listadas em *Mostrar detalhes*, nunca inventadas;
 - **quem assina e quem entrega**: o autor e escrito pelo no a partir da identidade verificada, nao pelo payload.
 
-Com **Extended Matrix → Apri il nodo (stanze)…** abre-se no navegador a porta do no, com as suas salas e os seus grafos.
+Com **Extended Matrix → Apri il nodo (stanze)…** a sala abre-se **dentro do pyArchInit** (painel lateral) quando o Qt WebEngine esta disponivel no perfil, caso contrario no navegador; com uma sala configurada abre-se diretamente a sua pagina, sem ela abre-se a porta do no com todas as salas.
 
 ### Migrar toda a base de dados de uma so vez
 

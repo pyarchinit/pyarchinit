@@ -358,7 +358,7 @@ Cosa aspettarsi:
 - le righe che non possono diventare unità della stanza (documenti, estrattori, proprietà) sono elencate in *Mostra dettagli*, mai inventate;
 - **chi firma è chi consegna**: l'autore lo scrive il nodo dall'identità verificata, non il payload.
 
-Con **Extended Matrix → Apri il nodo (stanze)…** si apre nel browser la porta del nodo, con le sue stanze e i loro grafi.
+Con **Extended Matrix → Apri il nodo (stanze)…** la stanza si apre **dentro pyArchInit** (pannello laterale) quando Qt WebEngine è disponibile nel profilo, altrimenti nel browser; con una stanza configurata si apre direttamente la sua pagina, senza si apre la porta del nodo con tutte le stanze.
 
 ### Migrare tutto il database in un colpo solo
 

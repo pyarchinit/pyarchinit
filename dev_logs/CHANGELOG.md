@@ -5,6 +5,29 @@
 
 ---
 
+## [feat] - 2026-10-07 — B2: la stanza dentro pyArchInit (pannello web del nodo) — 5.13.32-alpha
+
+> Branch `Stratigraph_00001` (feature branch `room-panel`). Tag **`room-panel-5.13.32-alpha`**.
+> Spec §5/B2 + addendum; piano: `docs/superpowers/plans/2026-10-07-room-panel-b2.md`.
+
+### Italiano
+
+- **«Apri il nodo (stanze)…» apre la stanza DENTRO pyArchInit**: un pannello laterale (QDockWidget + QWebEngineView, il pattern Qt5/Qt6 di `DemPlotDialogs`) sulla pagina per-stanza del nodo — `…/em/work/?room=<id>`, «the stable per-room address» (`rooms_ui/rooms.js:1745`); sul nodo nudo `…/rooms/work/?room=<id>`, risolta da sola come per la consegna. Con una stanza configurata si apre LA stanza; senza, la porta del nodo.
+- **Degradazione onesta**: Qt WebEngine può mancare nel profilo (su questo Mac manca — misurato): allora la pagina si apre nel browser e la messageBar lo dice. Un pannello per sessione: riaprire riusa il dock e lo porta davanti; `unload()` lo chiude (niente dock orfani al reload).
+- **La sola-lettura è del server** (ruolo viewer): il pannello non la finge lato client. GPL pulita: il pannello CARICA una pagina via HTTP dal nodo — nessun codice EMStudio/server nel plugin. Quando un nodo istituzionale monterà l'editor/reader web di EMStudio, l'indirizzo resta sotto la stessa base: il pannello non cambia.
+- Nuovo `room_client.room_work_url(server, room)` (id quotato — spazi e UTF-8 viaggiano; mai un'eccezione su nodo muto, sonde da 5 s) e `modules/s3dgraphy/room/room_panel.py` (`open_in_panel`/`close_panel`/`PANEL_OBJECT_NAME`).
+- Test: +2 client, +5 guardie pannello (mai istanze WebEngine nei test: i due smoke ignorati della suite sono crash Qt noti), +1 vivo (la pagina work della stanza risponde 200). Tutorial it/en/pt/ro/el aggiornati.
+
+### English
+
+- **«Apri il nodo (stanze)…» opens the room INSIDE pyArchInit**: a side panel (QDockWidget + QWebEngineView, the house Qt5/Qt6 pattern) on the node's per-room page — `…/em/work/?room=<id>`, "the stable per-room address"; `…/rooms/work/` on a bare node, resolved automatically. With a room configured it opens THE room; without one, the node's front door.
+- **Honest degradation**: Qt WebEngine can be missing from a profile (it is on this Mac — measured): the page opens in the browser and the messageBar says so. One panel per session (reopening reuses the dock); `unload()` closes it.
+- **Read-only is the server's** (viewer role): the panel does not fake it client-side. Clean GPL: the panel LOADS a page over HTTP — no EMStudio/server code in the plugin. When an institutional node mounts EMStudio's web editor/reader, the address stays under the same base: the panel does not change.
+- New `room_client.room_work_url(server, room)` (quoted id; never raises on a mute node, 5 s probes) and `modules/s3dgraphy/room/room_panel.py`.
+- Tests: +2 client, +5 panel guards (never a WebEngine instance in tests), +1 live. Tutorials updated in 5 languages.
+
+---
+
 ## [fix] - 2026-10-07 — Stanza: i 7 minor della review chiusi (QGIS non gela, pagine adattive, token in chiaro dichiarato) — 5.13.31-alpha
 
 > Branch `Stratigraph_00001`. Tag **`room-polish-5.13.31-alpha`**. I minor rinviati della review di `room-delivery`, risolti su richiesta di Enzo.

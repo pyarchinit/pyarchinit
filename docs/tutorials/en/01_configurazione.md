@@ -206,7 +206,7 @@ What to expect:
 - rows that cannot become room units (documents, extractors, properties) are listed under *Show details*, never invented;
 - **the signature belongs to the deliverer**: the node writes the author from the verified identity, not from the payload.
 
-**Extended Matrix → Apri il nodo (stanze)…** opens the node's front door in the browser, with its rooms and their graphs.
+**Extended Matrix → Apri il nodo (stanze)…** opens the room **inside pyArchInit** (side panel) when Qt WebEngine is available in the profile, in the browser otherwise; with a room configured it opens that room's own page, without one it opens the node's front door with all the rooms.
 
 ### Database to Database Migration
 

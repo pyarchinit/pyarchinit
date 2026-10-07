@@ -206,7 +206,7 @@ La ce sa va asteptati:
 - randurile care nu pot deveni unitati ale camerei (documente, extractoare, proprietati) sunt listate la *Arata detalii*, niciodata inventate;
 - **semnatura apartine celui care livreaza**: autorul este scris de nod din identitatea verificata, nu din payload.
 
-Cu **Extended Matrix → Apri il nodo (stanze)…** se deschide in browser poarta nodului, cu camerele si grafurile sale.
+Cu **Extended Matrix → Apri il nodo (stanze)…** camera se deschide **in pyArchInit** (panou lateral) cand Qt WebEngine este disponibil in profil, altfel in browser; cu o camera configurata se deschide direct pagina ei, fara una se deschide poarta nodului cu toate camerele.
 
 ### Migrarea intregii baze de date dintr-o singura data
 
