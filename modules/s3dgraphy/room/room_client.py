@@ -287,3 +287,26 @@ def rooms_door(server_url, http: Http = _probe_http):
         if status == 200:
             return base + path
     return base + ("/rooms/" if base.endswith("/em") else "/em/rooms/")
+
+
+def room_work_url(server_url, room_id, http: Http = _probe_http):
+    """L'indirizzo stabile della stanza: la pagina *work* del nodo.
+
+    `/em/work/?room=<id>` dietro Caddy, `/rooms/work/?room=<id>` sul nodo
+    nudo (rooms_ui/rooms.js:1745). Su nodo muto si restituisce comunque il
+    candidato Caddy: il pannello mostrerà il SUO errore — mai un'eccezione
+    qui, e mai più di due sonde da 5 s (Review Focus 2).
+    """
+    import urllib.parse
+    base = server_url.rstrip("/")
+    query = "?room=%s" % urllib.parse.quote(room_id, safe="")
+    paths = ("/work/",) if base.endswith("/em") \
+        else ("/em/work/", "/rooms/work/")
+    for path in paths:
+        try:
+            status, _body = http("GET", base + path, None, "")
+        except Exception:
+            continue
+        if status == 200:
+            return base + path + query
+    return base + ("/work/" if base.endswith("/em") else "/em/work/") + query

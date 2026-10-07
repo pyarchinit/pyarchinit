@@ -86,3 +86,11 @@ def test_the_rooms_door_answers(room):
     assert door.endswith("/rooms/")
     with urllib.request.urlopen(door, timeout=5) as r:
         assert r.status == 200
+
+
+def test_the_room_work_page_answers(room):
+    from modules.s3dgraphy.room import room_client
+    url = room_client.room_work_url(NODE, room)
+    assert "/rooms/work/?room=" in url
+    with urllib.request.urlopen(url, timeout=5) as r:
+        assert r.status == 200

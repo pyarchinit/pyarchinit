@@ -291,3 +291,33 @@ def test_env_locked_fields_say_so():
            / "pyarchinitPlugin.py").read_text(encoding="utf-8")
     body = src.split("def _run_room_delivery", 1)[1].split("\n    def ", 1)[0]
     assert "setReadOnly" in body and "SERVER_URL_VARIABLE" in body
+
+
+def test_room_work_url_points_at_the_stable_per_room_address(monkeypatch):
+    """B2: «/em/work/?room=<id>» è l'indirizzo stabile per stanza
+    (rooms_ui/rooms.js:1745); sul nodo nudo la stessa pagina vive sotto
+    /rooms/work/. L'id viaggia quotato."""
+    from modules.s3dgraphy.room import room_client
+
+    def bare(method, url, payload, token):
+        return (200, {}) if "/rooms/work/" in url and "/em/" not in url \
+            else (404, {})
+
+    url = room_client.room_work_url("http://x", "scavo 2026/α", http=bare)
+    assert url == "http://x/rooms/work/?room=scavo%202026%2F%CE%B1"
+
+    def caddy(method, url, payload, token):
+        return (200, {}) if "/em/work/" in url else (404, {})
+
+    url = room_client.room_work_url("http://x", "r1", http=caddy)
+    assert url == "http://x/em/work/?room=r1"
+
+
+def test_room_work_url_never_raises_on_a_mute_node(monkeypatch):
+    from modules.s3dgraphy.room import room_client
+
+    def dead(method, url, payload, token):
+        raise OSError("no route to host")
+
+    url = room_client.room_work_url("http://x", "r1", http=dead)
+    assert url.endswith("/em/work/?room=r1")
