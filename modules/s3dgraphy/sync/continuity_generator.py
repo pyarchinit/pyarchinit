@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from s3dgraphy.rapporti import continuity_label
+from . import continuity_label  # the vocabulary's owner is this package
 
 #: Source unit types that can bear a continuity (per spec: US / USM only).
 CONTINUITY_SOURCE_TYPES = frozenset({"US", "USM"})

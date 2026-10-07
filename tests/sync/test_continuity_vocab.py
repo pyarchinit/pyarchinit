@@ -1,7 +1,9 @@
 import pytest
-from s3dgraphy.rapporti import (
-    parse_rapporti, continuity_label, CONTINUITY_LABELS,
-)
+# The vocabulary's owner is the pyArchInit package (grafted onto the
+# library's rapporti at import): import it from there, so the graft has
+# always run and no collection order can break it.
+from modules.s3dgraphy.sync import continuity_label, CONTINUITY_LABELS
+from s3dgraphy.rapporti import parse_rapporti
 
 _LANGS = ["it", "en", "de", "es", "fr", "pt", "ca", "ro", "ar", "el"]
 
