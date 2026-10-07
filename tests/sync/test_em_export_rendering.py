@@ -2,6 +2,12 @@ import sys, xml.etree.ElementTree as ET
 from pathlib import Path
 import pytest
 
+pytestmark = pytest.mark.xfail(
+    reason="GraphML export retires in A4 (spec 2026-10-07 §4, decision 2): "
+           "em.json/EMStudio is the viewer; these tests go with the writer.",
+    strict=False)
+
+
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))

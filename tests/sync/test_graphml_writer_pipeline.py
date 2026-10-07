@@ -12,6 +12,12 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.xfail(
+    reason="GraphML export retires in A4 (spec 2026-10-07 §4, decision 2): "
+           "em.json/EMStudio is the viewer; these tests go with the writer.",
+    strict=False)
+
+
 # Two-step path setup:
 #  1. Import pandas FIRST from the system. This pins it in
 #     sys.modules so the broken vendored ext_libs/pandas is never

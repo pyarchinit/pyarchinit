@@ -8,6 +8,12 @@ import sys
 from pathlib import Path
 
 import pytest
+
+pytestmark = pytest.mark.xfail(
+    reason="GraphML export retires in A4 (spec 2026-10-07 §4, decision 2): "
+           "em.json/EMStudio is the viewer; these tests go with the writer.",
+    strict=False)
+
 import pandas  # noqa: F401
 from lxml import etree as ET
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
