@@ -147,3 +147,87 @@ def ops_for_units(units: Iterable[Dict[str, Any]],
         })
         made.bump("units")
     return made
+
+
+SYMMETRIC = {"equals", "bonded_to", "has_same_time",
+             "is_physically_equal_to", "is_bonded_to"}
+
+
+def _resolve_target(rel, known):
+    """L'id del target, o (None, perché)."""
+    sito = str(rel.get("target_sito") or rel.get("sito") or "").strip()
+    area = normalize_area(rel.get("target_area"))
+    us = str(rel.get("target_us") or "").strip()
+    if area:
+        hit = known.get((sito, area, us))
+        return (hit, None) if hit else (
+            None, "unità %s/%s/%s non consegnata" % (sito, area, us))
+    hits = [v for (s, _a, u), v in known.items() if s == sito and u == us]
+    if len(hits) == 1:
+        return hits[0], None
+    if not hits:
+        return None, "unità %s/?/%s non consegnata" % (sito, us)
+    return None, ("il numero %s/%s è ambiguo fra %d aree: il rapporto non "
+                  "dice quale" % (sito, us, len(hits)))
+
+
+def ops_for_relationships(relationships, known, delivery=None):
+    """`add_edge` per ogni rapporto risolvibile, UNA volta per relazione.
+
+    La coppia inversa (1 Copre 2 / 2 Coperto da 1) produce lo stesso arco
+    orientato: dedup per ``edge_id``. Le simmetriche (equals, bonded_to…)
+    viaggiano con gli estremi in ordine lessicografico, così la stessa
+    relazione scritta dai due lati è UN arco.
+    """
+    made = delivery if delivery is not None else Delivery()
+    seen = set()
+    for rel in relationships:
+        src = known.get((str(rel.get("sito") or "").strip(),
+                         normalize_area(rel.get("area")),
+                         str(rel.get("us") or "").strip()))
+        if not src:
+            made.skipped.append(
+                "rapporto da %s/%s/%s: la riga stessa non è stata consegnata"
+                % (rel.get("sito"), rel.get("area"), rel.get("us")))
+            made.bump("edges_source_missing")
+            continue
+        dst, why = _resolve_target(rel, known)
+        if not dst:
+            made.skipped.append("rapporto %r di %s/%s/%s: %s"
+                                % (rel.get("verb"), rel.get("sito"),
+                                   rel.get("area"), rel.get("us"), why))
+            made.bump("edges_unresolved")
+            continue
+        edge_type = rel["edge_type"]
+        source, target = (dst, src) if rel.get("swap") else (src, dst)
+        if edge_type in SYMMETRIC and target < source:
+            source, target = target, source
+        eid = edge_id(source, edge_type, target)
+        if eid in seen:
+            made.bump("edges_deduplicated")
+            continue
+        seen.add(eid)
+        made.ops.append({
+            "op": "add_edge", "id": eid,
+            "source": source, "target": target, "edge_type": edge_type,
+            "attributes": {"pyarchinit_relationship": rel.get("verb") or ""},
+        })
+        made.bump("edges")
+    return made
+
+
+def deliver(units, relationships=()):
+    """Tutto il sito in operazioni: prima i nodi, poi gli archi fra loro."""
+    units = list(units)
+    made = ops_for_units(units)
+    known = {(str(r.get("sito") or "").strip(),
+              normalize_area(r.get("area")),
+              str(r.get("us") or "").strip()):
+             unit_id(r.get("sito"), r.get("area"), r.get("us"))
+             for r in units
+             if str(r.get("sito") or "").strip()
+             and str(r.get("us") or "").strip()}
+    # solo le unità DIVENTATE nodi possono essere estremi
+    delivered = {op["id"] for op in made.ops}
+    known = {k: v for k, v in known.items() if v in delivered}
+    return ops_for_relationships(relationships, known, made)
