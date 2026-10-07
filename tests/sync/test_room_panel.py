@@ -30,3 +30,19 @@ def test_one_panel_per_session():
     src = SRC.read_text(encoding="utf-8")
     assert "findChild" in src or "findChildren" in src
     assert "raise_" in src
+
+
+def test_the_menu_opens_the_room_in_the_panel_with_a_browser_fallback():
+    src = (PLUGIN_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    body = src.split("def _open_rooms_door", 1)[1].split("\n    def ", 1)[0]
+    assert "room_work_url" in body, "con una stanza configurata si apre LA stanza"
+    assert "open_in_panel" in body
+    assert "webbrowser" in body, "niente WebEngine → browser"
+    assert "messageBar" in body
+
+
+def test_unload_closes_the_panel():
+    import re
+    src = (PLUGIN_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    unload = re.search(r"def unload\(self\):(.*?)\n    def ", src, re.S)
+    assert unload and "close_panel" in unload.group(1)

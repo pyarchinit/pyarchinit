@@ -2661,6 +2661,12 @@ class PyArchInitPlugin(object):
         # Migrations-menu entries wired by _init_migrations_menu: without
         # this, a plugin reload duplicates them (final review, deferred
         # minor 2026-10-07). The guard flag resets with the instance.
+        try:
+            from modules.s3dgraphy.room import room_panel
+            room_panel.close_panel(self.iface)
+        except Exception:
+            pass
+
         for _name in ("actionEmExport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
                       "actionUuidBackfill", "actionYefOtherLocations",
@@ -3072,10 +3078,11 @@ class PyArchInitPlugin(object):
         QgsApplication.taskManager().addTask(self._room_task)
 
     def _open_rooms_door(self):
-        """B2 minimo: la UI delle stanze servita dal nodo, nel browser."""
+        """B2: la stanza (o la porta del nodo) dentro pyArchInit; browser
+        come ripiego quando Qt WebEngine manca nel profilo."""
         import webbrowser
         from qgis.PyQt.QtWidgets import QMessageBox
-        from modules.s3dgraphy.room import room_client
+        from modules.s3dgraphy.room import room_client, room_panel
 
         settings = room_client.NodeSettings()
         if not settings.server_url:
@@ -3086,10 +3093,24 @@ class PyArchInitPlugin(object):
                 % room_client.SERVER_URL_VARIABLE)
             return
         try:
-            door = room_client.rooms_door(settings.server_url)
+            if settings.room_id:
+                url = room_client.room_work_url(settings.server_url,
+                                                settings.room_id)
+                title = "Stanza «%s»" % settings.room_id
+            else:
+                url = room_client.rooms_door(settings.server_url)
+                title = "Nodo StratiGraph"
         except Exception:
-            door = settings.server_url + "/em/rooms/"
-        webbrowser.open(door)
+            url = settings.server_url + "/em/rooms/"
+            title = "Nodo StratiGraph"
+        if not room_panel.open_in_panel(self.iface, url, title):
+            webbrowser.open(url)
+            try:
+                self.iface.messageBar().pushInfo(
+                    "Stanza", "Qt WebEngine assente in questo profilo: "
+                              "aperto nel browser.")
+            except Exception:
+                pass
 
     def _run_vocab_alignment_migration(self):
         """File-picker + dry-run preview + confirmation + apply (with backup)."""
