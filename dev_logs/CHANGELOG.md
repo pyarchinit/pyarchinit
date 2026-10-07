@@ -5,6 +5,57 @@
 
 ---
 
+## [refactor] - 2026-10-07 — L'export GraphML va in pensione: em.json è il formato di lavoro (A4) — 5.13.26-alpha
+
+> Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`graphml-retire-5.13.26-alpha`**. Commit `56804d58`.
+> File: `modules/s3dgraphy/sync/graphml_writer.py` (CANCELLATO), `scripts/s3dgraphy_sync.py`, `modules/s3dgraphy/s3dgraphy_dot_bridge.py`, 10 file di test cancellati, 7 ripuntati/potati, `tests/sync/_projected_graphml.py` (nuovo, fabbrica di test).
+
+### Italiano
+
+#### Perché
+
+Spec 2026-10-07 §4, decisione 2 (con Emanuel, s3Dgraphy#25): il matrix si guarda e si valida in **EMStudio**, che apre **em.json** nativamente (voce di menu dalla 5.13.25-alpha). Il GraphML resta **solo come import una tantum da yEd**; il DOT classico con graphviz resta (decisione 9, pyarchinit#663). Tenere in vita il writer vendorizzato (~2000 righe) significava mantenere un secondo esportatore per un formato che non è più il veicolo del matrix.
+
+#### Cosa se ne va
+
+- **`graphml_writer.py`** e il sottocomando CLI `export` di `scripts/s3dgraphy_sync.py` (import e paradata restano); il ramo `graphml` di `export_integrated_matrix` nel dot_bridge (nessun chiamante vivo: nessuna voce di menu esportava GraphML).
+- **10 file di test** cancellati col writer (i 4 in xfail dal 5.13.24 + helpers, fan-out yE-F, export PG, round-trip PG, idempotenza export).
+
+#### Cosa resta coperto, e come
+
+- I **file proiettati già nel mondo** raggiungono ancora l'import: la fabbrica `tests/sync/_projected_graphml.py` (exporter della libreria + `_embed_pyarchinit_data_keys`, trasferito lì tale e quale) li fabbrica per `test_round_trip_file` (copia cross-site, idempotenza, nessuna perdita) e `test_cli_helper`.
+- **AC-12/13/14** (checkbox `sql_apply_groups` del dialogo d'import): `test_round_trip_with_groups` riscritto su file a cartelle fabbricati a mano — la stessa superficie che legge `_apply_group_folders_to_sql`.
+- **Avvisi di cronologia**: il controllo vive nel projector (`graph.warnings`), `test_export_chronology_warning` ripuntato lì.
+- Guardia permanente: `test_the_graphml_writer_is_gone` (file assente + nessuna menzione in `tabs/`, `modules/`, `gui/`).
+
+#### Nota
+
+L'xfail superstite `test_round_trip.py::test_round_trip_preserves_mapped_fields` documenta che il serializzatore rapporti non è identità (grafia canonicalizzata `copre`→`Copre`, voci shorthand derivate `>>`): materiale upstream per s3Dgraphy#25. Suite `tests/sync`: **454 passati, 0 falliti, 1 xfail**, 7 errori ambientali preesistenti.
+
+### English
+
+#### Why
+
+Spec 2026-10-07 §4, decision 2 (with Emanuel, s3Dgraphy#25): the matrix is viewed and validated in **EMStudio**, which opens **em.json** natively (menu entry since 5.13.25-alpha). GraphML survives **only as the one-time import from yEd**; the classic DOT matrix with graphviz stays (decision 9, pyarchinit#663). Keeping the vendored writer alive (~2000 lines) meant maintaining a second exporter for a format that no longer carries the matrix.
+
+#### What leaves
+
+- **`graphml_writer.py`** and the CLI `export` subcommand of `scripts/s3dgraphy_sync.py` (import and paradata stay); the dot_bridge's `graphml` branch of `export_integrated_matrix` (no live caller: no menu entry exported GraphML).
+- **10 test files** deleted with the writer (the 4 xfailed since 5.13.24 + helpers, yE-F fan-out, PG export, PG round-trip, export idempotency).
+
+#### What stays covered, and how
+
+- **Projected files already in the wild** still reach the import: the fabric `tests/sync/_projected_graphml.py` (library exporter + `_embed_pyarchinit_data_keys`, moved there verbatim) builds them for `test_round_trip_file` (cross-site copy, idempotency, no loss) and `test_cli_helper`.
+- **AC-12/13/14** (the import dialog's `sql_apply_groups` checkbox): `test_round_trip_with_groups` rewritten on hand-fabricated foldered files — the exact surface `_apply_group_folders_to_sql` reads.
+- **Chronology warnings**: the check lives in the projector (`graph.warnings`); `test_export_chronology_warning` repointed there.
+- Permanent guard: `test_the_graphml_writer_is_gone` (file absent + no mention in `tabs/`, `modules/`, `gui/`).
+
+#### Note
+
+The surviving xfail `test_round_trip.py::test_round_trip_preserves_mapped_fields` documents that the rapporti serializer is not identity (canonicalized spelling `copre`→`Copre`, derived `>>` shorthand entries): upstream material for s3Dgraphy#25. `tests/sync` suite: **454 passed, 0 failed, 1 xfail**, 7 pre-existing environmental errors.
+
+---
+
 ## [feat] - 2026-10-07 — Extended Matrix: esporta il sito in em.json e aprilo in EMStudio — 5.13.25-alpha
 
 > Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`em-export-5.13.25-alpha`**. Commit `e9b0b510` (modulo em_export), `e41a14e6` (menu + apertura EMStudio), `47fecbb4` (bump + tutorial).
