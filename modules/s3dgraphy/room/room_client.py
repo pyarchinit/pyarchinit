@@ -292,16 +292,18 @@ def rooms_door(server_url, http: Http = _probe_http):
 def room_work_url(server_url, room_id, http: Http = _probe_http):
     """L'indirizzo stabile della stanza: la pagina *work* del nodo.
 
-    `/em/work/?room=<id>` dietro Caddy, `/rooms/work/?room=<id>` sul nodo
-    nudo (rooms_ui/rooms.js:1745). Su nodo muto si restituisce comunque il
-    candidato Caddy: il pannello mostrerà il SUO errore — mai un'eccezione
-    qui, e mai più di due sonde da 5 s (Review Focus 2).
+    `/em/work/?room=<id>` dietro Caddy, `/work/?room=<id>` sul nodo nudo:
+    le pagine-verbo sono montate IN CIMA (main.py:5265 — «MOUNTED AT THE
+    TOP, not nested under /rooms/»); /rooms/work/ risponde 200 ma è una
+    shell i cui asset relativi 404ano (review 2026-10-07). Su nodo muto si
+    restituisce comunque il candidato Caddy: il pannello mostrerà il SUO
+    errore — mai un'eccezione qui, due sonde da 5 s al massimo.
     """
     import urllib.parse
     base = server_url.rstrip("/")
     query = "?room=%s" % urllib.parse.quote(room_id, safe="")
     paths = ("/work/",) if base.endswith("/em") \
-        else ("/em/work/", "/rooms/work/")
+        else ("/em/work/", "/work/")
     for path in paths:
         try:
             status, _body = http("GET", base + path, None, "")

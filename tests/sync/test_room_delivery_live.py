@@ -88,9 +88,16 @@ def test_the_rooms_door_answers(room):
         assert r.status == 200
 
 
-def test_the_room_work_page_answers(room):
+def test_the_room_work_page_answers_with_its_assets(room):
+    """Non basta un 200 sulla shell: dalla base scelta devono risolvere
+    anche gli ASSET relativi della pagina (../rooms/rooms.js) — è il 200
+    sulla base sbagliata (/rooms/work/) che ha ingannato la prima stesura."""
+    import urllib.parse
     from modules.s3dgraphy.room import room_client
     url = room_client.room_work_url(NODE, room)
-    assert "/rooms/work/?room=" in url
+    assert "/work/?room=" in url and "/rooms/work/" not in url
     with urllib.request.urlopen(url, timeout=5) as r:
+        assert r.status == 200
+    asset = urllib.parse.urljoin(url, "../rooms/rooms.js")
+    with urllib.request.urlopen(asset, timeout=5) as r:
         assert r.status == 200

@@ -3107,7 +3107,8 @@ class PyArchInitPlugin(object):
             webbrowser.open(url)
             try:
                 self.iface.messageBar().pushInfo(
-                    "Stanza", "Qt WebEngine assente in questo profilo: "
+                    "Stanza", "Pannello non disponibile in questo profilo "
+                              "(Qt WebEngine assente o non avviabile): "
                               "aperto nel browser.")
             except Exception:
                 pass

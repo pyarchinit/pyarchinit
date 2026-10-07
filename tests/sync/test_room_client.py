@@ -300,11 +300,15 @@ def test_room_work_url_points_at_the_stable_per_room_address(monkeypatch):
     from modules.s3dgraphy.room import room_client
 
     def bare(method, url, payload, token):
-        return (200, {}) if "/rooms/work/" in url and "/em/" not in url \
-            else (404, {})
+        # sul nodo nudo le pagine-verbo sono montate IN CIMA (/work/):
+        # /rooms/work/ risponde 200 ma è una shell senza script (gli asset
+        # relativi ../rooms/* vi risolvono su /rooms/rooms/* → 404) —
+        # main.py:5265 «MOUNTED AT THE TOP, not nested under /rooms/»
+        return (200, {}) if url.rstrip("/").endswith("/work") \
+            and "/em/" not in url and "/rooms/" not in url else (404, {})
 
     url = room_client.room_work_url("http://x", "scavo 2026/α", http=bare)
-    assert url == "http://x/rooms/work/?room=scavo%202026%2F%CE%B1"
+    assert url == "http://x/work/?room=scavo%202026%2F%CE%B1"
 
     def caddy(method, url, payload, token):
         return (200, {}) if "/em/work/" in url else (404, {})
