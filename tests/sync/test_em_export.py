@@ -73,3 +73,27 @@ def test_a_stale_library_refuses_with_a_user_message(monkeypatch, tmp_path):
     with pytest.raises(em_export.EmExportError) as err:
         em_export.export_site("sqlite:///nowhere.sqlite", "X", str(tmp_path))
     assert "aggiorna le dipendenze" in str(err.value)
+
+
+def test_the_opener_reports_failure_instead_of_raising(tmp_path):
+    # Review Focus 4: EMStudio not installed
+    target = tmp_path / "x.em.json"
+    target.write_text("{}", encoding="utf-8")
+
+    class _Run:                                     # finto subprocess.run
+        def __init__(self, code): self.code = code
+        def __call__(self, *a, **k):
+            class R: returncode = self.code
+            return R()
+
+    assert em_export.open_in_emstudio(str(target), runner=_Run(0)) is True
+    assert em_export.open_in_emstudio(str(target), runner=_Run(1)) is False
+
+    def esplode(*a, **k): raise OSError("no app")
+    assert em_export.open_in_emstudio(str(target), runner=esplode) is False
+
+
+def test_the_menu_offers_the_export_and_handles_a_missing_emstudio():
+    src = (_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    assert "Esporta sito in em.json" in src
+    assert "open_in_emstudio" in src and "EMStudio/releases" in src

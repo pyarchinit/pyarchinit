@@ -71,3 +71,23 @@ def export_site(connection_url, site, out_dir):
             % (len(check.nodes), len(graph.nodes),
                len(check.edges), len(graph.edges)))
     return path, len(graph.nodes), len(graph.edges), list(warnings)
+
+
+def open_in_emstudio(path, runner=None):
+    """Hand the file to EMStudio; True when something opened, False —
+    never an exception — when nothing is installed (the caller then
+    points at the EMStudio releases page)."""
+    import platform
+    import subprocess
+    run = runner or subprocess.run
+    system = platform.system()
+    try:
+        if system == "Darwin":
+            return run(["open", "-a", "EMStudio", path],
+                       capture_output=True).returncode == 0
+        if system == "Windows":
+            os.startfile(path)      # l'associazione .em.json decide
+            return True
+        return run(["xdg-open", path], capture_output=True).returncode == 0
+    except Exception:
+        return False

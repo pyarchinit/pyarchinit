@@ -2844,11 +2844,67 @@ class PyArchInitPlugin(object):
             if hasattr(self, 'analysisToolButton'):
                 self.analysisToolButton.addAction(self.actionQFieldImport)
 
+            # --- Extended Matrix: esporta sito in em.json (B1) -----------
+            # spec 2026-10-07 §5: em.json è il formato di lavoro, GraphML
+            # resta solo come import una tantum da yEd; EMStudio lo apre.
+            self.actionEmExport = QAction(
+                "Extended Matrix → Esporta sito in em.json…",
+                self.iface.mainWindow())
+            self.actionEmExport.triggered.connect(self._run_em_export)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmExport)
+
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
                 f"Migrations menu wiring failed: {e}",
                 "PyArchInit", Qgis.MessageLevel.Warning)
+
+    def _run_em_export(self):
+        """B1 (spec 2026-10-07 §5): one site -> em.json -> EMStudio."""
+        from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
+        from pathlib import Path
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        from modules.s3dgraphy import em_export
+
+        try:
+            conn_str = Connection().conn_str()
+            db = Pyarchinit_db_management(conn_str)
+            db.connection()
+            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
+        except Exception as e:
+            QMessageBox.warning(self.iface.mainWindow(), "em.json",
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        if not sites:
+            QMessageBox.information(self.iface.mainWindow(), "em.json",
+                                    "Nessun sito nel database.")
+            return
+        site, ok = QInputDialog.getItem(
+            self.iface.mainWindow(),
+            "Esporta in em.json", "Sito:", sites, 0, False)
+        if not ok:
+            return
+        out_dir = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
+        try:
+            path, nodes, edges, warnings = em_export.export_site(
+                conn_str, site, out_dir)
+        except em_export.EmExportError as e:
+            QMessageBox.warning(self.iface.mainWindow(), "em.json", str(e))
+            return
+        msg = ("Esportato %s\n%d nodi, %d archi, %d avvisi.\n\n"
+               "Aprire in EMStudio?" % (path, nodes, edges, len(warnings)))
+        if QMessageBox.question(self.iface.mainWindow(), "em.json", msg,
+                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+            if not em_export.open_in_emstudio(path):
+                QMessageBox.information(
+                    self.iface.mainWindow(), "EMStudio",
+                    "EMStudio non risulta installato. Il file è in:\n%s\n\n"
+                    "Scaricalo da: "
+                    "https://github.com/ExtendedMatrix/EMStudio/releases"
+                    % path)
 
     def _run_vocab_alignment_migration(self):
         """File-picker + dry-run preview + confirmation + apply (with backup)."""
