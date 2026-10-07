@@ -55,9 +55,16 @@ def normalize_area(area: Any) -> str:
     return "" if area is None else str(area).strip()
 
 
+def _sid_part(value: Any) -> str:
+    """stable_id unisce le parti con '|': un sito che lo contiene potrebbe
+    collidere con un altro ('S|1','2' vs 'S','1|2') — si scappa prima."""
+    return str(value).replace("\\", "\\\\").replace("|", "\\|")
+
+
 def unit_id(sito: Any, area: Any, us: Any) -> str:
-    return stable_id(ORIGIN, "us", str(sito or "").strip(),
-                     normalize_area(area), str(us or "").strip())
+    return stable_id(ORIGIN, "us", _sid_part(str(sito or "").strip()),
+                     _sid_part(normalize_area(area)),
+                     _sid_part(str(us or "").strip()))
 
 
 def edge_id(source: str, edge_type: str, target: str) -> str:

@@ -326,3 +326,11 @@ def test_unreadable_rapporti_are_reported_not_swallowed(tmp_path):
     assert len(problems) == 2
     assert any("illeggibil" in p for p in problems)
     assert any("VerboInventato" in p for p in problems)
+
+
+def test_unit_ids_do_not_collide_on_pipes():
+    """Minor 14 review: stable_id unisce le parti con '|' — un sito o
+    un'area che lo contengono non devono poter collidere."""
+    from modules.s3dgraphy.room.us_ops import unit_id
+    assert unit_id("S|1", "2", "3") != unit_id("S", "1|2", "3")
+    assert unit_id("S|", "", "3") != unit_id("S", "|", "3")

@@ -176,3 +176,118 @@ def test_a_node_behind_caddy_is_found_at_slash_em(monkeypatch):
     assert health.get("ok")
     assert st.server_url == "http://nodo.ente.it/em", \
         "la base risolta resta sulle settings: le ops vanno su /em/v1"
+
+
+def _http_error(code, detail, url="http://x/v1/rooms/r1/ops"):
+    import io
+    import json as _json
+    import urllib.error
+    return urllib.error.HTTPError(
+        url, code, "err", {}, io.BytesIO(_json.dumps({"detail": detail}).encode()))
+
+
+def test_a_403_is_one_sentence_with_the_servers_detail(monkeypatch):
+    """Minor 7 review: il ramo HTTPError non aveva un test — 403/413 devono
+    diventare UNA frase col detail del server, mai un traceback."""
+    from modules.s3dgraphy.room import room_client
+    st = _settings(monkeypatch)
+
+    def forbidden(method, url, payload, token):
+        raise _http_error(403, "writing operations into this room needs "
+                               "editor or above")
+
+    with pytest.raises(room_client.RoomRefusal) as err:
+        room_client._deliver_ops([{"op": "add_node", "id": "n1"}], st,
+                                 forbidden)
+    assert "403" in str(err.value) and "editor" in str(err.value)
+
+
+def test_a_413_shrinks_the_pages_to_what_the_node_accepts(monkeypatch):
+    """Minor 9 review: OPS_BATCH_MAX è configurabile sul nodo e la health
+    non lo espone — sul 413 il client legge la taglia dal detail e
+    ri-pagina il lotto (la pagina respinta non era stata applicata:
+    non è un retry di un rifiuto)."""
+    from modules.s3dgraphy.room import room_client
+    st = _settings(monkeypatch)
+    calls = []
+
+    def small_node(method, url, payload, token):
+        ops = payload["ops"]
+        calls.append(len(ops))
+        if len(ops) > 2:
+            raise _http_error(
+                413, "%d operations in one request, and this node accepts 2."
+                     " The limit is the room's lock" % len(ops))
+        return 200, {"applied": len(ops), "refused": [], "kept": None}
+
+    ops = [{"op": "add_node", "id": "n%d" % i} for i in range(5)]
+    out = room_client._deliver_ops(ops, st, small_node)
+    assert calls == [5, 2, 2, 1]
+    assert out.applied == 5 and out.batches == 3
+
+
+def test_a_mid_delivery_refusal_reports_what_landed(monkeypatch):
+    """Minor 8 review: se una pagina successiva viene rifiutata, la frase
+    dice quante operazioni erano GIÀ arrivate."""
+    from modules.s3dgraphy.room import room_client
+    st = _settings(monkeypatch)
+    state = {"page": 0}
+
+    def flaky(method, url, payload, token):
+        state["page"] += 1
+        if state["page"] == 1:
+            return 200, {"applied": len(payload["ops"]), "refused": []}
+        raise _http_error(403, "token expired")
+
+    monkeypatch.setattr(room_client, "BATCH_MAX", 3)
+    ops = [{"op": "add_node", "id": "n%d" % i} for i in range(5)]
+    with pytest.raises(room_client.RoomRefusal) as err:
+        room_client._deliver_ops(ops, st, flaky)
+    msg = str(err.value)
+    assert "3" in msg and "5" in msg, msg
+
+
+def test_a_clear_text_token_is_named_before_it_travels(monkeypatch):
+    """Minor 12 review: un token su http:// verso un nodo non locale
+    viaggia in chiaro — il chiamante deve poterlo dire PRIMA."""
+    from modules.s3dgraphy.room import room_client
+    st = _settings(monkeypatch, url="http://nodo.ente.it", token="segreto")
+    assert room_client.token_in_the_clear(st) is True
+    st = _settings(monkeypatch, url="http://127.0.0.1:8020", token="segreto")
+    assert room_client.token_in_the_clear(st) is False
+    st = _settings(monkeypatch, url="https://nodo.ente.it", token="segreto")
+    assert room_client.token_in_the_clear(st) is False
+    st = _settings(monkeypatch, url="http://nodo.ente.it")
+    assert room_client.token_in_the_clear(st) is False
+
+
+def test_probes_use_a_short_timeout():
+    """Minor 10 review (metà client): le sonde (health, porta della UI) non
+    tengono in ostaggio il chiamante per 30 s l'una."""
+    from modules.s3dgraphy.room import room_client
+    assert room_client.PROBE_TIMEOUT <= 5
+    import inspect
+    src = inspect.getsource(room_client.rooms_door)
+    sig = inspect.signature(room_client.rooms_door)
+    assert sig.parameters["http"].default is room_client._probe_http
+
+
+def test_the_delivery_does_not_run_on_the_gui_thread():
+    """Minor 10 review (metà menu): la consegna gira in un QgsTask, con
+    l'esito mostrato al completamento — QGIS non gela a nodo muto."""
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[2]
+           / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    assert "QgsTask.fromFunction" in src
+    body = src.split("def _run_room_delivery", 1)[1].split("\n    def ", 1)[0]
+    assert "deliver_site" in body and "QgsTask" in body
+
+
+def test_env_locked_fields_say_so():
+    """Minor 11 review: se l'env è impostata vince lei — il campo nel
+    dialogo lo DICE (sola lettura) invece di fingere di accettare."""
+    from pathlib import Path as _P
+    src = (_P(__file__).resolve().parents[2]
+           / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    body = src.split("def _run_room_delivery", 1)[1].split("\n    def ", 1)[0]
+    assert "setReadOnly" in body and "SERVER_URL_VARIABLE" in body

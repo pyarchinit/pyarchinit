@@ -5,6 +5,34 @@
 
 ---
 
+## [fix] - 2026-10-07 — Stanza: i 7 minor della review chiusi (QGIS non gela, pagine adattive, token in chiaro dichiarato) — 5.13.31-alpha
+
+> Branch `Stratigraph_00001`. Tag **`room-polish-5.13.31-alpha`**. I minor rinviati della review di `room-delivery`, risolti su richiesta di Enzo.
+
+### Italiano
+
+- **QGIS non gela più** (minor 10): la consegna gira in un **QgsTask** (l'esito arriva al completamento, mai sul thread della GUI) e le sonde — health, porta della UI — hanno un timeout di **5 s** invece dei 30 della pagina di ops: un nodo muto non tiene più in ostaggio l'interfaccia per un minuto.
+- **Pagine adattive sul 413** (minor 9): `OPS_BATCH_MAX` del nodo è configurabile e la health non lo espone — sul 413 il client legge la taglia dal detail del server e **ri-pagina il lotto** (la pagina respinta non era stata applicata: non è un retry di un rifiuto). Un nodo tarato a 500 ora riceve pagine da 500, non un 413 a oltranza.
+- **Esito parziale detto** (minor 8): se una pagina successiva viene rifiutata (p.es. token scaduto a metà), la frase dice quante operazioni erano **già arrivate** e che sono idempotenti.
+- **Token in chiaro dichiarato** (minor 12): su `http://` verso un nodo che non è questa macchina, prima di consegnare si chiede «il token viaggerebbe NON cifrato. Continuare?» (`token_in_the_clear`).
+- **L'env la vince dicendolo** (minor 11): se `STRATIGRAPH_SERVER_URL`/`STRATIGRAPH_ROOM_ID` sono impostate, i campi del dialogo sono in sola lettura col tooltip che nomina la variabile — niente valori accettati e poi ignorati.
+- **`|` nei nomi** (minor 14): le parti di `stable_id` vengono scappate — «S|1»/«2» e «S»/«1|2» non possono più collidere.
+- **Il ramo HTTPError ha i suoi test** (minor 7): 403 → una frase col detail del server (il comportamento era già giusto: mancava il pin), 413 → ri-paginazione, rifiuto a metà → conteggio di ciò che è arrivato.
+- Test: +8 (7 client + 1 adapter), tutti rosso→verde tranne il pin del 403 (ramo già corretto). Suite `tests/sync`: 474 passati, 0 falliti.
+
+### English
+
+- **QGIS no longer freezes** (minor 10): delivery runs in a **QgsTask** (outcome shown on completion, never on the GUI thread) and probes — health, rooms door — get a **5 s** timeout instead of the ops page's 30 s.
+- **Adaptive pages on 413** (minor 9): the node's `OPS_BATCH_MAX` is configurable and health does not expose it — on a 413 the client reads the accepted size from the server's detail and **re-pages the batch** (the rejected page was never applied: this is not retrying a refusal).
+- **Partial outcome told** (minor 8): when a later page is refused (e.g. token expired mid-delivery), the sentence says how many operations had **already landed**, and that they are idempotent.
+- **Clear-text token declared** (minor 12): on `http://` towards a non-local node, the dialog asks before delivering (`token_in_the_clear`).
+- **Env wins out loud** (minor 11): with `STRATIGRAPH_SERVER_URL`/`STRATIGRAPH_ROOM_ID` set, the dialog fields are read-only with a tooltip naming the variable.
+- **`|` in names** (minor 14): `stable_id` parts are escaped — «S|1»/«2» and «S»/«1|2» can no longer collide.
+- **The HTTPError branch has its tests** (minor 7): 403 → one sentence with the server's detail (the behaviour was already right: only the pin was missing), 413 → re-paging, mid-delivery refusal → landed count.
+- Tests: +8, all red→green except the 403 pin. `tests/sync` suite: 474 passed, 0 failed.
+
+---
+
 ## [feat] - 2026-10-07 — Consegna di un sito a una stanza StratiGraph (C) + porta del nodo (B2 minimo) — 5.13.30-alpha
 
 > Branch `Stratigraph_00001` (feature branch `room-delivery`). Tag **`room-delivery-5.13.30-alpha`**.

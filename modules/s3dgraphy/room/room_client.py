@@ -33,13 +33,11 @@ TOKEN_VARIABLE = "STRATIGRAPH_TOKEN"          # SOLO env: un token non si salva
 QSETTINGS_URL = "pyarchinit/stratigraph/server_url"
 QSETTINGS_ROOM = "pyarchinit/stratigraph/room_id"
 BATCH_MAX = 1000
-TIMEOUT = 30.0
-
-Http = Callable[[str, str, Optional[Dict[str, Any]], str],
-                Tuple[int, Dict[str, Any]]]
+TIMEOUT = 30.0        # una pagina di ops sotto il lock della stanza
+PROBE_TIMEOUT = 5.0   # una sonda (health, porta UI) non tiene in ostaggio
 
 
-def _urllib_http(method, url, payload, token):
+def _do_http(method, url, payload, token, timeout):
     body = json.dumps(payload).encode("utf-8") if payload is not None else None
     headers = {"Content-Type": "application/json",
                "Accept": "application/json"}
@@ -47,13 +45,35 @@ def _urllib_http(method, url, payload, token):
         headers["Authorization"] = "Bearer %s" % token
     req = urllib.request.Request(url, data=body, method=method,
                                  headers=headers)
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as answer:
+    with urllib.request.urlopen(req, timeout=timeout) as answer:
         raw = answer.read().decode("utf-8", "replace")
         try:
             return answer.status, json.loads(raw or "{}")
         except Exception:
             # una porta della UI risponde HTML: lo status basta
             return answer.status, {}
+
+
+def _urllib_http(method, url, payload, token):
+    return _do_http(method, url, payload, token, TIMEOUT)
+
+
+def _probe_http(method, url, payload, token):
+    return _do_http(method, url, payload, token, PROBE_TIMEOUT)
+
+
+Http = Callable[[str, str, Optional[Dict[str, Any]], str],
+                Tuple[int, Dict[str, Any]]]
+
+
+def token_in_the_clear(settings) -> bool:
+    """True quando il token viaggerebbe in chiaro: http:// verso un nodo
+    che non è questa macchina (minor 12, review 2026-10-07)."""
+    if not settings.token or not settings.server_url.startswith("http://"):
+        return False
+    import urllib.parse
+    host = urllib.parse.urlsplit(settings.server_url).hostname or ""
+    return host not in ("localhost", "127.0.0.1", "::1")
 
 
 def _qsetting(key):
@@ -126,7 +146,7 @@ class Outcome:
         return ", ".join(parts)
 
 
-def preflight(server_url, http: Http = _urllib_http):
+def preflight(server_url, http: Http = _probe_http):
     try:
         status, body = http("GET", server_url + "/v1/health", None, "")
     except Exception as exc:
@@ -140,7 +160,7 @@ def preflight(server_url, http: Http = _urllib_http):
     return body
 
 
-def _require_identity(settings, http: Http = _urllib_http):
+def _require_identity(settings, http: Http = _probe_http):
     """Regola 2, adattata: l'identità la esige il NODO, non noi. Un nodo
     dev-no-auth non la chiede; uno vero la chiede PRIMA di ogni POST.
 
@@ -167,8 +187,10 @@ def _require_identity(settings, http: Http = _urllib_http):
 
 def _deliver_ops(ops, settings, http: Http = _urllib_http):
     out = Outcome(sent=len(ops), room_id=settings.room_id)
-    for start in range(0, len(ops), BATCH_MAX):
-        page = ops[start:start + BATCH_MAX]
+    page_size = BATCH_MAX
+    start = 0
+    while start < len(ops):
+        page = ops[start:start + page_size]
         try:
             status, answer = http("POST", settings.ops_endpoint,
                                   {"ops": page}, settings.token)
@@ -178,9 +200,23 @@ def _deliver_ops(ops, settings, http: Http = _urllib_http):
                 detail = json.loads(detail).get("detail") or detail
             except Exception:
                 pass
+            if exc.code == 413:
+                # Il nodo accetta meno di BATCH_MAX (configurabile, e la
+                # health non lo espone): la taglia sta nel detail. La
+                # pagina respinta NON è stata applicata — ri-paginarla non
+                # è ritentare un rifiuto (minor 9, review 2026-10-07).
+                import re
+                m = re.search(r"accepts (\d+)", detail)
+                accepted = int(m.group(1)) if m else 0
+                if 0 < accepted < page_size:
+                    page_size = accepted
+                    continue
             raise RoomRefusal(
-                "La stanza «%s» ha rifiutato la consegna (HTTP %d): %s"
-                % (settings.room_id, exc.code, detail)) from exc
+                "La stanza «%s» ha rifiutato la consegna (HTTP %d): %s%s"
+                % (settings.room_id, exc.code, detail,
+                   (" — %d operazioni su %d erano GIÀ arrivate (idempotenti:"
+                    " alla prossima consegna non si duplicano)"
+                    % (start, len(ops))) if start else "")) from exc
         except Exception as exc:
             raise RoomRefusal(
                 "Non ho potuto raggiungere il nodo (%s): %s. Consegnate "
@@ -194,6 +230,7 @@ def _deliver_ops(ops, settings, http: Http = _urllib_http):
         out.batches += 1
         out.applied += int(answer.get("applied") or 0)
         out.refused.extend(answer.get("refused") or [])
+        start += len(page)
     return out
 
 
@@ -212,7 +249,8 @@ def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http,
             "Nessuna stanza configurata: manca %s. Imposta server e stanza "
             "(env o campo del dialogo) — senza entrambi una consegna "
             "andrebbe dove nessuno ha scelto." % " e ".join(missing))
-    _require_identity(settings, http)
+    probe = _probe_http if http is _urllib_http else http
+    _require_identity(settings, probe)
 
     # I5 (review): un DB zoppo (us_table assente, PG giù, colonna driftata)
     # è una frase per l'utente, mai un traceback nel dialogo di QGIS.
@@ -236,7 +274,7 @@ def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http,
     return out
 
 
-def rooms_door(server_url, http: Http = _urllib_http):
+def rooms_door(server_url, http: Http = _probe_http):
     """La porta della UI delle stanze: /em/rooms/ dietro Caddy, /rooms/ sul
     nodo nudo. La prima che risponde 200."""
     base = server_url.rstrip("/")

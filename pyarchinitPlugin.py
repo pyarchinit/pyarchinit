@@ -2968,6 +2968,7 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
+        import os as _os
         settings = room_client.NodeSettings()
         dialog = QDialog(self.iface.mainWindow())
         dialog.setWindowTitle("Stanza StratiGraph")
@@ -2976,6 +2977,18 @@ class PyArchInitPlugin(object):
         url_edit.setPlaceholderText("http://127.0.0.1:8020")
         room_edit = QLineEdit(settings.room_id)
         room_edit.setPlaceholderText("scavo-2026")
+        # Minor 11 (review 2026-10-07): la configurazione per ambiente VINCE
+        # (regola 1 del client): se la variabile è impostata il campo lo
+        # dice, in sola lettura, invece di fingere di accettare un valore
+        # che la prossima volta verrebbe ignorato.
+        if _os.environ.get(room_client.SERVER_URL_VARIABLE, "").strip():
+            url_edit.setReadOnly(True)
+            url_edit.setToolTip("Bloccato da %s"
+                                % room_client.SERVER_URL_VARIABLE)
+        if _os.environ.get(room_client.ROOM_ID_VARIABLE, "").strip():
+            room_edit.setReadOnly(True)
+            room_edit.setToolTip("Bloccato da %s"
+                                 % room_client.ROOM_ID_VARIABLE)
         token_edit = QLineEdit(settings.token)
         token_edit.setEchoMode(QLineEdit.EchoMode.Password)
         token_edit.setPlaceholderText(
@@ -2991,12 +3004,24 @@ class PyArchInitPlugin(object):
         form.addRow(buttons)
         if dialog.exec() != QDialog.DialogCode.Accepted:
             return
-        settings.server_url = url_edit.text().strip().rstrip("/")
-        settings.room_id = room_edit.text().strip()
+        if not url_edit.isReadOnly():
+            settings.server_url = url_edit.text().strip().rstrip("/")
+        if not room_edit.isReadOnly():
+            settings.room_id = room_edit.text().strip()
         settings.token = token_edit.text().strip()   # mai persistito
         qs = QSettings()
         qs.setValue(room_client.QSETTINGS_URL, settings.server_url)
         qs.setValue(room_client.QSETTINGS_ROOM, settings.room_id)
+
+        # Minor 12 (review): un token su http:// verso un nodo non locale
+        # viaggia in chiaro — si dice PRIMA, e si può rinunciare.
+        if room_client.token_in_the_clear(settings):
+            if QMessageBox.question(
+                    self.iface.mainWindow(), "Token in chiaro",
+                    "Il nodo è su http:// e non è questa macchina: il token "
+                    "viaggerebbe NON cifrato. Continuare?",
+                    QMessageBox.Yes | QMessageBox.No) != QMessageBox.Yes:
+                return
 
         _lang = "und"
         try:
@@ -3005,34 +3030,46 @@ class PyArchInitPlugin(object):
                      .lower() or "und")
         except Exception:
             pass
-        try:
-            outcome = room_client.deliver_site(conn_str, site,
-                                               settings=settings, lang=_lang)
-        except room_client.RoomRefusal as e:
-            QMessageBox.warning(self.iface.mainWindow(), "Stanza", str(e))
-            return
-        except Exception as e:                       # noqa: BLE001 — I5 review
-            QMessageBox.warning(
-                self.iface.mainWindow(), "Stanza",
-                "Consegna fallita per un guasto imprevisto:\n%s" % e)
-            return
-        title = ("Sito già consegnato" if outcome.a_repeat
-                 else "Consegna alla stanza")
-        box = QMessageBox(self.iface.mainWindow())
-        box.setWindowTitle(title)
-        box.setText("«%s» → stanza «%s»\n%s"
-                    % (site, outcome.room_id, outcome.summary()))
-        details = []
-        if outcome.other_refusals:
-            details += ["RIFIUTATE:"] + [
-                "  %s: %s" % (r.get("id", "?"), r.get("reason"))
-                for r in outcome.other_refusals]
-        if outcome.skipped:
-            details += ["NON TRADOTTE:"] + [
-                "  " + s for s in outcome.skipped]
-        if details:
-            box.setDetailedText("\n".join(details))
-        box.exec()
+
+        # Minor 10 (review): la consegna gira in un QgsTask — un nodo muto
+        # (30 s a pagina) non gela QGIS; l'esito arriva al completamento.
+        from qgis.core import QgsApplication, QgsTask
+
+        def _work(_task):
+            return room_client.deliver_site(conn_str, site,
+                                            settings=settings, lang=_lang)
+
+        def _done(exception, outcome=None):
+            if exception is not None:
+                title = "Stanza"
+                text = (str(exception)
+                        if isinstance(exception, room_client.RoomRefusal)
+                        else "Consegna fallita per un guasto imprevisto:\n%s"
+                        % exception)
+                QMessageBox.warning(self.iface.mainWindow(), title, text)
+                return
+            title = ("Sito già consegnato" if outcome.a_repeat
+                     else "Consegna alla stanza")
+            box = QMessageBox(self.iface.mainWindow())
+            box.setWindowTitle(title)
+            box.setText("«%s» → stanza «%s»\n%s"
+                        % (site, outcome.room_id, outcome.summary()))
+            details = []
+            if outcome.other_refusals:
+                details += ["RIFIUTATE:"] + [
+                    "  %s: %s" % (r.get("id", "?"), r.get("reason"))
+                    for r in outcome.other_refusals]
+            if outcome.skipped:
+                details += ["NON TRADOTTE:"] + [
+                    "  " + s_ for s_ in outcome.skipped]
+            if details:
+                box.setDetailedText("\n".join(details))
+            box.exec()
+
+        self._room_task = QgsTask.fromFunction(
+            "Consegna «%s» alla stanza «%s»" % (site, settings.room_id),
+            _work, on_finished=_done)
+        QgsApplication.taskManager().addTask(self._room_task)
 
     def _open_rooms_door(self):
         """B2 minimo: la UI delle stanze servita dal nodo, nel browser."""
