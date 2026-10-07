@@ -48,7 +48,100 @@ def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):
     # Review Focus 1: SU/WSU rows (the sample ships the same site in 10 languages)
     path, nodes, edges, _ = em_export.export_site(
         sample_db, "Archaeological Excavation", str(tmp_path / "out"))
-    assert nodes >= 51, "le 51 US inglesi devono arrivare nel grafo"
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    check, _w = import_emjson(path)
+    from s3dgraphy.nodes.stratigraphic_node import (
+        StratigraphicNode, is_masonry)
+    strat = [n for n in check.nodes if isinstance(n, StratigraphicNode)]
+    assert len(strat) >= 51, "le 51 US inglesi devono arrivare nel file"
+    assert any(is_masonry(n) for n in strat), (
+        "le WSU devono restare murarie anche rilette dal file")
+
+
+def test_the_file_carries_the_matrix(sample_db, tmp_path):
+    """C1 (final review 2026-10-07): an em.json with zero stratigraphic
+    relations is a Harris matrix without the matrix. The graph must
+    travel through the plugin's projector, which builds the rapporti
+    edges the dev40 importer does not."""
+    path, nodes, edges, _ = em_export.export_site(
+        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    check, _w = import_emjson(path)
+    STRAT_EDGES = {
+        "overlies", "is_overlain_by", "cuts", "is_cut_by", "fills",
+        "is_filled_by", "abuts", "is_abutted_by", "equals", "bonded_to",
+        "is_physically_equal_to", "is_bonded_to", "is_after", "is_before",
+        "leans_on", "is_leaned_on_by",
+    }
+    rel = [e for e in check.edges
+           if getattr(e, "edge_type", None) in STRAT_EDGES]
+    assert len(rel) > 0, "nessun arco stratigrafico nel file: matrix vuoto"
+
+
+def test_only_the_requested_site_travels(sample_db, tmp_path):
+    """I1: the sample DB ships ~10 sites; the file must carry one."""
+    path, nodes, edges, _ = em_export.export_site(
+        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+    from s3dgraphy.importer.emjson_importer import import_emjson
+    check, _w = import_emjson(path)
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
+    strat = [n for n in check.nodes if isinstance(n, StratigraphicNode)]
+    # on re-read the exporter's data{} lands in node.data (attributes
+    # keep only the lifecycle keys): look where the file actually put it
+    sites = {(getattr(n, "data", None) or {}).get("sito")
+             or (getattr(n, "attributes", None) or {}).get("sito")
+             for n in strat}
+    assert sites <= {"Scavo archeologico"}, sites
+    assert len(strat) < 100, "più siti nel file (%d unità)" % len(strat)
+
+
+def test_projector_warnings_reach_the_caller(tmp_path):
+    """I3: a suspicious chronology must come back in the warnings the
+    dialog shows — never a silent '0 avvisi'."""
+    import sqlite3
+    db = tmp_path / "warn.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        id_us INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, area TEXT DEFAULT '1', us TEXT, unita_tipo TEXT,
+        node_uuid TEXT, rapporti TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT,
+        periodo_finale TEXT, fase_finale TEXT,
+        d_stratigrafica TEXT, d_interpretativa TEXT,
+        attivita TEXT, struttura TEXT, settore TEXT, ambient TEXT,
+        saggio TEXT, quad_par TEXT, documentazione TEXT,
+        other_locations TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
+        sito TEXT, periodo TEXT, fase TEXT,
+        cron_iniziale INTEGER, cron_finale INTEGER,
+        descrizione TEXT, datazione_estesa TEXT)""")
+    conn.execute("""CREATE TABLE site_table (
+        id_sito INTEGER PRIMARY KEY AUTOINCREMENT, sito TEXT,
+        nazione TEXT, regione TEXT, provincia TEXT, comune TEXT)""")
+    conn.execute(
+        "INSERT INTO us_table (sito, us, unita_tipo, node_uuid, rapporti,"
+        " periodo_iniziale, fase_iniziale) "
+        "VALUES ('S', '1', 'US', 'uuid-1', '[]', '2', '1')")
+    conn.execute(
+        "INSERT INTO periodizzazione_table (sito, periodo, fase,"
+        " cron_iniziale, cron_finale, descrizione) "
+        "VALUES ('S', '2', '1', 1650, 1450, 'Bronzo')")
+    conn.commit()
+    conn.close()
+    path, nodes, edges, warnings = em_export.export_site(
+        "sqlite:///%s" % db, "S", str(tmp_path / "out"))
+    assert any("1650" in str(w) for w in warnings), warnings
+
+
+def test_internal_failures_speak_the_users_language(tmp_path):
+    """I2: a DB without us_table must come back as EmExportError, not
+    an ImportError traceback through the dialog."""
+    import sqlite3
+    db = tmp_path / "bare.sqlite"
+    sqlite3.connect(db).close()
+    with pytest.raises(em_export.EmExportError):
+        em_export.export_site("sqlite:///%s" % db, "X", str(tmp_path / "out"))
 
 
 def test_site_names_become_writable_filenames():

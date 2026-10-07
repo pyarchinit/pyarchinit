@@ -37,40 +37,68 @@ def site_filename(site):
 
 def export_site(connection_url, site, out_dir):
     """Build the site's graph, write <out_dir>/<site>.em.json, read it
-    back. Returns (path, n_nodes, n_edges, warnings)."""
+    back. Returns (path, n_nodes, n_edges, warnings).
+
+    The graph travels through the plugin's GraphProjector — NOT the raw
+    importer: the dev40 mapping has no `relations` yet (s3Dgraphy#26),
+    so only the projector's passes give the file the stratigraphic
+    edges the matrix lives on (C1, final review 2026-10-07). Every
+    failure on the way is worded for the user as EmExportError.
+    """
     if not emjson_available():
         raise EmExportError(
             "La libreria s3dgraphy installata non conosce em.json: "
             "aggiorna le dipendenze del plugin.")
-    from s3dgraphy.importer.pyarchinit_importer import PyArchInitImporter
     from s3dgraphy.exporter.emjson_exporter import export_emjson
     from s3dgraphy.importer.emjson_importer import import_emjson
-
-    graph = PyArchInitImporter(
-        connection_url=connection_url,
-        mapping_name="pyarchinit_us_mapping",
-        filters={"sito": site},
-    ).parse()
-    # dev40 scaffolds a graph-root and geo node even for an unknown site:
-    # "empty" means no stratigraphic rows travelled, not no nodes at all.
     from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
-    if not any(isinstance(n, StratigraphicNode)
-               for n in getattr(graph, "nodes", []) or []):
+
+    from .sync.graph_projector import GraphProjector
+
+    try:
+        graph = GraphProjector().populate_graph(connection_url, sito=site)
+    except Exception as e:
+        raise EmExportError(
+            "Lettura del sito %r fallita: %s" % (site, e)) from e
+    strat = [n for n in getattr(graph, "nodes", []) or []
+             if isinstance(n, StratigraphicNode)]
+    if not strat:
         raise EmExportError(
             "Il sito %r non ha righe in us_table: niente da esportare." % site)
     graph.graph_id = str(site)
+    warnings = [str(w) for w in (getattr(graph, "warnings", None) or [])]
 
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, site_filename(site))
-    export_emjson(graph, path)
+    # The emjson exporter lifts node.attributes into data{} but does not
+    # serialise a group's `kind` of its own (upstream gap, s3Dgraphy#25
+    # follow-up): without this mirror the toponym chain comes back as
+    # "constructor failed ... kind must be one of" and degrades to Node.
+    for n in graph.nodes:
+        k = getattr(n, "kind", None)
+        if k is not None and hasattr(n, "attributes"):
+            if n.attributes is None:
+                n.attributes = {}
+            n.attributes.setdefault("kind", k)
 
-    check, warnings = import_emjson(path)
+    try:
+        os.makedirs(out_dir, exist_ok=True)
+        path = os.path.join(out_dir, site_filename(site))
+        export_emjson(graph, path)
+    except Exception as e:
+        raise EmExportError(
+            "Scrittura di %s fallita: %s" % (site_filename(site), e)) from e
+
+    try:
+        check, read_warnings = import_emjson(path)
+    except Exception as e:
+        raise EmExportError(
+            "Il file scritto non si rilegge: %s" % e) from e
     if (len(check.nodes), len(check.edges)) != (len(graph.nodes), len(graph.edges)):
         raise EmExportError(
             "Il file scritto non rilegge uguale (%d/%d nodi, %d/%d archi)."
             % (len(check.nodes), len(graph.nodes),
                len(check.edges), len(graph.edges)))
-    return path, len(graph.nodes), len(graph.edges), list(warnings)
+    warnings.extend(str(w) for w in read_warnings)
+    return path, len(graph.nodes), len(graph.edges), warnings
 
 
 def open_in_emstudio(path, runner=None):

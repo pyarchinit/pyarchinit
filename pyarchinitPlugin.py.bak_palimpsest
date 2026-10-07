@@ -39,11 +39,6 @@ try:
 except Exception:
     pass
 
-try:
-    from .modules.utility.pyarchinit_home import pyarchinit_home
-except Exception:
-    from modules.utility.pyarchinit_home import pyarchinit_home
-
 
 filepath = os.path.dirname(__file__)
 
@@ -454,7 +449,7 @@ class PyArchInitPlugin(object):
 
         # s3dgraphy #10: propagate the QSettings paradata_workspace
         # override (if any) into PYARCHINIT_WORKSPACE_DIR so
-        # s3dgraphy.sync._workspace can read it without
+        # modules.s3dgraphy.sync._workspace can read it without
         # importing QSettings itself. Re-applied on every config-dialog
         # save (see pyarchinitConfigDialog._propagate_workspace_to_env).
         try:
@@ -680,16 +675,12 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
-            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Analisi Costi di Percorso", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Analisi dei costi di percorso basata su pendenza")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
-            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
-            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1062,16 +1053,12 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
-            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
-            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
-            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1440,16 +1427,12 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
-            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Wegkostenanalyse", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Hangneigungsabhängige Wegkostenanalyse")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
-            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
-            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -1822,16 +1805,12 @@ class PyArchInitPlugin(object):
             self.actionGeoArchaeo.triggered.connect(self.runGeoArchaeo)
 
             icon_movecost = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'movecost.png'))
-            icon_palimpsest = '{}{}'.format(filepath, os.path.join(os.sep, 'resources', 'icons', 'palimpsest.png'))
             self.actionMovecost = QAction(QIcon(icon_movecost), "MoveCost - Least-Cost Path Analysis", self.iface.mainWindow())
             self.actionMovecost.setWhatsThis("MoveCost - Slope-dependent cost of movement analysis")
             self.actionMovecost.triggered.connect(self.runMovecost)
-            self.actionPalimpsest = QAction(QIcon(icon_palimpsest), "palimpsestr - Analisi palinsesti", self.iface.mainWindow())
-            self.actionPalimpsest.setWhatsThis("palimpsestr - Decomposizione probabilistica dei palinsesti")
-            self.actionPalimpsest.triggered.connect(self.runPalimpsest)
 
             self.analysisToolButton.addActions(
-                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost, self.actionPalimpsest])
+                [self.actionSamSegmentation, self.actionPotteryTools, self.actionTops, self.actionImageSearch, self.actionGeoArchaeo, self.actionMovecost])
             self.analysisToolButton.setDefaultAction(self.actionSamSegmentation)
             self.toolBar.addWidget(self.analysisToolButton)
             self.toolBar.addSeparator()
@@ -2177,18 +2156,6 @@ class PyArchInitPlugin(object):
                 "MoveCost",
                 f"Error opening MoveCost dialog:\n{str(e)}"
             )
-
-    def runPalimpsest(self):
-        """Open the palimpsestr palimpsest-analysis dialog."""
-        try:
-            from .tabs.Palimpsest import pyarchinit_Palimpsest
-            dlg = pyarchinit_Palimpsest(self.iface)
-            dlg.show()
-            self.pluginGui = dlg
-        except Exception as e:
-            QMessageBox.critical(
-                self.iface.mainWindow(), "palimpsestr",
-                f"Error opening Palimpsest dialog:\n{str(e)}")
 
     def runTomba(self):
         from .tabs.Tomba import pyarchinit_Tomba
@@ -2652,12 +2619,6 @@ class PyArchInitPlugin(object):
 
             # remove tool bar
             del self.toolBar
-
-        if hasattr(self, 'actionQFieldImport'):
-            self.iface.removePluginMenu(
-                "&pyArchInit - Archaeological GIS Tools",
-                self.actionQFieldImport)
-
     def showHideDockWidget(self):
         if self.dockWidget.isVisible():
             self.dockWidget.hide()
@@ -2813,98 +2774,11 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionSchemaRepair)
 
-            # Rapporti blank-rows repair (2026-08): strip the
-            # ['', '', '', ''] rows that 4.9.7–4.9.9 / 5.x left in
-            # us_table.rapporti/rapporti2 (tableInsertData stale rows +
-            # preserve_empty). Dry-run preview first, then apply.
-            self.actionRapportiBlankRows = QAction(
-                "Migrazioni → Ripara rapporti vuoti (righe ['', '', '', ''])",
-                self.iface.mainWindow())
-            self.actionRapportiBlankRows.triggered.connect(
-                self._run_rapporti_blank_rows_repair)
-            self.iface.addPluginToMenu(
-                "&pyArchInit - Archaeological GIS Tools",
-                self.actionRapportiBlankRows)
-
-            # --- Importa da QField (GPKG) --------------------------------
-            icon_qfield = '{}{}'.format(
-                filepath, os.path.join(os.sep, 'resources', 'icons',
-                                       'qfield_import.png'))
-            self.actionQFieldImport = QAction(
-                QIcon(icon_qfield),
-                "Importa da QField (GPKG)",
-                self.iface.mainWindow())
-            self.actionQFieldImport.triggered.connect(
-                self._open_qfield_import)
-            self.iface.addPluginToMenu(
-                "&pyArchInit - Archaeological GIS Tools",
-                self.actionQFieldImport)
-            # toolbar: analysis-tools dropdown (GeoArchaeo, MoveCost, ...);
-            # guard because the toolbar is built by initGui's language block
-            if hasattr(self, 'analysisToolButton'):
-                self.analysisToolButton.addAction(self.actionQFieldImport)
-
-            # --- Extended Matrix: esporta sito in em.json (B1) -----------
-            # spec 2026-10-07 §5: em.json è il formato di lavoro, GraphML
-            # resta solo come import una tantum da yEd; EMStudio lo apre.
-            self.actionEmExport = QAction(
-                "Extended Matrix → Esporta sito in em.json…",
-                self.iface.mainWindow())
-            self.actionEmExport.triggered.connect(self._run_em_export)
-            self.iface.addPluginToMenu(
-                "&pyArchInit - Archaeological GIS Tools",
-                self.actionEmExport)
-
             self._migrations_menu_wired = True
         except Exception as e:
             QgsMessageLog.logMessage(
                 f"Migrations menu wiring failed: {e}",
                 "PyArchInit", Qgis.MessageLevel.Warning)
-
-    def _run_em_export(self):
-        """B1 (spec 2026-10-07 §5): one site -> em.json -> EMStudio."""
-        from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
-        from pathlib import Path
-        from modules.db.pyarchinit_conn_strings import Connection
-        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
-        from modules.s3dgraphy import em_export
-
-        try:
-            conn_str = Connection().conn_str()
-            db = Pyarchinit_db_management(conn_str)
-            db.connection()
-            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
-        except Exception as e:
-            QMessageBox.warning(self.iface.mainWindow(), "em.json",
-                                "Connessione al database fallita:\n%s" % e)
-            return
-        if not sites:
-            QMessageBox.information(self.iface.mainWindow(), "em.json",
-                                    "Nessun sito nel database.")
-            return
-        site, ok = QInputDialog.getItem(
-            self.iface.mainWindow(),
-            "Esporta in em.json", "Sito:", sites, 0, False)
-        if not ok:
-            return
-        out_dir = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
-        try:
-            path, nodes, edges, warnings = em_export.export_site(
-                conn_str, site, out_dir)
-        except em_export.EmExportError as e:
-            QMessageBox.warning(self.iface.mainWindow(), "em.json", str(e))
-            return
-        msg = ("Esportato %s\n%d nodi, %d archi, %d avvisi.\n\n"
-               "Aprire in EMStudio?" % (path, nodes, edges, len(warnings)))
-        if QMessageBox.question(self.iface.mainWindow(), "em.json", msg,
-                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
-            if not em_export.open_in_emstudio(path):
-                QMessageBox.information(
-                    self.iface.mainWindow(), "EMStudio",
-                    "EMStudio non risulta installato. Il file è in:\n%s\n\n"
-                    "Scaricalo da: "
-                    "https://github.com/ExtendedMatrix/EMStudio/releases"
-                    % path)
 
     def _run_vocab_alignment_migration(self):
         """File-picker + dry-run preview + confirmation + apply (with backup)."""
@@ -2978,7 +2852,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_node_uuid_backfill_lib import (
                 TABLES, add_columns, backfill_uuids,
@@ -2989,7 +2863,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_node_uuid_backfill_lib import (
                 TABLES, add_columns, backfill_uuids,
@@ -3041,7 +2915,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3085,21 +2959,6 @@ class PyArchInitPlugin(object):
             f"Backup: {backup_path}\n\nUUID v7 assegnati:\n{counts_msg}",
         )
 
-    def _open_qfield_import(self):
-        """Apre il dialog Importa da QField (DB auto-risolto dal config)."""
-        try:
-            from .gui.qfield_import_dialog import QFieldImportDialog
-        except ImportError:
-            from gui.qfield_import_dialog import QFieldImportDialog
-        try:
-            dialog = QFieldImportDialog(parent=self.iface.mainWindow())
-            dialog.exec()
-        except Exception as e:
-            from qgis.PyQt.QtWidgets import QMessageBox
-            QMessageBox.critical(
-                self.iface.mainWindow(), "Importa da QField",
-                f"Impossibile aprire il dialog:\n{e}")
-
     def _run_yef_migration(self):
         """yE-F other_locations column migration (yed-f-multifolder-5.9.0-alpha).
 
@@ -3114,7 +2973,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_yef_other_locations_lib import (
                 add_other_locations_column,
@@ -3125,7 +2984,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_yef_other_locations_lib import (
                 add_other_locations_column,
@@ -3175,7 +3034,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3217,138 +3076,6 @@ class PyArchInitPlugin(object):
             f"Colonna other_locations: {added} (1=aggiunta, 0=già presente)",
         )
 
-    def _run_rapporti_blank_rows_repair(self):
-        """Strip blank ['', '', '', ''] rows from us_table.rapporti/rapporti2.
-
-        Repairs DBs polluted by the tableInsertData stale-rows bug (fixed
-        in the same release). Flow: resolve handle from the configured
-        Connection, dry-run preview, confirm, auto-backup, apply,
-        summarize. Idempotent.
-        """
-        from qgis.PyQt.QtWidgets import QMessageBox
-        from pathlib import Path
-        try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
-            from .modules.db.pyarchinit_conn_strings import Connection
-            from .scripts.migrations._2026_08_rapporti_blank_rows_lib import (
-                repair_blank_rapporti,
-            )
-            from .scripts.migrations._common import (
-                BackupSkipped,
-                auto_backup_postgres,
-                auto_backup_sqlite,
-            )
-        except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
-            from modules.db.pyarchinit_conn_strings import Connection
-            from scripts.migrations._2026_08_rapporti_blank_rows_lib import (
-                repair_blank_rapporti,
-            )
-            from scripts.migrations._common import (
-                BackupSkipped,
-                auto_backup_postgres,
-                auto_backup_sqlite,
-            )
-
-        conn_str = Connection().conn_str()
-        if not conn_str:
-            QMessageBox.warning(
-                self.iface.mainWindow(),
-                "Connessione non configurata",
-                "Connetti prima un DB pyarchinit dalle Settings (menu "
-                "Database → Configurazione).",
-            )
-            return
-
-        try:
-            handle = _resolve_db_handle(conn_str)
-            preview = repair_blank_rapporti(handle, dry_run=True)
-        except Exception as e:
-            QMessageBox.critical(
-                self.iface.mainWindow(),
-                "Errore di connessione",
-                f"Impossibile analizzare il DB:\n{e}",
-            )
-            return
-
-        backend_label = ("PostgreSQL: " + str(handle.engine.url.host or "")
-                         + "/" + str(handle.engine.url.database or "")
-                         if handle.is_postgres
-                         else f"SQLite: {handle.sqlite_path}")
-        if preview.rows_changed == 0:
-            QMessageBox.information(
-                self.iface.mainWindow(),
-                "Rapporti già puliti",
-                f"Backend: {backend_label}\n\n"
-                f"Esaminati {preview.rows_scanned} record: nessuna riga "
-                "vuota nei rapporti stratigrafici.",
-            )
-            return
-
-        sample = "\n".join(
-            f"  - US {d.us} (area {d.area}) {d.column}: "
-            f"{d.before_rows} → {d.after_rows} righe"
-            for d in preview.details[:15])
-        if len(preview.details) > 15:
-            sample += f"\n  … e altri {len(preview.details) - 15}"
-        confirm = QMessageBox.question(
-            self.iface.mainWindow(),
-            "Conferma riparazione rapporti",
-            f"Backend: {backend_label}\n\n{preview.summary()}\n\n"
-            f"{sample}\n\n"
-            "Vengono rimosse SOLO le righe completamente vuote; i rapporti "
-            "compilati restano invariati.\n\n"
-            "Procedere (con backup automatico)?",
-            QMessageBox.Yes | QMessageBox.No,
-        )
-        if confirm != QMessageBox.Yes:
-            return
-
-        backup_path = None
-        try:
-            if handle.is_postgres:
-                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
-                            / "_pga_backups")
-                try:
-                    backup_path = auto_backup_postgres(
-                        handle.engine, tag="rapporti_blank_rows",
-                        dest_dir=dest_dir,
-                    )
-                except BackupSkipped as e:
-                    skip = QMessageBox.question(
-                        self.iface.mainWindow(),
-                        "Backup non disponibile",
-                        f"{e}\n\nProcedere SENZA backup automatico "
-                        "(sconsigliato)?",
-                        QMessageBox.Yes | QMessageBox.No,
-                        QMessageBox.No,
-                    )
-                    if skip != QMessageBox.Yes:
-                        return
-                    backup_path = None
-            else:
-                backup_path = auto_backup_sqlite(
-                    handle.sqlite_path, tag="rapporti_blank_rows",
-                )
-            result = repair_blank_rapporti(handle, dry_run=False)
-        except Exception as e:
-            msg = (f"La riparazione è fallita:\n{e}\n\n"
-                   f"Backup creato: {backup_path}") if backup_path \
-                else f"La riparazione è fallita:\n{e}\n\nNessun backup creato."
-            QMessageBox.critical(
-                self.iface.mainWindow(),
-                "Errore riparazione",
-                msg,
-            )
-            return
-
-        QMessageBox.information(
-            self.iface.mainWindow(),
-            "Riparazione rapporti completata",
-            f"Backup: {backup_path}\n\n{result.summary()}\n\n"
-            "Riapri la scheda US per vedere i rapporti puliti.",
-        )
-
     def _run_schedatore_fields_migration(self):
         """Add 5 missing TEXT columns to inventario_materiali_table
         (schedatore, date_scheda, punto_rinv, negativo_photo, diapositiva).
@@ -3360,7 +3087,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
                 SCHEDATORE_COLUMNS,
@@ -3372,7 +3099,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_inventario_materiali_schedatore_fields_lib import (
                 SCHEDATORE_COLUMNS,
@@ -3425,7 +3152,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3479,7 +3206,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_schema_repair_lib import (
                 _collect_canonical_tables,
@@ -3492,7 +3219,7 @@ class PyArchInitPlugin(object):
                 auto_backup_sqlite,
             )
         except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_schema_repair_lib import (
                 _collect_canonical_tables,
@@ -3568,7 +3295,7 @@ class PyArchInitPlugin(object):
         backup_path = None
         try:
             if handle.is_postgres:
-                dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+                dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
                             / "_pga_backups")
                 try:
                     backup_path = auto_backup_postgres(
@@ -3638,7 +3365,7 @@ class PyArchInitPlugin(object):
         from qgis.PyQt.QtWidgets import QMessageBox
         from pathlib import Path
         try:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from .modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from .modules.db.pyarchinit_conn_strings import Connection
             from .scripts.migrations._2026_05_media_fk_cascade_lib import (
                 apply_migration,
@@ -3651,7 +3378,7 @@ class PyArchInitPlugin(object):
                 auto_backup_postgres,
             )
         except Exception:
-            from s3dgraphy.sync._db_handle import _resolve_db_handle
+            from modules.s3dgraphy.sync._db_handle import _resolve_db_handle
             from modules.db.pyarchinit_conn_strings import Connection
             from scripts.migrations._2026_05_media_fk_cascade_lib import (
                 apply_migration,
@@ -3750,7 +3477,7 @@ class PyArchInitPlugin(object):
 
         # Step 5: auto-backup (same dest_dir convention as PG-A).
         backup_path = None
-        dest_dir = (Path(pyarchinit_home()) / "pyarchinit_DB_folder"
+        dest_dir = (Path.home() / "pyarchinit" / "pyarchinit_DB_folder"
                     / "_pga_backups")
         try:
             backup_path = auto_backup_postgres(

@@ -356,9 +356,9 @@ if QGIS_AVAILABLE:
             self.cb_dot = QCheckBox("DOT Format (Graphviz)")
             self.cb_dot.setChecked(True)
             format_layout.addWidget(self.cb_dot)
-            self.cb_graphml = QCheckBox("GraphML Format (yEd compatible)")
-            self.cb_graphml.setChecked(True)
-            format_layout.addWidget(self.cb_graphml)
+            # A4 (spec 2026-10-07): the GraphML export retired — the matrix
+            # travels as em.json (Extended Matrix menu), GraphML survives
+            # only as the one-time IMPORT from yEd.
             self.cb_json = QCheckBox("JSON Format (s3dgraphy native)")
             self.cb_json.setChecked(True)
             format_layout.addWidget(self.cb_json)
@@ -381,39 +381,6 @@ if QGIS_AVAILABLE:
             options_layout.addWidget(self.cb_period_colors)
             options_group.setLayout(options_layout)
             export_layout.addWidget(options_group)
-
-            # AI06: Group US by ... (optional)
-            self.gb_groups = QGroupBox("Group US by (optional)")
-            gb_layout = QVBoxLayout()
-            self.cb_grp = {}
-            for dim in ("area", "struttura", "attivita", "settore",
-                        "ambient", "saggio", "quad_par"):
-                cb = QCheckBox(dim)
-                self.cb_grp[dim] = cb
-                gb_layout.addWidget(cb)
-            self.cb_grp_adhoc = QCheckBox(
-                "ad-hoc (from groups_*.graphml)")
-            gb_layout.addWidget(self.cb_grp_adhoc)
-
-            # AI07: Primary dimension combobox
-            primary_row = QHBoxLayout()
-            primary_row.addWidget(QLabel("Primary dimension:"))
-            self.cb_primary_dim = QComboBox()
-            for dim in ("struttura", "attivita", "area", "settore",
-                        "ambient", "saggio", "quad_par"):
-                self.cb_primary_dim.addItem(dim)
-            self.cb_primary_dim.setCurrentText("struttura")  # default
-            self.cb_primary_dim.setToolTip(
-                "When a US belongs to multiple groups, which dimension "
-                "wins as the visual yEd folder. Toponym chain is never "
-                "primary."
-            )
-            primary_row.addWidget(self.cb_primary_dim)
-            primary_row.addStretch()
-            gb_layout.addLayout(primary_row)
-
-            self.gb_groups.setLayout(gb_layout)
-            export_layout.addWidget(self.gb_groups)
 
             self.progress = QProgressBar()
             self.progress.setVisible(False)
@@ -516,66 +483,6 @@ if QGIS_AVAILABLE:
 
             self.setLayout(layout)
 
-            # AI06: preselect populated grouping dimensions on open +
-            # whenever the Import-tab sito combo changes (the sito
-            # combo is the closest equivalent of a global sito selector
-            # for the dialog; the Export tab uses self.site).
-            try:
-                self._preselect_groups()
-            except Exception:
-                pass
-            try:
-                self.cb_sito.currentTextChanged.connect(
-                    lambda _: self._preselect_groups())
-            except Exception:
-                pass
-
-        def _preselect_groups(self):
-            """AI06: pre-check the 7 dim checkboxes for dimensions with
-            non-empty values in us_table for the current sito; pre-check
-            ad-hoc if groups_*.graphml exists. PostgreSQL backend (no
-            SQLite path) is a no-op."""
-            if self.db_manager is None:
-                return
-            try:
-                db_path = self.db_manager.get_sqlite_path()
-            except Exception:
-                db_path = None
-            if db_path is None:
-                return
-            sito = ""
-            # Prefer the Import-tab sito (user-selectable), fall back
-            # to the parent-form sito.
-            try:
-                sito = self.cb_sito.currentText().strip()
-            except Exception:
-                pass
-            if not sito:
-                sito = (self.site or "").strip()
-            if not sito:
-                return
-            try:
-                from .sync.group_projector import dimensions_with_data
-                populated = set(dimensions_with_data(db_path, sito))
-            except Exception:
-                populated = set()
-            for dim, cb in self.cb_grp.items():
-                cb.setChecked(dim in populated)
-            try:
-                from .sync.group_store import GroupStore
-                self.cb_grp_adhoc.setChecked(
-                    GroupStore(db_path, sito).exists())
-            except Exception:
-                pass
-
-        def _build_groups_arg(self):
-            """AI06: assemble the list[str] passed to export_graphml's
-            groups= kwarg. Empty list preserves the AC-2 baseline."""
-            out = [d for d, cb in self.cb_grp.items() if cb.isChecked()]
-            if self.cb_grp_adhoc.isChecked():
-                out.append("adhoc")
-            return out
-
         def on_export(self):
             """Handle export button click"""
             # Get output directory
@@ -593,8 +500,6 @@ if QGIS_AVAILABLE:
             formats = []
             if self.cb_dot.isChecked():
                 formats.append('dot')
-            if self.cb_graphml.isChecked():
-                formats.append('graphml')
             if self.cb_json.isChecked():
                 formats.append('json')
             if self.cb_phased.isChecked():
@@ -604,20 +509,6 @@ if QGIS_AVAILABLE:
                 QMessageBox.warning(self, "No Formats Selected",
                                   "Please select at least one export format.")
                 return
-
-            # AI07 + AI08-F1: multi-dim is now natively supported via
-            # is_primary on the is_in_location edges. The 5.5.2-alpha
-            # workaround warning is removed.
-            groups_arg = self._build_groups_arg()
-            primary_dim = self.cb_primary_dim.currentText()
-            # Reorder primary_priority to put the user's choice first
-            primary_priority = [primary_dim] + [
-                d for d in (
-                    "struttura", "attivita", "area", "settore",
-                    "ambient", "saggio", "quad_par",
-                )
-                if d != primary_dim
-            ]
 
             # Show progress
             self.progress.setVisible(True)
@@ -631,8 +522,6 @@ if QGIS_AVAILABLE:
                     self.area,
                     output_dir,
                     formats,
-                    groups=groups_arg,  # AI06
-                    primary_priority=primary_priority,  # AI07
                 )
                 
                 # Update progress
@@ -947,7 +836,7 @@ if QGIS_AVAILABLE:
             the caller should retry the import.
             """
             try:
-                from ..s3dgraphy.sync._db_handle import _resolve_db_handle
+                from s3dgraphy.sync._db_handle import _resolve_db_handle
                 from ..scripts.migrations._2026_05_node_uuid_backfill_lib import (
                     add_columns, backfill_uuids,
                 )

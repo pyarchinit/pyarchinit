@@ -97,3 +97,44 @@ def test_the_transitional_alias_is_gone():
     init = (_ROOT / "modules" / "s3dgraphy" / "sync"
             / "__init__.py").read_text(encoding="utf-8")
     assert "_sys.modules" not in init
+
+
+def test_no_relative_import_reaches_a_migrated_or_deleted_module():
+    """Final review (2026-10-07): the A5 guard missed the RELATIVE form —
+    `.sync.group_projector` inside modules/s3dgraphy always failed into
+    an except, and the export dialog still offered the retired GraphML."""
+    relative_forms = tuple(".sync.%s" % n for n in MIGRATED + (
+        "graphml_writer",))
+    offenders = []
+    for probe in ("tabs", "modules", "gui"):
+        for path in (_ROOT / probe).rglob("*.py"):
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for form in relative_forms:
+                if ("from %s import" % form) in text or \
+                   ("import %s" % form) in text:
+                    offenders.append("%s -> %s" % (path.relative_to(_ROOT), form))
+    assert not offenders, offenders
+
+
+def test_the_export_dialog_no_longer_offers_graphml():
+    src = (_ROOT / "modules" / "s3dgraphy"
+           / "s3dgraphy_dot_bridge.py").read_text(encoding="utf-8")
+    assert "cb_graphml" not in src
+    assert "GraphML Format" not in src
+
+
+def test_no_dead_relative_attempt_at_a_library_module():
+    """The A5 mechanical rename turned `.modules.s3dgraphy.sync.X` into
+    `.s3dgraphy.sync.X` / `..s3dgraphy.sync.X` — paths that do not exist
+    under the pyarchinit package, so the try branch ALWAYS fails into
+    its except. Library modules are imported absolutely, full stop."""
+    offenders = []
+    probes = [(_ROOT / "pyarchinitPlugin.py",)] + [
+        tuple((_ROOT / d).rglob("*.py")) for d in ("tabs", "modules", "gui")]
+    for group in probes:
+        for path in group:
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for form in ("from .s3dgraphy.", "from ..s3dgraphy."):
+                if form in text:
+                    offenders.append("%s -> %s" % (path.relative_to(_ROOT), form))
+    assert not offenders, offenders

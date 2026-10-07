@@ -508,21 +508,17 @@ class PackageManager:
                     # Package not installed at all
                     missing_packages.append(package_spec)
                 elif '==' in line:
-                    # Exact version pinned - check major version mismatch
-                    required_version = line.split('==')[1].strip()
+                    # Exact pin means THAT version. The old major-only
+                    # tolerance left users on s3dgraphy dev9 against a
+                    # dev40 pin with the installer reporting all fine
+                    # (one-bridge final review, 2026-10-07).
                     installed_version = installed_packages[pkg_lower]
-                    if installed_version and installed_version != required_version:
-                        req_parts = required_version.split('.')
-                        inst_parts = installed_version.split('.')
-                        req_major = req_parts[0]
-                        inst_major = inst_parts[0]
-                        if req_major != inst_major:
-                            missing_packages.append(package_spec)
-                        elif req_major == '0':
-                            req_minor = req_parts[1] if len(req_parts) > 1 else '0'
-                            inst_minor = inst_parts[1] if len(inst_parts) > 1 else '0'
-                            if req_minor != inst_minor:
-                                missing_packages.append(package_spec)
+                    try:
+                        from modules.utility.version_pins import pin_satisfied
+                    except ImportError:
+                        from .modules.utility.version_pins import pin_satisfied
+                    if not pin_satisfied(line, installed_version):
+                        missing_packages.append(package_spec)
                 elif '>=' in line:
                     # Minimum version - check if installed version is too old
                     # (tolerate ranges like ">=1.4.27,<2.0": the floor is what we check)

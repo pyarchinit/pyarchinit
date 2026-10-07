@@ -57,6 +57,14 @@ class GraphProjector(_LibGraphProjector):
                 "pyArchInit attribute propagation failed for sito=%r: %s"
                 % (sito, e)) from e
 
+        # One site per projection: on SQLite the library importer reads
+        # the WHOLE us_table and its post-filter keeps every dev40 node
+        # (they carry no attributes['sito']). What the attribute pass
+        # did not claim belongs to another site — prune it, with the
+        # decoration that only served it (I1, final review 2026-10-07;
+        # upstream candidate: filters={'sito': ...} on the importer).
+        self._prune_foreign_site_nodes(graph, sito)
+
         # One epoch per (periodo, fase), named the way pyArchInit names
         # periods: the importer and the library projector each create
         # their own epoch nodes (upstream double, s3Dgraphy#27 follow-up)
@@ -97,6 +105,35 @@ class GraphProjector(_LibGraphProjector):
         except Exception:                           # noqa: BLE001
             pass                                    # a warning, never a failure
         return graph
+
+    @staticmethod
+    def _prune_foreign_site_nodes(graph, sito):
+        from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
+        drop = {n.node_id for n in graph.nodes
+                if isinstance(n, StratigraphicNode)
+                and (getattr(n, "attributes", None) or {}).get("sito") != sito}
+        if not drop:
+            return
+        graph.nodes = [n for n in graph.nodes if n.node_id not in drop]
+        graph.edges = [e for e in graph.edges
+                       if e.edge_source not in drop
+                       and e.edge_target not in drop]
+        # Decoration that only served the dropped units: a property or
+        # epoch left with no edge at all is another site's.
+        referenced = set()
+        for e in graph.edges:
+            referenced.add(e.edge_source)
+            referenced.add(e.edge_target)
+        prunable = ("PropertyNode", "EpochNode", "LocationNodeGroup",
+                    "ActivityNodeGroup", "DocumentNode", "AuthorNode")
+        orphans = {n.node_id for n in graph.nodes
+                   if type(n).__name__ in prunable
+                   and n.node_id not in referenced}
+        if orphans:
+            graph.nodes = [n for n in graph.nodes
+                           if n.node_id not in orphans]
+        if hasattr(graph, "invalidate_indices"):
+            graph.invalidate_indices()
 
     @staticmethod
     def _apply_pyarchinit_attributes(graph, db_path, sito):

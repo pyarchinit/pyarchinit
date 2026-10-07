@@ -138,7 +138,7 @@ def new_node_uuid():
     try:
         from s3dgraphy.sync.uuid7 import uuid7
     except ImportError:
-        from ..s3dgraphy.sync.uuid7 import uuid7
+        from s3dgraphy.sync.uuid7 import uuid7
     return str(uuid7())
 
 
