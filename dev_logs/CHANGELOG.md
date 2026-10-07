@@ -5,6 +5,60 @@
 
 ---
 
+## [refactor] - 2026-10-07 — Ponte unico: `s3dgraphy.sync` dalla libreria (tappe A1–A3) — 5.13.24-alpha
+
+> Branch `Stratigraph_00001` (feature branch `one-bridge`). Tag **`one-bridge-5.13.24-alpha`**. Commit `844ee81f` (pin dev40), `250fac26`+`915387a4`+`319009b7` (A1, tre ondate), `95629db1` (A2 projector), `bb104d34` (A3 ingestor), `700480ce` (xfail writer in ritiro).
+> Spec: `docs/superpowers/specs/2026-10-07-one-bridge-s3dgraphy-design.md`; piano: `docs/superpowers/plans/2026-10-07-one-bridge-a-b1.md`.
+
+### Italiano
+
+#### Contesto
+
+La copia vendorizzata di `s3dgraphy.sync` (`modules/s3dgraphy/sync/`, 27 moduli) aveva divergito dalla libreria. Emanuel (s3Dgraphy#25) ha proposto il **ponte unico**: importare `s3dgraphy.sync` dalla libreria. Pin aggiornato `1.6.0.dev9` → **`1.6.0.dev40`** (indici incrementali, `stratigraphic_kind`, em.json) + **`dtcstamp>=0.1.4`** (dipendenza dura dal dev40). `ext_libs/` resta fuori dal repo: l'aggiornamento è un passo d'installazione.
+
+#### La sorte di ogni modulo (regola delle tre sorti: adottato / nostro / stantio)
+
+- **20 moduli ora SOLO dalla libreria** (il vecchio percorso d'import vive in un alias `sys.modules` fino ad A5):
+  - *identici* (10): `yed_group_walker`, `yed_detector`, `vocab_types`, `vocab_provider_core`, `uuid7`, `ingest_result`, `group_store`, `conflict_resolver`, `_legacy_paradata_svgs`, `_db_handle`;
+  - *deriva piccola riconciliata* (7): `yed_rapporti_policy`, `yed_classifier`, `yed_import_pipeline`, `paradata_store`, `edge_registry`, `group_projector`, `yed_table_parser` — ogni delta era una miglioria della libreria;
+  - *adottati con contratto nuovo* (3): `pyarchinit_pg_importer` (ora `apply_legacy_kind`), `rapporti` (grafie canoniche `equals`/`bonded_to`; le vecchie restano leggibili), `_workspace` (il plugin specchia `PYARCHINIT_HOME` in `PYARCHINIT_WORKSPACE_DIR` all'avvio).
+- **`graph_projector.py` → wrapper sottile** sulla `GraphProjector` della libreria (da 1489 righe a passi host dopo `super()`): attributi pyArchInit dal DB, fusione del doppione epoche importer/projector, archi `rapporti` dal campo testuale, refine paradata, avvisi cronologia.
+- **`graph_ingestor.py` resta vendorizzato**: porta quattro comportamenti che la libreria non ha — guardia `_synth_BR_*`, copia cross-site (anti «import azzera le US»), identità `node_uuid` mai riscritta, resync sequenze seriali PG. Adottate le due migliorie dev40: way-back `unit_code` (una US *masonry* torna come riga **USM**/WSU, non US) e `invalidate_indices` dopo la promozione in-place.
+- **`graphml_writer.py`**: si ritira in A4 (dopo B1/em.json); i 4 file di test che lo esercitano sono in `xfail` non-strict.
+- **Restano vendorizzati** (pyArchInit-only): `continuity_generator`, `paradata_edge_resolver`, `vocab_provider` (Qt), `__init__` (shim + vocabolario continuità reinnestato sul `rapporti` della libreria).
+
+#### Candidate PR upstream (da riferire su s3Dgraphy#25)
+
+Doppione epoche (`epoch_{p}_{f}` del projector vs `epoch::sito::p::f` dell'importer); guardia nodi sintetici; copia cross-site; identità `node_uuid`; resync sequenze PG; vocabolario di continuità in 10 lingue. Già segnalato su #27: `np.int` rotto nell'export GraphML con numpy ≥ 1.24.
+
+#### Test
+
+Suite `tests/sync` sul checkout principale dopo il merge: **467 passati, 0 falliti**, 14 xfail (writer in ritiro), 9 xpass, 10 errori ambientali preesistenti (9 `*_pg` + `test_yef_migration`). Tolti i 3 xfail «dev7 test debt» (s3Dgraphy#13 riconciliato in dev40: ora fanno da guardia). Nuovi: `test_one_bridge_shim.py`, way-back USM in `test_usm_kind_dev40.py`, indice stantio in `test_legacy_autopromote.py`.
+
+### English
+
+#### Context
+
+The vendored copy of `s3dgraphy.sync` (`modules/s3dgraphy/sync/`, 27 modules) had drifted from the library. Emanuel (s3Dgraphy#25) proposed the **one bridge**: import `s3dgraphy.sync` from the library. Pin moved `1.6.0.dev9` → **`1.6.0.dev40`** (incremental indices, `stratigraphic_kind`, em.json) + **`dtcstamp>=0.1.4`** (hard dependency since dev40). `ext_libs/` stays out of the repo: the upgrade is an install step.
+
+#### Every module's fate (three-fate rule: adopted / ours / stale)
+
+- **20 modules now come ONLY from the library** (the old import path lives on in a `sys.modules` alias until A5): 10 identical (`yed_group_walker`, `yed_detector`, `vocab_types`, `vocab_provider_core`, `uuid7`, `ingest_result`, `group_store`, `conflict_resolver`, `_legacy_paradata_svgs`, `_db_handle`); 7 small-drift reconciled (`yed_rapporti_policy`, `yed_classifier`, `yed_import_pipeline`, `paradata_store`, `edge_registry`, `group_projector`, `yed_table_parser`) — every delta was a library-side improvement; 3 adopted with a new contract (`pyarchinit_pg_importer` with `apply_legacy_kind`; `rapporti` on the canonical spellings `equals`/`bonded_to`, old ones still readable; `_workspace`, with the plugin mirroring `PYARCHINIT_HOME` into `PYARCHINIT_WORKSPACE_DIR` at boot).
+- **`graph_projector.py` → thin wrapper** over the library's `GraphProjector` (1489 lines down to host passes after `super()`): pyArchInit attributes from the DB, merge of the importer/projector epoch twins, `rapporti` edges from the text field, paradata refine, chronology warnings.
+- **`graph_ingestor.py` stays vendored**: it carries four behaviours the library lacks — the `_synth_BR_*` guard, cross-site copy (the "import wipes the US" fix), never-rewritten `node_uuid` identity, PG serial-sequence resync. The two dev40 improvements were adopted: the `unit_code` way-back (a *masonry* US lands back as a **USM**/WSU row, not US) and `invalidate_indices` after the in-place promotion.
+- **`graphml_writer.py`**: retires in A4 (after B1/em.json); the 4 test files exercising it are non-strict `xfail`.
+- **Still vendored** (pyArchInit-only): `continuity_generator`, `paradata_edge_resolver`, `vocab_provider` (Qt), `__init__` (shim + continuity vocabulary regrafted onto the library's `rapporti`).
+
+#### Upstream PR candidates (to report on s3Dgraphy#25)
+
+Epoch twins (projector's `epoch_{p}_{f}` vs importer's `epoch::sito::p::f`); synthetic-node guard; cross-site copy; `node_uuid` identity; PG sequence resync; 10-language continuity vocabulary. Already reported on #27: GraphML export broken by `np.int` on numpy ≥ 1.24.
+
+#### Tests
+
+`tests/sync` on the main checkout after the merge: **467 passed, 0 failed**, 14 xfailed (retiring writer), 9 xpassed, 10 pre-existing environmental errors (9 `*_pg` + `test_yef_migration`). The 3 "dev7 test debt" xfails are gone (s3Dgraphy#13 reconciled in dev40: they guard again). New: `test_one_bridge_shim.py`, the USM way-back in `test_usm_kind_dev40.py`, the stale index in `test_legacy_autopromote.py`.
+
+---
+
 ## [feat] - 2026-10-07 — Splash: co-brand ufficiale ECHOES + StratiGraph; preparazione al ponte unico s3dgraphy
 
 > Branch `Stratigraph_00001`. Commit `b3d4c9da` (splash) e `bf16b3a9` (preparazione s3dgraphy). Non inclusi in una release (dopo 5.13.23-alpha).
