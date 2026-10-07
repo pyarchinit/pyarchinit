@@ -5,6 +5,45 @@
 
 ---
 
+## [fix] - 2026-10-07 — Vocabolario delle unità: anche le liste di riserva nominano le unità virtuali come EM (`USVs` / `USVn`)
+
+> Branch `Stratigraph_00001`. Commit `b874661c`. Non incluso in una release (dopo 5.13.22-alpha).
+> File: `modules/utility/pyarchinit_i18n_stratigraphic.py`, `gui/ui/US_USM.ui`.
+
+### Italiano
+
+#### Contesto
+
+- Emanuel (ExtendedMatrix/s3Dgraphy#26, 2026-10-07): «`USVA`/`USVB`/`USVC` arrivano ancora come nodo stratigrafico generico: pyArchInit potrebbe normalizzarli in `USVs`/`USVn`?».
+- Verificato: l'elenco della scheda US **è già** quello di EM. `customize_GUI()` svuota la combo all'avvio e la ricostruisce dal vocabolario EM via `VocabProvider` (dalla 5.1.0-alpha): mostra `US, USM, USVs, USVn, SF, VSF, RSF, serSU, …`, senza `USVA/USVB/USVC`. I dati già scritti li converte la migrazione una volta sola `scripts/migrations/2026_05_us_vocabulary_alignment.py`, dal menu del plugin. Il database di prova di Emanuel non era stato migrato: è questo, non il vocabolario della scheda.
+
+#### Correzione
+
+- Restavano due **liste di riserva** con la vecchia grafia, usate solo quando il bundle s3dgraphy non è importabile (clone fresco prima dell'installazione delle dipendenze): le voci scritte in `gui/ui/US_USM.ui` e `_LEGACY_COMMON_ITEMS`. Un'installazione in quello stato poteva riscrivere `USVA/USVB/USVC` in un database appena allineato. Ora nominano `USVs` / `USVn` come il vocabolario canonico (`USVA`, `USVB` → `USVs`; `USVC` → `USVn`, la stessa corrispondenza della migrazione).
+
+#### Test e verifica
+
+- `tests/sync/test_i18n_compat.py`, `tests/migrations/test_us_vocabulary_alignment.py`, `tests/utility/test_combo_value.py`: 17 passati. `US_USM.ui` resta XML valido.
+- Elenco verificato eseguendo `get_unit_type_items('it')`: 29 voci, `USVs` e `USVn` presenti, nessuna delle tre vecchie.
+
+### English
+
+#### Context
+
+- Emanuel (ExtendedMatrix/s3Dgraphy#26, 2026-10-07): "`USVA`/`USVB`/`USVC` still arrive as a generic stratigraphic node — could pyArchInit normalise them to `USVs`/`USVn`?".
+- Checked: the list of the US sheet **already is** EM's. `customize_GUI()` empties the combo at start-up and rebuilds it from the EM vocabulary through `VocabProvider` (since 5.1.0-alpha): it offers `US, USM, USVs, USVn, SF, VSF, RSF, serSU, …`, with no `USVA/USVB/USVC`. Data already written is converted by the one-shot migration `scripts/migrations/2026_05_us_vocabulary_alignment.py`, from the plugin menu. Emanuel's demo database had not been migrated: that, not the vocabulary of the sheet, is what was left.
+
+#### Fix
+
+- Two **fallback** lists still carried the old spelling, used only when the s3dgraphy bundle cannot be imported (a fresh clone before the dependencies are installed): the items written in `gui/ui/US_USM.ui` and `_LEGACY_COMMON_ITEMS`. An install in that state could write `USVA/USVB/USVC` back into a database that had just been aligned. They now name `USVs` / `USVn` like the canonical vocabulary (`USVA`, `USVB` → `USVs`; `USVC` → `USVn`, the same mapping as the migration).
+
+#### Tests and verification
+
+- `tests/sync/test_i18n_compat.py`, `tests/migrations/test_us_vocabulary_alignment.py`, `tests/utility/test_combo_value.py`: 17 passed. `US_USM.ui` is still valid XML.
+- The list was checked by running `get_unit_type_items('it')`: 29 entries, `USVs` and `USVn` present, none of the three old ones.
+
+---
+
 ## [feat] - 2026-09-24 — Importazione: tutto il database in un colpo solo, dati e geometrie (dev `5.13.22-alpha`)
 
 > Branch `Stratigraph_00001`. Commit `3c051828` + bump `402973c2`, tag **`db-migrator-5.13.22-alpha`**.
