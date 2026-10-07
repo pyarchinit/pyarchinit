@@ -119,6 +119,17 @@ def import_from_pg(
             name=node_name,
             description=description,
         )
+        # s3dgraphy 1.6.0.dev40: a masonry/coating unit is a US with a
+        # ``stratigraphic_kind`` (USM is a recording practice, not a node
+        # class). Tell the node its kind and the row's own code, so the
+        # way back returns the same code (unit_code).
+        try:
+            from s3dgraphy.nodes.stratigraphic_node import kind_of_name, set_kind
+            kind, _ = kind_of_name(unita_tipo)
+            if kind:
+                set_kind(strat_node, kind, unita_tipo)
+        except Exception:
+            pass  # older s3dgraphy without kinds: the class already said it
         try:
             graph.add_node(strat_node, overwrite=True)
         except Exception:

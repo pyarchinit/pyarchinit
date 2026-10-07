@@ -152,11 +152,22 @@ def _create_stratigraphic_node_for_unita_tipo(
         return None
     try:
         node_class = get_stratigraphic_node_class(unita_tipo)
-        return node_class(
+        node = node_class(
             node_id=str(node_uuid),
             name=str(name),
             description="",
         )
+        # s3dgraphy 1.6.0.dev40: USM/USR/USS are a US with a kind, not a
+        # class of their own; localised codes (WSU, MSE, UEM...) are
+        # recognised by kind_of_name.
+        try:
+            from s3dgraphy.nodes.stratigraphic_node import kind_of_name, set_kind
+            kind, _ = kind_of_name(unita_tipo)
+            if kind:
+                set_kind(node, kind, unita_tipo)
+        except Exception:
+            pass
+        return node
     except Exception:
         return None
 
@@ -734,6 +745,17 @@ class GraphProjector:
                 attrs["area"] = str(area)
             if unita_tipo is not None:
                 attrs["unita_tipo"] = str(unita_tipo)
+                # dev40: the row's code also decides the unit's kind
+                # (masonry / coating); a node that already states another
+                # kind, or a paradata code, is left alone by set_kind.
+                try:
+                    from s3dgraphy.nodes.stratigraphic_node import (
+                        kind_of_name, set_kind)
+                    kind, _ = kind_of_name(str(unita_tipo))
+                    if kind:
+                        set_kind(node, kind, str(unita_tipo))
+                except Exception:
+                    pass
             if periodo_ini is not None:
                 attrs["periodo_iniziale"] = str(periodo_ini)
             if fase_ini is not None:
