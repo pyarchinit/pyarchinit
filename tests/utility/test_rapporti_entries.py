@@ -2,9 +2,11 @@
 
 Segnalato da Enzo: «Esporta matrice» moriva con «list index out of range».
 Il campo ``rapporti`` ha due formati vivi nello stesso database:
-``[tipo, us, area, sito]`` (lungo) e ``[tipo, us]`` (corto). Nel DB di
-esempio **1870 voci su 1870 nel database di esempio sono corte**, e l'esportatore leggeva
-``voce[2]`` senza guardare.
+``[tipo, us, area, sito]`` (lungo, quello che la scheda scrive oggi) e
+``[tipo, us]`` (corto). Convivono: nel DB di esempio che spediamo sono
+corte tutte e 1870 le voci, mentre in un database aggiornato dalla
+scheda il sito su cui si lavora le ha lunghe e gli altri no. L'esportatore
+leggeva ``voce[2]`` senza guardare.
 """
 from __future__ import annotations
 
@@ -101,10 +103,12 @@ def test_every_relation_in_the_sample_db_can_be_read():
                 short += 1
         for entry in (ast.literal_eval(raw2) if raw2 else []) or []:
             rapporto2_target(entry, area)  # non deve sollevare
-    # Il database di esempio che spediamo è scritto TUTTO col formato
+    # Il database di esempio che spediamo è scritto tutto col formato
     # corto (1870 voci su 1870, misurato il 2026-10-08): ecco perché
-    # «Esporta matrice» cadeva per chiunque partisse da lì.
-    assert short, (short, long_)
+    # «Esporta matrice» cadeva per chiunque partisse da lì. Un database
+    # aggiornato dalla scheda porta anche le lunghe, e questo test deve
+    # restare verde in entrambi i casi.
+    assert short or long_, (short, long_)
 
 
 def test_the_matrix_module_imports_every_helper_it_calls():

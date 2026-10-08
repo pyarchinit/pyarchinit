@@ -294,10 +294,11 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             try:
                 for sing_rapp in rapporti_stratigrafici:
-                    # Due formati vivi nello stesso DB: [tipo, us, area,
-                    # sito] e [tipo, us] (1870 voci su 1870 nel database di esempio nel DB di
-                    # esempio). Leggere voce[2] senza guardare faceva
-                    # morire l'esportazione con «list index out of range».
+                    # Due formati vivi nello stesso DB, spesso insieme:
+                    # [tipo, us, area, sito] sul sito aggiornato dalla
+                    # scheda, [tipo, us] sugli altri. Leggere voce[2]
+                    # senza guardare faceva morire l'esportazione con
+                    # «list index out of range».
                     target = rapporto_target(sing_rapp, area)
                     if target is None:
                         continue

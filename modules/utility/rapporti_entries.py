@@ -5,10 +5,16 @@ database convivono due formati, perché il quarto e il terzo posto sono
 arrivati dopo:
 
 ``[tipo, us, area, sito]``
-    il formato lungo di oggi;
+    il formato lungo, quello che la scheda scrive oggi;
 ``[tipo, us]``
-    il formato corto delle schede più vecchie — nel database di esempio
-    sono **tutte le 1870 voci**. Significa «stessa area di chi la cita».
+    il formato corto delle schede più vecchie. Significa «stessa area di
+    chi la cita».
+
+I due convivono nello stesso database, anche nello stesso momento: nel
+DB di esempio che spediamo sono corte tutte e 1870 le voci, mentre in un
+database aggiornato dalla scheda di oggi il sito su cui si lavora le ha
+lunghe e gli altri siti no (misurato il 2026-10-08 sul DB di Enzo: 187
+lunghe sul sito italiano, 1683 corte sugli altri nove).
 
 Chi legge deve reggere entrambi. Fino al 2026-10-08 l'esportatore della
 matrice prendeva ``voce[2]`` senza guardare e moriva con «list index out
