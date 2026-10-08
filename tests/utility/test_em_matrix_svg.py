@@ -104,3 +104,24 @@ def test_writing_to_a_file_gives_back_the_path(tmp_path):
     percorso = write_svg(lay, tmp_path / "matrice.svg", title="Prova")
     assert Path(percorso).exists()
     assert Path(percorso).read_text(encoding="utf-8").startswith("<svg")
+
+
+def test_the_continuity_link_is_drawn_apart():
+    """Il legame del nodo di continuità racconta una durata — quella US
+    sopravvive dal suo periodo fino a qui — e non una sovrapposizione:
+    si deve riconoscere a colpo d'occhio."""
+    from modules.utility.em_matrix_model import Epoch
+
+    model = MatrixModel(
+        units=[Unit("c", "1.CON500", "BR", "recente"),
+               Unit("u", "1.USM12", "US", "antica")],
+        epochs=[Epoch("recente", "Fine XVI", 1550, 1599),
+                Epoch("antica", "XV secolo", 1451, 1499)],
+        relations=[Relation("c", "u", "is_after")])
+    svg = to_svg(layout(model))
+    assert 'class="edge continuity"' in svg
+
+
+def test_an_ordinary_relation_is_not_marked_as_continuity():
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
+    assert "continuity" not in svg

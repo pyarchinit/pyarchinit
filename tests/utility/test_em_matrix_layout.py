@@ -214,3 +214,70 @@ def test_a_wrapped_band_is_tall_enough_for_what_it_holds():
     banda = lay.bands[0]
     for box in lay.boxes:
         assert banda.y <= box.y and box.y + box.h <= banda.y + banda.h
+
+
+def test_a_relation_a_longer_path_already_says_is_not_drawn():
+    """Come il «tred» di Graphviz, chiesto da Enzo: se A copre B e B copre
+    C, l'arco A→C non aggiunge niente e sporca il disegno. Si toglie dal
+    DISEGNO, non dai dati."""
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e"), _unit("C", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies"),
+                   Relation("B", "C", "overlies"),
+                   Relation("A", "C", "overlies")])
+    lay = layout(model)
+    assert len(lay.edges) == 2
+    assert lay.removed_redundant == 1
+
+
+def test_the_redundant_relation_still_ranks_the_units():
+    """Toglierla dal disegno non deve spostare nessuno: i livelli si
+    calcolano su tutti i rapporti."""
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e"), _unit("C", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies"),
+                   Relation("B", "C", "overlies"),
+                   Relation("A", "C", "overlies")])
+    lay = layout(model)
+    y = {b.unit.label: b.y for b in lay.boxes}
+    assert y["A"] < y["B"] < y["C"]
+
+
+def test_reduction_can_be_turned_off():
+    from modules.utility.em_matrix_layout import LayoutConfig
+
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e"), _unit("C", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies"),
+                   Relation("B", "C", "overlies"),
+                   Relation("A", "C", "overlies")])
+    lay = layout(model, LayoutConfig(transitive_reduction=False))
+    assert len(lay.edges) == 3
+    assert lay.removed_redundant == 0
+
+
+def test_a_cycle_does_not_make_the_reduction_eat_everything():
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies"),
+                   Relation("B", "A", "overlies")])
+    lay = layout(model)
+    assert len(lay.edges) == 2
+
+
+def test_the_continuity_link_is_marked_so_it_can_be_drawn_apart():
+    """Il nodo di continuità sta nel periodo più recente e scende fino
+    alla US che sopravvive fin lì: quel legame racconta una durata, non
+    una sovrapposizione, e va distinto a vista."""
+    model = MatrixModel(
+        units=[_unit("CON500", "recente", node_type="BR"),
+               _unit("USM12", "antica")],
+        epochs=[_epoch("recente", 1550, 1599), _epoch("antica", 1451, 1499)],
+        relations=[Relation("CON500", "USM12", "is_after")])
+    lay = layout(model)
+    assert len(lay.edges) == 1
+    assert lay.edges[0].continuity is True

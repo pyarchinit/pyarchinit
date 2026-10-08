@@ -121,8 +121,10 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
         for x, y in edge.points[1:]:
             percorso.lineTo(QPointF(x, y))
         linea = QGraphicsPathItem(percorso)
-        penna = QPen(QColor("#6B7684"))
-        penna.setWidthF(1.4)
+        # Il legame di continuità più marcato: racconta una durata, non
+        # una sovrapposizione.
+        penna = QPen(QColor("#1A1A1A" if edge.continuity else "#6B7684"))
+        penna.setWidthF(2.2 if edge.continuity else 1.4)
         if edge.symmetric:
             penna.setStyle(Qt.PenStyle.DashLine)
         linea.setPen(penna)

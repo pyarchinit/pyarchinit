@@ -44,6 +44,13 @@ class LayoutConfig:
     #: periodo dava una fascia larga 103.000 pixel (misurato sul caso
     #: Ventena, 1311 US): illeggibile e impossibile da salvare.
     max_columns: int = 14
+    #: Toglie dal DISEGNO i rapporti che un cammino più lungo già dice
+    #: (come il «tred» di Graphviz): se A copre B e B copre C, l'arco
+    #: A→C non aggiunge niente e sporca la matrice. I dati non si
+    #: toccano, e i livelli restano calcolati su tutti i rapporti.
+    transitive_reduction: bool = True
+    #: Oltre questi archi la riduzione costa troppo e si salta.
+    reduction_limit: int = 4000
 
 
 @dataclass
@@ -70,6 +77,10 @@ class Edge:
     kind: str
     points: List[Tuple[float, float]]
     symmetric: bool = False
+    #: Il legame di un nodo di continuità: racconta per quanto a lungo
+    #: una unità sopravvive, non che una sta sopra l'altra. Va disegnato
+    #: a parte.
+    continuity: bool = False
 
 
 @dataclass
@@ -80,6 +91,7 @@ class Layout:
     width: float = 0.0
     height: float = 0.0
     title: str = ""
+    removed_redundant: int = 0
 
 
 def _ranks(ids: Sequence[str], archi: Sequence[Tuple[str, str]]) -> Dict[str, int]:
@@ -110,6 +122,39 @@ def _ranks(ids: Sequence[str], archi: Sequence[Tuple[str, str]]) -> Dict[str, in
             livello[i] = (max(precedenti) + 1) if precedenti else 0
         rimasti -= set(pronti)
     return livello
+
+
+def _redundant(archi: Sequence[Tuple[str, str]],
+               limite: int) -> set:
+    """Gli archi che un cammino più lungo già dice.
+
+    Il «tred» di Graphviz: se A copre B e B copre C, l'arco A→C non
+    aggiunge niente. Si cerca, per ogni arco, un cammino alternativo
+    lungo almeno due passi; i cicli non fermano la ricerca perché i nodi
+    già visti non si riaprono.
+    """
+    if len(archi) > limite:
+        return set()                    # su un grafo enorme non vale la pena
+    adiacenti: Dict[str, set] = {}
+    for s, t in archi:
+        adiacenti.setdefault(s, set()).add(t)
+    ridondanti = set()
+    for s, t in archi:
+        visti = {s}
+        pila = [n for n in adiacenti.get(s, ()) if n != t]
+        trovato = False
+        while pila:
+            n = pila.pop()
+            if n == t:
+                trovato = True
+                break
+            if n in visti:
+                continue
+            visti.add(n)
+            pila.extend(adiacenti.get(n, ()))
+        if trovato:
+            ridondanti.add((s, t))
+    return ridondanti
 
 
 def _order_within_ranks(per_livello: Dict[int, List[str]],
@@ -197,13 +242,20 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         y += altezza
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
+    ridondanti = (_redundant(ordinanti, config.reduction_limit)
+                  if config.transitive_reduction else set())
     for r in model.relations:
         a, b = centro.get(r.source), centro.get(r.target)
         if a is None or b is None:
             continue
         simmetrica = r.kind in SYMMETRIC_KINDS
+        if not simmetrica and (r.source, r.target) in ridondanti:
+            risultato.removed_redundant += 1
+            continue
+        continuita = "BR" in (unita[r.source].node_type,
+                              unita[r.target].node_type)
         risultato.edges.append(Edge(
-            kind=r.kind, symmetric=simmetrica,
+            kind=r.kind, symmetric=simmetrica, continuity=continuita,
             points=_route(a, b, simmetrica,
                           scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
 

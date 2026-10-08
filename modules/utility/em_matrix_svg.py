@@ -113,6 +113,15 @@ def _band_svg(band: Band, larghezza: float, config_margin: float = 24.0) -> str:
 
 
 def _edge_svg(edge: Edge) -> str:
+    """La linea di un rapporto.
+
+    Quella di un nodo di continuità si disegna più marcata e scura: dice
+    per quanto a lungo una unità sopravvive — dal suo periodo fino alla
+    fascia dove sta il nodo — e non che una sta sopra l'altra.
+    """
+    if edge.continuity:
+        return ('<polyline class="edge continuity" points="%s" fill="none" '
+                'stroke="#1A1A1A" stroke-width="2.2"/>' % _points(edge.points))
     tratteggio = ' stroke-dasharray="6 4"' if edge.symmetric else ""
     return ('<polyline class="edge" points="%s" fill="none" stroke="#6B7684" '
             'stroke-width="1.4"%s/>' % (_points(edge.points), tratteggio))
