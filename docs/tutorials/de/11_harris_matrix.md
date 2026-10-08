@@ -122,6 +122,16 @@ Für schnelle Visualisierung ohne Konfigurationsoptionen:
 - Schnellere Generierung
 - Ideal für schnelle Kontrollen
 
+### 4. Vedi la matrice (Extended Matrix innerhalb von QGIS)
+
+Über den Menüpunkt **pyArchInit → Extended Matrix → Vedi la matrice…** (Die Matrix ansehen) wird die Matrix einer Stätte in einem rechts angedockten Panel des QGIS-Fensters gezeichnet, ohne Umweg über Graphviz:
+- ein waagerechtes Band pro Periode/Phase, das jüngste oben
+- jede Einheit mit der Symbolik der Extended Matrix (Rechteck für eine SE, blaues Parallelogramm für eine USVs, grünes Sechseck für eine USVn, olivfarbenes Achteck für einen SF, schwarze Raute für eine Kontinuität)
+- Mausrad zum Zoomen, Doppelklick, um wieder alles zu sehen, Klick auf eine Einheit, um ihr Formular zu lesen
+- **Salva SVG…** / **Salva PNG…**, um die Zeichnung herauszutragen
+
+Kein EMStudio, kein StratiGraph-Knoten, kein Internet. Details im Tutorial 01, Abschnitt "Die Matrix innerhalb von QGIS ansehen".
+
 ## Generierungsprozess
 
 ### Schritt 1: Datensammlung

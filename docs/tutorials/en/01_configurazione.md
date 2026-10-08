@@ -200,6 +200,8 @@ The file holds the chosen site and nothing else, and every unit arrives as what 
 - **paradata travel as paradata**, not as stratigraphic units;
 - an **empty column** of the form no longer becomes an empty property in the graph.
 
+What the **«Vedi la matrice»** panel draws is exactly what the file holds: a look at it is the quickest way to check the export before sending it to EMStudio or to a room.
+
 > **Note**: GraphML survives only as the **one-time import from yEd**; the format for looking at and validating the matrix is em.json.
 
 ### Installing EMStudio from the menu
@@ -217,6 +219,38 @@ With **pyArchInit → Extended Matrix → Installa EMStudio…** (Install EMStud
 When the em.json export cannot find EMStudio, it **offers to install it there and then** and opens the file afterwards.
 
 > **Known limit**: today's release publishes no package for **Intel Macs**. In that case pyArchInit says so and points at the releases page (github.com/ExtendedMatrix/EMStudio/releases), to download it by hand.
+
+### Seeing the matrix inside QGIS
+
+From the **pyArchInit → Extended Matrix → Vedi la matrice…** (See the matrix) menu entry a site's matrix is drawn in a **panel docked on the right** of the QGIS window. No EMStudio, no StratiGraph node, no login and no internet: pyArchInit exports the site's em.json into a temporary folder and draws it.
+
+What to expect:
+
+- you pick the **site** from a list; the panel opens with the matrix already fitted to the window and, at the top, a line saying **how many units, how many epochs and how many relationships** were drawn;
+- the drawing has **one horizontal band per period/phase**, the **most recent on top**, each with its name, its years and its own colour;
+- every unit sits in the band of the period it was created in, and inside the band the stratigraphy decides the level: **what covers is drawn above what is covered**;
+- every unit is drawn with the **Extended Matrix symbology**, the one in the s3dgraphy rules (see the table);
+- the **mouse wheel** zooms in and out, a **double click** puts the whole matrix back into the window (like the **Adatta** / Fit button), a **click on a unit** shows its record in the pane on the right: definition, interpretation, period and phase, dating, area, structure.
+
+| Unit | Symbol |
+|---|---|
+| SU — stratigraphic unit | rectangle |
+| USVs — structural virtual unit | blue parallelogram |
+| USVn — non-structural virtual unit | green hexagon |
+| SF — special find | olive octagon |
+| BR / CON — continuity | black diamond |
+| Extractor | pentagon |
+| Combiner | dashed hexagon |
+| Document | ellipse |
+| Property | dashed circle |
+
+**Salva SVG…** (Save SVG) and **Salva PNG…** (Save PNG) save the drawing wherever you want. The **SVG is vector**: it opens in a browser or in Inkscape, it can be enlarged as much as you need without blurring and printed at any size, posters included.
+
+The same matrix also opens from the **«Export Extended Matrix»** window of the SU form: the **«Vedi la matrice»** button, next to **«Apri in EMStudio»**, lights up after a successful em.json export and draws the file just exported.
+
+> **Note**: on a very large site the panel says so itself, with a message in the QGIS message bar, and suggests **saving the SVG and looking at it outside QGIS**: panning a drawing of thousands of units on screen is slow.
+
+> **Note**: the matrix is drawn even when the excavation is not tidy. Relationships that point at a paradatum stay in the drawing, and units whose level cannot be decided because the relationships contain a loop are drawn anyway: the panel does not refuse a real excavation.
 
 ### Delivering a site to a StratiGraph room
 

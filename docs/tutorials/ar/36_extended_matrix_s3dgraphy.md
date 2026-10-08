@@ -36,7 +36,7 @@
 
 - **Formati** (الصيغ): **DOT (Graphviz) — matrice di Harris** و**em.json (Extended Matrix, per EMStudio)**، محدَّدتان من البداية، إضافة إلى **Matrice per fasi** (المصفوفة بالمراحل، تحليل زمني) وهي اختيارية. لم يعد GraphML يُصدَّر: فـ JSON هذه النافذة **هو em.json** نفسه، الملف الذي تنتجه القائمة **Extended Matrix → Esporta sito in em.json…** — بالعارض نفسه والرموز نفسها.
 - **Opzioni** (الخيارات): **Controlla la sequenza stratigrafica e segnala i problemi** (التحقق من التسلسل الطبقي والإبلاغ عن المشكلات). هو الخيار الوحيد الباقي، ويُقرأ الآن فعلًا: إن أُزيل التحديد لا يجري التحقق. أما المربعان القديمان اللذان كانا يخاطبان yEd (تلميحات التخطيط التلقائي، التلوين حسب الفترة) فقد رحلا مع تصدير GraphML.
-- **Extended Matrix**: ثلاثة أزرار بجانب التصدير — **Apri in EMStudio** (يُفعَّل بعد تصدير em.json ناجح) و**Consegna alla stanza…** و**Apri la stanza**. وهي نفس بنود قائمة pyArchInit، في متناول اليد.
+- **Extended Matrix**: أربعة أزرار بجانب التصدير — **Apri in EMStudio** و**Vedi la matrice** (يُفعَّلان بعد تصدير em.json ناجح؛ والثاني يرسم المصفوفة داخل QGIS بلا EMStudio) و**Consegna alla stanza…** و**Apri la stanza**. وهي نفس بنود قائمة pyArchInit، في متناول اليد.
 
 عند الضغط على **Esporta** يُطلب **مجلد الوجهة**.
 

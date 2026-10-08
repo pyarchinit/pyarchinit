@@ -188,6 +188,8 @@ Le fichier ne contient que le site choisi, et chaque unité y arrive pour ce qu'
 - **les paradonnées voyagent comme paradonnées**, non comme unités stratigraphiques ;
 - une **colonne vide** de la fiche ne devient plus une propriété vide dans le graphe.
 
+Ce que le panneau **« Vedi la matrice »** dessine est exactement ce que contient le fichier : y jeter un œil est le moyen le plus rapide de vérifier l'export avant de l'envoyer dans EMStudio ou dans une salle.
+
 > **Note** : le GraphML ne survit que comme **import ponctuel depuis yEd** ; le format pour regarder et valider la matrice est em.json.
 
 ### Installer EMStudio depuis le menu
@@ -205,6 +207,38 @@ Avec **pyArchInit → Extended Matrix → Installa EMStudio…** (Installer EMSt
 Si l'export en em.json ne trouve pas EMStudio, il **propose de l'installer sur le champ** puis ouvre le fichier.
 
 > **Limite connue** : la release du jour ne publie aucun paquet pour les **Mac Intel**. Dans ce cas, pyArchInit le dit et renvoie à la page des releases (github.com/ExtendedMatrix/EMStudio/releases), d'où le télécharger à la main.
+
+### Voir la matrice dans QGIS
+
+Depuis le menu **pyArchInit → Extended Matrix → Vedi la matrice…** (Voir la matrice), la matrice d'un site se dessine dans un **panneau ancré à droite** de la fenêtre de QGIS. Pas besoin d'EMStudio, ni d'un nœud StratiGraph, ni de se connecter, ni d'internet : pyArchInit exporte l'em.json du site dans un dossier temporaire et le dessine.
+
+À quoi s'attendre :
+
+- on choisit le **site** dans une liste ; le panneau s'ouvre avec la matrice déjà ajustée à la fenêtre et, en haut, une ligne qui dit **combien d'unités, combien d'époques et combien de rapports** ont été dessinés ;
+- le dessin a **une bande horizontale par période/phase**, la **plus récente en haut**, chacune avec son nom, ses années et sa propre couleur ;
+- chaque unité se trouve dans la bande de la période où elle est née, et dans la bande c'est la stratigraphie qui décide du niveau : **ce qui recouvre est dessiné au-dessus de ce qui est recouvert** ;
+- chaque unité est dessinée avec la **symbologie de l'Extended Matrix**, celle des règles s3dgraphy (voir le tableau) ;
+- la **molette de la souris** agrandit et réduit, un **double clic** remet toute la matrice dans la fenêtre (comme le bouton **Adatta** / Ajuster), un **clic sur une unité** montre sa fiche dans le cadre de droite : définition, interprétation, période et phase, datation, aire, structure.
+
+| Unité | Symbole |
+|---|---|
+| US — unité stratigraphique | rectangle |
+| USVs — unité virtuelle structurelle | parallélogramme bleu |
+| USVn — unité virtuelle non structurelle | hexagone vert |
+| SF — mobilier remarquable (special find) | octogone olive |
+| BR / CON — continuité | losange noir |
+| Extracteur | pentagone |
+| Combinateur | hexagone en pointillé |
+| Document | ellipse |
+| Propriété | cercle en pointillé |
+
+**Salva SVG…** (Enregistrer le SVG) et **Salva PNG…** (Enregistrer le PNG) enregistrent le dessin où l'on veut. Le **SVG est vectoriel** : il s'ouvre dans un navigateur ou dans Inkscape, s'agrandit autant qu'il faut sans se flouter et s'imprime à n'importe quelle taille, affiches comprises.
+
+La même matrice s'ouvre aussi depuis la fenêtre **« Export Extended Matrix »** de la fiche US : le bouton **« Vedi la matrice »**, à côté d'**« Apri in EMStudio »**, s'allume après un export em.json réussi et dessine le fichier qui vient d'être exporté.
+
+> **Note** : sur un site très grand, le panneau le dit de lui-même, par un message dans la barre de messages de QGIS, et conseille d'**enregistrer le SVG et de le regarder hors de QGIS** : parcourir à l'écran un dessin de milliers d'unités est lent.
+
+> **Note** : la matrice se dessine aussi quand la fouille n'est pas en ordre. Les rapports qui pointent vers un élément de paradata restent dans le dessin, et les unités dont le niveau ne peut pas être décidé parce que les rapports contiennent une boucle sont dessinées quand même : le panneau ne refuse pas une fouille réelle.
 
 ### Livrer un site à une salle StratiGraph
 

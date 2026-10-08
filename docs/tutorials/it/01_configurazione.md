@@ -352,6 +352,8 @@ Nel file c'è soltanto il sito scelto, e ogni unità vi arriva per quello che è
 - **i paradati viaggiano come paradati**, non come unità stratigrafiche;
 - una **colonna vuota** della scheda non diventa più una proprietà vuota nel grafo.
 
+Quello che il pannello **«Vedi la matrice»** disegna è esattamente quello che c'è nel file: guardarlo è il modo più rapido di controllare l'export prima di mandarlo in EMStudio o in una stanza.
+
 > **Nota**: il GraphML resta solo come **import una tantum da yEd**; per guardare e validare il matrix il formato è em.json.
 
 ### Installare EMStudio dal menu
@@ -369,6 +371,38 @@ Con **pyArchInit → Extended Matrix → Installa EMStudio…**:
 Se l'esportazione in em.json non trova EMStudio, **propone di installarlo lì per lì** e poi apre il file.
 
 > **Limite noto**: la release di oggi non pubblica un pacchetto per i **Mac Intel**. In quel caso pyArchInit lo dice e indica la pagina delle release (github.com/ExtendedMatrix/EMStudio/releases), da cui scaricarlo a mano.
+
+### Vedere la matrice dentro QGIS
+
+Dal menu **pyArchInit → Extended Matrix → Vedi la matrice…** la matrice di un sito si disegna in un **pannello agganciato a destra** della finestra di QGIS. Non serve EMStudio, non serve un nodo StratiGraph, non serve accedere a niente e non serve internet: pyArchInit esporta l'em.json del sito in una cartella temporanea e lo disegna.
+
+Cosa aspettarsi:
+
+- si sceglie il **sito** da un elenco; il pannello si apre con la matrice già adattata alla finestra e, in alto, una riga che dice **quante unità, quante epoche e quanti rapporti** sono stati disegnati;
+- il disegno ha **una fascia orizzontale per ogni periodo/fase**, la **più recente in cima**, ciascuna col suo nome, i suoi anni e il suo colore;
+- ogni unità sta nella fascia del periodo in cui è nata, e dentro la fascia è la stratigrafia a decidere il livello: **quello che copre sta sopra quello che è coperto**;
+- ogni unità è disegnata con la **simbologia dell'Extended Matrix**, quella delle regole s3dgraphy (vedi la tabella);
+- la **rotella del mouse** ingrandisce e rimpicciolisce, un **doppio clic** rimette tutta la matrice nella finestra (come il pulsante **Adatta**), un **clic su un'unità** ne mostra la scheda nel riquadro a destra: definizione, interpretazione, periodo e fase, datazione, area, struttura.
+
+| Unità | Simbolo |
+|---|---|
+| US — unità stratigrafica | rettangolo |
+| USVs — unità virtuale strutturale | parallelogramma blu |
+| USVn — unità virtuale non strutturale | esagono verde |
+| SF — reperto particolare (special find) | ottagono oliva |
+| BR / CON — continuità | rombo nero |
+| Estrattore | pentagono |
+| Combinatore | esagono tratteggiato |
+| Documento | ellisse |
+| Proprietà | cerchio tratteggiato |
+
+**Salva SVG…** e **Salva PNG…** salvano il disegno dove si vuole. L'**SVG è vettoriale**: si apre in un browser o in Inkscape, si ingrandisce quanto serve senza sfocare e si stampa a qualsiasi misura, poster compresi.
+
+La stessa matrice si apre anche dalla finestra **«Export Extended Matrix»** della Scheda US: il pulsante **«Vedi la matrice»**, accanto ad **«Apri in EMStudio»**, si accende dopo un'esportazione em.json riuscita e disegna il file appena esportato.
+
+> **Nota**: su un sito molto grande il pannello lo dice da sé, con un avviso nella barra dei messaggi di QGIS, e consiglia di **salvare l'SVG e guardarlo fuori da QGIS**: navigare a schermo un disegno di migliaia di unità è lento.
+
+> **Nota**: la matrice si disegna anche quando lo scavo non è in ordine. I rapporti che puntano a un paradato restano nel disegno, e le unità il cui livello non si riesce a decidere perché i rapporti contengono un giro chiuso vengono disegnate comunque: il pannello non rifiuta uno scavo vero.
 
 ### Consegnare un sito a una stanza StratiGraph
 

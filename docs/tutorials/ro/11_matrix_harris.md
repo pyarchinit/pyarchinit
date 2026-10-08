@@ -112,6 +112,16 @@ Pentru vizualizare rapidă fără opțiuni de configurare:
 - Generare mai rapidă
 - Ideal pentru verificări rapide
 
+### 4. Vedi la matrice (Extended Matrix în QGIS)
+
+Din meniul **pyArchInit → Extended Matrix → Vedi la matrice…** (Vezi matricea) matricea unui sit este desenată într-un panou andocat în dreapta ferestrei QGIS, fără a trece prin Graphviz:
+- o bandă orizontală pentru fiecare perioadă/fază, cea mai recentă sus
+- fiecare unitate cu simbologia Extended Matrix (dreptunghi pentru o US, paralelogram albastru pentru o USVs, hexagon verde pentru o USVn, octogon oliv pentru un SF, romb negru pentru o continuitate)
+- rotița pentru zoom, dublu clic pentru a revedea totul, clic pe o unitate pentru a-i citi fișa
+- **Salva SVG…** / **Salva PNG…** pentru a duce desenul în afară
+
+Nu e nevoie de EMStudio, nici de un nod StratiGraph, nici de internet. Detalii în Tutorialul 01, paragraful „Vizualizarea matricei in QGIS".
+
 ## Procesul de Generare
 
 ### Pasul 1: Colectarea Datelor

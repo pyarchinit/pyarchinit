@@ -290,6 +290,8 @@ Al fitxer només hi ha el lloc triat, i cada unitat hi arriba per allò que és:
 - **les paradades viatgen com a paradades**, no com a unitats estratigràfiques;
 - una **columna buida** de la fitxa ja no esdevé una propietat buida al graf.
 
+El que dibuixa el panell **«Vedi la matrice»** és exactament el que hi ha dins el fitxer: fer-hi un cop d'ull és la manera més ràpida de comprovar l'exportació abans d'enviar-la a EMStudio o a una sala.
+
 > **Nota**: el GraphML sobreviu només com a **importació puntual des de yEd**; el format per mirar i validar la matriu és em.json.
 
 ### Instal·lar EMStudio des del menú
@@ -307,6 +309,38 @@ Amb **pyArchInit → Extended Matrix → Installa EMStudio…** (Instal·lar EMS
 Si l'exportació a em.json no troba EMStudio, **proposa instal·lar-lo a l'instant** i després obre el fitxer.
 
 > **Límit conegut**: la release d'avui no publica cap paquet per als **Mac Intel**. En aquest cas pyArchInit ho diu i indica la pàgina de les releases (github.com/ExtendedMatrix/EMStudio/releases), des d'on es descarrega a mà.
+
+### Veure la matriu dins el QGIS
+
+Des del menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Veure la matriu) la matriu d'un lloc es dibuixa en un **panell acoblat a la dreta** de la finestra del QGIS. No cal EMStudio, ni un node StratiGraph, ni iniciar sessió, ni internet: pyArchInit exporta l'em.json del lloc a una carpeta temporal i el dibuixa.
+
+Què esperar:
+
+- es tria el **lloc** d'una llista; el panell s'obre amb la matriu ja ajustada a la finestra i, a dalt, una línia que diu **quantes unitats, quantes èpoques i quantes relacions** s'han dibuixat;
+- el dibuix té **una franja horitzontal per cada període/fase**, la **més recent a dalt**, cadascuna amb el seu nom, els seus anys i el seu color;
+- cada unitat és a la franja del període en què va néixer, i dins la franja és l'estratigrafia la que decideix el nivell: **el que cobreix es dibuixa damunt del que és cobert**;
+- cada unitat es dibuixa amb la **simbologia de l'Extended Matrix**, la de les regles de s3dgraphy (vegeu la taula);
+- la **roda del ratolí** acosta i allunya, un **doble clic** torna tota la matriu a la finestra (com el botó **Adatta** / Ajustar), un **clic sobre una unitat** mostra la seva fitxa al requadre de la dreta: definició, interpretació, període i fase, datació, àrea, estructura.
+
+| Unitat | Símbol |
+|---|---|
+| US — unitat estratigràfica | rectangle |
+| USVs — unitat virtual estructural | paral·lelogram blau |
+| USVn — unitat virtual no estructural | hexàgon verd |
+| SF — troballa singular (special find) | octàgon oliva |
+| BR / CON — continuïtat | rombe negre |
+| Extractor | pentàgon |
+| Combinador | hexàgon discontinu |
+| Document | el·lipse |
+| Propietat | cercle discontinu |
+
+**Salva SVG…** (Desar SVG) i **Salva PNG…** (Desar PNG) desen el dibuix on es vulgui. L'**SVG és vectorial**: s'obre en un navegador o a l'Inkscape, s'amplia tant com calgui sense perdre nitidesa i s'imprimeix a qualsevol mida, pòsters inclosos.
+
+La mateixa matriu s'obre també des de la finestra **«Export Extended Matrix»** de la fitxa US: el botó **«Vedi la matrice»**, al costat d'**«Apri in EMStudio»**, s'encén després d'una exportació em.json correcta i dibuixa el fitxer tot just exportat.
+
+> **Nota**: en un lloc molt gran el panell ho diu ell mateix, amb un avís a la barra de missatges del QGIS, i aconsella **desar l'SVG i mirar-lo fora del QGIS**: recórrer per pantalla un dibuix de milers d'unitats és lent.
+
+> **Nota**: la matriu es dibuixa també quan l'excavació no està endreçada. Les relacions que apunten a un element de paradata continuen al dibuix, i les unitats el nivell de les quals no es pot decidir perquè les relacions contenen un bucle es dibuixen igualment: el panell no rebutja una excavació real.
 
 ### Lliurar un lloc a una sala StratiGraph
 

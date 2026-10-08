@@ -338,6 +338,8 @@ In der Datei steht nur die gewählte Stätte, und jede Einheit kommt als das an,
 - **Paradaten reisen als Paradaten**, nicht als stratigraphische Einheiten;
 - eine **leere Spalte** des Formulars wird nicht mehr zu einer leeren Eigenschaft im Graphen.
 
+Was das Panel **«Vedi la matrice»** zeichnet, ist genau das, was in der Datei steht: ein Blick darauf ist der schnellste Weg, den Export zu prüfen, bevor er nach EMStudio oder in einen Raum geht.
+
 > **Hinweis**: GraphML überlebt nur als **einmaliger Import aus yEd**; das Format zum Ansehen und Validieren der Matrix ist em.json.
 
 ### EMStudio aus dem Menü installieren
@@ -355,6 +357,38 @@ Mit **pyArchInit → Extended Matrix → Installa EMStudio…** (EMStudio instal
 Findet der em.json-Export EMStudio nicht, **schlägt er die Installation gleich vor** und öffnet danach die Datei.
 
 > **Bekannte Grenze**: das heutige Release veröffentlicht kein Paket für **Intel-Macs**. In diesem Fall sagt pyArchInit es und verweist auf die Release-Seite (github.com/ExtendedMatrix/EMStudio/releases), von der man es manuell laden kann.
+
+### Die Matrix innerhalb von QGIS ansehen
+
+Über den Menüpunkt **pyArchInit → Extended Matrix → Vedi la matrice…** (Die Matrix ansehen) wird die Matrix einer Stätte in einem **rechts angedockten Panel** des QGIS-Fensters gezeichnet. Kein EMStudio, kein StratiGraph-Knoten, keine Anmeldung und kein Internet: pyArchInit exportiert die em.json der Stätte in einen temporären Ordner und zeichnet sie.
+
+Was zu erwarten ist:
+
+- man wählt die **Stätte** aus einer Liste; das Panel öffnet sich mit der bereits ins Fenster eingepassten Matrix und oben einer Zeile, die sagt, **wie viele Einheiten, wie viele Epochen und wie viele Beziehungen** gezeichnet wurden;
+- die Zeichnung hat **ein waagerechtes Band pro Periode/Phase**, das **jüngste oben**, jedes mit seinem Namen, seinen Jahren und seiner eigenen Farbe;
+- jede Einheit sitzt im Band der Periode, in der sie entstanden ist, und innerhalb des Bandes entscheidet die Stratigraphie über die Ebene: **was überdeckt, steht über dem, was überdeckt wird**;
+- jede Einheit wird mit der **Symbolik der Extended Matrix** gezeichnet, der aus den s3dgraphy-Regeln (siehe Tabelle);
+- das **Mausrad** zoomt, ein **Doppelklick** holt die ganze Matrix zurück ins Fenster (wie der Knopf **Adatta** / Einpassen), ein **Klick auf eine Einheit** zeigt ihr Formular im Bereich rechts: Definition, Interpretation, Periode und Phase, Datierung, Areal, Struktur.
+
+| Einheit | Symbol |
+|---|---|
+| SE — stratigraphische Einheit | Rechteck |
+| USVs — strukturelle virtuelle Einheit | blaues Parallelogramm |
+| USVn — nicht strukturelle virtuelle Einheit | grünes Sechseck |
+| SF — Sonderfund (special find) | olivfarbenes Achteck |
+| BR / CON — Kontinuität | schwarze Raute |
+| Extraktor | Fünfeck |
+| Kombinator | gestricheltes Sechseck |
+| Dokument | Ellipse |
+| Eigenschaft | gestrichelter Kreis |
+
+**Salva SVG…** (SVG speichern) und **Salva PNG…** (PNG speichern) speichern die Zeichnung, wohin man will. Das **SVG ist vektoriell**: es öffnet sich im Browser oder in Inkscape, lässt sich beliebig vergrößern, ohne unscharf zu werden, und in jeder Größe drucken — auch als Poster.
+
+Dieselbe Matrix öffnet sich auch aus dem Fenster **«Export Extended Matrix»** des SE-Formulars: der Knopf **«Vedi la matrice»** neben **«Apri in EMStudio»** wird nach einem erfolgreichen em.json-Export aktiv und zeichnet die gerade exportierte Datei.
+
+> **Hinweis**: bei einer sehr großen Stätte sagt das Panel es selbst, mit einer Meldung in der QGIS-Meldungsleiste, und empfiehlt, **das SVG zu speichern und außerhalb von QGIS anzusehen**: eine Zeichnung mit Tausenden Einheiten am Bildschirm zu durchfahren ist langsam.
+
+> **Hinweis**: die Matrix wird auch gezeichnet, wenn die Grabung nicht aufgeräumt ist. Beziehungen, die auf ein Paradatum zeigen, bleiben in der Zeichnung, und Einheiten, deren Ebene sich nicht entscheiden lässt, weil die Beziehungen einen Kreis enthalten, werden dennoch gezeichnet: das Panel verweigert keine echte Grabung.
 
 ### Eine Stätte an einen StratiGraph-Raum übergeben
 

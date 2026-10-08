@@ -36,7 +36,7 @@ La finestra diu a dalt per a què serveix cada format. Conté:
 
 - **Formati** (Formats): **DOT (Graphviz) — matrice di Harris** i **em.json (Extended Matrix, per EMStudio)**, marcats de sortida, més **Matrice per fasi** (matriu per fases, anàlisi cronològica), opcional. El GraphML ja no s'exporta: el JSON d'aquesta finestra **és l'em.json**, el mateix fitxer que fa el menú **Extended Matrix → Esporta sito in em.json…** — mateix projector, mateixa simbologia.
 - **Opzioni** (Opcions): **Controlla la sequenza stratigrafica e segnala i problemi** (comprovar la seqüència estratigràfica i assenyalar els problemes). És l'única opció que queda, i ara es llegeix de debò: sense la marca, la comprovació no es fa. Les dues caselles antigues que parlaven a yEd (pistes d'auto-layout, colors per període) han marxat amb l'exportació GraphML.
-- **Extended Matrix**: tres botons al costat de l'exportació — **Apri in EMStudio** (s'encén després d'una exportació em.json correcta), **Consegna alla stanza…** i **Apri la stanza**. Són les mateixes entrades del menú pyArchInit, a l'abast.
+- **Extended Matrix**: quatre botons al costat de l'exportació — **Apri in EMStudio** i **Vedi la matrice** (tots dos s'encenen després d'una exportació em.json correcta; el segon dibuixa la matriu dins el QGIS, sense EMStudio), **Consegna alla stanza…** i **Apri la stanza**. Són les mateixes entrades del menú pyArchInit, a l'abast.
 
 En prémer **Esporta** es demana la **carpeta de destinació**.
 

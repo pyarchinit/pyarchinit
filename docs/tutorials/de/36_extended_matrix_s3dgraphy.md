@@ -36,7 +36,7 @@ Das Fenster sagt oben, wofür jedes Format gut ist. Es enthält:
 
 - **Formati** (Formate): **DOT (Graphviz) — matrice di Harris** und **em.json (Extended Matrix, per EMStudio)**, beide von Anfang an angehakt, dazu **Matrice per fasi** (Matrix nach Phasen, chronologische Analyse), wahlweise. GraphML wird nicht mehr exportiert: das JSON dieses Fensters **ist em.json**, dieselbe Datei, die der Menüpunkt **Extended Matrix → Esporta sito in em.json…** erzeugt — gleicher Projektor, gleiche Symbolik.
 - **Opzioni** (Optionen): **Controlla la sequenza stratigrafica e segnala i problemi** (die stratigraphische Sequenz prüfen und die Probleme melden). Es ist die einzige verbliebene Option, und sie wird wirklich gelesen: ohne Haken findet die Prüfung nicht statt. Die zwei alten Kästchen, die zu yEd sprachen (Auto-Layout-Hinweise, Färbung nach Periode), sind mit dem GraphML-Export verschwunden.
-- **Extended Matrix**: drei Knöpfe neben dem Export — **Apri in EMStudio** (wird nach einem erfolgreichen em.json-Export aktiv), **Consegna alla stanza…** und **Apri la stanza**. Es sind dieselben pyArchInit-Menüpunkte, nur in Reichweite.
+- **Extended Matrix**: vier Knöpfe neben dem Export — **Apri in EMStudio** und **Vedi la matrice** (beide werden nach einem erfolgreichen em.json-Export aktiv; der zweite zeichnet die Matrix innerhalb von QGIS, ohne EMStudio), **Consegna alla stanza…** und **Apri la stanza**. Es sind dieselben pyArchInit-Menüpunkte, nur in Reichweite.
 
 Beim Druck auf **Esporta** wird nach dem **Zielordner** gefragt.
 

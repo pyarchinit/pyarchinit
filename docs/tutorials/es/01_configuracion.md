@@ -274,6 +274,8 @@ En el archivo está solo el sitio elegido, y cada unidad llega como lo que es:
 - **los paradatos viajan como paradatos**, no como unidades estratigráficas;
 - una **columna vacía** de la ficha ya no se convierte en una propiedad vacía del grafo.
 
+Lo que dibuja el panel **«Vedi la matrice»** es exactamente lo que hay en el archivo: echarle un vistazo es la manera más rápida de comprobar la exportación antes de mandarla a EMStudio o a una sala.
+
 > **Nota**: el GraphML sobrevive solo como **importación puntual desde yEd**; el formato para ver y validar la matriz es em.json.
 
 ### Instalar EMStudio desde el menú
@@ -291,6 +293,38 @@ Con **pyArchInit → Extended Matrix → Installa EMStudio…** (Instalar EMStud
 Si la exportación a em.json no encuentra EMStudio, **propone instalarlo en el momento** y después abre el archivo.
 
 > **Límite conocido**: la release de hoy no publica paquete para los **Mac Intel**. En ese caso pyArchInit lo dice e indica la página de releases (github.com/ExtendedMatrix/EMStudio/releases), desde donde se descarga a mano.
+
+### Ver la matriz dentro de QGIS
+
+Desde el menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Ver la matriz) la matriz de un sitio se dibuja en un **panel acoplado a la derecha** de la ventana de QGIS. No hace falta EMStudio, ni un nodo StratiGraph, ni iniciar sesión, ni internet: pyArchInit exporta el em.json del sitio a una carpeta temporal y lo dibuja.
+
+Qué esperar:
+
+- se elige el **sitio** de una lista; el panel se abre con la matriz ya ajustada a la ventana y, arriba, una línea que dice **cuántas unidades, cuántas épocas y cuántas relaciones** se han dibujado;
+- el dibujo tiene **una banda horizontal por cada periodo/fase**, la **más reciente arriba**, cada una con su nombre, sus años y su propio color;
+- cada unidad está en la banda del periodo en que nació, y dentro de la banda es la estratigrafía la que decide el nivel: **lo que cubre se dibuja encima de lo que está cubierto**;
+- cada unidad se dibuja con la **simbología de la Extended Matrix**, la de las reglas de s3dgraphy (véase la tabla);
+- la **rueda del ratón** acerca y aleja, un **doble clic** devuelve toda la matriz a la ventana (como el botón **Adatta** / Ajustar), un **clic sobre una unidad** muestra su ficha en el recuadro de la derecha: definición, interpretación, periodo y fase, datación, área, estructura.
+
+| Unidad | Símbolo |
+|---|---|
+| UE — unidad estratigráfica | rectángulo |
+| USVs — unidad virtual estructural | paralelogramo azul |
+| USVn — unidad virtual no estructural | hexágono verde |
+| SF — hallazgo singular (special find) | octógono oliva |
+| BR / CON — continuidad | rombo negro |
+| Extractor | pentágono |
+| Combinador | hexágono discontinuo |
+| Documento | elipse |
+| Propiedad | círculo discontinuo |
+
+**Salva SVG…** (Guardar SVG) y **Salva PNG…** (Guardar PNG) guardan el dibujo donde se quiera. El **SVG es vectorial**: se abre en un navegador o en Inkscape, se amplía cuanto haga falta sin perder nitidez y se imprime a cualquier tamaño, pósteres incluidos.
+
+La misma matriz se abre también desde la ventana **«Export Extended Matrix»** de la ficha UE: el botón **«Vedi la matrice»**, junto a **«Apri in EMStudio»**, se activa tras una exportación em.json correcta y dibuja el archivo recién exportado.
+
+> **Nota**: en un sitio muy grande el panel lo dice por sí mismo, con un aviso en la barra de mensajes de QGIS, y aconseja **guardar el SVG y verlo fuera de QGIS**: recorrer en pantalla un dibujo de miles de unidades es lento.
+
+> **Nota**: la matriz se dibuja también cuando la excavación no está en orden. Las relaciones que apuntan a un elemento de paradata siguen en el dibujo, y las unidades cuyo nivel no se puede decidir porque las relaciones contienen un bucle se dibujan igualmente: el panel no rechaza una excavación real.
 
 ### Entregar un sitio a una sala StratiGraph
 

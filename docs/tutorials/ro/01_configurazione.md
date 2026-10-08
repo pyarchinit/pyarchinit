@@ -200,6 +200,8 @@ In fisier se afla doar situl ales, iar fiecare unitate ajunge acolo ca ceea ce e
 - **paradatele calatoresc ca paradate**, nu ca unitati stratigrafice;
 - o **coloana goala** a fisei nu mai devine o proprietate goala in graf.
 
+Ceea ce deseneaza panoul **«Vedi la matrice»** este exact ceea ce se afla in fisier: o privire asupra lui este cel mai rapid mod de a verifica exportul inainte de a-l trimite in EMStudio sau intr-o camera.
+
 > **Nota**: GraphML ramane doar ca **import unic din yEd**; formatul pentru vizualizarea si validarea matricei este em.json.
 
 ### Instalarea EMStudio din meniu
@@ -217,6 +219,38 @@ Cu **pyArchInit → Extended Matrix → Installa EMStudio…** (Instaleaza EMStu
 Daca exportul in em.json nu gaseste EMStudio, **propune sa il instaleze pe loc** si apoi deschide fisierul.
 
 > **Limita cunoscuta**: release-ul de astazi nu publica un pachet pentru **Mac-urile Intel**. In acest caz pyArchInit o spune si indica pagina release-urilor (github.com/ExtendedMatrix/EMStudio/releases), de unde se descarca manual.
+
+### Vizualizarea matricei in QGIS
+
+Din meniul **pyArchInit → Extended Matrix → Vedi la matrice…** (Vezi matricea) matricea unui sit este desenata intr-un **panou andocat in dreapta** ferestrei QGIS. Nu e nevoie de EMStudio, nici de un nod StratiGraph, nici de autentificare, nici de internet: pyArchInit exporta em.json al sitului intr-un dosar temporar si il deseneaza.
+
+La ce sa ne asteptam:
+
+- se alege **situl** dintr-o lista; panoul se deschide cu matricea deja potrivita in fereastra si, sus, un rand care spune **cate unitati, cate epoci si cate relatii** au fost desenate;
+- desenul are **o banda orizontala pentru fiecare perioada/faza**, cea **mai recenta sus**, fiecare cu numele ei, cu anii ei si cu propria culoare;
+- fiecare unitate sta in banda perioadei in care s-a nascut, iar in interiorul benzii stratigrafia decide nivelul: **ce acopera este desenat deasupra a ceea ce este acoperit**;
+- fiecare unitate este desenata cu **simbologia Extended Matrix**, cea din regulile s3dgraphy (vezi tabelul);
+- **rotita mouse-ului** mareste si micsoreaza, un **dublu clic** readuce toata matricea in fereastra (ca butonul **Adatta** / Potrivire), un **clic pe o unitate** ii arata fisa in cadrul din dreapta: definitie, interpretare, perioada si faza, datare, arie, structura.
+
+| Unitate | Simbol |
+|---|---|
+| US — unitate stratigrafica | dreptunghi |
+| USVs — unitate virtuala structurala | paralelogram albastru |
+| USVn — unitate virtuala nestructurala | hexagon verde |
+| SF — descoperire speciala (special find) | octogon oliv |
+| BR / CON — continuitate | romb negru |
+| Extractor | pentagon |
+| Combinator | hexagon punctat |
+| Document | elipsa |
+| Proprietate | cerc punctat |
+
+**Salva SVG…** (Salveaza SVG) si **Salva PNG…** (Salveaza PNG) salveaza desenul unde se doreste. **SVG-ul este vectorial**: se deschide intr-un navigator sau in Inkscape, se mareste cat e nevoie fara sa se incetoseze si se tipareste la orice dimensiune, inclusiv postere.
+
+Aceeasi matrice se deschide si din fereastra **«Export Extended Matrix»** a fisei US: butonul **«Vedi la matrice»**, langa **«Apri in EMStudio»**, se aprinde dupa un export em.json reusit si deseneaza fisierul abia exportat.
+
+> **Nota**: pe un sit foarte mare panoul o spune singur, cu un mesaj in bara de mesaje a QGIS, si recomanda **salvarea SVG-ului si privirea lui in afara QGIS**: parcurgerea pe ecran a unui desen cu mii de unitati este lenta.
+
+> **Nota**: matricea se deseneaza si cand sapatura nu este in ordine. Relatiile care arata spre un element de paradata raman in desen, iar unitatile al caror nivel nu poate fi decis pentru ca relatiile contin o bucla sunt desenate oricum: panoul nu refuza o sapatura reala.
 
 ### Livrarea unui sit intr-o camera StratiGraph
 

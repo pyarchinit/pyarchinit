@@ -36,7 +36,7 @@
 
 - **Formati** (Μορφές): **DOT (Graphviz) — matrice di Harris** και **em.json (Extended Matrix, per EMStudio)**, επιλεγμένα εξ αρχής, συν **Matrice per fasi** (μήτρα κατά φάσεις, χρονολογική ανάλυση), προαιρετικά. Το GraphML δεν εξάγεται πια: το JSON αυτού του παραθύρου **είναι το em.json**, το ίδιο αρχείο που βγάζει το μενού **Extended Matrix → Esporta sito in em.json…** — ίδιος προβολέας, ίδια σύμβολα.
 - **Opzioni** (Επιλογές): **Controlla la sequenza stratigrafica e segnala i problemi** (έλεγχος της στρωματογραφικής ακολουθίας και αναφορά των προβλημάτων). Είναι η μόνη επιλογή που έμεινε, και τώρα διαβάζεται πραγματικά: χωρίς το τσεκ, ο έλεγχος δεν γίνεται. Τα δύο παλιά κουτάκια που μιλούσαν στο yEd (υποδείξεις auto-layout, χρώματα κατά περίοδο) έφυγαν μαζί με την εξαγωγή GraphML.
-- **Extended Matrix**: τρία κουμπιά δίπλα στην εξαγωγή — **Apri in EMStudio** (ανάβει μετά από επιτυχή εξαγωγή em.json), **Consegna alla stanza…** και **Apri la stanza**. Είναι οι ίδιες επιλογές του μενού pyArchInit, πρόχειρες.
+- **Extended Matrix**: τέσσερα κουμπιά δίπλα στην εξαγωγή — **Apri in EMStudio** και **Vedi la matrice** (και τα δύο ανάβουν μετά από επιτυχή εξαγωγή em.json· το δεύτερο σχεδιάζει το matrix μέσα στο QGIS, χωρίς EMStudio), **Consegna alla stanza…** και **Apri la stanza**. Είναι οι ίδιες επιλογές του μενού pyArchInit, πρόχειρες.
 
 Με το πάτημα του **Esporta** ζητείται ο **φάκελος προορισμού**.
 
