@@ -3,7 +3,7 @@
 Segnalato da Enzo: «Esporta matrice» moriva con «list index out of range».
 Il campo ``rapporti`` ha due formati vivi nello stesso database:
 ``[tipo, us, area, sito]`` (lungo) e ``[tipo, us]`` (corto). Nel DB di
-esempio **1683 voci su 1870 sono corte**, e l'esportatore leggeva
+esempio **1870 voci su 1870 nel database di esempio sono corte**, e l'esportatore leggeva
 ``voce[2]`` senza guardare.
 """
 from __future__ import annotations
@@ -24,7 +24,7 @@ def test_the_long_format_gives_its_own_area():
 
 
 def test_the_short_format_means_the_same_area():
-    """['Covers', '2'] è il formato che il DB di esempio usa 1683 volte:
+    """['Covers', '2'] è il formato che il DB di esempio usa sempre:
     senza area dichiarata l'unità collegata sta nell'area di chi la cita."""
     assert rapporto_target(["Covers", "2"], "1") == ("Covers", "2", "1")
 
@@ -49,8 +49,8 @@ def test_numbers_are_returned_as_text():
 
 def test_rapporti2_long_and_short_forms():
     """``rapporti2`` è [tipo, us, unita_tipo, descrizione, periodizzazione,
-    area, sito]; la variante vecchia si ferma a cinque posti (1683 voci su
-    1870 nel DB di esempio)."""
+    area, sito]; la variante vecchia si ferma a cinque posti, ed è quella
+    che il DB di esempio usa per tutte le sue voci."""
     from modules.utility.rapporti_entries import rapporto2_target
 
     long_form = ["Copre", "2", "US", "Livellamento", "1-2", "3", "Alfa"]
@@ -105,3 +105,27 @@ def test_every_relation_in_the_sample_db_can_be_read():
     # corto (1870 voci su 1870, misurato il 2026-10-08): ecco perché
     # «Esporta matrice» cadeva per chiunque partisse da lì.
     assert short, (short, long_)
+
+
+def test_the_matrix_module_imports_every_helper_it_calls():
+    """Trovato dalla review: la matrice chiamava `rapporto2_target` senza
+    importarlo. Il NameError finiva in un `except Exception` senza
+    `break`, quindi l'utente vedeva una finestra per ogni US e una
+    matrice vuota con scritto «Esportazione completata» — peggio del
+    guasto che si voleva togliere."""
+    import ast
+
+    source = (_ROOT / "tabs" / "Interactive_matrix.py").read_text(
+        encoding="utf-8")
+    tree = ast.parse(source)
+    importati = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module \
+                and node.module.endswith("rapporti_entries"):
+            importati |= {alias.asname or alias.name for alias in node.names}
+    usati = {node.func.id for node in ast.walk(tree)
+             if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Name)
+             and node.func.id.startswith("rapporto")}
+    assert usati, "la matrice non usa più gli aiutanti dei rapporti?"
+    assert usati <= importati, sorted(usati - importati)

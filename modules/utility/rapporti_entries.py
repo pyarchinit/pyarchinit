@@ -8,7 +8,7 @@ arrivati dopo:
     il formato lungo di oggi;
 ``[tipo, us]``
     il formato corto delle schede più vecchie — nel database di esempio
-    sono **1683 voci su 1870**. Significa «stessa area di chi la cita».
+    sono **tutte le 1870 voci**. Significa «stessa area di chi la cita».
 
 Chi legge deve reggere entrambi. Fino al 2026-10-08 l'esportatore della
 matrice prendeva ``voce[2]`` senza guardare e moriva con «list index out

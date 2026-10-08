@@ -31,10 +31,12 @@ from s3dgraphy.sync.graph_projector import (  # noqa: F401  (private, used by te
 )
 
 
-#: EM paradata serialised into us_table rows. Bug P (2026-05-15): they
-#: project as StratigraphicUnit with the identity in
-#: ``attributes['unita_tipo']`` — the writer dispatches shape by value,
-#: and the swimlane keeps them beside their stratigraphy.
+#: Paradati dell'Extended Matrix scritti come righe di us_table (eredità
+#: del round-trip yEd). Fino al 2026-10-08 restavano StratigraphicUnit
+#: perché la forma la sceglieva il writer GraphML da
+#: ``attributes['unita_tipo']``; quel writer è stato demolito (A4) ed
+#: em.json sceglie da ``node_type``, quindi ora prendono la loro classe
+#: (``_paradata_class_of``).
 _PARADATA_UNITA_TIPO = ("DOC", "Combinar", "Extractor", "property")
 
 #: The stratigraphic family us_table rows can carry (canonical codes).
@@ -111,10 +113,13 @@ def _drop_empty_property_nodes(graph):
         in _EMPTY_PROPERTY_VALUES}
     if not doomed:
         return 0
-    graph.nodes = [n for n in graph.nodes if n.node_id not in doomed]
-    graph.edges = [e for e in graph.edges
-                   if e.edge_source not in doomed
-                   and e.edge_target not in doomed]
+    # Si costruiscono tutt'e due le liste PRIMA di assegnarle: il
+    # chiamante ingoia le eccezioni, e un guasto a metà lascerebbe il
+    # grafo coi nodi tolti e gli archi penzolanti, in silenzio.
+    nodes = [n for n in graph.nodes if n.node_id not in doomed]
+    edges = [e for e in graph.edges
+             if e.edge_source not in doomed and e.edge_target not in doomed]
+    graph.nodes, graph.edges = nodes, edges
     if hasattr(graph, "invalidate_indices"):
         graph.invalidate_indices()
     return len(doomed)
@@ -160,6 +165,133 @@ def _drop_paradata_of_paradata(graph, paradata_ids):
     return len(doomed_edges)
 
 
+def _drop_column_property_nodes(graph):
+    """Toglie i nodi proprietà che rispecchiano una colonna della scheda.
+
+    L'importer fa un nodo per ogni colonna piena di ogni US
+    (interpretazione, colore, consistenza, inclusi…): sul sito di
+    esempio sono 190 nodi che ripetono quello che l'unità già porta nel
+    suo ``data``, non hanno epoca — quindi la matrice di EMStudio li
+    ammucchia nella prima fascia — e seppelliscono la stratigrafia.
+    Enzo, 2026-10-08: «se sono 56 US devono essere 56 nodi, non 400».
+
+    Si toglie solo chi non partecipa a nient'altro: una proprietà che è
+    una riga di us_table, o che un estrattore cita, resta.
+    """
+    incoming = {}
+    outgoing = {}
+    for edge in graph.edges:
+        incoming.setdefault(edge.edge_target, []).append(edge)
+        outgoing.setdefault(edge.edge_source, []).append(edge)
+
+    doomed = set()
+    for node in graph.nodes:
+        if getattr(node, "node_type", None) != "property":
+            continue
+        if (getattr(node, "attributes", None) or {}).get("us"):
+            continue                        # è una riga della scheda
+        if outgoing.get(node.node_id):
+            continue                        # dice qualcosa a qualcuno
+        archi = incoming.get(node.node_id) or []
+        if archi and all(e.edge_type == "has_property" for e in archi):
+            doomed.add(node.node_id)
+    if not doomed:
+        return 0
+    nodes = [n for n in graph.nodes if n.node_id not in doomed]
+    edges = [e for e in graph.edges
+             if e.edge_source not in doomed and e.edge_target not in doomed]
+    graph.nodes, graph.edges = nodes, edges
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return len(doomed)
+
+
+def _downgrade_edges_towards_paradata(graph, paradata_ids):
+    """Declassa i rapporti stratigrafici che toccano un paradato.
+
+    «Copre 400» verso un estrattore è un arco che il datamodel
+    dell'Extended Matrix rifiuta: EMStudio lo degraderebbe da solo, in
+    silenzio, e l'archeologo non saprebbe che quel rapporto non è
+    arrivato. Qui diventa ``generic_connection`` — che
+    ``refine_generic_connections`` può poi tipizzare — e il motivo
+    finisce negli avvisi dell'esportazione.
+    """
+    toccati = 0
+    for edge in graph.edges:
+        if not str(getattr(edge, "edge_id", "")).startswith("rap_"):
+            continue
+        if edge.edge_type == "generic_connection":
+            continue
+        if edge.edge_source not in paradata_ids \
+                and edge.edge_target not in paradata_ids:
+            continue
+        verbo = edge.edge_type
+        edge.edge_type = "generic_connection"
+        toccati += 1
+        try:
+            graph.add_warning(
+                "Il rapporto «%s» fra %s e %s tocca un paradato: "
+                "l'Extended Matrix non lo ammette, viaggia come "
+                "collegamento generico."
+                % (verbo, _label(graph, edge.edge_source),
+                   _label(graph, edge.edge_target)))
+        except Exception:                           # noqa: BLE001
+            pass
+    return toccati
+
+
+def _label(graph, node_id):
+    for node in graph.nodes:
+        if node.node_id == node_id:
+            return getattr(node, "name", None) or node_id
+    return node_id
+
+
+def _merge_checklist_documents(graph):
+    """Una voce di spunta della scheda = un documento, non uno per US.
+
+    ``documentazione`` è una lista di spunte («Fotografie: Sì»): non è un
+    documento diverso per ogni unità. L'importer ne crea uno per riga
+    (``<uuid>_doc_<nome>``) e EMStudio conta i nomi doppi — 35
+    «Fotografie» identiche sul sito demo. Qui restano un nodo per nome,
+    appeso a tutte le unità che lo citano.
+    """
+    survivor = {}
+    redirect = {}
+    for node in graph.nodes:
+        if getattr(node, "node_type", None) != "document":
+            continue
+        if "_doc_" not in str(node.node_id):
+            continue                       # un documento vero (un file)
+        name = str(getattr(node, "name", ""))
+        if name in survivor:
+            redirect[node.node_id] = survivor[name].node_id
+        else:
+            survivor[name] = node
+    if not redirect:
+        return 0
+
+    graph.nodes = [n for n in graph.nodes if n.node_id not in redirect]
+    seen = set()
+    kept = []
+    for edge in graph.edges:
+        source = redirect.get(edge.edge_source, edge.edge_source)
+        target = redirect.get(edge.edge_target, edge.edge_target)
+        if source != edge.edge_source or target != edge.edge_target:
+            edge.edge_source = source
+            edge.edge_target = target
+            edge.edge_id = "%s_%s_%s" % (source, edge.edge_type, target)
+        key = (edge.edge_source, edge.edge_type, edge.edge_target)
+        if key in seen:
+            continue
+        seen.add(key)
+        kept.append(edge)
+    graph.edges = kept
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return len(redirect)
+
+
 def _paradata_class_of(declared):
     """The paradata class ``declared`` names, or None.
 
@@ -192,18 +324,27 @@ def _become(node, target_cls):
     user.
     """
     probe = target_cls(node_id="_probe", name="_probe")
+    suoi = set(vars(probe))
     node.__class__ = target_cls
-    # Node.__init__ copies the class attribute onto the instance
-    # (base_node.py:61), and the stale copy would win over the new class.
+    # Node.__init__ copia l'attributo di classe sull'istanza
+    # (base_node.py:61): la copia vecchia vincerebbe sulla classe nuova.
     node.node_type = target_cls.node_type
-    for field in _PRESENTATION_FIELDS:
-        if hasattr(probe, field):
-            setattr(node, field, getattr(probe, field))
-    for field, value in vars(probe).items():
-        if field in _IDENTITY_FIELDS or field in _PRESENTATION_FIELDS:
+    # Quello che la nuova classe non ha, il nodo non lo tiene: le classi
+    # paradato non hanno symbol né label, e senza questo passo un
+    # estrattore restava «white rectangle» / «US (or SU)» — le due
+    # stringhe che erano il sintomo di partenza (review 2026-10-08).
+    for field in list(vars(node)):
+        if field in _IDENTITY_FIELDS or field in suoi:
             continue
-        if getattr(node, field, _MISSING) in (_MISSING, None):
+        node.__dict__.pop(field, None)
+    for field, value in vars(probe).items():
+        if field in _IDENTITY_FIELDS:
+            continue
+        if field in _PRESENTATION_FIELDS \
+                or getattr(node, field, _MISSING) in (_MISSING, None):
             setattr(node, field, value)
+    if "data" in suoi and not isinstance(getattr(node, "data", None), dict):
+        node.data = {}
     return node
 
 
@@ -249,7 +390,15 @@ def _site_filtered_importer(sito):
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
-    def populate_graph(self, db_path, sito, **kwargs):
+    def populate_graph(self, db_path, sito, *, column_properties=False,
+                       **kwargs):
+        """Il grafo del sito.
+
+        ``column_properties``: quando è vero viaggiano anche i nodi
+        proprietà nati dalle colonne della scheda. Di norma no — sono il
+        doppione di quello che l'unità porta già in ``data`` e
+        seppelliscono la stratigrafia nella matrice.
+        """
         with _site_filtered_importer(sito):
             graph = super().populate_graph(db_path, sito, **kwargs)
 
@@ -300,8 +449,12 @@ class GraphProjector(_LibGraphProjector):
             raise ProjectionError(
                 "node retyping failed for sito=%r: %s" % (sito, e)) from e
 
-        # A column nobody filled in is not a paradatum.
+        # A column nobody filled in is not a paradatum, and a checklist
+        # entry is one document for the site, not one per unit.
         try:
+            _merge_checklist_documents(graph)
+            if not column_properties:
+                _drop_column_property_nodes(graph)
             _drop_empty_property_nodes(graph)
         except Exception:                           # noqa: BLE001
             pass                                    # hygiene, never a failure
@@ -385,11 +538,19 @@ class GraphProjector(_LibGraphProjector):
 
         Returns the count per resulting node_type.
         """
+        from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
         from s3dgraphy.utils.utils import get_stratigraphic_node_class
 
         counts = {}
         became_paradata = set()
         for node in list(graph.nodes):
+            # L'importer costruisce OGNI riga di us_table come
+            # StratigraphicUnit: un gruppo, un'epoca o la posizione non
+            # hanno mai bisogno di cambiare classe, e l'assegnazione
+            # degli attributi può rivendicarli per omonimia quando manca
+            # il node_uuid (review 2026-10-08).
+            if not isinstance(node, StratigraphicNode):
+                continue
             declared = (getattr(node, "attributes", None) or {}).get(
                 "unita_tipo")
             target = _paradata_class_of(declared)
@@ -409,6 +570,9 @@ class GraphProjector(_LibGraphProjector):
             counts[node_type] = counts.get(node_type, 0) + 1
         if became_paradata:
             _drop_paradata_of_paradata(graph, became_paradata)
+            _downgrade_edges_towards_paradata(graph, became_paradata)
+        if hasattr(graph, "invalidate_indices"):
+            graph.invalidate_indices()
         return counts
 
     @staticmethod

@@ -29,14 +29,17 @@ REPLACEMENTS = {
     "USVC": "USVn",
 }
 
-#: The columns that quote other units, and may quote their type with them.
-#: ``rapporti``  = [tipo, us, area, sito] (and an older [tipo, us])
+#: Dove, dentro una voce, può esserci un codice di tipo. Il resto della
+#: voce non si tocca: la posizione 3 di ``rapporti2`` è la DESCRIZIONE
+#: libera, e riscriverla a metà (la prima occorrenza sì, la seconda no)
+#: è peggio che lasciarla vecchia — trovato dalla review 2026-10-08.
+#:
+#: ``rapporti``  = [tipo, us, area, sito]            → il tipo non c'è,
+#:     ma il riferimento in posizione 1 può portarlo attaccato (USVA104)
 #: ``rapporti2`` = [tipo, us, unita_tipo, descr, periodo, area, sito]
-#:                 (and an older five-place form)
-#: The code's position is not fixed across the two shapes and across the
-#: ages of a scheda, so the rewrite does not assume one: it replaces any
-#: cell that IS a legacy code, and any reference that starts with one
-#: ("USVA104"). Nothing else in the row is touched.
+RAPPORTI_TYPE_POSITIONS = {"rapporti": (), "rapporti2": (2,)}
+RAPPORTI_REFERENCE_POSITION = 1
+
 RAPPORTI_COLUMNS = ("rapporti", "rapporti2")
 
 _EMPTY_CELLS = ("", "[]", "[[]]")
@@ -52,7 +55,7 @@ def _rewrite_reference(text: str):
     return text, False
 
 
-def _rewrite_cell(raw):
+def _rewrite_cell(raw, type_positions=()):
     """Rewrite the legacy codes in one relationship cell.
 
     Returns ``(new_text, changed_cells)``; ``(None, 0)`` when there is
@@ -77,17 +80,20 @@ def _rewrite_cell(raw):
             out.append(entry)
             continue
         cells = list(entry)
-        for i, cell in enumerate(cells):
-            if not isinstance(cell, str):
-                continue
-            if cell in REPLACEMENTS:
-                cells[i] = REPLACEMENTS[cell]
+        for i in type_positions:
+            if i < len(cells) and cells[i] in REPLACEMENTS:
+                cells[i] = REPLACEMENTS[cells[i]]
                 changed += 1
-                continue
-            new, hit = _rewrite_reference(cell)
-            if hit:
-                cells[i] = new
+        i = RAPPORTI_REFERENCE_POSITION
+        if i < len(cells) and isinstance(cells[i], str):
+            if cells[i] in REPLACEMENTS:
+                cells[i] = REPLACEMENTS[cells[i]]
                 changed += 1
+            else:
+                new, hit = _rewrite_reference(cells[i])
+                if hit:
+                    cells[i] = new
+                    changed += 1
         out.append(cells)
     return (str(out), changed) if changed else (None, 0)
 
@@ -119,6 +125,10 @@ def _scan(db_path: Path, apply: bool) -> dict:
             counts["%s (already-aligned)" % tgt] = cur.fetchone()[0]
 
         present = [c for c in RAPPORTI_COLUMNS if c in columns]
+        if present and "id_us" not in columns:
+            # Senza una chiave non si può riscrivere una riga sola: si
+            # lascia stare, e il tipo dell'unità si migra lo stesso.
+            present = []
         if present:
             rows = cur.execute(
                 "SELECT id_us, %s FROM us_table" % ", ".join(present)
@@ -126,7 +136,8 @@ def _scan(db_path: Path, apply: bool) -> dict:
             for row in rows:
                 id_us, cells = row[0], row[1:]
                 for column, raw in zip(present, cells):
-                    new_text, changed = _rewrite_cell(raw)
+                    new_text, changed = _rewrite_cell(
+                        raw, RAPPORTI_TYPE_POSITIONS.get(column, ()))
                     if changed < 0:
                         counts["illeggibili"] += 1
                         continue

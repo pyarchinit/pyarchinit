@@ -350,12 +350,19 @@ def test_usvb_is_a_non_structural_virtual_unit():
     assert UNIT_TYPES["USVC"] == "USVn"
 
 
-def test_the_room_and_the_migration_agree_on_the_legacy_codes():
-    """Due tabelle, un significato solo: se una cambia, questo test cade."""
+def test_the_room_the_projector_and_the_migration_agree():
+    """Tre tabelle, un significato solo: la stanza, il proiettore e la
+    migrazione. Se una cambia, questo test cade (la review del
+    2026-10-08 ha trovato che il proiettore non era controllato da
+    nessuno, ed è l'unico che porta anche «USVc»)."""
     from scripts.migrations._2026_05_us_vocabulary_alignment_lib import (
         REPLACEMENTS)
 
     from modules.s3dgraphy.room.us_ops import UNIT_TYPES
+    from modules.s3dgraphy.sync.graph_projector import LEGACY_UNITA_TIPO
 
     for legacy, canonical in REPLACEMENTS.items():
         assert UNIT_TYPES[legacy] == canonical, legacy
+        assert LEGACY_UNITA_TIPO[legacy] == canonical, legacy
+    extra = set(LEGACY_UNITA_TIPO) - set(REPLACEMENTS)
+    assert extra == {"USVc"}, extra

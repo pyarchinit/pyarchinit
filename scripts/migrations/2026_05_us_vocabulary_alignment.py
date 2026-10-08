@@ -39,8 +39,20 @@ def main(argv: list[str] | None = None) -> int:
         log.info("Backup created: %s", backup)
         applied = apply_changes(db)
         log.info("Applied to %s:", db)
+        # Il dizionario mescola tre cose: il censimento prima della
+        # corsa, le voci riscritte nei rapporti e le celle illeggibili.
+        # Stamparle tutte come "row(s) updated" diceva il contrario del
+        # vero sulle ultime due (review 2026-10-08).
         for k, v in applied.items():
-            log.info("  %s -> %d row(s) updated", k, v)
+            if k == "illeggibili":
+                log.info("  %d cell(s) left alone (unreadable)", v)
+            elif k.endswith("(voci)"):
+                log.info("  %s: %d entr(ies) rewritten", k[:-len(" (voci)")], v)
+            elif k.endswith("(already-aligned)"):
+                log.info("  %s: %d row(s) were already aligned",
+                         k[:-len(" (already-aligned)")], v)
+            else:
+                log.info("  %s -> %d row(s) updated", k, v)
         return 0
 
     if args.rollback:

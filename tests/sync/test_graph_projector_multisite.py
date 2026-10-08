@@ -352,7 +352,8 @@ def test_an_empty_column_does_not_become_a_property(tmp_path):
         dict(sito="Alfa", us="1", unita_tipo="US", inclusi="[]"),
         dict(sito="Alfa", us="2", unita_tipo="US", inclusi="['ceramica']"),
     ])
-    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    graph = GraphProjector().populate_graph(db, sito="Alfa",
+                                            column_properties=True)
     values = [getattr(n, "value", None) for n in graph.nodes
               if n.node_type == "property"]
     assert "[]" not in values
@@ -382,7 +383,8 @@ def test_a_paradatum_has_no_paradata_of_its_own(tmp_path):
         dict(sito="Alfa", us="1", unita_tipo="US",
              d_interpretativa="strato di crollo"),
     ])
-    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    graph = GraphProjector().populate_graph(db, sito="Alfa",
+                                            column_properties=True)
     paradato = next(n for n in graph.nodes
                     if (getattr(n, "attributes", None) or {}).get("us")
                     == "800")
@@ -395,3 +397,129 @@ def test_a_paradatum_has_no_paradata_of_its_own(tmp_path):
                  if (getattr(n, "attributes", None) or {}).get("us") == "1")
     assert any(e.edge_type == "has_property" and e.edge_source == unita.node_id
                for e in graph.edges)
+
+
+def test_the_same_documentation_is_one_node_for_the_whole_site(tmp_path):
+    """«Fotografie: Sì» nella scheda non è un documento diverso per ogni
+    US: è la stessa voce di spunta. L'importer ne faceva un nodo per
+    unità e EMStudio contava i nomi doppi (35 «Fotografie» identiche sul
+    demo, 2026-10-08). Uno solo, appeso a tutte le unità che ce l'hanno."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             documentazione="[['Fotografie', 'Si'], ['Planimetrie', 'Si']]"),
+        dict(sito="Alfa", us="2", unita_tipo="US",
+             documentazione="[['Fotografie', 'Si']]"),
+        dict(sito="Alfa", us="3", unita_tipo="US",
+             documentazione="[['Sezioni', 'Si']]"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    docs = [n for n in graph.nodes if n.node_type == "document"]
+    assert sorted(n.name for n in docs) == [
+        "Fotografie", "Planimetrie", "Sezioni"]
+    fotografie = next(n for n in docs if n.name == "Fotografie")
+    chi_la_cita = {e.edge_source for e in graph.edges
+                   if e.edge_target == fotografie.node_id
+                   and e.edge_type == "has_documentation"}
+    assert len(chi_la_cita) == 2, chi_la_cita
+    ids = {n.node_id for n in graph.nodes}
+    for e in graph.edges:
+        assert e.edge_source in ids and e.edge_target in ids
+
+
+def test_the_sheet_columns_do_not_become_a_cloud_of_nodes(tmp_path):
+    """Osservato da Enzo guardando la matrice: «se sono 56 US devono
+    essere 56 nodi, non 400».
+
+    L'importer fa un nodo proprietà per ogni colonna piena di ogni US
+    (interpretazione, colore, consistenza, inclusi, stato di
+    conservazione…): 190 nodi sul sito demo, che ripetono quello che
+    l'unità già porta nel suo `data`, non hanno epoca — quindi la
+    matrice li ammucchia nella prima fascia — e seppelliscono la
+    stratigrafia. Di norma non viaggiano; chi li vuole li chiede."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             d_interpretativa="strato di crollo", colore="bruno",
+             consistenza="compatta"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert [n for n in graph.nodes if n.node_type == "property"] == []
+    unita = next(n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us") == "1")
+    # il dato non si perde: resta sull'unità
+    assert unita.attributes["d_interpretativa"] == "strato di crollo"
+
+    con_proprieta = GraphProjector().populate_graph(
+        db, sito="Alfa", column_properties=True)
+    nomi = {n.name for n in con_proprieta.nodes
+            if n.node_type == "property"}
+    assert "Interpretation" in nomi and "Color" in nomi
+
+
+def test_a_paradata_row_survives_the_cloud_sweep(tmp_path):
+    """Una riga di us_table che È una proprietà non è una colonna
+    rispecchiata: resta."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="800", unita_tipo="property",
+             d_interpretativa="materiale pietra dura"),
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             rapporti="[['Copre', '800', '1', 'Alfa']]"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _types_by_us(graph) == {"800": "property", "1": "US"}
+
+
+def test_only_rows_of_the_sheet_change_class(tmp_path):
+    """Dalla review: il passaggio riclassificava QUALUNQUE nodo con un
+    `unita_tipo` negli attributi, e la fascia di un'area — che
+    l'assegnazione degli attributi può rivendicare per omonimia quando
+    manca il node_uuid — diventava una unità virtuale. Solo le righe
+    della scheda cambiano classe."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", area="1", settore="B", us="1", unita_tipo="USVA",
+             node_uuid=None),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    gruppi = [n for n in graph.nodes
+              if str(n.node_id).startswith("loc::")]
+    for gruppo in gruppi:
+        assert type(gruppo).__name__ == "LocationNodeGroup", (
+            gruppo.node_id, type(gruppo).__name__)
+
+
+def test_a_retyped_node_keeps_nothing_of_its_old_class(tmp_path):
+    """Dalla review: le classi paradato non hanno `symbol` né `label`, e
+    il nodo si teneva «white rectangle» e «US (or SU)» della US — proprio
+    le due stringhe che erano il sintomo di partenza."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="800", unita_tipo="property"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    paradato = next(n for n in graph.nodes
+                    if (getattr(n, "attributes", None) or {}).get("us")
+                    == "800")
+    for campo in ("symbol", "label", "detailed_description",
+                  "stratigraphic_kind", "source_code", "definition"):
+        assert not hasattr(paradato, campo), campo
+    assert isinstance(getattr(paradato, "data", None), dict)
+
+
+def test_a_stratigraphic_verb_towards_a_paradatum_is_not_published(tmp_path):
+    """Dalla review: «Copre 400» verso un estrattore produce un arco che
+    il datamodel dell'Extended Matrix rifiuta, e l'arco disegnato
+    dall'archeologo sparirebbe in silenzio. Si declassa e lo si dice."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             rapporti="[['Copre', '400', '1', 'Alfa']]"),
+        dict(sito="Alfa", us="400", unita_tipo="Extractor"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    estrattore = next(n for n in graph.nodes
+                      if (getattr(n, "attributes", None) or {}).get("us")
+                      == "400")
+    verso = [e.edge_type for e in graph.edges
+             if e.edge_target == estrattore.node_id
+             or e.edge_source == estrattore.node_id]
+    assert "overlies" not in verso, verso
+    assert any("Copre" in str(w) or "400" in str(w)
+               for w in (getattr(graph, "warnings", None) or [])), \
+        getattr(graph, "warnings", None)

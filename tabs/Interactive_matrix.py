@@ -48,7 +48,8 @@ from ..modules.utility.periodization_checks import (
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import *
-from ..modules.utility.rapporti_entries import rapporto_target
+from ..modules.utility.rapporti_entries import (rapporto_target,
+                                                  rapporto2_target)
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from ..modules.utility.pyarchinit_i18n_stratigraphic import (
     POSITIVE_GROUP, NEGATIVE_GROUP, PASSIVE_COVERS_GROUP, PASSIVE_CUTS_GROUP,
@@ -294,7 +295,7 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
             try:
                 for sing_rapp in rapporti_stratigrafici:
                     # Due formati vivi nello stesso DB: [tipo, us, area,
-                    # sito] e [tipo, us] (1683 voci su 1870 nel DB di
+                    # sito] e [tipo, us] (1870 voci su 1870 nel database di esempio nel DB di
                     # esempio). Leggere voce[2] senza guardare faceva
                     # morire l'esportazione con «list index out of range».
                     target = rapporto_target(sing_rapp, area)

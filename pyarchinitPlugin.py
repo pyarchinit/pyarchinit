@@ -3262,7 +3262,14 @@ class PyArchInitPlugin(object):
         QMessageBox.information(
             self.iface.mainWindow(),
             "Migrazione completata",
-            f"Backup: {backup}\n\nAggiornamenti: {applied}",
+            "Backup: %s\n\nTipo dell'unità riscritto: %d riga/he.\n"
+            "Voci riscritte nei rapporti: %d.\n"
+            "Celle illeggibili lasciate intatte: %d."
+            % (backup,
+               sum(applied.get(k, 0) for k in ("USVA", "USVB", "USVC")),
+               applied.get("rapporti (voci)", 0)
+               + applied.get("rapporti2 (voci)", 0),
+               applied.get("illeggibili", 0)),
         )
 
     def _run_uuid_backfill_migration(self):

@@ -63,7 +63,7 @@ def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):
                  if (getattr(n, "attributes", None) or {}).get("us")
                  or ((getattr(n, "data", None) or {}).get("us"))]
     assert len(from_rows) >= 51, "le 51 righe inglesi devono arrivare nel file"
-    assert len(strat) >= 45, "le unità stratigrafiche inglesi devono arrivare"
+    assert len(strat) == 45, "le unità stratigrafiche inglesi devono arrivare"
     assert any(is_masonry(n) for n in strat), (
         "le WSU devono restare murarie anche rilette dal file")
 
