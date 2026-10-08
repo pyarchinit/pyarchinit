@@ -192,7 +192,8 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         simmetrica = r.kind in SYMMETRIC_KINDS
         risultato.edges.append(Edge(
             kind=r.kind, symmetric=simmetrica,
-            points=_route(a, b, simmetrica)))
+            points=_route(a, b, simmetrica,
+                          scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
 
     risultato.width = max(
         [config.margin * 2 + config.band_label_w
@@ -202,16 +203,31 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
     return risultato
 
 
-def _route(a: Box, b: Box, simmetrica: bool) -> List[Tuple[float, float]]:
-    """La spezzata da ``a`` a ``b``: giù, di lato, giù."""
+#: Quanto scende la linea prima di spostarsi di lato. Corto: deve
+#: staccarsi dalla casella di partenza, non tagliare la pagina.
+_STACCO = 14.0
+
+
+def _route(a: Box, b: Box, simmetrica: bool,
+           scarto: float = 0.0) -> List[Tuple[float, float]]:
+    """La spezzata da ``a`` a ``b``: un pezzetto giù, di lato, poi giù.
+
+    Lo spostamento laterale avviene **subito sotto la casella di
+    partenza**, non a metà strada: così una relazione che attraversa più
+    fasce scende nella colonna di arrivo invece di tagliare in verticale
+    le caselle che incontra (visto sul primo disegno del sito di
+    esempio). ``scarto`` sposta di poco la discesa, perché due linee
+    vicine non si sovrappongano fino a sembrarne una.
+    """
     if simmetrica:
         return [(a.x + a.w, a.y + a.h / 2), (b.x, b.y + b.h / 2)]
     p = (a.x + a.w / 2, a.y + a.h)
     q = (b.x + b.w / 2, b.y)
-    if abs(p[0] - q[0]) < 0.5:
+    if abs(p[0] - q[0]) < 0.5 and not scarto:
         return [p, q]
-    mezzo = (p[1] + q[1]) / 2
-    return [p, (p[0], mezzo), (q[0], mezzo), q]
+    giu = min(p[1] + _STACCO, q[1])
+    x = q[0] + scarto
+    return [p, (p[0], giu), (x, giu), (x, q[1] - 2.0), q]
 
 
 def _anno(valore: float) -> str:

@@ -159,3 +159,21 @@ def test_symmetric_relations_do_not_push_anything_down():
     a = next(b for b in lay.boxes if b.unit.label == "US1")
     b_ = next(b for b in lay.boxes if b.unit.label == "US2")
     assert a.y == b_.y
+
+
+def test_a_long_relation_leaves_its_box_before_travelling():
+    """Guardando il primo disegno del sito di esempio: le linee lunghe
+    scendevano in verticale attraverso le caselle sottostanti. La
+    spezzata deve staccarsi dalla casella di partenza e poi spostarsi,
+    non tagliare dritto per tutta la pagina."""
+    model = MatrixModel(
+        units=[_unit("US1", "alta"), _unit("US2", "bassa")],
+        epochs=[_epoch("alta", 1800, 2022), _epoch("bassa", 1200, 1350)],
+        relations=[Relation("US1", "US2", "overlies")])
+    lay = layout(model)
+    punti = lay.edges[0].points
+    partenza = next(b for b in lay.boxes if b.unit.label == "US1")
+    # il primo tratto è corto e verticale: esce dalla casella e basta
+    assert punti[0][0] == punti[1][0]
+    assert 0 < punti[1][1] - punti[0][1] <= 24
+    assert punti[0][1] >= partenza.y + partenza.h
