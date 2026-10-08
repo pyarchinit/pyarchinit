@@ -433,6 +433,20 @@ Das Werkzeug ist idempotent: Ist die DB bereits sauber, meldet es „Rapporti gi
 ![Leere Beziehungen reparieren](images/03_se_formular/34_ripara_rapporti_vuoti.png)
 *Abbildung 34: Vorschau der Reparatur leerer Beziehungen*
 
+### USVA/USVB/USVC-Codes in den Beziehungen (Vokabular-Abgleich)
+
+Das Vokabular der vertikalen Einheiten wurde aufgeräumt: **USVA und USVB werden USVs** (strukturelle virtuelle Einheit) und **USVC wird USVn** (nicht-strukturelle virtuelle Einheit). Den Menüpunkt für die Umstellung gab es schon, aber er korrigierte nur das Feld **Unità tipo** (Einheitentyp): im Tab **Rapporti stratigrafici** stand weiter "USVA 104" neben einer Einheit, die längst eine USVs war.
+
+Ab dieser Version **schreibt die Migration auch die Beziehungen um**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migrationen → SE-Vokabular abgleichen)
+2. Die Datenbankdatei (`.sqlite`) auswählen
+3. Es erscheint ein **Plan**: wie viele Einheiten je altem Code, wie viele Einträge in den Spalten `rapporti` und `rapporti2` umzuschreiben sind, wie viele Zellen unlesbar sind. Das Fenster sagt in Worten, dass die Migration den Einheitentyp **und** die alten Codes in den Beziehungen anfasst und dass unlesbare Zellen unangetastet bleiben
+4. Bestätigen: vor dem Schreiben wird ein **automatisches Backup** der Datenbank angelegt
+5. Das SE-Formular wieder öffnen: in den Beziehungen stimmen die Codes
+
+Das Werkzeug ist idempotent: beim zweiten Durchgang steht im Plan überall null. Eine Beziehungszelle, die nicht gelesen werden kann, wird nie halb umgeschrieben — sie bleibt, wie sie ist, und wird getrennt gezählt, damit man weiß, wie viele es sind, und sie von Hand prüfen kann.
+
 ---
 
 ## Tab Physische Daten

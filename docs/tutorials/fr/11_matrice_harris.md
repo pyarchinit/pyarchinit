@@ -304,6 +304,14 @@ Les fichiers `.dot` sont toujours produits comme avant.
 1. Ouvrir la Fiche Périodisation et corriger les périodes listées dans l'avertissement en saisissant les années av. J.-C. comme nombres négatifs (ex. `-1650` → `-1450`)
 2. Régénérer la Matrice
 
+### Erreur « list index out of range » à l'export de la matrice
+
+**Quand elle apparaissait** : en appuyant sur **Esporta matrice** (export standard ou 2ED) sur une base dont les relations sont écrites au **format court** — `[type, US]` au lieu de `[type, US, aire, site]`. Dans la base d'exemple livrée avec le plugin, toutes les entrées sont au format court : la matrice ne se générait pas du tout.
+
+**Cause** : l'exportateur lisait toujours la troisième et la quatrième case de chaque relation, qui n'existent pas au format court.
+
+**Solution** : corrigé à partir de cette version. Les deux formats sont lus, et une entrée tronquée ou illisible est ignorée au lieu de faire tomber tout l'export. Rien à corriger dans les données : mettre le plugin à jour et régénérer la matrice.
+
 ## Sortie et Fichiers Générés
 
 ### Dossier de Sortie

@@ -419,6 +419,20 @@ A ferramenta e idempotente: se a BD ja estiver limpa indica "Rapporti già pulit
 ![Reparar relacoes vazias](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
 *Figura 34: Pre-visualizacao da reparacao de relacoes vazias*
 
+### Codigos USVA/USVB/USVC dentro das relacoes (alinhamento do vocabulario)
+
+O vocabulario das unidades verticais foi arrumado: **USVA e USVB passam a USVs** (unidade virtual estrutural) e **USVC passa a USVn** (unidade virtual nao estrutural). A entrada de menu que faz a conversao ja existia, mas corrigia apenas o campo **Unità tipo** (tipo de unidade): na aba **Rapporti stratigrafici** continuava a ler-se "USVA 104" ao lado de uma unidade que ja era uma USVs.
+
+A partir desta versao a migracao **reescreve tambem as relacoes**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migracoes → Alinhar vocabulario UE)
+2. Escolher o ficheiro da base de dados (`.sqlite`)
+3. Aparece um **plano**: quantas unidades por cada codigo antigo, quantas entradas ha para reescrever nas colunas `rapporti` e `rapporti2`, quantas celulas se revelam ilegiveis. A janela diz por palavras que a migracao toca no tipo de unidade **e** nos codigos antigos dentro das relacoes, e que as celulas ilegiveis ficam intactas
+4. Confirmar: antes de escrever e criada uma **copia de seguranca automatica** da base de dados
+5. Reabrir a Ficha UE: nas relacoes os codigos estao alinhados
+
+A ferramenta e idempotente: na segunda passagem o plano esta todo a zero. Uma celula de relacoes que nao se consegue ler nunca e reescrita a meio — fica como esta e e contada a parte, para se saber quantas sao e se poderem verificar a mao.
+
 ---
 
 ## Separador Relacoes da Matrix Estendida

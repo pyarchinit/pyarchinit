@@ -294,6 +294,14 @@ Els fitxers `.dot` es generen com abans.
 1. Obrir la Fitxa Periodització i corregir els períodes llistats a l'avís introduint els anys aC com a nombres negatius (ex. `-1650` → `-1450`)
 2. Regenerar la Matriu
 
+### Error "list index out of range" en exportar la matriu
+
+**Quan apareixia**: en prémer **Esporta matrice** (exportació estàndard o 2ED) en una base de dades amb les relacions escrites en el **format curt** — `[tipus, UE]` en lloc de `[tipus, UE, àrea, lloc]`. A la base de dades d'exemple que viatja amb el connector totes les entrades són en format curt, de manera que la matriu no es generava gens.
+
+**Causa**: l'exportador llegia sempre la tercera i la quarta casella de cada relació, que en el format curt no existeixen.
+
+**Solució**: resolt des d'aquesta versió. Ara es llegeixen tots dos formats, i una entrada truncada o il·legible se salta en lloc de tombar tota l'exportació. No cal corregir res a les dades: actualitzeu el connector i torneu a generar la matriu.
+
 ## Sortida i Fitxers Generats
 
 ### Carpeta de Sortida

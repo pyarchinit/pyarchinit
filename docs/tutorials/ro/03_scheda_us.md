@@ -419,6 +419,20 @@ Instrumentul este idempotent: daca BD este deja curata, semnaleaza "Rapporti gi�
 ![Repara relatiile goale](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
 *Figura 34: Previzualizarea repararii relatiilor goale*
 
+### Codurile USVA/USVB/USVC in relatii (alinierea vocabularului)
+
+Vocabularul unitatilor verticale a fost pus in ordine: **USVA si USVB devin USVs** (unitate virtuala structurala), iar **USVC devine USVn** (unitate virtuala nestructurala). Intrarea de meniu care face conversia exista deja, dar corecta doar campul **Unità tipo** (tipul unitatii): in tabul **Rapporti stratigrafici** se citea in continuare "USVA 104" langa o unitate devenita deja USVs.
+
+Incepand cu aceasta versiune migrarea **rescrie si relatiile**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migrari → Alinierea vocabularului US)
+2. Alegeti fisierul bazei de date (`.sqlite`)
+3. Apare un **plan**: cate unitati pentru fiecare cod vechi, cate intrari trebuie rescrise in coloanele `rapporti` si `rapporti2`, cate celule sunt ilizibile. Fereastra spune in cuvinte ca migrarea atinge tipul unitatii **si** codurile vechi din interiorul relatiilor, si ca celulele ilizibile ramin intacte
+4. Confirmati: inainte de a scrie se creeaza un **backup automat** al bazei de date
+5. Redeschideti Fisa US: in relatii codurile sunt aliniate
+
+Instrumentul este idempotent: la a doua trecere planul este tot zero. O celula de relatii care nu poate fi citita nu este rescrisa pe jumatate — ramane cum este si este numarata separat, ca sa se stie cate sunt si sa poata fi verificate manual.
+
 ---
 
 ## Fila Relatii Extended Matrix

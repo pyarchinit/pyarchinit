@@ -419,6 +419,20 @@ Il tool è idempotente: se il DB è già pulito segnala "Rapporti già puliti". 
 ![Ripara rapporti vuoti](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
 *Figura 34: Anteprima della riparazione dei rapporti vuoti*
 
+### Codici USVA/USVB/USVC nei rapporti (allineamento del vocabolario)
+
+Il vocabolario delle unità verticali è stato riordinato: **USVA e USVB diventano USVs** (unità virtuale strutturale) e **USVC diventa USVn** (unità virtuale non strutturale). La voce di menu che fa la conversione esisteva già, ma correggeva solo il campo **Unità tipo**: nella tab **Rapporti stratigrafici** si continuava a leggere «USVA 104» accanto a un'unità che era già diventata una USVs.
+
+Da questa release la migrazione **riscrive anche i rapporti**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)`
+2. Scegliere il file del database (`.sqlite`)
+3. Compare un **piano**: quante unità per ciascun codice vecchio, quante voci da riscrivere nelle colonne `rapporti` e `rapporti2`, quante celle risultano illeggibili. La finestra dice a parole che la migrazione tocca il tipo dell'unità **e** i codici vecchi dentro i rapporti, e che le celle illeggibili restano intatte
+4. Confermare: prima di scrivere viene creato un **backup automatico** del database
+5. Riaprire la Scheda US: nei rapporti i codici sono allineati
+
+Il tool è idempotente: al secondo passaggio il piano è tutto a zero. Una cella di rapporti che non si riesce a leggere non viene riscritta a metà — resta com'è e viene contata a parte, così si sa quante sono e si possono controllare a mano.
+
 ---
 
 ## Tab Rapporti per Extended Matrix

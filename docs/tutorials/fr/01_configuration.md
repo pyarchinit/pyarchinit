@@ -170,6 +170,57 @@ Configurez séparément :
 
 ---
 
+### Exporter un site en em.json (Extended Matrix)
+
+Depuis le menu **pyArchInit → Extended Matrix → Esporta sito in em.json…** (Exporter le site en em.json), un site entier passe dans le format de travail de l'Extended Matrix, celui qu'**EMStudio** ouvre nativement.
+
+À quoi s'attendre :
+
+- pyArchInit liste les sites de la base : on en choisit **un** ;
+- le fichier naît dans `pyarchinit_EM_folder`, dans le dossier de données du plugin, au nom du site (tout alphabet : `Al-Khutm.em.json`, `Scavo_archeologico.em.json`) ;
+- avant de le livrer, pyArchInit **relit le fichier** : un export qui ne se relit pas à l'identique n'est pas livré ;
+- à la fin, il demande s'il faut l'**ouvrir tout de suite dans EMStudio** ; si EMStudio n'est pas installé, pyArchInit indique où se trouve le fichier et **propose de l'installer maintenant** (voir le paragraphe suivant).
+
+Le fichier ne contient que le site choisi, et chaque unité y arrive pour ce qu'elle est :
+
+- **seulement les lignes de ce site** : dans une base à plusieurs sites, la documentation et les périodes des autres sites n'entrent plus dans l'export ;
+- **chaque unité avec le type qu'elle déclare** : les unités virtuelles restent virtuelles, les special finds et les continuités restent eux-mêmes, si bien qu'EMStudio dessine le bon symbole au lieu de tout transformer en couche ;
+- **les paradonnées voyagent comme paradonnées**, non comme unités stratigraphiques ;
+- une **colonne vide** de la fiche ne devient plus une propriété vide dans le graphe.
+
+> **Note** : le GraphML ne survit que comme **import ponctuel depuis yEd** ; le format pour regarder et valider la matrice est em.json.
+
+### Installer EMStudio depuis le menu
+
+**EMStudio** est le visualiseur de l'Extended Matrix : un programme à part du projet Extended Matrix (licence GPL-3). pyArchInit ne le contient pas — il le **télécharge et le lance**, quand on le lui demande.
+
+Avec **pyArchInit → Extended Matrix → Installa EMStudio…** (Installer EMStudio) :
+
+1. pyArchInit lit les releases officielles d'EMStudio et **choisit le paquet pour cet ordinateur** (macOS Apple Silicon, Windows, Linux) ;
+2. avant de télécharger, il affiche une fenêtre avec **version, nom du fichier, taille, adresse de téléchargement et dossier de destination** — `<dossier de données de pyArchInit>/tools/EMStudio` — et attend un oui ;
+3. une fois le téléchargement terminé, il **vérifie l'empreinte sha256** déclarée par la release : un fichier qui ne correspond pas n'est pas installé ;
+4. sur macOS, **retirer la quarantaine** fait partie de l'installation : la build n'est pas signée par Apple et, sans cette étape, le système dirait que l'application est « endommagée » ;
+5. à la fin, il indique où l'installation a eu lieu. Si EMStudio était déjà là, il demande s'il faut retélécharger la dernière version.
+
+Si l'export en em.json ne trouve pas EMStudio, il **propose de l'installer sur le champ** puis ouvre le fichier.
+
+> **Limite connue** : la release du jour ne publie aucun paquet pour les **Mac Intel**. Dans ce cas, pyArchInit le dit et renvoie à la page des releases (github.com/ExtendedMatrix/EMStudio/releases), d'où le télécharger à la main.
+
+### Livrer un site à une salle StratiGraph
+
+Depuis **pyArchInit → Extended Matrix → Consegna sito alla stanza…** (Livrer le site à la salle), les unités stratigraphiques d'un site voyagent vers une **salle** d'un nœud StratiGraph (REST, une livraison à la fois — pas besoin de rester connecté).
+
+À quoi s'attendre :
+
+- on choisit le **site**, puis la fenêtre demande le **nœud** (p. ex. `http://127.0.0.1:8020` ; pour un nœud institutionnel `https://noeud.org/em` — écrire la racine fonctionne aussi, `/em` est trouvé tout seul), la **salle** et, seulement si le nœud l'exige, un **jeton** (mieux dans la variable d'environnement `STRATIGRAPH_TOKEN` : il n'est jamais enregistré) ;
+- le résultat est une phrase : *« 129 appliquées sur 129 »* à la première livraison ; à la seconde *« 44 appliquées sur 129, 85 déjà présentes »* — **les répétitions ne dupliquent rien** : les nœuds fusionnent, les arcs déjà connus reviennent comme « déjà présents » ;
+- les lignes qui ne peuvent pas devenir des unités de la salle (documents, extracteurs, propriétés) sont listées sous *Afficher les détails*, jamais inventées ;
+- **qui signe est qui livre** : l'auteur est écrit par le nœud à partir de l'identité vérifiée, pas par le payload.
+
+Avec **Extended Matrix → Apri il nodo (stanze)…** (Ouvrir le nœud (salles)), la salle s'ouvre **dans pyArchInit** (panneau latéral) : on utilise Qt WebEngine si le profil QGIS l'a, sinon Qt WebKit, que QGIS 3 livre encore — ainsi le panneau reste dans QGIS même là où WebEngine manque, et le navigateur externe n'est plus que l'ultime recours. Avec une salle configurée, c'est sa page qui s'ouvre directement ; sans salle, c'est la porte du nœud avec toutes les salles.
+
+---
+
 ## Onglet Graphviz
 
 Graphviz est nécessaire pour générer les diagrammes de la Matrice de Harris.

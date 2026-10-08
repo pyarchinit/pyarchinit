@@ -394,6 +394,20 @@ L'eina és idempotent: si la BD ja està neta indica "Rapporti già puliti" (rel
 ![Reparar relacions buides](images/03_fitxa_us/01_ripara_rapporti_vuoti.png)
 *Figura 1: Previsualització de la reparació de relacions buides*
 
+### Codis USVA/USVB/USVC dins les relacions (alineació del vocabulari)
+
+El vocabulari de les unitats verticals s'ha endreçat: **USVA i USVB passen a USVs** (unitat virtual estructural) i **USVC passa a USVn** (unitat virtual no estructural). L'entrada de menú que fa la conversió ja existia, però només corregia el camp **Unità tipo** (tipus d'unitat): a la pestanya **Rapporti stratigrafici** es continuava llegint "USVA 104" al costat d'una unitat que ja era una USVs.
+
+Des d'aquesta versió la migració **reescriu també les relacions**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migracions → Alinear vocabulari UE)
+2. Triar el fitxer de la base de dades (`.sqlite`)
+3. Apareix un **pla**: quantes unitats per cada codi antic, quantes entrades cal reescriure a les columnes `rapporti` i `rapporti2`, quantes cel·les resulten il·legibles. La finestra diu amb paraules que la migració toca el tipus d'unitat **i** els codis antics dins les relacions, i que les cel·les il·legibles queden intactes
+4. Confirmar: abans d'escriure es crea una **còpia de seguretat automàtica** de la base de dades
+5. Tornar a obrir la Fitxa UE: a les relacions els codis estan alineats
+
+L'eina és idempotent: a la segona passada el pla és tot a zero. Una cel·la de relacions que no es pot llegir no es reescriu a mitges: queda com està i es compta a part, així se sap quantes són i es poden revisar a mà.
+
 ---
 
 ## Pestanya Dades Físiques

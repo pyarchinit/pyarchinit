@@ -285,6 +285,14 @@ The `.dot` files are still produced as before.
 1. Open the Periodization Form and fix the periods listed in the warning, entering BC years as negative numbers (e.g. `-1650` → `-1450`)
 2. Regenerate the Matrix
 
+### Error "list index out of range" when exporting the matrix
+
+**When it appeared**: pressing **Esporta matrice** (standard or 2ED export) on a database whose relationships are written in the **short form** — `[type, SU]` instead of `[type, SU, area, site]`. In the sample database shipped with the plugin every entry is in the short form, so the matrix would not be generated at all.
+
+**Cause**: the exporter always read the third and the fourth cell of each relationship, which the short form does not have.
+
+**Fix**: solved from this version. Both forms are read now, and a truncated or unreadable entry is skipped instead of bringing the whole export down. There is nothing to correct in the data: update the plugin and generate the matrix again.
+
 ## Output and Generated Files
 
 ### Output Folder

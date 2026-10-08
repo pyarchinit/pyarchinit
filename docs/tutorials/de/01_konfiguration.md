@@ -320,6 +320,57 @@ Diese Registerkarte ermöglicht den Import von Daten aus anderen Datenbanken ode
 
 ---
 
+### Eine Stätte als em.json exportieren (Extended Matrix)
+
+Über den Menüpunkt **pyArchInit → Extended Matrix → Esporta sito in em.json…** (Stätte als em.json exportieren) wandert eine ganze Stätte in das Arbeitsformat der Extended Matrix — dasjenige, das **EMStudio** von Haus aus öffnet.
+
+Was zu erwarten ist:
+
+- pyArchInit listet die Stätten der Datenbank auf: man wählt **eine**;
+- die Datei entsteht in `pyarchinit_EM_folder` im Datenordner des Plugins, benannt nach der Stätte (jedes Alphabet: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
+- bevor sie übergeben wird, **liest pyArchInit die Datei zurück**: ein Export, der sich nicht identisch zurücklesen lässt, wird nicht ausgeliefert;
+- am Ende wird gefragt, ob die Datei **gleich in EMStudio geöffnet** werden soll; ist EMStudio nicht installiert, sagt pyArchInit, wo die Datei liegt, und **bietet an, es jetzt zu installieren** (siehe nächsten Abschnitt).
+
+In der Datei steht nur die gewählte Stätte, und jede Einheit kommt als das an, was sie ist:
+
+- **nur die Zeilen dieser Stätte**: in einer Datenbank mit mehreren Stätten geraten Dokumentation und Perioden der anderen Stätten nicht mehr in den Export;
+- **jede Einheit mit dem Typ, den sie angibt**: virtuelle Einheiten bleiben virtuell, Sonderfunde und Kontinuitätselemente bleiben sie selbst — so zeichnet EMStudio das richtige Symbol, statt aus allem eine Schicht zu machen;
+- **Paradaten reisen als Paradaten**, nicht als stratigraphische Einheiten;
+- eine **leere Spalte** des Formulars wird nicht mehr zu einer leeren Eigenschaft im Graphen.
+
+> **Hinweis**: GraphML überlebt nur als **einmaliger Import aus yEd**; das Format zum Ansehen und Validieren der Matrix ist em.json.
+
+### EMStudio aus dem Menü installieren
+
+**EMStudio** ist der Betrachter der Extended Matrix: ein eigenständiges Programm des Extended-Matrix-Projekts (Lizenz GPL-3). pyArchInit enthält es nicht — es **lädt es herunter und startet es**, wenn man darum bittet.
+
+Mit **pyArchInit → Extended Matrix → Installa EMStudio…** (EMStudio installieren):
+
+1. pyArchInit liest die offiziellen EMStudio-Releases und **wählt das Paket für diesen Rechner** (macOS Apple Silicon, Windows, Linux);
+2. vor dem Herunterladen zeigt es ein Fenster mit **Version, Dateiname, Größe, Download-Adresse und Zielordner** — `<pyArchInit-Datenordner>/tools/EMStudio` — und wartet auf ein Ja;
+3. nach dem Herunterladen **prüft es den sha256-Fingerabdruck**, den das Release angibt: eine Datei, die nicht passt, wird nicht installiert;
+4. auf macOS gehört das **Entfernen der Quarantäne** zur Installation: der Build ist nicht von Apple notarisiert, und ohne diesen Schritt würde das System sagen, die App sei "beschädigt";
+5. am Ende wird gemeldet, wohin installiert wurde. War EMStudio schon da, wird gefragt, ob die neueste Version erneut geladen werden soll.
+
+Findet der em.json-Export EMStudio nicht, **schlägt er die Installation gleich vor** und öffnet danach die Datei.
+
+> **Bekannte Grenze**: das heutige Release veröffentlicht kein Paket für **Intel-Macs**. In diesem Fall sagt pyArchInit es und verweist auf die Release-Seite (github.com/ExtendedMatrix/EMStudio/releases), von der man es manuell laden kann.
+
+### Eine Stätte an einen StratiGraph-Raum übergeben
+
+Über **pyArchInit → Extended Matrix → Consegna sito alla stanza…** (Stätte an den Raum übergeben) reisen die stratigraphischen Einheiten einer Stätte in einen **Raum** auf einem StratiGraph-Knoten (REST, eine Übergabe auf einmal — keine dauernde Verbindung nötig).
+
+Was zu erwarten ist:
+
+- man wählt die **Stätte**, dann fragt das Fenster nach dem **Knoten** (z. B. `http://127.0.0.1:8020`; für einen institutionellen Knoten `https://knoten.org/em` — auch die Wurzel genügt, `/em` wird von selbst gefunden), dem **Raum** und, nur wenn der Knoten es verlangt, einem **Token** (am besten in der Umgebungsvariablen `STRATIGRAPH_TOKEN`: er wird nie gespeichert);
+- das Ergebnis ist ein Satz: *"129 von 129 angewendet"* bei der ersten Übergabe; bei der zweiten *"44 von 129 angewendet, 85 schon vorhanden"* — **Wiederholungen verdoppeln nichts**: Knoten verschmelzen, bekannte Kanten kommen als "schon vorhanden" zurück;
+- Zeilen, die keine Raum-Einheiten werden können (Dokumente, Extraktoren, Eigenschaften), stehen unter *Details anzeigen* — nie erfunden;
+- **wer übergibt, signiert**: den Autor schreibt der Knoten aus der geprüften Identität, nicht die Payload.
+
+Mit **Extended Matrix → Apri il nodo (stanze)…** (Knoten öffnen (Räume)) öffnet sich der Raum **innerhalb von pyArchInit** (Seitenpanel): verwendet wird Qt WebEngine, wenn das QGIS-Profil es hat, sonst Qt WebKit, das QGIS 3 noch mitliefert — so bleibt das Panel auch dort in QGIS, wo WebEngine fehlt, und der externe Browser ist nur die letzte Zuflucht. Mit konfiguriertem Raum öffnet sich direkt dessen Seite, ohne Raum die Eingangstür des Knotens mit allen Räumen.
+
+---
+
 ## Tab Graphviz
 
 Graphviz ist erforderlich, um Harris-Matrix-Diagramme zu generieren.

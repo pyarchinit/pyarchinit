@@ -4,7 +4,7 @@
 
 A partir de la versión **5.2.0-alpha** PyArchInit integra un **bridge bidireccional** con la biblioteca **s3dgraphy** (modelo de datos Extended Matrix de Emanuel Demetrescu). El bridge permite:
 
-- **Exportar** el diagrama estratigráfico como Extended Matrix en GraphML (con swimlane temporales, reducción transitiva, edge styling EM 1.5)
+- **Exportar** el diagrama estratigráfico como Extended Matrix en **em.json**, el formato que abre EMStudio (la antigua exportación GraphML está retirada)
 - **Reimportar** modificaciones realizadas en yEd (movimientos de UE entre periodos/grupos) actualizando la base SQL
 - **Adjuntar paradata** (Author / License / Embargo) a nivel de sitio
 - **Agrupar** UE por dimensión (struttura, area, attivita, settore, ambient, saggio, quad_par o grupos ad-hoc)
@@ -32,30 +32,26 @@ Tag actual: `phase2-ai07-locationnodegroup-5.6.0-alpha` (2026-05-10).
 
 ### 2.2 Pestaña "Export"
 
-El diálogo muestra:
+La ventana dice arriba para qué sirve cada formato. Contiene:
 
-- **Output formats**: marca DOT / GraphML / JSON / phased JSON (recomendado: GraphML)
-- **Group US by (optional)**: 7 checkboxes de dimensiones de agrupamiento + 1 "ad-hoc"
-  - Las dimensiones con valores en el DB se **autoseleccionan** al abrir
-- **Selector de dimensión primaria** (predeterminado `struttura`): cuando una UE tiene pertenencia en 2+ dimensiones, la primaria gana como folder yEd visible (parent jerárquico). Las demás dimensiones aparecen como insignias en línea bajo el nodo UE. `toponym` nunca es primaria, sin importar la selección.
-- **"Select Output Directory"**: carpeta de destino
+- **Formati** (Formatos): **DOT (Graphviz) — matrice di Harris** y **em.json (Extended Matrix, per EMStudio)**, marcados de partida, más **Matrice per fasi** (matriz por fases, análisis cronológico), opcional. El GraphML ya no se exporta: el JSON de esta ventana **es el em.json**, el mismo archivo que produce el menú **Extended Matrix → Esporta sito in em.json…** — mismo proyector, misma simbología.
+- **Opzioni** (Opciones): **Controlla la sequenza stratigrafica e segnala i problemi** (comprobar la secuencia estratigráfica y señalar los problemas). Es la única opción que queda, y ahora se lee de verdad: sin la marca, la comprobación no se hace. Las dos casillas antiguas que hablaban a yEd (pistas de auto-layout, color por periodo) se fueron con la exportación GraphML.
+- **Extended Matrix**: tres botones junto a la exportación — **Apri in EMStudio** (se activa tras una exportación em.json correcta), **Consegna alla stanza…** y **Apri la stanza**. Son las mismas entradas del menú pyArchInit, al alcance de la mano.
 
-A partir de 5.6.0-alpha puedes marcar **2+ dimensiones**: la exportación funciona nativamente gracias al modelo m:n con `is_primary` (ver sección "Pertenencia multidimensional").
+Al pulsar **Esporta** se pide la **carpeta de destino**.
 
-### 2.3 Click en "Export"
+Autores, licencias, embargos y grupos se gestionan en la ventana **"Manage paradata"** (§3).
 
-Se generan 4 archivos con prefijo `Extended_Matrix_<sito>[_<area>]`:
-- `.dot` — Graphviz DOT
-- `.graphml` — Extended Matrix para yEd (objetivo principal)
-- `_s3dgraphy.json` — formato nativo s3dgraphy
-- `_phased.json` — vista por época
+### 2.3 Click en "Esporta"
 
-> **Nota — etiquetas de las filas (épocas) de la swimlane**
->
-> - Cada fila de la swimlane (una por periodo/fase de la tabla de periodización) se etiqueta con el campo **Datazione estesa** (`datazione_estesa`, datación extendida) de la ficha Periodización, el mismo texto que usa la exportación Graphviz con periodos. Si está vacío se usa la **Descrizione** (descripción); si ambos están vacíos, un genérico "Period P Phase F".
-> - El campo **Descrizione** va a la descripción del nodo época (visible en las propiedades de yEd): los párrafos descriptivos largos ya no aparecen como título de fila.
-> - Si varias fases comparten la misma Datazione estesa, la etiqueta recibe el sufijo `(periodo P, fase F)` para que cada fila siga siendo única (necesario para el round-trip yEd → pyArchInit).
-> - Consejo práctico: rellena **Datazione estesa** con un nombre breve del periodo (p. ej. "Età Tardoromana - IV-VI secolo d.C.") y deja el texto largo en **Descrizione**.
+Los archivos que nacen, según los formatos marcados:
+- `<sitio>.em.json` — Extended Matrix, para abrir en EMStudio o entregar a una sala
+- `Extended_Matrix_<sitio>[_<area>].dot` — Graphviz DOT, para la matriz de Harris clásica
+- `Extended_Matrix_<sitio>[_<area>]_phased.json` — vista por época
+
+El resumen final enumera los archivos y, para el em.json, **cuántos nodos y cuántas aristas** han salido, con los avisos que haya.
+
+> **El GraphML ya no se exporta**: la matriz se mira y se valida en EMStudio, que lee em.json. Las filas temporales (swimlanes) del GraphML antiguo se fueron con él. El GraphML sobrevive solo a la **entrada**, para los archivos dibujados en yEd (§5).
 
 ---
 
@@ -117,11 +113,13 @@ Ejemplo: una UE con `struttura=basilica` y `area=B` (primaria `struttura`) produ
 - bajo el nodo UE, una insignia en línea `also: B (study), TestCity (toponym)`;
 - en el GraphML, el atributo `s3d:other_locations` con array JSON de las pertenencias secundarias.
 
-La dimensión primaria se controla mediante el selector en §2.2.
+La dimensión primaria sigue un orden predefinido, con `struttura` en primer lugar; `toponym` nunca es primaria.
 
 ---
 
 ## 5. Round-trip (pestaña Import)
+
+> **Qué se puede importar**: la pestaña Import lee ahora también **em.json** — el de EMStudio o el del nodo StratiGraph — y elige el lector según la extensión del archivo; el `.graphml` de yEd sigue aceptándose para los archivos de antes. El procedimiento de abajo, mover UE entre grupos, se refiere a la vía yEd/GraphML.
 
 Para modificar la base SQL moviendo UE entre grupos en GraphML:
 

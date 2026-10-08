@@ -394,6 +394,20 @@ La herramienta es idempotente: si la BD ya está limpia indica "Rapporti già pu
 ![Reparar relaciones vacías](images/03_ficha_ue/01_ripara_rapporti_vuoti.png)
 *Figura 1: Vista previa de la reparación de relaciones vacías*
 
+### Códigos USVA/USVB/USVC en las relaciones (alineación del vocabulario)
+
+El vocabulario de las unidades verticales se ha ordenado: **USVA y USVB pasan a USVs** (unidad virtual estructural) y **USVC pasa a USVn** (unidad virtual no estructural). La entrada de menú que hace la conversión ya existía, pero solo corregía el campo **Unità tipo** (tipo de unidad): en la pestaña **Rapporti stratigrafici** se seguía leyendo "USVA 104" junto a una unidad que ya era una USVs.
+
+Desde esta versión la migración **reescribe también las relaciones**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migraciones → Alinear vocabulario UE)
+2. Elegir el archivo de la base de datos (`.sqlite`)
+3. Aparece un **plan**: cuántas unidades por cada código antiguo, cuántas entradas hay que reescribir en las columnas `rapporti` y `rapporti2`, cuántas celdas resultan ilegibles. La ventana dice con palabras que la migración toca el tipo de unidad **y** los códigos antiguos dentro de las relaciones, y que las celdas ilegibles quedan intactas
+4. Confirmar: antes de escribir se crea una **copia de seguridad automática** de la base de datos
+5. Volver a abrir la Ficha UE: en las relaciones los códigos están alineados
+
+La herramienta es idempotente: en la segunda pasada el plan está todo a cero. Una celda de relaciones que no se puede leer no se reescribe a medias: queda como está y se cuenta aparte, así se sabe cuántas son y se pueden revisar a mano.
+
 ---
 
 ## Pestaña Datos Físicos

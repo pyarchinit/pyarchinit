@@ -304,6 +304,14 @@ Los archivos `.dot` se generan como antes.
 1. Abrir la Ficha de Periodización y corregir los periodos listados en el aviso introduciendo los años a.C. como números negativos (ej. `-1650` → `-1450`)
 2. Regenerar el Matrix
 
+### Error "list index out of range" al exportar la matriz
+
+**Cuándo aparecía**: al pulsar **Esporta matrice** (exportación estándar o 2ED) en una base de datos cuyas relaciones están escritas en el **formato corto** — `[tipo, UE]` en lugar de `[tipo, UE, área, sitio]`. En la base de datos de ejemplo que viaja con el plugin todas las entradas están en formato corto, así que la matriz no se generaba en absoluto.
+
+**Causa**: el exportador leía siempre la tercera y la cuarta casilla de cada relación, que en el formato corto no existen.
+
+**Solución**: resuelto desde esta versión. Ahora se leen ambos formatos, y una entrada truncada o ilegible se salta en vez de tumbar toda la exportación. No hay nada que corregir en los datos: actualice el plugin y vuelva a generar la matriz.
+
 ## Output y Archivos Generados
 
 ### Carpeta de Salida

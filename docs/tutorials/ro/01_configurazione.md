@@ -191,9 +191,32 @@ La ce sa va asteptati:
 - pyArchInit listeaza siturile din baza de date: se alege **unul**;
 - fisierul se naste in `pyarchinit_EM_folder` in dosarul de date al pluginului, cu numele sitului (orice alfabet: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
 - inainte de a-l preda, pyArchInit **reciteste fisierul**: un export care nu se reciteste identic nu este livrat;
-- la final intreaba daca sa il **deschida imediat in EMStudio**; daca EMStudio nu este instalat, arata unde este fisierul si de unde se descarca aplicatia (github.com/ExtendedMatrix/EMStudio/releases).
+- la final intreaba daca sa il **deschida imediat in EMStudio**; daca EMStudio nu este instalat, pyArchInit arata unde este fisierul si **ofera sa il instaleze acum** (vezi paragraful urmator).
+
+In fisier se afla doar situl ales, iar fiecare unitate ajunge acolo ca ceea ce este:
+
+- **doar randurile acelui sit**: intr-o baza de date cu mai multe situri, documentatia si perioadele celorlalte situri nu mai intra in export;
+- **fiecare unitate cu tipul pe care il declara**: unitatile virtuale raman virtuale, special finds si continuitatile raman ele insele, astfel incat EMStudio deseneaza simbolul potrivit in loc sa faca din toate un strat;
+- **paradatele calatoresc ca paradate**, nu ca unitati stratigrafice;
+- o **coloana goala** a fisei nu mai devine o proprietate goala in graf.
 
 > **Nota**: GraphML ramane doar ca **import unic din yEd**; formatul pentru vizualizarea si validarea matricei este em.json.
+
+### Instalarea EMStudio din meniu
+
+**EMStudio** este vizualizatorul Extended Matrix: un program separat al proiectului Extended Matrix (licenta GPL-3). pyArchInit nu il contine — il **descarca si il porneste**, cand i se cere.
+
+Cu **pyArchInit → Extended Matrix → Installa EMStudio…** (Instaleaza EMStudio):
+
+1. pyArchInit citeste release-urile oficiale ale EMStudio si **alege pachetul pentru acest computer** (macOS Apple Silicon, Windows, Linux);
+2. inainte de descarcare arata o fereastra cu **versiunea, numele fisierului, dimensiunea, adresa de la care descarca si dosarul de destinatie** — `<dosarul de date pyArchInit>/tools/EMStudio` — si asteapta un da;
+3. dupa descarcare **verifica amprenta sha256** declarata de release: un fisier care nu corespunde nu este instalat;
+4. pe macOS **scoaterea carantinei** face parte din instalare: build-ul nu este semnat de Apple si fara acest pas sistemul ar spune ca aplicatia este "deteriorata";
+5. la final arata unde a fost instalat. Daca EMStudio era deja acolo, intreaba daca sa descarce din nou ultima versiune.
+
+Daca exportul in em.json nu gaseste EMStudio, **propune sa il instaleze pe loc** si apoi deschide fisierul.
+
+> **Limita cunoscuta**: release-ul de astazi nu publica un pachet pentru **Mac-urile Intel**. In acest caz pyArchInit o spune si indica pagina release-urilor (github.com/ExtendedMatrix/EMStudio/releases), de unde se descarca manual.
 
 ### Livrarea unui sit intr-o camera StratiGraph
 
@@ -206,7 +229,7 @@ La ce sa va asteptati:
 - randurile care nu pot deveni unitati ale camerei (documente, extractoare, proprietati) sunt listate la *Arata detalii*, niciodata inventate;
 - **semnatura apartine celui care livreaza**: autorul este scris de nod din identitatea verificata, nu din payload.
 
-Cu **Extended Matrix → Apri il nodo (stanze)…** camera se deschide **in pyArchInit** (panou lateral) cand Qt WebEngine este disponibil in profil, altfel in browser; cu o camera configurata se deschide direct pagina ei, fara una se deschide poarta nodului cu toate camerele.
+Cu **Extended Matrix → Apri il nodo (stanze)…** camera se deschide **in pyArchInit** (panou lateral): se foloseste Qt WebEngine daca profilul QGIS il are, altfel Qt WebKit, pe care QGIS 3 il livreaza inca — astfel panoul ramane in QGIS si acolo unde lipseste WebEngine, iar browserul extern este doar ultima solutie. Cu o camera configurata se deschide direct pagina ei, fara una se deschide poarta nodului cu toate camerele.
 
 ### Migrarea intregii baze de date dintr-o singura data
 

@@ -191,9 +191,32 @@ What to expect:
 - pyArchInit lists the sites in the database: pick **one**;
 - the file is born in `pyarchinit_EM_folder` inside the plugin's data folder, named after the site (any script: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
 - before handing it over, pyArchInit **reads the file back**: an export that does not read back identical is not delivered;
-- at the end it asks whether to **open it in EMStudio right away**; when EMStudio is not installed, it tells you where the file is and where to download the app (github.com/ExtendedMatrix/EMStudio/releases).
+- at the end it asks whether to **open it in EMStudio right away**; when EMStudio is not installed, pyArchInit says where the file is and **offers to install it now** (see the next section).
+
+The file holds the chosen site and nothing else, and every unit arrives as what it is:
+
+- **only that site's rows**: in a multi-site database, the documentation and the periods of the other sites no longer leak into the export;
+- **every unit with the type it declares**: virtual units stay virtual, special finds and continuity elements stay themselves, so EMStudio draws the right symbol instead of turning everything into a layer;
+- **paradata travel as paradata**, not as stratigraphic units;
+- an **empty column** of the form no longer becomes an empty property in the graph.
 
 > **Note**: GraphML survives only as the **one-time import from yEd**; the format for looking at and validating the matrix is em.json.
+
+### Installing EMStudio from the menu
+
+**EMStudio** is the Extended Matrix viewer: a separate program of the Extended Matrix project (GPL-3 licence). pyArchInit does not contain it — it **downloads it and launches it**, when asked to.
+
+With **pyArchInit → Extended Matrix → Installa EMStudio…** (Install EMStudio):
+
+1. pyArchInit reads the official EMStudio releases and **picks the package for this computer** (macOS Apple Silicon, Windows, Linux);
+2. before downloading it shows a window with **version, file name, size, the address it downloads from and the destination folder** — `<pyArchInit data folder>/tools/EMStudio` — and waits for a yes;
+3. once downloaded it **verifies the sha256 fingerprint** the release declares: a file that does not match is not installed;
+4. on macOS **removing the quarantine flag** is part of the installation: the build is not notarised by Apple, and without that step the system would say the app is "damaged";
+5. at the end it says where it was installed. If EMStudio was already there, it asks whether to download the latest version again.
+
+When the em.json export cannot find EMStudio, it **offers to install it there and then** and opens the file afterwards.
+
+> **Known limit**: today's release publishes no package for **Intel Macs**. In that case pyArchInit says so and points at the releases page (github.com/ExtendedMatrix/EMStudio/releases), to download it by hand.
 
 ### Delivering a site to a StratiGraph room
 
@@ -206,7 +229,7 @@ What to expect:
 - rows that cannot become room units (documents, extractors, properties) are listed under *Show details*, never invented;
 - **the signature belongs to the deliverer**: the node writes the author from the verified identity, not from the payload.
 
-**Extended Matrix → Apri il nodo (stanze)…** opens the room **inside pyArchInit** (side panel) when Qt WebEngine is available in the profile, in the browser otherwise; with a room configured it opens that room's own page, without one it opens the node's front door with all the rooms.
+**Extended Matrix → Apri il nodo (stanze)…** opens the room **inside pyArchInit** (side panel): it uses Qt WebEngine when the QGIS profile has it, Qt WebKit otherwise — the engine QGIS 3 still ships — so the panel stays inside QGIS even where WebEngine is missing, and the external browser is only the last resort. With a room configured it opens that room's own page, without one it opens the node's front door with all the rooms.
 
 ### Database to Database Migration
 

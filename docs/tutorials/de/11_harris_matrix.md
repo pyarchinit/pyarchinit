@@ -304,6 +304,14 @@ Die `.dot`-Dateien werden wie bisher erzeugt.
 1. Periodisierungsformular öffnen und die in der Warnung aufgelisteten Perioden korrigieren, indem v. Chr.-Jahre als negative Zahlen eingegeben werden (z. B. `-1650` → `-1450`)
 2. Matrix neu generieren
 
+### Fehler "list index out of range" beim Export der Matrix
+
+**Wann er auftrat**: beim Druck auf **Esporta matrice** (Standard- oder 2ED-Export) auf einer Datenbank, deren Beziehungen in der **Kurzform** geschrieben sind — `[Typ, SE]` statt `[Typ, SE, Area, Stätte]`. In der mit dem Plugin ausgelieferten Beispieldatenbank steht jeder Eintrag in der Kurzform, die Matrix entstand also überhaupt nicht.
+
+**Ursache**: der Exporter las immer die dritte und die vierte Zelle jeder Beziehung, die es in der Kurzform nicht gibt.
+
+**Lösung**: ab dieser Version behoben. Beide Formen werden gelesen, und ein abgeschnittener oder unlesbarer Eintrag wird übersprungen, statt den ganzen Export zu Fall zu bringen. An den Daten ist nichts zu korrigieren: Plugin aktualisieren und die Matrix neu erzeugen.
+
 ## Ausgabe und generierte Dateien
 
 ### Ausgabeordner

@@ -419,6 +419,20 @@ The tool is idempotent: if the DB is already clean it reports "Rapporti già pul
 ![Repair blank relationships](images/03_scheda_us/34_ripara_rapporti_vuoti.png)
 *Figure 34: Preview of the blank relationships repair*
 
+### USVA/USVB/USVC codes inside the relationships (vocabulary alignment)
+
+The vocabulary of the vertical units has been tidied up: **USVA and USVB become USVs** (structural virtual unit) and **USVC becomes USVn** (non-structural virtual unit). The menu entry that does the conversion was already there, but it only corrected the **Unità tipo** (unit type) field: the **Rapporti stratigrafici** tab kept showing "USVA 104" next to a unit that had already become a USVs.
+
+From this release the migration **rewrites the relationships too**:
+
+1. `Plugins → pyArchInit → Migrazioni → Allinea vocabolario US (USVA/USVB→USVs, USVC→USVn)` (Migrations → Align SU vocabulary)
+2. Pick the database file (`.sqlite`)
+3. A **plan** appears: how many units per old code, how many entries to rewrite in the `rapporti` and `rapporti2` columns, how many cells turn out to be unreadable. The dialog says in words that the migration touches the unit type **and** the old codes inside the relationships, and that unreadable cells are left intact
+4. Confirm: an **automatic backup** of the database is taken before anything is written
+5. Reopen the SU form: the codes in the relationships are aligned
+
+The tool is idempotent: on a second run the plan is all zeros. A relationship cell that cannot be read is never rewritten halfway — it stays as it is and is counted separately, so you know how many there are and can check them by hand.
+
 ---
 
 ## Extended Matrix Relationships Tab

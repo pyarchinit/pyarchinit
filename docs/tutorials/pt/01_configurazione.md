@@ -191,9 +191,32 @@ O que esperar:
 - o pyArchInit lista os sitios da base de dados: escolhe-se **um**;
 - o ficheiro nasce em `pyarchinit_EM_folder` dentro da pasta de dados do plugin, com o nome do sitio (qualquer alfabeto: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
 - antes de o entregar, o pyArchInit **rele o ficheiro**: uma exportacao que nao rele igual nao e entregue;
-- no fim pergunta se o quer **abrir logo no EMStudio**; se o EMStudio nao estiver instalado, indica onde esta o ficheiro e onde descarregar a aplicacao (github.com/ExtendedMatrix/EMStudio/releases).
+- no fim pergunta se o quer **abrir logo no EMStudio**; se o EMStudio nao estiver instalado, o pyArchInit indica onde esta o ficheiro e **oferece-se para o instalar agora** (ver o paragrafo seguinte).
+
+No ficheiro esta apenas o sitio escolhido, e cada unidade chega como aquilo que e:
+
+- **so as linhas desse sitio**: numa base de dados com varios sitios, a documentacao e os periodos dos outros sitios ja nao entram na exportacao;
+- **cada unidade com o tipo que declara**: as unidades virtuais continuam virtuais, os special finds e as continuidades continuam a ser o que sao, de modo que o EMStudio desenha o simbolo certo em vez de fazer de tudo uma camada;
+- **os paradados viajam como paradados**, nao como unidades estratigraficas;
+- uma **coluna vazia** da ficha ja nao se torna uma propriedade vazia no grafo.
 
 > **Nota**: o GraphML sobrevive apenas como **importacao unica a partir do yEd**; o formato para ver e validar a matriz e o em.json.
+
+### Instalar o EMStudio a partir do menu
+
+O **EMStudio** e o visualizador da Extended Matrix: um programa a parte do projeto Extended Matrix (licenca GPL-3). O pyArchInit nao o contem — **descarrega-o e arranca-o**, quando lhe e pedido.
+
+Com **pyArchInit → Extended Matrix → Installa EMStudio…** (Instalar EMStudio):
+
+1. o pyArchInit le as releases oficiais do EMStudio e **escolhe o pacote para este computador** (macOS Apple Silicon, Windows, Linux);
+2. antes de descarregar mostra uma janela com **versao, nome do ficheiro, tamanho, endereco de onde descarrega e pasta de destino** — `<pasta de dados do pyArchInit>/tools/EMStudio` — e espera um sim;
+3. terminado o descarregamento **verifica a impressao sha256** declarada pela release: um ficheiro que nao corresponda nao e instalado;
+4. no macOS **retirar a quarentena** faz parte da instalacao: a build nao esta assinada pela Apple e sem este passo o sistema diria que a aplicacao esta "danificada";
+5. no fim indica onde foi instalado. Se o EMStudio ja estava la, pergunta se quer descarregar de novo a ultima versao.
+
+Se a exportacao em em.json nao encontrar o EMStudio, **propoe instala-lo na hora** e depois abre o ficheiro.
+
+> **Limite conhecido**: a release de hoje nao publica um pacote para os **Mac Intel**. Nesse caso o pyArchInit di-lo e indica a pagina das releases (github.com/ExtendedMatrix/EMStudio/releases), de onde se descarrega a mao.
 
 ### Entregar um sitio a uma sala StratiGraph
 
@@ -206,7 +229,7 @@ O que esperar:
 - as linhas que nao podem tornar-se unidades da sala (documentos, extratores, propriedades) sao listadas em *Mostrar detalhes*, nunca inventadas;
 - **quem assina e quem entrega**: o autor e escrito pelo no a partir da identidade verificada, nao pelo payload.
 
-Com **Extended Matrix → Apri il nodo (stanze)…** a sala abre-se **dentro do pyArchInit** (painel lateral) quando o Qt WebEngine esta disponivel no perfil, caso contrario no navegador; com uma sala configurada abre-se diretamente a sua pagina, sem ela abre-se a porta do no com todas as salas.
+Com **Extended Matrix → Apri il nodo (stanze)…** a sala abre-se **dentro do pyArchInit** (painel lateral): usa-se o Qt WebEngine se o perfil do QGIS o tiver, caso contrario o Qt WebKit, que o QGIS 3 ainda traz — assim o painel fica dentro do QGIS mesmo onde falta o WebEngine, e o navegador externo e so o ultimo recurso. Com uma sala configurada abre-se diretamente a sua pagina, sem ela abre-se a porta do no com todas as salas.
 
 ### Migrar toda a base de dados de uma so vez
 

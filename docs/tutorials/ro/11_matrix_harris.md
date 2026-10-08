@@ -285,6 +285,14 @@ Fișierele `.dot` sunt produse ca înainte.
 1. Deschideți Fișa de Periodizare și corectați perioadele listate în avertisment introducând anii î.Hr. ca numere negative (ex. `-1650` → `-1450`)
 2. Regenerați Matricea
 
+### Eroarea "list index out of range" la exportul matricei
+
+**Cand aparea**: la apasarea pe **Esporta matrice** (export standard sau 2ED) pe o baza de date in care rapoartele sunt scrise in **formatul scurt** — `[tip, US]` in loc de `[tip, US, zona, sit]`. In baza de date exemplu livrata cu pluginul toate intrarile sunt in format scurt, asa ca matricea nu se genera deloc.
+
+**Cauza**: exportatorul citea mereu a treia si a patra caseta a fiecarui raport, care in formatul scurt nu exista.
+
+**Soluţia**: rezolvat de la aceasta versiune. Acum se citesc ambele formate, iar o intrare trunchiata sau ilizibila este sarita in loc sa doboare tot exportul. Nu trebuie corectat nimic in date: actualizati pluginul si regenerati matricea.
+
 ## Fișierele Generate și Ieșiri
 
 ### Folderul de Ieșire

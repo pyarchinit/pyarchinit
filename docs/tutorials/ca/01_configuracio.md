@@ -272,6 +272,57 @@ Aquesta pestanya permet importar dades d'altres bases de dades o fitxers CSV.
 
 ---
 
+### Exportar un lloc a em.json (Extended Matrix)
+
+Des del menú **pyArchInit → Extended Matrix → Esporta sito in em.json…** (Exportar lloc a em.json) un lloc sencer passa al format de treball de l'Extended Matrix, el que **EMStudio** obre de manera nativa.
+
+Què esperar:
+
+- pyArchInit llista els llocs de la base de dades: se'n tria **un**;
+- el fitxer neix a `pyarchinit_EM_folder`, dins la carpeta de dades del connector, amb el nom del lloc (qualsevol alfabet: `Al-Khutm.em.json`, `Scavo_archeologico.em.json`);
+- abans de lliurar-lo, pyArchInit **rellegeix el fitxer**: una exportació que no es rellegeix igual no es lliura;
+- al final pregunta si es vol **obrir de seguida a EMStudio**; si EMStudio no està instal·lat, pyArchInit indica on és el fitxer i **ofereix instal·lar-lo ara** (vegeu l'apartat següent).
+
+Al fitxer només hi ha el lloc triat, i cada unitat hi arriba per allò que és:
+
+- **només les files d'aquell lloc**: en una base de dades amb diversos llocs, la documentació i els períodes dels altres llocs ja no entren a l'exportació;
+- **cada unitat amb el tipus que declara**: les unitats virtuals continuen essent virtuals, els special finds i les continuïtats continuen essent ells mateixos, de manera que EMStudio dibuixa el símbol correcte en lloc de convertir-ho tot en un estrat;
+- **les paradades viatgen com a paradades**, no com a unitats estratigràfiques;
+- una **columna buida** de la fitxa ja no esdevé una propietat buida al graf.
+
+> **Nota**: el GraphML sobreviu només com a **importació puntual des de yEd**; el format per mirar i validar la matriu és em.json.
+
+### Instal·lar EMStudio des del menú
+
+**EMStudio** és el visor de l'Extended Matrix: un programa a part del projecte Extended Matrix (llicència GPL-3). pyArchInit no el conté — el **descarrega i l'engega**, quan se li demana.
+
+Amb **pyArchInit → Extended Matrix → Installa EMStudio…** (Instal·lar EMStudio):
+
+1. pyArchInit llegeix les releases oficials d'EMStudio i **tria el paquet per a aquest ordinador** (macOS Apple Silicon, Windows, Linux);
+2. abans de descarregar mostra una finestra amb **versió, nom del fitxer, mida, adreça de descàrrega i carpeta de destinació** — `<carpeta de dades de pyArchInit>/tools/EMStudio` — i espera un sí;
+3. acabada la descàrrega **verifica l'empremta sha256** declarada per la release: un fitxer que no coincideix no s'instal·la;
+4. a macOS **treure la quarantena** forma part de la instal·lació: la compilació no està signada per Apple i sense aquest pas el sistema diria que l'aplicació està "malmesa";
+5. al final indica on s'ha instal·lat. Si EMStudio ja hi era, pregunta si es vol tornar a descarregar l'última versió.
+
+Si l'exportació a em.json no troba EMStudio, **proposa instal·lar-lo a l'instant** i després obre el fitxer.
+
+> **Límit conegut**: la release d'avui no publica cap paquet per als **Mac Intel**. En aquest cas pyArchInit ho diu i indica la pàgina de les releases (github.com/ExtendedMatrix/EMStudio/releases), des d'on es descarrega a mà.
+
+### Lliurar un lloc a una sala StratiGraph
+
+Des de **pyArchInit → Extended Matrix → Consegna sito alla stanza…** (Lliurar lloc a la sala) les unitats estratigràfiques d'un lloc viatgen cap a una **sala** d'un node StratiGraph (REST, un lliurament cada vegada — no cal quedar-se connectat).
+
+Què esperar:
+
+- es tria el **lloc**, després la finestra demana el **node** (p. ex. `http://127.0.0.1:8020`; per a un node institucional `https://node.org/em` — escriure l'arrel també funciona, `/em` es troba sol), la **sala** i, només si el node ho exigeix, un **token** (millor a la variable d'entorn `STRATIGRAPH_TOKEN`: no es desa mai);
+- el resultat és una frase: *"129 aplicades de 129"* al primer lliurament; al segon *"44 aplicades de 129, 85 ja presents"* — **les repeticions no dupliquen res**: els nodes es fusionen, les arestes ja conegudes tornen com a "ja presents";
+- les files que no poden esdevenir unitats de la sala (documents, extractors, propietats) s'enumeren a *Mostra els detalls*, mai no s'inventen;
+- **qui signa és qui lliura**: l'autor l'escriu el node a partir de la identitat verificada, no el payload.
+
+Amb **Extended Matrix → Apri il nodo (stanze)…** (Obrir el node (sales)) la sala s'obre **dins de pyArchInit** (plafó lateral): s'usa Qt WebEngine si el perfil de QGIS el té, si no Qt WebKit, que QGIS 3 encara inclou — així el plafó es queda dins de QGIS fins i tot on falta WebEngine, i el navegador extern queda només com a darrer recurs. Amb una sala configurada s'obre directament la seva pàgina; sense sala s'obre la porta del node amb totes les sales.
+
+---
+
 ## Pestanya Graphviz
 
 Graphviz és necessari per generar els diagrames de la Matriu de Harris.
