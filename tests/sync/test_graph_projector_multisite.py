@@ -367,3 +367,31 @@ def test_a_paradata_row_is_not_swept_away_as_empty(tmp_path):
     ])
     graph = GraphProjector().populate_graph(db, sito="Alfa")
     assert _types_by_us(graph) == {"800": "property"}
+
+
+def test_a_paradatum_has_no_paradata_of_its_own(tmp_path):
+    """Visto in EMStudio il 2026-10-08: una riga che è un paradato
+    (property, DOC, Extractor, Combinar) portava con sé i nodi nati dalle
+    sue colonne — «Interpretation», la documentazione — e il datamodel
+    protestava («has_property is not allowed towards a property»). Un
+    paradato non ha paradati."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="800", unita_tipo="property",
+             d_interpretativa="materiale pietra dura",
+             documentazione="[['Fotografie', 'Si']]"),
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             d_interpretativa="strato di crollo"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    paradato = next(n for n in graph.nodes
+                    if (getattr(n, "attributes", None) or {}).get("us")
+                    == "800")
+    uscenti = [e.edge_type for e in graph.edges
+               if e.edge_source == paradato.node_id]
+    assert "has_property" not in uscenti, uscenti
+    assert "has_documentation" not in uscenti, uscenti
+    # l'unità vera tiene le sue
+    unita = next(n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us") == "1")
+    assert any(e.edge_type == "has_property" and e.edge_source == unita.node_id
+               for e in graph.edges)

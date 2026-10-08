@@ -120,6 +120,46 @@ def _drop_empty_property_nodes(graph):
     return len(doomed)
 
 
+#: I node_type che l'Extended Matrix considera paradati.
+_PARADATA_NODE_TYPES = ("property", "document", "extractor", "combiner")
+
+#: Gli archi con cui una unità appende a sé i propri paradati.
+_PARADATA_EDGE_TYPES = ("has_property", "has_documentation", "has_author")
+
+
+def _drop_paradata_of_paradata(graph, paradata_ids):
+    """Toglie i paradati nati dalle colonne di una riga che è un paradato.
+
+    Una riga di us_table che l'EM legge come paradato (property, DOC,
+    Extractor, Combinar) riceve dall'importer gli stessi nodi di
+    contorno di una unità — «Interpretation», la documentazione, gli
+    autori. Una volta che la riga prende la sua classe quei nodi
+    diventano paradati di un paradato, e il datamodel di EMStudio lo
+    segnala («has_property is not allowed towards a property»,
+    misurato il 2026-10-08).
+    """
+    doomed_edges = [e for e in graph.edges
+                    if e.edge_source in paradata_ids
+                    and e.edge_type in _PARADATA_EDGE_TYPES]
+    if not doomed_edges:
+        return 0
+    orphan_candidates = {e.edge_target for e in doomed_edges}
+    survivors = [e for e in graph.edges if e not in doomed_edges]
+    still_touched = {e.edge_source for e in survivors}
+    still_touched |= {e.edge_target for e in survivors}
+    doomed_nodes = {n.node_id for n in graph.nodes
+                    if n.node_id in orphan_candidates
+                    and n.node_id not in still_touched
+                    and getattr(n, "node_type", None) in _PARADATA_NODE_TYPES}
+    graph.edges = survivors
+    if doomed_nodes:
+        graph.nodes = [n for n in graph.nodes
+                       if n.node_id not in doomed_nodes]
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return len(doomed_edges)
+
+
 def _paradata_class_of(declared):
     """The paradata class ``declared`` names, or None.
 
@@ -348,6 +388,7 @@ class GraphProjector(_LibGraphProjector):
         from s3dgraphy.utils.utils import get_stratigraphic_node_class
 
         counts = {}
+        became_paradata = set()
         for node in list(graph.nodes):
             declared = (getattr(node, "attributes", None) or {}).get(
                 "unita_tipo")
@@ -363,7 +404,11 @@ class GraphProjector(_LibGraphProjector):
             if node_type in (None, "StratigraphicNode"):
                 continue                 # abstract, or a node with no type
             _become(node, target)
+            if node_type in _PARADATA_NODE_TYPES:
+                became_paradata.add(node.node_id)
             counts[node_type] = counts.get(node_type, 0) + 1
+        if became_paradata:
+            _drop_paradata_of_paradata(graph, became_paradata)
         return counts
 
     @staticmethod
