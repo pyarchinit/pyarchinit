@@ -5,6 +5,22 @@
 
 ---
 
+## [fix] - 2026-10-08 — la finestra resta aperta, e l'export dice perché la matrice si ammucchia — 5.13.36-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-dialog-open-5.13.36-alpha`**. Due difetti visti da Enzo nel video e nello screenshot subito dopo la 5.13.35.
+
+### Italiano
+
+- **«Apri in EMStudio» non si poteva premere.** `S3DGraphyExportDialog.on_export` chiamava `self.accept()` subito dopo il riepilogo: la finestra si chiudeva proprio nel momento in cui quel bottone si abilitava. Ora resta aperta — l'export non è l'ultima cosa che si fa lì dentro — e «Cancel» diventa «Chiudi». Guardia: un test AST verifica che `on_export` non chiuda la finestra.
+- **La matrice di EMStudio disegna quasi tutto nella fascia più recente.** Non è un difetto dell'export: nell'Extended Matrix una unità fisica **sopravvive in ogni epoca più recente** di quella in cui è nata finché qualcosa non la chiude — è la regola dell'importer yEd della libreria (`import_graphml.py`, `if epoch.max_y < node.attributes['y_pos']` → `survive_in_epoch`). Nelle schede pyArchInit il «periodo finale» quasi non si compila: **43 unità su 45** nel sito di esempio. L'export ora lo dice con un avviso che nomina i numeri e il campo da riempire, e `periodo_finale`/`fase_finale` viaggiano fra gli attributi del nodo (prima non venivano nemmeno letti).
+
+### English
+
+- **"Open in EMStudio" was unreachable**: the window closed itself right after the export, exactly when that button became enabled. It stays open now; a source test guards it.
+- **EMStudio's matrix piles almost everything into the most recent band.** Not an export defect: in the Extended Matrix a physical unit survives into every epoch more recent than the one it was created in until something closes it (the library's own yEd importer rule). pyArchInit sheets rarely fill the final period — 43 of 45 units on the sample site — so the export now says so, naming the numbers and the field to fill, and carries `periodo_finale`/`fase_finale` on the node.
+
+---
+
 ## [fix/feat] - 2026-10-08 — em.json fedele: un sito, la classe dichiarata, la stratigrafia leggibile; i codici USV nei record; EMStudio si installa — 5.13.35-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-fidelity-5.13.35-alpha`**. 14 commit (`6a9aeea1..e2493cba`).
