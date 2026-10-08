@@ -94,7 +94,17 @@ def test_only_the_sites_epochs_travel(multisite_db):
         "%d epoche per %d periodi del sito" % (len(epochs), n_periods))
 
 
+#: L'ordine delle colonne per le righe passate come tupla (forma storica).
+_MINI_COLUMNS = ("sito", "area", "us", "unita_tipo", "node_uuid", "rapporti")
+
+
 def _mini_db(tmp_path, rows):
+    """Un DB minimo con le tre tabelle che il proiettore legge.
+
+    Una riga è una tupla nell'ordine di ``_MINI_COLUMNS`` (forma storica)
+    oppure un dizionario colonna→valore, che è più leggibile quando la
+    prova riguarda una colonna sola (``documentazione``, ``inclusi``).
+    """
     import sqlite3
     db = tmp_path / "mini.sqlite"
     conn = sqlite3.connect(db)
@@ -107,6 +117,7 @@ def _mini_db(tmp_path, rows):
         d_stratigrafica TEXT, d_interpretativa TEXT,
         attivita TEXT, struttura TEXT, settore TEXT, ambient TEXT,
         saggio TEXT, quad_par TEXT, documentazione TEXT,
+        inclusi TEXT, colore TEXT, consistenza TEXT,
         other_locations TEXT)""")
     conn.execute("""CREATE TABLE periodizzazione_table (
         id_perfas INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -116,9 +127,16 @@ def _mini_db(tmp_path, rows):
     conn.execute("""CREATE TABLE site_table (
         id_sito INTEGER PRIMARY KEY AUTOINCREMENT, sito TEXT,
         nazione TEXT, regione TEXT, provincia TEXT, comune TEXT)""")
-    conn.executemany(
-        "INSERT INTO us_table (sito, area, us, unita_tipo, node_uuid,"
-        " rapporti) VALUES (?, ?, ?, ?, ?, ?)", rows)
+    for n, row in enumerate(rows, start=1):
+        values = (dict(row) if isinstance(row, dict)
+                  else dict(zip(_MINI_COLUMNS, row)))
+        values.setdefault("area", "1")
+        values.setdefault("node_uuid", "u-%d" % n)
+        columns = sorted(values)
+        conn.execute(
+            "INSERT INTO us_table (%s) VALUES (%s)"
+            % (", ".join(columns), ", ".join("?" for _ in columns)),
+            [values[c] for c in columns])
     conn.commit(); conn.close()
     return db
 
@@ -158,3 +176,65 @@ def test_a_symmetric_relation_declared_twice_is_one_edge(tmp_path):
     graph = GraphProjector().populate_graph(db, sito="S")
     eq = [e for e in graph.edges if getattr(e, "edge_type", None) == "equals"]
     assert len(eq) == 1, [(e.edge_type, e.edge_id) for e in eq]
+
+
+def test_only_the_sites_own_rows_are_imported(tmp_path):
+    """Due siti che numerano le US allo stesso modo non si fondono.
+
+    Il nome del nodo non contiene il sito
+    (``{area}.{settore}.{unita_tipo}{us}``): senza filtro alla sorgente le
+    due righe collassano su un nodo solo, che si porta dietro la
+    documentazione di entrambi i siti. Misurato sul demo il 2026-10-08: il
+    sito italiano usciva con «Fotografie» E «Photographies», perché il
+    sito francese numera le sue US come l'italiano.
+    """
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             documentazione="[['Fotografie', 'Si']]"),
+        dict(sito="Beta", us="1", unita_tipo="US",
+             documentazione="[['Photographies', 'Si']]"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    units = [n for n in graph.nodes
+             if type(n).__name__ == "StratigraphicUnit"]
+    assert len(units) == 1, [n.name for n in units]
+    docs = sorted(n.name for n in graph.nodes
+                  if type(n).__name__ == "DocumentNode")
+    assert docs == ["Fotografie"], docs
+
+
+def test_a_single_site_db_is_unchanged_by_the_filter(tmp_path):
+    """Il filtro è una restrizione: su un DB a sito unico non toglie nulla."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US"),
+        dict(sito="Alfa", us="2", unita_tipo="US"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert sorted(n.name for n in graph.nodes
+                  if type(n).__name__ == "StratigraphicUnit") == [
+        "1.US1", "1.US2"]
+
+
+def test_two_projections_at_once_keep_their_own_site(tmp_path):
+    """Il filtro si installa su un simbolo di modulo: due proiezioni
+    insieme (una in QgsTask, una sul thread GUI) non devono scambiarsi i
+    siti."""
+    import threading
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US"),
+        dict(sito="Beta", us="2", unita_tipo="US"),
+    ])
+    out = {}
+
+    def run(sito):
+        graph = GraphProjector().populate_graph(db, sito=sito)
+        out[sito] = sorted(n.name for n in graph.nodes
+                           if type(n).__name__ == "StratigraphicUnit")
+
+    threads = [threading.Thread(target=run, args=(s,))
+               for s in ("Alfa", "Beta")]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert out == {"Alfa": ["1.US1"], "Beta": ["1.US2"]}

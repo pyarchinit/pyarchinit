@@ -17,7 +17,9 @@ GraphML writer consume included.
 """
 from __future__ import annotations
 
+import contextlib
 import logging
+import threading
 
 from s3dgraphy.sync.graph_projector import *  # noqa: F401,F403
 from s3dgraphy.sync.graph_projector import (  # noqa: F401  (private, used by tests)
@@ -40,11 +42,51 @@ _STRAT_FAMILY = ("US", "USM", "USR", "USD", "USV", "USVs", "USVn", "USVc",
                  "SF", "VSF", "RSF", "CON")
 
 
+#: The patch below swaps a module symbol: two projections at once (one in
+#: a QgsTask, one on the GUI thread) would read each other's site. The lock
+#: serialises the swap and the projection, which takes tenths of a second.
+_IMPORTER_PATCH_LOCK = threading.RLock()
+
+
+@contextlib.contextmanager
+def _site_filtered_importer(sito):
+    """Make the library's SQLite importer read only ``sito``'s rows.
+
+    dev40 builds ``PyArchInitImporter`` with no ``filters``, so the
+    SQLite path parses the WHOLE us_table. In a multi-site DB the other
+    sites' rows arrive too and — because the node label carries no site
+    (``{area}.{settore}.{unita_tipo}{us}``) — two sites that number
+    their units alike collapse onto ONE node, which then holds both
+    sites' documentation, properties and epochs. Measured on the sample
+    DB (2026-10-08): 210 units / 342 documents / 132 epochs without the
+    filter, 51 / 87 / 24 with it. The PostgreSQL path already passes the
+    site (``import_from_pg``), so only SQLite needs this. Upstream
+    candidate: s3Dgraphy#25.
+    """
+    import s3dgraphy.importer.pyarchinit_importer as mod
+
+    with _IMPORTER_PATCH_LOCK:
+        original = mod.PyArchInitImporter
+
+        class _SiteFiltered(original):
+            def __init__(self, *args, **kwargs):
+                if not kwargs.get("filters"):
+                    kwargs["filters"] = {"sito": sito}
+                super().__init__(*args, **kwargs)
+
+        mod.PyArchInitImporter = _SiteFiltered
+        try:
+            yield
+        finally:
+            mod.PyArchInitImporter = original
+
+
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
     def populate_graph(self, db_path, sito, **kwargs):
-        graph = super().populate_graph(db_path, sito, **kwargs)
+        with _site_filtered_importer(sito):
+            graph = super().populate_graph(db_path, sito, **kwargs)
 
         # pyArchInit's flat attributes (us / sito / unita_tipo / ...):
         # the round-trip ingestor, the d13 serialiser and the writers
