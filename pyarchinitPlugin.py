@@ -3151,7 +3151,11 @@ class PyArchInitPlugin(object):
             )
             return
 
-        msg = "Piano:\n" + "\n".join(f"  {k}: {v}" for k, v in plan.items())
+        msg = ("Piano:\n"
+               + "\n".join(f"  {k}: {v}" for k, v in plan.items())
+               + "\n\nLa migrazione riscrive il tipo dell'unità e i codici "
+                 "vecchi dentro i rapporti (colonne «rapporti» e "
+                 "«rapporti2»). Le celle illeggibili restano intatte.")
         confirm = QMessageBox.question(
             self.iface.mainWindow(),
             "Conferma migrazione vocabolario US",
