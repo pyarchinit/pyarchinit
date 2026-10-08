@@ -90,6 +90,36 @@ def _class_key_for_unita_tipo(declared):
     return _CLASS_KEY_ALIAS.get(code, code)
 
 
+#: What pyArchInit writes in a list column that nobody filled in.
+_EMPTY_PROPERTY_VALUES = ("", "[]", "[[]]", "{}", "none", "null")
+
+
+def _drop_empty_property_nodes(graph):
+    """Drop the property nodes that say nothing, and their edges.
+
+    A pyArchInit list column left empty holds the string ``"[]"``, which
+    upstream reads as a value worth a node: 30 of the demo site's 219
+    property nodes carried it. Nodes that come from a us_table row
+    (``attributes['us']``) are the user's own data and are never swept,
+    whatever their value.
+    """
+    doomed = {
+        n.node_id for n in graph.nodes
+        if getattr(n, "node_type", None) == "property"
+        and not (getattr(n, "attributes", None) or {}).get("us")
+        and str(getattr(n, "value", "") or "").strip().lower()
+        in _EMPTY_PROPERTY_VALUES}
+    if not doomed:
+        return 0
+    graph.nodes = [n for n in graph.nodes if n.node_id not in doomed]
+    graph.edges = [e for e in graph.edges
+                   if e.edge_source not in doomed
+                   and e.edge_target not in doomed]
+    if hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return len(doomed)
+
+
 def _paradata_class_of(declared):
     """The paradata class ``declared`` names, or None.
 
@@ -229,6 +259,12 @@ class GraphProjector(_LibGraphProjector):
         except Exception as e:                      # noqa: BLE001
             raise ProjectionError(
                 "node retyping failed for sito=%r: %s" % (sito, e)) from e
+
+        # A column nobody filled in is not a paradatum.
+        try:
+            _drop_empty_property_nodes(graph)
+        except Exception:                           # noqa: BLE001
+            pass                                    # hygiene, never a failure
 
         # EM typing of generic paradata→stratigraphy connections.
         try:

@@ -342,3 +342,28 @@ def test_a_paradata_row_keeps_its_name_and_its_edges(tmp_path):
                or e.edge_source == estrattore.node_id for e in graph.edges)
     for e in graph.edges:
         assert e.edge_source in ids and e.edge_target in ids
+
+
+def test_an_empty_column_does_not_become_a_property(tmp_path):
+    """La colonna `inclusi` vuota di pyArchInit vale la stringa «[]», che
+    a monte conta come valore pieno: 30 dei 219 nodi proprietà del sito
+    demo dicevano «[]»."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US", inclusi="[]"),
+        dict(sito="Alfa", us="2", unita_tipo="US", inclusi="['ceramica']"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    values = [getattr(n, "value", None) for n in graph.nodes
+              if n.node_type == "property"]
+    assert "[]" not in values
+    assert "['ceramica']" in values
+
+
+def test_a_paradata_row_is_not_swept_away_as_empty(tmp_path):
+    """Una riga di us_table che è un paradato ha una classe PropertyNode
+    ma nessun `value`: è dato dell'utente, non decorazione vuota."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="800", unita_tipo="property"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _types_by_us(graph) == {"800": "property"}
