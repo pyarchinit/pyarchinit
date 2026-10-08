@@ -53,7 +53,14 @@ def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):
     from s3dgraphy.nodes.stratigraphic_node import (
         StratigraphicNode, is_masonry)
     strat = [n for n in check.nodes if isinstance(n, StratigraphicNode)]
-    assert len(strat) >= 51, "le 51 US inglesi devono arrivare nel file"
+    # Le 51 righe del sito arrivano tutte; dal 2026-10-08 sei di esse
+    # (property, DOC×2, Extractor×2, Combinar) viaggiano come paradati e
+    # non come unità stratigrafiche.
+    from_rows = [n for n in check.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us")
+                 or ((getattr(n, "data", None) or {}).get("us"))]
+    assert len(from_rows) >= 51, "le 51 righe inglesi devono arrivare nel file"
+    assert len(strat) >= 45, "le unità stratigrafiche inglesi devono arrivare"
     assert any(is_masonry(n) for n in strat), (
         "le WSU devono restare murarie anche rilette dal file")
 

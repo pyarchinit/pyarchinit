@@ -90,6 +90,26 @@ def _class_key_for_unita_tipo(declared):
     return _CLASS_KEY_ALIAS.get(code, code)
 
 
+def _paradata_class_of(declared):
+    """The paradata class ``declared`` names, or None.
+
+    pyArchInit keeps in us_table rows that the Extended Matrix reads as
+    paradata (the yEd round-trip's legacy, Bug P 2026-05-15). While the
+    GraphML writer existed they stayed StratigraphicUnit and it picked
+    their shape from ``attributes['unita_tipo']``; em.json picks it from
+    ``node_type``, so they came out as US.
+    """
+    code = str(declared or "").strip()
+    if code not in _PARADATA_UNITA_TIPO:
+        return None
+    from s3dgraphy.nodes.combiner_node import CombinerNode
+    from s3dgraphy.nodes.document_node import DocumentNode
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    from s3dgraphy.nodes.property_node import PropertyNode
+    return {"property": PropertyNode, "DOC": DocumentNode,
+            "Extractor": ExtractorNode, "Combinar": CombinerNode}.get(code)
+
+
 def _become(node, target_cls):
     """``node`` becomes a ``target_cls``, keeping its identity and edges.
 
@@ -295,10 +315,12 @@ class GraphProjector(_LibGraphProjector):
         for node in list(graph.nodes):
             declared = (getattr(node, "attributes", None) or {}).get(
                 "unita_tipo")
-            key = _class_key_for_unita_tipo(declared)
-            if not key:
-                continue
-            target = get_stratigraphic_node_class(key)
+            target = _paradata_class_of(declared)
+            if target is None:
+                key = _class_key_for_unita_tipo(declared)
+                if not key:
+                    continue
+                target = get_stratigraphic_node_class(key)
             if target is None or type(node) is target:
                 continue
             node_type = getattr(target, "node_type", None)

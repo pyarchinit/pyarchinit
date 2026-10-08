@@ -54,7 +54,14 @@ def test_projecting_one_site_keeps_only_that_sites_units(multisite_db):
     n_rows = conn.execute(
         "SELECT COUNT(*) FROM us_table WHERE sito=?", (SITO,)).fetchone()[0]
     conn.close()
-    assert len(strat) == n_rows
+    # Ogni riga ha il suo nodo; dal 2026-10-08 non sono tutti nodi
+    # stratigrafici, perché le righe che l'Extended Matrix legge come
+    # paradati (property, DOC, Extractor, Combinar) prendono la loro
+    # classe — nel sito di esempio sono sei.
+    from_rows = [n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us")]
+    assert len(from_rows) == n_rows
+    assert len(strat) == n_rows - 6
 
 
 def test_pruning_takes_the_orphans_with_it(multisite_db):
@@ -296,3 +303,42 @@ def test_an_unknown_type_stays_a_plain_unit(tmp_path):
     ])
     graph = GraphProjector().populate_graph(db, sito="Alfa")
     assert _types_by_us(graph) == {"1": "US", "2": "US"}
+
+
+def test_paradata_rows_are_not_stratigraphic_units(tmp_path):
+    """Le righe di us_table nate da un round-trip yEd (property, DOC,
+    Extractor, Combinar) sono paradati dell'Extended Matrix: in em.json
+    devono portare il loro node_type, non «US». Restavano unità perché la
+    forma la sceglieva il writer GraphML dall'attributo unita_tipo, e quel
+    writer non c'è più (demolito in A4)."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="800", unita_tipo="property"),
+        dict(sito="Alfa", us="4001", unita_tipo="DOC"),
+        dict(sito="Alfa", us="400", unita_tipo="Extractor"),
+        dict(sito="Alfa", us="900", unita_tipo="Combinar"),
+        dict(sito="Alfa", us="1", unita_tipo="US"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _types_by_us(graph) == {
+        "800": "property", "4001": "document", "400": "extractor",
+        "900": "combiner", "1": "US"}
+
+
+def test_a_paradata_row_keeps_its_name_and_its_edges(tmp_path):
+    """Cambiare classe non deve perdere né l'identità né i rapporti."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             rapporti="[['Copre', '400', '1', 'Alfa']]"),
+        dict(sito="Alfa", us="400", unita_tipo="Extractor"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    estrattore = next(n for n in graph.nodes
+                      if (getattr(n, "attributes", None) or {}).get("us")
+                      == "400")
+    assert estrattore.name == "1.Extractor400"
+    assert estrattore.node_id
+    ids = {n.node_id for n in graph.nodes}
+    assert any(e.edge_target == estrattore.node_id
+               or e.edge_source == estrattore.node_id for e in graph.edges)
+    for e in graph.edges:
+        assert e.edge_source in ids and e.edge_target in ids

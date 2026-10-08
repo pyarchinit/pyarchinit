@@ -269,20 +269,19 @@ def test_projector_handles_paradata_name_collisions(tmp_path):
         ut = (getattr(n, "attributes", None) or {}).get("unita_tipo", "")
         by_class_and_ut[(cls, ut)] += 1
 
-    # Bug P (2026-05-15 v2): row-paradata are StratigraphicNode-class
-    # instances (StratigraphicUnit) with ``attributes['unita_tipo']``
-    # carrying the EM semantic identity. The writer dispatches BPMN
-    # shape / colour by unita_tipo, not by Python class.
-    assert by_class_and_ut[("StratigraphicUnit", "DOC")] == 1
-    assert by_class_and_ut[("StratigraphicUnit", "Combinar")] == 1
-    assert by_class_and_ut[("StratigraphicUnit", "Extractor")] == 1
-    assert by_class_and_ut[("StratigraphicUnit", "property")] == 1
+    # Bug P (2026-05-15 v2) teneva questi nodi come StratigraphicUnit
+    # perché la forma la sceglieva il writer GraphML da
+    # ``attributes['unita_tipo']``. Quel writer non c'è più (demolito in
+    # A4) ed em.json sceglie da ``node_type``: dal 2026-10-08 ogni riga
+    # paradato prende la sua classe. Quello che Bug K difende — un nodo
+    # per (us, unita_tipo), nessuno perso per omonimia — vale ancora.
+    assert by_class_and_ut[("DocumentNode", "DOC")] == 1
+    assert by_class_and_ut[("CombinerNode", "Combinar")] == 1
+    assert by_class_and_ut[("ExtractorNode", "Extractor")] == 1
+    assert by_class_and_ut[("PropertyNode", "property")] == 1
     assert by_class_and_ut[("StratigraphicUnit", "US")] == 1
-    # No duplicates: total row-derived StratigraphicUnit nodes = 5.
-    row_derived = sum(
-        v for (cls, ut), v in by_class_and_ut.items()
-        if cls == "StratigraphicUnit" and ut
-    )
+    # No duplicates: total row-derived nodes = 5.
+    row_derived = sum(v for (_cls, ut), v in by_class_and_ut.items() if ut)
     assert row_derived == 5
 
 
