@@ -48,6 +48,7 @@ from ..modules.utility.periodization_checks import (
 from ..modules.db.pyarchinit_db_manager import get_db_manager
 from ..modules.gis.pyarchinit_pyqgis import Pyarchinit_pyqgis
 from ..modules.utility.pyarchinit_matrix_exp import *
+from ..modules.utility.rapporti_entries import rapporto_target
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
 from ..modules.utility.pyarchinit_i18n_stratigraphic import (
     POSITIVE_GROUP, NEGATIVE_GROUP, PASSIVE_COVERS_GROUP, PASSIVE_CUTS_GROUP,
@@ -153,32 +154,34 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
                 
                     
                 for  sing_rapp in rapporti_stratigrafici:
-                
-                    if sing_rapp[0] in POSITIVE_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            data.append(harris_rapp)
+                    # rapporti2 ha sette posti oggi e cinque nelle schede
+                    # vecchie: si legge con la stessa regola di rapporti,
+                    # e una voce troncata si salta invece di far cadere
+                    # tutta l'esportazione.
+                    letta = rapporto2_target(
+                        sing_rapp, str(getattr(sing_rec, 'area', '') or ''))
+                    if letta is None:
+                        continue
+                    verbo, target_us, target_tipo, target_def, target_dat, _ = letta
+                    harris_rapp = (
+                        un_t + us + '_' + defin + '_' + datazione,
+                        target_tipo + target_us + '_'
+                        + target_def.replace(' ', '_') + '_' + target_dat)
 
-                    if sing_rapp[0] in NEGATIVE_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp1 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            negative.append(harris_rapp1)
+                    if verbo in POSITIVE_GROUP:
+                        data.append(harris_rapp)
 
-                    if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp2 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            conteporane.append(harris_rapp2)
-                    
-                    if sing_rapp[0] == '>' :
-                        if sing_rapp[1] != '':
-                            harris_rapp3 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            connection.append(harris_rapp3)
-                    
-                    
-                    if sing_rapp[0] == '>>' :
-                        if sing_rapp[1] != '':
-                            harris_rapp4 = (un_t+us+'_'+defin+'_'+datazione,str(sing_rapp[2])+str(sing_rapp[1])+'_'+str(sing_rapp[3].replace(' ','_')+'_'+str(sing_rapp[4])))
-                            connection_to.append(harris_rapp4)        
+                    if verbo in NEGATIVE_GROUP:
+                        negative.append(harris_rapp)
+
+                    if verbo in MATRIX_CONTEMPORARY_GROUP:
+                        conteporane.append(harris_rapp)
+
+                    if verbo == '>':
+                        connection.append(harris_rapp)
+
+                    if verbo == '>>':
+                        connection_to.append(harris_rapp)
             
                     # if sing_rapp[0] == '<->' :
                         # if sing_rapp[1] != '':
@@ -290,20 +293,22 @@ class pyarchinit_Interactive_Matrix(QDialog, MAIN_DIALOG_CLASS):
 
             try:
                 for sing_rapp in rapporti_stratigrafici:
-                    if sing_rapp[0] in POSITIVE_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            data.append(harris_rapp)
-
-                    if sing_rapp[0] in NEGATIVE_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp1 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            negative.append(harris_rapp1)
-
-                    if sing_rapp[0] in MATRIX_CONTEMPORARY_GROUP:
-                        if sing_rapp[1] != '':
-                            harris_rapp2 = (area + '_' + 'US' + us, str(sing_rapp[2]) + '_' + 'US' + str(sing_rapp[1]))
-                            conteporane.append(harris_rapp2)
+                    # Due formati vivi nello stesso DB: [tipo, us, area,
+                    # sito] e [tipo, us] (1683 voci su 1870 nel DB di
+                    # esempio). Leggere voce[2] senza guardare faceva
+                    # morire l'esportazione con «list index out of range».
+                    target = rapporto_target(sing_rapp, area)
+                    if target is None:
+                        continue
+                    verbo, target_us, target_area = target
+                    harris_rapp = (area + '_' + 'US' + us,
+                                   target_area + '_' + 'US' + target_us)
+                    if verbo in POSITIVE_GROUP:
+                        data.append(harris_rapp)
+                    if verbo in NEGATIVE_GROUP:
+                        negative.append(harris_rapp)
+                    if verbo in MATRIX_CONTEMPORARY_GROUP:
+                        conteporane.append(harris_rapp)
             except Exception as e:
                 print(f"Errore durante la generazione della matrice: {e}")
 
