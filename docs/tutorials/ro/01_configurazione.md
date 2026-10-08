@@ -230,7 +230,9 @@ La ce sa ne asteptam:
 - desenul are **o banda orizontala pentru fiecare perioada/faza**, cea **mai recenta sus**, fiecare cu numele ei, cu anii ei si cu propria culoare;
 - fiecare unitate sta in banda perioadei in care s-a nascut, iar in interiorul benzii stratigrafia decide nivelul: **ce acopera este desenat deasupra a ceea ce este acoperit**;
 - fiecare unitate este desenata cu **simbologia Extended Matrix**, cea din regulile s3dgraphy (vezi tabelul);
-- **rotita mouse-ului** mareste si micsoreaza, un **dublu clic** readuce toata matricea in fereastra (ca butonul **Adatta** / Potrivire), un **clic pe o unitate** ii arata fisa in cadrul din dreapta: definitie, interpretare, perioada si faza, datare, arie, structura.
+- **rotita mouse-ului** mareste si micsoreaza, un **dublu clic** readuce toata matricea in fereastra (ca butonul **Adatta** / Potrivire), un **clic pe o unitate** ii arata fisa in cadrul din dreapta: definitie, interpretare, perioada si faza, datare, arie, structura;
+- sub fisa apar **media legate de acea US**: miniaturile fotografiilor, cu numele lor. Daca imaginile stau pe o arhiva la distanta, miniaturile nu se descarca singure — un buton **Carica le anteprime** (incarca miniaturile) le cere, fiindca fiecare este o cerere in retea;
+- butonul **Zoom sulla geometria** incadreaza pe harta planul unitatii. Se aprinde doar pentru unitatile care sunt randuri ale fisei US (un nod de continuitate sau un document nu are geometrie) si cauta printre **straturile deja incarcate**, in ordinea legendei, fara sa adauge vreunul. Daca niciun strat incarcat nu poarta campurile pentru a recunoaste unitatea, sau daca planul nu a fost desenat, panoul o spune in loc sa nu faca nimic.
 
 | Unitate | Simbol |
 |---|---|

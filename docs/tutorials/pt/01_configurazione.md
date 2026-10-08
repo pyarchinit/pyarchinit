@@ -230,7 +230,9 @@ O que esperar:
 - o desenho tem **uma faixa horizontal por cada periodo/fase**, a **mais recente em cima**, cada uma com o seu nome, os seus anos e a sua cor;
 - cada unidade esta na faixa do periodo em que nasceu, e dentro da faixa e a estratigrafia que decide o nivel: **o que cobre e desenhado acima do que esta coberto**;
 - cada unidade e desenhada com a **simbologia da Extended Matrix**, a das regras do s3dgraphy (ver a tabela);
-- a **roda do rato** aproxima e afasta, um **duplo clique** devolve toda a matriz a janela (como o botao **Adatta** / Ajustar), um **clique sobre uma unidade** mostra a sua ficha no quadro da direita: definicao, interpretacao, periodo e fase, datacao, area, estrutura.
+- a **roda do rato** aproxima e afasta, um **duplo clique** devolve toda a matriz a janela (como o botao **Adatta** / Ajustar), um **clique sobre uma unidade** mostra a sua ficha no quadro da direita: definicao, interpretacao, periodo e fase, datacao, area, estrutura;
+- sob a ficha aparecem os **media ligados a essa UE**: as miniaturas das fotos, com o seu nome. Se as imagens estiverem num armazenamento remoto as miniaturas nao se descarregam sozinhas — um botao **Carica le anteprime** (carregar miniaturas) pede-as, porque cada uma e um pedido de rede;
+- o botao **Zoom sulla geometria** enquadra no mapa a planta da unidade. So fica ativo para as unidades que sao linhas da ficha UE (um no de continuidade ou um documento nao tem geometria), e procura entre as **camadas ja carregadas**, pela ordem da legenda, sem acrescentar nenhuma. Se nenhuma camada carregada tiver os campos para reconhecer a unidade, ou se a planta nunca foi desenhada, o painel di-lo em vez de nao fazer nada.
 
 | Unidade | Simbolo |
 |---|---|

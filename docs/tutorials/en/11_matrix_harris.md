@@ -118,6 +118,8 @@ From the **pyArchInit → Extended Matrix → Vedi la matrice…** (See the matr
 - one horizontal band per period/phase, the most recent on top
 - every unit with the Extended Matrix symbology (rectangle for an SU, blue parallelogram for a USVs, green hexagon for a USVn, olive octagon for an SF, black diamond for a continuity)
 - wheel to zoom, double click to see the whole of it again, click on a unit to read its record
+- under the record, the **thumbnails of the media** linked to that SU
+- **Zoom sulla geometria** (zoom to the geometry): frames the unit's plan on the map, if it is drawn in a loaded layer
 - **Salva SVG…** / **Salva PNG…** to take the drawing out
 
 No EMStudio, no StratiGraph node, no internet. Details in Tutorial 01, section "Seeing the matrix inside QGIS".

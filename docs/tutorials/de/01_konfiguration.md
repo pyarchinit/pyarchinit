@@ -368,7 +368,9 @@ Was zu erwarten ist:
 - die Zeichnung hat **ein waagerechtes Band pro Periode/Phase**, das **jüngste oben**, jedes mit seinem Namen, seinen Jahren und seiner eigenen Farbe;
 - jede Einheit sitzt im Band der Periode, in der sie entstanden ist, und innerhalb des Bandes entscheidet die Stratigraphie über die Ebene: **was überdeckt, steht über dem, was überdeckt wird**;
 - jede Einheit wird mit der **Symbolik der Extended Matrix** gezeichnet, der aus den s3dgraphy-Regeln (siehe Tabelle);
-- das **Mausrad** zoomt, ein **Doppelklick** holt die ganze Matrix zurück ins Fenster (wie der Knopf **Adatta** / Einpassen), ein **Klick auf eine Einheit** zeigt ihr Formular im Bereich rechts: Definition, Interpretation, Periode und Phase, Datierung, Areal, Struktur.
+- das **Mausrad** zoomt, ein **Doppelklick** holt die ganze Matrix zurück ins Fenster (wie der Knopf **Adatta** / Einpassen), ein **Klick auf eine Einheit** zeigt ihr Formular im Bereich rechts: Definition, Interpretation, Periode und Phase, Datierung, Areal, Struktur;
+- unter dem Formular erscheinen die **Medien dieser SE**: die Vorschaubilder der Fotos mit ihren Namen. Liegen die Bilder auf einem entfernten Speicher, werden die Vorschauen nicht von selbst geholt — ein Knopf **Carica le anteprime** (Vorschauen laden) fordert sie an, denn jede ist eine Netzanfrage;
+- der Knopf **Zoom sulla geometria** rückt den Grundriss der Einheit auf der Karte ins Bild. Er ist nur für Einheiten aktiv, die Zeilen des SE-Formulars sind (ein Kontinuitätsknoten oder ein Dokument hat keine Geometrie), und er sucht in den **bereits geladenen Layern**, in der Reihenfolge der Legende, ohne neue hinzuzufügen. Trägt kein geladener Layer die Felder, um die Einheit zu erkennen, oder wurde der Grundriss nie gezeichnet, sagt das Panel es, statt nichts zu tun.
 
 | Einheit | Symbol |
 |---|---|

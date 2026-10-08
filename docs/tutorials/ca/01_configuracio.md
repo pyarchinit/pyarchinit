@@ -320,7 +320,9 @@ Què esperar:
 - el dibuix té **una franja horitzontal per cada període/fase**, la **més recent a dalt**, cadascuna amb el seu nom, els seus anys i el seu color;
 - cada unitat és a la franja del període en què va néixer, i dins la franja és l'estratigrafia la que decideix el nivell: **el que cobreix es dibuixa damunt del que és cobert**;
 - cada unitat es dibuixa amb la **simbologia de l'Extended Matrix**, la de les regles de s3dgraphy (vegeu la taula);
-- la **roda del ratolí** acosta i allunya, un **doble clic** torna tota la matriu a la finestra (com el botó **Adatta** / Ajustar), un **clic sobre una unitat** mostra la seva fitxa al requadre de la dreta: definició, interpretació, període i fase, datació, àrea, estructura.
+- la **roda del ratolí** acosta i allunya, un **doble clic** torna tota la matriu a la finestra (com el botó **Adatta** / Ajustar), un **clic sobre una unitat** mostra la seva fitxa al requadre de la dreta: definició, interpretació, període i fase, datació, àrea, estructura;
+- sota la fitxa apareixen els **mitjans vinculats a aquesta UE**: les miniatures de les fotos, amb el seu nom. Si les imatges són en un magatzem remot, les miniatures no es descarreguen soles — un botó **Carica le anteprime** (carregar miniatures) les demana, perquè cadascuna és una petició de xarxa;
+- el botó **Zoom sulla geometria** enquadra al mapa la planta de la unitat. Només s'activa per a les unitats que són files de la fitxa UE (un node de continuïtat o un document no té geometria), i cerca entre les **capes ja carregades**, en l'ordre de la llegenda, sense afegir-ne cap. Si cap capa carregada porta els camps per reconèixer la unitat, o si la planta mai es va dibuixar, el plafó ho diu en lloc de no fer res.
 
 | Unitat | Símbol |
 |---|---|

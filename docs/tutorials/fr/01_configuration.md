@@ -218,7 +218,9 @@ Depuis le menu **pyArchInit → Extended Matrix → Vedi la matrice…** (Voir l
 - le dessin a **une bande horizontale par période/phase**, la **plus récente en haut**, chacune avec son nom, ses années et sa propre couleur ;
 - chaque unité se trouve dans la bande de la période où elle est née, et dans la bande c'est la stratigraphie qui décide du niveau : **ce qui recouvre est dessiné au-dessus de ce qui est recouvert** ;
 - chaque unité est dessinée avec la **symbologie de l'Extended Matrix**, celle des règles s3dgraphy (voir le tableau) ;
-- la **molette de la souris** agrandit et réduit, un **double clic** remet toute la matrice dans la fenêtre (comme le bouton **Adatta** / Ajuster), un **clic sur une unité** montre sa fiche dans le cadre de droite : définition, interprétation, période et phase, datation, aire, structure.
+- la **molette de la souris** agrandit et réduit, un **double clic** remet toute la matrice dans la fenêtre (comme le bouton **Adatta** / Ajuster), un **clic sur une unité** montre sa fiche dans le cadre de droite : définition, interprétation, période et phase, datation, aire, structure;
+- sous la fiche apparaissent les **médias liés à cette US** : les vignettes des photos, avec leur nom. Si les images sont sur un stockage distant, les vignettes ne se téléchargent pas d'elles-mêmes — un bouton **Carica le anteprime** (charger les vignettes) les demande, car chacune est une requête réseau ;
+- le bouton **Zoom sulla geometria** cadre sur la carte le plan de l'unité. Il ne s'active que pour les unités qui sont des lignes de la fiche US (un nœud de continuité ou un document n'a pas de géométrie), et il cherche parmi les **couches déjà chargées**, dans l'ordre de la légende, sans en ajouter. Si aucune couche chargée ne porte les champs pour reconnaître l'unité, ou si le plan n'a jamais été dessiné, le panneau le dit au lieu de ne rien faire.
 
 | Unité | Symbole |
 |---|---|

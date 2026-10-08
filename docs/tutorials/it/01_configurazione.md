@@ -382,7 +382,9 @@ Cosa aspettarsi:
 - il disegno ha **una fascia orizzontale per ogni periodo/fase**, la **più recente in cima**, ciascuna col suo nome, i suoi anni e il suo colore;
 - ogni unità sta nella fascia del periodo in cui è nata, e dentro la fascia è la stratigrafia a decidere il livello: **quello che copre sta sopra quello che è coperto**;
 - ogni unità è disegnata con la **simbologia dell'Extended Matrix**, quella delle regole s3dgraphy (vedi la tabella);
-- la **rotella del mouse** ingrandisce e rimpicciolisce, un **doppio clic** rimette tutta la matrice nella finestra (come il pulsante **Adatta**), un **clic su un'unità** ne mostra la scheda nel riquadro a destra: definizione, interpretazione, periodo e fase, datazione, area, struttura.
+- la **rotella del mouse** ingrandisce e rimpicciolisce, un **doppio clic** rimette tutta la matrice nella finestra (come il pulsante **Adatta**), un **clic su un'unità** ne mostra la scheda nel riquadro a destra: definizione, interpretazione, periodo e fase, datazione, area, struttura;
+- sotto la scheda compaiono i **media legati a quella US**: le anteprime delle foto, con il loro nome. Se le immagini stanno su un archivio remoto le anteprime non si scaricano da sole — un pulsante **Carica le anteprime** le chiede, perché ognuna è una richiesta in rete;
+- il pulsante **Zoom sulla geometria** inquadra sulla mappa la pianta dell'unità. Si accende solo per le unità che sono righe della scheda US (un nodo di continuità o un documento non ha una geometria), e cerca fra i **layer già caricati**, nell'ordine della legenda, senza aggiungerne di nuovi. Se nessun layer caricato porta i campi per riconoscere l'unità, o se la pianta non è stata disegnata, il pannello lo dice invece di non fare niente.
 
 | Unità | Simbolo |
 |---|---|

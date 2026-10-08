@@ -304,7 +304,9 @@ Qué esperar:
 - el dibujo tiene **una banda horizontal por cada periodo/fase**, la **más reciente arriba**, cada una con su nombre, sus años y su propio color;
 - cada unidad está en la banda del periodo en que nació, y dentro de la banda es la estratigrafía la que decide el nivel: **lo que cubre se dibuja encima de lo que está cubierto**;
 - cada unidad se dibuja con la **simbología de la Extended Matrix**, la de las reglas de s3dgraphy (véase la tabla);
-- la **rueda del ratón** acerca y aleja, un **doble clic** devuelve toda la matriz a la ventana (como el botón **Adatta** / Ajustar), un **clic sobre una unidad** muestra su ficha en el recuadro de la derecha: definición, interpretación, periodo y fase, datación, área, estructura.
+- la **rueda del ratón** acerca y aleja, un **doble clic** devuelve toda la matriz a la ventana (como el botón **Adatta** / Ajustar), un **clic sobre una unidad** muestra su ficha en el recuadro de la derecha: definición, interpretación, periodo y fase, datación, área, estructura;
+- bajo la ficha aparecen los **medios vinculados a esa UE**: las miniaturas de las fotos, con su nombre. Si las imágenes están en un almacén remoto las miniaturas no se descargan solas — un botón **Carica le anteprime** (cargar miniaturas) las pide, porque cada una es una petición de red;
+- el botón **Zoom sulla geometria** encuadra en el mapa la planta de la unidad. Se activa solo para las unidades que son filas de la ficha UE (un nodo de continuidad o un documento no tiene geometría), y busca entre las **capas ya cargadas**, en el orden de la leyenda, sin añadir ninguna. Si ninguna capa cargada lleva los campos para reconocer la unidad, o si la planta nunca se dibujó, el panel lo dice en vez de no hacer nada.
 
 | Unidad | Símbolo |
 |---|---|

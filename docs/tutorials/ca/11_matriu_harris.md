@@ -118,6 +118,8 @@ Des del menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Veure l
 - una franja horitzontal per cada període/fase, la més recent a dalt
 - cada unitat amb la simbologia de l'Extended Matrix (rectangle per a una US, paral·lelogram blau per a una USVs, hexàgon verd per a una USVn, octàgon oliva per a un SF, rombe negre per a una continuïtat)
 - roda per al zoom, doble clic per tornar a veure-ho tot, clic sobre una unitat per llegir-ne la fitxa
+- sota la fitxa, les **miniatures dels mitjans** vinculats a aquesta UE
+- **Zoom sulla geometria** (zoom a la geometria): enquadra al mapa la planta de la unitat, si està dibuixada en una capa carregada
 - **Salva SVG…** / **Salva PNG…** per endur-se el dibuix
 
 No cal EMStudio, ni un node StratiGraph, ni internet. Detalls al Tutorial 01, apartat «Veure la matriu dins el QGIS».

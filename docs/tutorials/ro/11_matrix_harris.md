@@ -118,6 +118,8 @@ Din meniul **pyArchInit → Extended Matrix → Vedi la matrice…** (Vezi matri
 - o bandă orizontală pentru fiecare perioadă/fază, cea mai recentă sus
 - fiecare unitate cu simbologia Extended Matrix (dreptunghi pentru o US, paralelogram albastru pentru o USVs, hexagon verde pentru o USVn, octogon oliv pentru un SF, romb negru pentru o continuitate)
 - rotița pentru zoom, dublu clic pentru a revedea totul, clic pe o unitate pentru a-i citi fișa
+- sub fisa, **miniaturile media** legate de acea US
+- **Zoom sulla geometria** (zoom pe geometrie): incadreaza pe harta planul unitatii, daca este desenat intr-un strat incarcat
 - **Salva SVG…** / **Salva PNG…** pentru a duce desenul în afară
 
 Nu e nevoie de EMStudio, nici de un nod StratiGraph, nici de internet. Detalii în Tutorialul 01, paragraful „Vizualizarea matricei in QGIS".

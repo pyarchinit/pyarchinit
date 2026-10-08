@@ -128,6 +128,8 @@ Für schnelle Visualisierung ohne Konfigurationsoptionen:
 - ein waagerechtes Band pro Periode/Phase, das jüngste oben
 - jede Einheit mit der Symbolik der Extended Matrix (Rechteck für eine SE, blaues Parallelogramm für eine USVs, grünes Sechseck für eine USVn, olivfarbenes Achteck für einen SF, schwarze Raute für eine Kontinuität)
 - Mausrad zum Zoomen, Doppelklick, um wieder alles zu sehen, Klick auf eine Einheit, um ihr Formular zu lesen
+- unter dem Formular die **Vorschaubilder der Medien**, die zu dieser SE gehören
+- **Zoom sulla geometria** (auf die Geometrie zoomen): rückt den Grundriss der Einheit auf der Karte ins Bild, wenn er in einem geladenen Layer gezeichnet ist
 - **Salva SVG…** / **Salva PNG…**, um die Zeichnung herauszutragen
 
 Kein EMStudio, kein StratiGraph-Knoten, kein Internet. Details im Tutorial 01, Abschnitt "Die Matrix innerhalb von QGIS ansehen".

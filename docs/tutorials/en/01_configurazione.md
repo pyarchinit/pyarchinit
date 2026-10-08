@@ -230,7 +230,9 @@ What to expect:
 - the drawing has **one horizontal band per period/phase**, the **most recent on top**, each with its name, its years and its own colour;
 - every unit sits in the band of the period it was created in, and inside the band the stratigraphy decides the level: **what covers is drawn above what is covered**;
 - every unit is drawn with the **Extended Matrix symbology**, the one in the s3dgraphy rules (see the table);
-- the **mouse wheel** zooms in and out, a **double click** puts the whole matrix back into the window (like the **Adatta** / Fit button), a **click on a unit** shows its record in the pane on the right: definition, interpretation, period and phase, dating, area, structure.
+- the **mouse wheel** zooms in and out, a **double click** puts the whole matrix back into the window (like the **Adatta** / Fit button), a **click on a unit** shows its record in the pane on the right: definition, interpretation, period and phase, dating, area, structure;
+- under the record you get the **media linked to that SU**: the photo thumbnails, with their names. When the images live on remote storage the thumbnails are not fetched by themselves — a **Carica le anteprime** (load thumbnails) button asks for them, because each one is a network request;
+- the **Zoom sulla geometria** button frames the unit's plan on the map. It is enabled only for units that are rows of the SU record (a continuity node or a document has no geometry), and it searches the **already loaded layers**, in legend order, adding none. If no loaded layer carries the fields to recognise the unit, or the plan was never drawn, the panel says so instead of doing nothing.
 
 | Unit | Symbol |
 |---|---|

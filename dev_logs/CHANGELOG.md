@@ -5,6 +5,33 @@
 
 ---
 
+## [feat] - 2026-10-08 — la scheda mostra i media e porta sulla geometria — 5.13.42-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-matrix-media-zoom-5.13.42-alpha`**. Richiesta di Enzo mentre si aspetta la risposta di Emanuel su EMStudio.
+
+### Italiano
+
+Nel pannello della matrice, cliccando un'unità, la scheda a destra mostrava solo i campi che stanno nell'em.json. Ora mostra anche **i media legati a quella US** e offre un pulsante **Zoom sulla geometria** che inquadra sulla mappa la pianta dell'unità, se è disegnata in un layer caricato.
+
+**Niente di tutto questo passa dall'em.json.** Il file porta già `sito`, `area`, `us` e `node_uuid` dentro `data`, e quelle quattro chiavi bastano a ritrovare la riga di `us_table`. L'esportazione, il projector e s3dgraphy restano come sono: nel file non entra nessun campo nuovo.
+
+- `modules/utility/em_matrix_links.py` (nuovo, senza Qt e senza QGIS): la riga di `us_table` sotto l'unità — prima per `node_uuid`, che è l'identità vera, poi per il vincolo unico `(sito, area, us, unita_tipo)`, infine senza il tipo per i database in cui la colonna è vuota; i suoi media con l'anteprima; e l'espressione che la ritrova in un layer. Il filtro su `entity_type`/`table_name` serve: lo stesso `id_entity` appartiene anche a un reperto o a una tomba, e senza il filtro le foto di un reperto finivano su una US. Un database senza le tabelle media, o senza la colonna `node_uuid`, mostra meno — non un errore.
+- `modules/utility/em_matrix_map.py` (nuovo): la selezione e l'inquadratura. I layer si provano **nell'ordine della legenda** e dal più preciso — `id_us` prima dei nomi della scheda (`sito`/`area`/`us`), questi prima di quelli della tabella dei disegni (`scavo_s`/`area_s`/`us_s`) — perché i layer di un progetto arrivano come capita e senza una precedenza si finirebbe per zoomare sul disegno di un'altra US con lo stesso numero. Riproiezione quando il layer non è nel sistema della mappa; dove la geometria è piatta (una quota è un punto) si allarga invece di moltiplicare per zero. Il progetto si **legge** e non si cambia: nessun layer aggiunto, nessun gruppo, nessuna modifica aperta.
+- Il pannello: striscia delle anteprime sotto la scheda e pulsante **Zoom sulla geometria**, acceso solo per i nodi che sono righe della scheda US — un nodo di continuità o un documento non ha una geometria, e un pulsante che non può funzionare è peggio di un pulsante assente. Con le anteprime su un archivio remoto si caricano a richiesta: ognuna è una richiesta in rete.
+- Il divisore: la scheda e la striscia dei media si dividono l'altezza con dei pesi (3 e 2). Senza, la scheda si prendeva tutto e le anteprime restavano schiacciate in fondo — visto nello screenshot.
+
+**Guasto trovato provando con QGIS vero.** Il modulo nuovo apriva il database passando da `s3dgraphy.sync._db_handle._resolve_db_handle`, un nome privato della libreria. Dove la libreria non è importabile media e zoom tacevano, senza dire niente a nessuno. Leggere il **proprio** database è roba del plugin: ora si apre con SQLAlchemy e si chiude subito dopo — il database di chi usa pyArchInit lo tiene aperto il suo QGIS in WAL, e un pannello che lascia dietro di sé una connessione agganciata al file è il modo in cui si arriva a un «disk I/O error».
+
+### English
+
+Clicking a unit in the matrix panel now also shows **the media linked to that SU** and offers a **Zoom sulla geometria** button that frames the unit's plan on the map, when it is drawn in a loaded layer. None of it goes through the em.json: the file already carries `sito`, `area`, `us` and `node_uuid` in `data`, and those four keys find the `us_table` row — the export, the projector and s3dgraphy are untouched, and no new field enters the file.
+
+Two new Qt-free, QGIS-free modules carry the decisions: `em_matrix_links` resolves the record (by `node_uuid` first, then by the unique constraint), lists its media with their thumbnails, and builds the expression that finds it in a layer; `em_matrix_map` selects and frames, trying layers in legend order and from the most precise key down, reprojecting when the layer is not in the map's CRS, and widening where the geometry is flat. The project is read, never changed. The thumbnail strip loads on demand when the images live on remote storage, because each one is a network request.
+
+Found while verifying against real QGIS: the new module opened the database through `s3dgraphy.sync._db_handle._resolve_db_handle`, a library private — where the library is not importable, media and zoom went silent without saying so. Reading our own database is the plugin's business: it now opens with SQLAlchemy and disposes immediately, so no connection is left attached to a file that the user's QGIS holds open in WAL.
+
+---
+
 ## [feat] - 2026-10-08 — la stanza riceve anche la cronologia — 5.13.41-alpha
 
 > Branch `Stratigraph_00001`. Tag **`room-epochs-5.13.41-alpha`**. Trovato provando una stanza vera sul nodo locale.
