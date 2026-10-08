@@ -46,3 +46,49 @@ def test_unload_closes_the_panel():
     src = (PLUGIN_ROOT / "pyarchinitPlugin.py").read_text(encoding="utf-8")
     unload = re.search(r"def unload\(self\):(.*?)\n    def ", src, re.S)
     assert unload and "close_panel" in unload.group(1)
+
+
+def test_the_panel_falls_back_to_webkit_when_webengine_is_missing():
+    """Su un profilo senza Qt WebEngine il pannello usa QtWebKit, che
+    QGIS 3 spedisce ancora (misurato su questo Mac: Qt 5.15.2, WebEngine
+    assente, WebKit presente, e la pagina della stanza si carica). Il
+    browser resta l'ultimo ripiego, non il primo."""
+    import inspect
+
+    from modules.s3dgraphy.room import room_panel
+
+    assert hasattr(room_panel, "web_view_class")
+    src = inspect.getsource(room_panel)
+    assert "QtWebKitWidgets" in src
+    assert src.index("def _webengine") < src.index("def _webkit")
+
+
+def test_the_engine_name_travels_with_the_class(monkeypatch):
+    from modules.s3dgraphy.room import room_panel
+
+    class _Finta:
+        pass
+
+    monkeypatch.setattr(room_panel, "_webengine", lambda: None)
+    monkeypatch.setattr(room_panel, "_webkit", lambda: _Finta)
+    assert room_panel.web_view_class() == (_Finta, "webkit")
+
+    monkeypatch.setattr(room_panel, "_webengine", lambda: _Finta)
+    assert room_panel.web_view_class() == (_Finta, "webengine")
+
+    monkeypatch.setattr(room_panel, "_webengine", lambda: None)
+    monkeypatch.setattr(room_panel, "_webkit", lambda: None)
+    assert room_panel.web_view_class() == (None, "")
+
+
+def test_the_panel_only_speaks_the_api_both_engines_have():
+    """QWebEngineView e QWebView condividono load()/title(); tutto il
+    resto (page().profile(), setUrl su un profilo persistente…) è di uno
+    solo dei due e il pannello non lo deve chiamare."""
+    import inspect
+
+    from modules.s3dgraphy.room import room_panel
+
+    src = inspect.getsource(room_panel.open_in_panel)
+    for solo_webengine in (".profile(", "setZoomFactor", "QWebEngineProfile"):
+        assert solo_webengine not in src, solo_webengine
