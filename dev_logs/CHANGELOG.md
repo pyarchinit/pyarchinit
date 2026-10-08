@@ -5,6 +5,67 @@
 
 ---
 
+## [feat] - 2026-10-08 — «Vedi la matrice»: l'Extended Matrix disegnata dentro QGIS, dall'em.json — 5.13.37-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-matrix-panel-5.13.37-alpha`**. 10 commit (`7ebddc77..18ede2bc`).
+> Piano: `docs/superpowers/plans/2026-10-08-em-matrix-panel.md`. Chiesto da Enzo dopo aver misurato che la pagina per-stanza del nodo pretende l'accesso e quindi non può fare da visore.
+
+### Italiano
+
+#### Il pannello
+
+- **Nuova voce «Extended Matrix → Vedi la matrice…»**: si sceglie il sito, si esporta l'em.json in una cartella temporanea e si apre un dock che lo disegna — fasce delle epoche, simbologia dell'Extended Matrix, rapporti stratigrafici. Lo stesso pannello si apre dal bottone **«Vedi la matrice»** della finestra «Export Extended Matrix», abilitato dopo un export em.json riuscito, accanto a «Apri in EMStudio». **Niente EMStudio, niente nodo StratiGraph, niente motore web, niente Graphviz, niente matplotlib, niente rete.**
+- Il dock: la matrice a sinistra, la scheda dell'unità scelta a destra (definizione, interpretazione, periodo e fase, datazione, area, struttura), «Adatta», zoom, «Salva SVG…», «Salva PNG…» e la riga dei conteggi (`N unità · N epoche · N rapporti`). Un pannello per sessione, chiuso in `unload()`.
+- **Le unità del sito aperto vivono nel modulo, non dentro la chiusura** che riempie la scheda: quella chiusura si aggancia una volta sola, alla creazione del dock, così con la tabella catturata dentro aprendo un secondo sito la scheda avrebbe continuato a mostrare i dati del primo.
+
+#### Quattro moduli nuovi, i primi tre puri e provati senza interfaccia
+
+- `modules/utility/em_matrix_model.py` — legge un em.json (file o dizionario) in unità, epoche e rapporti stratigrafici. **Forma e colori vengono da `em_visual_rules.json` della libreria vendorizzata**, che è la simbologia canonica dell'Extended Matrix: rettangolo la US, parallelogramma la USVs, esagono la USVn, ottagono il reperto (SF), rombo la continuità (BR), pentagono l'estrattore, esagono il combinatore, ellisse il documento, cerchio la proprietà. Con una tabella di alias, perché i nostri `node_type` sono `document`/`extractor`/`combiner`/`property` mentre il file delle regole li chiama `DOC`/`EXT`/`COMB`/`PROP`. **Si disegna solo chi è una riga di `us_table` o chi partecipa a un rapporto**: una voce di spunta della documentazione è decorazione, non un nodo della matrice.
+- `modules/utility/em_matrix_layout.py` — l'impaginatore, puro. Ogni unità nella fascia dell'**epoca in cui è nata**, la più recente in cima; il livello dentro la fascia viene dalla stratigrafia — chi copre si disegna sopra chi è coperto. Le relazioni simmetriche non spingono giù nessuno. Un **ciclo** nei rapporti non blocca il calcolo dei livelli (si promuove il nodo con meno vincoli vivi e si va avanti), perché uno scavo reale può contenerne uno.
+  - **Riduzione transitiva come il `tred` di Graphviz, solo sul DISEGNO**: i dati restano intoccati e i livelli si calcolano ancora su tutti i rapporti. Sul sito di esempio: **93 rapporti, 59 disegnati, 34 nascosti** perché già detti da un cammino più lungo.
+  - **I livelli affollati vanno a capo su più righe**, così un sito con le unità quasi tutte in un periodo non produce una fascia larga 103.000 pixel. Misurato sulla forma Ventena (1311 US): **2456 × 6258 invece di 103892 × 186**.
+  - **Il legame di un nodo di continuità è marcato a parte**: racconta quanto sopravvive una unità — dal suo periodo fino alla fascia dove sta il nodo di continuità, anche dieci periodi più su — non che una sta sopra l'altra.
+- `modules/utility/em_matrix_svg.py` — writer SVG puro, usato due volte: dall'utente (salvare, stampare, aprire nel browser o in Inkscape) e dai test, perché un disegno lo si può provare onestamente solo se è testo. I nomi lunghi si accorciano nel disegno e restano interi nel suggerimento.
+- `modules/utility/em_matrix_view.py` — un `QGraphicsView` che disegna lo stesso impaginato: rotella per ingrandire, doppio clic per adattare, clic su una unità che emette il suo id, salvataggio SVG attraverso il writer puro, salvataggio PNG che **abbassa da sé la scala** per restare sotto i 40 milioni di pixel (la forma Ventena a scala 2 chiedeva 0,3 GB).
+- `modules/s3dgraphy/em_matrix_panel.py` — il dock descritto sopra.
+
+##### Review indipendente prima del tag
+
+Un **Critical** e cinque Important, tutti chiusi con prova. Il Critical stava nel codice più nuovo: la riduzione transitiva cancellava rapporti veri dentro un ciclo (un anello di quattro unità perdeva tutti e quattro gli archi), perché in un gruppo fortemente connesso ogni arco ha per forza una strada alternativa. Ora la riduzione vale solo fra gruppi diversi. Gli Important: le frecce sui rapporti (senza, dove epoche e stratigrafia divergono non si legge il verso), il lettore em.json che rispondeva con errori Python invece che con frasi, `active_graph_id` inesistente che disegnava un grafo col nome di un altro, il salvataggio che dichiarava successo senza averlo avuto, e la scheda del pannello che mostrava il sito precedente.
+
+### Test e tutorial
+
+- Suite: **878 passati, 0 falliti**; restano 8 errori, tutti d'ambiente (i file `*_pg`, `yef_migration`, `media_fk_migration`).
+- Test nuovi: `tests/utility/test_em_matrix_model.py`, `tests/utility/test_em_matrix_layout.py`, `tests/utility/test_em_matrix_svg.py`, `tests/utility/test_em_matrix_view.py`, `tests/sync/test_em_matrix_panel.py`.
+- Tutorial aggiornati in **tutte e dieci le lingue** (voce di menu e bottone, fasce delle epoche, tabella delle simbologie, zoom e scheda dell'unità, salvataggio SVG/PNG, e il rimando dal tutorial della matrice di Harris).
+
+### English
+
+#### The panel
+
+- **New "Extended Matrix → Vedi la matrice…" entry**: pick the site, the em.json is exported to a temporary folder and a dock draws it — epoch bands, Extended Matrix symbology, stratigraphic relations. The same panel opens from the **"Vedi la matrice"** button in the "Export Extended Matrix" window, enabled after a successful em.json export, next to "Apri in EMStudio". **No EMStudio, no StratiGraph node, no web engine, no Graphviz, no matplotlib, no network.**
+- The dock: matrix on the left, the selected unit's record on the right (definition, interpretation, period and phase, dating, area, structure), "Adatta", zoom, "Salva SVG…", "Salva PNG…" and the counts line. One panel per session, closed in `unload()`.
+- **The units of the site currently open live in the module, not inside the closure** that fills the record pane: that closure is connected once, when the dock is created, so with the table captured inside it opening a second site would keep showing the first site's data.
+
+#### Four new modules, the first three pure and tested headless
+
+- `modules/utility/em_matrix_model.py` — reads an em.json (file or dict) into units, epochs and stratigraphic relations. **Shape and colours come from the vendored library's `em_visual_rules.json`**, the canonical EM symbology: US rectangle, USVs parallelogram, USVn hexagon, SF octagon, BR diamond, extractor pentagon, combiner hexagon, document ellipse, property circle — with an alias table, because our `node_types` are `document`/`extractor`/`combiner`/`property` while the rules file calls them `DOC`/`EXT`/`COMB`/`PROP`. **Only nodes that are a `us_table` row or take part in a relationship are drawn**: a documentation checklist entry is decoration, not a node of the matrix.
+- `modules/utility/em_matrix_layout.py` — pure layout. Each unit in the band of the **epoch it was created in**, most recent band on top; the level inside the band comes from the stratigraphy — what covers is drawn above what is covered. Symmetric relationships do not push anything down. A **cycle** in the relationships does not hang the layering (the node with the fewest live constraints is promoted), because a real excavation may contain one.
+  - **Transitive reduction like Graphviz's `tred`, on the DRAWING only**: the data is untouched and the levels are still computed on all relationships. On the sample site: **93 relationships, 59 drawn, 34 hidden** as already said by a longer path.
+  - **Crowded levels wrap onto several rows**, so a site whose units are almost all in one period does not produce a band 103000 pixels wide. Measured on the 1311-unit Ventena shape: **2456 × 6258 instead of 103892 × 186**.
+  - **The link of a continuity node is marked apart**: it tells how long a unit survives — from its own period up to the band where the continuity node sits, possibly ten periods higher — not that one lies over the other.
+- `modules/utility/em_matrix_svg.py` — pure SVG writer, used both by the user (save, print, open in a browser or Inkscape) and by the tests, since a drawing can only be tested honestly if it is text. Long names are shortened in the drawing and kept whole in the tooltip.
+- `modules/utility/em_matrix_view.py` — a `QGraphicsView` drawing the same layout: wheel zoom, double click to fit, click on a unit emits its id, SVG saving through the pure writer, PNG saving that **lowers its own scale** to stay under 40 million pixels (the Ventena shape asked for 0.3 GB at scale 2).
+- `modules/s3dgraphy/em_matrix_panel.py` — the dock described above.
+
+#### Tests and tutorials
+
+- Suite: **878 passed, 0 failed**; 8 errors remain, all missing-environment (the `*_pg` files, `yef_migration`, `media_fk_migration`).
+- New tests: `tests/utility/test_em_matrix_model.py`, `tests/utility/test_em_matrix_layout.py`, `tests/utility/test_em_matrix_svg.py`, `tests/utility/test_em_matrix_view.py`, `tests/sync/test_em_matrix_panel.py`.
+- Tutorials updated in **all ten languages** (menu entry and button, epoch bands, symbology table, zoom and unit record, SVG/PNG saving, and the cross-reference from the Harris matrix tutorial).
+
+---
+
 ## [fix] - 2026-10-08 — la finestra resta aperta, e l'export dice perché la matrice si ammucchia — 5.13.36-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-dialog-open-5.13.36-alpha`**. Due difetti visti da Enzo nel video e nello screenshot subito dopo la 5.13.35.
