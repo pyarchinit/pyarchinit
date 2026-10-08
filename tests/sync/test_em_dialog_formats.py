@@ -136,7 +136,8 @@ def test_an_unknown_file_says_what_it_wanted(tmp_path):
         read_graph_for_import(bad)
 
 
-def test_what_the_dialog_exports_the_dialog_can_read_back(tmp_path):
+def test_what_the_dialog_exports_the_dialog_can_read_back(tmp_path,
+                                                        monkeypatch):
     """em.json di andata e ritorno: quello che esce dalla finestra deve
     poterci rientrare, unità virtuali comprese."""
     import os
@@ -150,7 +151,7 @@ def test_what_the_dialog_exports_the_dialog_can_read_back(tmp_path):
     resources = _ROOT / "resources" / "dbfiles"
     shutil.copy(resources / "config.cfg", folder / "config.cfg")
     shutil.copy(resources / "pyarchinit_db.sqlite", folder / "db.sqlite")
-    os.environ["PYARCHINIT_HOME"] = str(tmp_path)
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
 
     path, _, _, _ = export_site("sqlite:///%s" % (folder / "db.sqlite"),
                                 "Scavo archeologico", str(tmp_path / "out"))

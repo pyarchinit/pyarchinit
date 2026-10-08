@@ -2669,6 +2669,7 @@ class PyArchInitPlugin(object):
 
         for _name in ("actionEmExport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
+                      "actionEmStudioInstall",
                       "actionUuidBackfill", "actionYefOtherLocations",
                       "actionMediaFkMigration", "actionSchedatoreFields",
                       "actionSchemaRepair", "actionRapportiBlankRows"):
@@ -2874,6 +2875,15 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmExport)
 
+            self.actionEmStudioInstall = QAction(
+                "Extended Matrix → Installa EMStudio…",
+                self.iface.mainWindow())
+            self.actionEmStudioInstall.triggered.connect(
+                self._run_emstudio_install)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmStudioInstall)
+
             # --- StratiGraph: consegna alla stanza + porta del nodo (C/B2) --
             # spec 2026-10-07 §C + addendum: REST, refused-in-200, mai
             # graph_id; token solo da env, mai persistito.
@@ -2938,12 +2948,87 @@ class PyArchInitPlugin(object):
         if QMessageBox.question(self.iface.mainWindow(), "em.json", msg,
                                 QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             if not em_export.open_in_emstudio(path):
-                QMessageBox.information(
+                answer = QMessageBox.question(
                     self.iface.mainWindow(), "EMStudio",
                     "EMStudio non risulta installato. Il file è in:\n%s\n\n"
-                    "Scaricalo da: "
-                    "https://github.com/ExtendedMatrix/EMStudio/releases"
-                    % path)
+                    "Vuoi installarlo adesso?" % path,
+                    QMessageBox.StandardButton.Yes
+                    | QMessageBox.StandardButton.No)
+                if answer == QMessageBox.StandardButton.Yes:
+                    if self._run_emstudio_install():
+                        em_export.open_in_emstudio(path)
+
+    def _run_emstudio_install(self):
+        """Scarica e installa EMStudio dalle release ufficiali.
+
+        Scaricare e installare un programma è un'azione verso l'esterno:
+        prima si dice all'utente cosa, da dove, quanto e dove va a
+        finire, e si aspetta un sì. Nessun codice EMStudio entra nel
+        plugin: è un processo separato (GPL-3), scaricato su richiesta.
+        """
+        import platform
+        from qgis.PyQt.QtWidgets import QMessageBox
+        from modules.s3dgraphy import em_studio_installer as installer
+
+        gia = installer.installed_executable()
+        if gia is not None:
+            answer = QMessageBox.question(
+                self.iface.mainWindow(), "EMStudio",
+                "EMStudio è già installato in:\n%s\n\n"
+                "Vuoi scaricare di nuovo l'ultima versione?" % gia,
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No)
+            if answer != QMessageBox.StandardButton.Yes:
+                return True
+
+        try:
+            release = installer.latest_release()
+            asset = installer.pick_asset(release["assets"])
+        except installer.InstallError as e:
+            QMessageBox.warning(self.iface.mainWindow(), "EMStudio", str(e))
+            return False
+        if asset is None:
+            QMessageBox.information(
+                self.iface.mainWindow(), "EMStudio",
+                "La release %s non pubblica un pacchetto per questo sistema "
+                "(%s %s).\nSi può scaricare a mano da:\n%s"
+                % (release["tag"], platform.system(), platform.machine(),
+                   release.get("html_url")
+                   or "https://github.com/ExtendedMatrix/EMStudio/releases"))
+            return False
+
+        answer = QMessageBox.question(
+            self.iface.mainWindow(), "Installare EMStudio?",
+            "Versione: %s\nFile: %s (%.0f MB)\nDa: %s\nIn: %s\n\n"
+            "EMStudio è un programma separato del progetto Extended "
+            "Matrix (GPL-3): pyArchInit lo scarica e lo avvia, non lo "
+            "incorpora.\n\nProcedere?"
+            % (release["tag"], asset.get("name"),
+               (asset.get("size") or 0) / 1e6,
+               asset.get("browser_download_url"), installer.install_dir()),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        if answer != QMessageBox.StandardButton.Yes:
+            return False
+
+        from qgis.PyQt.QtWidgets import QApplication
+        from qgis.PyQt.QtCore import Qt
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            path = installer.install_latest()
+        except installer.InstallError as e:
+            QMessageBox.warning(self.iface.mainWindow(), "EMStudio", str(e))
+            return False
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "EMStudio",
+                                "Installazione fallita: %s" % e)
+            return False
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        QMessageBox.information(
+            self.iface.mainWindow(), "EMStudio",
+            "EMStudio installato in:\n%s" % path)
+        return True
 
     def _run_room_delivery(self):
         """C (spec 2026-10-07 §C + addendum): un sito → una stanza, REST."""

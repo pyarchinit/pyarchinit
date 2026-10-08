@@ -131,13 +131,27 @@ def export_site(connection_url, site, out_dir):
     return path, len(graph.nodes), len(graph.edges), warnings
 
 
-def _find_emstudio_executable():
-    """The EMStudio executable on Windows/Linux, or None.
+def _our_installation():
+    """What «Installa EMStudio…» put in the plugin's data folder, or None."""
+    try:
+        from .em_studio_installer import installed_executable
+        return installed_executable()
+    except Exception:                               # noqa: BLE001
+        return None
 
-    PATH first (`shutil.which`), then the places the installers use.
-    macOS does not come through here (`open -a` resolves the bundle).
+
+def _find_emstudio_executable():
+    """The EMStudio executable, or None.
+
+    Our own installation first — otherwise the user installs it from the
+    menu and the plugin keeps saying it is not there — then PATH
+    (`shutil.which`), then the places the installers use.
     """
     import shutil as _shutil
+
+    ours = _our_installation()
+    if ours is not None:
+        return ours
 
     for name in ("EMStudio", "emstudio", "em-studio", "EMStudio.exe"):
         exe = _shutil.which(name)
@@ -180,7 +194,12 @@ def open_in_emstudio(path, runner=None):
     system = platform.system()
     try:
         if system == "Darwin":
-            return run(["open", "-a", "EMStudio", path],
+            # Un'applicazione dentro la nostra cartella dati può non
+            # essere registrata in LaunchServices: per nome non si
+            # troverebbe, per percorso sì.
+            ours = _our_installation()
+            target = str(ours) if ours is not None else "EMStudio"
+            return run(["open", "-a", target, path],
                        capture_output=True).returncode == 0
         exe = _find_emstudio_executable()
         if not exe:

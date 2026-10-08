@@ -26,13 +26,16 @@ if not em_export.emjson_available():
 
 
 @pytest.fixture()
-def sample_db(tmp_path):
+def sample_db(tmp_path, monkeypatch):
     folder = tmp_path / "pyarchinit_DB_folder"
     folder.mkdir()
     resources = _ROOT / "resources" / "dbfiles"
     shutil.copy(resources / "config.cfg", folder / "config.cfg")
     shutil.copy(resources / "pyarchinit_db.sqlite", folder / "db.sqlite")
-    os.environ["PYARCHINIT_HOME"] = str(tmp_path)
+    # monkeypatch, non os.environ: una PYARCHINIT_HOME lasciata sporca
+    # mandava in errore le dieci prove dei PDF quando giravano dopo
+    # queste (il «rumore noto» di tests/utility, 2026-10-08).
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
     return "sqlite:///%s" % (folder / "db.sqlite")
 
 
@@ -342,3 +345,40 @@ def test_the_file_draws_virtual_units_as_virtual(sample_db, tmp_path):
     assert virtuali and all(
         (n.get("data") or {}).get("symbol") != "white rectangle"
         for n in virtuali)
+
+
+def test_our_own_installation_is_found_first(tmp_path, monkeypatch):
+    """Quello che installiamo noi dentro la cartella dati deve valere
+    quanto un EMStudio di sistema: altrimenti l'utente lo installa e il
+    plugin continua a dire che non c'è."""
+    from modules.s3dgraphy import em_studio_installer
+
+    app = tmp_path / "tools" / "EMStudio" / "EMStudio.app"
+    app.mkdir(parents=True)
+    monkeypatch.setattr(em_studio_installer, "install_dir",
+                        lambda: tmp_path / "tools" / "EMStudio")
+    assert str(em_export._find_emstudio_executable()) == str(app)
+
+
+def test_the_mac_opener_uses_our_bundle_by_path(tmp_path, monkeypatch):
+    """Un'applicazione dentro la nostra cartella dati può non essere
+    registrata in LaunchServices: «open -a EMStudio» per nome non la
+    troverebbe, il percorso sì."""
+    from modules.s3dgraphy import em_studio_installer
+
+    app = tmp_path / "tools" / "EMStudio" / "EMStudio.app"
+    app.mkdir(parents=True)
+    monkeypatch.setattr(em_studio_installer, "install_dir",
+                        lambda: tmp_path / "tools" / "EMStudio")
+    monkeypatch.setattr("platform.system", lambda: "Darwin")
+    visti = []
+
+    class _Esito:
+        returncode = 0
+
+    def _run(cmd, **kwargs):
+        visti.append(list(cmd))
+        return _Esito()
+
+    assert em_export.open_in_emstudio("/tmp/x.em.json", runner=_run) is True
+    assert visti == [["open", "-a", str(app), "/tmp/x.em.json"]]

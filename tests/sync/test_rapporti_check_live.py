@@ -23,13 +23,13 @@ sys.path.insert(0, _EXT_LIBS)
 
 
 @pytest.fixture()
-def sample_db(tmp_path):
+def sample_db(tmp_path, monkeypatch):
     folder = tmp_path / "pyarchinit_DB_folder"
     folder.mkdir()
     resources = _ROOT / "resources" / "dbfiles"
     shutil.copy(resources / "config.cfg", folder / "config.cfg")
     shutil.copy(resources / "pyarchinit_db.sqlite", folder / "db.sqlite")
-    os.environ["PYARCHINIT_HOME"] = str(tmp_path)
+    monkeypatch.setenv("PYARCHINIT_HOME", str(tmp_path))
     return "sqlite:///%s" % (folder / "db.sqlite")
 
 
