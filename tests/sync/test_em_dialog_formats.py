@@ -178,3 +178,23 @@ def test_the_dialog_opens_what_it_just_exported(tmp_path, monkeypatch):
     assert bridge_mod.open_exported_emjson({"emjson": str(target)}) is True
     assert aperti == [str(target)]
     assert bridge_mod.open_exported_emjson({}) is False
+
+
+def test_the_window_stays_open_after_the_export():
+    """Visto nel video di Enzo: la finestra si chiudeva da sola appena
+    finito l'export, quindi «Apri in EMStudio» — che si accende proprio
+    in quel momento — non era mai premibile. L'export non è l'ultima cosa
+    che si fa in questa finestra: dopo si apre il file, si consegna alla
+    stanza, si rifà con altri formati."""
+    import ast
+
+    tree = ast.parse(_source())
+    for nodo in ast.walk(tree):
+        if isinstance(nodo, ast.FunctionDef) and nodo.name == "on_export":
+            chiuse = [c for c in ast.walk(nodo)
+                      if isinstance(c, ast.Call)
+                      and isinstance(c.func, ast.Attribute)
+                      and c.func.attr in ("accept", "close")]
+            assert not chiuse, "on_export chiude la finestra"
+            return
+    raise AssertionError("on_export non trovata")

@@ -590,7 +590,10 @@ if QGIS_AVAILABLE:
                         "Esportazione Extended Matrix completata",
                         "\n".join(lines) if lines else "Nothing exported.",
                     )
-                    self.accept()
+                    # La finestra NON si chiude: «Apri in EMStudio» si
+                    # accende proprio adesso, e dopo l'export si consegna
+                    # alla stanza o si riesporta in un altro formato.
+                    self.btn_cancel.setText("Chiudi")
                 else:
                     QMessageBox.warning(
                         self,

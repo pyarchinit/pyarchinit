@@ -247,6 +247,40 @@ def _label(graph, node_id):
     return node_id
 
 
+def _warn_units_without_an_end(graph):
+    """Dice quante unità non dichiarano dove finiscono, e cosa comporta.
+
+    Nell'Extended Matrix una unità fisica **sopravvive in ogni epoca più
+    recente** di quella in cui è nata, finché qualcosa non la chiude —
+    è la regola dell'importer yEd della libreria
+    (``import_graphml.py``: ``if epoch.max_y < node.attributes['y_pos']``
+    → ``survive_in_epoch``). Nelle schede pyArchInit il «periodo finale»
+    quasi non si compila, così EMStudio disegna quasi tutto nella fascia
+    più recente. Non è un guasto dell'export: è un dato che manca, e
+    l'export lo deve dire (segnalato da Enzo il 2026-10-08).
+    """
+    unita = [n for n in graph.nodes
+             if (getattr(n, "attributes", None) or {}).get("us")
+             and getattr(n, "node_type", None) not in _PARADATA_NODE_TYPES]
+    if not unita:
+        return 0
+    senza = [n for n in unita
+             if not str((n.attributes or {}).get("periodo_finale", "")).strip()]
+    if not senza:
+        return 0
+    try:
+        graph.add_warning(
+            "%d unità su %d non dichiarano il periodo finale: per "
+            "l'Extended Matrix una unità senza fine dichiarata esiste "
+            "ancora oggi, quindi EMStudio la disegna fino alla fascia "
+            "più recente. Compila «periodo finale» e «fase finale» nella "
+            "scheda US perché ogni unità resti nella sua epoca."
+            % (len(senza), len(unita)))
+    except Exception:                               # noqa: BLE001
+        pass
+    return len(senza)
+
+
 def _merge_checklist_documents(graph):
     """Una voce di spunta della scheda = un documento, non uno per US.
 
@@ -471,6 +505,12 @@ class GraphProjector(_LibGraphProjector):
             logging.getLogger(__name__).warning(
                 "paradata edge refinement skipped: %s", e)
 
+        # Perché la matrice di EMStudio ammucchia tutto in cima.
+        try:
+            _warn_units_without_an_end(graph)
+        except Exception:                           # noqa: BLE001
+            pass                                    # un avviso, mai un guasto
+
         # Chronologies written backwards (BC years without the minus):
         # the warning of v4.9.13, host-side because it imports
         # modules.utility.
@@ -596,7 +636,8 @@ class GraphProjector(_LibGraphProjector):
         with handle.engine.connect() as conn:
             rows = conn.execute(text(
                 "SELECT us, node_uuid, sito, area, unita_tipo, "
-                "periodo_iniziale, fase_iniziale, rapporti, "
+                "periodo_iniziale, fase_iniziale, "
+                "periodo_finale, fase_finale, rapporti, "
                 "d_stratigrafica, d_interpretativa, attivita, struttura, "
                 "settore, ambient, saggio, quad_par, documentazione "
                 "FROM us_table WHERE sito = :sito"), {"sito": sito}).fetchall()
@@ -631,8 +672,9 @@ class GraphProjector(_LibGraphProjector):
             return node
 
         for (us_val, node_uuid, sito_v, area, unita_tipo, periodo_ini,
-             fase_ini, rapporti_raw, d_strat, d_interp, attivita, struttura,
-             settore, ambient, saggio, quad_par, documentazione) in rows:
+             fase_ini, periodo_fin, fase_fin, rapporti_raw, d_strat,
+             d_interp, attivita, struttura, settore, ambient, saggio,
+             quad_par, documentazione) in rows:
             us_name = str(us_val) if us_val is not None else None
             if not us_name:
                 continue
@@ -666,6 +708,8 @@ class GraphProjector(_LibGraphProjector):
                                ("unita_tipo", ut_str or None),
                                ("periodo_iniziale", periodo_ini),
                                ("fase_iniziale", fase_ini),
+                               ("periodo_finale", periodo_fin),
+                               ("fase_finale", fase_fin),
                                ("rapporti", rapporti_raw),
                                ("d_stratigrafica", d_strat),
                                ("d_interpretativa", d_interp),

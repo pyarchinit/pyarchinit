@@ -523,3 +523,35 @@ def test_a_stratigraphic_verb_towards_a_paradatum_is_not_published(tmp_path):
     assert any("Copre" in str(w) or "400" in str(w)
                for w in (getattr(graph, "warnings", None) or [])), \
         getattr(graph, "warnings", None)
+
+
+def test_units_without_a_final_period_are_reported(tmp_path):
+    """Visto da Enzo in EMStudio: la matrice ammucchia tutto nella fascia
+    più recente. È la regola dell'Extended Matrix, non un guasto —
+    l'importer yEd di s3dgraphy lo dice chiaro (import_graphml.py:2267):
+    una unità fisica **sopravvive in ogni epoca più recente** di quella in
+    cui è nata, finché qualcosa non la chiude. Nelle schede il «periodo
+    finale» quasi non si compila (49 US su 51 nel demo), quindi tutte le
+    unità arrivano a oggi. L'export deve dirlo."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             periodo_iniziale="2", fase_iniziale="1"),
+        dict(sito="Alfa", us="2", unita_tipo="US",
+             periodo_iniziale="2", fase_iniziale="1",
+             periodo_finale="2", fase_finale="1"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    avvisi = [str(w) for w in (getattr(graph, "warnings", None) or [])]
+    assert any("periodo finale" in w for w in avvisi), avvisi
+    assert any("1 unità su 2" in w or "1 unit" in w for w in avvisi), avvisi
+
+
+def test_a_site_that_declares_its_ends_is_not_nagged(tmp_path):
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US",
+             periodo_iniziale="2", fase_iniziale="1",
+             periodo_finale="2", fase_finale="1"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    avvisi = [str(w) for w in (getattr(graph, "warnings", None) or [])]
+    assert not any("periodo finale" in w for w in avvisi), avvisi
