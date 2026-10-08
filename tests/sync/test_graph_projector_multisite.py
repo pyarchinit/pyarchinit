@@ -238,3 +238,61 @@ def test_two_projections_at_once_keep_their_own_site(tmp_path):
     for t in threads:
         t.join()
     assert out == {"Alfa": ["1.US1"], "Beta": ["1.US2"]}
+
+
+def _types_by_us(graph):
+    return {(getattr(n, "attributes", None) or {}).get("us"): n.node_type
+            for n in graph.nodes
+            if (getattr(n, "attributes", None) or {}).get("us")}
+
+
+def test_each_unit_gets_the_class_its_type_declares(tmp_path):
+    """``node_type`` è quello che EMStudio legge per disegnare: una unità
+    virtuale non può uscire come «US» col rettangolo bianco.
+
+    Visto da Enzo sul demo (2026-10-08): tutte e 51 le unità del sito
+    uscivano `US`, comprese USVA, USVB, SF e CON.
+    """
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US"),
+        dict(sito="Alfa", us="2", unita_tipo="USVA"),
+        dict(sito="Alfa", us="3", unita_tipo="USVB"),
+        dict(sito="Alfa", us="4", unita_tipo="SF"),
+        dict(sito="Alfa", us="5", unita_tipo="CON"),
+        dict(sito="Alfa", us="6", unita_tipo="USM"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _types_by_us(graph) == {
+        "1": "US", "2": "USVs", "3": "USVn", "4": "SF", "5": "BR",
+        "6": "US"}
+    usm = next(n for n in graph.nodes
+               if (getattr(n, "attributes", None) or {}).get("us") == "6")
+    assert usm.stratigraphic_kind == "masonry"     # USM = US + genere
+    virtuale = next(n for n in graph.nodes
+                    if (getattr(n, "attributes", None) or {}).get("us") == "2")
+    assert virtuale.symbol != "white rectangle"    # la forma cambia davvero
+
+
+def test_a_localized_us_code_is_not_a_stratigraphic_event(tmp_path):
+    """SE è il codice tedesco per US, e STRATIGRAPHIC_CLASS_MAP['SE'] è
+    StratigraphicEventNode: si canonicalizza PRIMA di scegliere la classe,
+    o un sito intero diventa una fila di eventi."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="SE"),
+        dict(sito="Alfa", us="2", unita_tipo="UE"),
+        dict(sito="Alfa", us="3", unita_tipo="ΣΜ"),
+        dict(sito="Alfa", us="4", unita_tipo="SU"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert set(_types_by_us(graph).values()) == {"US"}
+
+
+def test_an_unknown_type_stays_a_plain_unit(tmp_path):
+    """Un codice che nessuno conosce non deve far sparire l'unità né
+    diventare un nodo senza tipo: resta una US."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="QUALCOSA"),
+        dict(sito="Alfa", us="2", unita_tipo=""),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _types_by_us(graph) == {"1": "US", "2": "US"}

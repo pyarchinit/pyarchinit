@@ -42,6 +42,81 @@ _STRAT_FAMILY = ("US", "USM", "USR", "USD", "USV", "USVs", "USVn", "USVc",
                  "SF", "VSF", "RSF", "CON")
 
 
+_MISSING = object()
+
+#: The codes pyArchInit used for virtual units, with the reading its own
+#: historical exporter gave them (resources/dbfiles/dot.py:855-865): USVA
+#: a parallelogram = structural, USVB a hexagon = non-structural, USVC an
+#: ellipse (a series) = folded onto non-structural. The library does not
+#: know them — ``canonical_unita_tipo`` hands them back unchanged — so a
+#: virtual unit came out as a plain US. Same table as
+#: scripts/migrations/_2026_05_us_vocabulary_alignment_lib.REPLACEMENTS and
+#: room/us_ops.UNIT_TYPES; a test per file keeps the three in step.
+LEGACY_UNITA_TIPO = {
+    "USVA": "USVs", "USVB": "USVn", "USVC": "USVn", "USVc": "USVn",
+}
+
+#: Codes whose class the library files under another name: pyArchInit's
+#: continuity (CON) is the ContinuityNode, which the library calls BR.
+_CLASS_KEY_ALIAS = {"CON": "BR"}
+
+#: The fields that belong to the node, not to its class: a node that
+#: changes class keeps them.
+_IDENTITY_FIELDS = ("node_id", "name", "description", "attributes", "data")
+
+#: What the new class would have set in __init__ and must be refreshed,
+#: because the old class had already set it to something non-None.
+_PRESENTATION_FIELDS = ("symbol", "label", "detailed_description")
+
+
+def _class_key_for_unita_tipo(declared):
+    """The STRATIGRAPHIC_CLASS_MAP key ``declared`` names, or None.
+
+    Order matters: pyArchInit's legacy codes first, then the library's
+    canonicalisation (which folds UE/SU/SE/ΣΜ onto US and the masonry
+    codes onto USM), then the name aliases. The other way round — reading
+    the raw code — 'SE', which in pyArchInit is the German for US, would
+    land on StratigraphicEventNode and turn a whole site into events.
+    """
+    code = str(declared or "").strip()
+    if not code:
+        return None
+    code = LEGACY_UNITA_TIPO.get(code, code)
+    try:
+        from s3dgraphy.rapporti import canonical_unita_tipo
+        code = canonical_unita_tipo(code) or code
+    except Exception:                               # noqa: BLE001
+        pass
+    return _CLASS_KEY_ALIAS.get(code, code)
+
+
+def _become(node, target_cls):
+    """``node`` becomes a ``target_cls``, keeping its identity and edges.
+
+    Reassigning ``__class__`` is legal on instances of plain Python
+    classes and skips ``__init__``: the fields the new class would have
+    set are copied from a throwaway probe, everything else stays the
+    node's. Replacing the node in the graph instead would mean surgery
+    on its lists and indices — and ``add_node(overwrite=True)`` leaves a
+    warning per node on ``graph.warnings``, which the export shows the
+    user.
+    """
+    probe = target_cls(node_id="_probe", name="_probe")
+    node.__class__ = target_cls
+    # Node.__init__ copies the class attribute onto the instance
+    # (base_node.py:61), and the stale copy would win over the new class.
+    node.node_type = target_cls.node_type
+    for field in _PRESENTATION_FIELDS:
+        if hasattr(probe, field):
+            setattr(node, field, getattr(probe, field))
+    for field, value in vars(probe).items():
+        if field in _IDENTITY_FIELDS or field in _PRESENTATION_FIELDS:
+            continue
+        if getattr(node, field, _MISSING) in (_MISSING, None):
+            setattr(node, field, value)
+    return node
+
+
 #: The patch below swaps a module symbol: two projections at once (one in
 #: a QgsTask, one on the GUI thread) would read each other's site. The lock
 #: serialises the swap and the projection, which takes tenths of a second.
@@ -127,6 +202,14 @@ class GraphProjector(_LibGraphProjector):
                 "rapporti edge building failed for sito=%r: %s"
                 % (sito, e)) from e
 
+        # Every node the class its unita_tipo declares: node_type is what
+        # em.json writes and EMStudio reads to choose the shape.
+        try:
+            self._retype_nodes_from_unita_tipo(graph)
+        except Exception as e:                      # noqa: BLE001
+            raise ProjectionError(
+                "node retyping failed for sito=%r: %s" % (sito, e)) from e
+
         # EM typing of generic paradata→stratigraphy connections.
         try:
             from .paradata_edge_resolver import refine_generic_connections
@@ -192,6 +275,38 @@ class GraphProjector(_LibGraphProjector):
                            and e.edge_target not in orphans]
         if hasattr(graph, "invalidate_indices"):
             graph.invalidate_indices()
+
+    @staticmethod
+    def _retype_nodes_from_unita_tipo(graph):
+        """Give every node the class its ``unita_tipo`` declares.
+
+        ``node_type`` is a CLASS attribute: it is what em.json writes and
+        what EMStudio reads to pick the shape. The importer builds every
+        us_table row as a ``StratigraphicUnit`` and keeps the genre
+        aside (``apply_legacy_kind``), so a virtual unit, a special find
+        or a continuity all came out as a US with a white rectangle —
+        seen by Enzo on the demo, 2026-10-08.
+
+        Returns the count per resulting node_type.
+        """
+        from s3dgraphy.utils.utils import get_stratigraphic_node_class
+
+        counts = {}
+        for node in list(graph.nodes):
+            declared = (getattr(node, "attributes", None) or {}).get(
+                "unita_tipo")
+            key = _class_key_for_unita_tipo(declared)
+            if not key:
+                continue
+            target = get_stratigraphic_node_class(key)
+            if target is None or type(node) is target:
+                continue
+            node_type = getattr(target, "node_type", None)
+            if node_type in (None, "StratigraphicNode"):
+                continue                 # abstract, or a node with no type
+            _become(node, target)
+            counts[node_type] = counts.get(node_type, 0) + 1
+        return counts
 
     @staticmethod
     def _apply_pyarchinit_attributes(graph, db_path, sito):

@@ -310,3 +310,28 @@ def test_the_file_speaks_only_forward_edge_types(sample_db, tmp_path):
     bad = [e for e in check.edges
            if getattr(e, "edge_type", None) in INVERSE]
     assert bad == [], sorted({e.edge_type for e in bad})
+
+
+def test_the_file_draws_virtual_units_as_virtual(sample_db, tmp_path):
+    """Dal database al file: le USVA/USVB del sito di esempio escono come
+    unità virtuali, non come US col rettangolo bianco (segnalato da Enzo
+    sulla matrice EMStudio del 2026-10-08)."""
+    import json
+
+    path, _, _, _ = em_export.export_site(
+        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+    graph = json.loads(Path(path).read_text())["graphs"]["Scavo archeologico"]
+    by_tipo = {}
+    for node in graph["nodes"]:
+        data = node.get("data") or {}
+        if data.get("unita_tipo"):
+            by_tipo.setdefault(data["unita_tipo"], set()).add(node["node_type"])
+    assert by_tipo.get("USVA") == {"USVs"}, by_tipo
+    assert by_tipo.get("USVB") == {"USVn"}, by_tipo
+    assert by_tipo.get("SF") == {"SF"}, by_tipo
+    assert by_tipo.get("US") == {"US"}, by_tipo
+    assert by_tipo.get("USM") == {"US"}, by_tipo      # US + genere muraria
+    virtuali = [n for n in graph["nodes"] if n["node_type"] == "USVs"]
+    assert virtuali and all(
+        (n.get("data") or {}).get("symbol") != "white rectangle"
+        for n in virtuali)
