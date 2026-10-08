@@ -383,6 +383,14 @@ if QGIS_AVAILABLE:
             self.btn_open_emstudio.clicked.connect(self._on_open_emstudio)
             em_layout.addWidget(self.btn_open_emstudio)
 
+            self.btn_show_matrix = QPushButton("Vedi la matrice")
+            self.btn_show_matrix.setEnabled(False)
+            self.btn_show_matrix.setToolTip(
+                "Si attiva dopo un'esportazione em.json riuscita: disegna la "
+                "matrice dentro QGIS, senza EMStudio.")
+            self.btn_show_matrix.clicked.connect(self._on_show_matrix)
+            em_layout.addWidget(self.btn_show_matrix)
+
             self.btn_room_delivery = QPushButton("Consegna alla stanza…")
             self.btn_room_delivery.clicked.connect(
                 lambda: self._call_plugin_slot("_run_room_delivery"))
@@ -505,6 +513,32 @@ if QGIS_AVAILABLE:
                     "non c'è ancora un em.json esportato in questa "
                     "finestra.")
 
+        def _on_show_matrix(self):
+            """Disegna dentro QGIS la matrice dell'em.json appena esportato."""
+            from . import em_matrix_panel
+
+            percorso = (self.exported_files or {}).get("emjson")
+            if not percorso:
+                QMessageBox.information(
+                    self, "Matrice",
+                    "Esporta prima un em.json: la matrice si disegna da "
+                    "quello.")
+                return
+            plugin = _pyarchinit_plugin()
+            iface = getattr(plugin, "iface", None) if plugin else None
+            if iface is None:
+                QMessageBox.information(
+                    self, "Matrice",
+                    "Il pannello si apre dentro QGIS, col plugin pyArchInit "
+                    "caricato.")
+                return
+            if not em_matrix_panel.open_in_panel(
+                    iface, percorso, "Matrice — %s" % (self.site or "")):
+                QMessageBox.warning(
+                    self, "Matrice",
+                    em_matrix_panel.describe_failure(percorso)
+                    or "Non riesco ad aprire il pannello della matrice.")
+
         def _call_plugin_slot(self, name):
             """Chiama lo slot del menu, senza riscriverne la logica."""
             plugin = _pyarchinit_plugin()
@@ -583,8 +617,9 @@ if QGIS_AVAILABLE:
                     if 'phased' in exported_files:
                         lines.append(f"✅ Phased JSON → {exported_files['phased']}")
 
-                    self.btn_open_emstudio.setEnabled(
-                        bool(exported_files.get('emjson')))
+                    ha_emjson = bool(exported_files.get('emjson'))
+                    self.btn_open_emstudio.setEnabled(ha_emjson)
+                    self.btn_show_matrix.setEnabled(ha_emjson)
                     QMessageBox.information(
                         self,
                         "Esportazione Extended Matrix completata",

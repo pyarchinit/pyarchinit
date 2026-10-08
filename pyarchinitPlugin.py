@@ -2664,12 +2664,14 @@ class PyArchInitPlugin(object):
         try:
             from modules.s3dgraphy.room import room_panel
             room_panel.close_panel(self.iface)
+            from .modules.s3dgraphy import em_matrix_panel
+            em_matrix_panel.close_panel(self.iface)
         except Exception:
             pass
 
         for _name in ("actionEmExport", "actionRoomDelivery",
                       "actionRoomOpen", "actionVocabAlign",
-                      "actionEmStudioInstall",
+                      "actionEmStudioInstall", "actionEmMatrixView",
                       "actionUuidBackfill", "actionYefOtherLocations",
                       "actionMediaFkMigration", "actionSchedatoreFields",
                       "actionSchemaRepair", "actionRapportiBlankRows"):
@@ -2875,6 +2877,14 @@ class PyArchInitPlugin(object):
                 "&pyArchInit - Archaeological GIS Tools",
                 self.actionEmExport)
 
+            self.actionEmMatrixView = QAction(
+                "Extended Matrix → Vedi la matrice…",
+                self.iface.mainWindow())
+            self.actionEmMatrixView.triggered.connect(self._run_em_matrix_view)
+            self.iface.addPluginToMenu(
+                "&pyArchInit - Archaeological GIS Tools",
+                self.actionEmMatrixView)
+
             self.actionEmStudioInstall = QAction(
                 "Extended Matrix → Installa EMStudio…",
                 self.iface.mainWindow())
@@ -2957,6 +2967,61 @@ class PyArchInitPlugin(object):
                 if answer == QMessageBox.StandardButton.Yes:
                     if self._run_emstudio_install():
                         em_export.open_in_emstudio(path)
+
+    def _run_em_matrix_view(self):
+        """La matrice di un sito disegnata dentro QGIS, dall'em.json.
+
+        Si passa dal file e non dal grafo in memoria: quello che si vede
+        è esattamente quello che viaggerebbe in EMStudio o nella stanza.
+        """
+        import tempfile
+        from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
+        from modules.db.pyarchinit_conn_strings import Connection
+        from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
+        from .modules.s3dgraphy import em_export, em_matrix_panel
+
+        try:
+            conn_str = Connection().conn_str()
+            db = Pyarchinit_db_management(conn_str)
+            db.connection()
+            sites = sorted({str(r.sito) for r in db.query_bool({}, 'SITE')})
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "Matrice",
+                                "Connessione al database fallita:\n%s" % e)
+            return
+        if not sites:
+            QMessageBox.information(self.iface.mainWindow(), "Matrice",
+                                    "Nessun sito nel database.")
+            return
+        site, ok = QInputDialog.getItem(
+            self.iface.mainWindow(), "Vedi la matrice", "Sito:", sites, 0, False)
+        if not ok:
+            return
+
+        cartella = tempfile.mkdtemp(prefix="pyarchinit_matrice_")
+        try:
+            path, _n, _e, avvisi = em_export.export_site(
+                conn_str, site, cartella)
+        except em_export.EmExportError as e:
+            QMessageBox.warning(self.iface.mainWindow(), "Matrice", str(e))
+            return
+        except Exception as e:                      # noqa: BLE001
+            QMessageBox.warning(self.iface.mainWindow(), "Matrice",
+                                "Esportazione fallita: %s" % e)
+            return
+
+        if not em_matrix_panel.open_in_panel(
+                self.iface, path, "Matrice — %s" % site):
+            QMessageBox.warning(
+                self.iface.mainWindow(), "Matrice",
+                em_matrix_panel.describe_failure(path)
+                or "Non riesco ad aprire il pannello della matrice.")
+            return
+        for avviso in avvisi:
+            try:
+                self.iface.messageBar().pushInfo("Matrice", str(avviso))
+            except Exception:                       # noqa: BLE001
+                pass
 
     def _run_emstudio_install(self):
         """Scarica e installa EMStudio dalle release ufficiali.
