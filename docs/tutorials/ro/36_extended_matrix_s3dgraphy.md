@@ -49,6 +49,8 @@ Fișierele care se nasc, în funcție de formatele bifate:
 - `Extended_Matrix_<sit>[_<area>].dot` — Graphviz DOT, pentru matricea Harris clasică
 - `Extended_Matrix_<sit>[_<area>]_phased.json` — vizualizare per epocă
 
+> **Locurile nu intra in em.json.** Situl, aria si sectorul raman in fisa fiecarei unitati, dar nu mai calatoresc ca noduri de grup cu muchiile lor: cat timp fisierul contine chiar si o singura muchie `is_in_location`, vederea **Matrix** din EMStudio ingramadeste toate unitatile in prima banda in loc sa le distribuie pe epoci (masurat la 2026-10-08 cu EMStudio 1.6.0-dev.26, prin bisectie pe cinci fisiere). Nu se pierde nicio informatie — doar un mod de a o reprezenta.
+
 Rezumatul final listează fișierele și, pentru em.json, **câte noduri și câte muchii** au ieșit, cu eventualele avertismente.
 
 > **GraphML nu se mai exportă**: matricea se privește și se validează în EMStudio, care citește em.json. Rândurile temporale (swimlane) ale vechiului GraphML au plecat cu el. GraphML supraviețuiește doar la **intrare**, pentru fișierele desenate în yEd (§5).

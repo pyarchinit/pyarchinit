@@ -49,6 +49,8 @@ Die Dateien, die entstehen, je nach angehakten Formaten:
 - `Extended_Matrix_<site>[_<area>].dot` — Graphviz DOT, für die klassische Harris-Matrix
 - `Extended_Matrix_<site>[_<area>]_phased.json` — Ansicht pro Epoche
 
+> **Orte kommen nicht in die em.json.** Stätte, Areal und Sektor bleiben im Formular jeder Einheit, reisen aber nicht mehr als Gruppenknoten mit ihren Kanten: solange die Datei auch nur eine `is_in_location`-Kante enthält, stapelt die **Matrix**-Ansicht von EMStudio alle Einheiten im ersten Band, statt sie nach Epoche zu verteilen (am 2026-10-08 gegen EMStudio 1.6.0-dev.26 gemessen, per Bisektion über fünf Dateien). Es geht keine Information verloren — nur eine Art, sie darzustellen.
+
 Die Schlussmeldung listet die Dateien auf und, für em.json, **wie viele Knoten und wie viele Kanten** herauskamen, samt etwaigen Hinweisen.
 
 > **GraphML wird nicht mehr exportiert**: die Matrix wird in EMStudio angesehen und validiert, das em.json liest. Die Zeitzeilen (Swimlanes) des alten GraphML sind mit ihm gegangen. GraphML überlebt nur im **Eingang**, für in yEd gezeichnete Dateien (§5).

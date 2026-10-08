@@ -49,6 +49,8 @@ The files that are born, according to the formats checked:
 - `Extended_Matrix_<site>[_<area>].dot` — Graphviz DOT, for the classic Harris matrix
 - `Extended_Matrix_<site>[_<area>]_phased.json` — per-epoch view
 
+> **Places do not enter the em.json.** Site, area and sector stay in each unit's record, but they no longer travel as group nodes with their edges: as long as the file holds even one `is_in_location` edge, EMStudio's **Matrix** view piles every unit into the first band instead of spreading them by epoch (measured on 2026-10-08 against EMStudio 1.6.0-dev.26, by bisection over five files). No information is lost — only one way of representing it.
+
 The closing summary lists the files and, for em.json, **how many nodes and how many edges** came out, with any warnings.
 
 > **GraphML is no longer exported**: the matrix is looked at and validated in EMStudio, which reads em.json. The temporal rows (swimlanes) of the old GraphML went away with it. GraphML survives only on the way **in**, for files drawn in yEd (§5).

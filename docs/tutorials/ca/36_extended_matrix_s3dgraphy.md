@@ -49,6 +49,8 @@ Els fitxers que neixen, segons els formats marcats:
 - `Extended_Matrix_<lloc>[_<area>].dot` — Graphviz DOT, per a la matriu de Harris clàssica
 - `Extended_Matrix_<lloc>[_<area>]_phased.json` — vista per època
 
+> **Els llocs no entren a l'em.json.** Lloc, àrea i sector resten a la fitxa de cada unitat, però ja no viatgen com a nodes de grup amb les seves arestes: mentre el fitxer contingui ni que sigui una aresta `is_in_location`, la vista **Matrix** d'EMStudio amuntega totes les unitats a la primera franja en lloc de repartir-les per època (mesurat el 2026-10-08 contra EMStudio 1.6.0-dev.26, per bisecció sobre cinc fitxers). No es perd cap informació: només una manera de representar-la.
+
 El resum final enumera els fitxers i, per a l'em.json, **quants nodes i quantes arestes** han sortit, amb els avisos que hi hagi.
 
 > **El GraphML ja no s'exporta**: la matriu es mira i es valida a EMStudio, que llegeix em.json. Les files temporals (swimlanes) del GraphML antic han marxat amb ell. El GraphML només sobreviu a l'**entrada**, per als fitxers dibuixats a yEd (§5).

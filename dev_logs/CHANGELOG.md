@@ -5,6 +5,43 @@
 
 ---
 
+## [fix] - 2026-10-08 — i luoghi non viaggiano come archi: la matrice di EMStudio si popola — 5.13.43-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-location-edges-5.13.43-alpha`**. Chiuso il problema aperto dal 2026-10-07, con Emanuel Demetrescu via vocale e per bisezione su cinque file aperti in EMStudio 1.6.0-dev.26.
+
+### Italiano
+
+Aprendo un nostro em.json in EMStudio, la vista **Matrix** disegnava tutte le unità dentro la prima fascia (Età contemporanea) e lasciava vuote le altre undici, mentre **l'outliner della stessa finestra** le raggruppava correttamente per epoca. Avevamo escluso: la mancanza di `survive_in_epoch` (aggiunto nella 5.13.40), una cronologia sbagliata (la libreria calcola dieci durate distinte), la geometria (`y_pos` sulle unità, `min_y`/`max_y` sulle epoche: nessun effetto).
+
+Emanuel ha confermato che **la geometria non c'entra** — era un residuo del vecchio sistema yEd — e che per far atterrare un nodo nella sua corsia bastano gli archi `has_first_epoch`. Poi ha convertito lui stesso il GraphML del sito in em.json, e il confronto fra quel file e il nostro ha dato la risposta.
+
+**Bisezione, cinque file dello stesso sito:**
+
+| file | nodi gruppo | archi `is_in_location` | esito in EMStudio |
+|---|---|---|---|
+| come usciva | 6 | 106 | tutte nella prima fascia |
+| tolti i 3 archi fra gruppi | 6 | 103 | tutte nella prima fascia |
+| via i 4 toponimi | 2 | 52 | tutte nella prima fascia |
+| gruppi senza nessun arco | 6 | **0** | **fasce popolate** |
+| né nodi né archi | 0 | **0** | **fasce popolate** |
+
+Quindi **non** è l'annidamento dei toponimi (`Napoli → Rimini → Emilia-Romagna → Italia`, che il datamodel della libreria peraltro prevede: `group_node.py:131` documenta `is_in_location (location → location, recursive)`), e **non** sono i nodi gruppo. Sono gli archi `is_in_location`: ne basta uno.
+
+- **`modules/s3dgraphy/sync/graph_projector.py`** — `_drop_location_memberships(graph)` toglie quegli archi dal grafo che esce, e con loro i gruppi rimasti senza alcun legame (in EMStudio sarebbero cartelle vuote). **Il dato non si perde**: `sito`, `area` e `settore` stanno già nel `data` di ogni unità, dove la scheda li scrive — se ne va un modo di rappresentarli, non l'informazione.
+- I gruppi si **costruiscono ancora**: `populate_graph(location_groups=True)` li riporta, come già fa `column_properties` per i nodi proprietà. Le prove di AI07, della catena toponimi e dei gruppi li chiedono ora così.
+- La passata **non** sta nel blocco «igiene» che inghiotte gli errori: ha un suo avviso, perché se salta il file esce rotto per EMStudio e va detto.
+- Sito di esempio: **76 nodi / 420 archi → 70 / 314**, identico nodo per nodo e arco per arco al file che ha funzionato nella prova.
+
+Due cose misurate di passaggio, che restano agli atti. La prima: il file nato da GraphML porta **197** `survive_in_epoch` contro i nostri 45, perché la via yEd ne scrive uno per **ogni** epoca attraversata, non uno solo verso l'ultima — ma la prova mostra che con 45 le fasce si popolano lo stesso, quindi non è questo il punto e non lo tocchiamo senza una ragione. La seconda: in quel file `layout.positions` è **vuoto** e le epoche hanno `start_time`/`end_time` a `None`, e le fasce vengono comunque giuste: conferma definitiva che la geometria non serve.
+
+### English
+
+Opening our em.json in EMStudio, the **Matrix** view piled every unit into the first band while the outliner of the same window grouped them correctly by epoch. Emanuel confirmed geometry is irrelevant (a leftover of the old yEd system) and then converted the site's GraphML himself; diffing his working file against ours gave the answer, and bisection over five files pinned it: it is not the nested toponym chain and not the group nodes — it is the `is_in_location` **edges**. One is enough to collapse the view.
+
+`_drop_location_memberships` removes those edges from the exported graph, and with them any group left with no edge at all. No information is lost: `sito`, `area` and `settore` already live in each unit's `data`. The groups are still built — `populate_graph(location_groups=True)` brings them back, mirroring `column_properties`. The pass carries its own warning rather than sitting in the silent hygiene block, because a failure here ships a file that does not open as it should. Sample site: 76 nodes / 420 edges → 70 / 314, identical node for node to the file that worked.
+
+---
+
 ## [feat] - 2026-10-08 — la scheda mostra i media e porta sulla geometria — 5.13.42-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-matrix-media-zoom-5.13.42-alpha`**. Richiesta di Enzo mentre si aspetta la risposta di Emanuel su EMStudio.

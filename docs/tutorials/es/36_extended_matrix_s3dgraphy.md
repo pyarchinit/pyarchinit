@@ -49,6 +49,8 @@ Los archivos que nacen, según los formatos marcados:
 - `Extended_Matrix_<sitio>[_<area>].dot` — Graphviz DOT, para la matriz de Harris clásica
 - `Extended_Matrix_<sitio>[_<area>]_phased.json` — vista por época
 
+> **Los lugares no entran en el em.json.** Sitio, área y sector permanecen en la ficha de cada unidad, pero ya no viajan como nodos de grupo con sus aristas: mientras el archivo contenga aunque sea una arista `is_in_location`, la vista **Matrix** de EMStudio amontona todas las unidades en la primera banda en lugar de repartirlas por época (medido el 2026-10-08 contra EMStudio 1.6.0-dev.26, por bisección sobre cinco archivos). No se pierde información: solo una forma de representarla.
+
 El resumen final enumera los archivos y, para el em.json, **cuántos nodos y cuántas aristas** han salido, con los avisos que haya.
 
 > **El GraphML ya no se exporta**: la matriz se mira y se valida en EMStudio, que lee em.json. Las filas temporales (swimlanes) del GraphML antiguo se fueron con él. El GraphML sobrevive solo a la **entrada**, para los archivos dibujados en yEd (§5).
