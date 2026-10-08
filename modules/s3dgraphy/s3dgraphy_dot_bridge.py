@@ -20,6 +20,49 @@ from modules.utility.pyarchinit_home import pyarchinit_home
 
 # Import s3dgraphy integration
 from .s3dgraphy_integration import S3DGraphyIntegration
+# em.json è il formato di lavoro dell'Extended Matrix (A4, spec
+# 2026-10-07): la finestra usa la stessa funzione del menu, così il file
+# che esce da qui e quello che esce da lì sono lo stesso file.
+from .em_export import EmExportError, export_site, open_in_emstudio
+
+
+def read_graph_for_import(path):
+    """Il grafo di un file da importare, scelto dall'estensione.
+
+    em.json è il formato di lavoro; il GraphML resta accettato perché è
+    la via d'ingresso dei file yEd di prima (A4: «GraphML sopravvive solo
+    come import una tantum»). Ritorna ``(graph, warnings)``.
+    """
+    name = str(path).lower()
+    if name.endswith(".json"):
+        from s3dgraphy.importer.emjson_importer import import_emjson
+        return import_emjson(str(path))
+    if name.endswith(".graphml"):
+        try:
+            from s3dgraphy.importer.import_graphml import GraphMLImporter
+        except ImportError:
+            from s3dgraphy.importer.graphml_importer import GraphMLImporter
+        return GraphMLImporter(filepath=str(path)).parse(), []
+    raise ValueError(
+        "Non so leggere «%s»: serve un em.json (o un .graphml di yEd)."
+        % os.path.basename(str(path)))
+
+
+def _pyarchinit_plugin():
+    """Il plugin caricato in QGIS, o None fuori da QGIS."""
+    try:
+        from qgis import utils as _qgis_utils
+        return _qgis_utils.plugins.get("pyarchinit")
+    except Exception:                               # noqa: BLE001
+        return None
+
+
+def open_exported_emjson(exported_files):
+    """Apre in EMStudio l'em.json appena esportato. False se non c'è."""
+    path = (exported_files or {}).get("emjson")
+    if not path:
+        return False
+    return bool(open_in_emstudio(path))
 
 # Make QGIS imports optional
 try:
@@ -44,6 +87,11 @@ class S3DGraphyDotBridge:
     def __init__(self, db_manager=None):
         self.db_manager = db_manager
         self.s3d_integration = S3DGraphyIntegration(db_manager)
+
+    def _connection_url(self):
+        """La stringa di connessione del progetto, come la legge il menu."""
+        from modules.db.pyarchinit_conn_strings import Connection
+        return Connection().conn_str()
 
     def s3dgraphy_to_dot(self, site: str, area: Optional[str] = None) -> str:
         """
@@ -129,7 +177,8 @@ class S3DGraphyDotBridge:
     def export_integrated_matrix(self, site: str, area: Optional[str] = None,
                                 output_dir: str = None, formats: List[str] = None,
                                 groups: Optional[List[str]] = None,
-                                primary_priority: Optional[List[str]] = None
+                                primary_priority: Optional[List[str]] = None,
+                                validate: bool = True
                                 ) -> Dict[str, str]:
         """
         Export Extended Matrix in multiple formats with s3dgraphy integration
@@ -138,7 +187,8 @@ class S3DGraphyDotBridge:
             site: Site name
             area: Optional area filter
             output_dir: Output directory (default: temp)
-            formats: List of formats to export ['dot', 'graphml', 'json', 'phased']
+            formats: List of formats to export ['dot', 'emjson', 'phased']
+                ('json' is accepted as a synonym of 'emjson')
             groups: AI06 — list of group dimensions to materialize into
                 yEd folder nodes (subset of {area, struttura, attivita,
                 settore, ambient, saggio, quad_par, adhoc}). Default
@@ -148,12 +198,15 @@ class S3DGraphyDotBridge:
                 ``is_primary`` selection on is_in_location edges. When
                 None, ``DEFAULT_PRIMARY_PRIORITY`` is used. Toponym is
                 always excluded from primary regardless.
+            validate: when False, skip the stratigraphic sequence check
+                (the dialog's own checkbox, which until 2026-10-08 was
+                built and never read).
 
         Returns:
             Dictionary of format: filepath
         """
         if formats is None:
-            formats = ['dot', 'json']
+            formats = ['dot', 'emjson']
             
         if output_dir is None:
             output_dir = tempfile.gettempdir()
@@ -167,8 +220,9 @@ class S3DGraphyDotBridge:
         if not self.s3d_integration.import_from_pyarchinit(site, area):
             return exported_files
             
-        # Validate sequence
-        warnings = self.s3d_integration.validate_stratigraphic_sequence()
+        # Validate sequence (only when asked: the dialog's checkbox)
+        warnings = (self.s3d_integration.validate_stratigraphic_sequence()
+                    if validate else [])
         if warnings and QGIS_AVAILABLE:
             QgsMessageLog.logMessage(
                 f"Validation warnings: {'; '.join(warnings)}",
@@ -187,99 +241,20 @@ class S3DGraphyDotBridge:
         # A4 (spec 2026-10-07): the GraphML export retired — em.json is the
         # working format (Extended Matrix menu) and EMStudio the viewer.
         # A 'graphml' entry in *formats* is ignored.
-        if 'json' in formats:
-            json_path = os.path.join(output_dir, f"{base_name}_s3dgraphy.json")
-            if self.s3d_integration.export_to_json(json_path):
-                exported_files['json'] = json_path
+        if 'emjson' in formats or 'json' in formats:
+            try:
+                path, nodes, edges, warn = export_site(
+                    self._connection_url(), site, output_dir)
+                exported_files['emjson'] = path
+                exported_files['emjson_counts'] = (nodes, edges, warn)
+            except EmExportError as e:
+                exported_files['emjson_error'] = str(e)
         
         # Export phased matrix
         if 'phased' in formats:
             phased_path = os.path.join(output_dir, f"{base_name}_phased.json")
             if self.s3d_integration.export_phased_matrix(phased_path):
                 exported_files['phased'] = phased_path
-
-        # ---- NEW: swimlane PNG render alongside GraphML (post-2026-05-21) ----
-        # Auto-generate <base_name>_swimlane.png using the matplotlib
-        # + EM-palette renderer (modules/utility/matrix_swimlane_renderer.py
-        # introduced by commits d3752bba..50e76486). Triggered when GraphML
-        # is requested — matches the user's mental model "image goes next
-        # to the .graphml". The OLD Graphviz path (dot.py / dottoxml.py) is
-        # untouched.
-        #
-        # Defensive: any failure in this block must NOT prevent the
-        # existing exports from being reported to the caller. The renderer
-        # is ADDITIVE — at worst, the swimlane PNG is missing.
-        if 'graphml' in formats:
-            try:
-                # New (2026-05-21 cont.) Extended Matrix renderer: reads the
-                # graphml just produced, extracts AI06 group folders
-                # (VA01/VA02/... attivita groups), computes a fresh per-group
-                # Harris layered layout, and renders containers + nodes +
-                # edges as a yEd-style swimlane PNG. Falls back to the
-                # JSON-based flat swimlane renderer if anything goes wrong.
-                _swim_png = os.path.join(
-                    output_dir, f"{base_name}_swimlane.png"
-                )
-                _graphml_path = exported_files.get('graphml') or os.path.join(
-                    output_dir, f"{base_name}.graphml"
-                )
-                _used_extended = False
-                if _graphml_path and os.path.exists(_graphml_path):
-                    try:
-                        from modules.utility.extended_matrix_renderer import (
-                            render_extended_matrix as _ext_render,
-                        )
-                        _ext_render(_graphml_path, _swim_png, format="png")
-                        _used_extended = os.path.exists(_swim_png)
-                    except Exception as _ext_err:
-                        if QGIS_AVAILABLE:
-                            QgsMessageLog.logMessage(
-                                f"Extended Matrix renderer failed, "
-                                f"falling back to flat swimlane: {_ext_err}",
-                                "PyArchInit", Qgis.Warning,
-                            )
-                # Fallback: legacy JSON-based flat swimlane render. Used
-                # when extended fails (e.g. graphml has no group folders).
-                if not _used_extended:
-                    from modules.utility.matrix_swimlane_renderer import (
-                        render_to_file as _swim_render,
-                    )
-                    _swim_json = exported_files.get('json')
-                    _swim_json_was_temp = False
-                    if not _swim_json:
-                        _swim_json = os.path.join(
-                            output_dir, f"{base_name}_s3dgraphy.json"
-                        )
-                        if not os.path.exists(_swim_json):
-                            _swim_json_was_temp = self.s3d_integration.export_to_json(_swim_json)
-                    if _swim_json and os.path.exists(_swim_json):
-                        _swim_render(_swim_json, _swim_png, format="png")
-                    if _swim_json_was_temp and os.path.exists(_swim_json):
-                        try:
-                            os.remove(_swim_json)
-                        except OSError:
-                            pass
-                if os.path.exists(_swim_png):
-                    exported_files['swimlane_png'] = _swim_png
-                    if QGIS_AVAILABLE:
-                        QgsMessageLog.logMessage(
-                            f"Swimlane PNG generated "
-                            f"({'extended' if _used_extended else 'flat'}): "
-                            f"{_swim_png}",
-                            "PyArchInit", Qgis.Info,
-                        )
-            except Exception as _swim_err:
-                import traceback as _tb
-                _tb_str = _tb.format_exc()
-                if QGIS_AVAILABLE:
-                    QgsMessageLog.logMessage(
-                        f"Swimlane PNG render failed (skipping, other "
-                        f"exports still produced): {_swim_err}\n{_tb_str}",
-                        "PyArchInit", Qgis.Warning,
-                    )
-                else:
-                    print(f"[swimlane render] failed: {_swim_err}")
-                    print(_tb_str)
 
         return exported_files
     
@@ -324,6 +299,9 @@ if QGIS_AVAILABLE:
             self.site = site
             self.area = area
             self.exported_files = {}
+            self._last_preview_result = None
+            self._last_preview_path = None
+            self._last_source_path = None
             
             self.setWindowTitle("Export Extended Matrix - Integrated s3dgraphy + yEd")
             self.setMinimumWidth(500)
@@ -345,40 +323,41 @@ if QGIS_AVAILABLE:
             export_layout = QVBoxLayout()
 
             desc = QLabel(
-                "This export combines s3dgraphy Extended Matrix processing with "
-                "yEd-compatible GraphML output for advanced visualization."
+                "Esporta la matrice del sito. «em.json» è il formato "
+                "dell'Extended Matrix: lo apre EMStudio e lo legge il nodo "
+                "StratiGraph. «DOT» serve a Graphviz per la matrice di "
+                "Harris classica."
             )
             desc.setWordWrap(True)
             export_layout.addWidget(desc)
 
-            format_group = QGroupBox("Export Formats")
+            format_group = QGroupBox("Formati")
             format_layout = QVBoxLayout()
-            self.cb_dot = QCheckBox("DOT Format (Graphviz)")
+            self.cb_dot = QCheckBox("DOT (Graphviz) — matrice di Harris")
             self.cb_dot.setChecked(True)
             format_layout.addWidget(self.cb_dot)
             # A4 (spec 2026-10-07): the GraphML export retired — the matrix
             # travels as em.json (Extended Matrix menu), GraphML survives
             # only as the one-time IMPORT from yEd.
-            self.cb_json = QCheckBox("JSON Format (s3dgraphy native)")
+            self.cb_json = QCheckBox("em.json (Extended Matrix, per EMStudio)")
             self.cb_json.setChecked(True)
             format_layout.addWidget(self.cb_json)
-            self.cb_phased = QCheckBox("Phased Matrix (chronological analysis)")
+            self.cb_phased = QCheckBox("Matrice per fasi (analisi cronologica)")
             self.cb_phased.setChecked(False)
             format_layout.addWidget(self.cb_phased)
             format_group.setLayout(format_layout)
             export_layout.addWidget(format_group)
 
-            options_group = QGroupBox("Processing Options")
+            # Le due opzioni yEd (suggerimenti di auto-layout, colori per
+            # periodo) parlavano al writer GraphML, ritirato in A4: erano
+            # caselle che non facevano niente. Resta quella che conta, e
+            # ora viene davvero letta.
+            options_group = QGroupBox("Opzioni")
             options_layout = QVBoxLayout()
-            self.cb_validate = QCheckBox("Validate stratigraphic sequence")
+            self.cb_validate = QCheckBox(
+                "Controlla la sequenza stratigrafica e segnala i problemi")
             self.cb_validate.setChecked(True)
             options_layout.addWidget(self.cb_validate)
-            self.cb_auto_layout = QCheckBox("Generate yEd auto-layout hints")
-            self.cb_auto_layout.setChecked(True)
-            options_layout.addWidget(self.cb_auto_layout)
-            self.cb_period_colors = QCheckBox("Apply period-based coloring")
-            self.cb_period_colors.setChecked(True)
-            options_layout.addWidget(self.cb_period_colors)
             options_group.setLayout(options_layout)
             export_layout.addWidget(options_group)
 
@@ -387,10 +366,41 @@ if QGIS_AVAILABLE:
             export_layout.addWidget(self.progress)
 
             export_btn_layout = QHBoxLayout()
-            self.btn_export = QPushButton("Export")
+            self.btn_export = QPushButton("Esporta")
             self.btn_export.clicked.connect(self.on_export)
             export_btn_layout.addWidget(self.btn_export)
             export_layout.addLayout(export_btn_layout)
+
+            # I comandi dell'Extended Matrix che stanno nel menu, accanto
+            # all'export che li riguarda. Non riscrivono niente: chiamano
+            # gli stessi slot del plugin, così restano una cosa sola.
+            em_group = QGroupBox("Extended Matrix")
+            em_layout = QHBoxLayout()
+            self.btn_open_emstudio = QPushButton("Apri in EMStudio")
+            self.btn_open_emstudio.setEnabled(False)
+            self.btn_open_emstudio.setToolTip(
+                "Si attiva dopo un'esportazione em.json riuscita.")
+            self.btn_open_emstudio.clicked.connect(self._on_open_emstudio)
+            em_layout.addWidget(self.btn_open_emstudio)
+
+            self.btn_room_delivery = QPushButton("Consegna alla stanza…")
+            self.btn_room_delivery.clicked.connect(
+                lambda: self._call_plugin_slot("_run_room_delivery"))
+            em_layout.addWidget(self.btn_room_delivery)
+
+            self.btn_room_open = QPushButton("Apri la stanza")
+            self.btn_room_open.clicked.connect(
+                lambda: self._call_plugin_slot("_open_rooms_door"))
+            em_layout.addWidget(self.btn_room_open)
+
+            if _pyarchinit_plugin() is None:
+                for b in (self.btn_room_delivery, self.btn_room_open):
+                    b.setEnabled(False)
+                    b.setToolTip(
+                        "Disponibile dentro QGIS, con il plugin pyArchInit "
+                        "caricato.")
+            em_group.setLayout(em_layout)
+            export_layout.addWidget(em_group)
 
             export_tab.setLayout(export_layout)
             self.tabs.addTab(export_tab, "Export")
@@ -400,16 +410,19 @@ if QGIS_AVAILABLE:
             import_layout = QVBoxLayout()
 
             import_desc = QLabel(
-                "Import a GraphML file produced by s3dgraphy / Heriverse / EM\n"
-                "Datacenter back into the pyarchinit DB. Default is dry-run\n"
-                "preview; click Anteprima first, review the diff, then Applica."
+                "Riporta nel database un em.json dell'Extended Matrix "
+                "(EMStudio, nodo StratiGraph). Si accetta ancora un "
+                ".graphml di yEd, per i file di prima. Di norma è una "
+                "prova a vuoto: prima «Anteprima», si guarda la "
+                "differenza, poi «Applica»."
             )
             import_desc.setWordWrap(True)
             import_layout.addWidget(import_desc)
 
             file_row = QHBoxLayout()
             self.le_import_file = QLineEdit()
-            self.le_import_file.setPlaceholderText("/path/to/external.graphml")
+            self.le_import_file.setPlaceholderText(
+                "/percorso/del/sito.em.json")
             self.btn_browse = QPushButton("Browse…")
             self.btn_browse.clicked.connect(self._on_browse_import)
             file_row.addWidget(self.le_import_file)
@@ -483,6 +496,27 @@ if QGIS_AVAILABLE:
 
             self.setLayout(layout)
 
+        def _on_open_emstudio(self):
+            """Apre in EMStudio l'em.json appena esportato."""
+            if not open_exported_emjson(self.exported_files):
+                QMessageBox.information(
+                    self, "EMStudio",
+                    "Non ho trovato EMStudio su questo computer, oppure "
+                    "non c'è ancora un em.json esportato in questa "
+                    "finestra.")
+
+        def _call_plugin_slot(self, name):
+            """Chiama lo slot del menu, senza riscriverne la logica."""
+            plugin = _pyarchinit_plugin()
+            slot = getattr(plugin, name, None) if plugin else None
+            if slot is None:
+                QMessageBox.information(
+                    self, "Extended Matrix",
+                    "Comando disponibile dentro QGIS, con il plugin "
+                    "pyArchInit caricato.")
+                return
+            slot()
+
         def on_export(self):
             """Handle export button click"""
             # Get output directory
@@ -501,7 +535,7 @@ if QGIS_AVAILABLE:
             if self.cb_dot.isChecked():
                 formats.append('dot')
             if self.cb_json.isChecked():
-                formats.append('json')
+                formats.append('emjson')
             if self.cb_phased.isChecked():
                 formats.append('phased')
             
@@ -522,6 +556,7 @@ if QGIS_AVAILABLE:
                     self.area,
                     output_dir,
                     formats,
+                    validate=self.cb_validate.isChecked(),
                 )
                 
                 # Update progress
@@ -533,39 +568,26 @@ if QGIS_AVAILABLE:
                     lines = []
                     if 'dot' in exported_files:
                         lines.append(f"✅ DOT  → {exported_files['dot']}")
-                    if 'json' in exported_files:
-                        lines.append(f"✅ JSON → {exported_files['json']}")
+                    if 'emjson' in exported_files:
+                        nodes, edges, warn = exported_files.get(
+                            'emjson_counts', (0, 0, []))
+                        lines.append(
+                            f"✅ em.json → {exported_files['emjson']}\n"
+                            f"   {nodes} nodi, {edges} archi")
+                        for w in warn:
+                            lines.append(f"   ⚠️ {w}")
+                    elif 'emjson_error' in exported_files:
+                        lines.append(
+                            f"❌ em.json non esportato: "
+                            f"{exported_files['emjson_error']}")
                     if 'phased' in exported_files:
                         lines.append(f"✅ Phased JSON → {exported_files['phased']}")
 
-                    if 'graphml' in exported_files:
-                        r = exported_files.get('graphml_result')
-                        if r:
-                            lines.append(
-                                f"✅ GraphML → {exported_files['graphml']}\n"
-                                f"   {r.node_count} nodes, {r.edge_count} edges, "
-                                f"{r.epoch_count} epochs, "
-                                f"{r.tred_removed_edges} redundancies removed by "
-                                f"transitive reduction"
-                            )
-                            for w in r.warnings:
-                                lines.append(f"   ⚠️ {w}")
-                        else:
-                            lines.append(f"✅ GraphML → {exported_files['graphml']}")
-                    elif 'graphml_status' in exported_files:
-                        st = exported_files['graphml_status']
-                        level = st.get('level', 'warning')
-                        glyph = '⚠️' if level == 'warning' else '❌' if level == 'error' else 'ℹ️'
-                        reason = st.get('reason', 'unknown')
-                        if 'stage' in st:
-                            lines.append(
-                                f"{glyph} GraphML failed at {st['stage']}: {reason}")
-                        else:
-                            lines.append(f"{glyph} GraphML skipped: {reason}")
-
+                    self.btn_open_emstudio.setEnabled(
+                        bool(exported_files.get('emjson')))
                     QMessageBox.information(
                         self,
-                        "Extended Matrix export complete",
+                        "Esportazione Extended Matrix completata",
                         "\n".join(lines) if lines else "Nothing exported.",
                     )
                     self.accept()
@@ -632,26 +654,34 @@ if QGIS_AVAILABLE:
             """File picker for the Import tab."""
             path, _ = QFileDialog.getOpenFileName(
                 self, "Select GraphML to import", "",
-                "GraphML files (*.graphml);;All files (*)")
+                "Extended Matrix (*.json);;yEd (*.graphml);;"
+                "Tutti i file (*)")
             if path:
                 self.le_import_file.setText(path)
 
         def _on_import_preview(self):
             """Run dry-run populate_list and show summary."""
             from pathlib import Path
-            try:
-                from s3dgraphy.importer.import_graphml import GraphMLImporter
-            except ImportError:
-                from s3dgraphy.importer.graphml_importer import GraphMLImporter
             from modules.s3dgraphy.sync.graph_ingestor import (
                 GraphIngestor, GraphSyncError)
-            graphml_path = self.le_import_file.text().strip()
-            if not graphml_path or not Path(graphml_path).exists():
-                QMessageBox.warning(self, "No file",
-                                    "Please pick a .graphml file first.")
+            source_path = self.le_import_file.text().strip()
+            if not source_path or not Path(source_path).exists():
+                QMessageBox.warning(
+                    self, "Nessun file",
+                    "Scegli prima un em.json (o un .graphml di yEd).")
                 return
+            # graphml_path serve solo al ramo yEd dell'ingestore: su un
+            # em.json non c'è niente di specifico da reidratare.
+            graphml_path = (source_path
+                            if source_path.lower().endswith(".graphml")
+                            else None)
             try:
-                graph = GraphMLImporter(filepath=graphml_path).parse()
+                try:
+                    graph, _read_warnings = read_graph_for_import(source_path)
+                except ValueError as e:
+                    QMessageBox.warning(self, "Formato non riconosciuto",
+                                        str(e))
+                    return
                 # PG-UIFix (5.7.8-alpha): GraphIngestor.populate_list
                 # accepts db_manager (Path | DbHandle | str) via the
                 # _resolve_db_handle shim from Foundation. Both SQLite
@@ -724,7 +754,8 @@ if QGIS_AVAILABLE:
                     f"{type(e).__name__}: {e}")
                 return
             self._last_preview_result = result
-            self._last_preview_path = graphml_path
+            self._last_preview_path = graphml_path    # solo per il ramo yEd
+            self._last_source_path = source_path
             self.import_summary.setText(
                 f"Preview: applied={result.applied} "
                 f"(inserted={result.inserted}, updated={result.updated}, "
@@ -735,15 +766,11 @@ if QGIS_AVAILABLE:
         def _on_import_apply(self):
             """Run write-mode populate_list."""
             from pathlib import Path
-            try:
-                from s3dgraphy.importer.import_graphml import GraphMLImporter
-            except ImportError:
-                from s3dgraphy.importer.graphml_importer import GraphMLImporter
             from modules.s3dgraphy.sync.graph_ingestor import (
                 GraphIngestor, GraphSyncError)
             try:
-                graph = GraphMLImporter(
-                    filepath=self._last_preview_path).parse()
+                graph, _read_warnings = read_graph_for_import(
+                    self._last_source_path)
                 # PG-UIFix (5.7.8-alpha): db_manager pass-through;
                 # both backends supported via _resolve_db_handle shim.
                 if self.db_manager is None:
