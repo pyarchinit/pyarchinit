@@ -5,6 +5,24 @@
 
 ---
 
+## [fix] - 2026-10-08 — ogni unità dice fino a dove sopravvive — 5.13.40-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-epoch-span-5.13.40-alpha`**. Trovato confrontando il nostro em.json con una matrice yEd di riferimento.
+
+### Italiano
+
+In una matrice dell'Extended Matrix disegnata in yEd ogni unità porta **due** archi di epoca — `has_first_epoch` e `survive_in_epoch` — perché l'autore disegna la casella che attraversa le righe in cui l'unità esiste. Misurato su `tests/sync/fixtures/mini_volterra_baseline_ai03.graphml`: cinque unità, cinque archi per tipo. Il nostro export mandava 51 `has_first_epoch` e **2** `survive_in_epoch`, e chi disegna, non sapendo dove l'unità si ferma, la portava fino alla fascia più recente — è quello che si vedeva in EMStudio.
+
+Ora, quando la scheda non dichiara il periodo finale, l'unità sopravvive **nella propria epoca e basta**: è esattamente quello che la scheda dice, e non si inventa una fine che l'archeologo non ha scritto. Quando il periodo finale è dichiarato l'arco c'era già. Solo le unità fisiche: un estrattore o un documento non attraversano le epoche, e il datamodel lo rifiuta. Sul sito di esempio: 51 `has_first_epoch` e 45 `survive_in_epoch`.
+
+Tolto l'avviso introdotto nella 5.13.36 («43 unità su 45 non dichiarano il periodo finale»): il consiglio che dava — compilare il campo nelle schede — era sbagliato, perché la cronologia che la libreria calcola era già corretta per unità (dieci durate distinte sul demo). Il problema era la durata mancante nel file, non il dato mancante nella scheda.
+
+### English
+
+In a yEd-drawn Extended Matrix every unit carries both `has_first_epoch` and `survive_in_epoch`, because the author draws the box spanning the rows where the unit exists (measured on the reference fixture: five units, five edges of each type). Our export sent 51 and 2, so whoever draws it, not knowing where the unit stops, carried it up to the most recent band. A unit whose sheet declares no final period now survives in its own epoch and no further — what the sheet actually says. Physical units only. The 5.13.36 warning is gone: its advice was wrong.
+
+---
+
 ## [feat] - 2026-10-08 — la matrice si apre come una matrice di Harris — 5.13.39-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-matrix-harris-5.13.39-alpha`**. Tre osservazioni di Enzo guardando il primo disegno.

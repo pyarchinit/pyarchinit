@@ -148,6 +148,18 @@ def _mini_db(tmp_path, rows):
     return db
 
 
+def _periodi(db, righe):
+    """Riempie periodizzazione_table del DB di prova."""
+    import sqlite3
+    conn = sqlite3.connect(db)
+    conn.executemany(
+        "INSERT INTO periodizzazione_table (sito, periodo, fase,"
+        " datazione_estesa, cron_iniziale, cron_finale)"
+        " VALUES ('Alfa', ?, ?, ?, ?, ?)", righe)
+    conn.commit()
+    conn.close()
+
+
 INVERSE_TYPES = {"is_overlain_by", "is_cut_by", "is_filled_by",
                  "is_abutted_by", "is_leaned_on_by", "is_before"}
 
@@ -525,33 +537,51 @@ def test_a_stratigraphic_verb_towards_a_paradatum_is_not_published(tmp_path):
         getattr(graph, "warnings", None)
 
 
-def test_units_without_a_final_period_are_reported(tmp_path):
-    """Visto da Enzo in EMStudio: la matrice ammucchia tutto nella fascia
-    più recente. È la regola dell'Extended Matrix, non un guasto —
-    l'importer yEd di s3dgraphy lo dice chiaro (import_graphml.py:2267):
-    una unità fisica **sopravvive in ogni epoca più recente** di quella in
-    cui è nata, finché qualcosa non la chiude. Nelle schede il «periodo
-    finale» quasi non si compila (49 US su 51 nel demo), quindi tutte le
-    unità arrivano a oggi. L'export deve dirlo."""
+def _epoche_di(graph, us):
+    unita = next(n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us") == us)
+    fuori = {}
+    for e in graph.edges:
+        if e.edge_source == unita.node_id and e.edge_type in (
+                "has_first_epoch", "survive_in_epoch"):
+            nodo = next((n for n in graph.nodes
+                         if n.node_id == e.edge_target), None)
+            fuori[e.edge_type] = getattr(nodo, "name", None)
+    return fuori
+
+
+def test_every_unit_says_where_it_stops_existing(tmp_path):
+    """In una matrice dell'Extended Matrix ogni unità dice DOVE NASCE e
+    FINO A DOVE sopravvive: nella matrice yEd di riferimento
+    (tests/sync/fixtures/mini_volterra_baseline_ai03.graphml) le cinque US
+    hanno tutte e due gli archi. Noi mandavamo solo il primo, e chi
+    disegna non sapendo dove l'unità si ferma la portava fino alla fascia
+    più recente — è quello che Enzo vede in EMStudio.
+
+    Quando la scheda non dichiara il periodo finale, l'unità sopravvive
+    nella propria epoca e basta: è quello che la scheda dice.
+    """
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US",
              periodo_iniziale="2", fase_iniziale="1"),
-        dict(sito="Alfa", us="2", unita_tipo="US",
-             periodo_iniziale="2", fase_iniziale="1",
-             periodo_finale="2", fase_finale="1"),
     ])
+    _periodi(db, [("2", "1", "XV secolo", 1451, 1499)])
     graph = GraphProjector().populate_graph(db, sito="Alfa")
-    avvisi = [str(w) for w in (getattr(graph, "warnings", None) or [])]
-    assert any("periodo finale" in w for w in avvisi), avvisi
-    assert any("1 unità su 2" in w or "1 unit" in w for w in avvisi), avvisi
+    epoche = _epoche_di(graph, "1")
+    assert epoche.get("has_first_epoch") == "XV secolo"
+    assert epoche.get("survive_in_epoch") == "XV secolo"
 
 
-def test_a_site_that_declares_its_ends_is_not_nagged(tmp_path):
+def test_a_declared_final_period_is_respected(tmp_path):
+    """Chi dichiara il periodo finale sopravvive fin lì, non oltre."""
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US",
              periodo_iniziale="2", fase_iniziale="1",
-             periodo_finale="2", fase_finale="1"),
+             periodo_finale="1", fase_finale="1"),
     ])
+    _periodi(db, [("2", "1", "XV secolo", 1451, 1499),
+                  ("1", "1", "Età moderna", 1600, 1799)])
     graph = GraphProjector().populate_graph(db, sito="Alfa")
-    avvisi = [str(w) for w in (getattr(graph, "warnings", None) or [])]
-    assert not any("periodo finale" in w for w in avvisi), avvisi
+    epoche = _epoche_di(graph, "1")
+    assert epoche.get("has_first_epoch") == "XV secolo"
+    assert epoche.get("survive_in_epoch") == "Età moderna"

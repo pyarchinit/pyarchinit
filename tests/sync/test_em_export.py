@@ -44,10 +44,7 @@ def test_a_site_travels_and_reads_back(sample_db, tmp_path):
         sample_db, "Scavo archeologico", str(tmp_path / "out"))
     assert os.path.exists(path) and path.endswith(".em.json")
     assert nodes > 0 and edges > 0
-    # Dal 2026-10-08 l'export dice quante unità non dichiarano il periodo
-    # finale: è il motivo per cui EMStudio le disegna fino alla fascia più
-    # recente, e il sito di esempio non lo dichiara quasi mai.
-    assert all("periodo finale" in w for w in warnings), warnings
+    assert warnings == []
 
 
 def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):

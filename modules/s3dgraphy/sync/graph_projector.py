@@ -247,38 +247,51 @@ def _label(graph, node_id):
     return node_id
 
 
-def _warn_units_without_an_end(graph):
-    """Dice quante unità non dichiarano dove finiscono, e cosa comporta.
+def _close_epoch_spans(graph):
+    """Ogni unità dice anche FINO A DOVE sopravvive, non solo dove nasce.
 
-    Nell'Extended Matrix una unità fisica **sopravvive in ogni epoca più
-    recente** di quella in cui è nata, finché qualcosa non la chiude —
-    è la regola dell'importer yEd della libreria
-    (``import_graphml.py``: ``if epoch.max_y < node.attributes['y_pos']``
-    → ``survive_in_epoch``). Nelle schede pyArchInit il «periodo finale»
-    quasi non si compila, così EMStudio disegna quasi tutto nella fascia
-    più recente. Non è un guasto dell'export: è un dato che manca, e
-    l'export lo deve dire (segnalato da Enzo il 2026-10-08).
+    In una matrice dell'Extended Matrix disegnata in yEd ogni unità porta
+    due archi di epoca — ``has_first_epoch`` e ``survive_in_epoch`` —
+    perché l'autore disegna la casella che attraversa le righe in cui
+    l'unità esiste (misurato sulla matrice di riferimento
+    ``tests/sync/fixtures/mini_volterra_baseline_ai03.graphml``: cinque
+    unità, cinque archi per tipo). Noi mandavamo solo il primo, e chi
+    disegna, non sapendo dove l'unità si ferma, la portava fino alla
+    fascia più recente — è quello che Enzo vedeva in EMStudio.
+
+    Quando la scheda dichiara il periodo finale l'arco c'è già, scritto
+    dall'importer. Quando non lo dichiara, l'unità sopravvive **nella
+    propria epoca e basta**: è esattamente quello che la scheda dice, e
+    non si inventa una fine che l'archeologo non ha scritto.
     """
-    unita = [n for n in graph.nodes
-             if (getattr(n, "attributes", None) or {}).get("us")
-             and getattr(n, "node_type", None) not in _PARADATA_NODE_TYPES]
-    if not unita:
-        return 0
-    senza = [n for n in unita
-             if not str((n.attributes or {}).get("periodo_finale", "")).strip()]
-    if not senza:
-        return 0
-    try:
-        graph.add_warning(
-            "%d unità su %d non dichiarano il periodo finale: per "
-            "l'Extended Matrix una unità senza fine dichiarata esiste "
-            "ancora oggi, quindi EMStudio la disegna fino alla fascia "
-            "più recente. Compila «periodo finale» e «fase finale» nella "
-            "scheda US perché ogni unità resti nella sua epoca."
-            % (len(senza), len(unita)))
-    except Exception:                               # noqa: BLE001
-        pass
-    return len(senza)
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicNode
+
+    # Sopravvive solo quello che esiste fisicamente: un estrattore o un
+    # documento non attraversano le epoche, e il datamodel lo rifiuta
+    # («Connection survive_in_epoch not allowed between extractor and
+    # EpochNode»). È la stessa regola dell'importer yEd.
+    fisiche = {n.node_id for n in graph.nodes
+               if isinstance(n, StratigraphicNode)}
+    prima = {}
+    ha_fine = set()
+    for edge in graph.edges:
+        if edge.edge_type == "has_first_epoch" and edge.edge_source in fisiche:
+            prima.setdefault(edge.edge_source, edge.edge_target)
+        elif edge.edge_type == "survive_in_epoch":
+            ha_fine.add(edge.edge_source)
+    aggiunti = 0
+    for sorgente, epoca in prima.items():
+        if sorgente in ha_fine:
+            continue
+        try:
+            graph.add_edge(
+                edge_id="%s_%s_survive" % (sorgente, epoca),
+                edge_source=sorgente, edge_target=epoca,
+                edge_type="survive_in_epoch")
+            aggiunti += 1
+        except Exception:                           # noqa: BLE001
+            continue
+    return aggiunti
 
 
 def _merge_checklist_documents(graph):
@@ -505,11 +518,12 @@ class GraphProjector(_LibGraphProjector):
             logging.getLogger(__name__).warning(
                 "paradata edge refinement skipped: %s", e)
 
-        # Perché la matrice di EMStudio ammucchia tutto in cima.
+        # Ogni unità dice anche fino a dove sopravvive: senza, chi
+        # disegna la porta fino alla fascia più recente.
         try:
-            _warn_units_without_an_end(graph)
+            _close_epoch_spans(graph)
         except Exception:                           # noqa: BLE001
-            pass                                    # un avviso, mai un guasto
+            pass
 
         # Chronologies written backwards (BC years without the minus):
         # the warning of v4.9.13, host-side because it imports
