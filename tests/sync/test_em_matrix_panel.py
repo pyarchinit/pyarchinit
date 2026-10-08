@@ -114,3 +114,12 @@ def test_the_details_pane_says_something_when_nothing_is_chosen():
     panel.remember_units([])
     testo = panel.details_for("qualunque")
     assert testo and "unità" in testo.lower()
+
+
+def test_the_matrix_gets_most_of_the_room_not_the_record():
+    """Visto nello screenshot: senza misure esplicite il divisore dava
+    due terzi alla scheda e schiacciava la matrice in una colonnina. La
+    matrice è il motivo per cui il pannello esiste."""
+    src = PANEL.read_text(encoding="utf-8")
+    assert "setSizes(" in src
+    assert "setMaximumWidth" in src

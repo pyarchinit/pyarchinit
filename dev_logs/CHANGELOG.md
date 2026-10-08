@@ -5,6 +5,20 @@
 
 ---
 
+## [fix] - 2026-10-08 — il pannello della matrice dà lo spazio alla matrice — 5.13.38-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-matrix-room-5.13.38-alpha`**. Un difetto visto fotografando il pannello vero.
+
+### Italiano
+
+Il `QSplitter` del pannello non aveva misure esplicite, e il suggerimento di dimensione generoso di un `QTextBrowser` si prendeva due terzi della larghezza: la matrice — il motivo per cui il pannello esiste — restava schiacciata in una colonnina. Ora la scheda dell'unità è larga 300 px (massimo 380) e tutto il resto è della matrice.
+
+### English
+
+The panel's `QSplitter` had no explicit sizes and the `QTextBrowser`'s generous size hint took two thirds of the width, squeezing the matrix into a narrow column. The unit's record is now 300 px wide (380 max) and the rest belongs to the matrix.
+
+---
+
 ## [feat] - 2026-10-08 — «Vedi la matrice»: l'Extended Matrix disegnata dentro QGIS, dall'em.json — 5.13.37-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-matrix-panel-5.13.37-alpha`**. 10 commit (`7ebddc77..18ede2bc`).

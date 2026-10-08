@@ -140,14 +140,19 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
 
             scheda = QTextBrowser(contenitore)
             scheda.setObjectName("scheda")
+            # Il suggerimento di dimensione di un QTextBrowser è generoso:
+            # senza misure esplicite il divisore gli dava due terzi e la
+            # matrice restava una colonnina (visto nello screenshot).
             scheda.setMinimumWidth(240)
+            scheda.setMaximumWidth(380)
             scheda.setHtml("<i>Scegli un'unità per vederne la scheda.</i>")
 
             divisore = QSplitter(Qt.Orientation.Horizontal, contenitore)
             divisore.addWidget(vista)
             divisore.addWidget(scheda)
-            divisore.setStretchFactor(0, 4)
-            divisore.setStretchFactor(1, 1)
+            divisore.setStretchFactor(0, 5)
+            divisore.setStretchFactor(1, 0)
+            divisore.setSizes([1000, 300])
             colonna.addWidget(divisore)
 
             dock.setWidget(contenitore)
