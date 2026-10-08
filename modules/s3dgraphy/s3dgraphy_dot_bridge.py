@@ -532,8 +532,15 @@ if QGIS_AVAILABLE:
                     "Il pannello si apre dentro QGIS, col plugin pyArchInit "
                     "caricato.")
                 return
+            # La connessione serve alla scheda per i media e per lo
+            # zoom sulla geometria: la finestra ce l'ha già in mano.
+            try:
+                conn_str = self._connection_url()
+            except Exception:                       # noqa: BLE001
+                conn_str = None
             if not em_matrix_panel.open_in_panel(
-                    iface, percorso, "Matrice — %s" % (self.site or "")):
+                    iface, percorso, "Matrice — %s" % (self.site or ""),
+                    conn_str=conn_str):
                 QMessageBox.warning(
                     self, "Matrice",
                     em_matrix_panel.describe_failure(percorso)

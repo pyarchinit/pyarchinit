@@ -123,3 +123,121 @@ def test_the_matrix_gets_most_of_the_room_not_the_record():
     src = PANEL.read_text(encoding="utf-8")
     assert "setSizes(" in src
     assert "setMaximumWidth" in src
+
+
+# ------------------------------- media e geometria dell'unità scelta (2026-10-08)
+
+def _db_con_media(tmp_path):
+    """Un database con una US, una sua foto e la foto di un'altra."""
+    import sqlite3
+
+    percorso = tmp_path / "scheda.sqlite"
+    con = sqlite3.connect(percorso)
+    con.execute("CREATE TABLE us_table (id_us INTEGER PRIMARY KEY, sito TEXT,"
+                " area TEXT, us TEXT, unita_tipo TEXT, node_uuid TEXT)")
+    con.executemany("INSERT INTO us_table VALUES (?,?,?,?,?,?)",
+                    [(1, "Scavo", "1", "1", "US", "uuid-uno"),
+                     (2, "Scavo", "1", "2", "US", "uuid-due")])
+    con.execute("CREATE TABLE media_to_entity_table (id_mediaToEntity INTEGER"
+                " PRIMARY KEY, id_entity INTEGER, entity_type TEXT,"
+                " table_name TEXT, id_media INTEGER, filepath TEXT,"
+                " media_name TEXT)")
+    con.execute("CREATE TABLE media_thumb_table (id_media_thumb INTEGER"
+                " PRIMARY KEY, id_media INTEGER, mediatype TEXT,"
+                " media_filename TEXT, media_thumb_filename TEXT,"
+                " filetype TEXT, filepath TEXT, path_resize TEXT)")
+    con.executemany("INSERT INTO media_to_entity_table VALUES (?,?,?,?,?,?,?)",
+                    [(1, 1, "US", "us_table", 10, "f/uno.jpg", "uno.jpg"),
+                     (2, 2, "US", "us_table", 11, "f/due.jpg", "due.jpg")])
+    con.execute("INSERT INTO media_thumb_table VALUES (1, 10, 'image',"
+                " 'uno.jpg', 'uno_t.jpg', 'jpg', 't/uno_t.jpg', 'r/uno.jpg')")
+    con.commit()
+    con.close()
+    return "sqlite:///%s" % percorso
+
+
+def test_the_media_shown_are_those_of_the_unit_that_was_clicked(tmp_path):
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.utility.em_matrix_model import Unit
+
+    panel.remember_units([
+        Unit("a", "1.US1", "US", None,
+             data={"sito": "Scavo", "area": "1", "us": "1",
+                   "unita_tipo": "US", "node_uuid": "uuid-uno"}),
+        Unit("b", "1.US2", "US", None,
+             data={"sito": "Scavo", "area": "1", "us": "2",
+                   "unita_tipo": "US"})])
+    panel.remember_connection(_db_con_media(tmp_path))
+    assert [m.name for m in panel.media_for("a")] == ["uno.jpg"]
+    assert [m.name for m in panel.media_for("b")] == ["due.jpg"]
+    assert panel.media_for("a")[0].thumb_file == "t/uno_t.jpg"
+
+
+def test_without_a_database_there_are_simply_no_media(tmp_path):
+    """Il pannello si può aprire su un em.json senza il progetto dietro:
+    allora la scheda mostra i campi del file e nient'altro."""
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.utility.em_matrix_model import Unit
+
+    panel.remember_units([Unit("a", "1.US1", "US", None,
+                               data={"sito": "Scavo", "us": "1"})])
+    panel.remember_connection(None)
+    assert panel.media_for("a") == []
+
+
+def test_media_of_a_second_site_replace_those_of_the_first(tmp_path):
+    """Il pannello si riusa: la connessione segue il sito aperto adesso."""
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.utility.em_matrix_model import Unit
+
+    panel.remember_units([Unit("a", "1.US1", "US", None,
+                               data={"sito": "Scavo", "area": "1", "us": "1",
+                                     "unita_tipo": "US"})])
+    panel.remember_connection(_db_con_media(tmp_path))
+    assert panel.media_for("a")
+    panel.remember_connection("sqlite:///%s" % (tmp_path / "vuoto.sqlite"))
+    assert panel.media_for("a") == []
+
+
+def test_only_a_record_can_be_zoomed_on_the_map():
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.utility.em_matrix_model import Unit
+
+    panel.remember_units([
+        Unit("a", "1.US1", "US", None,
+             data={"sito": "Scavo", "area": "1", "us": "1"}),
+        Unit("c", "CON 1", "continuity", None, data={})])
+    assert panel.can_zoom("a") is True
+    assert panel.can_zoom("c") is False
+    assert panel.can_zoom("mai visto") is False
+
+
+def test_the_panel_offers_the_media_and_the_zoom():
+    src = PANEL.read_text(encoding="utf-8")
+    assert "media" in src.lower()
+    assert "em_matrix_map" in src
+    assert "Zoom" in src
+
+
+def test_the_panel_takes_the_connection_of_the_site_it_opens():
+    import inspect
+
+    from modules.s3dgraphy import em_matrix_panel as panel
+
+    firma = inspect.signature(panel.open_in_panel)
+    assert "conn_str" in firma.parameters
+    assert firma.parameters["conn_str"].default is None
+
+
+def test_the_menu_passes_the_connection_to_the_panel():
+    """Senza la connessione la scheda non avrebbe i media: il comando di
+    menu ce l'ha già in mano per l'esportazione."""
+    plugin = PLUGIN.read_text(encoding="utf-8")
+    assert "conn_str=conn_str" in plugin
+
+
+def test_thumbnails_are_not_loaded_one_remote_file_at_a_time():
+    """Con i media su WebDAV ogni anteprima è una richiesta in rete: si
+    caricano su richiesta, non appena si clicca un nodo."""
+    src = PANEL.read_text(encoding="utf-8")
+    assert "is_remote_url" in src

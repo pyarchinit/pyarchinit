@@ -3021,7 +3021,8 @@ class PyArchInitPlugin(object):
             return
 
         if not em_matrix_panel.open_in_panel(
-                self.iface, path, "Matrice — %s" % site):
+                self.iface, path, "Matrice — %s" % site,
+                conn_str=conn_str):
             QMessageBox.warning(
                 self.iface.mainWindow(), "Matrice",
                 em_matrix_panel.describe_failure(path)
