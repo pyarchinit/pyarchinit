@@ -88,3 +88,29 @@ def test_the_panel_does_not_need_a_web_engine():
         elif isinstance(nodo, ast.ImportFrom) and nodo.module:
             moduli.add(nodo.module)
     assert not [m for m in moduli if "WebEngine" in m or "WebKit" in m], moduli
+
+
+def test_a_second_site_replaces_the_first_in_the_details_pane():
+    """Il pannello si riusa: la scheda deve seguire il sito aperto adesso,
+    non quello di prima. La chiusura che mostra i dati è agganciata una
+    volta sola, alla creazione del dock, quindi la tabella delle unità non
+    può viverle dentro."""
+    from modules.s3dgraphy import em_matrix_panel as panel
+    from modules.utility.em_matrix_model import Unit
+
+    panel.remember_units([Unit("a", "1.US1", "US", None,
+                               data={"d_stratigrafica": "strato di crollo"})])
+    assert "1.US1" in panel.details_for("a")
+    assert "strato di crollo" in panel.details_for("a")
+
+    panel.remember_units([Unit("b", "2.US9", "US", None)])
+    assert "2.US9" in panel.details_for("b")
+    assert panel.details_for("a") == panel.details_for("sconosciuto")
+
+
+def test_the_details_pane_says_something_when_nothing_is_chosen():
+    from modules.s3dgraphy import em_matrix_panel as panel
+
+    panel.remember_units([])
+    testo = panel.details_for("qualunque")
+    assert testo and "unità" in testo.lower()

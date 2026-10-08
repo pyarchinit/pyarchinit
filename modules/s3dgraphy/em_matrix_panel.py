@@ -17,6 +17,26 @@ from typing import Optional
 
 PANEL_OBJECT_NAME = "pyarchinitEmMatrixPanel"
 
+#: Le unità del sito aperto adesso. Vivono qui e non dentro la chiusura
+#: che mostra la scheda, perché quella si aggancia una volta sola, alla
+#: creazione del dock: riusando il pannello su un secondo sito mostrerebbe
+#: per sempre i dati del primo.
+_CURRENT_UNITS = {}
+
+
+def remember_units(units) -> None:
+    """Sostituisce le unità che la scheda può mostrare."""
+    _CURRENT_UNITS.clear()
+    _CURRENT_UNITS.update({u.node_id: u for u in units})
+
+
+def details_for(node_id: str) -> str:
+    """La scheda dell'unità scelta, o l'invito a sceglierne una."""
+    unit = _CURRENT_UNITS.get(node_id)
+    if unit is None:
+        return "<i>Scegli un'unità per vederne la scheda.</i>"
+    return _details_text(unit)
+
 
 def describe_failure(em_json_path) -> Optional[str]:
     """La frase da mostrare se il file non si può disegnare, o None.
@@ -134,19 +154,19 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
             dock.setWidget(contenitore)
             iface.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
 
-            per_id = {u.node_id: u for u in model.units}
-
             def mostra(node_id):
-                unit = per_id.get(node_id)
-                if unit is not None:
-                    scheda.setHtml(_details_text(unit))
+                scheda.setHtml(details_for(node_id))
 
             vista.selected.connect(mostra)
         else:
             dock.setWindowTitle(title or "Matrice Extended Matrix")
             vista = dock.widget().findChild(MatrixView, "vista")
             conteggi = dock.widget().findChild(QLabel, "conteggi")
-            per_id = {u.node_id: u for u in model.units}
+            scheda = dock.widget().findChild(QTextBrowser, "scheda")
+            if scheda is not None:
+                scheda.setHtml("<i>Scegli un'unità per vederne la scheda.</i>")
+
+        remember_units(model.units)
 
         vista.show_layout(impaginato)
         if conteggi is not None:
