@@ -164,6 +164,9 @@ def test_a_real_reciprocal_pair_through_site_rows_is_one_edge(tmp_path):
         periodo_iniziale TEXT, fase_iniziale TEXT,
         periodo_finale TEXT, fase_finale TEXT,
         anno_scavo TEXT, scavato TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        sito TEXT, periodo TEXT, fase TEXT, cron_iniziale INTEGER,
+        cron_finale INTEGER, descrizione TEXT, datazione_estesa TEXT)""")
     conn.executemany(
         "INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
         "VALUES (?, ?, ?, ?, ?)",
@@ -171,7 +174,7 @@ def test_a_real_reciprocal_pair_through_site_rows_is_one_edge(tmp_path):
          ("S", "1", "2", "US", '[["Coperto da", "1", "1", "S"]]')])
     conn.commit(); conn.close()
     from modules.s3dgraphy.room import site_rows, us_ops
-    units, rels, _problems = site_rows.load("sqlite:///%s" % db, "S")
+    units, rels, _periods, _problems = site_rows.load("sqlite:///%s" % db, "S")
     made = us_ops.deliver(units, rels)
     edges = [o for o in made.ops if o["op"] == "add_edge"]
     assert len(edges) == 1, [(e["edge_type"], e["id"]) for e in edges]
@@ -230,12 +233,15 @@ def test_site_rows_reads_units_and_parses_rapporti(tmp_path):
     rows = [("S", "1", "1", "US", '[["Copre", "2", "1", "S"]]'),
             ("S", "1", "2", "USM", "[]"),
             ("ALTRO", "1", "9", "US", "[]")]
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        sito TEXT, periodo TEXT, fase TEXT, cron_iniziale INTEGER,
+        cron_finale INTEGER, descrizione TEXT, datazione_estesa TEXT)""")
     conn.executemany(
         "INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
         "VALUES (?, ?, ?, ?, ?)", rows)
     conn.commit(); conn.close()
     from modules.s3dgraphy.room.site_rows import load
-    units, rels, problems = load("sqlite:///%s" % db, "S")
+    units, rels, _periodi, problems = load("sqlite:///%s" % db, "S")
     assert {u["us"] for u in units} == {"1", "2"}      # un sito per consegna
     assert problems == []
     assert len(rels) == 1 and rels[0]["edge_type"] == "overlies"
@@ -265,7 +271,7 @@ def test_an_unknown_verb_in_the_middle_does_not_shift_the_words(tmp_path):
          ("S", "1", "3", "US", "[]"), ("S", "1", "4", "US", "[]")])
     conn.commit(); conn.close()
     from modules.s3dgraphy.room.site_rows import load
-    _units, rels, problems = load("sqlite:///%s" % db, "S")
+    _units, rels, _periodi, problems = load("sqlite:///%s" % db, "S")
     assert any("VerboInventato" in p_ for p_ in problems)
     by_target = {r["target_us"]: r["verb"] for r in rels}
     assert by_target.get("2") == "Copre"
@@ -314,6 +320,9 @@ def test_unreadable_rapporti_are_reported_not_swallowed(tmp_path):
         periodo_iniziale TEXT, fase_iniziale TEXT,
         periodo_finale TEXT, fase_finale TEXT,
         anno_scavo TEXT, scavato TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        sito TEXT, periodo TEXT, fase TEXT, cron_iniziale INTEGER,
+        cron_finale INTEGER, descrizione TEXT, datazione_estesa TEXT)""")
     conn.executemany(
         "INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
         "VALUES (?, ?, ?, ?, ?)",
@@ -321,7 +330,7 @@ def test_unreadable_rapporti_are_reported_not_swallowed(tmp_path):
          ("S", "1", "2", "US", '[["VerboInventato", "1", "1", "S"]]')])
     conn.commit(); conn.close()
     from modules.s3dgraphy.room.site_rows import load
-    _units, rels, problems = load("sqlite:///%s" % db, "S")
+    _units, rels, _periodi, problems = load("sqlite:///%s" % db, "S")
     assert rels == []
     assert len(problems) == 2
     assert any("illeggibil" in p for p in problems)
@@ -366,3 +375,171 @@ def test_the_room_the_projector_and_the_migration_agree():
         assert LEGACY_UNITA_TIPO[legacy] == canonical, legacy
     extra = set(LEGACY_UNITA_TIPO) - set(REPLACEMENTS)
     assert extra == {"USVc"}, extra
+
+
+def _periodo(periodo="2", fase="1", nome="XV secolo", da=1451, a=1499):
+    return {"sito": "Scavo", "periodo": periodo, "fase": fase,
+            "datazione_estesa": nome, "cron_iniziale": da, "cron_finale": a,
+            "descrizione": "descrizione di %s" % nome}
+
+
+def test_the_room_gets_the_periods_as_epochs():
+    """Misurato il 2026-10-08 sulla stanza vera: «by_epoch: []». La
+    consegna mandava unità e rapporti ma non la periodizzazione, così
+    nella stanza la cronologia non esisteva."""
+    from modules.s3dgraphy.room.us_ops import epoch_id, ops_for_epochs
+
+    fatto = ops_for_epochs([_periodo()])
+    nodi = [o for o in fatto.ops if o["op"] == "add_node"]
+    assert len(nodi) == 1
+    nodo = nodi[0]
+    assert nodo["id"] == epoch_id("Scavo", "2", "1")
+    assert nodo["node"]["node_type"] == "EpochNode"
+    assert nodo["node"]["name"] == "XV secolo"
+    assert nodo["node"]["data"]["start_time"] == 1451
+    assert nodo["node"]["data"]["end_time"] == 1499
+
+
+def test_an_epoch_id_is_stable_and_never_a_fresh_uuid():
+    from modules.s3dgraphy.room.us_ops import epoch_id
+
+    a = epoch_id("Scavo", "2", "1")
+    assert a == epoch_id("Scavo", "2", "1")
+    assert a != epoch_id("Scavo", "2", "2")
+    assert a != epoch_id("Altro", "2", "1")
+
+
+def test_a_period_without_dates_is_left_out_and_said():
+    """Senza anni un'epoca non sa dove stare: meglio non mandarla che
+    mandarla a zero."""
+    from modules.s3dgraphy.room.us_ops import ops_for_epochs
+
+    fatto = ops_for_epochs([_periodo(da=None, a=None)])
+    assert fatto.ops == []
+    assert fatto.skipped and "ann" in fatto.skipped[0].lower()
+
+
+def test_every_unit_is_tied_to_the_epoch_it_was_born_in():
+    from modules.s3dgraphy.room.us_ops import deliver, epoch_id, unit_id
+
+    unita = [{"sito": "Scavo", "area": "1", "us": "1", "unita_tipo": "US",
+              "periodo_iniziale": "2", "fase_iniziale": "1"}]
+    fatto = deliver(unita, (), periods=[_periodo()])
+    archi = [o for o in fatto.ops if o["op"] == "add_edge"]
+    tipi = {o["edge_type"] for o in archi}
+    assert "has_first_epoch" in tipi
+    nascita = next(o for o in archi if o["edge_type"] == "has_first_epoch")
+    assert nascita["source"] == unit_id("Scavo", "1", "1")
+    assert nascita["target"] == epoch_id("Scavo", "2", "1")
+
+
+def test_a_unit_without_a_declared_end_survives_in_its_own_epoch():
+    """La stessa regola dell'export em.json (5.13.40): quello che la
+    scheda dice e niente di più."""
+    from modules.s3dgraphy.room.us_ops import deliver, epoch_id
+
+    unita = [{"sito": "Scavo", "area": "1", "us": "1", "unita_tipo": "US",
+              "periodo_iniziale": "2", "fase_iniziale": "1"}]
+    fatto = deliver(unita, (), periods=[_periodo()])
+    sopravvive = [o for o in fatto.ops
+                  if o.get("edge_type") == "survive_in_epoch"]
+    assert len(sopravvive) == 1
+    assert sopravvive[0]["target"] == epoch_id("Scavo", "2", "1")
+
+
+def test_a_declared_final_period_wins():
+    from modules.s3dgraphy.room.us_ops import deliver, epoch_id
+
+    unita = [{"sito": "Scavo", "area": "1", "us": "1", "unita_tipo": "US",
+              "periodo_iniziale": "2", "fase_iniziale": "1",
+              "periodo_finale": "1", "fase_finale": "1"}]
+    fatto = deliver(unita, (), periods=[_periodo(),
+                                        _periodo("1", "1", "Età moderna",
+                                                 1600, 1799)])
+    sopravvive = [o for o in fatto.ops
+                  if o.get("edge_type") == "survive_in_epoch"]
+    assert sopravvive[0]["target"] == epoch_id("Scavo", "1", "1")
+
+
+def test_a_unit_pointing_at_a_period_that_is_not_there_is_said_not_invented():
+    from modules.s3dgraphy.room.us_ops import deliver
+
+    unita = [{"sito": "Scavo", "area": "1", "us": "1", "unita_tipo": "US",
+              "periodo_iniziale": "9", "fase_iniziale": "9"}]
+    fatto = deliver(unita, (), periods=[_periodo()])
+    assert not [o for o in fatto.ops
+                if o.get("edge_type") in ("has_first_epoch",
+                                          "survive_in_epoch")]
+    assert any("9" in s for s in fatto.skipped), fatto.skipped
+
+
+def test_delivering_without_periods_still_works():
+    """La consegna di prima non si rompe: senza periodizzazione si
+    manda quello che c'è."""
+    from modules.s3dgraphy.room.us_ops import deliver
+
+    unita = [{"sito": "Scavo", "area": "1", "us": "1", "unita_tipo": "US"}]
+    fatto = deliver(unita, ())
+    assert [o for o in fatto.ops if o["op"] == "add_node"]
+    assert not [o for o in fatto.ops if o.get("edge_type", "").endswith("epoch")]
+
+
+def test_the_site_loader_also_brings_the_periodisation(tmp_path):
+    """Senza questa lettura la consegna non avrebbe niente da cui fare le
+    epoche: la stanza misurata il 2026-10-08 aveva «by_epoch: []»."""
+    import sqlite3
+
+    from modules.s3dgraphy.room import site_rows
+
+    db = tmp_path / "x.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        sito TEXT, area TEXT, us TEXT, unita_tipo TEXT, rapporti TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT, periodo_finale TEXT,
+        fase_finale TEXT, d_stratigrafica TEXT, d_interpretativa TEXT,
+        descrizione TEXT, interpretazione TEXT, anno_scavo TEXT,
+        scavato TEXT, quota_min_abs TEXT, quota_max_abs TEXT)""")
+    conn.execute("""CREATE TABLE periodizzazione_table (
+        sito TEXT, periodo TEXT, fase TEXT, cron_iniziale INTEGER,
+        cron_finale INTEGER, descrizione TEXT, datazione_estesa TEXT)""")
+    conn.execute("INSERT INTO us_table (sito, area, us, unita_tipo,"
+                 " periodo_iniziale, fase_iniziale)"
+                 " VALUES ('S','1','1','US','2','1')")
+    conn.execute("INSERT INTO periodizzazione_table VALUES"
+                 " ('S','2','1',1451,1499,'descrizione','XV secolo')")
+    conn.commit()
+    conn.close()
+
+    caricato = site_rows.load("sqlite:///%s" % db, "S")
+    assert len(caricato) == 4, "load deve restituire anche i periodi"
+    units, relationships, periods, problems = caricato
+    assert len(units) == 1
+    assert len(periods) == 1
+    assert periods[0]["datazione_estesa"] == "XV secolo"
+    assert periods[0]["cron_iniziale"] == 1451
+
+
+def test_a_database_without_the_periodisation_table_does_not_fail(tmp_path):
+    """Un DB vecchio o monco non deve impedire la consegna."""
+    import sqlite3
+
+    from modules.s3dgraphy.room import site_rows
+
+    db = tmp_path / "y.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("""CREATE TABLE us_table (
+        sito TEXT, area TEXT, us TEXT, unita_tipo TEXT, rapporti TEXT,
+        periodo_iniziale TEXT, fase_iniziale TEXT, periodo_finale TEXT,
+        fase_finale TEXT, d_stratigrafica TEXT, d_interpretativa TEXT,
+        descrizione TEXT, interpretazione TEXT, anno_scavo TEXT,
+        scavato TEXT, quota_min_abs TEXT, quota_max_abs TEXT)""")
+    conn.execute("INSERT INTO us_table (sito, area, us, unita_tipo)"
+                 " VALUES ('S','1','1','US')")
+    conn.commit()
+    conn.close()
+
+    units, relationships, periods, problems = site_rows.load(
+        "sqlite:///%s" % db, "S")
+    assert len(units) == 1
+    assert periods == []
+    assert any("periodizzazione" in p.lower() for p in problems), problems

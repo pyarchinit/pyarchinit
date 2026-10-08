@@ -68,6 +68,17 @@ def unit_id(sito: Any, area: Any, us: Any) -> str:
                      _sid_part(str(us or "").strip()))
 
 
+def epoch_id(sito: Any, periodo: Any, fase: Any) -> str:
+    """L'identità di un'epoca: stabile, mai un uuid4.
+
+    Stessa regola delle unità — chi riconsegna lo stesso periodo deve
+    ritrovare lo stesso nodo, non crearne un secondo.
+    """
+    return stable_id(ORIGIN, "epoch", _sid_part(str(sito or "").strip()),
+                     _sid_part(str(periodo or "").strip()),
+                     _sid_part(str(fase or "").strip()))
+
+
 def edge_id(source: str, edge_type: str, target: str) -> str:
     return f"{source}__{edge_type}__{target}"
 
@@ -176,6 +187,108 @@ def ops_for_units(units: Iterable[Dict[str, Any]],
     return made
 
 
+def _anni(valore):
+    """L'anno di un periodo, o None se la scheda non lo dice."""
+    if valore is None or str(valore).strip() == "":
+        return None
+    try:
+        return int(float(str(valore).strip()))
+    except (TypeError, ValueError):
+        return None
+
+
+def ops_for_epochs(periods, delivery: Optional[Delivery] = None,
+                   lang: Optional[str] = None) -> Delivery:
+    """`add_node` per ogni periodo/fase della periodizzazione.
+
+    Senza questi la stanza non ha cronologia: misurato il 2026-10-08 su
+    una stanza vera, ``by_epoch: []`` — le unità arrivavano col periodo
+    scritto nei loro dati, ma nessuno poteva raggrupparle per epoca
+    perché le epoche non c'erano.
+    """
+    made = delivery if delivery is not None else Delivery()
+    for riga in periods or ():
+        sito = str(riga.get("sito") or "").strip()
+        periodo = str(riga.get("periodo") or "").strip()
+        fase = str(riga.get("fase") or "").strip()
+        if not sito or not periodo:
+            made.skipped.append(
+                "periodo con sito=%r periodo=%r: non identificabile"
+                % (riga.get("sito"), riga.get("periodo")))
+            made.bump("epochs_unidentifiable")
+            continue
+        inizio, fine = _anni(riga.get("cron_iniziale")), _anni(riga.get("cron_finale"))
+        if inizio is None or fine is None:
+            made.skipped.append(
+                "periodo %s/%s di %s: senza anni un'epoca non sa dove stare"
+                % (periodo, fase, sito))
+            made.bump("epochs_without_years")
+            continue
+        nome = (str(riga.get("datazione_estesa") or "").strip()
+                or "Periodo %s fase %s" % (periodo, fase))
+        made.ops.append(_make_op(
+            "add_node",
+            id=epoch_id(sito, periodo, fase),
+            node={
+                "node_type": "EpochNode",
+                "name": nome,
+                "description": (str(riga.get("descrizione") or "").strip()
+                                or None),
+                "data": {"start_time": inizio, "end_time": fine,
+                         "periodo": periodo, "fase": fase,
+                         "lang": (lang or "und").strip() or "und"},
+            },
+        ))
+        made.bump("epochs")
+    return made
+
+
+def ops_for_unit_epochs(units, known, epochs_known, delivery=None):
+    """`has_first_epoch` e `survive_in_epoch` per ogni unità consegnata.
+
+    Chi non dichiara il periodo finale sopravvive **nella propria
+    epoca**: la stessa regola dell'export em.json (5.13.40), perché è
+    quello che la scheda dice e niente di più.
+    """
+    made = delivery if delivery is not None else Delivery()
+    for riga in units:
+        chiave = (str(riga.get("sito") or "").strip(),
+                  normalize_area(riga.get("area")),
+                  str(riga.get("us") or "").strip())
+        sorgente = known.get(chiave)
+        if not sorgente:
+            continue                        # già raccontata da ops_for_units
+        sito = chiave[0]
+        nascita = (str(riga.get("periodo_iniziale") or "").strip(),
+                   str(riga.get("fase_iniziale") or "").strip())
+        if not nascita[0]:
+            made.bump("units_without_a_period")
+            continue
+        id_nascita = epoch_id(sito, nascita[0], nascita[1])
+        if id_nascita not in epochs_known:
+            made.skipped.append(
+                "%s/%s/%s: il periodo %s/%s non è nella periodizzazione del "
+                "sito" % (chiave[0], chiave[1], chiave[2],
+                          nascita[0], nascita[1]))
+            made.bump("units_with_an_unknown_period")
+            continue
+        made.ops.append(_make_op(
+            "add_edge", id=edge_id(sorgente, "has_first_epoch", id_nascita),
+            source=sorgente, target=id_nascita, edge_type="has_first_epoch"))
+        made.bump("edges_first_epoch")
+
+        fine = (str(riga.get("periodo_finale") or "").strip(),
+                str(riga.get("fase_finale") or "").strip())
+        id_fine = (epoch_id(sito, fine[0], fine[1]) if fine[0] else id_nascita)
+        if id_fine not in epochs_known:
+            id_fine = id_nascita
+        made.ops.append(_make_op(
+            "add_edge", id=edge_id(sorgente, "survive_in_epoch", id_fine),
+            source=sorgente, target=id_fine, edge_type="survive_in_epoch"))
+        made.bump("edges_survive_in_epoch")
+    return made
+
+
 def _make_op(kind, **fields):
     """Il costruttore del contratto (crdt.make_op): valida — p.es. rifiuta un
     add_node testuale senza data.lang — e non scrive mai author/ts."""
@@ -273,10 +386,17 @@ def ops_for_relationships(relationships, known, delivery=None):
     return made
 
 
-def deliver(units, relationships=(), lang=None):
-    """Tutto il sito in operazioni: prima i nodi, poi gli archi fra loro."""
+def deliver(units, relationships=(), lang=None, periods=()):
+    """Tutto il sito in operazioni: prima i nodi, poi gli archi fra loro.
+
+    ``periods`` è la periodizzazione del sito: senza, la stanza resta
+    senza cronologia (``by_epoch: []``, misurato il 2026-10-08).
+    """
     units = list(units)
     made = ops_for_units(units, lang=lang)
+    epoche = ops_for_epochs(periods, made, lang=lang)
+    epochs_known = {op["id"] for op in epoche.ops
+                    if op.get("node", {}).get("node_type") == "EpochNode"}
     known = {(str(r.get("sito") or "").strip(),
               normalize_area(r.get("area")),
               str(r.get("us") or "").strip()):
@@ -287,4 +407,5 @@ def deliver(units, relationships=(), lang=None):
     # solo le unità DIVENTATE nodi possono essere estremi
     delivered = {op["id"] for op in made.ops}
     known = {k: v for k, v in known.items() if v in delivered}
+    ops_for_unit_epochs(units, known, epochs_known, made)
     return ops_for_relationships(relationships, known, made)

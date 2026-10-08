@@ -5,6 +5,25 @@
 
 ---
 
+## [feat] - 2026-10-08 — la stanza riceve anche la cronologia — 5.13.41-alpha
+
+> Branch `Stratigraph_00001`. Tag **`room-epochs-5.13.41-alpha`**. Trovato provando una stanza vera sul nodo locale.
+
+### Italiano
+
+Le statistiche di una stanza appena consegnata dicevano **`by_epoch: []`**: 44 unità, 85 rapporti, **zero epoche**. La consegna REST mandava periodo e fase dentro i dati di ogni unità (`period_start`, `phase_start`) ma non creava i nodi-epoca né gli archi, così nella stanza la cronologia non esisteva e nessuno poteva raggruppare per periodo.
+
+- `room/site_rows.load` legge anche `periodizzazione_table` e restituisce i periodi. Un database senza quella tabella non blocca la consegna: lo dice fra i problemi e manda il resto.
+- `room/us_ops.ops_for_epochs` crea un `add_node` di tipo `EpochNode` per ogni periodo/fase con anni dichiarati — nome dalla `datazione_estesa`, `start_time`/`end_time` dalla cronologia. Identità `stable_id(ORIGIN, "epoch", sito, periodo, fase)`: riconsegnare lo stesso periodo ritrova lo stesso nodo, mai un secondo. Un periodo senza anni resta fuori e viene detto.
+- `room/us_ops.ops_for_unit_epochs` lega ogni unità consegnata alla sua epoca con `has_first_epoch`, e con `survive_in_epoch` al periodo finale dichiarato — o alla **propria** epoca quando la scheda non lo dichiara, la stessa regola dell'export em.json (5.13.40). Un'unità che punta a un periodo assente dalla periodizzazione viene segnalata, non inventata.
+- Misura sul sito di esempio: da 129 operazioni (44 unità, 85 archi, 0 epoche) a **229** — 12 epoche, 44 `has_first_epoch`, 44 `survive_in_epoch`. Le statistiche della stanza ora distribuiscono: XV secolo 17, Fine XVI secolo 6, XV sec rec 4, Età moderna 3.
+
+### English
+
+A freshly delivered room reported `by_epoch: []` — 44 units, 85 relationships, zero epochs: the REST delivery carried period and phase inside each unit's data but never created the epoch nodes or the edges, so the room had no chronology at all. `site_rows.load` now also reads `periodizzazione_table` (a database without it still delivers, and says so), `ops_for_epochs` emits one `EpochNode` per period/phase with stable ids, and `ops_for_unit_epochs` ties every delivered unit to its epoch with `has_first_epoch` and `survive_in_epoch` — the declared final period, or its own epoch when the sheet declares none. Sample site: 129 ops → 229, and the room's statistics now distribute across the twelve epochs.
+
+---
+
 ## [fix] - 2026-10-08 — ogni unità dice fino a dove sopravvive — 5.13.40-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-epoch-span-5.13.40-alpha`**. Trovato confrontando il nostro em.json con una matrice yEd di riferimento.

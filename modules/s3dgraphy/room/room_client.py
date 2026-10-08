@@ -255,12 +255,14 @@ def deliver_site(conn_str, sito, settings=None, http: Http = _urllib_http,
     # I5 (review): un DB zoppo (us_table assente, PG giù, colonna driftata)
     # è una frase per l'utente, mai un traceback nel dialogo di QGIS.
     try:
-        units, relationships, problems = site_rows.load(conn_str, sito)
+        units, relationships, periods, problems = site_rows.load(
+            conn_str, sito)
     except Exception as exc:
         raise RoomRefusal(
             "Lettura di us_table fallita dal database (%s). Niente è stato "
             "consegnato." % exc) from exc
-    made = us_ops.deliver(units, relationships, lang=lang)
+    made = us_ops.deliver(units, relationships, lang=lang,
+                          periods=periods)
     made.skipped.extend(problems)
     if not made.ops:
         out = Outcome(room_id=settings.room_id)

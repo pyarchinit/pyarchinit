@@ -17,25 +17,44 @@ _COLUMNS = ("sito", "area", "us", "unita_tipo", "rapporti",
             "periodo_finale", "fase_finale", "anno_scavo", "scavato")
 
 
+#: Le colonne della periodizzazione che servono a fare un'epoca.
+_PERIOD_COLUMNS = ("sito", "periodo", "fase", "cron_iniziale",
+                   "cron_finale", "descrizione", "datazione_estesa")
+
+
 def load(conn_str: str, sito: str) -> Tuple[List[Dict[str, Any]],
+                                            List[Dict[str, Any]],
                                             List[Dict[str, Any]],
                                             List[str]]:
     from sqlalchemy import create_engine, text
 
     from s3dgraphy.rapporti import parse_rapporti
 
+    periods: List[Dict[str, Any]] = []
+    period_problems: List[str] = []
     engine = create_engine(conn_str)
     try:
         with engine.connect() as conn:
             rows = conn.execute(text(
                 "SELECT %s FROM us_table WHERE sito = :s"
                 % ", ".join(_COLUMNS)), {"s": sito}).fetchall()
+            # La periodizzazione è un di più: un database vecchio o monco
+            # non deve impedire la consegna delle unità.
+            try:
+                for riga in conn.execute(text(
+                        "SELECT %s FROM periodizzazione_table WHERE sito = :s"
+                        % ", ".join(_PERIOD_COLUMNS)), {"s": sito}).fetchall():
+                    periods.append(dict(zip(_PERIOD_COLUMNS, riga)))
+            except Exception as exc:                # noqa: BLE001
+                period_problems.append(
+                    "periodizzazione non letta (%s): la stanza resterà senza "
+                    "cronologia" % exc)
     finally:
         engine.dispose()
 
     units: List[Dict[str, Any]] = []
     relationships: List[Dict[str, Any]] = []
-    problems: List[str] = []
+    problems: List[str] = list(period_problems)
     for row in rows:
         unit = dict(zip(_COLUMNS, row))
         units.append(unit)
@@ -69,7 +88,7 @@ def load(conn_str: str, sito: str) -> Tuple[List[Dict[str, Any]],
                 "target_area": area, "target_sito": t_sito or unit["sito"],
                 "swap": swap, "verb": str(entry[0]).strip(),
             })
-    return units, relationships, problems
+    return units, relationships, periods, problems
 
 
 def _entries(raw):
