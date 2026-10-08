@@ -6,7 +6,8 @@ stratigraph/09-client-stanza), con le differenze NOSTRE scritte qui:
 - il vocabolario è quello dev40: USM/USR/USS e i codici localizzati (WSU,
   MSE, …) viaggiano come ``US`` con ``stratigraphic_kind`` in ``data`` e il
   codice d'origine in ``source_code`` (``KIND_OF_CODE`` della libreria);
-- USVA/USVB→USVs, USVC→USVn (la stessa mappa della migrazione vocabolario);
+- USVA→USVs, USVB/USVC→USVn (la stessa mappa della migrazione
+  vocabolario; le forme storiche: parallelogramma, esagono, ellisse);
 - i paradata (DOC, Combinar, Extractor, property, CON) NON diventano nodi
   stratigrafici della stanza: riportati in ``skipped``.
 
@@ -31,7 +32,7 @@ UNIT_TYPES: Dict[str, Optional[str]] = {
     "US": "US", "SF": "SF", "USD": "USD", "VSF": "VSF", "RSF": "RSF",
     "TSU": "TSU", "UL": "UL",
     "USVs": "USVs", "USVn": "USVn", "USVc": "USVn",
-    "USVA": "USVs", "USVB": "USVs", "USVC": "USVn",
+    "USVA": "USVs", "USVB": "USVn", "USVC": "USVn",
     "serSU": "serSU", "serUSVn": "serUSVn", "serUSVs": "serUSVs",
     "DOC": None, "Combinar": None, "Extractor": None, "property": None,
     "CON": None,

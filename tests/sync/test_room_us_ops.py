@@ -334,3 +334,28 @@ def test_unit_ids_do_not_collide_on_pipes():
     from modules.s3dgraphy.room.us_ops import unit_id
     assert unit_id("S|1", "2", "3") != unit_id("S", "1|2", "3")
     assert unit_id("S|", "", "3") != unit_id("S", "|", "3")
+
+
+def test_usvb_is_a_non_structural_virtual_unit():
+    """USVA parallelogramma (strutturale), USVB esagono (NON strutturale),
+    USVC ellisse (serie → non strutturale): le forme che l'esportatore
+    storico di pyArchInit assegnava (resources/dbfiles/dot.py:855-865), e
+    la stessa mappa della migrazione del vocabolario. La tabella della
+    stanza diceva USVB → USVs e battezzava strutturali unità che non lo
+    sono."""
+    from modules.s3dgraphy.room.us_ops import UNIT_TYPES
+
+    assert UNIT_TYPES["USVA"] == "USVs"
+    assert UNIT_TYPES["USVB"] == "USVn"
+    assert UNIT_TYPES["USVC"] == "USVn"
+
+
+def test_the_room_and_the_migration_agree_on_the_legacy_codes():
+    """Due tabelle, un significato solo: se una cambia, questo test cade."""
+    from scripts.migrations._2026_05_us_vocabulary_alignment_lib import (
+        REPLACEMENTS)
+
+    from modules.s3dgraphy.room.us_ops import UNIT_TYPES
+
+    for legacy, canonical in REPLACEMENTS.items():
+        assert UNIT_TYPES[legacy] == canonical, legacy
