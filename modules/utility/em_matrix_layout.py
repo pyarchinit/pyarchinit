@@ -124,6 +124,31 @@ def _ranks(ids: Sequence[str], archi: Sequence[Tuple[str, str]]) -> Dict[str, in
     return livello
 
 
+def _equality_groups(unita, relations) -> Dict[str, str]:
+    """Rappresentante del gruppo di uguaglianza di ogni unità.
+
+    «Uguale a» e «si lega a» non sono una sovrapposizione: le unità così
+    legate sono la stessa cosa vista in due punti dello scavo e stanno
+    sulla STESSA riga della matrice, accostate (regola della matrice di
+    Harris, chiesta da Enzo il 2026-10-08). Per l'incolonnamento il
+    gruppo conta come una unità sola.
+    """
+    padre = {i: i for i in unita}
+
+    def radice(i):
+        while padre[i] != i:
+            padre[i] = padre[padre[i]]
+            i = padre[i]
+        return i
+
+    for r in relations:
+        if r.kind in SYMMETRIC_KINDS and r.source in padre and r.target in padre:
+            a, b = radice(r.source), radice(r.target)
+            if a != b:
+                padre[max(a, b)] = min(a, b)
+    return {i: radice(i) for i in unita}
+
+
 def _components(archi: Sequence[Tuple[str, str]]) -> Dict[str, int]:
     """A quale gruppo fortemente connesso appartiene ogni nodo.
 
@@ -222,6 +247,48 @@ def _redundant(archi: Sequence[Tuple[str, str]],
     return ridondanti
 
 
+def _mediana(valori):
+    meta = len(valori) // 2
+    if len(valori) % 2:
+        return valori[meta]
+    return (valori[meta - 1] + valori[meta]) / 2.0
+
+
+def _assign_x(righe, vicini, passo: float) -> Dict[str, float]:
+    """L'ascissa di ogni unità: chi copre sopra e IN MEZZO a quello che
+    copre, invece che incolonnato a sinistra.
+
+    Il metodo è quello di `dot`: si parte dalle posizioni d'ordine, poi a
+    onde — su e giù — ogni unità punta alla mediana delle sue vicine e la
+    riga si ricompatta mantenendo le distanze. Senza questo passo una
+    matrice sembra una pila, non una matrice (segnalato da Enzo:
+    «non è esploso come un Harris matrix»).
+    """
+    x: Dict[str, float] = {}
+    for riga in righe:
+        for n, i in enumerate(riga):
+            x[i] = n * passo
+    for giro in range(6):
+        sequenza = righe if giro % 2 == 0 else list(reversed(righe))
+        for riga in sequenza:
+            if not riga:
+                continue
+            desiderato = []
+            for i in riga:
+                vicine = sorted(x[v] for v in vicini.get(i, ()) if v in x)
+                desiderato.append(_mediana(vicine) if vicine else x[i])
+            corrente = [desiderato[0]]
+            for d in desiderato[1:]:
+                corrente.append(max(d, corrente[-1] + passo))
+            # la riga si sposta in blocco sul punto che vorrebbe, così le
+            # distanze restano e il baricentro ci arriva lo stesso
+            scarto = _mediana(sorted(desiderato)) - _mediana(sorted(corrente))
+            for i, valore in zip(riga, corrente):
+                x[i] = valore + scarto
+    minimo = min(x.values()) if x else 0.0
+    return {i: valore - minimo for i, valore in x.items()}
+
+
 def _order_within_ranks(per_livello: Dict[int, List[str]],
                         vicini: Dict[str, set]) -> None:
     """Riduce gli incroci: due passate baricentriche, su e giù."""
@@ -244,9 +311,15 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
     """Le coordinate di fasce, caselle e archi."""
     unita = {u.node_id: u for u in model.units}
 
+    gruppo_uguali = _equality_groups(unita, model.relations)
     ordinanti = [(r.source, r.target) for r in model.relations
                  if r.kind not in SYMMETRIC_KINDS
                  and r.source in unita and r.target in unita]
+    # Per i livelli il gruppo di uguaglianza conta come una unità sola:
+    # altrimenti due unità uguali finirebbero su righe diverse.
+    ordinanti_gruppi = [(gruppo_uguali[s], gruppo_uguali[t])
+                        for s, t in ordinanti
+                        if gruppo_uguali[s] != gruppo_uguali[t]]
     vicini: Dict[str, set] = {i: set() for i in unita}
     for r in model.relations:
         if r.source in unita and r.target in unita:
@@ -268,13 +341,27 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
     risultato = Layout(title=model.title)
     y = config.margin
     colonne_max = 1
+    tutte_le_righe: List[List[str]] = []
+    piani: List[Tuple[Optional[Epoch], List[List[str]], float, float]] = []
     for epoca, dentro in gruppi:
-        interni = [(s, t) for s, t in ordinanti if s in dentro and t in dentro]
-        livello = _ranks(sorted(dentro), interni)
+        insieme = set(dentro)
+        rappresentanti = sorted({gruppo_uguali[i] for i in dentro})
+        interni = [(s, t) for s, t in ordinanti_gruppi
+                   if s in insieme and t in insieme]
+        livello = _ranks(rappresentanti, interni)
         per_livello: Dict[int, List[str]] = {}
-        for i in sorted(dentro):
+        for i in rappresentanti:
             per_livello.setdefault(livello.get(i, 0), []).append(i)
         _order_within_ranks(per_livello, vicini)
+        # il gruppo si riapre qui: i suoi membri restano accostati
+        membri: Dict[str, List[str]] = {}
+        for i in sorted(dentro):
+            membri.setdefault(gruppo_uguali[i], []).append(i)
+        for chiave in list(per_livello):
+            espansa: List[str] = []
+            for rappresentante in per_livello[chiave]:
+                espansa.extend(membri.get(rappresentante, [rappresentante]))
+            per_livello[chiave] = espansa
 
         # Un livello affollato va a capo: le sue caselle occupano più
         # righe di disegno, e la fascia cresce in altezza invece che in
@@ -294,17 +381,21 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                       if epoca else "nessun periodo iniziale nella scheda"),
             color=(epoca.color if epoca else "#F2F2F2"),
             y=y, h=altezza))
+        piani.append((epoca, righe_disegno, y, altezza))
+        tutte_le_righe.extend(righe_disegno)
+        colonne_max = max([colonne_max] + [len(r) for r in righe_disegno])
+        y += altezza
 
+    ascisse = _assign_x(tutte_le_righe, vicini, config.box_w + config.h_gap)
+    for _epoca, righe_disegno, cima, _altezza in piani:
         for riga, ids in enumerate(righe_disegno):
-            colonne_max = max(colonne_max, len(ids))
-            for colonna, i in enumerate(ids):
+            for i in ids:
                 risultato.boxes.append(Box(
                     unit=unita[i],
-                    x=(config.margin + config.band_label_w
-                       + colonna * (config.box_w + config.h_gap)),
-                    y=y + config.band_pad + riga * (config.box_h + config.v_gap),
+                    x=config.margin + config.band_label_w + ascisse.get(i, 0.0),
+                    y=cima + config.band_pad + riga * (config.box_h
+                                                       + config.v_gap),
                     w=config.box_w, h=config.box_h))
-        y += altezza
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
     ridondanti = (_redundant(ordinanti, config.reduction_limit)
@@ -329,8 +420,7 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                           scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
 
     risultato.width = max(
-        [config.margin * 2 + config.band_label_w
-         + colonne_max * (config.box_w + config.h_gap)]
+        [config.margin * 2 + config.band_label_w + config.box_w]
         + [b.x + b.w + config.margin for b in risultato.boxes])
     risultato.height = y + config.margin
     return risultato
@@ -353,7 +443,13 @@ def _route(a: Box, b: Box, simmetrica: bool,
     vicine non si sovrappongano fino a sembrarne una.
     """
     if simmetrica:
-        return [(a.x + a.w, a.y + a.h / 2), (b.x, b.y + b.h / 2)]
+        # Due linee orizzontali, come il segno di uguale: è così che la
+        # matrice di Harris dice «sono la stessa cosa».
+        sinistra, destra = (a, b) if a.x <= b.x else (b, a)
+        x1, x2 = sinistra.x + sinistra.w, destra.x
+        meta = sinistra.y + sinistra.h / 2
+        return [(x1, meta - 3.0), (x2, meta - 3.0),
+                (x1, meta + 3.0), (x2, meta + 3.0)]
     # Quando l'arrivo sta PIÙ IN ALTO della partenza — i periodi e la
     # stratigrafia si contraddicono — si esce dal lato di sopra e si
     # arriva dal lato di sotto, altrimenti la spezzata si ripiega su sé

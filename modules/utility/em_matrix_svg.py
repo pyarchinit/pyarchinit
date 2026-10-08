@@ -148,10 +148,15 @@ def _edge_svg(edge: Edge) -> str:
                 'marker-end="url(#freccia-continuita)"/>'
                 % _points(edge.points))
     if edge.symmetric:
-        # «Uguale a» non ha un verso: nessuna punta.
-        return ('<polyline class="edge" points="%s" fill="none" '
-                'stroke="#6B7684" stroke-width="1.4" '
-                'stroke-dasharray="6 4"/>' % _points(edge.points))
+        # «Uguale a» non ha un verso e non è una sovrapposizione: due
+        # linee orizzontali staccate, come il segno di uguale.
+        (x1, y1), (x2, y2), (x3, y3), (x4, y4) = edge.points[:4]
+        return ('<g class="edge equality">'
+                '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
+                'stroke="#6B7684" stroke-width="1.4"/>'
+                '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
+                'stroke="#6B7684" stroke-width="1.4"/></g>'
+                % (x1, y1, x2, y2, x3, y3, x4, y4))
     return ('<polyline class="edge" points="%s" fill="none" stroke="#6B7684" '
             'stroke-width="1.4" marker-end="url(#freccia)"/>'
             % _points(edge.points))

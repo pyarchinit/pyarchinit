@@ -5,6 +5,24 @@
 
 ---
 
+## [feat] - 2026-10-08 — la matrice si apre come una matrice di Harris — 5.13.39-alpha
+
+> Branch `Stratigraph_00001`. Tag **`em-matrix-harris-5.13.39-alpha`**. Tre osservazioni di Enzo guardando il primo disegno.
+
+### Italiano
+
+- **«Non è esploso come un Harris matrix».** Le ascisse non venivano più dall'ordine nella riga ma dalla struttura: il metodo di `dot` — a onde, su e giù, ogni unità punta alla mediana delle sue vicine e la riga si ricompatta mantenendo le distanze. Chi copre sta ora sopra **e in mezzo** a quello che copre, una sequenza semplice resta incolonnata, e i rami si aprono. Sul sito di esempio: US3 centrata sopra US10/US9/US14/US16, che riconvergono su US11.
+- **«La continuity sembra impilata e non si capisce a quale nodo è collegata».** Con le ascisse per struttura il nodo di continuità si stacca dalla pila e la sua linea nera scende fino all'unità che sopravvive, con la freccia che atterra sulla casella: nel demo, da `1.CON500` (Fine XVI secolo) fino a `1.USM12` (XV secolo), dieci fasce più giù.
+- **«Le US uguali devono stare sulla stessa linea, unite da due linee orizzontali senza frecce».** Le relazioni simmetriche (`equals`, `bonded_to`, `has_same_time`, `is_physically_equal_to`…) formano un gruppo: per l'incolonnamento il gruppo conta come una unità sola, quindi i membri finiscono sulla stessa riga e accostati, e il legame si disegna come il segno di uguale — due linee orizzontali staccate, senza punta.
+
+### English
+
+- The x coordinate now comes from the structure, not from the position in the row: `dot`'s median method, wave after wave. What covers sits above **and centred on** what it covers, a simple sequence stays in one column, branches open up.
+- The continuity node leaves the pile and its black line lands with an arrowhead on the unit that survives (`1.CON500` → `1.USM12`, ten bands below on the sample site).
+- Symmetric relations form a group that ranks as one unit, so equal units end up on the same row, side by side, joined by a double horizontal line without arrowheads — the Harris matrix's equals sign.
+
+---
+
 ## [fix] - 2026-10-08 — il pannello della matrice dà lo spazio alla matrice — 5.13.38-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-matrix-room-5.13.38-alpha`**. Un difetto visto fotografando il pannello vero.

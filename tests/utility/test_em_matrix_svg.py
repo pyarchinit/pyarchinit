@@ -149,3 +149,15 @@ def test_a_control_character_in_a_name_does_not_break_the_file():
 
     svg = to_svg(layout(_model(labels=("\x01brutto",))))
     ET.fromstring(svg)          # non deve sollevare
+
+
+def test_an_equality_comes_out_as_two_separate_horizontal_lines():
+    """Il segno di uguale: due linee staccate, non una spezzata che le
+    unisce in diagonale."""
+    import re
+
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "equals")])))
+    gruppo = re.search(r'<g class="edge equality">(.*?)</g>', svg, re.S)
+    assert gruppo, svg
+    assert gruppo.group(1).count("<line") == 2
+    assert "marker-end=" not in svg

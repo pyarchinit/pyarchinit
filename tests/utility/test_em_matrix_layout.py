@@ -353,3 +353,72 @@ def test_a_relation_pointing_upwards_is_still_drawn_cleanly():
     punti = lay.edges[0].points
     assert punti[0] != punti[-1]
     assert len(set(punti)) == len(punti), punti
+
+
+def test_two_units_that_are_equal_sit_on_the_same_line():
+    """Regola della matrice di Harris, chiesta da Enzo: «uguale a» e «si
+    lega a» non sono una sovrapposizione — le due unità stanno sulla
+    stessa riga, accostate, unite da due linee orizzontali senza frecce."""
+    model = MatrixModel(
+        units=[_unit("US1", "e"), _unit("US2", "e"), _unit("US3", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("US1", "US2", "equals"),
+                   Relation("US1", "US3", "overlies")])
+    lay = layout(model)
+    a = next(b for b in lay.boxes if b.unit.label == "US1")
+    b_ = next(b for b in lay.boxes if b.unit.label == "US2")
+    assert a.y == b_.y, "le uguali devono stare sulla stessa riga"
+    assert abs(a.x - b_.x) < 2 * (a.w + 40), "devono stare accostate"
+
+
+def test_an_equality_is_drawn_as_a_double_line_without_arrows():
+    model = MatrixModel(
+        units=[_unit("US1", "e"), _unit("US2", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("US1", "US2", "equals")])
+    lay = layout(model)
+    arco = lay.edges[0]
+    assert arco.symmetric is True
+    assert len(arco.points) == 4, arco.points       # due linee orizzontali
+    assert arco.points[0][1] == arco.points[1][1]
+    assert arco.points[2][1] == arco.points[3][1]
+    assert arco.points[0][1] != arco.points[2][1]
+
+
+def test_an_equality_chain_keeps_the_whole_group_on_one_line():
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e"), _unit("C", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "equals"), Relation("B", "C", "si lega a")
+                   if False else Relation("B", "C", "bonded_to")])
+    lay = layout(model)
+    assert len({b.y for b in lay.boxes}) == 1
+
+
+def test_what_a_unit_covers_hangs_under_it_not_beside_the_margin():
+    """«Non è esploso come una matrice di Harris»: chi copre deve stare
+    sopra e in mezzo a quello che copre, non incolonnato a sinistra."""
+    model = MatrixModel(
+        units=[_unit("padre", "e"), _unit("figlio1", "e"), _unit("figlio2", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("padre", "figlio1", "overlies"),
+                   Relation("padre", "figlio2", "overlies")])
+    lay = layout(model)
+    padre = next(b for b in lay.boxes if b.unit.label == "padre")
+    f1 = next(b for b in lay.boxes if b.unit.label == "figlio1")
+    f2 = next(b for b in lay.boxes if b.unit.label == "figlio2")
+    centro_padre = padre.x + padre.w / 2
+    centro_figli = ((f1.x + f1.w / 2) + (f2.x + f2.w / 2)) / 2
+    assert abs(centro_padre - centro_figli) < 4.0, (centro_padre, centro_figli)
+
+
+def test_a_chain_stays_in_one_column():
+    """Una sequenza semplice non deve sbandare a destra: ogni unità sotto
+    la precedente."""
+    model = MatrixModel(
+        units=[_unit("US%d" % n, "e") for n in range(1, 5)],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("US%d" % n, "US%d" % (n + 1), "overlies")
+                   for n in range(1, 4)])
+    lay = layout(model)
+    assert len({round(b.x) for b in lay.boxes}) == 1

@@ -139,15 +139,19 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
 
     for edge in lay.edges:
         percorso = QPainterPath(QPointF(*edge.points[0]))
-        for x, y in edge.points[1:]:
-            percorso.lineTo(QPointF(x, y))
+        if edge.symmetric:
+            # Due linee staccate: il segno di uguale, non una spezzata.
+            percorso.lineTo(QPointF(*edge.points[1]))
+            percorso.moveTo(QPointF(*edge.points[2]))
+            percorso.lineTo(QPointF(*edge.points[3]))
+        else:
+            for x, y in edge.points[1:]:
+                percorso.lineTo(QPointF(x, y))
         linea = QGraphicsPathItem(percorso)
         # Il legame di continuità più marcato: racconta una durata, non
         # una sovrapposizione.
         penna = QPen(QColor("#1A1A1A" if edge.continuity else "#6B7684"))
         penna.setWidthF(2.2 if edge.continuity else 1.4)
-        if edge.symmetric:
-            penna.setStyle(Qt.PenStyle.DashLine)
         linea.setPen(penna)
         linea.setZValue(-5)
         scene.addItem(linea)
