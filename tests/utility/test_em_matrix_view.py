@@ -68,3 +68,18 @@ def test_the_view_does_not_depend_on_graphviz_or_matplotlib():
     moduli = _imported_modules()
     for estranea in ("graphviz", "matplotlib", "pydot", "networkx"):
         assert not [m for m in moduli if estranea in m], (estranea, moduli)
+
+
+def test_the_png_cannot_ask_for_an_impossible_image():
+    """Una tela grande e una scala alta chiedevano 0,3 GB di immagine sul
+    caso Ventena: la scala si abbassa da sola fino a stare sotto il tetto,
+    invece di provarci e morire."""
+    src = _source()
+    assert "MAX_PIXELS" in src or "max_pixels" in src.lower()
+
+
+def test_the_view_warns_before_drawing_something_enormous():
+    """Oltre un certo numero di elementi la scena diventa lenta: chi
+    chiama deve poterlo sapere prima."""
+    src = _source()
+    assert "is_heavy" in src or "troppo" in src.lower()

@@ -36,6 +36,21 @@ from .em_matrix_svg import _polygon, _readable_on, _short, write_svg
 #: Il dato in cui vive l'id del nodo sull'elemento grafico.
 NODE_ID_ROLE = 0
 
+#: Tetto dei pixel di un'immagine salvata. Una tela grande con la scala a
+#: 2 chiedeva 0,3 GB sul caso Ventena (1311 US): meglio una scala più
+#: bassa di un'immagine che non si alloca.
+MAX_PIXELS = 40_000_000
+
+#: Oltre questi elementi la scena si fa lenta da navigare; chi apre il
+#: pannello può avvisare invece di lasciare l'utente a chiedersi perché.
+HEAVY_ITEMS = 4000
+
+
+def is_heavy(lay: Layout) -> bool:
+    """Vero se il disegno è abbastanza grande da farsi sentire."""
+    return (len(lay.boxes) * 2 + len(lay.edges) + len(lay.bands) * 3
+            > HEAVY_ITEMS)
+
 
 def _pen(stroke: str, width: float, dash: str) -> QPen:
     pen = QPen(QColor(stroke or "#8C8C8C"))
@@ -187,9 +202,14 @@ class MatrixView(QGraphicsView):
         if self._layout is None:
             return None
         rettangolo = self.scene().sceneRect()
-        immagine = QImage(int(rettangolo.width() * scala),
-                          int(rettangolo.height() * scala),
+        pixel = rettangolo.width() * rettangolo.height()
+        if pixel > 0:
+            scala = min(scala, max((MAX_PIXELS / pixel) ** 0.5, 0.25))
+        immagine = QImage(max(int(rettangolo.width() * scala), 1),
+                          max(int(rettangolo.height() * scala), 1),
                           QImage.Format.Format_ARGB32)
+        if immagine.isNull():
+            return None
         immagine.fill(QColor("#FBFCFE"))
         pittore = QPainter(immagine)
         pittore.setRenderHint(QPainter.RenderHint.Antialiasing)

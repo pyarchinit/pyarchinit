@@ -177,3 +177,40 @@ def test_a_long_relation_leaves_its_box_before_travelling():
     assert punti[0][0] == punti[1][0]
     assert 0 < punti[1][1] - punti[0][1] <= 24
     assert punti[0][1] >= partenza.y + partenza.h
+
+
+def test_a_crowded_level_wraps_instead_of_growing_forever():
+    """Misurato sul caso Ventena (1311 US quasi tutte nello stesso
+    periodo): senza avvolgimento la fascia veniva larga 103.000 pixel,
+    cioè illeggibile e impossibile da salvare. I livelli affollati vanno
+    a capo."""
+    model = MatrixModel(
+        units=[_unit("US%d" % n, "e") for n in range(200)],
+        epochs=[_epoch("e", 1200, 1350)], relations=[])
+    lay = layout(model)
+    assert lay.width < 3000, lay.width
+    assert len(lay.boxes) == 200
+    righe = {round(b.y) for b in lay.boxes}
+    assert len(righe) > 1
+
+
+def test_wrapping_does_not_make_boxes_overlap():
+    model = MatrixModel(
+        units=[_unit("US%d" % n, "e") for n in range(60)],
+        epochs=[_epoch("e", 1200, 1350)], relations=[])
+    lay = layout(model)
+    rettangoli = [(b.x, b.y, b.w, b.h) for b in lay.boxes]
+    for i, (x1, y1, w1, h1) in enumerate(rettangoli):
+        for x2, y2, w2, h2 in rettangoli[i + 1:]:
+            assert (x1 + w1 <= x2 or x2 + w2 <= x1
+                    or y1 + h1 <= y2 or y2 + h2 <= y1)
+
+
+def test_a_wrapped_band_is_tall_enough_for_what_it_holds():
+    model = MatrixModel(
+        units=[_unit("US%d" % n, "e") for n in range(60)],
+        epochs=[_epoch("e", 1200, 1350)], relations=[])
+    lay = layout(model)
+    banda = lay.bands[0]
+    for box in lay.boxes:
+        assert banda.y <= box.y and box.y + box.h <= banda.y + banda.h

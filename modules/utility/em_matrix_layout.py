@@ -39,6 +39,11 @@ class LayoutConfig:
     band_pad: float = 18.0
     band_label_w: float = 196.0
     margin: float = 24.0
+    #: Quante caselle al massimo su una riga prima di andare a capo.
+    #: Senza questo, un sito dove quasi tutte le US stanno nello stesso
+    #: periodo dava una fascia larga 103.000 pixel (misurato sul caso
+    #: Ventena, 1311 US): illeggibile e impossibile da salvare.
+    max_columns: int = 14
 
 
 @dataclass
@@ -161,7 +166,14 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             per_livello.setdefault(livello.get(i, 0), []).append(i)
         _order_within_ranks(per_livello, vicini)
 
-        righe = max(per_livello) + 1 if per_livello else 0
+        # Un livello affollato va a capo: le sue caselle occupano più
+        # righe di disegno, e la fascia cresce in altezza invece che in
+        # larghezza.
+        righe_disegno: List[List[str]] = []
+        for _livello, ids in sorted(per_livello.items()):
+            for inizio in range(0, len(ids), config.max_columns):
+                righe_disegno.append(ids[inizio:inizio + config.max_columns])
+        righe = len(righe_disegno)
         altezza = (config.band_pad * 2
                    + (righe * config.box_h + max(righe - 1, 0) * config.v_gap
                       if righe else config.box_h))
@@ -173,7 +185,7 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             color=(epoca.color if epoca else "#F2F2F2"),
             y=y, h=altezza))
 
-        for riga, ids in sorted(per_livello.items()):
+        for riga, ids in enumerate(righe_disegno):
             colonne_max = max(colonne_max, len(ids))
             for colonna, i in enumerate(ids):
                 risultato.boxes.append(Box(

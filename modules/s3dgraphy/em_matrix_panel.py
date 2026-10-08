@@ -107,7 +107,7 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
 
         from ..utility.em_matrix_layout import layout
         from ..utility.em_matrix_model import read_em_json
-        from ..utility.em_matrix_view import MatrixView
+        from ..utility.em_matrix_view import MatrixView, is_heavy
 
         model = read_em_json(Path(em_json_path))
         impaginato = layout(model)
@@ -173,6 +173,15 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
             conteggi.setText("%d unità · %d epoche · %d rapporti"
                              % (len(model.units), len(model.epochs),
                                 len(model.relations)))
+        if is_heavy(impaginato):
+            try:
+                iface.messageBar().pushInfo(
+                    "Matrice",
+                    "Il disegno è grande (%d unità): navigarlo può essere "
+                    "lento. Conviene salvarlo in SVG e aprirlo a parte."
+                    % len(model.units))
+            except Exception:                       # noqa: BLE001
+                pass
         dock.show()
         dock.raise_()
         return True
