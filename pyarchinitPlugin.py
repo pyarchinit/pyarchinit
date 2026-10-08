@@ -2664,6 +2664,12 @@ class PyArchInitPlugin(object):
         try:
             from modules.s3dgraphy.room import room_panel
             room_panel.close_panel(self.iface)
+        except Exception:                           # noqa: BLE001
+            pass
+        try:
+            # Due try separati: un guasto nel primo lasciava vivo il
+            # pannello della matrice fra un ricaricamento e l'altro, e
+            # da lì in poi non si riapriva più (review 2026-10-08).
             from .modules.s3dgraphy import em_matrix_panel
             em_matrix_panel.close_panel(self.iface)
         except Exception:
@@ -2998,7 +3004,11 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
+        import shutil
+        for vecchia in getattr(self, "_matrice_temp", ()) or ():
+            shutil.rmtree(vecchia, ignore_errors=True)
         cartella = tempfile.mkdtemp(prefix="pyarchinit_matrice_")
+        self._matrice_temp = [cartella]
         try:
             path, _n, _e, avvisi = em_export.export_site(
                 conn_str, site, cartella)

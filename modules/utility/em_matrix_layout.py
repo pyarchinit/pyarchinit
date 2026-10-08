@@ -124,22 +124,87 @@ def _ranks(ids: Sequence[str], archi: Sequence[Tuple[str, str]]) -> Dict[str, in
     return livello
 
 
+def _components(archi: Sequence[Tuple[str, str]]) -> Dict[str, int]:
+    """A quale gruppo fortemente connesso appartiene ogni nodo.
+
+    Tarjan iterativo (niente ricorsione: una sequenza stratigrafica lunga
+    farebbe saltare il limite di Python). Serve alla riduzione: dentro un
+    gruppo ogni arco ha una strada alternativa — il giro stesso — e
+    toglierlo cancellerebbe un rapporto vero.
+    """
+    adiacenti: Dict[str, list] = {}
+    for s, t in archi:
+        adiacenti.setdefault(s, []).append(t)
+        adiacenti.setdefault(t, [])
+    indice: Dict[str, int] = {}
+    minimo: Dict[str, int] = {}
+    sulla_pila: Dict[str, bool] = {}
+    pila: list = []
+    gruppo: Dict[str, int] = {}
+    contatore = [0]
+    gruppi = [0]
+
+    for radice in sorted(adiacenti):
+        if radice in indice:
+            continue
+        lavoro = [(radice, iter(adiacenti[radice]))]
+        indice[radice] = minimo[radice] = contatore[0]
+        contatore[0] += 1
+        pila.append(radice)
+        sulla_pila[radice] = True
+        while lavoro:
+            nodo, vicini = lavoro[-1]
+            avanzato = False
+            for prossimo in vicini:
+                if prossimo not in indice:
+                    indice[prossimo] = minimo[prossimo] = contatore[0]
+                    contatore[0] += 1
+                    pila.append(prossimo)
+                    sulla_pila[prossimo] = True
+                    lavoro.append((prossimo, iter(adiacenti[prossimo])))
+                    avanzato = True
+                    break
+                if sulla_pila.get(prossimo):
+                    minimo[nodo] = min(minimo[nodo], indice[prossimo])
+            if avanzato:
+                continue
+            lavoro.pop()
+            if lavoro:
+                padre = lavoro[-1][0]
+                minimo[padre] = min(minimo[padre], minimo[nodo])
+            if minimo[nodo] == indice[nodo]:
+                gruppi[0] += 1
+                while True:
+                    uscito = pila.pop()
+                    sulla_pila[uscito] = False
+                    gruppo[uscito] = gruppi[0]
+                    if uscito == nodo:
+                        break
+    return gruppo
+
+
 def _redundant(archi: Sequence[Tuple[str, str]],
                limite: int) -> set:
     """Gli archi che un cammino più lungo già dice.
 
     Il «tred» di Graphviz: se A copre B e B copre C, l'arco A→C non
-    aggiunge niente. Si cerca, per ogni arco, un cammino alternativo
-    lungo almeno due passi; i cicli non fermano la ricerca perché i nodi
-    già visti non si riaprono.
+    aggiunge niente. **Solo fra gruppi diversi**: dentro un ciclo ogni
+    arco ha per forza una strada alternativa — il giro — e toglierlo
+    cancellerebbe un rapporto che esiste. Un ciclo nei rapporti è un
+    errore dell'archeologo da vedere, non da far sparire (trovato dalla
+    review del 2026-10-08: un anello di quattro unità perdeva tutti e
+    quattro gli archi).
     """
     if len(archi) > limite:
         return set()                    # su un grafo enorme non vale la pena
+    gruppo = _components(archi)
     adiacenti: Dict[str, set] = {}
     for s, t in archi:
         adiacenti.setdefault(s, set()).add(t)
     ridondanti = set()
     for s, t in archi:
+        if gruppo.get(s) == gruppo.get(t):
+            continue                    # stesso ciclo: non si tocca
         visti = {s}
         pila = [n for n in adiacenti.get(s, ()) if n != t]
         trovato = False
@@ -244,10 +309,14 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
     centro = {b.unit.node_id: b for b in risultato.boxes}
     ridondanti = (_redundant(ordinanti, config.reduction_limit)
                   if config.transitive_reduction else set())
+    gia_disegnati = set()
     for r in model.relations:
         a, b = centro.get(r.source), centro.get(r.target)
-        if a is None or b is None:
-            continue
+        if a is None or b is None or r.source == r.target:
+            continue                    # un cappio non dice niente a vista
+        if (r.source, r.target, r.kind) in gia_disegnati:
+            continue                    # la stessa relazione scritta due volte
+        gia_disegnati.add((r.source, r.target, r.kind))
         simmetrica = r.kind in SYMMETRIC_KINDS
         if not simmetrica and (r.source, r.target) in ridondanti:
             risultato.removed_redundant += 1
@@ -285,13 +354,21 @@ def _route(a: Box, b: Box, simmetrica: bool,
     """
     if simmetrica:
         return [(a.x + a.w, a.y + a.h / 2), (b.x, b.y + b.h / 2)]
-    p = (a.x + a.w / 2, a.y + a.h)
-    q = (b.x + b.w / 2, b.y)
+    # Quando l'arrivo sta PIÙ IN ALTO della partenza — i periodi e la
+    # stratigrafia si contraddicono — si esce dal lato di sopra e si
+    # arriva dal lato di sotto, altrimenti la spezzata si ripiega su sé
+    # stessa (review 2026-10-08).
+    allinsu = b.y + b.h <= a.y
+    p = (a.x + a.w / 2, a.y if allinsu else a.y + a.h)
+    q = (b.x + b.w / 2, b.y + b.h if allinsu else b.y)
     if abs(p[0] - q[0]) < 0.5 and not scarto:
         return [p, q]
-    giu = min(p[1] + _STACCO, q[1])
+    passo = -_STACCO if allinsu else _STACCO
+    giu = p[1] + passo
+    if (allinsu and giu < q[1]) or (not allinsu and giu > q[1]):
+        giu = (p[1] + q[1]) / 2
     x = q[0] + scarto
-    return [p, (p[0], giu), (x, giu), (x, q[1] - 2.0), q]
+    return [p, (p[0], giu), (x, giu), q]
 
 
 def _anno(valore: float) -> str:

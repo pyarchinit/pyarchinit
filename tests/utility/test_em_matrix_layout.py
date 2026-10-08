@@ -281,3 +281,75 @@ def test_the_continuity_link_is_marked_so_it_can_be_drawn_apart():
     lay = layout(model)
     assert len(lay.edges) == 1
     assert lay.edges[0].continuity is True
+
+
+def test_inside_a_loop_no_relation_is_ever_erased():
+    """Trovato dalla review: dentro un ciclo ogni arco ha una strada
+    alternativa — il giro stesso — quindi la riduzione li toglieva TUTTI.
+    Un ciclo nei rapporti è un errore dell'archeologo da vedere, non da
+    far sparire: la riduzione vale solo fra gruppi diversi."""
+    anello = [Relation("c0", "c1", "overlies"),
+              Relation("c1", "c2", "overlies"),
+              Relation("c2", "c3", "overlies"),
+              Relation("c3", "c0", "overlies")]
+    model = MatrixModel(
+        units=[_unit("c%d" % n, "e") for n in range(4)],
+        epochs=[_epoch("e", 1200, 1350)], relations=anello)
+    lay = layout(model)
+    assert len(lay.edges) == 4, [e.kind for e in lay.edges]
+    assert lay.removed_redundant == 0
+
+
+def test_a_loop_with_extra_relations_keeps_them_all():
+    relazioni = [("A", "B"), ("A", "C"), ("B", "C"), ("B", "D"),
+                 ("C", "D"), ("C", "E"), ("D", "E"), ("E", "A")]
+    model = MatrixModel(
+        units=[_unit(l, "e") for l in "ABCDE"],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation(a, b, "overlies") for a, b in relazioni])
+    lay = layout(model)
+    assert len(lay.edges) == len(relazioni)
+
+
+def test_outside_a_loop_the_reduction_still_works():
+    """Su un grafo senza cicli la riduzione deve restare quella di prima."""
+    model = MatrixModel(
+        units=[_unit(l, "e") for l in "ABC"],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies"),
+                   Relation("B", "C", "overlies"),
+                   Relation("A", "C", "overlies")])
+    lay = layout(model)
+    assert len(lay.edges) == 2 and lay.removed_redundant == 1
+
+
+def test_the_same_relation_written_twice_is_one_line():
+    model = MatrixModel(
+        units=[_unit("A", "e"), _unit("B", "e")],
+        epochs=[_epoch("e", 1200, 1350)],
+        relations=[Relation("A", "B", "overlies")] * 4)
+    lay = layout(model)
+    assert len(lay.edges) == 1
+
+
+def test_a_unit_related_to_itself_is_not_drawn():
+    """La verifica rapporti lo segnala come errore: disegnarlo sarebbe un
+    trattino sotto la casella che non vuol dire niente."""
+    model = MatrixModel(units=[_unit("A", "e")],
+                        epochs=[_epoch("e", 1200, 1350)],
+                        relations=[Relation("A", "A", "overlies")])
+    lay = layout(model)
+    assert lay.edges == []
+
+
+def test_a_relation_pointing_upwards_is_still_drawn_cleanly():
+    """Se i periodi e la stratigrafia si contraddicono — chi copre sta in
+    una fascia più antica — la linea non deve ripiegarsi su sé stessa."""
+    model = MatrixModel(
+        units=[_unit("copre", "antica"), _unit("coperta", "recente")],
+        epochs=[_epoch("recente", 1900, 2000), _epoch("antica", 1200, 1350)],
+        relations=[Relation("copre", "coperta", "overlies")])
+    lay = layout(model)
+    punti = lay.edges[0].points
+    assert punti[0] != punti[-1]
+    assert len(set(punti)) == len(punti), punti

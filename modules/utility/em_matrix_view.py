@@ -82,6 +82,27 @@ def _shape_item(box: Box):
     return item
 
 
+def _arrow_item(da, a, colore):
+    """La punta della freccia in fondo alla linea: senza, il verso del
+    rapporto non si legge dove le epoche e la stratigrafia divergono."""
+    import math
+
+    dx, dy = a[0] - da[0], a[1] - da[1]
+    lunghezza = math.hypot(dx, dy)
+    if lunghezza < 1.0:
+        return None
+    ux, uy = dx / lunghezza, dy / lunghezza
+    base = (a[0] - ux * 9.0, a[1] - uy * 9.0)
+    lato = (-uy * 3.5, ux * 3.5)
+    punta = QGraphicsPolygonItem(QPolygonF([
+        QPointF(*a),
+        QPointF(base[0] + lato[0], base[1] + lato[1]),
+        QPointF(base[0] - lato[0], base[1] - lato[1])]))
+    punta.setBrush(QBrush(colore))
+    punta.setPen(QPen(colore))
+    return punta
+
+
 def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
     """Riempie la scena e restituisce gli elementi per id di nodo."""
     scene.clear()
@@ -130,6 +151,12 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
         linea.setPen(penna)
         linea.setZValue(-5)
         scene.addItem(linea)
+        if not edge.symmetric:
+            punta = _arrow_item(edge.points[-2], edge.points[-1],
+                                penna.color())
+            if punta is not None:
+                punta.setZValue(-4)
+                scene.addItem(punta)
 
     per_id: Dict[str, object] = {}
     for box in lay.boxes:
@@ -206,7 +233,9 @@ class MatrixView(QGraphicsView):
         rettangolo = self.scene().sceneRect()
         pixel = rettangolo.width() * rettangolo.height()
         if pixel > 0:
-            scala = min(scala, max((MAX_PIXELS / pixel) ** 0.5, 0.25))
+            # Il tetto vale sempre: un minimo sulla scala lo rendeva
+            # aggirabile da una tela enorme (review 2026-10-08).
+            scala = min(scala, (MAX_PIXELS / pixel) ** 0.5)
         immagine = QImage(max(int(rettangolo.width() * scala), 1),
                           max(int(rettangolo.height() * scala), 1),
                           QImage.Format.Format_ARGB32)
@@ -217,5 +246,6 @@ class MatrixView(QGraphicsView):
         pittore.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.scene().render(pittore)
         pittore.end()
-        immagine.save(str(path))
+        if not immagine.save(str(path)):
+            return None
         return str(path)

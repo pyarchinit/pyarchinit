@@ -83,3 +83,18 @@ def test_the_view_warns_before_drawing_something_enormous():
     chiama deve poterlo sapere prima."""
     src = _source()
     assert "is_heavy" in src or "troppo" in src.lower()
+
+
+def test_saving_never_claims_success_it_did_not_have():
+    """Dalla review: «Salvata in …» compariva anche quando non si era
+    scritto niente. Chi salva deve poter sapere se è andata."""
+    src = _source()
+    assert "if not immagine.save" in src or "salvata = immagine.save" in src
+
+
+def test_the_pixel_cap_is_not_defeated_by_a_floor():
+    """Dalla review: il minimo a 0,25 lasciava passare immagini da
+    quattro gigabyte su una tela enorme. Il tetto deve valere sempre."""
+    src = _source()
+    assert "max((MAX_PIXELS" not in src
+    assert "0.25" not in src

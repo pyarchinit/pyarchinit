@@ -19,8 +19,16 @@ _MAX_LABEL = 16
 _FONT = ("Helvetica Neue, Helvetica, Arial, sans-serif")
 
 
+#: I caratteri che l'XML non ammette: un nome che ne contiene uno
+#: produceva un SVG che nessun browser apre (review 2026-10-08).
+_VIETATI = "".join(chr(c) for c in list(range(0, 9)) + [11, 12]
+                   + list(range(14, 32)))
+_RIPULISCI = {ord(c): None for c in _VIETATI}
+
+
 def _esc(testo) -> str:
-    return (str(testo).replace("&", "&amp;").replace("<", "&lt;")
+    return (str(testo).translate(_RIPULISCI)
+            .replace("&", "&amp;").replace("<", "&lt;")
             .replace(">", "&gt;").replace('"', "&quot;"))
 
 
@@ -112,6 +120,21 @@ def _band_svg(band: Band, larghezza: float, config_margin: float = 24.0) -> str:
     return "".join(pezzi)
 
 
+#: La punta della freccia. Senza, il verso del rapporto lo direbbe solo
+#: la posizione verticale — che però la decide la fascia dell'epoca, non
+#: la stratigrafia: dove le due si contraddicono non si capirebbe più
+#: chi copre chi (review 2026-10-08).
+_MARKERS = (
+    '<defs>'
+    '<marker id="freccia" viewBox="0 0 8 8" refX="7" refY="4" '
+    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+    '<path d="M0,0 L8,4 L0,8 z" fill="#6B7684"/></marker>'
+    '<marker id="freccia-continuita" viewBox="0 0 8 8" refX="7" refY="4" '
+    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+    '<path d="M0,0 L8,4 L0,8 z" fill="#1A1A1A"/></marker>'
+    '</defs>')
+
+
 def _edge_svg(edge: Edge) -> str:
     """La linea di un rapporto.
 
@@ -121,10 +144,17 @@ def _edge_svg(edge: Edge) -> str:
     """
     if edge.continuity:
         return ('<polyline class="edge continuity" points="%s" fill="none" '
-                'stroke="#1A1A1A" stroke-width="2.2"/>' % _points(edge.points))
-    tratteggio = ' stroke-dasharray="6 4"' if edge.symmetric else ""
+                'stroke="#1A1A1A" stroke-width="2.2" '
+                'marker-end="url(#freccia-continuita)"/>'
+                % _points(edge.points))
+    if edge.symmetric:
+        # «Uguale a» non ha un verso: nessuna punta.
+        return ('<polyline class="edge" points="%s" fill="none" '
+                'stroke="#6B7684" stroke-width="1.4" '
+                'stroke-dasharray="6 4"/>' % _points(edge.points))
     return ('<polyline class="edge" points="%s" fill="none" stroke="#6B7684" '
-            'stroke-width="1.4"%s/>' % (_points(edge.points), tratteggio))
+            'stroke-width="1.4" marker-end="url(#freccia)"/>'
+            % _points(edge.points))
 
 
 def _box_svg(box: Box) -> str:
@@ -151,6 +181,7 @@ def to_svg(lay: Layout, title: str = "") -> str:
         'viewBox="0 0 %.0f %.0f" font-family="%s">'
         % (larghezza, altezza, larghezza, altezza, _FONT),
         '<rect width="100%%" height="100%%" fill="#FBFCFE"/>',
+        _MARKERS,
     ]
     if titolo:
         pezzi.append('<text x="24" y="24" font-size="15" font-weight="700" '

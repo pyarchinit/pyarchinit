@@ -168,32 +168,63 @@ def read_em_json(source) -> MatrixModel:
     grafi = raw.get("graphs") if isinstance(raw, dict) else None
     if not isinstance(grafi, dict) or not grafi:
         raise ValueError("Il file non è un em.json: manca la sezione «graphs».")
+    avvisi: List[str] = []
     attivo = raw.get("active_graph_id")
-    grafo = grafi.get(attivo) or list(grafi.values())[0]
-    titolo = str(attivo or titolo or "")
+    nome_grafo = attivo if attivo in grafi else sorted(grafi)[0]
+    if attivo and attivo not in grafi:
+        # Disegnare un grafo col nome di un altro è peggio che dirlo.
+        avvisi.append(
+            "Il file indica «%s» come grafo attivo, ma non c'è: disegno «%s»."
+            % (attivo, nome_grafo))
+    grafo = grafi[nome_grafo]
+    if not isinstance(grafo, dict):
+        raise ValueError(
+            "Il grafo «%s» non è leggibile: non è una sezione em.json."
+            % nome_grafo)
+    titolo = str(nome_grafo or titolo or "")
 
     nodi = grafo.get("nodes") or []
     archi = grafo.get("edges") or []
+    if not isinstance(nodi, list) or not isinstance(archi, list):
+        raise ValueError(
+            "Il grafo «%s» non è leggibile: «nodes» e «edges» devono essere "
+            "elenchi." % nome_grafo)
 
     epoche: List[Epoch] = []
     unita_grezze: Dict[str, Dict[str, Any]] = {}
-    for n in nodi:
+    for posizione, n in enumerate(nodi):
+        if not isinstance(n, dict):
+            raise ValueError(
+                "Il grafo «%s» contiene un nodo che non è leggibile "
+                "(posizione %d)." % (nome_grafo, posizione))
         tipo = str(n.get("node_type") or "")
-        dati = n.get("data") or {}
+        dati = n.get("data")
+        if not isinstance(dati, dict):
+            dati = {}
+        # Un nodo senza id non deve inghiottirne un altro: la posizione
+        # nel file gli fa da chiave.
+        chiave = str(n.get("id") or "").strip() or "#%d" % posizione
         if tipo == "EpochNode":
             epoche.append(Epoch(
-                node_id=str(n.get("id")),
+                node_id=chiave,
                 name=str(n.get("name") or "epoca"),
-                start=float(dati.get("start_time") or 0.0),
-                end=float(dati.get("end_time") or 0.0),
+                start=_anno_di(dati.get("start_time")),
+                end=_anno_di(dati.get("end_time")),
                 color=str(dati.get("color") or "#F5F5F5")))
         elif tipo not in _NOT_A_UNIT:
-            unita_grezze[str(n.get("id"))] = n
+            if chiave in unita_grezze:
+                avvisi.append("Due nodi con lo stesso id «%s»: ne disegno uno."
+                              % chiave)
+            unita_grezze[chiave] = dict(n, id=chiave, data=dati)
 
     prima_epoca: Dict[str, str] = {}
     relazioni: List[Relation] = []
     id_epoche = {e.node_id for e in epoche}
     for e in archi:
+        if not isinstance(e, dict):
+            raise ValueError(
+                "Il grafo «%s» contiene un rapporto che non è leggibile."
+                % nome_grafo)
         s, t, k = _ends(e)
         if not s or not t or not k:
             continue
@@ -208,6 +239,15 @@ def read_em_json(source) -> MatrixModel:
     # stretta le cinque voci di spunta del sito di esempio (Fotografie,
     # Planimetrie…) comparirebbero fra le unità.
     in_relazione = {r.source for r in relazioni} | {r.target for r in relazioni}
+    scartati = [n for i, n in unita_grezze.items()
+                if not (n.get("data") or {}).get("us")
+                and i not in in_relazione]
+    if scartati:
+        avvisi.append(
+            "%d nodi non entrano nella matrice perché non sono righe della "
+            "scheda e nessun rapporto li tocca (%s)."
+            % (len(scartati), ", ".join(
+                sorted(str(n.get("name") or n.get("id")) for n in scartati)[:5])))
     unita = [
         Unit(node_id=i,
              label=str(n.get("name") or i),
@@ -220,6 +260,19 @@ def read_em_json(source) -> MatrixModel:
     ]
     # Le fasce si leggono dall'alto come la stratigrafia: la più recente
     # in cima, come fanno EMStudio e la matrice di pyArchInit.
-    epoche.sort(key=lambda e: (e.start, e.end), reverse=True)
+    # Le fasce si leggono dall'alto, la più recente in cima; quelle senza
+    # date vanno in fondo invece di infilarsi fra due secoli.
+    epoche.sort(key=lambda e: (e.start != 0.0 or e.end != 0.0, e.start, e.end),
+                reverse=True)
     return MatrixModel(units=unita, epochs=epoche, relations=relazioni,
-                       title=titolo)
+                       title=titolo, warnings=avvisi)
+
+
+def _anno_di(valore) -> float:
+    """L'anno di un'epoca, o 0 se il file non lo dice in modo leggibile."""
+    if isinstance(valore, (int, float)):
+        return float(valore)
+    try:
+        return float(str(valore).strip())
+    except (TypeError, ValueError):
+        return 0.0

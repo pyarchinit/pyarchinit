@@ -96,9 +96,6 @@ def _details_text(unit) -> str:
 
 def open_in_panel(iface, em_json_path, title: str = "") -> bool:
     """Apre (o riusa) il pannello sulla matrice del file. False se non si può."""
-    guasto = describe_failure(em_json_path)
-    if guasto:
-        return False
     try:
         from qgis.PyQt.QtCore import Qt
         from qgis.PyQt.QtWidgets import (QDockWidget, QHBoxLayout, QLabel,
@@ -109,6 +106,8 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
         from ..utility.em_matrix_model import read_em_json
         from ..utility.em_matrix_view import MatrixView, is_heavy
 
+        # Si legge UNA volta: describe_failure lo rileggeva daccapo, e su
+        # un file grande la sola analisi costava più del disegno.
         model = read_em_json(Path(em_json_path))
         impaginato = layout(model)
 
@@ -170,9 +169,20 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
 
         vista.show_layout(impaginato)
         if conteggi is not None:
-            conteggi.setText("%d unità · %d epoche · %d rapporti"
-                             % (len(model.units), len(model.epochs),
-                                len(model.relations)))
+            testo = ("%d unità · %d epoche · %d rapporti"
+                     % (len(model.units), len(model.epochs),
+                        len(model.relations)))
+            if impaginato.removed_redundant:
+                # Altrimenti l'intestazione dice 93 e nel disegno se ne
+                # contano 59, senza che niente spieghi la differenza.
+                testo += (" (%d non disegnati: già detti da un cammino "
+                          "più lungo)" % impaginato.removed_redundant)
+            conteggi.setText(testo)
+        for avviso in model.warnings:
+            try:
+                iface.messageBar().pushInfo("Matrice", str(avviso))
+            except Exception:                       # noqa: BLE001
+                pass
         if is_heavy(impaginato):
             try:
                 iface.messageBar().pushInfo(
@@ -185,8 +195,17 @@ def open_in_panel(iface, em_json_path, title: str = "") -> bool:
         dock.show()
         dock.raise_()
         return True
-    except Exception:                               # noqa: BLE001
-        # una finestra che non si apre non è un motivo per un traceback
+    except Exception as e:                          # noqa: BLE001
+        # una finestra che non si apre non è un motivo per un traceback,
+        # ma nemmeno per un silenzio: senza questa riga un guasto dentro
+        # il disegno è indistinguibile da un file sbagliato.
+        try:
+            from qgis.core import Qgis, QgsMessageLog
+            QgsMessageLog.logMessage(
+                "Pannello matrice non aperto: %s: %s" % (type(e).__name__, e),
+                "PyArchInit", Qgis.MessageLevel.Warning)
+        except Exception:                           # noqa: BLE001
+            pass
         return False
 
 
@@ -199,12 +218,15 @@ def _save(iface, vista, formato: str) -> None:
         vista, "Salva la matrice", "matrice.%s" % formato, filtro)
     if not percorso:
         return
-    if formato == "svg":
-        vista.save_svg(percorso)
-    else:
-        vista.save_png(percorso)
+    scritto = (vista.save_svg(percorso) if formato == "svg"
+               else vista.save_png(percorso))
     try:
-        iface.messageBar().pushInfo("Matrice", "Salvata in %s" % percorso)
+        if scritto:
+            iface.messageBar().pushInfo("Matrice", "Salvata in %s" % scritto)
+        else:
+            iface.messageBar().pushWarning(
+                "Matrice", "Non sono riuscito a salvare il disegno in %s."
+                % percorso)
     except Exception:                               # noqa: BLE001
         pass
 

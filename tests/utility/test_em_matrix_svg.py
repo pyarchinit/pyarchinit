@@ -125,3 +125,27 @@ def test_the_continuity_link_is_drawn_apart():
 def test_an_ordinary_relation_is_not_marked_as_continuity():
     svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
     assert "continuity" not in svg
+
+
+def test_a_relation_carries_an_arrow_so_its_direction_is_readable():
+    """Dalla review: il verso era affidato solo alla posizione verticale,
+    che però la decide la fascia dell'epoca, non la stratigrafia. Dove le
+    due si contraddicono, senza freccia non si capisce chi copre chi."""
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
+    assert "<marker" in svg
+    assert "marker-end=" in svg
+
+
+def test_a_symmetric_relation_has_no_arrow():
+    """«Uguale a» non ha un verso."""
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "equals")])))
+    assert "marker-end=" not in svg
+
+
+def test_a_control_character_in_a_name_does_not_break_the_file():
+    """Dalla review: un nome con un carattere di controllo produceva un
+    SVG che nessun browser apre. Il carattere si toglie."""
+    import xml.etree.ElementTree as ET
+
+    svg = to_svg(layout(_model(labels=("\x01brutto",))))
+    ET.fromstring(svg)          # non deve sollevare
