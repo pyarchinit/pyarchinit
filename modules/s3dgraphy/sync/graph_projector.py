@@ -206,6 +206,49 @@ def _drop_column_property_nodes(graph):
     return len(doomed)
 
 
+def _drop_location_memberships(graph):
+    """Toglie dall'em.json i legami di luogo, e i gruppi che restano vuoti.
+
+    Misurato con Enzo su EMStudio 1.6.0-dev.26 il 2026-10-08: finché nel
+    file c'è anche un solo arco ``is_in_location``, la vista Matrix
+    ammucchia tutte le unità nella prima fascia, mentre l'outliner della
+    stessa finestra le raggruppa bene per epoca. Bisezione su quattro
+    file dello stesso sito:
+
+    - 6 nodi gruppo e 106 archi            → ammucchiate
+    - 6 nodi gruppo, tolti i 3 archi fra gruppi → ammucchiate
+    - 2 nodi gruppo e 52 archi             → ammucchiate
+    - 6 nodi gruppo e **zero** archi       → le fasce si popolano
+    - né nodi né archi                     → le fasce si popolano
+
+    Quindi non è l'annidamento dei toponimi (Italia → Emilia-Romagna →
+    Rimini) e non sono i nodi: sono gli archi. Il dato non si perde,
+    perché ``sito``, ``area`` e ``settore`` stanno già nel ``data`` di
+    ogni unità: quello che se ne va è un modo di rappresentarlo, non
+    l'informazione.
+
+    I gruppi rimasti senza nessun arco se ne vanno con loro: in EMStudio
+    sarebbero cartelle vuote.
+    """
+    doomed_edges = [e for e in graph.edges
+                    if getattr(e, "edge_type", None) == "is_in_location"]
+    if doomed_edges:
+        graph.edges = [e for e in graph.edges
+                       if getattr(e, "edge_type", None) != "is_in_location"]
+    rimasti = set()
+    for e in graph.edges:
+        rimasti.add(e.edge_source)
+        rimasti.add(e.edge_target)
+    orfani = {n.node_id for n in graph.nodes
+              if "Group" in (getattr(n, "node_type", "") or "")
+              and n.node_id not in rimasti}
+    if orfani:
+        graph.nodes = [n for n in graph.nodes if n.node_id not in orfani]
+    if (doomed_edges or orfani) and hasattr(graph, "invalidate_indices"):
+        graph.invalidate_indices()
+    return len(doomed_edges)
+
+
 def _downgrade_edges_towards_paradata(graph, paradata_ids):
     """Declassa i rapporti stratigrafici che toccano un paradato.
 
@@ -438,13 +481,20 @@ class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
     def populate_graph(self, db_path, sito, *, column_properties=False,
-                       **kwargs):
+                       location_groups=False, **kwargs):
         """Il grafo del sito.
 
         ``column_properties``: quando è vero viaggiano anche i nodi
         proprietà nati dalle colonne della scheda. Di norma no — sono il
         doppione di quello che l'unità porta già in ``data`` e
         seppelliscono la stratigrafia nella matrice.
+
+        ``location_groups``: quando è vero viaggiano anche i gruppi di
+        luogo e i loro archi ``is_in_location``. Di norma no — la vista
+        Matrix di EMStudio non li regge e ammucchia tutte le unità nella
+        prima fascia (misurato il 2026-10-08, vedi
+        ``_drop_location_memberships``). Sito, area e settore restano
+        comunque nel ``data`` di ogni unità.
         """
         with _site_filtered_importer(sito):
             graph = super().populate_graph(db_path, sito, **kwargs)
@@ -505,6 +555,18 @@ class GraphProjector(_LibGraphProjector):
             _drop_empty_property_nodes(graph)
         except Exception:                           # noqa: BLE001
             pass                                    # hygiene, never a failure
+
+        # I legami di luogo no: questa non è igiene. Finché restano,
+        # EMStudio ammucchia tutte le unità nella prima fascia, quindi un
+        # guasto qui va detto invece di uscire in un file che non si apre
+        # come dovrebbe.
+        if not location_groups:
+            try:
+                _drop_location_memberships(graph)
+            except Exception as e:                  # noqa: BLE001
+                logging.getLogger(__name__).warning(
+                    "location memberships not removed (%s): the Matrix view "
+                    "of EMStudio will pile every unit into the first band", e)
 
         # EM typing of generic paradata→stratigraphy connections.
         try:

@@ -585,3 +585,88 @@ def test_a_declared_final_period_is_respected(tmp_path):
     epoche = _epoche_di(graph, "1")
     assert epoche.get("has_first_epoch") == "XV secolo"
     assert epoche.get("survive_in_epoch") == "Età moderna"
+
+
+# ---------------- i luoghi non viaggiano come archi (2026-10-08) -------------
+
+def _sito(db, **campi):
+    """Riempie site_table, da cui nasce la catena dei toponimi."""
+    import sqlite3
+    conn = sqlite3.connect(db)
+    colonne = ["sito"] + sorted(campi)
+    valori = [campi.pop("sito", "Alfa")] if "sito" in campi else ["Alfa"]
+    colonne = ["sito"] + sorted(campi)
+    valori = ["Alfa"] + [campi[c] for c in sorted(campi)]
+    conn.execute("INSERT INTO site_table (%s) VALUES (%s)"
+                 % (", ".join(colonne), ", ".join("?" for _ in colonne)),
+                 valori)
+    conn.commit(); conn.close()
+
+
+def _location_edges(graph):
+    return [e for e in graph.edges if e.edge_type == "is_in_location"]
+
+
+def _location_groups(graph):
+    return [n for n in graph.nodes
+            if "Group" in (getattr(n, "node_type", "") or "")]
+
+
+def test_the_places_do_not_travel_as_edges(tmp_path):
+    """Misurato con Enzo su EMStudio, 2026-10-08: finché nell'em.json c'è
+    anche un solo arco ``is_in_location``, la vista Matrix ammucchia tutte
+    le unità nella prima fascia; tolti gli archi, le fasce si popolano.
+
+    Provato per bisezione su quattro file: nodi gruppo senza archi →
+    funziona; due soli gruppi con 52 archi → non funziona. Non è
+    l'annidamento e non sono i nodi: sono gli archi."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US", area="2", settore="3"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _location_edges(graph) == []
+    # il dato non si perde: resta sull'unità, dove la scheda lo scrive
+    unita = next(n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us") == "1")
+    assert unita.attributes["area"] == "2"
+    assert unita.attributes["settore"] == "3"
+    assert unita.attributes["sito"] == "Alfa"
+
+
+def test_no_empty_place_group_is_left_behind(tmp_path):
+    """Un gruppo che non lega più niente è peso morto nel file: in EMStudio
+    comparirebbe come una cartella vuota."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US", area="2", settore="3"),
+    ])
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _location_groups(graph) == []
+
+
+def test_the_toponym_chain_goes_too(tmp_path):
+    """La catena Italia → Emilia-Romagna → Rimini nasce da site_table e si
+    lega con gli stessi archi: cade con loro."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US"),
+    ])
+    _sito(db, nazione="Italia", regione="Emilia-Romagna",
+          provincia="Rimini", comune="Rimini")
+    graph = GraphProjector().populate_graph(db, sito="Alfa")
+    assert _location_edges(graph) == []
+    assert _location_groups(graph) == []
+    assert [e for e in graph.edges
+            if str(getattr(e, "edge_id", "")).startswith("chain_")] == []
+
+
+def test_whoever_wants_the_places_can_still_ask_for_them(tmp_path):
+    """Come per i nodi proprietà: di norma non viaggiano, ma la strada
+    resta aperta per chi consuma l'em.json con altri occhi."""
+    db = _mini_db(tmp_path, [
+        dict(sito="Alfa", us="1", unita_tipo="US", area="2"),
+    ])
+    _sito(db, nazione="Italia", regione="Emilia-Romagna",
+          provincia="Rimini", comune="Rimini")
+    graph = GraphProjector().populate_graph(db, sito="Alfa",
+                                            location_groups=True)
+    assert _location_edges(graph)
+    assert _location_groups(graph)

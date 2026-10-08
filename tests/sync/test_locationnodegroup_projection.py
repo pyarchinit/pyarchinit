@@ -6,6 +6,13 @@ Asserts that:
 - US has at most 1 is_primary edge
 - is_in_location vs is_in_activity edge type per class
 """
+# NB (2026-10-08): dalla 5.13.43 ``populate_graph`` NON porta piu i gruppi di
+# luogo nel grafo che esce — la vista Matrix di EMStudio, finche nel file c'e
+# un arco ``is_in_location``, ammucchia tutte le unita nella prima fascia.
+# I gruppi si costruiscono ancora: queste prove li chiedono con
+# ``location_groups=True``, che e esattamente quello che vogliono provare.
+# Il default nuovo e fissato in tests/sync/test_graph_projector_multisite.py.
+
 from __future__ import annotations
 import shutil
 import sqlite3
@@ -70,7 +77,7 @@ def test_struttura_emits_locationnodegroup_kind_functional(
     sito = _read_sito(prepared_db)
     _populate_dim(prepared_db, sito, dim, "Basilica")
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=prepared_db, sito=sito, groups=[dim])
+    graph = proj.populate_graph(db_path=prepared_db, sito=sito, groups=[dim], location_groups=True)
     # dev40: the importer adds its own area group (kind "study") from the
     # area column; the pin is on the group of the REQUESTED dimension.
     locs = [n for n in graph.nodes
@@ -85,7 +92,7 @@ def test_area_emits_locationnodegroup_kind_study(prepared_db, dim):
     sito = _read_sito(prepared_db)
     _populate_dim(prepared_db, sito, dim, "AreaX")
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=prepared_db, sito=sito, groups=[dim])
+    graph = proj.populate_graph(db_path=prepared_db, sito=sito, groups=[dim], location_groups=True)
     locs = [n for n in graph.nodes
             if type(n).__name__ == "LocationNodeGroup"]
     assert len(locs) >= 1
@@ -97,7 +104,7 @@ def test_attivita_stays_activitynodegroup(prepared_db):
     _populate_dim(prepared_db, sito, "attivita", "Saggio_I")
     proj = GraphProjector()
     graph = proj.populate_graph(
-        db_path=prepared_db, sito=sito, groups=["attivita"])
+        db_path=prepared_db, sito=sito, groups=["attivita"], location_groups=True)
     acts = [n for n in graph.nodes
             if type(n).__name__ == "ActivityNodeGroup"]
     locs = [n for n in graph.nodes
@@ -118,7 +125,7 @@ def test_us_has_exactly_one_is_primary(prepared_db):
     proj = GraphProjector()
     graph = proj.populate_graph(
         db_path=prepared_db, sito=sito, groups=["struttura", "area"]
-    )
+    , location_groups=True)
     # Pick one US and count its is_primary edges
     us_nodes = [n for n in graph.nodes
                 if type(n).__name__ in ("StratigraphicUnit", "USNode")
@@ -139,7 +146,7 @@ def test_is_in_location_edge_for_locationnodegroup(prepared_db):
     _populate_dim(prepared_db, sito, "struttura", "Basilica")
     proj = GraphProjector()
     graph = proj.populate_graph(
-        db_path=prepared_db, sito=sito, groups=["struttura"])
+        db_path=prepared_db, sito=sito, groups=["struttura"], location_groups=True)
     loc_ids = {n.node_id for n in graph.nodes
                if type(n).__name__ == "LocationNodeGroup"}
     if not loc_ids:
@@ -154,7 +161,7 @@ def test_is_in_activity_edge_for_activitynodegroup_unchanged(prepared_db):
     _populate_dim(prepared_db, sito, "attivita", "Saggio_I")
     proj = GraphProjector()
     graph = proj.populate_graph(
-        db_path=prepared_db, sito=sito, groups=["attivita"])
+        db_path=prepared_db, sito=sito, groups=["attivita"], location_groups=True)
     act_ids = {n.node_id for n in graph.nodes
                if type(n).__name__ == "ActivityNodeGroup"}
     edges_to_act = [e for e in graph.edges if e.edge_target in act_ids]

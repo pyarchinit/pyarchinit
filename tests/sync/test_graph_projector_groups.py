@@ -1,8 +1,15 @@
-"""L1 fixture-based: populate_graph(groups=...) kwarg semantics.
+"""L1 fixture-based: populate_graph(groups=..., location_groups=True) kwarg semantics.
 
 Pins D4 (ActivityNodeGroup + group_kind), D7 (default empty),
 AC-4, AC-5.
 """
+# NB (2026-10-08): dalla 5.13.43 ``populate_graph`` NON porta piu i gruppi di
+# luogo nel grafo che esce — la vista Matrix di EMStudio, finche nel file c'e
+# un arco ``is_in_location``, ammucchia tutte le unita nella prima fascia.
+# I gruppi si costruiscono ancora: queste prove li chiedono con
+# ``location_groups=True``, che e esattamente quello che vogliono provare.
+# Il default nuovo e fissato in tests/sync/test_graph_projector_multisite.py.
+
 from __future__ import annotations
 import shutil
 import sqlite3
@@ -59,7 +66,7 @@ def test_default_groups_empty_no_group_nodes(mini_volterra):
     """D7: default groups=None / [] -> no GroupNode in graph."""
     from modules.s3dgraphy.sync.graph_projector import GraphProjector
     sito = _read_sito(mini_volterra)
-    graph = GraphProjector().populate_graph(mini_volterra, sito=sito)
+    graph = GraphProjector().populate_graph(mini_volterra, sito=sito, location_groups=True)
     types = [type(n).__name__ for n in graph.nodes]
     assert "ActivityNodeGroup" not in types
 
@@ -74,7 +81,7 @@ def test_groups_arg_materializes_locationnodegroup_for_struttura(
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
 
     graph = GraphProjector().populate_graph(
-        mini_volterra, sito=sito, groups=["struttura"])
+        mini_volterra, sito=sito, groups=["struttura"], location_groups=True)
     # dev40: the importer adds its own area group (kind "study"); the pin
     # is on the groups of the REQUESTED dimension (group_kind, AC-2).
     groups = [n for n in graph.nodes
@@ -94,7 +101,7 @@ def test_groups_arg_adds_is_in_location_edges_for_struttura(mini_volterra):
     _seed(mini_volterra, sito, "struttura", "basilica", 3)
 
     graph = GraphProjector().populate_graph(
-        mini_volterra, sito=sito, groups=["struttura"])
+        mini_volterra, sito=sito, groups=["struttura"], location_groups=True)
     group_ids = {n.node_id for n in graph.nodes
                  if type(n).__name__ == "LocationNodeGroup"}
     rel_edges = [e for e in graph.edges

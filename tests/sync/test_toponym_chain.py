@@ -1,4 +1,11 @@
 """AI07 Group D: _emit_toponym_chain and cross-site dedupe."""
+# NB (2026-10-08): dalla 5.13.43 ``populate_graph`` NON porta piu i gruppi di
+# luogo nel grafo che esce — la vista Matrix di EMStudio, finche nel file c'e
+# un arco ``is_in_location``, ammucchia tutte le unita nella prima fascia.
+# I gruppi si costruiscono ancora: queste prove li chiedono con
+# ``location_groups=True``, che e esattamente quello che vogliono provare.
+# Il default nuovo e fissato in tests/sync/test_graph_projector_multisite.py.
+
 from __future__ import annotations
 import hashlib
 import sqlite3
@@ -20,7 +27,7 @@ def _toponym_uuid(name: str) -> str:
 def test_full_chain_emits_4_locationnodegroup(tmp_path):
     """Italia → Toscana → Pisa → Volterra"""
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra")
+    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra", location_groups=True)
     locs = [n for n in graph.nodes
             if type(n).__name__ == "LocationNodeGroup"
             and getattr(n, "kind", None) == "toponym"]
@@ -36,7 +43,7 @@ def test_partial_admin_levels_compact_chain(tmp_path):
     Italia → Campania → Pompei (no provincia node)
     """
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Pompei_test")
+    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Pompei_test", location_groups=True)
     locs = [n for n in graph.nodes
             if type(n).__name__ == "LocationNodeGroup"
             and getattr(n, "kind", None) == "toponym"]
@@ -61,8 +68,8 @@ def test_two_sites_same_comune_share_node(tmp_path):
     1 LocationNodeGroup(name='Volterra', kind='toponym').
     """
     proj = GraphProjector()
-    g1 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra")
-    g2 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra2")
+    g1 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra", location_groups=True)
+    g2 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra2", location_groups=True)
     # Same projector, same DB, two calls — UUIDs must match
     volterra_uuid_1 = _toponym_uuid("Volterra")
     locs_1 = [n for n in g1.nodes
@@ -83,7 +90,7 @@ def test_us_connects_to_deepest_level_only(tmp_path):
     chain (the deepest non-empty level), with is_primary=false.
     """
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra")
+    graph = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra", location_groups=True)
     us_nodes = [n for n in graph.nodes
                 if "Stratigraphic" in type(n).__name__
                 or type(n).__name__ == "USNode"]
@@ -116,7 +123,7 @@ def test_all_admin_levels_empty_no_chain(tmp_path):
     finally:
         conn.close()
     proj = GraphProjector()
-    graph = proj.populate_graph(db_path=db, sito="NoToponym")
+    graph = proj.populate_graph(db_path=db, sito="NoToponym", location_groups=True)
     toponyms = [n for n in graph.nodes
                 if type(n).__name__ == "LocationNodeGroup"
                 and getattr(n, "kind", None) == "toponym"]
@@ -139,7 +146,7 @@ def test_round_trip_preserves_site_table(tmp_path):
     # Project + (would round-trip via GraphML, but for now just project
     # and verify projector doesn't mutate site_table)
     proj = GraphProjector()
-    proj.populate_graph(db_path=db, sito="Volterra")
+    proj.populate_graph(db_path=db, sito="Volterra", location_groups=True)
     conn = sqlite3.connect(str(db))
     try:
         after = conn.execute(
