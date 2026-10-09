@@ -5,6 +5,38 @@
 
 ---
 
+## [fix] - 2026-10-09 — la tavola si riempie e la scala è una scala vera — 5.13.50-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-scale-5.13.50-alpha`**. «Non credo la scala sia giusta: il disegno dovrebbe riempire la pagina, scalarsi in automatico, e la scala deve essere corretta» (Enzo).
+
+### Italiano
+
+Aveva ragione tre volte, e per tre motivi diversi.
+
+**«1:1» era una bugia.** Le due barre di scala del modello **non sono collegate a nessuna mappa** — `linkedMap()` torna `None` — quindi quella numerica non aveva niente da leggere e stampava `1:1`. Ora vengono collegate alla mappa principale e dicono la scala vera.
+
+**Il disegno restava un francobollo.** Si inquadrava sull'estensione del **canvas**, che può essere molto più larga dello scavo. Ora si inquadra sull'estensione dei **dati**, letta dalle viste filtrate (`_estensione_dei_dati`).
+
+**Si inquadravano tutte le mappe.** Il modello del Time Manager ne ha due: quella del disegno (409×348 mm) e l'inserto panoramico (75×61 mm), che serve a dire dove si è nel mondo e che inquadrato sullo scavo non direbbe più niente. `main_map_index` sceglie la più grande per area del telaio, e si tocca solo quella.
+
+**La scala.** `nice_scale` sale alla prima scala vera che contiene ancora tutto — 1:20, non 1:18,6 — perché arrotondare in giù taglierebbe fuori una parte dello scavo. **Niente margine aggiuntivo**: `zoomToExtent` già lascia l'aria che serve per via delle proporzioni del telaio, e un 6% in più spingeva 18,6 oltre il 20 facendo saltare la serie a 1:25, cioè un disegno più piccolo del necessario. Misurato, inchiostro sul foglio al livello 24:
+
+| | scala stampata | inchiostro |
+|---|---|---|
+| esatta, senza margine | 1:18,6 | 22,85% |
+| margine 6% + arrotondata | 1:25 | 13,26% |
+| **senza margine + arrotondata** | **1:20** | **19,88%** |
+
+**Una decisione presa esplicitamente.** L'inquadratura si calcola **una volta sola**, su tutte le US del sito, e vale per ogni tavola (`_riquadro_del_sito`, `_riquadro_atlante`). Un atlante deve avere la stessa scala su tutte le tavole: se ognuna si adattasse al suo livello, la stessa US cambierebbe dimensione da una pagina all'altra e le tavole non si confronterebbero più. Verificato su quattro livelli del sito di esempio (0, 4, 12, 24): tutti 1:20, barre collegate 2 su 2.
+
+**`modules/utility/atlas_scale.py`** (nuovo, puro): `NICE_SCALES`, `nice_scale(denominatore)`, `main_map_index(misure)`, `fitting_extent(box, margin, minimum)`.
+
+### English
+
+Three distinct defects behind one complaint. The template's two scale bars are linked to **no map**, so the numeric one printed `1:1`; they are now linked to the main map. The sheet was framed on the **canvas** extent rather than the data's, so the drawing stayed small; it now uses the filtered views' extent. All maps were framed, including the overview inset, which exists to say where you are in the world; only the largest is touched now. The printed scale rounds up to the first real one in the series (1:20, not 1:18.6) with **no extra margin** — a 6% margin pushed 18.6 past 20 and jumped the series to 1:25, a smaller drawing for nothing (measured ink on the sheet: 22.85% exact, 13.26% with margin and rounding, 19.88% without margin and rounding). The frame is computed **once**, over all the site's units, and used for every sheet: an atlas must keep one scale across its plates, or the same unit changes size from page to page.
+
+---
+
 ## [fix] - 2026-10-09 — la tavola non esce più bianca, e le finestre non bloccano il designer — 5.13.49-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-map-extent-5.13.49-alpha`**. Tre guasti segnalati da Enzo provando le stampe, tutti e tre veri.
