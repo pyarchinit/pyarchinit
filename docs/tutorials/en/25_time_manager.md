@@ -267,3 +267,14 @@ In `resources/templates/` folder:
 Explore the interactive animation to learn more about this topic.
 
 [Open Interactive Animation](../../animations/pyarchinit_timemanager_animation.html)
+
+---
+
+## The matrix, from 5.13.44
+
+The Time Manager's matrix no longer goes through Graphviz. It is drawn by the same layout engine as the **See the matrix** panel, inside QGIS and with no subprocesses.
+
+- **It is immediate.** On the sample site (51 SU, 81 relations) the drawing costs a few milliseconds instead of roughly three tenths of a second, and the `dot` and `tred` processes that occasionally hung are gone. The site's periods are read **once**: before, they were re-read with one query per area and per period, on every click of the dial.
+- **In the atlas the matrix is vector.** The picture placed in the sheet is an SVG of a few tens of KB instead of a JPEG of megabytes: it stays readable at any scale and the sheet weighs less.
+- **It is the same matrix** as the Extended Matrix panel: same period bands, same symbology, same redundancy reduction. Arrows that **climb** the bands — where stratigraphy contradicts chronology — are drawn in **red**.
+- The matrix still holds only the SU visible at the dial's current position.

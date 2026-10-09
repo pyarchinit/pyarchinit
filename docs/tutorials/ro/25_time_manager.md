@@ -267,3 +267,14 @@ In folderul `resources/templates/`:
 Explorati animatia interactiva pentru a afla mai multe despre acest subiect.
 
 [Deschideti animatia interactiva](../../animations/pyarchinit_timemanager_animation.html)
+
+---
+
+## Matricea, de la 5.13.44
+
+Matricea din Time Manager nu mai trece prin Graphviz. O deseneaza acelasi motor de compozitie ca panoul **Vezi matricea**, in QGIS si fara subprocese.
+
+- **Este imediata.** Pe situl de exemplu (51 US, 81 relatii) desenul costa cateva milisecunde in loc de circa trei zecimi de secunda, iar procesele `dot` si `tred` care uneori ramaneau blocate au disparut. Perioadele sitului se citesc **o singura data**.
+- **In atlas matricea este vectoriala.** Imaginea din plansa este un SVG de cateva zeci de KB in loc de un JPEG de megabytes.
+- **Este aceeasi matrice** ca in panoul Extended Matrix: aceleasi benzi de perioada, aceeasi simbologie, aceeasi reducere a redundantelor. Sagetile care **urca** benzile — unde stratigrafia contrazice cronologia — sunt desenate cu **rosu**.
+- Matricea contine in continuare doar US vizibile la pozitia curenta a cadranului.

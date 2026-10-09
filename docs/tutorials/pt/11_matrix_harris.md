@@ -120,6 +120,7 @@ A partir do menu **pyArchInit → Extended Matrix → Vedi la matrice…** (Ver 
 - roda para o zoom, duplo clique para ver tudo de novo, clique sobre uma unidade para ler a sua ficha
 - sob a ficha, as **miniaturas dos media** ligados a essa UE
 - **Zoom sulla geometria** (zoom na geometria): enquadra no mapa a planta da unidade, se estiver desenhada numa camada carregada
+- uma seta que **sobe** as faixas e desenhada a **vermelho**: ali a estratigrafia contradiz a cronologia
 - **Salva SVG…** / **Salva PNG…** para levar o desenho para fora
 
 Nao e preciso EMStudio, nem um no StratiGraph, nem internet. Detalhes no Tutorial 01, secao «Ver a matriz dentro do QGIS».

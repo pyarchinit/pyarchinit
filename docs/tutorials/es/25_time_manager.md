@@ -267,3 +267,14 @@ En la carpeta `resources/templates/`:
 Explora la animación interactiva para aprender más sobre este tema.
 
 [Abrir Animación Interactiva](../../animations/pyarchinit_timemanager_animation.html)
+
+---
+
+## La matriz, desde la 5.13.44
+
+La matriz del Time Manager ya no pasa por Graphviz. La dibuja el mismo motor de composición del panel **Ver la matriz**, dentro de QGIS y sin subprocesos.
+
+- **Es inmediata.** En el sitio de ejemplo (51 UE, 81 relaciones) el dibujo cuesta unos milisegundos en lugar de unas tres décimas de segundo, y han desaparecido los procesos `dot` y `tred` que a veces se quedaban colgados. Los periodos del sitio se leen **una sola vez**: antes se releían con una consulta por cada área y por cada periodo, en cada clic del dial.
+- **En el atlas la matriz es vectorial.** La imagen de la lámina es un SVG de unas decenas de KB en lugar de un JPEG de megabytes.
+- **Es la misma matriz** del panel Extended Matrix: mismas bandas de periodo, misma simbología, misma reducción de redundancias. Las flechas que **suben** las bandas — donde la estratigrafía contradice la cronología — se dibujan en **rojo**.
+- La matriz sigue conteniendo solo las UE visibles en la posición actual del dial.

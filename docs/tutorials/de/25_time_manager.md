@@ -267,3 +267,14 @@ Im Ordner `resources/templates/`:
 Erkunden Sie die interaktive Animation, um mehr über dieses Thema zu erfahren.
 
 [Interaktive Animation öffnen](../../animations/pyarchinit_timemanager_animation.html)
+
+---
+
+## Die Matrix, ab 5.13.44
+
+Die Matrix des Time Managers geht nicht mehr über Graphviz. Sie wird von derselben Layout-Engine gezeichnet wie das Panel **Matrix ansehen**, innerhalb von QGIS und ohne Unterprozesse.
+
+- **Sie ist sofort da.** Auf der Beispielstätte (51 SE, 81 Beziehungen) kostet die Zeichnung wenige Millisekunden statt etwa drei Zehntelsekunden, und die gelegentlich hängenden Prozesse `dot` und `tred` sind weg. Die Perioden der Stätte werden **einmal** gelesen: vorher je einmal pro Areal und pro Periode, bei jedem Rasten des Drehreglers.
+- **Im Atlas ist die Matrix vektoriell.** Das Bild im Blatt ist ein SVG von einigen zehn KB statt eines JPEG von Megabytes.
+- **Es ist dieselbe Matrix** wie im Extended-Matrix-Panel: gleiche Periodenbänder, gleiche Symbologie, gleiche Redundanzreduktion. Pfeile, die die Bänder **hinaufsteigen** — wo Stratigraphie und Chronologie sich widersprechen — werden **rot** gezeichnet.
+- Die Matrix enthält weiterhin nur die an der aktuellen Reglerposition sichtbaren SE.

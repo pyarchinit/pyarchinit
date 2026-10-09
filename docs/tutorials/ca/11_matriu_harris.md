@@ -120,6 +120,7 @@ Des del menú **pyArchInit → Extended Matrix → Vedi la matrice…** (Veure l
 - roda per al zoom, doble clic per tornar a veure-ho tot, clic sobre una unitat per llegir-ne la fitxa
 - sota la fitxa, les **miniatures dels mitjans** vinculats a aquesta UE
 - **Zoom sulla geometria** (zoom a la geometria): enquadra al mapa la planta de la unitat, si està dibuixada en una capa carregada
+- una fletxa que **puja** les franges es dibuixa en **vermell**: allà l'estratigrafia contradiu la cronologia
 - **Salva SVG…** / **Salva PNG…** per endur-se el dibuix
 
 No cal EMStudio, ni un node StratiGraph, ni internet. Detalls al Tutorial 01, apartat «Veure la matriu dins el QGIS».

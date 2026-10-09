@@ -130,6 +130,7 @@ Dal menu **pyArchInit → Extended Matrix → Vedi la matrice…** la matrice di
 - rotella per lo zoom, doppio clic per rivedere tutto, clic su un'unità per leggerne la scheda
 - sotto la scheda, le **anteprime dei media** legati a quella US
 - **Zoom sulla geometria**: inquadra sulla mappa la pianta dell'unità, se è disegnata in un layer caricato
+- una freccia che **risale** le fasce è disegnata in **rosso**: lì la stratigrafia contraddice la cronologia (chi copre sta in un'epoca più antica di chi è coperto)
 - **Salva SVG…** / **Salva PNG…** per portare fuori il disegno
 
 Non serve EMStudio, non serve un nodo StratiGraph, non serve internet. Dettagli nel Tutorial 01, paragrafo «Vedere la matrice dentro QGIS».

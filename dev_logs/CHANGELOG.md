@@ -5,6 +5,42 @@
 
 ---
 
+## [feat] - 2026-10-09 — il Time Manager disegna la matrice senza Graphviz, e le frecce in salita sono rosse — 5.13.44-alpha
+
+> Branch `Stratigraph_00001`. Tag **`matrix-no-graphviz-5.13.44-alpha`**. Due richieste di Enzo, una nata da un vocale di Emanuel Demetrescu.
+
+### Italiano
+
+**Le frecce che risalgono le fasce sono rosse.** Convenzione dell'Extended Matrix, detta da Emanuel: «se ci sono frecce che puntano verso l'alto anziché verso il basso sono renderizzate in rosso, così uno vede immediatamente se ci sono errori». Succede quando la stratigrafia contraddice la cronologia — l'unità che copre sta in un'epoca più antica di quella che è coperta — e prima quella linea era grigia come tutte le altre.
+
+- `Edge.upward` lo dice: y cresce verso il basso e la fascia più recente sta in cima, quindi se la partenza è più in basso dell'arrivo la freccia risale. Una relazione simmetrica non ha verso e non è mai in salita; il rosso vince sul nero della continuità, che resta più spessa.
+- Il colore vive in una costante sola, `em_matrix_svg.ROSSO_SALITA`, che la vista Qt importa: quello che si vede a schermo e quello che esce nel file non possono divergere.
+
+**Il Time Manager non passa più da Graphviz.** Enzo: «genero e visualizzo il matrix delle US di quel periodo/fase e lo inserisco nell'atlante, ma uso graphviz e questo spesso blocca o impiega tempo, dato che ogni generazione deve fare una serie di processi».
+
+Misurato sul sito di esempio (51 US, 81 rapporti):
+
+| | tempo | risultato |
+|---|---|---|
+| `tred` + `dot -Tjpg` | ~300 ms, due sottoprocessi | JPEG da 2,6 MB |
+| impaginatore nostro | **~5 ms**, in processo | SVG da 29 KB |
+
+Ma il tempo non se ne andava solo in `dot`. `generate_matrix_3` faceva una query a `PERIODIZZAZIONE` e poi **una query US per ogni area e per ogni periodo**, dentro due cicli annidati, a **ogni** rigenerazione — e la matrice si rigenera a ogni scatto della manopola e a ogni pagina dell'atlante. Ora i periodi si leggono una volta sola e si tengono (`_periodi_del_sito`, `_PERIODI_CACHE`).
+
+- **`modules/utility/em_matrix_records.py`** (nuovo, puro — niente Qt, niente QGIS, niente s3dgraphy, niente database): `model_from_records` costruisce lo stesso `MatrixModel` del pannello a partire dalle righe della scheda invece che da un em.json, con il filtro sulle US visibili alla posizione corrente del cursore; `write_matrix_svg` arriva al file. Le voci dei rapporti si leggono dal vocabolario i18n del plugin **per indice**, non per gruppo, perché la posizione nella lista è il significato ed è la stessa in tutte le lingue. Le forme inverse («coperto da», «tagliato da», «gli si appoggia») girano la freccia, così nella matrice parte sempre da chi sta sopra.
+- **Due incroci sotto test**: `REL_INDEX_KIND` contro `_REL_INDEX_EDGE_TYPE` della libreria, e `LEGACY_UNITA_TIPO` contro `REPLACEMENTS` della migrazione USV. Una quarta copia che diverge disegnerebbe frecce al contrario senza dirlo.
+- **`tabs/Gis_Time_controller.py`**: la vista a schermo usa `MatrixView`, la stessa del pannello; l'atlante riceve un **SVG** e `FormatSVG` invece del JPEG, quindi nella tavola la matrice è vettoriale, si legge a ogni scala e la tavola pesa meno.
+
+Una matrice sola, disegnata in un modo solo, da qualunque parte arrivi: em.json, righe della scheda o Time Manager.
+
+### English
+
+**Arrows that climb the bands are red.** The Extended Matrix convention, from Emanuel Demetrescu: an arrow pointing up instead of down means stratigraphy contradicts chronology, and it must be visible without looking for it. `Edge.upward` carries it; the colour lives in one constant that the Qt view imports, so screen and file cannot diverge.
+
+**The Time Manager no longer goes through Graphviz.** Measured on the sample site: ~300 ms and a 2.6 MB JPEG from `tred`+`dot`, against ~5 ms and a 29 KB SVG in process. The bigger cost was elsewhere: `generate_matrix_3` ran one US query per area *and* per period, nested, on every regeneration — and the matrix regenerates on every click of the dial and every atlas page. Periods are now read once. New pure module `em_matrix_records` builds the same `MatrixModel` from sheet rows instead of an em.json, reading the relationship vocabulary by index (position is meaning, in every language) and turning the inverse forms around. Two cross-check tests pin its tables against the library and the USV migration. The atlas picture is now vector.
+
+---
+
 ## [fix] - 2026-10-08 — i luoghi non viaggiano come archi: la matrice di EMStudio si popola — 5.13.43-alpha
 
 > Branch `Stratigraph_00001`. Tag **`em-location-edges-5.13.43-alpha`**. Chiuso il problema aperto dal 2026-10-07, con Emanuel Demetrescu via vocale e per bisezione su cinque file aperti in EMStudio 1.6.0-dev.26.

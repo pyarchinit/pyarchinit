@@ -120,6 +120,7 @@ From the **pyArchInit → Extended Matrix → Vedi la matrice…** (See the matr
 - wheel to zoom, double click to see the whole of it again, click on a unit to read its record
 - under the record, the **thumbnails of the media** linked to that SU
 - **Zoom sulla geometria** (zoom to the geometry): frames the unit's plan on the map, if it is drawn in a loaded layer
+- an arrow that **climbs** the bands is drawn in **red**: there the stratigraphy contradicts the chronology (what covers sits in an older epoch than what is covered)
 - **Salva SVG…** / **Salva PNG…** to take the drawing out
 
 No EMStudio, no StratiGraph node, no internet. Details in Tutorial 01, section "Seeing the matrix inside QGIS".

@@ -120,6 +120,7 @@ Din meniul **pyArchInit → Extended Matrix → Vedi la matrice…** (Vezi matri
 - rotița pentru zoom, dublu clic pentru a revedea totul, clic pe o unitate pentru a-i citi fișa
 - sub fisa, **miniaturile media** legate de acea US
 - **Zoom sulla geometria** (zoom pe geometrie): incadreaza pe harta planul unitatii, daca este desenat intr-un strat incarcat
+- o sageata care **urca** benzile este desenata cu **rosu**: acolo stratigrafia contrazice cronologia
 - **Salva SVG…** / **Salva PNG…** pentru a duce desenul în afară
 
 Nu e nevoie de EMStudio, nici de un nod StratiGraph, nici de internet. Detalii în Tutorialul 01, paragraful „Vizualizarea matricei in QGIS".

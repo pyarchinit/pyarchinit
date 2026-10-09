@@ -267,3 +267,14 @@ A la carpeta `resources/templates/`:
 Explora l'animació interactiva per aprendre més sobre aquest tema.
 
 [Obre Animació Interactiva](../../animations/pyarchinit_timemanager_animation.html)
+
+---
+
+## La matriu, des de la 5.13.44
+
+La matriu del Time Manager ja no passa per Graphviz. La dibuixa el mateix motor de composició del plafó **Veure la matriu**, dins de QGIS i sense subprocessos.
+
+- **És immediata.** Al lloc d'exemple (51 UE, 81 relacions) el dibuix costa uns mil·lisegons en lloc d'unes tres dècimes de segon, i han desaparegut els processos `dot` i `tred` que de vegades es penjaven. Els períodes del lloc es llegeixen **una sola vegada**.
+- **A l'atles la matriu és vectorial.** La imatge de la làmina és un SVG de poques desenes de KB en lloc d'un JPEG de megabytes.
+- **És la mateixa matriu** del plafó Extended Matrix: mateixes franges de període, mateixa simbologia, mateixa reducció de redundàncies. Les fletxes que **pugen** les franges — on l'estratigrafia contradiu la cronologia — es dibuixen en **vermell**.
+- La matriu continua contenint només les UE visibles a la posició actual del dial.
