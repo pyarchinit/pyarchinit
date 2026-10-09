@@ -174,13 +174,31 @@ def add_items(layout, mancanti):
     return aggiunti
 
 
+def qgis_is_running() -> bool:
+    """Vero se c'è una ``QgsApplication`` viva.
+
+    Costruire un ``QgsPrintLayout`` senza di lei non dà un'eccezione: dà
+    un **segmentation fault**, e si porta via tutto il processo. Scoperto
+    perché la preparazione all'avvio gira anche da
+    ``install_dir()``, che i test chiamano senza QGIS (2026-10-09).
+    """
+    try:
+        from qgis.core import QgsApplication
+        return QgsApplication.instance() is not None
+    except Exception:                               # noqa: BLE001
+        return False
+
+
 def prepare_file(path, out_dir=None):
     """Scrive accanto all'originale un modello adatto all'atlante.
 
     Restituisce il percorso scritto, o ``None`` se non c'era niente da
-    aggiungere (o se il modello non ha una mappa).
+    aggiungere (o se il modello non ha una mappa, o se QGIS non è vivo).
     """
     from pathlib import Path
+
+    if not qgis_is_running():
+        return None
 
     from qgis.core import (QgsPrintLayout, QgsProject, QgsReadWriteContext)
     from qgis.PyQt.QtXml import QDomDocument
@@ -205,3 +223,56 @@ def prepare_file(path, out_dir=None):
     if not layout.saveAsTemplate(str(destinazione), QgsReadWriteContext()):
         return None
     return str(destinazione)
+
+
+def to_prepare(folder):
+    """I modelli della cartella che non hanno ancora la copia preparata.
+
+    Si guardano i nomi, non il contenuto: deve costare poco, perché gira
+    a ogni avvio. I template escono da ``profile.zip``, che si riestrae
+    quando la cartella manca — e allora le copie preparate se ne vanno
+    con lei. Così si rifanno da sole, ma solo quelle che mancano.
+    """
+    from pathlib import Path
+
+    cartella = Path(folder)
+    if not cartella.is_dir():
+        return []
+    da_fare = []
+    for percorso in sorted(cartella.glob("*.qpt")):
+        if PREPARED_SUFFIX in percorso.stem:
+            continue
+        if prepared_name(percorso).exists():
+            continue
+        # Leggere il testo costa poco, caricare un layout no: un modello
+        # già completo (o senza mappa) si scarta qui, se no a ogni avvio
+        # lo si aprirebbe per scoprire che non c'è niente da fare.
+        try:
+            testo = percorso.read_text(encoding="utf-8", errors="replace")
+        except Exception:                           # noqa: BLE001
+            continue
+        if not what_to_add(capabilities(testo)):
+            continue
+        da_fare.append(percorso)
+    return da_fare
+
+
+def ensure_prepared(folder, limit=None):
+    """Prepara i modelli che ne hanno bisogno. Restituisce quanti ne ha fatti.
+
+    Mai un'eccezione verso il chiamante: è roba che gira all'avvio del
+    plugin, e un modello storto non deve impedire a pyArchInit di
+    partire.
+    """
+    if not qgis_is_running():
+        return 0
+    fatti = 0
+    for percorso in to_prepare(folder):
+        if limit is not None and fatti >= limit:
+            break
+        try:
+            if prepare_file(percorso):
+                fatti += 1
+        except Exception:                           # noqa: BLE001
+            continue
+    return fatti

@@ -1225,6 +1225,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     multi_frame.loadHtml()
                     #break
 
+            # I modelli generici portano un segnaposto «{{title}}» nelle
+            # etichette, che PRINTMAP sostituisce già (PRINTMAP.py:252) e
+            # il Time Manager no: sulla tavola si leggeva «{{title}}»
+            # stampato così com'è (visto nelle prove del 2026-10-09).
+            for elemento in self.current_layout.items():
+                try:
+                    if elemento.type() == 65641 and '{{title}}' in elemento.text():
+                        elemento.setText(elemento.text().replace(
+                            '{{title}}', 'Tavola %s' % value))
+                except Exception:                   # noqa: BLE001
+                    continue
+
             self.id_us_dict = {}
 
             # Raccogli solo le US visibili nel layer corrente (order_layer <= value)

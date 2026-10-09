@@ -104,3 +104,19 @@ def test_the_dial_debounce_keeps_out_of_the_way_during_generation():
     # e la bandiera si abbassa su tutte le uscite
     corpo = _corpo("generate_images")
     assert corpo.count("self._atlante_in_corso = False") >= 2
+
+
+def test_the_title_placeholder_of_the_generic_templates_is_filled():
+    """I modelli generici portano «{{title}}» nelle etichette. PRINTMAP lo
+    sostituisce già (PRINTMAP.py:252), il Time Manager no: sulla tavola si
+    leggeva «{{title}}» stampato così com'è (visto nelle prove)."""
+    corpo = _corpo("generate_images")
+    assert "{{title}}" in corpo
+    assert "65641" in corpo          # il tipo dell'etichetta, come in PRINTMAP
+    assert "Tavola %s" in corpo
+
+
+def test_the_two_places_that_fill_a_title_agree_on_the_placeholder():
+    """Se un giorno il segnaposto cambia, deve cambiare in tutti e due."""
+    printmap = (_ROOT / "tabs" / "PRINTMAP.py").read_text(encoding="utf-8")
+    assert "{{title}}" in printmap

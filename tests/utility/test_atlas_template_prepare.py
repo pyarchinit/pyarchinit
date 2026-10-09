@@ -99,3 +99,82 @@ def test_the_original_is_never_overwritten():
                 / "prepare_atlas_templates.py").read_text(encoding="utf-8")
     assert "prepared_name(percorso).exists()" in sorgente
     assert "PREPARED_SUFFIX not in p.stem" in sorgente
+
+
+# ----- le copie preparate devono sopravvivere a una rigenerazione ----------
+
+def test_only_the_missing_ones_are_prepared(tmp_path):
+    """I template escono da profile.zip, che si riestrae quando la
+    cartella manca: le copie preparate sparirebbero. Si rifanno da sole,
+    ma solo quelle che mancano — rifarle tutte a ogni avvio sarebbe
+    lavoro inutile (Enzo, 2026-10-09)."""
+    from modules.utility.atlas_template import to_prepare
+
+    con_mappa = '<Layout><LayoutItem type="65639"/></Layout>'
+    (tmp_path / "A.qpt").write_text(con_mappa, encoding="utf-8")
+    (tmp_path / "B.qpt").write_text(con_mappa, encoding="utf-8")
+    (tmp_path / "B + Time Manager.qpt").write_text(con_mappa,
+                                                   encoding="utf-8")
+    da_fare = [p.name for p in to_prepare(tmp_path)]
+    assert da_fare == ["A.qpt"]
+
+
+def test_a_prepared_copy_is_never_prepared_again(tmp_path):
+    from modules.utility.atlas_template import to_prepare
+
+    (tmp_path / "A + Time Manager.qpt").write_text("<Layout/>",
+                                                   encoding="utf-8")
+    assert to_prepare(tmp_path) == []
+
+
+def test_a_folder_that_is_not_there_is_not_an_error(tmp_path):
+    from modules.utility.atlas_template import to_prepare
+
+    assert to_prepare(tmp_path / "non_esiste") == []
+
+
+def test_the_startup_prepares_the_templates_after_extracting_them():
+    """La preparazione deve stare DOPO l'estrazione di profile.zip, se no
+    lavorerebbe su una cartella che non c'è ancora."""
+    sorgente = (_ROOT / "modules" / "utility"
+                / "pyarchinit_folder_installation.py").read_text(
+                    encoding="utf-8")
+    assert "ensure_prepared" in sorgente
+    assert sorgente.index("profile.zip") < sorgente.index("ensure_prepared")
+
+
+def test_a_template_that_needs_nothing_is_not_opened_at_every_start(tmp_path):
+    """Leggere il testo costa poco, caricare un layout no: un modello già
+    completo o senza mappa non deve nemmeno entrare nell'elenco."""
+    from modules.utility.atlas_template import to_prepare
+
+    completo = ('<Layout><LayoutItem type="65639"/>'
+                '<LayoutItem id="123"/><LayoutItem id="matrix"/></Layout>')
+    (tmp_path / "completo.qpt").write_text(completo, encoding="utf-8")
+    (tmp_path / "senza_mappa.qpt").write_text("<Layout/>", encoding="utf-8")
+    assert to_prepare(tmp_path) == []
+
+
+def test_preparing_without_a_running_qgis_does_nothing_instead_of_crashing(
+        tmp_path, monkeypatch):
+    """Costruire un QgsPrintLayout senza QgsApplication non dà
+    un'eccezione: dà un **segmentation fault**, e si porta via tutto il
+    processo. La preparazione gira all'avvio, anche da `install_dir()`,
+    che i test chiamano senza QGIS: lì deve semplicemente non fare
+    niente."""
+    from modules.utility import atlas_template
+
+    con_mappa = '<Layout><LayoutItem type="65639"/></Layout>'
+    (tmp_path / "A.qpt").write_text(con_mappa, encoding="utf-8")
+
+    monkeypatch.setattr(atlas_template, "qgis_is_running", lambda: False)
+    assert atlas_template.ensure_prepared(tmp_path) == 0
+    assert atlas_template.prepare_file(tmp_path / "A.qpt") is None
+    assert not list(tmp_path.glob("*Time Manager*"))
+
+
+def test_the_startup_path_is_guarded():
+    sorgente = (_ROOT / "modules" / "utility"
+                / "atlas_template.py").read_text(encoding="utf-8")
+    inizio = sorgente.index("def ensure_prepared")
+    assert "qgis_is_running()" in sorgente[inizio:inizio + 400]

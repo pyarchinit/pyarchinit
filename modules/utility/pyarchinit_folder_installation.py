@@ -188,6 +188,20 @@ class pyarchinit_Folder_installation(object):
         template_dir = os.path.dirname(template_dst)
         if os.path.exists(template_dir):
             self._safe_copy(template_src, template_dst, 'layout_TimeManager.qpt')
+            # I modelli generici non hanno il titolo «Tavola N» né
+            # l'immagine della matrice, quindi l'atlante del Time Manager
+            # esce spoglio. Qui, DOPO l'estrazione di profile.zip, si
+            # scrive accanto a ciascuno la copia preparata — e siccome lo
+            # zip si riestrae quando la cartella manca, le copie si
+            # rifanno da sole invece di sparire per sempre.
+            try:
+                from .atlas_template import ensure_prepared
+                fatti = ensure_prepared(template_dir)
+                if fatti:
+                    print("pyArchInit: %d modelli preparati per l'atlante "
+                          "del Time Manager" % fatti)
+            except Exception as e:                  # noqa: BLE001
+                print("pyArchInit: modelli non preparati (%s)" % e)
 
     def install_or_update_maintenance_files(self):
         """Refresh bundled maintenance files in ~/pyarchinit/bin/ when the
