@@ -98,7 +98,7 @@ def _corpo(nome: str) -> str:
 
 def test_the_sheet_labels_the_units_and_the_elevations():
     corpo = _corpo("_metti_le_etichette")
-    assert "us_labeling(campi, labelled_ids(layer))" in corpo
+    assert "us_labeling(campi)" in corpo
     assert "quota_labeling(campi)" in corpo
     assert "PolygonGeometry" in corpo and "PointGeometry" in corpo
 
@@ -189,3 +189,19 @@ def test_the_callout_line_only_shows_when_the_label_really_moved():
     from modules.utility.atlas_labels import CALLOUT_MIN_MM
 
     assert CALLOUT_MIN_MM > 0
+
+
+def test_the_visible_set_is_recomputed_for_every_sheet():
+    """Due ragioni, misurate tutte e due: quali US siano coperte dipende
+    dal livello (1 etichetta su tutto il sito, 19 al livello 12), e gli
+    **id delle feature cambiano quando cambia il filtro** — fra i due
+    calcoli non ce n'era nemmeno uno in comune, ed è per questo che i
+    numeri non comparivano affatto."""
+    src = TM.read_text(encoding="utf-8")
+    assert "def _aggiorna_etichette_us" in src
+    assert "labelled_ids(layer)" in _corpo("_aggiorna_etichette_us")
+    # e si chiama DOPO che il filtro del livello è stato applicato
+    generazione = _corpo("generate_images")
+    assert "self._aggiorna_etichette_us()" in generazione
+    assert generazione.index("self.define_order_layer_value(value)") < \
+        generazione.index("self._aggiorna_etichette_us()")

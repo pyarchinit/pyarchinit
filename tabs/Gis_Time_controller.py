@@ -1174,10 +1174,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 campi = [f.name() for f in layer.fields()]
                 tipo = layer.geometryType()
                 if tipo == QgsWkbTypes.GeometryType.PolygonGeometry:
-                    # un'etichetta per unità, e solo per quelle che si
-                    # vedono: il conto si fa qui, una volta, con
-                    # l'indice spaziale.
-                    nuove = us_labeling(campi, labelled_ids(layer))
+                    # Senza elenco: quali US si vedono dipende dal livello
+                    # e si ricalcola per ogni tavola, in
+                    # `_aggiorna_etichette_us`.
+                    nuove = us_labeling(campi)
                 elif tipo == QgsWkbTypes.GeometryType.PointGeometry:
                     nuove = quota_labeling(campi)
                 else:
@@ -1192,6 +1192,33 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 QgsMessageLog.logMessage(
                     "Etichette non applicate a %s: %s" % (layer.name(), e),
                     "PyArchInit", Qgis.MessageLevel.Warning)
+
+    def _aggiorna_etichette_us(self):
+        """Ricalcola, per QUESTA tavola, quali unità prendono il numero.
+
+        Va rifatto a ogni livello per due motivi, tutti e due misurati:
+        quali US siano coperte dipende dal livello (1 etichetta su tutto
+        il sito, 19 al livello 12), e **gli id delle feature cambiano
+        quando cambia il filtro** — fra i due calcoli non ce n'era
+        nemmeno uno in comune, ed è per questo che i numeri non
+        comparivano affatto (Enzo, 2026-10-09).
+        """
+        from qgis.core import QgsWkbTypes
+
+        for layer in (self.selected_layers or []):
+            try:
+                if layer.geometryType() != QgsWkbTypes.GeometryType.PolygonGeometry:
+                    continue
+                campi = [f.name() for f in layer.fields()]
+                nuove = us_labeling(campi, labelled_ids(layer))
+                if nuove is not None:
+                    layer.setLabeling(nuove)
+                    layer.setLabelsEnabled(True)
+            except Exception as e:                  # noqa: BLE001
+                QgsMessageLog.logMessage(
+                    "Etichette US non aggiornate per %s: %s"
+                    % (layer.name(), e), "PyArchInit",
+                    Qgis.MessageLevel.Warning)
 
     def _togli_le_etichette(self):
         """Rimette le etichette com'erano prima della generazione."""
@@ -1563,6 +1590,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                             '{{title}}', 'Tavola %s' % value))
                 except Exception:                   # noqa: BLE001
                     continue
+
+            # Il filtro del livello è applicato: adesso si sa quali US
+            # si vedono, e gli id sono quelli di questa tavola.
+            self._aggiorna_etichette_us()
 
             self.id_us_dict = {}
 
