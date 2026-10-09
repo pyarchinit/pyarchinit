@@ -5,6 +5,27 @@
 
 ---
 
+## [feat] - 2026-10-09 — l'inserto della tavola dice dove si è nel mondo — 5.13.51-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-overview-5.13.51-alpha`**. «L'overview, nel caso di uno scavo, come base map deve avere un OpenStreetMap o satellite con il solo puntino della localizzazione» (Enzo).
+
+### Italiano
+
+L'inserto non serve a ripetere lo scavo — quello c'è già, grande, accanto — ma a dire in che parte del mondo quello scavo sta. Seguendo i layer del progetto mostrava le stesse US in piccolo, e non diceva niente che non ci fosse già.
+
+- **`modules/utility/atlas_overview.py`** (nuovo, puro): `overview_indexes(misure, principale)` — tutte le mappe tranne la grande; `base_map_uri(kind)` / `base_map_name(kind)` — sorgenti XYZ, **OpenStreetMap** o **satellite** (Esri World Imagery), con l'URL codificato perché le graffe di `{z}/{x}/{y}` non spezzino l'uri; `overview_window(punto, half_width)` — cento chilometri per lato, perché un inserto da cento metri non dice dove sei, dice solo che sei lì.
+- Nel generatore: l'inserto passa a **EPSG:3857** (le tessere stanno in Web Mercator), tiene il proprio elenco di layer (`setKeepLayerSet(True)`) e mostra un solo punto rosso sul sito, sopra lo sfondo. Gli strati aggiunti stanno **fuori dalla legenda** e si tolgono a fine generazione: sono roba della tavola, non del progetto di chi sta scavando.
+- Lo sfondo si sceglie da impostazione — `pyarchinit/atlas_basemap`, `"osm"` o `"satellite"` — senza toccare il codice.
+- **Se la rete non c'è**, il layer non è valido e l'inserto mostra il solo puntino. In scavo capita, e non è un errore.
+
+**Quello che è verificato e quello che no.** Il puntino cade a **12,5642 E 44,0647 N** — Rimini, che è dove la `site_table` dice che sta il sito di esempio — e il layer delle tessere risulta valido, con 18 KB scaricati dalla rete senza errori attraverso lo stack di QGIS. **Non** è verificato il disegno delle tessere dentro la tavola: in ambiente headless il provider XYZ non rende, nemmeno pompando l'event loop e nemmeno al secondo giro. È quasi certamente un limite del rendering senza interfaccia, ma va guardato in QGIS vero prima di darlo per fatto.
+
+### English
+
+The overview inset exists to say where in the world the dig is, not to repeat the dig. New pure module `atlas_overview` provides `overview_indexes` (every map but the largest), `base_map_uri`/`base_map_name` (XYZ sources: OpenStreetMap or Esri satellite, URL-encoded) and `overview_window` (100 km across — a hundred-metre inset says only that you are there). The inset switches to EPSG:3857, keeps its own layer set and shows a single red dot over the base map; the extra layers stay out of the legend and are removed when the generation ends. The base map is chosen by the `pyarchinit/atlas_basemap` setting. Without a network the layer is invalid and the dot alone is drawn — on a dig that happens, and it is not an error. Verified: the dot lands at 12.5642E 44.0647N (Rimini, where the sample site's `site_table` puts it) and the tile layer is valid with 18 KB fetched through QGIS's network stack. **Not** verified: the tiles actually drawing inside the sheet — headless the XYZ provider renders blank even with the event loop pumped. To be checked in real QGIS.
+
+---
+
 ## [fix] - 2026-10-09 — la tavola si riempie e la scala è una scala vera — 5.13.50-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-scale-5.13.50-alpha`**. «Non credo la scala sia giusta: il disegno dovrebbe riempire la pagina, scalarsi in automatico, e la scala deve essere corretta» (Enzo).
