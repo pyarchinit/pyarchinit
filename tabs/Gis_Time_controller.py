@@ -305,6 +305,49 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
 
 
+    #: I periodi di un sito, letti una volta sola. La via vecchia ne
+    #: faceva una query per ogni area e per ogni periodo, dentro due
+    #: cicli annidati, a OGNI rigenerazione della matrice — e la matrice
+    #: si rigenera a ogni scatto della manopola e a ogni pagina
+    #: dell'atlante.
+    _PERIODI_CACHE = {}
+
+    def _periodi_del_sito(self, sito):
+        """``(periodo, fase, datazione_estesa, cron_iniziale, cron_finale)``."""
+        chiave = str(sito or "")
+        if chiave in self._PERIODI_CACHE:
+            return self._PERIODI_CACHE[chiave]
+        righe = []
+        try:
+            for a in self.DB_MANAGER.query_bool(
+                    {'sito': "'" + chiave + "'"}, 'PERIODIZZAZIONE'):
+                righe.append((a.periodo, a.fase, a.datazione_estesa,
+                              a.cron_iniziale, a.cron_finale))
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Periodizzazione non letta per %r: %s" % (chiave, e),
+                "PyArchInit", Qgis.MessageLevel.Warning)
+        self._PERIODI_CACHE[chiave] = righe
+        return righe
+
+    def _disegna_matrice(self, data_list, visible_us_list, destinazione):
+        """La matrice delle US visibili, in SVG. ``(percorso, modello)``.
+
+        Al posto di Graphviz: nessun sottoprocesso ``tred``/``dot``,
+        nessun JPEG di megabyte riletto da disco. Stesso impaginatore e
+        stesso writer del pannello della matrice, quindi quello che si
+        vede qui e quello che si vede là non divergono.
+        """
+        from ..modules.utility.em_matrix_records import write_matrix_svg
+
+        if not data_list:
+            return None, None
+        sito = str((data_list[0] or {}).get('sito') or '')
+        visibili = {(str(a), str(u)) for a, u in (visible_us_list or ())} or None
+        return write_matrix_svg(
+            data_list, self._periodi_del_sito(sito), destinazione,
+            visible=visibili, title=sito)
+
     def update_graphics_view(self):
         if self.checkBox_matrix.isChecked():
             try:
@@ -343,29 +386,27 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                             else:
                                 self.id_us_dict[feature_order_layer] = [datazione]
 
-                if data_list:  # Genera matrice solo se ci sono dati
-                    dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
-                    dlg.visible_us_list = visible_us_list  # Passa la lista delle US visibili
-                    dlg.generate_matrix_3()
-                HOME = os.environ['PYARCHINIT_HOME']
-                path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/", 'Harris_matrix_viewtred.dot.jpg')
-                if path:
-                    # Rimuovi la graphicsView esistente dal layout
+                if data_list:
+                    # La matrice si disegna in casa: l'impaginatore puro
+                    # ci mette millisecondi, dove tred+dot costavano due
+                    # sottoprocessi e un JPEG da rileggere da disco.
+                    from ..modules.utility.em_matrix_layout import layout
+                    from ..modules.utility.em_matrix_records import (
+                        model_from_records)
+                    from ..modules.utility.em_matrix_view import MatrixView
+
+                    sito = str((data_list[0] or {}).get('sito') or '')
+                    visibili = {(str(a), str(u))
+                                for a, u in (visible_us_list or ())} or None
+                    modello = model_from_records(
+                        data_list, self._periodi_del_sito(sito),
+                        visible=visibili, title=sito)
+
                     self.horizontalLayout_2.removeWidget(self.graphicsView)
-
-                    # Crea una nuova ZoomableGraphicsView
-                    self.graphicsView = ZoomableGraphicsView()
-
-                    # Aggiungi la ZoomableGraphicsView al layout
+                    self.graphicsView = MatrixView()
                     self.horizontalLayout_2.addWidget(self.graphicsView)
-
-                    # Procedi come prima
-                    pixmap = QPixmap(path)
-                    scene = QGraphicsScene()
-                    scene.addPixmap(pixmap)
-                    self.graphicsView.setScene(scene)
+                    self.graphicsView.show_layout(layout(modello))
                     self.graphicsView.setFocus()
-                    self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
 
 
 
@@ -1089,19 +1130,22 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # controllo se il checkbox 'matrix' è attivo
             if bool(self.checkBox_matrix.isChecked()) and data_list:
                 # Passa solo i dati delle US visibili alla generazione della matrice
-                dlg = pyarchinit_view_Matrix_pre(self.iface, data_list, self.id_us_dict)
-                dlg.visible_us_list = visible_us_list  # Passa la lista delle US visibili
-                dlg.generate_matrix_3()
                 HOME = os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~'))
-                matrix_image = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",
-                                                 "Harris_matrix_viewtred.dot.jpg")  # path dell'immagine della matrice
+                cartella = '{}{}{}'.format(HOME, os.sep,
+                                           "pyarchinit_Matrix_folder")
+                os.makedirs(cartella, exist_ok=True)
+                # Un SVG: nella tavola è vettoriale e pesa qualche decina
+                # di KB invece dei megabyte del JPEG di Graphviz.
+                matrix_image, _modello = self._disegna_matrice(
+                    data_list, visible_us_list,
+                    os.path.join(cartella, "Harris_matrix_timemanager.svg"))
 
                 if matrix_image:
                     # Impostare l'immagine della matrice sull'elemento immagine
                     if isinstance(image_item, QgsLayoutItemPicture):
 
                         image_item.setPicturePath(matrix_image)
-                        image_item.setMode(QgsLayoutItemPicture.FormatRaster)
+                        image_item.setMode(QgsLayoutItemPicture.FormatSVG)
 
 
 
