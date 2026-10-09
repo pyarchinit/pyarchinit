@@ -5,6 +5,42 @@
 
 ---
 
+## [fix] - 2026-10-09 — il generatore dell'atlante non torna più indietro in silenzio — 5.13.46-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-template-guard-5.13.46-alpha`**. «Il generatore a volte parte a volte no, i layout sono vuoti» (Enzo).
+
+### Italiano
+
+**La causa.** Il selettore dei modelli elenca **tutti** i `.qpt` che trova in tre cartelle, compresi i venticinque modelli adArte/pyarchinit in `~/pyarchinit_5/bin/profile/template/`. Ma il generatore pretende due elementi che **solo il modello del Time Manager possiede**: il titolo HTML (`id="123"`) e l'immagine della matrice (`id="matrix"`). Scegliendone un altro:
+
+```python
+if html_item is None:
+    print("Couldn't find HTML item")
+    return
+```
+
+Una riga sulla console e via: nessun messaggio, nessuna tavola, e la barra di avanzamento lasciata sullo schermo perché ha `setAutoClose(False)`. Da fuori è esattamente «a volte parte, a volte no» — dipendeva da quale modello si era scelto. Misurato: **0 su 25** dei modelli generici ha quegli id.
+
+**Le correzioni.**
+
+- **`modules/utility/atlas_template.py`** (nuovo, puro): `capabilities(xml)` legge dal file che cosa un modello sa fare, `is_usable` dice se basta per una tavola — serve la mappa, e basta — e `describe_missing` lo dice in italiano o in inglese. Si legge il testo e non si carica il layout: la finestra di scelta deve poter marcare venticinque file senza aprirne nessuno.
+- Il modello si controlla **prima** di cominciare: senza mappa ci si ferma con un avviso, senza titolo o senza matrice si chiede se procedere lo stesso.
+- Titolo e immagine mancanti **non abortiscono più**: quella parte si salta, e lo si dice una volta nel log invece di una volta per tavola.
+- `[i for i in ... if isinstance(i, QgsLayoutItemMap)][0]` era un `IndexError` in mezzo al ciclo su un modello senza mappa: ora è una frase.
+- `max_num_id` può tornare `None`, e `None + 1` fermava tutto prima di partire.
+- La **barra di avanzamento si chiude su ogni uscita**: restava aperta e faceva sembrare che la generazione fosse in corso.
+- L'esito di `exportToImage` non si butta più via: le tavole non scritte (cartella non scrivibile, per esempio) finiscono nel riepilogo invece di mancare in silenzio.
+- Il **selettore marca i modelli**: ✓ titolo e matrice, • solo mappa, ✗ senza mappa — e parte selezionando uno completo.
+- Durante la generazione il **timer di debounce si fa da parte**: il generatore muove lui lo spinbox, e il timer rifaceva filtro e matrice in mezzo al ciclo.
+
+Verificato con QGIS avviato davvero su tutti e due i modelli: con quello del Time Manager la tavola esce col titolo «Tavola 24» e la matrice al suo posto (2,6 MB); con uno generico esce lo stesso, più spoglia (245 KB) — dove prima non usciva niente.
+
+### English
+
+**The cause**: the template chooser lists every `.qpt` on disk, but the generator requires two items only the Time Manager template has — the HTML title (`id="123"`) and the matrix picture (`id="matrix"`). Picking any other printed one line to the console and returned: no message, no sheet, and the progress bar left on screen because of `setAutoClose(False)`. Measured: 0 of the 25 generic templates carry those ids. New pure module `atlas_template` reads from the file what a template can do; the template is now checked before the work starts, missing title or picture are skipped instead of aborting, the map item is guarded against `IndexError`, a `None` max order_layer is a message rather than a `TypeError`, the progress bar closes on every way out, failed exports are reported, the chooser marks each template (✓ / • / ✗), and the debounce timer stands aside during generation. Verified against real QGIS with both templates.
+
+---
+
 ## [fix] - 2026-10-09 — l'atlante ritrova le frecce, la periodizzazione la voce, la matrice la manopola — 5.13.45-alpha
 
 > Branch `Stratigraph_00001`. Tag **`matrix-atlas-fixes-5.13.45-alpha`**. Quattro guasti segnalati da Enzo provando la 5.13.44, due dei quali nati con lei.

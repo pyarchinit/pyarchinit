@@ -280,3 +280,5 @@ Die Matrix des Time Managers geht nicht mehr über Graphviz. Sie wird von dersel
 - Die Matrix enthält weiterhin nur die an der aktuellen Reglerposition sichtbaren SE.
 
 - Einheiten, die an der aktuellen Position **nicht sichtbar** sind, aber von einer Beziehung genannt werden, erscheinen dennoch in der Zeichnung, **blass**: ohne sie wirkte die Abfolge zerrissen, wie die anderen gezeichnet wirkten sie wie auf der Karte.
+
+> **Welche Vorlage.** In der Auswahl ist jede Vorlage markiert: **✓** hat Titel und Matrixbild (die des Time Managers), **•** nur die Karte — die Blätter entstehen, nur schlichter — **✗** hat keine Karte. Früher führte eine Vorlage ohne diese Elemente dazu, dass der Generator wortlos zurückkehrte.

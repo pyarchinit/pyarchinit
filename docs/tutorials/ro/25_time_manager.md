@@ -280,3 +280,5 @@ Matricea din Time Manager nu mai trece prin Graphviz. O deseneaza acelasi motor 
 - Matricea contine in continuare doar US vizibile la pozitia curenta a cadranului.
 
 - US care **nu sunt vizibile** la pozitia curenta dar pe care o relatie le citeaza intra totusi in desen, **estompate**: fara ele secventa ar parea rupta.
+
+> **Ce sablon sa alegi.** In selector fiecare sablon este marcat: **✓** are titlul si imaginea matricei, **•** doar harta, **✗** nu are harta. Inainte, alegerea unuia fara acele elemente facea generatorul sa se intoarca fara un cuvant.

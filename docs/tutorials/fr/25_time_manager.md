@@ -281,3 +281,5 @@ La matrice du Time Manager ne passe plus par Graphviz. Elle est dessinée par le
 - La matrice ne contient toujours que les US visibles à la position courante de la molette.
 
 - Les US **non visibles** à la position courante mais citées par une relation entrent tout de même dans le dessin, **estompées** : sans elles la séquence semblerait brisée, et dessinées comme les autres elles sembleraient sur la carte.
+
+> **Quel modèle choisir.** Dans le sélecteur chaque modèle est marqué : **✓** possède le titre et l'image de la matrice (celui du Time Manager), **•** seulement la carte — les planches sortent, plus dépouillées — **✗** n'a pas de carte. Auparavant, en choisir un sans ces éléments faisait revenir le générateur sans un mot.

@@ -280,3 +280,5 @@ A matriz do Time Manager ja nao passa pelo Graphviz. E desenhada pelo mesmo moto
 - A matriz continua a conter apenas as UE visiveis na posicao atual do seletor.
 
 - As UE que **nao estao visiveis** na posicao atual mas que uma relacao menciona entram na mesma no desenho, **esbatidas**: sem elas a sequencia pareceria quebrada.
+
+> **Que modelo escolher.** No seletor cada modelo esta marcado: **✓** tem o titulo e a imagem da matriz, **•** so o mapa, **✗** nao tem mapa. Antes escolher um sem esses elementos fazia o gerador voltar atras sem dizer nada.

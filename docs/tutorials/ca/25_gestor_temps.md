@@ -280,3 +280,5 @@ La matriu del Time Manager ja no passa per Graphviz. La dibuixa el mateix motor 
 - La matriu continua contenint només les UE visibles a la posició actual del dial.
 
 - Les UE que **no són visibles** a la posició actual però que una relació esmenta entren igualment al dibuix, **atenuades**: sense elles la seqüència semblaria trencada.
+
+> **Quina plantilla triar.** Al selector cada plantilla està marcada: **✓** té el títol i la imatge de la matriu, **•** només el mapa, **✗** no té mapa. Abans triar-ne una sense aquests elements feia tornar enrere el generador sense dir res.

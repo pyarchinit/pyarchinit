@@ -280,3 +280,5 @@ The Time Manager's matrix no longer goes through Graphviz. It is drawn by the sa
 - The matrix still holds only the SU visible at the dial's current position.
 
 - Units that are **not visible** at the current position but are cited by a relationship still enter the drawing, **faded**: without them the sequence would look broken, and drawn like the others they would look as if they were on the map.
+
+> **Which template to pick.** In the chooser each template is marked: **✓** has the «Tavola N» title and the matrix picture (that is the Time Manager one, `layout_TimeManager`), **•** has only the map — sheets come out plainer but they come out — **✗** has no map and cannot be used. Picking one without those two items used to make the generator return without a word, and no sheet appeared.

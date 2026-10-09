@@ -280,3 +280,5 @@ La matriz del Time Manager ya no pasa por Graphviz. La dibuja el mismo motor de 
 - La matriz sigue conteniendo solo las UE visibles en la posición actual del dial.
 
 - Las UE que **no son visibles** en la posición actual pero que una relación menciona entran igualmente en el dibujo, **atenuadas**: sin ellas la secuencia parecería rota, y dibujadas como las demás parecerían estar en el mapa.
+
+> **Qué plantilla elegir.** En el selector cada plantilla está marcada: **✓** tiene el título y la imagen de la matriz (la del Time Manager), **•** solo el mapa — las láminas salen más sobrias pero salen — **✗** no tiene mapa. Antes elegir una sin esos elementos hacía que el generador volviera atrás sin decir nada.

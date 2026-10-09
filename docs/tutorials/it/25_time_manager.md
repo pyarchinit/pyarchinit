@@ -282,3 +282,5 @@ Cosa cambia per chi lo usa:
 - La matrice contiene solo le US visibili alla posizione corrente del cursore, come prima.
 
 - Le US che **non sono visibili** alla posizione corrente ma che un rapporto cita entrano comunque nel disegno, **sbiadite**: senza di loro la sequenza sembrerebbe spezzata, e disegnate come le altre sembrerebbero sulla mappa.
+
+> **Quale template scegliere.** Nella finestra di scelta i modelli sono marcati: **✓** ha il titolo «Tavola N» e l'immagine della matrice (è quello del Time Manager, `layout_TimeManager`), **•** ha solo la mappa — le tavole escono più spoglie ma escono — **✗** non ha nemmeno la mappa e non si può usare. Prima sceglierne uno senza i due elementi faceva tornare indietro il generatore senza dire niente, e le tavole non si vedevano.
