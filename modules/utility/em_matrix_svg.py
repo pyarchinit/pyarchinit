@@ -120,6 +120,14 @@ def _band_svg(band: Band, larghezza: float, config_margin: float = 24.0) -> str:
     return "".join(pezzi)
 
 
+#: Il rosso di una freccia che risale le fasce. Non è decorazione: dice
+#: che la stratigrafia e la cronologia si contraddicono — chi copre sta
+#: in un'epoca più antica di chi è coperto — ed è l'errore che
+#: l'archeologo deve vedere senza cercarlo. Convenzione dell'Extended
+#: Matrix (E. Demetrescu, 2026-10-09).
+ROSSO_SALITA = "#C0392B"
+
+
 #: La punta della freccia. Senza, il verso del rapporto lo direbbe solo
 #: la posizione verticale — che però la decide la fascia dell'epoca, non
 #: la stratigrafia: dove le due si contraddicono non si capirebbe più
@@ -132,7 +140,10 @@ _MARKERS = (
     '<marker id="freccia-continuita" viewBox="0 0 8 8" refX="7" refY="4" '
     'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
     '<path d="M0,0 L8,4 L0,8 z" fill="#1A1A1A"/></marker>'
-    '</defs>')
+    '<marker id="freccia-salita" viewBox="0 0 8 8" refX="7" refY="4" '
+    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
+    '<path d="M0,0 L8,4 L0,8 z" fill="%s"/></marker>'
+    '</defs>') % ROSSO_SALITA
 
 
 def _edge_svg(edge: Edge) -> str:
@@ -142,6 +153,15 @@ def _edge_svg(edge: Edge) -> str:
     per quanto a lungo una unità sopravvive — dal suo periodo fino alla
     fascia dove sta il nodo — e non che una sta sopra l'altra.
     """
+    if edge.upward:
+        # Il rosso vince sul resto: un legame di continuità che risale è
+        # comunque una contraddizione da vedere, e lo spessore lo tiene
+        # distinto dagli altri rapporti.
+        return ('<polyline class="edge salita" points="%s" fill="none" '
+                'stroke="%s" stroke-width="%.1f" '
+                'marker-end="url(#freccia-salita)"/>'
+                % (_points(edge.points), ROSSO_SALITA,
+                   2.2 if edge.continuity else 1.6))
     if edge.continuity:
         return ('<polyline class="edge continuity" points="%s" fill="none" '
                 'stroke="#1A1A1A" stroke-width="2.2" '

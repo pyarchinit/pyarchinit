@@ -422,3 +422,65 @@ def test_a_chain_stays_in_one_column():
                    for n in range(1, 4)])
     lay = layout(model)
     assert len({round(b.x) for b in lay.boxes}) == 1
+
+
+# --------- il rapporto che punta all'insù è un errore da vedere subito -------
+
+def _due_epoche():
+    """Due fasce: la più recente in cima, come nella matrice."""
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    return MatrixModel, Relation, Unit, Epoch
+
+
+def test_a_relation_that_points_upwards_is_marked():
+    """Convenzione dell'Extended Matrix (Emanuel Demetrescu, 2026-10-09):
+    «se ci sono frecce che puntano verso l'alto anziché verso il basso sono
+    renderizzate in rosso, così uno vede immediatamente se ci sono errori».
+
+    Succede quando la stratigrafia contraddice le epoche: l'unità che
+    copre sta in una fascia più antica di quella che è coperta."""
+    from modules.utility.em_matrix_model import (Epoch, MatrixModel,
+                                                 Relation, Unit)
+    from modules.utility.em_matrix_layout import layout
+
+    model = MatrixModel(
+        units=[Unit("antica", "US9", "US", "vecchia"),
+               Unit("recente", "US1", "US", "nuova")],
+        epochs=[Epoch("nuova", "Età moderna", 1600, 1799),
+                Epoch("vecchia", "XV secolo", 1451, 1499)],
+        # l'antica copre la recente: la freccia deve risalire le fasce
+        relations=[Relation("antica", "recente", "overlies")])
+    lay = layout(model)
+    assert len(lay.edges) == 1
+    assert lay.edges[0].upward is True
+
+
+def test_a_relation_that_goes_down_the_bands_is_not_marked():
+    from modules.utility.em_matrix_model import (Epoch, MatrixModel,
+                                                 Relation, Unit)
+    from modules.utility.em_matrix_layout import layout
+
+    model = MatrixModel(
+        units=[Unit("antica", "US9", "US", "vecchia"),
+               Unit("recente", "US1", "US", "nuova")],
+        epochs=[Epoch("nuova", "Età moderna", 1600, 1799),
+                Epoch("vecchia", "XV secolo", 1451, 1499)],
+        relations=[Relation("recente", "antica", "overlies")])
+    lay = layout(model)
+    assert len(lay.edges) == 1
+    assert lay.edges[0].upward is False
+
+
+def test_an_equality_is_never_an_upward_arrow():
+    """«Uguale a» si disegna orizzontale e senza punta: non ha un verso,
+    quindi non può puntare né in su né in giù."""
+    from modules.utility.em_matrix_model import (Epoch, MatrixModel,
+                                                 Relation, Unit)
+    from modules.utility.em_matrix_layout import layout
+
+    model = MatrixModel(
+        units=[Unit("a", "US1", "US", "e"), Unit("b", "US2", "US", "e")],
+        epochs=[Epoch("e", "XV secolo", 1451, 1499)],
+        relations=[Relation("a", "b", "equals")])
+    lay = layout(model)
+    assert lay.edges and all(not e.upward for e in lay.edges)

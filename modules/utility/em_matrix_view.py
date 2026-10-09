@@ -31,7 +31,8 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from .em_matrix_layout import Box, Layout
-from .em_matrix_svg import _polygon, _readable_on, _short, write_svg
+from .em_matrix_svg import (ROSSO_SALITA, _polygon, _readable_on,
+                            _short, write_svg)
 
 #: Il dato in cui vive l'id del nodo sull'elemento grafico.
 NODE_ID_ROLE = 0
@@ -149,9 +150,14 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
                 percorso.lineTo(QPointF(x, y))
         linea = QGraphicsPathItem(percorso)
         # Il legame di continuità più marcato: racconta una durata, non
-        # una sovrapposizione.
-        penna = QPen(QColor("#1A1A1A" if edge.continuity else "#6B7684"))
-        penna.setWidthF(2.2 if edge.continuity else 1.4)
+        # una sovrapposizione. Il rosso della salita vince su tutto: dice
+        # che stratigrafia e cronologia si contraddicono.
+        if edge.upward:
+            penna = QPen(QColor(ROSSO_SALITA))
+            penna.setWidthF(2.2 if edge.continuity else 1.6)
+        else:
+            penna = QPen(QColor("#1A1A1A" if edge.continuity else "#6B7684"))
+            penna.setWidthF(2.2 if edge.continuity else 1.4)
         linea.setPen(penna)
         linea.setZValue(-5)
         scene.addItem(linea)

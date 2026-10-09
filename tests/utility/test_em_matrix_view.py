@@ -98,3 +98,12 @@ def test_the_pixel_cap_is_not_defeated_by_a_floor():
     src = _source()
     assert "max((MAX_PIXELS" not in src
     assert "0.25" not in src
+
+
+def test_the_view_draws_the_climbing_arrows_in_red_too():
+    """Quello che si vede a schermo e quello che esce dal file non devono
+    divergere: il rosso delle frecce in salita viene dalla stessa costante
+    del writer SVG, non da una copia."""
+    src = _source()
+    assert "ROSSO_SALITA" in src
+    assert "upward" in src

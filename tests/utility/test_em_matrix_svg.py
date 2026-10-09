@@ -161,3 +161,36 @@ def test_an_equality_comes_out_as_two_separate_horizontal_lines():
     assert gruppo, svg
     assert gruppo.group(1).count("<line") == 2
     assert "marker-end=" not in svg
+
+
+def _in_salita():
+    """Un modello in cui la stratigrafia contraddice le epoche."""
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    return MatrixModel(
+        units=[Unit("antica", "US9", "US", "vecchia"),
+               Unit("recente", "US1", "US", "nuova")],
+        epochs=[Epoch("nuova", "Età moderna", 1600, 1799),
+                Epoch("vecchia", "XV secolo", 1451, 1499)],
+        relations=[Relation("antica", "recente", "overlies")])
+
+
+def test_an_arrow_that_climbs_the_bands_is_drawn_in_red():
+    """«Se ci sono frecce che puntano verso l'alto anziché verso il basso
+    sono renderizzate in rosso, così uno vede immediatamente se ci sono
+    errori» — E. Demetrescu, 2026-10-09."""
+    svg = to_svg(layout(_in_salita()))
+    salita = [r for r in svg.split("\n") if "edge salita" in r]
+    assert salita, svg
+    assert "#C0392B" in salita[0]
+    assert "freccia-salita" in salita[0]
+    # il marcatore rosso deve esistere, se no la punta non si vede
+    assert 'id="freccia-salita"' in svg
+
+
+def test_an_ordinary_arrow_is_not_red():
+    """Il marcatore rosso sta sempre nei <defs>: quello che conta è che
+    nessuna linea lo usi quando non c'è niente da segnalare."""
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
+    assert "edge salita" not in svg
+    linee = [r for r in svg.split("\n") if "<polyline" in r]
+    assert linee and not [r for r in linee if "#C0392B" in r]

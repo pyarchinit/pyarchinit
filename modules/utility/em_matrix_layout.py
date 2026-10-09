@@ -81,6 +81,12 @@ class Edge:
     #: una unità sopravvive, non che una sta sopra l'altra. Va disegnato
     #: a parte.
     continuity: bool = False
+    #: La freccia risale le fasce invece di scendere: chi copre sta in
+    #: un'epoca più antica di chi è coperto. È una contraddizione fra
+    #: stratigrafia e cronologia, e si disegna in rosso perché si veda
+    #: subito — convenzione dell'Extended Matrix (E. Demetrescu,
+    #: 2026-10-09). Una relazione simmetrica non ha verso: mai in salita.
+    upward: bool = False
 
 
 @dataclass
@@ -414,8 +420,12 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             continue
         continuita = "BR" in (unita[r.source].node_type,
                               unita[r.target].node_type)
+        # y cresce verso il basso e la fascia più recente sta in cima:
+        # se la partenza è più in basso dell'arrivo, la freccia risale.
+        in_salita = (not simmetrica) and a.y > b.y
         risultato.edges.append(Edge(
             kind=r.kind, symmetric=simmetrica, continuity=continuita,
+            upward=in_salita,
             points=_route(a, b, simmetrica,
                           scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
 
