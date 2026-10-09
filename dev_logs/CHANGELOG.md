@@ -5,6 +5,36 @@
 
 ---
 
+## [feat] - 2026-10-09 — numero dell'unità in un cerchio, quota sopra la linea, niente sovrapposizioni — 5.13.52-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-labels-5.13.52-alpha`**. Tre richieste di Enzo, una dopo l'altra, sulle etichette della tavola.
+
+### Italiano
+
+**Il numero dell'unità in un cerchio, in grassetto.** Cerchio bianco bordato, perché sopra il riempimento della US — che è chiaro ma non bianco — un numero nudo si confonde col disegno.
+
+**La quota sopra la linea del simbolo.** Il simbolo di `quote_us_view.qml` è un triangolino rosso più una linea sottile orizzontale. Dove va il testo **non è stato dedotto ma misurato**: disegnando il simbolo a 300 dpi e contando i pixel, il simbolo sta *sopra* il punto di ancoraggio (da −2,7 a −0,8 mm) e la linea orizzontale è la riga più larga, a −2,7 mm, centrata sulla x. Provato anche il verso dell'offset delle etichette, che è **l'opposto** di quello dei marcatori: `yOffset` positivo porta il testo in giù. Il testo va quindi a −4,2 mm. Due costanti, `QUOTA_LINE_MM` e `QUOTA_OFFSET_MM`, e un test che tiene la seconda sopra la prima e non troppo lontana — una quota a mezzo centimetro dal suo simbolo non è più la sua.
+
+**Un numero per unità, non uno per disegno.** `pyarchinit_us_view` ha una riga per ogni **disegno**: 482 poligoni per 37 unità sul sito di esempio, e la prima prova è uscita coperta da «36 36 36 36». L'etichetta compare ora sul disegno più grande di ogni (area, us).
+
+**Le etichette non si sovrappongono mai.** Con `OverPoint` QGIS scarta quella in conflitto e il numero sparisce. Ora si usano posizioni alternative (`OrderedPositionsAroundPoint`) con `PreventOverlap` e `allowDegradedPlacement`: spostarsi è meglio che sparire. Il richiamo è un `QgsSimpleLineCallout` con lunghezza minima di 2 mm — un richiamo lungo zero è solo sporcizia. Le etichette sono anche ostacolo fra loro e per i simboli.
+
+**Solo le US che si vedono.** Il plugin disegna per `order_layer` crescente, la più recente sopra (`pyarchinit_pyqgis.py:2060`). Una US il cui disegno è contenuto **per intero** in uno di livello più alto non si vede, e non prende etichetta; coperta a metà sì, perché si vede ancora.
+
+**Un tentativo buttato, e perché.** La prima versione chiedeva a QGIS di calcolarlo con `overlay_within` su sé stesso: è O(n²) e si rivaluta a ogni disegno — misurato, su 482 poligoni non finiva in due minuti. Il conto si fa ora in Python con `QgsSpatialIndex`, una volta per tavola e solo sui pochi candidati: **0,08 s**. All'etichettatura arriva un semplice `$id IN (…)`.
+
+Etichette per livello sul sito di esempio: 0→3, 5→10, 12→19, 16→13, 20→10, 24→1. Il calo è corretto e racconta lo scavo: salendo nella sequenza sempre più US finiscono sotto, e all'ultimo livello resta solo la US 1, che copre tutto il saggio.
+
+Le etichette si mettono sui layer del progetto — è quello che la mappa del layout disegna — e lo stato di prima si tiene e si rimette a fine generazione: la tavola non deve lasciare il progetto diverso da come l'ha trovato.
+
+Limite noto: si considera coperta solo una US contenuta in **un** altro disegno, non nell'unione di più disegni.
+
+### English
+
+Unit numbers are drawn bold inside a white circle; elevations sit above the horizontal line of the quote marker, at an offset **measured** by rendering the symbol at 300 dpi rather than deduced (the symbol sits above the anchor, the line at −2.7 mm, and label offsets run opposite to marker offsets). One label per unit, not one per drawing — the US view holds 482 polygons for 37 units. Labels never overlap: alternative positions plus a callout line with a 2 mm minimum, so a label moves instead of disappearing. Only visible units are labelled: the plugin draws by ascending `order_layer` with the most recent on top, so a drawing wholly contained in a later one is hidden and loses its label (half-covered keeps it). The first implementation asked QGIS to work this out with a self `overlay_within` — O(n²), re-evaluated on every render, and measured at over two minutes for 482 polygons; it now runs in Python with a spatial index, once per sheet, in 0.08 s. Labels per level: 3, 10, 19, 13, 10, 1 — the fall is correct and tells the excavation's story.
+
+---
+
 ## [feat] - 2026-10-09 — l'inserto della tavola dice dove si è nel mondo — 5.13.51-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-overview-5.13.51-alpha`**. «L'overview, nel caso di uno scavo, come base map deve avere un OpenStreetMap o satellite con il solo puntino della localizzazione» (Enzo).
