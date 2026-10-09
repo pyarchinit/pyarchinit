@@ -132,14 +132,13 @@ def test_a_relation_carries_an_arrow_so_its_direction_is_readable():
     che però la decide la fascia dell'epoca, non la stratigrafia. Dove le
     due si contraddicono, senza freccia non si capisce chi copre chi."""
     svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
-    assert "<marker" in svg
-    assert "marker-end=" in svg
+    assert 'class="punta"' in svg
 
 
 def test_a_symmetric_relation_has_no_arrow():
     """«Uguale a» non ha un verso."""
     svg = to_svg(layout(_model(relazioni=[("US1", "US2", "equals")])))
-    assert "marker-end=" not in svg
+    assert 'class="punta"' not in svg
 
 
 def test_a_control_character_in_a_name_does_not_break_the_file():
@@ -182,9 +181,8 @@ def test_an_arrow_that_climbs_the_bands_is_drawn_in_red():
     salita = [r for r in svg.split("\n") if "edge salita" in r]
     assert salita, svg
     assert "#C0392B" in salita[0]
-    assert "freccia-salita" in salita[0]
-    # il marcatore rosso deve esistere, se no la punta non si vede
-    assert 'id="freccia-salita"' in svg
+    # anche la punta è rossa, se no il verso resta grigio
+    assert 'class="punta"' in salita[0]
 
 
 def test_an_ordinary_arrow_is_not_red():
@@ -194,3 +192,40 @@ def test_an_ordinary_arrow_is_not_red():
     assert "edge salita" not in svg
     linee = [r for r in svg.split("\n") if "<polyline" in r]
     assert linee and not [r for r in linee if "#C0392B" in r]
+
+
+def test_the_arrowheads_are_real_shapes_not_svg_markers():
+    """Scoperto guardando l'atlante (2026-10-09): QGIS disegna gli SVG con
+    QSvgRenderer, che è SVG Tiny 1.2 e **non conosce `<marker>`**. Le
+    punte sparivano dalla tavola e la matrice perdeva il verso. Un
+    poligono esplicito lo capiscono tutti, browser compresi."""
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "overlies")])))
+    assert "<marker" not in svg
+    assert "marker-end" not in svg
+    punte = [r for r in svg.split("\n") if "punta" in r]
+    assert punte, svg
+    assert "<polygon" in punte[0]
+
+
+def test_a_climbing_arrow_has_a_red_head():
+    svg = to_svg(layout(_in_salita()))
+    punte = [r for r in svg.split("\n") if "punta" in r]
+    assert punte and "#C0392B" in punte[0]
+
+
+def test_a_continuity_link_has_a_black_head():
+    """Il legame di continuità si distingue anche nella punta."""
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+
+    model = MatrixModel(
+        units=[Unit("c", "CON1", "BR", "e"), Unit("u", "US1", "US", "e")],
+        epochs=[Epoch("e", "XV secolo", 1451, 1499)],
+        relations=[Relation("c", "u", "overlies")])
+    svg = to_svg(layout(model))
+    punte = [r for r in svg.split("\n") if "punta" in r]
+    assert punte and "#1A1A1A" in punte[0]
+
+
+def test_an_equality_has_no_arrowhead_at_all():
+    svg = to_svg(layout(_model(relazioni=[("US1", "US2", "equals")])))
+    assert "punta" not in svg

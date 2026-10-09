@@ -107,6 +107,11 @@ class Unit:
     epoch_id: Optional[str]
     description: str = ""
     data: Dict[str, Any] = field(default_factory=dict)
+    #: L'unità non è fra quelle che si stanno guardando: sta nel disegno
+    #: solo perché un rapporto la cita, e si disegna sbiadita. Senza di
+    #: lei il rapporto sparirebbe e la sequenza sembrerebbe rotta;
+    #: disegnata come le altre, sembrerebbe visibile sulla mappa.
+    dimmed: bool = False
 
     @property
     def style(self) -> Style:

@@ -238,3 +238,62 @@ def test_the_matrix_is_written_as_svg_without_any_subprocess(tmp_path):
     testo = Path(percorso).read_text(encoding="utf-8")
     assert testo.startswith("<svg") and "Periodo 2" in testo
     assert len(model.units) == 2 and len(model.relations) == 1
+
+
+# ------------- le US che servono solo ad agganciare (2026-10-09) ------------
+
+def test_a_unit_outside_the_view_is_drawn_but_dimmed():
+    """Enzo: «nel matrix devono comparire le US che si visualizzano; quelle
+    che non sono presenti ma servono per agganciare i nodi devono essere
+    opacizzate, per far intendere che non sono visibili nella mappa».
+
+    Senza di loro il rapporto sparirebbe e la sequenza sembrerebbe rotta;
+    disegnate come le altre, sembrerebbero sulla mappa."""
+    model = model_from_records(
+        [_rec("1", rapporti="[['Copre', '2', '1', 'Alfa']]"), _rec("2")],
+        PERIODI, visible={("1", "1")})
+    etichette = {u.label: u for u in model.units}
+    assert set(etichette) == {"1.US1", "1.US2"}
+    assert etichette["1.US1"].dimmed is False
+    assert etichette["1.US2"].dimmed is True
+    # e il rapporto si disegna
+    assert len(model.relations) == 1
+
+
+def test_a_unit_that_points_at_a_visible_one_is_a_bridge_too():
+    """Il legame vale nei due versi: anche chi copre una US visibile serve
+    ad agganciarla."""
+    model = model_from_records(
+        [_rec("1"), _rec("2", rapporti="[['Copre', '1', '1', 'Alfa']]")],
+        PERIODI, visible={("1", "1")})
+    etichette = {u.label: u.dimmed for u in model.units}
+    assert etichette == {"1.US1": False, "1.US2": True}
+
+
+def test_the_bridges_do_not_bring_their_own_bridges():
+    """Un salto solo: se no una US visibile tirerebbe dentro mezzo scavo."""
+    model = model_from_records(
+        [_rec("1", rapporti="[['Copre', '2', '1', 'Alfa']]"),
+         _rec("2", rapporti="[['Copre', '3', '1', 'Alfa']]"),
+         _rec("3")],
+        PERIODI, visible={("1", "1")})
+    assert {u.label for u in model.units} == {"1.US1", "1.US2"}
+
+
+def test_without_a_filter_nothing_is_dimmed():
+    model = model_from_records([_rec("1"), _rec("2")], PERIODI)
+    assert all(not u.dimmed for u in model.units)
+
+
+def test_a_dimmed_unit_is_drawn_faded_in_the_svg():
+    from modules.utility.em_matrix_layout import layout
+    from modules.utility.em_matrix_svg import to_svg
+
+    model = model_from_records(
+        [_rec("1", rapporti="[['Copre', '2', '1', 'Alfa']]"), _rec("2")],
+        PERIODI, visible={("1", "1")})
+    svg = to_svg(layout(model))
+    sbiadite = [r for r in svg.split("\n") if "unit fuori" in r]
+    assert len(sbiadite) == 1
+    assert "opacity" in sbiadite[0]
+    assert "1.US2" in sbiadite[0]

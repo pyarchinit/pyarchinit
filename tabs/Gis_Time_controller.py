@@ -174,6 +174,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self.spinBox_relative_cronology.valueChanged.connect(self._schedule_order_layer_update)
         self.spinBox_relative_cronology.valueChanged.connect(self.dial_relative_cronology.setValue)
         self.listWidget.itemSelectionChanged.connect(self.update_selected_layers)
+        # Le due tabelle tenute in memoria sono di classe: aprendo la
+        # finestra su un altro sito porterebbero i dati di prima.
+        type(self)._PERIODI_CACHE = {}
+        type(self)._DATAZIONI_CACHE = {}
+        type(self)._RECORD_CACHE = {}
+
+        self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
         self.checkBox_matrix.stateChanged.connect(self.update_graphics_view)
         if self.checkBox_matrix.isChecked():
             self.update_graphics_view()
@@ -215,6 +222,17 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
     def _on_debounce_timeout(self):
         """Called after debounce period."""
         self.define_order_layer_value(self._pending_value)
+        # La matrice segue la manopola. Prima si rifaceva solo spegnendo
+        # e riaccendendo la spunta «Mostra Matrix» (Enzo, 2026-10-09):
+        # era agganciata a stateChanged e a nient'altro. Si rifà DOPO il
+        # filtro, così disegna le US che si vedono davvero.
+        try:
+            if self.checkBox_matrix.isChecked():
+                self.update_graphics_view()
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Matrice non aggiornata: %s" % e, "PyArchInit",
+                Qgis.MessageLevel.Warning)
 
     def _get_cached_sito_area(self):
         """Get sito/area strings from SITE_SET config, not all sites."""
@@ -258,26 +276,15 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.listWidget.addItem('I layer Quote View e US View devono essere caricati.')
             return
 
-        self.datazione_dict = {}
-
-        for us_layer in self.selected_layers:
-            fields = us_layer.fields()
-            self.fieldname = next((field.name() for field in fields if 'datazione' in field.name().lower()), '')
-
-            if not self.fieldname:
-                print(f"No 'datazione' field found in layer {us_layer.name()}")
-                continue
-
-            # Crea un dizionario che mappa ogni attributo "order_layer" a una lista di attributi "datazione" corrispondenti
-            for feature in us_layer.getFeatures():
-                order_layer = feature.attribute("order_layer")
-                datazione = feature.attribute(self.fieldname)
-
-                if order_layer in self.datazione_dict:
-                    self.datazione_dict[order_layer].append(datazione)
-
-                else:
-                    self.datazione_dict[order_layer] = [datazione]
+        # Le datazioni vengono dal DATABASE, non dalle feature del layer.
+        # Leggerle dal layer significava leggerle attraverso il filtro
+        # corrente, che però si applica dopo, con un timer: girando la
+        # manopola in senso orario il livello nuovo non era ancora nel
+        # layer e la casella della periodizzazione restava vuota, mentre
+        # in senso antiorario compariva (il filtro di prima era più
+        # largo). Enzo, 2026-10-09.
+        self.fieldname = 'datazione'
+        self.datazione_dict = self._datazioni_del_sito()
 
         # Get max order_layer for the current site only (not all sites)
         try:
@@ -297,9 +304,11 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # handle the error
             print("Errore: max_num_order_layer è None")
 
-        self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
+        # NB: la connessione a update_datazione sta nel costruttore. Qui
+        # si rifaceva a ogni valueChanged, e siccome set_max_num è esso
+        # stesso agganciato a valueChanged le connessioni si accumulavano
+        # a ogni scatto della manopola.
         self.update_datazione(self.spinBox_relative_cronology.value())
-        self.update_datazione(self.dial_relative_cronology.value())
 
 
 
@@ -330,23 +339,98 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         self._PERIODI_CACHE[chiave] = righe
         return righe
 
+    #: Le datazioni per livello, lette una volta sola dal database.
+    _DATAZIONI_CACHE = {}
+
+    def _datazioni_del_sito(self):
+        """``{order_layer: [datazione, …]}`` del sito corrente.
+
+        Dal database e non dai layer: il layer è filtrato, e il filtro si
+        applica dopo con un timer.
+        """
+        try:
+            sito, _ = self._get_cached_sito_area()
+        except Exception:                           # noqa: BLE001
+            sito = ""
+        chiave = str(sito or "")
+        if chiave in self._DATAZIONI_CACHE:
+            return self._DATAZIONI_CACHE[chiave]
+        datazioni = {}
+        try:
+            for r in self.DB_MANAGER.query_bool(
+                    {'sito': "'" + chiave + "'"}, self.MAPPER_TABLE_CLASS):
+                livello = getattr(r, 'order_layer', None)
+                testo = getattr(r, 'datazione', None)
+                if livello is None or not testo:
+                    continue
+                datazioni.setdefault(livello, []).append(testo)
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Datazioni non lette per %r: %s" % (chiave, e),
+                "PyArchInit", Qgis.MessageLevel.Warning)
+        self._DATAZIONI_CACHE[chiave] = datazioni
+        return datazioni
+
+    #: Tutte le righe della scheda del sito, lette una volta sola.
+    _RECORD_CACHE = {}
+
+    def _record_del_sito(self, sito):
+        """Le righe di ``us_table`` del sito, come dizionari.
+
+        Servono **tutte**, non solo quelle visibili: le US fuori vista che
+        un rapporto cita entrano nel disegno sbiadite, e senza le loro
+        righe non si saprebbe nemmeno che esistono.
+        """
+        chiave = str(sito or "")
+        if chiave in self._RECORD_CACHE:
+            return self._RECORD_CACHE[chiave]
+        righe = []
+        try:
+            for r in self.DB_MANAGER.query_bool(
+                    {'sito': "'" + chiave + "'"}, self.MAPPER_TABLE_CLASS):
+                righe.append({c: getattr(r, c, None) for c in (
+                    'sito', 'area', 'us', 'unita_tipo', 'rapporti',
+                    'periodo_iniziale', 'fase_iniziale', 'periodo_finale',
+                    'fase_finale', 'd_stratigrafica', 'd_interpretativa',
+                    'datazione', 'order_layer')})
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Righe US non lette per %r: %s" % (chiave, e),
+                "PyArchInit", Qgis.MessageLevel.Warning)
+        self._RECORD_CACHE[chiave] = righe
+        return righe
+
+    def _modello_matrice(self, data_list, visible_us_list):
+        """Il modello della matrice: le US visibili alla posizione della
+        manopola, più quelle che un rapporto cita — queste ultime
+        sbiadite, perché non sono sulla mappa."""
+        from ..modules.utility.em_matrix_records import model_from_records
+
+        if not data_list:
+            return None
+        sito = str((data_list[0] or {}).get('sito') or '')
+        visibili = {(str(a), str(u)) for a, u in (visible_us_list or ())}
+        tutte = self._record_del_sito(sito) or data_list
+        return model_from_records(
+            tutte, self._periodi_del_sito(sito),
+            visible=visibili or None, title=sito)
+
     def _disegna_matrice(self, data_list, visible_us_list, destinazione):
-        """La matrice delle US visibili, in SVG. ``(percorso, modello)``.
+        """La matrice in SVG per la tavola dell'atlante. ``(percorso, modello)``.
 
         Al posto di Graphviz: nessun sottoprocesso ``tred``/``dot``,
         nessun JPEG di megabyte riletto da disco. Stesso impaginatore e
         stesso writer del pannello della matrice, quindi quello che si
         vede qui e quello che si vede là non divergono.
         """
-        from ..modules.utility.em_matrix_records import write_matrix_svg
+        from ..modules.utility.em_matrix_layout import layout
+        from ..modules.utility.em_matrix_svg import write_svg
 
-        if not data_list:
+        modello = self._modello_matrice(data_list, visible_us_list)
+        if modello is None:
             return None, None
-        sito = str((data_list[0] or {}).get('sito') or '')
-        visibili = {(str(a), str(u)) for a, u in (visible_us_list or ())} or None
-        return write_matrix_svg(
-            data_list, self._periodi_del_sito(sito), destinazione,
-            visible=visibili, title=sito)
+        return (write_svg(layout(modello), destinazione, modello.title),
+                modello)
 
     def update_graphics_view(self):
         if self.checkBox_matrix.isChecked():
@@ -391,16 +475,12 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     # ci mette millisecondi, dove tred+dot costavano due
                     # sottoprocessi e un JPEG da rileggere da disco.
                     from ..modules.utility.em_matrix_layout import layout
-                    from ..modules.utility.em_matrix_records import (
-                        model_from_records)
                     from ..modules.utility.em_matrix_view import MatrixView
 
-                    sito = str((data_list[0] or {}).get('sito') or '')
-                    visibili = {(str(a), str(u))
-                                for a, u in (visible_us_list or ())} or None
-                    modello = model_from_records(
-                        data_list, self._periodi_del_sito(sito),
-                        visible=visibili, title=sito)
+                    modello = self._modello_matrice(data_list,
+                                                    visible_us_list)
+                    if modello is None:
+                        return
 
                     self.horizontalLayout_2.removeWidget(self.graphicsView)
                     self.graphicsView = MatrixView()

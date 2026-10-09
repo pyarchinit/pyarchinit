@@ -61,3 +61,90 @@ def test_the_drawing_helper_filters_to_the_visible_units():
     src = _source()
     assert "def _disegna_matrice" in src
     assert "visible=visibili" in src
+
+
+# ---------------- i tre guasti segnalati il 2026-10-09 ---------------------
+
+def test_the_matrix_follows_the_dial():
+    """Enzo: «il matrix non si aggiorna quando giro la manopola, devo
+    spegnere e riaccendere il checkbox». Era agganciato a `stateChanged`
+    della spunta e a nient'altro. Ora si rifà quando la manopola si ferma,
+    DOPO che il filtro è stato applicato."""
+    src = _source()
+    inizio = src.index("def _on_debounce_timeout")
+    corpo = src[inizio:inizio + 900]
+    assert "update_graphics_view" in corpo
+    assert "checkBox_matrix.isChecked" in corpo
+
+
+def test_the_datings_come_from_the_database_not_from_the_filtered_layer():
+    """Enzo: «non vedo più la periodizzazione se giro in senso orario,
+    mentre in senso antiorario compare». Le datazioni si leggevano dalle
+    feature del layer, cioè attraverso il filtro corrente — che però si
+    applica dopo, con un timer. Girando in avanti il livello nuovo non era
+    ancora nel layer."""
+    src = _source()
+    assert "def _datazioni_del_sito" in src
+    inizio = src.index("def set_max_num")
+    corpo = src[inizio:src.index("def ", inizio + 10)]
+    assert "self._datazioni_del_sito()" in corpo
+    assert "getFeatures()" not in corpo
+
+
+def test_update_datazione_is_connected_once_not_on_every_turn():
+    """`set_max_num` è agganciato a `valueChanged` e dentro ri-collegava
+    `update_datazione` a `valueChanged`: le connessioni si accumulavano a
+    ogni scatto della manopola."""
+    src = _source()
+    inizio = src.index("def set_max_num")
+    corpo = src[inizio:src.index("def ", inizio + 10)]
+    assert "valueChanged.connect" not in corpo
+    assert src.count(
+        "self.spinBox_relative_cronology.valueChanged.connect("
+        "self.update_datazione)") == 1
+
+
+def test_the_cached_tables_do_not_survive_a_change_of_site():
+    """Sono attributi di classe: senza azzerarle, riaprendo la finestra su
+    un altro sito si vedrebbero i periodi di prima."""
+    src = _source()
+    assert "type(self)._PERIODI_CACHE = {}" in src
+    assert "type(self)._DATAZIONI_CACHE = {}" in src
+
+
+def test_the_units_outside_the_view_are_drawn_faded_not_dropped():
+    """Enzo: «le US che non sono presenti ma servono per agganciare i nodi
+    devono essere opacizzate, per far intendere che non sono visibili
+    nella mappa»."""
+    from modules.utility.em_matrix_records import model_from_records
+
+    righe = [dict(sito="Alfa", area="1", us="1", unita_tipo="US",
+                  periodo_iniziale="1", fase_iniziale="1",
+                  rapporti="[['Copre', '2', '1', 'Alfa']]"),
+             dict(sito="Alfa", area="1", us="2", unita_tipo="US",
+                  periodo_iniziale="1", fase_iniziale="1", rapporti="[]")]
+    model = model_from_records(righe, [("1", "1", "Epoca", 1, 2)],
+                               visible={("1", "1")})
+    sbiadite = [u.label for u in model.units if u.dimmed]
+    assert sbiadite == ["1.US2"]
+    assert len(model.relations) == 1
+
+
+def test_the_matrix_is_built_from_all_the_rows_not_only_the_visible_ones():
+    """Le US fuori vista che un rapporto cita entrano nel disegno
+    sbiadite: ma per saperlo servono le loro righe, e `data_list` contiene
+    solo quelle visibili. Si leggono dal database, una volta sola."""
+    src = _source()
+    assert "def _record_del_sito" in src
+    assert "def _modello_matrice" in src
+    inizio = src.index("def _modello_matrice")
+    corpo = src[inizio:src.index("def ", inizio + 10)]
+    assert "self._record_del_sito(sito)" in corpo
+    assert "visible=visibili" in corpo
+
+
+def test_the_view_and_the_atlas_build_the_model_the_same_way():
+    """Due costruttori diversi divergerebbero: la tavola stampata e quello
+    che si vede a schermo devono essere la stessa matrice."""
+    src = _source()
+    assert src.count("self._modello_matrice(") == 2

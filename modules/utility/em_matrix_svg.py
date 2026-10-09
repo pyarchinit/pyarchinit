@@ -128,48 +128,50 @@ def _band_svg(band: Band, larghezza: float, config_margin: float = 24.0) -> str:
 ROSSO_SALITA = "#C0392B"
 
 
-#: La punta della freccia. Senza, il verso del rapporto lo direbbe solo
-#: la posizione verticale — che però la decide la fascia dell'epoca, non
-#: la stratigrafia: dove le due si contraddicono non si capirebbe più
-#: chi copre chi (review 2026-10-08).
-_MARKERS = (
-    '<defs>'
-    '<marker id="freccia" viewBox="0 0 8 8" refX="7" refY="4" '
-    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
-    '<path d="M0,0 L8,4 L0,8 z" fill="#6B7684"/></marker>'
-    '<marker id="freccia-continuita" viewBox="0 0 8 8" refX="7" refY="4" '
-    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
-    '<path d="M0,0 L8,4 L0,8 z" fill="#1A1A1A"/></marker>'
-    '<marker id="freccia-salita" viewBox="0 0 8 8" refX="7" refY="4" '
-    'markerWidth="6" markerHeight="6" orient="auto-start-reverse">'
-    '<path d="M0,0 L8,4 L0,8 z" fill="%s"/></marker>'
-    '</defs>') % ROSSO_SALITA
+#: Quanto è lunga la punta della freccia, e quanto larga a metà.
+_PUNTA_L, _PUNTA_W = 9.0, 3.5
+
+
+def arrow_points(da, a):
+    """I tre vertici della punta in fondo al segmento ``da``→``a``.
+
+    Un poligono esplicito e non un ``<marker>``: QGIS disegna gli SVG con
+    QSvgRenderer, che è SVG Tiny 1.2 e i marker non li conosce — nella
+    tavola dell'atlante le punte sparivano e la matrice perdeva il verso
+    (visto il 2026-10-09). Un triangolo lo capiscono tutti.
+    """
+    import math
+
+    dx, dy = a[0] - da[0], a[1] - da[1]
+    lunghezza = math.hypot(dx, dy)
+    if lunghezza < 1.0:
+        return None
+    ux, uy = dx / lunghezza, dy / lunghezza
+    bx, by = a[0] - ux * _PUNTA_L, a[1] - uy * _PUNTA_L
+    lx, ly = -uy * _PUNTA_W, ux * _PUNTA_W
+    return [(a[0], a[1]), (bx + lx, by + ly), (bx - lx, by - ly)]
+
+
+def _punta_svg(edge: Edge, colore: str) -> str:
+    """Il triangolo in fondo alla linea, o niente se non si può orientare."""
+    punti = arrow_points(edge.points[-2], edge.points[-1])
+    if not punti:
+        return ""
+    return ('<polygon class="punta" points="%s" fill="%s"/>'
+            % (_points(punti), colore))
 
 
 def _edge_svg(edge: Edge) -> str:
-    """La linea di un rapporto.
+    """La linea di un rapporto, con la sua punta.
 
     Quella di un nodo di continuità si disegna più marcata e scura: dice
     per quanto a lungo una unità sopravvive — dal suo periodo fino alla
     fascia dove sta il nodo — e non che una sta sopra l'altra.
     """
-    if edge.upward:
-        # Il rosso vince sul resto: un legame di continuità che risale è
-        # comunque una contraddizione da vedere, e lo spessore lo tiene
-        # distinto dagli altri rapporti.
-        return ('<polyline class="edge salita" points="%s" fill="none" '
-                'stroke="%s" stroke-width="%.1f" '
-                'marker-end="url(#freccia-salita)"/>'
-                % (_points(edge.points), ROSSO_SALITA,
-                   2.2 if edge.continuity else 1.6))
-    if edge.continuity:
-        return ('<polyline class="edge continuity" points="%s" fill="none" '
-                'stroke="#1A1A1A" stroke-width="2.2" '
-                'marker-end="url(#freccia-continuita)"/>'
-                % _points(edge.points))
     if edge.symmetric:
         # «Uguale a» non ha un verso e non è una sovrapposizione: due
-        # linee orizzontali staccate, come il segno di uguale.
+        # linee orizzontali staccate, come il segno di uguale, e nessuna
+        # punta.
         (x1, y1), (x2, y2), (x3, y3), (x4, y4) = edge.points[:4]
         return ('<g class="edge equality">'
                 '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
@@ -177,20 +179,44 @@ def _edge_svg(edge: Edge) -> str:
                 '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
                 'stroke="#6B7684" stroke-width="1.4"/></g>'
                 % (x1, y1, x2, y2, x3, y3, x4, y4))
-    return ('<polyline class="edge" points="%s" fill="none" stroke="#6B7684" '
-            'stroke-width="1.4" marker-end="url(#freccia)"/>'
-            % _points(edge.points))
+    if edge.upward:
+        # Il rosso vince sul resto: un legame di continuità che risale è
+        # comunque una contraddizione da vedere, e lo spessore lo tiene
+        # distinto dagli altri rapporti.
+        classe, colore = "edge salita", ROSSO_SALITA
+        spessore = 2.2 if edge.continuity else 1.6
+    elif edge.continuity:
+        classe, colore, spessore = "edge continuity", "#1A1A1A", 2.2
+    else:
+        classe, colore, spessore = "edge", "#6B7684", 1.4
+    return ('<g class="%s"><polyline points="%s" fill="none" stroke="%s" '
+            'stroke-width="%.1f"/>%s</g>'
+            % (classe, _points(edge.points), colore, spessore,
+               _punta_svg(edge, colore)))
+
+
+#: Quanto resta visibile una unità che non è fra quelle guardate.
+OPACITA_FUORI = 0.4
 
 
 def _box_svg(box: Box) -> str:
     colore = _readable_on(box.unit.style.fill)
-    return ('<g class="unit" data-id="%s">%s'
+    # Fuori vista: nel disegno c'è perché un rapporto la cita, ma non è
+    # sulla mappa, e si deve capire a colpo d'occhio.
+    fuori = bool(getattr(box.unit, "dimmed", False))
+    descrizione = (box.unit.description if box.unit.description else "")
+    if fuori:
+        descrizione = ((descrizione + " — ") if descrizione else "") \
+            + "non visibile sulla mappa"
+    return ('<g class="unit%s" data-id="%s"%s>%s'
             '<title>%s</title>'
             '<text x="%.1f" y="%.1f" font-size="12" text-anchor="middle" '
             'fill="%s">%s</text></g>'
-            % (_esc(box.unit.node_id), _node_shape(box),
-               _esc("%s — %s" % (box.unit.label, box.unit.description)
-                    if box.unit.description else box.unit.label),
+            % (" fuori" if fuori else "", _esc(box.unit.node_id),
+               ' opacity="%.2f"' % OPACITA_FUORI if fuori else "",
+               _node_shape(box),
+               _esc("%s — %s" % (box.unit.label, descrizione)
+                    if descrizione else box.unit.label),
                box.x + box.w / 2, box.y + box.h / 2 + 4, colore,
                _esc(_short(box.unit.label))))
 
@@ -206,7 +232,6 @@ def to_svg(lay: Layout, title: str = "") -> str:
         'viewBox="0 0 %.0f %.0f" font-family="%s">'
         % (larghezza, altezza, larghezza, altezza, _FONT),
         '<rect width="100%%" height="100%%" fill="#FBFCFE"/>',
-        _MARKERS,
     ]
     if titolo:
         pezzi.append('<text x="24" y="24" font-size="15" font-weight="700" '

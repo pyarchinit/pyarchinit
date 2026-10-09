@@ -31,8 +31,8 @@ from qgis.PyQt.QtWidgets import (
 )
 
 from .em_matrix_layout import Box, Layout
-from .em_matrix_svg import (ROSSO_SALITA, _polygon, _readable_on,
-                            _short, write_svg)
+from .em_matrix_svg import (OPACITA_FUORI, ROSSO_SALITA, _polygon,
+                            _readable_on, _short, write_svg)
 
 #: Il dato in cui vive l'id del nodo sull'elemento grafico.
 NODE_ID_ROLE = 0
@@ -171,6 +171,11 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
     per_id: Dict[str, object] = {}
     for box in lay.boxes:
         item = _shape_item(box)
+        fuori = bool(getattr(box.unit, "dimmed", False))
+        if fuori:
+            # Non è fra le unità che si stanno guardando: sta nel disegno
+            # solo perché un rapporto la cita.
+            item.setOpacity(OPACITA_FUORI)
         item.setData(NODE_ID_ROLE, box.unit.node_id)
         item.setToolTip("%s\n%s" % (box.unit.label, box.unit.description)
                         if box.unit.description else box.unit.label)
@@ -183,6 +188,8 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
         testo.setBrush(QBrush(QColor(_readable_on(box.unit.style.fill))))
         larghezza = testo.boundingRect().width()
         testo.setPos(box.x + (box.w - larghezza) / 2, box.y + box.h / 2 - 8)
+        if fuori:
+            testo.setOpacity(OPACITA_FUORI)
         testo.setData(NODE_ID_ROLE, box.unit.node_id)
         testo.setZValue(2)
         scene.addItem(testo)

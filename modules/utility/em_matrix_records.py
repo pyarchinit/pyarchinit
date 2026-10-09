@@ -122,6 +122,39 @@ def _rapporti_di(record) -> Tuple[list, Optional[str]]:
     return list(letto), None
 
 
+def _bridges(records, visible) -> Set[Tuple[str, str]]:
+    """Le posizioni ``(area, us)`` che servono solo ad agganciare i nodi.
+
+    Sono quelle che una unità visibile cita in ``rapporti``, e quelle che
+    citano una unità visibile. Un salto solo, come faceva la via vecchia
+    con Graphviz: bastano a non spezzare la sequenza senza tirare dentro
+    tutto lo scavo.
+    """
+    ponti: Set[Tuple[str, str]] = set()
+    for record in records or ():
+        area = str(record.get("area") or "").strip()
+        us = str(record.get("us") or "").strip()
+        if not us:
+            continue
+        voci, _guasto = _rapporti_di(record)
+        citate = set()
+        for voce in voci:
+            if not isinstance(voce, (list, tuple)) or len(voce) < 2:
+                continue
+            if kind_of(voce[0]) is None:
+                continue
+            bersaglio_us = str(voce[1] or "").strip()
+            bersaglio_area = (str(voce[2]).strip() if len(voce) > 2
+                              and str(voce[2] or "").strip() else area)
+            if bersaglio_us:
+                citate.add((bersaglio_area, bersaglio_us))
+        if (area, us) in visible:
+            ponti |= citate - visible          # chi la visibile cita
+        elif citate & visible:
+            ponti.add((area, us))              # chi cita la visibile
+    return ponti
+
+
 def model_from_records(records: Iterable[Dict[str, Any]],
                        periods: Sequence[Sequence[Any]] = (),
                        visible: Optional[Set[Tuple[str, str]]] = None,
@@ -141,13 +174,21 @@ def model_from_records(records: Iterable[Dict[str, Any]],
     unita: List[Unit] = []
     per_posizione: Dict[Tuple[str, str], str] = {}
 
+    # Le unità che un rapporto cita o che citano una visibile: entrano nel
+    # disegno, ma sbiadite. Un salto solo — se no una US visibile
+    # tirerebbe dentro mezzo scavo.
+    ponti = _bridges(records, visible) if visible is not None else set()
+
     for record in records or ():
         area = str(record.get("area") or "").strip()
         us = str(record.get("us") or "").strip()
         if not us:
             continue
+        fuori = False
         if visible is not None and (area, us) not in visible:
-            continue
+            if (area, us) not in ponti:
+                continue
+            fuori = True
         tipo = unit_type(record.get("unita_tipo"))
         chiave = node_id(area, us, tipo)
         if chiave in {u.node_id for u in unita}:
@@ -163,7 +204,7 @@ def model_from_records(records: Iterable[Dict[str, Any]],
             epoch_id=_epoch_id(record.get("periodo_iniziale"),
                                record.get("fase_iniziale")),
             description=str(record.get("d_stratigrafica") or ""),
-            data=dati))
+            data=dati, dimmed=fuori))
 
     epoche = []
     for riga in periods or ():
