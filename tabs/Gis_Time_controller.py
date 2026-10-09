@@ -932,6 +932,35 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             )
             return None
 
+    def _chiedi(self, titolo, testo, bottoni=None):
+        """Una domanda che NON blocca le altre finestre di QGIS.
+
+        ``QMessageBox.question`` è modale all'applicazione: con il Layout
+        Designer aperto gli impedisce i clic. Modale alla sola finestra
+        del Time Manager, invece, il designer resta usabile.
+        """
+        finestra = QMessageBox(self)
+        finestra.setWindowTitle(titolo)
+        finestra.setText(testo)
+        finestra.setIcon(QMessageBox.Icon.Question)
+        if bottoni is not None:
+            finestra.setStandardButtons(bottoni)
+        else:
+            finestra.setStandardButtons(QMessageBox.StandardButton.Yes
+                                        | QMessageBox.StandardButton.No)
+        finestra.setWindowModality(Qt.WindowModality.WindowModal)
+        finestra.exec()
+        return finestra.standardButton(finestra.clickedButton())
+
+    def _informa(self, titolo, testo):
+        """Un avviso che non blocca il Layout Designer."""
+        finestra = QMessageBox(self)
+        finestra.setWindowTitle(titolo)
+        finestra.setText(testo)
+        finestra.setIcon(QMessageBox.Icon.Information)
+        finestra.setWindowModality(Qt.WindowModality.WindowModal)
+        finestra.exec()
+
     def open_layout_designer(self):
         """Apre il Layout Designer di QGIS per modificare il template corrente"""
         if not self.current_layout:
@@ -952,17 +981,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             from qgis.utils import iface
             iface.openLayoutDesigner(self.current_layout)
             
-            QMessageBox.information(
-                self,
+            # Modale alla sola finestra del Time Manager: il designer
+            # appena aperto deve restare usabile (Enzo, 2026-10-09).
+            self._informa(
                 "Layout Designer",
-                f"Il Layout Designer è stato aperto per il template: {self.current_layout.name()}\n\n"
-                f"Puoi modificare:\n"
-                f"• Posizione e dimensioni degli elementi\n"
-                f"• Stili, colori e font\n"
-                f"• Aggiungere nuovi elementi (testo, immagini, ecc.)\n"
-                f"• Configurare la mappa e la scala\n\n"
-                f"Chiudi il designer e clicca OK quando hai terminato le modifiche."
-            )
+                "Il Layout Designer è stato aperto per il template: "
+                "%s\n\n"
+                "Puoi modificare:\n"
+                "• Posizione e dimensioni degli elementi\n"
+                "• Stili, colori e font\n"
+                "• Aggiungere nuovi elementi (testo, immagini, ecc.)\n"
+                "• Configurare la mappa e la scala\n\n"
+                "Lascia pure il designer aperto: questa finestra non lo "
+                "blocca." % self.current_layout.name())
             
         except Exception as e:
             QMessageBox.critical(
@@ -1070,20 +1101,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Atlas", describe_missing(caps))
             return
         manca = describe_missing(caps)
-        if manca and QMessageBox.question(
-                self, "Atlas", manca + "\n\nVuoi procedere lo stesso?",
-                QMessageBox.StandardButton.Yes
-                | QMessageBox.StandardButton.No
+        if manca and self._chiedi(
+                "Atlas", manca + "\n\nVuoi procedere lo stesso?"
         ) != QMessageBox.StandardButton.Yes:
             return
             
         # Chiedi se vuole modificare il template prima di procedere
-        reply = QMessageBox.question(
-            self, 
-            "Modifica Template", 
-            "Vuoi aprire il Layout Designer per modificare il template prima di generare l'atlas?",
-            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel
-        )
+        reply = self._chiedi(
+            "Modifica Template",
+            "Vuoi aprire il Layout Designer per modificare il template "
+            "prima di generare l'atlas?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            | QMessageBox.StandardButton.Cancel)
         
         if reply == QMessageBox.StandardButton.Cancel:
             return
@@ -1091,13 +1120,17 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # Apri il layout designer
             self.open_layout_designer()
             
-            # Chiedi conferma per procedere
-            proceed = QMessageBox.question(
-                self,
+            # Chiedi conferma per procedere. Modale alla NOSTRA finestra
+            # soltanto: il Layout Designer è un'altra finestra di primo
+            # livello, e una QMessageBox modale all'applicazione gli
+            # impedisce i clic — «la finestra del Time Manager blocca la
+            # finestra del layout» (Enzo, 2026-10-09).
+            proceed = self._chiedi(
                 "Continua Atlas",
-                "Hai terminato le modifiche al layout?\nProcedere con la generazione dell'atlas?",
-                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
-            )
+                "Hai terminato le modifiche al layout?\n"
+                "Procedere con la generazione dell'atlas?",
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No)
             if proceed != QMessageBox.StandardButton.Yes:
                 return
 
@@ -1105,8 +1138,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         if max_num_order_layer is None:
             # Nessuna US numerata: senza questa guardia era un TypeError
             # su None + 1, cioè il generatore che «non parte».
-            QMessageBox.information(
-                self, "Atlas",
+            self._informa(
+                "Atlas",
                 "Nessuna US ha un valore di «order_layer»: non c'è una "
                 "sequenza da cui ricavare le tavole.")
             return
@@ -1126,7 +1159,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             valid_count = max_num_order_layer + 1
 
         if valid_count == 0:
-            QMessageBox.information(self, "Info", "Nessun order_layer con datazione valida trovato.")
+            self._informa("Info", "Nessun order_layer con datazione valida trovato.")
             return
         
         # Crea progress dialog per tutti gli order_layer (inclusi quelli skippati)
@@ -1192,6 +1225,24 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     "esempio «layout_TimeManager».")
                 return
             layoutItemMap = mappe[0]
+            # La mappa del layout va INQUADRATA: senza, conserva
+            # l'inquadratura con cui il template fu salvato — su un altro
+            # progetto, altrove — e disegna il niente. È il motivo per cui
+            # «i layout sono vuoti» (Enzo, 2026-10-09). PRINTMAP lo fa già
+            # (PRINTMAP.py:254); qui `layoutItemMap` si calcolava e non si
+            # usava mai. Tutte le mappe, non la prima: il modello del Time
+            # Manager ne ha due.
+            for mappa in mappe:
+                try:
+                    # Un template salvato altrove può portarsi dietro un
+                    # elenco di layer che qui non esistono.
+                    mappa.setFollowVisibilityPreset(False)
+                    mappa.setKeepLayerSet(False)
+                    mappa.zoomToExtent(canvas.extent())
+                except Exception as e:              # noqa: BLE001
+                    QgsMessageLog.logMessage(
+                        "Mappa della tavola non inquadrata: %s" % e,
+                        "PyArchInit", Qgis.MessageLevel.Warning)
 
             # Ottieni l'elemento HTML dalla layout
             html_item = None
@@ -1386,16 +1437,20 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             coda = ("\n\nNON scritte: %s — controlla che la cartella sia "
                     "scrivibile." % ", ".join(str(v) for v in non_scritte)
                     ) if non_scritte else ""
-            QMessageBox.information(self, "Atlas Completato", 
-                                  f"Generazione atlas completata con successo!\n"
-                                  f"Order layers processati: {progress_count}/{total_order_layers}\n"
-                                  f"Tavole con datazione valida generate: {valid_count}\n"
-                                  f"Salvate in: {self.path}{coda}")
+            self._informa("Atlas Completato",
+                          "Generazione atlas completata con successo!\n"
+                          "Order layers processati: %s/%s\n"
+                          "Tavole con datazione valida generate: %s\n"
+                          "Salvate in: %s%s"
+                          % (progress_count, total_order_layers, valid_count,
+                             self.path, coda))
             print(f"Atlas generato con successo: {valid_count} tavole create su {progress_count} order_layer processati")
         else:
-            QMessageBox.information(self, "Atlas Interrotto", 
-                                  f"Generazione atlas interrotta dall'utente.\n"
-                                  f"Order layers processati prima dell'interruzione: {progress_count}/{total_order_layers}")
+            self._informa("Atlas Interrotto",
+                          "Generazione atlas interrotta dall'utente.\n"
+                          "Order layers processati prima "
+                          "dell'interruzione: %s/%s"
+                          % (progress_count, total_order_layers))
             print("Generazione atlas interrotta dall'utente")
 
     def stop_processes_named(self, name):

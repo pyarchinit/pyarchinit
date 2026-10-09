@@ -25,6 +25,47 @@ from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
 from .pyarchinit_home import pyarchinit_home
 
 
+def restore_missing_from_zip(zip_path, extract_to, prefix):
+    """Rimette solo i file di ``prefix`` che non ci sono più. Quanti ne ha messi.
+
+    ``extractall`` sovrascriverebbe anche quelli che l'utente ha
+    modificato, e riestrarre tutto `profile.zip` perché manca una sola
+    cartella è un rimedio peggiore del male. Qui si tocca soltanto quello
+    che manca, e soltanto sotto il prefisso dato.
+
+    Nasce da Enzo (2026-10-09): «ho cancellato la cartella template da
+    pyarchinit_5/bin/profile ma non l'ha ricreata». Lo zip si riestraeva
+    solo quando mancava ``bin/profile``, non quando mancava
+    ``profile/template``.
+    """
+    import os
+    import zipfile
+
+    try:
+        if not os.path.exists(zip_path):
+            return 0
+        # Niente soglia sulla dimensione: ci pensa zipfile a rifiutare
+        # quello che non è un archivio, e un test usa zip minuscoli.
+        rimessi = 0
+        with zipfile.ZipFile(zip_path, 'r') as archivio:
+            for voce in archivio.namelist():
+                if not voce.startswith(prefix) or voce.endswith('/'):
+                    continue
+                destinazione = os.path.join(extract_to, voce)
+                if os.path.exists(destinazione):
+                    continue
+                os.makedirs(os.path.dirname(destinazione), exist_ok=True)
+                with archivio.open(voce) as sorgente, \
+                        open(destinazione, 'wb') as uscita:
+                    uscita.write(sorgente.read())
+                rimessi += 1
+        return rimessi
+    except Exception as e:                          # noqa: BLE001
+        print("[pyArchInit] Warning: could not restore from %s: %s"
+              % (zip_path, e))
+        return 0
+
+
 class pyarchinit_Folder_installation(object):
     HOME = pyarchinit_home()
     RESOURCES_PATH = os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'resources')
@@ -184,24 +225,34 @@ class pyarchinit_Folder_installation(object):
         # Copy template file (after profile extraction)
         template_src = os.path.join(dbfiles_path, 'layout_TimeManager.qpt')
         template_dst = os.path.join(home_bin_export_path, 'profile', 'template', 'layout_TimeManager.qpt')
-        # Ensure template directory exists
+        # Ensure template directory exists. Prima questa copia stava
+        # dentro `if os.path.exists(template_dir)`: cancellata la
+        # cartella non si copiava più niente, e non lo diceva nessuno
+        # (Enzo, 2026-10-09).
         template_dir = os.path.dirname(template_dst)
-        if os.path.exists(template_dir):
-            self._safe_copy(template_src, template_dst, 'layout_TimeManager.qpt')
-            # I modelli generici non hanno il titolo «Tavola N» né
-            # l'immagine della matrice, quindi l'atlante del Time Manager
-            # esce spoglio. Qui, DOPO l'estrazione di profile.zip, si
-            # scrive accanto a ciascuno la copia preparata — e siccome lo
-            # zip si riestrae quando la cartella manca, le copie si
-            # rifanno da sole invece di sparire per sempre.
-            try:
-                from .atlas_template import ensure_prepared
-                fatti = ensure_prepared(template_dir)
-                if fatti:
-                    print("pyArchInit: %d modelli preparati per l'atlante "
-                          "del Time Manager" % fatti)
-            except Exception as e:                  # noqa: BLE001
-                print("pyArchInit: modelli non preparati (%s)" % e)
+        os.makedirs(template_dir, exist_ok=True)
+        # I modelli che mancano tornano dallo zip, uno per uno: quelli
+        # che ci sono — magari modificati a mano — non si toccano.
+        rimessi = restore_missing_from_zip(
+            os.path.join(dbfiles_path, 'profile.zip'),
+            home_bin_export_path, 'profile/template/')
+        if rimessi:
+            print("pyArchInit: %d modelli di stampa ripristinati" % rimessi)
+        self._safe_copy(template_src, template_dst, 'layout_TimeManager.qpt')
+        # I modelli generici non hanno il titolo «Tavola N» né
+        # l'immagine della matrice, quindi l'atlante del Time Manager
+        # esce spoglio. Qui, DOPO l'estrazione di profile.zip, si
+        # scrive accanto a ciascuno la copia preparata — e siccome lo
+        # zip si riestrae quando la cartella manca, le copie si
+        # rifanno da sole invece di sparire per sempre.
+        try:
+            from .atlas_template import ensure_prepared
+            fatti = ensure_prepared(template_dir)
+            if fatti:
+                print("pyArchInit: %d modelli preparati per l'atlante "
+                      "del Time Manager" % fatti)
+        except Exception as e:                  # noqa: BLE001
+            print("pyArchInit: modelli non preparati (%s)" % e)
 
     def install_or_update_maintenance_files(self):
         """Refresh bundled maintenance files in ~/pyarchinit/bin/ when the
