@@ -5,6 +5,29 @@
 
 ---
 
+## [fix] - 2026-10-09 — i numeri delle US non comparivano affatto — 5.13.53-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-labels-perslide-5.13.53-alpha`**. «Vedo le etichette delle quote ma non quelle delle US» (Enzo).
+
+### Italiano
+
+Due cose insieme, e la seconda non me l'aspettavo.
+
+L'elenco delle unità da etichettare si calcolava **una volta sola**, prima del ciclo, quando il filtro era ancora soltanto quello del sito. Ma:
+
+1. **quali US siano coperte dipende dal livello**: su tutto il sito ne resta 1 (la US 1 copre il saggio), al livello 12 sono 19;
+2. **gli id delle feature cambiano quando cambia il filtro**. Misurato sullo stesso layer: con il solo filtro del sito i primi id sono `(1,'16'), (2,'14'), (3,'15')`; con `order_layer <= 12` diventano `(15,'19'), (16,'19'), (17,'19')`. Fra i due elenchi di id da etichettare **non ce n'era nemmeno uno in comune**.
+
+Quindi l'espressione `$id IN (…)` non corrispondeva a nulla e **nessun** numero compariva. Le quote si vedevano perché non hanno quel filtro — ed è esattamente il sintomo che Enzo descriveva.
+
+`_aggiorna_etichette_us` ricalcola ora l'elenco **dentro il ciclo**, subito dopo che il filtro del livello è stato applicato; un test controlla proprio quell'ordine, perché invertirlo rimette il baco. Verificato sul sito di esempio: livello 0 → 3 numeri, 2 → 7, 4 → 9, 12 → 19.
+
+### English
+
+Two things at once. The list of units to label was computed **once**, before the loop, while the layer still carried only the site filter. But which units are covered depends on the level (1 over the whole site, 19 at level 12), and — the part I did not expect — **feature ids change when the subset string changes**: with the site filter the first ids are `(1,'16'), (2,'14'), (3,'15')`, with `order_layer <= 12` they are `(15,'19'), (16,'19'), (17,'19')`, and the two id lists had **nothing in common**. So `$id IN (…)` matched nothing and no number was drawn at all, while the elevations, which carry no such filter, were fine. The list is now recomputed inside the loop, right after the level filter is applied, and a test pins that order.
+
+---
+
 ## [feat] - 2026-10-09 — numero dell'unità in un cerchio, quota sopra la linea, niente sovrapposizioni — 5.13.52-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-labels-5.13.52-alpha`**. Tre richieste di Enzo, una dopo l'altra, sulle etichette della tavola.
