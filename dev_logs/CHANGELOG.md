@@ -5,6 +5,26 @@
 
 ---
 
+## [fix] - 2026-10-09 — la tavola non esce più bianca, e le finestre non bloccano il designer — 5.13.49-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-map-extent-5.13.49-alpha`**. Tre guasti segnalati da Enzo provando le stampe, tutti e tre veri.
+
+### Italiano
+
+**«Esce ancora vuoto».** È il guasto principale, e stava sotto gli occhi: il generatore calcolava `layoutItemMap` e **non lo usava mai**. La mappa del layout conservava l'inquadratura con cui il template era stato salvato — su un altro progetto, altrove — e quindi disegnava il niente. `PRINTMAP` fa `item.zoomToExtent(canvas.extent())` da sempre (`PRINTMAP.py:254`); il Time Manager no. Ora **tutte** le mappe del layout vengono inquadrate sull'estensione della mappa di QGIS — il modello del Time Manager ne ha due — con `setKeepLayerSet(False)` e `setFollowVisibilityPreset(False)`, perché un template salvato altrove può portarsi dietro un elenco di layer che qui non esistono.
+
+Misurato sul modello del Time Manager, quanta parte del foglio non è bianca: **2,74% prima, 20,98% dopo**.
+
+**«Ho cancellato la cartella template da pyarchinit_5/bin/profile ma non l'ha ricreata».** Due cause. Lo zip si riestraeva solo quando mancava `bin/profile`, non quando mancava `profile/template`; e la copia di `layout_TimeManager.qpt` stava dentro `if os.path.exists(template_dir)`, quindi cancellata la cartella non si copiava più niente e non lo diceva nessuno. Ora la cartella si crea, e `restore_missing_from_zip` rimette **solo i file che mancano**: `extractall` sovrascriverebbe anche quelli modificati a mano, e riestrarre tutto `profile.zip` perché manca una cartella è un rimedio peggiore del male. Provato sullo zip vero: 47 voci ripristinate da zero, 0 al secondo giro, 1 cancellandone una — e un file modificato a mano resta com'era.
+
+**«La finestra del Time Manager blocca la finestra del layout».** `QMessageBox.question` e `QMessageBox.information` sono modali all'**applicazione**: col Layout Designer appena aperto gli tolgono i clic, ed era esattamente quello che succedeva. Ora `_chiedi` e `_informa` costruiscono finestre modali alla **sola** finestra del Time Manager (`Qt.WindowModality.WindowModal`), e il designer resta usabile; l'avviso lo dice anche, invece di chiedere di chiuderlo.
+
+### English
+
+Three real defects. **The sheet came out blank**: the generator computed `layoutItemMap` and never used it, so the layout's map kept the extent the template had been saved with — elsewhere, on another project — and drew nothing. `PRINTMAP` has always done `zoomToExtent(canvas.extent())`; the Time Manager did not. Every map of the layout is now framed on the canvas extent, with `setKeepLayerSet(False)`. Measured ink on the sheet: 2.74% before, 20.98% after. **A deleted template folder was not restored**: the zip was re-extracted only when `bin/profile` was missing, and the copy of `layout_TimeManager.qpt` sat inside `if os.path.exists(template_dir)`. The folder is now created and `restore_missing_from_zip` puts back only the missing members — never overwriting a hand-edited template. **Our message boxes blocked the Layout Designer**: `QMessageBox.question`/`information` are application-modal; `_chiedi` and `_informa` are modal to the Time Manager window only.
+
+---
+
 ## [fix] - 2026-10-09 — le copie preparate si rifanno da sole, e il titolo si riempie — 5.13.48-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-prepare-persist-5.13.48-alpha`**. Due cose nate dalla correzione di Enzo e dalle prove di stampa.
