@@ -76,3 +76,132 @@ def describe_missing(caps: Dict[str, bool], lang: str = "it") -> str:
         return ""
     return parziale % (" né ".join(mancanti) if lang == "it"
                        else " nor ".join(mancanti))
+
+
+#: Il suffisso dei modelli preparati per l'atlante del Time Manager.
+PREPARED_SUFFIX = " + Time Manager"
+
+
+def what_to_add(caps: Dict[str, bool]):
+    """Che cosa manca a questo modello, nell'ordine in cui si aggiunge.
+
+    Vuoto se non manca niente, e vuoto anche se manca la **mappa**: in
+    quel caso non è un modello da atlante, e aggiungerci la matrice non
+    lo renderebbe utile.
+    """
+    caps = caps or {}
+    if not caps.get("map"):
+        return []
+    return [k for k in ("title", "matrix") if not caps.get(k)]
+
+
+def prepared_name(path):
+    """Il nome del modello preparato, accanto all'originale.
+
+    Un file nuovo, mai una sovrascrittura: i modelli sono di chi usa il
+    plugin, e li ha scelti lui.
+    """
+    from pathlib import Path
+
+    percorso = Path(path)
+    gambo = percorso.stem
+    if gambo.endswith(PREPARED_SUFFIX):
+        return percorso
+    return percorso.with_name(gambo + PREPARED_SUFFIX + percorso.suffix)
+
+
+def add_items(layout, mancanti):
+    """Aggiunge al layout gli elementi che l'atlante cerca.
+
+    Su una **pagina nuova**, mai sopra quella esistente: in un modello
+    che non si conosce si finirebbe per coprire la legenda o il
+    cartiglio, e una matrice di Harris schiacciata in un angolo non si
+    legge. La pagina ha la stessa misura delle altre.
+    """
+    from qgis.core import (QgsLayoutFrame, QgsLayoutItemHtml,
+                           QgsLayoutItemPage, QgsLayoutItemPicture,
+                           QgsLayoutPoint, QgsLayoutSize, QgsUnitTypes)
+    from qgis.PyQt.QtCore import QRectF
+
+    if not mancanti:
+        return 0
+    raccolta = layout.pageCollection()
+    modello_pagina = raccolta.page(0)
+    pagina = QgsLayoutItemPage(layout)
+    if modello_pagina is not None:
+        pagina.setPageSize(modello_pagina.pageSize())
+    raccolta.addPage(pagina)
+    indice = raccolta.pageCount() - 1
+    misura = pagina.pageSize()
+    larghezza, altezza = misura.width(), misura.height()
+    unita = misura.units()
+    margine = min(larghezza, altezza) * 0.05
+    alto_titolo = max(altezza * 0.07, 10.0)
+    cima = raccolta.page(indice).pos().y() if hasattr(
+        raccolta.page(indice), "pos") else 0.0
+
+    aggiunti = 0
+    if "title" in mancanti:
+        html = QgsLayoutItemHtml(layout)
+        layout.addMultiFrame(html)
+        telaio = QgsLayoutFrame(layout, html)
+        html.addFrame(telaio)
+        telaio.setId(TITLE_ID)
+        telaio.attemptSetSceneRect(QRectF(
+            margine, cima + margine, larghezza - 2 * margine, alto_titolo))
+        aggiunti += 1
+    if "matrix" in mancanti:
+        immagine = QgsLayoutItemPicture(layout)
+        layout.addLayoutItem(immagine)
+        immagine.setId(MATRIX_ID)
+        immagine.setFrameEnabled(True)
+        # Il riquadro si stringe sul disegno invece di restare mezzo
+        # vuoto: una matrice è alta e stretta, la pagina è larga.
+        try:
+            immagine.setResizeMode(
+                QgsLayoutItemPicture.ResizeMode.ZoomResizeFrame)
+        except Exception:                           # noqa: BLE001
+            try:
+                immagine.setResizeMode(
+                    QgsLayoutItemPicture.ZoomResizeFrame)
+            except Exception:                       # noqa: BLE001
+                pass
+        y = cima + margine + alto_titolo + margine * 0.5
+        immagine.attemptSetSceneRect(QRectF(
+            margine, y, larghezza - 2 * margine,
+            altezza - (y - cima) - margine))
+        aggiunti += 1
+    return aggiunti
+
+
+def prepare_file(path, out_dir=None):
+    """Scrive accanto all'originale un modello adatto all'atlante.
+
+    Restituisce il percorso scritto, o ``None`` se non c'era niente da
+    aggiungere (o se il modello non ha una mappa).
+    """
+    from pathlib import Path
+
+    from qgis.core import (QgsPrintLayout, QgsProject, QgsReadWriteContext)
+    from qgis.PyQt.QtXml import QDomDocument
+
+    percorso = Path(path)
+    testo = percorso.read_text(encoding="utf-8", errors="replace")
+    mancanti = what_to_add(capabilities(testo))
+    if not mancanti:
+        return None
+
+    layout = QgsPrintLayout(QgsProject.instance())
+    layout.initializeDefaults()
+    doc = QDomDocument()
+    doc.setContent(testo)
+    layout.readXml(doc.documentElement(), doc, QgsReadWriteContext())
+    if not add_items(layout, mancanti):
+        return None
+
+    destinazione = prepared_name(percorso)
+    if out_dir is not None:
+        destinazione = Path(out_dir) / destinazione.name
+    if not layout.saveAsTemplate(str(destinazione), QgsReadWriteContext()):
+        return None
+    return str(destinazione)
