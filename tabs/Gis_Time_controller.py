@@ -47,6 +47,11 @@ from qgis.PyQt.QtXml import QDomDocument
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
+                                              base_map_name,
+                                              base_map_uri,
+                                              overview_indexes,
+                                              overview_window)
 from ..modules.utility.atlas_scale import (fitting_extent,
                                            main_map_index, nice_scale)
 from ..modules.utility.atlas_template import (MATRIX_ID, TITLE_ID,
@@ -1044,6 +1049,120 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     elemento.setLinkedMap(principale)
             except Exception:                       # noqa: BLE001
                 continue
+        self._prepara_panoramica(mappe, indice, riquadro)
+
+    def _sfondo_e_puntino(self, centro_3857):
+        """Lo sfondo dell'inserto e il puntino del sito. ``(sfondo, punto)``.
+
+        Lo sfondo è una sorgente XYZ: si scarica dalla rete, e se la rete
+        non c'è resta ``None`` — l'inserto mostra il solo puntino su
+        fondo bianco, che dice meno ma non è un errore. In scavo capita.
+        """
+        from qgis.core import (QgsCoordinateReferenceSystem, QgsFeature,
+                               QgsGeometry, QgsMarkerSymbol, QgsPointXY,
+                               QgsRasterLayer, QgsVectorLayer)
+        from qgis.PyQt.QtCore import QSettings
+
+        tipo = str(QSettings().value("pyarchinit/atlas_basemap",
+                                     DEFAULT_BASE_MAP) or DEFAULT_BASE_MAP)
+        sfondo = None
+        try:
+            candidato = QgsRasterLayer(base_map_uri(tipo),
+                                       base_map_name(tipo), "wms")
+            if candidato.isValid():
+                sfondo = candidato
+            else:
+                QgsMessageLog.logMessage(
+                    "Sfondo dell'inserto non disponibile (%s): l'inserto "
+                    "mostrerà il solo puntino." % base_map_name(tipo),
+                    "PyArchInit", Qgis.MessageLevel.Info)
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Sfondo dell'inserto non caricato: %s" % e,
+                "PyArchInit", Qgis.MessageLevel.Info)
+
+        punto = QgsVectorLayer("Point?crs=EPSG:3857", "Localizzazione",
+                               "memory")
+        try:
+            f = QgsFeature()
+            f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(*centro_3857)))
+            punto.dataProvider().addFeatures([f])
+            punto.updateExtents()
+            punto.renderer().setSymbol(QgsMarkerSymbol.createSimple({
+                "name": "circle", "color": "214,45,45",
+                "outline_color": "255,255,255", "outline_width": "0.4",
+                "size": "3.2"}))
+        except Exception:                           # noqa: BLE001
+            return sfondo, None
+        return sfondo, punto
+
+    def _prepara_panoramica(self, mappe, indice_principale, riquadro):
+        """L'inserto dice dove si è nel mondo, non ripete lo scavo.
+
+        Sfondo OpenStreetMap (o satellite, da impostazione) e un solo
+        puntino sul sito. Prima l'inserto seguiva i layer del progetto e
+        mostrava le stesse US della mappa grande, in piccolo: non diceva
+        niente che non ci fosse già (Enzo, 2026-10-09).
+        """
+        from qgis.core import (QgsCoordinateReferenceSystem,
+                               QgsCoordinateTransform, QgsPointXY,
+                               QgsRectangle)
+
+        inserti = overview_indexes(
+            [(m.sizeWithUnits().width(), m.sizeWithUnits().height())
+             for m in mappe], indice_principale)
+        if not inserti or not riquadro:
+            return
+        try:
+            centro = QgsPointXY((riquadro[0] + riquadro[2]) / 2.0,
+                                (riquadro[1] + riquadro[3]) / 2.0)
+            sorgente = mappe[indice_principale].crs()
+            if not sorgente.isValid():
+                sorgente = QgsProject.instance().crs()
+            verso = QgsCoordinateReferenceSystem("EPSG:3857")
+            centro = QgsCoordinateTransform(
+                sorgente, verso, QgsProject.instance()).transform(centro)
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Inserto non preparato (coordinate): %s" % e,
+                "PyArchInit", Qgis.MessageLevel.Warning)
+            return
+
+        sfondo, punto = self._sfondo_e_puntino((centro.x(), centro.y()))
+        if punto is None:
+            return
+        strati = [punto] + ([sfondo] if sfondo is not None else [])
+        # Fuori dalla legenda: sono roba della tavola, non del progetto di
+        # chi sta scavando. Si tolgono alla fine della generazione.
+        self._strati_panoramica = []
+        for strato in strati:
+            try:
+                QgsProject.instance().addMapLayer(strato, False)
+                self._strati_panoramica.append(strato)
+            except Exception:                       # noqa: BLE001
+                continue
+
+        finestra = overview_window((centro.x(), centro.y()))
+        for i in inserti:
+            inserto = mappe[i]
+            try:
+                inserto.setCrs(QgsCoordinateReferenceSystem("EPSG:3857"))
+                inserto.setKeepLayerSet(True)
+                inserto.setLayers(strati)
+                inserto.zoomToExtent(QgsRectangle(*finestra))
+            except Exception as e:                  # noqa: BLE001
+                QgsMessageLog.logMessage(
+                    "Inserto non preparato: %s" % e, "PyArchInit",
+                    Qgis.MessageLevel.Warning)
+
+    def _butta_via_la_panoramica(self):
+        """Toglie dal progetto gli strati che l'inserto ha usato."""
+        for strato in getattr(self, "_strati_panoramica", []) or []:
+            try:
+                QgsProject.instance().removeMapLayer(strato.id())
+            except Exception:                       # noqa: BLE001
+                continue
+        self._strati_panoramica = []
 
     def _chiedi(self, titolo, testo, bottoni=None):
         """Una domanda che NON blocca le altre finestre di QGIS.
@@ -1538,6 +1657,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Chiudi progress bar e mostra messaggio di completamento
         self._atlante_in_corso = False
         self._riquadro_atlante = None
+        self._butta_via_la_panoramica()
         progress.close()
         
         if not self.abort and not progress.wasCanceled():
