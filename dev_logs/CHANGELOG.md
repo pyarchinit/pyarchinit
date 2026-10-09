@@ -5,6 +5,26 @@
 
 ---
 
+## [fix] - 2026-10-09 — le copie preparate si rifanno da sole, e il titolo si riempie — 5.13.48-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-prepare-persist-5.13.48-alpha`**. Due cose nate dalla correzione di Enzo e dalle prove di stampa.
+
+### Italiano
+
+**«I template si scaricano quando installi pyarchinit, se li cancelli si dovrebbero rigenerare».** Vero, e cambia tutto per la 5.13.47: i modelli escono da `resources/dbfiles/profile.zip`, estratto **solo quando la cartella `bin/profile` non esiste**. Rigenerando la cartella le 23 copie preparate sparivano per sempre. Ora si rifanno da sole: `ensure_prepared` gira all'avvio, **dopo** l'estrazione, e prepara soltanto quelle che mancano. A regime non apre nemmeno un layout — `to_prepare` scarta per nome le copie già fatte e, leggendo il testo, i modelli già completi o senza mappa.
+
+**Un segmentation fault che mi sono tirato dietro.** `install_dir()` chiama la preparazione, e i test lo chiamano **senza** `QgsApplication`: costruire un `QgsPrintLayout` in quelle condizioni non dà un'eccezione, dà un **segfault** che si porta via tutto il processo. `qgis_is_running()` lo impedisce — `ensure_prepared` e `prepare_file` non fanno niente se QGIS non è vivo — e un test lo fissa.
+
+**Il segnaposto del titolo.** Provando le stampe, la prima pagina stampava `{{title}}` così com'era. I modelli generici portano quel segnaposto nelle etichette: `PRINTMAP` lo sostituisce già (`PRINTMAP.py:252`), il Time Manager no. **26 modelli su 25** ce l'hanno. Ora il generatore fa lo stesso, con lo stesso tipo di elemento (65641) e il titolo «Tavola N».
+
+**Le prove di stampa, rifatte come va fatto.** Enzo: «nel Time Manager si usano le spatial view». Le prime prove usavano `pyunitastratigrafiche`, la tabella dei disegni; le ho rifatte su `pyarchinit_us_view` e `pyarchinit_quote_view`, col filtro `order_layer <= N AND sito IN (…)` identico a `liststring()`. Cinque tavole sul sito di esempio: livello 5 (19 US, 201 geometrie), 12 (33, 405), 24 (51, 482), e due sul modello A3 preparato, che escono su due pagine — mappa e matrice.
+
+### English
+
+The templates come from `profile.zip`, extracted only when `bin/profile` is missing, so regenerating the folder wiped the 23 prepared copies. `ensure_prepared` now runs at startup after the extraction and prepares only what is missing; in steady state it opens no layout at all. A segfault I introduced: `install_dir()` calls the preparation and the tests call it without a `QgsApplication` — building a `QgsPrintLayout` there is not an exception but a **segmentation fault**; `qgis_is_running()` guards it. The generic templates carry a `{{title}}` placeholder that `PRINTMAP` already substitutes and the Time Manager did not, so sheets printed `{{title}}` literally; fixed with the same element type. Print trials redone against the **spatial views** rather than the drawing table, with the Time Manager's own `order_layer <= N` filter.
+
+---
+
 ## [feat] - 2026-10-09 — i modelli generici si preparano per l'atlante — 5.13.47-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-template-prepare-5.13.47-alpha`**. Seguito della 5.13.46: una volta capito che mancavano due elementi, tanto vale aggiungerli.
