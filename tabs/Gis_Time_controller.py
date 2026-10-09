@@ -47,7 +47,9 @@ from qgis.PyQt.QtXml import QDomDocument
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
-from ..modules.utility.atlas_labels import quota_labeling, us_labeling
+from ..modules.utility.atlas_labels import (labelled_ids,
+                                            quota_labeling,
+                                            us_labeling)
 from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_name,
                                               base_map_uri,
@@ -1172,7 +1174,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 campi = [f.name() for f in layer.fields()]
                 tipo = layer.geometryType()
                 if tipo == QgsWkbTypes.GeometryType.PolygonGeometry:
-                    nuove = us_labeling(campi)
+                    # un'etichetta per unità, e solo per quelle che si
+                    # vedono: il conto si fa qui, una volta, con
+                    # l'indice spaziale.
+                    nuove = us_labeling(campi, labelled_ids(layer))
                 elif tipo == QgsWkbTypes.GeometryType.PointGeometry:
                     nuove = quota_labeling(campi)
                 else:

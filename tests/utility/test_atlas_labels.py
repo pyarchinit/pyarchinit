@@ -83,36 +83,9 @@ def test_the_elevation_is_not_pushed_so_far_it_floats_away():
 
 # --------------- un numero per US, non uno per disegno (2026-10-09) --------
 
-def test_the_number_appears_once_per_unit_not_once_per_drawing():
-    """La vista US ha una riga per ogni **disegno**: sul sito di esempio
-    482 poligoni per 51 unità. Senza raggruppare la tavola esce coperta
-    da «36 36 36 36»."""
-    from modules.utility.atlas_labels import us_show_expression
-
-    espressione = us_show_expression(["area", "us", "gid"])
-    assert espressione == '$area >= maximum($area, group_by:=concat("area", \'-\', "us"))'
 
 
-def test_the_drawing_table_names_group_too():
-    from modules.utility.atlas_labels import us_group_expression
 
-    assert us_group_expression(["area_s", "us_s"]) == 'concat("area_s", \'-\', "us_s")'
-
-
-def test_without_a_grouping_key_everything_is_labelled():
-    """Meglio un numero ripetuto che nessun numero."""
-    from modules.utility.atlas_labels import us_show_expression
-
-    assert us_show_expression(["gid", "the_geom"]) is None
-
-
-def test_the_grouping_prefers_the_record_names():
-    from modules.utility.atlas_labels import us_group_expression
-
-    assert '"area"' in us_group_expression(["area", "us", "area_s", "us_s"])
-
-
-# ------------------------------------------- le promesse nel generatore
 
 TM = _ROOT / "tabs" / "Gis_Time_controller.py"
 
@@ -125,7 +98,7 @@ def _corpo(nome: str) -> str:
 
 def test_the_sheet_labels_the_units_and_the_elevations():
     corpo = _corpo("_metti_le_etichette")
-    assert "us_labeling(campi)" in corpo
+    assert "us_labeling(campi, labelled_ids(layer))" in corpo
     assert "quota_labeling(campi)" in corpo
     assert "PolygonGeometry" in corpo and "PointGeometry" in corpo
 
@@ -140,3 +113,79 @@ def test_the_project_is_left_as_it_was_found():
     generazione = _corpo("generate_images")
     assert "self._metti_le_etichette()" in generazione
     assert "self._togli_le_etichette()" in generazione
+
+
+# ---- niente sovrapposizioni, e solo le US che si vedono (2026-10-09) ------
+
+def test_one_label_per_unit_the_biggest_drawing():
+    """La vista US ha una riga per ogni disegno: 482 poligoni per 37
+    unità sul sito di esempio."""
+    from modules.utility.atlas_labels import largest_per_group
+
+    righe = [(1, ("1", "36"), 2.0, 5), (2, ("1", "36"), 9.0, 5),
+             (3, ("1", "37"), 1.0, 6)]
+    assert largest_per_group(righe) == {("1", "36"): 2, ("1", "37"): 3}
+
+
+def test_at_equal_size_the_one_on_top_wins():
+    """Se due disegni hanno la stessa area, si etichetta quello che si
+    vede: il più recente."""
+    from modules.utility.atlas_labels import largest_per_group
+
+    righe = [(1, ("1", "36"), 4.0, 2), (2, ("1", "36"), 4.0, 9)]
+    assert largest_per_group(righe)[("1", "36")] == 2
+
+
+def test_rubbish_rows_do_not_break_the_count():
+    from modules.utility.atlas_labels import largest_per_group
+
+    assert largest_per_group([(1, ("a",), None, None), "non una riga"]) \
+        .get(("a",)) == 1
+
+
+def test_the_ids_become_an_expression_qgis_can_read():
+    from modules.utility.atlas_labels import ids_expression
+
+    assert ids_expression([3, 1, 1, 2]) == "$id IN (1, 2, 3)"
+
+
+def test_nothing_to_label_is_not_an_expression():
+    """Un filtro vuoto nasconderebbe tutto; `None` lascia il default."""
+    from modules.utility.atlas_labels import ids_expression
+
+    assert ids_expression([]) is None
+    assert ids_expression(None) is None
+
+
+def test_the_covered_units_are_worked_out_in_python_not_in_an_expression():
+    """`overlay_within` su sé stesso è O(n²) e si rivaluta a ogni
+    disegno: misurato, su 482 poligoni non finiva in due minuti."""
+    import inspect
+
+    from modules.utility import atlas_labels
+
+    sorgente = inspect.getsource(atlas_labels)
+    assert "overlay_within(" not in sorgente
+    assert "QgsSpatialIndex" in sorgente
+    assert "sopra.contains(mia)" in sorgente
+
+
+def test_labels_move_instead_of_disappearing_when_they_collide():
+    """Enzo: «le etichette non si devono mai sovrapporre; nel caso siano
+    vicine usi una linea e la sposti». Con `OverPoint` QGIS scarta quelle
+    in conflitto; servono posizioni alternative più il richiamo."""
+    import inspect
+
+    from modules.utility import atlas_labels
+
+    sorgente = inspect.getsource(atlas_labels)
+    assert "OrderedPositionsAroundPoint" in sorgente
+    assert "QgsSimpleLineCallout" in sorgente
+    assert "setEnabled(True)" in sorgente
+
+
+def test_the_callout_line_only_shows_when_the_label_really_moved():
+    """Una linea di richiamo lunga zero è solo sporcizia sul disegno."""
+    from modules.utility.atlas_labels import CALLOUT_MIN_MM
+
+    assert CALLOUT_MIN_MM > 0
