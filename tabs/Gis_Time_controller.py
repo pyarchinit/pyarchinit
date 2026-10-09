@@ -41,12 +41,14 @@ except ImportError:
 from qgis.PyQt.QtGui import QPixmap, QPainter, QImage
 from qgis.PyQt.QtWidgets import QFileDialog, QGraphicsScene,  QGraphicsView, QListWidgetItem, QDialog, QMessageBox, QProgressDialog, QInputDialog, QVBoxLayout, QHBoxLayout, QPushButton, QListWidget, QLabel
 from qgis.PyQt.QtCore import Qt, pyqtSlot, QCoreApplication, QThread, QRectF, QEventLoop, QTimer
-from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture, QgsLayoutItemLabel
+from qgis.core import Qgis,QgsLayoutFrame, QgsMessageLog, QgsProject, QgsLayoutExporter, QgsApplication, QgsLayoutItemMap, QgsReadWriteContext, QgsPrintLayout,QgsLayoutMultiFrame, QgsLayoutItemHtml, QgsLayoutItemPicture, QgsLayoutItemLabel, QgsLayoutItemScaleBar, QgsRectangle
 from qgis.PyQt.QtXml import QDomDocument
 
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.atlas_scale import (fitting_extent,
+                                           main_map_index, nice_scale)
 from ..modules.utility.atlas_template import (MATRIX_ID, TITLE_ID,
                                               capabilities,
                                               describe_missing,
@@ -932,6 +934,117 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             )
             return None
 
+    def _estensione_dei_dati(self):
+        """Il rettangolo che contiene quello che si vede adesso.
+
+        Dalle VISTE filtrate, non dal canvas: il canvas può essere molto
+        più largo dello scavo, e il disegno resterebbe un francobollo in
+        mezzo al foglio (Enzo, 2026-10-09).
+        """
+        unione = None
+        for layer in (self.selected_layers or []):
+            try:
+                if layer.featureCount() == 0:
+                    continue
+                est = layer.extent()
+                if est.isEmpty():
+                    continue
+            except Exception:                       # noqa: BLE001
+                continue
+            unione = QgsRectangle(est) if unione is None else unione
+            unione.combineExtentWith(est)
+        if unione is None or unione.isEmpty():
+            return None
+        return (unione.xMinimum(), unione.yMinimum(),
+                unione.xMaximum(), unione.yMaximum())
+
+    def _riquadro_del_sito(self):
+        """Il rettangolo di TUTTE le US del sito, non solo di quelle del
+        livello corrente.
+
+        Un atlante deve avere la **stessa scala su tutte le tavole**: se
+        ogni tavola si adattasse al suo livello, la stessa US cambierebbe
+        dimensione da una pagina all'altra e le tavole non si
+        confronterebbero più. Quindi si inquadra una volta sola, sul
+        massimo, e tutte le tavole usano quello.
+
+        I filtri che si mettono qui li riscrive subito il ciclo, a ogni
+        livello.
+        """
+        sito, _area = self._get_cached_sito_area()
+        for layer in (self.selected_layers or []):
+            try:
+                layer.setSubsetString("sito IN ('%s')" % sito)
+            except Exception:                       # noqa: BLE001
+                continue
+        return fitting_extent(self._estensione_dei_dati(), margin=0.0)
+
+    def _inquadra_tavola(self, mappe):
+        """Inquadra la mappa grande sui dati e sistema le scale.
+
+        Solo la mappa **grande**: il modello del Time Manager ne ha due, e
+        la piccola è l'inserto panoramico, che serve a dire dove si è nel
+        mondo e che inquadrato sullo scavo non direbbe più niente.
+
+        La scala si arrotonda alla prima scala vera che contiene ancora
+        tutto (1:20, non 1:18,6), e le barre di scala del modello —
+        che nel template non sono collegate a nessuna mappa, ed è per
+        questo che la numerica stampava «1:1» — vengono collegate a lei.
+        """
+        if not mappe:
+            return
+        for mappa in mappe:
+            try:
+                # Un template salvato altrove può portarsi dietro un
+                # elenco di layer che qui non esistono.
+                mappa.setFollowVisibilityPreset(False)
+                mappa.setKeepLayerSet(False)
+            except Exception:                       # noqa: BLE001
+                pass
+        misure = []
+        for mappa in mappe:
+            try:
+                m = mappa.sizeWithUnits()
+                misure.append((m.width(), m.height()))
+            except Exception:                       # noqa: BLE001
+                misure.append((0.0, 0.0))
+        indice = main_map_index(misure)
+        if indice is None:
+            return
+        principale = mappe[indice]
+        # Il riquadro è quello di tutto il sito, calcolato una volta
+        # sola all'inizio della generazione: stessa inquadratura e stessa
+        # scala su ogni tavola. Nessun margine in più — `zoomToExtent`
+        # già lascia l'aria che serve per via delle proporzioni del
+        # telaio, e un 6% in più spingeva 1:18,6 oltre il 20, facendo
+        # saltare la serie a 1:25, cioè un disegno più piccolo del
+        # necessario. Misurato (inchiostro sul foglio, livello 24):
+        # esatta 22,85%, col margine e arrotondata 13,26%, senza margine
+        # e arrotondata 19,88%.
+        riquadro = getattr(self, "_riquadro_atlante", None)
+        if riquadro is None:
+            riquadro = fitting_extent(self._estensione_dei_dati(),
+                                      margin=0.0)
+        try:
+            if riquadro:
+                principale.zoomToExtent(QgsRectangle(*riquadro))
+            else:
+                principale.zoomToExtent(self.iface.mapCanvas().extent())
+            scala = nice_scale(principale.scale())
+            principale.setScale(scala)
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Mappa della tavola non inquadrata: %s" % e,
+                "PyArchInit", Qgis.MessageLevel.Warning)
+            return
+        for elemento in self.current_layout.items():
+            try:
+                if isinstance(elemento, QgsLayoutItemScaleBar) \
+                        and elemento.linkedMap() is None:
+                    elemento.setLinkedMap(principale)
+            except Exception:                       # noqa: BLE001
+                continue
+
     def _chiedi(self, titolo, testo, bottoni=None):
         """Una domanda che NON blocca le altre finestre di QGIS.
 
@@ -1171,6 +1284,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         progress.show()
         progress_count = 0
         non_scritte = []
+        # Una volta sola, prima di cominciare: stessa scala su tutte le
+        # tavole. Senza, la stessa US cambierebbe dimensione da una
+        # pagina all'altra.
+        self._riquadro_atlante = self._riquadro_del_sito()
         # Durante la generazione la manopola si muove da sola: il timer
         # di debounce rifarebbe filtro e matrice in mezzo al ciclo.
         self._atlante_in_corso = True
@@ -1230,19 +1347,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             # progetto, altrove — e disegna il niente. È il motivo per cui
             # «i layout sono vuoti» (Enzo, 2026-10-09). PRINTMAP lo fa già
             # (PRINTMAP.py:254); qui `layoutItemMap` si calcolava e non si
-            # usava mai. Tutte le mappe, non la prima: il modello del Time
-            # Manager ne ha due.
-            for mappa in mappe:
-                try:
-                    # Un template salvato altrove può portarsi dietro un
-                    # elenco di layer che qui non esistono.
-                    mappa.setFollowVisibilityPreset(False)
-                    mappa.setKeepLayerSet(False)
-                    mappa.zoomToExtent(canvas.extent())
-                except Exception as e:              # noqa: BLE001
-                    QgsMessageLog.logMessage(
-                        "Mappa della tavola non inquadrata: %s" % e,
-                        "PyArchInit", Qgis.MessageLevel.Warning)
+            # usava mai.
+            self._inquadra_tavola(mappe)
 
             # Ottieni l'elemento HTML dalla layout
             html_item = None
@@ -1431,6 +1537,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         
         # Chiudi progress bar e mostra messaggio di completamento
         self._atlante_in_corso = False
+        self._riquadro_atlante = None
         progress.close()
         
         if not self.abort and not progress.wasCanceled():

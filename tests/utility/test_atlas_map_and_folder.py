@@ -35,24 +35,49 @@ def _corpo(sorgente: str, nome: str) -> str:
 
 def test_the_map_of_the_sheet_is_actually_framed():
     src = TM.read_text(encoding="utf-8")
-    corpo = _corpo(src, "generate_images")
+    assert "self._inquadra_tavola(mappe)" in _corpo(src, "generate_images")
+    corpo = _corpo(src, "_inquadra_tavola")
     assert "zoomToExtent" in corpo, "la mappa non viene mai inquadrata"
-    assert "canvas.extent()" in corpo
 
 
 def test_the_map_follows_the_project_layers():
     """Un template salvato altrove può portarsi dietro un elenco di layer
     che qui non esistono: la tavola uscirebbe bianca lo stesso."""
-    corpo = _corpo(TM.read_text(encoding="utf-8"), "generate_images")
+    corpo = _corpo(TM.read_text(encoding="utf-8"), "_inquadra_tavola")
     assert "setKeepLayerSet(False)" in corpo
 
 
-def test_every_map_of_the_layout_is_framed_not_just_the_first():
-    """Il modello del Time Manager ha due mappe."""
-    corpo = _corpo(TM.read_text(encoding="utf-8"), "generate_images")
-    inizio = corpo.index("zoomToExtent")
-    intorno = corpo[max(0, inizio - 400):inizio]
-    assert "for " in intorno, "sembra inquadrata una mappa sola"
+def test_only_the_big_map_is_framed_on_the_dig():
+    """Il modello del Time Manager ha DUE mappe, e la piccola è
+    l'inserto panoramico: inquadrato sullo scavo non direbbe più dove si
+    è nel mondo (Enzo, 2026-10-09)."""
+    corpo = _corpo(TM.read_text(encoding="utf-8"), "_inquadra_tavola")
+    assert "main_map_index(misure)" in corpo
+    assert "principale.zoomToExtent" in corpo
+
+
+def test_the_drawing_is_framed_on_the_data_not_on_the_canvas():
+    """Il canvas può essere molto più largo dello scavo: il disegno
+    restava un francobollo in mezzo al foglio."""
+    src = TM.read_text(encoding="utf-8")
+    assert "def _estensione_dei_dati" in src
+    corpo = _corpo(src, "_estensione_dei_dati")
+    assert "self.selected_layers" in corpo
+    assert "combineExtentWith" in corpo
+
+
+def test_the_printed_scale_is_a_real_one():
+    """1:18,6 non è una scala da disegno."""
+    corpo = _corpo(TM.read_text(encoding="utf-8"), "_inquadra_tavola")
+    assert "nice_scale(" in corpo and "setScale(" in corpo
+
+
+def test_the_scale_bars_get_a_map_to_read():
+    """Nel modello non sono collegate a nessuna mappa, ed è per questo
+    che la numerica stampava «1:1»."""
+    corpo = _corpo(TM.read_text(encoding="utf-8"), "_inquadra_tavola")
+    assert "QgsLayoutItemScaleBar" in corpo
+    assert "setLinkedMap(principale)" in corpo
 
 
 # ------------------------------------- 2. la cartella template si ricrea
