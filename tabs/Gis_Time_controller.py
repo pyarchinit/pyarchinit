@@ -47,6 +47,10 @@ from qgis.PyQt.QtXml import QDomDocument
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.atlas_template import (MATRIX_ID, TITLE_ID,
+                                              capabilities,
+                                              describe_missing,
+                                              is_usable)
 MAIN_DIALOG_CLASS, _ = loadUiType(
     os.path.join(os.path.dirname(__file__), os.pardir, 'gui', 'ui', 'Gis_Time_controller.ui'))
 
@@ -179,6 +183,11 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         type(self)._PERIODI_CACHE = {}
         type(self)._DATAZIONI_CACHE = {}
         type(self)._RECORD_CACHE = {}
+        # Gli avvisi su un modello incompleto si danno una volta,
+        # non una per tavola.
+        self._avvisato_senza_titolo = False
+        self._avvisato_senza_matrice = False
+        self._atlante_in_corso = False
 
         self.spinBox_relative_cronology.valueChanged.connect(self.update_datazione)
         self.checkBox_matrix.stateChanged.connect(self.update_graphics_view)
@@ -221,6 +230,8 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
     def _on_debounce_timeout(self):
         """Called after debounce period."""
+        if getattr(self, '_atlante_in_corso', False):
+            return                     # l'atlante guida lui la sequenza
         self.define_order_layer_value(self._pending_value)
         # La matrice segue la manopola. Prima si rifaceva solo spegnendo
         # e riaccendendo la spunta «Mostra Matrix» (Enzo, 2026-10-09):
@@ -720,19 +731,39 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         layout = QVBoxLayout(dialog)
         
         # Label informativa
-        info_label = QLabel("Seleziona il template da utilizzare per la generazione dell'atlas:")
+        info_label = QLabel(
+            "Seleziona il template per l'atlas.\n"
+            "✓ = titolo e matrice   • = solo mappa   ✗ = senza mappa")
         layout.addWidget(info_label)
         
         # Lista template
         template_list = QListWidget()
+        # Solo il modello del Time Manager porta il titolo «Tavola N» e
+        # l'immagine della matrice. Gli altri fanno tavole più spoglie, e
+        # prima sceglierli faceva tornare indietro il generatore in
+        # silenzio: adesso si vede subito quali sono (Enzo, 2026-10-09).
+        completi = []
         for name, path in templates:
-            item = QListWidgetItem(f"{name}")
-            item.setToolTip(f"Path: {path}")
-            item.setData(Qt.ItemDataRole.UserRole, path)  # Salva il path nell'item
+            try:
+                caps = capabilities(open(path, encoding='utf-8',
+                                         errors='replace').read())
+            except Exception:                       # noqa: BLE001
+                caps = {"map": True, "title": False, "matrix": False}
+            pieno = caps.get("title") and caps.get("matrix")
+            segno = "✓" if pieno else ("•" if is_usable(caps) else "✗")
+            item = QListWidgetItem("%s  %s" % (segno, name))
+            manca = describe_missing(caps)
+            item.setToolTip("%s\n%s" % (path, manca) if manca else path)
+            item.setData(Qt.ItemDataRole.UserRole, path)
             template_list.addItem(item)
-        
-        # Seleziona il primo per default
-        if template_list.count() > 0:
+            if pieno:
+                completi.append(template_list.count() - 1)
+
+        # Si parte da uno completo, se c'è: è quello che fa la tavola
+        # intera, titolo e matrice compresi.
+        if completi:
+            template_list.setCurrentRow(completi[0])
+        elif template_list.count() > 0:
             template_list.setCurrentRow(0)
             
         layout.addWidget(template_list)
@@ -1026,6 +1057,25 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             QMessageBox.warning(self, "Errore Template", 
                               f"Impossibile caricare il template:\n{template_path}")
             return
+
+        # Che cosa sa fare questo modello, detto PRIMA di cominciare: senza
+        # mappa non si va da nessuna parte, senza titolo o senza immagine
+        # della matrice si va lo stesso, con tavole più spoglie.
+        try:
+            caps = capabilities(open(template_path, encoding='utf-8',
+                                     errors='replace').read())
+        except Exception:                           # noqa: BLE001
+            caps = {"map": True, "title": True, "matrix": True}
+        if not is_usable(caps):
+            QMessageBox.warning(self, "Atlas", describe_missing(caps))
+            return
+        manca = describe_missing(caps)
+        if manca and QMessageBox.question(
+                self, "Atlas", manca + "\n\nVuoi procedere lo stesso?",
+                QMessageBox.StandardButton.Yes
+                | QMessageBox.StandardButton.No
+        ) != QMessageBox.StandardButton.Yes:
+            return
             
         # Chiedi se vuole modificare il template prima di procedere
         reply = QMessageBox.question(
@@ -1052,6 +1102,14 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 return
 
         max_num_order_layer = self.DB_MANAGER.max_num_id(self.MAPPER_TABLE_CLASS, "order_layer")
+        if max_num_order_layer is None:
+            # Nessuna US numerata: senza questa guardia era un TypeError
+            # su None + 1, cioè il generatore che «non parte».
+            QMessageBox.information(
+                self, "Atlas",
+                "Nessuna US ha un valore di «order_layer»: non c'è una "
+                "sequenza da cui ricavare le tavole.")
+            return
         total_order_layers = max_num_order_layer + 1  # da 0 a max incluso
         
         # Optimized: single SQL query instead of O(levels * layers * features) scan
@@ -1079,6 +1137,10 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         progress.setAutoReset(False)  # Non reset automaticamente
         progress.show()
         progress_count = 0
+        non_scritte = []
+        # Durante la generazione la manopola si muove da sola: il timer
+        # di debounce rifarebbe filtro e matrice in mezzo al ciclo.
+        self._atlante_in_corso = True
         
         print(f"=== DEBUG: Inizio atlas generation ===")
         print(f"Total order layers to process: {total_order_layers} (0 to {max_num_order_layer})")
@@ -1118,7 +1180,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
             #QMessageBox.information(None, 'ok', f"{self.current_layout}")# Define the area of the layout to be exported
 
-            layoutItemMap = [i for i in self.current_layout.items() if isinstance(i, QgsLayoutItemMap)][0]
+            mappe = [i for i in self.current_layout.items()
+                     if isinstance(i, QgsLayoutItemMap)]
+            if not mappe:
+                self._atlante_in_corso = False
+                progress.close()
+                QMessageBox.warning(
+                    self, "Atlas",
+                    "Il modello scelto non contiene nessuna mappa: non ci "
+                    "si può disegnare una tavola.\nScegline un altro, per "
+                    "esempio «layout_TimeManager».")
+                return
+            layoutItemMap = mappe[0]
 
             # Ottieni l'elemento HTML dalla layout
             html_item = None
@@ -1127,10 +1200,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     html_item = i
                     break
             if html_item is None:
-                print("Couldn't find HTML item")
-                return
+                # Prima qui si tornava indietro in silenzio, con la barra
+                # di avanzamento aperta e nessuna tavola: è il motivo per
+                # cui «a volte parte e a volte no» (Enzo, 2026-10-09).
+                # Un modello senza la casella del titolo fa le tavole lo
+                # stesso, solo senza titolo.
+                if not self._avvisato_senza_titolo:
+                    self._avvisato_senza_titolo = True
+                    QgsMessageLog.logMessage(
+                        "Il modello non ha il titolo «Tavola N» (id %r): "
+                        "le tavole escono senza titolo." % TITLE_ID,
+                        "PyArchInit", Qgis.MessageLevel.Info)
             #QMessageBox.information(None, 'ok', str(type(html_item)))
-            if isinstance(html_item, QgsLayoutFrame):
+            if html_item is not None and isinstance(html_item, QgsLayoutFrame):
                 # Ottieni il multiframe a cui appartiene questo frame
                 multi_frame = html_item.multiFrame()
 
@@ -1204,11 +1286,19 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     image_item = i
                     break
             if image_item is None:
-                print("Couldn't find Image item")
-                return
+                # Come sopra: senza l'immagine la tavola si fa, senza la
+                # matrice dentro.
+                if not self._avvisato_senza_matrice:
+                    self._avvisato_senza_matrice = True
+                    QgsMessageLog.logMessage(
+                        "Il modello non ha l'immagine della matrice "
+                        "(id %r): le tavole escono senza matrice."
+                        % MATRIX_ID, "PyArchInit", Qgis.MessageLevel.Info)
 
             # controllo se il checkbox 'matrix' è attivo
-            if bool(self.checkBox_matrix.isChecked()) and data_list:
+            if image_item is None:
+                pass
+            elif bool(self.checkBox_matrix.isChecked()) and data_list:
                 # Passa solo i dati delle US visibili alla generazione della matrice
                 HOME = os.environ.get('PYARCHINIT_HOME', os.path.expanduser('~'))
                 cartella = '{}{}{}'.format(HOME, os.sep,
@@ -1230,9 +1320,13 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
 
 
 
-                else:
-                    QMessageBox.warning(self, "Attenzione",
-                                        "L'immagine della matrice non è stata generata correttamente")
+                elif not self._avvisato_senza_matrice:
+                    # Una volta sola: un avviso per livello avrebbe
+                    # fermato la generazione con decine di finestre.
+                    self._avvisato_senza_matrice = True
+                    QgsMessageLog.logMessage(
+                        "Matrice non disegnata per la tavola %s" % value,
+                        "PyArchInit", Qgis.MessageLevel.Warning)
                 image_item.setVisibility(True)
 
             else:
@@ -1243,8 +1337,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             exporter = QgsLayoutExporter(self.current_layout)
             image_path = f"{self.path}/Tavola_{value}.jpg"
             print(f"DEBUG: Exporting Tavola_{value}.jpg to {image_path}")
-            exporter.exportToImage(image_path, QgsLayoutExporter.ImageExportSettings())
-            print(f"DEBUG: ✓ Tavola_{value}.jpg exported successfully")
+            esito = exporter.exportToImage(
+                image_path, QgsLayoutExporter.ImageExportSettings())
+            if esito != QgsLayoutExporter.Success:
+                # Prima l'esito si buttava via: una cartella non
+                # scrivibile dava tavole mancanti senza una parola.
+                non_scritte.append(value)
+                QgsMessageLog.logMessage(
+                    "Tavola %s non scritta in %s (codice %s)"
+                    % (value, image_path, esito), "PyArchInit",
+                    Qgis.MessageLevel.Warning)
+            else:
+                print(f"DEBUG: ✓ Tavola_{value}.jpg exported successfully")
             # Rimuovi la graphicsView esistente dal layout
             self.horizontalLayout_2.removeWidget(self.graphicsView)
 
@@ -1263,14 +1367,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             self.graphicsView.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatio)
         
         # Chiudi progress bar e mostra messaggio di completamento
+        self._atlante_in_corso = False
         progress.close()
         
         if not self.abort and not progress.wasCanceled():
+            coda = ("\n\nNON scritte: %s — controlla che la cartella sia "
+                    "scrivibile." % ", ".join(str(v) for v in non_scritte)
+                    ) if non_scritte else ""
             QMessageBox.information(self, "Atlas Completato", 
                                   f"Generazione atlas completata con successo!\n"
                                   f"Order layers processati: {progress_count}/{total_order_layers}\n"
                                   f"Tavole con datazione valida generate: {valid_count}\n"
-                                  f"Salvate in: {self.path}")
+                                  f"Salvate in: {self.path}{coda}")
             print(f"Atlas generato con successo: {valid_count} tavole create su {progress_count} order_layer processati")
         else:
             QMessageBox.information(self, "Atlas Interrotto", 
