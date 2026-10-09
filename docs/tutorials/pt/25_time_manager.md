@@ -278,3 +278,5 @@ A matriz do Time Manager ja nao passa pelo Graphviz. E desenhada pelo mesmo moto
 - **No atlas a matriz e vetorial.** A imagem da prancha e um SVG de algumas dezenas de KB em vez de um JPEG de megabytes.
 - **E a mesma matriz** do painel Extended Matrix: mesmas faixas de periodo, mesma simbologia, mesma reducao de redundancias. As setas que **sobem** as faixas — onde a estratigrafia contradiz a cronologia — sao desenhadas a **vermelho**.
 - A matriz continua a conter apenas as UE visiveis na posicao atual do seletor.
+
+- As UE que **nao estao visiveis** na posicao atual mas que uma relacao menciona entram na mesma no desenho, **esbatidas**: sem elas a sequencia pareceria quebrada.

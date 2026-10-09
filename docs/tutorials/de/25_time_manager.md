@@ -278,3 +278,5 @@ Die Matrix des Time Managers geht nicht mehr über Graphviz. Sie wird von dersel
 - **Im Atlas ist die Matrix vektoriell.** Das Bild im Blatt ist ein SVG von einigen zehn KB statt eines JPEG von Megabytes.
 - **Es ist dieselbe Matrix** wie im Extended-Matrix-Panel: gleiche Periodenbänder, gleiche Symbologie, gleiche Redundanzreduktion. Pfeile, die die Bänder **hinaufsteigen** — wo Stratigraphie und Chronologie sich widersprechen — werden **rot** gezeichnet.
 - Die Matrix enthält weiterhin nur die an der aktuellen Reglerposition sichtbaren SE.
+
+- Einheiten, die an der aktuellen Position **nicht sichtbar** sind, aber von einer Beziehung genannt werden, erscheinen dennoch in der Zeichnung, **blass**: ohne sie wirkte die Abfolge zerrissen, wie die anderen gezeichnet wirkten sie wie auf der Karte.

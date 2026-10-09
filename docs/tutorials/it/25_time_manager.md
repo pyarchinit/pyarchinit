@@ -280,3 +280,5 @@ Cosa cambia per chi lo usa:
 - **Nell'atlante la matrice è vettoriale.** L'immagine inserita nella tavola è un SVG di qualche decina di KB invece di un JPEG di megabyte: si legge a qualunque scala e la tavola pesa meno.
 - **È la stessa matrice** del pannello Extended Matrix: stesse fasce dei periodi, stessa simbologia, stessa riduzione delle ridondanze. Le frecce che **risalgono** le fasce — dove la stratigrafia contraddice la cronologia — sono disegnate in **rosso**.
 - La matrice contiene solo le US visibili alla posizione corrente del cursore, come prima.
+
+- Le US che **non sono visibili** alla posizione corrente ma che un rapporto cita entrano comunque nel disegno, **sbiadite**: senza di loro la sequenza sembrerebbe spezzata, e disegnate come le altre sembrerebbero sulla mappa.

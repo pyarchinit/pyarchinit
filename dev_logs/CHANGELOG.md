@@ -5,6 +5,28 @@
 
 ---
 
+## [fix] - 2026-10-09 — l'atlante ritrova le frecce, la periodizzazione la voce, la matrice la manopola — 5.13.45-alpha
+
+> Branch `Stratigraph_00001`. Tag **`matrix-atlas-fixes-5.13.45-alpha`**. Quattro guasti segnalati da Enzo provando la 5.13.44, due dei quali nati con lei.
+
+### Italiano
+
+**L'atlante perdeva le punte delle frecce.** QGIS disegna gli SVG con `QSvgRenderer`, che è **SVG Tiny 1.2 e non conosce `<marker>`**: nella tavola le punte sparivano e la matrice perdeva il verso — una matrice di Harris senza frecce non dice più chi copre chi. Verificato rendendo il nostro SVG con `QSvgRenderer` e guardando il risultato. Ora la punta è un `<polygon>` esplicito calcolato sull'ultimo segmento della spezzata (`arrow_points`): la capiscono Qt, i browser e chiunque altro. Vale anche per i file che escono da «Salva SVG…».
+
+**La periodizzazione spariva girando la manopola in avanti.** `datazione_dict` si costruiva dalle feature del layer — cioè **attraverso il filtro corrente**, che però si applica dopo, con un timer di debounce. In senso orario il livello nuovo non era ancora nel layer e la casella restava vuota; in senso antiorario il filtro di prima era più largo e il testo compariva. È l'asimmetria esatta che Enzo descriveva. Ora le datazioni vengono dal **database**, una volta sola per sito. Tolta anche la `valueChanged.connect(update_datazione)` che stava **dentro** `set_max_num`, a sua volta agganciato a `valueChanged`: le connessioni si accumulavano a ogni scatto della manopola.
+
+**La matrice non seguiva la manopola.** `update_graphics_view` era agganciato a `stateChanged` della spunta «Mostra Matrix» e a nient'altro, quindi bisognava spegnerla e riaccenderla. Ora si rifà quando la manopola si ferma, dentro `_on_debounce_timeout` — cioè **dopo** che il filtro è stato applicato, così disegna le US che si vedono davvero.
+
+**Le US che servono solo ad agganciare i nodi ora si vedono, sbiadite.** Enzo: «nel matrix devono comparire le US che si visualizzano; quelle che non sono presenti ma servono per agganciare i nodi devono essere opacizzate, per far intendere che non sono visibili nella mappa». Senza di loro il rapporto sparirebbe e la sequenza sembrerebbe rotta; disegnate come le altre, sembrerebbero sulla mappa. `Unit.dimmed` le marca — un salto solo, come faceva la via vecchia con Graphviz — e il disegno le mette al 40% di opacità, con «non visibile sulla mappa» nel suggerimento. Il modello ora si costruisce su **tutte** le righe del sito (lette una volta e tenute), non solo su quelle visibili: senza le loro righe non si saprebbe nemmeno che esistono.
+
+Vista a schermo e atlante passano ora dallo stesso `_modello_matrice`: due costruttori divergerebbero, e la tavola stampata deve essere quella che si vede.
+
+### English
+
+Four defects found while using 5.13.44, two of them introduced by it. **The atlas lost its arrowheads**: QGIS draws SVG through `QSvgRenderer`, which is SVG Tiny 1.2 and does not know `<marker>` — verified by rendering our own file. Arrowheads are now explicit polygons computed on the last segment, understood by Qt and browsers alike. **The dating box went blank when turning the dial forward**: `datazione_dict` was built from the layer's features, i.e. through the current filter, which is applied later by a debounce timer — clockwise the new level was not in the layer yet, anticlockwise the older, wider filter still held it. Datings now come from the database, once per site, and a `valueChanged` connection that was being remade on every turn is gone. **The matrix did not follow the dial**: it was wired to the checkbox's `stateChanged` and nothing else; it now redraws when the dial settles, after the filter has been applied. **Units that only bridge the graph are now drawn faded**, at 40% opacity with "not visible on the map" in the tooltip, one hop out as the old Graphviz path did; the model is built from all the site's rows, since the visible ones alone cannot tell you the others exist. View and atlas share one model builder.
+
+---
+
 ## [feat] - 2026-10-09 — il Time Manager disegna la matrice senza Graphviz, e le frecce in salita sono rosse — 5.13.44-alpha
 
 > Branch `Stratigraph_00001`. Tag **`matrix-no-graphviz-5.13.44-alpha`**. Due richieste di Enzo, una nata da un vocale di Emanuel Demetrescu.

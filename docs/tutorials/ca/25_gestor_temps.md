@@ -278,3 +278,5 @@ La matriu del Time Manager ja no passa per Graphviz. La dibuixa el mateix motor 
 - **A l'atles la matriu és vectorial.** La imatge de la làmina és un SVG de poques desenes de KB en lloc d'un JPEG de megabytes.
 - **És la mateixa matriu** del plafó Extended Matrix: mateixes franges de període, mateixa simbologia, mateixa reducció de redundàncies. Les fletxes que **pugen** les franges — on l'estratigrafia contradiu la cronologia — es dibuixen en **vermell**.
 - La matriu continua contenint només les UE visibles a la posició actual del dial.
+
+- Les UE que **no són visibles** a la posició actual però que una relació esmenta entren igualment al dibuix, **atenuades**: sense elles la seqüència semblaria trencada.

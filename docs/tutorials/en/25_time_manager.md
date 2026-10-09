@@ -278,3 +278,5 @@ The Time Manager's matrix no longer goes through Graphviz. It is drawn by the sa
 - **In the atlas the matrix is vector.** The picture placed in the sheet is an SVG of a few tens of KB instead of a JPEG of megabytes: it stays readable at any scale and the sheet weighs less.
 - **It is the same matrix** as the Extended Matrix panel: same period bands, same symbology, same redundancy reduction. Arrows that **climb** the bands — where stratigraphy contradicts chronology — are drawn in **red**.
 - The matrix still holds only the SU visible at the dial's current position.
+
+- Units that are **not visible** at the current position but are cited by a relationship still enter the drawing, **faded**: without them the sequence would look broken, and drawn like the others they would look as if they were on the map.

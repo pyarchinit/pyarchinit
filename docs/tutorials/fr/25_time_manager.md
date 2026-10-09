@@ -279,3 +279,5 @@ La matrice du Time Manager ne passe plus par Graphviz. Elle est dessinée par le
 - **Dans l'atlas la matrice est vectorielle.** L'image placée dans la planche est un SVG de quelques dizaines de Ko au lieu d'un JPEG de méga-octets.
 - **C'est la même matrice** que le panneau Extended Matrix : mêmes bandes de période, même symbologie, même réduction des redondances. Les flèches qui **remontent** les bandes — là où la stratigraphie contredit la chronologie — sont dessinées en **rouge**.
 - La matrice ne contient toujours que les US visibles à la position courante de la molette.
+
+- Les US **non visibles** à la position courante mais citées par une relation entrent tout de même dans le dessin, **estompées** : sans elles la séquence semblerait brisée, et dessinées comme les autres elles sembleraient sur la carte.

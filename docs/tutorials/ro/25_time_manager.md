@@ -278,3 +278,5 @@ Matricea din Time Manager nu mai trece prin Graphviz. O deseneaza acelasi motor 
 - **In atlas matricea este vectoriala.** Imaginea din plansa este un SVG de cateva zeci de KB in loc de un JPEG de megabytes.
 - **Este aceeasi matrice** ca in panoul Extended Matrix: aceleasi benzi de perioada, aceeasi simbologie, aceeasi reducere a redundantelor. Sagetile care **urca** benzile — unde stratigrafia contrazice cronologia — sunt desenate cu **rosu**.
 - Matricea contine in continuare doar US vizibile la pozitia curenta a cadranului.
+
+- US care **nu sunt vizibile** la pozitia curenta dar pe care o relatie le citeaza intra totusi in desen, **estompate**: fara ele secventa ar parea rupta.
