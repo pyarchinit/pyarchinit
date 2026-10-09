@@ -47,6 +47,7 @@ from qgis.PyQt.QtXml import QDomDocument
 from ..modules.db.pyarchinit_utility import Utility
 from .Interactive_matrix import *
 from ..modules.utility.pyarchinit_theme_manager import ThemeManager
+from ..modules.utility.atlas_labels import quota_labeling, us_labeling
 from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_name,
                                               base_map_uri,
@@ -1155,6 +1156,48 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                     "Inserto non preparato: %s" % e, "PyArchInit",
                     Qgis.MessageLevel.Warning)
 
+    def _metti_le_etichette(self):
+        """Numero dell'unità e quota sulla tavola, e come erano prima.
+
+        Si etichettano i layer del progetto, perché è quello che la mappa
+        del layout disegna; lo stato di prima si tiene e si rimette a fine
+        generazione — la tavola non deve lasciare il progetto diverso da
+        come l'ha trovato.
+        """
+        from qgis.core import QgsWkbTypes
+
+        self._etichette_di_prima = []
+        for layer in (self.selected_layers or []):
+            try:
+                campi = [f.name() for f in layer.fields()]
+                tipo = layer.geometryType()
+                if tipo == QgsWkbTypes.GeometryType.PolygonGeometry:
+                    nuove = us_labeling(campi)
+                elif tipo == QgsWkbTypes.GeometryType.PointGeometry:
+                    nuove = quota_labeling(campi)
+                else:
+                    continue
+                if nuove is None:
+                    continue
+                self._etichette_di_prima.append(
+                    (layer, layer.labeling(), layer.labelsEnabled()))
+                layer.setLabeling(nuove)
+                layer.setLabelsEnabled(True)
+            except Exception as e:                  # noqa: BLE001
+                QgsMessageLog.logMessage(
+                    "Etichette non applicate a %s: %s" % (layer.name(), e),
+                    "PyArchInit", Qgis.MessageLevel.Warning)
+
+    def _togli_le_etichette(self):
+        """Rimette le etichette com'erano prima della generazione."""
+        for layer, prima, attive in getattr(self, "_etichette_di_prima", []) or []:
+            try:
+                layer.setLabeling(prima)
+                layer.setLabelsEnabled(attive)
+            except Exception:                       # noqa: BLE001
+                continue
+        self._etichette_di_prima = []
+
     def _butta_via_la_panoramica(self):
         """Toglie dal progetto gli strati che l'inserto ha usato."""
         for strato in getattr(self, "_strati_panoramica", []) or []:
@@ -1407,6 +1450,9 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # tavole. Senza, la stessa US cambierebbe dimensione da una
         # pagina all'altra.
         self._riquadro_atlante = self._riquadro_del_sito()
+        # Numero dell'unità in un cerchio e quota sopra la linea del
+        # simbolo: si mettono una volta e si tolgono alla fine.
+        self._metti_le_etichette()
         # Durante la generazione la manopola si muove da sola: il timer
         # di debounce rifarebbe filtro e matrice in mezzo al ciclo.
         self._atlante_in_corso = True
@@ -1657,6 +1703,7 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         # Chiudi progress bar e mostra messaggio di completamento
         self._atlante_in_corso = False
         self._riquadro_atlante = None
+        self._togli_le_etichette()
         self._butta_via_la_panoramica()
         progress.close()
         
