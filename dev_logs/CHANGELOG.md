@@ -5,6 +5,32 @@
 
 ---
 
+## [feat] - 2026-10-09 — i modelli generici si preparano per l'atlante — 5.13.47-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-template-prepare-5.13.47-alpha`**. Seguito della 5.13.46: una volta capito che mancavano due elementi, tanto vale aggiungerli.
+
+### Italiano
+
+I venticinque modelli adArte/pyarchinit non hanno il titolo «Tavola N» né l'immagine della matrice: con loro l'atlante esce spoglio (dalla 5.13.46 esce, almeno). Ora si preparano.
+
+- **`modules/utility/atlas_template.py`** — `what_to_add(caps)` dice che cosa manca, `add_items(layout, mancanti)` lo aggiunge, `prepare_file(path)` scrive il modello preparato **accanto** all'originale con il suffisso « + Time Manager». Un file nuovo, **mai una sovrascrittura**: i modelli sono di chi usa il plugin e li ha scelti lui.
+- I due elementi vanno su una **pagina nuova**, mai sopra quella esistente. In un modello che non si conosce si finirebbe per coprire la legenda o il cartiglio, e una matrice di Harris schiacciata in un angolo non si legge: su una pagina sua si legge. Conseguenza da sapere: ogni livello produce **due immagini**, `Tavola_N.jpg` (la mappa) e `Tavola_N_2.jpg` (la matrice).
+- Il riquadro della matrice si stringe sul disegno (`ZoomResizeFrame`) invece di restare mezzo vuoto: una matrice è alta e stretta, la pagina è larga. Sul modello A4 orizzontale il riquadro passa da 276×169 mm a 134×169.
+- Un modello **senza mappa** non si prepara: non è un modello da atlante, e aggiungerci la matrice non lo renderebbe utile.
+- **`scripts/prepare_atlas_templates.py`** fa il giro di una cartella, con `--prova` per vedere prima che cosa farebbe. Va eseguito col Python di QGIS, perché è QGIS a scrivere il file:
+
+```
+/Applications/QGIS.app/Contents/MacOS/bin/python3 scripts/prepare_atlas_templates.py
+```
+
+Eseguito sulla cartella dei modelli: **23 preparati, 2 saltati** (`layout_TimeManager` e `test` erano già completi), 0 falliti. Verificato con QGIS avviato: tutti e 23 sono riconosciuti completi dallo stesso lettore che usa la finestra di scelta, e due di loro portati fino in fondo — la seconda pagina esce col titolo «Tavola 24» e la matrice intera, bande e US sbiadite comprese.
+
+### English
+
+The twenty-five generic adArte/pyarchinit templates carry neither the «Tavola N» title nor the matrix picture, so the atlas comes out plain with them. `what_to_add`, `add_items` and `prepare_file` now write a prepared copy **beside** the original with a « + Time Manager» suffix — a new file, never an overwrite. The two items go on a **new page**, never over the existing one: in a template you do not know you would cover the legend or the title block, and a Harris matrix squeezed into a corner is unreadable. Each level therefore produces two images, the map and the matrix. The matrix frame hugs the drawing (`ZoomResizeFrame`) rather than sitting half empty. A template without a map is not prepared. `scripts/prepare_atlas_templates.py` walks a folder, with `--prova` for a dry run. Run against the templates folder: 23 prepared, 2 skipped, 0 failed, all verified against real QGIS.
+
+---
+
 ## [fix] - 2026-10-09 — il generatore dell'atlante non torna più indietro in silenzio — 5.13.46-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-template-guard-5.13.46-alpha`**. «Il generatore a volte parte a volte no, i layout sono vuoti» (Enzo).

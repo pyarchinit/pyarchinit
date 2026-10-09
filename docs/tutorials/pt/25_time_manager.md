@@ -282,3 +282,5 @@ A matriz do Time Manager ja nao passa pelo Graphviz. E desenhada pelo mesmo moto
 - As UE que **nao estao visiveis** na posicao atual mas que uma relacao menciona entram na mesma no desenho, **esbatidas**: sem elas a sequencia pareceria quebrada.
 
 > **Que modelo escolher.** No seletor cada modelo esta marcado: **✓** tem o titulo e a imagem da matriz, **•** so o mapa, **✗** nao tem mapa. Antes escolher um sem esses elementos fazia o gerador voltar atras sem dizer nada.
+
+> **Tornar apto qualquer modelo.** `scripts/prepare_atlas_templates.py`, executado com o Python do QGIS, escreve ao lado de cada modelo uma copia com o sufixo « + Time Manager» com o titulo e a imagem da matriz numa **pagina nova**. Os originais nao se tocam.

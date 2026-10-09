@@ -282,3 +282,5 @@ La matriz del Time Manager ya no pasa por Graphviz. La dibuja el mismo motor de 
 - Las UE que **no son visibles** en la posición actual pero que una relación menciona entran igualmente en el dibujo, **atenuadas**: sin ellas la secuencia parecería rota, y dibujadas como las demás parecerían estar en el mapa.
 
 > **Qué plantilla elegir.** En el selector cada plantilla está marcada: **✓** tiene el título y la imagen de la matriz (la del Time Manager), **•** solo el mapa — las láminas salen más sobrias pero salen — **✗** no tiene mapa. Antes elegir una sin esos elementos hacía que el generador volviera atrás sin decir nada.
+
+> **Hacer apta cualquier plantilla.** Con `scripts/prepare_atlas_templates.py` (ejecutado con el Python de QGIS) se escribe junto a cada plantilla una copia con el sufijo « + Time Manager» que lleva el título y la imagen de la matriz en una **página nueva**. Los originales no se tocan. Cada nivel produce entonces dos imágenes.

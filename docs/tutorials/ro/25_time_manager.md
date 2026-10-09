@@ -282,3 +282,5 @@ Matricea din Time Manager nu mai trece prin Graphviz. O deseneaza acelasi motor 
 - US care **nu sunt vizibile** la pozitia curenta dar pe care o relatie le citeaza intra totusi in desen, **estompate**: fara ele secventa ar parea rupta.
 
 > **Ce sablon sa alegi.** In selector fiecare sablon este marcat: **✓** are titlul si imaginea matricei, **•** doar harta, **✗** nu are harta. Inainte, alegerea unuia fara acele elemente facea generatorul sa se intoarca fara un cuvant.
+
+> **A face apt orice sablon.** `scripts/prepare_atlas_templates.py`, rulat cu Python-ul din QGIS, scrie langa fiecare sablon o copie cu sufixul « + Time Manager» care poarta titlul si imaginea matricei pe o **pagina noua**. Originalele nu se ating.

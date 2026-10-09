@@ -282,3 +282,5 @@ Die Matrix des Time Managers geht nicht mehr über Graphviz. Sie wird von dersel
 - Einheiten, die an der aktuellen Position **nicht sichtbar** sind, aber von einer Beziehung genannt werden, erscheinen dennoch in der Zeichnung, **blass**: ohne sie wirkte die Abfolge zerrissen, wie die anderen gezeichnet wirkten sie wie auf der Karte.
 
 > **Welche Vorlage.** In der Auswahl ist jede Vorlage markiert: **✓** hat Titel und Matrixbild (die des Time Managers), **•** nur die Karte — die Blätter entstehen, nur schlichter — **✗** hat keine Karte. Früher führte eine Vorlage ohne diese Elemente dazu, dass der Generator wortlos zurückkehrte.
+
+> **Eine beliebige Vorlage tauglich machen.** Mit `scripts/prepare_atlas_templates.py` (mit dem Python von QGIS auszuführen) entsteht neben jeder Vorlage eine Kopie mit dem Zusatz « + Time Manager», die Titel und Matrixbild auf einer **neuen Seite** trägt. Die Originale bleiben unberührt. Jede Stufe liefert dann zwei Bilder.

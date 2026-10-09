@@ -282,3 +282,5 @@ La matriu del Time Manager ja no passa per Graphviz. La dibuixa el mateix motor 
 - Les UE que **no són visibles** a la posició actual però que una relació esmenta entren igualment al dibuix, **atenuades**: sense elles la seqüència semblaria trencada.
 
 > **Quina plantilla triar.** Al selector cada plantilla està marcada: **✓** té el títol i la imatge de la matriu, **•** només el mapa, **✗** no té mapa. Abans triar-ne una sense aquests elements feia tornar enrere el generador sense dir res.
+
+> **Fer apta qualsevol plantilla.** `scripts/prepare_atlas_templates.py`, executat amb el Python del QGIS, escriu al costat de cada plantilla una còpia amb el sufix « + Time Manager» amb el títol i la imatge de la matriu en una **pàgina nova**. Els originals no es toquen.

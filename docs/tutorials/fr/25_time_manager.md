@@ -283,3 +283,5 @@ La matrice du Time Manager ne passe plus par Graphviz. Elle est dessinée par le
 - Les US **non visibles** à la position courante mais citées par une relation entrent tout de même dans le dessin, **estompées** : sans elles la séquence semblerait brisée, et dessinées comme les autres elles sembleraient sur la carte.
 
 > **Quel modèle choisir.** Dans le sélecteur chaque modèle est marqué : **✓** possède le titre et l'image de la matrice (celui du Time Manager), **•** seulement la carte — les planches sortent, plus dépouillées — **✗** n'a pas de carte. Auparavant, en choisir un sans ces éléments faisait revenir le générateur sans un mot.
+
+> **Rendre apte n'importe quel modèle.** `scripts/prepare_atlas_templates.py`, exécuté avec le Python de QGIS, écrit à côté de chaque modèle une copie suffixée « + Time Manager » portant le titre et l'image de la matrice sur une **nouvelle page**. Les originaux ne sont pas touchés. Chaque niveau produit alors deux images.
