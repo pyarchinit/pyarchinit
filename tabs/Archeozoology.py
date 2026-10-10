@@ -600,7 +600,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
     def on_pushButton_view_all_pressed(self):
         """View all records."""
         from modules.utility.site_records import (
-            charge_records_for_site, clear_form_state)
+            charge_records_for_site, clear_form_state, no_records_texts)
         if not charge_records_for_site(self):
             # Il sito su cui il plugin è settato non ha record di questo
             # tipo: si svuota la scheda (altrimenti resterebbe il record di
@@ -609,6 +609,6 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
             clear_form_state(self)
             QMessageBox.information(
                 self, "pyArchInit",
-                "Nessun record per il sito corrente.")
+                no_records_texts(self)[0])
             return
         self.fill_fields(0)

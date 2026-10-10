@@ -276,3 +276,76 @@ def test_clear_form_state_survives_failing_counter():
     tab.set_rec_counter = boom
     SR.clear_form_state(tab)
     assert tab.REC_TOT == 0
+
+
+# ---- lingue ---------------------------------------------------------------
+
+_LANGS = ["it", "en", "de", "fr", "es", "ca", "ar", "pt", "ro", "el"]
+
+
+def _fauna_status_x():
+    """Le etichette «x» di tabs/Fauna.py, lette dal sorgente (mai copiate)."""
+    import ast
+    src = (_ROOT / "tabs" / "Fauna.py").read_text(encoding="utf-8")
+    out = {}
+    cls = [n for n in ast.parse(src).body
+           if isinstance(n, ast.ClassDef) and n.name == "pyarchinit_Fauna"][0]
+    for n in cls.body:
+        if isinstance(n, ast.If):
+            while True:
+                lang = n.test.comparators[0].value if n.test.comparators else None
+                for st in n.body:
+                    if (isinstance(st, ast.Assign)
+                            and st.targets[0].id == "STATUS_ITEMS"):
+                        d = {k.value: v.value for k, v in
+                             zip(st.value.keys, st.value.values)}
+                        out[lang if lang else "en"] = d["x"]
+                if n.orelse and isinstance(n.orelse[0], ast.If) and len(n.orelse) == 1:
+                    n = n.orelse[0]
+                    continue
+                # ramo else finale = inglese
+                for st in n.orelse:
+                    if (isinstance(st, ast.Assign)
+                            and st.targets[0].id == "STATUS_ITEMS"):
+                        d = {k.value: v.value for k, v in
+                             zip(st.value.keys, st.value.values)}
+                        out["en"] = d["x"]
+                break
+    return out
+
+
+def test_all_ten_languages_have_both_texts():
+    for lang in _LANGS:
+        tab = type("T", (), {"L": lang})()
+        msg, label = SR.no_records_texts(tab)
+        assert msg.strip() and label.strip(), lang
+    assert len(set(SR._TESTI)) == 10
+
+
+def test_status_label_matches_fauna_for_its_seven_languages():
+    fauna = _fauna_status_x()
+    assert set(fauna) == {"it", "de", "fr", "es", "ar", "ca", "en"}
+    for lang, voce in fauna.items():
+        assert SR._TESTI[lang][1] == voce, lang
+
+
+def test_texts_follow_the_forms_language():
+    tab = type("T", (), {"L": "de"})()
+    assert SR.no_records_texts(tab) == SR._TESTI["de"]
+    assert "Ausgrabungsstätte" in SR._TESTI["de"][0]
+
+
+def test_unknown_or_missing_language_falls_back_to_english():
+    en = SR._TESTI["en"]
+    assert SR.no_records_texts(type("T", (), {"L": "xx"})()) == en
+    assert SR.no_records_texts(type("T", (), {"L": None})()) == en
+    assert SR.no_records_texts(object()) == en
+
+
+def test_clear_form_state_label_is_in_the_forms_language():
+    class T:
+        L = "fr"
+        label_status = FakeLabel()
+    t = T()
+    SR.clear_form_state(t)
+    assert t.label_status.text == "Aucun enregistrement"

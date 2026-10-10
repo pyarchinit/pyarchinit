@@ -3933,7 +3933,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
         else:
             self.empty_fields()
             from modules.utility.site_records import (
-                charge_records_for_site, clear_form_state)
+                charge_records_for_site, clear_form_state, no_records_texts)
             if not charge_records_for_site(self):
                 # Il sito su cui il plugin è settato non ha record di questo
                 # tipo: lo si dice, invece di mostrare quelli di tutti i siti
@@ -3941,7 +3941,7 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
                 clear_form_state(self)
                 QMessageBox.information(
                     self, "pyArchInit",
-                    "Nessun record per il sito corrente.")
+                    no_records_texts(self)[0])
                 return
             self.fill_fields()
             self.BROWSE_STATUS = "b"

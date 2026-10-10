@@ -16,6 +16,41 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+#: I due testi che l'utente legge quando il sito non ha record, nelle dieci
+#: lingue che il plugin traduce. L'etichetta di stato è copiata **parola per
+#: parola** da `tabs/Fauna.py`, che è l'unica scheda che traduce già
+#: `STATUS_ITEMS["x"]`: un sinonimo qui farebbe dire due cose diverse alla
+#: stessa barra di stato. Per «sito» si usa la parola che il plugin già
+#: scrive nelle sue schede e nei suoi `.ts` (it Sito, en Site, de
+#: Ausgrabungsstätte, fr Site, es Sitio, ca Jaciment, ar الموقع, pt Sítio,
+#: el Θέση); in rumeno il `.ts` lascia «Site» non tradotto, qui «situl».
+_TESTI = {
+    "it": ("Nessun record per il sito corrente.", "Nessun record"),
+    "en": ("No records for the current site.", "No record"),
+    "de": ("Keine Datensätze für die aktuelle Ausgrabungsstätte.", "Kein Rekord"),
+    "fr": ("Aucun enregistrement pour le site courant.", "Aucun enregistrement"),
+    "es": ("Ningún registro para el sitio actual.", "Sin registro"),
+    "ca": ("Cap registre per al jaciment actual.", "Sense registre"),
+    "ar": ("لا توجد سجلات للموقع الحالي.", "لا يوجد سجل"),
+    "pt": ("Nenhum registo para o sítio atual.", "Sem registo"),
+    "ro": ("Nicio înregistrare pentru situl curent.", "Nicio înregistrare"),
+    "el": ("Δεν υπάρχουν εγγραφές για την τρέχουσα θέση.", "Καμία εγγραφή"),
+}
+
+
+def no_records_texts(tab):
+    """Il messaggio e l'etichetta di stato, nella lingua della scheda.
+
+    La lingua è l'attributo di classe `L` che ogni scheda porta — le prime due
+    lettere del locale di QGIS. Fuori dalle dieci lingue tradotte si ripiega
+    sull'inglese, com'è la convenzione di questo codice.
+    """
+    lingua = getattr(tab, "L", None)
+    if not isinstance(lingua, str):
+        lingua = None
+    return _TESTI.get((lingua or "")[:2].lower(), _TESTI["en"])
+
+
 def current_site():
     """Il sito su cui il plugin è settato, da `config.cfg`, o '' se non c'è.
 
@@ -131,10 +166,11 @@ def clear_form_state(tab):
     # BROWSE_STATUS = "x" un `STATUS_ITEMS[self.BROWSE_STATUS]` qualunque,
     # altrove nella scheda, solleverebbe KeyError.
     if isinstance(voci, dict) and "x" not in voci:
-        voci["x"] = "Nessun record"
+        voci["x"] = no_records_texts(tab)[1]
     etichetta = getattr(tab, "label_status", None)
-    if etichetta is not None and isinstance(voci, dict) and "x" in voci:
+    if etichetta is not None:
+        testo = voci["x"] if isinstance(voci, dict) else no_records_texts(tab)[1]
         try:
-            etichetta.setText(voci["x"])
+            etichetta.setText(testo)
         except Exception:
             pass

@@ -237,3 +237,19 @@ def test_every_view_all_handler_in_tabs_is_classified():
     # E nessuna voce deve riferirsi a un handler che non esiste più.
     assert classificati - trovati == set(), (
         f"voci senza handler: {sorted(classificati - trovati)}")
+
+
+def test_no_handler_keeps_the_italian_literal():
+    # Il testo va letto da no_records_texts(): un letterale lascia la scheda
+    # in italiano per chi usa il plugin in un'altra lingua.
+    letterale = "Nessun record per il sito corrente"
+    for filename, name in WIRED:
+        node = _handler(filename, name)
+        testo = ast.get_source_segment(
+            (_TABS / filename).read_text(encoding="utf-8"), node)
+        assert letterale not in testo, f"{filename}.{name} ha il letterale"
+    # E dove la scheda mostra il messaggio, lo prende dalla funzione.
+    senza = [f for f, n in WIRED
+             if f not in ("US_USM.py", "Fauna.py", "pyarchinit_Pottery_mainapp.py")
+             and "no_records_texts" not in _calls(_handler(f, n))]
+    assert senza == []
