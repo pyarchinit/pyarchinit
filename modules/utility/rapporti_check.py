@@ -42,13 +42,21 @@ _EDGE_TYPE_INVERSE = {
 
 @dataclass(frozen=True)
 class Edit:
-    """One change to a single US's row. ``add``/``remove`` hold
+    """One change to a single row. ``add``/``remove`` hold
     ``(label, target_us, area, sito)`` rapporti 4-tuples; ``set_fields`` holds
-    ``(column, value)`` pairs for non-rapporti columns (e.g. period fields)."""
+    ``(column, value)`` pairs for non-rapporti columns (e.g. period fields).
+
+    ``target`` dice **in quale tabella** e **con quale chiave**: per la
+    periodizzazione ``("periodizzazione_table", {"periodo": "2",
+    "fase": "2.2"})``. Vuoto vale ``us_table`` con la chiave ``us``, cioè
+    esattamente quello che ``apply_edits`` ha sempre fatto — nessuna chiamata
+    esistente cambia.
+    """
     us: str
     add: tuple = ()
     remove: tuple = ()
     set_fields: tuple = ()
+    target: tuple = ()
 
 
 @dataclass
@@ -136,6 +144,14 @@ _L = {
         "s_temporal_uneval": "{a} e {b} condividono una relazione ma manca la "
                              "datazione di periodo per valutarne la coerenza — "
                              "assegna il periodo mancante",
+        "t_epoch_overlap": "Fasi con intervalli sovrapposti (scelta manuale)",
+        "t_epoch_reversed": "Periodizzazione con inizio dopo la fine",
+        "t_epoch_no_dates": "Fase senza anni (solo segnalazione)",
+        "t_datazione_mismatch": "Datazione della scheda disallineata (verrà riscritta)",
+        "s_epoch_overlap": "Le fasi {a} e {b} si sovrappongono per {anni} anni ({ini}–{fin})",
+        "s_epoch_reversed": "Fase {fase}: inizio {ini} dopo la fine {fin} (i due anni si scambiano)",
+        "s_epoch_no_dates": "Fase {fase}: nessun anno leggibile in cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (fase {fase}): datazione «{corrente}» invece di «{atteso}»",
     },
     "en": {
         "t_self_loop": "Self-loop (US related to itself)",
@@ -162,6 +178,14 @@ _L = {
         "s_temporal_uneval": "{a} and {b} share a relationship but a period date is "
                              "missing to evaluate consistency — assign the missing "
                              "period",
+        "t_epoch_overlap": "Phases with overlapping spans (manual choice)",
+        "t_epoch_reversed": "Periodization starting after it ends",
+        "t_epoch_no_dates": "Phase with no years (report only)",
+        "t_datazione_mismatch": "Sheet dating out of step (will be rewritten)",
+        "s_epoch_overlap": "Phases {a} and {b} overlap by {anni} years ({ini}–{fin})",
+        "s_epoch_reversed": "Phase {fase}: starts {ini} after it ends {fin} (the two years swap)",
+        "s_epoch_no_dates": "Phase {fase}: no readable year in cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (phase {fase}): dating «{corrente}» instead of «{atteso}»",
     },
     "de": {
         "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
@@ -188,6 +212,14 @@ _L = {
                               "sich nicht — derselben Periode zuweisen",
         "s_temporal_uneval": "{a} und {b} stehen in einer Beziehung, aber eine "
                              "Periodendatierung fehlt — fehlende Periode zuweisen",
+        "t_epoch_overlap": "Phasen mit überlappenden Zeiträumen (manuelle Wahl)",
+        "t_epoch_reversed": "Periodisierung beginnt nach ihrem Ende",
+        "t_epoch_no_dates": "Phase ohne Jahresangaben (nur Hinweis)",
+        "t_datazione_mismatch": "Datierung im Formular abweichend (wird überschrieben)",
+        "s_epoch_overlap": "Die Phasen {a} und {b} überlappen sich um {anni} Jahre ({ini}–{fin})",
+        "s_epoch_reversed": "Phase {fase}: beginnt {ini} nach dem Ende {fin} (die Jahre werden getauscht)",
+        "s_epoch_no_dates": "Phase {fase}: kein lesbares Jahr in cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (Phase {fase}): Datierung «{corrente}» statt «{atteso}»",
     },
     "es": {
         "t_self_loop": "Self-loop (US relacionada consigo misma)",
@@ -214,6 +246,14 @@ _L = {
                               "asígnalas al mismo período",
         "s_temporal_uneval": "{a} y {b} comparten una relación pero falta la "
                              "datación de período — asigna el período faltante",
+        "t_epoch_overlap": "Fases con intervalos superpuestos (elección manual)",
+        "t_epoch_reversed": "Periodización que empieza después de terminar",
+        "t_epoch_no_dates": "Fase sin años (solo aviso)",
+        "t_datazione_mismatch": "Datación de la ficha desalineada (se reescribirá)",
+        "s_epoch_overlap": "Las fases {a} y {b} se superponen {anni} años ({ini}–{fin})",
+        "s_epoch_reversed": "Fase {fase}: empieza {ini} después de terminar {fin} (los dos años se intercambian)",
+        "s_epoch_no_dates": "Fase {fase}: ningún año legible en cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (fase {fase}): datación «{corrente}» en vez de «{atteso}»",
     },
     "fr": {
         "t_self_loop": "Self-loop (US en relation avec elle-même)",
@@ -241,6 +281,14 @@ _L = {
                               "— assignez-les à la même période",
         "s_temporal_uneval": "{a} et {b} partagent une relation mais la datation de "
                              "période est manquante — assignez la période manquante",
+        "t_epoch_overlap": "Phases aux intervalles qui se chevauchent (choix manuel)",
+        "t_epoch_reversed": "Périodisation qui commence après sa fin",
+        "t_epoch_no_dates": "Phase sans années (signalement seul)",
+        "t_datazione_mismatch": "Datation de la fiche décalée (elle sera réécrite)",
+        "s_epoch_overlap": "Les phases {a} et {b} se chevauchent sur {anni} ans ({ini}–{fin})",
+        "s_epoch_reversed": "Phase {fase} : commence en {ini} après sa fin {fin} (les deux années sont échangées)",
+        "s_epoch_no_dates": "Phase {fase} : aucune année lisible dans cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (phase {fase}) : datation «{corrente}» au lieu de «{atteso}»",
     },
     "pt": {
         "t_self_loop": "Self-loop (US relacionada consigo mesma)",
@@ -267,6 +315,14 @@ _L = {
                               "atribua-as ao mesmo período",
         "s_temporal_uneval": "{a} e {b} partilham uma relação mas a datação de "
                              "período está em falta — atribua o período em falta",
+        "t_epoch_overlap": "Fases com intervalos sobrepostos (escolha manual)",
+        "t_epoch_reversed": "Periodização que começa depois de terminar",
+        "t_epoch_no_dates": "Fase sem anos (apenas aviso)",
+        "t_datazione_mismatch": "Datação da ficha desalinhada (será reescrita)",
+        "s_epoch_overlap": "As fases {a} e {b} sobrepõem-se em {anni} anos ({ini}–{fin})",
+        "s_epoch_reversed": "Fase {fase}: começa em {ini} depois de terminar {fin} (os dois anos são trocados)",
+        "s_epoch_no_dates": "Fase {fase}: nenhum ano legível em cron_iniziale/cron_finale",
+        "s_datazione_mismatch": "US {us} (fase {fase}): datação «{corrente}» em vez de «{atteso}»",
     },
 }
 
