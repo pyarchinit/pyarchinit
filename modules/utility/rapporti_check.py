@@ -68,11 +68,31 @@ class Edit:
 
 @dataclass
 class Issue:
+    """Un problema, le US che nomina e la correzione che lo chiude.
+
+    ``rows`` dice **quali righe** di ``us_table`` sono le US di ``us_path``,
+    posizione per posizione: ``{"us": …, "area": …, "unita_tipo": …}``, la
+    stessa forma che ``Edit.target`` porta e che ``chronology_check._us_target``
+    costruisce. Il numero di US da solo non nomina una riga —
+    ``UniqueConstraint('sito', 'area', 'us', 'unita_tipo')`` — e una
+    correzione su una chiave ambigua `apply_edits` la rifiuta.
+
+    Un elemento vale ``None`` quando la riga non si sa nominare (il numero ne
+    individua più di una e nessuna area aiuta a scegliere): lì si segnala e
+    non si propone niente.
+
+    La lista **vuota** è il valore di sempre, e vuol dire «righe non
+    nominate»: la portano gli avvisi sulle fasi di :mod:`chronology_check`,
+    che non riguardano righe di ``us_table``, e qualunque chiamata scritta
+    prima che questo campo esistesse. Chi la trova vuota si comporta come
+    prima — la correzione tiene la chiave `us` e nient'altro.
+    """
     kind: str
     us_path: list           # involved US numbers (1=self-loop, 2=contradiction, N=cycle)
     auto: bool              # True when the fix is unambiguous
     summary: str
     edits: list = field(default_factory=list)   # the fix (auto) OR suggested (manual)
+    rows: list = field(default_factory=list)    # chiavi di riga, allineate a us_path
 
 
 @dataclass
@@ -100,6 +120,122 @@ def _real_us(node):
     if us is None or str(us).strip() == "" or str(us).startswith("_synth"):
         return None
     return str(us)
+
+
+def _txt(val):
+    """Il testo di un campo, con ``None`` e ``''`` che dicono la stessa cosa.
+
+    La stessa normalizzazione di ``chronology_check._text`` e di :func:`_where`
+    (``TRIM(COALESCE(CAST(… AS TEXT), ''))``): le due sponde di una chiave
+    devono dire la stessa cosa, o la riga non si trova e la finestra direbbe
+    di averla corretta. È riscritta qui e non importata perché
+    ``chronology_check`` importa da questo modulo, e un import all'indietro
+    chiuderebbe il cerchio.
+    """
+    return "" if val is None else str(val).strip()
+
+
+def _row_key(node):
+    """La riga di ``us_table`` che un nodo rappresenta, o ``None``.
+
+    Tre colonne più il sito, che :func:`apply_edits` riceve a parte:
+    ``UniqueConstraint('sito', 'area', 'us', 'unita_tipo')``
+    (modules/db/structures/US_table.py). Un segnaposto sintetizzato dal
+    projector (``us=None``) non ha una riga, quindi non ne ha nemmeno una
+    chiave: e senza riga non si scrive niente.
+    """
+    us = _real_us(node)
+    if us is None:
+        return None
+    a = getattr(node, "attributes", None) or {}
+    return (_txt(us), _txt(a.get("area")), _txt(a.get("unita_tipo")))
+
+
+def _as_row(chiave):
+    """La chiave di riga come la porta ``Issue.rows``: un dizionario, o
+    ``None`` quando la riga non si sa nominare."""
+    if chiave is None:
+        return None
+    us, area, unita_tipo = chiave
+    return {"us": us, "area": area, "unita_tipo": unita_tipo}
+
+
+def _key_of_row(riga):
+    """La chiave a tre colonne di una ``Issue.rows``, per ritrovarne il nodo."""
+    if not riga:
+        return None
+    return (_txt(riga.get("us")), _txt(riga.get("area")),
+            _txt(riga.get("unita_tipo")))
+
+
+def _target_of_row(riga):
+    """Il ``target`` di una ``Edit`` che deve toccare quella riga.
+
+    Una riga non nominata dà ``()``, cioè la chiave `us` e nient'altro: è
+    quello che ``apply_edits`` ha sempre fatto, e che una issue senza ``rows``
+    continua ad avere.
+    """
+    return ("us_table", dict(riga)) if riga else ()
+
+
+def _index_rows(graph):
+    """Le righe di ``us_table`` che il grafo rappresenta.
+
+    Restituisce ``(per_chiave, per_us)``: la chiave a tre colonne → il nodo, e
+    il numero di US → le chiavi che lo portano. Più di una quando lo scavo ha
+    più aree, o quando una US e una USM si chiamano con lo stesso numero —
+    che il vincolo permette.
+    """
+    per_chiave, per_us = {}, {}
+    for n in getattr(graph, "nodes", None) or []:
+        k = _row_key(n)
+        if k is None:
+            continue
+        per_chiave.setdefault(k, n)
+        chiavi = per_us.setdefault(k[0], [])
+        if k not in chiavi:
+            chiavi.append(k)
+    return per_chiave, per_us
+
+
+def _named_rows(us, area_scritta, area_scrittore, per_us):
+    """Le righe che una voce di ``rapporti`` può nominare.
+
+    Una voce è ``[rapporto, us, area, sito]``, e quell'area è **quella del
+    contraente**: ``['Copre', '9', '2', 'Sito']`` dice «copro la US 9
+    dell'area 2».
+
+    La forma corta ``['Copre', '9']`` l'area non la dice, e allora si assume
+    quella della **scheda che l'ha scritta**. È quello che il plugin stesso ci
+    scrive quando espande la forma corta: ``US_USM.update_rapporti_col`` gira
+    area per area e appende ``[area, sito]`` dell'area in lavorazione. Ed è
+    l'unica lettura sotto cui uno scavo a più aree si possa verificare: la
+    stratigrafia si osserva dentro un'area, e un rapporto che esce dall'area
+    lo dice scrivendola.
+
+    **Un candidato solo e non si disambigua niente**, ed è il caso di ogni
+    scavo a un'area sola — tutte e 510 le righe del database di esempio, e
+    tutto quello che la suite copre: lì questa funzione restituisce quello che
+    il controllo ha sempre restituito, e l'area non entra in gioco. L'area
+    decide soltanto quando il numero di US da solo nomina più di una riga.
+
+    Se nessuna riga sta nell'area chiesta decide il numero: l'area di una voce
+    è un dato denormalizzato che il plugin riscrive da sé (Ctrl+U) e può
+    essere vecchia, e andare in silenzio sarebbe peggio che leggerla come un
+    suggerimento. Se restano più righe la voce è ambigua — il tipo di unità
+    una voce non lo dice mai — e allora il reciproco si riconosce comunque
+    (indulgenti nel leggere) ma non si propone nessuna correzione, perché non
+    si saprebbe quale riga scrivere.
+    """
+    cand = per_us.get(us) or []
+    if len(cand) <= 1:
+        return cand
+    for preferita in (area_scritta, area_scrittore):
+        if preferita:
+            stessa = [k for k in cand if k[1] == preferita]
+            if stessa:
+                return stessa
+    return cand
 
 
 def _strat_edges(graph):
@@ -491,22 +627,28 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
     # threads a projector-synthesized placeholder (graph artifact, not a real
     # stratigraphic contradiction the user can act on).
     from s3dgraphy.diagnostics import detect_stratigraphic_cycles
+    _per_chiave, per_us = _index_rows(graph)
     for cyc in detect_stratigraphic_cycles(graph):
         us_real = [_real_us(graph.find_node_by_id(x)) for x in cyc]
         if any(u is None for u in us_real):
             continue
         us_path = us_real
+        # Le righe si sanno per nodo, non per numero: un ciclo arriva dal
+        # rilevatore come una lista di `node_id`, e ogni nodo è una riga.
+        righe = [_row_key(graph.find_node_by_id(x)) for x in cyc]
         n = len(cyc)
         if n == 1:
             rep.issues.append(Issue(
                 SELF_LOOP, us_path, True,
-                _t(lang, "s_self").format(us=_utok(us_path[0], lang))))
+                _t(lang, "s_self").format(us=_utok(us_path[0], lang)),
+                rows=[_as_row(k) for k in righe]))
         elif n == 2:
             rep.issues.append(Issue(
                 CONTRADICTION_AMBIGUOUS, us_path, False,
                 _t(lang, "s_contr").format(
                     a=_utok(us_path[0], lang), b=_utok(us_path[1], lang),
-                    lab1=_step(cyc[0], cyc[1]), lab2=_step(cyc[1], cyc[0]))))
+                    lab1=_step(cyc[0], cyc[1]), lab2=_step(cyc[1], cyc[0])),
+                rows=[_as_row(k) for k in righe]))
         else:
             # "US102 «Copre» US103 «Coperto da» US101 … US102"
             parts = [f"{_utok(us_real[i], lang)} «{_step(cyc[i], cyc[(i + 1) % n])}»"
@@ -514,7 +656,8 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
             chain = " ".join(parts) + f" {_utok(us_real[0], lang)}"
             rep.issues.append(Issue(
                 CYCLE, us_path, False,
-                _t(lang, "s_cycle").format(chain=chain)))
+                _t(lang, "s_cycle").format(chain=chain),
+                rows=[_as_row(k) for k in righe]))
 
     # Missing reciprocity. Si legge in quello che le due schede hanno
     # SCRITTO, non negli archi del grafo.
@@ -527,15 +670,22 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
     # rapporto già presente in forma corta, su 38 righe, a ogni clic
     # (Enzo, 2026-10-10).
     #
-    # Il confronto è sul **tipo di arco** e sulla US, non sulla parola né
+    # Il confronto è sul **tipo di arco** e sulla RIGA, non sulla parola né
     # sul numero di elementi: «Coperto da» e «Covered by» sono lo stesso
     # rapporto, e `['Coperto da','1']` dice quanto `['Coperto da','1','1',
     # 'Sito']`. Solo fra US vere: il fix scrive in una riga di us_table, e
     # un segnaposto sintetico (us=None) non ne ha una.
+    #
+    # L'indice è per **chiave di riga** e non per numero di US: l'identità di
+    # una scheda è `UniqueConstraint('sito', 'area', 'us', 'unita_tipo')`, e
+    # indicizzando per numero la seconda riga copriva la prima — sullo scavo a
+    # due aree il reciproco scritto nell'area 2 zittiva l'avviso dell'area 1,
+    # e i rapporti dell'area 1 risultavano mancanti tutti quanti perché a
+    # risponderne era la scheda dell'altra area (2026-10-10).
     scritti = {}
     for n in getattr(graph, "nodes", None) or []:
-        u = _real_us(n)
-        if u is None:
+        k = _row_key(n)
+        if k is None:
             continue
         a = getattr(n, "attributes", None) or {}
         voci = []
@@ -544,25 +694,45 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
                 continue
             et_voce = RAPPORTI_TO_EDGE_TYPE.get(str(voce[0]).strip().lower())
             if et_voce:
-                voci.append((et_voce, str(voce[1]).strip()))
-        scritti[str(u)] = voci
+                # Il terzo elemento è l'area del contraente, quando c'è.
+                voci.append((et_voce, _txt(voce[1]),
+                             _txt(voce[2]) if len(voce) > 2 else ""))
+        scritti[k] = voci
+
+    def _risponde(b_key, inv, a_key):
+        """Vero quando la scheda B porta il reciproco **della riga A**, e non
+        di una riga che ne ripete soltanto il numero."""
+        for (et_b, us_b, area_b) in scritti.get(b_key) or ():
+            if et_b != inv or us_b != a_key[0]:
+                continue
+            if a_key in _named_rows(us_b, area_b, b_key[1], per_us):
+                return True
+        return False
 
     visti = set()
-    for a_us, voci in scritti.items():
-        for (et, b_us) in voci:
+    for a_key, voci in scritti.items():
+        for (et, b_us, b_area) in voci:
             inv = _EDGE_TYPE_INVERSE.get(et)
-            if inv is None or b_us not in scritti:
+            if inv is None:
                 continue
-            if (inv, a_us) in scritti[b_us]:
+            b_keys = _named_rows(b_us, b_area, a_key[1], per_us)
+            if not b_keys:
+                continue          # la voce non nomina nessuna riga del sito
+            if any(_risponde(bk, inv, a_key) for bk in b_keys):
                 continue
-            if (a_us, b_us, et) in visti:
+            # Una sola riga candidata: la correzione sa dove scrivere. Più di
+            # una: si segnala e `_fill_edits` non propone niente.
+            b_key = b_keys[0] if len(b_keys) == 1 else None
+            segno = (a_key, b_key or b_us, et)
+            if segno in visti:
                 continue
-            visti.add((a_us, b_us, et))
+            visti.add(segno)
             rep.issues.append(Issue(
-                MISSING_RECIPROCITY, [a_us, b_us], True,
+                MISSING_RECIPROCITY, [a_key[0], b_us], True,
                 _t(lang, "s_recip").format(
-                    a=_utok(a_us, lang), b=_utok(b_us, lang),
-                    rel=_rel_label(et, lang))))
+                    a=_utok(a_key[0], lang), b=_utok(b_us, lang),
+                    rel=_rel_label(et, lang)),
+                rows=[_as_row(a_key), _as_row(b_key)]))
 
     # Connection-type legality (report-only).
     if validate:
@@ -586,7 +756,8 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
                     [str(_us_of(sn)), str(_us_of(tn))], False,
                     _t(lang, "s_illegal").format(
                         a=_utok(_us_of(sn), lang), b=_utok(_us_of(tn), lang))
-                    + f"  («{_rel_label(et, lang)}»)"))
+                    + f"  («{_rel_label(et, lang)}»)",
+                    rows=[_as_row(_row_key(sn)), _as_row(_row_key(tn))]))
 
     _fill_edits(rep, graph, inverse_label=inverse_label)
 
@@ -604,16 +775,32 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
     return rep
 
 
-def _source_term(graph, src_id, target_us):
-    """The source row's own rapporti label for target_us (capitalized)."""
-    n = graph.find_node_by_id(src_id)
-    a = getattr(n, "attributes", None) or {}
-    for entry in _coerce_to_list(a.get("rapporti")):
-        if isinstance(entry, (list, tuple)) and len(entry) >= 2:
-            if str(entry[1]).strip() == str(target_us):
-                lbl = str(entry[0]).strip()
-                if lbl:
-                    return lbl.capitalize(), entry
+def _source_term(node, target_us, target_area=None):
+    """The source row's own rapporti label for target_us (capitalized).
+
+    Fra due voci che nominano lo stesso numero in aree diverse — «Copre 9
+    (area 1)» e «Taglia 9 (area 2)» sulla stessa scheda — si prende quella
+    dell'area chiesta: è di quella riga che il reciproco manca.
+    """
+    a = getattr(node, "attributes", None) or {}
+    voci = [e for e in _coerce_to_list(a.get("rapporti"))
+            if isinstance(e, (list, tuple)) and len(e) >= 2
+            and _txt(e[1]) == _txt(target_us)]
+
+    def _priorita(e):
+        """Prima la voce dell'area chiesta, poi quella che l'area non la dice,
+        per ultima quella che ne dice un'altra."""
+        area = _txt(e[2]) if len(e) > 2 else ""
+        if area == _txt(target_area):
+            return 0
+        return 1 if not area else 2
+
+    if target_area:
+        voci.sort(key=_priorita)
+    for entry in voci:
+        lbl = str(entry[0]).strip()
+        if lbl:
+            return lbl.capitalize(), entry
     return None, None
 
 
@@ -621,34 +808,61 @@ def _fill_edits(rep, graph, *, inverse_label=None):
     if inverse_label is None:
         from modules.utility.pyarchinit_i18n_stratigraphic import (
             get_inverse_relationship as inverse_label)
+    per_chiave, _per_us = _index_rows(graph)
     by_us_node = {}
     for n in graph.nodes:
         u = _us_of(n)
         if u is not None:
             by_us_node.setdefault(str(u), n)
 
+    def _riga(iss, i):
+        """La riga i-esima di una issue, o ``None`` se non la nomina."""
+        righe = getattr(iss, "rows", None) or ()
+        return righe[i] if i < len(righe) else None
+
+    def _nodo(riga, us):
+        """Il nodo di quella riga; senza riga si ripiega sul numero di US,
+        come faceva questa funzione prima che le righe si nominassero."""
+        n = per_chiave.get(_key_of_row(riga)) if riga else None
+        return n if n is not None else by_us_node.get(str(us))
+
     for iss in rep.issues:
         if iss.kind == SELF_LOOP:
             us = iss.us_path[0]
-            n = by_us_node.get(us)
+            riga = _riga(iss, 0)
+            n = _nodo(riga, us)
             a = getattr(n, "attributes", None) or {}
             rem = tuple(tuple(str(x) for x in e)
                         for e in _coerce_to_list(a.get("rapporti"))
                         if isinstance(e, (list, tuple)) and len(e) >= 2
                         and str(e[1]).strip() == us)
-            iss.edits = [Edit(us=us, remove=rem)] if rem else []
+            iss.edits = [Edit(us=us, remove=rem,
+                              target=_target_of_row(riga))] if rem else []
         elif iss.kind == MISSING_RECIPROCITY:
             a_us, b_us = iss.us_path
+            riga_a, riga_b = _riga(iss, 0), _riga(iss, 1)
+            if getattr(iss, "rows", None) and riga_b is None:
+                # La riga da scrivere non si sa nominare: `apply_edits`
+                # rifiuterebbe la chiave ambigua e porterebbe via tutte le
+                # correzioni dello stesso clic. Si segnala e non si propone.
+                iss.auto = False
+                iss.edits = []
+                continue
             # source term on A for B; build the inverse on B for A
-            src_id = next((nid for nid in
-                           (getattr(n, "node_id", None) for n in graph.nodes)
-                           if str(_us_of(graph.find_node_by_id(nid))) == a_us), None)
-            term, entry = _source_term(graph, src_id, b_us) if src_id else (None, None)
+            src = _nodo(riga_a, a_us)
+            term, entry = _source_term(
+                src, b_us, (riga_b or {}).get("area")) if src else (None, None)
             if term is None:
                 iss.auto = False
                 iss.edits = []
                 continue
-            area = str(entry[2]) if len(entry) > 2 else "1"
+            # L'area che si scrive nella voce nuova è quella di **A**: la voce
+            # sta sulla scheda di B e nomina A. Quando la riga di A non porta
+            # un'area si tiene quella che la voce di A dichiarava, e in
+            # mancanza di tutto l'area 1 — il valore di sempre.
+            area = ((riga_a or {}).get("area")
+                    or (str(entry[2]) if len(entry) > 2 else "")
+                    or "1")
             sito = str(entry[3]) if len(entry) > 3 else rep.sito
             inv = inverse_label(term) or term
             # Honesty guard: only auto-fix when the inverse label round-trips
@@ -665,7 +879,8 @@ def _fill_edits(rep, graph, *, inverse_label=None):
                 iss.auto = False
                 iss.edits = []
                 continue
-            iss.edits = [Edit(us=b_us, add=((inv, a_us, area, sito),))]
+            iss.edits = [Edit(us=b_us, add=((inv, a_us, area, sito),),
+                              target=_target_of_row(riga_b))]
         # CONTRADICTION_AMBIGUOUS / CYCLE / ILLEGAL_CONNECTION: no auto edits
     return rep
 
@@ -708,6 +923,35 @@ def _target_of(edit):
     return tabella, tuple(sorted((str(k), str(v)) for k, v in chiave.items()))
 
 
+def _key_clause(chiave, prefisso):
+    """Il confronto delle colonne di chiave, e i suoi parametri.
+
+    Le colonne si confrontano **come testo**, un NULL conta come stringa vuota
+    e gli spazi in testa e in coda non contano: ``periodizzazione_table.periodo``
+    è ``Integer`` nello schema e ``fase`` è ``Text``, PostgreSQL non converte
+    da sé, e chi legge la chiave normalizza il NULL a ``''`` **e la striscia**
+    (``chronology_check._text``, :func:`_txt`) — se qui non facessimo lo stesso,
+    la correzione non troverebbe mai la sua riga e la finestra direbbe di
+    averla applicata.
+
+    Lo spazio non è un caso di scuola: ``area`` e ``fase`` sono testo battuto a
+    mano in una scheda, e un ``area = '1 '`` faceva aggiornare zero righe con
+    la finestra che diceva «1 correzioni applicate» e la riverifica che
+    ripresentava lo stesso avviso per sempre — «dice corretti e non applica»,
+    il guasto che l'utente ha segnalato. ``TRIM`` in SQL toglie gli spazi (è
+    quello che si batte in un campo di testo); il lato Python striscia tutti i
+    bianchi, come chi legge la chiave.
+    """
+    parti, params = [], {}
+    for i, (col, val) in enumerate(chiave):
+        if not col.isidentifier():
+            raise ValueError("colonna di chiave non valida: %r" % (col,))
+        parti.append("TRIM(COALESCE(CAST(%s AS TEXT), '')) = :%s_%d"
+                     % (col, prefisso, i))
+        params["%s_%d" % (prefisso, i)] = str(val).strip()
+    return parti, params
+
+
 def _where(tabella, chiave, row_sito):
     """La clausola che individua la riga, e i suoi parametri.
 
@@ -716,34 +960,16 @@ def _where(tabella, chiave, row_sito):
     Una riga il cui ``sito`` è NULL non si può nemmeno nominare con
     ``sito = :w_sito``, quindi si rifiuta invece di allargare la clausola.
 
-    Le colonne della chiave si confrontano **come testo**, un NULL conta come
-    stringa vuota e gli spazi in testa e in coda non contano:
-    ``periodizzazione_table.periodo`` è ``Integer`` nello schema e ``fase`` è
-    ``Text``, PostgreSQL non converte da sé, e chi legge la chiave normalizza
-    il NULL a ``''`` **e la striscia** (``chronology_check._text``) — se qui
-    non facessimo lo stesso, la correzione non troverebbe mai la sua riga e la
-    finestra direbbe di averla applicata.
-
-    Lo spazio non è un caso di scuola: ``area`` e ``fase`` sono testo battuto
-    a mano in una scheda, e un ``area = '1 '`` faceva aggiornare zero righe
-    con la finestra che diceva «1 correzioni applicate» e la riverifica che
-    ripresentava lo stesso avviso per sempre — «dice corretti e non applica»,
-    il guasto che l'utente ha segnalato. ``TRIM`` in SQL toglie gli spazi (è
-    quello che si batte in un campo di testo); il lato Python striscia tutti i
-    bianchi, come chi legge la chiave.
+    Le colonne della chiave le confronta :func:`_key_clause`, come testo
+    strisciato: là c'è il perché.
     """
     if not row_sito:
         raise ValueError(
             "una correzione su %s ha bisogno del sito: senza, la chiave %s "
             "individua la stessa riga in tutti i siti"
             % (tabella, dict(chiave)))
-    parti, params = ["sito = :w_sito"], {"w_sito": row_sito}
-    for i, (col, val) in enumerate(chiave):
-        if not col.isidentifier():
-            raise ValueError("colonna di chiave non valida: %r" % (col,))
-        parti.append("TRIM(COALESCE(CAST(%s AS TEXT), '')) = :w_%d" % (col, i))
-        params["w_%d" % i] = str(val).strip()
-    return " AND ".join(parti), params
+    parti, params = _key_clause(chiave, "w")
+    return " AND ".join(["sito = :w_sito"] + parti), dict(params, w_sito=row_sito)
 
 
 def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
@@ -770,11 +996,15 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
 
             # Il sito della riga: per us_table lo si cerca quando non è dato,
             # com'è sempre stato; per le altre tabelle è obbligatorio e
-            # _where lo pretende.
+            # _where lo pretende. Lo si cerca con **tutta** la chiave: la sola
+            # `us` individua più righe su uno scavo a più aree, e il sito
+            # della prima che capita potrebbe non essere quello della riga che
+            # si sta per scrivere.
             if tabella == "us_table" and sito is None:
-                r = conn.execute(text(
-                    "SELECT sito FROM us_table WHERE CAST(us AS TEXT) = :u"),
-                    {"u": dict(chiave).get("us")}).fetchone()
+                parti, kparams = _key_clause(chiave, "k")
+                r = conn.execute(text("SELECT sito FROM us_table WHERE %s"
+                                      % " AND ".join(parti)),
+                                 kparams).fetchone()
                 row_sito = r[0] if r else None
             else:
                 row_sito = sito

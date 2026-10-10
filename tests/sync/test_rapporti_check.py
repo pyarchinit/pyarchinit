@@ -4,7 +4,7 @@ from modules.utility import rapporti_check as RC
 
 
 class _N:
-    def __init__(self, nid, ut, rap=None, us=None, node_type="US"):
+    def __init__(self, nid, ut, rap=None, us=None, node_type="US", area=None):
         self.node_id = nid
         self.name = nid
         self.node_type = node_type
@@ -13,6 +13,10 @@ class _N:
             self.attributes["rapporti"] = rap
         if us is not None:
             self.attributes["us"] = us
+        # L'area manca quando la riga non ce l'ha: il projector scrive
+        # l'attributo solo se la colonna ha un valore.
+        if area is not None:
+            self.attributes["area"] = area
 
 
 class _E:
@@ -358,3 +362,122 @@ def test_apply_does_not_duplicate_a_relation_already_there(tmp_path):
     voci = [list(map(str, x)) for x in ast.literal_eval(scritto)]
     verso_1 = [v for v in voci if v[0] == "Coperto da" and v[1] == "1"]
     assert len(verso_1) == 1, "rapporto duplicato: %r" % voci
+
+
+# ---------------------------------------------------------------------------
+# La US 1 dell'area 1 e la US 1 dell'area 2 sono due schede (2026-10-10)
+# ---------------------------------------------------------------------------
+# L'identità di una riga di `us_table` è `UniqueConstraint('sito', 'area',
+# 'us', 'unita_tipo')` (modules/db/structures/US_table.py). La verifica dei
+# rapporti leggeva il solo numero di US: su uno scavo a più aree le due righe
+# si fondevano in una, il reciproco scritto nell'area 2 zittiva l'avviso
+# dell'area 1, e la correzione nominava una chiave che individua due righe —
+# che `apply_edits` adesso rifiuta («Apply fallito»), e che prima riscriveva
+# entrambe appiattendo l'area 2 sullo snapshot dell'area 1.
+
+def test_a_reciprocal_in_another_area_does_not_answer_for_this_one():
+    """Il reciproco dell'area 2 non risponde per l'area 1.
+
+    Due aree complete: nell'area 2 le due schede si rispondono, nell'area 1
+    la US 9 è muta. Il problema è uno, e sta nell'area 1.
+    """
+    g = _G([_N("a1", "US", rap="[['Copre','9','1','S']]", us="1", area="1"),
+            _N("b1", "US", rap="[]", us="9", area="1"),
+            _N("a2", "US", rap="[['Copre','9','2','S']]", us="1", area="2"),
+            _N("b2", "US", rap="[['Coperto da','1','2','S']]", us="9",
+               area="2")],
+           [])
+    rep = RC.check_rapporti(g, sito="S")
+    recs = [i for i in rep.issues if i.kind == RC.MISSING_RECIPROCITY]
+    assert len(recs) == 1, [i.summary for i in rep.issues]
+    assert recs[0].us_path == ["1", "9"]
+    e = recs[0].edits[0]
+    assert e.us == "9"
+    assert e.target == ("us_table", {"us": "9", "area": "1",
+                                     "unita_tipo": "US"})
+    assert ("Coperto da", "1", "1", "S") in e.add
+
+
+def test_a_short_form_relation_means_the_area_that_wrote_it():
+    """``['Copre','9']`` l'area non la dice: vale quella della scheda che l'ha
+    scritta, quindi la US 9 della **sua** area. Qui l'area 1 si risponde e
+    l'area 2 no: il problema è uno, e sta nell'area 2."""
+    g = _G([_N("a1", "US", rap="[['Copre','9']]", us="1", area="1"),
+            _N("b1", "US", rap="[['Coperto da','1']]", us="9", area="1"),
+            _N("a2", "US", rap="[['Copre','9']]", us="1", area="2"),
+            _N("b2", "US", rap="[]", us="9", area="2")],
+           [])
+    rep = RC.check_rapporti(g, sito="S")
+    recs = [i for i in rep.issues if i.kind == RC.MISSING_RECIPROCITY]
+    assert len(recs) == 1, [i.summary for i in rep.issues]
+    e = recs[0].edits[0]
+    assert e.target == ("us_table", {"us": "9", "area": "2",
+                                     "unita_tipo": "US"})
+    # Il rapporto che si scrive nomina l'area di **chi lo ha chiesto**: la
+    # voce sta sulla US 9 dell'area 2 e punta alla US 1 dell'area 2.
+    assert ("Coperto da", "1", "2", "S") in e.add
+
+
+def test_a_short_form_on_one_area_still_answers_as_it_always_did():
+    """La guardia del caso normale: un'area sola, la forma corta su entrambe
+    le schede, e nessun avviso — come prima che l'area contasse."""
+    g = _G([_N("a", "US", rap="[['Copre','2']]", us="1", area="1"),
+            _N("b", "US", rap="[['Coperto da','1']]", us="2", area="1")],
+           [])
+    rep = RC.check_rapporti(g, sito="S")
+    assert not any(i.kind == RC.MISSING_RECIPROCITY for i in rep.issues), \
+        [i.summary for i in rep.issues]
+
+
+def test_a_declared_area_that_names_no_row_falls_back_to_the_number():
+    """L'area di una voce è un dato denormalizzato che il plugin riscrive da
+    sé (Ctrl+U) e può essere vecchia: se non nomina nessuna riga decide il
+    numero, invece di andare in silenzio."""
+    g = _G([_N("a", "US", rap="[['Copre','9','7','S']]", us="1", area="1"),
+            _N("b", "US", rap="[]", us="9", area="1")],
+           [])
+    rep = RC.check_rapporti(g, sito="S")
+    recs = [i for i in rep.issues if i.kind == RC.MISSING_RECIPROCITY]
+    assert len(recs) == 1, [i.summary for i in rep.issues]
+    assert recs[0].edits[0].target == ("us_table", {"us": "9", "area": "1",
+                                                    "unita_tipo": "US"})
+
+
+def test_a_number_shared_by_a_us_and_a_usm_is_not_auto_fixable():
+    """Il vincolo permette una US 9 e una USM 9 nella stessa area, e una voce
+    di ``rapporti`` il tipo di unità non lo dice: la riga da scrivere non si
+    sa nominare, quindi si segnala e non si propone. Prima si proponeva una
+    correzione sulla chiave `{'us': '9'}`, che individua due righe e che
+    `apply_edits` rifiuta — «Apply fallito», e tutte le spunte perdute."""
+    g = _G([_N("a", "US", rap="[['Copre','9']]", us="1", area="1"),
+            _N("b", "US", rap="[]", us="9", area="1"),
+            _N("c", "USM", rap="[]", us="9", area="1")],
+           [])
+    rep = RC.check_rapporti(g, sito="S")
+    recs = [i for i in rep.issues if i.kind == RC.MISSING_RECIPROCITY]
+    assert len(recs) == 1, [i.summary for i in rep.issues]
+    assert recs[0].auto is False and recs[0].edits == []
+
+
+def test_the_self_loop_fix_names_its_row():
+    g = _G([_N("a", "US", rap="[['Copre','1','1','S']]", us="1", area="1"),
+            _N("a2", "US", rap="[]", us="1", area="2")],
+           [_E("a", "a", "overlies")])
+    rep = RC.check_rapporti(g, sito="S")
+    iss = next(i for i in rep.issues if i.kind == RC.SELF_LOOP)
+    e = iss.edits[0]
+    assert ("Copre", "1", "1", "S") in e.remove
+    assert e.target == ("us_table", {"us": "1", "area": "1",
+                                     "unita_tipo": "US"})
+
+
+def test_an_issue_built_without_rows_keeps_the_old_us_only_key():
+    """`Issue.rows` è facoltativo: chi costruisce una issue senza nominarne le
+    righe — `chronology_check` per le fasi, o una chiamata scritta prima che
+    il campo esistesse — ottiene la correzione di sempre, con la chiave `us`."""
+    rep = RC.RapportiReport(sito="S")
+    rep.issues.append(RC.Issue(RC.SELF_LOOP, ["1"], True, "x"))
+    g = _G([_N("a", "US", rap="[['Copre','1','1','S']]", us="1", area="1")],
+           [])
+    RC._fill_edits(rep, g)
+    assert rep.issues[0].edits[0].target == ()
