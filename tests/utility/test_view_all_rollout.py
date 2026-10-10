@@ -197,6 +197,35 @@ def test_own_site_filter_handlers_keep_filtering(filename, name):
     assert "charge_records" not in calls
 
 
+def test_struttura_gis_button_binds_results_on_every_path_and_reports_errors():
+    node = _handler("Struttura.py", "on_pushButton_view_all_st_pressed")
+    assert node is not None
+    # (a) nessun `except ...: pass` che ingoia gli errori in silenzio
+    for n in ast.walk(node):
+        if isinstance(n, ast.ExceptHandler):
+            assert not all(isinstance(b, ast.Pass) for b in n.body), (
+                "except: pass nel bottone strutture sul GIS: l'utente "
+                "non saprebbe che il caricamento e' fallito")
+    # (b) `res` e' assegnato in entrambi i rami dell'if sul sito, e il ciclo
+    # che lo legge sta nello stesso try (non dopo un if senza else).
+    def stores(stmts, name):
+        return any(isinstance(x, ast.Name) and x.id == name
+                   and isinstance(x.ctx, ast.Store)
+                   for s in stmts for x in ast.walk(s))
+    ifs = [n for n in ast.walk(node)
+           if isinstance(n, ast.If) and stores(n.body, "res")]
+    assert ifs, "nessun ramo assegna `res`"
+    for n in ifs:
+        assert n.orelse and stores(n.orelse, "res"), (
+            "`res` e' assegnato solo in un ramo: senza sito impostato "
+            "il ciclo darebbe NameError")
+    for tr in (n for n in ast.walk(node) if isinstance(n, ast.Try)):
+        if any(n in ifs for n in ast.walk(ast.Module(body=tr.body, type_ignores=[]))):
+            reads = [f for f in ast.walk(ast.Module(body=tr.body, type_ignores=[]))
+                     if isinstance(f, ast.For) and _mentions(f.iter, "res")]
+            assert reads, "il ciclo su `res` deve stare nello stesso try"
+
+
 def test_every_view_all_handler_in_tabs_is_classified():
     # Una scheda aggiunta domani con il suo «view all» fallisce qui invece di
     # restare senza filtro in silenzio.

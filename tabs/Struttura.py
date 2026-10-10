@@ -4354,34 +4354,45 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
 
     
     def on_pushButton_view_all_st_pressed(self):
-        
-        lista=[]
+
         conn = Connection()
         sito_set= conn.sito_set()
         sito_set_str = sito_set['sito_set']
         try:
-            if bool (sito_set_str):
+            if bool(sito_set_str):
                 search_dict = {
                     'sito': "'" + str(sito_set_str) + "'"}  # 1 - Sito
                 u = Utility()
                 search_dict = u.remove_empty_items_fr_dict(search_dict)
                 res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                self.DATA_LIST = []
+            else:
+                # Nessun sito impostato: tutte le strutture, come charge_records()
+                res = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, self.ID_TABLE, 'asc')
+            self.DATA_LIST = []
             for i in res:
                 self.DATA_LIST.append(i)
-        
-        
+
             for e in self.DATA_LIST:
-            
+
                 sito_p = e.sito
                 sigla_st = e.sigla_struttura
                 n_st = e.numero_struttura
-            
-            
+
                 self.pyQGIS.charge_vector_layers_all_st(sito_p, sigla_st,n_st)
 
         except Exception as e:
-            pass
+            if self.L == 'it':
+                QMessageBox.warning(self, "Errore",
+                                    "Impossibile caricare le strutture sul GIS: %s" % str(e),
+                                    QMessageBox.StandardButton.Ok)
+            elif self.L == 'de':
+                QMessageBox.warning(self, "Fehler",
+                                    "Die Strukturen konnten nicht im GIS geladen werden: %s" % str(e),
+                                    QMessageBox.StandardButton.Ok)
+            else:
+                QMessageBox.warning(self, "Error",
+                                    "Unable to load the structures on the GIS: %s" % str(e),
+                                    QMessageBox.StandardButton.Ok)
 
     def update_if(self, msg):
         rec_corr = self.REC_CORR
