@@ -234,3 +234,84 @@ def load_chronology_rows(handle, sito):
                 "SELECT us, periodo_iniziale, fase_iniziale, datazione "
                 "FROM us_table WHERE sito = :s"), {"s": sito}).fetchall()]
     return periods, units
+
+
+#: Come si chiamano in chiaro le cinque regole di ``graph.chronology()``.
+#: Stanno qui e non in ``_L`` perché sono i nomi delle regole della
+#: libreria, non voci del dialogo: ``tpq`` e ``taq`` non si traducono.
+_RULES = {
+    "it": {"written": "data scritta", "epoch": "epoca",
+           "contained": "da ciò che contiene",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+    "en": {"written": "written date", "epoch": "epoch",
+           "contained": "from what it contains",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+    "de": {"written": "geschriebenes Datum", "epoch": "Epoche",
+           "contained": "aus dem Enthaltenen",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+    "es": {"written": "fecha escrita", "epoch": "época",
+           "contained": "de lo que contiene",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+    "fr": {"written": "date écrite", "epoch": "époque",
+           "contained": "de ce qu'elle contient",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+    "pt": {"written": "data escrita", "epoch": "época",
+           "contained": "do que contém",
+           "tpq": "terminus post quem", "taq": "terminus ante quem"},
+}
+
+
+def _anno(val):
+    """L'anno come si scrive in un avviso: senza il decimale che non dice
+    niente (``chronology()`` restituisce float)."""
+    return "…" if val is None else "%d" % int(val)
+
+
+def explain_bounds(entry, *, lang="it"):
+    """Gli estremi di una voce di ``graph.chronology()``, con la regola che li
+    ha prodotti e la provenienza.
+
+    ``1500–1549 · epoca · has_first_epoch → epoch_2_2``: cioè l'intervallo, da
+    quale regola viene e lungo quale arco è arrivato il vincolo, da quale
+    nodo. La provenienza di una data **è la relazione che ha percorso** (E. D.,
+    29 settembre 2026), e qui si legge.
+
+    Niente colonne nuove, nessuna scrittura: si ricalcola a ogni verifica, e
+    costa poco perché il grafo si sta già proiettando per i rapporti. Una voce
+    senza estremi non è un errore: dà la riga vuota.
+    """
+    entry = entry or {}
+    inizio, fine = entry.get("start"), entry.get("end")
+    if inizio is None and fine is None:
+        return ""
+    regola = entry.get("rule") or ""
+    nomi = _RULES.get(lang) or _RULES["en"]
+    pezzi = ["%s–%s" % (_anno(inizio), _anno(fine))]
+    if regola:
+        pezzi.append(nomi.get(regola, regola))
+    # La provenienza è quella dell'estremo che la regola ha prodotto.
+    lato = "start" if entry.get("start_rule") == regola and inizio is not None \
+        else "end"
+    relazione = entry.get("%s_relation" % lato)
+    sorgente = entry.get("%s_source" % lato)
+    if relazione and sorgente:
+        pezzi.append("%s → %s" % (relazione, sorgente))
+    return " · ".join(pezzi)
+
+
+def bounds_by_us(graph):
+    """La cronologia calcolata, indicizzata per numero di US.
+
+    ``graph.chronology()`` ha per chiave l'id del nodo, che è un uuid7: per
+    accostarla a un avviso — che nomina le unità per numero — serve lo stesso
+    modo in cui la verifica dei rapporti riconosce una unità, cioè l'attributo
+    ``us`` del nodo, o il suo nome ripulito del prefisso.
+    """
+    from .rapporti_check import _us_of
+
+    per_us = {}
+    for node_id, voce in (graph.chronology() or {}).items():
+        us = _us_of(graph.find_node_by_id(node_id))
+        if us:
+            per_us[str(us)] = voce
+    return per_us

@@ -163,7 +163,7 @@ class RapportiCheckPanel(QWidget):
                 # Si chiede **prima** di aggiungere gli avvisi: se inciampasse
                 # dopo, la finestra mostrerebbe gli avvisi e insieme direbbe
                 # che la verifica non è stata eseguita.
-                self._chrono_bounds = graph.chronology()
+                self._chrono_bounds = CC.bounds_by_us(graph)
                 self._report.issues.extend(CC.check_chronology(
                     periods, units, sito=sito, lang=self._lang))
             except Exception as exc:
@@ -253,6 +253,16 @@ class RapportiCheckPanel(QWidget):
                 lines.append(f"{chi}: aggiungi {list(a)}")
             for (col, val) in getattr(e, "set_fields", ()):
                 lines.append(f"{chi}: imposta {col} = {val}")
+        # La data calcolata delle US nominate: da dove viene, non solo quanto
+        # vale. Si ricalcola a ogni verifica e non si scrive da nessuna parte.
+        righe_data = []
+        for us in getattr(iss, "us_path", ()) or ():
+            voce = (self._chrono_bounds or {}).get(str(us))
+            testo = CC.explain_bounds(voce, lang=self._lang) if voce else ""
+            if testo:
+                righe_data.append("US %s · %s" % (us, testo))
+        if righe_data:
+            lines.extend([""] + righe_data)
         self.preview.setPlainText("\n".join(lines))
 
     def _apply(self):

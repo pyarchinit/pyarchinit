@@ -280,3 +280,70 @@ def test_edit_prefix_names_the_row_when_the_target_is_another_table():
     e = Edit(us="2/2.2", target=("periodizzazione_table",
                                  {"periodo": "2", "fase": "2.2"}))
     assert CC.edit_prefix(e) == "periodizzazione_table fase=2.2 periodo=2"
+
+
+def test_explain_bounds_reads_span_rule_and_provenance():
+    entry = {"start": 1500.0, "end": 1549.0, "start_rule": "epoch",
+             "start_source": "epoch_2_2", "start_relation": "has_first_epoch",
+             "end_rule": "epoch", "end_source": "epoch_2_2",
+             "end_relation": "survive_in_epoch", "rule": "epoch"}
+    riga = CC.explain_bounds(entry)
+    assert riga == "1500–1549 · epoca · has_first_epoch → epoch_2_2"
+
+
+def test_explain_bounds_names_the_rule_in_the_chosen_language():
+    entry = {"start": -100.0, "end": 0.0, "start_rule": "tpq",
+             "start_source": "USM101", "start_relation": "is_after",
+             "rule": "tpq"}
+    assert CC.explain_bounds(entry, lang="en") == \
+        "-100–0 · terminus post quem · is_after → USM101"
+
+
+def test_explain_bounds_on_an_entry_without_bounds_does_not_raise():
+    assert CC.explain_bounds({}) == ""
+    assert CC.explain_bounds(None) == ""
+
+
+def test_explain_bounds_with_only_an_end_says_so():
+    entry = {"end": 1549.0, "end_rule": "taq", "end_source": "US7",
+             "end_relation": "is_before", "rule": "taq"}
+    assert CC.explain_bounds(entry) == \
+        "…–1549 · terminus ante quem · is_before → US7"
+
+
+def test_explain_bounds_without_provenance_gives_just_span_and_rule():
+    entry = {"start": 1500.0, "end": 1549.0, "rule": "written"}
+    assert CC.explain_bounds(entry) == "1500–1549 · data scritta"
+
+
+def test_bounds_by_us_keys_on_the_us_number_not_the_node_id():
+    """Gli id dei nodi sono uuid7: accostare un avviso agli estremi calcolati
+    chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità.
+    """
+    class _Nodo:
+        attributes = {"us": "4"}
+        name = "US4"
+
+    class _Grafo:
+        def chronology(self):
+            return {"019f8043-4f87-7e3b-b7e8-6736d398fc27":
+                    {"start": 1500.0, "end": 1549.0, "rule": "epoch"}}
+
+        def find_node_by_id(self, node_id):
+            return _Nodo()
+
+    per_us = CC.bounds_by_us(_Grafo())
+    assert list(per_us) == ["4"]
+    assert per_us["4"]["start"] == 1500.0
+
+
+def test_bounds_by_us_skips_a_node_it_cannot_name():
+    """Un nodo di servizio del grafo non è una unità scavata: salta."""
+    class _Grafo:
+        def chronology(self):
+            return {"x": {"start": 1.0, "end": 2.0, "rule": "epoch"}}
+
+        def find_node_by_id(self, node_id):
+            return None
+
+    assert CC.bounds_by_us(_Grafo()) == {}
