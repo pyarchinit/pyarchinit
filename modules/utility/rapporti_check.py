@@ -51,6 +51,13 @@ class Edit:
     "fase": "2.2"})``. Vuoto vale ``us_table`` con la chiave ``us``, cioè
     esattamente quello che ``apply_edits`` ha sempre fatto — nessuna chiamata
     esistente cambia.
+
+    Su ``us_table`` la chiave buona è di **quattro** colonne —
+    ``{"us": …, "area": …, "unita_tipo": …}`` più il sito, che
+    ``apply_edits`` riceve a parte: è ``UniqueConstraint('sito', 'area',
+    'us', 'unita_tipo')`` (modules/db/structures/US_table.py). La sola ``us``
+    individua più righe su uno scavo a più aree, e ``apply_edits`` lo rifiuta
+    invece di riscriverle tutte.
     """
     us: str
     add: tuple = ()
@@ -731,14 +738,31 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
 
             # Snapshot: i valori di prima, letti con la stessa clausola con
             # cui si scriverà.
+            #
+            # `fetchall` e non `fetchone`: se la clausola individua più di una
+            # riga, la UPDATE le riscriverebbe tutte e lo snapshot terrebbe i
+            # valori della prima — così l'annulla appiattirebbe le altre su
+            # un valore che non hanno mai avuto. È il bug della US 1 in due
+            # aree (l'identità di una scheda è `UniqueConstraint('sito',
+            # 'area', 'us', 'unita_tipo')`). Una chiave ambigua è un errore,
+            # non una scrittura in silenzio, e vale per **qualunque**
+            # produttore di correzioni, anche futuro. Il `raise` sta dentro
+            # `engine.begin()`: la transazione si annulla e non resta niente
+            # scritto a metà.
             cols = (["rapporti"] if touch_rapporti else []) + field_cols
             orig = {}
-            r = conn.execute(text("SELECT %s FROM %s WHERE %s"
-                                  % (", ".join(cols), tabella, where)),
-                             wparams).fetchone()
-            if r is not None:
+            righe = conn.execute(text("SELECT %s FROM %s WHERE %s"
+                                      % (", ".join(cols), tabella, where)),
+                                 wparams).fetchall()
+            if len(righe) > 1:
+                raise ValueError(
+                    "una correzione su %s individua %d righe con la chiave "
+                    "%s (sito %r): la chiave non basta a nominare la riga e "
+                    "nessuna correzione è stata applicata"
+                    % (tabella, len(righe), dict(chiave), row_sito))
+            if righe:
                 for i, c in enumerate(cols):
-                    orig[c] = r[i]
+                    orig[c] = righe[0][i]
             snapshot[(tabella, chiave)] = (row_sito, orig)
 
             new_vals = {}

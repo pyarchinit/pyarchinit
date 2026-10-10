@@ -30,14 +30,14 @@ def _db(tmp_path):
     c.execute("CREATE TABLE us_table (sito TEXT, us TEXT, rapporti TEXT,"
               " periodo_iniziale TEXT, fase_iniziale TEXT,"
               " periodo_finale TEXT, fase_finale TEXT, datazione TEXT,"
-              " area TEXT)")
+              " area TEXT, unita_tipo TEXT)")
     c.execute("CREATE TABLE periodizzazione_table (sito TEXT,"
               " periodo INTEGER, fase TEXT, cron_iniziale INTEGER,"
               " cron_finale INTEGER, datazione_estesa TEXT, descrizione TEXT)")
     c.execute("INSERT INTO us_table VALUES ('S','12','[]','2','2.2','2','2.2',"
-              "'Prima metà del XV secolo','1')")
+              "'Prima metà del XV secolo','1','US')")
     c.execute("INSERT INTO us_table VALUES ('ALTRO','99','[]','2','2.2','2',"
-              "'2.2','non toccare','1')")
+              "'2.2','non toccare','1','US')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
               "('S',2,'2.2',1500,1549,'Prima metà del XVI secolo','')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
@@ -281,3 +281,145 @@ def test_the_sample_shaped_rows_go_straight_into_check_chronology(tmp_path):
     kinds = sorted(i.kind for i in CC.check_chronology(
         periods, units, sito="S"))
     assert kinds == ["datazione_mismatch", "epoch_overlap"]
+
+
+# ---------------------------------------------------------------------------
+# L'identità di una riga di us_table è di QUATTRO colonne
+# (`UniqueConstraint('sito', 'area', 'us', 'unita_tipo')`,
+# modules/db/structures/US_table.py), e la chiave della correzione era una
+# sola: su uno scavo a più aree — o su una US 1 e una USM 1, che il vincolo
+# permette — una correzione ne riscriveva tutte, e l'annulla le appiattiva
+# sul valore della prima.
+# ---------------------------------------------------------------------------
+
+def _db_due_aree(tmp_path):
+    """Lo stesso numero di US in due aree, e una terza riga USM.
+
+    Solo l'area 1 ha un periodo: il disallineamento è **uno**, e le altre due
+    righe sono quelle che nessuno ha chiesto di toccare.
+    """
+    from s3dgraphy.sync._db_handle import DbHandle
+    p = tmp_path / "aree.sqlite"
+    c = sqlite3.connect(p)
+    c.execute("CREATE TABLE us_table (sito TEXT, area TEXT, us TEXT,"
+              " unita_tipo TEXT, rapporti TEXT, periodo_iniziale TEXT,"
+              " fase_iniziale TEXT, periodo_finale TEXT, fase_finale TEXT,"
+              " datazione TEXT)")
+    c.execute("CREATE TABLE periodizzazione_table (sito TEXT,"
+              " periodo INTEGER, fase TEXT, cron_iniziale INTEGER,"
+              " cron_finale INTEGER, datazione_estesa TEXT, descrizione TEXT)")
+    c.execute("INSERT INTO us_table VALUES ('S','1','1','US','[]','2','1',"
+              "'2','1','SBAGLIATA')")
+    c.execute("INSERT INTO us_table VALUES ('S','2','1','US','[]','','',"
+              "'','','XV secolo')")
+    c.execute("INSERT INTO us_table VALUES ('S','1','1','USM','[]','','',"
+              "'','','muro, da non toccare')")
+    c.execute("INSERT INTO periodizzazione_table VALUES "
+              "('S',2,'1',1500,1549,'XVI secolo','')")
+    c.commit(); c.close()
+    return DbHandle.from_path(p)
+
+
+def _righe(h):
+    from sqlalchemy import text
+    with h.engine.connect() as c:
+        return c.execute(text(
+            "SELECT area, us, unita_tipo, datazione FROM us_table "
+            "WHERE sito='S' ORDER BY area, unita_tipo")).fetchall()
+
+
+def test_load_chronology_rows_carries_area_and_unit_type(tmp_path):
+    """Senza queste due colonne la correzione non può nominare la sua riga."""
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    _, units = CC.load_chronology_rows(h, "S")
+    assert {(u["us"], u["area"], u["unita_tipo"]) for u in units} == {
+        ("1", "1", "US"), ("1", "2", "US"), ("1", "1", "USM")}
+
+
+def test_the_mismatch_edit_names_all_four_identity_columns(tmp_path):
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    periods, units = CC.load_chronology_rows(h, "S")
+    issues = CC.check_chronology(periods, units, sito="S")
+    assert [i.kind for i in issues] == ["datazione_mismatch"]
+    edit, = issues[0].edits
+    assert edit.target == ("us_table",
+                           {"us": "1", "area": "1", "unita_tipo": "US"})
+
+
+def test_one_fix_rewrites_one_row_and_not_the_whole_us_number(tmp_path):
+    """Un disallineamento, una riga: «XV secolo» dell'area 2 non si perde, e
+    il muro dell'area 1 nemmeno."""
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    periods, units = CC.load_chronology_rows(h, "S")
+    edits = [e for i in CC.check_chronology(periods, units, sito="S")
+             for e in i.edits]
+    assert len(edits) == 1
+    RC.apply_edits(edits, h, sito="S")
+    assert _righe(h) == [("1", "1", "US", "XVI secolo"),
+                         ("1", "1", "USM", "muro, da non toccare"),
+                         ("2", "1", "US", "XV secolo")]
+
+
+def test_the_undo_does_not_flatten_the_other_rows(tmp_path):
+    """L'annulla scriveva «SBAGLIATA» anche dove non c'era mai stata."""
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    prima = _righe(h)
+    periods, units = CC.load_chronology_rows(h, "S")
+    edits = [e for i in CC.check_chronology(periods, units, sito="S")
+             for e in i.edits]
+    token = RC.apply_edits(edits, h, sito="S")
+    assert _righe(h) != prima
+    RC.rollback(token, h)
+    assert _righe(h) == prima
+
+
+def test_a_key_that_matches_more_than_one_row_refuses_to_write(tmp_path):
+    """La guardia vale per qualunque produttore di correzioni, non solo per
+    questa: una chiave ambigua è un errore, non una scrittura in silenzio."""
+    h = _db_due_aree(tmp_path)
+    prima = _righe(h)
+    with pytest.raises(ValueError, match="individua 3 righe"):
+        RC.apply_edits([RC.Edit(us="1",
+                                set_fields=(("datazione", "X"),))], h, sito="S")
+    assert _righe(h) == prima
+
+
+def test_the_refusal_is_whole_and_leaves_nothing_half_written(tmp_path):
+    """La correzione ambigua arriva in mezzo a una buona: la transazione
+    rifiuta tutto, non la metà che aveva già scritto."""
+    h = _db_due_aree(tmp_path)
+    prima = _righe(h)
+    buona = RC.Edit(us="1", set_fields=(("datazione", "XVI secolo"),),
+                    target=("us_table", {"us": "1", "area": "1",
+                                         "unita_tipo": "US"}))
+    ambigua = RC.Edit(us="1", set_fields=(("datazione", "X"),))
+    with pytest.raises(ValueError):
+        RC.apply_edits([buona, ambigua], h, sito="S")
+    assert _righe(h) == prima
+
+
+def test_a_mismatch_edit_on_a_null_area_finds_its_row(tmp_path):
+    """Il migratore DB→DB scrive NULL dove le schede scrivono '': la chiave
+    normalizza a '' e `_where` confronta con COALESCE, quindi la riga si
+    trova — se no, zero righe aggiornate e la finestra direbbe «corretto»."""
+    from sqlalchemy import text
+
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("UPDATE us_table SET area = NULL, unita_tipo = NULL "
+                       "WHERE area = '1' AND unita_tipo = 'US'"))
+    periods, units = CC.load_chronology_rows(h, "S")
+    edits = [e for i in CC.check_chronology(periods, units, sito="S")
+             for e in i.edits]
+    assert edits[0].target == ("us_table",
+                              {"us": "1", "area": "", "unita_tipo": ""})
+    RC.apply_edits(edits, h, sito="S")
+    with h.engine.connect() as c:
+        assert c.execute(text(
+            "SELECT datazione FROM us_table WHERE sito='S' AND area IS NULL")
+        ).fetchone() == ("XVI secolo",)

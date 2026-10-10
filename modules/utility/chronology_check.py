@@ -74,16 +74,43 @@ def _period_target(key):
     return (_PERIOD_TABLE, {"periodo": key[0], "fase": key[1]})
 
 
+def _us_target(row):
+    """La riga di ``us_table`` che una correzione sulla scheda deve toccare.
+
+    Quattro colonne, non una: ``UniqueConstraint('sito', 'area', 'us',
+    'unita_tipo')`` (modules/db/structures/US_table.py). Con la sola ``us``,
+    una correzione sulla US 1 dell'area 1 riscriveva anche la US 1 dell'area 2
+    e la USM 1 — e l'annulla le appiattiva tutte sul valore della prima.
+
+    Il NULL si normalizza a ``''`` perché il migratore DB→DB scrive NULL dove
+    le schede scrivono ``''``, e ``_where`` confronta con
+    ``COALESCE(CAST(... AS TEXT), '')``: le due sponde devono dire la stessa
+    cosa, o la riga non si trova e la finestra direbbe di averla corretta.
+    """
+    return ("us_table", {"us": _text(row.get("us")),
+                         "area": _text(row.get("area")),
+                         "unita_tipo": _text(row.get("unita_tipo"))})
+
+
 def edit_prefix(edit):
     """Chi tocca una correzione, come si legge nell'anteprima.
 
     Una correzione sulla periodizzazione non riguarda una US: scrivere
     «US 2/2.2» mentirebbe sulla riga che si sta per cambiare.
+
+    Una correzione su ``us_table``, invece, una US la riguarda: si legge «US
+    12», con l'area e il tipo di unità accanto quando ci sono — perché su uno
+    scavo a più aree «US 1» da solo non dice quale delle due si sta per
+    riscrivere.
     """
     target = getattr(edit, "target", ()) or ()
     if not target:
         return "US %s" % edit.us
     chiave = dict(target[1]) if len(target) > 1 else {}
+    if target[0] == "us_table":
+        dettagli = [chiave[k] for k in ("area", "unita_tipo") if chiave.get(k)]
+        testo = "US %s" % chiave.get("us", edit.us)
+        return "%s (%s)" % (testo, ", ".join(dettagli)) if dettagli else testo
     return "%s %s" % (target[0], " ".join("%s=%s" % (k, chiave[k])
                                           for k in sorted(chiave)))
 
@@ -192,13 +219,14 @@ def _mismatches(periods, units, lang):
         corrente = _text(row.get("datazione"))
         if corrente == voluto:
             continue
-        us = str(row.get("us") or "").strip()
+        us = _text(row.get("us"))
         out.append(Issue(
             kind=DATAZIONE_MISMATCH, us_path=[us], auto=True,
             summary=_t(lang, "s_datazione_mismatch").format(
                 us=us, fase=_label(key), corrente=corrente or "—",
                 atteso=voluto),
-            edits=[Edit(us=us, set_fields=(("datazione", voluto),))]))
+            edits=[Edit(us=us, set_fields=(("datazione", voluto),),
+                        target=_us_target(row))]))
     return out
 
 
@@ -252,12 +280,19 @@ def load_chronology_rows(handle, sito):
                 "SELECT periodo, fase, cron_iniziale, cron_finale, "
                 "datazione_estesa FROM periodizzazione_table "
                 "WHERE sito = :s"), {"s": sito}).fetchall()]
+        # `area` e `unita_tipo` non servono al giudizio: servono a **nominare
+        # la riga** da correggere. L'identità di una scheda è di quattro
+        # colonne — UniqueConstraint('sito', 'area', 'us', 'unita_tipo') in
+        # modules/db/structures/US_table.py — e senza queste due una
+        # correzione sulla US 1 dell'area 1 riscriverebbe anche la US 1
+        # dell'area 2 e la USM 1, che il vincolo permette di avere.
         units = [
             {"us": r[0], "periodo_iniziale": r[1], "fase_iniziale": r[2],
-             "datazione": r[3]}
+             "datazione": r[3], "area": r[4], "unita_tipo": r[5]}
             for r in conn.execute(text(
-                "SELECT us, periodo_iniziale, fase_iniziale, datazione "
-                "FROM us_table WHERE sito = :s"), {"s": sito}).fetchall()]
+                "SELECT us, periodo_iniziale, fase_iniziale, datazione, "
+                "area, unita_tipo FROM us_table WHERE sito = :s"),
+                {"s": sito}).fetchall()]
     return periods, units
 
 

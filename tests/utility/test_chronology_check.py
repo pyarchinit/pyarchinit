@@ -268,7 +268,10 @@ def test_sheet_dating_out_of_step_is_rewritten_from_the_periodization():
     edit, = issues[0].edits
     assert edit.us == "12"
     assert edit.set_fields == (("datazione", "XV secolo"),)
-    assert edit.target == ()          # us_table, come sempre
+    # us_table, nominata per intero: l'identità di una scheda è di quattro
+    # colonne, e `us` da sola riscriverebbe anche la US 12 di un'altra area.
+    assert edit.target == ("us_table", {"us": "12", "area": "",
+                                        "unita_tipo": ""})
 
 
 def test_the_summary_shows_both_texts():
@@ -341,6 +344,22 @@ def test_whitespace_around_the_dating_is_not_a_mismatch():
 def test_edit_prefix_names_the_us_when_there_is_no_target():
     from modules.utility.rapporti_check import Edit
     assert CC.edit_prefix(Edit(us="12")) == "US 12"
+
+
+def test_edit_prefix_names_area_and_unit_type_when_they_are_there():
+    """Su uno scavo a più aree «US 1» da solo non dice quale riga si riscrive,
+    e l'anteprima è il punto in cui si guarda."""
+    from modules.utility.rapporti_check import Edit
+    e = Edit(us="1", target=("us_table", {"us": "1", "area": "2",
+                                          "unita_tipo": "USM"}))
+    assert CC.edit_prefix(e) == "US 1 (2, USM)"
+
+
+def test_edit_prefix_stays_short_when_there_is_nothing_to_tell_apart():
+    from modules.utility.rapporti_check import Edit
+    e = Edit(us="12", target=("us_table", {"us": "12", "area": "",
+                                           "unita_tipo": ""}))
+    assert CC.edit_prefix(e) == "US 12"
 
 
 def test_edit_prefix_names_the_row_when_the_target_is_another_table():
