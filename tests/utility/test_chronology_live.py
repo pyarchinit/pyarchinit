@@ -35,7 +35,7 @@ def handle(tmp_path):
     from s3dgraphy.sync._db_handle import DbHandle
     sorgente = _ROOT / "resources" / "dbfiles" / "pyarchinit_db.sqlite"
     if not sorgente.exists():
-        pytest.skip("database di esempio non presente")
+        pytest.fail("il database di esempio manca: %s" % sorgente)
     copia = tmp_path / "db.sqlite"
     shutil.copy(sorgente, copia)
     return DbHandle.from_path(copia)
@@ -59,11 +59,22 @@ def test_the_italian_site_has_two_overlaps_and_thirteen_misalignments(handle):
 
 
 def test_the_two_overlaps_carry_no_proposal(handle):
-    """Le due coppie portano intervalli identici — 1500–1549 e 1451–1499 —
-    e qualunque restringimento farebbe finire una fase prima di cominciare."""
-    for iss in _per_kind(handle, ITALIANO)["epoch_overlap"]:
+    """Le due coppie portano intervalli identici — 1500–1549 e 1451–1499 — e
+    qualunque restringimento farebbe finire una fase prima di cominciare.
+    """
+    periods, _ = CC.load_chronology_rows(handle, ITALIANO)
+    per_fase = {CC._label(CC._key(p)): (CC._year(p["cron_iniziale"]),
+                                        CC._year(p["cron_finale"]))
+                for p in periods}
+    issues = _per_kind(handle, ITALIANO)["epoch_overlap"]
+    assert len(issues) == 2
+    for iss in issues:
         assert iss.edits == [], iss.summary
         assert iss.auto is False
+        # La ragione, scritta come asserzione e non solo in prosa: i due
+        # intervalli sono lo stesso intervallo.
+        a, b = iss.us_path
+        assert per_fase[a] == per_fase[b], (a, b, per_fase[a], per_fase[b])
 
 
 def test_a_translated_site_has_fifty_one_misalignments_with_both_texts(handle):
@@ -91,18 +102,47 @@ def test_applying_the_automatic_fixes_empties_the_category(handle):
 
 
 def test_the_fix_touches_only_its_own_site(handle):
-    """La verifica è per sito, così non si riscrivono dieci siti in un colpo."""
-    prima_altrove = len(_per_kind(handle, TRADOTTO)["datazione_mismatch"])
+    """La verifica è per sito, così non si riscrivono dieci siti in un colpo.
+
+    Si confrontano i **valori**, non i conteggi: tutte le 51 US esistono in
+    ogni sito, e una fuga scriverebbe il testo italiano sulle righe del sito
+    tradotto — che resterebbero disallineate, quindi il conteggio non si
+    muoverebbe di una virgola e il test passerebbe sopra una scrittura vera.
+    """
+    from sqlalchemy import text
+
+    def righe_tradotte():
+        with handle.engine.connect() as c:
+            return c.execute(text(
+                "SELECT us, datazione FROM us_table WHERE sito = :s "
+                "ORDER BY us"), {"s": TRADOTTO}).fetchall()
+
+    prima = righe_tradotte()
+    assert prima, "il sito tradotto non ha righe: la prova non direbbe niente"
     edits = [e for iss in _per_kind(handle, ITALIANO)["datazione_mismatch"]
              for e in iss.edits]
     RC.apply_edits(edits, handle, sito=ITALIANO)
-    assert len(_per_kind(handle, TRADOTTO)["datazione_mismatch"]) \
-        == prima_altrove
+    assert righe_tradotte() == prima
 
 
 def test_the_rollback_puts_the_site_back(handle):
+    """E l'annulla rimette i valori di prima, non soltanto il conteggio."""
+    from sqlalchemy import text
+
+    def righe_italiane():
+        with handle.engine.connect() as c:
+            return c.execute(text(
+                "SELECT us, datazione FROM us_table WHERE sito = :s "
+                "ORDER BY us"), {"s": ITALIANO}).fetchall()
+
+    prima = righe_italiane()
     edits = [e for iss in _per_kind(handle, ITALIANO)["datazione_mismatch"]
              for e in iss.edits]
     token = RC.apply_edits(edits, handle, sito=ITALIANO)
+    # L'apply ha davvero scritto: senza questa prova, un apply che non fa
+    # niente farebbe passare l'annulla senza averlo esercitato.
+    assert _per_kind(handle, ITALIANO).get("datazione_mismatch", []) == []
+    assert righe_italiane() != prima
     RC.rollback(token, handle)
+    assert righe_italiane() == prima
     assert len(_per_kind(handle, ITALIANO)["datazione_mismatch"]) == 13
