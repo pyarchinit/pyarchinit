@@ -53,7 +53,9 @@ from ..modules.utility.atlas_labels import (labelled_ids,
 from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_name,
                                               base_map_uri,
-                                              overview_indexes,
+                                              GROUP_NAME, PUNTO_NAME,
+                                              THEME_NAME, is_base_map,
+                                              overview_indexes, theme_layers,
                                               overview_window)
 from ..modules.utility.atlas_scale import (fitting_extent,
                                            main_map_index, nice_scale)
@@ -1054,51 +1056,6 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 continue
         self._prepara_panoramica(mappe, indice, riquadro)
 
-    def _sfondo_e_puntino(self, centro_3857):
-        """Lo sfondo dell'inserto e il puntino del sito. ``(sfondo, punto)``.
-
-        Lo sfondo è una sorgente XYZ: si scarica dalla rete, e se la rete
-        non c'è resta ``None`` — l'inserto mostra il solo puntino su
-        fondo bianco, che dice meno ma non è un errore. In scavo capita.
-        """
-        from qgis.core import (QgsCoordinateReferenceSystem, QgsFeature,
-                               QgsGeometry, QgsMarkerSymbol, QgsPointXY,
-                               QgsRasterLayer, QgsVectorLayer)
-        from qgis.PyQt.QtCore import QSettings
-
-        tipo = str(QSettings().value("pyarchinit/atlas_basemap",
-                                     DEFAULT_BASE_MAP) or DEFAULT_BASE_MAP)
-        sfondo = None
-        try:
-            candidato = QgsRasterLayer(base_map_uri(tipo),
-                                       base_map_name(tipo), "wms")
-            if candidato.isValid():
-                sfondo = candidato
-            else:
-                QgsMessageLog.logMessage(
-                    "Sfondo dell'inserto non disponibile (%s): l'inserto "
-                    "mostrerà il solo puntino." % base_map_name(tipo),
-                    "PyArchInit", Qgis.MessageLevel.Info)
-        except Exception as e:                      # noqa: BLE001
-            QgsMessageLog.logMessage(
-                "Sfondo dell'inserto non caricato: %s" % e,
-                "PyArchInit", Qgis.MessageLevel.Info)
-
-        punto = QgsVectorLayer("Point?crs=EPSG:3857", "Localizzazione",
-                               "memory")
-        try:
-            f = QgsFeature()
-            f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(*centro_3857)))
-            punto.dataProvider().addFeatures([f])
-            punto.updateExtents()
-            punto.renderer().setSymbol(QgsMarkerSymbol.createSimple({
-                "name": "circle", "color": "214,45,45",
-                "outline_color": "255,255,255", "outline_width": "0.4",
-                "size": "3.2"}))
-        except Exception:                           # noqa: BLE001
-            return sfondo, None
-        return sfondo, punto
-
     def _prepara_panoramica(self, mappe, indice_principale, riquadro):
         """L'inserto dice dove si è nel mondo, non ripete lo scavo.
 
@@ -1142,27 +1099,28 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 "PyArchInit", Qgis.MessageLevel.Warning)
             return
 
-        sfondo, punto = self._sfondo_e_puntino((centro.x(), centro.y()))
+        sfondo, punto = self._strati_nella_toc((centro.x(), centro.y()))
         if punto is None:
             return
-        strati = [punto] + ([sfondo] if sfondo is not None else [])
-        # Fuori dalla legenda: sono roba della tavola, non del progetto di
-        # chi sta scavando. Si tolgono alla fine della generazione.
-        self._strati_panoramica = []
-        for strato in strati:
-            try:
-                QgsProject.instance().addMapLayer(strato, False)
-                self._strati_panoramica.append(strato)
-            except Exception:                       # noqa: BLE001
-                continue
+        tema = self._tema_dell_inserto(sfondo, punto)
 
         finestra = overview_window((centro.x(), centro.y()))
         for i in inserti:
             inserto = mappe[i]
             try:
                 inserto.setCrs(QgsCoordinateReferenceSystem("EPSG:3857"))
-                inserto.setKeepLayerSet(True)
-                inserto.setLayers(strati)
+                if tema:
+                    # La via che QGIS usa di suo: la mappa segue un tema,
+                    # e il tema dice quali layer si vedono. Prima si
+                    # passava un `setLayers()` con layer che stavano nel
+                    # progetto ma FUORI dall'albero, e di tessere non se
+                    # ne è mai disegnata una (Enzo, 2026-10-10).
+                    inserto.setKeepLayerSet(False)
+                    inserto.setFollowVisibilityPreset(True)
+                    inserto.setFollowVisibilityPresetName(tema)
+                else:
+                    inserto.setKeepLayerSet(True)
+                    inserto.setLayers(theme_layers(sfondo, punto))
                 inserto.zoomToExtent(QgsRectangle(*finestra))
             except Exception as e:                  # noqa: BLE001
                 QgsMessageLog.logMessage(
@@ -1241,13 +1199,140 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                 continue
         self._etichette_di_prima = []
 
-    def _butta_via_la_panoramica(self):
-        """Toglie dal progetto gli strati che l'inserto ha usato."""
-        for strato in getattr(self, "_strati_panoramica", []) or []:
+    def _gruppo_dell_inserto(self):
+        """Il gruppo dell'albero dei layer dove vive la roba dell'inserto.
+
+        In **fondo** all'albero, perché uno sfondo sta sotto tutto, e
+        **spento**: nella TOC si vede e si gestisce (Enzo lo ha chiesto
+        così), ma non cambia il canvas di chi sta scavando. Nome fermo,
+        quindi si riusa: se no ogni export lascerebbe un gruppo in più.
+        """
+        radice = QgsProject.instance().layerTreeRoot()
+        gruppo = radice.findGroup(GROUP_NAME)
+        if gruppo is None:
+            gruppo = radice.addGroup(GROUP_NAME)
             try:
-                QgsProject.instance().removeMapLayer(strato.id())
+                gruppo.setExpanded(False)
+                gruppo.setItemVisibilityChecked(False)
+            except Exception:                       # noqa: BLE001
+                pass
+        return gruppo
+
+    def _strati_nella_toc(self, centro_3857):
+        """Lo sfondo e il puntino, **nell'albero dei layer**. ``(sfondo, punto)``.
+
+        Lo sfondo si riusa se c'è già, riconosciuto dalla sua sorgente e
+        non dal nome: chi usa il plugin può rinominarlo, e cercandolo per
+        nome se ne aggiungerebbe uno nuovo a ogni export. Il puntino si
+        riusa allo stesso modo e gli si riscrive la geometria, così il
+        tema resta valido anche riaprendo il layout domani.
+        """
+        from qgis.core import (QgsFeature, QgsGeometry, QgsMarkerSymbol,
+                               QgsPointXY, QgsRasterLayer, QgsVectorLayer)
+        from qgis.PyQt.QtCore import QSettings
+
+        progetto = QgsProject.instance()
+        gruppo = self._gruppo_dell_inserto()
+        tipo = str(QSettings().value("pyarchinit/atlas_basemap",
+                                     DEFAULT_BASE_MAP) or DEFAULT_BASE_MAP)
+
+        sfondo = None
+        for strato in progetto.mapLayers().values():
+            try:
+                if is_base_map(strato.source(), tipo):
+                    sfondo = strato
+                    break
             except Exception:                       # noqa: BLE001
                 continue
+        if sfondo is None:
+            try:
+                candidato = QgsRasterLayer(base_map_uri(tipo),
+                                           base_map_name(tipo), "wms")
+                if candidato.isValid():
+                    progetto.addMapLayer(candidato, False)
+                    gruppo.addLayer(candidato)
+                    sfondo = candidato
+                else:
+                    QgsMessageLog.logMessage(
+                        "Sfondo dell'inserto non disponibile (%s): "
+                        "l'inserto mostrerà il solo puntino."
+                        % base_map_name(tipo),
+                        "PyArchInit", Qgis.MessageLevel.Info)
+            except Exception as e:                  # noqa: BLE001
+                QgsMessageLog.logMessage(
+                    "Sfondo dell'inserto non caricato: %s" % e,
+                    "PyArchInit", Qgis.MessageLevel.Info)
+
+        punto = None
+        for strato in progetto.mapLayers().values():
+            if strato.name() == PUNTO_NAME and strato.type().name == "Vector":
+                punto = strato
+                break
+        if punto is None:
+            punto = QgsVectorLayer("Point?crs=EPSG:3857", PUNTO_NAME, "memory")
+            if not punto.isValid():
+                return sfondo, None
+            try:
+                punto.renderer().setSymbol(QgsMarkerSymbol.createSimple({
+                    "name": "circle", "color": "214,45,45",
+                    "outline_color": "255,255,255", "outline_width": "0.4",
+                    "size": "3.2"}))
+            except Exception:                       # noqa: BLE001
+                pass
+            progetto.addMapLayer(punto, False)
+            gruppo.addLayer(punto)
+        try:
+            punto.dataProvider().truncate()
+            f = QgsFeature()
+            f.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(*centro_3857)))
+            punto.dataProvider().addFeatures([f])
+            punto.updateExtents()
+            punto.triggerRepaint()
+        except Exception:                           # noqa: BLE001
+            return sfondo, None
+        return sfondo, punto
+
+    def _tema_dell_inserto(self, sfondo, punto):
+        """Registra il tema mappa dell'inserto. Il suo nome, o ``""``.
+
+        «Una vista solo per osm senza layer dentro» (Enzo): nel tema non
+        entra nessun layer del progetto — né le US né le quote — e la
+        mappa dell'inserto lo segue. Il record si costruisce a mano e non
+        dallo stato corrente, così il canvas di chi sta scavando non si
+        tocca nemmeno per un istante.
+        """
+        from qgis.core import QgsMapThemeCollection
+
+        strati = theme_layers(sfondo, punto)
+        if not strati:
+            return ""
+        try:
+            record = QgsMapThemeCollection.MapThemeRecord()
+            for strato in strati:
+                record.addLayerRecord(
+                    QgsMapThemeCollection.MapThemeLayerRecord(strato))
+            collezione = QgsProject.instance().mapThemeCollection()
+            if collezione.hasMapTheme(THEME_NAME):
+                collezione.update(THEME_NAME, record)
+            else:
+                collezione.insert(THEME_NAME, record)
+            return THEME_NAME
+        except Exception as e:                      # noqa: BLE001
+            QgsMessageLog.logMessage(
+                "Tema dell'inserto non registrato (%s): la mappa riceverà "
+                "i layer direttamente." % e,
+                "PyArchInit", Qgis.MessageLevel.Info)
+            return ""
+
+    def _butta_via_la_panoramica(self):
+        """Non butta più via niente, e il nome resta per chi la chiama.
+
+        Lo sfondo, il puntino e il tema **restano** nel progetto, nel loro
+        gruppo spento in fondo all'albero: Enzo ha chiesto che OSM finisca
+        nella TOC, e un tema che punta a un layer cancellato non mostra
+        nulla se il layout si riapre domani. Si riusano, non si
+        moltiplicano: nomi fermi e sorgente come chiave.
+        """
         self._strati_panoramica = []
 
     def _chiedi(self, titolo, testo, bottoni=None):

@@ -75,3 +75,46 @@ def overview_window(punto, half_width: float = OVERVIEW_HALF_WIDTH):
         return None
     mezzo = abs(float(half_width)) or OVERVIEW_HALF_WIDTH
     return (x - mezzo, y - mezzo, x + mezzo, y + mezzo)
+
+
+#: Il gruppo dell'albero dei layer dove vive la roba dell'inserto, e il
+#: tema mappa che l'inserto segue. Nomi fermi: si riusano fra una
+#: generazione e l'altra, se no ogni export lascerebbe un gruppo in più.
+GROUP_NAME = "pyArchInit — inserto atlante"
+THEME_NAME = "pyArchInit inserto atlante"
+
+#: Il nome del layer del puntino. Fermo come gli altri due, e per lo
+#: stesso motivo: si riusa invece di moltiplicarsi.
+PUNTO_NAME = "Localizzazione"
+
+
+def theme_layers(sfondo, punto):
+    """I layer che vanno nel tema dell'inserto, nell'ordine di disegno.
+
+    «Una vista solo per osm senza layer dentro» (Enzo, 2026-10-10): nel
+    tema non entra **nessun** layer del progetto — né le US né le quote.
+    Il puntino sì: è il motivo per cui l'inserto esiste.
+
+    Senza puntino non c'è inserto da fare, e la lista resta vuota. Senza
+    sfondo (rete assente) resta il solo puntino, che dice meno ma non è
+    un errore.
+    """
+    if punto is None:
+        return []
+    return ([sfondo, punto] if sfondo is not None else [punto])
+
+
+def is_base_map(source: str, kind: str = DEFAULT_BASE_MAP) -> bool:
+    """Vero se ``source`` è la sorgente dello sfondo di tipo ``kind``.
+
+    Si riconosce dalla **sorgente**, non dal nome: chi usa il plugin può
+    rinominare il layer nella TOC, e cercandolo per nome se ne
+    aggiungerebbe uno nuovo a ogni export.
+    """
+    if not source:
+        return False
+    scelta = BASE_MAPS.get(kind) or BASE_MAPS[DEFAULT_BASE_MAP]
+    from urllib.parse import quote, unquote
+
+    testo = unquote(str(source))
+    return scelta["url"] in testo or quote(scelta["url"], safe="") in str(source)

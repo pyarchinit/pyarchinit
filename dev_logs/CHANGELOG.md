@@ -5,6 +5,35 @@
 
 ---
 
+## [feat] - 2026-10-10 — l'inserto passa dalla TOC e da un tema mappa — 5.13.57-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-inset-theme-5.13.57-alpha`**. Disegno di Enzo: «nel momento in cui avvio l'atlas aggiungi nella TOC di QGIS osm se non c'è, e crei una vista solo per osm senza layer dentro e la associ all'overview».
+
+### Italiano
+
+Con la 5.13.56 l'inserto c'è su tutti i modelli e il puntino si vede, ma **lo sfondo resta bianco**. Quello che avevo escluso misurando: la rete porta la tessera (HTTP 200, 34 948 byte, dal thread principale e da uno di lavoro, col PAC di sistema acceso e spento), un **server di tessere locale** dà lo stesso bianco, aggiungere `&crs=EPSG:3857` all'URI non cambia niente, il layer è valido e con l'estensione giusta. E il dato che conta: **al server locale non è arrivata nemmeno una richiesta**. Non è il render che perde le tessere, è che non le chiede.
+
+Il disegno di Enzo attacca proprio quel punto: invece di passare alla mappa del layout un `setLayers()` con layer che stanno nel progetto ma **fuori** dall'albero, si mette tutto nell'albero e si usa un **tema mappa**, che è la via che QGIS adopera di suo per dire a una mappa quali layer mostrare.
+
+- **`modules/utility/atlas_overview.py`** — nuovi `GROUP_NAME`, `THEME_NAME`, `PUNTO_NAME` (nomi fermi: si riusano, se no ogni export lascerebbe un gruppo in più), `theme_layers(sfondo, punto)` e `is_base_map(source, kind)`.
+- **`tabs/Gis_Time_controller.py`** — `_sfondo_e_puntino` sostituito da `_gruppo_dell_inserto`, `_strati_nella_toc` e `_tema_dell_inserto`. Il gruppo «pyArchInit — inserto atlante» sta **in fondo** all'albero (uno sfondo va sotto tutto) e **spento**: nella TOC si vede e si gestisce, ma il canvas di chi sta scavando non cambia. Lo sfondo si riconosce dalla **sorgente** e non dal nome, così chi lo rinomina non se ne ritrova due. Il tema si costruisce a mano (`MapThemeRecord` + `MapThemeLayerRecord`) e non dallo stato corrente, così il canvas non si tocca nemmeno per un istante. La mappa dell'inserto fa `setFollowVisibilityPreset(True)` + `setFollowVisibilityPresetName`, non più `setKeepLayerSet(True)` + `setLayers`.
+- **Nel tema ci sono solo lo sfondo e il puntino**: nessun layer del progetto, né US né quote. Senza rete resta il solo puntino; senza puntino non c'è inserto.
+- **`_butta_via_la_panoramica` non butta più via niente.** Sfondo, puntino e tema **restano**: Enzo ha chiesto che OSM finisca nella TOC, e un tema che punta a un layer cancellato non mostra niente se il layout si riapre domani. Si riusano, non si moltiplicano.
+
+**Misurato su un progetto vero, due giri di fila**: un solo gruppo col suo nome, dentro `OpenStreetMap` e `Localizzazione`, gruppo spento, tema con 2 layer, una sola feature nel puntino, 2 layer in tutto nel progetto — niente raddoppia. E `layersToRender()` della mappa dell'inserto restituisce esattamente quei due, risolti dal tema.
+
+Test: +4 in `tests/utility/test_atlas_overview.py` (20 in tutto) e 5 vecchi ripuntati sul percorso nuovo. Suite: **1135 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+**Quello che non posso verificare io**: se le tessere si disegnino. Nel mio processo offscreen il provider XYZ non ne chiede nessuna, nemmeno a un server locale, quindi il banco di prova non esercita quel pezzo. La struttura è giusta e provata; i pixel li vede Enzo.
+
+### English
+
+With 5.13.56 the inset exists everywhere and the dot shows, but the basemap stays white. Ruled out by measurement: the network delivers the tile (HTTP 200, 34 948 bytes, main thread and worker, system PAC on and off), a **local tile server** gives the same white, `&crs=EPSG:3857` changes nothing, the layer is valid with the right extent — and **not one request reached the local server**. The render is not losing the tiles; it never asks for them.
+
+Enzo's design goes at exactly that: instead of handing the layout map a `setLayers()` of layers that are in the project but **outside** the layer tree, everything goes into the tree and the map follows a **map theme**, which is how QGIS itself tells a map which layers to show. New `GROUP_NAME` / `THEME_NAME` / `PUNTO_NAME`, `theme_layers`, `is_base_map`; the controller gains `_gruppo_dell_inserto`, `_strati_nella_toc`, `_tema_dell_inserto`. The group sits at the bottom of the tree and unchecked — visible and manageable in the TOC, but the excavator's canvas is unchanged. The basemap is recognised by its **source**, not its name. The theme is built by hand rather than from the current state, so the canvas is never touched. The theme holds only the basemap and the dot: no project layer. Nothing is removed at the end any more, and nothing multiplies: measured over two consecutive runs, one group, two layers, one feature, and the inset's `layersToRender()` returns exactly those two, resolved through the theme. 1135 passed, 0 failed. Whether the tiles paint is still Enzo's check: offscreen the provider requests none, not even from a local server.
+
+---
+
 ## [fix] - 2026-10-10 — «osm no»: non era OSM, era che l'inserto non c'era — 5.13.56-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-inset-5.13.56-alpha`**. «Le fasce si popolano, l'export funziona, ma osm no» (Enzo).
