@@ -37,19 +37,9 @@ from pathlib import Path
 #: that matches (in either direction) wins. ``generic_connection`` is the
 #: implicit fallback and is intentionally absent.
 _CANDIDATE_ORDER = (
-    # `has_data_provenance` viene PRIMA di `extracted_from` per una coppia
-    # sola: Extractor ↔ property. Dalla connections 1.6.34 (s3dgraphy dev41)
-    # `extracted_from` accetta anche una PropertyNode come bersaglio — una
-    # proprietà può essere letta come fonte, come un documento — e siccome
-    # l'ordine decide, quella coppia finiva su `extracted_from` in avanti:
-    # «l'estrattore ha letto la proprietà». Nelle schede di pyArchInit quella
-    # coppia dice l'opposto, la provenienza del dato: la proprietà ha preso
-    # il suo valore da quell'estrattore. Le due regole si sovrappongono solo
-    # qui (`has_data_provenance` è sorgente=PropertyNode,
-    # bersaglio=Extractor|Combiner), quindi l'ordine non muove nient'altro.
-    "has_data_provenance",
     "extracted_from",
     "combines",
+    "has_data_provenance",
     "has_property",
     "has_documentation",
     "has_visual_reference",
@@ -131,9 +121,56 @@ def resolve_edge_type(source_names, target_names, allowed=None):
         if not rule:
             continue
         src_ok, tgt_ok = rule
-        if (source_names & src_ok) and (target_names & tgt_ok):
+        if (source_names & src_ok) and (target_names & tgt_ok) \
+                and not _solo_col_grafo(et, target_names):
             return et, False
-        if (target_names & src_ok) and (source_names & tgt_ok):
+        if (target_names & src_ok) and (source_names & tgt_ok) \
+                and not _solo_col_grafo(et, source_names):
+            return et, True
+    return None
+
+
+#: La coppia che per classe è ambigua: un estrattore verso una proprietà.
+#:
+#: Dalla connections 1.6.36 ``extracted_from`` accetta anche una
+#: ``PropertyNode`` come bersaglio — la proprietà MASTER che un estrattore
+#: legge come fonte — ma la stessa coppia di classi è anche la vecchia
+#: linea di provenienza disegnata al contrario (la catena EM va proprietà →
+#: estrattore). Il datamodel confronta per classe e non le distingue; il
+#: grafo sì, con ``property_source.reads_as_source``. Senza grafo la
+#: libreria non nomina l'arco (``connection_resolver.candidate_edge_types``),
+#: e qui si fa lo stesso: resta la provenienza, che è quello che le schede
+#: di pyArchInit scrivono. Risposta di E.D. su s3Dgraphy#25, 2026-10-10.
+def _solo_col_grafo(edge_type: str, target_names) -> bool:
+    return edge_type == "extracted_from" and "PropertyNode" in target_names
+
+
+def resolve_edge_type_for_nodes(src, tgt, graph):
+    """Come :func:`resolve_edge_type`, ma chiedendo alla libreria **col grafo**.
+
+    «Il modo sicuro per qualunque consumatore è chiedere a
+    ``candidate_edge_types`` col grafo, invece di scorrere
+    ``allowed_connections`` in ordine» (E.D., s3Dgraphy#25). La libreria
+    risponde con tutti i tipi che quella coppia di nodi ammette — e per
+    l'estrattore verso una proprietà guarda il grafo per dire se è una
+    lettura o una provenienza al contrario. Qui si sceglie il più specifico
+    fra quelli che offre, nell'ordine del datamodel.
+
+    Ricade su :func:`resolve_edge_type` se la libreria è più vecchia e non
+    ha il risolutore, o se qualcosa va storto: meglio un tipo generico che
+    una raffinazione che solleva.
+    """
+    try:
+        from s3dgraphy.edges.connection_resolver import candidate_edge_types
+
+        avanti = set(candidate_edge_types(src, tgt, graph=graph) or ())
+        indietro = set(candidate_edge_types(tgt, src, graph=graph) or ())
+    except Exception:                               # noqa: BLE001
+        return resolve_edge_type(_class_names(src), _class_names(tgt))
+    for et in _CANDIDATE_ORDER:
+        if et in avanti:
+            return et, False
+        if et in indietro:
             return et, True
     return None
 
@@ -156,7 +193,7 @@ def refine_generic_connections(graph) -> int:
         tgt = by_id.get(getattr(edge, "edge_target", None))
         if src is None or tgt is None:
             continue
-        res = resolve_edge_type(_class_names(src), _class_names(tgt), allowed)
+        res = resolve_edge_type_for_nodes(src, tgt, graph)
         if not res:
             continue
         edge_type, swap = res

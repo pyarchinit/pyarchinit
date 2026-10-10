@@ -5,6 +5,33 @@
 
 ---
 
+## [fix] - 2026-10-10 — estrattore ↔ proprietà: la decide il grafo, non l'ordine — 5.13.60-alpha
+
+> Branch `Stratigraph_00001`. Tag **`paradata-graph-resolver-5.13.60-alpha`**. Risposta di E.D. su s3Dgraphy#25: «il datamodel lo decide già, solo che la regola sta un passo più in là di `allowed_connections`».
+
+### Italiano
+
+Con la 5.13.54 avevo messo `has_data_provenance` davanti a `extracted_from` in `_CANDIDATE_ORDER`, perché dalla connections 1.6.36 quella coppia di classi combacia con due regole e vinceva quella sbagliata per le schede di pyArchInit. Funzionava, ma era un'**euristica**: scegliendo sempre la provenienza, una lettura vera non sarebbe stata riconosciuta mai.
+
+La libreria ha la regola giusta, e me l'ha indicata lui:
+
+- **lettura** (`extracted_from`, estrattore → proprietà): l'estrattore alimenta già un'**altra** proprietà, direttamente o attraverso un combinatore, e legge questa come fonte — la proprietà MASTER, nella sua unità;
+- **provenienza** (`has_data_provenance`, proprietà → estrattore) in ogni altro caso: un estrattore che non alimenta niente, o che alimenta proprio quella proprietà. Una linea da lì verso la proprietà è la vecchia catena di provenienza disegnata al contrario.
+
+Lo dice `s3dgraphy.property_source.reads_as_source(graph, extractor, prop)`, e `connection_resolver.candidate_edge_types(src, tgt, graph=graph)` lo applica già. **Senza grafo non offre affatto `extracted_from` verso una proprietà.** Sue parole: «il modo sicuro per qualunque consumatore è chiedere a `candidate_edge_types` col grafo, invece di scorrere `allowed_connections` in ordine».
+
+- **`modules/s3dgraphy/sync/paradata_edge_resolver.py`** — nuova `resolve_edge_type_for_nodes(src, tgt, graph)`: chiede alla libreria i tipi ammessi nei due versi, **col grafo**, e sceglie il più specifico nell'ordine del datamodel. `refine_generic_connections` passa da lei. `_CANDIDATE_ORDER` torna all'ordine del datamodel (`extracted_from` per primo): non serve più piegarlo, perché l'ambiguità la scioglie il grafo. La via **senza** grafo resta e fa quello che fa la libreria: `_solo_col_grafo` non offre `extracted_from` verso una `PropertyNode`, quindi resta la provenienza — che è quello che le schede di pyArchInit scrivono oggi. Se la libreria è più vecchia e non ha il risolutore, si ricade sulla via per classi: meglio un tipo generico che una raffinazione che solleva.
+
+**Misurato** su due grafi minimi costruiti con la catena EM (`proprietà —has_data_provenance→ estrattore`): estrattore che alimenta un'**altra** proprietà → `('extracted_from', False)`; estrattore che alimenta **quella** proprietà → `('has_data_provenance', True)`. Senza grafo → `('has_data_provenance', True)`. Prima i tre casi collassavano in uno.
+
+Test: +4 in `tests/sync/test_paradata_edge_resolver.py` (20 in tutto). Suite: **1143 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+In 5.13.54 I put `has_data_provenance` ahead of `extracted_from`, because since connections 1.6.36 that pair of classes matches two rules and the wrong one won for pyArchInit's sheets. It worked, but it was a **heuristic**: always choosing provenance, a genuine reading would never be recognised. The library has the real rule, and E.D. pointed me at it: a **reading** is an extractor that already feeds *another* property and reads this one as a source; **provenance** in every other case — and `property_source.reads_as_source` tells them apart, which `connection_resolver.candidate_edge_types(src, tgt, graph=graph)` already applies, offering `extracted_from` towards a property only then. New `resolve_edge_type_for_nodes(src, tgt, graph)` asks the library in both directions with the graph and picks the most specific; `refine_generic_connections` goes through it; `_CANDIDATE_ORDER` returns to the datamodel's own order. The no-graph path mirrors the library and never reads a property as a source, so what pyArchInit writes today is unchanged, and an older library falls back to the class-based path. Measured on two minimal graphs: feeding another property → `('extracted_from', False)`; feeding that property → `('has_data_provenance', True)`; no graph → provenance. 1143 passed, 0 failed.
+
+---
+
 ## [fix] - 2026-10-10 — il pallino rosso sopra le tessere, non sotto — 5.13.59-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-dot-on-top-5.13.59-alpha`**. «Ora funziona, ma l'ordine deve essere il layer puntuale sopra osm nella TOC, altrimenti nella generazione dell'overlay non vedo il pallino rosso» (Enzo).

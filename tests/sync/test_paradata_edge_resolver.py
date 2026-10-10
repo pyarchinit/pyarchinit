@@ -122,3 +122,75 @@ def test_class_names_includes_bases():
     extr = _real_node("E.1", "s3dgraphy.nodes.extractor_node", "ExtractorNode")
     names = _class_names(extr)
     assert "ExtractorNode" in names and "Node" in names
+
+
+# ---------------------------------------------------------------------------
+# La coppia estrattore ↔ proprietà la decide il grafo (2026-10-10)
+# ---------------------------------------------------------------------------
+# Risposta di E.D. su s3Dgraphy#25: dalla connections 1.6.36 `extracted_from`
+# accetta anche una PropertyNode come bersaglio, e «il datamodel confronta per
+# classe, quindi per classe quella coppia è ambigua, come hai trovato. Il grafo
+# la risolve»: `property_source.reads_as_source` dice se è una LETTURA
+# (l'estrattore alimenta già un'ALTRA proprietà e legge questa come fonte) o la
+# vecchia linea di provenienza disegnata al contrario. «Il modo sicuro per
+# qualunque consumatore è chiedere a `candidate_edge_types` col grafo, invece
+# di scorrere `allowed_connections` in ordine.» Fatto.
+
+def _grafo_con(alimenta_la_stessa: bool):
+    """Un estrattore, una proprietà bersaglio e — se richiesto — una seconda
+    proprietà che l'estrattore alimenta davvero."""
+    from s3dgraphy import Graph
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    from s3dgraphy.nodes.property_node import PropertyNode
+
+    g = Graph(graph_id="prova")
+    ext = ExtractorNode(node_id="E1", name="D.1")
+    bersaglio = PropertyNode(node_id="P1", name="materiale", value="pietra")
+    g.add_node(ext); g.add_node(bersaglio)
+    alimentata = bersaglio
+    if not alimenta_la_stessa:
+        alimentata = PropertyNode(node_id="P2", name="datazione", value="XV")
+        g.add_node(alimentata)
+    # la catena EM: proprietà -> estrattore
+    g.add_edge("prov", alimentata.node_id, ext.node_id, "has_data_provenance")
+    return g, ext, bersaglio
+
+
+def test_an_extractor_that_feeds_another_property_is_reading_this_one():
+    """Lettura: `extracted_from` in avanti, senza scambio."""
+    from modules.s3dgraphy.sync.paradata_edge_resolver import (
+        resolve_edge_type_for_nodes)
+
+    g, ext, prop = _grafo_con(alimenta_la_stessa=False)
+    assert resolve_edge_type_for_nodes(ext, prop, g) == ("extracted_from", False)
+
+
+def test_an_extractor_that_feeds_this_property_is_its_provenance():
+    """Provenienza: `has_data_provenance`, con lo scambio, perché la catena
+    EM va proprietà → estrattore."""
+    from modules.s3dgraphy.sync.paradata_edge_resolver import (
+        resolve_edge_type_for_nodes)
+
+    g, ext, prop = _grafo_con(alimenta_la_stessa=True)
+    assert resolve_edge_type_for_nodes(ext, prop, g) == (
+        "has_data_provenance", True)
+
+
+def test_without_a_graph_a_property_is_never_read_as_a_source():
+    """Come fa `candidate_edge_types`: «senza il grafo l'arco non si nomina».
+    Quindi la via senza grafo resta sulla provenienza, che è quello che le
+    schede di pyArchInit scrivono."""
+    from modules.s3dgraphy.sync.paradata_edge_resolver import resolve_edge_type
+
+    assert resolve_edge_type(
+        ["ExtractorNode"], ["PropertyNode"]) == ("has_data_provenance", True)
+
+
+def test_the_refinement_asks_the_library_with_the_graph():
+    import inspect
+
+    from modules.s3dgraphy.sync import paradata_edge_resolver as mod
+
+    corpo = inspect.getsource(mod.refine_generic_connections)
+    assert "resolve_edge_type_for_nodes" in corpo, \
+        "la raffinazione deve passare dal risolutore col grafo"
