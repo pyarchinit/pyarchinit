@@ -36,6 +36,8 @@ def _db(tmp_path):
               " cron_finale INTEGER, datazione_estesa TEXT, descrizione TEXT)")
     c.execute("INSERT INTO us_table VALUES ('S','12','[]','2','2.2','2','2.2',"
               "'Prima metà del XV secolo','1')")
+    c.execute("INSERT INTO us_table VALUES ('ALTRO','99','[]','2','2.2','2',"
+              "'2.2','non toccare','1')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
               "('S',2,'2.2',1500,1549,'Prima metà del XVI secolo','')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
@@ -242,6 +244,11 @@ def test_two_edits_on_the_same_column_roll_back_to_before_the_first(tmp_path):
 def test_load_chronology_rows_reads_one_site_only(tmp_path):
     """Senza il filtro, le 2 sovrapposizioni di un sito diventano le 20 del
     database, e la correzione automatica riscriverebbe dieci siti in un colpo.
+
+    La fixture porta di proposito una fase e una US del sito «ALTRO»: una per
+    provare il filtro sulla periodizzazione, una per provare quello sulle US —
+    senza la seconda, togliere il `WHERE sito` dalla query delle US non farebbe
+    fallire niente.
     """
     from modules.utility import chronology_check as CC
     h = _db(tmp_path)
@@ -252,14 +259,18 @@ def test_load_chronology_rows_reads_one_site_only(tmp_path):
     assert [u["us"] for u in units] == ["12"]
 
 
-def test_load_chronology_rows_keeps_the_phase_key_as_text(tmp_path):
-    """`periodo` è Integer nello schema: se arrivasse come 2 la chiave della
-    fase diventerebbe (2, '2.2') e non combacerebbe con nessun atteso."""
+def test_load_chronology_rows_hands_the_values_over_untouched(tmp_path):
+    """Il lettore non converte niente: `periodo` torna come lo dà il motore
+    (un intero) e la chiave la fa `_key`, che normalizza a testo. Convertire
+    qui spaiererebbe le due sponde — sul database vero `fase` può tornare come
+    REAL, perché SQLite memorizza 2.1 così.
+    """
     from modules.utility import chronology_check as CC
     h = _db(tmp_path)
     periods, _ = CC.load_chronology_rows(h, "S")
-    chiavi = {CC._key(p) for p in periods}
-    assert chiavi == {("2", "2.2"), ("3", "1")}
+    assert all(isinstance(p["periodo"], int) for p in periods), \
+        [type(p["periodo"]) for p in periods]
+    assert {CC._key(p) for p in periods} == {("2", "2.2"), ("3", "1")}
 
 
 def test_the_sample_shaped_rows_go_straight_into_check_chronology(tmp_path):
