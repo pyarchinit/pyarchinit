@@ -120,7 +120,7 @@ Pillow>=9.1.0
 # the plugin imports s3dgraphy.sync from the library; the vendored copy
 # is reduced to pyArchInit-only extensions. Pin EXACT, never >=: the
 # library moves weekly and every bump is re-measured against tests/sync.
-s3dgraphy==1.6.0.dev40
+s3dgraphy==1.6.0.dev42
 dtcstamp>=0.1.4
 
 # Remote Storage Backends (optional - install only if using remote storage)

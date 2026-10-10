@@ -37,9 +37,19 @@ from pathlib import Path
 #: that matches (in either direction) wins. ``generic_connection`` is the
 #: implicit fallback and is intentionally absent.
 _CANDIDATE_ORDER = (
+    # `has_data_provenance` viene PRIMA di `extracted_from` per una coppia
+    # sola: Extractor ↔ property. Dalla connections 1.6.34 (s3dgraphy dev41)
+    # `extracted_from` accetta anche una PropertyNode come bersaglio — una
+    # proprietà può essere letta come fonte, come un documento — e siccome
+    # l'ordine decide, quella coppia finiva su `extracted_from` in avanti:
+    # «l'estrattore ha letto la proprietà». Nelle schede di pyArchInit quella
+    # coppia dice l'opposto, la provenienza del dato: la proprietà ha preso
+    # il suo valore da quell'estrattore. Le due regole si sovrappongono solo
+    # qui (`has_data_provenance` è sorgente=PropertyNode,
+    # bersaglio=Extractor|Combiner), quindi l'ordine non muove nient'altro.
+    "has_data_provenance",
     "extracted_from",
     "combines",
-    "has_data_provenance",
     "has_property",
     "has_documentation",
     "has_visual_reference",

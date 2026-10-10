@@ -17,9 +17,7 @@ GraphML writer consume included.
 """
 from __future__ import annotations
 
-import contextlib
 import logging
-import threading
 
 from s3dgraphy.sync.graph_projector import *  # noqa: F401,F403
 from s3dgraphy.sync.graph_projector import (  # noqa: F401  (private, used by tests)
@@ -438,45 +436,6 @@ def _become(node, target_cls):
     return node
 
 
-#: The patch below swaps a module symbol: two projections at once (one in
-#: a QgsTask, one on the GUI thread) would read each other's site. The lock
-#: serialises the swap and the projection, which takes tenths of a second.
-_IMPORTER_PATCH_LOCK = threading.RLock()
-
-
-@contextlib.contextmanager
-def _site_filtered_importer(sito):
-    """Make the library's SQLite importer read only ``sito``'s rows.
-
-    dev40 builds ``PyArchInitImporter`` with no ``filters``, so the
-    SQLite path parses the WHOLE us_table. In a multi-site DB the other
-    sites' rows arrive too and — because the node label carries no site
-    (``{area}.{settore}.{unita_tipo}{us}``) — two sites that number
-    their units alike collapse onto ONE node, which then holds both
-    sites' documentation, properties and epochs. Measured on the sample
-    DB (2026-10-08): 210 units / 342 documents / 132 epochs without the
-    filter, 51 / 87 / 24 with it. The PostgreSQL path already passes the
-    site (``import_from_pg``), so only SQLite needs this. Upstream
-    candidate: s3Dgraphy#25.
-    """
-    import s3dgraphy.importer.pyarchinit_importer as mod
-
-    with _IMPORTER_PATCH_LOCK:
-        original = mod.PyArchInitImporter
-
-        class _SiteFiltered(original):
-            def __init__(self, *args, **kwargs):
-                if not kwargs.get("filters"):
-                    kwargs["filters"] = {"sito": sito}
-                super().__init__(*args, **kwargs)
-
-        mod.PyArchInitImporter = _SiteFiltered
-        try:
-            yield
-        finally:
-            mod.PyArchInitImporter = original
-
-
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
@@ -496,8 +455,7 @@ class GraphProjector(_LibGraphProjector):
         ``_drop_location_memberships``). Sito, area e settore restano
         comunque nel ``data`` di ogni unità.
         """
-        with _site_filtered_importer(sito):
-            graph = super().populate_graph(db_path, sito, **kwargs)
+        graph = super().populate_graph(db_path, sito, **kwargs)
 
         # pyArchInit's flat attributes (us / sito / unita_tipo / ...):
         # the round-trip ingestor, the d13 serialiser and the writers
@@ -510,12 +468,11 @@ class GraphProjector(_LibGraphProjector):
                 "pyArchInit attribute propagation failed for sito=%r: %s"
                 % (sito, e)) from e
 
-        # One site per projection: on SQLite the library importer reads
-        # the WHOLE us_table and its post-filter keeps every dev40 node
-        # (they carry no attributes['sito']). What the attribute pass
-        # did not claim belongs to another site — prune it, with the
-        # decoration that only served it (I1, final review 2026-10-07;
-        # upstream candidate: filters={'sito': ...} on the importer).
+        # One site per projection. Dalla dev42 l'importer SQLite riceve
+        # filters={"sito": ...} dalla libreria (s3Dgraphy#25, fix di
+        # E.D.), quindi qui non arriva piu' niente di estraneo: misurato
+        # sul demo a dieci siti, pota 0 nodi. Resta come guardia — e
+        # perche' le altre vie d'ingresso (yEd, em.json) non filtrano.
         self._prune_foreign_site_nodes(graph, sito)
 
         # One epoch per (periodo, fase), named the way pyArchInit names

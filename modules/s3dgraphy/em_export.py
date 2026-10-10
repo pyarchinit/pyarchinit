@@ -97,16 +97,6 @@ def export_site(connection_url, site, out_dir):
     graph.graph_id = str(site)
     warnings = [str(w) for w in (getattr(graph, "warnings", None) or [])]
 
-    # The emjson exporter lifts node.attributes into data{} but does not
-    # serialise a group's `kind` of its own (upstream gap, s3Dgraphy#25
-    # follow-up): without this mirror the toponym chain comes back as
-    # "constructor failed ... kind must be one of" and degrades to Node.
-    for n in graph.nodes:
-        k = getattr(n, "kind", None)
-        if k is not None and hasattr(n, "attributes"):
-            if n.attributes is None:
-                n.attributes = {}
-            n.attributes.setdefault("kind", k)
 
     try:
         os.makedirs(out_dir, exist_ok=True)

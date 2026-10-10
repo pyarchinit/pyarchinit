@@ -5,6 +5,40 @@
 
 ---
 
+## [chore] - 2026-10-10 — s3dgraphy dev42: via due pezze, e una coppia di nodi che cambiava significato — 5.13.54-alpha
+
+> Branch `Stratigraph_00001`. Tag **`s3dgraphy-dev42-5.13.54-alpha`**. Emanuel ha rilasciato dev41 e dev42 con i due fix che aspettavo (s3Dgraphy#25) e con dentro le mie PR #29 e #30, mergiate.
+
+### Italiano
+
+**Il pin va a `s3dgraphy==1.6.0.dev42`** e `ext_libs/s3dgraphy` è rivendorizzato. dev42 porta: i gruppi che tengono il loro `kind` in em.json e la proiezione SQLite che legge solo il suo sito (correzioni sue), più la guardia sui nodi sintetici e il riallineamento delle sequenze PostgreSQL (le mie #29 e #30).
+
+**Via il context manager `_site_filtered_importer`.** Serviva a infilare `filters={"sito": …}` nell'importer SQLite della libreria, che su un DB multi-sito leggeva tutta la `us_table`. Dalla dev42 lo fa la libreria. Misurato sul demo a dieci siti: con e senza la pezza, **70 nodi e 314 archi identici** — quindi era peso morto, e con lei se ne va il lucchetto che serializzava la sostituzione del simbolo di modulo.
+
+**Via lo shim del `kind`** in `em_export`, che rispecchiava `node.kind` in `attributes['kind']` prima di serializzare. Verificato: l'em.json del demo coi gruppi esce con `data.kind` su tutti e 6 (2 `study`, 4 `toponym`) e la rilettura li ridà come `LocationNodeGroup` — **0 degradati a `Node`, 0 avvisi**.
+
+**`_prune_foreign_site_nodes` resta, ma non pota più niente**: misurato, 0 nodi. È una guardia per le altre vie d'ingresso (yEd, em.json), che non filtrano.
+
+**La cosa che non mi aspettavo.** La connections 1.6.34 ha allargato `extracted_from` ad accettare anche una `PropertyNode` come bersaglio — una proprietà può essere letta come fonte, come un documento. Ma `has_data_provenance` è sorgente `PropertyNode` → bersaglio `Extractor|Combiner`: da quel momento la coppia Extractor ↔ property combacia con **due** regole, e in `_CANDIDATE_ORDER` vinceva `extracted_from`, in avanti. Cioè: dove la scheda dice «questa proprietà ha preso il valore da quell'estrattore», il grafo avrebbe scritto «l'estrattore ha letto quella proprietà» — il contrario. Le due regole si sovrappongono **solo** lì, quindi basta provare `has_data_provenance` per prima: tutto il resto non si muove. L'ha trovato un test che c'era già (`test_reverse_direction_swaps`), non io.
+
+**Prove.** Suite del plugin: **1126 passati, 1 skip, 1 xfail, 8 errori** — gli 8 di sempre, d'ambiente, e **zero fallimenti**.
+
+### English
+
+**The pin moves to `s3dgraphy==1.6.0.dev42`** and `ext_libs/s3dgraphy` is re-vendored. dev42 carries his two fixes (groups keep their `kind` in em.json; a SQLite projection reads only its own site) and my #29 and #30, merged.
+
+**The `_site_filtered_importer` context manager is gone.** It injected `filters={"sito": …}` into the library's SQLite importer, which read the whole `us_table` on a multi-site database. dev42 does it itself: measured on the ten-site demo, **70 nodes and 314 edges with or without the patch**, so it was dead weight, and the lock that serialised the module-symbol swap goes with it.
+
+**The `kind` shim is gone** from `em_export`. Checked: the demo's em.json with groups comes out with `data.kind` on all six (2 `study`, 4 `toponym`) and reading it back gives six `LocationNodeGroup`s — **none degraded to `Node`, no warnings**.
+
+**`_prune_foreign_site_nodes` stays but prunes nothing** — measured, 0 nodes. It remains as a guard for the other ways in (yEd, em.json), which do not filter.
+
+**The thing I did not expect.** connections 1.6.34 widened `extracted_from` to accept a `PropertyNode` target — a property can be read as a source, like a document. But `has_data_provenance` goes `PropertyNode` → `Extractor|Combiner`, so from then on the Extractor ↔ property pair matched **two** rules, and `extracted_from` won on order, forward. Where the sheet says «this property took its value from that extractor», the graph would have written «the extractor read that property» — the opposite. The two rules overlap **only** there, so trying `has_data_provenance` first is enough and nothing else moves. A test that was already there caught it (`test_reverse_direction_swaps`), not me.
+
+**Tests.** Plugin suite: **1126 passed, 1 skipped, 1 xfailed, 8 errors** — the usual eight, environmental, and **no failures**.
+
+---
+
 ## [fix] - 2026-10-09 — i numeri delle US non comparivano affatto — 5.13.53-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-labels-perslide-5.13.53-alpha`**. «Vedo le etichette delle quote ma non quelle delle US» (Enzo).
