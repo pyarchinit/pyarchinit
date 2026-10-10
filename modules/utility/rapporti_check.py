@@ -309,6 +309,8 @@ _L = {
                           "sul sito che vuoi correggere — le spunte restano.",
         "m_nothing_to_undo": "Niente da annullare: in questa sessione non è stata applicata "
                              "nessuna correzione.",
+        "m_manual_fix_phases": "(nessuna correzione automatica — scelta manuale nella scheda Periodizzazione)",
+        "m_manual_fix_us": "(nessuna correzione automatica — scelta manuale nella scheda US)",
     },
     "en": {
         "t_self_loop": "Self-loop (US related to itself)",
@@ -356,6 +358,8 @@ _L = {
                           "picker says «{scelto}». Run the check again on the site "
                           "you want to fix — the ticks stay.",
         "m_nothing_to_undo": "Nothing to undo: no fix has been applied in this session.",
+        "m_manual_fix_phases": "(no automatic fix — manual choice in the Periodization form)",
+        "m_manual_fix_us": "(no automatic fix — manual choice in the US form)",
     },
     "de": {
         "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
@@ -406,6 +410,8 @@ _L = {
                           "bleiben.",
         "m_nothing_to_undo": "Nichts zum Rückgängigmachen: in dieser Sitzung wurde keine "
                              "Korrektur angewendet.",
+        "m_manual_fix_phases": "(keine automatische Korrektur — manuelle Wahl im Formular Periodisierung)",
+        "m_manual_fix_us": "(keine automatische Korrektur — manuelle Wahl im Formular SE)",
     },
     "es": {
         "t_self_loop": "Self-loop (US relacionada consigo misma)",
@@ -456,6 +462,8 @@ _L = {
                           "marcas se mantienen.",
         "m_nothing_to_undo": "Nada que deshacer: en esta sesión no se ha aplicado ninguna "
                              "corrección.",
+        "m_manual_fix_phases": "(sin corrección automática — elección manual en la ficha Periodización)",
+        "m_manual_fix_us": "(sin corrección automática — elección manual en la ficha US)",
     },
     "fr": {
         "t_self_loop": "Self-loop (US en relation avec elle-même)",
@@ -506,6 +514,8 @@ _L = {
                           "sur le site à corriger — les cases cochées restent.",
         "m_nothing_to_undo": "Rien à annuler : aucune correction n'a été appliquée dans cette "
                              "session.",
+        "m_manual_fix_phases": "(aucune correction automatique — choix manuel dans la fiche Périodisation)",
+        "m_manual_fix_us": "(aucune correction automatique — choix manuel dans la fiche US)",
     },
     "pt": {
         "t_self_loop": "Self-loop (US relacionada consigo mesma)",
@@ -555,6 +565,8 @@ _L = {
                           "sítio que quer corrigir — as marcas mantêm-se.",
         "m_nothing_to_undo": "Nada para anular: nesta sessão não foi aplicada nenhuma "
                              "correção.",
+        "m_manual_fix_phases": "(nenhuma correção automática — escolha manual na ficha Periodização)",
+        "m_manual_fix_us": "(nenhuma correção automática — escolha manual na ficha US)",
     },
 }
 

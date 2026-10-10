@@ -5,6 +5,16 @@
 
 ---
 
+## [fix] - 2026-10-10 — «Scelta manuale» nomina la scheda giusta — 5.13.69-alpha
+
+> Branch `Stratigraph_00001`.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: l'anteprima di un avviso senza correzione automatica mandava sempre alla «scheda US», anche per le sovrapposizioni e le altre categorie di cronologia, che si correggono nella scheda **Periodizzazione**. Ora la frase segue `chronology_check.names_phases(kind)` ed è localizzata (`m_manual_fix_phases`, `m_manual_fix_us`, sei lingue). Nel riepilogo, «(selezionati)» compare solo se ci sono correzioni automatiche.
+- 🇬🇧 **EN**: the preview of an issue with no automatic fix always pointed to the «US form», even for overlaps and the other chronology categories, which are corrected in the **Periodizzazione** form. The sentence now follows `chronology_check.names_phases(kind)` and is localised (`m_manual_fix_phases`, `m_manual_fix_us`, six languages). In the summary line «(selezionati)» only appears when there are automatic fixes.
+
+---
+
 ## [fix] - 2026-10-10 — Area e unità tipo anche nei rapporti: la US 1 di due aree sono due schede — 5.13.68-alpha
 
 > Branch `Stratigraph_00001`. «fai anche quello di area e unita_tipo nei rapporti» (Enzo): la correzione cronologica di stamattina nomina la riga con le sue quattro colonne, la verifica dei rapporti ancora col solo numero di US. / The chronology fix shipped this morning keys its edits on all four columns of a `us_table` row; the relations check still keyed on `us` alone.

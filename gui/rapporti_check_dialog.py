@@ -203,8 +203,12 @@ class RapportiCheckPanel(QWidget):
                 top.addChild(child)
             top.setExpanded(True)
         total = len(self._report.issues)
-        testo = ("%d problemi · %d correggibili automaticamente (selezionati)"
+        # «(selezionati)» rimanda alle spunte: con zero correzioni automatiche
+        # non ce n'è nessuna, e la parentesi non dice niente.
+        testo = ("%d problemi · %d correggibili automaticamente"
                  % (total, n_auto))
+        if n_auto:
+            testo += " (selezionati)"
         if n_prop:
             testo += " · %d proposte, da spuntare a mano" % n_prop
         testo += ". Anteprima un elemento per i dettagli."
@@ -241,10 +245,14 @@ class RapportiCheckPanel(QWidget):
         if iss is None:
             return
         lines = [iss.summary, ""]
-        if not iss.edits:
-            lines.append("(nessuna correzione automatica — scelta manuale "
-                         "nella scheda US)")
         from modules.utility import chronology_check as CC
+        if not iss.edits:
+            # Le fasi si correggono nella scheda Periodizzazione, non in una
+            # scheda US: la frase dipende da dove vive il dato.
+            chiave = ("m_manual_fix_phases"
+                      if CC.names_phases(getattr(iss, "kind", ""))
+                      else "m_manual_fix_us")
+            lines.append(RC._t(self._lang, chiave))
         for e in iss.edits:
             chi = CC.edit_prefix(e)
             for r in e.remove:

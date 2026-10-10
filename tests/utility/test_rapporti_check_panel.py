@@ -361,3 +361,69 @@ def test_the_preview_of_a_sheet_dating_still_shows_its_chronology(panel, db):
                                   "rule": "epoch"}}
     panel._preview()
     assert "US 1 · 1500–1549" in panel.preview.toPlainText()
+
+
+# ---------------------------------------------------------------------------
+# «Scelta manuale» nomina la scheda giusta; il riepilogo non parla di spunte
+# che non ci sono
+# ---------------------------------------------------------------------------
+
+class _Voce:
+    def __init__(self, iss):
+        self._iss = iss
+
+    def data(self, _col, _ruolo):
+        return self._iss
+
+
+def _anteprima_di(panel, kind):
+    from modules.utility.rapporti_check import Issue
+    iss = Issue(kind=kind, us_path=["2/2", "2/3.1"], auto=False,
+                summary="riga di prova")
+    panel.tree._scelti = [_Voce(iss)]
+    panel._preview()
+    return panel.preview.toPlainText()
+
+
+def test_a_phase_issue_without_a_fix_sends_to_the_periodization_form(panel):
+    from modules.utility.rapporti_check import _t
+    testo = _anteprima_di(panel, "epoch_overlap")
+    assert _t("it", "m_manual_fix_phases") in testo, testo
+    assert _t("it", "m_manual_fix_us") not in testo, testo
+
+
+def test_an_older_manual_issue_still_sends_to_the_us_form(panel):
+    from modules.utility.rapporti_check import _t
+    testo = _anteprima_di(panel, "cycle")
+    assert _t("it", "m_manual_fix_us") in testo, testo
+    assert _t("it", "m_manual_fix_phases") not in testo, testo
+    assert "scheda US)" in testo
+
+
+def test_the_manual_fix_sentences_are_in_all_six_languages():
+    from modules.utility.rapporti_check import _L
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        for chiave in ("m_manual_fix_phases", "m_manual_fix_us"):
+            assert _L[lang].get(chiave), (lang, chiave)
+        assert _L[lang]["m_manual_fix_phases"] != _L[lang]["m_manual_fix_us"]
+
+
+def test_the_summary_drops_selected_when_nothing_is_auto(panel):
+    from modules.utility.rapporti_check import Issue
+    class _R:  # report minimo
+        issues = [Issue(kind="cycle", us_path=["1"], auto=False, summary="x")]
+    panel._report = _R()
+    panel._render()
+    assert "(selezionati)" not in panel.lblSummary.text()
+    assert "0 correggibili automaticamente" in panel.lblSummary.text()
+
+
+def test_the_summary_keeps_selected_when_something_is_auto(panel):
+    from modules.utility.rapporti_check import Issue, Edit
+    class _R:
+        issues = [Issue(kind="missing_reciprocity", us_path=["1", "2"],
+                        auto=True, summary="x",
+                        edits=[Edit(us="1", remove=[], add=[["Copre", "2"]])])]
+    panel._report = _R()
+    panel._render()
+    assert "1 correggibili automaticamente (selezionati)" in panel.lblSummary.text()
