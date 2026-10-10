@@ -23661,24 +23661,12 @@ DATABASE SCHEMA KNOWLEDGE:
             return 0
             # records surf functions
     def on_pushButton_view_all_pressed(self):
-
-        self.checkBox_query.setChecked(False)
-        if self.checkBox_query.isChecked():
-            self.model_a.database().close()
-        self.empty_fields()
-        self.charge_records_n()
-        self.fill_fields()
-        self.BROWSE_STATUS = "b"
-        self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
-        if type(self.REC_CORR) == "<class 'str'>":
-            corr = 0
-        else:
-            corr = self.REC_CORR
-        self.set_rec_counter(len(self.DATA_LIST), self.REC_CORR + 1)
-        self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = self.DATA_LIST[0]
-        self.SORT_STATUS = "n"
-        self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
+        # Il bottone chiama la versione che filtra per il sito configurato.
+        # Fino alla 5.13.64 chiamava `charge_records_n()`, che carica la
+        # tabella intera: «se lo schiaccio non filtra per il sito su cui è
+        # settato ma mostra tutti i record» (Enzo, 2026-10-10). La `view_all()`
+        # qui sotto filtra, e gestisce anche il sito senza record.
+        self.view_all()
 
 
     # def view_all(self):
@@ -23748,38 +23736,13 @@ DATABASE SCHEMA KNOWLEDGE:
         self.label_sort.setText(self.SORTED_ITEMS[self.SORT_STATUS])
 
     def charge_records_filtered_by_site(self):
-        """Carica i record filtrati per il sito selezionato"""
+        """Carica i record filtrati per il sito selezionato."""
+        from modules.utility.site_records import charge_records_for_site
         try:
-            conn = Connection()
-            sito_set = conn.sito_set()
-            sito_set_str = sito_set['sito_set']
-
-            current_site = sito_set_str
-
-            if not current_site:
-                # Se nessun sito è selezionato, carica tutti i record
-                self.charge_records()
-                return
-
-            # Filtra i record per il sito corrente
-            search_dict = {'sito': f"'{current_site}'"}
-            search_dict = {str(k): str(v) for k, v in search_dict.items()}
-
-            res = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-
-            if bool(res):
-                self.DATA_LIST = []
-                for i in res:
-                    self.DATA_LIST.append(i)
-                self.REC_TOT, self.REC_CORR = len(self.DATA_LIST), 0
-                return True
-            else:
-                self.DATA_LIST = []
-                return False
-
+            return charge_records_for_site(self)
         except Exception as e:
-            QMessageBox.warning(self, "Errore", f"Errore nel caricamento dei dati filtrati: {str(e)}")
-            # In caso di errore, carica tutti i record
+            QMessageBox.warning(self, "Errore",
+                                f"Errore nel caricamento dei dati filtrati: {str(e)}")
             self.charge_records()
             return False
 

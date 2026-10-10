@@ -1,0 +1,64 @@
+"""I record di una scheda, per il sito su cui il plugin è settato.
+
+Perché esiste: il bottone «view all» delle schede caricava la tabella
+intera, con i record di tutti i siti, invece di quelli del sito impostato
+in `config.cfg`. Il filtro esisteva solo dentro la scheda US; qui vive in
+un posto solo, così le altre schede possono chiamarlo senza copiarlo.
+
+Il modulo non importa QGIS: `Connection` si importa dentro `current_site`,
+e il resto lavora su qualunque oggetto con `DB_MANAGER` e
+`MAPPER_TABLE_CLASS`, quindi si prova con dei finti.
+"""
+from __future__ import annotations
+
+
+def current_site():
+    """Il sito su cui il plugin è settato, da `config.cfg`, o '' se non c'è.
+
+    Non solleva: una configurazione illeggibile vale «nessun sito», e chi
+    chiama ricade sul comportamento di prima.
+    """
+    try:
+        from ..db.pyarchinit_conn_strings import Connection
+        sito = Connection().sito_set()['sito_set']
+    except Exception:
+        return ''
+    return str(sito).strip() if sito else ''
+
+
+def records_for_site(db_manager, mapper_name, sito):
+    """I record di una tabella per un sito solo.
+
+    `mapper_name` è il nome della classe come lo portano le schede
+    (`MAPPER_TABLE_CLASS`, per esempio "US"), non la classe.
+    """
+    # Gli apici attorno al valore sono la convenzione storica delle schede;
+    # `query_bool` li normalizza, con o senza.
+    return db_manager.query_bool({'sito': f"'{sito}'"}, mapper_name)
+
+
+def charge_records_for_site(tab):
+    """Riempie `tab.DATA_LIST` con i record del sito configurato.
+
+    Vero quando c'è almeno un record da mostrare. Senza un sito impostato
+    carica tutto, com'è sempre stato: meglio il comportamento di prima che
+    una lista vuota.
+
+    Attenzione per chi chiama: se il sito non ha record di quella tabella
+    torna False e `tab.DATA_LIST` resta vuota. Le schede che dopo il
+    caricamento fanno `self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR =
+    self.DATA_LIST[0]` andrebbero in `IndexError`: devono guardare il
+    ritorno e, come fa la scheda US, aprire un record nuovo.
+    """
+    sito = current_site()
+    if not sito:
+        tab.charge_records()
+        tab.REC_TOT, tab.REC_CORR = len(tab.DATA_LIST), 0
+        return bool(tab.DATA_LIST)
+
+    res = records_for_site(tab.DB_MANAGER, tab.MAPPER_TABLE_CLASS, sito)
+    tab.DATA_LIST = list(res) if res else []
+    if not tab.DATA_LIST:
+        return False
+    tab.REC_TOT, tab.REC_CORR = len(tab.DATA_LIST), 0
+    return True
