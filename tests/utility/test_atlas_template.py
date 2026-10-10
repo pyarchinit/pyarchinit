@@ -38,7 +38,8 @@ GENERICO = Path("/Users/enzo/pyarchinit_5/bin/profile/template/"
 
 def test_the_time_manager_template_can_do_everything():
     caps = capabilities(NOSTRO.read_text(encoding="utf-8", errors="replace"))
-    assert caps == {"map": True, "title": True, "matrix": True}
+    assert caps == {"map": True, "title": True, "matrix": True,
+                    "overview": True}
     assert is_usable(caps) is True
     assert describe_missing(caps) == ""
 
@@ -69,7 +70,8 @@ def test_a_template_without_a_map_cannot_make_a_sheet():
 
 def test_nothing_at_all_is_not_a_template():
     caps = capabilities("")
-    assert caps == {"map": False, "title": False, "matrix": False}
+    assert caps == {"map": False, "title": False, "matrix": False,
+                    "overview": False}
     assert is_usable(caps) is False
 
 

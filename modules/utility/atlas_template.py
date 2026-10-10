@@ -36,10 +36,15 @@ def capabilities(xml: str) -> Dict[str, bool]:
     deve poter marcare venticinque file senza aprirne nessuno.
     """
     testo = xml or ""
+    # L'inserto e' «una mappa che non e' la grande»: e' la stessa regola
+    # che usa il generatore (``atlas_overview.overview_indexes``), quindi
+    # qui basta contarle. Con una sola mappa l'inserto non c'e', e il
+    # localizzatore non si disegna da nessuna parte.
     return {
         "map": bool(_MAPPA.search(testo)),
         "title": ('id="%s"' % TITLE_ID) in testo,
         "matrix": ('id="%s"' % MATRIX_ID) in testo,
+        "overview": len(_MAPPA.findall(testo)) >= 2,
     }
 
 
@@ -92,7 +97,8 @@ def what_to_add(caps: Dict[str, bool]):
     caps = caps or {}
     if not caps.get("map"):
         return []
-    return [k for k in ("title", "matrix") if not caps.get(k)]
+    return [k for k in ("title", "matrix", "overview")
+            if not caps.get(k)]
 
 
 def prepared_name(path):
@@ -110,6 +116,89 @@ def prepared_name(path):
     return percorso.with_name(gambo + PREPARED_SUFFIX + percorso.suffix)
 
 
+#: Quanto e' grande l'inserto, in frazione del lato corto della mappa
+#: grande, e quanto sta staccato dal suo bordo (mm). Un localizzatore si
+#: guarda, non si legge: piu' grande di cosi' ruba spazio al disegno.
+INSET_FRACTION = 0.20
+INSET_MARGIN_MM = 3.0
+INSET_MIN_MM = 18.0
+#: E un tetto, perche' la frazione da sola non scala: su un A0 il lato
+#: corto della mappa e' quasi un metro, e il 20% sarebbe un localizzatore
+#: da venti centimetri. Misurato: A4 -> 37 mm, A0 -> 45 mm.
+INSET_MAX_MM = 45.0
+
+
+def inset_rect(main_rect):
+    """Dove mettere l'inserto dentro la mappa grande, o ``None``.
+
+    ``main_rect`` e ``(x, y, larghezza, altezza)`` in mm. Il titolo e la
+    matrice vanno su una pagina nuova per non coprire il cartiglio;
+    l'inserto no — un localizzatore su un'altra pagina non localizza
+    niente. Sta **dentro** il rettangolo della mappa, in basso a destra,
+    dove sta per convenzione: li' non puo' coprire ne' la legenda ne' il
+    cartiglio, perche' non esce dalla mappa.
+
+    ``None`` se non ci sta: su una mappa da francobollo un inserto
+    coprirebbe il disegno invece di aiutarlo.
+    """
+    try:
+        x, y, w, h = (float(v) for v in main_rect)
+    except (TypeError, ValueError):
+        return None
+    if w <= 0 or h <= 0:
+        return None
+    lato = min(INSET_MAX_MM,
+               max(INSET_MIN_MM, min(w, h) * INSET_FRACTION))
+    if lato + 2 * INSET_MARGIN_MM > min(w, h):
+        return None
+    return (x + w - INSET_MARGIN_MM - lato,
+            y + h - INSET_MARGIN_MM - lato, lato, lato)
+
+
+def _main_map(layout):
+    """La mappa piu' grande del layout, che e' quella del disegno."""
+    from qgis.core import QgsLayoutItemMap
+
+    mappe = [i for i in layout.items() if isinstance(i, QgsLayoutItemMap)]
+    if not mappe:
+        return None
+    return max(mappe, key=lambda m: (m.sizeWithUnits().width()
+                                     * m.sizeWithUnits().height()))
+
+
+def _add_overview(layout):
+    """Aggiunge l'inserto dentro la mappa grande. 1 se l'ha messo, 0 se no."""
+    from qgis.core import (QgsLayoutItemMap, QgsLayoutPoint, QgsLayoutSize,
+                           QgsUnitTypes)
+    from qgis.PyQt.QtGui import QColor
+
+    grande = _main_map(layout)
+    if grande is None:
+        return 0
+    pos = grande.pagePositionWithUnits()
+    mis = grande.sizeWithUnits()
+    dove = inset_rect((pos.x(), pos.y(), mis.width(), mis.height()))
+    if dove is None:
+        return 0
+    x, y, w, h = dove
+    inserto = QgsLayoutItemMap(layout)
+    inserto.attemptMove(QgsLayoutPoint(
+        x, y, QgsUnitTypes.LayoutUnit.LayoutMillimeters),
+        page=grande.page())
+    inserto.attemptResize(QgsLayoutSize(
+        w, h, QgsUnitTypes.LayoutUnit.LayoutMillimeters))
+    # Una cornice e un fondo bianco: senza, su un disegno chiaro
+    # l'inserto non si distingue da quello che gli sta sotto.
+    inserto.setFrameEnabled(True)
+    inserto.setFrameStrokeColor(QColor(60, 60, 60))
+    inserto.setBackgroundEnabled(True)
+    inserto.setBackgroundColor(QColor(255, 255, 255))
+    inserto.setId("overview")
+    inserto.setZValue(grande.zValue() + 1)
+    layout.addLayoutItem(inserto)
+    return 1
+
+
 def add_items(layout, mancanti):
     """Aggiunge al layout gli elementi che l'atlante cerca.
 
@@ -125,6 +214,15 @@ def add_items(layout, mancanti):
 
     if not mancanti:
         return 0
+    aggiunti = 0
+    if "overview" in mancanti:
+        aggiunti += _add_overview(layout)
+    # Il titolo e la matrice vanno su una pagina nuova; l'inserto no. Se
+    # manca solo lui, qui non si crea niente: una pagina bianca in piu'
+    # sarebbe un peggioramento.
+    sulla_pagina_nuova = [k for k in ("title", "matrix") if k in mancanti]
+    if not sulla_pagina_nuova:
+        return aggiunti
     raccolta = layout.pageCollection()
     modello_pagina = raccolta.page(0)
     pagina = QgsLayoutItemPage(layout)
@@ -140,7 +238,6 @@ def add_items(layout, mancanti):
     cima = raccolta.page(indice).pos().y() if hasattr(
         raccolta.page(indice), "pos") else 0.0
 
-    aggiunti = 0
     if "title" in mancanti:
         html = QgsLayoutItemHtml(layout)
         layout.addMultiFrame(html)
@@ -226,12 +323,20 @@ def prepare_file(path, out_dir=None):
 
 
 def to_prepare(folder):
-    """I modelli della cartella che non hanno ancora la copia preparata.
+    """I modelli della cartella la cui copia preparata manca o è stantia.
 
-    Si guardano i nomi, non il contenuto: deve costare poco, perché gira
-    a ogni avvio. I template escono da ``profile.zip``, che si riestrae
-    quando la cartella manca — e allora le copie preparate se ne vanno
-    con lei. Così si rifanno da sole, ma solo quelle che mancano.
+    I template escono da ``profile.zip``, che si riestrae quando la
+    cartella manca — e allora le copie preparate se ne vanno con lei.
+    Così si rifanno da sole, ma solo quelle che servono.
+
+    **Stantia** vuol dire preparata da una versione che aggiungeva meno
+    cose: le copie del 2026-10-09 non hanno l'inserto panoramico, e una
+    tavola senza inserto non mostra dove si è nel mondo. Una copia
+    ``+ Time Manager`` è nostra, non di chi usa il plugin, quindi si
+    rifà; l'originale non si tocca mai.
+
+    Si leggono i testi, non si caricano i layout: sono ventitré file da
+    poche decine di kB e gira a ogni avvio.
     """
     from pathlib import Path
 
@@ -242,8 +347,6 @@ def to_prepare(folder):
     for percorso in sorted(cartella.glob("*.qpt")):
         if PREPARED_SUFFIX in percorso.stem:
             continue
-        if prepared_name(percorso).exists():
-            continue
         # Leggere il testo costa poco, caricare un layout no: un modello
         # già completo (o senza mappa) si scarta qui, se no a ogni avvio
         # lo si aprirebbe per scoprire che non c'è niente da fare.
@@ -253,6 +356,17 @@ def to_prepare(folder):
             continue
         if not what_to_add(capabilities(testo)):
             continue
+        preparata = prepared_name(percorso)
+        if preparata.exists():
+            # C'è già: si rifà solo se le manca qualcosa che oggi
+            # sappiamo aggiungere.
+            try:
+                fatta = preparata.read_text(encoding="utf-8",
+                                            errors="replace")
+            except Exception:                       # noqa: BLE001
+                continue
+            if not what_to_add(capabilities(fatta)):
+                continue
         da_fare.append(percorso)
     return da_fare
 

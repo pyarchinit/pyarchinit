@@ -5,6 +5,45 @@
 
 ---
 
+## [fix] - 2026-10-10 — «osm no»: non era OSM, era che l'inserto non c'era — 5.13.56-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-inset-5.13.56-alpha`**. «Le fasce si popolano, l'export funziona, ma osm no» (Enzo).
+
+### Italiano
+
+Ho inseguito OSM per un pezzo, e non era OSM. Quello che ho escluso, misurandolo:
+
+- il layer XYZ **è valido** (`isValid() == True`, sia OpenStreetMap sia il satellite Esri);
+- la **rete funziona**: la tessera arriva con HTTP 200 e 34 948 byte, sia con `curl` sia col gestore di rete di QGIS (`QgsNetworkAccessManager.blockingGet`);
+- l'**URI** è giusto, le graffe codificate come QGIS vuole;
+- gli strati **vengono aggiunti al progetto** (`addMapLayer(…, False)`), quindi i riferimenti del layout si risolvono;
+- il **PAC di sistema è rotto** — `ProxyAutoConfigEnable: 1` con `ProxyAutoConfigURLString: %0A`, cioè un ritorno a capo — e sembrava la pista giusta, ma **non è la causa**: disattivandolo la resa resta identica. Misurato in entrambi i versi.
+
+La causa era molto più banale. `overview_indexes` chiama inserto «ogni mappa tranne la grande». Dei **23 modelli preparati solo 8 hanno due mappe**: sugli altri **15 l'inserto non esiste**, `_prepara_panoramica` uscuiva subito e non c'era niente da popolare — né sfondo né puntino. E non lo diceva.
+
+**L'inserto adesso si aggiunge**, come già si aggiungevano il titolo e la matrice:
+
+- **`modules/utility/atlas_template.py`** — `capabilities` guadagna la chiave `overview` (due mappe = c'è l'inserto, la stessa regola del generatore); `what_to_add` la include; nuove `inset_rect(main_rect)` e `_add_overview(layout)`, con `INSET_FRACTION = 0.20`, `INSET_MARGIN_MM = 3.0`, `INSET_MIN_MM = 18.0` e un tetto `INSET_MAX_MM = 45.0` — la frazione da sola non scala, su un A0 il lato corto della mappa è quasi un metro. Misurato: A4 → 37 mm, A0 → 45 mm.
+- **Dove va**: *dentro* il rettangolo della mappa grande, in basso a destra, con cornice e fondo bianco. Titolo e matrice vanno su una pagina nuova per non coprire il cartiglio; l'inserto no — un localizzatore su un'altra pagina non localizza niente, e dentro la mappa non può coprire né la legenda né il cartiglio perché non ne esce. Se manca **solo** l'inserto, la pagina nuova non si crea: una pagina bianca in più sarebbe un peggioramento.
+- **Le copie preparate stantie si rifanno.** `to_prepare` guardava i nomi; ora legge anche la copia `+ Time Manager` e la rifà se le manca qualcosa che oggi sappiamo aggiungere. Sono nostre, non di chi usa il plugin: l'originale non si tocca mai. Eseguito sulla cartella: **15 rifatte, 23 su 23 ora hanno l'inserto**, 0 rimaste.
+- **`tabs/Gis_Time_controller.py`** — se il modello ha una mappa sola il generatore adesso **lo scrive nel log** invece di tacere. Il silenzio è costato una serata.
+
+Test: +9 in `tests/utility/test_atlas_template_prepare.py` (24 in tutto) e 7 vecchi allineati alla chiave nuova in due file. Suite: **1132 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+**Resta aperto**: se le tessere si disegnino davvero nell'export della tavola. Headless la resa è una tela vuota anche con layer valido, rete buona e PAC escluso — il provider XYZ in un render senza GUI non le scarica. Nell'inserto che ora esiste su tutti i modelli si vedrà; se restassero bianche, il puntino c'è comunque e il codice lo dice da sempre («senza rete resta col solo puntino, che dice meno ma non è un errore»).
+
+### English
+
+I chased OSM for a while, and it was not OSM. Ruled out by measurement: the XYZ layer **is valid**; the **network works** (HTTP 200, 34 948 bytes, through `curl` and through `QgsNetworkAccessManager.blockingGet` alike); the URI is right; the layers **are** added to the project; and the machine's **proxy auto-config is broken** (`ProxyAutoConfigURLString: %0A`) but is **not** the cause — disabling it changes nothing, measured both ways.
+
+The cause was duller. `overview_indexes` calls «every map but the big one» an inset, and of the **23 prepared templates only 8 have two maps**: on the other **15 there is no inset at all**, so `_prepara_panoramica` returned at once and there was nothing to fill — no basemap, no dot — and it said nothing.
+
+The inset is now **added**, like the title and the matrix already were: `capabilities` gains `overview`, and `inset_rect` / `_add_overview` put a framed white 20%-of-the-short-side map (capped at 45 mm: A4 → 37, A0 → 45) **inside** the main map's rectangle, bottom right, where a locator belongs and where it cannot cover the legend or the cartouche. When only the inset is missing no new page is created. Stale `+ Time Manager` copies are now refreshed — they are ours, the original never is: **15 refreshed, 23 of 23 now carry the inset**. And a single-map template is written to the log instead of passing in silence.
+
+**Still open**: whether the tiles actually paint in the sheet export. Headless the render is a blank canvas even with a valid layer, a working network and the PAC ruled out. If they stay white the dot is still there, which the code has always said is acceptable.
+
+---
+
 ## [feat] - 2026-10-10 — i luoghi tornano nell'em.json: EMStudio dev.27 regge gli archi — 5.13.55-alpha
 
 > Branch `Stratigraph_00001`. Tag **`location-groups-back-5.13.55-alpha`**. Il motivo per cui erano spenti è scaduto.

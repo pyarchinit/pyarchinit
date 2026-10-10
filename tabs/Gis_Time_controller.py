@@ -1114,7 +1114,18 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
         inserti = overview_indexes(
             [(m.sizeWithUnits().width(), m.sizeWithUnits().height())
              for m in mappe], indice_principale)
-        if not inserti or not riquadro:
+        if not inserti:
+            # Taceva, e il silenzio e' costato una serata: «le fasce si
+            # popolano, l'export funziona, ma osm no» (Enzo, 2026-10-10).
+            # Non era OSM: il modello aveva una mappa sola, quindi non
+            # c'era nessun inserto da popolare.
+            QgsMessageLog.logMessage(
+                "Questo modello ha una sola mappa: nessun inserto "
+                "panoramico da riempire. I modelli preparati "
+                "(«+ Time Manager») ce l'hanno.",
+                "PyArchInit", Qgis.MessageLevel.Info)
+            return
+        if not riquadro:
             return
         try:
             centro = QgsPointXY((riquadro[0] + riquadro[2]) / 2.0,

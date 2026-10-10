@@ -26,18 +26,19 @@ from modules.utility.atlas_template import (  # noqa: E402
 )
 
 
-def test_a_plain_template_needs_both_pieces():
-    assert what_to_add({"map": True, "title": False, "matrix": False}) == (
-        ["title", "matrix"])
+def test_a_plain_template_needs_all_three_pieces():
+    assert what_to_add({"map": True, "title": False, "matrix": False,
+                        "overview": False}) == ["title", "matrix", "overview"]
 
 
 def test_the_time_manager_template_needs_nothing():
-    assert what_to_add({"map": True, "title": True, "matrix": True}) == []
+    assert what_to_add({"map": True, "title": True, "matrix": True,
+                        "overview": True}) == []
 
 
 def test_only_what_is_missing_is_added():
-    assert what_to_add({"map": True, "title": True, "matrix": False}) == (
-        ["matrix"])
+    assert what_to_add({"map": True, "title": True, "matrix": False,
+                        "overview": True}) == ["matrix"]
 
 
 def test_a_template_without_a_map_is_not_worth_preparing():
@@ -111,9 +112,12 @@ def test_only_the_missing_ones_are_prepared(tmp_path):
     from modules.utility.atlas_template import to_prepare
 
     con_mappa = '<Layout><LayoutItem type="65639"/></Layout>'
+    completo = ('<Layout><LayoutItem type="65639"/>'
+                '<LayoutItem type="65639"/>'
+                '<LayoutItem id="123"/><LayoutItem id="matrix"/></Layout>')
     (tmp_path / "A.qpt").write_text(con_mappa, encoding="utf-8")
     (tmp_path / "B.qpt").write_text(con_mappa, encoding="utf-8")
-    (tmp_path / "B + Time Manager.qpt").write_text(con_mappa,
+    (tmp_path / "B + Time Manager.qpt").write_text(completo,
                                                    encoding="utf-8")
     da_fare = [p.name for p in to_prepare(tmp_path)]
     assert da_fare == ["A.qpt"]
@@ -149,6 +153,7 @@ def test_a_template_that_needs_nothing_is_not_opened_at_every_start(tmp_path):
     from modules.utility.atlas_template import to_prepare
 
     completo = ('<Layout><LayoutItem type="65639"/>'
+                '<LayoutItem type="65639"/>'
                 '<LayoutItem id="123"/><LayoutItem id="matrix"/></Layout>')
     (tmp_path / "completo.qpt").write_text(completo, encoding="utf-8")
     (tmp_path / "senza_mappa.qpt").write_text("<Layout/>", encoding="utf-8")
@@ -178,3 +183,82 @@ def test_the_startup_path_is_guarded():
                 / "atlas_template.py").read_text(encoding="utf-8")
     inizio = sorgente.index("def ensure_prepared")
     assert "qgis_is_running()" in sorgente[inizio:inizio + 400]
+
+
+# ---------------------------------------------------------------------------
+# L'inserto panoramico (2026-10-10)
+# ---------------------------------------------------------------------------
+# Enzo, 2026-10-10: «le fasce si popolano, l'export funziona, ma osm no».
+# Non era OSM: dei 23 modelli preparati solo 8 hanno due mappe, e
+# ``overview_indexes`` chiama inserto «ogni mappa tranne la grande». Sui
+# 15 con una mappa sola l'inserto non esiste, quindi non c'era niente da
+# popolare — e il generatore non diceva nulla. L'inserto si aggiunge come
+# si aggiungono il titolo e la matrice.
+
+def test_a_template_with_one_map_has_no_inset():
+    uno = '<Layout><LayoutItem type="65639"/></Layout>'
+    assert capabilities(uno)["overview"] is False
+
+
+def test_two_maps_are_an_inset():
+    due = ('<Layout><LayoutItem type="65639"/>'
+           '<LayoutItem type="65639"/></Layout>')
+    assert capabilities(due)["overview"] is True
+
+
+def test_the_inset_is_among_the_things_to_add():
+    assert what_to_add({"map": True, "title": True, "matrix": True,
+                        "overview": False}) == ["overview"]
+
+
+def test_a_template_without_a_map_gets_no_inset_either():
+    assert what_to_add({"map": False, "title": False, "matrix": False,
+                        "overview": False}) == []
+
+
+def test_the_inset_sits_inside_the_main_map_not_on_the_new_page():
+    """Il titolo e la matrice vanno su una pagina nuova per non coprire il
+    cartiglio. L'inserto no: un localizzatore su un'altra pagina non
+    localizza niente. Sta dentro il rettangolo della mappa grande, in
+    basso a destra, dove sta per convenzione — e lì non può coprire né la
+    legenda né il cartiglio, perché non esce dalla mappa."""
+    from modules.utility.atlas_template import inset_rect
+
+    # mappa grande: 100×80 mm a (10, 20)
+    r = inset_rect((10.0, 20.0, 100.0, 80.0))
+    assert r is not None
+    x, y, w, h = r
+    assert w < 100.0 / 2 and h < 80.0 / 2, "un inserto non è mezza tavola"
+    assert x >= 10.0 and y >= 20.0
+    assert x + w <= 10.0 + 100.0, "sborda a destra dalla mappa"
+    assert y + h <= 20.0 + 80.0, "sborda in basso dalla mappa"
+    # in basso a destra, non al centro
+    assert x > 10.0 + 100.0 / 2
+    assert y > 20.0 + 80.0 / 2
+
+
+def test_a_map_too_small_gets_no_inset():
+    from modules.utility.atlas_template import inset_rect
+
+    assert inset_rect((0.0, 0.0, 12.0, 9.0)) is None
+
+
+def test_a_stale_prepared_copy_is_prepared_again(tmp_path):
+    """Una copia preparata da una versione precedente non ha l'inserto.
+    Le copie ``+ Time Manager`` sono nostre, non dell'utente: si
+    rifanno. L'originale resta intoccabile, sempre."""
+    from modules.utility.atlas_template import to_prepare
+
+    completo = ('<Layout><LayoutItem type="65639"/>'
+                '<LayoutItem type="65639"/>'
+                '<LayoutItem id="123"/><LayoutItem id="matrix"/></Layout>')
+    vecchia = ('<Layout><LayoutItem type="65639"/>'
+               '<LayoutItem id="123"/><LayoutItem id="matrix"/></Layout>')
+    (tmp_path / "A.qpt").write_text(vecchia, encoding="utf-8")
+    (tmp_path / "A + Time Manager.qpt").write_text(vecchia, encoding="utf-8")
+    (tmp_path / "B.qpt").write_text(vecchia, encoding="utf-8")
+    (tmp_path / "B + Time Manager.qpt").write_text(completo, encoding="utf-8")
+
+    da_fare = [p.name for p in to_prepare(tmp_path)]
+    assert da_fare == ["A.qpt"], \
+        "la copia stantia di A va rifatta, quella completa di B no"
