@@ -261,6 +261,18 @@ _RULES = {
 }
 
 
+#: Come si nominano i due estremi, quando vengono da relazioni diverse e
+#: bisogna dire quale è quale.
+_LATI = {
+    "it": ("inizio", "fine"),
+    "en": ("start", "end"),
+    "de": ("Beginn", "Ende"),
+    "es": ("inicio", "fin"),
+    "fr": ("début", "fin"),
+    "pt": ("início", "fim"),
+}
+
+
 def _anno(val):
     """L'anno come si scrive in un avviso: senza il decimale che non dice
     niente (``chronology()`` restituisce float)."""
@@ -289,14 +301,37 @@ def explain_bounds(entry, *, lang="it"):
     pezzi = ["%s–%s" % (_anno(inizio), _anno(fine))]
     if regola:
         pezzi.append(nomi.get(regola, regola))
-    # La provenienza è quella dell'estremo che la regola ha prodotto.
-    lato = "start" if entry.get("start_rule") == regola and inizio is not None \
-        else "end"
+    da_inizio = _provenienza(entry, "start")
+    da_fine = _provenienza(entry, "end")
+    if inizio is None or fine is None or da_inizio == da_fine:
+        # Un estremo solo, o due estremi che vengono dalla stessa relazione:
+        # dirlo due volte sarebbe rumore.
+        provenienza = da_inizio or da_fine
+        if provenienza:
+            pezzi.append(provenienza)
+    else:
+        # I due estremi arrivano per strade diverse, e allora si dice quale è
+        # quale: una data attribuita alla relazione sbagliata è peggio di
+        # nessuna data.
+        etichette = _LATI.get(lang) or _LATI["en"]
+        for etichetta, provenienza in zip(etichette, (da_inizio, da_fine)):
+            if provenienza:
+                pezzi.append("%s %s" % (etichetta, provenienza))
+    return " · ".join(pezzi)
+
+
+def _provenienza(entry, lato):
+    """L'arco percorso e il nodo da cui il vincolo è arrivato, per un estremo.
+
+    La provenienza di una data **è la relazione che ha percorso** (E. D.,
+    29 settembre 2026): non un campo scritto da qualche parte, ma l'arco del
+    grafo lungo cui il vincolo si è propagato.
+    """
     relazione = entry.get("%s_relation" % lato)
     sorgente = entry.get("%s_source" % lato)
-    if relazione and sorgente:
-        pezzi.append("%s → %s" % (relazione, sorgente))
-    return " · ".join(pezzi)
+    if not (relazione and sorgente):
+        return ""
+    return "%s → %s" % (relazione, sorgente)
 
 
 def bounds_by_us(graph):

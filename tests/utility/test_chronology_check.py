@@ -283,20 +283,37 @@ def test_edit_prefix_names_the_row_when_the_target_is_another_table():
 
 
 def test_explain_bounds_reads_span_rule_and_provenance():
+    """Due estremi dalla stessa relazione: una provenienza sola, come prima."""
     entry = {"start": 1500.0, "end": 1549.0, "start_rule": "epoch",
              "start_source": "epoch_2_2", "start_relation": "has_first_epoch",
              "end_rule": "epoch", "end_source": "epoch_2_2",
-             "end_relation": "survive_in_epoch", "rule": "epoch"}
+             "end_relation": "has_first_epoch", "rule": "epoch"}
     riga = CC.explain_bounds(entry)
     assert riga == "1500–1549 · epoca · has_first_epoch → epoch_2_2"
 
 
+def test_explain_bounds_labels_the_two_bounds_when_they_differ():
+    """Il caso vero: sul sito di Enzo due voci su 45 hanno gli estremi da
+    relazioni diverse, e senza l'etichetta la fine verrebbe attribuita alla
+    relazione dell'inizio."""
+    entry = {"start": 1451.0, "end": 1499.0, "start_rule": "epoch",
+             "start_source": "epoch_2_4", "start_relation": "survive_in_epoch",
+             "end_rule": "epoch", "end_source": "epoch_2_3",
+             "end_relation": "has_first_epoch", "rule": "epoch"}
+    assert CC.explain_bounds(entry) == (
+        "1451–1499 · epoca"
+        " · inizio survive_in_epoch → epoch_2_4"
+        " · fine has_first_epoch → epoch_2_3")
+
+
 def test_explain_bounds_names_the_rule_in_the_chosen_language():
+    """Qui la fine non porta provenienza: l'inizio si etichetta, altrimenti
+    la sua relazione sembrerebbe coprire anche la fine."""
     entry = {"start": -100.0, "end": 0.0, "start_rule": "tpq",
              "start_source": "USM101", "start_relation": "is_after",
              "rule": "tpq"}
     assert CC.explain_bounds(entry, lang="en") == \
-        "-100–0 · terminus post quem · is_after → USM101"
+        "-100–0 · terminus post quem · start is_after → USM101"
 
 
 def test_explain_bounds_on_an_entry_without_bounds_does_not_raise():
@@ -316,21 +333,42 @@ def test_explain_bounds_without_provenance_gives_just_span_and_rule():
     assert CC.explain_bounds(entry) == "1500–1549 · data scritta"
 
 
+def test_explain_bounds_prints_an_unknown_rule_as_it_is():
+    """Se la libreria aggiungesse una regola, la riga la nomina invece di
+    saltare: meglio un nome tecnico che un'eccezione nel pannello."""
+    entry = {"start": 1500.0, "end": 1549.0, "rule": "regola_nuova"}
+    assert CC.explain_bounds(entry) == "1500–1549 · regola_nuova"
+
+
+def test_every_language_covers_the_five_rules_and_the_two_sides():
+    """`_RULES` ripiega sull'inglese, quindi una lingua cancellata non si
+    vedrebbe da `explain_bounds`: si guarda il dizionario."""
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        assert set(CC._RULES[lang]) == {"written", "epoch", "contained",
+                                        "tpq", "taq"}, lang
+        assert len(CC._LATI[lang]) == 2, lang
+        assert all(CC._LATI[lang]), lang
+
+
 def test_bounds_by_us_keys_on_the_us_number_not_the_node_id():
     """Gli id dei nodi sono uuid7: accostare un avviso agli estremi calcolati
-    chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità.
+    chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità —
+    l'attributo `us`, o il nome ripulito del prefisso.
     """
+    ID = "019f8043-4f87-7e3b-b7e8-6736d398fc27"
+
     class _Nodo:
-        attributes = {"us": "4"}
-        name = "US4"
+        attributes = {}          # nessun attributo `us`: si passa dal nome
+        name = "USM4"
 
     class _Grafo:
         def chronology(self):
-            return {"019f8043-4f87-7e3b-b7e8-6736d398fc27":
-                    {"start": 1500.0, "end": 1549.0, "rule": "epoch"}}
+            return {ID: {"start": 1500.0, "end": 1549.0, "rule": "epoch"}}
 
         def find_node_by_id(self, node_id):
-            return _Nodo()
+            # Risponde solo per l'id che le è stato chiesto: un passaggio di
+            # argomento sbagliato deve farsi vedere.
+            return _Nodo() if node_id == ID else None
 
     per_us = CC.bounds_by_us(_Grafo())
     assert list(per_us) == ["4"]
