@@ -5,6 +5,29 @@
 
 ---
 
+## [fix] - 2026-10-10 — il pallino rosso sopra le tessere, non sotto — 5.13.59-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-dot-on-top-5.13.59-alpha`**. «Ora funziona, ma l'ordine deve essere il layer puntuale sopra osm nella TOC, altrimenti nella generazione dell'overlay non vedo il pallino rosso» (Enzo).
+
+### Italiano
+
+Ha ragione, ed era un errore mio introdotto con la 5.13.57: nell'albero dei layer il **primo** figlio sta in cima e si disegna per **ultimo**, cioè sopra. `gruppo.addLayer(punto)` accoda, quindi il puntino finiva **sotto** OSM e le tessere lo coprivano. Lo stesso sbaglio era in `theme_layers`, che restituiva `[sfondo, punto]`: in `setLayers` il primo si disegna sopra, quindi anche lì lo sfondo passava davanti.
+
+- **`modules/utility/atlas_overview.py`** — `theme_layers` restituisce ora `[punto, sfondo]`, documentato come «dal sopra al sotto».
+- **`tabs/Gis_Time_controller.py`** — il puntino si **inserisce in cima** al gruppo (`insertLayer(0, …)`), e **ci viene rimesso anche quando c'è già ma in fondo**: chi ha già girato l'atlante con la 5.13.57 o la 5.13.58 si ritrova il puntino sotto, e il progetto si ripara da sé al primo giro.
+
+**Misurato.** Ordine nell'albero, dall'alto: giro 1 `['Localizzazione', 'OpenStreetMap']`, giro 2 identico; partendo dallo stato vecchio (`['OpenStreetMap', 'Localizzazione']`) un giro dell'atlante lo rimette a posto. `layersToRender()` dell'inserto: `['Localizzazione', 'OpenStreetMap']`.
+
+**E la prova a pixel**, con un server di tessere locale che serve una tessera **verde** così il pallino si distingue: nel foglio esportato **250 984 pixel di tessera** e **428 pixel rossi del pallino**, cioè le tessere riempiono l'inserto e il pallino si vede **sopra**. Col vecchio ordine i pixel rossi erano zero.
+
+Test: +1 in `tests/utility/test_atlas_overview.py` (24 in tutto) e uno riscritto sull'ordine giusto. Suite: **1139 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+My own regression from 5.13.57: in the layer tree the **first** child is at the top and is drawn **last**, i.e. on top. `addLayer` appends, so the dot ended up **below** OSM and the tiles covered it. The same mistake was in `theme_layers`, which returned `[sfondo, punto]` — in `setLayers` the first is drawn on top. The dot is now **inserted at the top** of the group and **put back on top when it is already there but at the bottom**, so a project that ran the atlas under 5.13.57/58 heals itself on the next run. Measured: the tree reads `['Localizzazione', 'OpenStreetMap']` on every run, and from the old state one atlas run restores it. Pixel proof against a local server serving a **green** tile so the dot is distinguishable: **250 984 tile pixels and 428 red dot pixels** on the exported sheet — tiles filling the inset, dot visible on top; with the old order the red count was zero. 1139 passed, 0 failed.
+
+---
+
 ## [fix] - 2026-10-10 — lo sfondo dell'inserto: l'URL era codificato due volte — 5.13.58-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-basemap-url-5.13.58-alpha`**. Enzo ha incollato le proprietà dei due layer, il mio e quello che QGIS aggiunge da «XYZ Tiles», e la differenza era tutta lì.

@@ -170,10 +170,15 @@ def test_the_group_and_the_theme_have_stable_names():
 def test_the_theme_holds_the_basemap_and_the_dot_and_nothing_else():
     """«Una vista solo per osm senza layer dentro»: nel tema non entra
     nessun layer del progetto — né le US né le quote. Il puntino sì, che è
-    il motivo per cui l'inserto esiste."""
+    il motivo per cui l'inserto esiste.
+
+    E il **puntino per primo**: in `setLayers` il primo si disegna sopra, e
+    con lo sfondo davanti il pallino rosso sparisce sotto le tessere (Enzo,
+    2026-10-10: «il layer puntuale sopra osm, altrimenti nella generazione
+    non vedo il pallino rosso»)."""
     from modules.utility.atlas_overview import theme_layers
 
-    assert theme_layers("sfondo", "punto") == ["sfondo", "punto"]
+    assert theme_layers("sfondo", "punto") == ["punto", "sfondo"]
     # senza sfondo (rete assente) resta il puntino: dice meno, non è un errore
     assert theme_layers(None, "punto") == ["punto"]
     # senza puntino non c'è inserto da fare
@@ -235,3 +240,20 @@ def test_an_ampersand_in_the_url_is_still_encoded():
 
     assert quote_tile_url("https://x.y/{z}/{x}/{y}.png?key=a&b=c") == (
         "https://x.y/%7Bz%7D/%7Bx%7D/%7By%7D.png?key%3Da%26b%3Dc")
+
+
+
+def test_the_dot_goes_above_the_basemap_in_the_tree():
+    """Nell'albero dei layer il primo figlio sta in cima e si disegna per
+    ultimo, cioè sopra. `addLayer` accoda, quindi il puntino finiva sotto le
+    tessere e non si vedeva: va **inserito** in cima, e rimesso in cima
+    anche quando c'è già, perché una versione precedente lo ha messo sotto."""
+    from pathlib import Path
+
+    corpo = _corpo("_strati_nella_toc")
+    assert "insertLayer(0, punto)" in corpo, \
+        "il puntino va inserito in cima, non accodato"
+    assert "gruppo.addLayer(candidato)" in corpo, \
+        "lo sfondo invece si accoda, che lo porta sotto"
+    assert "removeLayer(punto)" in corpo, \
+        "se c'era già ma in fondo, va rimesso in cima"

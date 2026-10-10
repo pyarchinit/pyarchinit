@@ -1280,7 +1280,23 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
             except Exception:                       # noqa: BLE001
                 pass
             progetto.addMapLayer(punto, False)
-            gruppo.addLayer(punto)
+        # In cima al gruppo, sempre: nell'albero il primo figlio si disegna
+        # per ultimo, cioè SOPRA. `addLayer` accoda, e il pallino rosso
+        # finiva sotto le tessere — invisibile (Enzo, 2026-10-10). Si
+        # rimette in cima anche quando c'è già, perché una versione
+        # precedente lo ha messo sotto.
+        try:
+            nodo = gruppo.findLayer(punto)
+            if nodo is None or gruppo.children().index(nodo) != 0:
+                if nodo is not None:
+                    gruppo.removeLayer(punto)
+                gruppo.insertLayer(0, punto)
+        except Exception:                           # noqa: BLE001
+            try:
+                if gruppo.findLayer(punto) is None:
+                    gruppo.addLayer(punto)
+            except Exception:                       # noqa: BLE001
+                pass
         try:
             punto.dataProvider().truncate()
             f = QgsFeature()

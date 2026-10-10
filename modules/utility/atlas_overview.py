@@ -114,11 +114,16 @@ PUNTO_NAME = "Localizzazione"
 
 
 def theme_layers(sfondo, punto):
-    """I layer che vanno nel tema dell'inserto, nell'ordine di disegno.
+    """I layer dell'inserto, **dal sopra al sotto**.
 
     «Una vista solo per osm senza layer dentro» (Enzo, 2026-10-10): nel
     tema non entra **nessun** layer del progetto — né le US né le quote.
     Il puntino sì: è il motivo per cui l'inserto esiste.
+
+    Il puntino **per primo**: in ``setLayers`` il primo si disegna sopra,
+    e con lo sfondo davanti il pallino rosso sparisce sotto le tessere
+    (Enzo, 2026-10-10: «il layer puntuale sopra osm, altrimenti nella
+    generazione non vedo il pallino rosso»).
 
     Senza puntino non c'è inserto da fare, e la lista resta vuota. Senza
     sfondo (rete assente) resta il solo puntino, che dice meno ma non è
@@ -126,7 +131,7 @@ def theme_layers(sfondo, punto):
     """
     if punto is None:
         return []
-    return ([sfondo, punto] if sfondo is not None else [punto])
+    return ([punto, sfondo] if sfondo is not None else [punto])
 
 
 def is_base_map(source: str, kind: str = DEFAULT_BASE_MAP) -> bool:
