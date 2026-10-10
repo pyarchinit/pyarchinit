@@ -22,9 +22,16 @@ def test_embedded_table_matches_pyarchinit_i18n_exactly():
     assert set(_REL_TERMS_BY_LANG) == set(RELATIONSHIPS), (
         "language sets diverged: "
         f"{set(_REL_TERMS_BY_LANG) ^ set(RELATIONSHIPS)}")
+    from modules.s3dgraphy.sync import CONTINUITY_LABELS
     for lang, terms in RELATIONSHIPS.items():
-        assert list(_REL_TERMS_BY_LANG[lang]) == list(terms), (
+        # Dalla dev43 la libreria porta 12 voci: le prime dieci sono il
+        # vocabolario della scheda US, le ultime due la coppia della
+        # continuità, che da noi vive a parte (CONTINUITY_LABELS).
+        lib = list(_REL_TERMS_BY_LANG[lang])
+        assert lib[:len(terms)] == list(terms), (
             f"relationship terms diverged for {lang!r}")
+        assert tuple(lib[len(terms):]) == CONTINUITY_LABELS[lang], (
+            f"continuity labels diverged for {lang!r}")
 
 
 def test_every_i18n_term_maps_to_correct_edge_type():

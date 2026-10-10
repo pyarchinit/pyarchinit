@@ -70,9 +70,12 @@ def test_desired_rapporti_pair_directions():
     # CON row -> forward -> CON is_after US (no swap)
     p_con = parse_rapporti([con_entry])
     assert p_con == [("is_after", "US5", "1", "S", False)]
-    # madre row -> reverse -> swap -> still CON is_after US
+    # madre row -> reverse label -> dalla dev43 la libreria lo legge come
+    # il suo tipo, is_before, senza girare niente (come «Coperto da» →
+    # is_overlain_by); a ripiegarlo su "CON is_after US" pensano i
+    # consumatori (graph_projector, room/us_ops: is_before → is_after + swap)
     p_madre = parse_rapporti([madre_entry])
-    assert p_madre == [("is_after", "CON_US5", "1", "S", True)]
+    assert p_madre == [("is_before", "CON_US5", "1", "S", False)]
 
 def test_build_con_record_area_default():
     """area=None/empty must default to "1" consistently in both the

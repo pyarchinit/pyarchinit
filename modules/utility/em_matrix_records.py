@@ -45,6 +45,12 @@ REL_INDEX_KIND = (
     ("cuts", True),         # 7  Tagliato da
     ("abuts", False),       # 8  Si appoggia a
     ("abuts", True),        # 9  Gli si appoggia
+    # La coppia della continuità. «X successiva a T» è «X is_after T»: la
+    # freccia parte da X, che è il più recente, come per «Copre». «X
+    # precedente a T» è la stessa cosa letta dall'altro capo («T is_after
+    # X»), che la libreria nomina is_before: si gira, come «Coperto da».
+    ("is_after", False),    # 10 Continuità successiva a
+    ("is_after", True),     # 11 Continuità precedente a
 )
 
 

@@ -193,6 +193,9 @@ def test_the_relation_table_matches_the_library():
         "fills": ("fills", False), "is_filled_by": ("fills", True),
         "cuts": ("cuts", False), "is_cut_by": ("cuts", True),
         "abuts": ("abuts", False), "is_abutted_by": ("abuts", True),
+        # is_before è la lettura inversa di is_after: si gira, come
+        # is_overlain_by rispetto a overlies
+        "is_after": ("is_after", False), "is_before": ("is_after", True),
     }
     assert len(REL_INDEX_KIND) == len(_REL_INDEX_EDGE_TYPE)
     for indice, nome in enumerate(_REL_INDEX_EDGE_TYPE):
