@@ -33,8 +33,8 @@ def test_two_phases_with_the_same_span_are_one_overlap():
     issues = CC.check_chronology(periods, [], sito="S")
     assert [i.kind for i in issues] == ["epoch_overlap"]
     assert issues[0].auto is False
-    assert "1500" in issues[0].summary and "1549" in issues[0].summary
-    assert "50" in issues[0].summary          # 1549 - 1500 + 1 anni sovrapposti
+    assert issues[0].summary == (
+        "Le fasi 2/2.2 e 3/1 si sovrappongono per 50 anni (1500–1549)")
 
 
 def test_identical_spans_carry_no_proposal():
@@ -114,10 +114,16 @@ def test_bc_years_are_negative_and_year_zero_is_a_year():
                            {"periodo": "1", "fase": "2"})
 
 
-def test_phase_2_1_and_2_10_stay_distinct():
-    """Come float sarebbero la stessa fase, e una delle due si perderebbe."""
-    periods = [_p("2", "2.1", 1400, 1450), _p("2", "2.10", 1500, 1550)]
-    assert CC.check_chronology(periods, [], sito="S") == []
+def test_phase_2_1_and_2_10_are_two_phases_not_one():
+    """Come float sarebbero la stessa fase, e una delle due si perderebbe.
+
+    Gli intervalli si sovrappongono di proposito: se le chiavi collassassero,
+    `spans` terrebbe una riga sola e la sovrapposizione non si vedrebbe.
+    """
+    periods = [_p("2", "2.1", 1400, 1500), _p("2", "2.10", 1450, 1550)]
+    issues = CC.check_chronology(periods, [], sito="S")
+    assert [i.kind for i in issues] == ["epoch_overlap"]
+    assert issues[0].us_path == ["2/2.1", "2/2.10"]
 
 
 def test_empty_periodization_is_not_an_error():
@@ -131,3 +137,36 @@ def test_the_four_titles_exist_in_all_six_languages():
         for lang in ("it", "en", "de", "es", "fr", "pt"):
             titolo = RC.kind_title(kind, lang)
             assert titolo and not titolo.startswith("t_"), (kind, lang)
+
+
+def test_a_whole_year_written_as_a_float_is_a_year():
+    periods = [_p("2", "2.2", 1500.0, "1549.0")]
+    issues = CC.check_chronology(periods, [], sito="S")
+    assert issues == []          # intervallo valido, nessuna sovrapposizione
+
+
+def test_a_fractional_year_is_still_a_phase_without_years():
+    periods = [_p("2", "2.2", 1500.5, 1549)]
+    assert [i.kind for i in CC.check_chronology(periods, [], sito="S")] \
+        == ["epoch_no_dates"]
+
+
+def test_the_eight_entries_are_in_all_six_blocks_without_falling_back():
+    """`_t` ripiega sull'inglese, quindi una chiave mancante non si vedrebbe
+    dal titolo: si guarda il dizionario."""
+    from modules.utility.rapporti_check import _L
+    chiavi = ("t_epoch_overlap", "t_epoch_reversed", "t_epoch_no_dates",
+              "t_datazione_mismatch", "s_epoch_overlap", "s_epoch_reversed",
+              "s_epoch_no_dates", "s_datazione_mismatch")
+    for lang in ("it", "en", "de", "es", "fr", "pt"):
+        mancanti = [k for k in chiavi if k not in _L[lang]]
+        assert not mancanti, (lang, mancanti)
+
+
+def test_the_break_does_not_skip_an_overlap_with_an_earlier_phase():
+    """La terza fase si sovrappone solo alla prima: il `break` interno deve
+    fermare il confronto della seconda, non quello della prima."""
+    periods = [_p("1", "1", 1400, 1600), _p("1", "2", 1450, 1500),
+               _p("1", "3", 1550, 1700)]
+    issues = CC.check_chronology(periods, [], sito="S")
+    assert [i.us_path for i in issues] == [["1/1", "1/2"], ["1/1", "1/3"]]

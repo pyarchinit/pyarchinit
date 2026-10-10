@@ -31,13 +31,23 @@ def _year(val):
     Un ``cron_iniziale`` a testo («XV sec») non è un errore da sollevare: è
     una fase senza anni, e la categoria ``epoch_no_dates`` lo dice. Lo zero è
     un anno come gli altri e il meno pure: le date a.C. si scrivono negative.
+    Un float che è un anno intero (``1500.0``) vale quell'anno; ``1500.5`` no.
     """
     if val is None or isinstance(val, bool):
         return None
+    testo = str(val).strip()
     try:
-        return int(str(val).strip())
+        return int(testo)
+    except (TypeError, ValueError):
+        pass
+    # Un anno intero scritto come float — la colonna e` `Integer` nello schema,
+    # ma su un database che ha derivato torna come REAL, e trattare 1500.0 come
+    # «nessun anno» farebbe sparire una fase vera dal confronto, in silenzio.
+    try:
+        numero = float(testo)
     except (TypeError, ValueError):
         return None
+    return int(numero) if numero == int(numero) else None
 
 
 def _key(row):
