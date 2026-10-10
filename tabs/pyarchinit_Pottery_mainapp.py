@@ -3313,9 +3313,13 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_view_all_pressed(self):
         self.empty_fields()
-        from modules.utility.site_records import charge_records_for_site
+        from modules.utility.site_records import (
+            charge_records_for_site, clear_form_state)
         charge_records_for_site(self)
         if not self.DATA_LIST:
+            # Senza questo restano i contatori della lista di prima e il
+            # clic successivo (avanti, indietro, salva) va in IndexError.
+            clear_form_state(self)
             if self.L == 'it':
                 QMessageBox.information(self, "Informazione", "Nessun record trovato.", QMessageBox.StandardButton.Ok)
             else:

@@ -23,16 +23,36 @@ class FakeDB:
     def __init__(self, rows=None):
         self.rows = rows if rows is not None else []
         self.calls = []
+        self.cache_cleared = 0
+
+    def clear_cache(self):
+        self.cache_cleared += 1
 
     def query_bool(self, params, table_class_name):
         self.calls.append((params, table_class_name))
-        return list(self.rows)
+        sito = params.get("sito")
+        if sito is None:
+            return list(self.rows)
+        sito = sito.strip("'")
+        # Se le righe portano un sito, la finta query lo rispetta davvero.
+        return [r for r in self.rows
+                if not hasattr(r, "sito") or r.sito == sito]
 
 
 class Row:
-    def __init__(self, id_us=None):
+    def __init__(self, id_us=None, sito=None, attr="id_us"):
         if id_us is not None:
-            self.id_us = id_us
+            setattr(self, attr, id_us)
+        if sito is not None:
+            self.sito = sito
+
+
+class FakeLabel:
+    def __init__(self):
+        self.text = None
+
+    def setText(self, t):
+        self.text = t
 
 
 class FakeTab:
@@ -45,6 +65,14 @@ class FakeTab:
         self.REC_TOT = 99
         self.REC_CORR = 99
         self._all = all_rows or []
+        self.counter = []
+        self.BROWSE_STATUS = "b"
+        self.DATA_LIST_REC_TEMP = self.DATA_LIST_REC_CORR = "vecchio"
+        self.STATUS_ITEMS = {"b": "Usa", "n": "Nuovo"}
+        self.label_status = FakeLabel()
+
+    def set_rec_counter(self, tot, corr):
+        self.counter.append((tot, corr))
 
     def charge_records(self):
         self.DATA_LIST = list(self._all)
@@ -120,3 +148,131 @@ def test_sorting_tolerates_missing_attribute_and_none_id(monkeypatch):
     ids = [getattr(r, "id_us", None) for r in tab.DATA_LIST]
     assert ids[:2] == [2, 9]
     assert len(tab.DATA_LIST) == 4
+
+
+def test_cache_is_cleared_before_loading_with_a_site(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    tab = FakeTab(rows=[Row(1)])
+    SR.charge_records_for_site(tab)
+    assert tab.DB_MANAGER.cache_cleared == 1
+
+
+def test_cache_is_cleared_also_without_a_site(monkeypatch):
+    _site(monkeypatch, "")
+    tab = FakeTab(all_rows=[Row(1)])
+    SR.charge_records_for_site(tab)
+    assert tab.DB_MANAGER.cache_cleared == 1
+
+
+def test_a_failing_clear_cache_does_not_break_loading(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    tab = FakeTab(rows=[Row(1)])
+
+    def boom():
+        raise RuntimeError("cache rotta")
+    tab.DB_MANAGER.clear_cache = boom
+    assert SR.charge_records_for_site(tab) is True
+
+
+def test_only_the_current_sites_rows_come_back(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    rows = [Row(1, sito="Scavo"), Row(2, sito="Altro"), Row(3, sito="Scavo")]
+    tab = FakeTab(rows=rows)
+    assert SR.charge_records_for_site(tab) is True
+    assert [r.id_us for r in tab.DATA_LIST] == [1, 3]
+
+
+def test_sort_uses_the_forms_own_id_column(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    tab = FakeTab(rows=[Row(7, attr="id_tomba"), Row(2, attr="id_tomba"),
+                        Row(5, attr="id_tomba")])
+    tab.ID_TABLE = "id_tomba"
+    SR.charge_records_for_site(tab)
+    assert [r.id_tomba for r in tab.DATA_LIST] == [2, 5, 7]
+
+
+def test_mixed_type_ids_sort_without_raising(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    tab = FakeTab(rows=[Row(30), Row("5"), Row(None)])
+    assert SR.charge_records_for_site(tab) is True
+    ids = [getattr(r, "id_us", None) for r in tab.DATA_LIST]
+    assert ids == ["5", 30, None]
+
+
+def test_current_site_reads_and_strips_the_configured_site(monkeypatch):
+    import modules.db.pyarchinit_conn_strings as cs
+
+    class Conn:
+        def sito_set(self):
+            return {"sito_set": "  Villa Romana \n"}
+
+    monkeypatch.setattr(cs, "Connection", Conn)
+    assert SR.current_site() == "Villa Romana"
+
+
+def test_current_site_empty_when_no_site_configured(monkeypatch):
+    import modules.db.pyarchinit_conn_strings as cs
+
+    class Conn:
+        def sito_set(self):
+            return {"sito_set": ""}
+
+    monkeypatch.setattr(cs, "Connection", Conn)
+    assert SR.current_site() == ""
+
+
+def test_current_site_logs_a_warning_when_config_unreadable(monkeypatch, caplog):
+    import logging
+    import modules.db.pyarchinit_conn_strings as cs
+
+    class Boom:
+        def __init__(self, *a, **k):
+            raise RuntimeError("config illeggibile")
+
+    monkeypatch.setattr(cs, "Connection", Boom)
+    with caplog.at_level(logging.WARNING):
+        assert SR.current_site() == ""
+    assert any("config" in r.getMessage().lower() for r in caplog.records)
+
+
+def test_clear_form_state_resets_everything_navigation_reads():
+    tab = FakeTab()
+    tab.DATA_LIST = ["x"]
+    SR.clear_form_state(tab)
+    assert tab.DATA_LIST == []
+    assert (tab.REC_TOT, tab.REC_CORR) == (0, 0)
+    assert tab.DATA_LIST_REC_TEMP is None and tab.DATA_LIST_REC_CORR is None
+    assert tab.BROWSE_STATUS == "x"
+    assert tab.counter == [(0, 0)]
+
+
+def test_clear_form_state_sets_label_when_status_x_exists():
+    tab = FakeTab()
+    tab.STATUS_ITEMS = {"b": "Usa", "x": "Nessun record"}
+    SR.clear_form_state(tab)
+    assert tab.label_status.text == "Nessun record"
+
+
+def test_clear_form_state_adds_x_status_when_form_lacks_it():
+    # Con BROWSE_STATUS = "x" un STATUS_ITEMS[BROWSE_STATUS] sulle schede
+    # senza la voce solleverebbe KeyError.
+    tab = FakeTab()
+    SR.clear_form_state(tab)
+    assert "x" in tab.STATUS_ITEMS
+    assert tab.label_status.text == tab.STATUS_ITEMS["x"]
+
+
+def test_clear_form_state_never_raises_on_a_bare_object():
+    class Bare:
+        pass
+    SR.clear_form_state(Bare())
+
+
+def test_clear_form_state_survives_failing_counter():
+    tab = FakeTab()
+
+    def boom(*a):
+        raise RuntimeError("x")
+    tab.set_rec_counter = boom
+    SR.clear_form_state(tab)
+    assert tab.REC_TOT == 0

@@ -1623,7 +1623,8 @@ class pyarchinit_Fauna(QDialog):
             return
 
         try:
-            from modules.utility.site_records import charge_records_for_site
+            from modules.utility.site_records import (
+                charge_records_for_site, clear_form_state)
             charge_records_for_site(self)
             if self.DATA_LIST:
                 self.REC_TOT = len(self.DATA_LIST)
@@ -1633,6 +1634,10 @@ class pyarchinit_Fauna(QDialog):
                 self.BROWSE_STATUS = "b"
                 self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])
             else:
+                # Senza questo la scheda continuerebbe a mostrare il record
+                # di un altro sito, e i contatori darebbero IndexError.
+                self.empty_fields()
+                clear_form_state(self)
                 if self.L == 'it':
                     QMessageBox.information(self, "Info", "Nessun record trovato")
                 elif self.L == 'de':

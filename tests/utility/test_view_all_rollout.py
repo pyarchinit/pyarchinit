@@ -10,14 +10,15 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import re
+
 import pytest
 
+_HANDLER_RE = re.compile(r"on_pushButton_(view_all|show_all)\w*_pressed$")
 _TABS = Path(__file__).resolve().parents[2] / "tabs"
 
 # (file, handler) che devono passare da charge_records_for_site.
 WIRED = [
-    # Il bottone chiama self.view_all(), che passa dal metodo qui sotto.
-    ("US_USM.py", "charge_records_filtered_by_site"),
     ("Archeozoology.py", "on_pushButton_view_all_pressed"),
     ("Attrezzature.py", "on_pushButton_view_all_pressed"),
     ("Budget.py", "on_pushButton_view_all_pressed"),
@@ -37,6 +38,11 @@ WIRED = [
     ("Tomba.py", "on_pushButton_view_all_pressed"),
     ("pyarchinit_Pottery_mainapp.py", "on_pushButton_view_all_pressed"),
 ]
+
+# La scheda US ha una struttura sua: il bottone chiama `view_all()`, che
+# carica con `charge_records_filtered_by_site()` e gestisce da sé il sito
+# senza record (apre un record nuovo). Si fissa catena e guardia a parte.
+US_BUTTON = ("US_USM.py", "on_pushButton_view_all_pressed")
 
 # Schede in cui «view all» NON deve passare dal filtro, e perché.
 NOT_WIRED = [
@@ -76,6 +82,47 @@ def _calls(node):
     return out
 
 
+def _mentions(node, text):
+    for n in ast.walk(node):
+        if isinstance(n, ast.Name) and n.id == text:
+            return True
+        if isinstance(n, ast.Attribute) and n.attr == text:
+            return True
+    return False
+
+
+def _has_empty_guard(handler):
+    """C'è un `if` che decide sul risultato del caricamento e, in un ramo,
+    azzera la scheda con `clear_form_state`.
+
+    Due forme valgono: il test contiene la chiamata a
+    `charge_records_for_site` (`if not charge_records_for_site(self):`), oppure
+    il test guarda `DATA_LIST` dopo la chiamata (Fauna, Pottery: la loro
+    gestione del «nessun record» c'era già e guarda la lista).
+    """
+    for n in ast.walk(handler):
+        if not isinstance(n, ast.If):
+            continue
+        decide = (_mentions(n.test, "charge_records_for_site")
+                  or _mentions(n.test, "DATA_LIST"))
+        if not decide:
+            continue
+        ramo = ast.Module(body=n.body + n.orelse, type_ignores=[])
+        if "clear_form_state" in _calls(ramo):
+            return True
+    return False
+
+
+def _all_handlers():
+    found = set()
+    for path in sorted(_TABS.glob("*.py")):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and _HANDLER_RE.match(node.name):
+                found.add((path.name, node.name))
+    return found
+
+
 @pytest.mark.parametrize("filename,name", WIRED)
 def test_handler_goes_through_the_site_filter(filename, name):
     node = _handler(filename, name)
@@ -85,21 +132,50 @@ def test_handler_goes_through_the_site_filter(filename, name):
         "«view all» mostrerebbe i record di tutti i siti")
 
 
-def test_us_view_all_uses_the_filtered_loader():
-    node = _handler("US_USM.py", "view_all")
-    assert node is not None
-    assert "charge_records_filtered_by_site" in _calls(node)
-    assert "charge_records" not in _calls(node)
+@pytest.mark.parametrize("filename,name", WIRED)
+def test_handler_guards_the_empty_case(filename, name):
+    node = _handler(filename, name)
+    assert _has_empty_guard(node), (
+        f"{filename}.{name} non gestisce il sito senza record con "
+        "clear_form_state: la scheda resterebbe con i contatori vecchi "
+        "(IndexError al clic dopo) o con il record di un altro sito")
 
 
 @pytest.mark.parametrize("filename,name", WIRED)
 def test_wired_handler_does_not_reload_everything_afterwards(filename, name):
     node = _handler(filename, name)
-    if filename == "US_USM.py":
-        pytest.skip("per la scheda US vale test_us_view_all_uses_the_filtered_loader")
     assert "charge_records" not in _calls(node), (
         f"{filename}.{name} richiama ancora charge_records(): "
         "annullerebbe il filtro")
+
+
+def test_us_button_goes_through_the_filtered_loader():
+    # Il bottone, non solo view_all(): rimetterlo su `charge_records_n()`
+    # riporta il bug senza che view_all() cambi.
+    node = _handler(*US_BUTTON)
+    assert node is not None
+    calls = _calls(node)
+    assert "view_all" in calls
+    assert "charge_records_n" not in calls
+    assert "charge_records" not in calls
+
+
+def test_us_view_all_chain_filters_and_guards_the_empty_case():
+    va = _handler("US_USM.py", "view_all")
+    assert va is not None
+    assert "charge_records_filtered_by_site" in _calls(va)
+    assert "charge_records" not in _calls(va)
+    assert "charge_records_n" not in _calls(va)
+    # La guardia: `if not self.DATA_LIST:` con dentro il record nuovo.
+    guard = any(
+        isinstance(n, ast.If) and _mentions(n.test, "DATA_LIST")
+        and "on_pushButton_new_rec_pressed" in _calls(
+            ast.Module(body=n.body + n.orelse, type_ignores=[]))
+        for n in ast.walk(va))
+    assert guard
+    loader = _handler("US_USM.py", "charge_records_filtered_by_site")
+    assert loader is not None
+    assert "charge_records_for_site" in _calls(loader)
 
 
 @pytest.mark.parametrize("filename,name", NOT_WIRED)
@@ -119,3 +195,19 @@ def test_own_site_filter_handlers_keep_filtering(filename, name):
     calls = _calls(node)
     assert "query_bool" in calls and "sito_set" in calls
     assert "charge_records" not in calls
+
+
+def test_every_view_all_handler_in_tabs_is_classified():
+    # Una scheda aggiunta domani con il suo «view all» fallisce qui invece di
+    # restare senza filtro in silenzio.
+    liste = {"WIRED": set(WIRED), "NOT_WIRED": set(NOT_WIRED),
+             "OWN_SITE_FILTER": set(OWN_SITE_FILTER), "US": {US_BUTTON}}
+    trovati = _all_handlers()
+    classificati = set().union(*liste.values())
+    assert trovati - classificati == set(), (
+        f"handler non classificati: {sorted(trovati - classificati)}")
+    nomi = [h for v in liste.values() for h in v]
+    assert len(nomi) == len(set(nomi)), "un handler è in più di una lista"
+    # E nessuna voce deve riferirsi a un handler che non esiste più.
+    assert classificati - trovati == set(), (
+        f"voci senza handler: {sorted(classificati - trovati)}")

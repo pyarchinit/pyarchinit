@@ -1088,11 +1088,13 @@ class pyarchinit_Documentazione(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.empty_fields()
-            from modules.utility.site_records import charge_records_for_site
+            from modules.utility.site_records import (
+                charge_records_for_site, clear_form_state)
             if not charge_records_for_site(self):
                 # Il sito su cui il plugin è settato non ha record di questo
                 # tipo: lo si dice, invece di mostrare quelli di tutti i siti
                 # o di inciampare su una lista vuota.
+                clear_form_state(self)
                 QMessageBox.information(
                     self, "pyArchInit",
                     "Nessun record per il sito corrente.")

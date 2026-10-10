@@ -11,6 +11,10 @@ e il resto lavora su qualunque oggetto con `DB_MANAGER` e
 """
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def current_site():
     """Il sito su cui il plugin è settato, da `config.cfg`, o '' se non c'è.
@@ -21,7 +25,12 @@ def current_site():
     try:
         from ..db.pyarchinit_conn_strings import Connection
         sito = Connection().sito_set()['sito_set']
-    except Exception:
+    except Exception as e:
+        # Tornare '' riporta «view all» a mostrare tutti i siti: non
+        # succeda in silenzio.
+        logger.warning(
+            "Sito corrente illeggibile (config.cfg): 'view all' carica "
+            "i record di tutti i siti. Causa: %s", e)
         return ''
     return str(sito).strip() if sito else ''
 
@@ -72,6 +81,17 @@ def charge_records_for_site(tab):
     self.DATA_LIST[0]` andrebbero in `IndexError`: devono guardare il
     ritorno e, come fa la scheda US, aprire un record nuovo.
     """
+    # «View all» è il modo in cui si ricarica la scheda: `query_bool` tiene
+    # una cache di cinque minuti, e senza questo i record appena importati
+    # non si vedrebbero. Il percorso senza sito passa da `query_ordered`,
+    # che non è cachato, ma azzerare qui vale per tutti e due.
+    svuota = getattr(tab.DB_MANAGER, "clear_cache", None)
+    if callable(svuota):
+        try:
+            svuota()
+        except Exception:
+            pass
+
     sito = current_site()
     if not sito:
         tab.charge_records()
@@ -84,3 +104,37 @@ def charge_records_for_site(tab):
         return False
     tab.REC_TOT, tab.REC_CORR = len(tab.DATA_LIST), 0
     return True
+
+
+def clear_form_state(tab):
+    """Rimette la scheda in uno stato usabile quando il sito non ha record.
+
+    Svuotare `DATA_LIST` senza azzerare i contatori non toglie l'IndexError:
+    lo sposta al clic successivo, dentro uno slot Qt, dove diventa una
+    finestra di errore che non dice niente. Qui si azzera tutto quello che i
+    bottoni di navigazione leggono.
+    """
+    tab.DATA_LIST = []
+    tab.REC_TOT = 0
+    tab.REC_CORR = 0
+    tab.DATA_LIST_REC_TEMP = tab.DATA_LIST_REC_CORR = None
+    tab.BROWSE_STATUS = "x"
+    for metodo, argomenti in (("set_rec_counter", (0, 0)),):
+        f = getattr(tab, metodo, None)
+        if callable(f):
+            try:
+                f(*argomenti)
+            except Exception:
+                pass
+    voci = getattr(tab, "STATUS_ITEMS", None)
+    # Quasi tutte le schede non hanno la voce «x» (solo US e Fauna): con
+    # BROWSE_STATUS = "x" un `STATUS_ITEMS[self.BROWSE_STATUS]` qualunque,
+    # altrove nella scheda, solleverebbe KeyError.
+    if isinstance(voci, dict) and "x" not in voci:
+        voci["x"] = "Nessun record"
+    etichetta = getattr(tab, "label_status", None)
+    if etichetta is not None and isinstance(voci, dict) and "x" in voci:
+        try:
+            etichetta.setText(voci["x"])
+        except Exception:
+            pass
