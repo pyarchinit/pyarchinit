@@ -179,3 +179,84 @@ def test_not_a_number_is_a_phase_without_years_and_does_not_raise():
         periods = [_p("2", "2.2", valore, 1549)]
         assert [i.kind for i in CC.check_chronology(periods, [], sito="S")] \
             == ["epoch_no_dates"], valore
+
+
+def _u(us, periodo, fase, datazione):
+    return {"us": us, "periodo_iniziale": periodo, "fase_iniziale": fase,
+            "datazione": datazione}
+
+
+def test_sheet_dating_out_of_step_is_rewritten_from_the_periodization():
+    """La periodizzazione è la fonte e la scheda la copia (Enzo, 2026-10-10).
+
+    Riscrivere la copia dalla fonte non ha alternative: automatica.
+    """
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "2", "3", "Prima metà del XV secolo")]
+    issues = CC.check_chronology(periods, units, sito="S")
+    assert [i.kind for i in issues] == ["datazione_mismatch"]
+    assert issues[0].auto is True
+    edit, = issues[0].edits
+    assert edit.us == "12"
+    assert edit.set_fields == (("datazione", "XV secolo"),)
+    assert edit.target == ()          # us_table, come sempre
+
+
+def test_the_summary_shows_both_texts():
+    """L'anteprima è l'unico punto in cui si vede cosa si sta per riscrivere,
+    e su un sito tradotto sono cinquantuno righe in un colpo."""
+    periods = [_p("2", "2", 1500, 1549, "First half of the 16th century")]
+    units = [_u("4", "2", "2", "Prima metà del XVI secolo")]
+    issues = CC.check_chronology(periods, units, sito="S")
+    assert "Prima metà del XVI secolo" in issues[0].summary
+    assert "First half of the 16th century" in issues[0].summary
+
+
+def test_matching_dating_is_not_an_issue():
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "2", "3", "XV secolo")]
+    assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_an_empty_sheet_dating_is_filled_from_its_phase():
+    """Sul database di esempio sono quattro per sito: la fonte c'è e la copia
+    manca, che è la stessa regola."""
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "2", "3", None)]
+    issues = CC.check_chronology(periods, units, sito="S")
+    assert [i.kind for i in issues] == ["datazione_mismatch"]
+    assert issues[0].edits[0].set_fields == (("datazione", "XV secolo"),)
+
+
+def test_none_and_empty_string_say_the_same_thing():
+    """`datazione = None` nella scheda e `datazione_estesa = ''` nella
+    periodizzazione non sono un disallineamento: sono due vuoti."""
+    periods = [_p("2", "3", 1451, 1499, "")]
+    units = [_u("12", "2", "3", None)]
+    assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_an_empty_source_never_blanks_a_filled_sheet():
+    """Senza questa regola la verifica svuoterebbe le schede dei siti con la
+    periodizzazione incompleta: non c'è niente da copiare."""
+    periods = [_p("2", "3", 1451, 1499, None)]
+    units = [_u("12", "2", "3", "XV secolo")]
+    assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_a_unit_without_a_period_has_no_source_to_copy_from():
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "", "", "qualcosa")]
+    assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_a_unit_pointing_at_a_phase_that_does_not_exist_is_skipped():
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "9", "9", "qualcosa")]
+    assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_whitespace_around_the_dating_is_not_a_mismatch():
+    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    units = [_u("12", "2", "3", "  XV secolo  ")]
+    assert CC.check_chronology(periods, units, sito="S") == []

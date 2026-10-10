@@ -129,6 +129,40 @@ def _overlaps(spans, lang):
     return out
 
 
+def _mismatches(periods, units, lang):
+    """Le schede la cui ``datazione`` non dice quello che dice la loro fase.
+
+    La periodizzazione è la fonte e la scheda la copia — Enzo, 2026-10-10:
+    «in US c'è il campo datazione che legge dalla table periodizzazione a
+    seconda del periodo e fase» — quindi riscrivere la copia dalla fonte non
+    ha alternative, ed è automatica.
+
+    Tre righe non entrano: una US **senza** periodo, perché non c'è fonte; una
+    US che punta a una fase che non esiste, per lo stesso motivo; e una fase
+    con la ``datazione_estesa`` vuota, perché non si cancella una scheda piena
+    in nome di una fonte che non dice niente.
+    """
+    atteso = {_key(r): _text(r.get("datazione_estesa")) for r in periods}
+    out = []
+    for row in units:
+        key = (str(row.get("periodo_iniziale") or "").strip(),
+               str(row.get("fase_iniziale") or "").strip())
+        voluto = atteso.get(key, "")
+        if not key[0] or not voluto:
+            continue
+        corrente = _text(row.get("datazione"))
+        if corrente == voluto:
+            continue
+        us = str(row.get("us") or "").strip()
+        out.append(Issue(
+            kind=DATAZIONE_MISMATCH, us_path=[us], auto=True,
+            summary=_t(lang, "s_datazione_mismatch").format(
+                us=us, fase=_label(key), corrente=corrente or "—",
+                atteso=voluto),
+            edits=[Edit(us=us, set_fields=(("datazione", voluto),))]))
+    return out
+
+
 def check_chronology(periods, units, *, sito, lang="it"):
     """Gli avvisi cronologici del sito.
 
@@ -157,4 +191,5 @@ def check_chronology(periods, units, *, sito, lang="it"):
             continue
         spans[key] = (ini, fin)
     issues.extend(_overlaps(spans, lang))
+    issues.extend(_mismatches(periods, units, lang))
     return issues
