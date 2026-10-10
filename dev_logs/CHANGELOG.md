@@ -5,6 +5,29 @@
 
 ---
 
+## [fix] - 2026-10-10 — lo sfondo rotto di prima si sostituisce, non si riusa — 5.13.61-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-stale-basemap-5.13.61-alpha`**. Trovato controllando se le prove di Enzo sarebbero partite pulite.
+
+### Italiano
+
+La correzione dell'URL (5.13.58) non arrivava a chi aveva **già** girato l'atlante. `is_base_map` confrontava in modo indulgente — decodificava la sorgente e cercava l'indirizzo dentro — quindi riconosceva **anche** il layer con l'URL codificato due volte, e l'atlante lo **riusava**: lo sfondo restava bianco e la correzione non si vedeva. Misurato: `is_base_map(sorgente_rotta, "osm")` dava `True`.
+
+Non deve dipendere da una pulizia a mano nella TOC.
+
+- **`modules/utility/atlas_overview.py`** — `is_base_map` confronta ora l'indirizzo **come deve stare scritto** nell'uri (`url=` + `quote_tile_url(...)`), quindi una sorgente a doppia codifica non è più uno sfondo usabile. Nuova `is_stale_base_map(source, kind)`: parla dello stesso indirizzo — si vede sciogliendo la codifica, fino a due giri — ma non come va scritto, quindi è **nostra, di una versione precedente**. Un layer OSM aggiunto dall'utente ha la sorgente giusta e non casca qui: quello non si tocca.
+- **`tabs/Gis_Time_controller.py`** — `_strati_nella_toc` raccoglie gli sfondi stantii, li **toglie dal progetto** e ne costruisce uno buono, scrivendo nel log che l'ha rifatto.
+
+**Misurato sul caso vero**, un progetto con lo sfondo rotto già nel gruppo: prima `is_base_map` → `False`; dopo un giro il gruppo contiene `['Localizzazione', 'OpenStreetMap']`, lo sfondo usato ha la sorgente buona, e **il rotto non è più nel progetto**.
+
+Test: +3 in `tests/utility/test_atlas_overview.py` (27 in tutto). Suite: **1146 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+The URL fix of 5.13.58 did not reach anyone who had **already** run the atlas: `is_base_map` compared leniently — unquoting the source and looking for the address inside — so it also recognised the double-encoded layer, and the atlas **reused** it, leaving the basemap white. Measured: `is_base_map(broken, "osm")` returned `True`. It must not depend on a manual cleanup in the TOC. `is_base_map` now compares the address **as it must be written** in the uri, and the new `is_stale_base_map` recognises one of ours from an earlier version — same address once the encoding is unwound, but not as it must be written — while a user-added OSM layer has the right source and is left alone. The controller removes the stale ones from the project and builds a good one, logging that it did. Measured on the real case: the group ends up `['Localizzazione', 'OpenStreetMap']`, the basemap in use has the right source, and the broken one is gone. 1146 passed, 0 failed.
+
+---
+
 ## [fix] - 2026-10-10 — estrattore ↔ proprietà: la decide il grafo, non l'ordine — 5.13.60-alpha
 
 > Branch `Stratigraph_00001`. Tag **`paradata-graph-resolver-5.13.60-alpha`**. Risposta di E.D. su s3Dgraphy#25: «il datamodel lo decide già, solo che la regola sta un passo più in là di `allowed_connections`».

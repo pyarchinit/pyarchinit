@@ -55,6 +55,7 @@ from ..modules.utility.atlas_overview import (DEFAULT_BASE_MAP,
                                               base_map_uri,
                                               GROUP_NAME, PUNTO_NAME,
                                               THEME_NAME, is_base_map,
+                                              is_stale_base_map,
                                               overview_indexes, theme_layers,
                                               overview_window)
 from ..modules.utility.atlas_scale import (fitting_extent,
@@ -1237,11 +1238,27 @@ class pyarchinit_Gis_Time_Controller(QDialog, MAIN_DIALOG_CLASS):
                                      DEFAULT_BASE_MAP) or DEFAULT_BASE_MAP)
 
         sfondo = None
+        stantii = []
         for strato in progetto.mapLayers().values():
             try:
                 if is_base_map(strato.source(), tipo):
                     sfondo = strato
-                    break
+                elif is_stale_base_map(strato.source(), tipo):
+                    # Nostro, ma di una versione che scriveva l'indirizzo
+                    # codificato due volte: non scarica niente. Si
+                    # sostituisce, se no la correzione non arriva a chi ha
+                    # già girato l'atlante (5.13.61).
+                    stantii.append(strato.id())
+            except Exception:                       # noqa: BLE001
+                continue
+        for identificativo in stantii:
+            try:
+                progetto.removeMapLayer(identificativo)
+                QgsMessageLog.logMessage(
+                    "Sfondo dell'inserto rifatto: quello che c'era portava "
+                    "l'indirizzo delle tessere codificato due volte e non "
+                    "scaricava niente.",
+                    "PyArchInit", Qgis.MessageLevel.Info)
             except Exception:                       # noqa: BLE001
                 continue
         if sfondo is None:

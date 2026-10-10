@@ -257,3 +257,43 @@ def test_the_dot_goes_above_the_basemap_in_the_tree():
         "lo sfondo invece si accoda, che lo porta sotto"
     assert "removeLayer(punto)" in corpo, \
         "se c'era già ma in fondo, va rimesso in cima"
+
+
+# ---------------------------------------------------------------------------
+# Lo sfondo rotto di una versione precedente si sostituisce (2026-10-10)
+# ---------------------------------------------------------------------------
+# Fino alla 5.13.57 il layer dello sfondo finiva nella TOC con l'URL
+# codificato due volte. `is_base_map` lo riconosceva (decodificando ritrova
+# l'indirizzo) e l'atlante lo **riusava**: lo sfondo restava bianco e la
+# correzione della 5.13.58 non arrivava a chi aveva già girato l'atlante.
+# Non deve dipendere da una pulizia a mano nella TOC.
+
+_ROTTA = ("type=xyz&url=https%3A%2F%2Ftile.openstreetmap.org%2F%7Bz%7D%2F"
+          "%7Bx%7D%2F%7By%7D.png&zmax=19&zmin=0")
+
+
+def test_a_double_encoded_source_is_not_a_usable_base_map():
+    from modules.utility.atlas_overview import base_map_uri, is_base_map
+
+    assert is_base_map(base_map_uri("osm"), "osm")
+    assert not is_base_map(_ROTTA, "osm"), \
+        "la sorgente a doppia codifica non scarica tessere: non si riusa"
+
+
+def test_a_double_encoded_source_is_recognised_as_ours_and_stale():
+    """Va distinta da un layer OSM che l'utente ha aggiunto lui: quello non
+    si tocca. Questa è una nostra, di una versione precedente."""
+    from modules.utility.atlas_overview import (base_map_uri,
+                                                is_stale_base_map)
+
+    assert is_stale_base_map(_ROTTA, "osm")
+    assert not is_stale_base_map(base_map_uri("osm"), "osm")
+    assert not is_stale_base_map("type=xyz&url=https://altro.tld/{z}.png", "osm")
+    assert not is_stale_base_map("", "osm")
+
+
+def test_the_stale_base_map_is_replaced_not_reused():
+    corpo = _corpo("_strati_nella_toc")
+    assert "is_stale_base_map(" in corpo
+    assert "removeMapLayer(" in corpo, \
+        "quella vecchia va tolta dal progetto, non lasciata in mezzo"

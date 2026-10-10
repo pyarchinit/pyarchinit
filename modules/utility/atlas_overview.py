@@ -135,16 +135,44 @@ def theme_layers(sfondo, punto):
 
 
 def is_base_map(source: str, kind: str = DEFAULT_BASE_MAP) -> bool:
-    """Vero se ``source`` è la sorgente dello sfondo di tipo ``kind``.
+    """Vero se ``source`` è uno sfondo di tipo ``kind`` **che funziona**.
 
     Si riconosce dalla **sorgente**, non dal nome: chi usa il plugin può
     rinominare il layer nella TOC, e cercandolo per nome se ne
     aggiungerebbe uno nuovo a ogni export.
+
+    Il confronto è sull'indirizzo **come deve stare scritto** nell'uri.
+    Fino alla 5.13.57 ci finiva codificato due volte, e un confronto
+    indulgente (decodificare e cercare l'indirizzo dentro) riconosceva
+    anche quello: l'atlante lo riusava e lo sfondo restava bianco, cioè
+    la correzione della 5.13.58 non arrivava a chi aveva già girato
+    l'atlante. Per quelle c'è :func:`is_stale_base_map`.
     """
     if not source:
         return False
     scelta = BASE_MAPS.get(kind) or BASE_MAPS[DEFAULT_BASE_MAP]
-    from urllib.parse import quote, unquote
+    return ("url=%s" % quote_tile_url(scelta["url"])) in str(source)
 
-    testo = unquote(str(source))
-    return scelta["url"] in testo or quote(scelta["url"], safe="") in str(source)
+
+def is_stale_base_map(source: str, kind: str = DEFAULT_BASE_MAP) -> bool:
+    """Vero se ``source`` è uno sfondo **nostro** di una versione precedente.
+
+    Parla dello stesso indirizzo — si vede decodificando — ma non come
+    deve stare scritto, quindi non scarica niente. Va **sostituito**, non
+    riusato. Un layer OSM che l'utente ha aggiunto lui ha la sorgente
+    giusta e non casca qui: quello non si tocca.
+    """
+    if not source or is_base_map(source, kind):
+        return False
+    scelta = BASE_MAPS.get(kind) or BASE_MAPS[DEFAULT_BASE_MAP]
+    from urllib.parse import unquote
+
+    testo = str(source)
+    for _ in range(3):           # la doppia codifica si scioglie in due giri
+        if scelta["url"] in testo:
+            return True
+        sciolto = unquote(testo)
+        if sciolto == testo:
+            break
+        testo = sciolto
+    return False
