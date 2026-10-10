@@ -584,113 +584,149 @@ from dataclasses import dataclass as _dc
 @_dc
 class RollbackToken:
     sito: str
-    snapshot: dict   # us -> original rapporti string
+    snapshot: dict   # (tabella, chiave) -> (sito della riga, valori originali)
 
 
-def _read_rapporti(conn, text, sito, us):
-    row = conn.execute(
-        text("SELECT rapporti FROM us_table WHERE sito = :s AND us = :u"),
-        {"s": sito, "u": us}).fetchone()
-    return (row[0] if row else None)
+#: Dove le correzioni possono scrivere, tabella per tabella. Fuori da qui non
+#: si scrive: una colonna che nessuno ha autorizzato resta com'è.
+_WRITABLE = {
+    "us_table": {"periodo_iniziale", "fase_iniziale", "periodo_finale",
+                 "fase_finale", "datazione"},
+    "periodizzazione_table": {"cron_iniziale", "cron_finale"},
+}
 
 
-_PERIOD_COL_WHITELIST = frozenset({
-    "periodo_iniziale", "fase_iniziale", "periodo_finale", "fase_finale",
-})
+def _target_of(edit):
+    """La tabella e la chiave di una ``Edit``, la chiave ordinata.
+
+    Un ``target`` vuoto vale ``us_table`` con la chiave ``us``, cioè
+    esattamente quello che questa funzione faceva prima che le correzioni
+    cronologiche avessero bisogno di un'altra tabella: nessuna chiamata
+    esistente cambia.
+    """
+    target = getattr(edit, "target", ()) or ()
+    if not target:
+        return "us_table", (("us", str(edit.us)),)
+    tabella = str(target[0])
+    chiave = dict(target[1]) if len(target) > 1 else {}
+    return tabella, tuple(sorted((str(k), str(v)) for k, v in chiave.items()))
+
+
+def _where(tabella, chiave, row_sito):
+    """La clausola che individua la riga, e i suoi parametri.
+
+    Le colonne della chiave si confrontano **come testo**:
+    ``periodizzazione_table.periodo`` è ``Integer`` nello schema e ``fase`` è
+    ``Text``, e PostgreSQL — che non converte da sé — su una chiave di testo
+    contro una colonna intera dà «operator does not exist: integer = text».
+    Il ``CAST`` lo toglie in tutti e due i motori, e la tabella è di decine di
+    righe.
+    """
+    if tabella != "us_table" and row_sito is None:
+        raise ValueError(
+            "una correzione su %s ha bisogno del sito: senza, la chiave %s "
+            "individua la stessa riga in tutti i siti"
+            % (tabella, dict(chiave)))
+    parti, params = [], {}
+    if row_sito is not None:
+        parti.append("sito = :w_sito")
+        params["w_sito"] = row_sito
+    for i, (col, val) in enumerate(chiave):
+        parti.append("CAST(%s AS TEXT) = :w_%d" % (col, i))
+        params["w_%d" % i] = str(val)
+    return " AND ".join(parti), params
 
 
 def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
     from sqlalchemy import text
-    # group edits by us
-    by_us = {}
+    # Raggruppate per (tabella, chiave): due correzioni sulla stessa riga si
+    # applicano con una UPDATE sola, e lo snapshot per l'annulla tiene il
+    # valore di prima della prima.
+    by_row = {}
     for e in edits:
-        by_us.setdefault(str(e.us), []).append(e)
+        by_row.setdefault(_target_of(e), []).append(e)
     snapshot = {}
     with handle.engine.begin() as conn:
-        for us, us_edits in by_us.items():
-            touch_rapporti = any(e.add or e.remove for e in us_edits)
-            # Collect period columns touched by set_fields (whitelist-validated)
+        for (tabella, chiave), row_edits in by_row.items():
+            scrivibili = _WRITABLE.get(tabella, frozenset())
+            touch_rapporti = (tabella == "us_table"
+                              and any(e.add or e.remove for e in row_edits))
             field_cols = []
-            for e in us_edits:
+            for e in row_edits:
                 for (col, _v) in e.set_fields:
-                    if col in _PERIOD_COL_WHITELIST and col not in field_cols:
+                    if col in scrivibili and col not in field_cols:
                         field_cols.append(col)
+            if not touch_rapporti and not field_cols:
+                continue
 
-            # Determine row sito and read original values for snapshot/rollback
-            if sito is None:
-                row = conn.execute(text(
-                    "SELECT sito, rapporti FROM us_table WHERE us = :u"),
-                    {"u": us}).fetchone()
-                row_sito = row[0] if row else None
-                cur = row[1] if row else None
+            # Il sito della riga: per us_table lo si cerca quando non è dato,
+            # com'è sempre stato; per le altre tabelle è obbligatorio e
+            # _where lo pretende.
+            if tabella == "us_table" and sito is None:
+                r = conn.execute(text(
+                    "SELECT sito FROM us_table WHERE CAST(us AS TEXT) = :u"),
+                    {"u": dict(chiave)["us"]}).fetchone()
+                row_sito = r[0] if r else None
             else:
                 row_sito = sito
-                cur = _read_rapporti(conn, text, sito, us)
+            where, wparams = _where(tabella, chiave, row_sito)
 
-            # Snapshot: capture rapporti + all period columns that will change
+            # Snapshot: i valori di prima, letti con la stessa clausola con
+            # cui si scriverà.
+            cols = (["rapporti"] if touch_rapporti else []) + field_cols
             orig = {}
-            if touch_rapporti:
-                orig["rapporti"] = cur
-            if field_cols:
-                sel = ", ".join(field_cols)
-                r = conn.execute(text(
-                    f"SELECT {sel} FROM us_table WHERE sito = :s AND us = :u"),
-                    {"s": row_sito, "u": us}).fetchone()
-                if r is not None:
-                    for i, c in enumerate(field_cols):
-                        orig[c] = r[i]
-            snapshot[us] = (row_sito, orig)
+            r = conn.execute(text("SELECT %s FROM %s WHERE %s"
+                                  % (", ".join(cols), tabella, where)),
+                             wparams).fetchone()
+            if r is not None:
+                for i, c in enumerate(cols):
+                    orig[c] = r[i]
+            snapshot[(tabella, chiave)] = (row_sito, orig)
 
-            # Build new values dict
             new_vals = {}
             if touch_rapporti:
-                lst = _coerce_to_list(cur)
+                lst = _coerce_to_list(orig.get("rapporti"))
                 lst = [list(map(str, x)) for x in lst
                        if isinstance(x, (list, tuple))]
-                for e in us_edits:
-                    for r in e.remove:
-                        rr = list(map(str, r))
+                for e in row_edits:
+                    for rr in e.remove:
+                        rr = list(map(str, rr))
                         lst = [x for x in lst if x != rr]
                     for ad in e.add:
                         aa = list(map(str, ad))
                         # Un rapporto si riconosce da **rapporto + US**, non
                         # dal numero di elementi: `['Coperto da','1']` dice
-                        # quanto `['Coperto da','1','1','Sito']`, e
-                        # appendere il secondo sporcava la scheda a ogni
-                        # clic (Enzo, 2026-10-10).
+                        # quanto `['Coperto da','1','1','Sito']`, e appendere
+                        # il secondo sporcava la scheda a ogni clic (Enzo,
+                        # 2026-10-10).
                         if not any(x[:2] == aa[:2] for x in lst):
                             lst.append(aa)
                 new_vals["rapporti"] = str(lst)
-            for e in us_edits:
+            for e in row_edits:
                 for (col, val) in e.set_fields:
-                    if col in _PERIOD_COL_WHITELIST:
+                    if col in scrivibili:
                         new_vals[col] = val
 
-            if not new_vals:
-                continue
-            set_clause = ", ".join(f"{c} = :v_{c}" for c in new_vals)
-            params = {f"v_{c}": v for c, v in new_vals.items()}
-            params["s"] = row_sito
-            params["u"] = us
-            conn.execute(text(
-                f"UPDATE us_table SET {set_clause} WHERE sito = :s AND us = :u"),
-                params)
+            set_clause = ", ".join("%s = :v_%s" % (c, c) for c in new_vals)
+            params = {"v_%s" % c: v for c, v in new_vals.items()}
+            params.update(wparams)
+            conn.execute(text("UPDATE %s SET %s WHERE %s"
+                              % (tabella, set_clause, where)), params)
     return RollbackToken(sito=sito or "", snapshot=snapshot)
 
 
 def rollback(token, handle):
     from sqlalchemy import text
     with handle.engine.begin() as conn:
-        for us, (row_sito, orig) in token.snapshot.items():
+        for (tabella, chiave), (row_sito, orig) in token.snapshot.items():
             if not orig:
                 continue
-            set_clause = ", ".join(f"{c} = :v_{c}" for c in orig)
-            params = {f"v_{c}": v for c, v in orig.items()}
-            params["s"] = row_sito
-            params["u"] = us
-            conn.execute(text(
-                f"UPDATE us_table SET {set_clause} WHERE sito = :s AND us = :u"),
-                params)
+            where, wparams = _where(tabella, chiave, row_sito)
+            set_clause = ", ".join("%s = :v_%s" % (c, c) for c in orig)
+            params = {"v_%s" % c: v for c, v in orig.items()}
+            params.update(wparams)
+            conn.execute(text("UPDATE %s SET %s WHERE %s"
+                              % (tabella, set_clause, where)), params)
 
 
 # ---------------------------------------------------------------------------
