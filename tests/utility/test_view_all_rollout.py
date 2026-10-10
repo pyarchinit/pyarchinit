@@ -54,9 +54,6 @@ NOT_WIRED = [
     ("Pdf_administrator.py", "on_pushButton_view_all_pressed"),
     ("Thesaurus.py", "on_pushButton_view_all_pressed"),
     ("UT.py", "on_pushButton_view_all_pressed"),
-    # Copia vecchia della scheda Tomba (stessa classe, stesso .ui, tabella
-    # TOMBA) che nessun modulo importa: da decidere a parte.
-    ("Tafonomia.py", "on_pushButton_view_all_pressed"),
 ]
 
 # «View all» delle strutture sul GIS: filtra già per sito per conto suo

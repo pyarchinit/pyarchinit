@@ -21,7 +21,6 @@ SOURCES = 	 tabs/__init__.py\
 			 tabs/Schedaind.py\
 			 tabs/Site.py\
 			 tabs/Struttura.py\
-			 tabs/Tafonomia.py\
 			 tabs/Tma.py\
 			 tabs/Tomba.py\
 			 tabs/Thesaurus.py\
