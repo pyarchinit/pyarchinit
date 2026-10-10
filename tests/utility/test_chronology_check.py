@@ -440,13 +440,14 @@ def test_every_language_covers_the_five_rules_and_the_two_sides():
 
 def test_bounds_by_us_keys_on_the_us_number_not_the_node_id():
     """Gli id dei nodi sono uuid7: accostare un avviso agli estremi calcolati
-    chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità —
-    l'attributo `us`, o il nome ripulito del prefisso.
+    chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità,
+    cioè l'attributo `us` che il projector mette sulle righe vere di us_table
+    — non il nome, che su un nodo di servizio è tutto quello che c'è.
     """
     ID = "019f8043-4f87-7e3b-b7e8-6736d398fc27"
 
     class _Nodo:
-        attributes = {}          # nessun attributo `us`: si passa dal nome
+        attributes = {"us": "4"}     # il nome non c'entra: conta l'attributo
         name = "USM4"
 
     class _Grafo:
@@ -527,3 +528,99 @@ def test_bounds_by_us_leaves_an_epoch_source_as_it_is():
     assert voce["start_source"] == "epoch_1_1"
     assert CC.explain_bounds(voce) == \
         "1800–2022 · epoca · has_first_epoch → epoch_1_1"
+
+
+def test_two_proposals_on_the_same_phase_keep_the_strongest():
+    """X=(1000,1300), Y=(1020,1150), Z=(1050,1400): due proposte alzavano
+    `Z.cron_iniziale`, a 1301 e a 1151.
+
+    Spuntandole entrambe vinceva l'ultima, 1151, che non risolve né la
+    sovrapposizione con X né quella con Y — e la finestra diceva «2 correzioni
+    applicate». La più forte le chiude tutte e due.
+    """
+    periods = [_p("1", "X", 1000, 1300), _p("1", "Y", 1020, 1150),
+               _p("1", "Z", 1050, 1400)]
+    issues = CC.check_chronology(periods, [], sito="S")
+    assert [i.us_path for i in issues] == [["1/X", "1/Y"], ["1/X", "1/Z"],
+                                           ["1/Y", "1/Z"]]
+    proposte = [(i.us_path, e.set_fields, e.target)
+                for i in issues for e in i.edits]
+    assert proposte == [(["1/X", "1/Z"], (("cron_iniziale", 1301),),
+                         ("periodizzazione_table",
+                          {"periodo": "1", "fase": "Z"}))]
+
+
+def test_the_strongest_proposal_closes_every_overlap_it_was_chosen_for():
+    """La ragione per cui si tiene la più alta, scritta come asserzione: con
+    `Z` spostata a 1301 nessuna delle due coppie di Z si tocca più."""
+    periods = [_p("1", "X", 1000, 1300), _p("1", "Y", 1020, 1150),
+               _p("1", "Z", 1301, 1400)]
+    restanti = [i.us_path for i in CC.check_chronology(periods, [], sito="S")]
+    assert restanti == [["1/X", "1/Y"]]     # resta solo quella senza rimedio
+
+
+def test_two_proposals_on_two_different_phases_both_survive():
+    """Il taglio è per riga e colonna: due fasi diverse non si fanno ombra."""
+    periods = [_p("1", "A", 1000, 1100), _p("1", "B", 1050, 1200),
+               _p("2", "C", 1500, 1600), _p("2", "D", 1550, 1700)]
+    proposte = {e.target[1]["fase"]: e.set_fields
+                for i in CC.check_chronology(periods, [], sito="S")
+                for e in i.edits}
+    assert proposte == {"B": (("cron_iniziale", 1101),),
+                        "D": (("cron_iniziale", 1601),)}
+
+
+def test_period_zero_is_a_period_not_a_missing_one():
+    """La colonna `periodo` è `Integer`, e `str(0 or "")` dà `""`: il periodo
+    0 si leggeva come «nessun periodo», e la sua scheda non si verificava.
+
+    `temporal_check.build_chronology` la stessa chiave la fa con `is None`,
+    quindi le due verifiche non erano nemmeno d'accordo fra loro.
+    """
+    periods = [_p(0, "1", 1000, 1100, "XI secolo")]
+    units = [_u("5", 0, "1", "SBAGLIATA")]
+    issues = CC.check_chronology(periods, units, sito="S")
+    assert [i.kind for i in issues] == ["datazione_mismatch"]
+    assert issues[0].edits[0].set_fields == (("datazione", "XI secolo"),)
+
+
+def test_the_key_of_period_zero_is_the_same_on_both_sides():
+    """`build_chronology` indicizza ("0", "0"): `_key` deve dire lo stesso, o
+    una fase trovata da una verifica è invisibile all'altra."""
+    assert CC._key({"periodo": 0, "fase": 0}) == ("0", "0")
+    assert CC._key({"periodo": None, "fase": None}) == ("", "")
+
+
+def test_a_node_that_is_not_a_real_us_does_not_enter_the_index():
+    """`_us_of` ripiega sul **nome** del nodo, quindi un'epoca o un segnaposto
+    `_synth_*` entravano in `per_us` sotto il loro nome: niente di
+    strutturale li teneva fuori, solo la fortuna di non collidere."""
+    class _Epoca:
+        attributes = {}
+        name = "Età contemporanea"
+
+    class _Synth:
+        attributes = {"us": "_synth_BR_654"}
+        name = "_synth_BR_654"
+
+    class _Grafo:
+        def chronology(self):
+            return {"e": {"start": 1800.0, "end": 2022.0, "rule": "epoch"},
+                    "s": {"start": 1.0, "end": 2.0, "rule": "epoch"}}
+
+        def find_node_by_id(self, node_id):
+            return _Epoca() if node_id == "e" else _Synth()
+
+    assert CC.bounds_by_us(_Grafo()) == {}
+
+
+def test_the_phase_categories_do_not_claim_to_name_us():
+    """`us_path` di una sovrapposizione porta **fasi** («2/2.2», o «4» quando
+    la fase è vuota), e un `4` che coincide con la US 4 faceva comparire
+    nell'anteprima la cronologia di quella US sotto un avviso che parlava di
+    un'altra cosa."""
+    assert CC.names_phases("epoch_overlap")
+    assert CC.names_phases("epoch_reversed")
+    assert CC.names_phases("epoch_no_dates")
+    assert not CC.names_phases("datazione_mismatch")
+    assert not CC.names_phases("missing_reciprocity")

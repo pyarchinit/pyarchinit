@@ -24,6 +24,21 @@ DATAZIONE_MISMATCH = "datazione_mismatch"    # automatica
 #: La tabella in cui atterrano le correzioni sulle fasi.
 _PERIOD_TABLE = "periodizzazione_table"
 
+#: Le categorie il cui ``us_path`` nomina **fasi**, non US.
+_PHASE_KINDS = frozenset({EPOCH_OVERLAP, EPOCH_REVERSED, EPOCH_NO_DATES})
+
+
+def names_phases(kind):
+    """Vero quando l'``us_path`` di quella categoria porta etichette di fase.
+
+    Serve all'anteprima: la cronologia calcolata si accosta alle US, e
+    «2/2.2» non è una US. Un'etichetta di fase può anche *somigliare* a un
+    numero — ``_label`` restituisce il solo periodo quando la fase è vuota,
+    quindi «4» — e cercarla fra le US faceva comparire la cronologia della US
+    4 sotto un avviso che parlava della fase 4.
+    """
+    return kind in _PHASE_KINDS
+
 
 def _year(val):
     """L'anno come intero, o ``None`` se la riga non ne porta uno leggibile.
@@ -54,9 +69,16 @@ def _key(row):
     """La chiave di una fase: sempre testo, mai numero.
 
     ``2.1`` e ``2.10`` sono fasi diverse, e come float sarebbero la stessa.
+
+    Il vuoto è ``None``, non lo zero: la colonna ``periodo`` è ``Integer`` e
+    ``str(0 or "")`` dà ``""``, cioè il periodo 0 si leggeva come «nessun
+    periodo» e la sua scheda non si verificava. ``temporal_check`` la stessa
+    chiave la fa con ``is None``, quindi le due verifiche non erano nemmeno
+    d'accordo fra loro. Lo zero è un anno e il periodo 0 è un periodo.
     """
-    return (str(row.get("periodo") or "").strip(),
-            str(row.get("fase") or "").strip())
+    periodo, fase = row.get("periodo"), row.get("fase")
+    return ("" if periodo is None else str(periodo).strip(),
+            "" if fase is None else str(fase).strip())
 
 
 def _label(key):
@@ -169,6 +191,15 @@ def _overlaps(spans, lang):
     esempio — la proposta non si fa: non esiste un restringimento dell'una o
     dell'altra che non produca una riga impossibile, e scegliere chi si sposta
     lo sa solo chi ha scavato. L'avviso resta, senza correzione.
+
+    Una fase che si sovrappone a due altre raccoglie due proposte sulla
+    **stessa colonna della stessa riga**, e chi scrive fa vincere l'ultima:
+    con X=(1000,1300), Y=(1020,1150), Z=(1050,1400) le proposte su
+    ``Z.cron_iniziale`` erano 1301 e 1151, spuntandole entrambe passava 1151 —
+    che non chiude nessuna delle due sovrapposizioni, mentre la finestra
+    diceva «2 correzioni applicate». Si tiene **la più forte**, cioè l'inizio
+    più alto, che le chiude tutte. Il taglio si fa qui, dove si sa perché, e
+    non nel codice che scrive.
     """
     out = []
     ordered = sorted(spans.items(), key=lambda kv: (kv[1][0], kv[1][1], kv[0]))
@@ -192,7 +223,36 @@ def _overlaps(spans, lang):
                     anni=min(fin_a, fin_b) - max(ini_a, ini_b) + 1,
                     ini=max(ini_a, ini_b), fin=min(fin_a, fin_b)),
                 edits=proposta))
-    return out
+    return _solo_la_piu_forte(out)
+
+
+def _riga_di(edit):
+    """La riga che una ``Edit`` tocca, come chiave confrontabile."""
+    target = getattr(edit, "target", ()) or ()
+    chiave = dict(target[1]) if len(target) > 1 else {}
+    return (target[0] if target else "us_table",
+            tuple(sorted((str(k), str(v)) for k, v in chiave.items())))
+
+
+def _solo_la_piu_forte(issues):
+    """Fra due proposte sulla stessa riga e la stessa colonna resta la più
+    forte: l'inizio più alto, che chiude anche la sovrapposizione dell'altra.
+
+    L'avviso che perde la proposta **resta**, come quelli senza rimedio: si
+    vede che c'è, e la correzione buona è quella dell'altra coppia.
+    """
+    piu_forte = {}
+    for iss in issues:
+        for e in iss.edits:
+            for (col, val) in e.set_fields:
+                chiave = (_riga_di(e), col)
+                if chiave not in piu_forte or val > piu_forte[chiave]:
+                    piu_forte[chiave] = val
+    for iss in issues:
+        iss.edits = [e for e in iss.edits
+                     if all(piu_forte[(_riga_di(e), col)] == val
+                            for (col, val) in e.set_fields)]
+    return issues
 
 
 def _mismatches(periods, units, lang):
@@ -211,8 +271,9 @@ def _mismatches(periods, units, lang):
     atteso = {_key(r): _text(r.get("datazione_estesa")) for r in periods}
     out = []
     for row in units:
-        key = (str(row.get("periodo_iniziale") or "").strip(),
-               str(row.get("fase_iniziale") or "").strip())
+        # `is None` e non `or ""`, come in `_key`: il periodo 0 è un periodo.
+        key = _key({"periodo": row.get("periodo_iniziale"),
+                    "fase": row.get("fase_iniziale")})
         voluto = atteso.get(key, "")
         if not key[0] or not voluto:
             continue
@@ -408,7 +469,7 @@ def bounds_by_us(graph):
     già un nome parlante — ``epoch_2_3`` è periodo 2 fase 3 — e si lasciano
     stare.
     """
-    from .rapporti_check import _real_us, _us_of
+    from .rapporti_check import _real_us
 
     def leggibile(valore):
         # `_real_us` e non `_us_of`: su un nodo-epoca il secondo restituisce
@@ -419,7 +480,13 @@ def bounds_by_us(graph):
 
     per_us = {}
     for node_id, voce in (graph.chronology() or {}).items():
-        us = _us_of(graph.find_node_by_id(node_id))
+        # `_real_us` anche per l'indice, e non solo per le fonti: `_us_of`
+        # ripiega sul **nome** del nodo, quindi un'epoca («Età contemporanea»)
+        # o un segnaposto `_synth_*` entravano in `per_us` sotto il loro nome.
+        # Niente di strutturale li teneva fuori, solo la fortuna di non
+        # collidere con un numero di US. Sul database di esempio le 45 voci
+        # con estremi sono tutte e 45 US vere: l'indice non perde niente.
+        us = _real_us(graph.find_node_by_id(node_id))
         if not us:
             continue
         # Una copia: la voce appartiene al grafo, e qui se ne riscrive una

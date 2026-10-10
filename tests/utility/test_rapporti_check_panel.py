@@ -96,9 +96,26 @@ class _Albero:
 
     def __init__(self):
         self._tops = []
+        self._scelti = []
 
     def clear(self):
         self._tops = []
+        self._scelti = []
+
+    def selectedItems(self):
+        return self._scelti
+
+    def seleziona(self, kind):
+        """La prima riga di quella categoria, come un clic dell'utente."""
+        from qgis.PyQt.QtCore import Qt
+        for top in self._tops:
+            for j in range(top.childCount()):
+                ch = top.child(j)
+                iss = ch.data(0, int(Qt.UserRole))
+                if iss is not None and iss.kind == kind:
+                    self._scelti = [ch]
+                    return iss
+        raise AssertionError("nessuna riga di categoria %r" % kind)
 
     def addTopLevelItem(self, item):
         self._tops.append(item)
@@ -118,6 +135,17 @@ class _Etichetta:
         self._testo = testo
 
     def text(self):
+        return self._testo
+
+
+class _Anteprima:
+    def __init__(self):
+        self._testo = ""
+
+    def setPlainText(self, testo):
+        self._testo = testo
+
+    def toPlainText(self):
         return self._testo
 
 
@@ -169,6 +197,7 @@ def panel(db, monkeypatch):
         _selected_issues = RapportiCheckPanel._selected_issues
         _apply = RapportiCheckPanel._apply
         _rollback = RapportiCheckPanel._rollback
+        _preview = RapportiCheckPanel._preview
 
         def __init__(self):
             self._db_provider = lambda: "sqlite:///%s" % db
@@ -180,6 +209,7 @@ def panel(db, monkeypatch):
             self.cboSite = _Combo()
             self.tree = _Albero()
             self.lblSummary = _Etichetta()
+            self.preview = _Anteprima()
             self.btnRollback = _Bottone()
             self.detti = detti
 
@@ -295,3 +325,39 @@ def test_a_textual_year_does_not_take_the_whole_panel_away(panel, db):
     assert panel._report is not None
     assert "epoch_no_dates" in _issues(panel)
     assert not any(n == "critical" for n, _t in panel.detti), panel.detti
+
+
+def test_the_preview_of_an_overlap_does_not_show_a_us_chronology(panel, db):
+    """`us_path` di una sovrapposizione porta etichette di fase, e una fase
+    senza nome si legge col solo periodo: «4». Su un sito che ha anche la US 4
+    l'anteprima mostrava la cronologia di quella US sotto un avviso che
+    parlava della fase — una data attribuita alla cosa sbagliata.
+    """
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO periodizzazione_table VALUES "
+              "(?,4,NULL,1000,1300,'',''), (?,5,NULL,1200,1400,'','')",
+              (SITO_A, SITO_A))
+    c.commit(); c.close()
+    panel.cboSite.setCurrentText(SITO_A)
+    panel._run()
+    iss = panel.tree.seleziona("epoch_overlap")
+    assert iss.us_path == ["4", "5"]
+    # La cronologia calcolata della US 4 esiste: è quella che non deve
+    # comparire sotto un avviso che parla della fase 4.
+    panel._chrono_bounds = {"4": {"start": 1500.0, "end": 1549.0,
+                                  "rule": "epoch"}}
+    panel._preview()
+    testo = panel.preview.toPlainText()
+    assert "1500–1549" not in testo, testo
+
+
+def test_the_preview_of_a_sheet_dating_still_shows_its_chronology(panel, db):
+    """Il taglio è per categoria, non per tutti: su un avviso che nomina
+    davvero una US la riga della data calcolata resta."""
+    panel.cboSite.setCurrentText(SITO_A)
+    panel._run()
+    panel.tree.seleziona("datazione_mismatch")
+    panel._chrono_bounds = {"1": {"start": 1500.0, "end": 1549.0,
+                                  "rule": "epoch"}}
+    panel._preview()
+    assert "US 1 · 1500–1549" in panel.preview.toPlainText()

@@ -255,8 +255,15 @@ class RapportiCheckPanel(QWidget):
                 lines.append(f"{chi}: imposta {col} = {val}")
         # La data calcolata delle US nominate: da dove viene, non solo quanto
         # vale. Si ricalcola a ogni verifica e non si scrive da nessuna parte.
+        #
+        # Solo per le categorie che nominano davvero delle US: l'`us_path` di
+        # una sovrapposizione porta etichette di fase, e una fase senza nome
+        # si legge col solo periodo — «4», che su un sito con la US 4 faceva
+        # comparire la cronologia di quella US sotto un avviso che parlava
+        # d'altro.
         righe_data = []
-        for us in getattr(iss, "us_path", ()) or ():
+        nomina_fasi = CC.names_phases(getattr(iss, "kind", ""))
+        for us in (() if nomina_fasi else getattr(iss, "us_path", ()) or ()):
             voce = (self._chrono_bounds or {}).get(str(us))
             testo = CC.explain_bounds(voce, lang=self._lang) if voce else ""
             if testo:
