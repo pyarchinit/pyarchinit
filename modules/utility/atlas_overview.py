@@ -50,17 +50,42 @@ def overview_indexes(misure: Sequence[Tuple[float, float]],
     return [i for i in range(len(misure)) if i != principale]
 
 
+#: I soli caratteri da codificare dentro il valore di ``url=``.
+#:
+#: Le graffe di ``{z}/{x}/{y}`` perché QGIS le codifica (e un uri con le
+#: graffe nude non si rilegge); ``&`` ed ``=`` perché spezzerebbero l'uri
+#: in due parametri quando l'indirizzo porta una chiave in coda. Schema e
+#: barre **no**: codificare anche quelli era il baco.
+_DA_CODIFICARE = {"{": "%7B", "}": "%7D", "&": "%26", "=": "%3D"}
+
+
+def quote_tile_url(url: str) -> str:
+    """L'indirizzo delle tessere come lo scrive QGIS dentro l'uri.
+
+    ``quote(url, safe="")`` codificava tutto, ``:`` e ``/`` compresi, e
+    QGIS decodificando una volta si ritrovava una stringa ancora
+    codificata — non un indirizzo. Nel pannello del layer si leggeva
+    ``url=https%3A%2F%2Ftile.openstreetmap.org%2F…`` e le statistiche di
+    cache contavano **29 700 errori** con zero tessere trovate, mentre il
+    layer che QGIS aggiunge da «XYZ Tiles» scrive
+    ``url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png``
+    (Enzo, 2026-10-10: le proprietà dei due layer a confronto).
+    """
+    testo = str(url or "")
+    for carattere, codice in _DA_CODIFICARE.items():
+        testo = testo.replace(carattere, codice)
+    return testo
+
+
 def base_map_uri(kind: str = DEFAULT_BASE_MAP) -> str:
     """La stringa di sorgente che QGIS vuole per un provider ``wms`` XYZ.
 
-    L'URL va codificato: le graffe di ``{z}/{x}/{y}`` e gli ``&`` dentro
-    l'indirizzo spezzerebbero l'uri.
+    Parola per parola quella che QGIS scrive di suo per una connessione
+    XYZ, ``tilePixelRatio`` compreso: è l'unica che scarica le tessere.
     """
-    from urllib.parse import quote
-
     scelta = BASE_MAPS.get(kind) or BASE_MAPS[DEFAULT_BASE_MAP]
-    return ("type=xyz&url=%s&zmax=%d&zmin=%d"
-            % (quote(scelta["url"], safe=""), scelta["zmax"], scelta["zmin"]))
+    return ("tilePixelRatio=1&type=xyz&url=%s&zmax=%d&zmin=%d"
+            % (quote_tile_url(scelta["url"]), scelta["zmax"], scelta["zmin"]))
 
 
 def base_map_name(kind: str = DEFAULT_BASE_MAP) -> str:

@@ -56,10 +56,11 @@ def test_openstreetmap_is_the_default():
 
 def test_the_uri_is_the_one_qgis_wants_for_xyz_tiles():
     uri = base_map_uri("osm")
-    assert uri.startswith("type=xyz&") and "url=" in uri
+    assert "type=xyz&" in uri and "url=" in uri
     assert "zmax=" in uri and "zmin=" in uri
-    # l'URL va codificato: le graffe di {z}/{x}/{y} non devono spezzare l'uri
-    assert "%7Bz%7D" in uri or "{z}" in uri
+    # le graffe di {z}/{x}/{y} codificate, e SOLO quelle — vedi
+    # test_only_the_braces_are_encoded_in_the_tile_url
+    assert "%7Bz%7D" in uri
 
 
 def test_the_satellite_is_a_different_source():
@@ -189,3 +190,48 @@ def test_a_basemap_is_recognised_by_its_source_not_by_its_name():
     assert not is_base_map(base_map_uri("satellite"), "osm")
     assert not is_base_map("", "osm")
     assert not is_base_map(None, "osm")
+
+
+# ---------------------------------------------------------------------------
+# L'URL era codificato due volte (2026-10-10)
+# ---------------------------------------------------------------------------
+# Enzo ha incollato le proprietà dei due layer, il mio e quello che QGIS
+# aggiunge da «XYZ Tiles», e la differenza era tutta lì:
+#
+#   mio:   url=https%3A%2F%2Ftile.openstreetmap.org%2F%7Bz%7D%2F...
+#   QGIS:  url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png
+#
+# `quote(url, safe="")` codifica anche `:` e `/`, e QGIS decodificando una
+# volta si ritrova una stringa ancora codificata: non un indirizzo. Il suo
+# pannello contava **29 700 errori** di cache e zero tessere trovate.
+
+def test_only_the_braces_are_encoded_in_the_tile_url():
+    """QGIS codifica le graffe e lascia stare schema e barre. Se si codifica
+    tutto, l'indirizzo non è più un indirizzo."""
+    from modules.utility.atlas_overview import base_map_uri
+
+    uri = base_map_uri("osm")
+    assert "url=https://tile.openstreetmap.org/" in uri, \
+        "schema e barre non si codificano: %s" % uri
+    assert "%7Bz%7D/%7Bx%7D/%7By%7D" in uri, "le graffe sì"
+    assert "%3A%2F%2F" not in uri, "doppia codifica: era questo il baco"
+
+
+def test_the_uri_is_the_one_qgis_writes_itself():
+    """Parola per parola quella che Enzo ha letto nelle proprietà del layer
+    aggiunto da «XYZ Tiles», che le tessere le scarica."""
+    from modules.utility.atlas_overview import base_map_uri
+
+    assert base_map_uri("osm") == (
+        "tilePixelRatio=1&type=xyz&"
+        "url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png&"
+        "zmax=19&zmin=0")
+
+
+def test_an_ampersand_in_the_url_is_still_encoded():
+    """Una sorgente con una chiave in coda spezzerebbe l'uri in due
+    parametri se l'`&` restasse nudo."""
+    from modules.utility.atlas_overview import quote_tile_url
+
+    assert quote_tile_url("https://x.y/{z}/{x}/{y}.png?key=a&b=c") == (
+        "https://x.y/%7Bz%7D/%7Bx%7D/%7By%7D.png?key%3Da%26b%3Dc")

@@ -5,6 +5,44 @@
 
 ---
 
+## [fix] - 2026-10-10 — lo sfondo dell'inserto: l'URL era codificato due volte — 5.13.58-alpha
+
+> Branch `Stratigraph_00001`. Tag **`atlas-basemap-url-5.13.58-alpha`**. Enzo ha incollato le proprietà dei due layer, il mio e quello che QGIS aggiunge da «XYZ Tiles», e la differenza era tutta lì.
+
+### Italiano
+
+```
+mio:          url=https%3A%2F%2Ftile.openstreetmap.org%2F%7Bz%7D%2F%7Bx%7D%2F%7By%7D.png
+QGIS (buono): url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png
+```
+
+`quote(url, safe="")` codificava **tutto**, `:` e `/` compresi. QGIS decodifica una volta e si ritrova una stringa ancora codificata: non un indirizzo. Nel pannello del layer di Enzo si leggeva `URL  https%3A%2F%2Ftile...` e le statistiche di cache contavano **29 700 errori** con **zero** tessere trovate. Il layer era valido, l'estensione giusta, la matrice dei tasselli completa — tutto in ordine tranne l'indirizzo.
+
+Ecco perché le piste di ieri erano tutte cieche: la rete funzionava (la tessera arriva con `curl` e col gestore di QGIS), il PAC rotto non c'entrava, il `crs` nell'uri non c'entrava. E il «non arriva nemmeno una richiesta» al server locale era il sintomo giusto letto male: non arrivavano perché l'URL non era un URL.
+
+- **`modules/utility/atlas_overview.py`** — nuova `quote_tile_url(url)`: codifica **solo** `{`, `}`, `&`, `=`. Le graffe perché QGIS le codifica; `&` ed `=` perché spezzerebbero l'uri in due parametri quando l'indirizzo porta una chiave in coda. Schema e barre no. `base_map_uri` scrive ora parola per parola l'uri che QGIS scrive di suo, `tilePixelRatio=1` compreso.
+
+**La prova, finalmente in casa.** Con un server di tessere locale che registra le richieste, stessa mappa e stesso export, due codifiche:
+
+| | richieste al server | tessera sul foglio |
+|---|---:|---:|
+| vecchia (tutto codificato) | **0** | 0,0% dei pixel |
+| nuova (solo le graffe) | **6** | **5,7%** dei pixel |
+
+e il 5,7% è esattamente la quota di pagina occupata dalla cornice della mappa (60×60 mm su un A4 orizzontale): l'inserto è pieno di tessera. Le richieste che arrivano sono `GET /8/136/93.png` e compagnia, con lo User-Agent vero di QGIS.
+
+Test: +3 in `tests/utility/test_atlas_overview.py` (23 in tutto), uno dei quali confronta l'uri parola per parola con quella che Enzo ha letto nel pannello, più un vecchio allineato. Suite: **1138 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+Enzo pasted the properties of the two layers — mine and the one QGIS adds from «XYZ Tiles» — and the whole difference was the encoding: `quote(url, safe="")` encoded everything, `:` and `/` included, so QGIS decoded once and got a string that was still encoded. Not an address. His layer panel read `url=https%3A%2F%2Ftile...` and the cache statistics counted **29 700 errors** with zero tiles found, while the layer itself was valid with the right extent and a complete tile matrix.
+
+That is why yesterday's leads were all dead: the network worked, the broken PAC was irrelevant, `crs` was irrelevant — and «not one request reaches the local server» was the right symptom read wrong. They never left because the URL was not a URL.
+
+New `quote_tile_url(url)` encodes **only** `{`, `}`, `&` and `=`; `base_map_uri` now writes, word for word, the uri QGIS writes itself, `tilePixelRatio=1` included. **Proof, at last in-house**: against a local tile server that logs requests, same map and same export — old encoding **0 requests, 0.0%** of the sheet; new encoding **6 requests, 5.7%** of the sheet carrying the tile, which is exactly the map frame's share of an A4 landscape page. 1138 passed, 0 failed.
+
+---
+
 ## [feat] - 2026-10-10 — l'inserto passa dalla TOC e da un tema mappa — 5.13.57-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-inset-theme-5.13.57-alpha`**. Disegno di Enzo: «nel momento in cui avvio l'atlas aggiungi nella TOC di QGIS osm se non c'è, e crei una vista solo per osm senza layer dentro e la associ all'overview».
