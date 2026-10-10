@@ -13753,9 +13753,15 @@ p, li { white-space: pre-wrap; }
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
                <property name="maximumSize">
                 <size>
-                 <width>56</width>
+                 <width>110</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -13780,13 +13786,13 @@ p, li { white-space: pre-wrap; }
               <widget class="QPushButton" name="pushButton_cancel">
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>80</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>56</width>
+                 <width>110</width>
                  <height>16777215</height>
                 </size>
                </property>

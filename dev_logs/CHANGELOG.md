@@ -5,6 +5,25 @@
 
 ---
 
+## [fix] - 2026-10-10 — i due bottoni della verifica rapporti si leggono — 5.13.63-alpha
+
+> Branch `Stratigraph_00001`. Tag **`us-usm-button-width-5.13.63-alpha`**. «I bottoni correggi e annulla non si leggono bene, allargali» (Enzo): nel suo schermo si leggeva «orreg» e «hiud».
+
+### Italiano
+
+In `US_USM.ui` i due bottoni avevano `maximumSize` **56 px**. Il `.ui` li chiama «Fix» e «close», ma a schermo arrivano tradotti, e **56 px tagliano in tutte e dieci le lingue**, non solo in italiano — misurato con la font del `.ui` (Damascus 11): il testo più lungo è il tedesco «schließen» a 64 px, e per un bottone Qt ne chiede comunque **80**.
+
+- **`gui/ui/US_USM.ui`** — `pushButton_fix` e `pushButton_cancel` passano da `maximumSize` 56 a **110**, con un `minimumSize` di **80** perché il layout non possa stringerli sotto quello che Qt chiede.
+- Test: `tests/utility/test_us_usm_button_widths.py` — uno legge il `.ui` e controlla tetto e pavimento, l'altro **misura** con `QPushButton.sizeHint()` le dodici etichette tradotte e verifica che la più lunga ci stia. Se domani si aggiunge una lingua con una parola più lunga, è il test a dirlo invece dello schermo.
+
+Suite: **1154 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+In `US_USM.ui` the two buttons had a `maximumSize` of **56 px**. The `.ui` calls them «Fix» and «close», but they reach the screen translated, and 56 px cuts **every one of the ten languages**, not just Italian — measured with the `.ui`'s own font: the longest label is German «schließen» at 64 px, and Qt asks 80 px for a button anyway. Both now cap at **110** with a floor of **80**. Two tests: one reads the `.ui`, the other measures the twelve translated labels with `sizeHint()` so a future language that does not fit is caught by the suite rather than by the screen. 1154 passed, 0 failed.
+
+---
+
 ## [fix] - 2026-10-10 — «Verifica rapporti»: 81 problemi su 81 erano falsi — 5.13.62-alpha
 
 > Branch `Stratigraph_00001`. Tag **`rapporti-reciprocity-5.13.62-alpha`**. «Il fix automatico quando faccio verifica rapporti non applica i fix anche se dice corretti» (Enzo).
