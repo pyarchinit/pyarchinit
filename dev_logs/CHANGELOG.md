@@ -5,6 +5,24 @@
 
 ---
 
+## [chore] - 2026-10-10 — Allineamento a s3dgraphy 1.6.0.dev43 — 5.13.70-alpha
+
+> Branch `Stratigraph_00001`. `requirements.txt` fissa `s3dgraphy==1.6.0.dev43` e `ext_libs/` è rivendorizzato. La libreria è coerente: erano i nostri specchi a portare una verità più vecchia, quindi si sono aggiornati i nostri codici e test, senza toccare la libreria e senza allentare nessuna asserzione.
+
+#### Changed / Modificato
+- 🇮🇹 **IT**: **la tabella dei rapporti è passata da 10 a 12 voci.** La coppia della continuità (che è arrivata in libreria con la nostra PR) è ora in `_REL_INDEX_EDGE_TYPE`: `10 is_after` «Continuità successiva a», `11 is_before` «Continuità precedente a». Lo specchio `REL_INDEX_KIND` in `modules/utility/em_matrix_records.py` guadagna `("is_after", False)` e `("is_after", True)`: la voce «precedente» è la stessa relazione letta dall'altro capo, e la matrice la gira come fa con «Coperto da», così la freccia parte sempre dalla più recente. `test_embedded_table_matches_pyarchinit_i18n_exactly` confronta ora le prime dieci voci con il vocabolario della scheda US e le ultime due con `CONTINUITY_LABELS`.
+- 🇬🇧 **EN**: **the relation table grew from 10 to 12 entries.** The continuity pair (which reached the library through our own PR) is now in `_REL_INDEX_EDGE_TYPE`: `10 is_after` «Continuità successiva a», `11 is_before` «Continuità precedente a». Our `REL_INDEX_KIND` mirror in `modules/utility/em_matrix_records.py` gains `("is_after", False)` and `("is_after", True)`: the «prior» entry is the same relation read from the other end, and the matrix flips it the way it does «Coperto da», so the arrow always starts from the more recent unit. `test_embedded_table_matches_pyarchinit_i18n_exactly` now compares the first ten entries with the US form vocabulary and the last two with `CONTINUITY_LABELS`.
+- 🇮🇹 **IT**: **l'etichetta inversa della continuità non si riporta più a `is_after` + swap**: `parse_rapporti` la dà come `is_before`, senza girare niente, esattamente come «Coperto da» → `is_overlain_by`. Nessun codice di produzione dipendeva dalla vecchia lettura: `graph_projector` e `room/us_ops` hanno già la piega `is_before → is_after` con inversione dello swap, e il risultato è identico. Il test è rinominato `test_reverse_label_parses_to_is_before_without_swap`.
+- 🇬🇧 **EN**: **the reverse continuity label no longer folds into `is_after` + swap**: `parse_rapporti` returns `is_before`, nothing flipped, exactly like «Coperto da» → `is_overlain_by`. No production code depended on the old reading: `graph_projector` and `room/us_ops` already fold `is_before → is_after` and toggle the swap, with an identical outcome. The test is renamed `test_reverse_label_parses_to_is_before_without_swap`.
+- 🇮🇹 **IT**: **il sito è un luogo della catena dei toponimi.** Il proiettore chiude la catena con un `LocationNodeGroup` (kind `toponym`, level `sito`) dentro il livello amministrativo più profondo, con id `s3dgraphy.hdto.site_place_id(sito, site_table.entity_uuid)`. Anche con i quattro livelli amministrativi vuoti il luogo del sito esiste (senza archi). Due siti dello stesso comune condividono il nodo del comune ma hanno ciascuno il proprio luogo. `test_toponym_chain.py` fissa kind, level e id annunciati.
+- 🇬🇧 **EN**: **the site is now a place in the toponym chain.** The projector closes the chain with a `LocationNodeGroup` (kind `toponym`, level `sito`) inside the deepest administrative level, with id `s3dgraphy.hdto.site_place_id(sito, site_table.entity_uuid)`. Even with all four administrative levels empty the site's place exists (with no edges). Two sites in the same comune share the comune node but each has its own place. `test_toponym_chain.py` pins the announced kind, level and id.
+
+#### Non fatto di proposito / Deliberately not done
+- 🇮🇹 **IT**: la nuova API HDT-O (`api.declare_hdto`, `api.graphs_at`, `api.unit_label`, `hdto.site_place_id` come chiamata del plugin) **non è ancora collegata**: Emanuel ha chiesto di aspettare che con E.D. si chiariscano due punti — se un saggio tenga anche un luogo proprio, e se un grafo possa contenere più di uno studio. `y_pos` non si tocca: non lo passiamo a nessun costruttore né lo scriviamo in un em.json.
+- 🇬🇧 **EN**: the new HDT-O API (`api.declare_hdto`, `api.graphs_at`, `api.unit_label`, `hdto.site_place_id` as a plugin call) is **deliberately not wired yet**: Emanuel asked us to hold until two points are settled with E.D. — whether a `saggio` also keeps its own place, and whether a graph may hold more than one study. `y_pos` is untouched: we never pass it to a constructor nor write it into an em.json.
+
+---
+
 ## [fix] - 2026-10-10 — «Scelta manuale» nomina la scheda giusta — 5.13.69-alpha
 
 > Branch `Stratigraph_00001`.
