@@ -871,7 +871,15 @@ class pyarchinit_Detsesso(QDialog, MAIN_DIALOG_CLASS):
             pass
         else:
             self.empty_fields()
-            self.charge_records()
+            from modules.utility.site_records import charge_records_for_site
+            if not charge_records_for_site(self):
+                # Il sito su cui il plugin è settato non ha record di questo
+                # tipo: lo si dice, invece di mostrare quelli di tutti i siti
+                # o di inciampare su una lista vuota.
+                QMessageBox.information(
+                    self, "pyArchInit",
+                    "Nessun record per il sito corrente.")
+                return
             self.fill_fields()
             self.BROWSE_STATUS = "b"
             self.label_status.setText(self.STATUS_ITEMS[self.BROWSE_STATUS])

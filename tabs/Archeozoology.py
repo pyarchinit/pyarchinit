@@ -599,6 +599,7 @@ class pyarchinit_Archeozoology(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_view_all_pressed(self):
         """View all records."""
-        self.charge_records()
+        from modules.utility.site_records import charge_records_for_site
+        charge_records_for_site(self)
         if self.DATA_LIST:
             self.fill_fields(0)

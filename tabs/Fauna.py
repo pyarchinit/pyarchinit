@@ -1623,7 +1623,8 @@ class pyarchinit_Fauna(QDialog):
             return
 
         try:
-            self.DATA_LIST = self.DB_MANAGER.query(self.MAPPER_TABLE_CLASS)
+            from modules.utility.site_records import charge_records_for_site
+            charge_records_for_site(self)
             if self.DATA_LIST:
                 self.REC_TOT = len(self.DATA_LIST)
                 self.REC_CORR = 0

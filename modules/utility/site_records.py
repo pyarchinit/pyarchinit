@@ -37,6 +37,28 @@ def records_for_site(db_manager, mapper_name, sito):
     return db_manager.query_bool({'sito': f"'{sito}'"}, mapper_name)
 
 
+def _sorted_by_id(rows, id_attr):
+    """Ordina per id crescente, senza mai sollevare.
+
+    `query_bool` non ordina, mentre `charge_records()` sì (`query_ordered`,
+    'asc'): senza questo «view all» cambierebbe il primo record mostrato.
+    Le righe senza l'attributo o con id `None` vanno in fondo, nell'ordine
+    in cui sono arrivate (l'ordinamento è stabile).
+    """
+    def chiave(r):
+        v = getattr(r, id_attr, None) if id_attr else None
+        if v is None:
+            return (1, 0)
+        try:
+            return (0, float(v))
+        except (TypeError, ValueError):
+            return (1, 0)
+    try:
+        return sorted(rows, key=chiave)
+    except Exception:
+        return list(rows)
+
+
 def charge_records_for_site(tab):
     """Riempie `tab.DATA_LIST` con i record del sito configurato.
 
@@ -57,7 +79,7 @@ def charge_records_for_site(tab):
         return bool(tab.DATA_LIST)
 
     res = records_for_site(tab.DB_MANAGER, tab.MAPPER_TABLE_CLASS, sito)
-    tab.DATA_LIST = list(res) if res else []
+    tab.DATA_LIST = _sorted_by_id(res, getattr(tab, 'ID_TABLE', None)) if res else []
     if not tab.DATA_LIST:
         return False
     tab.REC_TOT, tab.REC_CORR = len(tab.DATA_LIST), 0

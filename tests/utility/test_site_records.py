@@ -29,8 +29,15 @@ class FakeDB:
         return list(self.rows)
 
 
+class Row:
+    def __init__(self, id_us=None):
+        if id_us is not None:
+            self.id_us = id_us
+
+
 class FakeTab:
     MAPPER_TABLE_CLASS = "US"
+    ID_TABLE = "id_us"
 
     def __init__(self, rows=None, all_rows=None):
         self.DB_MANAGER = FakeDB(rows)
@@ -92,3 +99,24 @@ def test_current_site_returns_empty_string_when_config_unreadable(monkeypatch):
 
     monkeypatch.setattr(cs, "Connection", Boom)
     assert SR.current_site() == ""
+
+
+def test_filtered_list_is_sorted_by_the_forms_id_ascending(monkeypatch):
+    # query_bool non ordina: senza l'ordinamento «view all» cambierebbe
+    # il primo record mostrato rispetto a charge_records() (id crescente).
+    _site(monkeypatch, "Scavo")
+    tab = FakeTab(rows=[Row(30), Row(5), Row(12)])
+    assert SR.charge_records_for_site(tab) is True
+    assert [r.id_us for r in tab.DATA_LIST] == [5, 12, 30]
+
+
+def test_sorting_tolerates_missing_attribute_and_none_id(monkeypatch):
+    _site(monkeypatch, "Scavo")
+    senza_id = Row()          # manca l'attributo
+    con_none = Row(None)
+    con_none.id_us = None
+    tab = FakeTab(rows=[Row(9), senza_id, Row(2), con_none])
+    assert SR.charge_records_for_site(tab) is True
+    ids = [getattr(r, "id_us", None) for r in tab.DATA_LIST]
+    assert ids[:2] == [2, 9]
+    assert len(tab.DATA_LIST) == 4

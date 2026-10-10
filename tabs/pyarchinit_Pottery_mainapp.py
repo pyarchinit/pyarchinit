@@ -3313,7 +3313,8 @@ class pyarchinit_Pottery(QDialog, MAIN_DIALOG_CLASS):
 
     def on_pushButton_view_all_pressed(self):
         self.empty_fields()
-        self.charge_records()
+        from modules.utility.site_records import charge_records_for_site
+        charge_records_for_site(self)
         if not self.DATA_LIST:
             if self.L == 'it':
                 QMessageBox.information(self, "Informazione", "Nessun record trovato.", QMessageBox.StandardButton.Ok)
