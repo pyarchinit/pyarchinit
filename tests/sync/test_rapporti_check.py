@@ -273,3 +273,88 @@ def test_set_fields_only_no_rapporti_unchanged(tmp_path):
         rap = c.execute(text("SELECT rapporti FROM us_table WHERE us='US5'")).scalar()
     assert rap == original_rap, (
         f"rapporti was rewritten when only set_fields was present: {rap!r}")
+
+
+# ---------------------------------------------------------------------------
+# La reciprocità si legge nelle SCHEDE, non negli archi (2026-10-10)
+# ---------------------------------------------------------------------------
+# Enzo: «il fix automatico dice corretti ma non applica i fix». Misurato sul
+# sito di esempio: 81 problemi «manca il reciproco», e **tutti e 81** avevano
+# il rapporto già scritto nella scheda. Il projector fonde una coppia
+# reciproca in UN arco canonico — US1 «Copre 2» e US2 «Coperto da 1» danno un
+# solo `overlies` — mentre il controllo cercava i due versi nel grafo, e il
+# verso inverso non c'è mai. Il «fix» aggiungeva poi un doppione a quattro
+# elementi di un rapporto già presente in forma corta, su 38 righe, a ogni
+# clic. La reciprocità è una proprietà di quello che è SCRITTO.
+
+def test_the_short_form_already_written_is_reciprocity():
+    """Il caso che faceva 81 falsi positivi: la scheda di B porta il
+    reciproco nella forma corta a due elementi, senza area né sito."""
+    g = _G([_N("a", "US", rap="[['Copre','2']]", us="1"),
+            _N("b", "US", rap="[['Coperto da','1']]", us="2")],
+           [_E("a", "b", "overlies")])   # un arco solo: il projector fonde
+    rep = RC.check_rapporti(g, sito="S")
+    assert not any(i.kind == RC.MISSING_RECIPROCITY for i in rep.issues), \
+        [i.summary for i in rep.issues]
+
+
+def test_one_canonical_edge_is_not_a_missing_reciprocal():
+    """Anche in forma lunga: quello che conta è che le due schede si
+    rispondano, non che il grafo porti due archi."""
+    g = _G([_N("a", "US", rap="[['Copre','2','1','S']]", us="1"),
+            _N("b", "US", rap="[['Coperto da','1','1','S']]", us="2")],
+           [_E("a", "b", "overlies")])
+    rep = RC.check_rapporti(g, sito="S")
+    assert not any(i.kind == RC.MISSING_RECIPROCITY for i in rep.issues)
+
+
+def test_a_reciprocal_written_with_a_different_word_still_counts():
+    """«Coperto da» e «Covered by» sono lo stesso rapporto: il confronto va
+    fatto sul tipo di arco, non sulla parola."""
+    g = _G([_N("a", "US", rap="[['Copre','2']]", us="1"),
+            _N("b", "SU", rap="[['Covered by','1']]", us="2")],
+           [_E("a", "b", "overlies")])
+    rep = RC.check_rapporti(g, sito="S")
+    assert not any(i.kind == RC.MISSING_RECIPROCITY for i in rep.issues)
+
+
+def test_a_reciprocal_towards_another_unit_is_not_the_one_asked_for():
+    """B risponde, ma a un'altra US: il reciproco manca lo stesso."""
+    g = _G([_N("a", "US", rap="[['Copre','2']]", us="1"),
+            _N("b", "US", rap="[['Coperto da','9']]", us="2"),
+            _N("c", "US", us="9")],
+           [_E("a", "b", "overlies")])
+    rep = RC.check_rapporti(g, sito="S")
+    assert any(i.kind == RC.MISSING_RECIPROCITY for i in rep.issues)
+
+
+def test_apply_does_not_duplicate_a_relation_already_there(tmp_path):
+    """Il doppione a quattro elementi di un rapporto già scritto in forma
+    corta: `['Coperto da','1']` e `['Coperto da','1','1','S']` sono lo stesso
+    rapporto, e appenderlo sporcava la scheda a ogni clic."""
+    import sqlite3
+
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
+
+    db = tmp_path / "x.sqlite"
+    conn = sqlite3.connect(db)
+    conn.execute("CREATE TABLE us_table (id_us INTEGER PRIMARY KEY, "
+                 "sito TEXT, area TEXT, us TEXT, unita_tipo TEXT, "
+                 "rapporti TEXT, periodo_iniziale TEXT, fase_iniziale TEXT, "
+                 "periodo_finale TEXT, fase_finale TEXT)")
+    conn.execute("INSERT INTO us_table (sito, area, us, unita_tipo, rapporti) "
+                 "VALUES ('S','1','2','US',\"[['Coperto da', '1']]\")")
+    conn.commit(); conn.close()
+
+    handle = _resolve_db_handle("sqlite:///%s" % db)
+    RC.apply_edits([RC.Edit(us="2", add=(("Coperto da", "1", "1", "S"),))],
+                   handle, sito="S")
+
+    conn = sqlite3.connect(db)
+    scritto = conn.execute(
+        "SELECT rapporti FROM us_table WHERE us='2'").fetchone()[0]
+    conn.close()
+    import ast
+    voci = [list(map(str, x)) for x in ast.literal_eval(scritto)]
+    verso_1 = [v for v in voci if v[0] == "Coperto da" and v[1] == "1"]
+    assert len(verso_1) == 1, "rapporto duplicato: %r" % voci

@@ -364,25 +364,53 @@ def check_rapporti(graph, *, sito, lang="it", validate=True,
                 CYCLE, us_path, False,
                 _t(lang, "s_cycle").format(chain=chain)))
 
-    # Missing reciprocity: for A→B(ET) with no B→A(inverse ET). ONLY between
-    # two real us_table-backed US nodes — the fix writes a rapporto into the
-    # target row, so a synthesized placeholder (us=None) must never be a
-    # source or target (it has no DB row and would yield a bogus entry).
-    for (s, t, et) in edges:
-        inv = _EDGE_TYPE_INVERSE.get(et)
-        if inv is None:
+    # Missing reciprocity. Si legge in quello che le due schede hanno
+    # SCRITTO, non negli archi del grafo.
+    #
+    # Il projector fonde una coppia reciproca in UN arco canonico: US 1
+    # «Copre 2» e US 2 «Coperto da 1» danno un solo `overlies`, e il verso
+    # inverso nel grafo non c'è mai. Cercandolo lì, ogni rapporto scritto
+    # bene risultava mancante: sul sito di esempio 81 problemi su 81 erano
+    # falsi, e il «fix» aggiungeva un doppione a quattro elementi di un
+    # rapporto già presente in forma corta, su 38 righe, a ogni clic
+    # (Enzo, 2026-10-10).
+    #
+    # Il confronto è sul **tipo di arco** e sulla US, non sulla parola né
+    # sul numero di elementi: «Coperto da» e «Covered by» sono lo stesso
+    # rapporto, e `['Coperto da','1']` dice quanto `['Coperto da','1','1',
+    # 'Sito']`. Solo fra US vere: il fix scrive in una riga di us_table, e
+    # un segnaposto sintetico (us=None) non ne ha una.
+    scritti = {}
+    for n in getattr(graph, "nodes", None) or []:
+        u = _real_us(n)
+        if u is None:
             continue
-        if (t, s, inv) in edge_set:
-            continue
-        a_us = _real_us(graph.find_node_by_id(s))
-        b_us = _real_us(graph.find_node_by_id(t))
-        if a_us is None or b_us is None:
-            continue
-        rep.issues.append(Issue(
-            MISSING_RECIPROCITY, [a_us, b_us], True,
-            _t(lang, "s_recip").format(
-                a=_utok(a_us, lang), b=_utok(b_us, lang),
-                rel=_rel_label(et, lang))))
+        a = getattr(n, "attributes", None) or {}
+        voci = []
+        for voce in _coerce_to_list(a.get("rapporti")):
+            if not isinstance(voce, (list, tuple)) or len(voce) < 2:
+                continue
+            et_voce = RAPPORTI_TO_EDGE_TYPE.get(str(voce[0]).strip().lower())
+            if et_voce:
+                voci.append((et_voce, str(voce[1]).strip()))
+        scritti[str(u)] = voci
+
+    visti = set()
+    for a_us, voci in scritti.items():
+        for (et, b_us) in voci:
+            inv = _EDGE_TYPE_INVERSE.get(et)
+            if inv is None or b_us not in scritti:
+                continue
+            if (inv, a_us) in scritti[b_us]:
+                continue
+            if (a_us, b_us, et) in visti:
+                continue
+            visti.add((a_us, b_us, et))
+            rep.issues.append(Issue(
+                MISSING_RECIPROCITY, [a_us, b_us], True,
+                _t(lang, "s_recip").format(
+                    a=_utok(a_us, lang), b=_utok(b_us, lang),
+                    rel=_rel_label(et, lang))))
 
     # Connection-type legality (report-only).
     if validate:
@@ -569,7 +597,12 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
                         lst = [x for x in lst if x != rr]
                     for ad in e.add:
                         aa = list(map(str, ad))
-                        if aa not in lst:
+                        # Un rapporto si riconosce da **rapporto + US**, non
+                        # dal numero di elementi: `['Coperto da','1']` dice
+                        # quanto `['Coperto da','1','1','Sito']`, e
+                        # appendere il secondo sporcava la scheda a ogni
+                        # clic (Enzo, 2026-10-10).
+                        if not any(x[:2] == aa[:2] for x in lst):
                             lst.append(aa)
                 new_vals["rapporti"] = str(lst)
             for e in us_edits:

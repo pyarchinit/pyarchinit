@@ -5,6 +5,41 @@
 
 ---
 
+## [fix] - 2026-10-10 — «Verifica rapporti»: 81 problemi su 81 erano falsi — 5.13.62-alpha
+
+> Branch `Stratigraph_00001`. Tag **`rapporti-reciprocity-5.13.62-alpha`**. «Il fix automatico quando faccio verifica rapporti non applica i fix anche se dice corretti» (Enzo).
+
+### Italiano
+
+Non è che non li applicava: li applicava, ed erano sbagliati.
+
+**La reciprocità si legge in quello che le due schede hanno scritto, non negli archi del grafo.** Il projector fonde una coppia reciproca in **un** arco canonico — US 1 «Copre 2» e US 2 «Coperto da 1» danno un solo `overlies`, perché `is_overlain_by` è la lettura inversa dello stesso arco, non un arco a parte. Il controllo cercava il verso inverso fra gli archi, e lì non c'è **mai**: quindi ogni rapporto scritto bene risultava mancante.
+
+Misurato sul sito di esempio: **86 problemi, di cui 81 «manca il reciproco» — e tutti e 81 avevano il rapporto già scritto nella scheda**, in forma corta a due elementi. Il «fix» ne aggiungeva un doppione a quattro elementi (`['Coperto da','1','1','Scavo archeologico']` accanto a `['Coperto da','1']`) su 38 righe, e lo rifaceva a ogni clic, perché il controllo di doppione confrontava la tupla intera.
+
+- **`modules/utility/rapporti_check.py`** — la scansione della reciprocità legge ora `attributes['rapporti']` delle due US e confronta sul **tipo di arco** e sulla US, non sulla parola né sul numero di elementi: «Coperto da» e «Covered by» sono lo stesso rapporto, e `['Coperto da','1']` dice quanto `['Coperto da','1','1','Sito']`. Resta solo fra US vere, perché il fix scrive in una riga di `us_table` e un segnaposto sintetico non ne ha una.
+- **`apply_edits`** — un rapporto si riconosce da **rapporto + US**: appendere una forma lunga quando c'è già la corta non è più possibile.
+
+**Misurato, sul sito di esempio:**
+
+| | prima | adesso |
+|---|---:|---:|
+| problemi | 86 | **5** |
+| «manca il reciproco» | 81 (tutti falsi) | **0** |
+| righe sporcate da un clic su «Applica» | 38 | **0** |
+
+I 5 che restano sono i «periodo mancante», che non sono automatici — come dice la finestra.
+
+**E togliendone uno davvero** (tolto «Coperto da 1» dalla US 2 a mano): 1 problema, 1 correzione automatica, applicata, e **alla riverifica è sparito**. È la catena intera.
+
+Test: +5 in `tests/sync/test_rapporti_check.py` (20) e il test dal vivo riscritto — diceva «sul sito di esempio deve trovare reciproci mancanti», che era il baco scritto come se fosse il contratto. Ora prova le due cose giuste: sul database di esempio non ce ne sono, e uno tolto davvero viene trovato, corretto e non si ripresenta. Suite: **1152 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+### English
+
+They *were* applied — and they were wrong. **Reciprocity is a property of what the two sheets have written, not of the graph's edges.** The projector folds a reciprocal pair into **one** canonical edge — US 1 «Copre 2» and US 2 «Coperto da 1» give a single `overlies`, because `is_overlain_by` is that edge's reverse reading, not another edge — so looking for the reverse direction among the edges never finds it, and every correctly written relation was reported missing. Measured on the sample site: 86 issues, **81 of them «missing reciprocal», and all 81 already written in the sheet** in the two-element short form. The «fix» appended a four-element duplicate across 38 rows, every time it was clicked, because the duplicate check compared whole tuples. The scan now reads `attributes['rapporti']` of both units and compares on **edge type and unit** — not on the word, not on the arity — and `apply_edits` recognises a relation by relation + unit. Sample site: 86 issues → **5**, missing reciprocals 81 → **0**, rows polluted per click 38 → **0**; the 5 left are the non-automatic «missing period» ones. Remove a reciprocal for real and it is found, fixed, and gone on the re-check. 1152 passed, 0 failed.
+
+---
+
 ## [fix] - 2026-10-10 — lo sfondo rotto di prima si sostituisce, non si riusa — 5.13.61-alpha
 
 > Branch `Stratigraph_00001`. Tag **`atlas-stale-basemap-5.13.61-alpha`**. Trovato controllando se le prove di Enzo sarebbero partite pulite.
