@@ -245,7 +245,14 @@ def test_an_empty_source_never_blanks_a_filled_sheet():
 
 
 def test_a_unit_without_a_period_has_no_source_to_copy_from():
-    periods = [_p("2", "3", 1451, 1499, "XV secolo")]
+    """Senza periodo non c'è fonte, e non si copia dalla fase fantasma.
+
+    La periodizzazione porta di proposito una riga con il periodo vuoto e la
+    datazione piena: è l'unico caso in cui la guardia `not key[0]` è quello
+    che ferma la copia, invece della fonte vuota.
+    """
+    periods = [_p("2", "3", 1451, 1499, "XV secolo"),
+               _p("", "", 1000, 1100, "fase fantasma")]
     units = [_u("12", "", "", "qualcosa")]
     assert CC.check_chronology(periods, units, sito="S") == []
 
