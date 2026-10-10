@@ -21,10 +21,13 @@ def test_forward_label_parses_to_is_after_no_swap(lang):
     assert parsed == [("is_after", "US5", "1", "Sito", False)]
 
 @pytest.mark.parametrize("lang", _LANGS)
-def test_reverse_label_parses_to_is_after_with_swap(lang):
+def test_reverse_label_parses_to_is_before_without_swap(lang):
+    # dev43: ogni etichetta inversa dà il proprio tipo, senza girare nulla
+    # («Coperto da» → is_overlain_by, «Continuità precedente a» →
+    # is_before). La piega verso is_after + swap tocca a chi consuma.
     rev = continuity_label(lang, "reverse")
     parsed = parse_rapporti([[rev, "CON_US5", "1", "Sito"]])
-    assert parsed == [("is_after", "CON_US5", "1", "Sito", True)]
+    assert parsed == [("is_before", "CON_US5", "1", "Sito", False)]
 
 def test_reverse_label_unknown_lang_falls_back_to_italian():
     assert continuity_label("zz", "forward") == CONTINUITY_LABELS["it"][0]
