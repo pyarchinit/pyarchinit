@@ -273,6 +273,18 @@ class RapportiCheckPanel(QWidget):
                                    "Nessuna correzione selezionata.")
             return
         sito = self.cboSite.currentText().strip()
+        # Il sito dell'albero, non quello del selettore: fra «Esegui verifica»
+        # e «Applica» il selettore si può muovere, e le spunte rimaste sono
+        # quelle del sito di prima — applicarle qui scriverebbe le correzioni
+        # di un sito sulle righe di un altro. Si rifiuta invece di svuotare
+        # l'albero: le spunte sono lavoro dell'archeologo, e tornare sul sito
+        # giusto le ritrova.
+        atteso = getattr(self._report, "sito", None)
+        if atteso and sito and sito != atteso:
+            QMessageBox.warning(self, "pyArchInit",
+                                RC._t(self._lang, "m_site_changed").format(
+                                    atteso=atteso, scelto=sito))
+            return
         if QMessageBox.question(
                 self, "Conferma",
                 f"Applicare {len(edits)} correzioni al sito '{sito}'?\n"
@@ -307,11 +319,16 @@ class RapportiCheckPanel(QWidget):
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit", f"Apply fallito: {exc}")
             return
-        self.btnRollback.setEnabled(True)
         QMessageBox.information(self, "pyArchInit",
                                f"{len(edits)} correzioni applicate.")
+        # La riverifica passa da `_render`, che azzera il token perché una
+        # verifica lanciata a mano riparte da zero. Qui il token va tenuto: è
+        # quello dell'applicazione appena fatta, e la conferma ha promesso
+        # «potrai annullare con 'Annulla ultimo fix'».
+        token = self._token
         self._run()  # re-scan to show the cleaned-up state
-        self.btnRollback.setEnabled(True)
+        self._token = token
+        self.btnRollback.setEnabled(self._token is not None)
 
     def _run_genera_continuita(self):
         sito = self.cboSite.currentText().strip()
@@ -390,6 +407,11 @@ class RapportiCheckPanel(QWidget):
 
     def _rollback(self):
         if self._token is None:
+            # Non si torna in silenzio: un bottone che non risponde non si
+            # distingue da un bottone rotto.
+            QMessageBox.information(self, "pyArchInit",
+                                    RC._t(self._lang, "m_nothing_to_undo"))
+            self.btnRollback.setEnabled(False)
             return
         try:
             RC.rollback(self._token, self._handle())

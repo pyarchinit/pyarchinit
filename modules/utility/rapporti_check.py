@@ -167,6 +167,11 @@ _L = {
                                  "nella scheda Periodizzazione",
         "s_epoch_no_dates": "Fase {fase}: nessun anno leggibile in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datazione «{corrente}» invece di «{atteso}»",
+        "m_site_changed": "Il sito è cambiato: l'albero mostra la verifica di «{atteso}», il "
+                          "selettore dice «{scelto}». Esegui di nuovo la verifica "
+                          "sul sito che vuoi correggere — le spunte restano.",
+        "m_nothing_to_undo": "Niente da annullare: in questa sessione non è stata applicata "
+                             "nessuna correzione.",
     },
     "en": {
         "t_self_loop": "Self-loop (US related to itself)",
@@ -210,6 +215,10 @@ _L = {
                                  "Check it in the Periodization form",
         "s_epoch_no_dates": "Phase {fase}: no readable year in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}): dating «{corrente}» instead of «{atteso}»",
+        "m_site_changed": "The site has changed: the tree shows the check of «{atteso}», the "
+                          "picker says «{scelto}». Run the check again on the site "
+                          "you want to fix — the ticks stay.",
+        "m_nothing_to_undo": "Nothing to undo: no fix has been applied in this session.",
     },
     "de": {
         "t_self_loop": "Self-loop (US in Beziehung zu sich selbst)",
@@ -253,6 +262,12 @@ _L = {
                                  "{nfin}). Bitte im Periodisierungsformular prüfen",
         "s_epoch_no_dates": "Phase {fase}: kein lesbares Jahr in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (Phase {fase}): Datierung «{corrente}» statt «{atteso}»",
+        "m_site_changed": "Die Fundstelle hat sich geändert: der Baum zeigt die Prüfung von "
+                          "«{atteso}», die Auswahl sagt «{scelto}». Die Prüfung erneut "
+                          "auf der zu korrigierenden Fundstelle ausführen — die Haken "
+                          "bleiben.",
+        "m_nothing_to_undo": "Nichts zum Rückgängigmachen: in dieser Sitzung wurde keine "
+                             "Korrektur angewendet.",
     },
     "es": {
         "t_self_loop": "Self-loop (US relacionada consigo misma)",
@@ -297,6 +312,12 @@ _L = {
                                  "Periodización",
         "s_epoch_no_dates": "Fase {fase}: ningún año legible en cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datación «{corrente}» en vez de «{atteso}»",
+        "m_site_changed": "El sitio ha cambiado: el árbol muestra la verificación de "
+                          "«{atteso}», el selector dice «{scelto}». Vuelve a ejecutar "
+                          "la verificación en el sitio que quieres corregir — las "
+                          "marcas se mantienen.",
+        "m_nothing_to_undo": "Nada que deshacer: en esta sesión no se ha aplicado ninguna "
+                             "corrección.",
     },
     "fr": {
         "t_self_loop": "Self-loop (US en relation avec elle-même)",
@@ -341,6 +362,11 @@ _L = {
                                  "{nfin}). Vérifiez dans la fiche Périodisation",
         "s_epoch_no_dates": "Phase {fase} : aucune année lisible dans cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}) : datation «{corrente}» au lieu de «{atteso}»",
+        "m_site_changed": "Le site a changé : l'arbre montre la vérification de «{atteso}», "
+                          "le sélecteur indique «{scelto}». Relancez la vérification "
+                          "sur le site à corriger — les cases cochées restent.",
+        "m_nothing_to_undo": "Rien à annuler : aucune correction n'a été appliquée dans cette "
+                             "session.",
     },
     "pt": {
         "t_self_loop": "Self-loop (US relacionada consigo mesma)",
@@ -384,6 +410,11 @@ _L = {
                                  "{nfin}). Verifique na ficha Periodização",
         "s_epoch_no_dates": "Fase {fase}: nenhum ano legível em cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datação «{corrente}» em vez de «{atteso}»",
+        "m_site_changed": "O sítio mudou: a árvore mostra a verificação de «{atteso}», o "
+                          "seletor diz «{scelto}». Execute a verificação de novo no "
+                          "sítio que quer corrigir — as marcas mantêm-se.",
+        "m_nothing_to_undo": "Nada para anular: nesta sessão não foi aplicada nenhuma "
+                             "correção.",
     },
 }
 
