@@ -29,18 +29,42 @@ def _db(tmp_path):
     c = sqlite3.connect(p)
     c.execute("CREATE TABLE us_table (sito TEXT, us TEXT, rapporti TEXT,"
               " periodo_iniziale TEXT, fase_iniziale TEXT,"
-              " periodo_finale TEXT, fase_finale TEXT, datazione TEXT)")
+              " periodo_finale TEXT, fase_finale TEXT, datazione TEXT,"
+              " area TEXT)")
     c.execute("CREATE TABLE periodizzazione_table (sito TEXT,"
               " periodo INTEGER, fase TEXT, cron_iniziale INTEGER,"
               " cron_finale INTEGER, datazione_estesa TEXT, descrizione TEXT)")
     c.execute("INSERT INTO us_table VALUES ('S','12','[]','2','2.2','2','2.2',"
-              "'Prima metà del XV secolo')")
+              "'Prima metà del XV secolo','1')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
               "('S',2,'2.2',1500,1549,'Prima metà del XVI secolo','')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
               "('S',3,'1',1500,1549,'Prima metà del XV secolo rec','')")
     c.execute("INSERT INTO periodizzazione_table VALUES "
               "('ALTRO',2,'2.2',1500,1549,'non toccare','')")
+    c.commit(); c.close()
+    return DbHandle.from_path(p)
+
+
+def _db_nulls(tmp_path):
+    """Le righe che il NULL rende scomode: una fase senza nome e una US senza
+    sito, che nel database di Enzo esistono perché il migratore DB→DB scrive
+    NULL dove le schede scrivono ''."""
+    from s3dgraphy.sync._db_handle import DbHandle
+    p = tmp_path / "nulls.sqlite"
+    c = sqlite3.connect(p)
+    c.execute("CREATE TABLE us_table (sito TEXT, us TEXT, rapporti TEXT,"
+              " periodo_iniziale TEXT, fase_iniziale TEXT,"
+              " periodo_finale TEXT, fase_finale TEXT, datazione TEXT)")
+    c.execute("CREATE TABLE periodizzazione_table (sito TEXT,"
+              " periodo INTEGER, fase TEXT, cron_iniziale INTEGER,"
+              " cron_finale INTEGER, datazione_estesa TEXT, descrizione TEXT)")
+    c.execute("INSERT INTO us_table VALUES (NULL,'77','[]','2','2.2','2','2.2',"
+              "'vecchia')")
+    c.execute("INSERT INTO us_table VALUES ('ALTRO','77','[]','2','2.2','2',"
+              "'2.2','non toccare')")
+    c.execute("INSERT INTO periodizzazione_table VALUES "
+              "('S',9,NULL,1600,1500,'fase senza nome','')")
     c.commit(); c.close()
     return DbHandle.from_path(p)
 
@@ -113,15 +137,15 @@ def test_a_column_outside_the_whitelist_is_not_written(tmp_path):
             "WHERE sito='S' AND fase='2.2'")).fetchone() == ("",)
 
 
-def test_datazione_is_writable_in_us_table_and_cron_is_not(tmp_path):
-    """La whitelist è per tabella: `datazione` solo in us_table."""
+def test_a_us_table_column_outside_the_whitelist_is_not_written(tmp_path):
+    """`area` è una colonna vera di us_table che la whitelist non contiene:
+    la correzione non la tocca, e non per via di un errore SQL."""
     from sqlalchemy import text
     h = _db(tmp_path)
-    e = RC.Edit(us="12", set_fields=(("cron_iniziale", 1),))
-    RC.apply_edits([e], h, sito="S")
+    RC.apply_edits([RC.Edit(us="12", set_fields=(("area", "9"),))], h, sito="S")
     with h.engine.connect() as c:
-        assert c.execute(text("SELECT datazione FROM us_table WHERE us='12'")
-                         ).fetchone() == ("Prima metà del XV secolo",)
+        assert c.execute(text("SELECT area FROM us_table WHERE us='12'")
+                         ).fetchone() == ("1",)
 
 
 def test_rollback_restores_both_tables(tmp_path):
@@ -164,5 +188,52 @@ def test_an_edit_whose_row_is_gone_writes_nothing_and_does_not_raise(tmp_path):
                 target=("periodizzazione_table",
                         {"periodo": "9", "fase": "9"}))
     tok = RC.apply_edits([e], h, sito="S")
+    RC.rollback(tok, h)
+    assert _periodo(h, "S", "2", "2.2") == (1500, 1549)
+
+
+def test_a_phase_whose_fase_is_null_is_found_and_written(tmp_path):
+    """Chi legge la chiave normalizza il NULL a '': se chi scrive non facesse
+    lo stesso, zero righe aggiornate, la finestra direbbe «corretto» e la
+    riverifica ripresenterebbe lo stesso avviso per sempre."""
+    from sqlalchemy import text
+    h = _db_nulls(tmp_path)
+    RC.apply_edits([RC.Edit(us="9/", set_fields=(("cron_iniziale", 1500),
+                                                 ("cron_finale", 1600)),
+                            target=("periodizzazione_table",
+                                    {"periodo": "9", "fase": ""}))],
+                   h, sito="S")
+    with h.engine.connect() as c:
+        assert c.execute(text(
+            "SELECT cron_iniziale, cron_finale FROM periodizzazione_table "
+            "WHERE sito='S' AND periodo=9")).fetchone() == (1500, 1600)
+
+
+def test_a_us_row_whose_sito_is_null_is_refused_not_written_everywhere(tmp_path):
+    """Senza il sito la clausola perdeva il predicato e la correzione finiva
+    su tutti i siti: adesso rifiuta, e nessuna delle due righe si muove."""
+    from sqlalchemy import text
+    h = _db_nulls(tmp_path)
+    with pytest.raises(ValueError, match="sito"):
+        RC.apply_edits([RC.Edit(us="77",
+                                set_fields=(("datazione", "SCRITTA"),))], h)
+    with h.engine.connect() as c:
+        righe = dict(c.execute(text(
+            "SELECT sito, datazione FROM us_table WHERE us='77'")).fetchall())
+    assert righe == {None: "vecchia", "ALTRO": "non toccare"}
+
+
+def test_two_edits_on_the_same_column_roll_back_to_before_the_first(tmp_path):
+    """Due `Edit` sulla stessa colonna della stessa riga: si applicano insieme,
+    vince l'ultima, e l'annulla torna al valore di prima della prima — non a
+    quello intermedio."""
+    h = _db(tmp_path)
+    target = ("periodizzazione_table", {"periodo": "2", "fase": "2.2"})
+    edits = [RC.Edit(us="2/2.2", set_fields=(("cron_iniziale", 1510),),
+                     target=target),
+             RC.Edit(us="2/2.2", set_fields=(("cron_iniziale", 1520),),
+                     target=target)]
+    tok = RC.apply_edits(edits, h, sito="S")
+    assert _periodo(h, "S", "2", "2.2") == (1520, 1549)
     RC.rollback(tok, h)
     assert _periodo(h, "S", "2", "2.2") == (1500, 1549)

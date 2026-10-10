@@ -615,24 +615,28 @@ def _target_of(edit):
 def _where(tabella, chiave, row_sito):
     """La clausola che individua la riga, e i suoi parametri.
 
-    Le colonne della chiave si confrontano **come testo**:
-    ``periodizzazione_table.periodo`` è ``Integer`` nello schema e ``fase`` è
-    ``Text``, e PostgreSQL — che non converte da sé — su una chiave di testo
-    contro una colonna intera dà «operator does not exist: integer = text».
-    Il ``CAST`` lo toglie in tutti e due i motori, e la tabella è di decine di
-    righe.
+    Il sito serve sempre, per ogni tabella: senza, la chiave individua la
+    stessa riga in tutti i siti del database — dieci, in quello di esempio.
+    Una riga il cui ``sito`` è NULL non si può nemmeno nominare con
+    ``sito = :w_sito``, quindi si rifiuta invece di allargare la clausola.
+
+    Le colonne della chiave si confrontano **come testo**, e un NULL conta
+    come stringa vuota: ``periodizzazione_table.periodo`` è ``Integer`` nello
+    schema e ``fase`` è ``Text``, PostgreSQL non converte da sé, e chi legge la
+    chiave normalizza il NULL a ``''`` — se qui non facessimo lo stesso, la
+    correzione di una fase senza nome non troverebbe mai la sua riga e la
+    finestra direbbe di averla applicata.
     """
-    if tabella != "us_table" and row_sito is None:
+    if not row_sito:
         raise ValueError(
             "una correzione su %s ha bisogno del sito: senza, la chiave %s "
             "individua la stessa riga in tutti i siti"
             % (tabella, dict(chiave)))
-    parti, params = [], {}
-    if row_sito is not None:
-        parti.append("sito = :w_sito")
-        params["w_sito"] = row_sito
+    parti, params = ["sito = :w_sito"], {"w_sito": row_sito}
     for i, (col, val) in enumerate(chiave):
-        parti.append("CAST(%s AS TEXT) = :w_%d" % (col, i))
+        if not col.isidentifier():
+            raise ValueError("colonna di chiave non valida: %r" % (col,))
+        parti.append("COALESCE(CAST(%s AS TEXT), '') = :w_%d" % (col, i))
         params["w_%d" % i] = str(val)
     return " AND ".join(parti), params
 
@@ -665,7 +669,7 @@ def apply_edits(edits, handle, *, sito=None) -> RollbackToken:
             if tabella == "us_table" and sito is None:
                 r = conn.execute(text(
                     "SELECT sito FROM us_table WHERE CAST(us AS TEXT) = :u"),
-                    {"u": dict(chiave)["us"]}).fetchone()
+                    {"u": dict(chiave).get("us")}).fetchone()
                 row_sito = r[0] if r else None
             else:
                 row_sito = sito
