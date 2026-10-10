@@ -170,3 +170,12 @@ def test_the_break_does_not_skip_an_overlap_with_an_earlier_phase():
                _p("1", "3", 1550, 1700)]
     issues = CC.check_chronology(periods, [], sito="S")
     assert [i.us_path for i in issues] == [["1/1", "1/2"], ["1/1", "1/3"]]
+
+
+def test_not_a_number_is_a_phase_without_years_and_does_not_raise():
+    """`NaN` e `inf` arrivano da una colonna REAL o da un import mal fatto, e
+    un'eccezione qui farebbe fallire la verifica intera, non una fase."""
+    for valore in (float("nan"), float("inf"), "nan", "inf", "-inf"):
+        periods = [_p("2", "2.2", valore, 1549)]
+        assert [i.kind for i in CC.check_chronology(periods, [], sito="S")] \
+            == ["epoch_no_dates"], valore

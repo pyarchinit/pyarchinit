@@ -40,14 +40,14 @@ def _year(val):
         return int(testo)
     except (TypeError, ValueError):
         pass
-    # Un anno intero scritto come float — la colonna e` `Integer` nello schema,
+    # Un anno intero scritto come float — la colonna è `Integer` nello schema,
     # ma su un database che ha derivato torna come REAL, e trattare 1500.0 come
     # «nessun anno» farebbe sparire una fase vera dal confronto, in silenzio.
     try:
         numero = float(testo)
     except (TypeError, ValueError):
         return None
-    return int(numero) if numero == int(numero) else None
+    return int(numero) if numero.is_integer() else None
 
 
 def _key(row):
