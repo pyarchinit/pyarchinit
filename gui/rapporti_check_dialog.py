@@ -159,10 +159,13 @@ class RapportiCheckPanel(QWidget):
             self._chrono_errore = None
             try:
                 periods, units = CC.load_chronology_rows(handle, sito)
+                # La cronologia calcolata, per la provenienza nell'anteprima.
+                # Si chiede **prima** di aggiungere gli avvisi: se inciampasse
+                # dopo, la finestra mostrerebbe gli avvisi e insieme direbbe
+                # che la verifica non è stata eseguita.
+                self._chrono_bounds = graph.chronology()
                 self._report.issues.extend(CC.check_chronology(
                     periods, units, sito=sito, lang=self._lang))
-                # La cronologia calcolata, per la provenienza nell'anteprima.
-                self._chrono_bounds = graph.chronology()
             except Exception as exc:
                 # Un inciampo della cronologia non porta via la verifica dei
                 # rapporti, che ha già risposto: si dice e si va avanti.
@@ -178,6 +181,7 @@ class RapportiCheckPanel(QWidget):
         for iss in self._report.issues:
             groups.setdefault(iss.kind, []).append(iss)
         n_auto = 0
+        n_prop = 0
         for kind, issues in groups.items():
             title = RC.kind_title(kind, self._lang)
             top = QTreeWidgetItem([f"{title}  ({len(issues)})"])
@@ -194,12 +198,17 @@ class RapportiCheckPanel(QWidget):
                                         else Qt.Unchecked)
                     if iss.auto:
                         n_auto += 1
+                    else:
+                        n_prop += 1
                 top.addChild(child)
             top.setExpanded(True)
         total = len(self._report.issues)
-        self.lblSummary.setText(
-            f"{total} problemi · {n_auto} correggibili automaticamente "
-            f"(selezionati). Anteprima un elemento per i dettagli.")
+        testo = ("%d problemi · %d correggibili automaticamente (selezionati)"
+                 % (total, n_auto))
+        if n_prop:
+            testo += " · %d proposte, da spuntare a mano" % n_prop
+        testo += ". Anteprima un elemento per i dettagli."
+        self.lblSummary.setText(testo)
         if self._chrono_errore:
             # Non si inghiotte in silenzio: la riga di riepilogo dice che gli
             # avvisi cronologici mancano, e perché.
@@ -251,7 +260,7 @@ class RapportiCheckPanel(QWidget):
         edits = [e for iss in issues for e in iss.edits]
         if not edits:
             QMessageBox.information(self, "pyArchInit",
-                                   "Nessun fix automatico selezionato.")
+                                   "Nessuna correzione selezionata.")
             return
         sito = self.cboSite.currentText().strip()
         if QMessageBox.question(
