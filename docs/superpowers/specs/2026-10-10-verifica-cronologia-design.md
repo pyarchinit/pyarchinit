@@ -107,7 +107,9 @@ def check_chronology(periods, units, *, sito, lang="it") -> list[Issue]
 ```
 
 - `periods`: `[{periodo, fase, cron_iniziale, cron_finale, datazione_estesa}]`
-- `units`: `[{us, periodo_iniziale, fase_iniziale, datazione}]`
+- `units`: `[{us, periodo_iniziale, fase_iniziale, datazione, area,
+  unita_tipo}]` — le ultime due non servono al giudizio ma a nominare la
+  riga da correggere (vedi «Dove atterrano le correzioni»)
 
 Entrambe lette dal chiamante con una funzione sola,
 `load_chronology_rows(handle, sito)`, nello stesso modulo. Separare la lettura

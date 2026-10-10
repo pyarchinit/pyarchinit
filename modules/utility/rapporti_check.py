@@ -161,10 +161,11 @@ _L = {
                             "negativi, es. -1650). La proposta riscrive i due anni "
                             "negativi ({nini} → {nfin}); se invece è un refuso, "
                             "scambia i due valori nella scheda Periodizzazione",
-        "s_epoch_reversed_swap": "Fase {fase}: inizio {ini} dopo la fine {fin} — il "
-                                 "segno meno c'è già, quindi è un refuso: la proposta "
-                                 "scambia i due anni ({nini} → {nfin}). Controlla "
-                                 "nella scheda Periodizzazione",
+        "s_epoch_reversed_swap": "Fase {fase}: inizio {ini} dopo la fine {fin} — qui "
+                                 "il segno meno non manca, quindi la lettura più "
+                                 "probabile è un refuso: la proposta scambia i due anni "
+                                 "({nini} → {nfin}). Controlla nella scheda "
+                                 "Periodizzazione",
         "s_epoch_no_dates": "Fase {fase}: nessun anno leggibile in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datazione «{corrente}» invece di «{atteso}»",
         "m_site_changed": "Il sito è cambiato: l'albero mostra la verifica di «{atteso}», il "
@@ -210,9 +211,9 @@ _L = {
                             "typo instead, swap the two values in the Periodization "
                             "form",
         "s_epoch_reversed_swap": "Phase {fase}: starts {ini} after it ends {fin} — the "
-                                 "minus sign is already there, so this is a typo: the "
-                                 "proposal swaps the two years ({nini} → {nfin}). "
-                                 "Check it in the Periodization form",
+                                 "minus sign is not missing here, so the likeliest "
+                                 "reading is a typo: the proposal swaps the two years "
+                                 "({nini} → {nfin}). Check it in the Periodization form",
         "s_epoch_no_dates": "Phase {fase}: no readable year in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}): dating «{corrente}» instead of «{atteso}»",
         "m_site_changed": "The site has changed: the tree shows the check of «{atteso}», the "
@@ -256,10 +257,11 @@ _L = {
                             "schreibt beide Jahre negativ ({nini} → {nfin}); handelt "
                             "es sich dagegen um einen Tippfehler, die beiden Werte im "
                             "Periodisierungsformular tauschen",
-        "s_epoch_reversed_swap": "Phase {fase}: beginnt {ini} nach dem Ende {fin} — das "
-                                 "Minuszeichen ist schon da, also ein Tippfehler: der "
-                                 "Vorschlag tauscht die beiden Jahre ({nini} → "
-                                 "{nfin}). Bitte im Periodisierungsformular prüfen",
+        "s_epoch_reversed_swap": "Phase {fase}: beginnt {ini} nach dem Ende {fin} — hier "
+                                 "fehlt das Minuszeichen nicht, die wahrscheinlichste "
+                                 "Lesart ist also ein Tippfehler: der Vorschlag tauscht "
+                                 "die beiden Jahre ({nini} → {nfin}). Bitte im "
+                                 "Periodisierungsformular prüfen",
         "s_epoch_no_dates": "Phase {fase}: kein lesbares Jahr in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (Phase {fase}): Datierung «{corrente}» statt «{atteso}»",
         "m_site_changed": "Die Fundstelle hat sich geändert: der Baum zeigt die Prüfung von "
@@ -306,10 +308,10 @@ _L = {
                             "en cambio es un error de tecleo, intercambia los dos "
                             "valores en la ficha Periodización",
         "s_epoch_reversed_swap": "Fase {fase}: empieza {ini} después de terminar {fin} "
-                                 "— el signo menos ya está, así que es un error de "
-                                 "tecleo: la propuesta intercambia los dos años "
-                                 "({nini} → {nfin}). Compruébalo en la ficha "
-                                 "Periodización",
+                                 "— aquí no falta el signo menos, así que la lectura "
+                                 "más probable es un error de tecleo: la propuesta "
+                                 "intercambia los dos años ({nini} → {nfin}). "
+                                 "Compruébalo en la ficha Periodización",
         "s_epoch_no_dates": "Fase {fase}: ningún año legible en cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datación «{corrente}» en vez de «{atteso}»",
         "m_site_changed": "El sitio ha cambiado: el árbol muestra la verificación de "
@@ -357,9 +359,10 @@ _L = {
                             "{nfin}) ; s'il s'agit plutôt d'une coquille, échangez les "
                             "deux valeurs dans la fiche Périodisation",
         "s_epoch_reversed_swap": "Phase {fase} : commence en {ini} après sa fin {fin} — "
-                                 "le signe moins est déjà là, c'est donc une coquille : "
-                                 "la proposition échange les deux années ({nini} → "
-                                 "{nfin}). Vérifiez dans la fiche Périodisation",
+                                 "ici le signe moins ne manque pas, la lecture la plus "
+                                 "probable est donc une coquille : la proposition "
+                                 "échange les deux années ({nini} → {nfin}). Vérifiez "
+                                 "dans la fiche Périodisation",
         "s_epoch_no_dates": "Phase {fase} : aucune année lisible dans cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}) : datation «{corrente}» au lieu de «{atteso}»",
         "m_site_changed": "Le site a changé : l'arbre montre la vérification de «{atteso}», "
@@ -405,9 +408,10 @@ _L = {
                             "se for um erro de digitação, troque os dois valores na "
                             "ficha Periodização",
         "s_epoch_reversed_swap": "Fase {fase}: começa em {ini} depois de terminar {fin} "
-                                 "— o sinal menos já está lá, portanto é um erro de "
-                                 "digitação: a proposta troca os dois anos ({nini} → "
-                                 "{nfin}). Verifique na ficha Periodização",
+                                 "— aqui o sinal menos não falta, portanto a leitura "
+                                 "mais provável é um erro de digitação: a proposta troca "
+                                 "os dois anos ({nini} → {nfin}). Verifique na ficha "
+                                 "Periodização",
         "s_epoch_no_dates": "Fase {fase}: nenhum ano legível em cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datação «{corrente}» em vez de «{atteso}»",
         "m_site_changed": "O sítio mudou: a árvore mostra a verificação de «{atteso}», o "
@@ -712,12 +716,21 @@ def _where(tabella, chiave, row_sito):
     Una riga il cui ``sito`` è NULL non si può nemmeno nominare con
     ``sito = :w_sito``, quindi si rifiuta invece di allargare la clausola.
 
-    Le colonne della chiave si confrontano **come testo**, e un NULL conta
-    come stringa vuota: ``periodizzazione_table.periodo`` è ``Integer`` nello
-    schema e ``fase`` è ``Text``, PostgreSQL non converte da sé, e chi legge la
-    chiave normalizza il NULL a ``''`` — se qui non facessimo lo stesso, la
-    correzione di una fase senza nome non troverebbe mai la sua riga e la
+    Le colonne della chiave si confrontano **come testo**, un NULL conta come
+    stringa vuota e gli spazi in testa e in coda non contano:
+    ``periodizzazione_table.periodo`` è ``Integer`` nello schema e ``fase`` è
+    ``Text``, PostgreSQL non converte da sé, e chi legge la chiave normalizza
+    il NULL a ``''`` **e la striscia** (``chronology_check._text``) — se qui
+    non facessimo lo stesso, la correzione non troverebbe mai la sua riga e la
     finestra direbbe di averla applicata.
+
+    Lo spazio non è un caso di scuola: ``area`` e ``fase`` sono testo battuto
+    a mano in una scheda, e un ``area = '1 '`` faceva aggiornare zero righe
+    con la finestra che diceva «1 correzioni applicate» e la riverifica che
+    ripresentava lo stesso avviso per sempre — «dice corretti e non applica»,
+    il guasto che l'utente ha segnalato. ``TRIM`` in SQL toglie gli spazi (è
+    quello che si batte in un campo di testo); il lato Python striscia tutti i
+    bianchi, come chi legge la chiave.
     """
     if not row_sito:
         raise ValueError(
@@ -728,8 +741,8 @@ def _where(tabella, chiave, row_sito):
     for i, (col, val) in enumerate(chiave):
         if not col.isidentifier():
             raise ValueError("colonna di chiave non valida: %r" % (col,))
-        parti.append("COALESCE(CAST(%s AS TEXT), '') = :w_%d" % (col, i))
-        params["w_%d" % i] = str(val)
+        parti.append("TRIM(COALESCE(CAST(%s AS TEXT), '')) = :w_%d" % (col, i))
+        params["w_%d" % i] = str(val).strip()
     return " AND ".join(parti), params
 
 

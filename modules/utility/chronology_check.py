@@ -17,7 +17,7 @@ from .rapporti_check import Edit, Issue, _t
 
 #: Le categorie, con i nomi che il dialogo usa per raggrupparle.
 EPOCH_OVERLAP = "epoch_overlap"              # manuale, proposta quando si può
-EPOCH_REVERSED = "epoch_reversed"            # automatica
+EPOCH_REVERSED = "epoch_reversed"            # manuale: gli anni negati
 EPOCH_NO_DATES = "epoch_no_dates"            # solo segnalazione
 DATAZIONE_MISMATCH = "datazione_mismatch"    # automatica
 
@@ -302,7 +302,11 @@ def check_chronology(periods, units, *, sito, lang="it"):
     ``periodo``, ``fase``, ``cron_iniziale``, ``cron_finale``,
     ``datazione_estesa``.
     ``units``: righe di ``us_table`` con ``us``, ``periodo_iniziale``,
-    ``fase_iniziale``, ``datazione``.
+    ``fase_iniziale``, ``datazione``, ``area`` e ``unita_tipo``. Le due
+    ultime non servono al giudizio ma a **nominare la riga** da
+    correggere: l'identità di una scheda è di quattro colonne (vedi
+    :func:`_us_target`), e senza di loro una correzione sulla US 1
+    dell'area 1 riscriverebbe anche la US 1 dell'area 2.
 
     Una periodizzazione assente o vuota non è un errore: nessuna issue, e la
     verifica dei rapporti continua per conto suo.

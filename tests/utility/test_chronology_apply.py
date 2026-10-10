@@ -423,3 +423,77 @@ def test_a_mismatch_edit_on_a_null_area_finds_its_row(tmp_path):
         assert c.execute(text(
             "SELECT datazione FROM us_table WHERE sito='S' AND area IS NULL")
         ).fetchone() == ("XVI secolo",)
+
+
+# ---------------------------------------------------------------------------
+# La chiave con uno spazio in coda: chi legge la strippa, chi scrive no
+# ---------------------------------------------------------------------------
+
+def test_a_mismatch_edit_finds_its_row_even_with_a_padded_area(tmp_path):
+    """`area` è un `String(20)` battuto a mano: ci finisce uno spazio.
+
+    Chi legge la chiave la strippa (`_text`), chi scriveva confrontava la
+    colonna così com'è: zero righe aggiornate, snapshot vuoto, la finestra che
+    diceva «1 correzioni applicate» e la riverifica che ripresentava lo stesso
+    avviso per sempre — «dice corretti e non applica». È la stessa classe di
+    guasto che il COALESCE ha chiuso per il NULL.
+    """
+    from sqlalchemy import text
+
+    from modules.utility import chronology_check as CC
+    h = _db_due_aree(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("UPDATE us_table SET area = '1 ' "
+                       "WHERE area = '1' AND unita_tipo = 'US'"))
+    periods, units = CC.load_chronology_rows(h, "S")
+    edits = [e for i in CC.check_chronology(periods, units, sito="S")
+             for e in i.edits]
+    assert len(edits) == 1
+    assert edits[0].target == ("us_table", {"us": "1", "area": "1",
+                                            "unita_tipo": "US"})
+    token = RC.apply_edits(edits, h, sito="S")
+    with h.engine.connect() as c:
+        assert c.execute(text("SELECT datazione FROM us_table "
+                              "WHERE sito='S' AND area='1 '")).fetchone() \
+            == ("XVI secolo",)
+    # Lo snapshot non è vuoto: l'annulla ha qualcosa da rimettere. Senza
+    # questa prova, una scrittura a zero righe passerebbe per un annulla
+    # riuscito.
+    assert any(orig for (_sito, orig) in token.snapshot.values()), token
+    RC.rollback(token, h)
+    with h.engine.connect() as c:
+        assert c.execute(text("SELECT datazione FROM us_table "
+                              "WHERE sito='S' AND area='1 '")).fetchone() \
+            == ("SBAGLIATA",)
+
+
+def test_a_padded_us_is_found_too(tmp_path):
+    """Il rischio c'era già sulla sola `us`, prima che la chiave crescesse:
+    la correzione dei rapporti passa da qui con `target=()`."""
+    from sqlalchemy import text
+    h = _db(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("UPDATE us_table SET us = '12 ' WHERE us = '12'"))
+    RC.apply_edits([RC.Edit(us="12", set_fields=(("datazione", "XV secolo"),))],
+                   h, sito="S")
+    with h.engine.connect() as c:
+        assert c.execute(text("SELECT datazione FROM us_table "
+                              "WHERE sito='S' AND us='12 '")).fetchone() \
+            == ("XV secolo",)
+
+
+def test_a_padded_phase_is_found_too(tmp_path):
+    """E sulla periodizzazione, dove `fase` è testo battuto a mano."""
+    from sqlalchemy import text
+    h = _db(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("UPDATE periodizzazione_table SET fase = '2.2 ' "
+                       "WHERE sito='S' AND fase = '2.2'"))
+    RC.apply_edits([RC.Edit(us="2/2.2", set_fields=(("cron_finale", 1480),),
+                            target=("periodizzazione_table",
+                                    {"periodo": "2", "fase": "2.2"}))],
+                   h, sito="S")
+    with h.engine.connect() as c:
+        assert c.execute(text(
+            "SELECT cron_iniziale, cron_finale FROM periodizzazione_table "
+            "WHERE sito='S' AND fase='2.2 '")).fetchone() == (1500, 1480)
