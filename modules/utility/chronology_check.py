@@ -341,12 +341,33 @@ def bounds_by_us(graph):
     accostarla a un avviso — che nomina le unità per numero — serve lo stesso
     modo in cui la verifica dei rapporti riconosce una unità, cioè l'attributo
     ``us`` del nodo, o il suo nome ripulito del prefisso.
+
+    Le fonti dei vincoli si rendono leggibili per la stessa ragione: un
+    ``tpq`` arrivato da un'altra unità porta l'uuid di quel nodo, e
+    «is_after → 019f8043-4f87-…» non dice niente a nessuno. Le epoche portano
+    già un nome parlante — ``epoch_2_3`` è periodo 2 fase 3 — e si lasciano
+    stare.
     """
-    from .rapporti_check import _us_of
+    from .rapporti_check import _real_us, _us_of
+
+    def leggibile(valore):
+        # `_real_us` e non `_us_of`: su un nodo-epoca il secondo restituisce
+        # il **nome** dell'epoca («Età contemporanea»), e la fonte diventerebbe
+        # «US Età contemporanea». Il predicato severo su un'epoca dà None.
+        us = _real_us(graph.find_node_by_id(valore)) if valore else None
+        return ("US %s" % us) if us else valore
 
     per_us = {}
     for node_id, voce in (graph.chronology() or {}).items():
         us = _us_of(graph.find_node_by_id(node_id))
-        if us:
-            per_us[str(us)] = voce
+        if not us:
+            continue
+        # Una copia: la voce appartiene al grafo, e qui se ne riscrive una
+        # chiave — il grafo non si tocca.
+        voce = dict(voce)
+        for lato in ("start", "end"):
+            chiave = "%s_source" % lato
+            if voce.get(chiave):
+                voce[chiave] = leggibile(voce[chiave])
+        per_us[str(us)] = voce
     return per_us

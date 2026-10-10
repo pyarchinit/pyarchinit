@@ -385,3 +385,57 @@ def test_bounds_by_us_skips_a_node_it_cannot_name():
             return None
 
     assert CC.bounds_by_us(_Grafo()) == {}
+
+
+def test_bounds_by_us_names_a_source_unit_instead_of_its_uuid():
+    """Un vincolo arrivato da un'altra unità porta l'uuid di quel nodo, e
+    «is_after → 019f8043-…» non dice niente a nessuno."""
+    ID_A, ID_B = "uuid-a", "uuid-b"
+
+    class _Nodo:
+        def __init__(self, us):
+            self.attributes = {"us": us}
+            self.name = "US%s" % us
+
+    class _Grafo:
+        def chronology(self):
+            return {ID_A: {"start": 1422.0, "end": None, "rule": "tpq",
+                           "start_relation": "is_after", "start_source": ID_B}}
+
+        def find_node_by_id(self, node_id):
+            return {ID_A: _Nodo("12"), ID_B: _Nodo("7")}.get(node_id)
+
+    voce = CC.bounds_by_us(_Grafo())["12"]
+    assert voce["start_source"] == "US 7"
+    assert CC.explain_bounds(voce) == \
+        "1422–… · terminus post quem · is_after → US 7"
+
+
+def test_bounds_by_us_leaves_an_epoch_source_as_it_is():
+    """Su un nodo-epoca `_us_of` restituisce il NOME dell'epoca («Età
+    contemporanea»), quindi usarlo qui darebbe «US Età contemporanea»: la
+    fonte si risolve con `_real_us`, che su un'epoca dà None.
+    """
+    class _Epoca:
+        attributes = {}
+        name = "Età contemporanea"
+
+    class _Unita:
+        attributes = {"us": "1"}
+        name = "US1"
+
+    class _Grafo:
+        def chronology(self):
+            return {"u": {"start": 1800.0, "end": 2022.0, "rule": "epoch",
+                          "start_relation": "has_first_epoch",
+                          "start_source": "epoch_1_1",
+                          "end_relation": "has_first_epoch",
+                          "end_source": "epoch_1_1"}}
+
+        def find_node_by_id(self, node_id):
+            return _Unita() if node_id == "u" else _Epoca()
+
+    voce = CC.bounds_by_us(_Grafo())["1"]
+    assert voce["start_source"] == "epoch_1_1"
+    assert CC.explain_bounds(voce) == \
+        "1800–2022 · epoca · has_first_epoch → epoch_1_1"
