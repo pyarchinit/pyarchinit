@@ -63,15 +63,83 @@ def test_spans_that_touch_without_overlapping_are_not_an_issue():
     assert CC.check_chronology(periods, [], sito="S") == []
 
 
-def test_reversed_span_swaps_the_two_years_automatically():
-    periods = [_p("2", "2.2", 1549, 1500)]
+def test_a_reversed_span_is_never_pre_checked():
+    """`1650 → 1450` è «quasi sempre un periodo a.C. battuto senza il segno
+    meno» (modules/utility/periodization_checks.py, database Ventena,
+    2026-08-27): una correzione spuntata di suo trasformerebbe l'Età del
+    Bronzo Medio nel 1450–1650 d.C., e senza che nessuno l'abbia chiesto.
+    """
+    periods = [_p("6", "1", 1650, 1450, "Età del Bronzo Medio")]
     issues = CC.check_chronology(periods, [], sito="S")
     assert [i.kind for i in issues] == ["epoch_reversed"]
-    assert issues[0].auto is True
+    assert issues[0].auto is False
+
+
+def test_a_reversed_span_proposes_the_two_years_as_negatives():
+    """La correzione è quella di `periodization_checks`: gli anni si scrivono
+    negativi, non si scambiano. Scambiarli renderebbe `inizio > fine` falso e
+    **zittirebbe** l'avviso del projector, che gira nello stesso clic.
+    """
+    periods = [_p("6", "1", 1650, 1450, "Età del Bronzo Medio")]
+    issues = CC.check_chronology(periods, [], sito="S")
     edit, = issues[0].edits
-    assert edit.set_fields == (("cron_iniziale", 1500), ("cron_finale", 1549))
+    assert edit.set_fields == (("cron_iniziale", -1650),
+                               ("cron_finale", -1450))
     assert edit.target == ("periodizzazione_table",
-                           {"periodo": "2", "fase": "2.2"})
+                           {"periodo": "6", "fase": "1"})
+
+
+def test_a_reversed_span_carries_one_single_proposal():
+    """Il dialogo applica una issue quando è spuntata **e** ha delle `edits`:
+    due proposte nella stessa issue si applicherebbero insieme, e la
+    combinazione di una negazione e di uno scambio non è nessuna delle due.
+    """
+    periods = [_p("6", "1", 1650, 1450, "Età del Bronzo Medio")]
+    assert len(CC.check_chronology(periods, [], sito="S")[0].edits) == 1
+
+
+def test_the_reversed_summary_says_what_periodization_checks_says():
+    """Le due verifiche compaiono nella stessa finestra: devono dire una cosa
+    sola. Lo scambio resta nominato come alternativa da fare a mano."""
+    periods = [_p("6", "1", 1650, 1450, "Età del Bronzo Medio")]
+    riassunto = CC.check_chronology(periods, [], sito="S")[0].summary
+    assert "a.C." in riassunto
+    assert "-1650" in riassunto
+    assert "Periodizzazione" in riassunto      # dove si fa a mano
+    assert "scambia" in riassunto.lower()      # l'altra lettura, nominata
+    inglese = CC.check_chronology(periods, [], sito="S", lang="en")[0].summary
+    assert "BC" in inglese and "minus" in inglese.lower()
+
+
+def test_a_span_already_bc_proposes_the_swap_not_another_negation():
+    """`-1450 → -1650`: il segno c'è già, e negare porterebbe l'Età del Bronzo
+    nel 1450–1650 d.C. — l'errore che questa correzione deve evitare. Qui la
+    lettura buona è lo scambio, e resta una proposta da spuntare.
+    """
+    periods = [_p("6", "1", -1450, -1650, "Età del Bronzo Medio")]
+    issues = CC.check_chronology(periods, [], sito="S")
+    assert issues[0].auto is False
+    edit, = issues[0].edits
+    assert edit.set_fields == (("cron_iniziale", -1650),
+                               ("cron_finale", -1450))
+    assert "a.C." not in issues[0].summary
+
+
+def test_the_two_checks_fire_on_the_same_row_and_agree():
+    """`suspicious_chronologies` e `epoch_reversed` hanno lo stesso predicato:
+    il rimedio che raccontano deve essere lo stesso, non l'opposto."""
+    from modules.utility.periodization_checks import (
+        format_chronology_warning, suspicious_chronologies)
+    riga = (6, "1", 1650, 1450, "Età del Bronzo Medio")
+    sospette = suspicious_chronologies([riga])
+    assert len(sospette) == 1
+    avviso = format_chronology_warning(sospette, "it")
+    nostro = CC.check_chronology(
+        [_p("6", "1", 1650, 1450, "Età del Bronzo Medio")], [],
+        sito="S")[0].summary
+    for pezzo in ("a.C.", "negativ"):
+        assert pezzo in avviso.lower() or pezzo in avviso
+        assert pezzo in nostro.lower() or pezzo in nostro
 
 
 def test_a_reversed_span_is_not_also_an_overlap():
@@ -151,13 +219,14 @@ def test_a_fractional_year_is_still_a_phase_without_years():
         == ["epoch_no_dates"]
 
 
-def test_the_eight_entries_are_in_all_six_blocks_without_falling_back():
+def test_the_nine_entries_are_in_all_six_blocks_without_falling_back():
     """`_t` ripiega sull'inglese, quindi una chiave mancante non si vedrebbe
     dal titolo: si guarda il dizionario."""
     from modules.utility.rapporti_check import _L
     chiavi = ("t_epoch_overlap", "t_epoch_reversed", "t_epoch_no_dates",
               "t_datazione_mismatch", "s_epoch_overlap", "s_epoch_reversed",
-              "s_epoch_no_dates", "s_datazione_mismatch")
+              "s_epoch_reversed_swap", "s_epoch_no_dates",
+              "s_datazione_mismatch")
     for lang in ("it", "en", "de", "es", "fr", "pt"):
         mancanti = [k for k in chiavi if k not in _L[lang]]
         assert not mancanti, (lang, mancanti)

@@ -6,6 +6,12 @@ than its *cron_finale* (e.g. ``1650 → 1450``) is almost always a BC
 period typed without the minus sign: it sorts as "AD 1650" and lands
 above the Roman periods in the Extended Matrix swimlane and in the DOT
 period clusters (Ventena DB, 2026-08-27). Pure module, no Qt.
+
+Same predicate, same remedy: ``epoch_reversed`` in
+:mod:`modules.utility.chronology_check` proposes exactly this — enter the
+years as negatives — inside «Verifica rapporti». The two warnings show up
+in the same window, so their wording is kept in step on purpose; change
+one and change the other.
 """
 from __future__ import annotations
 

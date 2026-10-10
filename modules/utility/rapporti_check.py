@@ -145,11 +145,19 @@ _L = {
                              "datazione di periodo per valutarne la coerenza — "
                              "assegna il periodo mancante",
         "t_epoch_overlap": "Fasi con intervalli sovrapposti (scelta manuale)",
-        "t_epoch_reversed": "Periodizzazione con inizio dopo la fine",
+        "t_epoch_reversed": "Periodizzazione con inizio dopo la fine (scelta manuale)",
         "t_epoch_no_dates": "Fase senza anni (solo segnalazione)",
         "t_datazione_mismatch": "Datazione della scheda disallineata (verrà riscritta)",
         "s_epoch_overlap": "Le fasi {a} e {b} si sovrappongono per {anni} anni ({ini}–{fin})",
-        "s_epoch_reversed": "Fase {fase}: inizio {ini} dopo la fine {fin} (i due anni si scambiano)",
+        "s_epoch_reversed": "Fase {fase}: inizio {ini} dopo la fine {fin} — probabili "
+                            "date a.C. inserite senza il segno meno (a.C. = numeri "
+                            "negativi, es. -1650). La proposta riscrive i due anni "
+                            "negativi ({nini} → {nfin}); se invece è un refuso, "
+                            "scambia i due valori nella scheda Periodizzazione",
+        "s_epoch_reversed_swap": "Fase {fase}: inizio {ini} dopo la fine {fin} — il "
+                                 "segno meno c'è già, quindi è un refuso: la proposta "
+                                 "scambia i due anni ({nini} → {nfin}). Controlla "
+                                 "nella scheda Periodizzazione",
         "s_epoch_no_dates": "Fase {fase}: nessun anno leggibile in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datazione «{corrente}» invece di «{atteso}»",
     },
@@ -179,11 +187,20 @@ _L = {
                              "missing to evaluate consistency — assign the missing "
                              "period",
         "t_epoch_overlap": "Phases with overlapping spans (manual choice)",
-        "t_epoch_reversed": "Periodization starting after it ends",
+        "t_epoch_reversed": "Periodization starting after it ends (manual choice)",
         "t_epoch_no_dates": "Phase with no years (report only)",
         "t_datazione_mismatch": "Sheet dating out of step (will be rewritten)",
         "s_epoch_overlap": "Phases {a} and {b} overlap by {anni} years ({ini}–{fin})",
-        "s_epoch_reversed": "Phase {fase}: starts {ini} after it ends {fin} (the two years swap)",
+        "s_epoch_reversed": "Phase {fase}: starts {ini} after it ends {fin} — most "
+                            "likely BC years entered without the minus sign (BC = "
+                            "negative numbers, e.g. -1650). The proposal rewrites "
+                            "both years as negatives ({nini} → {nfin}); if it is a "
+                            "typo instead, swap the two values in the Periodization "
+                            "form",
+        "s_epoch_reversed_swap": "Phase {fase}: starts {ini} after it ends {fin} — the "
+                                 "minus sign is already there, so this is a typo: the "
+                                 "proposal swaps the two years ({nini} → {nfin}). "
+                                 "Check it in the Periodization form",
         "s_epoch_no_dates": "Phase {fase}: no readable year in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}): dating «{corrente}» instead of «{atteso}»",
     },
@@ -213,11 +230,20 @@ _L = {
         "s_temporal_uneval": "{a} und {b} stehen in einer Beziehung, aber eine "
                              "Periodendatierung fehlt — fehlende Periode zuweisen",
         "t_epoch_overlap": "Phasen mit überlappenden Zeiträumen (manuelle Wahl)",
-        "t_epoch_reversed": "Periodisierung beginnt nach ihrem Ende",
+        "t_epoch_reversed": "Periodisierung beginnt nach ihrem Ende (manuelle Wahl)",
         "t_epoch_no_dates": "Phase ohne Jahresangaben (nur Hinweis)",
         "t_datazione_mismatch": "Datierung im Formular abweichend (wird überschrieben)",
         "s_epoch_overlap": "Die Phasen {a} und {b} überlappen sich um {anni} Jahre ({ini}–{fin})",
-        "s_epoch_reversed": "Phase {fase}: beginnt {ini} nach dem Ende {fin} (die Jahre werden getauscht)",
+        "s_epoch_reversed": "Phase {fase}: beginnt {ini} nach dem Ende {fin} — "
+                            "wahrscheinlich v. Chr.-Jahre ohne Minuszeichen "
+                            "(v. Chr. = negative Zahlen, z. B. -1650). Der Vorschlag "
+                            "schreibt beide Jahre negativ ({nini} → {nfin}); handelt "
+                            "es sich dagegen um einen Tippfehler, die beiden Werte im "
+                            "Periodisierungsformular tauschen",
+        "s_epoch_reversed_swap": "Phase {fase}: beginnt {ini} nach dem Ende {fin} — das "
+                                 "Minuszeichen ist schon da, also ein Tippfehler: der "
+                                 "Vorschlag tauscht die beiden Jahre ({nini} → "
+                                 "{nfin}). Bitte im Periodisierungsformular prüfen",
         "s_epoch_no_dates": "Phase {fase}: kein lesbares Jahr in cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (Phase {fase}): Datierung «{corrente}» statt «{atteso}»",
     },
@@ -247,11 +273,21 @@ _L = {
         "s_temporal_uneval": "{a} y {b} comparten una relación pero falta la "
                              "datación de período — asigna el período faltante",
         "t_epoch_overlap": "Fases con intervalos superpuestos (elección manual)",
-        "t_epoch_reversed": "Periodización que empieza después de terminar",
+        "t_epoch_reversed": "Periodización que empieza después de terminar (elección manual)",
         "t_epoch_no_dates": "Fase sin años (solo aviso)",
         "t_datazione_mismatch": "Datación de la ficha desalineada (se reescribirá)",
         "s_epoch_overlap": "Las fases {a} y {b} se superponen {anni} años ({ini}–{fin})",
-        "s_epoch_reversed": "Fase {fase}: empieza {ini} después de terminar {fin} (los dos años se intercambian)",
+        "s_epoch_reversed": "Fase {fase}: empieza {ini} después de terminar {fin} — "
+                            "probablemente años a.C. introducidos sin el signo menos "
+                            "(a.C. = números negativos, p. ej. -1650). La propuesta "
+                            "reescribe los dos años en negativo ({nini} → {nfin}); si "
+                            "en cambio es un error de tecleo, intercambia los dos "
+                            "valores en la ficha Periodización",
+        "s_epoch_reversed_swap": "Fase {fase}: empieza {ini} después de terminar {fin} "
+                                 "— el signo menos ya está, así que es un error de "
+                                 "tecleo: la propuesta intercambia los dos años "
+                                 "({nini} → {nfin}). Compruébalo en la ficha "
+                                 "Periodización",
         "s_epoch_no_dates": "Fase {fase}: ningún año legible en cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datación «{corrente}» en vez de «{atteso}»",
     },
@@ -282,11 +318,20 @@ _L = {
         "s_temporal_uneval": "{a} et {b} partagent une relation mais la datation de "
                              "période est manquante — assignez la période manquante",
         "t_epoch_overlap": "Phases aux intervalles qui se chevauchent (choix manuel)",
-        "t_epoch_reversed": "Périodisation qui commence après sa fin",
+        "t_epoch_reversed": "Périodisation qui commence après sa fin (choix manuel)",
         "t_epoch_no_dates": "Phase sans années (signalement seul)",
         "t_datazione_mismatch": "Datation de la fiche décalée (elle sera réécrite)",
         "s_epoch_overlap": "Les phases {a} et {b} se chevauchent sur {anni} ans ({ini}–{fin})",
-        "s_epoch_reversed": "Phase {fase} : commence en {ini} après sa fin {fin} (les deux années sont échangées)",
+        "s_epoch_reversed": "Phase {fase} : commence en {ini} après sa fin {fin} — "
+                            "probablement des années av. J.-C. saisies sans le signe "
+                            "moins (av. J.-C. = nombres négatifs, p. ex. -1650). La "
+                            "proposition réécrit les deux années en négatif ({nini} → "
+                            "{nfin}) ; s'il s'agit plutôt d'une coquille, échangez les "
+                            "deux valeurs dans la fiche Périodisation",
+        "s_epoch_reversed_swap": "Phase {fase} : commence en {ini} après sa fin {fin} — "
+                                 "le signe moins est déjà là, c'est donc une coquille : "
+                                 "la proposition échange les deux années ({nini} → "
+                                 "{nfin}). Vérifiez dans la fiche Périodisation",
         "s_epoch_no_dates": "Phase {fase} : aucune année lisible dans cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (phase {fase}) : datation «{corrente}» au lieu de «{atteso}»",
     },
@@ -316,11 +361,20 @@ _L = {
         "s_temporal_uneval": "{a} e {b} partilham uma relação mas a datação de "
                              "período está em falta — atribua o período em falta",
         "t_epoch_overlap": "Fases com intervalos sobrepostos (escolha manual)",
-        "t_epoch_reversed": "Periodização que começa depois de terminar",
+        "t_epoch_reversed": "Periodização que começa depois de terminar (escolha manual)",
         "t_epoch_no_dates": "Fase sem anos (apenas aviso)",
         "t_datazione_mismatch": "Datação da ficha desalinhada (será reescrita)",
         "s_epoch_overlap": "As fases {a} e {b} sobrepõem-se em {anni} anos ({ini}–{fin})",
-        "s_epoch_reversed": "Fase {fase}: começa em {ini} depois de terminar {fin} (os dois anos são trocados)",
+        "s_epoch_reversed": "Fase {fase}: começa em {ini} depois de terminar {fin} — "
+                            "provavelmente anos a.C. introduzidos sem o sinal menos "
+                            "(a.C. = números negativos, p. ex. -1650). A proposta "
+                            "reescreve os dois anos como negativos ({nini} → {nfin}); "
+                            "se for um erro de digitação, troque os dois valores na "
+                            "ficha Periodização",
+        "s_epoch_reversed_swap": "Fase {fase}: começa em {ini} depois de terminar {fin} "
+                                 "— o sinal menos já está lá, portanto é um erro de "
+                                 "digitação: a proposta troca os dois anos ({nini} → "
+                                 "{nfin}). Verifique na ficha Periodização",
         "s_epoch_no_dates": "Fase {fase}: nenhum ano legível em cron_iniziale/cron_finale",
         "s_datazione_mismatch": "US {us} (fase {fase}): datação «{corrente}» em vez de «{atteso}»",
     },

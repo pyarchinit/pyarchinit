@@ -95,13 +95,38 @@ def _no_dates(key, lang):
 
 
 def _reversed_issue(key, ini, fin, lang):
-    """Inizio dopo la fine: i due anni si scambiano, altra lettura non c'è."""
+    """Inizio dopo la fine: **mai** spuntata di suo, e una proposta sola.
+
+    ``1650 → 1450`` è «quasi sempre un periodo a.C. battuto senza il segno
+    meno» — non lo diciamo noi, lo dice
+    :mod:`modules.utility.periodization_checks` dal 2026-08-27, sullo stesso
+    predicato e sul database Ventena. Scambiare i due anni di suo
+    trasformerebbe l'Età del Bronzo Medio nel 1450–1650 d.C., e per giunta
+    renderebbe ``inizio > fine`` falso: l'avviso del projector, che gira nello
+    stesso clic, non avrebbe più niente da dire e la corruzione resterebbe
+    invisibile.
+
+    Quindi la correzione è quella di `periodization_checks`: **gli anni si
+    scrivono negativi**. Lo scambio resta nominato nel testo, come la cosa da
+    fare a mano nella scheda Periodizzazione quando il refuso è davvero un
+    refuso — e non come una seconda ``Edit``, perché il dialogo applica una
+    issue intera: due proposte nella stessa issue si scriverebbero insieme, e
+    una negazione mescolata a uno scambio non è nessuna delle due.
+
+    Quando un anno è **già** negativo il segno non manca, e negare porterebbe
+    il periodo nell'era sbagliata: lì la lettura buona è lo scambio.
+    """
+    negabile = ini >= 0 and fin >= 0
+    nuovo_ini, nuovo_fin = (-ini, -fin) if negabile else (fin, ini)
+    chiave_testo = "s_epoch_reversed" if negabile else "s_epoch_reversed_swap"
     return Issue(
-        kind=EPOCH_REVERSED, us_path=[_label(key)], auto=True,
-        summary=_t(lang, "s_epoch_reversed").format(
-            fase=_label(key), ini=ini, fin=fin),
+        kind=EPOCH_REVERSED, us_path=[_label(key)], auto=False,
+        summary=_t(lang, chiave_testo).format(
+            fase=_label(key), ini=ini, fin=fin,
+            nini=nuovo_ini, nfin=nuovo_fin),
         edits=[Edit(us=_label(key),
-                    set_fields=(("cron_iniziale", fin), ("cron_finale", ini)),
+                    set_fields=(("cron_iniziale", nuovo_ini),
+                                ("cron_finale", nuovo_fin)),
                     target=_period_target(key))])
 
 
@@ -199,7 +224,7 @@ def check_chronology(periods, units, *, sito, lang="it"):
             continue
         if ini > fin:
             # Fuori dalle sovrapposizioni: un intervallo rovesciato non si
-            # interseca con niente in modo sensato. Si corregge, e la verifica
+            # interseca con niente in modo sensato. Si propone, e la verifica
             # che segue l'applicazione lo guarda da capo.
             issues.append(_reversed_issue(key, ini, fin, lang))
             continue
