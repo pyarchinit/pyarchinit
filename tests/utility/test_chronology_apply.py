@@ -237,3 +237,36 @@ def test_two_edits_on_the_same_column_roll_back_to_before_the_first(tmp_path):
     assert _periodo(h, "S", "2", "2.2") == (1520, 1549)
     RC.rollback(tok, h)
     assert _periodo(h, "S", "2", "2.2") == (1500, 1549)
+
+
+def test_load_chronology_rows_reads_one_site_only(tmp_path):
+    """Senza il filtro, le 2 sovrapposizioni di un sito diventano le 20 del
+    database, e la correzione automatica riscriverebbe dieci siti in un colpo.
+    """
+    from modules.utility import chronology_check as CC
+    h = _db(tmp_path)
+    periods, units = CC.load_chronology_rows(h, "S")
+    assert len(periods) == 2
+    assert {p["datazione_estesa"] for p in periods} == {
+        "Prima metà del XVI secolo", "Prima metà del XV secolo rec"}
+    assert [u["us"] for u in units] == ["12"]
+
+
+def test_load_chronology_rows_keeps_the_phase_key_as_text(tmp_path):
+    """`periodo` è Integer nello schema: se arrivasse come 2 la chiave della
+    fase diventerebbe (2, '2.2') e non combacerebbe con nessun atteso."""
+    from modules.utility import chronology_check as CC
+    h = _db(tmp_path)
+    periods, _ = CC.load_chronology_rows(h, "S")
+    chiavi = {CC._key(p) for p in periods}
+    assert chiavi == {("2", "2.2"), ("3", "1")}
+
+
+def test_the_sample_shaped_rows_go_straight_into_check_chronology(tmp_path):
+    """Le due funzioni combaciano senza adattatori in mezzo."""
+    from modules.utility import chronology_check as CC
+    h = _db(tmp_path)
+    periods, units = CC.load_chronology_rows(h, "S")
+    kinds = sorted(i.kind for i in CC.check_chronology(
+        periods, units, sito="S"))
+    assert kinds == ["datazione_mismatch", "epoch_overlap"]

@@ -193,3 +193,30 @@ def check_chronology(periods, units, *, sito, lang="it"):
     issues.extend(_overlaps(spans, lang))
     issues.extend(_mismatches(periods, units, lang))
     return issues
+
+
+def load_chronology_rows(handle, sito):
+    """Le righe che :func:`check_chronology` giudica, di un sito solo.
+
+    Due liste di dizionari e non un oggetto: il giudizio non deve sapere da
+    dove vengono, ed è questo che lo rende provabile senza database. Il filtro
+    per sito non è un'ottimizzazione — senza, le due sovrapposizioni di un
+    sito diventano le venti del database, e la correzione automatica
+    riscriverebbe dieci siti in un colpo.
+    """
+    from sqlalchemy import text
+    with handle.engine.connect() as conn:
+        periods = [
+            {"periodo": r[0], "fase": r[1], "cron_iniziale": r[2],
+             "cron_finale": r[3], "datazione_estesa": r[4]}
+            for r in conn.execute(text(
+                "SELECT periodo, fase, cron_iniziale, cron_finale, "
+                "datazione_estesa FROM periodizzazione_table "
+                "WHERE sito = :s"), {"s": sito}).fetchall()]
+        units = [
+            {"us": r[0], "periodo_iniziale": r[1], "fase_iniziale": r[2],
+             "datazione": r[3]}
+            for r in conn.execute(text(
+                "SELECT us, periodo_iniziale, fase_iniziale, datazione "
+                "FROM us_table WHERE sito = :s"), {"s": sito}).fetchall()]
+    return periods, units
