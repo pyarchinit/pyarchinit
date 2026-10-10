@@ -118,13 +118,32 @@ dal giudizio è quello che rende il giudizio provabile senza database.
 | kind | che cosa trova | auto | la correzione | istanze oggi |
 |---|---|---|---|---|
 | `epoch_overlap` | due fasi i cui intervalli si intersecano | no | **proposta**: restringe la più recente fino all'anno prima dell'altra | **2 per sito**, 20 in tutto |
-| `datazione_mismatch` | `us_table.datazione` ≠ `datazione_estesa` della sua fase | **sì** | riscrive `datazione` dalla periodizzazione | **9** su «Scavo archeologico», 47 su ciascuno degli altri |
-| `epoch_reversed` | `cron_iniziale > cron_finale` | **sì** | scambia i due anni | **0** — è una guardia |
+| `datazione_mismatch` | `us_table.datazione` ≠ `datazione_estesa` della sua fase | **sì** | riscrive `datazione` dalla periodizzazione | **13** su «Scavo archeologico», 51 su ciascuno degli altri |
+| `epoch_reversed` | `cron_iniziale > cron_finale` | no | **proposta**: riscrive i due anni **negativi** (date a.C. senza il segno meno) | **0** nel database di esempio, **non** nel Ventena |
 | `epoch_no_dates` | fase senza anni | no | nessuna: si segnala | **0** — è una guardia |
 
 **Perché `epoch_overlap` non è automatica.** Davanti a «1500–1549» due volte
 non esiste una risposta giusta: chi si sposta lo sa solo chi ha scavato. La
 proposta si mostra nell'anteprima e si applica solo se spuntata.
+
+**Perché `epoch_reversed` non è automatica** (corretto il 2026-10-10,
+dopo la revisione). La prima stesura la dava automatica e con lo scambio
+dei due anni, sul presupposto «0 istanze, è una guardia» — misurato sul
+**solo** database di esempio, e falso sul Ventena.
+`modules/utility/periodization_checks.py` esiste dal 2026-08-27, ha lo
+stesso predicato e dice l'opposto: `1650 → 1450` è «quasi sempre un
+periodo a.C. battuto senza il segno meno», e il rimedio è **scrivere gli
+anni negativi**. Scambiarli trasformerebbe l'Età del Bronzo Medio nel
+1450–1650 d.C. — e renderebbe `inizio > fine` falso, zittendo l'avviso
+del projector che gira nello stesso clic: la corruzione diventerebbe
+invisibile. Quindi: `auto=False`, **una** proposta sola (i due anni
+negati), e lo scambio nominato nel testo come la cosa da fare a mano
+nella scheda Periodizzazione. Una proposta sola e non due perché il
+dialogo applica la issue **intera**: due `Edit` nella stessa issue si
+scriverebbero insieme, e una negazione mescolata a uno scambio non è
+nessuna delle due. Quando un anno è già negativo il segno non manca, e
+negare porterebbe il periodo nell'era sbagliata: lì la proposta è lo
+scambio.
 
 **Perché `datazione_mismatch` è automatica.** La periodizzazione è la fonte e
 la scheda la copia: Enzo lo ha confermato («in US c'è il campo datazione che
@@ -140,12 +159,14 @@ US 4  p2 f2   scheda='Prima metà del XVI secolo'
               periodizzazione='First half of the 16th century'
 ```
 
-Il disallineamento è vero e la correzione è giusta, ma sono **47 righe per
-sito**. Due conseguenze per il disegno: il `summary` deve mostrare **tutti e
-due** i testi, perché l'anteprima è l'unico punto in cui si vede cosa si sta
-per riscrivere; e la verifica resta **per sito**, com'è oggi, così non si
-riscrivono mai dieci siti in un colpo. La conferma con il conteggio
-(«Applicare N correzioni?») e l'annulla restano quelli di adesso.
+Il disallineamento è vero e la correzione è giusta, ma sono **51 righe per
+sito** (47 con un testo diverso più 4 con la `datazione` vuota, che è lo
+stesso caso: la fonte c'è e la copia manca). Due conseguenze per il disegno:
+il `summary` deve mostrare **tutti e due** i testi, perché l'anteprima è
+l'unico punto in cui si vede cosa si sta per riscrivere; e la verifica resta
+**per sito**, com'è oggi, così non si riscrivono mai dieci siti in un colpo.
+La conferma con il conteggio («Applicare N correzioni?») e l'annulla restano
+quelli di adesso.
 
 **`epoch_no_dates` non è automatica, e non per prudenza**: in
 `periodizzazione_table` **non esistono righe di solo periodo** — la `fase` non è
@@ -159,6 +180,15 @@ segnala e basta.
 **`periodizzazione_table`** (`cron_iniziale`, `cron_finale`), che la macchina
 di oggi non tocca. `datazione_mismatch` scrive in `us_table.datazione`, che
 oggi non è in whitelist.
+
+La chiave di una riga di `us_table` è di **quattro** colonne —
+`UniqueConstraint('sito', 'area', 'us', 'unita_tipo')` in
+`modules/db/structures/US_table.py` — quindi `datazione_mismatch` porta
+`target=("us_table", {"us": …, "area": …, "unita_tipo": …})`: con la sola
+`us`, su uno scavo a più aree una correzione ne riscriverebbe tutte le
+righe con quel numero (corretto il 2026-10-10, dopo la revisione). E
+`apply_edits` **rifiuta** quando la clausola individua più di una riga,
+per qualunque produttore di correzioni.
 
 `Edit` guadagna un campo **con un valore di ripiego che conserva il
 comportamento di adesso**:
@@ -233,11 +263,11 @@ cosa, si vedrà da sé che manca la parte accantonata.
 
 - **Periodizzazione assente o vuota** per il sito: nessuna issue, non è un
   errore. La verifica dei rapporti continua.
-- **`epoch_reversed` ed `epoch_no_dates` non hanno istanze oggi** (zero righe
-  con inizio > fine, zero righe senza anni, su tutti i siti). Si scrivono lo
-  stesso perché costano poco e perché una periodizzazione importata da fuori
-  può averle — ma i loro test nascono da righe costruite a mano, non dal
-  database di esempio.
+- **`epoch_reversed` ed `epoch_no_dates` non hanno istanze nel database di
+  esempio** (zero righe con inizio > fine, zero righe senza anni, su tutti i
+  siti), ma `epoch_reversed` ne ha nel **Ventena** — è il caso per cui
+  `periodization_checks` è nato. I loro test nascono da righe costruite a
+  mano, non dal database di esempio.
 - **`fase` non numerica** (nei dati di Enzo ci sono `2.1`, `3.1`): la chiave è
   sempre **testo**, mai convertita a numero. Confrontare `2.1` come float
   perderebbe `2.10`.
@@ -258,7 +288,9 @@ Il modulo è puro, quindi quasi tutto si prova senza QGIS e senza database.
 costruite a mano:
 - due fasi con intervallo identico → un `epoch_overlap`, non due;
 - intervalli che si sfiorano senza toccarsi (1499/1500) → nessuna issue;
-- `cron_iniziale > cron_finale` → `epoch_reversed`, automatica, lo scambio;
+- `cron_iniziale > cron_finale` → `epoch_reversed`, **non** automatica, la
+  proposta dei due anni negativi (e lo scambio quando un anno è già
+  negativo);
 - fase senza anni → `epoch_no_dates`, segnalata e **non** automatica;
 - `datazione` diversa → `datazione_mismatch` automatica con il valore atteso;
 - `datazione` uguale, o US senza periodo → nessuna issue;
@@ -272,10 +304,14 @@ costruite a mano:
 - l'annulla riporta entrambe le tabelle allo stato di prima.
 
 **Sul database vero** (`tests/utility/test_chronology_live.py`, sul database di
-esempio): la verifica trova **2** sovrapposizioni e **9** datazioni
-disallineate su «Scavo archeologico», cioè i numeri di questa spec; applicando
-le automatiche, una seconda verifica non le ripresenta; e su un sito tradotto
-ne trova 47, ognuna con i due testi nel `summary`.
+esempio): la verifica trova **2** sovrapposizioni e **13** datazioni
+disallineate su «Scavo archeologico», e **51** su un sito tradotto, ognuna
+con i due testi nel `summary`; applicando le automatiche, una seconda
+verifica non le ripresenta. I numeri sono 13 e 51 e non 9 e 47 — che è
+quanto diceva la prima stesura di questa spec — perché la categoria conta
+anche le **4 schede per sito con la `datazione` vuota**: la fonte c'è e la
+copia manca, che è lo stesso disallineamento (misurato il 2026-10-10; la
+spec diceva 9 e 47 contando solo le righe con un testo diverso).
 
 **L'anteprima**: `explain_bounds` su una voce di `chronology()` dà la riga
 attesa, e su una voce senza estremi non solleva.
