@@ -352,7 +352,7 @@ def test_edit_prefix_names_area_and_unit_type_when_they_are_there():
     from modules.utility.rapporti_check import Edit
     e = Edit(us="1", target=("us_table", {"us": "1", "area": "2",
                                           "unita_tipo": "USM"}))
-    assert CC.edit_prefix(e) == "US 1 (2, USM)"
+    assert CC.edit_prefix(e) == "US 1 (area 2, USM)"
 
 
 def test_edit_prefix_stays_short_when_there_is_nothing_to_tell_apart():

@@ -130,8 +130,12 @@ def edit_prefix(edit):
         return "US %s" % edit.us
     chiave = dict(target[1]) if len(target) > 1 else {}
     if target[0] == "us_table":
-        dettagli = [chiave[k] for k in ("area", "unita_tipo") if chiave.get(k)]
         testo = "US %s" % chiave.get("us", edit.us)
+        dettagli = []
+        if chiave.get("area"):
+            dettagli.append("area %s" % chiave["area"])
+        if chiave.get("unita_tipo"):
+            dettagli.append(str(chiave["unita_tipo"]))
         return "%s (%s)" % (testo, ", ".join(dettagli)) if dettagli else testo
     return "%s %s" % (target[0], " ".join("%s=%s" % (k, chiave[k])
                                           for k in sorted(chiave)))
