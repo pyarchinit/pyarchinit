@@ -74,6 +74,20 @@ def _period_target(key):
     return (_PERIOD_TABLE, {"periodo": key[0], "fase": key[1]})
 
 
+def edit_prefix(edit):
+    """Chi tocca una correzione, come si legge nell'anteprima.
+
+    Una correzione sulla periodizzazione non riguarda una US: scrivere
+    «US 2/2.2» mentirebbe sulla riga che si sta per cambiare.
+    """
+    target = getattr(edit, "target", ()) or ()
+    if not target:
+        return "US %s" % edit.us
+    chiave = dict(target[1]) if len(target) > 1 else {}
+    return "%s %s" % (target[0], " ".join("%s=%s" % (k, chiave[k])
+                                          for k in sorted(chiave)))
+
+
 def _no_dates(key, lang):
     return Issue(kind=EPOCH_NO_DATES, us_path=[_label(key)], auto=False,
                  summary=_t(lang, "s_epoch_no_dates").format(fase=_label(key)),

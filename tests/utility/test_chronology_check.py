@@ -267,3 +267,16 @@ def test_whitespace_around_the_dating_is_not_a_mismatch():
     periods = [_p("2", "3", 1451, 1499, "XV secolo")]
     units = [_u("12", "2", "3", "  XV secolo  ")]
     assert CC.check_chronology(periods, units, sito="S") == []
+
+
+def test_edit_prefix_names_the_us_when_there_is_no_target():
+    from modules.utility.rapporti_check import Edit
+    assert CC.edit_prefix(Edit(us="12")) == "US 12"
+
+
+def test_edit_prefix_names_the_row_when_the_target_is_another_table():
+    """«US 2/2.2» mentirebbe sulla riga che si sta per cambiare."""
+    from modules.utility.rapporti_check import Edit
+    e = Edit(us="2/2.2", target=("periodizzazione_table",
+                                 {"periodo": "2", "fase": "2.2"}))
+    assert CC.edit_prefix(e) == "periodizzazione_table fase=2.2 periodo=2"

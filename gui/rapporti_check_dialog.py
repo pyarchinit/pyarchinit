@@ -49,6 +49,8 @@ class RapportiCheckPanel(QWidget):
         self._lang = _qgis_lang()
         self._report = None
         self._token = None
+        self._chrono_bounds = {}
+        self._chrono_errore = None
         self._build_ui()
         self._load_sites()
 
@@ -141,6 +143,7 @@ class RapportiCheckPanel(QWidget):
             return
         try:
             from modules.s3dgraphy.sync.graph_projector import GraphProjector
+            from modules.utility import chronology_check as CC
             from modules.utility import temporal_check as TC
             handle = self._handle()
             graph = GraphProjector().populate_graph(handle, sito=sito)
@@ -149,6 +152,21 @@ class RapportiCheckPanel(QWidget):
             self._report = RC.check_rapporti(
                 graph, sito=sito, lang=self._lang,
                 chrono=chrono, unit_periods=unit_periods)
+            # Gli avvisi cronologici sono altre categorie dello stesso albero:
+            # _render raggruppa per `kind` e non ha bisogno di sapere da quale
+            # verifica arrivano.
+            self._chrono_bounds = {}
+            self._chrono_errore = None
+            try:
+                periods, units = CC.load_chronology_rows(handle, sito)
+                self._report.issues.extend(CC.check_chronology(
+                    periods, units, sito=sito, lang=self._lang))
+                # La cronologia calcolata, per la provenienza nell'anteprima.
+                self._chrono_bounds = graph.chronology()
+            except Exception as exc:
+                # Un inciampo della cronologia non porta via la verifica dei
+                # rapporti, che ha già risposto: si dice e si va avanti.
+                self._chrono_errore = str(exc)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit", f"Verifica fallita: {exc}")
             return
@@ -167,26 +185,41 @@ class RapportiCheckPanel(QWidget):
             for iss in issues:
                 child = QTreeWidgetItem([iss.summary])
                 child.setData(0, _USER_ROLE, iss)
-                if iss.auto and iss.edits:
-                    child.setCheckState(0, Qt.Checked)
-                    n_auto += 1
+                if iss.edits:
+                    # Spuntabile perché una correzione c'è; spuntata di suo
+                    # solo se automatica. Una proposta — la fase da
+                    # restringere, il rapporto da togliere a un ciclo — si
+                    # applica solo se l'archeologo la spunta.
+                    child.setCheckState(0, Qt.Checked if iss.auto
+                                        else Qt.Unchecked)
+                    if iss.auto:
+                        n_auto += 1
                 top.addChild(child)
             top.setExpanded(True)
         total = len(self._report.issues)
         self.lblSummary.setText(
             f"{total} problemi · {n_auto} correggibili automaticamente "
             f"(selezionati). Anteprima un elemento per i dettagli.")
+        if self._chrono_errore:
+            # Non si inghiotte in silenzio: la riga di riepilogo dice che gli
+            # avvisi cronologici mancano, e perché.
+            self.lblSummary.setText(
+                self.lblSummary.text()
+                + "  ⚠ verifica cronologia non eseguita: %s"
+                % self._chrono_errore)
         self._token = None
         self.btnRollback.setEnabled(False)
 
-    def _selected_auto_issues(self):
+    def _selected_issues(self):
+        """Le issue spuntate che hanno una correzione: le automatiche sono
+        spuntate di suo, le proposte solo se l'archeologo le ha spuntate."""
         out = []
         for i in range(self.tree.topLevelItemCount()):
             top = self.tree.topLevelItem(i)
             for j in range(top.childCount()):
                 ch = top.child(j)
                 iss = ch.data(0, _USER_ROLE)
-                if (iss is not None and iss.auto and iss.edits
+                if (iss is not None and iss.edits
                         and ch.checkState(0) == Qt.Checked):
                     out.append(iss)
         return out
@@ -202,17 +235,19 @@ class RapportiCheckPanel(QWidget):
         if not iss.edits:
             lines.append("(nessuna correzione automatica — scelta manuale "
                          "nella scheda US)")
+        from modules.utility import chronology_check as CC
         for e in iss.edits:
+            chi = CC.edit_prefix(e)
             for r in e.remove:
-                lines.append(f"US {e.us}: rimuovi  {list(r)}")
+                lines.append(f"{chi}: rimuovi  {list(r)}")
             for a in e.add:
-                lines.append(f"US {e.us}: aggiungi {list(a)}")
+                lines.append(f"{chi}: aggiungi {list(a)}")
             for (col, val) in getattr(e, "set_fields", ()):
-                lines.append(f"US {e.us}: imposta {col} = {val}")
+                lines.append(f"{chi}: imposta {col} = {val}")
         self.preview.setPlainText("\n".join(lines))
 
     def _apply(self):
-        issues = self._selected_auto_issues()
+        issues = self._selected_issues()
         edits = [e for iss in issues for e in iss.edits]
         if not edits:
             QMessageBox.information(self, "pyArchInit",
