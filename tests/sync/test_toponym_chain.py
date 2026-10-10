@@ -63,26 +63,58 @@ def test_partial_admin_levels_compact_chain(tmp_path):
     assert (pompei_uuid, campania_uuid) in edge_pairs
 
 
+def _place_ids(db, sito):
+    """L'id che la libreria assegna al luogo del sito: site_table.entity_uuid
+    quando c'è, altrimenti l'hash del nome."""
+    from s3dgraphy.hdto import site_place_id
+    conn = sqlite3.connect(str(db))
+    try:
+        row = conn.execute("SELECT entity_uuid FROM site_table WHERE sito=?",
+                           (sito,)).fetchone()
+    finally:
+        conn.close()
+    return site_place_id(sito, row[0] if row else None)
+
+
+def _toponyms(graph, level=None):
+    return [n for n in graph.nodes
+            if type(n).__name__ == "LocationNodeGroup"
+            and getattr(n, "kind", None) == "toponym"
+            and (level is None or n.attributes.get("level") == level)]
+
+
 def test_two_sites_same_comune_share_node(tmp_path):
-    """AC-20: Volterra and Volterra2 both have comune='Volterra' →
-    1 LocationNodeGroup(name='Volterra', kind='toponym').
-    """
+    """AC-20: Volterra and Volterra2 both have comune='Volterra' → il livello
+    amministrativo «comune» è UN nodo condiviso; dalla dev43 ogni sito ha in
+    più il proprio luogo (kind toponym, level «sito»), distinto per sito."""
     proj = GraphProjector()
     g1 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra", location_groups=True)
     g2 = proj.populate_graph(db_path=TOPONYM_DB, sito="Volterra2", location_groups=True)
-    # Same projector, same DB, two calls — UUIDs must match
     volterra_uuid_1 = _toponym_uuid("Volterra")
-    locs_1 = [n for n in g1.nodes
-              if type(n).__name__ == "LocationNodeGroup"
-              and n.name == "Volterra"
-              and getattr(n, "kind", None) == "toponym"]
-    locs_2 = [n for n in g2.nodes
-              if type(n).__name__ == "LocationNodeGroup"
-              and n.name == "Volterra"
-              and getattr(n, "kind", None) == "toponym"]
-    assert len(locs_1) == 1
-    assert len(locs_2) == 1
-    assert locs_1[0].node_id == locs_2[0].node_id == volterra_uuid_1
+
+    # il comune: un nodo, lo stesso id nei due grafi
+    comuni_1 = [n for n in _toponyms(g1, "comune") if n.name == "Volterra"]
+    comuni_2 = [n for n in _toponyms(g2, "comune") if n.name == "Volterra"]
+    assert len(comuni_1) == 1
+    assert len(comuni_2) == 1
+    assert comuni_1[0].node_id == comuni_2[0].node_id == volterra_uuid_1
+
+    # il sito: un luogo per grafo, con l'id annunciato da site_place_id,
+    # diverso da quello del comune anche quando il nome coincide
+    siti_1, siti_2 = _toponyms(g1, "sito"), _toponyms(g2, "sito")
+    assert len(siti_1) == 1 and len(siti_2) == 1
+    assert siti_1[0].kind == "toponym"
+    assert siti_1[0].attributes["level"] == "sito"
+    assert siti_1[0].name == "Volterra" and siti_2[0].name == "Volterra2"
+    assert siti_1[0].node_id == _place_ids(TOPONYM_DB, "Volterra")
+    assert siti_2[0].node_id == _place_ids(TOPONYM_DB, "Volterra2")
+    assert siti_1[0].node_id != volterra_uuid_1
+    assert siti_1[0].node_id != siti_2[0].node_id
+
+    # il sito sta nel livello amministrativo più profondo
+    archi = {(e.edge_source, e.edge_target) for e in g1.edges
+             if e.edge_type == "is_in_location"}
+    assert (siti_1[0].node_id, volterra_uuid_1) in archi
 
 
 def test_us_connects_to_deepest_level_only(tmp_path):
@@ -109,7 +141,10 @@ def test_us_connects_to_deepest_level_only(tmp_path):
 
 
 def test_all_admin_levels_empty_no_chain(tmp_path):
-    """If site_table has all 4 admin levels empty → no toponym chain."""
+    """Con i quattro livelli amministrativi vuoti non c'è catena
+    amministrativa, ma dalla dev43 il luogo del sito esiste comunque: un
+    solo LocationNodeGroup (kind toponym, level «sito»), senza archi di
+    catena (non ha un livello sopra) e senza archi US → luogo."""
     db = tmp_path / "x.sqlite"
     db.write_bytes(TOPONYM_DB.read_bytes())
     conn = sqlite3.connect(str(db))
@@ -124,10 +159,18 @@ def test_all_admin_levels_empty_no_chain(tmp_path):
         conn.close()
     proj = GraphProjector()
     graph = proj.populate_graph(db_path=db, sito="NoToponym", location_groups=True)
-    toponyms = [n for n in graph.nodes
-                if type(n).__name__ == "LocationNodeGroup"
-                and getattr(n, "kind", None) == "toponym"]
-    assert toponyms == []
+    toponyms = _toponyms(graph)
+    # nessun livello amministrativo...
+    assert [n for n in toponyms if n.attributes.get("level") != "sito"] == []
+    # ...ma il luogo del sito sì, con l'id annunciato
+    assert len(toponyms) == 1
+    place = toponyms[0]
+    assert place.attributes["level"] == "sito"
+    assert place.name == "NoToponym"
+    assert place.node_id == _place_ids(db, "NoToponym")
+    assert not [e for e in graph.edges
+                if e.edge_type == "is_in_location"
+                and place.node_id in (e.edge_source, e.edge_target)]
 
 
 def test_round_trip_preserves_site_table(tmp_path):
