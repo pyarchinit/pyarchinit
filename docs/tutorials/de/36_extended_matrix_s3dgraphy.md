@@ -395,7 +395,7 @@ Der Baum im Bereich gruppiert die Probleme nach Art. Neben den Beziehungsgruppen
 |--------|-------------------|------------|
 | **Phasen mit überlappenden Intervallen** | Zwei Zeilen der Periodisierung, deren Jahresintervalle sich schneiden | Manuell: Der Bereich schlägt eine Einengung nur vor, wenn nach der Einengung ein nutzbares Intervall übrig bleibt |
 | **Abweichende Datierung des Formulars** | Das Feld `datazione` des SE-Formulars sagt etwas anderes als die `datazione_estesa` der zugehörigen Periode/Phase | Automatisch: Die Periodisierung ist die Quelle, das Formular die Kopie; die Kopie wird also aus der Quelle neu geschrieben. Ein leeres Feld wird auf dieselbe Weise gefüllt. Eine SE ohne Periode wird übersprungen, weil es nichts zu kopieren gibt |
-| **Periodisierung mit Beginn nach dem Ende** | `cron_iniziale` größer als `cron_finale` | Automatisch: Die beiden Jahre werden vertauscht |
+| **Periodisierung mit Beginn nach dem Ende** | `cron_iniziale` größer als `cron_finale` | Manuell: wahrscheinlich v. Chr.-Jahre ohne Minuszeichen — der Bereich schlägt vor, beide Jahre negativ zu schreiben (`-1650` statt `1650`); handelt es sich dagegen um einen Tippfehler, die beiden Werte von Hand tauschen |
 | **Phase ohne Jahre** | Eine Phase, deren Jahre fehlen oder nicht lesbar sind | Nur gemeldet: Es gibt nichts, wovon sie geerbt werden könnten |
 
 Ein Beispiel zu den Überlappungen. In der Beispieldatenbank gibt es zwei, und keine der beiden hat einen Vorschlag: Die beiden Phasen haben **identische** Intervalle, und jede Einengung würde eine Phase enden lassen, bevor sie beginnt. Der Bereich teilt dies nur mit; die Entscheidung (Phasen zusammenlegen, Jahre korrigieren, alles belassen) liegt bei der Archäologin bzw. dem Archäologen.

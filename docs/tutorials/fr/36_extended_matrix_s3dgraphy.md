@@ -394,7 +394,7 @@ L'arbre du panneau regroupe les problèmes par type. À côté des groupes de re
 |--------|--------------------|------------|
 | **Phases à intervalles qui se chevauchent** | Deux lignes de la périodisation dont les intervalles d'années se recoupent | Manuel : le panneau ne propose de resserrer les intervalles que si, après resserrement, il reste un intervalle utilisable |
 | **Datation de la fiche désalignée** | Le champ `datazione` de la fiche US dit autre chose que la `datazione_estesa` de sa période/phase | Automatique : la périodisation est la source et la fiche est la copie ; la copie est donc réécrite à partir de la source. Un champ vide est rempli de la même façon. Une US sans période est ignorée, car il n'y a rien à copier |
-| **Périodisation dont le début suit la fin** | `cron_iniziale` supérieur à `cron_finale` | Automatique : les deux années sont échangées |
+| **Périodisation dont le début suit la fin** | `cron_iniziale` supérieur à `cron_finale` | Manuel : il s'agit probablement de dates av. J.-C. sans le signe moins — le panneau propose de réécrire les deux années en négatif (`-1650` au lieu de `1650`) ; s'il s'agit plutôt d'une coquille, échangez les deux valeurs à la main |
 | **Phase sans années** | Une phase dont les années sont absentes ou illisibles | Signalée seulement : il n'y a rien dont elles puissent hériter |
 
 Un exemple pour les chevauchements. La base d'exemple en compte deux, et aucun n'a de proposition : les deux phases ont des intervalles **identiques**, et tout resserrement ferait finir une phase avant son début. Le panneau se contente de le dire ; la décision (fusionner les phases, corriger les années, laisser en l'état) revient à l'archéologue.

@@ -394,7 +394,7 @@ L'arbre del panell agrupa els problemes per tipus. Al costat dels grups de relac
 |------|---------------|---------------|
 | **Fases amb intervals solapats** | Dues files de la periodització els intervals d'anys de les quals es creuen | Manual: el panell proposa escurçar els intervals només si, després d'escurçar-los, queda un interval utilitzable |
 | **Datació de la fitxa desalineada** | El camp `datazione` de la fitxa UE diu una cosa diferent de la `datazione_estesa` del seu període/fase | Automàtic: la periodització és la font i la fitxa és la còpia, així que la còpia es reescriu des de la font. Un camp buit s'omple de la mateixa manera. Una UE sense període s'omet, perquè no hi ha res per copiar |
-| **Periodització amb inici posterior a la fi** | `cron_iniziale` major que `cron_finale` | Automàtic: els dos anys s'intercanvien |
+| **Periodització amb inici posterior a la fi** | `cron_iniziale` major que `cron_finale` | Manual: probablement són dates aC sense el signe menys — el panell proposa reescriure els dos anys en negatiu (`-1650` en lloc de `1650`); si en canvi és una errada, intercanvia els dos valors a mà |
 | **Fase sense anys** | Una fase els anys de la qual falten o no es poden llegir | Només s'assenyala: no hi ha res de què heretar-los |
 
 Un exemple per als solapaments. La base de dades d'exemple en té dos i cap no porta proposta: les dues fases tenen intervals **idèntics**, i qualsevol retall faria que una fase acabés abans de començar. El panell es limita a dir-ho; la decisió (fusionar les fases, corregir els anys, deixar-ho com està) correspon a l'arqueòleg.

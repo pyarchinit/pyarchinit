@@ -394,7 +394,7 @@ Panoul grupează problemele pe tipuri. Alături de grupurile relațiilor apar pa
 |------|---------------|-----------------|
 | **Faze cu intervale suprapuse** | Două rânduri ale periodizării ale căror intervale de ani se intersectează | Manual: panoul propune îngustarea intervalelor doar dacă, după îngustare, rămâne un interval utilizabil |
 | **Datare a fișei dezaliniată** | Câmpul `datazione` al fișei US spune altceva decât `datazione_estesa` a perioadei/fazei sale | Automat: periodizarea este sursa, iar fișa este copia, deci copia este rescrisă din sursă. Un câmp gol se completează la fel. O US fără perioadă este sărită, pentru că nu există nimic de copiat |
-| **Periodizare cu începutul după sfârșit** | `cron_iniziale` mai mare decât `cron_finale` | Automat: cei doi ani se inversează |
+| **Periodizare cu începutul după sfârșit** | `cron_iniziale` mai mare decât `cron_finale` | Manual: sunt probabil date î.Hr. fără semnul minus — panoul propune rescrierea celor doi ani ca numere negative (`-1650` în loc de `1650`); dacă este însă o greșeală de tastare, inversează manual cele două valori |
 | **Fază fără ani** | O fază ai cărei ani lipsesc sau nu pot fi citiți | Doar semnalată: nu există nimic de la care să îi moștenească |
 
 Un exemplu pentru suprapuneri. Baza de date de exemplu are două și niciuna nu are propunere: cele două faze au intervale **identice**, iar orice îngustare ar face ca o fază să se termine înainte de a începe. Panoul doar o spune; decizia (unirea fazelor, corectarea anilor, lăsarea așa cum este) aparține arheologului.

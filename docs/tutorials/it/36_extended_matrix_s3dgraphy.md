@@ -394,19 +394,19 @@ L'albero del pannello raggruppa i problemi per tipo. Accanto ai gruppi dei rappo
 | Gruppo | Che cosa segnala | Come viene trattato |
 |--------|------------------|---------------------|
 | **Fasi con intervalli sovrapposti** | Due righe della periodizzazione i cui intervalli di anni si intersecano | Manuale: il pannello propone di restringere gli intervalli solo se, dopo la restrizione, resta un intervallo utilizzabile |
-| **Datazione della scheda disallineata** | Il campo `datazione` della scheda US dice una cosa diversa dalla `datazione_estesa` della sua periodizzazione | Automatico: la periodizzazione Ã¨ la fonte, la scheda Ã¨ la copia, quindi la copia viene riscritta dalla fonte. Un campo vuoto si compila allo stesso modo. Una US senza periodo viene saltata, perché non c'Ã¨ nulla da cui copiare |
-| **Periodizzazione con inizio dopo la fine** | `cron_iniziale` maggiore di `cron_finale` | Automatico: i due anni vengono scambiati |
-| **Fase senza anni** | Una fase i cui anni mancano o non sono leggibili | Solo segnalata: non c'Ã¨ nulla da cui ereditarli |
+| **Datazione della scheda disallineata** | Il campo `datazione` della scheda US dice una cosa diversa dalla `datazione_estesa` della sua periodizzazione | Automatico: la periodizzazione è la fonte, la scheda è la copia, quindi la copia viene riscritta dalla fonte. Un campo vuoto si compila allo stesso modo. Una US senza periodo viene saltata, perché non c'è nulla da cui copiare |
+| **Periodizzazione con inizio dopo la fine** | `cron_iniziale` maggiore di `cron_finale` | Manuale: sono probabili date a.C. senza il segno meno — il pannello propone di riscrivere i due anni negativi (`-1650` invece di `1650`); se invece è un refuso, scambia i due valori a mano |
+| **Fase senza anni** | Una fase i cui anni mancano o non sono leggibili | Solo segnalata: non c'è nulla da cui ereditarli |
 
 Un esempio per le sovrapposizioni. Nel database di esempio ce ne sono due, e nessuna delle due ha una proposta: le due fasi hanno intervalli **identici**, e qualunque restrizione farebbe finire una fase prima del suo inizio. Il pannello si limita a dirlo; la decisione (accorpare le fasi, correggere gli anni, lasciare le cose come stanno) spetta all'archeologo.
 
 ### 8.2 Correzione automatica e suggerimenti
 
-**Correzioni automatiche e proposte.** Le correzioni automatiche sono **già spuntate**; le proposte **non lo sono** e vengono applicate solo se si spunta la casella. Prima la regola era diversa: un problema la cui correzione richiedeva una decisione umana poteva solo essere letto. Ora ha una casella, lasciata vuota. Questo vale anche per le due categorie più vecchie dei rapporti che offrono un suggerimento, cioÃ¨ la contraddizione diretta e il ciclo stratigrafico.
+**Correzioni automatiche e proposte.** Le correzioni automatiche sono **già spuntate**; le proposte **non lo sono** e vengono applicate solo se si spunta la casella. Prima la regola era diversa: un problema la cui correzione richiedeva una decisione umana poteva solo essere letto. Ora ha una casella, lasciata vuota. Questo vale anche per le due categorie più vecchie dei rapporti che offrono un suggerimento, cioè la contraddizione diretta e il ciclo stratigrafico.
 
 Per usare il pannello:
 
-1. Selezionare nel pannello il **sito** da verificare. La verifica Ã¨ **per sito**: guarda solo il sito scelto e corregge solo quello. In un database con dieci siti la cosa conta, perché gli stessi numeri di US esistono in tutti.
+1. Selezionare nel pannello il **sito** da verificare. La verifica è **per sito**: guarda solo il sito scelto e corregge solo quello. In un database con dieci siti la cosa conta, perché gli stessi numeri di US esistono in tutti.
 2. Leggere la **riga di riepilogo** sopra l'albero: dice quanti problemi ci sono, quanti sono correggibili in automatico e **quante sono le proposte da spuntare a mano**.
 3. Aprire i gruppi e selezionare un problema per leggerne il dettaglio nel pannello di anteprima.
 4. Controllare le caselle. Le correzioni automatiche sono già spuntate: togliere la spunta a quelle che non si vogliono applicare. Spuntare le proposte che si condividono.
@@ -419,7 +419,7 @@ Per usare il pannello:
 
 `US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
 
-La riga dice, nell'ordine, l'intervallo di anni, la regola che lo ha prodotto e il rapporto lungo il quale il vincolo Ã¨ arrivato, con il nodo da cui proviene. Quando i due estremi dell'intervallo arrivano da strade diverse, ciascuno Ã¨ etichettato (`inizio …` e `fine …`), così una data non viene mai attribuita al rapporto sbagliato. Oggi, in un database normale, ogni unità prende le sue date dal proprio periodo: la maggior parte delle righe dirÃ  quindi `epoca`. Il senso della riga non Ã¨ sorprendere, Ã¨ permettere di vedere **da dove viene** una data.
+La riga dice, nell'ordine, l'intervallo di anni, la regola che lo ha prodotto e il rapporto lungo il quale il vincolo è arrivato, con il nodo da cui proviene. Quando i due estremi dell'intervallo arrivano da strade diverse, ciascuno è etichettato (`inizio …` e `fine …`), così una data non viene mai attribuita al rapporto sbagliato. Oggi, in un database normale, ogni unità prende le sue date dal proprio periodo: la maggior parte delle righe dirà quindi `epoca`. Il senso della riga non è sorprendere, è permettere di vedere **da dove viene** una data.
 
 ---
 

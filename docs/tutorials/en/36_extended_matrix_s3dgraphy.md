@@ -395,7 +395,7 @@ The tree in the panel groups the problems by kind. Alongside the relationship gr
 |-------|-----------------|-------------------|
 | **Phases with overlapping intervals** | Two periodization rows whose year ranges intersect | Manual: the panel proposes narrowing the intervals only when narrowing leaves a usable interval |
 | **Sheet dating out of line** | The `datazione` field of the US sheet says something different from the `datazione_estesa` of its own period/phase | Automatic: the periodization is the source and the sheet is the copy, so the copy is rewritten from the source. An empty field is filled the same way. A US with no period is skipped, because there is nothing to copy from |
-| **Periodization with start after end** | `cron_iniziale` greater than `cron_finale` | Automatic: the two years are swapped |
+| **Periodization with start after end** | `cron_iniziale` greater than `cron_finale` | Manual: these are most likely BC dates without the minus sign — the panel proposes rewriting both years as negatives (`-1650` instead of `1650`); if it is a typo instead, swap the two values by hand |
 | **Phase without years** | A phase whose years are missing or unreadable | Reported only: there is nothing to inherit them from |
 
 An example for overlaps. The sample database has two, and neither carries a proposal: the two phases have **identical** intervals, and any narrowing would make a phase end before it begins. The panel simply tells you so; the decision (merge the phases, correct the years, leave things as they are) is the archaeologist's.

@@ -394,7 +394,7 @@ O painel agrupa os problemas por tipo. Ao lado dos grupos das relações aparece
 |-------|----------------|----------------|
 | **Fases com intervalos sobrepostos** | Duas linhas da periodização cujos intervalos de anos se cruzam | Manual: o painel propõe reduzir os intervalos apenas se, depois da redução, restar um intervalo utilizável |
 | **Datação da ficha desalinhada** | O campo `datazione` da ficha US diz algo diferente da `datazione_estesa` do seu período/fase | Automático: a periodização é a fonte e a ficha é a cópia, por isso a cópia é reescrita a partir da fonte. Um campo vazio é preenchido da mesma maneira. Uma US sem período é ignorada, porque não há nada para copiar |
-| **Periodização com início depois do fim** | `cron_iniziale` maior que `cron_finale` | Automático: os dois anos são trocados |
+| **Periodização com início depois do fim** | `cron_iniziale` maior que `cron_finale` | Manual: são provavelmente datas a.C. sem o sinal menos — o painel propõe reescrever os dois anos como negativos (`-1650` em vez de `1650`); se for um erro de digitação, troque os dois valores à mão |
 | **Fase sem anos** | Uma fase cujos anos faltam ou não são legíveis | Só assinalada: não há nada de onde os herdar |
 
 Um exemplo para as sobreposições. A base de dados de exemplo tem duas, e nenhuma traz proposta: as duas fases têm intervalos **idênticos**, e qualquer redução faria uma fase terminar antes de começar. O painel limita-se a dizê-lo; a decisão (juntar as fases, corrigir os anos, deixar como está) cabe ao arqueólogo.

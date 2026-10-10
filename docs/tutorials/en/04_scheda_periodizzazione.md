@@ -445,7 +445,7 @@ For a typical excavation, it is recommended to create periodization following th
 
 ## Correcting chronologies from the «Verifica rapporti» panel
 
-The years of a period or phase (**Initial Chronology** and **Final Chronology**, that is `cron_iniziale` and `cron_finale`) can be corrected directly from the **Verifica rapporti** panel (a tab of the s3dgraphy import/export dialog; see tutorial 36, Extended Matrix and s3dgraphy bridge). The panel reports **phases with overlapping intervals**, periodizations with **start after end** (the two years are swapped automatically) and phases **without years**, which are only reported because there is nothing to inherit them from. An automatic backup is taken before every correction, and **Annulla ultimo fix** also reverts the changes written to this table. The verification covers one site at a time: the one selected in the panel.
+The years of a period or phase (**Initial Chronology** and **Final Chronology**, that is `cron_iniziale` and `cron_finale`) can be corrected directly from the **Verifica rapporti** panel (a tab of the s3dgraphy import/export dialog; see tutorial 36, Extended Matrix and s3dgraphy bridge). The panel reports **phases with overlapping intervals**, periodizations with **start after end** (the fix is **not** automatic: these are most likely BC dates without the minus sign, and the panel proposes rewriting both years as negatives — `-1650` instead of `1650`) and phases **without years**, which are only reported because there is nothing to inherit them from. An automatic backup is taken before every correction, and **Annulla ultimo fix** also reverts the changes written to this table. The verification covers one site at a time: the one selected in the panel.
 
 ---
 

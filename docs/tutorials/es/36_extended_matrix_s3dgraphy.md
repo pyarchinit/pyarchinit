@@ -394,7 +394,7 @@ El árbol del panel agrupa los problemas por tipo. Junto a los grupos de relacio
 |-------|-----------|---------------|
 | **Fases con intervalos solapados** | Dos filas de la periodización cuyos intervalos de años se cruzan | Manual: el panel propone acortar los intervalos solo si, tras acortarlos, queda un intervalo utilizable |
 | **Datación de la ficha desalineada** | El campo `datazione` de la ficha UE dice algo distinto de la `datazione_estesa` de su periodo/fase | Automático: la periodización es la fuente y la ficha es la copia, así que la copia se reescribe desde la fuente. Un campo vacío se rellena del mismo modo. Una UE sin periodo se omite, porque no hay nada que copiar |
-| **Periodización con inicio posterior al fin** | `cron_iniziale` mayor que `cron_finale` | Automático: los dos años se intercambian |
+| **Periodización con inicio posterior al fin** | `cron_iniziale` mayor que `cron_finale` | Manual: probablemente son fechas a.C. sin el signo menos — el panel propone reescribir los dos años en negativo (`-1650` en lugar de `1650`); si en cambio es un error de tecleo, intercambia los dos valores a mano |
 | **Fase sin años** | Una fase cuyos años faltan o no se pueden leer | Solo se señala: no hay nada de lo que heredarlos |
 
 Un ejemplo para los solapamientos. La base de datos de ejemplo tiene dos y ninguno lleva propuesta: las dos fases tienen intervalos **idénticos**, y cualquier recorte haría que una fase terminara antes de empezar. El panel se limita a decirlo; la decisión (fusionar las fases, corregir los años, dejarlo como está) corresponde al arqueólogo.
