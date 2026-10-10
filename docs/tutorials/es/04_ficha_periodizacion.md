@@ -215,7 +215,7 @@ La barra de herramientas DBMS permite la gestión completa de los registros.
 | ![New] | New record | Crear un nuevo registro |
 | ![Save] | Save | Guardar las modificaciones |
 | ![Delete] | Delete | Eliminar el registro actual |
-| ![View All] | View all | Ver todos los registros |
+| ![View All] | View all | Ver los registros del sitio actual |
 
 ### Botones de Búsqueda
 
@@ -362,6 +362,12 @@ Para una excavación típica, se recomienda crear la periodización siguiendo es
 | 3 | 1 | 301 | Época romana - Fase imperial |
 | 3 | 2 | 302 | Época romana - Fase republicana |
 | 4 | 1 | 401 | Época prerromana |
+
+---
+
+## Corregir las cronologías desdel panel «Verifica rapporti»
+
+Los años de un periodo o fase (**Cronología inicial** y **Cronología final**, es decir `cron_iniziale` y `cron_finale`) pueden corregirse directamente desde la panel **"Verifica rapporti"** (una pestaña del diálogo de import/export de s3dgraphy; véase el tutorial 36, Extended Matrix y bridge s3dgraphy). El panel señala las **fases con intervalos solapados**, las periodizaciones con **inicio posterior al fin** (los dos años se intercambian automáticamente) y las fases **sin años**, que solo se señalan porque no hay nada de lo que heredarlos. Antes de cada corrección se crea una copia de seguridad automática, y **Annulla ultimo fix** revierte también los cambios escritos en esta tabla. La verificación afecta a un solo sitio cada vez: el seleccionado en el panel.
 
 ---
 

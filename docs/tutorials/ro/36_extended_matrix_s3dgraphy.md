@@ -382,6 +382,46 @@ Notă privind limita: două perioade **adiacente care se ating** într-un singur
 
 ---
 
+## 8. Verificarea cronologiei (periodizare și fișe)
+
+În același panou **"Verifica rapporti"** (Verificarea relațiilor — o filă din dialogul de import/export s3dgraphy), începând cu versiunea 5.13.64-alpha verificarea găsește și corectează și probleme de **cronologie** ale sitului selectat. Verificarea paradoxurilor temporale (secțiunea 7) compară perioada unei unități cu stratigrafia; aceasta compară periodizarea cu ea însăși și cu fișele US care o copiază.
+
+### 8.1 Ce detectează
+
+Panoul grupează problemele pe tipuri. Alături de grupurile relațiilor apar patru grupuri noi:
+
+| Grup | Ce semnalează | Cum este tratat |
+|------|---------------|-----------------|
+| **Faze cu intervale suprapuse** | Două rânduri ale periodizării ale căror intervale de ani se intersectează | Manual: panoul propune îngustarea intervalelor doar dacă, după îngustare, rămâne un interval utilizabil |
+| **Datare a fișei dezaliniată** | Câmpul `datazione` al fișei US spune altceva decât `datazione_estesa` a perioadei/fazei sale | Automat: periodizarea este sursa, iar fișa este copia, deci copia este rescrisă din sursă. Un câmp gol se completează la fel. O US fără perioadă este sărită, pentru că nu există nimic de copiat |
+| **Periodizare cu începutul după sfârșit** | `cron_iniziale` mai mare decât `cron_finale` | Automat: cei doi ani se inversează |
+| **Fază fără ani** | O fază ai cărei ani lipsesc sau nu pot fi citiți | Doar semnalată: nu există nimic de la care să îi moștenească |
+
+Un exemplu pentru suprapuneri. Baza de date de exemplu are două și niciuna nu are propunere: cele două faze au intervale **identice**, iar orice îngustare ar face ca o fază să se termine înainte de a începe. Panoul doar o spune; decizia (unirea fazelor, corectarea anilor, lăsarea așa cum este) aparține arheologului.
+
+### 8.2 Corecție automată și sugestii
+
+**Corecții automate și propuneri.** Corecțiile automate sunt **deja bifate**; propunerile **nu**, și sunt aplicate doar dacă se bifează caseta. Înainte regula era alta: o problemă a cărei corecție cerea o decizie umană putea fi doar citită. Acum are o casetă, lăsată nebifată. Acest lucru este valabil și pentru cele două categorii mai vechi de relații care oferă o sugestie, adică contradicția directă și ciclul stratigrafic.
+
+Pentru a folosi panoul:
+
+1. Selectați în panou **situl** de verificat. Verificarea este **pe sit**: se uită doar la situl ales și corectează doar acel sit. Într-o bază de date cu zece situri acest lucru contează, pentru că aceleași numere de US există în toate.
+2. Citiți **linia de rezumat** de deasupra arborelui: spune câte probleme sunt, câte pot fi corectate automat și **câte sunt propunerile de bifat manual**.
+3. Deschideți grupurile și selectați o problemă pentru a-i citi detaliul în panoul de previzualizare.
+4. Verificați casetele. Corecțiile automate sunt deja bifate: debifați-le pe cele pe care nu doriți să le aplicați. Bifați propunerile cu care sunteți de acord.
+5. Aplicați corecțiile. Înainte de a scrie orice se creează o **copie de siguranță automată** (copie a fișierului SQLite sau `pg_dump` pentru PostgreSQL în `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); copia, care exista deja pentru corecțiile câmpurilor de perioadă, acoperă acum și corecțiile cronologice.
+6. Dacă rezultatul nu convinge, apăsați **Annulla ultimo fix** (anulează ultima corecție): anularea readuce și corecțiile scrise în tabela periodizării.
+
+### 8.3 Previzualizare și backup
+
+**Previzualizarea arată data calculată.** Pentru fiecare unitate citată de o problemă, panoul de previzualizare arată data ei calculată într-o linie ca aceasta:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+Linia indică, în ordine, intervalul de ani, regula care l-a produs și relația de-a lungul căreia a călătorit constrângerea, împreună cu nodul de la care provine. Când cele două capete ale intervalului vin pe drumuri diferite, fiecare capăt are eticheta lui (`inizio …` și `fine …`), astfel încât o dată nu este niciodată atribuită relației greșite. Astăzi, într-o bază de date normală, fiecare unitate își ia datele din propria perioadă, deci majoritatea liniilor vor spune `epoca`. Rostul liniei nu este să surprindă, ci să lase să se vadă **de unde vine** o dată.
+
+---
+
 ## Referințe
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

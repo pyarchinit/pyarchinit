@@ -106,7 +106,7 @@ La Fitxa US està organitzada en diverses àrees funcionals:
 | **New record** | Nou | Crea una nova fitxa US |
 | **Save** | Desa | Desa les modificacions |
 | **Delete** | Elimina | Elimina la fitxa actual |
-| **View all** | Veure tots | Mostra tots els registres |
+| **View all** | Veure tots | Mostra els registres del lloc actual |
 | **First/Prev/Next/Last** | Navegació | Navega entre els registres |
 | **new search** | Cerca | Inicia mode de cerca |
 | **search !!!** | Executa | Executa la cerca |

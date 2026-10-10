@@ -400,7 +400,7 @@ A ficha utiliza a barra de ferramentas DBMS padrao do PyArchInit:
 | **Novo registo** | Limpa o formulario para introduzir um novo colaborador |
 | **Guardar** | Guarda o registo atual (novo ou editado) |
 | **Eliminar registo** | Remove o colaborador atual (com confirmacao) |
-| **Ver todos** | Mostra todos os registos |
+| **Ver todos** | Mostra os registos do sitio atual |
 | **Nova pesquisa** | Ativa o modo de pesquisa |
 | **Pesquisar** | Executa a pesquisa com os criterios preenchidos |
 | **Ordenar por** | Abre o painel de ordenacao |

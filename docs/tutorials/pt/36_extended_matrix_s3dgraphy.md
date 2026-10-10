@@ -382,6 +382,46 @@ Nota sobre o limite: dois períodos **adjacentes que se tocam** num único ponto
 
 ---
 
+## 8. Verificação da cronologia (periodização e fichas)
+
+No mesmo painel **"Verifica rapporti"** (Verificar relações — uma aba do diálogo de import/export do s3dgraphy), desde a versão 5.13.64-alpha a verificação encontra e corrige também problemas de **cronologia** do sítio selecionado. A verificação de paradoxos temporais (secção 7) compara o período de uma unidade com a estratigrafia; esta compara a periodização consigo própria e com as fichas US que a copiam.
+
+### 8.1 O que deteta
+
+O painel agrupa os problemas por tipo. Ao lado dos grupos das relações aparecem quatro grupos novos:
+
+| Grupo | O que assinala | Como é tratado |
+|-------|----------------|----------------|
+| **Fases com intervalos sobrepostos** | Duas linhas da periodização cujos intervalos de anos se cruzam | Manual: o painel propõe reduzir os intervalos apenas se, depois da redução, restar um intervalo utilizável |
+| **Datação da ficha desalinhada** | O campo `datazione` da ficha US diz algo diferente da `datazione_estesa` do seu período/fase | Automático: a periodização é a fonte e a ficha é a cópia, por isso a cópia é reescrita a partir da fonte. Um campo vazio é preenchido da mesma maneira. Uma US sem período é ignorada, porque não há nada para copiar |
+| **Periodização com início depois do fim** | `cron_iniziale` maior que `cron_finale` | Automático: os dois anos são trocados |
+| **Fase sem anos** | Uma fase cujos anos faltam ou não são legíveis | Só assinalada: não há nada de onde os herdar |
+
+Um exemplo para as sobreposições. A base de dados de exemplo tem duas, e nenhuma traz proposta: as duas fases têm intervalos **idênticos**, e qualquer redução faria uma fase terminar antes de começar. O painel limita-se a dizê-lo; a decisão (juntar as fases, corrigir os anos, deixar como está) cabe ao arqueólogo.
+
+### 8.2 Correção automática e sugestões
+
+**Correções automáticas e propostas.** As correções automáticas estão **já assinaladas**; as propostas **não**, e só são aplicadas se se assinalar a caixa. Antes a regra era diferente: um problema cuja correção exigia uma decisão humana só podia ser lido. Agora tem uma caixa, deixada em branco. Isto vale também para as duas categorias de relações mais antigas que oferecem uma sugestão, isto é, a contradição direta e o ciclo estratigráfico.
+
+Para usar o painel:
+
+1. Selecione no painel o **sítio** a verificar. A verificação é **por sítio**: olha apenas para o sítio escolhido e corrige apenas esse. Numa base de dados com dez sítios isto conta, porque os mesmos números de US existem em todos.
+2. Leia a **linha de resumo** acima da árvore: indica quantos problemas há, quantos são corrigíveis automaticamente e **quantas são as propostas a assinalar à mão**.
+3. Abra os grupos e selecione um problema para ler o detalhe no painel de pré-visualização.
+4. Verifique as caixas. As correções automáticas já estão assinaladas: retire a marca das que não quiser aplicar. Assinale as propostas com que concorda.
+5. Aplique as correções. Antes de escrever o que quer que seja é criada uma **cópia de segurança automática** (cópia do ficheiro SQLite ou `pg_dump` para PostgreSQL em `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); a cópia, que já existia para as correções dos campos de período, cobre agora também as cronológicas.
+6. Se o resultado não convencer, prima **Annulla ultimo fix** (anular a última correção): a anulação reverte também as correções escritas na tabela da periodização.
+
+### 8.3 Pré-visualização e backup
+
+**A pré-visualização mostra a data calculada.** Para cada unidade citada por um problema, o painel de pré-visualização mostra a sua data calculada numa linha como esta:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+A linha indica, por ordem, o intervalo de anos, a regra que o produziu e a relação ao longo da qual a restrição viajou, com o nó de onde veio. Quando os dois extremos do intervalo chegam por caminhos diferentes, cada extremo leva a sua etiqueta (`inizio …` e `fine …`), de modo que uma data nunca é atribuída à relação errada. Hoje, numa base de dados normal, cada unidade toma as suas datas do seu próprio período, por isso a maioria das linhas dirá `epoca`. O objetivo da linha não é surpreender, é permitir ver **de onde vem** uma data.
+
+---
+
 ## Referências
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

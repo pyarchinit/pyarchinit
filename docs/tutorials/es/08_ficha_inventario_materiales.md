@@ -371,7 +371,7 @@ La barra de herramientas ofrece todas las herramientas para la gestión de regis
 | New record | Nuevo | Crear nuevo hallazgo |
 | Save | Guardar | Guardar modificaciones |
 | Delete | Eliminar | Eliminar hallazgo actual |
-| View all | Todos | Visualizar todos los registros |
+| View all | Todos | Visualizar los registros del sitio actual |
 | New search | Búsqueda | Activar modo búsqueda |
 | Search!!! | Ejecutar | Ejecutar la búsqueda |
 | Order by | Ordenar | Ordenar los registros |

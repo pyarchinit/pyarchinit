@@ -60,7 +60,7 @@ La toolbar fornisce le funzioni standard:
 | Save | Salva |
 | Delete | Elimina |
 | Search | Ricerca |
-| View All | Visualizza tutti |
+| View All | Visualizza i record del sito corrente |
 | PDF | Export PDF |
 
 ---

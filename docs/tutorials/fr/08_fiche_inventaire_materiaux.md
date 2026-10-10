@@ -371,7 +371,7 @@ La toolbar offre tous les outils pour la gestion des enregistrements.
 | New record | Nouveau | Crée un nouvel objet |
 | Save | Sauvegarder | Sauvegarde les modifications |
 | Delete | Supprimer | Supprime l'objet actuel |
-| View all | Tous | Affiche tous les enregistrements |
+| View all | Tous | Affiche les enregistrements du site courant |
 | New search | Recherche | Active le mode recherche |
 | Search!!! | Exécuter | Exécute la recherche |
 | Order by | Trier | Trie les enregistrements |

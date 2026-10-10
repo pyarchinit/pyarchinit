@@ -131,7 +131,7 @@ The DBMS toolbar is identical to the Site Form with some additional features:
 | **New record** | New | Creates a new SU form |
 | **Save** | Save | Saves changes |
 | **Delete** | Delete | Deletes current form |
-| **View all** | View all | Shows all records |
+| **View all** | View all | Shows the records of the current site |
 | **First/Prev/Next/Last** | Navigation | Navigate between records |
 | **new search** | Search | Starts search mode |
 | **search !!!** | Execute | Executes search |

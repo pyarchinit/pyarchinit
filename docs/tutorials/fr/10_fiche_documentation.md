@@ -53,7 +53,7 @@ La **Fiche Documentation** est le module de PyArchInit pour la gestion de la doc
 | Delete | Supprimer l'enregistrement |
 | New search / Search | Fonctions de recherche |
 | Order by | Trier les résultats |
-| View all | Afficher tous les enregistrements |
+| View all | Afficher les enregistrements du site courant |
 
 ---
 

@@ -60,7 +60,7 @@ La barra de herramientas proporciona las funciones estándar:
 | Save | Guardar |
 | Delete | Eliminar |
 | Search | Búsqueda |
-| View All | Ver todos |
+| View All | Ver los registros del sitio actual |
 | PDF | Exportar PDF |
 
 ---

@@ -309,7 +309,7 @@ Os graficos podem ser agrupados por:
 | Novo registo | Novo | Criar novo achado |
 | Guardar | Guardar | Guardar alteracoes |
 | Eliminar | Eliminar | Eliminar achado atual |
-| Ver todos | Todos | Ver todos os registos |
+| Ver todos | Todos | Ver os registos do sitio atual |
 | Nova pesquisa | Pesquisa | Ativar modo de pesquisa |
 | Pesquisar!!! | Executar | Executar pesquisa |
 | Ordenar por | Ordenar | Ordenar registos |

@@ -60,7 +60,7 @@ La barra d'eines proporciona les funcions estàndard:
 | Save | Desa |
 | Delete | Elimina |
 | Search | Cerca |
-| View All | Visualitza tots |
+| View All | Visualitza els registres del lloc actual |
 | PDF | Export PDF |
 
 ---

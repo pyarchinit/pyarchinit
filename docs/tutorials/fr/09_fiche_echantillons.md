@@ -71,7 +71,7 @@ La fiche présente une disposition simplifiée pour la gestion rapide des échan
 | New search | Nouvelle recherche | Démarrer une nouvelle recherche |
 | Search!!! | Exécuter recherche | Exécuter la recherche |
 | Order by | Trier par | Trier les résultats |
-| View all | Voir tout | Afficher tous les enregistrements |
+| View all | Voir tout | Afficher les enregistrements du site courant |
 
 ---
 

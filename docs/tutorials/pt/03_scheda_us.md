@@ -131,7 +131,7 @@ A barra de ferramentas DBMS e identica a da Ficha de Sitio com algumas funcional
 | **New record** | Novo | Cria uma nova ficha de UE |
 | **Save** | Guardar | Guarda as alteracoes |
 | **Delete** | Eliminar | Elimina a ficha atual |
-| **View all** | Ver todos | Mostra todos os registos |
+| **View all** | Ver todos | Mostra os registos do sitio atual |
 | **First/Prev/Next/Last** | Navegacao | Navegar entre registos |
 | **new search** | Pesquisa | Inicia o modo de pesquisa |
 | **search !!!** | Executar | Executa a pesquisa |

@@ -71,7 +71,7 @@ A ficha apresenta uma disposicao simplificada para gestao rapida de amostras.
 | Nova pesquisa | Iniciar nova pesquisa |
 | Pesquisar!!! | Executar pesquisa |
 | Ordenar por | Ordenar resultados |
-| Ver todos | Ver todos os registos |
+| Ver todos | Ver os registos do sitio atual |
 
 ---
 

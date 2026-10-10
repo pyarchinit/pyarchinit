@@ -53,7 +53,7 @@ A **Ficha de Documentacao** e o modulo do PyArchInit para gestao da documentacao
 | Eliminar | Eliminar registo |
 | Nova pesquisa / Pesquisar | Funcoes de pesquisa |
 | Ordenar por | Ordenar resultados |
-| Ver todos | Ver todos os registos |
+| Ver todos | Ver os registos do sitio atual |
 
 ---
 

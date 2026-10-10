@@ -210,7 +210,7 @@ La barra d'eines proporciona les funcions estàndard de gestió de registres:
 | New record | Crea un nou registre |
 | Save | Desa les modificacions |
 | Delete | Elimina el registre actual |
-| View all | Visualitza tots els registres |
+| View all | Visualitza els registres del lloc actual |
 
 ### Cerca
 
@@ -297,6 +297,12 @@ La fitxa inclou integració amb AI per a:
 1. Obrir la Fitxa de Periodització
 2. Usar el Preview GIS per verificar les assignacions
 3. Generar el Matrix de Harris colorat per períodes
+
+---
+
+## Corregir les cronologies des del panell «Verifica rapporti»
+
+Els anys d'un període o fase (**Cronologia inicial** i **Cronologia final**, és a dir `cron_iniziale` i `cron_finale`) es poden corregir directament des de la panell **"Verifica rapporti"** (una pestanya del diàleg d'import/export de s3dgraphy; vegeu el tutorial 36, Extended Matrix i bridge s3dgraphy). El panell assenyala les **fases amb intervals solapats**, les perioditzacions amb **inici posterior a la fi** (els dos anys s'intercanvien automàticament) i les fases **sense anys**, que només s'assenyalen perquè no hi ha res de què heretar-los. Abans de cada correcció es crea una còpia de seguretat automàtica, i **Annulla ultimo fix** reverteix també els canvis escrits en aquesta taula. La verificació afecta un sol jaciment cada vegada: el seleccionat al panell.
 
 ---
 

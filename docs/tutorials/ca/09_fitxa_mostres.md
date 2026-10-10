@@ -71,7 +71,7 @@ La fitxa presenta un disseny simplificat per a la gestió ràpida de les mostres
 | New search | Inicia nova cerca |
 | Search!!! | Executa cerca |
 | Order by | Ordena resultats |
-| View all | Visualitza tots els registres |
+| View all | Visualitza els registres del lloc actual |
 
 ---
 

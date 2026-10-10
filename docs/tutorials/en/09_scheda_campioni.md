@@ -71,7 +71,7 @@ The form presents a simplified layout for rapid sample management.
 | New search | Start new search |
 | Search!!! | Execute search |
 | Order by | Sort results |
-| View all | View all records |
+| View all | View the records of the current site |
 
 ---
 

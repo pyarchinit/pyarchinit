@@ -249,7 +249,7 @@ Die DBMS-Toolbar ermöglicht die vollständige Verwaltung der Datensätze:
 | ![New](images/icons/new.png) | Neuer Datensatz | Erstellt neuen Datensatz |
 | ![Save](images/icons/save.png) | Speichern | Speichert Änderungen |
 | ![Delete](images/icons/delete.png) | Löschen | Löscht aktuellen Datensatz |
-| ![View All](images/icons/view_all.png) | Alle anzeigen | Zeigt alle Datensätze |
+| ![View All](images/icons/view_all.png) | Alle anzeigen | Zeigt die Datensätze des aktuellen Fundorts |
 
 ### Suchschaltflächen
 
@@ -435,6 +435,12 @@ Für eine typische Ausgrabung wird empfohlen, die Periodisierung nach diesem Sch
 | 3 | 1 | 301 | Römisch - Kaiserzeit |
 | 3 | 2 | 302 | Römisch - Republik |
 | 4 | 1 | 401 | Vorrömisch |
+
+---
+
+## Chronologien über den Bereich «Verifica rapporti» korrigieren
+
+Die Jahre einer Periode oder Phase (**Anfangschronologie** und **Endchronologie**, also `cron_iniziale` und `cron_finale`) lassen sich direkt im Bereich **"Verifica rapporti"** korrigieren (ein Reiter des s3dgraphy-Import-/Export-Dialogs; siehe Tutorial 36, Extended Matrix und s3dgraphy-Bridge). Der Bereich meldet **Phasen mit überlappenden Intervallen**, Periodisierungen mit **Beginn nach dem Ende** (die beiden Jahre werden automatisch vertauscht) und Phasen **ohne Jahre**, die nur gemeldet werden, weil es nichts gibt, wovon sie geerbt werden könnten. Vor jeder Korrektur wird ein automatisches Backup erstellt, und **Annulla ultimo fix** nimmt auch die in diese Tabelle geschriebenen Änderungen zurück. Die Prüfung betrifft jeweils nur einen Fundort: den im Bereich ausgewählten.
 
 ---
 

@@ -382,6 +382,46 @@ Nota sobre el límit: dos períodes **adjacents que es toquen** en un únic punt
 
 ---
 
+## 8. Verificació de la cronologia (periodització i fitxes)
+
+Al mateix panell **"Verifica rapporti"** (Verificar relacions — una pestanya del diàleg d'import/export de s3dgraphy), des de la versió 5.13.64-alpha la verificació també troba i corregeix problemes de **cronologia** del jaciment seleccionat. La verificació de paradoxes temporals (secció 7) compara el període d'una unitat amb l'estratigrafia; aquesta compara la periodització amb ella mateixa i amb les fitxes UE que la copien.
+
+### 8.1 Què detecta
+
+L'arbre del panell agrupa els problemes per tipus. Al costat dels grups de relacions apareixen quatre grups nous:
+
+| Grup | Què assenyala | Com es tracta |
+|------|---------------|---------------|
+| **Fases amb intervals solapats** | Dues files de la periodització els intervals d'anys de les quals es creuen | Manual: el panell proposa escurçar els intervals només si, després d'escurçar-los, queda un interval utilitzable |
+| **Datació de la fitxa desalineada** | El camp `datazione` de la fitxa UE diu una cosa diferent de la `datazione_estesa` del seu període/fase | Automàtic: la periodització és la font i la fitxa és la còpia, així que la còpia es reescriu des de la font. Un camp buit s'omple de la mateixa manera. Una UE sense període s'omet, perquè no hi ha res per copiar |
+| **Periodització amb inici posterior a la fi** | `cron_iniziale` major que `cron_finale` | Automàtic: els dos anys s'intercanvien |
+| **Fase sense anys** | Una fase els anys de la qual falten o no es poden llegir | Només s'assenyala: no hi ha res de què heretar-los |
+
+Un exemple per als solapaments. La base de dades d'exemple en té dos i cap no porta proposta: les dues fases tenen intervals **idèntics**, i qualsevol retall faria que una fase acabés abans de començar. El panell es limita a dir-ho; la decisió (fusionar les fases, corregir els anys, deixar-ho com està) correspon a l'arqueòleg.
+
+### 8.2 Correcció automàtica i suggeriments
+
+**Correccions automàtiques i propostes.** Les correccions automàtiques vénen **ja marcades**; les propostes **no**, i només s'apliquen si es marca la casella. Abans la regla era diferent: un problema la correcció del qual requeria una decisió humana només es podia llegir. Ara té una casella, que es deixa sense marcar. Això val també per a les dues categories antigues de relacions que ofereixen un suggeriment, és a dir, la contradicció directa i el cicle estratigràfic.
+
+Per fer servir el panell:
+
+1. Seleccioneu al panell el **jaciment** que voleu verificar. La verificació és **per jaciment**: mira només el jaciment triat i corregeix només aquell. En una base de dades amb deu jaciments això importa, perquè els mateixos números d'UE existeixen a tots.
+2. Llegiu la **línia de resum** sobre l'arbre: indica quants problemes hi ha, quants són corregibles automàticament i **quantes són les propostes que cal marcar a mà**.
+3. Obriu els grups i seleccioneu un problema per llegir-ne el detall al panell de previsualització.
+4. Reviseu les caselles. Les correccions automàtiques ja estan marcades: desmarqueu les que no volgueu aplicar. Marqueu les propostes amb què estigueu d'acord.
+5. Apliqueu les correccions. Abans d'escriure res es crea una **còpia de seguretat automàtica** (còpia del fitxer SQLite, o `pg_dump` per a PostgreSQL a `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); la còpia, que ja existia per a les correccions dels camps de període, ara cobreix també les cronològiques.
+6. Si el resultat no convenç, premeu **Annulla ultimo fix** (desfer l'última correcció): desfer reverteix també les correccions escrites a la taula de periodització.
+
+### 8.3 Vista prèvia i còpia de seguretat
+
+**La previsualització mostra la data calculada.** Per a cada unitat citada per un problema, el panell de previsualització mostra la seva data calculada en una línia com aquesta:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+La línia indica, per ordre, l'interval d'anys, la regla que l'ha produït i la relació al llarg de la qual ha viatjat la restricció, juntament amb el node del qual procedeix. Quan els dos extrems de l'interval arriben per camins diferents, cada extrem porta la seva etiqueta (`inizio …` i `fine …`), de manera que una data mai s'atribueix a la relació equivocada. Avui, en una base de dades normal, cada unitat pren les dates del seu propi període, així que la majoria de línies diran `epoca`. El sentit de la línia no és sorprendre, sinó permetre veure **d'on ve** una data.
+
+---
+
 ## Referències
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

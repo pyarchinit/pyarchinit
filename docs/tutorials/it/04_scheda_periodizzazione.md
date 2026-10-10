@@ -249,7 +249,7 @@ La toolbar DBMS permette la gestione completa dei record:
 | ![New](images/icons/new.png) | New record | Crea un nuovo record |
 | ![Save](images/icons/save.png) | Save | Salva le modifiche |
 | ![Delete](images/icons/delete.png) | Delete | Elimina il record corrente |
-| ![View All](images/icons/view_all.png) | View all | Visualizza tutti i record |
+| ![View All](images/icons/view_all.png) | View all | Visualizza i record del sito corrente |
 
 ### Pulsanti di Ricerca
 
@@ -440,6 +440,12 @@ Per uno scavo tipico, si consiglia di creare la periodizzazione seguendo questo 
 | 3 | 1 | 301 | Eta romana - Fase imperiale |
 | 3 | 2 | 302 | Eta romana - Fase repubblicana |
 | 4 | 1 | 401 | Eta preromana |
+
+---
+
+## Correggere le cronologie dal pannello «Verifica rapporti»
+
+Gli anni di un periodo o di una fase (**Cronologia iniziale** e **Cronologia finale**, cioè `cron_iniziale` e `cron_finale`) si possono correggere direttamente dal pannello **"Verifica rapporti"** (tab del dialog di import/export s3dgraphy; vedi il tutorial 36, Extended Matrix e bridge s3dgraphy). Il pannello segnala le **fasi con intervalli sovrapposti**, le periodizzazioni con **inizio dopo la fine** (i due anni vengono scambiati in automatico) e le fasi **senza anni**, che restano solo segnalate perché non c'è nulla da cui ereditarli. Prima di ogni correzione viene creato un backup automatico e **Annulla ultimo fix** riporta indietro anche le modifiche scritte in questa tabella. La verifica riguarda un solo sito per volta: quello selezionato nel pannello.
 
 ---
 

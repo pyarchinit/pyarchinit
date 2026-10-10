@@ -74,7 +74,7 @@ La barra de herramientas principal proporciona todas las herramientas para la ge
 | New search | Iniciar nueva búsqueda |
 | Search!!! | Ejecutar búsqueda |
 | Order by | Ordenar resultados |
-| View all | Ver todos los registros |
+| View all | Ver los registros del sitio actual |
 
 ### Botones Especiales
 

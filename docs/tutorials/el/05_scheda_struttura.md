@@ -82,7 +82,7 @@
 | ![Νέα Αναζ.](../../resources/icons/new_search.png) | New search | Εκκίνηση νέας αναζήτησης |
 | ![Αναζ.](../../resources/icons/search.png) | Search!!! | Εκτέλεση αναζήτησης |
 | ![Ταξ.](../../resources/icons/sort.png) | Order by | Ταξινόμηση αποτελεσμάτων |
-| ![Όλα](../../resources/icons/view_all.png) | View all | Προβολή όλων των εγγραφών |
+| ![Όλα](../../resources/icons/view_all.png) | View all | Προβολή των εγγραφών της τρέχουσας θέσης |
 
 ### Ειδικά Κουμπιά
 

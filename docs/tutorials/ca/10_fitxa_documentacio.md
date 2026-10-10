@@ -53,7 +53,7 @@ La **Fitxa de Documentació** és el mòdul de PyArchInit per a la gestió de la
 | Delete | Elimina el registre |
 | New search / Search | Funcions de cerca |
 | Order by | Ordena resultats |
-| View all | Visualitza tots els registres |
+| View all | Visualitza els registres del lloc actual |
 
 ---
 

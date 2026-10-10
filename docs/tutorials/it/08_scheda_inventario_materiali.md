@@ -416,7 +416,7 @@ La toolbar offre tutti gli strumenti per la gestione dei record.
 | New record | Nuovo | Crea nuovo reperto |
 | Save | Salva | Salva modifiche |
 | Delete | Elimina | Elimina reperto corrente |
-| View all | Tutti | Visualizza tutti i record |
+| View all | Tutti | Visualizza i record del sito corrente |
 | New search | Ricerca | Attiva modalita ricerca |
 | Search!!! | Esegui | Esegue la ricerca |
 | Order by | Ordina | Ordina i record |

@@ -60,7 +60,7 @@ The toolbar provides standard functions:
 | Save | Save |
 | Delete | Delete |
 | Search | Search |
-| View All | View all |
+| View All | View the records of the current site |
 | PDF | PDF Export |
 
 ---

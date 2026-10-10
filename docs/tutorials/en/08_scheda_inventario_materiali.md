@@ -309,7 +309,7 @@ Charts can be grouped by:
 | New record | New | Create new find |
 | Save | Save | Save changes |
 | Delete | Delete | Delete current find |
-| View all | All | View all records |
+| View all | All | View the records of the current site |
 | New search | Search | Activate search mode |
 | Search!!! | Execute | Execute search |
 | Order by | Sort | Sort records |

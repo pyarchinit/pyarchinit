@@ -84,7 +84,7 @@ A barra de ferramentas principal fornece ferramentas para a gestao de registos.
 | ![Nova Pesquisa](../../resources/icons/new_search.png) | Nova pesquisa | Iniciar nova pesquisa |
 | ![Pesquisar](../../resources/icons/search.png) | Pesquisar!!! | Executar pesquisa |
 | ![Ordenar](../../resources/icons/sort.png) | Ordenar por | Ordenar resultados |
-| ![Ver Todos](../../resources/icons/view_all.png) | Ver todos | Ver todos os registos |
+| ![Ver Todos](../../resources/icons/view_all.png) | Ver todos | Ver os registos do sitio atual |
 
 ### Botoes Especiais
 

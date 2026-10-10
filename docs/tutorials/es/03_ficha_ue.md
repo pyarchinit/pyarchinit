@@ -106,7 +106,7 @@ La Ficha UE está organizada en diferentes áreas funcionales:
 | **New record** | Nuevo | Crea una nueva ficha UE |
 | **Save** | Guardar | Guarda las modificaciones |
 | **Delete** | Eliminar | Elimina la ficha actual |
-| **View all** | Ver todos | Muestra todos los registros |
+| **View all** | Ver todos | Muestra los registros del sitio actual |
 | **First/Prev/Next/Last** | Navegación | Navega entre los registros |
 | **new search** | Búsqueda | Inicia modo búsqueda |
 | **search !!!** | Ejecutar | Ejecuta la búsqueda |

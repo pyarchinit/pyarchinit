@@ -71,7 +71,7 @@ La scheda presenta un layout semplificato per la gestione rapida dei campioni.
 | New search | Avvia nuova ricerca |
 | Search!!! | Esegui ricerca |
 | Order by | Ordina risultati |
-| View all | Visualizza tutti i record |
+| View all | Visualizza i record del sito corrente |
 
 ---
 

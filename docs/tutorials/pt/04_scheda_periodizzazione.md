@@ -249,7 +249,7 @@ A barra de ferramentas DBMS permite a gestao completa de registos:
 | ![Novo](images/icons/new.png) | Novo registo | Criar um novo registo |
 | ![Guardar](images/icons/save.png) | Guardar | Guardar alteracoes |
 | ![Eliminar](images/icons/delete.png) | Eliminar | Eliminar o registo atual |
-| ![Ver Todos](images/icons/view_all.png) | Ver todos | Ver todos os registos |
+| ![Ver Todos](images/icons/view_all.png) | Ver todos | Ver os registos do sitio atual |
 
 ### Botoes de Pesquisa
 
@@ -440,6 +440,12 @@ Para uma escavacao tipica, recomenda-se criar a periodizacao seguindo este esque
 | 3 | 1 | 301 | Epoca romana - Fase imperial |
 | 3 | 2 | 302 | Epoca romana - Fase republicana |
 | 4 | 1 | 401 | Epoca pre-romana |
+
+---
+
+## Corrigir as cronologias a partir do painel «Verifica rapporti»
+
+Os anos de um periodo ou fase (**Cronologia Inicial** e **Cronologia Final**, isto e `cron_iniziale` e `cron_finale`) podem ser corrigidos diretamente a partir da painel **"Verifica rapporti"** (uma aba do dialogo de import/export do s3dgraphy; ver o tutorial 36, Extended Matrix e bridge s3dgraphy). O painel assinala as **fases com intervalos sobrepostos**, as periodizacoes com **inicio depois do fim** (os dois anos sao trocados automaticamente) e as fases **sem anos**, que so sao assinaladas porque nao ha nada de onde os herdar. E criada uma copia de seguranca automatica antes de cada correcao, e **Annulla ultimo fix** reverte tambem as alteracoes escritas nesta tabela. A verificacao diz respeito a um so sitio de cada vez: o selecionado no painel.
 
 ---
 

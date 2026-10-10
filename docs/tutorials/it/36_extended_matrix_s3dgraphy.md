@@ -382,6 +382,47 @@ Nota sul confine: due periodi **adiacenti che si toccano** in un solo punto cron
 
 ---
 
+## 8. Verifica della cronologia (periodizzazione e schede)
+
+Nello stesso pannello **"Verifica rapporti"** (tab del dialog di import/export s3dgraphy), dalla versione 5.13.64-alpha, la verifica trova e corregge anche i problemi di **cronologia** del sito selezionato. Il controllo dei paradossi temporali (sezione 7) confronta il periodo di un'unità con la stratigrafia; questo confronta la periodizzazione con se stessa e con le schede US che la copiano.
+
+### 8.1 Cosa rileva
+
+@@OLDFIG@@
+L'albero del pannello raggruppa i problemi per tipo. Accanto ai gruppi dei rapporti compaiono quattro gruppi nuovi:
+
+| Gruppo | Che cosa segnala | Come viene trattato |
+|--------|------------------|---------------------|
+| **Fasi con intervalli sovrapposti** | Due righe della periodizzazione i cui intervalli di anni si intersecano | Manuale: il pannello propone di restringere gli intervalli solo se, dopo la restrizione, resta un intervallo utilizzabile |
+| **Datazione della scheda disallineata** | Il campo `datazione` della scheda US dice una cosa diversa dalla `datazione_estesa` della sua periodizzazione | Automatico: la periodizzazione Ã¨ la fonte, la scheda Ã¨ la copia, quindi la copia viene riscritta dalla fonte. Un campo vuoto si compila allo stesso modo. Una US senza periodo viene saltata, perché non c'Ã¨ nulla da cui copiare |
+| **Periodizzazione con inizio dopo la fine** | `cron_iniziale` maggiore di `cron_finale` | Automatico: i due anni vengono scambiati |
+| **Fase senza anni** | Una fase i cui anni mancano o non sono leggibili | Solo segnalata: non c'Ã¨ nulla da cui ereditarli |
+
+Un esempio per le sovrapposizioni. Nel database di esempio ce ne sono due, e nessuna delle due ha una proposta: le due fasi hanno intervalli **identici**, e qualunque restrizione farebbe finire una fase prima del suo inizio. Il pannello si limita a dirlo; la decisione (accorpare le fasi, correggere gli anni, lasciare le cose come stanno) spetta all'archeologo.
+
+### 8.2 Correzione automatica e suggerimenti
+
+**Correzioni automatiche e proposte.** Le correzioni automatiche sono **già spuntate**; le proposte **non lo sono** e vengono applicate solo se si spunta la casella. Prima la regola era diversa: un problema la cui correzione richiedeva una decisione umana poteva solo essere letto. Ora ha una casella, lasciata vuota. Questo vale anche per le due categorie più vecchie dei rapporti che offrono un suggerimento, cioÃ¨ la contraddizione diretta e il ciclo stratigrafico.
+
+Per usare il pannello:
+
+1. Selezionare nel pannello il **sito** da verificare. La verifica Ã¨ **per sito**: guarda solo il sito scelto e corregge solo quello. In un database con dieci siti la cosa conta, perché gli stessi numeri di US esistono in tutti.
+2. Leggere la **riga di riepilogo** sopra l'albero: dice quanti problemi ci sono, quanti sono correggibili in automatico e **quante sono le proposte da spuntare a mano**.
+3. Aprire i gruppi e selezionare un problema per leggerne il dettaglio nel pannello di anteprima.
+4. Controllare le caselle. Le correzioni automatiche sono già spuntate: togliere la spunta a quelle che non si vogliono applicare. Spuntare le proposte che si condividono.
+5. Applicare le correzioni. Prima di scrivere qualsiasi cosa viene creato un **backup automatico** (copia del file SQLite oppure `pg_dump` per PostgreSQL in `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); il backup, che già esisteva per le correzioni dei campi periodo, ora copre anche quelle cronologiche.
+6. Se il risultato non convince, premere **Annulla ultimo fix**: l'annullamento riporta indietro anche le correzioni scritte nella tabella della periodizzazione.
+
+### 8.3 Anteprima e backup
+
+**L'anteprima mostra la data calcolata.** Per ogni unità citata da un problema il pannello di anteprima riporta la sua data calcolata, in una riga come questa:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+La riga dice, nell'ordine, l'intervallo di anni, la regola che lo ha prodotto e il rapporto lungo il quale il vincolo Ã¨ arrivato, con il nodo da cui proviene. Quando i due estremi dell'intervallo arrivano da strade diverse, ciascuno Ã¨ etichettato (`inizio …` e `fine …`), così una data non viene mai attribuita al rapporto sbagliato. Oggi, in un database normale, ogni unità prende le sue date dal proprio periodo: la maggior parte delle righe dirÃ  quindi `epoca`. Il senso della riga non Ã¨ sorprendere, Ã¨ permettere di vedere **da dove viene** una data.
+
+---
+
 ## Riferimenti
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

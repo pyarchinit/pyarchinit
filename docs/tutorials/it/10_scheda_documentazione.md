@@ -53,7 +53,7 @@ La **Scheda Documentazione** e il modulo di PyArchInit per la gestione della doc
 | Delete | Elimina il record |
 | New search / Search | Funzioni di ricerca |
 | Order by | Ordina risultati |
-| View all | Visualizza tutti i record |
+| View all | Visualizza i record del sito corrente |
 
 ---
 

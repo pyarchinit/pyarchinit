@@ -84,7 +84,7 @@ La toolbar principale fornisce gli strumenti per la gestione dei record.
 | ![New Search](../../resources/icons/new_search.png) | New search | Avvia nuova ricerca |
 | ![Search](../../resources/icons/search.png) | Search!!! | Esegui ricerca |
 | ![Sort](../../resources/icons/sort.png) | Order by | Ordina risultati |
-| ![View All](../../resources/icons/view_all.png) | View all | Visualizza tutti i record |
+| ![View All](../../resources/icons/view_all.png) | View all | Visualizza i record del sito corrente |
 
 ### Pulsanti Speciali
 

@@ -246,6 +246,12 @@ Pour utiliser cette fonctionnalité :
 
 ---
 
+## Corriger les chronologies depuis le panneau «Verifica rapporti»
+
+Les années d'une période ou d'une phase (**Chronologie initiale** et **Chronologie finale**, c'est-à-dire `cron_iniziale` et `cron_finale`) peuvent être corrigées directement depuis la panneau **"Verifica rapporti"** (un onglet du dialogue d'import/export s3dgraphy ; voir le tutoriel 36, Extended Matrix et bridge s3dgraphy). Le panneau signale les **phases à intervalles qui se chevauchent**, les périodisations dont le **début suit la fin** (les deux années sont échangées automatiquement) et les phases **sans années**, qui sont seulement signalées car il n'y a rien dont elles puissent hériter. Une sauvegarde automatique est créée avant chaque correction, et **Annulla ultimo fix** rétablit aussi les modifications écrites dans cette table. La vérification porte sur un seul site à la fois : celui sélectionné dans le panneau.
+
+---
+
 ## Bonnes Pratiques
 
 ### Conventions de Numérotation

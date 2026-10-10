@@ -53,7 +53,7 @@ The **Documentation Form** is the PyArchInit module for managing excavation grap
 | Delete | Delete record |
 | New search / Search | Search functions |
 | Order by | Sort results |
-| View all | View all records |
+| View all | View the records of the current site |
 
 ---
 

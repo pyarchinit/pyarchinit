@@ -123,7 +123,7 @@ Die DBMS-Toolbar ist identisch mit der des Fundort-Formulars mit einigen zusätz
 | **Neuer Datensatz** | Neu | Erstellt ein neues SE-Formular |
 | **Speichern** | Speichern | Speichert Änderungen |
 | **Löschen** | Löschen | Löscht aktuelles Formular |
-| **Alle anzeigen** | Alle ansehen | Zeigt alle Datensätze |
+| **Alle anzeigen** | Alle ansehen | Zeigt die Datensätze des aktuellen Fundorts |
 | **Erster/Vorher/Nächster/Letzter** | Navigation | Navigiert zwischen Datensätzen |
 | **Neue Suche** | Suche | Startet Suchmodus |
 | **Suche!!!** | Ausführen | Führt Suche aus |

@@ -382,6 +382,47 @@ Hinweis zur Grenze: zwei **benachbarte Perioden, die sich** an einem einzigen ch
 
 ---
 
+## 8. Prüfung der Chronologie (Periodisierung und Formulare)
+
+Im selben Bereich **"Verifica rapporti"** (Beziehungsprüfung — ein Reiter des s3dgraphy-Import-/Export-Dialogs) findet und korrigiert die Prüfung seit Version 5.13.64-alpha auch **Chronologieprobleme** des ausgewählten Fundorts. Die Prüfung zeitlicher Widersprüche (Abschnitt 7) vergleicht die Periode einer Einheit mit der Stratigrafie; diese Prüfung vergleicht die Periodisierung mit sich selbst und mit den SE-Formularen, die sie kopieren.
+
+### 8.1 Was sie erkennt
+
+@@OLDFIG@@
+Der Baum im Bereich gruppiert die Probleme nach Art. Neben den Beziehungsgruppen erscheinen vier neue Gruppen:
+
+| Gruppe | Was gemeldet wird | Behandlung |
+|--------|-------------------|------------|
+| **Phasen mit überlappenden Intervallen** | Zwei Zeilen der Periodisierung, deren Jahresintervalle sich schneiden | Manuell: Der Bereich schlägt eine Einengung nur vor, wenn nach der Einengung ein nutzbares Intervall übrig bleibt |
+| **Abweichende Datierung des Formulars** | Das Feld `datazione` des SE-Formulars sagt etwas anderes als die `datazione_estesa` der zugehörigen Periode/Phase | Automatisch: Die Periodisierung ist die Quelle, das Formular die Kopie; die Kopie wird also aus der Quelle neu geschrieben. Ein leeres Feld wird auf dieselbe Weise gefüllt. Eine SE ohne Periode wird übersprungen, weil es nichts zu kopieren gibt |
+| **Periodisierung mit Beginn nach dem Ende** | `cron_iniziale` größer als `cron_finale` | Automatisch: Die beiden Jahre werden vertauscht |
+| **Phase ohne Jahre** | Eine Phase, deren Jahre fehlen oder nicht lesbar sind | Nur gemeldet: Es gibt nichts, wovon sie geerbt werden könnten |
+
+Ein Beispiel zu den Überlappungen. In der Beispieldatenbank gibt es zwei, und keine der beiden hat einen Vorschlag: Die beiden Phasen haben **identische** Intervalle, und jede Einengung würde eine Phase enden lassen, bevor sie beginnt. Der Bereich teilt dies nur mit; die Entscheidung (Phasen zusammenlegen, Jahre korrigieren, alles belassen) liegt bei der Archäologin bzw. dem Archäologen.
+
+### 8.2 Automatische Korrektur und Vorschläge
+
+**Automatische Korrekturen und Vorschläge.** Automatische Korrekturen sind **bereits angehakt**; Vorschläge sind es **nicht** und werden nur angewendet, wenn man das Kästchen anhakt. Früher galt eine andere Regel: Ein Problem, dessen Korrektur eine menschliche Entscheidung erforderte, konnte nur gelesen werden. Jetzt hat es ein Kästchen, das leer bleibt. Das gilt auch für die beiden älteren Beziehungskategorien, die einen Vorschlag anbieten, nämlich den direkten Widerspruch und den stratigraphischen Zyklus.
+
+So verwenden Sie den Bereich:
+
+1. Wählen Sie im Bereich den zu prüfenden **Fundort** aus. Die Prüfung erfolgt **pro Fundort**: Sie betrachtet nur den gewählten Fundort und korrigiert nur diesen. In einer Datenbank mit zehn Fundorten ist das wichtig, weil dieselben SE-Nummern in allen vorkommen.
+2. Lesen Sie die **Zusammenfassungszeile** über dem Baum: Sie nennt die Zahl der Probleme, wie viele automatisch korrigierbar sind und **wie viele Vorschläge von Hand anzuhaken sind**.
+3. Öffnen Sie die Gruppen und wählen Sie ein Problem aus, um sein Detail im Vorschaubereich zu lesen.
+4. Prüfen Sie die Kästchen. Automatische Korrekturen sind bereits angehakt: Entfernen Sie den Haken bei denen, die Sie nicht anwenden möchten. Haken Sie die Vorschläge an, denen Sie zustimmen.
+5. Wenden Sie die Korrekturen an. Bevor etwas geschrieben wird, wird ein **automatisches Backup** erstellt (Kopie der SQLite-Datei bzw. `pg_dump` bei PostgreSQL nach `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); das Backup, das es für die Korrekturen der Periodenfelder bereits gab, deckt nun auch die chronologischen ab.
+6. Wenn das Ergebnis nicht überzeugt, klicken Sie auf **Annulla ultimo fix** (letzte Korrektur rückgängig machen): Das Rückgängigmachen nimmt auch die in die Periodisierungstabelle geschriebenen Korrekturen zurück.
+
+### 8.3 Vorschau und Backup
+
+**Die Vorschau zeigt das berechnete Datum.** Für jede von einem Problem genannte Einheit zeigt der Vorschaubereich ihr berechnetes Datum in einer Zeile wie dieser:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+Die Zeile nennt der Reihe nach das Jahresintervall, die Regel, die es erzeugt hat, und die Beziehung, entlang der die Bedingung gelaufen ist, samt dem Knoten, von dem sie stammt. Kommen die beiden Enden des Intervalls auf verschiedenen Wegen zustande, ist jedes Ende beschriftet (`inizio …` und `fine …`), sodass ein Datum nie der falschen Beziehung zugeschrieben wird. Heute entnimmt in einer normalen Datenbank jede Einheit ihre Daten ihrer eigenen Periode, daher lauten die meisten Zeilen `epoca`. Der Sinn der Zeile ist nicht, zu überraschen, sondern sichtbar zu machen, **woher** ein Datum stammt.
+
+---
+
 ## Referenzen
 
 - Upstream-Issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

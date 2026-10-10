@@ -314,7 +314,7 @@ La barra d'eines ofereix tots els instruments per a la gestió dels registres.
 | New record | Nou | Crea nova troballa |
 | Save | Desa | Desa modificacions |
 | Delete | Elimina | Elimina troballa actual |
-| View all | Tots | Visualitza tots els registres |
+| View all | Tots | Visualitza els registres del lloc actual |
 | New search | Cerca | Activa modalitat cerca |
 | Search!!! | Executa | Executa la cerca |
 | Order by | Ordena | Ordena els registres |

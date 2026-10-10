@@ -382,6 +382,46 @@ Note sur la limite : deux périodes **adjacentes qui se touchent** en un seul po
 
 ---
 
+## 8. Vérification de la chronologie (périodisation et fiches)
+
+Dans le même panneau **"Verifica rapporti"** (Vérifier les rapports — un onglet du dialogue d'import/export s3dgraphy), depuis la version 5.13.64-alpha la vérification trouve et corrige aussi les problèmes de **chronologie** du site sélectionné. La vérification des paradoxes temporels (section 7) compare la période d'une unité avec la stratigraphie ; celle-ci compare la périodisation avec elle-même et avec les fiches US qui la copient.
+
+### 8.1 Ce qu'elle détecte
+
+L'arbre du panneau regroupe les problèmes par type. À côté des groupes de relations, quatre nouveaux groupes apparaissent :
+
+| Groupe | Ce qui est signalé | Traitement |
+|--------|--------------------|------------|
+| **Phases à intervalles qui se chevauchent** | Deux lignes de la périodisation dont les intervalles d'années se recoupent | Manuel : le panneau ne propose de resserrer les intervalles que si, après resserrement, il reste un intervalle utilisable |
+| **Datation de la fiche désalignée** | Le champ `datazione` de la fiche US dit autre chose que la `datazione_estesa` de sa période/phase | Automatique : la périodisation est la source et la fiche est la copie ; la copie est donc réécrite à partir de la source. Un champ vide est rempli de la même façon. Une US sans période est ignorée, car il n'y a rien à copier |
+| **Périodisation dont le début suit la fin** | `cron_iniziale` supérieur à `cron_finale` | Automatique : les deux années sont échangées |
+| **Phase sans années** | Une phase dont les années sont absentes ou illisibles | Signalée seulement : il n'y a rien dont elles puissent hériter |
+
+Un exemple pour les chevauchements. La base d'exemple en compte deux, et aucun n'a de proposition : les deux phases ont des intervalles **identiques**, et tout resserrement ferait finir une phase avant son début. Le panneau se contente de le dire ; la décision (fusionner les phases, corriger les années, laisser en l'état) revient à l'archéologue.
+
+### 8.2 Correction automatique et suggestions
+
+**Corrections automatiques et propositions.** Les corrections automatiques sont **déjà cochées** ; les propositions **ne le sont pas** et ne sont appliquées que si l'on coche la case. La règle était différente auparavant : un problème dont la correction demandait une décision humaine ne pouvait être que lu. Il a maintenant une case, laissée vide. Cela vaut aussi pour les deux catégories de relations plus anciennes qui offrent une suggestion, à savoir la contradiction directe et le cycle stratigraphique.
+
+Pour utiliser le panneau :
+
+1. Sélectionnez dans le panneau le **site** à vérifier. La vérification est **par site** : elle n'examine que le site choisi et ne corrige que celui-ci. Dans une base de dix sites, cela compte, car les mêmes numéros d'US existent dans tous.
+2. Lisez la **ligne de synthèse** au-dessus de l'arbre : elle indique combien il y a de problèmes, combien sont corrigibles automatiquement et **combien sont des propositions à cocher à la main**.
+3. Ouvrez les groupes et sélectionnez un problème pour lire son détail dans le panneau d'aperçu.
+4. Contrôlez les cases. Les corrections automatiques sont déjà cochées : décochez celles que vous ne voulez pas appliquer. Cochez les propositions que vous approuvez.
+5. Appliquez les corrections. Avant toute écriture, une **sauvegarde automatique** est créée (copie du fichier SQLite, ou `pg_dump` pour PostgreSQL dans `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`) ; la sauvegarde, qui existait déjà pour les corrections des champs de période, couvre désormais aussi les corrections chronologiques.
+6. Si le résultat ne convient pas, cliquez sur **Annulla ultimo fix** (annuler la dernière correction) : l'annulation rétablit aussi les corrections écrites dans la table de périodisation.
+
+### 8.3 Aperçu et sauvegarde
+
+**L'aperçu montre la date calculée.** Pour chaque unité citée par un problème, le panneau d'aperçu affiche sa date calculée dans une ligne comme celle-ci :
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+La ligne indique, dans l'ordre, l'intervalle d'années, la règle qui l'a produit et la relation le long de laquelle la contrainte a voyagé, avec le nœud d'où elle vient. Quand les deux bornes de l'intervalle viennent de chemins différents, chacune est étiquetée (`inizio …` et `fine …`), de sorte qu'une date n'est jamais attribuée à la mauvaise relation. Aujourd'hui, dans une base normale, chaque unité tire ses dates de sa propre période : la plupart des lignes indiqueront donc `epoca`. L'intérêt de la ligne n'est pas de surprendre, mais de permettre de voir **d'où vient** une date.
+
+---
+
 ## Références
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

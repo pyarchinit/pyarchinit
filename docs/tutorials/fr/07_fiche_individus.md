@@ -76,7 +76,7 @@ La toolbar principale fournit les outils pour la gestion des enregistrements.
 | New search | Nouvelle recherche | Démarrer une nouvelle recherche |
 | Search!!! | Exécuter recherche | Exécuter la recherche |
 | Order by | Trier par | Trier les résultats |
-| View all | Voir tout | Afficher tous les enregistrements |
+| View all | Voir tout | Afficher les enregistrements du site courant |
 
 ### Boutons Spéciaux
 

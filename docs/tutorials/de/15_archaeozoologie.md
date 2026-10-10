@@ -60,7 +60,7 @@ Die Toolbar bietet Standardfunktionen:
 | Save | Speichern |
 | Delete | Löschen |
 | Search | Suche |
-| View All | Alle anzeigen |
+| View All | Datensätze des aktuellen Fundorts anzeigen |
 | PDF | PDF-Export |
 
 ---

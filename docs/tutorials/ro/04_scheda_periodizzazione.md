@@ -443,6 +443,12 @@ Pentru o sapatura tipica, se recomanda crearea periodizarii dupa aceasta schema:
 
 ---
 
+## Corectarea cronologiilor din panoul «Verifica rapporti»
+
+Anii unei perioade sau faze (**Cronologie Initiala** si **Cronologie Finala**, adica `cron_iniziale` si `cron_finale`) pot fi corectati direct din panoul **"Verifica rapporti"** (o fila din dialogul de import/export s3dgraphy; vezi tutorialul 36, Extended Matrix si bridge s3dgraphy). Panoul semnaleaza **fazele cu intervale suprapuse**, periodizarile cu **inceputul dupa sfarsit** (cei doi ani se inverseaza automat) si fazele **fara ani**, care sunt doar semnalate pentru ca nu exista nimic de la care sa-i mosteneasca. Inainte de fiecare corectie se creeaza o copie de siguranta automata, iar **Annulla ultimo fix** readuce si modificarile scrise in aceasta tabela. Verificarea priveste un singur sit pe rand: cel selectat in panoul.
+
+---
+
 ## Bune Practici
 
 ### Conventii de Numerotare

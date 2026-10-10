@@ -82,7 +82,7 @@ The main toolbar provides all tools for record management.
 | ![New Search](../../resources/icons/new_search.png) | New search | Start new search |
 | ![Search](../../resources/icons/search.png) | Search!!! | Execute search |
 | ![Sort](../../resources/icons/sort.png) | Order by | Sort results |
-| ![View All](../../resources/icons/view_all.png) | View all | View all records |
+| ![View All](../../resources/icons/view_all.png) | View all | View the records of the current site |
 
 ### Special Buttons
 

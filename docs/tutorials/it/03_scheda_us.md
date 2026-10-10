@@ -131,7 +131,7 @@ La toolbar DBMS e identica a quella della Scheda Sito con alcune funzionalita ag
 | **New record** | Nuovo | Crea una nuova scheda US |
 | **Save** | Salva | Salva le modifiche |
 | **Delete** | Elimina | Elimina la scheda corrente |
-| **View all** | Vedi tutti | Mostra tutti i record |
+| **View all** | Vedi tutti | Mostra i record del sito corrente |
 | **First/Prev/Next/Last** | Navigazione | Naviga tra i record |
 | **new search** | Ricerca | Avvia modalita ricerca |
 | **search !!!** | Esegui | Esegue la ricerca |

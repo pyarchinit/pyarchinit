@@ -76,7 +76,7 @@ La barra d'eines principal proporciona els instruments per a la gestió dels reg
 | New Search | New search | Inicia nova cerca |
 | Search | Search!!! | Executa cerca |
 | Sort | Order by | Ordena resultats |
-| View All | View all | Visualitza tots els registres |
+| View All | View all | Visualitza els registres del lloc actual |
 
 ### Botons Especials
 

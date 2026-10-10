@@ -53,7 +53,7 @@ Das **Dokumentationsformular** ist das PyArchInit-Modul zur Verwaltung der grafi
 | Delete | Löscht den Datensatz |
 | New search / Search | Suchfunktionen |
 | Order by | Sortiert Ergebnisse |
-| View all | Zeigt alle Datensätze an |
+| View all | Zeigt die Datensätze des aktuellen Fundorts an |
 
 ---
 

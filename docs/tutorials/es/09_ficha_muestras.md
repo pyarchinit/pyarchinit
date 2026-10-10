@@ -71,7 +71,7 @@ La ficha presenta un diseño simplificado para la gestión rápida de las muestr
 | New search | Iniciar nueva búsqueda |
 | Search!!! | Ejecutar búsqueda |
 | Order by | Ordenar resultados |
-| View all | Ver todos los registros |
+| View all | Ver los registros del sitio actual |
 
 ---
 

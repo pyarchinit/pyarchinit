@@ -71,7 +71,7 @@ Das Formular präsentiert ein vereinfachtes Layout für die schnelle Probenverwa
 | New search | Startet neue Suche |
 | Search!!! | Führt Suche aus |
 | Order by | Sortiert Ergebnisse |
-| View all | Zeigt alle Datensätze an |
+| View all | Zeigt die Datensätze des aktuellen Fundorts an |
 
 ---
 

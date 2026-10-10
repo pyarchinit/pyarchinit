@@ -382,6 +382,47 @@ Note on the boundary: two **adjacent periods that touch** at a single chronologi
 
 ---
 
+## 8. Chronology check (periodization and sheets)
+
+In the same **"Verifica rapporti"** panel (Check relationships — a tab of the s3dgraphy import/export dialog), since version 5.13.64-alpha the check also finds and corrects **chronology** problems of the selected site. The temporal paradox check (section 7) compares the period of a unit with the stratigraphy; this one compares the periodization with itself and with the US sheets that copy it.
+
+### 8.1 What it detects
+
+@@OLDFIG@@
+The tree in the panel groups the problems by kind. Alongside the relationship groups there are four new ones:
+
+| Group | What it reports | How it is handled |
+|-------|-----------------|-------------------|
+| **Phases with overlapping intervals** | Two periodization rows whose year ranges intersect | Manual: the panel proposes narrowing the intervals only when narrowing leaves a usable interval |
+| **Sheet dating out of line** | The `datazione` field of the US sheet says something different from the `datazione_estesa` of its own period/phase | Automatic: the periodization is the source and the sheet is the copy, so the copy is rewritten from the source. An empty field is filled the same way. A US with no period is skipped, because there is nothing to copy from |
+| **Periodization with start after end** | `cron_iniziale` greater than `cron_finale` | Automatic: the two years are swapped |
+| **Phase without years** | A phase whose years are missing or unreadable | Reported only: there is nothing to inherit them from |
+
+An example for overlaps. The sample database has two, and neither carries a proposal: the two phases have **identical** intervals, and any narrowing would make a phase end before it begins. The panel simply tells you so; the decision (merge the phases, correct the years, leave things as they are) is the archaeologist's.
+
+### 8.2 Automatic correction and suggestions
+
+**Automatic corrections and proposals.** Automatic corrections are **already ticked**; proposals are **not**, and are applied only if you tick the checkbox. The rule used to be different: a problem whose fix needed a human decision could only be read. Now it has a checkbox, left unticked. This also applies to the two older relationship categories that offer a suggestion, namely the direct contradiction and the stratigraphic cycle.
+
+To use the panel:
+
+1. Select the **site** to verify in the panel. The verification is **per site**: it looks at the selected site and corrects only that one. On a database with ten sites this matters, because the same US numbers exist in all of them.
+2. Read the **summary line** above the tree: it says how many problems there are, how many can be corrected automatically and **how many are proposals to tick by hand**.
+3. Open the groups and select a problem to read its detail in the preview pane.
+4. Check the checkboxes. Automatic corrections are already ticked: untick the ones you do not want to apply. Tick the proposals you agree with.
+5. Apply the corrections. Before anything is written an **automatic backup** is taken (a copy of the SQLite file, or `pg_dump` for PostgreSQL into `~/pyarchinit_5/pyarchinit_DB_folder/_pga_backups`); the backup, which already existed for the period-field fixes, now also covers the chronology ones.
+6. If the result is not what you wanted, press **Annulla ultimo fix** (undo last fix): the undo also reverts the corrections written to the periodization table.
+
+### 8.3 Preview and backup
+
+**The preview shows the computed date.** For each unit named by a problem, the preview pane shows its computed date in a line like this:
+
+`US 4 · 1500–1549 · epoca · has_first_epoch → epoch_2_2`
+
+The line gives, in order, the span of years, the rule that produced it, and the relation the constraint travelled along together with the node it came from. When the two ends of the span come from different routes, each end is labelled (`inizio …` and `fine …`), so a date is never attributed to the wrong relation. Today, in a normal database, every unit takes its dates from its own period, so most lines will read `epoca`. The point of the line is not to surprise you, but to let you see **where** a date comes from.
+
+---
+
 ## References
 
 - Upstream issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

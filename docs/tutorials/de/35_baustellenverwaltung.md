@@ -412,7 +412,7 @@ Die DBMS-Toolbar am oberen Rand bietet die Standard-Funktionen:
 | **Loeschen** | Entfernt den aktuellen Datensatz |
 | **Suche starten / Suche ausfuehren** | Ermoeglicht die Suche nach beliebigen Feldern |
 | **Navigation** | Blaettert zwischen Datensaetzen (Erster/Vorheriger/Naechster/Letzter) |
-| **Alle anzeigen** | Zeigt alle Datensaetze |
+| **Alle anzeigen** | Zeigt die Datensaetze des aktuellen Fundorts |
 | **Sortieren** | Sortiert nach gewaehltem Feld |
 
 ### Datenfelder

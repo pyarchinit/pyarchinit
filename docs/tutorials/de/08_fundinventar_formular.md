@@ -371,7 +371,7 @@ Die Toolbar bietet alle Werkzeuge zur Datensatzverwaltung.
 | New record | Neu | Erstellt neuen Fund |
 | Save | Speichern | Speichert Änderungen |
 | Delete | Löschen | Löscht aktuellen Fund |
-| View all | Alle | Zeigt alle Datensätze |
+| View all | Alle | Zeigt die Datensätze des aktuellen Fundorts |
 | New search | Suche | Aktiviert Suchmodus |
 | Search!!! | Ausführen | Führt Suche aus |
 | Order by | Sortieren | Sortiert Datensätze |

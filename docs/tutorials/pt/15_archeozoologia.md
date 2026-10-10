@@ -60,7 +60,7 @@ A barra de ferramentas fornece funções padrão:
 | Gravar | Gravar |
 | Eliminar | Eliminar |
 | Pesquisar | Pesquisar |
-| Ver Todos | Ver todos |
+| Ver Todos | Ver os registos do sítio atual |
 | PDF | Exportação PDF |
 
 ---

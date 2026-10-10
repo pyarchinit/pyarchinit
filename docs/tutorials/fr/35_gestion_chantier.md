@@ -228,7 +228,7 @@ La barre d'outils DBMS standard de PyArchInit est disponible avec les fonctions 
 | **New search** | Passer en mode recherche |
 | **Search !!!** | Executer la recherche |
 | **Order by** | Trier les enregistrements |
-| **View all records** | Afficher tous les enregistrements |
+| **View all records** | Afficher les enregistrements du site courant |
 | **First / Prev / Next / Last** | Navigation entre les enregistrements |
 
 <!-- IMAGE: Formulaire Personnel avec tous les champs remplis -->

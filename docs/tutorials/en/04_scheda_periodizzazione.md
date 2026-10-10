@@ -249,7 +249,7 @@ The DBMS toolbar allows complete record management:
 | ![New](images/icons/new.png) | New record | Create a new record |
 | ![Save](images/icons/save.png) | Save | Save changes |
 | ![Delete](images/icons/delete.png) | Delete | Delete current record |
-| ![View All](images/icons/view_all.png) | View all | View all records |
+| ![View All](images/icons/view_all.png) | View all | View the records of the current site |
 
 ### Search Buttons
 
@@ -440,6 +440,12 @@ For a typical excavation, it is recommended to create periodization following th
 | 3 | 1 | 301 | Roman age - Imperial phase |
 | 3 | 2 | 302 | Roman age - Republican phase |
 | 4 | 1 | 401 | Pre-Roman age |
+
+---
+
+## Correcting chronologies from the «Verifica rapporti» panel
+
+The years of a period or phase (**Initial Chronology** and **Final Chronology**, that is `cron_iniziale` and `cron_finale`) can be corrected directly from the **Verifica rapporti** panel (a tab of the s3dgraphy import/export dialog; see tutorial 36, Extended Matrix and s3dgraphy bridge). The panel reports **phases with overlapping intervals**, periodizations with **start after end** (the two years are swapped automatically) and phases **without years**, which are only reported because there is nothing to inherit them from. An automatic backup is taken before every correction, and **Annulla ultimo fix** also reverts the changes written to this table. The verification covers one site at a time: the one selected in the panel.
 
 ---
 

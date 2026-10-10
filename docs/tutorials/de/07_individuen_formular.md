@@ -76,7 +76,7 @@ Die Haupttoolbar bietet die Werkzeuge zur Datensatzverwaltung.
 | Neue Suche | New search | Neue Suche starten |
 | Suche!!! | Search!!! | Suche ausführen |
 | Sortieren | Order by | Ergebnisse sortieren |
-| Alle anzeigen | View all | Alle Datensätze anzeigen |
+| Alle anzeigen | View all | Datensätze des aktuellen Fundorts anzeigen |
 
 ### Spezielle Schaltflächen
 
