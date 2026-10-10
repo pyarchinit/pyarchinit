@@ -440,7 +440,7 @@ class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
     def populate_graph(self, db_path, sito, *, column_properties=False,
-                       location_groups=False, **kwargs):
+                       location_groups=True, **kwargs):
         """Il grafo del sito.
 
         ``column_properties``: quando è vero viaggiano anche i nodi
@@ -448,12 +448,18 @@ class GraphProjector(_LibGraphProjector):
         doppione di quello che l'unità porta già in ``data`` e
         seppelliscono la stratigrafia nella matrice.
 
-        ``location_groups``: quando è vero viaggiano anche i gruppi di
-        luogo e i loro archi ``is_in_location``. Di norma no — la vista
-        Matrix di EMStudio non li regge e ammucchia tutte le unità nella
-        prima fascia (misurato il 2026-10-08, vedi
-        ``_drop_location_memberships``). Sito, area e settore restano
-        comunque nel ``data`` di ogni unità.
+        ``location_groups``: i gruppi di luogo e i loro archi
+        ``is_in_location``. Di norma sì. Erano spenti dal 2026-10-08,
+        perché finché nel file c'era anche un solo arco la vista Matrix
+        di EMStudio ammucchiava tutte le unità nella prima fascia
+        (bisezione su quattro file, vedi ``_drop_location_memberships``);
+        EMStudio **v1.6.0-dev.27** corregge proprio quello — «the Matrix
+        places units in their epochs even when the file carries
+        LocationNodeGroups and is_in_location edges» — quindi il motivo
+        è scaduto e tenerli fuori sarebbe solo perdere dato. Chi li
+        legge con altri occhi li può ancora togliere passando ``False``;
+        sito, area e settore restano comunque nel ``data`` di ogni
+        unità, in un verso e nell'altro.
         """
         graph = super().populate_graph(db_path, sito, **kwargs)
 

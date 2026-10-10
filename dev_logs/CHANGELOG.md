@@ -5,6 +5,34 @@
 
 ---
 
+## [feat] - 2026-10-10 — i luoghi tornano nell'em.json: EMStudio dev.27 regge gli archi — 5.13.55-alpha
+
+> Branch `Stratigraph_00001`. Tag **`location-groups-back-5.13.55-alpha`**. Il motivo per cui erano spenti è scaduto.
+
+### Italiano
+
+Il 2026-10-08 avevo spento i gruppi di luogo (`location_groups=False`) per un motivo solo, misurato per bisezione su quattro file: finché nell'em.json c'era anche **un solo** arco `is_in_location`, la vista Matrix di EMStudio ammucchiava tutte le unità nella prima fascia. Non erano i nodi gruppo e non era l'annidamento — 6 gruppi con 0 archi funzionava, 2 gruppi con 52 archi no.
+
+**EMStudio v1.6.0-dev.27** (9 ottobre) corregge proprio quello: «the Matrix places units in their epochs even when the file carries `LocationNodeGroup`s and `is_in_location` edges. For now, places are simply not drawn in the time view». Quindi il default torna a `True`: tenerli fuori ora sarebbe solo perdere dato.
+
+Cosa esce adesso dall'export del sito di esempio, misurato: **76 nodi, 420 archi, 6 gruppi** (2 `study` — area e settore — e 4 `toponym`: Italia → Emilia-Romagna → Rimini → Napoli), **106 archi `is_in_location`** di cui 3 sono la catena toponimica, **0 gruppi senza `data.kind`**, e la rilettura ridà 6 `LocationNodeGroup` con la classe giusta, 0 nodi degradati, 0 avvisi. Prima erano 70 nodi e 314 archi.
+
+La strada resta aperta nell'altro verso: `location_groups=False` continua a togliere gruppi, archi e catena, e `sito`/`area`/`settore` restano nel `data` di ogni unità in entrambi i casi — il dato non si perde comunque.
+
+I tre test che fissavano il default a spento sono diventati tre che lo fissano ad accesso, con la motivazione scaduta scritta accanto, più uno che tiene aperta la via del `False`. Suite: **1125 passati, 1 skip, 1 xfail, 8 errori d'ambiente, 0 falliti**.
+
+**Non verificato da me**: che la Matrix di EMStudio si popoli davvero sul *nostro* file. È un controllo visivo dentro l'applicazione e l'ho lasciato a Enzo; il file è pronto in `~/Downloads/Scavo_archeologico_con_luoghi.em.json` e dev.27 lo apre da riga di comando (`open -a EMStudio <file>`, novità sua).
+
+### English
+
+On 2026-10-08 the place groups were switched off for one reason, bisected over four files: as long as the em.json carried even a **single** `is_in_location` edge, EMStudio's Matrix piled every unit into the first band — six groups with no edges worked, two groups with 52 edges did not. **EMStudio v1.6.0-dev.27** fixes exactly that, so the default goes back to `True`; keeping them out now would only lose data.
+
+The demo site's export, measured: **76 nodes, 420 edges, 6 groups** (2 `study`, 4 `toponym`), **106 `is_in_location`** of which 3 are the toponym chain, **no group missing `data.kind`**, and the read-back gives six `LocationNodeGroup`s with no degraded node and no warning. It was 70 nodes and 314 edges. `location_groups=False` still strips them, and `sito`/`area`/`settore` stay in each unit's `data` either way.
+
+**Not verified by me**: that EMStudio's Matrix really populates on our own file — that is a visual check inside the app, left to Enzo. The file is ready at `~/Downloads/Scavo_archeologico_con_luoghi.em.json`, and dev.27 opens a file from the command line.
+
+---
+
 ## [chore] - 2026-10-10 — s3dgraphy dev42: via due pezze, e una coppia di nodi che cambiava significato — 5.13.54-alpha
 
 > Branch `Stratigraph_00001`. Tag **`s3dgraphy-dev42-5.13.54-alpha`**. Emanuel ha rilasciato dev41 e dev42 con i due fix che aspettavo (s3Dgraphy#25) e con dentro le mie PR #29 e #30, mergiate.

@@ -612,20 +612,28 @@ def _location_groups(graph):
             if "Group" in (getattr(n, "node_type", "") or "")]
 
 
-def test_the_places_do_not_travel_as_edges(tmp_path):
-    """Misurato con Enzo su EMStudio, 2026-10-08: finché nell'em.json c'è
-    anche un solo arco ``is_in_location``, la vista Matrix ammucchia tutte
-    le unità nella prima fascia; tolti gli archi, le fasce si popolano.
+def test_the_places_travel_again(tmp_path):
+    """I luoghi tornano nell'em.json.
 
-    Provato per bisezione su quattro file: nodi gruppo senza archi →
-    funziona; due soli gruppi con 52 archi → non funziona. Non è
-    l'annidamento e non sono i nodi: sono gli archi."""
+    Erano stati spenti il 2026-10-08: finché nel file c'era anche un solo
+    arco ``is_in_location``, la vista Matrix di EMStudio ammucchiava tutte
+    le unità nella prima fascia (bisezione su quattro file: nodi gruppo
+    senza archi → funziona; due soli gruppi con 52 archi → non funziona —
+    erano gli archi, non i nodi né l'annidamento).
+
+    EMStudio **v1.6.0-dev.27** (9 ottobre 2026) corregge proprio quello:
+    «the Matrix places units in their epochs even when the file carries
+    LocationNodeGroups and is_in_location edges. For now, places are
+    simply not drawn in the time view». Quindi il motivo per cui erano
+    spenti non c'è più, e tenerli fuori sarebbe solo perdere dato.
+    """
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US", area="2", settore="3"),
     ])
     graph = GraphProjector().populate_graph(db, sito="Alfa")
-    assert _location_edges(graph) == []
-    # il dato non si perde: resta sull'unità, dove la scheda lo scrive
+    assert _location_edges(graph), "i luoghi non viaggiano piu' come archi"
+    assert _location_groups(graph), "nessun nodo gruppo nel grafo"
+    # e il dato resta comunque sull'unità, dove la scheda lo scrive
     unita = next(n for n in graph.nodes
                  if (getattr(n, "attributes", None) or {}).get("us") == "1")
     assert unita.attributes["area"] == "2"
@@ -633,40 +641,36 @@ def test_the_places_do_not_travel_as_edges(tmp_path):
     assert unita.attributes["sito"] == "Alfa"
 
 
-def test_no_empty_place_group_is_left_behind(tmp_path):
-    """Un gruppo che non lega più niente è peso morto nel file: in EMStudio
-    comparirebbe come una cartella vuota."""
-    db = _mini_db(tmp_path, [
-        dict(sito="Alfa", us="1", unita_tipo="US", area="2", settore="3"),
-    ])
-    graph = GraphProjector().populate_graph(db, sito="Alfa")
-    assert _location_groups(graph) == []
-
-
-def test_the_toponym_chain_goes_too(tmp_path):
+def test_the_toponym_chain_travels_too(tmp_path):
     """La catena Italia → Emilia-Romagna → Rimini nasce da site_table e si
-    lega con gli stessi archi: cade con loro."""
+    lega con gli stessi archi: torna con loro."""
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US"),
     ])
     _sito(db, nazione="Italia", regione="Emilia-Romagna",
           provincia="Rimini", comune="Rimini")
     graph = GraphProjector().populate_graph(db, sito="Alfa")
-    assert _location_edges(graph) == []
-    assert _location_groups(graph) == []
+    nomi = {str(n.name) for n in _location_groups(graph)}
+    assert {"Italia", "Emilia-Romagna", "Rimini"} <= nomi, sorted(nomi)
     assert [e for e in graph.edges
-            if str(getattr(e, "edge_id", "")).startswith("chain_")] == []
+            if str(getattr(e, "edge_id", "")).startswith("chain_")],         "la catena toponimica non si lega"
 
 
-def test_whoever_wants_the_places_can_still_ask_for_them(tmp_path):
-    """Come per i nodi proprietà: di norma non viaggiano, ma la strada
-    resta aperta per chi consuma l'em.json con altri occhi."""
+def test_whoever_wants_them_out_can_still_say_so(tmp_path):
+    """La strada resta aperta nell'altro verso: chi consuma l'em.json con
+    un lettore che non regge i luoghi li può ancora togliere."""
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US", area="2"),
     ])
     _sito(db, nazione="Italia", regione="Emilia-Romagna",
           provincia="Rimini", comune="Rimini")
     graph = GraphProjector().populate_graph(db, sito="Alfa",
-                                            location_groups=True)
-    assert _location_edges(graph)
-    assert _location_groups(graph)
+                                            location_groups=False)
+    assert _location_edges(graph) == []
+    assert _location_groups(graph) == []
+    assert [e for e in graph.edges
+            if str(getattr(e, "edge_id", "")).startswith("chain_")] == []
+    # il dato non si perde nemmeno così
+    unita = next(n for n in graph.nodes
+                 if (getattr(n, "attributes", None) or {}).get("us") == "1")
+    assert unita.attributes["area"] == "2"
