@@ -192,6 +192,43 @@ righe con quel numero (corretto il 2026-10-10, dopo la revisione). E
 `apply_edits` **rifiuta** quando la clausola individua più di una riga,
 per qualunque produttore di correzioni.
 
+Dal 2026-10-10 lo fanno **tutti** i produttori, non solo
+`datazione_mismatch`: la reciprocità, il self-loop e le due correzioni di
+periodo dei paradossi temporali. Finché non lo facevano, su uno scavo a più
+aree il rifiuto le colpiva tutte — «Apply fallito», e tutte le spunte dello
+stesso clic perdute, perché il `raise` sta dentro `engine.begin()`.
+
+`Issue` guadagna un campo facoltativo, `rows`: le chiavi di riga delle US di
+`us_path`, allineate posizione per posizione, `None` dove la riga non si sa
+nominare e **lista vuota** per chi non nomina righe — gli avvisi sulle fasi
+di questa verifica, che non riguardano righe di `us_table`. Vuota vuol dire
+«come prima»: la correzione tiene la chiave `us` e nient'altro.
+
+**Il cambio di semantica, voluto.** Due righe numerate 1 in due aree erano
+un'unità sola per la verifica dei rapporti, che indicizzava le schede per
+numero di US; adesso sono due. «US 1 copre 9» scritto nell'area 1 cerca il
+reciproco sulla US 9 **dell'area che il rapporto nomina**, non su una
+qualunque riga numerata 9 — ed è quello che la tupla `[rapporto, us, area,
+sito]` dice. Sullo scavo a due aree misurato il 2026-10-10 il
+comportamento di prima era: il reciproco scritto nell'area 2 zittiva
+l'avviso dell'area 1, e i rapporti dell'area 1 risultavano mancanti perché
+a risponderne era la scheda dell'altra area.
+
+La **forma corta** `['Coperto da', '1']` l'area non la dice, e vale quella
+della scheda che l'ha scritta: è quello che il plugin stesso ci scrive
+quando la espande (`US_USM.update_rapporti_col` gira area per area e appende
+l'area in lavorazione). Ma la preferenza entra in gioco **solo** quando il
+numero di US da solo nomina più di una riga: con un candidato solo la
+lettura è quella di sempre, e questo è il caso di tutte e 510 le righe del
+database di esempio — un'area, zero numeri ripetuti, e 1870 voci di
+rapporti tutte in forma corta. Se l'area dichiarata non nomina nessuna riga
+decide il numero: è un dato denormalizzato che il plugin riscrive da sé
+(Ctrl+U) e può essere vecchio, e andare in silenzio sarebbe peggio che
+leggerlo come un suggerimento. Se restano più righe — una US 9 e una USM 9
+nella stessa area, che il vincolo permette e che una voce di `rapporti` non
+sa distinguere, perché il tipo di unità non lo scrive mai — si segnala e non
+si propone niente.
+
 `Edit` guadagna un campo **con un valore di ripiego che conserva il
 comportamento di adesso**:
 
