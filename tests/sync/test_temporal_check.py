@@ -109,11 +109,15 @@ def test_unit_span_fase_fallback(tmp_path):
 # ---------------------------------------------------------------------------
 
 class _N:
-    def __init__(self, nid, us=None, node_type="US"):
+    def __init__(self, nid, us=None, node_type="US", area=None):
         self.node_id = nid; self.name = nid; self.node_type = node_type
         self.attributes = {"unita_tipo": "US"}
         if us is not None:
             self.attributes["us"] = us
+        # L'area manca quando la riga non ce l'ha: il projector scrive
+        # l'attributo solo se la colonna ha un valore.
+        if area is not None:
+            self.attributes["area"] = area
 class _E:
     def __init__(self, s, t, et):
         self.edge_source = s; self.edge_target = t; self.edge_type = et
@@ -196,11 +200,11 @@ def test_placeholder_excluded():
 # Task 4: solve_fixes (majority heuristic + target period)
 # ---------------------------------------------------------------------------
 
-def _mk(rels):
+def _mk(rels, area=None):
     """rels = list of (src_us, edge_type, tgt_us). Returns graph with one
     node per us."""
     us_set = {u for (s, _e, t) in rels for u in (s, t)}
-    nodes = [_N(u, us=u) for u in us_set]
+    nodes = [_N(u, us=u, area=area) for u in us_set]
     edges = [_E(s, t, e) for (s, e, t) in rels]
     return _G(nodes, edges)
 
@@ -370,3 +374,69 @@ def test_check_rapporti_solve_fixes_majority_outlier_wired():
 def test_kind_title_localized():
     assert RC.kind_title(TC.TEMPORAL_INVERSION, "it")
     assert RC.kind_title(TC.TEMPORAL_INVERSION, "en")
+
+
+# ---------------------------------------------------------------------------
+# Anche una correzione di periodo nomina la sua riga (2026-10-10)
+# ---------------------------------------------------------------------------
+# La chiave di una riga di `us_table` è `UniqueConstraint('sito', 'area',
+# 'us', 'unita_tipo')`: con la sola `us` la correzione riscriveva anche
+# l'omonima dell'altra area, e `apply_edits` adesso rifiuta una chiave così,
+# portando via tutte le spunte dello stesso clic.
+
+def test_a_period_fix_names_its_row():
+    g = _mk([("US5", "overlies", "US7"), ("US5", "overlies", "US8")],
+            area="1")
+    up = {"US5": ("1", "1", "1", "1"),
+          "US7": ("3", "1", "3", "1"), "US8": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert inv and inv[0].edits
+    assert inv[0].edits[0].target == ("us_table", {"us": "US5", "area": "1",
+                                                   "unita_tipo": "US"})
+    # E l'avviso dice di quali righe parla, accanto alle due US: `rows` sta
+    # elemento per elemento su `us_path`.
+    assert inv[0].rows[0] == {"us": "US5", "area": "1", "unita_tipo": "US"}
+    assert inv[0].rows[1] == {"us": inv[0].us_path[1], "area": "1",
+                              "unita_tipo": "US"}
+
+
+def test_the_gap_fill_fix_names_its_row():
+    g = _mk([("US5", "is_bonded_to", "US9")], area="1")
+    up = {"US5": ("2", "1", "2", "1"), "US9": ("", "", "", "")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    c = [i for i in iss if i.kind == TC.TEMPORAL_CONTEMPORANEITY][0]
+    assert c.edits[0].target == ("us_table", {"us": "US9", "area": "1",
+                                              "unita_tipo": "US"})
+
+
+def test_a_period_fix_is_not_proposed_when_the_number_names_two_rows():
+    """`unit_periods` è indicizzato per numero di US (`load_unit_periods` fa
+    `SELECT us, periodo_iniziale, …`): dove il numero nomina due righe — la
+    US 5 dell'area 1 e quella dell'area 2 — il periodo che si legge è di una
+    delle due e non si sa di quale. Il giudizio stesso è ambiguo, quindi
+    l'avviso resta una proposta, invece di diventare una correzione sulla
+    chiave `{'us': 'US5'}` che `apply_edits` rifiuta."""
+    g = _mk([("US5", "overlies", "US7"), ("US5", "overlies", "US8")],
+            area="1")
+    g.nodes.append(_N("US5-area2", us="US5", area="2"))
+    up = {"US5": ("1", "1", "1", "1"),
+          "US7": ("3", "1", "3", "1"), "US8": ("3", "1", "3", "1")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert inv, "l'inversione va comunque segnalata"
+    assert all(i.auto is False and i.edits == [] for i in inv), \
+        [(i.auto, i.edits) for i in inv]
+
+
+def test_a_gap_fill_is_not_proposed_when_the_number_names_two_rows():
+    g = _mk([("US5", "is_bonded_to", "US9")], area="1")
+    g.nodes.append(_N("US9-area2", us="US9", area="2"))
+    up = {"US5": ("2", "1", "2", "1"), "US9": ("", "", "", "")}
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S", lang="it")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    assert [i.kind for i in iss] == [TC.TEMPORAL_UNEVALUABLE]
+    assert iss[0].auto is False and iss[0].edits == []

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from modules.utility.rapporti_check import (  # noqa: F401  # pre-staged for Task 2+
     Edit, Issue, _real_us, _strat_edges, _utok, _t,
+    _as_row, _index_rows, _row_key, _target_of_row,
 )
 # Un anno si legge in un modo solo: `chronology_check` importa a sua volta
 # solo da `rapporti_check`, quindi questo import non chiude nessun cerchio.
@@ -145,6 +146,20 @@ def _node_us_map(graph):
     return m
 
 
+def _node_row_map(graph):
+    """node_id → la chiave della riga di ``us_table`` che quel nodo è.
+
+    Serve a `Issue.rows`: un paradosso nasce da un arco fra due nodi, e un
+    nodo è una riga — anche quando due righe portano lo stesso numero di US.
+    """
+    m = {}
+    for n in getattr(graph, "nodes", None) or []:
+        k = _row_key(n)
+        if k is not None:
+            m[n.node_id] = k
+    return m
+
+
 def _periodo(us, unit_periods):
     p = unit_periods.get(us)
     return p[0] if p and p[0] else "?"
@@ -164,10 +179,16 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
     if not chrono:
         return issues
     id_to_us = _node_us_map(graph)
+    id_to_row = _node_row_map(graph)
     seen = set()
 
     def span(us):
         return unit_span(unit_periods.get(us), chrono)
+
+    def righe(*node_ids):
+        """Le righe dei nodi dell'arco, nell'ordine in cui l'avviso li
+        nomina: `Issue.rows` sta accanto a `us_path`, elemento per elemento."""
+        return [_as_row(id_to_row.get(i)) for i in node_ids]
 
     for (s, t, et) in _strat_edges(graph):
         rel = _classify_relation(et)
@@ -189,17 +210,20 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
                 issues.append(Issue(
                     TEMPORAL_UNEVALUABLE, [us_s, us_t], False,
                     _t(lang, "s_temporal_uneval").format(
-                        a=_utok(us_s, lang), b=_utok(us_t, lang))))
+                        a=_utok(us_s, lang), b=_utok(us_t, lang)),
+                    rows=righe(s, t)))
                 continue
             if sp_s[1] < sp_t[0] or sp_t[1] < sp_s[0]:
                 issues.append(Issue(
                     TEMPORAL_CONTEMPORANEITY, [us_s, us_t], False,
                     _t(lang, "s_temporal_contemp").format(
                         a=_utok(us_s, lang), pa=_periodo(us_s, unit_periods),
-                        b=_utok(us_t, lang), pb=_periodo(us_t, unit_periods))))
+                        b=_utok(us_t, lang), pb=_periodo(us_t, unit_periods)),
+                    rows=righe(s, t)))
             continue
         # order relation → normalize to (later, earlier)
         later, earlier = (us_s, us_t) if rel == "later" else (us_t, us_s)
+        n_later, n_earlier = (s, t) if rel == "later" else (t, s)
         key = ("i", later, earlier)
         if key in seen:
             continue
@@ -212,14 +236,16 @@ def detect_temporal(graph, chrono, unit_periods, *, sito, lang="it"):
             issues.append(Issue(
                 TEMPORAL_UNEVALUABLE, [later, earlier], False,
                 _t(lang, "s_temporal_uneval").format(
-                    a=_utok(later, lang), b=_utok(earlier, lang))))
+                    a=_utok(later, lang), b=_utok(earlier, lang)),
+                rows=righe(n_later, n_earlier)))
             continue
         if sp_l[1] < sp_e[0]:   # later ends STRICTLY before earlier starts → inversion
             issues.append(Issue(
                 TEMPORAL_INVERSION, [later, earlier], False,
                 _t(lang, "s_temporal_inv").format(
                     a=_utok(later, lang), pa=_periodo(later, unit_periods),
-                    b=_utok(earlier, lang), pb=_periodo(earlier, unit_periods))))
+                    b=_utok(earlier, lang), pb=_periodo(earlier, unit_periods)),
+                rows=righe(n_later, n_earlier)))
     return issues
 
 
@@ -353,6 +379,26 @@ def solve_fixes(issues, graph, chrono, unit_periods, *, sito):
     work = dict(unit_periods)
     id_to_us = _node_us_map(graph)
     adj = _build_adjacency(graph, id_to_us)
+    _per_chiave, per_us = _index_rows(graph)
+
+    def riga_di(us):
+        """La riga di ``us_table`` che quel numero di US nomina, se è una sola.
+
+        La correzione sposta il periodo di **una riga**, e la chiave di una
+        riga è di quattro colonne — ``UniqueConstraint('sito', 'area', 'us',
+        'unita_tipo')``: con la sola ``us``, su uno scavo a più aree,
+        riscriveva anche l'omonima dell'altra area, e ``apply_edits`` adesso
+        rifiuta una chiave così.
+
+        ``None`` quando il numero nomina più righe, e allora la correzione
+        non si propone: ``unit_periods`` è indicizzato per numero di US —
+        ``load_unit_periods`` legge ``SELECT us, periodo_iniziale, …`` — quindi
+        là il periodo che si legge è di una delle due righe e non si sa di
+        quale. Il giudizio stesso è ambiguo, non solo la scrittura: l'avviso
+        resta una proposta da guardare nella scheda.
+        """
+        chiavi = per_us.get(str(us)) or []
+        return _as_row(chiavi[0]) if len(chiavi) == 1 else None
 
     def span_work(us):
         return unit_span(work.get(us), chrono)
@@ -385,12 +431,14 @@ def solve_fixes(issues, graph, chrono, unit_periods, *, sito):
         if is_contemp_pair and (sp_a is None) != (sp_b is None):
             dated, undated = (a, b) if sp_a is not None else (b, a)
             dp = work.get(dated)
-            if dp and dp[0]:
+            riga = riga_di(undated)
+            if dp and dp[0] and riga is not None:
                 work[undated] = (dp[0], dp[1], dp[0], dp[1])
                 iss.kind = TEMPORAL_CONTEMPORANEITY
                 iss.auto = True
                 iss.edits = [Edit(us=undated,
-                                  set_fields=_set_fields_for(dp[0], dp[1]))]
+                                  set_fields=_set_fields_for(dp[0], dp[1]),
+                                  target=_target_of_row(riga))]
             continue
 
         if sp_a is None or sp_b is None:
@@ -408,10 +456,14 @@ def solve_fixes(issues, graph, chrono, unit_periods, *, sito):
         m = a if ca > cb else b
         if not _is_mono(m, unit_periods):
             continue                      # multi-period -> suggestion
+        riga = riga_di(m)
+        if riga is None:
+            continue                      # riga non nominabile -> suggestion
         target = _best_target_period(m, adj, work, chrono)
         if target is None:
             continue                      # no valid period -> suggestion
         periodo, fase = target
         work[m] = (periodo, fase, periodo, fase)
         iss.auto = True
-        iss.edits = [Edit(us=m, set_fields=_set_fields_for(periodo, fase))]
+        iss.edits = [Edit(us=m, set_fields=_set_fields_for(periodo, fase),
+                          target=_target_of_row(riga))]
