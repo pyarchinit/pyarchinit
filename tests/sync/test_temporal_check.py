@@ -46,6 +46,44 @@ def test_build_chronology(tmp_path):
     assert chrono[("3", "1")] == (100, 200)
 
 
+def test_build_chronology_tolerates_a_year_written_as_text(tmp_path):
+    """Un anno a testo («XV sec») non è un errore da sollevare: è una fase
+    senza anni.
+
+    `int(ci)` secco portava via il pannello intero — `build_chronology` si
+    chiama **fuori** dal try della cronologia, quindi la finestra diceva
+    «Verifica fallita» e l'archeologo perdeva anche la verifica dei rapporti,
+    mentre `check_chronology` quella stessa riga la segnalava come
+    `epoch_no_dates`.
+    """
+    from sqlalchemy import text
+    h = _db(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("INSERT INTO periodizzazione_table VALUES "
+                       "('S',4,'1','XV sec',1499)"))
+    chrono = TC.build_chronology(h, "S")
+    assert chrono[("4", "1")] == (None, 1499)
+
+
+def test_build_chronology_reads_a_whole_year_written_as_a_float(tmp_path):
+    """La colonna è `Integer` nello schema, ma su un database che ha derivato
+    torna REAL: 1500.0 è l'anno 1500, e 1500.5 non è un anno."""
+    from sqlalchemy import text
+    h = _db(tmp_path)
+    with h.engine.begin() as c:
+        c.execute(text("INSERT INTO periodizzazione_table VALUES "
+                       "('S',5,'1',1500.0,1549.5)"))
+    assert TC.build_chronology(h, "S")[("5", "1")] == (1500, None)
+
+
+def test_build_chronology_and_check_chronology_read_years_the_same_way(tmp_path):
+    """Le due verifiche girano nello stesso clic: se leggessero gli anni in
+    modo diverso, una direbbe «fase senza anni» e l'altra solleverebbe."""
+    from modules.utility import chronology_check as CC
+    for valore in ("XV sec", "", "nan", "inf", "1500.5"):
+        assert CC._year(valore) is None, valore
+
+
 def test_load_unit_periods(tmp_path):
     up = TC.load_unit_periods(_db(tmp_path), "S")
     assert up["US5"] == ("1", "1", "1", "1")

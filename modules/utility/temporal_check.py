@@ -21,6 +21,9 @@ from __future__ import annotations
 from modules.utility.rapporti_check import (  # noqa: F401  # pre-staged for Task 2+
     Edit, Issue, _real_us, _strat_edges, _utok, _t,
 )
+# Un anno si legge in un modo solo: `chronology_check` importa a sua volta
+# solo da `rapporti_check`, quindi questo import non chiude nessun cerchio.
+from modules.utility.chronology_check import _year
 
 # Issue kinds
 TEMPORAL_INVERSION = "temporal_inversion"
@@ -54,7 +57,21 @@ def _classify_relation(et):
 # ---------------------------------------------------------------------------
 
 def build_chronology(handle, sito):
-    """(periodo, fase) -> (cron_iniziale, cron_finale) for *sito*."""
+    """(periodo, fase) -> (cron_iniziale, cron_finale) for *sito*.
+
+    Gli anni si leggono con tolleranza, e con **la stessa** regola di
+    :func:`modules.utility.chronology_check._year`: un intero scritto come
+    float (``1500.0``) è quell'anno, un anno a testo («XV sec»), un
+    ``NaN``/``inf`` o un anno frazionario non sono anni e danno ``None``.
+
+    Un ``int(ci)`` secco portava via il pannello intero: `build_chronology` si
+    chiama **fuori** dal try della cronologia, quindi su una riga con
+    ``cron_iniziale = 'XV sec'`` la finestra diceva «Verifica fallita» e
+    l'archeologo perdeva anche la verifica dei rapporti — mentre
+    `check_chronology`, su quella stessa riga, segnalava `epoch_no_dates` e
+    non si lamentava. Le due verifiche girano nello stesso clic: devono
+    leggere gli anni allo stesso modo.
+    """
     from sqlalchemy import text
     out = {}
     with handle.engine.connect() as conn:
@@ -64,8 +81,7 @@ def build_chronology(handle, sito):
     for periodo, fase, ci, cf in rows:
         key = ("" if periodo is None else str(periodo),
                "" if fase is None else str(fase))
-        out[key] = (None if ci is None else int(ci),
-                    None if cf is None else int(cf))
+        out[key] = (_year(ci), _year(cf))
     return out
 
 

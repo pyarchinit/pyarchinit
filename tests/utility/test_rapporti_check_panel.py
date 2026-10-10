@@ -280,3 +280,18 @@ def test_the_two_panel_messages_are_in_all_six_languages():
             assert chiave in _L[lang], (lang, chiave)
         testo = _t(lang, "m_site_changed").format(atteso="Alfa", scelto="Beta")
         assert "Alfa" in testo and "Beta" in testo, lang
+
+
+def test_a_textual_year_does_not_take_the_whole_panel_away(panel, db):
+    """`build_chronology` si chiama fuori dal try della cronologia: con un
+    anno a testo sollevava, e la finestra diceva «Verifica fallita» — via
+    anche la verifica dei rapporti, che non aveva nessuna colpa."""
+    c = sqlite3.connect(db)
+    c.execute("INSERT INTO periodizzazione_table VALUES "
+              "(?,9,'1','XV sec',1499,'',' ')", (SITO_A,))
+    c.commit(); c.close()
+    panel.cboSite.setCurrentText(SITO_A)
+    panel._run()
+    assert panel._report is not None
+    assert "epoch_no_dates" in _issues(panel)
+    assert not any(n == "critical" for n, _t in panel.detti), panel.detti
