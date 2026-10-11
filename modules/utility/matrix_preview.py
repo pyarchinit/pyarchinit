@@ -399,6 +399,55 @@ class PlanSource:
     password: str = ""
 
 
+#: Le colonne con cui si riconosce una unità disegnata e si sceglie il suo
+#: poligono rappresentativo: sito, area, US, indice. Sono quelle di
+#: ``pyunitastratigrafiche`` e ``pyunitastratigrafiche_usm``, che hanno
+#: lo stesso schema.
+LABEL_FIELDS = ("scavo_s", "area_s", "us_s", "stratigraph_index_us")
+
+#: Il campo chiave dei due layer, con cui si indica un poligono preciso.
+LABEL_KEY = "gid"
+
+
+def fallback_label_ids(rows: Iterable[Tuple]) -> List:
+    """I poligoni da etichettare perché la loro unità non ha l'indice 2.
+
+    ``rows`` sono ``(gid, sito, area, us, indice)``. La convenzione del
+    plugin (``styles_spatialite/us_vuote.qml``) etichetta solo la riga con
+    ``stratigraph_index_us = 2``, una per unità. Misurato sul database di
+    esempio, ogni unità di ``pyunitastratigrafiche`` ce l'ha, ma 10 delle
+    170 di ``pyunitastratigrafiche_usm`` no (la US 0, un solo poligono
+    con indice 1): senza una regola resterebbero senza etichetta, e
+    nessuno saprebbe perché. Per queste si etichetta il poligono col
+    ``gid`` più piccolo, che è stabile da un disegno all'altro.
+    """
+    con_due: Dict[Tuple, bool] = {}
+    primo: Dict[Tuple, object] = {}
+    for gid, sito, area, us, indice in rows:
+        chiave = (_testo(sito), _testo(area), _testo(us))
+        if str(indice).strip() in ("2", "2.0"):
+            con_due[chiave] = True
+        con_due.setdefault(chiave, False)
+        if chiave not in primo or gid < primo[chiave]:
+            primo[chiave] = gid
+    return sorted(primo[c] for c, c2 in con_due.items() if not c2)
+
+
+def label_expression(fallback_ids: Iterable = ()) -> str:
+    """L'espressione dell'etichetta «US n» di ``us_vuote.qml``.
+
+    Il testo è quello della convenzione, ``'US' || ' ' || us_s``, e ``NULL``
+    (nessuna etichetta) per le righe che non sono quella rappresentativa
+    dell'unità: ``stratigraph_index_us = 2``, oppure — per le unità che non
+    ne hanno — i poligoni indicati in ``fallback_ids``.
+    """
+    ids = [str(int(i)) for i in fallback_ids]
+    condizione = '"stratigraph_index_us" = 2'
+    if ids:
+        condizione += ' OR "%s" IN (%s)' % (LABEL_KEY, ", ".join(ids))
+    return "CASE WHEN %s THEN 'US' || ' ' || \"us_s\" END" % condizione
+
+
 def plan_source(conn_str) -> Optional[PlanSource]:
     """La fonte dei layer dalla stringa di connessione, o ``None``.
 

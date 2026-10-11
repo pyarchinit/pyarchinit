@@ -28,8 +28,9 @@ from typing import List, Optional, Sequence, Tuple
 
 from .matrix_preview import (GUTTER, PLAN_TABLES, Identity, PlanSource,
                              choose_site, compose, filter_model,
-                             identities_from_records, keys_of, layer_filter,
-                             plan_size, plan_source)
+                             identities_from_records, keys_of, label_expression,
+                             layer_filter, plan_size, plan_source,
+                             fallback_label_ids, LABEL_FIELDS, LABEL_KEY)
 
 #: Il colore di fondo, lo stesso della scena della matrice: le due metà
 #: dell'immagine devono sembrare una cosa sola.
@@ -58,6 +59,13 @@ CAMPO_QUOTA = "quota_q"
 #: un'immagine da mettere in una relazione non può cambiare colore ogni
 #: volta che si preme il bottone.
 STILE_US = ("styles", "stile_pyunitastratigrafiche.qml")
+
+#: Il corpo del numero di US, in pixel dell'immagine e non in punti: la
+#: pianta si rende a ~3600 px di larghezza, e un corpo da schermo (8 pt
+#: in ``us_vuote.qml``) lì sparirebbe. Scelto guardando il PNG reso.
+ETICHETTA_PX = 34
+#: Quanto il cerchio sporge dal testo, in pixel.
+ETICHETTA_MARGINE_PX = 7
 
 
 @dataclass
@@ -162,6 +170,62 @@ def _stile_quote(layer) -> None:
     layer.setLabelsEnabled(True)
 
 
+def _stile_etichette_us(layer) -> None:
+    """Il numero di US dentro un cerchio bianco, come in ``us_vuote.qml``.
+
+    Espressione e sfondo vengono da quel QML (testo ``'US' || ' ' ||
+    us_s``, sfondo bianco semitrasparente 255,255,255,115): il QML non si
+    carica perché porta anche lo stile delle unità e la sua etichetta
+    vive nel formato QGIS 3 con un corpo da schermo. Una etichetta per
+    unità, non per poligono: vedi ``label_expression``.
+    """
+    from qgis.core import (QgsPalLayerSettings,
+                           QgsTextBackgroundSettings,
+                           QgsTextFormat, QgsUnitTypes,
+                           QgsVectorLayerSimpleLabeling)
+    from qgis.PyQt.QtCore import QSizeF
+    from qgis.PyQt.QtGui import QColor
+
+    nomi = layer.fields().names()
+    if not all(c in nomi for c in LABEL_FIELDS) or LABEL_KEY not in nomi:
+        return
+    righe = [(f[LABEL_KEY], f["scavo_s"], f["area_s"], f["us_s"],
+              f["stratigraph_index_us"]) for f in layer.getFeatures()]
+    espressione = label_expression(fallback_label_ids(righe))
+
+    formato = QgsTextFormat()
+    formato.setSize(ETICHETTA_PX)
+    formato.setSizeUnit(QgsUnitTypes.RenderPixels)
+    formato.setColor(QColor(0, 0, 0))
+    sfondo = QgsTextBackgroundSettings()
+    sfondo.setEnabled(True)
+    sfondo.setType(QgsTextBackgroundSettings.ShapeCircle)
+    sfondo.setSizeType(QgsTextBackgroundSettings.SizeBuffer)
+    sfondo.setSizeUnit(QgsUnitTypes.RenderPixels)
+    sfondo.setSize(__import__("qgis.PyQt.QtCore", fromlist=["QSizeF"]).QSizeF(
+        ETICHETTA_MARGINE_PX, ETICHETTA_MARGINE_PX))
+    sfondo.setFillColor(QColor(255, 255, 255, 115))
+    sfondo.setStrokeColor(QColor(0, 0, 0))
+    sfondo.setStrokeWidth(1.5)
+    sfondo.setStrokeWidthUnit(QgsUnitTypes.RenderPixels)
+    formato.setBackground(sfondo)
+
+    impostazioni = QgsPalLayerSettings()
+    impostazioni.fieldName = espressione
+    impostazioni.isExpression = True
+    impostazioni.setFormat(formato)
+    try:
+        from qgis.core import Qgis
+        # Sul centro del poligono, non intorno: il cerchio sta sull'unità.
+        impostazioni.placement = Qgis.LabelPlacement.OverPoint
+    except Exception:                               # noqa: BLE001
+        pass
+    impostazioni.centroidWhole = False
+    impostazioni.displayAll = True
+    layer.setLabeling(QgsVectorLayerSimpleLabeling(impostazioni))
+    layer.setLabelsEnabled(True)
+
+
 def plan_layers(source: Optional[PlanSource],
                 identities: Sequence[Identity],
                 tables: Sequence[str] = PLAN_TABLES) -> List:
@@ -199,6 +263,7 @@ def plan_layers(source: Optional[PlanSource],
             _stile_quote(layer)
         else:
             _carica_stile(layer, STILE_US)
+            _stile_etichette_us(layer)
         layer_buoni.append(layer)
     return layer_buoni
 

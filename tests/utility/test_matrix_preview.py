@@ -437,3 +437,35 @@ def test_the_button_draws_the_filtered_matrix_and_no_longer_graphviz():
     assert "pyarchinit_view_Matrix" not in corpo
     assert "Harris_matrix_viewtred.dot.jpg" not in corpo
     assert "plt.show" not in corpo
+
+
+# ------------------------------------------------- l'etichetta della pianta
+
+def test_etichetta_solo_la_riga_con_indice_due():
+    """Una etichetta per unità: US 5 ha 101 righe ma una sola con indice 2."""
+    from modules.utility.matrix_preview import label_expression
+    espr = label_expression()
+    assert espr == ("CASE WHEN \"stratigraph_index_us\" = 2 "
+                    "THEN 'US' || ' ' || \"us_s\" END")
+
+
+def test_etichetta_con_poligoni_di_ripiego():
+    from modules.utility.matrix_preview import label_expression
+    espr = label_expression([7, 3])
+    assert '"stratigraph_index_us" = 2 OR "gid" IN (7, 3)' in espr
+
+
+def test_ripiego_solo_per_unita_senza_indice_due():
+    from modules.utility.matrix_preview import fallback_label_ids
+    righe = [
+        (1, "S", "1", "5", 1), (2, "S", "1", "5", 2),     # ha l'indice 2
+        (9, "S", "1", "0", 1), (8, "S", "1", "0", 1),     # non ce l'ha
+        (4, "S", "2", "5", 1),                            # altra area
+    ]
+    assert fallback_label_ids(righe) == [4, 8]
+
+
+def test_ripiego_vuoto_se_tutte_hanno_l_indice_due():
+    from modules.utility.matrix_preview import fallback_label_ids
+    assert fallback_label_ids([(1, "S", "1", "1", 2)]) == []
+    assert fallback_label_ids([]) == []

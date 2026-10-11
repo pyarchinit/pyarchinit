@@ -5,6 +5,20 @@
 
 ---
 
+## [feat] - 2026-10-11 — L'anteprima della matrice scrive il numero di US dentro un cerchio sulla pianta — 5.13.73-alpha
+
+> Branch `Stratigraph_00001`. «sulla pianta deve uscire anche l'etichetta cerchiato del nome us» (Enzo). / The plan half of the matrix preview now carries each drawn unit's name in a circle.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: sulla pianta di `pyunitastratigrafiche` e `pyunitastratigrafiche_usm` ogni unità porta «US n» dentro un cerchio bianco semitrasparente (255,255,255,115), con la convenzione di `modules/gis/styles_spatialite/us_vuote.qml`: testo `'US' || ' ' || us_s`, **solo sulla riga con `stratigraph_index_us = 2`** — una etichetta per unità invece di una per poligono (la US 5 ne avrebbe 101). Corpo 34 px (non punti: la pianta è larga ~3600 px e 8 pt sparirebbero), scelto guardando il PNG. Espressione e scelta dei ripieghi in `matrix_preview.py` (`label_expression`, `fallback_label_ids`), pure e provate; lo stile in `matrix_preview_png._stile_etichette_us`. Nessun QML modificato, nessuna colonna nuova.
+- 🇬🇧 **EN**: on the plan from `pyunitastratigrafiche` and `pyunitastratigrafiche_usm` each unit carries «US n» in a semi-transparent white circle (255,255,255,115), following `modules/gis/styles_spatialite/us_vuote.qml`: text `'US' || ' ' || us_s`, **only on the `stratigraph_index_us = 2` row** — one label per unit rather than per polygon (US 5 would have 101). Size 34 px (not points: the plan is ~3600 px wide and 8 pt would vanish), chosen by looking at the rendered PNG. Expression and fallback choice live in `matrix_preview.py` (`label_expression`, `fallback_label_ids`), pure and tested; the style in `matrix_preview_png._stile_etichette_us`. No QML edited, no new column.
+
+#### Note / Scelte
+- 🇮🇹 **IT**: misurato su `resources/dbfiles/pyarchinit_db.sqlite`: tutte le 370 unità di `pyunitastratigrafiche` hanno una riga con indice 2; in `pyunitastratigrafiche_usm` 10 unità su 170 no (la US 0, un solo poligono con indice 1, una per ogni traduzione del sito). Per queste si etichetta il poligono col `gid` più piccolo, così non restano senza numero senza che si capisca perché. Il layer USM usa la stessa convenzione.
+- 🇬🇧 **EN**: measured on `resources/dbfiles/pyarchinit_db.sqlite`: all 370 units of `pyunitastratigrafiche` have an index-2 row; in `pyunitastratigrafiche_usm` 10 of 170 do not (US 0, a single index-1 polygon, one per site translation). For those the polygon with the smallest `gid` is labelled, so no unit silently loses its number. The USM layer follows the same convention.
+
+---
+
 ## [feat] - 2026-10-11 — «Visualizza matrix» disegna la matrice filtrata e la pianta, in un PNG — 5.13.72-alpha
 
 > Branch `Stratigraph_00001`. «nella scheda us nella tab rapporti c'è anche un bottone preview matrix … è collegato a graphviz quindi ripuntiamo invece s3d e deve funzionare con il filtro applicato, ad esempio se ho fatto una query dove vedo solo le us dalla 1 alla 10 il matrix deve generare quello e non tutto; e potresti far apparire anche le us disegnate, nella stessa immagine del template, sotto il matrix, e me lo fai esportare in png quindi non nel canvas» (Enzo). / The «visualizza matrix» button of the US form no longer shells out to Graphviz: it draws the s3dgraphy matrix of the units the current search put on screen, with the plan of those same units below it, into one PNG.
