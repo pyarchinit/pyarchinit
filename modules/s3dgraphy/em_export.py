@@ -64,9 +64,43 @@ def _claim_path(path, site):
     return "%s_%s.em.json" % (base, tag)
 
 
-def export_site(connection_url, site, out_dir):
+def saggi_del_sito(connection_url, site) -> list:
+    """I saggi di un sito, in ordine. Vuoto quando non ce ne sono.
+
+    Serve alla scelta «automatico»: dividere in un grafo per saggio ha
+    senso solo dove i saggi ci sono davvero. Sul database di esempio sono
+    zero — tutte le 51 US hanno il campo vuoto — quindi l'automatico là si
+    comporta come oggi.
+    """
+    from sqlalchemy import text
+
+    try:
+        from s3dgraphy.sync._db_handle import _resolve_db_handle
+        handle = _resolve_db_handle(connection_url)
+        with handle.engine.connect() as conn:
+            righe = conn.execute(text(
+                "SELECT DISTINCT saggio FROM us_table WHERE sito = :s"),
+                {"s": site}).fetchall()
+    except Exception:                               # noqa: BLE001
+        return []
+    return sorted({str(r[0]).strip() for r in righe
+                   if r[0] is not None and str(r[0]).strip()})
+
+
+def export_site(connection_url, site, out_dir, per_saggio=None):
     """Build the site's graph, write <out_dir>/<site>.em.json, read it
     back. Returns (path, n_nodes, n_edges, warnings).
+
+    ``per_saggio`` decide la forma del file:
+
+    * ``False`` — **un grafo solo** per tutto il sito, com'è sempre stato;
+    * ``True`` — **un grafo per ogni saggio**, più uno per le unità che non
+      ne hanno (`GraphProjector.populate_container`, dev45). Un rapporto fra
+      unità di due saggi diversi non si perde: diventa un `link` con
+      l'indirizzo «grafo → nodo»;
+    * ``None`` — **automatico**: per saggio quando il sito ne ha più d'uno,
+      altrimenti un grafo solo. È il valore di prima, quindi nessuna
+      chiamata esistente cambia comportamento su un sito senza saggi.
 
     The graph travels through the plugin's GraphProjector — NOT the raw
     importer: the dev40 mapping has no `relations` yet (s3Dgraphy#26),
@@ -84,41 +118,82 @@ def export_site(connection_url, site, out_dir):
 
     from .sync.graph_projector import GraphProjector
 
+    saggi = saggi_del_sito(connection_url, site) if per_saggio is not False \
+        else []
+    dividere = bool(per_saggio) if per_saggio is not None else len(saggi) > 1
+    if dividere and not saggi:
+        # Chiesto a mano su un sito che non ha saggi: si dice invece di
+        # scrivere un contenitore di un grafo solo facendo finta di niente.
+        raise EmExportError(
+            "Il sito %r non ha saggi: non c'è niente da dividere." % site)
+
+    contenitore = None
     try:
-        graph = GraphProjector().populate_graph(connection_url, sito=site)
+        if dividere:
+            contenitore = GraphProjector().populate_container(
+                connection_url, site, groups=["saggio"])
+            grafi = list((getattr(contenitore, "graphs", None) or {}).values())
+            graph = grafi[0] if grafi else None
+            if graph is None:
+                raise EmExportError(
+                    "Il sito %r non ha prodotto nessun grafo." % site)
+        else:
+            graph = GraphProjector().populate_graph(connection_url, sito=site)
+    except EmExportError:
+        raise
     except Exception as e:
         raise EmExportError(
             "Lettura del sito %r fallita: %s" % (site, e)) from e
-    strat = [n for n in getattr(graph, "nodes", []) or []
+    tutti = (list((getattr(contenitore, "graphs", None) or {}).values())
+             if contenitore is not None else [graph])
+    strat = [n for g in tutti for n in (getattr(g, "nodes", []) or [])
              if isinstance(n, StratigraphicNode)]
     if not strat:
         raise EmExportError(
             "Il sito %r non ha righe in us_table: niente da esportare." % site)
-    graph.graph_id = str(site)
-    warnings = [str(w) for w in (getattr(graph, "warnings", None) or [])]
+    if contenitore is None:
+        graph.graph_id = str(site)
+    warnings = [str(w) for g in tutti
+                for w in (getattr(g, "warnings", None) or [])]
 
 
     try:
         os.makedirs(out_dir, exist_ok=True)
         path = os.path.join(out_dir, site_filename(site))
         path = _claim_path(path, site)
-        export_emjson(graph, path)
+        if contenitore is not None:
+            from s3dgraphy.container import save_container_file
+            # `bump=False`: questa è una conversione, non un salvataggio del
+            # lavoro, e far avanzare la revisione del progetto direbbe una
+            # cosa che non è successa (parole della sua docstring).
+            save_container_file(contenitore, path, bump=False)
+        else:
+            export_emjson(graph, path)
     except Exception as e:
         raise EmExportError(
             "Scrittura di %s fallita: %s" % (site_filename(site), e)) from e
 
+    nodi = sum(len(g.nodes) for g in tutti)
+    archi = sum(len(g.edges) for g in tutti)
     try:
-        check, read_warnings = import_emjson(path)
+        if contenitore is not None:
+            from s3dgraphy.container import load_container_file
+            riletto, read_warnings = load_container_file(path)
+            riletti = list((getattr(riletto, "graphs", None) or {}).values())
+            letti = (sum(len(g.nodes) for g in riletti),
+                     sum(len(g.edges) for g in riletti))
+        else:
+            check, read_warnings = import_emjson(path)
+            letti = (len(check.nodes), len(check.edges))
     except Exception as e:
         raise EmExportError(
             "Il file scritto non si rilegge: %s" % e) from e
-    if (len(check.nodes), len(check.edges)) != (len(graph.nodes), len(graph.edges)):
+    if letti != (nodi, archi):
         raise EmExportError(
             "Il file scritto non rilegge uguale (%d/%d nodi, %d/%d archi)."
-            % (len(check.nodes), len(graph.nodes),
-               len(check.edges), len(graph.edges)))
+            % (letti[0], nodi, letti[1], archi))
     warnings.extend(str(w) for w in read_warnings)
-    return path, len(graph.nodes), len(graph.edges), warnings
+    return path, nodi, archi, warnings
 
 
 def _our_installation():

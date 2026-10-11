@@ -65,8 +65,10 @@ def test_the_export_asks_em_export_for_the_file(tmp_path, monkeypatch):
 
     chiamate = []
 
-    def finto_export_site(conn, sito, out_dir):
-        chiamate.append((conn, sito, str(out_dir)))
+    def finto_export_site(conn, sito, out_dir, per_saggio=None):
+        # `per_saggio` lo passa la finestra dalla scelta dei tre bottoni:
+        # qui si raccoglie per poterlo controllare.
+        chiamate.append((conn, sito, str(out_dir), per_saggio))
         path = Path(out_dir) / "Sito.em.json"
         path.write_text("{}", encoding="utf-8")
         return str(path), 7, 5, ["un avviso"]
@@ -81,7 +83,10 @@ def test_the_export_asks_em_export_for_the_file(tmp_path, monkeypatch):
 
     out = bridge.export_integrated_matrix(
         "Sito", None, str(tmp_path), ["emjson"])
-    assert chiamate == [("sqlite:///x.db", "Sito", str(tmp_path))]
+    # `None` è la scelta predefinita dei tre bottoni, cioè «automatico»:
+    # divide in un grafo per saggio solo dove i saggi ci sono davvero,
+    # quindi su uno scavo senza saggi fa quello che ha sempre fatto.
+    assert chiamate == [("sqlite:///x.db", "Sito", str(tmp_path), None)]
     assert out["emjson"].endswith(".em.json")
     assert out["emjson_counts"] == (7, 5, ["un avviso"])
 
@@ -92,7 +97,7 @@ def test_an_export_failure_becomes_a_sentence(tmp_path, monkeypatch):
     from modules.s3dgraphy import em_export
     from modules.s3dgraphy import s3dgraphy_dot_bridge as bridge_mod
 
-    def esplode(conn, sito, out_dir):
+    def esplode(conn, sito, out_dir, per_saggio=None):
         raise em_export.EmExportError("il sito non ha unità")
 
     monkeypatch.setattr(bridge_mod, "export_site", esplode)

@@ -69,6 +69,7 @@ try:
     from qgis.PyQt.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
                                      QLabel, QPushButton, QComboBox,
                                      QCheckBox, QGroupBox, QMessageBox,
+                                     QRadioButton, QButtonGroup,
                                      QFileDialog, QProgressBar,
                                      QTabWidget, QWidget, QLineEdit)
     from qgis.PyQt.QtCore import Qt
@@ -87,6 +88,22 @@ class S3DGraphyDotBridge:
     def __init__(self, db_manager=None):
         self.db_manager = db_manager
         self.s3d_integration = S3DGraphyIntegration(db_manager)
+
+    def _scelta_saggi(self):
+        """Cosa dicono i tre bottoni: ``None`` automatico, ``False`` un
+        grafo solo, ``True`` uno per saggio.
+
+        Senza la finestra — la classe si usa anche da codice — resta
+        l'automatico, che è il comportamento di prima su uno scavo senza
+        saggi.
+        """
+        if getattr(self, "rb_saggi_uno", None) is not None \
+                and self.rb_saggi_uno.isChecked():
+            return False
+        if getattr(self, "rb_saggi_per", None) is not None \
+                and self.rb_saggi_per.isChecked():
+            return True
+        return None
 
     def _connection_url(self):
         """La stringa di connessione del progetto, come la legge il menu."""
@@ -244,7 +261,8 @@ class S3DGraphyDotBridge:
         if 'emjson' in formats or 'json' in formats:
             try:
                 path, nodes, edges, warn = export_site(
-                    self._connection_url(), site, output_dir)
+                    self._connection_url(), site, output_dir,
+                    per_saggio=self._scelta_saggi())
                 exported_files['emjson'] = path
                 exported_files['emjson_counts'] = (nodes, edges, warn)
             except EmExportError as e:
@@ -347,6 +365,37 @@ if QGIS_AVAILABLE:
             format_layout.addWidget(self.cb_phased)
             format_group.setLayout(format_layout)
             export_layout.addWidget(format_group)
+
+            # Come dividere l'em.json quando lo scavo ha dei saggi
+            # (s3dgraphy dev45, `populate_container`). Un rapporto fra
+            # unità di due saggi diversi non si perde: diventa un «link»
+            # con l'indirizzo «grafo → nodo».
+            saggi_group = QGroupBox("Saggi")
+            saggi_layout = QVBoxLayout()
+            self.rb_saggi_auto = QRadioButton(
+                "Automatico: un grafo per saggio se lo scavo ne ha")
+            self.rb_saggi_auto.setToolTip(
+                "Divide solo dove i saggi ci sono davvero. Su uno scavo "
+                "senza saggi si comporta come «un grafo solo».")
+            self.rb_saggi_uno = QRadioButton(
+                "Un grafo solo per tutto il sito")
+            self.rb_saggi_uno.setToolTip(
+                "Come ha sempre fatto: tutte le unità in un grafo, "
+                "qualunque saggio dichiarino.")
+            self.rb_saggi_per = QRadioButton(
+                "Un grafo per ogni saggio")
+            self.rb_saggi_per.setToolTip(
+                "Un grafo per saggio più uno per le unità che non ne hanno. "
+                "Su uno scavo senza saggi l'esportazione lo dice invece di "
+                "scrivere un file che finge di essere diviso.")
+            self.rb_saggi_auto.setChecked(True)
+            self._saggi_scelta = QButtonGroup(self)
+            for bottone in (self.rb_saggi_auto, self.rb_saggi_uno,
+                            self.rb_saggi_per):
+                self._saggi_scelta.addButton(bottone)
+                saggi_layout.addWidget(bottone)
+            saggi_group.setLayout(saggi_layout)
+            export_layout.addWidget(saggi_group)
 
             # Le due opzioni yEd (suggerimenti di auto-layout, colori per
             # periodo) parlavano al writer GraphML, ritirato in A4: erano
