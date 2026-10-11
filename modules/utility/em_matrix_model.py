@@ -20,6 +20,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .em_matrix_glyphs import rules_path
+
 #: I tipi di arco che sono rapporti stratigrafici, cioè le frecce della
 #: matrice. Tutto il resto (proprietà, documentazione, aree, autori,
 #: epoche) descrive l'unità, non la sua posizione nella sequenza.
@@ -65,16 +67,11 @@ _FALLBACK = Style(shape="rectangle", fill="#FFFFFF", stroke="#8C8C8C")
 _RULES_CACHE: Dict[str, Style] = {}
 
 
-def _rules_path() -> Path:
-    return (Path(__file__).resolve().parents[2] / "ext_libs" / "s3dgraphy"
-            / "JSON_config" / "em_visual_rules.json")
-
-
 def _load_rules() -> Dict[str, Style]:
     if _RULES_CACHE:
         return _RULES_CACHE
     try:
-        raw = json.loads(_rules_path().read_text(encoding="utf-8"))
+        raw = json.loads(rules_path().read_text(encoding="utf-8"))
         styles = raw.get("node_styles") or {}
     except Exception:                               # noqa: BLE001
         styles = {}                                 # senza regole si disegna lo stesso

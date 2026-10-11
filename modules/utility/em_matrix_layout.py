@@ -20,6 +20,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
+from .em_matrix_glyphs import box_size, label_overhang
 from .em_matrix_model import MatrixModel, Epoch, Unit
 
 #: Relazioni che NON ordinano dall'alto in basso: le due unità sono
@@ -396,12 +397,23 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
     for _epoca, righe_disegno, cima, _altezza in piani:
         for riga, ids in enumerate(righe_disegno):
             for i in ids:
+                # Un pittogramma dell'Extended Matrix ha la casella
+                # guidata dall'altezza, e la proprietà è larga quanto il
+                # suo testo: la colonna resta quella di sempre e la
+                # casella ci sta in mezzo, così le unità stratigrafiche
+                # non si spostano di un pixel e la freccia di un glifo
+                # arriva sul glifo invece che sul vuoto accanto.
+                larghezza, altezza_casella = box_size(
+                    unita[i].node_type, unita[i].label,
+                    config.box_w, config.box_h)
                 risultato.boxes.append(Box(
                     unit=unita[i],
-                    x=config.margin + config.band_label_w + ascisse.get(i, 0.0),
+                    x=(config.margin + config.band_label_w
+                       + ascisse.get(i, 0.0)
+                       + (config.box_w - larghezza) / 2.0),
                     y=cima + config.band_pad + riga * (config.box_h
                                                        + config.v_gap),
-                    w=config.box_w, h=config.box_h))
+                    w=larghezza, h=altezza_casella))
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
     ridondanti = (_redundant(ordinanti, config.reduction_limit)
@@ -429,9 +441,14 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             points=_route(a, b, simmetrica,
                           scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
 
+    # Il nome di un pittogramma è più largo del pittogramma, e non si
+    # taglia: la tela deve tenerci dentro anche quello, se no l'ultimo
+    # documento a destra perde metà del suo nome fuori dal foglio.
     risultato.width = max(
         [config.margin * 2 + config.band_label_w + config.box_w]
-        + [b.x + b.w + config.margin for b in risultato.boxes])
+        + [b.x + b.w + config.margin
+           + label_overhang(b.unit.node_type, b.unit.label, b.w)
+           for b in risultato.boxes])
     risultato.height = y + config.margin
     return risultato
 

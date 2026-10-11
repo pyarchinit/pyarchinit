@@ -19,6 +19,7 @@ from qgis.PyQt.QtGui import (
     QPainterPath,
     QPen,
     QPolygonF,
+    QTransform,
 )
 from qgis.PyQt.QtWidgets import (
     QGraphicsEllipseItem,
@@ -30,9 +31,11 @@ from qgis.PyQt.QtWidgets import (
     QGraphicsView,
 )
 
+from .em_matrix_glyphs import (Glyph, GlyphLayer, contain, glyph_for,
+                               is_property, parse_path, property_drawing)
 from .em_matrix_layout import Box, Layout
-from .em_matrix_svg import (OPACITA_FUORI, ROSSO_SALITA, _polygon,
-                            _readable_on, _short, write_svg)
+from .em_matrix_svg import (OPACITA_FUORI, ROSSO_SALITA, _label_place,
+                            _polygon, _short, write_svg)
 
 #: Il dato in cui vive l'id del nodo sull'elemento grafico.
 NODE_ID_ROLE = 0
@@ -46,11 +49,30 @@ MAX_PIXELS = 40_000_000
 #: pannello può avvisare invece di lasciare l'utente a chiedersi perché.
 HEAVY_ITEMS = 4000
 
+#: Quanto sta sopra la linea di base l'etichetta a corpo 9. Il writer SVG
+#: ragiona in linee di base, Qt in angolo alto a sinistra: questo è il
+#: ponte fra i due, ed è il valore che la matrice ha sempre usato.
+_ASCENDENTE = 12.0
+
 
 def is_heavy(lay: Layout) -> bool:
-    """Vero se il disegno è abbastanza grande da farsi sentire."""
-    return (len(lay.boxes) * 2 + len(lay.edges) + len(lay.bands) * 3
-            > HEAVY_ITEMS)
+    """Vero se il disegno è abbastanza grande da farsi sentire.
+
+    Una casella non vale più uno: un pittogramma dell'Extended Matrix è
+    fatto di livelli — il combinatore ne ha otto — e contarlo come una
+    forma sola direbbe che una matrice di paradati è leggera quando non
+    lo è.
+    """
+    elementi = len(lay.edges) + len(lay.bands) * 3
+    for box in lay.boxes:
+        glifo = glyph_for(box.unit.node_type)
+        if glifo is not None:
+            elementi += len(glifo.layers) + 1
+        elif is_property(box.unit.node_type):
+            elementi += 3
+        else:
+            elementi += 2
+    return elementi > HEAVY_ITEMS
 
 
 def _pen(stroke: str, width: float, dash: str) -> QPen:
@@ -81,6 +103,103 @@ def _shape_item(box: Box):
     item.setBrush(QBrush(QColor(stile.fill or "#FFFFFF")))
     item.setPen(_pen(stile.stroke, stile.width, stile.dash))
     return item
+
+
+#: Il legame fra il nome del vertice di un tracciato e il metodo di Qt.
+_CAPI = {"round": Qt.PenCapStyle.RoundCap, "square": Qt.PenCapStyle.SquareCap}
+_GIUNTI = {"round": Qt.PenJoinStyle.RoundJoin,
+           "bevel": Qt.PenJoinStyle.BevelJoin}
+
+
+def _painter_path(comandi, evenodd: bool = False) -> QPainterPath:
+    """Il tracciato di ``em_matrix_glyphs`` come percorso di Qt.
+
+    I comandi sono già quelli del contratto — assoluti, solo
+    ``M``/``L``/``C``/``Z`` — quindi qui non si interpreta niente: si
+    ricopia. È il «new Path2D(d) and nothing else» del file, detto in Qt.
+    """
+    percorso = QPainterPath()
+    if evenodd:
+        percorso.setFillRule(Qt.FillRule.OddEvenFill)
+    for comando in comandi:
+        nome = comando[0]
+        if nome == "M":
+            percorso.moveTo(comando[1], comando[2])
+        elif nome == "L":
+            percorso.lineTo(comando[1], comando[2])
+        elif nome == "C":
+            percorso.cubicTo(comando[1], comando[2], comando[3],
+                             comando[4], comando[5], comando[6])
+        elif nome == "Z":
+            percorso.closeSubpath()
+    return percorso
+
+
+def _layer_item(livello: GlyphLayer):
+    """Un livello del pittogramma: un tracciato, un colore, e basta."""
+    item = QGraphicsPathItem(
+        _painter_path(livello.commands, livello.fill_rule == "evenodd"))
+    item.setBrush(QBrush(QColor(livello.fill)) if livello.fill
+                  else QBrush(Qt.BrushStyle.NoBrush))
+    if livello.stroke:
+        penna = QPen(QColor(livello.stroke))
+        # Lo spessore è misurato nel viewBox: lo scala la trasformazione
+        # del glifo, come in SVG. Mai una larghezza in pixel.
+        penna.setWidthF(float(livello.stroke_width))
+        penna.setCapStyle(_CAPI.get(livello.line_cap, Qt.PenCapStyle.FlatCap))
+        penna.setJoinStyle(_GIUNTI.get(livello.line_join,
+                                       Qt.PenJoinStyle.MiterJoin))
+        item.setPen(penna)
+    else:
+        item.setPen(QPen(Qt.PenStyle.NoPen))
+    if livello.opacity < 1.0:
+        item.setOpacity(float(livello.opacity))
+    return item
+
+
+def _glyph_items(glifo: Glyph, box: Box):
+    """Il pittogramma dentro la casella: ``contain``, centrato."""
+    scala, dx, dy = contain(glifo, box.x, box.y, box.w, box.h)
+    trasformazione = QTransform()
+    trasformazione.translate(dx, dy)
+    trasformazione.scale(scala, scala)
+    elementi = []
+    for livello in glifo.layers:
+        item = _layer_item(livello)
+        item.setTransform(trasformazione)
+        elementi.append(item)
+    return elementi
+
+
+def _property_items(box: Box):
+    """La proprietà: il campo grigio e la parentesi aperta a sinistra."""
+    disegno = property_drawing(box.x, box.y, box.w, box.h)
+    campo = QGraphicsPathItem(_painter_path(parse_path(disegno.field_d)))
+    campo.setBrush(QBrush(QColor(disegno.fill)))
+    campo.setPen(QPen(Qt.PenStyle.NoPen))
+    parentesi = QGraphicsPathItem(_painter_path(parse_path(disegno.bracket_d)))
+    parentesi.setBrush(QBrush(Qt.BrushStyle.NoBrush))
+    penna = QPen(QColor(disegno.stroke))
+    penna.setWidthF(disegno.stroke_width)
+    penna.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
+    parentesi.setPen(penna)
+    return [campo, parentesi]
+
+
+def _node_items(box: Box):
+    """Gli elementi grafici della casella, nell'ordine in cui si disegnano.
+
+    Il pittogramma dell'Extended Matrix quando il tipo ne ha uno, la
+    parentesi quando è una proprietà, la forma geometrica per tutto il
+    resto — le stesse tre strade del writer SVG, perché quello che si
+    vede a schermo e quello che esce dal file non divergano.
+    """
+    glifo = glyph_for(box.unit.node_type)
+    if glifo is not None:
+        return _glyph_items(glifo, box)
+    if is_property(box.unit.node_type):
+        return _property_items(box)
+    return [_shape_item(box)]
 
 
 def _arrow_item(da, a, colore):
@@ -170,24 +289,31 @@ def build_scene(lay: Layout, scene: QGraphicsScene) -> Dict[str, object]:
 
     per_id: Dict[str, object] = {}
     for box in lay.boxes:
-        item = _shape_item(box)
         fuori = bool(getattr(box.unit, "dimmed", False))
-        if fuori:
-            # Non è fra le unità che si stanno guardando: sta nel disegno
-            # solo perché un rapporto la cita.
-            item.setOpacity(OPACITA_FUORI)
-        item.setData(NODE_ID_ROLE, box.unit.node_id)
-        item.setToolTip("%s\n%s" % (box.unit.label, box.unit.description)
+        suggerimento = ("%s\n%s" % (box.unit.label, box.unit.description)
                         if box.unit.description else box.unit.label)
-        item.setZValue(1)
-        scene.addItem(item)
-        per_id[box.unit.node_id] = item
+        elementi = _node_items(box)
+        for item in elementi:
+            if fuori:
+                # Non è fra le unità che si stanno guardando: sta nel
+                # disegno solo perché un rapporto la cita. Lo sbiadito si
+                # moltiplica a quello che il livello si porta — il velo
+                # al 7% del combinatore resta un velo.
+                item.setOpacity(item.opacity() * OPACITA_FUORI)
+            item.setData(NODE_ID_ROLE, box.unit.node_id)
+            item.setToolTip(suggerimento)
+            item.setZValue(1)
+            scene.addItem(item)
+        per_id[box.unit.node_id] = elementi[0]
 
+        x, y, colore = _label_place(box)
         testo = QGraphicsSimpleTextItem(_short(box.unit.label))
         testo.setFont(etichetta)
-        testo.setBrush(QBrush(QColor(_readable_on(box.unit.style.fill))))
+        testo.setBrush(QBrush(QColor(colore)))
         larghezza = testo.boundingRect().width()
-        testo.setPos(box.x + (box.w - larghezza) / 2, box.y + box.h / 2 - 8)
+        # ``_label_place`` dà la linea di base, come l'SVG; Qt vuole
+        # l'angolo in alto a sinistra.
+        testo.setPos(x - larghezza / 2, y - _ASCENDENTE)
         if fuori:
             testo.setOpacity(OPACITA_FUORI)
         testo.setData(NODE_ID_ROLE, box.unit.node_id)

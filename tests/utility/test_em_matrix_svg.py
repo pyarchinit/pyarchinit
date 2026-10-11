@@ -60,11 +60,23 @@ def test_each_type_is_drawn_with_the_shape_the_rules_say():
     assert "#248FE7" in svg                 # il bordo della USVs
 
 
-def test_the_round_types_are_drawn_round():
+def test_the_paradata_types_are_drawn_as_em_draws_them():
+    """Documento e proprietà non sono una ellisse e un cerchio.
+
+    Fino al 5.13.72-alpha si disegnavano con la forma di ripiego di
+    ``node_styles`` — il file la chiama «the ripiego for consumers that
+    cannot draw paths» — mentre l'Extended Matrix li disegna: il
+    documento è un foglio con l'angolo piegato (``2d_glyphs.document``),
+    la proprietà è una annotazione fra parentesi. Noi i tracciati li
+    sappiamo disegnare.
+    """
     lay = layout(_model(labels=("D1", "P1"), tipi={"D1": "document",
                                                    "P1": "property"}))
     svg = to_svg(lay)
-    assert "<ellipse" in svg or "<circle" in svg
+    assert "<ellipse" not in svg and "<circle" not in svg
+    assert 'class="glifo"' in svg            # il foglio
+    assert 'class="parentesi"' in svg        # la proprietà
+    assert "#DEDDDE" in svg                  # il campo della proprietà
 
 
 def test_every_relation_becomes_a_line():
@@ -229,3 +241,57 @@ def test_a_continuity_link_has_a_black_head():
 def test_an_equality_has_no_arrowhead_at_all():
     svg = to_svg(layout(_model(relazioni=[("US1", "US2", "equals")])))
     assert "punta" not in svg
+
+
+def _testo_y(svg: str, nome: str) -> float:
+    """L'ordinata della riga di testo che porta quel nome."""
+    import re
+
+    trovato = re.search(r'<text x="[-\d.]+" y="([-\d.]+)"[^>]*>%s</text>' % nome,
+                        svg)
+    assert trovato, (nome, svg[:200])
+    return float(trovato.group(1))
+
+
+def test_the_extractor_and_the_combiner_are_their_pictogram():
+    """Non un pentagono e un esagono — che sono il ripiego di
+    ``node_styles`` — ma il disegno del manuale dell'Extended Matrix,
+    livello per livello, con i colori che il file si porta."""
+    lay = layout(_model(labels=("E1", "C1"), tipi={"E1": "extractor",
+                                                   "C1": "combiner"}))
+    svg = to_svg(lay)
+    assert svg.count('class="glifo"') == 2
+    assert "#888687" in svg                 # il grigio dell'estrattore
+    assert "#868384" in svg                 # il grigio del combinatore
+    assert 'opacity="0.071"' in svg         # il velo del combinatore
+    # sette livelli più otto: il disegno è tutto lì, niente immagini
+    assert svg.count("<path d=") >= 15
+
+
+def test_a_centred_icon_writes_its_name_under_the_drawing():
+    """È quello che fa l'esportatore SVG di EMStudio per i ``types``: il
+    nome sotto l'icona, perché l'icona è il nodo."""
+    lay = layout(_model(labels=("E1",), tipi={"E1": "extractor"}))
+    casella = [b for b in lay.boxes if b.unit.node_id == "E1"][0]
+    assert _testo_y(to_svg(lay), "E1") > casella.y + casella.h
+
+
+def test_the_document_writes_its_name_on_the_sheet():
+    """Il nome del documento sta SUL foglio, al 62% della sua altezza:
+    è la ragione per cui il file lo tiene fuori dai ``types``."""
+    lay = layout(_model(labels=("Fotografie",), tipi={"Fotografie": "document"}))
+    casella = lay.boxes[0]
+    y = _testo_y(to_svg(lay), "Fotografie")
+    assert casella.y < y < casella.y + casella.h
+
+
+def test_the_stratigraphic_units_are_drawn_exactly_as_before():
+    """Il patto della modifica: i paradati prendono il loro disegno, la
+    matrice delle unità stratigrafiche non si muove di un pixel."""
+    lay = layout(_model(labels=("US1", "US2"),
+                        relazioni=[("US1", "US2", "overlies")]))
+    svg = to_svg(lay)
+    assert 'class="glifo"' not in svg and 'class="parentesi"' not in svg
+    for casella in lay.boxes:
+        assert (casella.w, casella.h) == (132.0, 36.0)
+        assert _testo_y(svg, casella.unit.label) == casella.y + casella.h / 2 + 4

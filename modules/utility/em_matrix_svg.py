@@ -10,11 +10,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import List, Sequence, Tuple
 
+from .em_matrix_glyphs import (GLYPH_LABEL_GAP, PROP_PAPER, SHEET_LABEL_Y,
+                               Glyph, GlyphLayer, contain, glyph_for,
+                               is_property, property_drawing)
+from .em_matrix_glyphs import short_label as _short
 from .em_matrix_layout import Band, Box, Edge, Layout
-
-#: Oltre questa lunghezza l'etichetta si taglia: una casella è larga
-#: quanto è larga, e un nome che sborda è peggio di un nome accorciato.
-_MAX_LABEL = 16
 
 _FONT = ("Helvetica Neue, Helvetica, Arial, sans-serif")
 
@@ -30,11 +30,6 @@ def _esc(testo) -> str:
     return (str(testo).translate(_RIPULISCI)
             .replace("&", "&amp;").replace("<", "&lt;")
             .replace(">", "&gt;").replace('"', "&quot;"))
-
-
-def _short(testo: str, massimo: int = _MAX_LABEL) -> str:
-    testo = str(testo)
-    return testo if len(testo) <= massimo else testo[:massimo - 1] + "…"
 
 
 def _dash(stile: str) -> str:
@@ -89,6 +84,89 @@ def _node_shape(box: Box) -> str:
     raggio = 9 if "round" in shape else 2
     return ('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" '
             'rx="%d" %s/>' % (box.x, box.y, box.w, box.h, raggio, attrs))
+
+
+def _layer_svg(livello: GlyphLayer) -> str:
+    """Un livello del pittogramma: un tracciato, un colore, e basta.
+
+    Il ``d`` si scrive com'è: il file lo distribuisce già normalizzato,
+    e riscriverlo sarebbe l'occasione di sbagliarlo.
+    """
+    attributi = []
+    if livello.fill:
+        attributi.append('fill="%s"' % _esc(livello.fill))
+        if livello.fill_rule == "evenodd":
+            attributi.append('fill-rule="evenodd"')
+    else:
+        attributi.append('fill="none"')
+    if livello.stroke:
+        attributi.append('stroke="%s" stroke-width="%.3f"'
+                         % (_esc(livello.stroke), livello.stroke_width))
+        if livello.line_cap != "butt":
+            attributi.append('stroke-linecap="%s"' % _esc(livello.line_cap))
+        if livello.line_join != "miter":
+            attributi.append('stroke-linejoin="%s"' % _esc(livello.line_join))
+    if livello.opacity < 1.0:
+        attributi.append('opacity="%.3f"' % livello.opacity)
+    return '<path d="%s" %s/>' % (livello.d, " ".join(attributi))
+
+
+def _glyph_svg(glifo: Glyph, box: Box) -> str:
+    """Il pittogramma dentro la casella: ``contain``, centrato.
+
+    Una sola trasformazione per tutto il disegno, così gli spessori dei
+    tratti si scalano insieme al resto — nel ``viewBox`` sono misurati,
+    non in pixel.
+    """
+    scala, dx, dy = contain(glifo, box.x, box.y, box.w, box.h)
+    pezzi = ['<g class="glifo" transform="translate(%.2f,%.2f) scale(%.4f)">'
+             % (dx, dy, scala)]
+    pezzi.extend(_layer_svg(l) for l in glifo.layers)
+    pezzi.append('</g>')
+    return "".join(pezzi)
+
+
+def _property_svg(box: Box) -> str:
+    """La proprietà: il campo grigio e la parentesi aperta a sinistra."""
+    disegno = property_drawing(box.x, box.y, box.w, box.h)
+    return ('<g class="parentesi">'
+            '<path d="%s" fill="%s" stroke="none"/>'
+            '<path d="%s" fill="none" stroke="%s" stroke-width="%.2f" '
+            'stroke-linejoin="round" stroke-linecap="butt"/></g>'
+            % (disegno.field_d, _esc(disegno.fill), disegno.bracket_d,
+               _esc(disegno.stroke), disegno.stroke_width))
+
+
+def _drawing_svg(box: Box) -> str:
+    """Il disegno della casella: il pittogramma se il tipo ne ha uno."""
+    glifo = glyph_for(box.unit.node_type)
+    if glifo is not None:
+        return _glyph_svg(glifo, box)
+    if is_property(box.unit.node_type):
+        return _property_svg(box)
+    return _node_shape(box)
+
+
+def _label_place(box: Box):
+    """Dove va il nome dell'unità, e di che colore.
+
+    Tre posti, e il file dice perché: sotto l'icona centrata, SOPRA il
+    foglio del documento (al 62% della sua altezza, senza tagliarlo),
+    dentro la parentesi della proprietà. Per tutto il resto il nome sta
+    in mezzo alla casella, come è sempre stato.
+    """
+    glifo = glyph_for(box.unit.node_type)
+    if glifo is not None and glifo.sheet:
+        return (box.x + box.w / 2, box.y + box.h * SHEET_LABEL_Y + 4,
+                "#1A1A1A")
+    if glifo is not None:
+        return (box.x + box.w / 2, box.y + box.h + GLYPH_LABEL_GAP, "#1A1A1A")
+    if is_property(box.unit.node_type):
+        disegno = property_drawing(box.x, box.y, box.w, box.h)
+        return ((disegno.text_x + disegno.text_right) / 2,
+                box.y + box.h / 2 + 4, _readable_on(PROP_PAPER))
+    return (box.x + box.w / 2, box.y + box.h / 2 + 4,
+            _readable_on(box.unit.style.fill))
 
 
 def _readable_on(fill: str) -> str:
@@ -200,7 +278,7 @@ OPACITA_FUORI = 0.4
 
 
 def _box_svg(box: Box) -> str:
-    colore = _readable_on(box.unit.style.fill)
+    x, y, colore = _label_place(box)
     # Fuori vista: nel disegno c'è perché un rapporto la cita, ma non è
     # sulla mappa, e si deve capire a colpo d'occhio.
     fuori = bool(getattr(box.unit, "dimmed", False))
@@ -214,11 +292,10 @@ def _box_svg(box: Box) -> str:
             'fill="%s">%s</text></g>'
             % (" fuori" if fuori else "", _esc(box.unit.node_id),
                ' opacity="%.2f"' % OPACITA_FUORI if fuori else "",
-               _node_shape(box),
+               _drawing_svg(box),
                _esc("%s — %s" % (box.unit.label, descrizione)
                     if descrizione else box.unit.label),
-               box.x + box.w / 2, box.y + box.h / 2 + 4, colore,
-               _esc(_short(box.unit.label))))
+               x, y, colore, _esc(_short(box.unit.label))))
 
 
 def to_svg(lay: Layout, title: str = "") -> str:
