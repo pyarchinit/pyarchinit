@@ -363,6 +363,7 @@ def test_a_connection_string_we_do_not_know_gives_nothing():
 # Si leggono le promesse nel sorgente.
 
 _RENDER = _ROOT / "modules" / "utility" / "matrix_preview_png.py"
+_SCHEDA = _ROOT / "tabs" / "US_USM.py"
 
 
 def _sorgente(percorso) -> str:
@@ -404,3 +405,19 @@ def test_the_preview_goes_through_the_s3dgraphy_pipeline():
     codice = _codice(_RENDER)
     assert "export_site" in codice and "read_em_json" in codice
     assert "graphviz" not in codice.lower()
+
+
+def test_the_button_draws_the_filtered_matrix_and_no_longer_graphviz():
+    """Il bottone «visualizza matrix» della scheda US: s3dgraphy al posto
+    di «tred» + «dot», il filtro di DATA_LIST, il PNG nella cartella
+    della matrice invece della finestra di matplotlib."""
+    src = _sorgente(_SCHEDA)
+    inizio = src.index("def on_pushButton_viewmatrix_pressed")
+    fine = src.index("def on_pushButton_export_extended_matrix_integrated")
+    corpo = src[inizio:fine]
+    assert "build_preview" in corpo
+    assert "self.DATA_LIST" in corpo
+    assert "self.MATRIX_PATH" in corpo
+    assert "pyarchinit_view_Matrix" not in corpo
+    assert "Harris_matrix_viewtred.dot.jpg" not in corpo
+    assert "plt.show" not in corpo

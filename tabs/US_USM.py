@@ -20613,31 +20613,102 @@ DATABASE SCHEMA KNOWLEDGE:
         else:
             subprocess.Popen(["xdg-open", path])
 
-    def on_pushButton_viewmatrix_pressed(self):
+    def _apri_file(self, percorso):
+        """Mostra il file con il programma di sistema; se non si può, pazienza."""
+        import subprocess
+
         try:
-            id_us_dict = {}
-            for i in range(len(self.DATA_LIST)):
-                id_us_dict[self.DATA_LIST[i].us] = self.DATA_LIST[i].id_us
-            dlg = pyarchinit_view_Matrix(self.iface, self.DATA_LIST, id_us_dict)
-            dlg.generate_matrix()
-            # Visualizza l'immagine con matplotlib
-            HOME = os.environ['PYARCHINIT_HOME']
-            path = '{}{}{}{}'.format(HOME, os.sep, "pyarchinit_Matrix_folder/",'Harris_matrix_viewtred.dot.jpg')
-            if path:
-                # Legge l'immagine dal percorso del file
-                image = Image.open(path)
-                # Crea una figura e un canvas e li salva come attributi dell'oggetto
-                self.fig = plt.figure()
-                self.canvas = self.fig.add_subplot(111)
-
-                # Visualizza l'immagine sul canvas
-                self.canvas.imshow(image)
-                self.canvas.axis('off')  # Rimuove gli assi
-
-                plt.show()  # Mostra l'immagine
-        except AssertionError as e:
-
+            if platform.system() == "Windows":
+                os.startfile(percorso)
+            elif platform.system() == "Darwin":
+                subprocess.Popen(["open", percorso])
+            else:
+                subprocess.Popen(["xdg-open", percorso])
+        except Exception:
             pass
+
+    def on_pushButton_viewmatrix_pressed(self):
+        """L'anteprima della matrice: un PNG con la matrice e la pianta.
+
+        Prima si disegnava tutto il sito con Graphviz («tred» + «dot») e
+        si mostrava il JPEG in una finestra di matplotlib. Dal
+        5.13.72-alpha si disegna la matrice di s3dgraphy — quella
+        dell'em.json e del pannello dell'Extended Matrix, quindi con
+        anche estrattori, combinatori, proprietà e documenti — ridotta
+        alle sole unità della ricerca corrente (``DATA_LIST``), e sotto
+        di essa la pianta delle stesse unità. L'immagine finisce in
+        ``pyarchinit_Matrix_folder``, perché un PNG si mette in una
+        relazione e una finestra no (richiesta di Enzo del 2026-10-11).
+        """
+        from qgis.PyQt.QtWidgets import QApplication, QMessageBox
+
+        from ..modules.s3dgraphy.em_export import EmExportError
+        from ..modules.utility.matrix_preview_png import build_preview
+
+        titolo = "Anteprima matrice" if self.L == 'it' else "Matrix preview"
+        if not self.DATA_LIST:
+            QMessageBox.warning(
+                self, titolo,
+                "Fai prima una ricerca: l'anteprima disegna le unità che "
+                "hai davanti." if self.L == 'it' else
+                "Search first: the preview draws the units you have on "
+                "screen.", QMessageBox.StandardButton.Ok)
+            return
+        try:
+            conn_str = Connection().conn_str()
+        except Exception as e:
+            QMessageBox.warning(self, titolo, str(e),
+                                QMessageBox.StandardButton.Ok)
+            return
+        QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
+        try:
+            esito = build_preview(conn_str, str(self.comboBox_sito.currentText()
+                                                or '').strip(),
+                                  self.DATA_LIST, self.MATRIX_PATH)
+        except EmExportError as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.warning(self, titolo, str(e),
+                                QMessageBox.StandardButton.Ok)
+            return
+        except Exception as e:
+            QApplication.restoreOverrideCursor()
+            QMessageBox.critical(
+                self, titolo,
+                ("Anteprima non riuscita: %s" if self.L == 'it'
+                 else "Preview failed: %s") % e,
+                QMessageBox.StandardButton.Ok)
+            return
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        for avviso in (esito.warnings or []):
+            try:
+                self.iface.messageBar().pushInfo(titolo, str(avviso))
+            except Exception:
+                pass
+        if not esito.path:
+            QMessageBox.warning(
+                self, titolo,
+                "Non è venuta fuori nessuna immagine." if self.L == 'it'
+                else "No image could be produced.",
+                QMessageBox.StandardButton.Ok)
+            return
+        righe = [
+            ("Immagine salvata in:" if self.L == 'it' else "Image saved to:"),
+            esito.path,
+            ("%d unità disegnate, di cui %d sbiadite (non sono fra quelle "
+             "cercate, ma un rapporto le cita)." if self.L == 'it' else
+             "%d units drawn, %d of them faded (not in the search, but a "
+             "relationship mentions them).") % (esito.units, esito.dimmed)]
+        if esito.plan_size is None:
+            righe.append(
+                "Le unità cercate non hanno geometrie: l'immagine contiene "
+                "la sola matrice." if self.L == 'it' else
+                "The searched units have no geometry: the image holds the "
+                "matrix alone.")
+        QMessageBox.information(self, titolo, "\n".join(righe),
+                                QMessageBox.StandardButton.Ok)
+        self._apri_file(esito.path)
     def on_pushButton_export_extended_matrix_integrated(self):
         """
         Export Extended Matrix with integrated s3dgraphy + DOT/GraphML support
