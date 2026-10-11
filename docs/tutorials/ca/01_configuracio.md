@@ -69,6 +69,15 @@ Aquesta és la pestanya principal per configurar la connexió a la base de dades
 | **Image resize** | Ruta per a les imatges redimensionades | `...` per explorar |
 | **Logo path** | Ruta del logotip personalitzat per als informes | `...` per explorar |
 
+> **En el primer arrencada els dos camins s'omplen sols.** pyArchInit crea
+> `pyarchinit_Thumbnails_folder` (les miniatures) i
+> `pyarchinit_Resize_folder` (les imatges redimensionades) dins la carpeta
+> de dades, escriu els dos camins als camps de dalt i hi dibuixa els
+> mitjans de la base de dades d'exemple: **tres per registre** a US,
+> ceràmica, materials, tombes, estructures i UT. Són marcadors de posició,
+> i ho diuen a la imatge. **Si ja has omplert els dos camps no es toquen**,
+> ni quan apunten a un `webdav://`.
+
 #### Rutes Remotes Suportades
 
 PyArchInit suporta també emmagatzematge remot:

@@ -89,6 +89,15 @@ Dies ist die Hauptregisterkarte zur Konfiguration der Datenbankverbindung.
 | **Image resize** | Pfad für skalierte Bilder | `...` zum Durchsuchen |
 | **Logo path** | Pfad zum benutzerdefinierten Logo für Berichte | `...` zum Durchsuchen |
 
+> **Beim ersten Start füllen sich die zwei Pfade von selbst.** pyArchInit
+> legt `pyarchinit_Thumbnails_folder` (die Miniaturbilder) und
+> `pyarchinit_Resize_folder` (die verkleinerten Bilder) im Datenordner an,
+> schreibt die zwei Pfade in die Felder oben und zeichnet dort die Medien
+> der Beispieldatenbank: **drei je Datensatz** für SE, Keramik, Funde,
+> Gräber, Strukturen und UT. Es sind Platzhalter, und das steht auch auf
+> dem Bild. **Felder, die Sie schon ausgefüllt haben, werden nicht
+> angetastet** — auch nicht, wenn sie auf ein `webdav://` zeigen.
+
 ![Pfadeinstellungen](images/01_konfiguration/07_path_settings.png)
 *Abbildung 7: Abschnitt Pfadeinstellungen*
 

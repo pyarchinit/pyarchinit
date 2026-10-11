@@ -53,6 +53,16 @@ C'est l'onglet principal pour configurer la connexion à la base de données.
 | **Image resize** | Chemin pour les images redimensionnées |
 | **Logo path** | Chemin du logo personnalisé pour les rapports |
 
+> **Au premier démarrage les deux chemins se remplissent tout seuls.**
+> pyArchInit crée `pyarchinit_Thumbnails_folder` (les miniatures) et
+> `pyarchinit_Resize_folder` (les images redimensionnées) dans le dossier
+> des données, écrit les deux chemins dans les champs ci-dessus et y
+> dessine les médias de la base d'exemple : **trois par fiche** pour les
+> US, la céramique, le mobilier, les tombes, les structures et les UT. Ce
+> sont des images de remplacement, et c'est écrit dessus. **Si vous avez
+> déjà rempli les deux champs, ils ne sont pas touchés**, même s'ils
+> pointent vers un `webdav://`.
+
 #### Chemins Distants Supportés
 
 PyArchInit supporte également le stockage distant :

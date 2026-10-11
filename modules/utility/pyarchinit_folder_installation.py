@@ -18,7 +18,9 @@
  ***************************************************************************/
 """
 
+import ast
 import os
+import threading
 from os.path import expanduser
 import zipfile
 from .pyarchinit_OS_utility import Pyarchinit_OS_Utility
@@ -133,6 +135,12 @@ class pyarchinit_Folder_installation(object):
         home_PDF_path = os.path.join(self.HOME, 'pyarchinit_PDF_folder')
         home_MATRIX_path = os.path.join(self.HOME, 'pyarchinit_Matrix_folder')
         home_THUMBNAILS_path = os.path.join(self.HOME, 'pyarchinit_Thumbnails_folder')
+        # I media stanno in **due** cartelle, e pyArchInit le tiene
+        # separate di proposito: le miniature (150x150, quelle che si
+        # vedono nella lista della scheda) e le immagini ridimensionate
+        # (quelle che si aprono). I due percorsi sono `THUMB_PATH` e
+        # `THUMB_RESIZE` in `config.cfg`.
+        home_RESIZE_path = os.path.join(self.HOME, 'pyarchinit_Resize_folder')
         home_MAPS_path = os.path.join(self.HOME, 'pyarchinit_MAPS_folder')
         home_REPORT_path = os.path.join(self.HOME, 'pyarchinit_Report_folder')
         home_QUANT_path = os.path.join(self.HOME, 'pyarchinit_Quantificazioni_folder')
@@ -144,7 +152,8 @@ class pyarchinit_Folder_installation(object):
         # Create all directories
         for dir_path in [home_DB_path, home_bin_export_path, doc_bin_export_path,
                          home_excel_path, home_PDF_path, home_MATRIX_path,
-                         home_THUMBNAILS_path, home_MAPS_path, home_REPORT_path,
+                         home_THUMBNAILS_path, home_RESIZE_path,
+                         home_MAPS_path, home_REPORT_path,
                          home_QUANT_path, home_TEST_path, home_BACKUP_linux_path,
                          home_image_export_path, home_R_export_path]:
             self.OS_UTILITY.create_dir(dir_path)
@@ -192,6 +201,78 @@ class pyarchinit_Folder_installation(object):
 
         # === PHASE 4: Install config and additional files ===
         self.installConfigFile(home_DB_path)
+
+        # === PHASE 5: le immagini del database di esempio ===
+        self.installa_media_di_esempio(home_DB_path, home_THUMBNAILS_path,
+                                       home_RESIZE_path)
+
+    def installa_media_di_esempio(self, db_path, cartella_thumb,
+                                  cartella_resize):
+        """Disegna le immagini dei media del database di esempio.
+
+        Il database di esempio porta tre media per record su tutte le
+        schede che li gestiscono — US, ceramica, reperti, tombe,
+        strutture, UT — ma le immagini non si spediscono dentro il
+        plugin: sono 606 file, e si disegnano qui la prima volta.
+        `modules/utility/example_media.genera` salta quelle che esistono
+        già, quindi agli avvii dopo il primo costa un decimo di secondo.
+
+        Gira in un **thread**: seicento PNG sono sei secondi, e QGIS non
+        deve aspettarli per aprirsi. Niente Qt là dentro, solo file.
+
+        I due percorsi finiscono in `config.cfg` **solo se sono vuoti**:
+        chi ha già scelto le sue cartelle (o un `webdav://`) non se le
+        vede cambiare.
+        """
+        try:
+            db = os.path.join(db_path, 'pyarchinit_db.sqlite')
+            if not os.path.isfile(db):
+                return
+            self._scrivi_percorsi_media(db_path, cartella_thumb,
+                                        cartella_resize)
+
+            def _lavora():
+                try:
+                    from .example_media import genera
+                    genera(db, cartella_thumb, cartella_resize)
+                except Exception as e:
+                    print('[pyArchInit] immagini di esempio: %s' % e)
+
+            threading.Thread(target=_lavora, name='pyarchinit-media-demo',
+                             daemon=True).start()
+        except Exception as e:
+            print('[pyArchInit] immagini di esempio non avviate: %s' % e)
+
+    def _scrivi_percorsi_media(self, db_path, cartella_thumb,
+                               cartella_resize):
+        """Mette le due cartelle in `config.cfg`, se sono vuote.
+
+        Il separatore finale non è un vezzo: la scheda costruisce il
+        percorso per **concatenazione** (`thumb_path_str + nome_file`),
+        quindi senza lo slash l'immagine finisce accanto alla cartella
+        invece che dentro.
+        """
+        percorso = os.path.join(db_path, 'config.cfg')
+        if not os.path.isfile(percorso):
+            return
+        with open(percorso, 'r', encoding='utf-8') as f:
+            testo = f.read()
+        try:
+            dati = ast.literal_eval(testo)
+        except Exception:
+            return
+        if not isinstance(dati, dict):
+            return
+        cambiato = False
+        for chiave, cartella in (('THUMB_PATH', cartella_thumb),
+                                 ('THUMB_RESIZE', cartella_resize)):
+            if str(dati.get(chiave, '')).strip():
+                continue
+            dati[chiave] = cartella + os.sep
+            cambiato = True
+        if cambiato:
+            with open(percorso, 'w', encoding='utf-8') as f:
+                f.write(str(dati))
 
     def installConfigFile(self, path):
         """Install config file and extract ZIP archives with error handling."""

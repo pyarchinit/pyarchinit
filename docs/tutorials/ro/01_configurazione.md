@@ -89,6 +89,15 @@ Aceasta este fila principala pentru configurarea conexiunii la baza de date.
 | **Image resize** | Calea pentru imaginile redimensionate | `...` pentru navigare |
 | **Logo path** | Calea catre logo-ul personalizat pentru rapoarte | `...` pentru navigare |
 
+> **La prima pornire cele doua cai se completeaza singure.** pyArchInit
+> creeaza `pyarchinit_Thumbnails_folder` (miniaturile) si
+> `pyarchinit_Resize_folder` (imaginile redimensionate) in folderul de
+> date, scrie cele doua cai in campurile de mai sus si deseneaza acolo
+> mediile bazei de date exemplu: **trei pe inregistrare** la US, ceramica,
+> materiale, morminte, structuri si UT. Sunt substituenti, si scrie asta
+> pe imagine. **Daca ai completat deja cele doua campuri nu sunt
+> atinse**, nici cand arata catre un `webdav://`.
+
 ![Setari Cai](images/01_configurazione/07_path_settings.png)
 *Figura 7: Sectiunea Setari Cai*
 

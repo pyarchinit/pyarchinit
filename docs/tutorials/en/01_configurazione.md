@@ -89,6 +89,16 @@ This is the main tab for configuring the database connection.
 | **Image resize** | Path for resized images | `...` to browse |
 | **Logo path** | Path to custom logo for reports | `...` to browse |
 
+> **The two paths fill themselves in on first start.** pyArchInit creates
+> `pyarchinit_Thumbnails_folder` (the thumbnails) and
+> `pyarchinit_Resize_folder` (the resized images) inside the data folder,
+> writes the two paths into the fields above and draws the example
+> database's media there: **three per record** on US, pottery, finds,
+> tombs, structures and UT. They are placeholders, and they say so on the
+> image — they show how the form displays media, they are not excavation
+> photographs. **If you have already filled the two fields they are left
+> alone**, including when they point at a `webdav://`.
+
 ![Path Settings](images/01_configurazione/07_path_settings.png)
 *Figure 7: Path Settings Section*
 

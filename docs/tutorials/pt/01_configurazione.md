@@ -89,6 +89,15 @@ Este e o separador principal para configurar a ligacao a base de dados.
 | **Image resize** | Caminho para imagens redimensionadas | `...` para navegar |
 | **Logo path** | Caminho para logotipo personalizado para relatorios | `...` para navegar |
 
+> **No primeiro arranque os dois caminhos preenchem-se sozinhos.**
+> pyArchInit cria `pyarchinit_Thumbnails_folder` (as miniaturas) e
+> `pyarchinit_Resize_folder` (as imagens redimensionadas) dentro da pasta
+> de dados, escreve os dois caminhos nos campos acima e desenha la os
+> media da base de dados de exemplo: **tres por registo** em UE, ceramica,
+> materiais, tumulos, estruturas e UT. Sao marcadores, e dizem-no na
+> propria imagem. **Se ja preencheste os dois campos nao sao tocados**,
+> nem quando apontam para um `webdav://`.
+
 ![Definicoes de Caminhos](images/01_configurazione/07_path_settings.png)
 *Figura 7: Seccao Definicoes de Caminhos*
 

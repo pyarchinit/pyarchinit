@@ -98,6 +98,16 @@ Questa e la scheda principale per configurare la connessione al database.
 | **Image resize** | Percorso per le immagini ridimensionate | `...` per sfogliare |
 | **Logo path** | Percorso del logo personalizzato per i report | `...` per sfogliare |
 
+> **Al primo avvio i due percorsi si riempiono da soli.** pyArchInit crea
+> `pyarchinit_Thumbnails_folder` (le miniature) e `pyarchinit_Resize_folder`
+> (le immagini ridimensionate) dentro la cartella dei dati, scrive i due
+> percorsi nei campi qui sopra e ci disegna le immagini dei media del
+> database di esempio: **tre per record** su US, ceramica, reperti, tombe,
+> strutture e UT. Sono segnaposto, e c'è scritto sopra — servono a vedere
+> come la scheda mostra i media, non sono fotografie di scavo. **Se i due
+> campi li hai già compilati tu non vengono toccati**, nemmeno se puntano a
+> un `webdav://`.
+
 <!-- IMMAGINE: Screenshot sezione Path Settings -->
 ![Path Settings](images/01_configurazione/07_path_settings.png)
 *Figura 7: Sezione Path Settings*
