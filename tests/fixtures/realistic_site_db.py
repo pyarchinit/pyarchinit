@@ -59,6 +59,9 @@ CREATE TABLE us_table (
     datazione TEXT, rapporti TEXT, node_uuid TEXT,
     attivita TEXT, struttura TEXT, settore TEXT, ambient TEXT,
     saggio TEXT, quad_par TEXT, documentazione TEXT,
+    -- la legge `continuity_generator.load_site_records`: senza, il
+    -- generatore di continuità non parte affatto
+    other_locations TEXT,
     UNIQUE (sito, area, us, unita_tipo)
 );
 """
@@ -183,6 +186,29 @@ def _schede():
         ("1", "43", 5, "1", "XIII secolo",
          "[%s]" % _lungo("Si lega a", "42", "1"),
          "caso 9: il reciproco del legame"),
+
+        # --- Caso 10: unità che SOPRAVVIVONO fra periodi ------------------
+        # Il generatore di continuità fa una scheda CON per ogni unità che
+        # ha il periodo iniziale **diverso** dal finale: un muro costruito
+        # nel periodo 4 e ancora in piedi nel periodo 6 non è un'unità per
+        # periodo, è la stessa cosa che dura. Senza nessuna riga così il
+        # generatore non ha niente da generare — e fino al 2026-10-11 né
+        # questo database né quello di esempio ne avevano **una**.
+        #
+        # Si scrivono con la fase: una continuità va da (periodo, fase) a
+        # (periodo, fase), e il codice le legge tutte e quattro.
+        ("1", "50", 4, "1", "Prima fase dell'XI secolo",
+         "[]",
+         "caso 10: muro costruito nel periodo 4 e in uso fino al 6",
+         6, "1"),
+        ("1", "51", 5, "1", "XIII secolo",
+         "[]",
+         "caso 10: struttura di lunga durata, dal periodo 5 al 7",
+         7, "1"),
+        ("2", "50", 4, "2", "Seconda fase dell'XI secolo",
+         "[]",
+         "caso 10: la stessa US 50 nell'area 2, con una durata diversa",
+         5, "2"),
     ]
 
 
@@ -226,8 +252,14 @@ def popola(conn) -> None:
             (sito, periodo, fase, ini, fin, "", estesa, n,
              "019f8043-0000-7000-a000-%012d" % n))
 
-    for n, (area, us, per, fase, dat, rapporti, _perche) in enumerate(
-            _schede(), start=1):
+    for n, riga in enumerate(_schede(), start=1):
+        # Le righe del caso 10 portano due valori in più: il periodo e la
+        # fase **finali**, diversi da quelli iniziali. Tutte le altre
+        # finiscono dove cominciano, com'è normale per una unità che non
+        # sopravvive.
+        area, us, per, fase, dat, rapporti, _perche = riga[:7]
+        per_fin = riga[7] if len(riga) > 7 else per
+        fase_fin = riga[8] if len(riga) > 8 else fase
         conn.execute(
             "INSERT INTO us_table (sito, area, us, unita_tipo, d_stratigrafica,"
             " d_interpretativa, periodo_iniziale, fase_iniziale,"
@@ -235,7 +267,7 @@ def popola(conn) -> None:
             " attivita, struttura, settore, ambient, saggio, quad_par,"
             " documentazione) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (SITO, area, us, "US", "Strato", "Livello", str(per), fase,
-             str(per), fase, dat, rapporti, _uuid(n),
+             str(per_fin), fase_fin, dat, rapporti, _uuid(n),
              "", "", "", "", "", "", ""))
     conn.commit()
 

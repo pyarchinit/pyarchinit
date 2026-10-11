@@ -22546,6 +22546,42 @@ DATABASE SCHEMA KNOWLEDGE:
         f.write(report_rapporti3)
         f.close()
 
+    def paradossi_temporali(self, sito_check):
+        """Le contraddizioni fra stratigrafia e periodi, come righe di testo.
+
+        Lista vuota quando non ce ne sono, quando il sito non ha una
+        periodizzazione con gli anni, o quando qualcosa non si legge: il
+        «Controllo rapporti» deve dire quello che sa, non fallire per una
+        verifica in più.
+
+        Il lavoro lo fa `modules.utility.temporal_check`, lo stesso che usa
+        il pannello «Verifica rapporti» dell'Extended Matrix. Due controlli
+        scritti separatamente direbbero cose diverse alla prima divergenza,
+        e l'archeologo non ha ragione di sapere che sono due finestre.
+        """
+        try:
+            from ..modules.db.pyarchinit_conn_strings import Connection
+            from ..modules.s3dgraphy.sync.graph_projector import GraphProjector
+            from ..modules.utility import rapporti_check as RC
+            from ..modules.utility import temporal_check as TC
+            from s3dgraphy.sync._db_handle import _resolve_db_handle
+
+            conn_str = Connection().conn_str()
+            handle = _resolve_db_handle(conn_str)
+            chrono = TC.build_chronology(handle, sito_check)
+            if not chrono:
+                return []                   # nessuna fase con anni: niente da dire
+            periodi = TC.load_unit_periods(handle, sito_check)
+            graph = GraphProjector().populate_graph(conn_str, sito=sito_check)
+            issues = TC.detect_temporal(graph, chrono, periodi,
+                                        sito=sito_check, lang=self.L)
+            return [i.summary for i in issues
+                    if getattr(i, "kind", "") in (
+                        TC.TEMPORAL_INVERSION, TC.TEMPORAL_CONTEMPORANEITY)]
+        except Exception as e:                      # noqa: BLE001
+            print("[pyArchInit] paradossi temporali non verificati: %s" % e)
+            return []
+
     def rapporti_stratigrafici_check(self, sito_check):
         conn = Connection()
         conn_str = conn.conn_str()
@@ -22781,7 +22817,45 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.report_rapporti += f"   • {rapp_inc}\n"
             
             self.report_rapporti += "\n" + "=" * 60
-        
+
+        # 5. I paradossi temporali. Questa verifica non li ha mai guardati —
+        # controllava US inesistenti, reciproci mancanti, aree vuote e
+        # rapporti incompleti — mentre il pannello «Verifica rapporti»
+        # dell'Extended Matrix sì, e l'archeologo che apre la scheda US non
+        # ha ragione di sapere che sono due controlli diversi (Enzo,
+        # 11 ottobre 2026: «pur essendoci paradossi temporali non vengono
+        # segnalati»).
+        #
+        # Si riusa `temporal_check`, che è il codice che li sa trovare: un
+        # secondo controllo scritto qui direbbe cose diverse dal primo alla
+        # prima divergenza.
+        paradossi = self.paradossi_temporali(sito_check)
+        if paradossi:
+            error_count += len(paradossi)
+            if self.L == 'it':
+                self.report_rapporti += (
+                    "\n5. PARADOSSI TEMPORALI (%d trovati):\n" % len(paradossi))
+                self.report_rapporti += (
+                    "   \u26a0\ufe0f La stratigrafia e i periodi si "
+                    "contraddicono.\n")
+            elif self.L == 'de':
+                self.report_rapporti += (
+                    "\n5. ZEITLICHE PARADOXA (%d gefunden):\n"
+                    % len(paradossi))
+                self.report_rapporti += (
+                    "   \u26a0\ufe0f Stratigraphie und Perioden "
+                    "widersprechen sich.\n")
+            else:
+                self.report_rapporti += (
+                    "\n5. TEMPORAL PARADOXES (%d found):\n" % len(paradossi))
+                self.report_rapporti += (
+                    "   \u26a0\ufe0f Stratigraphy and periods contradict "
+                    "each other.\n")
+            self.report_rapporti += "-" * 60 + "\n"
+            for riga in paradossi:
+                self.report_rapporti += "   \u2022 %s\n" % riga
+            self.report_rapporti += "\n" + "=" * 60
+
         # Display report in listWidget with better formatting
         self.listWidget_rapp.clear()
         # Split report into lines for better display
