@@ -242,6 +242,14 @@ L'ordre de couche est calculé automatiquement à partir des relations stratigra
 3. Sélectionner le type de relation
 4. Sauvegarder
 
+### Aperçu de la matrice : matrice en haut, plan en bas
+
+Le bouton d'aperçu de la matrice de l'onglet Relations (« visualizza matrix » dans l'interface) ouvre un aperçu sous forme de **PNG** (ce n'est plus le dessin Graphviz). Le fichier contient deux parties dans une seule image : en haut la **matrice de s3dgraphy**, en bas le **plan** des unités. L'image s'adapte au contenu et est enregistrée **dans le même dossier que l'export**.
+
+L'aperçu respecte le **filtre appliqué** : si, après une recherche, la fiche n'affiche que les US 1 à 10, le dessin contient celles-ci et non tout le site. Le plan dessine les géométries de `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` et les cotes.
+
+**Étiquettes du plan.** Chaque unité porte son propre numéro **entouré d'un cercle**. Quand deux étiquettes se chevaucheraient, QGIS en **déplace** une et trace une **ligne de rappel** vers l'unité à laquelle elle appartient, selon la même convention que l'atlas du Time Manager. Le numéro ne disparaît jamais : s'il n'y a pas de bonne place, il est mis à une position moins bonne mais reste lisible.
+
 ### Relations Inverses Automatiques
 
 Lorsque vous insérez une relation, vous pouvez créer automatiquement l'inverse :

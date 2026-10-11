@@ -423,6 +423,16 @@ The line gives, in order, the span of years, the rule that produced it, and the 
 
 ---
 
+## 9. How to read the arcs of the matrix
+
+Some choices in the matrix drawing may look odd, but they are not errors:
+
+- **An arrow never passes under a node.** When the arrival column is occupied, the arrow enters the box **from the side**: this is normal.
+- **Equality is not an overlap.** A «Uguale a» (Same as) or «Si lega a» (Bonds with) relationship puts the two units on the **same row**, side by side, joined by **two horizontal lines** (the equals sign) **with no arrowhead**.
+- **Redundant arcs are not drawn.** If SU 1 covers 2 and 2 covers 3, the arrow from 1 to 3 does not appear, because it adds nothing. Inside a **cycle**, however, all arcs stay, because a cycle is an error you need to see.
+
+---
+
 ## References
 
 - Upstream issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

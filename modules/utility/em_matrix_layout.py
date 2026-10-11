@@ -431,10 +431,18 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         a, b = centro.get(r.source), centro.get(r.target)
         if a is None or b is None or r.source == r.target:
             continue                    # un cappio non dice niente a vista
-        if (r.source, r.target, r.kind) in gia_disegnati:
-            continue                    # la stessa relazione scritta due volte
-        gia_disegnati.add((r.source, r.target, r.kind))
         simmetrica = r.kind in SYMMETRIC_KINDS
+        # Una simmetrica si riconosce dalla **coppia**, non dal verso: «la 40
+        # è uguale alla 41» e «la 41 è uguale alla 40» sono la stessa cosa
+        # detta due volte — il reciproco, che l'archeologo scrive su entrambe
+        # le schede — e disegnarle entrambe metteva due segni di uguale
+        # identici uno sull'altro (visto rendendo la SVG del sito di prova:
+        # quattro gruppi `edge equality` per due coppie).
+        impronta = ((r.kind, frozenset((r.source, r.target))) if simmetrica
+                    else (r.source, r.target, r.kind))
+        if impronta in gia_disegnati:
+            continue                    # la stessa relazione scritta due volte
+        gia_disegnati.add(impronta)
         if not simmetrica and (r.source, r.target) in ridondanti:
             risultato.removed_redundant += 1
             continue

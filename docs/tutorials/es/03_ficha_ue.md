@@ -357,6 +357,14 @@ El orden de capa se calcula automáticamente a partir de las relaciones estratig
 | **visualizar matrix** | Muestra el Matrix de Harris |
 | **Fix** | Corrige errores en las relaciones |
 
+### Vista previa de la matrix: matrix arriba, planta abajo
+
+El botón **visualizar matrix** de la pestaña Relaciones abre una vista previa en forma de **PNG** (ya no el dibujo de Graphviz). El archivo contiene dos partes en una sola imagen: arriba la **matrix de s3dgraphy**, abajo la **planta** de las unidades. La imagen se adapta al contenido y se guarda **en la misma carpeta de la exportación**.
+
+La vista previa respeta el **filtro aplicado**: si tras una búsqueda la ficha muestra solo las UE de la 1 a la 10, el dibujo contiene esas y no todo el sitio. La planta dibuja las geometrías de `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` y las cotas.
+
+**Etiquetas de la planta.** Cada unidad lleva su propio número **dentro de un círculo**. Cuando dos etiquetas se taparían, QGIS **desplaza** una y traza una **línea de llamada** hacia la unidad a la que pertenece, con la misma convención del atlas del Time Manager. El número nunca desaparece: si no hay un buen sitio, se coloca en una posición menos buena pero sigue siendo legible.
+
 ### Relaciones Inversas Automáticas
 
 Cuando insertas una relación, puedes crear automáticamente la inversa:

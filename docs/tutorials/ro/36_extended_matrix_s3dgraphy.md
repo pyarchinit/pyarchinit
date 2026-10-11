@@ -422,6 +422,16 @@ Linia indică, în ordine, intervalul de ani, regula care l-a produs și relați
 
 ---
 
+## 9. Cum se citesc arcele matricei
+
+Unele alegeri din desenul matricei pot parea ciudate, dar nu sunt erori:
+
+- **O sageata nu trece niciodata pe sub un nod.** Cand coloana de sosire este ocupata, sageata intra in casuta **din lateral**: este normal.
+- **Egalitatea nu este o suprapunere.** O relatie «Uguale a» (Egal cu) sau «Si lega a» (Se leaga de) pune cele doua unitati pe **acelasi rand**, alaturate, unite prin **doua linii orizontale** (semnul egal) **fara varf de sageata**.
+- **Arcele redundante nu se deseneaza.** Daca US 1 acopera US 2 si US 2 acopera US 3, sageata de la 1 la 3 nu apare, pentru ca nu adauga nimic. In interiorul unui **ciclu**, in schimb, toate arcele raman, pentru ca un ciclu este o eroare care trebuie vazuta.
+
+---
+
 ## Referințe
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

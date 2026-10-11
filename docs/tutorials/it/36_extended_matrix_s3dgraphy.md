@@ -423,6 +423,16 @@ La riga dice, nell'ordine, l'intervallo di anni, la regola che lo ha prodotto e 
 
 ---
 
+## 9. Come leggere gli archi della matrice
+
+Nel disegno della matrice alcune scelte possono sembrare strane, ma non sono errori:
+
+- **Una freccia non passa mai sotto a un nodo.** Quando la colonna d'arrivo è occupata, la freccia entra nella casella **dal fianco**: è normale.
+- **L'uguaglianza non è una sovrapposizione.** Un rapporto «Uguale a» o «Si lega a» mette le due unità sulla **stessa riga**, accostate, collegate da **due linee orizzontali** (il segno di uguale) **senza punta di freccia**.
+- **Gli archi ridondanti non si disegnano.** Se la US 1 copre la 2 e la 2 copre la 3, la freccia da 1 a 3 non compare, perché non aggiunge niente. Dentro un **ciclo** invece gli archi restano tutti, perché un ciclo è un errore da vedere.
+
+---
+
 ## Riferimenti
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

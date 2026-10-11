@@ -378,6 +378,14 @@ O campo **Structure** permite associar uma ou mais estruturas a unidade estratig
 | **Display matrix** | Mostrar o Harris Matrix |
 | **Fix** | Corrigir erros de relacao |
 
+### Pré-visualização da matrix: matrix em cima, planta em baixo
+
+O botão **Display matrix** do separador Relações abre uma pré-visualização em **PNG** (já não o desenho do Graphviz). O ficheiro contém duas partes numa única imagem: em cima a **matrix do s3dgraphy**, em baixo a **planta** das unidades. A imagem adapta-se ao conteúdo e é guardada **na mesma pasta da exportação**.
+
+A pré-visualização respeita o **filtro aplicado**: se, depois de uma pesquisa, a ficha mostrar apenas as UE de 1 a 10, o desenho contém essas e não todo o sítio. A planta desenha as geometrias de `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` e as cotas.
+
+**Etiquetas da planta.** Cada unidade leva o seu próprio número **dentro de um círculo**. Quando duas etiquetas se tapariam, o QGIS **desloca** uma e traça uma **linha de chamada** para a unidade a que pertence, com a mesma convenção do atlas do Time Manager. O número nunca desaparece: se não houver um bom lugar, é colocado numa posição menos boa mas continua legível.
+
 ### Relacoes Inversas Automaticas
 
 Ao introduzir uma relacao, pode criar automaticamente a inversa:

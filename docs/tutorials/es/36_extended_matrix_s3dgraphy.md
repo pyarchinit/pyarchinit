@@ -422,6 +422,16 @@ La línea indica, por orden, el intervalo de años, la regla que lo produjo y la
 
 ---
 
+## 9. Cómo leer los arcos de la matrix
+
+Algunas decisiones del dibujo de la matrix pueden parecer extrañas, pero no son errores:
+
+- **Una flecha nunca pasa por debajo de un nodo.** Cuando la columna de llegada está ocupada, la flecha entra en la casilla **por el lado**: es normal.
+- **La igualdad no es una superposición.** Una relación «Uguale a» (Igual a) o «Si lega a» (Se une a) coloca las dos unidades en la **misma fila**, una junto a otra, unidas por **dos líneas horizontales** (el signo igual) **sin punta de flecha**.
+- **Los arcos redundantes no se dibujan.** Si la UE 1 cubre la 2 y la 2 cubre la 3, la flecha de 1 a 3 no aparece, porque no añade nada. Dentro de un **ciclo**, en cambio, todos los arcos permanecen, porque un ciclo es un error que hay que ver.
+
+---
+
 ## Referencias
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

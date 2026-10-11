@@ -422,6 +422,16 @@ La ligne indique, dans l'ordre, l'intervalle d'années, la règle qui l'a produi
 
 ---
 
+## 9. Comment lire les arcs de la matrice
+
+Certains choix du dessin de la matrice peuvent surprendre, mais ce ne sont pas des erreurs :
+
+- **Une flèche ne passe jamais sous un nœud.** Quand la colonne d'arrivée est occupée, la flèche entre dans la case **par le côté** : c'est normal.
+- **L'égalité n'est pas un chevauchement.** Une relation « Uguale a » (Égal à) ou « Si lega a » (Se lie à) place les deux unités sur la **même ligne**, côte à côte, reliées par **deux lignes horizontales** (le signe égal) **sans pointe de flèche**.
+- **Les arcs redondants ne sont pas dessinés.** Si l'US 1 recouvre la 2 et la 2 recouvre la 3, la flèche de 1 à 3 n'apparaît pas, car elle n'ajoute rien. Dans un **cycle**, en revanche, tous les arcs restent, parce qu'un cycle est une erreur qu'il faut voir.
+
+---
+
 ## Références
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

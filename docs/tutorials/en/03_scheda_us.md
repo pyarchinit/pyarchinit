@@ -378,6 +378,14 @@ The **Structure** field allows you to associate one or more structures with the 
 | **Display matrix** | Show Harris Matrix |
 | **Fix** | Fix relationship errors |
 
+### Matrix preview: matrix on top, plan below
+
+The **Display matrix** button of the Relationships tab opens a **PNG** preview (no longer the Graphviz drawing). The file holds two parts in a single image: the **s3dgraphy matrix** on top and the **plan** of the units below. The image adapts to its content and is saved **in the same folder as the export**.
+
+The preview respects the **applied filter**: if after a search the sheet shows only SU 1 to 10, the drawing contains those and not the whole site. The plan draws the geometries of `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` and the elevation points.
+
+**Plan labels.** Each unit carries its own **circled** number. When two labels would overlap, QGIS **moves** one of them and draws a **leader line** to the unit it belongs to, the same convention as the Time Manager atlas. The number never disappears: if there is no good spot, it is placed in a less good position but stays readable.
+
 ### Automatic Inverse Relationships
 
 When you enter a relationship, you can automatically create the inverse:

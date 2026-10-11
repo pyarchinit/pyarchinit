@@ -422,6 +422,16 @@ A linha indica, por ordem, o intervalo de anos, a regra que o produziu e a rela�
 
 ---
 
+## 9. Como ler os arcos da matrix
+
+Algumas escolhas do desenho da matrix podem parecer estranhas, mas não são erros:
+
+- **Uma seta nunca passa por baixo de um nó.** Quando a coluna de chegada está ocupada, a seta entra na caixa **pelo lado**: é normal.
+- **A igualdade não é uma sobreposição.** Uma relação «Uguale a» (Igual a) ou «Si lega a» (Liga-se a) coloca as duas unidades na **mesma linha**, lado a lado, ligadas por **duas linhas horizontais** (o sinal de igual) **sem ponta de seta**.
+- **Os arcos redundantes não são desenhados.** Se a UE 1 cobre a 2 e a 2 cobre a 3, a seta de 1 para 3 não aparece, porque não acrescenta nada. Dentro de um **ciclo**, pelo contrário, todos os arcos ficam, porque um ciclo é um erro que é preciso ver.
+
+---
+
 ## Referências
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

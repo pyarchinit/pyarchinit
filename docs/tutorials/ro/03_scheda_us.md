@@ -378,6 +378,14 @@ Campul **Structura** va permite sa asociati una sau mai multe structuri cu unita
 | **Afiseaza matrix** | Afiseaza Harris Matrix |
 | **Repara** | Repara erorile de relatie |
 
+### Previzualizarea matricei: matricea sus, planul jos
+
+Butonul **Afiseaza matrix** din fila Relatii deschide o previzualizare sub forma de **PNG** (nu mai este desenul Graphviz). Fisierul contine doua parti intr-o singura imagine: sus **matricea s3dgraphy**, jos **planul** unitatilor. Imaginea se adapteaza continutului si este salvata **in acelasi folder cu exportul**.
+
+Previzualizarea respecta **filtrul aplicat**: daca, dupa o cautare, fisa afiseaza doar US de la 1 la 10, desenul contine acele unitati si nu intregul sit. Planul deseneaza geometriile din `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` si cotele.
+
+**Etichetele planului.** Fiecare unitate poarta propriul numar **incercuit**. Cand doua etichete s-ar acoperi, QGIS **muta** una si trage o **linie de legatura** catre unitatea careia ii apartine, dupa aceeasi conventie ca atlasul din Time Manager. Numarul nu dispare niciodata: daca nu exista un loc bun, este pus intr-o pozitie mai putin buna, dar ramane lizibil.
+
 ### Relatii Inverse Automate
 
 Cand introduceti o relatie, puteti crea automat inversa:

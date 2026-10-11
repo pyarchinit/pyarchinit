@@ -357,6 +357,14 @@ L'ordre de capa es calcula automàticament a partir de les relacions estratigrà
 | **visualitza matriu** | Mostra la Matriu de Harris |
 | **Fix** | Corregeix errors a les relacions |
 
+### Previsualització de la matriu: matriu a dalt, planta a baix
+
+El botó **visualitza matriu** de la pestanya Relacions obre una previsualització en forma de **PNG** (ja no el dibuix de Graphviz). El fitxer conté dues parts en una sola imatge: a dalt la **matriu de s3dgraphy**, a baix la **planta** de les unitats. La imatge s'adapta al contingut i es desa **a la mateixa carpeta de l'exportació**.
+
+La previsualització respecta el **filtre aplicat**: si després d'una cerca la fitxa mostra només les US de l'1 al 10, el dibuix conté aquestes i no tot el jaciment. La planta dibuixa les geometries de `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` i les cotes.
+
+**Etiquetes de la planta.** Cada unitat porta el seu propi número **dins d'un cercle**. Quan dues etiquetes es taparien, QGIS en **desplaça** una i traça una **línia de crida** cap a la unitat a la qual pertany, amb la mateixa convenció de l'atles del Time Manager. El número no desapareix mai: si no hi ha un lloc bo, es posa en una posició menys bona però continua sent llegible.
+
 ### Relacions Inverses Automàtiques
 
 Quan insereixes una relació, pots crear automàticament la inversa:

@@ -423,6 +423,16 @@ Die Zeile nennt der Reihe nach das Jahresintervall, die Regel, die es erzeugt ha
 
 ---
 
+## 9. Wie man die Kanten der Matrix liest
+
+Einige Entscheidungen in der Matrixzeichnung wirken seltsam, sind aber keine Fehler:
+
+- **Ein Pfeil läuft nie unter einem Knoten hindurch.** Ist die Zielspalte belegt, tritt der Pfeil **von der Seite** in das Kästchen ein: das ist normal.
+- **Gleichheit ist keine Überlagerung.** Eine Beziehung «Uguale a» (Gleich) oder «Si lega a» (Bindet an) stellt die beiden Einheiten auf **dieselbe Zeile**, nebeneinander, verbunden durch **zwei waagerechte Linien** (das Gleichheitszeichen) **ohne Pfeilspitze**.
+- **Redundante Kanten werden nicht gezeichnet.** Wenn SE 1 die SE 2 überdeckt und SE 2 die SE 3, erscheint der Pfeil von 1 nach 3 nicht, weil er nichts hinzufügt. Innerhalb eines **Zyklus** bleiben dagegen alle Kanten, denn ein Zyklus ist ein Fehler, den man sehen muss.
+
+---
+
 ## Referenzen
 
 - Upstream-Issue LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

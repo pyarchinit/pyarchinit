@@ -378,6 +378,14 @@ Il campo **Struttura** permette di associare una o piu strutture all'unita strat
 | **visualizza matrix** | Mostra il Matrix di Harris |
 | **Fix** | Correggi errori nei rapporti |
 
+### Anteprima della matrice: matrice sopra, pianta sotto
+
+Il bottone **visualizza matrix** del tab Rapporti apre un'anteprima in forma di **PNG** (non più il disegno Graphviz). Il file contiene due parti in un'unica immagine: in alto la **matrice di s3dgraphy**, in basso la **pianta** delle unità. L'immagine si adatta al contenuto e viene salvata **nella stessa cartella dell'esportazione**.
+
+L'anteprima rispetta il **filtro applicato**: se dopo una ricerca la scheda mostra soltanto le US da 1 a 10, nel disegno compaiono quelle e non l'intero sito. La pianta disegna le geometrie di `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` e le quote.
+
+**Etichette della pianta.** Ogni unità porta il proprio numero **cerchiato**. Quando due etichette si coprirebbero, QGIS ne **sposta** una e traccia una **linea di richiamo** verso l'unità a cui appartiene, con la stessa convenzione dell'atlante del Time Manager. Il numero non sparisce mai: se non c'è un posto buono, viene messo in una posizione meno buona ma resta leggibile.
+
 ### Rapporti Inversi Automatici
 
 Quando inserisci un rapporto, puoi creare automaticamente l'inverso:

@@ -394,6 +394,14 @@ Die Schichtordnung wird automatisch aus den stratigraphischen Beziehungen berech
 | **Matrix anzeigen** | Zeigt die Harris-Matrix |
 | **Reparieren** | Korrigiert Beziehungsfehler |
 
+### Matrix-Vorschau: Matrix oben, Plan unten
+
+Die Schaltfläche **Matrix anzeigen** des Tabs Beziehungen öffnet eine Vorschau als **PNG** (nicht mehr die Graphviz-Zeichnung). Die Datei enthält zwei Teile in einem einzigen Bild: oben die **s3dgraphy-Matrix**, unten den **Plan** der Einheiten. Das Bild passt sich dem Inhalt an und wird **im selben Ordner wie der Export** gespeichert.
+
+Die Vorschau berücksichtigt den **angewendeten Filter**: Zeigt das Formular nach einer Suche nur die SE 1 bis 10, enthält die Zeichnung diese und nicht den ganzen Fundplatz. Der Plan zeichnet die Geometrien von `pyunitastratigrafiche`, `pyunitastratigrafiche_usm` und die Höhenwerte.
+
+**Beschriftungen des Plans.** Jede Einheit trägt ihre eigene **eingekreiste** Nummer. Würden sich zwei Beschriftungen überdecken, **verschiebt** QGIS eine davon und zieht eine **Hilfslinie** zu der Einheit, zu der sie gehört, nach derselben Konvention wie der Atlas des Time Managers. Die Nummer verschwindet nie: Gibt es keinen guten Platz, wird sie an einer weniger guten Stelle platziert, bleibt aber lesbar.
+
 ### Automatische inverse Beziehungen
 
 Wenn Sie eine Beziehung eingeben, können Sie automatisch die Umkehrung erstellen:

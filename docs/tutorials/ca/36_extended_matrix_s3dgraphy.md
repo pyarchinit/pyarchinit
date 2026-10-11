@@ -422,6 +422,16 @@ La línia indica, per ordre, l'interval d'anys, la regla que l'ha produït i la 
 
 ---
 
+## 9. Com es llegeixen els arcs de la matriu
+
+Algunes decisions del dibuix de la matriu poden semblar estranyes, però no són errors:
+
+- **Una fletxa no passa mai per sota d'un node.** Quan la columna d'arribada està ocupada, la fletxa entra a la casella **pel costat**: és normal.
+- **La igualtat no és una superposició.** Una relació «Uguale a» (Igual a) o «Si lega a» (Es lliga a) posa les dues unitats a la **mateixa fila**, l'una al costat de l'altra, unides per **dues línies horitzontals** (el signe igual) **sense punta de fletxa**.
+- **Els arcs redundants no es dibuixen.** Si la US 1 cobreix la 2 i la 2 cobreix la 3, la fletxa d'1 a 3 no apareix, perquè no afegeix res. Dins d'un **cicle**, en canvi, tots els arcs es queden, perquè un cicle és un error que cal veure.
+
+---
+
 ## Referències
 
 - Issue upstream LocationNodeGroup: https://github.com/zalmoxes-laran/s3Dgraphy/issues/5

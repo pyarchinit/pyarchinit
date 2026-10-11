@@ -207,3 +207,21 @@ def test_sul_sito_di_prova_nessun_arco_passa_sotto_un_nodo(tmp_path):
     lay = LAY.layout(model)
     assert lay.edges
     assert _attraversamenti(lay) == 0
+
+
+def test_un_uguaglianza_scritta_su_entrambe_le_schede_e_un_segno_solo(tmp_path):
+    """«40 uguale a 41» e «41 uguale a 40» sono la stessa cosa.
+
+    L'archeologo scrive il reciproco su entrambe le schede — è giusto, ed è
+    quello che il controllo dei rapporti pretende — ma nel disegno sono una
+    relazione sola: due segni di uguale identici uno sull'altro si vedono
+    come un pasticcio. La deduplica di una simmetrica va quindi sulla
+    **coppia** e non sul verso. Trovato rendendo la SVG del sito di prova:
+    quattro gruppi `edge equality` per due coppie.
+    """
+    model, _r, _p = _scavo(tmp_path)
+    lay = LAY.layout(model)
+    uguali = [e for e in lay.edges if e.symmetric]
+    coppie = {frozenset((e.source, e.target)) for e in uguali}
+    assert len(uguali) == len(coppie) == 2, \
+        [(e.source, e.target) for e in uguali]
