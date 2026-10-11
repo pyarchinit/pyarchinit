@@ -382,6 +382,19 @@ El botó **Check relacions** verifica la coherència de les relacions:
 - Troba inconsistències
 - Senyala errors lògics
 
+### Àrea i jaciment a les relacions (Ctrl+U)
+
+Una relació s'escriu en quatre columnes: **relació, US, àrea, jaciment**. Moltes fitxes — les antigues i les importades — només tenen les dues primeres: a la base de dades d'exemple són 1683 entrades de 1871. El botó **Actualitza Àrea/Jaciment a les relacions** (drecera **Ctrl+U**), a la pestanya Relacions Estratigràfiques, omple les dues columnes que falten a totes les fitxes del jaciment de cop.
+
+L'àrea que escriu és la **de la unitat relacionada**, no la de la fitxa:
+
+- si la unitat relacionada existeix a l'àrea de la fitxa, és aquella (en una excavació d'una sola àrea sempre ho és);
+- si existeix **només** en una altra àrea, escriu aquella altra: la US 60 de l'àrea 1 que «Cobreix 61», amb la US 61 que només és a l'àrea 2, rep àrea 2;
+- una àrea ja escrita que anomena una fitxa que existeix **no es toca**;
+- quan l'àrea no es pot decidir — la unitat relacionada existeix en diverses àrees i cap no és la de la fitxa, o no existeix en cap àrea del jaciment — la columna **queda buida** i un avís llista les US que cal arreglar a mà. No s'inventa cap àrea.
+
+Les files començades i no acabades (el tipus de relació escrit i el número d'US encara no) no s'esborren.
+
 ### Files buides a les relacions (reparació)
 
 A les versions anteriors (fins a la 4.9.9 i les 5.x prèvies a l'agost de 2026) la taula **Relacions estratigràfiques** del **primer registre de la BD** (normalment la US 1) podia acumular files completament buides `['', '', '', '']`: cada vegada que s'obria la fitxa o es desava un registre nou, la taula no es buidava del tot abans de recarregar-se i les files residuals es desaven en respondre **OK** a "El registre s'ha modificat. Voleu desar?". El nombre de files es triplicava aproximadament a cada sessió (fins a desenes de milers), alentint molt l'obertura de la fitxa; les relacions reals no es perdien, però quedaven soterrades al final de la taula. Des d'aquesta versió el problema està resolt: la taula es buida completament en recarregar-se i les files totalment buides no es desen mai (ni tan sols una fila afegida amb **+** i deixada en blanc).

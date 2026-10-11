@@ -407,6 +407,19 @@ Il bottone **Check rapporti** verifica la coerenza dei rapporti:
 ![Controllo Rapporti](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Risultato controllo rapporti*
 
+### Area e sito nei rapporti (Ctrl+U)
+
+Un rapporto si scrive su quattro colonne: **rapporto, US, area, sito**. Molte schede — quelle vecchie e quelle importate — hanno solo le prime due: nel database di esempio sono 1683 voci su 1871. Il bottone **Aggiorna Area/Sito nei rapporti** (scorciatoia **Ctrl+U**), nella tab Rapporti stratigrafici, riempie le due colonne mancanti su tutte le schede del sito in un colpo.
+
+L'area che scrive è quella **dell'unità collegata**, non quella della scheda:
+
+- se l'unità collegata esiste nell'area della scheda, è quella (su uno scavo a un'area sola è sempre così);
+- se esiste **solo** in un'altra area, scrive quell'altra: la US 60 dell'area 1 che «Copre 61», con la US 61 che sta solo nell'area 2, prende area 2;
+- un'area già scritta che nomina una scheda che esiste **non viene toccata**;
+- quando l'area non si può decidere — l'unità collegata esiste in più aree e nessuna è quella della scheda, oppure non esiste in nessuna area del sito — la colonna **resta vuota** e un avviso elenca le US da sistemare a mano. Nessuna area viene inventata.
+
+Le righe cominciate e non finite (il tipo di rapporto battuto e il numero di US ancora no) non vengono cancellate.
+
 ### Righe vuote nei rapporti (riparazione)
 
 Nelle versioni precedenti (fino alla 4.9.9 e alle 5.x antecedenti ad agosto 2026) la tabella **Rapporti stratigrafici** del **primo record del DB** (di solito la US 1) poteva accumulare righe completamente vuote `['', '', '', '']`: a ogni apertura della scheda o salvataggio di un nuovo record la tabella non veniva svuotata del tutto prima del ricaricamento e le righe residue venivano salvate rispondendo **OK** a "Il record è stato modificato. Vuoi salvare?". Il numero di righe cresceva di circa tre volte a sessione (fino a decine di migliaia), rallentando molto l'apertura della scheda; i rapporti reali non andavano persi, ma finivano sepolti in fondo alla tabella. Da questa release il problema è risolto: la tabella viene svuotata completamente al ricaricamento, le righe tutte vuote non vengono mai salvate (nemmeno una riga aggiunta con **+** e lasciata in bianco).

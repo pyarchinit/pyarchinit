@@ -422,6 +422,19 @@ Die Schaltfläche **Beziehungen prüfen** überprüft die Konsistenz:
 ![Beziehungsprüfung](images/03_se_formular/12_controllo_rapporti.png)
 *Abbildung 12: Ergebnis der Beziehungsprüfung*
 
+### Areal und Ausgrabungsstätte in den Beziehungen (Ctrl+U)
+
+Eine Beziehung wird auf vier Spalten geschrieben: **Beziehung, SE, Areal, Ausgrabungsstätte**. Viele Formulare — die alten und die importierten — haben nur die ersten zwei: in der Beispieldatenbank sind das 1683 Einträge von 1871. Die Schaltfläche **Areal/Ausgrabungsstätte in den Beziehungen aktualisieren** (Tastenkürzel **Ctrl+U**) im Reiter Stratigraphische Beziehungen füllt die zwei fehlenden Spalten in einem Zug für alle Formulare der Ausgrabungsstätte.
+
+Das geschriebene Areal ist das **der verbundenen Einheit**, nicht das des Formulars:
+
+- existiert die verbundene Einheit im Areal des Formulars, ist es dieses (auf einer Ausgrabung mit einem einzigen Areal immer);
+- existiert sie **nur** in einem anderen Areal, wird jenes geschrieben: SE 60 des Areals 1, die «Liegt über 61» erklärt, mit SE 61 nur im Areal 2, erhält Areal 2;
+- ein bereits geschriebenes Areal, das ein vorhandenes Formular benennt, **wird nicht angetastet**;
+- lässt sich das Areal nicht entscheiden — die verbundene Einheit existiert in mehreren Arealen und keines ist das des Formulars, oder sie existiert in keinem Areal der Ausgrabungsstätte — **bleibt die Spalte leer**, und ein Hinweis listet die von Hand zu setzenden SE auf. Kein Areal wird erfunden.
+
+Begonnene und nicht beendete Zeilen (die Beziehungsart eingetippt, die SE-Nummer noch nicht) werden nicht gelöscht.
+
 ### Leere Zeilen in den Beziehungen (Reparatur)
 
 In früheren Versionen (bis 4.9.9 und den 5.x-Versionen vor August 2026) konnte die Tabelle **Stratigraphische Beziehungen** des **ersten Datensatzes der DB** (in der Regel SE 1) vollständig leere Zeilen `['', '', '', '']` ansammeln: Bei jedem Öffnen des Formulars oder Speichern eines neuen Datensatzes wurde die Tabelle vor dem Neuladen nicht vollständig geleert, und die verbliebenen Zeilen wurden gespeichert, sobald man die Frage „Der Datensatz wurde geändert. Speichern?" mit **OK** bestätigte. Die Zeilenzahl verdreifachte sich etwa pro Sitzung (bis zu Zehntausenden), wodurch sich das Formular nur noch sehr langsam öffnen ließ; die echten Beziehungen gingen nicht verloren, lagen aber am Ende der Tabelle begraben. Ab dieser Version ist das Problem behoben: Die Tabelle wird beim Neuladen vollständig geleert, und komplett leere Zeilen werden nie gespeichert (auch keine mit **+** hinzugefügte und leer gelassene Zeile).

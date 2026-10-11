@@ -260,6 +260,19 @@ Lorsque vous insérez une relation, vous pouvez créer automatiquement l'inverse
 | US 1 **coupe** US 2 | US 2 **coupée par** US 1 |
 | US 1 **remplit** US 2 | US 2 **remplie par** US 1 |
 
+### Zone et site dans les relations (Ctrl+U)
+
+Une relation s'écrit sur quatre colonnes : **relation, US, zone, site**. Beaucoup de fiches — les anciennes et celles importées — n'ont que les deux premières : dans la base d'exemple ce sont 1683 entrées sur 1871. Le bouton **Mettre à jour Zone/Site dans les relations** (raccourci **Ctrl+U**), dans l'onglet Relations Stratigraphiques, remplit les deux colonnes manquantes sur toutes les fiches du site en une fois.
+
+La zone écrite est celle **de l'unité liée**, pas celle de la fiche :
+
+- si l'unité liée existe dans la zone de la fiche, c'est celle-là (sur un chantier à une seule zone, toujours) ;
+- si elle n'existe **que** dans une autre zone, c'est celle-là qui est écrite : l'US 60 de la zone 1 qui « Couvre 61 », avec l'US 61 qui ne se trouve que dans la zone 2, reçoit la zone 2 ;
+- une zone déjà écrite qui nomme une fiche existante **n'est pas touchée** ;
+- quand la zone ne peut pas être décidée — l'unité liée existe dans plusieurs zones et aucune n'est celle de la fiche, ou elle n'existe dans aucune zone du site — la colonne **reste vide** et un avertissement énumère les US à corriger à la main. Aucune zone n'est inventée.
+
+Les lignes commencées et non finies (le type de relation saisi et le numéro d'US pas encore) ne sont pas supprimées.
+
 ### Lignes vides dans les relations (réparation)
 
 Dans les versions précédentes (jusqu'à la 4.9.9 et les 5.x antérieures à août 2026), le tableau **Relations stratigraphiques** du **premier enregistrement de la BD** (généralement l'US 1) pouvait accumuler des lignes entièrement vides `['', '', '', '']` : à chaque ouverture de la fiche ou enregistrement d'une nouvelle fiche, le tableau n'était pas complètement vidé avant le rechargement et les lignes résiduelles étaient enregistrées en répondant **OK** à « L'enregistrement a été modifié. Voulez-vous sauvegarder ? ». Le nombre de lignes triplait environ à chaque session (jusqu'à plusieurs dizaines de milliers), ce qui ralentissait fortement l'ouverture de la fiche ; les relations réelles n'étaient pas perdues, mais se retrouvaient enfouies à la fin du tableau. À partir de cette version, le problème est résolu : le tableau est entièrement vidé au rechargement et les lignes totalement vides ne sont jamais enregistrées (pas même une ligne ajoutée avec **+** et laissée vide).

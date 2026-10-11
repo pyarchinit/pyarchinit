@@ -407,6 +407,19 @@ Butonul **Verificare relatii** verifica consistenta relatiilor:
 ![Verificare Relatii](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Rezultatul verificarii relatiilor*
 
+### Zona si sit in relatii (Ctrl+U)
+
+O relatie se scrie pe patru coloane: **relatie, US, zona, sit**. Multe fise — cele vechi si cele importate — au doar primele doua: in baza de date exemplu sunt 1683 de intrari din 1871. Butonul **Actualizeaza Zona/Sit in relatii** (scurtatura **Ctrl+U**), in tabul Relatii Stratigrafice, completeaza cele doua coloane lipsa pe toate fisele sitului dintr-o data.
+
+Zona scrisa este cea **a unitatii legate**, nu cea a fisei:
+
+- daca unitatea legata exista in zona fisei, aceea este (pe un sit cu o singura zona intotdeauna);
+- daca exista **doar** in alta zona, se scrie aceea: US 60 din zona 1 care «Acopera 61», cu US 61 care se afla numai in zona 2, primeste zona 2;
+- o zona deja scrisa care numeste o fisa existenta **nu se atinge**;
+- cand zona nu poate fi decisa — unitatea legata exista in mai multe zone si niciuna nu este cea a fisei, sau nu exista in nicio zona a sitului — coloana **ramane goala** si un avertisment enumera US de corectat manual. Nicio zona nu este inventata.
+
+Randurile incepute si neterminate (tipul relatiei scris si numarul US inca nu) nu sunt sterse.
+
 ### Randuri goale in relatii (reparare)
 
 In versiunile anterioare (pana la 4.9.9 si versiunile 5.x dinainte de august 2026) tabelul **Relatii stratigrafice** al **primei inregistrari din BD** (de obicei US 1) putea acumula randuri complet goale `['', '', '', '']`: la fiecare deschidere a fisei sau salvare a unei inregistrari noi, tabelul nu era golit complet inainte de reincarcare, iar randurile ramase erau salvate cand se raspundea **OK** la "Inregistrarea a fost modificata. Doriti sa salvati?". Numarul de randuri se tripla aproximativ la fiecare sesiune (pana la zeci de mii), incetinind mult deschiderea fisei; relatiile reale nu se pierdeau, dar ajungeau ingropate la sfarsitul tabelului. Incepand cu aceasta versiune problema este rezolvata: tabelul este golit complet la reincarcare, iar randurile complet goale nu sunt niciodata salvate (nici macar un rand adaugat cu **+** si lasat gol).

@@ -382,6 +382,19 @@ El botón **Check relaciones** verifica la coherencia de las relaciones:
 - Encuentra inconsistencias
 - Señala errores lógicos
 
+### Área y sitio en las relaciones (Ctrl+U)
+
+Una relación se escribe en cuatro columnas: **relación, UE, área, sitio**. Muchas fichas — las antiguas y las importadas — tienen solo las dos primeras: en la base de datos de ejemplo son 1683 entradas de 1871. El botón **Actualizar Área/Sitio en las relaciones** (atajo **Ctrl+U**), en la pestaña Relaciones Estratigráficas, rellena las dos columnas que faltan en todas las fichas del sitio de una vez.
+
+El área que escribe es la **de la unidad relacionada**, no la de la ficha:
+
+- si la unidad relacionada existe en el área de la ficha, es esa (en una excavación de una sola área siempre lo es);
+- si existe **solo** en otra área, escribe esa otra: la UE 60 del área 1 que «Cubre 61», con la UE 61 que está solo en el área 2, recibe área 2;
+- un área ya escrita que nombra una ficha que existe **no se toca**;
+- cuando el área no se puede decidir — la unidad relacionada existe en varias áreas y ninguna es la de la ficha, o no existe en ninguna área del sitio — la columna **queda vacía** y un aviso enumera las UE que hay que arreglar a mano. No se inventa ningún área.
+
+Las filas empezadas y no terminadas (el tipo de relación escrito y el número de UE todavía no) no se borran.
+
 ### Filas vacías en las relaciones (reparación)
 
 En las versiones anteriores (hasta la 4.9.9 y las 5.x previas a agosto de 2026) la tabla **Relaciones estratigráficas** del **primer registro de la BD** (normalmente la UE 1) podía acumular filas completamente vacías `['', '', '', '']`: cada vez que se abría la ficha o se guardaba un registro nuevo, la tabla no se vaciaba del todo antes de recargarse y las filas residuales se guardaban al responder **OK** a "El registro ha sido modificado. ¿Desea guardar?". El número de filas se triplicaba aproximadamente en cada sesión (hasta decenas de miles), ralentizando mucho la apertura de la ficha; las relaciones reales no se perdían, pero quedaban sepultadas al final de la tabla. Desde esta versión el problema está resuelto: la tabla se vacía por completo al recargarse y las filas totalmente vacías nunca se guardan (ni siquiera una fila añadida con **+** y dejada en blanco).

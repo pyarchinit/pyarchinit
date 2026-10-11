@@ -407,6 +407,19 @@ O botao **Check relationships** verifica a consistencia das relacoes:
 ![Verificacao de Relacoes](images/03_scheda_us/12_controllo_rapporti.png)
 *Figura 12: Resultado da verificacao de relacoes*
 
+### Area e sitio nas relacoes (Ctrl+U)
+
+Uma relacao escreve-se em quatro colunas: **relacao, UE, area, sitio**. Muitas fichas — as antigas e as importadas — tem apenas as duas primeiras: na base de dados de exemplo sao 1683 entradas de 1871. O botao **Atualizar Area/Sitio nas relacoes** (atalho **Ctrl+U**), no separador Relacoes Estratigraficas, preenche as duas colunas que faltam em todas as fichas do sitio de uma vez.
+
+A area que escreve e a **da unidade relacionada**, nao a da ficha:
+
+- se a unidade relacionada existe na area da ficha, e essa (numa escavacao de uma unica area e sempre assim);
+- se existe **apenas** noutra area, escreve essa outra: a UE 60 da area 1 que «Cobre 61», com a UE 61 que esta so na area 2, recebe area 2;
+- uma area ja escrita que nomeia uma ficha que existe **nao e tocada**;
+- quando a area nao se pode decidir — a unidade relacionada existe em varias areas e nenhuma e a da ficha, ou nao existe em nenhuma area do sitio — a coluna **fica vazia** e um aviso lista as UE a corrigir a mao. Nenhuma area e inventada.
+
+As linhas comecadas e nao terminadas (o tipo de relacao escrito e o numero de UE ainda nao) nao sao apagadas.
+
 ### Linhas vazias nas relacoes (reparacao)
 
 Nas versoes anteriores (ate a 4.9.9 e as 5.x anteriores a agosto de 2026) a tabela **Relacoes estratigraficas** do **primeiro registo da BD** (normalmente a UE 1) podia acumular linhas completamente vazias `['', '', '', '']`: sempre que a ficha era aberta ou um novo registo era guardado, a tabela nao era totalmente esvaziada antes de ser recarregada e as linhas residuais eram guardadas ao responder **OK** a "O registo foi modificado. Deseja guardar?". O numero de linhas triplicava aproximadamente em cada sessao (ate dezenas de milhares), tornando a abertura da ficha muito lenta; as relacoes reais nao se perdiam, mas ficavam soterradas no fim da tabela. A partir desta versao o problema esta resolvido: a tabela e esvaziada por completo ao recarregar e as linhas totalmente vazias nunca sao guardadas (nem sequer uma linha adicionada com **+** e deixada em branco).

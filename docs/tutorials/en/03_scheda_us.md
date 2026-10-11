@@ -407,6 +407,19 @@ The **Check relationships** button verifies relationship consistency:
 ![Relationship Check](images/03_scheda_us/12_controllo_rapporti.png)
 *Figure 12: Relationship check result*
 
+### Area and site in the relationships (Ctrl+U)
+
+A relationship is written on four columns: **relationship, SU, area, site**. Many forms — the old ones and the imported ones — have only the first two: in the example database that is 1683 entries out of 1871. The **Update Area/Site in the relationships** button (shortcut **Ctrl+U**), in the Stratigraphic Relationships tab, fills the two missing columns on every form of the site in one go.
+
+The area it writes is the one **of the related unit**, not the one of the form:
+
+- if the related unit exists in the form's own area, that is the area (on a single-area dig it always is);
+- if it exists **only** in another area, that other one is written: SU 60 of area 1 that «Covers 61», with SU 61 sitting only in area 2, gets area 2;
+- an area already written that names a form which exists **is not touched**;
+- when the area cannot be decided — the related unit exists in several areas and none is the form's, or it exists in no area of the site — the column **stays empty** and a notice lists the SU to be set by hand. No area is invented.
+
+Rows begun and not finished (the relationship type typed and the SU number not yet) are not deleted.
+
 ### Blank rows in relationships (repair)
 
 In earlier versions (up to 4.9.9 and the 5.x releases before August 2026) the **Stratigraphic relationships** table of the **first record in the DB** (usually SU 1) could accumulate completely blank rows `['', '', '', '']`: every time the form was opened or a new record was saved, the table was not fully cleared before being reloaded, and the leftover rows were saved when answering **OK** to "The record has been modified. Do you want to save?". The row count grew roughly threefold per session (up to tens of thousands), making the form very slow to open; the real relationships were not lost, but ended up buried at the end of the table. From this release the problem is fixed: the table is fully cleared on reload and all-blank rows are never saved (not even a row added with **+** and left empty).
