@@ -147,6 +147,18 @@ def _connected(connection):
                 pass
 
 
+def database_reachable(connection) -> bool:
+    """Vero se da qui il database si apre.
+
+    `_connected` ingoia ogni guasto e restituisce `None`: comodo per chi
+    disegna, pessimo per chi deve spiegare perché una striscia di media è
+    vuota. Questa dice soltanto se la porta si apre, così il pannello può
+    distinguere «nessun media» da «non ci arrivo».
+    """
+    with _connected(connection) as conn:
+        return conn is not None
+
+
 def _rows(conn, sql: str, params: Dict[str, Any]) -> List[tuple]:
     """Le righe della query, o nessuna se la tabella non c'è.
 

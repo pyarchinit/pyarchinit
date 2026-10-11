@@ -60,11 +60,38 @@ def details_for(node_id: str) -> str:
 
 def media_for(node_id: str):
     """I media attaccati all'unità scelta, o un elenco vuoto."""
+    return _media_e_perche(node_id)[0]
+
+
+def _media_e_perche(node_id: str):
+    """``(media, perché sono zero)``.
+
+    Il perché serve a chi guarda: una striscia che sparisce senza dire
+    niente non si distingue da un'unità senza foto, e per capire «non
+    vedo i media» ci sono voluti tre giri di domande (Enzo, 12 ottobre
+    2026). Le ragioni possibili sono tre, e solo una è normale.
+    """
     unit = _CURRENT_UNITS.get(node_id)
-    if unit is None or not _CURRENT_CONN[0]:
-        return []
-    from ..utility.em_matrix_links import media_for_unit
-    return media_for_unit(_CURRENT_CONN[0], unit)
+    if unit is None:
+        return [], "nodo sconosciuto"
+    if not _CURRENT_CONN[0]:
+        return [], ("senza connessione al database: il pannello è stato "
+                    "aperto senza, e i media si leggono da lì")
+    from ..utility.em_matrix_links import (database_reachable,
+                                           media_for_unit, unit_identity)
+    if not database_reachable(_CURRENT_CONN[0]):
+        return [], ("il database non si apre da qui (%s)"
+                    % _CURRENT_CONN[0])
+    if not unit_identity(unit):
+        return [], ("questo nodo non è una riga della scheda US "
+                    "(continuità, documento, paradato)")
+    try:
+        media = media_for_unit(_CURRENT_CONN[0], unit)
+    except Exception as e:                          # noqa: BLE001
+        return [], "errore leggendo i media: %s" % e
+    if not media:
+        return [], "nessun media associato a questa unità"
+    return media, ''
 
 
 def can_zoom(node_id: str) -> bool:
@@ -176,10 +203,15 @@ def _fill_media(lista, etichetta, node_id, con_anteprime: bool) -> int:
     from qgis.PyQt.QtWidgets import QListWidgetItem
 
     lista.clear()
-    media = media_for(node_id)
+    media, perche = _media_e_perche(node_id)
     if not media:
         lista.setVisible(False)
-        etichetta.setVisible(False)
+        # Si dice perché: prima la striscia spariva e basta.
+        if perche and perche != "nodo sconosciuto":
+            etichetta.setText("Media: %s." % perche)
+            etichetta.setVisible(True)
+        else:
+            etichetta.setVisible(False)
         return 0
     base = thumb_base()
     for m in media:
