@@ -27,6 +27,16 @@ def test_paradata_store_workspace_dir_on_pg(pg_engine, monkeypatch, tmp_path):
     doesn't pollute the real user home dir.
     """
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    # `_resolve_workspace_root` guarda `PYARCHINIT_WORKSPACE_DIR`
+    # prima di `Path.home()`, e il `__init__.py` del plugin lo
+    # deriva da `PYARCHINIT_HOME` con un `setdefault` all'import.
+    # `tests/utility/test_us_pdf_rapporti_overflow.py` imposta
+    # `PYARCHINIT_HOME` a tempo di import — gli serve per caricare il
+    # logo — e non lo rimette a posto: ogni test che gira dopo, nello
+    # stesso processo, lo vede. Senza queste due righe il test passa
+    # da solo e cade nella suite intera.
+    monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    monkeypatch.delenv("PYARCHINIT_HOME", raising=False)
     from s3dgraphy.sync._db_handle import DbHandle
     from s3dgraphy.sync.paradata_store import ParadataStore
 
@@ -52,6 +62,16 @@ def test_paradata_store_write_read_roundtrip_on_pg(
     """Construct ParadataStore on PG, write a paradata graph, read it
     back. End-to-end I/O on the new workspace dir."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    # `_resolve_workspace_root` guarda `PYARCHINIT_WORKSPACE_DIR`
+    # prima di `Path.home()`, e il `__init__.py` del plugin lo
+    # deriva da `PYARCHINIT_HOME` con un `setdefault` all'import.
+    # `tests/utility/test_us_pdf_rapporti_overflow.py` imposta
+    # `PYARCHINIT_HOME` a tempo di import — gli serve per caricare il
+    # logo — e non lo rimette a posto: ogni test che gira dopo, nello
+    # stesso processo, lo vede. Senza queste due righe il test passa
+    # da solo e cade nella suite intera.
+    monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    monkeypatch.delenv("PYARCHINIT_HOME", raising=False)
     from s3dgraphy.sync._db_handle import DbHandle
     from s3dgraphy.sync.paradata_store import ParadataStore
 
@@ -92,6 +112,16 @@ def test_paradata_store_multiple_sites_isolated_on_pg(
     """Two different sites on the same PG produce file_paths in
     different sito subdirs (isolation under the same conn_slug)."""
     monkeypatch.setattr(Path, "home", lambda: tmp_path)
+    # `_resolve_workspace_root` guarda `PYARCHINIT_WORKSPACE_DIR`
+    # prima di `Path.home()`, e il `__init__.py` del plugin lo
+    # deriva da `PYARCHINIT_HOME` con un `setdefault` all'import.
+    # `tests/utility/test_us_pdf_rapporti_overflow.py` imposta
+    # `PYARCHINIT_HOME` a tempo di import — gli serve per caricare il
+    # logo — e non lo rimette a posto: ogni test che gira dopo, nello
+    # stesso processo, lo vede. Senza queste due righe il test passa
+    # da solo e cade nella suite intera.
+    monkeypatch.delenv("PYARCHINIT_WORKSPACE_DIR", raising=False)
+    monkeypatch.delenv("PYARCHINIT_HOME", raising=False)
     from s3dgraphy.sync._db_handle import DbHandle
     from s3dgraphy.sync.paradata_store import ParadataStore
 

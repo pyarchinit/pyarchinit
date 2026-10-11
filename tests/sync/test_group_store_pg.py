@@ -51,8 +51,10 @@ def test_group_store_write_read_roundtrip_on_pg(
     assert not store.exists()
 
     # add_group writes the file
-    store.add_group(
-        group_uuid="test-group-uuid-1",
+    # `add_group` conia lui l'uuid del gruppo e lo restituisce: non lo
+    # prende piu' da chi chiama (s3dgraphy, firma
+    # `add_group(name, group_kind, member_us_uuids, description) -> str`).
+    group_uuid = store.add_group(
         name="TestGroup",
         description="A test group",
         member_us_uuids=[],
@@ -62,6 +64,7 @@ def test_group_store_write_read_roundtrip_on_pg(
     groups = store.list_groups()
     assert len(groups) == 1, f"expected 1 group, got {len(groups)}"
     assert groups[0].get("name") == "TestGroup"
+    assert group_uuid, "add_group restituisce l'uuid che ha coniato"
 
 
 def test_group_store_conn_slug_deterministic_on_pg(pg_engine):

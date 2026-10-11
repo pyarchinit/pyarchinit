@@ -32,8 +32,17 @@ def test_pg_smoke_columns_of_us_table(pg_engine):
         "struttura", "attivita", "settore", "ambient", "saggio",
         "quad_par", "unita_tipo", "node_uuid",
     }
-    assert cols == expected, (
+    # Sottoinsieme, non uguaglianza: quello che si misura qui e' che
+    # `_columns_of` legga davvero da information_schema e che il bootstrap
+    # dello schema sia girato, non che `us_table` di prova resti ferma a
+    # diciannove colonne. L'uguaglianza si rompeva a ogni colonna aggiunta
+    # per buone ragioni — `other_locations` (yE-F), poi le colonne delle
+    # proprieta' — segnalando una deriva che non c'era.
+    assert expected.issubset(cols), (
         f"PG us_table columns mismatch.\n"
-        f"  Expected: {sorted(expected)}\n"
-        f"  Got:      {sorted(cols)}"
+        f"  Mancano:  {sorted(expected - cols)}\n"
+        f"  Trovate:  {sorted(cols)}"
     )
+    assert "documentazione" in cols, (
+        "gli ALTER delle colonne tardive non sono girati: senza "
+        "`documentazione` nessuna esportazione gira su PostgreSQL")

@@ -24,6 +24,37 @@ PG_CONN_STR = (
 )
 
 
+#: Colonne di `us_table` che lo schema minimo qui sotto non aveva e che il
+#: codice legge o scrive. Esistono tutte in `us_table` vera
+#: (`modules/db/structures/US_table.py`, 119 colonne); qui ci sono perché un
+#: test che gira su uno schema più magro del vero non misura il vero:
+#:
+#: * `datazione` la scrivono le correzioni cronologiche
+#:   (`rapporti_check._WRITABLE`);
+#: * `documentazione` la legge il proiettore
+#:   (`graph_projector._propagate_node_uuid_and_us`), e senza di lei nessuna
+#:   esportazione gira su PostgreSQL: `UndefinedColumn: column
+#:   "documentazione" does not exist`;
+#: * le altre diciannove sono le colonne da cui nasce una `PropertyNode`
+#:   (`mappings/pyarchinit/pyarchinit_us_mapping.json`): senza di loro
+#:   l'importatore ne produce **tre** su ventidue, e non perché sia rotto.
+#:
+#: `CREATE TABLE IF NOT EXISTS` non aggiunge colonne a una tabella che c'è
+#: già, e il database di prova è persistente: servono gli `ALTER`, che con
+#: `IF NOT EXISTS` sono idempotenti e non toccano le righe.
+_COLONNE_TARDIVE = (
+    "datazione",
+    "documentazione",
+    # le ventidue proprietà, meno `attivita`, `d_interpretativa` e
+    # `struttura` che lo schema minimo aveva già
+    "altezza_max", "colore", "consistenza", "inclusi", "larghezza_media",
+    "lunghezza_max", "orientamento", "profondita_max", "quota_abs",
+    "quota_max_abs", "quota_max_rel", "quota_max_usm", "quota_min_abs",
+    "quota_min_rel", "quota_min_usm", "quota_relativa", "spessore_usm",
+    "stato_di_conservazione", "tecnica_muraria_usm",
+)
+
+
 def _apply_pyarchinit_schema(engine: Engine) -> None:
     """Apply minimal pyarchinit DDL to a PG database for testing.
 
@@ -84,6 +115,16 @@ def _apply_pyarchinit_schema(engine: Engine) -> None:
                 CONSTRAINT pg_periodizzazione_unico UNIQUE (sito, periodo, fase)
             )
         """))
+        # `datazione` esiste in us_table vera ed e' una delle colonne che le
+        # correzioni cronologiche possono scrivere (rapporti_check._WRITABLE),
+        # ma lo schema minimo qui sopra e' nato prima di quel lavoro e
+        # `CREATE TABLE IF NOT EXISTS` non aggiunge colonne a una tabella che
+        # c'e' gia': il database di prova e' persistente. `ADD COLUMN IF NOT
+        # EXISTS` e' idempotente e non tocca le righe.
+        for _col in _COLONNE_TARDIVE:
+            conn.execute(text(
+                "ALTER TABLE us_table ADD COLUMN IF NOT EXISTS %s TEXT"
+                % _col))
 
 
 @pytest.fixture(scope="session")
@@ -162,9 +203,20 @@ def load_sqlite_into_pg(sqlite_path, pg_engine, tables=None):
 
     sqlite_engine = create_engine(f"sqlite:///{Path(sqlite_path)}")
     sqlite_inspector = inspect(sqlite_engine)
+    # Via le tabelle virtuali. Una fixture spatialite ne ha una dozzina —
+    # gli indici R*Tree `idx_*_the_geom` e `SpatialIndex` — e sono tabelle
+    # a tutti gli effetti per `get_table_names()`, ma leggerne le colonne
+    # vuole l'estensione spatialite caricata: senza, SQLAlchemy alza
+    # `no such module: VirtualSpatialIndex` sul `PRAGMA table_xinfo` e la
+    # fixture muore prima di qualunque test. Non sono dati da rispecchiare
+    # su PostgreSQL: sono indici, e PostGIS ha i suoi.
+    with sqlite_engine.connect() as _c:
+        _virtuali = {r[0] for r in _c.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type = 'table' "
+            "AND sql LIKE 'CREATE VIRTUAL TABLE%'")}
     all_tables = [
         t for t in sqlite_inspector.get_table_names()
-        if not t.startswith("sqlite_")
+        if not t.startswith("sqlite_") and t not in _virtuali
     ]
     tables = list(tables) if tables else all_tables
     counts: dict = {}
@@ -182,6 +234,19 @@ def load_sqlite_into_pg(sqlite_path, pg_engine, tables=None):
             conn.execute(text(
                 f"CREATE TABLE IF NOT EXISTS {table} ({col_defs})"
             ))
+            # `CREATE TABLE IF NOT EXISTS` non fa niente se la tabella c'e'
+            # gia' — e su un database di prova persistente c'e': `us_table`
+            # l'ha creata `_apply_pyarchinit_schema` con il suo schema
+            # minimo di quaranta colonne, mentre la fixture SQLite ne ha
+            # centoventicinque. L'INSERT moriva sulla prima colonna in piu'
+            # (`UndefinedColumn: column "descrizione" ... does not exist`) e
+            # la fixture non arrivava mai a un test. Le colonne mancanti si
+            # aggiungono: additivo, idempotente, e non distrugge lo schema
+            # che gli altri test condividono nella stessa sessione.
+            for c in cols:
+                conn.execute(text(
+                    "ALTER TABLE %s ADD COLUMN IF NOT EXISTS %s %s"
+                    % (table, c["name"], _sqlite_type_to_pg(c["type"]))))
             conn.execute(text(
                 f"TRUNCATE {table} RESTART IDENTITY CASCADE"
             ))

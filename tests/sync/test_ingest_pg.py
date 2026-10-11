@@ -33,7 +33,6 @@ def _make_test_graph_with_us(sito="Volterra", us_count=3):
             node_id=node_uuid,
             name=str(i),
             description="",
-            data={},
         )
         if not hasattr(node, "attributes") or node.attributes is None:
             node.attributes = {}
@@ -141,7 +140,7 @@ def test_populate_list_conflict_resolution_graph_wins_on_pg(pg_engine):
     handle = DbHandle.from_engine(pg_engine, str(pg_engine.url))
     graph = Graph(graph_id="g")
     node = StratigraphicNode(
-        node_id=my_uuid, name="1", description="", data={}
+        node_id=my_uuid, name="1", description=""
     )
     node.attributes = {
         "node_uuid": my_uuid, "us": "1", "sito": "TestSite",

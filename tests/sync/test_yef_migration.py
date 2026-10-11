@@ -1,6 +1,7 @@
 """yE-F schema migration tests — ADD COLUMN other_locations TEXT
 idempotent on both SQLite and PG (PG paths skipped if psycopg2 missing)."""
 from __future__ import annotations
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -124,7 +125,12 @@ def test_cli_apply_adds_column(tmp_path):
     plugin_root = Path(__file__).resolve().parents[2]
     cli = (plugin_root / "scripts" / "migrations"
            / "2026_05_yef_other_locations.py")
-    env = {"PYTHONPATH": str(plugin_root), "PATH": "/usr/bin:/bin"}
+    # `ext_libs` davanti: la s3dgraphy vendorizzata sta la', e nelle
+    # site-packages di QGIS ce n'e' una 0.1.6 senza `s3dgraphy.sync` —
+    # senza questo il CLI muore con `No module named 's3dgraphy.sync'`.
+    env = {"PYTHONPATH": os.pathsep.join(
+        [str(plugin_root / "ext_libs"), str(plugin_root)]),
+        "PATH": "/usr/bin:/bin"}
     proc = subprocess.run(
         [sys.executable, str(cli), "--apply", "--db", str(dbfile)],
         env=env, capture_output=True, text=True, timeout=30,
@@ -143,7 +149,12 @@ def test_cli_dry_run_reports_state(tmp_path):
     plugin_root = Path(__file__).resolve().parents[2]
     cli = (plugin_root / "scripts" / "migrations"
            / "2026_05_yef_other_locations.py")
-    env = {"PYTHONPATH": str(plugin_root), "PATH": "/usr/bin:/bin"}
+    # `ext_libs` davanti: la s3dgraphy vendorizzata sta la', e nelle
+    # site-packages di QGIS ce n'e' una 0.1.6 senza `s3dgraphy.sync` —
+    # senza questo il CLI muore con `No module named 's3dgraphy.sync'`.
+    env = {"PYTHONPATH": os.pathsep.join(
+        [str(plugin_root / "ext_libs"), str(plugin_root)]),
+        "PATH": "/usr/bin:/bin"}
     proc = subprocess.run(
         [sys.executable, str(cli), "--dry-run", "--db", str(dbfile)],
         env=env, capture_output=True, text=True, timeout=30,

@@ -137,14 +137,51 @@ def test_pk_discovery_on_pg_via_inspector(clean_pg_with_seed):
         assert pk == expected, f"{table}: expected {expected}, got {pk}"
 
 
-def test_atomic_rollback_on_alter_failure(clean_pg_with_seed, monkeypatch):
+@pytest.fixture
+def senza_node_uuid(clean_pg_with_seed):
+    """Le tre tabelle **senza** `node_uuid`, e com'erano quando finisce.
+
+    `add_columns` guarda le colonne prima di aprire la transazione e salta
+    le tabelle che hanno gia' la colonna (`existing = {table:
+    _columns_of(...)}`). Lo schema di prova la dichiara su tutte e tre —
+    `conftest_pg` su `us_table` e `periodizzazione_table`, la fixture di
+    questo modulo su `inventario_materiali_table` — quindi senza questo
+    `DROP` la migrazione non ha niente da fare, nessun `ALTER` viene
+    emesso, il finto `text()` non scatta mai e il test non puo' fallire ne'
+    passare per la ragione giusta: diceva «DID NOT RAISE».
+
+    Il ripristino in coda non e' cortesia: `pg_engine` ha lo scope di
+    sessione e lo schema lo applica una volta, quindi una colonna lasciata
+    via qui mancherebbe a tutti i test che girano dopo.
+    """
+    tabelle = ("us_table", "inventario_materiali_table",
+               "periodizzazione_table")
+    with clean_pg_with_seed.begin() as conn:
+        for t in tabelle:
+            conn.execute(text(
+                "ALTER TABLE %s DROP COLUMN IF EXISTS node_uuid" % t))
+    try:
+        yield clean_pg_with_seed
+    finally:
+        with clean_pg_with_seed.begin() as conn:
+            for t in tabelle:
+                conn.execute(text(
+                    "ALTER TABLE %s ADD COLUMN IF NOT EXISTS node_uuid TEXT"
+                    % t))
+
+
+def test_atomic_rollback_on_alter_failure(senza_node_uuid, monkeypatch):
     """If text() raises mid-add_columns, engine.begin() rolls back -
-    no partial column added on the second/third table."""
+    no partial column added on the second/third table.
+
+    Vale su PostgreSQL e non su SQLite: il DDL dentro una transazione lo
+    annulla solo PostgreSQL (lo dice `add_columns` stessa, «SQLite executes
+    ALTER TABLE outside the transaction»).
+    """
     from s3dgraphy.sync._db_handle import DbHandle, _columns_of
     from scripts.migrations import _2026_05_node_uuid_backfill_lib as lib
 
-    handle = DbHandle.from_engine(clean_pg_with_seed,
-                                   str(clean_pg_with_seed.url))
+    handle = DbHandle.from_engine(senza_node_uuid, str(senza_node_uuid.url))
 
     # Patch text() inside the lib module to raise on the second call
     # (after us_table got its column added but before inventario gets it).
@@ -164,7 +201,7 @@ def test_atomic_rollback_on_alter_failure(clean_pg_with_seed, monkeypatch):
 
     # Critical assertion: us_table's ALTER must have been ROLLED BACK
     # because engine.begin() wraps the whole loop in a single transaction
-    cols = _columns_of(clean_pg_with_seed, "us_table")
+    cols = _columns_of(senza_node_uuid, "us_table")
     assert "node_uuid" not in cols, (
         "us_table.node_uuid should NOT exist after rollback; "
         "engine.begin() failed to roll back atomically"

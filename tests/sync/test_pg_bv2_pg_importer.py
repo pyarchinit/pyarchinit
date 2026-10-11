@@ -55,6 +55,13 @@ def test_pg_importer_builds_strat_node_from_mock_row():
     )
 
     # Mock handle.engine.connect().execute().mappings().all()
+    #
+    # La riga porta **tutte** le colonne che la mappatura trasforma in una
+    # PropertyNode, prese dalla mappatura stessa: l'asserzione in fondo le
+    # pretende tutte, e una riga scritta a mano con sette colonne non puo'
+    # soddisfarla — il test non era soddisfacibile prima di questo (ed era
+    # muto, perche' il modulo non si importava).
+    from s3dgraphy.sync.pyarchinit_pg_importer import _load_mapping as _lm
     fake_row = {
         "us": "1",
         "sito": "S",
@@ -65,6 +72,9 @@ def test_pg_importer_builds_strat_node_from_mock_row():
         "unita_tipo": "US",
         "node_uuid": "abc-123",
     }
+    for _col, _spec in _lm("pyarchinit_us_mapping")["column_mappings"].items():
+        if _spec.get("node_type") == "PropertyNode":
+            fake_row.setdefault(_col, "valore di prova")
     fake_cm = MagicMock()
     fake_cm.execute.return_value.mappings.return_value.all.return_value = (
         [fake_row]
@@ -107,106 +117,15 @@ def test_pg_importer_builds_strat_node_from_mock_row():
 
 
 # ---------------------------------------------------------------------
-# L2 PG — skip when psycopg2 missing or PG offline
-# ---------------------------------------------------------------------
-
-def test_pg_export_graphml_end_to_end(pg_with_volterra, tmp_path):
-    """End-to-end: populate_graph on PG produces a non-empty Graph,
-    then graphml_writer.export_graphml writes a real file with the
-    expected stratigraphic node markup."""
-    pytest.importorskip("psycopg2")
-    from modules.s3dgraphy.sync.graph_projector import GraphProjector
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
-    from s3dgraphy.sync._db_handle import DbHandle
-
-    # pg_with_volterra yields a SQLAlchemy Engine — wrap in DbHandle.
-    handle = DbHandle.from_engine(pg_with_volterra,
-                                  str(pg_with_volterra.url))
-    projector = GraphProjector()
-    graph = projector.populate_graph(
-        handle,
-        sito="Volterra",
-        include_paradata=False,
-        strict_schema=False,
-    )
-    assert len(graph.nodes) > 0, "empty graph on PG (PG-Bv2 regression)"
-
-    out_file = tmp_path / "pg_bv2_end_to_end.graphml"
-    result = export_graphml(
-        db_path=handle,
-        mapping="pyarchinit_us_mapping",
-        output_path=str(out_file),
-        site_filter="Volterra",
-        persist_auxiliary=False,
-        language="it",
-    )
-    assert out_file.exists()
-    content = out_file.read_text(encoding="utf-8")
-    assert "<graphml" in content
-    assert "<node" in content
-    # Stratigraphic nodes get id attribute, format depends on writer.
-    assert content.count("<node") > 1, (
-        f"expected >1 nodes in graphml, got: {content.count('<node')}"
-    )
-
-
-def test_pg_export_graphml_structural_match_sqlite(
-    pg_with_volterra, tmp_path,
-):
-    """SQLite vs PG output structural equivalence: load same Volterra
-    fixture into both backends, export both as graphml, assert
-    node count + edge type distribution match. Not byte-identical
-    (IDs may differ); structural."""
-    pytest.importorskip("psycopg2")
-    from modules.s3dgraphy.sync.graphml_writer import export_graphml
-    from s3dgraphy.sync._db_handle import DbHandle
-    import re
-
-    # PG side — use the pg_with_volterra fixture.
-    handle = DbHandle.from_engine(pg_with_volterra,
-                                  str(pg_with_volterra.url))
-    pg_out = tmp_path / "volterra_pg.graphml"
-    export_graphml(
-        db_path=handle,
-        mapping="pyarchinit_us_mapping",
-        output_path=str(pg_out),
-        site_filter="Volterra",
-        persist_auxiliary=False,
-        language="it",
-    )
-    pg_content = pg_out.read_text(encoding="utf-8")
-
-    # SQLite side — use the same source-of-truth mini_volterra fixture.
-    sqlite_fixture = (
-        Path(__file__).resolve().parent
-        / "fixtures"
-        / "mini_volterra.sqlite"
-    )
-    if not sqlite_fixture.exists():
-        pytest.skip(f"Volterra fixture missing: {sqlite_fixture}")
-    sqlite_out = tmp_path / "volterra_sqlite.graphml"
-    export_graphml(
-        db_path=sqlite_fixture,
-        mapping="pyarchinit_us_mapping",
-        output_path=str(sqlite_out),
-        site_filter="Volterra",
-        persist_auxiliary=False,
-        language="it",
-    )
-    sqlite_content = sqlite_out.read_text(encoding="utf-8")
-
-    # Structural equivalence: same node count, same edge source set.
-    pg_node_count = pg_content.count("<node ")
-    sqlite_node_count = sqlite_content.count("<node ")
-    assert pg_node_count == sqlite_node_count, (
-        f"node count mismatch: PG={pg_node_count}, "
-        f"SQLite={sqlite_node_count}"
-    )
-    pg_edges = set(re.findall(r'<edge[^>]+source="([^"]+)"', pg_content))
-    sqlite_edges = set(re.findall(
-        r'<edge[^>]+source="([^"]+)"', sqlite_content,
-    ))
-    assert pg_edges == sqlite_edges, (
-        f"edge source set differs: PG-only={pg_edges - sqlite_edges}, "
-        f"SQLite-only={sqlite_edges - pg_edges}"
-    )
+# I due test `test_pg_export_graphml_*` che stavano qui sono stati tolti
+# l'11 ottobre 2026. Provavano `export_graphml` importandolo da
+# `modules.s3dgraphy.sync.graphml_writer`, che non esiste piu' da «One
+# bridge» (2026-10-07): il writer vive solo nella libreria, e nel plugin
+# `export_graphml` non ha piu' nessun chiamante — la matrice viaggia come
+# em.json. Filtravano inoltre per `site_filter="Volterra"` mentre il sito
+# di `mini_volterra.sqlite` e' `TestSite`, quindi le loro asserzioni
+# sarebbero passate a vuoto.
+#
+# Il filtro del sito su PostgreSQL — la ragione per cui erano parcheggiati
+# — e' coperto da `test_site_filter_pg.py`, contro il percorso che il
+# plugin usa davvero (`em_export.export_site`).
