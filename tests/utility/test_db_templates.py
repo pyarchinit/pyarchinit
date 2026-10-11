@@ -244,3 +244,114 @@ def test_nell_esempio_ogni_geometria_sta_nello_stesso_sistema():
         conn.close()
     assert sridi == {3004}, sorted(sridi)
     assert not storte, storte
+
+
+# ---------------------------------------------------------------------------
+# Il thesaurus: i vocabolari che riempiono i menu a tendina
+# ---------------------------------------------------------------------------
+# Le schede interrogano `pyarchinit_thesaurus_sigle` con
+# `{'nome_tabella': "'" + 'tomba_table' + "'"}`, cioè col nome della
+# TABELLA. Il database di esempio archiviava le voci sotto il nome che la
+# finestra del Thesaurus **mostra** — «Tomba», «Struttura», «Sito»,
+# «Inventario Materiali» — che è il nome del Mapper: 232 voci che nessuna
+# scheda poteva trovare, e i menu uscivano vuoti.
+#
+# La fonte non è un'opinione: `tabs/Thesaurus.py` porta la mappa
+# `TABLE_DISPLAY_MAPPING_I18N` — `'Sito': 'site_table'`, `'US': 'us_table'`
+# — e `SYNCHRONIZED_FIELDS`, che usa i nomi di tabella.
+
+#: I nomi da mostrare, che non vanno MAI salvati in `nome_tabella`.
+NOMI_DA_MOSTRARE = ("Sito", "US", "Tomba", "Struttura",
+                    "Inventario Materiali", "Campioni", "Fauna")
+
+
+def test_il_thesaurus_usa_i_nomi_delle_tabelle_non_quelli_del_mapper():
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        nomi = {r[0] for r in conn.execute(
+            "SELECT DISTINCT nome_tabella FROM pyarchinit_thesaurus_sigle")}
+    finally:
+        conn.close()
+    sbagliati = nomi & set(NOMI_DA_MOSTRARE)
+    assert not sbagliati, sorted(sbagliati)
+
+
+def test_le_schede_trovano_i_loro_vocabolari():
+    """Le coppie (tabella, sigla) che il codice chiede devono esistere.
+
+    Si leggono dalle schede invece di elencarle qui: una scheda che domani
+    chiede un vocabolario nuovo fa fallire questo test, che è il momento in
+    cui ci si accorge che il menu uscirebbe vuoto.
+
+    Non tutte: ventuno coppie restano scoperte e sono elencate in
+    `ANCORA_VUOTI`, perché il codice non dice che cosa siano — il menu che
+    riempiono non ha un nome parlante — e inventarci dentro dei termini
+    sarebbe peggio che lasciarle vuote.
+    """
+    import re
+    tabelle = re.compile(r"'nome_tabella'\s*:\s*\"'\"\s*\+\s*'([^']+)'")
+    sigle = re.compile(r"'tipologia_sigla'\s*:\s*\"'\"\s*\+\s*'?([^'\"+)]+)'?")
+    chieste = set()
+    for f in sorted((RADICE / "tabs").glob("*.py")):
+        testo = f.read_text(encoding="utf-8", errors="ignore")
+        for m in tabelle.finditer(testo):
+            coda = testo[m.end():m.end() + 300]
+            for s in sigle.finditer(coda):
+                valore = s.group(1).strip()
+                if valore and len(valore) < 12:
+                    chieste.add((m.group(1), valore))
+    assert chieste, "l'estrazione non ha trovato nessuna richiesta"
+
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        presenti = {(t, s) for t, s in conn.execute(
+            "SELECT nome_tabella, tipologia_sigla"
+            " FROM pyarchinit_thesaurus_sigle WHERE lingua = 'IT'")}
+    finally:
+        conn.close()
+    mancanti = sorted(chieste - presenti - ANCORA_VUOTI)
+    assert not mancanti, mancanti
+
+
+#: Le coppie che restano senza vocabolario, e che il test qui sopra lascia
+#: passare: il codice non dice che cosa siano. Si riempiono quando si sa.
+ANCORA_VUOTI = {
+    ("TMA materiali archeologici", s) for s in
+    ("10.1", "10.15", "10.2", "10.3", "10.4", "10.5", "10.6", "10.7", "10.9")
+} | {
+    ("inventario_materiali_table", s) for s in
+    ("3.10", "3.4", "3.7", "3.8", "3.9")
+} | {
+    ("struttura_table", s) for s in
+    ("6.10", "6.11", "6.12", "6.13", "6.14", "6.9")
+} | {("tma_materiali_ripetibili", "10.12")}
+
+
+def test_le_aree_dicono_la_stessa_cosa_in_tutte_le_schede():
+    """`SYNCHRONIZED_FIELDS` tiene insieme i campi «area» di più schede: se
+    le voci divergono, la stessa area si chiama in due modi a seconda
+    della scheda da cui la si guarda."""
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    coppie = (("inventario_materiali_table", "3.11"),
+              ("tomba_table", "7.8"), ("individui_table", "8.6"))
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        viste = []
+        for tabella, sigla in coppie:
+            voci = {r[0] for r in conn.execute(
+                "SELECT sigla_estesa FROM pyarchinit_thesaurus_sigle"
+                " WHERE nome_tabella = ? AND tipologia_sigla = ?"
+                "   AND lingua = 'IT'", (tabella, sigla))}
+            if voci:
+                viste.append((tabella, voci))
+    finally:
+        conn.close()
+    assert len(viste) >= 2, viste
+    prima = viste[0][1]
+    for tabella, voci in viste[1:]:
+        assert voci == prima, (tabella, sorted(voci), sorted(prima))

@@ -33,8 +33,33 @@ SITO = "Scavo archeologico"
 #: Quanti record per scheda.
 QUANTI = 10
 
-#: Verso Volterra, in EPSG:3004 (Monte Mario / Italia zona 2).
-EST, NORD = 1_650_000.0, 4_810_000.0
+#: L'angolo sud-ovest del saggio **vero** del database di esempio, in
+#: EPSG:3004 (Monte Mario / Italia zona 2). Si legge dall'estensione di
+#: `pyunitastratigrafiche`, non si inventa: le geometrie aggiunte devono
+#: cadere **dentro lo scavo**, non da un'altra parte. La prima versione di
+#: questo script le metteva a (1.650.000, 4.810.000), cioè seicentosettanta
+#: chilometri più in là, e aprendo i layer non si vedeva niente vicino alla
+#: pianta.
+EST, NORD = 2_324_920.5, 4_881_955.2
+#: Quanto è grande il saggio: 5,4 m per 6,4 m.
+LARG, ALT = 5.4, 6.4
+
+
+def _dentro(i: int, quanti: int = 10):
+    """Un punto dentro il saggio, su una griglia che non esce dai bordi."""
+    colonne = 5
+    righe = max(1, (quanti + colonne - 1) // colonne)
+    x = EST + LARG * (0.12 + 0.76 * ((i % colonne) / (colonne - 1.0)))
+    y = NORD + ALT * (0.12 + 0.76 * ((i // colonne) / max(1.0, righe - 1.0)))
+    return x, y
+
+
+def _attorno(i: int, raggio: float = 60.0, quanti: int = 10):
+    """Un punto attorno allo scavo, per quello che sta nel paesaggio."""
+    import math
+    angolo = 2.0 * math.pi * i / float(quanti)
+    return (EST + LARG / 2.0 + raggio * math.cos(angolo),
+            NORD + ALT / 2.0 + raggio * math.sin(angolo))
 
 SPATIALITE = (
     os.environ.get("MOD_SPATIALITE", ""),
@@ -752,97 +777,213 @@ def _poligono(est: float, nord: float, lato: float, tipo: str) -> str:
 def geometrie(conn, rif) -> list:
     """Un disegno per ogni scheda che ne usa uno, dove la tabella è vuota.
 
-    Disegni inventati ma coerenti: le UT stanno dove dicono le loro
-    coordinate piane, i reperti e gli individui dentro l'area di scavo, le
-    sezioni attraversano il saggio. Servono a far vedere i layer accesi,
-    non a somigliare a un rilievo.
+    Disegni inventati ma coerenti, e soprattutto **nel posto giusto**:
+    quello che sta nello scavo cade dentro il saggio vero (5,4 x 6,4 m
+    intorno a 2.324.920 / 4.881.955), quello che sta nel paesaggio — le
+    Unità Topografiche, i sondaggi, le linee di riferimento — gli sta
+    attorno a qualche decina di metri. Servono a far vedere i layer accesi
+    sopra la pianta, non a somigliare a un rilievo.
+
+    Lo SRID e il tipo di geometria si **leggono** da `geometry_columns`,
+    non si decidono: scrivere un MULTIPOLYGON in una colonna registrata
+    come POLYGON alza `IntegrityError: geom-type or SRID not allowed`.
     """
     fatto = []
 
     def vuota(tabella):
-        return conn.execute(
-            'SELECT count(*) FROM "%s"' % tabella).fetchone()[0] == 0
+        try:
+            return conn.execute(
+                'SELECT count(*) FROM "%s"' % tabella).fetchone()[0] == 0
+        except Exception:                           # noqa: BLE001
+            return False
 
-    def punto(tabella, est, nord):
-        srid, _tipo = _registrazione(conn, tabella)
-        return "POINT(%f %f)" % (est, nord), srid
+    def srid_di(tabella):
+        riga = conn.execute(
+            "SELECT srid FROM geometry_columns WHERE f_table_name = ?"
+            "   AND f_geometry_column = 'the_geom'", (tabella,)).fetchone()
+        return int(riga[0]) if riga else -1
 
-    # Le UT: un poligono per unità, dove dicono le sue coordinate.
-    srid_poly, tipo_poly = _registrazione(conn, "pyarchinit_ut_polygon")
-    if vuota("pyarchinit_ut_polygon") and tipo_poly:
-        for i in range(QUANTI):
-            est = EST + 120.0 + i * 65.0
-            nord = NORD - 90.0 - i * 48.0
+    def tipo_di(tabella):
+        riga = conn.execute(
+            "SELECT geometry_type FROM geometry_columns"
+            " WHERE f_table_name = ? AND f_geometry_column = 'the_geom'",
+            (tabella,)).fetchone()
+        return {1: "POINT", 2: "LINESTRING", 3: "POLYGON",
+                6: "MULTIPOLYGON"}.get(int(riga[0])) if riga else None
+
+    def punto(x, y):
+        return "POINT(%f %f)" % (x, y)
+
+    def linea(x1, y1, x2, y2):
+        return "LINESTRING(%f %f, %f %f)" % (x1, y1, x2, y2)
+
+    def area(x, y, lato, tipo):
+        anello = ("%f %f, %f %f, %f %f, %f %f, %f %f"
+                  % (x, y, x + lato, y, x + lato, y + lato,
+                     x, y + lato, x, y))
+        return ("MULTIPOLYGON(((%s)))" % anello if tipo == "MULTIPOLYGON"
+                else "POLYGON((%s))" % anello)
+
+    def scrivi(tabella, colonne, valori_per_riga, quante=QUANTI,
+               descrizione=None):
+        """Scrive le righe se la tabella è vuota, con lo SRID e il tipo suoi."""
+        if not vuota(tabella):
+            return
+        tipo = tipo_di(tabella)
+        if tipo is None:
+            return
+        srid = srid_di(tabella)
+        scritte = 0
+        for i in range(quante):
+            valori, wkt = valori_per_riga(i, tipo)
+            if wkt is None:
+                continue
             conn.execute(
-                "INSERT INTO pyarchinit_ut_polygon (sito, nr_ut, def_ut,"
-                " area_mq, perimetro, data_rilevamento, responsabile, note,"
-                " the_geom) VALUES (?,?,?,?,?,?,?,?, GeomFromText(?, ?))",
-                (SITO, i + 1, "UT%02d" % (i + 1),
-                 round((12.0 + i) ** 2, 2), round((12.0 + i) * 4, 2),
-                 _data(i * 2), "%s %s" % (PERSONE[1][0], PERSONE[1][1]),
-                 "Ricognizione sistematica per transetti.",
-                 _poligono(est, nord, 12.0 + i, tipo_poly), srid_poly))
-        fatto.append("10 poligoni di UT")
+                'INSERT INTO "%s" (%s, the_geom) VALUES (%s,'
+                ' GeomFromText(?, ?))'
+                % (tabella, ", ".join(colonne),
+                   ", ".join("?" for _ in colonne)),
+                list(valori) + [wkt, srid])
+            scritte += 1
+        if scritte:
+            fatto.append("%d %s" % (scritte, descrizione or tabella))
 
-    if vuota("pyarchinit_ut_point"):
-        for i in range(QUANTI):
-            est = EST + 120.0 + i * 65.0
-            nord = NORD - 90.0 - i * 48.0
-            conn.execute(
-                "INSERT INTO pyarchinit_ut_point (sito, nr_ut, def_ut,"
-                " quota, data_rilevamento, responsabile, note, the_geom)"
-                " VALUES (?,?,?,?,?,?,?, GeomFromText(?, ?))",
-                (SITO, i + 1, "UT%02d" % (i + 1),
-                 round(305.0 + i * 7.5, 1), _data(i * 2),
-                 "%s %s" % (PERSONE[1][0], PERSONE[1][1]),
-                 "Punto di riferimento della UT.",
-                 *punto("pyarchinit_ut_point", est + 6.0, nord + 6.0)))
-        fatto.append("10 punti di UT")
+    # --- quello che sta DENTRO lo scavo ---------------------------------
+    scrivi("pyarchinit_reperti", ("siti", "id_rep", "quota", "link"),
+           lambda i, t: ((SITO,
+                          int(rif["inventario"][i % len(rif["inventario"])])
+                          if rif["inventario"] else i + 1,
+                          round(488.20 + i * 0.04, 2),
+                          "DosCo/reperti/INV_%03d.jpg" % (i + 1)),
+                         punto(*_dentro(i))),
+           descrizione="punti di reperti")
 
-    # I reperti: un punto per numero di inventario. `id_rep` è il numero di
-    # inventario e `siti` il sito — i nomi delle colonne di questa tabella
-    # sono quelli, letti dallo schema e non indovinati.
-    if vuota("pyarchinit_reperti"):
-        for i, inv in enumerate(rif["inventario"][:QUANTI]):
-            conn.execute(
-                "INSERT INTO pyarchinit_reperti (siti, id_rep, quota,"
-                " link, the_geom) VALUES (?,?,?,?, GeomFromText(?, ?))",
-                (SITO, int(inv), round(12.30 + i * 0.12, 2),
-                 "DosCo/reperti/INV_%03d.jpg" % int(inv),
-                 *punto("pyarchinit_reperti", EST + 5.0 + i * 2.2,
-                        NORD - 4.0 - i * 1.8)))
-        fatto.append("%d punti di reperti" % min(QUANTI, len(rif["inventario"])))
+    scrivi("pyarchinit_individui",
+           ("sito", "sigla_struttura", "id_individuo", "note"),
+           lambda i, t: ((SITO, "T",
+                          int(rif["individui"][i % len(rif["individui"])])
+                          if rif["individui"] else i + 1,
+                          "Inumato della tomba %d" % (i + 1)),
+                         punto(*_dentro(i))),
+           descrizione="punti di individui")
 
-    # Gli individui: un punto per individuo.
-    if vuota("pyarchinit_individui"):
-        for i, ind in enumerate(rif["individui"][:QUANTI]):
-            conn.execute(
-                "INSERT INTO pyarchinit_individui (sito, sigla_struttura,"
-                " id_individuo, note, the_geom)"
-                " VALUES (?,?,?,?, GeomFromText(?, ?))",
-                (SITO, "T", int(ind),
-                 "Inumato della tomba %d" % int(ind),
-                 *punto("pyarchinit_individui", EST + 22.0 + i * 1.9,
-                        NORD - 18.0 - i * 1.4)))
-        fatto.append("10 punti di individui")
+    _CAMPIONI = ("Carbone", "Terreno", "Malta", "Osso animale", "Osso umano",
+                 "Intonaco", "Semi carbonizzati", "Ceramica", "Metallo",
+                 "Sedimento")
+    scrivi("pyarchinit_campionature",
+           ("sito", "id_campion", "tipo_camp", "dataz", "cronologia",
+            "link_immag", "sigla_camp"),
+           lambda i, t: ((SITO, i + 1, _CAMPIONI[i], _data(i * 3),
+                          "Periodo 2, fase %d" % (1 + i % 4),
+                          "DosCo/campioni/CS_%03d.jpg" % (i + 1),
+                          "CS-%02d" % (1 + i // 3)),
+                         punto(*_dentro(i))),
+           descrizione="punti di campionature")
 
-    # I campioni: un punto per campione.
-    if vuota("pyarchinit_campionature"):
-        tipi = ("Carbone", "Terreno", "Malta", "Osso animale", "Osso umano",
-                "Intonaco", "Semi carbonizzati", "Ceramica", "Metallo",
-                "Sedimento")
-        for i in range(QUANTI):
-            conn.execute(
-                "INSERT INTO pyarchinit_campionature (sito, id_campion,"
-                " tipo_camp, dataz, cronologia, link_immag, sigla_camp,"
-                " the_geom) VALUES (?,?,?,?,?,?,?, GeomFromText(?, ?))",
-                (SITO, i + 1, tipi[i], _data(i * 3),
-                 "Periodo 2, fase %d" % (1 + i % 4),
-                 "DosCo/campioni/CS_%03d.jpg" % (i + 1),
-                 "CS-%02d" % (1 + i // 3),
-                 *punto("pyarchinit_campionature", EST + 9.0 + i * 2.0,
-                        NORD - 11.0 - i * 1.6)))
-        fatto.append("10 punti di campionature")
+    scrivi("pyarchinit_tafonomia", ("sito", "nr_scheda"),
+           lambda i, t: ((SITO, i + 1), punto(*_dentro(i))),
+           descrizione="punti di tafonomia (le tombe)")
+
+    scrivi("pyarchinit_quote_usm",
+           ("sito_q", "area_q", "us_q", "unita_misu_q", "quota_q",
+            "unita_tipo_q", "data", "disegnatore", "rilievo_originale"),
+           lambda i, t: ((SITO, "1", str(14 + i), "m",
+                          round(488.60 + i * 0.07, 2), "USM", _data(10 + i),
+                          "%s %s" % (PERSONE[5][0], PERSONE[5][1]),
+                          "Rilievo diretto"),
+                         punto(*_dentro(i))),
+           descrizione="quote delle murature")
+
+    scrivi("pyarchinit_us_negative_doc",
+           ("sito_n", "area_n", "us_n", "tipo_doc_n", "nome_doc_n"),
+           lambda i, t: ((SITO, "1", str(rif["us"][i % len(rif["us"])]),
+                          "Planimetria", "Sezione della fossa %d" % (i + 1)),
+                         linea(*(_dentro(i) + (_dentro(i)[0] + 0.8,
+                                               _dentro(i)[1] + 0.5)))),
+           descrizione="tracce di US negative")
+
+    scrivi("pyarchinit_ripartizioni_spaziali",
+           ("id_rs", "sito_rs", "tip_rip", "descr_rs"),
+           lambda i, t: ((i + 1, SITO, "Quadrato",
+                          "Quadrato %s%d della griglia di scavo"
+                          % ("ABCDE"[i % 5], 1 + i // 5)),
+                         area(EST + (i % 5) * (LARG / 5.0),
+                              NORD + (i // 5) * (ALT / 2.0),
+                              min(LARG / 5.0, ALT / 2.0) * 0.9, t)),
+           descrizione="quadrati della griglia")
+
+    scrivi("pyarchinit_strutture_ipotesi",
+           ("sito", "id_strutt", "per_iniz", "per_fin", "dataz_ext",
+            "fase_iniz", "fase_fin", "descrizione", "sigla_strut",
+            "nr_strut"),
+           lambda i, t: ((SITO, i + 1, 2, 2, "Periodo 2, fase %d" % (1 + i % 4),
+                          1 + i % 4, 1 + i % 4,
+                          "Ipotesi ricostruttiva della struttura %d" % (1 + i % 2),
+                          "STR", 1 + i % 2),
+                         area(EST + (i % 5) * (LARG / 5.5),
+                              NORD + (i // 5) * (ALT / 2.5),
+                              min(LARG / 6.0, ALT / 3.0), t)),
+           descrizione="ipotesi di strutture")
+
+    # --- quello che sta ATTORNO allo scavo -------------------------------
+    # Uno solo, e non dieci: è il perimetro del sito, non una scheda.
+    scrivi("pyarchinit_siti_polygonal", ("sito_id",),
+           lambda i, t: ((SITO,),
+                         area(EST - 4.0, NORD - 4.0, max(LARG, ALT) + 8.0, t)),
+           quante=1, descrizione="il poligono del sito")
+
+    scrivi("pyarchinit_documentazione",
+           ("sito", "nome_doc", "tipo_doc", "path_qgis_pj"),
+           lambda i, t: ((SITO,
+                          ("Sezione %s-%s'" % ("ABCDEFGHIJ"[i],
+                                               "ABCDEFGHIJ"[i])),
+                          "Sezione", "DosCo/sezioni/sez_%s.qgs"
+                          % "ABCDEFGHIJ"[i]),
+                         linea(*(_attorno(i, 8.0) + _attorno(i + 5, 8.0)))),
+           descrizione="linee di sezione")
+
+    scrivi("pyarchinit_linee_rif", ("sito", "definizion", "descrizion"),
+           lambda i, t: ((SITO, "Base %d" % (i + 1),
+                          "Linea di riferimento del rilievo, base %d"
+                          % (i + 1)),
+                         linea(*(_attorno(i, 12.0) + _attorno(i + 3, 12.0)))),
+           descrizione="linee di riferimento")
+
+    scrivi("pyarchinit_sondaggi", ("sito_sond", "id_sondaggio"),
+           lambda i, t: ((SITO, i + 1),
+                         area(*(_attorno(i, 35.0) + (3.0, t)))),
+           descrizione="sondaggi")
+
+    scrivi("pyarchinit_ut_polygon",
+           ("sito", "nr_ut", "def_ut", "area_mq", "perimetro",
+            "data_rilevamento", "responsabile", "note"),
+           lambda i, t: ((SITO, i + 1, "UT%02d" % (i + 1),
+                          round(12.0 ** 2, 2), round(12.0 * 4, 2),
+                          _data(i * 2),
+                          "%s %s" % (PERSONE[1][0], PERSONE[1][1]),
+                          "Ricognizione sistematica per transetti."),
+                         area(*(_attorno(i, 120.0) + (12.0, t)))),
+           descrizione="poligoni di UT")
+
+    scrivi("pyarchinit_ut_point",
+           ("sito", "nr_ut", "def_ut", "quota", "data_rilevamento",
+            "responsabile", "note"),
+           lambda i, t: ((SITO, i + 1, "UT%02d" % (i + 1),
+                          round(305.0 + i * 7.5, 1), _data(i * 2),
+                          "%s %s" % (PERSONE[1][0], PERSONE[1][1]),
+                          "Punto di riferimento della UT."),
+                         punto(*_attorno(i, 120.0))),
+           descrizione="punti di UT")
+
+    scrivi("pyarchinit_ut_line",
+           ("sito", "nr_ut", "def_ut", "tipo_linea", "lunghezza",
+            "data_rilevamento", "responsabile", "note"),
+           lambda i, t: ((SITO, i + 1, "UT%02d" % (i + 1), "Transetto",
+                          round(40.0 + i * 5, 1), _data(i * 2),
+                          "%s %s" % (PERSONE[1][0], PERSONE[1][1]),
+                          "Transetto di ricognizione."),
+                         linea(*(_attorno(i, 100.0) + _attorno(i, 150.0)))),
+           descrizione="transetti di UT")
 
     return fatto
 

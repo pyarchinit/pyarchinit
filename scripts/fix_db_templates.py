@@ -344,6 +344,55 @@ def allinea_srid() -> list:
     return fatto
 
 
+#: Come il thesaurus chiama una scheda, e come la chiama il codice che lo
+#: interroga. Le schede costruiscono `{'nome_tabella': "'" + 'tomba_table'
+#: + "'"}`; il database di esempio aveva «Tomba», «Struttura», «Sito»,
+#: «Inventario Materiali» — nomi che **nessuna scheda chiede**, quindi i
+#: menu a tendina uscivano vuoti pur essendoci 677 voci dentro.
+NOMI_THESAURUS = {
+    "Struttura": "struttura_table",
+    "Inventario Materiali": "inventario_materiali_table",
+    "Tomba": "tomba_table",
+    "Sito": "site_table",
+    "us-table": "us_table",
+    # «US» lo dice la mappa del plugin stesso (
+    # in `tabs/Thesaurus.py`): il nome da mostrare è «US», quello da
+    # salvare è `us_table`. Sono 329 voci, le più numerose del thesaurus,
+    # e nessun codice le cerca sotto «US».
+    "US": "us_table",
+}
+
+
+def allinea_nomi_thesaurus() -> list:
+    """Rinomina `nome_tabella` come lo chiedono le schede.
+
+    Non si inventa niente: le voci ci sono già, sono solo archiviate sotto
+    il nome «amichevole» invece che sotto il nome della tabella. Misurato
+    sul database di esempio: 142 voci sotto «Struttura» che
+    `struttura_table` non trovava, 48 sotto «Inventario Materiali», 30
+    sotto «Tomba», 11 sotto «Sito».
+
+    «US» resta com'è: la scheda US non interroga il thesaurus per questa
+    via — non ha nemmeno un `nome_tabella` nel suo codice — ma passa dal
+    VocabProvider, quindi rinominarla sposterebbe delle voci senza che
+    nessuno le cerchi dove finiscono.
+    """
+    fatto = []
+    conn = _apri(DISTRIBUITO)
+    try:
+        for vecchio, nuovo in NOMI_THESAURUS.items():
+            cur = conn.execute(
+                "UPDATE pyarchinit_thesaurus_sigle SET nome_tabella = ?"
+                " WHERE nome_tabella = ?", (nuovo, vecchio))
+            if cur.rowcount:
+                fatto.append("thesaurus: %d voci da «%s» a «%s»"
+                             % (cur.rowcount, vecchio, nuovo))
+        conn.commit()
+    finally:
+        conn.close()
+    return fatto
+
+
 def ripara_distribuito() -> list:
     """Butta la spazzatura e rifà le statistiche. Dice che ha fatto."""
     fatto = []
@@ -393,6 +442,9 @@ def main() -> int:
     fatto = togli_fasi_doppie()
     print("\n".join("  " + r for r in fatto) if fatto
           else "  nessuna fase doppia")
+    fatto = allinea_nomi_thesaurus()
+    print("\n".join("  " + r for r in fatto) if fatto
+          else "  thesaurus già sotto i nomi giusti")
     fatto = allinea_srid()
     print("\n".join("  " + r for r in fatto) if fatto
           else "  tutte le geometrie già nello stesso sistema")
