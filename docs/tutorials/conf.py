@@ -35,8 +35,16 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**/.DS_Store', 'README.
 language = 'en'
 
 # -- Options for HTML output -------------------------------------------------
-html_theme = 'alabaster'
+# Il tema del sito pubblicato (`pyarchinitdoc.readthedocs.io`), con il
+# ripiego su quello di serie quando il pacchetto non c'è: chi costruisce
+# i tutorial in locale non deve installare niente per vederli.
+try:
+    import sphinx_rtd_theme  # noqa: F401
+    html_theme = 'sphinx_rtd_theme'
+except ImportError:
+    html_theme = 'alabaster'
 html_static_path = ['_static']
+html_title = 'pyArchInit — Tutorial'
 
 # -- Options for LaTeX/PDF output --------------------------------------------
 latex_engine = 'xelatex'
@@ -79,6 +87,10 @@ latex_documents = [
     ('ro/index', 'PyArchInit_Tutorials_RO.tex', 'PyArchInit Tutorials - Romana',
      'PyArchInit Team', 'manual'),
     ('pt/index', 'PyArchInit_Tutorials_PT.tex', 'PyArchInit Tutorials - Portugues',
+     'PyArchInit Team', 'manual'),
+    ('el/index', 'PyArchInit_Tutorials_EL.tex', 'PyArchInit Tutorials - Ellinika',
+     'PyArchInit Team', 'manual'),
+    ('ar/index', 'PyArchInit_Tutorials_AR.tex', 'PyArchInit Tutorials - Arabi',
      'PyArchInit Team', 'manual'),
 ]
 

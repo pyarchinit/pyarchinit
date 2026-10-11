@@ -95,6 +95,15 @@ PyArchInit - العربية
    37_palimpsest
    38_qfield_import
 
+.. toctree::
+   :maxdepth: 2
+   :caption: أدوات التحليل
+   :numbered:
+
+   33_geoarchaeo
+   34_movecost
+   35_إدارة_الموقع
+
 ----
 
 *وثائق PyArchInit - فبراير 2026*

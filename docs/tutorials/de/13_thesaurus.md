@@ -183,7 +183,7 @@ Die Schaltfläche "Vorschläge" verwendet OpenAI GPT für:
 Für SQLite-Datenbanken können Vokabulare aus CSV-Dateien importiert werden.
 
 **Erforderliches CSV-Format:**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,MR,Mauer,Mauerstruktur,1.3,DE
 us_table,BO,Boden,Begehungsfläche,1.3,DE

@@ -183,7 +183,7 @@ Le bouton "Suggestions" utilise OpenAI GPT pour :
 Pour les bases de données SQLite, il est possible d'importer des vocabulaires depuis des fichiers CSV.
 
 **Format CSV requis :**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,MR,Mur,Structure murale,1.3,FR
 us_table,PV,Sol,Surface de circulation,1.3,FR

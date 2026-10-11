@@ -183,7 +183,7 @@ El botó "Suggeriments" utilitza OpenAI GPT per:
 Per a base de dades SQLite és possible importar vocabularis des de fitxer CSV.
 
 **Format CSV requerit:**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,MR,Mur,Estructura muràlia,1.3,CA
 us_table,PV,Paviment,Superfície de trepig,1.3,CA

@@ -23,6 +23,9 @@ Available Languages
    es/index
    ar/index
    ca/index
+   ro/index
+   pt/index
+   el/index
 
 About PyArchInit
 ================

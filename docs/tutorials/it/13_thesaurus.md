@@ -183,7 +183,7 @@ Il pulsante "Suggerimenti" utilizza OpenAI GPT per:
 Per database SQLite e possibile importare vocabolari da file CSV.
 
 **Formato CSV richiesto:**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,MR,Muro,Struttura muraria,1.3,IT
 us_table,PV,Pavimento,Superficie di calpestio,1.3,IT

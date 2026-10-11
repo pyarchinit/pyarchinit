@@ -183,7 +183,7 @@ Butonul „Sugestii" folosește OpenAI GPT pentru:
 Pentru baze de date SQLite, vocabularele pot fi importate din fișiere CSV.
 
 **Formatul CSV necesar:**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,ZD,Zid,Structură de zid,1.3,EN_US
 us_table,PD,Podea,Suprafață de călcat,1.3,EN_US

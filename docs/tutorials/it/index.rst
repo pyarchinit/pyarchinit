@@ -95,6 +95,15 @@ Benvenuto alla documentazione completa di PyArchInit. Questa guida copre tutti g
    37_palimpsest
    38_qfield_import
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Strumenti di analisi
+   :numbered:
+
+   33_geoarchaeo
+   34_movecost
+   35_gestione_cantiere
+
 ----
 
 *Documentazione PyArchInit - Febbraio 2026*

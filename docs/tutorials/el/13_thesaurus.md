@@ -183,7 +183,7 @@ Y = αριθμός πεδίου
 Για βάση δεδομένων SQLite, τα λεξιλόγια μπορούν να εισαχθούν από αρχεία CSV.
 
 **Απαιτούμενη μορφή CSV:**
-```csv
+```text
 nome_tabella,sigla,sigla_estesa,descrizione,tipologia_sigla,lingua
 us_table,WL,Wall,Wall structure,1.3,EN_US
 us_table,FL,Floor,Walking surface,1.3,EN_US
