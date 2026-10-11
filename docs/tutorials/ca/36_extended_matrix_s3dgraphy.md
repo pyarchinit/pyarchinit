@@ -42,6 +42,21 @@ En prémer **Esporta** es demana la **carpeta de destinació**.
 
 Autors, llicències, embargaments i grups es gestionen a la finestra **"Manage paradata"** (§3).
 
+### 2.2.1 Sondeigs: un sol fitxer o un per sondeig
+
+Un grup de tres opcions, a la mateixa finestra, decideix **com dividir
+l'em.json** quan l'excavació té diversos sondeigs:
+
+- **Automàtic**: un sol fitxer si el jaciment té un sondeig, un per
+  sondeig si en té més. És l'opció de partida.
+- **Un sol fitxer**: tota l'excavació en un graf, com sempre.
+- **Un per sondeig**: un fitxer per cada sondeig. Les relacions que
+  **surten** del sondeig no es perden: queden al fitxer com a enllaços
+  entre grafs (`graph.links`), i l'EMStudio les retroba.
+
+El sondeig és el camp **Saggio** de la fitxa US: les unitats que el tenen
+buit acaben en un fitxer a part.
+
 ### 2.3 Clica "Esporta"
 
 Els fitxers que neixen, segons els formats marcats:

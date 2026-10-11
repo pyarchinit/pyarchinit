@@ -676,7 +676,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
         # lista area from thesaurus
         search_dict = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.7' + "'"
         }
         area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -706,7 +706,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Load thesaurus values for TMA fields
         # 10.1 - Denominazione collocazione
         search_dict_ldcn = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.1' + "'"  # Correct code for denominazione collocazione
         }
         ldcn_res = self.DB_MANAGER.query_bool(search_dict_ldcn, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -729,7 +729,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # 10.2 - Tipologia Collocazione (ldct)
         search_dict_ldct = {
 
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.2' + "'"
         }
         ldct_res = self.DB_MANAGER.query_bool(search_dict_ldct, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -753,7 +753,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # 10.3 - Località
         search_dict_localita = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.3' + "'"
         }
         localita_res = self.DB_MANAGER.query_bool(search_dict_localita, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -775,7 +775,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
         # 10.15 - Settore
         search_dict_settore = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.15' + "'"
         }
         settore_res = self.DB_MANAGER.query_bool(search_dict_settore, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -795,7 +795,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         # 10.5 - Denominazione Scavo
         search_dict_scan = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.5' + "'"
         }
         scan_res = self.DB_MANAGER.query_bool(search_dict_scan, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -818,7 +818,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # 10.4 - Fascia cronologica (dtzg)
         search_dict_dtzg = {
 
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.4' + "'"
         }
         dtzg_res = self.DB_MANAGER.query_bool(search_dict_dtzg, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -842,7 +842,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # 10.6 - Tipologia Acquisizione (aint)
         search_dict_aint = {
 
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.6' + "'"
         }
         aint_res = self.DB_MANAGER.query_bool(search_dict_aint, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -3901,7 +3901,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get località sigla from extended name
             search_dict = {
-                'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+                'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
                 'tipologia_sigla': "'" + '10.3' + "'",
                 'sigla_estesa': "'" + str(current_localita) + "'"
             }
@@ -3912,7 +3912,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
                 
                 # Get areas that belong to this località
                 search_dict_area = {
-                    'nome_tabella': 'TMA materiali archeologici',
+                    'nome_tabella': 'tma_materiali_archeologici',
                     'tipologia_sigla': "'10.7'",
                     'parent_sigla': f"'{localita_sigla}'"
                 }
@@ -3950,7 +3950,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         try:
             # Get area sigla from extended name
             search_dict = {
-                'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+                'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
                 'tipologia_sigla': "'" + '10.7' + "'",
                 'sigla_estesa': "'" + str(current_area) + "'"
             }
@@ -3961,7 +3961,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
                 # Get settori that belong to this area
                 search_dict_settore = {
-                    'nome_tabella': 'TMA materiali archeologici',
+                    'nome_tabella': 'tma_materiali_archeologici',
                     'tipologia_sigla': "'10.15'",
                     'parent_sigla': f"'{area_sigla}'"
                 }
@@ -4011,7 +4011,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         
         search_dict = {
             'lingua': lang,
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.7' + "'"  # Area code
         }
         area_vl_thesaurus = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -4147,7 +4147,7 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         current_settore = self.comboBox_settore.currentText()
 
         search_dict = {
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
+            'nome_tabella': "'" + 'tma_materiali_archeologici' + "'",
             'tipologia_sigla': "'" + '10.15' + "'"
         }
         settore_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
@@ -4292,7 +4292,11 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             
             # Use correct table name for thesaurus lookup
             # IMPORTANT: The table name in thesaurus has capital R in Ripetibili
-            table_name = 'TMA Materiali Ripetibili'  # Note: capital R in Ripetibili!
+            # Il nome di **tabella**, non quello visualizzato: la fonte è
+            # TABLE_DISPLAY_MAPPING_I18N in tabs/Thesaurus.py. I nomi
+            # visualizzati che girano nei database vecchi li regge
+            # `modules/utility/thesaurus_voci._ALIAS`.
+            table_name = 'tma_materiali_ripetibili'
 
             # First, let's check what's actually in the thesaurus
             print(f"  - lingua: {lang}")
@@ -4424,16 +4428,12 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
         # Load photo types from thesaurus
         ftap_values = []
         if self.DB_MANAGER and self.DB_MANAGER != "":
-            search_dict = {
-                'lingua': "'" + 'it' + "'",  # Use lowercase
-                'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
-                'tipologia_sigla': "'" + '10.9' + "'"
-            }
-            ftap_res = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-            for rec in ftap_res:
-                if hasattr(rec, 'sigla_estesa') and rec.sigla_estesa:
-                    ftap_values.append(str(rec.sigla_estesa))
-            ftap_values.sort()
+            # La lingua nel thesaurus è **maiuscola** (`IT`): questa
+            # copia la chiedeva minuscola e il menu non si riempiva mai.
+            from modules.utility.thesaurus_voci import voci_vocabolario
+            ftap_values = voci_vocabolario(
+                self.DB_MANAGER, 'tma_materiali_archeologici', '10.9',
+                lingua=self.L if hasattr(self, 'L') else 'it')
         
         # If we have photo types, set delegate for first column of photo table
         if ftap_values and hasattr(self, 'tableWidget_foto'):

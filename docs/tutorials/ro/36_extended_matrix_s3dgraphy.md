@@ -42,6 +42,21 @@ La apăsarea pe **Esporta** se cere **dosarul de destinație**.
 
 Autorii, licențele, embargourile și grupurile se gestionează în fereastra **"Manage paradata"** (§3).
 
+### 2.2.1 Sondaje: un singur fisier sau unul pe sondaj
+
+Un grup de trei alegeri, in aceeasi fereastra, decide **cum se imparte
+em.json** cand situl are mai multe sondaje:
+
+- **Automat**: un singur fisier daca situl are un sondaj, unul pe sondaj
+  daca are mai multe. Este alegerea de pornire.
+- **Un singur fisier**: tot situl intr-un graf, ca pana acum.
+- **Unul pe sondaj**: un fisier pentru fiecare sondaj. Relatiile care
+  **ies** din sondaj nu se pierd: rama in fisier ca legaturi intre grafuri
+  (`graph.links`), iar EMStudio le regaseste.
+
+Sondajul este campul **Saggio** din fisa US: unitatile care l-au lasat gol
+ajung intr-un fisier separat.
+
 ### 2.3 Click pe "Esporta"
 
 Fișierele care se nasc, în funcție de formatele bifate:

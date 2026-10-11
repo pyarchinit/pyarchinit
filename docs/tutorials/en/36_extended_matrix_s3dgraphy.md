@@ -42,6 +42,22 @@ Pressing **Esporta** asks for the **destination folder**.
 
 Authors, licences, embargoes and groups are handled in the **"Manage paradata"** window (§3).
 
+### 2.2.1 Trenches: a single file or one per trench
+
+A group of three choices, in the same window, decides **how to split the
+em.json** when the dig has several trenches:
+
+- **Automatic**: a single file if the site has one trench, one per trench
+  if it has several. This is the starting choice.
+- **A single file**: the whole dig in one graph, the way it has always
+  been done.
+- **One per trench**: one file for each trench. Relationships that
+  **leave** the trench are not lost: they stay in the file as links
+  between graphs (`graph.links`), and EMStudio finds them again.
+
+The trench is the **Saggio** field of the US form: units that have it
+empty end up in a file of their own.
+
 ### 2.3 Click "Esporta"
 
 The files that are born, according to the formats checked:

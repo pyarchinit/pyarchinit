@@ -28,6 +28,19 @@ def test_scan_excludes_non_us_usm_types():
     assert scan_candidates([_rec(unita_tipo="USV")]) == []
     assert scan_candidates([_rec(unita_tipo="CON", us="CON_US5")]) == []
 
+def test_scan_accepts_the_localised_unit_types():
+    """La sigla dell'unità stratigrafica è **tradotta**: US/USM in
+    italiano, SU/WSU in inglese, SE/MSE in tedesco, ΣΜ/ΤΣΜ in greco
+    (`UNIT_TYPE_ABBREV`). Il generatore guardava solo US e USM, quindi su
+    un database non italiano non trovava **nessun** candidato: misurato
+    sui dieci siti del database di esempio, 4 candidati sull'italiano e 0
+    su ciascuno degli altri nove.
+    """
+    for sigla in ("SU", "WSU", "SE", "MSE", "UE", "UEM", "USZ",
+                  "\u03a3\u039c", "\u03a4\u03a3\u039c"):
+        assert len(scan_candidates([_rec(unita_tipo=sigla)])) == 1, sigla
+
+
 def test_scan_inherits_all_areas_via_other_locations():
     c = scan_candidates([_rec(other_locations='["2","3"]')])[0]
     assert c.other_locations == '["2","3"]'

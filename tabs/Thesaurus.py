@@ -1293,7 +1293,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 lingua = key
         
         search_dict = {
-            'nome_tabella': "'TMA materiali archeologici'",
+            'nome_tabella': "'tma_materiali_archeologici'",
             'tipologia_sigla': "'10.3'",  # Corrected: Località code
             'lingua': "'" + lingua + "'"
         }
@@ -1359,7 +1359,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 lingua = key
         
         search_dict = {
-            'nome_tabella': "'TMA materiali archeologici'",
+            'nome_tabella': "'tma_materiali_archeologici'",
             'tipologia_sigla': "'10.3'",  # Corrected: Località code
             'lingua': "'" + lingua + "'"
         }
@@ -1378,7 +1378,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                 localita_sigla = combo_localita.currentText().split(' - ')[0]
                 
                 search_dict = {
-                    'nome_tabella': "'TMA materiali archeologici'",
+                    'nome_tabella': "'tma_materiali_archeologici'",
                     'tipologia_sigla': "'10.7'",  # Area code,
                     'parent_sigla': "'" + localita_sigla + "'",
                     'lingua': "'" + lingua + "'"
@@ -1470,7 +1470,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
         
         # Query areas from thesaurus
         search_dict = {
-            'nome_tabella': 'TMA materiali archeologici',
+            'nome_tabella': 'tma_materiali_archeologici',
             'tipologia_sigla': '10.7',  # Area code
             'lingua': self.comboBox_lingua.currentText()
         }
@@ -1503,7 +1503,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
             
             # Query località (code 10.3)
             search_dict = {
-                'nome_tabella': "'TMA materiali archeologici'",
+                'nome_tabella': "'tma_materiali_archeologici'",
                 'tipologia_sigla': "'10.3'",  # Località
                 'lingua': "'" + lingua + "'"
             }
@@ -1549,7 +1549,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                     
                     # Query areas that belong to this località
                     search_dict = {
-                        'nome_tabella': "'TMA materiali archeologici'",
+                        'nome_tabella': "'tma_materiali_archeologici'",
                         'tipologia_sigla': "'10.7'",  # Area code
                         'parent_sigla': "'" + localita_sigla + "'",
                         'lingua': "'" + lingua + "'"
@@ -1842,10 +1842,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                         parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                         QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} parent records", "PyArchInit", Qgis.Info)
                         
-                        # If not found, try with lowercase table name (actual database format)
+                        # Se non si trova, si riprova col **nome di tabella** (quello
+                        # vero nel database): prima questo ripeteva il nome
+                        # visualizzato, quindi non ripiegava su niente.
                         if not parent_records:
                             search_dict_lowercase = {
-                                'nome_tabella': 'TMA materiali archeologici',
+                                'nome_tabella': 'tma_materiali_archeologici',
                                 'sigla': parent_sigla,
                                 'tipologia_sigla': "10.3",  # Località
                                 'lingua': lingua
@@ -1861,7 +1863,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                             QgsMessageLog.logMessage(f"No parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
                             # Try without language constraint
                             search_dict_no_lang = {
-                                'nome_tabella': 'TMA materiali archeologici',
+                                'nome_tabella': 'tma_materiali_archeologici',
                                 'sigla': parent_sigla,
                                 'tipologia_sigla': "10.3"  # Località
                             }
@@ -1895,10 +1897,12 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                             parent_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
                             QgsMessageLog.logMessage(f"Found {len(parent_records) if parent_records else 0} area parent records", "PyArchInit", Qgis.Info)
                             
-                            # If not found, try with lowercase table name (actual database format)
+                            # Se non si trova, si riprova col **nome di tabella** (quello
+                        # vero nel database): prima questo ripeteva il nome
+                        # visualizzato, quindi non ripiegava su niente.
                             if not parent_records:
                                 search_dict_lowercase = {
-                                    'nome_tabella': 'TMA materiali archeologici',
+                                    'nome_tabella': 'tma_materiali_archeologici',
                                     'sigla': parent_sigla,
                                     'tipologia_sigla': "10.7",  # Area
                                     'lingua': lingua
@@ -1914,7 +1918,7 @@ class pyarchinit_Thesaurus(QDialog, MAIN_DIALOG_CLASS):
                                 QgsMessageLog.logMessage(f"No area parent record found for sigla: {parent_sigla}", "PyArchInit", Qgis.Warning)
                                 # Try without language constraint
                                 search_dict_no_lang = {
-                                    'nome_tabella': 'TMA materiali archeologici',
+                                    'nome_tabella': 'tma_materiali_archeologici',
                                     'sigla': parent_sigla,
                                     'tipologia_sigla': "10.7"  # Area
                                 }

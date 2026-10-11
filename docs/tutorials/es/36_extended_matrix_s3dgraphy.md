@@ -42,6 +42,21 @@ Al pulsar **Esporta** se pide la **carpeta de destino**.
 
 Autores, licencias, embargos y grupos se gestionan en la ventana **"Manage paradata"** (§3).
 
+### 2.2.1 Sondeos: un solo archivo o uno por sondeo
+
+Un grupo de tres opciones, en la misma ventana, decide **cómo dividir el
+em.json** cuando la excavación tiene varios sondeos:
+
+- **Automático**: un solo archivo si el sitio tiene un sondeo, uno por
+  sondeo si tiene varios. Es la opción de partida.
+- **Un solo archivo**: toda la excavación en un grafo, como siempre.
+- **Uno por sondeo**: un archivo para cada sondeo. Las relaciones que
+  **salen** del sondeo no se pierden: quedan en el archivo como enlaces
+  entre grafos (`graph.links`), y EMStudio las vuelve a encontrar.
+
+El sondeo es el campo **Saggio** de la ficha UE: las unidades que lo
+tienen vacío acaban en un archivo aparte.
+
 ### 2.3 Click en "Esporta"
 
 Los archivos que nacen, según los formatos marcados:

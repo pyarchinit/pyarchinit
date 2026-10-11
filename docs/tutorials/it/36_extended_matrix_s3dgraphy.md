@@ -42,6 +42,21 @@ Premendo **Esporta** viene chiesta la **cartella di destinazione**.
 
 Autori, licenze, embargo e gruppi si gestiscono nella finestra **"Manage paradata"** (§3).
 
+### 2.2.1 Saggi: un file solo o uno per saggio
+
+Un gruppo di tre scelte, nella stessa finestra, decide **come dividere
+l'em.json** quando lo scavo ha più saggi:
+
+- **Automatico**: un file solo se il sito ha un saggio, uno per saggio se
+  ne ha più. È la scelta di partenza.
+- **Un file solo**: tutto lo scavo in un grafo, come si è sempre fatto.
+- **Uno per saggio**: un file per ciascun saggio. I rapporti che **escono**
+  dal saggio non si perdono: restano nel file come collegamenti fra grafi
+  (`graph.links`), e EMStudio li ritrova.
+
+Il saggio è il campo **Saggio** della scheda US: le unità che non lo hanno
+compilato finiscono in un file a parte.
+
 ### 2.3 Click "Esporta"
 
 I file che nascono, secondo i formati spuntati:

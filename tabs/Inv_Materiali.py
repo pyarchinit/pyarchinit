@@ -4252,20 +4252,16 @@ class pyarchinit_Inventario_reperti(QDialog, MAIN_DIALOG_CLASS):
         self.comboBox_compilatore.addItems(compilatore_vl)
 
         # lista datazione - usa fascia cronologica dalla TMA
+        #
+        # Il nome di **tabella** (`tma_materiali_archeologici`), non quello
+        # visualizzato: la fonte è `TABLE_DISPLAY_MAPPING_I18N` in
+        # `tabs/Thesaurus.py`. I nomi visualizzati che girano nei database
+        # vecchi li regge `voci_vocabolario` con i suoi alias.
+        from modules.utility.thesaurus_voci import voci_vocabolario
         self.comboBox_datazione.clear()
-        search_dict = {
-            'lingua': lang,
-            'nome_tabella': "'" + 'TMA materiali archeologici' + "'",
-            'tipologia_sigla': "'" + '10.4' + "'"  # Fascia cronologica (dtzg) dalla TMA
-        }
-
-        datazione = self.DB_MANAGER.query_bool(search_dict, 'PYARCHINIT_THESAURUS_SIGLE')
-        datazione_vl = []
-
-        for i in range(len(datazione)):
-            datazione_vl.append(datazione[i].sigla_estesa)
-
-        datazione_vl.sort()
+        datazione_vl = voci_vocabolario(
+            self.DB_MANAGER, 'tma_materiali_archeologici', '10.4',
+            lingua=str(lang).strip().strip("'"))
         self.comboBox_datazione.addItems(datazione_vl)
 
 

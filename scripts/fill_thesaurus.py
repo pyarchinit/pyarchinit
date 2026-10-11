@@ -107,6 +107,100 @@ VOCABOLARI = {
     # **stesse** voci in tutte le schede, se no la stessa area si chiama
     # in due modi a seconda della scheda da cui la si guarda.
     ("tomba_table", "7.8"): ("Area", AREE),
+
+    # --- Reperti: le quattro tabelle dentro la scheda ------------------
+    # Non sono menu della scheda ma **delegati di colonna**:
+    # `tableWidget_elementi_reperto` col 0 ← 3.4,
+    # `tableWidget_tecnologie` col 0..3 ← 3.7, 3.8, 3.9, 3.10.
+    # Senza di loro la cella non offre niente e il campo resta vuoto.
+    ("inventario_materiali_table", "3.4"): ("Elemento rinvenuto", [
+        "Orlo", "Ansa", "Fondo", "Parete", "Collo", "Piede", "Spalla",
+        "Carena", "Presa", "Beccuccio", "Coperchio", "Puntale"]),
+    ("inventario_materiali_table", "3.7"): ("Tipo di tecnologia", [
+        "Vernice nera", "Vernice rossa", "Ingobbio", "Sigillata",
+        "Invetriatura", "Smalto", "Dipintura", "Stralucido",
+        "Lisciatura", "Steccatura", "Impressione", "Graffito"]),
+    ("inventario_materiali_table", "3.8"): ("Posizione della tecnologia", [
+        "Superficie interna", "Superficie esterna", "Orlo", "Fondo",
+        "Parete interna", "Parete esterna", "Su tutta la superficie",
+        "Ansa", "Non determinabile"]),
+    ("inventario_materiali_table", "3.9"): ("Tipo di quantità", [
+        "Numero di frammenti", "Numero di esemplari", "Peso",
+        "Numero minimo di individui", "Percentuale di superficie"]),
+    # Qui la scheda mostra `sigla`, non `sigla_estesa`
+    # (`delegateUnMis.def_values(valueunmis)` legge `.sigla`): la voce è
+    # la coppia (sigla, nome), e nella cella si legge «nr», «g», «cm».
+    ("inventario_materiali_table", "3.10"): ("Unità di misura", [
+        ("nr", "Numero"), ("g", "Grammi"), ("kg", "Chilogrammi"),
+        ("cm", "Centimetri"), ("mm", "Millimetri"),
+        ("%", "Percentuale")]),
+
+    # --- Strutture: sei delegati di colonna ---------------------------
+    ("struttura_table", "6.9"): ("Elementi architettonici", [
+        "Muro", "Paramento", "Fondazione", "Zoccolo", "Arco", "Volta",
+        "Pilastro", "Colonna", "Soglia", "Stipite", "Architrave",
+        "Gradino", "Pavimento", "Copertura"]),
+    ("struttura_table", "6.10"): ("Fattori agenti sul degrado", [
+        "Umidità di risalita", "Dilavamento", "Gelo",
+        "Vegetazione infestante", "Radici", "Crollo", "Spoliazione",
+        "Attività antropica", "Escursione termica", "Salinizzazione"]),
+    ("struttura_table", "6.11"): ("Prospetto", [
+        "Nord", "Sud", "Est", "Ovest", "Nord-est", "Nord-ovest",
+        "Sud-est", "Sud-ovest", "Interno", "Esterno"]),
+    ("struttura_table", "6.12"): ("Elemento costitutivo", [
+        "Laterizio", "Pietra sbozzata", "Pietra squadrata", "Ciottolo",
+        "Scaglia lapidea", "Malta di calce", "Malta di terra",
+        "Cocciopesto", "Intonaco", "Tegola", "Coppo", "Legno"]),
+    ("struttura_table", "6.13"): ("Manufatto", [
+        "Macina", "Focolare", "Vasca", "Canaletta", "Pozzo", "Cisterna",
+        "Mangiatoia", "Banco di lavoro", "Dolio infisso",
+        "Soglia lavorata"]),
+    ("struttura_table", "6.14"): ("Definizione e fasi funzionali", [
+        "Costruzione", "Uso", "Rifacimento", "Ampliamento",
+        "Tamponatura", "Restauro", "Riuso", "Abbandono", "Crollo",
+        "Spoliazione"]),
+
+    # --- TMA: la scheda ICCD dei materiali ----------------------------
+    # `tabs/Tma.py` li chiedeva coi **nomi visualizzati**
+    # («TMA materiali archeologici»), che non sono nomi di tabella: la
+    # fonte è `TABLE_DISPLAY_MAPPING_I18N` in `tabs/Thesaurus.py`, e dice
+    # `tma_materiali_archeologici` / `tma_materiali_ripetibili`. Due di
+    # questi vocabolari li chiede anche la scheda Reperti (10.4 per la
+    # datazione, 10.12 per la precisazione tipologica).
+    ("tma_materiali_archeologici", "10.1"): ("Denominazione collocazione", [
+        "Deposito di scavo", "Magazzino comunale",
+        "Magazzino della soprintendenza", "Museo civico",
+        "Laboratorio di restauro", "Deposito universitario"]),
+    ("tma_materiali_archeologici", "10.2"): ("Tipologia collocazione", [
+        "Magazzino", "Museo", "Deposito", "Laboratorio",
+        "Esposizione permanente", "Cassaforte"]),
+    ("tma_materiali_archeologici", "10.3"): ("Località", [
+        "Volterra", "Vallebuona", "Acropoli", "Teatro romano",
+        "Porta all'Arco", "Necropoli del Portone"]),
+    ("tma_materiali_archeologici", "10.4"): ("Fascia cronologica", [
+        "Preistoria", "Protostoria", "Età del Bronzo",
+        "Età del Ferro", "Età etrusca", "Età romana",
+        "Tarda antichità", "Alto medioevo", "Basso medioevo",
+        "Età moderna", "Età contemporanea"]),
+    ("tma_materiali_archeologici", "10.5"): ("Denominazione scavo", [
+        "Scavo archeologico", "Saggio di verifica",
+        "Assistenza archeologica", "Scavo d'emergenza",
+        "Ricognizione di superficie"]),
+    ("tma_materiali_archeologici", "10.6"): ("Tipo di acquisizione", [
+        "Scavo stratigrafico", "Ricognizione di superficie",
+        "Recupero", "Sequestro", "Donazione", "Acquisto",
+        "Rinvenimento fortuito"]),
+    ("tma_materiali_archeologici", "10.7"): ("Area", AREE),
+    ("tma_materiali_archeologici", "10.9"): ("Tipo di fotografia", [
+        "Fotografia digitale", "Fotografia di dettaglio",
+        "Fotografia d'insieme", "Fotopiano", "Macrofotografia",
+        "Fotografia di cantiere"]),
+    ("tma_materiali_archeologici", "10.15"): ("Settore", [
+        "A", "B", "C", "D", "E"]),
+    ("tma_materiali_ripetibili", "10.12"): ("Precisazione tipologica", [
+        "Olla", "Olpe", "Anfora", "Coppa", "Piatto", "Scodella",
+        "Brocca", "Boccale", "Bicchiere", "Tegame", "Catino",
+        "Lucerna", "Dolio", "Mortaio"]),
 }
 
 
@@ -130,13 +224,22 @@ def main() -> int:
                 print("  %-28s %-9s già presente" % (tabella, sigla))
                 continue
             for n, voce in enumerate(voci, start=1):
+                # Una voce è il testo del menu, oppure la coppia
+                # (sigla, testo) quando la scheda mostra `sigla` invece di
+                # `sigla_estesa` — è il caso dell'unità di misura dei
+                # reperti, dove nella cella si deve leggere «nr», non
+                # «Num».
+                if isinstance(voce, (tuple, list)):
+                    breve, estesa = voce[0], voce[1]
+                else:
+                    breve, estesa = voce[:3].upper(), voce
                 conn.execute(
                     "INSERT INTO pyarchinit_thesaurus_sigle"
                     " (id_thesaurus_sigle, nome_tabella, sigla,"
                     "  sigla_estesa, descrizione, tipologia_sigla, lingua)"
                     " VALUES (?,?,?,?,?,?,?)",
-                    (prossimo, tabella, voce[:3].upper(), voce,
-                     "%s — %s" % (che_cosa, voce), sigla, LINGUA))
+                    (prossimo, tabella, breve, estesa,
+                     "%s — %s" % (che_cosa, estesa), sigla, LINGUA))
                 prossimo += 1
                 aggiunti += 1
             print("  %-28s %-9s +%d voci (%s)"

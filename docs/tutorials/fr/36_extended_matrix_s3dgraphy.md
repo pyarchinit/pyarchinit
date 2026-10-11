@@ -42,6 +42,22 @@ En appuyant sur **Esporta**, le **dossier de destination** est demandé.
 
 Auteurs, licences, embargos et groupes se gèrent dans la fenêtre **"Manage paradata"** (§3).
 
+### 2.2.1 Sondages : un seul fichier ou un par sondage
+
+Un groupe de trois choix, dans la même fenêtre, décide **comment diviser
+l'em.json** quand le chantier a plusieurs sondages :
+
+- **Automatique** : un seul fichier si le site a un sondage, un par
+  sondage s'il en a plusieurs. C'est le choix de départ.
+- **Un seul fichier** : tout le chantier dans un graphe, comme toujours.
+- **Un par sondage** : un fichier pour chaque sondage. Les relations qui
+  **sortent** du sondage ne sont pas perdues : elles restent dans le
+  fichier comme liens entre graphes (`graph.links`), et EMStudio les
+  retrouve.
+
+Le sondage est le champ **Saggio** de la fiche US : les unités qui l'ont
+laissé vide finissent dans un fichier à part.
+
 ### 2.3 Cliquer sur "Esporta"
 
 Les fichiers qui naissent, selon les formats cochés :

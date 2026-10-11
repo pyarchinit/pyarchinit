@@ -267,23 +267,19 @@ def test_anche_la_correzione_dei_rapporti_incompleti_passa_di_la():
     assert "related_records[0].area" not in corpo
 
 
-def test_il_terzo_correttore_dei_reciproci_e_irraggiungibile():
-    """``check_inverse_relationships`` ha lo stesso difetto — cerca la
-    scheda bersaglio nell'area di **chi dichiara** il rapporto — ma non si
-    corregge perché non si raggiunge: nessuno la chiama, e le righe che
-    pretende («relationships not verified») le scriveva la vecchia
-    `rapporti_stratigrafici_check`, che è commentata. Se qualcuno la
-    risveglia, questo test cade e l'area va sistemata.
+def test_il_terzo_correttore_dei_reciproci_non_esiste_piu():
+    """``check_inverse_relationships`` aveva lo stesso difetto delle aree —
+    cercava la scheda bersaglio nell'area di **chi dichiara** il rapporto —
+    e non si raggiungeva: nessuno la chiamava, e le righe che pretendeva
+    («relationships not verified») le scriveva la vecchia
+    `rapporti_stratigrafici_check`, commentata da tempo. Invece di
+    correggere codice morto, via (Enzo l'ha confermato l'11 ottobre 2026).
     """
     testo = SORGENTE.read_text(encoding="utf-8")
-    chiamate = [r for r in testo.splitlines()
-                if "check_inverse_relationships" in r
-                and "def check_inverse_relationships" not in r]
-    assert chiamate == [], chiamate
+    assert "check_inverse_relationships" not in testo
     produttori = [r for r in testo.splitlines()
                   if "relationships not verified" in r
-                  and not r.lstrip().startswith("#")
-                  and "if line.strip()" not in r]
+                  and not r.lstrip().startswith("#")]
     assert produttori == [], produttori
 
 

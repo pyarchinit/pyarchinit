@@ -42,6 +42,24 @@ Beim Druck auf **Esporta** wird nach dem **Zielordner** gefragt.
 
 Autoren, Lizenzen, Embargos und Gruppen verwaltet das Fenster **"Manage paradata"** (§3).
 
+### 2.2.1 Sondagen: eine Datei oder eine je Sondage
+
+Eine Gruppe von drei Wahlmöglichkeiten im selben Fenster entscheidet,
+**wie die em.json geteilt wird**, wenn die Ausgrabung mehrere Sondagen
+hat:
+
+- **Automatisch**: eine Datei, wenn die Ausgrabungsstätte eine Sondage
+  hat, eine je Sondage, wenn sie mehrere hat. Das ist die Vorauswahl.
+- **Eine einzige Datei**: die ganze Ausgrabung in einem Graphen, wie
+  bisher.
+- **Eine je Sondage**: eine Datei für jede Sondage. Beziehungen, die aus
+  der Sondage **hinausführen**, gehen nicht verloren: sie bleiben in der
+  Datei als Verbindungen zwischen Graphen (`graph.links`), und EMStudio
+  findet sie wieder.
+
+Die Sondage ist das Feld **Saggio** des SE-Formulars: Einheiten ohne
+Eintrag landen in einer eigenen Datei.
+
 ### 2.3 Klick auf "Esporta"
 
 Die Dateien, die entstehen, je nach angehakten Formaten:

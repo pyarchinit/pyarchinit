@@ -17,8 +17,33 @@ from dataclasses import dataclass, field
 
 from . import continuity_label  # the vocabulary's owner is this package
 
-#: Source unit types that can bear a continuity (per spec: US / USM only).
-CONTINUITY_SOURCE_TYPES = frozenset({"US", "USM"})
+def _sigle_unita() -> frozenset:
+    """Le sigle dell'unità stratigrafica, in tutte le lingue.
+
+    La sigla è **tradotta** — US/USM in italiano, SU/WSU in inglese,
+    SE/MSE in tedesco, ΣΜ/ΤΣΜ in greco: la tabella è `UNIT_TYPE_ABBREV`
+    in `modules/utility/pyarchinit_i18n_stratigraphic.py`, che espone
+    già l'insieme piatto `ALL_UNIT_ABBREVS`. Guardare solo «US» e «USM»
+    voleva dire che su un database non italiano il generatore non
+    trovava **nessun** candidato: misurato sul database di esempio,
+    4 sul sito italiano e 0 su ciascuno degli altri nove.
+
+    Se l'adattatore i18n non si importa si torna alle due sigle
+    italiane, che è il comportamento di prima: un generatore che non
+    parte è peggio di un generatore che parte su una lingua sola.
+    """
+    try:
+        from modules.utility.pyarchinit_i18n_stratigraphic import (
+            ALL_UNIT_ABBREVS)
+    except Exception:
+        return frozenset({"US", "USM"})
+    return frozenset(ALL_UNIT_ABBREVS) or frozenset({"US", "USM"})
+
+
+#: Le sigle che possono portare una continuità: l'unità stratigrafica e
+#: l'unità stratigrafica muraria, in tutte le lingue in cui la scheda le
+#: scrive.
+CONTINUITY_SOURCE_TYPES = _sigle_unita()
 
 #: Columns read for scanning + CON construction.
 _READ_COLUMNS = (

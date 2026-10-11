@@ -42,6 +42,21 @@ Ao premir **Esporta** é pedida a **pasta de destino**.
 
 Autores, licenças, embargos e grupos gerem-se na janela **"Manage paradata"** (§3).
 
+### 2.2.1 Sondagens: um unico ficheiro ou um por sondagem
+
+Um grupo de tres escolhas, na mesma janela, decide **como dividir o
+em.json** quando a escavacao tem varias sondagens:
+
+- **Automatico**: um unico ficheiro se o sitio tem uma sondagem, um por
+  sondagem se tem varias. E a escolha de partida.
+- **Um unico ficheiro**: toda a escavacao num grafo, como sempre.
+- **Um por sondagem**: um ficheiro para cada sondagem. As relacoes que
+  **saem** da sondagem nao se perdem: ficam no ficheiro como ligacoes
+  entre grafos (`graph.links`), e o EMStudio volta a encontra-las.
+
+A sondagem e o campo **Saggio** da ficha UE: as unidades que o tem vazio
+acabam num ficheiro separado.
+
 ### 2.3 Clica em "Esporta"
 
 Os ficheiros que nascem, conforme os formatos marcados:
