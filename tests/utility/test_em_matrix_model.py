@@ -214,3 +214,30 @@ def test_what_is_left_out_of_the_drawing_is_written_down():
     assert len(model.units) == 1
     assert any("Fotografie" in w or "1" in w for w in model.warnings), \
         model.warnings
+
+
+def test_a_relation_that_arrives_twice_is_drawn_once():
+    """Il rapporto fra due saggi arriva due volte, e non va contato due volte.
+
+    Nell'esportazione divisa un rapporto che esce dal saggio compare come
+    `edge` nel grafo che lo possiede **e** come `link` nel grafo dall'altra
+    parte: è la stessa riga della scheda, vista dai due lati. Unendo i
+    grafi senza guardare, la matrice del sito di esempio contava 114
+    rapporti dove ne ha 93 — ventuno doppioni, disegnati uno sopra
+    l'altro e contati nel pannello.
+    """
+    model = read_em_json({"graphs": {
+        "S|I": {
+            "nodes": [{"id": "a", "type": "US", "data": {"us": "1"}}],
+            "edges": [{"source": "a", "target": "b", "type": "is_after"}],
+        },
+        "S|II": {
+            "nodes": [{"id": "b", "type": "US", "data": {"us": "2"}}],
+            "edges": [{"source": "a", "target": "b", "type": "is_after"}],
+            "links": [{"source": "a", "type": "is_after",
+                       "target": {"graph_id": "S|I", "node_id": "b"}}],
+        },
+    }})
+    distinti = {(r.source, r.kind, r.target) for r in model.relations}
+    assert len(model.relations) == len(distinti) == 1, \
+        [(r.source, r.kind, r.target) for r in model.relations]

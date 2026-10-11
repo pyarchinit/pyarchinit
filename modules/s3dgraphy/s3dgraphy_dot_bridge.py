@@ -89,22 +89,6 @@ class S3DGraphyDotBridge:
         self.db_manager = db_manager
         self.s3d_integration = S3DGraphyIntegration(db_manager)
 
-    def _scelta_saggi(self):
-        """Cosa dicono i tre bottoni: ``None`` automatico, ``False`` un
-        grafo solo, ``True`` uno per saggio.
-
-        Senza la finestra — la classe si usa anche da codice — resta
-        l'automatico, che è il comportamento di prima su uno scavo senza
-        saggi.
-        """
-        if getattr(self, "rb_saggi_uno", None) is not None \
-                and self.rb_saggi_uno.isChecked():
-            return False
-        if getattr(self, "rb_saggi_per", None) is not None \
-                and self.rb_saggi_per.isChecked():
-            return True
-        return None
-
     def _connection_url(self):
         """La stringa di connessione del progetto, come la legge il menu."""
         from modules.db.pyarchinit_conn_strings import Connection
@@ -195,7 +179,8 @@ class S3DGraphyDotBridge:
                                 output_dir: str = None, formats: List[str] = None,
                                 groups: Optional[List[str]] = None,
                                 primary_priority: Optional[List[str]] = None,
-                                validate: bool = True
+                                validate: bool = True,
+                                per_saggio=None
                                 ) -> Dict[str, str]:
         """
         Export Extended Matrix in multiple formats with s3dgraphy integration
@@ -260,9 +245,18 @@ class S3DGraphyDotBridge:
         # A 'graphml' entry in *formats* is ignored.
         if 'emjson' in formats or 'json' in formats:
             try:
+                # `per_saggio` arriva da **chi ha i bottoni**: la
+                # finestra, non questo oggetto. Qui si passa e basta —
+                # `None` vuol dire automatico, ed è il comportamento di
+                # prima per chi chiama da codice. Finché questo metodo
+                # provava a leggere i bottoni da sé, ne trovava zero e
+                # l'esportazione era **sempre** automatica, qualunque
+                # bottone fosse spuntato (Enzo, 12 ottobre 2026: «se
+                # esporto per saggio o per tutto il sito è sempre lo
+                # stesso»).
                 path, nodes, edges, warn = export_site(
                     self._connection_url(), site, output_dir,
-                    per_saggio=self._scelta_saggi())
+                    per_saggio=per_saggio)
                 exported_files['emjson'] = path
                 exported_files['emjson_counts'] = (nodes, edges, warn)
             except EmExportError as e:
@@ -562,6 +556,31 @@ if QGIS_AVAILABLE:
                     "non c'è ancora un em.json esportato in questa "
                     "finestra.")
 
+        def _scelta_saggi(self):
+            """Cosa dicono i tre bottoni di questa finestra.
+
+            ``None`` automatico, ``False`` un grafo solo, ``True`` uno per
+            saggio. Sta qui perché i bottoni stanno qui: la stessa
+            funzione sul bridge non li vedeva, e la scelta andava persa.
+            """
+            if getattr(self, "rb_saggi_uno", None) is not None \
+                    and self.rb_saggi_uno.isChecked():
+                return False
+            if getattr(self, "rb_saggi_per", None) is not None \
+                    and self.rb_saggi_per.isChecked():
+                return True
+            return None
+
+        def _connection_url(self):
+            """La connessione del progetto, chiesta al bridge.
+
+            La finestra non ce l'aveva e `_on_show_matrix` faceva
+            `self._connection_url()` dentro un `try/except` che metteva
+            `None`: il pannello si apriva **senza connessione**, e alla
+            prima unità cliccata diceva «senza connessione al database».
+            """
+            return self.bridge._connection_url()
+
         def _on_show_matrix(self):
             """Disegna dentro QGIS la matrice dell'em.json appena esportato."""
             from . import em_matrix_panel
@@ -647,6 +666,7 @@ if QGIS_AVAILABLE:
                     output_dir,
                     formats,
                     validate=self.cb_validate.isChecked(),
+                    per_saggio=self._scelta_saggi(),
                 )
                 
                 # Update progress

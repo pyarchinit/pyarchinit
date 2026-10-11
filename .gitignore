@@ -59,3 +59,11 @@ resources/icons_new/
 /test_graph_output.png
 /test_inverse_relationships.html
 /test_matrix.json
+
+# File transitori di SQLite: il WAL e la memoria condivisa non si spediscono
+# (il database di esempio li checkpointa dentro il .sqlite).
+resources/dbfiles/*.sqlite-wal
+resources/dbfiles/*.sqlite-shm
+
+# Lo stile della simbologia che QGIS si scrive nella cartella del plugin.
+symbology-style.db

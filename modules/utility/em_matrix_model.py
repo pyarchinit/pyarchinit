@@ -256,6 +256,12 @@ def read_em_json(source) -> MatrixModel:
 
     prima_epoca: Dict[str, str] = {}
     relazioni: List[Relation] = []
+    # Lo stesso rapporto può arrivare due volte: nell'esportazione divisa
+    # per saggi esce come `edge` dal grafo che lo possiede **e** come
+    # `link` dal grafo dall'altra parte — è una riga sola della scheda,
+    # vista dai due lati. Senza questa memoria il sito di esempio
+    # contava 114 rapporti dove ne ha 93.
+    rapporti_visti = set()
     id_epoche = {e.node_id for e in epoche}
     for e in archi:
         if not isinstance(e, dict):
@@ -268,6 +274,9 @@ def read_em_json(source) -> MatrixModel:
         if k == FIRST_EPOCH_KIND and t in id_epoche:
             prima_epoca.setdefault(s, t)
         elif k in STRATIGRAPHIC_KINDS and s in unita_grezze and t in unita_grezze:
+            if (s, k, t) in rapporti_visti:
+                continue
+            rapporti_visti.add((s, k, t))
             relazioni.append(Relation(source=s, target=t, kind=k))
 
     # Si disegna chi è una riga della scheda (``data.us``) o chi partecipa
