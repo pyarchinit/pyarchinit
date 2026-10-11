@@ -172,6 +172,14 @@ class pyarchinit_Folder_installation(object):
         # === PHASE 3: Copy files to DB folder ===
         db_files = [
             ('pyarchinit_db.sqlite', 'pyarchinit_db.sqlite'),
+            # Il database di prova: due aree con la stessa US, un reciproco
+            # mancante, datazioni in disaccordo, un sito senza schede, un
+            # paradosso temporale e due coppie di rapporti di uguaglianza,
+            # con le geometrie per vedere la pianta. Lo costruisce
+            # `scripts/build_test_db.py` dal database vuoto, quindi ha tutto
+            # lo schema. `copy_file` non sovrascrive: chi ci ha già lavorato
+            # dentro non lo perde a un aggiornamento del plugin.
+            ('pyarchinit_db_test.sqlite', 'pyarchinit_db_test.sqlite'),
             ('logo.jpg', 'logo.jpg'),
             ('logo_2.png', 'logo_2.png'),
             ('logo_de.jpg', 'logo_de.jpg'),

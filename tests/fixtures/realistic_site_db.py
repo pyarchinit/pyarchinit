@@ -191,17 +191,24 @@ def _uuid(n):
     return "019f8043-0000-7000-8000-%012d" % n
 
 
-def build_realistic_site_db(folder) -> str:
-    """Costruisce il database in `folder` e restituisce l'URL SQLAlchemy.
+def siti():
+    """I due siti del generatore, in ordine: quello pieno e quello vuoto."""
+    return (SITO, SITO_VUOTO)
 
-    `folder` è un `tmp_path`: il file è `folder/db.sqlite`. Mai il database
-    vivo dell'utente.
+
+def popola(conn) -> None:
+    """Inserisce i casi in una connessione **già provvista di schema**.
+
+    Separata da :func:`build_realistic_site_db` perché gli stessi casi
+    servono due volte: nello schema minimo dei test unitari, e nello schema
+    **completo** del database di prova che si installa accanto a quello di
+    esempio (`scripts/build_test_db.py`). Una sola fonte: se qui si aggiunge
+    un caso, lo vedono entrambi.
+
+    Scrive solo le colonne che i casi usano; tutte esistono sia nello schema
+    minimo qui sotto sia in `us_table` vera.
     """
-    percorso = Path(folder) / "db.sqlite"
-    conn = sqlite3.connect(percorso)
-    conn.executescript(_SCHEMA)
-
-    for i, sito in enumerate((SITO, SITO_VUOTO), start=1):
+    for i, sito in enumerate(siti(), start=1):
         conn.execute(
             "INSERT INTO site_table (sito, nazione, regione, comune, provincia,"
             " descrizione, entity_uuid) VALUES (?,?,?,?,?,?,?)",
@@ -231,5 +238,17 @@ def build_realistic_site_db(folder) -> str:
              str(per), fase, dat, rapporti, _uuid(n),
              "", "", "", "", "", "", ""))
     conn.commit()
+
+
+def build_realistic_site_db(folder) -> str:
+    """Costruisce il database in `folder` e restituisce l'URL SQLAlchemy.
+
+    `folder` è un `tmp_path`: il file è `folder/db.sqlite`. Mai il database
+    vivo dell'utente.
+    """
+    percorso = Path(folder) / "db.sqlite"
+    conn = sqlite3.connect(percorso)
+    conn.executescript(_SCHEMA)
+    popola(conn)
     conn.close()
     return "sqlite:///%s" % percorso
