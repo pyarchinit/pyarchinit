@@ -355,3 +355,52 @@ def test_a_connection_string_we_do_not_know_gives_nothing():
     assert plan_source("") is None
     assert plan_source("mysql://x/y") is None
     assert plan_source("sqlite:///:memory:") is None
+
+
+# ------------------------------- le promesse del pezzo che tocca QGIS
+# Come per la vista della matrice: qui non si istanzia nessun widget —
+# costruirne uno sotto pytest, in questo ambiente, ammazza il processo.
+# Si leggono le promesse nel sorgente.
+
+_RENDER = _ROOT / "modules" / "utility" / "matrix_preview_png.py"
+
+
+def _sorgente(percorso) -> str:
+    return Path(percorso).read_text(encoding="utf-8")
+
+
+def _codice(percorso) -> str:
+    """Il sorgente senza commenti né stringhe: si guardano le righe che
+    fanno qualcosa, non quelle che spiegano perché."""
+    import io
+    import tokenize
+
+    pezzi = []
+    with io.open(percorso, "rb") as fh:
+        for token in tokenize.tokenize(fh.readline):
+            if token.type in (tokenize.COMMENT, tokenize.STRING):
+                continue
+            pezzi.append(token.string)
+    return " ".join(pezzi)
+
+
+def test_the_image_is_not_a_print_layout():
+    """Una composizione di stampa è una pagina fissa; Enzo ha chiesto
+    un'immagine che si adatti al contenuto."""
+    codice = _codice(_RENDER)
+    assert "QgsPrintLayout" not in codice
+    assert "QgsLayoutExporter" not in codice
+
+
+def test_the_matrix_is_drawn_in_a_scene_not_in_a_widget():
+    """Per salvare un'immagine una finestra non serve, e un widget sotto
+    i test ammazza il processo."""
+    codice = _codice(_RENDER)
+    assert "QGraphicsScene" in codice and "build_scene" in codice
+    assert "MatrixView" not in codice
+
+
+def test_the_preview_goes_through_the_s3dgraphy_pipeline():
+    codice = _codice(_RENDER)
+    assert "export_site" in codice and "read_em_json" in codice
+    assert "graphviz" not in codice.lower()
