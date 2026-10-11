@@ -382,3 +382,43 @@ def test_the_mac_opener_uses_our_bundle_by_path(tmp_path, monkeypatch):
 
     assert em_export.open_in_emstudio("/tmp/x.em.json", runner=_run) is True
     assert visti == [["open", "-a", str(app), "/tmp/x.em.json"]]
+
+
+def test_on_macos_an_app_in_applications_is_found(monkeypatch, tmp_path):
+    """Con EMStudio in `/Applications` la ricerca dell'eseguibile risponde.
+
+    Non lo faceva: l'elenco dei posti dove cercare aveva Windows e Linux e
+    non macOS, e dentro il bundle l'eseguibile si chiama
+    `emstudio-desktop`, quindi nemmeno `shutil.which` lo trovava.
+
+    Non è un guasto che l'utente vedeva — su macOS `open_in_emstudio` non
+    interroga questa funzione, perché `open -a EMStudio` risolve per nome
+    tramite LaunchServices — ma una funzione che si chiama «trova
+    l'eseguibile» e dice di no mentre l'applicazione c'è è una trappola per
+    il primo che la usi come «c'è?».
+
+    Il test non guarda la macchina su cui gira: si finge che **solo** il
+    percorso del bundle esista, se no su questo portatile troverebbe
+    EMStudio vera e passerebbe senza provare niente.
+    """
+    import os
+    import shutil as _sh
+
+    atteso = "/Applications/EMStudio.app/Contents/MacOS/emstudio-desktop"
+    monkeypatch.setattr(em_export, "_our_installation", lambda: None)
+    monkeypatch.setattr(_sh, "which", lambda _n: None)
+    monkeypatch.setattr(os.path, "isfile", lambda p: str(p) == atteso)
+
+    assert em_export._find_emstudio_executable() == atteso
+
+
+def test_without_emstudio_anywhere_the_search_says_none(monkeypatch):
+    """E se non c'è da nessuna parte, dice None invece di indovinare."""
+    import os
+    import shutil as _sh
+
+    monkeypatch.setattr(em_export, "_our_installation", lambda: None)
+    monkeypatch.setattr(_sh, "which", lambda _n: None)
+    monkeypatch.setattr(os.path, "isfile", lambda _p: False)
+
+    assert em_export._find_emstudio_executable() is None

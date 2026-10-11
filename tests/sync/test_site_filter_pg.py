@@ -119,22 +119,19 @@ def test_il_luogo_che_contiene_il_sito_trova_i_grafi_su_pg(due_grafi):
     assert sorted(trovati) == ["Alfa", "Beta"]
 
 
-def test_un_sito_che_non_c_e_tiene_tutti_i_grafi(due_grafi):
-    """Un sito che non esiste **non** filtra niente: tornano tutti.
+def test_un_sito_che_non_c_e_non_tiene_nessun_grafo(due_grafi):
+    """Un sito che non esiste non filtra **niente**: la risposta è vuota.
 
-    Non è un test di una cosa giusta, è il recinto intorno a una cosa
-    sorprendente, misurata. Quando il sito chiesto non ha un luogo — non
-    sta in `site_table` — `_graphs_of_site` ha un ripiego inclusivo
-    («the projection, made for `sito` only, is the site's»): giusto per
-    `export_graphml`, che gli passa **un** grafo solo, sbagliato con un
-    contenitore di più grafi, dove chiedere un sito inesistente restituisce
-    gli altri.
-
-    All'utente non arriva, perché la nostra esportazione si rifiuta prima
-    (il test qui sotto). Quando il ripiego diventerà più stretto in
-    s3dgraphy, è questo test che lo dirà.
+    Il recinto ha fatto il suo lavoro. Fino alla dev44 `_graphs_of_site`
+    aveva un ripiego inclusivo che con più grafi restituiva **tutti** gli
+    altri, e questo test lo diceva scritto: «quando il ripiego diventerà
+    più stretto in s3dgraphy, è questo test che lo dirà». Dalla dev45
+    (segnalazione nostra, accettata da E.D.) un sito ignoto dà `[]` appena
+    i grafi sono più di uno, o il grafo unico ha un luogo di livello
+    `sito` suo. Il ripiego sopravvive solo per UN grafo senza nessun luogo
+    di sito, cioè un sito che non sta in `site_table`.
     """
-    assert sorted(_graphs_of_site(due_grafi, "Gamma")) == ["Alfa", "Beta"]
+    assert _graphs_of_site(due_grafi, "Gamma") == []
 
 
 def test_l_export_del_sito_porta_solo_le_sue_us_su_pg(due_siti, tmp_path):

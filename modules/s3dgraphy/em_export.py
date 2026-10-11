@@ -161,6 +161,19 @@ def _find_emstudio_executable():
         os.path.expanduser("~/.local/bin/emstudio"),
         os.path.expanduser("~/Applications/EMStudio.AppImage"),
     ]
+    # macOS: l'elenco non lo contemplava, e dentro il bundle l'eseguibile
+    # si chiama `emstudio-desktop`, quindi nemmeno `which` lo trovava — con
+    # EMStudio in /Applications questa funzione rispondeva **None**.
+    #
+    # Su macOS non cambia niente di quello che l'utente vede: lì
+    # `open_in_emstudio` non la interroga, perché `open -a EMStudio`
+    # risolve per nome tramite LaunchServices. Ma una funzione che si
+    # chiama «trova l'eseguibile» e dice di no mentre l'applicazione c'è
+    # è una trappola per il primo che la userà come «c'è?».
+    for base in ("/Applications/EMStudio.app",
+                 os.path.expanduser("~/Applications/EMStudio.app")):
+        for interno in ("emstudio-desktop", "EMStudio"):
+            candidates.append(os.path.join(base, "Contents", "MacOS", interno))
     for c in candidates:
         if os.path.isfile(c):
             return c

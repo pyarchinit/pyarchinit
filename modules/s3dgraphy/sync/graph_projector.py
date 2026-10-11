@@ -436,6 +436,99 @@ def _become(node, target_cls):
     return node
 
 
+#: Il datamodel EM non ammette i tipi inversi verso una US (avviso di
+#: EMStudio sul demo, 2026-10-07: «is_overlain_by … is not allowed towards a
+#: US»): la coppia Copre/Coperto da deve essere UN arco diretto, come già
+#: nell'adapter della stanza (room/us_ops.INVERSE_TO_FORWARD).
+_INVERSE_TO_FORWARD = {
+    "is_overlain_by": "overlies",
+    "is_cut_by": "cuts",
+    "is_filled_by": "fills",
+    "is_abutted_by": "abuts",
+    "is_leaned_on_by": "leans_on",
+    "is_before": "is_after",
+}
+
+#: Relazioni senza verso: le due dichiarazioni sono la stessa cosa.
+_SIMMETRICI = {"equals", "bonded_to", "has_same_time",
+               "is_physically_equal_to", "is_bonded_to"}
+
+
+def _fold_inverse_edges(graph) -> int:
+    """Ogni rapporto resta **un** arco, nel tipo diretto. Dice quanti ne ha
+    tolti.
+
+    Perché serve dalla dev45. Fino alla dev44 l'importatore della libreria
+    non produceva nessun arco stratigrafico — cercava le unità per nome, e
+    dalla 1.6 i nomi sono composti (`1.US3`), quindi non ne trovava nessuna
+    (zero archi su `mini_volterra`, parole di E.D.). Li costruiva solo
+    `_build_rapporti_edges`, che ripiega gli inversi e tiene un arco per
+    relazione. Dalla dev45 l'importatore li trova, e ne fa **uno per
+    dichiarazione**: dove l'archeologo ha scritto correttamente i due lati —
+    «Copre» sulla US 1 e «Coperto da» sulla US 2 — il grafo riceve due archi
+    opposti per un solo fatto stratigrafico, cioè un ciclo di due.
+
+    Misurato sul database di esempio: gli archi passano da 423 a 504, con 81
+    coppie reciproche. Non sono duplicati identici — `is_overlain_by` non è
+    `overlies` — quindi nessun controllo di uguaglianza li prende; e sono
+    proprio i tipi che EMStudio rifiuta verso una US.
+
+    Si **ripiegano** invece di cancellarli: un inverso diventa il suo diretto
+    con gli estremi scambiati, e solo allora si scarta come doppione. Così,
+    se la libreria trovasse un rapporto che il nostro costruttore perde,
+    quello sopravvive — nel verso giusto.
+    """
+    diretti = set(_INVERSE_TO_FORWARD.values())
+
+    def chiave_di(edge):
+        """La relazione che l'arco dice, in forma canonica, o ``None``."""
+        tipo = getattr(edge, "edge_type", None)
+        s_, t_ = getattr(edge, "edge_source", None), getattr(edge, "edge_target", None)
+        if tipo in _INVERSE_TO_FORWARD:
+            return (t_, s_, _INVERSE_TO_FORWARD[tipo])
+        if tipo in _SIMMETRICI:
+            a, b = sorted((str(s_), str(t_)))
+            return (a, b, tipo)
+        if tipo in diretti:
+            return (s_, t_, tipo)
+        return None
+
+    archi = list(getattr(graph, "edges", None) or [])
+    tolti = 0
+
+    # Passata 1 — chi è già nel verso giusto tiene il posto. Si registra
+    # **prima** di guardare gli inversi: senza questo ordine, un inverso
+    # processato per primo si prendeva la chiave e poi l'arco diretto vero
+    # veniva cancellato come doppione (misurato: 28 relazioni su 86 perse).
+    tenuti = {}
+    for edge in archi:
+        chiave = chiave_di(edge)
+        if chiave is None or getattr(edge, "edge_type", None) in _INVERSE_TO_FORWARD:
+            continue
+        if chiave in tenuti:
+            graph.remove_edge(getattr(edge, "edge_id", None))
+            tolti += 1
+            continue
+        tenuti[chiave] = getattr(edge, "edge_id", None)
+
+    # Passata 2 — gli inversi: via se la relazione c'è già nel verso
+    # giusto, altrimenti riscritti diretti con gli estremi scambiati.
+    for edge in archi:
+        if getattr(edge, "edge_type", None) not in _INVERSE_TO_FORWARD:
+            continue
+        chiave = chiave_di(edge)
+        graph.remove_edge(getattr(edge, "edge_id", None))
+        if chiave in tenuti:
+            tolti += 1
+            continue
+        nuovo_id = "rap_%s_%s_%s" % chiave
+        if graph.find_edge_by_id(nuovo_id) is None:
+            graph.add_edge(edge_id=nuovo_id, edge_source=chiave[0],
+                           edge_target=chiave[1], edge_type=chiave[2])
+        tenuti[chiave] = nuovo_id
+    return tolti
+
+
 class GraphProjector(_LibGraphProjector):
     """The library's projector with pyArchInit's closing passes."""
 
@@ -508,6 +601,17 @@ class GraphProjector(_LibGraphProjector):
         except Exception as e:                      # noqa: BLE001
             raise ProjectionError(
                 "rapporti edge building failed for sito=%r: %s"
+                % (sito, e)) from e
+
+        # Un rapporto, un arco, nel tipo diretto: dalla dev45 l'importatore
+        # della libreria ne fa uno per **dichiarazione**, quindi i due lati
+        # scritti correttamente diventavano due archi opposti. Vedi
+        # `_fold_inverse_edges`.
+        try:
+            _fold_inverse_edges(graph)
+        except Exception as e:                      # noqa: BLE001
+            raise ProjectionError(
+                "inverse edge folding failed for sito=%r: %s"
                 % (sito, e)) from e
 
         # Every node the class its unita_tipo declares: node_type is what
@@ -881,20 +985,8 @@ class GraphProjector(_LibGraphProjector):
         """
         from s3dgraphy.rapporti import parse_rapporti
 
-        # Il datamodel EM non ammette i tipi inversi verso una US
-        # (avviso di EMStudio sul demo, 2026-10-07): la coppia
-        # Copre/Coperto da deve essere UN arco diretto, come già
-        # nell'adapter della stanza (room/us_ops.INVERSE_TO_FORWARD).
-        inverse_to_forward = {
-            "is_overlain_by": "overlies",
-            "is_cut_by": "cuts",
-            "is_filled_by": "fills",
-            "is_abutted_by": "abuts",
-            "is_leaned_on_by": "leans_on",
-            "is_before": "is_after",
-        }
-        symmetric = {"equals", "bonded_to", "has_same_time",
-                     "is_physically_equal_to", "is_bonded_to"}
+        inverse_to_forward = _INVERSE_TO_FORWARD
+        symmetric = _SIMMETRICI
 
         paradata = frozenset(_PARADATA_UNITA_TIPO)
 
