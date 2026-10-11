@@ -443,6 +443,11 @@ def test_bounds_by_us_keys_on_the_us_number_not_the_node_id():
     chiede lo stesso modo in cui la verifica dei rapporti riconosce una unità,
     cioè l'attributo `us` che il projector mette sulle righe vere di us_table
     — non il nome, che su un nodo di servizio è tutto quello che c'è.
+
+    Le chiavi sono **due**: quella della riga, `(us, area, unita_tipo)`, e il
+    solo numero — quest'ultimo perché qui quel numero nomina una voce sola.
+    Su uno scavo a più aree il numero resta fuori, e lo dice
+    `test_bounds_by_us_non_indicizza_un_numero_che_nomina_due_voci`.
     """
     ID = "019f8043-4f87-7e3b-b7e8-6736d398fc27"
 
@@ -460,8 +465,9 @@ def test_bounds_by_us_keys_on_the_us_number_not_the_node_id():
             return _Nodo() if node_id == ID else None
 
     per_us = CC.bounds_by_us(_Grafo())
-    assert list(per_us) == ["4"]
+    assert sorted(map(str, per_us)) == ["('4', '', '')", "4"]
     assert per_us["4"]["start"] == 1500.0
+    assert per_us[("4", "", "")]["start"] == 1500.0
 
 
 def test_bounds_by_us_skips_a_node_it_cannot_name():
@@ -624,3 +630,31 @@ def test_the_phase_categories_do_not_claim_to_name_us():
     assert CC.names_phases("epoch_no_dates")
     assert not CC.names_phases("datazione_mismatch")
     assert not CC.names_phases("missing_reciprocity")
+
+
+def test_bounds_by_us_non_indicizza_un_numero_che_nomina_due_voci():
+    """La US 5 in due aree ha due cronologie: il numero da solo resta fuori.
+
+    Mostrare una delle due a caso sotto un avviso che parla dell'altra è
+    peggio che non mostrare niente — la finestra cerca prima la riga, e se
+    non la trova non scrive la riga «US 5 · …».
+    """
+    class _Nodo:
+        def __init__(self, area):
+            self.attributes = {"us": "5", "area": area, "unita_tipo": "US"}
+            self.name = "US5"
+
+    nodi = {"n1": _Nodo("1"), "n2": _Nodo("2")}
+
+    class _Grafo:
+        def chronology(self):
+            return {"n1": {"start": 1500.0, "end": 1549.0, "rule": "epoch"},
+                    "n2": {"start": 1600.0, "end": 1700.0, "rule": "epoch"}}
+
+        def find_node_by_id(self, node_id):
+            return nodi.get(node_id)
+
+    per_us = CC.bounds_by_us(_Grafo())
+    assert "5" not in per_us
+    assert per_us[("5", "1", "US")]["start"] == 1500.0
+    assert per_us[("5", "2", "US")]["start"] == 1600.0

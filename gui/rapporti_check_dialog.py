@@ -271,8 +271,18 @@ class RapportiCheckPanel(QWidget):
         # d'altro.
         righe_data = []
         nomina_fasi = CC.names_phases(getattr(iss, "kind", ""))
-        for us in (() if nomina_fasi else getattr(iss, "us_path", ()) or ()):
-            voce = (self._chrono_bounds or {}).get(str(us))
+        # `rows` sta accanto a `us_path`, elemento per elemento: si cerca
+        # prima la riga, perché su uno scavo a più aree il solo numero non
+        # nomina una cronologia sola — e `bounds_by_us` quel numero non lo
+        # indicizza nemmeno, per non mostrarne una a caso.
+        righe_iss = list(getattr(iss, "rows", None) or ())
+        elenco = (() if nomina_fasi
+                  else getattr(iss, "us_path", ()) or ())
+        for i, us in enumerate(elenco):
+            riga = righe_iss[i] if i < len(righe_iss) else None
+            chiave = RC._key_of_row(riga) if riga else None
+            voce = ((self._chrono_bounds or {}).get(chiave)
+                    or (self._chrono_bounds or {}).get(str(us)))
             testo = CC.explain_bounds(voce, lang=self._lang) if voce else ""
             if testo:
                 righe_data.append("US %s · %s" % (us, testo))

@@ -27,14 +27,15 @@ def _db(tmp_path):
     c.executescript(
         "CREATE TABLE periodizzazione_table (sito TEXT, periodo INTEGER,"
         " fase TEXT, cron_iniziale INTEGER, cron_finale INTEGER);"
-        "CREATE TABLE us_table (sito TEXT, us TEXT, periodo_iniziale TEXT,"
-        " fase_iniziale TEXT, periodo_finale TEXT, fase_finale TEXT);")
+        "CREATE TABLE us_table (sito TEXT, area TEXT, us TEXT,"
+        " unita_tipo TEXT, periodo_iniziale TEXT, fase_iniziale TEXT,"
+        " periodo_finale TEXT, fase_finale TEXT);")
     c.execute("INSERT INTO periodizzazione_table VALUES ('S',1,'1',-100,0)")
     c.execute("INSERT INTO periodizzazione_table VALUES ('S',2,'1',0,100)")
     c.execute("INSERT INTO periodizzazione_table VALUES ('S',3,'1',100,200)")
-    c.execute("INSERT INTO us_table VALUES ('S','US5','1','1','1','1')")
-    c.execute("INSERT INTO us_table VALUES ('S','US7','3','1','3','1')")
-    c.execute("INSERT INTO us_table VALUES ('S','US9',NULL,NULL,NULL,NULL)")
+    c.execute("INSERT INTO us_table VALUES ('S','1','US5','US','1','1','1','1')")
+    c.execute("INSERT INTO us_table VALUES ('S','1','US7','US','3','1','3','1')")
+    c.execute("INSERT INTO us_table VALUES ('S','1','US9','US',NULL,NULL,NULL,NULL)")
     c.commit(); c.close()
     from s3dgraphy.sync._db_handle import DbHandle
     return DbHandle.from_path(p)
@@ -479,3 +480,141 @@ def test_generated_site_the_temporal_paradox_is_found(tmp_path):
                   if i.kind == TC.TEMPORAL_INVERSION]
     assert [i.us_path for i in inversioni] == [["30", "31"]], \
         [i.summary for i in inversioni]
+
+
+# ---------------------------------------------------------------------------
+# Le più aree: ogni riga ha i suoi periodi (2026-10-11)
+# ---------------------------------------------------------------------------
+# `load_unit_periods` indicizzava per numero di US e basta, quindi su uno
+# scavo a più aree la US 5 dell'area 1 e quella dell'area 2 finivano nella
+# stessa casella e vinceva l'ultima riga letta. Non era solo la scrittura a
+# rischio — quella `riga_di` la fermava già — era il **giudizio**: un
+# paradosso vero poteva sparire, o comparirne uno falso.
+
+def _db_due_aree(tmp_path):
+    """La US 5 in due aree, con periodi diversi; la 5 dell'area 1 COPRE la 7.
+
+    Periodi: area 1 → periodo 1 (−100…0), area 2 → periodo 3 (100…200).
+    La US 7 sta nel periodo 3. Quindi la US 5 dell'**area 1** copre la 7 ma
+    finisce 100 anni prima che la 7 cominci: è un'inversione.
+
+    Se i periodi si leggono per numero, la US 5 prende quelli di una delle due
+    righe: se vince l'area 2 (periodo 3, 100…200) l'inversione **non si vede**
+    più, perché 200 non è prima di 100.
+    """
+    p = tmp_path / "due_aree.sqlite"
+    c = sqlite3.connect(p)
+    c.executescript(
+        "CREATE TABLE periodizzazione_table (sito TEXT, periodo INTEGER,"
+        " fase TEXT, cron_iniziale INTEGER, cron_finale INTEGER);"
+        "CREATE TABLE us_table (sito TEXT, area TEXT, us TEXT,"
+        " unita_tipo TEXT, periodo_iniziale TEXT, fase_iniziale TEXT,"
+        " periodo_finale TEXT, fase_finale TEXT);")
+    for periodo, ci, cf in ((1, -100, 0), (2, 0, 100), (3, 100, 200)):
+        c.execute("INSERT INTO periodizzazione_table VALUES ('S',?,'1',?,?)",
+                  (periodo, ci, cf))
+    # L'area 2 si inserisce **dopo**, così con la vecchia chiave vinceva lei.
+    c.execute("INSERT INTO us_table VALUES ('S','1','US5','US','1','1','1','1')")
+    c.execute("INSERT INTO us_table VALUES ('S','1','US7','US','3','1','3','1')")
+    c.execute("INSERT INTO us_table VALUES ('S','2','US5','US','3','1','3','1')")
+    c.commit(); c.close()
+    from s3dgraphy.sync._db_handle import DbHandle
+    return DbHandle.from_path(p)
+
+
+def _grafo_due_aree():
+    return _G(
+        [_N("a1", us="US5", area="1"), _N("b1", us="US7", area="1"),
+         _N("a2", us="US5", area="2")],
+        [_E("a1", "b1", "overlies")],
+    )
+
+
+def test_le_due_aree_hanno_ciascuna_i_suoi_periodi(tmp_path):
+    """`load_unit_periods` dà a ogni riga la sua voce, non una sola per numero."""
+    up = TC.load_unit_periods(_db_due_aree(tmp_path), "S")
+    assert up[("US5", "1", "US")] == ("1", "1", "1", "1")
+    assert up[("US5", "2", "US")] == ("3", "1", "3", "1")
+
+
+def test_un_numero_ambiguo_non_ha_una_voce_per_numero(tmp_path):
+    """La US 5 nomina due righe: chi sa solo il numero non deve ricevere i
+    periodi di una delle due a caso — meglio «non valutabile» che sbagliato.
+    La US 7 invece nomina una riga sola, e la voce per numero ce l'ha."""
+    up = TC.load_unit_periods(_db_due_aree(tmp_path), "S")
+    assert "US5" not in up
+    assert up["US7"] == ("3", "1", "3", "1")
+
+
+def test_il_paradosso_dell_area_1_non_lo_nasconde_l_area_2(tmp_path):
+    """L'inversione della US 5 dell'area 1 si vede, e nomina la sua riga.
+
+    Con la chiave per numero la US 5 prendeva i periodi dell'area 2 e
+    l'inversione spariva: zero avvisi su un paradosso vero.
+    """
+    up = TC.load_unit_periods(_db_due_aree(tmp_path), "S")
+    iss = TC.detect_temporal(_grafo_due_aree(), _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert len(inv) == 1, [(i.kind, i.us_path) for i in iss]
+    assert inv[0].us_path == ["US5", "US7"]
+    assert inv[0].rows[0] == {"us": "US5", "area": "1", "unita_tipo": "US"}
+
+
+def test_la_correzione_su_uno_scavo_a_piu_aree_ora_si_propone(tmp_path):
+    """Sapendo i periodi riga per riga, la correzione si può proporre.
+
+    Prima no: `riga_di` si fermava perché il numero nominava due righe e il
+    periodo letto era di una delle due senza sapere quale. Ora la voce è della
+    riga, quindi il giudizio non è più ambiguo e la correzione nomina la
+    chiave di quattro colonne che `apply_edits` pretende.
+
+    Serve una **maggioranza** perché la correzione sia automatica: con due
+    sole unità il punteggio è pari e la passata lascia una proposta, che è il
+    disegno (`test_solve_tie_leaves_suggestion`). Qui la US 5 dell'area 1
+    copre la 7 e la 8, entrambe nel periodo 3: l'unità fuori posto è lei.
+    """
+    from sqlalchemy import text
+    handle = _db_due_aree(tmp_path)
+    with handle.engine.begin() as c:
+        c.execute(text("INSERT INTO us_table VALUES "
+                       "('S','1','US8','US','3','1','3','1')"))
+    up = TC.load_unit_periods(handle, "S")
+    g = _grafo_due_aree()
+    g.nodes.append(_N("c1", us="US8", area="1"))
+    g.edges.append(_E("a1", "c1", "overlies"))
+
+    iss = TC.detect_temporal(g, _CHRONO, up, sito="S")
+    TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
+    inv = [i for i in iss if i.kind == TC.TEMPORAL_INVERSION]
+    assert inv and all(i.auto for i in inv), [(i.auto, i.edits) for i in inv]
+    mossa = inv[0].edits[0]
+    assert mossa.us == "US5"
+    assert mossa.target == ("us_table", {"us": "US5", "area": "1",
+                                         "unita_tipo": "US"})
+    assert dict(mossa.set_fields)["periodo_iniziale"] == "3"
+
+
+def test_due_righe_omonime_danno_due_avvisi_non_uno(tmp_path):
+    """La US 5 dell'area 1 e quella dell'area 2 coprono entrambe la US 7, e
+    sono entrambe nel periodo sbagliato: sono **due** problemi su due righe.
+
+    La deduplica degli avvisi era indicizzata per numero — `("i", "US5",
+    "US7")` — quindi il secondo arco veniva scartato come «già visto» e una
+    delle due schede restava senza segnalazione.
+    """
+    from sqlalchemy import text
+    handle = _db_due_aree(tmp_path)
+    with handle.engine.begin() as c:
+        # anche l'area 2 nel periodo 1: sbagliata come quella dell'area 1
+        c.execute(text("UPDATE us_table SET periodo_iniziale='1',"
+                       " periodo_finale='1' WHERE us='US5' AND area='2'"))
+    up = TC.load_unit_periods(handle, "S")
+    g = _G(
+        [_N("a1", us="US5", area="1"), _N("a2", us="US5", area="2"),
+         _N("b1", us="US7", area="1")],
+        [_E("a1", "b1", "overlies"), _E("a2", "b1", "overlies")],
+    )
+    inv = [i for i in TC.detect_temporal(g, _CHRONO, up, sito="S")
+           if i.kind == TC.TEMPORAL_INVERSION]
+    assert len(inv) == 2, [(i.us_path, i.rows) for i in inv]
+    assert sorted(i.rows[0]["area"] for i in inv) == ["1", "2"]

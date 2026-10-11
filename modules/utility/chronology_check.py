@@ -477,7 +477,7 @@ def bounds_by_us(graph):
     già un nome parlante — ``epoch_2_3`` è periodo 2 fase 3 — e si lasciano
     stare.
     """
-    from .rapporti_check import _real_us
+    from .rapporti_check import _real_us, _row_key
 
     def leggibile(valore):
         # `_real_us` e non `_us_of`: su un nodo-epoca il secondo restituisce
@@ -487,6 +487,7 @@ def bounds_by_us(graph):
         return ("US %s" % us) if us else valore
 
     per_us = {}
+    per_numero = {}
     for node_id, voce in (graph.chronology() or {}).items():
         # `_real_us` anche per l'indice, e non solo per le fonti: `_us_of`
         # ripiega sul **nome** del nodo, quindi un'epoca («Età contemporanea»)
@@ -494,7 +495,8 @@ def bounds_by_us(graph):
         # Niente di strutturale li teneva fuori, solo la fortuna di non
         # collidere con un numero di US. Sul database di esempio le 45 voci
         # con estremi sono tutte e 45 US vere: l'indice non perde niente.
-        us = _real_us(graph.find_node_by_id(node_id))
+        nodo = graph.find_node_by_id(node_id)
+        us = _real_us(nodo)
         if not us:
             continue
         # Una copia: la voce appartiene al grafo, e qui se ne riscrive una
@@ -504,5 +506,15 @@ def bounds_by_us(graph):
             chiave = "%s_source" % lato
             if voce.get(chiave):
                 voce[chiave] = leggibile(voce[chiave])
-        per_us[str(us)] = voce
+        riga = _row_key(nodo)
+        if riga is not None:
+            per_us[riga] = voce
+        per_numero.setdefault(str(us), []).append(voce)
+    # Il numero da solo entra solo quando nomina una voce sola: su uno scavo a
+    # più aree la US 5 dell'area 1 e quella dell'area 2 hanno cronologie
+    # diverse, e mostrare una delle due a caso sotto un avviso che parla
+    # dell'altra è peggio che non mostrare niente.
+    for numero, voci in per_numero.items():
+        if len(voci) == 1:
+            per_us[numero] = voci[0]
     return per_us
