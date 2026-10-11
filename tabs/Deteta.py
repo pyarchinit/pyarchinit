@@ -2125,7 +2125,15 @@ class pyarchinit_Deteta(QDialog, MAIN_DIALOG_CLASS):
 
                         if conflict and conflict['has_conflict']:
                             # Handle the conflict
-                            record_data = self.fill_record()
+                            # `fill_record` non esiste in nessuna scheda: la
+                            # chiamavano in sette, tutte dentro il ramo
+                            # del conflitto, e quel ramo si raggiungeva
+                            # solo quando `last_modified_by` portava il
+                            # nome di un altro utente. Finché non c'è,
+                            # si passa quello che si ha: `record_data`
+                            # serve solo a mostrarlo nel dialogo.
+                            raccogli = getattr(self, 'fill_record', None)
+                            record_data = raccogli() if callable(raccogli) else {}
                             if self.concurrency_manager.handle_conflict(
                                 'deteta_table',
                                 record_data,

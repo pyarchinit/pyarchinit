@@ -550,3 +550,42 @@ def test_la_voce_di_menu_chiede_come_dividere_lemjson():
     sorgente = (RADICE / "pyarchinitPlugin.py").read_text(encoding="utf-8")
     assert "saggi_del_sito" in sorgente
     assert "per_saggio=per_saggio" in sorgente
+
+
+def test_la_scheda_tma_nomina_i_widget_che_esistono():
+    """`tableWidget_disegno` (singolare) non esiste: nel `.ui` si chiama
+    `tableWidget_disegni`. La scheda alzava `AttributeError` appena
+    c'era un record da mostrare — e finché la tabella era vuota quel
+    punto non si raggiungeva mai (Enzo, 12 ottobre 2026)."""
+    import re
+
+    sorgente = (RADICE / "tabs" / "Tma.py").read_text(encoding="utf-8")
+    ui = (RADICE / "gui" / "ui" / "Tma.ui").read_text(encoding="utf-8")
+    nel_ui = set(re.findall(r'name="([^"]+)"', ui))
+    # i widget creati a mano nel codice non stanno nel .ui
+    a_mano = set(re.findall(r"self\.(\w+)\s*=\s*QTableWidget\(", sorgente))
+    usati = set(re.findall(r"self\.(tableWidget_\w+)", sorgente))
+    usati |= set(re.findall(r'"self\.(tableWidget_\w+)"', sorgente))
+    fuori = sorted(usati - nel_ui - a_mano)
+    assert fuori == [], fuori
+
+
+def test_nessuna_scheda_chiama_fill_record_che_non_esiste():
+    """Otto schede chiamavano `self.fill_record()` dentro il ramo del
+    conflitto, e quel metodo non esiste in nessuna: il ramo si
+    raggiungeva solo quando `last_modified_by` portava il nome di un
+    altro utente — cioè proprio nella situazione che i campi della
+    concorrenza riempiti creavano."""
+    import ast
+
+    colpevoli = []
+    for sorgente in sorted((RADICE / "tabs").glob("*.py")):
+        testo = sorgente.read_text(encoding="utf-8")
+        if "self.fill_record()" not in testo:
+            continue
+        albero = ast.parse(testo)
+        definito = any(isinstance(n, ast.FunctionDef) and n.name == "fill_record"
+                       for n in ast.walk(albero))
+        if not definito:
+            colpevoli.append(sorgente.name)
+    assert colpevoli == [], colpevoli

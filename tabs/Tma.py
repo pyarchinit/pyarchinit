@@ -1064,7 +1064,16 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
             if self.DATA_LIST[self.rec_num].ftap:
                 self.tableInsertData("self.tableWidget_foto", self.DATA_LIST[self.rec_num].ftap)
             if self.DATA_LIST[self.rec_num].drat:
-                self.tableInsertData("self.tableWidget_disegno", self.DATA_LIST[self.rec_num].drat)
+                # `tableWidget_disegn**i**`, come si chiama nel .ui: col
+                # singolare la scheda alzava `AttributeError:
+                # 'pyarchinit_Tma' object has no attribute
+                # 'tableWidget_disegno'` appena c'era un record da
+                # mostrare — e finché la tabella era vuota non si
+                # arrivava mai qui (segnalato da Enzo il 12 ottobre 2026,
+                # il giorno in cui la scheda ha avuto i suoi dieci
+                # record).
+                self.tableInsertData("self.tableWidget_disegni",
+                                     self.DATA_LIST[self.rec_num].drat)
 
             # Clear loading flag after all fields are filled
             self.loading_data = False
@@ -2868,7 +2877,15 @@ class pyarchinit_Tma(QDialog, MAIN_DIALOG_CLASS):
 
                         if conflict and conflict['has_conflict']:
                             # Handle the conflict
-                            record_data = self.fill_record()
+                            # `fill_record` non esiste in nessuna scheda: la
+                            # chiamavano in sette, tutte dentro il ramo
+                            # del conflitto, e quel ramo si raggiungeva
+                            # solo quando `last_modified_by` portava il
+                            # nome di un altro utente. Finché non c'è,
+                            # si passa quello che si ha: `record_data`
+                            # serve solo a mostrarlo nel dialogo.
+                            raccogli = getattr(self, 'fill_record', None)
+                            record_data = raccogli() if callable(raccogli) else {}
                             if self.concurrency_manager.handle_conflict(
                                 'tma_materiali_archeologici',
                                 record_data,
