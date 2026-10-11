@@ -656,9 +656,39 @@ def test_the_toponym_chain_travels_too(tmp_path):
             if str(getattr(e, "edge_id", "")).startswith("chain_")],         "la catena toponimica non si lega"
 
 
-def test_whoever_wants_them_out_can_still_say_so(tmp_path):
-    """La strada resta aperta nell'altro verso: chi consuma l'em.json con
-    un lettore che non regge i luoghi li può ancora togliere."""
+def test_whoever_wants_them_out_keeps_only_the_sites_place(tmp_path):
+    """La strada resta aperta nell'altro verso — ma il luogo del sito non
+    è più fra i gruppi che si possono spegnere.
+
+    Chi consuma l'em.json con un lettore che non regge i luoghi può
+    ancora togliere i raggruppamenti: spariscono gli archi
+    ``is_in_location``, la catena toponimica (Italia → Emilia-Romagna →
+    Rimini) e i gruppi d'area. Resta il luogo del sito, e resta perché
+    dalla **dev44** non è più soltanto un raggruppamento:
+
+    * ``s3dgraphy.hdto`` gli assegna il ruolo HDT-O ``place``
+      (``ROLE_CLASS["place"] = "LocationNodeGroup"``) e lo fa coincidere
+      con il nodo che il proiettore crea per il sito — «the place is the
+      SAME node the pyArchInit projector makes for the site
+      (``site_place_id``), so declaring a study on a projected graph does
+      not duplicate it»;
+    * il proiettore lo crea sempre — «it is always made, and it is the
+      place ``hdto.declare_hdto`` hangs a study off» — e dalla dev44
+      «ogni grafo proiettato dichiara il proprio studio», quindi ogni
+      grafo ha uno ``StudyNode`` legato a quel luogo da
+      ``study_took_place_at`` (crm:P7_took_place_at), che **non** è un
+      arco ``is_in_location``.
+
+    Toglierlo lascerebbe quell'arco nel vuoto: un em.json con un arco che
+    punta a un nodo che non c'è, cioè un file peggiore proprio per il
+    lettore per cui esiste l'opzione. E non serve a quello per cui
+    l'opzione è nata: la bisezione del 2026-10-08 dice che la vista
+    Matrix di EMStudio si rompeva per gli **archi**, non per i nodi
+    gruppo («6 nodi gruppo e zero archi → le fasce si popolano»), e gli
+    archi se ne vanno tutti.
+
+    Quindi: nessun gruppo *opzionale*, ma il luogo del sito resta.
+    """
     db = _mini_db(tmp_path, [
         dict(sito="Alfa", us="1", unita_tipo="US", area="2"),
     ])
@@ -666,10 +696,24 @@ def test_whoever_wants_them_out_can_still_say_so(tmp_path):
           provincia="Rimini", comune="Rimini")
     graph = GraphProjector().populate_graph(db, sito="Alfa",
                                             location_groups=False)
+    # i legami di luogo se ne vanno tutti, catena toponimica compresa
     assert _location_edges(graph) == []
-    assert _location_groups(graph) == []
     assert [e for e in graph.edges
             if str(getattr(e, "edge_id", "")).startswith("chain_")] == []
+    # dei gruppi resta solo il luogo del sito
+    gruppi = _location_groups(graph)
+    assert len(gruppi) == 1, [str(n.name) for n in gruppi]
+    luogo = gruppi[0]
+    assert str(luogo.name) == "Alfa"
+    assert luogo.attributes.get("level") == "sito"
+    # né la catena toponimica né i gruppi d'area sopravvivono
+    assert {"Italia", "Emilia-Romagna", "Rimini"}.isdisjoint(
+        {str(n.name) for n in gruppi})
+    # e resta perché lo studio del grafo si tiene a quel luogo
+    assert [e for e in graph.edges
+            if e.edge_type == "study_took_place_at"
+            and e.edge_target == luogo.node_id], \
+        "il luogo del sito non è più l'ancora dello studio"
     # il dato non si perde nemmeno così
     unita = next(n for n in graph.nodes
                  if (getattr(n, "attributes", None) or {}).get("us") == "1")

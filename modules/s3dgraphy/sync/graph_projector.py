@@ -460,6 +460,15 @@ class GraphProjector(_LibGraphProjector):
         legge con altri occhi li può ancora togliere passando ``False``;
         sito, area e settore restano comunque nel ``data`` di ogni
         unità, in un verso e nell'altro.
+
+        Con ``False`` spariscono gli archi ``is_in_location``, la catena
+        toponimica e i gruppi d'area — **non** il luogo del sito. Dalla
+        dev44 quel nodo ha anche il ruolo HDT-O ``place``: è il luogo a
+        cui ``hdto.declare_hdto`` lega lo studio del grafo con un arco
+        ``study_took_place_at``, e lo studio c'è in ogni grafo
+        proiettato. Togliere il luogo lascerebbe quell'arco nel vuoto,
+        quindi resta: si spengono i raggruppamenti, non l'ancora dello
+        studio.
         """
         graph = super().populate_graph(db_path, sito, **kwargs)
 

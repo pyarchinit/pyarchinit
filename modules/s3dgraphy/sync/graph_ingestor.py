@@ -1468,4 +1468,17 @@ _NON_STRAT_TYPES: frozenset[str] = frozenset({
     # _synth_BR_* StratigraphicUnits) and the swimlane root as GraphNode.
     "ContinuityNode",
     "GraphNode",
+    # La catena HDT-O (E.D., 11 ottobre 2026, s3Dgraphy#25: dalla dev44
+    # «ogni grafo proiettato dichiara il proprio studio», hdto.declare_hdto).
+    # Uno studio, un bene, un gemello digitale, un progetto non sono unità
+    # stratigrafiche e in us_table non hanno nessuna riga né nessun
+    # `unita_tipo` che gli somigli. Senza questa guardia lo StudyNode —
+    # che non porta attributi, così `us` ricadeva su `node.name`, cioè il
+    # nome del sito — finiva in us_table come un'US fantasma
+    # (us='<nome del sito>', unita_tipo='US', d_stratigrafica vuota)
+    # visibile nella scheda, nella matrice e in ogni esportazione.
+    "StudyNode",
+    "HeritageEntityNode",
+    "HDTNode",
+    "ProjectNode",
 })
