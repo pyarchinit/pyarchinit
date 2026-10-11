@@ -47,6 +47,9 @@ US_GROUP_FIELDS_ALT = ("area_s", "us_s")
 #: richiamo lungo zero è solo sporcizia sul disegno.
 CALLOUT_MIN_MM = 2.0
 
+#: Lo stesso, per chi disegna in pixel (l'anteprima della matrice).
+CALLOUT_MIN_PX = 6.0
+
 #: Il campo che dice chi sta sopra a chi nel disegno.
 STACK_FIELD = "order_layer"
 
@@ -102,18 +105,32 @@ def ids_expression(ids) -> Optional[str]:
     return "$id IN (%s)" % ", ".join(str(i) for i in elenco)
 
 
-def _richiamo():
-    """La linea che collega l'etichetta spostata al suo disegno."""
+def richiamo(colore: str = "#7A2020", spessore: float = 0.2,
+             minimo: float = None, in_pixel: bool = False):
+    """La linea che collega l'etichetta spostata al suo disegno.
+
+    Pubblica perché la usa anche l'anteprima della matrice, che disegna in
+    pixel invece che in millimetri (``in_pixel``): la ricetta è la stessa —
+    spostare l'etichetta e dire con una linea a chi appartiene — e averne
+    due copie vorrebbe dire correggerne una sola la prossima volta.
+    """
     from qgis.core import QgsSimpleLineCallout, QgsUnitTypes
     from qgis.PyQt.QtGui import QColor
 
-    richiamo = QgsSimpleLineCallout()
-    richiamo.setEnabled(True)
-    richiamo.lineSymbol().setColor(QColor("#7A2020"))
-    richiamo.lineSymbol().setWidth(0.2)
-    richiamo.setMinimumLength(CALLOUT_MIN_MM)
-    richiamo.setMinimumLengthUnit(QgsUnitTypes.RenderUnit.RenderMillimeters)
-    return richiamo
+    r = QgsSimpleLineCallout()
+    r.setEnabled(True)
+    r.lineSymbol().setColor(QColor(colore))
+    r.lineSymbol().setWidth(spessore)
+    unita = (QgsUnitTypes.RenderUnit.RenderPixels if in_pixel
+             else QgsUnitTypes.RenderUnit.RenderMillimeters)
+    r.setMinimumLength(CALLOUT_MIN_PX if in_pixel and minimo is None
+                       else (CALLOUT_MIN_MM if minimo is None else minimo))
+    r.setMinimumLengthUnit(unita)
+    return r
+
+
+def _richiamo():
+    return richiamo()
 
 
 def _testo(dimensione_mm: float, grassetto: bool, colore: str):
@@ -155,7 +172,7 @@ def us_labeling(fields, ids=None):
     impostazioni.centroidWhole = False
     impostazioni.dist = 0.0
     impostazioni.setCallout(_richiamo())
-    _niente_sovrapposizioni(impostazioni)
+    niente_sovrapposizioni(impostazioni)
     # Un numero per unità, e solo se quella unità si vede: l'elenco lo
     # calcola `labelled_ids`, qui si legge soltanto.
     mostra = ids_expression(ids)
@@ -197,13 +214,17 @@ def quota_labeling(fields):
     impostazioni.yOffset = QUOTA_OFFSET_MM
     impostazioni.offsetUnits = QgsUnitTypes.RenderUnit.RenderMillimeters
     impostazioni.setCallout(_richiamo())
-    _niente_sovrapposizioni(impostazioni)
+    niente_sovrapposizioni(impostazioni)
     impostazioni.setFormat(_testo(QUOTA_TEXT_MM, False, "#7A2020"))
     return QgsVectorLayerSimpleLabeling(impostazioni)
 
 
-def _niente_sovrapposizioni(impostazioni) -> None:
-    """Le etichette non si coprono mai fra loro, né coprono i simboli."""
+def niente_sovrapposizioni(impostazioni) -> None:
+    """Le etichette non si coprono mai fra loro, né coprono i simboli.
+
+    Pubblica per la stessa ragione di :func:`richiamo`: la usa anche
+    l'anteprima della matrice.
+    """
     try:
         from qgis.core import Qgis
 

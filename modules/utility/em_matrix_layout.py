@@ -17,6 +17,7 @@ mestiere, e il pannello deve funzionare su una installazione pulita.
 """
 from __future__ import annotations
 
+import bisect
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -77,6 +78,11 @@ class Band:
 class Edge:
     kind: str
     points: List[Tuple[float, float]]
+    #: Le due unità che l'arco collega. Prima non c'erano, e senza di loro
+    #: non si può né instradare intorno alle caselle altrui né misurare se
+    #: una linea passa dentro una casella che non è la sua.
+    source: str = ""
+    target: str = ""
     symmetric: bool = False
     #: Il legame di un nodo di continuità: racconta per quanto a lungo
     #: una unità sopravvive, non che una sta sopra l'altra. Va disegnato
@@ -416,6 +422,8 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
                     w=larghezza, h=altezza_casella))
 
     centro = {b.unit.node_id: b for b in risultato.boxes}
+    # Un indice solo per tutto il disegno: le caselle non si muovono più.
+    griglia = _Griglia(risultato.boxes)
     ridondanti = (_redundant(ordinanti, config.reduction_limit)
                   if config.transitive_reduction else set())
     gia_disegnati = set()
@@ -436,10 +444,13 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         # se la partenza è più in basso dell'arrivo, la freccia risale.
         in_salita = (not simmetrica) and a.y > b.y
         risultato.edges.append(Edge(
-            kind=r.kind, symmetric=simmetrica, continuity=continuita,
+            kind=r.kind, source=r.source, target=r.target,
+            symmetric=simmetrica, continuity=continuita,
             upward=in_salita,
             points=_route(a, b, simmetrica,
-                          scarto=((len(risultato.edges) % 3) - 1) * 4.0)))
+                          scarto=((len(risultato.edges) % 3) - 1) * 4.0,
+                          griglia=griglia,
+                          esclusi=(r.source, r.target))))
 
     # Il nome di un pittogramma è più largo del pittogramma, e non si
     # taglia: la tela deve tenerci dentro anche quello, se no l'ultimo
@@ -458,8 +469,172 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
 _STACCO = 14.0
 
 
+def attraversa(punti: Sequence[Tuple[float, float]],
+               ostacoli: Sequence[Box], margine: float = 1.5,
+               limite: int = 0) -> int:
+    """Quante volte una spezzata entra dentro una delle caselle date.
+
+    Serve a instradare e serve ai test: «nessun arco passa sotto un nodo» è
+    una proprietà che si misura, non che si spera. Il margine lascia passare
+    una linea che sfiora il bordo — gli estremi di un arco *toccano* per
+    forza le loro caselle.
+
+    ``limite`` ferma il conto appena lo raggiunge: quando la domanda è «ne
+    attraversa almeno uno?» contarli tutti su una matrice da mille unità
+    costa e non serve.
+    """
+    n = 0
+    for (px, py), (qx, qy) in zip(punti, punti[1:]):
+        for b in ostacoli:
+            if limite and n >= limite:
+                return n
+            x1, y1 = b.x + margine, b.y + margine
+            x2, y2 = b.x + b.w - margine, b.y + b.h - margine
+            if x2 <= x1 or y2 <= y1:
+                continue
+            # Un segmento è orizzontale o verticale (la spezzata è
+            # ortogonale): basta il rettangolo contro il rettangolo.
+            sx1, sx2 = min(px, qx), max(px, qx)
+            sy1, sy2 = min(py, qy), max(py, qy)
+            if sx1 < x2 and x1 < sx2 and sy1 < y2 and y1 < sy2:
+                n += 1
+                break
+    return n
+
+
+def _corridoi(ostacoli: Sequence[Box]) -> List[float]:
+    """Le quote dove una linea orizzontale non incontra nessuna casella.
+
+    Una per ogni intercapedine fra due file di caselle, più una sopra la
+    prima e una sotto l'ultima: sono le corsie in cui si può correre di
+    lato senza passare sotto a nessuno.
+    """
+    if not ostacoli:
+        return []
+    bordi = sorted({round(b.y, 2) for b in ostacoli}
+                   | {round(b.y + b.h, 2) for b in ostacoli})
+    corsie = []
+    for y1, y2 in zip(bordi, bordi[1:]):
+        meta = (y1 + y2) / 2.0
+        if not any(b.y < meta < b.y + b.h for b in ostacoli):
+            corsie.append(meta)
+    corsie.append(bordi[0] - 8.0)
+    corsie.append(bordi[-1] + 8.0)
+    return corsie
+
+
+#: Quanto si sta larghi da una casella quando le si passa accanto.
+_SPIRAGLIO = 7.0
+
+#: Più larga di qualunque matrice: serve a dire «tutta la fila».
+_MOLTO = 1e9
+
+
+class _Griglia:
+    """Le caselle indicizzate per fila e ordinate per ascissa.
+
+    Serve a non guardare mille caselle per ogni tratto di ogni linea.
+    Senza, l'impaginazione del database Ventena (1311 US, 655 rapporti)
+    passava da meno di un secondo a **tredici**: quattro tratti per arco
+    contro 1310 caselle fanno tre milioni e mezzo di confronti, in Python.
+    Con l'indice si guardano solo le file che il tratto attraversa, e
+    dentro la fila solo le caselle la cui ascissa ci sta — una manciata.
+    """
+
+    __slots__ = ("_righe", "_chiavi", "_xs", "_maxw")
+
+    def __init__(self, boxes: Sequence[Box]):
+        self._righe: Dict[Tuple[float, float], List[Box]] = {}
+        for b in boxes:
+            self._righe.setdefault((round(b.y, 1), round(b.h, 1)),
+                                   []).append(b)
+        for v in self._righe.values():
+            v.sort(key=lambda c: c.x)
+        self._chiavi = sorted(self._righe)
+        self._xs = {k: [b.x for b in v] for k, v in self._righe.items()}
+        self._maxw = {k: max(b.w for b in v) for k, v in self._righe.items()}
+
+    def intorno(self, punti: Sequence[Tuple[float, float]],
+                esclusi: Sequence[str] = ()) -> List[Box]:
+        """Le caselle che una spezzata potrebbe incontrare, senza le sue."""
+        ys = [y for _x, y in punti]
+        xs = [x for x, _y in punti]
+        return self.nella_fascia(min(ys), max(ys), min(xs), max(xs), esclusi)
+
+    def nella_fascia(self, y1: float, y2: float, x1: float, x2: float,
+                     esclusi: Sequence[str] = ()) -> List[Box]:
+        lo_y, hi_y = min(y1, y2) - _SPIRAGLIO, max(y1, y2) + _SPIRAGLIO
+        lo_x, hi_x = min(x1, x2) - _SPIRAGLIO, max(x1, x2) + _SPIRAGLIO
+        fuori = set(esclusi)
+        out: List[Box] = []
+        for chiave in self._chiavi:
+            ry, rh = chiave
+            if ry > hi_y or lo_y > ry + rh:
+                continue
+            fila = self._righe[chiave]
+            i = bisect.bisect_left(self._xs[chiave], lo_x - self._maxw[chiave])
+            for b in fila[i:]:
+                if b.x > hi_x:
+                    break
+                if b.unit.node_id not in fuori:
+                    out.append(b)
+        return out
+
+
+def _blocchi(ostacoli: Sequence[Box], lo: float, hi: float,
+             verticale: bool) -> List[Tuple[float, float]]:
+    """Gli intervalli occupati lungo un asse, uniti.
+
+    Con ``verticale`` si guarda chi sta nella fascia di ordinate
+    ``lo..hi`` e si restituiscono le ascisse che occupa; senza, il
+    contrario. Serve a trovare uno spiraglio **calcolandolo** invece di
+    provare venti candidati e misurarli uno per uno: su quattrocento unità
+    quella ricerca costava più di un minuto.
+    """
+    lo, hi = min(lo, hi), max(lo, hi)
+    grezzi = []
+    for c in ostacoli:
+        if verticale:
+            a, b2, c1, c2 = c.y, c.y + c.h, c.x, c.x + c.w
+        else:
+            a, b2, c1, c2 = c.x, c.x + c.w, c.y, c.y + c.h
+        if a < hi + _SPIRAGLIO and lo - _SPIRAGLIO < b2:
+            grezzi.append((c1 - _SPIRAGLIO, c2 + _SPIRAGLIO))
+    grezzi.sort()
+    uniti: List[Tuple[float, float]] = []
+    for a, b2 in grezzi:
+        if uniti and a <= uniti[-1][1]:
+            uniti[-1] = (uniti[-1][0], max(uniti[-1][1], b2))
+        else:
+            uniti.append((a, b2))
+    return uniti
+
+
+def _spiraglio(blocchi: Sequence[Tuple[float, float]],
+               preferito: float) -> List[float]:
+    """Le posizioni libere più vicine a ``preferito``, fuori dai blocchi.
+
+    Il posto preferito quando è già libero; altrimenti i due bordi del
+    blocco che lo contiene — passo a sinistra o passo a destra, le due
+    scelte che un disegnatore farebbe a mano.
+
+    Due e non più: camminare in fuori di blocco in blocco è stato provato
+    e non ha tolto **nessun** attraversamento in più (424 su una matrice
+    casuale da 400 unità, identici), mentre costava il 66% di tempo. Dove
+    due bordi non bastano non c'è corsia libera affatto, e cercarla più in
+    là non la fa esistere.
+    """
+    for a, b2 in blocchi:
+        if a <= preferito <= b2:
+            return [a, b2]
+    return [preferito]
+
+
 def _route(a: Box, b: Box, simmetrica: bool,
-           scarto: float = 0.0) -> List[Tuple[float, float]]:
+           scarto: float = 0.0,
+           ostacoli: Sequence[Box] = (),
+           griglia: Optional["_Griglia"] = None,
+           esclusi: Sequence[str] = ()) -> List[Tuple[float, float]]:
     """La spezzata da ``a`` a ``b``: un pezzetto giù, di lato, poi giù.
 
     Lo spostamento laterale avviene **subito sotto la casella di
@@ -484,14 +659,106 @@ def _route(a: Box, b: Box, simmetrica: bool,
     allinsu = b.y + b.h <= a.y
     p = (a.x + a.w / 2, a.y if allinsu else a.y + a.h)
     q = (b.x + b.w / 2, b.y + b.h if allinsu else b.y)
+    def costa(punti, limite=1):
+        """Quanto attraversa una candidata. Gli ostacoli li dà la griglia
+        quando c'è: guardare mille caselle per ogni tratto costa tredici
+        secondi sul database Ventena, guardare quelle vicine meno di uno."""
+        vicini = (griglia.intorno(punti, esclusi) if griglia is not None
+                  else ostacoli)
+        return attraversa(punti, vicini, limite=limite)
+
     if abs(p[0] - q[0]) < 0.5 and not scarto:
-        return [p, q]
+        diretto = [p, q]
+        if not costa(diretto):
+            return diretto
     passo = -_STACCO if allinsu else _STACCO
     giu = p[1] + passo
     if (allinsu and giu < q[1]) or (not allinsu and giu > q[1]):
         giu = (p[1] + q[1]) / 2
     x = q[0] + scarto
-    return [p, (p[0], giu), (x, giu), q]
+
+    def spezzata(quota):
+        return [p, (p[0], quota), (x, quota), q]
+
+    preferita = spezzata(giu)
+    if griglia is None and not ostacoli:
+        return preferita            # nessuno da scansare
+    costo_preferita = costa(preferita)
+    if not costo_preferita:
+        return preferita
+
+    # La corsia di prima passa dentro una casella di qualcun altro.
+    #
+    # Si sposta la **linea**, non il nodo: le colonne portano l'ordine
+    # stratigrafico e la fascia porta l'epoca, quindi muovere una casella
+    # per far passare una freccia rompe proprio la cosa che la matrice
+    # dice. Una corsia libera dice la stessa relazione senza toccare
+    # niente.
+    #
+    # Lo spiraglio si **calcola**: si guarda chi occupa la fascia che la
+    # linea deve attraversare e si prende il bordo libero più vicino.
+    # Provare venti candidati e misurarli costava più di un minuto su
+    # quattrocento unità.
+    migliore, suo_costo = preferita, costo_preferita
+
+    def vicini(y1, y2, x1, x2):
+        return (griglia.nella_fascia(y1, y2, x1, x2, esclusi)
+                if griglia is not None else ostacoli)
+
+    # 1. La corsa di lato, a una quota libera.
+    corsa = vicini(min(p[1], q[1]) - 40.0, max(p[1], q[1]) + 40.0,
+                   min(p[0], x), max(p[0], x))
+    for quota in _spiraglio(_blocchi(corsa, p[0], x, verticale=False), giu):
+        candidata = spezzata(quota)
+        c = costa(candidata)
+        if c < suo_costo:
+            migliore, suo_costo = candidata, c
+        if not suo_costo:
+            return migliore
+
+    # 2. L'ingresso di fianco: si scende in una corsia verticale libera
+    #    accanto alla colonna d'arrivo e si entra nella casella dal suo
+    #    lato. Serve quando la colonna d'arrivo è occupata **sopra** la
+    #    casella — una US in mezzo a una pila — e nessuna quota può
+    #    aiutare, perché la discesa finale passerebbe comunque attraverso
+    #    chi sta sopra. Una freccia che arriva di fianco è ordinaria nella
+    #    matrice di Harris; una che passa sotto a un nodo non lo è.
+    meta_b = b.y + b.h / 2.0
+    quote = _spiraglio(_blocchi(corsa, p[0], x, verticale=False), giu)
+    for quota in quote:
+        # Tutta la larghezza, non una finestra: la corsia libera può stare
+        # lontano quanto il disegno è largo, e con una finestra di qualche
+        # centinaio di pixel `_blocchi` vedeva un pezzo di fila e
+        # `_spiraglio` proponeva una corsia che fuori dalla finestra era
+        # occupata (su quattrocento unità tornavano gli attraversamenti).
+        # È una interrogazione per quota, e le quote sono al massimo due.
+        giu_su = vicini(quota, meta_b, -_MOLTO, _MOLTO)
+        corsie = _spiraglio(_blocchi(giu_su, quota, meta_b, verticale=True),
+                            b.x + b.w / 2.0)
+        for corsia in sorted(corsie, key=lambda v: abs(v - (b.x + b.w / 2.0))):
+            entrata = b.x + b.w if corsia > b.x + b.w / 2.0 else b.x
+            punti = [p, (p[0], quota), (corsia, quota),
+                     (corsia, meta_b), (entrata, meta_b)]
+            c = costa(punti)
+            if c < suo_costo:
+                migliore, suo_costo = punti, c
+            if not suo_costo:
+                return migliore
+    return migliore
+
+    meta_b = b.y + b.h / 2.0
+    for quota in sorted(set([giu] + (vicine or corridoi)),
+                        key=lambda c: abs(c - giu))[:8]:
+        for corsia in _corsie_verticali(b, ostacoli):
+            entrata = b.x + b.w if corsia > b.x + b.w / 2.0 else b.x
+            punti = [p, (p[0], quota), (corsia, quota),
+                     (corsia, meta_b), (entrata, meta_b)]
+            costo = attraversa(punti, ostacoli)
+            if costo < suo_costo:
+                migliore, suo_costo = punti, costo
+                if not costo:
+                    return migliore
+    return migliore
 
 
 def _anno(valore: float) -> str:

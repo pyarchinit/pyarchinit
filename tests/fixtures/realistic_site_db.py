@@ -162,6 +162,27 @@ def _schede():
         ("1", "31", 7, "1", "XVII secolo",
          "[%s]" % _lungo("Coperto da", "30", "1"),
          "caso 8: coperta dalla 30 ma la sua fase è posteriore"),
+
+        # --- Caso 9: rapporti di uguaglianza ------------------------------
+        # «Uguale a» e «Si lega a» non sono una sovrapposizione: le due unità
+        # sono la stessa cosa vista in due punti dello scavo. Nella matrice
+        # di Harris stanno sulla STESSA riga, accostate, e si collegano con
+        # due linee orizzontali — il segno di uguale — senza punta di
+        # freccia. Due coppie, una per etichetta, e ciascuna con il suo
+        # reciproco scritto: stesso periodo e stessa fase, perché sono la
+        # stessa cosa.
+        ("1", "40", 4, "1", "Prima fase dell'XI secolo",
+         "[%s]" % _lungo("Uguale a", "41", "1"),
+         "caso 9: «Uguale a» — stessa riga della 41, nessuna freccia"),
+        ("1", "41", 4, "1", "Prima fase dell'XI secolo",
+         "[%s]" % _lungo("Uguale a", "40", "1"),
+         "caso 9: il reciproco dell'uguaglianza"),
+        ("1", "42", 5, "1", "XIII secolo",
+         "[%s]" % _lungo("Si lega a", "43", "1"),
+         "caso 9: «Si lega a» — simmetrica come «Uguale a»"),
+        ("1", "43", 5, "1", "XIII secolo",
+         "[%s]" % _lungo("Si lega a", "42", "1"),
+         "caso 9: il reciproco del legame"),
     ]
 
 

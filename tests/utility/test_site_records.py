@@ -392,11 +392,17 @@ def _scheda(tmp_path):
 
 def test_a_site_with_records_loads_them(tmp_path, monkeypatch):
     """Il controllo di non-vacuità: lo stesso database, il sito pieno, carica
-    le sue dieci schede e dice vero."""
+    tutte le sue schede e dice vero.
+
+    Quante sono lo dice il generatore, non un numero battuto qui: quando al
+    generatore si aggiunge un caso — il 9, i rapporti di uguaglianza — un
+    numero fisso fa cadere questo test per la ragione sbagliata.
+    """
+    attese = sum(1 for riga in RSD._schede() if riga[0] is not None)
     tab = _scheda(tmp_path)
     _site(monkeypatch, RSD.SITO)
     assert SR.charge_records_for_site(tab) is True
-    assert len(tab.DATA_LIST) == tab.REC_TOT == 10
+    assert len(tab.DATA_LIST) == tab.REC_TOT == attese
 
 
 def test_a_site_in_site_table_without_us_rows_returns_false_and_an_empty_list(

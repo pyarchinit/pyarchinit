@@ -63,7 +63,7 @@ STILE_US = ("styles", "stile_pyunitastratigrafiche.qml")
 #: Il corpo del numero di US, in pixel dell'immagine e non in punti: la
 #: pianta si rende a ~3600 px di larghezza, e un corpo da schermo (8 pt
 #: in ``us_vuote.qml``) lì sparirebbe. Scelto guardando il PNG reso.
-ETICHETTA_PX = 34
+ETICHETTA_PX = 22
 #: Quanto il cerchio sporge dal testo, in pixel.
 ETICHETTA_MARGINE_PX = 7
 
@@ -214,14 +214,38 @@ def _stile_etichette_us(layer) -> None:
     impostazioni.fieldName = espressione
     impostazioni.isExpression = True
     impostazioni.setFormat(formato)
+    # Posizioni alternative intorno al centro, non una sola: con
+    # `OverPoint` e `displayAll` le etichette si disegnavano tutte dove
+    # capitava e si coprivano a vicenda — la US 1, la 4 e la 2 una
+    # sull'altra (Enzo, 11 ottobre 2026). Così QGIS le **sposta** e una
+    # linea di richiamo dice a quale unità appartiene ciascuna: è la
+    # ricetta dell'atlante del Time Manager, e si prende da là invece di
+    # riscriverla (`atlas_labels.richiamo`, `niente_sovrapposizioni`).
+    #
+    # `displayAll` non si mette: forza il disegno di ogni etichetta
+    # qualunque cosa succeda, e con lui attivo QGIS non prova nemmeno a
+    # spostarle. Al suo posto `setAllowDegradedPlacement(True)` dentro
+    # `niente_sovrapposizioni`, che accetta una posizione meno buona pur
+    # di non perdere il numero.
     try:
-        from qgis.core import Qgis
-        # Sul centro del poligono, non intorno: il cerchio sta sull'unità.
-        impostazioni.placement = Qgis.LabelPlacement.OverPoint
+        from .atlas_labels import niente_sovrapposizioni, richiamo
+        impostazioni.placement = \
+            QgsPalLayerSettings.Placement.OrderedPositionsAroundPoint
+        impostazioni.centroidInside = True
+        impostazioni.dist = 0.0
+        impostazioni.setCallout(richiamo(colore="#1A1A1A", spessore=0.6,
+                                         in_pixel=True))
+        niente_sovrapposizioni(impostazioni)
     except Exception:                               # noqa: BLE001
-        pass
+        # Su una QGIS che non conosce i richiami si torna al cerchio in
+        # mezzo all'unità: coperto è meglio che assente.
+        try:
+            from qgis.core import Qgis
+            impostazioni.placement = Qgis.LabelPlacement.OverPoint
+        except Exception:                           # noqa: BLE001
+            pass
+        impostazioni.displayAll = True
     impostazioni.centroidWhole = False
-    impostazioni.displayAll = True
     layer.setLabeling(QgsVectorLayerSimpleLabeling(impostazioni))
     layer.setLabelsEnabled(True)
 
