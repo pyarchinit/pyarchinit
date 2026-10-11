@@ -50,64 +50,92 @@ def _per_kind(handle, sito):
     return out
 
 
-def test_the_italian_site_has_two_overlaps_and_thirteen_misalignments(handle):
-    per_kind = _per_kind(handle, ITALIANO)
-    assert len(per_kind.get("epoch_overlap", [])) == 2
-    assert len(per_kind.get("datazione_mismatch", [])) == 13
-    assert per_kind.get("epoch_reversed", []) == []
-    assert per_kind.get("epoch_no_dates", []) == []
+#: Quante righe si sporcano quando a un test serve un disallineamento.
+QUANTE_SPORCHE = 6
 
 
-def test_the_two_overlaps_carry_no_proposal(handle):
-    """Le due coppie portano intervalli identici — 1500–1549 e 1451–1499 — e
-    qualunque restringimento farebbe finire una fase prima di cominciare.
+def _sporca(handle, sito: str) -> int:
+    """Scrive una datazione sbagliata su alcune US, e dice su quante.
+
+    I test qui sotto hanno bisogno di un disallineamento da correggere. Il
+    database di esempio non ce l'ha più — dall'11 ottobre 2026 esce pulito,
+    e il test qui sopra è lì per non lasciarlo tornare indietro — quindi
+    ognuno si fa il **proprio** materiale nella propria copia. È meglio
+    così: prima la prova dipendeva da un difetto che qualcuno poteva
+    correggere, e correggendolo faceva cadere test che non parlavano di lui.
     """
-    periods, _ = CC.load_chronology_rows(handle, ITALIANO)
-    per_fase = {CC._label(CC._key(p)): (CC._year(p["cron_iniziale"]),
-                                        CC._year(p["cron_finale"]))
-                for p in periods}
-    issues = _per_kind(handle, ITALIANO)["epoch_overlap"]
-    assert len(issues) == 2
-    for iss in issues:
-        assert iss.edits == [], iss.summary
-        assert iss.auto is False
-        # La ragione, scritta come asserzione e non solo in prosa: i due
-        # intervalli sono lo stesso intervallo.
-        a, b = iss.us_path
-        assert per_fase[a] == per_fase[b], (a, b, per_fase[a], per_fase[b])
+    from sqlalchemy import text
+    with handle.engine.begin() as c:
+        righe = c.execute(text(
+            "SELECT us FROM us_table WHERE sito = :s"
+            "   AND COALESCE(datazione, '') <> ''"
+            " ORDER BY CAST(us AS INTEGER) LIMIT :n"),
+            {"s": sito, "n": QUANTE_SPORCHE}).fetchall()
+        for (us,) in righe:
+            c.execute(text(
+                "UPDATE us_table SET datazione = 'Datazione da correggere'"
+                " WHERE sito = :s AND us = :u"), {"s": sito, "u": us})
+    return len(righe)
 
 
-def test_a_translated_site_has_fifty_one_misalignments_with_both_texts(handle):
-    """La periodizzazione è tradotta e la datazione nella scheda è rimasta in
-    italiano: il summary deve mostrare tutti e due i testi, perché
-    l'anteprima è l'unico punto in cui si vede cosa si sta per riscrivere."""
-    issues = _per_kind(handle, TRADOTTO)["datazione_mismatch"]
-    assert len(issues) == 51
-    con_entrambi = [i for i in issues
-                    if "Prima metà del XVI secolo" in i.summary
-                    and "First half of the 16th century" in i.summary]
-    assert con_entrambi, [i.summary for i in issues[:3]]
+def test_the_example_database_ships_without_chronology_warnings(handle):
+    """Il database di esempio esce **pulito**, su tutte e dieci le lingue.
+
+    Prima portava, per sito, due sovrapposizioni — due fasi «rec» che
+    duplicavano gli anni di due fasi vere — e i disallineamenti di datazione:
+    tredici sull'italiano e cinquantuno su ciascun sito tradotto, dove la
+    periodizzazione era tradotta e la datazione nella scheda era rimasta in
+    italiano. Un utente che apriva il demo e premeva «Verifica rapporti»
+    trovava gli errori del demo, non i propri.
+    """
+    from sqlalchemy import text
+    with handle.engine.connect() as c:
+        siti = [r[0] for r in c.execute(text(
+            "SELECT DISTINCT sito FROM periodizzazione_table ORDER BY sito"))]
+    assert len(siti) >= 10, siti
+    sporchi = {}
+    for sito in siti:
+        per_kind = _per_kind(handle, sito)
+        if per_kind:
+            sporchi[sito] = {k: len(v) for k, v in per_kind.items()}
+    assert not sporchi, sporchi
 
 
 def test_applying_the_automatic_fixes_empties_the_category(handle):
     """Una seconda verifica non ripresenta quello che la prima ha corretto."""
+    quante = _sporca(handle, ITALIANO)
+    assert quante == QUANTE_SPORCHE, "il materiale della prova"
     prima = _per_kind(handle, ITALIANO)["datazione_mismatch"]
+    assert len(prima) == quante, [i.summary for i in prima[:3]]
     edits = [e for iss in prima for e in iss.edits]
-    assert len(edits) == 13
+    assert len(edits) == quante
     RC.apply_edits(edits, handle, sito=ITALIANO)
     dopo = _per_kind(handle, ITALIANO)
     assert dopo.get("datazione_mismatch", []) == []
-    # Le sovrapposizioni restano: non sono automatiche e nessuno le ha spuntate.
-    assert len(dopo["epoch_overlap"]) == 2
+
+
+def test_the_summary_shows_both_texts(handle):
+    """L'anteprima è l'unico punto in cui si vede cosa si sta per
+    riscrivere: ci devono essere il testo della scheda e quello della fase."""
+    _sporca(handle, ITALIANO)
+    issues = _per_kind(handle, ITALIANO)["datazione_mismatch"]
+    assert issues
+    con_entrambi = [i for i in issues
+                    if "Datazione da correggere" in i.summary]
+    assert con_entrambi, [i.summary for i in issues[:3]]
+    # e il testo della fase, che è quello che ci finirà dentro
+    assert any("secolo" in i.summary or "Età" in i.summary for i in issues), \
+        [i.summary for i in issues[:3]]
 
 
 def test_the_fix_touches_only_its_own_site(handle):
     """La verifica è per sito, così non si riscrivono dieci siti in un colpo.
 
-    Si confrontano i **valori**, non i conteggi: tutte le 51 US esistono in
-    ogni sito, e una fuga scriverebbe il testo italiano sulle righe del sito
-    tradotto — che resterebbero disallineate, quindi il conteggio non si
-    muoverebbe di una virgola e il test passerebbe sopra una scrittura vera.
+    Si sporcano **entrambi** i siti e si corregge solo l'italiano: le righe
+    del sito tradotto devono restare sporche **identiche**. Si confrontano i
+    valori, non i conteggi — tutte le US esistono in ogni sito, e una fuga
+    scriverebbe il testo italiano sulle righe dell'altro lasciando il
+    conteggio dei disallineamenti dov'era.
     """
     from sqlalchemy import text
 
@@ -117,10 +145,13 @@ def test_the_fix_touches_only_its_own_site(handle):
                 "SELECT us, datazione FROM us_table WHERE sito = :s "
                 "ORDER BY us"), {"s": TRADOTTO}).fetchall()
 
+    _sporca(handle, ITALIANO)
+    _sporca(handle, TRADOTTO)
     prima = righe_tradotte()
     assert prima, "il sito tradotto non ha righe: la prova non direbbe niente"
     edits = [e for iss in _per_kind(handle, ITALIANO)["datazione_mismatch"]
              for e in iss.edits]
+    assert edits, "senza correzioni non si proverebbe nessuna fuga"
     RC.apply_edits(edits, handle, sito=ITALIANO)
     assert righe_tradotte() == prima
 
@@ -135,6 +166,7 @@ def test_the_rollback_puts_the_site_back(handle):
                 "SELECT us, datazione FROM us_table WHERE sito = :s "
                 "ORDER BY us"), {"s": ITALIANO}).fetchall()
 
+    quante = _sporca(handle, ITALIANO)
     prima = righe_italiane()
     edits = [e for iss in _per_kind(handle, ITALIANO)["datazione_mismatch"]
              for e in iss.edits]
@@ -145,7 +177,7 @@ def test_the_rollback_puts_the_site_back(handle):
     assert righe_italiane() != prima
     RC.rollback(token, handle)
     assert righe_italiane() == prima
-    assert len(_per_kind(handle, ITALIANO)["datazione_mismatch"]) == 13
+    assert len(_per_kind(handle, ITALIANO)["datazione_mismatch"]) == quante
 
 
 # ---------------------------------------------------------------------------

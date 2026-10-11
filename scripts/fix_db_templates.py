@@ -292,6 +292,58 @@ def allinea_datazioni() -> list:
     return fatto
 
 
+def allinea_srid() -> list:
+    """Nel database di esempio ogni geometria sta nello stesso sistema.
+
+    Le tre tabelle delle Unità Topografiche erano registrate a `srid = -1`
+    mentre le altre diciannove stanno a 3004: un progetto con i sistemi
+    misti non si inquadra, e un layer a -1 QGIS lo apre senza proiezione.
+    Nel **template** lo -1 è giusto — lo assegna pyArchInit quando crea il
+    database — ma qui il database è quello di esempio, cioè già creato.
+
+    Si cambia la **dichiarazione**, non le coordinate: i valori memorizzati
+    sono già nel sistema 3004 (est intorno a 1.650.000, nord a 4.810.000),
+    quindi `SetSRID` dice la verità su di loro invece di spostarli.
+    """
+    fatto = []
+    conn = _apri(DISTRIBUITO)
+    try:
+        giusto = _srid_del_file(conn)
+        storte = conn.execute(
+            "SELECT f_table_name, f_geometry_column, geometry_type"
+            " FROM geometry_columns WHERE srid <> ?", (giusto,)).fetchall()
+        for tabella, colonna, tipo in storte:
+            nome = {1: "POINT", 2: "LINESTRING", 3: "POLYGON",
+                    4: "MULTIPOINT", 5: "MULTILINESTRING",
+                    6: "MULTIPOLYGON"}.get(int(tipo))
+            if not nome:
+                continue
+            quante = conn.execute(
+                'SELECT count(*) FROM "%s" WHERE "%s" IS NOT NULL'
+                % (tabella, colonna)).fetchone()[0]
+            # Prima si **toglie la registrazione**, poi si cambia lo SRID
+            # delle geometrie: finché la colonna è registrata, il vincolo
+            # pretende il vecchio sistema e `SetSRID` alza
+            # `IntegrityError: geom-type or SRID not allowed`.
+            conn.execute("SELECT DiscardGeometryColumn(?, ?)",
+                         (tabella, colonna))
+            conn.execute("DROP TABLE IF EXISTS idx_%s_%s" % (tabella, colonna))
+            if quante:
+                conn.execute(
+                    'UPDATE "%s" SET "%s" = SetSRID("%s", ?)'
+                    ' WHERE "%s" IS NOT NULL'
+                    % (tabella, colonna, colonna, colonna), (giusto,))
+            conn.execute("SELECT RecoverGeometryColumn(?, ?, ?, ?, 2)",
+                         (tabella, colonna, giusto, nome))
+            conn.execute("SELECT CreateSpatialIndex(?, ?)", (tabella, colonna))
+            fatto.append("%s: srid -> %d (%d geometrie)"
+                         % (tabella, giusto, quante))
+        conn.commit()
+    finally:
+        conn.close()
+    return fatto
+
+
 def ripara_distribuito() -> list:
     """Butta la spazzatura e rifà le statistiche. Dice che ha fatto."""
     fatto = []
@@ -341,6 +393,9 @@ def main() -> int:
     fatto = togli_fasi_doppie()
     print("\n".join("  " + r for r in fatto) if fatto
           else "  nessuna fase doppia")
+    fatto = allinea_srid()
+    print("\n".join("  " + r for r in fatto) if fatto
+          else "  tutte le geometrie già nello stesso sistema")
     fatto = allinea_datazioni()
     print("\n".join("  " + r for r in fatto) if fatto
           else "  datazioni già allineate")

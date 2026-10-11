@@ -55,7 +55,9 @@ def sample_emjson(tmp_path_factory):
 def test_the_model_reads_units_epochs_and_relations(sample_emjson):
     model = read_em_json(sample_emjson)
     assert len(model.units) == 51          # le 51 righe della scheda
-    assert len(model.epochs) == 12
+    # Dieci e non dodici: l'11 ottobre 2026 sono state tolte dal database di
+    # esempio le due fasi «rec» che duplicavano gli anni di due fasi vere.
+    assert len(model.epochs) == 10
     assert {r.kind for r in model.relations} >= {"overlies", "cuts", "fills"}
     per_label = {u.label: u for u in model.units}
     assert per_label["1.US9"].epoch_id == per_label["1.US3"].epoch_id

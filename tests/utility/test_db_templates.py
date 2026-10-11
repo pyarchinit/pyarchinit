@@ -219,3 +219,28 @@ def test_la_datazione_di_ogni_us_dice_quello_che_dice_la_sua_fase():
     finally:
         conn.close()
     assert not discordi, discordi[:5]
+
+
+def test_nell_esempio_ogni_geometria_sta_nello_stesso_sistema():
+    """Le UT erano registrate a `srid = -1` mentre le altre diciannove
+    tabelle spaziali stanno a 3004.
+
+    Un progetto con i sistemi misti non si inquadra, e un layer a -1 QGIS lo
+    apre senza proiezione. Qui il database è quello di **esempio**, cioè già
+    creato: lo -1 è giusto solo nel template, dove lo SRID lo assegna
+    pyArchInit alla creazione.
+    """
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        sridi = {r[0] for r in conn.execute(
+            "SELECT DISTINCT srid FROM geometry_columns")}
+        storte = conn.execute(
+            "SELECT f_table_name, srid, spatial_index_enabled"
+            " FROM geometry_columns WHERE srid <> 3004"
+            "    OR spatial_index_enabled <> 1").fetchall()
+    finally:
+        conn.close()
+    assert sridi == {3004}, sorted(sridi)
+    assert not storte, storte
