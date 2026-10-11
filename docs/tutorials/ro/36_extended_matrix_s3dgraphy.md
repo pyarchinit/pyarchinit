@@ -42,20 +42,30 @@ La apăsarea pe **Esporta** se cere **dosarul de destinație**.
 
 Autorii, licențele, embargourile și grupurile se gestionează în fereastra **"Manage paradata"** (§3).
 
-### 2.2.1 Sondaje: un singur fisier sau unul pe sondaj
+### 2.2.1 Sondaje: un singur graf sau unul pe sondaj
 
 Un grup de trei alegeri, in aceeasi fereastra, decide **cum se imparte
 em.json** cand situl are mai multe sondaje:
 
-- **Automat**: un singur fisier daca situl are un sondaj, unul pe sondaj
-  daca are mai multe. Este alegerea de pornire.
-- **Un singur fisier**: tot situl intr-un graf, ca pana acum.
-- **Unul pe sondaj**: un fisier pentru fiecare sondaj. Relatiile care
-  **ies** din sondaj nu se pierd: rama in fisier ca legaturi intre grafuri
-  (`graph.links`), iar EMStudio le regaseste.
+- **Automat**: un singur graf daca situl are un sondaj, un graf pe
+  sondaj daca are mai multe. Este alegerea de pornire.
+- **Un singur graf pentru tot situl**: tot situl intr-un graf, ca pana
+  acum.
+- **Un graf pe sondaj**: **un singur fisier**, care duce in el un graf
+  pentru fiecare sondaj, plus unul pentru unitatile care l-au lasat gol.
+  Relatiile care **ies** din sondaj nu se pierd: rama in fisier ca
+  legaturi intre grafuri (`graph.links`).
+
+> **EMStudio 1.6.0 arata unul pe rand.** Fisierul este corect — cititorul
+> bibliotecii reciteste toate grafurile, fara avertismente — dar
+> EMStudio deschide graful declarat in `active_graph_id`, primul sondaj,
+> si nu are un selector pentru celelalte. Matricea din QGIS, **Arata
+> matricea**, le uneste pe toate si deseneaza tot situl. Masurat la
+> 2026-10-12 pe situl de exemplu: 4 grafuri (52/49/56/51 noduri), 32 de
+> legaturi intre sondaje, 51 de unitati in matricea unita.
 
 Sondajul este campul **Saggio** din fisa US: unitatile care l-au lasat gol
-ajung intr-un fisier separat.
+ajung intr-un graf separat, in acelasi fisier.
 
 ### 2.3 Click pe "Esporta"
 

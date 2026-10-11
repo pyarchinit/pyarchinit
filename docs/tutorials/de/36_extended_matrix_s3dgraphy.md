@@ -42,23 +42,34 @@ Beim Druck auf **Esporta** wird nach dem **Zielordner** gefragt.
 
 Autoren, Lizenzen, Embargos und Gruppen verwaltet das Fenster **"Manage paradata"** (§3).
 
-### 2.2.1 Sondagen: eine Datei oder eine je Sondage
+### 2.2.1 Sondagen: ein Graph oder einer je Sondage
 
 Eine Gruppe von drei Wahlmöglichkeiten im selben Fenster entscheidet,
 **wie die em.json geteilt wird**, wenn die Ausgrabung mehrere Sondagen
 hat:
 
-- **Automatisch**: eine Datei, wenn die Ausgrabungsstätte eine Sondage
-  hat, eine je Sondage, wenn sie mehrere hat. Das ist die Vorauswahl.
-- **Eine einzige Datei**: die ganze Ausgrabung in einem Graphen, wie
-  bisher.
-- **Eine je Sondage**: eine Datei für jede Sondage. Beziehungen, die aus
-  der Sondage **hinausführen**, gehen nicht verloren: sie bleiben in der
-  Datei als Verbindungen zwischen Graphen (`graph.links`), und EMStudio
-  findet sie wieder.
+- **Automatisch**: ein einziger Graph, wenn die Stätte eine Sondage
+  hat, ein Graph je Sondage, wenn sie mehrere hat. Das ist die
+  Ausgangswahl.
+- **Ein einziger Graph für die ganze Stätte**: die ganze Ausgrabung in
+  einem Graphen, wie bisher.
+- **Ein Graph je Sondage**: **eine einzige Datei**, die einen Graphen je
+  Sondage enthält, plus einen für die Einheiten ohne Angabe.
+  Beziehungen, die aus der Sondage **hinausführen**, gehen nicht
+  verloren: sie bleiben in der Datei als Verbindungen zwischen Graphen
+  (`graph.links`).
+
+> **EMStudio 1.6.0 zeigt jeweils einen.** Die Datei ist richtig — der
+> Leser der Bibliothek liest alle Graphen wieder ein, ohne Warnung —
+> aber EMStudio öffnet den in `active_graph_id` genannten Graphen, also
+> die erste Sondage, und hat keine Auswahl für die anderen. Die Matrix
+> in QGIS, **Matrix zeigen**, vereint sie alle und zeichnet die ganze
+> Ausgrabung. Gemessen am 2026-10-12 an der Beispielstätte: 4 Graphen
+> (52/49/56/51 Knoten), 32 Verbindungen zwischen Sondagen, 51 Einheiten
+> in der vereinten Matrix.
 
 Die Sondage ist das Feld **Saggio** des SE-Formulars: Einheiten ohne
-Eintrag landen in einer eigenen Datei.
+Eintrag landen in einem eigenen Graphen, in derselben Datei.
 
 ### 2.3 Klick auf "Esporta"
 

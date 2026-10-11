@@ -42,20 +42,31 @@ Al pulsar **Esporta** se pide la **carpeta de destino**.
 
 Autores, licencias, embargos y grupos se gestionan en la ventana **"Manage paradata"** (§3).
 
-### 2.2.1 Sondeos: un solo archivo o uno por sondeo
+### 2.2.1 Sondeos: un solo grafo o uno por sondeo
 
 Un grupo de tres opciones, en la misma ventana, decide **cómo dividir el
 em.json** cuando la excavación tiene varios sondeos:
 
-- **Automático**: un solo archivo si el sitio tiene un sondeo, uno por
-  sondeo si tiene varios. Es la opción de partida.
-- **Un solo archivo**: toda la excavación en un grafo, como siempre.
-- **Uno por sondeo**: un archivo para cada sondeo. Las relaciones que
-  **salen** del sondeo no se pierden: quedan en el archivo como enlaces
-  entre grafos (`graph.links`), y EMStudio las vuelve a encontrar.
+- **Automático**: un solo grafo si el sitio tiene un sondeo, un grafo
+  por sondeo si tiene varios. Es la opción de partida.
+- **Un solo grafo para todo el sitio**: toda la excavación en un grafo,
+  como siempre.
+- **Un grafo por sondeo**: **un solo archivo**, que lleva dentro un
+  grafo para cada sondeo, más uno para las unidades que no lo han
+  rellenado. Las relaciones que **salen** del sondeo no se pierden:
+  quedan en el archivo como enlaces entre grafos (`graph.links`).
+
+> **EMStudio 1.6.0 muestra uno a la vez.** El archivo es correcto —el
+> lector de la biblioteca vuelve a leer todos los grafos, sin avisos—
+> pero EMStudio abre el grafo declarado en `active_graph_id`, el primer
+> sondeo, y no tiene un selector para los demás. La matriz dentro de
+> QGIS, **Mostrar matriz**, los une todos y dibuja la excavación
+> entera. Medido el 2026-10-12 en el sitio de ejemplo: 4 grafos
+> (52/49/56/51 nodos), 32 enlaces entre sondeos, 51 unidades en la
+> matriz unida.
 
 El sondeo es el campo **Saggio** de la ficha UE: las unidades que lo
-tienen vacío acaban en un archivo aparte.
+tienen vacío acaban en un grafo aparte, dentro del mismo archivo.
 
 ### 2.3 Click en "Esporta"
 

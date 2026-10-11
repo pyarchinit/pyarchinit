@@ -42,20 +42,30 @@ En prémer **Esporta** es demana la **carpeta de destinació**.
 
 Autors, llicències, embargaments i grups es gestionen a la finestra **"Manage paradata"** (§3).
 
-### 2.2.1 Sondeigs: un sol fitxer o un per sondeig
+### 2.2.1 Sondeigs: un sol graf o un per sondeig
 
 Un grup de tres opcions, a la mateixa finestra, decideix **com dividir
 l'em.json** quan l'excavació té diversos sondeigs:
 
-- **Automàtic**: un sol fitxer si el jaciment té un sondeig, un per
+- **Automàtic**: un sol graf si el lloc té un sondeig, un graf per
   sondeig si en té més. És l'opció de partida.
-- **Un sol fitxer**: tota l'excavació en un graf, com sempre.
-- **Un per sondeig**: un fitxer per cada sondeig. Les relacions que
-  **surten** del sondeig no es perden: queden al fitxer com a enllaços
-  entre grafs (`graph.links`), i l'EMStudio les retroba.
+- **Un sol graf per a tot el lloc**: tota l'excavació en un graf, com
+  sempre.
+- **Un graf per sondeig**: **un sol fitxer**, que porta dins un graf per
+  a cada sondeig, més un per a les unitats que no l'han omplert. Les
+  relacions que **surten** del sondeig no es perden: queden al fitxer
+  com a enllaços entre grafs (`graph.links`).
+
+> **L'EMStudio 1.6.0 en mostra un cada vegada.** El fitxer és correcte
+> —el lector de la biblioteca rellegeix tots els grafs, sense avisos—
+> però l'EMStudio obre el graf declarat a `active_graph_id`, el primer
+> sondeig, i no té un selector per als altres. La matriu dins del QGIS,
+> **Mostra la matriu**, els uneix tots i dibuixa l'excavació sencera.
+> Mesurat el 2026-10-12 al lloc d'exemple: 4 grafs (52/49/56/51 nodes),
+> 32 enllaços entre sondeigs, 51 unitats a la matriu unida.
 
 El sondeig és el camp **Saggio** de la fitxa US: les unitats que el tenen
-buit acaben en un fitxer a part.
+buit acaben en un graf a part, dins del mateix fitxer.
 
 ### 2.3 Clica "Esporta"
 

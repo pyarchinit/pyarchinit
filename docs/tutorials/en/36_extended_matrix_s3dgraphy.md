@@ -42,21 +42,30 @@ Pressing **Esporta** asks for the **destination folder**.
 
 Authors, licences, embargoes and groups are handled in the **"Manage paradata"** window (§3).
 
-### 2.2.1 Trenches: a single file or one per trench
+### 2.2.1 Trenches: a single graph or one per trench
 
 A group of three choices, in the same window, decides **how to split the
 em.json** when the dig has several trenches:
 
-- **Automatic**: a single file if the site has one trench, one per trench
-  if it has several. This is the starting choice.
-- **A single file**: the whole dig in one graph, the way it has always
-  been done.
-- **One per trench**: one file for each trench. Relationships that
-  **leave** the trench are not lost: they stay in the file as links
-  between graphs (`graph.links`), and EMStudio finds them again.
+- **Automatic**: one graph if the site has a single trench, one graph
+  per trench if it has more. This is the starting choice.
+- **A single graph for the whole site**: the whole dig in one graph, the
+  way it has always been done.
+- **One graph per trench**: **a single file**, carrying one graph for
+  each trench plus one for the units that left the field empty.
+  Relationships that **leave** the trench are not lost: they stay in the
+  file as links between graphs (`graph.links`).
+
+> **EMStudio 1.6.0 shows one at a time.** The file is right — the
+> library's own loader reads every graph back, with no warning — but
+> EMStudio opens the graph named in `active_graph_id`, the first trench,
+> and has no switcher for the others. The matrix inside QGIS, **Show
+> matrix**, merges them all and draws the whole dig. Measured on
+> 2026-10-12 on the example site: 4 graphs (52/49/56/51 nodes), 32
+> cross-trench links, 51 units in the merged matrix.
 
 The trench is the **Saggio** field of the US form: units that have it
-empty end up in a file of their own.
+empty end up in a graph of their own, inside the same file.
 
 ### 2.3 Click "Esporta"
 

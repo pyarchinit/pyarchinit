@@ -42,20 +42,30 @@ Premendo **Esporta** viene chiesta la **cartella di destinazione**.
 
 Autori, licenze, embargo e gruppi si gestiscono nella finestra **"Manage paradata"** (§3).
 
-### 2.2.1 Saggi: un file solo o uno per saggio
+### 2.2.1 Saggi: un grafo solo o uno per saggio
 
 Un gruppo di tre scelte, nella stessa finestra, decide **come dividere
 l'em.json** quando lo scavo ha più saggi:
 
-- **Automatico**: un file solo se il sito ha un saggio, uno per saggio se
-  ne ha più. È la scelta di partenza.
-- **Un file solo**: tutto lo scavo in un grafo, come si è sempre fatto.
-- **Uno per saggio**: un file per ciascun saggio. I rapporti che **escono**
-  dal saggio non si perdono: restano nel file come collegamenti fra grafi
-  (`graph.links`), e EMStudio li ritrova.
+- **Automatico**: un grafo solo se il sito ha un saggio, un grafo per
+  saggio se ne ha più. È la scelta di partenza.
+- **Un grafo solo per tutto il sito**: tutto lo scavo in un grafo, come
+  si è sempre fatto.
+- **Un grafo per ogni saggio**: **un file solo**, che porta dentro un
+  grafo per ciascun saggio, più uno per le unità che non l'hanno
+  compilato. I rapporti che **escono** dal saggio non si perdono:
+  restano nel file come collegamenti fra grafi (`graph.links`).
+
+> **EMStudio 1.6.0 ne mostra uno per volta.** Il file è giusto — il
+> lettore della libreria rilegge tutti i grafi, senza un avviso — ma
+> EMStudio apre il grafo dichiarato `active_graph_id`, cioè il primo
+> saggio, e non ha un selettore per gli altri. La matrice dentro QGIS,
+> **Mostra matrice**, li unisce tutti e disegna lo scavo intero.
+> Misurato il 2026-10-12 sul sito di esempio: 4 grafi (52/49/56/51
+> nodi), 32 collegamenti fra saggi, 51 unità nella matrice unita.
 
 Il saggio è il campo **Saggio** della scheda US: le unità che non lo hanno
-compilato finiscono in un file a parte.
+compilato finiscono in un grafo a parte, dentro lo stesso file.
 
 ### 2.3 Click "Esporta"
 
