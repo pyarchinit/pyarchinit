@@ -209,6 +209,38 @@ def _schede():
          "[]",
          "caso 10: la stessa US 50 nell'area 2, con una durata diversa",
          5, "2"),
+
+        # --- Caso 11: rapporti che ESCONO dall'area ----------------------
+        # L'esempio di Enzo, 11 ottobre 2026: «se US 1 in area 1 copre US 9
+        # in area 2, il reciproco dovrà scrivere US 9 area 2 "coperto da US
+        # 1 area 1"». Fino a qui il database non aveva **nessun** rapporto
+        # fra due aree: tutti i casi 1-10 stanno dentro la loro.
+        #
+        # 60 -> 61: la forma corta ['Copre', '61'] non dice l'area, e la US
+        # 61 esiste SOLO nell'area 2. Il bottone «Aggiorna Area/Sito»
+        # dev'esserci arrivato: scrivere l'area della scheda (1) nomina una
+        # riga che non c'è. E il reciproco va scritto sulla scheda
+        # dell'area 2, non su una omonima.
+        ("1", "60", 5, "1", "XIII secolo",
+         "[['Copre', '61']]",
+         "caso 11: forma corta che esce dall'area (la 61 sta solo in area 2)"),
+        ("2", "61", 4, "2", "Seconda fase dell'XI secolo",
+         "[]",
+         "caso 11: qui manca «Coperto da 60 area 1»"),
+        # 62 -> 63: l'area è dichiarata, è un'altra, ed è GIUSTA. La US 63
+        # esiste in tutte due le aree: è lei che ingannava la vecchia
+        # ricerca (`WHERE us = ? AND sito = ?` più la prima riga), che
+        # riscriveva area 2 -> area 1 e portava la scheda a parlare
+        # dell'unità sbagliata.
+        ("1", "62", 5, "1", "XIII secolo",
+         "[%s]" % _lungo("Copre", "63", "2"),
+         "caso 11: area dichiarata e giusta: non si deve riscrivere"),
+        ("2", "63", 4, "2", "Seconda fase dell'XI secolo",
+         "[%s]" % _lungo("Coperto da", "62", "1"),
+         "caso 11: il reciproco, nell'area 2"),
+        ("1", "63", 4, "1", "Prima fase dell'XI secolo",
+         "[]",
+         "caso 11: la US 63 c'è anche in area 1, e non c'entra niente"),
     ]
 
 

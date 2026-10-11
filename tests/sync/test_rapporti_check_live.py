@@ -310,37 +310,50 @@ def test_every_row_of_the_generated_site_is_its_own_node(scavo):
 
 
 def test_generated_site_the_missing_reciprocal_is_found_for_area_1(scavo):
-    """Il reciproco che manca è uno solo, ed è della US 9 **dell'area 1**.
+    """I reciproci che mancano sono due, e ciascuno sulla scheda giusta.
 
-    La US 9 dell'area 2 porta «Coperto da 1 (area 2)»: un controllo che
-    indicizza le schede per numero di US la prenderebbe per la risposta
-    dell'area 1 e tacerebbe. Qui deve nominare l'area giusta.
+    Il primo è della US 9 **dell'area 1**: la US 9 dell'area 2 porta
+    «Coperto da 1 (area 2)», e un controllo che indicizza le schede per
+    numero di US la prenderebbe per la risposta dell'area 1 e tacerebbe.
+
+    Il secondo esce dall'area (caso 11): la US 60 dell'area 1 copre la US
+    61, che esiste **solo** nell'area 2, e il reciproco va scritto là —
+    con l'area 1, che è quella della US 60. È l'esempio di Enzo
+    dell'11 ottobre 2026, e il pannello lo fa già bene: era il bottone
+    della scheda US a sbagliarlo.
     """
     mancanti = _mancanti_scavo(scavo)
-    assert len(mancanti) == 1, [i.summary for i in mancanti]
-    assert mancanti[0].us_path == ["1", "9"]
-    e = mancanti[0].edits[0]
-    assert e.target == ("us_table", {"us": "9", "area": "1",
-                                     "unita_tipo": "US"})
-    assert e.add == (("Coperto da", "1", "1", RSD.SITO),)
+    assert [i.us_path for i in mancanti] == [["1", "9"], ["60", "61"]], (
+        [i.summary for i in mancanti])
+
+    scritte = [(i.edits[0].target, i.edits[0].add) for i in mancanti]
+    assert scritte == [
+        (("us_table", {"us": "9", "area": "1", "unita_tipo": "US"}),
+         (("Coperto da", "1", "1", RSD.SITO),)),
+        (("us_table", {"us": "61", "area": "2", "unita_tipo": "US"}),
+         (("Coperto da", "60", "1", RSD.SITO),)),
+    ]
 
 
 def test_generated_site_the_fix_writes_one_row_and_the_undo_restores_it(scavo):
-    """Il fix scrive **una** riga, la US 9 dell'area 1; le altre nove non si
-    toccano; l'annulla rimette solo quella."""
+    """Il fix scrive **due** righe — la US 9 dell'area 1 e la US 61
+    dell'area 2 — e nessun'altra; l'annulla rimette solo quelle."""
     from s3dgraphy.sync._db_handle import _resolve_db_handle
     from modules.utility import rapporti_check as RC
 
     prima = _rapporti_scavo(scavo)
     edits = [e for i in _mancanti_scavo(scavo) for e in i.edits]
-    assert len(edits) == 1
+    assert len(edits) == 2
 
     token = RC.apply_edits(edits, _resolve_db_handle(scavo), sito=RSD.SITO)
     dopo = _rapporti_scavo(scavo)
     cambiate = sorted(k for k in prima if prima[k] != dopo[k])
-    assert cambiate == [("1", "9")], cambiate
+    assert cambiate == [("1", "9"), ("2", "61")], cambiate
     assert "Coperto da" in dopo[("1", "9")]
     assert "Copre" in dopo[("1", "9")], "il fix ha cancellato il rapporto che c'era"
+    # La scheda dell'area 2 riceve il reciproco con l'area di **chi** la
+    # nomina: «Coperto da 60, area 1».
+    assert dopo[("2", "61")] == "[['Coperto da', '60', '1', '%s']]" % RSD.SITO
     assert _mancanti_scavo(scavo) == [], "il fix non è rimasto"
 
     RC.rollback(token, _resolve_db_handle(scavo))
@@ -357,7 +370,10 @@ def test_generated_site_a_short_form_reciprocal_still_reads_as_written(scavo):
 
     assert _rapporti_scavo(scavo)[("1", "5")] == "[['Coperto da', '9']]"
     mancanti = _mancanti_scavo(scavo)
-    assert [i.us_path for i in mancanti] == [["1", "9"]], (
+    assert ["1", "5"] not in [i.us_path for i in mancanti], (
+        "la forma corta è stata letta come reciproco mancante: %s"
+        % [i.summary for i in mancanti])
+    assert ["9", "5"] not in [i.us_path for i in mancanti], (
         "la forma corta è stata letta come reciproco mancante: %s"
         % [i.summary for i in mancanti])
 

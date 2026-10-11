@@ -14088,6 +14088,12 @@ DATABASE SCHEMA KNOWLEDGE:
                     log_error(f"Errore nel recupero delle righe: {str(e)}")
                     raise
 
+                # In quali aree esiste ogni numero di US, su tutto il sito:
+                # l'area di un rapporto è quella dell'unità collegata, e
+                # fuori da uno scavo a un'area sola non è quella della
+                # scheda (Enzo, 11 ottobre 2026).
+                aree_per_us = self._aree_per_us(sito, connection)
+
                 for row in rows:
                     id, rapporti_str = row
 
@@ -14098,22 +14104,22 @@ DATABASE SCHEMA KNOWLEDGE:
                             # Conversione della stringa in lista
                             rapporti_list = ast.literal_eval(rapporti_str)
 
-                            # Aggiornamento della lista
-                            updated_rapporti_list = []
-                            for sublist in rapporti_list:
-                                if sublist:
-                                    if len(sublist) == 2:
-                                        # Rapporto base [tipo, us] - aggiungi area e sito
-                                        updated_rapporti_list.append(sublist + [area, sito])
-                                    elif len(sublist) == 3:
-                                        # Rapporto con area [tipo, us, area] - aggiungi sito
-                                        updated_rapporti_list.append(sublist[:3] + [sito])
-                                    else:
-                                        # Rapporto completo o altro formato - preserva come è
-                                        updated_rapporti_list.append(sublist[:4])
-                                else:
-                                    updated_rapporti_list.append(sublist)
-                            updated_rapporti_list2 = updated_rapporti_list
+                            # Le due colonne mancanti. L'area è quella
+                            # dell'unità collegata — non quella della
+                            # scheda — e un'area che nomina una riga che
+                            # esiste non si tocca: le regole stanno in
+                            # `modules/utility/rapporti_entries.py`.
+                            from modules.utility.rapporti_entries import (
+                                completa_rapporti)
+                            updated_rapporti_list2, irrisolti = completa_rapporti(
+                                rapporti_list, area_scheda=area, sito=sito,
+                                aree_per_us=aree_per_us)
+                            for us_irr, motivo, dichiarata in irrisolti:
+                                log_error(
+                                    "US %s (area %s): area del rapporto non "
+                                    "decidibile (%s), dichiarata %r"
+                                    % (us_irr, area, motivo, dichiarata),
+                                    "WARNING")
 
                             # Conversione in stringa con controllo UTF-8
                             updated_rapporti_str = self.ensure_utf8(str(updated_rapporti_list2))
@@ -14213,9 +14219,20 @@ DATABASE SCHEMA KNOWLEDGE:
                     self.show_error(e, "il recupero dei dati")
                     return
 
+                # L'indice delle aree, una query sola: l'area che si scrive
+                # in un rapporto è quella dell'unità collegata, e per
+                # saperla bisogna sapere in quali aree quel numero esiste.
+                try:
+                    aree_per_us = self._aree_per_us(var1, connection)
+                except Exception as e:
+                    log_error(f"Errore nel costruire l'indice delle aree: {e}")
+                    aree_per_us = {}
+                irrisolti_tutti = []
+
                 # Processa ogni riga — aggiorna SIA rapporti CHE rapporti2
                 for row_j in rows:
                     id_us = row_j.id_us
+                    area_scheda = row_j.area
                     any_change = False
 
                     # --- rapporti (colonne: tipo, us, area, sito) ---
@@ -14223,8 +14240,10 @@ DATABASE SCHEMA KNOWLEDGE:
                     if rapporti_str and rapporti_str != "[[]]":
                         try:
                             rapporti_list = ast.literal_eval(rapporti_str)
-                            updated = self._update_rapporti_add_area_sito(
-                                rapporti_list, var1, connection, id_us, log_error)
+                            updated, irrisolti = self._update_rapporti_add_area_sito(
+                                rapporti_list, var1, area_scheda,
+                                aree_per_us, log_error, id_us)
+                            irrisolti_tutti.extend(irrisolti)
                             updated_str = self.ensure_utf8(str(updated))
                             if updated_str != rapporti_str:
                                 try:
@@ -14244,8 +14263,10 @@ DATABASE SCHEMA KNOWLEDGE:
                     if rapporti2_str and rapporti2_str != "[[]]" and rapporti2_str != '[]':
                         try:
                             rapporti2_list = ast.literal_eval(rapporti2_str)
-                            updated2 = self._update_rapporti2_add_area_sito(
-                                rapporti2_list, var1, connection, id_us, log_error)
+                            updated2, irrisolti2 = self._update_rapporti2_add_area_sito(
+                                rapporti2_list, var1, area_scheda,
+                                aree_per_us, log_error, id_us)
+                            irrisolti_tutti.extend(irrisolti2)
                             updated2_str = self.ensure_utf8(str(updated2))
                             if updated2_str != rapporti2_str:
                                 try:
@@ -14264,6 +14285,12 @@ DATABASE SCHEMA KNOWLEDGE:
                 connection.commit()
                 log_error(f"Aggiornamento completato e commit eseguito per il sito {var1}", "INFO")
 
+                # Quello che non si e' potuto decidere si dice: un'area
+                # inventata collega la scheda all'unita' sbagliata, e una
+                # colonna vuota senza avviso non si vede.
+                if irrisolti_tutti:
+                    self.avvisa_aree_irrisolte(irrisolti_tutti)
+
                 # Refresh the form: reload records from DB and repaint
                 # the tableWidgets so the user sees the new area/sito
                 # columns immediately without reloading the plugin.
@@ -14281,75 +14308,111 @@ DATABASE SCHEMA KNOWLEDGE:
             log_error(error_msg)
             self.show_error(e, "l'aggiornamento")
 
+    # ---- l'indice delle aree: una query per sito ----
+    def _aree_per_us(self, sito, connection):
+        """``{numero di US: aree in cui esiste}`` per il sito.
+
+        Una query sola. Chi cercava l'area una riga per volta
+        (``find_correct_area_for_us``) rifletteva la tabella — 119 colonne —
+        a ogni rapporto, e prendeva la **prima** riga che capitava: su uno
+        scavo dove lo stesso numero esiste in due aree, la risposta era
+        quella dell'area sbagliata.
+        """
+        from modules.utility.rapporti_entries import indice_aree
+        metadata = MetaData()
+        us_table = Table('us_table', metadata, autoload_with=connection.engine)
+        stmt = select(us_table.c.us, us_table.c.area).where(
+            us_table.c.sito == sito)
+        righe = connection.execute(stmt).fetchall()
+        return indice_aree([(r[0], r[1]) for r in righe])
+
+    def avvisa_aree_irrisolte(self, irrisolti):
+        """Dice quali rapporti sono rimasti senza area, e perché.
+
+        Due motivi: l'unità collegata non esiste in nessuna area del sito,
+        o esiste in più aree e nessuna è quella della scheda — e allora
+        nessuno può decidere al posto dell'archeologo. La colonna resta
+        vuota: un'area inventata collega la scheda all'unità sbagliata.
+        """
+        from modules.utility.rapporti_entries import AMBIGUA, INESISTENTE
+        ambigue = sorted({u for u, m, _ in irrisolti if m == AMBIGUA},
+                         key=lambda x: (len(x), x))
+        assenti = sorted({u for u, m, _ in irrisolti if m == INESISTENTE},
+                         key=lambda x: (len(x), x))
+        if self.L == 'it':
+            titolo = "Area e sito nei rapporti"
+            testo = ("Alcuni rapporti sono rimasti senza area, e la colonna "
+                     "è vuota: va scelta a mano nella scheda.\n\n")
+            if ambigue:
+                testo += ("Esistono in più aree (quale si intende?): %s\n"
+                          % ", ".join(ambigue[:30]))
+            if assenti:
+                testo += ("Non esistono in nessuna area del sito: %s\n"
+                          % ", ".join(assenti[:30]))
+        elif self.L == 'de':
+            titolo = "Areal und Ausgrabungsstätte in den Beziehungen"
+            testo = ("Einige Beziehungen sind ohne Areal geblieben; die "
+                     "Spalte ist leer und muss im Formular gewählt "
+                     "werden.\n\n")
+            if ambigue:
+                testo += "In mehreren Arealen vorhanden: %s\n" % ", ".join(
+                    ambigue[:30])
+            if assenti:
+                testo += "In keinem Areal vorhanden: %s\n" % ", ".join(
+                    assenti[:30])
+        else:
+            titolo = "Area and site in the relationships"
+            testo = ("Some relationships were left without an area: the "
+                     "column is empty and must be chosen in the form.\n\n")
+            if ambigue:
+                testo += "Present in several areas: %s\n" % ", ".join(
+                    ambigue[:30])
+            if assenti:
+                testo += "Present in no area of the site: %s\n" % ", ".join(
+                    assenti[:30])
+        try:
+            QMessageBox.information(self, titolo, testo,
+                                    QMessageBox.StandardButton.Ok)
+        except Exception:
+            pass
+
     # ---- helper: aggiunge area+sito a rapporti (4-col) ----
-    def _update_rapporti_add_area_sito(self, rapporti_list, sito, connection, id_us, log_error):
+    def _update_rapporti_add_area_sito(self, rapporti_list, sito, area_scheda,
+                                       aree_per_us, log_error, id_us=None):
+        """Completa ``area`` e ``sito`` in ``rapporti`` [tipo, us, area, sito].
+
+        L'area che si scrive è quella **dell'unità collegata**, non quella
+        della scheda, e un'area che nomina una riga che esiste non si
+        tocca: le regole stanno in ``modules/utility/rapporti_entries.py``.
+        Ritorna ``(lista, irrisolti)``.
         """
-        Per ogni entry di ``rapporti`` [tipo, us, (area), (sito)],
-        aggiunge area e sito se mancano o corregge l'area
-        cercandola nel DB.
-        """
-        result = []
-        for sub in rapporti_list:
-            if not sub or len(sub) < 2:
-                continue
-            us_id = sub[1]
-            try:
-                correct_area = self.find_correct_area_for_us(us_id, sito, connection)
-            except Exception:
-                correct_area = None
-            if len(sub) == 2:
-                result.append(sub + [correct_area or '', sito])
-            elif len(sub) == 3:
-                result.append([sub[0], sub[1], correct_area or sub[2], sito])
-            else:
-                entry = list(sub[:4])
-                if correct_area:
-                    entry[2] = correct_area
-                entry[3] = sito
-                result.append(entry)
-        return result
+        from modules.utility.rapporti_entries import completa_rapporti
+        fuori, irrisolti = completa_rapporti(
+            rapporti_list, area_scheda=area_scheda, sito=sito,
+            aree_per_us=aree_per_us)
+        for us_irr, motivo, dichiarata in irrisolti:
+            log_error("US %s (scheda %s, area %s): area non decidibile (%s), "
+                      "dichiarata %r" % (us_irr, id_us, area_scheda, motivo,
+                                         dichiarata), "WARNING")
+        return fuori, irrisolti
 
     # ---- helper: aggiunge area+sito a rapporti2 (7-col) ----
-    def _update_rapporti2_add_area_sito(self, rapporti2_list, sito, connection, id_us, log_error):
+    def _update_rapporti2_add_area_sito(self, rapporti2_list, sito, area_scheda,
+                                        aree_per_us, log_error, id_us=None):
+        """Lo stesso per ``rapporti2``
+        [tipo, us, unita_tipo, descr, periodo, area, sito], dove le due
+        colonne stanno al sesto e settimo posto.
         """
-        Per ogni entry di ``rapporti2``
-        [tipo, us, unita_tipo, descr, periodo, (area), (sito)],
-        aggiunge area e sito nelle posizioni 5 e 6 se mancano.
-        """
-        result = []
-        for sub in rapporti2_list:
-            if not sub or len(sub) < 2:
-                continue
-            us_id = sub[1]
-            try:
-                correct_area = self.find_correct_area_for_us(us_id, sito, connection)
-            except Exception:
-                correct_area = None
-            area_val = correct_area or ''
-            if len(sub) == 5:
-                # formato base senza area/sito → aggiungi
-                result.append(list(sub) + [area_val, sito])
-            elif len(sub) == 6:
-                # ha area ma non sito → aggiorna area e aggiungi sito
-                entry = list(sub)
-                entry[5] = area_val
-                entry.append(sito)
-                result.append(entry)
-            elif len(sub) >= 7:
-                # completo → aggiorna area e sito
-                entry = list(sub[:7])
-                entry[5] = area_val
-                entry[6] = sito
-                result.append(entry)
-            else:
-                # formato corto (<5 campi) — preserva e accoda area+sito
-                entry = list(sub)
-                while len(entry) < 5:
-                    entry.append('')
-                entry.append(area_val)
-                entry.append(sito)
-                result.append(entry)
-        return result
+        from modules.utility.rapporti_entries import completa_rapporti
+        fuori, irrisolti = completa_rapporti(
+            rapporti2_list, area_scheda=area_scheda, sito=sito,
+            aree_per_us=aree_per_us, pos_area=5, pos_sito=6)
+        for us_irr, motivo, dichiarata in irrisolti:
+            log_error("rapporti2 US %s (scheda %s, area %s): area non "
+                      "decidibile (%s), dichiarata %r"
+                      % (us_irr, id_us, area_scheda, motivo, dichiarata),
+                      "WARNING")
+        return fuori, irrisolti
 
     def ensure_utf8(self,s):
         """
@@ -15038,84 +15101,47 @@ DATABASE SCHEMA KNOWLEDGE:
             QApplication.processEvents()  # Force UI update
             QApplication.instance().processEvents()  # Extra call to ensure update
             try:
-                # Parse the error to extract the relationship info
-                # Format: "Sito: SITE, Area: AREA, US: X tipo_rapporto US: Y Area: AREA: Rapporto reciproco non trovato"
-                
-                # Use regex to extract the pattern more reliably
-                import re
-                
-                # Pattern to match any unit type: (SU/US/USM/WSU): (number) (relationship type) (SU/US/USM/WSU): (number) Area: (number)
-                # This pattern captures the unit type, numbers and area
-                pattern = r'(SU|US|USM|WSU):\s*(\d+)\s+(.+?)\s+(SU|US|USM|WSU):\s*(\d+)\s+Area:\s*(\d+)'
-                match = re.search(pattern, error)
+                # La riga del rapporto reciproco mancante, letta dal modulo
+                # che la sa leggere in tutte e tre le lingue e con le aree
+                # non numeriche: `modules/utility/rapporti_entries.py`.
+                # Il vecchio lettore pretendeva `\d+` per l'area (uno scavo
+                # a saggi ripiegava sull'area 1), cercava `Site:` anche in
+                # italiano e su `SE:` (tedesco) non partiva.
+                from modules.utility.rapporti_entries import (
+                    leggi_riga_reciproco)
+                letto = leggi_riga_reciproco(error)
+                if not letto:
+                    print("Riga del rapporto non interpretabile: %s" % error)
+                    continue
+                error_sito = letto["sito"] or str(
+                    self.comboBox_sito.currentText())
+                error_area_from = letto["area_a"]
+                us_from = letto["us_a"]
+                rel_type = letto["rapporto"]
+                us_to = letto["us_b"]
+                error_area_to = letto["area_b"]
 
-                # Also extract site from the beginning of the error
-                site_pattern = r'Site:\s*([^,]+)'
-                site_match = re.search(site_pattern, error)
-                error_sito = site_match.group(1).strip() if site_match else str(self.comboBox_sito.currentText())
-
-                # Extract area from the beginning too (Area: X after Site)
-                area_from_pattern = r'Area:\s*(\d+),'
-                area_from_match = re.search(area_from_pattern, error)
-                error_area_from = area_from_match.group(1) if area_from_match else '1'
-
-                if match:
-                    unit_type_from = match.group(1)
-                    us_from = match.group(2)
-                    rel_type = match.group(3).strip()
-                    unit_type_to = match.group(4)
-                    us_to = match.group(5)
-                    error_area_to = match.group(6)  # Area of the target US
-                else:
-                    # Fallback to manual parsing for any unit type
-                    # Look for any of the unit types
-                    unit_types = ['SU:', 'US:', 'USM:', 'WSU:']
-                    unit_type_found = None
-
-                    for unit_type in unit_types:
-                        if unit_type in error:
-                            unit_type_found = unit_type
-                            break
-
-                    if unit_type_found:
-                        parts = error.split(unit_type_found)
-                        if len(parts) >= 3:
-                            # First unit number
-                            us_from = parts[1].strip().split()[0]
-
-                            # Find relationship and second unit
-                            middle_part = parts[1].strip()
-                            # Everything after the first number until the end
-                            after_first_us = ' '.join(middle_part.split()[1:])
-
-                            # Second unit number
-                            us_to = parts[2].strip().split()[0]
-
-                            # Relationship is what's between them
-                            rel_type = after_first_us.strip()
-
-                            # Use the area from the beginning of the error
-                            error_area_to = error_area_from
-                        else:
-                            raise ValueError(f"Cannot parse error format: {error}")
-                    else:
-                        raise ValueError(f"No unit type (SU/US/USM/WSU) found in error: {error}")
-                
-                # Log with unit type if captured
-                if 'unit_type_from' in locals() and 'unit_type_to' in locals():
-                    pass
-                else:
-                    pass
-                
-                # Find the target US record
+                # La scheda su cui scrivere il reciproco si nomina con
+                # **tutte e tre** le chiavi: su uno scavo a più aree lo
+                # stesso numero esiste in più schede, e cercare solo per
+                # `sito` e `us` scriveva il reciproco su quella sbagliata
+                # — l'area del bersaglio era già letta e non la si usava
+                # (Enzo, 11 ottobre 2026).
                 search_dict = {
-                    'sito': "'" + str(self.comboBox_sito.currentText()) + "'",
+                    'sito': "'" + str(error_sito) + "'",
+                    'area': "'" + str(error_area_to) + "'",
                     'us': us_to
                 }
-                
+                u = Utility()
+                search_dict = u.remove_empty_items_fr_dict(search_dict)
                 target_records = self.DB_MANAGER.query_bool(search_dict, self.MAPPER_TABLE_CLASS)
-                
-                
+                if len(target_records) > 1:
+                    # La chiave non basta a nominare la riga (due unita_tipo
+                    # sullo stesso numero): non si indovina.
+                    print("Rapporto reciproco non applicato, chiave ambigua: "
+                          "%s" % error)
+                    continue
+
                 if target_records:
                     target_rec = target_records[0]
                     
@@ -15143,11 +15169,23 @@ DATABASE SCHEMA KNOWLEDGE:
                     # Add reciprocal relationship with full format [type, us, area, sito]
                     new_rel = [reciprocal_type, us_from, error_area_from, error_sito]
 
-                    # Check if relationship already exists (check by type and us, ignore area/sito variations)
+                    # C'è già? Si guarda tipo, US **e area**: su uno
+                    # scavo a più aree un «Coperto da 1» che nomina la US 1
+                    # di un'altra area non è questo rapporto, e contarlo
+                    # come già presente lasciava il reciproco mancante per
+                    # sempre. Una voce che l'area non la dice vale per
+                    # l'area della scheda (la convenzione del formato
+                    # corto), e lì conta.
                     relationship_exists = False
                     for existing_rel in current_rapporti:
                         if len(existing_rel) >= 2:
-                            if existing_rel[0] == reciprocal_type and str(existing_rel[1]) == str(us_from):
+                            if (existing_rel[0] != reciprocal_type
+                                    or str(existing_rel[1]) != str(us_from)):
+                                continue
+                            area_esistente = (str(existing_rel[2]).strip()
+                                              if len(existing_rel) > 2 else "")
+                            if (not area_esistente
+                                    or area_esistente == str(error_area_from).strip()):
                                 relationship_exists = True
                                 break
 
@@ -15311,8 +15349,17 @@ DATABASE SCHEMA KNOWLEDGE:
     def fix_incomplete_relationships(self, incomplete_errors):
         """Fix relationships missing area/site information"""
         fixed_count = 0
-        
+        irrisolti_tutti = []
+
         try:
+            # In quali aree esiste ogni numero di US: una query per il
+            # sito, non una per rapporto.
+            from modules.utility.rapporti_entries import indice_aree
+            sito_corrente = str(self.comboBox_sito.currentText())
+            tutte = self.DB_MANAGER.query_bool(
+                {'sito': "'" + sito_corrente + "'"}, self.MAPPER_TABLE_CLASS)
+            aree_per_us = indice_aree([(r.us, r.area) for r in (tutte or [])])
+
             # This is similar to update_all_areas but targets specific errors
             for error in incomplete_errors:
                 # Parse the error to get the US information
@@ -15336,25 +15383,22 @@ DATABASE SCHEMA KNOWLEDGE:
                         # Update the relationships with area/site info
                         try:
                             rapporti = ast.literal_eval(record.rapporti)
-                            updated = False
-                            
-                            for i, relationship in enumerate(rapporti):
-                                if isinstance(relationship, list):
-                                    # If relationship has only 2 elements, add area and site
-                                    if len(relationship) == 2:
-                                        # Query the related US to get its area
-                                        related_us = str(relationship[1])
-                                        related_search = {
-                                            'sito': "'" + site + "'",
-                                            'us': related_us
-                                        }
-                                        related_records = self.DB_MANAGER.query_bool(related_search, self.MAPPER_TABLE_CLASS)
-                                        
-                                        if related_records:
-                                            related_area = related_records[0].area
-                                            rapporti[i] = [relationship[0], relationship[1], related_area, site]
-                                            updated = True
-                            
+                            # Le due colonne mancanti: l'area è quella
+                            # dell'unità collegata, e quando quel numero
+                            # esiste in più aree non la si indovina. Prima
+                            # si cercava con `sito` e `us` prendendo la
+                            # prima riga: su uno scavo a più aree era
+                            # l'area sbagliata.
+                            from modules.utility.rapporti_entries import (
+                                completa_rapporti)
+                            completati, irrisolti = completa_rapporti(
+                                rapporti, area_scheda=area, sito=site,
+                                aree_per_us=aree_per_us)
+                            updated = str(completati) != str(rapporti)
+                            rapporti = completati
+                            if irrisolti:
+                                irrisolti_tutti.extend(irrisolti)
+
                             if updated:
                                 # Update the record
                                 record.rapporti = str(rapporti)
@@ -15370,6 +15414,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 QMessageBox.information(self, 'Info', 
                                       f'Aggiornate {fixed_count} relazioni incomplete.', 
                                       QMessageBox.StandardButton.Ok)
+            if irrisolti_tutti:
+                self.avvisa_aree_irrisolte(irrisolti_tutti)
             
         except Exception as e:
             QMessageBox.warning(self, 'Errore', 
