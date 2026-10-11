@@ -349,3 +349,77 @@ def test_clear_form_state_label_is_in_the_forms_language():
     t = T()
     SR.clear_form_state(t)
     assert t.label_status.text == "Aucun enregistrement"
+
+
+# ---------------------------------------------------------------------------
+# Il sito senza record, su un database di prova costruito da codice
+# ---------------------------------------------------------------------------
+# Caso 7 del generatore in tests/fixtures/realistic_site_db.py: un sito che
+# esiste in `site_table` e ha una periodizzazione ma nessuna riga in
+# `us_table`. I FakeDB qui sopra restituiscono liste a mano; questo legge un
+# database vero.
+
+sys.path.insert(0, str(_ROOT / "tests" / "fixtures"))
+import realistic_site_db as RSD  # noqa: E402
+
+
+class SqliteDB:
+    """Un `DB_MANAGER` minimo che risponde a `query_bool` leggendo davvero la
+    tabella `us_table` del database di prova."""
+
+    def __init__(self, url):
+        self.url = url.replace("sqlite:///", "")
+
+    def clear_cache(self):
+        pass
+
+    def query_bool(self, params, table_class_name):
+        import sqlite3
+        assert table_class_name == "US"
+        conn = sqlite3.connect(self.url)
+        conn.row_factory = sqlite3.Row
+        righe = conn.execute("SELECT * FROM us_table WHERE sito = ?",
+                             (params["sito"].strip("'"),)).fetchall()
+        conn.close()
+        return [Row(id_us=r["id_us"], sito=r["sito"]) for r in righe]
+
+
+def _scheda(tmp_path):
+    tab = FakeTab()
+    tab.DB_MANAGER = SqliteDB(RSD.build_realistic_site_db(tmp_path))
+    return tab
+
+
+def test_a_site_with_records_loads_them(tmp_path, monkeypatch):
+    """Il controllo di non-vacuità: lo stesso database, il sito pieno, carica
+    le sue dieci schede e dice vero."""
+    tab = _scheda(tmp_path)
+    _site(monkeypatch, RSD.SITO)
+    assert SR.charge_records_for_site(tab) is True
+    assert len(tab.DATA_LIST) == tab.REC_TOT == 10
+
+
+def test_a_site_in_site_table_without_us_rows_returns_false_and_an_empty_list(
+        tmp_path, monkeypatch):
+    """Il sito esiste, ha la periodizzazione, non ha schede US: la scheda
+    riceve `False` e una `DATA_LIST` vuota, che è quello che si aspetta per
+    aprire un record nuovo invece di fare `DATA_LIST[0]`."""
+    tab = _scheda(tmp_path)
+    _site(monkeypatch, RSD.SITO_VUOTO)
+    assert SR.charge_records_for_site(tab) is False
+    assert tab.DATA_LIST == []
+
+
+def test_the_empty_site_leaves_the_form_usable(tmp_path, monkeypatch):
+    """Dopo `clear_form_state` i contatori sono a zero, la scheda è nello
+    stato «x» e l'etichetta dice il testo della lingua."""
+    tab = _scheda(tmp_path)
+    tab.L = "it"
+    _site(monkeypatch, RSD.SITO_VUOTO)
+    assert SR.charge_records_for_site(tab) is False
+    SR.clear_form_state(tab)
+    assert (tab.REC_TOT, tab.REC_CORR) == (0, 0)
+    assert tab.DATA_LIST_REC_TEMP is tab.DATA_LIST_REC_CORR is None
+    assert tab.BROWSE_STATUS == "x"
+    assert tab.label_status.text == "Nessun record"
+    assert SR.no_records_texts(tab)[0] == "Nessun record per il sito corrente."

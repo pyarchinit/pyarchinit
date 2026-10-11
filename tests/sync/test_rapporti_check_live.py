@@ -246,3 +246,121 @@ def test_apply_no_longer_refuses_for_an_ambiguous_key(due_aree):
 
     edits = [e for i in _verifica(due_aree) for e in i.edits]
     RC.apply_edits(edits, _resolve_db_handle(due_aree), sito=_SITO)
+
+
+# ---------------------------------------------------------------------------
+# Un database di prova costruito da codice (2026-10-11)
+# ---------------------------------------------------------------------------
+# `due_aree` qui sopra clona due righe del database di esempio. Il generatore
+# in tests/fixtures/realistic_site_db.py costruisce invece uno scavo intero a
+# più aree, con il motivo di ogni riga scritto accanto alla riga. Questi test
+# fissano i casi 1, 2 e 3: la stessa US in due aree, il reciproco mancante
+# solo in una, e il reciproco in forma corta.
+
+sys.path.insert(0, str(_ROOT / "tests" / "fixtures"))
+import realistic_site_db as RSD  # noqa: E402
+
+
+@pytest.fixture()
+def scavo(tmp_path):
+    """Lo scavo realistico, in un `tmp_path`: mai il database vivo."""
+    return RSD.build_realistic_site_db(tmp_path)
+
+
+def _mancanti_scavo(url):
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.utility import rapporti_check as RC
+
+    graph = GraphProjector().populate_graph(url, RSD.SITO)
+    report = RC.check_rapporti(graph, sito=RSD.SITO)
+    return [i for i in report.issues if i.kind == RC.MISSING_RECIPROCITY]
+
+
+def _rapporti_scavo(url):
+    import sqlite3
+    conn = sqlite3.connect(url.replace("sqlite:///", ""))
+    righe = {(a, u): r for a, u, r in conn.execute(
+        "SELECT area, us, rapporti FROM us_table WHERE sito = ?", (RSD.SITO,))}
+    conn.close()
+    return righe
+
+
+def test_every_row_of_the_generated_site_is_its_own_node(scavo):
+    """Il presupposto: con un `node_uuid` per riga, le righe con lo stesso
+    numero di US sono nodi distinti. Senza, il projector ne fonde due in uno
+    (51 nodi per 52 righe) e nessun caso a più aree sarebbe raggiungibile."""
+    import sqlite3
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+    from modules.utility import rapporti_check as RC
+
+    conn = sqlite3.connect(scavo.replace("sqlite:///", ""))
+    righe = conn.execute(
+        "SELECT COUNT(*), COUNT(DISTINCT node_uuid) FROM us_table "
+        "WHERE sito = ?", (RSD.SITO,)).fetchone()
+    conn.close()
+    assert righe[0] == righe[1] > 0, righe
+
+    graph = GraphProjector().populate_graph(scavo, RSD.SITO)
+    veri = [n for n in graph.nodes if RC._real_us(n) is not None]
+    assert len(veri) == righe[0], (len(veri), righe[0])
+    for numero in ("1", "9"):
+        aree = sorted(n.attributes.get("area") for n in veri
+                      if RC._real_us(n) == numero)
+        assert aree == ["1", "2"], (numero, aree)
+
+
+def test_generated_site_the_missing_reciprocal_is_found_for_area_1(scavo):
+    """Il reciproco che manca è uno solo, ed è della US 9 **dell'area 1**.
+
+    La US 9 dell'area 2 porta «Coperto da 1 (area 2)»: un controllo che
+    indicizza le schede per numero di US la prenderebbe per la risposta
+    dell'area 1 e tacerebbe. Qui deve nominare l'area giusta.
+    """
+    mancanti = _mancanti_scavo(scavo)
+    assert len(mancanti) == 1, [i.summary for i in mancanti]
+    assert mancanti[0].us_path == ["1", "9"]
+    e = mancanti[0].edits[0]
+    assert e.target == ("us_table", {"us": "9", "area": "1",
+                                     "unita_tipo": "US"})
+    assert e.add == (("Coperto da", "1", "1", RSD.SITO),)
+
+
+def test_generated_site_the_fix_writes_one_row_and_the_undo_restores_it(scavo):
+    """Il fix scrive **una** riga, la US 9 dell'area 1; le altre nove non si
+    toccano; l'annulla rimette solo quella."""
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
+    from modules.utility import rapporti_check as RC
+
+    prima = _rapporti_scavo(scavo)
+    edits = [e for i in _mancanti_scavo(scavo) for e in i.edits]
+    assert len(edits) == 1
+
+    token = RC.apply_edits(edits, _resolve_db_handle(scavo), sito=RSD.SITO)
+    dopo = _rapporti_scavo(scavo)
+    cambiate = sorted(k for k in prima if prima[k] != dopo[k])
+    assert cambiate == [("1", "9")], cambiate
+    assert "Coperto da" in dopo[("1", "9")]
+    assert "Copre" in dopo[("1", "9")], "il fix ha cancellato il rapporto che c'era"
+    assert _mancanti_scavo(scavo) == [], "il fix non è rimasto"
+
+    RC.rollback(token, _resolve_db_handle(scavo))
+    assert _rapporti_scavo(scavo) == prima, "l'annulla ha toccato altre righe"
+
+
+def test_generated_site_a_short_form_reciprocal_still_reads_as_written(scavo):
+    """La US 9 (area 1) «Copre 5» e la US 5 risponde in forma corta,
+    `['Coperto da', '9']`, senza area né sito. È la forma di 1870 voci su 1870
+    nel database di esempio: deve contare come reciproco scritto — nessun
+    avviso su 9 → 5 — e il fix della coppia vera non deve riscriverla."""
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
+    from modules.utility import rapporti_check as RC
+
+    assert _rapporti_scavo(scavo)[("1", "5")] == "[['Coperto da', '9']]"
+    mancanti = _mancanti_scavo(scavo)
+    assert [i.us_path for i in mancanti] == [["1", "9"]], (
+        "la forma corta è stata letta come reciproco mancante: %s"
+        % [i.summary for i in mancanti])
+
+    edits = [e for i in mancanti for e in i.edits]
+    RC.apply_edits(edits, _resolve_db_handle(scavo), sito=RSD.SITO)
+    assert _rapporti_scavo(scavo)[("1", "5")] == "[['Coperto da', '9']]"

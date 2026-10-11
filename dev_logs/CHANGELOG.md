@@ -5,6 +5,20 @@
 
 ---
 
+## [test] - 2026-10-11 — Un database di prova costruito da codice — 5.13.71-alpha
+
+> Branch `Stratigraph_00001`. Nessun cambiamento di codice di produzione. Le correzioni del 9 e 10 ottobre erano verificate sul database di esempio, che ha un'area sola su ogni riga, nessun numero di US ripetuto e nessuna cronologia rovesciata. / No production code changes. The fixes of 9 and 10 October were verified on the sample database, which has one area on every row, no repeated US numbers and no reversed chronology.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: `tests/fixtures/realistic_site_db.py`, un **generatore** (non un `.sqlite` committato) che costruisce in un `tmp_path` uno scavo a due aree con gli otto casi, ognuno commentato con il motivo della riga: la stessa US 1 e US 9 in due aree con date e rapporti diversi; un reciproco mancante solo nell'area 1 (con quello dell'area 2 presente); un reciproco in forma corta; tre datazioni (in disaccordo, vuota, fonte vuota); anni a.C. senza il meno, una coppia negativa giusta e una rovesciata con un anno negativo; sovrapposizioni identica e parziale; un sito con periodizzazione e senza schede US; un'inversione temporale. Ogni riga ha un `node_uuid` suo. 18 test nuovi in `test_rapporti_check_live.py`, `test_chronology_live.py`, `test_site_records.py` e `test_temporal_check.py`.
+- 🇬🇧 **EN**: `tests/fixtures/realistic_site_db.py`, a **generator** (not a committed `.sqlite`) that builds a two-area dig into a `tmp_path` with the eight cases, each commented with the reason for the row: the same US 1 and US 9 in two areas with different dates and relations; a missing reciprocal in area 1 only (area 2's is present); a short-form reciprocal; three datings (disagreeing, empty, empty source); BC years without the minus sign, a correct negative pair and a reversed one with a negative year; identical and partial overlaps; a site with periodisation but no US rows; a temporal inversion. Every row has its own `node_uuid`. 18 new tests in `test_rapporti_check_live.py`, `test_chronology_live.py`, `test_site_records.py` and `test_temporal_check.py`.
+
+#### Note
+- 🇮🇹 **IT**: una scheda con `datazione` vuota e fase con data è un avviso `datazione_mismatch` (è voluto: va riempita), quindi i tre casi di datazione danno **due** avvisi, non uno; il terzo (fonte vuota) non è mai segnalato.
+- 🇬🇧 **EN**: a sheet with an empty `datazione` whose phase has a date is a `datazione_mismatch` (intended: it is to be filled), so the three dating cases give **two** issues, not one; the third (empty source) is never reported.
+
+---
+
 ## [chore] - 2026-10-10 — Allineamento a s3dgraphy 1.6.0.dev43 — 5.13.70-alpha
 
 > Branch `Stratigraph_00001`. `requirements.txt` fissa `s3dgraphy==1.6.0.dev43` e `ext_libs/` è rivendorizzato. La libreria è coerente: erano i nostri specchi a portare una verità più vecchia, quindi si sono aggiornati i nostri codici e test, senza toccare la libreria e senza allentare nessuna asserzione.

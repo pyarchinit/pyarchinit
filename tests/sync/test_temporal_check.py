@@ -440,3 +440,42 @@ def test_a_gap_fill_is_not_proposed_when_the_number_names_two_rows():
     TC.solve_fixes(iss, g, _CHRONO, up, sito="S")
     assert [i.kind for i in iss] == [TC.TEMPORAL_UNEVALUABLE]
     assert iss[0].auto is False and iss[0].edits == []
+
+
+# ---------------------------------------------------------------------------
+# Un paradosso su uno scavo a più aree, costruito da codice (2026-10-11)
+# ---------------------------------------------------------------------------
+# Caso 8 del generatore in tests/fixtures/realistic_site_db.py: la US 30 COPRE
+# la US 31 (quindi è più recente) ma sta nella fase 6 (1500-1549), mentre la
+# 31 sta nella fase 7 (1600-1700). Lo scavo ha anche la US 1 e la US 9 in due
+# aree, con fasi diverse ma coerenti: non devono produrre falsi paradossi.
+
+import sys as _sys
+
+_RADICE = Path(__file__).resolve().parents[2]
+_sys.path.insert(0, str(_RADICE / "tests" / "fixtures"))
+import realistic_site_db as RSD  # noqa: E402
+
+
+def _paradossi_dello_scavo(tmp_path):
+    from s3dgraphy.sync._db_handle import DbHandle
+    from modules.s3dgraphy.sync.graph_projector import GraphProjector
+
+    url = RSD.build_realistic_site_db(tmp_path)
+    handle = DbHandle.from_path(tmp_path / "db.sqlite")
+    chrono = TC.build_chronology(handle, RSD.SITO)
+    periodi = TC.load_unit_periods(handle, RSD.SITO)
+    graph = GraphProjector().populate_graph(url, RSD.SITO)
+    return RC.check_rapporti(graph, sito=RSD.SITO, chrono=chrono,
+                             unit_periods=periodi)
+
+
+def test_generated_site_the_temporal_paradox_is_found(tmp_path):
+    """La US 30 copre la 31 ma la sua fase finisce (1549) prima che cominci
+    quella della 31 (1600): un'inversione, con la più recente nominata per
+    prima. È l'**unica**: la US 1 e la US 9, presenti in due aree con fasi
+    diverse, non ne fanno nascere altre."""
+    inversioni = [i for i in _paradossi_dello_scavo(tmp_path).issues
+                  if i.kind == TC.TEMPORAL_INVERSION]
+    assert [i.us_path for i in inversioni] == [["30", "31"]], \
+        [i.summary for i in inversioni]
