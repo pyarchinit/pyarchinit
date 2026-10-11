@@ -454,6 +454,70 @@ _SIMMETRICI = {"equals", "bonded_to", "has_same_time",
                "is_physically_equal_to", "is_bonded_to"}
 
 
+def _declare_study_code(graph, db_path, sito) -> dict:
+    """Dà allo studio il suo codice: iniziali del sito più l'anno di scavo.
+
+    Il codice (GT16, TM16) è il prefisso con cui Blender riattacca i proxy
+    — `GT16.1.USM100` — e **non deve derivare mai**. pyArchInit non ha un
+    codice breve dello scavo: `site_table` ha undici colonne e i soli
+    identificativi sono `id_sito`, che è un contatore, ed `entity_uuid`.
+    Quindi si prende la strada che E.D. ha previsto per questo caso: la
+    libreria lo **propone** una volta (`hdto.propose_study_code`) e lo
+    marca `code_proposed` finché una persona non lo conferma.
+
+    Perché è stabile anche se noi rigeneriamo l'em.json dal database ogni
+    volta: la proposta è deterministica — le iniziali del nome del sito e
+    le due cifre dell'anno nella `date` dello studio — e come anno si
+    sceglie il **primo** di `anno_scavo`, cioè l'inizio dello scavo, che
+    non si sposta quando si aggiunge una campagna nuova. Sul demo:
+    «Scavo archeologico» con le campagne 2012, 2013 e 2022 dà `SA12`.
+
+    Senza nessun anno resta la sola sigla (`SA`), che è ancora stabile.
+    Un codice che un umano ha dato non si tocca: `propose_study_code` non
+    sovrascrive niente.
+    """
+    import re as _re
+
+    from s3dgraphy import hdto
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
+    from sqlalchemy import text
+
+    studio = None
+    for nodo in getattr(graph, "nodes", None) or []:
+        if getattr(nodo, "node_type", None) == "study":
+            studio = nodo
+            break
+
+    anni = []
+    try:
+        handle = _resolve_db_handle(db_path)
+        with handle.engine.connect() as conn:
+            righe = conn.execute(
+                text("SELECT DISTINCT anno_scavo FROM us_table"
+                     " WHERE sito = :s"), {"s": sito}).fetchall()
+        for (valore,) in righe:
+            trovato = _re.search(r"(?:1[89]|20)\d\d", str(valore or ""))
+            if trovato:
+                anni.append(int(trovato.group(0)))
+    except Exception:                               # noqa: BLE001
+        anni = []                 # senza anno il codice è la sola sigla
+
+    if studio is not None and anni:
+        dati = getattr(studio, "data", None)
+        if isinstance(dati, dict) and not _txt_hdto(dati.get("date")):
+            primo, ultimo = min(anni), max(anni)
+            # L'intervallo delle campagne quando sono più d'una: più vero da
+            # leggere, e il codice non cambia perché l'anno che conta è il
+            # primo che si incontra nel testo.
+            dati["date"] = (str(primo) if primo == ultimo
+                            else "%d\u2013%d" % (primo, ultimo))
+    return hdto.propose_study_code(graph)
+
+
+def _txt_hdto(valore) -> str:
+    return str(valore).strip() if valore is not None else ""
+
+
 def _fold_inverse_edges(graph) -> int:
     """Ogni rapporto resta **un** arco, nel tipo diretto. Dice quanti ne ha
     tolti.
@@ -613,6 +677,14 @@ class GraphProjector(_LibGraphProjector):
             raise ProjectionError(
                 "inverse edge folding failed for sito=%r: %s"
                 % (sito, e)) from e
+
+        # Il codice dello studio, che l'em.json porta accanto a `graph_id`
+        # e Blender usa per riattaccare i proxy. Vedi `_declare_study_code`:
+        # non alza, perché un em.json senza codice è ancora valido.
+        try:
+            _declare_study_code(graph, db_path, sito)
+        except Exception as _e:                     # noqa: BLE001
+            print("[pyArchInit] codice dello studio non assegnato: %s" % _e)
 
         # Every node the class its unita_tipo declares: node_type is what
         # em.json writes and EMStudio reads to choose the shape.
