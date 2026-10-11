@@ -128,8 +128,12 @@ def test_il_numero_resta_cerchiato(etichette):
 
 
 def test_il_corpo_del_numero_si_e_rimpicciolito(etichette):
-    """«forse sono anche troppo grandi»: da 34 px a 22."""
-    assert MP.ETICHETTA_PX == 22
+    """«ancora troppo grandi»: 34 px, poi 22, ora 13.
+
+    Il cerchio copriva il disegno — nell'anteprima del sito di esempio
+    stava sopra la muratura della US 5 — e a 13 px con quattro di margine
+    sta accanto alle pietre invece che sopra."""
+    assert MP.ETICHETTA_PX == 13
     imp = _impostazioni(etichette)
     formato = imp.format()
     assert formato.size() == MP.ETICHETTA_PX

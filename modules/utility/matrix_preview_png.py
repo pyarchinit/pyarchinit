@@ -30,7 +30,7 @@ from .matrix_preview import (GUTTER, PLAN_TABLES, Identity, PlanSource,
                              choose_site, compose, filter_model,
                              identities_from_records, keys_of, label_expression,
                              layer_filter, plan_size, plan_source,
-                             fallback_label_ids, LABEL_FIELDS, LABEL_KEY)
+                             label_ids, LABEL_FIELDS, LABEL_KEY)
 
 #: Il colore di fondo, lo stesso della scena della matrice: le due metà
 #: dell'immagine devono sembrare una cosa sola.
@@ -63,9 +63,9 @@ STILE_US = ("styles", "stile_pyunitastratigrafiche.qml")
 #: Il corpo del numero di US, in pixel dell'immagine e non in punti: la
 #: pianta si rende a ~3600 px di larghezza, e un corpo da schermo (8 pt
 #: in ``us_vuote.qml``) lì sparirebbe. Scelto guardando il PNG reso.
-ETICHETTA_PX = 22
+ETICHETTA_PX = 13
 #: Quanto il cerchio sporge dal testo, in pixel.
-ETICHETTA_MARGINE_PX = 7
+ETICHETTA_MARGINE_PX = 4
 
 
 @dataclass
@@ -170,7 +170,7 @@ def _stile_quote(layer) -> None:
     layer.setLabelsEnabled(True)
 
 
-def _stile_etichette_us(layer) -> None:
+def _stile_etichette_us(layer, prefisso: str = "US") -> None:
     """Il numero di US dentro un cerchio bianco, come in ``us_vuote.qml``.
 
     Espressione e sfondo vengono da quel QML (testo ``'US' || ' ' ||
@@ -189,9 +189,13 @@ def _stile_etichette_us(layer) -> None:
     nomi = layer.fields().names()
     if not all(c in nomi for c in LABEL_FIELDS) or LABEL_KEY not in nomi:
         return
-    righe = [(f[LABEL_KEY], f["scavo_s"], f["area_s"], f["us_s"],
-              f["stratigraph_index_us"]) for f in layer.getFeatures()]
-    espressione = label_expression(fallback_label_ids(righe))
+    righe = []
+    for f in layer.getFeatures():
+        geometria = f.geometry()
+        righe.append((f[LABEL_KEY], f["scavo_s"], f["area_s"], f["us_s"],
+                      f["stratigraph_index_us"],
+                      geometria.area() if geometria is not None else 0.0))
+    espressione = label_expression(label_ids(righe), prefisso)
 
     formato = QgsTextFormat()
     formato.setSize(ETICHETTA_PX)
@@ -287,7 +291,13 @@ def plan_layers(source: Optional[PlanSource],
             _stile_quote(layer)
         else:
             _carica_stile(layer, STILE_US)
-            _stile_etichette_us(layer)
+            # Il prefisso lo sa solo chi apre il layer: in
+            # `pyunitastratigrafiche_usm` la colonna `unita_tipo_s` è
+            # vuota, quindi dal dato non si capisce che quelle sono USM e
+            # il disegno le chiamava «US 1» come le unità stratigrafiche.
+            _stile_etichette_us(
+                layer, "USM" if "_usm" in (layer.name() or "").lower()
+                else "US")
         layer_buoni.append(layer)
     return layer_buoni
 

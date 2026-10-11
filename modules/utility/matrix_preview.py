@@ -409,43 +409,86 @@ LABEL_FIELDS = ("scavo_s", "area_s", "us_s", "stratigraph_index_us")
 LABEL_KEY = "gid"
 
 
-def fallback_label_ids(rows: Iterable[Tuple]) -> List:
-    """I poligoni da etichettare perché la loro unità non ha l'indice 2.
+def label_ids(rows: Iterable[Tuple]) -> List:
+    """I poligoni da etichettare: **uno per unità**, il più grande.
 
-    ``rows`` sono ``(gid, sito, area, us, indice)``. La convenzione del
-    plugin (``styles_spatialite/us_vuote.qml``) etichetta solo la riga con
-    ``stratigraph_index_us = 2``, una per unità. Misurato sul database di
-    esempio, ogni unità di ``pyunitastratigrafiche`` ce l'ha, ma 10 delle
-    170 di ``pyunitastratigrafiche_usm`` no (la US 0, un solo poligono
-    con indice 1): senza una regola resterebbero senza etichetta, e
-    nessuno saprebbe perché. Per queste si etichetta il poligono col
-    ``gid`` più piccolo, che è stabile da un disegno all'altro.
+    ``rows`` sono ``(gid, sito, area, us, indice, area_mq)``.
+
+    Perché uno solo. La convenzione del plugin
+    (``styles_spatialite/us_vuote.qml``) etichetta la riga con
+    ``stratigraph_index_us = 2``, ma un'unità può averne **più di una**:
+    nel database di esempio la US 2 ne ha due, e sull'anteprima il suo
+    numero compariva due volte, cerchiato, in due punti diversi del
+    disegno. Erano i «doppioni» che si vedevano (Enzo, 11 ottobre 2026).
+
+    Quale delle due: la **più grande**, perché è il corpo dell'unità e non
+    un lembo, e perché così l'etichetta cade dove l'archeologo la
+    cercherebbe. A parità di area vince il `gid` più piccolo, che è stabile
+    da un disegno all'altro.
+
+    Un'unità senza nessun poligono di indice 2 — 10 delle 170 di
+    ``pyunitastratigrafiche_usm``, la US 0 — prende comunque il suo:
+    altrimenti resterebbe senza etichetta e nessuno saprebbe perché.
     """
+    migliore: Dict[Tuple, Tuple] = {}
+    for riga in rows:
+        gid, sito, area, us, indice = riga[:5]
+        superficie = float(riga[5]) if len(riga) > 5 and riga[5] is not None \
+            else 0.0
+        chiave = (_testo(sito), _testo(area), _testo(us))
+        # Prima l'indice 2, poi l'area, poi il gid: un poligono di contorno
+        # batte sempre un incluso, anche se l'incluso fosse più grande.
+        punteggio = (1 if str(indice).strip() in ("2", "2.0") else 0,
+                     superficie, -_ordine(gid))
+        if chiave not in migliore or punteggio > migliore[chiave][0]:
+            migliore[chiave] = (punteggio, gid)
+    return sorted((v[1] for v in migliore.values()), key=_ordine)
+
+
+def _ordine(gid):
+    """Un `gid` ordinabile anche quando arriva come testo."""
+    try:
+        return int(gid)
+    except (TypeError, ValueError):
+        return 0
+
+
+def fallback_label_ids(rows: Iterable[Tuple]) -> List:
+    """Compatibilità: i poligoni da etichettare perché la loro unità non ha
+    l'indice 2. Sostituita da :func:`label_ids`, che ne sceglie uno per
+    unità invece di aggiungerne alle righe con l'indice 2."""
     con_due: Dict[Tuple, bool] = {}
     primo: Dict[Tuple, object] = {}
-    for gid, sito, area, us, indice in rows:
+    for riga in rows:
+        gid, sito, area, us, indice = riga[:5]
         chiave = (_testo(sito), _testo(area), _testo(us))
         if str(indice).strip() in ("2", "2.0"):
             con_due[chiave] = True
         con_due.setdefault(chiave, False)
-        if chiave not in primo or gid < primo[chiave]:
+        if chiave not in primo or _ordine(gid) < _ordine(primo[chiave]):
             primo[chiave] = gid
-    return sorted(primo[c] for c, c2 in con_due.items() if not c2)
+    return sorted((primo[c] for c, c2 in con_due.items() if not c2),
+                  key=_ordine)
 
 
-def label_expression(fallback_ids: Iterable = ()) -> str:
-    """L'espressione dell'etichetta «US n» di ``us_vuote.qml``.
+def label_expression(ids: Iterable = (), prefisso: str = "US") -> str:
+    """L'espressione dell'etichetta «US n», per i soli poligoni scelti.
 
-    Il testo è quello della convenzione, ``'US' || ' ' || us_s``, e ``NULL``
-    (nessuna etichetta) per le righe che non sono quella rappresentativa
-    dell'unità: ``stratigraph_index_us = 2``, oppure — per le unità che non
-    ne hanno — i poligoni indicati in ``fallback_ids``.
+    Il testo è quello della convenzione di ``us_vuote.qml`` — il prefisso
+    dell'unità, uno spazio, il numero — e ``NULL`` (nessuna etichetta) per
+    tutti gli altri poligoni.
+
+    Il **prefisso** lo dice il chiamante perché lo sa solo lui: nel layer
+    `pyunitastratigrafiche_usm` la colonna `unita_tipo_s` è vuota, quindi
+    dal dato non si capisce che quelle sono USM, e il disegno le chiamava
+    «US 1», «US 2»… come le unità stratigrafiche. Due unità diverse con lo
+    stesso nome sulla stessa pianta sembrano un doppione, e non lo sono.
     """
-    ids = [str(int(i)) for i in fallback_ids]
-    condizione = '"stratigraph_index_us" = 2'
-    if ids:
-        condizione += ' OR "%s" IN (%s)' % (LABEL_KEY, ", ".join(ids))
-    return "CASE WHEN %s THEN 'US' || ' ' || \"us_s\" END" % condizione
+    elenco = [str(_ordine(i)) for i in ids]
+    if not elenco:
+        return "NULL"
+    return ("CASE WHEN \"%s\" IN (%s) THEN '%s' || ' ' || \"us_s\" END"
+            % (LABEL_KEY, ", ".join(elenco), prefisso))
 
 
 def plan_source(conn_str) -> Optional[PlanSource]:

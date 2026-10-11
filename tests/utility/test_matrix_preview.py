@@ -441,18 +441,49 @@ def test_the_button_draws_the_filtered_matrix_and_no_longer_graphviz():
 
 # ------------------------------------------------- l'etichetta della pianta
 
-def test_etichetta_solo_la_riga_con_indice_due():
-    """Una etichetta per unità: US 5 ha 101 righe ma una sola con indice 2."""
-    from modules.utility.matrix_preview import label_expression
-    espr = label_expression()
-    assert espr == ("CASE WHEN \"stratigraph_index_us\" = 2 "
-                    "THEN 'US' || ' ' || \"us_s\" END")
-
-
-def test_etichetta_con_poligoni_di_ripiego():
+def test_etichetta_solo_i_poligoni_scelti():
+    """L'etichetta la portano i `gid` che `label_ids` ha scelto, uno per
+    unità: non più «tutte le righe con l'indice 2», perché un'unità può
+    averne più d'una e il suo numero compariva due volte sul disegno."""
     from modules.utility.matrix_preview import label_expression
     espr = label_expression([7, 3])
-    assert '"stratigraph_index_us" = 2 OR "gid" IN (7, 3)' in espr
+    assert espr == ("CASE WHEN \"gid\" IN (7, 3) "
+                    "THEN 'US' || ' ' || \"us_s\" END"), espr
+
+
+def test_senza_poligoni_scelti_non_si_etichetta_niente():
+    from modules.utility.matrix_preview import label_expression
+    assert label_expression([]) == "NULL"
+
+
+def test_il_prefisso_lo_dice_il_chiamante():
+    """Nel layer delle USM la colonna `unita_tipo_s` è vuota: dal dato non
+    si capisce che quelle sono USM, e il disegno le chiamava «US 1» come le
+    unità stratigrafiche — due unità diverse con lo stesso nome sulla
+    stessa pianta sembrano un doppione."""
+    from modules.utility.matrix_preview import label_expression
+    assert "'USM' || ' '" in label_expression([5], prefisso="USM")
+
+
+def test_una_etichetta_per_unita_la_piu_grande():
+    """La US 2 del database di esempio ha due poligoni di contorno, e il
+    suo numero compariva due volte. Vince il più grande, che è il corpo
+    dell'unità e non un lembo."""
+    from modules.utility.matrix_preview import label_ids
+    righe = [
+        (1, "S", "1", "2", 2, 3.0),      # contorno piccolo
+        (2, "S", "1", "2", 2, 9.5),      # contorno grande: è questo
+        (3, "S", "1", "2", 1, 40.0),     # incluso enorme: non conta
+        (4, "S", "1", "7", 1, 0.2),      # la US 7 non ha l'indice 2
+    ]
+    assert label_ids(righe) == [2, 4]
+
+
+def test_un_incluso_non_batte_mai_un_contorno():
+    """Anche se l'incluso è più grande: l'indice 2 viene prima dell'area."""
+    from modules.utility.matrix_preview import label_ids
+    righe = [(1, "S", "1", "5", 1, 100.0), (2, "S", "1", "5", 2, 0.5)]
+    assert label_ids(righe) == [2]
 
 
 def test_ripiego_solo_per_unita_senza_indice_due():
