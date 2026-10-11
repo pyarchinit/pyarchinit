@@ -53,9 +53,17 @@ SCHEDE = (
 #: * `audit_trail` è il registro delle modifiche che il plugin scrive quando
 #:   si salva una scheda: riempirlo di storia inventata vorrebbe dire
 #:   raccontare modifiche che nessuno ha fatto;
+#: * `editing_by` ed `editing_since` sono il **lucchetto** del record:
+#:   `modules/db/concurrency_manager.py` guarda `editing_by IS NOT NULL AND
+#:   editing_since > CURRENT_TIMESTAMP - INTERVAL '30 minutes'` e dichiara
+#:   la scheda «in modifica da un altro utente». La prima passata di
+#:   riempimento li aveva scritti su quaranta record di quattro schede —
+#:   cioè un database di esempio con le schede bloccate — e l'11 ottobre
+#:   2026 sono stati tolti;
 #: * `fauna_table.id_us` è un riferimento interno che il form compila da sé
 #:   quando la scheda si apre dalla US.
-VUOTE_DI_PROPOSITO = {("*", "audit_trail"), ("fauna_table", "id_us")}
+VUOTE_DI_PROPOSITO = {("*", "audit_trail"), ("*", "editing_by"),
+                      ("*", "editing_since"), ("fauna_table", "id_us")}
 
 
 @pytest.fixture(scope="module")

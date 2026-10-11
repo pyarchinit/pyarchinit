@@ -56,6 +56,7 @@ COLORI = {
     "TOMBA": (118, 110, 130),
     "STRUTTURA": (136, 126, 102),
     "UT": (100, 130, 126),
+    "DOC": (112, 116, 124),
 }
 #: Per un tipo che non conosciamo.
 COLORE_IGNOTO = (120, 120, 120)
@@ -207,6 +208,145 @@ def disegna(etichetta: str, tipo: str, dimensione=DIM_RESIZE):
         corto = etichetta.split("\u00b7")[0].strip() or (tipo or "?")
         _scritta_ingrandita(immagine, corto[:12], (252, 252, 252), 4, 2)
     return immagine
+
+
+#: Il foglio dei documenti dei nodi DOC: A4 a 150 DPI.
+DIM_DOCUMENTO = (1240, 1754)
+
+
+def documenti_da_disegnare(conn) -> list:
+    """I documenti che i nodi DOC del database di esempio nominano.
+
+    Una tupla per documento: ``(nome_file, titolo, testo)``. Il percorso
+    sta in `us_table.doc_usv` nella forma `DosCo\\nome.pdf` — la scheda US
+    lo scrive così (`setDoc_ref`), con la barra rovescia anche fuori da
+    Windows — e il titolo è la definizione interpretativa del nodo.
+    """
+    righe = conn.execute(
+        "SELECT doc_usv, d_interpretativa, sito, us FROM us_table"
+        " WHERE unita_tipo = 'DOC'"
+        "   AND trim(coalesce(doc_usv, '')) <> ''").fetchall()
+    fuori, visti = [], set()
+    for percorso, titolo, sito, us in righe:
+        nome = str(percorso).replace("\\", "/").split("/")[-1]
+        if not nome.lower().endswith(".pdf") or nome in visti:
+            continue
+        visti.add(nome)
+        fuori.append((nome, str(titolo or nome),
+                      "Documento del nodo DOC %s \u00b7 %s" % (us, sito)))
+    return fuori
+
+
+def disegna_documento(titolo: str, testo: str):
+    """Una pagina A4 con il titolo, due righe di testo e una figura.
+
+    «Nei nodi DOC associ immagini e testi come PDF» (Enzo): qui la pagina
+    porta tutte e due — il testo in alto, un disegno in mezzo — e dice
+    che è un esempio.
+    """
+    from PIL import Image, ImageDraw
+
+    larghezza, altezza = DIM_DOCUMENTO
+    pagina = Image.new("RGB", (larghezza, altezza), (252, 251, 248))
+    disegno = ImageDraw.Draw(pagina)
+    inchiostro = (38, 42, 50)
+
+    margine = 90
+    disegno.rectangle([margine, margine, larghezza - margine,
+                       altezza - margine], outline=(200, 198, 192), width=2)
+    disegno.line([(margine, margine + 110), (larghezza - margine,
+                                             margine + 110)],
+                 fill=inchiostro, width=3)
+
+    font = _font_grande(40)
+    piccolo = _font_grande(24)
+    if font is not None:
+        disegno.text((margine + 20, margine + 42), titolo[:52], font=font,
+                     fill=inchiostro)
+        disegno.text((margine + 20, margine + 140), testo[:78],
+                     font=piccolo or font, fill=(80, 84, 92))
+        disegno.text((margine + 20, altezza - margine - 44),
+                     "documento di esempio \u2014 pyArchInit",
+                     font=piccolo or font, fill=(120, 124, 132))
+    else:
+        _scritta_ingrandita(pagina, titolo[:46], inchiostro, margine + 48, 4)
+        _scritta_ingrandita(pagina, testo[:60], (80, 84, 92), margine + 150, 2)
+
+    # La figura: lo stesso segnaposto delle foto, incollato nel foglio.
+    figura = disegna(titolo, "DOC", (larghezza - 2 * margine - 40,
+                                     int((larghezza - 2 * margine - 40) * 0.7)))
+    pagina.paste(figura, (margine + 20, margine + 210))
+
+    # E il testo sotto: «immagini **e testi**», ha chiesto Enzo. Righe
+    # inventate ma di un diario vero: quote, unità, materiali.
+    righe = (
+        "Settimana 1 — Rimozione dello strato superficiale di macerie",
+        "   (US 1) fino alla quota di 488,62 m s.l.m. Recuperati",
+        "   frammenti di maiolica arcaica e laterizi di reimpiego.",
+        "",
+        "Settimana 2 — Messa in luce della muratura perimetrale (USM 6)",
+        "   e del piano d'uso addossato (US 20). Documentazione",
+        "   fotogrammetrica del prospetto sud, scala 1:20.",
+        "",
+        "Settimana 3 — Scavo dei riempimenti delle fosse (US 14, 16, 23)",
+        "   e campionatura dei carboni per la datazione radiometrica.",
+        "",
+        "Settimana 4 — Raggiunta la quota di 488,15 m s.l.m. nel settore",
+        "   profondo. Chiusura del saggio e rilievo di fase.",
+    )
+    alto = margine + 210 + figura.height + 50
+    corpo = _font_grande(26)
+    for riga in righe:
+        if alto > altezza - margine - 80:
+            break
+        if corpo is not None:
+            disegno.text((margine + 20, alto), riga, font=corpo,
+                         fill=(60, 64, 72))
+        elif riga:
+            _scritta_ingrandita(pagina, riga[:60], (60, 64, 72), alto, 2)
+        alto += 38
+    return pagina
+
+
+def genera_documenti(db, cartella_dosco) -> tuple:
+    """Disegna i PDF dei nodi DOC dentro **DosCo**.
+
+    `(scritti, saltati)`. Come le immagini: salta quelli che ci sono già,
+    e non alza mai — un documento che non si disegna lascia il database
+    aperto lo stesso.
+    """
+    try:
+        from PIL import Image  # noqa: F401
+    except Exception:
+        return (0, 0)
+    if not os.path.isfile(str(db)):
+        return (0, 0)
+    try:
+        os.makedirs(str(cartella_dosco), exist_ok=True)
+    except Exception:
+        return (0, 0)
+
+    conn = sqlite3.connect("file:%s?mode=ro" % db, uri=True)
+    try:
+        elenco = documenti_da_disegnare(conn)
+    except sqlite3.Error:
+        return (0, 0)
+    finally:
+        conn.close()
+
+    scritti = saltati = 0
+    for nome, titolo, testo in elenco:
+        percorso = os.path.join(str(cartella_dosco), nome)
+        if os.path.exists(percorso):
+            saltati += 1
+            continue
+        try:
+            pagina = disegna_documento(titolo, testo)
+            pagina.save(percorso, "PDF", resolution=150.0)
+            scritti += 1
+        except Exception:
+            continue
+    return (scritti, saltati)
 
 
 def genera(db, cartella_thumb, cartella_resize) -> tuple:

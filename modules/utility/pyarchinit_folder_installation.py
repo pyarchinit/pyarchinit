@@ -202,12 +202,12 @@ class pyarchinit_Folder_installation(object):
         # === PHASE 4: Install config and additional files ===
         self.installConfigFile(home_DB_path)
 
-        # === PHASE 5: le immagini del database di esempio ===
+        # === PHASE 5: le immagini e i documenti del database di esempio ===
         self.installa_media_di_esempio(home_DB_path, home_THUMBNAILS_path,
-                                       home_RESIZE_path)
+                                       home_RESIZE_path, doc_bin_export_path)
 
     def installa_media_di_esempio(self, db_path, cartella_thumb,
-                                  cartella_resize):
+                                  cartella_resize, cartella_dosco=None):
         """Disegna le immagini dei media del database di esempio.
 
         Il database di esempio porta tre media per record su tutte le
@@ -233,8 +233,13 @@ class pyarchinit_Folder_installation(object):
 
             def _lavora():
                 try:
-                    from .example_media import genera
+                    from .example_media import genera, genera_documenti
                     genera(db, cartella_thumb, cartella_resize)
+                    # I documenti dei nodi DOC: due PDF con il testo e una
+                    # figura, dentro DosCo — che è dove la scheda US li
+                    # cerca (`doc_usv` vale `DosCo\\nome.pdf`).
+                    if cartella_dosco:
+                        genera_documenti(db, cartella_dosco)
                 except Exception as e:
                     print('[pyArchInit] immagini di esempio: %s' % e)
 

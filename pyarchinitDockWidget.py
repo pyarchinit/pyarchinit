@@ -810,7 +810,7 @@ class PyarchinitPluginDialog(QgsDockWidget, MAIN_DIALOG_CLASS):
         <body style="font-family: sans-serif; padding: 20px; text-align: center; color: #666;">
             <p style="font-size: 40px;">📚</p>
             <p>Tutorial not available yet.</p>
-            <p><a href="https://pyarchinitdoc.readthedocs.io/" target="_blank">View online documentation</a></p>
+            <p><a href="https://pyarchinitdoc.readthedocs.io/it/dev/" target="_blank">View online documentation</a></p>
         </body>
         </html>
         """

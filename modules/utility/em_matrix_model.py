@@ -178,15 +178,50 @@ def read_em_json(source) -> MatrixModel:
         avvisi.append(
             "Il file indica «%s» come grafo attivo, ma non c'è: disegno «%s»."
             % (attivo, nome_grafo))
-    grafo = grafi[nome_grafo]
-    if not isinstance(grafo, dict):
-        raise ValueError(
-            "Il grafo «%s» non è leggibile: non è una sezione em.json."
-            % nome_grafo)
-    titolo = str(nome_grafo or titolo or "")
+    for nome, g in grafi.items():
+        if not isinstance(g, dict):
+            raise ValueError(
+                "Il grafo «%s» non è leggibile: non è una sezione em.json."
+                % nome)
 
-    nodi = grafo.get("nodes") or []
-    archi = grafo.get("edges") or []
+    # Un file può portare **più grafi**: è il caso dell'esportazione per
+    # saggi, dove ogni saggio è un grafo e i rapporti che escono dal
+    # saggio viaggiano in `links`. La matrice li unisce tutti: disegnarne
+    # uno solo vorrebbe dire mostrare un quarto dello scavo senza dirlo,
+    # e la stratigrafia non si legge a pezzi.
+    nodi, archi = [], []
+    visti = set()
+    for nome in sorted(grafi):
+        grafo = grafi[nome]
+        for n in (grafo.get("nodes") or []):
+            chiave = n.get("id") if isinstance(n, dict) else None
+            if chiave is not None and chiave in visti:
+                continue
+            if chiave is not None:
+                visti.add(chiave)
+            nodi.append(n)
+        archi.extend(grafo.get("edges") or [])
+        # Un `link` è un rapporto che esce dal saggio: la sua destinazione
+        # è `{"graph_id": …, "node_id": …}`, e dentro la matrice unita
+        # quel nodo c'è, quindi diventa un arco come gli altri.
+        for collegamento in (grafo.get("links") or []):
+            if not isinstance(collegamento, dict):
+                continue
+            destinazione = collegamento.get("target")
+            if isinstance(destinazione, dict):
+                collegamento = dict(collegamento)
+                collegamento["target"] = destinazione.get("node_id")
+            archi.append(collegamento)
+    if len(grafi) > 1:
+        titolo = str(titolo or "")
+        comune = sorted(grafi)[0].split("|")[0]
+        titolo = comune or titolo
+        avvisi.append(
+            "Il file porta %d grafi (%s): la matrice li disegna uniti."
+            % (len(grafi), ", ".join(
+                sorted(str(x).split("|")[-1] for x in grafi))))
+    else:
+        titolo = str(nome_grafo or titolo or "")
     if not isinstance(nodi, list) or not isinstance(archi, list):
         raise ValueError(
             "Il grafo «%s» non è leggibile: «nodes» e «edges» devono essere "

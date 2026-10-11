@@ -299,3 +299,182 @@ def test_il_trigger_dei_media_cancella_i_legami(tmp_path):
         assert dopo == 0, "il trigger media_entity_delete non c'è più"
     finally:
         c.close()
+
+
+# --------------------------------------------------------------------------
+# I documenti dei nodi DOC
+# --------------------------------------------------------------------------
+
+def test_i_nodi_doc_nominano_un_pdf_dentro_dosco(conn):
+    """Portavano i file del computer di chi fece il demo
+    (`DosCo\\Scavo archeologico_20220218_.xlsx`, `DosCo\\test1_1.graphml`),
+    che non esistono da nessuna parte."""
+    nodi = conn.execute(
+        "SELECT us, doc_usv FROM us_table WHERE sito = ?"
+        "   AND unita_tipo = 'DOC'", (SITO,)).fetchall()
+    assert nodi, "nessun nodo DOC"
+    for us, percorso in nodi:
+        assert percorso, us
+        nudo = str(percorso).replace("\\", "/")
+        assert nudo.startswith("DosCo/"), (us, percorso)
+        assert nudo.lower().endswith(".pdf"), (us, percorso)
+
+
+def test_i_documenti_si_disegnano_in_dosco(tmp_path):
+    pytest.importorskip("PIL")
+    scritti, saltati = EM.genera_documenti(DB, tmp_path)
+    assert scritti >= 2, (scritti, saltati)
+    pdf = sorted(p.name for p in tmp_path.iterdir())
+    assert all(n.endswith(".pdf") for n in pdf), pdf
+    # un PDF vero comincia con %PDF
+    for nome in pdf:
+        assert (tmp_path / nome).read_bytes()[:4] == b"%PDF", nome
+    assert EM.genera_documenti(DB, tmp_path) == (0, len(pdf))
+
+
+def test_linstallatore_disegna_anche_i_documenti():
+    sorgente = (RADICE / "modules" / "utility"
+                / "pyarchinit_folder_installation.py").read_text(
+                    encoding="utf-8")
+    assert "genera_documenti" in sorgente
+    assert "doc_bin_export_path" in sorgente
+
+
+# --------------------------------------------------------------------------
+# I saggi, i campi della scheda US e le geometrie
+# --------------------------------------------------------------------------
+
+def test_le_unita_sono_divise_in_quattro_saggi(conn):
+    """Senza saggio l'esportazione «uno per saggio» non ha niente da
+    dividere: era vuoto su tutte le 510 righe."""
+    saggi = dict(conn.execute(
+        "SELECT saggio, count(*) FROM us_table WHERE sito = ? GROUP BY 1",
+        (SITO,)))
+    assert set(saggi) == {"I", "II", "III", "IV"}, saggi
+    assert sum(saggi.values()) == conn.execute(
+        "SELECT count(*) FROM us_table WHERE sito = ?", (SITO,)).fetchone()[0]
+
+
+def test_ogni_unita_ha_un_saggio_anche_i_nodi_virtuali(conn):
+    """Un nodo virtuale in un file e l'unità che descrive in un altro non
+    si legge: il saggio si propaga lungo i rapporti."""
+    senza = [r[0] for r in conn.execute(
+        "SELECT us FROM us_table WHERE sito = ?"
+        "   AND trim(coalesce(saggio, '')) = ''", (SITO,))]
+    assert senza == [], senza
+
+
+def test_i_saggi_ci_sono_su_tutti_e_dieci_i_siti(conn):
+    """I dieci demo tradotti hanno gli stessi numeri di US: la prova
+    dell'esportazione per saggio deve funzionare in tutte le lingue."""
+    scoperti = conn.execute(
+        "SELECT count(*) FROM us_table"
+        " WHERE trim(coalesce(saggio, '')) = ''").fetchone()[0]
+    assert scoperti == 0, scoperti
+
+
+def test_la_scheda_us_non_ha_colonne_vuote_tranne_quelle_di_servizio(conn):
+    """Erano vuote in tutte le righe 88 colonne su 131."""
+    righe = conn.execute(
+        "SELECT * FROM us_table WHERE sito = ?", (SITO,)).fetchall()
+    colonne = [r[1] for r in conn.execute("PRAGMA table_info(us_table)")]
+    # Il lucchetto (`editing_by`, `editing_since`), il registro delle
+    # modifiche (`audit_trail`) e `other_locations`, che dice in quali
+    # ALTRE aree compare la stessa unità: riempirla inventerebbe aree.
+    ammesse = {"editing_by", "editing_since", "audit_trail",
+               "other_locations"}
+    vuote = [c for i, c in enumerate(colonne)
+             if c not in ammesse
+             and not any(r[i] is not None
+                         and str(r[i]).strip() not in ("", "[]", "[[]]")
+                         for r in righe)]
+    assert vuote == [], vuote
+
+
+def test_i_campi_della_muratura_stanno_solo_sulle_usm(conn):
+    """Su uno strato di terra la tecnica muraria non vuol dire niente."""
+    for colonna in ("tecnica_muraria_usm", "spess_giunti", "materiali_lat"):
+        fuori = conn.execute(
+            'SELECT count(*) FROM us_table WHERE sito = ?'
+            '   AND unita_tipo NOT IN ("USM")'
+            '   AND trim(coalesce("%s", "")) <> ""' % colonna,
+            (SITO,)).fetchone()[0]
+        assert fuori == 0, (colonna, fuori)
+
+
+def test_le_quote_stanno_dove_sta_lo_scavo(conn):
+    """Lo scavo è a 488 m s.l.m.: la prima passata scrisse 52."""
+    minimo, massimo = conn.execute(
+        "SELECT min(quota_q), max(quota_q) FROM pyarchinit_quote"
+        " WHERE sito_q = ?", (SITO,)).fetchone()
+    for tabella, colonna in (("us_table", "quota_abs"),
+                             ("us_table", "quota_max_abs")):
+        for (valore,) in conn.execute(
+                'SELECT "%s" FROM "%s" WHERE sito = ?'
+                '   AND "%s" IS NOT NULL' % (colonna, tabella, colonna),
+                (SITO,)):
+            assert minimo - 2 <= float(valore) <= massimo + 2, \
+                (tabella, colonna, valore)
+
+
+def test_ogni_us_ha_il_suo_poligono_e_la_sua_quota(conn):
+    """«Non mi sembra che tutti abbiano le geometrie» (Enzo): erano due
+    US senza poligono e tredici senza quota."""
+    senza_poligono = conn.execute(
+        "SELECT count(*) FROM us_table u WHERE u.sito = ?"
+        "   AND u.unita_tipo IN ('US', 'USM')"
+        "   AND NOT EXISTS (SELECT 1 FROM pyunitastratigrafiche g"
+        "                   WHERE g.scavo_s = u.sito"
+        "                     AND cast(g.us_s AS TEXT) = cast(u.us AS TEXT))"
+        "   AND NOT EXISTS (SELECT 1 FROM pyunitastratigrafiche_usm g"
+        "                   WHERE g.scavo_s = u.sito"
+        "                     AND cast(g.us_s AS TEXT) = cast(u.us AS TEXT))",
+        (SITO,)).fetchone()[0]
+    assert senza_poligono == 0, senza_poligono
+    senza_quota = conn.execute(
+        "SELECT count(*) FROM us_table u WHERE u.sito = ?"
+        "   AND u.unita_tipo IN ('US', 'USM')"
+        "   AND NOT EXISTS (SELECT 1 FROM pyarchinit_quote g"
+        "                   WHERE g.sito_q = u.sito"
+        "                     AND cast(g.us_q AS TEXT) = cast(u.us AS TEXT))",
+        (SITO,)).fetchone()[0]
+    assert senza_quota == 0, senza_quota
+
+
+def test_nessuna_scheda_resta_col_lucchetto(conn):
+    """`editing_by` valorizzato = «in modifica da un altro utente»: la
+    prima passata di riempimento l'aveva messo su quaranta record."""
+    colpevoli = []
+    for (tabella,) in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table'"
+            "   AND name LIKE '%_table'"):
+        colonne = [r[1] for r in conn.execute(
+            'PRAGMA table_info("%s")' % tabella)]
+        if "editing_by" not in colonne:
+            continue
+        n = conn.execute(
+            'SELECT count(*) FROM "%s"'
+            ' WHERE trim(coalesce(editing_by, "")) <> ""' % tabella
+        ).fetchone()[0]
+        if n:
+            colpevoli.append((tabella, n))
+    assert colpevoli == [], colpevoli
+
+
+def test_le_sigle_virtuali_sono_quelle_nuove(conn):
+    """USVA/USVB/USVC sono il vocabolario vecchio: dalla 5.1.0-alpha sono
+    USVs (strutturale) e USVn (non strutturale)."""
+    vecchie = conn.execute(
+        "SELECT count(*) FROM us_table"
+        " WHERE unita_tipo IN ('USVA', 'USVB', 'USVC')").fetchone()[0]
+    assert vecchie == 0, vecchie
+    nuove = dict(conn.execute(
+        "SELECT unita_tipo, count(*) FROM us_table"
+        " WHERE unita_tipo LIKE 'USV%' GROUP BY 1"))
+    assert set(nuove) <= {"USVs", "USVn"}, nuove
+    assert sum(nuove.values()) > 0
+    sporchi = conn.execute(
+        "SELECT count(*) FROM us_table"
+        " WHERE rapporti2 LIKE '%USVA%' OR rapporti2 LIKE '%USVB%'"
+        "    OR rapporti2 LIKE '%USVC%'").fetchone()[0]
+    assert sporchi == 0, sporchi

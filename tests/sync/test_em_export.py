@@ -49,8 +49,13 @@ def test_a_site_travels_and_reads_back(sample_db, tmp_path):
 
 def test_a_site_recorded_in_english_keeps_its_units(sample_db, tmp_path):
     # Review Focus 1: SU/WSU rows (the sample ships the same site in 10 languages)
+    # `per_saggio=False`: dall'11 ottobre 2026 il sito di esempio è
+    # diviso in quattro saggi, e la modalità automatica lo esporterebbe
+    # come container a quattro grafi. Qui si guardano le unità, non la
+    # divisione: un grafo solo.
     path, nodes, edges, _ = em_export.export_site(
-        sample_db, "Archaeological Excavation", str(tmp_path / "out"))
+        sample_db, "Archaeological Excavation", str(tmp_path / "out"),
+        per_saggio=False)
     from s3dgraphy.importer.emjson_importer import import_emjson
     check, _w = import_emjson(path)
     from s3dgraphy.nodes.stratigraphic_node import (
@@ -323,21 +328,29 @@ def test_the_file_speaks_only_forward_edge_types(sample_db, tmp_path):
 
 
 def test_the_file_draws_virtual_units_as_virtual(sample_db, tmp_path):
-    """Dal database al file: le USVA/USVB del sito di esempio escono come
-    unità virtuali, non come US col rettangolo bianco (segnalato da Enzo
-    sulla matrice EMStudio del 2026-10-08)."""
+    """Dal database al file: le unità virtuali del sito di esempio escono
+    come virtuali, non come US col rettangolo bianco (segnalato da Enzo
+    sulla matrice EMStudio del 2026-10-08).
+
+    Il database di esempio porta le sigle **nuove** — USVs e USVn — da
+    quando `2026_05_us_vocabulary_alignment` ci è passato sopra
+    (11 ottobre 2026); le vecchie USVA/USVB le regge
+    `LEGACY_UNITA_TIPO`, ed è il test qui sotto a dirlo.
+    """
     import json
 
     path, _, _, _ = em_export.export_site(
-        sample_db, "Scavo archeologico", str(tmp_path / "out"))
+        sample_db, "Scavo archeologico", str(tmp_path / "out"),
+        per_saggio=False)
     graph = json.loads(Path(path).read_text())["graphs"]["Scavo archeologico"]
     by_tipo = {}
     for node in graph["nodes"]:
         data = node.get("data") or {}
         if data.get("unita_tipo"):
             by_tipo.setdefault(data["unita_tipo"], set()).add(node["node_type"])
-    assert by_tipo.get("USVA") == {"USVs"}, by_tipo
-    assert by_tipo.get("USVB") == {"USVn"}, by_tipo
+    assert by_tipo.get("USVs") == {"USVs"}, by_tipo
+    assert by_tipo.get("USVn") == {"USVn"}, by_tipo
+    assert not {"USVA", "USVB", "USVC"} & set(by_tipo), by_tipo
     assert by_tipo.get("SF") == {"SF"}, by_tipo
     assert by_tipo.get("US") == {"US"}, by_tipo
     assert by_tipo.get("USM") == {"US"}, by_tipo      # US + genere muraria

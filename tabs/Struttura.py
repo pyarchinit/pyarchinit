@@ -2776,6 +2776,28 @@ class pyarchinit_Struttura(QDialog, MAIN_DIALOG_CLASS):
                     item = QTableWidgetItem(str(self.data_list[row][col]))
                     table_widget.setItem(row, col, item)
 
+    def setTableEnable(self, t, v):
+        """Accende o spegne le tabelle dentro la scheda.
+
+        La scheda Struttura la chiamava in quattro punti — «Nuova
+        ricerca», e i tre percorsi che tornano dalla ricerca — ma non
+        l'aveva: `AttributeError: 'pyarchinit_Struttura' object has no
+        attribute 'setTableEnable'` al primo clic (segnalato da Enzo
+        l'11 ottobre 2026). La definizione era andata persa nel passaggio
+        a Qt6, quando `eval` è stato sostituito da `getattr` nelle altre
+        schede; qui sono rimaste solo le chiamate.
+
+        Stessa firma e stesso comportamento di `Inv_Materiali` e
+        `Image_viewer`: il nome arriva come «self.tableWidget_x» e il
+        valore come stringa «True»/«False» o come booleano.
+        """
+        for tn in t:
+            widget_name = tn.replace('self.', '') if tn.startswith('self.') else tn
+            widget = getattr(self, widget_name, None)
+            if widget is not None:
+                enabled = v.lower() == 'true' if isinstance(v, str) else bool(v)
+                widget.setEnabled(enabled)
+
     def table2dict(self, n):
         """Convert a QTableWidget to a list of lists"""
         self.tablename = n
