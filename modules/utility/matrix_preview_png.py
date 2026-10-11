@@ -27,8 +27,9 @@ from dataclasses import dataclass
 from typing import List, Optional, Sequence, Tuple
 
 from .matrix_preview import (GUTTER, PLAN_TABLES, Identity, PlanSource,
-                             compose, filter_model, identities_from_records,
-                             keys_of, layer_filter, plan_size, plan_source)
+                             choose_site, compose, filter_model,
+                             identities_from_records, keys_of, layer_filter,
+                             plan_size, plan_source)
 
 #: Il colore di fondo, lo stesso della scena della matrice: le due metà
 #: dell'immagine devono sembrare una cosa sola.
@@ -327,16 +328,11 @@ def build_preview(conn_str, site, records, out_dir,
     if not identita:
         return Preview(warnings=["Nessuna unità da disegnare: fai prima "
                                  "una ricerca nella scheda."])
-    siti = []
-    for voce in identita:
-        if voce.sito not in siti:
-            siti.append(voce.sito)
-    site = str(site or "").strip() or siti[0]
-    altri = [s for s in siti if s != site]
     # Una ricerca può toccare più siti; il grafo si costruisce per un sito
     # alla volta. Si disegna quello e si dice quali sono rimasti fuori,
     # invece di mescolare stratigrafie che non si parlano.
-    identita = tuple(v for v in identita if v.sito == site) or identita
+    site, altri = choose_site(identita, site)
+    identita = tuple(v for v in identita if v.sito == site)
     temporanea = tempfile.mkdtemp(prefix="pyarchinit_anteprima_")
     try:
         percorso, _n, _e, avvisi = em_export.export_site(

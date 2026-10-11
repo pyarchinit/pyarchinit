@@ -25,8 +25,8 @@ if str(_ROOT) not in sys.path:
 from modules.utility.em_matrix_model import (  # noqa: E402
     Epoch, MatrixModel, Relation, Unit)
 from modules.utility.matrix_preview import (  # noqa: E402
-    GUTTER, PLAN_FIELD_SETS, PLAN_MIN_H, PLAN_MIN_W, Identity, compose,
-    filter_model, identities_from_records, key_of_unit, keys_of,
+    GUTTER, PLAN_FIELD_SETS, PLAN_MIN_H, PLAN_MIN_W, Identity, choose_site,
+    compose, filter_model, identities_from_records, key_of_unit, keys_of,
     layer_filter, plan_size, plan_source)
 
 
@@ -104,6 +104,22 @@ def test_a_node_that_is_not_a_record_has_no_key():
     """Un'epoca, un gruppo: cercarli nella scheda non avrebbe senso."""
     assert key_of_unit(Unit(node_id="e", label="e", node_type="EpochNode",
                             epoch_id=None, data={})) is None
+
+
+def test_the_search_decides_which_site_is_drawn():
+    """La casella del sito si può cambiare senza rifare la ricerca: se
+    non è fra i siti delle righe trovate varrebbe il grafo di un sito che
+    con queste unità non c'entra, e la matrice uscirebbe vuota."""
+    identita = identities_from_records([_Riga("Alfa", "1", "1", "US")])
+    assert choose_site(identita, "Beta") == ("Alfa", [])
+    assert choose_site(identita, "") == ("Alfa", [])
+
+
+def test_a_search_over_two_sites_names_the_one_left_out():
+    identita = identities_from_records([_Riga("Alfa", "1", "1", "US"),
+                                        _Riga("Beta", "1", "1", "US")])
+    assert choose_site(identita, "Beta") == ("Beta", ["Alfa"])
+    assert choose_site(identita, None) == ("Alfa", ["Beta"])
 
 
 # ------------------------------------------------- la matrice si restringe

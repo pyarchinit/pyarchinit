@@ -129,6 +129,28 @@ def identities_from_records(records: Iterable) -> Tuple[Identity, ...]:
     return tuple(identita)
 
 
+def choose_site(identities: Sequence[Identity],
+                requested=None) -> Tuple[str, List[str]]:
+    """Il sito da disegnare e quelli che restano fuori.
+
+    Il grafo si costruisce per un sito alla volta, ma una ricerca può
+    toccarne più d'uno. Comanda **la ricerca**, non la casella del sito:
+    se quella che il chiamante propone non è fra i siti delle righe
+    trovate — la casella si può cambiare senza rifare la ricerca —
+    varrebbe il sito di un grafo che con queste unità non c'entra, e la
+    matrice uscirebbe vuota.
+    """
+    siti: List[str] = []
+    for voce in identities or ():
+        if voce.sito not in siti:
+            siti.append(voce.sito)
+    if not siti:
+        return (str(requested or "").strip(), [])
+    chiesto = str(requested or "").strip()
+    scelto = chiesto if chiesto in siti else siti[0]
+    return (scelto, [s for s in siti if s != scelto])
+
+
 def keys_of(identities: Iterable[Identity]) -> frozenset:
     """Le identità come insieme di chiavi, pronte per il confronto."""
     return frozenset(i.key for i in identities or ())
