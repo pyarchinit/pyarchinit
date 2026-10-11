@@ -153,3 +153,69 @@ def test_il_vuoto_non_e_piu_povero_del_distribuito():
         pytest.skip("manca uno dei due")
     mancanti = _oggetti(DISTRIBUITO) - _oggetti(VUOTO) - set(SPAZZATURA)
     assert not mancanti, sorted(mancanti)
+
+
+# ---------------------------------------------------------------------------
+# La cronologia del database di esempio (11 ottobre 2026)
+# ---------------------------------------------------------------------------
+# C'erano due fasi «rec» per sito, in tutte e dieci le lingue, che
+# duplicavano gli anni di due fasi vere: 2/2.1 (1451-1499) = 2/3, e 2/3.1
+# (1500-1549) = 2/2. Erano loro a far dire alla verifica che due periodi si
+# sovrappongono, e la seconda portava anche l'etichetta sbagliata — 1500-1549
+# è la prima metà del XVI secolo, non del XV.
+#
+# E sui nove siti tradotti la `datazione` delle US era rimasta in italiano
+# mentre le fasi erano tradotte: quaranta disallineamenti per sito.
+
+def test_nessuna_fase_duplica_gli_anni_di_un_altra():
+    """Due fasi dello stesso periodo con gli stessi anni dicono la stessa
+    cosa due volte, e la verifica cronologica le segnala come
+    sovrapposizione."""
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        doppie = conn.execute(
+            "SELECT sito, periodo, cron_iniziale, cron_finale, count(*)"
+            " FROM periodizzazione_table"
+            " GROUP BY sito, periodo, cron_iniziale, cron_finale"
+            " HAVING count(*) > 1").fetchall()
+    finally:
+        conn.close()
+    assert not doppie, doppie
+
+
+def test_nessuna_us_porta_una_datazione_rec():
+    """Il testo «rec» era l'etichetta delle fasi doppie: via loro, via lui."""
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        n = conn.execute(
+            "SELECT count(*) FROM us_table WHERE"
+            " lower(COALESCE(datazione,'')) LIKE '%rec%'"
+            " OR lower(COALESCE(datazione,'')) LIKE '%rezent%'").fetchone()[0]
+    finally:
+        conn.close()
+    assert n == 0
+
+
+def test_la_datazione_di_ogni_us_dice_quello_che_dice_la_sua_fase():
+    """La fase è la fonte; la scheda la ripete. Se non combaciano, la
+    verifica cronologica segnala un disallineamento a ogni US datata."""
+    if not DISTRIBUITO.is_file():
+        pytest.skip("manca il database distribuito")
+    conn = sqlite3.connect(DISTRIBUITO)
+    try:
+        discordi = conn.execute(
+            "SELECT u.sito, u.us, u.datazione, p.datazione_estesa"
+            " FROM us_table u JOIN periodizzazione_table p"
+            "   ON p.sito = u.sito"
+            "  AND CAST(p.periodo AS TEXT) = CAST(u.periodo_iniziale AS TEXT)"
+            "  AND CAST(p.fase AS TEXT) = CAST(u.fase_iniziale AS TEXT)"
+            " WHERE COALESCE(p.datazione_estesa,'') <> ''"
+            "   AND COALESCE(u.datazione,'') <> COALESCE(p.datazione_estesa,'')"
+        ).fetchall()
+    finally:
+        conn.close()
+    assert not discordi, discordi[:5]

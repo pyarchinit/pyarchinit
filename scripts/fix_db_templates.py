@@ -56,9 +56,11 @@ UT = (("pyarchinit_ut_point", "POINT"),
 #: Viste che il plugin usa e che al vuoto mancano.
 VISTE = ("pyarchinit_doc_view",)
 
-#: Avanzi degli editor SQLite, da non distribuire.
+#: Avanzi degli editor SQLite, da non distribuire. NON ci sono i `_toimp`,
+#: che sono le tabelle di appoggio delle importazioni e servono.
 SPAZZATURA = ("inventario_materiali_table_backup_1760259102",
               "inventario_materiali_table_dg_tmp_dg_tmp",
+              "sqlitestudio_temp_table",
               "sqlitestudio_temp_table2")
 
 SPATIALITE = (
@@ -163,6 +165,133 @@ def _copia_vista(conn, src, nome: str) -> bool:
     return True
 
 
+def _fasi_doppie(conn) -> list:
+    """Le fasi che ne duplicano un'altra: `(sito, periodo, da, a)`.
+
+    Due fasi dello stesso periodo con **gli stessi anni** dicono la stessa
+    cosa due volte. Nel database di esempio ce ne sono due per sito, in
+    tutte e dieci le lingue, e portano un «rec» (recent, recente, rezent…)
+    nella datazione estesa:
+
+        2 / 2.1  1451-1499  «XV sec rec»                    = 2 / 3  «XV secolo»
+        2 / 3.1  1500-1549  «Prima metà del XV secolo rec»  = 2 / 2  «Prima metà del XVI secolo»
+
+    Sono loro a far dire alla verifica cronologica che due periodi si
+    sovrappongono — e la seconda ha anche l'etichetta sbagliata, perché
+    1500-1549 è la prima metà del **XVI** secolo, non del XV.
+
+    Si riconoscono dagli **anni**, non dalla parola «rec»: così la regola
+    vale per tutte e dieci le lingue senza sapere come si dice «recente» in
+    ciascuna. Di ogni gruppo si tiene la fase col nome più corto — `3` sta
+    a `2.1` come `2` sta a `3.1`, perché il doppione porta il suffisso.
+    """
+    gruppi: dict = {}
+    for sito, periodo, fase, ci, cf in conn.execute(
+            "SELECT sito, periodo, fase, cron_iniziale, cron_finale"
+            " FROM periodizzazione_table"):
+        gruppi.setdefault((sito, periodo, ci, cf), []).append(fase)
+    coppie = []
+    for (sito, periodo, _ci, _cf), fasi in gruppi.items():
+        if len(fasi) < 2:
+            continue
+        ordinate = sorted(fasi, key=lambda f: (len(str(f or "")), str(f or "")))
+        buona = ordinate[0]
+        for doppia in ordinate[1:]:
+            coppie.append((sito, periodo, doppia, buona))
+    return coppie
+
+
+def togli_fasi_doppie() -> list:
+    """Sposta le US sulla fase gemella e butta il doppione.
+
+    Nessuna US cambia datazione di un anno: la fase su cui finisce ha gli
+    stessi `cron_iniziale` e `cron_finale` di quella che lascia. È per
+    questo che si può fare senza chiedere niente all'archeologo.
+    """
+    fatto = []
+    conn = _apri(DISTRIBUITO)
+    try:
+        for sito, periodo, doppia, buona in _fasi_doppie(conn):
+            # Come si chiama la fase su cui le US finiscono: è quel testo che
+            # va anche nel loro campo `datazione`. Lasciarci «XV sec rec»
+            # mentre la fase dice «XV secolo» sposterebbe il problema invece
+            # di chiuderlo — la verifica cronologica confronta proprio i due,
+            # e i disallineamenti passavano da 13 a 19.
+            riga = conn.execute(
+                "SELECT datazione_estesa FROM periodizzazione_table"
+                " WHERE sito = ? AND CAST(periodo AS TEXT) = CAST(? AS TEXT)"
+                "   AND CAST(fase AS TEXT) = CAST(? AS TEXT)",
+                (sito, periodo, buona)).fetchone()
+            etichetta = (riga[0] if riga else None) or ""
+
+            spostate = 0
+            for lato in ("iniziale", "finale"):
+                cur = conn.execute(
+                    "UPDATE us_table SET fase_%s = ?, datazione = ?"
+                    " WHERE sito = ? AND CAST(periodo_%s AS TEXT) = CAST(? AS TEXT)"
+                    "   AND CAST(fase_%s AS TEXT) = CAST(? AS TEXT)"
+                    % (lato, lato, lato),
+                    (buona, etichetta, sito, periodo, doppia))
+                spostate += cur.rowcount
+            cur = conn.execute(
+                "DELETE FROM periodizzazione_table WHERE sito = ?"
+                " AND CAST(periodo AS TEXT) = CAST(? AS TEXT)"
+                " AND CAST(fase AS TEXT) = CAST(? AS TEXT)",
+                (sito, periodo, doppia))
+            if cur.rowcount or spostate:
+                fatto.append(
+                    "%s: fase %s/%s → %s/%s (%s), %d US spostate, %d fase tolta"
+                    % (sito, periodo, doppia, periodo, buona,
+                       etichetta or "senza datazione estesa", spostate,
+                       cur.rowcount))
+        conn.commit()
+    finally:
+        conn.close()
+    return fatto
+
+
+def allinea_datazioni() -> list:
+    """Il campo `datazione` di ogni US dice quello che dice la sua fase.
+
+    Nel database di esempio i periodi sono tradotti in dieci lingue e la
+    `datazione` delle US **no**: sul sito inglese la US 2 sta nella fase
+    «Modern era» e il suo campo dice «Età moderna». La verifica cronologica
+    confronta proprio i due, quindi ogni US datata di quei nove siti
+    segnalava un disallineamento — quaranta per sito.
+
+    Non è un errore da far vedere all'utente: il database di esempio esiste
+    per mostrare dati **coerenti**. Si prende quindi l'etichetta dalla fase,
+    che è la fonte, e si scrive nella scheda. Dove la scheda era vuota la si
+    riempie, dove la fase non esiste non si tocca niente.
+    """
+    fatto = []
+    conn = _apri(DISTRIBUITO)
+    try:
+        for lato in ("iniziale",):
+            cur = conn.execute(
+                "UPDATE us_table SET datazione = ("
+                "  SELECT p.datazione_estesa FROM periodizzazione_table p"
+                "   WHERE p.sito = us_table.sito"
+                "     AND CAST(p.periodo AS TEXT) = CAST(us_table.periodo_%s AS TEXT)"
+                "     AND CAST(p.fase AS TEXT) = CAST(us_table.fase_%s AS TEXT))"
+                " WHERE EXISTS ("
+                "  SELECT 1 FROM periodizzazione_table p"
+                "   WHERE p.sito = us_table.sito"
+                "     AND CAST(p.periodo AS TEXT) = CAST(us_table.periodo_%s AS TEXT)"
+                "     AND CAST(p.fase AS TEXT) = CAST(us_table.fase_%s AS TEXT)"
+                "     AND COALESCE(p.datazione_estesa, '') <> ''"
+                "     AND COALESCE(p.datazione_estesa, '') IS NOT"
+                "         COALESCE(us_table.datazione, ''))"
+                % (lato, lato, lato, lato))
+            if cur.rowcount:
+                fatto.append("%d US allineate alla datazione della loro fase"
+                             % cur.rowcount)
+        conn.commit()
+    finally:
+        conn.close()
+    return fatto
+
+
 def ripara_distribuito() -> list:
     """Butta la spazzatura e rifà le statistiche. Dice che ha fatto."""
     fatto = []
@@ -209,9 +338,15 @@ def main() -> int:
           else "  niente da fare")
 
     print("=== %s (quello con gli esempi) ===" % DISTRIBUITO.name)
+    fatto = togli_fasi_doppie()
+    print("\n".join("  " + r for r in fatto) if fatto
+          else "  nessuna fase doppia")
+    fatto = allinea_datazioni()
+    print("\n".join("  " + r for r in fatto) if fatto
+          else "  datazioni già allineate")
     fatto = ripara_distribuito()
     print("\n".join("  " + r for r in fatto) if fatto
-          else "  niente da fare")
+          else "  niente altro da fare")
     return 0
 
 
