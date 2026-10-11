@@ -256,11 +256,14 @@ def read_em_json(source) -> MatrixModel:
 
     prima_epoca: Dict[str, str] = {}
     relazioni: List[Relation] = []
-    # Lo stesso rapporto può arrivare due volte: nell'esportazione divisa
-    # per saggi esce come `edge` dal grafo che lo possiede **e** come
-    # `link` dal grafo dall'altra parte — è una riga sola della scheda,
-    # vista dai due lati. Senza questa memoria il sito di esempio
-    # contava 114 rapporti dove ne ha 93.
+    # Lo stesso rapporto può arrivare più volte. Nell'esportazione divisa
+    # per saggi i nodi **condivisi** — epoche, documenti, e le catene dei
+    # paradati (extractor, combiner, property) — sono copiati in **ogni**
+    # grafo, e con loro i rapporti che li legano: misurati sul sito di
+    # esempio, **sette** rapporti presenti in tutti e quattro i grafi,
+    # cioè 28 occorrenze per 7 rapporti. Senza questa memoria la matrice
+    # contava 114 rapporti dove ne ha 93. (I 32 `links` fra saggi, invece,
+    # non duplicano niente: nessuno dei 32 ripete un arco.)
     rapporti_visti = set()
     id_epoche = {e.node_id for e in epoche}
     for e in archi:

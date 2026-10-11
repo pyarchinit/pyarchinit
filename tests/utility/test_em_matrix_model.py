@@ -217,27 +217,35 @@ def test_what_is_left_out_of_the_drawing_is_written_down():
 
 
 def test_a_relation_that_arrives_twice_is_drawn_once():
-    """Il rapporto fra due saggi arriva due volte, e non va contato due volte.
+    """Il rapporto che arriva da più grafi non va contato più volte.
 
-    Nell'esportazione divisa un rapporto che esce dal saggio compare come
-    `edge` nel grafo che lo possiede **e** come `link` nel grafo dall'altra
-    parte: è la stessa riga della scheda, vista dai due lati. Unendo i
-    grafi senza guardare, la matrice del sito di esempio contava 114
-    rapporti dove ne ha 93 — ventuno doppioni, disegnati uno sopra
-    l'altro e contati nel pannello.
+    Nell'esportazione divisa per saggi i nodi **condivisi** — epoche,
+    documenti, e le catene dei paradati (extractor, combiner, property) —
+    sono copiati in **ogni** grafo, e con loro i rapporti che li legano.
+    Misurato sul sito di esempio: **sette** rapporti presenti in tutti e
+    quattro i grafi, 28 occorrenze per 7 rapporti, e la matrice contava
+    114 rapporti dove ne ha 93 — doppioni disegnati uno sopra l'altro e
+    contati nel pannello.
+
+    Qui si misura la forma vera (lo stesso arco in due grafi) **e** quella
+    difensiva (un `link` che ripete un arco): nel file di esempio nessuno
+    dei 32 link duplica un arco, ma la matrice non deve fidarsi.
     """
     model = read_em_json({"graphs": {
         "S|I": {
-            "nodes": [{"id": "a", "type": "US", "data": {"us": "1"}}],
-            "edges": [{"source": "a", "target": "b", "type": "is_after"}],
+            "nodes": [{"id": "a", "type": "US", "data": {"us": "1"}},
+                      {"id": "x", "type": "extractor", "data": {"us": "E"}}],
+            "edges": [{"source": "a", "target": "x", "type": "is_after"}],
         },
         "S|II": {
-            "nodes": [{"id": "b", "type": "US", "data": {"us": "2"}}],
-            "edges": [{"source": "a", "target": "b", "type": "is_after"}],
+            "nodes": [{"id": "b", "type": "US", "data": {"us": "2"}},
+                      {"id": "x", "type": "extractor", "data": {"us": "E"}}],
+            # lo stesso rapporto dei paradati, copiato in questo grafo
+            "edges": [{"source": "a", "target": "x", "type": "is_after"}],
+            # e un collegamento che ripete un arco già visto
             "links": [{"source": "a", "type": "is_after",
-                       "target": {"graph_id": "S|I", "node_id": "b"}}],
+                       "target": {"graph_id": "S|I", "node_id": "x"}}],
         },
     }})
-    distinti = {(r.source, r.kind, r.target) for r in model.relations}
-    assert len(model.relations) == len(distinti) == 1, \
-        [(r.source, r.kind, r.target) for r in model.relations]
+    conteggio = [(r.source, r.kind, r.target) for r in model.relations]
+    assert conteggio == [("a", "is_after", "x")], conteggio
