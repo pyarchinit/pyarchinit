@@ -659,6 +659,103 @@ def det_sesso(rif) -> list:
     return righe
 
 
+def _voce(conn, sigla, n, ripiego, tabella="tma_materiali_archeologici"):
+    """La n-esima voce di un vocabolario del thesaurus, ciclando.
+
+    I valori della scheda TMA sono tendine: scriverne uno che il menu non
+    offre vuol dire mostrarlo all'utente e non farglielo ritrovare.
+    """
+    voci = [v for (v,) in conn.execute(
+        "SELECT sigla_estesa FROM pyarchinit_thesaurus_sigle"
+        " WHERE nome_tabella = ? AND tipologia_sigla = ?"
+        " ORDER BY sigla_estesa", (tabella, sigla))
+        if v and str(v).strip()]
+    return voci[n % len(voci)] if voci else ripiego
+
+
+def tma(rif, conn=None) -> list:
+    """La scheda TMA: dieci cassette di materiali archeologici.
+
+    È la scheda ICCD dei materiali (`tabs/Tma.py`, `tma_materiali_archeologici`),
+    e nel database di esempio era **vuota**: la finestra si apriva senza
+    niente dentro (segnalato da Enzo il 12 ottobre 2026).
+
+    `created_at`, `updated_at`, `created_by` e `updated_by` restano vuoti:
+    la scheda TMA fa il controllo di concorrenza come la scheda US
+    (`check_version_conflict`), e un nome là dentro fa aprire «questo
+    record è stato modificato da…» a ogni apertura.
+    """
+    fuori = []
+    us = rif.get("us") or []
+    for i in range(QUANTI):
+        n = i + 1
+        fuori.append({
+            "id": n,
+            "sito": SITO,
+            "area": "1",
+            "localita": _voce(conn, "10.3", i, "Volterra"),
+            "settore": _voce(conn, "10.15", i, "A"),
+            "inventario": "TMA-%03d" % n,
+            "ogtm": "Cassetta di materiali ceramici",
+            "ldct": _voce(conn, "10.2", i, "Magazzino"),
+            "ldcn": _voce(conn, "10.1", i, "Deposito di scavo"),
+            "vecchia_collocazione": "Deposito comunale, scaffale %d" % (i % 4 + 1),
+            "cassetta": "C%02d" % (i % 5 + 1),
+            "scan": _voce(conn, "10.5", i, "Scavo archeologico"),
+            "saggio": ["I", "II", "III", "IV"][i % 4],
+            "vano_locus": "Vano %d" % (i % 3 + 1),
+            "dscd": "2021-05-%02d" % (10 + i),
+            "dscu": "Nicola Esposito",
+            "rcgd": "2021-04-%02d" % (5 + i),
+            "rcgz": "US %s" % (us[i % len(us)] if us else str(i + 1)),
+            "aint": _voce(conn, "10.6", i, "Scavo stratigrafico"),
+            "aind": "2021-06-%02d" % (1 + i),
+            "dtzg": _voce(conn, "10.4", i, "Et\u00e0 moderna"),
+            "deso": "Cassetta con materiali dal riempimento, lavati e "
+                    "siglati; selezione dei diagnostici in corso.",
+            "nsc": "%04d" % (2100 + n),
+            "ftap": _voce(conn, "10.9", i, "Fotografia digitale"),
+            "ftan": "FOTO_TMA_%03d" % n,
+            "drat": "Disegno al tratto",
+            "dran": "DIS_TMA_%03d" % n,
+            "draa": "Nicola Esposito",
+            "entity_uuid": _uuid("tma_materiali_archeologici", n),
+        })
+    return fuori
+
+
+def tma_ripetibili(rif, conn=None) -> list:
+    """I materiali dentro ogni cassetta della TMA: tre righe per cassetta.
+
+    Le quattro colonne delle tendine (categoria, classe, precisazione,
+    definizione) vengono dal thesaurus `tma_materiali_ripetibili`.
+    """
+    fuori = []
+    n = 0
+    for cassetta in range(1, QUANTI + 1):
+        for riga in range(3):
+            n += 1
+            i = n - 1
+            fuori.append({
+                "id": n,
+                "id_tma": cassetta,
+                "madi": "Materiale ceramico",
+                "macc": _voce(conn, "10.10", i, "Ceramica",
+                              "tma_materiali_ripetibili"),
+                "macl": _voce(conn, "10.11", i, "Ceramica fine",
+                              "tma_materiali_ripetibili"),
+                "macp": _voce(conn, "10.12", i, "Olla",
+                              "tma_materiali_ripetibili"),
+                "macd": _voce(conn, "10.13", i, "Frammento di parete",
+                              "tma_materiali_ripetibili"),
+                "cronologia_mac": _voce(conn, "10.4", i, "Et\u00e0 moderna"),
+                "macq": str(3 + (i % 7)),
+                "peso": round(42.5 + i * 7.3, 1),
+                "entity_uuid": _uuid("tma_materiali_ripetibili", n),
+            })
+    return fuori
+
+
 def ut(_rif) -> list:
     """Le Unità Topografiche: dieci ricognizioni intorno a Volterra."""
     luoghi = [
@@ -1008,7 +1105,16 @@ SCHEDE = (
     ("deteta_table", det_eta),
     ("detsesso_table", det_sesso),
     ("ut_table", ut),
+    # La scheda TMA (ICCD dei materiali) e i materiali dentro ogni
+    # cassetta: le due vogliono la connessione perché i loro valori
+    # vengono dalle tendine del thesaurus.
+    ("tma_materiali_archeologici", tma),
+    ("tma_materiali_ripetibili", tma_ripetibili),
 )
+
+#: Le schede che hanno bisogno della connessione per leggere i vocabolari.
+VOGLIONO_CONNESSIONE = {"tma_materiali_archeologici",
+                        "tma_materiali_ripetibili"}
 
 
 def _apri(percorso: Path) -> sqlite3.Connection:
@@ -1122,7 +1228,9 @@ def main(argv=None) -> int:
                 print("  %-28s già %d record, non si tocca"
                       % (tabella, quante))
                 continue
-            scritte = _inserisci(conn, tabella, genera(rif))
+            righe = genera(rif, conn) if tabella in VOGLIONO_CONNESSIONE \
+                else genera(rif)
+            scritte = _inserisci(conn, tabella, righe)
             print("  %-28s +%d record (ne aveva %d)"
                   % (tabella, scritte, quante))
             # Le persone appena scritte servono a chi le cita.

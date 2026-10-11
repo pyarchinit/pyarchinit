@@ -43,9 +43,13 @@ il **lucchetto** del record: `modules/db/concurrency_manager.py` legge
 '30 minutes'` e dichiara la scheda «in modifica da un altro utente».
 Riempirli vorrebbe dire spedire un database di esempio con le schede
 bloccate. `audit_trail` è il registro delle modifiche: riempirlo vorrebbe
-dire raccontare modifiche che nessuno ha fatto. `last_modified_by` e
-`last_modified_timestamp` invece si scrivono: dicono soltanto chi ha
-toccato la scheda per ultimo.
+dire raccontare modifiche che nessuno ha fatto. E `last_modified_by` /
+`last_modified_timestamp` sono della stessa famiglia, anche se sembrano
+descrittivi: la scheda li confronta con l'utente corrente e, se il nome è
+di un altro, apre **«Questo record è stato modificato da demo alle …
+Vuoi ricaricare il record?»** a ogni apertura (`US_USM.py`,
+`check_version_conflict`). Li avevo riempiti il 12 ottobre 2026 e Enzo si
+è trovato quel messaggio addosso: restano vuoti.
 
 Idempotente: una colonna che ha già un valore non si riscrive (tranne i
 due riferimenti rotti, che è il punto).
@@ -297,9 +301,8 @@ def tombe(conn) -> int:
     for n, (nr, _corredo, _tipo) in enumerate(righe):
         scritti += aggiorna(conn, "tomba_table",
                             {"sito": SITO, "nr_scheda_taf": nr},
-                            {"oggetti_rinvenuti_esterno": fuori[n % len(fuori)],
-                             "last_modified_by": AUTORE,
-                             "last_modified_timestamp": QUANDO})
+                            {"oggetti_rinvenuti_esterno":
+                                 fuori[n % len(fuori)]})
     return scritti
 
 
@@ -378,8 +381,6 @@ def ceramica(conn) -> int:
             "decoration_type": _gira(dec_tipo, n, "Painted"),
             "decoration_motif": _gira(dec_motivo, n, "Geometric"),
             "decoration_position": _gira(dec_pos, n, "External"),
-            "last_modified_by": AUTORE,
-            "last_modified_timestamp": QUANDO,
         })
     return scritti
 
@@ -491,8 +492,6 @@ def reperti(conn) -> int:
             "drawing_id": "DIS_%03d" % (numero or n + 1),
             "quota_usm": round(52.40 - n * 0.07, 2),
             "unita_misura_quota": "m s.l.m.",
-            "last_modified_by": AUTORE,
-            "last_modified_timestamp": QUANDO,
         }
         # Il corpo ceramico, il rivestimento, il diametro dell'orlo e
         # l'EVE descrivono un vaso: su una moneta o su un chiodo non
@@ -590,8 +589,6 @@ def strutture(conn) -> int:
             "fasi_funzionali": _lista([
                 ["Ambiente %d" % (n % 3 + 1),
                  sua_fase, _gira(fasi_v, n, "Uso")]]),
-            "last_modified_by": AUTORE,
-            "last_modified_timestamp": QUANDO,
         })
     return scritti
 

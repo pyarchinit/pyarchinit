@@ -54,7 +54,14 @@ SCHEDE = ("tomba_table", "individui_table", "pottery_table",
 #: schede bloccate non si può usare. `audit_trail` è il registro delle
 #: modifiche: riempirlo vorrebbe dire raccontare modifiche che nessuno ha
 #: fatto.
-MACCHINA = {"editing_by", "editing_since", "audit_trail"}
+#: E `last_modified_by`/`last_modified_timestamp` sembrano descrittivi e
+#: non lo sono: la scheda li confronta con l'utente corrente e, se il nome
+#: è di un altro, apre «Questo record è stato modificato da demo alle …
+#: Vuoi ricaricare il record?» a ogni apertura
+#: (`US_USM.check_version_conflict`). Scritti il 12 ottobre 2026 e tolti
+#: lo stesso giorno, perché Enzo si è trovato quel messaggio addosso.
+MACCHINA = {"editing_by", "editing_since", "audit_trail",
+            "last_modified_by", "last_modified_timestamp"}
 
 
 @pytest.fixture(scope="module")

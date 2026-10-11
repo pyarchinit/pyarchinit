@@ -2952,10 +2952,34 @@ class PyArchInitPlugin(object):
             "Esporta in em.json", "Sito:", sites, 0, False)
         if not ok:
             return
+
+        # Come dividere il file, quando il sito ha dei saggi. La finestra
+        # di esportazione della scheda US ha i suoi tre bottoni; questa
+        # voce di menu non li aveva e passava sempre «automatico»,
+        # quindi su uno scavo a saggi faceva **sempre** il contenitore
+        # diviso, qualunque cosa si volesse (Enzo, 12 ottobre 2026:
+        # «se esporto un grafo per saggio o un grafo per tutti i saggi
+        # è sempre lo stesso»).
+        per_saggio = None
+        try:
+            saggi = em_export.saggi_del_sito(conn_str, site)
+        except Exception:                           # noqa: BLE001
+            saggi = []
+        if saggi:
+            scelte = ["Un grafo per ogni saggio (%s)" % ", ".join(saggi),
+                      "Un grafo solo per tutto il sito"]
+            scelta, ok = QInputDialog.getItem(
+                self.iface.mainWindow(), "Esporta in em.json",
+                "Il sito ha %d saggi. Come divido il file?" % len(saggi),
+                scelte, 0, False)
+            if not ok:
+                return
+            per_saggio = scelta == scelte[0]
+
         out_dir = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
         try:
             path, nodes, edges, warnings = em_export.export_site(
-                conn_str, site, out_dir)
+                conn_str, site, out_dir, per_saggio=per_saggio)
         except em_export.EmExportError as e:
             QMessageBox.warning(self.iface.mainWindow(), "em.json", str(e))
             return

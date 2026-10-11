@@ -27,10 +27,14 @@ Cinque lavori, tutti sul database di esempio:
 4. **Le geometrie che mancavano.** Due US senza poligono (7 e 8) e tredici
    senza quota: «non mi sembra che tutti abbiano le geometrie» (Enzo).
 
-5. **Il lucchetto, tolto.** Quaranta record di quattro schede avevano
-   `editing_by = 'pyarchinit_demo'`: `concurrency_manager` lo legge e
-   dichiara la scheda «in modifica da un altro utente». Era un errore
-   della prima passata di riempimento.
+5. **Il lucchetto e il «chi l'ha toccata per ultimo», tolti.** Quaranta
+   record di quattro schede avevano `editing_by = 'pyarchinit_demo'`:
+   `concurrency_manager` lo legge e dichiara la scheda «in modifica da un
+   altro utente». E `last_modified_by`/`last_modified_timestamp`, che
+   sembrano descrittivi, fanno aprire **«Questo record è stato modificato
+   da demo alle … Vuoi ricaricare il record?»** a ogni apertura, perché la
+   scheda confronta quel nome con l'utente corrente. Tutti e quattro i
+   campi sono della concorrenza, non dei dati: restano vuoti.
 
 Idempotente: quello che ha già un valore non si riscrive.
 """
@@ -154,6 +158,14 @@ def saggi(conn, sito) -> tuple:
 # 2. I campi della scheda US
 # ---------------------------------------------------------------------------
 
+#: La struttura di riferimento di ogni saggio. I saggi sono stati
+#: disegnati **intorno** alle strutture, quindi l'unità che non dichiara
+#: la sua prende quella del suo saggio — e la sigla è quella che la
+#: tendina della scheda offre (`sigla-numero`).
+STRUTTURA_DEL_SAGGIO = {"I": "ED-1", "II": "ED-2", "III": "FO-1",
+                        "IV": "MR-1"}
+
+
 def campi_us(conn, sito) -> int:
     """Riempie le colonne della scheda US che erano vuote dappertutto.
 
@@ -163,13 +175,17 @@ def campi_us(conn, sito) -> int:
     """
     base = quota_del_sito(conn, sito)
     presenti = set(colonne(conn, "us_table"))
+    vere = {"%s-%s" % (si, nu) for si, nu in conn.execute(
+        "SELECT sigla_struttura, numero_struttura FROM struttura_table"
+        " WHERE sito = ?", (sito,))}
     righe = conn.execute(
-        "SELECT id_us, us, unita_tipo, area, d_stratigrafica, periodo_iniziale"
+        "SELECT id_us, us, unita_tipo, area, d_stratigrafica,"
+        " periodo_iniziale, saggio"
         " FROM us_table WHERE sito = ? ORDER BY cast(us AS INTEGER)",
         (sito,)).fetchall()
 
     scritti = 0
-    for n, (id_us, us, tipo, area, d_strat, periodo) in enumerate(righe):
+    for n, (id_us, us, tipo, area, d_strat, periodo, saggio) in enumerate(righe):
         muraria = str(tipo or "").strip() in ("USM", "WSU", "MSE", "UEM",
                                               "USZ", "ΤΣΜ")
         alto = round(base + 0.40 - n * 0.012, 2)
@@ -226,16 +242,51 @@ def campi_us(conn, sito) -> int:
             "ref_ra": "RA %03d" % (n + 1),
             "ref_n": "N %03d" % (n + 1),
             "sing_doc": "Scheda US %s, fotopiano e sezione." % us,
-            # Chi ha toccato la scheda per ultimo. `editing_by` e
-            # `editing_since` invece NO: sono il lucchetto del record.
-            "last_modified_by": "demo",
-            "last_modified_timestamp": "2021-09-30 17:40:00",
+            # Gli otto campi che restavano vuoti **sulla singola scheda**
+            # pur non essendo della muratura: la regola «nessuna colonna
+            # vuota in tutte le righe» li lasciava passare, ma chi apre
+            # una scheda vede i suoi campi, non la colonna (Enzo,
+            # 12 ottobre 2026: «ne mancano parecchi»).
+            "attivita": "Attività %d" % (n % 4 + 1),
+            "struttura": (STRUTTURA_DEL_SAGGIO.get(str(saggio or "").strip())
+                          if STRUTTURA_DEL_SAGGIO.get(
+                              str(saggio or "").strip()) in vere else ""),
+            "campioni": "CS-%03d" % (n + 1),
+            # `settore` **no**: entra nel NOME dell'unità. La libreria
+            # compone l'etichetta come `area.settore.US<n>`, quindi
+            # riempirlo cambia «1.US3» in «1.A.US3» su ogni nodo —
+            # nell'em.json, nella matrice e dentro EMStudio. Non è un
+            # campo lasciato vuoto per dimenticanza: è parte
+            # dell'identità, e il demo la tiene corta.
+            "soprintendenza": "SABAP per le province di Firenze, "
+                              "Pistoia e Prato",
+            "modo_formazione": "Naturale" if n % 3 == 0 else "Antropico",
+            "flottazione": "No" if n % 2 else "Sì",
+            "setacciatura": "Sì" if n % 2 else "No",
+            "inclusi": "[['Ghiaia'], ['Frammenti di laterizio']]",
+            # Questi sette erano pieni su quasi tutte le righe e vuoti su
+            # qualcuna: la regola della colonna non li vedeva, ma la
+            # scheda di quella US sì.
+            "descrizione": "Strato di terra bruna, compatta, con inclusi "
+                           "di ghiaia e frammenti di laterizio.",
+            "interpretazione": "Livellamento del piano di calpestio.",
+            "anno_scavo": "2012",
+            "data_schedatura": "18-04-2012",
+            "cont_per": str(periodo or 2),
+            "documentazione": "[['Fotografie', 'Si'], "
+                              "['Planimetrie', 'Si'], ['Sezioni', 'Si']]",
+            "colore": "Bruno scuro",
+            "consistenza": "Compatta",
+            # `reimp` e `cons_legante` sono della muratura: stanno più giù.
         }
         if muraria:
             valori.update({
                 "lunghezza_usm": round(4.20 + n * 0.1, 2),
                 "altezza_usm": round(1.15 + (n % 4) * 0.08, 2),
                 "spessore_usm": round(0.52 + (n % 3) * 0.04, 2),
+                "reimp": "Sì, laterizi e conci di spoglio",
+                "uso_primario_usm": "Si",
+                "cons_legante": "Tenace",
                 "quota_max_usm": alto,
                 "quota_min_usm": round(alto - 1.15, 2),
                 "tecnica_muraria_usm": "Opera incerta di laterizi di "
@@ -283,22 +334,20 @@ def campi_us(conn, sito) -> int:
             })
         valori["entity_uuid"] = _uuid("%s/%s" % (sito, id_us))
 
-        campi, params = [], []
+        # **Una colonna per volta.** La prima versione metteva tutti i
+        # campi in una UPDATE sola e in coda un `WHERE ... AND (uno
+        # qualunque di loro è vuoto)`: bastava un campo vuoto perché
+        # l'UPDATE riscrivesse **anche** quelli pieni. Ha cambiato il
+        # colore di 23 strati, la consistenza di 12, la descrizione di
+        # 13 e il settore di uno — dati veri del demo, sostituiti coi
+        # miei. Qui ogni colonna si scrive da sola, e solo se è vuota.
         for colonna, valore in valori.items():
             if colonna not in presenti:
                 continue
-            campi.append('"%s" = ?' % colonna)
-            params.append(valore)
-        if not campi:
-            continue
-        # Solo dove è vuoto: un dato scritto a mano non si sovrascrive.
-        condizioni = " OR ".join(
-            'trim(coalesce(cast("%s" as text), \'\')) = \'\''
-            % c.split('"')[1] for c in campi)
-        params.append(id_us)
-        scritti += conn.execute(
-            'UPDATE us_table SET %s WHERE id_us = ? AND (%s)'
-            % (", ".join(campi), condizioni), params).rowcount
+            scritti += conn.execute(
+                'UPDATE us_table SET "%s" = ? WHERE id_us = ?'
+                '   AND trim(coalesce(cast("%s" as text), \'\')) = \'\''
+                % (colonna, colonna), (valore, id_us)).rowcount
     return scritti
 
 
@@ -417,14 +466,19 @@ def niente_lucchetti(conn) -> int:
             "SELECT name FROM sqlite_master WHERE type = 'table'"
             " AND name LIKE '%_table'").fetchall():
         presenti = colonne(conn, tabella)
-        if "editing_by" not in presenti:
+        campi, dove = [], []
+        for colonna in ("editing_by", "editing_since", "last_modified_by",
+                        "last_modified_timestamp"):
+            if colonna in presenti:
+                campi.append('"%s" = NULL' % colonna)
+                dove.append(
+                    'trim(coalesce(cast("%s" as text), \'\')) <> \'\''
+                    % colonna)
+        if not campi:
             continue
-        campi = ["editing_by = NULL"]
-        if "editing_since" in presenti:
-            campi.append("editing_since = NULL")
         liberati += conn.execute(
-            'UPDATE "%s" SET %s WHERE trim(coalesce(editing_by, \'\')) <> \'\''
-            % (tabella, ", ".join(campi))).rowcount
+            'UPDATE "%s" SET %s WHERE %s'
+            % (tabella, ", ".join(campi), " OR ".join(dove))).rowcount
     return liberati
 
 

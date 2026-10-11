@@ -5,6 +5,34 @@
 
 ---
 
+## [fix] - 2026-10-12 — Il messaggio «modificato da demo», la scheda TMA vuota, l'esportazione che non ascoltava, e 155 valori del demo rimessi a posto — 5.13.89-alpha
+
+> Branch `Stratigraph_00001`. Suite **1767 verdi** (0 falliti, 0 errori, 1 saltato, 1 xfail). / The «modified by demo» prompt, the empty TMA form, the export that ignored the choice, and 155 demo values put back; suite 1767 green.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«Questo record è stato modificato da demo alle 2021-09-30 17:40:00. Vuoi ricaricare il record?»** a ogni apertura di scheda. Sembravano descrittivi e non lo sono: la scheda confronta `last_modified_by` con l'utente corrente e, se il nome è di un altro, apre quel messaggio (`US_USM.check_version_conflict`, e lo stesso fanno Documentazione, Reperti e TMA). Li avevo scritti il giorno prima su 91 record. Tolti, insieme a `editing_by`/`editing_since`: sono **quattro** campi della concorrenza, non dati, e adesso un test li vieta in **tutto** il database.
+- 🇬🇧 **EN**: **«This record was modified by demo at …»** on every form opening. They look descriptive and are not: the form compares `last_modified_by` with the current user and, if the name is someone else's, opens that prompt. Written the day before on 91 records; removed, along with `editing_by`/`editing_since` — **four** concurrency fields, and a test now forbids them database-wide.
+- 🇮🇹 **IT**: **155 valori del demo rimessi a posto.** La prima passata di riempimento della scheda US metteva tutti i campi in una UPDATE sola con in coda un «se **uno qualunque** di loro è vuoto»: bastava un campo vuoto perché riscrivesse **anche quelli pieni**. Ha cambiato il colore di 23 strati, la consistenza di 12, la descrizione di 13, la data di schedatura di 18, l'anno di scavo di 12. Adesso ogni colonna si scrive **da sola**, e solo se è vuota; i valori veri sono stati rimessi leggendoli dal commit precedente.
+- 🇬🇧 **EN**: **155 demo values put back.** The first US-form filling pass wrote every field in one UPDATE with a trailing «if **any one** of them is empty»: a single empty field was enough to rewrite **the filled ones too**. It changed the colour of 23 layers, the consistency of 12, the description of 13. Each column is now written on its own, and only when empty; the real values were restored from the previous commit.
+- 🇮🇹 **IT**: **il settore non si riempie: entra nel NOME dell'unità.** La libreria compone l'etichetta come `area.settore.US<n>`, quindi scrivere «A» lì dentro cambiava «1.US3» in «1.A.US3» su **ogni** nodo — nell'em.json, nella matrice e dentro EMStudio. Non era un campo vuoto per dimenticanza.
+- 🇬🇧 **EN**: **the sector is not filled: it goes into the unit's NAME.** The library composes the label as `area.settore.US<n>`, so writing «A» there turned «1.US3» into «1.A.US3» on **every** node.
+- 🇮🇹 **IT**: **la scheda TMA era vuota.** La tabella che legge — `tma_materiali_archeologici` — aveva **zero righe**. Ora dieci cassette, tutti i campi compilati, più **trenta** righe di materiali nelle tabelle ripetibili; i valori vengono dalle tendine, e le tre che mancavano (categoria, classe, definizione dei materiali ripetibili: 10.10, 10.11, 10.13) sono state aggiunte al thesaurus. `created_by`/`updated_by` restano vuoti: anche la TMA fa il controllo di concorrenza.
+- 🇬🇧 **EN**: **the TMA form was empty.** The table it reads had **zero rows**. Now ten boxes with every field filled, plus **thirty** rows of repeatable materials; the values come from the dropdowns, and the three missing vocabularies were added.
+- 🇮🇹 **IT**: **l'esportazione dal menu non ascoltava la scelta.** «Se esporto un grafo per saggio o un grafo per tutti i saggi è sempre lo stesso» (Enzo): i tre bottoni stavano solo nella finestra della scheda US, e la voce di menu passava sempre «automatico» — quindi su uno scavo a saggi faceva **sempre** il contenitore diviso. Ora chiede, elencando i saggi che ha trovato.
+- 🇬🇧 **EN**: **the menu export ignored the choice.** The three buttons were only in the US form's window, and the menu entry always passed «automatic». It now asks, listing the trenches it found.
+
+#### GOTCHA misurati / Measured gotchas
+- 🇮🇹 **IT**: **`sqlite3 ".backup"` senza `-readonly` rompe la sessione di QGIS.** Apre l'origine in **lettura e scrittura**: chiudendosi può fare il checkpoint del WAL e portarsi via `-wal`/`-shm` sotto la connessione viva, e da lì ogni query di quella sessione muore con `disk I/O error` mentre `integrity_check` dice `ok`. Il file non ha niente: si riavvia QGIS. Per leggere il database di qualcun altro: **`sqlite3 -readonly`**.
+- 🇬🇧 **EN**: **`sqlite3 ".backup"` without `-readonly` breaks the running QGIS session.** It opens the source **read-write** and on closing can checkpoint the WAL away from under the live connection; from then on every query of that session dies with `disk I/O error` while `integrity_check` says `ok`. Nothing is lost: restart QGIS. To read someone else's database: **`sqlite3 -readonly`**.
+- 🇮🇹 **IT**: i campi della muratura restano vuoti sulle US e pieni sulle USM, ed è giusto così: su uno strato di terra la tecnica muraria non vuol dire niente. Misurato su una scheda: una US ha 43-47 campi vuoti su 118, **tutti** della muratura più `doc_usv`; una USM ne ha **due**.
+- 🇬🇧 **EN**: the masonry fields stay empty on US rows and filled on USM rows, as they should. Measured on a single card: a US has 43-47 empty fields out of 118, **all** masonry plus `doc_usv`; a USM has **two**.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: suite **1767 verdi**. Prove nuove: la scheda TMA non è più vuota e ogni cassetta ha i suoi materiali, i campi della TMA mostrano voci dei loro vocabolari, la TMA non porta i campi della concorrenza, la voce di menu chiede come dividere l'em.json, e i **quattro** campi della concorrenza sono vuoti in tutto il database.
+- 🇬🇧 **EN**: suite **1767 green**. New checks on the TMA form, its vocabularies, the menu export's question, and the four concurrency fields across the whole database.
+
+---
+
 ## [feat] - 2026-10-11 — Quattro saggi, la scheda US piena, i nodi DOC coi loro PDF, e il crash della scheda Struttura — 5.13.88-alpha
 
 > Branch `Stratigraph_00001`. Suite **1756 verdi** (0 falliti, 0 errori, 1 saltato, 1 xfail). / Four trenches, the US form filled, the DOC nodes with their PDFs, and the Structure form's crash; suite 1756 green.

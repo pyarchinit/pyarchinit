@@ -197,6 +197,23 @@ VOCABOLARI = {
         "Fotografia di cantiere"]),
     ("tma_materiali_archeologici", "10.15"): ("Settore", [
         "A", "B", "C", "D", "E"]),
+    # Le quattro tendine della tabella dei materiali ripetibili della TMA:
+    # categoria, classe, precisazione, definizione. `tabs/Tma.py` le
+    # chiede con `thesaurus_map` dentro `load_thesaurus_values`, e la
+    # tabella la compone a runtime — per questo il censimento delle
+    # coppie scritte a mano non le vedeva.
+    ("tma_materiali_ripetibili", "10.10"): ("Categoria del materiale", [
+        "Ceramica", "Vetro", "Metallo", "Osso", "Pietra", "Laterizio",
+        "Intonaco", "Malta", "Materiale organico"]),
+    ("tma_materiali_ripetibili", "10.11"): ("Classe", [
+        "Ceramica fine", "Ceramica grezza", "Ceramica da fuoco",
+        "Ceramica invetriata", "Maiolica", "Terra sigillata",
+        "Anfore", "Laterizi da copertura", "Vetro da mensa",
+        "Metallo da costruzione"]),
+    ("tma_materiali_ripetibili", "10.13"): ("Definizione", [
+        "Frammento di parete", "Frammento di orlo", "Frammento di fondo",
+        "Frammento di ansa", "Esemplare integro", "Frammento di tegola",
+        "Frammento di coppo", "Chiodo", "Lamina", "Scoria"]),
     ("tma_materiali_ripetibili", "10.12"): ("Precisazione tipologica", [
         "Olla", "Olpe", "Anfora", "Coppa", "Piatto", "Scodella",
         "Brocca", "Boccale", "Bicchiere", "Tegame", "Catino",

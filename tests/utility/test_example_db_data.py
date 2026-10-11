@@ -63,7 +63,11 @@ SCHEDE = (
 #: * `fauna_table.id_us` è un riferimento interno che il form compila da sé
 #:   quando la scheda si apre dalla US.
 VUOTE_DI_PROPOSITO = {("*", "audit_trail"), ("*", "editing_by"),
-                      ("*", "editing_since"), ("fauna_table", "id_us")}
+                      ("*", "editing_since"), ("*", "last_modified_by"),
+                      ("*", "last_modified_timestamp"),
+                      ("*", "created_by"), ("*", "updated_by"),
+                      ("*", "created_at"), ("*", "updated_at"),
+                      ("fauna_table", "id_us")}
 
 
 @pytest.fixture(scope="module")

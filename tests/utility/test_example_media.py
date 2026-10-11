@@ -382,6 +382,7 @@ def test_la_scheda_us_non_ha_colonne_vuote_tranne_quelle_di_servizio(conn):
     # modifiche (`audit_trail`) e `other_locations`, che dice in quali
     # ALTRE aree compare la stessa unità: riempirla inventerebbe aree.
     ammesse = {"editing_by", "editing_since", "audit_trail",
+               "last_modified_by", "last_modified_timestamp",
                "other_locations"}
     vuote = [c for i, c in enumerate(colonne)
              if c not in ammesse
@@ -450,14 +451,16 @@ def test_nessuna_scheda_resta_col_lucchetto(conn):
             "   AND name LIKE '%_table'"):
         colonne = [r[1] for r in conn.execute(
             'PRAGMA table_info("%s")' % tabella)]
-        if "editing_by" not in colonne:
-            continue
-        n = conn.execute(
-            'SELECT count(*) FROM "%s"'
-            ' WHERE trim(coalesce(editing_by, "")) <> ""' % tabella
-        ).fetchone()[0]
-        if n:
-            colpevoli.append((tabella, n))
+        for colonna in ("editing_by", "editing_since", "last_modified_by",
+                        "last_modified_timestamp"):
+            if colonna not in colonne:
+                continue
+            n = conn.execute(
+                'SELECT count(*) FROM "%s" WHERE'
+                ' trim(coalesce(cast("%s" AS TEXT), "")) <> ""'
+                % (tabella, colonna)).fetchone()[0]
+            if n:
+                colpevoli.append((tabella, colonna, n))
     assert colpevoli == [], colpevoli
 
 
@@ -478,3 +481,72 @@ def test_le_sigle_virtuali_sono_quelle_nuove(conn):
         " WHERE rapporti2 LIKE '%USVA%' OR rapporti2 LIKE '%USVB%'"
         "    OR rapporti2 LIKE '%USVC%'").fetchone()[0]
     assert sporchi == 0, sporchi
+
+
+# --------------------------------------------------------------------------
+# La scheda TMA
+# --------------------------------------------------------------------------
+
+def test_la_scheda_tma_non_e_piu_vuota(conn):
+    """«La scheda TMA me la dà vuota» (Enzo, 12 ottobre 2026): la tabella
+    che la scheda legge — `tma_materiali_archeologici` — aveva **zero**
+    righe, e la finestra si apriva senza niente dentro."""
+    assert conn.execute(
+        "SELECT count(*) FROM tma_materiali_archeologici"
+        " WHERE sito = ?", (SITO,)).fetchone()[0] >= 10
+    assert conn.execute(
+        "SELECT count(*) FROM tma_materiali_ripetibili").fetchone()[0] >= 30
+
+
+def test_ogni_cassetta_tma_ha_i_suoi_materiali(conn):
+    scoperte = conn.execute(
+        "SELECT count(*) FROM tma_materiali_archeologici t"
+        " WHERE t.sito = ? AND NOT EXISTS ("
+        "   SELECT 1 FROM tma_materiali_ripetibili r WHERE r.id_tma = t.id)",
+        (SITO,)).fetchone()[0]
+    assert scoperte == 0, scoperte
+
+
+@pytest.mark.parametrize("colonna,sigla,tabella", [
+    ("ldcn", "10.1", "tma_materiali_archeologici"),
+    ("ldct", "10.2", "tma_materiali_archeologici"),
+    ("localita", "10.3", "tma_materiali_archeologici"),
+    ("dtzg", "10.4", "tma_materiali_archeologici"),
+    ("aint", "10.6", "tma_materiali_archeologici"),
+    ("ftap", "10.9", "tma_materiali_archeologici"),
+    ("settore", "10.15", "tma_materiali_archeologici"),
+])
+def test_i_campi_della_tma_mostrano_voci_del_vocabolario(conn, colonna, sigla,
+                                                         tabella):
+    voci = {str(v).strip() for (v,) in conn.execute(
+        "SELECT sigla_estesa FROM pyarchinit_thesaurus_sigle"
+        " WHERE nome_tabella = ? AND tipologia_sigla = ?", (tabella, sigla))
+        if v and str(v).strip()}
+    assert voci, sigla
+    for (valore,) in conn.execute(
+            'SELECT "%s" FROM tma_materiali_archeologici WHERE sito = ?'
+            % colonna, (SITO,)):
+        if valore and str(valore).strip():
+            assert str(valore).strip() in voci, (colonna, valore)
+
+
+def test_la_tma_non_porta_i_campi_della_concorrenza(conn):
+    """Anche la scheda TMA fa `check_version_conflict`: `updated_by` con
+    un nome dentro fa aprire «questo record è stato modificato da…»."""
+    for colonna in ("created_by", "updated_by", "created_at", "updated_at"):
+        pieni = conn.execute(
+            'SELECT count(*) FROM tma_materiali_archeologici'
+            ' WHERE trim(coalesce(cast("%s" AS TEXT), "")) <> ""' % colonna
+        ).fetchone()[0]
+        assert pieni == 0, (colonna, pieni)
+
+
+def test_la_voce_di_menu_chiede_come_dividere_lemjson():
+    """«Se esporto un grafo per saggio o un grafo per tutti i saggi è
+    sempre lo stesso» (Enzo): la voce di menu passava sempre
+    «automatico», quindi su uno scavo a saggi faceva **sempre** il
+    contenitore diviso. I tre bottoni stavano solo nella finestra della
+    scheda US."""
+    sorgente = (RADICE / "pyarchinitPlugin.py").read_text(encoding="utf-8")
+    assert "saggi_del_sito" in sorgente
+    assert "per_saggio=per_saggio" in sorgente
