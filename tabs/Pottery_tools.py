@@ -35,6 +35,10 @@ from ..modules.utility.pyarchinit_media_utility import *
 from ..modules.utility.pottery_utilities import (
     PDFExtractor, LayoutGenerator, ImageProcessor, PotteryInkProcessor
 )
+from ..modules.utility.pottery_models import (
+    POTTERY_INK_MODELS, YOLO_MODEL_FILE, YOLO_MODEL_NAMES, YOLO_MODEL_URLS,
+    ink_model_labels, ink_model_path, ink_model_url, ink_models_dir, local_yolo_candidates,
+)
 
 # Load the UI
 MAIN_DIALOG_CLASS, _ = loadUiType(
@@ -951,30 +955,14 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
         """Download PotteryInk models from HuggingFace"""
         try:
             # Create models directory in the correct location
-            models_dir = os.path.join(pyarchinit_home_bin(), "models")
+            models_dir = ink_models_dir()
             os.makedirs(models_dir, exist_ok=True)
 
             self.log_message("Downloading PotteryInk models...")
 
-            # Model URLs from PyPotteryInk repository
-            models = {
-                "10k Model (General)": {
-                    "url": "https://huggingface.co/lrncrd/PyPotteryInk/resolve/main/model_10k.pkl?download=true",
-                    "filename": "model_10k.pkl"
-                },
-                "6h-MCG Model (Bronze Age)": {
-                    "url": "https://huggingface.co/lrncrd/PyPotteryInk/resolve/main/6h-MCG.pkl?download=true",
-                    "filename": "6h-MCG.pkl"
-                },
-                "6h-MC Model (Protohistoric)": {
-                    "url": "https://huggingface.co/lrncrd/PyPotteryInk/resolve/main/6h-MC.pkl?download=true",
-                    "filename": "6h-MC.pkl"
-                },
-                "4h-PAINT Model (Historic/Painted)": {
-                    "url": "https://huggingface.co/lrncrd/PyPotteryInk/resolve/main/4h-PAINT.pkl?download=true",
-                    "filename": "4h-PAINT.pkl"
-                }
-            }
+            # Modelli dal registro (modules/utility/pottery_models.py)
+            models = {label: {"url": ink_model_url(label), "filename": filename}
+                      for label, (filename, _desc) in POTTERY_INK_MODELS.items()}
 
             # Get selected model from combo box
             selected_model = self.combo_pottery_ink_model.currentText() if hasattr(self, 'combo_pottery_ink_model') else "10k Model (General)"
@@ -1127,12 +1115,7 @@ class PotteryToolsDialog(QDialog, MAIN_DIALOG_CLASS):
             model_row = QHBoxLayout()
             model_row.addWidget(QLabel("Model:"))
             self.combo_pottery_ink_model = QComboBox()
-            self.combo_pottery_ink_model.addItems([
-                "10k Model (General)",
-                "6h-MCG Model (Bronze Age)",
-                "6h-MC Model (Protohistoric)",
-                "4h-PAINT Model (Historic/Painted)"
-            ])
+            self.combo_pottery_ink_model.addItems(ink_model_labels())
             model_row.addWidget(self.combo_pottery_ink_model)
 
             self.btn_download_model = QPushButton("Download")
@@ -1794,7 +1777,7 @@ print("PLATFORM:", platform.system())
         models_dir = pyarchinit_home_bin()
 
         # Check for different possible model names
-        model_names = ['BasicModelv8_v01.pt', 'pottery_yolo.pt']
+        model_names = list(YOLO_MODEL_NAMES)
         model_found = False
 
         for model_name in model_names:
@@ -1824,21 +1807,14 @@ print("PLATFORM:", platform.system())
             models_dir = pyarchinit_home_bin()
             os.makedirs(models_dir, exist_ok=True)
 
-            # Model names from PyPotteryLens
-            model_name = 'BasicModelv8_v01.pt'
+            # Il rilevatore dei disegni di PyPotteryLens (registro in pottery_models.py)
+            model_name = YOLO_MODEL_FILE
             target_path = os.path.join(models_dir, model_name)
 
-            # Check multiple possible locations for the model
-            local_models = [
-                f"/Users/enzo/Documents/PyPotteryLens/models_vision/{model_name}",
-                os.path.join(os.path.expanduser('~'), 'Documents', 'PyPotteryLens', 'models_vision', model_name),
-                os.path.join(os.path.dirname(__file__), '..', 'models', model_name),
-            ]
-
+            # Prima una copia locale di PyPotteryLens, se c'e'
             model_found = False
-            for local_model in local_models:
+            for local_model in local_yolo_candidates():
                 if os.path.exists(local_model):
-                    # Copy from local PyPotteryLens
                     self.progressBar.setValue(50)
                     shutil.copy2(local_model, target_path)
                     self.log_message(f"Model copied from {local_model}")
@@ -1846,27 +1822,30 @@ print("PLATFORM:", platform.system())
                     break
 
             if not model_found:
-                # Try to download from GitHub
-                # Note: GitHub LFS or release assets would be needed for large model files
-                model_url = f"https://github.com/enzococca/PyPotteryLens/raw/main/models_vision/{model_name}"
-                self.progressBar.setValue(30)
-                self.log_message(f"Attempting to download model from {model_url}")
-
-                try:
-                    urllib.request.urlretrieve(
-                        model_url,
-                        target_path,
-                        reporthook=self._download_progress
-                    )
-                    self.log_message("Model downloaded successfully from GitHub")
-                except Exception as e:
-                    # If download fails, provide instructions
+                # Poi gli indirizzi del registro, nell'ordine (Hugging Face e' il primo)
+                errors = []
+                for model_url in YOLO_MODEL_URLS:
+                    self.progressBar.setValue(30)
+                    self.log_message(f"Downloading model from {model_url}")
+                    try:
+                        urllib.request.urlretrieve(
+                            model_url,
+                            target_path,
+                            reporthook=self._download_progress
+                        )
+                        self.log_message("Model downloaded successfully")
+                        model_found = True
+                        break
+                    except Exception as e:
+                        errors.append(f"{model_url}: {e}")
+                        if os.path.exists(target_path):
+                            os.remove(target_path)     # mai lasciare un file a meta'
+                if not model_found:
                     raise Exception(
-                        f"Could not download model automatically.\n\n"
-                        f"Please download the model manually:\n"
-                        f"1. Clone PyPotteryLens: git clone https://github.com/enzococca/PyPotteryLens.git\n"
-                        f"2. Copy models_vision/{model_name} to {target_path}\n\n"
-                        f"Error: {str(e)}"
+                        f"Could not download the model automatically.\n\n"
+                        f"Download it by hand from\n{YOLO_MODEL_URLS[0]}\n"
+                        f"and copy it to {target_path}\n\n"
+                        + "\n".join(errors)
                     )
 
             self.progressBar.setValue(100)
@@ -3037,18 +3016,9 @@ if __name__ == '__main__':
                         # Get selected model path
                         model_path = None
                         if hasattr(self, 'combo_pottery_ink_model'):
-                            model_name_map = {
-                                "10k Model (General)": "model_10k.pkl",
-                                "6h-MCG Model (Bronze Age)": "6h-MCG.pkl",
-                                "6h-MC Model (Protohistoric)": "6h-MC.pkl",
-                                "4h-PAINT Model (Historic/Painted)": "4h-PAINT.pkl"
-                            }
-                            selected = self.combo_pottery_ink_model.currentText()
-                            if selected in model_name_map:
-                                models_dir = os.path.join(pyarchinit_home_bin(), "models")
-                                model_path = os.path.join(models_dir, model_name_map[selected])
-                                if not os.path.exists(model_path):
-                                    model_path = None
+                            model_path = ink_model_path(self.combo_pottery_ink_model.currentText())
+                            if model_path and not os.path.exists(model_path):
+                                model_path = None
 
                         # Run enhancement
                         self.text_pottery_log.append(f"Enhancing: {os.path.basename(input_path)}")

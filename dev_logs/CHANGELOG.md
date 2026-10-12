@@ -5,6 +5,28 @@
 
 ---
 
+## [feat] - 2026-10-12 — Pottery Tools: i modelli di Lorenzo in un registro, il nuovo 5h-PAPERGRID, il rilevatore da Hugging Face — 5.13.102-alpha
+
+> Branch `Stratigraph_00001`. Suite **1914 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Pottery Tools: Lorenzo's models in one registry, the new 5h-PAPERGRID, the detector from Hugging Face.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: lo stato dei repository di Lorenzo Cardarelli (lrncrd) al 2026-10-12: **PyPotteryInk 2.1.2** (22 settembre; interfaccia Flask, diagnostica, preprocessing), **PyPotteryLens v0.3.3** (28 settembre; espansione delle maschere a 20 px, strumento di selezione, vasi annidati), **PyPotteryLayout 0.3.4**, il launcher **PyPottery 1.2.0** (installatori Windows/macOS/Linux, cache dei modelli condivisa) e due strumenti nuovi «in revisione», **PyPotteryTrace** (profili vettorializzati in SVG con SAM 2) e **PyPotteryScan** (OCR delle tavole). Su Hugging Face `lrncrd/PyPotteryInk` ha un modello in più, **`5h_PAPERGRID.pkl`** (carta millimetrata, senza ombre), e `lrncrd/PyPotteryLens` pubblica il rilevatore `BasicModelv8_v01.pt` e il classificatore `model_classifier.pth` (ENT/FRAG, qui non usato). Il formato dei `.pkl` non è cambiato: `rank_unet`, `rank_vae`, i moduli LoRA — il nostro `scripts/pix2pix_turbo.py` li carica come il `models.py` a monte; l'espansione delle maschere nostra (kernel 2 × 10 iterazioni) equivale ai 20 px nuovi di PyPotteryLens. Niente da riscrivere nella pipeline.
+- 🇬🇧 **EN**: Lorenzo Cardarelli's repositories as of 2026-10-12: PyPotteryInk 2.1.2, PyPotteryLens v0.3.3, PyPotteryLayout 0.3.4, the PyPottery launcher 1.2.0, and two new tools under review (PyPotteryTrace, PyPotteryScan). Hugging Face has one more ink model, `5h_PAPERGRID.pkl`; the `.pkl` format is unchanged and our pipeline loads it as upstream does.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **`modules/utility/pottery_models.py`**: un registro solo per i modelli di inchiostrazione (etichetta → file, descrizione, indirizzo Hugging Face) e per il rilevatore YOLO. Prima la finestra teneva **tre copie** della stessa tabella (tendina, scaricamento, scelta del file) e un percorso personale (`/Users/enzo/Documents/PyPotteryLens/…`). Ora la tendina si riempie dal registro, lo scaricamento legge l'indirizzo dal registro, la scelta del file pure; **il 5h-PAPERGRID è nella tendina** («5h-PAPERGRID Model (Paper grid tables)»). Le quattro etichette storiche restano identiche: le impostazioni salvate le usano.
+- 🇬🇧 **EN**: **`modules/utility/pottery_models.py`**: one registry for the ink models and the YOLO detector, replacing three copies of the same table and a personal path; the 5h-PAPERGRID model is in the drop-down; the four historical labels are unchanged.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: il rilevatore dei disegni si scaricava dal fork GitHub con `raw/`, che sui file grandi può fallire: ora prima da **Hugging Face** (`lrncrd/PyPotteryLens`, ufficiale), poi dal fork come riserva, e un download fallito non lascia un file a metà. Le copie locali di PyPotteryLens si cercano sotto la home dell'utente, non su una macchina sola.
+- 🇬🇧 **EN**: the drawing detector downloads from Hugging Face first (official), the GitHub fork as fallback; a failed download leaves no half file.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: nove prove (`tests/utility/test_pottery_models.py`): etichette storiche nell'ordine, PAPERGRID nel registro col nome con l'underscore, indirizzi su Hugging Face, etichetta sconosciuta → None, percorso in `bin/models`, nomi del rilevatore, copie locali sotto la home; e due sul sorgente della finestra: niente percorsi personali né tabelle copiate, la tendina dal registro (albero sintattico).
+- 🇬🇧 **EN**: nine checks, two of them on the dialog source (no personal paths, drop-down from the registry).
+
+---
+
 ## [feat] - 2026-10-12 — GeoArchaeo 1.3.1 dentro pyArchInit: pannello riorganizzato e motore riscritto — 5.13.101-alpha
 
 > Branch `Stratigraph_00001`. Suite **1914 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / GeoArchaeo 1.3.1 inside pyArchInit: the panel reorganised and the engine rewritten.
