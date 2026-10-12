@@ -653,6 +653,8 @@ Coses que convé saber:
 
 Tornar a exportar el lloc de la base de dades —amb **Vedi la matrice…**, amb **Esporta sito in em.json…** o amb la finestra «Esporta Extended Matrix» de la fitxa US— **conserva la narrativa** que ja hi ha al fitxer de destinació: prosa, validacions, autor d'IA i prompts. Les èpoques que han aparegut mentrestant reben un capítol «to be written». Un avís ho diu: **«Narrative kept from the previous file (N chapters).»** (narrativa conservada del fitxer anterior). El veus a la barra de missatges amb «Vedi la matrice…», al resum de la finestra «Esporta Extended Matrix» i, amb «Esporta sito in em.json…», als detalls de la finestra final.
 
+Els **altres canvis** fets al fitxer des d'EMStudio —posicions dels nodes, descripcions reescrites— **no sobreviuen**, com abans: el fitxer es regenera a partir de la base de dades. Només es conserva la narrativa.
+
 Abans de reescriure un fitxer que conté una narrativa, pyArchInit en fa una **còpia de seguretat** al costat: `<lloc>.em.json.bak` (cada nova exportació substitueix la còpia anterior).
 
 Si canvies la forma del fitxer —de «Un grafo per ogni saggio» a «Un grafo solo per tutto il sito», o al revés— els grafs canvien de nom i la narrativa **no pot passar** al fitxer nou. Un avís ho diu: *«The previous file's narrative (graphs: …) did not travel into the new file (graphs: …): the file shape changed. Backup copy in …»*. El text no es perd: és a la còpia `.bak`, que, però, es substitueix en la propera exportació d'un fitxer que conté una narrativa —posa-la en lloc segur—. Per recuperar-lo, reanomena la còpia a `.em.json` i torna a exportar amb l'elecció d'abans.

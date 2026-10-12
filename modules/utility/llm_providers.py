@@ -39,10 +39,11 @@ PROVIDER_DEFAULTS = {
         "base_url": "https://api.openai.com/v1",
         "needs_api_key": True,
         "is_local": False,
-        # Quello che /v1/models elencava il 2026-10-12 (chat/completions),
-        # dal più nuovo; i «-pro» non rispondono in chat/completions e gli
-        # snapshot datati non servono. Con la chiave l'elenco vero arriva
-        # dal fornitore (``discover_models``): questo è il ripiego.
+        # Solo le ultime versioni (Enzo, 2026-10-12: «cambiando alle ultime
+        # versioni… questi li puoi togliere»), fra quelle che /v1/models
+        # elencava quel giorno e che rispondono su chat/completions (i «-pro»
+        # no). Con la chiave l'elenco completo del fornitore arriva da
+        # ``discover_models``: questo è il ripiego e la testa della tendina.
         "default_models": [
             "gpt-6.1-sol",
             "gpt-6-sol",
@@ -52,20 +53,6 @@ PROVIDER_DEFAULTS = {
             "gpt-5.6-luna",
             "gpt-5.6-terra",
             "gpt-5.5",
-            "gpt-5.4",
-            "gpt-5.4-mini",
-            "gpt-5.4-nano",
-            "gpt-5.2",
-            "gpt-5.1",
-            "gpt-5",
-            "gpt-5-mini",
-            "gpt-5-nano",
-            "gpt-4.1",
-            "gpt-4.1-mini",
-            "gpt-4o",
-            "gpt-4o-mini",
-            "o3",
-            "o4-mini",
         ],
         "vision_models": [
             "gpt-6.1-sol",
@@ -76,59 +63,26 @@ PROVIDER_DEFAULTS = {
             "gpt-5.6-luna",
             "gpt-5.6-terra",
             "gpt-5.5",
-            "gpt-5.4",
-            "gpt-5.4-mini",
-            "gpt-5.4-nano",
-            "gpt-5.2",
-            "gpt-5.1",
-            "gpt-5",
-            "gpt-5-mini",
-            "gpt-5-nano",
-            "gpt-4.1",
-            "gpt-4.1-mini",
-            "gpt-4o",
-            "gpt-4o-mini",
-            "o3",
-            "o4-mini",
         ],
     },
     LLMProvider.ANTHROPIC: {
         "base_url": "https://api.anthropic.com",
         "needs_api_key": True,
         "is_local": False,
-        # Quello che /v1/models elencava il 2026-10-12, dal più capace e
-        # recente; i claude-3-5 non ci sono più. Tutti vedono le immagini.
+        # Solo le ultime versioni (Enzo, 2026-10-12), dal più capace: la
+        # famiglia 5.5 e Fable 5.1. Le precedenti arrivano dal fornitore con
+        # la chiave. Tutti vedono le immagini.
         "default_models": [
             "claude-fable-5-1",
             "claude-opus-5-5",
             "claude-sonnet-5-5",
             "claude-haiku-5-5",
-            "claude-opus-5",
-            "claude-sonnet-5",
-            "claude-fable-5",
-            "claude-opus-4-8",
-            "claude-opus-4-7",
-            "claude-sonnet-4-6",
-            "claude-opus-4-6",
-            "claude-opus-4-5-20251101",
-            "claude-sonnet-4-5-20250929",
-            "claude-haiku-4-5-20251001",
         ],
         "vision_models": [
             "claude-fable-5-1",
             "claude-opus-5-5",
             "claude-sonnet-5-5",
             "claude-haiku-5-5",
-            "claude-opus-5",
-            "claude-sonnet-5",
-            "claude-fable-5",
-            "claude-opus-4-8",
-            "claude-opus-4-7",
-            "claude-sonnet-4-6",
-            "claude-opus-4-6",
-            "claude-opus-4-5-20251101",
-            "claude-sonnet-4-5-20250929",
-            "claude-haiku-4-5-20251001",
         ],
     },
     LLMProvider.OLLAMA: {

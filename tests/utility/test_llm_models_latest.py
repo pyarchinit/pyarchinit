@@ -21,11 +21,10 @@ A, O = lp.LLMProvider.ANTHROPIC, lp.LLMProvider.OPENAI
 
 def test_i_predefiniti_partono_dalla_famiglia_5_di_claude_e_dai_gpt_6():
     claude = lp.PROVIDER_DEFAULTS[A]["default_models"]
-    assert claude[:4] == ["claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
-    assert "claude-opus-4-7" in claude                       # quello salvato da Enzo resta
-    assert not any(m.startswith("claude-3") for m in claude)  # ritirati dall'API
+    assert claude == ["claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]
     gpt = lp.PROVIDER_DEFAULTS[O]["default_models"]
-    assert gpt[0].startswith("gpt-6") and "gpt-5.5" in gpt and "gpt-5.4-mini" in gpt
+    assert gpt[0] == "gpt-6.1-sol" and gpt[-1] == "gpt-5.5" and len(gpt) == 8
+    assert not any(m.startswith(("gpt-4", "gpt-3", "o")) for m in gpt)   # solo le ultime (Enzo)
     assert not any(m.endswith("-pro") for m in gpt)           # non rispondono in chat/completions
     assert not any(m[-10:].count("-") == 2 and m[-10:-6].isdigit() for m in gpt)  # niente snapshot datati
     for prov in (A, O):
@@ -85,7 +84,7 @@ def test_con_la_chiave_l_elenco_viene_dal_fornitore_dal_piu_nuovo(monkeypatch):
     gpt = lp.LLMProviderManager.discover_models(O)
     assert gpt[:5] == ["gpt-6.1-sol", "gpt-6-sol", "gpt-5.5", "gpt-4o", "o4-mini"]   # gpt-* prima, poi o-series
     assert "gpt-5.5-pro" not in gpt and "gpt-4o-mini-tts" not in gpt and "gpt-5.5-2026-04-23" not in gpt
-    assert "gpt-5.4-mini" in gpt                              # dai predefiniti
+    assert "gpt-5.6-terra" in gpt                             # dai predefiniti
 
 
 def test_senza_chiave_o_senza_rete_restano_i_predefiniti(monkeypatch):
