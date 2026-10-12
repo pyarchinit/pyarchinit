@@ -2930,6 +2930,36 @@ class PyArchInitPlugin(object):
                 f"Migrations menu wiring failed: {e}",
                 "PyArchInit", Qgis.MessageLevel.Warning)
 
+    def _ask_split(self, site, conn_str):
+        """Come dividere l'em.json quando il sito ha dei saggi: (ok, per_saggio).
+
+        Una domanda sola, condivisa da «Esporta in em.json» e da «Vedi la
+        matrice», così le due voci scrivono lo **stesso** file con la
+        stessa forma (spec 2026-10-12: un file solo, la narrativa dentro).
+        La finestra di esportazione della scheda US ha i suoi tre bottoni;
+        la voce di menu passava sempre «automatico», quindi su uno scavo a
+        saggi faceva **sempre** il contenitore diviso (Enzo, 12 ottobre
+        2026: «se esporto un grafo per saggio o un grafo per tutti i saggi
+        è sempre lo stesso»).
+        """
+        from qgis.PyQt.QtWidgets import QInputDialog
+        from modules.s3dgraphy import em_export
+        try:
+            saggi = em_export.saggi_del_sito(conn_str, site)
+        except Exception:                           # noqa: BLE001
+            saggi = []
+        if not saggi:
+            return True, None
+        scelte = ["Un grafo per ogni saggio (%s)" % ", ".join(saggi),
+                  "Un grafo solo per tutto il sito"]
+        scelta, ok = QInputDialog.getItem(
+            self.iface.mainWindow(), "Esporta in em.json",
+            "Il sito ha %d saggi. Come divido il file?" % len(saggi),
+            scelte, 0, False)
+        if not ok:
+            return False, None
+        return True, scelta == scelte[0]
+
     def _run_em_export(self):
         """B1 (spec 2026-10-07 §5): one site -> em.json -> EMStudio."""
         from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
@@ -2957,28 +2987,11 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
-        # Come dividere il file, quando il sito ha dei saggi. La finestra
-        # di esportazione della scheda US ha i suoi tre bottoni; questa
-        # voce di menu non li aveva e passava sempre «automatico»,
-        # quindi su uno scavo a saggi faceva **sempre** il contenitore
-        # diviso, qualunque cosa si volesse (Enzo, 12 ottobre 2026:
-        # «se esporto un grafo per saggio o un grafo per tutti i saggi
-        # è sempre lo stesso»).
-        per_saggio = None
-        try:
-            saggi = em_export.saggi_del_sito(conn_str, site)
-        except Exception:                           # noqa: BLE001
-            saggi = []
-        if saggi:
-            scelte = ["Un grafo per ogni saggio (%s)" % ", ".join(saggi),
-                      "Un grafo solo per tutto il sito"]
-            scelta, ok = QInputDialog.getItem(
-                self.iface.mainWindow(), "Esporta in em.json",
-                "Il sito ha %d saggi. Come divido il file?" % len(saggi),
-                scelte, 0, False)
-            if not ok:
-                return
-            per_saggio = scelta == scelte[0]
+        # Come dividere il file, quando il sito ha dei saggi: la stessa
+        # domanda di «Vedi la matrice» (`_ask_split`).
+        ok, per_saggio = self._ask_split(site, conn_str)
+        if not ok:
+            return
 
         out_dir = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
         try:
@@ -2987,10 +3000,31 @@ class PyArchInitPlugin(object):
         except em_export.EmExportError as e:
             QMessageBox.warning(self.iface.mainWindow(), "em.json", str(e))
             return
-        msg = ("Esportato %s\n%d nodi, %d archi, %d avvisi.\n\n"
-               "Aprire in EMStudio?" % (path, nodes, edges, len(warnings)))
-        if QMessageBox.question(self.iface.mainWindow(), "em.json", msg,
-                                QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
+        # Tre uscite (2026-10-12): EMStudio, la narrativa con l'AI già
+        # impostata (solo se ce n'è una), o niente.
+        from modules.s3dgraphy import em_matrix_panel, em_narrative
+        box = QMessageBox(self.iface.mainWindow())
+        box.setWindowTitle("em.json")
+        box.setText("Esportato %s\n%d nodi, %d archi, %d avvisi."
+                    % (path, nodes, edges, len(warnings)))
+        apri = box.addButton("Apri in EMStudio", QMessageBox.ButtonRole.AcceptRole)
+        narrativa = None
+        if em_narrative.llm_config() is not None:
+            narrativa = box.addButton("Narrativa con l'AI",
+                                      QMessageBox.ButtonRole.ActionRole)
+        box.addButton("Chiudi", QMessageBox.ButtonRole.RejectRole)
+        box.exec_()
+        premuto = box.clickedButton()
+        if narrativa is not None and premuto is narrativa:
+            if not em_matrix_panel.open_in_panel(
+                    self.iface, path, "Matrice — %s" % site,
+                    conn_str=conn_str, tab="narrativa"):
+                QMessageBox.warning(
+                    self.iface.mainWindow(), "Matrice",
+                    em_matrix_panel.describe_failure(path)
+                    or "Non riesco ad aprire il pannello della matrice.")
+            return
+        if premuto is apri:
             if not em_export.open_in_emstudio(path):
                 answer = QMessageBox.question(
                     self.iface.mainWindow(), "EMStudio",
@@ -3007,8 +3041,12 @@ class PyArchInitPlugin(object):
 
         Si passa dal file e non dal grafo in memoria: quello che si vede
         è esattamente quello che viaggerebbe in EMStudio o nella stanza.
+        Dal 2026-10-12 il file è quello **persistente** di
+        `pyarchinit_EM_folder` — lo stesso di «Esporta in em.json» e di
+        EMStudio — così la narrativa scritta dalla scheda del pannello ha
+        una casa, e la riesportazione la conserva.
         """
-        import tempfile
+        from pathlib import Path
         from qgis.PyQt.QtWidgets import QInputDialog, QMessageBox
         from modules.db.pyarchinit_conn_strings import Connection
         from modules.db.pyarchinit_db_manager import Pyarchinit_db_management
@@ -3032,14 +3070,13 @@ class PyArchInitPlugin(object):
         if not ok:
             return
 
-        import shutil
-        for vecchia in getattr(self, "_matrice_temp", ()) or ():
-            shutil.rmtree(vecchia, ignore_errors=True)
-        cartella = tempfile.mkdtemp(prefix="pyarchinit_matrice_")
-        self._matrice_temp = [cartella]
+        ok, per_saggio = self._ask_split(site, conn_str)
+        if not ok:
+            return
+        cartella = str(Path(pyarchinit_home()) / "pyarchinit_EM_folder")
         try:
             path, _n, _e, avvisi = em_export.export_site(
-                conn_str, site, cartella)
+                conn_str, site, cartella, per_saggio=per_saggio)
         except em_export.EmExportError as e:
             QMessageBox.warning(self.iface.mainWindow(), "Matrice", str(e))
             return

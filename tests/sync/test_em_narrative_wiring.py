@@ -204,3 +204,34 @@ def test_un_file_illeggibile_spegne_tutto_e_lo_dice(qgs, tmp_path, monkeypatch):
     assert "rotto.em.json" in w.findChild(QLabel, "stato").text()
     for nome in ("genera", "rigenera", "convalida", "prepara", "esporta", "emstudio"):
         assert not w.findChild(QPushButton, nome).isEnabled(), nome
+
+
+# ---------------------------------------------------------------------------
+# Task 6: il plugin — file persistente, domanda sui saggi condivisa, bottoni
+# ---------------------------------------------------------------------------
+
+PLUGIN = _ROOT / "pyarchinitPlugin.py"
+
+
+def _corpo(nome: str) -> str:
+    sorgente = PLUGIN.read_text(encoding="utf-8")
+    albero = ast.parse(sorgente)
+    for n in ast.walk(albero):
+        if isinstance(n, ast.FunctionDef) and n.name == nome:
+            return ast.get_source_segment(sorgente, n)
+    raise AssertionError(nome)
+
+
+def test_vedi_la_matrice_scrive_nella_cartella_em_e_non_in_una_temporanea():
+    vista = _corpo("_run_em_matrix_view")
+    assert "tempfile" not in vista and "_matrice_temp" not in vista
+    assert "pyarchinit_EM_folder" in vista and "_ask_split(" in vista
+    assert "_ask_split(" in _corpo("_run_em_export")
+    assert "_matrice_temp" not in PLUGIN.read_text(encoding="utf-8")
+    assert "saggi_del_sito" in _corpo("_ask_split")
+
+
+def test_dopo_l_esportazione_si_puo_aprire_la_narrativa():
+    esporta = _corpo("_run_em_export")
+    assert "llm_config(" in esporta and 'tab="narrativa"' in esporta
+    assert "open_in_emstudio" in esporta and "Narrativa con l'AI" in esporta
