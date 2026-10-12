@@ -13998,8 +13998,8 @@ DATABASE SCHEMA KNOWLEDGE:
             # newly-added area/sito columns without requiring a manual
             # plugin reload.
             try:
-                self.charge_records()
-                self.fill_fields(self.REC_CORR)
+                from modules.utility.site_records import reload_keeping_record
+                reload_keeping_record(self)
             except Exception:
                 try:
                     self.view_all()
@@ -14295,8 +14295,8 @@ DATABASE SCHEMA KNOWLEDGE:
                 # the tableWidgets so the user sees the new area/sito
                 # columns immediately without reloading the plugin.
                 try:
-                    self.charge_records()
-                    self.fill_fields(self.REC_CORR)
+                    from modules.utility.site_records import reload_keeping_record
+                    reload_keeping_record(self)
                 except Exception:
                     try:
                         self.view_all()
@@ -14739,7 +14739,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
                         pass
                 # Reload data
-                self.charge_records()
+                from modules.utility.site_records import reload_keeping_record
+                reload_keeping_record(self)
 
                 QMessageBox.information(self, 'Completato',
                                       f'Cancellate {deleted} schede create automaticamente.',
@@ -15069,7 +15070,8 @@ DATABASE SCHEMA KNOWLEDGE:
 
         if created_count > 0:
             # Reload the data to include the new records
-            self.charge_records()
+            from modules.utility.site_records import reload_keeping_record
+            reload_keeping_record(self)
             QMessageBox.information(self, 'Info',
                                    f'Create {created_count} schede US con descrizione "Scheda creata automaticamente".\n'
                                    f'Ricordati di completare le informazioni mancanti.',
@@ -15240,18 +15242,8 @@ DATABASE SCHEMA KNOWLEDGE:
         if fixed_count > 0:
             # If the current US was updated, reload the form to show the new relationships
             if current_us_updated:
-                # Save current position
-                temp_rec = self.REC_CORR
-                # Reload the record from database
-                self.charge_records()
-                # Find and display the same record
-                for i, rec in enumerate(self.DATA_LIST):
-                    if (str(rec.us) == str(self.lineEdit_us.text()) and 
-                        rec.area == str(self.comboBox_area.currentText()) and
-                        rec.sito == str(self.comboBox_sito.currentText())):
-                        self.REC_CORR = i
-                        self.fill_fields(self.REC_CORR)
-                        break
+                from modules.utility.site_records import reload_keeping_record
+                reload_keeping_record(self)
                 
             QMessageBox.information(self, 'Info', f'Aggiunti {fixed_count} rapporti reciproci.', QMessageBox.StandardButton.Ok)
         else:
@@ -15339,7 +15331,8 @@ DATABASE SCHEMA KNOWLEDGE:
                             pass
             # Reload data
             if deleted > 0:
-                self.charge_records()
+                from modules.utility.site_records import reload_keeping_record
+                reload_keeping_record(self)
                 
         except Exception as e:
             
@@ -15574,8 +15567,8 @@ DATABASE SCHEMA KNOWLEDGE:
                                       QMessageBox.StandardButton.Ok)
                 
                 # Refresh the view and re-run check
-                self.charge_records()
-                self.fill_fields()
+                from modules.utility.site_records import reload_keeping_record
+                reload_keeping_record(self)
                 
                 # Re-run the stratigraphic check
                 sito = str(self.comboBox_sito.currentText())

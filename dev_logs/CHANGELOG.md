@@ -5,6 +5,22 @@
 
 ---
 
+## [fix] - 2026-10-12 — Dopo l'aggiornamento di area e sito nei rapporti la scheda US mostrava tutti i siti — 5.13.99-alpha
+
+> Branch `Stratigraph_00001`. Suite **1825 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / After updating area and site in the relationships, the US form showed every site.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«se faccio aggiornare area e sito nel table widget dei rapporti, finito compaiono tutti i record — 500 e passa — e non le 51, come se non tenesse conto del filtro sito»** (Enzo). Il bottone, finito di scrivere, ricaricava con `charge_records()`, che legge la tabella **intera**: dieci siti invece di uno, il contatore a 500 e il record corrente perso. Ora la ricarica dopo una scrittura passa da `site_records.reload_keeping_record`: filtro di sito come «view all» (sito da `config.cfg`, cache dei cinque minuti azzerata) e si **resta sul record** che si stava guardando, ritrovato per id; se era di un altro sito si va al primo; se il sito non ha record la scheda resta in uno stato usabile.
+- 🇬🇧 **EN**: **«after updating area and site in the relationships table, every record shows up — 500+ — instead of the 51»**. The button reloaded with `charge_records()`, which reads the **whole** table. Reloads after a write now go through `site_records.reload_keeping_record`: site filter as in «view all», and the form stays on the record it was showing.
+- 🇮🇹 **IT**: stessa ricarica a secco in altre **sei** scritture della scheda US — `update_rapporti_col_2`, le correzioni automatiche (`fix_missing_forms`, `fix_missing_relationships`, `on_pushButton_fix_pressed`), la cancellazione delle schede orfane e di quelle create in automatico. Tutte e sette passano dalla stessa funzione; una di loro ritrovava il record a mano confrontando us, area e sito — ora lo fa per id, una volta sola.
+- 🇬🇧 **EN**: the same bare reload sat in **six** more writers of the US form — all seven now go through the same function.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: cinque prove — la ricarica mostra solo il sito e resta sul record (contatore compreso, cache azzerata); un record di un altro sito ricade sul primo; un sito senza record lascia la scheda usabile; senza sito configurato si carica tutto com'era; e una sull'albero sintattico di `US_USM.py`: le sette scritture non chiamano più `charge_records()` a secco.
+- 🇬🇧 **EN**: five checks, one of them an AST guard on the seven writers of the US form.
+
+---
+
 ## [fix] - 2026-10-12 — Il rombo della continuità sta nella fascia dove l'unità finisce — 5.13.98-alpha
 
 > Branch `Stratigraph_00001`. Suite **1820 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The continuity diamond sits in the band where the unit ends.

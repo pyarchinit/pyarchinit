@@ -174,3 +174,44 @@ def clear_form_state(tab):
             etichetta.setText(testo)
         except Exception:
             pass
+
+
+def reload_keeping_record(tab):
+    """Ricarica la scheda dopo una scrittura: il sito di «view all», e si
+    resta sul record che si stava guardando.
+
+    «Se faccio aggiornare area e sito nei rapporti, finito compaiono tutti
+    i record — 500 e passa — e non le 51, come se non tenesse conto del
+    filtro sito» (Enzo, 12 ottobre 2026). Il bottone, finito di scrivere,
+    ricaricava con `charge_records()`, che legge la tabella **intera**:
+    dieci siti invece di uno, e il contatore a 500. Qui si ricarica come
+    «view all» — sito da `config.cfg`, cache azzerata — e si ritrova il
+    record di prima per id; se non c'è più (o era di un altro sito) si va
+    al primo. Vero quando c'è qualcosa da mostrare; falso quando il sito
+    non ha record, e allora la scheda resta in uno stato usabile.
+    """
+    id_attr = getattr(tab, "ID_TABLE", None) or None
+    corrente = None
+    try:
+        corrente = getattr(tab.DATA_LIST[tab.REC_CORR], id_attr, None)
+    except Exception:
+        corrente = None
+    if not charge_records_for_site(tab):
+        clear_form_state(tab)
+        return False
+    indice = 0
+    if corrente is not None and id_attr:
+        for n, riga in enumerate(tab.DATA_LIST):
+            if getattr(riga, id_attr, None) == corrente:
+                indice = n
+                break
+    tab.REC_CORR = indice
+    tab.REC_TOT = len(tab.DATA_LIST)
+    tab.fill_fields(tab.REC_CORR)
+    contatore = getattr(tab, "set_rec_counter", None)
+    if callable(contatore):
+        try:
+            contatore(tab.REC_TOT, tab.REC_CORR + 1)
+        except Exception:
+            pass
+    return True

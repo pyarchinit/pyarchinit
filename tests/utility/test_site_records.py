@@ -429,3 +429,133 @@ def test_the_empty_site_leaves_the_form_usable(tmp_path, monkeypatch):
     assert tab.BROWSE_STATUS == "x"
     assert tab.label_status.text == "Nessun record"
     assert SR.no_records_texts(tab)[0] == "Nessun record per il sito corrente."
+
+
+# ---------------------------------------------------------------------------
+# Ricaricare dopo una scrittura, restando sul sito e sul record di prima
+# ---------------------------------------------------------------------------
+# «Nella tab rapporti della scheda US, se faccio aggiornare area e sito nel
+# table widget, finito compaiono tutti i record — 500 e passa — e non le
+# 51, come se non tenesse conto del filtro sito» (Enzo, 12 ottobre 2026).
+# Il bottone, finito di scrivere, ricaricava con `charge_records()`, che
+# legge la tabella **intera**: dieci siti invece di uno, e il contatore a
+# 500. La ricarica dopo una scrittura passa di qui: filtro di sito come
+# «view all», e si resta sul record che si stava guardando.
+
+import sys as _sys  # noqa: E402
+from pathlib import Path as _Path  # noqa: E402
+
+_RADICE = _Path(__file__).resolve().parents[2]
+if str(_RADICE) not in _sys.path:
+    _sys.path.insert(0, str(_RADICE))
+
+from modules.utility import site_records as SR  # noqa: E402
+
+
+class _Riga:
+    def __init__(self, id_us, sito, us):
+        self.id_us, self.sito, self.us = id_us, sito, us
+
+    def __repr__(self):
+        return "Riga(%s,%s,%s)" % (self.id_us, self.sito, self.us)
+
+
+class _Db:
+    """Dieci righe su due siti; `query_bool` filtra, `query_ordered` no."""
+    def __init__(self):
+        self.righe = [_Riga(i, "A" if i <= 6 else "B", str(i)) for i in range(1, 11)]
+        self.svuotata = 0
+
+    def query_bool(self, filtro, mapper):
+        sito = str(filtro.get("sito", "")).strip("'")
+        return [r for r in self.righe if r.sito == sito]
+
+    def query_ordered(self, mapper, id_attr, verso):
+        return list(self.righe)
+
+    def clear_cache(self):
+        self.svuotata += 1
+
+
+class _Scheda:
+    ID_TABLE = "id_us"
+    MAPPER_TABLE_CLASS = "US"
+
+    def __init__(self, db, corrente):
+        self.DB_MANAGER = db
+        self.DATA_LIST = list(db.righe)          # com'era: tutta la tabella
+        self.REC_TOT = len(self.DATA_LIST)
+        self.REC_CORR = corrente
+        self.riempito = []
+        self.contatore = None
+        self.BROWSE_STATUS = "b"
+        self.STATUS_ITEMS = {"b": "Usa", "x": "Nessun record"}
+
+    def charge_records(self):
+        self.DATA_LIST = self.DB_MANAGER.query_ordered(self.MAPPER_TABLE_CLASS, "id_us", "asc")
+
+    def fill_fields(self, indice=0):
+        self.riempito.append(indice)
+
+    def set_rec_counter(self, t, c):
+        self.contatore = (t, c)
+
+
+def test_after_a_write_the_form_shows_only_the_site_and_stays_on_the_record(monkeypatch):
+    monkeypatch.setattr(SR, "current_site", lambda: "A")
+    scheda = _Scheda(_Db(), corrente=3)         # la riga con id_us 4, sito A
+    assert SR.reload_keeping_record(scheda) is True
+    assert [r.sito for r in scheda.DATA_LIST] == ["A"] * 6
+    assert scheda.REC_TOT == 6
+    assert scheda.DATA_LIST[scheda.REC_CORR].id_us == 4
+    assert scheda.riempito == [scheda.REC_CORR]
+    assert scheda.contatore == (6, scheda.REC_CORR + 1)
+    assert scheda.DB_MANAGER.svuotata == 1      # la cache di cinque minuti
+
+
+def test_a_record_of_another_site_falls_back_to_the_first_of_the_site(monkeypatch):
+    monkeypatch.setattr(SR, "current_site", lambda: "A")
+    scheda = _Scheda(_Db(), corrente=8)         # id_us 9, sito B
+    assert SR.reload_keeping_record(scheda) is True
+    assert scheda.REC_CORR == 0
+    assert scheda.DATA_LIST[0].id_us == 1
+
+
+def test_a_site_without_records_leaves_a_usable_empty_form(monkeypatch):
+    monkeypatch.setattr(SR, "current_site", lambda: "Z")
+    scheda = _Scheda(_Db(), corrente=0)
+    assert SR.reload_keeping_record(scheda) is False
+    assert scheda.DATA_LIST == [] and scheda.REC_TOT == 0 and scheda.REC_CORR == 0
+    assert scheda.riempito == []
+    assert scheda.BROWSE_STATUS == "x"
+
+
+def test_without_a_configured_site_everything_is_loaded_as_before(monkeypatch):
+    monkeypatch.setattr(SR, "current_site", lambda: "")
+    scheda = _Scheda(_Db(), corrente=7)         # id_us 8
+    assert SR.reload_keeping_record(scheda) is True
+    assert scheda.REC_TOT == 10
+    assert scheda.DATA_LIST[scheda.REC_CORR].id_us == 8
+
+
+def test_the_us_form_reloads_after_its_writes_through_the_site_filter():
+    """Le scritture della scheda US che poi ricaricano — l'aggiornamento di
+    area e sito nei rapporti, le correzioni automatiche — non chiamano più
+    `charge_records()` a secco."""
+    import ast
+    sorgente = (_RADICE / "tabs" / "US_USM.py").read_text(encoding="utf-8")
+    albero = ast.parse(sorgente)
+    da_controllare = {"update_all_areas", "update_rapporti_col_2",
+                      "fix_missing_forms", "fix_missing_relationships",
+                      "delete_orphan_forms", "delete_auto_created_forms",
+                      "on_pushButton_fix_pressed"}
+    colpevoli = []
+    for nodo in ast.walk(albero):
+        if isinstance(nodo, ast.FunctionDef) and nodo.name in da_controllare:
+            for c in ast.walk(nodo):
+                if (isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute)
+                        and c.func.attr == "charge_records"
+                        and isinstance(c.func.value, ast.Name)
+                        and c.func.value.id == "self"):
+                    colpevoli.append(nodo.name)
+    assert colpevoli == [], colpevoli
