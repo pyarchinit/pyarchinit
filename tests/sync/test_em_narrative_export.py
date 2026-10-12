@@ -122,3 +122,26 @@ def test_riesportare_un_sito_a_saggi_torna_sullo_stesso_file(con_saggi, tmp_path
     p1, *_ = em_export.export_site(con_saggi, SITO_SAGGI, str(out), per_saggio=True)
     p2, *_ = em_export.export_site(con_saggi, SITO_SAGGI, str(out), per_saggio=True)
     assert p1 == p2 and sorted(x.name for x in out.iterdir()) == [Path(p1).name]
+
+
+# --- revisione finale (2026-10-12): la forma del file che cambia, il file rotto ---
+
+def test_se_la_forma_del_file_cambia_la_narrativa_non_sparisce_in_silenzio(con_saggi, tmp_path):
+    out = tmp_path / "em"
+    path, *_ = em_export.export_site(con_saggi, SITO_SAGGI, str(out), per_saggio=True)
+    cont, _ = en.load_project(path)
+    en.generate(cont, chat=lambda m: "Testo per saggio.", model="finto", lang="it")
+    en.save_project(cont, path)
+    path2, _n, _e, avvisi = em_export.export_site(con_saggi, SITO_SAGGI, str(out), per_saggio=False)
+    assert path2 == path
+    assert any("non è passata" in a or "did not travel" in a for a in avvisi)
+    assert (out / (Path(path).name + ".bak")).is_file()
+    assert "Testo per saggio." in (out / (Path(path).name + ".bak")).read_text(encoding="utf-8")
+
+
+def test_un_file_precedente_rotto_viene_messo_da_parte(sample_db, tmp_path):
+    out = tmp_path / "em"
+    path, *_ = em_export.export_site(sample_db, SITO, str(out), per_saggio=False)
+    Path(path).write_text("{rotto", encoding="utf-8")
+    path2, _n, _e, avvisi = em_export.export_site(sample_db, SITO, str(out), per_saggio=False)
+    assert path2 == path and (out / (Path(path).name + ".broken")).read_text(encoding="utf-8") == "{rotto"

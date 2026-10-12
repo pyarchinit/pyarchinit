@@ -496,6 +496,14 @@ def close_panel(iface) -> None:
     dock = _existing(iface)
     if dock is not None:
         try:
+            from qgis.PyQt.QtWidgets import QWidget
+            from . import em_narrative_tab
+            scheda = dock.findChild(QWidget, "narrativa")
+            if scheda is not None:
+                em_narrative_tab.stop_generation(scheda)
+        except Exception:                           # noqa: BLE001
+            pass
+        try:
             iface.removeDockWidget(dock)
             dock.deleteLater()
         except Exception:                           # noqa: BLE001

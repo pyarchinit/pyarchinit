@@ -352,3 +352,130 @@ def test_is_support_node_riconosce_i_nodi_della_narrativa():
     assert en.is_support_node("extractor", "EXT.prompt.abc")
     assert not en.is_support_node("extractor", "EXT.1")
     assert not en.is_support_node("US", "u1")
+
+
+# ---------------------------------------------------------------------------
+# Revisione finale (2026-10-12): i difetti trovati dal revisore
+# ---------------------------------------------------------------------------
+
+def _due_grafi():
+    """L'esportazione per saggi: due grafi con le STESSE epoche (stessi id)."""
+    from s3dgraphy.container import Container
+    a = grafo_di_prova()
+    a.graph_id = "Villa|Saggio A"
+    b = grafo_di_prova()
+    b.graph_id = "Villa|Saggio B"
+    return Container(graphs={a.graph_id: a, b.graph_id: b}, active_graph_id=a.graph_id)
+
+
+def _bozze(graph, anchor):
+    return [b.text for b in en.narrative_of(graph).chapter_by_anchor(anchor).blocks
+            if b.ai_generated]
+
+
+def test_rigenera_tocca_solo_il_capitolo_del_grafo_scelto():
+    cont = _due_grafi()
+    assert en.generate(cont, chat=lambda m: "Prima.", model="m").generated == 4
+    rep = en.generate(cont, chat=lambda m: "Riscritto.", model="m",
+                      anchors=[("Villa|Saggio B", "epoch_1_1")])
+    assert len(rep.outcomes) == 1 and rep.outcomes[0].ok
+    assert _bozze(cont.graphs["Villa|Saggio A"], "epoch_1_1") == ["Prima."]
+    assert _bozze(cont.graphs["Villa|Saggio B"], "epoch_1_1") == ["Riscritto."]
+    # una stringa sola vale per tutti i grafi (chiamate di prima)
+    assert len(en.generate(cont, chat=lambda m: "Tutti.", model="m",
+                           anchors=["epoch_2_1"]).outcomes) == 2
+
+
+def test_una_rigenerazione_fallita_tiene_la_bozza_di_prima():
+    from s3dgraphy.container import container_of
+    g = grafo_di_prova()
+    cont = container_of(g)
+    en.generate(cont, chat=lambda m: "Bozza buona.", model="m", anchors=["epoch_1_1"])
+
+    def esplode(m):
+        raise RuntimeError("rete giù")
+    assert en.generate(cont, chat=esplode, model="m", anchors=["epoch_1_1"]).failed == 1
+    assert _bozze(g, "epoch_1_1") == ["Bozza buona."]
+    assert en.generate(cont, chat=lambda m: "  ", model="m", anchors=["epoch_1_1"]).failed == 1
+    assert _bozze(g, "epoch_1_1") == ["Bozza buona."]
+
+
+def test_il_segnaposto_sparisce_quando_il_capitolo_e_scritto(tmp_path):
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    en.generate_chapter(g, n, cap, chat=lambda m: "Scritto.", model="m")
+    assert not any(en.is_placeholder(b) for b in cap.blocks)
+    assert [b.block_type for b in cap.blocks].count("embed") == 2      # gli embed restano
+    en.scaffold(g, "it")                                                # lo scheletro rifatto non lo rimette
+    assert not any(en.is_placeholder(b) for b in cap.blocks)
+    testo = Path(en.export_file(g, n, "html", tmp_path / "v.html")).read_text(encoding="utf-8")
+    assert "Scritto." in testo and "che cosa accade in «Età romana»" not in testo
+    assert any(en.is_placeholder(b) for b in n.chapter_by_anchor("epoch_2_1").blocks)  # non generato: resta
+
+
+def test_la_lingua_della_narrativa_vince_su_quella_dell_interfaccia():
+    from s3dgraphy.container import container_of
+    g = grafo_di_prova()
+    en.scaffold(g, "en")                      # narrativa inglese, per esempio da EMStudio
+    visti = []
+
+    def chat(m):
+        visti.append(m[0]["content"])
+        return "Written."
+    en.generate(container_of(g), chat=chat, model="m", lang="it")
+    assert "english" in visti[0].lower() and "italiano" not in visti[0].lower()
+
+
+def _grafo_grasso(quante=50):
+    from s3dgraphy.nodes.stratigraphic_node import StratigraphicUnit
+    g = grafo_di_prova()
+    for i in range(10, 10 + quante):
+        n = StratigraphicUnit("u%d" % i, "1.US%d" % i, description="x" * 400)
+        n.data = {"us": str(i), "descrizione": "d" * 400, "interpretazione": "i" * 300}
+        g.add_node(n)
+        g.add_edge("u%d_fe" % i, "u%d" % i, "epoch_1_1", "has_first_epoch")
+        if i > 10:
+            g.add_edge("u%d_ov" % i, "u%d" % i, "u%d" % (i - 1), "overlies")
+    return g
+
+
+def test_il_briefing_rispetta_un_tetto_di_caratteri():
+    g = _grafo_grasso()
+    b = en.briefing(g, "epoch_1_1")
+    pieno = len(en.messages(b, "it")[1]["content"])
+    ridotto = en.fit_briefing(b, budget=8000)
+    corto = len(en.messages(ridotto, "it")[1]["content"])
+    assert corto <= 8000 < pieno
+    assert ridotto["actions"] and ridotto["omitted_actions"] > 0
+    assert [a["id"] for a in ridotto["actions"]] == [a["id"] for a in b["actions"]][:len(ridotto["actions"])]
+    assert en.fit_briefing(b, budget=10 ** 7)["omitted_actions"] == 0
+    assert len(en.messages(b, "it")[1]["content"]) == pieno           # l'originale non si tocca
+
+
+def test_i_rapporti_si_elencano_una_volta_sola_quando_serve_posto():
+    g = _grafo_grasso(8)
+    b = en.briefing(g, "epoch_1_1")
+    doppi = sum(len(a["relations"]) for a in b["actions"])
+    stretto = en.fit_briefing(b, budget=len(en.messages(b, "it")[1]["content"]) - 1)
+    singoli = sum(len(a["relations"]) for a in stretto["actions"])
+    assert singoli < doppi and stretto["omitted_actions"] == 0
+
+
+def test_generate_chapter_registra_il_prompt_del_briefing_ridotto(monkeypatch):
+    g = _grafo_grasso(30)
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    monkeypatch.setattr(en, "MAX_PROMPT_CHARS", 6000)
+    visti = []
+    esito = en.generate_chapter(g, n, cap, chat=lambda m: visti.append(m) or "Ok.", model="m")
+    assert esito.ok and len(visti[0][1]["content"]) <= 6000
+    estrattore = g.find_node_by_id([b for b in cap.blocks if b.ai_generated][0].prompt_ref)
+    assert "omesse" in estrattore.description or "omitted" in estrattore.description
+
+
+def test_il_conteggio_dei_capitoli_possibili_conta_solo_le_epoche_con_unita():
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    g = grafo_di_prova()
+    g.add_node(EpochNode("epoch_9_9", "Vuota", 1900, 1950))
+    assert en.count_possible_chapters(g) == 2

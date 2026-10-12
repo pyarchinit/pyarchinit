@@ -3007,13 +3007,17 @@ class PyArchInitPlugin(object):
         box.setWindowTitle("em.json")
         box.setText("Esportato %s\n%d nodi, %d archi, %d avvisi."
                     % (path, nodes, edges, len(warnings)))
+        if warnings:
+            # Fra gli avvisi c'è «Narrativa conservata…»: contarli senza
+            # mostrarli nascondeva l'unico che interessa.
+            box.setDetailedText("\n".join(str(w) for w in warnings))
         apri = box.addButton("Apri in EMStudio", QMessageBox.ButtonRole.AcceptRole)
         narrativa = None
         if em_narrative.llm_config() is not None:
             narrativa = box.addButton("Narrativa con l'AI",
                                       QMessageBox.ButtonRole.ActionRole)
         box.addButton("Chiudi", QMessageBox.ButtonRole.RejectRole)
-        box.exec_()
+        box.exec()
         premuto = box.clickedButton()
         if narrativa is not None and premuto is narrativa:
             if not em_matrix_panel.open_in_panel(

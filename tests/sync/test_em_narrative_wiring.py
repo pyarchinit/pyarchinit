@@ -278,3 +278,103 @@ def test_open_in_panel_costruisce_la_scheda_narrativa_e_la_porta_davanti(qgs, tm
     assert dock.findChild(QListWidget, "capitoli").count() == 0
     assert schede.currentIndex() == 0
     panel.close_panel(iface)
+
+
+# ---------------------------------------------------------------------------
+# Revisione finale (2026-10-12): thread e pannello
+# ---------------------------------------------------------------------------
+
+class _ThreadFinto:
+    def __init__(self, vivo=True):
+        self.vivo = vivo
+        self.chiamate = []
+
+    def isRunning(self):
+        return self.vivo
+
+    def cancel(self):
+        self.chiamate.append("cancel")
+
+    def wait(self, ms=None):
+        self.chiamate.append(("wait", ms))
+        self.vivo = False
+        return True
+
+    def terminate(self):
+        self.chiamate.append("terminate")
+
+
+def test_show_file_non_cambia_file_mentre_genera(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    radice = QWidget()
+    iface = _Iface()
+    w = tab.build_tab(radice, iface)
+    primo = _file_con_narrativa(tmp_path)
+    tab.show_file(w, primo)
+    w._stato.thread = _ThreadFinto()
+    altro = tmp_path / "altro.em.json"
+    altro.write_text("{}", encoding="utf-8")
+    tab.show_file(w, altro)
+    assert w._stato.path == str(primo)
+    assert iface.messageBar().messaggi and iface.messageBar().messaggi[-1][0] == "warn"
+    w._stato.thread = None
+
+
+def test_stop_generation_ferma_e_aspetta_il_thread(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    radice = QWidget()
+    w = tab.build_tab(radice, _Iface())
+    finto = _ThreadFinto()
+    w._stato.thread = finto
+    tab.stop_generation(w)
+    assert finto.chiamate[0] == "cancel" and finto.chiamate[1][0] == "wait"
+    assert "terminate" not in finto.chiamate and w._stato.thread is None
+    tab.stop_generation(w)                                            # senza thread: niente
+
+
+def test_il_pannello_chiuso_ferma_la_generazione_e_il_thread_si_cancella_da_solo():
+    assert "stop_generation(" in PANEL.read_text(encoding="utf-8")
+    src = TAB.read_text(encoding="utf-8")
+    assert "finished.connect(t.deleteLater)" in src
+
+
+def test_il_thread_genera_e_salva_nel_file(qgs, tmp_path, monkeypatch):
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from modules.s3dgraphy import em_narrative as en
+    from modules.utility import llm_providers as lp
+
+    def finto_stream(cfg, messages, max_tokens=None, temperature=None, meta=None):
+        if meta is not None:
+            meta["truncated"] = False
+        yield "Dal thread."
+    monkeypatch.setattr(lp.LLMProviderManager, "stream_chat", staticmethod(finto_stream))
+
+    class _Cfg:
+        model = "finto"
+    percorso = _file_con_narrativa(tmp_path)
+    t = tab.NarrativeThread(percorso, _Cfg(), "it")
+    esiti = []
+    t.finished_ok.connect(lambda ok, m: esiti.append((ok, m)))
+    t.run()                                                           # sincrono, senza start()
+    assert esiti == [(True, "1 capitoli generati, 0 falliti")]
+    cont, _ = en.load_project(percorso)
+    viste = {v.anchor: v for v in en.overview(cont, "it")}
+    assert viste["epoch_2_1"].text == "Dal thread." and viste["epoch_2_1"].status == "ai_draft"
+    assert viste["epoch_1_1"].text == "Bozza romana."                 # il capitolo già scritto non si tocca
+
+
+def test_il_bersaglio_dell_export_rispetta_l_estensione_scritta():
+    from modules.s3dgraphy.em_narrative_tab import export_target
+    assert export_target("/x/v.html", "Documento Word (*.docx)") == ("/x/v.html", "html")
+    assert export_target("/x/v.docx", "Pagina HTML (*.html)") == ("/x/v.docx", "docx")
+    assert export_target("/x/v", "Documento Word (*.docx)") == ("/x/v.docx", "docx")
+    assert export_target("/x/v", "Pagina HTML (*.html)") == ("/x/v.html", "html")
+
+
+def test_esporta_in_em_json_non_usa_exec_underscore_e_mostra_gli_avvisi():
+    esporta = _corpo("_run_em_export")
+    assert "exec_()" not in esporta and "setDetailedText" in esporta

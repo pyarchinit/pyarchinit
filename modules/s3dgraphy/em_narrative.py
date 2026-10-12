@@ -44,6 +44,16 @@ MAX_ACTIONS = 80
 #: 3397 caratteri): le menzioni costano token.
 MAX_TOKENS = 4000
 
+#: Tetto in caratteri del messaggio col briefing: oltre, si stringe
+#: (``fit_briefing``). Un capitolo di 300 unità con descrizioni lunghe
+#: arrivava a 127 000 caratteri (revisione del 2026-10-12): i modelli
+#: locali tagliano in silenzio e vedono la coda del JSON, quelli cloud
+#: li pagano.
+MAX_PROMPT_CHARS = 25_000
+
+#: Quanto resta di un testo lungo della scheda quando si stringe.
+MAX_DETAIL_CHARS = 300
+
 #: Gli estrattori che registrano i prompt (``write_ai_draft``).
 PROMPT_EXTRACTOR_PREFIX = "EXT.prompt."
 
@@ -94,6 +104,11 @@ _M = {
     "summary": {"it": "{ok} capitoli generati, {failed} falliti",
                 "en": "{ok} chapters generated, {failed} failed"},
     "summary_cancelled": {"it": " (interrotto)", "en": " (cancelled)"},
+    "narrative_not_travelled": {
+        "it": "La narrativa del file precedente (grafi: {old}) non è passata nel file nuovo "
+              "(grafi: {new}): la forma del file è cambiata. Copia di sicurezza in {bak}.",
+        "en": "The previous file's narrative (graphs: {old}) did not travel into the new file "
+              "(graphs: {new}): the file shape changed. Backup copy in {bak}."},
     "author_needs_name": {"it": "un autore ha bisogno di un nome",
                           "en": "an author needs a name"},
 }
@@ -218,6 +233,9 @@ def scaffold(graph, lang: Optional[str] = None):
     narrativa = build_narrative(graph, "site_story", lang=lingua, existing=esistente)
     if esistente is None:
         graph.add_node(narrativa)
+    for cap in narrativa.chapters:
+        if _prose(cap):
+            drop_placeholders(cap)
     return narrativa
 
 
@@ -230,6 +248,28 @@ def _prose(chapter, *, placeholders: bool = False) -> list:
     return [b for b in getattr(chapter, "blocks", None) or []
             if getattr(b, "block_type", "") == "prose"
             and is_placeholder(b) == placeholders]
+
+
+def drop_placeholders(chapter) -> int:
+    """Toglie i segnaposto del template da un capitolo che ha prosa vera:
+    altrimenti gli export stampavano «[da scrivere: …]» davanti a ogni
+    paragrafo generato (revisione del 2026-10-12)."""
+    tenuti = [b for b in chapter.blocks if not is_placeholder(b)]
+    tolti = len(chapter.blocks) - len(tenuti)
+    chapter.blocks[:] = tenuti
+    return tolti
+
+
+def count_possible_chapters(graph) -> int:
+    """Quanti capitoli farebbe lo scheletro: le epoche con almeno un'unità
+    e le attività. Un'epoca vuota non ha storia e il template la salta."""
+    from s3dgraphy.nodes.epoch_node import EpochNode
+    from s3dgraphy.nodes.group_node import ActivityNodeGroup
+    abitate = {e.edge_target for e in getattr(graph, "edges", None) or []
+               if e.edge_type in ("has_first_epoch", "survive_in_epoch")}
+    return sum(1 for n in getattr(graph, "nodes", None) or []
+               if isinstance(n, ActivityNodeGroup)
+               or (isinstance(n, EpochNode) and n.node_id in abitate))
 
 
 def chapter_status(chapter) -> str:
@@ -468,18 +508,84 @@ def _looks_like_unit_id(voce: dict) -> bool:
     return "relation" not in voce and "start" not in voce
 
 
+def _corpo(brief: Dict[str, Any]) -> Dict[str, Any]:
+    return _slim({k: brief[k] for k in ("activity", "actions", "epochs", "sources")
+                  if k in brief})
+
+
+def _misura(brief: Dict[str, Any], lang: Optional[str] = None) -> int:
+    """Quanto è lungo il messaggio utente così com'è: intestazione compresa."""
+    return len(messages(brief, lang)[1]["content"])
+
+
+def _relations_once(azioni: List[Dict[str, Any]]) -> None:
+    """Ogni rapporto una volta sola: nell'unità soggetto se è nel capitolo,
+    altrimenti nell'oggetto. Elencato da tutte e due le parti raddoppiava."""
+    dentro = {a["id"] for a in azioni}
+    visti: set = set()
+    for a in azioni:
+        tenute = []
+        for r in a.get("relations") or []:
+            chiave = (r.get("kind"), r.get("subject_id"), r.get("object_id"))
+            padrone = (r.get("subject_id") if r.get("subject_id") in dentro
+                       else r.get("object_id"))
+            if padrone != a["id"] or chiave in visti:
+                continue
+            visti.add(chiave)
+            tenute.append(r)
+        a["relations"] = tenute
+
+
+def _accorcia(testo: Any, massimo: int = MAX_DETAIL_CHARS) -> Any:
+    testo = str(testo)
+    return testo if len(testo) <= massimo else testo[:massimo].rstrip() + "…"
+
+
+def fit_briefing(brief: Dict[str, Any], budget: Optional[int] = None,
+                 lang: Optional[str] = None) -> Dict[str, Any]:
+    """Una copia del briefing il cui messaggio sta in ``budget`` caratteri
+    (``MAX_PROMPT_CHARS`` se non detto).
+
+    In ordine, finché serve: i rapporti una volta sola; i testi lunghi
+    della scheda accorciati; via la catena di evidenza; meno unità, dalla
+    fine (le più recenti), contate in ``omitted_actions``. L'originale
+    non si tocca."""
+    ridotto = dict(brief)
+    ridotto["actions"] = [dict(a, relations=list(a.get("relations") or []),
+                               details=dict(a.get("details") or {}))
+                          for a in brief.get("actions") or []]
+    ridotto["omitted_actions"] = int(brief.get("omitted_actions") or 0)
+    budget = MAX_PROMPT_CHARS if budget is None else int(budget)
+    if _misura(ridotto, lang) <= budget:
+        return ridotto
+    _relations_once(ridotto["actions"])
+    if _misura(ridotto, lang) <= budget:
+        return ridotto
+    for a in ridotto["actions"]:
+        a["details"] = {k: _accorcia(v) for k, v in a["details"].items()}
+        if a.get("description"):
+            a["description"] = _accorcia(a["description"])
+    if _misura(ridotto, lang) <= budget:
+        return ridotto
+    for a in ridotto["actions"]:
+        a.pop("evidence", None)
+    while ridotto["actions"] and _misura(ridotto, lang) > budget:
+        ridotto["actions"].pop()
+        ridotto["omitted_actions"] += 1
+    return ridotto
+
+
 def messages(brief: Dict[str, Any], lang: Optional[str] = None) -> List[Dict[str, str]]:
-    """I due messaggi per il modello: le istruzioni e il briefing in JSON."""
+    """I due messaggi per il modello: le istruzioni e il briefing in JSON.
+    Chi vuole il tetto in caratteri passa prima da ``fit_briefing``."""
     lingua = _prompt_lang(lang)
     omesse = brief.get("omitted_actions") or 0
     testa = _USER_HEAD[lingua].format(
         title=(brief.get("activity") or {}).get("name") or "",
         kind=_kind_word(brief, lingua),
         omitted=_OMITTED[lingua].format(n=omesse) if omesse else "")
-    corpo = _slim({k: brief[k] for k in ("activity", "actions", "epochs", "sources")
-                   if k in brief})
     return [{"role": "system", "content": _system_text(brief, lingua)},
-            {"role": "user", "content": testa + json.dumps(corpo, ensure_ascii=False)}]
+            {"role": "user", "content": testa + json.dumps(_corpo(brief), ensure_ascii=False)}]
 
 
 def prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
@@ -492,6 +598,9 @@ def prompt_record(brief: Dict[str, Any], lang: Optional[str] = None) -> str:
         title=(brief.get("activity") or {}).get("name") or "",
         kind=_kind_word(brief, lingua),
         ids=", ".join(a["id"] for a in brief.get("actions") or []))
+    omesse = brief.get("omitted_actions") or 0
+    if omesse:
+        testa += _OMITTED[lingua].format(n=omesse)
     return _system_text(brief, lingua) + "\n\n" + testa
 
 
@@ -560,18 +669,24 @@ def _now() -> str:
 
 def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
                      lang: Optional[str] = None, now: Optional[str] = None,
-                     version: str = "") -> Outcome:
+                     version: str = "", replace: bool = False) -> Outcome:
     """Un capitolo: briefing → modello → bozza nel grafo. Non alza mai:
-    un capitolo che va male è un esito negativo, e gli altri continuano."""
+    un capitolo che va male è un esito negativo, e gli altri continuano.
+
+    ``replace``: le bozze AI non convalidate del capitolo lasciano il posto
+    alla nuova — ma solo **dopo** che il modello ha risposto: una
+    rigenerazione fallita tiene la bozza di prima (revisione 2026-10-12)."""
     anchor = str(getattr(chapter, "anchor", "") or "")
     titolo = str(getattr(chapter, "title", "") or anchor)
     try:
-        brief = briefing(graph, anchor)
+        brief = fit_briefing(briefing(graph, anchor), lang=lang)
         risposta = chat(messages(brief, lang))
         testo, troncato = (risposta if isinstance(risposta, tuple) else (risposta, False))
         testo = normalize_mentions(str(testo or "").strip(), graph)
         if not testo:
             raise NarrativeError(msg("empty_reply"))
+        if replace:
+            forget_ai_drafts(chapter)
         prima = {n.node_id for n in graph.nodes}
         from s3dgraphy.narrative import write_ai_draft
         write_ai_draft(graph, anchor, testo, model=str(model), version=version,
@@ -580,6 +695,7 @@ def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
                        sources=[s["id"] for s in brief.get("sources") or []])
         if troncato:
             chapter.blocks[-1].options["truncated"] = True
+        drop_placeholders(chapter)
         try:
             from s3dgraphy.language import stamp_born_nodes
             stamp_born_nodes(graph, prima)
@@ -606,29 +722,37 @@ def generate(container, *, chat: Callable, model: str, lang: Optional[str] = Non
              anchors: Optional[Sequence[str]] = None, progress=None, cancelled=None,
              version: str = "") -> Report:
     """Tutti i grafi del contenitore. ``anchors=None``: i capitoli vuoti;
-    ``anchors`` dati: quei capitoli, rigenerati (le bozze vecchie via).
-    ``cancelled()`` si legge prima di ogni capitolo."""
+    ``anchors`` dati: quei capitoli, rigenerati (la bozza vecchia lascia il
+    posto alla nuova solo se il modello risponde). Una voce di ``anchors``
+    è ``(graph_id, anchor)`` — nell'esportazione per saggi i grafi hanno
+    le STESSE epoche, e un'àncora sola avrebbe riscritto il capitolo in
+    tutti — oppure una stringa, che vale per tutti i grafi.
+    La prosa nasce nella lingua della narrativa (``data.lang``), quando ne
+    dichiara una; altrimenti in quella chiesta. ``cancelled()`` si legge
+    prima di ogni capitolo."""
     da_fare = []
-    for graph in (getattr(container, "graphs", None) or {}).values():
+    for graph_id, graph in (getattr(container, "graphs", None) or {}).items():
         narrativa = scaffold(graph, lang)
+        lingua = (narrativa.data or {}).get("lang") or lang
         if anchors is None:
             scelti = chapters_to_generate(graph, narrativa, only_empty=True)
         else:
-            voluti = set(anchors)
+            voluti = {a for a in anchors if isinstance(a, str)}
+            voluti |= {a[1] for a in anchors if not isinstance(a, str)
+                       and str(a[0]) == str(graph_id)}
             scelti = [c for c in chapters_to_generate(graph, narrativa, only_empty=False)
                       if c.anchor in voluti]
-        da_fare.extend((graph, narrativa, c) for c in scelti)
+        da_fare.extend((graph, narrativa, c, lingua) for c in scelti)
     rapporto = Report()
-    for i, (graph, narrativa, cap) in enumerate(da_fare, 1):
+    for i, (graph, narrativa, cap, lingua) in enumerate(da_fare, 1):
         if cancelled is not None and cancelled():
             rapporto.cancelled = True
             break
         if progress is not None:
             progress(i, len(da_fare), str(cap.title))
-        if anchors is not None:
-            forget_ai_drafts(cap)
         rapporto.outcomes.append(generate_chapter(
-            graph, narrativa, cap, chat=chat, model=model, lang=lang, version=version))
+            graph, narrativa, cap, chat=chat, model=model, lang=lingua,
+            version=version, replace=anchors is not None))
     return rapporto
 
 

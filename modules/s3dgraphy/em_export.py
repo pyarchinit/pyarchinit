@@ -309,11 +309,30 @@ def _keep_narrative(path, contenitore, graph, site):
     grafo nuovo (spec 2026-10-12): riesportare dal database non deve
     cancellare la prosa scritta, né le firme. Un file che non si legge
     non ferma l'esportazione: lo si dice. Restituisce gli avvisi."""
+    import shutil
     from . import em_narrative as en
+    _speak_ui_language(en)
     try:
         precedente, _ = en.load_project(path)
     except Exception as e:                          # noqa: BLE001
+        # Non si butta: un mezzo salvataggio di EMStudio è illeggibile
+        # uguale, e domani qualcuno potrebbe volerci guardare.
+        try:
+            os.replace(path, path + ".broken")
+        except OSError:
+            pass
         return [en.msg("narrative_not_kept", err=e)]
+    vecchi = {gid: g for gid, g in precedente.graphs.items() if en.narratives_of(g)}
+    if not vecchi:
+        return []
+    # Prima di riscrivere un file che porta una narrativa, una copia: se la
+    # forma del file cambia (per saggi ↔ un grafo solo) nessun grafo nuovo
+    # ha l'id di quelli vecchi e la narrativa non può passare.
+    bak = path + ".bak"
+    try:
+        shutil.copyfile(path, bak)
+    except OSError:
+        bak = ""
     nuovi = (dict(getattr(contenitore, "graphs", None) or {})
              if contenitore is not None else {str(site): graph})
     try:
@@ -321,6 +340,17 @@ def _keep_narrative(path, contenitore, graph, site):
     except Exception as e:                          # noqa: BLE001
         return [en.msg("narrative_not_kept", err=e)]
     if not quante:
-        return []
+        return [en.msg("narrative_not_travelled",
+                       old=", ".join(sorted(vecchi)), new=", ".join(sorted(nuovi)),
+                       bak=os.path.basename(bak) or "-")]
     capitoli = sum(len(n.chapters) for g in nuovi.values() for n in en.narratives_of(g))
     return [en.msg("narrative_kept", n=capitoli)]
+
+
+def _speak_ui_language(en) -> None:
+    """Gli avvisi nella lingua di QGIS, quando QGIS c'è (qui niente Qt)."""
+    try:
+        from qgis.core import QgsSettings
+        en.set_language((QgsSettings().value("locale/userLocale", "it", type=str) or "it")[:2])
+    except Exception:                               # noqa: BLE001
+        pass

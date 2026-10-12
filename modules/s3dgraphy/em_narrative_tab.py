@@ -62,6 +62,10 @@ _L = {
                                "Install EMStudio…"},
     "prepared": {"it": "Capitoli preparati: {n}.", "en": "Chapters prepared: {n}."},
     "title": {"it": "Narrativa", "en": "Narrative"},
+    "busy": {"it": "Generazione in corso: aspetta che finisca, o premi Annulla, prima di "
+                   "cambiare file.",
+             "en": "Generation in progress: wait for it to finish, or press Cancel, before "
+                   "changing file."},
     "close_emstudio": {"it": "Se EMStudio ha il file aperto, chiudilo prima: chi scrive "
                              "per ultimo vince.",
                        "en": "If EMStudio has the file open, close it first: the last "
@@ -124,6 +128,55 @@ class _State:
         self.views: List[en.ChapterView] = []
         self.thread: Optional[NarrativeThread] = None
         self.config = None
+        self.iface = None
+
+
+def _running(stato: "_State") -> bool:
+    t = stato.thread
+    try:
+        return t is not None and bool(t.isRunning())
+    except RuntimeError:                           # già distrutto da Qt
+        return False
+
+
+def _say(iface, livello: str, messaggio: str) -> None:
+    try:
+        barra = iface.messageBar()
+        (barra.pushInfo if livello == "info" else barra.pushWarning)(_t("title"), messaggio)
+    except Exception:                               # noqa: BLE001
+        pass
+
+
+def export_target(percorso: str, filtro: str):
+    """``(percorso, formato)`` dell'export: l'estensione scritta dall'utente
+    vince sul filtro scelto; senza estensione decide il filtro."""
+    basso = str(percorso).lower()
+    for fmt in en.EXPORT_FORMATS:
+        if basso.endswith("." + fmt):
+            return str(percorso), fmt
+    fmt = "docx" if "docx" in str(filtro).lower() else "html"
+    return str(percorso) + "." + fmt, fmt
+
+
+def stop_generation(widget) -> None:
+    """Ferma il thread e aspetta che esca: distruggere un QThread in corsa
+    è un errore fatale di Qt, e il pannello si chiude allo scarico del
+    plugin (revisione 2026-10-12). Il capitolo in corso finisce, poi si
+    esce; se dopo un minuto il modello non ha risposto, si tronca."""
+    stato = getattr(widget, "_stato", None)
+    if stato is None or not _running(stato):
+        if stato is not None:
+            stato.thread = None
+        return
+    t = stato.thread
+    try:
+        t.cancel()
+        if not t.wait(60_000) and t.isRunning():
+            t.terminate()
+            t.wait()
+    except RuntimeError:
+        pass
+    stato.thread = None
 
 
 _AZIONI = ("genera", "rigenera", "convalida", "prepara", "esporta", "emstudio")
@@ -135,6 +188,7 @@ def build_tab(parent, iface) -> QWidget:
     w = QWidget(parent)
     w.setObjectName("narrativa")
     stato = _State()
+    stato.iface = iface
     w._stato = stato                                # noqa: SLF001 (vive col widget)
     colonna = QVBoxLayout(w)
     colonna.setContentsMargins(0, 0, 0, 0)
@@ -178,11 +232,7 @@ def build_tab(parent, iface) -> QWidget:
     colonna.addLayout(riga2)
 
     def _barra(livello, messaggio):
-        try:
-            barra = iface.messageBar()
-            (barra.pushInfo if livello == "info" else barra.pushWarning)(_t("title"), messaggio)
-        except Exception:                           # noqa: BLE001
-            pass
+        _say(iface, livello, messaggio)
 
     def _scelta() -> Optional[en.ChapterView]:
         i = capitoli.currentRow()
@@ -233,10 +283,7 @@ def build_tab(parent, iface) -> QWidget:
             prefisso = "[%s] " % str(v.graph_id).split("|")[-1] if piu_grafi else ""
             capitoli.addItem(QListWidgetItem("%s%s — %s" % (prefisso, v.title, parola)))
         if not stato.views:
-            from s3dgraphy.nodes.epoch_node import EpochNode
-            from s3dgraphy.nodes.group_node import ActivityNodeGroup
-            quanti = sum(1 for g in grafi.values() for n in g.nodes
-                         if isinstance(n, (EpochNode, ActivityNodeGroup)))
+            quanti = sum(en.count_possible_chapters(g) for g in grafi.values())
             vuoto.setText(_t("empty", n=quanti))
             vuoto.setVisible(True)
         _aggiorna_bottoni()
@@ -257,6 +304,7 @@ def build_tab(parent, iface) -> QWidget:
             _barra("info" if ok else "warn", messaggio)
         t.progress.connect(_progresso)
         t.finished_ok.connect(_fine)
+        t.finished.connect(t.deleteLater)           # un thread per giro, nessuno in giro dopo
         avanzamento.setText(_t("starting"))
         _aggiorna_bottoni()
         t.start()
@@ -267,7 +315,7 @@ def build_tab(parent, iface) -> QWidget:
     def _rigenera():
         v = _scelta()
         if v is not None and v.can_generate:
-            _avvia([v.anchor])
+            _avvia([(v.graph_id, v.anchor)])        # solo il grafo del capitolo scelto
 
     def _annulla():
         if stato.thread is not None:
@@ -319,6 +367,8 @@ def build_tab(parent, iface) -> QWidget:
                 continue
             if solo_capitolo and v is not None and v.graph_id != gid:
                 continue
+            if not narrativa.pending_validation():
+                continue                            # niente da firmare: nessun autore in più
             autore = en.add_author(g, str(nome))
             try:
                 firmati += en.endorse(g, narrativa, autore,
@@ -349,9 +399,7 @@ def build_tab(parent, iface) -> QWidget:
             w, _t("export"), base + "_narrativa.html", _t("export_filter"))
         if not percorso:
             return
-        fmt = "docx" if percorso.lower().endswith(".docx") or "docx" in str(filtro) else "html"
-        if not percorso.lower().endswith("." + fmt):
-            percorso += "." + fmt
+        percorso, fmt = export_target(percorso, filtro)
         try:
             contenitore, _ = en.load_project(stato.path)
             scritti = []
@@ -393,6 +441,11 @@ def show_file(widget, path) -> None:
     """Punta la scheda sul file e la ricarica (anche a ogni riapertura
     del pannello su un altro sito)."""
     stato: _State = widget._stato                   # noqa: SLF001
+    if _running(stato):
+        # Cambiare file sotto un thread che poi salva riscriverebbe il
+        # nuovo export con il grafo di prima.
+        _say(stato.iface, "warn", _t("busy"))
+        return
     stato.path = str(path) if path else None
     stato.config = en.llm_config()
     etichetta = widget.findChild(QLabel, "stato")
