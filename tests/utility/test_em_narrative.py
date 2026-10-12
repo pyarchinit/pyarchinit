@@ -509,3 +509,20 @@ def test_il_testo_html_del_capitolo_ha_un_link_per_ogni_menzione():
     viste = en.overview(__import__("s3dgraphy.container", fromlist=["container_of"]).container_of(g), "it")
     v = [x for x in viste if x.anchor == "epoch_1_1"][0]
     assert v.unit_ids == ["u3"] and '<a href="unit:u3">' in v.html and "1.US3" in v.text
+
+
+def test_la_prosa_sta_in_testa_al_capitolo_prima_delle_schede_delle_unita():
+    """La libreria accoda la bozza dopo gli embed: negli export la storia
+    finiva dopo ventitré schede di unità (PDF demo, 2026-10-12)."""
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    en.generate_chapter(g, n, cap, chat=lambda m: "Prima la storia.", model="m")
+    assert [b.block_type for b in cap.blocks] == ["prose", "embed", "embed"]
+    cap.blocks.append(cap.blocks.pop(0))                      # un file vecchio, con l'ordine di prima
+    en.scaffold(g, "it")                                      # lo scheletro rimette la prosa davanti
+    assert [b.block_type for b in cap.blocks] == ["prose", "embed", "embed"]
+    cap.add_prose("Scritta a mano dopo.")
+    en.generate_chapter(g, n, cap, chat=lambda m: "Rigenerata.", model="m", replace=True)
+    assert [b.text for b in cap.blocks if b.block_type == "prose"] == ["Scritta a mano dopo.", "Rigenerata."]
+    assert [b.block_type for b in cap.blocks] == ["prose", "prose", "embed", "embed"]

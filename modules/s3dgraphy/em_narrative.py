@@ -244,6 +244,7 @@ def scaffold(graph, lang: Optional[str] = None):
     for cap in narrativa.chapters:
         if _prose(cap):
             drop_placeholders(cap)
+        prose_first(cap)
     return narrativa
 
 
@@ -256,6 +257,16 @@ def _prose(chapter, *, placeholders: bool = False) -> list:
     return [b for b in getattr(chapter, "blocks", None) or []
             if getattr(b, "block_type", "") == "prose"
             and is_placeholder(b) == placeholders]
+
+
+def prose_first(chapter) -> None:
+    """La prosa davanti, gli embed (le schede delle unità) dopo, nell'ordine
+    che avevano. La libreria accoda la bozza in fondo, e negli export la
+    storia usciva dopo le schede di tutte le unità del capitolo."""
+    blocchi = list(getattr(chapter, "blocks", None) or [])
+    prosa = [b for b in blocchi if getattr(b, "block_type", "") == "prose"]
+    altri = [b for b in blocchi if getattr(b, "block_type", "") != "prose"]
+    chapter.blocks[:] = prosa + altri
 
 
 def drop_placeholders(chapter) -> int:
@@ -787,6 +798,7 @@ def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
         if troncato:
             chapter.blocks[-1].options["truncated"] = True
         drop_placeholders(chapter)
+        prose_first(chapter)
         clean_author_placeholders(graph)
         try:
             from s3dgraphy.language import stamp_born_nodes
