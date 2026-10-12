@@ -196,3 +196,123 @@ def test_normalize_mentions_tiene_gli_id_traduce_i_nomi_toglie_il_resto():
     g = grafo_di_prova()
     testo = "Sopra [[u3]] sta [[1.US2]] e poi [[ 1.us1 ]]; [[zz]] non esiste."
     assert en.normalize_mentions(testo, g) == "Sopra [[u3]] sta [[u2]] e poi [[u1]]; zz non esiste."
+
+
+# ---------------------------------------------------------------------------
+# Task 3: generazione, rigenerazione, convalida, autori, export
+# ---------------------------------------------------------------------------
+
+def _chat_finto(risposta="Nel capitolo si posa [[u3]], poi [[1.US2]] la copre; [[zz]] no."):
+    chiamate = []
+
+    def chat(messages):
+        chiamate.append(messages)
+        return risposta
+    chat.chiamate = chiamate
+    return chat
+
+
+def test_generate_chapter_scrive_la_bozza_attribuita_con_prompt_e_fonti():
+    from s3dgraphy.nodes.author_node import AuthorAINode
+    from s3dgraphy.nodes.extractor_node import ExtractorNode
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    chat = _chat_finto()
+    esito = en.generate_chapter(g, n, cap, chat=chat, model="modello-x", lang="it",
+                                now="2026-10-12T10:00:00Z", version="1")
+    assert esito.ok and esito.anchor == "epoch_1_1" and not esito.truncated
+    assert "[[u2]]" in esito.text and "zz no" in esito.text
+    assert en.chapter_status(cap) == "ai_draft"
+    blocco = [b for b in cap.blocks if b.block_type == "prose" and b.ai_generated][0]
+    assert blocco.authored_by == "AI.modello-x" and blocco.options["generated_at"] == "2026-10-12T10:00:00Z"
+    assert isinstance(g.find_node_by_id(blocco.authored_by), AuthorAINode)
+    estrattore = g.find_node_by_id(blocco.prompt_ref)
+    assert isinstance(estrattore, ExtractorNode) and estrattore.node_id.startswith(en.PROMPT_EXTRACTOR_PREFIX)
+    assert "u3, u2" in estrattore.description and "Regole" in estrattore.description
+    assert chat.chiamate[0][0]["role"] == "system"
+
+
+def test_generate_chapter_non_alza_mai_e_segna_il_troncato():
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    vuoto = en.generate_chapter(g, n, cap, chat=lambda m: "   ", model="m")
+    assert not vuoto.ok and "niente" in vuoto.error and en.chapter_status(cap) == "empty"
+
+    def esplode(m):
+        raise RuntimeError("quota finita")
+    rotto = en.generate_chapter(g, n, cap, chat=esplode, model="m")
+    assert not rotto.ok and "quota finita" in rotto.error
+
+    troncato = en.generate_chapter(g, n, cap, chat=lambda m: ("Testo a metà", True), model="m")
+    assert troncato.ok and troncato.truncated
+    assert any(b.options.get("truncated") for b in cap.blocks if b.block_type == "prose")
+
+
+def test_forget_ai_drafts_toglie_solo_le_bozze_non_convalidate():
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    cap = n.chapter_by_anchor("epoch_1_1")
+    en.generate_chapter(g, n, cap, chat=lambda m: "Prima bozza.", model="m")
+    en.endorse(g, n, "author::mario_rossi", anchor="epoch_1_1")
+    en.generate_chapter(g, n, cap, chat=lambda m: "Seconda bozza.", model="m")
+    cap.add_prose("A mano.")
+    assert en.forget_ai_drafts(cap) == 1
+    testi = [b.text for b in cap.blocks if b.block_type == "prose"]
+    assert "Seconda bozza." not in testi and "Prima bozza." in testi and "A mano." in testi
+
+
+def test_generate_continua_dopo_un_errore_salta_i_pieni_e_si_ferma_se_annullato():
+    from s3dgraphy.container import container_of
+    g = grafo_di_prova()
+    cont = container_of(g)
+    risposte = iter([RuntimeError("no"), "Medioevo scritto."])
+
+    def chat(m):
+        r = next(risposte)
+        if isinstance(r, Exception):
+            raise r
+        return r
+    avanzamenti = []
+    rep = en.generate(cont, chat=chat, model="m", lang="it",
+                      progress=lambda i, n, t: avanzamenti.append((i, n, t)))
+    assert rep.generated == 1 and rep.failed == 1 and not rep.cancelled
+    assert avanzamenti == [(1, 2, "Età romana"), (2, 2, "Medioevo")]
+    assert "1 capitoli generati, 1 falliti" in rep.summary("it")
+    # seconda passata: il capitolo scritto si salta, quello vuoto si riprova
+    rep2 = en.generate(cont, chat=lambda m: "Età romana scritta.", model="m")
+    assert rep2.generated == 1 and [o.anchor for o in rep2.outcomes] == ["epoch_1_1"]
+    # rigenerazione mirata: la bozza vecchia sparisce
+    rep3 = en.generate(cont, chat=lambda m: "Medioevo riscritto.", model="m", anchors=["epoch_2_1"])
+    assert rep3.generated == 1
+    cap = en.narrative_of(g).chapter_by_anchor("epoch_2_1")
+    assert [b.text for b in cap.blocks if b.ai_generated] == ["Medioevo riscritto."]
+    # annulla prima del primo capitolo
+    rep4 = en.generate(cont, chat=lambda m: "x", model="m", anchors=["epoch_1_1", "epoch_2_1"],
+                       cancelled=lambda: True)
+    assert rep4.cancelled and rep4.outcomes == []
+
+
+def test_autori_umani_convalida_ed_export(tmp_path):
+    g = grafo_di_prova()
+    n = en.scaffold(g, "it")
+    assert en.human_authors(g) == [("author::mario_rossi", "Mario Rossi")]
+    nuovo = en.add_author(g, "Anna Bianchi")
+    assert nuovo == "author::anna_bianchi" and en.add_author(g, "Anna Bianchi") == nuovo
+    assert ("author::anna_bianchi", "Anna Bianchi") in en.human_authors(g)
+    for anchor in ("epoch_1_1", "epoch_2_1"):
+        en.generate_chapter(g, n, n.chapter_by_anchor(anchor),
+                            chat=lambda m, a=anchor: "Bozza di %s." % a, model="m")
+    assert en.endorse(g, n, nuovo, anchor="epoch_1_1") == 1
+    assert en.chapter_status(n.chapter_by_anchor("epoch_1_1")) == "ai_endorsed"
+    assert en.endorse(g, n, nuovo) == 1                       # il resto
+    assert en.chapter_status(n.chapter_by_anchor("epoch_2_1")) == "ai_endorsed"
+    with pytest.raises(Exception):
+        en.endorse(g, n, "AI.m")                             # un modello non convalida
+    html = en.export_file(g, n, "html", tmp_path / "v.html")
+    assert "Bozza di epoch_1_1" in Path(html).read_text(encoding="utf-8")
+    docx = en.export_file(g, n, "docx", tmp_path / "v.docx")
+    assert Path(docx).stat().st_size > 1000
+    with pytest.raises(ValueError):
+        en.export_file(g, n, "pdf", tmp_path / "v.pdf")

@@ -487,3 +487,188 @@ def normalize_mentions(text: str, graph) -> str:
         return "[[%s]]" % trovato if trovato else ref
 
     return MENTION_PATTERN.sub(_swap, str(text or ""))
+
+
+# ---------------------------------------------------------------------------
+# La generazione
+# ---------------------------------------------------------------------------
+
+@dataclass
+class Outcome:
+    anchor: str
+    title: str
+    ok: bool
+    text: str = ""
+    error: str = ""
+    truncated: bool = False
+
+
+@dataclass
+class Report:
+    outcomes: List[Outcome] = field(default_factory=list)
+    cancelled: bool = False
+
+    @property
+    def generated(self) -> int:
+        return sum(1 for o in self.outcomes if o.ok)
+
+    @property
+    def failed(self) -> int:
+        return sum(1 for o in self.outcomes if not o.ok)
+
+    def summary(self, lang: Optional[str] = None) -> str:
+        voce = _M["summary"]
+        testo = voce.get(_lang(lang), voce["en"]).format(ok=self.generated, failed=self.failed)
+        if self.cancelled:
+            fine = _M["summary_cancelled"]
+            testo += fine.get(_lang(lang), fine["en"])
+        errori = [o for o in self.outcomes if not o.ok]
+        if errori:
+            testo += ": " + "; ".join("%s — %s" % (o.title, o.error) for o in errori[:3])
+        return testo
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def generate_chapter(graph, narrative, chapter, *, chat: Callable, model: str,
+                     lang: Optional[str] = None, now: Optional[str] = None,
+                     version: str = "") -> Outcome:
+    """Un capitolo: briefing → modello → bozza nel grafo. Non alza mai:
+    un capitolo che va male è un esito negativo, e gli altri continuano."""
+    anchor = str(getattr(chapter, "anchor", "") or "")
+    titolo = str(getattr(chapter, "title", "") or anchor)
+    try:
+        brief = briefing(graph, anchor)
+        risposta = chat(messages(brief, lang))
+        testo, troncato = (risposta if isinstance(risposta, tuple) else (risposta, False))
+        testo = normalize_mentions(str(testo or "").strip(), graph)
+        if not testo:
+            raise NarrativeError(msg("empty_reply"))
+        prima = {n.node_id for n in graph.nodes}
+        from s3dgraphy.narrative import write_ai_draft
+        write_ai_draft(graph, anchor, testo, model=str(model), version=version,
+                       date=now or _now(), prompt=prompt_record(brief, lang),
+                       narrative_id=narrative.node_id, chapter_title=titolo,
+                       sources=[s["id"] for s in brief.get("sources") or []])
+        if troncato:
+            chapter.blocks[-1].options["truncated"] = True
+        try:
+            from s3dgraphy.language import stamp_born_nodes
+            stamp_born_nodes(graph, prima)
+        except Exception:                           # noqa: BLE001
+            pass
+        return Outcome(anchor, titolo, True, text=testo, truncated=bool(troncato))
+    except Exception as e:                          # noqa: BLE001
+        return Outcome(anchor, titolo, False, error=str(e))
+
+
+def forget_ai_drafts(chapter) -> int:
+    """Toglie i blocchi AI non convalidati. Quelli che una persona ha
+    firmato restano: la firma è un atto, non si cancella rigenerando."""
+    tenuti = [b for b in chapter.blocks
+              if not (getattr(b, "block_type", "") == "prose"
+                      and getattr(b, "ai_generated", False)
+                      and b.status == "ai_draft")]
+    tolti = len(chapter.blocks) - len(tenuti)
+    chapter.blocks[:] = tenuti
+    return tolti
+
+
+def generate(container, *, chat: Callable, model: str, lang: Optional[str] = None,
+             anchors: Optional[Sequence[str]] = None, progress=None, cancelled=None,
+             version: str = "") -> Report:
+    """Tutti i grafi del contenitore. ``anchors=None``: i capitoli vuoti;
+    ``anchors`` dati: quei capitoli, rigenerati (le bozze vecchie via).
+    ``cancelled()`` si legge prima di ogni capitolo."""
+    da_fare = []
+    for graph in (getattr(container, "graphs", None) or {}).values():
+        narrativa = scaffold(graph, lang)
+        if anchors is None:
+            scelti = chapters_to_generate(graph, narrativa, only_empty=True)
+        else:
+            voluti = set(anchors)
+            scelti = [c for c in chapters_to_generate(graph, narrativa, only_empty=False)
+                      if c.anchor in voluti]
+        da_fare.extend((graph, narrativa, c) for c in scelti)
+    rapporto = Report()
+    for i, (graph, narrativa, cap) in enumerate(da_fare, 1):
+        if cancelled is not None and cancelled():
+            rapporto.cancelled = True
+            break
+        if progress is not None:
+            progress(i, len(da_fare), str(cap.title))
+        if anchors is not None:
+            forget_ai_drafts(cap)
+        rapporto.outcomes.append(generate_chapter(
+            graph, narrativa, cap, chat=chat, model=model, lang=lang, version=version))
+    return rapporto
+
+
+# ---------------------------------------------------------------------------
+# Convalida, autori, export
+# ---------------------------------------------------------------------------
+
+def human_authors(graph) -> List[Tuple[str, str]]:
+    from s3dgraphy.nodes.author_node import AuthorAINode, AuthorNode
+    return [(n.node_id, str(getattr(n, "name", "") or n.node_id))
+            for n in (getattr(graph, "nodes", None) or [])
+            if isinstance(n, AuthorNode) and not isinstance(n, AuthorAINode)]
+
+
+def _slug(testo: str) -> str:
+    return re.sub(r"[^\w]+", "_", str(testo).strip().lower(), flags=re.UNICODE).strip("_")
+
+
+def add_author(graph, name: str) -> str:
+    """L'autore umano con quel nome, creato se manca. Stesso schema di id
+    dell'esportazione (``author::<nome>``)."""
+    from s3dgraphy.nodes.author_node import AuthorNode
+    nome = str(name or "").strip()
+    if not nome:
+        raise NarrativeError(msg("author_needs_name"))
+    for node_id, esistente in human_authors(graph):
+        if esistente.strip().lower() == nome.lower():
+            return node_id
+    node_id = "author::" + _slug(nome)
+    if graph.find_node_by_id(node_id) is None:
+        graph.add_node(AuthorNode(node_id, name=nome))
+    return node_id
+
+
+def endorse(graph, narrative, author_id: str, anchor: Optional[str] = None) -> int:
+    """Una persona firma le bozze AI: tutte, o quelle di un capitolo."""
+    from s3dgraphy.nodes.narrative_node import endorse_block, endorse_narrative
+    if anchor is None:
+        return endorse_narrative(graph, narrative, author_id)
+    cap = narrative.chapter_by_anchor(anchor)
+    if cap is None:
+        return 0
+    firmati = 0
+    for b in list(cap.blocks):
+        if getattr(b, "block_type", "") == "prose" and getattr(b, "ai_generated", False) \
+                and b.status == "ai_draft":
+            endorse_block(graph, b, author_id)
+            firmati += 1
+    return firmati
+
+
+EXPORT_FORMATS = ("html", "docx")
+
+
+def export_file(graph, narrative, fmt: str, path) -> str:
+    """HTML o DOCX della narrativa, bozze comprese (segnate dalla libreria)."""
+    from s3dgraphy.api import export_narrative
+    if fmt not in EXPORT_FORMATS:
+        raise ValueError("fmt must be one of %s" % (EXPORT_FORMATS,))
+    esito = export_narrative(graph, narrative.node_id, fmt, include_unvalidated=True)
+    payload = esito["payload"]
+    percorso = str(path)
+    if isinstance(payload, bytes):
+        with open(percorso, "wb") as fh:
+            fh.write(payload)
+    else:
+        with open(percorso, "w", encoding="utf-8") as fh:
+            fh.write(str(payload))
+    return percorso
