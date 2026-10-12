@@ -458,6 +458,9 @@ Certains choix du dessin de la matrice peuvent surprendre, mais ce ne sont pas d
 - **Une flèche ne passe jamais sous un nœud.** Quand la colonne d'arrivée est occupée, la flèche entre dans la case **par le côté** : c'est normal.
 - **L'égalité n'est pas un chevauchement.** Une relation « Uguale a » (Égal à) ou « Si lega a » (Se lie à) place les deux unités sur la **même ligne**, côte à côte, reliées par **deux lignes horizontales** (le signe égal) **sans pointe de flèche**.
 - **Les arcs redondants ne sont pas dessinés.** Si l'US 1 recouvre la 2 et la 2 recouvre la 3, la flèche de 1 à 3 n'apparaît pas, car elle n'ajoute rien. Dans un **cycle**, en revanche, tous les arcs restent, parce qu'un cycle est une erreur qu'il faut voir.
+- **Les lignes disent quelle relation elles sont.** Grise et pleine : la séquence (recouvre, remplit, s'appuie). **Pointillée verte** : une coupe (`Taglia` / `Tagliato da`), quelle que soit la définition stratigraphique et dans toutes les langues. **Épaisse et noire** : la continuité — et le losange est dans la colonne de son unité, donc la ligne est droite. **Rouge** : une flèche qui remonte les bandes, c'est-à-dire une contradiction entre stratigraphie et chronologie ; une coupe qui remonte est rouge **et** reste pointillée.
+- **Les paradonnées ne sont jamais une ligne pleine.** Elles prennent couleur et trait des règles de l'Extended Matrix (`em_visual_rules.json`) : brun-rouge pointillé « extrait de », orange tireté « provenance de la donnée », or tireté « propriété », gris tireté « connexion générique », rouge tomate tireté « combine » (plein dans le fichier : la seule dérogation, parce qu'un arc vers un document ne doit pas ressembler à une superposition).
+- **Un bord brun est une maçonnerie.** Les USM — WSU, MSE, UEM, USZ, ΤΣΜ dans les autres langues — ont la même case que les US, avec le bord brun au lieu de rouge.
 
 ---
 

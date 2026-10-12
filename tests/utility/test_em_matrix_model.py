@@ -64,10 +64,15 @@ def test_the_model_reads_units_epochs_and_relations(sample_emjson):
 
 
 def test_only_the_stratigraphic_relations_are_kept(sample_emjson):
-    """Le proprietà, la documentazione, le aree e gli autori non sono
-    rapporti stratigrafici e non vanno disegnati come frecce."""
+    """La documentazione, le aree, gli autori e le epoche non sono
+    rapporti stratigrafici e non vanno disegnati come frecce.
+
+    `has_property` invece si tiene, dal 12 ottobre 2026: è l'arco che
+    lega la proprietà alla sua unità, e si disegna tratteggiato oro come
+    gli altri paradati — senza di lui la proprietà galleggiava nel
+    disegno senza dire di chi era."""
     model = read_em_json(sample_emjson)
-    assert not {"has_property", "has_documentation", "is_in_location",
+    assert not {"has_documentation", "is_in_location",
                 "has_author", "has_first_epoch", "survive_in_epoch"} & {
         r.kind for r in model.relations}
 

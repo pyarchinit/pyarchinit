@@ -30,8 +30,33 @@ STRATIGRAPHIC_KINDS = frozenset({
     "is_after", "equals", "bonded_to", "has_same_time",
     "is_physically_equal_to", "is_bonded_to", "generic_connection",
     "extracted_from", "combines", "has_data_provenance", "contrasts_with",
-    "changed_from",
+    "changed_from", "has_property",
 })
+
+#: I rapporti dei paradati: non dicono chi sta sopra, dicono da dove
+#: viene un dato. Si disegnano con la linea della libreria — mai piena —
+#: così non si confondono con una sovrapposizione (Enzo, 12 ottobre 2026:
+#: «property, combinar, extractor e doc dovrebbero avere archi dot line»).
+PARADATA_KINDS = frozenset({
+    "extracted_from", "combines", "has_data_provenance", "has_property",
+    "generic_connection", "contrasts_with", "changed_from",
+})
+
+#: I nodi dei paradati: un arco che ne tocca uno è un arco di paradati,
+#: qualunque sia il suo tipo.
+PARADATA_NODE_TYPES = frozenset({"document", "extractor", "combiner",
+                                 "property"})
+
+#: Il taglio: la linea punteggiata verde. Nel file delle regole non c'è uno
+#: stile per `cuts`; questo è nostro, e vale in tutte le lingue perché
+#: guarda il tipo dell'arco e non la definizione stratigrafica.
+CUT_KIND = "cuts"
+CUT_COLOR = "#2F8F4E"
+
+#: Il bordo di una muratura: il tipo del nodo è «US» per tutte le unità
+#: della scheda, e a distinguerle è `data.unita_tipo` — USM in italiano,
+#: WSU, MSE, UEM, USZ, ΤΣΜ nelle altre lingue.
+USM_BORDER = "#7A4B1D"
 
 #: L'arco che dice in quale epoca è nata l'unità.
 FIRST_EPOCH_KIND = "has_first_epoch"
@@ -97,6 +122,55 @@ def style_for(node_type: str) -> Style:
 
 
 @dataclass(frozen=True)
+class EdgeStyle:
+    """Come si disegna un tipo di arco, dal file delle regole."""
+    color: str
+    line: str = "solid"
+    width: float = 1.4
+
+
+_EDGE_RULES_CACHE: Dict[str, EdgeStyle] = {}
+
+
+def _load_edge_rules() -> Dict[str, EdgeStyle]:
+    if _EDGE_RULES_CACHE:
+        return _EDGE_RULES_CACHE
+    try:
+        raw = json.loads(rules_path().read_text(encoding="utf-8"))
+        stili = raw.get("edge_style") or {}
+    except Exception:                               # noqa: BLE001
+        stili = {}
+    for tipo, blocco in stili.items():
+        s = (blocco or {}).get("style") or {}
+        if not s.get("color"):
+            continue
+        _EDGE_RULES_CACHE[tipo] = EdgeStyle(
+            color=str(s.get("color")),
+            line=str(s.get("line_style") or "solid"),
+            width=float(s.get("width") or 1.4))
+    return _EDGE_RULES_CACHE
+
+
+def edge_style_for(kind: str) -> Optional[EdgeStyle]:
+    """Lo stile che la libreria dichiara per questo tipo di arco, se c'è."""
+    return _load_edge_rules().get(kind)
+
+
+def _wall_abbrevs() -> frozenset:
+    try:
+        from .pyarchinit_i18n_stratigraphic import ALL_USM_ABBREVS
+        return frozenset(ALL_USM_ABBREVS)
+    except Exception:                               # noqa: BLE001
+        return frozenset({"USM"})
+
+
+def is_wall_unit(data: Dict[str, Any]) -> bool:
+    """La riga è una muratura? Lo dice `unita_tipo` della scheda."""
+    sigla = str((data or {}).get("unita_tipo") or "").strip()
+    return bool(sigla) and sigla in _wall_abbrevs()
+
+
+@dataclass(frozen=True)
 class Unit:
     node_id: str
     label: str
@@ -112,7 +186,12 @@ class Unit:
 
     @property
     def style(self) -> Style:
-        return style_for(self.node_type)
+        base = style_for(self.node_type)
+        if is_wall_unit(self.data):
+            # Stessa casella della US, bordo bruno: muratura.
+            return Style(shape=base.shape, fill=base.fill, stroke=USM_BORDER,
+                         dash=base.dash, width=base.width)
+        return base
 
 
 @dataclass(frozen=True)

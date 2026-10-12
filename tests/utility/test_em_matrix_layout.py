@@ -484,3 +484,57 @@ def test_an_equality_is_never_an_upward_arrow():
         relations=[Relation("a", "b", "equals")])
     lay = layout(model)
     assert lay.edges and all(not e.upward for e in lay.edges)
+
+
+# ---------------------------------------------------------------------------
+# Il rombo della continuità sta sopra la sua unità
+# ---------------------------------------------------------------------------
+# «Non riesco a capire la continuità con chi è connessa graficamente»
+# (Enzo, 12 ottobre 2026): il rombo finiva dove lo metteva l'incolonnamento
+# generale — a tre colonne dalla sua USM, con la linea che girava mezzo
+# disegno. Un nodo di continuità con **una** vicina va nella colonna di
+# quella vicina, e chi occupava il posto si sposta di lato.
+
+def _modello_con_rombo():
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    unita = [Unit(i, i, "BR" if i == "B" else "US", "e")
+             for i in ("A1", "A2", "A3", "B", "A5", "A6", "U")]
+    # A1..A6 coprono U, che sta nella riga sotto; B è la continuità di U e
+    # da sola, per ordine alfabetico, cadrebbe in mezzo alla prima riga.
+    rel = [Relation(a, "U", "overlies") for a in ("A1", "A2", "A3", "A5", "A6")]
+    rel.append(Relation("B", "U", "is_after"))
+    return MatrixModel(units=unita,
+                       epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
+                       relations=rel, title="t")
+
+
+def _centro(lay, nome):
+    b = next(b for b in lay.boxes if b.unit.node_id == nome)
+    return b.x + b.w / 2.0
+
+
+def test_the_continuity_diamond_sits_in_its_units_column():
+    lay = layout(_modello_con_rombo())
+    assert abs(_centro(lay, "B") - _centro(lay, "U")) < 0.5, (
+        _centro(lay, "B"), _centro(lay, "U"))
+
+
+def test_nothing_in_the_row_overlaps_the_pinned_diamond():
+    lay = layout(_modello_con_rombo())
+    riga = sorted((b.x, b.unit.node_id) for b in lay.boxes
+                  if b.unit.node_id != "U")
+    for (x1, _), (x2, _) in zip(riga, riga[1:]):
+        assert x2 - x1 >= lay.boxes[0].w, riga
+
+
+def test_a_diamond_with_two_neighbours_is_left_where_it_is():
+    """Con due vicine non c'è «la sua» colonna: non si tocca."""
+    from modules.utility.em_matrix_model import Epoch, MatrixModel, Relation, Unit
+    m = MatrixModel(
+        units=[Unit("B", "B", "BR", "e"), Unit("U1", "U1", "US", "e"),
+               Unit("U2", "U2", "US", "e")],
+        epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
+        relations=[Relation("B", "U1", "is_after"), Relation("B", "U2", "is_after")],
+        title="t")
+    lay = layout(m)
+    assert len(lay.boxes) == 3            # e nessuna eccezione

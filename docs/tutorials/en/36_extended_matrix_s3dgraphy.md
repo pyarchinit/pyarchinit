@@ -457,6 +457,9 @@ Some choices in the matrix drawing may look odd, but they are not errors:
 - **An arrow never passes under a node.** When the arrival column is occupied, the arrow enters the box **from the side**: this is normal.
 - **Equality is not an overlap.** A «Uguale a» (Same as) or «Si lega a» (Bonds with) relationship puts the two units on the **same row**, side by side, joined by **two horizontal lines** (the equals sign) **with no arrowhead**.
 - **Redundant arcs are not drawn.** If SU 1 covers 2 and 2 covers 3, the arrow from 1 to 3 does not appear, because it adds nothing. Inside a **cycle**, however, all arcs stay, because a cycle is an error you need to see.
+- **The lines say which relationship they are.** Grey and solid: the sequence (covers, fills, abuts). **Dotted green**: a cut (`Taglia` / `Tagliato da`), whatever the stratigraphic definition and in any language. **Thick and black**: continuity — and the diamond sits in its unit's column, so the line is straight. **Red**: an arrow climbing back up the bands, i.e. a contradiction between stratigraphy and chronology; a climbing cut is red **and** stays dotted.
+- **Paradata are never a solid line.** They take colour and stroke from the Extended Matrix rules (`em_visual_rules.json`): brown-red dotted «extracted from», orange dashed «data provenance», gold dashed «property», grey dashed «generic connection», tomato dashed «combines» (solid in the file: the one deviation, because an arc towards a document must not look like an overlap).
+- **A brown border is masonry.** USM units — WSU, MSE, UEM, USZ, ΤΣΜ in the other languages — have the same box as the US, with a brown border instead of red.
 
 ---
 

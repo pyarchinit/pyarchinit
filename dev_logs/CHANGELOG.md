@@ -5,6 +5,36 @@
 
 ---
 
+## [feat] - 2026-10-12 — La matrice: le linee dicono che rapporto sono, le USM hanno il bordo bruno, la continuità sta sopra la sua unità — 5.13.95-alpha
+
+> Branch `Stratigraph_00001`. Suite **1805 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The matrix: lines say which relationship they are, USM get a brown border, continuity sits above its unit.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **i tagli sono una linea punteggiata verde** (`#2F8F4E`). La regola guarda il tipo dell'arco — `cuts`, cioè `Taglia` / `Tagliato da` — e non la definizione stratigrafica, così vale in tutte le lingue. Nel demo: 17 archi, la sorgente è il taglio in 15 su 17 (gli altri due sono errori del demo). Un taglio che **risale** le fasce è rosso **e** resta punteggiato: il rosso vince sul colore, non sulla linea.
+- 🇬🇧 **EN**: **cuts are a dotted green line.** The rule looks at the arc type — `cuts` — not at the stratigraphic definition, so it holds in every language. A cut that climbs back up the bands is red **and** stays dotted.
+- 🇮🇹 **IT**: **i paradati non sono mai una linea piena.** Il file delle regole della libreria (`em_visual_rules.json`) ha uno stile per ogni tipo di arco e il disegno lo ignorava: ora `extracted_from` è punteggiato bruno-rosso, `has_data_provenance` tratteggiato arancio, `has_property` tratteggiato oro, `generic_connection` tratteggiato grigio, con lo spessore del file. **Una deroga sola, dichiarata**: `combines` nel file è pieno, qui esce tratteggiato, perché un arco verso un documento o un estrattore non deve sembrare una sovrapposizione. Un arco che tocca un documento, un estrattore, un combinatore o una proprietà è un arco di paradati qualunque sia il suo tipo. Le frecce della sequenza restano **grigie e piene**: dal file **non** si prende `is_before` rosso, perché il rosso qui è la contraddizione in salita.
+- 🇬🇧 **EN**: **paradata are never a solid line.** The library's rules file declares a style per arc type and the drawing ignored it: now `extracted_from` is dotted brown-red, `has_data_provenance` dashed orange, `has_property` dashed gold, `generic_connection` dashed grey. One declared deviation: `combines` is solid in the file and comes out dashed here. Sequence arrows stay **grey and solid**; `is_before` red is **not** taken from the file, because red here means a climbing contradiction.
+- 🇮🇹 **IT**: **`has_property` entra nella matrice.** Era fuori dai tipi disegnati, e la proprietà galleggiava senza dire di chi era: ora l'arco c'è, tratteggiato oro.
+- 🇬🇧 **EN**: **`has_property` is drawn.** The property node used to float with no arc to its unit.
+- 🇮🇹 **IT**: **le USM hanno il bordo bruno** (`#7A4B1D`) invece del rosso. Il tipo del nodo è «US» per tutte le righe della scheda; a distinguerle è `data.unita_tipo`, nella tabella delle lingue: USM, WSU, MSE, UEM, USZ, ΤΣΜ.
+- 🇬🇧 **EN**: **USM units get a brown border** instead of red, recognised from `data.unita_tipo` in every language.
+- 🇮🇹 **IT**: **il rombo della continuità sta nella colonna della sua unità.** «Non riesco a capire la continuità con chi è connessa graficamente» (Enzo): il rombo finiva dove lo metteva l'incolonnamento generale, a tre colonne dalla sua USM, con la linea che girava mezzo disegno. Un nodo di continuità con **una** vicina va sulla sua verticale, e chi occupava il posto nella riga si sposta di lato nell'ordine in cui stava. Con due vicine non c'è «la sua» colonna e non si tocca. Misurato sul demo: `CON500`, `CON12` e `USM12` sulla stessa ascissa.
+- 🇬🇧 **EN**: **the continuity diamond sits in its unit's column.** A continuity node with **one** neighbour goes on its vertical; whatever occupied the spot in the row moves sideways, in its original order. Measured on the demo: `CON500`, `CON12` and `USM12` on the same x.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **`1.CONCON_12` → `1.CON12`.** Il modello del nome è `{area}.{unita_tipo}{us}` e la scheda generata ha `unita_tipo='CON'` **e** `us='CON_12'`: la sigla si leggeva due volte. Il nome si ripulisce nel projector; il codice `CON_<us>` **resta** — è la chiave con cui il generatore riconosce la sua scheda, e un `us='12'` sarebbe ambiguo nei rapporti con la USM 12 (i rapporti a quattro campi non portano il tipo).
+- 🇬🇧 **EN**: **`1.CONCON_12` → `1.CON12`.** The name is cleaned in the projector; the `CON_<us>` code **stays**, because it is the generator's idempotency key and a bare `us='12'` would be ambiguous against USM 12 in the four-field relations.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: dieci prove nuove. Sull'SVG: il taglio punteggiato verde; la sequenza grigia e piena; i cinque archi di paradati coi colori del file e mai pieni; il taglio in salita rosso e punteggiato; il bordo bruno per le sei sigle delle murature, e rosso per la US. Sul layout: il rombo sull'ascissa della sua unità; nessuna sovrapposizione nella riga; con due vicine non si tocca. Sul projector: `nome_senza_prefisso_doppio` su quattro casi. Aggiornata la prova del modello: `has_property` ora si tiene.
+- 🇬🇧 **EN**: ten new checks on the SVG, the layout and the projector; the model check updated for the kept `has_property`.
+
+#### Tutorial
+- 🇮🇹 **IT**: §9 «Come leggere gli archi della matrice», dieci lingue: la legenda delle linee (sequenza, taglio, continuità, salita), i paradati con i colori del file e la deroga di `combines`, il bordo bruno delle murature.
+- 🇬🇧 **EN**: §9 in ten languages: the line legend, the paradata colours and the `combines` deviation, the brown border.
+
+---
+
 ## [fix] - 2026-10-12 — La matrice usciva senza sfondo, e il greco senza la §6 — 5.13.94-alpha
 
 > Branch `Stratigraph_00001`. Suite **1792 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The matrix came out with no background, and Greek without §6.

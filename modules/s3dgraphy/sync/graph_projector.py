@@ -69,6 +69,23 @@ _IDENTITY_FIELDS = ("node_id", "name", "description", "attributes", "data")
 _PRESENTATION_FIELDS = ("symbol", "label", "detailed_description")
 
 
+def nome_senza_prefisso_doppio(nome: str, unita_tipo: str, us: str) -> str:
+    """Il nome del nodo senza la sigla letta due volte.
+
+    Il modello del nome è `{area}.{unita_tipo}{us}`; se il codice `us`
+    comincia già con la sigla e un trattino basso — `CON_12` per la
+    continuità generata — il nome esce `1.CONCON_12`. Qui diventa
+    `1.CON12`, com'è una continuità scritta a mano (`1.CON500`). Qualunque
+    altro nome passa intatto.
+    """
+    if not (nome and unita_tipo and us):
+        return nome
+    doppio = unita_tipo + us
+    if us.upper().startswith(unita_tipo.upper() + "_") and doppio in nome:
+        return nome.replace(doppio, unita_tipo + us[len(unita_tipo) + 1:], 1)
+    return nome
+
+
 def _class_key_for_unita_tipo(declared):
     """The STRATIGRAPHIC_CLASS_MAP key ``declared`` names, or None.
 
@@ -928,6 +945,15 @@ class GraphProjector(_LibGraphProjector):
             if node_uuid is not None:
                 attrs["node_uuid"] = str(node_uuid)
             attrs["us"] = us_name
+            if ut_str:
+                # «1.CONCON_12» → «1.CON12»: la scheda generata ha
+                # `unita_tipo='CON'` **e** `us='CON_12'`, e il modello del
+                # nome (`{area}.{unita_tipo}{us}`) legge il prefisso due
+                # volte. Il codice `CON_<us>` resta com'è — è la chiave
+                # con cui il generatore riconosce la sua scheda, e un
+                # `us='12'` sarebbe ambiguo nei rapporti con la USM 12.
+                node.name = nome_senza_prefisso_doppio(
+                    str(getattr(node, "name", "") or ""), ut_str, us_name)
             for key, value in (("sito", sito_v), ("area", area),
                                ("unita_tipo", ut_str or None),
                                ("periodo_iniziale", periodo_ini),

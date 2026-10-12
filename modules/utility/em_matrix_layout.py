@@ -22,7 +22,8 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from .em_matrix_glyphs import box_size, label_overhang
-from .em_matrix_model import MatrixModel, Epoch, Unit
+from .em_matrix_model import (MatrixModel, Epoch, Unit, PARADATA_KINDS,
+                              PARADATA_NODE_TYPES)
 
 #: Relazioni che NON ordinano dall'alto in basso: le due unità sono
 #: contemporanee, non una sopra l'altra.
@@ -88,6 +89,10 @@ class Edge:
     #: una unità sopravvive, non che una sta sopra l'altra. Va disegnato
     #: a parte.
     continuity: bool = False
+    #: Un arco dei paradati — per il tipo, o perché tocca un documento, un
+    #: estrattore, un combinatore o una proprietà. Si disegna con la
+    #: linea della libreria, mai piena.
+    paradata: bool = False
     #: La freccia risale le fasce invece di scendere: chi copre sta in
     #: un'epoca più antica di chi è coperto. È una contraddizione fra
     #: stratigrafia e cronologia, e si disegna in rosso perché si veda
@@ -302,6 +307,52 @@ def _assign_x(righe, vicini, passo: float) -> Dict[str, float]:
     return {i: valore - minimo for i, valore in x.items()}
 
 
+def _pin_continuity(x: Dict[str, float], righe: Sequence[Sequence[str]],
+                    vicini: Dict[str, set], tipi: Dict[str, str],
+                    passo: float) -> Dict[str, float]:
+    """Il rombo della continuità va nella colonna della sua unità.
+
+    «Non riesco a capire la continuità con chi è connessa graficamente»
+    (Enzo, 12 ottobre 2026): il rombo finiva dove lo metteva
+    l'incolonnamento generale — a tre colonne dalla sua USM, con la linea
+    che girava mezzo disegno. Un nodo di continuità con **una** vicina si
+    mette sulla sua verticale; chi occupava il posto nella riga si sposta
+    di lato, nell'ordine in cui stava, e la linea diventa dritta. Con due
+    vicine non c'è «la sua» colonna, e non si tocca.
+    """
+    riga_di = {i: n for n, riga in enumerate(righe) for i in riga}
+    for i, tipo in tipi.items():
+        if tipo != "BR" or i not in x:
+            continue
+        vicine = [v for v in vicini.get(i, ()) if v in x and v != i]
+        if len(vicine) != 1:
+            continue
+        bersaglio = x[vicine[0]]
+        if riga_di.get(vicine[0]) == riga_di.get(i):
+            continue                    # sulla stessa riga non le sta sopra
+        x[i] = bersaglio
+        riga = [j for j in righe[riga_di[i]] if j != i] if i in riga_di else []
+        sinistra = sorted((j for j in riga if x[j] <= bersaglio),
+                          key=lambda j: x[j], reverse=True)
+        destra = sorted((j for j in riga if x[j] > bersaglio),
+                        key=lambda j: x[j])
+        limite = bersaglio - passo
+        for j in sinistra:
+            if x[j] > limite:
+                x[j] = limite
+            limite = x[j] - passo
+        limite = bersaglio + passo
+        for j in destra:
+            if x[j] < limite:
+                x[j] = limite
+            limite = x[j] + passo
+    minimo = min(x.values()) if x else 0.0
+    if minimo < 0:
+        for k in x:
+            x[k] -= minimo
+    return x
+
+
 def _order_within_ranks(per_livello: Dict[int, List[str]],
                         vicini: Dict[str, set]) -> None:
     """Riduce gli incroci: due passate baricentriche, su e giù."""
@@ -400,6 +451,9 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
         y += altezza
 
     ascisse = _assign_x(tutte_le_righe, vicini, config.box_w + config.h_gap)
+    ascisse = _pin_continuity(ascisse, tutte_le_righe, vicini,
+                              {i: u.node_type for i, u in unita.items()},
+                              config.box_w + config.h_gap)
     for _epoca, righe_disegno, cima, _altezza in piani:
         for riga, ids in enumerate(righe_disegno):
             for i in ids:
@@ -448,13 +502,16 @@ def layout(model: MatrixModel, config: LayoutConfig = LayoutConfig()) -> Layout:
             continue
         continuita = "BR" in (unita[r.source].node_type,
                               unita[r.target].node_type)
+        paradati = (r.kind in PARADATA_KINDS
+                    or unita[r.source].node_type in PARADATA_NODE_TYPES
+                    or unita[r.target].node_type in PARADATA_NODE_TYPES)
         # y cresce verso il basso e la fascia più recente sta in cima:
         # se la partenza è più in basso dell'arrivo, la freccia risale.
         in_salita = (not simmetrica) and a.y > b.y
         risultato.edges.append(Edge(
             kind=r.kind, source=r.source, target=r.target,
             symmetric=simmetrica, continuity=continuita,
-            upward=in_salita,
+            paradata=paradati, upward=in_salita,
             points=_route(a, b, simmetrica,
                           scarto=((len(risultato.edges) % 3) - 1) * 4.0,
                           griglia=griglia,

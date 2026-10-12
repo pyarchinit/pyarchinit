@@ -315,3 +315,95 @@ def test_the_background_is_a_valid_length_not_a_double_percent():
     svg = to_svg(layout(_model()), title="Scavo archeologico")
     assert "100%%" not in svg
     assert '<rect width="100%" height="100%" fill="#FBFCFE"/>' in svg
+
+
+# ---------------------------------------------------------------------------
+# Le linee dicono che rapporto sono (Enzo, 12 ottobre 2026)
+# ---------------------------------------------------------------------------
+# «I nodi em come property, combinar, extractor e doc dovrebbero avere
+# archi dot line non continue; le USM un bordo di colore diverso dal rosso;
+# i tagli un arco dot line, magari verde». La sequenza — copre, riempie, si
+# appoggia — resta grigia e piena: è la matrice. Tutto il resto si
+# distingue dalla linea, non dalla posizione.
+
+def _polilinee(svg, classe):
+    import re
+    return re.findall(r'<g class="%s"><polyline[^>]*>' % re.escape(classe), svg)
+
+
+def test_a_cut_is_a_dotted_green_line():
+    svg = to_svg(layout(_model(labels=("T1", "US2"),
+                               relazioni=(("T1", "US2", "cuts"),))))
+    linee = _polilinee(svg, "edge cut")
+    assert len(linee) == 1, svg
+    assert 'stroke="#2F8F4E"' in linee[0]
+    assert 'stroke-dasharray="2 4"' in linee[0]
+
+
+def test_the_sequence_stays_grey_and_solid():
+    svg = to_svg(layout(_model(relazioni=(("US1", "US2", "overlies"),))))
+    linee = _polilinee(svg, "edge")
+    assert len(linee) == 1, svg
+    assert 'stroke="#6B7684"' in linee[0]
+    assert "stroke-dasharray" not in linee[0]
+
+
+def test_paradata_edges_take_the_library_style_and_are_never_solid():
+    """Lo stile per arco sta in `em_visual_rules.json` e si adotta:
+    `extracted_from` punteggiato bruno, `has_data_provenance` tratteggiato
+    arancio, `has_property` tratteggiato oro, `generic_connection`
+    tratteggiato grigio. `combines` nel file è **continuo**: qui è
+    tratteggiato lo stesso, perché un arco verso un paradato non deve mai
+    sembrare una sovrapposizione — è l'unica deroga, e si dichiara."""
+    tipi = {"E1": "extractor", "D1": "document", "P1": "property",
+            "C1": "combiner", "N1": "USVn"}
+    svg = to_svg(layout(_model(
+        labels=("US1", "E1", "D1", "P1", "C1", "N1"), tipi=tipi,
+        relazioni=(("E1", "D1", "extracted_from"),
+                   ("P1", "E1", "has_data_provenance"),
+                   ("US1", "P1", "has_property"),
+                   ("N1", "C1", "generic_connection"),
+                   ("C1", "E1", "combines")))))
+    linee = _polilinee(svg, "edge paradata")
+    assert len(linee) == 5, svg
+    colori = {l.split('stroke="')[1].split('"')[0] for l in linee}
+    assert colori == {"#A52A2A", "#FFA500", "#FFD700", "#808080", "#FF6347"}, colori
+    for l in linee:
+        assert "stroke-dasharray" in l, l
+
+
+def test_an_upward_cut_is_red_but_still_dotted():
+    """Il rosso della salita vince sul colore, non sulla linea: un taglio
+    che risale è una contraddizione **e** un taglio."""
+    m = MatrixModel(
+        units=[Unit("T1", "T1", "US", "vecchia"), Unit("US2", "US2", "US", "nuova")],
+        epochs=[Epoch("nuova", "XV", 1451, 1499, "#FFF"),
+                Epoch("vecchia", "XIV", 1351, 1399, "#FFF")],
+        relations=[Relation("T1", "US2", "cuts")], title="t")
+    svg = to_svg(layout(m))
+    linee = _polilinee(svg, "edge salita cut")
+    assert len(linee) == 1, svg
+    assert 'stroke-dasharray="2 4"' in linee[0]
+
+
+# ---------------------------------------------------------------------------
+# Il bordo delle USM
+# ---------------------------------------------------------------------------
+
+def test_a_wall_unit_has_a_brown_border_in_every_language():
+    """Il tipo del nodo è «US» per tutte; `data.unita_tipo` dice se è una
+    muratura — USM, WSU, MSE, UEM, USZ, ΤΣΜ, la tabella delle lingue."""
+    for sigla in ("USM", "WSU", "MSE", "UEM", "USZ", "ΤΣΜ"):
+        u = Unit("M1", "M1", "US", "e", data={"unita_tipo": sigla})
+        m = MatrixModel(units=[u], epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
+                        relations=[], title="t")
+        svg = to_svg(layout(m))
+        assert 'stroke="#7A4B1D"' in svg, sigla
+        assert 'stroke="#9B3333"' not in svg, sigla
+
+
+def test_a_plain_unit_keeps_the_red_border():
+    u = Unit("US1", "US1", "US", "e", data={"unita_tipo": "US"})
+    m = MatrixModel(units=[u], epochs=[Epoch("e", "XV", 1451, 1499, "#FFF")],
+                    relations=[], title="t")
+    assert 'stroke="#9B3333"' in to_svg(layout(m))

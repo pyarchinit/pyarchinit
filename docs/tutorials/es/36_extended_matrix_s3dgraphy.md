@@ -457,6 +457,9 @@ Algunas decisiones del dibujo de la matrix pueden parecer extrañas, pero no son
 - **Una flecha nunca pasa por debajo de un nodo.** Cuando la columna de llegada está ocupada, la flecha entra en la casilla **por el lado**: es normal.
 - **La igualdad no es una superposición.** Una relación «Uguale a» (Igual a) o «Si lega a» (Se une a) coloca las dos unidades en la **misma fila**, una junto a otra, unidas por **dos líneas horizontales** (el signo igual) **sin punta de flecha**.
 - **Los arcos redundantes no se dibujan.** Si la UE 1 cubre la 2 y la 2 cubre la 3, la flecha de 1 a 3 no aparece, porque no añade nada. Dentro de un **ciclo**, en cambio, todos los arcos permanecen, porque un ciclo es un error que hay que ver.
+- **Las líneas dicen qué relación son.** Gris y continua: la secuencia (cubre, rellena, se apoya). **Punteada verde**: un corte (`Taglia` / `Tagliato da`), sea cual sea la definición estratigráfica y en cualquier idioma. **Gruesa y negra**: la continuidad —y el rombo está en la columna de su unidad, así la línea es recta. **Roja**: una flecha que sube por las bandas, es decir, una contradicción entre estratigrafía y cronología; un corte que sube es rojo **y** sigue punteado.
+- **Los paradatos nunca son una línea continua.** Toman color y trazo de las reglas del Extended Matrix (`em_visual_rules.json`): pardo-rojo punteado «extraído de», naranja discontinuo «procedencia del dato», oro discontinuo «propiedad», gris discontinuo «conexión genérica», rojo tomate discontinuo «combina» (en el archivo sería continuo: es la única excepción, porque un arco hacia un documento no debe parecer una superposición).
+- **El borde pardo es una estructura muraria.** Las USM —WSU, MSE, UEM, USZ, ΤΣΜ en los demás idiomas— tienen la misma casilla que las US, con el borde pardo en vez de rojo.
 
 ---
 

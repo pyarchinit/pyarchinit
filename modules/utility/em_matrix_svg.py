@@ -15,6 +15,7 @@ from .em_matrix_glyphs import (GLYPH_LABEL_GAP, PROP_PAPER, SHEET_LABEL_Y,
                                is_property, property_drawing)
 from .em_matrix_glyphs import short_label as _short
 from .em_matrix_layout import Band, Box, Edge, Layout
+from .em_matrix_model import CUT_COLOR, CUT_KIND, edge_style_for
 
 _FONT = ("Helvetica Neue, Helvetica, Arial, sans-serif")
 
@@ -37,6 +38,8 @@ def _dash(stile: str) -> str:
         return ' stroke-dasharray="7 4"'
     if stile == "dotted":
         return ' stroke-dasharray="2 4"'
+    if stile == "dashed-dotted":
+        return ' stroke-dasharray="7 3 2 3"'
     return ""
 
 
@@ -257,19 +260,42 @@ def _edge_svg(edge: Edge) -> str:
                 '<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" '
                 'stroke="#6B7684" stroke-width="1.4"/></g>'
                 % (x1, y1, x2, y2, x3, y3, x4, y4))
-    if edge.upward:
-        # Il rosso vince sul resto: un legame di continuità che risale è
-        # comunque una contraddizione da vedere, e lo spessore lo tiene
-        # distinto dagli altri rapporti.
-        classe, colore = "edge salita", ROSSO_SALITA
-        spessore = 2.2 if edge.continuity else 1.6
+    # La linea dice che rapporto è (Enzo, 12 ottobre 2026). La sequenza
+    # — copre, riempie, si appoggia — resta grigia e piena: è la matrice.
+    # Il taglio è punteggiato verde. I paradati prendono lo stile che la
+    # libreria dichiara in `em_visual_rules.json` (colore, tratto,
+    # spessore), con una deroga sola: mai pieni, perché un arco verso un
+    # documento o un estrattore non deve sembrare una sovrapposizione —
+    # `combines` nel file è «solid», qui esce tratteggiato. La continuità
+    # resta spessa e nera.
+    taglio = edge.kind == CUT_KIND
+    tratto = ""
+    if taglio:
+        colore, spessore, tratto = CUT_COLOR, 1.6, _dash("dotted")
+        aggiunta = " cut"
+    elif edge.paradata:
+        regola = edge_style_for(edge.kind)
+        colore = regola.color if regola else "#6B7684"
+        spessore = min(regola.width, 2.0) if regola else 1.2
+        linea = regola.line if regola else "dashed"
+        tratto = _dash(linea if linea != "solid" else "dashed")
+        aggiunta = " paradata"
     elif edge.continuity:
-        classe, colore, spessore = "edge continuity", "#1A1A1A", 2.2
+        colore, spessore, aggiunta = "#1A1A1A", 2.2, " continuity"
     else:
-        classe, colore, spessore = "edge", "#6B7684", 1.4
+        colore, spessore, aggiunta = "#6B7684", 1.4, ""
+    if edge.upward:
+        # Il rosso vince sul colore, non sulla linea: un taglio che
+        # risale è una contraddizione **e** un taglio. Lo spessore tiene
+        # la continuità distinta dagli altri rapporti.
+        colore = ROSSO_SALITA
+        spessore = 2.2 if edge.continuity else max(spessore, 1.6)
+        classe = "edge salita" + ("" if edge.continuity else aggiunta)
+    else:
+        classe = "edge" + aggiunta
     return ('<g class="%s"><polyline points="%s" fill="none" stroke="%s" '
-            'stroke-width="%.1f"/>%s</g>'
-            % (classe, _points(edge.points), colore, spessore,
+            'stroke-width="%.1f"%s/>%s</g>'
+            % (classe, _points(edge.points), colore, spessore, tratto,
                _punta_svg(edge, colore)))
 
 

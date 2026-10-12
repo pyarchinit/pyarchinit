@@ -461,6 +461,9 @@ Einige Entscheidungen in der Matrixzeichnung wirken seltsam, sind aber keine Feh
 - **Ein Pfeil läuft nie unter einem Knoten hindurch.** Ist die Zielspalte belegt, tritt der Pfeil **von der Seite** in das Kästchen ein: das ist normal.
 - **Gleichheit ist keine Überlagerung.** Eine Beziehung «Uguale a» (Gleich) oder «Si lega a» (Bindet an) stellt die beiden Einheiten auf **dieselbe Zeile**, nebeneinander, verbunden durch **zwei waagerechte Linien** (das Gleichheitszeichen) **ohne Pfeilspitze**.
 - **Redundante Kanten werden nicht gezeichnet.** Wenn SE 1 die SE 2 überdeckt und SE 2 die SE 3, erscheint der Pfeil von 1 nach 3 nicht, weil er nichts hinzufügt. Innerhalb eines **Zyklus** bleiben dagegen alle Kanten, denn ein Zyklus ist ein Fehler, den man sehen muss.
+- **Die Linien sagen, welche Beziehung sie sind.** Grau und durchgezogen: die Abfolge (überlagert, verfüllt, lehnt an). **Grün gepunktet**: ein Schnitt (`Taglia` / `Tagliato da`), unabhängig von der stratigraphischen Definition und in jeder Sprache. **Dick und schwarz**: die Kontinuität — die Raute steht in der Spalte ihrer Einheit, die Linie ist also gerade. **Rot**: ein Pfeil, der die Bänder hinaufsteigt, also ein Widerspruch zwischen Stratigraphie und Chronologie; ein aufsteigender Schnitt ist rot **und** bleibt gepunktet.
+- **Paradaten sind nie eine durchgezogene Linie.** Farbe und Strich kommen aus den Regeln der Extended Matrix (`em_visual_rules.json`): braunrot gepunktet „extrahiert aus", orange gestrichelt „Datenherkunft", gold gestrichelt „Eigenschaft", grau gestrichelt „allgemeine Verbindung", tomatenrot gestrichelt „kombiniert" (in der Datei durchgezogen: die einzige Abweichung, weil ein Bogen zu einem Dokument nicht wie eine Überlagerung aussehen darf).
+- **Ein brauner Rand ist Mauerwerk.** USM-Einheiten — WSU, MSE, UEM, USZ, ΤΣΜ in den anderen Sprachen — haben dasselbe Kästchen wie die US, mit braunem statt rotem Rand.
 
 ---
 
