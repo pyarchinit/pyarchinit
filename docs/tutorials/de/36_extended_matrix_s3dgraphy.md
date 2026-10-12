@@ -373,6 +373,8 @@ Im Panel **„Verifica rapporti"** — verfügbar als Tab innerhalb des s3dgraph
 3. Der CON-Datensatz **erbt** von der Mutter-Einheit: Fundstelle, Area (plus etwaige sekundäre Areas), Struktur und die gesamte Periodenspanne (Anfang → Ende). Seine Beschreibung wird automatisch generiert.
 4. Sie schreibt eine **reziproke Kontinuitäts-Beziehung** auf beiden Seiten: auf dem CON und auf der Mutter-Einheit.
 
+> **Die Phase zählt für sich nicht.** Die Regel schaut auf die **Periode**: eine USM von **2/3 bis 2/4** — gleiche Periode, nur die Phase wechselt — erzeugt nichts. Wenn Ihre Einheiten von Phase zu Phase innerhalb derselben Periode weiterleben, aktivieren Sie **„anche i salti di fase"** („auch Phasensprünge") neben der Schaltfläche: dann zählen auch diese Sprünge, sofern **beide** Phasen ausgefüllt sind. Eine Einheit, die sich nicht bewegt — gleiche Periode und gleiche Phase — ist nie eine Kontinuität. Das Feld ist zunächst **nicht** aktiviert und gilt für die Vorschau und das Schreiben gemeinsam.
+
 ### 6.2 Idempotenz
 
 Der Vorgang ist **idempotent**: Ein erneuter Lauf dupliziert vorhandene Datensätze nicht — er aktualisiert die bestehenden `CON_<us>`, wenn sich die Daten der Mutter-Einheit geändert haben.
@@ -385,7 +387,7 @@ Ein CON-Datensatz ist **verwaist**, wenn seine Mutter-Einheit sich nicht mehr ü
 
 ### 6.4 Im Extended-Matrix-Export
 
-Die so erzeugten `CON_<us>`-Datensätze erscheinen im Extended-Matrix-GraphML-Export als **Kontinuitäts-Elemente**.
+Die so erzeugten `CON_<us>`-Datensätze erscheinen in der **em.json** der Extended Matrix als **Kontinuitäts-Elemente** (der GraphML-Export ist im Ruhestand, §2.3).
 
 ---
 

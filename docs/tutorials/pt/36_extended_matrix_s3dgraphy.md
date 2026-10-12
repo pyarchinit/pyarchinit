@@ -369,6 +369,8 @@ No painel **«Verifica rapporti»** — disponível como separador dentro do di�
 3. A ficha CON **herda** da unidade-mãe: sítio, área (mais as áreas secundárias), estrutura e todo o intervalo de períodos (inicial → final). A sua descrição é gerada automaticamente.
 4. Escreve uma **relação de continuidade recíproca** em ambos os lados: na CON e na sua unidade-mãe.
 
+> **A fase, por si so, nao conta.** A regra olha o **periodo**: uma USM que vai de **2/3 a 2/4** — mesmo periodo, muda so a fase — nao gera nada. Se as tuas unidades sobrevivem de fase em fase dentro do mesmo periodo, marca **«anche i salti di fase»** («tambem os saltos de fase») ao lado do botao: entao esses saltos tambem contam, desde que **ambas** as fases estejam preenchidas. Uma unidade que nao se move — mesmo periodo e mesma fase — nunca e uma continuidade. A caixa comeca **sem marca**, e vale para a pre-visualizacao e para a escrita ao mesmo tempo.
+
 ### 6.2 Idempotência
 
 A operação é **idempotente**: voltar a executá-la não duplica as fichas existentes — atualiza as `CON_<us>` existentes se os dados da unidade-mãe tiverem mudado.
@@ -381,7 +383,7 @@ Uma ficha CON é **órfã** quando a sua unidade-mãe já não se estende por v�
 
 ### 6.4 Na exportação Extended Matrix
 
-As fichas `CON_<us>` geradas desta forma aparecem na exportação GraphML do Extended Matrix como **elementos de continuidade**.
+As fichas `CON_<us>` geradas desta forma aparecem no **em.json** do Extended Matrix como **elementos de continuidade** (a exportação GraphML está retirada, §2.3).
 
 ---
 

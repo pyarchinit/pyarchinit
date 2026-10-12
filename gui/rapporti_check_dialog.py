@@ -12,8 +12,9 @@ from __future__ import annotations
 
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import (
-    QDialog, QWidget, QVBoxLayout, QHBoxLayout, QComboBox, QPushButton,
-    QTreeWidget, QTreeWidgetItem, QTextEdit, QLabel, QMessageBox, QSplitter,
+    QCheckBox, QDialog, QWidget, QVBoxLayout, QHBoxLayout, QComboBox,
+    QPushButton, QTreeWidget, QTreeWidgetItem, QTextEdit, QLabel,
+    QMessageBox, QSplitter,
 )
 
 from modules.utility import rapporti_check as RC
@@ -82,6 +83,20 @@ class RapportiCheckPanel(QWidget):
             "più periodi (periodo iniziale ≠ finale).")
         self.btnContinuity.clicked.connect(self._run_genera_continuita)
         top.addWidget(self.btnContinuity)
+        # Di suo la continuità guarda il **periodo**, e una muratura che
+        # va da 2/3 a 2/4 non genera niente: stesso periodo, cambia solo
+        # la fase. Per chi scava è una sopravvivenza come le altre, ma
+        # non si accende da sé — questo bottone è già nelle mani di
+        # qualcuno, e un automatismo che cambia idea da solo scrive nel
+        # database cose che nessuno ha chiesto.
+        self.chkPhases = QCheckBox("anche i salti di fase")
+        self.chkPhases.setToolTip(
+            "Spenta, la continuità nasce solo quando il periodo iniziale è "
+            "diverso dal finale.\nAccesa, conta anche il salto di fase "
+            "dentro lo stesso periodo (2/3 → 2/4): servono entrambe le "
+            "fasi.\nUn'unità che non si muove — stesso periodo e stessa "
+            "fase — non è mai una continuità.")
+        top.addWidget(self.chkPhases)
         lay.addLayout(top)
 
         split = QSplitter(Qt.Vertical)
@@ -359,22 +374,33 @@ class RapportiCheckPanel(QWidget):
         sito = self.cboSite.currentText().strip()
         if not sito:
             return
-        from qgis.PyQt.QtWidgets import QCheckBox, QDialogButtonBox
+        from qgis.PyQt.QtWidgets import QDialogButtonBox
         from modules.s3dgraphy.sync import continuity_generator as CG
         try:
             handle = self._handle()
             schedatore = self._current_user()
+            anche_le_fasi = self.chkPhases.isChecked()
             plan = CG.build_plan(handle, sito, schedatore=schedatore,
-                                 lang=self._lang)
+                                 lang=self._lang,
+                                 include_phase=anche_le_fasi)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit",
                                  f"Genera continuità fallita: {exc}")
             return
         if not (plan.to_create or plan.to_update or plan.orphan):
+            # Perché non c'è niente, non solo che non c'è niente: la
+            # regola guarda il periodo, e chi ha davanti una USM da 2/3 a
+            # 2/4 deve sapere che gli manca una spunta, non un dato.
+            coda = (f"({len(plan.unchanged)} già allineate)"
+                    if plan.unchanged else
+                    "Nessuna US/USM ha il periodo iniziale diverso dal "
+                    "finale." + ("" if anche_le_fasi else
+                                 "\nSe le tue unità cambiano solo fase "
+                                 "dentro lo stesso periodo, spunta "
+                                 "«anche i salti di fase»."))
             QMessageBox.information(
                 self, "pyArchInit",
-                f"Nessuna continuità da generare per '{sito}'.\n"
-                f"({len(plan.unchanged)} già allineate)")
+                f"Nessuna continuità da generare per '{sito}'.\n{coda}")
             return
         # Preview dialog
         dlg = QDialog(self)
@@ -409,7 +435,8 @@ class RapportiCheckPanel(QWidget):
         try:
             rep = CG.generate_continuity(
                 handle, sito, schedatore=schedatore, lang=self._lang,
-                remove_orphans=chkOrphans.isChecked(), do_backup=True)
+                remove_orphans=chkOrphans.isChecked(), do_backup=True,
+                include_phase=anche_le_fasi)
         except Exception as exc:
             QMessageBox.critical(self, "pyArchInit",
                                  f"Generazione fallita: {exc}")

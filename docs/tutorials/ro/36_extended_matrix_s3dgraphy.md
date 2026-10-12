@@ -369,6 +369,8 @@ Predecesor: vezi secțiunea 5.8 (`yed-fastfix-5.8.5-alpha`) pentru comportamentu
 3. Fișa CON **moștenește** de la unitatea-mamă: situl, aria (plus ariile secundare), structura și întregul interval de perioade (inițială → finală). Descrierea ei este generată automat.
 4. Scrie o **relație de continuitate reciprocă** pe ambele părți: pe CON și pe unitatea-mamă.
 
+> **Faza, de la sine, nu conteaza.** Regula se uita la **perioada**: o USM care merge de la **2/3 la 2/4** — aceeasi perioada, se schimba doar faza — nu genereaza nimic. Daca unitatile tale supravietuiesc din faza in faza in interiorul aceleiasi perioade, bifeaza **„anche i salti di fase"** („si salturile de faza") langa buton: atunci conteaza si acele salturi, cu conditia ca **ambele** faze sa fie completate. O unitate care nu se misca — aceeasi perioada si aceeasi faza — nu este niciodata o continuitate. Caseta porneste **nebifata** si este valabila pentru previzualizare si pentru scriere deopotriva.
+
 ### 6.2 Idempotență
 
 Operația este **idempotentă**: rularea repetată nu duplică fișele existente — actualizează `CON_<us>` existente dacă datele unității-mamă s-au schimbat.
@@ -381,7 +383,7 @@ O fișă CON este **orfană** atunci când unitatea ei mamă nu se mai întinde 
 
 ### 6.4 În exportul Extended Matrix
 
-Fișele `CON_<us>` generate astfel apar în exportul GraphML al Extended Matrix ca **elemente de continuitate**.
+Fișele `CON_<us>` generate astfel apar în **em.json** al Extended Matrix ca **elemente de continuitate** (exportul GraphML este pensionat, §2.3).
 
 ---
 

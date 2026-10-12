@@ -329,3 +329,57 @@ def test_orphan_delete_is_site_scoped(tmp_path):
     assert "CON_US9" in load_existing_con(h, "S2"), (
         "CON_US9 in site S2 must not be touched by site S orphan cleanup"
     )
+
+
+# ---------------------------------------------------------------------------
+# Anche i salti di FASE, quando il pannello lo chiede
+# ---------------------------------------------------------------------------
+# «Per generare la continuità con le US/USM che hanno periodo iniziale e
+# finale cosa c'è bisogno di altro? non mi genera la continuità oppure ho
+# capito io male» (Enzo, 12 ottobre 2026). Non aveva capito male: la
+# regola guarda il **periodo** e ignora la fase, e nel suo database
+# l'unica unità che si muoveva era una USM da 2/3 a 2/4 — stesso periodo,
+# fase diversa. Una muratura che vive dalla fase 3 alla fase 4 sopravvive
+# comunque, quindi la spunta «anche i salti di fase» del pannello la
+# comprende. Resta **spenta** per difetto: un bottone già spedito non
+# cambia da sé quello che scrive nei database di chi aggiorna.
+
+def test_scan_ignores_a_phase_jump_by_default():
+    righe = [_rec(periodo_iniziale="2", periodo_finale="2",
+                  fase_iniziale="3", fase_finale="4")]
+    assert scan_candidates(righe) == []
+
+
+def test_scan_takes_a_phase_jump_when_asked():
+    righe = [_rec(periodo_iniziale="2", periodo_finale="2",
+                  fase_iniziale="3", fase_finale="4")]
+    cands = scan_candidates(righe, include_phase=True)
+    assert len(cands) == 1
+    c = cands[0]
+    assert (c.periodo_iniziale, c.fase_iniziale) == ("2", "3")
+    assert (c.periodo_finale, c.fase_finale) == ("2", "4")
+
+
+def test_a_unit_that_does_not_move_at_all_is_never_a_candidate():
+    """La spunta allarga la regola, non la scioglie: stesso periodo e
+    stessa fase vuol dire un'unità che non attraversa niente."""
+    fermo = [_rec(periodo_iniziale="2", periodo_finale="2",
+                  fase_iniziale="3", fase_finale="3")]
+    assert scan_candidates(fermo) == []
+    assert scan_candidates(fermo, include_phase=True) == []
+
+
+def test_a_phase_jump_needs_both_phases():
+    """Senza una delle due fasi non si sa se si muove: niente candidato."""
+    for riga in (_rec(periodo_iniziale="2", periodo_finale="2",
+                      fase_iniziale="3", fase_finale=None),
+                 _rec(periodo_iniziale="2", periodo_finale="2",
+                      fase_iniziale="", fase_finale="4")):
+        assert scan_candidates([riga], include_phase=True) == [], riga
+
+
+def test_the_period_jump_still_wins_with_the_checkbox_on():
+    """Acceso o spento, un salto di periodo è sempre un candidato."""
+    righe = [_rec()]      # 1/1 -> 3/2
+    assert len(scan_candidates(righe)) == 1
+    assert len(scan_candidates(righe, include_phase=True)) == 1

@@ -75,15 +75,43 @@ def _nz(v):
     return s or None
 
 
-def scan_candidates(records) -> list[Candidate]:
-    """Return one Candidate per US/USM with both periods set and distinct."""
+def _attraversa(pi, pf, fi, ff, include_phase) -> bool:
+    """L'unità attraversa qualcosa, e quindi vuole una continuità?
+
+    Di suo la domanda è sul **periodo**: periodo iniziale e finale
+    entrambi pieni e **diversi**. La fase non entra, ed è la ragione per
+    cui una muratura da 2/3 a 2/4 non generava niente (Enzo, 12 ottobre
+    2026: «non mi genera la continuità oppure ho capito io male» — non
+    aveva capito male).
+
+    Con `include_phase` — la spunta «anche i salti di fase» del pannello
+    «Verifica rapporti» — conta anche il salto di fase **dentro lo stesso
+    periodo**, che per chi scava è una sopravvivenza come le altre. Serve
+    che **entrambe** le fasi ci siano: con una sola non si sa se l'unità
+    si muove. La spunta allarga la regola, non la scioglie — stesso
+    periodo e stessa fase resta un'unità che non attraversa niente.
+    """
+    if pi is None or pf is None:
+        return False
+    if pi != pf:
+        return True
+    if not include_phase:
+        return False
+    return fi is not None and ff is not None and fi != ff
+
+
+def scan_candidates(records, *, include_phase: bool = False) -> list[Candidate]:
+    """Return one Candidate per US/USM that crosses a period — or, with
+    `include_phase`, a phase inside the same period."""
     out: list[Candidate] = []
     for r in records:
         if str(r.get("unita_tipo") or "").strip() not in CONTINUITY_SOURCE_TYPES:
             continue
         pi = _nz(r.get("periodo_iniziale"))
         pf = _nz(r.get("periodo_finale"))
-        if pi is None or pf is None or pi == pf:
+        fi = _nz(r.get("fase_iniziale"))
+        ff = _nz(r.get("fase_finale"))
+        if not _attraversa(pi, pf, fi, ff, include_phase):
             continue
         out.append(Candidate(
             sito=str(r.get("sito") or ""),
@@ -92,9 +120,9 @@ def scan_candidates(records) -> list[Candidate]:
             area=_nz(r.get("area")),
             struttura=_nz(r.get("struttura")),
             periodo_iniziale=pi,
-            fase_iniziale=_nz(r.get("fase_iniziale")),
+            fase_iniziale=fi,
             periodo_finale=pf,
-            fase_finale=_nz(r.get("fase_finale")),
+            fase_finale=ff,
             other_locations=r.get("other_locations"),
         ))
     return out
@@ -387,12 +415,17 @@ def apply_plan(handle, plan, sito, *, remove_orphans=False, lang="it") -> Report
 # Task 6: generate_continuity orchestrator + auto-backup
 # ---------------------------------------------------------------------------
 
-def build_plan(handle, sito, *, schedatore="", lang="it") -> Plan:
+def build_plan(handle, sito, *, schedatore="", lang="it",
+               include_phase: bool = False) -> Plan:
     """Read site → scan → build desired → diff existing. Pure of writes
-    (used by the UI to show a dry-run preview before applying)."""
+    (used by the UI to show a dry-run preview before applying).
+
+    `include_phase` arriva dalla spunta del pannello e passa di qui
+    intatto: il piano che l'anteprima mostra deve essere **lo stesso**
+    che l'applicazione scrive."""
     records = load_site_records(handle, sito)
     desired = [build_con_record(c, schedatore=schedatore, lang=lang)
-               for c in scan_candidates(records)]
+               for c in scan_candidates(records, include_phase=include_phase)]
     return diff_continuity(load_existing_con(handle, sito), desired)
 
 
@@ -418,9 +451,11 @@ def auto_backup(handle, tag="genera_continuita"):
 
 
 def generate_continuity(handle, sito, *, schedatore="", lang="it",
-                        remove_orphans=False, do_backup=False) -> Report:
+                        remove_orphans=False, do_backup=False,
+                        include_phase: bool = False) -> Report:
     """End-to-end: build plan, optionally back up, apply, return Report."""
-    plan = build_plan(handle, sito, schedatore=schedatore, lang=lang)
+    plan = build_plan(handle, sito, schedatore=schedatore, lang=lang,
+                      include_phase=include_phase)
     if do_backup and (plan.to_create or plan.to_update or
                       (remove_orphans and plan.orphan)):
         auto_backup(handle)

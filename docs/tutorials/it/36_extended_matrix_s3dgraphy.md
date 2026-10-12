@@ -369,6 +369,8 @@ Nel pannello **"Verifica rapporti"** — disponibile come tab all'interno del di
 3. La scheda CON **eredita** dall'unità madre: sito, area (più le aree secondarie), struttura e l'intero arco di periodi (iniziale → finale). La descrizione viene generata automaticamente.
 4. Scrive un **rapporto di continuità reciproco** su entrambi i lati: sulla CON e sull'unità madre.
 
+> **La fase, di suo, non conta.** La regola guarda il **periodo**: una USM che va da **2/3 a 2/4** — stesso periodo, cambia solo la fase — non genera niente. Se le tue unità sopravvivono di fase in fase dentro lo stesso periodo, spunta **«anche i salti di fase»** accanto al pulsante: allora contano anche quei salti, purché **entrambe** le fasi siano compilate. Un'unità che non si muove — stesso periodo e stessa fase — non è mai una continuità. La spunta parte **spenta**, e vale per l'anteprima e per la scrittura insieme.
+
 ### 6.2 Idempotenza
 
 L'operazione è **idempotente**: rilanciarla non duplica le schede già presenti, ma aggiorna le `CON_<us>` esistenti se i dati dell'unità madre sono cambiati.
@@ -381,7 +383,7 @@ Una scheda CON è **orfana** quando l'unità madre non attraversa più periodi (
 
 ### 6.4 In export Extended Matrix
 
-Le schede `CON_<us>` così generate compaiono nell'export GraphML dell'Extended Matrix come **elementi di continuità**.
+Le schede `CON_<us>` così generate compaiono nell'**em.json** dell'Extended Matrix come **elementi di continuità** (il GraphML in uscita è in pensione, §2.3).
 
 ---
 

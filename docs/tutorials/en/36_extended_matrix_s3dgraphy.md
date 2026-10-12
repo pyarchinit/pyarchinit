@@ -369,6 +369,8 @@ In the **"Verifica rapporti"** panel — available as a tab inside the s3dgraphy
 3. The CON record **inherits** from the parent unit: site, area (plus any secondary areas), structure and the full period span (initial → final). Its description is auto-generated.
 4. It writes a **reciprocal continuity relationship** on both sides: on the CON and on its parent unit.
 
+> **The phase does not count on its own.** The rule looks at the **period**: a USM running from **2/3 to 2/4** — same period, only the phase changes — generates nothing. If your units survive from phase to phase inside the same period, tick **«anche i salti di fase»** («phase jumps too») next to the button: those jumps then count as well, provided **both** phases are filled in. A unit that does not move — same period and same phase — is never a continuity. The box starts **unticked**, and governs the preview and the writing together.
+
 ### 6.2 Idempotency
 
 The operation is **idempotent**: re-running it does not duplicate existing records — it updates the existing `CON_<us>` if the parent unit's data has changed.
@@ -381,7 +383,7 @@ A CON record is **orphan** when its parent unit no longer spans periods (e.g. it
 
 ### 6.4 In the Extended Matrix export
 
-The `CON_<us>` records produced this way appear in the Extended Matrix GraphML export as **continuity elements**.
+The `CON_<us>` records produced this way appear in the Extended Matrix **em.json** as **continuity elements** (the outgoing GraphML export is retired, §2.3).
 
 ---
 

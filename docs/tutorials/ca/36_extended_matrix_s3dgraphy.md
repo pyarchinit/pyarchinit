@@ -369,6 +369,8 @@ Al panell **«Verifica rapporti»** — disponible com a pestanya dins del diàl
 3. La fitxa CON **hereta** de la unitat mare: jaciment, àrea (més les àrees secundàries), estructura i tot l'arc de períodes (inicial → final). La seva descripció es genera automàticament.
 4. Escriu una **relació de continuïtat recíproca** a tots dos costats: a la CON i a la seva unitat mare.
 
+> **La fase, tota sola, no compta.** La regla mira el **període**: una USM que va de **2/3 a 2/4** —mateix període, només canvia la fase— no genera res. Si les teves unitats sobreviuen de fase en fase dins del mateix període, marca **«anche i salti di fase»** («també els salts de fase») al costat del botó: aleshores aquests salts també compten, sempre que **totes dues** fases estiguin omplertes. Una unitat que no es mou —mateix període i mateixa fase— no és mai una continuïtat. La casella comença **sense marcar**, i val per a la previsualització i per a l'escriptura alhora.
+
 ### 6.2 Idempotència
 
 L'operació és **idempotent**: tornar-la a executar no duplica les fitxes existents — actualitza les `CON_<us>` existents si les dades de la unitat mare han canviat.
@@ -381,7 +383,7 @@ Una fitxa CON és **òrfena** quan la seva unitat mare ja no abasta diversos per
 
 ### 6.4 A l'exportació Extended Matrix
 
-Les fitxes `CON_<us>` generades així apareixen a l'exportació GraphML de l'Extended Matrix com a **elements de continuïtat**.
+Les fitxes `CON_<us>` generades així apareixen a l'**em.json** de l'Extended Matrix com a **elements de continuïtat** (l'exportació GraphML està retirada, §2.3).
 
 ---
 

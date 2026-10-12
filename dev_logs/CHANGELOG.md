@@ -5,6 +5,32 @@
 
 ---
 
+## [feat] - 2026-10-12 — «Genera continuità»: anche i salti di fase, a richiesta — 5.13.93-alpha
+
+> Branch `Stratigraph_00001`. Suite **1791 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / «Generate continuity»: phase jumps too, when asked.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: una **spunta «anche i salti di fase»** accanto al bottone «Genera continuità», nel pannello «Verifica rapporti». Spenta — com'era — la continuità nasce solo quando **periodo iniziale ≠ periodo finale**. Accesa, conta anche il salto di **fase dentro lo stesso periodo** (2/3 → 2/4), purché **entrambe** le fasi siano compilate. Un'unità che non si muove — stesso periodo e stessa fase — non è mai una continuità: la spunta allarga la regola, non la scioglie. Parte spenta di proposito: un bottone già spedito non cambia da sé quello che scrive nei database di chi aggiorna senza leggere il changelog.
+- 🇬🇧 **EN**: a **«phase jumps too» checkbox** beside the «Genera continuità» button in the «Verifica rapporti» panel. Unticked — as before — continuity is born only when **initial period ≠ final period**. Ticked, a **phase** jump inside the same period counts too (2/3 → 2/4), provided **both** phases are filled. A unit that does not move — same period, same phase — is never a continuity: the box widens the rule, it does not dissolve it. It starts unticked on purpose: a button already shipped does not change by itself what it writes into other people's databases.
+- 🇮🇹 **IT**: **«niente da generare» ora dice perché.** Prima il messaggio contava le schede già allineate e taceva sul resto. Adesso, se nessuna US/USM ha i due periodi diversi, lo scrive — e se la spunta è spenta aggiunge che i salti di fase si contano spuntandola. Era esattamente la domanda di Enzo: «non mi genera la continuità oppure ho capito io male».
+- 🇬🇧 **EN**: **«nothing to generate» now says why.** If no US/USM has the two periods different it says so, and when the box is unticked it adds that phase jumps are counted by ticking it.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: nel database di esempio **nessuna unità** passava la regola: 36 US + 3 USM sul sito italiano hanno periodo iniziale = periodo finale, e l'unica che si muove è **USM 12**, `2/3 → 2/4` — stesso periodo, fase diversa, quindi ignorata. Non era un difetto del bottone. Con la spunta accesa, su una copia: 1 candidato, `CON_12` creata da 2/3 a 2/4 coi due rapporti reciproci. Con un salto di periodo vero (`periodo_finale=3`): 1 candidato anche a spunta spenta.
+- 🇬🇧 **EN**: in the example database **no unit** passed the rule: 36 US + 3 USM on the Italian site have initial period = final period, and the only one that moves is **USM 12**, `2/3 → 2/4`. Not a button defect. With the box ticked, on a copy: 1 candidate, `CON_12` created spanning 2/3 → 2/4 with both reciprocal relations.
+- 🇮🇹 **IT**: **attenzione agli orfani.** Una CON fatta a mano che non si chiami `CON_<us>` — come la `CON 500` del database di esempio — compare fra le **orfane**, e la spunta «Rimuovi anche le CON orfane» la cancella. Non è cambiato ora, ma è la prima volta che è scritto.
+- 🇬🇧 **EN**: **mind the orphans.** A hand-made CON whose name is not `CON_<us>` — like the example database's `CON 500` — shows up among the **orphans**, and «remove orphan CONs» deletes it. Not new, but written down for the first time.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: il tutorial §6.4 diceva che le `CON_<us>` compaiono nell'export **GraphML** dell'Extended Matrix. Il GraphML in uscita è in pensione da `5.13.24-alpha`: compaiono nell'**em.json**. Corretto nelle nove lingue che hanno il paragrafo (il greco non ce l'ha: lacuna vecchia, non colmata qui).
+- 🇬🇧 **EN**: tutorial §6.4 said the `CON_<us>` records appear in the Extended Matrix **GraphML** export. The outgoing GraphML has been retired since `5.13.24-alpha`: they appear in the **em.json**. Fixed in the nine languages that have the section (Greek does not: an old gap, not back-filled here).
+
+#### Test / Verifica
+- 🇮🇹 **IT**: cinque prove nuove su `scan_candidates` — la fase ignorata per difetto, il salto di fase preso a richiesta, l'unità ferma mai candidata, le due fasi entrambe necessarie, e il salto di periodo che vince comunque. Più due sull'albero sintattico del pannello: la spunta si legge **dove** si crea, e **ogni** chiamata a `build_plan`/`generate_continuity` porta `include_phase` — se arrivasse a una sola delle due, l'anteprima mostrerebbe un elenco e la scrittura ne scriverebbe un altro.
+- 🇬🇧 **EN**: five new checks on `scan_candidates` and two AST checks on the panel: the box is read **where** it is created, and **every** call to `build_plan`/`generate_continuity` carries `include_phase` — reaching only one of the two would make the preview and the writing disagree.
+
+---
+
 ## [fix] - 2026-10-12 — Due metodi sulla classe sbagliata, e il rapporto contato due volte — 5.13.92-alpha
 
 > Branch `Stratigraph_00001`. Suite **1784 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Two methods on the wrong class, and the relation counted twice.

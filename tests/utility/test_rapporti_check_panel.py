@@ -427,3 +427,71 @@ def test_the_summary_keeps_selected_when_something_is_auto(panel):
     panel._report = _R()
     panel._render()
     assert "1 correggibili automaticamente (selezionati)" in panel.lblSummary.text()
+
+
+# ---------------------------------------------------------------------------
+# La spunta «anche i salti di fase» deve arrivare al generatore
+# ---------------------------------------------------------------------------
+# Il piano che l'anteprima mostra e quello che l'applicazione scrive
+# devono nascere dalla **stessa** domanda: se la spunta arrivasse a una
+# delle due chiamate e non all'altra, l'utente vedrebbe un elenco e ne
+# scriverebbe un altro. Si legge l'albero sintattico perché costruire un
+# `QDialog` dentro pytest aborta il processo (vedi la docstring in cima).
+
+def _albero_pannello():
+    import ast
+    sorgente = (_ROOT / "gui" / "rapporti_check_dialog.py").read_text(
+        encoding="utf-8")
+    return ast.parse(sorgente)
+
+
+def _classe(albero, nome):
+    import ast
+    return next(n for n in ast.walk(albero)
+                if isinstance(n, ast.ClassDef) and n.name == nome)
+
+
+def test_la_spunta_delle_fasi_sta_dove_la_legge():
+    """`chkPhases` si crea e si legge nella **stessa** classe.
+
+    È lo stesso errore dei bottoni «Saggi» dell'esportazione: un widget
+    letto da un oggetto che non ce l'ha non solleva niente di visibile,
+    torna solo un valore sbagliato."""
+    import ast
+    albero = _albero_pannello()
+    pannello = _classe(albero, "RapportiCheckPanel")
+    assegnati = {b.attr for n in ast.walk(pannello)
+                 if isinstance(n, ast.Assign)
+                 for b in n.targets
+                 if isinstance(b, ast.Attribute)
+                 and isinstance(b.value, ast.Name) and b.value.id == "self"}
+    assert "chkPhases" in assegnati, sorted(a for a in assegnati
+                                            if a.startswith("chk"))
+    letti = set()
+    for n in ast.walk(pannello):
+        if not (isinstance(n, ast.Call)
+                and isinstance(n.func, ast.Attribute)
+                and n.func.attr == "isChecked"):
+            continue
+        widget = n.func.value
+        if isinstance(widget, ast.Attribute) \
+                and isinstance(widget.value, ast.Name) \
+                and widget.value.id == "self":
+            letti.add(widget.attr)
+    assert "chkPhases" in letti, sorted(letti)
+
+
+def test_anteprima_e_applicazione_fanno_la_stessa_domanda():
+    """Ogni `build_plan` e ogni `generate_continuity` porta `include_phase`."""
+    import ast
+    albero = _albero_pannello()
+    chiamate = [n for n in ast.walk(albero)
+                if isinstance(n, ast.Call)
+                and isinstance(n.func, ast.Attribute)
+                and n.func.attr in ("build_plan", "generate_continuity")]
+    assert len(chiamate) == 2, [c.func.attr for c in chiamate]
+    for c in chiamate:
+        chiavi = {k.arg for k in c.keywords}
+        assert "include_phase" in chiavi, (
+            "%s chiamata senza include_phase: l'anteprima e la scrittura "
+            "risponderebbero a due domande diverse" % c.func.attr)

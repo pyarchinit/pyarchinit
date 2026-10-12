@@ -371,6 +371,8 @@ Dans le panneau **« Verifica rapporti »** — disponible sous forme d'onglet d
 3. La fiche CON **hérite** de l'unité mère : site, aire (plus les aires secondaires), structure et tout l'arc des périodes (initiale → finale). Sa description est générée automatiquement.
 4. Elle écrit une **relation de continuité réciproque** des deux côtés : sur la CON et sur son unité mère.
 
+> **La phase, à elle seule, ne compte pas.** La règle regarde la **période** : une USM qui va de **2/3 à 2/4** — même période, seule la phase change — ne génère rien. Si vos unités survivent de phase en phase à l'intérieur d'une même période, cochez **« anche i salti di fase »** (« aussi les sauts de phase ») à côté du bouton : ces sauts comptent alors aussi, à condition que les **deux** phases soient renseignées. Une unité qui ne bouge pas — même période et même phase — n'est jamais une continuité. La case part **décochée**, et vaut pour l'aperçu et pour l'écriture ensemble.
+
 ### 6.2 Idempotence
 
 L'opération est **idempotente** : la relancer ne duplique pas les fiches existantes — elle met à jour les `CON_<us>` existantes si les données de l'unité mère ont changé.
@@ -383,7 +385,7 @@ Une fiche CON est **orpheline** lorsque son unité mère ne s'étend plus sur pl
 
 ### 6.4 Dans l'export Extended Matrix
 
-Les fiches `CON_<us>` ainsi générées apparaissent dans l'export GraphML de l'Extended Matrix comme **éléments de continuité**.
+Les fiches `CON_<us>` ainsi générées apparaissent dans l'**em.json** de l'Extended Matrix comme **éléments de continuité** (l'export GraphML est retiré, §2.3).
 
 ---
 
