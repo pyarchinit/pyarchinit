@@ -262,6 +262,15 @@ def feature_attributes(fields, polygon, geom, context):
     return values
 
 
+def worker_imgsz(backend, width, height):
+    """L'`imgsz` per il worker: SAM 2 lavora SOLO a 1024 (embedding di posizione
+    fissi: con 960 il codificatore si ferma); YOLOE a un multiplo di 32 fino a 1280."""
+    if backend == "yoloe":
+        side = max(64, min(1280, int(max(width, height))))
+        return int(((side + 31) // 32) * 32)
+    return 1024
+
+
 def prompts_to_pixels(mode, prompts, image):
     """Punti/riquadri in coordinate mappa (CRS dell'immagine) -> pixel dell'immagine."""
     gt = image.geotransform
@@ -910,7 +919,7 @@ class SamSegmentationDialog(QDialog):
             cmd = se.worker_command(se.venv_python(), image.path, output, backend,
                                     weights=se.weight_path(key) if key else None, mode=worker_mode,
                                     prompts=prompts_file, classes=classes, conf=self.spin_conf.value(),
-                                    imgsz=min(1024 if backend == "sam2" else 1280, max(image.width, image.height)),
+                                    imgsz=worker_imgsz(backend, image.width, image.height),
                                     api_key=self.lineEdit_api_key.text().strip() if backend in ("replicate", "roboflow") else None)
         except Exception as e:          # noqa: BLE001
             self._set_busy(False, str(e))

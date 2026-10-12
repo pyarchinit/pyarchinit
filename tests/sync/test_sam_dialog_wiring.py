@@ -140,6 +140,16 @@ def test_prompt_in_pixel_dentro_l_immagine(qgs, dlg_module):
     assert pix["boxes"] == []
 
 
+def test_sam2_lavora_solo_a_1024_e_yoloe_a_multipli_di_32(dlg_module):
+    """Bug visto da Enzo: immagine 960 px -> imgsz 960 -> «size of tensor a (60) must match (56)»."""
+    assert dlg_module.worker_imgsz("sam2", 960, 700) == 1024
+    assert dlg_module.worker_imgsz("sam2", 4000, 3000) == 1024
+    assert dlg_module.worker_imgsz("replicate", 500, 500) == 1024
+    assert dlg_module.worker_imgsz("yoloe", 1000, 800) == 1024
+    assert dlg_module.worker_imgsz("yoloe", 4000, 3000) == 1280
+    assert dlg_module.worker_imgsz("yoloe", 30, 20) == 64
+
+
 # --- la finestra, senza QGIS vivo ----------------------------------------------------
 def test_la_finestra_si_apre_e_cambia_modelli_col_modo(qgs, dlg_module, monkeypatch):
     monkeypatch.setattr(dlg_module.se, "is_ready", lambda *a, **k: (False, "ambiente non installato"))

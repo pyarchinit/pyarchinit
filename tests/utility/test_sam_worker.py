@@ -129,3 +129,11 @@ def test_roboflow_legge_la_risposta_concept_segment(worker, tmp_path, monkeypatc
     assert [p["type"] for p in visto["payload"]["prompts"]] == ["text", "text"]
     assert visto["payload"]["image"]["type"] == "base64" and visto["payload"]["format"] == "polygon"
     assert len(polys) == 1 and polys[0]["label"] == "building" and polys[0]["score"] == 0.92
+
+
+def test_il_worker_tiene_sam2_a_1024_e_arrotonda_yoloe(worker):
+    assert worker.SAM2_IMGSZ == 1024
+    src = SCRIPT.read_text(encoding="utf-8")
+    assert "imgsz=SAM2_IMGSZ" in src, "SAM 2 non deve ricevere l'imgsz dalla riga di comando"
+    assert worker.yoloe_imgsz(1000, 800) == 1024 and worker.yoloe_imgsz(4000, 3000) == 1280
+    assert worker.yoloe_imgsz(30, 20) == 64 and worker.yoloe_imgsz(1000, 800, max_side=640) == 640

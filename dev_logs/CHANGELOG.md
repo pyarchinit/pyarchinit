@@ -5,6 +5,20 @@
 
 ---
 
+## [fix] - 2026-10-12 — SAM 2.1 lavora solo a 1024 px: con un'immagine più piccola il codificatore si fermava — 5.13.104-alpha
+
+> Branch `Stratigraph_00001`. / SAM 2.1 works only at 1024 px: a smaller image stopped the encoder.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«Il worker è uscito con codice 1: RuntimeError: The size of tensor a (60) must match the size of tensor b (56) at non-singleton dimension 3»** (Enzo, primo giro in QGIS). La finestra passava al worker `imgsz = min(1024, lato lungo dell'immagine)`: con una vista di 960 px il codificatore Hiera di SAM 2 riceveva 960 e i suoi embedding di posizione (fissi, per 1024 → 64×64 a finestre di 8) non tornavano più (60 contro 56). Ora SAM 2 lavora **sempre a 1024** — lo decide il worker (`SAM2_IMGSZ`), non la riga di comando — e il predittore riscala l'immagine da solo; per YOLOE il lato è un multiplo di 32 fra 64 e 1280 (`yoloe_imgsz`). Riprodotto con un ritaglio di 960 × 700 px della vista ESRI: prima l'errore, ora 8 poligoni in 11,5 s.
+- 🇬🇧 **EN**: the dialog passed `imgsz = min(1024, longest side)` to the worker; a 960 px view broke SAM 2's fixed positional embeddings. SAM 2 now always runs at 1024 (decided by the worker), YOLOE at a multiple of 32 up to 1280. Reproduced with a 960 × 700 crop: error before, 8 polygons in 11.5 s now.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: due prove — `worker_imgsz` nella finestra (SAM 2 → 1024 per 960 e per 4000 px; YOLOE → 1024, 1280, 64) e nel worker (`SAM2_IMGSZ` fisso e usato, `yoloe_imgsz` arrotonda).
+- 🇬🇧 **EN**: two checks on the size choice in the dialog and in the worker.
+
+---
+
 ## [feat] - 2026-10-12 — SAM riscritto: ambiente installabile, SAM 2.1 e classi a testo, tile ESRI/WMS, layer temporaneo — 5.13.103-alpha
 
 > Branch `Stratigraph_00001`. Suite **1963 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / SAM rewritten: installable environment, SAM 2.1 and text classes, ESRI/WMS tiles, temporary layer.

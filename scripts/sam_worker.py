@@ -34,6 +34,15 @@ import sys
 import time
 
 MASK_THRESHOLD = 127
+#: Dimensione interna di SAM 2: fissa, non si tocca.
+SAM2_IMGSZ = 1024
+YOLOE_MAX_IMGSZ = 1280
+
+
+def yoloe_imgsz(width, height, max_side=YOLOE_MAX_IMGSZ):
+    """Lato per YOLOE: multiplo di 32, fra 64 e max_side, vicino al lato lungo."""
+    side = max(64, min(int(max_side), int(max(width, height))))
+    return int(((side + 31) // 32) * 32)
 
 
 def say(msg):
@@ -171,7 +180,10 @@ def run_sam2(image, weights, mode, prompts, conf, imgsz, device, min_area, simpl
 
     say(f"carico {os.path.basename(weights)} su {device}")
     model = SAM(weights)
-    kwargs = dict(conf=conf, imgsz=imgsz, device=device, verbose=False)
+    # SAM 2 (Hiera) ha gli embedding di posizione per 1024 px: con un'altra
+    # dimensione il codificatore si ferma («size of tensor a (60) must match
+    # (56)»). L'immagine viene riscalata a 1024 dal predittore, qualunque sia.
+    kwargs = dict(conf=conf, imgsz=SAM2_IMGSZ, device=device, verbose=False)
 
     def predict(**extra):
         try:
@@ -231,6 +243,7 @@ def run_yoloe(image, weights, classes, conf, imgsz, device, min_area, simplify):
     except TypeError:
         model.set_classes(classes)
     say("segmento")
+    imgsz = yoloe_imgsz(image.shape[1], image.shape[0], max_side=imgsz or YOLOE_MAX_IMGSZ)
     try:
         res = model.predict(image, conf=conf, imgsz=imgsz, device=device, retina_masks=True, verbose=False)
     except Exception as e:              # noqa: BLE001
