@@ -17,7 +17,7 @@ scripts can also use it.
 import json
 import os
 import socket
-from .pyarchinit_home import pyarchinit_home_bin
+from .pyarchinit_home import legacy_pyarchinit_home, pyarchinit_home_bin
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional, Iterator
@@ -622,23 +622,36 @@ class LLMProviderManager:
 
     @staticmethod
     def get_api_key(provider: LLMProvider) -> str:
-        """Read the saved API key for cloud providers (empty for local)."""
+        """Read the saved API key for cloud providers (empty for local).
+
+        Si guarda prima nella ``bin`` della casa attuale, poi — con gli
+        stessi nomi — in quella della casa precedente (``~/pyarchinit``):
+        le chiavi salvate prima del cambio di casa (2026-06-27) erano
+        rimaste lì, e con Claude e GPT impostati nel profilo la narrativa
+        diceva «Nessuna AI impostata» (trovato il 2026-10-12). Salvarne
+        una nuova scrive nella casa attuale, che vince.
+        """
         if PROVIDER_DEFAULTS[provider]["is_local"]:
             return ""
         path = LLMProviderManager._key_file_path(provider)
         if not path:
             return ""
-        # Anthropic legacy filename
-        if provider == LLMProvider.ANTHROPIC and not os.path.exists(path):
-            legacy = os.path.join(pyarchinit_home_bin(), "anthropic_api_key.txt")
-            if os.path.exists(legacy):
-                path = legacy
-        try:
-            if os.path.exists(path):
-                with open(path, "r") as fh:
-                    return fh.read().strip()
-        except OSError:
-            pass
+        nomi = [os.path.basename(path)]
+        if provider == LLMProvider.ANTHROPIC:
+            nomi.append("anthropic_api_key.txt")      # Anthropic legacy filename
+        cartelle = [os.path.dirname(path),
+                    os.path.join(legacy_pyarchinit_home(), "bin")]
+        for cartella in cartelle:
+            for nome in nomi:
+                candidato = os.path.join(cartella, nome)
+                try:
+                    if os.path.exists(candidato):
+                        with open(candidato, "r") as fh:
+                            chiave = fh.read().strip()
+                        if chiave:
+                            return chiave
+                except OSError:
+                    pass
         return ""
 
     @staticmethod
