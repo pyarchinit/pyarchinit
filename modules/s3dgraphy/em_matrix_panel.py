@@ -144,6 +144,15 @@ def thumb_base() -> str:
         return ""
 
 
+def resize_base() -> str:
+    """La cartella delle immagini ridotte, o una stringa vuota."""
+    try:
+        from modules.db.pyarchinit_conn_strings import Connection
+        return str(Connection().thumb_resize().get("thumb_resize") or "")
+    except Exception:                               # noqa: BLE001
+        return ""
+
+
 def thumbs_are_remote() -> bool:
     """Vero se le anteprime stanno su un archivio remoto.
 
@@ -443,7 +452,7 @@ def open_in_panel(iface, em_json_path, title: str = "", conn_str=None,
         contenuto = dock.widget()
         scheda_narrativa = contenuto.findChild(QWidget, "narrativa")
         if scheda_narrativa is not None:
-            em_narrative_tab.show_file(scheda_narrativa, em_json_path)
+            em_narrative_tab.show_file(scheda_narrativa, em_json_path, conn_str)
         schede = contenuto.findChild(QTabWidget, "schede")
         if schede is not None:
             schede.setCurrentIndex(1 if tab == "narrativa" else 0)

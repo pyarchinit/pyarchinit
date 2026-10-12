@@ -56,8 +56,8 @@ _L = {
             "en": "Who endorses? Pick an author or type a new name."},
     "endorsed": {"it": "{n} blocchi convalidati da {who}.", "en": "{n} blocks endorsed by {who}."},
     "nothing_to_endorse": {"it": "Niente da convalidare.", "en": "Nothing to endorse."},
-    "export_filter": {"it": "Pagina HTML (*.html);;Documento Word (*.docx)",
-                      "en": "HTML page (*.html);;Word document (*.docx)"},
+    "export_filter": {"it": "Pagina HTML (*.html);;Documento Word (*.docx);;PDF stampabile (*.pdf)",
+                      "en": "HTML page (*.html);;Word document (*.docx);;Printable PDF (*.pdf)"},
     "exported": {"it": "Narrativa esportata in {path}", "en": "Narrative exported to {path}"},
     "emstudio_missing": {"it": "EMStudio non risulta installato: menu Extended Matrix → "
                                "Installa EMStudio…",
@@ -132,6 +132,8 @@ class _State:
         self.thread: Optional[NarrativeThread] = None
         self.config = None
         self.iface = None
+        self.conn = None
+        self.media_cache: dict = {}
 
 
 def _running(stato: "_State") -> bool:
@@ -154,11 +156,44 @@ def export_target(percorso: str, filtro: str):
     """``(percorso, formato)`` dell'export: l'estensione scritta dall'utente
     vince sul filtro scelto; senza estensione decide il filtro."""
     basso = str(percorso).lower()
-    for fmt in en.EXPORT_FORMATS:
+    for fmt in en.EXPORT_FORMATS + ("pdf",):
         if basso.endswith("." + fmt):
             return str(percorso), fmt
-    fmt = "docx" if "docx" in str(filtro).lower() else "html"
+    filtro = str(filtro).lower()
+    fmt = "pdf" if "pdf" in filtro else ("docx" if "docx" in filtro else "html")
     return str(percorso) + "." + fmt, fmt
+
+
+def _bases():
+    """Le cartelle delle anteprime e delle ridotte del progetto aperto."""
+    from . import em_matrix_panel
+    return em_matrix_panel.thumb_base(), em_matrix_panel.resize_base()
+
+
+def _media_of_factory(stato, grafi):
+    """``media_of(ref)`` per :func:`em_narrative.chapter_html`: le anteprime
+    locali dell'unità, al massimo due, con il nome del media come
+    didascalia. Niente database o anteprime remote → niente immagini."""
+    if not stato.conn:
+        return None
+    thumb, resize = _bases()
+    if not thumb or not os.path.isdir(thumb):
+        return None
+    nodi = {n.node_id: n for g in grafi.values() for n in getattr(g, "nodes", []) or []}
+
+    def media_of(ref):
+        if ref in stato.media_cache:
+            return stato.media_cache[ref]
+        nodo = nodi.get(ref)
+        voci = []
+        if nodo is not None:
+            for percorso in en.unit_media_files(stato.conn, nodo, thumb, resize, prefer="thumb"):
+                nome = os.path.splitext(os.path.basename(percorso))[0]
+                nome = nome.split("_", 1)[1] if "_" in nome else nome
+                voci.append((percorso, nome.replace("_thumb", "")))
+        stato.media_cache[ref] = voci
+        return voci
+    return media_of
 
 
 def stop_generation(widget) -> None:
@@ -289,8 +324,9 @@ def build_tab(parent, iface) -> QWidget:
             stato.path = None
             _aggiorna_bottoni()
             return
-        stato.views = en.overview(contenitore, _lang())
         grafi = getattr(contenitore, "graphs", {}) or {}
+        stato.media_cache = {}
+        stato.views = en.overview(contenitore, _lang(), media_of=_media_of_factory(stato, grafi))
         piu_grafi = len(grafi) > 1
         for v in stato.views:
             parola = en.status_word(v.status, _lang())
@@ -418,6 +454,7 @@ def build_tab(parent, iface) -> QWidget:
         percorso, fmt = export_target(percorso, filtro)
         try:
             contenitore, _ = en.load_project(stato.path)
+            thumb, resize = _bases()
             scritti = []
             for gid, g in contenitore.graphs.items():
                 narrativa = en.narrative_of(g)
@@ -427,7 +464,17 @@ def build_tab(parent, iface) -> QWidget:
                 if len(contenitore.graphs) > 1:
                     radice, est = os.path.splitext(percorso)
                     destinazione = "%s_%s%s" % (radice, str(gid).split("|")[-1], est)
-                scritti.append(en.export_file(g, narrativa, fmt, destinazione))
+                # Le foto delle unità citate, quando il database e i file ci sono.
+                try:
+                    figure = en.figures_for(g, narrativa, stato.conn, thumb, resize)
+                except Exception:                   # noqa: BLE001
+                    figure = {}
+                if fmt == "pdf":
+                    scritti.append(en.export_pdf(g, narrativa, destinazione, figures=figure,
+                                                 lang=_lang()))
+                else:
+                    scritti.append(en.export_file(g, narrativa, fmt, destinazione,
+                                                  figures=figure))
         except Exception as e:                      # noqa: BLE001
             _barra("warn", str(e))
             return
@@ -476,9 +523,10 @@ def build_tab(parent, iface) -> QWidget:
     return w
 
 
-def show_file(widget, path) -> None:
+def show_file(widget, path, conn_str=None) -> None:
     """Punta la scheda sul file e la ricarica (anche a ogni riapertura
-    del pannello su un altro sito)."""
+    del pannello su un altro sito). ``conn_str`` è il database del
+    progetto: serve per le immagini delle unità."""
     stato: _State = widget._stato                   # noqa: SLF001
     if _running(stato):
         # Cambiare file sotto un thread che poi salva riscriverebbe il
@@ -486,6 +534,7 @@ def show_file(widget, path) -> None:
         _say(stato.iface, "warn", _t("busy"))
         return
     stato.path = str(path) if path else None
+    stato.conn = conn_str or None
     stato.config = en.llm_config()
     etichetta = widget.findChild(QLabel, "stato")
     if stato.config is None:

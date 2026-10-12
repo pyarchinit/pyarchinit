@@ -423,3 +423,51 @@ def test_i_nomi_nel_testo_sono_link_e_il_clic_evidenzia_l_unita(qgs, tmp_path, m
 def test_il_bottone_mappa_e_spento_senza_capitolo():
     src = TAB.read_text(encoding="utf-8")
     assert "setOpenLinks(False)" in src and "anchorClicked" in src and '"mappa"' in src
+
+
+# ---------------------------------------------------------------------------
+# Immagini e PDF (2026-10-12)
+# ---------------------------------------------------------------------------
+
+def test_il_bersaglio_dell_export_conosce_il_pdf():
+    from modules.s3dgraphy.em_narrative_tab import export_target
+    assert export_target("/x/v.pdf", "Pagina HTML (*.html)") == ("/x/v.pdf", "pdf")
+    assert export_target("/x/v", "PDF stampabile (*.pdf)") == ("/x/v.pdf", "pdf")
+
+
+def test_la_scheda_tiene_la_connessione_e_esporta_il_pdf_con_le_figure(qgs, tmp_path, monkeypatch):
+    from qgis.PyQt.QtWidgets import QListWidget, QPushButton, QWidget
+    from modules.s3dgraphy import em_narrative_tab as tab
+    from modules.s3dgraphy import em_narrative as en
+    monkeypatch.setattr(tab.en, "llm_config", lambda load=None: None)
+    percorso = _file_con_narrativa(tmp_path)
+    radice = QWidget()
+    iface = _Iface()
+    w = tab.build_tab(radice, iface)
+    tab.show_file(w, percorso, conn_str="sqlite:///finto.sqlite")
+    assert w._stato.conn == "sqlite:///finto.sqlite"
+    chiamate = {}
+
+    def finte_figure(g, n, conn, thumb, resize, **kw):
+        chiamate["fig"] = conn
+        return {"us:u2": b"\x89PNG"}
+
+    def finto_pdf(g, n, path, figures=None, lang="it"):
+        chiamate["pdf"] = (str(path), dict(figures or {}))
+        return str(path)
+    monkeypatch.setattr(en, "figures_for", finte_figure)
+    monkeypatch.setattr(en, "export_pdf", finto_pdf)
+    monkeypatch.setattr(tab.QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *a, **k: (str(tmp_path / "out"), "PDF stampabile (*.pdf)")))
+    monkeypatch.setattr(tab, "_bases", lambda: (str(tmp_path), str(tmp_path)))
+    w.findChild(QListWidget, "capitoli").setCurrentRow(1)
+    w.findChild(QPushButton, "esporta").click()
+    assert chiamate["fig"] == "sqlite:///finto.sqlite"
+    assert chiamate["pdf"] == (str(tmp_path / "out.pdf"), {"us:u2": b"\x89PNG"})
+    assert iface.messageBar().messaggi[-1][0] == "info"
+
+
+def test_il_pannello_passa_la_connessione_alla_scheda():
+    src = PANEL.read_text(encoding="utf-8")
+    assert "show_file(scheda_narrativa, em_json_path, conn_str)" in src
+    assert "def resize_base" in src

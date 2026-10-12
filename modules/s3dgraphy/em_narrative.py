@@ -14,6 +14,7 @@ Spec: docs/superpowers/specs/2026-10-12-narrativa-ai-design.md
 """
 from __future__ import annotations
 
+import io
 import json
 import os
 import re
@@ -55,6 +56,11 @@ MAX_PROMPT_CHARS = 25_000
 
 #: Quanto resta di un testo lungo della scheda quando si stringe.
 MAX_DETAIL_CHARS = 300
+
+#: Quante immagini per unità, e com'è alta la striscia che le affianca.
+MEDIA_PER_UNIT = 2
+IMAGE_HEIGHT = 480
+IMAGE_GAP = 12
 
 #: Gli estrattori che registrano i prompt (``write_ai_draft``).
 PROMPT_EXTRACTOR_PREFIX = "EXT.prompt."
@@ -332,21 +338,27 @@ def chapter_unit_ids(chapter) -> List[str]:
 
 
 def chapter_html(chapter,
-                 name_of_fn: Optional[Callable[[str], Optional[str]]] = None) -> str:
+                 name_of_fn: Optional[Callable[[str], Optional[str]]] = None,
+                 media_of: Optional[Callable[[str], list]] = None) -> str:
     """La prosa del capitolo in HTML: un paragrafo per blocco, e ogni
     menzione risolta diventa un link ``unit:<id>`` col nome dell'unità,
-    così un clic la evidenzia sulla mappa. Il resto del testo si scappa."""
+    così un clic la evidenzia sulla mappa. Il resto del testo si scappa.
+
+    ``media_of(ref)`` → ``[(src, didascalia)]``: le immagini dell'unità,
+    messe sotto il paragrafo in cui è nominata la prima volta (Enzo,
+    2026-10-12: «le immagini delle US associate quando parlo di quella US»)."""
     import html as _html
     from urllib.parse import quote
     from s3dgraphy.nodes.narrative_node import MENTION_PATTERN
     blocchi = _prose(chapter) or _prose(chapter, placeholders=True)
     paragrafi = []
+    mostrate: set = set()
     for b in blocchi:
         for pezzo in str(b.text or "").split("\n\n"):
             pezzo = pezzo.strip()
             if not pezzo:
                 continue
-            parti, pos = [], 0
+            parti, pos, nuove = [], 0, []
             for m in MENTION_PATTERN.finditer(pezzo):
                 parti.append(_html.escape(pezzo[pos:m.start()]))
                 ref = m.group(1).strip()
@@ -354,11 +366,31 @@ def chapter_html(chapter,
                 if nome:
                     parti.append('<a href="unit:%s">%s</a>'
                                  % (quote(ref, safe=""), _html.escape(str(nome))))
+                    if ref not in mostrate:
+                        mostrate.add(ref)
+                        nuove.append((ref, str(nome)))
                 else:
                     parti.append(_html.escape(ref))
                 pos = m.end()
             parti.append(_html.escape(pezzo[pos:]))
             paragrafi.append("<p>%s</p>" % "".join(parti).replace("\n", "<br>"))
+            if media_of is None:
+                continue
+            for ref, nome in nuove:
+                try:
+                    immagini = list(media_of(ref) or [])
+                except Exception:                   # noqa: BLE001
+                    immagini = []
+                if not immagini:
+                    continue
+                tag = " ".join('<img src="%s" height="110" title="%s">'
+                               % (_html.escape(str(src), quote=True),
+                                  _html.escape(str(did), quote=True))
+                               for src, did in immagini)
+                didascalie = ", ".join(_html.escape(str(did)) for _src, did in immagini)
+                paragrafi.append('<p class="media">%s</p>' % tag)
+                paragrafi.append('<p class="media-caption"><small><i>%s: %s</i></small></p>'
+                                 % (_html.escape(nome), didascalie))
     return "\n".join(paragrafi)
 
 
@@ -400,8 +432,10 @@ def status_word(status: str, lang: Optional[str] = None) -> str:
     return voce.get(_lang(lang), voce["en"])
 
 
-def overview(container, lang: Optional[str] = None) -> List[ChapterView]:
-    """I capitoli di tutte le narrative del contenitore, grafo per grafo."""
+def overview(container, lang: Optional[str] = None,
+             media_of: Optional[Callable[[str], list]] = None) -> List[ChapterView]:
+    """I capitoli di tutte le narrative del contenitore, grafo per grafo.
+    ``media_of`` come in :func:`chapter_html`."""
     viste: List[ChapterView] = []
     for graph_id, graph in (getattr(container, "graphs", None) or {}).items():
         nomi = name_of(graph)
@@ -414,7 +448,7 @@ def overview(container, lang: Optional[str] = None) -> List[ChapterView]:
                     index=i, title=str(cap.title), anchor=cap.anchor,
                     status=chapter_status(cap), text=chapter_text(cap, nomi),
                     can_generate=can_generate(graph, cap), truncated=troncato,
-                    html=chapter_html(cap, nomi), unit_ids=chapter_unit_ids(cap)))
+                    html=chapter_html(cap, nomi, media_of), unit_ids=chapter_unit_ids(cap)))
     return viste
 
 
@@ -891,13 +925,18 @@ def endorse(graph, narrative, author_id: str, anchor: Optional[str] = None) -> i
 EXPORT_FORMATS = ("html", "docx")
 
 
-def export_file(graph, narrative, fmt: str, path) -> str:
-    """HTML o DOCX della narrativa, bozze comprese (segnate dalla libreria)."""
+def export_file(graph, narrative, fmt: str, path, *,
+                figures: Optional[Dict[str, bytes]] = None) -> str:
+    """HTML o DOCX della narrativa, bozze comprese (segnate dalla libreria).
+    ``figures`` (da :func:`figures_for`): le foto delle unità, che la
+    libreria mette al posto della scheda dell'unità citata."""
     from s3dgraphy.api import export_narrative
     if fmt not in EXPORT_FORMATS:
         raise ValueError("fmt must be one of %s" % (EXPORT_FORMATS,))
     clean_author_placeholders(graph)
-    esito = export_narrative(graph, narrative.node_id, fmt, include_unvalidated=True)
+    opzioni = {"figures": dict(figures), "figure_suffix": ".png"} if figures else {}
+    esito = export_narrative(graph, narrative.node_id, fmt, include_unvalidated=True,
+                             **opzioni)
     payload = esito["payload"]
     percorso = str(path)
     if isinstance(payload, bytes):
@@ -971,3 +1010,270 @@ def carry_over(previous_graphs: Dict[str, Any], fresh_graphs: Dict[str, Any],
             scaffold(nuovo, lang)
             portate += 1
     return portate
+
+
+# ---------------------------------------------------------------------------
+# Le immagini delle unità: nel testo, nelle figure degli export, nel PDF
+# ---------------------------------------------------------------------------
+
+_IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".JPG", ".PNG", ".tif", ".tiff")
+
+
+def _resized_candidates(resize_base: str, ref) -> List[str]:
+    """Dove sta la copia ridotta di un media: ``<id>_<nome>.<est>`` nella
+    cartella delle ridotte (così le scrive il gestore dei media), oppure il
+    nome del file originale."""
+    out: List[str] = []
+    if not resize_base:
+        return out
+    base = "%s_%s" % (ref.id_media, ref.name)
+    for ext in _IMAGE_EXTS:
+        out.append(os.path.join(resize_base, base + ext))
+    if ref.original_file:
+        out.append(os.path.join(resize_base, os.path.basename(str(ref.original_file))))
+    return out
+
+
+def unit_media_files(connection, unit, thumb_base: str, resize_base: str,
+                     limit: int = MEDIA_PER_UNIT, prefer: str = "resized") -> List[str]:
+    """Fino a ``limit`` file immagine dell'unità, esistenti sul disco: la copia
+    ridotta se c'è, altrimenti l'anteprima (``prefer="thumb"`` inverte).
+    Solo file locali: le anteprime remote non si incorporano."""
+    if connection is None or unit is None:
+        return []
+    from ..utility.em_matrix_links import media_for_unit
+    try:
+        refs = media_for_unit(connection, unit, limit=max(int(limit), 1) * 3)
+    except Exception:                               # noqa: BLE001
+        return []
+    trovati: List[str] = []
+    for ref in refs:
+        anteprima = [os.path.join(thumb_base, ref.thumb_file)] if (thumb_base and ref.thumb_file) else []
+        ridotte = _resized_candidates(resize_base, ref)
+        candidati = anteprima + ridotte if prefer == "thumb" else ridotte + anteprima
+        for percorso in candidati:
+            if os.path.isfile(percorso):
+                trovati.append(percorso)
+                break
+        if len(trovati) >= limit:
+            break
+    return trovati
+
+
+def compose_images(paths, height: int = IMAGE_HEIGHT, gap: int = IMAGE_GAP) -> Optional[bytes]:
+    """Una striscia PNG con le immagini affiancate alla stessa altezza; un
+    file illeggibile non ferma gli altri. ``None`` senza immagini."""
+    try:
+        from PIL import Image
+    except Exception:                               # noqa: BLE001
+        return None
+    pezzi = []
+    for percorso in paths or []:
+        try:
+            img = Image.open(percorso)
+            img.load()
+            img = img.convert("RGB")
+            larghezza = max(1, int(round(img.width * height / float(img.height))))
+            pezzi.append(img.resize((larghezza, height)))
+        except Exception:                           # noqa: BLE001
+            continue
+    if not pezzi:
+        return None
+    totale = sum(p.width for p in pezzi) + gap * (len(pezzi) - 1)
+    tela = Image.new("RGB", (totale, height), "white")
+    x = 0
+    for p in pezzi:
+        tela.paste(p, (x, 0))
+        x += p.width + gap
+    buffer = io.BytesIO()
+    tela.save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def _mentioned_ids(chapter) -> List[str]:
+    from s3dgraphy.nodes.narrative_node import mentions_in
+    ids: List[str] = []
+    for b in _prose(chapter):
+        for ref in mentions_in(b.text):
+            if ref not in ids:
+                ids.append(ref)
+    return ids
+
+
+def figures_for(graph, narrative, connection, thumb_base: str, resize_base: str,
+                per_unit: int = MEDIA_PER_UNIT, height: int = IMAGE_HEIGHT) -> Dict[str, bytes]:
+    """Le figure per gli export della libreria: una striscia di immagini per
+    ogni unità **citata nella prosa** che ha file sul disco, con la chiave
+    ``us:<id>`` che la libreria cerca per l'embed dell'unità."""
+    figure: Dict[str, bytes] = {}
+    if connection is None:
+        return figure
+    for cap in narrative.chapters:
+        for ref in _mentioned_ids(cap):
+            chiave = "us:" + ref
+            if chiave in figure:
+                continue
+            nodo = graph.find_node_by_id(ref)
+            if nodo is None:
+                continue
+            file = unit_media_files(connection, nodo, thumb_base, resize_base, limit=per_unit)
+            dati = compose_images(file, height=height) if file else None
+            if dati:
+                figure[chiave] = dati
+    return figure
+
+
+# ---------------------------------------------------------------------------
+# Il PDF stampabile
+# ---------------------------------------------------------------------------
+
+_PDF = {
+    "by": {"it": "a cura di", "en": "edited by"},
+    "assist": {"it": "con l'assistenza di", "en": "with the assistance of"},
+    "unvalidated": {"it": "Attenzione: {n} paragrafi sono bozze scritte dall'AI che nessuno ha ancora convalidato.",
+                    "en": "Warning: {n} paragraphs are AI drafts nobody has endorsed yet."},
+    "sources": {"it": "Fonti", "en": "Sources"},
+    "page": {"it": "pagina {n}", "en": "page {n}"},
+    "generated": {"it": "Generato da pyArchInit il {date}", "en": "Generated by pyArchInit on {date}"},
+}
+_FONTS = {"ok": None}
+
+
+def _pdf_fonts():
+    """Cambria dalla ``bin`` di pyArchInit se c'è (come gli altri PDF del
+    plugin), altrimenti Helvetica. ``(normale, grassetto, corsivo)``."""
+    if _FONTS["ok"] is not None:
+        return _FONTS["ok"]
+    scelta = ("Helvetica", "Helvetica-Bold", "Helvetica-Oblique")
+    try:
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from ..utility.pyarchinit_home import pyarchinit_home_bin
+        cartella = pyarchinit_home_bin()
+        normale = os.path.join(cartella, "Cambria.ttf")
+        grassetto = os.path.join(cartella, "cambriab.ttf")
+        corsivo = os.path.join(cartella, "cambriai.ttf")
+        if os.path.isfile(normale):
+            pdfmetrics.registerFont(TTFont("PyaCambria", normale))
+            pdfmetrics.registerFont(TTFont("PyaCambriaB", grassetto if os.path.isfile(grassetto) else normale))
+            pdfmetrics.registerFont(TTFont("PyaCambriaI", corsivo if os.path.isfile(corsivo) else normale))
+            scelta = ("PyaCambria", "PyaCambriaB", "PyaCambriaI")
+    except Exception:                               # noqa: BLE001
+        pass
+    _FONTS["ok"] = scelta
+    return scelta
+
+
+def export_pdf(graph, narrative, path, *, figures: Optional[Dict[str, bytes]] = None,
+               lang: Optional[str] = None) -> str:
+    """Il PDF stampabile della narrativa (A4): titolo, responsabili, capitoli,
+    prosa con le menzioni scritte per nome, le foto delle unità citate
+    (``figures``) con didascalia, le schede delle altre unità in piccolo,
+    le fonti. Dallo stesso ``bake`` di HTML e DOCX, quindi dice le stesse
+    cose."""
+    import html as _html
+    from datetime import date as _date
+    from reportlab.lib import colors
+    from reportlab.lib.enums import TA_JUSTIFY
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import (Image, KeepTogether, PageBreak, Paragraph,
+                                    SimpleDocTemplate, Spacer)
+    from s3dgraphy.narrative.bake import bake_narrative
+    from s3dgraphy.nodes.narrative_node import UNVALIDATED_NOTICE
+
+    lingua = _prompt_lang(lang)
+    clean_author_placeholders(graph)
+    baked = bake_narrative(graph, narrative.node_id, figures=dict(figures or {}) or None,
+                           figure_suffix=".png", include_unvalidated=True)
+    normale, grassetto, corsivo = _pdf_fonts()
+    stili = {
+        "titolo": ParagraphStyle("t", fontName=grassetto, fontSize=20, leading=24, spaceAfter=6),
+        "sotto": ParagraphStyle("s", fontName=corsivo, fontSize=9.5, leading=13,
+                                textColor=colors.HexColor("#555555"), spaceAfter=4),
+        "avviso": ParagraphStyle("a", fontName=grassetto, fontSize=9.5, leading=13,
+                                 textColor=colors.HexColor("#8a2d00"), spaceAfter=8),
+        "h2": ParagraphStyle("h", fontName=grassetto, fontSize=14, leading=18, spaceBefore=16,
+                             spaceAfter=6, keepWithNext=1),
+        "corpo": ParagraphStyle("c", fontName=normale, fontSize=10.5, leading=15,
+                                alignment=TA_JUSTIFY, spaceAfter=6),
+        "unita": ParagraphStyle("u", fontName=normale, fontSize=8.5, leading=11,
+                                textColor=colors.HexColor("#444444"), leftIndent=8, spaceAfter=1),
+        "didascalia": ParagraphStyle("d", fontName=corsivo, fontSize=9, leading=12,
+                                     textColor=colors.HexColor("#333333"), spaceAfter=10),
+        "nota": ParagraphStyle("n", fontName=corsivo, fontSize=9, leading=12,
+                               textColor=colors.HexColor("#777777"), spaceAfter=4),
+    }
+
+    def _t(key, **kw):
+        voce = _PDF[key]
+        return voce.get(lingua, voce["en"]).format(**kw)
+
+    def _p(testo, stile):
+        return Paragraph(_html.escape(str(testo or "")).replace("\n", "<br/>"), stili[stile])
+
+    documento = SimpleDocTemplate(str(path), pagesize=A4, leftMargin=2 * cm, rightMargin=2 * cm,
+                                  topMargin=2 * cm, bottomMargin=2 * cm,
+                                  title=str(baked.title or ""), author=", ".join(baked.responsible))
+    larghezza = documento.width
+    storia = [_p(baked.title, "titolo")]
+    if baked.description:
+        storia.append(_p(baked.description, "sotto"))
+    if baked.responsible:
+        storia.append(_p("%s %s" % (_t("by"), ", ".join(baked.responsible)), "sotto"))
+    if baked.assisting:
+        storia.append(_p("%s %s" % (_t("assist"), ", ".join(baked.assisting)), "sotto"))
+    if getattr(baked, "unvalidated", 0):
+        storia.append(_p(_t("unvalidated", n=baked.unvalidated), "avviso"))
+    storia.append(Spacer(1, 8))
+
+    for capitolo in baked.chapters:
+        storia.append(_p(capitolo.title, "h2"))
+        for blocco in capitolo.blocks:
+            tipo = getattr(blocco, "kind", "")
+            if tipo == "prose":
+                testo = blocco.plain_text
+                if getattr(blocco, "unendorsed", False):
+                    testo = UNVALIDATED_NOTICE + " " + testo
+                storia.append(_p(testo, "corpo"))
+            elif tipo == "image" and getattr(blocco, "image", None) is not None \
+                    and blocco.image.resolved:
+                try:
+                    figura = Image(io.BytesIO(blocco.image.data))
+                    rapporto = figura.imageHeight / float(figura.imageWidth or 1)
+                    w = min(larghezza, figura.imageWidth)
+                    h = w * rapporto
+                    if h > 11 * cm:
+                        h = 11 * cm
+                        w = h / rapporto
+                    figura.drawWidth, figura.drawHeight = w, h
+                    storia.append(KeepTogether([figura, _p(blocco.text, "didascalia")]))
+                except Exception:                   # noqa: BLE001
+                    storia.append(_p(blocco.text, "nota"))
+            elif tipo == "unit":
+                storia.append(_p(blocco.text, "unita"))
+            elif tipo == "citation":
+                storia.append(_p(blocco.text, "nota"))
+            else:
+                storia.append(_p(getattr(blocco, "text", "") or tipo, "nota"))
+
+    if baked.citations:
+        storia.append(_p(_t("sources"), "h2"))
+        for voce in baked.citations:
+            titolo = voce.get("title") or voce.get("id") or ""
+            dettagli = ", ".join(str(voce[k]) for k in ("author", "year") if voce.get(k))
+            storia.append(_p(titolo + (" (%s)" % dettagli if dettagli else ""), "nota"))
+
+    piede = _t("generated", date=_date.today().isoformat())
+
+    def _pagina(canvas, doc):
+        canvas.saveState()
+        canvas.setFont(normale, 8)
+        canvas.setFillColor(colors.HexColor("#777777"))
+        canvas.drawString(2 * cm, 1.2 * cm, piede)
+        canvas.drawRightString(A4[0] - 2 * cm, 1.2 * cm, _t("page", n=doc.page))
+        canvas.restoreState()
+
+    documento.build(storia, onFirstPage=_pagina, onLaterPages=_pagina)
+    return str(path)
