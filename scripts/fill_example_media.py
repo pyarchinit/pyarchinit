@@ -131,11 +131,17 @@ def record(conn, tabella, chiave, colonna_sito, colonna_numero, sito):
         % (chiave, numero, tabella, dove, chiave), parametri).fetchall()
 
 
-def esistono(conn) -> int:
-    """Quanti media di esempio ci sono già."""
+def esistono(conn, sito=SITO) -> int:
+    """Quanti media di esempio ci sono già **per questo sito**.
+
+    I tag di ogni media portano il sito (`US, Scavo archeologico, demo`):
+    il conto va per sito, se no i media dell'italiano impedivano di farli
+    ai nove siti tradotti («riempi il db di esempio anche nelle altre
+    lingue», Enzo, 12 ottobre 2026).
+    """
     return conn.execute(
-        "SELECT count(*) FROM media_table WHERE tags LIKE ?",
-        ("%" + TAG + "%",)).fetchone()[0]
+        "SELECT count(*) FROM media_table WHERE tags LIKE ? AND tags LIKE ?",
+        ("%" + TAG + "%", "%" + sito + "%")).fetchone()[0]
 
 
 def popola(conn, sito=SITO, quanti=QUANTI) -> dict:
@@ -201,9 +207,10 @@ def main(argv=None) -> int:
 
     conn = sqlite3.connect(percorso)
     try:
-        gia = esistono(conn)
+        gia = esistono(conn, args.sito)
         if gia:
-            print("ci sono già %d media di esempio: non si rifanno" % gia)
+            print("ci sono già %d media di esempio per %s: non si rifanno"
+                  % (gia, args.sito))
             return 0
         conto = popola(conn, args.sito, args.quanti)
         conn.commit()

@@ -5,6 +5,30 @@
 
 ---
 
+## [feat] - 2026-10-12 — Il database di esempio nelle altre nove lingue, tutto tradotto — 5.13.100-alpha
+
+> Branch `Stratigraph_00001`. Suite **1845 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The example database in the other nine languages, everything translated.
+
+#### Added / Aggiunto
+- 🇮🇹 **IT**: **i nove siti tradotti sono alla pari con «Scavo archeologico».** Misurato prima: 27 tabelle piene solo per l'italiano (personale, presenze, attrezzature, bilancio, computo metrico, campioni e campionature, documentazione, archeozoologia e fauna, lapidei, determinazione di età e sesso, tafonomia, individui, strutture ipotetiche, quote USM, linee e punti di riferimento, sezioni, UT, TMA), i media solo lì, e nella scheda US decine di colonne vuote altrove. Ora ogni sito ha le stesse righe (27 tabelle × 10 siti, 2 457 media nuovi, i due PDF sui nodi DOC) e la scheda US ha **20 826 valori** in più, tradotti.
+- 🇬🇧 **EN**: **the nine translated sites are on a par with the Italian one**: 27 tables that existed only for Italian, the media, the US-form columns that were empty elsewhere — now every site has the same rows (27 tables × 10 sites, 2,457 new media, the two PDFs on the DOC nodes) and 20,826 more US values, translated.
+- 🇮🇹 **IT**: **un motore che copia e traduce, e non inventa** (`scripts/example_i18n.py`): una frase si traduce se sta nel dizionario o combacia con un **modello** («Scheda US 17, fotopiano e sezione.» → `SU sheet {0}…`); quello che non sa tradurre lo copia com'è e lo **conta** (`--conta` dice cosa manca, tabella per tabella). Numeri, date, codici (`IT-SA-0001`, `DIS_TMA_001`, `FT/2026/0141`, `BENMARX60A000A`), misure (`1,5 - 2,5 cm`), scale (`1:20`), orientamenti (`NE-SW`), nomi di file, numeri romani, sigle corte e geometrie passano intatti. Chiavi e uuid nuovi; le presenze rimappate sulle persone copiate, la fauna sulle US del sito; idempotente: un sito che ha già righe non si ricopia. Il dizionario (`scripts/example_i18n_testi.py`): **~380 frasi e 30 modelli in nove lingue**, e le parole che vogliono dire due cose — «Personale» è «personal» fra gli oggetti di una tomba e «staff» in bilancio — si dicono per colonna. Catalano, rumeno, greco e arabo sono traduzioni di servizio: un lettore madrelingua le migliorerà.
+- 🇬🇧 **EN**: **a copy-and-translate engine that never invents**: phrases and templates from a dictionary, everything else counted as missing (`--conta`); numbers, dates, codes, measures, scales, bearings, file names, roman numerals, short acronyms and geometries pass untouched; new keys and uuids, references remapped, idempotent. ~380 phrases and 30 templates in nine languages; words that mean two things are translated per column.
+- 🇮🇹 **IT**: `scripts/fill_example_languages.py --conta | --scrivi` fa tutto il giro, e alla fine rimette a posto `geometry_columns_statistics` per le undici tabelle spaziali copiate (invalida e poi aggiorna: QGIS e OGR leggono `row_count` da lì, e dopo le copie dicevano 10 righe dove ce n'erano 100 — la prova `test_le_statistiche_dicono_il_vero` l'ha preso al primo giro); `scripts/fill_example_media.py` ora conta i media «già fatti» **per sito** (prima quelli dell'italiano impedivano di farli agli altri).
+- 🇬🇧 **EN**: `fill_example_languages.py --conta | --scrivi` runs the whole round; the media script now counts "already done" **per site**.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: il giro di prova sulla copia, prima di scrivere: 27 tabelle con 10 siti e le stesse righe; 153 media US per sito; 0 US senza descrizione, criteri o quantificazioni; 20 nodi DOC su 20 coi PDF; 0 datazioni toccate (restano quelle della fase, tradotte dall'origine); `integrity_check: ok`. Il sito tedesco si esporta e si disegna: 51 unità, 94 rapporti, dieci fasce («Zeitgenössische Epoche», «Neuzeit», «15. Jahrhundert»…), la MSE12 col bordo bruno e la sua continuità sopra.
+- 🇬🇧 **EN**: the dry run on a copy before writing: 27 tables with 10 sites and equal rows; 153 US media per site; 0 US rows without description, criteria or quantities; 20/20 DOC nodes with PDFs; no datazione touched; `integrity_check: ok`. The German site exports and draws: 51 units, 94 relations, ten localised bands.
+- 🇮🇹 **IT**: tre errori trovati misurando, non indovinando: (1) la scheda US in inglese, tedesco e spagnolo restava vuota — il riempimento cercava la riga italiana per codice **e tipo**, e il tipo è tradotto (`US`→`SU`, `USM`→`WSU`): ora si confronta per **famiglia**; (2) le geometrie (BLOB) finivano nel dizionario; (3) `nome` è un nome di persona nel personale ma il nome di un attrezzo nelle attrezzature: «Stazione totale» restava in italiano — le colonne intatte si dichiarano per tabella.
+- 🇬🇧 **EN**: three errors found by measuring: the US form stayed empty in English/German/Spanish (unit type is translated, matching is now by family); geometry BLOBs reached the dictionary; `nome` is a person's name in the staff table but an item name in equipment.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: ventuno prove sul motore — lingua del sito; traduzione di frase, modello, non-testo, frase sconosciuta, frase nota in un'altra lingua sola; copia tradotta con chiavi e uuid nuovi, idempotente, con i mancanti riportati; mappa delle chiavi e riferimenti rimappati; riempimento solo dei vuoti, idempotente; codici, misure, numeri romani, invarianti; codici fiscali, fatture, file, scale, orientamenti; BLOB, unità, sigle corte; famiglia del tipo; colonne intatte per tabella; voci per colonna.
+- 🇬🇧 **EN**: twenty-one checks on the engine.
+
+---
+
 ## [fix] - 2026-10-12 — Dopo l'aggiornamento di area e sito nei rapporti la scheda US mostrava tutti i siti — 5.13.99-alpha
 
 > Branch `Stratigraph_00001`. Suite **1825 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / After updating area and site in the relationships, the US form showed every site.
