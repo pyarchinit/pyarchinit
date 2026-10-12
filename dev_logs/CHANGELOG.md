@@ -5,6 +5,30 @@
 
 ---
 
+## [fix] - 2026-10-12 — La matrice usciva senza sfondo, e il greco senza la §6 — 5.13.94-alpha
+
+> Branch `Stratigraph_00001`. Suite **1792 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / The matrix came out with no background, and Greek without §6.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **lo sfondo della matrice non si dipingeva.** La riga era `'<rect width="100%%" height="100%%" …>'`: il `%%` si scrive così dentro una stringa di **formato**, ma quella non lo è — nessun `%` la interpola — e il doppio per cento finiva **letterale** nel file. `width="100%%"` non è una lunghezza SVG valida, quindi il rettangolo di fondo veniva saltato. Misurato con `rsvg-convert` sulla matrice del sito di esempio: il pixel in alto a sinistra era `(0, 0, 0, 0)` — trasparente — invece del `#FBFCFE` dichiarato. Su un visualizzatore bianco non si nota; in modalità scura, o dentro un PDF, il disegno galleggia su quello che c'è dietro.
+- 🇬🇧 **EN**: **the matrix background was never painted.** The line read `'<rect width="100%%" …>'`: a `%%` belongs in a **format** string, and that one is not — nothing interpolates it — so the double percent went into the file **verbatim**. `width="100%%"` is not a valid SVG length, so the backing rectangle was skipped. Measured with `rsvg-convert`: top-left pixel `(0, 0, 0, 0)`, transparent, instead of the declared `#FBFCFE`.
+- 🇮🇹 **IT**: **il greco non aveva la sezione «Genera continuità»**, da quando la funzione è stata spedita (giugno 2026). Mancava il paragrafo intero, e per questo le tre sezioni successive erano numerate 6/7/8 dove le altre nove lingue hanno 7/8/9. Scritta la §6 in greco — cosa fa, la nota sui salti di fase, l'idempotenza, l'anteprima col backup e gli orfani, l'em.json — e rinumerate le tre che seguono, compreso il rimando interno «ενότητα 6» → «ενότητα 7».
+- 🇬🇧 **EN**: **Greek had no «Generate continuity» section** since the feature shipped in June 2026, which is why its next three sections were numbered 6/7/8 where the other nine languages have 7/8/9. The section is now written in Greek and the following three renumbered, including the internal cross-reference.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: la matrice del sito di esempio, dopo «Genera continuità» con la spunta accesa: **52 unità, 94 rapporti** (erano 51 e 93), dieci fasce di epoca, e il rombo nero della continuità legato a `1.USM12` da un arco.
+- 🇬🇧 **EN**: the example site's matrix after «Generate continuity» with the box ticked: **52 units, 94 relations** (was 51 and 93), ten epoch bands, and the continuity diamond linked to `1.USM12`.
+
+#### Noto, non corretto / Known, not fixed
+- 🇮🇹 **IT**: **l'etichetta esce `1.CONCON_12`.** Il nome del nodo lo compone la libreria come `area.unita_tipo+us`, e la scheda generata ha `unita_tipo='CON'` **e** `us='CON_12'`: il «CON» si legge due volte. Quella fatta a mano, con `us='500'`, esce giusta (`1.CON500`). Si aggiusta chiamando la scheda `us=<us madre>`, ma `CON_<us>` è la **chiave di idempotenza**: cambiarla senza una compatibilità all'indietro vuol dire una seconda scheda CON accanto a ogni vecchia. Da decidere, non da fare di nascosto.
+- 🇬🇧 **EN**: **the label reads `1.CONCON_12`.** The library composes the node name as `area.unita_tipo+us`, and the generated record has `unita_tipo='CON'` **and** `us='CON_12'`. The hand-made one, with `us='500'`, reads correctly. Fixing it means changing the **idempotency key**, which without a backward-compatible path would create a second CON record beside every old one.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: `test_the_background_is_a_valid_length_not_a_double_percent` — il disegno non contiene `100%%` e contiene il rettangolo di fondo valido.
+- 🇬🇧 **EN**: `test_the_background_is_a_valid_length_not_a_double_percent` — the drawing contains no `100%%` and does contain the valid backing rectangle.
+
+---
+
 ## [feat] - 2026-10-12 — «Genera continuità»: anche i salti di fase, a richiesta — 5.13.93-alpha
 
 > Branch `Stratigraph_00001`. Suite **1791 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / «Generate continuity»: phase jumps too, when asked.

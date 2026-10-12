@@ -295,3 +295,23 @@ def test_the_stratigraphic_units_are_drawn_exactly_as_before():
     for casella in lay.boxes:
         assert (casella.w, casella.h) == (132.0, 36.0)
         assert _testo_y(svg, casella.unit.label) == casella.y + casella.h / 2 + 4
+
+
+def test_the_background_is_a_valid_length_not_a_double_percent():
+    """Lo sfondo della matrice esce **trasparente**.
+
+    La riga era `'<rect width="100%%" ...>'`: un `%%` si scrive così
+    dentro una stringa di formato, ma questa non lo è — nessun `%` la
+    interpola — e il doppio per cento finisce **letterale** nel file.
+    `width="100%%"` non è una lunghezza SVG valida, quindi il rettangolo
+    di fondo non si dipinge.
+
+    Misurato con `rsvg-convert` sulla matrice del sito di esempio: il
+    pixel in alto a sinistra era `(0, 0, 0, 0)` — trasparente — invece
+    del `#FBFCFE` dichiarato. Su un visualizzatore bianco non si nota;
+    in modalità scura, o dentro un PDF, il disegno galleggia su quello
+    che c'è dietro.
+    """
+    svg = to_svg(layout(_model()), title="Scavo archeologico")
+    assert "100%%" not in svg
+    assert '<rect width="100%" height="100%" fill="#FBFCFE"/>' in svg

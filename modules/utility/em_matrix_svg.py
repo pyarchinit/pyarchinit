@@ -308,7 +308,13 @@ def to_svg(lay: Layout, title: str = "") -> str:
         '<svg xmlns="http://www.w3.org/2000/svg" width="%.0f" height="%.0f" '
         'viewBox="0 0 %.0f %.0f" font-family="%s">'
         % (larghezza, altezza, larghezza, altezza, _FONT),
-        '<rect width="100%%" height="100%%" fill="#FBFCFE"/>',
+        # `100%`, non `100%%`: questa stringa non è un modello di
+        # formato — nessun `%` la interpola — e il doppio per cento
+        # finiva letterale nel file. `width="100%%"` non è una lunghezza
+        # SVG valida, così lo sfondo non si dipingeva e la matrice
+        # usciva trasparente (misurato: pixel (0,0,0,0) invece di
+        # #FBFCFE).
+        '<rect width="100%" height="100%" fill="#FBFCFE"/>',
     ]
     if titolo:
         pezzi.append('<text x="24" y="24" font-size="15" font-weight="700" '
