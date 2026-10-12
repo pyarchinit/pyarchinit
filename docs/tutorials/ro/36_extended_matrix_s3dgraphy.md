@@ -381,6 +381,8 @@ Operația este **idempotentă**: rularea repetată nu duplică fișele existente
 
 O fișă CON este **orfană** atunci când unitatea ei mamă nu se mai întinde pe mai multe perioade (de ex. perioada inițială și cea finală au fost făcute egale). În mod implicit orfanele sunt doar **semnalate**; o **casetă de bifare** („Rimuovi anche le CON orfane") permite optarea pentru eliminarea lor.
 
+**O continuitate scrisa de mana este recunoscuta.** O fisa CON ale carei relatii numesc o singura unitate — `> 12`, sau „Continuitate dupa 12” — este continuitatea acelei unitati, oricum s-ar numi: generatorul o **actualizeaza** (intervalul de perioade, eticheta canonica) iar numele ramane al ei. Nu se naste o a doua: continuitatea este **una pe unitate**. Daca exista si o `CON_<us>` canonica, castiga aceea, iar cealalta ramane orfana, de decis de mana.
+
 ### 6.4 În exportul Extended Matrix
 
 Fișele `CON_<us>` generate astfel apar în **em.json** al Extended Matrix ca **elemente de continuitate** (exportul GraphML este pensionat, §2.3).

@@ -381,6 +381,8 @@ Before writing, a **dry-run preview** is shown with the counts: how many records
 
 A CON record is **orphan** when its parent unit no longer spans periods (e.g. its initial and final period were made equal). By default orphans are only **flagged**; a **checkbox** ("Rimuovi anche le CON orfane") lets you opt into removing them.
 
+**A hand-made continuity is recognised.** A CON record whose relationships name a single unit — `> 12`, or «Continuity after 12» — is that unit's continuity, whatever its name: the generator **updates** it (period span, canonical label) and the name stays its own. No second one is born: continuity is **one per unit**. If a canonical `CON_<us>` also exists, that one wins and the other remains an orphan to be decided by hand.
+
 ### 6.4 In the Extended Matrix export
 
 The `CON_<us>` records produced this way appear in the Extended Matrix **em.json** as **continuity elements** (the outgoing GraphML export is retired, §2.3).

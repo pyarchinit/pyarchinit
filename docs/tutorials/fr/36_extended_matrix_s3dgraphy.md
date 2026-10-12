@@ -383,6 +383,8 @@ Avant l'écriture, un **aperçu dry-run** est affiché avec les comptages : comb
 
 Une fiche CON est **orpheline** lorsque son unité mère ne s'étend plus sur plusieurs périodes (p. ex. ses périodes initiale et finale ont été rendues égales). Par défaut, les orphelines sont seulement **signalées** ; une **case à cocher** (« Rimuovi anche le CON orfane ») permet d'opter pour leur suppression.
 
+**Une continuité écrite à la main est reconnue.** Une fiche CON dont les relations nomment une seule unité — `> 12`, ou « Continuité après 12 » — est la continuité de cette unité, quel que soit son nom : le générateur la **met à jour** (étendue des périodes, libellé canonique) et le nom reste le sien. Il n'en naît pas une seconde : la continuité est **une par unité**. Si une `CON_<us>` canonique existe aussi, c'est elle qui gagne et l'autre reste une orpheline à trancher à la main.
+
 ### 6.4 Dans l'export Extended Matrix
 
 Les fiches `CON_<us>` ainsi générées apparaissent dans l'**em.json** de l'Extended Matrix comme **éléments de continuité** (l'export GraphML est retiré, §2.3).

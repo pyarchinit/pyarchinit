@@ -381,6 +381,8 @@ Prima di scrivere viene mostrata un'**anteprima dry-run** con i conteggi: quante
 
 Una scheda CON è **orfana** quando l'unità madre non attraversa più periodi (ad es. periodo iniziale e finale sono stati resi uguali). Di default le orfane vengono solo **segnalate**; una **casella di spunta** ("Rimuovi anche le CON orfane") consente di rimuoverle.
 
+**Una continuità scritta a mano si riconosce.** Una scheda CON che nei suoi rapporti nomina una sola unità — `> 12`, o «Continuità successiva a 12» — è la continuità di quella unità, comunque si chiami: il generatore la **aggiorna** (arco di periodi, etichetta canonica) e il nome resta suo. Non ne nasce una seconda: la continuità è **una per unità**. Se esiste già anche la `CON_<us>` col nome canonico, vince quella e l'altra resta un'orfana da decidere a mano.
+
 ### 6.4 In export Extended Matrix
 
 Le schede `CON_<us>` così generate compaiono nell'**em.json** dell'Extended Matrix come **elementi di continuità** (il GraphML in uscita è in pensione, §2.3).

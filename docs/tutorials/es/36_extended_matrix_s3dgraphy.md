@@ -382,6 +382,8 @@ Antes de escribir se muestra una **vista previa dry-run** con los recuentos: cu�
 
 Una ficha CON es **huérfana** cuando su unidad madre ya no abarca varios periodos (p. ej. se igualaron su periodo inicial y final). Por defecto las huérfanas solo se **señalan**; una **casilla de verificación** («Rimuovi anche le CON orfane») permite optar por eliminarlas.
 
+**Una continuidad escrita a mano se reconoce.** Una ficha CON cuyas relaciones nombran una sola unidad —`> 12`, o «Continuidad posterior a 12»— es la continuidad de esa unidad, se llame como se llame: el generador la **actualiza** (arco de periodos, etiqueta canónica) y el nombre sigue siendo el suyo. No nace una segunda: la continuidad es **una por unidad**. Si también existe una `CON_<us>` canónica, gana esa y la otra queda como huérfana para decidir a mano.
+
 ### 6.4 En la exportación Extended Matrix
 
 Las fichas `CON_<us>` así generadas aparecen en el **em.json** del Extended Matrix como **elementos de continuidad** (la exportación GraphML está retirada, §2.3).

@@ -165,6 +165,9 @@ def build_con_record(cand: Candidate, *, schedatore: str = "",
     return {
         "sito": cand.sito,
         "us": con_us_code(cand.us),
+        # La madre viaggia col record: chi applica non la ricava più dal
+        # nome, perché una CON adottata il nome ce l'ha suo.
+        "madre": cand.us,
         "unita_tipo": "CON",
         "area": area,
         "struttura": cand.struttura,
@@ -215,6 +218,27 @@ def _norm_rapporti(value):
     return sorted(rows)
 
 
+def madre_of_con(record: dict):
+    """L'unità di cui questa CON è la continuità, o None.
+
+    È l'unità che i suoi rapporti nominano — con qualunque etichetta:
+    `> 12`, «Continuità successiva a 12», «Continuity after 12». Una CON
+    ha uno scopo solo, continuare una unità; se i rapporti ne nominano
+    due, non si indovina. Serve a riconoscere una continuità scritta a
+    mano con un codice che non è `CON_<us>`: prima il generatore la
+    ignorava e ne creava una seconda accanto («perché ci sono due rombi
+    con la stessa USM?», Enzo, 12 ottobre 2026).
+    """
+    from s3dgraphy.rapporti import _coerce_to_list
+    bersagli = set()
+    for e in _coerce_to_list((record or {}).get("rapporti")):
+        if isinstance(e, (list, tuple)) and len(e) >= 2:
+            us = _nz(e[1])
+            if us:
+                bersagli.add(us)
+    return bersagli.pop() if len(bersagli) == 1 else None
+
+
 def _record_matches(existing: dict, desired: dict) -> bool:
     for f in _COMPARE_FIELDS:
         if _nz(existing.get(f)) != _nz(desired.get(f)):
@@ -233,13 +257,28 @@ def diff_continuity(existing_con: dict, desired: list) -> Plan:
     plan = Plan()
     desired_keys = set()
     seen: set = set()
+    # Le CON che ci sono già, per unità continuata: una scritta a mano
+    # si chiama come vuole, ma i suoi rapporti dicono di chi è. Il nome
+    # canonico vince quando c'è; questa mappa serve solo quando manca.
+    per_madre: dict = {}
+    for key in sorted(existing_con):
+        madre = madre_of_con(existing_con[key])
+        if madre and key != con_us_code(madre):
+            per_madre.setdefault(madre, key)
     for d in desired:
         key = d["us"]
         if key in seen:
             continue
         seen.add(key)
-        desired_keys.add(key)
+        madre = d.get("madre") or key.split("CON_", 1)[-1]
         cur = existing_con.get(key)
+        if cur is None and madre in per_madre:
+            # Adozione: la CON esistente resta col suo nome e prende
+            # l'arco di periodi della madre. Una continuità sola.
+            key = per_madre[madre]
+            d = dict(d, us=key)
+            cur = existing_con[key]
+        desired_keys.add(key)
         if cur is None:
             plan.to_create.append(d)
         elif _record_matches(cur, d):
@@ -355,13 +394,24 @@ def _add_reciprocal_to_madre(conn, sito, us_madre, madre_entry):
     lst = [list(map(str, e)) for e in _coerce_to_list(row[0])
            if isinstance(e, (list, tuple))]
     target = list(map(str, madre_entry))
-    # de-dup on (label, target_us)
     if any(x[:2] == target[:2] for x in lst):
-        return
-    lst.append(target)
+        return                          # c'è già, con la stessa etichetta
+    # Verso la stessa CON ci va una voce sola: se la madre la nominava
+    # già con un'altra etichetta — `< 500` scritto a mano — quella voce
+    # diventa la canonica, invece di restarle accanto come un doppione.
+    nuova = []
+    sostituita = False
+    for x in lst:
+        if len(x) >= 2 and x[1] == target[1] and not sostituita:
+            nuova.append(target)
+            sostituita = True
+        else:
+            nuova.append(x)
+    if not sostituita:
+        nuova.append(target)
     conn.execute(
         text("UPDATE us_table SET rapporti=:r WHERE sito=:s AND us=:u"),
-        {"r": str(lst), "s": sito, "u": us_madre})
+        {"r": str(nuova), "s": sito, "u": us_madre})
 
 
 def _madre_entry_for(rec, us_madre, lang):
@@ -391,13 +441,13 @@ def apply_plan(handle, plan, sito, *, remove_orphans=False, lang="it") -> Report
                 rep.warnings.append(f"{rec['us']}: madre senza area")
             _insert_con(conn, rec, nid, has_node_uuid)
             nid += 1
-            us_madre = rec["us"].split("CON_", 1)[-1]
+            us_madre = rec.get("madre") or rec["us"].split("CON_", 1)[-1]
             _, madre_entry = _madre_entry_for(rec, us_madre, lang)
             _add_reciprocal_to_madre(conn, rec["sito"], us_madre, madre_entry)
             rep.created += 1
         for rec in plan.to_update:
             _update_con(conn, rec)
-            us_madre = rec["us"].split("CON_", 1)[-1]
+            us_madre = rec.get("madre") or rec["us"].split("CON_", 1)[-1]
             _, madre_entry = _madre_entry_for(rec, us_madre, lang)
             _add_reciprocal_to_madre(conn, rec["sito"], us_madre, madre_entry)
             rep.updated += 1

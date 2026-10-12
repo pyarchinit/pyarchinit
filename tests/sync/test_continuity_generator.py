@@ -383,3 +383,119 @@ def test_the_period_jump_still_wins_with_the_checkbox_on():
     righe = [_rec()]      # 1/1 -> 3/2
     assert len(scan_candidates(righe)) == 1
     assert len(scan_candidates(righe, include_phase=True)) == 1
+
+
+# ---------------------------------------------------------------------------
+# La continuità è UNA per unità: una CON che c'è già si adotta, non si raddoppia
+# ---------------------------------------------------------------------------
+# «Perché ci sono due rombi con la stessa USM? La continuità dovrebbe
+# essere unica» (Enzo, 12 ottobre 2026). Il generatore riconosceva la sua
+# scheda **per nome** — `CON_<us>` — e una continuità scritta a mano con
+# un altro codice (la `CON 500` del demo, con il rapporto `> 12`) non la
+# vedeva: ne creava una seconda accanto e segnava la prima come orfana.
+# La madre di una CON è l'unità che i suoi rapporti nominano, comunque
+# si chiami la scheda; se c'è, si aggiorna quella e il nome resta suo.
+
+from modules.s3dgraphy.sync.continuity_generator import (  # noqa: E402
+    build_con_record, diff_continuity, madre_of_con,
+)
+
+
+def test_the_madre_of_a_con_is_the_unit_its_rapporti_name():
+    assert madre_of_con({"rapporti": "[['>', '12']]"}) == "12"
+    assert madre_of_con({"rapporti": [["Continuità successiva a", "12",
+                                       "1", "S"]]}) == "12"
+    assert madre_of_con({"rapporti": [["Continuity after", "7"],
+                                      ["Continuity after", "7"]]}) == "7"
+
+
+def test_a_con_that_names_two_units_has_no_madre():
+    assert madre_of_con({"rapporti": [["Continuità successiva a", "12"],
+                                      ["Continuità successiva a", "13"]]}) is None
+    assert madre_of_con({"rapporti": ""}) is None
+    assert madre_of_con({"rapporti": None}) is None
+
+
+def _cand_12():
+    return scan_candidates([_rec(us="12", unita_tipo="USM", periodo_iniziale="2",
+                                 fase_iniziale="3", periodo_finale="2",
+                                 fase_finale="4")], include_phase=True)[0]
+
+
+def test_a_hand_made_continuity_is_adopted_not_duplicated():
+    esistente = {"500": {"us": "500", "area": "1", "struttura": None,
+                         "periodo_iniziale": "2", "fase_iniziale": "1",
+                         "periodo_finale": "2", "fase_finale": "1",
+                         "other_locations": None, "d_stratigrafica": "Continuity",
+                         "descrizione": "", "rapporti": "[['>', '12']]"}}
+    piano = diff_continuity(esistente, [build_con_record(_cand_12())])
+    assert piano.to_create == []
+    assert piano.orphan == []
+    assert len(piano.to_update) == 1
+    adottata = piano.to_update[0]
+    assert adottata["us"] == "500"              # il nome resta il suo
+    assert adottata["madre"] == "12"
+    assert (adottata["periodo_iniziale"], adottata["fase_iniziale"],
+            adottata["periodo_finale"], adottata["fase_finale"]) == ("2", "3", "2", "4")
+    assert adottata["rapporti"][0][1] == "12"
+
+
+def test_an_adopted_continuity_already_aligned_is_unchanged():
+    d = build_con_record(_cand_12())
+    gia = dict(d, us="500")
+    piano = diff_continuity({"500": gia}, [d])
+    assert piano.unchanged == ["500"] and not piano.to_update and not piano.to_create
+
+
+def test_a_con_pointing_elsewhere_is_still_an_orphan():
+    esistente = {"600": {"us": "600", "rapporti": "[['>', '99']]",
+                         "area": "1", "periodo_iniziale": "1", "periodo_finale": "2"}}
+    piano = diff_continuity(esistente, [build_con_record(_cand_12())])
+    assert [d["us"] for d in piano.to_create] == ["CON_12"]
+    assert piano.orphan == ["600"]
+
+
+def test_the_name_still_wins_when_both_exist():
+    """`CON_12` c'è già **e** c'è una CON a mano verso la 12: si aggiorna
+    quella col nome, e l'altra resta un'orfana da decidere a mano —
+    due continuità sono un errore da vedere, non da sciogliere da soli."""
+    d = build_con_record(_cand_12())
+    esistente = {"CON_12": dict(d),
+                 "500": {"us": "500", "rapporti": "[['>', '12']]", "area": "1"}}
+    piano = diff_continuity(esistente, [d])
+    assert piano.unchanged == ["CON_12"]
+    assert piano.orphan == ["500"]
+
+
+def test_on_the_example_database_the_hand_made_con500_is_updated_not_doubled(tmp_path):
+    """Sul demo, col salto di fase acceso: la USM 12 (2/3 → 2/4) ha già la
+    CON 500 scritta a mano con `> 12`. Dopo «Genera continuità» le CON del
+    sito sono **una**, è la 500, con l'arco della madre e l'etichetta
+    canonica; e la 12 la nomina **una volta sola**."""
+    import ast
+    import shutil
+    import sqlite3
+    from pathlib import Path
+    from modules.s3dgraphy.sync.continuity_generator import generate_continuity
+    from s3dgraphy.sync._db_handle import _resolve_db_handle
+    origine = Path(__file__).resolve().parents[2] / "resources" / "dbfiles" / "pyarchinit_db.sqlite"
+    copia = tmp_path / "demo.sqlite"
+    shutil.copy2(origine, copia)
+    sito = "Scavo archeologico"
+    rep = generate_continuity(_resolve_db_handle("sqlite:///%s" % copia), sito,
+                              include_phase=True)
+    assert (rep.created, rep.updated) == (0, 1), rep
+    con = sqlite3.connect(str(copia))
+    righe = con.execute(
+        "select us, periodo_iniziale, fase_iniziale, periodo_finale, fase_finale, "
+        "rapporti from us_table where sito=? and unita_tipo='CON'", (sito,)).fetchall()
+    assert len(righe) == 1, righe
+    us, pi, fi, pf, ff, rapporti = righe[0]
+    assert us == "500"
+    assert (pi, fi, pf, ff) == ("2", "3", "2", "4")
+    assert [r[1] for r in ast.literal_eval(rapporti)] == ["12"]
+    madre = con.execute("select rapporti from us_table where sito=? and us='12' "
+                        "and unita_tipo='USM'", (sito,)).fetchone()[0]
+    verso_500 = [r for r in ast.literal_eval(madre) if r[1] == "500"]
+    assert len(verso_500) == 1, madre
+    assert verso_500[0][0] != "<", madre

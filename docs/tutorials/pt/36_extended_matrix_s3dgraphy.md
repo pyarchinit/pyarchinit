@@ -381,6 +381,8 @@ Antes de escrever é mostrada uma **pré-visualização dry-run** com as contage
 
 Uma ficha CON é **órfã** quando a sua unidade-mãe já não se estende por vários períodos (p. ex. o seu período inicial e final foram tornados iguais). Por predefinição as órfãs são apenas **assinaladas**; uma **caixa de seleção** («Rimuovi anche le CON orfane») permite optar por removê-las.
 
+**Uma continuidade escrita a mao e reconhecida.** Uma ficha CON cujas relacoes nomeiam uma unica unidade — `> 12`, ou «Continuidade posterior a 12» — e a continuidade dessa unidade, chame-se como se chamar: o gerador **atualiza-a** (arco de periodos, rotulo canonico) e o nome continua a ser o seu. Nao nasce uma segunda: a continuidade e **uma por unidade**. Se tambem existir uma `CON_<us>` canonica, ganha essa e a outra fica orfa, a decidir a mao.
+
 ### 6.4 Na exportação Extended Matrix
 
 As fichas `CON_<us>` geradas desta forma aparecem no **em.json** do Extended Matrix como **elementos de continuidade** (a exportação GraphML está retirada, §2.3).

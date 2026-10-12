@@ -385,6 +385,8 @@ Vor dem Schreiben wird eine **Dry-Run-Vorschau** mit den Zählungen angezeigt: w
 
 Ein CON-Datensatz ist **verwaist**, wenn seine Mutter-Einheit sich nicht mehr über mehrere Perioden erstreckt (z. B. wurden Anfangs- und Endperiode gleichgesetzt). Standardmäßig werden Verwaiste nur **markiert**; eine **Checkbox** („Rimuovi anche le CON orfane") erlaubt es, sie zu entfernen.
 
+**Eine von Hand angelegte Kontinuität wird erkannt.** Ein CON-Datensatz, dessen Beziehungen eine einzige Einheit nennen — `> 12` oder „Kontinuität nach 12“ — ist die Kontinuität dieser Einheit, wie auch immer er heißt: der Generator **aktualisiert** ihn (Periodenspanne, kanonisches Label), und der Name bleibt seiner. Es entsteht keine zweite: Kontinuität ist **eine je Einheit**. Existiert zusätzlich eine kanonische `CON_<us>`, gewinnt diese, und die andere bleibt eine von Hand zu entscheidende Waise.
+
 ### 6.4 Im Extended-Matrix-Export
 
 Die so erzeugten `CON_<us>`-Datensätze erscheinen in der **em.json** der Extended Matrix als **Kontinuitäts-Elemente** (der GraphML-Export ist im Ruhestand, §2.3).

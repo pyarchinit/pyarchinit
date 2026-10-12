@@ -5,6 +5,32 @@
 
 ---
 
+## [fix] - 2026-10-12 — La continuità è una per unità: una CON scritta a mano si adotta, non si raddoppia — 5.13.97-alpha
+
+> Branch `Stratigraph_00001`. Suite **1817 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Continuity is one per unit: a hand-made CON is adopted, not doubled.
+
+#### Fixed / Corretto
+- 🇮🇹 **IT**: **«perché ci sono due rombi con la stessa USM? La continuità dovrebbe essere unica»** (Enzo). Il generatore riconosceva la sua scheda **per nome** — `CON_<us>` — e una continuità scritta a mano con un altro codice, come la `CON 500` del demo con il rapporto `> 12`, non la vedeva: ne creava una seconda accanto e segnava la prima come orfana. Ora **la madre di una CON è l'unità che i suoi rapporti nominano**, con qualunque etichetta (`> 12`, «Continuità successiva a 12», «Continuity after 12»): se c'è, si **aggiorna** quella — arco di periodi della madre, etichetta canonica — e il nome resta suo. Una CON che nomina due unità non si indovina, e resta orfana. Se esistono sia `CON_<us>` sia una scritta a mano, vince il nome canonico e l'altra resta un'orfana da decidere a mano: due continuità sono un errore da vedere, non da sciogliere da soli.
+- 🇬🇧 **EN**: **«why two diamonds on the same USM? continuity should be unique».** The generator recognised its record **by name** only; a hand-made continuity with another code was invisible and got a twin. Now **a CON's unit is the one its relationships name**, with any label: that record is **updated** and keeps its name. A CON naming two units stays an orphan; when both the canonical `CON_<us>` and a hand-made one exist, the canonical wins and the other stays an orphan for a human to decide.
+- 🇮🇹 **IT**: **sulla madre una voce sola verso la CON.** Se la madre la nominava già con un'altra etichetta — `< 500` scritto a mano — quella voce **diventa** la canonica, invece di restarle accanto come un doppione.
+- 🇬🇧 **EN**: **one entry on the parent towards the CON**: an existing entry with another label is replaced by the canonical one instead of being doubled.
+- 🇮🇹 **IT**: la madre viaggia **col record** (`madre`), non si ricava più dal nome: una CON adottata il nome ce l'ha suo.
+- 🇬🇧 **EN**: the parent unit now travels **with the record** instead of being parsed out of the name.
+
+#### Misurato / Measured
+- 🇮🇹 **IT**: sul demo, «Genera continuità» con la spunta dei salti di fase: **creati 0, aggiornati 1** — la `CON 500` prende l'arco 2/3 → 2/4 della USM 12 e l'etichetta canonica, la USM 12 la nomina **una volta**, e nella matrice c'è **un rombo solo**, dritto sopra la 12.
+- 🇬🇧 **EN**: on the demo: **created 0, updated 1** — `CON 500` takes USM 12's 2/3 → 2/4 span, USM 12 names it **once**, and the matrix shows **one diamond**.
+
+#### Test / Verifica
+- 🇮🇹 **IT**: sette prove nuove — la madre letta dai rapporti (tre etichette), nessuna madre con due unità o senza rapporti, l'adozione che tiene il nome e prende l'arco, l'adottata già allineata che resta invariata, la CON che punta altrove che resta orfana, il nome canonico che vince — più una **sul database di esempio**: una copia, il generatore vero, una CON sola alla fine.
+- 🇬🇧 **EN**: seven new checks, one of them end-to-end on a copy of the example database.
+
+#### Tutorial
+- 🇮🇹 **IT**: §6.3 in dieci lingue: una continuità scritta a mano si riconosce e si aggiorna; tolto dal greco l'avviso del giorno prima («compare come orfana»), che non è più vero.
+- 🇬🇧 **EN**: §6.3 in ten languages; the Greek caveat from the day before removed, no longer true.
+
+---
+
 ## [fix] - 2026-10-12 — La continuità scende dritta, il rombo è piccolo e senza nome, le linee punteggiate hanno la loro corsia — 5.13.96-alpha
 
 > Branch `Stratigraph_00001`. Suite **1810 verdi** (0 falliti, 0 errori, 2 saltati, 1 xfail). / Continuity comes straight down, the diamond is small and unlabelled, dotted lines get their own lane.

@@ -381,6 +381,8 @@ Abans d'escriure es mostra una **previsualització dry-run** amb els recomptes: 
 
 Una fitxa CON és **òrfena** quan la seva unitat mare ja no abasta diversos períodes (p. ex. se n'han igualat el període inicial i final). Per defecte les òrfenes només se **senyalen**; una **casella de selecció** («Rimuovi anche le CON orfane») permet optar per eliminar-les.
 
+**Una continuïtat escrita a mà es reconeix.** Una fitxa CON les relacions de la qual anomenen una sola unitat —`> 12`, o «Continuïtat posterior a 12»— és la continuïtat d'aquella unitat, es digui com es digui: el generador l'**actualitza** (arc de períodes, etiqueta canònica) i el nom continua sent seu. No en neix una segona: la continuïtat és **una per unitat**. Si també existeix una `CON_<us>` canònica, guanya aquesta i l'altra queda com a òrfena per decidir a mà.
+
 ### 6.4 A l'exportació Extended Matrix
 
 Les fitxes `CON_<us>` generades així apareixen a l'**em.json** de l'Extended Matrix com a **elements de continuïtat** (l'exportació GraphML està retirada, §2.3).
